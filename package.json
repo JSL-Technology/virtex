@@ -192,6 +192,7 @@
     "nestjs-throttler-storage-redis": {
       "@nestjs/common": "$@nestjs/common",
       "@nestjs/core": "$@nestjs/core"
-    }
+    },
+    "@peculiar/x509": "1.11.0"
   }
 }
