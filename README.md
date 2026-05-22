@@ -1,5 +1,34 @@
 # Virteex
 
+## Deploy de `client-web` en Render
+
+Si en Render ves una pantalla como:
+
+`Index of /` con entradas tipo `client-web/`, `browser/` o `prerendered-routes.json`,
+
+estás sirviendo la carpeta raíz del build en lugar de la carpeta SPA final.
+
+En este workspace (Angular + Nx con `@angular/build:application`), el build de `client-web`
+genera el contenido web dentro de:
+
+- `dist/apps/core/client-web/browser`
+
+Por eso, en Render usa:
+
+- **Build Command**
+  - `npm install --legacy-peer-deps && npm run build:client-web`
+- **Start Command**
+  - `npm run start:client-web`
+
+> Nota: Si prefieres no usar scripts, el equivalente directo del Start Command es:
+> `npx nx build client-web --configuration=production && npx serve -s dist/apps/core/client-web/browser -l $PORT`
+
+También puedes validar localmente con el target Nx ya definido:
+
+- `npx nx run client-web:serve-static`
+
+Ese target también apunta a `dist/apps/core/client-web/browser`.
+
 <a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
 
 ✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
