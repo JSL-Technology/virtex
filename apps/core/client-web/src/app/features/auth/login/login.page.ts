@@ -84,11 +84,15 @@ export class LoginPage implements OnInit {
   getErrorMessage(controlName: string): string {
     const control = this.loginForm.get(controlName);
     if (control?.touched && control?.errors) {
+      let key = '';
       if (control.errors['required']) {
-        return controlName === 'email' ? 'LOGIN.ERRORS.EMAIL_REQUIRED' : 'LOGIN.ERRORS.PASSWORD_REQUIRED';
+        key = controlName === 'email' ? 'LOGIN.ERRORS.EMAIL_REQUIRED' : 'LOGIN.ERRORS.PASSWORD_REQUIRED';
+      } else if (control.errors['email']) {
+        key = 'LOGIN.ERRORS.EMAIL_INVALID';
       }
-      if (control.errors['email']) {
-        return 'LOGIN.ERRORS.EMAIL_INVALID';
+
+      if (key) {
+        return this.translate.instant(key);
       }
     }
     return '';
