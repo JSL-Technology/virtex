@@ -1,67 +1,51 @@
-.social-login-container {
+.social-auth-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.social-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1.25rem;
-  margin-bottom: 0.5rem;
+  padding: 0.75rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 48px;
 
-  .social-btn {
+  &:hover {
+    background: var(--bg-card);
+    border-color: var(--text-tertiary);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  .social-btn-content {
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 3.5rem;
-    height: 3.5rem;
-    border-radius: 50%;
-    border: 1px solid var(--border-color);
-    background-color: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.08);
-      border-color: var(--text-secondary);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    &:active {
-      transform: translateY(0);
-    }
-
-    .social-icon {
-      width: 24px;
-      height: 24px;
-      object-fit: contain;
-      transition: transform 0.3s ease;
-    }
-
-    &:hover .social-icon {
-      transform: scale(1.1);
-    }
-  }
-}
-
-.divider {
-  display: flex;
-  align-items: center;
-  text-align: center;
-  margin: 1.5rem 0 1.5rem 0;
-  color: var(--text-tertiary);
-  font-size: 0.85rem;
-
-  &::before,
-  &::after {
-    content: '';
-    flex: 1;
-    border-bottom: 1px solid var(--border-color);
+    gap: 0.5rem;
   }
 
-  span {
-    padding: 0 1rem;
+  .social-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .social-label {
+    font-size: 0.9rem;
     font-weight: 500;
+    color: var(--text-secondary);
+  }
+
+  &:hover .social-label {
+    color: var(--text-primary);
   }
 }
