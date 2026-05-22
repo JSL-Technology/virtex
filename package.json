@@ -2,7 +2,10 @@
   "name": "@virteex/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "build:client-web": "nx build client-web --configuration=production",
+    "start:client-web": "nx build client-web --configuration=production && npx serve -s dist/apps/core/client-web/browser -l ${PORT:-4200}"
+  },
   "private": true,
   "devDependencies": {
     "@angular-devkit/core": "~20.3.0",
