@@ -1,0 +1,105 @@
+<div class="otp-container">
+    <div class="otp-header">
+        <h1>
+            <lucide-icon [img]="ShieldIcon" class="w-6 h-6"></lucide-icon>
+            {{ title }}
+        </h1>
+        <p>{{ description }}</p>
+    </div>
+
+    <div class="otp-length-selector" *ngIf="showLengthSelector">
+        <span
+            class="length-option"
+            [class.active]="otpLength === 6"
+            tabindex="0"
+            (keyup.enter)="changeLength(6)"
+            (click)="changeLength(6)">6 dígitos</span>
+        <span
+            class="length-option"
+            [class.active]="otpLength === 8"
+            tabindex="0"
+            (keyup.enter)="changeLength(8)"
+            (click)="changeLength(8)">8 dígitos</span>
+        <span
+            class="length-option"
+            [class.active]="otpLength === 4"
+            tabindex="0"
+            (keyup.enter)="changeLength(4)"
+            (click)="changeLength(4)">4 dígitos</span>
+    </div>
+
+    <label class="otp-label" for="otp-input-0">Código OTP</label>
+    <div class="otp-inputs-container">
+        <input *ngFor="let val of otpValues(); let i = index"
+               type="text"
+               inputmode="numeric"
+               maxlength="1"
+               class="otp-input"
+               [class.filled]="val !== ''"
+               [class.error]="inputError() || status()?.type === 'error'"
+               [class.success]="status()?.type === 'success'"
+               [class.disabled]="inputsDisabled()"
+               [disabled]="inputsDisabled()"
+               [id]="'otp-input-' + i"
+               [attr.aria-label]="'Dígito ' + (i + 1) + ' del código OTP'"
+               autocomplete="one-time-code"
+               [value]="val"
+               (input)="handleInput($event, i)"
+               (keydown)="handleKeyDown($event, i)"
+               (paste)="handlePaste($event)"
+               (focus)="handleFocus($event)"
+               #otpInput>
+    </div>
+    <span class="otp-helper-text">Ingrese el código de verificación que recibió en su correo electrónico</span>
+
+    <div class="otp-actions">
+        <div class="timer-container">
+            <lucide-icon [img]="ClockIcon" size="16"></lucide-icon>
+            <span class="timer" [class.expiring]="isExpiring()" [class.expired]="isExpired()">
+                {{ formatTimer(timer()) }}
+            </span>
+        </div>
+        <button class="resend-btn"
+                [disabled]="cooldown() > 0"
+                (click)="onResend()"
+                *ngIf="mode === 'email'">
+            <lucide-icon [img]="RefreshIcon" size="16"></lucide-icon>
+            <span *ngIf="cooldown() > 0">Reenviar ({{ cooldown() }}s)</span>
+            <span *ngIf="cooldown() <= 0">Reenviar código</span>
+        </button>
+    </div>
+
+    <div class="otp-buttons">
+        <button class="btn btn-secondary" (click)="clear()">
+            <lucide-icon [img]="EraserIcon" size="18"></lucide-icon>
+            Limpiar
+        </button>
+        <button class="btn btn-primary"
+                [disabled]="isExpired() || !isComplete()"
+                (click)="onVerify()">
+            <lucide-icon [img]="CheckCircleIcon" size="18"></lucide-icon>
+            Verificar
+        </button>
+    </div>
+
+    <div class="otp-status" [class.show]="status()" [ngClass]="status()?.type || ''">
+        <lucide-icon *ngIf="status()?.type === 'success'" [img]="CheckCircleIcon" size="18"></lucide-icon>
+        <lucide-icon *ngIf="status()?.type === 'error'" [img]="AlertCircleIcon" size="18"></lucide-icon>
+        <lucide-icon *ngIf="status()?.type === 'warning'" [img]="AlertTriangleIcon" size="18"></lucide-icon>
+        <lucide-icon *ngIf="status()?.type === 'info'" [img]="InfoIcon" size="18"></lucide-icon>
+        <span>{{ status()?.message }}</span>
+    </div>
+
+    <div class="otp-hints">
+        <h3>
+            <lucide-icon [img]="LightbulbIcon" size="16"></lucide-icon>
+            Consejos de seguridad
+        </h3>
+        <ul>
+            <li>El código OTP caduca en {{ Math.floor(timerDuration / 60) }} minutos por razones de seguridad.</li>
+            <li>No comparta este código con nadie. Nuestro equipo nunca le pedirá su código.</li>
+            <li>Si no solicitó este código, ignore este mensaje y revise la seguridad de su cuenta.</li>
+            <li *ngIf="showLengthSelector">Puede cambiar la longitud del código según los requisitos de seguridad de su organización.</li>
+        </ul>
+    </div>
+</div>

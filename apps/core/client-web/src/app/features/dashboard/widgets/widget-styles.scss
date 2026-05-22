@@ -1,0 +1,143 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+.widget-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0; // El header no debe encogerse
+
+    h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+}
+
+.widget-content {
+    flex-grow: 1; // El contenido crece para ocupar el espacio
+    overflow: auto;
+    padding: 1.5rem;
+    // Añadimos esto para que el contenedor del gráfico funcione bien
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-instance {
+    width: 100%;
+    height: 100%; // El gráfico ocupa el 100% de .widget-content
+    display: block;
+    flex-grow: 1;
+}
+
+.product-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    .product-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        font-size: 0.9rem;
+
+        &:not(:last-child) {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .stock-level {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+    }
+}
+
+.alerts-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.alert-item {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 1rem;
+    border-radius: var(--border-radius-md);
+
+    &.critical {
+        background-color: rgba(239, 68, 68, 0.1);
+
+        .alert-icon {
+            color: #ef4444;
+        }
+    }
+
+    &.warning {
+        background-color: rgba(249, 115, 22, 0.1);
+
+        .alert-icon {
+            color: #f97316;
+        }
+    }
+}
+
+.alert-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.alert-description {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+
+:host {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.widget-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+
+    h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+}
+
+.widget-content {
+    flex-grow: 1;
+    overflow: auto;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-instance {
+    width: 100%;
+    height: 100%;
+    display: block;
+    flex-grow: 1;
+}
+
+.product-list,
+.activity-list,
+.alerts-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}

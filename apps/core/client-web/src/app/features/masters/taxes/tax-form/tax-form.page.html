@@ -1,0 +1,42 @@
+<div class="view-container">
+  <form [formGroup]="taxForm" (ngSubmit)="saveTax()">
+    <div class="view-header">
+      <div class="header-content">
+        <h1>@if(isEditMode()){ Editar } @else { Nuevo } Impuesto</h1>
+        <p>Configura una nueva tasa de impuesto para tus transacciones.</p>
+      </div>
+      <div class="header-actions">
+        <a routerLink="/masters/taxes" class="secondary-button">Cancelar</a>
+        <button type="submit" class="primary-button" [disabled]="isLoading()">
+          <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
+          <span>Guardar Impuesto</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="form-container card">
+      <div class="form-field">
+        <label for="name">Nombre del Impuesto*</label>
+        <input id="name" formControlName="name" placeholder="Ej: ITBIS (18%)">
+      </div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="rate">Tasa*</label>
+          <input id="rate" type="number" formControlName="rate">
+        </div>
+        <div class="form-field">
+          <label for="type">Tipo*</label>
+          <select id="type" formControlName="type">
+            @for(type of taxTypes; track type) {
+              <option [value]="type">{{ type }}</option>
+            }
+          </select>
+        </div>
+      </div>
+       <div class="form-field">
+          <label for="countryCode">Código de País (Opcional)</label>
+          <input id="countryCode" formControlName="countryCode" placeholder="Ej: DO, US">
+        </div>
+    </div>
+  </form>
+</div>

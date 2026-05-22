@@ -1,0 +1,74 @@
+<div class="view-container">
+  <div *ngIf="isLoading()" class="loading-shade">
+    <p>Cargando detalle de la factura...</p>
+  </div>
+
+  <div *ngIf="error()" class="error-message">
+    <p>{{ error() }}</p>
+    <a routerLink="/accounts-payable" class="btn-primary">Volver al Listado</a>
+  </div>
+
+  <ng-container *ngIf="bill() as billData">
+    <div class="view-header">
+      <div class="header-main">
+        <a routerLink="/accounts-payable" class="btn-icon">
+          <lucide-icon [name]="BackIcon" [size]="24"></lucide-icon>
+        </a>
+        <div>
+          <h1>Factura de Proveedor #{{ billData.billNumber }}</h1>
+          <p class="text-muted">Proveedor: {{ billData.vendorName }}</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a [routerLink]="['../', billData.id, 'edit']" class="btn-secondary">
+          <lucide-icon [name]="EditIcon" [size]="16"></lucide-icon>
+          <span>Editar</span>
+        </a>
+        <button (click)="voidBill()" class="btn-danger">
+          <lucide-icon [name]="VoidIcon" [size]="16"></lucide-icon>
+          <span>Anular</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="view-content">
+      <div class="card">
+        <div class="card-header">
+          <h2>Información General</h2>
+        </div>
+        <div class="card-body grid-details">
+          <div>
+            <span class="detail-label">Estado</span>
+            <span class="status-badge">{{ billData.status }}</span>
+          </div>
+          <div>
+            <span class="detail-label">Fecha de Emisión</span>
+            <span>{{ billData.issueDate | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <div>
+            <span class="detail-label">Fecha de Vencimiento</span>
+            <span>{{ billData.dueDate | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <div>
+            <span class="detail-label">Total</span>
+            <span class="text-bold">{{ billData.total | number:'1.2-2' }}</span>
+          </div>
+          <div>
+            <span class="detail-label">Balance Pendiente</span>
+            <span class="text-bold">{{ billData.balance | number:'1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- A real implementation would list line items here -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Líneas de la Factura</h2>
+        </div>
+        <div class="card-body">
+          <p>La sección de líneas de la factura se implementará aquí.</p>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

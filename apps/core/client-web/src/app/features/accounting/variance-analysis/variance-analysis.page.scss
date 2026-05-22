@@ -1,0 +1,28 @@
+@use "../../../../assets/styles/view-styles" as views;
+
+// Reutiliza los estilos de las vistas de maestros
+@use "../../masters/suppliers/supplier-list/supplier-list.page.scss";
+
+.variance-table {
+  td {
+    font-family: "Source Code Pro", monospace;
+    font-weight: 500;
+  }
+
+  .positive {
+    color: #10b981; // Verde
+  }
+
+  .negative {
+    color: #ef4444; // Rojo
+  }
+
+  .variance-percent-cell {
+    div {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.25rem;
+    }
+  }
+}

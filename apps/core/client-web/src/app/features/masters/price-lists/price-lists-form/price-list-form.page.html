@@ -1,0 +1,96 @@
+<div class="view-container">
+  <form [formGroup]="priceListForm" (ngSubmit)="savePriceList()">
+    <div class="view-header">
+      <div class="header-content">
+        <h1>@if(isEditMode()){ Editar } @else { Nueva } Lista de Precios</h1>
+        <p>Define precios para un conjunto específico de productos.</p>
+      </div>
+      <div class="header-actions">
+        <a routerLink="/masters/price-lists" class="secondary-button">Cancelar</a>
+        <button type="submit" class="primary-button" [disabled]="isLoading() || isSaving()">
+          <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
+          <span>@if(isSaving()){ Guardando... } @else { Guardar Lista }</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="form-container card">
+        <div class="form-grid">
+            <div class="form-field">
+                <label for="name">Nombre de la Lista*</label>
+                <input id="name" formControlName="name">
+            </div>
+             <div class="form-field">
+                <label for="status">Estado*</label>
+                <select id="status" formControlName="status">
+                    @for (s of statusOptions; track s) {
+                        <option [value]="s">{{s}}</option>
+                    }
+                </select>
+            </div>
+            <div class="form-field">
+                <label for="currency">Moneda*</label>
+                <select id="currency" formControlName="currency">
+                    <option value="USD">USD - Dólar Estadounidense</option>
+                    <option value="DOP">DOP - Peso Dominicano</option>
+                    <option value="EUR">EUR - Euro</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-grid">
+            <div class="form-field">
+                <label for="validFrom">Válido Desde*</label>
+                <input id="validFrom" type="date" formControlName="validFrom">
+            </div>
+            <div class="form-field">
+                <label for="validTo">Válido Hasta*</label>
+                <input id="validTo" type="date" formControlName="validTo">
+            </div>
+        </div>
+
+        <div class="line-items-section">
+            <h3 class="section-title">Ítems de la Lista de Precios</h3>
+            <div class="table-container">
+                <table class="data-table" formArrayName="items">
+                    <thead>
+                        <tr>
+                            <th style="width: 50%;">Producto*</th>
+                            <th class="text-right" style="width: 40%;">Precio*</th>
+                            <th class="actions-column">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (line of lines.controls; track $index; let i = $index) {
+                            <tr [formGroupName]="i">
+                                <td>
+                                    <select formControlName="productId">
+                                        <option value="" disabled>Selecciona un producto...</option>
+                                        @for (product of products(); track product.id) {
+                                            <option [value]="product.id">
+                                                {{ product.name }} ({{product.sku}})
+                                            </option>
+                                        }
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="number" formControlName="price" class="text-right" min="0" step="0.01">
+                                </td>
+                                <td class="actions-column text-center">
+                                    <button type="button" class="icon-button delete" (click)="removeLine(i)" [disabled]="lines.length <= 1">
+                                        <lucide-icon [img]="TrashIcon" size="16"></lucide-icon>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <button type="button" class="secondary-button add-line-btn" (click)="addLine()">
+                <lucide-icon [img]="PlusIcon" size="16"></lucide-icon>
+                <span>Añadir Línea</span>
+            </button>
+        </div>
+    </div>
+
+  </form>
+</div>

@@ -1,0 +1,85 @@
+<div class="sap-toolbar">
+  <!-- Navigation Group -->
+  <div class="toolbar-group" *ngIf="canNavigate">
+    <button class="tool-btn" (click)="onNavigate('first')" title="Primero">
+      <lucide-icon [img]="FirstIcon" size="18"></lucide-icon>
+    </button>
+    <button class="tool-btn" (click)="onNavigate('prev')" title="Anterior">
+      <lucide-icon [img]="PrevIcon" size="18"></lucide-icon>
+    </button>
+    <button class="tool-btn" (click)="onNavigate('next')" title="Siguiente">
+      <lucide-icon [img]="NextIcon" size="18"></lucide-icon>
+    </button>
+    <button class="tool-btn" (click)="onNavigate('last')" title="Último">
+      <lucide-icon [img]="LastIcon" size="18"></lucide-icon>
+    </button>
+  </div>
+
+  <div class="separator" *ngIf="canNavigate"></div>
+
+  <!-- History Navigation -->
+  <div class="toolbar-group">
+    <button class="tool-btn" (click)="back.emit()" title="Volver">
+      <lucide-icon [img]="BackIcon" size="18"></lucide-icon>
+    </button>
+    <button class="tool-btn" (click)="forward.emit()" title="Avanzar">
+      <lucide-icon [img]="ForwardIcon" size="18"></lucide-icon>
+    </button>
+  </div>
+
+  <div class="separator"></div>
+
+  <!-- Main Actions -->
+  <div class="toolbar-group">
+    <button class="tool-btn" (click)="print.emit()" title="Imprimir">
+      <lucide-icon [img]="PrintIcon" size="18"></lucide-icon>
+    </button>
+    <button class="tool-btn" (click)="email.emit()" title="Enviar por correo">
+      <lucide-icon [img]="EmailIcon" size="18"></lucide-icon>
+    </button>
+    <button class="tool-btn" (click)="search.emit()" title="Búsqueda sobre documento">
+      <lucide-icon [img]="SearchIcon" size="18"></lucide-icon>
+    </button>
+  </div>
+
+  <div class="separator"></div>
+
+  <!-- Export Group -->
+  <div class="toolbar-group">
+    <button class="tool-btn" (click)="export.emit('pdf')" title="Exportar a PDF">
+      <lucide-icon [img]="PdfIcon" size="18"></lucide-icon>
+    </button>
+    <button class="tool-btn" (click)="export.emit('excel')" title="Exportar a Excel">
+      <lucide-icon [img]="ExcelIcon" size="18"></lucide-icon>
+    </button>
+    <button class="tool-btn" (click)="export.emit('word')" title="Exportar a Word">
+      <lucide-icon [img]="WordIcon" size="18"></lucide-icon>
+    </button>
+  </div>
+
+  <div class="separator" *ngIf="canCopy"></div>
+
+  <!-- Copy Group -->
+  <div class="toolbar-group" *ngIf="canCopy">
+    <button class="tool-btn text-btn" (click)="copyFrom.emit()" title="Copiar de...">
+        <lucide-icon [img]="ImportIcon" size="16"></lucide-icon>
+        <span>Copiar de</span>
+    </button>
+    <button class="tool-btn text-btn" (click)="copyTo.emit()" title="Copiar a...">
+        <lucide-icon [img]="CopyIcon" size="16"></lucide-icon>
+        <span>Copiar a</span>
+    </button>
+  </div>
+
+  <div class="spacer"></div>
+
+  <!-- Utility Group -->
+  <div class="toolbar-group">
+    <button class="tool-btn" (click)="tools.emit()" title="Parametrizaciones de formulario">
+      <lucide-icon [img]="ToolsIcon" size="18"></lucide-icon>
+    </button>
+    <button class="tool-btn" (click)="help.emit()" title="Ayuda">
+      <lucide-icon [img]="HelpIcon" size="18"></lucide-icon>
+    </button>
+  </div>
+</div>

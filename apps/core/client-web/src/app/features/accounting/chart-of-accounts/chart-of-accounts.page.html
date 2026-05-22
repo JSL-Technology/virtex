@@ -1,0 +1,195 @@
+<div class="settings-page-container">
+  <div class="page-container">
+    <header class="page-header">
+      <div>
+        <h1>Catálogo de Cuentas</h1>
+        <div class="breadcrumb">
+          <a href="#">Contabilidad</a>
+          <span class="divider">/</span>
+          <span>Catálogo</span>
+        </div>
+      </div>
+      <div class="page-header-actions">
+        <button class="btn">
+          <lucide-icon [name]="ExportIcon" size="16"></lucide-icon>
+          <span>Exportar</span>
+        </button>
+        <button class="btn btn-primary" (click)="goToAccountForm()">
+          <lucide-icon [name]="PlusIcon" size="16"></lucide-icon>
+          <span>Nueva Cuenta</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="card">
+      <div class="toolbar">
+        <div class="search-bar">
+          <lucide-icon [name]="search" class="search-icon" size="18"></lucide-icon>
+          <input
+            type="text"
+            placeholder="Buscar por código o nombre..."
+            [ngModel]="state.searchTerm()"
+            (ngModelChange)="onSearchTermChange($event)"
+          />
+        </div>
+        <div class="filters">
+          <!-- <select class="filter-select" [ngModel]="state.filters.status()" (ngModelChange)="onFilterChange('status', $event)"> -->
+          <select class="filter-select" [ngModel]="" (ngModelChange)="onFilterChange('status', $event)">
+            <option value="ALL">Todos los Estados</option>
+            <option value="ACTIVE">Activa</option>
+            <option value="INACTIVE">Inactiva</option>
+          </select>
+          <select class="filter-select" [ngModel]="" (ngModelChange)="onFilterChange('type', $event)">
+            <option value="ALL">Todos los Tipos</option>
+            @for(type of accountTypes; track type) {
+              <option [value]="type">{{ type | titlecase }}</option>
+            }
+          </select>
+        </div>
+        <button class="btn" (click)="state.refreshAccounts()">
+          <lucide-icon [name]="refreshCcw" size="16"></lucide-icon>
+        </button>
+      </div>
+
+      <div class="card-body">
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="col-name sortable" (click)="onSort('name')">
+                  <span>CUENTA</span>
+                  <lucide-icon [name]="getSortIcon('name')" size="14"></lucide-icon>
+                </th>
+                <th class="col-type sortable" (click)="onSort('type')">
+                  <span>TIPO</span>
+                  <lucide-icon [name]="getSortIcon('type')" size="14"></lucide-icon>
+                </th>
+                <th class="col-balance sortable" (click)="onSort('balance')">
+                  <span>BALANCE</span>
+                  <lucide-icon [name]="getSortIcon('balance')" size="14"></lucide-icon>
+                </th>
+                <th class="col-status sortable" (click)="onSort('isActive')">
+                  <span>ESTADO</span>
+                  <lucide-icon [name]="getSortIcon('isActive')" size="14"></lucide-icon>
+                </th>
+                <th class="col-actions">ACCIONES</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (state.isLoading()) { @for (item of [1, 2, 3, 4, 5, 6, 7]; track
+              item) {
+              <tr class="skeleton-row">
+                <td><div class="skeleton-bar"></div></td>
+                <td><div class="skeleton-bar"></div></td>
+                <td><div class="skeleton-bar"></div></td>
+                <td><div class="skeleton-bar"></div></td>
+                <td><div class="skeleton-bar"></div></td>
+              </tr>
+              } } @else if (state.error()) {
+              <tr>
+                <td colspan="5">
+                  <div class="empty-state">
+                    <h3>Error al Cargar Cuentas</h3>
+                    <p>{{ state.error() }}</p>
+                  </div>
+                </td>
+              </tr>
+              } @else { @for (account of state.displayAccounts(); track
+              account.id) {
+              <tr [class.is-parent]="account.hasChildren">
+                <td>
+                  <div
+                    class="account-name-cell"
+                    [style.padding-left.px]="account.level * 24"
+                  >
+                    <button
+                      *ngIf="account.hasChildren"
+                      class="expand-btn"
+                      (click)="toggleExpand(account)"
+                    >
+                      <lucide-icon
+                        [name]="
+                          account.isExpanded
+                            ? ChevronDownIcon
+                            : ChevronRightIcon
+                        "
+                        size="16"
+                      ></lucide-icon>
+                    </button>
+                    <span
+                      *ngIf="!account.hasChildren"
+                      class="expand-placeholder"
+                    ></span>
+                    <div class="account-info">
+                      <span>{{ account.name }}</span>
+                      <small>{{ account.code }}</small>
+                      <a
+                        [routerLink]="[
+                          '/accounting/general-ledger',
+                          account.id
+                        ]"
+                        class="text-blue-500 hover:underline"
+                      >
+                        {{ account.code }}
+                      </a>
+                    </div>
+                  </div>
+                </td>
+                <td>{{ account.type }}</td>
+                <td class="balance-cell" [class.negative]="account.balance < 0">
+                  {{ account.balance | number : "1.2-2" }}
+                </td>
+                <td>
+                  <span
+                    class="badge"
+                    [class.status-active]="account.isActive"
+                    [class.status-inactive]="!account.isActive"
+                  >
+                    {{ account.isActive ? "Activa" : "Inactiva" }}
+                  </span>
+                </td>
+                <td>
+                  <button
+                    class="btn-icon"
+                    (click)="goToAccountForm(account.id)"
+                    title="Editar"
+                  >
+                    <lucide-icon [name]="EditIcon" size="16"></lucide-icon>
+                  </button>
+                  <button
+                    class="btn-icon danger"
+                    (click)="deleteAccount(account)"
+                    title="Eliminar"
+                    [disabled]="account.isSystemAccount"
+                  >
+                    <lucide-icon [name]="TrashIcon" size="16"></lucide-icon>
+                  </button>
+                </td>
+              </tr>
+              } @empty {
+              <tr>
+                <td colspan="5">
+                  <div class="empty-state">
+                    <h3>No se encontraron cuentas</h3>
+                    <p>
+                      Añade una nueva cuenta para empezar a gestionar tu
+                      catálogo.
+                    </p>
+                  </div>
+                </td>
+              </tr>
+              } }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <div class="pagination-info">
+          Mostrando <strong>10</strong> de
+          <strong>{{ state.displayAccounts().length }}</strong> cuentas
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

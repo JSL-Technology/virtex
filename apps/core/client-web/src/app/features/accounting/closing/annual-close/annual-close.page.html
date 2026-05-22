@@ -1,0 +1,26 @@
+<div class="closing-container">
+  <div class="closing-header">
+    <h3>Annual Closing Process - Fiscal Year 2025</h3>
+    <div class="progress-bar">
+      <div class="progress" style="width: 40%;"></div>
+    </div>
+  </div>
+  <div class="tasks-list card">
+    @for (task of annualClosingTasks(); track task.id) {
+      <div class="task-item" [ngClass]="task.status">
+        <div class="task-status-icon">
+          <lucide-icon [img]="getIconForStatus(task.status)" size="24" [class.spinner]="task.status === 'in-progress'"></lucide-icon>
+        </div>
+        <div class="task-details">
+          <span class="task-name">{{ task.name }}</span>
+          <span class="task-responsible">Responsible: {{ task.responsible }}</span>
+        </div>
+        <div class="task-action">
+          @if(task.link) {
+            <a [href]="task.link" class="secondary-button">Go to Task</a>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

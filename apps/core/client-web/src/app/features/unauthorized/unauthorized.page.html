@@ -1,0 +1,40 @@
+<div class="unauthorized-container">
+  <div class="card">
+    <div class="icon-container">
+      <div class="icon-circle">
+        <lucide-icon [img]="ShieldAlertIcon" size="48" class="icon-shield"></lucide-icon>
+      </div>
+    </div>
+
+    <h1>Acceso Denegado</h1>
+
+    <p class="subtitle">
+      No tienes los permisos necesarios para acceder a este recurso.
+    </p>
+
+    <div class="details" *ngIf="attemptedUrl$ | async as url">
+      <p><strong>Ruta solicitada:</strong></p>
+      <code>{{ url }}</code>
+      <p><strong>Error:</strong> 403 Forbidden</p>
+    </div>
+
+    <p class="contact-admin">
+      Si crees que esto es un error, contacta al administrador del sistema o solicita los permisos necesarios.
+    </p>
+
+    <div class="actions">
+      <a [href]="constructMailtoLink( (attemptedUrl$ | async) )" class="btn btn-primary">
+        <lucide-icon [img]="MailIcon" size="16"></lucide-icon>
+        <span>Solicitar Permiso</span>
+      </a>
+
+      <a routerLink="/dashboard" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> <span>Volver al Dashboard</span>
+      </a>
+    </div>
+
+    <div class="permission-hint">
+      <p>¿No sabes qué permisos necesitas? <a href="#">Consulta nuestra guía de permisos</a></p>
+    </div>
+  </div>
+</div>

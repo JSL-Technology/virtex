@@ -1,0 +1,54 @@
+@use '../../../../assets/styles/view-styles' as views;
+@use '../../../../assets/styles/variables' as *;
+
+:host {
+  display: block;
+}
+
+// Aplica los estilos base para el contenedor y el encabezado de la vista
+.view-container {
+  @include views.view-container;
+}
+
+.view-header {
+  @include views.view-header;
+}
+
+// Estilos para la barra de navegación secundaria (pestañas)
+.secondary-nav {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 2rem; // Espacio entre las pestañas y el contenido
+  
+  a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; // Espacio entre el ícono y el texto
+    padding: 0.75rem 1rem;
+    border-radius: $border-radius $border-radius 0 0;
+    text-decoration: none;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-bottom: 2px solid transparent; // Borde inactivo
+    margin-bottom: -1px; // Alinea el borde activo con el borde del contenedor
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: var(--text-primary);
+      background-color: var(--bg-hover); // Efecto hover sutil
+    }
+
+    &.active {
+      color: var(--accent-primary);
+      border-bottom-color: var(--accent-primary); // Indicador de la pestaña activa
+      background-color: var(--bg-solid);
+    }
+  }
+}
+
+// Contenedor para el contenido de la pestaña activa que se renderiza con <router-outlet>
+.content-outlet {
+  // No se necesitan estilos específicos aquí, ya que el contenido de la página
+  // (ej. price-lists.page) tendrá su propio contenedor.
+}

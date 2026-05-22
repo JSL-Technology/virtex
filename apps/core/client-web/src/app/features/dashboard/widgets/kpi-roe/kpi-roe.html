@@ -1,0 +1,28 @@
+@if (kpi$ | async; as kpi) {
+<div class="kpi-card">
+  <div class="kpi-icon">
+    <lucide-icon [img]="CardIcon" size="24"></lucide-icon>
+  </div>
+  <div class="kpi-header">
+    <span class="kpi-title">{{ kpi.title | translate }}</span>
+  </div>
+  <div class="kpi-body">
+    <span class="kpi-value">{{ kpi.value | percent:'1.2-2' }}</span>
+  </div>
+  <div class="kpi-footer">
+    @if(kpi.comparisonValue) {
+    <div class="kpi-comparison" [ngClass]="getChangeClass(kpi.isPositive)">
+      <lucide-icon [img]="getChangeIcon(kpi.isPositive)" size="16"></lucide-icon>
+      <span>{{ kpi.comparisonValue }}</span>
+    </div>
+    }
+    <span class="kpi-period">{{ kpi.comparisonPeriod | translate }}</span>
+  </div>
+</div>
+} @else {
+<div class="kpi-card-loading">
+  <div class="skeleton-line title"></div>
+  <div class="skeleton-line value"></div>
+  <div class="skeleton-line footer"></div>
+</div>
+}

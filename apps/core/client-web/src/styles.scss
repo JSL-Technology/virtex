@@ -1,0 +1,161 @@
+@use "./assets/styles/variables" as *;
+
+// Reset básico y estilos fundamentales
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: $font-family;
+  font-size: $font-size-base;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color $transition-duration ease,
+    color $transition-duration ease;
+}
+
+// Global Input Styles
+input, select, textarea {
+  width: 100%;
+  padding: 0.625rem 1rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: var(--transition);
+
+  &::placeholder {
+    color: var(--text-tertiary);
+  }
+
+  &:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-light);
+    background: var(--bg-secondary);
+  }
+
+  &.error {
+    border-color: var(--error);
+    &:focus {
+      box-shadow: 0 0 0 3px var(--error-bg);
+    }
+  }
+
+  &:disabled {
+    background: var(--bg-tertiary);
+    color: var(--text-tertiary);
+    cursor: not-allowed;
+  }
+}
+
+lucide-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+// Buttons
+button.btn-primary {
+  height: 2.5rem;
+  padding: 0 1rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  &:hover:not(:disabled) {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    background: var(--bg-tertiary);
+    color: var(--text-tertiary);
+    cursor: not-allowed;
+  }
+}
+
+// Estilo de la barra de scroll
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb-bg);
+  border-radius: $border-radius;
+}
+
+gridster .gridster-row,
+gridster .gridster-column {
+  border-color: rgba(255, 255, 255, 0.062) !important;
+}
+
+gridster.scrollVertical {
+  overflow-x: visible !important;
+  overflow-y: visible !important;
+}
+
+/* Add to existing styles */
+.form-field {
+  &.error {
+    .input-wrapper {
+      border-color: #f44336;
+      // box-shadow: 0 0 0 1px #f44336;
+    }
+
+    label {
+      color: #f44336;
+    }
+  }
+}
+
+.error-message {
+  color: #f44336;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  padding: 0 0.5rem;
+}
+
+.global-error {
+  background-color: #f443361a;
+  border: 1px solid #f44336;
+  border-radius: 4px;
+  padding: 0.75rem;
+  margin: 1rem 0;
+  color: #f44336;
+}
+gridster-item{
+  background: transparent !important;
+}
+
+/* Hide Google reCAPTCHA Badge */
+.grecaptcha-badge {
+  visibility: hidden;
+}

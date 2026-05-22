@@ -1,0 +1,47 @@
+@use '../../../../assets/styles/view-styles' as views;
+
+// Reutiliza los estilos de las vistas de maestros
+@use '../../masters/suppliers/supplier-list/supplier-list.page.scss';
+
+// Estilos específicos para la tabla del libro diario
+.journal-table {
+
+    // Las celdas con rowspan necesitan alineación vertical en la parte superior
+    td[rowspan] {
+        vertical-align: top;
+        padding-top: 1.25rem; // Más padding para la primera fila del asiento
+    }
+
+    .journal-row {
+
+        // Elimina el hover de las filas individuales para que se sienta como un bloque
+        &:hover {
+            background-color: transparent;
+        }
+    }
+
+    // Celda con sangría para las cuentas
+    .account-cell {
+        padding-left: 2.5rem;
+        color: var(--text-primary);
+    }
+
+    .amount-cell {
+        font-family: 'Source Code Pro', monospace; // Fuente monoespaciada para números
+        font-weight: 600;
+    }
+
+    // Fila separadora entre asientos
+    .separator-row {
+        height: 1.5rem; // Espacio en blanco entre asientos
+
+        td {
+            border-bottom: 2px solid var(--border-color); // Línea gruesa para separar
+        }
+
+        // El último separador no necesita la línea gruesa
+        &:last-child td {
+            border-bottom: none;
+        }
+    }
+}

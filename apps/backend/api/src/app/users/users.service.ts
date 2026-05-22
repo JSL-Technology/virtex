@@ -1,0 +1,412 @@
+
+import { Injectable, Inject, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, DataSource } from 'typeorm';
+import { User } from './entities/user.entity/user.entity';
+import { UserStatus } from './entities/user.entity/user.entity';
+import { InviteUserDto } from './entities/user.entity/invite-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
+import { MailService } from '../mail/mail.service';
+import { RolesService } from '../roles/roles.service';
+import * as crypto from 'crypto';
+import { EventsGateway } from '../websockets/events.gateway';
+import { UserCacheService } from '../auth/modules/user-cache.service';
+import { UserSecurity } from './entities/user-security.entity';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { SaasService } from '../saas/saas.service';
+import { SaasResource } from '../saas/enums/saas-resource.enum';
+
+@Injectable()
+export class UsersService {
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    private readonly eventsGateway: EventsGateway,
+    private readonly rolesService: RolesService,
+    private readonly mailService: MailService,
+    private readonly userCacheService: UserCacheService,
+    private readonly eventEmitter: EventEmitter2,
+    private readonly saasService: SaasService,
+    private readonly dataSource: DataSource
+  ) {}
+
+  async updateProfile(id: string, updateProfileDto: UpdateProfileDto): Promise<User> {
+    const user = await this.findOne(id);
+
+    // Security: Reset verification flags if sensitive data changes
+    if (updateProfileDto.email && updateProfileDto.email !== user.email) {
+      user.isEmailVerified = false;
+    }
+
+    if (updateProfileDto.phone && updateProfileDto.phone !== user.phone) {
+      user.isPhoneVerified = false;
+    }
+
+    Object.assign(user, updateProfileDto);
+    await this.userCacheService.clearUserSession(id);
+    return this.userRepository.save(user);
+  }
+
+  async findAllByOrg(
+    organizationId: string,
+    options: {
+      page: number;
+      pageSize: number;
+      searchTerm?: string;
+      statusFilter?: string;
+      sortColumn?: string;
+      sortDirection?: 'ASC' | 'DESC';
+    },
+  ): Promise<{ data: User[]; total: number }> {
+    const {
+      page,
+      pageSize,
+      searchTerm,
+      statusFilter,
+      sortColumn,
+      sortDirection,
+    } = options;
+
+    const queryBuilder = this.userRepository.createQueryBuilder('user');
+
+    queryBuilder
+      .where('user.organizationId = :organizationId', { organizationId })
+      .leftJoinAndSelect('user.roles', 'role')
+      .skip((page - 1) * pageSize)
+      .take(pageSize);
+
+    if (searchTerm) {
+      queryBuilder.andWhere(
+        '(user.firstName ILIKE :searchTerm OR user.lastName ILIKE :searchTerm OR user.email ILIKE :searchTerm)',
+        { searchTerm: `%${searchTerm}%` },
+      );
+    }
+
+    if (statusFilter && statusFilter !== 'all') {
+      queryBuilder.andWhere('user.status = :status', {
+        status: statusFilter,
+      });
+    }
+
+    if (sortColumn && sortDirection) {
+      const allowedColumns = [
+        'firstName',
+        'lastName',
+        'email',
+        'status',
+        'createdAt',
+      ];
+      if (allowedColumns.includes(sortColumn)) {
+        queryBuilder.orderBy(`user.${sortColumn}`, sortDirection);
+      }
+    } else {
+      queryBuilder.orderBy('user.createdAt', 'DESC');
+    }
+
+    const [data, total] = await queryBuilder.getManyAndCount();
+
+    return { data, total };
+  }
+
+  async updateUser(
+    id: string,
+    updateUserDto: UpdateUserDto,
+    organizationId: string,
+  ): Promise<User> {
+    const user = await this.userRepository.findOne({
+        where: { id, organizationId },
+        relations: ['security']
+    });
+    if (!user) {
+      throw new NotFoundException(
+        `Usuario con ID ${id} no encontrado en tu organización.`,
+      );
+    }
+
+    const { roleId, ...userData } = updateUserDto;
+
+    Object.assign(user, userData);
+
+    if (roleId) {
+      const role = await this.rolesService.findOne(roleId, organizationId);
+      if (!role) {
+        throw new NotFoundException(`Rol con ID ${roleId} no encontrado.`);
+      }
+      user.roles = [role];
+      // Increment token version to invalidate sessions on role change
+      if (user.security) {
+          user.security.tokenVersion = (user.security.tokenVersion || 0) + 1;
+      }
+      await this.userCacheService.clearUserSession(id);
+    } else {
+      await this.userCacheService.clearUserSession(id);
+    }
+
+    return this.userRepository.save(user);
+  }
+
+  async remove(id: string, organizationId: string): Promise<void> {
+    const user = await this.userRepository.findOne({
+      where: { id, organizationId },
+      relations: ['roles'],
+    });
+
+    if (!user) {
+      throw new NotFoundException(
+        `Usuario con ID ${id} no encontrado en tu organización.`,
+      );
+    }
+
+    const isSystemUser = user.roles.some((role) => role.isSystemRole);
+    if (isSystemUser) {
+      throw new ForbiddenException(
+        'No se puede eliminar un usuario con un rol de sistema.',
+      );
+    }
+
+    await this.userCacheService.clearUserSession(id);
+    await this.userRepository.remove(user);
+  }
+
+  async findOne(id: string): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { id: id as any },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`Usuario con id ${id} no encontrado`);
+    }
+    return user;
+  }
+
+  async findOneByEmail(email: string): Promise<User | null> {
+    const user = await this.userRepository.findOne({
+      where: { email },
+    });
+
+    return user;
+  }
+
+  async updateUserStatus(
+    id: string,
+    status: UserStatus,
+    organizationId: string,
+  ): Promise<User> {
+    const user = await this.userRepository.findOne({
+        where: { id, organizationId },
+        relations: ['security']
+    });
+    if (!user) {
+      throw new NotFoundException(`Usuario no encontrado`);
+    }
+    user.status = status;
+    // Invalidate sessions on status change (e.g., blocking)
+    if (user.security) {
+        user.security.tokenVersion = (user.security.tokenVersion || 0) + 1;
+    }
+    await this.userCacheService.clearUserSession(id);
+    return this.userRepository.save(user);
+  }
+
+  async resetPassword(id: string, organizationId: string): Promise<void> {
+    const user = await this.userRepository.findOne({
+        where: { id, organizationId },
+        relations: ['security']
+    });
+    if (!user) {
+      throw new NotFoundException(`Usuario no encontrado`);
+    }
+
+    // Ensure security entity exists (it should, but for safety)
+    if (!user.security) {
+        user.security = new UserSecurity();
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+
+    user.security.passwordResetToken = crypto
+      .createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
+
+    user.security.passwordResetExpires = new Date(Date.now() + 3600000);
+
+    await this.userRepository.save(user);
+    await this.userCacheService.clearUserSession(id);
+
+    try {
+      await this.mailService.sendPasswordResetEmail(user, resetToken, '1h');
+    } catch (error) {
+      console.error(
+        `Failed to send password reset email to ${user.email}`,
+        error,
+      );
+
+      user.security.passwordResetToken = null;
+      user.security.passwordResetExpires = null;
+      await this.userRepository.save(user);
+
+      throw new Error(
+        'Could not send password reset email. Please try again later.',
+      );
+    }
+  }
+
+  async getActivityLog(userId: string): Promise<any[]> {
+    return [];
+  }
+
+  async inviteUser(
+    inviteUserDto: InviteUserDto,
+    organizationId: string,
+  ): Promise<User> {
+    const { email, firstName, lastName, roleId } = inviteUserDto;
+
+    const existingUser = await this.userRepository.findOne({
+      where: { email, organization: { id: organizationId } },
+    });
+
+    if (existingUser) {
+      throw new BadRequestException(
+        'A user with this email already exists in the organization.',
+      );
+    }
+
+    const role = await this.rolesService.findOne(roleId, organizationId);
+    if (!role) {
+      throw new NotFoundException(`Role with ID ${roleId} not found.`);
+    }
+
+    const invitationToken = crypto.randomBytes(32).toString('hex');
+    const tokenExpires = new Date();
+    tokenExpires.setDate(tokenExpires.getDate() + 7);
+
+    const newUser = this.userRepository.create({
+      firstName,
+      lastName,
+      email,
+      organization: { id: organizationId },
+      roles: [role],
+      status: UserStatus.PENDING,
+      invitationToken: invitationToken,
+      invitationTokenExpires: tokenExpires,
+      security: new UserSecurity() // Initialize security
+    });
+
+    // Wrap in transaction for atomicity
+    return this.dataSource.transaction(async (manager) => {
+        // Enforce Limit before saving
+        await this.saasService.enforceLimit(manager, organizationId, SaasResource.USERS);
+
+        // We must associate the user entity with the manager to participate in transaction?
+        // TypeORM's manager.save(entity) handles this.
+        await manager.save(newUser);
+
+        await this.mailService.sendUserInvitation(newUser, invitationToken);
+
+        delete newUser.invitationToken;
+        delete newUser.invitationTokenExpires;
+
+        return newUser;
+    });
+  }
+
+  async forceLogout(userId: string): Promise<{ message: string }> {
+    const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['security'] });
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    if (user.security) {
+        user.security.tokenVersion += 1;
+        await this.userRepository.save(user);
+    }
+    await this.userCacheService.clearUserSession(userId);
+
+    this.eventsGateway.sendToUser(userId, 'force-logout', {
+      reason: 'Su sesión ha sido cerrada por un administrador.',
+    });
+
+    return { message: 'Se ha cerrado la sesión del usuario.' };
+  }
+
+  async blockAndLogout(userId: string): Promise<{ message: string }> {
+    const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['security'] });
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    user.status = UserStatus.BLOCKED;
+    if (user.security) {
+        user.security.tokenVersion += 1;
+    }
+    await this.userRepository.save(user);
+    await this.userCacheService.clearUserSession(userId);
+
+    this.eventsGateway.sendToUser(userId, 'force-logout', {
+      reason:
+        'Su cuenta ha sido bloqueada y su sesión ha sido cerrada por un administrador.',
+    });
+
+    return { message: 'Se ha bloqueado y cerrado la sesión del usuario.' };
+  }
+  
+  async setOnlineStatus(userId: string, isOnline: boolean): Promise<User> {
+    const user = await this.userRepository.findOneBy({ id: userId });
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+    user.isOnline = isOnline;
+    const updatedUser = await this.userRepository.save(user);
+    this.eventsGateway.server.emit('user-status-update', { userId, isOnline });
+    return updatedUser;
+  }
+
+  // --- Auth Abstraction Methods ---
+
+  async findUserForAuth(email: string): Promise<User | null> {
+    return this.userRepository.findOne({
+        where: { email },
+        relations: ['roles', 'organization', 'security'],
+    });
+  }
+
+  async findUserByIdForAuth(id: string): Promise<User | null> {
+    // 10/10 Performance: Select only necessary fields for authentication
+    // We use QueryBuilder to strictly control what we fetch, especially for 'organizations' relation
+    // which can be large. We only need the ID and minimal info for validation.
+    return this.userRepository.createQueryBuilder('user')
+      .where('user.id = :id', { id })
+      // Use leftJoinAndSelect for eager loading the main relations needed for Auth
+      .leftJoinAndSelect('user.roles', 'roles')
+      .leftJoinAndSelect('user.organization', 'organization')
+      .leftJoinAndSelect('user.security', 'security')
+      // For the full list of organizations (which can be heavy), we select ONLY the ID and Name
+      // This is crucial for multi-tenancy validation performance
+      .leftJoin('user.organizations', 'orgs')
+      .addSelect(['orgs.id', 'orgs.legalName'])
+      .getOne();
+  }
+
+  async save(user: User): Promise<User> {
+    return this.userRepository.save(user);
+  }
+
+  async update(id: string, partialEntity: any): Promise<void> {
+    // SECURITY 10/10: Prevent generic updates to sensitive security fields.
+    // Explicit methods (e.g., changePassword, updateProfile, enable2fa) must be used instead.
+    const securityKeys = [
+        'passwordHash', 'tokenVersion', 'failedLoginAttempts', 'lockoutUntil',
+        'passwordResetToken', 'passwordResetExpires', 'isTwoFactorEnabled', 'twoFactorSecret'
+    ];
+
+    const hasSecurityKeys = Object.keys(partialEntity).some(k => securityKeys.includes(k));
+
+    if (hasSecurityKeys) {
+        throw new Error('Security fields cannot be updated via generic update method. Use specific service methods.');
+    }
+
+    await this.userRepository.update(id, partialEntity);
+  }
+}

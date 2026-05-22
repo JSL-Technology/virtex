@@ -1,0 +1,41 @@
+<div class="subview-container">
+    <div class="subview-header">
+        <h3>Payment Methods</h3>
+        <div class="header-actions">
+            <button class="primary-button">
+                <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
+                <span>New Method</span>
+            </button>
+        </div>
+    </div>
+    <div class="table-container card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th class="text-center">Default Method</th>
+                    <th class="actions-column"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for(method of methods(); track method.id) {
+                <tr>
+                    <td><a href="#" class="table-link">{{ method.name }}</a></td>
+                    <td>{{ method.type }}</td>
+                    <td class="text-center">
+                        @if (method.isDefault) {
+                        <span class="status-badge active">Yes</span>
+                        }
+                    </td>
+                    <td class="actions-column">
+                        <button class="icon-button">
+                            <lucide-icon [img]="MoreHorizontalIcon" size="18"></lucide-icon>
+                        </button>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

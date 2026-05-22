@@ -1,0 +1,144 @@
+:host {
+  display: block;
+  z-index: 9999;
+  position: relative;
+}
+
+.modal-container {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1rem;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4); /* Darkening */
+  backdrop-filter: blur(12px); /* Windows 11 Acrylic Blur strength */
+  -webkit-backdrop-filter: blur(12px);
+  z-index: -1;
+}
+
+.modal-panel-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none; /* Let clicks pass through wrapper to backdrop if clicked outside */
+}
+
+.modal-panel {
+  pointer-events: auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: var(--bg-card); /* Uses application theme color */
+  border: 1px solid rgba(255, 255, 255, 0.08); /* Subtle border for depth/glass effect */
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(0, 0, 0, 0.05); /* Deep shadow */
+  border-radius: 12px; /* Win 11 rounded corners */
+  overflow: hidden;
+  max-height: calc(100vh - 4rem);
+
+  /* Mica Effect Simulation */
+  background-clip: padding-box;
+
+  /* Size Variants */
+  &.size-sm { max-width: 24rem; }
+  &.size-md { max-width: 32rem; }
+  &.size-lg { max-width: 48rem; }
+  &.size-xl { max-width: 64rem; }
+  &.size-full { max-width: 95vw; height: 95vh; }
+}
+
+/* Header */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem 0.5rem 1.5rem; /* Top padding more for title breathing room */
+
+  .modal-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .modal-actions {
+    margin-left: auto;
+  }
+}
+
+/* Close Button (Win 11 Style) */
+.close-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: #6b7280; /* Neutral gray */
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #111827;
+  }
+
+  /* Dark mode adjust via parent var or simple media query if vars aren't sufficient */
+  @media (prefers-color-scheme: dark) {
+    color: #9ca3af;
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #f3f4f6;
+    }
+  }
+
+  /* Or use vars if available */
+  color: var(--text-secondary, #6b7280);
+  &:hover {
+    background-color: var(--bg-hover, rgba(0,0,0,0.05));
+    color: var(--text-primary, #111827);
+  }
+
+  .icon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Content */
+.modal-content {
+  padding: 1rem 1.5rem 1.5rem 1.5rem;
+  color: var(--text-primary);
+  overflow-y: auto;
+}
+
+/* Footer */
+.modal-footer {
+  padding: 1rem 1.5rem;
+  background-color: rgba(0,0,0, 0.02); /* Very subtle offset */
+  border-top: 1px solid rgba(0,0,0, 0.05);
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+
+  /* Dark mode specific override if vars allow, otherwise rely on opacity */
+  :host-context(.dark) & {
+    background-color: rgba(255,255,255, 0.02);
+    border-top-color: rgba(255,255,255, 0.05);
+  }
+}

@@ -1,0 +1,116 @@
+@use "variables" as *;
+@use "forms" as mixins;
+
+// Mixins para los elementos comunes de las vistas
+@mixin view-container {
+  animation: fadeIn 0.5s ease-out;
+  height: 100%;
+  width: 100%;
+}
+
+@mixin view-header {
+  display: flex;
+  padding: 24px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  h1 {
+    font-size: 2rem;
+    font-weight: 600;
+  }
+  p {
+    color: var(--text-secondary);
+  }
+}
+
+@mixin header-actions {
+  display: flex;
+  gap: 1rem;
+  .primary-button,
+  .secondary-button {
+    @include mixins.submit-button;
+    text-decoration: none;
+    gap: 0.5rem;
+  }
+  .secondary-button {
+    background-color: var(--bg-layer-1);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    &:hover {
+      background-color: var(--bg-hover);
+    }
+  }
+}
+
+@mixin card {
+  background-color: var(--bg-layer-1);
+  border-radius: $border-radius;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 4px var(--shadow-color);
+  overflow-x: auto;
+}
+
+@mixin data-table {
+  width: 100%;
+  border-collapse: collapse;
+  th,
+  td {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+  }
+  thead th {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background-color: var(--bg-solid);
+  }
+  tbody tr {
+    transition: background-color 0.2s ease;
+    &:last-child td {
+      border-bottom: none;
+    }
+    &:hover {
+      background-color: var(--bg-hover);
+    }
+  }
+  td {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    .table-link {
+      color: var(--text-primary);
+      font-weight: 600;
+      text-decoration: none;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+  .text-right {
+    text-align: right;
+  }
+  .actions-column {
+    width: 1%;
+    text-align: center;
+  }
+}
+
+@mixin empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-secondary);
+}
+
+// Keyframes para la animación
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

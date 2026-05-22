@@ -1,0 +1,8 @@
+<div class="toast-container" aria-live="polite">
+  @for (toast of toastService.toasts(); track toast.id) {
+    <app-toast
+      [toast]="toast"
+      (onClose)="toastService.remove($event)">
+    </app-toast>
+  }
+</div>

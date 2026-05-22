@@ -1,0 +1,69 @@
+@use '../../../../assets/styles/view-styles' as views;
+@use '../../../../assets/styles/forms' as mixins;
+
+.templates-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+
+    .primary-button {
+        @include mixins.submit-button;
+    }
+}
+
+.templates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.template-card {
+    @include views.card;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: all 0.2s ease;
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 12px var(--shadow-color);
+        border-color: var(--accent-primary);
+    }
+
+    .card-icon {
+        flex-shrink: 0;
+        color: var(--accent-primary);
+    }
+
+    .card-content {
+        .template-name {
+            display: block;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .template-meta {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+    }
+
+    &.new-template {
+        flex-direction: column;
+        justify-content: center;
+        border-style: dashed;
+        color: var(--text-secondary);
+        cursor: pointer;
+
+        span {
+            font-weight: 600;
+        }
+    }
+}

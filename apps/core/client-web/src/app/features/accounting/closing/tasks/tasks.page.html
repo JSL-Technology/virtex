@@ -1,0 +1,65 @@
+<div class="closing-container">
+    <div class="closing-header">
+        <h3>Closing Process Tasks</h3>
+        <div class="header-actions">
+            <button class="secondary-button">
+                <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
+                <span>Filters</span>
+            </button>
+            <button class="primary-button">
+                <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
+                <span>New Task</span>
+            </button>
+        </div>
+    </div>
+    <div class="table-container card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th style="width: 1%;"><input type="checkbox"></th>
+                    <th>Task Name</th>
+                    <th>Checklist</th>
+                    <th>Assigned To</th>
+                    <th>Due Date</th>
+                    <th class="text-center">Status</th>
+                    <th class="actions-column"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for(task of tasks(); track task.id) {
+                <tr>
+                    <td><input type="checkbox"></td>
+                    <td><a href="#" class="table-link">{{ task.name }}</a></td>
+                    <td>{{ task.checklist }}</td>
+                    <td>
+                        <div class="user-cell">
+                            <lucide-icon [img]="UserIcon" size="16"></lucide-icon>
+                            <span>{{ task.assignedTo }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="date-cell">
+                            <lucide-icon [img]="CalendarIcon" size="16"></lucide-icon>
+                            <span>{{ task.dueDate }}</span>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <span class="status-badge" [ngClass]="getStatusClass(task.status)">
+                            {{ task.status }}
+                        </span>
+                    </td>
+                    <td class="actions-column">
+                        <button class="icon-button">
+                            <lucide-icon [img]="MoreHorizontalIcon" size="18"></lucide-icon>
+                        </button>
+                    </td>
+                </tr>
+                } @empty {
+                <tr>
+                    <td colspan="7" class="empty-state">No tasks found.</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

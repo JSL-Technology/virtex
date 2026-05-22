@@ -1,0 +1,36 @@
+<div class="widget-header">
+    <h3>Envejecimiento de Cuentas por Cobrar</h3>
+    <div class="header-actions" (mousedown)="$event.stopPropagation()">
+        <div class="widget-edit-menu">
+            <button class="icon-button" title="Exportar" (mousedown)="toggleExportMenu($event)">
+                <lucide-icon [img]="MenuIcon" size="18"></lucide-icon>
+            </button>
+            @if (isExportMenuOpen()) {
+            <div class="edit-dropdown export-dropdown">
+            </div>
+            }
+        </div>
+        @if (isEditMode) {
+        <div class="widget-edit-menu">
+            <button class="icon-button" title="Configurar" (mousedown)="toggleSettings($event)">
+                <lucide-icon [img]="SettingsIcon" size="18"></lucide-icon>
+            </button>
+            @if (isSettingsOpen()) {
+            <div class="edit-dropdown">
+                <span class="dropdown-title">Tipo de Gráfico</span>
+                <button (mousedown)="changeChartType('bar', $event)"
+                    [class.active]="widget.chartType === 'bar'"><lucide-icon [img]="BarIcon" size="14"></lucide-icon>
+                    Barras</button>
+                <button (mousedown)="changeChartType('pie', $event)"
+                    [class.active]="widget.chartType === 'pie'"><lucide-icon [img]="PieIcon" size="14"></lucide-icon>
+                    Pastel</button>
+            </div>
+            }
+        </div>
+        }
+    </div>
+</div>
+<div class="widget-content">
+    <highcharts-chart [options]="chartOptions()" (chartInstance)="onChartInstance($event)" class="chart-instance">
+    </highcharts-chart>
+</div>

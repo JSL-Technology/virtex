@@ -1,0 +1,133 @@
+@use '../../../../../assets/styles/forms' as mixins;
+@use '../widget-styles.scss';
+
+.widget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-actions {
+    margin-left: auto;
+    position: relative;
+    display: flex;
+    gap: 0.25rem;
+}
+
+.icon-button {
+    @include mixins.icon-button;
+}
+
+.export-dropdown,
+.edit-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 220px;
+    background-color: var(--bg-layer-1);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 16px var(--shadow-color);
+    border-radius: var(--border-radius-md);
+    padding: 0.5rem;
+    z-index: 1000;
+    animation: dropdown-fade-in 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    .dropdown-section {
+        padding-bottom: 0.5rem;
+
+        &:not(:last-child) {
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 0.5rem;
+        }
+    }
+
+    button {
+        width: 100%;
+        background: none;
+        border: none;
+        padding: 0.5rem 0.75rem;
+        text-align: left;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-primary);
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        border-radius: var(--border-radius-sm);
+
+        &:hover {
+            background: var(--bg-hover);
+            color: var(--accent-primary);
+        }
+
+        &.active {
+            color: var(--accent-primary);
+            background: var(--accent-primary-subtle);
+        }
+    }
+
+    .dropdown-title {
+        display: block;
+        padding: 0.5rem 0.75rem;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--text-secondary);
+        letter-spacing: .03em;
+    }
+
+    hr {
+        margin: 0.35rem 0;
+        border: none;
+        border-top: 1px solid var(--border-color);
+    }
+}
+
+.color-picker-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+
+    label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--text-primary);
+    }
+
+    input[type="color"] {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        width: 28px;
+        height: 28px;
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
+
+        &::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        &::-webkit-color-swatch {
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+        }
+    }
+}
+
+@keyframes dropdown-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

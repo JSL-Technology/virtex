@@ -1,0 +1,55 @@
+<div class="view-container">
+  <form [formGroup]="customerForm" (ngSubmit)="saveCustomer()">
+    <div class="view-header">
+      <div class="header-content">
+        <h1>@if(isEditMode()){ Editar } @else { Nuevo } Cliente</h1>
+        <p>Completa la información del cliente para facturación y contacto.</p>
+      </div>
+      <div class="header-actions">
+        <a routerLink="/masters/customers" class="secondary-button">Cancelar</a>
+        <button type="submit" class="primary-button">
+          <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
+          <span>Guardar Cliente</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-column">
+        <div class="card">
+          <div class="card-header">
+            <h3>Información General</h3>
+          </div>
+          <div class="card-body">
+            <div class="form-field"><label for="companyName">Nombre de empresa*</label><input id="companyName" formControlName="companyName"></div>
+            <div class="form-field"><label for="taxId">RNC / NIF</label><input id="taxId" formControlName="taxId"></div>
+            <div class="form-field"><label for="contactPerson">Persona de contacto</label><input id="contactPerson" formControlName="contactPerson"></div>
+            <div class="form-row">
+              <div class="form-field"><label for="email">Correo*</label><input id="email" type="email" formControlName="email"></div>
+              <div class="form-field"><label for="phone">Teléfono*</label><input id="phone" type="tel" formControlName="phone"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-column">
+        <div class="card">
+          <div class="card-header">
+            <h3>Dirección</h3>
+          </div>
+          <div class="card-body">
+            <div class="form-field"><label for="address">Dirección</label><input id="address" formControlName="address"></div>
+            <div class="form-row">
+              <div class="form-field"><label for="city">Ciudad</label><input id="city" formControlName="city"></div>
+              <div class="form-field"><label for="stateOrProvince">Provincia/Estado</label><input id="stateOrProvince" formControlName="stateOrProvince"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-field"><label for="postalCode">Código Postal</label><input id="postalCode" formControlName="postalCode"></div>
+              <div class="form-field"><label for="country">País*</label><input id="country" formControlName="country"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

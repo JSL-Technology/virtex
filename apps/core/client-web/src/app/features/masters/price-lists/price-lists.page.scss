@@ -1,0 +1,63 @@
+@use '../../../../assets/styles/view-styles' as views;
+@use '../../../../assets/styles/forms' as mixins;
+
+// --- Estilos Base ---
+// Hereda todos los estilos comunes para el contenedor, encabezado,
+// acciones, tarjetas y tablas de nuestro archivo central _view-styles.scss
+:host {
+  display: block;
+}
+.subview-container { // Usamos una clase específica para evitar conflictos si se anida
+  @include views.view-container;
+}
+.subview-header {
+  @include views.view-header;
+  // Ajustes menores para los headers de subvistas
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+}
+.header-actions {
+  @include views.header-actions;
+}
+.card {
+  @include views.card;
+  padding: 0; // El padding se maneja dentro de la tabla
+}
+.data-table {
+  @include views.data-table;
+}
+.icon-button {
+  @include mixins.icon-button;
+}
+.empty-state {
+  @include views.empty-state;
+}
+
+// --- Estilos Específicos para esta Vista ---
+
+// Estilos para las insignias (badges) de estado
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--border-radius-full);
+  text-transform: capitalize;
+
+  &.status-active {
+    background-color: rgba(74, 222, 128, 0.15); // Verde
+    color: #4ade80;
+  }
+  &.status-inactive {
+    background-color: var(--bg-solid);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+  }
+  &.status-draft {
+    background-color: rgba(251, 146, 60, 0.15); // Naranja
+    color: #fb923c;
+  }
+}

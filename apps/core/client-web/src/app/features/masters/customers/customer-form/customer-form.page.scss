@@ -1,0 +1,135 @@
+@use '../../../../../assets/styles/view-styles' as views;
+@use '../../../../../assets/styles/forms' as forms;
+
+:host {
+  display: block;
+}
+
+.view-container {
+  @include views.view-container;
+}
+
+.view-header {
+  @include views.view-header;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  .header-content {
+    max-width: 56ch;
+
+    h1 {
+      margin: 0 0 0.5rem;
+      line-height: 1.1;
+    }
+
+    p {
+      margin: 0;
+    }
+  }
+}
+
+.header-actions {
+  @include views.header-actions;
+
+  .primary-button,
+  .secondary-button {
+    min-width: 140px;
+  }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.form-column {
+  min-width: 0;
+}
+
+.card {
+  @include views.card;
+  overflow: hidden;
+  height: 100%;
+}
+
+.card-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  background: linear-gradient(180deg, var(--bg-layer-1) 0%, var(--bg-layer-2) 100%);
+
+  h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+}
+
+.card-body {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.form-field {
+  @include forms.form-field;
+
+  label {
+    margin-bottom: 0.4rem;
+  }
+
+  input {
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background-color: var(--bg-layer-2);
+    color: var(--text-primary);
+    padding: 0.72rem 0.85rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+
+    &::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    &:hover {
+      border-color: var(--border-focus);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--border-focus);
+      box-shadow: var(--focus-shadow);
+      background-color: var(--bg-layer-1);
+    }
+  }
+}
+
+@media (max-width: 960px) {
+  .form-grid,
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .view-header {
+    padding: 1rem;
+  }
+
+  .header-actions {
+    width: 100%;
+
+    .primary-button,
+    .secondary-button {
+      flex: 1;
+      justify-content: center;
+      min-width: 0;
+    }
+  }
+}

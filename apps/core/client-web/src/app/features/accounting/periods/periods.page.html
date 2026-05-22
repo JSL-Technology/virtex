@@ -1,0 +1,47 @@
+<div class="subview-container">
+  <div class="subview-header">
+    <h3>Accounting Periods</h3>
+    <div class="header-actions">
+      </div>
+  </div>
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Period</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th class="text-center">Status</th>
+          <th class="actions-column">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for(period of periods(); track period.month) {
+          <tr>
+            <td><strong>{{ period.month }} {{ period.year }}</strong></td>
+            <td>{{ period.startDate }}</td>
+            <td>{{ period.endDate }}</td>
+            <td class="text-center">
+              <span class="status-badge" [ngClass]="getStatusClass(period.status)">
+                {{ period.status }}
+              </span>
+            </td>
+            <td class="actions-column">
+              @if (period.status !== 'Future') {
+                <button class="action-button" (click)="togglePeriodStatus(period)">
+                  @if (period.status === 'Open') {
+                    <lucide-icon [img]="LockIcon" size="16"></lucide-icon>
+                    <span>Close Period</span>
+                  } @else {
+                    <lucide-icon [img]="UnlockIcon" size="16"></lucide-icon>
+                    <span>Re-Open</span>
+                  }
+                </button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

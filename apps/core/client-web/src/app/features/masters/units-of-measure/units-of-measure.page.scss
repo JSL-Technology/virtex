@@ -1,0 +1,37 @@
+@use '../../../../assets/styles/view-styles' as views;
+
+// Hereda todos los estilos de tabla, encabezado y otros elementos
+// de nuestro archivo central _view-styles.scss.
+// La clase .subview-container y .subview-header se usan para evitar
+// conflictos si esta vista se anida dentro de otra.
+.subview-container {
+    @include views.view-container;
+}
+
+.subview-header {
+    @include views.view-header;
+    padding-bottom: 1.5rem;
+    margin-bottom: 0;
+
+    h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+}
+
+.header-actions {
+    @include views.header-actions;
+}
+
+.card {
+    @include views.card;
+    padding: 0;
+}
+
+.data-table {
+    @include views.data-table;
+}
+
+.empty-state {
+    @include views.empty-state;
+}

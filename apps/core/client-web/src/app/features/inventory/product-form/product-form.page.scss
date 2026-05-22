@@ -1,0 +1,55 @@
+@use '../../../../assets/styles/variables' as *;
+@use '../../../../assets/styles/forms' as mixins;
+@use '../../sales/history/history.page.scss'; // Reutiliza la base
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+
+    @media (max-width: 992px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.form-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.card {
+    .card-header {
+        padding: 1.5rem 1.5rem 0;
+
+        h3 {
+            font-size: 1.1rem;
+        }
+    }
+
+    .card-body {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+}
+
+.form-field {
+    @include mixins.form-field;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+input,
+select,
+textarea {
+    @include mixins.input-wrapper;
+    padding-left: 1rem;
+}
+
+// ... (estilos para file-upload-field como en el registro)

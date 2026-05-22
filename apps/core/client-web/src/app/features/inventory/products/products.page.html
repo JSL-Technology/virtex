@@ -1,0 +1,83 @@
+<div class="view-container">
+  <div class="view-header">
+    <div class="header-content">
+      <h1>Inventario de Productos</h1>
+      <p>Gestiona todos los productos y servicios de tu empresa.</p>
+    </div>
+    <div class="header-actions">
+      <a routerLink="/inventory/products/new" class="primary-button" *hasPermission="'products:create'">
+        <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
+        <span>Nuevo Producto</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="toolbar card">
+    <div class="search-bar">
+      <lucide-icon [img]="SearchIcon" size="18"></lucide-icon>
+      <input type="text" placeholder="Buscar por nombre, SKU o categoría..." (input)="onSearch($event)">
+    </div>
+  </div>
+
+  <div class="table-container card">
+    @if (isLoading()) {
+      <p class="loading-state">Cargando productos...</p>
+    } @else if (error()) {
+      <p class="empty-state">{{ error() }}</p>
+    } @else {
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Categoría</th>
+            <th class="text-right">Precio</th>
+            <th class="text-right">Costo</th>
+            <th class="text-right">Stock</th>
+            <th>Estado</th>
+            <th class="actions-column"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (product of filteredProducts(); track product.id) {
+            <tr>
+              <td>
+                <a [routerLink]="['/inventory/products', product.id, 'edit']" class="table-link">
+                  {{ product.name }}
+                </a>
+                <span class="product-sku">{{ product.sku }}</span>
+              </td>
+              <td>{{ product.category }}</td>
+              <td class="text-right">{{ product.price | number:'1.2-2' }}</td>
+              <td class="text-right">{{ product.cost | number:'1.2-2' }}</td>
+              <td class="text-right">{{ product.stock }}</td>
+              <td>
+                <span class="status-badge" [ngClass]="getStockStatusClass(product)">
+                  {{ product.status === 'Active' ? (product.stock > 0 ? 'En Stock' : 'Agotado') : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="actions-column">
+                <div class="dropdown">
+                  <button class="icon-button">
+                    <lucide-icon [img]="MoreHorizontalIcon" size="18"></lucide-icon>
+                  </button>
+                  <div class="dropdown-menu">
+                    <a (click)="navigateToEdit(product.id)" *hasPermission="'products:edit'">Editar</a>
+                    <a (click)="deleteProduct(product)" class="danger" *hasPermission="'products:delete'">Eliminar</a>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="empty-state">
+                <lucide-icon [img]="AlertCircleIcon" size="24"></lucide-icon>
+                <span>No se encontraron productos.</span>
+                <p>Intenta ajustar tu búsqueda o crea un nuevo producto.</p>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</div>

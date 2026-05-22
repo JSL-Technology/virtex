@@ -1,0 +1,100 @@
+<div class="page-header">
+  <div>
+    <h2 class="page-title">Estructura Empresarial</h2>
+    <p class="page-subtitle">Gestiona las subsidiarias y sucursales de tu organización.</p>
+  </div>
+  <button class="btn-primary" (click)="openCreateModal()">
+    <lucide-icon [img]="PlusIcon" size="18"></lucide-icon>
+    Nueva Subsidiaria
+  </button>
+</div>
+
+<div class="content-card">
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Cargando subsidiarias...</p>
+  </div>
+
+  <div class="empty-state" *ngIf="!loading && subsidiaries.length === 0">
+    <div class="empty-icon">
+      <lucide-icon [img]="BuildingIcon" size="48"></lucide-icon>
+    </div>
+    <h3>No hay subsidiarias registradas</h3>
+    <p>Comienza agregando una nueva subsidiaria o sucursal para expandir tu estructura.</p>
+    <button class="btn-primary" (click)="openCreateModal()">
+      Crear primera subsidiaria
+    </button>
+  </div>
+
+  <div class="subsidiaries-list" *ngIf="!loading && subsidiaries.length > 0">
+    <div class="subsidiary-item" *ngFor="let sub of subsidiaries">
+      <div class="item-icon">
+        <lucide-icon [img]="BuildingIcon" size="24"></lucide-icon>
+      </div>
+      <div class="item-details">
+        <h4>{{ sub.subsidiary.legalName }}</h4>
+        <div class="meta-info">
+          <span class="meta-item">
+            <span class="label">ID Fiscal:</span> {{ sub.subsidiary.taxId }}
+          </span>
+          <span class="meta-item">
+            <span class="label">País:</span> {{ sub.subsidiary.country }}
+          </span>
+        </div>
+      </div>
+      <div class="item-ownership">
+        <span class="ownership-badge">{{ sub.ownership }}% Propiedad</span>
+      </div>
+      <div class="item-actions">
+        <button class="icon-btn">
+          <lucide-icon [img]="MoreVerticalIcon" size="18"></lucide-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Simple Modal Overlay -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Nueva Subsidiaria</h3>
+      <button class="close-btn" (click)="closeModal()">
+        <lucide-icon [img]="XIcon" size="20"></lucide-icon>
+      </button>
+    </div>
+
+    <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+      <div class="modal-body">
+        <div class="form-field">
+          <label>Nombre Legal</label>
+          <input type="text" formControlName="legalName" placeholder="Ej. Virteex Latam S.A.">
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label>ID Fiscal (RNC/Tax ID)</label>
+            <input type="text" formControlName="taxId" placeholder="Ej. 132-45678-9">
+          </div>
+
+          <div class="form-field">
+            <label>País</label>
+            <input type="text" formControlName="country" placeholder="Ej. República Dominicana">
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label>Porcentaje de Propiedad (%)</label>
+          <input type="number" formControlName="ownership" min="0" max="100">
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" (click)="closeModal()">Cancelar</button>
+        <button type="submit" class="btn-primary" [disabled]="createForm.invalid || submitting">
+          {{ submitting ? 'Guardando...' : 'Crear Subsidiaria' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

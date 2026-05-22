@@ -1,0 +1,52 @@
+.loader-overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--bg-overlay, rgba(255, 255, 255, 0.7));
+  backdrop-filter: blur(2px);
+  z-index: 9999;
+}
+
+.fixed-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+.absolute-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit; /* Inherit border radius from container if needed */
+}
+
+/* Theme support via CSS variables */
+:host-context(.dark-theme) .loader-overlay {
+  /* This works if variables aren't set, but usually variables are better */
+  background-color: var(--bg-overlay, rgba(0, 0, 0, 0.7));
+}
+
+/* Spinner styling */
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--border-color, #e2e8f0);
+  border-bottom-color: var(--primary, #3b82f6); /* Use primary color variable */
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

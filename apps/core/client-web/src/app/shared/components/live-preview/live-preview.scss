@@ -1,0 +1,101 @@
+:host {
+    display: block;
+}
+
+.preview-container {
+    background-color: var(--bg-layer-1);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    font-family: var(--font-family-sans);
+    padding: var(--space-padding);
+}
+
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.logo-placeholder {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--accent-primary);
+}
+
+.nav-placeholder {
+    padding: var(--space-base);
+    background-color: var(--accent-primary-subtle);
+    color: var(--accent-primary);
+    border-radius: var(--border-radius-md);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.preview-content {
+    h4 {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+
+    p {
+        margin-bottom: 1.5rem;
+        color: var(--gray-500);
+    }
+
+    .preview-actions {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    button {
+        padding: var(--space-input-y) var(--space-padding);
+        border-radius: var(--border-radius-md);
+        font-family: inherit;
+        font-weight: 600;
+        border: 1px solid var(--border-color);
+
+        &.primary-button {
+            background-color: var(--accent-primary);
+            color: var(--accent-text);
+            border-color: var(--accent-primary);
+        }
+
+        &.secondary-button {
+            background-color: transparent;
+            color: var(--text-primary);
+        }
+    }
+
+    .input-field {
+        label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        input {
+            width: 100%;
+            padding: var(--space-input-y) var(--space-padding);
+            border-radius: var(--border-radius-md);
+            border: 1px solid var(--gray-300);
+            background-color: var(--bg-solid);
+
+            &:focus {
+                border-color: var(--border-focus);
+                box-shadow: 0 0 0 3px var(--focus-shadow);
+                outline: none;
+            }
+        }
+    }
+}
+
+// ... (código anterior)
+.preview-container {
+  border-radius: var(--border-radius-lg); // Usa el radio dinámico
+  font-family: var(--font-family-sans); // Usa la fuente dinámica
+  padding: var(--space-padding); // Usa el espaciado dinámico
+}
+// ... (y así sucesivamente para todos los elementos internos)

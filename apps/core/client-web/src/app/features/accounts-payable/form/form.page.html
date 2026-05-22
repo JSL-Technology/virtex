@@ -1,0 +1,67 @@
+<div class="view-container">
+  <div class="view-header">
+    <a routerLink="/accounts-payable" class="btn-icon">
+      <lucide-icon [name]="BackIcon" [size]="24"></lucide-icon>
+    </a>
+    <h1>{{ isEditMode() ? 'Editar' : 'Nueva' }} Factura de Proveedor</h1>
+  </div>
+
+  <div class="view-content" [formGroup]="form">
+    <div class="card">
+      <div class="card-header">
+        <h2>Información General</h2>
+      </div>
+      <div class="card-body grid-form">
+        <div class="form-field">
+          <label for="supplierId">Proveedor</label>
+          <input type="text" id="supplierId" formControlName="supplierId" placeholder="Seleccionar proveedor">
+        </div>
+        <div class="form-field">
+          <label for="billNumber">Número de Factura</label>
+          <input type="text" id="billNumber" formControlName="billNumber">
+        </div>
+        <div class="form-field">
+          <label for="issueDate">Fecha de Emisión</label>
+          <input type="date" id="issueDate" formControlName="issueDate">
+        </div>
+        <div class="form-field">
+          <label for="dueDate">Fecha de Vencimiento</label>
+          <input type="date" id="dueDate" formControlName="dueDate">
+        </div>
+      </div>
+    </div>
+
+    <div class="card" formArrayName="lineItems">
+      <div class="card-header">
+        <h2>Detalles de la Factura</h2>
+      </div>
+      <div class="card-body">
+        <div *ngFor="let line of lineItems.controls; let i=index" [formGroupName]="i" class="line-item">
+          <input type="text" formControlName="description" placeholder="Descripción" class="line-description">
+          <input type="number" formControlName="quantity" placeholder="Cant.">
+          <input type="number" formControlName="price" placeholder="Precio">
+          <input type="text" formControlName="expenseAccountId" placeholder="Cuenta de Gasto">
+          <button (click)="removeLineItem(i)" class="btn-danger-outline btn-icon">&times;</button>
+        </div>
+        <button (click)="addLineItem()" class="btn-secondary mt-2">Añadir Línea</button>
+      </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="form-field">
+                <label for="notes">Notas</label>
+                <textarea id="notes" formControlName="notes" rows="3"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <a routerLink="/accounts-payable" class="btn-secondary">Cancelar</a>
+        <button (click)="save()" class="btn-primary" [disabled]="form.invalid || isLoading()">
+            {{ isLoading() ? 'Guardando...' : 'Guardar Factura' }}
+        </button>
+    </div>
+
+  </div>
+</div>

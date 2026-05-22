@@ -1,0 +1,51 @@
+<footer class="main-footer">
+  <div class="footer-content">
+
+    <!-- Language Selector moved here -->
+    <div class="language-selector-container">
+      <div class="language-selector">
+        <button
+          type="button"
+          class="selector-trigger"
+          (click)="toggleLangDropdown($event)"
+          [class.active]="isLangDropdownOpen"
+          [attr.aria-expanded]="isLangDropdownOpen"
+          aria-label="Select Language">
+          <lucide-icon [img]="icons.Globe" class="icon-left" size="16"></lucide-icon>
+          <span class="lang-label">{{ currentLangLabel }}</span>
+          <lucide-icon [img]="icons.ChevronUp" class="icon-right" size="16"></lucide-icon>
+        </button>
+
+        <div class="dropdown-menu" [class.show]="isLangDropdownOpen">
+          <button
+            type="button"
+            class="dropdown-item"
+            *ngFor="let lang of availableLanguages"
+            [class.active]="currentLang === lang.code"
+            (click)="changeLang(lang.code)">
+            <span>{{ lang.label }}</span>
+            <lucide-icon *ngIf="currentLang === lang.code" [img]="icons.Check" size="14" class="check-icon"></lucide-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-links">
+      <a routerLink="/terms">{{ 'AUTH.TERMS' | translate }}</a>
+      <a routerLink="/privacy">{{ 'AUTH.PRIVACY' | translate }}</a>
+      <a routerLink="/security">{{ 'AUTH.SECURITY' | translate }}</a>
+      <a routerLink="/contact">{{ 'AUTH.CONTACT' | translate }}</a>
+    </div>
+
+    <div class="copyright-row">
+      <p class="copyright">
+        &copy; {{ currentYear }} FacturaPRO. {{ 'AUTH.ALL_RIGHTS_RESERVED' | translate }}
+      </p>
+
+      <!-- <p class="support-text">
+        {{ 'AUTH.NEED_HELP' | translate }}
+        <a routerLink="/support" class="support-link">{{ 'AUTH.SUPPORT_CENTER' | translate }}</a>
+      </p> -->
+    </div>
+  </div>
+</footer>

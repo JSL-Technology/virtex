@@ -1,0 +1,105 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>{{ isEditMode() ? t().editTitle : t().title }}</h1>
+    <div class="header-actions">
+      <a routerLink="/accounting/journal-entries" class="btn btn-secondary">{{ t().cancel }}</a>
+      <button (click)="saveEntry()" class="btn btn-primary" [disabled]="isSaving()">
+        <lucide-icon [name]="SaveIcon" [size]="16" class="mr-2"></lucide-icon>
+        {{ isSaving() ? t().saving : t().save }}
+      </button>
+    </div>
+  </div>
+
+  <form [formGroup]="entryForm" class="entry-form">
+    <div class="form-grid">
+      <div class="form-field">
+        <label for="date">{{ t().dateLabel }}</label>
+        <input type="date" id="date" formControlName="date" class="form-input">
+      </div>
+      <div class="form-field">
+        <label for="ledgerId">{{ t().ledgerLabel }}</label>
+        <select id="ledgerId" formControlName="ledgerId" class="form-input">
+          <option value="" disabled>{{ t().ledgerPlaceholder }}</option>
+          @for (ledger of ledgers(); track ledger.id) {
+            <option [value]="ledger.id">{{ ledger.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="form-field">
+        <label for="journalId">{{ t().journalLabel }}</label>
+        <select id="journalId" formControlName="journalId" class="form-input">
+          <option value="" disabled>{{ t().journalPlaceholder }}</option>
+          @for (journal of journals(); track journal.id) {
+            <option [value]="journal.id">{{ journal.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="form-field description-field">
+        <label for="description">{{ t().descriptionLabel }}</label>
+        <input type="text" id="description" formControlName="description" [placeholder]="t().descriptionPlaceholder" class="form-input">
+      </div>
+    </div>
+
+    <div class="lines-container" formArrayName="lines">
+      <table>
+        <thead>
+          <tr>
+            <th>{{ t().accountColumn }}</th>
+            <th>{{ t().descriptionColumn }}</th>
+            <th class="text-right">{{ t().debitColumn }}</th>
+            <th class="text-right">{{ t().creditColumn }}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (line of lines.controls; track $index) {
+            <tr [formGroupName]="$index">
+              <td>
+                <select formControlName="accountId" class="form-input">
+                  <option value="" disabled>{{ t().accountPlaceholder }}</option>
+                  @for (account of accounts(); track account.id) {
+                    <option [value]="account.id">{{ account.name }}</option>
+                  }
+                </select>
+              </td>
+              <td>
+                <input type="text" formControlName="description" class="form-input">
+              </td>
+              <td>
+                <input type="number" formControlName="debit" class="form-input text-right">
+              </td>
+              <td>
+                <input type="number" formControlName="credit" class="form-input text-right">
+              </td>
+              <td>
+                <button (click)="removeLine($index)" class="btn-icon" [disabled]="lines.length <= 2">
+                  <lucide-icon [name]="TrashIcon" [size]="16"></lucide-icon>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2">
+              <button (click)="addLine()" class="btn btn-secondary">
+                <lucide-icon [name]="PlusIcon" [size]="16" class="mr-2"></lucide-icon>
+                {{ t().addLine }}
+              </button>
+            </td>
+            <td class="text-right"><strong>{{ t().totals }}: {{ totalDebit() | number:'1.2-2' }}</strong></td>
+            <td class="text-right"><strong>{{ totalCredit() | number:'1.2-2' }}</strong></td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    @if (entryForm.hasError('unbalanced') && entryForm.touched) {
+      <div class="alert alert-danger">{{ t().unbalancedError }}</div>
+    }
+    @if (entryForm.hasError('zeroAmount') && entryForm.touched) {
+      <div class="alert alert-danger">{{ t().zeroAmountError }}</div>
+    }
+  </form>
+</div>

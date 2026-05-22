@@ -1,0 +1,276 @@
+@use '../../../../assets/styles/variables' as *;
+@use '../../../../assets/styles/forms' as mixins;
+@use '../../sales/history/history.page.scss';
+
+// Layout principal de la página
+.billing-grid {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 1.5rem;
+    align-items: flex-start;
+
+    @media (max-width: 992px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.current-info-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+// Estilos para la tarjeta de Plan Actual
+.card-header {
+    padding: 1.5rem 1.5rem 0;
+
+    h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.plan-name {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.plan-price {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0.5rem 0;
+}
+
+.price-period {
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+}
+
+.plan-status {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    padding: 0.75rem;
+    background-color: var(--bg-solid);
+    border-radius: $border-radius;
+    margin-top: 1rem;
+    display: block;
+}
+
+.plan-status.activo {
+    border-left: 4px solid #4ade80;
+}
+
+.plan-status.prueba {
+    border-left: 4px solid #fb923c;
+}
+
+// Estilos para el método de pago
+.payment-method {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    lucide-icon {
+        color: var(--text-tertiary);
+    }
+
+    .pm-details {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .expiry {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+    }
+
+    .secondary-button {
+        @include mixins.submit-button;
+        background-color: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+
+        &:hover {
+            background-color: var(--bg-hover);
+        }
+    }
+}
+
+// Estilos para la tabla de historial y métricas
+.billing-history-column {
+    .card-body {
+        padding: 0;
+    }
+
+    .data-table {
+
+        th,
+        td {
+            padding: 0.75rem 1.5rem;
+        }
+    }
+}
+
+// Usage Metrics
+.usage-grid {
+    display: grid;
+    gap: 1.5rem;
+    padding: 1.5rem;
+}
+
+.metric-item {
+    .metric-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+
+        span:first-child {
+            text-transform: capitalize;
+            font-weight: 500;
+        }
+    }
+
+    .progress-bar-bg {
+        width: 100%;
+        background: var(--bg-solid); // Use variable instead of hardcoded
+        height: 10px;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        transition: width 0.3s ease-in-out;
+        background-color: var(--accent-primary); // Default
+
+        &.warning {
+            background-color: #f59e0b;
+        }
+
+        &.critical {
+            background-color: #dc2626;
+        }
+    }
+
+    .warning-text {
+        color: #d97706;
+        font-size: 0.8rem;
+        margin-top: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+}
+
+// Estilos para la sección de cambio de plan
+.form-section {
+    margin-top: 2.5rem;
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+}
+
+.plans-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.plan-card {
+    border: 2px solid var(--border-color);
+    border-radius: $border-radius;
+    padding: 1.5rem;
+    text-align: left;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+
+    &:hover {
+        transform: translateY(-5px);
+        border-color: var(--accent-primary);
+    }
+
+    &.selected {
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 2px var(--accent-primary);
+    }
+
+    .plan-badge {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--accent-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .plan-badge.trial {
+        color: #34A853;
+    }
+
+    h4 {
+        font-size: 1.25rem;
+    }
+
+    .plan-price {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 0.25rem 0;
+    }
+
+    .plan-desc {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        min-height: 40px;
+    }
+
+    .current-plan-chip {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background-color: var(--accent-primary);
+        color: var(--accent-text);
+        padding: 2px 8px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        border-radius: 12px;
+    }
+}
+
+.update-plan-action {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: var(--bg-solid);
+    border-radius: $border-radius;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    p {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-secondary);
+    }
+
+    .primary-button {
+        @include mixins.submit-button;
+    }
+}

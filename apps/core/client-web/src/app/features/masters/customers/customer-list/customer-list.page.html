@@ -1,0 +1,43 @@
+<div class="subview-container">
+    <div class="subview-header">
+        <h3>Customers</h3>
+        <div class="header-actions">
+            <button class="secondary-button"><lucide-icon [img]="FilterIcon"
+                    size="16"></lucide-icon><span>Filters</span></button>
+            <a routerLink="/masters/customers/new" class="primary-button"><lucide-icon [img]="PlusCircleIcon"
+                    size="16"></lucide-icon><span>New Customer</span></a>
+        </div>
+    </div>
+    <div class="table-container card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Company Name</th>
+                    <th>Tax ID</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Location</th>
+                    <th class="actions-column"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for(customer of customers(); track customer.id) {
+                <tr>
+                    <td><a [routerLink]="['/masters/customers', customer.id, 'edit']" class="table-link">{{ customer.name
+                            }}</a></td>
+                    <td>{{ customer.taxId }}</td>
+                    <td>{{ customer.email }}</td>
+                    <td>{{ customer.phone }}</td>
+                    <td>{{ customer.city }}, {{ customer.country }}</td>
+                    <td class="actions-column"><button class="icon-button"><lucide-icon [img]="MoreHorizontalIcon"
+                                size="18"></lucide-icon></button></td>
+                </tr>
+                } @empty {
+                <tr>
+                    <td colspan="6" class="empty-state">No customers found. Start by adding a new one.</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,52 @@
+:host {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.kpi-card {
+    width: 100%;
+    height: 100%;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.kpi-header .kpi-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.kpi-body .kpi-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.kpi-footer {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
+
+.kpi-comparison {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-weight: 600;
+
+    &.positive {
+        color: #10b981;
+    }
+
+    &.negative {
+        color: #ef4444;
+    }
+}
+
+.kpi-period {
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+}

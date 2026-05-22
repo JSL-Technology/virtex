@@ -1,0 +1,17 @@
+<div class="view-container">
+  <div class="view-header">
+    <div class="header-content">
+      <h1>Reports & Analytics</h1>
+      <p>Analyze your business performance with detailed financial and operational reports.</p>
+    </div>
+  </div>
+  <nav class="secondary-nav">
+    <a routerLink="profitability-by-product" routerLinkActive="active"><lucide-icon [img]="ProfitabilityIcon" size="16"></lucide-icon><span>Profitability by Product</span></a>
+    <a routerLink="profitability-by-customer" routerLinkActive="active"><lucide-icon [img]="ProfitabilityIcon" size="16"></lucide-icon><span>Profitability by Customer</span></a>
+    <a routerLink="financial-statements" routerLinkActive="active"><lucide-icon [img]="StatementsIcon" size="16"></lucide-icon><span>Financial Statements</span></a>
+    <a routerLink="comparative" routerLinkActive="active"><lucide-icon [img]="ComparativeIcon" size="16"></lucide-icon><span>Comparative Analysis</span></a>
+  </nav>
+  <div class="content-outlet">
+    <router-outlet></router-outlet>
+  </div>
+</div>

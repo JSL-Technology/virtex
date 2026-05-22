@@ -1,0 +1,995 @@
+{
+  "SETTINGS": {
+    "TITLE": "Configuración",
+    "DESCRIPTION": "Administra los detalles de tu cuenta, empresa y usuarios.",
+    "BRANDING": {
+      "TITLE": "Personalización Avanzada",
+      "DESCRIPTION": "Completa la información para personalizar la apariencia de tu aplicación.",
+      "SAVE_BUTTON": "Guardar Cambios"
+    },
+    "SECURITY": {
+        "2FA_TITLE": "Autenticación de Dos Factores (2FA)",
+        "2FA_DESC": "Protege tu cuenta con una capa extra de seguridad.",
+        "TWO_STEP_VERIF": "Verificación en dos pasos",
+        "VERIFY_IDENTITY_DESC": "Verificación de identidad",
+        "BEFORE_CONFIG_2FA": "Por motivos de seguridad, necesitamos verificar que eres tú antes de configurar el método de verificación en dos pasos.",
+        "ACCOUNT_PROTECTED": "Tu cuenta está protegida.",
+        "ACCOUNT_NOT_PROTECTED": "Tu cuenta no está protegida.",
+        "ACTIVATE_2FA": "Activar 2FA",
+        "DEACTIVATE": "Desactivar",
+        "BACKUP_CODES": "Códigos de Recuperación",
+        "BACKUP_CODES_DESC": "Úsalos si pierdes acceso a tu dispositivo.",
+        "GENERATE_NEW": "Generar Nuevos",
+        "SAVE_CODES_WARNING": "Guarda estos códigos en un lugar seguro.",
+        "ACTIVE_SESSIONS": "Sesiones Activas",
+        "SESSIONS_DESC": "Gestiona los dispositivos donde has iniciado sesión.",
+        "CURRENT": "Actual",
+        "LOGOUT_SESSION": "Cerrar sesión",
+        "SETUP_2FA": "Configurar 2FA",
+        "SCAN_QR": "Escanea el código QR",
+        "CHECK_EMAIL": "Revisa tu correo",
+        "EMAIL_SENT_TO": "Hemos enviado un código de verificación a: {{email}}",
+        "ENTER_CODE": "Ingresa el código",
+        "RESEND": "Reenviar código",
+        "SETUP_AUTHENTICATOR": "Configurar App Autenticadora",
+        "SETUP_AUTHENTICATOR_DESC": "Escanea el código QR o ingresa la clave secreta manualmente.",
+        "CANT_SCAN": "¿No puedes escanear el código QR?",
+        "ENTER_SECRET": "Ingresa este secreto en su lugar:",
+        "COPY_CODE": "Copiar código",
+        "ENTER_VERIFICATION_CODE": "Obtener código de verificación",
+        "ENTER_6_DIGIT": "Ingresa el código de 6 dígitos que ves en tu app autenticadora.",
+        "BACKUP_CODES_TITLE": "Verificación de 2 Pasos Activada",
+        "BACKUP_CODES_SUCCESS_DESC": "Has añadido exitosamente la verificación de 2 pasos a tu cuenta.",
+        "BACKUP_CODES_WARNING": "Guarda tus códigos de respaldo seguros",
+        "I_HAVE_SAVED_CODES": "He guardado mis códigos de respaldo",
+        "CONFIRM_BACKUP_CODES": "Por favor confirma que has guardado los códigos.",
+        "EMAIL_CODE_SENT": "Código de verificación enviado.",
+        "OPEN_AUTH_APP": "(Abre tu App de Autenticación)",
+        "ENTER_MANUALLY": "O ingresa esta clave manualmente",
+        "2FA_ACTIVATED": "2FA Activado exitosamente.",
+        "2FA_ENABLED": "2FA Activado exitosamente.",
+        "2FA_DEACTIVATED": "2FA Desactivado.",
+        "2FA_DISABLED": "2FA Desactivado exitosamente.",
+        "DISABLE_2FA_TITLE": "¿Desactivar 2FA?",
+        "DISABLE_2FA_MESSAGE": "Tu cuenta será menos segura. ¿Estás seguro?",
+        "NEW_CODES_GENERATED": "Nuevos códigos generados.",
+        "SESSION_REVOKED": "Sesión cerrada.",
+        "ERRORS": {
+             "LOAD_SESSIONS": "Error al cargar sesiones.",
+             "SEND_FAILED": "Error al enviar el código.",
+             "REVOKE_SESSION": "Error al cerrar sesión.",
+             "INIT_2FA": "Error al iniciar configuración 2FA.",
+             "INVALID_CODE": "Código incorrecto.",
+             "DISABLE_2FA": "Error al desactivar 2FA.",
+             "GENERATE_CODES": "Error al generar códigos."
+        }
+    },
+    "PROFILE": {
+        "PERSONAL_INFO": "Información Personal",
+        "FIRST_NAME": "Nombre",
+        "LAST_NAME": "Apellidos",
+        "EMAIL": "Correo Electrónico",
+        "PHONE": "Teléfono",
+        "JOB_TITLE": "Cargo",
+        "SELECT_JOB_TITLE": "Selecciona un cargo",
+        "SAVE_CHANGES": "Guardar Cambios",
+        "SECURITY": "Seguridad",
+        "CURRENT_PASSWORD": "Contraseña Actual",
+        "NEW_PASSWORD": "Nueva Contraseña",
+        "CONFIRM_PASSWORD": "Confirmar Contraseña",
+        "UPDATE_PASSWORD": "Actualizar Contraseña",
+        "VERIFY": "Verificar",
+        "UPDATED": "Perfil actualizado exitosamente.",
+        "PASSWORD_CHANGED": "Contraseña actualizada exitosamente.",
+        "AVATAR_UPDATED": "Imagen actualizada exitosamente.",
+        "OTP_SENT": "Código enviado.",
+        "PHONE_VERIFIED": "Teléfono verificado exitosamente.",
+        "PHONE_VERIFICATION": {
+            "TITLE": "Verificación de Teléfono",
+            "DESCRIPTION": "Para asegurar tu cuenta, necesitamos verificar tu número de teléfono.",
+            "SEND_CODE": "Enviar Código",
+            "OTP_SENT_TO": "Código enviado a",
+            "ENTER_CODE": "Ingresa el código",
+            "VERIFY": "Verificar Código",
+            "WRONG_NUMBER": "¿Número equivocado?",
+            "RESEND": "Reenviar"
+        },
+        "ERRORS": {
+            "FILE_TOO_LARGE": "El archivo es demasiado grande (Máx 2MB).",
+            "INVALID_FORMAT": "Formato de imagen no válido.",
+            "UPDATE_FAILED": "Error al actualizar el perfil.",
+            "PASSWORD_CHANGE_FAILED": "Error al cambiar la contraseña.",
+            "PASSWORDS_DO_NOT_MATCH": "Las contraseñas no coinciden.",
+            "AVATAR_UPLOAD": "Error al subir la imagen.",
+            "OTP_SEND": "Error al enviar código.",
+            "OTP_INVALID": "Código incorrecto."
+        }
+    }
+  },
+  "SECTIONS": {
+    "WORKSPACE": "Espacio de Trabajo",
+    "MASTER_DATA": "Datos Maestros",
+    "OPERATIONS": "Operaciones",
+    "ACCOUNTING": "Contabilidad",
+    "REPORTS": "Reportes",
+    "TOOLS": "Herramientas",
+    "MANAGEMENT": "Gestión"
+  },
+  "NAV": {
+    "DASHBOARD": "Dashboard",
+    "MY_WORK": "Mi Trabajo",
+    "APPROVALS": "Aprobaciones",
+    "NOTIFICATIONS": "Notificaciones",
+    "CONTACTS": "Contactos",
+    "SETTINGS": "Configuración",
+    "SALES": "Ventas",
+    "INVOICES": "Facturas",
+    "INVENTORY": "Inventario",
+    "PURCHASING": "Compras",
+    "REPORTS": "Reportes",
+    "CUSTOMERS": "Clientes",
+    "PRODUCTS": "Productos",
+    "PRICE_LISTS": "Listas de Precios"
+  },
+  "DOCS": {
+    "DOCUMENTS": "Documentos"
+  },
+  "TOOLS": {
+    "DATA_IMPORTS": "Importaciones de Datos",
+    "DATA_EXPORTS": "Exportaciones de Datos"
+  },
+  "ACCOUNTING": {
+    "CHART_OF_ACCOUNTS": "Plan de Cuentas",
+    "LEDGER": {
+      "TITLE": "Libro Mayor",
+      "DESCRIPTION": "Administra tu plan de cuentas, asientos contables y períodos contables."
+    },
+    "GENERAL_LEDGER": "Libro Mayor",
+    "JOURNAL_ENTRIES": "Asientos Contables",
+    "GENERAL_JOURNAL": "Libro Diario",
+    "SUBSIDIARY_LEDGERS": "Libros Auxiliares",
+    "VARIANCE_ANALYSIS": "Análisis de Variaciones",
+    "PERIODS": "Períodos",
+    "PERIOD_CLOSE": "Cierre Contable",
+    "RECONCILIATION": "Conciliación",
+    "COA": {
+      "TITLE": "Plan de Cuentas",
+      "ACTIONS": {
+        "FILTERS": "Filtros",
+        "NEW_ACCOUNT": "Nueva Cuenta"
+      },
+      "TABLE": {
+        "HEADERS": {
+          "CODE": "Código",
+          "ACCOUNT_NAME": "Nombre de la Cuenta",
+          "TYPE": "Tipo",
+          "BALANCE": "Saldo",
+          "ACTIONS": "Acciones"
+        }
+      },
+      "ARIA": {
+        "EXPAND_ROW": "Expandir cuenta",
+        "COLLAPSE_ROW": "Contraer cuenta",
+        "MORE_ACTIONS": "Más acciones"
+      }
+    }
+  },
+  "USER": {
+    "MY_PROFILE": "Mi Perfil",
+    "ROLE": {
+      "ADMINISTRATOR": "Administrador",
+      "MEMBER": "Miembro",
+      "SELLER": "Vendedor",
+      "ACCOUNTANT": "Contador",
+      "NO_ROLE": "Sin Rol Asignado"
+    },
+    "STATUS": {
+      "ACTIVE": "Activo",
+      "PENDING": "Pendiente",
+      "BLOCKED": "Bloqueado",
+      "ARCHIVED": "Archivado"
+    }
+  },
+
+  "USERS": {
+    "VIEWS": {
+      "ALL": "Todos"
+    },
+    "SEARCH_PLACEHOLDER": "Buscar usuarios...",
+    "FILTERS": {
+      "ADVANCED": "Filtros Avanzados",
+      "DEPARTMENT": "Departamento",
+      "ROLE": "Rol"
+    },
+    "DEPARTMENTS": {
+      "ALL": "Todos",
+      "IT": "TI",
+      "FINANCE": "Finanzas",
+      "HR": "Recursos Humanos",
+      "SALES": "Ventas"
+    },
+    "ROLES": {
+      "ALL": "Todos",
+      "STANDARD_USER": "Usuario Estándar",
+      "MANAGER": "Gerente"
+    },
+    "TABLE": {
+      "NAME": "Nombre",
+      "EMAIL": "Email",
+      "DEPARTMENT": "Departamento",
+      "ROLE": "Rol",
+      "STATUS": "Estado",
+      "ACTIONS": "Acciones"
+    },
+    "NO_DEPARTMENT": "Sin departamento",
+    "PAGINATION": {
+      "SHOWING": "Mostrando",
+      "OF": "de",
+      "USERS": "usuarios"
+    }
+  },
+
+  "AUTH": {
+    "SIGN_OUT": "Cerrar Sesión",
+    "CONTACT": "Contacto"
+  },
+  "ACTIONS": {
+    "CREATE_NEW": "Crear Nuevo",
+    "NEW_INVOICE": "Nueva factura",
+    "NEW_QUOTE": "Nueva cotización",
+    "NEW_CUSTOMER": "Nuevo cliente",
+    "NEW_PRODUCT": "Nuevo producto"
+  },
+  "NOTIFICATIONS": {
+    "MARK_ALL_AS_READ": "Marcar todo como leído",
+    "NO_NOTIFICATIONS": "No hay notificaciones",
+    "VIEW_ALL": "Ver todas"
+  },
+  "COMMON": {
+      "TOAST": {
+        "SUCCESS": "Éxito",
+        "ERROR": "Error",
+        "WARNING": "Advertencia",
+        "INFO": "Información"
+      },
+      "CANCEL": "Cancelar",
+      "CONTINUE": "Continuar",
+      "CONFIRM": "Confirmar",
+      "DONE": "Listo",
+      "DOWNLOAD": "Descargar",
+      "VERIFY": "Verificar",
+      "SENDING": "Enviando...",
+      "LOADING": "Cargando",
+      "COPY": "Copiar",
+      "COPIED": "Copiado"
+  },
+  "ALT": {
+    "COMPANY_LOGO": "Logo de la empresa"
+  },
+  "SEARCH": {
+    "MAIN_PLACEHOLDER": "Buscar facturas, clientes, productos…",
+    "ARIA_GLOBAL": "Búsqueda global"
+  },
+  "CHARTS": {
+    "COMMON": {
+      "CHART_TYPE": "Tipo de Gráfico"
+    },
+    "TYPE": {
+      "BAR": "Barras",
+      "LINE": "Línea"
+    },
+    "CASHFLOW": {
+      "TITLE": "Flujo de Efectivo del Período",
+      "CONSOLIDATED_TITLE": "Flujo de Efectivo Consolidado",
+      "SERIES_NAME": "Flujo de Efectivo",
+      "Y_AXIS_TITLE": "Monto ({{currency}})",
+      "X": {
+        "OPENING_BALANCE": "Saldo Inicial",
+        "OPERATING_INCOME": "Ingresos Operativos",
+        "COST_OF_GOODS_SOLD": "Costo de Ventas",
+        "OPERATING_EXPENSES": "Gastos Operativos",
+        "INVESTMENTS": "Inversiones",
+        "FINANCING": "Financiación",
+        "ENDING_BALANCE": "Saldo Final"
+      }
+    },
+    "TOP_PRODUCTS": {
+      "Y_AXIS_TITLE": "Unidades Vendidas",
+      "SERIES_NAME": "Unidades"
+    },
+    "MENU": {
+      "TITLE": "Exportar",
+      "DOWNLOAD": "Descargar",
+      "FULL_SCREEN": "Ver en Pantalla Completa",
+      "PRINT": "Imprimir",
+      "PNG": "Descargar PNG",
+      "JPEG": "Descargar JPEG",
+      "PDF": "Descargar PDF",
+      "SVG": "Descargar SVG",
+      "CSV": "Descargar CSV",
+      "XLS": "Descargar Excel"
+    }
+  },
+  "DASH": {
+    "HEADER": {
+      "SUBTITLE": "Un resumen de la actividad de tu negocio. Arrastra y ajusta los widgets a tu gusto.",
+      "ADD_WIDGET": "Añadir Widget",
+      "RESTORE": "Restaurar",
+      "EDIT_DONE": "Finalizar Edición",
+      "EDIT_LAYOUT": "Editar Layout"
+    },
+    "ACTIONS": {
+      "REMOVE_WIDGET": "Eliminar Widget"
+    },
+    "ADD_PANEL": {
+      "TITLE": "Librería de Widgets",
+      "DESCRIPTION": "Añade nuevos widgets a tu dashboard.",
+      "ADD": "Añadir",
+      "EMPTY": "¡Todos los widgets ya están en tu dashboard!"
+    },
+    "WIDGET": {
+      "SALES_TODAY": {
+        "NAME": "Ventas de Hoy",
+        "TITLE": "Ventas de Hoy"
+      },
+      "PENDING_INVOICES": {
+        "NAME": "Facturas Pendientes",
+        "TITLE": "Facturas Pendientes"
+      },
+      "LOW_STOCK_ITEMS": {
+        "NAME": "Productos con Bajo Stock",
+        "TITLE": "Productos con Bajo Stock"
+      },
+      "ACTIVE_CLIENTS": {
+        "NAME": "Clientes Activos",
+        "TITLE": "Clientes Activos"
+      },
+      "EBITDA": {
+        "NAME": "KPI: EBITDA",
+        "TITLE": "EBITDA",
+        "COMP_PERIOD": "vs Presupuesto"
+      },
+      "NET_MARGIN": {
+        "NAME": "KPI: Margen Neto",
+        "TITLE": "Margen Neto",
+        "COMP_PERIOD": "vs Año Anterior"
+      },
+      "CASH_FLOW_KPI": {
+        "NAME": "KPI: Flujo de Caja Libre",
+        "TITLE": "Flujo de Caja Libre",
+        "COMP_PERIOD": "vs Presupuesto"
+      },
+      "DEBT_EQUITY": {
+        "NAME": "KPI: Endeudamiento",
+        "TITLE": "Endeudamiento (D/E)",
+        "COMP_PERIOD": "vs Q2"
+      },
+      "FINANCIAL_RATIOS": {
+        "NAME": "KPIs: Ratios Financieros"
+      },
+      "KPI_ROE": {
+        "NAME": "KPI: ROE",
+        "TITLE": "ROE (Retorno sobre Patrimonio)",
+        "COMP_PERIOD": "vs Año Anterior"
+      },
+      "KPI_ROA": {
+        "NAME": "KPI: ROA",
+        "TITLE": "ROA (Retorno sobre Activos)",
+        "COMP_PERIOD": "vs Año Anterior"
+      },
+      "KPI_CURRENT_RATIO": {
+        "NAME": "KPI: Liquidez Corriente",
+        "TITLE": "Liquidez Corriente",
+        "COMP_PERIOD": "vs Mes Anterior"
+      },
+      "KPI_QUICK_RATIO": {
+        "NAME": "KPI: Prueba Ácida",
+        "TITLE": "Prueba Ácida",
+        "COMP_PERIOD": "vs Mes Anterior"
+      },
+      "KPI_WORKING_CAPITAL": {
+        "NAME": "KPI: Capital de Trabajo",
+        "TITLE": "Capital de Trabajo",
+        "COMP_PERIOD": "Actual"
+      },
+      "KPI_LEVERAGE": {
+        "NAME": "KPI: Apalancamiento",
+        "TITLE": "Apalancamiento (D/E)",
+        "COMP_PERIOD": "vs Trimestre Anterior"
+      },
+      "KPI_NET_MARGIN": {
+        "NAME": "KPI: Margen Neto",
+        "TITLE": "Margen Neto",
+        "COMP_PERIOD": "vs Año Anterior"
+      },
+      "KPI_EBITDA": {
+        "NAME": "KPI: EBITDA",
+        "TITLE": "EBITDA",
+        "COMP_PERIOD": "vs Presupuesto"
+      },
+      "KPI_FCF": {
+        "NAME": "KPI: Flujo de Caja Libre",
+        "TITLE": "Flujo de Caja Libre",
+        "COMP_PERIOD": "vs Presupuesto"
+      },
+      "REAL_VS_BUDGET": {
+        "NAME": "Real vs Presupuesto"
+      },
+      "CASHFLOW_WATERFALL": {
+        "NAME": "Flujo de Efectivo (Waterfall)"
+      },
+      "EXPENSES_PIE": {
+        "NAME": "Desglose de Gastos"
+      },
+      "AR_AGING_BAR": {
+        "NAME": "Antigüedad de Cuentas por Cobrar"
+      },
+      "SALES_CHART": {
+        "NAME": "Gráfico de Ingresos"
+      },
+      "INVOICE_STATUS": {
+        "NAME": "Estado de Facturas"
+      },
+      "TOP_PRODUCTS": {
+        "NAME": "Productos Más Vendidos"
+      },
+      "ALERTS": {
+        "NAME": "Panel de Alertas"
+      },
+      "LOW_STOCK_TABLE": {
+        "NAME": "Tabla de Bajo Stock"
+      },
+      "RECENT_ACTIVITY": {
+        "NAME": "Actividad Reciente"
+      }
+    }
+  },
+  "PURCHASING": {
+    "ORDERS": {
+      "TITLE": "Órdenes de Compra",
+      "DESCRIPTION": "Crea, rastrea y gestiona todas tus órdenes de compra a proveedores.",
+      "NEW_ORDER": "Nueva Orden"
+    },
+    "REQUISITIONS": {
+      "TITLE": "Requisiciones de Compra",
+      "DESCRIPTION": "Revisa, aprueba y da seguimiento a todas las solicitudes de compra internas.",
+      "NEW_REQUISITION": "Nueva Requisición"
+    }
+  },
+  "sidebar": {
+    "groups": {
+      "general": "Global",
+      "master_data": "Maestros",
+      "finance": "Finanzas",
+      "operations": "Operaciones",
+      "psa": "Proyectos y Costeo",
+      "hr": "RR.HH. y Nómina",
+      "reports": "Reportes",
+      "tax": "Impuestos y Cumplimiento",
+      "intelligence": "Inteligencia y Planificación",
+      "platform": "Plataforma e Integraciones",
+      "configuration": "Configuración",
+      "security": "Usuarios y Seguridad",
+      "portals": "Portales",
+      "support": "Soporte y Ayuda",
+      "revenue": "Reconocimiento de Ingresos",
+      "expenses": "Gastos y Tarjetas",
+      "organization": "Organización",
+      "logistics": "Logística",
+      "grc": "GRC",
+      "esg": "ESG",
+      "data": "Gobierno de Datos",
+      "mobile": "Móvil / PWA"
+    },
+    "general": {
+      "dashboard": "Tablero",
+      "my_work": "Mi trabajo",
+      "approvals": "Aprobaciones",
+      "notifications": "Notificaciones",
+      "search": "Búsqueda global",
+      "documents": "Documentos",
+      "documents_sub": {
+        "all": "Todos los documentos",
+        "templates": "Plantillas"
+      },
+      "etl": "ETL",
+      "etl_sub": {
+        "import": "Importaciones",
+        "export": "Exportaciones"
+      }
+    },
+    "master_data": {
+      "customers": "Clientes",
+      "suppliers": "Proveedores",
+      "products": "Productos",
+      "price_lists": "Listas de precios",
+      "taxes": "Impuestos",
+      "uom": "Unidades de medida",
+      "currencies": "Monedas",
+      "banks": "Bancos",
+      "branches": "Sucursales",
+      "warehouses": "Almacenes",
+      "payment_methods": "Formas de pago",
+      "payment_terms": "Condiciones de pago",
+      "dimensions": "Dimensiones",
+      "data_governance": "Gobernanza de datos",
+      "data_quality": "Calidad de datos",
+      "duplicates": "Duplicados"
+    },
+    "finance": {
+      "gl": "Contabilidad General",
+      "gl_sub": {
+        "journal": "Asientos",
+        "book_journal": "Libro: Diario",
+        "book_gl": "Libro: Mayor",
+        "book_subledgers": "Libro: Auxiliares",
+        "coa": "Plan de cuentas",
+        "periods": "Periodos contables",
+        "closing_monthly": "Cierre — Mensual",
+        "closing_annual": "Cierre — Anual",
+        "closing_checklist": "Cierre — Checklist",
+        "closing_tasks": "Cierre — Tareas",
+        "reconciliation_accounts": "Conciliaciones de cuentas",
+        "variance_analysis": "Análisis de variaciones",
+        "multi_ledger": "Multilibros",
+        "allocations": "Prorrateos",
+        "ic_transactions": "Intercompany — Transacciones",
+        "ic_reconciliation": "Intercompany — Conciliación",
+        "ic_netting": "Intercompany — Netting",
+        "ic_billing": "Intercompany — Facturación",
+        "cons_structure": "Consolidación — Estructura",
+        "cons_eliminations": "Consolidación — Eliminaciones",
+        "cons_ownership": "Consolidación — Participaciones",
+        "cons_cta": "Consolidación — CTA",
+        "cons_hyperinflation": "Consolidación — Hiperinflación",
+        "cons_ownership_changes": "Consolidación — Cambios de participación",
+        "multi_gaap": "Multi‑GAAP",
+        "monetary_revaluation": "Revaluación monetaria",
+        "rules_engine": "Motor de reglas",
+        "simulator": "Simulador",
+        "audit": "Auditoría",
+        "reconciliation_subledger_gl": "Conciliación — Subledger↔GL",
+        "periods_subledger": "Periodos de subledger",
+        "revaluation_subledger": "Revaluación de subledger"
+      },
+      "treasury": "Tesorería y Bancos",
+      "treasury_sub": {
+        "dashboard": "Tablero",
+        "accounts": "Cuentas bancarias",
+        "reconciliation_manual": "Conciliación — Manual",
+        "reconciliation_auto": "Conciliación — Automática",
+        "bank_files": "Archivos bancarios",
+        "file_adapters": "Adaptadores de archivos",
+        "bank_validations": "Validaciones bancarias",
+        "scheduled_payments": "Pagos programados",
+        "mass_payments": "Pagos masivos",
+        "mandates": "Mandatos",
+        "positive_pay": "Positive Pay",
+        "cash_flow_actual": "Flujo de efectivo — Real",
+        "cash_flow_forecast": "Flujo de efectivo — Proyectado",
+        "forecasting": "Pronóstico",
+        "exchange_rates": "Tipos de cambio",
+        "cash_pooling": "Cash pooling",
+        "fx_hedging": "Coberturas FX",
+        "derivatives": "Derivados",
+        "hedge_accounting": "Contabilidad de coberturas",
+        "checkbooks": "Chequeras",
+        "debt": "Deuda",
+        "in_house_bank": "Banco in‑house",
+        "guarantees": "Garantías",
+        "investments": "Inversiones",
+        "exposures": "Exposiciones"
+      },
+      "ar": "Cuentas por Cobrar",
+      "ar_sub": {
+        "dashboard": "Tablero",
+        "invoices": "Facturas",
+        "receipts": "Recibos",
+        "credit_notes": "Notas de crédito",
+        "debit_notes": "Notas de débito",
+        "cash_application": "Aplicación de cobros",
+        "dunning": "Cobranza (dunning)",
+        "disputes": "Disputas",
+        "statements": "Estados de cuenta",
+        "online_payments": "Pagos en línea",
+        "psp": "Proveedores de pago (PSP)",
+        "psp_reconciliation": "Conciliación PSP",
+        "settings": "Configuración",
+        "factoring": "Factoring",
+        "payment_plans": "Planes de pago",
+        "chargebacks": "Contracargos"
+      },
+      "ap": "Cuentas por Pagar",
+      "ap_sub": {
+        "dashboard": "Tablero",
+        "invoices": "Facturas",
+        "credit_notes": "Notas de crédito",
+        "withholdings": "Retenciones",
+        "approvals": "Aprobaciones",
+        "ocr": "OCR",
+        "payments": "Pagos",
+        "suppliers": "Proveedores",
+        "advances": "Anticipos",
+        "dynamic_discounting": "Descuento dinámico",
+        "scf_confirming": "Confirming (SCF)"
+      },
+      "fixed_assets": "Activos Fijos",
+      "fa_sub": {
+        "list": "Listado",
+        "new": "Nuevo",
+        "detail": "Detalle",
+        "disposals": "Bajas",
+        "revaluations": "Revaluaciones",
+        "components": "Componentes",
+        "leases": "Arrendamientos",
+        "ap_integration": "Integración con Compras",
+        "maintenance_plans": "Planes de mantenimiento",
+        "maintenance_orders": "Órdenes de mantenimiento",
+        "cip": "CIP",
+        "afe": "AFE"
+      }
+    },
+    "operations": {
+      "sales": "Ventas y Facturación",
+      "sales_sub": {
+        "quotes": "Cotizaciones",
+        "orders": "Órdenes de venta",
+        "returns": "Devoluciones",
+        "credit_notes": "Notas de crédito",
+        "contracts": "Contratos",
+        "cpq": "CPQ",
+        "subscriptions": "Suscripciones",
+        "subscriptions_usage": "Suscripciones — Uso",
+        "subscriptions_rating": "Suscripciones — Rating",
+        "pricing_lists": "Listas de precios",
+        "commissions": "Comisiones",
+        "invoices_list": "Facturas — Listado",
+        "invoices_new": "Facturas — Nueva"
+      },
+      "purchasing": "Compras",
+      "purchasing_sub": {
+        "requisitions": "Requisiciones",
+        "orders": "Órdenes de compra",
+        "receipts": "Recepciones",
+        "contracts": "Contratos",
+        "approvals": "Aprobaciones",
+        "match_3way": "3‑Way Match",
+        "match_4way": "4‑Way Match",
+        "analytics": "Análisis",
+        "returns": "Devoluciones",
+        "rfq": "RFQ",
+        "catalogs": "Catálogos",
+        "supplier_performance": "Desempeño de proveedores",
+        "supplier_onboarding": "Onboarding de proveedores",
+        "invoice_matching": "Conciliación de facturas"
+      },
+      "inventory": "Inventario y WMS Ligero",
+      "inventory_sub": {
+        "dashboard": "Tablero",
+        "stock": "Stock",
+        "movements": "Movimientos",
+        "adjustments": "Ajustes",
+        "transfers": "Transferencias",
+        "locations": "Ubicaciones",
+        "lots_serials": "Lotes y series",
+        "cycle_counts": "Conteos cíclicos",
+        "picking_packing": "Picking y packing",
+        "shipments": "Envíos",
+        "costs_landed": "Costos — Landed",
+        "kits_bom": "Kits y BOM",
+        "reservations": "Reservas",
+        "planning": "Planeación",
+        "quality": "Calidad",
+        "quarantines": "Cuarentenas",
+        "mobile_warehouse": "Móvil — Almacén",
+        "costs_methods": "Costeo — Métodos",
+        "costs_close": "Costeo — Cierre",
+        "costs_revaluations": "Costeo — Revaluaciones"
+      },
+      "manufacturing": "Manufactura",
+      "manufacturing_sub": {
+        "master_data": "Maestros",
+        "orders": "Órdenes de producción",
+        "mrp": "MRP",
+        "shop_floor": "Shop floor",
+        "costing": "Costeo",
+        "wip": "WIP"
+      },
+      "deliveries": "Remisiones / Entregas",
+      "deliveries_sub": {
+        "list": "Conduces",
+        "new": "Nuevo conduce",
+        "detail": "Detalle del conduce"
+      }
+    },
+    "psa": {
+      "projects": "Proyectos",
+      "projects_sub": {
+        "list": "Proyectos",
+        "timesheets": "Timesheets",
+        "milestones_wip": "Hitos y WIP",
+        "billing": "Facturación",
+        "wbs": "WBS",
+        "budgeting": "Presupuesto",
+        "resources": "Recursos",
+        "capitalization": "Capitalización"
+      },
+      "cost_centers": "Centros de costo",
+      "cost_allocation": "Asignación de costos"
+    },
+    "hr": {
+      "dashboard": "Tablero de nómina",
+      "process": "Procesar nómina",
+      "employees": "Empleados",
+      "incidents": "Incidencias",
+      "absences": "Ausencias",
+      "loans": "Préstamos",
+      "severance": "Finiquitos",
+      "reports": "Reportes",
+      "self_service": "Autoservicio"
+    },
+    "reports": {
+      "reporting": "Reportes Financieros",
+      "reporting_sub": {
+        "financial_statements": "Estados financieros",
+        "profitability": "Rentabilidad",
+        "comparatives": "Comparativos",
+        "tax": "Reportes fiscales",
+        "ar_aging": "Cartera AR",
+        "ap_aging": "Cartera AP",
+        "consolidated": "Consolidados",
+        "treasury": "Tesorería",
+        "inventory": "Inventario",
+        "assets": "Activos",
+        "audit": "Auditoría",
+        "closing": "Cierre",
+        "xbrl": "XBRL",
+        "costs_analytics": "Analítica de costos"
+      },
+      "bi": "Inteligencia de Negocio",
+      "bi_sub": {
+        "dashboards": "Tableros",
+        "kpis": "KPIs"
+      }
+    },
+    "tax": {
+      "tax": "Impuestos y Cumplimiento",
+      "sub": {
+        "summary": "Resumen",
+        "calendar": "Calendario",
+        "filings": "Declaraciones",
+        "localizations": "Localizaciones",
+        "certificates": "Certificados",
+        "withholdings": "Retenciones",
+        "e_invoicing": "Facturación electrónica",
+        "e_invoicing_country": "Facturación electrónica por país",
+        "deferred": "Impuestos diferidos",
+        "reconciliation": "Conciliación",
+        "determination_engine": "Motor de determinación",
+        "transfer_pricing": "Precios de transferencia",
+        "cbcr": "CBCR",
+        "saft": "SAF‑T",
+        "localizations_country": "Localización — País"
+      }
+    },
+    "intelligence": {
+      "analytics": "Inteligencia y Planificación",
+      "sub": {
+        "dashboard": "Tablero",
+        "what_if": "What‑if",
+        "kpis": "KPIs",
+        "process_mining": "Process mining",
+        "semantic": "Capa semántica",
+        "budget_models": "Modelos de presupuesto",
+        "budget_execution": "Ejecución de presupuesto",
+        "rolling_forecast": "Forecast continuo"
+      }
+    },
+    "platform": {
+      "integrations": "Integraciones (Configuración)",
+      "api": "API",
+      "api_sub": {
+        "credentials": "Credenciales",
+        "webhooks": "Webhooks",
+        "rate_limits": "Límites de tasa",
+        "audit": "Auditoría de API"
+      },
+      "integrations_area": "Integraciones",
+      "integrations_sub": {
+        "edi": "EDI",
+        "monitoring": "Monitoreo",
+        "reprocessing": "Reprocesos"
+      },
+      "automation": "Automatización",
+      "automation_sub": {
+        "ocr": "OCR",
+        "workflows": "Workflows"
+      },
+      "operations": "Operaciones",
+      "operations_sub": {
+        "jobs": "Jobs",
+        "logs": "Logs",
+        "archive": "Archivado",
+        "transports": "Transportes",
+        "environments": "Ambientes",
+        "apm": "APM",
+        "feature_flags": "Feature flags",
+        "capacity": "Planeación de capacidad"
+      },
+      "data_warehouse": "Data warehouse",
+      "marketplace_connectors": "Marketplace — Conectores"
+    },
+    "configuration": {
+      "system": "Sistema",
+      "accounting_accounts": "Cuentas contables",
+      "permissions": "Permisos",
+      "alerts": "Alertas",
+      "email_templates": "Plantillas de email",
+      "digital_signatures": "Firmas digitales"
+    },
+    "security": {
+      "users": "Usuarios",
+      "user_permissions": "Permisos de usuario",
+      "sso_mfa": "SSO y MFA",
+      "sod": "Segregación de funciones",
+      "policies": "Políticas",
+      "dsar": "DSAR",
+      "third_party_screening": "Screening de terceros",
+      "audit": "Auditoría"
+    },
+    "portals": {
+      "customers": "Portal de clientes",
+      "suppliers": "Portal de proveedores",
+      "employees": "Portal de empleados"
+    },
+    "support": {
+      "help": "Ayuda",
+      "support": "Soporte",
+      "status": "Estado del servicio"
+    },
+    "revenue": {
+      "performance_obligations": "Obligaciones de desempeño",
+      "contracts": "Contratos",
+      "schedules": "Programaciones",
+      "deferrals": "Diferidos",
+      "reports": "Reportes"
+    },
+    "expenses": {
+      "reports": "Reportes de gastos",
+      "cards": "Tarjetas",
+      "approvals": "Aprobaciones"
+    },
+    "organization": {
+      "companies": "Compañías"
+    },
+    "logistics": {
+      "tms": "Gestión de Transporte (TMS)",
+      "3pl": "3PL"
+    },
+    "grc": {
+      "risks": "Riesgos",
+      "controls": "Controles",
+      "certifications": "Certificaciones"
+    },
+    "esg": {
+      "data": "Datos",
+      "reports": "Reportes",
+      "audit": "Auditoría"
+    },
+    "data": {
+      "catalog": "Catálogo de datos",
+      "lineage": "Linaje de datos",
+      "masking_sandbox": "Máscara sandbox"
+    },
+    "mobile": {
+      "approvals": "Aprobaciones",
+      "expenses": "Gastos"
+    }
+  },
+  "APP_TITLE": "FacturaPRO",
+  "LOGIN": {
+    "TITLE": "Iniciar Sesión",
+    "SUBTITLE": "Bienvenido de nuevo a tu espacio de trabajo",
+    "EMAIL_LABEL": "Correo Electrónico",
+    "PASSWORD_LABEL": "Contraseña",
+    "OR": "O",
+    "FORGOT_PASSWORD": "¿Olvidaste tu contraseña?",
+    "EMAIL_PLACEHOLDER": "nombre@empresa.com",
+    "REMEMBER_ME": "Mantener la sesión iniciada",
+    "SUBMIT_BUTTON": "Entrar",
+    "PASSKEY_BUTTON": "Iniciar con Llave de Acceso (Passkey)",
+    "NO_ACCOUNT": "¿No tienes una cuenta?",
+    "REGISTER_LINK": "Regístrate",
+    "LOGGING_IN": "Iniciando sesión",
+    "2FA": {
+      "TITLE": "Verificación de 2 Pasos",
+      "SUBTITLE": "Ingresa el código de 6 dígitos enviado a tu dispositivo.",
+      "CODE_LABEL": "Código de Verificación",
+      "CODE_PLACEHOLDER": "123456",
+      "VERIFY_BUTTON": "Verificar",
+      "VERIFYING": "Verificando...",
+      "BACK_TO_LOGIN": "Volver al login"
+    },
+    "ERRORS": {
+      "EMAIL_REQUIRED": "El correo electrónico es obligatorio.",
+      "EMAIL_INVALID": "Por favor, introduce un correo electrónico válido.",
+      "PASSWORD_REQUIRED": "La contraseña es obligatoria.",
+      "AUTH_INVALID_CREDENTIALS": "Las credenciales no son correctas. Por favor, verifica tu correo y contraseña.",
+      "AUTH_USER_INACTIVE": "Usuario inactivo o pendiente, por favor contacte al administrador.",
+      "AUTH_USER_BLOCKED": "Usuario bloqueado. Contacte a soporte.",
+      "AUTH_SESSION_EXPIRED": "La sesión ha expirado. Por favor, inicia sesión de nuevo.",
+      "AUTH_DEVICE_MISMATCH": "Cambio de dispositivo detectado. Por favor inicie sesión nuevamente.",
+      "AUTH_REFRESH_TOKEN_INVALID": "Refresh token inválido o expirado.",
+      "AUTH_REFRESH_TOKEN_REVOKED": "Refresh token reutilizado. Sesión invalidada.",
+      "AUTH_USER_NOT_FOUND": "Usuario no encontrado.",
+      "ACCOUNT_LOCKED": "Tu cuenta está bloqueada temporalmente. Intenta de nuevo en unos minutos.",
+      "TOO_MANY_ATTEMPTS": "Has superado el número de intentos. Tu cuenta ha sido bloqueada.",
+      "NETWORK_ERROR": "Error de red. Por favor, comprueba tu conexión e inténtalo de nuevo.",
+      "SERVER_ERROR": "Ocurrió un error en el servidor. Por favor, inténtalo más tarde o contacta a soporte.",
+      "INVALID_CODE": "Código incorrecto. Intenta de nuevo.",
+      "PASSKEY_ERROR": "Error al iniciar sesión con llave de acceso. Intente nuevamente o use su contraseña."
+    },
+    "FOOTER": {
+      "LANGUAGE_SELECTOR_LABEL": "Seleccionar idioma",
+      "TERMS": "Términos",
+      "PRIVACY": "Privacidad",
+      "SECURITY": "Seguridad",
+      "COPYRIGHT": "© 2025 FacturaPRO, Inc. Todos los derechos reservados."
+    }
+  },
+  "REGISTER": {
+    "TITLE": "Crear Cuenta",
+    "SUBTITLE": "Comienza tu prueba gratuita de 30 días",
+    "SUBMIT_BUTTON": "Registrarse",
+    "REGISTERING": "Registrando...",
+    "HAS_ACCOUNT": "¿Ya tienes una cuenta?",
+    "LOGIN_LINK": "Inicia sesión",
+    "STEPS": {
+      "ACCOUNT": {
+        "TITLE": "Información de la Cuenta",
+        "SUBTITLE": "Ingresa tus datos personales"
+      },
+      "CONFIGURATION": {
+        "TITLE": "Configuración Fiscal",
+        "SUBTITLE": "Datos de tu país y moneda"
+      },
+      "BUSINESS": {
+        "TITLE": "Perfil de Negocio",
+        "SUBTITLE": "Cuéntanos sobre tu empresa"
+      },
+      "PLAN": {
+        "TITLE": "Elige tu Plan",
+        "SUBTITLE": "Selecciona el plan que mejor se adapte a ti"
+      }
+    },
+    "COUNTRY": "País",
+    "CURRENCY": "Moneda",
+    "TAX_ID": "Identificación Fiscal",
+    "FISCAL_REGION": "Región Fiscal",
+    "ERRORS": {
+      "SERVER_ERROR": "Error al registrarse. Intente nuevamente."
+    }
+  },
+  "FORGOT_PASSWORD": {
+    "TITLE": "Recuperar Contraseña",
+    "SUBTITLE": "Ingresa tu email para recibir instrucciones",
+    "SUBMIT_BUTTON": "Enviar Instrucciones",
+    "SENDING": "Enviando...",
+    "BACK_TO_LOGIN": "Volver al inicio de sesión",
+    "SUCCESS": "Si existe una cuenta con este correo, recibirás instrucciones en breve."
+  },
+  "RESET_PASSWORD": {
+    "TITLE": "Restablecer Contraseña",
+    "SUBTITLE": "Ingresa tu nueva contraseña",
+    "SUBMIT_BUTTON": "Cambiar Contraseña",
+    "CHANGING": "Cambiando...",
+    "SUCCESS": "Tu contraseña ha sido actualizada correctamente."
+  },
+  "SET_PASSWORD": {
+    "TITLE": "Configurar Contraseña",
+    "SUBTITLE": "Establece una contraseña para tu cuenta",
+    "SUBMIT_BUTTON": "Guardar Contraseña",
+    "SAVING": "Guardando...",
+    "SUCCESS": "Contraseña configurada. Iniciando sesión..."
+  }
+}

@@ -1,0 +1,179 @@
+@use 'variables' as *;
+
+@mixin auth-card {
+    background: var(--bg-layer-1);
+    padding: 2rem 2.5rem;
+    border-radius: $border-radius;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px var(--shadow-color);
+    width: 100%;
+}
+
+@mixin auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+
+    .auth-title {
+        font-size: 1.75rem;
+        font-weight: $font-weight-semibold;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .auth-subtitle {
+        font-size: 1rem;
+        color: var(--text-secondary);
+    }
+}
+
+@mixin form-field {
+    label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: $font-weight-semibold;
+        color: var(--text-secondary);
+        margin-bottom: 0.5rem;
+    }
+}
+
+@mixin input-wrapper {
+    position: relative;
+
+    .input-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-tertiary);
+        pointer-events: none;
+    }
+
+    input,
+    select {
+        width: 100%;
+        padding: 12px 14px 12px 40px;
+        font-family: $font-family;
+        font-size: $font-size-base;
+        color: var(--text-primary);
+        background-color: var(--bg-layer-2);
+        border: 1px solid var(--border-color);
+        border-radius: $border-radius;
+        transition: border-color $transition-duration $transition-easing, box-shadow $transition-duration $transition-easing;
+
+        &:focus {
+            outline: none;
+            border-color: var(--border-focus);
+            box-shadow: var(--focus-shadow);
+        }
+
+        &.is-invalid {
+            border-color: #e53e3e;
+
+            &:focus {
+                box-shadow: 0 0 0 2px rgba(229, 62, 62, 0.3);
+            }
+        }
+    }
+}
+
+@mixin error-message {
+    font-size: 0.8rem;
+    color: #e53e3e;
+    padding-top: 0.25rem;
+}
+
+@mixin global-error {
+    background-color: rgba(229, 62, 62, 0.1);
+    border: 1px solid rgba(229, 62, 62, 0.2);
+    border-radius: $border-radius;
+    padding: 0.75rem;
+    text-align: center;
+    margin-top: -0.25rem;
+    margin-bottom: 0.75rem;
+}
+
+@mixin submit-button {
+    padding: 12px 24px;
+    font-family: $font-family;
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    border-radius: $border-radius;
+    border: none;
+    cursor: pointer;
+    transition: background-color $transition-duration $transition-easing, transform $transition-duration $transition-easing;
+    background-color: var(--accent-primary);
+    color: var(--accent-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    &:hover:not(:disabled) {
+        background-color: var(--accent-primary-hover);
+        transform: translateY(-1px);
+    }
+
+    &:disabled {
+        cursor: not-allowed;
+        background-color: var(--bg-disabled);
+        color: var(--text-disabled);
+        transform: none;
+    }
+}
+
+@mixin auth-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.875rem;
+
+    .footer-link {
+        color: var(--accent-primary);
+        text-decoration: none;
+        font-weight: $font-weight-semibold;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
+// ✅ MIXIN AÑADIDO
+@mixin link {
+    color: var(--accent-primary);
+    text-decoration: none;
+    font-weight: 600;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+@mixin icon-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-tertiary);
+    padding: 4px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+        background-color: var(--bg-hover);
+        color: var(--text-primary);
+    }
+}
+
+@mixin checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+  }
+}

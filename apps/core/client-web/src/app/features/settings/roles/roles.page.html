@@ -1,0 +1,81 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>Roles y Permisos</h1>
+    <button class="primary-button" (click)="openRoleModal()" *hasPermission="'roles:create'">
+      <lucide-icon [img]="PlusIcon" size="16"></lucide-icon>
+      <span>Crear Rol</span>
+    </button>
+  </div>
+
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Nombre del Rol</th>
+          <th>Descripción</th>
+          <th>Tipo</th>
+          <th class="actions-column">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for(role of roles(); track role.id) {
+        <tr>
+          <td>{{ role.name }}</td>
+          <td>{{ role.description }}</td>
+          <td>
+            <span class="badge" [class.badge-system]="role.isSystemRole">
+              {{ role.isSystemRole ? 'Sistema' : 'Personalizado' }}
+            </span>
+          </td>
+          <td class="actions-column">
+            <button class="icon-button" (click)="cloneRole(role)" title="Clonar Rol" *hasPermission="'roles:create'">
+              <lucide-icon [img]="CloneIcon" size="18"></lucide-icon>
+            </button>
+            <button class="icon-button" (click)="openRoleModal(role)" [disabled]="role.isSystemRole" title="Editar Rol" *hasPermission="'roles:edit'">
+              <lucide-icon [img]="EditIcon" size="18"></lucide-icon>
+            </button>
+            <button class="icon-button danger" (click)="deleteRole(role)" [disabled]="role.isSystemRole" title="Eliminar Rol" *hasPermission="'roles:delete'">
+              <lucide-icon [img]="TrashIcon" size="18"></lucide-icon>
+            </button>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+@if (isModalOpen()) {
+<div class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ editingRole() ? 'Editar Rol' : 'Crear Nuevo Rol' }}</h2>
+      <button class="icon-button" (click)="closeModal()"><lucide-icon [img]="CloseIcon" size="20"></lucide-icon></button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="roleForm">
+        <div class="form-field"><label for="name">Nombre del Rol</label><input id="name" type="text" formControlName="name"></div>
+        <div class="form-field"><label for="description">Descripción</label><textarea id="description" formControlName="description"></textarea></div>
+        <div class="permissions-grid">
+          <h3>Permisos</h3>
+          @for(group of permissionGroups(); track group.name) {
+          <div class="permission-group">
+            <h4>{{ group.name }}</h4>
+            @for(permission of group.permissions; track permission.value) {
+            <div class="permission-item">
+              <input type="checkbox" [id]="permission.value" [checked]="isPermissionSelected(permission.value)" (change)="onPermissionChange($event, permission.value)">
+              <label [for]="permission.value">{{ permission.label }}</label>
+            </div>
+            }
+          </div>
+          }
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="secondary-button" (click)="closeModal()">Cancelar</button>
+      <button class="primary-button" (click)="saveRole()" [disabled]="roleForm.invalid">Guardar</button>
+    </div>
+  </div>
+</div>
+}

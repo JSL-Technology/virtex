@@ -1,0 +1,25 @@
+<div class="view-container">
+  <div class="view-header">
+    <div class="header-content">
+      <h1>Master Data</h1>
+      <p>Manage the core reference data for your organization.</p>
+    </div>
+  </div>
+  <nav class="secondary-nav">
+    <a routerLink="customers" routerLinkActive="active"><lucide-icon [img]="CustomersIcon" size="16"></lucide-icon><span>Customers</span></a>
+    <a routerLink="suppliers" routerLinkActive="active"><lucide-icon [img]="SuppliersIcon" size="16"></lucide-icon><span>Suppliers</span></a>
+    <a routerLink="products" routerLinkActive="active"><lucide-icon [img]="ProductsIcon" size="16"></lucide-icon><span>Products</span></a>
+    <a routerLink="price-lists" routerLinkActive="active"><lucide-icon [img]="PriceListsIcon" size="16"></lucide-icon><span>Price Lists</span></a>
+    <a routerLink="taxes" routerLinkActive="active"><lucide-icon [img]="TaxesIcon" size="16"></lucide-icon><span>Taxes</span></a>
+    <a routerLink="warehouses" routerLinkActive="active"><lucide-icon [img]="WarehousesIcon" size="16"></lucide-icon><span>Warehouses</span></a>
+    <a routerLink="units-of-measure" routerLinkActive="active"><lucide-icon [img]="UnitsIcon" size="16"></lucide-icon><span>Units</span></a>
+    <a routerLink="currencies" routerLinkActive="active"><lucide-icon [img]="CurrenciesIcon" size="16"></lucide-icon><span>Currencies</span></a>
+    <a routerLink="banks" routerLinkActive="active"><lucide-icon [img]="BanksIcon" size="16"></lucide-icon><span>Banks</span></a>
+    <a routerLink="branches" routerLinkActive="active"><lucide-icon [img]="BranchesIcon" size="16"></lucide-icon><span>Branches</span></a>
+    <a routerLink="payment-methods" routerLinkActive="active"><lucide-icon [img]="PaymentMethodsIcon" size="16"></lucide-icon><span>Payment Methods</span></a>
+    <a routerLink="payment-terms" routerLinkActive="active"><lucide-icon [img]="PaymentTermsIcon" size="16"></lucide-icon><span>Payment Terms</span></a>
+  </nav>
+  <div class="content-outlet">
+    <router-outlet></router-outlet>
+  </div>
+</div>

@@ -1,0 +1,50 @@
+<div class="form-field" [class.error-state]="hasError">
+  <label *ngIf="label" [for]="id" class="input-label">
+    {{ label }}
+  </label>
+
+  <div class="password-header" *ngIf="type === 'password' && showForgotPassword">
+     <!-- Optional forgot password link passed via content or input?
+          The user CSS has .password-header .forgot-password.
+          The original auth-input did not have this inside.
+          I will keep the structure minimal as per CSS but handle content projection if needed.
+          Actually, the Login Page handles the forgot password link separately in the original code.
+          I will stick to the input structure. -->
+  </div>
+
+  <div class="input-wrapper">
+    <!-- Icon -->
+    <div *ngIf="hasIcon" class="input-icon">
+      <ng-content select="[icon]"></ng-content>
+    </div>
+
+    <!-- Input -->
+    <input
+      [id]="id"
+      [type]="inputType"
+      [placeholder]="placeholder"
+      [formControl]="control"
+      [attr.autocomplete]="autocomplete || null"
+      (blur)="onTouched()"
+      [class.error]="hasError"
+      [style.padding-left]="hasIcon ? '3rem' : '1rem'"
+    />
+
+    <!-- Password Toggle -->
+    <button
+      *ngIf="type === 'password'"
+      type="button"
+      class="toggle-password"
+      (click)="togglePasswordVisibility()"
+      [attr.aria-label]="inputType === 'password' ? 'Show password' : 'Hide password'">
+      <svg *ngIf="inputType === 'password'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+      <svg *ngIf="inputType === 'text'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+    </button>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="hasError" class="error-message">
+     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+     <span>{{ errorMessage }}</span>
+  </div>
+</div>

@@ -1,0 +1,360 @@
+<div
+  class="impersonation-banner banner"
+  *ngIf="authService.currentUser()?.isImpersonating"
+>
+  Estás viendo el sistema como:
+  <strong>
+    {{ authService.currentUser()?.firstName }}
+    {{ authService.currentUser()?.lastName }}
+  </strong>
+  <button (click)="stopImpersonation()">Volver a mi cuenta</button>
+</div>
+
+<div
+  class="payment-pending-banner banner"
+  *ngIf="authService.currentUser()?.organization?.subscriptionStatus === 'past_due' && isGracePeriodActive()"
+>
+  <div class="banner-content">
+    <strong>¡Atención!</strong> Tu pago está pendiente. Tienes acceso temporal hasta el {{ authService.currentUser()?.organization?.gracePeriodEnd | date:'mediumDate' }}.
+  </div>
+  <a routerLink="/settings/billing" class="btn-resolve">Resolver Ahora</a>
+</div>
+
+
+
+
+
+<aside class="main-sidebar">
+  <div class="logo-container">
+    @if (companyLogo(); as logo) {
+      <img
+        [src]="logo"
+        [alt]="'ALT.COMPANY_LOGO' | translate"
+        class="company-logo"
+      />
+    } @else {
+      <span class="logo-text">{{ companyName() }}</span>
+    }
+  </div>
+
+  <app-sidebar />
+</aside>
+
+<header class="main-topbar">
+  <div class="topbar-left">
+    <div class="logo">
+      @if (companyLogo(); as logo) {
+        <img
+          [src]="logo"
+          [alt]="'ALT.COMPANY_LOGO' | translate"
+          class="company-logo"
+        />
+      } @else {
+        <span class="logo-text">{{ companyName() }}</span>
+      }
+    </div>
+
+    <nav class="topbar-nav">
+      <a
+        routerLink="/dashboard"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="nav-link"
+      >
+        {{ "NAV.DASHBOARD" | translate }}
+      </a>
+      <a routerLink="/sales" routerLinkActive="active" class="nav-link">
+        {{ "NAV.SALES" | translate }}
+      </a>
+      <a routerLink="/invoices" routerLinkActive="active" class="nav-link">
+        {{ "NAV.INVOICES" | translate }}
+      </a>
+      <a routerLink="/inventory" routerLinkActive="active" class="nav-link">
+        {{ "NAV.INVENTORY" | translate }}
+      </a>
+      <a routerLink="/contacts" routerLinkActive="active" class="nav-link">
+        {{ "NAV.CONTACTS" | translate }}
+      </a>
+      <a routerLink="/settings" routerLinkActive="active" class="nav-link">
+        {{ "NAV.SETTINGS" | translate }}
+      </a>
+    </nav>
+  </div>
+
+  <div class="topbar-content">
+    <div class="header-center">
+      <div class="global-search">
+        <div class="search-input-container">
+          <lucide-icon [img]="SearchIcon" size="18"></lucide-icon>
+          <input
+            type="text"
+            [placeholder]="'SEARCH.MAIN_PLACEHOLDER' | translate"
+            #searchInput
+            (input)="onSearchInput(searchInput.value)"
+            (keyup.enter)="navigateToSearch(searchInput.value)"
+            (focus)="onSearchFocus()"
+            [attr.aria-label]="'SEARCH.ARIA_GLOBAL' | translate"
+          />
+        </div>
+        @if (isSearchOpen()) {
+        <div class="search-results-popover">
+          <div class="results-header">
+            <div class="results-title-container">
+              <span class="results-title">Resultados de la Búsqueda</span>
+              @if (isSearchLoading()) {
+              <div class="loading-spinner">
+                <div class="spinner"></div>
+              </div>
+              }
+            </div>
+          </div>
+
+          <div class="results-content">
+            @if (!isSearchLoading() && searchResults().length === 0) {
+            <div class="no-results-container">
+              <lucide-icon [img]="FileSearchIcon" size="48"></lucide-icon>
+              <span class="no-results-title"
+                >No se encontraron resultados</span
+              >
+              <span class="no-results-description"
+                >Intenta con otra palabra clave o revisa la ortografía.</span
+              >
+            </div>
+            } @else { @for(group of searchResults(); track group.type) {
+            @if (getIconForType(group.type); as groupIcon) {
+            <div class="result-group">
+              <h4 class="group-title">
+                <lucide-icon [img]="groupIcon" size="16"></lucide-icon>
+                <span>{{ group.type }}</span>
+                <span class="group-count">({{ group.results.length }})</span>
+              </h4>
+              <ul class="results-list">
+                @for(item of group.results; track item.id) {
+                <li class="result-item">
+                  <a
+                    [routerLink]="item.link"
+                    (click)="closeSearch()"
+                    class="result-link"
+                  >
+                    <div class="item-icon-container">
+                      <lucide-icon [img]="groupIcon" size="18"></lucide-icon>
+                    </div>
+                    <div class="item-content">
+                      <span class="item-title">{{ item.title }}</span>
+                      <span class="item-description">{{
+                        item.description
+                      }}</span>
+                    </div>
+                    <lucide-icon
+                      [img]="ChevronRightIcon"
+                      size="16"
+                      class="chevron-right"
+                    ></lucide-icon>
+                  </a>
+                </li>
+                }
+              </ul>
+            </div>
+            } } }
+          </div>
+
+          @if (searchResults().length > 0) {
+          <div class="results-footer">
+            <a
+              (click)="navigateToSearch(searchInput.value); closeSearch()"
+              class="view-all-link"
+            >
+              <span>Ver todos los resultados</span>
+              <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
+            </a>
+          </div>
+          }
+        </div>
+        }
+      </div>
+    </div>
+
+    <div class="header-right">
+      <div class="actions-group">
+        <div class="quick-create-menu" appClickOutside (clickOutside)="closeQuickCreateModal()">
+          <button
+            class="icon-button"
+            [title]="'ACTIONS.CREATE_NEW' | translate"
+            (click)="toggleQuickCreateModal()"
+          >
+            <lucide-icon [img]="PlusCircleIcon" size="20"></lucide-icon>
+          </button>
+
+          @if (isQuickCreateModalOpen()) {
+          <div class="quick-create-dropdown">
+            <div class="dropdown-header">
+              <h3>{{ 'ACTIONS.CREATE_NEW' | translate }}</h3>
+            </div>
+            <div class="dropdown-body">
+              <a
+                routerLink="/invoices/new"
+                (click)="closeQuickCreateModal()"
+                class="quick-action-item"
+              >
+                <lucide-icon [img]="FileTextIcon" size="20"></lucide-icon>
+                <span class="quick-action-label">{{ 'ACTIONS.NEW_INVOICE' | translate }}</span>
+                <span class="quick-action-shortcut">Alt + Shift + I</span>
+              </a>
+              <a
+                routerLink="/quotes/new"
+                (click)="closeQuickCreateModal()"
+                class="quick-action-item"
+              >
+                <lucide-icon [img]="ReceiptIcon" size="20"></lucide-icon>
+                <span class="quick-action-label">{{ 'ACTIONS.NEW_QUOTE' | translate }}</span>
+                <span class="quick-action-shortcut">Alt + Shift + Q</span>
+              </a>
+              <a
+                routerLink="/customers/new"
+                (click)="closeQuickCreateModal()"
+                class="quick-action-item"
+              >
+                <lucide-icon [img]="UserPlusIcon" size="20"></lucide-icon>
+                <span class="quick-action-label">{{ 'ACTIONS.NEW_CUSTOMER' | translate }}</span>
+                <span class="quick-action-shortcut">Alt + Shift + C</span>
+              </a>
+              <a
+                routerLink="/products/new"
+                (click)="closeQuickCreateModal()"
+                class="quick-action-item"
+              >
+                <lucide-icon [img]="PackageIcon" size="20"></lucide-icon>
+                <span class="quick-action-label">{{ 'ACTIONS.NEW_PRODUCT' | translate }}</span>
+                <span class="quick-action-shortcut">Alt + Shift + P</span>
+              </a>
+            </div>
+          </div>
+          }
+        </div>
+
+        <div class="notification-menu" appClickOutside (clickOutside)="closeNotificationMenu()" >
+          <button class="icon-button" [title]="'NAV.NOTIFICATIONS' | translate" (click)="toggleNotificationMenu()">
+            <lucide-icon [img]="BellIcon" size="20"></lucide-icon>
+            @if (notificationCenter.unreadCount() > 0) {
+              <span class="notification-badge">{{ notificationCenter.unreadCount() }}</span>
+            }
+          </button>
+          @if (isNotificationMenuOpen()) {
+            <div class="notification-dropdown">
+              <div class="dropdown-header">
+                <h3>{{ 'NAV.NOTIFICATIONS' | translate }}</h3>
+                <button (click)="notificationCenter.markAllAsRead()" class="mark-all-read">{{ 'NOTIFICATIONS.MARK_ALL_AS_READ' | translate }}</button>
+              </div>
+              <div class="dropdown-body">
+                @for (notification of notificationCenter.notifications().slice(0, 5); track notification.id) {
+                  <button
+                    class="notification-item"
+                    [class.read]="notification.read"
+                    (click)="notificationCenter.markAsRead(notification.id); closeNotificationMenu()"
+                  >
+                    <div class="status-dot"></div>
+                    <div class="notification-content">
+                      <p class="notification-title">{{ notification.title }}</p>
+                      <p class="notification-body">{{ notification.body }}</p>
+                      <span class="notification-time">{{ notification.createdAt | date:'short' }}</span>
+                    </div>
+                  </button>
+                } @empty {
+                  <div class="no-notifications">
+                    <lucide-icon [img]="BellIcon" size="32"></lucide-icon>
+                    <p>{{ 'NOTIFICATIONS.NO_NOTIFICATIONS' | translate }}</p>
+                  </div>
+                }
+              </div>
+              @if(notificationCenter.notifications().length > 0) {
+                <div class="dropdown-footer">
+                  <a routerLink="/notifications" (click)="closeNotificationMenu()">{{ 'NOTIFICATIONS.VIEW_ALL' | translate }}</a>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <app-theme-toggle />
+      </div>
+
+      <div class="separator"></div>
+
+      <div class="user-menu" appClickOutside (clickOutside)="closeUserMenu()">
+        <button
+          class="user-menu-trigger"
+          (click)="toggleUserMenu()"
+          [attr.aria-expanded]="isUserMenuOpen()"
+        >
+          <div class="avatar">
+            <lucide-icon [img]="UserIcon" size="20"></lucide-icon>
+          </div>
+          <div class="user-info">
+            <span class="user-name"
+              >{{ authService.currentUser()?.firstName }}
+              {{ authService.currentUser()?.lastName }}</span
+            >
+
+            <span class="user-role">
+              {{(authService.currentUser()?.roles?.[0]?.isSystemRole ? ('USER.ROLE.' + authService.currentUser()!.roles[0].name.toUpperCase() | translate) : (authService.currentUser()?.roles?.[0]?.name || ('USER.ROLE.NO_ROLE' | translate)))}}
+            </span>
+          </div>
+          <lucide-icon
+            [img]="ChevronDownIcon"
+            size="16"
+            class="chevron"
+            [class.rotated]="isUserMenuOpen()"
+          ></lucide-icon>
+        </button>
+
+        @if (isUserMenuOpen()) {
+        <div class="user-menu-dropdown">
+          <div class="dropdown-header">
+            <span class="user-name"
+              >{{ authService.currentUser()?.firstName }}
+              {{ authService.currentUser()?.lastName }}</span
+            >
+            <span class="user-email">{{
+              authService.currentUser()?.email
+            }}</span>
+          </div>
+
+          <div class="dropdown-body">
+            <a
+              routerLink="/settings/profile"
+              class="dropdown-item"
+              (click)="closeUserMenu()"
+            >
+              <lucide-icon [img]="UserIcon" size="16"></lucide-icon>
+              <span>{{ "USER.MY_PROFILE" | translate }}</span>
+            </a>
+
+            <a
+              routerLink="/settings"
+              class="dropdown-item"
+              (click)="closeUserMenu()"
+            >
+              <lucide-icon [img]="SettingsIcon" size="16"></lucide-icon>
+              <span>{{ "NAV.SETTINGS" | translate }}</span>
+            </a>
+          </div>
+
+          <div class="dropdown-footer">
+            <button
+              class="dropdown-item logout-item"
+              (click)="authService.logout()"
+            >
+              <lucide-icon [img]="LogOutIcon" size="16"></lucide-icon>
+              <span>{{ "AUTH.SIGN_OUT" | translate }}</span>
+            </button>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="main-content">
+  <router-outlet></router-outlet>
+</main>

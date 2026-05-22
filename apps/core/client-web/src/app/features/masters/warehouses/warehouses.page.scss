@@ -1,0 +1,22 @@
+@use '../../../../assets/styles/view-styles' as views;
+// Reutiliza los estilos de la vista de Taxes
+@use '../taxes/taxes.page.scss';
+
+// Estilos específicos para esta vista
+.status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: var(--border-radius-full);
+
+    &.active {
+        background-color: rgba(74, 222, 128, 0.15);
+        color: #4ade80;
+    }
+
+    &:not(.active) {
+        background-color: var(--bg-solid);
+        color: var(--text-secondary);
+    }
+}

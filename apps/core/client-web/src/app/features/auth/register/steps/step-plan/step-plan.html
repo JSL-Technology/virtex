@@ -1,0 +1,54 @@
+<form class="space-y-4" [formGroup]="group">
+  <div class="text-center md:text-left mb-6">
+    <h3 class="text-lg font-semibold text-text-primary">{{ 'REGISTER.STEPS.PLAN.TITLE' | translate }}</h3>
+    <p class="text-sm text-text-secondary">{{ 'REGISTER.STEPS.PLAN.SUBTITLE' | translate }}</p>
+  </div>
+
+  <div class="bg-card/50 border border-border-color rounded-xl p-6 mb-6">
+    <div class="flex items-center gap-4 mb-4">
+       <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="m17 5-5-3-5 3"/><path d="m17 19-5 3-5-3"/></svg>
+       </div>
+       <div>
+         <h4 class="font-bold text-text-primary">Prueba Gratuita de 30 Días</h4>
+         <p class="text-sm text-text-secondary">Acceso completo a todas las funciones Premium.</p>
+       </div>
+    </div>
+    <ul class="space-y-2">
+       <li class="flex items-center gap-2 text-sm text-text-primary">
+          <svg class="text-success" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Sin tarjeta de crédito requerida
+       </li>
+       <li class="flex items-center gap-2 text-sm text-text-primary">
+          <svg class="text-success" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Cancela en cualquier momento
+       </li>
+       <li class="flex items-center gap-2 text-sm text-text-primary">
+          <svg class="text-success" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Soporte prioritario incluido
+       </li>
+    </ul>
+  </div>
+
+  <div class="space-y-3">
+    <div class="flex items-start gap-3">
+      <div class="flex items-center h-5">
+         <input
+           id="agreeToTerms"
+           type="checkbox"
+           formControlName="agreeToTerms"
+           class="w-4 h-4 rounded border-border-color bg-bg-secondary text-primary focus:ring-primary/20 cursor-pointer">
+      </div>
+      <label for="agreeToTerms" class="text-sm text-text-secondary cursor-pointer select-none">
+          {{ 'REGISTER.TERMS_AGREEMENT_1' | translate }}
+          <a routerLink="/terms" target="_blank" class="text-primary hover:underline">{{ 'REGISTER.TERMS' | translate }}</a>
+          {{ 'REGISTER.AND' | translate }}
+          <a routerLink="/privacy" target="_blank" class="text-primary hover:underline">{{ 'REGISTER.PRIVACY' | translate }}</a>.
+      </label>
+    </div>
+
+    <div *ngIf="group.get('agreeToTerms')?.touched && group.get('agreeToTerms')?.invalid" class="ml-7 text-xs text-error">
+        {{ 'REGISTER.ERRORS.TERMS_REQUIRED' | translate }}
+    </div>
+  </div>
+</form>

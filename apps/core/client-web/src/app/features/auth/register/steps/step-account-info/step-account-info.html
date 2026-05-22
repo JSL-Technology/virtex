@@ -1,0 +1,91 @@
+<form class="space-y-4" [formGroup]="group">
+  <div class="text-center md:text-left mb-6">
+    <h3 class="text-lg font-semibold text-text-primary">{{ 'REGISTER.STEPS.ACCOUNT.TITLE' | translate }}</h3>
+    <p class="text-sm text-text-secondary">{{ 'REGISTER.STEPS.ACCOUNT.SUBTITLE' | translate }}</p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <app-auth-input
+      formControlName="firstName"
+      [label]="'REGISTER.FIRST_NAME' | translate"
+      [placeholder]="'REGISTER.FIRST_NAME_PLACEHOLDER' | translate"
+      [required]="true"
+      [hasIcon]="true"
+      [errorMessage]="getErrorMessage('firstName')">
+      <svg icon xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </app-auth-input>
+
+    <app-auth-input
+      formControlName="lastName"
+      [label]="'REGISTER.LAST_NAME' | translate"
+      [placeholder]="'REGISTER.LAST_NAME_PLACEHOLDER' | translate"
+      [required]="true"
+      [hasIcon]="true"
+      [errorMessage]="getErrorMessage('lastName')">
+      <svg icon xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </app-auth-input>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <app-auth-input
+      formControlName="jobTitle"
+      [label]="'REGISTER.JOB_TITLE' | translate"
+      [placeholder]="'REGISTER.JOB_TITLE_PLACEHOLDER' | translate"
+      [hasIcon]="true">
+      <svg icon xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+    </app-auth-input>
+
+    <app-auth-input
+      formControlName="phone"
+      [label]="'REGISTER.PHONE' | translate"
+      [placeholder]="'REGISTER.PHONE_PLACEHOLDER' | translate"
+      [hasIcon]="true">
+      <svg icon xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+    </app-auth-input>
+  </div>
+
+  <app-auth-input
+    formControlName="email"
+    type="email"
+    [label]="'REGISTER.EMAIL' | translate"
+    [placeholder]="'REGISTER.EMAIL_PLACEHOLDER' | translate"
+    [required]="true"
+    [hasIcon]="true"
+    [errorMessage]="getErrorMessage('email')">
+    <svg icon xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+  </app-auth-input>
+
+  <div formGroupName="passwordGroup" class="space-y-4">
+     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="space-y-1">
+            <app-auth-input
+              formControlName="password"
+              type="password"
+              [label]="'REGISTER.PASSWORD' | translate"
+              [placeholder]="'REGISTER.PASSWORD_PLACEHOLDER' | translate"
+              [required]="true"
+              [hasIcon]="true"
+              [errorMessage]="getErrorMessage('passwordGroup.password')">
+              <svg icon xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </app-auth-input>
+
+            <app-password-validator [password]="group.get('passwordGroup.password')?.value"></app-password-validator>
+        </div>
+
+        <app-auth-input
+          formControlName="confirmPassword"
+          type="password"
+          [label]="'REGISTER.CONFIRM_PASSWORD' | translate"
+          [placeholder]="'REGISTER.CONFIRM_PASSWORD_PLACEHOLDER' | translate"
+          [required]="true"
+          [hasIcon]="true"
+          [errorMessage]="getErrorMessage('passwordGroup.confirmPassword')">
+          <svg icon xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </app-auth-input>
+     </div>
+
+     <div *ngIf="group.get('passwordGroup')?.errors?.['passwordMismatch'] && group.get('passwordGroup.confirmPassword')?.touched" class="text-xs text-error px-1">
+        {{ 'REGISTER.ERRORS.PASSWORD_MISMATCH' | translate }}
+     </div>
+  </div>
+</form>

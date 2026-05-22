@@ -1,0 +1,29 @@
+@use '../../../../assets/styles/forms' as mixins;
+@use '../company-profile/company-profile.page.scss';
+@use '../../auth/register/steps/step-business/step-business.scss';
+
+
+// @use '../assets/styles/forms' as mixins;
+// @use '../company-profile/company-profile.page.scss';
+// @use '../../auth/register/steps/step-business/step-business.scss';
+
+// ... (estilos de color-picker, etc. sin cambios)
+.button-group {
+  display: flex;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  button {
+    flex-grow: 1; padding: var(--space-input-y) var(--space-padding);
+    background-color: var(--bg-layer-1); color: var(--text-secondary);
+    border: none; cursor: pointer; font-weight: 600;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    &:not(:last-child) { border-right: 1px solid var(--border-color); }
+    &.active { background-color: var(--accent-primary); color: var(--accent-text); }
+  }
+  &.three-cols { /* Estilos si es necesario */ }
+}
+
+img{
+    width: 200px;
+}

@@ -1,0 +1,126 @@
+@use '../../../../assets/styles/view-styles' as views;
+@use '../../../../assets/styles/forms' as mixins;
+
+// Reutiliza los estilos base
+:host {
+  display: block;
+}
+.view-container {
+  @include views.view-container;
+}
+.view-header {
+  @include views.view-header;
+}
+.header-actions {
+  @include views.header-actions;
+}
+.card {
+  @include views.card;
+  padding: 0;
+}
+.data-table {
+  @include views.data-table;
+}
+.icon-button {
+  @include mixins.icon-button;
+}
+.empty-state, .loading-state {
+  @include views.empty-state;
+}
+
+// Estilos específicos
+.toolbar {
+  padding: 1rem 1.5rem;
+}
+
+.search-bar {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+
+  lucide-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-tertiary);
+  }
+
+  input {
+    padding-left: 38px;
+  }
+}
+
+.product-sku {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  font-family: 'Source Code Pro', monospace;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--border-radius-full);
+  text-transform: capitalize;
+
+  &.status-active {
+    background-color: rgba(74, 222, 128, 0.15); // Verde
+    color: #4ade80;
+  }
+  &.status-low {
+    background-color: rgba(251, 146, 60, 0.15); // Naranja
+    color: #fb923c;
+  }
+  &.status-out {
+    background-color: rgba(248, 113, 113, 0.15); // Rojo
+    color: #f87171;
+  }
+  &.status-inactive {
+    background-color: var(--bg-solid);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+  }
+}
+
+// Dropdown para acciones
+.dropdown {
+  position: relative;
+  .dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: var(--bg-layer-1);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    box-shadow: 0 4px 12px var(--shadow-color);
+    z-index: 10;
+    min-width: 160px;
+    padding: 0.5rem;
+    
+    a {
+      display: block;
+      padding: 0.5rem 1rem;
+      text-decoration: none;
+      color: var(--text-primary);
+      border-radius: var(--border-radius-sm);
+      cursor: pointer;
+
+      &:hover {
+        background-color: var(--bg-hover);
+        color: var(--accent-primary);
+      }
+
+      &.danger:hover {
+        background-color: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+      }
+    }
+  }
+  &:hover .dropdown-menu {
+    display: block;
+  }
+}

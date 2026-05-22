@@ -1,0 +1,17 @@
+<div class="widget-header">
+    <h3>Alertas Tempranas</h3>
+</div>
+<div class="widget-content">
+    <ul class="alerts-list">
+        @for(alert of alerts(); track $index) {
+        <li class="alert-item" [ngClass]="alert.severity">
+            <lucide-icon [img]="alert.severity === 'critical' ? WarningIcon : CheckIcon" size="20"
+                class="alert-icon"></lucide-icon>
+            <div class="alert-details">
+                <h4 class="alert-title">{{ alert.title }}</h4>
+                <p class="alert-description">{{ alert.description }}</p>
+            </div>
+        </li>
+        }
+    </ul>
+</div>

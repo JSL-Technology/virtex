@@ -1,0 +1,17 @@
+// ../assets/styles/_variables.scss
+
+// Tipografía inspirada en Windows 11
+$font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', sans-serif;
+$font-size-base: 1rem; // 16px
+$font-weight-regular: 400;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// Diseño y espaciado
+$border-radius: 8px;
+$border-radius-sm: 4px;
+$transition-duration: 0.2s;
+$shadow-sm: 0 2px 4px;
+$shadow-md: 0 4px 8px;
+$shadow-lg: 0 8px 16px;
+$transition-easing: cubic-bezier(0.1, 0.9, 0.2, 1);

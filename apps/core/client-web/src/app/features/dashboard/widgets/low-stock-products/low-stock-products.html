@@ -1,0 +1,28 @@
+<div class="widget-header">
+    <h3>Productos con Bajo Stock</h3>
+</div>
+<div class="widget-content">
+    @if (lowStockProducts().length > 0) {
+    <ul class="product-list">
+        @for(product of lowStockProducts(); track product.id) {
+        <li class="product-item">
+            <div class="product-details">
+                <a routerLink="/inventory/products/{{product.id}}/edit" class="product-name">{{ product.name }}</a>
+            </div>
+            <div class="stock-level" [ngClass]="getStockSeverityClass(product.stock)">
+                @if (product.stock === 0) {
+                <lucide-icon [img]="AlertIcon" size="14"></lucide-icon>
+                }
+                <span>{{ product.stock }} unidades</span>
+            </div>
+        </li>
+        }
+    </ul>
+    } @else {
+    <div class="empty-state">
+        <lucide-icon [img]="PackageIcon" size="48"></lucide-icon>
+        <span>¡Excelente!</span>
+        <p>No hay productos con bajo inventario en este momento.</p>
+    </div>
+    }
+</div>

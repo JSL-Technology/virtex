@@ -1,0 +1,156 @@
+<div class="page-container">
+  <!-- Encabezado -->
+  <div class="page-header">
+    <h1><i class="fas fa-code-merge"></i> Herramienta de Fusión de Cuentas</h1>
+    <a routerLink="/accounting/chart-of-accounts" class="btn btn-secondary">
+      <i class="fas fa-arrow-left"></i> Volver al Plan de Cuentas
+    </a>
+  </div>
+
+  <!-- Contenedor del Wizard -->
+  <div class="wizard-container card" [ngSwitch]="currentStep()">
+    <!-- PASO 1: Selección -->
+    <div *ngSwitchCase="'selection'" class="wizard-step">
+      <div class="step-header">
+        <h2>Paso 1: Seleccionar Cuentas</h2>
+        <p>Elige una <strong>cuenta origen</strong> (la que será fusionada) y una <strong>cuenta destino</strong> (la que conservará los movimientos y saldo).</p>
+      </div>
+
+      <div class="grid-2">
+        <!-- Origen -->
+        <div class="account-selection-box">
+          <h3><i class="fas fa-sign-out-alt"></i> Cuenta Origen (a fusionar)</h3>
+
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Buscar por código o nombre..."
+            [ngModel]="sourceAccountQuery()"
+            (ngModelChange)="sourceAccountQuery.set($event)" />
+
+          <select
+            class="form-control"
+            size="8"
+            (change)="sourceAccountId.set($any($event.target)?.value)">
+            <option *ngFor="let acc of sourceAccountOptions()" [value]="acc.id">
+              {{ acc.code }} - {{ acc.name }}
+            </option>
+          </select>
+
+          <div *ngIf="selectedSourceAccount()" class="selection-details">
+            <h4>Cuenta Seleccionada:</h4>
+            <p>
+              <strong>{{ selectedSourceAccount()?.code }} - {{ selectedSourceAccount()?.name }}</strong>
+            </p>
+            <p>Tipo: {{ selectedSourceAccount()?.type }}</p>
+          </div>
+        </div>
+
+        <!-- Destino -->
+        <div class="account-selection-box">
+          <h3><i class="fas fa-sign-in-alt"></i> Cuenta Destino (recibe la fusión)</h3>
+
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Buscar por código o nombre..."
+            [ngModel]="targetAccountQuery()"
+            (ngModelChange)="targetAccountQuery.set($event)" />
+
+          <select
+            class="form-control"
+            size="8"
+            (change)="targetAccountId.set($any($event.target)?.value)">
+            <option *ngFor="let acc of targetAccountOptions()" [value]="acc.id">
+              {{ acc.code }} - {{ acc.name }}
+            </option>
+          </select>
+
+          <div *ngIf="selectedTargetAccount()" class="selection-details">
+            <h4>Cuenta Seleccionada:</h4>
+            <p>
+              <strong>{{ selectedTargetAccount()?.code }} - {{ selectedTargetAccount()?.name }}</strong>
+            </p>
+            <p>Tipo: {{ selectedTargetAccount()?.type }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="wizard-actions">
+        <button class="btn btn-primary" (click)="goToAnalysis()">Analizar</button>
+        <button class="btn btn-outline" (click)="reset()">Limpiar</button>
+      </div>
+    </div>
+
+    <!-- PASO 2: Análisis -->
+    <div *ngSwitchCase="'analysis'" class="wizard-step">
+      <div class="step-header">
+        <h2>Paso 2: Análisis de Impacto</h2>
+        <p>Se muestra un resumen del *dry-run* antes de ejecutar la fusión.</p>
+      </div>
+
+      <div class="analysis-box" *ngIf="analysis() as a">
+        <p><strong>Origen:</strong> {{ selectedSourceAccount()?.code }} - {{ selectedSourceAccount()?.name }}</p>
+        <p><strong>Destino:</strong> {{ selectedTargetAccount()?.code }} - {{ selectedTargetAccount()?.name }}</p>
+        <ul class="facts">
+          <li>Transacciones a mover: <strong>{{ a.transactionsToMove }}</strong></li>
+          <li>Saldo en origen: <strong>{{ a.sourceBalance | number:'1.2-2' }}</strong></li>
+          <li>Saldo en destino: <strong>{{ a.targetBalance | number:'1.2-2' }}</strong></li>
+        </ul>
+        <div *ngIf="a.warnings?.length">
+          <p><strong>Advertencias:</strong></p>
+          <ul>
+            <li *ngFor="let w of a.warnings">{{ w }}</li>
+          </ul>
+        </div>
+        <div *ngIf="!a.ok" class="alert alert-danger">
+          El análisis reportó problemas. Corrige la selección.
+        </div>
+      </div>
+
+      <div class="wizard-actions">
+        <button class="btn btn-secondary" (click)="goToSelection()">Volver</button>
+        <button class="btn btn-primary" [disabled]="!analysis()?.ok || isAnalyzing()" (click)="goToConfirmation()">Continuar</button>
+      </div>
+    </div>
+
+    <!-- PASO 3: Confirmación -->
+    <div *ngSwitchCase="'confirmation'" class="wizard-step">
+      <div class="step-header">
+        <h2>Paso 3: Confirmación</h2>
+        <p>Confirma que deseas fusionar la cuenta <strong>{{ selectedSourceAccount()?.code }}</strong> en <strong>{{ selectedTargetAccount()?.code }}</strong>.</p>
+      </div>
+      <div class="wizard-actions">
+        <button class="btn btn-secondary" (click)="goToAnalysis()">Volver</button>
+        <button class="btn btn-danger" [disabled]="isMerging()" (click)="confirmAndMerge()">Confirmar Fusión</button>
+      </div>
+    </div>
+
+    <!-- RESULTADO -->
+    <div *ngSwitchCase="'result'" class="wizard-step">
+      <div class="step-header">
+        <h2>Resultado</h2>
+      </div>
+      <div *ngIf="mergeSucceeded(); else errorTpl" class="alert alert-success">
+        <strong>¡Fusión completada!</strong>
+        <p>La cuenta <strong>{{ selectedSourceAccount()?.code }}</strong> fue fusionada en <strong>{{ selectedTargetAccount()?.code }}</strong>.</p>
+      </div>
+      <ng-template #errorTpl>
+        <div class="alert alert-danger">
+          <strong>La fusión no se completó.</strong>
+          <p>{{ errorMessage() || 'Ocurrió un error inesperado.' }}</p>
+        </div>
+      </ng-template>
+
+      <div class="wizard-actions">
+        <button class="btn btn-secondary" (click)="reset()">Realizar otra fusión</button>
+        <a routerLink="/accounting/chart-of-accounts" class="btn btn-primary">Volver al Plan de Cuentas</a>
+      </div>
+    </div>
+
+    <!-- Error global -->
+    <div *ngIf="errorMessage()" class="alert alert-danger global-error">
+      <strong>Error:</strong> {{ errorMessage() }}
+    </div>
+  </div>
+</div>

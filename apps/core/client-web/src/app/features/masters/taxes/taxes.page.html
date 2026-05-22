@@ -1,0 +1,43 @@
+<div class="subview-container">
+    <div class="subview-header">
+        <h3>Tax Rates</h3>
+        <div class="header-actions">
+            <button class="secondary-button"><lucide-icon [img]="FilterIcon"
+                    size="16"></lucide-icon><span>Filters</span></button>
+            <!-- <button class="primary-button"><lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon><span>New
+                    Tax</span></button> -->
+
+            <a routerLink="/masters/taxes/new" class="primary-button"><lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon><span>New
+                    Tax</span></a>
+        </div>
+    </div>
+    <div class="table-container card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th class="text-right">Rate (%)</th>
+                    <th class="text-center">Country</th>
+                    <th class="actions-column"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for(tax of taxes(); track tax.id) {
+                <tr>
+                    <td><a href="#" class="table-link">{{ tax.name }}</a></td>
+                    <td>{{ tax.type }}</td>
+                    <td class="text-right">{{ tax.rate | number:'1.2-2' }}%</td>
+                    <td class="text-center">{{ tax.countryCode }}</td>
+                    <td class="actions-column"><button class="icon-button"><lucide-icon [img]="MoreHorizontalIcon"
+                                size="18"></lucide-icon></button></td>
+                </tr>
+                } @empty {
+                <tr>
+                    <td colspan="5" class="empty-state">No taxes configured.</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

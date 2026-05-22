@@ -1,0 +1,17 @@
+<div class="auth-layout login-wrapper">
+
+  <!-- Main Content Area -->
+  <div class="auth-container">
+    <div class="auth-card">
+      <ng-content></ng-content>
+
+      <!-- Footer Actions (e.g. Register Link) -->
+      <div class="auth-footer-actions">
+          <ng-content select="[footer-actions]"></ng-content>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer (Now includes Language Selector) -->
+  <app-auth-footer></app-auth-footer>
+</div>

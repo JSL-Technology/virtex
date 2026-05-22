@@ -1,0 +1,43 @@
+<div class="modal-container" [@modalContainer] *ngIf="isOpen">
+  <!-- Backdrop -->
+  <div class="modal-backdrop" [@modalBackdrop] (click)="onBackdropClick()"></div>
+
+  <!-- Modal Panel -->
+  <div class="modal-panel-wrapper">
+    <div
+      class="modal-panel"
+      [ngClass]="'size-' + size"
+      [@modalPanel]
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-label]="title">
+
+      <!-- Header -->
+      <div class="modal-header" *ngIf="title || !hideCloseButton">
+        <h2 class="modal-title" *ngIf="title">{{ title }}</h2>
+        <div class="modal-actions">
+          <button
+            *ngIf="!hideCloseButton"
+            class="close-button"
+            (click)="closeModal()"
+            type="button"
+            aria-label="Close">
+            <lucide-icon [img]="XIcon" class="icon"></lucide-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="modal-content">
+        <ng-content></ng-content>
+      </div>
+
+      <!-- Footer (Optional) -->
+      <div class="modal-footer" *ngIf="footerContent.childNodes.length > 0">
+        <ng-content select="[footer]"></ng-content>
+      </div>
+      <!-- Hidden ref to check if footer exists -->
+      <div #footerContent style="display: none"><ng-content select="[footer]"></ng-content></div>
+    </div>
+  </div>
+</div>

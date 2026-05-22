@@ -1,0 +1,54 @@
+<div class="subview-container">
+    <div class="subview-header">
+        <h3>{{ 'PURCHASING.ORDERS.TITLE' | translate }}</h3>
+        <div class="header-actions">
+            <button class="secondary-button">
+                <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
+                <span>Filters</span>
+            </button>
+            <a routerLink="/purchasing/orders/new" class="primary-button">
+                <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
+                <span>{{ 'PURCHASING.ORDERS.NEW_ORDER' | translate }}</span>
+            </a>
+        </div>
+    </div>
+    <div class="table-container card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Supplier</th>
+                    <th>Order Date</th>
+                    <th class="text-right">Total</th>
+                    <th class="text-center">Status</th>
+                    <th class="actions-column"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (order of orders(); track order.id) {
+                <tr>
+                    <td><a routerLink="/purchasing/orders/{{order.id}}/edit" class="table-link">{{ order.poNumber
+                            }}</a></td>
+                    <td>{{ order.supplierName }}</td>
+                    <td>{{ order.orderDate }}</td>
+                    <td class="text-right">{{ order.total | number:'1.2-2' }}</td>
+                    <td class="text-center">
+                        <span class="status-badge" [ngClass]="getStatusClass(order.status)">
+                            {{ order.status }}
+                        </span>
+                    </td>
+                    <td class="actions-column">
+                        <button class="icon-button">
+                            <lucide-icon [img]="MoreHorizontalIcon" size="18"></lucide-icon>
+                        </button>
+                    </td>
+                </tr>
+                } @empty {
+                <tr>
+                    <td colspan="6" class="empty-state">No purchase orders found.</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

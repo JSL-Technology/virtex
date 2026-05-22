@@ -1,0 +1,26 @@
+<div class="widget-header">
+    <h3>Actividad Reciente</h3>
+</div>
+<div class="widget-content">
+    @if (activities().length > 0) {
+    <ul class="activity-timeline">
+        @for(activity of activities(); track $index) {
+        <li class="activity-item">
+            <div class="timeline-connector">
+                <div class="timeline-icon" [ngClass]="activity.type">
+                    <lucide-icon [img]="activity.icon" size="16"></lucide-icon>
+                </div>
+            </div>
+            <div class="activity-details">
+                <p class="activity-text">{{ activity.text }}</p>
+                <span class="activity-time">{{ activity.time }}</span>
+            </div>
+        </li>
+        }
+    </ul>
+    } @else {
+    <div class="empty-state">
+        <p>No hay actividad reciente para mostrar.</p>
+    </div>
+    }
+</div>

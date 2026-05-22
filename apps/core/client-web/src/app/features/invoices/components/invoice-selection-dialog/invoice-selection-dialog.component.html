@@ -1,0 +1,57 @@
+<div class="modal-backdrop" *ngIf="isOpen()" (click)="close()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Seleccionar Documento Base (Copiar de...)</h2>
+      <button class="close-btn" (click)="close()">
+        <lucide-icon [img]="CloseIcon" size="20"></lucide-icon>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="search-bar">
+        <lucide-icon [img]="SearchIcon" size="18"></lucide-icon>
+        <input
+          type="text"
+          placeholder="Buscar por número o cliente..."
+          [ngModel]="searchTerm()"
+          (ngModelChange)="searchTerm.set($event)"
+        >
+      </div>
+
+      <div class="invoice-list" [class.loading]="isLoading()">
+        @if (isLoading()) {
+          <div class="loader">Cargando documentos...</div>
+        } @else {
+          <table>
+            <thead>
+              <tr>
+                <th>Factura #</th>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (invoice of filteredInvoices(); track invoice.id) {
+                <tr (click)="selectInvoice(invoice)" class="selectable-row">
+                  <td><strong>{{ invoice.invoiceNumber }}</strong></td>
+                  <td>{{ invoice.customerName }}</td>
+                  <td>{{ invoice.issueDate | date:'shortDate' }}</td>
+                  <td class="text-right">{{ invoice.currencyCode }} {{ invoice.total | number:'1.2-2' }}</td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="4" class="empty-msg">No se encontraron facturas.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="secondary-button" (click)="close()">Cancelar</button>
+    </div>
+  </div>
+</div>

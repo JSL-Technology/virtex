@@ -1,0 +1,51 @@
+@use '../../../../assets/styles/variables' as *;
+
+.theme-toggle-button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: $border-radius;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background-color $transition-duration $transition-easing,
+        color $transition-duration $transition-easing;
+
+    &:hover {
+        background-color: var(--bg-hover);
+        color: var(--text-primary);
+    }
+
+    // Estilo del Tooltip
+    &::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: var(--bg-layer-1);
+        color: var(--text-primary);
+        padding: 6px 10px;
+        border-radius: $border-radius;
+        font-size: 0.875rem;
+        font-weight: $font-weight-semibold;
+        white-space: nowrap;
+        box-shadow: 0 4px 8px var(--shadow-color);
+        border: 1px solid var(--border-color);
+
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+        z-index: 10;
+    }
+
+    &:hover::after {
+        opacity: 1;
+        visibility: visible;
+        transition-delay: 0.5s;
+    }
+}

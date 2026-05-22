@@ -1,0 +1,96 @@
+<div class="settings-page-container">
+    <form [formGroup]="brandingForm" (ngSubmit)="saveBranding()">
+        <div class="page-header">
+            <!-- <h2>Personalización Avanzada</h2> -->
+                   <h2>{{ 'SETTINGS.BRANDING.TITLE' | translate }}</h2>
+            <button type="submit" class="primary-button" [disabled]="brandingForm.pristine">
+                <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
+                <span>Guardar Cambios</span>
+            </button>
+        </div>
+
+        <div class="branding-grid">
+            <div class="controls-column">
+                <div class="form-section">
+                    <h3 class="section-title">Preferencias de Idioma</h3>
+                    <app-language-selector />
+                </div>
+                <div class="form-section">
+                    <h3 class="section-title">Logo y Colores</h3>
+                    <div class="form-field"><label>Logo de la Empresa</label>
+                        <div class="file-input-container logo-container">
+                            <input type="file" id="logoFile" (change)="onFileSelected($event)"
+                                accept="image/png, image/jpeg, image/svg+xml">
+                            <label for="logoFile" class="file-input-label">
+                                @if (logoPreview()) { <img [src]="logoPreview()" alt="Vista previa del logo"> }
+                                @else { <lucide-icon [img]="ImageIcon" size="32" /><span>Subir logo</span> }
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field"><label for="accentColor">Color de Acento</label><input type="color"
+                                id="accentColor" formControlName="accentColor"></div>
+                        <div class="form-field"><label for="grayColor">Color Neutro (Grises)</label><input type="color"
+                                id="grayColor" formControlName="grayColor"></div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">Apariencia y Layout</h3>
+                    <div class="form-field"><label for="fontFamily">Tipografía</label><select id="fontFamily"
+                            formControlName="fontFamily">@for(font of fonts; track font.id){<option [value]="font.id">
+                                {{font.name}}</option>}</select></div>
+                    <div class="form-field"><label for="borderRadius">Radio de Bordes ({{
+                            brandingForm.get('borderRadius')?.value }}px)</label><input type="range" id="borderRadius"
+                            formControlName="borderRadius" min="0" max="24" step="2"></div>
+
+                    <div class="form-field">
+                        <label>Diseño de la Aplicación</label>
+                        <div class="button-group">
+                            <button type="button" [class.active]="brandingForm.get('layoutStyle')?.value === 'topnav'"
+                                (click)="brandingForm.get('layoutStyle')?.setValue('topnav')">Superior</button>
+                            <button type="button" [class.active]="brandingForm.get('layoutStyle')?.value === 'sidenav'"
+                                (click)="brandingForm.get('layoutStyle')?.setValue('sidenav')">Lateral</button>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-field"><label>Densidad</label>
+                            <div class="button-group">
+                                <button type="button" [class.active]="brandingForm.get('density')?.value==='compact'"
+                                    (click)="brandingForm.get('density')?.setValue('compact')">Compacta</button>
+                                <button type="button" [class.active]="brandingForm.get('density')?.value==='comfy'"
+                                    (click)="brandingForm.get('density')?.setValue('comfy')">Cómoda</button>
+                            </div>
+                        </div>
+                        <div class="form-field"><label>Ancho de Contenido</label>
+                            <div class="button-group">
+                                <button type="button"
+                                    [class.active]="brandingForm.get('contentWidth')?.value==='normal'"
+                                    (click)="brandingForm.get('contentWidth')?.setValue('normal')">Normal</button>
+                                <button type="button" [class.active]="brandingForm.get('contentWidth')?.value==='wide'"
+                                    (click)="brandingForm.get('contentWidth')?.setValue('wide')">Ancho</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-field">
+                        <label>Modo de Interfaz</label>
+                        <div class="button-group three-cols">
+                            <button type="button" [class.active]="brandingForm.get('uiMode')?.value==='light'"
+                                (click)="brandingForm.get('uiMode')?.setValue('light')">Claro</button>
+                            <button type="button" [class.active]="brandingForm.get('uiMode')?.value==='dark'"
+                                (click)="brandingForm.get('uiMode')?.setValue('dark')">Oscuro</button>
+                            <button type="button" [class.active]="brandingForm.get('uiMode')?.value==='contrast'"
+                                (click)="brandingForm.get('uiMode')?.setValue('contrast')">Contraste</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="preview-column">
+                <h3 class="section-title">Vista Previa en Vivo</h3>
+                <app-live-preview />
+            </div>
+        </div>
+    </form>
+</div>

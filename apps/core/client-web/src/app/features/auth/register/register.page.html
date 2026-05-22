@@ -1,0 +1,124 @@
+<app-auth-layout>
+  <div class="register-container animate-fade-in-up">
+    <!-- Header -->
+    <div class="view-header">
+      <h1 class="view-title">
+        {{ "REGISTER.TITLE" | translate }}
+      </h1>
+      <p class="view-subtitle">
+        {{ "REGISTER.SUBTITLE" | translate }}
+      </p>
+    </div>
+
+    <!-- Steps Indicator -->
+    <div class="steps-indicator">
+      <!-- Progress Bar Background -->
+      <div class="progress-bar-bg"></div>
+
+      <!-- Progress Bar Active -->
+      <div class="progress-bar-active"
+           [style.width]="((currentStep() - 1) / 3) * 100 + '%'"></div>
+
+      <ng-container *ngFor="let step of [1, 2, 3, 4]; let i = index">
+        <div
+          class="step-item"
+          (click)="navigateToStep(step)"
+        >
+          <div
+            class="step-circle"
+            [ngClass]="{
+              'active': currentStep() === step,
+              'completed': currentStep() > step,
+              'pending': currentStep() < step
+            }"
+          >
+            <ng-container *ngIf="currentStep() > step; else number">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </ng-container>
+            <ng-template #number>{{ step }}</ng-template>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- Steps Content -->
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+
+      <!-- Step 1: Account Info -->
+      <div *ngIf="currentStep() === 1" [@stepAnimation] class="step-content">
+        <app-step-account-info [group]="accountInfo"></app-step-account-info>
+      </div>
+
+      <!-- Step 2: Configuration (Country/Tax) -->
+      <div *ngIf="currentStep() === 2" [@stepAnimation] class="step-content">
+        <app-step-configuration [group]="configuration"></app-step-configuration>
+      </div>
+
+      <!-- Step 3: Business Info -->
+      <div *ngIf="currentStep() === 3" [@stepAnimation] class="step-content">
+        <app-step-business [group]="business"></app-step-business>
+      </div>
+
+      <!-- Step 4: Plan / Confirmation -->
+      <div *ngIf="currentStep() === 4" [@stepAnimation] class="step-content">
+        <app-step-plan [group]="plan"></app-step-plan>
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div class="navigation-buttons">
+        <button
+          type="button"
+          *ngIf="currentStep() > 1"
+          (click)="prevStep()"
+          class="back-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          Atrás
+        </button>
+        <div *ngIf="currentStep() === 1" class="spacer"></div> <!-- Spacer -->
+
+        <div class="next-btn-container" *ngIf="currentStep() < 4">
+            <app-auth-button
+            (onClick)="nextStep()"
+            variant="primary">
+            Siguiente
+            <svg icon xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </app-auth-button>
+        </div>
+
+        <div class="next-btn-container" *ngIf="currentStep() === 4">
+            <app-auth-button
+            type="submit"
+            variant="primary"
+            [loading]="isRegistering()"
+            [disabled]="registerForm.invalid">
+            {{ "REGISTER.SUBMIT_BUTTON" | translate }}
+            </app-auth-button>
+        </div>
+      </div>
+
+    </form>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage()" class="global-error-message animate-fade-in-up">
+       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+       <span>{{ errorMessage() | translate }}</span>
+    </div>
+
+    <!-- ReCAPTCHA Legal Text -->
+    <p class="recaptcha-legal">
+      This site is protected by reCAPTCHA and the Google
+      <a href="https://policies.google.com/privacy" target="_blank">Privacy Policy</a> and
+      <a href="https://policies.google.com/terms" target="_blank">Terms of Service</a> apply.
+    </p>
+
+  </div>
+
+  <!-- Footer Actions -->
+  <p footer-actions class="footer-cta">
+    {{ "REGISTER.HAS_ACCOUNT" | translate }}
+    <a [routerLink]="['/', languageService.currentLang(), 'auth', 'login']"
+       class="cta-link">
+       {{ "REGISTER.LOGIN_LINK" | translate }}
+    </a>
+  </p>
+</app-auth-layout>

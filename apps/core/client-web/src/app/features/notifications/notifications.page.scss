@@ -1,0 +1,104 @@
+@use '../../../assets/styles/view-styles' as views;
+
+// Reutilizamos la base de estilos
+@use '../my-work/my-work.page.scss';
+
+// Estilos específicos para la página de notificaciones
+.notifications-list {
+    padding: 0;
+}
+
+.notification-group {
+    .group-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        padding: 1rem 1.5rem 0.5rem;
+        background-color: var(--bg-solid);
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+}
+
+.notification-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    gap: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:not(:last-child) {
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    &:hover {
+        background-color: var(--bg-hover);
+    }
+
+    &.unread {
+        background-color: var(--accent-primary-subtle);
+
+        .notification-title {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+    }
+}
+
+.notification-content {
+    .notification-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .notification-description {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin-top: 0.25rem;
+    }
+}
+
+.notification-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0;
+}
+
+.timestamp {
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+}
+
+.unread-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--accent-primary);
+}
+
+.empty-state {
+    @include views.empty-state; // Hereda el estilo
+
+    lucide-icon {
+        color: var(--text-tertiary);
+    }
+
+    span {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    p {
+        color: var(--text-secondary);
+    }
+}

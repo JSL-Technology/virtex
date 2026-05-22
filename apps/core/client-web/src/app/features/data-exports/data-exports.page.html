@@ -1,0 +1,90 @@
+<div class="view-container">
+    <div class="view-header">
+        <div class="header-content">
+            <h1>Data Exports</h1>
+            <p>Generate and download your master or transactional data in different formats.</p>
+        </div>
+    </div>
+
+    <div class="export-form-container card">
+        <form [formGroup]="exportForm" (ngSubmit)="startExport()">
+            <h3 class="form-title">New Export</h3>
+            <div class="form-grid">
+                <div class="form-field">
+                    <label for="dataType">Data to Export*</label>
+                    <select id="dataType" formControlName="dataType">
+                        <option [value]="null" disabled>Select a data type...</option>
+                        @for (type of dataTypes; track type.id) {
+                        <option [value]="type.id">{{ type.name }}</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label>Format*</label>
+                    <div class="button-group">
+                        <button type="button" [class.active]="exportForm.get('format')?.value === 'csv'"
+                            (click)="exportForm.get('format')?.setValue('csv')">CSV</button>
+                        <button type="button" [class.active]="exportForm.get('format')?.value === 'xlsx'"
+                            (click)="exportForm.get('format')?.setValue('xlsx')">Excel (XLSX)</button>
+                    </div>
+                </div>
+                <div class="action-field">
+                    <button class="primary-button" type="submit" [disabled]="exportForm.invalid || isGenerating()">
+                        @if (isGenerating()) {
+                        <lucide-icon [img]="ProcessingIcon" size="18" class="spinner"></lucide-icon>
+                        <span>Generating...</span>
+                        } @else {
+                        <lucide-icon [img]="DownloadIcon" size="18"></lucide-icon>
+                        <span>Generate File</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="history-section">
+        <h2 class="section-title">Recent Exports</h2>
+        <div class="table-container card">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Data Type</th>
+                        <th>Format</th>
+                        <th>Date</th>
+                        <th>User</th>
+                        <th class="text-center">Status</th>
+                        <th class="actions-column">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for(item of exportHistory(); track item.id) {
+                    <tr>
+                        <td>{{ item.dataType }}</td>
+                        <td>{{ item.format }}</td>
+                        <td>{{ item.date }}</td>
+                        <td>{{ item.user }}</td>
+                        <td class="text-center">
+                            <span class="status-badge" [ngClass]="getStatusClass(item.status)">
+                                @if(item.status === 'Completed') { <lucide-icon [img]="SuccessIcon" size="14" /> }
+                                @if(item.status === 'Failed') { <lucide-icon [img]="ErrorIcon" size="14" /> }
+                                @if(item.status === 'Generating') { <lucide-icon [img]="ProcessingIcon" size="14"
+                                    class="spinner" /> }
+                                {{ item.status }}
+                            </span>
+                        </td>
+                        <td class="actions-column">
+                            @if (item.status === 'Completed' && item.downloadUrl) {
+                            <a [href]="item.downloadUrl" download class="secondary-button download-btn">
+                                <lucide-icon [img]="DownloadIcon" size="14"></lucide-icon>
+                                <span>Download</span>
+                            </a>
+                            }
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,32 @@
+@use '../../../../../assets/styles/view-styles' as views;
+@use '../../../../../assets/styles/forms' as mixins;
+
+:host {
+  display: block;
+}
+
+.view-container {
+  @include views.view-container;
+}
+
+.view-header {
+  @include views.view-header;
+}
+
+.form-container {
+    @include views.card;
+    padding: 2rem;
+    max-width: 600px;
+    margin: 2rem auto;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-field {
+    @include mixins.form-field;
+}

@@ -1,0 +1,146 @@
+<div class="settings-page-container">
+    <div class="page-header">
+        <h2>Facturación y Plan</h2>
+    </div>
+
+    <div class="billing-grid">
+        <div class="current-info-column">
+            @if (subscription(); as sub) {
+            <div class="card">
+                <div class="card-header">
+                    <h3>Tu Plan Actual</h3>
+                </div>
+                <div class="card-body">
+                    <div class="plan-name">{{ sub.planName }}</div>
+                    <div class="plan-price">${{ sub.price | number:'1.2-2' }} <span class="price-period">/ {{
+                            sub.billingCycle }}</span></div>
+                    <p class="plan-status" [ngClass]="sub.status.toLowerCase()">
+                        {{ sub.status === 'Activo' ? 'Tu plan se renueva el ' + (sub.nextBillingDate | date:'longDate')
+                        : 'Tu prueba termina el ' + (sub.trialEndsDate | date:'longDate') }}
+                    </p>
+                </div>
+            </div>
+            }
+
+            @if (paymentMethod(); as pm) {
+            <div class="card">
+                <div class="card-header">
+                    <h3>Método de Pago</h3>
+                </div>
+                <div class="card-body payment-method">
+                    <lucide-icon [img]="CreditCardIcon" size="24"></lucide-icon>
+                    <div class="pm-details">
+                        <span>{{ pm.type }} terminada en {{ pm.last4 }}</span>
+                        <span class="expiry">Vence {{ pm.expiryDate }}</span>
+                    </div>
+                    <button class="secondary-button">Actualizar</button>
+                </div>
+            </div>
+            }
+        </div>
+
+        <div class="billing-history-column card" style="display: block;">
+             <!-- Usage Metrics Section -->
+            @if (usageMetrics() && usageMetrics().length > 0) {
+            <div class="card-header" style="border-top: none;">
+                <h3>Uso de Recursos</h3>
+            </div>
+            <div class="card-body">
+                <div class="usage-grid">
+                    @for (metric of usageMetrics(); track metric.resource) {
+                        <div class="metric-item">
+                            <div class="metric-header">
+                                <span>
+                                    {{ metric.resource.replace('_', ' ').toLowerCase() }}
+                                </span>
+                                <span class="metric-value">
+                                    @if (metric.type === 'numeric') {
+                                        {{ metric.used }} / {{ metric.isUnlimited ? '∞' : metric.limit }}
+                                    } @else {
+                                        {{ metric.isEnabled ? 'Habilitado' : 'Deshabilitado' }}
+                                    }
+                                </span>
+                            </div>
+
+                            @if (metric.type === 'numeric' && !metric.isUnlimited) {
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill"
+                                         [style.width.%]="(metric.used / metric.limit) * 100"
+                                         [class.critical]="(metric.used / metric.limit) >= 1"
+                                         [class.warning]="(metric.used / metric.limit) >= 0.8 && (metric.used / metric.limit) < 1">
+                                    </div>
+                                </div>
+                                @if ((metric.used / metric.limit) >= 0.8) {
+                                    <div class="warning-text">
+                                        ⚠ Cerca del límite
+                                    </div>
+                                }
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+            }
+
+            <div class="card-header">
+                <h3>Historial de Facturación</h3>
+            </div>
+            <div class="card-body">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Descripción</th>
+                            <th class="text-right">Monto</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if(paymentHistory(); as history) {
+                        @for(item of history; track item.id) {
+                        <tr>
+                            <td>{{ item.date | date:'shortDate' }}</td>
+                            <td>{{ item.description }}</td>
+                            <td class="text-right">${{ item.amount | number:'1.2-2' }}</td>
+                            <td class="actions-column">
+                                <button class="icon-button" title="Descargar Factura">
+                                    <lucide-icon [img]="DownloadIcon" size="16"></lucide-icon>
+                                </button>
+                            </td>
+                        </tr>
+                        }
+                        } @else {
+                        <tr>
+                            <td colspan="4" class="empty-state">No hay pagos registrados.</td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h3 class="section-title">Cambiar de Plan</h3>
+        <div class="plans-container">
+            @for (plan of availablePlans(); track plan.id) {
+            <div class="plan-card" [class.selected]="selectedPlan() === plan.slug" (click)="selectPlan(plan.slug)">
+                <h4>{{ plan.name }}</h4>
+                <!-- TODO: Show price properly from limits or meta -->
+                <p class="plan-desc">{{ plan.description }}</p>
+                @if (subscription()?.planId === plan.slug) { <div class="current-plan-chip">Plan Actual</div> }
+            </div>
+            }
+        </div>
+        @if (selectedPlan() !== subscription()?.planId) {
+        <div class="update-plan-action">
+            <p><lucide-icon [img]="InfoIcon" size="16"></lucide-icon>Estás a punto de cambiar tu plan a <strong>{{
+                    selectedPlan() }}</strong>.</p>
+            <button class="primary-button" (click)="updatePlan()" [disabled]="isSaving()">
+                @if(isSaving()){ <span class="spinner"></span> }
+                <span>Confirmar Cambio</span>
+            </button>
+        </div>
+        }
+    </div>
+</div>

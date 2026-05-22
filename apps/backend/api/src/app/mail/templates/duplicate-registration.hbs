@@ -1,0 +1,32 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Intento de Registro</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #2c3e50;">Hola {{name}},</h2>
+        <p>Recibimos una solicitud para registrar una nueva cuenta en <strong>{{appName}}</strong> utilizando esta dirección de correo electrónico.</p>
+
+        <p>Sin embargo, ya existe una cuenta asociada a este correo.</p>
+
+        <p>Si fuiste tú quien intentó registrarse, puedes iniciar sesión directamente aquí:</p>
+
+        <p style="text-align: center;">
+            <a href="{{loginUrl}}" style="background-color: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Iniciar Sesión</a>
+        </p>
+
+        <p>Si olvidaste tu contraseña, puedes restablecerla aquí:</p>
+         <p style="text-align: center;">
+            <a href="{{resetPasswordUrl}}" style="color: #3498db; text-decoration: none;">Restablecer Contraseña</a>
+        </p>
+
+        <p>Si no fuiste tú, puedes ignorar este correo de forma segura.</p>
+
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="font-size: 12px; color: #999;">&copy; {{currentYear}} {{appName}}. Todos los derechos reservados.</p>
+    </div>
+</body>
+</html>

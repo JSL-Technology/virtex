@@ -1,0 +1,44 @@
+<div class="subview-container">
+    <div class="subview-header">
+        <h3>Warehouses</h3>
+        <div class="header-actions">
+            <button class="secondary-button"><lucide-icon [img]="FilterIcon"
+                    size="16"></lucide-icon><span>Filters</span></button>
+            <button class="primary-button"><lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon><span>New
+                    Warehouse</span></button>
+        </div>
+    </div>
+    <div class="table-container card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Location</th>
+                    <th>Manager</th>
+                    <th class="text-center">Status</th>
+                    <th class="actions-column"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for(wh of warehouses(); track wh.id) {
+                <tr>
+                    <td><a href="#" class="table-link">{{ wh.name }}</a></td>
+                    <td>{{ wh.location }}</td>
+                    <td>{{ wh.manager }}</td>
+                    <td class="text-center">
+                        <span class="status-badge" [class.active]="wh.isActive">
+                            {{ wh.isActive ? 'Active' : 'Inactive' }}
+                        </span>
+                    </td>
+                    <td class="actions-column"><button class="icon-button"><lucide-icon [img]="MoreHorizontalIcon"
+                                size="18"></lucide-icon></button></td>
+                </tr>
+                } @empty {
+                <tr>
+                    <td colspan="5" class="empty-state">No warehouses configured.</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,69 @@
+<div class="pos-layout">
+    <div class="product-catalog">
+        <div class="catalog-header">
+            <div class="search-bar">
+                <lucide-icon [img]="SearchIcon" size="20"></lucide-icon>
+                <input type="text" placeholder="Buscar productos por nombre o SKU...">
+            </div>
+        </div>
+        <div class="product-grid">
+            @for (product of allProducts(); track product.id) {
+            <div class="product-card" (click)="addToCart(product)" [class.disabled]="product.stock === 0">
+                <img [src]="product.imageUrl" [alt]="product.name" class="product-image">
+                <div class="product-info">
+                    <span class="product-name">{{ product.name }}</span>
+                    <span class="product-price">{{ product.price | number:'1.2-2' }}</span>
+                </div>
+                @if(product.stock === 0) {
+                <div class="stock-overlay">Agotado</div>
+                }
+            </div>
+            }
+        </div>
+    </div>
+
+    <div class="sale-ticket card">
+        <div class="ticket-header">
+            <h3>Orden Actual</h3>
+            <div class="customer-info">Cliente: <strong>{{ saleForm.get('customer')?.value }}</strong></div>
+        </div>
+        <div class="ticket-body" formArrayName="cartItems">
+            @if(cartItems.controls.length > 0) {
+            <div class="cart-items-list">
+                @for (item of cartItems.controls; track $index) {
+                <div class="cart-item" [formGroupName]="$index">
+                    <div class="item-details">
+                        <span class="item-name">{{ item.get('name')?.value }}</span>
+                        <span class="item-price-unit">{{ item.get('price')?.value | number:'1.2-2' }}</span>
+                    </div>
+                    <div class="item-controls">
+                        <button type="button" class="quantity-btn" (click)="updateQuantity($index, -1)"><lucide-icon
+                                [img]="MinusIcon" size="14"></lucide-icon></button>
+                        <input type="number" class="quantity-input" formControlName="quantity">
+                        <button type="button" class="quantity-btn" (click)="updateQuantity($index, 1)"><lucide-icon
+                                [img]="PlusIcon" size="14"></lucide-icon></button>
+                    </div>
+                    <span class="item-total">{{ getItemTotal(item) | number:'1.2-2' }}</span>
+                    <button type="button" class="remove-btn" (click)="removeItem($index)"><lucide-icon [img]="TrashIcon"
+                            size="16"></lucide-icon></button>
+                </div>
+                }
+            </div>
+            } @else {
+            <div class="empty-cart">
+                <lucide-icon name="shopping-cart" size="48"></lucide-icon>
+                <span>Añade productos para comenzar una venta.</span>
+            </div>
+            }
+        </div>
+        <div class="ticket-footer">
+            <div class="summary-row"><span>Subtotal</span><span>{{ subtotal() | number:'1.2-2' }}</span></div>
+            <div class="summary-row"><span>Impuestos (18%)</span><span>{{ taxAmount() | number:'1.2-2' }}</span></div>
+            <div class="summary-total"><span>Total a Pagar</span><span>${{ total() | number:'1.2-2' }}</span></div>
+            <button class="primary-button charge-btn" (click)="completeSale()" [disabled]="cartItems.length === 0">
+                <lucide-icon [img]="CreditCardIcon" size="18"></lucide-icon>
+                <span>Cobrar</span>
+            </button>
+        </div>
+    </div>
+</div>

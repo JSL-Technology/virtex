@@ -1,0 +1,71 @@
+<div class="view-container">
+    <div class="view-header">
+        <div class="header-content">
+            <h1>Centro de Aprobaciones</h1>
+            <p>Revisa, aprueba o rechaza todas las solicitudes pendientes de la empresa.</p>
+        </div>
+    </div>
+
+    <div class="approvals-layout">
+        <div class="tabs-container">
+            <button class="tab-button" [class.active]="activeTab() === 'invoices'" (click)="setActiveTab('invoices')">
+                <lucide-icon [img]="InvoiceIcon" size="18"></lucide-icon>
+                <span>Facturas de Proveedores</span>
+                <span class="count-badge">{{ pendingInvoices().length }}</span>
+            </button>
+            <button class="tab-button" [class.active]="activeTab() === 'expenses'" (click)="setActiveTab('expenses')">
+                <lucide-icon [img]="ExpenseIcon" size="18"></lucide-icon>
+                <span>Reportes de Gastos</span>
+                <span class="count-badge">{{ pendingExpenses().length }}</span>
+            </button>
+            <button class="tab-button" [class.active]="activeTab() === 'purchase-orders'"
+                (click)="setActiveTab('purchase-orders')">
+                <lucide-icon [img]="POIcon" size="18"></lucide-icon>
+                <span>Órdenes de Compra</span>
+                <span class="count-badge">{{ pendingPOs().length }}</span>
+            </button>
+        </div>
+
+        <div class="tab-content card">
+            @switch (activeTab()) {
+            @case ('invoices') {
+            <ul class="approval-list">
+                @for(item of pendingInvoices(); track item.id) {
+                <li class="approval-item">
+                    <div class="item-main">
+                        <a [routerLink]="item.link" class="item-title">{{ item.description }}</a>
+                        <p class="item-subtitle">Solicitado por <strong>{{ item.requester }}</strong> el {{ item.date }}
+                        </p>
+                    </div>
+                    <div class="item-meta">
+                        <span class="item-amount">{{ item.amount | number:'1.2-2' }}</span>
+                        <div class="item-actions">
+                            <button class="action-button reject" (click)="rejectItem(item.id, 'invoices')"><lucide-icon
+                                    [img]="RejectIcon" size="16"></lucide-icon><span>Rechazar</span></button>
+                            <button class="action-button approve"
+                                (click)="approveItem(item.id, 'invoices')"><lucide-icon [img]="ApproveIcon"
+                                    size="16"></lucide-icon><span>Aprobar</span></button>
+                        </div>
+                    </div>
+                </li>
+                } @empty { <p class="empty-state">No hay facturas pendientes de aprobación.</p> }
+            </ul>
+            }
+            @case ('expenses') {
+            <ul class="approval-list">
+                @for(item of pendingExpenses(); track item.id) {
+                <li class="approval-item"> </li>
+                } @empty { <p class="empty-state">No hay reportes de gastos pendientes de aprobación.</p> }
+            </ul>
+            }
+            @case ('purchase-orders') {
+            <ul class="approval-list">
+                @for(item of pendingPOs(); track item.id) {
+                <li class="approval-item"> </li>
+                } @empty { <p class="empty-state">No hay órdenes de compra pendientes de aprobación.</p> }
+            </ul>
+            }
+            }
+        </div>
+    </div>
+</div>

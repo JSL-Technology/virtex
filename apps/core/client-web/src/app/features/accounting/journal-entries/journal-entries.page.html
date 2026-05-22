@@ -1,0 +1,48 @@
+<div class="subview-container">
+  <div class="subview-header">
+    <h3>Journal Entries</h3>
+    <div class="header-actions">
+      <button class="secondary-button"><lucide-icon [img]="FilterIcon"
+          size="16"></lucide-icon><span>Filters</span></button>
+      <a [routerLink]="['./new']" class="primary-button">
+        <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
+        <span>{{ 'accounting.journal_entries.new_entry' | translate }}</span>
+      </a>
+      <!-- <button class="primary-button"><lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon><span>New Entry</span></button> -->
+    </div>
+  </div>
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Entry #</th>
+          <th>Description</th>
+          <th class="text-right">Debit</th>
+          <th class="text-right">Credit</th>
+          <th class="text-center">Status</th>
+          <th class="actions-column"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for(entry of entries(); track entry.id) {
+        <tr>
+          <td>{{ entry.date }}</td>
+          <td><a href="#" class="table-link">{{ entry.id }}</a></td>
+          <td>{{ entry.description }}</td>
+          <td class="text-right">{{ entry.debit | number:'1.2-2' }}</td>
+          <td class="text-right">{{ entry.credit | number:'1.2-2' }}</td>
+          <td class="text-center"><span class="status-badge" [ngClass]="getStatusClass(entry.status)">{{ entry.status
+              }}</span></td>
+          <td class="actions-column"><button class="icon-button"><lucide-icon [img]="MoreHorizontalIcon"
+                size="18"></lucide-icon></button></td>
+        </tr>
+        } @empty {
+        <tr>
+          <td colspan="7" class="empty-state">No journal entries found.</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

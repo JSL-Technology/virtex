@@ -1,0 +1,286 @@
+
+<div class="space-y-6">
+  <!-- 2FA Section -->
+  <div class="security-card">
+    <div class="security-header">
+      <div class="security-header__icon">
+        <lucide-icon [img]="ShieldIcon" class="w-6 h-6"></lucide-icon>
+      </div>
+
+      <div class="security-header__content">
+        <h3>{{ 'SETTINGS.SECURITY.2FA_TITLE' | translate }}</h3>
+        <p>{{ 'SETTINGS.SECURITY.2FA_DESCRIPTION' | translate }}</p>
+
+        <div class="mt-4">
+          @if (is2faEnabled()) {
+            <span class="security-header__badge security-header__badge--enabled">
+              <lucide-icon [img]="CheckCircleIcon" class="w-3 h-3 mr-1"></lucide-icon>
+              {{ 'SETTINGS.SECURITY.ENABLED' | translate }}
+            </span>
+          } @else {
+            <span class="security-header__badge security-header__badge--disabled">
+              <lucide-icon [img]="AlertTriangleIcon" class="w-3 h-3 mr-1"></lucide-icon>
+              {{ 'SETTINGS.SECURITY.DISABLED' | translate }}
+            </span>
+          }
+        </div>
+      </div>
+
+      <button
+        class="security-header__action"
+        [ngClass]="is2faEnabled() ? 'security-header__action--disable' : 'security-header__action--enable'"
+        (click)="is2faEnabled() ? disable2fa() : start2faSetup()"
+      >
+        {{ (is2faEnabled() ? 'SETTINGS.SECURITY.DISABLE' : 'SETTINGS.SECURITY.ENABLE') | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Active Sessions -->
+  <div class="security-card">
+    <div class="sessions-list">
+      <div class="sessions-list__header">
+        <h3>{{ 'SETTINGS.SECURITY.SESSIONS_TITLE' | translate }}</h3>
+        <p>{{ 'SETTINGS.SECURITY.SESSIONS_DESCRIPTION' | translate }}</p>
+      </div>
+
+      <div class="sessions-list__items">
+        @for (session of sessions(); track session.id) {
+          <div class="sessions-list__item" (click)="toggleSessionDetails(session)">
+            <div class="sessions-list__content">
+              <div class="sessions-list__info">
+                <div class="sessions-list__device-icon">
+                  @if (session.deviceType === 'mobile') {
+                    <lucide-icon [img]="SmartphoneIcon" class="w-5 h-5"></lucide-icon>
+                  } @else {
+                    <lucide-icon [img]="MonitorIcon" class="w-5 h-5"></lucide-icon>
+                  }
+                </div>
+                <div class="sessions-list__details">
+                  <div>
+                    {{ session.browser }} on {{ session.os }}
+                    @if (session.isCurrent) {
+                      <span class="sessions-list__current-badge">
+                        {{ 'SETTINGS.SECURITY.CURRENT_SESSION' | translate }}
+                      </span>
+                    }
+                  </div>
+                  <div>
+                    <lucide-icon [img]="MapPinIcon" class="w-3 h-3"></lucide-icon>
+                    {{ session.city || 'Unknown' }}, {{ session.country || 'Unknown' }}
+                    <span class="mx-1.5 opacity-50">•</span>
+                    {{ session.lastActiveAt | date:'medium' }}
+                  </div>
+                </div>
+              </div>
+
+              @if (!session.isCurrent) {
+                <button
+                  class="sessions-list__revoke-btn"
+                  title="Revoke session"
+                  (click)="revokeSession(session.id, $event)"
+                >
+                  <lucide-icon [img]="XIcon" class="w-5 h-5"></lucide-icon>
+                </button>
+              }
+            </div>
+
+            <!-- Expanded Details (Map) -->
+            @if (expandedSessionId() === session.id) {
+              <div class="sessions-list__map-container">
+                 <div class="sessions-list__map">
+                     <div #mapContainer [attr.data-session-id]="session.id" class="w-full h-full z-0"></div>
+                 </div>
+                 <div class="mt-2 text-xs text-gray-500 dark:text-gray-400 font-mono text-right">
+                     IP: {{ session.ipAddress }}
+                 </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Setup Modal -->
+@if (showSetupModal()) {
+  <div class="modal-overlay">
+    <div class="modal-content">
+
+      <!-- Close Button -->
+      <button (click)="closeSetupModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors z-10">
+        <lucide-icon [img]="XIcon" class="w-5 h-5"></lucide-icon>
+      </button>
+
+      <!-- Header -->
+      <div class="modal-header">
+        <h2>
+           @switch (currentStep()) {
+               @case ('INTRO') { {{ 'SETTINGS.SECURITY.TWO_STEP_VERIF' | translate }} }
+               @case ('EMAIL_VERIFY') { {{ 'SETTINGS.SECURITY.SETUP_2FA_TITLE' | translate }} }
+               @case ('QR_SETUP') { {{ 'SETTINGS.SECURITY.SETUP_AUTHENTICATOR' | translate }} }
+               @case ('BACKUP_CODES') { {{ 'SETTINGS.SECURITY.BACKUP_CODES_TITLE' | translate }} }
+           }
+        </h2>
+        <p>
+           @switch (currentStep()) {
+               @case ('INTRO') { {{ 'SETTINGS.SECURITY.VERIFY_IDENTITY_DESC' | translate }} }
+               @case ('EMAIL_VERIFY') { {{ 'SETTINGS.SECURITY.SETUP_2FA_DESC' | translate }} }
+               @case ('QR_SETUP') { {{ 'SETTINGS.SECURITY.SETUP_AUTHENTICATOR_DESC' | translate }} }
+               @case ('BACKUP_CODES') { {{ 'SETTINGS.SECURITY.BACKUP_CODES_DESC' | translate }} }
+           }
+        </p>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- STEP 0: INTRO -->
+        @if (currentStep() === 'INTRO') {
+          <div class="space-y-6 text-center">
+            <div class="flex justify-center">
+              <div class="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center text-primary-500">
+                <lucide-icon [img]="ShieldIcon" class="w-8 h-8"></lucide-icon>
+              </div>
+            </div>
+
+            <div class="space-y-4">
+              <p class="text-sm text-gray-600 dark:text-gray-300">
+                {{ 'SETTINGS.SECURITY.BEFORE_CONFIG_2FA' | translate }}
+              </p>
+            </div>
+
+            <div class="flex justify-center gap-3 pt-4">
+              <button class="btn-secondary w-full" (click)="closeSetupModal()">
+                {{ 'COMMON.CANCEL' | translate }}
+              </button>
+              <button class="btn-primary w-full" (click)="proceedToEmailVerification()">
+                {{ 'COMMON.CONTINUE' | translate }}
+              </button>
+            </div>
+          </div>
+        }
+        
+        <!-- STEP 1: EMAIL VERIFY -->
+        @if (currentStep() === 'EMAIL_VERIFY') {
+           <app-otp
+               [title]="'SETTINGS.SECURITY.CHECK_EMAIL' | translate"
+               [description]="('SETTINGS.SECURITY.EMAIL_SENT_TO' | translate: { email: currentUser()?.email })"
+               [mode]="'email'"
+               (verify)="verifyEmailCode($event)"
+               (resend)="sendEmailVerification()">
+           </app-otp>
+        }
+
+        <!-- STEP 2: QR SETUP -->
+        @if (currentStep() === 'QR_SETUP') {
+            <div class="space-y-8">
+                <!-- Setup QR -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-center mb-6">
+                        <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100">
+                             <qrcode [qrdata]="qrCodeData()" [width]="160" [errorCorrectionLevel]="'M'"></qrcode>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                         <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                             <div class="text-center sm:text-left">
+                                 <h4 class="text-sm font-medium mb-1 text-gray-900 dark:text-white">{{ 'SETTINGS.SECURITY.CANT_SCAN' | translate }}</h4>
+                                 <p class="text-xs text-gray-500">{{ 'SETTINGS.SECURITY.ENTER_SECRET' | translate }}</p>
+                             </div>
+
+                             <div class="flex items-center gap-2 w-full sm:w-auto">
+                                 <div class="flex-1 sm:flex-none bg-white dark:bg-gray-800 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 text-xs font-mono select-all text-gray-600 dark:text-gray-300">
+                                     {{ twoFactorSecret() }}
+                                 </div>
+                                 <button class="p-2 text-gray-500 hover:text-primary-600 transition-colors bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-sm"
+                                         (click)="copySecret()"
+                                         title="{{ 'SETTINGS.SECURITY.COPY_CODE' | translate }}">
+                                     <lucide-icon [img]="CopyIcon" class="w-4 h-4"></lucide-icon>
+                                 </button>
+                             </div>
+                         </div>
+                    </div>
+                </div>
+
+                <!-- Verify -->
+                <div class="space-y-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+                    <app-otp
+                        [title]="'SETTINGS.SECURITY.ENTER_VERIFICATION_CODE' | translate"
+                        [description]="'SETTINGS.SECURITY.ENTER_6_DIGIT' | translate"
+                        [mode]="'app'"
+                        (verify)="verifyAndEnable2fa($event)">
+                    </app-otp>
+                </div>
+            </div>
+        }
+
+        <!-- STEP 3: BACKUP CODES -->
+        @if (currentStep() === 'BACKUP_CODES') {
+            <div class="space-y-6">
+                 <div class="warning-box">
+                     <lucide-icon [img]="AlertTriangleIcon" class="w-5 h-5 shrink-0"></lucide-icon>
+                     <div>
+                         <p class="font-medium text-orange-800 dark:text-orange-400">
+                             {{ 'SETTINGS.SECURITY.SAVE_BACKUP_CODES' | translate }}
+                         </p>
+                         <p class="mt-1 opacity-90">{{ 'SETTINGS.SECURITY.BACKUP_CODES_WARNING' | translate }}</p>
+                     </div>
+                 </div>
+
+                 <div class="backup-codes">
+                     @for (code of backupCodes(); track code) {
+                         <div class="backup-codes__code">
+                             {{ code }}
+                         </div>
+                     }
+                 </div>
+
+                 <div class="flex flex-col gap-4">
+                     <div class="flex items-center justify-between gap-3">
+                          <button class="btn-secondary flex-1 flex items-center justify-center gap-2" (click)="copyBackupCodes()">
+                              <lucide-icon [img]="CopyIcon" class="w-4 h-4"></lucide-icon>
+                              {{ 'COMMON.COPY' | translate }}
+                          </button>
+                          <button class="btn-secondary flex-1 flex items-center justify-center gap-2" (click)="downloadBackupCodes()">
+                              <lucide-icon [img]="DownloadIcon" class="w-4 h-4"></lucide-icon>
+                              {{ 'COMMON.DOWNLOAD' | translate }}
+                          </button>
+                     </div>
+
+                     <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-700">
+                         <input type="checkbox" id="savedCodes" [(ngModel)]="hasSavedBackupCodes" class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                         <label for="savedCodes" class="text-sm text-gray-700 dark:text-gray-300 select-none cursor-pointer">
+                             {{ 'SETTINGS.SECURITY.I_HAVE_SAVED_CODES' | translate }}
+                         </label>
+                     </div>
+                 </div>
+
+                 <div class="border-t border-gray-100 dark:border-gray-800 pt-6">
+                     <button
+                         class="btn-primary w-full py-3 text-base"
+                         [disabled]="!hasSavedBackupCodes()"
+                         (click)="completeSetup()"
+                     >
+                         {{ 'COMMON.DONE' | translate }}
+                     </button>
+                 </div>
+            </div>
+        }
+
+      </div>
+    </div>
+  </div>
+}
+
+<app-confirmation-modal
+  [isOpen]="showDisableConfirmation()"
+  title="SETTINGS.SECURITY.DISABLE_2FA_TITLE"
+  message="SETTINGS.SECURITY.DISABLE_2FA_MESSAGE"
+  confirmText="SETTINGS.SECURITY.DISABLE"
+  cancelText="COMMON.CANCEL"
+  type="danger"
+  (confirm)="onDisableConfirmed()"
+  (cancel)="showDisableConfirmation.set(false)"
+></app-confirmation-modal>

@@ -1,0 +1,26 @@
+// Styles for the Journal Entry Import Page
+
+.upload-box {
+  border: 2px dashed var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  background-color: var(--background-secondary-color);
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: var(--background-tertiary-color);
+  }
+
+  lucide-icon {
+    margin-bottom: 1rem;
+    color: var(--text-muted-color);
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}

@@ -1,0 +1,14 @@
+<div class="toast-item" [ngClass]="typeClass()" role="alert" aria-live="assertive">
+  <div class="toast-icon">
+    <lucide-angular [img]="icon()" size="20"></lucide-angular>
+  </div>
+  <div class="toast-content">
+    <div class="toast-title">{{ titleKey() | translate }}</div>
+    <div class="toast-message">
+      <p>{{ toast().message | translate }}</p>
+    </div>
+  </div>
+  <button type="button" class="toast-close" (click)="close()" aria-label="Close">
+    <lucide-angular [img]="XIcon" size="18"></lucide-angular>
+  </button>
+</div>

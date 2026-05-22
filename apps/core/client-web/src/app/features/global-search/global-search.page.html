@@ -1,0 +1,55 @@
+<div class="view-container">
+    <div class="search-header">
+        <div class="search-bar">
+            <lucide-icon [img]="SearchIcon" size="24"></lucide-icon>
+            <input type="text" [value]="searchQuery()" (input)="handleSearchInput($event)"
+                (keyup.enter)="performSearch(searchQuery())" placeholder="Buscar en todo el sistema...">
+        </div>
+    </div>
+
+    <div class="search-results-container">
+        @if (isLoading()) {
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Buscando...</p>
+        </div>
+        } @else {
+        <div class="results-summary">
+            @if (totalResults() > 0) {
+            <p>Se encontraron <strong>{{ totalResults() }}</strong> resultados para "<strong>{{ searchQuery()
+                    }}</strong>"</p>
+            } @else {
+            <p>No se encontraron resultados para "<strong>{{ searchQuery() }}</strong>"</p>
+            }
+        </div>
+
+        @if (totalResults() > 0) {
+        <div class="results-list">
+            @for (group of resultGroups(); track group.type) {
+            <div class="result-group card">
+                <div class="group-header">
+                    <lucide-icon [img]="group.icon" size="18"></lucide-icon>
+                    <h3>{{ group.type }} ({{ group.results.length }})</h3>
+                </div>
+                <ul>
+                    @for (item of group.results; track item.id) {
+                    <li class="result-item">
+                        <a [routerLink]="item.link">
+                            <span class="item-title">{{ item.title }}</span>
+                            <span class="item-description">{{ item.description }}</span>
+                        </a>
+                    </li>
+                    }
+                </ul>
+            </div>
+            }
+        </div>
+        } @else {
+        <div class="empty-state">
+            <h4>Prueba con otros términos de búsqueda</h4>
+            <p>Intenta buscar por número de factura, nombre de cliente, SKU de producto, etc.</p>
+        </div>
+        }
+        }
+    </div>
+</div>

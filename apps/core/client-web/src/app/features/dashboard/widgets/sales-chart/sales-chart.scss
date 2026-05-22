@@ -1,0 +1,31 @@
+// Estilos para asegurar que el gráfico ocupe todo el espacio
+:host {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+.widget-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0; // El header no se encoge
+
+    h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+}
+
+.widget-content {
+    flex-grow: 1; // El contenido crece para ocupar el espacio
+    padding: 1rem;
+    // Permite que el gráfico interno se expanda
+    display: flex;
+}
+
+.chart-instance {
+    width: 100%;
+    height: 100%; // El gráfico ocupa el 100% de .widget-content
+    display: block;
+}

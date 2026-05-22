@@ -1,0 +1,18 @@
+// Styles for the Vendor Bill Detail Page
+
+.grid-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.detail-label {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--text-muted-color);
+  margin-bottom: 0.25rem;
+}
+
+.text-bold {
+  font-weight: 600;
+}

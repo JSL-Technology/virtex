@@ -1,0 +1,35 @@
+<div class="subview-container">
+    <div class="subview-header">
+        <h3>Payment Terms</h3>
+        <div class="header-actions">
+            <button class="primary-button">
+                <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
+                <span>New Term</span>
+            </button>
+        </div>
+    </div>
+    <div class="table-container card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th class="text-right">Net Days</th>
+                    <th class="actions-column"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for(term of terms(); track term.id) {
+                <tr>
+                    <td><a href="#" class="table-link">{{ term.name }}</a></td>
+                    <td class="text-right">{{ term.days }}</td>
+                    <td class="actions-column">
+                        <button class="icon-button">
+                            <lucide-icon [img]="MoreHorizontalIcon" size="18"></lucide-icon>
+                        </button>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

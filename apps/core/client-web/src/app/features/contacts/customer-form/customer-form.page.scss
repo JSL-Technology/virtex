@@ -1,0 +1,80 @@
+@use '../../../../assets/styles/variables' as *;
+@use '../../../../assets/styles/forms' as mixins;
+@use '../../../../assets/styles/view-styles' as views;
+
+// Aplica los estilos base para el contenedor y el encabezado de la vista
+:host {
+    display: block;
+}
+
+.view-container {
+    @include views.view-container;
+}
+
+.view-header {
+    @include views.view-header;
+}
+
+.header-actions {
+    @include views.header-actions;
+}
+
+// Layout específico para este formulario
+.form-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr; // Columna principal más ancha que la lateral
+    gap: 1.5rem;
+    margin-top: 2rem;
+
+    @media (max-width: 992px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.form-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+// Estilos para las tarjetas que agrupan los campos
+.card {
+    @include views.card;
+    padding: 0; // El padding se maneja en el header y body
+
+    .card-header {
+        padding: 1.5rem 1.5rem 0;
+
+        h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+    }
+
+    .card-body {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+}
+
+// Estilos para los campos y filas del formulario
+.form-field {
+    @include mixins.form-field;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+
+    &.three-cols {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+// Los estilos para input, select, etc., se heredan del styles.scss global,
+// por lo que no es necesario redefinirlos aquí.

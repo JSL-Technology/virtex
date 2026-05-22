@@ -1,0 +1,16 @@
+<div class="widget-header">
+    <h3>Indicadores Financieros Clave</h3>
+</div>
+<div class="widget-content">
+    <div class="ratios-grid">
+        @for(ratio of ratios(); track ratio.name) {
+        <div class="ratio-card">
+            <div class="ratio-header">
+                <span class="ratio-name">{{ ratio.name }}</span>
+                <lucide-icon [img]="InfoIcon" size="14" class="info-icon" [title]="ratio.tooltip"></lucide-icon>
+            </div>
+            <div class="ratio-value" [ngClass]="ratio.status">{{ ratio.value }}</div>
+        </div>
+        }
+    </div>
+</div>

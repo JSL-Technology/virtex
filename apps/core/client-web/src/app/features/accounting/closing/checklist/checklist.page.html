@@ -1,0 +1,54 @@
+<div class="closing-container">
+    <div class="closing-header">
+        <h3>Closing Process Checklists</h3>
+        <div class="header-actions">
+            <button class="secondary-button">
+                <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
+                <span>Filters</span>
+            </button>
+            <button class="primary-button">
+                <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
+                <span>New Checklist</span>
+            </button>
+        </div>
+    </div>
+    <div class="table-container card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Checklist Name</th>
+                    <th class="text-center">Type</th>
+                    <th class="text-center">Task Count</th>
+                    <th>Assigned To</th>
+                    <th class="actions-column"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for(item of checklists(); track item.id) {
+                <tr>
+                    <td>
+                        <div class="name-cell">
+                            <lucide-icon [img]="ChecklistIcon" size="18"></lucide-icon>
+                            <a href="#" class="table-link">{{ item.name }}</a>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <span class="type-badge" [ngClass]="getTypeClass(item.type)">{{ item.type }}</span>
+                    </td>
+                    <td class="text-center">{{ item.taskCount }}</td>
+                    <td>{{ item.assignedTo }}</td>
+                    <td class="actions-column">
+                        <button class="icon-button">
+                            <lucide-icon [img]="MoreHorizontalIcon" size="18"></lucide-icon>
+                        </button>
+                    </td>
+                </tr>
+                } @empty {
+                <tr>
+                    <td colspan="5" class="empty-state">No checklists have been created yet.</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

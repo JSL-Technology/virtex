@@ -1,0 +1,279 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="header-title">
+      <div class="breadcrumb">
+        <a [routerLink]="['/invoices']">Facturas</a>
+        <span class="divider">/</span>
+        <span>Nueva Factura</span>
+      </div>
+      <h1>Crear Nueva Factura de Venta</h1>
+    </div>
+    <div class="page-header-actions">
+      <button class="btn btn-secondary" [routerLink]="['/invoices']">
+        Cancelar
+      </button>
+      <button
+        class="btn btn-primary"
+        (click)="onSubmit()"
+        [disabled]="isSaving()"
+      >
+        @if(isSaving()){
+        <span class="spinner-small"></span> Guardando... } @else { Guardar Factura
+        }
+      </button>
+    </div>
+  </div>
+
+  <app-invoice-toolbar
+    [canNavigate]="false"
+    [isNew]="true"
+    (copyFrom)="handleCopyFrom()"
+    (back)="router.navigate(['/invoices'])"
+  ></app-invoice-toolbar>
+
+  <!-- Document Tabs -->
+  <div class="sap-tabs">
+    <button [class.active]="activeTab() === 'content'" (click)="activeTab.set('content')">Contenido</button>
+    <button [class.active]="activeTab() === 'logistics'" (click)="activeTab.set('logistics')">Logística</button>
+    <button [class.active]="activeTab() === 'finance'" (click)="activeTab.set('finance')">Finanzas</button>
+  </div>
+
+  <form [formGroup]="invoiceForm">
+    <div class="grid-layout" [class.hidden]="activeTab() !== 'content'">
+      <!-- Main Invoice Content -->
+      <div class="main-content">
+        <div class="card invoice-card">
+          <div class="card-body">
+            <!-- Customer & Basic Info -->
+            <div class="invoice-header-section">
+              <div class="form-group customer-select">
+                <label class="form-label">Cliente</label>
+                <select formControlName="customerId" class="form-control">
+                  <option value="" disabled>Seleccionar cliente</option>
+                  @for (client of customers(); track client.id) {
+                  <option [value]="client.id">
+                    {{ client.companyName }}
+                  </option>
+                  }
+                </select>
+              </div>
+
+              <div class="invoice-meta-grid">
+                <div class="form-group">
+                  <label class="form-label">Fecha de Emisión</label>
+                  <input
+                    type="date"
+                    formControlName="issueDate"
+                    class="form-control"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Fecha de Vencimiento</label>
+                  <input
+                    type="date"
+                    formControlName="dueDate"
+                    class="form-control"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Moneda</label>
+                  <select formControlName="currencyCode" class="form-control">
+                    @for (currency of currencies(); track currency.code) {
+                    <option [value]="currency.code">
+                      {{ currency.code }} - {{ currency.name }}
+                    </option>
+                    }
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Line Items -->
+            <div class="line-items-section">
+              <h3 class="section-title">Conceptos de Factura</h3>
+              <div class="table-container">
+                <table class="line-items-table">
+                  <thead>
+                    <tr>
+                      <th class="col-product">Producto / Servicio</th>
+                      <th class="col-qty">Cant.</th>
+                      <th class="col-price">Precio Unit.</th>
+                      <th class="col-tax">Imp. (%)</th>
+                      <th class="col-total">Total</th>
+                      <th class="col-actions"></th>
+                    </tr>
+                  </thead>
+                  <tbody formArrayName="lineItems">
+                    @for (item of lineItems.controls; track $index; let i =
+                    $index) {
+                    <tr [formGroupName]="i">
+                      <td>
+                        <select
+                          formControlName="productId"
+                          (change)="onProductSelect(i)"
+                          class="form-control"
+                        >
+                          <option value="" disabled>Seleccionar</option>
+                          @for (product of products(); track product.id) {
+                          <option [value]="product.id">
+                            {{ product.name }}
+                          </option>
+                          }
+                        </select>
+                        @if (!validateStock(i)) {
+                        <div class="stock-error">Stock insuficiente</div>
+                        }
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          formControlName="quantity"
+                          class="form-control text-center"
+                          min="1"
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          formControlName="price"
+                          class="form-control text-right"
+                          step="0.01"
+                        />
+                      </td>
+                      <td>
+                        <div class="tax-input-wrapper">
+                          <input
+                            type="number"
+                            formControlName="taxRate"
+                            class="form-control text-center"
+                            step="0.01"
+                          />
+                        </div>
+                      </td>
+                      <td class="text-right font-semibold">
+                        {{
+                          (item.get('quantity')?.value * item.get('price')?.value) * (1 + item.get('taxRate')?.value)
+                            | number : '1.2-2'
+                        }}
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          class="btn-icon btn-danger-soft"
+                          (click)="removeLineItem(i)"
+                          title="Eliminar"
+                        >
+                          <span class="icon-trash">×</span>
+                        </button>
+                      </td>
+                    </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+              <button
+                type="button"
+                class="btn btn-add-line"
+                (click)="addLineItem()"
+              >
+                <span class="icon-plus">+</span> Agregar línea
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar / Summary -->
+      <div class="sidebar-content">
+        <div class="card summary-card">
+          <div class="card-body">
+            <h3 class="section-title">Resumen</h3>
+            <div class="totals-list">
+              <div class="total-row">
+                <span class="label">Subtotal</span>
+                <span class="value">{{
+                  totals.subtotal | number : '1.2-2'
+                }}</span>
+              </div>
+              <div class="total-row">
+                <span class="label">Impuestos</span>
+                <span class="value">{{ totals.tax | number : '1.2-2' }}</span>
+              </div>
+              <div class="total-divider"></div>
+              <div class="total-row total-grand">
+                <span class="label">Total</span>
+                <span class="value"
+                  >{{ invoiceForm.get('currencyCode')?.value }}
+                  {{ totals.total | number : '1.2-2' }}</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card notes-card">
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">Notas Adicionales</label>
+              <textarea
+                formControlName="notes"
+                class="form-control"
+                rows="4"
+                placeholder="Términos, condiciones, instrucciones de pago..."
+              ></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Logistics Tab Content -->
+    <div class="invoice-document card" *ngIf="activeTab() === 'logistics'">
+        <div class="card-body">
+            <h3 class="section-title">Logística y Entrega</h3>
+            <div class="grid-2-col">
+                <div class="form-group">
+                    <label class="form-label">Dirección de Envío</label>
+                    <textarea class="form-control" rows="3" placeholder="Dirección completa del cliente..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Método de Envío</label>
+                    <select class="form-control">
+                        <option>Transporte Propio</option>
+                        <option>Courier Externo</option>
+                        <option>Retiro en Almacén</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Finance Tab Content -->
+    <div class="invoice-document card" *ngIf="activeTab() === 'finance'">
+        <div class="card-body">
+            <h3 class="section-title">Información Financiera</h3>
+            <div class="grid-2-col">
+                <div class="form-group">
+                    <label class="form-label">Condiciones de Pago</label>
+                    <select class="form-control">
+                        <option>Contado</option>
+                        <option>15 Días</option>
+                        <option selected>30 Días</option>
+                        <option>60 Días</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Lista de Precios</label>
+                    <select class="form-control">
+                        <option>Precio Base</option>
+                        <option>Mayorista</option>
+                        <option>Distribuidor</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+  </form>
+
+  <app-invoice-selection-dialog #selectionDialog></app-invoice-selection-dialog>
+</div>

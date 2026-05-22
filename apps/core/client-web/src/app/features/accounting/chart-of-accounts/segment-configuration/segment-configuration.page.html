@@ -1,0 +1,98 @@
+<div class="view-container">
+    <div class="view-header">
+        <div class="header-content">
+            <div class="breadcrumb">
+                <a routerLink="/accounting/chart-of-accounts" class="back-link">
+                    <lucide-icon [img]="BackIcon" size="14"></lucide-icon>
+                    Catálogo de Cuentas
+                </a>
+            </div>
+            <h1>Configuración de Segmentos</h1>
+            <p>Define la estructura y longitud de los niveles para tus cuentas contables.</p>
+        </div>
+        <div class="header-actions">
+            <button type="button" class="secondary-button" (click)="onCancel()" [disabled]="isSaving() || isLoading()">
+                <span>Cancelar</span>
+            </button>
+            <button type="button" class="secondary-button" (click)="onInitializeDefaults()" [disabled]="isSaving() || isLoading()">
+                <lucide-icon [img]="ResetIcon" size="16"></lucide-icon>
+                <span>Cargar Plantilla</span>
+            </button>
+            <button type="button" class="primary-button" (click)="onSave()" [disabled]="isSaving() || isLoading() || configForm.invalid">
+                @if (isSaving()) {
+                    <span class="spinner"></span>
+                    <span>Guardando...</span>
+                } @else {
+                    <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
+                    <span>Guardar Estructura</span>
+                }
+            </button>
+        </div>
+    </div>
+
+    @if (isLoading()) {
+        <div class="loading-state card">
+            <span class="spinner"></span>
+            <p>Cargando configuración...</p>
+        </div>
+    } @else {
+        <div class="card info-banner">
+            <p><strong>Nota importante:</strong> Una vez que comiences a crear cuentas contables, no podrás modificar esta estructura. Asegúrate de que la longitud y cantidad de niveles sean las correctas para tu organización.</p>
+        </div>
+
+        <div class="form-container card">
+            <form [formGroup]="configForm">
+                <div class="segments-list" formArrayName="segments">
+                    <div class="list-header">
+                        <div class="col-order">Orden</div>
+                        <div class="col-name">Nombre del Nivel</div>
+                        <div class="col-length">Longitud (caracteres)</div>
+                        <div class="col-required">Requerido</div>
+                        <div class="col-actions"></div>
+                    </div>
+
+                    @for (segment of segments.controls; track segment; let i = $index) {
+                        <div class="segment-row" [formGroupName]="i">
+                            <div class="col-order">
+                                <span class="order-badge">{{ i + 1 }}</span>
+                            </div>
+                            <div class="col-name">
+                                <input type="text" formControlName="name" placeholder="Ej: Mayor, Sub-cuenta...">
+                                @if (segment.get('name')?.touched && segment.get('name')?.invalid) {
+                                    <span class="error-text">Requerido</span>
+                                }
+                            </div>
+                            <div class="col-length">
+                                <input type="number" formControlName="length" min="1" max="10">
+                                @if (segment.get('length')?.touched && segment.get('length')?.invalid) {
+                                    <span class="error-text">1-10</span>
+                                }
+                            </div>
+                            <div class="col-required">
+                                <input type="checkbox" formControlName="isRequired">
+                            </div>
+                            <div class="col-actions">
+                                <button type="button" class="icon-button delete" (click)="removeSegment(i)" title="Eliminar Nivel">
+                                    <lucide-icon [img]="TrashIcon" size="16"></lucide-icon>
+                                </button>
+                            </div>
+                        </div>
+                    }
+
+                    @if (segments.length === 0) {
+                        <div class="empty-state">
+                            <p>No hay niveles definidos. Agrega uno o carga la plantilla por defecto.</p>
+                        </div>
+                    }
+
+                    <div class="list-footer">
+                        <button type="button" class="ghost-button" (click)="addSegment()">
+                            <lucide-icon [img]="PlusIcon" size="16"></lucide-icon>
+                            <span>Agregar Nivel</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    }
+</div>

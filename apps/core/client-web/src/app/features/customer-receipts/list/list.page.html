@@ -1,0 +1,49 @@
+<div class="view-container">
+  <div class="view-header">
+    <h1>Recibos de Cliente</h1>
+    <div class="header-actions">
+      <a routerLink="new" class="btn-primary">
+        <lucide-icon [name]="PlusCircleIcon" [size]="16"></lucide-icon>
+        <span>Nuevo Recibo</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="view-content">
+    <div *ngIf="isLoading()" class="loading-shade">
+      <p>Cargando recibos...</p>
+    </div>
+
+    <div *ngIf="!isLoading() && receipts().length === 0" class="empty-state">
+      <h2>No hay recibos de cliente</h2>
+      <p>Crea tu primer recibo para registrar un pago.</p>
+    </div>
+
+    <div *ngIf="!isLoading() && receipts().length > 0" class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>Número</th>
+            <th>Fecha</th>
+            <th class="text-right">Monto</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let receipt of receipts()">
+            <td>{{ receipt.customerName }}</td>
+            <td>
+              <a [routerLink]="[receipt.id]">{{ receipt.receiptNumber }}</a>
+            </td>
+            <td>{{ receipt.paymentDate | date:'dd/MM/yyyy' }}</td>
+            <td class="text-right">{{ receipt.amount | number:'1.2-2' }}</td>
+            <td class="text-center">
+              <!-- Action buttons can go here -->
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,40 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="card-title">Journals</h4>
+                    <a [routerLink]="['/accounting/journals/new']" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create Journal
+                    </a>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Code</th>
+                                <th>Type</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (journal of journals(); track journal.id) {
+                                <tr>
+                                    <td>{{ journal.name }}</td>
+                                    <td>{{ journal.code }}</td>
+                                    <td>{{ journal.type }}</td>
+                                    <td>
+                                        <a [routerLink]="['/accounting/journals', journal.id, 'edit']" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

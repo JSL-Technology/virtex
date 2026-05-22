@@ -1,0 +1,12 @@
+<div class="language-selector-container">
+    <label for="language-select">Idioma de la Interfaz</label>
+    <div class="button-group">
+        <button (click)="languageService.setLanguage('es')" [class.active]="languageService.currentLang() === 'es'">
+            Español
+        </button>
+        <button (click)="languageService.setLanguage('en')" [class.active]="languageService.currentLang() === 'en'">
+            English
+        </button>
+    </div>
+    <p class="description">Selecciona el idioma en que se mostrará la aplicación.</p>
+</div>

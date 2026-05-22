@@ -1,0 +1,144 @@
+// Reutilizamos la base de estilos de la vista de historial de ventas
+@use '../../../../assets/styles/forms' as mixins;
+@use '../../sales/history/history.page.scss';
+
+// Clases específicas para los estados de las facturas
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+
+    &.status-paid {
+        background-color: rgba(74, 222, 128, 0.1);
+        color: #4ade80;
+    }
+
+    &.status-pending {
+        background-color: rgba(251, 146, 60, 0.1);
+        color: #fb923c;
+    }
+
+    &.status-partial {
+        background-color: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+    }
+
+    &.status-overdue {
+        background-color: rgba(248, 113, 113, 0.1);
+        color: #f87171;
+    }
+
+    &.status-draft {
+        background-color: var(--bg-tertiary);
+        color: var(--text-secondary);
+    }
+}
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    gap: 1.5rem;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+
+    .search-box {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius-md);
+
+        lucide-icon {
+            color: var(--text-tertiary);
+        }
+
+        input {
+            border: none;
+            background: transparent;
+            padding: 0;
+            width: 100%;
+            color: var(--text-primary);
+
+            &:focus {
+                box-shadow: none;
+            }
+        }
+    }
+
+    .filters {
+        display: flex;
+        gap: 1.5rem;
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+
+            label {
+                font-size: 14px;
+                color: var(--text-secondary);
+                white-space: nowrap;
+            }
+
+            select {
+                padding: 0.4rem 2rem 0.4rem 0.75rem;
+                min-width: 140px;
+            }
+        }
+    }
+}
+
+.data-table {
+    th.sortable {
+        cursor: pointer;
+        user-select: none;
+        transition: var(--transition);
+
+        &:hover {
+            color: var(--primary);
+            background-color: var(--bg-hover);
+        }
+
+        lucide-icon {
+            display: inline-block;
+            margin-left: 4px;
+            vertical-align: middle;
+        }
+    }
+}
+
+.loading-state {
+    padding: 3rem;
+    text-align: center;
+    color: var(--text-secondary);
+
+    .spinner {
+        margin: 0 auto 1rem;
+        width: 32px;
+        height: 32px;
+        border: 3px solid var(--bg-tertiary);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.text-danger {
+    color: var(--error) !important;
+    font-weight: 600;
+}
+
+.font-semibold {
+    font-weight: 600;
+}

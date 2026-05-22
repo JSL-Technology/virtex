@@ -1,0 +1,107 @@
+<div class="page-container">
+    <!-- Encabezado de la Página -->
+    <div class="page-header">
+        <h1>Operaciones Masivas</h1>
+        <a routerLink="/accounting/chart-of-accounts" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver al Plan de Cuentas
+        </a>
+    </div>
+
+    <div class="content-grid">
+        <!-- Sección de Importación -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-upload"></i> Importar Plan de Cuentas</h2>
+            </div>
+            <div class="card-body">
+                <p class="instructions">
+                    Sube un archivo en formato CSV o XLSX para crear o actualizar cuentas de forma masiva.
+                    Asegúrate de que el archivo siga la estructura requerida.
+                </p>
+                <div class="template-download">
+                    <a href="javascript:void(0)" (click)="downloadTemplate()">
+                        <i class="fas fa-file-csv"></i> Descargar plantilla de ejemplo (CSV)
+                    </a>
+                </div>
+
+                <div class="upload-area">
+                    <label for="file-upload" class="file-upload-label" [class.with-file]="selectedFile()">
+                        <i class="fas fa-file-import"></i>
+                        <span>{{ selectedFile()?.name || 'Seleccionar un archivo...' }}</span>
+                    </label>
+                    <input id="file-upload" type="file" (change)="onFileSelected($event)"
+                        accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+
+                    <button class="btn btn-primary" (click)="onUpload()" [disabled]="!selectedFile() || isUploading()">
+                        <span *ngIf="!isUploading()"><i class="fas fa-cogs"></i> Procesar Archivo</span>
+                        <span *ngIf="isUploading()">
+                            <i class="fas fa-spinner fa-spin"></i> Procesando...
+                        </span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sección de Resultados de la Importación -->
+            <div class="card-footer" *ngIf="uploadResult()">
+                <h3>Resultados de la Importación</h3>
+                <div class="results-summary">
+                    <div class="result-box success">
+                        <span class="count">{{ uploadResult()!.successCount }}</span>
+                        <span class="label">Cuentas Creadas/Actualizadas</span>
+                    </div>
+                    <div class="result-box error" [class.has-errors]="uploadResult()!.errorCount > 0">
+                        <span class="count">{{ uploadResult()!.errorCount }}</span>
+                        <span class="label">Registros con Errores</span>
+                    </div>
+                </div>
+
+                <div class="error-details" *ngIf="uploadResult()!.errorCount > 0">
+                    <h4>Detalle de Errores:</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fila</th>
+                                <th>Código de Cuenta</th>
+                                <th>Mensaje de Error</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let err of uploadResult()!.errors">
+                                <td>{{ err.rowIndex }}</td>
+                                <!-- <td>{{ err.accountCode }}</td> -->
+                                <td>{{ err.message }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Exportación -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-download"></i> Exportar Plan de Cuentas</h2>
+            </div>
+            <!-- <div class="card-body">
+                <p class="instructions">
+                    Exporta la versión y jerarquía actualmente seleccionada en el Plan de Cuentas.
+                    Los filtros de búsqueda no se aplican a la exportación.
+                </p>
+                <div class="export-info">
+                    <span>Versión a exportar: <strong>v{{ state.selectedVersion() }}</strong></span>
+                    <span>Jerarquía: <strong>{{ state.selectedHierarchy() }}</strong></span>
+                </div>
+                <div class="export-actions">
+                    <button class="btn btn-secondary" (click)="onExport('csv')" [disabled]="isExporting()">
+                        <span *ngIf="!isExporting()"><i class="fas fa-file-csv"></i> Exportar a CSV</span>
+                        <span *ngIf="isExporting()"><i class="fas fa-spinner fa-spin"></i> Exportando...</span>
+                    </button>
+                    <button class="btn btn-secondary" (click)="onExport('json')" [disabled]="isExporting()">
+                        <span *ngIf="!isExporting()"><i class="fas fa-file-code"></i> Exportar a JSON</span>
+                        <span *ngIf="isExporting()"><i class="fas fa-spinner fa-spin"></i> Exportando...</span>
+                    </button>
+                </div>
+            </div> -->
+        </div>
+    </div>
+</div>

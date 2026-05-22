@@ -1,0 +1,108 @@
+<div class="view-container">
+    <div class="view-header">
+        <div class="header-content">
+            <h1>Data Imports (ETL)</h1>
+            <p>Upload master or transactional data in bulk using CSV or Excel files.</p>
+        </div>
+    </div>
+
+    <div class="import-process-grid">
+        <div class="step-card card">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3>Select Data Type</h3>
+                <p>Choose the type of data you want to import to ensure correct mapping.</p>
+                <select (change)="onDataTypeChange($event)">
+                    <option [value]="null" disabled selected>Select a data type...</option>
+                    @for (type of dataTypes; track type.id) {
+                    <option [value]="type.id">{{ type.name }}</option>
+                    }
+                </select>
+                @if (selectedDataTypeInfo(); as info) {
+                <a [href]="info.templateUrl" download class="template-link">
+                    <lucide-icon [img]="DownloadIcon" size="16"></lucide-icon>
+                    <span>Download {{ info.name }} Template</span>
+                </a>
+                }
+            </div>
+        </div>
+
+        <div class="step-card card">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3>Upload File</h3>
+                <p>Select the CSV or Excel file from your computer.</p>
+                <div class="file-upload-container">
+                    <input type="file" id="fileUpload" (change)="onFileSelected($event)"
+                        [disabled]="!selectedDataTypeId()"
+                        accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                    <label for="fileUpload" class="file-upload-label" [class.disabled]="!selectedDataTypeId()">
+                        <lucide-icon [img]="FileIcon" size="24"></lucide-icon>
+                        @if (selectedFile()) {
+                        <span class="file-name">{{ selectedFile()?.name }}</span>
+                        } @else {
+                        <span>Click to browse or drag & drop</span>
+                        }
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="step-card card">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h3>Start Import</h3>
+                <p>Once your file is selected, begin the import process.</p>
+                <button class="primary-button" (click)="startImport()" [disabled]="!selectedFile() || isUploading()">
+                    @if (isUploading()) {
+                    <lucide-icon [img]="ProcessingIcon" size="18" class="spinner"></lucide-icon>
+                    <span>Processing...</span>
+                    } @else {
+                    <lucide-icon [img]="UploadIcon" size="18"></lucide-icon>
+                    <span>Import Data</span>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="history-section">
+        <h2 class="section-title">Recent Imports</h2>
+        <div class="table-container card">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Data Type</th>
+                        <th>File Name</th>
+                        <th>Date</th>
+                        <th>User</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-right">Processed</th>
+                        <th class="text-right">Failed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for(item of importHistory(); track item.id) {
+                    <tr>
+                        <td>{{ item.dataType }}</td>
+                        <td>{{ item.fileName }}</td>
+                        <td>{{ item.date }}</td>
+                        <td>{{ item.user }}</td>
+                        <td class="text-center">
+                            <span class="status-badge" [ngClass]="getStatusClass(item.status)">
+                                @if(item.status === 'Completed') { <lucide-icon [img]="SuccessIcon" size="14" /> }
+                                @if(item.status === 'Failed') { <lucide-icon [img]="ErrorIcon" size="14" /> }
+                                @if(item.status === 'Processing') { <lucide-icon [img]="ProcessingIcon" size="14"
+                                    class="spinner" /> }
+                                {{ item.status }}
+                            </span>
+                        </td>
+                        <td class="text-right">{{ item.recordsProcessed }}</td>
+                        <td class="text-right" [class.has-errors]="item.recordsFailed > 0">{{ item.recordsFailed }}</td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

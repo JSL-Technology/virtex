@@ -1,0 +1,68 @@
+<div class="view-container">
+    <div class="view-header">
+        <div class="header-content">
+            <h1>Documents</h1>
+            <p>Manage and organize all your business files and attachments.</p>
+        </div>
+        <div class="header-actions">
+            <button class="secondary-button">
+                <lucide-icon [img]="FolderIcon" size="16"></lucide-icon>
+                <span>New Folder</span>
+            </button>
+            <button class="primary-button">
+                <lucide-icon [img]="UploadIcon" size="16"></lucide-icon>
+                <span>Upload File</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="file-explorer card">
+        <div class="explorer-toolbar">
+            <div class="path-breadcrumbs">
+                <span>{{ currentPath() }}</span>
+            </div>
+            <div class="search-bar">
+                <lucide-icon [img]="SearchIcon" size="16"></lucide-icon>
+                <input type="text" placeholder="Search in this folder...">
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 1%;"><input type="checkbox"></th>
+                        <th>Name</th>
+                        <th>Last Modified</th>
+                        <th>File Size</th>
+                        <th class="actions-column"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (item of files(); track item.id) {
+                    <tr class="file-item-row">
+                        <td><input type="checkbox"></td>
+                        <td>
+                            <div class="name-cell">
+                                <lucide-icon [img]="item.icon" size="20" [class]="item.type"></lucide-icon>
+                                <a href="#" class="table-link">{{ item.name }}</a>
+                            </div>
+                        </td>
+                        <td>{{ item.modifiedDate }}</td>
+                        <td>{{ item.size }}</td>
+                        <td class="actions-column">
+                            <button class="icon-button">
+                                <lucide-icon [img]="MoreIcon" size="18"></lucide-icon>
+                            </button>
+                        </td>
+                    </tr>
+                    } @empty {
+                    <tr>
+                        <td colspan="5" class="empty-state">This folder is empty.</td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

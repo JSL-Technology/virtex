@@ -1,0 +1,78 @@
+<div class="page-header">
+    <div>
+        <h2 class="page-title">Perfil de la Empresa</h2>
+        <p class="page-subtitle">Gestiona la información legal y de contacto de tu organización.</p>
+    </div>
+    <button type="submit" class="btn-primary" [disabled]="profileForm.pristine || profileForm.invalid || isLoading" (click)="saveProfile()">
+        <lucide-icon [img]="SaveIcon" size="18"></lucide-icon>
+        <span>{{ isLoading ? 'Guardando...' : 'Guardar Cambios' }}</span>
+    </button>
+</div>
+
+<div class="content-card">
+    <form [formGroup]="profileForm">
+        <div class="form-section">
+            <h3 class="section-title">Información General</h3>
+            <div class="form-grid">
+                <div class="form-field">
+                    <label for="legalName">Nombre Legal <span class="required">*</span></label>
+                    <input id="legalName" type="text" formControlName="legalName" placeholder="Ej. Virteex Corp">
+                    <div class="error-message" *ngIf="profileForm.get('legalName')?.touched && profileForm.get('legalName')?.invalid">
+                        El nombre legal es requerido.
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label for="industry">Industria</label>
+                    <input id="industry" type="text" formControlName="industry" placeholder="Ej. Tecnología, Retail...">
+                </div>
+
+                <div class="form-field">
+                    <label for="taxId">ID Fiscal (RNC/Tax ID) <span class="required">*</span></label>
+                    <input id="taxId" type="text" formControlName="taxId" placeholder="Ej. 132-45678-9">
+                    <div class="error-message" *ngIf="profileForm.get('taxId')?.touched && profileForm.get('taxId')?.invalid">
+                        El ID Fiscal es requerido.
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label for="website">Sitio Web</label>
+                    <input id="website" type="url" formControlName="website" placeholder="https://ejemplo.com">
+                </div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="form-section">
+            <h3 class="section-title">Dirección y Contacto</h3>
+            <div class="form-grid">
+                <div class="form-field full-width">
+                    <label for="address">Dirección</label>
+                    <input id="address" type="text" formControlName="address" placeholder="Calle Principal #123">
+                </div>
+
+                <div class="form-field">
+                    <label for="city">Ciudad</label>
+                    <input id="city" type="text" formControlName="city" placeholder="Ej. Santo Domingo">
+                </div>
+
+                <div class="form-field">
+                    <label for="country">País <span class="required">*</span></label>
+                    <input id="country" type="text" formControlName="country" placeholder="Ej. República Dominicana">
+                    <div class="error-message" *ngIf="profileForm.get('country')?.touched && profileForm.get('country')?.invalid">
+                        El país es requerido.
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label for="phone">Teléfono <span class="required">*</span></label>
+                    <input id="phone" type="tel" formControlName="phone" placeholder="+1 (809) 555-0123">
+                    <div class="error-message" *ngIf="profileForm.get('phone')?.touched && profileForm.get('phone')?.invalid">
+                        El teléfono es requerido.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

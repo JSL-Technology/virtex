@@ -1,0 +1,108 @@
+<div class="view-container">
+    <div class="settings-layout">
+        <aside class="settings-sidebar">
+            <div class="sidebar-header">
+                <h2>Configuración</h2>
+            </div>
+            <nav class="settings-nav">
+
+                <!-- GRUPO 1: MI CUENTA -->
+                <div class="nav-group">
+                    <h3 class="group-title">MI CUENTA</h3>
+                    <a routerLink="my-profile" routerLinkActive="active" class="nav-link">
+                        <lucide-icon [img]="MyProfileIcon" size="18"></lucide-icon>
+                        <span>Mi perfil</span>
+                    </a>
+                </div>
+
+                <!-- GRUPO 2: ORGANIZACIÓN -->
+                <div class="nav-group">
+                    <h3 class="group-title">ORGANIZACIÓN</h3>
+                    <a routerLink="profile" routerLinkActive="active" class="nav-link">
+                        <lucide-icon [img]="OrgProfileIcon" size="18"></lucide-icon>
+                        <span>Perfil de la Empresa</span>
+                    </a>
+                    <a routerLink="subsidiaries" routerLinkActive="active" class="nav-link">
+                        <lucide-icon [img]="SubsidiariesIcon" size="18"></lucide-icon>
+                        <span>Estructura Empresarial</span>
+                    </a>
+                    <a routerLink="branding" routerLinkActive="active" class="nav-link">
+                        <lucide-icon [img]="BrandingIcon" size="18"></lucide-icon>
+                        <span>Personalización</span>
+                    </a>
+                </div>
+
+                <!-- GRUPO 3: FINANZAS -->
+                <div class="nav-group">
+                    <h3 class="group-title">FINANZAS</h3>
+                    <a routerLink="accounting" routerLinkActive="active" class="nav-link">
+                        <lucide-icon [img]="AccountingIcon" size="18"></lucide-icon>
+                        <span>Preferencias Contables</span>
+                    </a>
+                    <a routerLink="currencies" routerLinkActive="active" class="nav-link">
+                        <lucide-icon [img]="CurrenciesIcon" size="18"></lucide-icon>
+                        <span>Multimoneda</span>
+                    </a>
+                    <a routerLink="taxes" routerLinkActive="active" class="nav-link">
+                        <lucide-icon [img]="TaxesIcon" size="18"></lucide-icon>
+                        <span>Reglas de Impuestos</span>
+                    </a>
+                    <a routerLink="closing-rules" routerLinkActive="active" class="nav-link">
+                        <lucide-icon [img]="ClosingIcon" size="18"></lucide-icon>
+                        <span>Cierre Fiscal</span>
+                    </a>
+                    <a routerLink="intercompany" routerLinkActive="active" class="nav-link">
+                        <lucide-icon [img]="IntercompanyIcon" size="18"></lucide-icon>
+                        <span>Intercompany</span>
+                    </a>
+                </div>
+
+                <!-- GRUPO 4: OPERACIONES -->
+                <div class="nav-group">
+                    <h3 class="group-title">OPERACIONES</h3>
+                    <a routerLink="sequences" routerLinkActive="active" class="nav-link">
+                        <lucide-icon [img]="SequencesIcon" size="18"></lucide-icon>
+                        <span>Secuencias Fiscales</span>
+                    </a>
+                    <a routerLink="approvals" routerLinkActive="active" class="nav-link">
+                        <lucide-icon [img]="WorkflowsIcon" size="18"></lucide-icon>
+                        <span>Flujos de Aprobación</span>
+                    </a>
+                    <a routerLink="inventory-policies" routerLinkActive="active" class="nav-link">
+                        <lucide-icon [img]="InventoryIcon" size="18"></lucide-icon>
+                        <span>Políticas de Inventario</span>
+                    </a>
+                </div>
+
+                <!-- GRUPO 5: SISTEMA -->
+                <div class="nav-group">
+                    <h3 class="group-title">SISTEMA</h3>
+                    <a routerLink="roles" routerLinkActive="active" class="nav-link" *hasPermission="'roles:view'">
+                        <lucide-icon [img]="RolesIcon" size="18"></lucide-icon>
+                        <span>Roles y Permisos</span>
+                    </a>
+                    <a routerLink="users" routerLinkActive="active" class="nav-link" *hasPermission="'users:view'">
+                        <lucide-icon [img]="UsersIcon" size="18"></lucide-icon>
+                        <span>Usuarios</span>
+                    </a>
+                    <a routerLink="security" routerLinkActive="active" class="nav-link">
+                        <lucide-icon [img]="SecurityIcon" size="18"></lucide-icon>
+                        <span>Seguridad y Auditoría</span>
+                    </a>
+                    <a routerLink="integrations" routerLinkActive="active" class="nav-link">
+                        <lucide-icon [img]="IntegrationsIcon" size="18"></lucide-icon>
+                        <span>Integraciones</span>
+                    </a>
+                    <a routerLink="smtp" routerLinkActive="active" class="nav-link">
+                        <lucide-icon [img]="SmtpIcon" size="18"></lucide-icon>
+                        <span>Servidor de Correo</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+        <main class="settings-content" style="position: relative;">
+            <router-outlet></router-outlet>
+            <!-- <app-loader [overlay]="false" *ngIf="loaderService.isLoading('settings')()"></app-loader> -->
+        </main>
+    </div>
+</div>

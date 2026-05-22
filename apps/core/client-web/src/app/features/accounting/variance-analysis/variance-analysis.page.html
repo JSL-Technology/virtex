@@ -1,0 +1,55 @@
+<div class="subview-container">
+    <div class="subview-header">
+        <h3>Variance Analysis (Actual vs. Budget)</h3>
+        <div class="header-actions">
+            <button class="secondary-button">
+                <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
+                <span>Period: July 2025</span>
+            </button>
+            <button class="primary-button">
+                <lucide-icon [img]="ExportIcon" size="16"></lucide-icon>
+                <span>Export</span>
+            </button>
+        </div>
+    </div>
+    <div class="table-container card">
+        <table class="data-table variance-table">
+            <thead>
+                <tr>
+                    <th>Account</th>
+                    <th class="text-right">Actual</th>
+                    <th class="text-right">Budget</th>
+                    <th class="text-right">Variance ($)</th>
+                    <th class="text-right">Variance (%)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for(item of variances(); track item.accountCode) {
+                <tr>
+                    <td>{{ item.accountCode }} - {{ item.accountName }}</td>
+                    <td class="text-right">{{ item.actual | number:'1.2-2' }}</td>
+                    <td class="text-right">{{ item.budget | number:'1.2-2' }}</td>
+                    <td class="text-right" [class.positive]="isVariancePositive(item)"
+                        [class.negative]="!isVariancePositive(item)">
+                        {{ item.varianceAmount | number:'1.2-2' }}
+                    </td>
+                    <td class="text-right variance-percent-cell" [class.positive]="isVariancePositive(item)"
+                        [class.negative]="!isVariancePositive(item)">
+                        <div>
+                            @if(item.varianceAmount !== 0) {
+                            <lucide-icon [img]="isVariancePositive(item) ? PositiveIcon : NegativeIcon"
+                                size="14"></lucide-icon>
+                            }
+                            <span>{{ item.variancePercent | number:'1.1-1' }}%</span>
+                        </div>
+                    </td>
+                </tr>
+                } @empty {
+                <tr>
+                    <td colspan="5" class="empty-state">No data available for variance analysis.</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

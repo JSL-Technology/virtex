@@ -1,0 +1,128 @@
+<div class="view-container">
+    <div class="view-header">
+        <div class="header-content">
+            <h1>Facturas</h1>
+            <p>Gestión completa de facturación y seguimiento de documentos.</p>
+        </div>
+        <div class="header-actions">
+            <button class="secondary-button" (click)="exportToExcel()">
+                <lucide-icon [img]="SpreadsheetIcon" size="16"></lucide-icon>
+                <span>Exportar Excel</span>
+            </button>
+            <a routerLink="/invoices/new" class="primary-button">
+                <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
+                <span>Nueva factura de venta</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="toolbar card">
+        <div class="search-box">
+            <lucide-icon [img]="SearchIcon" size="18"></lucide-icon>
+            <input type="text"
+                   [ngModel]="searchTerm()"
+                   (ngModelChange)="searchTerm.set($event)"
+                   placeholder="Buscar por cliente o número de factura...">
+        </div>
+        <div class="filters">
+            <div class="filter-group">
+                <label>Estado:</label>
+                <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+                    <option value="All">Todos</option>
+                    <option value="Paid">Cobrada</option>
+                    <option value="Pending">Pendiente</option>
+                    <option value="Partially Paid">Parcial</option>
+                    <option value="Void">Anulada</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-container card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th class="sortable" (click)="toggleSort('invoiceNumber')">
+                        Factura #
+                        @if (sortBy() === 'invoiceNumber') {
+                            <lucide-icon [img]="sortDirection() === 'asc' ? ArrowUpIcon : ArrowDownIcon" size="12"></lucide-icon>
+                        }
+                    </th>
+                    <th class="sortable" (click)="toggleSort('customerName')">
+                        Cliente
+                        @if (sortBy() === 'customerName') {
+                            <lucide-icon [img]="sortDirection() === 'asc' ? ArrowUpIcon : ArrowDownIcon" size="12"></lucide-icon>
+                        }
+                    </th>
+                    <th class="sortable" (click)="toggleSort('issueDate')">
+                        Creación
+                        @if (sortBy() === 'issueDate') {
+                            <lucide-icon [img]="sortDirection() === 'asc' ? ArrowUpIcon : ArrowDownIcon" size="12"></lucide-icon>
+                        }
+                    </th>
+                    <th class="sortable" (click)="toggleSort('dueDate')">
+                        Vencimiento
+                        @if (sortBy() === 'dueDate') {
+                            <lucide-icon [img]="sortDirection() === 'asc' ? ArrowUpIcon : ArrowDownIcon" size="12"></lucide-icon>
+                        }
+                    </th>
+                    <th class="text-right sortable" (click)="toggleSort('total')">
+                        Total
+                        @if (sortBy() === 'total') {
+                            <lucide-icon [img]="sortDirection() === 'asc' ? ArrowUpIcon : ArrowDownIcon" size="12"></lucide-icon>
+                        }
+                    </th>
+                    <th>Estado</th>
+                    <th class="actions-column"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (isLoading()) {
+                    <tr>
+                        <td colspan="7" class="loading-state">
+                            <div class="spinner"></div>
+                            <span>Cargando facturas...</span>
+                        </td>
+                    </tr>
+                } @else {
+                    @for (invoice of filteredInvoices(); track invoice.id) {
+                    <tr>
+                        <td>
+                            <a [routerLink]="['/invoices', invoice.id]" class="table-link">
+                                {{ invoice.invoiceNumber }}
+                            </a>
+                        </td>
+                        <td>{{ invoice.customerName }}</td>
+                        <td>{{ invoice.issueDate | date: 'dd/MM/yyyy' }}</td>
+                        <td>
+                            <span [class.text-danger]="invoice.status === 'Pending' && invoice.dueDate < today">
+                                {{ invoice.dueDate | date: 'dd/MM/yyyy' }}
+                            </span>
+                        </td>
+                        <td class="text-right font-semibold">
+                            {{ invoice.currencyCode }} {{ invoice.total | number:'1.2-2' }}
+                        </td>
+                        <td>
+                            <span class="status-badge" [ngClass]="getStatusClass(invoice.status)">
+                                {{ invoice.status === 'Paid' ? 'Cobrada' :
+                                   invoice.status === 'Pending' ? 'Por cobrar' :
+                                   invoice.status === 'Partially Paid' ? 'Parcial' :
+                                   invoice.status === 'Void' ? 'Anulada' : invoice.status }}
+                            </span>
+                        </td>
+                        <td class="actions-column">
+                            <button class="icon-button">
+                                <lucide-icon [img]="MoreHorizontalIcon" size="18"></lucide-icon>
+                            </button>
+                        </td>
+                    </tr>
+                    } @empty {
+                    <tr>
+                        <td colspan="7" class="empty-state">No se encontraron facturas que coincidan con la búsqueda.</td>
+                    </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

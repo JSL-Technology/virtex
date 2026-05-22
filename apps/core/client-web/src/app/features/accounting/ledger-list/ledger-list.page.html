@@ -1,0 +1,43 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1 class="page-title">Libros Contables</h1>
+    <a [routerLink]="['/accounting/ledger-form/new']" class="btn btn-primary">
+      <lucide-icon [name]="CreateIcon" [size]="16" class="mr-2"></lucide-icon>
+      Crear Nuevo Libro
+    </a>
+  </div>
+
+  <div class="card">
+    <div class="overflow-x-auto">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Por Defecto</th>
+            <th class="w-1"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngIf="ledgers$ | async as ledgers">
+            <tr *ngFor="let ledger of ledgers" class="hover">
+              <td>{{ ledger.name }}</td>
+              <!-- <td>{{ ledger.description }}</td> -->
+              <td>
+                <!-- <span *ngIf="ledger.isDefault" class="badge badge-success">Sí</span> -->
+              </td>
+              <td>
+                <a [routerLink]="['/accounting/ledger-form', ledger.id]" class="btn btn-sm btn-ghost">
+                  Editar
+                </a>
+              </td>
+            </tr>
+            <tr *ngIf="ledgers.length === 0">
+              <td colspan="4" class="text-center">No se han encontrado libros contables.</td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

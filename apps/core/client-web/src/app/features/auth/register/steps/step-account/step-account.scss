@@ -1,0 +1,88 @@
+@use '../../../../../../assets/styles/forms' as mixins;
+
+.step-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.step-header {
+    text-align: center;
+    margin-bottom: 1rem;
+
+    h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+        color: var(--text-primary);
+    }
+
+    p {
+        color: var(--text-secondary);
+    }
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.form-field {
+    @include mixins.form-field;
+    flex-grow: 1;
+}
+
+.input-wrapper {
+    @include mixins.input-wrapper;
+}
+
+.file-upload-field {
+    text-align: center;
+
+    label {
+        // Para el label general "Tu Foto de Perfil"
+        width: 100%;
+    }
+
+    .file-input-container {
+        display: inline-block;
+        position: relative;
+
+        input[type="file"] {
+            display: none; // Oculta el input por defecto
+        }
+
+        .file-input-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%; // Círculo para el avatar
+            border: 2px dashed var(--border-color);
+            color: var(--text-tertiary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            overflow: hidden;
+
+            &:hover {
+                border-color: var(--accent-primary);
+                color: var(--accent-primary);
+                background-color: var(--bg-hover);
+            }
+
+            span {
+                font-size: 0.8rem;
+                font-weight: 600;
+                margin-top: 0.5rem;
+            }
+
+            .avatar-preview {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+        }
+    }
+}

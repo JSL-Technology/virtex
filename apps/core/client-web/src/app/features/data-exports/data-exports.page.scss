@@ -1,0 +1,143 @@
+@use '../../../assets/styles/view-styles' as views;
+@use '../../../assets/styles/forms' as mixins;
+
+:host {
+    display: block;
+}
+
+.view-container {
+    @include views.view-container;
+}
+
+.view-header {
+    @include views.view-header;
+}
+
+.card {
+    @include views.card;
+}
+
+.data-table {
+    @include views.data-table;
+}
+
+.export-form-container {
+    padding: 1.5rem;
+    margin-bottom: 3rem;
+
+    .form-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 2fr 2fr 1fr;
+    gap: 1.5rem;
+    align-items: flex-end;
+
+    @media (max-width: 992px) {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+    }
+}
+
+.form-field {
+    @include mixins.form-field;
+}
+
+.action-field {
+    .primary-button {
+        @include mixins.submit-button;
+        width: 100%;
+    }
+}
+
+.button-group {
+    display: flex;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    overflow: hidden;
+
+    button {
+        flex-grow: 1;
+        padding: var(--space-input-y) var(--space-padding);
+        background-color: var(--bg-layer-1);
+        color: var(--text-secondary);
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background-color 0.2s ease, color 0.2s ease;
+
+        &:not(:last-child) {
+            border-right: 1px solid var(--border-color);
+        }
+
+        &.active {
+            background-color: var(--accent-primary);
+            color: var(--accent-text);
+        }
+    }
+}
+
+.history-section {
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+
+    .table-container {
+        padding: 0;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 4px 10px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border-radius: var(--border-radius-full);
+
+        &.status-completed {
+            background-color: rgba(74, 222, 128, 0.15);
+            color: #4ade80;
+        }
+
+        &.status-processing {
+            background-color: rgba(96, 165, 250, 0.15);
+            color: #60a5fa;
+        }
+
+        &.status-failed {
+            background-color: rgba(248, 113, 113, 0.15);
+            color: #f87171;
+        }
+    }
+
+    .download-btn {
+        @include mixins.submit-button;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+        background-color: var(--bg-layer-1);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+
+        &:hover {
+            background-color: var(--bg-hover);
+        }
+    }
+}
+
+.spinner {
+    animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

@@ -1,0 +1,39 @@
+.language-selector-container {
+  label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+  }
+  .description {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 0.75rem;
+  }
+}
+.button-group {
+  display: flex;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  max-width: 250px;
+
+  button {
+    flex-grow: 1;
+    padding: var(--space-input-y) var(--space-padding);
+    background-color: var(--bg-layer-1);
+    color: var(--text-secondary);
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    &:not(:last-child) {
+      border-right: 1px solid var(--border-color);
+    }
+    &.active {
+      background-color: var(--accent-primary);
+      color: var(--accent-text);
+    }
+  }
+}

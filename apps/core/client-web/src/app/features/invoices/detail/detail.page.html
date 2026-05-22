@@ -1,0 +1,182 @@
+<div class="view-container">
+  @if (invoice(); as inv) {
+  <div class="view-header">
+    <div class="header-content">
+      <h1>
+        {{ inv.type === 'CREDIT_NOTE' ? 'Nota de Crédito' : 'Factura de Venta' }} <span class="invoice-id">#{{ inv.invoiceNumber }}</span>
+      </h1>
+    </div>
+  </div>
+
+  <app-invoice-toolbar
+    (navigate)="handleNavigate($event)"
+    (print)="printInvoice()"
+    (email)="notificationService.showInfo('Enviando correo...')"
+    (export)="handleExport($event)"
+    (copyFrom)="handleCopyFrom()"
+    (copyTo)="handleCopyTo()"
+    (back)="goBack()"
+    (forward)="goForward()"
+  ></app-invoice-toolbar>
+
+  <!-- Document Tabs -->
+  <div class="sap-tabs">
+    <button [class.active]="activeTab() === 'content'" (click)="activeTab.set('content')">Contenido</button>
+    <button [class.active]="activeTab() === 'logistics'" (click)="activeTab.set('logistics')">Logística</button>
+    <button [class.active]="activeTab() === 'finance'" (click)="activeTab.set('finance')">Finanzas</button>
+  </div>
+
+  <div class="invoice-document card" [class.hidden]="activeTab() !== 'content'">
+    <div class="card-body">
+      <!-- Invoice Header -->
+      <div class="invoice-header">
+        <div class="company-info">
+          <h2>VIRTEEX ERP</h2>
+          <p>Calle Principal #123<br />
+             Santo Domingo, República Dominicana<br />
+             RNC: 1-31-12345-6<br />
+             Tel: (809) 555-0123</p>
+        </div>
+        <div class="invoice-meta">
+          <div class="meta-item">
+            <span>FECHA</span>
+            <strong>{{ inv.issueDate | date: 'dd/MM/yyyy' }}</strong>
+          </div>
+          <div class="meta-item">
+            <span>VENCIMIENTO</span>
+            <strong>{{ inv.dueDate | date: 'dd/MM/yyyy' }}</strong>
+          </div>
+          <div class="meta-item">
+            <span>NCF</span>
+            <strong>{{ inv.ncfNumber || 'N/A' }}</strong>
+          </div>
+          <div class="meta-item">
+            <span>MONEDA</span>
+            <strong>{{ inv.currencyCode }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer Section -->
+      <div class="customer-info">
+        <h3>FACTURADO A:</h3>
+        <p>
+          <strong>{{ inv.customerName }}</strong><br />
+          {{ inv.customerAddress }}
+        </p>
+      </div>
+
+      <!-- Line Items Table -->
+      <div class="line-items-toolbar">
+          <input type="text" placeholder="Buscar en líneas..." [ngModel]="lineItemSearch()" (ngModelChange)="lineItemSearch.set($event)">
+      </div>
+      <table class="line-items-table">
+        <thead>
+          <tr>
+            <th class="text-left">Descripción</th>
+            <th class="text-center">Cant.</th>
+            <th class="text-right">Precio</th>
+            <th class="text-right">ITBIS</th>
+            <th class="text-right">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of filteredLineItems(); track item.id) {
+          <tr>
+            <td class="text-left">{{ item.description }}</td>
+            <td class="text-center">{{ item.quantity }}</td>
+            <td class="text-right">{{ item.price | number: '1.2-2' }}</td>
+            <td class="text-right">{{ item.taxAmount || 0 | number: '1.2-2' }}</td>
+            <td class="text-right">
+              {{ (item.quantity * item.price) + (item.taxAmount || 0) | number: '1.2-2' }}
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+
+      <!-- Footer Summary -->
+      <div class="invoice-summary">
+        <div class="summary-notes">
+          @if (inv.notes) {
+          <h4>Notas:</h4>
+          <p>{{ inv.notes }}</p>
+          }
+        </div>
+        <div class="summary-totals">
+          <div class="summary-row">
+            <span>Subtotal:</span>
+            <span>{{ inv.subtotal | number: '1.2-2' }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Impuestos:</span>
+            <span>{{ inv.tax | number: '1.2-2' }}</span>
+          </div>
+          <div class="summary-total">
+            <span>TOTAL:</span>
+            <span>{{ inv.currencyCode }} {{ inv.total | number: '1.2-2' }}</span>
+          </div>
+          @if (inv.balance > 0 && inv.balance < inv.total) {
+          <div class="summary-row balance-row">
+            <span>Balance Pendiente:</span>
+            <strong>{{ inv.currencyCode }} {{ inv.balance | number: '1.2-2' }}</strong>
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="invoice-document card" *ngIf="activeTab() === 'logistics'">
+    <div class="card-body">
+        <h3>Logística y Entrega</h3>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <label>Dirección de Envío:</label>
+                <p>{{ inv.customerAddress }}</p>
+            </div>
+            <div class="detail-item">
+                <label>Método de Envío:</label>
+                <p>Transporte Terrestre</p>
+            </div>
+            <div class="detail-item">
+                <label>Persona de Contacto:</label>
+                <p>{{ inv.customerName }}</p>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <div class="invoice-document card" *ngIf="activeTab() === 'finance'">
+    <div class="card-body">
+        <h3>Información Financiera</h3>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <label>Condición de Pago:</label>
+                <p>30 Días</p>
+            </div>
+            <div class="detail-item">
+                <label>Proyecto:</label>
+                <p>General</p>
+            </div>
+            <div class="detail-item">
+                <label>Indicador de Impuestos:</label>
+                <p>ITBIS (18%)</p>
+            </div>
+            <div class="detail-item">
+                <label>Estado de Cobro:</label>
+                <span class="status-badge" [ngClass]="inv.status.toLowerCase().replace(' ', '-')">
+                    {{ inv.status }}
+                </span>
+            </div>
+        </div>
+    </div>
+  </div>
+  } @else {
+  <div class="card">
+    <p class="placeholder">
+      Cargando datos de la factura o la factura no fue encontrada...
+    </p>
+  </div>
+  }
+</div>

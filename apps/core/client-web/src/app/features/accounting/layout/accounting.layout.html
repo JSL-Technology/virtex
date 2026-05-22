@@ -1,0 +1,59 @@
+<div class="view-container">
+  <div class="view-header">
+    <div class="header-content">
+      <h1>{{ 'ACCOUNTING.LEDGER.TITLE' | translate }}</h1>
+      <p>{{ 'ACCOUNTING.LEDGER.DESCRIPTION' | translate }}</p>
+    </div>
+  </div>
+
+  <nav class="secondary-nav">
+    <a routerLink="chart-of-accounts" routerLinkActive="active">
+      <lucide-icon [img]="ChartOfAccountsIcon" size="16"></lucide-icon>
+      <span>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS' | translate }}</span>
+    </a>
+
+    <a routerLink="journal-entries" routerLinkActive="active">
+      <lucide-icon [img]="JournalEntriesIcon" size="16"></lucide-icon>
+      <span>{{ 'ACCOUNTING.JOURNAL_ENTRIES' | translate }}</span>
+    </a>
+
+    <a routerLink="daily-journal" routerLinkActive="active">
+      <lucide-icon [img]="DailyJournalIcon" size="16"></lucide-icon>
+      <span>{{ 'ACCOUNTING.GENERAL_JOURNAL' | translate }}</span>
+    </a>
+
+    <a routerLink="general-ledger" routerLinkActive="active">
+      <lucide-icon [img]="GeneralLedgerIcon" size="16"></lucide-icon>
+      <span>{{ 'ACCOUNTING.GENERAL_LEDGER' | translate }}</span>
+    </a>
+
+    <a routerLink="subsidiary-ledgers" routerLinkActive="active">
+      <lucide-icon [img]="SubsidiaryLedgersIcon" size="16"></lucide-icon>
+      <span>{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS' | translate }}</span>
+    </a>
+
+    <a routerLink="variance-analysis" routerLinkActive="active">
+      <lucide-icon [img]="VarianceAnalysisIcon" size="16"></lucide-icon>
+      <span>{{ 'ACCOUNTING.VARIANCE_ANALYSIS' | translate }}</span>
+    </a>
+
+    <a routerLink="periods" routerLinkActive="active">
+      <lucide-icon [img]="PeriodsIcon" size="16"></lucide-icon>
+      <span>{{ 'ACCOUNTING.PERIODS' | translate }}</span>
+    </a>
+
+    <a routerLink="closing" routerLinkActive="active">
+      <lucide-icon [img]="ClosingIcon" size="16"></lucide-icon>
+      <span>{{ 'ACCOUNTING.PERIOD_CLOSE' | translate }}</span>
+    </a>
+
+    <a routerLink="reconciliation" routerLinkActive="active">
+      <lucide-icon [img]="ReconciliationIcon" size="16"></lucide-icon>
+      <span>{{ 'ACCOUNTING.RECONCILIATION' | translate }}</span>
+    </a>
+  </nav>
+
+  <div class="content-outlet">
+    <router-outlet></router-outlet>
+  </div>
+</div>

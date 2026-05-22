@@ -1,0 +1,47 @@
+<div class="subview-container">
+    <div class="subview-header">
+        <h3>Branches & Locations</h3>
+        <div class="header-actions">
+            <button class="secondary-button">
+                <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
+                <span>Filters</span>
+            </button>
+            <button class="primary-button">
+                <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
+                <span>New Branch</span>
+            </button>
+        </div>
+    </div>
+    <div class="table-container card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th>City</th>
+                    <th>Phone</th>
+                    <th class="actions-column"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for(branch of branches(); track branch.id) {
+                <tr>
+                    <td><a href="#" class="table-link">{{ branch.name }}</a></td>
+                    <td>{{ branch.address }}</td>
+                    <td>{{ branch.city }}</td>
+                    <td>{{ branch.phone }}</td>
+                    <td class="actions-column">
+                        <button class="icon-button">
+                            <lucide-icon [img]="MoreHorizontalIcon" size="18"></lucide-icon>
+                        </button>
+                    </td>
+                </tr>
+                } @empty {
+                <tr>
+                    <td colspan="5" class="empty-state">No branches configured.</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

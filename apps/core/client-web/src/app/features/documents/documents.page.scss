@@ -1,0 +1,66 @@
+@use '../../../assets/styles/view-styles' as views;
+
+// Reutilizamos la base de estilos de las vistas
+// @use '../../sales/history/history.page.scss';
+@use '../sales/history/history.page.scss';
+
+.file-explorer {
+    padding: 0;
+}
+
+.explorer-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.path-breadcrumbs {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.search-bar {
+    position: relative;
+    width: 300px;
+
+    lucide-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-tertiary);
+    }
+
+    input {
+        padding-left: 36px;
+        font-size: 0.9rem;
+    }
+}
+
+.table-container {
+    // Hereda los estilos de la tabla de data-table
+}
+
+.name-cell {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    lucide-icon {
+        flex-shrink: 0;
+
+        &.folder {
+            color: var(--accent-primary);
+        }
+
+        &.document,
+        &.pdf,
+        &.spreadsheet,
+        &.image {
+            color: var(--text-tertiary);
+        }
+    }
+}
+

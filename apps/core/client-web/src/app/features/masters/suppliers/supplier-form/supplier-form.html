@@ -1,0 +1,38 @@
+<div class="view-container">
+    <form [formGroup]="supplierForm" (ngSubmit)="saveSupplier()">
+        <div class="view-header">
+            <div class="header-content">
+                <h1>@if(isEditMode()){ Editar } @else { Nuevo } Proveedor</h1>
+                <p>Completa la información detallada de tu proveedor.</p>
+            </div>
+            <div class="header-actions">
+                <a routerLink="/masters/suppliers" class="secondary-button">Cancelar</a>
+                <button type="submit" class="primary-button"><lucide-icon [img]="SaveIcon"
+                        size="16"></lucide-icon><span>Guardar Proveedor</span></button>
+            </div>
+        </div>
+        <div class="form-grid">
+            <div class="form-column">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Información del Proveedor</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-field"><label for="name">Nombre del Proveedor*</label><input
+                                id="name" formControlName="name"></div>
+                        <div class="form-field"><label for="contactPerson">Persona de Contacto</label><input
+                                id="contactPerson" formControlName="contactPerson"></div>
+                        <div class="form-field"><label for="taxId">ID Fiscal (RNC, etc.)</label><input id="taxId"
+                                formControlName="taxId"></div>
+                        <div class="form-field"><label for="address">Dirección</label><input id="address"
+                                formControlName="address"></div>
+                        <div class="form-field"><label for="email">Correo Electrónico</label><input type="email"
+                                id="email" formControlName="email"></div>
+                        <div class="form-field"><label for="phone">Teléfono</label><input type="tel" id="phone"
+                                formControlName="phone"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

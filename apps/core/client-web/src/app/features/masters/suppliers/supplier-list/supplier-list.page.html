@@ -1,0 +1,41 @@
+<div class="subview-container">
+    <div class="subview-header">
+        <h3>Suppliers</h3>
+        <div class="header-actions">
+            <button class="secondary-button"><lucide-icon [img]="FilterIcon"
+                    size="16"></lucide-icon><span>Filters</span></button>
+            <a routerLink="/masters/suppliers/new" class="primary-button"><lucide-icon [img]="PlusCircleIcon"
+                    size="16"></lucide-icon><span>New Supplier</span></a>
+        </div>
+    </div>
+    <div class="table-container card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Company Name</th>
+                    <th>Tax ID</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th class="actions-column"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for(supplier of suppliers(); track supplier.id) {
+                <tr>
+                    <td><a [routerLink]="['/masters/suppliers', supplier.id, 'edit']" class="table-link">{{ supplier.name
+                            }}</a></td>
+                    <td>{{ supplier.taxId }}</td>
+                    <td>{{ supplier.email }}</td>
+                    <td>{{ supplier.phone }}</td>
+                    <td class="actions-column"><button class="icon-button"><lucide-icon [img]="MoreHorizontalIcon"
+                                size="18"></lucide-icon></button></td>
+                </tr>
+                } @empty {
+                <tr>
+                    <td colspan="5" class="empty-state">No suppliers found.</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

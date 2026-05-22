@@ -1,0 +1,26 @@
+<div class="widget-header">
+    <h3>Ingresos: Real vs. Presupuesto (YTD)</h3>
+
+    @if (isEditMode) {
+    <div class="widget-edit-menu">
+        <button class="icon-button" (mousedown)="toggleSettings($event); $event.stopPropagation()">
+            <lucide-icon [img]="SettingsIcon" size="16"></lucide-icon>
+        </button>
+        @if (isSettingsOpen()) {
+        <div class="edit-dropdown" (mousedown)="$event.stopPropagation()">
+            <span class="dropdown-title">Tipo de Gráfico</span>
+            <button (mousedown)="changeChartType('column', $event)" [class.active]="widget.chartType === 'column'">
+                <lucide-icon [img]="ColumnIcon" size="14"></lucide-icon> Columnas
+            </button>
+            <button (mousedown)="changeChartType('area', $event)" [class.active]="widget.chartType === 'area'">
+                <lucide-icon [img]="AreaIcon" size="14"></lucide-icon> Área
+            </button>
+        </div>
+        }
+    </div>
+    }
+</div>
+<div class="widget-content">
+    <highcharts-chart [options]="chartOptions()" class="chart-instance">
+    </highcharts-chart>
+</div>

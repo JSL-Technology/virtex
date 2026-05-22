@@ -1,0 +1,65 @@
+<form class="space-y-4" [formGroup]="group">
+  <div class="text-center md:text-left mb-6">
+    <h3 class="text-lg font-semibold text-text-primary">{{ 'REGISTER.STEPS.BUSINESS.TITLE' | translate }}</h3>
+    <p class="text-sm text-text-secondary">{{ 'REGISTER.STEPS.BUSINESS.SUBTITLE' | translate }}</p>
+  </div>
+
+  <app-auth-input
+    formControlName="companyName"
+    [label]="'REGISTER.COMPANY_NAME' | translate"
+    [placeholder]="'REGISTER.COMPANY_NAME_PLACEHOLDER' | translate"
+    [required]="true"
+    [hasIcon]="true"
+    [errorMessage]="getErrorMessage('companyName')">
+    <svg icon xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4 8 4v14"/><path d="M17 21v-8.5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0-.5.5V21"/><path d="M9 10a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v1Z"/></svg>
+  </app-auth-input>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Industry Select (using HTML select but styled like AuthInput) -->
+      <div class="mb-4 group">
+          <label class="block text-sm font-medium text-text-secondary mb-1.5 transition-colors group-focus-within:text-primary">
+              {{ 'REGISTER.INDUSTRY' | translate }} <span class="text-error">*</span>
+          </label>
+          <div class="relative">
+              <select formControlName="industry" class="w-full bg-bg-secondary border border-border-color rounded-xl py-3 pl-10 pr-4 text-text-primary focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none appearance-none">
+                  <option value="" disabled selected>{{ 'REGISTER.INDUSTRY_PLACEHOLDER' | translate }}</option>
+                  <option *ngFor="let ind of industries" [value]="ind.id">{{ ind.label | translate }}</option>
+              </select>
+              <div class="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none transition-colors group-focus-within:text-primary">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20"/><path d="m17 20-1-6h-2"/><path d="m12 20-1-6H9"/><path d="m7 20-1-6H4"/><path d="M2 14h20"/></svg>
+              </div>
+          </div>
+          <div *ngIf="group.get('industry')?.touched && group.get('industry')?.invalid" class="mt-1.5 text-xs text-error">
+              {{ 'REGISTER.ERRORS.REQUIRED' | translate }}
+          </div>
+      </div>
+
+      <!-- Employees Select -->
+      <div class="mb-4 group">
+          <label class="block text-sm font-medium text-text-secondary mb-1.5 transition-colors group-focus-within:text-primary">
+              {{ 'REGISTER.EMPLOYEES' | translate }} <span class="text-error">*</span>
+          </label>
+          <div class="relative">
+              <select formControlName="numberOfEmployees" class="w-full bg-bg-secondary border border-border-color rounded-xl py-3 pl-10 pr-4 text-text-primary focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none appearance-none">
+                  <option value="" disabled selected>{{ 'REGISTER.EMPLOYEES_PLACEHOLDER' | translate }}</option>
+                  <option *ngFor="let size of companySizes" [value]="size.id">{{ size.label | translate }}</option>
+              </select>
+              <div class="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none transition-colors group-focus-within:text-primary">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+          </div>
+          <div *ngIf="group.get('numberOfEmployees')?.touched && group.get('numberOfEmployees')?.invalid" class="mt-1.5 text-xs text-error">
+              {{ 'REGISTER.ERRORS.REQUIRED' | translate }}
+          </div>
+      </div>
+  </div>
+
+  <app-auth-input
+    formControlName="website"
+    [label]="'REGISTER.WEBSITE' | translate"
+    [placeholder]="'REGISTER.WEBSITE_PLACEHOLDER' | translate"
+    [hasIcon]="true">
+    <svg icon xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+  </app-auth-input>
+
+</form>

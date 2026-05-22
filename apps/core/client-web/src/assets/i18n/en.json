@@ -1,0 +1,574 @@
+{
+  "SETTINGS": {
+    "TITLE": "Settings",
+    "DESCRIPTION": "Manage your account, company, and user details.",
+    "BRANDING": {
+      "TITLE": "Advanced Customization",
+      "DESCRIPTION": "Complete the information to customize your application's appearance.",
+      "SAVE_BUTTON": "Save Changes"
+    }
+  },
+  "SECTIONS": {
+    "WORKSPACE": "Workspace",
+    "MASTER_DATA": "Master Data",
+    "OPERATIONS": "Operations",
+    "ACCOUNTING": "Accounting",
+    "REPORTS": "Reports",
+    "TOOLS": "Tools",
+    "MANAGEMENT": "Management"
+  },
+  "NAV": {
+    "DASHBOARD": "Dashboard",
+    "MY_WORK": "My Work",
+    "APPROVALS": "Approvals",
+    "NOTIFICATIONS": "Notifications",
+    "CONTACTS": "Contacts",
+    "SETTINGS": "Settings",
+    "SALES": "Sales",
+    "INVOICES": "Invoices",
+    "INVENTORY": "Inventory",
+    "PURCHASING": "Purchasing",
+    "REPORTS": "Reports",
+    "CUSTOMERS": "Customers",
+    "PRODUCTS": "Products",
+    "PRICE_LISTS": "Price Lists"
+  },
+  "DOCS": {
+    "DOCUMENTS": "Documents"
+  },
+  "TOOLS": {
+    "DATA_IMPORTS": "Data Imports",
+    "DATA_EXPORTS": "Data Exports"
+  },
+  "ACCOUNTING": {
+    "CHART_OF_ACCOUNTS": "Chart of Accounts",
+    "LEDGER": {
+      "TITLE": "General Ledger",
+      "DESCRIPTION": "Manage your chart of accounts, journal entries, and accounting periods."
+    },
+    "GENERAL_LEDGER": "General Ledger",
+    "JOURNAL_ENTRIES": "Journal Entries",
+    "GENERAL_JOURNAL": "General Journal",
+    "SUBSIDIARY_LEDGERS": "Subsidiary Ledgers",
+    "VARIANCE_ANALYSIS": "Variance Analysis",
+    "PERIODS": "Periods",
+    "PERIOD_CLOSE": "Period Close",
+    "RECONCILIATION": "Reconciliation",
+    "COA": {
+      "TITLE": "Chart of Accounts",
+      "ACTIONS": {
+        "FILTERS": "Filters",
+        "NEW_ACCOUNT": "New Account"
+      },
+      "TABLE": {
+        "HEADERS": {
+          "CODE": "Code",
+          "ACCOUNT_NAME": "Account Name",
+          "TYPE": "Type",
+          "BALANCE": "Balance",
+          "ACTIONS": "Actions"
+        }
+      },
+      "ARIA": {
+        "EXPAND_ROW": "Expand account",
+        "COLLAPSE_ROW": "Collapse account",
+        "MORE_ACTIONS": "More actions"
+      }
+    }
+  },
+  "USER": {
+    "MY_PROFILE": "My Profile",
+    "ROLE": {
+      "ADMINISTRATOR": "Administrator",
+      "MEMBER": "Member",
+      "SELLER": "Seller",
+      "ACCOUNTANT": "Accountant",
+      "NO_ROLE": "No Role Assigned"
+    },
+    "STATUS": {
+      "ACTIVE": "Active",
+      "PENDING": "Pending",
+      "BLOCKED": "Blocked",
+      "ARCHIVED": "Archived"
+    }
+  },
+
+  "USERS": {
+    "VIEWS": {
+      "ALL": "All"
+    },
+    "SEARCH_PLACEHOLDER": "Search users...",
+    "FILTERS": {
+      "ADVANCED": "Advanced Filters",
+      "DEPARTMENT": "Department",
+      "ROLE": "Role"
+    },
+    "DEPARTMENTS": {
+      "ALL": "All",
+      "IT": "IT",
+      "FINANCE": "Finance",
+      "HR": "Human Resources",
+      "SALES": "Sales"
+    },
+    "ROLES": {
+      "ALL": "All",
+      "STANDARD_USER": "Standard User",
+      "MANAGER": "Manager"
+    },
+    "TABLE": {
+      "NAME": "Name",
+      "EMAIL": "Email",
+      "DEPARTMENT": "Department",
+      "ROLE": "Role",
+      "STATUS": "Status",
+      "ACTIONS": "Actions"
+    },
+    "NO_DEPARTMENT": "No department",
+    "PAGINATION": {
+      "SHOWING": "Showing",
+      "OF": "of",
+      "USERS": "users"
+    }
+  },
+
+  "AUTH": {
+    "SIGN_OUT": "Sign Out",
+    "CONTACT": "Contact",
+    "TERMS": "Terms",
+    "PRIVACY": "Privacy",
+    "SECURITY": "Security",
+    "ALL_RIGHTS_RESERVED": "All rights reserved."
+  },
+  "COMMON": {
+      "TOAST": {
+        "SUCCESS": "Success",
+        "ERROR": "Error",
+        "WARNING": "Warning",
+        "INFO": "Information"
+      },
+      "CANCEL": "Cancel",
+      "CONTINUE": "Continue",
+      "CONFIRM": "Confirm",
+      "DONE": "Done",
+      "DOWNLOAD": "Download",
+      "VERIFY": "Verify",
+      "SENDING": "Sending...",
+      "LOADING": "Loading",
+      "COPY": "Copy",
+      "COPIED": "Copied"
+  },
+  "ACTIONS": {
+    "CREATE_NEW": "Create New",
+    "NEW_INVOICE": "New invoice",
+    "NEW_QUOTE": "New quote",
+    "NEW_CUSTOMER": "New customer",
+    "NEW_PRODUCT": "New product"
+  },
+  "NOTIFICATIONS": {
+    "MARK_ALL_AS_READ": "Mark all as read",
+    "NO_NOTIFICATIONS": "No notifications",
+    "VIEW_ALL": "View all"
+  },
+  "ALT": {
+    "COMPANY_LOGO": "Company Logo"
+  },
+  "SEARCH": {
+    "MAIN_PLACEHOLDER": "Search invoices, customers, products…",
+    "ARIA_GLOBAL": "Global search"
+  },
+  "CHARTS": {
+    "COMMON": {
+      "CHART_TYPE": "Chart Type"
+    },
+    "TYPE": {
+      "BAR": "Bar",
+      "LINE": "Line"
+    },
+    "CASHFLOW": {
+      "TITLE": "Period Cash Flow",
+      "CONSOLIDATED_TITLE": "Consolidated Cash Flow",
+      "SERIES_NAME": "Cash Flow",
+      "Y_AXIS_TITLE": "Amount ({{currency}})",
+      "X": {
+        "OPENING_BALANCE": "Opening Balance",
+        "OPERATING_INCOME": "Operating Income",
+        "COST_OF_GOODS_SOLD": "Cost of Goods Sold",
+        "OPERATING_EXPENSES": "Operating Expenses",
+        "INVESTMENTS": "Investments",
+                        "FINANCING": "Financing",
+        "ENDING_BALANCE": "Ending Balance"
+      }
+    },
+    "TOP_PRODUCTS": {
+      "Y_AXIS_TITLE": "Units Sold",
+      "SERIES_NAME": "Units"
+    },
+    "MENU": {
+      "TITLE": "Export",
+      "DOWNLOAD": "Download",
+      "FULL_SCREEN": "View Fullscreen",
+      "PRINT": "Print",
+      "PNG": "Download PNG",
+      "JPEG": "Download JPEG",
+      "PDF": "Download PDF",
+      "SVG": "Download SVG",
+      "CSV": "Download CSV",
+      "XLS": "Download Excel"
+    }
+  },
+  "DASH": {
+    "HEADER": {
+      "SUBTITLE": "A snapshot of your business activity. Drag and arrange widgets as you like.",
+      "ADD_WIDGET": "Add Widget",
+      "RESTORE": "Reset",
+      "EDIT_DONE": "Done Editing",
+      "EDIT_LAYOUT": "Edit Layout"
+    },
+    "ACTIONS": {
+      "REMOVE_WIDGET": "Remove Widget"
+    },
+    "ADD_PANEL": {
+      "TITLE": "Widget Library",
+      "DESCRIPTION": "Add new widgets to your dashboard.",
+      "ADD": "Add",
+      "EMPTY": "All widgets are already on your dashboard!"
+    },
+    "WIDGET": {
+      "SALES_TODAY": {
+        "NAME": "Today's Sales",
+        "TITLE": "Today's Sales"
+      },
+      "PENDING_INVOICES": {
+        "NAME": "Pending Invoices",
+        "TITLE": "Pending Invoices"
+      },
+      "LOW_STOCK_ITEMS": {
+        "NAME": "Low Stock Items",
+        "TITLE": "Low Stock Items"
+      },
+      "ACTIVE_CLIENTS": {
+        "NAME": "Active Customers",
+        "TITLE": "Active Customers"
+      },
+      "EBITDA": {
+        "NAME": "KPI: EBITDA",
+        "TITLE": "EBITDA",
+        "COMP_PERIOD": "vs Budget"
+      },
+      "NET_MARGIN": {
+        "NAME": "KPI: Net Margin",
+        "TITLE": "Net Margin",
+        "COMP_PERIOD": "vs Prior Year"
+      },
+      "CASH_FLOW_KPI": {
+        "NAME": "KPI: Free Cash Flow",
+        "TITLE": "Free Cash Flow",
+        "COMP_PERIOD": "vs Budget"
+      },
+      "DEBT_EQUITY": {
+        "NAME": "KPI: Leverage",
+        "TITLE": "Leverage (D/E)",
+        "COMP_PERIOD": "vs Q2"
+      },
+      "FINANCIAL_RATIOS": {
+        "NAME": "KPIs: Financial Ratios"
+      },
+      "KPI_ROE": {
+        "NAME": "KPI: ROE",
+        "TITLE": "ROE (Return on Equity)",
+        "COMP_PERIOD": "vs Prior Year"
+      },
+      "KPI_ROA": {
+        "NAME": "KPI: ROA",
+        "TITLE": "ROA (Return on Assets)",
+        "COMP_PERIOD": "vs Prior Year"
+      },
+      "KPI_CURRENT_RATIO": {
+        "NAME": "KPI: Current Ratio",
+        "TITLE": "Current Ratio",
+        "COMP_PERIOD": "vs Prior Month"
+      },
+      "KPI_QUICK_RATIO": {
+        "NAME": "KPI: Quick Ratio",
+        "TITLE": "Quick Ratio",
+        "COMP_PERIOD": "vs Prior Month"
+      },
+      "KPI_WORKING_CAPITAL": {
+        "NAME": "KPI: Working Capital",
+        "TITLE": "Working Capital",
+        "COMP_PERIOD": "Current"
+      },
+      "KPI_LEVERAGE": {
+        "NAME": "KPI: Leverage",
+        "TITLE": "Leverage (D/E)",
+        "COMP_PERIOD": "vs Prior Quarter"
+      },
+      "KPI_NET_MARGIN": {
+        "NAME": "KPI: Net Margin",
+        "TITLE": "Net Margin",
+        "COMP_PERIOD": "vs Prior Year"
+      },
+      "KPI_EBITDA": {
+        "NAME": "KPI: EBITDA",
+        "TITLE": "EBITDA",
+        "COMP_PERIOD": "vs Budget"
+      },
+      "KPI_FCF": {
+        "NAME": "KPI: Free Cash Flow",
+        "TITLE": "Free Cash Flow",
+        "COMP_PERIOD": "vs Budget"
+      },
+      "REAL_VS_BUDGET": {
+        "NAME": "Actual vs Budget"
+      },
+      "CASHFLOW_WATERFALL": {
+        "NAME": "Cash Flow (Waterfall)"
+      },
+      "EXPENSES_PIE": {
+        "NAME": "Expense Breakdown"
+      },
+      "AR_AGING_BAR": {
+        "NAME": "Accounts Receivable Aging"
+      },
+      "SALES_CHART": {
+        "NAME": "Revenue Chart"
+      },
+      "INVOICE_STATUS": {
+        "NAME": "Invoice Status"
+      },
+      "TOP_PRODUCTS": {
+        "NAME": "Top-Selling Products"
+      },
+      "ALERTS": {
+        "NAME": "Alerts Panel"
+      },
+      "LOW_STOCK_TABLE": {
+        "NAME": "Low Stock Table"
+      },
+      "RECENT_ACTIVITY": {
+        "NAME": "Recent Activity"
+      }
+    }
+  },
+  "PURCHASING": {
+    "ORDERS": {
+      "TITLE": "Purchase Orders",
+      "DESCRIPTION": "Create, track, and manage all your purchase orders to suppliers.",
+      "NEW_ORDER": "New Order"
+    },
+    "REQUISITIONS": {
+      "TITLE": "Purchase Requisitions",
+      "DESCRIPTION": "Review, approve, and track all internal purchase requests.",
+      "NEW_REQUISITION": "New Requisition"
+    }
+  },
+  "sidebar": {
+    "groups": {
+      "general": "General",
+      "finance": "Finance",
+      "operations": "Operations",
+      "master_data": "Master Data",
+      "reports": "Reports & Analytics",
+      "configuration": "Configuration"
+    },
+    "general": {
+      "dashboard": "Dashboard",
+      "my_work": "My Work",
+      "notifications": "Notifications",
+      "search": "Global Search"
+    },
+    "finance": {
+      "gl": "General Ledger",
+      "gl_sub": {
+        "journal": "Journal Entries",
+        "coa": "Chart of Accounts",
+        "periods": "Period Management",
+        "closing": "Closing Process",
+        "reconciliation": "GL Reconciliation"
+      },
+      "treasury": "Treasury & Banks",
+      "treasury_sub": {
+        "dashboard": "Liquidity Dashboard",
+        "accounts": "Bank Accounts",
+        "reconciliation": "Bank Reconciliation",
+        "cash_flow": "Cash Flow Forecast",
+        "payments": "Payment Batches"
+      },
+      "ar": "Accounts Receivable",
+      "ar_sub": {
+        "dashboard": "AR Dashboard",
+        "invoices": "Sales Invoices",
+        "receipts": "Receipts & Collections",
+        "statements": "Customer Statements"
+      },
+      "ap": "Accounts Payable",
+      "ap_sub": {
+        "dashboard": "AP Dashboard",
+        "invoices": "Supplier Invoices",
+        "payments": "Payments"
+      },
+      "fixed_assets": "Fixed Assets",
+      "fa_sub": {
+        "list": "Asset Master",
+        "depreciation": "Depreciation Run"
+      }
+    },
+    "operations": {
+      "sales": "Sales (O2C)",
+      "sales_sub": {
+        "quotes": "Quotes",
+        "orders": "Sales Orders",
+        "contracts": "Contracts"
+      },
+      "purchasing": "Purchasing (P2P)",
+      "purchasing_sub": {
+        "requisitions": "Requisitions",
+        "orders": "Purchase Orders",
+        "matching": "Invoice Matching"
+      },
+      "inventory": "Inventory & WMS",
+      "inventory_sub": {
+        "dashboard": "Inventory Dashboard",
+        "stock": "Stock Levels",
+        "movements": "Movements History",
+        "adjustments": "Adjustments & Counts"
+      },
+      "manufacturing": "Manufacturing",
+      "manufacturing_sub": {
+        "orders": "Production Orders",
+        "mrp": "MRP Planning",
+        "costing": "Production Costing"
+      }
+    },
+    "master_data": {
+      "customers": "Customers",
+      "suppliers": "Suppliers",
+      "products": "Products & Services"
+    },
+    "reports": {
+      "reporting": "Reporting",
+      "reporting_sub": {
+        "financial": "Financial Statements",
+        "sales": "Sales Reports",
+        "audit": "Audit Trails"
+      },
+      "bi": "Business Intelligence",
+      "bi_sub": {
+        "dashboards": "BI Dashboards",
+        "kpis": "KPIs"
+      }
+    },
+    "configuration": {
+      "system": "System Settings",
+      "security": "Users & Security",
+      "integrations": "Integrations & API"
+    }
+  },
+
+  "APP_TITLE": "FacturaPRO",
+  "LOGIN": {
+    "TITLE": "Sign In",
+    "SUBTITLE": "Welcome back to your workspace",
+    "EMAIL_LABEL": "Email Address",
+    "PASSWORD_LABEL": "Password",
+    "OR": "Or",
+    "FORGOT_PASSWORD": "Forgot your password?",
+    "REMEMBER_ME": "Keep me logged in",
+    "EMAIL_PLACEHOLDER": "name@company.com",
+    "SUBMIT_BUTTON": "Sign In",
+    "PASSKEY_BUTTON": "Sign in with Passkey",
+    "NO_ACCOUNT": "Don't have an account?",
+    "REGISTER_LINK": "Sign up",
+    "LOGGING_IN": "Logging in",
+    "2FA": {
+        "TITLE": "2-Step Verification",
+        "SUBTITLE": "Enter the 6-digit code sent to your device.",
+        "CODE_LABEL": "Verification Code",
+        "CODE_PLACEHOLDER": "123456",
+        "VERIFY_BUTTON": "Verify",
+        "VERIFYING": "Verifying...",
+        "BACK_TO_LOGIN": "Back to login"
+    },
+    "ERRORS": {
+      "EMAIL_REQUIRED": "Email address is required.",
+      "EMAIL_INVALID": "Please enter a valid email address.",
+      "PASSWORD_REQUIRED": "Password is required.",
+      "AUTH_INVALID_CREDENTIALS": "The credentials are not correct. Please check your email and password.",
+      "AUTH_USER_INACTIVE": "User inactive or pending, please contact administrator.",
+      "AUTH_USER_BLOCKED": "User blocked. Contact support.",
+      "AUTH_SESSION_EXPIRED": "Session expired. Please log in again.",
+      "AUTH_DEVICE_MISMATCH": "Device change detected. Please log in again.",
+      "AUTH_REFRESH_TOKEN_INVALID": "Refresh token invalid or expired.",
+      "AUTH_REFRESH_TOKEN_REVOKED": "Refresh token reused. Session invalidated.",
+      "AUTH_USER_NOT_FOUND": "User not found.",
+      "ACCOUNT_LOCKED": "Your account is temporarily locked. Please try again in a few minutes.",
+      "TOO_MANY_ATTEMPTS": "You have exceeded the number of attempts. Your account has been locked.",
+      "NETWORK_ERROR": "Network error. Please check your connection and try again.",
+      "SERVER_ERROR": "A server error occurred. Please try again later or contact support.",
+      "INVALID_CODE": "Invalid code. Please try again.",
+      "PASSKEY_ERROR": "Error signing in with passkey. Please try again or use your password."
+    },
+    "FOOTER": {
+      "LANGUAGE_SELECTOR_LABEL": "Select language",
+      "TERMS": "Terms",
+      "PRIVACY": "Privacy",
+      "SECURITY": "Security",
+      "COPYRIGHT": "© 2025 FacturaPRO, Inc. All rights reserved."
+    }
+  },
+  "REGISTER": {
+    "TITLE": "Create Account",
+    "SUBTITLE": "Start your 30-day free trial",
+    "SUBMIT_BUTTON": "Sign Up",
+    "REGISTERING": "Registering...",
+    "HAS_ACCOUNT": "Already have an account?",
+    "LOGIN_LINK": "Sign in",
+    "STEPS": {
+      "ACCOUNT": {
+        "TITLE": "Account Information",
+        "SUBTITLE": "Enter your personal details"
+      },
+      "CONFIGURATION": {
+        "TITLE": "Fiscal Configuration",
+        "SUBTITLE": "Country and currency details"
+      },
+      "BUSINESS": {
+        "TITLE": "Business Profile",
+        "SUBTITLE": "Tell us about your company"
+      },
+      "PLAN": {
+        "TITLE": "Choose your Plan",
+        "SUBTITLE": "Select the plan that best fits you"
+      }
+    },
+    "COUNTRY": "Country",
+    "CURRENCY": "Currency",
+    "TAX_ID": "Tax ID",
+    "FISCAL_REGION": "Fiscal Region",
+    "ERRORS": {
+      "SERVER_ERROR": "Error registering. Please try again."
+    }
+  },
+  "FORGOT_PASSWORD": {
+    "TITLE": "Recover Password",
+    "SUBTITLE": "Enter your email to receive instructions",
+    "SUBMIT_BUTTON": "Send Instructions",
+    "SENDING": "Sending...",
+    "BACK_TO_LOGIN": "Back to login",
+    "SUCCESS": "If an account exists with this email, you will receive instructions shortly."
+  },
+  "RESET_PASSWORD": {
+    "TITLE": "Reset Password",
+    "SUBTITLE": "Enter your new password",
+    "SUBMIT_BUTTON": "Change Password",
+    "CHANGING": "Changing...",
+    "SUCCESS": "Your password has been successfully updated."
+  },
+  "SET_PASSWORD": {
+    "TITLE": "Set Password",
+    "SUBTITLE": "Set a password for your account",
+    "SUBMIT_BUTTON": "Save Password",
+    "SAVING": "Saving...",
+    "SUCCESS": "Password set. Logging in..."
+  }
+}

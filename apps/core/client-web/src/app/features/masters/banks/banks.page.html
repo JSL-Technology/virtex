@@ -1,0 +1,45 @@
+<div class="subview-container">
+    <div class="subview-header">
+        <h3>Banks</h3>
+        <div class="header-actions">
+            <button class="secondary-button">
+                <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
+                <span>Filters</span>
+            </button>
+            <button class="primary-button">
+                <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
+                <span>New Bank</span>
+            </button>
+        </div>
+    </div>
+    <div class="table-container card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Bank Name</th>
+                    <th>SWIFT Code</th>
+                    <th>Country</th>
+                    <th class="actions-column"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for(bank of banks(); track bank.id) {
+                <tr>
+                    <td><a href="#" class="table-link">{{ bank.name }}</a></td>
+                    <td>{{ bank.swiftCode }}</td>
+                    <td>{{ bank.country }}</td>
+                    <td class="actions-column">
+                        <button class="icon-button">
+                            <lucide-icon [img]="MoreHorizontalIcon" size="18"></lucide-icon>
+                        </button>
+                    </td>
+                </tr>
+                } @empty {
+                <tr>
+                    <td colspan="4" class="empty-state">No banks configured.</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

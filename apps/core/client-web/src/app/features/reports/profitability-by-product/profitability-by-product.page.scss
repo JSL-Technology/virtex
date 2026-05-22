@@ -1,0 +1,9 @@
+@use '../../../../assets/styles/view-styles' as views;
+// Reutiliza los estilos de las vistas de maestros
+@use '../../masters/suppliers/supplier-list/supplier-list.page.scss';
+
+// Estilos específicos si son necesarios
+.font-semibold {
+  font-weight: 600;
+  color: var(--text-primary);
+}

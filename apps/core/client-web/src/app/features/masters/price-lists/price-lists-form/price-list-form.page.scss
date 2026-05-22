@@ -1,0 +1,66 @@
+// app/features/masters/price-lists/price-list-form/price-list-form.page.scss
+@use '../../../../../assets/styles/view-styles' as views;
+@use '../../../../../assets/styles/forms' as mixins;
+
+:host {
+  display: block;
+}
+
+.view-container {
+  @include views.view-container;
+}
+
+.view-header {
+  @include views.view-header;
+}
+
+.form-container {
+    @include views.card;
+    padding: 2rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+
+     @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.form-field {
+    @include mixins.form-field;
+}
+
+.line-items-section {
+    margin-top: 2rem;
+    border-top: 1px solid var(--border-color);
+    padding-top: 2rem;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.data-table {
+    @include views.data-table;
+    td {
+        vertical-align: top;
+    }
+}
+
+.add-line-btn {
+    @include mixins.submit-button;
+    background-color: var(--bg-layer-1);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    margin-top: 1rem;
+
+    &:hover {
+        background-color: var(--bg-hover);
+    }
+}

@@ -1,0 +1,24 @@
+<div class="templates-container">
+    <div class="templates-header">
+        <h3>Document Templates</h3>
+        <button class="primary-button">
+            <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
+            <span>New Template</span>
+        </button>
+    </div>
+    <div class="templates-grid">
+        @for(template of templates(); track template.id) {
+        <div class="template-card">
+            <lucide-icon [img]="FileIcon" size="32" class="card-icon"></lucide-icon>
+            <div class="card-content">
+                <span class="template-name">{{ template.name }}</span>
+                <span class="template-meta">{{ template.type }} • Last Modified: {{ template.lastModified }}</span>
+            </div>
+        </div>
+        }
+        <div class="template-card new-template">
+            <lucide-icon [img]="PlusCircleIcon" size="32"></lucide-icon>
+            <span>Create New Template</span>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,93 @@
+<div class="view-container">
+    <div class="view-header">
+        <div class="header-content">
+            <h1>My Work</h1>
+            <p>Your centralized inbox for tasks, approvals, and notifications.</p>
+        </div>
+    </div>
+
+    <div class="work-layout">
+        <div class="asfdads">
+            <div class="tabs-container">
+                <button class="tab-button" [class.active]="activeTab() === 'tasks'" (click)="setActiveTab('tasks')">
+                    <lucide-icon [img]="TaskIcon" size="18"></lucide-icon>
+                    <span>Tasks</span>
+                    <span class="count-badge">{{ tasks().length }}</span>
+                </button>
+                <button class="tab-button" [class.active]="activeTab() === 'approvals'"
+                    (click)="setActiveTab('approvals')">
+                    <lucide-icon [img]="ApprovalIcon" size="18"></lucide-icon>
+                    <span>Approvals</span>
+                    <span class="count-badge">{{ approvals().length }}</span>
+                </button>
+                <button class="tab-button" [class.active]="activeTab() === 'notifications'"
+                    (click)="setActiveTab('notifications')">
+                    <lucide-icon [img]="NotificationIcon" size="18"></lucide-icon>
+                    <span>Notifications</span>
+                    <span class="count-badge">{{ notifications().length }}</span>
+                </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab() === 'security'"
+        (click)="setActiveTab('security')">
+        <lucide-icon [img]="SecurityIcon" size="18"></lucide-icon>
+        Security
+      </button>
+            </div>
+        </div>
+
+        <div class="my-work-content">
+            <div class="tab-content card">
+                @switch (activeTab()) {
+                @case ('tasks') {
+                <ul class="work-item-list">
+                    @for(item of tasks(); track item.id) {
+                    <li class="work-item">
+                        <div class="item-main">
+                            <a [routerLink]="item.link" class="item-title">{{ item.title }}</a>
+                            <p class="item-description">{{ item.description }}</p>
+                        </div>
+                        <div class="item-meta">
+                            <span class="due-date">Due: {{ item.dueDate }}</span>
+                            <span class="status-badge" [ngClass]="getStatusClass(item.status)">{{ item.status }}</span>
+                        </div>
+                    </li>
+                    } @empty { <p class="empty-state">No pending tasks. Great job!</p> }
+                </ul>
+                }
+                @case ('approvals') {
+                <ul class="work-item-list">
+                    @for(item of approvals(); track item.id) {
+                    <li class="work-item">
+                        <div class="item-main">
+                            <a [routerLink]="item.link" class="item-title">{{ item.title }}</a>
+                            <p class="item-description">{{ item.description }}</p>
+                        </div>
+                        <div class="item-meta">
+                            <span class="due-date">Requested: {{ item.dueDate }}</span>
+                            <span class="status-badge" [ngClass]="getStatusClass(item.status)">{{ item.status }}</span>
+                        </div>
+                    </li>
+                    } @empty { <p class="empty-state">No pending approval requests.</p> }
+                </ul>
+                }
+                @case ('notifications') {
+                <ul class="work-item-list">
+                    @for(item of notifications(); track item.id) {
+                    <li class="work-item">
+                        <div class="item-main">
+                            <a [routerLink]="item.link" class="item-title">{{ item.title }}</a>
+                            <p class="item-description">{{ item.description }}</p>
+                        </div>
+                        <div class="item-meta">
+                            <span class="due-date">Date: {{ item.dueDate }}</span>
+                        </div>
+                    </li>
+                    } @empty { <p class="empty-state">No new notifications.</p> }
+                </ul>
+                }
+                }
+            </div>
+        </div>
+    </div>
+</div>

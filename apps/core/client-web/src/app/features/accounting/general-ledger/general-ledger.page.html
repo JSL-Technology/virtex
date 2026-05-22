@@ -1,0 +1,106 @@
+<div class="ledger-view">
+  <header class="view-header">
+    <div class="view-header__title">
+      <h1>Libro Mayor</h1>
+      @if (selectedAccount(); as account) {
+        <p>Cuenta: {{ account.code }} - {{ account.name }}</p>
+      } @else {
+        <p>Cargando información de la cuenta...</p>
+      }
+    </div>
+    <div class="header-actions">
+      <button class="secondary-button" [disabled]="loading()">
+        <lucide-icon [name]="FilterIcon" class="w-5 h-5"></lucide-icon>
+        <span>Filtrar</span>
+      </button>
+      <button class="primary-button" [disabled]="loading()">
+        <lucide-icon [name]="ExportIcon" class="w-5 h-5"></lucide-icon>
+        <span>Exportar</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="view-content">
+    <div class="ledger-filters card">
+      <div class="filter-group">
+        <label for="startDate">Desde:</label>
+        <input type="date" id="startDate" [(ngModel)]="startDate" [disabled]="loading()" />
+      </div>
+      <div class="filter-group">
+        <label for="endDate">Hasta:</label>
+        <input type="date" id="endDate" [(ngModel)]="endDate" [disabled]="loading()" />
+      </div>
+      <button class="primary-button" (click)="loadLedgerData()" [disabled]="loading()">
+        @if (loading()) {
+          <span class="loading loading-spinner"></span>
+        }
+        Consultar
+      </button>
+    </div>
+
+    @if (loading()) {
+      <div class="loading-state">
+        <span class="loading loading-lg loading-dots"></span>
+        <p>Cargando datos del libro mayor...</p>
+      </div>
+    } @else {
+      <div class="ledger-summary">
+        <div class="summary-card">
+          <span>Saldo Inicial</span>
+          <strong>{{ initialBalance() | number:'1.2-2' }}</strong>
+        </div>
+        <div class="summary-card">
+          <span>Total Débitos</span>
+          <strong class="text-green">{{ 0 | number:'1.2-2' }}</strong>
+        </div>
+        <div class="summary-card">
+          <span>Total Créditos</span>
+          <strong class="text-red">{{ 0 | number:'1.2-2' }}</strong>
+        </div>
+        <div class="summary-card">
+          <span>Saldo Final</span>
+          <strong>{{ finalBalance() | number:'1.2-2' }}</strong>
+        </div>
+      </div>
+
+      <div class="ledger-table card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Referencia</th>
+              <th>Descripción</th>
+              <th class="text-right">Débito</th>
+              <th class="text-right">Crédito</th>
+              <th class="text-right">Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (line of ledgerLines(); track line.id) {
+              <tr>
+                <td>{{ line.date | date:'dd/MM/yyyy' }}</td>
+                <td><a href="#" class="table-link">{{ line.reference }}</a></td>
+                <td>{{ line.description }}</td>
+                <td class="text-right amount-cell">{{ line.debit | number:'1.2-2' }}</td>
+                <td class="text-right amount-cell">{{ line.credit | number:'1.2-2' }}</td>
+                <td class="text-right balance-cell">{{ line.balance | number:'1.2-2' }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6">
+                  <div class="empty-state">
+                    @if (!selectedAccount()) {
+                      <p>Por favor, seleccione una cuenta para ver el libro mayor.</p>
+                    } @else {
+                      <p>No se encontraron movimientos para esta cuenta en el período seleccionado.</p>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>

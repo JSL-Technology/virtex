@@ -1,0 +1,131 @@
+// Imports from global styles are not needed if we use variables defined in :host of layout or globally.
+// However, since components are encapsulated, they might not see global variables unless they are in :root.
+// The user provided :host { ...vars... } in the "use these styles" block.
+// Assuming the user wants those vars available. The layout defines them in :host, so children might inherit if variables are inheritable (CSS variables are).
+// BUT, :host styles of layout don't penetrate shadow DOM of children unless using ::ng-deep or if the vars are defined in a global CSS file or applied to a common parent.
+// The user instruction "use these styles for the components" implies I should probably distribute them.
+// To be safe, I will assume CSS variables are available (inheritance) or I should copy them if `ViewEncapsulation` is Emulated (default).
+// CSS custom properties (variables) DO inherit down the DOM tree, even into Angular components.
+// So I rely on `AuthLayout` (or `styles.scss`) defining them.
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  .input-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .password-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .forgot-password {
+      font-size: 0.8rem;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: var(--transition);
+
+      &:hover {
+        color: var(--primary-hover);
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  .input-icon {
+    position: absolute;
+    left: 1rem;
+    color: var(--text-tertiary);
+    z-index: 1;
+    pointer-events: none;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    height: 100%;
+  }
+
+  input {
+    width: 100%;
+    height: 3rem;
+    padding: 0 1rem 0 1rem; /* Padding left overridden in HTML if icon exists */
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    outline: none;
+    transition: var(--transition);
+
+    &::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    &:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+      background: var(--bg-secondary);
+
+      & + .toggle-password {
+        color: var(--text-secondary);
+      }
+    }
+
+    &.error {
+      border-color: var(--error);
+      &:focus {
+        box-shadow: 0 0 0 3px var(--error-bg);
+      }
+    }
+  }
+
+  input:focus ~ .input-icon {
+    color: var(--primary);
+  }
+
+  .toggle-password {
+    position: absolute;
+    right: 0.75rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-tertiary);
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+
+    &:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.08);
+    }
+  }
+}
+
+.error-message {
+  font-size: 0.8rem;
+  color: var(--error);
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}

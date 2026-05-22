@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Factura - {{organization.legalName}}</title>
+    <style>
+        /* Estilos optimizados para la plantilla */
+        body { font-family: 'Helvetica Neue', 'Helvetica', Arial, sans-serif; color: #333; }
+        .invoice-box { max-width: 800px; margin: auto; padding: 30px; border: 1px solid #eee; box-shadow: 0 0 10px rgba(0, 0, 0, .15); font-size: 16px; line-height: 24px; }
+        .invoice-box table { width: 100%; line-height: inherit; text-align: left; border-collapse: collapse; }
+        .invoice-box table td { padding: 5px; vertical-align: top; }
+        .invoice-box .top-section table td { padding-bottom: 20px; }
+        .invoice-box .top-section .title { font-size: 45px; line-height: 45px; color: #333; }
+        .invoice-box .info-section table td { padding-bottom: 40px; }
+        .invoice-box .heading td { background: #eee; border-bottom: 1px solid #ddd; font-weight: bold; }
+        .invoice-box .details td { padding-bottom: 20px; }
+        .invoice-box .item td { border-bottom: 1px solid #eee; }
+        .invoice-box .item.last td { border-bottom: none; }
+        .invoice-box .total td:nth-child(2) { border-top: 2px solid #eee; font-weight: bold; }
+        .text-right { text-align: right; }
+        .logo-img { max-width: 150px; max-height: 75px; }
+    </style>
+</head>
+<body>
+    <div class="invoice-box">
+        <table>
+            <tr class="top-section">
+                <td colspan="4">
+                    <table>
+                        <tr>
+                            <td class="title">
+                                {{#if organization.logoUrl}}
+                                    <img src="{{organization.logoUrl}}" alt="{{organization.legalName}} Logo" class="logo-img">
+                                {{else}}
+                                    <h2>{{organization.legalName}}</h2>
+                                {{/if}}
+                            </td>
+                            <td>
+                                <strong>Factura #:</strong> {{invoiceNumber}}<br>
+                                <strong>Fecha de Emisión:</strong> {{issueDate}}<br>
+                                <strong>Fecha de Vencimiento:</strong> {{dueDate}}
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr class="info-section">
+                <td colspan="4">
+                    <table>
+                        <tr>
+                            <td>
+                                {{organization.legalName}}<br>
+                                {{organization.address}}<br>
+                                RNC: {{organization.taxId}}
+                            </td>
+                            <td>
+                                {{customerName}}<br>
+                                {{customerAddress}}
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr class="heading">
+                <td>Descripción</td>
+                <td class="text-right">Cantidad</td>
+                <td class="text-right">Precio Unit.</td>
+                <td class="text-right">Total</td>
+            </tr>
+            {{#each lineItems}}
+            <tr class="item">
+                <td>{{this.description}}</td>
+                <td class="text-right">{{this.quantity}}</td>
+                <td class="text-right">${{formatNumber this.price}}</td>
+                <td class="text-right">${{formatNumber (multiply this.quantity this.price)}}</td>
+            </tr>
+            {{/each}}
+            <tr class="total">
+                <td colspan="3" class="text-right">Subtotal</td>
+                <td class="text-right">${{formatNumber subtotal}}</td>
+            </tr>
+            <tr class="total">
+                <td colspan="3" class="text-right">Impuestos</td>
+                <td class="text-right">${{formatNumber tax}}</td>
+            </tr>
+            <tr class="total">
+                <td colspan="3" class="text-right"><strong>Total</strong></td>
+                <td class="text-right"><strong>${{formatNumber total}}</strong></td>
+            </tr>
+        </table>
+        {{#if notes}}
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+            <strong>Notas:</strong><br>
+            {{notes}}
+        </div>
+        {{/if}}
+    </div>
+</body>
+</html>

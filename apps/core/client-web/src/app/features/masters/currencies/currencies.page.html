@@ -1,0 +1,51 @@
+<div class="subview-container">
+    <div class="subview-header">
+        <h3>Currencies</h3>
+        <div class="header-actions">
+            <button class="secondary-button">
+                <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
+                <span>Filters</span>
+            </button>
+            <button class="primary-button">
+                <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
+                <span>New Currency</span>
+            </button>
+        </div>
+    </div>
+    <div class="table-container card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Currency Name</th>
+                    <th class="text-center">Code</th>
+                    <th class="text-center">Symbol</th>
+                    <th class="text-center">Base Currency</th>
+                    <th class="actions-column"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for(currency of currencies(); track currency.id) {
+                <tr>
+                    <td><a href="#" class="table-link">{{ currency.name }}</a></td>
+                    <td class="text-center">{{ currency.code }}</td>
+                    <td class="text-center">{{ currency.symbol }}</td>
+                    <td class="text-center">
+                        @if (currency.isBase) {
+                        <span class="status-badge active">Yes</span>
+                        }
+                    </td>
+                    <td class="actions-column">
+                        <button class="icon-button">
+                            <lucide-icon [img]="MoreHorizontalIcon" size="18"></lucide-icon>
+                        </button>
+                    </td>
+                </tr>
+                } @empty {
+                <tr>
+                    <td colspan="5" class="empty-state">No currencies configured.</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

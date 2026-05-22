@@ -1,0 +1,12 @@
+<div class="stat-card" [attr.data-color]="data.color">
+    <div class="card-icon">
+        <lucide-icon [img]="icon" size="24"></lucide-icon>
+    </div>
+    <div class="card-content">
+        <span class="title">{{ data.title }}</span>
+        <span class="value">{{ data.value }}</span>
+    </div>
+    <div class="card-change" [class.positive]="isPositive()" [class.negative]="!isPositive()">
+        {{ data.change }}
+    </div>
+</div>

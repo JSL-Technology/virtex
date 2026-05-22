@@ -1,0 +1,16 @@
+<button class="theme-toggle-button" (click)="themeService.toggleTheme()"
+    [attr.data-tooltip]="tooltips[themeService.themeMode()]">
+
+    @switch (themeService.themeMode()) {
+    @case ('light') {
+    <lucide-icon [img]="SunIcon" size="20"></lucide-icon>
+    }
+    @case ('dark') {
+    <lucide-icon [img]="MoonIcon" size="20"></lucide-icon>
+    }
+    @case ('system') {
+    <lucide-icon [img]="MonitorIcon" size="20"></lucide-icon>
+    }
+    }
+
+</button>

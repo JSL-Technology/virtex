@@ -1,0 +1,95 @@
+@use '../../../../../assets/styles/forms' as mixins;
+@use '../widget-styles.scss';
+
+.widget-content {
+    padding: 1.5rem 1rem 1.5rem 2rem; // Más padding a la izquierda para la línea de tiempo
+}
+
+.activity-timeline {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: relative;
+
+    // Línea vertical de la línea de tiempo
+    &::before {
+        content: '';
+        position: absolute;
+        left: 17px; // Centrado con el ícono
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background-color: var(--border-color);
+    }
+}
+
+.activity-item {
+    display: flex;
+    gap: 1.25rem;
+    position: relative;
+
+    &:not(:last-child) {
+        padding-bottom: 1.75rem;
+    }
+}
+
+.timeline-connector {
+    flex-shrink: 0;
+    position: relative;
+}
+
+.timeline-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    // El fondo del body asegura que la línea de tiempo no pase a través del ícono
+    background-color: var(--bg-layer-1);
+    border: 2px solid;
+
+    &.invoice {
+        border-color: var(--accent-500);
+        color: var(--accent-600);
+    }
+
+    &.product {
+        border-color: #4ade80;
+        color: #16a34a;
+    }
+
+    &.user {
+        border-color: #fb923c;
+        color: #f97316;
+    }
+
+    &.sale {
+        border-color: #8b5cf6;
+        color: #7c3aed;
+    }
+}
+
+.activity-details {
+    padding-top: 0.25rem;
+
+    .activity-text {
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+        line-height: 1.4;
+    }
+
+    .activity-time {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+    }
+}
+
+.empty-state {
+    // @include mixins.empty-state;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

@@ -1,0 +1,118 @@
+<div class="step-container" [formGroup]="parentForm">
+    <div class="step-header">
+        <h3>Acceso y Seguridad</h3>
+        <p>Establece las credenciales para la cuenta principal.</p>
+    </div>
+    <button type="button" class="google-signin-btn">
+        <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+            <g fill="none" fill-rule="evenodd">
+                <path
+                    d="M17.64 9.2045c0-.6381-.0573-1.2518-.1636-1.8409H9v3.4818h4.8445c-.2086 1.125-.844 2.0782-1.7959 2.7164v2.2581h2.9087c1.7018-1.5668 2.684-3.875 2.684-6.6154z"
+                    fill="#4285F4"></path>
+                <path
+                    d="M9 18c2.43 0 4.4673-.806 5.9564-2.1805l-2.9087-2.2581c-.8059.54-1.8368.86-3.0477.86-2.344 0-4.3282-1.5831-5.036-3.7104H.957v2.3318C2.4382 16.1422 5.4818 18 9 18z"
+                    fill="#34A853"></path>
+                <path
+                    d="M3.964 10.71c-.18-.54-.2822-1.1168-.2822-1.71s.1023-1.17.2823-1.71V4.9582H.957C.3477 6.1732 0 7.5477 0 9s.3477 2.8268.957 4.0418L3.964 10.71z"
+                    fill="#FBBC05"></path>
+                <path
+                    d="M9 3.48c1.3218 0 2.5077.4541 3.4405 1.346l2.5813-2.5814C13.4632.8918 11.425 0 9 0 5.4818 0 2.4382 1.8577.957 4.9582L3.964 7.29C4.6718 5.1632 6.6559 3.48 9 3.48z"
+                    fill="#EA4335"></path>
+            </g>
+        </svg>
+        <span>Registrarse con Google</span>
+    </button>
+    <div class="separator"><span>O USA TU CORREO ELECTRÓNICO</span></div>
+    <div class="form-field"
+        [class.error]="parentForm.get('email')?.invalid && (parentForm.get('email')?.touched || parentForm.get('email')?.dirty)">
+        <label for="email">Correo Electrónico (será tu usuario)*</label>
+        <div class="input-wrapper"><lucide-icon [img]="MailIcon" size="18" class="input-icon"></lucide-icon><input
+                id="email" type="email" formControlName="email"></div>
+        @if (parentForm.get('email')?.invalid && (parentForm.get('email')?.touched || parentForm.get('email')?.dirty)) {
+        <div class="error-message">
+            @if (parentForm.get('email')?.errors?.['required']) { <span>Email es obligatorio</span> }
+            @if (parentForm.get('email')?.errors?.['email']) { <span>Formato de email inválido</span> }
+            @if (parentForm.get('email')?.errors?.['serverError']) { <span>{{
+                parentForm.get('email')?.errors?.['serverError'] }}</span> }
+        </div>
+        }
+    </div>
+    <div formGroupName="passwordGroup">
+        <div class="form-row">
+            <div class="form-field password-field"
+                [class.error]="passwordGroup?.get?.('password')?.invalid && (passwordGroup?.get?.('password')?.touched || passwordGroup?.get?.('password')?.dirty)">
+                <label for="password">Contraseña*</label>
+                <div class="input-wrapper">
+                    <lucide-icon [img]="LockIcon" size="18" class="input-icon"></lucide-icon>
+                    <input id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password"
+                        placeholder="Mínimo 8 caracteres" (focus)="showPasswordHints = true" (blur)="onPasswordBlur()">
+                    <button type="button" class="toggle-password" (click)="showPassword = !showPassword">
+                        <lucide-icon [img]="showPassword ? EyeOffIcon : EyeIcon" size="18"></lucide-icon>
+                    </button>
+                </div>
+
+                <!-- Ventana flotante de requisitos -->
+                @if (showPasswordHints) {
+                <div class="password-hints-popup">
+                    <p [class.valid]="passwordValue.length >= 8">
+                        <lucide-icon [img]="passwordValue.length >= 8 ? CheckIcon : XIcon" size="16"></lucide-icon>
+                        Al menos 8 caracteres
+                    </p>
+                    <p [class.valid]="hasUpperCase(passwordValue)">
+                        <lucide-icon [img]="hasUpperCase(passwordValue) ? CheckIcon : XIcon" size="16"></lucide-icon>
+                        Una letra mayúscula
+                    </p>
+                    <p [class.valid]="hasNumber(passwordValue)">
+                        <lucide-icon [img]="hasNumber(passwordValue) ? CheckIcon : XIcon" size="16"></lucide-icon>
+                        Un número
+                    </p>
+                    <p [class.valid]="hasSpecialChar(passwordValue)">
+                        <lucide-icon [img]="hasSpecialChar(passwordValue) ? CheckIcon : XIcon" size="16"></lucide-icon>
+                        Un símbolo
+                    </p>
+                </div>
+                }
+
+                <!-- Mensajes de error simplificados -->
+                @if (passwordGroup?.get?.('password')?.invalid && (passwordGroup?.get?.('password')?.touched ||
+                passwordGroup?.get?.('password')?.dirty)) {
+                <div class="error-message">
+                    @if (passwordGroup?.get?.('password')?.errors?.['required']) {
+                    <span>Contraseña es obligatoria</span>
+                    }
+                    @if (passwordGroup?.get?.('password')?.errors?.['minlength']) {
+                    <span>Mínimo 8 caracteres</span>
+                    }
+                    @if (passwordGroup?.get?.('password')?.errors?.['strongPassword']) {
+                    <span>Debe contener: mayúscula, número y símbolo</span>
+                    }
+                </div>
+                }
+            </div>
+
+            <div class="form-field"
+                [class.error]="passwordGroup?.get?.('confirmPassword')?.invalid && (passwordGroup?.get?.('confirmPassword')?.touched || passwordGroup?.get?.('confirmPassword')?.dirty)">
+                <label for="confirmPassword">Confirmar Contraseña*</label>
+                <div class="input-wrapper">
+                    <lucide-icon [img]="LockIcon" size="18" class="input-icon"></lucide-icon>
+                    <input id="confirmPassword" [type]="showConfirmPassword ? 'text' : 'password'"
+                        formControlName="confirmPassword" (focus)="showPasswordHints = false">
+                    <button type="button" class="toggle-password" (click)="showConfirmPassword = !showConfirmPassword">
+                        <lucide-icon [img]="showConfirmPassword ? EyeOffIcon : EyeIcon" size="18"></lucide-icon>
+                    </button>
+                </div>
+                @if (passwordGroup?.get?.('confirmPassword')?.invalid &&
+                (passwordGroup?.get?.('confirmPassword')?.touched || passwordGroup?.get?.('confirmPassword')?.dirty)) {
+                <div class="error-message">
+                    @if (passwordGroup?.get?.('confirmPassword')?.errors?.['required']) {
+                    <span>Confirmar contraseña es obligatorio</span>
+                    }
+                    @if (passwordGroup?.get?.('confirmPassword')?.errors?.['passwordMismatch']) {
+                    <span>Las contraseñas no coinciden</span>
+                    }
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

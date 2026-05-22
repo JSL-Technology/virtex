@@ -1,0 +1,42 @@
+@use '../../../../assets/styles/view-styles' as views;
+@use '../../../../assets/styles/forms' as mixins;
+
+// Reutiliza los estilos de las vistas de maestros
+@use '../../masters/suppliers/supplier-list/supplier-list.page.scss';
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--border-radius-full);
+  text-transform: capitalize;
+
+  &.status-open {
+    background-color: rgba(74, 222, 128, 0.15);
+    color: #4ade80;
+  }
+  &.status-closed {
+    background-color: rgba(248, 113, 113, 0.15);
+    color: #f87171;
+  }
+  &.status-future {
+    background-color: var(--bg-solid);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+  }
+}
+
+.action-button {
+  @include mixins.submit-button;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  background-color: var(--bg-layer-1);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  
+  &:hover {
+    background-color: var(--bg-hover);
+    border-color: var(--gray-300);
+  }
+}

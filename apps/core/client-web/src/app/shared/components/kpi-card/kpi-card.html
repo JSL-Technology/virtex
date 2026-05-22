@@ -1,0 +1,17 @@
+@if (data) {
+<div class="kpi-card">
+    <div class="kpi-header">
+        <span class="kpi-title">{{ data.title }}</span>
+    </div>
+    <div class="kpi-body">
+        <span class="kpi-value">{{ data.value }}</span>
+    </div>
+    <div class="kpi-footer">
+        <div class="kpi-comparison" [class.positive]="data.isPositive" [class.negative]="!data.isPositive">
+            <lucide-icon [img]="data.isPositive ? TrendingUpIcon : TrendingDownIcon" size="16"></lucide-icon>
+            <span>{{ data.comparisonValue }}</span>
+        </div>
+        <span class="kpi-period">{{ data.comparisonPeriod }}</span>
+    </div>
+</div>
+}

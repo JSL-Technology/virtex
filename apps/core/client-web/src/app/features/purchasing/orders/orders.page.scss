@@ -1,0 +1,63 @@
+@use "../../../../assets/styles/view-styles" as views;
+@use "../../../../assets/styles/forms" as mixins;
+
+// Hereda todos los estilos comunes de las vistas
+:host {
+  display: block;
+}
+.subview-container {
+  @include views.view-container;
+}
+.subview-header {
+  @include views.view-header;
+  padding-bottom: 1.5rem;
+  margin-bottom: 0;
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+}
+.header-actions {
+  @include views.header-actions;
+}
+.card {
+  @include views.card;
+  padding: 0;
+}
+.data-table {
+  @include views.data-table;
+}
+.icon-button {
+  @include mixins.icon-button;
+}
+.empty-state {
+  @include views.empty-state;
+}
+
+// Estilos específicos para los estados de las órdenes de compra
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--border-radius-full);
+  text-transform: capitalize;
+
+  &.status-sent {
+    background-color: rgba(74, 222, 128, 0.15); // Verde
+    color: #4ade80;
+  }
+  &.status-approved {
+    background-color: rgba(59, 130, 246, 0.15); // Azul
+    color: #3b82f6;
+  }
+  &.status-pending {
+    background-color: rgba(251, 146, 60, 0.15); // Naranja
+    color: #fb923c;
+  }
+  &.status-draft {
+    background-color: var(--bg-solid);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+  }
+}

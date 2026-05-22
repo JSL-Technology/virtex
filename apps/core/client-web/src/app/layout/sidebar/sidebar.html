@@ -1,0 +1,37 @@
+<nav class="sidebar">
+    <div class="sidebar-body">
+        @for (group of menuGroups; track group) {
+        <div class="menu-group">
+            <h2 class="group-title">{{ group.groupTranslationKey | translate }}</h2>
+
+            @for (item of group.items; track item) {
+            <div class="menu-item-container">
+                @if (!item.subItems) {
+                <a class="menu-item" [routerLink]="item.path" routerLinkActive="active">
+                    <span class="material-icons-outlined icon">{{ item.icon }}</span>
+                    <span class="label">{{ item.translationKey | translate }}</span>
+                </a>
+                }
+
+                @if (item.subItems) {
+                <a class="menu-item expandable" (click)="toggleSubMenu(item)" [class.expanded]="item.isExpanded">
+                    <span class="material-icons-outlined icon">{{ item.icon }}</span>
+                    <span class="label">{{ item.translationKey | translate }}</span>
+                    <span class="material-icons-outlined expand-icon">expand_more</span>
+                </a>
+
+                <div class="sub-menu" [class.show]="item.isExpanded">
+                    @for (subItem of item.subItems; track subItem) {
+                    <a class="sub-menu-item" [routerLink]="subItem.path" routerLinkActive="active">
+                        <span class="label">{{ subItem.translationKey | translate }}</span>
+                    </a>
+                    }
+                </div>
+                }
+
+            </div>
+            }
+        </div>
+        }
+    </div>
+</nav>

@@ -1,0 +1,16 @@
+<div class="social-login-container">
+  <!-- Google -->
+  <button (click)="loginWith('google')" class="social-btn" title="{{ 'LOGIN.CONTINUE_WITH' | translate: { provider: 'Google' } }}">
+     <img src="assets/icons/google.svg" alt="Google" class="social-icon">
+  </button>
+
+  <!-- Microsoft -->
+  <button (click)="loginWith('microsoft')" class="social-btn" title="{{ 'LOGIN.CONTINUE_WITH' | translate: { provider: 'Microsoft' } }}">
+    <img src="assets/icons/microsoft.svg" alt="Microsoft" class="social-icon">
+  </button>
+
+  <!-- Okta -->
+  <button (click)="loginWith('okta')" class="social-btn" title="{{ 'LOGIN.CONTINUE_WITH' | translate: { provider: 'Okta' } }}">
+     <img src="assets/icons/okta.svg" alt="Okta" class="social-icon">
+  </button>
+</div>

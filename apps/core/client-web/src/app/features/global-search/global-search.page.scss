@@ -1,0 +1,135 @@
+@use '../../../assets/styles/view-styles' as views;
+
+:host {
+    display: block;
+}
+
+.view-container {
+    @include views.view-container;
+}
+
+.search-header {
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+}
+
+.search-bar {
+    position: relative;
+    max-width: 800px;
+    margin: auto;
+
+    lucide-icon {
+        position: absolute;
+        left: 1.25rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-tertiary);
+    }
+
+    input {
+        width: 100%;
+        padding: 1.25rem 1.5rem 1.25rem 4rem;
+        font-size: 1.5rem;
+        font-weight: 600;
+        border-radius: var(--border-radius-full);
+    }
+}
+
+.results-summary {
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+}
+
+.results-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.result-group {
+    @include views.card;
+    padding: 0;
+
+    .group-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+
+        h3 {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+
+        lucide-icon {
+            color: var(--accent-primary);
+        }
+    }
+
+    ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+}
+
+.result-item {
+    &:not(:last-child) {
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    a {
+        display: block;
+        padding: 1rem 1.5rem;
+        text-decoration: none;
+        transition: background-color 0.2s ease;
+
+        &:hover {
+            background-color: var(--bg-hover);
+        }
+    }
+
+    .item-title {
+        display: block;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .item-description {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+}
+
+.loading-state,
+.empty-state {
+    @include views.empty-state;
+    padding: 4rem 0;
+
+    .spinner {
+        width: 32px;
+        height: 32px;
+        border: 3px solid var(--accent-primary-subtle);
+        border-top-color: var(--accent-primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    p {
+        margin-top: 1rem;
+    }
+
+    h4 {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

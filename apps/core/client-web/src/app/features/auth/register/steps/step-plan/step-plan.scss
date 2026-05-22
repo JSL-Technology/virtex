@@ -1,0 +1,144 @@
+@use '../../../../../../assets/styles/variables' as *;
+
+.step-container {
+    // Sin estilos específicos de contenedor, ya que el layout lo definen sus hijos
+}
+
+.step-header {
+    text-align: center;
+    margin-bottom: 2rem;
+
+    h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+        color: var(--text-primary);
+    }
+
+    p {
+        color: var(--text-secondary);
+        max-width: 400px;
+        margin: auto;
+    }
+}
+
+.plans-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.plan-card {
+    border: 2px solid var(--border-color);
+    border-radius: $border-radius;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+        transform: translateY(-5px);
+        border-color: var(--accent-primary);
+    }
+
+    &.selected {
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 2px var(--accent-primary);
+    }
+
+    &.popular {
+        border-color: var(--accent-primary); // Borde destacado para el plan popular
+    }
+
+    .plan-badge {
+        position: absolute;
+        top: 12px;
+        right: -35px;
+        background-color: var(--accent-primary);
+        color: var(--accent-text);
+        padding: 4px 35px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        transform: rotate(45deg);
+
+        &.trial {
+            background-color: #34A853; // Verde para la prueba
+        }
+    }
+
+    h4 {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .plan-price {
+        font-size: 2.5rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        color: var(--text-primary);
+
+        .price-period {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: var(--text-secondary);
+        }
+    }
+
+    .plan-features {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        color: var(--text-secondary);
+
+        li {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+
+            lucide-icon {
+                color: #34A853; // Verde para el check
+                flex-shrink: 0;
+            }
+        }
+    }
+}
+
+.terms-field {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-top: 2rem;
+
+    input[type="checkbox"] {
+        width: 1.15em;
+        height: 1.15em;
+        margin-top: 0.2em;
+        accent-color: var(--accent-primary);
+        flex-shrink: 0;
+    }
+
+    label {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+
+        .link {
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-weight: 600;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+}

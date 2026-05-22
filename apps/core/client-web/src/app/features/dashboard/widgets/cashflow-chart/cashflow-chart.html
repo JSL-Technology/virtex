@@ -1,0 +1,59 @@
+<div class="widget-header">
+  <h3>{{ 'CHARTS.CASHFLOW.CONSOLIDATED_TITLE' | translate }}</h3>
+  <div class="header-actions" (mousedown)="$event.stopPropagation()">
+    <div class="widget-edit-menu">
+      <button class="icon-button" [title]="'CHARTS.MENU.TITLE' | translate" (mousedown)="toggleExportMenu($event)">
+        <lucide-icon [img]="MenuIcon" size="18"></lucide-icon>
+      </button>
+      @if (isExportMenuOpen()) {
+        <div class="edit-dropdown export-dropdown" (mousedown)="$event.stopPropagation()">
+          <button (mousedown)="viewFullscreen($event)">
+            <lucide-icon [img]="FullscreenIcon" size="14"></lucide-icon>
+            {{ 'CHARTS.MENU.FULL_SCREEN' | translate }}
+          </button>
+          <button (mousedown)="printChart($event)">
+            <lucide-icon [img]="PrintIcon" size="14"></lucide-icon>
+            {{ 'CHARTS.MENU.PRINT' | translate }}
+          </button>
+          <hr/>
+          <span class="dropdown-title">{{ 'CHARTS.MENU.DOWNLOAD' | translate }}</span>
+          <button (mousedown)="downloadPNG($event)">
+            <lucide-icon [img]="PngIcon" size="14"></lucide-icon>
+            {{ 'CHARTS.MENU.PNG' | translate }}
+          </button>
+          <button (mousedown)="downloadJPEG($event)">{{ 'CHARTS.MENU.JPEG' | translate }}</button>
+          <button (mousedown)="downloadPDF($event)">{{ 'CHARTS.MENU.PDF' | translate }}</button>
+          <button (mousedown)="downloadSVG($event)">{{ 'CHARTS.MENU.SVG' | translate }}</button>
+          <hr/>
+          <button (mousedown)="downloadCSV($event)">
+            <lucide-icon [img]="CsvIcon" size="14"></lucide-icon>
+            {{ 'CHARTS.MENU.CSV' | translate }}
+          </button>
+          <button (mousedown)="downloadXLS($event)">{{ 'CHARTS.MENU.XLS' | translate }}</button>
+        </div>
+      }
+    </div>
+    </div>
+</div>
+<div class="widget-content">
+  @switch (cashFlowData()?.constructor) {
+      @case (Object) {
+          @if ('error' in cashFlowData()!) {
+              <div class="error-state">
+                  <span>{{ 'WIDGETS.ERRORS.UNABLE_TO_LOAD' | translate }}</span>
+              </div>
+          } @else {
+              <highcharts-chart
+                [options]="chartOptions()"
+                (chartInstance)="onChartInstance($event)"
+                class="chart-instance">
+              </highcharts-chart>
+          }
+      }
+      @default {
+          <div class="loading-state">
+              <span>{{ 'WIDGETS.LOADING' | translate }}</span>
+          </div>
+      }
+  }
+</div>

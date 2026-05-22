@@ -1,0 +1,32 @@
+<div class="view-container">
+    <form [formGroup]="ledgerForm" (ngSubmit)="saveLedger()">
+        <div class="view-header">
+            <div class="header-content">
+                <h1>{{ isEditMode() ? 'Editar' : 'Nuevo' }} Libro Mayor</h1>
+                <p>Define un nuevo libro para registrar transacciones contables.</p>
+            </div>
+            <div class="header-actions">
+                <a routerLink="/accounting/general-ledger" class="secondary-button">Cancelar</a>
+                <button type="submit" class="primary-button" [disabled]="isLoading() || ledgerForm.invalid">
+                    <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
+                    <span>{{ isLoading() ? 'Guardando...' : 'Guardar Libro' }}</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="form-container card">
+            <div class="form-field">
+                <label for="name">Nombre del Libro*</label>
+                <input id="name" formControlName="name" placeholder="Ej: Libro Principal IFRS">
+            </div>
+            <div class="form-field">
+                <label for="description">Descripción</label>
+                <textarea id="description" formControlName="description" rows="4" placeholder="Ej: Utilizado para reportes financieros bajo NIIF."></textarea>
+            </div>
+            <div class="form-field checkbox-field">
+                <input id="isDefault" type="checkbox" formControlName="isDefault">
+                <label for="isDefault">Establecer como libro por defecto</label>
+            </div>
+        </div>
+    </form>
+</div>

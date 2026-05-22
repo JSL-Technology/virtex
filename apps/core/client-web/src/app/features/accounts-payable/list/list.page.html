@@ -1,0 +1,74 @@
+<div class="view-container">
+  <div class="view-header">
+    <h1>Facturas de Proveedor</h1>
+    <div class="header-actions">
+      <button class="btn-secondary">
+        <lucide-icon [name]="FilterIcon" [size]="16"></lucide-icon>
+        <span>Filtrar</span>
+      </button>
+      <a routerLink="../new" class="btn-primary">
+        <lucide-icon [name]="PlusCircleIcon" [size]="16"></lucide-icon>
+        <span>Nueva Factura</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="view-content">
+    <div *ngIf="isLoading()" class="loading-shade">
+      <p>Cargando facturas...</p>
+    </div>
+
+    <div *ngIf="error()" class="error-message">
+      <p>{{ error() }}</p>
+      <button (click)="loadVendorBills()" class="btn-primary">Reintentar</button>
+    </div>
+
+    <div *ngIf="!isLoading() && !error() && vendorBills().length === 0" class="empty-state">
+      <h2>No hay facturas de proveedor</h2>
+      <p>Crea tu primera factura de proveedor para empezar.</p>
+      <a routerLink="../new" class="btn-primary">
+        <lucide-icon [name]="PlusCircleIcon" [size]="16"></lucide-icon>
+        <span>Crear Factura</span>
+      </a>
+    </div>
+
+    <div *ngIf="!isLoading() && vendorBills().length > 0" class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Proveedor</th>
+            <th>Número</th>
+            <th>Fecha</th>
+            <th>Vencimiento</th>
+            <th class="text-right">Total</th>
+            <th class="text-right">Balance</th>
+            <th class="text-center">Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let bill of vendorBills()">
+            <td>{{ bill.vendorName }}</td>
+            <td>
+              <a [routerLink]="['../', bill.id]">{{ bill.billNumber }}</a>
+            </td>
+            <td>{{ bill.issueDate | date:'dd/MM/yyyy' }}</td>
+            <td>{{ bill.dueDate | date:'dd/MM/yyyy' }}</td>
+            <td class="text-right">{{ bill.total | number:'1.2-2' }}</td>
+            <td class="text-right">{{ bill.balance | number:'1.2-2' }}</td>
+            <td class="text-center">
+              <span class="status-badge" [ngClass]="getStatusClass(bill.status)">
+                {{ bill.status }}
+              </span>
+            </td>
+            <td class="text-center">
+              <button class="btn-icon">
+                <lucide-icon [name]="MoreHorizontalIcon" [size]="16"></lucide-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

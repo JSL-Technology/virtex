@@ -1,0 +1,48 @@
+<div class="view-container">
+  <div class="view-header">
+    <a routerLink="/customer-receipts" class="btn-icon">
+      <lucide-icon [name]="BackIcon" [size]="24"></lucide-icon>
+    </a>
+    <h1>Nuevo Recibo de Cliente</h1>
+  </div>
+
+  <div class="view-content" [formGroup]="form">
+    <div class="card">
+      <div class="card-header">
+        <h2>Información del Pago</h2>
+      </div>
+      <div class="card-body grid-form">
+        <div class="form-field">
+          <label for="customerId">Cliente</label>
+          <input type="text" id="customerId" formControlName="customerId" placeholder="Seleccionar cliente">
+        </div>
+        <div class="form-field">
+          <label for="paymentDate">Fecha de Pago</label>
+          <input type="date" id="paymentDate" formControlName="paymentDate">
+        </div>
+        <div class="form-field">
+          <label for="amount">Monto Recibido</label>
+          <input type="number" id="amount" formControlName="amount">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2>Aplicar a Facturas</h2>
+      </div>
+      <div class="card-body">
+        <p>Aquí se mostrará una lista de facturas pendientes del cliente seleccionado para aplicar el pago.</p>
+        <!-- Implementation for applying payment to invoices would go here -->
+      </div>
+    </div>
+    
+    <div class="form-actions">
+        <a routerLink="/customer-receipts" class="btn-secondary">Cancelar</a>
+        <button (click)="save()" class="btn-primary" [disabled]="form.invalid || isLoading()">
+            {{ isLoading() ? 'Guardando...' : 'Guardar Recibo' }}
+        </button>
+    </div>
+
+  </div>
+</div>

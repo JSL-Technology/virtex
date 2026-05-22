@@ -1,0 +1,29 @@
+@use './variables' as *;
+
+:root {
+    // Colores de Texto
+    --text-primary: #1c1c1c;
+    --text-secondary: #4a4a4a;
+    --text-tertiary: #6e6e6e;
+    --text-disabled: #a1a1a1;
+
+    // Fondos y Superficies (Simulación de "Mica")
+    --bg-solid: #f3f3f3;
+    --bg-layer-1: rgba(252, 252, 252, 0.85); // Cards, modales
+    --bg-layer-2: rgba(252, 252, 252, 0.5); // Elementos elevados
+    --bg-hover: rgba(0, 0, 0, 0.04);
+    --bg-disabled: #e1e1e1;
+
+    // Acento de Color (Azul de Windows)
+    --accent-primary: #0078d4;
+    --accent-primary-hover: #106ebe;
+    --accent-text: #ffffff;
+
+    // Bordes y Foco
+    --border-color: #e1e1e1;
+    --border-focus: #0078d4;
+    --focus-shadow: 0 0 0 2px rgba(0, 120, 212, 0.3);
+
+    // Sombras
+    --shadow-color: rgba(0, 0, 0, 0.12);
+}

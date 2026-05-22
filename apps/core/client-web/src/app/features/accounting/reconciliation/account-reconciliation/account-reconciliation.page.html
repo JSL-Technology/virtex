@@ -1,0 +1,55 @@
+<div class="subview-container">
+    <div class="subview-header">
+        <h3>Account Reconciliation</h3>
+        <div class="header-actions">
+            <button class="secondary-button">
+                <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
+                <span>Filter by Period: July 2025</span>
+            </button>
+        </div>
+    </div>
+    <div class="table-container card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Account</th>
+                    <th class="text-right">Current Balance</th>
+                    <th>Last Reconciled By</th>
+                    <th>Last Reconciled Date</th>
+                    <th class="text-center">Status</th>
+                    <th class="actions-column"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for(account of accountsToReconcile(); track account.accountCode) {
+                <tr>
+                    <td>
+                        <div class="account-cell">
+                            <span class="account-code">{{ account.accountCode }}</span>
+                            <a href="#" class="table-link">{{ account.accountName }}</a>
+                        </div>
+                    </td>
+                    <td class="text-right">{{ account.balance | number:'1.2-2' }}</td>
+                    <td>{{ account.lastReconciledBy }}</td>
+                    <td>{{ account.lastReconciledDate }}</td>
+                    <td class="text-center">
+                        <span class="status-badge" [ngClass]="getStatusClass(account.status)">
+                            <lucide-icon [img]="getIconForStatus(account.status)" size="14"></lucide-icon>
+                            {{ account.status }}
+                        </span>
+                    </td>
+                    <td class="actions-column">
+                        <button class="icon-button">
+                            <lucide-icon [img]="MoreHorizontalIcon" size="18"></lucide-icon>
+                        </button>
+                    </td>
+                </tr>
+                } @empty {
+                <tr>
+                    <td colspan="6" class="empty-state">No accounts require reconciliation for this period.</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

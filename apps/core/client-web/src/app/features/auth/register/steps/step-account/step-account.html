@@ -1,0 +1,67 @@
+<div class="step-container" [formGroup]="parentForm">
+    <div class="step-header">
+        <h3>¡Hola! Comencemos por ti</h3>
+        <p>Estos son los datos del administrador principal.</p>
+    </div>
+    <div class="form-field file-upload-field">
+        <label>Tu Foto de Perfil (Opcional)</label>
+        <div class="file-input-container">
+            <input type="file" id="avatarUrl" (change)="onFileSelected($event)" #avatarUpload
+                accept="image/png, image/jpeg">
+            <label for="avatarUrl" class="file-input-label">
+                @if(avatarPreview()) {
+                <img [src]="avatarPreview()" alt="Vista previa del avatar" class="avatar-preview">
+                } @else {
+                <lucide-icon [img]="AvatarIcon" size="32"></lucide-icon>
+                <span>Subir imagen</span>
+                }
+            </label>
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-field"
+            [class.error]="parentForm.get('firstName')?.invalid && (parentForm.get('firstName')?.touched || parentForm.get('firstName')?.dirty)">
+            <label for="firstName">Nombre*</label>
+            <div class="input-wrapper"><lucide-icon [img]="UserIcon" size="18" class="input-icon"></lucide-icon>
+                <input id="firstName" formControlName="firstName">
+            </div>
+            @if (parentForm.get('firstName')?.invalid && (parentForm.get('firstName')?.touched ||
+            parentForm.get('firstName')?.dirty)) {
+            <div class="error-message">
+                @if (parentForm.get('firstName')?.errors?.['required']) { <span>Nombre es obligatorio</span> }
+                @if (parentForm.get('firstName')?.errors?.['serverError']) { <span>{{
+                    parentForm.get('firstName')?.errors?.['serverError'] }}</span> }
+            </div>
+            }
+        </div>
+        <div class="form-field"
+            [class.error]="parentForm.get('lastName')?.invalid && (parentForm.get('lastName')?.touched || parentForm.get('lastName')?.dirty)">
+            <label for="lastName">Apellido*</label>
+            <div class="input-wrapper"><lucide-icon [img]="UserIcon" size="18" class="input-icon"></lucide-icon>
+                <input id="lastName" formControlName="lastName">
+            </div>
+            @if (parentForm.get('lastName')?.invalid && (parentForm.get('lastName')?.touched ||
+            parentForm.get('lastName')?.dirty)) {
+            <div class="error-message">
+                @if (parentForm.get('lastName')?.errors?.['required']) { <span>Apellido es obligatorio</span> }
+                @if (parentForm.get('lastName')?.errors?.['serverError']) { <span>{{
+                    parentForm.get('lastName')?.errors?.['serverError'] }}</span> }
+            </div>
+            }
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-field">
+            <label for="jobTitle">Tu Cargo (Opcional)</label>
+            <div class="input-wrapper"><lucide-icon [img]="JobIcon" size="18" class="input-icon"></lucide-icon>
+                <input id="jobTitle" formControlName="jobTitle" placeholder="Ej: Gerente">
+            </div>
+        </div>
+        <div class="form-field">
+            <label for="phone">Tu Teléfono (Opcional)</label>
+            <div class="input-wrapper"><lucide-icon [img]="PhoneIcon" size="18" class="input-icon"></lucide-icon>
+                <input id="phone" type="tel" formControlName="phone">
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,253 @@
+@use '../../../assets/styles/view-styles' as views;
+@use '../../../assets/styles/forms' as mixins;
+
+:host {
+    display: block;
+    height: 100%;
+}
+
+.view-container {
+    @include views.view-container;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.view-header {
+    @include views.view-header;
+    flex-shrink: 0;
+
+    // margin: 24px;
+    margin-bottom: 2rem;
+}
+
+.header-actions {
+    @include views.header-actions;
+
+    .edit-button {
+
+        // Estilo para cuando el modo edición está activo
+        &.active {
+            background-color: var(--accent-primary);
+            color: var(--accent-text);
+            border-color: var(--accent-primary);
+        }
+    }
+}
+
+// --- Estilos de Gridster ---
+gridster {
+    flex-grow: 1;
+    display: block;
+    background-color: transparent;
+    transition: background-image 0.3s ease;
+
+    // Placeholder que aparece al arrastrar o redimensionar un widget
+    ::ng-deep .gridster-preview {
+        background: var(--accent-primary-subtle);
+        border-radius: var(--border-radius-md);
+        border: 2px dashed var(--accent-primary);
+        // z-index: 2;
+    }
+
+    // Estilos que se aplican solo en modo edición
+    &.edit-mode {
+        // Líneas de guía sutiles para el grid
+        // background-image:
+        //     linear-gradient(to right, var(--border-color) 1px, transparent 1px),
+        //     linear-gradient(to bottom, var(--border-color) 1px, transparent 1px);
+        // // Se calcula el tamaño de la celda: (100% - márgenes) / # de columnas, y la altura fija de fila
+        // background-size: calc((100% - 48px) / 4) 80px;
+
+        // Manejadores de redimensionamiento siempre visibles
+        // ::ng-deep .gridster-item-resizable-handler {
+        //     display: block !important;
+        //     opacity: 0.8 !important;
+        //     background-color: var(--accent-primary);
+        //     border: 2px solid var(--bg-layer-1);
+        //     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+        //     width: 14px;
+        //     height: 14px;
+        //     border-radius: 50%;
+        // }
+    }
+}
+
+gridster-item {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: none;
+    border-radius: var(--border-radius-md);
+
+    &:not(.gridster-item-resizing, .gridster-item-dragging):hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 20px -5px var(--shadow-color);
+        z-index: 3;
+    }
+}
+
+.widget-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-layer-3);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    overflow: hidden;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+
+    &.edit-mode {
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 3px var(--accent-primary-subtle);
+        cursor: move;
+    }
+}
+
+.remove-widget-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 10;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.3);
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+
+    .edit-mode & {
+        opacity: 0.7;
+    }
+
+    &:hover {
+        opacity: 1;
+        transform: scale(1);
+        background-color: #ef4444;
+    }
+}
+
+// --- Estilos para el Panel de Añadir Widgets ---
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    justify-content: flex-end;
+    animation: fadeIn 0.3s ease;
+}
+
+.add-panel {
+    @include views.card;
+    width: 100%;
+    max-width: 400px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0;
+    border-right: none;
+    border-top: none;
+    border-bottom: none;
+    padding: 0;
+    animation: slideIn 0.4s cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+.add-panel-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
+    flex-shrink: 0;
+
+    h3 {
+        font-size: 1.25rem;
+        color: var(--text-primary);
+    }
+
+    p {
+        color: var(--text-secondary);
+    }
+
+    .close-panel-btn {
+        // @include mixins.icon-button;
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+    }
+}
+
+.add-panel-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.available-widgets-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.available-widget {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-radius: var(--border-radius-md);
+    background-color: var(--bg-solid);
+    border: 1px solid var(--border-color);
+
+    span {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .add-btn {
+        @include mixins.submit-button;
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+        background-color: var(--bg-layer-1);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+
+        &:hover {
+            background-color: var(--bg-hover);
+        }
+    }
+}
+
+.empty-state {
+    @include views.empty-state;
+}
+
+.dashboard-content {
+    padding: 24px;
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+}

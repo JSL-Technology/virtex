@@ -1,0 +1,49 @@
+<div class="subview-container">
+    <div class="subview-header">
+        <h3>Profitability by Product</h3>
+        <div class="header-actions">
+            <button class="secondary-button">
+                <lucide-icon [img]="CalendarIcon" size="16"></lucide-icon>
+                <span>Last 90 Days</span>
+            </button>
+            <button class="secondary-button">
+                <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
+                <span>Filters</span>
+            </button>
+            <button class="primary-button">
+                <lucide-icon [img]="ExportIcon" size="16"></lucide-icon>
+                <span>Export</span>
+            </button>
+        </div>
+    </div>
+    <div class="table-container card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th class="text-center">Units Sold</th>
+                    <th class="text-right">Total Revenue</th>
+                    <th class="text-right">Total Cost</th>
+                    <th class="text-right">Gross Profit</th>
+                    <th class="text-right">Gross Margin (%)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for(item of reportData(); track item.id) {
+                <tr>
+                    <td>{{ item.sku }} - {{ item.name }}</td>
+                    <td class="text-center">{{ item.unitsSold }}</td>
+                    <td class="text-right">{{ item.totalRevenue | number:'1.2-2' }}</td>
+                    <td class="text-right">{{ item.totalCost | number:'1.2-2' }}</td>
+                    <td class="text-right font-semibold">{{ item.grossProfit | number:'1.2-2' }}</td>
+                    <td class="text-right font-semibold">{{ item.grossMargin | number:'1.1-1' }}%</td>
+                </tr>
+                } @empty {
+                <tr>
+                    <td colspan="6" class="empty-state">No profitability data available for the selected period.</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
