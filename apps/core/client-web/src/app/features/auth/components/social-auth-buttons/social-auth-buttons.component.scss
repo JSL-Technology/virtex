@@ -1,6 +1,6 @@
 .social-auth-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   gap: 0.75rem;
   width: 100%;
 }
@@ -47,11 +47,5 @@
 
   &:hover .social-label {
     color: var(--text-primary);
-  }
-}
-
-@media (max-width: 480px) {
-  .social-auth-grid {
-    grid-template-columns: 1fr;
   }
 }

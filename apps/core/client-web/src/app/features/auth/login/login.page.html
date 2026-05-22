@@ -1,7 +1,6 @@
 <app-auth-layout>
   <!-- 2FA Verification View -->
   <div *ngIf="show2faInput(); else loginFormTemplate" class="auth-header animate-fade-in-up">
-    <!-- Using new OTP Component -->
     <app-otp
        [title]="'LOGIN.2FA.TITLE' | translate"
        [description]="'LOGIN.2FA.SUBTITLE' | translate"
@@ -18,110 +17,113 @@
 
   <!-- Standard Login View -->
   <ng-template #loginFormTemplate>
-    <div class="animate-fade-in-up login-container">
-      <!-- Header Section -->
-      <div class="auth-header">
+    <div class="animate-fade-in-up login-wrapper">
+
+      <!-- ZONE 1: Header Section -->
+      <header class="auth-header">
         <h1 class="auth-title">{{ 'LOGIN.TITLE' | translate }}</h1>
         <p class="auth-subtitle">{{ 'LOGIN.SUBTITLE' | translate }}</p>
-      </div>
+      </header>
 
-      <!-- Quick Login Section (Social + Passkey) -->
-       <div class="quick-login-section">
-        <app-social-auth-buttons (onLogin)="socialLogin($event)"></app-social-auth-buttons>
+      <!-- ZONE 2: Quick Access Section (Social + Passkey) -->
+      <section class="quick-access-section">
+        <app-passkey-button (onClick)="onLoginWithPasskey()" [loading]="isLoggingIn()">
+        </app-passkey-button>
 
-        <div class="passkey-wrapper">
-          <app-passkey-button (onClick)="onLoginWithPasskey()" [loading]="isLoggingIn()">
-              {{ 'LOGIN.PASSKEY_BUTTON' | translate }}
-          </app-passkey-button>
+        <div class="social-divider">
+          <span>{{ 'LOGIN.OR' | translate }}</span>
         </div>
-      </div>
 
-      <!-- Divider -->
-      <div class="divider">
+        <app-social-auth-buttons (onLogin)="socialLogin($event)"></app-social-auth-buttons>
+      </section>
+
+      <div class="main-divider">
         <span>{{ 'LOGIN.OR' | translate }}</span>
       </div>
 
-      <!-- Login Form -->
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <!-- ZONE 3: Traditional Form Card -->
+      <div class="form-card">
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
 
-        <app-auth-input
-          formControlName="email"
-          type="email"
-          [label]="'LOGIN.EMAIL_LABEL' | translate"
-          [placeholder]="'LOGIN.EMAIL_PLACEHOLDER' | translate"
-          [hasIcon]="true"
-          [required]="true"
-          autocomplete="username"
-          [errorMessage]="getErrorMessage('email')">
-          <lucide-icon icon [img]="icons.Mail" size="18"></lucide-icon>
-        </app-auth-input>
-
-        <div class="password-group">
           <app-auth-input
-            formControlName="password"
-            type="password"
-            [label]="'LOGIN.PASSWORD_LABEL' | translate"
-            placeholder="••••••••"
+            formControlName="email"
+            type="email"
+            [label]="'LOGIN.EMAIL_LABEL' | translate"
+            [placeholder]="'LOGIN.EMAIL_PLACEHOLDER' | translate"
             [hasIcon]="true"
             [required]="true"
-            autocomplete="current-password"
-            [errorMessage]="getErrorMessage('password')">
-            <lucide-icon icon [img]="icons.Lock" size="18"></lucide-icon>
+            autocomplete="username"
+            [errorMessage]="getErrorMessage('email')">
+            <lucide-icon icon [img]="icons.Mail" size="18"></lucide-icon>
           </app-auth-input>
 
-          <div class="forgot-password-container">
-            <a [routerLink]="['/', languageService.currentLang(), 'auth', 'forgot-password']" class="forgot-link" tabindex="0">
-              {{ 'LOGIN.FORGOT_PASSWORD' | translate }}
-            </a>
+          <div class="password-group">
+            <app-auth-input
+              formControlName="password"
+              type="password"
+              [label]="'LOGIN.PASSWORD_LABEL' | translate"
+              placeholder="••••••••"
+              [hasIcon]="true"
+              [required]="true"
+              autocomplete="current-password"
+              [errorMessage]="getErrorMessage('password')">
+              <lucide-icon icon [img]="icons.Lock" size="18"></lucide-icon>
+            </app-auth-input>
+
+            <div class="forgot-password-container">
+              <a [routerLink]="['/', languageService.currentLang(), 'auth', 'forgot-password']" class="forgot-link" tabindex="0">
+                {{ 'LOGIN.FORGOT_PASSWORD' | translate }}
+              </a>
+            </div>
           </div>
-        </div>
 
-        <div class="remember-container">
-          <label class="checkbox-container" tabindex="0" (keyup.enter)="loginForm.get('rememberMe')?.setValue(!loginForm.get('rememberMe')?.value)">
-            <input
-              type="checkbox"
-              formControlName="rememberMe"
-              class="remember-checkbox"
-              tabindex="-1">
-            <span class="checkmark"></span>
-            {{ 'LOGIN.REMEMBER_ME' | translate }}
-          </label>
-        </div>
+          <div class="form-options">
+            <label class="checkbox-container" tabindex="0" (keyup.enter)="loginForm.get('rememberMe')?.setValue(!loginForm.get('rememberMe')?.value)">
+              <input
+                type="checkbox"
+                formControlName="rememberMe"
+                class="remember-checkbox"
+                tabindex="-1">
+              <span class="checkmark"></span>
+              {{ 'LOGIN.REMEMBER_ME' | translate }}
+            </label>
+          </div>
 
-        <div *ngIf="errorMessage()" class="error-message global-error" role="alert">
-           <lucide-icon [img]="icons.AlertCircle" size="16"></lucide-icon>
-           <span>{{ errorMessage() | translate }}</span>
-        </div>
+          <div *ngIf="errorMessage()" class="error-message global-error" role="alert">
+             <lucide-icon [img]="icons.AlertCircle" size="16"></lucide-icon>
+             <span>{{ errorMessage() | translate }}</span>
+          </div>
 
-        <app-auth-button
-          type="submit"
-          variant="primary"
-          [loading]="isLoggingIn()"
-          [disabled]="loginForm.invalid">
-          {{ (isLoggingIn() ? 'LOGIN.LOGGING_IN' : 'LOGIN.SUBMIT_BUTTON') | translate }}
-          <lucide-icon *ngIf="!isLoggingIn()" [img]="icons.ArrowRight" size="18" class="btn-icon"></lucide-icon>
-        </app-auth-button>
+          <app-auth-button
+            type="submit"
+            variant="primary"
+            size="lg"
+            [loading]="isLoggingIn()"
+            [disabled]="loginForm.invalid">
+            {{ (isLoggingIn() ? 'LOGIN.LOGGING_IN' : 'LOGIN.SUBMIT_BUTTON') | translate }}
+            <lucide-icon *ngIf="!isLoggingIn()" [img]="icons.ArrowRight" size="18" class="btn-icon"></lucide-icon>
+          </app-auth-button>
 
-      </form>
+        </form>
+      </div>
 
-      <!-- Legal Text -->
-      <p class="recaptcha-legal">
-        Protected by reCAPTCHA. Google
-        <a href="https://policies.google.com/privacy" target="_blank" tabindex="0">Privacy</a> &
-        <a href="https://policies.google.com/terms" target="_blank" tabindex="0">Terms</a>.
-      </p>
+      <!-- Footer Actions (Minimized) -->
+      <footer class="auth-footer">
+        <p class="register-text">
+          {{ 'LOGIN.NO_ACCOUNT' | translate }}
+          <a [routerLink]="['/', languageService.currentLang(), countryService.currentCountry()?.code || 'do', 'auth', 'register']"
+             class="register-link" tabindex="0">
+             {{ 'LOGIN.REGISTER_LINK' | translate }}
+          </a>
+        </p>
+
+        <p class="recaptcha-legal">
+          Protected by reCAPTCHA.
+          <a href="https://policies.google.com/privacy" target="_blank" tabindex="0">Privacy</a> &
+          <a href="https://policies.google.com/terms" target="_blank" tabindex="0">Terms</a>.
+        </p>
+      </footer>
 
     </div>
   </ng-template>
-
-  <!-- Footer Actions -->
-  <div footer-actions class="auth-footer-actions">
-    <p class="register-text">
-      {{ 'LOGIN.NO_ACCOUNT' | translate }}
-      <a [routerLink]="['/', languageService.currentLang(), countryService.currentCountry()?.code || 'do', 'auth', 'register']"
-         class="register-link" tabindex="0">
-         {{ 'LOGIN.REGISTER_LINK' | translate }}
-      </a>
-    </p>
-  </div>
 </app-auth-layout>
