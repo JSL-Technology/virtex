@@ -182,5 +182,8 @@
     "xml-crypto": "^6.1.2",
     "xmlbuilder": "^15.1.1",
     "zone.js": "~0.15.0"
+  },
+  "engines": {
+    "node": "20.x"
   }
 }
