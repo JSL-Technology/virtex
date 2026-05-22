@@ -4,11 +4,16 @@
   "projectType": "application",
   "prefix": "app",
   "sourceRoot": "apps/core/client-web/src",
-  "tags": ["scope:core", "type:app"],
+  "tags": [
+    "scope:core",
+    "type:app"
+  ],
   "targets": {
     "build": {
       "executor": "@angular/build:application",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/apps/core/client-web",
         "browser": "apps/core/client-web/src/main.ts",
@@ -38,6 +43,12 @@
             "inject": false,
             "bundleName": "theme-light"
           }
+        ],
+        "allowedCommonJsDependencies": [
+          "validator",
+          "validator/lib/isBase58",
+          "validator/lib/isTaxID",
+          "validator/lib/isISO4217"
         ]
       },
       "configurations": {
@@ -88,7 +99,9 @@
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
       "options": {
         "jestConfig": "apps/core/client-web/jest.config.cts",
         "tsConfig": "apps/core/client-web/tsconfig.spec.json"
