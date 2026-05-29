@@ -1,13 +1,10 @@
 
-import { Organization } from '../../organizations/entities/organization.entity';
 import {
     Entity,
     PrimaryGeneratedColumn,
     Column,
     CreateDateColumn,
     UpdateDateColumn,
-    ManyToOne,
-    JoinColumn,
 } from 'typeorm';
 
 @Entity({ name: 'roles' })
@@ -29,10 +26,6 @@ export class Role {
 
     @Column({ name: 'organization_id' })
     organizationId: string;
-
-    @ManyToOne(() => Organization)
-    @JoinColumn({ name: 'organization_id' })
-    organization: Organization;
 
     @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
     createdAt: Date;
