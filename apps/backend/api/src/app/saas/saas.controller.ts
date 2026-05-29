@@ -17,9 +17,9 @@ export class SaasController {
   @UseGuards(AuthGuard('jwt'))
   async getUsage(@Req() req: Request) {
     const user = req.user as AuthenticatedUser;
-    if (!user.organization) {
+    if (!user.organizationId) {
         return [];
     }
-    return this.saasService.getUsage(user.organization.id);
+    return this.saasService.getUsage(user.organizationId);
   }
 }

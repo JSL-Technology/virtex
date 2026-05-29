@@ -20,11 +20,11 @@ export class PaymentController {
     @CurrentUser() user: User,
     @Body() body: { priceId: string; successUrl: string; cancelUrl: string }
   ) {
-    if (!user.organization) {
+    if (!user.organizationId) {
         throw new BadRequestException('User does not belong to an organization');
     }
     return this.paymentService.createCheckoutSession(
-      user.organization.id,
+      user.organizationId,
       user.email,
       body.priceId,
       body.successUrl,

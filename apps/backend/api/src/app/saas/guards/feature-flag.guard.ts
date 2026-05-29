@@ -21,11 +21,11 @@ export class FeatureFlagGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
 
-    if (!user || !user.organization) {
+    if (!user || !user.organizationId) {
        throw new ForbiddenException('Organization context required for feature check');
     }
 
-    const isEnabled = await this.saasService.checkFeature(user.organization.id, featureKey);
+    const isEnabled = await this.saasService.checkFeature(user.organizationId, featureKey);
     if (!isEnabled) {
         throw new ForbiddenException(`FEATURE_DISABLED: ${featureKey}`);
     }
