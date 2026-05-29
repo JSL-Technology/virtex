@@ -8,7 +8,9 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { OnEvent } from '@nestjs/event-emitter';
-import { SessionService } from '../auth/services/session.service';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { UserCacheService } from '../auth/modules/user-cache.service';
 
 @WebSocketGateway({
   cors: {
@@ -23,7 +25,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private connectedUsers = new Map<string, string>();
 
   constructor(
-      private readonly sessionService: SessionService
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+    private readonly userCacheService: UserCacheService,
   ) {}
 
   async handleConnection(client: Socket) {
@@ -34,22 +38,28 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         ?.split('=')[1];
 
       if (!token) {
-           client.disconnect();
-           return;
+        client.disconnect();
+        return;
       }
 
-      // Use SessionService for robust validation (checks revocation, version, etc.)
-      const user = await this.sessionService.verifyUserFromToken(token);
-
-      if (!user) {
-          client.disconnect();
-          return;
+      const payload = this.jwtService.verify<{ id: string; tokenVersion: number }>(token, {
+        secret: this.configService.getOrThrow<string>('JWT_SECRET'),
+      });
+      const cachedUser = await this.userCacheService.getUser(payload.id);
+      if (!cachedUser) {
+        client.disconnect();
+        return;
+      }
+      const cachedVersion = (cachedUser as any)?.security?.tokenVersion ?? 0;
+      if (cachedVersion !== payload.tokenVersion) {
+        client.disconnect();
+        return;
       }
 
-      this.connectedUsers.set(user.id, client.id);
-      
+      this.connectedUsers.set(payload.id, client.id);
+
       this.server.emit('user-status-update', {
-        userId: user.id,
+        userId: payload.id,
         isOnline: true,
       });
     } catch (e) {
@@ -62,14 +72,13 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       if (socketId === client.id) {
         this.connectedUsers.delete(userId);
         console.log(`User disconnected: ${userId}`);
-        
+
         this.server.emit('user-status-update', { userId, isOnline: false });
         break;
       }
     }
   }
 
-  
   sendToUser(userId: string, event: string, data: any) {
     const socketId = this.connectedUsers.get(userId);
     if (socketId) {
