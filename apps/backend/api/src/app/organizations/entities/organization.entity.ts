@@ -1,7 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn, ManyToMany, ManyToOne, JoinColumn, Index } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
 import { OrganizationSubsidiary } from './organization-subsidiary.entity';
-import { User } from '../../users/entities/user.entity/user.entity';
-import { Plan } from '../../saas/entities/plan.entity';
 
 @Entity('organizations')
 @Index(['taxId', 'fiscalRegionId'], { unique: true, where: '"tax_id" IS NOT NULL' })
@@ -60,18 +58,11 @@ export class Organization {
   @Column({ default: 'UTC' })
   timezone: string;
 
-  @ManyToOne(() => Plan)
-  @JoinColumn({ name: 'plan_id' })
-  plan: Plan;
+  @Column({ name: 'plan_id', nullable: true })
+  planId: string;
 
   @OneToMany(() => OrganizationSubsidiary, sub => sub.parent)
   subsidiaries: OrganizationSubsidiary[];
-
-  @OneToMany(() => User, user => user.organization)
-  users: User[];
-
-  @ManyToMany(() => User, (user) => user.organizations)
-  allUsers: User[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
