@@ -1,10 +1,18 @@
-import { Routes } from '@angular/router';
+import { Routes, UrlSegment, UrlMatchResult } from '@angular/router';
 import { authGuard } from './core/guards/auth-guard';
 import { MainLayout } from './layout/main/main.layout';
 import { RouteRedirectorComponent } from './core/components/route-redirector/route-redirector';
 import { languageInitGuard } from './core/guards/language-init.guard';
 import { languageRedirectGuard } from './core/guards/language-redirect.guard';
 import { CountryGuard } from './core/guards/country.guard';
+
+// Only match 2-letter country codes so route segments like 'login' or 'auth' never bleed into :country
+export function countryCodeMatcher(segments: UrlSegment[]): UrlMatchResult | null {
+  if (segments.length > 0 && /^[a-zA-Z]{2}$/.test(segments[0].path)) {
+    return { consumed: [segments[0]], posParams: { country: segments[0] } };
+  }
+  return null;
+}
 
 export const APP_ROUTES: Routes = [
   // 1. Root Redirector: Handles '/' specifically
@@ -249,8 +257,9 @@ export const APP_ROUTES: Routes = [
     canActivate: [languageInitGuard],
     children: [
       // Country-specific public routes (e.g., /es/do/auth/register)
+      // matcher ensures only 2-letter codes match — prevents 'login', 'auth', etc. from being treated as a country
       {
-        path: ':country',
+        matcher: countryCodeMatcher,
         canActivate: [CountryGuard],
         children: [
           {

@@ -1,9 +1,39 @@
+:host {
+  // Dark mode defaults (footer sits on dark page background)
+  --text-primary:   #CBD5E1;
+  --text-secondary: #94A3B8;
+  --text-tertiary:  #64748B;
+  --primary:        #60A5FA;
+  --primary-light:  rgba(96, 165, 250, 0.15);
+  --border-color:   rgba(255, 255, 255, 0.08);
+  --bg-secondary:   rgba(255, 255, 255, 0.05);
+  --bg-tertiary:    rgba(255, 255, 255, 0.09);
+  --card-bg:        #1A2540;
+  --shadow-xl:      0 8px 32px rgba(0, 0, 0, 0.4);
+  --radius-md:      8px;
+  --radius-sm:      4px;
+  --transition:     all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// ─── Light Mode Override ─────────────────────────────────────────
+:host-context([data-theme='light']) {
+  --text-primary:   #374151;
+  --text-secondary: #6B7280;
+  --text-tertiary:  #9CA3AF;
+  --primary:        #1B4FD8;
+  --primary-light:  rgba(27, 79, 216, 0.10);
+  --border-color:   rgba(0, 0, 0, 0.10);
+  --bg-secondary:   rgba(0, 0, 0, 0.04);
+  --bg-tertiary:    rgba(0, 0, 0, 0.08);
+  --card-bg:        #FFFFFF;
+  --shadow-xl:      0 8px 32px rgba(0, 0, 0, 0.10);
+}
+
 .main-footer {
   padding: 1.5rem 2rem;
   width: 100%;
   margin-top: auto;
-  // border-top: 1px solid var(--border-color); // Optional: cleaner look without border
-  background: transparent; // Ensure it blends
+  background: transparent;
 
   .footer-content {
     max-width: 1000px;
@@ -15,21 +45,21 @@
 
     @media (max-width: 768px) {
       display: flex;
-      flex-direction: column-reverse; // Put language at bottom on mobile or re-order
-      gap: 1.5rem;
+      flex-direction: column-reverse;
+      gap: 1.25rem;
     }
   }
 
-  // Language Selector Styles (Ported from Layout & Refined)
+  // ── Language Selector ────────────────────────────────────────
   .language-selector-container {
     .language-selector {
       position: relative;
       display: inline-block;
 
       .selector-trigger {
-        background: rgba(255, 255, 255, 0.05); // Subtle glass
+        background: var(--bg-secondary);
         border: 1px solid var(--border-color);
-        border-radius: 9999px; // Pill shape
+        border-radius: 9999px;
         padding: 0.5rem 1rem;
         display: flex;
         align-items: center;
@@ -37,31 +67,28 @@
         cursor: pointer;
         color: var(--text-secondary);
         font-size: 0.875rem;
-        transition: all 0.2s;
+        transition: var(--transition);
+        font-family: inherit;
 
-        &:hover, &.active {
-          background: rgba(255, 255, 255, 0.1);
+        &:hover,
+        &.active {
+          background: var(--bg-tertiary);
           color: var(--text-primary);
-          border-color: var(--primary-light);
+          border-color: var(--primary);
         }
 
-        .icon-left {
-          opacity: 0.7;
-        }
-
+        .icon-left  { opacity: 0.7; }
         .icon-right {
           opacity: 0.5;
           transition: transform 0.2s;
         }
 
-        &.active .icon-right {
-          transform: rotate(180deg);
-        }
+        &.active .icon-right { transform: rotate(180deg); }
       }
 
       .dropdown-menu {
         position: absolute;
-        bottom: 100%; // Opens upwards
+        bottom: 100%;
         left: 0;
         margin-bottom: 0.5rem;
         background: var(--card-bg);
@@ -75,9 +102,7 @@
         animation: slideUpFade 0.2s ease-out;
         z-index: 50;
 
-        &.show {
-          display: block;
-        }
+        &.show { display: block; }
 
         .dropdown-item {
           display: flex;
@@ -92,39 +117,45 @@
           border-radius: 0.5rem;
           cursor: pointer;
           font-size: 0.875rem;
-          transition: all 0.2s;
+          transition: var(--transition);
+          font-family: inherit;
 
           &:hover {
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--bg-secondary);
             color: var(--text-primary);
           }
 
           &.active {
             color: var(--primary);
-            background: rgba(var(--primary-rgb), 0.1);
+            background: var(--primary-light);
           }
         }
       }
     }
   }
 
+  // ── Footer Links ─────────────────────────────────────────────
   .footer-links {
     display: flex;
     justify-content: center;
     gap: 1.5rem;
+    flex-wrap: wrap;
 
     a {
       color: var(--text-secondary);
       text-decoration: none;
-      font-size: 0.85rem;
+      font-size: 0.8125rem;
       transition: color 0.2s;
 
-      &:hover {
-        color: var(--primary);
-      }
+      &:hover { color: var(--primary); }
+    }
+
+    @media (max-width: 768px) {
+      gap: 1rem;
     }
   }
 
+  // ── Copyright ─────────────────────────────────────────────────
   .copyright-row {
     text-align: right;
     display: flex;
@@ -153,21 +184,13 @@
         text-decoration: none;
         font-weight: 500;
 
-        &:hover {
-          text-decoration: underline;
-        }
+        &:hover { text-decoration: underline; }
       }
     }
   }
 }
 
 @keyframes slideUpFade {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }

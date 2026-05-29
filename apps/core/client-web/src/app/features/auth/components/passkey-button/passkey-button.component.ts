@@ -31,29 +31,34 @@ import { TranslateModule } from '@ngx-translate/core';
     .passkey-card {
       width: 100%;
       display: block;
-      background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.05) 0%, rgba(var(--primary-rgb), 0.1) 100%);
-      border: 1px solid rgba(var(--primary-rgb), 0.2);
-      border-radius: var(--radius-xl);
-      padding: 1rem;
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0.625rem 0.875rem;
       cursor: pointer;
       position: relative;
       overflow: hidden;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       text-align: left;
+      font-family: inherit;
 
       &:hover:not(:disabled) {
-        background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1) 0%, rgba(var(--primary-rgb), 0.15) 100%);
+        background: var(--bg-primary);
         border-color: var(--primary);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(var(--primary-rgb), 0.15);
+        box-shadow: 0 2px 10px rgba(var(--primary-rgb), 0.10);
       }
 
       &:active:not(:disabled) {
-        transform: translateY(0);
+        transform: scale(0.99);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
       }
 
       &:disabled {
-        opacity: 0.7;
+        opacity: 0.6;
         cursor: not-allowed;
       }
     }
@@ -61,46 +66,49 @@ import { TranslateModule } from '@ngx-translate/core';
     .passkey-content {
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 0.75rem;
     }
 
     .icon-wrapper {
-      width: 40px;
-      height: 40px;
-      background: var(--bg-card);
-      border-radius: 10px;
+      width: 32px;
+      height: 32px;
+      background: var(--primary-light);
+      border-radius: 7px;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      flex-shrink: 0;
     }
 
     .passkey-icon {
-      width: 24px;
-      height: 24px;
+      width: 18px;
+      height: 18px;
     }
 
     .text-wrapper {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 1px;
     }
 
     .passkey-title {
       font-weight: 600;
-      font-size: 0.95rem;
+      font-size: 0.84rem;
       color: var(--text-primary);
+      font-family: inherit;
     }
 
     .passkey-subtitle {
-      font-size: 0.8rem;
+      font-size: 0.76rem;
       color: var(--text-secondary);
+      font-family: inherit;
     }
 
     .spinner-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(var(--bg-card-rgb), 0.5);
+      background: var(--bg-card);
+      opacity: 0.75;
       backdrop-filter: blur(2px);
       display: flex;
       align-items: center;
@@ -108,10 +116,10 @@ import { TranslateModule } from '@ngx-translate/core';
     }
 
     .spinner {
-      width: 20px;
-      height: 20px;
-      border: 2px solid var(--primary);
-      border-top-color: transparent;
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--border-color);
+      border-top-color: var(--primary);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }

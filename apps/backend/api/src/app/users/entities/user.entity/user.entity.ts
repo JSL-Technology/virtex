@@ -6,6 +6,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToMany,
+  ManyToOne,
   JoinTable,
   OneToOne,
 } from 'typeorm';
@@ -65,8 +66,8 @@ export class User {
   @Column({ name: 'last_activity', type: 'timestamptz', nullable: true })
   lastActivity?: Date;
 
-  @Column({ name: 'organization_id' })
-  organizationId: string;
+  @Column({ name: 'organization_id', type: 'varchar', nullable: true })
+  organizationId: string | null;
 
   // Virtual property — populated manually by services, NOT a TypeORM relation.
   // TypeORM does not persist this field.

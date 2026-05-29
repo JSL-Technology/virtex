@@ -1,5 +1,5 @@
 
-import { Controller, Post, Body, HttpCode, HttpStatus, Res, Get, UseGuards, Req, UsePipes, ValidationPipe, BadRequestException, Param, Ip, Headers, Query, UseFilters } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Res, Get, UseGuards, Req, UsePipes, ValidationPipe, BadRequestException, UnauthorizedException, Param, Ip, Headers, Query, UseFilters } from '@nestjs/common';
 import type { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { AuthFacade } from './auth.facade';
@@ -37,10 +37,12 @@ import { CsrfGuard } from './guards/csrf.guard';
 import { MfaOrchestratorService } from './services/mfa-orchestrator.service';
 import { JwtService } from '@nestjs/jwt';
 import { TwoFactorVerifiedGuard } from './guards/two-factor-verified.guard';
+import { Public } from './decorators/public.decorator';
 
 @ApiTags('Auth')
 @Controller('auth')
 @UseFilters(TypeOrmExceptionFilter)
+@Public()
 export class AuthController {
   constructor(
     private readonly authService: AuthService,

@@ -57,6 +57,12 @@ export class CountryService {
    * CRÍTICO: Obtiene el fiscalRegionId real de la BD para validaciones correctas.
    */
   getCountryConfig(code: string): Observable<CountryConfig> {
+    // Reject obviously invalid codes (country codes are exactly 2 letters)
+    if (!code || !/^[a-zA-Z]{2}$/.test(code)) {
+      const cached = this.currentCountry();
+      return cached ? of(cached) : this.getCountryConfig('DO');
+    }
+
     const cached = this.currentCountry();
 
     // Evitar llamadas duplicadas si ya tenemos la config

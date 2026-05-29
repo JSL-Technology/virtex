@@ -58,7 +58,7 @@ export class ThemeService implements OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       const themeLink = this.document.getElementById('app-theme') as HTMLLinkElement | null;
       if (themeLink) themeLink.href = `theme-${theme}.css`;
-      // this.document.body.className = theme;
+      this.document.documentElement.setAttribute('data-theme', theme);
     }
   }
 

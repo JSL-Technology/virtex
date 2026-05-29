@@ -1,12 +1,14 @@
 import { Controller, Get, Req } from '@nestjs/common';
 import { GeoService } from './geo.service';
 import { Request } from 'express';
+import { Public } from '../auth/decorators/public.decorator';
 
 @Controller('geo')
 export class GeoController {
   constructor(private readonly geoService: GeoService) {}
 
   @Get('location')
+  @Public()
   getLocation(@Req() req: Request) {
     // Extract IP from various headers or socket
     let ip = req.headers['x-forwarded-for'] as string || req.socket.remoteAddress || '';
