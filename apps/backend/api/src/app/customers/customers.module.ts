@@ -1,5 +1,5 @@
 
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CustomersService } from './customers.service';
 import { CustomersController } from './customers.controller';
@@ -9,7 +9,6 @@ import { CustomerPayment } from './entities/customer-payment.entity';
 import { CustomerPaymentLine } from './entities/customer-payment-line.entity';
 import { CustomerPaymentsController } from './customer-payments.controller';
 import { CustomerPaymentsService } from './customer-payments.service';
-import { InvoicesModule } from '../invoices/invoices.module';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { Invoice } from '../invoices/entities/invoice.entity';
@@ -34,7 +33,6 @@ import { CustomerGroupsService } from './customer-groups.service';
       CustomerGroup,
     ]),
     AuthModule,
-    forwardRef(() => InvoicesModule),
     JournalEntriesModule,
   ],
   controllers: [
