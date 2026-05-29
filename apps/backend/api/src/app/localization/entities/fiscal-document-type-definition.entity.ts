@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { FiscalRegion } from './fiscal-region.entity';
+import type { FiscalRegion } from './fiscal-region.entity';
 
 @Entity({ name: 'fiscal_document_type_definitions' })
 export class FiscalDocumentTypeDefinition {
@@ -18,6 +18,6 @@ export class FiscalDocumentTypeDefinition {
   @Column({ default: false })
   expirationRequired: boolean;
 
-  @ManyToOne(() => FiscalRegion, region => region.documentDefinitions)
+  @ManyToOne('FiscalRegion', 'documentDefinitions')
   fiscalRegion: FiscalRegion;
 }

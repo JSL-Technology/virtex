@@ -1,6 +1,6 @@
 
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
-import { FiscalRegion } from './fiscal-region.entity';
+import type { FiscalRegion } from './fiscal-region.entity';
 import { CoaTemplate } from './coa-template.entity';
 import { TaxTemplate } from './tax-template.entity';
 
@@ -9,7 +9,7 @@ export class LocalizationTemplate {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => FiscalRegion)
+  @ManyToOne('FiscalRegion')
   @JoinColumn({ name: 'fiscal_region_id' })
   fiscalRegion: FiscalRegion;
 

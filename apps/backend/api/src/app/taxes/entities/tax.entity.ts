@@ -1,4 +1,4 @@
-import { TaxGroup } from '../../localization/entities/tax-group.entity';
+import type { TaxGroup } from '../../localization/entities/tax-group.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
 import {
   Column,
@@ -51,7 +51,7 @@ export class Tax {
 
 
 
-   @ManyToOne(() => TaxGroup, group => group.taxes, { nullable: true })
+   @ManyToOne('TaxGroup', 'taxes', { nullable: true })
   @JoinColumn({ name: 'tax_group_id' })
   taxGroup?: TaxGroup;
 

@@ -1,7 +1,7 @@
 
 import { CreateAccountDto } from "../../chart-of-accounts/dto/create-account.dto";
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
-import { LocalizationTemplate } from "./localization-template.entity";
+import type { LocalizationTemplate } from "./localization-template.entity";
 
 
 
@@ -22,6 +22,6 @@ export class CoaTemplate {
     @Column({ type: 'jsonb' })
     accounts: AccountTemplateDto[];
 
-    @ManyToOne(() => LocalizationTemplate, template => template.coaTemplate)
+    @ManyToOne('LocalizationTemplate', 'coaTemplate')
     template: LocalizationTemplate;
 }
