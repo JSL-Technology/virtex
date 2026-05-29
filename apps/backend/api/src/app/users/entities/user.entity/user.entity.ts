@@ -5,13 +5,11 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
   ManyToMany,
   JoinTable,
   OneToOne,
 } from 'typeorm';
-import { Organization } from '../../../organizations/entities/organization.entity';
+import type { Organization } from '../../../organizations/entities/organization.entity';
 import { Role } from '../../../roles/entities/role.entity';
 import { Passkey } from '../passkey.entity';
 import { UserSecurity } from '../user-security.entity';
@@ -70,17 +68,12 @@ export class User {
   @Column({ name: 'organization_id' })
   organizationId: string;
 
-  @ManyToOne(() => Organization, (org) => org.users)
-  @JoinColumn({ name: 'organization_id' })
-  organization: Organization;
+  // Virtual property — populated manually by services, NOT a TypeORM relation.
+  // TypeORM does not persist this field.
+  organization?: Organization;
 
-  @ManyToMany(() => Organization, (org) => org.users)
-  @JoinTable({
-    name: 'user_organizations',
-    joinColumn: { name: 'user_id', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'organization_id', referencedColumnName: 'id' },
-  })
-  organizations: Organization[];
+  // Virtual property — populated manually for multi-tenant access checks.
+  organizations?: Array<{ id: string; legalName: string }>;
 
   @ManyToMany(() => Role, { eager: false })
   @JoinTable({
