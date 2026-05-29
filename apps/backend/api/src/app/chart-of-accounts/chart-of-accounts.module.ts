@@ -3,7 +3,6 @@ import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bullmq';
 import { Account } from './entities/account.entity';
-import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
 import { ChartOfAccountsService } from './chart-of-accounts.service';
 import { ChartOfAccountsController } from './chart-of-accounts.controller';
 import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line.entity';
@@ -37,7 +36,6 @@ import { AccountHierarchyVersion } from './entities/account-hierarchy-version.en
       { name: 'balance-updates-v2' },
       { name: 'account-jobs' },
     ),
-    forwardRef(() => JournalEntriesModule),
     forwardRef(() => AuditModule),
     WebsocketsModule,
   ],
