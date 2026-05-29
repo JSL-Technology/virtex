@@ -7,6 +7,7 @@ import {
   SubscribeMessage,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { OnEvent } from '@nestjs/event-emitter';
 import { SessionService } from '../auth/services/session.service';
 
 @WebSocketGateway({
@@ -74,6 +75,16 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (socketId) {
       this.server.to(socketId).emit(event, data);
     }
+  }
+
+  @OnEvent('user.force-logout')
+  handleForceLogout(payload: { userId: string; reason: string }) {
+    this.sendToUser(payload.userId, 'force-logout', { reason: payload.reason });
+  }
+
+  @OnEvent('user.status.changed')
+  handleUserStatusChanged(payload: { userId: string; isOnline: boolean }) {
+    this.server.emit('user-status-update', payload);
   }
 
   @SubscribeMessage('user-status')
