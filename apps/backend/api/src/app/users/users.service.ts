@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { User } from './entities/user.entity/user.entity';
 import { UserStatus } from './entities/user.entity/user.entity';
+import { Organization } from '../organizations/entities/organization.entity';
 import { InviteUserDto } from './entities/user.entity/invite-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -22,6 +23,8 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Organization)
+    private readonly orgRepository: Repository<Organization>,
     private readonly eventsGateway: EventsGateway,
     private readonly rolesService: RolesService,
     private readonly mailService: MailService,
@@ -264,7 +267,7 @@ export class UsersService {
     const { email, firstName, lastName, roleId } = inviteUserDto;
 
     const existingUser = await this.userRepository.findOne({
-      where: { email, organization: { id: organizationId } },
+      where: { email, organizationId },
     });
 
     if (existingUser) {
@@ -286,7 +289,7 @@ export class UsersService {
       firstName,
       lastName,
       email,
-      organization: { id: organizationId },
+      organizationId,
       roles: [role],
       status: UserStatus.PENDING,
       invitationToken: invitationToken,
@@ -366,27 +369,33 @@ export class UsersService {
   // --- Auth Abstraction Methods ---
 
   async findUserForAuth(email: string): Promise<User | null> {
-    return this.userRepository.findOne({
+    const user = await this.userRepository.findOne({
         where: { email },
-        relations: ['roles', 'organization', 'security'],
+        relations: ['roles', 'security'],
     });
+    if (!user) return null;
+    user.organization = await this.orgRepository.findOneBy({ id: user.organizationId }) ?? undefined;
+    return user;
   }
 
   async findUserByIdForAuth(id: string): Promise<User | null> {
-    // 10/10 Performance: Select only necessary fields for authentication
-    // We use QueryBuilder to strictly control what we fetch, especially for 'organizations' relation
-    // which can be large. We only need the ID and minimal info for validation.
-    return this.userRepository.createQueryBuilder('user')
+    const user = await this.userRepository.createQueryBuilder('user')
       .where('user.id = :id', { id })
-      // Use leftJoinAndSelect for eager loading the main relations needed for Auth
       .leftJoinAndSelect('user.roles', 'roles')
-      .leftJoinAndSelect('user.organization', 'organization')
       .leftJoinAndSelect('user.security', 'security')
-      // For the full list of organizations (which can be heavy), we select ONLY the ID and Name
-      // This is crucial for multi-tenancy validation performance
-      .leftJoin('user.organizations', 'orgs')
-      .addSelect(['orgs.id', 'orgs.legalName'])
       .getOne();
+
+    if (!user) return null;
+
+    user.organization = await this.orgRepository.findOneBy({ id: user.organizationId }) ?? undefined;
+
+    const userOrgRows = await this.orgRepository.query(
+      'SELECT o.id, o.legal_name as "legalName" FROM organizations o INNER JOIN user_organizations uo ON uo.organization_id = o.id WHERE uo.user_id = $1',
+      [id]
+    ) as Array<{ id: string; legalName: string }>;
+    user.organizations = userOrgRows;
+
+    return user;
   }
 
   async save(user: User): Promise<User> {
