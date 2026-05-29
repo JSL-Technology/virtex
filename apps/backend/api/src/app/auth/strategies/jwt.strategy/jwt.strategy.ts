@@ -8,6 +8,10 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import CircuitBreaker = require('opossum');
 
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Organization } from '../../../organizations/entities/organization.entity';
+
 import { JwtPayload } from '../../../auth/interfaces/jwt-payload.interface';
 import { User, UserStatus } from '../../../users/entities/user.entity/user.entity';
 import { AuthConfig } from '../../auth.config';
@@ -24,7 +28,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private readonly usersService: UsersService,
     private readonly configService: ConfigService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    @InjectRepository(Organization)
+    private readonly orgRepository: Repository<Organization>
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -150,10 +156,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         // to match the token context, so controllers don't need to look it up again.
         // However, we must ensure strict type safety.
         if (!isCurrentOrg && hasAccess) {
-             const switchedOrg = user.organizations.find(o => o.id === organizationId);
-             if (switchedOrg) {
-                 user.organization = switchedOrg;
-             }
+            const switchedOrg = await this.orgRepository.findOneBy({ id: organizationId });
+            if (switchedOrg) {
+                user.organization = switchedOrg;
+            }
         }
     }
 
@@ -164,7 +170,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
-      organizationId: user.organization.id,
+      organizationId: user.organizationId,   // column — avoids accessing virtual organization property
       roles: user.roles,
       permissions,
       organization: user.organization,

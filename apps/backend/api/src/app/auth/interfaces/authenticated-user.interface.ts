@@ -1,4 +1,5 @@
 import { User } from '../../users/entities/user.entity/user.entity';
+import type { Organization } from '../../organizations/entities/organization.entity';
 
 export interface SafeUser extends Partial<Omit<User, 'password' | 'twoFactorSecret'>> {
   id: string;
@@ -6,9 +7,9 @@ export interface SafeUser extends Partial<Omit<User, 'password' | 'twoFactorSecr
   firstName: string;
   lastName: string;
   organizationId: string;
-  roles: any[]; // Or strict Role type
+  roles: any[];
   permissions: string[];
-  organization?: any;
+  organization?: Organization;
   isTwoFactorEnabled?: boolean;
 }
 
