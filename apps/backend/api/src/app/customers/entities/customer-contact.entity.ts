@@ -1,12 +1,12 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { Customer } from './customer.entity';
+import type { Customer } from './customer.entity';
 
 @Entity({ name: 'customer_contacts' })
 export class CustomerContact {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Customer, (customer) => customer.contacts, { onDelete: 'CASCADE' })
+  @ManyToOne('Customer', 'contacts', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'customer_id' })
   customer: Customer;
 

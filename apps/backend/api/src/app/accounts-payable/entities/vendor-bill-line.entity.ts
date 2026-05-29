@@ -1,12 +1,12 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { VendorBill } from './vendor-bill.entity';
+import type { VendorBill } from './vendor-bill.entity';
 
 @Entity()
 export class VendorBillLine {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => VendorBill, (vendorBill) => vendorBill.lines)
+  @ManyToOne('VendorBill', 'lines')
   vendorBill: VendorBill;
 
   @Column()

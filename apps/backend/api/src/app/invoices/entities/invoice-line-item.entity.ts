@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { Invoice } from './invoice.entity';
+import type { Invoice } from './invoice.entity';
 import { Product } from '../../inventory/entities/product.entity';
 
 
@@ -8,7 +8,7 @@ export class InvoiceLineItem {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Invoice, (invoice) => invoice.lineItems)
+  @ManyToOne('Invoice', 'lineItems')
   invoice: Invoice;
 
   @ManyToOne(() => Product)

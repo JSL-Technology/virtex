@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { PaymentBatch } from './payment-batch.entity';
+import type { PaymentBatch } from './payment-batch.entity';
 
 @Entity()
 export class VendorPayment {
@@ -7,7 +7,7 @@ export class VendorPayment {
   id: string;
   
 
-  @ManyToOne(() => PaymentBatch, batch => batch.payments, { onDelete: 'CASCADE' })
+  @ManyToOne('PaymentBatch', 'payments', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'payment_batch_id' })
   paymentBatch: PaymentBatch;
 

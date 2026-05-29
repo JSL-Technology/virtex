@@ -7,7 +7,7 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
-import { LedgerMappingRule } from './ledger-mapping-rule.entity';
+import type { LedgerMappingRule } from './ledger-mapping-rule.entity';
 
 export enum RuleConditionOperator {
   EQUALS = 'EQUALS',
@@ -44,7 +44,7 @@ export class LedgerMappingRuleCondition {
   })
   values: string[];
 
-  @ManyToOne(() => LedgerMappingRule, (rule) => rule.conditions, {
+  @ManyToOne('LedgerMappingRule', 'conditions', {
     onDelete: 'CASCADE',
     nullable: false,
   })

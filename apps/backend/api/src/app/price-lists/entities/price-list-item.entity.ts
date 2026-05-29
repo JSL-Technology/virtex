@@ -7,14 +7,14 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { PriceList } from './price-list.entity';
+import type { PriceList } from './price-list.entity';
 
 @Entity({ name: 'price_list_items' })
 export class PriceListItem {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => PriceList, (priceList) => priceList.items, { onDelete: 'CASCADE' })
+  @ManyToOne('PriceList', 'items', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'price_list_id' })
   priceList: PriceList;
 

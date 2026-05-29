@@ -1,5 +1,5 @@
 import { Entity, Column, ManyToOne, JoinColumn, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
-import { User } from './user.entity/user.entity';
+import type { User } from './user.entity/user.entity';
 
 @Entity('passkeys')
 export class Passkey {
@@ -19,7 +19,7 @@ export class Passkey {
   @Column({ type: 'simple-array', nullable: true })
   transports: string[];
 
-  @ManyToOne(() => User, (user) => user.passkeys, { onDelete: 'CASCADE' })
+  @ManyToOne('User', 'passkeys', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   user: User;
 

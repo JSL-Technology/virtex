@@ -7,14 +7,14 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { Budget } from './budget.entity';
+import type { Budget } from './budget.entity';
 
 @Entity({ name: 'budget_lines' })
 export class BudgetLine {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Budget, (budget) => budget.lines, { onDelete: 'CASCADE' })
+  @ManyToOne('Budget', 'lines', { onDelete: 'CASCADE' })
   budget: Budget;
 
   @Column({ name: 'account_id' })

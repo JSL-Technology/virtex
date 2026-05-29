@@ -1,13 +1,13 @@
 
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { ApprovalPolicy } from './approval-policy.entity';
+import type { ApprovalPolicy } from './approval-policy.entity';
 
 @Entity({ name: 'approval_policy_steps' })
 export class ApprovalPolicyStep {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => ApprovalPolicy, (policy) => policy.steps)
+  @ManyToOne('ApprovalPolicy', 'steps')
   policy: ApprovalPolicy;
 
   @Column({ type: 'int' })

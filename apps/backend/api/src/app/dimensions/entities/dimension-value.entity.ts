@@ -1,6 +1,6 @@
 
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Index, Tree, TreeChildren, TreeParent } from 'typeorm';
-import { Dimension } from './dimension.entity';
+import type { Dimension } from './dimension.entity';
 
 @Entity({ name: 'dimension_values' })
 @Tree('closure-table')
@@ -12,7 +12,7 @@ export class DimensionValue {
   @Column()
   value: string;
 
-  @ManyToOne(() => Dimension, (dimension) => dimension.values, { onDelete: 'CASCADE' })
+  @ManyToOne('Dimension', 'values', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'dimension_id' })
   dimension: Dimension;
   

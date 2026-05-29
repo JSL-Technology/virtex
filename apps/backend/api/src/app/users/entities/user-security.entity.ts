@@ -1,6 +1,6 @@
 
 import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import { User } from './user.entity/user.entity';
+import type { User } from './user.entity/user.entity';
 
 @Entity({ name: 'user_security' })
 export class UserSecurity {
@@ -10,7 +10,7 @@ export class UserSecurity {
   @Column({ name: 'user_id' })
   userId: string;
 
-  @OneToOne(() => User, user => user.security, { onDelete: 'CASCADE' })
+  @OneToOne('User', 'security', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: User;
 

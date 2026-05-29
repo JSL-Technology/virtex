@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { Customer } from './customer.entity';
+import type { Customer } from './customer.entity';
 
 export enum AddressType {
   BILLING = 'BILLING',
@@ -12,7 +12,7 @@ export class CustomerAddress {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Customer, (customer) => customer.addresses, { onDelete: 'CASCADE' })
+  @ManyToOne('Customer', 'addresses', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'customer_id' })
   customer: Customer;
 

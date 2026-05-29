@@ -5,7 +5,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { Plan } from './plan.entity';
+import type { Plan } from './plan.entity';
 import { SaasResource } from '../enums/saas-resource.enum';
 import { QuotaPeriod } from '../enums/quota-period.enum';
 
@@ -54,7 +54,7 @@ export class PlanLimit {
   @Column({ name: 'plan_id' })
   planId: string;
 
-  @ManyToOne(() => Plan, (plan) => plan.limits)
+  @ManyToOne('Plan', 'limits')
   @JoinColumn({ name: 'plan_id' })
   plan: Plan;
 }

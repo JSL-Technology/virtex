@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { Quote } from './quote.entity';
+import type { Quote } from './quote.entity';
 import { Product } from '../inventory/entities/product.entity';
 
 @Entity({ name: 'quote_lines' })
@@ -7,7 +7,7 @@ export class QuoteLine {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Quote, (quote) => quote.lines, { onDelete: 'CASCADE' })
+  @ManyToOne('Quote', 'lines', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'quote_id' })
   quote: Quote;
 

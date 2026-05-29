@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { Plan } from './plan.entity';
+import type { Plan } from './plan.entity';
 
 @Entity('saas_plan_features')
 export class PlanFeature {
@@ -12,6 +12,6 @@ export class PlanFeature {
   @Column({ default: true })
   isEnabled: boolean;
 
-  @ManyToOne(() => Plan, plan => plan.features, { onDelete: 'CASCADE' })
+  @ManyToOne('Plan', 'features', { onDelete: 'CASCADE' })
   plan: Plan;
 }

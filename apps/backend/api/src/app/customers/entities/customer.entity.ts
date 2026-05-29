@@ -12,7 +12,7 @@ import {
 } from 'typeorm';
 import { CustomerAddress } from './customer-address.entity';
 import { CustomerContact } from './customer-contact.entity';
-import { CustomerGroup } from './customer-group.entity';
+import type { CustomerGroup } from './customer-group.entity';
 import { User } from '../../users/entities/user.entity/user.entity';
 
 export enum CustomerStatus {
@@ -103,7 +103,7 @@ export class Customer {
   @OneToMany(() => CustomerAddress, (address) => address.customer, { cascade: true, eager: true })
   addresses: CustomerAddress[];
   
-  @ManyToOne(() => CustomerGroup, (group) => group.customers, { nullable: true })
+  @ManyToOne('CustomerGroup', 'customers', { nullable: true })
   @JoinColumn({ name: 'customer_group_id' })
   group?: CustomerGroup;
   

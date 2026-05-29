@@ -5,7 +5,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { BankStatement } from './bank-statement.entity';
+import type { BankStatement } from './bank-statement.entity';
 import { JournalEntryLine } from '../../journal-entries/entities/journal-entry-line.entity';
 
 export enum TransactionStatus {
@@ -22,7 +22,7 @@ export class BankTransaction {
   @Column({ name: 'statement_id' })
   statementId: string;
 
-  @ManyToOne(() => BankStatement, { onDelete: 'CASCADE' })
+  @ManyToOne('BankStatement', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'statement_id' })
   statement: BankStatement;
 

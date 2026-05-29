@@ -1,5 +1,5 @@
 
-import { User } from '../users/entities/user.entity/user.entity';
+import { User } from '../../users/entities/user.entity/user.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -8,14 +8,14 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { ProposedAdjustment } from './proposed-adjustment.entity';
+import type { ProposedAdjustment } from './proposed-adjustment.entity';
 
 @Entity({ name: 'proposed_adjustment_evidence' })
 export class ProposedAdjustmentEvidence {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => ProposedAdjustment, (adjustment) => adjustment.evidence, {
+  @ManyToOne('ProposedAdjustment', 'evidence', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'proposed_adjustment_id' })

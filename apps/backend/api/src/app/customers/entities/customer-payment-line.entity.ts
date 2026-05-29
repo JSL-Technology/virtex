@@ -5,7 +5,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { CustomerPayment } from './customer-payment.entity';
+import type { CustomerPayment } from './customer-payment.entity';
 import { Invoice } from '../../invoices/entities/invoice.entity';
 
 @Entity({ name: 'customer_payment_lines' })
@@ -13,7 +13,7 @@ export class CustomerPaymentLine {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => CustomerPayment, (payment) => payment.lines)
+  @ManyToOne('CustomerPayment', 'lines')
   @JoinColumn({ name: 'payment_id' })
   payment: CustomerPayment;
 
