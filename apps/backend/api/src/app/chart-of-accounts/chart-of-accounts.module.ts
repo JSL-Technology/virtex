@@ -6,7 +6,6 @@ import { Account } from './entities/account.entity';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
 import { ChartOfAccountsService } from './chart-of-accounts.service';
 import { ChartOfAccountsController } from './chart-of-accounts.controller';
-import { AuthModule } from '../auth/auth.module';
 import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line.entity';
 import { BalanceUpdateService } from './balance-update.service';
 import { BalanceUpdateProcessor } from './balance-update.processor';
@@ -25,7 +24,6 @@ import { AccountHierarchyVersion } from './entities/account-hierarchy-version.en
 
 @Module({
   imports: [
-    forwardRef(() => AuthModule),
     TypeOrmModule.forFeature([
       Account,
       JournalEntryLine,

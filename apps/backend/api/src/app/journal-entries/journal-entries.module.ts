@@ -19,7 +19,6 @@ import { JournalEntriesController } from './journal-entries.controller';
 import { RecurringJournalEntriesController } from './recurring-journal-entries.controller';
 import { JournalEntryTemplatesController } from './journal-entry-templates.controller';
 import { JournalsController } from './journals.controller';
-import { AuthModule } from '../auth/auth.module';
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
 import { StorageModule } from '../storage/storage.module';
 import { WebsocketsModule } from '../websockets/websockets.module';
@@ -54,7 +53,6 @@ import { RecurringEntriesProcessor } from './recurring-entries.processor';
     BullModule.registerQueue({
       name: 'recurring-entries-processor',
     }),
-    forwardRef(() => AuthModule),
     forwardRef(() => ChartOfAccountsModule),
     StorageModule,
     WebsocketsModule,
