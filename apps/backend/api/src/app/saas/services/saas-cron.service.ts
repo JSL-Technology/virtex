@@ -64,8 +64,7 @@ export class SaasCronService {
     while (hasMore) {
         const metrics = await this.usageRepository.find({
             take: BATCH_SIZE,
-            skip: skip,
-            relations: ['organization'] // Load org to determine period key accurately if needed
+            skip: skip
         });
 
         if (metrics.length === 0) {

@@ -39,7 +39,7 @@ export class ImpersonationService {
     // We explicitly verify organizationId match even if the query filters by it, for redundancy.
     const targetUser = await this.userRepository.findOne({
       where: { id: targetUserId },
-      relations: ['roles', 'organization'],
+      relations: ['roles'],
     });
 
     if (!targetUser) {
@@ -79,7 +79,7 @@ export class ImpersonationService {
 
     const adminUser = await this.userRepository.findOne({
       where: { id: impersonatingUser.originalUserId },
-      relations: ['roles', 'organization'],
+      relations: ['roles'],
     });
 
     if (!adminUser) {

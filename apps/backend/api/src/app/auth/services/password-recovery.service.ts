@@ -149,7 +149,7 @@ export class PasswordRecoveryService {
         status: UserStatus.PENDING,
         invitationTokenExpires: MoreThan(new Date()),
       },
-      relations: ['roles', 'organization', 'security'],
+      relations: ['roles', 'security'],
     });
 
     if (!user) {
