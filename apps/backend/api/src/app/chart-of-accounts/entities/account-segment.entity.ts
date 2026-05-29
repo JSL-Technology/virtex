@@ -1,6 +1,6 @@
 
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
-import { Account } from './account.entity';
+import type { Account } from './account.entity';
 
 @Entity({ name: 'account_segments' })
 @Index(['account', 'order'])
@@ -8,7 +8,7 @@ export class AccountSegment {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Account, account => account.segments, { onDelete: 'CASCADE' })
+  @ManyToOne('Account', account => account.segments, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'account_id' })
   account: Account;
 

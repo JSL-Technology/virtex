@@ -1,7 +1,7 @@
 
 import { Ledger } from '../../accounting/entities/ledger.entity';
 import { Entity, Column, ManyToOne, JoinColumn, PrimaryColumn, VersionColumn } from 'typeorm';
-import { Account } from './account.entity';
+import type { Account } from './account.entity';
 
 @Entity({ name: 'account_balances' })
 export class AccountBalance {
@@ -11,7 +11,7 @@ export class AccountBalance {
   @PrimaryColumn({ type: 'uuid', name: 'ledger_id' })
   ledgerId: string;
 
-  @ManyToOne(() => Account, (account) => account.balances, { onDelete: 'CASCADE' })
+  @ManyToOne('Account', (account) => account.balances, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'account_id' })
   account: Account;
 
