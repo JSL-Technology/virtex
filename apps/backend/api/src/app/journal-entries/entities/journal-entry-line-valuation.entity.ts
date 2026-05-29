@@ -1,6 +1,6 @@
 
 import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { JournalEntryLine } from './journal-entry-line.entity';
+import type { JournalEntryLine } from './journal-entry-line.entity';
 import { Ledger } from '../../accounting/entities/ledger.entity';
 
 @Entity({ name: 'journal_entry_line_valuations' })
@@ -11,7 +11,7 @@ export class JournalEntryLineValuation {
   @PrimaryColumn({ type: 'uuid', name: 'ledger_id' })
   ledgerId: string;
 
-  @ManyToOne(() => JournalEntryLine, line => line.valuations, { onDelete: 'CASCADE' })
+  @ManyToOne('JournalEntryLine', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'journal_entry_line_id' })
   journalEntryLine: JournalEntryLine;
 

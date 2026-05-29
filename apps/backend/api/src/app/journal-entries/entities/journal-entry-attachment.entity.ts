@@ -7,7 +7,7 @@ import {
   JoinColumn,
   CreateDateColumn,
 } from 'typeorm';
-import { JournalEntry } from './journal-entry.entity';
+import type { JournalEntry } from './journal-entry.entity';
 import { User } from '../../users/entities/user.entity/user.entity';
 
 @Entity({ name: 'journal_entry_attachments' })
@@ -15,7 +15,7 @@ export class JournalEntryAttachment {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => JournalEntry, (entry) => entry.attachments, {
+  @ManyToOne('JournalEntry', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'journal_entry_id' })

@@ -7,7 +7,7 @@ import {
   JoinColumn,
   OneToMany,
 } from 'typeorm';
-import { JournalEntry } from './journal-entry.entity';
+import type { JournalEntry } from './journal-entry.entity';
 import { Account } from '../../chart-of-accounts/entities/account.entity';
 import { JournalEntryLineValuation } from './journal-entry-line-valuation.entity';
 
@@ -16,7 +16,7 @@ export class JournalEntryLine {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => JournalEntry, (journalEntry) => journalEntry.lines, { onDelete: 'CASCADE' })
+  @ManyToOne('JournalEntry', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'journal_entry_id' })
   journalEntry: JournalEntry;
 
