@@ -1,170 +1,152 @@
-.main-footer {
-  padding: 1.5rem 2rem;
+.auth-footer {
   width: 100%;
+  padding: 2rem 1rem;
   margin-top: auto;
-  // border-top: 1px solid var(--border-color); // Optional: cleaner look without border
-  background: transparent; // Ensure it blends
+  background-color: transparent;
+  position: relative;
+  z-index: 10;
+}
 
-  .footer-content {
-    max-width: 1000px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: 2rem;
+.footer-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
 
-    @media (max-width: 768px) {
-      display: flex;
-      flex-direction: column-reverse; // Put language at bottom on mobile or re-order
-      gap: 1.5rem;
-    }
-  }
+.footer-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
 
-  // Language Selector Styles (Ported from Layout & Refined)
-  .language-selector-container {
-    .language-selector {
-      position: relative;
-      display: inline-block;
-
-      .selector-trigger {
-        background: rgba(255, 255, 255, 0.05); // Subtle glass
-        border: 1px solid var(--border-color);
-        border-radius: 9999px; // Pill shape
-        padding: 0.5rem 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        cursor: pointer;
-        color: var(--text-secondary);
-        font-size: 0.875rem;
-        transition: all 0.2s;
-
-        &:hover, &.active {
-          background: rgba(255, 255, 255, 0.1);
-          color: var(--text-primary);
-          border-color: var(--primary-light);
-        }
-
-        .icon-left {
-          opacity: 0.7;
-        }
-
-        .icon-right {
-          opacity: 0.5;
-          transition: transform 0.2s;
-        }
-
-        &.active .icon-right {
-          transform: rotate(180deg);
-        }
-      }
-
-      .dropdown-menu {
-        position: absolute;
-        bottom: 100%; // Opens upwards
-        left: 0;
-        margin-bottom: 0.5rem;
-        background: var(--card-bg);
-        border: 1px solid var(--border-color);
-        border-radius: 0.75rem;
-        padding: 0.5rem;
-        min-width: 140px;
-        box-shadow: var(--shadow-xl);
-        display: none;
-        backdrop-filter: blur(10px);
-        animation: slideUpFade 0.2s ease-out;
-        z-index: 50;
-
-        &.show {
-          display: block;
-        }
-
-        .dropdown-item {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          width: 100%;
-          padding: 0.5rem 0.75rem;
-          background: none;
-          border: none;
-          text-align: left;
-          color: var(--text-secondary);
-          border-radius: 0.5rem;
-          cursor: pointer;
-          font-size: 0.875rem;
-          transition: all 0.2s;
-
-          &:hover {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-primary);
-          }
-
-          &.active {
-            color: var(--primary);
-            background: rgba(var(--primary-rgb), 0.1);
-          }
-        }
-      }
-    }
-  }
-
-  .footer-links {
-    display: flex;
-    justify-content: center;
+  @media (max-width: 640px) {
+    flex-direction: column;
     gap: 1.5rem;
+  }
+}
 
-    a {
+.language-selector {
+  position: relative;
+
+  .selector-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 9999px;
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+
+    &:hover, &.active {
+      background-color: var(--bg-hover);
+      color: var(--text-primary);
+      border-color: var(--text-tertiary);
+    }
+
+    .chevron {
+      transition: transform 0.2s;
+      &.open {
+        transform: rotate(180deg);
+      }
+    }
+  }
+
+  .dropdown-menu {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    margin-bottom: 0.5rem;
+    min-width: 160px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: 0.5rem;
+    display: none;
+    flex-direction: column;
+    gap: 0.25rem;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+    animation: slideUp 0.2s ease-out;
+
+    &.show {
+      display: flex;
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: none;
+      background: transparent;
+      border-radius: var(--radius-md);
       color: var(--text-secondary);
-      text-decoration: none;
-      font-size: 0.85rem;
-      transition: color 0.2s;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      text-align: left;
 
       &:hover {
-        color: var(--primary);
-      }
-    }
-  }
-
-  .copyright-row {
-    text-align: right;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.25rem;
-
-    @media (max-width: 768px) {
-      align-items: center;
-      text-align: center;
-    }
-
-    .copyright {
-      color: var(--text-tertiary);
-      font-size: 0.75rem;
-      margin: 0;
-    }
-
-    .support-text {
-      color: var(--text-secondary);
-      font-size: 0.75rem;
-      margin: 0;
-
-      .support-link {
+        background-color: var(--bg-hover);
         color: var(--text-primary);
-        text-decoration: none;
-        font-weight: 500;
+      }
 
-        &:hover {
-          text-decoration: underline;
-        }
+      &.active {
+        color: var(--primary);
+        background-color: var(--primary-light);
       }
     }
   }
 }
 
-@keyframes slideUpFade {
+.footer-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+
+  @media (max-width: 640px) {
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  a {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: var(--transition);
+
+    &:hover {
+      color: var(--primary);
+    }
+  }
+}
+
+.footer-bottom {
+  text-align: center;
+
+  .copyright {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    margin: 0;
+  }
+}
+
+@keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;

@@ -1,17 +1,20 @@
-<div class="auth-layout login-wrapper">
+<div class="auth-layout">
+  <!-- Top Language Selector removed from here, now in footer for cleaner look -->
 
-  <!-- Main Content Area -->
-  <div class="auth-container">
-    <div class="auth-card">
-      <ng-content></ng-content>
+  <main class="auth-main">
+    <div class="auth-container">
+      <div class="auth-card animate-fade-in">
+        <!-- Main Content -->
+        <ng-content></ng-content>
 
-      <!-- Footer Actions (e.g. Register Link) -->
-      <div class="auth-footer-actions">
+        <!-- Dynamic Footer Actions (e.g. Register Link) -->
+        <div class="auth-extra-actions">
           <ng-content select="[footer-actions]"></ng-content>
+        </div>
       </div>
     </div>
-  </div>
+  </main>
 
-  <!-- Footer (Now includes Language Selector) -->
+  <!-- Professional Footer -->
   <app-auth-footer></app-auth-footer>
 </div>

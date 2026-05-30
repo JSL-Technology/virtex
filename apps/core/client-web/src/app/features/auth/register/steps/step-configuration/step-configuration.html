@@ -1,71 +1,53 @@
-<form class="space-y-4" [formGroup]="group">
-  <div class="text-center md:text-left mb-6">
-    <h3 class="text-lg font-semibold text-text-primary">{{ 'REGISTER.STEPS.CONFIGURATION.TITLE' | translate }}</h3>
-    <p class="text-sm text-text-secondary">{{ 'REGISTER.STEPS.CONFIGURATION.SUBTITLE' | translate }}</p>
+<div class="step-container" [formGroup]="group">
+  <div class="step-header">
+    <h3 class="step-title">{{ 'REGISTER.STEPS.CONFIGURATION.TITLE' | translate }}</h3>
+    <p class="step-subtitle">{{ 'REGISTER.STEPS.CONFIGURATION.SUBTITLE' | translate }}</p>
   </div>
 
-  <!-- Country Selector & Currency Info -->
-  <div class="flex flex-col gap-4 mb-4">
+  <div class="form-grid">
     <!-- Country Selector -->
-    <div class="form-group">
-      <label class="block text-sm font-medium text-text-primary mb-1">
+    <div class="form-field">
+      <label class="input-label">
         {{ 'REGISTER.COUNTRY' | translate }}
       </label>
-      <div class="relative">
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <img [src]="'assets/flags/' + (countryService.currentCountryCode() || 'do').toLowerCase() + '.svg'" class="w-4 h-4 rounded-sm object-cover" (error)="onFlagError($event)">
+      <div class="custom-select-wrapper">
+        <div class="flag-icon">
+          <img [src]="'assets/flags/' + (countryService.currentCountryCode() || 'do').toLowerCase() + '.svg'"
+               (error)="onFlagError($event)" alt="Flag">
         </div>
         <select
           formControlName="country"
           (change)="onCountryChange($event)"
-          class="pl-10 block w-full rounded-lg border-border-color bg-input-bg text-text-primary shadow-sm focus:border-primary focus:ring-primary sm:text-sm py-2"
+          class="custom-select"
         >
           <option *ngFor="let c of countries" [value]="c.code">{{ c.name }}</option>
         </select>
+        <div class="select-chevron">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-9"/></svg>
+        </div>
       </div>
     </div>
 
     <!-- Currency Display (Read-Only) -->
-    <div class="flex items-center gap-2 text-sm p-3 rounded-lg bg-bg-secondary border border-border-color">
-      <span class="text-text-tertiary">{{ 'REGISTER.CURRENCY' | translate }}:</span>
-      <span class="font-medium text-text-primary">{{ countryService.currentCountry()?.currencyCode }}</span>
+    <div class="form-field">
+      <label class="input-label">{{ 'REGISTER.CURRENCY' | translate }}</label>
+      <div class="readonly-value">
+        <span class="currency-code">{{ countryService.currentCountry()?.currencyCode }}</span>
+        <span class="currency-name" *ngIf="countryService.currentCountry()?.currencyName">{{ countryService.currentCountry()?.currencyName }}</span>
+      </div>
+    </div>
+
+    <!-- Tax ID -->
+    <div class="full-width">
+      <app-auth-input
+        formControlName="taxId"
+        [label]="countryService.currentCountry()?.formSchema?.taxId?.label || ('REGISTER.TAX_ID' | translate)"
+        [placeholder]="countryService.currentCountry()?.formSchema?.taxId?.placeholder || ''"
+        [required]="true"
+        [hasIcon]="true"
+        [errorMessage]="getTaxIdError()">
+        <svg icon xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+      </app-auth-input>
     </div>
   </div>
-
-  <!-- Tax ID -->
-  <app-auth-input
-    formControlName="taxId"
-    [label]="countryService.currentCountry()?.formSchema?.taxId?.label || ('REGISTER.TAX_ID' | translate)"
-    [placeholder]="countryService.currentCountry()?.formSchema?.taxId?.placeholder || ''"
-    [required]="true"
-    [hasIcon]="true"
-    [errorMessage]="getTaxIdError()">
-    <svg icon xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
-  </app-auth-input>
-
-  <!-- Company Phone (Note: Original StepConfiguration html had companyPhone, but RegisterPage TS definition for 'configuration' group only has country, taxId, fiscalRegionId, currency. 'phone' was in 'accountInfo'.
-  Wait, RegisterPage TS shows 'configuration' group has: country, taxId, fiscalRegionId, currency.
-  The HTML I just read had 'companyPhone'.
-  Memory says: 'RegisterPage TS definition ...'
-  Let me double check RegisterPage.ts I read earlier.
-  RegisterPage.ts: configuration: { country, taxId, fiscalRegionId, currency }.
-  There is NO companyPhone in configuration group in the TS I read.
-  But the previous HTML had it. This implies a discrepancy I need to fix.
-  I will stick to the RegisterPage.ts structure I saw, which puts phone in 'accountInfo' (personal phone) or I might need to add it to business group if it's company phone.
-  Actually, let's add company phone to the Business group or Configuration group to match the UI expectation if needed.
-  However, since I already wrote RegisterPage.ts without it in configuration, and the user wants me to fix inconsistencies...
-  The 'accountInfo' phone is usually personal.
-  Let's look at RegisterPage.ts again. 'business' group has address, industry, employees.
-  I'll add companyPhone to 'business' group in RegisterPage.ts or just rely on the personal phone for now to be safe and simple,
-  OR better, I will assume the previous HTML was using a different form structure than the one I saw in RegisterPage.ts.
-  Wait, I read RegisterPage.ts from the file system. It was the *current* state.
-  The current RegisterPage.ts has 'phone' in 'accountInfo'.
-  The current 'StepConfiguration.html' has 'companyPhone' in 'configuration'.
-  This IS an inconsistency.
-  I will REMOVE companyPhone from this step to align with the TS I saw, or assume the user wants just one phone number for now.
-  I will stick to the 'phone' in StepAccountInfo (Account Info) as the primary contact.
-  If I need a company phone, I should add it to the 'business' group.
-  Let's keep it simple and clean. I will remove the companyPhone field from here, as 'phone' is already collected in step 1.
-  -->
-
-</form>
+</div>

@@ -6,6 +6,7 @@ import { AuthService } from '../../../core/services/auth';
 import { TranslateModule } from '@ngx-translate/core';
 import { ReCaptchaV3Service, RecaptchaV3Module, RECAPTCHA_V3_SITE_KEY } from 'ng-recaptcha-19';
 import { environment } from '../../../../environments/environment';
+import { LucideAngularModule, Lock, AlertCircle } from 'lucide-angular';
 
 // Shared
 import { AuthLayoutComponent } from '../components/auth-layout/auth-layout.component';
@@ -36,6 +37,7 @@ const passwordMatchValidator: ValidatorFn = (group: AbstractControl): Validation
     RouterModule,
     TranslateModule,
     RecaptchaV3Module,
+    LucideAngularModule,
     AuthLayoutComponent,
     AuthInputComponent,
     AuthButtonComponent,
@@ -45,7 +47,8 @@ const passwordMatchValidator: ValidatorFn = (group: AbstractControl): Validation
     ReCaptchaV3Service,
     { provide: RECAPTCHA_V3_SITE_KEY, useValue: environment.recaptcha.siteKey }
   ],
-  templateUrl: './set-password.page.html'
+  templateUrl: './set-password.page.html',
+  styleUrls: ['./set-password.page.scss']
 })
 export class SetPasswordPage implements OnInit {
   private fb = inject(FormBuilder);
@@ -53,6 +56,8 @@ export class SetPasswordPage implements OnInit {
   private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
   private recaptchaV3Service = inject(ReCaptchaV3Service);
+
+  readonly icons = { Lock, AlertCircle };
 
   setPasswordForm!: FormGroup;
   isLoading = false;

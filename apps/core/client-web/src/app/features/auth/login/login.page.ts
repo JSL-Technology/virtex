@@ -7,7 +7,7 @@ import { LanguageService } from '../../../core/services/language';
 import { CountryService } from '../../../core/services/country.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { RecaptchaV3Module, ReCaptchaV3Service } from 'ng-recaptcha-19';
-import { LucideAngularModule, Mail, Lock, User, ArrowRight, AlertCircle, CheckCircle, ShieldCheck } from 'lucide-angular';
+import { LucideAngularModule, Mail, Lock, User, ArrowRight, AlertCircle, CheckCircle, ShieldCheck, Camera, Briefcase, Users, Globe, Rocket, Check, ArrowLeft } from 'lucide-angular';
 
 // Shared Components
 import { AuthLayoutComponent } from '../components/auth-layout/auth-layout.component';
@@ -51,7 +51,22 @@ export class LoginPage implements OnInit {
   public countryService = inject(CountryService);
 
   // Icons
-  readonly icons = { Mail, Lock, User, ArrowRight, AlertCircle, CheckCircle, ShieldCheck };
+  readonly icons = {
+    Mail,
+    Lock,
+    User,
+    ArrowRight,
+    AlertCircle,
+    CheckCircle,
+    ShieldCheck,
+    Camera,
+    Briefcase,
+    Users,
+    Globe,
+    Rocket,
+    Check,
+    ArrowLeft
+  };
 
   // State
   loginForm!: FormGroup;

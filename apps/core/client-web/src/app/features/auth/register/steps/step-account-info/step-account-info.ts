@@ -1,11 +1,12 @@
-import { Component, Input, inject, OnInit } from '@angular/core';
+import { Component, Input, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormGroup, FormGroupDirective } from '@angular/forms';
+import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthInputComponent } from '../../../components/auth-input/auth-input.component';
 import { PasswordValidatorComponent } from '../../../components/password-validator/password-validator.component';
 import { HttpClient } from '@angular/common/http';
 import { AsyncValidators } from '../../../../../shared/validators/async.validators';
+import { LucideAngularModule, User, Mail, Lock, Phone, Briefcase, Camera, UserCircle, AlertCircle } from 'lucide-angular';
 
 @Component({
   selector: 'app-step-account-info',
@@ -15,13 +16,26 @@ import { AsyncValidators } from '../../../../../shared/validators/async.validato
     ReactiveFormsModule,
     TranslateModule,
     AuthInputComponent,
-    PasswordValidatorComponent
+    PasswordValidatorComponent,
+    LucideAngularModule
   ],
   templateUrl: './step-account-info.html',
+  styleUrls: ['./step-account-info.scss']
 })
 export class StepAccountInfo implements OnInit {
   @Input() group!: FormGroup;
   private http = inject(HttpClient);
+
+  readonly UserIcon = User;
+  readonly MailIcon = Mail;
+  readonly LockIcon = Lock;
+  readonly PhoneIcon = Phone;
+  readonly JobIcon = Briefcase;
+  readonly CameraIcon = Camera;
+  readonly AvatarIcon = UserCircle;
+  readonly AlertCircleIcon = AlertCircle;
+
+  avatarPreview = signal<string | null>(null);
 
   ngOnInit() {
     if (this.group) {
@@ -30,6 +44,18 @@ export class StepAccountInfo implements OnInit {
             emailControl.addAsyncValidators(AsyncValidators.createEmailValidator(this.http));
             emailControl.updateValueAndValidity();
         }
+    }
+  }
+
+  onFileSelected(event: any) {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.avatarPreview.set(reader.result as string);
+        this.group.patchValue({ avatarUrl: file });
+      };
+      reader.readAsDataURL(file);
     }
   }
 

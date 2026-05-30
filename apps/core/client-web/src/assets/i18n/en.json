@@ -529,7 +529,9 @@
     "STEPS": {
       "ACCOUNT": {
         "TITLE": "Account Information",
-        "SUBTITLE": "Enter your personal details"
+        "SUBTITLE": "Enter your personal details",
+        "TITLE_INTERNAL": "Hi! Let's start with you",
+        "SUBTITLE_INTERNAL": "These are the details of the primary administrator."
       },
       "CONFIGURATION": {
         "TITLE": "Fiscal Configuration",
@@ -544,12 +546,50 @@
         "SUBTITLE": "Select the plan that best fits you"
       }
     },
+    "UPLOAD_PHOTO": "Upload photo",
+    "FIRST_NAME": "First Name",
+    "FIRST_NAME_PLACEHOLDER": "e.g. John",
+    "LAST_NAME": "Last Name",
+    "LAST_NAME_PLACEHOLDER": "e.g. Doe",
+    "JOB_TITLE": "Job Title",
+    "JOB_TITLE_PLACEHOLDER": "e.g. General Manager",
+    "PHONE": "Phone",
+    "PHONE_PLACEHOLDER": "e.g. +1 809-555-5555",
+    "EMAIL": "Email",
+    "EMAIL_PLACEHOLDER": "name@company.com",
+    "PASSWORD": "Password",
+    "PASSWORD_PLACEHOLDER": "Create a secure password",
+    "CONFIRM_PASSWORD": "Confirm Password",
+    "CONFIRM_PASSWORD_PLACEHOLDER": "Repeat your password",
+    "COMPANY_NAME": "Company Name",
+    "COMPANY_NAME_PLACEHOLDER": "e.g. Acme Corp",
+    "INDUSTRY": "Industry",
+    "INDUSTRY_PLACEHOLDER": "Select your industry",
+    "EMPLOYEES": "Employees",
+    "EMPLOYEES_PLACEHOLDER": "Number of employees",
+    "WEBSITE": "Website",
+    "WEBSITE_PLACEHOLDER": "https://www.example.com",
     "COUNTRY": "Country",
     "CURRENCY": "Currency",
     "TAX_ID": "Tax ID",
     "FISCAL_REGION": "Fiscal Region",
+    "TERMS_AGREEMENT_1": "I agree to the",
+    "TERMS": "Terms of Service",
+    "AND": "and",
+    "PRIVACY": "Privacy Policy",
+    "UPLOAD_LOGO": "Upload logo",
+    "PLAN_SUMMARY": {
+      "TITLE": "30-Day Free Trial",
+      "SUBTITLE": "Full access to all Premium features.",
+      "FEATURE_1": "No credit card required",
+      "FEATURE_2": "Cancel anytime",
+      "FEATURE_3": "Priority support included"
+    },
     "ERRORS": {
-      "SERVER_ERROR": "Error registering. Please try again."
+      "SERVER_ERROR": "Error registering. Please try again.",
+      "PASSWORD_MISMATCH": "Passwords do not match.",
+      "REQUIRED": "This field is required.",
+      "TERMS_REQUIRED": "You must accept the terms and conditions."
     }
   },
   "FORGOT_PASSWORD": {

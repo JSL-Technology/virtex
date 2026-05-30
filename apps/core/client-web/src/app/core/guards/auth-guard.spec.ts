@@ -13,7 +13,8 @@ describe('authGuard', () => {
 
   beforeEach(() => {
     authServiceMock = {
-      checkAuthStatus: jest.fn()
+      checkAuthStatus: jest.fn(),
+      isAuthenticated: jest.fn()
     };
     routerMock = {
       createUrlTree: jest.fn().mockReturnValue({ toString: () => 'mockUrlTree' })
@@ -32,7 +33,7 @@ describe('authGuard', () => {
   });
 
   it('should return true if authenticated', (done) => {
-    authServiceMock.checkAuthStatus.mockReturnValue(of(true));
+    authServiceMock.isAuthenticated.mockReturnValue(true);
 
     runInInjectionContext(TestBed.inject(EnvironmentInjector), () => {
       const result = authGuard(null as any, null as any) as any;
@@ -44,6 +45,7 @@ describe('authGuard', () => {
   });
 
   it('should redirect to login if not authenticated', (done) => {
+    authServiceMock.isAuthenticated.mockReturnValue(false);
     authServiceMock.checkAuthStatus.mockReturnValue(of(false));
 
     runInInjectionContext(TestBed.inject(EnvironmentInjector), () => {
@@ -57,6 +59,7 @@ describe('authGuard', () => {
   });
 
   it('should use default language es if currentLang is undefined', (done) => {
+    authServiceMock.isAuthenticated.mockReturnValue(false);
     authServiceMock.checkAuthStatus.mockReturnValue(of(false));
     languageServiceMock.currentLang.mockReturnValue(undefined);
 
