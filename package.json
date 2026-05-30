@@ -43,6 +43,7 @@
     "@types/supertest": "^6.0.2",
     "@typescript-eslint/utils": "^8.40.0",
     "angular-eslint": "^20.3.0",
+    "baseline-browser-mapping": "^2.10.30",
     "cypress": "^15.6.0",
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^10.0.0",
