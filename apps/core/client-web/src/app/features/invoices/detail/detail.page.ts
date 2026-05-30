@@ -13,7 +13,7 @@ import { saveAs } from 'file-saver';
 @Component({
   selector: 'app-invoice-detail-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, RouterLink, DecimalPipe, DatePipe, InvoiceToolbarComponent, FormsModule],
+  imports: [CommonModule, LucideAngularModule, DecimalPipe, DatePipe, InvoiceToolbarComponent, FormsModule],
   templateUrl: './detail.page.html',
   styleUrls: ['./detail.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

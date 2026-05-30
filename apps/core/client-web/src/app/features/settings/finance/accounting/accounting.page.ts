@@ -1,5 +1,5 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { API_URL } from '../../../../core/tokens/api-url.token';
 import { catchError, of } from 'rxjs';
@@ -15,7 +15,7 @@ interface Ledger {
 @Component({
   selector: 'app-accounting-settings',
   standalone: true,
-  imports: [CommonModule, DatePipe],
+  imports: [CommonModule],
   template: `
     <div class="p-6">
       <div class="mb-6">

@@ -72,10 +72,8 @@ export function passwordMatchValidator(
     StepConfiguration,
     StepPlan,
     RecaptchaV3Module,
-    GeoMismatchModalComponent,
     AuthLayoutComponent,
     AuthButtonComponent,
-    AuthInputComponent,
   ],
   providers: [
     ReCaptchaV3Service,

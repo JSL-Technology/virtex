@@ -36,8 +36,7 @@ import { Subscription } from 'rxjs';
     RouterLink,
     RouterLinkActive,
     LucideAngularModule,
-    HasPermissionDirective,
-    LoaderComponent
+    HasPermissionDirective
   ],
   templateUrl: './settings.layout.html',
   styleUrls: ['./settings.layout.scss'],

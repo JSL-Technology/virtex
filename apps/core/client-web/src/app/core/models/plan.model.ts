@@ -10,6 +10,7 @@ export interface Plan {
   slug: string;
   name: string;
   description: string;
+  monthlyPrice: number;
   monthlyPriceId: string;
   annualPriceId: string;
   isActive: boolean;
