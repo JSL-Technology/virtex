@@ -28,15 +28,21 @@ export class AuditSubscriber implements EntitySubscriberInterface<any> {
   }
 
   private async log(actionType: ActionType, event: any) {
-    const request = RequestContext.currentContext.req;
-    if (request && request.user) {
+    if (event.metadata.target === AuditLog || event.metadata.tableName === 'audit_logs') {
+      return;
+    }
+
+    const entity = event.entity ?? event.databaseEntity;
+    const request = RequestContext.currentContext?.req;
+    if (request?.user && entity?.id) {
       const auditLog = new AuditLog();
       auditLog.userId = request.user.id;
+      auditLog.organizationId = request.user.organizationId ?? entity.organizationId ?? null;
       auditLog.entity = event.metadata.tableName;
-      auditLog.entityId = event.entity.id;
+      auditLog.entityId = entity.id;
       auditLog.actionType = actionType;
       auditLog.ipAddress = request.ip;
-      auditLog.newValue = event.entity;
+      auditLog.newValue = event.entity ?? null;
       if (actionType === ActionType.UPDATE) {
         auditLog.previousValue = event.databaseEntity;
       }
