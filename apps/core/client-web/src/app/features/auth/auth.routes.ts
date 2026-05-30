@@ -5,7 +5,7 @@ import { publicGuard } from '../../core/guards/public.guard';
 export const REGISTER_ROUTES: Routes = [
   {
     path: 'register',
-    title: 'Crear Cuenta | FacturaPRO',
+    title: 'Crear Cuenta | Virteex',
     // Aplica el guard a esta ruta.
     canActivate: [publicGuard],
     loadComponent: () =>
@@ -21,7 +21,7 @@ export const REGISTER_ROUTES: Routes = [
 export const AUTH_ROUTES: Routes = [
   {
     path: 'login',
-    title: 'Iniciar Sesión | FacturaPRO',
+    title: 'Iniciar Sesión | Virteex',
     // Aplica el guard a esta ruta.
     canActivate: [publicGuard],
     loadComponent: () => import('./login/login.page').then((m) => m.LoginPage),
@@ -52,7 +52,7 @@ export const AUTH_ROUTES: Routes = [
   },
   {
     path: 'plan-selection',
-    title: 'Seleccionar Plan | FacturaPRO',
+    title: 'Seleccionar Plan | Virteex',
     loadComponent: () => import('../payment/components/plan-selection/plan-selection.component').then(m => m.PlanSelectionComponent)
   },
   {

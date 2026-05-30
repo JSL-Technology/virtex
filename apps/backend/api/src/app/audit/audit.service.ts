@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuditLog, ActionType } from './entities/audit-log.entity';
 
 @Injectable()
 export class AuditTrailService {
+  private readonly logger = new Logger(AuditTrailService.name);
+
   constructor(
     @InjectRepository(AuditLog)
     private readonly auditLogRepository: Repository<AuditLog>,
@@ -12,6 +14,7 @@ export class AuditTrailService {
 
   async record(
     userId: string,
+    organizationId: string,
     entity: string,
     entityId: string,
     actionType: ActionType,
@@ -21,6 +24,7 @@ export class AuditTrailService {
   ): Promise<void> {
     const auditLog = this.auditLogRepository.create({
       userId,
+      organizationId,
       entity,
       entityId,
       actionType,
@@ -29,9 +33,8 @@ export class AuditTrailService {
       ipAddress,
     });
     // Fire-and-forget: No esperamos a que se guarde para no bloquear la request.
-    // Capturamos errores para no romper el flujo principal.
     this.auditLogRepository.save(auditLog).catch(err => {
-      console.error('Error saving audit log', err);
+      this.logger.error('Error saving audit log', err);
     });
   }
 
@@ -39,25 +42,33 @@ export class AuditTrailService {
     return this.auditLogRepository.findOne({
       where: {
         userId,
-        actionType: ActionType.LOGIN, // Filtramos solo eventos de login
+        actionType: ActionType.LOGIN,
       },
       order: {
-        timestamp: 'DESC', // Obtenemos el más reciente
+        timestamp: 'DESC',
       },
     });
   }
 
-  async find(entity?: string, entityId?: string): Promise<AuditLog[]> {
-    return this.auditLogRepository.find({
-        where: {
-            ...(entity && { entity }),
-            ...(entityId && { entityId }),
-        },
-        order: {
-            timestamp: 'DESC'
-        }
+  async find(
+    organizationId: string,
+    entity?: string,
+    entityId?: string,
+    page = 1,
+    pageSize = 50,
+  ): Promise<{ data: AuditLog[]; total: number }> {
+    const [data, total] = await this.auditLogRepository.findAndCount({
+      where: {
+        organizationId,
+        ...(entity ? { entity } : {}),
+        ...(entityId ? { entityId } : {}),
+      },
+      order: {
+        timestamp: 'DESC',
+      },
+      take: pageSize,
+      skip: (page - 1) * pageSize,
     });
+    return { data, total };
   }
-
-  
 }

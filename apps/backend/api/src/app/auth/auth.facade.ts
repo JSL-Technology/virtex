@@ -79,7 +79,7 @@ export class AuthFacade {
 
     this.eventEmitter.emit(
         AuthEvents.IMPERSONATE,
-        new AuthImpersonateEvent(adminUser.id, targetUserId, adminUser.email, targetUser.email)
+        new AuthImpersonateEvent(adminUser.id, targetUserId, adminUser.email, targetUser.email, adminUser.organizationId)
     );
 
     return await this.tokenService.generateAuthResponse(targetUser, {

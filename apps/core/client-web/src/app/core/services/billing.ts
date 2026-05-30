@@ -14,6 +14,15 @@ export interface Subscription {
   trialEndsDate?: string;
 }
 
+interface SubscriptionApiResponse {
+  status: string;
+  planId: string;
+  periodStart: string;
+  periodEnd: string;
+  gracePeriodEnd: string | null;
+  externalSubscriptionId: string | null;
+}
+
 export interface PaymentMethod {
   type: string;
   last4: string;
@@ -34,17 +43,7 @@ export class BillingService {
 
   // Signals for state
   plans = signal<Plan[]>([]);
-
-  // TODO: Fetch real subscription from Organization details or dedicated endpoint
-  // For now, keeping mock structure but ready to integrate
-  currentSubscription = signal<Subscription>({
-    planName: 'Profesional',
-    planId: 'pro',
-    status: 'Activo',
-    price: 49.00,
-    billingCycle: 'mensual',
-    nextBillingDate: '2025-08-20',
-  });
+  currentSubscription = signal<Subscription | null>(null);
 
   paymentMethod = signal<PaymentMethod>({
     type: 'Visa',
@@ -59,6 +58,7 @@ export class BillingService {
 
   constructor() {
     this.loadPlans();
+    this.loadSubscription();
   }
 
   loadPlans() {
@@ -80,8 +80,42 @@ export class BillingService {
     );
   }
 
-  getSubscription(): Observable<Subscription> {
-    return of(this.currentSubscription());
+  loadSubscription(): void {
+    this.http.get<SubscriptionApiResponse>(`${this.apiUrl}/payment/subscription`).pipe(
+      map(res => this.mapSubscription(res)),
+      tap(sub => this.currentSubscription.set(sub)),
+      catchError(err => {
+        console.error('Failed to load subscription', err);
+        return of(null);
+      })
+    ).subscribe();
+  }
+
+  private mapSubscription(res: SubscriptionApiResponse): Subscription {
+    const plan = this.plans().find(p => p.id === res.planId || p.slug === res.planId);
+    return {
+      planId: res.planId || '',
+      planName: plan?.name || res.planId || 'Sin plan',
+      status: res.status || 'unknown',
+      price: plan?.monthlyPrice || 0,
+      billingCycle: 'mensual',
+      nextBillingDate: res.periodEnd ? new Date(res.periodEnd).toLocaleDateString('es-ES') : '',
+      trialEndsDate: res.gracePeriodEnd ? new Date(res.gracePeriodEnd).toLocaleDateString('es-ES') : undefined,
+    };
+  }
+
+  getSubscription(): Observable<Subscription | null> {
+    if (this.currentSubscription()) {
+      return of(this.currentSubscription());
+    }
+    return this.http.get<SubscriptionApiResponse>(`${this.apiUrl}/payment/subscription`).pipe(
+      map(res => this.mapSubscription(res)),
+      tap(sub => this.currentSubscription.set(sub)),
+      catchError(err => {
+        console.error('Failed to load subscription', err);
+        return of(null);
+      })
+    );
   }
 
   getPaymentMethod(): Observable<PaymentMethod> {

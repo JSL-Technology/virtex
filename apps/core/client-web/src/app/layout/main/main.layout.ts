@@ -120,7 +120,7 @@ export class MainLayout implements OnInit {
 
   public companyName = computed(() => {
     return (
-      this.authService.currentUser()?.organization?.name || 'FacturaPRO'
+      this.authService.currentUser()?.organization?.name || 'Virteex'
     );
   });
 

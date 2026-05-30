@@ -274,7 +274,7 @@ export const APP_ROUTES: Routes = [
         children: [
             {
                 path: 'login',
-                title: 'Iniciar Sesión | FacturaPRO',
+                title: 'Iniciar Sesión | Virteex',
                 loadComponent: () => import('./features/auth/login/login.page').then((m) => m.LoginPage),
             },
              {

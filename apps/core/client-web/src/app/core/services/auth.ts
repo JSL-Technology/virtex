@@ -60,6 +60,7 @@ export class AuthService {
 
   // URL base de tu API de autenticación.
   private readonly apiUrl = `${this.baseUrl}/auth`;
+  private readonly usersUrl = `${this.baseUrl}/users`;
 
   // --- Estado Reactivo con Signals ---
 
@@ -442,29 +443,28 @@ export class AuthService {
    * Invita a un nuevo usuario al sistema.
    */
   inviteUser(payload: UserPayload): Observable<User> {
-    // Nota: El backend creará este usuario con estado 'PENDING'.
-    return this.http.post<User>(`${this.apiUrl}/invite`, payload);
+    return this.http.post<User>(`${this.usersUrl}/invite`, payload);
   }
 
   /**
    * Actualiza los datos de un usuario existente.
    */
   updateUser(id: string, payload: UserPayload): Observable<User> {
-    return this.http.patch<User>(`${this.apiUrl}/${id}`, payload);
+    return this.http.patch<User>(`${this.usersUrl}/${id}`, payload);
   }
 
   /**
    * Actualiza únicamente el estado de un usuario (para bloquear, archivar, etc.).
    */
   updateUserStatus(id: string, status: UserStatus): Observable<User> {
-    return this.http.patch<User>(`${this.apiUrl}/${id}/status`, { status });
+    return this.http.patch<User>(`${this.usersUrl}/${id}/status`, { status });
   }
 
   /**
    * Elimina permanentemente a un usuario del sistema.
    */
   deleteUser(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(`${this.usersUrl}/${id}`);
   }
 
   // --- NUEVOS MÉTODOS PARA SUPLANTACIÓN ---

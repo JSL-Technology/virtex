@@ -44,6 +44,7 @@ export class SocialAuthService {
 
       await this.auditService.record(
         user.id,
+        user.organizationId,
         'User',
         user.id,
         ActionType.LOGIN,

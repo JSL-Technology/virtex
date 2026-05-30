@@ -1,10 +1,8 @@
 
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Req, UseFilters, ParseUUIDPipe, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, UseFilters, ParseUUIDPipe, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
 import { FastifyFileInterceptor } from '../common/interceptors/fastify-file.interceptor';
 import { FastifyFile } from '../common/interfaces/fastify-file.interface';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import { extname } from 'path';
-import * as os from 'os';
 import * as fs from 'fs/promises';
 import { StorageService } from '../storage/storage.service';
 import { UsersService } from './users.service';
@@ -21,8 +19,9 @@ import { plainToInstance } from 'class-transformer';
 import { CheckPermissions } from '../auth/decorators/check-permissions.decorator';
 import { IsOrganizationOwner } from '../auth/policies/is-organization-owner.policy';
 import { TypeOrmExceptionFilter } from '../common/filters/typeorm-exception.filter';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { JobTitle } from './enums/job-title.enum';
+import { PERMISSIONS } from '../shared/permissions';
 
 @ApiTags('Users')
 @Controller('users')
@@ -41,7 +40,7 @@ export class UsersController {
   }
 
   @Post('invite')
-  @HasPermission('users.create')
+  @HasPermission(PERMISSIONS.USERS_CREATE)
   @ApiOperation({ summary: 'Invite a new user to the organization' })
   async inviteUser(
     @Body() inviteUserDto: InviteUserDto,
@@ -55,7 +54,7 @@ export class UsersController {
   }
 
   @Get()
-  @HasPermission('users.view')
+  @HasPermission(PERMISSIONS.USERS_VIEW)
   @ApiOperation({ summary: 'List users in organization' })
   async findAll(
     @CurrentUser() user: User,
@@ -89,7 +88,7 @@ export class UsersController {
   @Get('profile')
   @ApiOperation({ summary: 'Get current user profile' })
   async getProfile(@CurrentUser() user: User) {
-    const fullUser = await this.usersService.findOne(user.id);
+    const fullUser = await this.usersService.findOne(user.id, user.organizationId);
     return plainToInstance(UserResponseDto, fullUser, { excludeExtraneousValues: true });
   }
 
@@ -138,16 +137,15 @@ export class UsersController {
   }
 
   @Get(':id')
-  @HasPermission('users.view')
+  @HasPermission(PERMISSIONS.USERS_VIEW)
   @ApiOperation({ summary: 'Get user by ID' })
   async findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
-    // Ideally ensure user belongs to same org
-    const foundUser = await this.usersService.findOne(id);
+    const foundUser = await this.usersService.findOne(id, user.organizationId);
     return plainToInstance(UserResponseDto, foundUser, { excludeExtraneousValues: true });
   }
 
   @Patch(':id')
-  @HasPermission('users.edit')
+  @HasPermission(PERMISSIONS.USERS_EDIT)
   @ApiOperation({ summary: 'Update user (Admin)' })
   async update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -163,7 +161,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @HasPermission('users.delete')
+  @HasPermission(PERMISSIONS.USERS_DELETE)
   @CheckPermissions(IsOrganizationOwner)
   @ApiOperation({ summary: 'Remove user' })
   async remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
@@ -171,7 +169,7 @@ export class UsersController {
   }
 
   @Patch(':id/status')
-  @HasPermission('users.edit')
+  @HasPermission(PERMISSIONS.USERS_EDIT)
   async updateStatus(
       @Param('id', ParseUUIDPipe) id: string,
       @Body('status') status: UserStatus,
@@ -182,7 +180,7 @@ export class UsersController {
   }
 
   @Post(':id/reset-password')
-  @HasPermission('users.edit')
+  @HasPermission(PERMISSIONS.USERS_EDIT)
   async resetPassword(
       @Param('id', ParseUUIDPipe) id: string,
       @CurrentUser() user: User
@@ -192,13 +190,13 @@ export class UsersController {
   }
 
   @Get(':id/activity')
-  @HasPermission('users.view')
-  async getActivityLog(@Param('id', ParseUUIDPipe) id: string) {
-      return this.usersService.getActivityLog(id);
+  @HasPermission(PERMISSIONS.USERS_VIEW)
+  async getActivityLog(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+      return this.usersService.getActivityLog(id, user.organizationId);
   }
 
   @Post(':id/force-logout')
-  @HasPermission('users.edit')
+  @HasPermission(PERMISSIONS.USERS_EDIT)
   async forceLogout(@Param('id', ParseUUIDPipe) id: string) {
       return this.usersService.forceLogout(id);
   }

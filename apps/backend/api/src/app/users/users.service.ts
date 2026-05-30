@@ -170,9 +170,9 @@ export class UsersService {
     await this.userRepository.remove(user);
   }
 
-  async findOne(id: string): Promise<User> {
+  async findOne(id: string, organizationId?: string): Promise<User> {
     const user = await this.userRepository.findOne({
-      where: { id: id as any },
+      where: { id, ...(organizationId ? { organizationId } : {}) },
     });
 
     if (!user) {
@@ -254,7 +254,11 @@ export class UsersService {
     }
   }
 
-  async getActivityLog(userId: string): Promise<any[]> {
+  async getActivityLog(userId: string, organizationId: string): Promise<any[]> {
+    const user = await this.userRepository.findOne({ where: { id: userId, organizationId } });
+    if (!user) {
+      throw new NotFoundException(`Usuario no encontrado en esta organización`);
+    }
     return [];
   }
 

@@ -388,6 +388,7 @@ export class ChartOfAccountsService {
     const updatedAccount = await this.accountRepository.save(account);
     await this.auditTrailService.record(
       userId,
+      organizationId,
       'accounts',
       accountId,
       ActionType.UPDATE,
@@ -413,6 +414,7 @@ export class ChartOfAccountsService {
     const updatedAccount = await this.accountRepository.save(account);
     await this.auditTrailService.record(
       userId,
+      organizationId,
       'accounts',
       accountId,
       ActionType.UPDATE,

@@ -1,5 +1,6 @@
 
-import { Controller, Get, Body, Patch, UseGuards, Put } from '@nestjs/common';
+import { Controller, Get, Body, Patch, UseGuards, Post } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { OrganizationsService } from './organizations.service';
 import { CheckPermissions } from '../auth/decorators/check-permissions.decorator';
 import { IsOrganizationOwnerPolicy } from '../auth/policies/is-organization-owner.policy';
@@ -8,13 +9,14 @@ import { User } from '../users/entities/user.entity/user.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { CreateSubsidiaryDto } from './dto/create-subsidiary.dto';
-import { Organization } from './entities/organization.entity';
-import { Post } from '@nestjs/common';
 
 @Controller('organizations')
 @UseGuards(JwtAuthGuard)
 export class OrganizationsController {
-  constructor(private readonly organizationsService: OrganizationsService) {}
+  constructor(
+    private readonly organizationsService: OrganizationsService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Get('profile')
   async getProfile(@CurrentUser() user: User) {
@@ -41,5 +43,15 @@ export class OrganizationsController {
     @Body() createSubsidiaryDto: CreateSubsidiaryDto,
   ) {
     return this.organizationsService.createSubsidiary(user.organizationId, createSubsidiaryDto);
+  }
+
+  @Get('settings/smtp')
+  getSmtpSettings() {
+    return {
+      host: this.configService.get<string>('MAIL_HOST', ''),
+      port: this.configService.get<number>('MAIL_PORT', 587),
+      user: this.configService.get<string>('MAIL_USER', ''),
+      secure: this.configService.get<boolean>('MAIL_SECURE', false),
+    };
   }
 }

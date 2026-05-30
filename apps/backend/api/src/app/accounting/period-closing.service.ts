@@ -321,6 +321,7 @@ export class PeriodClosingService {
         
         await this.auditTrailService.record(
             userId,
+            organizationId,
             'accounting_periods',
             periodId,
             ActionType.UPDATE,

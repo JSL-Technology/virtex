@@ -68,7 +68,7 @@ export class AuthService {
               await this.securityAnalysisService.handleFailedLoginAttempt(user);
               this.eventEmitter.emit(
                   AuthEvents.LOGIN_FAILED,
-                  new AuthLoginFailedEvent(user.id, user.email, 'Invalid Credentials', ipAddress, userAgent, correlationId)
+                  new AuthLoginFailedEvent(user.id, user.email, 'Invalid Credentials', user.organizationId, ipAddress, userAgent, correlationId)
               );
           }
           await this.simulateDelay();
@@ -78,7 +78,7 @@ export class AuthService {
     if (user.status !== UserStatus.ACTIVE) {
        this.eventEmitter.emit(
            AuthEvents.LOGIN_FAILED,
-           new AuthLoginFailedEvent(user.id, user.email, 'User Inactive/Blocked', ipAddress, userAgent, correlationId)
+           new AuthLoginFailedEvent(user.id, user.email, 'User Inactive/Blocked', user.organizationId, ipAddress, userAgent, correlationId)
        );
 
        if (user.status === UserStatus.BLOCKED) {
@@ -130,7 +130,7 @@ export class AuthService {
 
     this.eventEmitter.emit(
         AuthEvents.LOGIN_SUCCESS,
-        new AuthLoginSuccessEvent(user.id, user.email, ipAddress, userAgent, correlationId)
+        new AuthLoginSuccessEvent(user.id, user.email, user.organizationId, ipAddress, userAgent, correlationId)
     );
 
     const authResponse = await this.tokenService.generateAuthResponse(user, {}, ipAddress, userAgent, rememberMe);

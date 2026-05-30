@@ -18,6 +18,7 @@ export class AuthLoginSuccessEvent {
     constructor(
         public readonly userId: string,
         public readonly email: string,
+        public readonly organizationId: string,
         public readonly ipAddress?: string,
         public readonly userAgent?: string,
         public readonly correlationId?: string
@@ -29,6 +30,7 @@ export class AuthLoginFailedEvent {
         public readonly userId: string,
         public readonly email: string,
         public readonly reason: string,
+        public readonly organizationId: string,
         public readonly ipAddress?: string,
         public readonly userAgent?: string,
         public readonly correlationId?: string
@@ -40,7 +42,8 @@ export class AuthImpersonateEvent {
         public readonly adminId: string,
         public readonly targetUserId: string,
         public readonly adminEmail: string,
-        public readonly targetUserEmail: string
+        public readonly targetUserEmail: string,
+        public readonly organizationId: string
     ) {}
 }
 
@@ -50,6 +53,7 @@ export class AuthAuditActionEvent {
         public readonly entityType: string,
         public readonly entityId: string,
         public readonly action: ActionType,
+        public readonly organizationId: string,
         public readonly details?: Record<string, any>,
         public readonly correlationId?: string
     ) {}
@@ -65,6 +69,7 @@ export class AuthSubscriber {
     async handleLoginSuccess(payload: AuthLoginSuccessEvent) {
         await this.auditService.record(
             payload.userId,
+            payload.organizationId,
             'User',
             payload.userId,
             ActionType.LOGIN,
@@ -83,6 +88,7 @@ export class AuthSubscriber {
     async handleLoginFailed(payload: AuthLoginFailedEvent) {
         await this.auditService.record(
             payload.userId,
+            payload.organizationId,
             'User',
             payload.userId,
             ActionType.LOGIN_FAILED,
@@ -101,6 +107,7 @@ export class AuthSubscriber {
     async handleImpersonate(payload: AuthImpersonateEvent) {
         await this.auditService.record(
             payload.adminId,
+            payload.organizationId,
             'User',
             payload.targetUserId,
             ActionType.IMPERSONATE,
@@ -117,6 +124,7 @@ export class AuthSubscriber {
         try {
             await this.auditService.record(
                 payload.userId,
+                payload.organizationId,
                 payload.entityType,
                 payload.entityId,
                 payload.action,

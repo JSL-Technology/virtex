@@ -174,6 +174,7 @@ export class MfaOrchestratorService {
       if (!isValid2FA) {
          await this.auditService.record(
             user.id,
+            user.organizationId,
             'User',
             user.id,
             ActionType.LOGIN_FAILED,
@@ -192,6 +193,7 @@ export class MfaOrchestratorService {
 
     await this.auditService.record(
         user.id,
+        user.organizationId,
         'User',
         user.id,
         ActionType.LOGIN,

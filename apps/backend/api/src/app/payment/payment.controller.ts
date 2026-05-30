@@ -1,7 +1,6 @@
-import { Controller, Post, Get, Body, Headers, Req, BadRequestException, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Body, Headers, RawBody, BadRequestException, UseGuards } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { PaymentService } from './payment.service';
-import { Request } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
@@ -47,26 +46,21 @@ export class PaymentController {
     };
   }
 
+  @Get('subscription')
+  @UseGuards(JwtAuthGuard)
+  async getSubscription(@CurrentUser() user: User) {
+    if (!user.organizationId) {
+      throw new BadRequestException('User does not belong to an organization');
+    }
+    return this.paymentService.getSubscription(user.organizationId);
+  }
+
   @Post('webhook')
   @UseGuards(ThrottlerGuard)
-  async handleWebhook(@Headers('stripe-signature') signature: string, @Req() req: Request) {
-    // Note: To handle webhook correctly, NestJS needs to pass raw body.
-    // Ensure that main.ts or middleware preserves raw body for this route or access it correctly.
-    // For now, assuming req.body is accessible as Buffer or raw string if configured,
-    // but typically standard NestJS setup parses JSON.
-    // We might need a raw body middleware.
-
-    // As a workaround/standard practice in NestJS for Stripe:
-    // We usually need a RawBody decorator or middleware.
-    // For this implementation, I will assume the raw body is passed in `req['rawBody']`
-    // (which needs to be set up in main.ts) OR I rely on a standard buffer approach.
-
-    // Let's assume the user has a way to get raw body, or I'll implement a simple one later.
-    // Ideally, `@Body()` with a specific pipe or `req.rawBody`.
-
-    // NOTE: This is a placeholder for the actual buffer extraction which is tricky in NestJS default setup.
-    const rawBody = (req as any).rawBody || req.body;
-
+  async handleWebhook(
+    @Headers('stripe-signature') signature: string,
+    @RawBody() rawBody: Buffer,
+  ) {
     return this.paymentService.handleWebhook(signature, rawBody);
   }
 }

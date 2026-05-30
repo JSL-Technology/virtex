@@ -140,7 +140,7 @@ const envValidation = Joi.object({
         synchronize: config.get<boolean>('DB_SYNCHRONIZE', false),
         logging: config.get<boolean>('DB_LOGGING', false),
         ssl: config.get<boolean>('DB_SSL', false)
-          ? { rejectUnauthorized: false }
+          ? { rejectUnauthorized: config.get<string>('NODE_ENV') === 'production' }
           : false,
       }),
     }),

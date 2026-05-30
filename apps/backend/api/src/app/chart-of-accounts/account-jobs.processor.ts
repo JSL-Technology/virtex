@@ -117,7 +117,7 @@ export class AccountJobsProcessor extends WorkerHost {
         await manager.save(sourceAccount);
 
         await this.auditTrailService.record(
-            userId, 'accounts', sourceAccountId, ActionType.UPDATE,
+            userId, organizationId, 'accounts', sourceAccountId, ActionType.UPDATE,
             { status: 'MERGED', mergedInto: destinationAccountId, reason },
             { status: 'ACTIVE' },
         );

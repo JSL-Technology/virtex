@@ -35,8 +35,20 @@ export class PaymentService {
     });
   }
 
+  async getSubscription(organizationId: string) {
+    const org = await this.organizationRepository.findOneBy({ id: organizationId });
+    if (!org) throw new Error('Organization not found');
+    return {
+      status: org.subscriptionStatus,
+      planId: org.planId,
+      periodStart: org.subscriptionPeriodStart,
+      periodEnd: org.subscriptionPeriodEnd,
+      gracePeriodEnd: org.gracePeriodEnd,
+      externalSubscriptionId: org.externalSubscriptionId,
+    };
+  }
+
   async handleWebhook(signature: string, payload: Buffer) {
-    // Ahora está completamente abstraído. La implementación del Gateway maneja la lógica específica.
     return this.paymentGateway.handleWebhook(payload, signature);
   }
 }

@@ -14,7 +14,10 @@ import { UserCacheService } from '../auth/modules/user-cache.service';
 
 @WebSocketGateway({
   cors: {
-    origin: 'http://localhost:4200',
+    origin: (origin: string, callback: (err: Error | null, allow: boolean) => void) => {
+      const allowed = process.env['CORS_ORIGIN'] || 'http://localhost:4200';
+      callback(null, allowed === origin || !origin);
+    },
     credentials: true,
   },
 })
@@ -32,10 +35,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection(client: Socket) {
     try {
-      const token = client.handshake.headers.cookie
-        ?.split('; ')
-        .find((row) => row.startsWith('access_token='))
-        ?.split('=')[1];
+      const cookieHeader = client.handshake.headers.cookie || '';
+      const match = cookieHeader.match(/(?:^|;\s*)access_token=([^;]+)/);
+      const token = match?.[1];
 
       if (!token) {
         client.disconnect();
