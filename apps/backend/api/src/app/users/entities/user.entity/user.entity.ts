@@ -8,6 +8,7 @@ import {
   ManyToMany,
   JoinTable,
   OneToOne,
+  ManyToOne,
 } from 'typeorm';
 import type { Organization } from '../../../organizations/entities/organization.entity';
 import { Role } from '../../../roles/entities/role.entity';
