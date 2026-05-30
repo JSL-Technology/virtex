@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
   ManyToMany,
   JoinTable,
+  OneToMany,
   OneToOne,
 } from 'typeorm';
 import type { Organization } from '../../../organizations/entities/organization.entity';
@@ -119,6 +120,6 @@ export class User {
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
   updatedAt: Date;
 
-  @ManyToOne(() => Passkey, (passkey) => passkey.user, { cascade: true })
+  @OneToMany(() => Passkey, (passkey) => passkey.user, { cascade: true })
   passkeys: Passkey[];
 }
