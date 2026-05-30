@@ -24,8 +24,8 @@ export class Role {
     @Column({ name: 'is_system_role', default: false })
     isSystemRole: boolean;
 
-    @Column({ name: 'organization_id' })
-    organizationId: string;
+    @Column({ name: 'organization_id', nullable: true })
+    organizationId: string | null;
 
     @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
     createdAt: Date;
