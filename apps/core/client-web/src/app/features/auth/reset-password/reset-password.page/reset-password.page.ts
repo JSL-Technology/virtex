@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../../core/services/auth';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LanguageService } from '../../../../core/services/language';
+import { LucideAngularModule, Lock, AlertCircle, CheckCircle } from 'lucide-angular';
 
 // Shared
 import { AuthLayoutComponent } from '../../components/auth-layout/auth-layout.component';
@@ -39,12 +40,14 @@ const passwordMatchValidator: ValidatorFn = (group: AbstractControl): Validation
     ReactiveFormsModule,
     RouterModule,
     TranslateModule,
+    LucideAngularModule,
     AuthLayoutComponent,
     AuthInputComponent,
     AuthButtonComponent,
     PasswordValidatorComponent
   ],
-  templateUrl: './reset-password.page.html'
+  templateUrl: './reset-password.page.html',
+  styleUrls: ['./reset-password.page.scss']
 })
 export class ResetPasswordPage implements OnInit {
   private fb = inject(FormBuilder);
@@ -52,6 +55,8 @@ export class ResetPasswordPage implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   public languageService = inject(LanguageService);
+
+  readonly icons = { Lock, AlertCircle, CheckCircle };
 
   resetPasswordForm!: FormGroup;
   isLoading = false;

@@ -8,6 +8,7 @@ import { environment } from '../../../../../environments/environment';
 import { switchMap } from 'rxjs/operators';
 import { LanguageService } from '../../../../core/services/language';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { LucideAngularModule, Mail, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-angular';
 
 // Shared Components
 import { AuthLayoutComponent } from '../../components/auth-layout/auth-layout.component';
@@ -23,6 +24,7 @@ import { AuthButtonComponent } from '../../components/auth-button/auth-button.co
     RecaptchaV3Module,
     RouterModule,
     TranslateModule,
+    LucideAngularModule,
     AuthLayoutComponent,
     AuthInputComponent,
     AuthButtonComponent
@@ -31,13 +33,16 @@ import { AuthButtonComponent } from '../../components/auth-button/auth-button.co
     ReCaptchaV3Service,
     { provide: RECAPTCHA_V3_SITE_KEY, useValue: environment.recaptcha.siteKey }
   ],
-  templateUrl: './forgot-password.page.html'
+  templateUrl: './forgot-password.page.html',
+  styleUrls: ['./forgot-password.page.scss']
 })
 export class ForgotPasswordPage {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private recaptchaV3Service = inject(ReCaptchaV3Service);
   public languageService = inject(LanguageService);
+
+  readonly icons = { Mail, AlertCircle, CheckCircle, ArrowLeft };
 
   forgotPasswordForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]]

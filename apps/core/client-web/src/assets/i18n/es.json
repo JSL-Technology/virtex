@@ -893,6 +893,7 @@
     "EMAIL_LABEL": "Correo Electrónico",
     "PASSWORD_LABEL": "Contraseña",
     "OR": "o",
+    "OR_WITH_EMAIL": "o usa tu correo electrónico",
     "FORGOT_PASSWORD": "¿Olvidaste tu contraseña?",
     "EMAIL_PLACEHOLDER": "nombre@empresa.com",
     "REMEMBER_ME": "Mantener la sesión iniciada",
@@ -950,7 +951,9 @@
     "STEPS": {
       "ACCOUNT": {
         "TITLE": "Información de la Cuenta",
-        "SUBTITLE": "Ingresa tus datos personales"
+        "SUBTITLE": "Ingresa tus datos personales",
+        "TITLE_INTERNAL": "¡Hola! Comencemos por ti",
+        "SUBTITLE_INTERNAL": "Estos son los datos del administrador principal."
       },
       "CONFIGURATION": {
         "TITLE": "Configuración Fiscal",
@@ -965,12 +968,50 @@
         "SUBTITLE": "Selecciona el plan que mejor se adapte a ti"
       }
     },
+    "UPLOAD_PHOTO": "Subir foto",
+    "FIRST_NAME": "Nombre",
+    "FIRST_NAME_PLACEHOLDER": "Ej. Juan",
+    "LAST_NAME": "Apellidos",
+    "LAST_NAME_PLACEHOLDER": "Ej. Pérez",
+    "JOB_TITLE": "Cargo",
+    "JOB_TITLE_PLACEHOLDER": "Ej. Gerente General",
+    "PHONE": "Teléfono",
+    "PHONE_PLACEHOLDER": "Ej. +1 809-555-5555",
+    "EMAIL": "Correo Electrónico",
+    "EMAIL_PLACEHOLDER": "nombre@empresa.com",
+    "PASSWORD": "Contraseña",
+    "PASSWORD_PLACEHOLDER": "Crea una contraseña segura",
+    "CONFIRM_PASSWORD": "Confirmar Contraseña",
+    "CONFIRM_PASSWORD_PLACEHOLDER": "Repite tu contraseña",
+    "COMPANY_NAME": "Nombre de la Empresa",
+    "COMPANY_NAME_PLACEHOLDER": "Ej. Acme Corp",
+    "INDUSTRY": "Industria",
+    "INDUSTRY_PLACEHOLDER": "Selecciona tu industria",
+    "EMPLOYEES": "Empleados",
+    "EMPLOYEES_PLACEHOLDER": "Número de empleados",
+    "WEBSITE": "Sitio Web",
+    "WEBSITE_PLACEHOLDER": "https://www.ejemplo.com",
+    "TERMS_AGREEMENT_1": "Acepto los",
+    "TERMS": "Términos de Servicio",
+    "AND": "y la",
+    "PRIVACY": "Política de Privacidad",
+    "UPLOAD_LOGO": "Subir logo",
+    "PLAN_SUMMARY": {
+      "TITLE": "Prueba Gratuita de 30 Días",
+      "SUBTITLE": "Acceso completo a todas las funciones Premium.",
+      "FEATURE_1": "Sin tarjeta de crédito requerida",
+      "FEATURE_2": "Cancela en cualquier momento",
+      "FEATURE_3": "Soporte prioritario incluido"
+    },
     "COUNTRY": "País",
     "CURRENCY": "Moneda",
     "TAX_ID": "Identificación Fiscal",
     "FISCAL_REGION": "Región Fiscal",
     "ERRORS": {
-      "SERVER_ERROR": "Error al registrarse. Intente nuevamente."
+      "SERVER_ERROR": "Error al registrarse. Intente nuevamente.",
+      "PASSWORD_MISMATCH": "Las contraseñas no coinciden.",
+      "REQUIRED": "Este campo es obligatorio.",
+      "TERMS_REQUIRED": "Debes aceptar los términos y condiciones."
     }
   },
   "FORGOT_PASSWORD": {

@@ -1,44 +1,46 @@
 <app-auth-layout>
-  <div class="register-container animate-fade-in-up">
+  <div class="register-container animate-fade-in">
     <!-- Header -->
-    <div class="view-header">
+    <header class="view-header">
       <h1 class="view-title">
         {{ "REGISTER.TITLE" | translate }}
       </h1>
       <p class="view-subtitle">
         {{ "REGISTER.SUBTITLE" | translate }}
       </p>
-    </div>
+    </header>
 
     <!-- Steps Indicator -->
     <div class="steps-indicator">
-      <!-- Progress Bar Background -->
-      <div class="progress-bar-bg"></div>
+      <div class="progress-bar-container">
+        <div class="progress-bar-bg"></div>
+        <div class="progress-bar-active"
+             [style.width]="((currentStep() - 1) / 3) * 100 + '%'"></div>
+      </div>
 
-      <!-- Progress Bar Active -->
-      <div class="progress-bar-active"
-           [style.width]="((currentStep() - 1) / 3) * 100 + '%'"></div>
-
-      <ng-container *ngFor="let step of [1, 2, 3, 4]; let i = index">
-        <div
-          class="step-item"
-          (click)="navigateToStep(step)"
-        >
+      <div class="step-items">
+        <ng-container *ngFor="let step of [1, 2, 3, 4]; let i = index">
           <div
-            class="step-circle"
-            [ngClass]="{
-              'active': currentStep() === step,
-              'completed': currentStep() > step,
-              'pending': currentStep() < step
-            }"
+            class="step-item"
+            (click)="navigateToStep(step)"
+            [attr.aria-label]="'Step ' + step"
           >
-            <ng-container *ngIf="currentStep() > step; else number">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            </ng-container>
-            <ng-template #number>{{ step }}</ng-template>
+            <div
+              class="step-circle"
+              [ngClass]="{
+                'active': currentStep() === step,
+                'completed': currentStep() > step,
+                'pending': currentStep() < step
+              }"
+            >
+              <ng-container *ngIf="currentStep() > step; else number">
+                <lucide-icon [img]="CheckIcon" size="14"></lucide-icon>
+              </ng-container>
+              <ng-template #number>{{ step }}</ng-template>
+            </div>
           </div>
-        </div>
-      </ng-container>
+        </ng-container>
+      </div>
     </div>
 
     <!-- Steps Content -->
@@ -65,47 +67,49 @@
       </div>
 
       <!-- Navigation Buttons -->
-      <div class="navigation-buttons">
+      <div class="navigation-actions">
         <button
           type="button"
           *ngIf="currentStep() > 1"
           (click)="prevStep()"
-          class="back-btn">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-          Atrás
+          class="btn-back">
+          <lucide-icon [img]="ArrowLeftIcon" size="16"></lucide-icon>
+          {{ 'COMMON.BACK' | translate }}
         </button>
-        <div *ngIf="currentStep() === 1" class="spacer"></div> <!-- Spacer -->
 
-        <div class="next-btn-container" *ngIf="currentStep() < 4">
+        <div class="spacer" *ngIf="currentStep() === 1"></div>
+
+        <div class="next-action" *ngIf="currentStep() < 4">
             <app-auth-button
-            (onClick)="nextStep()"
-            variant="primary">
-            Siguiente
-            <svg icon xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              (onClick)="nextStep()"
+              variant="primary">
+              {{ 'COMMON.NEXT' | translate }}
+              <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
             </app-auth-button>
         </div>
 
-        <div class="next-btn-container" *ngIf="currentStep() === 4">
+        <div class="next-action" *ngIf="currentStep() === 4">
             <app-auth-button
-            type="submit"
-            variant="primary"
-            [loading]="isRegistering()"
-            [disabled]="registerForm.invalid">
-            {{ "REGISTER.SUBMIT_BUTTON" | translate }}
+              type="submit"
+              variant="primary"
+              [loading]="isRegistering()"
+              [disabled]="registerForm.invalid">
+              {{ "REGISTER.SUBMIT_BUTTON" | translate }}
+              <lucide-icon *ngIf="!isRegistering()" [img]="RocketIcon" size="18"></lucide-icon>
             </app-auth-button>
         </div>
       </div>
 
     </form>
 
-    <!-- Error Message -->
-    <div *ngIf="errorMessage()" class="global-error-message animate-fade-in-up">
-       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+    <!-- Global Error Message -->
+    <div *ngIf="errorMessage()" class="error-message global-error animate-fade-in" role="alert">
+       <lucide-icon [img]="AlertCircleIcon" size="16"></lucide-icon>
        <span>{{ errorMessage() | translate }}</span>
     </div>
 
-    <!-- ReCAPTCHA Legal Text -->
-    <p class="recaptcha-legal">
+    <!-- ReCAPTCHA Legal -->
+    <p class="legal-text">
       This site is protected by reCAPTCHA and the Google
       <a href="https://policies.google.com/privacy" target="_blank">Privacy Policy</a> and
       <a href="https://policies.google.com/terms" target="_blank">Terms of Service</a> apply.
@@ -113,8 +117,8 @@
 
   </div>
 
-  <!-- Footer Actions -->
-  <p footer-actions class="footer-cta">
+  <!-- Footer CTA -->
+  <p footer-actions class="login-cta">
     {{ "REGISTER.HAS_ACCOUNT" | translate }}
     <a [routerLink]="['/', languageService.currentLang(), 'auth', 'login']"
        class="cta-link">

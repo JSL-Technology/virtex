@@ -11,6 +11,7 @@ import { AuthInputComponent } from '../../../components/auth-input/auth-input.co
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, TranslateModule, AuthInputComponent],
   templateUrl: './step-configuration.html',
+  styleUrls: ['./step-configuration.scss']
 })
 export class StepConfiguration {
   @Input() group!: FormGroup;

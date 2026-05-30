@@ -11,7 +11,7 @@ import { TranslateModule } from '@ngx-translate/core';
       type="button"
       (click)="onClick.emit()"
       [disabled]="loading"
-      class="passkey-card"
+      class="passkey-button"
       [class.loading]="loading">
       <div class="passkey-content">
         <div class="icon-wrapper">
@@ -28,24 +28,29 @@ import { TranslateModule } from '@ngx-translate/core';
     </button>
   `,
   styles: [`
-    .passkey-card {
+    .passkey-button {
       width: 100%;
       display: block;
-      background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.05) 0%, rgba(var(--primary-rgb), 0.1) 100%);
-      border: 1px solid rgba(var(--primary-rgb), 0.2);
-      border-radius: var(--radius-xl);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
       padding: 1rem;
       cursor: pointer;
       position: relative;
       overflow: hidden;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: var(--transition);
       text-align: left;
 
       &:hover:not(:disabled) {
-        background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1) 0%, rgba(var(--primary-rgb), 0.15) 100%);
-        border-color: var(--primary);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(var(--primary-rgb), 0.15);
+        background: var(--bg-hover);
+        border-color: var(--text-tertiary);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
       }
 
       &:active:not(:disabled) {
@@ -53,7 +58,7 @@ import { TranslateModule } from '@ngx-translate/core';
       }
 
       &:disabled {
-        opacity: 0.7;
+        opacity: 0.6;
         cursor: not-allowed;
       }
     }
@@ -65,42 +70,46 @@ import { TranslateModule } from '@ngx-translate/core';
     }
 
     .icon-wrapper {
-      width: 40px;
-      height: 40px;
-      background: var(--bg-card);
-      border-radius: 10px;
+      width: 2.5rem;
+      height: 2.5rem;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-md);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: var(--transition);
+    }
+
+    .passkey-button:hover .icon-wrapper {
+      background: var(--primary-light);
     }
 
     .passkey-icon {
-      width: 24px;
-      height: 24px;
+      width: 1.5rem;
+      height: 1.5rem;
     }
 
     .text-wrapper {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 0.125rem;
     }
 
     .passkey-title {
       font-weight: 600;
-      font-size: 0.95rem;
+      font-size: 0.9375rem;
       color: var(--text-primary);
     }
 
     .passkey-subtitle {
-      font-size: 0.8rem;
+      font-size: 0.8125rem;
       color: var(--text-secondary);
     }
 
     .spinner-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(var(--bg-card-rgb), 0.5);
+      background: rgba(var(--bg-card-rgb, 255, 255, 255), 0.5);
       backdrop-filter: blur(2px);
       display: flex;
       align-items: center;
@@ -108,8 +117,8 @@ import { TranslateModule } from '@ngx-translate/core';
     }
 
     .spinner {
-      width: 20px;
-      height: 20px;
+      width: 1.25rem;
+      height: 1.25rem;
       border: 2px solid var(--primary);
       border-top-color: transparent;
       border-radius: 50%;
