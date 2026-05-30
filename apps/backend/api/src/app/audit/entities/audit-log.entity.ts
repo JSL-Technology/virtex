@@ -21,8 +21,8 @@ export class AuditLog {
   userId: string;
 
   @Index()
-  @Column({ name: 'organization_id', type: 'uuid', updatable: false })
-  organizationId: string;
+  @Column({ name: 'organization_id', type: 'uuid', nullable: true, updatable: false })
+  organizationId: string | null;
 
   @Index()
   @Column({ updatable: false })
