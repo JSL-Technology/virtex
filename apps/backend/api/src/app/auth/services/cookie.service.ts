@@ -62,6 +62,17 @@ export class CookieService {
     });
   }
 
+  setSocialRegisterTokenCookie(res: Response, token: string): void {
+    const isProduction = this.configService.get('NODE_ENV') === 'production';
+    res.cookie('social_register_token', token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'lax',
+      maxAge: 5 * 60 * 1000, // 5 minutes — PII transfer window
+      path: '/',
+    });
+  }
+
   setRegisterTokenCookie(res: Response, token: string): void {
     const isProduction = this.configService.get('NODE_ENV') === 'production';
     res.cookie('register_token', token, {

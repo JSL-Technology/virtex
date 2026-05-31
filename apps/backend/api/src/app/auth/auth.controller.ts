@@ -20,6 +20,7 @@ import { GoogleRecaptchaGuard } from '@nestlab/google-recaptcha';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { VerifyWebAuthnAuthDto } from './dto/verify-webauthn-auth.dto';
 
 import { SetPasswordFromInvitationDto } from './dto/set-password-from-invitation.dto';
 import { ConfigService } from '@nestjs/config';
@@ -34,6 +35,9 @@ import { plainToInstance } from 'class-transformer';
 import { AuthGuard } from '@nestjs/passport';
 import { EnableTwoFactorDto } from './dto/enable-2fa.dto';
 import { CsrfGuard } from './guards/csrf.guard';
+import { PermissionsGuard } from './guards/permissions/permissions.guard';
+import { HasPermission } from './decorators/permissions.decorator';
+import { PERMISSIONS } from '../shared/permissions';
 import { MfaOrchestratorService } from './services/mfa-orchestrator.service';
 import { JwtService } from '@nestjs/jwt';
 import { TwoFactorVerifiedGuard } from './guards/two-factor-verified.guard';
@@ -99,14 +103,8 @@ export class AuthController {
         // Generate a secure, short-lived token to transfer PII safely
         const registerToken = await this.authFacade.generateRegisterToken(socialUser);
 
-        // SECURITY 10/10: Use HTTP-only cookie to transfer PII token instead of URL parameter.
-        // This prevents token leakage in browser history or referrer headers.
-        res.cookie('social_register_token', registerToken, {
-            httpOnly: true,
-            secure: this.configService.get('NODE_ENV') === 'production',
-            sameSite: 'lax',
-            maxAge: 5 * 60 * 1000 // 5 minutes
-        });
+        // Use centralised CookieService to avoid inline options drifting out of sync.
+        this.cookieService.setSocialRegisterTokenCookie(res, registerToken);
 
         // Redirect without token in URL
         return res.redirect(`${frontendUrl}/auth/register?social_registration=true`);
@@ -195,7 +193,8 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ type: AuthResponseDto })
-  @UseGuards(CsrfGuard)
+  // No CsrfGuard — the invitationToken is proof-of-possession (SHA-256, 32 bytes).
+  // New users have never logged in and therefore have no XSRF-TOKEN cookie.
   async setPasswordFromInvitation(
     @Body() setPasswordDto: SetPasswordFromInvitationDto,
     @Res({ passthrough: true }) res: Response
@@ -299,12 +298,16 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe())
-  @UseGuards(CsrfGuard)
+  // No CsrfGuard — the reset token (SHA-256 of 32 random bytes) is proof-of-possession.
+  // Users performing a password reset typically have no active session and therefore
+  // no XSRF-TOKEN cookie. OWASP explicitly exempts endpoints already protected by
+  // a one-time secret from requiring additional CSRF protection.
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     const user = await this.passwordRecoveryService.resetPassword(resetPasswordDto);
-    const { passwordHash, ...userResult } = user;
-    return userResult;
+    // Return only whitelisted fields — never expose security entity (passwordHash,
+    // twoFactorSecret, backupCodes, etc.) regardless of what the ORM loaded.
+    return plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true });
   }
 
   @Post('change-password')
@@ -321,7 +324,8 @@ export class AuthController {
   }
 
   @Post('impersonate')
-  @UseGuards(JwtAuthGuard, CsrfGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard, PermissionsGuard)
+  @HasPermission(PERMISSIONS.USERS_IMPERSONATE)
   async impersonate(
     @CurrentUser() adminUser: User,
     @Body('userId') targetUserId: string,
@@ -478,18 +482,30 @@ export class AuthController {
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
   @UseGuards(CsrfGuard)
   async verifyWebAuthnAuthentication(
-    @Body() body: any,
+    @Body() body: VerifyWebAuthnAuthDto,
     @Res({ passthrough: true }) res: Response
   ) {
     const result = await this.webAuthnService.verifyAuthentication(body);
+    const user = result.user;
 
-    // Create session (same as regular login)
-    const { accessToken, refreshToken } = await this.authFacade.generateTokens(result.user);
+    // FIDO2/WebAuthn is inherently multi-factor (possession + biometric/PIN = NIST AAL2).
+    // However, if the user has explicitly configured TOTP or SMS 2FA, we honour that
+    // organisational policy by requiring the second factor before issuing session cookies —
+    // consistent with the standard login flow in auth.service.ts.
+    if (user.security?.isTwoFactorEnabled) {
+      const expirationSeconds = Math.floor(AuthConfig.MFA_CODE_EXPIRATION / 1000);
+      const tempToken = this.jwtService.sign(
+        { id: user.id, type: '2fa_pending', tokenVersion: user.security.tokenVersion },
+        { expiresIn: `${expirationSeconds}s`, secret: AuthConfig.JWT_2FA_TEMP_SECRET }
+      );
+      return { require2fa: true, tempToken, message: '2FA verification required' };
+    }
 
+    const { accessToken, refreshToken } = await this.authFacade.generateTokens(user);
     this.cookieService.setAuthCookies(res, accessToken, refreshToken);
 
     return {
-      user: plainToInstance(UserResponseDto, result.user, { excludeExtraneousValues: true }),
+      user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }),
       accessToken
     };
   }

@@ -244,8 +244,7 @@ export class RegisterPage implements OnInit {
       const token = params['token'];
       const socialRegistration = params['social_registration'];
       if (token || socialRegistration === 'true') {
-        const tokenToUse = token || '';
-        this.authService.getSocialRegisterInfo(tokenToUse).subscribe({
+        this.authService.getSocialRegisterInfo().subscribe({
           next: (info) => {
             this.registerForm.patchValue({
               accountInfo: {

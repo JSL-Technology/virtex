@@ -253,10 +253,14 @@ export class AuthService {
     );
   }
 
-  getSocialRegisterInfo(token: string): Observable<any> {
-      return this.http.get(`${this.apiUrl}/social-register-info?token=${token}`, {
-          context: new HttpContext().set(IS_PUBLIC_API, true)
-      });
+  getSocialRegisterInfo(): Observable<any> {
+    // Backend reads the PII token from the httpOnly `social_register_token` cookie —
+    // no query param needed. Passing tokens in URLs leaks them to browser history and
+    // server logs, which is why this flow was migrated to cookies.
+    return this.http.get(`${this.apiUrl}/social-register-info`, {
+      withCredentials: true,
+      context: new HttpContext().set(IS_PUBLIC_API, true),
+    });
   }
 
   // 🔥 Añadir método para obtener permisos como observable

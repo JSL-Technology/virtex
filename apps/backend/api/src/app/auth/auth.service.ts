@@ -169,8 +169,8 @@ export class AuthService {
     return { message: 'Sesión cerrada exitosamente.' };
   }
 
-  async getUserSessions(userId: string) {
-    return this.sessionService.getUserSessions(userId);
+  async getUserSessions(userId: string, currentRefreshTokenId?: string) {
+    return this.sessionService.getUserSessions(userId, currentRefreshTokenId);
   }
 
   async revokeSession(userId: string, sessionId: string) {
@@ -205,8 +205,7 @@ export class AuthService {
   }
 
   async changePassword(userId: string, currentPass: string, newPass: string): Promise<void> {
-      const user = await this.usersService.findOne(userId); // ensure loaded with security if possible, or use findUserByIdForAuth
-      const userWithSec = await this.usersService.findUserByIdForAuth(userId); // To get passwordHash
+      const userWithSec = await this.usersService.findUserByIdForAuth(userId);
 
       if (!userWithSec?.security?.passwordHash) {
           throw new AuthException(AuthError.INVALID_CREDENTIALS, 400, 'User has no password set (Social Login?)');

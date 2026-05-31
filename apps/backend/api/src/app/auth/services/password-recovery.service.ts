@@ -71,10 +71,6 @@ export class PasswordRecoveryService {
       throw new UnauthorizedException('El token de restablecimiento es inválido o ha expirado.');
     }
 
-    if (password.length < 8) {
-      throw new BadRequestException('La contraseña debe tener al menos 8 caracteres.');
-    }
-
     if (user.security.passwordHash) {
       const isSamePassword = await argon2.verify(user.security.passwordHash, password);
       if (isSamePassword) {
