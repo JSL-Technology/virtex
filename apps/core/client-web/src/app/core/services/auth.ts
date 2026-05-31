@@ -6,7 +6,6 @@ import {
   catchError,
   map,
   tap,
-  throwError,
   of,
   take,
   firstValueFrom,
@@ -298,7 +297,10 @@ export class AuthService {
     this._authStatus.set(AuthStatus.unauthenticated);
     this.webSocketService.emit('user-status', { isOnline: false });
     this.webSocketService.disconnect();
-    this.router.navigate(['/auth/login']);
+    const supportedLangs = ['es', 'en'];
+    const storedLang = localStorage.getItem('ui_lang');
+    const lang = storedLang && supportedLangs.includes(storedLang) ? storedLang : 'es';
+    this.router.navigate([`/${lang}/auth/login`]);
 
     // 2. Notificar al backend si es necesario (best effort)
     if (notifyBackend) {
@@ -323,7 +325,7 @@ export class AuthService {
       const options = await firstValueFrom(this.http.get<any>(`${this.apiUrl}/webauthn/register/options`));
 
       // 2. Pass options to browser
-      const credential = await startRegistration(options);
+      const credential = await startRegistration({ optionsJSON: options });
 
       // 3. Send credential to backend
       await firstValueFrom(this.http.post(`${this.apiUrl}/webauthn/register/verify`, credential));
@@ -344,7 +346,7 @@ export class AuthService {
       }));
 
       // 2. Pass options to browser
-      const credential = await startAuthentication(options);
+      const credential = await startAuthentication({ optionsJSON: options });
 
       // 3. Send credential to backend for verification and login
       // Add challengeId which was returned in options

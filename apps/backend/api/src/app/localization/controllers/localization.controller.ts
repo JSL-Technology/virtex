@@ -3,17 +3,20 @@ import { Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { LocalizationService } from '../services/localization.service';
 import { Organization } from '../organizations/entities/organization.entity';
 import { FiscalRegion } from '../entities/fiscal-region.entity';
+import { Public } from '../../auth/decorators/public.decorator';
 
 @Controller('localization')
 export class LocalizationController {
     constructor(private readonly localizationService: LocalizationService) {}
 
     @Get('fiscal-regions')
+    @Public()
     async getFiscalRegions(): Promise<FiscalRegion[]> {
         return this.localizationService.findAllFiscalRegions();
     }
 
     @Get('config/:countryCode')
+    @Public()
     async getConfig(@Param('countryCode') countryCode: string) {
         const strategy = this.localizationService.getStrategy(countryCode);
         const config = strategy.getConfig();

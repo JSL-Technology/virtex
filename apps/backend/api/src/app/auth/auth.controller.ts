@@ -1,5 +1,5 @@
 
-import { Controller, Post, Body, HttpCode, HttpStatus, Res, Get, UseGuards, Req, UsePipes, ValidationPipe, BadRequestException, Param, Ip, Headers, Query, UseFilters } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Res, Get, UseGuards, Req, UsePipes, ValidationPipe, BadRequestException, UnauthorizedException, Param, Ip, Headers, Query, UseFilters } from '@nestjs/common';
 import type { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { AuthFacade } from './auth.facade';
@@ -37,6 +37,7 @@ import { CsrfGuard } from './guards/csrf.guard';
 import { MfaOrchestratorService } from './services/mfa-orchestrator.service';
 import { JwtService } from '@nestjs/jwt';
 import { TwoFactorVerifiedGuard } from './guards/two-factor-verified.guard';
+import { Public } from './decorators/public.decorator';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -55,30 +56,36 @@ export class AuthController {
   ) {}
 
   @Get('google')
+  @Public()
   @UseGuards(AuthGuard('google'))
   async googleAuth(@Req() req: Request) {}
 
   @Get('google/callback')
+  @Public()
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@SocialUserDecorator() socialUser: SocialUser, @Res() res: Response) {
       await this.handleSocialCallback(socialUser, res);
   }
 
   @Get('microsoft')
+  @Public()
   @UseGuards(AuthGuard('microsoft'))
   async microsoftAuth(@Req() req: Request) {}
 
   @Get('microsoft/callback')
+  @Public()
   @UseGuards(AuthGuard('microsoft'))
   async microsoftAuthRedirect(@SocialUserDecorator() socialUser: SocialUser, @Res() res: Response) {
       await this.handleSocialCallback(socialUser, res);
   }
 
   @Get('okta')
+  @Public()
   @UseGuards(AuthGuard('okta'))
   async oktaAuth(@Req() req: Request) {}
 
   @Get('okta/callback')
+  @Public()
   @UseGuards(AuthGuard('okta'))
   async oktaAuthRedirect(@SocialUserDecorator() socialUser: SocialUser, @Res() res: Response) {
       await this.handleSocialCallback(socialUser, res);
@@ -111,6 +118,7 @@ export class AuthController {
   }
 
   @Get('social-register-info')
+  @Public()
   @ApiOperation({ summary: 'Decode social register token to pre-fill form' })
   async getSocialRegisterInfo(@Query('token') token: string, @Req() req: Request) {
       let tokenToUse = token;
@@ -127,6 +135,7 @@ export class AuthController {
   }
 
   @Post('register')
+  @Public()
   @UseGuards(ThrottlerGuard)
   @ApiOperation({ summary: 'Register a new user and organization' })
   @ApiResponse({ status: 201, description: 'User successfully registered.', type: AuthResponseDto })
@@ -149,6 +158,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @Public()
   @ApiOperation({ summary: 'Login with email and password' })
   @ApiResponse({ status: 200, description: 'Login successful', type: AuthResponseDto })
   @HttpCode(HttpStatus.OK)
@@ -187,6 +197,7 @@ export class AuthController {
   }
 
   @Post('set-password-from-invitation')
+  @Public()
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ type: AuthResponseDto })
   @UseGuards(CsrfGuard)
@@ -206,12 +217,14 @@ export class AuthController {
   }
 
   @Get('invitation/:token')
+  @Public()
   @HttpCode(HttpStatus.OK)
   async getInvitationDetails(@Param('token') token: string) {
     return this.passwordRecoveryService.getInvitationDetails(token);
   }
 
   @Get('refresh')
+  @Public()
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ type: AuthResponseDto })
   async refresh(
@@ -244,6 +257,7 @@ export class AuthController {
   }
 
   @Get('status')
+  @Public()
   async checkAuthStatus(@Req() req: Request) {
     const token = req.cookies['access_token'];
 
@@ -269,6 +283,7 @@ export class AuthController {
   }
 
   @Post('forgot-password')
+  @Public()
   @HttpCode(HttpStatus.OK)
   @UseGuards(GoogleRecaptchaGuard)
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
@@ -282,6 +297,7 @@ export class AuthController {
   }
 
   @Post('reset-password')
+  @Public()
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe())
   @UseGuards(CsrfGuard)
@@ -407,9 +423,10 @@ export class AuthController {
   }
 
   @Post('verify-2fa')
+  @Public()
   @HttpCode(HttpStatus.OK)
   @UseGuards(CsrfGuard)
-  @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } }) // Rate limit 2FA attempts
+  @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
   async verify2fa(
       @Body() body: { code: string, tempToken: string },
       @Res({ passthrough: true }) res: Response,
@@ -450,12 +467,14 @@ export class AuthController {
   }
 
   @Post('webauthn/login/options')
+  @Public()
   @ApiOperation({ summary: 'Generate WebAuthn authentication options' })
   async generateWebAuthnAuthenticationOptions(@Body('email') email?: string) {
     return this.webAuthnService.generateAuthenticationOptions(email);
   }
 
   @Post('webauthn/login/verify')
+  @Public()
   @ApiOperation({ summary: 'Verify WebAuthn authentication' })
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
   @UseGuards(CsrfGuard)
