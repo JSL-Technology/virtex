@@ -1,9 +1,10 @@
-import { Injectable, Logger, UnauthorizedException, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { authenticator } from 'otplib';
 import * as argon2 from 'argon2';
 import * as Bowser from 'bowser';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { GeoService } from '../../geo/geo.service';
 import { AuditTrailService } from '../../audit/audit.service';
 import { AuthConfig } from '../auth.config';
@@ -23,12 +24,14 @@ export class SecurityAnalysisService {
     private readonly usersService: UsersService,
     @InjectRepository(VerificationCode)
     private readonly verificationCodeRepository: Repository<VerificationCode>,
-    private readonly cryptoUtil: CryptoUtil
+    private readonly cryptoUtil: CryptoUtil,
+    private readonly eventEmitter: EventEmitter2
   ) {}
 
   /**
    * Checks for "Impossible Travel" anomalies based on the user's last login IP.
-   * Throws UnauthorizedException if travel speed exceeds reasonable limits.
+   * Emits a 'security.suspicious_travel' event when suspicious speed is detected,
+   * rather than blocking login — avoids false positives from VPN or flights.
    */
   async checkImpossibleTravel(userId: string, currentIp?: string): Promise<void> {
     if (!currentIp || !userId) return;
@@ -58,15 +61,16 @@ export class SecurityAnalysisService {
 
       if (distanceKm > minDistance && speed > maxSpeed) {
         this.logger.warn(
-          `[SECURITY] Impossible Travel Detected for User ${userId}. Distance: ${distanceKm.toFixed(
-            2
-          )}km, Time: ${timeDiffHours.toFixed(2)}h, Speed: ${speed.toFixed(2)}km/h. Previous IP: ${
-            lastLogin.ipAddress
-          }, Current IP: ${currentIp}`
+          `[SECURITY] Suspicious travel detected for user ${userId}. ` +
+          `Distance: ${distanceKm.toFixed(2)} km, Time: ${timeDiffHours.toFixed(2)} h, Speed: ${speed.toFixed(2)} km/h.`,
         );
-        throw new UnauthorizedException(
-          'Viaje imposible detectado. Por seguridad, su cuenta ha sido bloqueada temporalmente. Contacte a soporte.'
-        );
+        this.eventEmitter.emit('security.suspicious_travel', {
+          userId,
+          speed: speed.toFixed(2),
+          distanceKm: distanceKm.toFixed(2),
+          previousIp: lastLogin.ipAddress,
+          currentIp,
+        });
       }
     }
   }

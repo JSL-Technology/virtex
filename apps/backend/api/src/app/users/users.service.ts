@@ -1,5 +1,5 @@
 
-import { Injectable, Inject, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, BadRequestException, ForbiddenException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { User } from './entities/user.entity/user.entity';
@@ -19,6 +19,8 @@ import { SaasResource } from '../saas/enums/saas-resource.enum';
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -181,6 +183,17 @@ export class UsersService {
     return user;
   }
 
+  async findOneByOrg(id: string, organizationId: string): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { id, organizationId },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`Usuario con id ${id} no encontrado en tu organización`);
+    }
+    return user;
+  }
+
   async findOneByEmail(email: string): Promise<User | null> {
     const user = await this.userRepository.findOne({
       where: { email },
@@ -239,10 +252,7 @@ export class UsersService {
     try {
       await this.mailService.sendPasswordResetEmail(user, resetToken, '1h');
     } catch (error) {
-      console.error(
-        `Failed to send password reset email to ${user.email}`,
-        error,
-      );
+      this.logger.error('Failed to send admin-triggered password reset email', { userId: user.id });
 
       user.security.passwordResetToken = null;
       user.security.passwordResetExpires = null;
@@ -279,7 +289,8 @@ export class UsersService {
       throw new NotFoundException(`Role with ID ${roleId} not found.`);
     }
 
-    const invitationToken = crypto.randomBytes(32).toString('hex');
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
     const tokenExpires = new Date();
     tokenExpires.setDate(tokenExpires.getDate() + 7);
 
@@ -290,7 +301,7 @@ export class UsersService {
       organizationId,
       roles: [role],
       status: UserStatus.PENDING,
-      invitationToken: invitationToken,
+      invitationToken: hashedToken,
       invitationTokenExpires: tokenExpires,
       security: new UserSecurity() // Initialize security
     });
@@ -300,11 +311,9 @@ export class UsersService {
         // Enforce Limit before saving
         await this.saasService.enforceLimit(manager, organizationId, SaasResource.USERS);
 
-        // We must associate the user entity with the manager to participate in transaction?
-        // TypeORM's manager.save(entity) handles this.
         await manager.save(newUser);
 
-        await this.mailService.sendUserInvitation(newUser, invitationToken);
+        await this.mailService.sendUserInvitation(newUser, rawToken);
 
         delete newUser.invitationToken;
         delete newUser.invitationTokenExpires;

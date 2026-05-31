@@ -1,5 +1,5 @@
 
-import { Controller, Post, Body, HttpCode, HttpStatus, Res, Get, UseGuards, Req, UsePipes, ValidationPipe, BadRequestException, UnauthorizedException, Param, Ip, Headers, Query, UseFilters } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Res, Get, UseGuards, Req, UsePipes, ValidationPipe, BadRequestException, UnauthorizedException, Param, Ip, Headers, UseFilters } from '@nestjs/common';
 import type { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { AuthFacade } from './auth.facade';
@@ -120,16 +120,11 @@ export class AuthController {
   @Get('social-register-info')
   @Public()
   @ApiOperation({ summary: 'Decode social register token to pre-fill form' })
-  async getSocialRegisterInfo(@Query('token') token: string, @Req() req: Request) {
-      let tokenToUse = token;
-
-      // Fallback to cookie if token not in query (for the new secure flow)
-      if (!tokenToUse) {
-          tokenToUse = req.cookies['social_register_token'];
-      }
+  async getSocialRegisterInfo(@Req() req: Request) {
+      const tokenToUse = req.cookies['social_register_token'];
 
       if (!tokenToUse) {
-          throw new BadRequestException('Token required (query or cookie)');
+          throw new BadRequestException('Token de registro no encontrado (cookie requerida)');
       }
       return this.authFacade.getSocialRegisterInfo(tokenToUse);
   }
@@ -250,8 +245,12 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(CsrfGuard)
-  logout(@Res({ passthrough: true }) res: Response) {
+  @UseGuards(JwtAuthGuard, CsrfGuard)
+  async logout(
+    @CurrentUser() user: User,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    await this.authService.logout(user.id);
     this.cookieService.clearAuthCookies(res);
     return { message: 'Logout exitoso' };
   }

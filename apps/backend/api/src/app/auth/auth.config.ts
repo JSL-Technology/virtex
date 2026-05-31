@@ -1,6 +1,4 @@
 
-import { ConfigService } from '@nestjs/config';
-
 // Helper to convert time string to milliseconds
 export function parseDuration(duration: string): number {
   const match = /^(\d+)([mhd])$/i.exec(duration);
@@ -21,7 +19,13 @@ export const AuthConfig = {
   get JWT_REFRESH_EXPIRATION() { return process.env.JWT_REFRESH_EXPIRATION || '7d'; },
   get JWT_RESET_PASSWORD_EXPIRATION() { return process.env.JWT_RESET_PASSWORD_EXPIRATION || '15m'; },
   get JWT_REFRESH_REMEMBER_ME_EXPIRATION() { return process.env.JWT_REFRESH_REMEMBER_ME_EXPIRATION || '30d'; },
-  get JWT_2FA_TEMP_SECRET() { return process.env.JWT_2FA_TEMP_SECRET || 'temp_2fa_secret_change_me'; },
+  get JWT_2FA_TEMP_SECRET() {
+    const secret = process.env.JWT_2FA_TEMP_SECRET;
+    if (!secret) {
+      throw new Error('FATAL: JWT_2FA_TEMP_SECRET is required and must be set via environment variable. No default is allowed.');
+    }
+    return secret;
+  },
 
   // Cookie Max Age (Milliseconds)
   get COOKIE_ACCESS_MAX_AGE() { return parseDuration(process.env.JWT_ACCESS_EXPIRATION || '15m'); },

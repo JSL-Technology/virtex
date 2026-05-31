@@ -141,8 +141,7 @@ export class UsersController {
   @HasPermission('users.view')
   @ApiOperation({ summary: 'Get user by ID' })
   async findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
-    // Ideally ensure user belongs to same org
-    const foundUser = await this.usersService.findOne(id);
+    const foundUser = await this.usersService.findOneByOrg(id, user.organizationId);
     return plainToInstance(UserResponseDto, foundUser, { excludeExtraneousValues: true });
   }
 

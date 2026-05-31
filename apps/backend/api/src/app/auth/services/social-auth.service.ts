@@ -69,7 +69,7 @@ export class SocialAuthService {
         type: 'social-register'
       },
       {
-        secret: this.configService.getOrThrow('JWT_SECRET'),
+        secret: this.configService.getOrThrow('JWT_SOCIAL_REGISTER_SECRET'),
         expiresIn: '10m'
       }
     );
@@ -78,7 +78,7 @@ export class SocialAuthService {
   async getSocialRegisterInfo(token: string): Promise<SocialUser> {
     try {
       const payload = this.jwtService.verify(token, {
-        secret: this.configService.getOrThrow('JWT_SECRET'),
+        secret: this.configService.getOrThrow('JWT_SOCIAL_REGISTER_SECRET'),
       });
 
       if (payload.type !== 'social-register') {

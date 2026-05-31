@@ -276,7 +276,7 @@ export class SessionService implements OnModuleInit {
 
     return sessions.map((session) => ({
       id: session.id,
-      ipAddress: session.ipAddress,
+      ipAddress: session.ipAddress ? this.maskIp(session.ipAddress) : null,
       userAgent: session.userAgent,
       browser: session.browser,
       os: session.os,
@@ -310,22 +310,31 @@ export class SessionService implements OnModuleInit {
   }
 
   async terminateOtherSessions(userId: string, currentSessionId: string) {
-    // Revoke all tokens for user except current (if provided)
-    // For password change we usually want to revoke ALL including current if we want them to re-login,
-    // or keep current. The requirement is usually to invalidate OTHERS.
-    // However, for password change, 'tokenVersion' increment in AuthService handles everything anyway.
-    // So this method is actually redundant if we use tokenVersion.
-    // BUT, if we want to mark them as revoked in DB for audit:
-    await this.refreshTokenRepository.update(
+    if (!currentSessionId) {
+      await this.refreshTokenRepository.update(
         { userId, isRevoked: false },
-        { isRevoked: true, revokedAt: new Date() }
-    );
+        { isRevoked: true, revokedAt: new Date() },
+      );
+      return;
+    }
+
+    await this.refreshTokenRepository
+      .createQueryBuilder()
+      .update(RefreshToken)
+      .set({ isRevoked: true, revokedAt: new Date() })
+      .where(
+        'userId = :userId AND id != :currentSessionId AND isRevoked = false',
+        { userId, currentSessionId },
+      )
+      .execute();
   }
 
   async terminateAllSessions(userId: string) {
       await this.userCacheService.clearUserSession(userId);
-      // Optional: Revoke all refresh tokens in DB if stricter security is needed
-      // await this.refreshTokenRepository.update({ userId, isRevoked: false }, { isRevoked: true, revokedAt: new Date() });
+      await this.refreshTokenRepository.update(
+        { userId, isRevoked: false },
+        { isRevoked: true, revokedAt: new Date() },
+      );
   }
 
   async verifyUserFromToken(token: string): Promise<User | null> {

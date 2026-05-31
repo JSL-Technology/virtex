@@ -519,10 +519,9 @@ export class AuthService {
   }
 
   changePassword(data: any): Observable<{ message: string }> {
-      return this.http.post<{ message: string }>(`${this.apiUrl}/change-password`, data, {
-          context: new HttpContext().set(IS_PUBLIC_API, true)
-      }).pipe(
-          catchError((err) => this.errorHandlerService.handleError('changePassword', err))
-      );
+      return this.http.post<{ message: string }>(`${this.apiUrl}/change-password`, data)
+          .pipe(
+              catchError((err) => this.errorHandlerService.handleError('changePassword', err))
+          );
   }
 }
