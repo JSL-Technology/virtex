@@ -1,0 +1,1191 @@
+================================================================================
+  AUDITORÍA DE SEGURIDAD — AUTENTICACIÓN, AUTORIZACIÓN Y GESTIÓN DE SESIONES
+  Repositorio: virtex (NestJS backend + Angular frontend)
+  Fecha: 2026-05-31
+  Auditor: Rol de Ingeniero de Seguridad Senior / Arquitecto Fullstack
+  Estándar de referencia: Auth0, GitHub, Stripe, Google
+================================================================================
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. RESUMEN EJECUTIVO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+El módulo de autenticación de Virteex muestra una arquitectura deliberada y
+bien pensada: Argon2id para hashing, rotación de refresh tokens con detección
+de reuso, versionado de tokens para invalidación de sesiones, CSRF double-submit
+cookie, guard JWT global con patrón @Public(), 2FA con TOTP+SMS+Backup Codes, y
+WebAuthn. Son decisiones técnicas de nivel empresarial.
+
+Sin embargo, la implementación tiene TRES fallos graves que, en conjunto, hacen
+que el módulo NO esté listo para producción a escala empresarial:
+
+(1) El endpoint de logout no ejecuta ninguna lógica de invalidación de sesión
+    — solo borra cookies. Un atacante con un refresh token capturado puede
+    re-autenticarse indefinidamente después de que el usuario haga logout.
+
+(2) Existe una vulnerabilidad IDOR en GET /users/:id que permite a cualquier
+    usuario autenticado consultar el perfil de usuarios de OTRAS organizaciones.
+
+(3) El flujo de reset de contraseña iniciado por un administrador es
+    funcionalmente roto e incompatible con el endpoint de validación, lo que
+    significa que esa funcionalidad no funciona en absoluto.
+
+Adicionalmente hay un secreto JWT con valor por defecto inseguro en código
+fuente para el token temporal de 2FA, que debe considerarse comprometido si
+la variable de entorno no está configurada.
+
+Veredicto: NO listo para producción empresarial en su estado actual. Los
+problemas críticos son corregibles, pero algunos requieren refactorización de
+lógica de servicio, no parches superficiales.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. TABLA DE CALIFICACIONES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BACKEND
+─────────────────────────────────────────────────────────────────────────────
+Seguridad:          6/10
+  Razón: Argon2id, tokenVersion, detección reuso son excelentes. El logout
+  no revoca tokens en DB, IDOR en users/:id, y JWT_2FA secret hardcodeado
+  son fallos concretos que bajan la nota significativamente.
+  Evidencia: session.service.ts:325-329, users.controller.ts:143-147,
+             auth.config.ts:24
+
+Arquitectura:       8/10
+  Razón: Excelente separación de responsabilidades (Facade, Services,
+  Guards, Strategies, Listeners). El circuit breaker para Redis y el patrón
+  de Event Emitter para auditoría son decisiones maduras. Penaliza la
+  inconsistencia entre dos flujos de reset de contraseña.
+  Evidencia: auth.facade.ts, jwt.strategy.ts (circuit breaker en líneas 45-58)
+
+Validación:         7/10
+  Razón: ValidationPipe global con whitelist:true es correcto. DTOs bien
+  decorados con class-validator. Sin embargo, ChangePasswordDto carece de
+  validadores de complejidad que sí existen en RegisterUserDto y ResetPasswordDto.
+  Evidencia: change-password.dto.ts:1-10, register-user.dto.ts:59-63
+
+Manejo de errores:  7/10
+  Razón: AuthException custom, mensajes genéricos en forgot-password y login
+  (anti-enumeración). Sin embargo, console.error desnudo en users.service.ts:242
+  puede exponer datos en ciertos entornos de logging.
+  Evidencia: auth.exceptions.ts, password-recovery.service.ts:38, users.service.ts:242
+
+Escalabilidad:      8/10
+  Razón: Caching de usuarios en Redis, circuit breaker para fallback a DB,
+  throttler con Redis store, token cleanup en batches. Sólido.
+  Evidencia: jwt.strategy.ts:45-113, session.service.ts:353-416
+
+Observabilidad:     5/10
+  Razón: AuthAuditListener solo hace console.log, no persiste en DB. El
+  audit trail para eventos de login (éxito/fallo) no es durable. MfaOrchestratorService
+  sí persiste vía AuditTrailService para 2FA, creando inconsistencia.
+  Evidencia: auth-audit.listener.ts:1-21, mfa-orchestrator.service.ts:173-195
+
+FRONTEND
+─────────────────────────────────────────────────────────────────────────────
+Seguridad del cliente:     8/10
+  Razón: No hay tokens en localStorage. Se usan httpOnly cookies. El
+  interceptor extrae el XSRF-TOKEN de cookie y lo manda en header manualmente.
+  El accessToken se elimina de la respuesta antes de exponerlo al componente.
+  Evidencia: auth.ts:171-173, auth.interceptor.ts:26-37
+
+Manejo de tokens/sesión:   8/10
+  Razón: Refresh automático con cola (AuthQueueService), exponential backoff,
+  manejo de 401. La señal reactiva de Angular es correcta. El changePassword
+  lleva IS_PUBLIC_API=true inadvertidamente, lo que puede causar logout
+  prematuro si el token expira durante la operación.
+  Evidencia: auth.interceptor.ts:47-103, auth.ts:521-526
+
+Protección de rutas:       8/10
+  Razón: authGuard valida contra backend, no solo señal local. permissionsGuard
+  verifica permisos del usuario. Rutas públicas (payment, auth) correctamente
+  excluidas del authGuard.
+  Evidencia: auth-guard.ts:1-33, app.routes.ts:22-23
+
+Consistencia con backend:  7/10
+  Razón: Los guards del frontend son UX, no seguridad. El backend tiene
+  JwtAuthGuard global y PermissionsGuard por endpoint. La consistencia es
+  razonable, pero el endpoint GET /users/:id no se protege en backend
+  contra IDOR, lo que el frontend no puede compensar.
+  Evidencia: users.controller.ts:140-147
+
+──────────────────────────────────────────────────────────────────────────────
+PUNTUACIÓN GLOBAL: 7/10
+  Un 7 refleja que la arquitectura y la mayoría de los controles están bien
+  diseñados, pero los fallos en logout, IDOR y el flujo roto de reset de
+  contraseña administrativo son lo suficientemente graves para bloquear el
+  despliegue en producción.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. FORTALEZAS — LO QUE ESTÁ BIEN IMPLEMENTADO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+F1. ARGON2ID CON PARÁMETROS ROBUSTOS
+  Archivo: apps/backend/api/src/app/auth/services/password.service.ts:8-23
+           apps/backend/api/src/app/auth/auth.config.ts:50-52
+  Fragmento:
+    async hash(plain: string): Promise<string> {
+        return argon2.hash(plain); // Uses ARGON2_MEMORY_COST=65536, TIME_COST=3, PARALLELISM=4
+    }
+  Por qué es correcto: Argon2id es el ganador del Password Hashing Competition
+  (2015) y la recomendación actual de OWASP. Los parámetros (64MB, 3 iter,
+  4 threads) superan los mínimos de OWASP.
+  Referencia: OWASP Password Storage Cheat Sheet, RFC 9106
+
+F2. VERIFICACIÓN DE CONTRASEÑA DUMMY CONTRA TIMING ATTACKS
+  Archivo: apps/backend/api/src/app/auth/auth.service.ts:61-64
+  Fragmento:
+    } else {
+        await this.passwordService.verifyDummy(password);
+        isPasswordValid = false;
+    }
+  Por qué es correcto: Cuando el usuario no existe, se realiza una operación
+  de verificación de coste igual al de un usuario real. Esto iguala el tiempo
+  de respuesta y previene ataques de temporización que confirmarían la
+  existencia de un usuario.
+  Referencia: CWE-208 (Observable Timing Discrepancy), OWASP Authentication Cheat Sheet
+
+F3. TOKEN VERSIONING PARA INVALIDACIÓN GLOBAL DE SESIONES
+  Archivo: apps/backend/api/src/app/users/entities/user-security.entity.ts:23-30
+           apps/backend/api/src/app/auth/strategies/jwt.strategy/jwt.strategy.ts:120-124
+  Fragmento:
+    @Column({ name: 'token_version', type: 'integer', default: 0,
+              comment: 'Incrementado para invalidar todos los JWT emitidos previamente.' })
+    tokenVersion: number;
+    // En jwt.strategy.ts:
+    if (currentTokenVersion !== tokenVersion) {
+      throw new UnauthorizedException(AuthError.SESSION_EXPIRED);
+    }
+  Por qué es correcto: Este patrón permite invalidar TODOS los tokens activos
+  de un usuario (cambio de contraseña, bloqueo, cambio de rol) sin necesidad
+  de una lista de revocación. Es la misma técnica usada por Google y GitHub.
+  Referencia: OWASP JWT Cheat Sheet
+
+F4. ROTACIÓN DE REFRESH TOKENS CON DETECCIÓN DE REUSO Y NUCLEAR INVALIDATION
+  Archivo: apps/backend/api/src/app/auth/services/session.service.ts:109-152
+  Fragmento:
+    if (!refreshTokenEntity || refreshTokenEntity.isRevoked) {
+      // Si hay reuso de token revocado → invalidar familia completa
+      user.security.tokenVersion = (user.security.tokenVersion || 0) + 1;
+      await this.userSecurityRepository.save(user.security);
+      await this.refreshTokenRepository.update(
+          { userId: user.id, isRevoked: false },
+          { isRevoked: true, revokedAt: new Date() }
+      );
+      throw new UnauthorizedException(AuthError.REFRESH_TOKEN_REVOKED);
+    }
+  Por qué es correcto: El patrón "Refresh Token Rotation + Family Invalidation"
+  es la defensa estándar contra el robo de refresh tokens. RFC 6749 lo menciona
+  y Auth0 lo documenta como best practice.
+  Referencia: RFC 6749 §10.4, OAuth 2.0 Security Best Current Practice §4.12
+
+F5. CSRF DOUBLE SUBMIT COOKIE CORRECTAMENTE IMPLEMENTADO
+  Archivo: apps/backend/api/src/app/auth/guards/csrf.guard.ts:1-44
+           apps/backend/api/src/app/auth/services/cookie.service.ts:51-63
+  Fragmento (guard):
+    const xsrfToken = request.headers['x-xsrf-token'];
+    const xsrfCookie = request.cookies['XSRF-TOKEN'];
+    if (!xsrfToken || !xsrfCookie || xsrfToken !== xsrfCookie) {
+      throw new ForbiddenException('Invalid CSRF Token');
+    }
+  Por qué es correcto: Genera token con crypto.randomBytes(32), lo almacena
+  en cookie no-httpOnly (para que JS lo lea), y verifica que el header enviado
+  coincide con la cookie. Correcto y suficiente.
+  Referencia: OWASP CSRF Cheat Sheet (Double Submit Cookie Pattern)
+
+F6. CIRCUIT BREAKER PARA REDIS EN JWT STRATEGY
+  Archivo: apps/backend/api/src/app/auth/strategies/jwt.strategy/jwt.strategy.ts:44-58
+  Fragmento:
+    this.circuitBreaker = new CircuitBreaker(
+      (key: string) => this.cacheManager.get<CachedUser>(key),
+      { timeout: 3000, errorThresholdPercentage: 50, resetTimeout: 30000 }
+    );
+    this.circuitBreaker.fallback(() => Promise.resolve(null));
+  Por qué es correcto: Si Redis falla, el sistema no bloquea las peticiones —
+  hace fallback a DB. Esto previene outages de autenticación completos cuando
+  el cache no está disponible, cumpliendo con principios de alta disponibilidad.
+  Referencia: Principio de Resiliencia / Pattern: Circuit Breaker (Fowler)
+
+F7. AISLAMIENTO MULTI-TENANT EN IMPERSONACIÓN
+  Archivo: apps/backend/api/src/app/auth/services/impersonation.service.ts:40-64
+  Fragmento:
+    if (targetUser.organizationId !== adminUser.organizationId) {
+        throw new ForbiddenException('No puedes suplantar usuarios de otra organización.');
+    }
+    if (targetLevel > adminLevel) {
+        throw new ForbiddenException('No tienes jerarquía suficiente...');
+    }
+  Por qué es correcto: Doble validación (org + jerarquía) para impersonación.
+  Previene escalación de privilegios y cross-tenant access.
+
+F8. COOKIES HTTP-ONLY + SECURE + SAMESITE=LAX
+  Archivo: apps/backend/api/src/app/auth/services/cookie.service.ts:11-49
+  Fragmento:
+    const cookieOptions = {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'lax',
+      path: '/',
+    };
+  Por qué es correcto: httpOnly previene acceso JS (XSS). secure activo en
+  producción. SameSite=Lax es el balance correcto para OAuth callbacks sin
+  sacrificar protección CSRF.
+  Referencia: RFC 6265bis, OWASP Session Management Cheat Sheet
+
+F9. BACKUP CODES DE 2FA HASHEADOS CON ARGON2
+  Archivo: apps/backend/api/src/app/auth/services/two-factor-auth.service.ts:166-178
+  Fragmento:
+    const code = crypto.randomBytes(4).toString('hex').toUpperCase();
+    const formattedCode = `${code.slice(0, 4)}-${code.slice(4)}`;
+    codes.push(formattedCode);
+    hashedCodes.push(await argon2.hash(formattedCode));
+  Por qué es correcto: Los backup codes son equivalentes a contraseñas —
+  hashearlos con Argon2 es la práctica correcta. Uso único implementado
+  correctamente (burn on use).
+  Referencia: OWASP MFA Cheat Sheet
+
+F10. SECRETO TOTP CIFRADO CON AES-256-GCM
+  Archivo: apps/backend/api/src/app/auth/services/two-factor-auth.service.ts:37-42
+  Fragmento:
+    const encryptedSecret = this.cryptoUtil.encrypt(secret);
+    security.twoFactorSecret = encryptedSecret;
+  Por qué es correcto: El secreto TOTP es tan sensible como una contraseña.
+  Cifrarlo en reposo con AES-256-GCM (autenticado) limita el impacto de una
+  brecha de base de datos.
+  Referencia: NIST SP 800-57
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. TABLA RESUMEN DE HALLAZGOS NEGATIVOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌──────────┬───────────────────────────┬──────────┬─────────────────────────────────────────────────┬──────────────┬────────────────────────────────────────────────────────────────┐
+│Severidad │Tipo                       │Capa      │Archivo                                          │Línea(s)      │Resumen                                                         │
+├──────────┼───────────────────────────┼──────────┼─────────────────────────────────────────────────┼──────────────┼────────────────────────────────────────────────────────────────┤
+│CRÍTICA   │Secreto hardcodeado        │Backend   │auth/auth.config.ts                              │24            │JWT_2FA_TEMP_SECRET tiene valor por defecto inseguro en código  │
+├──────────┼───────────────────────────┼──────────┼─────────────────────────────────────────────────┼──────────────┼────────────────────────────────────────────────────────────────┤
+│CRÍTICA   │Logout incompleto          │Backend   │auth/auth.controller.ts                          │251-257       │Logout solo borra cookies, no invalida refresh token ni caché  │
+│          │(tokens no revocados)      │          │auth/services/session.service.ts                 │325-329       │                                                                │
+├──────────┼───────────────────────────┼──────────┼─────────────────────────────────────────────────┼──────────────┼────────────────────────────────────────────────────────────────┤
+│CRÍTICA   │IDOR                       │Backend   │users/users.controller.ts                        │143-147       │GET /users/:id sin verificación de org, acceso cross-tenant    │
+├──────────┼───────────────────────────┼──────────┼─────────────────────────────────────────────────┼──────────────┼────────────────────────────────────────────────────────────────┤
+│ALTA      │Flujo roto + inconsistencia│Backend   │users/users.service.ts                           │229-234       │Admin-reset usa SHA256(token) en DB; validador espera JWT raw  │
+│          │entre flujos de reset      │          │auth/services/password-recovery.service.ts       │72-86         │→ reset de contraseña admin siempre falla                      │
+├──────────┼───────────────────────────┼──────────┼─────────────────────────────────────────────────┼──────────────┼────────────────────────────────────────────────────────────────┤
+│ALTA      │CSP unsafe-inline en scripts│Backend  │main.ts                                          │40            │scriptSrc incluye 'unsafe-inline', anulando protección XSS CSP │
+├──────────┼───────────────────────────┼──────────┼─────────────────────────────────────────────────┼──────────────┼────────────────────────────────────────────────────────────────┤
+│ALTA      │Bypass de status en WebAuthn│Backend  │auth/services/webauthn.service.ts                │125-176       │verifyAuthentication no verifica user.status (BLOCKED/INACTIVE)│
+├──────────┼───────────────────────────┼──────────┼─────────────────────────────────────────────────┼──────────────┼────────────────────────────────────────────────────────────────┤
+│ALTA      │terminateOtherSessions     │Backend   │auth/services/session.service.ts                 │312-322       │Ignora currentSessionId, revoca TODAS las sesiones incluyendo  │
+│          │revoca sesión actual        │         │                                                  │              │la actual — bug en cambio de contraseña                        │
+├──────────┼───────────────────────────┼──────────┼─────────────────────────────────────────────────┼──────────────┼────────────────────────────────────────────────────────────────┤
+│ALTA      │Reset token JWT en DB      │Backend   │users/entities/user-security.entity.ts           │38-43         │passwordResetToken almacena JWT raw, no un hash. Brecha DB =   │
+│          │sin hashear                │          │auth/services/password-recovery.service.ts       │56-57         │tokens de reset utilizables                                    │
+├──────────┼───────────────────────────┼──────────┼─────────────────────────────────────────────────┼──────────────┼────────────────────────────────────────────────────────────────┤
+│MEDIA     │Social register token      │Backend   │auth/auth.controller.ts                          │123-135       │Endpoint acepta token vía query param además de cookie —       │
+│          │aceptado en query param    │          │                                                  │              │PII (email, nombre) puede quedar en logs de servidor y browser │
+├──────────┼───────────────────────────┼──────────┼─────────────────────────────────────────────────┼──────────────┼────────────────────────────────────────────────────────────────┤
+│MEDIA     │ChangePasswordDto sin      │Backend   │auth/dto/change-password.dto.ts                  │1-10          │Faltan @Matches (complejidad), @IsNotEmpty en currentPassword   │
+│          │validación de complejidad  │          │                                                  │              │→ inconsistencia con RegisterUserDto y ResetPasswordDto        │
+├──────────┼───────────────────────────┼──────────┼─────────────────────────────────────────────────┼──────────────┼────────────────────────────────────────────────────────────────┤
+│MEDIA     │IP en claro expuesta al    │Backend   │auth/services/session.service.ts                 │278           │getUserSessions devuelve ipAddress sin enmascarar — PII expuesto│
+│          │cliente en sessions list   │          │                                                  │              │                                                                │
+├──────────┼───────────────────────────┼──────────┼─────────────────────────────────────────────────┼──────────────┼────────────────────────────────────────────────────────────────┤
+│MEDIA     │Social register token usa  │Backend   │auth/services/social-auth.service.ts             │62-75         │Usa JWT_SECRET en lugar de secreto dedicado. Sin segregación de │
+│          │JWT_SECRET principal       │          │                                                  │              │secretos por propósito                                         │
+├──────────┼───────────────────────────┼──────────┼─────────────────────────────────────────────────┼──────────────┼────────────────────────────────────────────────────────────────┤
+│MEDIA     │Audit trail no persistente │Backend   │auth/listeners/auth-audit.listener.ts            │1-21          │LoginSuccess/LoginFailed solo van a Logger, no a base de datos  │
+├──────────┼───────────────────────────┼──────────┼─────────────────────────────────────────────────┼──────────────┼────────────────────────────────────────────────────────────────┤
+│MEDIA     │Detección de viaje         │Backend   │auth/services/security-analysis.service.ts       │55-68         │1500 km/h permite vuelos comerciales; lanza excepción que puede │
+│          │imposible demasiado agresivo│         │                                                  │              │bloquear usuarios legítimos (VPN, vuelos internacionales)      │
+├──────────┼───────────────────────────┼──────────┼─────────────────────────────────────────────────┼──────────────┼────────────────────────────────────────────────────────────────┤
+│BAJA      │Invitation token en claro  │Backend   │users/entities/user.entity/user.entity.ts        │112-113       │invitationToken almacenado en plaintext — debería ser hash     │
+├──────────┼───────────────────────────┼──────────┼─────────────────────────────────────────────────┼──────────────┼────────────────────────────────────────────────────────────────┤
+│BAJA      │console.error desnudo      │Backend   │users/users.service.ts                           │242           │Uso de console.error en vez de Logger NestJS — omite context,  │
+│          │                           │          │                                                  │              │rotation y structured logging                                  │
+├──────────┼───────────────────────────┼──────────┼─────────────────────────────────────────────────┼──────────────┼────────────────────────────────────────────────────────────────┤
+│BAJA      │IS_PUBLIC_API en endpoint  │Frontend  │core/services/auth.ts                            │521-526       │changePassword usa IS_PUBLIC_API=true en endpoint protegido —  │
+│          │protegido (changePassword)  │         │                                                  │              │interceptor no hará refresh si token expira durante la llamada │
+└──────────┴───────────────────────────┴──────────┴─────────────────────────────────────────────────┴──────────────┴────────────────────────────────────────────────────────────────┘
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. HALLAZGOS DETALLADOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+────────────────────────────────────────────────────────────────────────────────
+H-01 [CRÍTICA] JWT_2FA_TEMP_SECRET con valor por defecto inseguro en código
+────────────────────────────────────────────────────────────────────────────────
+
+EVIDENCIA
+  Archivo: apps/backend/api/src/app/auth/auth.config.ts:24
+  Código actual:
+    get JWT_2FA_TEMP_SECRET() {
+      return process.env.JWT_2FA_TEMP_SECRET || 'temp_2fa_secret_change_me';
+    }
+
+EXPLICACIÓN
+  Si la variable de entorno JWT_2FA_TEMP_SECRET no está configurada, el secreto
+  que firma los tokens temporales de 2FA ("2fa_pending") es conocido públicamente
+  por estar en el código fuente (ya publicado en el repositorio). Cualquier persona
+  con acceso al repositorio puede forjar un token válido de tipo '2fa_pending' para
+  cualquier userId, saltándose completamente la verificación de 2FA. El token
+  emitido en auth.service.ts:96-101 permite al atacante llamar directamente a
+  POST /auth/verify-2fa con el token forjado y un código de su elección.
+
+CORRECCIÓN
+  // auth.config.ts
+  get JWT_2FA_TEMP_SECRET() {
+    const secret = process.env.JWT_2FA_TEMP_SECRET;
+    if (!secret && process.env.NODE_ENV === 'production') {
+      throw new Error('FATAL: JWT_2FA_TEMP_SECRET must be set in production');
+    }
+    // En desarrollo, fallar también — este secreto nunca debería tener un default
+    if (!secret) {
+      throw new Error('JWT_2FA_TEMP_SECRET is required');
+    }
+    return secret;
+  }
+
+  // session.service.ts ya tiene este patrón correcto para ENCRYPTION_SECRET:
+  if (!secret) {
+    if (isProduction) {
+      throw new Error('FATAL: ENCRYPTION_SECRET is not defined...');
+    }
+  }
+  Aplicar el mismo patrón a JWT_2FA_TEMP_SECRET.
+
+REFERENCIA
+  CWE-321 (Use of Hard-coded Cryptographic Key), OWASP A07:2021 (Identification
+  and Authentication Failures)
+
+
+────────────────────────────────────────────────────────────────────────────────
+H-02 [CRÍTICA] Logout no invalida refresh tokens ni limpia caché
+────────────────────────────────────────────────────────────────────────────────
+
+EVIDENCIA
+  Archivo 1: apps/backend/api/src/app/auth/auth.controller.ts:251-257
+  Código actual:
+    @Post('logout')
+    @HttpCode(HttpStatus.OK)
+    @UseGuards(CsrfGuard)
+    logout(@Res({ passthrough: true }) res: Response) {
+      this.cookieService.clearAuthCookies(res);
+      return { message: 'Logout exitoso' };
+    }
+
+  Archivo 2: apps/backend/api/src/app/auth/services/session.service.ts:325-329
+  Código actual:
+    async terminateAllSessions(userId: string) {
+      await this.userCacheService.clearUserSession(userId);
+      // Optional: Revoke all refresh tokens in DB if stricter security is needed
+      // await this.refreshTokenRepository.update({ userId, isRevoked: false }, { isRevoked: true, revokedAt: new Date() });
+    }
+
+EXPLICACIÓN
+  Dos bugs separados que se refuerzan:
+
+  1. El endpoint POST /auth/logout NUNCA llama a authService.logout(userId). Solo
+     llama a clearAuthCookies(). Resultado: el caché de sesión en Redis no se limpia
+     y los refresh tokens en la base de datos no se revocan.
+
+  2. Incluso si se llamara a authService.logout(), la línea que revoca los refresh
+     tokens en la DB está COMENTADA como "opcional". No lo es: es un requisito de
+     seguridad fundamental.
+
+  Impacto: Un atacante que capture el refresh token (XSS, network interception,
+  device compromise) puede continuar obteniendo nuevos access tokens después del
+  logout del usuario legítimo, indefinidamente hasta que el token expire (7 o 30
+  días según rememberMe).
+
+CORRECCIÓN
+  // auth.controller.ts
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard, CsrfGuard)  // Añadir JwtAuthGuard para tener userId
+  async logout(
+    @CurrentUser() user: User,
+    @Res({ passthrough: true }) res: Response,
+    @Req() req: Request
+  ) {
+    // 1. Obtener el ID del refresh token actual de la cookie para preservarlo si se necesita
+    const refreshToken = req.cookies?.refresh_token;
+
+    // 2. Revocar tokens en DB y limpiar caché
+    await this.authService.logout(user.id);
+
+    // 3. Limpiar cookies
+    this.cookieService.clearAuthCookies(res);
+    return { message: 'Logout exitoso' };
+  }
+
+  // session.service.ts — descomentar y hacer obligatoria la revocación:
+  async terminateAllSessions(userId: string) {
+    await this.userCacheService.clearUserSession(userId);
+    await this.refreshTokenRepository.update(
+      { userId, isRevoked: false },
+      { isRevoked: true, revokedAt: new Date() }
+    );
+  }
+
+REFERENCIA
+  OWASP Session Management Cheat Sheet (Session Termination),
+  CWE-613 (Insufficient Session Expiration)
+
+
+────────────────────────────────────────────────────────────────────────────────
+H-03 [CRÍTICA] IDOR en GET /users/:id — sin validación de organización
+────────────────────────────────────────────────────────────────────────────────
+
+EVIDENCIA
+  Archivo: apps/backend/api/src/app/users/users.controller.ts:140-147
+  Código actual:
+    @Get(':id')
+    @HasPermission('users.view')
+    @ApiOperation({ summary: 'Get user by ID' })
+    async findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+      // Ideally ensure user belongs to same org
+      const foundUser = await this.usersService.findOne(id);  // ← NO organizationId!
+      return plainToInstance(UserResponseDto, foundUser, { excludeExtraneousValues: true });
+    }
+
+  Archivo de servicio: apps/backend/api/src/app/users/users.service.ts:173-182
+  Código actual:
+    async findOne(id: string): Promise<User> {
+      const user = await this.userRepository.findOne({
+        where: { id: id as any },  // ← Sin filtro de organizationId
+      });
+      ...
+    }
+
+EXPLICACIÓN
+  Cualquier usuario autenticado con el permiso 'users.view' puede acceder al
+  perfil de CUALQUIER usuario del sistema, independientemente de su organización.
+  Dado que el sistema es multi-tenant (SaaS), esto es una violación grave de
+  aislamiento de datos. Los IDs son UUIDs, lo que dificulta la enumeración, pero
+  no la elimina si los IDs se exponen por otro canal.
+  El comentario "Ideally ensure user belongs to same org" confirma que se reconoció
+  el problema pero no se corrigió.
+
+CORRECCIÓN
+  // users.controller.ts
+  @Get(':id')
+  @HasPermission('users.view')
+  async findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+    const foundUser = await this.usersService.findOneByOrg(id, user.organizationId);
+    return plainToInstance(UserResponseDto, foundUser, { excludeExtraneousValues: true });
+  }
+
+  // users.service.ts — nuevo método
+  async findOneByOrg(id: string, organizationId: string): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { id, organizationId },  // ← Filtro por org obligatorio
+    });
+    if (!user) {
+      throw new NotFoundException(`Usuario con id ${id} no encontrado`);
+    }
+    return user;
+  }
+
+REFERENCIA
+  OWASP A01:2021 (Broken Access Control), CWE-639 (Authorization Bypass Through
+  User-Controlled Key), OWASP IDOR Prevention Cheat Sheet
+
+
+────────────────────────────────────────────────────────────────────────────────
+H-04 [ALTA] Flujo de reset de contraseña por admin es funcionalmente roto
+────────────────────────────────────────────────────────────────────────────────
+
+EVIDENCIA
+  Archivo 1: apps/backend/api/src/app/users/users.service.ts:227-234
+  Código (admin-triggered reset):
+    const resetToken = crypto.randomBytes(32).toString('hex');  // Token random
+    user.security.passwordResetToken = crypto
+      .createHash('sha256')
+      .update(resetToken)
+      .digest('hex');  // SHA256 del token almacenado en DB
+    await this.mailService.sendPasswordResetEmail(user, resetToken, '1h');  // Token raw por email
+
+  Archivo 2: apps/backend/api/src/app/auth/services/password-recovery.service.ts:70-88
+  Código (validación):
+    payload = this.jwtService.verify(token, {    // ← Espera un JWT
+      secret: this.configService.get<string>('JWT_RESET_PASSWORD_SECRET'),
+    });
+    // ...
+    if (user.security.passwordResetToken !== token ||  // ← Compara SHA256 hash con JWT
+        ...)
+
+EXPLICACIÓN
+  Hay dos flujos independientes que usan el mismo endpoint de validación pero son
+  incompatibles:
+
+  Flujo A (usuario olvida contraseña): PasswordRecoveryService genera un JWT y lo
+  almacena COMO ESTÁ en la columna passwordResetToken. El endpoint de reset
+  verifica el JWT criptográficamente y luego hace comparación directa (token===token).
+  Este flujo funciona.
+
+  Flujo B (admin resetea contraseña de usuario): UsersService genera un hex random,
+  almacena SHA256(hex) en DB, envía hex raw por email. El endpoint de reset:
+  (1) Intenta verificar el hex como JWT → excepción JWT "invalid token", controlada
+      con catch que lanza UnauthorizedException('Token inválido o expirado').
+  El usuario que recibe el email del admin NUNCA puede completar el reset.
+
+  Adicionalmente, incluso si el flujo A funciona, almacenar el JWT raw en la DB
+  en lugar de un hash es un riesgo: si la DB se compromete, los tokens de reset
+  activos son directamente utilizables.
+
+CORRECCIÓN
+  Unificar ambos flujos. En PasswordRecoveryService, cambiar de JWT a token
+  random hasheado (mismo patrón que UsersService):
+
+  // password-recovery.service.ts — flujo unificado
+  async sendPasswordResetLink(dto: ForgotPasswordDto) {
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
+    user.security.passwordResetToken = hashedToken;  // Hash en DB
+    user.security.passwordResetExpires = new Date(Date.now() + 15 * 60 * 1000);
+    await this.userRepository.save(user);
+    await this.mailService.sendPasswordResetEmail(user, rawToken, '15m');
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    const { token, password } = dto;
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+    const user = await this.userRepository.findOne({
+      where: { 'security.passwordResetToken': hashedToken, ... }  // Buscar por hash
+    });
+    // Comparación de hash ya fue hecha en la query — no se necesita !=
+  }
+
+REFERENCIA
+  CWE-916 (Use of Password Hash With Insufficient Computational Effort — aplica
+  a tokens de reset también), OWASP Forgot Password Cheat Sheet
+
+
+────────────────────────────────────────────────────────────────────────────────
+H-05 [ALTA] CSP con 'unsafe-inline' en scriptSrc anula protección XSS
+────────────────────────────────────────────────────────────────────────────────
+
+EVIDENCIA
+  Archivo: apps/backend/api/src/main.ts:38-41
+  Código actual:
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+        scriptSrc: ["'self'", "'unsafe-inline'"],  // ← PROBLEMA
+      },
+    },
+
+EXPLICACIÓN
+  'unsafe-inline' en scriptSrc significa que el navegador ejecutará cualquier
+  script inline (<script>alert(1)</script>), neutralizando completamente la
+  defensa XSS que ofrece CSP. Si existe alguna inyección de HTML en el frontend
+  (Angular es resistente, pero no inmune), esta directiva elimina la capa de
+  defensa en profundidad que CSP debería proveer.
+
+CORRECCIÓN
+  // main.ts — CSP con nonces o hashes (Angular SSR) o sin unsafe-inline
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],  // Aceptable para CSS en muchos SPA
+      imgSrc: ["'self'", 'data:', 'https:'],
+      scriptSrc: ["'self'"],  // ← Eliminar 'unsafe-inline'
+      // Si Angular necesita inline scripts para bootstrapping, usar nonces:
+      // scriptSrc: ["'self'", "'nonce-{generado-por-request}'"],
+    },
+  }
+
+  Nota: Angular en modo producción generalmente no requiere inline scripts.
+  Verificar con el build de producción que la aplicación funciona sin
+  'unsafe-inline'.
+
+REFERENCIA
+  OWASP A03:2021 (Injection), CSP Level 3 specification, CWE-79 (XSS)
+
+
+────────────────────────────────────────────────────────────────────────────────
+H-06 [ALTA] WebAuthn login no verifica estado del usuario
+────────────────────────────────────────────────────────────────────────────────
+
+EVIDENCIA
+  Archivo: apps/backend/api/src/app/auth/services/webauthn.service.ts:125-176
+  Código actual (extracto crítico):
+    async verifyAuthentication(body: any) {
+      // ...verificación criptográfica correcta...
+      if (verification.verified) {
+        passkey.counter = newCounter;
+        await this.passkeyRepository.save(passkey);
+        await this.cacheManager.del(challengeId);
+        return { verified: true, user: passkey.user };  // ← Sin verificar status
+      }
+    }
+
+  // En auth.controller.ts:480-495, después de verifyAuthentication:
+  const result = await this.webAuthnService.verifyAuthentication(body);
+  // result.user no tiene status verificado
+  const { accessToken, refreshToken } = await this.authFacade.generateTokens(result.user);
+
+EXPLICACIÓN
+  Un usuario con status BLOCKED o INACTIVE puede autenticarse con su passkey
+  sin ningún obstáculo. El flujo de password+JWT sí verifica el status en
+  auth.service.ts:78-89, pero el flujo WebAuthn no.
+
+CORRECCIÓN
+  // webauthn.service.ts
+  async verifyAuthentication(body: any) {
+    // ... código existente ...
+    if (verification.verified) {
+      const user = passkey.user;
+
+      // Verificar estado del usuario
+      if (user.status !== UserStatus.ACTIVE) {
+        throw new UnauthorizedException('Usuario inactivo o bloqueado.');
+      }
+
+      passkey.counter = newCounter;
+      await this.passkeyRepository.save(passkey);
+      await this.cacheManager.del(challengeId);
+      return { verified: true, user };
+    }
+  }
+
+  // También recargar el usuario con relaciones para tener status actualizado:
+  const freshUser = await this.userRepository.findOne({
+    where: { id: passkey.userId },
+    relations: ['roles', 'security']
+  });
+
+REFERENCIA
+  OWASP Authentication Cheat Sheet, CWE-287 (Improper Authentication)
+
+
+────────────────────────────────────────────────────────────────────────────────
+H-07 [ALTA] terminateOtherSessions ignora el parámetro currentSessionId
+────────────────────────────────────────────────────────────────────────────────
+
+EVIDENCIA
+  Archivo: apps/backend/api/src/app/auth/services/session.service.ts:312-322
+  Código actual:
+    async terminateOtherSessions(userId: string, currentSessionId: string) {
+      // Para password change, se quieren revocar OTROS, no el actual.
+      await this.refreshTokenRepository.update(
+          { userId, isRevoked: false },
+          { isRevoked: true, revokedAt: new Date() }
+      );
+      // ↑ Revoca TODO incluyendo currentSessionId — parámetro NUNCA se usa
+    }
+
+EXPLICACIÓN
+  La firma del método promete revocar "otras" sesiones excepto la actual, pero
+  la implementación revoca TODAS las sesiones del usuario sin excepción. El
+  parámetro `currentSessionId` está declarado pero nunca se usa en la query.
+
+  Este método se llama desde AuthService.changePassword() en línea 225:
+    await this.sessionService.terminateOtherSessions(userId, '');  // '' como ID
+  Lo que causa que el cambio de contraseña revoque la sesión activa del usuario,
+  forzando un re-login no esperado.
+
+  Nota: En la práctica, como terminateAllSessions también tiene comentado la
+  revocación en DB, el comportamiento real puede diferir. Pero la intención del
+  código es incorrecta.
+
+CORRECCIÓN
+  // session.service.ts
+  async terminateOtherSessions(userId: string, currentSessionId: string) {
+    if (!currentSessionId) {
+      // Si no se pasa ID de sesión actual, revocar todas
+      await this.refreshTokenRepository.update(
+        { userId, isRevoked: false },
+        { isRevoked: true, revokedAt: new Date() }
+      );
+      return;
+    }
+
+    // Revocar todas excepto la sesión actual
+    await this.refreshTokenRepository
+      .createQueryBuilder()
+      .update(RefreshToken)
+      .set({ isRevoked: true, revokedAt: new Date() })
+      .where('userId = :userId AND id != :currentSessionId AND isRevoked = false', {
+        userId,
+        currentSessionId
+      })
+      .execute();
+  }
+
+REFERENCIA
+  OWASP Session Management Cheat Sheet
+
+
+────────────────────────────────────────────────────────────────────────────────
+H-08 [ALTA] Password reset token almacenado como JWT en claro (no hasheado)
+────────────────────────────────────────────────────────────────────────────────
+
+EVIDENCIA
+  Archivo: apps/backend/api/src/app/auth/services/password-recovery.service.ts:48-57
+  Código actual:
+    const token = await this._generatePasswordResetToken(user.id, user.email, expirationTime); // JWT
+    user.security.passwordResetToken = token;  // JWT raw almacenado en columna VARCHAR
+
+  Archivo: apps/backend/api/src/app/users/entities/user-security.entity.ts:38-43
+  Columna:
+    @Column({ name: 'password_reset_token', type: 'varchar', nullable: true })
+    passwordResetToken?: string | null;
+
+EXPLICACIÓN
+  Los tokens de reset de contraseña son equivalentes a credenciales temporales.
+  Almacenarlos en plaintext en la DB significa que un atacante con acceso de
+  lectura a la base de datos (SQL injection de solo lectura, backup comprometido,
+  admin DB malicioso) puede usar esos tokens directamente para resetear contraseñas.
+
+  El flujo de UsersService.resetPassword() lo hace correctamente (SHA256),
+  pero el flujo principal en PasswordRecoveryService no.
+
+CORRECCIÓN
+  Ver H-04 — la corrección unifica ambos flujos usando el patrón de hash.
+  La clave es: almacenar SHA256(token) en DB, enviar token raw por email.
+  En validación: hashear el token recibido y comparar con el hash almacenado.
+
+REFERENCIA
+  OWASP Forgot Password Cheat Sheet, CWE-312 (Cleartext Storage of Sensitive Information)
+
+
+────────────────────────────────────────────────────────────────────────────────
+H-09 [MEDIA] Social register token aceptado vía query parameter
+────────────────────────────────────────────────────────────────────────────────
+
+EVIDENCIA
+  Archivo: apps/backend/api/src/app/auth/auth.controller.ts:120-135
+  Código actual:
+    @Get('social-register-info')
+    @Public()
+    async getSocialRegisterInfo(@Query('token') token: string, @Req() req: Request) {
+        let tokenToUse = token;  // ← Token de query param primero
+
+        if (!tokenToUse) {
+            tokenToUse = req.cookies['social_register_token'];  // Fallback a cookie
+        }
+        // ...
+    }
+
+EXPLICACIÓN
+  El token de registro social contiene PII (email, nombre, foto de perfil). Si se
+  acepta vía query param, este PII queda expuesto en:
+  - Logs de acceso del servidor web/load balancer
+  - Historial del navegador
+  - Cabecera Referer si el usuario navega a otra página
+  - Analytics y herramientas de monitoreo
+
+  El comentario en el código menciona "para el nuevo flujo seguro", pero mantener
+  el flujo inseguro como "backward compatibility" crea el riesgo.
+
+CORRECCIÓN
+  // auth.controller.ts — eliminar soporte para query param
+  @Get('social-register-info')
+  @Public()
+  async getSocialRegisterInfo(@Req() req: Request) {
+    const tokenToUse = req.cookies['social_register_token'];
+
+    if (!tokenToUse) {
+        throw new BadRequestException('Token de registro no encontrado (cookie requerida)');
+    }
+    return this.authFacade.getSocialRegisterInfo(tokenToUse);
+  }
+
+REFERENCIA
+  CWE-598 (Sensitive Information in Query String), OWASP A02:2021
+
+
+────────────────────────────────────────────────────────────────────────────────
+H-10 [MEDIA] ChangePasswordDto sin validadores de complejidad
+────────────────────────────────────────────────────────────────────────────────
+
+EVIDENCIA
+  Archivo: apps/backend/api/src/app/auth/dto/change-password.dto.ts:1-10
+  Código actual:
+    export class ChangePasswordDto {
+      @IsString()
+      currentPassword: string;  // ← Sin @IsNotEmpty()
+
+      @IsString()
+      @MinLength(8)
+      newPassword: string;  // ← Sin @Matches para complejidad
+    }
+
+  Contraste con RegisterUserDto (register-user.dto.ts:54-63):
+    @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
+        message: 'La contraseña debe contener al menos una mayúscula, una minúscula...',
+    })
+    password: string;
+
+EXPLICACIÓN
+  Un usuario puede cambiar su contraseña a "aaaaaaaa" (8 caracteres, sin mayúsculas
+  ni números) desde el endpoint de cambio, aunque la contraseña original debió
+  cumplir requisitos de complejidad al registrarse. Inconsistencia de política.
+
+CORRECCIÓN
+  export class ChangePasswordDto {
+    @IsString()
+    @IsNotEmpty({ message: 'La contraseña actual no puede estar vacía.' })
+    currentPassword: string;
+
+    @IsString()
+    @IsNotEmpty({ message: 'La nueva contraseña no puede estar vacía.' })
+    @MinLength(8, { message: 'La contraseña debe tener al menos 8 caracteres.' })
+    @MaxLength(50)
+    @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
+        message: 'La contraseña debe contener mayúscula, minúscula y un número o símbolo.',
+    })
+    newPassword: string;
+  }
+
+REFERENCIA
+  OWASP Authentication Cheat Sheet (Password Complexity), NIST SP 800-63B §5.1.1
+
+
+────────────────────────────────────────────────────────────────────────────────
+H-11 [MEDIA] IP addresses expuestas sin enmascarar en listado de sesiones
+────────────────────────────────────────────────────────────────────────────────
+
+EVIDENCIA
+  Archivo: apps/backend/api/src/app/auth/services/session.service.ts:276-293
+  Código actual:
+    return sessions.map((session) => ({
+      id: session.id,
+      ipAddress: session.ipAddress,  // ← IP completa expuesta al cliente
+      userAgent: session.userAgent,
+      // ...
+    }));
+
+EXPLICACIÓN
+  El endpoint GET /auth/sessions devuelve la IP completa al cliente frontend.
+  Las IPs son PII bajo GDPR/CCPA. Además, mostrar la IP completa al usuario
+  tiene dudoso valor de UX (el usuario no necesita verla exacta) y es información
+  que podría usarse para inferir información sobre otros usuarios si hay un bug
+  futuro que mezcle sesiones.
+
+  Irónicamente, el mismo servicio tiene una función maskIp() (líneas 419-447) que
+  nunca se usa para la salida hacia el cliente.
+
+CORRECCIÓN
+  // session.service.ts — usar maskIp() existente
+  return sessions.map((session) => ({
+    id: session.id,
+    ipAddress: session.ipAddress ? this.maskIp(session.ipAddress) : null,
+    // ...
+  }));
+
+REFERENCIA
+  GDPR Art. 4 (IP como dato personal), OWASP Logging Cheat Sheet
+
+
+────────────────────────────────────────────────────────────────────────────────
+H-12 [MEDIA] Social register token usa JWT_SECRET principal
+────────────────────────────────────────────────────────────────────────────────
+
+EVIDENCIA
+  Archivo: apps/backend/api/src/app/auth/services/social-auth.service.ts:62-75
+  Código actual:
+    return this.jwtService.sign(
+      { email, firstName, ..., type: 'social-register' },
+      {
+        secret: this.configService.getOrThrow('JWT_SECRET'),  // ← Secreto principal
+        expiresIn: '10m'
+      }
+    );
+
+EXPLICACIÓN
+  Usar el mismo secreto para tokens de propósitos diferentes viola el principio
+  de segregación de secretos. Si JWT_SECRET se compromete, afecta simultáneamente
+  a los access tokens de autenticación Y a los tokens de registro social. Lo correcto
+  es usar un secreto dedicado (e.g., JWT_SOCIAL_REGISTER_SECRET).
+
+  El riesgo concreto: si el secreto se rota (por compromiso), todos los tokens de
+  registro social activos se invalidan al mismo tiempo que los access tokens, y
+  los usuarios en proceso de registro pierden su estado.
+
+CORRECCIÓN
+  // social-auth.service.ts
+  return this.jwtService.sign(
+    { email, firstName, ..., type: 'social-register' },
+    {
+      secret: this.configService.getOrThrow('JWT_SOCIAL_REGISTER_SECRET'),
+      expiresIn: '10m'
+    }
+  );
+
+  // Añadir JWT_SOCIAL_REGISTER_SECRET al .env y validación en SessionService.onModuleInit()
+
+REFERENCIA
+  OWASP JWT Cheat Sheet (Separate Keys per Purpose)
+
+
+────────────────────────────────────────────────────────────────────────────────
+H-13 [MEDIA] Audit trail de login no persiste en base de datos
+────────────────────────────────────────────────────────────────────────────────
+
+EVIDENCIA
+  Archivo: apps/backend/api/src/app/auth/listeners/auth-audit.listener.ts:1-21
+  Código actual:
+    @OnEvent(AuthEvents.LOGIN_SUCCESS)
+    handleLoginSuccess(event: AuthLoginSuccessEvent) {
+      this.logger.log(`Audit: Login Success - User: ${event.userId}...`);
+      // In a real implementation, save to AuditLog entity  ← Solo un TODO
+    }
+
+    @OnEvent(AuthEvents.LOGIN_FAILED)
+    handleLoginFailed(event: AuthLoginFailedEvent) {
+      this.logger.warn(`Audit: Login Failed...`);
+      // In a real implementation, save to AuditLog entity  ← Solo un TODO
+    }
+
+EXPLICACIÓN
+  El audit trail de autenticación (login success/failure) solo existe en logs
+  de aplicación (Pino/Logger). Los logs pueden rotar, perderse, o ser más
+  difíciles de consultar para análisis de seguridad. En un sistema empresarial,
+  los eventos de auth deben persistirse en DB para:
+  - Análisis forense ante un incidente
+  - Cumplimiento regulatorio (SOC2, ISO27001)
+  - Detección de patrones de ataque
+
+  Nótese que MfaOrchestratorService sí usa AuditTrailService para eventos de 2FA
+  (líneas 173-195), creando una inconsistencia donde el login normal no se audita
+  en DB pero el 2FA sí.
+
+CORRECCIÓN
+  // auth-audit.listener.ts — inyectar AuditTrailService y persistir
+  @OnEvent(AuthEvents.LOGIN_SUCCESS)
+  async handleLoginSuccess(event: AuthLoginSuccessEvent) {
+    this.logger.log(`Audit: Login Success - User: ${event.userId}`);
+    await this.auditService.record(
+      event.userId, 'User', event.userId, ActionType.LOGIN,
+      { email: event.email, ipAddress: event.ipAddress }, undefined
+    );
+  }
+
+REFERENCIA
+  OWASP Logging Cheat Sheet, SOC2 CC7.2 (Security Event Logging)
+
+
+────────────────────────────────────────────────────────────────────────────────
+H-14 [MEDIA] Detección de viaje imposible bloquea login, demasiado agresiva
+────────────────────────────────────────────────────────────────────────────────
+
+EVIDENCIA
+  Archivo: apps/backend/api/src/app/auth/services/security-analysis.service.ts:55-68
+  Código actual:
+    const maxSpeed = AuthConfig.IMPOSSIBLE_TRAVEL_MAX_SPEED;  // 1500 km/h (auth.config.ts:63)
+    if (distanceKm > minDistance && speed > maxSpeed) {
+      this.logger.warn(`[SECURITY] Impossible Travel Detected...`);
+      throw new UnauthorizedException(
+        'Viaje imposible detectado. Por seguridad, su cuenta ha sido bloqueada temporalmente...'
+      );
+    }
+
+EXPLICACIÓN
+  Dos problemas:
+
+  1. 1500 km/h apenas supera la velocidad de los aviones comerciales (~900 km/h)
+     con muy poco margen. Un usuario que viaja en avión con conexión a internet
+     podría activar esto accidentalmente.
+
+  2. La respuesta es un bloqueo completo del login (UnauthorizedException). Las
+     mejores prácticas (Google, GitHub, Stripe) usan detección de viaje imposible
+     para REQUERIR verificación adicional (código por email, confirmar dispositivo),
+     no para bloquear outright. Un bloqueo puede ser un vector de DoS contra
+     usuarios que usan VPN o servicios proxy.
+
+CORRECCIÓN
+  La práctica de la industria es:
+  - Bajo: ignorar (mismo país, diferente ciudad)
+  - Medio: requerir verificación por email / 2FA
+  - Alto (velocidades realmente imposibles, > 3000 km/h): bloquear temporalmente
+    y notificar
+
+  // security-analysis.service.ts
+  async checkImpossibleTravel(userId: string, currentIp?: string) {
+    // ...cálculo existente...
+    if (distanceKm > minDistance && speed > maxSpeed) {
+      this.logger.warn(`[SECURITY] Suspicious Travel - ${speed} km/h`);
+      // Emitir evento para notificación al usuario, no lanzar excepción
+      this.eventEmitter.emit('security.suspicious_travel', { userId, speed, distanceKm });
+      // No lanzar UnauthorizedException — dejar que el login continúe con alerta
+    }
+  }
+
+REFERENCIA
+  NIST SP 800-63B §6.1, Auth0 Anomaly Detection documentation
+
+
+────────────────────────────────────────────────────────────────────────────────
+H-15 [BAJA] Invitation token almacenado en plaintext en tabla users
+────────────────────────────────────────────────────────────────────────────────
+
+EVIDENCIA
+  Archivo: apps/backend/api/src/app/users/entities/user.entity/user.entity.ts:111-113
+  Código actual:
+    @Column({ nullable: true })
+    invitationToken?: string;
+
+EXPLICACIÓN
+  El token de invitación está almacenado como texto plano en la columna
+  `invitation_token` de la tabla `users`. Si la DB se compromete, un atacante
+  puede usar esos tokens para activar cuentas de usuario o descubrir usuarios
+  pendientes de invitación.
+
+CORRECCIÓN
+  Almacenar SHA256(rawToken) en la columna, enviar rawToken por email:
+  // users.service.ts
+  const rawToken = crypto.randomBytes(32).toString('hex');
+  const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
+  user.invitationToken = hashedToken;  // Hash en DB
+  await this.mailService.sendUserInvitation(newUser, rawToken);  // Raw por email
+
+  // password-recovery.service.ts — al validar:
+  const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+  const user = await this.userRepository.findOne({
+    where: { invitationToken: hashedToken, status: UserStatus.PENDING, ... }
+  });
+
+REFERENCIA
+  CWE-312 (Cleartext Storage of Sensitive Information)
+
+
+────────────────────────────────────────────────────────────────────────────────
+H-16 [BAJA] console.error en users.service.ts en lugar de Logger NestJS
+────────────────────────────────────────────────────────────────────────────────
+
+EVIDENCIA
+  Archivo: apps/backend/api/src/app/users/users.service.ts:242-244
+  Código actual:
+    console.error(
+      `Failed to send password reset email to ${user.email}`,
+      error,
+    );
+
+EXPLICACIÓN
+  console.error expone el email del usuario en los logs sin context estructurado.
+  El Logger de NestJS (con Pino) añade context (servicio, request ID) y maneja
+  adecuadamente el log rotation y los niveles.
+
+CORRECCIÓN
+  // Al inicio de la clase:
+  private readonly logger = new Logger(UsersService.name);
+
+  // En resetPassword():
+  this.logger.error(`Failed to send password reset email`, { userId: user.id });
+  // Nota: no loguear el email directamente (PII en logs)
+
+REFERENCIA
+  OWASP Logging Cheat Sheet
+
+
+────────────────────────────────────────────────────────────────────────────────
+H-17 [BAJA] changePassword en frontend usa IS_PUBLIC_API=true incorrecto
+────────────────────────────────────────────────────────────────────────────────
+
+EVIDENCIA
+  Archivo: apps/core/client-web/src/app/core/services/auth.ts:521-526
+  Código actual:
+    changePassword(data: any): Observable<{ message: string }> {
+        return this.http.post<{ message: string }>(`${this.apiUrl}/change-password`, data, {
+            context: new HttpContext().set(IS_PUBLIC_API, true)  // ← Incorrecto
+        }).pipe(...)
+    }
+
+EXPLICACIÓN
+  IS_PUBLIC_API=true indica al interceptor de auth que no intente refrescar el
+  token si recibe un 401. Para un endpoint protegido como change-password, esto
+  significa que si el access token expira exactamente durante la operación, el
+  usuario recibirá un error sin que el interceptor intente renovar el token
+  primero. Debería ser false (comportamiento por defecto).
+
+CORRECCIÓN
+  // auth.ts — eliminar el context o no pasar IS_PUBLIC_API
+  changePassword(data: any): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/change-password`, data)
+      .pipe(catchError(...));
+  }
+
+REFERENCIA
+  Inconsistencia interna del proyecto
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. HOJA DE RUTA DE REMEDIACIÓN PRIORIZADA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+FASE 1 — CRÍTICO (antes de cualquier deploy a producción)
+─────────────────────────────────────────────────────────
+┌─────┬──────────────────────────────────────────────────────────────────────┬────────┐
+│ Ref │ Acción requerida                                                     │Esfuerzo│
+├─────┼──────────────────────────────────────────────────────────────────────┼────────┤
+│ H-01│ Eliminar default de JWT_2FA_TEMP_SECRET, hacer obligatoria la var    │ BAJO   │
+│     │ de entorno con throw en arranque si no está definida                 │        │
+├─────┼──────────────────────────────────────────────────────────────────────┼────────┤
+│ H-02│ Corregir endpoint de logout: llamar authService.logout(userId) y     │ BAJO   │
+│     │ descomentar revocación de DB en terminateAllSessions                 │        │
+├─────┼──────────────────────────────────────────────────────────────────────┼────────┤
+│ H-03│ Añadir filtro de organizationId en GET /users/:id y en findOne()     │ BAJO   │
+│     │ del servicio                                                         │        │
+├─────┼──────────────────────────────────────────────────────────────────────┼────────┤
+│ H-04│ Unificar flujos de reset de contraseña: ambos con SHA256(rawToken)   │ MEDIO  │
+│     │ en DB y rawToken por email; migración de columna si hay datos activos│        │
+└─────┴──────────────────────────────────────────────────────────────────────┴────────┘
+
+FASE 2 — IMPORTANTE (próximo sprint)
+─────────────────────────────────────
+┌─────┬──────────────────────────────────────────────────────────────────────┬────────┐
+│ Ref │ Acción requerida                                                     │Esfuerzo│
+├─────┼──────────────────────────────────────────────────────────────────────┼────────┤
+│ H-05│ Eliminar 'unsafe-inline' de scriptSrc en CSP; validar con build prod │ BAJO   │
+├─────┼──────────────────────────────────────────────────────────────────────┼────────┤
+│ H-06│ Añadir verificación de user.status en WebAuthn verifyAuthentication  │ BAJO   │
+├─────┼──────────────────────────────────────────────────────────────────────┼────────┤
+│ H-07│ Corregir terminateOtherSessions para respetar currentSessionId       │ BAJO   │
+├─────┼──────────────────────────────────────────────────────────────────────┼────────┤
+│ H-08│ Hashear passwordResetToken antes de almacenar (flujo PasswordRecovery│ BAJO   │
+│     │ Service ya que UsersService lo hace correctamente)                   │        │
+├─────┼──────────────────────────────────────────────────────────────────────┼────────┤
+│ H-09│ Eliminar soporte de query param en social-register-info; solo cookies│ BAJO   │
+├─────┼──────────────────────────────────────────────────────────────────────┼────────┤
+│ H-10│ Añadir validadores de complejidad a ChangePasswordDto               │ BAJO   │
+├─────┼──────────────────────────────────────────────────────────────────────┼────────┤
+│ H-11│ Enmascarar IPs en getUserSessions usando maskIp() existente          │ BAJO   │
+├─────┼──────────────────────────────────────────────────────────────────────┼────────┤
+│ H-12│ Crear JWT_SOCIAL_REGISTER_SECRET separado para tokens de registro    │ BAJO   │
+│     │ social                                                               │        │
+├─────┼──────────────────────────────────────────────────────────────────────┼────────┤
+│ H-13│ Implementar persistencia en DB para eventos LOGIN_SUCCESS/FAILED en  │ MEDIO  │
+│     │ AuthAuditListener                                                    │        │
+├─────┼──────────────────────────────────────────────────────────────────────┼────────┤
+│ H-17│ Eliminar IS_PUBLIC_API=true de changePassword en frontend            │ BAJO   │
+└─────┴──────────────────────────────────────────────────────────────────────┴────────┘
+
+FASE 3 — CALIDAD Y ESCALABILIDAD (deuda técnica planificada)
+──────────────────────────────────────────────────────────────
+┌─────┬──────────────────────────────────────────────────────────────────────┬────────┐
+│ Ref │ Acción requerida                                                     │Esfuerzo│
+├─────┼──────────────────────────────────────────────────────────────────────┼────────┤
+│ H-14│ Cambiar comportamiento de detección de viaje imposible: emitir evento│ MEDIO  │
+│     │ de alerta en lugar de lanzar excepción que bloquea el login          │        │
+├─────┼──────────────────────────────────────────────────────────────────────┼────────┤
+│ H-15│ Hashear invitationToken antes de almacenar en columna users          │ BAJO   │
+│     │ (requiere migración de datos)                                        │        │
+├─────┼──────────────────────────────────────────────────────────────────────┼────────┤
+│ H-16│ Reemplazar console.error con Logger NestJS en users.service.ts       │ BAJO   │
+│     │ y auditar otros console.* en el resto del codebase de auth           │        │
+└─────┴──────────────────────────────────────────────────────────────────────┴────────┘
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FIN DEL INFORME
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Generado: 2026-05-31 | Total de hallazgos: 17 | Críticos: 3 | Altos: 5 | Medios: 5 | Bajos: 4
