@@ -1,0 +1,783 @@
+AUDITORÍA DE SEGURIDAD DE AUTENTICACIÓN, AUTORIZACIÓN, USUARIOS, ROLES, TOKENS Y SESIONES
+Repositorio: /workspace/virtex
+Fecha de auditoría: 2026-06-01
+Auditor: Ingeniero senior de seguridad / arquitecto fullstack
+Alcance: exclusivamente frontend y backend relacionado con autenticación, autorización, usuarios, roles, tokens y sesiones.
+
+================================================================================
+1. RESUMEN EJECUTIVO
+================================================================================
+
+El módulo NO está listo para producción a escala empresarial bajo estándares comparables a Auth0, GitHub, Stripe o Google. Hay una base técnica razonable en varios puntos críticos: cookies httpOnly para tokens, expiraciones cortas, argon2, invalidación por tokenVersion, rate limiting global, Helmet, caché de usuario con fallback y rotación de refresh tokens con detección de reutilización. Sin embargo, existen fallas de autorización y sesión que impiden una aprobación empresarial: endpoints de roles carecen de RBAC/CSRF, múltiples mutaciones de usuarios carecen de CSRF/step-up, hay un IDOR en lectura de usuarios por ID, logout actual no revoca necesariamente la sesión porque el sessionId no se propaga desde TokenService, y la contraseña del honeypot produce cookies con tokens falsos. Además, varias decisiones reducen la robustez real frente a XSS, CSRF avanzado, replay y operación multi-instancia: secretos fallback en configuración, CSRF double-submit sin firma, refresh por GET, IP/UA en claro y validaciones de roles/permiso inconsistentes. La conclusión objetiva es: la arquitectura tiene componentes correctos, pero requiere remediación de autorización, CSRF, revocación de sesiones y endurecimiento de secretos antes de cualquier despliegue productivo serio.
+
+================================================================================
+2. TABLA DE CALIFICACIONES
+================================================================================
+
+BACKEND
+
+| Dimensión | Puntaje | Justificación breve con evidencia |
+|---|---:|---|
+| Seguridad | 5/10 | Usa cookies httpOnly/sameSite para access_token y refresh_token (apps/backend/api/src/app/auth/services/cookie.service.ts:24-45), argon2 para password hashing (apps/backend/api/src/app/auth/services/password.service.ts:13-14) y Helmet (apps/backend/api/src/main.ts:33-45). Pero roles no tiene RBAC ni CSRF en create/update/delete (apps/backend/api/src/app/roles/roles.controller.ts:10-42), users tiene mutaciones sin CSRF (apps/backend/api/src/app/users/users.controller.ts:45-57,151-183,186-205), y findOne permite IDOR (apps/backend/api/src/app/users/users.controller.ts:142-148 junto con apps/backend/api/src/app/users/users.service.ts:173-181). |
+| Arquitectura | 6/10 | Existe separación AuthFacade/AuthService/TokenService/SessionService (apps/backend/api/src/app/auth/auth.facade.ts:17-27; apps/backend/api/src/app/auth/services/token.service.ts:23-35; apps/backend/api/src/app/auth/services/session.service.ts:35-54). Sin embargo, hay acoplamientos y duplicaciones de flujos MFA/WebAuthn/token, rutas públicas mezcladas con SetMetadata manual (apps/backend/api/src/app/auth/auth.controller.ts:43-47,237-266) y un bug de contrato entre TokenService y JwtStrategy que impide revocar sesión actual al logout (apps/backend/api/src/app/auth/services/token.service.ts:146-154; apps/backend/api/src/app/auth/strategies/jwt.strategy/jwt.strategy.ts:178-180). |
+| Validación | 6/10 | ValidationPipe global con whitelist/forbidNonWhitelisted (apps/backend/api/src/main.ts:65-74), DTOs de login/registro/reset con validadores (apps/backend/api/src/app/auth/dto/login-user.dto.ts:5-29; apps/backend/api/src/app/auth/dto/register-user.dto.ts:52-68; apps/backend/api/src/app/auth/dto/reset-password.dto.ts:3-14). Pero ChangePasswordDto sólo exige minLength 8 y no complejidad ni IsNotEmpty (apps/backend/api/src/app/auth/dto/change-password.dto.ts:3-9), CreateRoleDto/UpdateRoleDto aceptan cualquier string[] de permisos sin IsIn/each (apps/backend/api/src/app/roles/dto/create-role.dto.ts:13-14; apps/backend/api/src/app/roles/dto/update-role.dto.ts:14-16), y WebAuthn usa body:any (apps/backend/api/src/app/auth/auth.controller.ts:453-454,467-471). |
+| Manejo de errores | 5/10 | Forgot password devuelve mensaje genérico contra enumeración (apps/backend/api/src/app/auth/auth.controller.ts:281-286; apps/backend/api/src/app/auth/services/password-recovery.service.ts:37-44). Pero otros flujos filtran estado/causa: login distingue USER_BLOCKED/USER_INACTIVE tras contraseña válida (apps/backend/api/src/app/auth/auth.service.ts:78-88), reset devuelve NotFound específico de token (apps/backend/api/src/app/auth/services/password-recovery.service.ts:85-89), WebAuthn propaga error.message de librería (apps/backend/api/src/app/auth/services/webauthn.service.ts:72-74,160-162), y SessionService loguea detalles sensibles de tokens/UA/IP (apps/backend/api/src/app/auth/services/session.service.ts:172-180,133-135). |
+| Escalabilidad | 6/10 | Throttler puede usar Redis si REDIS_HOST existe (apps/backend/api/src/app/app.module.ts:147-162) y JwtStrategy usa caché con circuit breaker y fallback a DB (apps/backend/api/src/app/auth/strategies/jwt.strategy/jwt.strategy.ts:44-58,65-75). Pero si no hay Redis, throttling y WebAuthn/cache quedan en memoria (apps/backend/api/src/app/app.module.ts:151-157; apps/backend/api/src/app/auth/services/webauthn.service.ts:52-54,118-120), roles update invalida usuarios con bucle secuencial (apps/backend/api/src/app/roles/roles.service.ts:65-74), y falta estrategia transaccional/locking para rotación concurrente de refresh tokens (apps/backend/api/src/app/auth/services/session.service.ts:109-200). |
+| Observabilidad | 5/10 | Hay eventos de login success/failed y refresh audit (apps/backend/api/src/app/auth/auth.service.ts:131-134; apps/backend/api/src/app/auth/services/session.service.ts:242-250) e impersonation audit logging (apps/backend/api/src/app/auth/services/impersonation.service.ts:25-30,66-67). Pero hay console.error con email en reset admin (apps/backend/api/src/app/users/users.service.ts:239-245), logging de detalles de refresh token/UA/IP (apps/backend/api/src/app/auth/services/session.service.ts:133-135,172-180), y no hay evidencia de alertas estructuradas para cambios de roles/2FA/sesiones. |
+
+FRONTEND
+
+| Dimensión | Puntaje | Justificación breve con evidencia |
+|---|---:|---|
+| Seguridad del cliente | 6/10 | No almacena tokens en localStorage/sessionStorage; usa cookies conCredentials (apps/core/client-web/src/app/core/services/auth.ts:120-125,141-147,173-177,266-272). Pero getSocialRegisterInfo todavía envía token por query string si el caller lo pasa (apps/core/client-web/src/app/core/services/auth.ts:250-253), reset/invitación toman tokens desde URL/query/route (apps/core/client-web/src/app/features/auth/reset-password/reset-password.page/reset-password.page.ts:62-65; apps/core/client-web/src/app/core/services/auth.ts:423-429), y se loguean errores de login/passkey en consola (apps/core/client-web/src/app/features/auth/login/login.page.ts:118-120,197-198). |
+| Manejo de tokens/sesión | 7/10 | Interceptor usa withCredentials y X-XSRF-TOKEN en mutaciones (apps/core/client-web/src/app/core/interceptors/auth.interceptor.ts:26-37), cola refresh para evitar tormentas concurrentes (apps/core/client-web/src/app/core/interceptors/auth.interceptor.ts:46-107; apps/core/client-web/src/app/core/services/auth-queue.service.ts:24-52) y logout limpia estado local (apps/core/client-web/src/app/core/services/auth.ts:288-305). Pero la protección depende de que el backend aplique CSRF; backend no lo aplica en roles/users. |
+| Protección de rutas | 6/10 | authGuard consulta /auth/status si no hay estado autenticado local (apps/core/client-web/src/app/core/guards/auth-guard.ts:19-31). permissionsGuard valida permisos en cliente con util compartido (apps/core/client-web/src/app/core/guards/permissions-guard.ts:9-30). Aun así, la protección del cliente no compensa endpoints backend sin RBAC/CSRF, y existe inconsistencia de permisos punto vs dos puntos entre UsersController y PERMISSIONS. |
+| Consistencia con backend | 5/10 | Frontend y backend coinciden en cookies y refresh (apps/core/client-web/src/app/core/services/auth.ts:120-125; apps/backend/api/src/app/auth/auth.controller.ts:214-230). Pero el frontend llama DELETE /auth/sessions/:id desde SecurityService mientras backend expone POST /auth/sessions/:id/revoke (apps/core/client-web/src/app/core/api/security.service.ts:40-44; apps/backend/api/src/app/auth/auth.controller.ts:505-512), y AuthService expone inviteUser contra /auth/invite aunque backend de invitación está en /users/invite (apps/core/client-web/src/app/core/services/auth.ts:437-439; apps/backend/api/src/app/users/users.controller.ts:45-57). |
+
+PUNTUACIÓN GLOBAL: 5.5/10
+
+Justificación global: hay controles modernos en tokens/cookies/hash/validación base, pero los fallos de RBAC, CSRF, IDOR y revocación de sesión son suficientes para reprobar producción empresarial.
+
+================================================================================
+3. FORTALEZAS — LO QUE ESTÁ BIEN IMPLEMENTADO
+================================================================================
+
+F1. Tokens de sesión en cookies httpOnly y refresh cookie con path limitado.
+Archivo/líneas: apps/backend/api/src/app/auth/services/cookie.service.ts:24-45
+Código actual:
+  const cookieOptions = {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: 'lax' as 'strict' | 'lax' | 'none',
+    path: '/',
+  };
+  res.cookie('access_token', accessToken, { ...cookieOptions, maxAge: AuthConfig.COOKIE_ACCESS_MAX_AGE });
+  res.cookie('refresh_token', refreshToken, { ...cookieOptions, maxAge: ..., path: '/api/v1/auth/refresh' });
+Por qué es correcto: httpOnly reduce robo de tokens vía XSS, secure en producción evita envío por HTTP, SameSite=Lax reduce CSRF en navegación cross-site y limitar path del refresh token reduce exposición accidental.
+Referencia: OWASP Session Management Cheat Sheet; OWASP Cross-Site Request Forgery Prevention Cheat Sheet; RFC 6265bis (Cookies: HttpOnly, Secure, SameSite).
+
+F2. Validación global estricta de DTOs.
+Archivo/líneas: apps/backend/api/src/main.ts:65-74
+Código actual:
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      transformOptions: { enableImplicitConversion: true },
+    }),
+  );
+Por qué es correcto: reduce mass assignment y parámetros inesperados en endpoints de auth/users/roles.
+Referencia: OWASP API Security Top 10 2023 API3:2023 Broken Object Property Level Authorization; OWASP Input Validation Cheat Sheet.
+
+F3. Contraseñas con argon2 y verificación dummy para usuarios inexistentes.
+Archivos/líneas: apps/backend/api/src/app/auth/services/password.service.ts:9-20; apps/backend/api/src/app/auth/auth.service.ts:58-75
+Código actual:
+  return argon2.hash(plain);
+  ...
+  if (user && user.security && user.security.passwordHash) {
+    isPasswordValid = await this.passwordService.verify(user.security.passwordHash, password);
+  } else {
+    await this.passwordService.verifyDummy(password);
+    isPasswordValid = false;
+  }
+Por qué es correcto: argon2 es un KDF moderno para contraseñas y la verificación dummy mitiga diferencias de timing en usuarios inexistentes.
+Referencia: OWASP Password Storage Cheat Sheet; CWE-208 Observable Timing Discrepancy.
+
+F4. Refresh token con identificador de sesión, rotación y detección de reutilización.
+Archivos/líneas: apps/backend/api/src/app/auth/services/token.service.ts:124-154; apps/backend/api/src/app/auth/services/session.service.ts:109-153,198-200,236-240
+Código actual:
+  const refreshTokenRecord = this.refreshTokenRepository.create({ userId: user.id, isRevoked: false, expiresAt: expirationDate, ... });
+  const refreshTokenPayload = { ...payload, jti: refreshTokenRecord.id };
+  ...
+  if (!refreshTokenEntity || refreshTokenEntity.isRevoked) { ... increment tokenVersion ... revoke all refresh tokens ... }
+  ...
+  refreshTokenEntity.isRevoked = true;
+  refreshTokenEntity.revokedAt = new Date();
+  await this.refreshTokenRepository.save(refreshTokenEntity);
+  await this.refreshTokenRepository.update(payload.jti, { replacedByToken: authResponse.refreshTokenId });
+Por qué es correcto: la rotación con jti y family invalidation ante reutilización es una práctica fuerte para refresh tokens.
+Referencia: OAuth 2.0 Security Best Current Practice (RFC 9700 / BCP 240), sección refresh token rotation; OWASP Session Management Cheat Sheet.
+
+F5. tokenVersion invalida JWT emitidos antes de cambios sensibles.
+Archivos/líneas: apps/backend/api/src/app/auth/services/token.service.ts:186-194; apps/backend/api/src/app/auth/strategies/jwt.strategy/jwt.strategy.ts:119-124; apps/backend/api/src/app/users/users.service.ts:138-142,205-209; apps/backend/api/src/app/auth/services/password-recovery.service.ts:111-119
+Código actual:
+  tokenVersion: user.security?.tokenVersion || 0,
+  ...
+  if (currentTokenVersion !== tokenVersion) { throw new UnauthorizedException(AuthError.SESSION_EXPIRED); }
+  ...
+  user.security.tokenVersion = (user.security.tokenVersion || 0) + 1;
+Por qué es correcto: permite revocación global de access tokens stateless tras cambios de contraseña, estado o roles.
+Referencia: OWASP JSON Web Token for Java Cheat Sheet (Token Revocation Management); OWASP Session Management Cheat Sheet.
+
+F6. Mensaje genérico para forgot-password.
+Archivos/líneas: apps/backend/api/src/app/auth/auth.controller.ts:281-286; apps/backend/api/src/app/auth/services/password-recovery.service.ts:37-44
+Código actual:
+  const genericMessage = 'Si existe una cuenta con ese correo, se ha enviado un enlace...';
+  if (!user) { await this.simulateDelay(); return { message: genericMessage }; }
+Por qué es correcto: evita revelar si un email existe.
+Referencia: OWASP Forgot Password Cheat Sheet; CWE-203 Observable Discrepancy.
+
+F7. Multi-tenant check durante validación JWT.
+Archivo/líneas: apps/backend/api/src/app/auth/strategies/jwt.strategy/jwt.strategy.ts:132-153
+Código actual:
+  if (!user.organization) { ... throw new UnauthorizedException(...); }
+  if (organizationId) {
+    const isCurrentOrg = user.organization?.id === organizationId;
+    const hasAccess = isCurrentOrg || (user.organizations && user.organizations.some(o => o.id === organizationId));
+    if (!hasAccess) { throw new UnauthorizedException(AuthError.INVALID_CREDENTIALS); }
+  }
+Por qué es correcto: valida que el contexto de organización del token corresponda al usuario, mitigando cross-tenant access.
+Referencia: OWASP API Security Top 10 2023 API1:2023 Broken Object Level Authorization.
+
+F8. Frontend no persiste tokens en localStorage/sessionStorage y usa cookies conCredentials.
+Archivo/líneas: apps/core/client-web/src/app/core/services/auth.ts:120-125,141-147,173-177,266-272
+Código actual:
+  this.http.get<LoginResponse>(`${this.apiUrl}/refresh`, { withCredentials: true, context: ... })
+  this.http.post<LoginResult>(url, credentials, { withCredentials: true, context: ... })
+Por qué es correcto: reduce exposición de bearer tokens a JavaScript y al storage persistente del navegador.
+Referencia: OWASP HTML5 Security Cheat Sheet; OWASP Session Management Cheat Sheet.
+
+F9. Interceptor frontend agrega XSRF en mutaciones y serializa refresh concurrente.
+Archivos/líneas: apps/core/client-web/src/app/core/interceptors/auth.interceptor.ts:26-37,46-107; apps/core/client-web/src/app/core/services/auth-queue.service.ts:24-52
+Código actual:
+  const xsrfToken = tokenExtractor.getToken();
+  if (xsrfToken && !['GET', 'HEAD', 'OPTIONS'].includes(req.method)) { headers: ... 'X-XSRF-TOKEN' }
+  ...
+  if (!authQueueService.isRefreshingToken) { authQueueService.startRefresh(); ... } else { waitForTokenRefresh() ... }
+Por qué es correcto: la cola evita tormentas de refresh/race conditions y el header XSRF implementa la parte cliente del double-submit.
+Referencia: OWASP CSRF Prevention Cheat Sheet; OAuth 2.0 Security BCP, refresh token replay mitigation.
+
+================================================================================
+4. TABLA RESUMEN DE HALLAZGOS NEGATIVOS
+================================================================================
+
+| Severidad | Tipo | Capa | Archivo | Línea | Resumen |
+|---|---|---|---|---:|---|
+| Crítica | Broken Access Control / CSRF | Backend | apps/backend/api/src/app/roles/roles.controller.ts | 10-42 | Cualquier usuario autenticado puede crear/editar/borrar roles y permisos; sin PermissionsGuard, sin @HasPermission y sin CsrfGuard. |
+| Crítica | Broken Access Control / IDOR | Backend | apps/backend/api/src/app/users/users.controller.ts + users.service.ts | 142-148 / 173-181 | GET /users/:id consulta por id global, no por organizationId; expone usuarios de otros tenants si el actor tiene users.view. |
+| Crítica | CSRF / Broken Access Control | Backend | apps/backend/api/src/app/users/users.controller.ts | 45-57,151-183,186-205 | Mutaciones de usuarios sensibles no exigen CsrfGuard ni TwoFactorVerifiedGuard; cookies httpOnly implican riesgo CSRF. |
+| Alta | Session Management Bug | Backend | apps/backend/api/src/app/auth/services/token.service.ts + jwt.strategy.ts + auth.service.ts | 146-154 / 178-180 / 166-168 | logout actual no revoca la sesión porque TokenService emite sessionId en access token pero JwtStrategy sólo lee payload.sessionId; interfaz no recibe sessionId por bug de nombre en payload. |
+| Alta | CSRF / Token Endpoint Design | Backend | apps/backend/api/src/app/auth/auth.controller.ts | 214-230 | Refresh token se rota con GET y sin CsrfGuard; GET cambia estado y cookies. |
+| Alta | Secret Management | Backend | apps/backend/api/src/app/auth/auth.config.ts | 20-24,44-45 | JWT_2FA_TEMP_SECRET y otros valores tienen fallbacks inseguros; no hay fail-fast para JWT_SECRET/JWT_REFRESH_SECRET/JWT_RESET_PASSWORD_SECRET en AuthConfig. |
+| Alta | Authorization Inconsistency | Backend | apps/backend/api/src/app/users/users.controller.ts + permissions.ts | 45-60,151-187 / 7-12 | UsersController usa permisos con punto ('users.create') pero catálogo usa dos puntos ('users:create'); RBAC falla para roles no wildcard. |
+| Alta | RBAC / Privilege Escalation | Backend | apps/backend/api/src/app/roles/dto/create-role.dto.ts + roles.service.ts | 13-14 / 30-32,51-58 | Creación/edición de roles acepta cualquier permiso, incluso '*' o permisos inexistentes, sin validación contra ALL_PERMISSIONS ni jerarquía. |
+| Alta | Sensitive Data Exposure | Backend | apps/backend/api/src/app/auth/entities/refresh-token.entity.ts + token/session services | 35-39 / 129-130 / 277-280 | IP y User-Agent se guardan y retornan en claro pese a existir encryptedIp; superficie innecesaria de privacidad. |
+| Media | CSRF Weakness | Backend | apps/backend/api/src/app/auth/guards/csrf.guard.ts + cookie.service.ts | 24-39 / 51-62 | Double-submit no firmado; si un subdominio puede escribir cookie XSRF-TOKEN, puede forjar header/cookie matching. |
+| Media | Password Policy Inconsistency | Backend | apps/backend/api/src/app/auth/dto/change-password.dto.ts + reset/register DTO | 3-9 / reset:8-14 / register:52-63 | Change-password permite contraseñas débiles que register/reset rechazan. |
+| Media | Token Leakage in URL | Frontend/Backend | apps/core/client-web/src/app/core/services/auth.ts + auth.controller.ts | 250-253 / 116-129 | Flujo social seguro por cookie se debilita por fallback token query y frontend que lo manda como query string. |
+| Media | WebAuthn Assurance | Backend | apps/backend/api/src/app/auth/services/webauthn.service.ts | 45-48,108-116 | userVerification='preferred', no exclusión de credenciales existentes y errores de librería propagados. |
+| Media | Logging Sensitive Data | Backend/Frontend | apps/backend/api/src/app/auth/services/session.service.ts; users.service.ts; login.page.ts | 133-135,172-180; 239-245; 118-120,197-198 | Logs contienen jti/user id/email/UA/IP/error objects; riesgo de fuga y log injection parcial. |
+| Baja | API Contract Inconsistency | Frontend/Backend | apps/core/client-web/src/app/core/api/security.service.ts + auth.controller.ts | 40-44 / 505-512 | Frontend usa DELETE /auth/sessions/:id pero backend expone POST /auth/sessions/:id/revoke. |
+| Baja | API Contract Inconsistency | Frontend/Backend | apps/core/client-web/src/app/core/services/auth.ts + users.controller.ts | 437-439 / 45-57 | Frontend AuthService invita en /auth/invite, backend expone /users/invite. |
+| Baja | Security Headers | Backend | apps/backend/api/src/main.ts | 33-45 | Helmet existe, pero CSP permite unsafe-inline y no se configura HSTS explícito en el código auditado. |
+| Informativa | Honeypot Flow Bug | Backend | apps/backend/api/src/app/auth/auth.facade.ts + cookie.service.ts | 33-49 / 31-48 | Honeypot retorna fake-jwt/fake-refresh-token y el controller los setea como cookies; no es acceso real, pero ensucia el cliente y puede afectar telemetría/UX. |
+
+================================================================================
+5. HALLAZGOS DETALLADOS
+================================================================================
+
+H1 — CRÍTICA — Roles sin autorización granular ni CSRF
+Evidencia:
+Archivo: apps/backend/api/src/app/roles/roles.controller.ts:10-42
+Código actual:
+  @Controller('roles')
+  @UseGuards(JwtAuthGuard)
+  export class RolesController {
+    @Post()
+    create(@Body() createRoleDto: CreateRoleDto, @CurrentUser() user: jwtPayloadInterface.JwtPayload) {
+      return this.rolesService.create(createRoleDto, user.organizationId);
+    }
+    @Patch(':id')
+    update(...){ return this.rolesService.update(id, updateRoleDto, user.organizationId); }
+    @Delete(':id')
+    remove(...){ return this.rolesService.remove(id, user.organizationId); }
+  }
+Explicación:
+Sólo exige autenticación. Cualquier usuario autenticado puede crear roles con permisos arbitrarios, clonar roles, listar permisos disponibles, editar roles y eliminarlos. Como se usan cookies httpOnly, POST/PATCH/DELETE también deben estar protegidos contra CSRF. Esto es una escalación de privilegios directa.
+Corrección propuesta:
+  @Controller('roles')
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  export class RolesController {
+    @Get('available-permissions')
+    @HasPermission(PERMISSIONS.ROLES_VIEW)
+    getAvailablePermissions() { return ALL_PERMISSIONS; }
+
+    @Post()
+    @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+    @HasPermission(PERMISSIONS.ROLES_CREATE)
+    create(@Body() dto: CreateRoleDto, @CurrentUser() user: AuthenticatedUser) {
+      return this.rolesService.create(dto, user.organizationId);
+    }
+
+    @Patch(':id')
+    @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+    @HasPermission(PERMISSIONS.ROLES_EDIT)
+    update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateRoleDto, @CurrentUser() user: AuthenticatedUser) {
+      return this.rolesService.update(id, dto, user.organizationId, user);
+    }
+
+    @Delete(':id')
+    @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+    @HasPermission(PERMISSIONS.ROLES_DELETE)
+    remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+      return this.rolesService.remove(id, user.organizationId);
+    }
+  }
+Referencia: OWASP API1:2023 Broken Object Level Authorization; OWASP API5:2023 Broken Function Level Authorization; OWASP CSRF Prevention Cheat Sheet; CWE-862 Missing Authorization; CWE-352 CSRF.
+
+H2 — CRÍTICA — IDOR en lectura de usuario por ID
+Evidencia:
+Archivo: apps/backend/api/src/app/users/users.controller.ts:142-148
+Código actual:
+  @Get(':id')
+  @HasPermission('users.view')
+  async findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+    // Ideally ensure user belongs to same org
+    const foundUser = await this.usersService.findOne(id);
+    return plainToInstance(UserResponseDto, foundUser, { excludeExtraneousValues: true });
+  }
+Archivo: apps/backend/api/src/app/users/users.service.ts:173-181
+Código actual:
+  async findOne(id: string): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { id: id as any } });
+    if (!user) { throw new NotFoundException(`Usuario con id ${id} no encontrado`); }
+    return user;
+  }
+Explicación:
+El controller recibe organizationId del usuario autenticado, pero no lo usa; el servicio busca por id global. Un usuario con permiso de lectura puede enumerar o acceder a datos de usuarios de otros tenants si conoce/obtiene UUIDs.
+Corrección propuesta:
+  async findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+    const foundUser = await this.usersService.findOneByOrg(id, user.organizationId);
+    return plainToInstance(UserResponseDto, foundUser, { excludeExtraneousValues: true });
+  }
+
+  async findOneByOrg(id: string, organizationId: string): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { id, organizationId } });
+    if (!user) throw new NotFoundException('Usuario no encontrado');
+    return user;
+  }
+Referencia: OWASP API1:2023 Broken Object Level Authorization; CWE-639 Authorization Bypass Through User-Controlled Key.
+
+H3 — CRÍTICA — Mutaciones de usuarios sin CSRF/step-up
+Evidencia:
+Archivo: apps/backend/api/src/app/users/users.controller.ts:45-57,151-183,186-205
+Código actual:
+  @Post('invite')
+  @HasPermission('users.create')
+  async inviteUser(...)
+
+  @Patch(':id')
+  @HasPermission('users.edit')
+  async update(...)
+
+  @Patch(':id/status')
+  @HasPermission('users.edit')
+  async updateStatus(...)
+
+  @Post(':id/reset-password')
+  @HasPermission('users.edit')
+  async resetPassword(...)
+
+  @Post(':id/force-logout')
+  @HasPermission('users.edit')
+  async forceLogout(...)
+Explicación:
+La clase tiene JwtAuthGuard y PermissionsGuard, pero no CsrfGuard para operaciones con efectos de estado. En una arquitectura con cookies httpOnly, el navegador adjunta cookies automáticamente; sin CSRF, un sitio externo puede intentar mutaciones contra usuarios autenticados. Además, acciones sensibles como cambio de rol, estado, reset password y force logout deberían requerir step-up/MFA reciente.
+Corrección propuesta:
+  @Patch(':id')
+  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+  @HasPermission(PERMISSIONS.USERS_EDIT)
+  async update(...) { ... }
+
+  @Post(':id/reset-password')
+  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+  @HasPermission(PERMISSIONS.USERS_EDIT)
+  async resetPassword(...) { ... }
+
+  @Post(':id/force-logout')
+  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+  @HasPermission(PERMISSIONS.USERS_EDIT)
+  async forceLogout(@Param('id') id: string, @CurrentUser() user: User) {
+    return this.usersService.forceLogout(id, user.organizationId);
+  }
+Referencia: OWASP CSRF Prevention Cheat Sheet; OWASP Authentication Cheat Sheet (reauthentication after risk events); CWE-352; CWE-862.
+
+H4 — ALTA — Logout actual puede no revocar la sesión de refresh token
+Evidencia:
+Archivo: apps/backend/api/src/app/auth/services/token.service.ts:146-154
+Código actual:
+  const payloadWithSession: JwtPayload = { ...payload, sessionId: refreshTokenRecord.id };
+  const accessToken = this.getJwtToken(payloadWithSession, AuthConfig.JWT_ACCESS_EXPIRATION);
+  const refreshTokenPayload = { ...payload, jti: refreshTokenRecord.id };
+Archivo: apps/backend/api/src/app/auth/strategies/jwt.strategy/jwt.strategy.ts:178-180
+Código actual:
+  isImpersonating: payload.isImpersonating,
+  originalUserId: payload.originalUserId,
+  sessionId: payload.sessionId,
+Archivo: apps/backend/api/src/app/auth/auth.service.ts:166-168
+Código actual:
+  async logoutCurrentSession(userId: string, sessionId?: string): Promise<void> {
+    await this.sessionService.terminateCurrentSession(userId, sessionId);
+  }
+Explicación:
+TokenService usa un objeto tipado como JwtPayload, pero JwtPayload probablemente no declara sessionId. En TypeScript esto debería ser error; si se emitiera, JwtStrategy lo lee de payload.sessionId. Si el campo no llega al usuario autenticado, AuthController pasa undefined y terminateCurrentSession sólo limpia caché, no revoca refresh token. Resultado: logout local borra cookies, pero si el refresh token fue copiado antes, puede seguir vivo.
+Corrección propuesta:
+  // interfaces/jwt-payload.interface.ts
+  export interface JwtPayload {
+    id: string;
+    email: string;
+    organizationId?: string | null;
+    roles: string[];
+    tokenVersion: number;
+    sessionId?: string;
+    jti?: string;
+    isImpersonating?: boolean;
+    originalUserId?: string;
+  }
+
+  // SessionService: si sessionId falta, revocar por refresh cookie jti o rechazar logout como inconsistente.
+  async terminateCurrentSession(userId: string, sessionId: string): Promise<void> {
+    if (!sessionId) throw new UnauthorizedException('Session id missing');
+    await this.refreshTokenRepository.update({ id: sessionId, userId }, { isRevoked: true, revokedAt: new Date() });
+    await this.userCacheService.clearUserSession(userId);
+  }
+Referencia: OWASP Session Management Cheat Sheet; OWASP JWT Cheat Sheet (token revocation); CWE-613 Insufficient Session Expiration.
+
+H5 — ALTA — Refresh token usa GET y no CSRF
+Evidencia:
+Archivo: apps/backend/api/src/app/auth/auth.controller.ts:214-230
+Código actual:
+  @Get('refresh')
+  async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response, ...) {
+    const refreshToken = req.cookies?.refresh_token;
+    ...
+    const result = await this.authService.refreshAccessToken(refreshToken, ip, userAgent);
+    this.cookieService.setAuthCookies(res, result.accessToken, result.refreshToken);
+  }
+Explicación:
+GET debe ser seguro/idempotente según HTTP semantics; aquí rota tokens, revoca el refresh anterior y setea cookies. Además, al no requerir CSRF, un tercero puede inducir requests GET que consumen/rotan refresh tokens o generan efectos no intencionales.
+Corrección propuesta:
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(CsrfGuard)
+  async refresh(...) { ... }
+
+Y actualizar frontend:
+  return this.http.post<LoginResponse>(`${this.apiUrl}/refresh`, {}, { withCredentials: true, context: ... });
+Referencia: RFC 9110 HTTP Semantics (safe methods); OWASP CSRF Prevention Cheat Sheet; CWE-352.
+
+H6 — ALTA — Secretos fallback y falta de fail-fast para secretos JWT
+Evidencia:
+Archivo: apps/backend/api/src/app/auth/auth.config.ts:20-24,44-45
+Código actual:
+  get JWT_ACCESS_EXPIRATION() { return process.env.JWT_ACCESS_EXPIRATION || '15m'; }
+  get JWT_REFRESH_EXPIRATION() { return process.env.JWT_REFRESH_EXPIRATION || '7d'; }
+  get JWT_RESET_PASSWORD_EXPIRATION() { return process.env.JWT_RESET_PASSWORD_EXPIRATION || '15m'; }
+  get JWT_REFRESH_REMEMBER_ME_EXPIRATION() { return process.env.JWT_REFRESH_REMEMBER_ME_EXPIRATION || '30d'; }
+  get JWT_2FA_TEMP_SECRET() { return process.env.JWT_2FA_TEMP_SECRET || 'temp_2fa_secret_change_me'; }
+  get DUMMY_PASSWORD_HASH() { return process.env.AUTH_DUMMY_PASSWORD_HASH || '$argon2id$...'; }
+Explicación:
+El secreto temporal 2FA tiene fallback hardcodeado. TokenService usa getOrThrow para JWT_SECRET en access tokens, pero JWT_REFRESH_SECRET y JWT_RESET_PASSWORD_SECRET se obtienen con get<string>(), lo que puede terminar en undefined o configuración débil si no hay validación central. En sistemas empresariales, todos los secretos criptográficos deben ser obligatorios en producción, con longitud/entropía mínima y rotación.
+Corrección propuesta:
+  function requiredSecret(name: string): string {
+    const value = process.env[name];
+    if (!value || value.length < 32 || /change_me|default|secret/i.test(value)) {
+      throw new Error(`FATAL: ${name} missing or weak`);
+    }
+    return value;
+  }
+  export const AuthSecrets = {
+    get jwtSecret() { return requiredSecret('JWT_SECRET'); },
+    get jwtRefreshSecret() { return requiredSecret('JWT_REFRESH_SECRET'); },
+    get jwtResetPasswordSecret() { return requiredSecret('JWT_RESET_PASSWORD_SECRET'); },
+    get jwt2faTempSecret() { return requiredSecret('JWT_2FA_TEMP_SECRET'); },
+  };
+Referencia: OWASP Secrets Management Cheat Sheet; CWE-798 Use of Hard-coded Credentials; RFC 8725 JSON Web Token Best Current Practices.
+
+H7 — ALTA — Inconsistencia de permisos rompe RBAC de usuarios
+Evidencia:
+Archivo: apps/backend/api/src/app/users/users.controller.ts:45-60,151-187
+Código actual:
+  @HasPermission('users.create')
+  @HasPermission('users.view')
+  @HasPermission('users.edit')
+  @HasPermission('users.delete')
+Archivo: apps/backend/api/src/app/shared/permissions.ts:7-12
+Código actual:
+  USERS_VIEW: 'users:view',
+  USERS_CREATE: 'users:create',
+  USERS_EDIT: 'users:edit',
+  USERS_DELETE: 'users:delete',
+  USERS_MANAGE_STATUS: 'users:manage_status',
+  USERS_IMPERSONATE: 'users:impersonate',
+Explicación:
+El catálogo define permisos con ':', pero el controller usa '.'. Sólo usuarios con '*' pasan; roles delegados con users:view/users:edit fallarán. Esto causa denegación indebida y tiende a forzar uso de wildcard admin, aumentando blast radius.
+Corrección propuesta:
+  @HasPermission(PERMISSIONS.USERS_CREATE)
+  @HasPermission(PERMISSIONS.USERS_VIEW)
+  @HasPermission(PERMISSIONS.USERS_EDIT)
+  @HasPermission(PERMISSIONS.USERS_DELETE)
+Y agregar tests que recorran metadata de @HasPermission y verifiquen que cada valor existe en ALL_PERMISSIONS.
+Referencia: OWASP API5:2023 Broken Function Level Authorization; CWE-284 Improper Access Control.
+
+H8 — ALTA — Roles aceptan permisos arbitrarios y wildcard sin jerarquía
+Evidencia:
+Archivo: apps/backend/api/src/app/roles/dto/create-role.dto.ts:13-14
+Código actual:
+  @IsArray()
+  permissions: string[];
+Archivo: apps/backend/api/src/app/roles/roles.service.ts:30-32,51-58
+Código actual:
+  const role = this.roleRepository.create({ ...createRoleDto, organizationId });
+  return this.roleRepository.save(role);
+  ...
+  Object.assign(role, updateRoleDto);
+  const updatedRole = await this.roleRepository.save(role);
+Explicación:
+No se valida que cada permiso pertenezca a ALL_PERMISSIONS, ni se impide '*' en roles creados por usuarios no superadmin, ni se aplica jerarquía. Combinado con H1, es escalación total.
+Corrección propuesta:
+  export class CreateRoleDto {
+    @IsArray()
+    @ArrayNotEmpty()
+    @IsIn(ALL_PERMISSIONS, { each: true })
+    permissions: Permission[];
+  }
+
+  private assertAssignablePermissions(actor: AuthenticatedUser, permissions: string[]) {
+    if (permissions.includes('*')) throw new ForbiddenException('Wildcard permission cannot be delegated');
+    for (const p of permissions) if (!actor.permissions.includes('*') && !actor.permissions.includes(p)) throw new ForbiddenException(...);
+  }
+Referencia: OWASP API5:2023 Broken Function Level Authorization; CWE-266 Incorrect Privilege Assignment.
+
+H9 — ALTA — IP/User-Agent de sesiones guardados y expuestos en claro
+Evidencia:
+Archivo: apps/backend/api/src/app/auth/entities/refresh-token.entity.ts:35-39
+Código actual:
+  @Column({ name: 'ip_address', nullable: true })
+  ipAddress?: string;
+  @Column({ name: 'encrypted_ip', nullable: true, select: false })
+  encryptedIp?: string;
+Archivo: apps/backend/api/src/app/auth/services/token.service.ts:124-130
+Código actual:
+  const refreshTokenRecord = this.refreshTokenRepository.create({ ..., ipAddress, userAgent });
+Archivo: apps/backend/api/src/app/auth/services/session.service.ts:277-280
+Código actual:
+  return sessions.map((session) => ({ id: session.id, ipAddress: session.ipAddress, userAgent: session.userAgent, ... }));
+Explicación:
+Aunque existe encryptedIp, el sistema guarda y retorna ipAddress en claro. Las IPs pueden ser datos personales; userAgent puede contener identificadores y superficie de fingerprinting. Debe minimizarse, truncarse, cifrarse o enmascararse.
+Corrección propuesta:
+  // No guardar ipAddress en claro; guardar maskedIp para UI y encryptedIp para forense.
+  refreshTokenRecord.maskedIp = this.maskIp(ipAddress);
+  refreshTokenRecord.encryptedIp = this.encryptIp(ipAddress);
+  ...
+  return { ipAddress: session.maskedIp, userAgent: sanitizeForDisplay(session.userAgent), ... };
+Referencia: OWASP Logging Cheat Sheet (data to exclude/minimize); GDPR/data minimization as industry privacy practice; CWE-359 Exposure of Private Personal Information.
+
+H10 — MEDIA — CSRF double-submit no firmado
+Evidencia:
+Archivo: apps/backend/api/src/app/auth/services/cookie.service.ts:51-62
+Código actual:
+  const csrfToken = crypto.randomBytes(32).toString('hex');
+  res.cookie('XSRF-TOKEN', csrfToken, { secure: isProduction, sameSite: 'lax', httpOnly: false, ... });
+Archivo: apps/backend/api/src/app/auth/guards/csrf.guard.ts:24-39
+Código actual:
+  const xsrfToken = request.headers['x-xsrf-token'];
+  const xsrfCookie = request.cookies['XSRF-TOKEN'];
+  if (!xsrfToken || !xsrfCookie || xsrfToken !== xsrfCookie) throw new ForbiddenException('Invalid CSRF Token');
+Explicación:
+El patrón naive double-submit compara header contra cookie, pero no vincula el token a la sesión. Si un subdominio o vector de cookie injection puede fijar XSRF-TOKEN, el atacante puede hacer coincidir cookie/header en algunos escenarios.
+Corrección propuesta:
+  // Emitir csrf = base64(nonce).'.'.HMAC(serverSecret, sessionId + '.' + nonce)
+  // Validar firma y sessionId actual en CsrfGuard.
+  const expected = hmac(csrfSecret, `${sessionId}.${nonce}`);
+  if (!timingSafeEqual(signature, expected)) throw new ForbiddenException('Invalid CSRF Token');
+Referencia: OWASP CSRF Prevention Cheat Sheet, Signed Double-Submit Cookie recommended; CWE-352.
+
+H11 — MEDIA — Política de contraseña inconsistente en change-password
+Evidencia:
+Archivo: apps/backend/api/src/app/auth/dto/change-password.dto.ts:3-9
+Código actual:
+  export class ChangePasswordDto {
+    @IsString()
+    currentPassword: string;
+    @IsString()
+    @MinLength(8)
+    newPassword: string;
+  }
+Archivo: apps/backend/api/src/app/auth/dto/reset-password.dto.ts:8-14
+Código actual:
+  @MinLength(8)
+  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/)
+  password: string;
+Explicación:
+Un usuario autenticado puede cambiar a una contraseña que reset/register rechazan. La política debe ser única y aplicada en todos los flujos.
+Corrección propuesta:
+  export class ChangePasswordDto {
+    @IsString() @IsNotEmpty()
+    currentPassword: string;
+
+    @IsString() @IsNotEmpty()
+    @MinLength(8)
+    @MaxLength(50)
+    @Matches(PASSWORD_POLICY_REGEX)
+    newPassword: string;
+  }
+Referencia: OWASP Authentication Cheat Sheet; OWASP Password Storage Cheat Sheet; NIST SP 800-63B (memorized secrets policy consistency).
+
+H12 — MEDIA — Token de social registration en URL/query sigue soportado por frontend/backend
+Evidencia:
+Archivo: apps/backend/api/src/app/auth/auth.controller.ts:116-129
+Código actual:
+  async getSocialRegisterInfo(@Query('token') token: string, @Req() req: Request) {
+    let tokenToUse = token;
+    if (!tokenToUse) { tokenToUse = req.cookies['social_register_token']; }
+    if (!tokenToUse) { throw new BadRequestException('Token required (query or cookie)'); }
+    return this.authFacade.getSocialRegisterInfo(tokenToUse);
+  }
+Archivo: apps/core/client-web/src/app/core/services/auth.ts:250-253
+Código actual:
+  getSocialRegisterInfo(token: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/social-register-info?token=${token}`, { context: ... });
+  }
+Explicación:
+El callback social ya evita poner el token en URL con cookie httpOnly, pero el endpoint y frontend conservan el patrón inseguro. Tokens en query quedan en historial, logs, analytics y Referer.
+Corrección propuesta:
+  // Backend: eliminar @Query('token') y leer sólo cookie httpOnly.
+  async getSocialRegisterInfo(@Req() req: Request) {
+    const token = req.cookies['social_register_token'];
+    if (!token) throw new BadRequestException('Token required');
+    return this.authFacade.getSocialRegisterInfo(token);
+  }
+  // Frontend:
+  getSocialRegisterInfo(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/social-register-info`, { withCredentials: true, context: ... });
+  }
+Referencia: OWASP Information Exposure Through Query Strings in URL; CWE-598 Use of GET Request Method With Sensitive Query Strings; OAuth 2.0 Security BCP.
+
+H13 — MEDIA — WebAuthn con userVerification preferred y validación de body:any
+Evidencia:
+Archivo: apps/backend/api/src/app/auth/services/webauthn.service.ts:45-48,108-116
+Código actual:
+  authenticatorSelection: {
+    residentKey: 'preferred',
+    userVerification: 'preferred',
+    authenticatorAttachment: 'platform',
+  }
+  ...
+  userVerification: 'preferred',
+Archivo: apps/backend/api/src/app/auth/auth.controller.ts:453-454,467-471
+Código actual:
+  async verifyWebAuthnRegistration(@CurrentUser() user: User, @Body() body: any) { ... }
+  async verifyWebAuthnAuthentication(@Body() body: any, ...) { ... }
+Explicación:
+Para passkeys como factor fuerte, userVerification='required' es el estándar recomendado cuando se espera autenticación resistente a phishing con verificación local. body:any impide validación explícita del shape y límites.
+Corrección propuesta:
+  authenticatorSelection: { residentKey: 'preferred', userVerification: 'required' }
+  generateAuthenticationOptions({ rpID: this.rpID, allowCredentials, userVerification: 'required' })
+  class WebAuthnVerifyDto { @IsObject() credential: AuthenticationResponseJSON; @IsString() challengeId: string; }
+Referencia: W3C WebAuthn Level 3; FIDO Alliance passkey UX/security guidance; OWASP Authentication Cheat Sheet.
+
+H14 — MEDIA — Logging de datos sensibles y errores brutos
+Evidencia:
+Archivo: apps/backend/api/src/app/auth/services/session.service.ts:133-135,172-180
+Código actual:
+  this.logger.warn(`[SECURITY] Reuse detection: Refresh token ${payload.jti} ... Invalidating user ${user.id}.`)
+  this.logger.warn(`[SECURITY] User Agent mismatch detected ... Stored: '${refreshTokenEntity.userAgent}', Current: '${userAgent}'.`)
+Archivo: apps/backend/api/src/app/users/users.service.ts:239-245
+Código actual:
+  console.error(`Failed to send password reset email to ${user.email}`, error);
+Archivo: apps/core/client-web/src/app/features/auth/login/login.page.ts:118-120,197-198
+Código actual:
+  console.error('Passkey login error:', err);
+  console.error('Login error:', err);
+Explicación:
+Logs pueden contener tokens jti correlacionables, emails, user ids, user agents completos y errores con payloads. En frontend, console.error puede exponer información en entornos compartidos o reportes de usuario.
+Corrección propuesta:
+  this.logger.warn({ event: 'refresh_reuse', userIdHash: hash(user.id), jtiHash: hash(payload.jti) }, 'Refresh token reuse detected');
+  this.logger.warn({ event: 'ua_mismatch', sessionIdHash: hash(refreshTokenEntity.id) }, 'User agent mismatch');
+  // frontend: mostrar mensaje genérico y enviar telemetría sanitizada sólo si está habilitada.
+Referencia: OWASP Logging Cheat Sheet; CWE-532 Insertion of Sensitive Information into Log File.
+
+H15 — BAJA — Contrato frontend/backend inconsistente para revocar sesiones
+Evidencia:
+Archivo: apps/core/client-web/src/app/core/api/security.service.ts:40-44
+Código actual:
+  getSessions(): Observable<Session[]> { return this.http.get<Session[]>(`${this.apiUrl}/sessions`); }
+  revokeSession(sessionId: string): Observable<void> { return this.http.delete<void>(`${this.apiUrl}/sessions/${sessionId}`); }
+Archivo: apps/backend/api/src/app/auth/auth.controller.ts:505-512
+Código actual:
+  @Post('sessions/:id/revoke')
+  @UseGuards(JwtAuthGuard, CsrfGuard, TwoFactorVerifiedGuard)
+  async revokeSession(...) { return this.authService.revokeSession(user.id, sessionId); }
+Explicación:
+La UI no podrá revocar sesiones usando SecurityService; esto rompe una función de seguridad esperada por usuarios.
+Corrección propuesta:
+  revokeSession(sessionId: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/sessions/${sessionId}/revoke`, {});
+  }
+Referencia: OWASP Session Management Cheat Sheet (logout/session termination usability).
+
+H16 — BAJA — Contrato frontend/backend inconsistente para invitación
+Evidencia:
+Archivo: apps/core/client-web/src/app/core/services/auth.ts:437-439
+Código actual:
+  inviteUser(payload: UserPayload): Observable<User> {
+    return this.http.post<User>(`${this.apiUrl}/invite`, payload);
+  }
+Archivo: apps/backend/api/src/app/users/users.controller.ts:45-57
+Código actual:
+  @Post('invite')
+  async inviteUser(...) { ... }
+Explicación:
+apiUrl de AuthService apunta a /auth, por lo que la llamada va a /auth/invite, pero backend expone /users/invite. El flujo de onboarding de usuarios puede fallar o inducir workarounds inseguros.
+Corrección propuesta:
+  // mover inviteUser a UsersService frontend o apuntar a `${baseUrl}/users/invite`.
+Referencia: OWASP Secure SDLC / security usability: controles de administración deben funcionar de forma consistente.
+
+H17 — BAJA — Headers de seguridad incompletos/relajados
+Evidencia:
+Archivo: apps/backend/api/src/main.ts:33-45
+Código actual:
+  await app.register(fastifyHelmet, {
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+  });
+Explicación:
+Helmet es positivo, pero unsafe-inline reduce CSP contra XSS, y no se observa configuración explícita de HSTS. Puede ser aceptable temporalmente en desarrollo, no en producción empresarial.
+Corrección propuesta:
+  await app.register(fastifyHelmet, {
+    strictTransportSecurity: { maxAge: 31536000, includeSubDomains: true, preload: true },
+    contentSecurityPolicy: { directives: { defaultSrc: ["'self'"], scriptSrc: ["'self'", "'nonce-...'"] } },
+  });
+Referencia: OWASP Secure Headers Project; OWASP Content Security Policy Cheat Sheet; CWE-693 Protection Mechanism Failure.
+
+H18 — INFORMATIVA — Honeypot setea cookies con tokens falsos
+Evidencia:
+Archivo: apps/backend/api/src/app/auth/auth.facade.ts:33-49
+Código actual:
+  if (registerUserDto.fax) {
+    return { user: { id: 'fake-id', ... } as any, accessToken: 'fake-jwt', refreshToken: 'fake-refresh-token' };
+  }
+Archivo: apps/backend/api/src/app/auth/auth.controller.ts:143-147
+Código actual:
+  const { user, accessToken, refreshToken } = await this.authFacade.register(...);
+  this.cookieService.setAuthCookies(res, accessToken, refreshToken);
+Explicación:
+No otorga acceso real porque los JWT falsos no validarán, pero ensucia el navegador del cliente, puede disparar errores de refresh/status y confundir analítica/soporte. Para honeypot, es mejor devolver 202/204 sin setear cookies o simular éxito sólo en payload.
+Corrección propuesta:
+  if (isHoneypot) return { honeypot: true, user: fakeUser };
+  // Controller:
+  if ('honeypot' in result) return { user: plainToInstance(UserResponseDto, result.user, ...) };
+  this.cookieService.setAuthCookies(...);
+Referencia: OWASP Automated Threats to Web Applications; buenas prácticas de deception sin degradar estado de cliente.
+
+================================================================================
+6. HOJA DE RUTA DE REMEDIACIÓN PRIORIZADA
+================================================================================
+
+FASE 1 — Crítico (antes de cualquier deploy a producción)
+
+1. Bloquear escalación vía roles. Esfuerzo: Medio.
+   - Añadir PermissionsGuard, @HasPermission y CsrfGuard/TwoFactorVerifiedGuard en RolesController.
+   - Validar permisos contra ALL_PERMISSIONS y prohibir '*' salvo superadmin controlado.
+   - Agregar tests de autorización para create/update/delete/list.
+
+2. Corregir IDOR de usuarios. Esfuerzo: Bajo.
+   - Cambiar UsersController.findOne para usar organizationId.
+   - Crear findOneByOrg y usarlo en activity/forceLogout/resetPassword si aplica.
+   - Normalizar errores para no filtrar existencia cross-tenant.
+
+3. Aplicar CSRF y step-up a mutaciones de usuarios/roles/auth sensibles. Esfuerzo: Medio.
+   - Proteger invite/update/status/reset/forceLogout/remove y roles create/update/delete.
+   - Confirmar que frontend envía X-XSRF-TOKEN para todas las mutaciones.
+
+4. Reparar revocación de logout. Esfuerzo: Medio.
+   - Declarar sessionId en JwtPayload/AuthenticatedUser y testear que llega a CurrentUser.
+   - En logout, revocar refresh token actual de forma verificable.
+   - Añadir tests de integración: login -> logout -> refresh debe fallar.
+
+5. Convertir refresh a POST con CSRF. Esfuerzo: Medio.
+   - Cambiar backend @Get('refresh') a @Post('refresh') + CsrfGuard.
+   - Actualizar frontend AuthService.refreshAccessToken.
+   - Añadir pruebas de que GET no produce rotación.
+
+6. Endurecer secretos. Esfuerzo: Bajo.
+   - Fail-fast en producción para JWT_SECRET, JWT_REFRESH_SECRET, JWT_RESET_PASSWORD_SECRET, JWT_2FA_TEMP_SECRET, ENCRYPTION_SECRET, AUTH_SALT.
+   - Longitud mínima y bloqueo de valores default/change_me.
+
+FASE 2 — Importante (próximo sprint)
+
+1. Normalizar permisos y RBAC. Esfuerzo: Medio.
+   - Reemplazar strings literales por PERMISSIONS.*.
+   - Test estático que todos los @HasPermission existen en ALL_PERMISSIONS.
+   - Unificar wildcard semántico; decidir si ':' o '.' y migrar datos.
+
+2. Minimizar datos de sesiones. Esfuerzo: Medio.
+   - No retornar IP en claro; mostrar IP enmascarada.
+   - Cifrar o hashear IP/UA para forense.
+   - Revisar retención de refresh_tokens y logs.
+
+3. CSRF firmado. Esfuerzo: Medio.
+   - Pasar de double-submit naive a signed double-submit ligado a sessionId.
+   - Usar timingSafeEqual.
+
+4. Unificar política de contraseñas. Esfuerzo: Bajo.
+   - Crear PasswordPolicyValidator compartido para register/reset/change/invitation.
+   - Considerar zxcvbn/HIBP k-anonymity si el producto lo permite.
+
+5. Limpiar tokens en URL. Esfuerzo: Bajo.
+   - Remover token query para social-register-info.
+   - Cambiar frontend para usar cookie httpOnly.
+   - Considerar fragment cleanup/history.replaceState en reset-password tras capturar token.
+
+6. WebAuthn hardening. Esfuerzo: Medio.
+   - userVerification='required' para autenticación passkey.
+   - DTOs typed para verificación.
+   - Excluir credenciales existentes en registro.
+   - No propagar error.message de librería al cliente.
+
+FASE 3 — Calidad y escalabilidad (deuda técnica planificada)
+
+1. Throttling/cache obligatoriamente distribuido en producción. Esfuerzo: Medio.
+   - Fallar startup si NODE_ENV=production y no hay REDIS_HOST para throttling/cache/WebAuthn challenge.
+   - Revisar sticky sessions no requeridas.
+
+2. Rotación refresh transaccional con locking. Esfuerzo: Alto.
+   - Usar transacción/SELECT FOR UPDATE sobre refresh token jti.
+   - Persistir token family id y detectar replay con precisión.
+
+3. Observabilidad segura. Esfuerzo: Medio.
+   - Eventos estructurados para login, logout, refresh replay, role change, MFA enable/disable, session revoke.
+   - Redactar email/IP/UA/token ids; hash irreversible para correlación.
+   - Alertas SIEM para privilege escalation, role wildcard, refresh reuse.
+
+4. Contratos frontend/backend. Esfuerzo: Bajo.
+   - Generar cliente OpenAPI o contract tests.
+   - Corregir revokeSession e inviteUser.
+
+5. Seguridad de headers/CSP. Esfuerzo: Medio.
+   - HSTS explícito en producción.
+   - Eliminar unsafe-inline con nonce/hash.
+   - Revisar CORP/COEP según necesidades del frontend.
+
+================================================================================
+ANEXO: COBERTURA DE ALCANCE
+================================================================================
+
+Gestión de usuarios: auditados UsersController, UsersService, DTOs, User/UserSecurity/UserResponseDto e invitación/reset administrativo.
+Autenticación: auditados login/logout/register/forgot/reset/change password/2FA/WebAuthn/OAuth social callback.
+Autorización y roles: auditados PermissionsGuard, util de permisos, RolesController/Service/DTO, PERMISSIONS y DEFAULT_ROLES.
+Tokens y sesiones: auditados CookieService, TokenService, SessionService, RefreshToken entity, JwtStrategy/JwtGuard, refresh/logout/session revoke.
+Frontend específico: auditados AuthService, auth.interceptor, AuthQueueService, authGuard, permissionsGuard, login/reset pages y SecurityService.
+Backend específico: auditados ValidationPipe, Helmet/CORS, Throttler/Recaptcha config, CSRF guard, errores/logging relevantes.
+
+Veredicto final: NO APTO para producción empresarial hasta completar FASE 1 y validar con pruebas automatizadas de autorización, CSRF y revocación de sesiones.
