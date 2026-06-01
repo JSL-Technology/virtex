@@ -44,6 +44,7 @@ import { AbstractSmsProvider } from './services/abstract-sms.provider';
 import { SocialAuthService } from './services/social-auth.service';
 import { MfaOrchestratorService } from './services/mfa-orchestrator.service';
 import { UserCacheModule } from './modules/user-cache.module';
+import { PaymentModule } from '../payment/payment.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { PasswordService } from './services/password.service';
 import { AuthSubscriber } from './events/auth.events';
@@ -106,6 +107,7 @@ import { AuthAuditListener } from './listeners/auth-audit.listener';
     }),
     MailModule,
     LocalizationModule,
+    PaymentModule,
   ],
   controllers: [AuthController],
   providers: [
