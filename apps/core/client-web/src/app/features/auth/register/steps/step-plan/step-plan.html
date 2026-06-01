@@ -4,31 +4,32 @@
     <p class="step-subtitle">{{ 'REGISTER.STEPS.PLAN.SUBTITLE' | translate }}</p>
   </div>
 
-  <div class="plan-summary-card">
-    <div class="summary-header">
-       <div class="plan-icon">
-          <lucide-icon [img]="RocketIcon" size="24"></lucide-icon>
-       </div>
-       <div class="plan-info">
-         <h4 class="plan-name">{{ 'REGISTER.PLAN_SUMMARY.TITLE' | translate }}</h4>
-         <p class="plan-desc">{{ 'REGISTER.PLAN_SUMMARY.SUBTITLE' | translate }}</p>
-       </div>
-    </div>
+  <div class="plans-grid">
+    <div *ngFor="let plan of plans"
+         class="plan-card"
+         [ngClass]="{'recommended': plan.recommended, 'selected': isSelected(plan.id)}"
+         (click)="selectPlan(plan.id)">
 
-    <ul class="plan-features">
-       <li class="feature-item">
-          <lucide-icon [img]="CheckIcon" size="16" class="check-icon"></lucide-icon>
-          <span>{{ 'REGISTER.PLAN_SUMMARY.FEATURE_1' | translate }}</span>
-       </li>
-       <li class="feature-item">
-          <lucide-icon [img]="CheckIcon" size="16" class="check-icon"></lucide-icon>
-          <span>{{ 'REGISTER.PLAN_SUMMARY.FEATURE_2' | translate }}</span>
-       </li>
-       <li class="feature-item">
-          <lucide-icon [img]="CheckIcon" size="16" class="check-icon"></lucide-icon>
-          <span>{{ 'REGISTER.PLAN_SUMMARY.FEATURE_3' | translate }}</span>
-       </li>
-    </ul>
+      <div *ngIf="plan.recommended" class="recommended-badge">Recomendado</div>
+
+      <h4 class="plan-name">{{ plan.name }}</h4>
+      <div class="plan-price">
+        <span class="price-amount">{{ plan.price }}</span>
+        <span class="price-period">{{ plan.period }}</span>
+      </div>
+
+      <ul class="plan-features-list">
+        <li *ngFor="let feature of plan.features">
+          <lucide-icon [img]="CheckIcon" size="16"></lucide-icon>
+          <span>{{ feature }}</span>
+        </li>
+      </ul>
+
+      <div class="selection-indicator">
+        <div class="radio-circle"></div>
+        <span>{{ isSelected(plan.id) ? 'Plan Seleccionado' : 'Elegir Plan' }}</span>
+      </div>
+    </div>
   </div>
 
   <div class="terms-section">

@@ -7,6 +7,7 @@ import { PasswordValidatorComponent } from '../../../components/password-validat
 import { HttpClient } from '@angular/common/http';
 import { AsyncValidators } from '../../../../../shared/validators/async.validators';
 import { LucideAngularModule, User, Mail, Lock, Phone, Briefcase, Camera, UserCircle, AlertCircle } from 'lucide-angular';
+import { AuthService } from '../../../../../core/services/auth';
 
 @Component({
   selector: 'app-step-account-info',
@@ -35,7 +36,12 @@ export class StepAccountInfo implements OnInit {
   readonly AvatarIcon = UserCircle;
   readonly AlertCircleIcon = AlertCircle;
 
-  avatarPreview = signal<string | null>(null);
+  emailSent = signal(false);
+  phoneSent = signal(false);
+  emailVerified = signal(false);
+  phoneVerified = signal(false);
+
+  private authService = inject(AuthService);
 
   ngOnInit() {
     if (this.group) {
@@ -47,15 +53,41 @@ export class StepAccountInfo implements OnInit {
     }
   }
 
-  onFileSelected(event: any) {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.avatarPreview.set(reader.result as string);
-        this.group.patchValue({ avatarUrl: file });
-      };
-      reader.readAsDataURL(file);
+  sendEmailCode() {
+    const email = this.group.get('email')?.value;
+    if (email) {
+      this.authService.sendPublicVerification(email, 'EMAIL_VERIFY' as any).subscribe(() => {
+        this.emailSent.set(true);
+      });
+    }
+  }
+
+  verifyEmailCode() {
+    const email = this.group.get('email')?.value;
+    const code = this.group.get('emailCode')?.value;
+    if (email && code) {
+      this.authService.verifyPublicCode(email, 'EMAIL_VERIFY' as any, code).subscribe(() => {
+        this.emailVerified.set(true);
+      });
+    }
+  }
+
+  sendPhoneCode() {
+    const phone = this.group.get('phone')?.value;
+    if (phone) {
+      this.authService.sendPublicVerification(phone, 'PHONE_VERIFY' as any).subscribe(() => {
+        this.phoneSent.set(true);
+      });
+    }
+  }
+
+  verifyPhoneCode() {
+    const phone = this.group.get('phone')?.value;
+    const code = this.group.get('phoneCode')?.value;
+    if (phone && code) {
+      this.authService.verifyPublicCode(phone, 'PHONE_VERIFY' as any, code).subscribe(() => {
+        this.phoneVerified.set(true);
+      });
     }
   }
 

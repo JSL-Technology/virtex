@@ -144,6 +144,9 @@ describe('RegisterPage', () => {
       firstName: 'John',
       lastName: 'Doe',
       email: 'test@example.com',
+      emailCode: '123456',
+      phone: '+18090000000',
+      phoneCode: '123456',
       passwordGroup: {
         password: 'Password123!',
         confirmPassword: 'Password123!'
