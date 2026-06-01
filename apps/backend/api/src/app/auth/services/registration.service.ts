@@ -5,6 +5,8 @@ import { DataSource, Repository } from 'typeorm';
 import * as argon2 from 'argon2';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { GoogleRecaptchaValidator } from '@nestlab/google-recaptcha';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 import { RegisterUserDto } from '../dto/register-user.dto';
 import { RegistrationStrategyFactory } from '../strategies/registration/registration-strategy.factory';
@@ -35,6 +37,8 @@ export class RegistrationService {
     private readonly registrationStrategyFactory: RegistrationStrategyFactory,
     private readonly localizationService: LocalizationService,
     private readonly mfaOrchestratorService: MfaOrchestratorService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
     @InjectRepository(Organization)
     private readonly organizationRepository: Repository<Organization>
   ) {}
@@ -74,10 +78,10 @@ export class RegistrationService {
     if (!emailVerificationCode) {
         throw new BadRequestException('El código de verificación de correo es obligatorio.');
     }
-    await this.mfaOrchestratorService.verifyPublicCode(email, VerificationType.EMAIL_VERIFY, emailVerificationCode);
+    await this.verifyCode(email, VerificationType.EMAIL_VERIFY, emailVerificationCode);
 
     if (phone && phoneVerificationCode) {
-        await this.mfaOrchestratorService.verifyPublicCode(phone, VerificationType.PHONE_VERIFY, phoneVerificationCode);
+        await this.verifyCode(phone, VerificationType.PHONE_VERIFY, phoneVerificationCode);
     } else if (phone && !phoneVerificationCode) {
         throw new BadRequestException('El código de verificación de celular es obligatorio.');
     }
@@ -214,6 +218,28 @@ export class RegistrationService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  private async verifyCode(target: string, type: VerificationType, code: string) {
+    if (this.isPreVerifiedToken(code)) {
+      let payload: { sub: string; verType: string; type: string };
+      try {
+        payload = this.jwtService.verify(code, {
+          secret: this.configService.getOrThrow('JWT_SECRET'),
+        });
+      } catch {
+        throw new BadRequestException('El código de verificación ha expirado o no es válido.');
+      }
+      if (payload.type !== 'VERIFICATION_PRE_VERIFIED' || payload.sub !== target || payload.verType !== type) {
+        throw new BadRequestException('El código de verificación no coincide.');
+      }
+    } else {
+      await this.mfaOrchestratorService.verifyPublicCode(target, type, code);
+    }
+  }
+
+  private isPreVerifiedToken(code: string): boolean {
+    return code.split('.').length === 3;
   }
 
   private getDefaultRolesForOrganization(organizationId: string) {

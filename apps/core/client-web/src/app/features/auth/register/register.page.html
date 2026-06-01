@@ -15,11 +15,11 @@
       <div class="progress-bar-container">
         <div class="progress-bar-bg"></div>
         <div class="progress-bar-active"
-             [style.width]="((currentStep() - 1) / 3) * 100 + '%'"></div>
+             [style.width]="((currentStep() - 1) / (steps.length - 1)) * 100 + '%'"></div>
       </div>
 
       <div class="step-items">
-        <ng-container *ngFor="let step of [1, 2, 3, 4]; let i = index">
+        <ng-container *ngFor="let step of steps; let i = index">
           <div
             class="step-item"
             (click)="navigateToStep(step)"
@@ -34,7 +34,7 @@
               }"
             >
               <ng-container *ngIf="currentStep() > step; else number">
-                <lucide-icon [img]="CheckIcon" size="14"></lucide-icon>
+                <lucide-icon [img]="CheckIcon" size="12"></lucide-icon>
               </ng-container>
               <ng-template #number>{{ step }}</ng-template>
             </div>
@@ -51,18 +51,34 @@
         <app-step-account-info [group]="accountInfo"></app-step-account-info>
       </div>
 
-      <!-- Step 2: Configuration (Country/Tax) -->
+      <!-- Step 2: Email Verification -->
       <div *ngIf="currentStep() === 2" [@stepAnimation] class="step-content">
+        <app-step-email-verify
+          [email]="currentEmail"
+          (verified)="onEmailVerified($event)">
+        </app-step-email-verify>
+      </div>
+
+      <!-- Step 3: Phone Verification -->
+      <div *ngIf="currentStep() === 3" [@stepAnimation] class="step-content">
+        <app-step-phone-verify
+          [phone]="currentPhone"
+          (verified)="onPhoneVerified($event)">
+        </app-step-phone-verify>
+      </div>
+
+      <!-- Step 4: Configuration (Country/Tax) -->
+      <div *ngIf="currentStep() === 4" [@stepAnimation] class="step-content">
         <app-step-configuration [group]="configuration"></app-step-configuration>
       </div>
 
-      <!-- Step 3: Business Info -->
-      <div *ngIf="currentStep() === 3" [@stepAnimation] class="step-content">
+      <!-- Step 5: Business Info -->
+      <div *ngIf="currentStep() === 5" [@stepAnimation] class="step-content">
         <app-step-business [group]="business"></app-step-business>
       </div>
 
-      <!-- Step 4: Plan / Confirmation -->
-      <div *ngIf="currentStep() === 4" [@stepAnimation] class="step-content">
+      <!-- Step 6: Plan / Confirmation -->
+      <div *ngIf="currentStep() === 6" [@stepAnimation] class="step-content">
         <app-step-plan [group]="plan"></app-step-plan>
       </div>
 
@@ -79,24 +95,24 @@
 
         <div class="spacer" *ngIf="currentStep() === 1"></div>
 
-        <div class="next-action" *ngIf="currentStep() < 4">
-            <app-auth-button
-              (onClick)="nextStep()"
-              variant="primary">
-              {{ 'COMMON.NEXT' | translate }}
-              <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
-            </app-auth-button>
+        <div class="next-action" *ngIf="currentStep() < steps.length">
+          <app-auth-button
+            (onClick)="nextStep()"
+            variant="primary">
+            {{ 'COMMON.NEXT' | translate }}
+            <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
+          </app-auth-button>
         </div>
 
-        <div class="next-action" *ngIf="currentStep() === 4">
-            <app-auth-button
-              type="submit"
-              variant="primary"
-              [loading]="isRegistering()"
-              [disabled]="registerForm.invalid">
-              {{ "REGISTER.SUBMIT_BUTTON" | translate }}
-              <lucide-icon *ngIf="!isRegistering()" [img]="RocketIcon" size="18"></lucide-icon>
-            </app-auth-button>
+        <div class="next-action" *ngIf="currentStep() === steps.length">
+          <app-auth-button
+            type="submit"
+            variant="primary"
+            [loading]="isRegistering()"
+            [disabled]="registerForm.invalid">
+            {{ "REGISTER.SUBMIT_BUTTON" | translate }}
+            <lucide-icon *ngIf="!isRegistering()" [img]="RocketIcon" size="18"></lucide-icon>
+          </app-auth-button>
         </div>
       </div>
 

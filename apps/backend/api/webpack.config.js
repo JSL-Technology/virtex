@@ -30,6 +30,11 @@ module.exports = {
           glob: '**/*.hbs',
           output: 'templates',
         },
+        {
+          input: './src/app/invoices/templates',
+          glob: '**/*.hbs',
+          output: 'templates',
+        },
       ],
       optimization: false,
       outputHashing: 'none',

@@ -1,5 +1,6 @@
 
 import { Module, forwardRef } from '@nestjs/common';
+
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
@@ -60,7 +61,7 @@ import { AuthAuditListener } from './listeners/auth-audit.listener';
     AuditModule,
     OrganizationsModule,
     GeoModule,
-    UsersModule,
+    forwardRef(() => UsersModule),
     UserCacheModule,
     TypeOrmModule.forFeature([RefreshToken, Organization, VerificationCode, User, UserSecurity, Passkey]),
     PassportModule.register({ defaultStrategy: 'jwt' }),

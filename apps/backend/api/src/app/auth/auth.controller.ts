@@ -463,6 +463,15 @@ export class AuthController {
     return this.mfaOrchestratorService.verifyPublicCode(dto.target, dto.type, dto.code);
   }
 
+  @Post('confirm-email-magic-link')
+  @Public()
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @ApiOperation({ summary: 'Verify a registration email confirmation magic link' })
+  async confirmEmailMagicLink(@Body() body: { token: string }) {
+    return this.mfaOrchestratorService.confirmEmailMagicLink(body.token);
+  }
+
   @Post('create-checkout-session')
   @ApiOperation({ summary: 'Create a Stripe checkout session for a selected plan' })
   @UseGuards(JwtAuthGuard, CsrfGuard)

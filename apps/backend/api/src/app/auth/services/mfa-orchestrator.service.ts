@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
-import { randomInt } from 'crypto';
+import { randomInt, randomUUID } from 'crypto';
 
 import { User } from '../../users/entities/user.entity/user.entity';
 import { VerificationCode, VerificationType } from '../entities/verification-code.entity';
@@ -172,19 +172,35 @@ export class MfaOrchestratorService {
 
     await this.verificationCodeRepository.delete({ target, type });
 
+    let magicLinkNonce: string | undefined;
+    if (type === VerificationType.EMAIL_VERIFY) {
+      magicLinkNonce = randomUUID();
+    }
+
     const verificationCode = this.verificationCodeRepository.create({
       target,
       code: hash,
       type,
+      payload: magicLinkNonce,
       expiresAt: new Date(Date.now() + AuthConfig.MFA_CODE_EXPIRATION),
     });
 
     await this.verificationCodeRepository.save(verificationCode);
 
     if (type === VerificationType.EMAIL_VERIFY) {
-        await this.mailService.sendVerificationCodeEmail(target, code, 'User');
+      const magicLinkToken = this.jwtService.sign(
+        { email: target, nonce: magicLinkNonce, type: 'reg_email_magic_link' },
+        {
+          secret: this.configService.getOrThrow('JWT_SECRET'),
+          expiresIn: '15m',
+        },
+      );
+      const frontendUrl = this.configService.get<string>('FRONTEND_URL', 'http://localhost:4200');
+      const magicLinkUrl = `${frontendUrl}/es/auth/register?email_token=${encodeURIComponent(magicLinkToken)}`;
+      const expiresMinutes = Math.round(AuthConfig.MFA_CODE_EXPIRATION / 60000);
+      await this.mailService.sendRegistrationEmailVerification(target, code, 'Usuario', magicLinkUrl, expiresMinutes);
     } else if (type === VerificationType.PHONE_VERIFY) {
-        await this.smsProvider.send(target, `Your verification code is: ${code}`);
+      await this.smsProvider.send(target, `Your verification code is: ${code}`);
     }
   }
 
@@ -202,6 +218,15 @@ export class MfaOrchestratorService {
       throw new BadRequestException('Verification code expired.');
     }
 
+    // Brute force protection
+    record.attempts += 1;
+    record.lastAttemptAt = new Date();
+    if (record.attempts > 5) {
+      await this.verificationCodeRepository.delete(record.id);
+      throw new BadRequestException('Too many attempts. Please request a new code.');
+    }
+    await this.verificationCodeRepository.save(record);
+
     const isValid = await argon2.verify(record.code, code);
     if (!isValid) {
       throw new BadRequestException('Invalid verification code.');
@@ -209,7 +234,54 @@ export class MfaOrchestratorService {
 
     await this.verificationCodeRepository.delete(record.id);
 
-    return { message: 'Verified successfully.' };
+    const preVerifiedToken = this.jwtService.sign(
+      { sub: target, verType: type, type: 'VERIFICATION_PRE_VERIFIED' },
+      { secret: this.configService.getOrThrow('JWT_SECRET'), expiresIn: '30m' },
+    );
+
+    return { message: 'Verified successfully.', preVerifiedToken };
+  }
+
+  async confirmEmailMagicLink(token: string): Promise<{ preVerifiedToken: string }> {
+    let payload: { email: string; nonce: string; type: string };
+
+    try {
+      payload = this.jwtService.verify(token, {
+        secret: this.configService.getOrThrow('JWT_SECRET'),
+      });
+    } catch {
+      throw new BadRequestException('El enlace de verificación ha expirado o no es válido.');
+    }
+
+    if (payload.type !== 'reg_email_magic_link') {
+      throw new BadRequestException('Tipo de token inválido.');
+    }
+
+    const record = await this.verificationCodeRepository.findOne({
+      where: { target: payload.email, type: VerificationType.EMAIL_VERIFY },
+    });
+
+    if (!record) {
+      throw new BadRequestException('El enlace de verificación ya fue usado o ha expirado.');
+    }
+
+    if (new Date() > record.expiresAt) {
+      await this.verificationCodeRepository.delete(record.id);
+      throw new BadRequestException('El enlace de verificación ha expirado.');
+    }
+
+    if (record.payload !== payload.nonce) {
+      throw new BadRequestException('El enlace de verificación no es válido.');
+    }
+
+    await this.verificationCodeRepository.delete(record.id);
+
+    const preVerifiedToken = this.jwtService.sign(
+      { sub: payload.email, verType: VerificationType.EMAIL_VERIFY, type: 'VERIFICATION_PRE_VERIFIED' },
+      { secret: this.configService.getOrThrow('JWT_SECRET'), expiresIn: '30m' },
+    );
+
+    return { preVerifiedToken };
   }
 
   async complete2faLogin(user: User, code: string, ipAddress?: string, userAgent?: string) {

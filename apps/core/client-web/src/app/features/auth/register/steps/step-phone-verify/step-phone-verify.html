@@ -1,0 +1,34 @@
+<div class="verify-step">
+  <div class="verify-header">
+    <div class="verify-icon">
+      <lucide-icon [img]="PhoneIcon" size="28"></lucide-icon>
+    </div>
+    <h3 class="verify-title">Confirma tu número de celular</h3>
+    <p class="verify-subtitle" *ngIf="!isSending()">
+      Enviamos un SMS con el código a
+      <strong>{{ phone }}</strong>
+    </p>
+    <p class="verify-subtitle" *ngIf="isSending()">
+      <lucide-icon [img]="LoaderIcon" size="14" class="spin"></lucide-icon>
+      Enviando SMS a {{ phone }}…
+    </p>
+  </div>
+
+  <div *ngIf="sendError()" class="send-error" role="alert">
+    <lucide-icon [img]="AlertCircleIcon" size="14"></lucide-icon>
+    {{ sendError() }}
+    <button type="button" class="retry-btn" (click)="sendCode()">Reintentar</button>
+  </div>
+
+  <div *ngIf="codeSent() && !sendError()">
+    <app-otp
+      title="Código de verificación SMS"
+      description="Ingresa el código de 6 dígitos que enviamos a tu número de celular."
+      [timerDuration]="300"
+      [resendCooldown]="60"
+      mode="email"
+      (verify)="onVerify($event)"
+      (resend)="onResend()">
+    </app-otp>
+  </div>
+</div>

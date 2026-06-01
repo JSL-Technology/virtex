@@ -96,4 +96,26 @@ export class MailService {
       },
     });
   }
+
+  async sendRegistrationEmailVerification(
+    email: string,
+    code: string,
+    name: string,
+    magicLinkUrl: string,
+    expiresMinutes: number,
+  ) {
+    await this.mailerService.sendMail({
+      to: email,
+      subject: 'Confirma tu correo electrónico',
+      template: './registration-email-verify',
+      context: {
+        name: name || 'Usuario',
+        code,
+        magicLinkUrl,
+        expiresMinutes,
+        appName: this.configService.get<string>('APP_NAME', 'Virteex ERP'),
+        currentYear: new Date().getFullYear(),
+      },
+    });
+  }
 }

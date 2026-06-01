@@ -202,14 +202,20 @@ export class AuthService {
       return this.http.post<{ message: string }>(`${this.apiUrl}/verify-phone`, { code, phoneNumber });
   }
 
-  sendPublicVerification(target: string, type: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/send-public-verification`, { target, type }, {
+  sendPublicVerification(target: string, type: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/send-public-verification`, { target, type }, {
       context: new HttpContext().set(IS_PUBLIC_API, true)
     });
   }
 
-  verifyPublicCode(target: string, type: string, code: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/verify-public-code`, { target, type, code }, {
+  verifyPublicCode(target: string, type: string, code: string): Observable<{ message: string; preVerifiedToken: string }> {
+    return this.http.post<{ message: string; preVerifiedToken: string }>(`${this.apiUrl}/verify-public-code`, { target, type, code }, {
+      context: new HttpContext().set(IS_PUBLIC_API, true)
+    });
+  }
+
+  confirmEmailMagicLink(token: string): Observable<{ preVerifiedToken: string }> {
+    return this.http.post<{ preVerifiedToken: string }>(`${this.apiUrl}/confirm-email-magic-link`, { token }, {
       context: new HttpContext().set(IS_PUBLIC_API, true)
     });
   }

@@ -4,7 +4,6 @@
     <p class="step-subtitle">{{ 'REGISTER.STEPS.ACCOUNT.SUBTITLE_INTERNAL' | translate }}</p>
   </div>
 
-
   <div class="form-grid">
     <app-auth-input
       formControlName="firstName"
@@ -26,7 +25,7 @@
       <lucide-icon icon [img]="UserIcon" size="18"></lucide-icon>
     </app-auth-input>
 
-    <div class="full-width verification-group">
+    <div class="full-width">
       <app-auth-input
         formControlName="email"
         type="email"
@@ -34,27 +33,12 @@
         [placeholder]="'REGISTER.EMAIL_PLACEHOLDER' | translate"
         [required]="true"
         [hasIcon]="true"
-        [errorMessage]="getErrorMessage('email')"
-        [disabled]="emailVerified()">
+        [errorMessage]="getErrorMessage('email')">
         <lucide-icon icon [img]="MailIcon" size="18"></lucide-icon>
       </app-auth-input>
-      <button type="button" *ngIf="!emailSent() && !emailVerified()" (click)="sendEmailCode()" class="btn-verify">Enviar Código</button>
-
-      <div *ngIf="emailSent() && !emailVerified()" class="code-input-group">
-        <app-auth-input
-          formControlName="emailCode"
-          [placeholder]="'Ingrese código'"
-          [hasIcon]="true">
-          <lucide-icon icon [img]="CheckCircleIcon" size="18"></lucide-icon>
-        </app-auth-input>
-        <button type="button" (click)="verifyEmailCode()" class="btn-verify">Verificar</button>
-      </div>
-      <div *ngIf="emailVerified()" class="verified-badge">
-        <lucide-icon [img]="CheckCircleIcon" size="16"></lucide-icon> Correo verificado
-      </div>
     </div>
 
-    <div class="full-width verification-group">
+    <div class="full-width">
       <app-auth-input
         formControlName="phone"
         type="tel"
@@ -62,23 +46,9 @@
         [placeholder]="'REGISTER.PHONE_PLACEHOLDER' | translate"
         [required]="true"
         [hasIcon]="true"
-        [disabled]="phoneVerified()">
+        [errorMessage]="getErrorMessage('phone')">
         <lucide-icon icon [img]="PhoneIcon" size="18"></lucide-icon>
       </app-auth-input>
-      <button type="button" *ngIf="!phoneSent() && !phoneVerified()" (click)="sendPhoneCode()" class="btn-verify">Enviar Código</button>
-
-      <div *ngIf="phoneSent() && !phoneVerified()" class="code-input-group">
-        <app-auth-input
-          formControlName="phoneCode"
-          [placeholder]="'Ingrese código'"
-          [hasIcon]="true">
-          <lucide-icon icon [img]="CheckCircleIcon" size="18"></lucide-icon>
-        </app-auth-input>
-        <button type="button" (click)="verifyPhoneCode()" class="btn-verify">Verificar</button>
-      </div>
-      <div *ngIf="phoneVerified()" class="verified-badge">
-        <lucide-icon [img]="CheckCircleIcon" size="16"></lucide-icon> Celular verificado
-      </div>
     </div>
 
     <div class="full-width" formGroupName="passwordGroup">
