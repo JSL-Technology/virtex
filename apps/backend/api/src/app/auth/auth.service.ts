@@ -221,6 +221,8 @@ export class AuthService {
       userWithSec.security.tokenVersion = (userWithSec.security.tokenVersion || 0) + 1; // Invalidate other sessions
 
       await this.usersService.save(userWithSec);
-      await this.sessionService.terminateOtherSessions(userId, ''); // Optionally kill other sessions
+      // Revoke ALL sessions on password change — the tokenVersion bump above already invalidates
+      // all JWTs; this also removes the refresh tokens from the DB (NIST SP 800-63B §7.1).
+      await this.sessionService.terminateAllSessions(userId);
   }
 }

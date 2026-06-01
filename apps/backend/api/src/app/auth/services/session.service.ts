@@ -186,13 +186,11 @@ export class SessionService implements OnModuleInit {
         if (
           refreshTokenEntity.ipAddress &&
           ipAddress &&
-          refreshTokenEntity.ipAddress !== ipAddress
+          refreshTokenEntity.ipAddress !== this.maskIp(ipAddress)
         ) {
-          // Mask IP in logs
-          const maskedIp = this.maskIp(refreshTokenEntity.ipAddress);
-          const maskedNewIp = this.maskIp(ipAddress);
+          // ipAddress column now stores masked values; compare masked-to-masked
           this.logger.log(
-            `[SECURITY] IP Change for Refresh: ${maskedIp} -> ${maskedNewIp}`
+            `[SECURITY] IP Change for Refresh: ${refreshTokenEntity.ipAddress} -> ${this.maskIp(ipAddress)}`
           );
         }
 

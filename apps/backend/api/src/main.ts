@@ -32,7 +32,12 @@ async function bootstrap() {
 
   // Security Headers using Fastify Helmet
   // styleSrc retains 'unsafe-inline' because Swagger UI injects inline styles at runtime.
-  // All other directives follow strict deny-by-default; adjust per deployment context.
+  // connectSrc includes CORS_ORIGIN so Socket.IO / WebSocket connections from the frontend
+  // are not blocked when the frontend runs on a different origin (H-11).
+  const corsOriginHeader = configService.get<string>('CORS_ORIGIN', 'http://localhost:4200');
+  const corsOrigins = corsOriginHeader.split(',').map((o) => o.trim());
+  const wsOrigins = corsOrigins.map((o) => o.replace(/^http/, 'ws'));
+
   await app.register(fastifyHelmet, {
     contentSecurityPolicy: {
       directives: {
@@ -41,7 +46,7 @@ async function bootstrap() {
         scriptSrc: ["'self'"],
         imgSrc: ["'self'", 'data:', 'https:'],
         fontSrc: ["'self'", 'data:'],
-        connectSrc: ["'self'"],
+        connectSrc: ["'self'", ...corsOrigins, ...wsOrigins],
         objectSrc: ["'none'"],
         baseUri: ["'self'"],
         formAction: ["'self'"],

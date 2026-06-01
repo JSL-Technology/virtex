@@ -33,4 +33,16 @@ export class UserCacheService {
     // If we only have email, we might need to find ID first, but this service is low-level.
     // We will assume ID is available or fetched before calling this.
   }
+
+  async get<T>(key: string): Promise<T | null | undefined> {
+    return this.cacheManager.get<T>(key);
+  }
+
+  async set(key: string, value: unknown, ttlMs: number): Promise<void> {
+    await this.cacheManager.set(key, value, ttlMs);
+  }
+
+  async del(key: string): Promise<void> {
+    await this.cacheManager.del(key);
+  }
 }

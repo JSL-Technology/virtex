@@ -1,11 +1,18 @@
 
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { TwoFactorAuthService } from '../services/two-factor-auth.service';
+import { UserCacheService } from '../modules/user-cache.service';
 import { RequestWithUser } from '../interfaces/request-with-user.interface';
+
+const STEP_UP_MAX_ATTEMPTS = 5;
+const STEP_UP_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
 
 @Injectable()
 export class TwoFactorVerifiedGuard implements CanActivate {
-  constructor(private readonly twoFactorService: TwoFactorAuthService) {}
+  constructor(
+    private readonly twoFactorService: TwoFactorAuthService,
+    private readonly userCacheService: UserCacheService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithUser>();
@@ -15,29 +22,36 @@ export class TwoFactorVerifiedGuard implements CanActivate {
       throw new UnauthorizedException('User not authenticated');
     }
 
-    // 1. Check if 2FA is enabled using the service (handles missing security entity)
     const isEnabled = await this.twoFactorService.isTwoFactorEnabled(user);
 
     if (!isEnabled) {
-      // If 2FA is not enabled, we allow standard auth to suffice.
       return true;
     }
 
-    // 2. Check for OTP code in headers
-    // Standardizing on 'x-otp-code'
     const otpCode = request.headers['x-otp-code'];
 
     if (!otpCode) {
       throw new ForbiddenException('OTP code required for this action');
     }
 
-    // 3. Verify code
-    const isValid = await this.twoFactorService.verifyCode(user, otpCode as string);
+    // Rate limiting: max STEP_UP_MAX_ATTEMPTS per STEP_UP_WINDOW_MS per user (CWE-307)
+    const rateLimitKey = `step-up-attempts:${user.id}`;
+    const cached = await this.userCacheService.get<number>(rateLimitKey);
+    const attempts = cached != null ? cached : 0;
 
-    if (!isValid) {
-      throw new ForbiddenException('Invalid OTP code');
+    if (attempts >= STEP_UP_MAX_ATTEMPTS) {
+      throw new ForbiddenException('Too many step-up authentication attempts. Please wait 5 minutes.');
     }
 
-    return true;
+    await this.userCacheService.set(rateLimitKey, attempts + 1, STEP_UP_WINDOW_MS);
+
+    const isValid = await this.twoFactorService.verifyCode(user, otpCode as string);
+
+    if (isValid) {
+      await this.userCacheService.del(rateLimitKey);
+      return true;
+    }
+
+    throw new ForbiddenException('Invalid OTP code');
   }
 }

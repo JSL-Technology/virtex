@@ -219,7 +219,7 @@ export class AuthController {
 
     return {
       user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }),
-      accessToken // Included for consistency with AuthResponseDto
+      // accessToken OMITTED — available exclusively via __Host-access_token cookie (CWE-200)
     };
   }
 
@@ -422,12 +422,25 @@ export class AuthController {
 
   @Post('send-phone-otp')
   @UseGuards(JwtAuthGuard, CsrfGuard)
-  @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } }) // Rate limit: 3 per minute
+  @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
   async sendPhoneOtp(@CurrentUser() user: User, @Body('phoneNumber') phoneNumber: string) {
       if (!phoneNumber) {
           throw new BadRequestException('Phone number is required');
       }
-      // Use MfaOrchestratorService directly instead of AuthService pass-through
+
+      // Validate E.164 format to prevent SMS abuse with malformed numbers
+      const e164Regex = /^\+[1-9]\d{6,14}$/;
+      if (!e164Regex.test(phoneNumber)) {
+          throw new BadRequestException('Phone number must be in E.164 format (e.g. +18091234567)');
+      }
+
+      // Prevent SMS bombing: if the user already has a verified phone registered,
+      // only allow sending OTP to that same number or to a new unverified one.
+      // Sending to an arbitrary third-party number is not permitted.
+      if (user.isPhoneVerified && user.phone && user.phone !== phoneNumber) {
+          throw new BadRequestException('Cannot send OTP to a phone number not associated with your account');
+      }
+
       await this.mfaOrchestratorService.sendPhoneOtp(user.id, phoneNumber);
       return { message: 'OTP sent successfully' };
   }
@@ -580,7 +593,7 @@ export class AuthController {
 
     return {
       user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }),
-      accessToken
+      // accessToken OMITTED — available exclusively via __Host-access_token cookie (CWE-200)
     };
   }
 

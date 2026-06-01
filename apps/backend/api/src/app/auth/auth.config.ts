@@ -27,6 +27,14 @@ export const AuthConfig = {
     return secret;
   },
 
+  get JWT_PREVERIFY_SECRET() {
+    const secret = process.env.JWT_PREVERIFY_SECRET;
+    if (!secret) {
+      throw new Error('FATAL: JWT_PREVERIFY_SECRET is required and must be set via environment variable. No default is allowed.');
+    }
+    return secret;
+  },
+
   // Cookie Max Age (Milliseconds)
   get COOKIE_ACCESS_MAX_AGE() { return parseDuration(process.env.JWT_ACCESS_EXPIRATION || '15m'); },
   get COOKIE_REFRESH_MAX_AGE() { return parseDuration(process.env.JWT_REFRESH_EXPIRATION || '7d'); },

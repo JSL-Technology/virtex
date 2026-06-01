@@ -47,6 +47,7 @@ export class RegisterUserDto {
     @ApiProperty({ example: 'john.doe@example.com', description: 'User Email' })
     @IsEmail({}, { message: 'El formato del correo electrónico no es válido.' })
     @IsNotEmpty({ message: 'El correo electrónico no puede estar vacío.' })
+    @MaxLength(254, { message: 'El email no puede tener más de 254 caracteres (RFC 5321).' })
     email: string;
 
     @ApiProperty({ example: 'StrongP@ssw0rd', description: 'User Password' })

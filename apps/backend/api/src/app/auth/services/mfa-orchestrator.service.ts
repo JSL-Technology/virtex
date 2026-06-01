@@ -128,9 +128,18 @@ export class MfaOrchestratorService {
       throw new BadRequestException('Verification code expired.');
     }
 
-    // Security: Check if phone number matches the one the code was sent to
-    if (record.payload && record.payload !== phoneNumber) {
-        throw new BadRequestException('Invalid phone number for this verification code.');
+    // Brute-force protection — mirrors verifyEmailOtp (CWE-307, NIST SP 800-63B §5.2.2)
+    record.attempts += 1;
+    record.lastAttemptAt = new Date();
+    if (record.attempts > 5) {
+      await this.verificationCodeRepository.delete(record.id);
+      throw new BadRequestException('Too many attempts. Please request a new code.');
+    }
+    await this.verificationCodeRepository.save(record);
+
+    // Validate that the OTP was issued for this specific phone number (stored in `target`)
+    if (record.target && record.target !== phoneNumber) {
+      throw new BadRequestException('Invalid phone number for this verification code.');
     }
 
     const isValid = await argon2.verify(record.code, code);
@@ -234,9 +243,10 @@ export class MfaOrchestratorService {
 
     await this.verificationCodeRepository.delete(record.id);
 
+    // Key separation: pre-verification tokens use their own secret (NIST SP 800-57 §5.2, CWE-321)
     const preVerifiedToken = this.jwtService.sign(
       { sub: target, verType: type, type: 'VERIFICATION_PRE_VERIFIED' },
-      { secret: this.configService.getOrThrow('JWT_SECRET'), expiresIn: '30m' },
+      { secret: AuthConfig.JWT_PREVERIFY_SECRET, expiresIn: '30m' },
     );
 
     return { message: 'Verified successfully.', preVerifiedToken };
@@ -276,9 +286,10 @@ export class MfaOrchestratorService {
 
     await this.verificationCodeRepository.delete(record.id);
 
+    // Key separation: pre-verification tokens use their own secret (NIST SP 800-57 §5.2, CWE-321)
     const preVerifiedToken = this.jwtService.sign(
       { sub: payload.email, verType: VerificationType.EMAIL_VERIFY, type: 'VERIFICATION_PRE_VERIFIED' },
-      { secret: this.configService.getOrThrow('JWT_SECRET'), expiresIn: '30m' },
+      { secret: AuthConfig.JWT_PREVERIFY_SECRET, expiresIn: '30m' },
     );
 
     return { preVerifiedToken };

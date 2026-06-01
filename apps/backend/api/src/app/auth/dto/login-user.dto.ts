@@ -1,11 +1,12 @@
 
-import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class LoginUserDto {
   @ApiProperty({ example: 'user@example.com', description: 'User email address' })
   @IsEmail({}, { message: 'El formato del correo electrónico no es válido.' })
   @IsNotEmpty({ message: 'El correo electrónico no puede estar vacío.' })
+  @MaxLength(254, { message: 'El email no puede tener más de 254 caracteres (RFC 5321).' })
   email: string;
 
   @ApiProperty({ example: 'SecureP@ssw0rd', description: 'User password' })

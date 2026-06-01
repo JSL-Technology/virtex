@@ -225,7 +225,7 @@ export class RegistrationService {
       let payload: { sub: string; verType: string; type: string };
       try {
         payload = this.jwtService.verify(code, {
-          secret: this.configService.getOrThrow('JWT_SECRET'),
+          secret: AuthConfig.JWT_PREVERIFY_SECRET,
         });
       } catch {
         throw new BadRequestException('El código de verificación ha expirado o no es válido.');
