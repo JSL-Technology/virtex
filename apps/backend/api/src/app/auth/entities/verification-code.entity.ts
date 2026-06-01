@@ -39,6 +39,12 @@ export class VerificationCode {
   @Column({ type: 'timestamptz' })
   expiresAt: Date;
 
+  @Column({ type: 'integer', default: 0 })
+  attempts: number;
+
+  @Column({ name: 'last_attempt_at', type: 'timestamptz', nullable: true })
+  lastAttemptAt?: Date;
+
   @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 }

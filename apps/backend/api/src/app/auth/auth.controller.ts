@@ -21,6 +21,13 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { VerifyWebAuthnAuthDto } from './dto/verify-webauthn-auth.dto';
+import {
+  Verify2faDto,
+  SendPublicVerificationDto,
+  VerifyPublicCodeDto,
+  CreateCheckoutSessionDto,
+  VerifyWebAuthnRegistrationDto
+} from './dto/security-audit.dto';
 
 import { SetPasswordFromInvitationDto } from './dto/set-password-from-invitation.dto';
 import { VerificationType } from './entities/verification-code.entity';
@@ -151,8 +158,9 @@ export class AuthController {
 
     return {
       user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }),
-      accessToken,
-    };
+      // 10/10 SECURITY: DO NOT return accessToken in body if using cookies.
+      // JS doesn't need it and it increases XSS surface.
+    } as any;
   }
 
   @Post('login')
@@ -190,8 +198,8 @@ export class AuthController {
 
     return {
       user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }),
-      accessToken
-    };
+      // accessToken omitted for browser security
+    } as any;
   }
 
   @Post('set-password-from-invitation')
@@ -242,9 +250,9 @@ export class AuthController {
     this.cookieService.setAuthCookies(res, result.accessToken, result.refreshToken);
 
     return {
-      accessToken: result.accessToken,
       user: plainToInstance(UserResponseDto, result.user, { excludeExtraneousValues: true })
-    };
+      // accessToken omitted for browser security
+    } as any;
   }
 
   @Post('logout')
@@ -432,29 +440,33 @@ export class AuthController {
 
   @Post('send-public-verification')
   @Public()
+  @UseGuards(ThrottlerGuard, GoogleRecaptchaGuard)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @ApiOperation({ summary: 'Send a verification code for unauthenticated users (email or phone)' })
   async sendPublicVerification(
-    @Body() body: { target: string; type: VerificationType }
+    @Body() dto: SendPublicVerificationDto
   ) {
-    await this.mfaOrchestratorService.sendPublicVerification(body.target, body.type);
-    return { message: 'Verification code sent' };
+    await this.mfaOrchestratorService.sendPublicVerification(dto.target, dto.type);
+    return { message: 'Si los datos son correctos, se ha enviado un código de verificación.' };
   }
 
   @Post('verify-public-code')
   @Public()
+  @UseGuards(ThrottlerGuard, GoogleRecaptchaGuard)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @ApiOperation({ summary: 'Verify a public code for unauthenticated users' })
   async verifyPublicCode(
-    @Body() body: { target: string; type: VerificationType; code: string }
+    @Body() dto: VerifyPublicCodeDto
   ) {
-    return this.mfaOrchestratorService.verifyPublicCode(body.target, body.type, body.code);
+    return this.mfaOrchestratorService.verifyPublicCode(dto.target, dto.type, dto.code);
   }
 
   @Post('create-checkout-session')
   @ApiOperation({ summary: 'Create a Stripe checkout session for a selected plan' })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard)
   async createCheckoutSession(
     @CurrentUser() user: User,
-    @Body() body: { planId: string; successUrl: string; cancelUrl: string }
+    @Body() body: CreateCheckoutSessionDto
   ) {
     const plans = await this.saasService.getPlans();
     const plan = plans.find(p => p.id === body.planId || p.slug === body.planId);
@@ -482,18 +494,18 @@ export class AuthController {
   @UseGuards(CsrfGuard)
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
   async verify2fa(
-      @Body() body: { code: string, tempToken: string },
+      @Body() dto: Verify2faDto,
       @Res({ passthrough: true }) res: Response,
       @Ip() ip: string,
       @Headers('user-agent') userAgent: string
   ) {
-      const user = await this.authService.verify2faTempToken(body.tempToken);
+      const user = await this.authService.verify2faTempToken(dto.tempToken);
       if (!user) {
           throw new UnauthorizedException('Invalid or expired session');
       }
 
       // Use MfaOrchestratorService directly instead of AuthService pass-through
-      const authResult = await this.mfaOrchestratorService.complete2faLogin(user, body.code, ip, userAgent);
+      const authResult = await this.mfaOrchestratorService.complete2faLogin(user, dto.code, ip, userAgent);
 
       const { user: authUser, accessToken, refreshToken } = authResult;
 
@@ -513,10 +525,10 @@ export class AuthController {
   }
 
   @Post('webauthn/register/verify')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard)
   @ApiOperation({ summary: 'Verify WebAuthn registration' })
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
-  async verifyWebAuthnRegistration(@CurrentUser() user: User, @Body() body: any) {
+  async verifyWebAuthnRegistration(@CurrentUser() user: User, @Body() body: VerifyWebAuthnRegistrationDto) {
     return this.webAuthnService.verifyRegistration(user, body);
   }
 

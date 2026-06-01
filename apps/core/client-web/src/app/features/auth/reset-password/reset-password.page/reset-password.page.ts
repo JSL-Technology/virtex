@@ -66,6 +66,12 @@ export class ResetPasswordPage implements OnInit {
 
   ngOnInit(): void {
     this.token = this.route.snapshot.queryParamMap.get('token');
+
+    // 10/10 SECURITY: Clear sensitive token from URL immediately after capture
+    if (this.token) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
     if (!this.token) {
       this.errorMessage = "Invalid token";
     }

@@ -149,6 +149,12 @@ const envValidation = Joi.object({
       inject: [ConfigService],
       useFactory: (config: ConfigService): ThrottlerModuleOptions => {
         const redisHost = config.get<string>('REDIS_HOST');
+        const isProduction = config.get<string>('NODE_ENV') === 'production';
+
+        if (isProduction && !redisHost) {
+          throw new Error('REDIS_HOST is required for distributed throttling in production');
+        }
+
         const storage = redisHost
           ? new ThrottlerStorageRedisService({
               host: redisHost,

@@ -68,7 +68,7 @@ export class PasswordRecoveryService {
 
     if (!user || !user.security ||
         (user.security.passwordResetExpires && user.security.passwordResetExpires <= new Date())) {
-      throw new UnauthorizedException('El token de restablecimiento es inválido o ha expirado.');
+      throw new UnauthorizedException('Token inválido o expirado.');
     }
 
     if (user.security.passwordHash) {
@@ -100,7 +100,7 @@ export class PasswordRecoveryService {
     });
 
     if (!user) {
-      throw new NotFoundException('Invitación no encontrada o expirada.');
+        throw new NotFoundException('Token inválido o expirado.');
     }
 
     return { firstName: user.firstName };
@@ -122,7 +122,7 @@ export class PasswordRecoveryService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('El token de invitación es inválido o ha expirado.');
+      throw new UnauthorizedException('Token inválido o expirado.');
     }
 
     if (!user.security) user.security = new UserSecurity();

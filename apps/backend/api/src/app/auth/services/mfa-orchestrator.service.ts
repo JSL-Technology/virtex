@@ -74,6 +74,17 @@ export class MfaOrchestratorService {
       throw new BadRequestException('Verification code expired.');
     }
 
+    // 10/10 SECURITY: Brute force protection for OTP
+    record.attempts += 1;
+    record.lastAttemptAt = new Date();
+
+    if (record.attempts > 5) {
+        await this.verificationCodeRepository.delete(record.id);
+        throw new BadRequestException('Too many attempts. Please request a new code.');
+    }
+
+    await this.verificationCodeRepository.save(record);
+
     const isValid = await argon2.verify(record.code, code);
     if (!isValid) {
       throw new BadRequestException('Invalid verification code.');

@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 // import * as ms from 'ms';
 import ms from 'ms';
+import * as crypto from 'crypto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 
@@ -156,6 +157,10 @@ export class TokenService {
       refreshExpiration,
       this.configService.get('JWT_REFRESH_SECRET')
     );
+
+    // 10/10 SECURITY: Store hash of refresh token
+    const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+    await this.refreshTokenRepository.update(refreshTokenRecord.id, { tokenHash });
 
     return {
       user: userWithImpersonationStatus,

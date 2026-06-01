@@ -66,6 +66,11 @@ export class SetPasswordPage implements OnInit {
 
   ngOnInit(): void {
     this.token = this.route.snapshot.queryParamMap.get('token');
+
+    // 10/10 SECURITY: Clear sensitive token from URL immediately after capture
+    if (this.token) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
     
     this.setPasswordForm = this.fb.group({
       passwordGroup: this.fb.group({
