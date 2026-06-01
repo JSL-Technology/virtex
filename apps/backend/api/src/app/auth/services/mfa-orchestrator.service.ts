@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
-import { randomInt, randomUUID } from 'crypto';
+import { randomInt, randomUUID, createHash } from 'crypto';
 
 import { User } from '../../users/entities/user.entity/user.entity';
 import { VerificationCode, VerificationType } from '../entities/verification-code.entity';
@@ -317,7 +317,10 @@ export class MfaOrchestratorService {
             'User',
             user.id,
             ActionType.LOGIN_FAILED,
-            { email: user.email, reason: 'Invalid 2FA/Backup Code' },
+            {
+              emailHash: createHash('sha256').update(user.email).digest('hex').slice(0, 16),
+              reason: 'Invalid 2FA/Backup Code',
+            },
             undefined
          );
          throw new UnauthorizedException('Código 2FA o de recuperación inválido');
@@ -330,12 +333,20 @@ export class MfaOrchestratorService {
        await this.userSecurityRepository.save(user.security);
     }
 
+    // H-13 FIX: Minimize PII in audit payloads. Store userId as primary identifier;
+    // use hashed email (not plain-text) and truncated UA to reduce exposure in logs
+    // (OWASP Logging Cheat Sheet; GDPR data minimization; CWE-532).
     await this.auditService.record(
         user.id,
         'User',
         user.id,
         ActionType.LOGIN,
-        { email: user.email, ipAddress, userAgent, method },
+        {
+          emailHash: createHash('sha256').update(user.email).digest('hex').slice(0, 16),
+          ipAddressMasked: ipAddress ? ipAddress.replace(/(\d+\.\d+)\.\d+\.\d+/, '$1.*.*') : undefined,
+          userAgentTruncated: userAgent ? userAgent.substring(0, 100) : undefined,
+          method,
+        },
         undefined,
     );
 

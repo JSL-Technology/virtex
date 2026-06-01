@@ -7,4 +7,5 @@ export interface SocialUser {
   picture?: string;
   accessToken?: string;
   refreshToken?: string;
+  emailVerified?: boolean;
 }

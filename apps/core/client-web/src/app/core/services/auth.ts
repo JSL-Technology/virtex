@@ -27,11 +27,12 @@ import { ErrorHandlerService } from './error-handler.service';
 import { IS_PUBLIC_API } from '../tokens/http-context.tokens';
 import { hasPermission } from '@virteex/shared/util-auth';
 
+// H-11 FIX: Backend intentionally omits accessToken/refreshToken from the response body —
+// tokens are delivered exclusively via httpOnly cookies. Removing them from the interface
+// prevents future developers from "fixing" the type by re-exposing tokens in the body
+// (OWASP ASVS 1.5.3; CWE-710).
 interface LoginResponse {
   user: User;
-  accessToken: string;
-  refreshToken: string;
-  refreshTokenId: string;
 }
 
 interface TwoFactorRequiredResponse {
@@ -166,11 +167,8 @@ export class AuthService {
             if (isTwoFactorRequired(response)) {
                 return { require2fa: true, tempToken: response.tempToken };
             }
-            // 10/10 SECURITY: Explicitly strip accessToken from response object if present
-            // This ensures the component/frontend logic relies solely on the HTTP-Only cookie
-            // and does not accidentally store the token in memory/localStorage.
-            const { accessToken, ...safeResponse } = response;
-            return safeResponse.user;
+            // H-11: Backend sends only { user }; no tokens in body. Return user directly.
+            return response.user;
         }),
         catchError((err) => this.errorHandlerService.handleError('login', err))
       );
@@ -332,15 +330,21 @@ export class AuthService {
     const lang = storedLang && supportedLangs.includes(storedLang) ? storedLang : 'es';
     this.router.navigate([`/${lang}/auth/login`]);
 
-    // 2. Notificar al backend si es necesario (best effort)
+    // 2. Notify backend — H-09 FIX: surface errors so the user knows the server session
+    // may still be alive. We show a warning instead of silently swallowing the failure
+    // (OWASP ASVS 3.3.4; CWE-613).
     if (notifyBackend) {
       const url = `${this.apiUrl}/logout`;
-      // Pass IS_PUBLIC_API to prevent interceptor from trying to refresh token if logout fails (e.g. 401)
       this.http.post(url, {}, {
         withCredentials: true,
-        context: new HttpContext().set(IS_PUBLIC_API, true)
+        context: new HttpContext().set(IS_PUBLIC_API, true),
       }).pipe(
-        catchError(() => of(null)) // Ignorar errores del backend durante el logout
+        catchError(() => {
+          this.notificationService.showWarning(
+            'No se pudo cerrar la sesión en el servidor. Cierra el navegador o intenta de nuevo para mayor seguridad.'
+          );
+          return of(null);
+        })
       ).subscribe();
     }
   }
@@ -442,10 +446,10 @@ export class AuthService {
   setPasswordFromInvitation(
     token: string,
     password: string
-  ): Observable<LoginResponse> {
+  ): Observable<{ user: User }> {
     const url = `${this.apiUrl}/set-password-from-invitation`;
     return this.http
-      .post<LoginResponse>(url, { token, password }, {
+      .post<{ user: User }>(url, { token, password }, {
         withCredentials: true,
         context: new HttpContext().set(IS_PUBLIC_API, true)
       })

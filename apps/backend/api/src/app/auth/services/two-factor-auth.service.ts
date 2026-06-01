@@ -9,6 +9,7 @@ import { UserSecurity } from '../../users/entities/user-security.entity';
 import * as crypto from 'crypto';
 import * as argon2 from 'argon2';
 import { ConfigService } from '@nestjs/config';
+import { PasswordService } from './password.service';
 
 @Injectable()
 export class TwoFactorAuthService {
@@ -17,7 +18,8 @@ export class TwoFactorAuthService {
     @InjectRepository(UserSecurity) private readonly userSecurityRepository: Repository<UserSecurity>,
     private readonly cryptoUtil: CryptoUtil,
     private readonly userCacheService: UserCacheService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly passwordService: PasswordService
   ) {}
 
   /**
@@ -75,32 +77,39 @@ export class TwoFactorAuthService {
       }
   }
 
-  async enableTwoFactor(user: User, token: string) {
+  async enableTwoFactor(user: User, token: string, currentPassword: string) {
     const freshUser = await this.userRepository.findOne({
         where: { id: user.id },
-        relations: ['security']
+        relations: ['security'],
     });
 
     if (!freshUser?.security?.twoFactorSecret) {
-         throw new BadRequestException('2FA configuration not initiated. Please generate secret first.');
+      throw new BadRequestException('2FA configuration not initiated. Please generate secret first.');
     }
 
-    // Decrypt secret
-    const decryptedSecret = this.cryptoUtil.decrypt(freshUser.security.twoFactorSecret);
+    // H-05 FIX: Require current password as step-up before registering a new TOTP device.
+    // This prevents an attacker with a stolen JWT from locking the real owner out by
+    // binding their own authenticator app (NIST SP 800-63B §4.2; OWASP ASVS 2.2.2; CWE-306).
+    if (!freshUser.security.passwordHash) {
+      throw new BadRequestException('Password-based step-up is required but this account has no password set.');
+    }
+    const isPasswordValid = await this.passwordService.verify(freshUser.security.passwordHash, currentPassword);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
 
+    const decryptedSecret = this.cryptoUtil.decrypt(freshUser.security.twoFactorSecret);
     const isValid = authenticator.verify({ token, secret: decryptedSecret });
     if (!isValid) {
-        throw new UnauthorizedException('Invalid 2FA token');
+      throw new UnauthorizedException('Invalid 2FA token');
     }
 
     freshUser.security.isTwoFactorEnabled = true;
 
-    // Auto-generate backup codes upon enabling
     const { codes, hashedCodes } = await this.createBackupCodes();
     freshUser.security.backupCodes = hashedCodes;
 
     await this.userSecurityRepository.save(freshUser.security);
-
     await this.userCacheService.clearUserSession(user.id);
 
     return { message: '2FA enabled successfully', backupCodes: codes };

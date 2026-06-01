@@ -11,7 +11,10 @@ export class MailService {
   ) {}
 
   async sendPasswordResetEmail(user: User, token: string, expiration: string) {
-    const resetLink = `${this.configService.get<string>('FRONTEND_URL')}/auth/reset-password?token=${token}`;
+    // H-10 FIX: Use URL fragment (#) so the token is NEVER sent to the server in
+    // HTTP request logs or CDN access logs. Fragments are client-side only
+    // (RFC 3986 §3.5; OWASP ASVS 2.1.7; CWE-598).
+    const resetLink = `${this.configService.get<string>('FRONTEND_URL')}/auth/reset-password#token=${token}`;
 
     const expirationText = this.formatExpirationTime(expiration);
 

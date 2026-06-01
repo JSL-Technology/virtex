@@ -1,5 +1,6 @@
 
 import { Injectable, Logger } from '@nestjs/common';
+import { createHash } from 'crypto';
 import { OnEvent } from '@nestjs/event-emitter';
 import { AuditTrailService } from '../../audit/audit.service';
 import { ActionType } from '../../audit/entities/audit-log.entity';
@@ -69,8 +70,8 @@ export class AuthSubscriber {
             payload.targetUserId,
             ActionType.IMPERSONATE,
             {
-                targetUserEmail: payload.targetUserEmail,
-                adminEmail: payload.adminEmail
+                targetEmailHash: createHash('sha256').update(payload.targetUserEmail ?? '').digest('hex').slice(0, 16),
+                adminEmailHash: createHash('sha256').update(payload.adminEmail ?? '').digest('hex').slice(0, 16),
             },
             undefined
         );

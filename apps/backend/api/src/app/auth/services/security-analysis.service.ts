@@ -101,6 +101,20 @@ export class SecurityAnalysisService {
       });
 
       if (record && new Date() <= record.expiresAt) {
+        // H-08 FIX: Track attempts for LOGIN_2FA codes, mirroring the same brute-force
+        // protection applied to email/phone OTPs (NIST SP 800-63B §5.2.2; OWASP ASVS
+        // 2.2.4; CWE-307). Throttle guard is a coarse defence; per-challenge counter
+        // is the fine-grained one.
+        record.attempts = (record.attempts ?? 0) + 1;
+        record.lastAttemptAt = new Date();
+
+        if (record.attempts > 5) {
+          await this.verificationCodeRepository.delete(record.id);
+          return false; // Caller (mfa-orchestrator) will throw UnauthorizedException
+        }
+
+        await this.verificationCodeRepository.save(record);
+
         isValid2FA = await argon2.verify(record.code, code);
         if (isValid2FA) {
           await this.verificationCodeRepository.delete(record.id);

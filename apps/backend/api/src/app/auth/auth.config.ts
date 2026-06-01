@@ -35,6 +35,20 @@ export const AuthConfig = {
     return secret;
   },
 
+  // H-07 FIX: Dedicated secret for HMAC-signed CSRF tokens.
+  // Using a separate secret (not JWT_SECRET) provides key separation and allows
+  // independent rotation without invalidating user sessions (NIST SP 800-57 §5.2).
+  get CSRF_SECRET() {
+    const secret = process.env.CSRF_SECRET;
+    if (!secret) {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('FATAL: CSRF_SECRET is required in production. No default is allowed.');
+      }
+      return 'default-csrf-secret-change-me-in-production-32chars';
+    }
+    return secret;
+  },
+
   // Cookie Max Age (Milliseconds)
   get COOKIE_ACCESS_MAX_AGE() { return parseDuration(process.env.JWT_ACCESS_EXPIRATION || '15m'); },
   get COOKIE_REFRESH_MAX_AGE() { return parseDuration(process.env.JWT_REFRESH_EXPIRATION || '7d'); },

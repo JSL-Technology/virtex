@@ -1,4 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { createHash } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { User, UserStatus } from '../../users/entities/user.entity/user.entity';
@@ -25,29 +26,45 @@ export class SocialAuthService {
     const user = await this.usersService.findUserForAuth(socialUser.email);
 
     if (user) {
-      if (user.authProvider !== socialUser.provider || user.authProviderId !== socialUser.providerId) {
-        await this.usersService.update(user.id, {
-          authProvider: socialUser.provider,
-          authProviderId: socialUser.providerId,
-          avatarUrl: user.avatarUrl || socialUser.picture
-        });
+      // H-03 FIX: Prevent cross-provider account linking without step-up verification.
+      // Auto-linking by email only is safe when the existing account was created via the
+      // SAME provider (updating providerId) but NOT when the account uses a different
+      // sign-in method — that requires explicit user consent + re-authentication.
+      // (OWASP ASVS 2.1.5; OAuth 2.0 Security BCP; CWE-287)
+      if (user.authProvider && user.authProvider !== socialUser.provider) {
+        throw new UnauthorizedException(
+          'An account with this email already exists using a different sign-in method. ' +
+          'Please sign in using your original provider.'
+        );
+      }
 
-        user.authProvider = socialUser.provider;
+      if (user.authProvider === socialUser.provider && user.authProviderId !== socialUser.providerId) {
+        await this.usersService.update(user.id, {
+          authProviderId: socialUser.providerId,
+          avatarUrl: user.avatarUrl || socialUser.picture,
+        });
         user.authProviderId = socialUser.providerId;
       }
 
-       if (user.status !== UserStatus.ACTIVE) {
-         throw new UnauthorizedException('Usuario inactivo o bloqueado.');
-       }
+      if (user.status !== UserStatus.ACTIVE) {
+        throw new UnauthorizedException('Usuario inactivo o bloqueado.');
+      }
 
       await this.securityAnalysisService.checkImpossibleTravel(user.id, ipAddress);
 
+      // H-13 FIX: Minimize PII — store hashed email, truncated UA, masked IP
+      // (OWASP Logging Cheat Sheet; GDPR data minimization; CWE-532).
       await this.auditService.record(
         user.id,
         'User',
         user.id,
         ActionType.LOGIN,
-        { email: user.email, provider: socialUser.provider, ipAddress, userAgent },
+        {
+          emailHash: createHash('sha256').update(user.email).digest('hex').slice(0, 16),
+          provider: socialUser.provider,
+          ipAddressMasked: ipAddress ? ipAddress.replace(/(\d+\.\d+)\.\d+\.\d+/, '$1.*.*') : undefined,
+          userAgentTruncated: userAgent ? userAgent.substring(0, 100) : undefined,
+        },
         undefined,
       );
 

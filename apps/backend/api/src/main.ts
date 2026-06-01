@@ -68,8 +68,7 @@ async function bootstrap() {
      attachFieldsToBody: true,
   });
 
-  const corsOrigins = configService.get<string>('CORS_ORIGIN', 'http://localhost:4200').split(',');
-
+  // H-01 FIX: corsOrigins already declared at top of bootstrap — reuse it here (CWE-703)
   app.enableCors({
     origin: corsOrigins,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],

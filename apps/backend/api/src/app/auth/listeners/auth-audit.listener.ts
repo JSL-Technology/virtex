@@ -1,5 +1,6 @@
 
 import { Injectable, Logger } from '@nestjs/common';
+import { createHash } from 'crypto';
 import { OnEvent } from '@nestjs/event-emitter';
 import { AuditTrailService } from '../../audit/audit.service';
 import { ActionType } from '../../audit/entities/audit-log.entity';
@@ -15,14 +16,19 @@ export class AuthAuditListener {
   async handleLoginSuccess(event: AuthLoginSuccessEvent) {
     const maskedEmail = this.maskEmail(event.email);
     this.logger.log(
-      `[${event.correlationId ?? 'NO-TRACE'}] Login success — user: ${event.userId}, ip: ${event.ipAddress}`,
+      `[${event.correlationId ?? 'NO-TRACE'}] Login success — user: ${event.userId}, ip: ${this.maskIp(event.ipAddress)}`,
     );
     await this.auditService.record(
       event.userId,
       'User',
       event.userId,
       ActionType.LOGIN,
-      { email: maskedEmail, ipAddress: event.ipAddress, userAgent: event.userAgent },
+      {
+        emailHash: createHash('sha256').update(event.email ?? '').digest('hex').slice(0, 16),
+        emailMasked: maskedEmail,
+        ipAddressMasked: this.maskIp(event.ipAddress),
+        userAgentTruncated: event.userAgent ? event.userAgent.substring(0, 100) : undefined,
+      },
       undefined,
     );
   }
@@ -31,14 +37,19 @@ export class AuthAuditListener {
   async handleLoginFailed(event: AuthLoginFailedEvent) {
     const maskedEmail = this.maskEmail(event.email);
     this.logger.warn(
-      `[${event.correlationId ?? 'NO-TRACE'}] Login failed — email: ${maskedEmail}, reason: ${event.reason}, ip: ${event.ipAddress}`,
+      `[${event.correlationId ?? 'NO-TRACE'}] Login failed — email: ${maskedEmail}, reason: ${event.reason}, ip: ${this.maskIp(event.ipAddress)}`,
     );
     await this.auditService.record(
       event.userId,
       'User',
       event.userId,
       ActionType.LOGIN_FAILED,
-      { email: maskedEmail, reason: event.reason, ipAddress: event.ipAddress },
+      {
+        emailHash: createHash('sha256').update(event.email ?? '').digest('hex').slice(0, 16),
+        emailMasked: maskedEmail,
+        reason: event.reason,
+        ipAddressMasked: this.maskIp(event.ipAddress),
+      },
       undefined,
     );
   }
@@ -48,5 +59,10 @@ export class AuthAuditListener {
     const [user, domain] = email.split('@');
     if (user.length <= 2) return `${user}***@${domain}`;
     return `${user[0]}***${user[user.length - 1]}@${domain}`;
+  }
+
+  private maskIp(ip?: string): string {
+    if (!ip) return '***';
+    return ip.replace(/(\d+\.\d+)\.\d+\.\d+/, '$1.*.*');
   }
 }

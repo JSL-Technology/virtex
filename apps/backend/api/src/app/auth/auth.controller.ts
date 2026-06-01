@@ -351,7 +351,10 @@ export class AuthController {
 
     this.cookieService.setAuthCookies(res, accessToken, refreshToken);
 
-    return { user, access_token: accessToken };
+    // H-06 FIX: Never expose access_token in the response body.
+    // All token delivery is cookie-only to prevent XSS token exfiltration
+    // (OWASP ASVS 3.4.3; CWE-200).
+    return { user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }) };
   }
 
   @Post('stop-impersonation')
@@ -365,7 +368,8 @@ export class AuthController {
 
     this.cookieService.setAuthCookies(res, accessToken, refreshToken);
 
-    return { user, access_token: accessToken };
+    // H-06 FIX: Never expose access_token in the response body (OWASP ASVS 3.4.3; CWE-200).
+    return { user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }) };
   }
 
   // ------------------------------------------------------------------
@@ -381,12 +385,13 @@ export class AuthController {
 
   @Post('2fa/enable')
   @UseGuards(JwtAuthGuard, CsrfGuard)
-  @ApiOperation({ summary: 'Verify token and enable 2FA' })
+  @ApiOperation({ summary: 'Verify token and enable 2FA — requires current password as step-up' })
   async enableTwoFactor(
     @CurrentUser() user: User,
     @Body() enableTwoFactorDto: EnableTwoFactorDto,
   ) {
-    return this.twoFactorAuthService.enableTwoFactor(user, enableTwoFactorDto.token);
+    // H-05 FIX: Pass currentPassword for step-up verification inside the service
+    return this.twoFactorAuthService.enableTwoFactor(user, enableTwoFactorDto.token, enableTwoFactorDto.currentPassword);
   }
 
   @Post('2fa/disable')

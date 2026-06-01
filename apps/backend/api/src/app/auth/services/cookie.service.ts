@@ -16,37 +16,32 @@ export class CookieService {
   ): void {
     const isProduction = this.configService.get('NODE_ENV') === 'production';
 
-    // 10/10 SECURITY: Strict Cookie Settings
-    // We enforce HTTPOnly and Secure (in production).
-    // SameSite=Lax is chosen over Strict to support OAuth redirection flows (Google/Microsoft),
-    // which otherwise drop cookies on the callback POST/GET.
-    // CSRF is handled separately via Double Submit Cookie (XSRF-TOKEN).
-    const cookieOptions = {
+    // H-15 FIX: In development (HTTP), __Host- / __Secure- prefixes require Secure=true,
+    // which browsers reject over plain HTTP, breaking local auth.
+    // Use prefixed names only in production (HTTPS) and fall back to unprefixed names
+    // with Secure=false for local dev (RFC 6265bis; OWASP Session Management Cheat Sheet).
+    const accessTokenName = isProduction ? '__Host-access_token' : 'access_token';
+    const refreshTokenName = isProduction ? '__Secure-refresh_token' : 'refresh_token';
+
+    const baseOptions = {
       httpOnly: true,
       secure: isProduction,
       sameSite: 'lax' as 'strict' | 'lax' | 'none',
-      path: '/', // Explicitly set path to root to ensure availability across API and Sockets
+      path: '/',
     };
 
-    // Access Token
-    // 10/10 SECURITY: Use __Host- prefix for hardening
-    res.cookie('__Host-access_token', accessToken, {
-      ...cookieOptions,
+    res.cookie(accessTokenName, accessToken, {
+      ...baseOptions,
       maxAge: AuthConfig.COOKIE_ACCESS_MAX_AGE,
-      path: '/',
-      secure: true, // __Host- requires Secure
     });
 
-    // Refresh Token
     if (refreshToken) {
-      // 10/10 SECURITY: Use __Secure- prefix (allows restricted path)
-      res.cookie('__Secure-refresh_token', refreshToken, {
-        ...cookieOptions,
+      res.cookie(refreshTokenName, refreshToken, {
+        ...baseOptions,
         maxAge: rememberMe
           ? AuthConfig.COOKIE_REFRESH_REMEMBER_ME_MAX_AGE
           : AuthConfig.COOKIE_REFRESH_MAX_AGE,
-        path: '/api/v1/auth/refresh', // Limit scope of refresh token
-        secure: true, // __Secure- requires Secure
+        path: '/api/v1/auth/refresh',
       });
     }
 
@@ -55,15 +50,22 @@ export class CookieService {
 
   setCsrfCookie(res: Response): void {
     const isProduction = this.configService.get('NODE_ENV') === 'production';
-    // CSRF Token (Readable by JS, not HttpOnly)
-    // 10/10 SECURITY: Use CSPRNG for CSRF token generation
-    const csrfToken = crypto.randomBytes(32).toString('hex');
+
+    // H-07 FIX: Signed double-submit CSRF cookie.
+    // Format: base64url(nonce).base64url(HMAC-SHA256(secret, nonce))
+    // Even if an attacker can fixate a cookie from a compromised subdomain they cannot
+    // forge a valid HMAC without the server secret (OWASP CSRF Prevention Cheat Sheet
+    // "Signed Double-Submit Cookie"; CWE-352).
+    const nonce = crypto.randomBytes(32).toString('base64url');
+    const mac = crypto.createHmac('sha256', AuthConfig.CSRF_SECRET).update(nonce).digest('base64url');
+    const csrfToken = `${nonce}.${mac}`;
+
     res.cookie('XSRF-TOKEN', csrfToken, {
       secure: isProduction,
-      sameSite: 'lax', // Must be readable on same site
-      httpOnly: false, // Essential for JS to read and send back in header
+      sameSite: 'lax',
+      httpOnly: false, // Must be readable by JS so the client can send it in X-XSRF-TOKEN header
       maxAge: AuthConfig.COOKIE_ACCESS_MAX_AGE,
-      path: '/', // Explicitly set path to root so frontend can read it via document.cookie
+      path: '/',
     });
   }
 
@@ -90,8 +92,12 @@ export class CookieService {
   }
 
   clearAuthCookies(res: Response): void {
+    const isProduction = this.configService.get('NODE_ENV') === 'production';
+    // H-15: Clear both prefixed (production) and unprefixed (development) variants
     res.clearCookie('__Host-access_token', { path: '/', secure: true });
+    res.clearCookie('access_token', { path: '/', secure: isProduction });
     res.clearCookie('__Secure-refresh_token', { path: '/api/v1/auth/refresh', secure: true });
+    res.clearCookie('refresh_token', { path: '/api/v1/auth/refresh', secure: isProduction });
     res.clearCookie('XSRF-TOKEN', { path: '/' });
   }
 }

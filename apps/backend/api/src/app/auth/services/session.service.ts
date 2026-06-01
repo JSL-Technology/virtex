@@ -9,7 +9,8 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, LessThan, MoreThan } from 'typeorm';
+import { Repository, LessThan, MoreThan, DataSource } from 'typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -44,6 +45,8 @@ export class SessionService implements OnModuleInit {
     private readonly refreshTokenRepository: Repository<RefreshToken>,
     @InjectRepository(UserSecurity)
     private readonly userSecurityRepository: Repository<UserSecurity>,
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly userCacheService: UserCacheService,
@@ -115,16 +118,36 @@ export class SessionService implements OnModuleInit {
         throw new UnauthorizedException(AuthError.SESSION_EXPIRED);
       }
 
-      // Select encryptedIp if needed for future forensic analysis, though we don't expose it
-      const refreshTokenEntity = await this.refreshTokenRepository.findOne({
-        where: { id: payload.jti, userId: payload.id },
-        select: ['id', 'isRevoked', 'revokedAt', 'replacedByToken', 'userAgent', 'ipAddress', 'userId', 'expiresAt', 'tokenHash']
+      // H-04 FIX: Rotate refresh token atomically with SERIALIZABLE transaction + pessimistic_write
+      // lock to prevent concurrent requests from both receiving new tokens (CWE-362; OAuth 2.0 BCP).
+      const currentTokenHash = crypto.createHash('sha256').update(token).digest('hex');
+      const GRACE_PERIOD = AuthConfig.REFRESH_GRACE_PERIOD;
+
+      const lockResult = await this.dataSource.transaction('SERIALIZABLE', async (em) => {
+        const rt = await em
+          .getRepository(RefreshToken)
+          .createQueryBuilder('rt')
+          .setLock('pessimistic_write')
+          .where('rt.id = :jti AND rt.userId = :userId', { jti: payload.jti, userId: payload.id })
+          .select([
+            'rt.id', 'rt.isRevoked', 'rt.revokedAt', 'rt.replacedByToken',
+            'rt.userAgent', 'rt.ipAddress', 'rt.userId', 'rt.expiresAt', 'rt.tokenHash',
+          ])
+          .getOne();
+
+        if (!rt || rt.isRevoked || rt.expiresAt <= new Date() || rt.tokenHash !== currentTokenHash) {
+          return { entity: rt, rotated: false };
+        }
+
+        rt.isRevoked = true;
+        rt.revokedAt = new Date();
+        await em.save(RefreshToken, rt);
+        return { entity: rt, rotated: true };
       });
 
-      const currentTokenHash = crypto.createHash('sha256').update(token).digest('hex');
+      const refreshTokenEntity = lockResult.entity;
 
-      if (!refreshTokenEntity || refreshTokenEntity.isRevoked || refreshTokenEntity.expiresAt <= new Date() || refreshTokenEntity.tokenHash !== currentTokenHash) {
-        const GRACE_PERIOD = AuthConfig.REFRESH_GRACE_PERIOD;
+      if (!lockResult.rotated) {
         if (
           refreshTokenEntity?.revokedAt &&
           Date.now() - refreshTokenEntity.revokedAt.getTime() < GRACE_PERIOD
@@ -146,16 +169,11 @@ export class SessionService implements OnModuleInit {
           this.logger.warn(
             `[SECURITY] Reuse detection: Refresh token ${maskedJti} was used but is revoked/missing/expired. Invalidating user ${maskedUserId} session family.`
           );
-
-          // 10/10 SECURITY: NUCLEAR FAMILY INVALIDATION
-          // When a revoked token is reused (outside grace period), we assume the token family is compromised.
-          // Incrementing tokenVersion invalidates ALL existing Access and Refresh tokens for this user globally.
           await this.revokeTokenFamily(user.id);
-
           throw new UnauthorizedException(AuthError.REFRESH_TOKEN_REVOKED);
         }
       } else {
-        // User Agent Analysis (using new SecurityAnalysisService)
+        // User Agent analysis after successful lock/rotation
         const sanitizedUserAgent = this.sanitizeUserAgent(userAgent);
 
         if (
@@ -163,40 +181,24 @@ export class SessionService implements OnModuleInit {
           sanitizedUserAgent &&
           refreshTokenEntity.userAgent !== sanitizedUserAgent
         ) {
-          const storedUA = this.securityAnalysisService.parseUserAgent(
-            refreshTokenEntity.userAgent
-          );
+          const storedUA = this.securityAnalysisService.parseUserAgent(refreshTokenEntity.userAgent);
           const currentUA = this.securityAnalysisService.parseUserAgent(sanitizedUserAgent);
 
-          const isBrowserMatch = storedUA.browser === currentUA.browser;
-          const isOSMatch = storedUA.os === currentUA.os;
-
-          if (!isBrowserMatch || !isOSMatch) {
+          if (storedUA.browser !== currentUA.browser || storedUA.os !== currentUA.os) {
             const maskedOldUA = refreshTokenEntity.userAgent.substring(0, 50).replace(/[^\w\s]/g, '') + '...';
             const maskedNewUA = userAgent?.substring(0, 50).replace(/[^\w\s]/g, '') + '...';
             this.logger.warn(
               `[SECURITY] User Agent mismatch detected (OS/Browser changed). Potential session hijacking. Stored: '${maskedOldUA}', Current: '${maskedNewUA}'`
             );
-            throw new UnauthorizedException(
-              AuthError.DEVICE_MISMATCH
-            );
+            throw new UnauthorizedException(AuthError.DEVICE_MISMATCH);
           }
         }
 
-        if (
-          refreshTokenEntity.ipAddress &&
-          ipAddress &&
-          refreshTokenEntity.ipAddress !== this.maskIp(ipAddress)
-        ) {
-          // ipAddress column now stores masked values; compare masked-to-masked
+        if (refreshTokenEntity.ipAddress && ipAddress && refreshTokenEntity.ipAddress !== this.maskIp(ipAddress)) {
           this.logger.log(
             `[SECURITY] IP Change for Refresh: ${refreshTokenEntity.ipAddress} -> ${this.maskIp(ipAddress)}`
           );
         }
-
-        refreshTokenEntity.isRevoked = true;
-        refreshTokenEntity.revokedAt = new Date();
-        await this.refreshTokenRepository.save(refreshTokenEntity);
       }
 
       const sanitizedUserAgent = this.sanitizeUserAgent(userAgent);
@@ -237,6 +239,7 @@ export class SessionService implements OnModuleInit {
         });
       }
 
+      // H-13: Minimize PII in audit payload (OWASP Logging Cheat Sheet; GDPR; CWE-532)
       this.eventEmitter.emit(
           AuthEvents.AUDIT_ACTION,
           new AuthAuditActionEvent(
@@ -244,7 +247,11 @@ export class SessionService implements OnModuleInit {
               'User',
               user.id,
               ActionType.REFRESH,
-              { email: user.email, ipAddress, userAgent }
+              {
+                emailHash: crypto.createHash('sha256').update(user.email).digest('hex').slice(0, 16),
+                ipAddressMasked: ipAddress ? this.maskIp(ipAddress) : undefined,
+                userAgentTruncated: userAgent ? userAgent.substring(0, 100) : undefined,
+              }
           )
       );
 
@@ -343,6 +350,9 @@ export class SessionService implements OnModuleInit {
   }
 
   async terminateAllSessions(userId: string) {
+      // H-02 FIX: Increment tokenVersion so all existing access tokens are immediately
+      // rejected by the JWT guard on next request (OWASP ASVS 3.3.4; CWE-613).
+      await this.userSecurityRepository.increment({ userId }, 'tokenVersion', 1);
       await this.userCacheService.clearUserSession(userId);
       await this.refreshTokenRepository.update(
         { userId, isRevoked: false },

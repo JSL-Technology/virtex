@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth-guard';
+import { permissionsGuard } from './core/guards/permissions-guard';
 import { MainLayout } from './layout/main/main.layout';
 import { RouteRedirectorComponent } from './core/components/route-redirector/route-redirector';
 import { languageInitGuard } from './core/guards/language-init.guard';
@@ -92,15 +93,23 @@ export const APP_ROUTES: Routes = [
             (m) => m.DocumentsLayout
           ),
       },
+      // H-12 FIX: Add permissionsGuard to module routes so the UI reflects the same RBAC
+      // enforced by the backend. The backend remains the authoritative source of truth;
+      // client guards prevent confusing UX and unnecessary API calls for unauthorised users
+      // (OWASP ASVS 4.1.1; OWASP Top 10 A01 Broken Access Control).
       {
         path: 'sales',
         title: 'Ventas',
+        canActivate: [permissionsGuard],
+        data: { permissions: ['sales:view'] },
         loadChildren: () =>
           import('./features/sales/sales.routes').then((m) => m.SALES_ROUTES),
       },
       {
         path: 'invoices',
         title: 'Facturas',
+        canActivate: [permissionsGuard],
+        data: { permissions: ['invoices:view'] },
         loadChildren: () =>
           import('./features/invoices/invoices.routes').then(
             (m) => m.INVOICES_ROUTES
@@ -109,6 +118,8 @@ export const APP_ROUTES: Routes = [
       {
         path: 'inventory',
         title: 'Inventario',
+        canActivate: [permissionsGuard],
+        data: { permissions: ['inventory:view'] },
         loadChildren: () =>
           import('./features/inventory/inventory.routes').then(
             (m) => m.INVENTORY_ROUTES
@@ -117,6 +128,8 @@ export const APP_ROUTES: Routes = [
       {
         path: 'manufacturing',
         title: 'Manufacturing (MRP)',
+        canActivate: [permissionsGuard],
+        data: { permissions: ['manufacturing:view'] },
         loadChildren: () =>
           import('./features/manufacturing/manufacturing.routes').then(
             (m) => m.MANUFACTURING_ROUTES
@@ -125,6 +138,8 @@ export const APP_ROUTES: Routes = [
       {
         path: 'wms',
         title: 'Warehouse Management (WMS)',
+        canActivate: [permissionsGuard],
+        data: { permissions: ['wms:view'] },
         loadChildren: () =>
           import('./features/wms/wms.routes').then(
             (m) => m.WMS_ROUTES
@@ -133,6 +148,8 @@ export const APP_ROUTES: Routes = [
       {
         path: 'projects',
         title: 'Projects (PSA)',
+        canActivate: [permissionsGuard],
+        data: { permissions: ['projects:view'] },
         loadChildren: () =>
           import('./features/projects/projects.routes').then(
             (m) => m.PROJECTS_ROUTES
@@ -141,6 +158,8 @@ export const APP_ROUTES: Routes = [
       {
         path: 'hcm',
         title: 'Human Resources (HCM)',
+        canActivate: [permissionsGuard],
+        data: { permissions: ['hcm:view'] },
         loadChildren: () =>
           import('./features/hcm/hcm.routes').then(
             (m) => m.HCM_ROUTES
@@ -149,6 +168,8 @@ export const APP_ROUTES: Routes = [
       {
         path: 'procurement',
         title: 'Procurement & Suppliers',
+        canActivate: [permissionsGuard],
+        data: { permissions: ['procurement:view'] },
         loadChildren: () =>
           import('./features/procurement/procurement.routes').then(
             (m) => m.PROCUREMENT_ROUTES
@@ -156,6 +177,8 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'documents',
+        canActivate: [permissionsGuard],
+        data: { permissions: ['documents:view'] },
         loadChildren: () =>
           import('./features/documents/documents.routes').then(
             (m) => m.DOCUMENTS_ROUTES
@@ -164,6 +187,8 @@ export const APP_ROUTES: Routes = [
       {
         path: 'contacts',
         title: 'Contactos',
+        canActivate: [permissionsGuard],
+        data: { permissions: ['contacts:view'] },
         loadChildren: () =>
           import('./features/contacts/contacts.routes').then(
             (m) => m.CONTACTS_ROUTES
@@ -172,6 +197,8 @@ export const APP_ROUTES: Routes = [
       {
         path: 'accounting',
         title: 'Accounting',
+        canActivate: [permissionsGuard],
+        data: { permissions: ['accounting:view'] },
         loadChildren: () =>
           import('./features/accounting/accounting.routes').then(
             (m) => m.ACCOUNTING_ROUTES
@@ -188,6 +215,8 @@ export const APP_ROUTES: Routes = [
       {
         path: 'reports',
         title: 'Reports',
+        canActivate: [permissionsGuard],
+        data: { permissions: ['reports:view'] },
         loadChildren: () =>
           import('./features/reports/reports.routes').then(
             (m) => m.REPORTS_ROUTES
@@ -196,6 +225,8 @@ export const APP_ROUTES: Routes = [
       {
         path: 'purchasing',
         title: 'Purchasing',
+        canActivate: [permissionsGuard],
+        data: { permissions: ['purchasing:view'] },
         loadChildren: () =>
           import('./features/purchasing/purchasing.routes').then(
             (m) => m.PURCHASING_ROUTES
@@ -204,6 +235,8 @@ export const APP_ROUTES: Routes = [
       {
         path: 'accounts-payable',
         title: 'Cuentas por Pagar',
+        canActivate: [permissionsGuard],
+        data: { permissions: ['accounting:view'] },
         loadChildren: () =>
           import('./features/accounts-payable/accounts-payable.routes').then(
             (m) => m.ACCOUNTS_PAYABLE_ROUTES
@@ -212,6 +245,8 @@ export const APP_ROUTES: Routes = [
       {
         path: 'customer-receipts',
         title: 'Recibos de Cliente',
+        canActivate: [permissionsGuard],
+        data: { permissions: ['sales:view'] },
         loadChildren: () =>
           import('./features/customer-receipts/customer-receipts.routes').then(
             (m) => m.CUSTOMER_RECEIPTS_ROUTES
