@@ -93,9 +93,13 @@ export class SessionService implements OnModuleInit {
 
   async refreshAccessToken(token: string, ipAddress?: string, userAgent?: string) {
     try {
-      const payload = this.jwtService.verify<JwtPayload & { jti?: string }>(token, {
+      const payload = this.jwtService.verify<JwtPayload & { jti: string }>(token, {
         secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
       });
+
+      if (!payload.jti) {
+        throw new UnauthorizedException(AuthError.REFRESH_TOKEN_INVALID);
+      }
 
       const user = await this.usersService.findUserByIdForAuth(payload.id);
 
@@ -106,99 +110,95 @@ export class SessionService implements OnModuleInit {
         throw new UnauthorizedException(AuthError.USER_INACTIVE);
       }
 
-      if (payload.jti) {
-        // Select encryptedIp if needed for future forensic analysis, though we don't expose it
-        const refreshTokenEntity = await this.refreshTokenRepository.findOne({
-           where: { id: payload.jti },
-           select: ['id', 'isRevoked', 'revokedAt', 'replacedByToken', 'userAgent', 'ipAddress', 'userId']
-        });
+      // 10/10 SECURITY: Validate tokenVersion
+      if ((user.security?.tokenVersion ?? 0) !== payload.tokenVersion) {
+        throw new UnauthorizedException(AuthError.SESSION_EXPIRED);
+      }
 
-        if (!refreshTokenEntity || refreshTokenEntity.isRevoked) {
-          const GRACE_PERIOD = AuthConfig.REFRESH_GRACE_PERIOD;
-          if (
-            refreshTokenEntity?.revokedAt &&
-            Date.now() - refreshTokenEntity.revokedAt.getTime() < GRACE_PERIOD
-          ) {
-            this.logger.warn(
-              `[SECURITY] Refresh token reused within grace period. Issuing new token.`
-            );
+      // Select encryptedIp if needed for future forensic analysis, though we don't expose it
+      const refreshTokenEntity = await this.refreshTokenRepository.findOne({
+        where: { id: payload.jti, userId: payload.id },
+        select: ['id', 'isRevoked', 'revokedAt', 'replacedByToken', 'userAgent', 'ipAddress', 'userId', 'expiresAt', 'tokenHash']
+      });
 
-            if (refreshTokenEntity.replacedByToken) {
-              await this.refreshTokenRepository.update(refreshTokenEntity.replacedByToken, {
-                isRevoked: true,
-                revokedAt: new Date(),
-              });
-            }
-          } else {
-            this.logger.warn(
-              `[SECURITY] Reuse detection: Refresh token ${payload.jti} was used but is revoked/missing. Invalidating user ${user.id}.`
-            );
+      const currentTokenHash = crypto.createHash('sha256').update(token).digest('hex');
 
-            // 10/10 SECURITY: NUCLEAR FAMILY INVALIDATION
-            // When a revoked token is reused (outside grace period), we assume the token family is compromised.
-            // Incrementing tokenVersion invalidates ALL existing Access and Refresh tokens for this user globally.
-            if (user.security) {
-                user.security.tokenVersion = (user.security.tokenVersion || 0) + 1;
-                await this.userSecurityRepository.save(user.security);
-            }
+      if (!refreshTokenEntity || refreshTokenEntity.isRevoked || refreshTokenEntity.expiresAt <= new Date() || refreshTokenEntity.tokenHash !== currentTokenHash) {
+        const GRACE_PERIOD = AuthConfig.REFRESH_GRACE_PERIOD;
+        if (
+          refreshTokenEntity?.revokedAt &&
+          Date.now() - refreshTokenEntity.revokedAt.getTime() < GRACE_PERIOD
+        ) {
+          const maskedJti = payload.jti.substring(0, 8) + '...';
+          this.logger.warn(
+            `[SECURITY] Refresh token ${maskedJti} reused within grace period. Issuing new token.`
+          );
 
-            await this.userCacheService.clearUserSession(user.id);
-            // Also explicitly revoke all refresh tokens in DB for audit purposes
-            await this.refreshTokenRepository.update(
-                { userId: user.id, isRevoked: false },
-                { isRevoked: true, revokedAt: new Date() }
-            );
-
-            throw new UnauthorizedException(AuthError.REFRESH_TOKEN_REVOKED);
+          if (refreshTokenEntity.replacedByToken) {
+            await this.refreshTokenRepository.update(refreshTokenEntity.replacedByToken, {
+              isRevoked: true,
+              revokedAt: new Date(),
+            });
           }
         } else {
-          // User Agent Analysis (using new SecurityAnalysisService)
-          const sanitizedUserAgent = this.sanitizeUserAgent(userAgent);
+          const maskedJti = payload.jti.substring(0, 8) + '...';
+          const maskedUserId = user.id.substring(0, 8) + '...';
+          this.logger.warn(
+            `[SECURITY] Reuse detection: Refresh token ${maskedJti} was used but is revoked/missing/expired. Invalidating user ${maskedUserId} session family.`
+          );
 
-          if (
-            refreshTokenEntity.userAgent &&
-            sanitizedUserAgent &&
-            refreshTokenEntity.userAgent !== sanitizedUserAgent
-          ) {
-            const storedUA = this.securityAnalysisService.parseUserAgent(
-              refreshTokenEntity.userAgent
-            );
-            const currentUA = this.securityAnalysisService.parseUserAgent(sanitizedUserAgent);
+          // 10/10 SECURITY: NUCLEAR FAMILY INVALIDATION
+          // When a revoked token is reused (outside grace period), we assume the token family is compromised.
+          // Incrementing tokenVersion invalidates ALL existing Access and Refresh tokens for this user globally.
+          await this.revokeTokenFamily(user.id);
 
-            const isBrowserMatch = storedUA.browser === currentUA.browser;
-            const isOSMatch = storedUA.os === currentUA.os;
-
-            if (!isBrowserMatch || !isOSMatch) {
-              this.logger.warn(
-                `[SECURITY] User Agent mismatch detected (OS/Browser changed). Stored: '${refreshTokenEntity.userAgent}', Current: '${userAgent}'. Potential session hijacking.`
-              );
-              throw new UnauthorizedException(
-                AuthError.DEVICE_MISMATCH
-              );
-            } else {
-              this.logger.warn(
-                `[SECURITY] Minor User Agent change detected (likely update). Stored: '${refreshTokenEntity.userAgent}', Current: '${userAgent}'. Allowing.`
-              );
-            }
-          }
-
-          if (
-            refreshTokenEntity.ipAddress &&
-            ipAddress &&
-            refreshTokenEntity.ipAddress !== ipAddress
-          ) {
-            // Mask IP in logs
-            const maskedIp = this.maskIp(refreshTokenEntity.ipAddress);
-            const maskedNewIp = this.maskIp(ipAddress);
-            this.logger.log(
-              `[SECURITY] IP Change for Refresh: ${maskedIp} -> ${maskedNewIp}`
-            );
-          }
-
-          refreshTokenEntity.isRevoked = true;
-          refreshTokenEntity.revokedAt = new Date();
-          await this.refreshTokenRepository.save(refreshTokenEntity);
+          throw new UnauthorizedException(AuthError.REFRESH_TOKEN_REVOKED);
         }
+      } else {
+        // User Agent Analysis (using new SecurityAnalysisService)
+        const sanitizedUserAgent = this.sanitizeUserAgent(userAgent);
+
+        if (
+          refreshTokenEntity.userAgent &&
+          sanitizedUserAgent &&
+          refreshTokenEntity.userAgent !== sanitizedUserAgent
+        ) {
+          const storedUA = this.securityAnalysisService.parseUserAgent(
+            refreshTokenEntity.userAgent
+          );
+          const currentUA = this.securityAnalysisService.parseUserAgent(sanitizedUserAgent);
+
+          const isBrowserMatch = storedUA.browser === currentUA.browser;
+          const isOSMatch = storedUA.os === currentUA.os;
+
+          if (!isBrowserMatch || !isOSMatch) {
+            const maskedOldUA = refreshTokenEntity.userAgent.substring(0, 50).replace(/[^\w\s]/g, '') + '...';
+            const maskedNewUA = userAgent?.substring(0, 50).replace(/[^\w\s]/g, '') + '...';
+            this.logger.warn(
+              `[SECURITY] User Agent mismatch detected (OS/Browser changed). Potential session hijacking. Stored: '${maskedOldUA}', Current: '${maskedNewUA}'`
+            );
+            throw new UnauthorizedException(
+              AuthError.DEVICE_MISMATCH
+            );
+          }
+        }
+
+        if (
+          refreshTokenEntity.ipAddress &&
+          ipAddress &&
+          refreshTokenEntity.ipAddress !== ipAddress
+        ) {
+          // Mask IP in logs
+          const maskedIp = this.maskIp(refreshTokenEntity.ipAddress);
+          const maskedNewIp = this.maskIp(ipAddress);
+          this.logger.log(
+            `[SECURITY] IP Change for Refresh: ${maskedIp} -> ${maskedNewIp}`
+          );
+        }
+
+        refreshTokenEntity.isRevoked = true;
+        refreshTokenEntity.revokedAt = new Date();
+        await this.refreshTokenRepository.save(refreshTokenEntity);
       }
 
       const sanitizedUserAgent = this.sanitizeUserAgent(userAgent);
@@ -288,9 +288,24 @@ export class SessionService implements OnModuleInit {
       country: session.country,
       city: session.city,
       region: session.region,
-      latitude: session.latitude,
-      longitude: session.longitude,
+      // 10/10 SECURITY: DO NOT expose lat/long unless strictly necessary for business logic.
+      // These are PII and should be restricted to administrative forensic tools.
     }));
+  }
+
+  async revokeTokenFamily(userId: string) {
+      const security = await this.userSecurityRepository.findOne({ where: { userId } });
+      if (security) {
+          security.tokenVersion = (security.tokenVersion || 0) + 1;
+          await this.userSecurityRepository.save(security);
+      }
+
+      await this.userCacheService.clearUserSession(userId);
+      // Also explicitly revoke all refresh tokens in DB for audit purposes
+      await this.refreshTokenRepository.update(
+          { userId, isRevoked: false },
+          { isRevoked: true, revokedAt: new Date() }
+      );
   }
 
   async revokeSession(userId: string, sessionId: string) {

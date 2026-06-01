@@ -99,17 +99,23 @@ export const SETTINGS_ROUTES: Routes = [
             {
                 path: 'security',
                 title: 'Seguridad y Auditoría',
-                loadComponent: () => import('./system/security/security.page').then(m => m.SecuritySettingsPage)
+                loadComponent: () => import('./system/security/security.page').then(m => m.SecuritySettingsPage),
+                canActivate: [permissionsGuard],
+                data: { permissions: ['users:view'] }
             },
             {
                 path: 'integrations',
                 title: 'Integraciones (API)',
-                loadComponent: () => import('./system/integrations/integrations.page').then(m => m.IntegrationSettingsPage)
+                loadComponent: () => import('./system/integrations/integrations.page').then(m => m.IntegrationSettingsPage),
+                canActivate: [permissionsGuard],
+                data: { permissions: ['settings:edit_company'] }
             },
             {
                 path: 'smtp',
                 title: 'Servidor de Correo',
-                loadComponent: () => import('./system/smtp/smtp.page').then(m => m.SmtpSettingsPage)
+                loadComponent: () => import('./system/smtp/smtp.page').then(m => m.SmtpSettingsPage),
+                canActivate: [permissionsGuard],
+                data: { permissions: ['settings:edit_company'] }
             },
             // Legacy / Mapped
             {

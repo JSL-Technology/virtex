@@ -469,28 +469,28 @@ export class AuthService {
    */
   inviteUser(payload: UserPayload): Observable<User> {
     // Nota: El backend creará este usuario con estado 'PENDING'.
-    return this.http.post<User>(`${this.apiUrl}/invite`, payload);
+    return this.http.post<User>(`${this.baseUrl}/users/invite`, payload);
   }
 
   /**
    * Actualiza los datos de un usuario existente.
    */
   updateUser(id: string, payload: UserPayload): Observable<User> {
-    return this.http.patch<User>(`${this.apiUrl}/${id}`, payload);
+    return this.http.patch<User>(`${this.baseUrl}/users/${id}`, payload);
   }
 
   /**
    * Actualiza únicamente el estado de un usuario (para bloquear, archivar, etc.).
    */
   updateUserStatus(id: string, status: UserStatus): Observable<User> {
-    return this.http.patch<User>(`${this.apiUrl}/${id}/status`, { status });
+    return this.http.patch<User>(`${this.baseUrl}/users/${id}/status`, { status });
   }
 
   /**
    * Elimina permanentemente a un usuario del sistema.
    */
   deleteUser(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(`${this.baseUrl}/users/${id}`);
   }
 
   // --- NUEVOS MÉTODOS PARA SUPLANTACIÓN ---

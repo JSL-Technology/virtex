@@ -1,5 +1,8 @@
 
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Req, UseFilters, ParseUUIDPipe, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import { CsrfGuard } from '../auth/guards/csrf.guard';
+import { TwoFactorVerifiedGuard } from '../auth/guards/two-factor-verified.guard';
+import { PERMISSIONS } from '../shared/permissions';
 import { FastifyFileInterceptor } from '../common/interceptors/fastify-file.interceptor';
 import { FastifyFile } from '../common/interfaces/fastify-file.interface';
 import { ThrottlerGuard } from '@nestjs/throttler';
@@ -170,7 +173,8 @@ export class UsersController {
   }
 
   @Patch(':id/status')
-  @HasPermission('users.edit')
+  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+  @HasPermission(PERMISSIONS.USERS_MANAGE_STATUS)
   async updateStatus(
       @Param('id', ParseUUIDPipe) id: string,
       @Body('status') status: UserStatus,
@@ -181,7 +185,8 @@ export class UsersController {
   }
 
   @Post(':id/reset-password')
-  @HasPermission('users.edit')
+  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+  @HasPermission(PERMISSIONS.USERS_PASSWORD_RESET)
   async resetPassword(
       @Param('id', ParseUUIDPipe) id: string,
       @CurrentUser() user: User
@@ -197,7 +202,8 @@ export class UsersController {
   }
 
   @Post(':id/force-logout')
-  @HasPermission('users.edit')
+  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+  @HasPermission(PERMISSIONS.USERS_FORCE_LOGOUT)
   async forceLogout(@Param('id', ParseUUIDPipe) id: string) {
       return this.usersService.forceLogout(id);
   }

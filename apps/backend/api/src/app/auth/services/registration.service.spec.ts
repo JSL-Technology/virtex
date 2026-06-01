@@ -15,6 +15,7 @@ import { RegisterUserDto } from '../dto/register-user.dto';
 import { GoogleRecaptchaValidator } from '@nestlab/google-recaptcha';
 import { RegistrationStrategyFactory } from '../strategies/registration/registration-strategy.factory';
 import { LocalizationService } from '../../localization/services/localization.service';
+import { MfaOrchestratorService } from './mfa-orchestrator.service';
 
 describe('RegistrationService', () => {
   let service: RegistrationService;
@@ -78,6 +79,7 @@ describe('RegistrationService', () => {
         { provide: GoogleRecaptchaValidator, useValue: mockRecaptchaValidator },
         { provide: RegistrationStrategyFactory, useValue: mockStrategyFactory },
         { provide: LocalizationService, useValue: mockLocalizationService },
+        { provide: MfaOrchestratorService, useValue: { verifyPublicCode: jest.fn().mockResolvedValue(true) } },
       ],
     }).compile();
 
@@ -104,7 +106,8 @@ describe('RegistrationService', () => {
       taxId: '123456789',
       fiscalRegionId: 'uuid-region',
       recaptchaToken: 'token',
-      currency: 'USD'
+      currency: 'USD',
+      emailVerificationCode: '123456'
     } as any;
 
     it('should throw ConflictException if taxId exists in the same fiscal region', async () => {
