@@ -143,12 +143,8 @@ export class TokenService {
 
     await this.refreshTokenRepository.save(refreshTokenRecord);
 
-    // 10/10 SCALABILITY: If we used Redis for sessions, we would save 'refresh_token:id' here.
-    // For now, we rely on the DB, but we could cache the *existence* or validity.
-    // However, since refresh token is only used once in a while, DB hit is acceptable.
-    // The main scalability bottleneck is *access token validation*, which is handled by JWT statelessness + User Cache.
-
-    const accessToken = this.getJwtToken(payload, AuthConfig.JWT_ACCESS_EXPIRATION);
+    const payloadWithSession: JwtPayload = { ...payload, sessionId: refreshTokenRecord.id };
+    const accessToken = this.getJwtToken(payloadWithSession, AuthConfig.JWT_ACCESS_EXPIRATION);
 
     const refreshTokenPayload = { ...payload, jti: refreshTokenRecord.id };
     const refreshToken = this.getJwtToken(

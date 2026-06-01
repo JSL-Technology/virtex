@@ -1,5 +1,5 @@
 
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Req, UseFilters, ParseUUIDPipe, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Req, UseFilters, ParseUUIDPipe, UseInterceptors, UploadedFile, BadRequestException, HttpCode, HttpStatus } from '@nestjs/common';
 import { FastifyFileInterceptor } from '../common/interceptors/fastify-file.interceptor';
 import { FastifyFile } from '../common/interfaces/fastify-file.interface';
 import { ThrottlerGuard } from '@nestjs/throttler';
@@ -13,6 +13,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { PermissionsGuard } from '../auth/guards/permissions/permissions.guard';
+import { CsrfGuard } from '../auth/guards/csrf.guard';
+import { TwoFactorVerifiedGuard } from '../auth/guards/two-factor-verified.guard';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User, UserStatus } from './entities/user.entity/user.entity';
@@ -201,5 +203,19 @@ export class UsersController {
   @HasPermission('users.edit')
   async forceLogout(@Param('id', ParseUUIDPipe) id: string) {
       return this.usersService.forceLogout(id);
+  }
+
+  @Post(':id/email-change')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+  @HasPermission('users.edit')
+  @ApiOperation({ summary: 'Admin: change user email with session invalidation' })
+  async adminChangeEmail(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body('email') email: string,
+    @CurrentUser() user: User,
+  ) {
+    await this.usersService.adminChangeEmail(id, email, user.organizationId);
+    return { message: 'Email actualizado. La sesión del usuario ha sido invalidada.' };
   }
 }

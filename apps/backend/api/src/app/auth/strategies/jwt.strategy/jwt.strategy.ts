@@ -170,13 +170,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
-      organizationId: user.organizationId,   // column — avoids accessing virtual organization property
+      organizationId: user.organizationId,
       roles: user.roles,
       permissions,
       organization: user.organization,
       isTwoFactorEnabled: user.security?.isTwoFactorEnabled || false,
       isImpersonating: payload.isImpersonating,
-      originalUserId: payload.originalUserId
+      originalUserId: payload.originalUserId,
+      sessionId: payload.sessionId,
     };
 
     return authenticatedUser;

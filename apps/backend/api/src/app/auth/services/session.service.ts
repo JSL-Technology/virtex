@@ -322,10 +322,23 @@ export class SessionService implements OnModuleInit {
     );
   }
 
-  async terminateAllSessions(userId: string) {
-      await this.userCacheService.clearUserSession(userId);
-      // Optional: Revoke all refresh tokens in DB if stricter security is needed
-      // await this.refreshTokenRepository.update({ userId, isRevoked: false }, { isRevoked: true, revokedAt: new Date() });
+  async terminateCurrentSession(userId: string, sessionId?: string): Promise<void> {
+    if (sessionId) {
+      await this.refreshTokenRepository.update(
+        { id: sessionId, userId },
+        { isRevoked: true, revokedAt: new Date() },
+      );
+    }
+    await this.userCacheService.clearUserSession(userId);
+  }
+
+  async terminateAllSessions(userId: string): Promise<void> {
+    await this.userSecurityRepository.increment({ userId }, 'tokenVersion', 1);
+    await this.userCacheService.clearUserSession(userId);
+    await this.refreshTokenRepository.update(
+      { userId, isRevoked: false },
+      { isRevoked: true, revokedAt: new Date() },
+    );
   }
 
   async verifyUserFromToken(token: string): Promise<User | null> {

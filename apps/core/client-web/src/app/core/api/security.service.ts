@@ -48,8 +48,8 @@ export class SecurityService {
     return this.http.post<TwoFactorSetupResponse>(`${this.apiUrl}/2fa/generate`, {});
   }
 
-  enable2fa(token: string): Observable<{ backupCodes: string[] }> {
-    return this.http.post<{ backupCodes: string[] }>(`${this.apiUrl}/2fa/enable`, { token });
+  enable2fa(token: string, currentPassword: string): Observable<{ backupCodes: string[] }> {
+    return this.http.post<{ backupCodes: string[] }>(`${this.apiUrl}/2fa/enable`, { token, currentPassword });
   }
 
   disable2fa(): Observable<void> {

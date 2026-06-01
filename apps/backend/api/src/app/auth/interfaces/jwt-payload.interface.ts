@@ -7,9 +7,8 @@ export interface JwtPayload {
     roles: string[];
     permissions?: string[];
     tokenVersion?: number;
-
+    sessionId?: string;
 
     isImpersonating?: boolean;
     originalUserId?: string;
-
 }

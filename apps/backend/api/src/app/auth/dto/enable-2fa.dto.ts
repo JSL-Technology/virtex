@@ -8,5 +8,10 @@ export class EnableTwoFactorDto {
   })
   @IsString()
   @IsNotEmpty()
-  token: string;
+  token!: string;
+
+  @ApiProperty({ description: 'Current account password for step-up verification' })
+  @IsString()
+  @IsNotEmpty()
+  currentPassword!: string;
 }

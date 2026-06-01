@@ -30,9 +30,6 @@ import { hasPermission } from '@virteex/shared/util-auth';
 
 interface LoginResponse {
   user: User;
-  accessToken: string;
-  refreshToken: string;
-  refreshTokenId: string;
 }
 
 interface TwoFactorRequiredResponse {
@@ -41,7 +38,7 @@ interface TwoFactorRequiredResponse {
   message: string;
 }
 
-type LoginResult = LoginResponse | TwoFactorRequiredResponse;
+type LoginResult = { user: User } | TwoFactorRequiredResponse;
 
 function isTwoFactorRequired(res: LoginResult): res is TwoFactorRequiredResponse {
     return (res as TwoFactorRequiredResponse).require2fa === true;
@@ -128,7 +125,7 @@ export class AuthService {
       })
       .pipe(
         tap((response) => {
-          if (response && response.user && response.accessToken) {
+          if (response?.user) {
             this._currentUser.set(response.user);
             this._authStatus.set(AuthStatus.authenticated);
           }
@@ -167,11 +164,7 @@ export class AuthService {
             if (isTwoFactorRequired(response)) {
                 return { require2fa: true, tempToken: response.tempToken };
             }
-            // 10/10 SECURITY: Explicitly strip accessToken from response object if present
-            // This ensures the component/frontend logic relies solely on the HTTP-Only cookie
-            // and does not accidentally store the token in memory/localStorage.
-            const { accessToken, ...safeResponse } = response;
-            return safeResponse.user;
+            return (response as LoginResponse).user;
         }),
         catchError((err) => this.errorHandlerService.handleError('login', err))
       );
@@ -203,8 +196,8 @@ export class AuthService {
       return this.http.post<{ message: string }>(`${this.apiUrl}/verify-phone`, { code, phoneNumber });
   }
 
-  enable2fa(token: string): Observable<any> {
-      return this.http.post(`${this.apiUrl}/2fa/enable`, { token });
+  enable2fa(token: string, currentPassword: string): Observable<any> {
+      return this.http.post(`${this.apiUrl}/2fa/enable`, { token, currentPassword });
   }
 
   disable2fa(): Observable<any> {

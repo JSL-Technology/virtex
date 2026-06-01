@@ -7,8 +7,8 @@ import {
   HttpXsrfTokenExtractor,
 } from '@angular/common/http';
 import { inject, Injector } from '@angular/core';
-import { Observable, throwError, timer } from 'rxjs';
-import { catchError, switchMap, retry } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
+import { catchError, switchMap } from 'rxjs/operators';
 import { AuthService } from '../services/auth';
 import { AuthQueueService } from '../services/auth-queue.service';
 import { IS_PUBLIC_API } from '../tokens/http-context.tokens';
@@ -51,25 +51,6 @@ export const authInterceptor: HttpInterceptorFn = (
           const authService = injector.get(AuthService);
 
           return authService.refreshAccessToken().pipe(
-            // Reintentar si falla por error de red (status 0) o 5xx
-            retry({
-              count: 3,
-              delay: (err, retryCount) => {
-                const isIdempotent = [
-                  'GET',
-                  'HEAD',
-                  'PUT',
-                  'DELETE',
-                  'OPTIONS',
-                ].includes(req.method);
-
-                if (err.status === 0 || (err.status >= 500 && isIdempotent)) {
-                  // Exponential Backoff: 1s, 2s, 4s
-                  return timer(1000 * Math.pow(2, retryCount - 1));
-                }
-                return throwError(() => err);
-              },
-            }),
             switchMap((response) => {
               authQueueService.finishRefreshSuccess(); // Emitir valor para liberar la cola
 

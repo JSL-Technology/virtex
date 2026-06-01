@@ -163,14 +163,16 @@ export class AuthService {
     return this.tokenService.getFreshUserStatus(userFromJwt);
   }
 
-  async logout(userId: string) {
-    // Delegated to SessionService which manages session lifecycle
-    await this.sessionService.terminateAllSessions(userId);
-    return { message: 'Sesión cerrada exitosamente.' };
+  async logoutCurrentSession(userId: string, sessionId?: string): Promise<void> {
+    await this.sessionService.terminateCurrentSession(userId, sessionId);
   }
 
-  async getUserSessions(userId: string) {
-    return this.sessionService.getUserSessions(userId);
+  async logoutAll(userId: string): Promise<void> {
+    await this.sessionService.terminateAllSessions(userId);
+  }
+
+  async getUserSessions(userId: string, currentRefreshTokenId?: string) {
+    return this.sessionService.getUserSessions(userId, currentRefreshTokenId);
   }
 
   async revokeSession(userId: string, sessionId: string) {

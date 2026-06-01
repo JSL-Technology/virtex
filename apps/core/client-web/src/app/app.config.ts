@@ -35,7 +35,6 @@ const CORE_PROVIDERS = [
     APP_ROUTES,
     withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'top' }),
   ),
-  provideHttpClient(),
   provideAnimations(),
 ];
 
@@ -90,12 +89,10 @@ export const appConfig: ApplicationConfig = {
     ...CHARTS_PROVIDERS,
     ...I18N_PROVIDERS,
     ...RECAPTCHA_PROVIDERS,
-    provideHttpClient(withInterceptors([authInterceptor]), withFetch()), provideServiceWorker('ngsw-worker.js', {
-            enabled: !isDevMode(),
-            registrationStrategy: 'registerWhenStable:30000'
-          }), provideServiceWorker('ngsw-worker.js', {
-            enabled: !isDevMode(),
-            registrationStrategy: 'registerWhenStable:30000'
-          }),
+    provideHttpClient(withInterceptors([authInterceptor]), withFetch()),
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
   ],
 };

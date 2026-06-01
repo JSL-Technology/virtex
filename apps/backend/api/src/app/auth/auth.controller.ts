@@ -1,5 +1,5 @@
 
-import { Controller, Post, Body, HttpCode, HttpStatus, Res, Get, UseGuards, Req, UsePipes, ValidationPipe, BadRequestException, UnauthorizedException, Param, Ip, Headers, Query, UseFilters } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Res, Get, UseGuards, Req, UsePipes, ValidationPipe, BadRequestException, UnauthorizedException, Param, Ip, Headers, Query, UseFilters, Header, SetMetadata } from '@nestjs/common';
 import type { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { AuthFacade } from './auth.facade';
@@ -37,7 +37,8 @@ import { CsrfGuard } from './guards/csrf.guard';
 import { MfaOrchestratorService } from './services/mfa-orchestrator.service';
 import { JwtService } from '@nestjs/jwt';
 import { TwoFactorVerifiedGuard } from './guards/two-factor-verified.guard';
-import { Public } from './decorators/public.decorator';
+import { Public, IS_PUBLIC_KEY } from './decorators/public.decorator';
+import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -146,7 +147,6 @@ export class AuthController {
 
     return {
       user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }),
-      accessToken,
     };
   }
 
@@ -184,7 +184,6 @@ export class AuthController {
 
     return {
       user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }),
-      accessToken
     };
   }
 
@@ -203,7 +202,6 @@ export class AuthController {
 
     return {
       user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }),
-      accessToken // Included for consistency with AuthResponseDto
     };
   }
 
@@ -232,38 +230,43 @@ export class AuthController {
     this.cookieService.setAuthCookies(res, result.accessToken, result.refreshToken);
 
     return {
-      accessToken: result.accessToken,
-      user: plainToInstance(UserResponseDto, result.user, { excludeExtraneousValues: true })
+      user: plainToInstance(UserResponseDto, result.user, { excludeExtraneousValues: true }),
     };
   }
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(CsrfGuard)
-  logout(@Res({ passthrough: true }) res: Response) {
+  @SetMetadata(IS_PUBLIC_KEY, false)
+  @UseGuards(JwtAuthGuard, CsrfGuard)
+  async logout(
+    @CurrentUser() user: User,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const sessionId = (user as unknown as AuthenticatedUser).sessionId;
+    await this.authService.logoutCurrentSession(user.id, sessionId);
     this.cookieService.clearAuthCookies(res);
     return { message: 'Logout exitoso' };
   }
 
+  @Post('logout-all')
+  @HttpCode(HttpStatus.OK)
+  @SetMetadata(IS_PUBLIC_KEY, false)
+  @UseGuards(JwtAuthGuard, CsrfGuard)
+  async logoutAll(
+    @CurrentUser() user: User,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    await this.authService.logoutAll(user.id);
+    this.cookieService.clearAuthCookies(res);
+    return { message: 'Todas las sesiones han sido cerradas.' };
+  }
+
   @Get('status')
-  async checkAuthStatus(@Req() req: Request) {
-    const token = req.cookies['access_token'];
-
-    if (!token) {
-      return { isAuthenticated: false, user: null };
-    }
-
-    const user = await this.authService.verifyUserFromToken(token);
-
-    if (!user) {
-      return { isAuthenticated: false, user: null };
-    }
-
-    const statusResponse = await this.authService.status({
-      id: user.id,
-      isImpersonating: false,
-    });
-
+  @SetMetadata(IS_PUBLIC_KEY, false)
+  @UseGuards(JwtAuthGuard)
+  @Header('Cache-Control', 'no-store')
+  async checkAuthStatus(@CurrentUser() user: User) {
+    const statusResponse = await this.authService.status(user as unknown as AuthenticatedUser);
     return {
       isAuthenticated: true,
       user: plainToInstance(UserResponseDto, statusResponse.user, { excludeExtraneousValues: true }),
@@ -319,7 +322,7 @@ export class AuthController {
 
     this.cookieService.setAuthCookies(res, accessToken, refreshToken);
 
-    return { user, access_token: accessToken };
+    return { user };
   }
 
   @Post('stop-impersonation')
@@ -333,7 +336,7 @@ export class AuthController {
 
     this.cookieService.setAuthCookies(res, accessToken, refreshToken);
 
-    return { user, access_token: accessToken };
+    return { user };
   }
 
   // ------------------------------------------------------------------
@@ -354,7 +357,7 @@ export class AuthController {
     @CurrentUser() user: User,
     @Body() enableTwoFactorDto: EnableTwoFactorDto,
   ) {
-    return this.twoFactorAuthService.enableTwoFactor(user, enableTwoFactorDto.token);
+    return this.twoFactorAuthService.enableTwoFactor(user, enableTwoFactorDto.token, enableTwoFactorDto.currentPassword);
   }
 
   @Post('2fa/disable')
@@ -474,7 +477,6 @@ export class AuthController {
 
     return {
       user: plainToInstance(UserResponseDto, result.user, { excludeExtraneousValues: true }),
-      accessToken
     };
   }
 

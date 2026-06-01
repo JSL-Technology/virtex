@@ -1,12 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { UserResponseDto } from './user-response.dto';
 
 export class AuthResponseDto {
+  @ApiProperty({ type: () => UserResponseDto })
+  user!: UserResponseDto;
+}
+
+export class TwoFactorRequiredDto {
   @ApiProperty()
-  accessToken: string;
+  require2fa!: boolean;
 
   @ApiProperty()
-  refreshToken: string;
-
-  @ApiProperty()
-  user: any; // Ideally this should be a UserDto, but 'any' allows flexibility for now
+  message!: string;
 }

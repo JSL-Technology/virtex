@@ -16,4 +16,5 @@ export interface SafeUser extends Partial<Omit<User, 'password' | 'twoFactorSecr
 export interface AuthenticatedUser extends SafeUser {
   isImpersonating?: boolean;
   originalUserId?: string;
+  sessionId?: string;
 }

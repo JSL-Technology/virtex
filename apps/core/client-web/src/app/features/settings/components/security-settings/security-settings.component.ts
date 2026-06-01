@@ -68,6 +68,7 @@ export class SecuritySettingsComponent implements OnInit {
   qrCodeData = signal<string>('');
   twoFactorSecret = signal<string>('');
   verificationCode = signal('');
+  currentPasswordFor2fa = signal('');
 
   // Step 3: Backup Codes
   backupCodes = signal<string[]>([]);
@@ -111,6 +112,7 @@ export class SecuritySettingsComponent implements OnInit {
     this.showSetupModal.set(false);
     this.emailCode.set('');
     this.verificationCode.set('');
+    this.currentPasswordFor2fa.set('');
     this.backupCodes.set([]);
     this.hasSavedBackupCodes.set(false);
   }
@@ -173,7 +175,13 @@ export class SecuritySettingsComponent implements OnInit {
     const finalCode = code || this.verificationCode();
     if (!finalCode || finalCode.length < 6) return;
 
-    this.securityService.enable2fa(finalCode)
+    const password = this.currentPasswordFor2fa();
+    if (!password) {
+      this.notificationService.showError('SETTINGS.SECURITY.ERRORS.PASSWORD_REQUIRED');
+      return;
+    }
+
+    this.securityService.enable2fa(finalCode, password)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {

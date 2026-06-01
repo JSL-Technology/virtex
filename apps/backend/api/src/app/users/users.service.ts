@@ -313,6 +313,39 @@ export class UsersService {
     });
   }
 
+  async adminChangeEmail(userId: string, newEmail: string, organizationId: string): Promise<void> {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!newEmail || !emailRegex.test(newEmail)) {
+      throw new BadRequestException('Formato de email inválido.');
+    }
+
+    const user = await this.userRepository.findOne({
+      where: { id: userId, organizationId },
+      relations: ['security'],
+    });
+    if (!user) {
+      throw new NotFoundException(`Usuario no encontrado`);
+    }
+
+    const existing = await this.userRepository.findOne({ where: { email: newEmail } });
+    if (existing && existing.id !== userId) {
+      throw new BadRequestException('El email ya está en uso por otro usuario.');
+    }
+
+    const oldEmail = user.email;
+    user.email = newEmail;
+    user.isEmailVerified = false;
+
+    if (user.security) {
+      user.security.tokenVersion = (user.security.tokenVersion || 0) + 1;
+    }
+
+    await this.userRepository.save(user);
+    await this.userCacheService.clearUserSession(userId);
+
+    this.eventEmitter.emit('user.admin.email-changed', { userId, oldEmail, newEmail, organizationId });
+  }
+
   async forceLogout(userId: string): Promise<{ message: string }> {
     const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['security'] });
     if (!user) {

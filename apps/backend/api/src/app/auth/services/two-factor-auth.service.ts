@@ -9,6 +9,7 @@ import { UserSecurity } from '../../users/entities/user-security.entity';
 import * as crypto from 'crypto';
 import * as argon2 from 'argon2';
 import { ConfigService } from '@nestjs/config';
+import { PasswordService } from './password.service';
 
 @Injectable()
 export class TwoFactorAuthService {
@@ -17,7 +18,8 @@ export class TwoFactorAuthService {
     @InjectRepository(UserSecurity) private readonly userSecurityRepository: Repository<UserSecurity>,
     private readonly cryptoUtil: CryptoUtil,
     private readonly userCacheService: UserCacheService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly passwordService: PasswordService,
   ) {}
 
   /**
@@ -75,17 +77,29 @@ export class TwoFactorAuthService {
       }
   }
 
-  async enableTwoFactor(user: User, token: string) {
+  async enableTwoFactor(user: User, token: string, currentPassword: string) {
     const freshUser = await this.userRepository.findOne({
         where: { id: user.id },
         relations: ['security']
     });
 
-    if (!freshUser?.security?.twoFactorSecret) {
-         throw new BadRequestException('2FA configuration not initiated. Please generate secret first.');
+    if (!freshUser?.security) {
+      throw new BadRequestException('Security configuration not found.');
     }
 
-    // Decrypt secret
+    if (!freshUser.security.twoFactorSecret) {
+      throw new BadRequestException('2FA configuration not initiated. Please generate secret first.');
+    }
+
+    if (!freshUser.security.passwordHash) {
+      throw new BadRequestException('Password-based step-up is required but this account has no password set.');
+    }
+
+    const isPasswordValid = await this.passwordService.verify(freshUser.security.passwordHash, currentPassword);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
     const decryptedSecret = this.cryptoUtil.decrypt(freshUser.security.twoFactorSecret);
 
     const isValid = authenticator.verify({ token, secret: decryptedSecret });
