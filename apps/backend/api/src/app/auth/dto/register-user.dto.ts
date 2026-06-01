@@ -83,6 +83,21 @@ export class RegisterUserDto {
     @IsOptional()
     address?: string;
 
+    @ApiProperty({ example: '+18090000000', description: 'User Phone', required: false })
+    @IsString()
+    @IsOptional()
+    phone?: string;
+
+    @ApiProperty({ example: '123456', description: 'Email Verification Code', required: false })
+    @IsString()
+    @IsOptional()
+    emailVerificationCode?: string;
+
+    @ApiProperty({ example: '123456', description: 'Phone Verification Code', required: false })
+    @IsString()
+    @IsOptional()
+    phoneVerificationCode?: string;
+
     @ApiProperty({ description: 'Honeypot field (should be empty)', required: false })
     @IsString()
     @IsOptional()

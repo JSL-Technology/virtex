@@ -25,9 +25,6 @@ export class StepBusiness {
   readonly BriefcaseIcon = Briefcase;
   readonly UsersIcon = Users;
   readonly GlobeIcon = Globe;
-  readonly CameraIcon = Camera;
-
-  logoPreview = signal<string | null>(null);
 
   industries = [
     { id: 'TECHNOLOGY', label: 'REGISTER.INDUSTRIES.TECHNOLOGY' },
@@ -46,17 +43,6 @@ export class StepBusiness {
     { id: '201+', label: '201+' }
   ];
 
-  onFileSelected(event: any) {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.logoPreview.set(reader.result as string);
-        this.group.patchValue({ logoFile: file });
-      };
-      reader.readAsDataURL(file);
-    }
-  }
 
   getErrorMessage(controlName: string): string {
     const control = this.group.get(controlName);

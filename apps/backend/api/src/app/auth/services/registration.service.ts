@@ -1,5 +1,5 @@
 
-import { ConflictException, Injectable, InternalServerErrorException, Logger, ForbiddenException } from '@nestjs/common';
+import { ConflictException, Injectable, InternalServerErrorException, Logger, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import * as argon2 from 'argon2';
@@ -8,6 +8,8 @@ import { GoogleRecaptchaValidator } from '@nestlab/google-recaptcha';
 
 import { RegisterUserDto } from '../dto/register-user.dto';
 import { RegistrationStrategyFactory } from '../strategies/registration/registration-strategy.factory';
+import { MfaOrchestratorService } from './mfa-orchestrator.service';
+import { VerificationType } from '../entities/verification-code.entity';
 import { LocalizationService } from '../../localization/services/localization.service';
 import { User, UserStatus } from '../../users/entities/user.entity/user.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
@@ -32,6 +34,7 @@ export class RegistrationService {
     private readonly recaptchaValidator: GoogleRecaptchaValidator,
     private readonly registrationStrategyFactory: RegistrationStrategyFactory,
     private readonly localizationService: LocalizationService,
+    private readonly mfaOrchestratorService: MfaOrchestratorService,
     @InjectRepository(Organization)
     private readonly organizationRepository: Repository<Organization>
   ) {}
@@ -48,6 +51,9 @@ export class RegistrationService {
       industry, // New field
       companySize, // New field
       address, // New field
+      phone,
+      emailVerificationCode,
+      phoneVerificationCode,
       fax, // Honeypot
       recaptchaToken
     } = registerUserDto;
@@ -62,6 +68,18 @@ export class RegistrationService {
     if (!recaptchaResult.success) {
         this.logger.warn(`Recaptcha validation failed for ${email}: ${JSON.stringify(recaptchaResult.errors)}`);
         throw new ForbiddenException('Error de validación de seguridad (reCAPTCHA).');
+    }
+
+    // Verify Email and Phone codes
+    if (!emailVerificationCode) {
+        throw new BadRequestException('El código de verificación de correo es obligatorio.');
+    }
+    await this.mfaOrchestratorService.verifyPublicCode(email, VerificationType.EMAIL_VERIFY, emailVerificationCode);
+
+    if (phone && phoneVerificationCode) {
+        await this.mfaOrchestratorService.verifyPublicCode(phone, VerificationType.PHONE_VERIFY, phoneVerificationCode);
+    } else if (phone && !phoneVerificationCode) {
+        throw new BadRequestException('El código de verificación de celular es obligatorio.');
     }
 
     // Strategy Pattern Validation
@@ -160,6 +178,9 @@ export class RegistrationService {
         firstName,
         lastName,
         email,
+        phone,
+        isEmailVerified: true,
+        isPhoneVerified: !!phoneVerificationCode,
         organization,
         organizationId: organization.id,
         roles: [adminRole],

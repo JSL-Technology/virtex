@@ -4,26 +4,6 @@
     <p class="step-subtitle">{{ 'REGISTER.STEPS.BUSINESS.SUBTITLE' | translate }}</p>
   </div>
 
-  <div class="logo-upload-section">
-    <div class="logo-container">
-      <input type="file" id="logoFile" (change)="onFileSelected($event)" #logoUpload
-             accept="image/png, image/jpeg" class="hidden-input">
-      <label for="logoFile" class="logo-label">
-        <ng-container *ngIf="logoPreview(); else placeholder">
-          <img [src]="logoPreview()" alt="Logo preview" class="logo-img">
-        </ng-container>
-        <ng-template #placeholder>
-          <div class="logo-placeholder">
-            <lucide-icon [img]="BuildingIcon" size="32"></lucide-icon>
-            <span>{{ 'REGISTER.UPLOAD_LOGO' | translate }}</span>
-          </div>
-        </ng-template>
-        <div class="logo-overlay">
-          <lucide-icon [img]="CameraIcon" size="20"></lucide-icon>
-        </div>
-      </label>
-    </div>
-  </div>
 
   <div class="form-grid">
     <div class="full-width">
@@ -57,33 +37,5 @@
       </div>
     </div>
 
-    <div class="form-field">
-      <label class="input-label">{{ 'REGISTER.EMPLOYEES' | translate }}</label>
-      <div class="custom-select-wrapper">
-        <div class="select-icon">
-          <lucide-icon [img]="UsersIcon" size="18"></lucide-icon>
-        </div>
-        <select formControlName="numberOfEmployees" class="custom-select">
-          <option value="" disabled selected>{{ 'REGISTER.EMPLOYEES_PLACEHOLDER' | translate }}</option>
-          <option *ngFor="let size of companySizes" [value]="size.id">{{ size.label | translate }}</option>
-        </select>
-        <div class="select-chevron">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-9"/></svg>
-        </div>
-      </div>
-      <div *ngIf="group.get('numberOfEmployees')?.touched && group.get('numberOfEmployees')?.invalid" class="error-text">
-        {{ 'REGISTER.ERRORS.REQUIRED' | translate }}
-      </div>
-    </div>
-
-    <div class="full-width">
-      <app-auth-input
-        formControlName="website"
-        [label]="'REGISTER.WEBSITE' | translate"
-        [placeholder]="'REGISTER.WEBSITE_PLACEHOLDER' | translate"
-        [hasIcon]="true">
-        <lucide-icon icon [img]="GlobeIcon" size="18"></lucide-icon>
-      </app-auth-input>
-    </div>
   </div>
 </div>

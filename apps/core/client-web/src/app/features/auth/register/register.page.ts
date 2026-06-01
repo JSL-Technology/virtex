@@ -199,9 +199,9 @@ export class RegisterPage implements OnInit {
         firstName: ['', [Validators.required]],
         lastName: ['', [Validators.required]],
         email: ['', [Validators.required, Validators.email]],
-        jobTitle: [''],
-        phone: [''],
-        avatarUrl: [null],
+        emailCode: ['', [Validators.required]],
+        phone: ['', [Validators.required]],
+        phoneCode: ['', [Validators.required]],
         passwordGroup: this.fb.group(
           {
             password: [
@@ -228,13 +228,11 @@ export class RegisterPage implements OnInit {
       business: this.fb.group({
         companyName: ['', [Validators.required]],
         industry: ['', [Validators.required]],
-        numberOfEmployees: ['', [Validators.required]],
         address: [''],
-        website: [''],
-        logoFile: [null],
       }),
-      // Paso 4: Términos
+      // Paso 4: Términos y Plan
       plan: this.fb.group({
+        selectedPlanId: ['starter', [Validators.required]],
         agreeToTerms: [false, [Validators.requiredTrue]],
       }),
     });
@@ -352,6 +350,9 @@ export class RegisterPage implements OnInit {
           firstName: formValue.accountInfo.firstName,
           lastName: formValue.accountInfo.lastName,
           email: formValue.accountInfo.email,
+          emailVerificationCode: formValue.accountInfo.emailCode,
+          phone: formValue.accountInfo.phone,
+          phoneVerificationCode: formValue.accountInfo.phoneCode,
           password: formValue.accountInfo.passwordGroup.password,
           organizationName: formValue.business.companyName,
           // Datos fiscales
@@ -363,14 +364,28 @@ export class RegisterPage implements OnInit {
 
           // Datos de perfilado
           industry: formValue.business.industry,
-          companySize: formValue.business.numberOfEmployees,
           address: formValue.business.address,
-        };
+        } as any;
 
         this.authService.register(payload).subscribe({
           next: () => {
-            this.isRegistering.set(false);
-            this.router.navigate(['/auth/plan-selection']);
+            const planId = formValue.plan.selectedPlanId;
+            this.authService.createCheckoutSession(planId).subscribe({
+              next: (response) => {
+                this.isRegistering.set(false);
+                if (response.url) {
+                  window.location.href = response.url;
+                } else {
+                  this.router.navigate(['/dashboard']);
+                }
+              },
+              error: (err) => {
+                this.isRegistering.set(false);
+                this.errorMessage.set('Error al crear la sesión de pago.');
+                // Even if payment fails to initiate, user is registered, but let's try to handle it.
+                this.router.navigate(['/dashboard']);
+              }
+            });
           },
           error: (err) => {
             let msg = 'Error desconocido en el registro.';

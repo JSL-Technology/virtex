@@ -50,7 +50,7 @@ export class MfaOrchestratorService {
     const verificationCode = this.verificationCodeRepository.create({
       userId,
       code: hash,
-      payload: email,
+      target: email,
       type: VerificationType.EMAIL_VERIFY,
       expiresAt: new Date(Date.now() + AuthConfig.MFA_CODE_EXPIRATION),
     });
@@ -93,7 +93,7 @@ export class MfaOrchestratorService {
     const verificationCode = this.verificationCodeRepository.create({
       userId,
       code: hash,
-      payload: phoneNumber, // Bind code to specific phone number
+      target: phoneNumber, // Bind code to specific phone number
       type: VerificationType.PHONE_VERIFY,
       expiresAt: new Date(Date.now() + AuthConfig.MFA_CODE_EXPIRATION),
     });
@@ -153,6 +153,52 @@ export class MfaOrchestratorService {
       if (user.phone) {
           await this.smsProvider.send(user.phone, `Your Login Code: ${code}`);
       }
+  }
+
+  async sendPublicVerification(target: string, type: VerificationType) {
+    const code = randomInt(100000, 999999).toString();
+    const hash = await argon2.hash(code);
+
+    await this.verificationCodeRepository.delete({ target, type });
+
+    const verificationCode = this.verificationCodeRepository.create({
+      target,
+      code: hash,
+      type,
+      expiresAt: new Date(Date.now() + AuthConfig.MFA_CODE_EXPIRATION),
+    });
+
+    await this.verificationCodeRepository.save(verificationCode);
+
+    if (type === VerificationType.EMAIL_VERIFY) {
+        await this.mailService.sendVerificationCodeEmail(target, code, 'User');
+    } else if (type === VerificationType.PHONE_VERIFY) {
+        await this.smsProvider.send(target, `Your verification code is: ${code}`);
+    }
+  }
+
+  async verifyPublicCode(target: string, type: VerificationType, code: string) {
+    const record = await this.verificationCodeRepository.findOne({
+      where: { target, type },
+    });
+
+    if (!record) {
+      throw new BadRequestException('No verification code found or expired.');
+    }
+
+    if (new Date() > record.expiresAt) {
+      await this.verificationCodeRepository.delete(record.id);
+      throw new BadRequestException('Verification code expired.');
+    }
+
+    const isValid = await argon2.verify(record.code, code);
+    if (!isValid) {
+      throw new BadRequestException('Invalid verification code.');
+    }
+
+    await this.verificationCodeRepository.delete(record.id);
+
+    return { message: 'Verified successfully.' };
   }
 
   async complete2faLogin(user: User, code: string, ipAddress?: string, userAgent?: string) {

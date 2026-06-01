@@ -4,26 +4,6 @@
     <p class="step-subtitle">{{ 'REGISTER.STEPS.ACCOUNT.SUBTITLE_INTERNAL' | translate }}</p>
   </div>
 
-  <div class="avatar-upload-section">
-    <div class="avatar-container">
-      <input type="file" id="avatarUrl" (change)="onFileSelected($event)" #avatarUpload
-             accept="image/png, image/jpeg" class="hidden-input">
-      <label for="avatarUrl" class="avatar-label">
-        <ng-container *ngIf="avatarPreview(); else placeholder">
-          <img [src]="avatarPreview()" alt="Avatar preview" class="avatar-img">
-        </ng-container>
-        <ng-template #placeholder>
-          <div class="avatar-placeholder">
-            <lucide-icon [img]="AvatarIcon" size="32"></lucide-icon>
-            <span>{{ 'REGISTER.UPLOAD_PHOTO' | translate }}</span>
-          </div>
-        </ng-template>
-        <div class="avatar-overlay">
-          <lucide-icon [img]="CameraIcon" size="20"></lucide-icon>
-        </div>
-      </label>
-    </div>
-  </div>
 
   <div class="form-grid">
     <app-auth-input
@@ -46,24 +26,7 @@
       <lucide-icon icon [img]="UserIcon" size="18"></lucide-icon>
     </app-auth-input>
 
-    <app-auth-input
-      formControlName="jobTitle"
-      [label]="'REGISTER.JOB_TITLE' | translate"
-      [placeholder]="'REGISTER.JOB_TITLE_PLACEHOLDER' | translate"
-      [hasIcon]="true">
-      <lucide-icon icon [img]="JobIcon" size="18"></lucide-icon>
-    </app-auth-input>
-
-    <app-auth-input
-      formControlName="phone"
-      type="tel"
-      [label]="'REGISTER.PHONE' | translate"
-      [placeholder]="'REGISTER.PHONE_PLACEHOLDER' | translate"
-      [hasIcon]="true">
-      <lucide-icon icon [img]="PhoneIcon" size="18"></lucide-icon>
-    </app-auth-input>
-
-    <div class="full-width">
+    <div class="full-width verification-group">
       <app-auth-input
         formControlName="email"
         type="email"
@@ -71,9 +34,51 @@
         [placeholder]="'REGISTER.EMAIL_PLACEHOLDER' | translate"
         [required]="true"
         [hasIcon]="true"
-        [errorMessage]="getErrorMessage('email')">
+        [errorMessage]="getErrorMessage('email')"
+        [disabled]="emailVerified()">
         <lucide-icon icon [img]="MailIcon" size="18"></lucide-icon>
       </app-auth-input>
+      <button type="button" *ngIf="!emailSent() && !emailVerified()" (click)="sendEmailCode()" class="btn-verify">Enviar Código</button>
+
+      <div *ngIf="emailSent() && !emailVerified()" class="code-input-group">
+        <app-auth-input
+          formControlName="emailCode"
+          [placeholder]="'Ingrese código'"
+          [hasIcon]="true">
+          <lucide-icon icon [img]="CheckCircleIcon" size="18"></lucide-icon>
+        </app-auth-input>
+        <button type="button" (click)="verifyEmailCode()" class="btn-verify">Verificar</button>
+      </div>
+      <div *ngIf="emailVerified()" class="verified-badge">
+        <lucide-icon [img]="CheckCircleIcon" size="16"></lucide-icon> Correo verificado
+      </div>
+    </div>
+
+    <div class="full-width verification-group">
+      <app-auth-input
+        formControlName="phone"
+        type="tel"
+        [label]="'REGISTER.PHONE' | translate"
+        [placeholder]="'REGISTER.PHONE_PLACEHOLDER' | translate"
+        [required]="true"
+        [hasIcon]="true"
+        [disabled]="phoneVerified()">
+        <lucide-icon icon [img]="PhoneIcon" size="18"></lucide-icon>
+      </app-auth-input>
+      <button type="button" *ngIf="!phoneSent() && !phoneVerified()" (click)="sendPhoneCode()" class="btn-verify">Enviar Código</button>
+
+      <div *ngIf="phoneSent() && !phoneVerified()" class="code-input-group">
+        <app-auth-input
+          formControlName="phoneCode"
+          [placeholder]="'Ingrese código'"
+          [hasIcon]="true">
+          <lucide-icon icon [img]="CheckCircleIcon" size="18"></lucide-icon>
+        </app-auth-input>
+        <button type="button" (click)="verifyPhoneCode()" class="btn-verify">Verificar</button>
+      </div>
+      <div *ngIf="phoneVerified()" class="verified-badge">
+        <lucide-icon [img]="CheckCircleIcon" size="16"></lucide-icon> Celular verificado
+      </div>
     </div>
 
     <div class="full-width" formGroupName="passwordGroup">

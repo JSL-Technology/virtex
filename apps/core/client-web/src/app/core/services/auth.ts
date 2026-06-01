@@ -202,6 +202,26 @@ export class AuthService {
       return this.http.post<{ message: string }>(`${this.apiUrl}/verify-phone`, { code, phoneNumber });
   }
 
+  sendPublicVerification(target: string, type: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/send-public-verification`, { target, type }, {
+      context: new HttpContext().set(IS_PUBLIC_API, true)
+    });
+  }
+
+  verifyPublicCode(target: string, type: string, code: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/verify-public-code`, { target, type, code }, {
+      context: new HttpContext().set(IS_PUBLIC_API, true)
+    });
+  }
+
+  createCheckoutSession(planId: string): Observable<{ url: string }> {
+    return this.http.post<{ url: string }>(`${this.apiUrl}/create-checkout-session`, {
+      planId,
+      successUrl: `${window.location.origin}/dashboard`,
+      cancelUrl: `${window.location.origin}/auth/register`
+    }, { withCredentials: true });
+  }
+
   enable2fa(token: string): Observable<any> {
       return this.http.post(`${this.apiUrl}/2fa/enable`, { token });
   }

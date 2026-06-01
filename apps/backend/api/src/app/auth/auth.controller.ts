@@ -23,6 +23,9 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { VerifyWebAuthnAuthDto } from './dto/verify-webauthn-auth.dto';
 
 import { SetPasswordFromInvitationDto } from './dto/set-password-from-invitation.dto';
+import { VerificationType } from './entities/verification-code.entity';
+import { PaymentService } from '../payment/payment.service';
+import { SaasService } from '../saas/saas.service';
 import { ConfigService } from '@nestjs/config';
 import { AuthConfig } from './auth.config';
 import { TypeOrmExceptionFilter } from '../common/filters/typeorm-exception.filter';
@@ -56,7 +59,9 @@ export class AuthController {
     private readonly configService: ConfigService,
     private readonly cookieService: CookieService,
     private readonly mfaOrchestratorService: MfaOrchestratorService,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
+    private readonly paymentService: PaymentService,
+    private readonly saasService: SaasService
   ) {}
 
   @Get('google')
@@ -423,6 +428,52 @@ export class AuthController {
   async verifyPhoneOtp(@CurrentUser() user: User, @Body() body: { code: string, phoneNumber: string }) {
       // Use MfaOrchestratorService directly instead of AuthService pass-through
       return this.mfaOrchestratorService.verifyPhoneOtp(user.id, body.code, body.phoneNumber);
+  }
+
+  @Post('send-public-verification')
+  @Public()
+  @ApiOperation({ summary: 'Send a verification code for unauthenticated users (email or phone)' })
+  async sendPublicVerification(
+    @Body() body: { target: string; type: VerificationType }
+  ) {
+    await this.mfaOrchestratorService.sendPublicVerification(body.target, body.type);
+    return { message: 'Verification code sent' };
+  }
+
+  @Post('verify-public-code')
+  @Public()
+  @ApiOperation({ summary: 'Verify a public code for unauthenticated users' })
+  async verifyPublicCode(
+    @Body() body: { target: string; type: VerificationType; code: string }
+  ) {
+    return this.mfaOrchestratorService.verifyPublicCode(body.target, body.type, body.code);
+  }
+
+  @Post('create-checkout-session')
+  @ApiOperation({ summary: 'Create a Stripe checkout session for a selected plan' })
+  @UseGuards(JwtAuthGuard)
+  async createCheckoutSession(
+    @CurrentUser() user: User,
+    @Body() body: { planId: string; successUrl: string; cancelUrl: string }
+  ) {
+    const plans = await this.saasService.getPlans();
+    const plan = plans.find(p => p.id === body.planId || p.slug === body.planId);
+    if (!plan) {
+      throw new BadRequestException('Plan not found');
+    }
+
+    const priceId = plan.monthlyPriceId;
+    if (!priceId) {
+      throw new BadRequestException('Plan does not have a price ID');
+    }
+
+    return this.paymentService.createCheckoutSession(
+      user.organizationId,
+      user.email,
+      priceId,
+      body.successUrl,
+      body.cancelUrl
+    );
   }
 
   @Post('verify-2fa')
