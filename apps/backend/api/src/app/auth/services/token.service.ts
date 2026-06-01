@@ -4,12 +4,12 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-// import * as ms from 'ms';
 import ms from 'ms';
 import * as crypto from 'crypto';
 import * as ipaddr from 'ipaddr.js';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { KeyManagementService } from './key-management.service';
 
 import { User } from '../../users/entities/user.entity/user.entity';
 import { RefreshToken } from '../entities/refresh-token.entity';
@@ -35,15 +35,19 @@ export class TokenService implements OnModuleInit {
     @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
-    private readonly geoService: GeoService
+    private readonly geoService: GeoService,
+    private readonly keyManagementService: KeyManagementService,
   ) {}
 
-  onModuleInit() {
-    const secret = this.configService.get<string>('ENCRYPTION_SECRET');
-    const salt = this.configService.get<string>('AUTH_SALT');
-    const effectiveSecret = secret || 'default-secret-change-me-in-prod-32';
-    const effectiveSalt = salt || 'default-salt-change-me-in-prod';
-    this.encryptionKey = crypto.scryptSync(effectiveSecret, effectiveSalt, 32);
+  onModuleInit(): void {
+    // H-01 FIX: Fail fast — getOrThrow throws at startup if any required secret is absent.
+    const secret = this.configService.getOrThrow<string>('ENCRYPTION_SECRET');
+    const salt = this.configService.getOrThrow<string>('AUTH_SALT');
+    const isProduction = process.env['NODE_ENV'] === 'production';
+    if (isProduction && /change-me|default/i.test(secret + salt)) {
+      throw new Error('FATAL: weak ENCRYPTION_SECRET or AUTH_SALT detected in production environment.');
+    }
+    this.encryptionKey = crypto.scryptSync(secret, salt, 32);
   }
 
   private maskIp(ip?: string): string | undefined {
@@ -217,13 +221,27 @@ export class TokenService implements OnModuleInit {
   }
 
   getJwtToken(payload: JwtPayload, expiresIn?: string, secret?: string) {
+    // H-05 FIX: Access tokens use RS256 with kid for key rotation support (OWASP JWT Cheat Sheet;
+    // NIST SP 800-57). Special-purpose tokens (refresh, 2FA, preverify) keep HS256 with their own secrets.
+    if (secret) {
+      return this.jwtService.sign(payload, {
+        secret,
+        expiresIn: expiresIn || AuthConfig.JWT_ACCESS_EXPIRATION,
+        algorithm: 'HS256',
+        issuer: 'virteex-api',
+        audience: 'virteex-web',
+      });
+    }
+
+    const { kid, privateKey } = this.keyManagementService.getActiveKey();
     return this.jwtService.sign(payload, {
-      secret: secret || this.configService.getOrThrow('JWT_SECRET'),
+      privateKey,
       expiresIn: expiresIn || AuthConfig.JWT_ACCESS_EXPIRATION,
-      algorithm: 'HS256',
+      algorithm: 'RS256',
+      keyid: kid,
       issuer: 'virteex-api',
       audience: 'virteex-web',
-    });
+    } as any);
   }
 
   buildSafeUser(user: User) {

@@ -14,6 +14,7 @@ import { UsersService } from './users.service';
 import { InviteUserDto } from './entities/user.entity/invite-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 import { RequestEmailChangeDto, ConfirmEmailChangeDto } from './dto/email-change.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { PermissionsGuard } from '../auth/guards/permissions/permissions.guard';
@@ -210,10 +211,14 @@ export class UsersController {
   @HasPermission(PERMISSIONS.USERS_MANAGE_STATUS)
   async updateStatus(
       @Param('id', ParseUUIDPipe) id: string,
-      @Body('status') status: UserStatus,
+      @Body() dto: UpdateUserStatusDto,
       @CurrentUser() user: User
   ) {
-      const updatedUser = await this.usersService.updateUserStatus(id, status, user.organizationId);
+      // H-08 FIX: Prevent self-block to avoid accidental lock-out of the last admin.
+      if (dto.status === UserStatus.BLOCKED && id === user.id) {
+          throw new BadRequestException('No puedes bloquear tu propia cuenta.');
+      }
+      const updatedUser = await this.usersService.updateUserStatus(id, dto.status, user.organizationId);
       return plainToInstance(UserResponseDto, updatedUser, { excludeExtraneousValues: true });
   }
 

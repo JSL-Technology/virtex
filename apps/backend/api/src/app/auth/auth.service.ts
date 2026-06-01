@@ -2,11 +2,14 @@
 import {
   Injectable,
   UnauthorizedException,
-  Logger
+  Logger,
+  Inject,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 import * as crypto from 'crypto';
 
 import { LoginUserDto } from './dto/login-user.dto';
@@ -31,6 +34,9 @@ export type LoginResult = LoginResultDto;
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
 
+  private static readonly PENDING_TTL_MS = 5 * 60 * 1000; // 5 minutes
+  private static readonly PENDING_MAX_ATTEMPTS = 5;
+
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
@@ -40,7 +46,8 @@ export class AuthService {
     private readonly tokenService: TokenService,
     private readonly mfaOrchestratorService: MfaOrchestratorService,
     private readonly passwordService: PasswordService,
-    private readonly eventEmitter: EventEmitter2
+    private readonly eventEmitter: EventEmitter2,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
   async login(loginUserDto: LoginUserDto & { twoFactorCode?: string }, ipAddress?: string, userAgent?: string): Promise<LoginResult> {
@@ -91,15 +98,10 @@ export class AuthService {
     // 2FA Check
     if (user.security && user.security.isTwoFactorEnabled) {
       if (!twoFactorCode) {
-         // Ensure expiration is an integer string in seconds for safety and clarity
-         const expirationSeconds = Math.floor(AuthConfig.MFA_CODE_EXPIRATION / 1000);
-         const tempToken = this.jwtService.sign(
-            { id: user.id, type: '2fa_pending', tokenVersion: user.security.tokenVersion },
-            {
-              expiresIn: `${expirationSeconds}s`,
-              secret: AuthConfig.JWT_2FA_TEMP_SECRET
-            }
-         );
+         // H-03 FIX: Store pending 2FA state server-side in cache; never return a bearer
+         // tempToken to JavaScript. The pendingId is delivered only via an httpOnly cookie,
+         // eliminating XSS-based session-hijacking (OWASP MFA Cheat Sheet; OWASP ASVS 2.8/3.4; CWE-922).
+         const pendingId = await this.create2faPendingSession(user, ipAddress, userAgent);
 
          if (user.isPhoneVerified && user.phone) {
              await this.mfaOrchestratorService.sendLoginOtp(user);
@@ -107,7 +109,7 @@ export class AuthService {
 
          return {
             require2fa: true,
-            tempToken,
+            pendingId,
             message: '2FA verification required'
          };
       }
@@ -181,27 +183,78 @@ export class AuthService {
     return this.sessionService.verifyUserFromToken(token);
   }
 
-  async verify2faTempToken(token: string): Promise<User | null> {
-      try {
-          const payload = this.jwtService.verify(token, {
-              secret: AuthConfig.JWT_2FA_TEMP_SECRET
-          });
+  async create2faPendingSession(user: User, ipAddress?: string, userAgent?: string): Promise<string> {
+    const pendingId = crypto.randomUUID();
+    const ipHash = ipAddress
+      ? crypto.createHash('sha256').update(ipAddress).digest('hex').slice(0, 16)
+      : 'unknown';
+    const uaHash = userAgent
+      ? crypto.createHash('sha256').update(userAgent).digest('hex').slice(0, 16)
+      : 'unknown';
 
-          if (payload.type !== '2fa_pending') {
-              throw new UnauthorizedException('Invalid token type');
-          }
+    await this.cacheManager.set(
+      `2fa_pending:${pendingId}`,
+      {
+        userId: user.id,
+        tokenVersion: user.security?.tokenVersion ?? 0,
+        ipHash,
+        uaHash,
+        attempts: 0,
+        expiresAt: Date.now() + AuthService.PENDING_TTL_MS,
+      },
+      AuthService.PENDING_TTL_MS,
+    );
+    return pendingId;
+  }
 
-          const user = await this.usersService.findUserByIdForAuth(payload.id);
-          if (!user || !user.security) return null;
+  async consume2faPendingSession(
+    pendingId: string,
+    ipAddress?: string,
+    userAgent?: string,
+  ): Promise<User> {
+    const key = `2fa_pending:${pendingId}`;
+    const session = await this.cacheManager.get<{
+      userId: string;
+      tokenVersion: number;
+      ipHash: string;
+      uaHash: string;
+      attempts: number;
+      expiresAt: number;
+    }>(key);
 
-          if (user.security.tokenVersion !== payload.tokenVersion) {
-              return null;
-          }
+    if (!session || Date.now() > session.expiresAt) {
+      throw new UnauthorizedException('Invalid or expired 2FA session');
+    }
 
-          return user;
-      } catch (e) {
-          throw new UnauthorizedException('Invalid or expired 2FA session token');
-      }
+    if (session.attempts >= AuthService.PENDING_MAX_ATTEMPTS) {
+      await this.cacheManager.del(key);
+      throw new UnauthorizedException('Too many 2FA attempts — please log in again');
+    }
+
+    const currentIpHash = ipAddress
+      ? crypto.createHash('sha256').update(ipAddress).digest('hex').slice(0, 16)
+      : 'unknown';
+
+    if (session.ipHash !== 'unknown' && currentIpHash !== 'unknown' && session.ipHash !== currentIpHash) {
+      this.logger.warn(`[SECURITY] 2FA pending session IP mismatch. Invalidating session.`);
+      await this.cacheManager.del(key);
+      throw new UnauthorizedException('Session context changed — please log in again');
+    }
+
+    const user = await this.usersService.findUserByIdForAuth(session.userId);
+    if (!user || !user.security) {
+      await this.cacheManager.del(key);
+      throw new UnauthorizedException('User not found');
+    }
+
+    if ((user.security.tokenVersion ?? 0) !== session.tokenVersion) {
+      await this.cacheManager.del(key);
+      throw new UnauthorizedException('Session invalidated — please log in again');
+    }
+
+    // Consume the session (single-use)
+    await this.cacheManager.del(key);
+    return user;
   }
 
   async changePassword(userId: string, currentPass: string, newPass: string): Promise<void> {

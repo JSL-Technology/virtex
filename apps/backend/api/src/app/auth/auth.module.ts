@@ -53,6 +53,7 @@ import { RegistrationStrategyFactory } from './strategies/registration/registrat
 import { DoRegistrationStrategy } from './strategies/registration/do-registration.strategy';
 import { UsRegistrationStrategy } from './strategies/registration/us-registration.strategy';
 import { AuthAuditListener } from './listeners/auth-audit.listener';
+import { KeyManagementService } from './services/key-management.service';
 
 @Module({
   imports: [
@@ -110,6 +111,9 @@ import { AuthAuditListener } from './listeners/auth-audit.listener';
       useFactory: (config: ConfigService) => ({
         secretKey: config.get<string>('RECAPTCHA_V3_SECRET_KEY'),
         response: (req) => req.body.recaptchaToken,
+        score: 0.7,
+        // H-04 FIX: Controlled by explicit RECAPTCHA_DISABLED flag, not NODE_ENV.
+        skipIf: config.get<boolean>('RECAPTCHA_DISABLED', false) === true,
       }),
     }),
     MailModule,
@@ -142,6 +146,7 @@ import { AuthAuditListener } from './listeners/auth-audit.listener';
     DoRegistrationStrategy,
     UsRegistrationStrategy,
     AuthAuditListener,
+    KeyManagementService,
     {
       provide: AbstractSmsProvider,
       useClass: TwilioSmsProvider
@@ -162,7 +167,8 @@ import { AuthAuditListener } from './listeners/auth-audit.listener';
     SocialAuthService,
     MfaOrchestratorService,
     UserCacheModule,
-    SessionService
+    SessionService,
+    KeyManagementService,
   ],
 })
 export class AuthModule {}

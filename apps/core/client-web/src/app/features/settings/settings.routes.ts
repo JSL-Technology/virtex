@@ -21,19 +21,28 @@ export const SETTINGS_ROUTES: Routes = [
             // { path: 'notifications', ... } // Futuro
 
             // --- GRUPO 2: ORGANIZACIÓN (Global) ---
+            // H-06 FIX: All company/financial/operational routes now require explicit permissions.
+            // Defence-in-depth: backend still enforces authorisation; the guard prevents UI rendering
+            // of components that would call APIs before receiving 403 (OWASP ASVS V4; CWE-284).
             {
                 path: 'profile',
                 title: 'Perfil de la Empresa',
+                canActivate: [permissionsGuard],
+                data: { permissions: ['settings:view_company'] },
                 loadComponent: () => import('./company-profile/company-profile.page').then(m => m.CompanyProfilePage)
             },
             {
                 path: 'subsidiaries',
                 title: 'Estructura Empresarial',
+                canActivate: [permissionsGuard],
+                data: { permissions: ['settings:view_company'] },
                 loadComponent: () => import('./organization/subsidiaries/subsidiaries.page').then(m => m.SubsidiariesPage)
             },
             {
                 path: 'branding',
                 title: 'Personalización',
+                canActivate: [permissionsGuard],
+                data: { permissions: ['settings:edit_company'] },
                 loadComponent: () => import('./branding/branding.page').then(m => m.BrandingPage)
             },
 
@@ -41,26 +50,36 @@ export const SETTINGS_ROUTES: Routes = [
             {
                 path: 'accounting',
                 title: 'Preferencias Contables',
+                canActivate: [permissionsGuard],
+                data: { permissions: ['settings:finance:view'] },
                 loadComponent: () => import('./finance/accounting/accounting.page').then(m => m.AccountingSettingsPage)
             },
             {
                 path: 'currencies',
                 title: 'Multimoneda y Tasas',
+                canActivate: [permissionsGuard],
+                data: { permissions: ['settings:finance:view'] },
                 loadComponent: () => import('./finance/currencies/currencies.page').then(m => m.CurrencySettingsPage)
             },
             {
                 path: 'taxes',
                 title: 'Reglas de Impuestos',
+                canActivate: [permissionsGuard],
+                data: { permissions: ['settings:finance:view'] },
                 loadComponent: () => import('./finance/taxes/taxes.page').then(m => m.TaxRulesPage)
             },
             {
                 path: 'closing-rules',
                 title: 'Periodos y Cierre Fiscal',
+                canActivate: [permissionsGuard],
+                data: { permissions: ['settings:finance:view'] },
                 loadComponent: () => import('./finance/closing-rules/closing-rules.page').then(m => m.ClosingRulesPage)
             },
             {
                 path: 'intercompany',
                 title: 'Reglas Intercompany',
+                canActivate: [permissionsGuard],
+                data: { permissions: ['settings:finance:view'] },
                 loadComponent: () => import('./finance/intercompany/intercompany.page').then(m => m.IntercompanyPage)
             },
 
@@ -68,16 +87,22 @@ export const SETTINGS_ROUTES: Routes = [
             {
                 path: 'sequences',
                 title: 'Secuencias Fiscales',
+                canActivate: [permissionsGuard],
+                data: { permissions: ['settings:edit_company'] },
                 loadComponent: () => import('./operations/sequences/sequences.page').then(m => m.SequenceSettingsPage)
             },
             {
                 path: 'approvals',
                 title: 'Flujos de Aprobación',
+                canActivate: [permissionsGuard],
+                data: { permissions: ['settings:edit_company'] },
                 loadComponent: () => import('./operations/approvals/approvals.page').then(m => m.ApprovalPoliciesPage)
             },
             {
                 path: 'inventory-policies',
                 title: 'Políticas de Inventario',
+                canActivate: [permissionsGuard],
+                data: { permissions: ['settings:edit_company'] },
                 loadComponent: () => import('./operations/inventory-policies/inventory-policies.page').then(m => m.InventoryPoliciesPage)
             },
 
@@ -121,6 +146,8 @@ export const SETTINGS_ROUTES: Routes = [
             {
                 path: 'billing',
                 title: 'Facturación y Plan',
+                canActivate: [permissionsGuard],
+                data: { permissions: ['settings:view_company'] },
                 loadComponent: () => import('./billing/billing.page').then(m => m.BillingPage)
             },
             { path: '', redirectTo: 'profile', pathMatch: 'full' }

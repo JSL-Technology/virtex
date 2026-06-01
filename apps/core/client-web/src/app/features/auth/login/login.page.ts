@@ -75,8 +75,9 @@ export class LoginPage implements OnInit {
 
   errorMessage = signal<string | null>(null);
   isLoggingIn = signal(false);
+  // H-03 FIX: show2faInput driven by server response; no tempToken stored in JS memory.
+  // The pending session ID lives only in the httpOnly cookie set by the server.
   show2faInput = signal(false);
-  tempToken = signal<string | null>(null);
 
   @ViewChild(OtpComponent) otpComponent!: OtpComponent;
 
@@ -157,11 +158,11 @@ export class LoginPage implements OnInit {
         this.authService.login({ email, password, recaptchaToken: token, rememberMe }).subscribe({
           next: (response: any) => {
             if (response && response.require2fa) {
-              this.tempToken.set(response.tempToken);
+              // H-03 FIX: No tempToken to store — pending session cookie was set by server.
               this.show2faInput.set(true);
               this.isLoggingIn.set(false);
             } else {
-              this.handleSuccess(response); // response is User object here per AuthService logic
+              this.handleSuccess(response);
             }
           },
           error: (err) => {
@@ -179,17 +180,16 @@ export class LoginPage implements OnInit {
   }
 
   verify2fa(): void {
-    if (this.otpCodeControl.invalid || !this.tempToken()) return;
+    if (this.otpCodeControl.invalid) return;
     this.onOtpVerify(this.otpCodeControl.value!);
   }
 
   onOtpVerify(code: string): void {
-    if (!this.tempToken()) return;
-
     this.isLoggingIn.set(true);
     this.errorMessage.set(null);
 
-    this.authService.verify2fa(code, this.tempToken()!).subscribe({
+    // H-03 FIX: Only the code is sent — server reads pendingId from the httpOnly cookie.
+    this.authService.verify2fa(code).subscribe({
       next: (user) => {
         this.handleSuccess(user);
       },

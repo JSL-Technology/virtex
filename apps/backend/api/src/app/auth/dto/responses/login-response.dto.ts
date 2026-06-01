@@ -26,9 +26,7 @@ export class LoginResponseDto {
   @ApiProperty({ required: false })
   require2fa?: boolean;
 
-  @ApiProperty({ required: false })
-  tempToken?: string;
-
+  // H-03 FIX: tempToken removed — pending session delivered via httpOnly cookie only.
   @ApiProperty({ required: false })
   message?: string;
 }

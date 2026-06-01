@@ -351,14 +351,18 @@ export class UsersService {
     });
 
     if (existingUser) {
-      throw new BadRequestException(
-        'A user with this email already exists in the organization.',
+      // H-07 FIX: Generic client message prevents internal email enumeration.
+      // Detailed context is logged server-side only (OWASP Error Handling Cheat Sheet; CWE-203/CWE-209).
+      this.logger.warn(
+        `Invite conflict: org=${organizationId} emailHash=${require('crypto').createHash('sha256').update(email).digest('hex').slice(0, 16)}`,
       );
+      throw new BadRequestException('No se pudo enviar la invitación con los datos proporcionados.');
     }
 
     const role = await this.rolesService.findOne(roleId, organizationId);
     if (!role) {
-      throw new NotFoundException(`Role with ID ${roleId} not found.`);
+      this.logger.warn(`Invite role not found: org=${organizationId} roleId=${roleId}`);
+      throw new BadRequestException('No se pudo enviar la invitación con los datos proporcionados.');
     }
 
     const rawToken = crypto.randomBytes(32).toString('hex');

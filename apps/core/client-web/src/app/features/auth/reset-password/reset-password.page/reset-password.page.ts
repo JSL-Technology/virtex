@@ -65,20 +65,12 @@ export class ResetPasswordPage implements OnInit {
   token: string | null = null;
 
   ngOnInit(): void {
-    // H-10 FIX: Read token from URL fragment (#token=...) instead of query param.
-    // Fragments are never sent to the server, so the token is not exposed in server
-    // logs, CDN access logs, or Referer headers (RFC 3986 §3.5; OWASP ASVS 2.1.7; CWE-598).
-    const hash = window.location.hash; // e.g. "#token=abc123"
-    if (hash.startsWith('#token=')) {
-      this.token = decodeURIComponent(hash.slice('#token='.length));
-    } else {
-      // Fallback: also accept legacy ?token= query param for backwards compatibility
-      // during transition period. The URL is cleaned immediately after reading.
-      this.token = this.route.snapshot.queryParamMap.get('token');
-    }
+    // H-12 FIX: Read token exclusively from URL fragment — fragments are never sent to
+    // the server, preventing leakage in logs, Referer headers, and analytics.
+    // The legacy ?token= fallback has been removed (RFC 3986 §3.5; OWASP ASVS 2.1.7; CWE-598).
+    const hash = window.location.hash;
+    this.token = hash.startsWith('#token=') ? decodeURIComponent(hash.slice('#token='.length)) : null;
 
-    // Remove token from URL immediately — prevents it appearing in browser history
-    // and from leaking via Referer if the user navigates away before submitting.
     if (this.token) {
       window.history.replaceState({}, document.title, window.location.pathname);
     }

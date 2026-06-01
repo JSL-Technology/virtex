@@ -65,9 +65,11 @@ export class SetPasswordPage implements OnInit {
   token: string | null = null;
 
   ngOnInit(): void {
-    this.token = this.route.snapshot.queryParamMap.get('token');
+    // H-02 FIX: Read invitation token from URL fragment (#token=...) — fragments are
+    // never sent to the server or logged by reverse proxies (RFC 3986 §3.5; CWE-598).
+    const hash = window.location.hash;
+    this.token = hash.startsWith('#token=') ? decodeURIComponent(hash.slice('#token='.length)) : null;
 
-    // 10/10 SECURITY: Clear sensitive token from URL immediately after capture
     if (this.token) {
         window.history.replaceState({}, document.title, window.location.pathname);
     }

@@ -56,7 +56,7 @@ export const AuthConfig = {
 
   // Cache
   get CACHE_TTL() { return parseDuration(process.env.AUTH_CACHE_TTL || '15m'); },
-  get REFRESH_GRACE_PERIOD() { return parseInt(process.env.AUTH_REFRESH_GRACE_PERIOD || '10000', 10); },
+  get REFRESH_GRACE_PERIOD() { return parseInt(process.env.AUTH_REFRESH_GRACE_PERIOD || '2000', 10); },
 
   // Throttle
   get THROTTLE_LIMIT() { return parseInt(process.env.AUTH_THROTTLE_LIMIT || '5', 10); },

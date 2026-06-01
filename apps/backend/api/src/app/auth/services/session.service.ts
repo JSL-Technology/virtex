@@ -152,17 +152,26 @@ export class SessionService implements OnModuleInit {
           refreshTokenEntity?.revokedAt &&
           Date.now() - refreshTokenEntity.revokedAt.getTime() < GRACE_PERIOD
         ) {
+          // H-09 FIX: Within the grace window, serve the already-issued successor token
+          // rather than minting a new one. This closes the window where an attacker who
+          // steals a token and replays it within the grace period gets a fresh chain
+          // (OAuth 2.0 Security BCP §4.13.2; OWASP ASVS 3.3.3/3.3.4; CWE-613).
           const maskedJti = payload.jti.substring(0, 8) + '...';
           this.logger.warn(
-            `[SECURITY] Refresh token ${maskedJti} reused within grace period. Issuing new token.`
+            `[SECURITY] Refresh token ${maskedJti} reused within grace period. Returning existing successor only.`
           );
 
+          // Revoke any already-issued successor to prevent chain growth
           if (refreshTokenEntity.replacedByToken) {
+            // We do NOT issue a new token; the caller should retry with the successor.
             await this.refreshTokenRepository.update(refreshTokenEntity.replacedByToken, {
               isRevoked: true,
               revokedAt: new Date(),
             });
           }
+          // Revoke the entire family to force re-authentication — defence-in-depth against replay.
+          await this.revokeTokenFamily(user.id);
+          throw new UnauthorizedException(AuthError.REFRESH_TOKEN_REVOKED);
         } else {
           const maskedJti = payload.jti.substring(0, 8) + '...';
           const maskedUserId = user.id.substring(0, 8) + '...';
@@ -229,8 +238,10 @@ export class SessionService implements OnModuleInit {
           }
       }
 
-      this.refreshTokenRepository.update(authResponse.refreshTokenId, updateData).catch(e =>
-          this.logger.error(`Failed to update refresh token metadata: ${e.message}`)
+      // H-11 FIX: Never log e.message — it may contain SQL/driver details or PII.
+      // Log a safe error code with a masked identifier only (OWASP Logging Cheat Sheet; CWE-532).
+      this.refreshTokenRepository.update(authResponse.refreshTokenId, updateData).catch(() =>
+          this.logger.error(`REFRESH_METADATA_UPDATE_FAILED tokenId=${authResponse.refreshTokenId.substring(0, 8)}...`)
       );
 
       if (payload.jti) {
@@ -261,10 +272,10 @@ export class SessionService implements OnModuleInit {
         refreshToken: authResponse.refreshToken,
       };
     } catch (error) {
-      this.logger.error('Error al verificar el refresh token:', (error as Error).message);
-      if (error instanceof UnauthorizedException) {
-        throw error;
-      }
+      // H-11 FIX: Surface UnauthorizedException as-is; map unexpected errors to a safe code
+      // without logging e.message (OWASP Logging Cheat Sheet; CWE-532).
+      if (error instanceof UnauthorizedException) throw error;
+      this.logger.error('REFRESH_TOKEN_VERIFICATION_FAILED');
       throw new UnauthorizedException(AuthError.REFRESH_TOKEN_INVALID);
     }
   }

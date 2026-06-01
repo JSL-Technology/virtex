@@ -26,7 +26,8 @@ import {
   SendPublicVerificationDto,
   VerifyPublicCodeDto,
   CreateCheckoutSessionDto,
-  VerifyWebAuthnRegistrationDto
+  VerifyWebAuthnRegistrationDto,
+  InvitationDetailsDto,
 } from './dto/security-audit.dto';
 
 import { SetPasswordFromInvitationDto } from './dto/set-password-from-invitation.dto';
@@ -182,8 +183,10 @@ export class AuthController {
 
     // Check if 2FA is required
     if ('require2fa' in result && result.require2fa) {
+        // H-03 FIX: Deliver pendingId exclusively via httpOnly cookie — never in response body.
+        this.cookieService.set2faPendingCookie(res, (result as any).pendingId);
         this.cookieService.setCsrfCookie(res);
-        return result;
+        return { require2fa: true, message: (result as any).message };
     }
 
     // Narrowing type
@@ -223,11 +226,13 @@ export class AuthController {
     };
   }
 
-  @Get('invitation/:token')
+  // H-02 FIX: Token moved from URL path (:token) to POST body — path/query params are
+  // logged by reverse proxies, CDNs, and browsers, exposing the secret (CWE-598; OWASP ASVS 2.1.7).
+  @Post('invitation/details')
   @Public()
   @HttpCode(HttpStatus.OK)
-  async getInvitationDetails(@Param('token') token: string) {
-    return this.passwordRecoveryService.getInvitationDetails(token);
+  async getInvitationDetails(@Body() dto: InvitationDetailsDto) {
+    return this.passwordRecoveryService.getInvitationDetails(dto.token);
   }
 
   @Post('refresh')
@@ -531,20 +536,24 @@ export class AuthController {
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
   async verify2fa(
       @Body() dto: Verify2faDto,
+      @Req() req: Request,
       @Res({ passthrough: true }) res: Response,
       @Ip() ip: string,
       @Headers('user-agent') userAgent: string
   ) {
-      const user = await this.authService.verify2faTempToken(dto.tempToken);
-      if (!user) {
-          throw new UnauthorizedException('Invalid or expired session');
+      // H-03 FIX: Read pendingId from httpOnly cookie — never accept tempToken from body.
+      const pendingId = (req as any).cookies?.['__Host-2fa_pending'] || (req as any).cookies?.['2fa_pending'];
+      if (!pendingId) {
+          throw new UnauthorizedException('No active 2FA session — please log in again');
       }
 
-      // Use MfaOrchestratorService directly instead of AuthService pass-through
+      const user = await this.authService.consume2faPendingSession(pendingId, ip, userAgent);
+
       const authResult = await this.mfaOrchestratorService.complete2faLogin(user, dto.code, ip, userAgent);
 
       const { user: authUser, accessToken, refreshToken } = authResult;
 
+      this.cookieService.clear2faPendingCookie(res);
       this.cookieService.setAuthCookies(res, accessToken, refreshToken);
       return { user: authUser };
   }
@@ -589,15 +598,12 @@ export class AuthController {
 
     // FIDO2/WebAuthn is inherently multi-factor (possession + biometric/PIN = NIST AAL2).
     // However, if the user has explicitly configured TOTP or SMS 2FA, we honour that
-    // organisational policy by requiring the second factor before issuing session cookies —
-    // consistent with the standard login flow in auth.service.ts.
+    // organisational policy by requiring the second factor before issuing session cookies.
     if (user.security?.isTwoFactorEnabled) {
-      const expirationSeconds = Math.floor(AuthConfig.MFA_CODE_EXPIRATION / 1000);
-      const tempToken = this.jwtService.sign(
-        { id: user.id, type: '2fa_pending', tokenVersion: user.security.tokenVersion },
-        { expiresIn: `${expirationSeconds}s`, secret: AuthConfig.JWT_2FA_TEMP_SECRET }
-      );
-      return { require2fa: true, tempToken, message: '2FA verification required' };
+      // H-03 FIX: Same cookie-based pending session as the password login flow.
+      const pendingId = await this.authService.create2faPendingSession(user, undefined, undefined);
+      this.cookieService.set2faPendingCookie(res, pendingId);
+      return { require2fa: true, message: '2FA verification required' };
     }
 
     const { accessToken, refreshToken } = await this.authFacade.generateTokens(user);

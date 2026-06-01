@@ -95,11 +95,38 @@ export class CookieService {
     });
   }
 
+  // H-03 FIX: 2FA pending session delivered as an httpOnly cookie so the token
+  // never touches JavaScript memory, eliminating XSS-based token theft (OWASP MFA Cheat Sheet;
+  // OWASP ASVS 2.8/3.4; CWE-922).
+  set2faPendingCookie(res: Response, pendingId: string): void {
+    const isProduction = this.configService.get('NODE_ENV') === 'production';
+    const name = isProduction ? '__Host-2fa_pending' : '2fa_pending';
+    // H-10 NOTE: Never pass `domain` to this cookie — __Host- prefix enforces it in
+    // production; in dev we rely on the invariant that no domain option is added here.
+    res.cookie(name, pendingId, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'lax',
+      maxAge: 5 * 60 * 1000, // 5 minutes — matches server-side pending session TTL
+      path: '/api/v1/auth/verify-2fa',
+    });
+  }
+
+  clear2faPendingCookie(res: Response): void {
+    const isProduction = this.configService.get('NODE_ENV') === 'production';
+    res.clearCookie('__Host-2fa_pending', { path: '/api/v1/auth/verify-2fa', secure: true });
+    res.clearCookie('2fa_pending', { path: '/api/v1/auth/verify-2fa', secure: isProduction });
+  }
+
   clearAuthCookies(res: Response): void {
     const isProduction = this.configService.get('NODE_ENV') === 'production';
-    // H-15: Clear both prefixed (production) and unprefixed (development) variants
     res.clearCookie('__Host-access_token', { path: '/', secure: true });
     res.clearCookie('access_token', { path: '/', secure: isProduction });
+    // H-10 FIX: Refresh cookie uses __Secure- (not __Host-) to allow path restriction.
+    // INVARIANT: domain must never be set on the refresh cookie. If a domain attribute were
+    // added it would allow subdomain access. This clearCookie call intentionally omits
+    // domain to enforce that invariant — any domain value would have to be set at creation
+    // time, and setAuthCookies above never passes domain.
     res.clearCookie('__Secure-refresh_token', { path: '/api/v1/auth/refresh', secure: true });
     res.clearCookie('refresh_token', { path: '/api/v1/auth/refresh', secure: isProduction });
     res.clearCookie('XSRF-TOKEN', { path: '/' });

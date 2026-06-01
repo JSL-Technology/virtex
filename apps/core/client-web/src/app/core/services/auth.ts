@@ -35,9 +35,9 @@ interface LoginResponse {
   user: User;
 }
 
+// H-03 FIX: tempToken removed — pending session ID is delivered only via httpOnly cookie.
 interface TwoFactorRequiredResponse {
   require2fa: boolean;
-  tempToken: string;
   message: string;
 }
 
@@ -141,7 +141,7 @@ export class AuthService {
    * @param credentials Objeto con email, password y recaptchaToken.
    * @returns Un observable que emite el objeto User en caso de éxito.
    */
-  login(credentials: LoginCredentials): Observable<User | { require2fa: boolean; tempToken: string }> {
+  login(credentials: LoginCredentials): Observable<User | { require2fa: boolean }> {
     const url = `${this.apiUrl}/login`;
     return this.http
       .post<LoginResult>(url, credentials, {
@@ -151,7 +151,7 @@ export class AuthService {
       .pipe(
         tap((response) => {
           if (isTwoFactorRequired(response)) {
-             // Do not set authenticated yet
+             // Do not set authenticated yet; pending session cookie set by server
              return;
           }
           if (response.user) {
@@ -165,17 +165,18 @@ export class AuthService {
         }),
         map((response) => {
             if (isTwoFactorRequired(response)) {
-                return { require2fa: true, tempToken: response.tempToken };
+                // H-03 FIX: No tempToken — pending session is tracked server-side via httpOnly cookie.
+                return { require2fa: true };
             }
-            // H-11: Backend sends only { user }; no tokens in body. Return user directly.
             return response.user;
         }),
         catchError((err) => this.errorHandlerService.handleError('login', err))
       );
   }
 
-  verify2fa(code: string, tempToken: string): Observable<User> {
-      return this.http.post<LoginResponse>(`${this.apiUrl}/verify-2fa`, { code, tempToken }, {
+  // H-03 FIX: No tempToken parameter — the server reads the pendingId from the httpOnly cookie.
+  verify2fa(code: string): Observable<User> {
+      return this.http.post<LoginResponse>(`${this.apiUrl}/verify-2fa`, { code }, {
           withCredentials: true,
           context: new HttpContext().set(IS_PUBLIC_API, true)
       }).pipe(
@@ -328,22 +329,29 @@ export class AuthService {
     const lang = storedLang && supportedLangs.includes(storedLang) ? storedLang : 'es';
     this.router.navigate([`/${lang}/auth/login`]);
 
-    // 2. Notify backend — H-09 FIX: surface errors so the user knows the server session
-    // may still be alive. We show a warning instead of silently swallowing the failure
-    // (OWASP ASVS 3.3.4; CWE-613).
+    // H-13 FIX: Best-effort server logout via sendBeacon (survives tab close/navigation).
+    // Falls back to fetch on browsers that do not support sendBeacon or when sendBeacon
+    // returns false (large payload / unsupported). If both fail, the user is informed and
+    // can retry (OWASP ASVS 3.3.4; CWE-613).
     if (notifyBackend) {
       const url = `${this.apiUrl}/logout`;
-      this.http.post(url, {}, {
-        withCredentials: true,
-        context: new HttpContext().set(IS_PUBLIC_API, true),
-      }).pipe(
-        catchError(() => {
-          this.notificationService.showWarning(
-            'No se pudo cerrar la sesión en el servidor. Cierra el navegador o intenta de nuevo para mayor seguridad.'
-          );
-          return of(null);
-        })
-      ).subscribe();
+      const beaconSent = typeof navigator !== 'undefined' && navigator.sendBeacon
+        ? navigator.sendBeacon(url, new Blob([JSON.stringify({})], { type: 'application/json' }))
+        : false;
+
+      if (!beaconSent) {
+        this.http.post(url, {}, {
+          withCredentials: true,
+          context: new HttpContext().set(IS_PUBLIC_API, true),
+        }).pipe(
+          catchError(() => {
+            this.notificationService.showWarning(
+              'No se pudo cerrar la sesión en el servidor. Cierra el navegador o intenta de nuevo.'
+            );
+            return of(null);
+          })
+        ).subscribe();
+      }
     }
   }
 
@@ -461,10 +469,12 @@ export class AuthService {
       );
   }
 
+  // H-02 FIX: Token submitted in POST body — never in URL path/query to prevent
+  // leakage in server logs, browser history, and Referer headers (CWE-598; OWASP ASVS 2.1.7).
   getInvitationDetails(token: string): Observable<{ firstName: string }> {
-    const url = `${this.apiUrl}/invitation/${token}`;
+    const url = `${this.apiUrl}/invitation/details`;
     return this.http
-      .get<{ firstName: string }>(url, {
+      .post<{ firstName: string }>(url, { token }, {
         context: new HttpContext().set(IS_PUBLIC_API, true)
       })
       .pipe(catchError((err) => this.errorHandlerService.handleError('getInvitationDetails', err)));
