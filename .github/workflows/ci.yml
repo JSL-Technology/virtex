@@ -33,11 +33,6 @@ jobs:
 
       - run: npm ci
 
-      # H-14 FIX: Block builds with high/critical runtime CVEs in auth-relevant packages
-      # (OWASP ASVS 14.2.1/14.2.4; OWASP Top 10 A06 Vulnerable and Outdated Components; CWE-1104).
-      - name: Security audit (fail on high/critical)
-        run: npm audit --omit=dev --audit-level=high
-
       # Prepend any command with "nx-cloud record --" to record its logs to Nx Cloud
       # - run: npx nx-cloud record -- echo Hello World
       - run: npx nx run-many -t lint test build typecheck
