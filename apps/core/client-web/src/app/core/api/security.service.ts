@@ -48,8 +48,10 @@ export class SecurityService {
     return this.http.post<TwoFactorSetupResponse>(`${this.apiUrl}/2fa/generate`, {});
   }
 
-  enable2fa(token: string): Observable<{ backupCodes: string[] }> {
-    return this.http.post<{ backupCodes: string[] }>(`${this.apiUrl}/2fa/enable`, { token });
+  // H-05 FIX: Backend requires `currentPassword` for step-up before enabling 2FA
+  // (OWASP ASVS 2.2.2 reauthentication for sensitive operations; CWE-306).
+  enable2fa(token: string, currentPassword: string): Observable<{ backupCodes: string[] }> {
+    return this.http.post<{ backupCodes: string[] }>(`${this.apiUrl}/2fa/enable`, { token, currentPassword });
   }
 
   disable2fa(): Observable<void> {

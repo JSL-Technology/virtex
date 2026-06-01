@@ -71,17 +71,21 @@ export class CookieService {
 
   setSocialRegisterTokenCookie(res: Response, token: string): void {
     const isProduction = this.configService.get('NODE_ENV') === 'production';
-    res.cookie('__Host-social_register_token', token, {
+    // H-12 FIX: Apply the same env-aware strategy as setAuthCookies.
+    // Browsers reject Secure cookies over plain HTTP, breaking social registration
+    // in local dev. Only use __Host- prefix and Secure=true in production.
+    // (RFC 6265bis cookie prefixes; OWASP Session Management Cheat Sheet)
+    const name = isProduction ? '__Host-social_register_token' : 'social_register_token';
+    res.cookie(name, token, {
       httpOnly: true,
-      secure: true,
+      secure: isProduction,
       sameSite: 'lax',
-      maxAge: 5 * 60 * 1000, // 5 minutes — PII transfer window
+      maxAge: 5 * 60 * 1000,
       path: '/',
     });
   }
 
   setRegisterTokenCookie(res: Response, token: string): void {
-    const isProduction = this.configService.get('NODE_ENV') === 'production';
     res.cookie('__Host-register_token', token, {
       httpOnly: true,
       secure: true,

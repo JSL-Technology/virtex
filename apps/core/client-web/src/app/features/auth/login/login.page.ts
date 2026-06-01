@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../core/services/auth';
 import { LanguageService } from '../../../core/services/language';
 import { CountryService } from '../../../core/services/country.service';
@@ -131,7 +132,12 @@ export class LoginPage implements OnInit {
         this.isLoggingIn.set(false);
       })
       .catch((err) => {
-        console.error('Passkey login error:', err);
+        // H-10 FIX: Never log full error objects in production; they may contain
+        // request URLs, response bodies, or auth-flow details (OWASP Logging Cheat
+        // Sheet; CWE-532). Only log in development with minimal context.
+        if (!environment.production) {
+          console.warn('Passkey login failed', { status: (err as any)?.status });
+        }
         this.errorMessage.set('LOGIN.ERRORS.PASSKEY_ERROR');
         this.isLoggingIn.set(false);
       });
@@ -210,7 +216,9 @@ export class LoginPage implements OnInit {
   }
 
   private handleError(err: any): void {
-    console.error('Login error:', err);
+    if (!environment.production) {
+      console.warn('Login failed', { status: err?.status });
+    }
     if (err && err.status) {
       switch (err.status) {
         case 401: this.errorMessage.set('LOGIN.ERRORS.AUTH_INVALID_CREDENTIALS'); break;

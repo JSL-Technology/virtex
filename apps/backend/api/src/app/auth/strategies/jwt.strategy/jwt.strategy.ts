@@ -35,7 +35,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         ExtractJwt.fromAuthHeaderAsBearerToken(),
-        (req: Request | undefined) => req?.cookies?.['__Host-access_token'] ?? null,
+        (req: Request | undefined) => {
+          // H-06 FIX: CookieService emits 'access_token' (no prefix) in development
+          // because browsers reject __Host- cookies over plain HTTP.
+          // Provide the same fallback here so protected routes work in dev
+          // without compromising production where only __Host- is accepted.
+          // (OWASP ASVS V14 Configuration; CWE-16)
+          const cookies = req?.cookies ?? {};
+          const isProduction = configService.get('NODE_ENV') === 'production';
+          return cookies['__Host-access_token'] ??
+            (isProduction ? null : cookies['access_token']) ??
+            null;
+        },
       ]),
       ignoreExpiration: false,
       secretOrKey: configService.getOrThrow<string>('JWT_SECRET'),

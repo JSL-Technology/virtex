@@ -11,12 +11,15 @@ export class CryptoUtil {
   private readonly ivLength = 12;
 
   constructor(private configService: ConfigService) {
-    const secret = this.configService.get<string>('ENCRYPTION_SECRET');
-    if (!secret) {
-      throw new Error('ENCRYPTION_SECRET is not defined in environment variables');
+    const secret = this.configService.getOrThrow<string>('ENCRYPTION_SECRET');
+    const salt = this.configService.get<string>('AUTH_SALT');
+    if (process.env['NODE_ENV'] === 'production' && !salt) {
+      throw new Error('AUTH_SALT is required in production for 2FA secret encryption');
     }
-    // Ensure key is 32 bytes for AES-256
-    this.key = crypto.scryptSync(secret, 'salt', 32);
+    // H-04 FIX: Use configurable AUTH_SALT instead of hard-coded 'salt'.
+    // Consistent with SessionService; fails fast in production if missing.
+    // (NIST SP 800-57; OWASP Cryptographic Storage Cheat Sheet; CWE-321/CWE-760)
+    this.key = crypto.scryptSync(secret, salt ?? 'dev-only-salt-change-me', 32);
   }
 
   encrypt(text: string): string {

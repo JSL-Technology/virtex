@@ -1,4 +1,4 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException, Type, Inject } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, ForbiddenException, Type } from '@nestjs/common';
 import { Reflector, ModuleRef } from '@nestjs/core';
 import { PERMISSIONS_KEY } from '../../../auth/decorators/permissions.decorator';
 import { Permission } from '../../../shared/permissions';
@@ -45,9 +45,12 @@ export class PermissionsGuard implements CanActivate {
 
     for (const requirement of requiredPermissions) {
         if (typeof requirement === 'string') {
-            // It's a static permission string
             if (!user.permissions.includes(requirement)) {
-                throw new ForbiddenException(`Te falta el permiso: ${requirement}`);
+                // H-09 FIX: Never expose internal permission names in HTTP responses.
+                // Log the detail internally; return a generic message to the client
+                // (OWASP Error Handling Cheat Sheet; CWE-209).
+                this.logger.warn(`Permission denied: user=${user.id}, missing=${requirement}`);
+                throw new ForbiddenException('No tienes permisos para realizar esta acción.');
             }
         } else if (typeof requirement === 'function') { // It's a Class (Constructor)
              try {

@@ -1,5 +1,5 @@
 
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Req, UseFilters, ParseUUIDPipe, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, UseFilters, ParseUUIDPipe, UseInterceptors, UploadedFile, BadRequestException, HttpCode, HttpStatus } from '@nestjs/common';
 import { CsrfGuard } from '../auth/guards/csrf.guard';
 import { TwoFactorVerifiedGuard } from '../auth/guards/two-factor-verified.guard';
 import { PERMISSIONS } from '../shared/permissions';
@@ -14,6 +14,7 @@ import { UsersService } from './users.service';
 import { InviteUserDto } from './entities/user.entity/invite-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { RequestEmailChangeDto, ConfirmEmailChangeDto } from './dto/email-change.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { PermissionsGuard } from '../auth/guards/permissions/permissions.guard';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
@@ -111,6 +112,34 @@ export class UsersController {
     return plainToInstance(UserResponseDto, updatedUser, { excludeExtraneousValues: true });
   }
 
+  // ------------------------------------------------------------------
+  // H-01 FIX: Secure email-change flow (step-up + confirmation token)
+  // ------------------------------------------------------------------
+
+  @Post('profile/email-change/request')
+  @UseGuards(CsrfGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Request an email change — requires current password as step-up' })
+  async requestEmailChange(
+    @CurrentUser() user: User,
+    @Body() dto: RequestEmailChangeDto,
+  ) {
+    await this.usersService.requestEmailChange(user.id, dto);
+    return { message: 'Si los datos son correctos, se ha enviado un enlace de confirmación al nuevo correo.' };
+  }
+
+  @Post('profile/email-change/confirm')
+  @UseGuards(CsrfGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Confirm email change via token' })
+  async confirmEmailChange(
+    @CurrentUser() user: User,
+    @Body() dto: ConfirmEmailChangeDto,
+  ) {
+    await this.usersService.confirmEmailChange(user.id, dto);
+    return { message: 'Correo electrónico actualizado. Tu sesión se ha invalidado por seguridad.' };
+  }
+
   @Post('profile/avatar')
   @UseGuards(ThrottlerGuard, CsrfGuard)
   @ApiOperation({ summary: 'Upload avatar for current user' })
@@ -201,8 +230,12 @@ export class UsersController {
 
   @Get(':id/activity')
   @HasPermission(PERMISSIONS.USERS_VIEW)
-  async getActivityLog(@Param('id', ParseUUIDPipe) id: string) {
-      return this.usersService.getActivityLog(id);
+  async getActivityLog(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+    // H-11 FIX: Scope the activity log query to the caller's organization.
+    // Without this, a privileged user could query another tenant's activity by
+    // substituting a cross-org userId (OWASP API1 Broken Object Level Authorization;
+    // CWE-639 Authorization Bypass Through User-Controlled Key).
+    return this.usersService.getActivityLog(id, user.organizationId);
   }
 
   @Post(':id/force-logout')

@@ -100,6 +100,26 @@ export class MailService {
     });
   }
 
+  // H-01 FIX: Sends a confirmation link to the *new* address before the change is applied.
+  // The token is a 32-byte hex nonce — SHA-256 hash is stored in DB, raw value in link.
+  async sendEmailChangeConfirmation(newEmail: string, rawToken: string, firstName: string) {
+    const frontendUrl = this.configService.getOrThrow<string>('FRONTEND_URL');
+    const confirmUrl = `${frontendUrl}/settings/email-change/confirm?token=${rawToken}`;
+
+    await this.mailerService.sendMail({
+      to: newEmail,
+      subject: 'Confirma tu nuevo correo electrónico',
+      template: './email-change-confirm',
+      context: {
+        name: firstName || 'Usuario',
+        confirmUrl,
+        expiresMinutes: 15,
+        appName: this.configService.get<string>('APP_NAME', 'Virteex ERP'),
+        currentYear: new Date().getFullYear(),
+      },
+    });
+  }
+
   async sendRegistrationEmailVerification(
     email: string,
     code: string,

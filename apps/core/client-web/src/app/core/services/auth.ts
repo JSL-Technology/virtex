@@ -219,11 +219,9 @@ export class AuthService {
   }
 
   createCheckoutSession(planId: string): Observable<{ url: string }> {
-    return this.http.post<{ url: string }>(`${this.apiUrl}/create-checkout-session`, {
-      planId,
-      successUrl: `${window.location.origin}/dashboard`,
-      cancelUrl: `${window.location.origin}/auth/register`
-    }, { withCredentials: true });
+    // H-02 FIX: Send only planId. successUrl/cancelUrl are now built server-side
+    // from FRONTEND_URL so the backend controls redirect destinations (CWE-601).
+    return this.http.post<{ url: string }>(`${this.apiUrl}/create-checkout-session`, { planId }, { withCredentials: true });
   }
 
   enable2fa(token: string): Observable<any> {

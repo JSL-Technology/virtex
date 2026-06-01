@@ -508,12 +508,19 @@ export class AuthController {
       throw new BadRequestException('Plan does not have a price ID');
     }
 
+    // H-02 FIX: Build redirect URLs server-side from FRONTEND_URL.
+    // Never pass client-supplied URLs to Stripe — the backend must control
+    // where users land after checkout (CWE-601; OWASP Unvalidated Redirects).
+    const frontendUrl = this.configService.getOrThrow<string>('FRONTEND_URL');
+    const successUrl = new URL('/dashboard', frontendUrl).toString();
+    const cancelUrl = new URL('/auth/register', frontendUrl).toString();
+
     return this.paymentService.createCheckoutSession(
       user.organizationId,
       user.email,
       priceId,
-      body.successUrl,
-      body.cancelUrl
+      successUrl,
+      cancelUrl
     );
   }
 

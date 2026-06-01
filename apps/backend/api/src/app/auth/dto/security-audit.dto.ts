@@ -1,4 +1,4 @@
-import { IsString, Length, IsJWT, IsEnum, IsUrl, Matches, IsObject } from 'class-validator';
+import { IsString, Length, IsJWT, IsEnum, IsObject } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { VerificationType } from '../entities/verification-code.entity';
 
@@ -31,19 +31,15 @@ export class VerifyPublicCodeDto extends SendPublicVerificationDto {
   code!: string;
 }
 
+// H-02 FIX: Accept only planId — never trust client-supplied redirect URLs.
+// successUrl/cancelUrl are built server-side from FRONTEND_URL so the backend
+// controls the redirect destination (OWASP Unvalidated Redirects and Forwards
+// Cheat Sheet; CWE-601 URL Redirection to Untrusted Site).
 export class CreateCheckoutSessionDto {
   @ApiProperty()
   @IsString()
   @Length(1, 80)
   planId!: string;
-
-  @ApiProperty()
-  @IsUrl({ require_tld: false })
-  successUrl!: string;
-
-  @ApiProperty()
-  @IsUrl({ require_tld: false })
-  cancelUrl!: string;
 }
 
 export class VerifyWebAuthnRegistrationDto {

@@ -152,6 +152,7 @@ import { AuthAuditListener } from './listeners/auth-audit.listener';
     AuthFacade,
     TwoFactorAuthService,
     PasswordRecoveryService,
+    PasswordService,
     WebAuthnService,
     ImpersonationService,
     PassportModule,

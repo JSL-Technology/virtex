@@ -266,16 +266,8 @@ export class RegisterPage implements OnInit {
   private handleEmailMagicLink(token: string) {
     this.authService.confirmEmailMagicLink(token).subscribe({
       next: (response) => {
-        const savedDraft = sessionStorage.getItem(FORM_DRAFT_KEY);
-        if (savedDraft) {
-          try {
-            const draft = JSON.parse(savedDraft);
-            this.registerForm.patchValue({ accountInfo: draft });
-          } catch {
-            // ignore parse errors
-          }
-          sessionStorage.removeItem(FORM_DRAFT_KEY);
-        }
+        // H-08 FIX: The draft no longer stores PII — just clear the position marker.
+        sessionStorage.removeItem(FORM_DRAFT_KEY);
 
         this.registerForm.get('accountInfo.emailCode')?.setValue(response.preVerifiedToken);
         this.emailVerified.set(true);
@@ -367,15 +359,16 @@ export class RegisterPage implements OnInit {
       }
     }
 
-    // Save form draft before moving to email verification (step 2)
+    // H-08 FIX: Do NOT store PII (name, email, phone) in sessionStorage.
+    // sessionStorage is readable by any JS running in the same origin, making it
+    // an XSS exfiltration target for PII (OWASP HTML5 Security Cheat Sheet;
+    // GDPR data minimisation; CWE-922). Save only the step marker so the magic-
+    // link callback can restore position without exposing personal data.
     if (this.currentStep() === 1) {
-      const v = this.registerForm.get('accountInfo')?.getRawValue();
-      if (v) {
-        sessionStorage.setItem(
-          FORM_DRAFT_KEY,
-          JSON.stringify({ firstName: v.firstName, lastName: v.lastName, email: v.email, phone: v.phone }),
-        );
-      }
+      sessionStorage.setItem(
+        FORM_DRAFT_KEY,
+        JSON.stringify({ step: this.currentStep(), savedAt: Date.now() }),
+      );
     }
 
     this.stepsCompleted.update((completed) => {

@@ -1,5 +1,5 @@
 
-import { Injectable, Inject, NotFoundException, BadRequestException, ForbiddenException, Logger } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, BadRequestException, ForbiddenException, Logger, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { User } from './entities/user.entity/user.entity';
@@ -8,10 +8,12 @@ import { Organization } from '../organizations/entities/organization.entity';
 import { InviteUserDto } from './entities/user.entity/invite-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { RequestEmailChangeDto, ConfirmEmailChangeDto } from './dto/email-change.dto';
 import { MailService } from '../mail/mail.service';
 import { RolesService } from '../roles/roles.service';
 import * as crypto from 'crypto';
 import { UserCacheService } from '../auth/modules/user-cache.service';
+import { PasswordService } from '../auth/services/password.service';
 import { UserSecurity } from './entities/user-security.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SaasService } from '../saas/saas.service';
@@ -29,6 +31,7 @@ export class UsersService {
     private readonly rolesService: RolesService,
     private readonly mailService: MailService,
     private readonly userCacheService: UserCacheService,
+    private readonly passwordService: PasswordService,
     private readonly eventEmitter: EventEmitter2,
     private readonly saasService: SaasService,
     private readonly dataSource: DataSource
@@ -37,11 +40,8 @@ export class UsersService {
   async updateProfile(id: string, updateProfileDto: UpdateProfileDto): Promise<User> {
     const user = await this.findOne(id);
 
-    // Security: Reset verification flags if sensitive data changes
-    if (updateProfileDto.email && updateProfileDto.email !== user.email) {
-      user.isEmailVerified = false;
-    }
-
+    // H-01 FIX: email is no longer part of UpdateProfileDto — the ValidationPipe
+    // (whitelist:true) strips it. Phone changes still reset the verified flag.
     if (updateProfileDto.phone && updateProfileDto.phone !== user.phone) {
       user.isPhoneVerified = false;
     }
@@ -264,7 +264,79 @@ export class UsersService {
     }
   }
 
-  async getActivityLog(userId: string): Promise<any[]> {
+  // -----------------------------------------------------------------------
+  // H-01 FIX: Secure email-change flow
+  // Requires step-up (current password) + confirmation token sent to new address.
+  // The live email is never updated until the user clicks the link.
+  // Sessions are invalidated after the switch so stolen tokens cannot persist.
+  // (OWASP ASVS V2/V3; OWASP Forgot Password Cheat Sheet; CWE-620/CWE-287)
+  // -----------------------------------------------------------------------
+
+  async requestEmailChange(userId: string, dto: RequestEmailChangeDto): Promise<void> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['security'],
+    });
+    if (!user || !user.security?.passwordHash) throw new UnauthorizedException();
+
+    const passwordValid = await this.passwordService.verify(user.security.passwordHash, dto.currentPassword);
+    if (!passwordValid) throw new UnauthorizedException('Credenciales incorrectas.');
+
+    const conflict = await this.userRepository.findOne({ where: { email: dto.newEmail } });
+    if (conflict) {
+      // Return generic message to avoid leaking email enumeration
+      throw new BadRequestException('No se pudo completar el cambio de correo electrónico.');
+    }
+
+    const raw = crypto.randomBytes(32).toString('hex');
+    user.security.emailChangeToken = crypto.createHash('sha256').update(raw).digest('hex');
+    user.security.emailChangeTarget = dto.newEmail;
+    user.security.emailChangeExpires = new Date(Date.now() + 15 * 60_000); // 15 min TTL
+    await this.userRepository.save(user);
+
+    await this.mailService.sendEmailChangeConfirmation(dto.newEmail, raw, user.firstName);
+  }
+
+  async confirmEmailChange(userId: string, dto: ConfirmEmailChangeDto): Promise<void> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['security'],
+    });
+
+    if (
+      !user?.security?.emailChangeToken ||
+      !user.security.emailChangeTarget ||
+      !user.security.emailChangeExpires
+    ) {
+      throw new BadRequestException('No hay ningún cambio de correo pendiente.');
+    }
+
+    if (user.security.emailChangeExpires < new Date()) {
+      throw new BadRequestException('El enlace de confirmación ha expirado. Solicita uno nuevo.');
+    }
+
+    const tokenHash = crypto.createHash('sha256').update(dto.token).digest('hex');
+    const stored = Buffer.from(user.security.emailChangeToken);
+    const supplied = Buffer.from(tokenHash);
+    if (stored.length !== supplied.length || !crypto.timingSafeEqual(stored, supplied)) {
+      throw new BadRequestException('Token de confirmación inválido.');
+    }
+
+    user.email = user.security.emailChangeTarget;
+    user.isEmailVerified = true;
+    user.security.emailChangeToken = null;
+    user.security.emailChangeTarget = null;
+    user.security.emailChangeExpires = null;
+    user.security.tokenVersion = (user.security.tokenVersion || 0) + 1;
+
+    await this.userRepository.save(user);
+    await this.userCacheService.clearUserSession(userId);
+  }
+
+  async getActivityLog(userId: string, organizationId: string): Promise<any[]> {
+    // H-11 FIX: Verify the target user belongs to the caller's org before returning
+    // any data. This prevents cross-tenant IDOR when real audit data is added.
+    await this.findOneByOrg(userId, organizationId);
     return [];
   }
 

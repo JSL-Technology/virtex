@@ -22,10 +22,11 @@ export class UpdateProfileDto {
   @MaxLength(150)
   jobTitle?: string;
 
-  @IsOptional()
-  @IsEmail()
-  @MaxLength(254)
-  email?: string;
+  // H-01 FIX: Email cannot be changed through the generic profile update.
+  // Use POST /users/profile/email-change/request + confirm flow instead.
+  // The field is intentionally omitted so the ValidationPipe (whitelist: true)
+  // strips it from any incoming payload before it reaches the service.
+  // (OWASP ASVS V2 Authentication; CWE-620 Unverified Password Change)
 
   // H-16 FIX: Constrain preferredLanguage to BCP-47 language tags (e.g. "en", "es", "en-US")
   // and avatarUrl to a valid HTTPS URL with a reasonable length cap

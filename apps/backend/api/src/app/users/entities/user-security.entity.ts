@@ -59,6 +59,18 @@ export class UserSecurity {
   @Column('jsonb', { name: 'backup_codes', nullable: true })
   backupCodes?: string[];
 
+  // H-01 FIX: Email-change confirmation fields.
+  // The new email is never applied directly — it's stored here pending token
+  // verification, then swapped in one atomic operation that also bumps tokenVersion.
+  @Column({ name: 'email_change_token', type: 'varchar', nullable: true })
+  emailChangeToken?: string | null;
+
+  @Column({ name: 'email_change_target', type: 'varchar', length: 254, nullable: true })
+  emailChangeTarget?: string | null;
+
+  @Column({ name: 'email_change_expires', type: 'timestamptz', nullable: true })
+  emailChangeExpires?: Date | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 

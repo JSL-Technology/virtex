@@ -68,6 +68,9 @@ export class SecuritySettingsComponent implements OnInit {
   qrCodeData = signal<string>('');
   twoFactorSecret = signal<string>('');
   verificationCode = signal('');
+  // H-05 FIX: Collect the user's current password for the step-up check that
+  // the backend requires before enabling 2FA (OWASP ASVS 2.2.2; CWE-306).
+  stepUpPassword = signal('');
 
   // Step 3: Backup Codes
   backupCodes = signal<string[]>([]);
@@ -111,6 +114,7 @@ export class SecuritySettingsComponent implements OnInit {
     this.showSetupModal.set(false);
     this.emailCode.set('');
     this.verificationCode.set('');
+    this.stepUpPassword.set('');
     this.backupCodes.set([]);
     this.hasSavedBackupCodes.set(false);
   }
@@ -171,9 +175,16 @@ export class SecuritySettingsComponent implements OnInit {
 
   verifyAndEnable2fa(code?: string) {
     const finalCode = code || this.verificationCode();
+    const password = this.stepUpPassword();
     if (!finalCode || finalCode.length < 6) return;
+    if (!password) {
+      this.notificationService.showError('SETTINGS.SECURITY.ERRORS.PASSWORD_REQUIRED');
+      return;
+    }
 
-    this.securityService.enable2fa(finalCode)
+    // H-05 FIX: Send currentPassword for step-up; backend verifies it with Argon2
+    // before enabling 2FA (OWASP ASVS 2.2.2; CWE-306).
+    this.securityService.enable2fa(finalCode, password)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
