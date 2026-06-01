@@ -1,5 +1,5 @@
 
-import { Injectable, Inject, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, BadRequestException, ForbiddenException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { User } from './entities/user.entity/user.entity';
@@ -19,6 +19,8 @@ import { SaasResource } from '../saas/enums/saas-resource.enum';
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -181,6 +183,18 @@ export class UsersService {
     return user;
   }
 
+  // H2 FIX: org-scoped findOne prevents IDOR cross-tenant reads.
+  async findOneByOrg(id: string, organizationId: string): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { id: id as any, organizationId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+    return user;
+  }
+
   async findOneByEmail(email: string): Promise<User | null> {
     const user = await this.userRepository.findOne({
       where: { email },
@@ -239,10 +253,8 @@ export class UsersService {
     try {
       await this.mailService.sendPasswordResetEmail(user, resetToken, '1h');
     } catch (error) {
-      console.error(
-        `Failed to send password reset email to ${user.email}`,
-        error,
-      );
+      // H14 FIX: Do not log email in plain. Use structured logging without PII.
+      this.logger.error({ event: 'password_reset_email_failed', userId: user.id }, 'Failed to send password reset email');
 
       user.security.passwordResetToken = null;
       user.security.passwordResetExpires = null;
@@ -346,8 +358,9 @@ export class UsersService {
     this.eventEmitter.emit('user.admin.email-changed', { userId, oldEmail, newEmail, organizationId });
   }
 
-  async forceLogout(userId: string): Promise<{ message: string }> {
-    const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['security'] });
+  async forceLogout(userId: string, organizationId?: string): Promise<{ message: string }> {
+    const where = organizationId ? { id: userId, organizationId } : { id: userId };
+    const user = await this.userRepository.findOne({ where, relations: ['security'] });
     if (!user) {
       throw new NotFoundException('Usuario no encontrado');
     }

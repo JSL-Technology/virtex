@@ -1,5 +1,5 @@
 
-import { Controller, Post, Body, HttpCode, HttpStatus, Res, Get, UseGuards, Req, UsePipes, ValidationPipe, BadRequestException, UnauthorizedException, Param, Ip, Headers, Query, UseFilters, Header, SetMetadata } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Res, Get, UseGuards, Req, UsePipes, ValidationPipe, BadRequestException, UnauthorizedException, Param, Ip, Headers, UseFilters, Header, SetMetadata } from '@nestjs/common';
 import type { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { AuthFacade } from './auth.facade';
@@ -34,6 +34,7 @@ import { plainToInstance } from 'class-transformer';
 import { AuthGuard } from '@nestjs/passport';
 import { EnableTwoFactorDto } from './dto/enable-2fa.dto';
 import { CsrfGuard } from './guards/csrf.guard';
+import { VerifyWebAuthnRegistrationDto, VerifyWebAuthnAuthenticationDto } from './dto/webauthn.dto';
 import { MfaOrchestratorService } from './services/mfa-orchestrator.service';
 import { JwtService } from '@nestjs/jwt';
 import { TwoFactorVerifiedGuard } from './guards/two-factor-verified.guard';
@@ -115,18 +116,14 @@ export class AuthController {
 
   @Get('social-register-info')
   @ApiOperation({ summary: 'Decode social register token to pre-fill form' })
-  async getSocialRegisterInfo(@Query('token') token: string, @Req() req: Request) {
-      let tokenToUse = token;
-
-      // Fallback to cookie if token not in query (for the new secure flow)
-      if (!tokenToUse) {
-          tokenToUse = req.cookies['social_register_token'];
+  async getSocialRegisterInfo(@Req() req: Request) {
+      // H12 FIX: Read token only from httpOnly cookie; never accept it as a query parameter.
+      // Tokens in query strings leak into browser history, server logs, and Referer headers.
+      const token = req.cookies['social_register_token'];
+      if (!token) {
+          throw new BadRequestException('Token required');
       }
-
-      if (!tokenToUse) {
-          throw new BadRequestException('Token required (query or cookie)');
-      }
-      return this.authFacade.getSocialRegisterInfo(tokenToUse);
+      return this.authFacade.getSocialRegisterInfo(token);
   }
 
   @Post('register')
@@ -140,9 +137,16 @@ export class AuthController {
     @Ip() ip: string,
     @Headers('user-agent') userAgent: string
   ): Promise<AuthResponseDto> {
-    const { user, accessToken, refreshToken } =
-      await this.authFacade.register(registerUserDto, ip, userAgent);
+    const result = await this.authFacade.register(registerUserDto, ip, userAgent);
 
+    // H18 FIX: Honeypot returns a flag; do not set real cookies with fake tokens.
+    if ('honeypot' in result && result.honeypot) {
+      return {
+        user: plainToInstance(UserResponseDto, result.user, { excludeExtraneousValues: true }),
+      };
+    }
+
+    const { user, accessToken, refreshToken } = result as { user: any; accessToken: string; refreshToken: string };
     this.cookieService.setAuthCookies(res, accessToken, refreshToken);
 
     return {
@@ -211,8 +215,10 @@ export class AuthController {
     return this.passwordRecoveryService.getInvitationDetails(token);
   }
 
-  @Get('refresh')
+  // H5 FIX: Refresh rotates tokens (state-changing); must be POST, not GET, and require CSRF.
+  @Post('refresh')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(CsrfGuard)
   @ApiResponse({ type: AuthResponseDto })
   async refresh(
     @Req() req: Request,
@@ -450,7 +456,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Verify WebAuthn registration' })
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
-  async verifyWebAuthnRegistration(@CurrentUser() user: User, @Body() body: any) {
+  async verifyWebAuthnRegistration(@CurrentUser() user: User, @Body() body: VerifyWebAuthnRegistrationDto) {
     return this.webAuthnService.verifyRegistration(user, body);
   }
 
@@ -465,7 +471,7 @@ export class AuthController {
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
   @UseGuards(CsrfGuard)
   async verifyWebAuthnAuthentication(
-    @Body() body: any,
+    @Body() body: VerifyWebAuthnAuthenticationDto,
     @Res({ passthrough: true }) res: Response
   ) {
     const result = await this.webAuthnService.verifyAuthentication(body);

@@ -241,11 +241,10 @@ export class RegisterPage implements OnInit {
 
     // Manejo de tokens de invitación/social
     this.activatedRoute.queryParams.subscribe((params) => {
-      const token = params['token'];
       const socialRegistration = params['social_registration'];
-      if (token || socialRegistration === 'true') {
-        const tokenToUse = token || '';
-        this.authService.getSocialRegisterInfo(tokenToUse).subscribe({
+      // H12 FIX: Token is no longer passed as query param; backend reads it from httpOnly cookie.
+      if (socialRegistration === 'true') {
+        this.authService.getSocialRegisterInfo().subscribe({
           next: (info) => {
             this.registerForm.patchValue({
               accountInfo: {

@@ -7,10 +7,16 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { CookieService } from '../services/cookie.service';
 
+// H10 FIX: Signed double-submit CSRF validation.
+// The cookie contains nonce.HMAC(secret, nonce). The guard recomputes the HMAC and compares
+// with timing-safe equality, preventing subdomain cookie injection attacks.
 @Injectable()
 export class CsrfGuard implements CanActivate {
   private readonly logger = new Logger(CsrfGuard.name);
+
+  constructor(private readonly cookieService: CookieService) {}
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<Request>();
@@ -21,21 +27,16 @@ export class CsrfGuard implements CanActivate {
       return true;
     }
 
-    // Check custom header X-XSRF-TOKEN
-    const xsrfToken = request.headers['x-xsrf-token'];
+    const tokenFromHeader = request.headers['x-xsrf-token'] as string | undefined;
+    const tokenFromCookie = request.cookies['XSRF-TOKEN'] as string | undefined;
 
-    // In a Double Submit Cookie pattern, the client reads the XSRF-TOKEN cookie
-    // and sends it back in the X-XSRF-TOKEN header.
-    // The server verifies that the cookie matches the header.
+    if (!tokenFromHeader || !tokenFromCookie || tokenFromHeader !== tokenFromCookie) {
+      this.logger.warn({ event: 'csrf_mismatch', method, url: request.url }, '[SECURITY] CSRF token header/cookie mismatch');
+      throw new ForbiddenException('Invalid CSRF Token');
+    }
 
-    // Note: Since cookies are not readable by JS if HttpOnly is true,
-    // we must ensure the XSRF-TOKEN cookie is NOT HttpOnly.
-    // The actual authentication session cookie IS HttpOnly.
-
-    const xsrfCookie = request.cookies['XSRF-TOKEN'];
-
-    if (!xsrfToken || !xsrfCookie || xsrfToken !== xsrfCookie) {
-      this.logger.warn(`[SECURITY] CSRF Token Mismatch or Missing. Method: ${method}, URL: ${request.url}`);
+    if (!this.cookieService.verifyCsrfToken(tokenFromHeader)) {
+      this.logger.warn({ event: 'csrf_invalid_signature', method, url: request.url }, '[SECURITY] CSRF token signature invalid');
       throw new ForbiddenException('Invalid CSRF Token');
     }
 

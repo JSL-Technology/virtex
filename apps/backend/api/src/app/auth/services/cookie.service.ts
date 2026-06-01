@@ -20,7 +20,7 @@ export class CookieService {
     // We enforce HTTPOnly and Secure (in production).
     // SameSite=Lax is chosen over Strict to support OAuth redirection flows (Google/Microsoft),
     // which otherwise drop cookies on the callback POST/GET.
-    // CSRF is handled separately via Double Submit Cookie (XSRF-TOKEN).
+    // CSRF is handled separately via Signed Double Submit Cookie (XSRF-TOKEN).
     const cookieOptions = {
       httpOnly: true,
       secure: isProduction,
@@ -50,9 +50,11 @@ export class CookieService {
 
   setCsrfCookie(res: Response): void {
     const isProduction = this.configService.get('NODE_ENV') === 'production';
-    // CSRF Token (Readable by JS, not HttpOnly)
-    // 10/10 SECURITY: Use CSPRNG for CSRF token generation
-    const csrfToken = crypto.randomBytes(32).toString('hex');
+    // H10 FIX: Signed double-submit CSRF token.
+    // Format: nonce.HMAC(csrfSecret, nonce)
+    // This prevents subdomain cookie injection attacks because the attacker cannot forge the HMAC
+    // without knowing the server secret.
+    const csrfToken = this.generateSignedCsrfToken();
     res.cookie('XSRF-TOKEN', csrfToken, {
       secure: isProduction,
       sameSite: 'lax', // Must be readable on same site
@@ -60,6 +62,33 @@ export class CookieService {
       maxAge: AuthConfig.COOKIE_ACCESS_MAX_AGE,
       path: '/', // Explicitly set path to root so frontend can read it via document.cookie
     });
+  }
+
+  generateSignedCsrfToken(): string {
+    const nonce = crypto.randomBytes(32).toString('hex');
+    const secret = this.getCsrfSecret();
+    const sig = crypto.createHmac('sha256', secret).update(nonce).digest('hex');
+    return `${nonce}.${sig}`;
+  }
+
+  verifyCsrfToken(token: string): boolean {
+    const parts = token.split('.');
+    if (parts.length !== 2) return false;
+    const [nonce, sig] = parts;
+    const secret = this.getCsrfSecret();
+    const expected = crypto.createHmac('sha256', secret).update(nonce).digest('hex');
+    return crypto.timingSafeEqual(Buffer.from(sig, 'hex'), Buffer.from(expected, 'hex'));
+  }
+
+  private getCsrfSecret(): string {
+    const secret = this.configService.get<string>('CSRF_SECRET');
+    if (!secret) {
+      if (this.configService.get('NODE_ENV') === 'production') {
+        throw new Error('FATAL: CSRF_SECRET is required in production');
+      }
+      return 'dev-csrf-secret-change-in-production';
+    }
+    return secret;
   }
 
   setRegisterTokenCookie(res: Response, token: string): void {

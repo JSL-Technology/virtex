@@ -1,6 +1,21 @@
 
 import { ConfigService } from '@nestjs/config';
 
+// H6 FIX: Fail-fast for cryptographic secrets in production.
+// Prevents startup with weak/missing secrets that would allow token forgery.
+function requireSecret(name: string): string {
+  const value = process.env[name];
+  if (!value && process.env['NODE_ENV'] === 'production') {
+    throw new Error(`FATAL: ${name} is required in production but is not set.`);
+  }
+  if (value && /change_me|change-me|default|secret|insecure/i.test(value)) {
+    if (process.env['NODE_ENV'] === 'production') {
+      throw new Error(`FATAL: ${name} contains an insecure default value. Set a strong secret.`);
+    }
+  }
+  return value || '';
+}
+
 // Helper to convert time string to milliseconds
 export function parseDuration(duration: string): number {
   const match = /^(\d+)([mhd])$/i.exec(duration);
@@ -21,7 +36,7 @@ export const AuthConfig = {
   get JWT_REFRESH_EXPIRATION() { return process.env.JWT_REFRESH_EXPIRATION || '7d'; },
   get JWT_RESET_PASSWORD_EXPIRATION() { return process.env.JWT_RESET_PASSWORD_EXPIRATION || '15m'; },
   get JWT_REFRESH_REMEMBER_ME_EXPIRATION() { return process.env.JWT_REFRESH_REMEMBER_ME_EXPIRATION || '30d'; },
-  get JWT_2FA_TEMP_SECRET() { return process.env.JWT_2FA_TEMP_SECRET || 'temp_2fa_secret_change_me'; },
+  get JWT_2FA_TEMP_SECRET() { return requireSecret('JWT_2FA_TEMP_SECRET') || 'temp-2fa-dev-only'; },
 
   // Cookie Max Age (Milliseconds)
   get COOKIE_ACCESS_MAX_AGE() { return parseDuration(process.env.JWT_ACCESS_EXPIRATION || '15m'); },
@@ -41,6 +56,7 @@ export const AuthConfig = {
   get LOCKOUT_DURATION() { return parseDuration(process.env.AUTH_LOCKOUT_DURATION || '15m'); }, // Default 15m
 
   // Security
+  // H6: DUMMY_PASSWORD_HASH has a safe built-in default (just used for timing); no fail-fast needed.
   get DUMMY_PASSWORD_HASH() { return process.env.AUTH_DUMMY_PASSWORD_HASH || '$argon2id$v=19$m=65536,t=3,p=4$nQX58JdpAHj04FlImXHVGg$KqRBXlHTOlTtTorAd6friuDAvPPmpa+0E7cDUf/5p9I'; },
   get SIMULATED_DELAY_MS() { return parseInt(process.env.AUTH_SIMULATED_DELAY_MS || '500', 10); },
   get MFA_CODE_EXPIRATION() { return parseInt(process.env.AUTH_MFA_CODE_EXPIRATION || '300000', 10); }, // 5 mins

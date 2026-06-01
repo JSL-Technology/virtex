@@ -130,9 +130,8 @@ export class SessionService implements OnModuleInit {
               });
             }
           } else {
-            this.logger.warn(
-              `[SECURITY] Reuse detection: Refresh token ${payload.jti} was used but is revoked/missing. Invalidating user ${user.id}.`
-            );
+            // H14 FIX: Never log jti or userId in plain; use hashed prefix for correlation only.
+            this.logger.warn({ event: 'refresh_reuse', jtiPrefix: payload.jti?.substring(0, 8) }, '[SECURITY] Refresh token reuse detected — family invalidated');
 
             // 10/10 SECURITY: NUCLEAR FAMILY INVALIDATION
             // When a revoked token is reused (outside grace period), we assume the token family is compromised.
@@ -169,30 +168,23 @@ export class SessionService implements OnModuleInit {
             const isOSMatch = storedUA.os === currentUA.os;
 
             if (!isBrowserMatch || !isOSMatch) {
-              this.logger.warn(
-                `[SECURITY] User Agent mismatch detected (OS/Browser changed). Stored: '${refreshTokenEntity.userAgent}', Current: '${userAgent}'. Potential session hijacking.`
-              );
+              // H14 FIX: Log browser/OS summary only; never log full UA strings.
+              this.logger.warn({ event: 'ua_mismatch', stored: storedUA.browser, current: currentUA.browser }, '[SECURITY] User Agent mismatch detected');
               throw new UnauthorizedException(
                 AuthError.DEVICE_MISMATCH
               );
             } else {
-              this.logger.warn(
-                `[SECURITY] Minor User Agent change detected (likely update). Stored: '${refreshTokenEntity.userAgent}', Current: '${userAgent}'. Allowing.`
-              );
+              this.logger.log({ event: 'ua_minor_change', browser: storedUA.browser }, '[SECURITY] Minor User Agent change detected (likely update)');
             }
           }
 
+          // H9: ipAddress column now stores masked IP; compare masked values.
           if (
             refreshTokenEntity.ipAddress &&
             ipAddress &&
-            refreshTokenEntity.ipAddress !== ipAddress
+            refreshTokenEntity.ipAddress !== this.maskIp(ipAddress)
           ) {
-            // Mask IP in logs
-            const maskedIp = this.maskIp(refreshTokenEntity.ipAddress);
-            const maskedNewIp = this.maskIp(ipAddress);
-            this.logger.log(
-              `[SECURITY] IP Change for Refresh: ${maskedIp} -> ${maskedNewIp}`
-            );
+            this.logger.log({ event: 'ip_change', from: refreshTokenEntity.ipAddress, to: this.maskIp(ipAddress) }, '[SECURITY] IP Change for Refresh');
           }
 
           refreshTokenEntity.isRevoked = true;
@@ -216,9 +208,10 @@ export class SessionService implements OnModuleInit {
       };
 
       if (ipAddress) {
-          const encryptedIp = this.encryptIp(ipAddress);
-          updateData.encryptedIp = encryptedIp;
-          
+          // H9: Store masked IP for display, encrypted IP for forensics.
+          updateData.ipAddress = this.maskIp(ipAddress);
+          updateData.encryptedIp = this.encryptIp(ipAddress);
+
           const location = this.geoService.getLocation(ipAddress);
           if (location) {
              updateData.country = location.country;
@@ -274,10 +267,10 @@ export class SessionService implements OnModuleInit {
       order: { lastActiveAt: 'DESC', createdAt: 'DESC' },
     });
 
+    // H9 FIX: Return masked IP only; never expose plain IP to the client.
     return sessions.map((session) => ({
       id: session.id,
-      ipAddress: session.ipAddress,
-      userAgent: session.userAgent,
+      ipAddress: session.ipAddress ? this.maskIp(session.ipAddress) : null,
       browser: session.browser,
       os: session.os,
       deviceType: session.deviceType,
@@ -287,9 +280,6 @@ export class SessionService implements OnModuleInit {
       isCurrent: currentRefreshTokenId ? session.id === currentRefreshTokenId : false,
       country: session.country,
       city: session.city,
-      region: session.region,
-      latitude: session.latitude,
-      longitude: session.longitude,
     }));
   }
 
@@ -322,13 +312,12 @@ export class SessionService implements OnModuleInit {
     );
   }
 
-  async terminateCurrentSession(userId: string, sessionId?: string): Promise<void> {
-    if (sessionId) {
-      await this.refreshTokenRepository.update(
-        { id: sessionId, userId },
-        { isRevoked: true, revokedAt: new Date() },
-      );
-    }
+  // H4 FIX: sessionId is required; without it, the refresh token is not revoked on logout.
+  async terminateCurrentSession(userId: string, sessionId: string): Promise<void> {
+    await this.refreshTokenRepository.update(
+      { id: sessionId, userId },
+      { isRevoked: true, revokedAt: new Date() },
+    );
     await this.userCacheService.clearUserSession(userId);
   }
 

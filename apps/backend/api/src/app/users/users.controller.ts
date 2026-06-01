@@ -18,6 +18,7 @@ import { TwoFactorVerifiedGuard } from '../auth/guards/two-factor-verified.guard
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User, UserStatus } from './entities/user.entity/user.entity';
+import { PERMISSIONS } from '../shared/permissions';
 import { UserResponseDto } from '../auth/dto/user-response.dto';
 import { plainToInstance } from 'class-transformer';
 import { CheckPermissions } from '../auth/decorators/check-permissions.decorator';
@@ -43,7 +44,8 @@ export class UsersController {
   }
 
   @Post('invite')
-  @HasPermission('users.create')
+  @UseGuards(CsrfGuard)
+  @HasPermission(PERMISSIONS.USERS_CREATE)
   @ApiOperation({ summary: 'Invite a new user to the organization' })
   async inviteUser(
     @Body() inviteUserDto: InviteUserDto,
@@ -57,7 +59,7 @@ export class UsersController {
   }
 
   @Get()
-  @HasPermission('users.view')
+  @HasPermission(PERMISSIONS.USERS_VIEW)
   @ApiOperation({ summary: 'List users in organization' })
   async findAll(
     @CurrentUser() user: User,
@@ -140,16 +142,17 @@ export class UsersController {
   }
 
   @Get(':id')
-  @HasPermission('users.view')
+  @HasPermission(PERMISSIONS.USERS_VIEW)
   @ApiOperation({ summary: 'Get user by ID' })
   async findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
-    // Ideally ensure user belongs to same org
-    const foundUser = await this.usersService.findOne(id);
+    // H2 FIX: Scope query to current user's organization to prevent IDOR cross-tenant reads.
+    const foundUser = await this.usersService.findOneByOrg(id, user.organizationId);
     return plainToInstance(UserResponseDto, foundUser, { excludeExtraneousValues: true });
   }
 
   @Patch(':id')
-  @HasPermission('users.edit')
+  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+  @HasPermission(PERMISSIONS.USERS_EDIT)
   @ApiOperation({ summary: 'Update user (Admin)' })
   async update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -165,7 +168,8 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @HasPermission('users.delete')
+  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+  @HasPermission(PERMISSIONS.USERS_DELETE)
   @CheckPermissions(IsOrganizationOwner)
   @ApiOperation({ summary: 'Remove user' })
   async remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
@@ -173,7 +177,8 @@ export class UsersController {
   }
 
   @Patch(':id/status')
-  @HasPermission('users.edit')
+  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+  @HasPermission(PERMISSIONS.USERS_MANAGE_STATUS)
   async updateStatus(
       @Param('id', ParseUUIDPipe) id: string,
       @Body('status') status: UserStatus,
@@ -184,7 +189,8 @@ export class UsersController {
   }
 
   @Post(':id/reset-password')
-  @HasPermission('users.edit')
+  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+  @HasPermission(PERMISSIONS.USERS_EDIT)
   async resetPassword(
       @Param('id', ParseUUIDPipe) id: string,
       @CurrentUser() user: User
@@ -194,15 +200,16 @@ export class UsersController {
   }
 
   @Get(':id/activity')
-  @HasPermission('users.view')
+  @HasPermission(PERMISSIONS.USERS_VIEW)
   async getActivityLog(@Param('id', ParseUUIDPipe) id: string) {
       return this.usersService.getActivityLog(id);
   }
 
   @Post(':id/force-logout')
-  @HasPermission('users.edit')
-  async forceLogout(@Param('id', ParseUUIDPipe) id: string) {
-      return this.usersService.forceLogout(id);
+  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+  @HasPermission(PERMISSIONS.USERS_EDIT)
+  async forceLogout(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+      return this.usersService.forceLogout(id, user.organizationId);
   }
 
   @Post(':id/email-change')

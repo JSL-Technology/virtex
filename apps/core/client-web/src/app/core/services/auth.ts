@@ -117,9 +117,10 @@ export class AuthService {
    * Refresca el token de acceso utilizando el token de refresco (almacenado en una cookie segura).
    * @returns Un observable que, al completarse, actualiza el estado de autenticación.
    */
+  // H5 FIX: Refresh must be POST (state-changing) — backend now requires POST + CSRF.
   refreshAccessToken(): Observable<LoginResponse> {
     return this.http
-      .get<LoginResponse>(`${this.apiUrl}/refresh`, {
+      .post<LoginResponse>(`${this.apiUrl}/refresh`, {}, {
         withCredentials: true,
         context: new HttpContext().set(IS_PUBLIC_API, true)
       })
@@ -247,8 +248,10 @@ export class AuthService {
     );
   }
 
-  getSocialRegisterInfo(token: string): Observable<any> {
-      return this.http.get(`${this.apiUrl}/social-register-info?token=${token}`, {
+  // H12 FIX: Token is now read from httpOnly cookie by the backend; do not pass it as a query param.
+  getSocialRegisterInfo(): Observable<any> {
+      return this.http.get(`${this.apiUrl}/social-register-info`, {
+          withCredentials: true,
           context: new HttpContext().set(IS_PUBLIC_API, true)
       });
   }
@@ -435,8 +438,9 @@ export class AuthService {
    * Invita a un nuevo usuario al sistema.
    */
   inviteUser(payload: UserPayload): Observable<User> {
-    // Nota: El backend creará este usuario con estado 'PENDING'.
-    return this.http.post<User>(`${this.apiUrl}/invite`, payload);
+    // H16 FIX: Backend exposes /users/invite, not /auth/invite.
+    const usersUrl = this.apiUrl.replace('/auth', '/users');
+    return this.http.post<User>(`${usersUrl}/invite`, payload);
   }
 
   /**

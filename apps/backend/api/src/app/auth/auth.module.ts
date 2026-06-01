@@ -51,6 +51,7 @@ import { RegistrationStrategyFactory } from './strategies/registration/registrat
 import { DoRegistrationStrategy } from './strategies/registration/do-registration.strategy';
 import { UsRegistrationStrategy } from './strategies/registration/us-registration.strategy';
 import { AuthAuditListener } from './listeners/auth-audit.listener';
+import { CsrfGuard } from './guards/csrf.guard';
 
 @Module({
   imports: [
@@ -133,6 +134,7 @@ import { AuthAuditListener } from './listeners/auth-audit.listener';
     DoRegistrationStrategy,
     UsRegistrationStrategy,
     AuthAuditListener,
+    CsrfGuard,
     {
       provide: AbstractSmsProvider,
       useClass: TwilioSmsProvider
@@ -152,7 +154,8 @@ import { AuthAuditListener } from './listeners/auth-audit.listener';
     SocialAuthService,
     MfaOrchestratorService,
     UserCacheModule,
-    SessionService
+    SessionService,
+    CsrfGuard,
   ],
 })
 export class AuthModule {}

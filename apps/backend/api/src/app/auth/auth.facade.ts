@@ -31,20 +31,17 @@ export class AuthFacade {
   }
 
   async register(registerUserDto: RegisterUserDto, ip?: string, userAgent?: string) {
-    // Honeypot check
+    // H18 FIX: Honeypot silent fail — return a flag without fake tokens.
+    // Setting fake tokens as cookies pollutes the client state and can confuse telemetry/UX.
     if (registerUserDto.fax) {
-      // 10/10 SECURITY: Honeypot Silent Fail
-      // Return a fake success response to the bot.
-      // Do NOT throw error, or the bot knows it failed.
       return {
-          user: {
-             id: 'fake-id',
-             email: registerUserDto.email,
-             firstName: registerUserDto.firstName,
-             lastName: registerUserDto.lastName,
-          } as any,
-          accessToken: 'fake-jwt',
-          refreshToken: 'fake-refresh-token'
+        honeypot: true,
+        user: {
+          id: 'fake-id',
+          email: registerUserDto.email,
+          firstName: registerUserDto.firstName,
+          lastName: registerUserDto.lastName,
+        } as any,
       };
     }
 

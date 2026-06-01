@@ -6,6 +6,7 @@ import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { UserCacheService } from '../auth/modules/user-cache.service';
 import { User } from '../users/entities/user.entity/user.entity';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Injectable()
 export class RolesService {
@@ -27,7 +28,26 @@ export class RolesService {
         return role;
     }
 
-    create(createRoleDto: CreateRoleDto, organizationId: string): Promise<Role> {
+    // H8 FIX: Assert that the actor can only assign permissions they already hold (no privilege escalation).
+    private assertAssignablePermissions(actor: AuthenticatedUser, permissions: string[]): void {
+        const actorPermissions = actor.permissions || [];
+        const isWildcard = actorPermissions.includes('*');
+        if (permissions.includes('*')) {
+            throw new ForbiddenException('Wildcard permission (*) cannot be delegated to roles.');
+        }
+        if (!isWildcard) {
+            for (const p of permissions) {
+                if (!actorPermissions.includes(p)) {
+                    throw new ForbiddenException(`You cannot assign permission "${p}" that you do not hold.`);
+                }
+            }
+        }
+    }
+
+    create(createRoleDto: CreateRoleDto, organizationId: string, actor?: AuthenticatedUser): Promise<Role> {
+        if (actor && createRoleDto.permissions) {
+            this.assertAssignablePermissions(actor, createRoleDto.permissions);
+        }
         const role = this.roleRepository.create({ ...createRoleDto, organizationId });
         return this.roleRepository.save(role);
     }
@@ -48,10 +68,13 @@ export class RolesService {
         return this.create(newRoleDto, organizationId);
     }
 
-    async update(id: string, updateRoleDto: UpdateRoleDto, organizationId: string): Promise<Role> {
+    async update(id: string, updateRoleDto: UpdateRoleDto, organizationId: string, actor?: AuthenticatedUser): Promise<Role> {
         const role = await this.findOne(id, organizationId);
         if (role.isSystemRole) {
             throw new ForbiddenException('Los roles del sistema no pueden ser modificados.');
+        }
+        if (actor && updateRoleDto.permissions) {
+            this.assertAssignablePermissions(actor, updateRoleDto.permissions);
         }
         Object.assign(role, updateRoleDto);
 

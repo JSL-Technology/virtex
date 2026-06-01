@@ -30,18 +30,32 @@ async function bootstrap() {
   app.useLogger(app.get(Logger));
   const configService = app.get(ConfigService);
 
-  // Security Headers using Fastify Helmet
+  const isProduction = configService.get('NODE_ENV') === 'production';
+
+  // H17 FIX: Harden security headers.
+  // Production: explicit HSTS + remove unsafe-inline from CSP.
+  // Dev: keep unsafe-inline so Angular CLI dev server works without nonce plumbing.
   await app.register(fastifyHelmet, {
+    // HSTS: 1 year, include subdomains, preload — applied in production only.
+    strictTransportSecurity: isProduction
+      ? { maxAge: 31536000, includeSubDomains: true, preload: true }
+      : false,
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: isProduction ? ["'self'"] : ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", 'data:', 'https:'],
-        scriptSrc: ["'self'", "'unsafe-inline'"],
+        // Production: remove unsafe-inline; Angular must emit hashes/nonces via build config.
+        scriptSrc: isProduction ? ["'self'"] : ["'self'", "'unsafe-inline'"],
+        connectSrc: ["'self'"],
+        fontSrc: ["'self'", 'https:', 'data:'],
+        objectSrc: ["'none'"],
+        frameAncestors: ["'none'"],
+        ...(isProduction ? { upgradeInsecureRequests: [] } : {}),
       },
     },
     crossOriginEmbedderPolicy: false,
-    crossOriginResourcePolicy: { policy: "cross-origin" }
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
   });
 
   await app.register(fastifyCookie);

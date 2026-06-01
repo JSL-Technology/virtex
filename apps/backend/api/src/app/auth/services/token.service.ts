@@ -8,6 +8,8 @@ import { Repository } from 'typeorm';
 import ms from 'ms';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import * as ipaddr from 'ipaddr.js';
+import * as crypto from 'crypto';
 
 import { User } from '../../users/entities/user.entity/user.entity';
 import { RefreshToken } from '../entities/refresh-token.entity';
@@ -121,12 +123,17 @@ export class TokenService {
 
     const expirationDate = new Date(Date.now() + ms(refreshExpiration));
 
+    // H9 FIX: Store masked IP for display; store encrypted IP for forensics only.
+    const maskedIp = ipAddress ? this.maskIp(ipAddress) : undefined;
+    const encryptedIp = ipAddress ? this.encryptIp(ipAddress) : undefined;
+
     const refreshTokenRecord = this.refreshTokenRepository.create({
       user: user,
       userId: user.id,
       isRevoked: false,
       expiresAt: expirationDate,
-      ipAddress,
+      ipAddress: maskedIp,
+      encryptedIp,
       userAgent,
     });
 
@@ -192,5 +199,38 @@ export class TokenService {
       tokenVersion: user.security?.tokenVersion || 0,
       ...extra,
     };
+  }
+
+  // H9: Mask last two octets for IPv4, last segments for IPv6.
+  private maskIp(ip: string): string {
+    try {
+      if (!ipaddr.isValid(ip)) return '***';
+      const addr = ipaddr.parse(ip);
+      if (addr.kind() === 'ipv4') {
+        const v4 = addr as ipaddr.IPv4;
+        return `${v4.octets[0]}.${v4.octets[1]}.*.*`;
+      }
+      const v6 = addr as ipaddr.IPv6;
+      if (v6.isIPv4MappedAddress()) {
+        const v4 = v6.toIPv4Address();
+        return `::ffff:${v4.octets[0]}.${v4.octets[1]}.*.*`;
+      }
+      const parts = v6.parts;
+      return `${parts[0].toString(16)}:${parts[1].toString(16)}:*:*:*:*:*:*`;
+    } catch {
+      return '***';
+    }
+  }
+
+  private encryptIp(ip: string): string {
+    const secret = this.configService.get<string>('ENCRYPTION_SECRET');
+    if (!secret) return '';
+    const key = crypto.createHash('sha256').update(secret).digest();
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
+    let encrypted = cipher.update(ip, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    const authTag = cipher.getAuthTag().toString('hex');
+    return `${iv.toString('hex')}:${encrypted}:${authTag}`;
   }
 }

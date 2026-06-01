@@ -115,8 +115,8 @@ export class LoginPage implements OnInit {
         }
         this.isLoggingIn.set(false);
       })
-      .catch((err) => {
-        console.error('Passkey login error:', err);
+      .catch(() => {
+        // H14 FIX: Do not log error objects to the console in production (may leak server details).
         this.errorMessage.set('LOGIN.ERRORS.PASSKEY_ERROR');
         this.isLoggingIn.set(false);
       });
@@ -149,8 +149,7 @@ export class LoginPage implements OnInit {
           }
         });
       },
-      error: (err) => {
-        console.error('ReCaptcha Error:', err);
+      error: () => {
         this.errorMessage.set('LOGIN.ERRORS.SERVER_ERROR');
         this.isLoggingIn.set(false);
       }
@@ -195,7 +194,6 @@ export class LoginPage implements OnInit {
   }
 
   private handleError(err: any): void {
-    console.error('Login error:', err);
     if (err && err.status) {
       switch (err.status) {
         case 401: this.errorMessage.set('LOGIN.ERRORS.AUTH_INVALID_CREDENTIALS'); break;

@@ -40,8 +40,9 @@ export class SecurityService {
     return this.http.get<Session[]>(`${this.apiUrl}/sessions`);
   }
 
+  // H15 FIX: Backend uses POST /sessions/:id/revoke, not DELETE /sessions/:id.
   revokeSession(sessionId: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/sessions/${sessionId}`);
+    return this.http.post<void>(`${this.apiUrl}/sessions/${sessionId}/revoke`, {});
   }
 
   generate2faSecret(): Observable<TwoFactorSetupResponse> {

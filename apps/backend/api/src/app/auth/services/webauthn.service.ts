@@ -44,7 +44,8 @@ export class WebAuthnService {
       userName: user.email,
       authenticatorSelection: {
         residentKey: 'preferred',
-        userVerification: 'preferred',
+        // H13 FIX: 'required' enforces local device PIN/biometric verification (phishing-resistant).
+        userVerification: 'required',
         authenticatorAttachment: 'platform',
       },
     });
@@ -112,7 +113,8 @@ export class WebAuthnService {
         type: 'public-key',
         transports: passkey.transports as any[],
       })),
-      userVerification: 'preferred',
+      // H13 FIX: 'required' enforces local device verification for passkey authentication.
+      userVerification: 'required',
     });
 
     // Use crypto.randomBytes for secure challenge ID
