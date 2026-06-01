@@ -35,10 +35,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         ExtractJwt.fromAuthHeaderAsBearerToken(),
-        (req: Request | undefined) => req?.cookies?.access_token ?? null,
+        (req: Request | undefined) => req?.cookies?.['__Host-access_token'] ?? null,
       ]),
       ignoreExpiration: false,
       secretOrKey: configService.getOrThrow<string>('JWT_SECRET'),
+      algorithms: ['HS256'],
+      issuer: 'virteex-api',
+      audience: 'virteex-web',
     });
 
     // Initialize Opossum Circuit Breaker

@@ -121,13 +121,13 @@ export class AuthService {
    */
   refreshAccessToken(): Observable<LoginResponse> {
     return this.http
-      .get<LoginResponse>(`${this.apiUrl}/refresh`, {
+      .post<LoginResponse>(`${this.apiUrl}/refresh`, {}, {
         withCredentials: true,
         context: new HttpContext().set(IS_PUBLIC_API, true)
       })
       .pipe(
         tap((response) => {
-          if (response && response.user && response.accessToken) {
+          if (response && response.user) {
             this._currentUser.set(response.user);
             this._authStatus.set(AuthStatus.authenticated);
           }

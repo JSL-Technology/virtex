@@ -44,7 +44,8 @@ export class UsersController {
   }
 
   @Post('invite')
-  @HasPermission('users.create')
+  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+  @HasPermission(PERMISSIONS.USERS_CREATE)
   @ApiOperation({ summary: 'Invite a new user to the organization' })
   async inviteUser(
     @Body() inviteUserDto: InviteUserDto,
@@ -58,7 +59,7 @@ export class UsersController {
   }
 
   @Get()
-  @HasPermission('users.view')
+  @HasPermission(PERMISSIONS.USERS_VIEW)
   @ApiOperation({ summary: 'List users in organization' })
   async findAll(
     @CurrentUser() user: User,
@@ -97,6 +98,7 @@ export class UsersController {
   }
 
   @Patch('profile')
+  @UseGuards(CsrfGuard)
   @ApiOperation({ summary: 'Update current user profile' })
   async updateProfile(
     @CurrentUser() user: User,
@@ -110,7 +112,7 @@ export class UsersController {
   }
 
   @Post('profile/avatar')
-  @UseGuards(ThrottlerGuard)
+  @UseGuards(ThrottlerGuard, CsrfGuard)
   @ApiOperation({ summary: 'Upload avatar for current user' })
   @UseInterceptors(FastifyFileInterceptor('file', {
     fileFilter: (req, file, cb) => {
@@ -141,7 +143,7 @@ export class UsersController {
   }
 
   @Get(':id')
-  @HasPermission('users.view')
+  @HasPermission(PERMISSIONS.USERS_VIEW)
   @ApiOperation({ summary: 'Get user by ID' })
   async findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
     const foundUser = await this.usersService.findOneByOrg(id, user.organizationId);
@@ -149,7 +151,8 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @HasPermission('users.edit')
+  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+  @HasPermission(PERMISSIONS.USERS_EDIT)
   @ApiOperation({ summary: 'Update user (Admin)' })
   async update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -165,7 +168,8 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @HasPermission('users.delete')
+  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+  @HasPermission(PERMISSIONS.USERS_DELETE)
   @CheckPermissions(IsOrganizationOwner)
   @ApiOperation({ summary: 'Remove user' })
   async remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
@@ -196,7 +200,7 @@ export class UsersController {
   }
 
   @Get(':id/activity')
-  @HasPermission('users.view')
+  @HasPermission(PERMISSIONS.USERS_VIEW)
   async getActivityLog(@Param('id', ParseUUIDPipe) id: string) {
       return this.usersService.getActivityLog(id);
   }
@@ -204,7 +208,14 @@ export class UsersController {
   @Post(':id/force-logout')
   @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
   @HasPermission(PERMISSIONS.USERS_FORCE_LOGOUT)
-  async forceLogout(@Param('id', ParseUUIDPipe) id: string) {
-      return this.usersService.forceLogout(id);
+  async forceLogout(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+      return this.usersService.forceLogout(id, user.organizationId);
+  }
+
+  @Post(':id/block-and-logout')
+  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+  @HasPermission(PERMISSIONS.USERS_MANAGE_STATUS)
+  async blockAndLogout(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+      return this.usersService.blockAndLogout(id, user.organizationId);
   }
 }

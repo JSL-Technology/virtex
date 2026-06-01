@@ -1,7 +1,7 @@
 
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, Profile } from 'passport-google-oauth20';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SocialUser } from '../interfaces/social-user.interface';
 
@@ -13,11 +13,17 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       clientSecret: configService.getOrThrow('GOOGLE_CLIENT_SECRET'),
       callbackURL: configService.getOrThrow('GOOGLE_CALLBACK_URL'),
       scope: ['email', 'profile'],
+      state: true,
     });
   }
 
   async validate(accessToken: string, refreshToken: string, profile: Profile): Promise<SocialUser> {
-    const { name, emails, photos } = profile;
+    const { name, emails, photos, _json } = profile as any;
+
+    if (_json.email_verified !== true) {
+        throw new UnauthorizedException('Google email not verified');
+    }
+
     const user: SocialUser = {
       email: emails[0].value,
       firstName: name.givenName,

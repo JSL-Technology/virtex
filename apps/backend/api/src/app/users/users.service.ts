@@ -322,8 +322,8 @@ export class UsersService {
     });
   }
 
-  async forceLogout(userId: string): Promise<{ message: string }> {
-    const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['security'] });
+  async forceLogout(userId: string, organizationId: string): Promise<{ message: string }> {
+    const user = await this.userRepository.findOne({ where: { id: userId, organizationId }, relations: ['security'] });
     if (!user) {
       throw new NotFoundException('Usuario no encontrado');
     }
@@ -342,8 +342,8 @@ export class UsersService {
     return { message: 'Se ha cerrado la sesión del usuario.' };
   }
 
-  async blockAndLogout(userId: string): Promise<{ message: string }> {
-    const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['security'] });
+  async blockAndLogout(userId: string, organizationId: string): Promise<{ message: string }> {
+    const user = await this.userRepository.findOne({ where: { id: userId, organizationId }, relations: ['security'] });
     if (!user) {
       throw new NotFoundException('Usuario no encontrado');
     }
