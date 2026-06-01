@@ -1,0 +1,894 @@
+═══════════════════════════════════════════════════════════════════════════════
+           AUDITORÍA DE SEGURIDAD — MÓDULO DE AUTENTICACIÓN Y AUTORIZACIÓN
+                          Virteex ERP · Fecha: 2026-06-01
+    Estándar de referencia: Auth0, GitHub, Stripe · Auditor: Claude Sonnet 4.6
+═══════════════════════════════════════════════════════════════════════════════
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. RESUMEN EJECUTIVO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+El módulo de autenticación presenta un diseño de seguridad sólido y maduro que
+supera ampliamente la media de proyectos NestJS + Angular equivalentes. Se
+implementan correctamente patrones de industria como argon2id, cookies httpOnly
+con prefijos __Host-/__Secure-, rotación de refresh tokens con detección de
+reuso, invalidación por token version, circuit breaker en cache Redis, doble
+submit CSRF, y WebAuthn/Passkeys. La arquitectura demuestra una conciencia de
+seguridad consistente a lo largo del codebase.
+
+Sin embargo, se encontraron dos inconsistencias críticas de diseño donde el
+accessToken es devuelto en el cuerpo HTTP de respuesta (violando el propio
+principio documentado en el código), además de una vulnerabilidad real de
+fuerza bruta en la verificación OTP de teléfono, y un potencial de abuso SMS
+en el endpoint send-phone-otp.
+
+Veredicto: El módulo NO está completamente listo para producción a escala
+empresarial en su estado actual. Los dos leaks de accessToken y la ausencia de
+protección contra brute-force en verifyPhoneOtp deben corregirse antes de
+cualquier despliegue. El resto del módulo está a un nivel 7-8/10 respecto a
+los estándares de Auth0 o GitHub.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. TABLA DE CALIFICACIONES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  BACKEND                              PUNTAJE   JUSTIFICACIÓN
+  ─────────────────────────────────────────────────────────────────────────────
+  Seguridad                              7/10    Argon2id, httpOnly cookies,
+                                                 CSRF, rate-limit, lockout.
+                                                 -3 por dos leaks de accessToken
+                                                 en cuerpo HTTP y brute-force
+                                                 OTP en verifyPhoneOtp.
+
+  Arquitectura                           8/10    Separación clara en servicios
+                                                 especializados (TokenService,
+                                                 SessionService, MfaOrchestrator,
+                                                 SecurityAnalysis, Password).
+                                                 Facade pattern, eventos. -2 por
+                                                 acoplamiento de PaymentService
+                                                 en AuthController y semántica
+                                                 ambigua de terminateOtherSessions.
+
+  Validación                             7/10    ValidationPipe + class-validator
+                                                 en todos los DTOs, whitelist mode,
+                                                 forbidNonWhitelisted. Falta
+                                                 @MaxLength en email de
+                                                 RegisterUserDto y protección
+                                                 de intentos en verifyPhoneOtp.
+
+  Manejo de errores                      8/10    Mensajes genéricos anti-user-
+                                                 enumeration, masking de emails/IPs
+                                                 en logs, correlation IDs (UUID).
+                                                 Excepción propia AuthException.
+
+  Escalabilidad                          8/10    Redis throttler, user cache con
+                                                 circuit breaker (Opossum), batch
+                                                 cleanup de tokens expirados.
+                                                 Stateless JWT con caché de usuario.
+
+  Observabilidad                         8/10    AuditTrailService, AuthAuditListener
+                                                 con eventos desacoplados. Logging
+                                                 estructurado con Pino. -2 por IP
+                                                 sin cifrar almacenada junto al
+                                                 IP cifrada en refresh_tokens.
+
+  FRONTEND                             PUNTAJE   JUSTIFICACIÓN
+  ─────────────────────────────────────────────────────────────────────────────
+  Seguridad del cliente                  8/10    Tokens en cookies httpOnly, sin
+                                                 localStorage. Interceptor CSRF
+                                                 automático. Permisos basados en
+                                                 hasPermission() con wildcards.
+
+  Manejo de tokens/sesión                8/10    tempToken solo en Signal de
+                                                 componente (en memoria). Queue
+                                                 para refresh concurrent requests
+                                                 (AuthQueueService). IdleService
+                                                 con timeout de 15 minutos.
+
+  Protección de rutas                    7/10    authGuard + permissionsGuard.
+                                                 Limitado al cliente: la protección
+                                                 real está en el backend. -3 porque
+                                                 es solo defensa en profundidad.
+
+  Consistencia con backend               8/10    Interceptor maneja 401 con refresh
+                                                 automático. IS_PUBLIC_API context
+                                                 token evita loops. Gestión correcta
+                                                 de estados de autenticación con
+                                                 Angular Signals.
+  ─────────────────────────────────────────────────────────────────────────────
+  PUNTUACIÓN GLOBAL                      7.5/10  Sistema maduro con deficiencias
+                                                 puntuales bien definidas.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. FORTALEZAS — LO QUE ESTÁ BIEN IMPLEMENTADO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+F-01 · ARGON2ID COMO ALGORITMO DE HASHING DE CONTRASEÑAS
+  Archivo: apps/backend/api/src/app/auth/services/password.service.ts:9-23
+  Código:
+    async hash(plain: string): Promise<string> {
+        return argon2.hash(plain);
+    }
+  Por qué es correcto: Argon2id es el ganador de la Password Hashing Competition
+  (2015) y la recomendación actual de OWASP y NIST SP 800-63B. Supera a bcrypt
+  en resistencia a GPU/ASIC y ataques de canal lateral.
+  Referencia: OWASP Password Storage Cheat Sheet, CWE-916.
+
+F-02 · COOKIES HTTPONLY CON PREFIJOS __HOST- Y __SECURE-
+  Archivo: apps/backend/api/src/app/auth/services/cookie.service.ts:33-50
+  Código:
+    res.cookie('__Host-access_token', accessToken, {
+      httpOnly: true, secure: true, sameSite: 'lax', path: '/'
+    });
+    res.cookie('__Secure-refresh_token', refreshToken, {
+      httpOnly: true, secure: true, path: '/api/v1/auth/refresh'
+    });
+  Por qué es correcto: El prefijo __Host- exige Secure + Path=/ + sin Domain,
+  el más fuerte de los prefijos de cookie (RFC 6265bis §4.1.3). El refresh token
+  está correctamente restringido al path de refresco para minimizar superficie.
+  Referencia: RFC 6265bis, OWASP Session Management Cheat Sheet.
+
+F-03 · TOKEN VERSION PARA INVALIDACIÓN GLOBAL DE SESIONES
+  Archivo: apps/backend/api/src/app/users/entities/user-security.entity.ts:25-30
+           apps/backend/api/src/app/auth/services/session.service.ts:296-309
+  Código:
+    security.tokenVersion = (security.tokenVersion || 0) + 1;
+    await this.userSecurityRepository.save(security);
+    await this.userCacheService.clearUserSession(userId);
+  Por qué es correcto: Permite invalidar instantáneamente TODOS los JWT en
+  circulación sin mantener una blacklist de tokens. Cualquier JWT con tokenVersion
+  antiguo es rechazado. Este patrón es equivalente al "token family invalidation"
+  de Auth0. Se activa en: cambio de contraseña, logout, reuso de refresh token.
+  Referencia: OWASP JWT Cheat Sheet, CWE-613.
+
+F-04 · ROTACIÓN DE REFRESH TOKEN CON DETECCIÓN DE REUSO
+  Archivo: apps/backend/api/src/app/auth/services/session.service.ts:124-156
+  Código:
+    const currentTokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    if (!refreshTokenEntity || refreshTokenEntity.isRevoked
+        || refreshTokenEntity.tokenHash !== currentTokenHash) {
+      // NUCLEAR FAMILY INVALIDATION si fuera del grace period
+      await this.revokeTokenFamily(user.id);
+    }
+  Por qué es correcto: La rotación de refresh token (RTR) previene el robo de
+  tokens de larga duración. El hash SHA-256 del token (no el token en sí)
+  almacenado en DB previene que un volcado de DB permita usar los tokens. La
+  "nuclear family invalidation" sigue exactamente el patrón de Auth0 para
+  refresh token rotation (si se detecta reuso fuera del período de gracia, se
+  invalidan TODAS las sesiones del usuario).
+  Referencia: Auth0 Refresh Token Rotation, RFC 6749 §10.4.
+
+F-05 · DOBLE SUBMIT CSRF CON COOKIE NO-HTTPONLY
+  Archivo: apps/backend/api/src/app/auth/guards/csrf.guard.ts:24-40
+           apps/backend/api/src/app/auth/services/cookie.service.ts:56-68
+  Código (guard):
+    const xsrfToken = request.headers['x-xsrf-token'];
+    const xsrfCookie = request.cookies['XSRF-TOKEN'];
+    if (!xsrfToken || !xsrfCookie || xsrfToken !== xsrfCookie) {
+      throw new ForbiddenException('Invalid CSRF Token');
+    }
+  Por qué es correcto: El patrón Double Submit Cookie con CSPRNG (32 bytes
+  crypto.randomBytes) es la implementación de referencia de OWASP. La cookie
+  no es HttpOnly (debe ser legible por JS) y se renueva en cada login/refresh.
+  El frontend (auth.interceptor.ts:32-35) la lee y la envía automáticamente.
+  Referencia: OWASP CSRF Prevention Cheat Sheet, CWE-352.
+
+F-06 · CIRCUIT BREAKER EN VALIDACIÓN JWT (REDIS)
+  Archivo: apps/backend/api/src/app/auth/strategies/jwt.strategy/jwt.strategy.ts:48-61
+  Código:
+    this.circuitBreaker = new CircuitBreaker(
+      (key: string) => this.cacheManager.get<CachedUser>(key),
+      { timeout: 3000, errorThresholdPercentage: 50, resetTimeout: 30000 }
+    );
+    this.circuitBreaker.fallback(() => Promise.resolve(null));
+  Por qué es correcto: El circuit breaker (usando Opossum) garantiza que una
+  caída de Redis no brickee el servicio de autenticación. El fallback a DB
+  asegura que los usuarios autenticados sigan operando. Patrón usado por
+  Stripe y Netflix en sus sistemas de caché críticos.
+  Referencia: Martin Fowler, Circuit Breaker Pattern.
+
+F-07 · DETECCIÓN DE VIAJE IMPOSIBLE
+  Archivo: apps/backend/api/src/app/auth/services/security-analysis.service.ts:36-76
+  Código:
+    const speed = distanceKm / safeTimeDiff;
+    if (distanceKm > minDistance && speed > maxSpeed) {
+      this.eventEmitter.emit('security.suspicious_travel', { userId, speed, ... });
+    }
+  Por qué es correcto: Se emite un evento de alerta (no se bloquea el login)
+  para evitar falsos positivos por VPN o vuelos. La velocidad máxima configurable
+  (default 1500 km/h) y distancia mínima (100 km) son parámetros razonables.
+  El diseño event-driven permite acciones customizables sin alterar el flujo de auth.
+
+F-08 · TEMPTOKEN EN MEMORIA (SIGNAL DE COMPONENTE) PARA 2FA
+  Archivo: apps/core/client-web/src/app/features/auth/login/login.page.ts:78
+  Código:
+    tempToken = signal<string | null>(null);
+  Por qué es correcto: El token temporal 2FA (JWT de corta duración) se almacena
+  exclusivamente en el Signal del componente Angular (memoria de ejecución JS),
+  no en localStorage ni sessionStorage. Al navegar fuera del componente, el
+  token es destruido con el componente. Referencia: OWASP XSS Prevention.
+
+F-09 · PROTECCIÓN MULTI-TENANCY ESTRICTA EN IMPERSONACIÓN
+  Archivo: apps/backend/api/src/app/auth/services/impersonation.service.ts:51-64
+  Código:
+    if (targetUser.organizationId !== adminUser.organizationId) {
+      throw new ForbiddenException('No puedes suplantar usuarios de otra org.');
+    }
+    if (targetLevel > adminLevel) {
+      throw new ForbiddenException('No tienes jerarquía suficiente...');
+    }
+  Por qué es correcto: La verificación explícita de organizationId previene IDOR
+  cross-tenant. La validación de jerarquía de roles previene escalación de
+  privilegios (un admin no puede suplantar a otro admin del mismo nivel).
+  Referencia: OWASP IDOR, CWE-285.
+
+F-10 · INTERCEPTOR FRONTEND CON QUEUE PARA REFRESH CONCURRENTE
+  Archivo: apps/core/client-web/src/app/core/interceptors/auth.interceptor.ts:46-113
+  Código:
+    if (!authQueueService.isRefreshingToken) {
+      authQueueService.startRefresh();
+      // ...
+    } else {
+      return authQueueService.waitForTokenRefresh().pipe(...)
+    }
+  Por qué es correcto: El patrón de cola con AuthQueueService evita que múltiples
+  peticiones simultáneas con 401 inicien múltiples refreshes en paralelo
+  (race condition). Este es el mismo patrón usado por Angular's HttpClientModule
+  con interceptores en aplicaciones enterprise.
+
+F-11 · VALIDACIÓN GLOBAL CON WHITELIST EN NESTJS
+  Archivo: apps/backend/api/src/main.ts:76-84
+  Código:
+    new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true })
+  Por qué es correcto: whitelist:true elimina campos no declarados en DTOs.
+  forbidNonWhitelisted:true rechaza la petición si vienen campos extra.
+  Esto previene mass assignment y parameter pollution. Referencia: CWE-915.
+
+F-12 · FASTIFY HELMET CON CSP CONFIGURADO
+  Archivo: apps/backend/api/src/main.ts:35-52
+  Código:
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        frameAncestors: ["'none'"],
+        upgradeInsecureRequests: [],
+      }
+    }
+  Por qué es correcto: frame-ancestors 'none' previene clickjacking. object-src
+  'none' bloquea plugins. upgrade-insecure-requests fuerza HTTPS. Los headers
+  de Helmet incluyen X-Frame-Options, X-Content-Type-Options, HSTS, etc.
+  Referencia: OWASP Secure Headers Project, CWE-693.
+
+F-13 · HONEYPOT EN REGISTRO
+  Archivo: apps/backend/api/src/app/auth/services/registration.service.ts:99-112
+  Código:
+    if (fax) {
+      await this.simulateDelay();
+      const dummyUser = new User();
+      return dummyUser; // Silent fail for bots
+    }
+  Por qué es correcto: El honeypot implementa "silent rejection" (el bot cree
+  que tuvo éxito) en lugar de un error, lo que desincentiva el reintento.
+  La combinación con reCAPTCHA v3 proporciona defensa en profundidad.
+
+F-14 · GESTIÓN IDLE CON TIMEOUT AUTOMÁTICO EN FRONTEND
+  Archivo: apps/core/client-web/src/app/core/services/idle.service.ts:29-51
+  Código:
+    const IDLE_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
+    // Escucha mousemove, keydown, click, scroll
+    events$.pipe(switchMap(() => timer(IDLE_TIMEOUT_MS))).subscribe(() => {
+      this.handleIdleTimeout();
+    });
+  Por qué es correcto: NIST SP 800-63B §7.2.4 recomienda cierre de sesión por
+  inactividad. Los 15 minutos coinciden con la expiración del access token,
+  creando una capa de seguridad consistente entre backend y frontend.
+
+F-15 · CODIGOS DE BACKUP 2FA HASHEADOS CON ARGON2
+  Archivo: apps/backend/api/src/app/auth/services/two-factor-auth.service.ts:166-178
+  Código:
+    for (let i = 0; i < 10; i++) {
+      const code = crypto.randomBytes(4).toString('hex').toUpperCase();
+      hashedCodes.push(await argon2.hash(formattedCode));
+    }
+  Por qué es correcto: Los códigos de backup son de un solo uso (burn on use,
+  línea 157) y están hasheados con argon2 individualmente. GitHub usa el mismo
+  patrón. 10 códigos de 8 caracteres hex proveen suficiente entropía.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. TABLA RESUMEN DE HALLAZGOS NEGATIVOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Sev       Tipo               Capa      Archivo                    Línea  Resumen
+  ──────────────────────────────────────────────────────────────────────────────────
+  CRÍTICA   Info Disclosure   Backend   auth.controller.ts          222    accessToken devuelto en cuerpo HTTP en setPasswordFromInvitation
+  CRÍTICA   Info Disclosure   Backend   auth.controller.ts          583    accessToken devuelto en cuerpo HTTP en WebAuthn login
+  ALTA      Brute Force       Backend   mfa-orchestrator.service.ts 117    verifyPhoneOtp sin contador de intentos fallidos
+  ALTA      SMS Abuse         Backend   auth.controller.ts          426    sendPhoneOtp acepta cualquier número sin validar contra usuario
+  ALTA      Step-up Auth      Backend   two-factor-verified.guard.ts 28    Guard de step-up sin rate limiting de intentos OTP
+  MEDIA     Logic Bug         Backend   auth.service.ts             224    terminateOtherSessions con string vacío = revocar TODAS las sesiones
+  MEDIA     Key Separation    Backend   mfa-orchestrator.service.ts 238    preVerifiedToken firmado con JWT_SECRET principal
+  MEDIA     Privacy           Backend   refresh-token.entity.ts     36     IP en texto plano junto a IP cifrada en la misma tabla
+  MEDIA     Config Error      Env       .env                        82     STRIPE_SECRET_KEY contiene una publishable key (pk_test_...)
+  BAJA      Validation Gap    Backend   register-user.dto.ts        47     Email sin @MaxLength en RegisterUserDto
+  BAJA      CSP               Backend   main.ts                     40     connectSrc 'self' puede bloquear WebSocket cross-origin en dev
+  INFO      Missing Env Var   Config    auth.config.ts              22     JWT_2FA_TEMP_SECRET no está en el archivo .env de ejemplo
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. HALLAZGOS DETALLADOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+────────────────────────────────────────────────────────────────────────────
+H-01 · [CRÍTICO] accessToken expuesto en body HTTP — setPasswordFromInvitation
+────────────────────────────────────────────────────────────────────────────
+
+  Archivo: apps/backend/api/src/app/auth/auth.controller.ts, líneas 213-224
+
+  Código actual:
+    @Post('set-password-from-invitation')
+    async setPasswordFromInvitation(...) {
+      const { user, accessToken, refreshToken } =
+        await this.authFacade.setPasswordFromInvitation(setPasswordDto);
+
+      this.cookieService.setAuthCookies(res, accessToken, refreshToken);
+
+      return {
+        user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }),
+        accessToken // <-- PROBLEMA: Token expuesto en body HTTP
+      };
+    }
+
+  Por qué es un problema:
+    Este endpoint devuelve el accessToken en el cuerpo JSON de la respuesta,
+    violando explícitamente el principio documentado en línea 161 del mismo
+    archivo: "// DO NOT return accessToken in body if using cookies."
+    Un atacante que logre un XSS puede leer el body de la respuesta y robar
+    el accessToken antes de que sea limpiado de memoria. El token ya está
+    disponible vía cookie httpOnly; devolverlo en el body duplica la superficie
+    de ataque sin ningún beneficio funcional.
+    CWE-200: Exposure of Sensitive Information.
+
+  Corrección propuesta:
+    return {
+      user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }),
+      // accessToken OMITIDO — disponible en cookie __Host-access_token
+    } as any;
+
+  Referencia: OWASP Top 10 A02:2021 Cryptographic Failures, CWE-200,
+    GitHub Security Lab — "Don't return tokens in HTTP responses when using cookies."
+
+────────────────────────────────────────────────────────────────────────────
+H-02 · [CRÍTICO] accessToken expuesto en body HTTP — WebAuthn Login
+────────────────────────────────────────────────────────────────────────────
+
+  Archivo: apps/backend/api/src/app/auth/auth.controller.ts, líneas 578-584
+
+  Código actual:
+    const { accessToken, refreshToken } = await this.authFacade.generateTokens(user);
+    this.cookieService.setAuthCookies(res, accessToken, refreshToken);
+
+    return {
+      user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }),
+      accessToken  // <-- PROBLEMA: mismo patrón que H-01
+    };
+
+  Por qué es un problema:
+    Idéntico problema al H-01, pero en el flujo de WebAuthn (Passkeys). El
+    WebAuthn verifyAuthentication endpoint es de los más sensibles al ser el
+    punto de acceso para usuarios con MFA avanzado. Exponer el accessToken en
+    el body aquí contradice todos los demás endpoints de login del sistema.
+
+  Corrección propuesta:
+    return {
+      user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }),
+    };
+
+  Referencia: OWASP Top 10 A02:2021, CWE-200.
+
+────────────────────────────────────────────────────────────────────────────
+H-03 · [ALTA] verifyPhoneOtp sin protección contra fuerza bruta
+────────────────────────────────────────────────────────────────────────────
+
+  Archivo: apps/backend/api/src/app/auth/services/mfa-orchestrator.service.ts
+           Líneas: 117-148
+
+  Código actual (verifyPhoneOtp):
+    async verifyPhoneOtp(userId: string, code: string, phoneNumber: string) {
+      const record = await this.verificationCodeRepository.findOne({...});
+      if (!record) throw new BadRequestException('No verification code found or expired.');
+      if (new Date() > record.expiresAt) {
+        await this.verificationCodeRepository.delete(record.id);
+        throw new BadRequestException('Verification code expired.');
+      }
+      if (record.payload && record.payload !== phoneNumber) {
+        throw new BadRequestException('Invalid phone number.');
+      }
+      const isValid = await argon2.verify(record.code, code);
+      if (!isValid) {
+        throw new BadRequestException('Invalid verification code.');
+      }
+      // ... procede sin haber contado el intento
+    }
+
+  Comparación con verifyEmailOtp (líneas 77-93, CORRECTO):
+    record.attempts += 1;
+    record.lastAttemptAt = new Date();
+    if (record.attempts > 5) {
+      await this.verificationCodeRepository.delete(record.id);
+      throw new BadRequestException('Too many attempts. Please request a new code.');
+    }
+    await this.verificationCodeRepository.save(record);
+
+  Por qué es un problema:
+    Los OTPs de 6 dígitos tienen 10^6 posibilidades (100,000 - 999,999 = 900,000
+    códigos válidos). Sin un límite de intentos por registro, un atacante puede
+    intentar múltiples códigos contra el mismo registro de verificación dentro
+    de la ventana de 5 minutos. Si bien el throttler limita 3 req/min por IP,
+    un atacante distribuido puede escalar esto. La inconsistencia con
+    verifyEmailOtp (que SÍ tiene protección) indica que es un olvido de
+    implementación, no una decisión de diseño.
+    CWE-307: Improper Restriction of Excessive Authentication Attempts.
+
+  Corrección propuesta:
+    async verifyPhoneOtp(userId: string, code: string, phoneNumber: string) {
+      const record = await this.verificationCodeRepository.findOne({...});
+      if (!record) throw ...;
+      if (new Date() > record.expiresAt) {
+        await this.verificationCodeRepository.delete(record.id);
+        throw ...;
+      }
+
+      // AÑADIR: Protección contra brute-force (idéntico a verifyEmailOtp)
+      record.attempts += 1;
+      record.lastAttemptAt = new Date();
+      if (record.attempts > 5) {
+        await this.verificationCodeRepository.delete(record.id);
+        throw new BadRequestException('Too many attempts. Please request a new code.');
+      }
+      await this.verificationCodeRepository.save(record);
+
+      if (record.payload && record.payload !== phoneNumber) { throw ...; }
+      const isValid = await argon2.verify(record.code, code);
+      if (!isValid) throw ...;
+      await this.verificationCodeRepository.delete(record.id);
+      ...
+    }
+
+  Referencia: OWASP Authentication Cheat Sheet §Protect Against Automated Attacks,
+    NIST SP 800-63B §5.2.2, CWE-307.
+
+────────────────────────────────────────────────────────────────────────────
+H-04 · [ALTA] sendPhoneOtp permite enviar SMS a cualquier número
+────────────────────────────────────────────────────────────────────────────
+
+  Archivo: apps/backend/api/src/app/auth/auth.controller.ts, líneas 423-433
+
+  Código actual:
+    @Post('send-phone-otp')
+    @UseGuards(JwtAuthGuard, CsrfGuard)
+    @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
+    async sendPhoneOtp(@CurrentUser() user: User, @Body('phoneNumber') phoneNumber: string) {
+      if (!phoneNumber) {
+        throw new BadRequestException('Phone number is required');
+      }
+      await this.mfaOrchestratorService.sendPhoneOtp(user.id, phoneNumber);
+      return { message: 'OTP sent successfully' };
+    }
+
+  Por qué es un problema:
+    Un usuario autenticado puede llamar a este endpoint con CUALQUIER número
+    de teléfono, incluyendo números que no pertenecen a su cuenta. Esto habilita:
+    (a) SMS Bombing: enviar múltiples mensajes SMS a un número objetivo (limitado
+        por el throttler pero aún posible con múltiples cuentas).
+    (b) Enumeración indirecta: intentar averiguar si un número está asociado
+        observando errores del proveedor SMS (Twilio).
+    El throttler por IP (3/min) mitiga parcialmente el abuse pero no lo elimina.
+
+  Corrección propuesta:
+    async sendPhoneOtp(@CurrentUser() user: User, @Body('phoneNumber') phoneNumber: string) {
+      if (!phoneNumber) throw new BadRequestException('Phone number is required');
+
+      // AÑADIR: Validar que el número pertenece al usuario o es el nuevo número a verificar
+      // Para cambio de número: validar formato y que no esté ya registrado en otro usuario
+      if (user.phone && user.phone !== phoneNumber && user.isPhoneVerified) {
+        // El usuario ya tiene un teléfono verificado distinto. Registrar intento.
+        this.logger.warn(`User ${user.id} attempting to verify non-registered phone`);
+      }
+      await this.mfaOrchestratorService.sendPhoneOtp(user.id, phoneNumber);
+      return { message: 'OTP sent successfully' };
+    }
+
+  Referencia: OWASP API Security Top 10 API4:2023 Unrestricted Resource Consumption,
+    CWE-841 Improper Enforcement of Behavioral Workflow.
+
+────────────────────────────────────────────────────────────────────────────
+H-05 · [ALTA] TwoFactorVerifiedGuard (step-up auth) sin rate-limit de intentos
+────────────────────────────────────────────────────────────────────────────
+
+  Archivo: apps/backend/api/src/app/auth/guards/two-factor-verified.guard.ts
+           Líneas: 10-43
+
+  Código actual:
+    async canActivate(context: ExecutionContext): Promise<boolean> {
+      const otpCode = request.headers['x-otp-code'];
+      if (!otpCode) throw new ForbiddenException('OTP code required');
+      const isValid = await this.twoFactorService.verifyCode(user, otpCode as string);
+      if (!isValid) throw new ForbiddenException('Invalid OTP code');
+      return true;
+    }
+
+  Por qué es un problema:
+    Este guard protege operaciones sensibles como revocar sesiones, deshabilitar
+    2FA, cambiar contraseña, eliminar usuarios, y forzar logout. No hay límite
+    en el número de códigos OTP que se pueden intentar contra el guard en una
+    sola sesión autenticada. Un atacante con un JWT válido (robado o sesión
+    activa comprometida) puede intentar miles de códigos TOTP sin ser bloqueado.
+    Si bien los TOTP son difíciles de brute-force (ventana de 30s), la ausencia
+    de límite es una debilidad de defensa en profundidad.
+
+  Corrección propuesta:
+    // En TwoFactorVerifiedGuard o en TwoFactorAuthService.verifyCode()
+    // implementar límite de intentos por userId:
+    const key = `step-up-attempts:${user.id}`;
+    const attempts = await this.cacheManager.get<number>(key) || 0;
+    if (attempts >= 5) {
+      throw new ForbiddenException('Too many step-up auth attempts. Wait 5 minutes.');
+    }
+    await this.cacheManager.set(key, attempts + 1, 5 * 60 * 1000); // 5 min TTL
+    const isValid = await this.twoFactorService.verifyCode(user, otpCode);
+    if (isValid) await this.cacheManager.del(key); // Reset on success
+    if (!isValid) throw new ForbiddenException('Invalid OTP code');
+
+  Referencia: OWASP Authentication Cheat Sheet, CWE-307.
+
+────────────────────────────────────────────────────────────────────────────
+H-06 · [MEDIA] terminateOtherSessions con string vacío = revoca TODAS las sesiones
+────────────────────────────────────────────────────────────────────────────
+
+  Archivo: apps/backend/api/src/app/auth/auth.service.ts, línea 224
+
+  Código actual:
+    await this.sessionService.terminateOtherSessions(userId, ''); // Optionally kill other sessions
+
+  En session.service.ts (líneas 327-345):
+    async terminateOtherSessions(userId: string, currentSessionId: string) {
+      if (!currentSessionId) {  // '' es falsy => entra aquí
+        await this.refreshTokenRepository.update(
+          { userId, isRevoked: false },
+          { isRevoked: true, revokedAt: new Date() },
+        );
+        return;  // Revoca TODAS las sesiones, incluyendo la actual
+      }
+      ...
+    }
+
+  Por qué es un problema:
+    Un string vacío es falsy en JavaScript, lo que hace que la función
+    terminateOtherSessions('', '') revoque TODAS las sesiones del usuario
+    en lugar de "otras sesiones". Esto termina la sesión activa del usuario
+    que acaba de cambiar su contraseña, forzando un re-login inmediato.
+    Este comportamiento puede ser intencional (forzar re-login en todos los
+    dispositivos tras cambio de contraseña, que es una buena práctica), pero
+    el nombre de la función y el comentario "// Optionally kill other sessions"
+    sugieren que la intención era preservar la sesión actual. Esta ambigüedad
+    es un bug de lógica.
+
+  Corrección propuesta:
+    // En auth.service.ts:
+    // Opción A: Terminar TODAS las sesiones deliberadamente (recomendado tras cambio de pass)
+    await this.sessionService.terminateAllSessions(userId);
+
+    // Opción B: Pasar un sessionId real para preservar la sesión actual
+    // (requiere que changePassword reciba el refreshTokenId del cliente)
+
+  Referencia: NIST SP 800-63B §7.1, OWASP Authentication Cheat Sheet
+    §Change Password.
+
+────────────────────────────────────────────────────────────────────────────
+H-07 · [MEDIA] preVerifiedToken firmado con JWT_SECRET principal (clave compartida)
+────────────────────────────────────────────────────────────────────────────
+
+  Archivo: apps/backend/api/src/app/auth/services/mfa-orchestrator.service.ts
+           Líneas: 237-242
+
+  Código actual:
+    const preVerifiedToken = this.jwtService.sign(
+      { sub: target, verType: type, type: 'VERIFICATION_PRE_VERIFIED' },
+      { secret: this.configService.getOrThrow('JWT_SECRET'), expiresIn: '30m' },
+    );
+
+  También en línea 279-283 (confirmEmailMagicLink):
+    const preVerifiedToken = this.jwtService.sign(
+      { sub: payload.email, verType: ..., type: 'VERIFICATION_PRE_VERIFIED' },
+      { secret: this.configService.getOrThrow('JWT_SECRET'), expiresIn: '30m' },
+    );
+
+  Por qué es un problema:
+    El mismo `JWT_SECRET` que firma los access tokens de autenticación también
+    firma los tokens de pre-verificación (EMAIL_VERIFY, PHONE_VERIFY). Si en
+    el futuro se añade una validación que no verifica correctamente el campo
+    `type`, un token de pre-verificación podría ser malinterpretado como un
+    access token o viceversa. Si bien el campo `type` diferencia los tokens,
+    compartir la clave de firma viola el principio de separación de claves
+    criptográficas.
+
+  Corrección propuesta:
+    // En .env:
+    JWT_PREVERIFY_SECRET=<secret diferente de JWT_SECRET>
+
+    // En código:
+    const preVerifiedToken = this.jwtService.sign(
+      { sub: target, verType: type, type: 'VERIFICATION_PRE_VERIFIED' },
+      {
+        secret: this.configService.getOrThrow('JWT_PREVERIFY_SECRET'),
+        expiresIn: '30m'
+      },
+    );
+
+  Referencia: NIST SP 800-57 Part 1 §5.2 Key Separation, CWE-321.
+
+────────────────────────────────────────────────────────────────────────────
+H-08 · [MEDIA] IP en texto plano almacenada junto a IP cifrada en refresh_tokens
+────────────────────────────────────────────────────────────────────────────
+
+  Archivo: apps/backend/api/src/app/auth/entities/refresh-token.entity.ts
+           Líneas: 34-40
+
+  Código actual:
+    @Column({ name: 'ip_address', nullable: true })
+    ipAddress?: string;  // IP en texto plano
+
+    @Column({ name: 'encrypted_ip', nullable: true, select: false })
+    encryptedIp?: string;  // IP cifrada con AES-256-GCM
+
+  Por qué es un problema:
+    Existe la infraestructura para cifrar IPs (encryptedIp, AES-256-GCM en
+    session.service.ts:473-481), pero la IP sigue almacenándose también en
+    texto plano en el campo `ipAddress`. Si la base de datos es comprometida,
+    todas las IPs de acceso (que son PII bajo GDPR/regulaciones de privacidad)
+    quedan expuestas. El campo encryptedIp tiene `select: false` (no cargado
+    por defecto), pero ipAddress sí es cargado y usado para mostrar sesiones.
+
+  Corrección propuesta:
+    // En token.service.ts y session.service.ts:
+    // 1. Guardar IP cifrada en encryptedIp.
+    // 2. Guardar solo los primeros dos octetos (maskeados) en ipAddress para display:
+    //    ipAddress = '192.168.*.*'  ← para uso en listado de sesiones
+    // 3. encryptedIp = IP completa cifrada ← para forense
+
+    // En getUserSessions:
+    ipAddress: session.ipAddress, // Ya maskeada al guardar
+
+  Referencia: GDPR Art. 4(1) (IP como dato personal), CWE-312.
+
+────────────────────────────────────────────────────────────────────────────
+H-09 · [MEDIA] STRIPE_SECRET_KEY contiene una publishable key
+────────────────────────────────────────────────────────────────────────────
+
+  Archivo: .env (local, no commiteado), línea 82
+
+  Código actual:
+    STRIPE_SECRET_KEY=pk_test_51SaHa2DIsGIs...  (empieza con pk_, publishable)
+
+  Por qué es un problema:
+    Las publishable keys de Stripe (pk_test_...) son seguras de exponer al
+    cliente pero NO pueden realizar operaciones server-side (cobros, webhooks,
+    listado de clientes). Las secret keys (sk_test_...) son las que el backend
+    necesita. Si el backend intenta crear checkout sessions con esta key
+    publicable, todas las operaciones de pago fallaran silenciosamente o con
+    errores poco descriptivos de Stripe. Adicionalmente, el webhook secret
+    (`whsec_1234567890abcdef...`) parece un placeholder que no es un secret
+    real, lo que dejará los webhooks de Stripe sin verificación de firma.
+    CWE-798 (Use of Hard-coded Credentials en contexto de configuración).
+
+  Corrección:
+    STRIPE_SECRET_KEY=sk_test_<tu_secret_key_real>
+    STRIPE_WEBHOOK_SECRET=whsec_<secret_real_del_webhook_endpoint>
+
+────────────────────────────────────────────────────────────────────────────
+H-10 · [BAJA] Email sin @MaxLength en RegisterUserDto
+────────────────────────────────────────────────────────────────────────────
+
+  Archivo: apps/backend/api/src/app/auth/dto/register-user.dto.ts, líneas 47-50
+
+  Código actual:
+    @IsEmail({}, { message: '...' })
+    @IsNotEmpty({ message: '...' })
+    email: string;
+    // Sin @MaxLength
+
+  Por qué es un problema:
+    Un email sin MaxLength permite el envío de strings muy largos. Aunque la
+    base de datos limitaría esto a nivel de columna VARCHAR, un email de
+    10,000 caracteres podría causar problemas en la validación de argon2 del
+    dummy password, en el envío de emails (template rendering) o en índices
+    de base de datos. La RFC 5321 limita emails a 254 caracteres.
+
+  Corrección:
+    @IsEmail({}, { message: '...' })
+    @IsNotEmpty({ message: '...' })
+    @MaxLength(254, { message: 'El email no puede tener más de 254 caracteres.' })
+    email: string;
+
+  Referencia: RFC 5321 §4.5.3.1.3, CWE-20.
+
+────────────────────────────────────────────────────────────────────────────
+H-11 · [BAJA] connectSrc 'self' en CSP puede bloquear WebSocket cross-origin
+────────────────────────────────────────────────────────────────────────────
+
+  Archivo: apps/backend/api/src/main.ts, línea 40 (dentro del CSP)
+
+  Código actual:
+    connectSrc: ["'self'"],
+
+  Por qué es un problema:
+    En desarrollo, el frontend corre en http://localhost:4200 y la API en
+    http://localhost:3000. Las conexiones WebSocket (socket.io) desde el
+    frontend a la API son cross-origin y serán bloqueadas por el CSP
+    `connectSrc: ['self']` en el contexto del frontend. En producción, si
+    el frontend y la API están en el mismo dominio, esto no es problema.
+    Pero si están en subdominios distintos (api.virteex.com vs virteex.com),
+    el CSP del API server necesitaría incluir el origen del frontend. Nota:
+    el CSP en main.ts aplica al server de API, no al frontend Angular. El
+    frontend tiene su propio CSP potencialmente diferente.
+
+  Evaluación: En el contexto actual (Fastify API), el CSP aplica a las
+    respuestas del API, no al HTML del frontend. Impacto real mínimo.
+    Se reporta por completitud de auditoría.
+
+────────────────────────────────────────────────────────────────────────────
+H-12 · [INFORMATIVO] JWT_2FA_TEMP_SECRET ausente en .env
+────────────────────────────────────────────────────────────────────────────
+
+  Archivo: apps/backend/api/src/app/auth/auth.config.ts, líneas 22-28
+
+  Código actual:
+    get JWT_2FA_TEMP_SECRET() {
+      const secret = process.env.JWT_2FA_TEMP_SECRET;
+      if (!secret) {
+        throw new Error('FATAL: JWT_2FA_TEMP_SECRET is required and must be set via environment variable.');
+      }
+      return secret;
+    }
+
+  Observación:
+    El código correctamente lanza un error fatal si JWT_2FA_TEMP_SECRET no
+    está definido, pero el archivo .env local no incluye esta variable. Esto
+    causaría que cualquier flujo de 2FA falle en el momento de acceder a esta
+    configuración. Debe añadirse a .env.example y a la documentación de
+    variables de entorno requeridas.
+
+  Corrección:
+    # En .env:
+    JWT_2FA_TEMP_SECRET=<secret-de-64-bytes-aleatorios>
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. HOJA DE RUTA DE REMEDIACIÓN PRIORIZADA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+FASE 1 — CRÍTICO (Antes de cualquier deploy a producción)
+─────────────────────────────────────────────────────────
+  #   Hallazgo  Acción                                                Esfuerzo
+  ──────────────────────────────────────────────────────────────────────────────
+  1   H-01      Eliminar `accessToken` del body de                    BAJO
+                setPasswordFromInvitation (auth.controller.ts:222)
+                Una línea de código. Verificar que el cliente
+                solo usa la cookie para funcionar.
+
+  2   H-02      Eliminar `accessToken` del body del WebAuthn login     BAJO
+                (auth.controller.ts:583). Igual que H-01.
+
+  3   H-03      Añadir contador de intentos a verifyPhoneOtp           BAJO
+                (mfa-orchestrator.service.ts:117). Copiar el bloque
+                de verifyEmailOtp líneas 77-93.
+
+  4   H-12      Añadir JWT_2FA_TEMP_SECRET al .env y crear             BAJO
+                un .env.example con todas las variables requeridas.
+
+
+FASE 2 — IMPORTANTE (Próximo sprint)
+─────────────────────────────────────
+  #   Hallazgo  Acción                                                Esfuerzo
+  ──────────────────────────────────────────────────────────────────────────────
+  5   H-04      Añadir validación en sendPhoneOtp para verificar       MEDIO
+                que el número de teléfono coincide con el del usuario
+                o implementar whitelist por usuario.
+
+  6   H-05      Añadir rate limiting de intentos en                    MEDIO
+                TwoFactorVerifiedGuard usando CacheManager (Redis).
+                5 intentos máximo por userId en ventana de 5 minutos.
+
+  7   H-06      Clarificar el comportamiento de terminateOtherSessions BAJO
+                en changePassword. Si es intencional terminar todas
+                las sesiones, usar terminateAllSessions() directamente
+                para hacer la intención explícita.
+
+  8   H-09      Corregir STRIPE_SECRET_KEY en .env con la sk_test_    BAJO
+                real y verificar que STRIPE_WEBHOOK_SECRET sea
+                el secret real del webhook endpoint de Stripe.
+
+
+FASE 3 — CALIDAD Y ESCALABILIDAD (Deuda técnica planificada)
+─────────────────────────────────────────────────────────────
+  #   Hallazgo  Acción                                                Esfuerzo
+  ──────────────────────────────────────────────────────────────────────────────
+  9   H-07      Separar el secreto de firma de preVerifiedToken en     MEDIO
+                su propio JWT_PREVERIFY_SECRET. Añadir a .env.
+
+  10  H-08      Eliminar el campo ipAddress en texto plano de          ALTO
+                refresh_tokens. Almacenar solo los dos primeros
+                octetos en ip_address (para display) y IP completa
+                cifrada en encrypted_ip. Requiere migración de BD.
+
+  11  H-10      Añadir @MaxLength(254) a campo email en               BAJO
+                RegisterUserDto y LoginUserDto.
+
+  12  General   Crear .env.example con todas las variables             BAJO
+                requeridas documentadas, marcando cuáles son
+                obligatorias en producción.
+
+  13  General   Auditar que todos los endpoints de OAuth Social        MEDIO
+                (Google, Microsoft, Okta) tengan credentials
+                reales configuradas en .env de producción.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+APÉNDICE — ALCANCE DE ARCHIVOS AUDITADOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BACKEND (apps/backend/api/src/app/):
+  auth/auth.service.ts
+  auth/auth.controller.ts
+  auth/auth.facade.ts
+  auth/auth.module.ts
+  auth/auth.config.ts
+  auth/services/token.service.ts
+  auth/services/session.service.ts
+  auth/services/password.service.ts
+  auth/services/cookie.service.ts
+  auth/services/two-factor-auth.service.ts
+  auth/services/password-recovery.service.ts
+  auth/services/mfa-orchestrator.service.ts
+  auth/services/security-analysis.service.ts
+  auth/services/registration.service.ts
+  auth/services/impersonation.service.ts
+  auth/services/webauthn.service.ts (parcial)
+  auth/strategies/jwt.strategy/jwt.strategy.ts
+  auth/guards/jwt/jwt.guard.ts
+  auth/guards/csrf.guard.ts
+  auth/guards/permissions/permissions.guard.ts
+  auth/guards/two-factor-verified.guard.ts
+  auth/entities/refresh-token.entity.ts
+  auth/entities/verification-code.entity.ts
+  auth/listeners/auth-audit.listener.ts
+  auth/dto/register-user.dto.ts
+  auth/dto/login-user.dto.ts
+  auth/dto/user-response.dto.ts
+  users/users.controller.ts
+  users/users.service.ts (parcial)
+  users/entities/user-security.entity.ts
+  main.ts
+
+FRONTEND (apps/core/client-web/src/app/):
+  core/interceptors/auth.interceptor.ts
+  core/services/auth.ts
+  core/services/idle.service.ts
+  core/services/auth-queue.service.ts (referenciado)
+  core/guards/auth-guard.ts
+  core/guards/permissions-guard.ts
+  features/auth/login/login.page.ts
+
+CONFIGURACIÓN:
+  .env (local, no commiteado)
+  .gitignore
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FIN DEL INFORME
+Generado: 2026-06-01 | Repositorio: /Users/stevenbaez/virtex
+Estándar de referencia: OWASP Top 10 2021, NIST SP 800-63B, CWE/SANS Top 25
+═══════════════════════════════════════════════════════════════════════════════
