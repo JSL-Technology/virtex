@@ -29,19 +29,24 @@ export class CookieService {
     };
 
     // Access Token
-    res.cookie('access_token', accessToken, {
+    // 10/10 SECURITY: Use __Host- prefix for hardening
+    res.cookie('__Host-access_token', accessToken, {
       ...cookieOptions,
       maxAge: AuthConfig.COOKIE_ACCESS_MAX_AGE,
+      path: '/',
+      secure: true, // __Host- requires Secure
     });
 
     // Refresh Token
     if (refreshToken) {
-      res.cookie('refresh_token', refreshToken, {
+      // 10/10 SECURITY: Use __Secure- prefix (allows restricted path)
+      res.cookie('__Secure-refresh_token', refreshToken, {
         ...cookieOptions,
         maxAge: rememberMe
           ? AuthConfig.COOKIE_REFRESH_REMEMBER_ME_MAX_AGE
           : AuthConfig.COOKIE_REFRESH_MAX_AGE,
-        path: '/api/v1/auth/refresh', // 10/10 SECURITY: Limit scope of refresh token
+        path: '/api/v1/auth/refresh', // Limit scope of refresh token
+        secure: true, // __Secure- requires Secure
       });
     }
 
@@ -64,9 +69,9 @@ export class CookieService {
 
   setSocialRegisterTokenCookie(res: Response, token: string): void {
     const isProduction = this.configService.get('NODE_ENV') === 'production';
-    res.cookie('social_register_token', token, {
+    res.cookie('__Host-social_register_token', token, {
       httpOnly: true,
-      secure: isProduction,
+      secure: true,
       sameSite: 'lax',
       maxAge: 5 * 60 * 1000, // 5 minutes — PII transfer window
       path: '/',
@@ -75,9 +80,9 @@ export class CookieService {
 
   setRegisterTokenCookie(res: Response, token: string): void {
     const isProduction = this.configService.get('NODE_ENV') === 'production';
-    res.cookie('register_token', token, {
+    res.cookie('__Host-register_token', token, {
       httpOnly: true,
-      secure: isProduction,
+      secure: true,
       sameSite: 'lax',
       maxAge: 1000 * 60 * 15, // 15 minutes
       path: '/',
@@ -85,8 +90,8 @@ export class CookieService {
   }
 
   clearAuthCookies(res: Response): void {
-    res.clearCookie('access_token', { path: '/' });
-    res.clearCookie('refresh_token', { path: '/api/v1/auth/refresh' });
+    res.clearCookie('__Host-access_token', { path: '/', secure: true });
+    res.clearCookie('__Secure-refresh_token', { path: '/api/v1/auth/refresh', secure: true });
     res.clearCookie('XSRF-TOKEN', { path: '/' });
   }
 }

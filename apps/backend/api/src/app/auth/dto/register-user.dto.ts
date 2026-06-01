@@ -53,8 +53,8 @@ export class RegisterUserDto {
     @IsString({ message: 'La contraseña debe ser un texto.' })
     @IsNotEmpty({ message: 'La contraseña no puede estar vacía.' })
     @MinLength(8, { message: 'La contraseña debe tener al menos 8 caracteres.' })
-    @MaxLength(50, {
-        message: 'La contraseña no puede tener más de 50 caracteres.',
+    @MaxLength(128, {
+        message: 'La contraseña no puede tener más de 128 caracteres.',
     })
     @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
         message:
