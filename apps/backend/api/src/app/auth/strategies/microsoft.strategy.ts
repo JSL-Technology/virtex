@@ -12,7 +12,8 @@ export class MicrosoftStrategy extends PassportStrategy(Strategy, 'microsoft') {
       clientID: configService.getOrThrow('MICROSOFT_CLIENT_ID'),
       clientSecret: configService.getOrThrow('MICROSOFT_CLIENT_SECRET'),
       callbackURL: configService.getOrThrow('MICROSOFT_CALLBACK_URL'),
-      scope: ['user.read'],
+      scope: ['user.read', 'openid', 'email', 'profile'],
+      state: true,
     });
   }
 

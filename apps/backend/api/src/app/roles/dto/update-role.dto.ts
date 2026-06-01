@@ -1,4 +1,5 @@
-import { IsString, IsArray, IsOptional, Length } from 'class-validator';
+import { IsString, IsArray, IsOptional, Length, IsIn } from 'class-validator';
+import { ALL_PERMISSIONS } from '../../shared/permissions';
 
 export class UpdateRoleDto {
   @IsString()
@@ -13,5 +14,7 @@ export class UpdateRoleDto {
 
   @IsArray()
   @IsOptional()
+  @IsString({ each: true })
+  @IsIn(ALL_PERMISSIONS, { each: true })
   permissions?: string[];
 }

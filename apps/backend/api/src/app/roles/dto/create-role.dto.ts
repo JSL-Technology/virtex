@@ -1,4 +1,5 @@
-import { IsString, IsArray, IsOptional, Length } from 'class-validator';
+import { IsString, IsArray, IsOptional, Length, IsIn, ArrayNotEmpty } from 'class-validator';
+import { ALL_PERMISSIONS } from '../../shared/permissions';
 
 export class CreateRoleDto {
   @IsString()
@@ -11,5 +12,8 @@ export class CreateRoleDto {
   description?: string;
 
   @IsArray()
+  @ArrayNotEmpty()
+  @IsString({ each: true })
+  @IsIn(ALL_PERMISSIONS, { each: true })
   permissions: string[];
 }

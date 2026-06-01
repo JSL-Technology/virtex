@@ -174,6 +174,9 @@ export class TokenService {
     return this.jwtService.sign(payload, {
       secret: secret || this.configService.getOrThrow('JWT_SECRET'),
       expiresIn: expiresIn || AuthConfig.JWT_ACCESS_EXPIRATION,
+      algorithm: 'HS256',
+      issuer: 'virteex-api',
+      audience: 'virteex-web',
     });
   }
 

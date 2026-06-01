@@ -1,7 +1,7 @@
 
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-okta-oauth';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SocialUser } from '../interfaces/social-user.interface';
 
@@ -14,10 +14,14 @@ export class OktaStrategy extends PassportStrategy(Strategy, 'okta') {
       callbackURL: configService.getOrThrow('OKTA_CALLBACK_URL'),
       audience: configService.getOrThrow('OKTA_DOMAIN'),
       scope: ['openid', 'email', 'profile'],
+      state: true,
     });
   }
 
   async validate(accessToken: string, refreshToken: string, profile: any, done: Function): Promise<any> {
+    if (profile._json?.email_verified !== true) {
+        return done(new UnauthorizedException('Okta email not verified'), false);
+    }
     try {
         const { displayName, emails, id, name } = profile;
         const firstName = name ? name.givenName : displayName.split(' ')[0];

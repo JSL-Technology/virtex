@@ -1,5 +1,5 @@
 
-import { Controller, Post, Body, HttpCode, HttpStatus, Res, Get, UseGuards, Req, UsePipes, ValidationPipe, BadRequestException, UnauthorizedException, Param, Ip, Headers, UseFilters } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Res, Get, UseGuards, Req, UsePipes, ValidationPipe, BadRequestException, UnauthorizedException, Param, Ip, Headers, UseFilters, Header } from '@nestjs/common';
 import type { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { AuthFacade } from './auth.facade';
@@ -131,7 +131,7 @@ export class AuthController {
   @Public()
   @ApiOperation({ summary: 'Decode social register token to pre-fill form' })
   async getSocialRegisterInfo(@Req() req: Request) {
-      const tokenToUse = req.cookies['social_register_token'];
+      const tokenToUse = req.cookies['social_register_token'] || req.cookies['__Host-social_register_token'];
 
       if (!tokenToUse) {
           throw new BadRequestException('Token de registro no encontrado (cookie requerida)');
@@ -230,8 +230,9 @@ export class AuthController {
     return this.passwordRecoveryService.getInvitationDetails(token);
   }
 
-  @Get('refresh')
+  @Post('refresh')
   @Public()
+  @UseGuards(CsrfGuard)
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ type: AuthResponseDto })
   async refresh(
@@ -240,7 +241,7 @@ export class AuthController {
     @Ip() ip: string,
     @Headers('user-agent') userAgent: string
   ): Promise<AuthResponseDto> {
-    const refreshToken = req.cookies?.refresh_token;
+    const refreshToken = req.cookies?.['__Secure-refresh_token'] || req.cookies?.refresh_token;
     if (!refreshToken) {
       throw new BadRequestException('Refresh token no encontrado en cookies');
     }
@@ -269,8 +270,9 @@ export class AuthController {
 
   @Get('status')
   @Public()
+  @Header('Cache-Control', 'no-store')
   async checkAuthStatus(@Req() req: Request) {
-    const token = req.cookies['access_token'];
+    const token = req.cookies['__Host-access_token'] || req.cookies['access_token'];
 
     if (!token) {
       return { isAuthenticated: false, user: null };
@@ -582,7 +584,7 @@ export class AuthController {
   @ApiOperation({ summary: 'List active sessions (devices)' })
   async getUserSessions(@CurrentUser() user: User, @Req() req: Request) {
       let currentRefreshTokenId: string | undefined;
-      const token = req.cookies['refresh_token'];
+      const token = req.cookies['__Secure-refresh_token'] || req.cookies['refresh_token'];
       if (token) {
           try {
              // We decode to get the 'jti' (ID)

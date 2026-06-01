@@ -163,11 +163,11 @@ export class InvoiceStatus {
         },
         menuStyle: {
           background: bgColor, border: `1px solid var(--border-color)`,
-          boxShadow: `0 8px 16px var(--shadow-color)`, borderRadius: borderRadiusMd, padding: '0.5rem'
+          boxShadow: `0 8px 16px var(--shadow-color)`, borderRadius: `${borderRadiusMd}px`, padding: '0.5rem'
         },
         menuItemStyle: {
           color: textColor, fontSize: '13px', fontWeight: '500',
-          padding: '0.5rem 1rem', borderRadius: borderRadiusMd * 0.66
+          padding: '0.5rem 1rem', borderRadius: `${borderRadiusMd * 0.66}px`
         },
         menuItemHoverStyle: { background: hoverBgColor, color: accentColor }
       }

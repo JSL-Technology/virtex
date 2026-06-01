@@ -120,11 +120,11 @@ export class TopProductsChart {
         menuStyle: {
           background: bg, border: `1px solid ${border}`,
           boxShadow: `0 8px 16px var(--shadow-color)`,
-          borderRadius: radius, padding: '0.5rem'
+          borderRadius: `${radius}px`, padding: '0.5rem'
         },
         menuItemStyle: {
           color: text, fontSize: '13px', fontWeight: '500',
-          padding: '0.5rem 1rem', borderRadius: Math.max(6, radius * 0.66)
+          padding: '0.5rem 1rem', borderRadius: `${Math.max(6, radius * 0.66)}px`
         },
         menuItemHoverStyle: { background: hoverBg, color: accent }
       },
