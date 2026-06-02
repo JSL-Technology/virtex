@@ -1,6 +1,7 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import * as crypto from 'crypto';
 import { User, UserStatus } from '../../users/entities/user.entity/user.entity';
 import { SocialUser } from '../interfaces/social-user.interface';
 import { UsersService } from '../../users/users.service';
@@ -20,12 +21,38 @@ export class SocialAuthService {
     private readonly tokenService: TokenService
   ) {}
 
+  // L-10: Hash PII (email/IP/UA) to a short, non-reversible digest before persisting in logs/audit.
+  private hashPii(value: string): string {
+    return crypto.createHash('sha256').update((value || '').toLowerCase().trim()).digest('hex').slice(0, 12);
+  }
+
   async validateOAuthLogin(socialUser: SocialUser, ipAddress?: string, userAgent?: string): Promise<{ user: User | null; tokens?: any }> {
     // 1. Use findUserForAuth to ensure security relation is loaded (required for tokenVersion)
     const user = await this.usersService.findUserForAuth(socialUser.email);
 
     if (user) {
-      if (user.authProvider !== socialUser.provider || user.authProviderId !== socialUser.providerId) {
+      const isNewLink =
+        user.authProvider !== socialUser.provider || user.authProviderId !== socialUser.providerId;
+
+      if (isNewLink) {
+        // M-02 FIX: Never (re)link an OAuth identity to an existing local account unless the
+        // provider asserts the email is verified. A malicious/custom IdP could otherwise claim
+        // a victim's email and take over the account (pre-account-hijacking).
+        if (!socialUser.emailVerified) {
+          throw new UnauthorizedException(
+            'El proveedor no ha verificado tu correo. No es posible vincular la cuenta.',
+          );
+        }
+
+        // M-02 FIX: If the account already has a local password, refuse silent linking and
+        // require an authenticated account-linking step (user must sign in locally first).
+        // This prevents a second provider from hijacking a password-protected account.
+        if (user.security?.passwordHash) {
+          throw new ConflictException(
+            'Ya existe una cuenta local con este correo. Inicia sesión con tu contraseña y vincula el proveedor desde tu perfil.',
+          );
+        }
+
         await this.usersService.update(user.id, {
           authProvider: socialUser.provider,
           authProviderId: socialUser.providerId,
@@ -42,12 +69,19 @@ export class SocialAuthService {
 
       await this.securityAnalysisService.checkImpossibleTravel(user.id, ipAddress);
 
+      // L-10 FIX: Do not store raw PII (email/IP/UA) in the audit trail. Mirror the hashing
+      // used elsewhere (mfa-orchestrator / session.service) for privacy/GDPR minimization.
       await this.auditService.record(
         user.id,
         'User',
         user.id,
         ActionType.LOGIN,
-        { email: user.email, provider: socialUser.provider, ipAddress, userAgent },
+        {
+          emailHash: this.hashPii(user.email),
+          provider: socialUser.provider,
+          ipHash: ipAddress ? this.hashPii(ipAddress) : undefined,
+          uaHash: userAgent ? this.hashPii(userAgent) : undefined,
+        },
         undefined,
       );
 

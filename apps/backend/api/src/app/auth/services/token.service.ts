@@ -9,7 +9,6 @@ import ms from 'ms';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import * as ipaddr from 'ipaddr.js';
-import * as crypto from 'crypto';
 
 import { User } from '../../users/entities/user.entity/user.entity';
 import { RefreshToken } from '../entities/refresh-token.entity';
@@ -21,6 +20,7 @@ import { AuthenticatedUser } from '../interfaces/authenticated-user.interface';
 import { AuthError } from '../enums/auth-error.enum';
 import { UserStatus } from '../../users/entities/user.entity/user.entity';
 import { GeoService } from '../../geo/geo.service';
+import { CryptoUtil } from '../../shared/utils/crypto.util';
 
 @Injectable()
 export class TokenService {
@@ -33,7 +33,8 @@ export class TokenService {
     @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
-    private readonly geoService: GeoService
+    private readonly geoService: GeoService,
+    private readonly cryptoUtil: CryptoUtil
   ) {}
 
   async validateTokenAndGetUser(payload: JwtPayload): Promise<AuthenticatedUser> {
@@ -222,15 +223,9 @@ export class TokenService {
     }
   }
 
+  // L-13 FIX: delegate to the centralized CryptoUtil (single key derivation from
+  // ENCRYPTION_SECRET + AUTH_SALT) instead of a service-local sha256(secret) derivation.
   private encryptIp(ip: string): string {
-    const secret = this.configService.get<string>('ENCRYPTION_SECRET');
-    if (!secret) return '';
-    const key = crypto.createHash('sha256').update(secret).digest();
-    const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
-    let encrypted = cipher.update(ip, 'utf8', 'hex');
-    encrypted += cipher.final('hex');
-    const authTag = cipher.getAuthTag().toString('hex');
-    return `${iv.toString('hex')}:${encrypted}:${authTag}`;
+    return this.cryptoUtil.encrypt(ip);
   }
 }

@@ -112,19 +112,22 @@ export class SecurityAnalysisService {
    * Uses 'bowser' (MIT) to safely parse user agent strings.
    * Returns generic names for fuzzy matching (e.g. 'Chrome' instead of 'Chrome 120.0.1')
    */
-  parseUserAgent(userAgent: string): { browser: string; os: string } {
-    if (!userAgent) return { browser: 'Unknown', os: 'Unknown' };
+  parseUserAgent(userAgent: string): { browser: string; os: string; deviceType: string } {
+    if (!userAgent) return { browser: 'Unknown', os: 'Unknown', deviceType: 'Unknown' };
 
     try {
       const parsed = Bowser.parse(userAgent);
       // We explicitly ignore version numbers for fuzzy matching to avoid false positives on auto-updates
+      // I-15 FIX: also return deviceType (desktop/mobile/tablet) so refresh_tokens.device_type
+      // is populated instead of always being null.
       return {
         browser: parsed.browser.name || 'Unknown',
         os: parsed.os.name || 'Unknown',
+        deviceType: parsed.platform?.type || 'Unknown',
       };
     } catch (error) {
       this.logger.warn(`Failed to parse User Agent: ${userAgent}`);
-      return { browser: 'Unknown', os: 'Unknown' };
+      return { browser: 'Unknown', os: 'Unknown', deviceType: 'Unknown' };
     }
   }
 

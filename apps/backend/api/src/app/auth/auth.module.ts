@@ -52,6 +52,7 @@ import { DoRegistrationStrategy } from './strategies/registration/do-registratio
 import { UsRegistrationStrategy } from './strategies/registration/us-registration.strategy';
 import { AuthAuditListener } from './listeners/auth-audit.listener';
 import { CsrfGuard } from './guards/csrf.guard';
+import { IsOrganizationOwnerPolicy } from './policies/is-organization-owner.policy';
 
 @Module({
   imports: [
@@ -135,6 +136,9 @@ import { CsrfGuard } from './guards/csrf.guard';
     UsRegistrationStrategy,
     AuthAuditListener,
     CsrfGuard,
+    // M-05 FIX: register the ABAC policy so PermissionsGuard can resolve it via DI
+    // (moduleRef.get). Previously it was never provided, so it failed-secure as "not found".
+    IsOrganizationOwnerPolicy,
     {
       provide: AbstractSmsProvider,
       useClass: TwilioSmsProvider
@@ -156,6 +160,7 @@ import { CsrfGuard } from './guards/csrf.guard';
     UserCacheModule,
     SessionService,
     CsrfGuard,
+    IsOrganizationOwnerPolicy,
   ],
 })
 export class AuthModule {}

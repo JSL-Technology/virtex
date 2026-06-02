@@ -330,8 +330,11 @@ export class AuthController {
       return { message: 'Password updated successfully' };
   }
 
+  // L-09 FIX: Impersonation is one of the most sensitive operations — require step-up 2FA
+  // re-authentication (TwoFactorVerifiedGuard), consistent with session revocation, 2FA
+  // disable, user edit/delete and passkey registration.
   @Post('impersonate')
-  @UseGuards(JwtAuthGuard, CsrfGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard, TwoFactorVerifiedGuard)
   async impersonate(
     @CurrentUser() adminUser: User,
     @Body('userId') targetUserId: string,

@@ -1,6 +1,10 @@
 
 import { SetMetadata } from '@nestjs/common';
-import { Permission } from '../shared/permissions';
+import type { PermissionOrPolicy } from '../guards/permissions/permissions.guard';
 
 export const PERMISSIONS_KEY = 'permissions';
-export const HasPermission = (...permissions: Permission[]) => SetMetadata(PERMISSIONS_KEY, permissions);
+
+// Accepts both static permission strings and ABAC policy classes so a single declaration
+// can require a permission AND an ownership/tenant policy (see PermissionsGuard).
+export const HasPermission = (...permissions: PermissionOrPolicy[]) =>
+  SetMetadata(PERMISSIONS_KEY, permissions);

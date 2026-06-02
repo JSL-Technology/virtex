@@ -23,13 +23,20 @@ export class OktaStrategy extends PassportStrategy(Strategy, 'okta') {
         const firstName = name ? name.givenName : displayName.split(' ')[0];
         const lastName = name ? name.familyName : displayName.split(' ').slice(1).join(' ');
 
+        // M-02: Trust only the provider's explicit email_verified OIDC claim. For custom
+        // OIDC/Okta tenants we must NOT assume verification, otherwise a malicious IdP could
+        // assert an arbitrary email and hijack a local account.
+        const json = (profile as any)._json ?? {};
+        const emailVerified = json.email_verified === true || json.email_verified === 'true';
+
         const user: SocialUser = {
           email: emails[0].value,
           firstName: firstName,
           lastName: lastName,
           accessToken,
           provider: 'okta',
-          providerId: id
+          providerId: id,
+          emailVerified,
         };
         done(null, user);
     } catch(err) {

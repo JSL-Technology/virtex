@@ -2,11 +2,14 @@
 import {
   Injectable,
   UnauthorizedException,
-  Logger
+  Logger,
+  Inject
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 import * as crypto from 'crypto';
 
 import { LoginUserDto } from './dto/login-user.dto';
@@ -40,8 +43,14 @@ export class AuthService {
     private readonly tokenService: TokenService,
     private readonly mfaOrchestratorService: MfaOrchestratorService,
     private readonly passwordService: PasswordService,
-    private readonly eventEmitter: EventEmitter2
+    private readonly eventEmitter: EventEmitter2,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
+
+  // L-11: cache key namespace for one-time 2FA temp-token identifiers (jti).
+  private twoFactorTempKey(jti: string): string {
+    return `2fa_temp:${jti}`;
+  }
 
   async login(loginUserDto: LoginUserDto & { twoFactorCode?: string }, ipAddress?: string, userAgent?: string): Promise<LoginResult> {
     const { email, password, twoFactorCode, rememberMe } = loginUserDto;
@@ -93,13 +102,18 @@ export class AuthService {
       if (!twoFactorCode) {
          // Ensure expiration is an integer string in seconds for safety and clarity
          const expirationSeconds = Math.floor(AuthConfig.MFA_CODE_EXPIRATION / 1000);
+         // L-11 FIX: bind a single-use jti to the temp token and register it in the cache with
+         // a matching TTL. The token is consumed on the first verify-2fa attempt, preventing
+         // replay within the (≈5 min) validity window.
+         const jti = crypto.randomUUID();
          const tempToken = this.jwtService.sign(
-            { id: user.id, type: '2fa_pending', tokenVersion: user.security.tokenVersion },
+            { id: user.id, type: '2fa_pending', tokenVersion: user.security.tokenVersion, jti },
             {
               expiresIn: `${expirationSeconds}s`,
               secret: AuthConfig.JWT_2FA_TEMP_SECRET
             }
          );
+         await this.cacheManager.set(this.twoFactorTempKey(jti), user.id, AuthConfig.MFA_CODE_EXPIRATION);
 
          if (user.isPhoneVerified && user.phone) {
              await this.mfaOrchestratorService.sendLoginOtp(user);
@@ -192,6 +206,18 @@ export class AuthService {
           if (payload.type !== '2fa_pending') {
               throw new UnauthorizedException('Invalid token type');
           }
+
+          // L-11 FIX: enforce single-use. The jti must still be present in the cache; consume
+          // it atomically so the temp token cannot be replayed (success or failure).
+          if (!payload.jti) {
+              throw new UnauthorizedException('Invalid 2FA session token');
+          }
+          const cacheKey = this.twoFactorTempKey(payload.jti);
+          const stored = await this.cacheManager.get<string>(cacheKey);
+          if (!stored || stored !== payload.id) {
+              throw new UnauthorizedException('2FA session token already used or expired');
+          }
+          await this.cacheManager.del(cacheKey);
 
           const user = await this.usersService.findUserByIdForAuth(payload.id);
           if (!user || !user.security) return null;

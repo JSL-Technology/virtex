@@ -13,6 +13,7 @@ import { GoogleRecaptchaModule } from '@nestlab/google-recaptcha';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerModule } from 'nestjs-pino';
 import * as crypto from 'crypto';
+import * as fs from 'fs';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
@@ -148,8 +149,17 @@ const envValidation = Joi.object({
         autoLoadEntities: true,
         synchronize: config.get<boolean>('DB_SYNCHRONIZE', false),
         logging: config.get<boolean>('DB_LOGGING', false),
+        // M-04 FIX: When TLS is enabled, validate the server certificate (rejectUnauthorized:true)
+        // to prevent MITM of credentials/tokens/2FA secrets in transit. An optional CA bundle
+        // (DB_SSL_CA) supports private/managed-CA deployments. rejectUnauthorized can only be
+        // disabled via an explicit opt-out flag, never by default.
         ssl: config.get<boolean>('DB_SSL', false)
-          ? { rejectUnauthorized: false }
+          ? {
+              rejectUnauthorized: config.get<boolean>('DB_SSL_REJECT_UNAUTHORIZED', true),
+              ...(config.get<string>('DB_SSL_CA')
+                ? { ca: fs.readFileSync(config.get<string>('DB_SSL_CA') as string).toString() }
+                : {}),
+            }
           : false,
       }),
     }),

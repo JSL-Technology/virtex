@@ -6,7 +6,13 @@ import * as crypto from 'crypto';
 @Injectable()
 export class CryptoUtil {
   private readonly algorithm = 'aes-256-gcm';
+  // L-13 FIX: Single, centralized key derivation for ENCRYPTION_SECRET using the configured
+  // AUTH_SALT instead of the predictable literal 'salt' (CWE-760). A legacy key derived from
+  // the old literal salt is retained ONLY for decryption, so previously-encrypted data (e.g.
+  // TOTP secrets) keeps working without a forced migration. New data is always written with
+  // the current key, enabling gradual re-encryption / key rotation.
   private readonly key: Buffer;
+  private readonly legacyKey: Buffer;
   // GCM standard IV is 12 bytes (96 bits)
   private readonly ivLength = 12;
 
@@ -15,8 +21,15 @@ export class CryptoUtil {
     if (!secret) {
       throw new Error('ENCRYPTION_SECRET is not defined in environment variables');
     }
+    const salt = this.configService.get<string>('AUTH_SALT');
+    if (!salt && process.env['NODE_ENV'] === 'production') {
+      throw new Error('AUTH_SALT is not defined in environment variables');
+    }
+    const effectiveSalt = salt || 'default-salt-change-me-in-prod';
     // Ensure key is 32 bytes for AES-256
-    this.key = crypto.scryptSync(secret, 'salt', 32);
+    this.key = crypto.scryptSync(secret, effectiveSalt, 32);
+    // Legacy key (pre L-13): derived from the static literal salt. Decrypt-only fallback.
+    this.legacyKey = crypto.scryptSync(secret, 'salt', 32);
   }
 
   encrypt(text: string): string {
@@ -48,24 +61,36 @@ export class CryptoUtil {
     const authTag = Buffer.from(textParts[1], 'hex');
     const encryptedText = textParts[2]; // Hex string
 
-    const decipher = crypto.createDecipheriv(this.algorithm, this.key, iv);
-    decipher.setAuthTag(authTag);
+    // Try the current key first, then fall back to the legacy-salt key for data encrypted
+    // before L-13. GCM auth-tag verification makes the wrong-key attempt fail cleanly.
+    try {
+      return this.decryptWithKey(this.key, iv, authTag, encryptedText);
+    } catch (e) {
+      return this.decryptWithKey(this.legacyKey, iv, authTag, encryptedText);
+    }
+  }
 
+  private decryptWithKey(key: Buffer, iv: Buffer, authTag: Buffer, encryptedText: string): string {
+    const decipher = crypto.createDecipheriv(this.algorithm, key, iv);
+    decipher.setAuthTag(authTag);
     let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
     decrypted += decipher.final('utf8');
-
     return decrypted;
   }
 
   private decryptLegacy(ivHex: string, encryptedHex: string): string {
-      try {
-        const iv = Buffer.from(ivHex, 'hex');
-        const decipher = crypto.createDecipheriv('aes-256-cbc', this.key, iv);
-        let decrypted = decipher.update(encryptedHex, 'hex', 'utf8');
-        decrypted += decipher.final('utf8');
-        return decrypted;
-      } catch (e) {
-        throw new Error('Failed to decrypt legacy data');
+      const iv = Buffer.from(ivHex, 'hex');
+      // Try both keys for legacy CBC data as well.
+      for (const key of [this.key, this.legacyKey]) {
+        try {
+          const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+          let decrypted = decipher.update(encryptedHex, 'hex', 'utf8');
+          decrypted += decipher.final('utf8');
+          return decrypted;
+        } catch (e) {
+          // try next key
+        }
       }
+      throw new Error('Failed to decrypt legacy data');
   }
 }

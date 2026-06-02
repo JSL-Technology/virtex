@@ -7,6 +7,7 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 import { UserCacheService } from '../auth/modules/user-cache.service';
 import { User } from '../users/entities/user.entity/user.entity';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { hasPermission } from '@virteex/shared/util-auth';
 
 @Injectable()
 export class RolesService {
@@ -40,6 +41,43 @@ export class RolesService {
                 if (!actorPermissions.includes(p)) {
                     throw new ForbiddenException(`You cannot assign permission "${p}" that you do not hold.`);
                 }
+            }
+        }
+    }
+
+    // H-01 FIX: Anti privilege-escalation for ASSIGNING an existing role to a user.
+    // Mirrors assertAssignablePermissions but, unlike role creation, allows delegating the
+    // full wildcard role ('*') strictly to actors who themselves are super-admins.
+    // This closes the gap where a user holding only `users:edit` could promote anyone
+    // (including themselves) to the ADMINISTRATOR role (which carries '*').
+    assertCanAssignRole(actor: AuthenticatedUser, role: Role): void {
+        const actorPermissions = actor?.permissions || [];
+        const actorIsWildcard = actorPermissions.includes('*');
+        const rolePermissions = role?.permissions || [];
+
+        // Assigning a role that grants the full wildcard requires the actor to be a super-admin.
+        if (rolePermissions.includes('*')) {
+            if (!actorIsWildcard) {
+                throw new ForbiddenException(
+                    'No puedes asignar un rol con privilegios totales (*).',
+                );
+            }
+            return;
+        }
+
+        // Super-admins may assign any non-wildcard role.
+        if (actorIsWildcard) {
+            return;
+        }
+
+        // Otherwise the actor may only assign roles whose permissions they already hold.
+        // hasPermission honors prefix wildcards (e.g. 'users:*') so the check stays consistent
+        // with PermissionsGuard and the shared frontend util.
+        for (const permission of rolePermissions) {
+            if (!hasPermission(actorPermissions, [permission])) {
+                throw new ForbiddenException(
+                    `No puedes asignar un rol que incluye el permiso "${permission}" que tú no posees.`,
+                );
             }
         }
     }

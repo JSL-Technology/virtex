@@ -18,6 +18,13 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
 
   async validate(accessToken: string, refreshToken: string, profile: Profile): Promise<SocialUser> {
     const { name, emails, photos } = profile;
+    // M-02: Propagate Google's email_verified OIDC claim. Google reliably sets this for
+    // verified Gmail/Workspace accounts.
+    const json = (profile as any)._json ?? {};
+    const emailVerified =
+      json.email_verified === true ||
+      json.email_verified === 'true' ||
+      (emails && (emails[0] as any)?.verified === true);
     const user: SocialUser = {
       email: emails[0].value,
       firstName: name.givenName,
@@ -25,7 +32,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       picture: photos[0].value,
       accessToken,
       provider: 'google',
-      providerId: profile.id
+      providerId: profile.id,
+      emailVerified: !!emailVerified,
     };
     return user;
   }

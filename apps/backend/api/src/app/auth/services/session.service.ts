@@ -4,7 +4,6 @@ import {
   Logger,
   NotFoundException,
   Inject,
-  OnModuleInit,
   forwardRef,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -28,11 +27,12 @@ import { UserSecurity } from '../../users/entities/user-security.entity';
 import { AuthEvents, AuthAuditActionEvent } from '../events/auth.events';
 import { AuthError } from '../enums/auth-error.enum';
 import { GeoService } from '../../geo/geo.service';
+import { CryptoUtil } from '../../shared/utils/crypto.util';
+import { AuthConfig } from '../auth.config';
 
 @Injectable()
-export class SessionService implements OnModuleInit {
+export class SessionService {
   private readonly logger = new Logger(SessionService.name);
-  private encryptionKey: Buffer;
 
   constructor(
     @Inject(forwardRef(() => UsersService))
@@ -47,36 +47,9 @@ export class SessionService implements OnModuleInit {
     private readonly securityAnalysisService: SecurityAnalysisService,
     private readonly tokenService: TokenService,
     private readonly eventEmitter: EventEmitter2,
-    private readonly geoService: GeoService
+    private readonly geoService: GeoService,
+    private readonly cryptoUtil: CryptoUtil
   ) {}
-
-  onModuleInit() {
-      const secret = this.configService.get<string>('ENCRYPTION_SECRET');
-      const salt = this.configService.get<string>('AUTH_SALT');
-      const isProduction = process.env['NODE_ENV'] === 'production';
-
-      if (!secret) {
-          if (isProduction) {
-              throw new Error('FATAL: ENCRYPTION_SECRET is not defined in production environment.');
-          }
-          this.logger.warn('ENCRYPTION_SECRET not found. Using fallback for development.');
-      }
-
-      if (isProduction) {
-          if (!salt || salt === 'default-salt-change-me-in-prod') {
-               throw new Error('FATAL: AUTH_SALT is not defined or is using default value in production.');
-          }
-      } else {
-          if (!salt) {
-             this.logger.warn('AUTH_SALT not found. Using fallback for development.');
-          }
-      }
-
-      const effectiveSecret = secret || 'default-secret-change-me-in-prod-32';
-      const effectiveSalt = salt || 'default-salt-change-me-in-prod';
-      // Derive key once during startup (blocking here is acceptable/expected)
-      this.encryptionKey = crypto.scryptSync(effectiveSecret, effectiveSalt, 32);
-  }
 
   private sanitizeUserAgent(userAgent?: string): string | null {
       if (!userAgent) return null;
@@ -110,23 +83,53 @@ export class SessionService implements OnModuleInit {
            select: ['id', 'isRevoked', 'revokedAt', 'replacedByToken', 'userAgent', 'ipAddress', 'userId']
         });
 
-        if (!refreshTokenEntity || refreshTokenEntity.isRevoked) {
-          this.logger.warn({ event: 'refresh_reuse', jtiPrefix: payload.jti?.substring(0, 8) }, '[SECURITY] Refresh token reuse detected — family invalidated');
+        if (!refreshTokenEntity) {
+          // Unknown token id: it was never issued by us (forged) or already purged. Fail closed
+          // WITHOUT nuking the family (we cannot attribute it to a live session).
+          this.logger.warn({ event: 'refresh_unknown_jti', jtiPrefix: payload.jti.substring(0, 8) }, '[SECURITY] Refresh token with unknown id');
+          throw new UnauthorizedException(AuthError.REFRESH_TOKEN_INVALID);
+        }
 
-          if (user.security) {
-              user.security.tokenVersion = (user.security.tokenVersion || 0) + 1;
-              await this.userSecurityRepository.save(user.security);
+        // L-14 FIX: Atomically claim the token (flip is_revoked false→true in a single UPDATE).
+        // Only ONE concurrent request can win the claim, eliminating the read-then-write race
+        // that caused false-positive reuse detection (and global logout) when an SPA fires
+        // several refreshes at once.
+        const claim = await this.refreshTokenRepository.update(
+          { id: payload.jti, isRevoked: false },
+          { isRevoked: true, revokedAt: new Date() },
+        );
+
+        if (claim.affected === 0) {
+          // The token was already revoked. Distinguish a benign concurrent refresh (within the
+          // grace window) from genuine token reuse.
+          const revokedAt = refreshTokenEntity.revokedAt
+            ?? (await this.refreshTokenRepository.findOne({ where: { id: payload.jti }, select: ['revokedAt'] }))?.revokedAt
+            ?? null;
+          const graceMs = AuthConfig.REFRESH_GRACE_PERIOD;
+          const withinGrace = !!revokedAt && (Date.now() - revokedAt.getTime() <= graceMs);
+
+          if (!withinGrace) {
+            this.logger.warn({ event: 'refresh_reuse', jtiPrefix: payload.jti.substring(0, 8) }, '[SECURITY] Refresh token reuse detected — family invalidated');
+
+            if (user.security) {
+                user.security.tokenVersion = (user.security.tokenVersion || 0) + 1;
+                await this.userSecurityRepository.save(user.security);
+            }
+
+            await this.userCacheService.clearUserSession(user.id);
+            await this.refreshTokenRepository.update(
+                { userId: user.id, isRevoked: false },
+                { isRevoked: true, revokedAt: new Date() }
+            );
+
+            throw new UnauthorizedException(AuthError.REFRESH_TOKEN_REVOKED);
           }
 
-          await this.userCacheService.clearUserSession(user.id);
-          await this.refreshTokenRepository.update(
-              { userId: user.id, isRevoked: false },
-              { isRevoked: true, revokedAt: new Date() }
-          );
-
-          throw new UnauthorizedException(AuthError.REFRESH_TOKEN_REVOKED);
+          // Concurrent legitimate refresh within grace period — tolerate and mint fresh tokens
+          // without invalidating the family (RFC 9700 §4.14.2 concurrency tolerance).
+          this.logger.log({ event: 'refresh_grace', jtiPrefix: payload.jti.substring(0, 8) }, '[SECURITY] Concurrent refresh tolerated within grace period');
         } else {
-          // User Agent Analysis (using new SecurityAnalysisService)
+          // We successfully claimed the token. Run device/IP heuristics on the rotation.
           const sanitizedUserAgent = this.sanitizeUserAgent(userAgent);
 
           if (
@@ -161,10 +164,6 @@ export class SessionService implements OnModuleInit {
           ) {
             this.logger.log({ event: 'ip_change', from: refreshTokenEntity.ipAddress, to: this.maskIp(ipAddress) }, '[SECURITY] IP Change for Refresh');
           }
-
-          refreshTokenEntity.isRevoked = true;
-          refreshTokenEntity.revokedAt = new Date();
-          await this.refreshTokenRepository.save(refreshTokenEntity);
         }
       }
 
@@ -428,14 +427,9 @@ export class SessionService implements OnModuleInit {
     }
   }
 
+  // L-13 FIX: delegate to the centralized CryptoUtil so all encryption shares one key
+  // derivation (ENCRYPTION_SECRET + AUTH_SALT). Removes the third, divergent derivation.
   private encryptIp(ip: string): string {
-     const iv = crypto.randomBytes(16);
-     const cipher = crypto.createCipheriv('aes-256-gcm', this.encryptionKey, iv);
-
-     let encrypted = cipher.update(ip, 'utf8', 'hex');
-     encrypted += cipher.final('hex');
-     const authTag = cipher.getAuthTag().toString('hex');
-
-     return `${iv.toString('hex')}:${encrypted}:${authTag}`;
+     return this.cryptoUtil.encrypt(ip);
   }
 }

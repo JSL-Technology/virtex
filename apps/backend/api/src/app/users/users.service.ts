@@ -17,6 +17,7 @@ import { UserSecurity } from './entities/user-security.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SaasService } from '../saas/saas.service';
 import { SaasResource } from '../saas/enums/saas-resource.enum';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Injectable()
 export class UsersService {
@@ -147,6 +148,7 @@ export class UsersService {
     id: string,
     updateUserDto: UpdateUserDto,
     organizationId: string,
+    actor: AuthenticatedUser,
   ): Promise<User> {
     const user = await this.userRepository.findOne({
         where: { id, organizationId },
@@ -167,6 +169,10 @@ export class UsersService {
       if (!role) {
         throw new NotFoundException(`Rol con ID ${roleId} no encontrado.`);
       }
+      // H-01 FIX: Validate the actor is actually allowed to grant this role. Without this,
+      // a non-admin holding only `users:edit` could assign the ADMINISTRATOR role ('*') to
+      // any user (including themselves) — a vertical privilege escalation.
+      this.rolesService.assertCanAssignRole(actor, role);
       user.roles = [role];
       // Increment token version to invalidate sessions on role change
       if (user.security) {
@@ -320,7 +326,11 @@ export class UsersService {
       throw new NotFoundException(`Role with ID ${roleId} not found.`);
     }
 
-    const invitationToken = crypto.randomBytes(32).toString('hex');
+    // M-03 FIX: Persist only a SHA-256 hash of the invitation token (same approach as the
+    // password-reset token). The raw token travels by email; a DB leak no longer allows
+    // activating/taking over PENDING accounts.
+    const rawInvitationToken = crypto.randomBytes(32).toString('base64url');
+    const invitationTokenHash = crypto.createHash('sha256').update(rawInvitationToken).digest('hex');
     const tokenExpires = new Date();
     tokenExpires.setDate(tokenExpires.getDate() + 7);
 
@@ -331,7 +341,7 @@ export class UsersService {
       organizationId,
       roles: [role],
       status: UserStatus.PENDING,
-      invitationToken: invitationToken,
+      invitationToken: invitationTokenHash,
       invitationTokenExpires: tokenExpires,
       security: new UserSecurity() // Initialize security
     });
@@ -345,7 +355,8 @@ export class UsersService {
         // TypeORM's manager.save(entity) handles this.
         await manager.save(newUser);
 
-        await this.mailService.sendUserInvitation(newUser, invitationToken);
+        // Email the RAW token (only the hash is stored server-side).
+        await this.mailService.sendUserInvitation(newUser, rawInvitationToken);
 
         delete newUser.invitationToken;
         delete newUser.invitationTokenExpires;

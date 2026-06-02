@@ -2,7 +2,7 @@ import { Injectable, CanActivate, ExecutionContext, ForbiddenException, Type, In
 import { Reflector, ModuleRef } from '@nestjs/core';
 import { PERMISSIONS_KEY } from '../../../auth/decorators/permissions.decorator';
 import { Permission } from '../../../shared/permissions';
-import { AuthenticatedRequest } from '@virteex/shared/util-auth';
+import { AuthenticatedRequest, hasPermission } from '@virteex/shared/util-auth';
 
 // Interface for a Policy (Context-Aware Check)
 export interface IPolicy {
@@ -39,14 +39,17 @@ export class PermissionsGuard implements CanActivate {
         throw new ForbiddenException('No tienes permisos para realizar esta acción.');
     }
 
-    if (user.permissions.includes('*')) {
-      return true;
-    }
-
+    // L-07 FIX: delegate permission matching to the shared `hasPermission` util so the
+    // backend interprets prefix wildcards (e.g. 'users:*') and the global '*' exactly like
+    // the frontend guard and impersonation service. Avoids contradictory authz decisions.
+    //
+    // M-05 FIX: do NOT short-circuit on '*' before policies run. String permissions are
+    // satisfied by '*' (handled inside hasPermission), but ABAC policies (e.g. tenant
+    // ownership) must still be evaluated even for super-admins.
     for (const requirement of requiredPermissions) {
         if (typeof requirement === 'string') {
             // It's a static permission string
-            if (!user.permissions.includes(requirement)) {
+            if (!hasPermission(user.permissions, [requirement])) {
                 throw new ForbiddenException(`Te falta el permiso: ${requirement}`);
             }
         } else if (typeof requirement === 'function') { // It's a Class (Constructor)

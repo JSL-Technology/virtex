@@ -11,7 +11,15 @@ export class PasswordService {
     }
 
     async hash(plain: string): Promise<string> {
-        return argon2.hash(plain);
+        // L-12 FIX: apply the configured Argon2id parameters explicitly. Previously the
+        // ARGON2_* config was dead code (argon2.hash used library defaults), so operational
+        // tuning had no effect.
+        return argon2.hash(plain, {
+            type: argon2.argon2id,
+            memoryCost: AuthConfig.ARGON2_MEMORY_COST,
+            timeCost: AuthConfig.ARGON2_TIME_COST,
+            parallelism: AuthConfig.ARGON2_PARALLELISM,
+        });
     }
 
     async verifyDummy(plain: string): Promise<void> {

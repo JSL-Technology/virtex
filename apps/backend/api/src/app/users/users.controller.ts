@@ -18,11 +18,11 @@ import { CsrfGuard } from '../auth/guards/csrf.guard';
 import { TwoFactorVerifiedGuard } from '../auth/guards/two-factor-verified.guard';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { User, UserStatus } from './entities/user.entity/user.entity';
 import { PERMISSIONS } from '../shared/permissions';
 import { UserResponseDto } from '../auth/dto/user-response.dto';
 import { plainToInstance } from 'class-transformer';
-import { CheckPermissions } from '../auth/decorators/check-permissions.decorator';
 import { IsOrganizationOwner } from '../auth/policies/is-organization-owner.policy';
 import { TypeOrmExceptionFilter } from '../common/filters/typeorm-exception.filter';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
@@ -177,14 +177,17 @@ export class UsersController {
       id,
       updateUserDto,
       user.organizationId,
+      user as unknown as AuthenticatedUser,
     );
     return plainToInstance(UserResponseDto, updatedUser, { excludeExtraneousValues: true });
   }
 
   @Delete(':id')
   @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
-  @HasPermission(PERMISSIONS.USERS_DELETE)
-  @CheckPermissions(IsOrganizationOwner)
+  // M-05 FIX: Permission + ABAC policy combined in a SINGLE metadata declaration so the
+  // ownership policy is actually evaluated (previously @CheckPermissions was silently
+  // overwritten by @HasPermission because both write the same 'permissions' metadata key).
+  @HasPermission(PERMISSIONS.USERS_DELETE, IsOrganizationOwner)
   @ApiOperation({ summary: 'Remove user' })
   async remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
     return this.usersService.remove(id, user.organizationId);
@@ -235,7 +238,9 @@ export class UsersController {
   @Post(':id/email-change')
   @HttpCode(HttpStatus.OK)
   @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
-  @HasPermission('users.edit')
+  // L-08 FIX: use the catalog constant ('users:edit') — the previous 'users.edit' string
+  // did not exist in PERMISSIONS and only ever passed for wildcard admins.
+  @HasPermission(PERMISSIONS.USERS_EDIT)
   @ApiOperation({ summary: 'Admin: change user email with session invalidation' })
   async adminChangeEmail(
     @Param('id', ParseUUIDPipe) id: string,

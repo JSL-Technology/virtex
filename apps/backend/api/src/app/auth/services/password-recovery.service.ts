@@ -85,9 +85,11 @@ export class PasswordRecoveryService {
   }
 
   async getInvitationDetails(token: string) {
+    // M-03 FIX: invitation tokens are stored hashed; look up by the SHA-256 of the raw token.
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
     const user = await this.userRepository.findOne({
       where: {
-        invitationToken: token,
+        invitationToken: tokenHash,
         status: UserStatus.PENDING,
         invitationTokenExpires: MoreThan(new Date()),
       },
@@ -103,9 +105,11 @@ export class PasswordRecoveryService {
   async setPasswordFromInvitation(setPasswordDto: SetPasswordFromInvitationDto): Promise<User> {
     const { token, password } = setPasswordDto;
 
+    // M-03 FIX: match against the stored SHA-256 hash of the invitation token.
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
     const user = await this.userRepository.findOne({
       where: {
-        invitationToken: token,
+        invitationToken: tokenHash,
         status: UserStatus.PENDING,
         invitationTokenExpires: MoreThan(new Date()),
       },
