@@ -49,8 +49,11 @@ export interface User {
    */
   permissions: string[];
 
-  /** Token de acceso JWT del usuario. */
-  token: string;
+  // H3 FIX: `token` and `passwordHash` were removed from this interface. The backend delivers
+  // access/refresh tokens exclusively via httpOnly cookies (never in the body) and never
+  // serializes the password hash. Modeling them here invited developers to re-expose secrets in
+  // responses or to render/log them if they ever leaked. Keep this contract free of any secret
+  // material. (OWASP API3 Excessive Data Exposure; ASVS data minimization; CWE-200/CWE-922.)
   isOnline: boolean;
 
   department?: string;
@@ -58,11 +61,6 @@ export interface User {
   online: boolean;
   phone?: string;
   jobTitle?: string;
-
-  // **************************************************
-
-  // isActive: boolean;
-  passwordHash: string | null; // El backend no lo envía, pero la entidad lo tiene
 
   isImpersonating?: boolean;
   originalUserId?: string;

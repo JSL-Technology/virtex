@@ -1,5 +1,5 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpContext } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpContext, HttpXsrfTokenExtractor } from '@angular/common/http';
 import { Router } from '@angular/router';
 import {
   Observable,
@@ -56,6 +56,7 @@ export class AuthService {
   private notificationService = inject(NotificationService);
   private webSocketService = inject(WebSocketService);
   private errorHandlerService = inject(ErrorHandlerService);
+  private xsrfTokenExtractor = inject(HttpXsrfTokenExtractor);
   private readonly baseUrl = inject(API_URL);
 
   // URL base de tu API de autenticación.
@@ -330,30 +331,67 @@ export class AuthService {
     const lang = storedLang && supportedLangs.includes(storedLang) ? storedLang : 'es';
     this.router.navigate([`/${lang}/auth/login`]);
 
-    // H-13 FIX: Best-effort server logout via sendBeacon (survives tab close/navigation).
-    // Falls back to fetch on browsers that do not support sendBeacon or when sendBeacon
-    // returns false (large payload / unsupported). If both fail, the user is informed and
-    // can retry (OWASP ASVS 3.3.4; CWE-613).
+    // H5 FIX: The backend /logout endpoint is protected by CsrfGuard, which requires the
+    // X-XSRF-TOKEN header to match the signed XSRF-TOKEN cookie. navigator.sendBeacon cannot set
+    // custom headers, so the previous beacon-based logout was rejected with 403 — and because
+    // sendBeacon returns true once the request is merely *queued* (not delivered), the fetch
+    // fallback never ran. The session (and its refresh token) could stay alive server-side while
+    // the UI showed the user as logged out.
+    //
+    // We now use fetch() with `keepalive: true`, which both survives tab close/navigation (like a
+    // beacon) AND lets us attach the CSRF header, so the server actually revokes the session.
+    // (OWASP Session Management logout; OWASP CSRF Prevention; CWE-613/CWE-352.)
     if (notifyBackend) {
-      const url = `${this.apiUrl}/logout`;
-      const beaconSent = typeof navigator !== 'undefined' && navigator.sendBeacon
-        ? navigator.sendBeacon(url, new Blob([JSON.stringify({})], { type: 'application/json' }))
-        : false;
-
-      if (!beaconSent) {
-        this.http.post(url, {}, {
-          withCredentials: true,
-          context: new HttpContext().set(IS_PUBLIC_API, true),
-        }).pipe(
-          catchError(() => {
-            this.notificationService.showWarning(
-              'No se pudo cerrar la sesión en el servidor. Cierra el navegador o intenta de nuevo.'
-            );
-            return of(null);
-          })
-        ).subscribe();
-      }
+      this.revokeServerSession();
     }
+  }
+
+  /**
+   * Best-effort server-side session revocation that satisfies the CSRF guard.
+   * Uses keepalive fetch (survives unload) when available, otherwise falls back to HttpClient.
+   */
+  private revokeServerSession(): void {
+    const url = `${this.apiUrl}/logout`;
+    const xsrfToken = this.xsrfTokenExtractor.getToken();
+
+    const canKeepaliveFetch =
+      typeof fetch === 'function' &&
+      // keepalive must be supported AND we must have a CSRF token to satisfy CsrfGuard.
+      !!xsrfToken;
+
+    if (canKeepaliveFetch) {
+      fetch(url, {
+        method: 'POST',
+        credentials: 'include',
+        keepalive: true,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': xsrfToken as string,
+        },
+        body: '{}',
+      }).catch(() => {
+        // Network/unload failure — fall back to a tracked HttpClient request below.
+        this.logoutViaHttpClient(url);
+      });
+      return;
+    }
+
+    this.logoutViaHttpClient(url);
+  }
+
+  private logoutViaHttpClient(url: string): void {
+    // HttpClient routes through the auth interceptor, which attaches X-XSRF-TOKEN automatically.
+    this.http.post(url, {}, {
+      withCredentials: true,
+      context: new HttpContext().set(IS_PUBLIC_API, true),
+    }).pipe(
+      catchError(() => {
+        this.notificationService.showWarning(
+          'No se pudo cerrar la sesión en el servidor. Cierra el navegador o intenta de nuevo.'
+        );
+        return of(null);
+      })
+    ).subscribe();
   }
 
   // ------------------------------------------------------------------

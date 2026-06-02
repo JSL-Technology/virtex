@@ -36,6 +36,9 @@ import { PhoneVerificationModalComponent } from '../components/phone-verificatio
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
 import { FileUtil } from '../../../shared/utils/file.util';
+// H4 FIX: enforce the same password policy as register/reset/set (and the backend) on the
+// change-password form, which previously only required minLength(8).
+import { strongPasswordValidator } from '../../../shared/validators/password.validator';
 import { catchError, of } from 'rxjs';
 
 // Typed Form Interface
@@ -119,7 +122,7 @@ export class MyProfilePage implements OnInit {
 
     this.passwordForm = this.fb.group({
       currentPassword: ['', Validators.required],
-      newPassword: ['', [Validators.required, Validators.minLength(8)]],
+      newPassword: ['', [Validators.required, strongPasswordValidator()]],
       confirmPassword: ['', Validators.required],
     });
 

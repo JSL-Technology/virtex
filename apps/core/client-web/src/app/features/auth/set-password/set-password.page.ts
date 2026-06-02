@@ -13,14 +13,9 @@ import { AuthLayoutComponent } from '../components/auth-layout/auth-layout.compo
 import { AuthInputComponent } from '../components/auth-input/auth-input.component';
 import { AuthButtonComponent } from '../components/auth-button/auth-button.component';
 import { PasswordValidatorComponent } from '../components/password-validator/password-validator.component';
-
-const strongPasswordValidator = (): ValidatorFn => {
-  return (control: AbstractControl): ValidationErrors | null => {
-    const v: string = control.value || '';
-    const ok = /[a-z]/.test(v) && /[A-Z]/.test(v) && /[0-9]/.test(v) && /[!@#$%^&*(),.?":{}|<>]/.test(v);
-    return ok ? null : { strongPassword: true };
-  };
-};
+// H4 FIX: single source of truth for password rules, mirrored from the backend policy
+// (min 12 / max 72 / upper + lower + (digit OR symbol)). Removes the divergent local validator.
+import { strongPasswordValidator } from '../../../shared/validators/password.validator';
 
 const passwordMatchValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
   const password = group.get('password')?.value;
@@ -76,7 +71,7 @@ export class SetPasswordPage implements OnInit {
     
     this.setPasswordForm = this.fb.group({
       passwordGroup: this.fb.group({
-        password: ['', [Validators.required, Validators.minLength(8), strongPasswordValidator()]],
+        password: ['', [Validators.required, strongPasswordValidator()]],
         confirmPassword: ['', Validators.required],
       }, { validators: passwordMatchValidator })
     });

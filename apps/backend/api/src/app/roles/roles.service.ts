@@ -158,6 +158,27 @@ export class RolesService {
         if (role.isSystemRole) {
             throw new ForbiddenException('Los roles del sistema no pueden ser eliminados.');
         }
-        await this.roleRepository.remove(role);
+
+        // H2 FIX: Deleting a role is an authorization-graph mutation. Previously `remove` only
+        // detached the role row, leaving already-issued JWTs/cached sessions of users that held
+        // the role with stale permissions until natural expiry. We now refuse to delete a role
+        // that is still assigned to users (forcing an explicit migration first) and perform the
+        // check + delete atomically so a concurrent role assignment cannot slip through the gap.
+        // (OWASP ASVS V4; CWE-613/CWE-863.)
+        await this.roleRepository.manager.transaction(async (manager) => {
+            const assignedCount = await manager.getRepository(User)
+                .createQueryBuilder('user')
+                .innerJoin('user.roles', 'role')
+                .where('role.id = :roleId', { roleId: role.id })
+                .getCount();
+
+            if (assignedCount > 0) {
+                throw new ForbiddenException(
+                    `No se puede eliminar un rol asignado a ${assignedCount} usuario(s). Reasigna esos usuarios a otro rol antes de eliminarlo.`,
+                );
+            }
+
+            await manager.getRepository(Role).remove(role);
+        });
     }
 }

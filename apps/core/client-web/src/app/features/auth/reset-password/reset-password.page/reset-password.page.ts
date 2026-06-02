@@ -12,19 +12,9 @@ import { AuthLayoutComponent } from '../../components/auth-layout/auth-layout.co
 import { AuthInputComponent } from '../../components/auth-input/auth-input.component';
 import { AuthButtonComponent } from '../../components/auth-button/auth-button.component';
 import { PasswordValidatorComponent } from '../../components/password-validator/password-validator.component';
-
-// H7 FIX: aligned with backend PASSWORD_POLICY_REGEX — uppercase + lowercase + (digit OR special).
-const strongPasswordValidator = (): ValidatorFn => {
-  return (control: AbstractControl): ValidationErrors | null => {
-    const v: string = control.value || '';
-    if (v.length < 12) return { strongPassword: { minLength: true } };
-    const ok =
-      /[a-z]/.test(v) &&
-      /[A-Z]/.test(v) &&
-      (/[0-9]/.test(v) || /\W/.test(v));
-    return ok ? null : { strongPassword: true };
-  };
-};
+// H4 FIX: use the shared validator (single source of truth, mirrored from the backend policy)
+// instead of a divergent local copy.
+import { strongPasswordValidator } from '../../../../shared/validators/password.validator';
 
 const passwordMatchValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
   const password = group.get('password')?.value;
@@ -80,7 +70,7 @@ export class ResetPasswordPage implements OnInit {
     this.resetPasswordForm = this.fb.group({
       passwordGroup: this.fb.group(
         {
-          password: ['', [Validators.required, Validators.minLength(8), strongPasswordValidator()]],
+          password: ['', [Validators.required, strongPasswordValidator()]],
           confirmPassword: ['', Validators.required],
         },
         { validators: passwordMatchValidator }

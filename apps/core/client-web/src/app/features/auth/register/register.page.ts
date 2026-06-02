@@ -211,8 +211,9 @@ export class RegisterPage implements OnInit {
             password: [
               '',
               [
+                // H4 FIX: strongPasswordValidator() enforces the shared min length (12); the
+                // redundant minLength(8) was removed so all forms share one source of truth.
                 Validators.required,
-                Validators.minLength(8),
                 strongPasswordValidator(),
               ],
             ],

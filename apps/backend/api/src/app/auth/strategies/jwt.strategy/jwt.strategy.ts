@@ -35,8 +35,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly keyManagementService: KeyManagementService,
   ) {
     super({
+      // H1 FIX: Cookie-only extraction. The previous ExtractJwt.fromAuthHeaderAsBearerToken()
+      // was removed: access tokens are delivered exclusively via httpOnly cookies and never
+      // returned in the response body, so accepting `Authorization: Bearer` only widened the
+      // attack surface (any accidental leak of the JWT to JS/logs/3rd parties would be directly
+      // replayable as a header). Machine-to-machine APIs must use a dedicated strategy with their
+      // own scopes/audience/rotation. (OWASP Session Management & JWT Cheat Sheets; CWE-922/CWE-200.)
       jwtFromRequest: ExtractJwt.fromExtractors([
-        ExtractJwt.fromAuthHeaderAsBearerToken(),
         (req: Request | undefined) => {
           const cookies = req?.cookies ?? {};
           const isProduction = configService.get('NODE_ENV') === 'production';

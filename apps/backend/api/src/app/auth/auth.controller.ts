@@ -30,7 +30,21 @@ import {
   InvitationDetailsDto,
 } from './dto/security-audit.dto';
 
+import {
+  ImpersonateDto,
+  VerifyEmailCodeDto,
+  SendPhoneOtpDto,
+  VerifyPhoneOtpDto,
+  ConfirmEmailMagicLinkDto,
+  WebAuthnLoginOptionsDto,
+} from './dto/auth-payloads.dto';
 import { SetPasswordFromInvitationDto } from './dto/set-password-from-invitation.dto';
+import {
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_POLICY_REGEX,
+  PASSWORD_POLICY_MESSAGE,
+} from './dto/password-policy';
 import { PaymentService } from '../payment/payment.service';
 import { SaasService } from '../saas/saas.service';
 import { ConfigService } from '@nestjs/config';
@@ -318,6 +332,25 @@ export class AuthController {
     };
   }
 
+  // Fase 3.1: Expose the password policy as the single source of truth so the frontend can
+  // align its validators without hardcoding rules (preventing permanent drift between client
+  // and server). The policy is not sensitive — it is already enforced server-side and visible
+  // in client validation. Public + cacheable.
+  @Public()
+  @Get('password-policy')
+  @HttpCode(HttpStatus.OK)
+  @Header('Cache-Control', 'public, max-age=3600')
+  @ApiOperation({ summary: 'Get the password policy enforced by the backend' })
+  getPasswordPolicy() {
+    return {
+      minLength: PASSWORD_MIN_LENGTH,
+      maxLength: PASSWORD_MAX_LENGTH,
+      // Expose the regex source so clients can mirror it exactly if desired.
+      pattern: PASSWORD_POLICY_REGEX.source,
+      message: PASSWORD_POLICY_MESSAGE,
+    };
+  }
+
   @Public()
   @Post('forgot-password')
   @Public()
@@ -371,11 +404,11 @@ export class AuthController {
   @HasPermission(PERMISSIONS.USERS_IMPERSONATE)
   async impersonate(
     @CurrentUser() adminUser: User,
-    @Body('userId') targetUserId: string,
+    @Body() dto: ImpersonateDto,
     @Res({ passthrough: true }) res: Response
   ) {
     const { user, accessToken, refreshToken } =
-      await this.authFacade.impersonate(adminUser, targetUserId);
+      await this.authFacade.impersonate(adminUser, dto.userId);
 
     this.cookieService.setAuthCookies(res, accessToken, refreshToken);
 
@@ -448,23 +481,16 @@ export class AuthController {
   @UseGuards(JwtAuthGuard, CsrfGuard)
   @ApiOperation({ summary: 'Verify email code for 2FA setup' })
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
-  async verifyEmailVerification(@CurrentUser() user: User, @Body('code') code: string) {
-    return this.mfaOrchestratorService.verifyEmailOtp(user.id, code);
+  async verifyEmailVerification(@CurrentUser() user: User, @Body() dto: VerifyEmailCodeDto) {
+    return this.mfaOrchestratorService.verifyEmailOtp(user.id, dto.code);
   }
 
   @Post('send-phone-otp')
   @UseGuards(JwtAuthGuard, CsrfGuard)
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
-  async sendPhoneOtp(@CurrentUser() user: User, @Body('phoneNumber') phoneNumber: string) {
-      if (!phoneNumber) {
-          throw new BadRequestException('Phone number is required');
-      }
-
-      // Validate E.164 format to prevent SMS abuse with malformed numbers
-      const e164Regex = /^\+[1-9]\d{6,14}$/;
-      if (!e164Regex.test(phoneNumber)) {
-          throw new BadRequestException('Phone number must be in E.164 format (e.g. +18091234567)');
-      }
+  async sendPhoneOtp(@CurrentUser() user: User, @Body() dto: SendPhoneOtpDto) {
+      // Presence + E.164 format are now enforced by SendPhoneOtpDto via the global ValidationPipe.
+      const { phoneNumber } = dto;
 
       // Prevent SMS bombing: if the user already has a verified phone registered,
       // only allow sending OTP to that same number or to a new unverified one.
@@ -480,9 +506,9 @@ export class AuthController {
   @Post('verify-phone')
   @UseGuards(JwtAuthGuard, CsrfGuard)
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
-  async verifyPhoneOtp(@CurrentUser() user: User, @Body() body: { code: string, phoneNumber: string }) {
+  async verifyPhoneOtp(@CurrentUser() user: User, @Body() dto: VerifyPhoneOtpDto) {
       // Use MfaOrchestratorService directly instead of AuthService pass-through
-      return this.mfaOrchestratorService.verifyPhoneOtp(user.id, body.code, body.phoneNumber);
+      return this.mfaOrchestratorService.verifyPhoneOtp(user.id, dto.code, dto.phoneNumber);
   }
 
   @Post('send-public-verification')
@@ -513,8 +539,8 @@ export class AuthController {
   @UseGuards(ThrottlerGuard)
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiOperation({ summary: 'Verify a registration email confirmation magic link' })
-  async confirmEmailMagicLink(@Body() body: { token: string }) {
-    return this.mfaOrchestratorService.confirmEmailMagicLink(body.token);
+  async confirmEmailMagicLink(@Body() dto: ConfirmEmailMagicLinkDto) {
+    return this.mfaOrchestratorService.confirmEmailMagicLink(dto.token);
   }
 
   @Post('create-checkout-session')
@@ -606,8 +632,8 @@ export class AuthController {
   @Public()
   @ApiOperation({ summary: 'Generate WebAuthn authentication options' })
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
-  async generateWebAuthnAuthenticationOptions(@Body('email') email?: string) {
-    return this.webAuthnService.generateAuthenticationOptions(email);
+  async generateWebAuthnAuthenticationOptions(@Body() dto: WebAuthnLoginOptionsDto) {
+    return this.webAuthnService.generateAuthenticationOptions(dto.email);
   }
 
   @Public()
