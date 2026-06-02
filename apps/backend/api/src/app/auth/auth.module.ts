@@ -115,7 +115,8 @@ import { KeyManagementService } from './services/key-management.service';
         response: (req) => req.body.recaptchaToken,
         score: 0.7,
         // H-04 FIX: Controlled by explicit RECAPTCHA_DISABLED flag, not NODE_ENV.
-        skipIf: config.get<boolean>('RECAPTCHA_DISABLED', false) === true,
+        // String comparison is required because ConfigService returns env vars as strings.
+        skipIf: String(config.get('RECAPTCHA_DISABLED', 'false')).toLowerCase() === 'true',
       }),
     }),
     MailModule,

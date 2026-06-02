@@ -1,5 +1,5 @@
-import { IsString, Length, IsEnum, IsObject } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsString, Length, IsEnum, IsObject, IsOptional } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { VerificationType } from '../entities/verification-code.entity';
 
 // H-03 FIX: tempToken removed — pending session is tracked via httpOnly cookie only.
@@ -29,6 +29,11 @@ export class SendPublicVerificationDto {
   @ApiProperty({ enum: VerificationType })
   @IsEnum(VerificationType)
   type!: VerificationType;
+
+  @ApiPropertyOptional({ description: 'Google reCAPTCHA v3 response token' })
+  @IsOptional()
+  @IsString()
+  recaptchaToken?: string;
 }
 
 export class VerifyPublicCodeDto extends SendPublicVerificationDto {

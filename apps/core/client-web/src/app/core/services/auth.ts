@@ -203,15 +203,19 @@ export class AuthService {
       return this.http.post<{ message: string }>(`${this.apiUrl}/verify-phone`, { code, phoneNumber });
   }
 
-  sendPublicVerification(target: string, type: string): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.apiUrl}/send-public-verification`, { target, type }, {
-      context: new HttpContext().set(IS_PUBLIC_API, true)
+  sendPublicVerification(target: string, type: string, recaptchaToken?: string): Observable<{ message: string }> {
+    const body: Record<string, string> = { target, type };
+    if (recaptchaToken) body['recaptchaToken'] = recaptchaToken;
+    return this.http.post<{ message: string }>(`${this.apiUrl}/send-public-verification`, body, {
+      context: new HttpContext().set(IS_PUBLIC_API, true),
     });
   }
 
-  verifyPublicCode(target: string, type: string, code: string): Observable<{ message: string; preVerifiedToken: string }> {
-    return this.http.post<{ message: string; preVerifiedToken: string }>(`${this.apiUrl}/verify-public-code`, { target, type, code }, {
-      context: new HttpContext().set(IS_PUBLIC_API, true)
+  verifyPublicCode(target: string, type: string, code: string, recaptchaToken?: string): Observable<{ message: string; preVerifiedToken: string }> {
+    const body: Record<string, string> = { target, type, code };
+    if (recaptchaToken) body['recaptchaToken'] = recaptchaToken;
+    return this.http.post<{ message: string; preVerifiedToken: string }>(`${this.apiUrl}/verify-public-code`, body, {
+      context: new HttpContext().set(IS_PUBLIC_API, true),
     });
   }
 

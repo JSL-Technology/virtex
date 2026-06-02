@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, BadRequestException, Inject } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException, Inject, Logger, InternalServerErrorException } from '@nestjs/common';
 import * as crypto from 'crypto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -23,6 +23,8 @@ import { AuthConfig } from '../auth.config';
 
 @Injectable()
 export class MfaOrchestratorService {
+  private readonly logger = new Logger(MfaOrchestratorService.name);
+
   constructor(
     @InjectRepository(VerificationCode)
     private readonly verificationCodeRepository: Repository<VerificationCode>,
@@ -208,9 +210,19 @@ export class MfaOrchestratorService {
       const frontendUrl = this.configService.get<string>('FRONTEND_URL', 'http://localhost:4200');
       const magicLinkUrl = `${frontendUrl}/es/auth/register?email_token=${encodeURIComponent(magicLinkToken)}`;
       const expiresMinutes = Math.round(AuthConfig.MFA_CODE_EXPIRATION / 60000);
-      await this.mailService.sendRegistrationEmailVerification(target, code, 'Usuario', magicLinkUrl, expiresMinutes);
+      try {
+        await this.mailService.sendRegistrationEmailVerification(target, code, 'Usuario', magicLinkUrl, expiresMinutes);
+      } catch (err) {
+        this.logger.error(`Failed to send registration email to ${target}: ${(err as Error).message}`);
+        throw new InternalServerErrorException('No se pudo enviar el correo de verificación. Por favor verifica tu correo e intenta de nuevo.');
+      }
     } else if (type === VerificationType.PHONE_VERIFY) {
-      await this.smsProvider.send(target, `Your verification code is: ${code}`);
+      try {
+        await this.smsProvider.send(target, `Your verification code is: ${code}`);
+      } catch (err) {
+        this.logger.error(`Failed to send SMS to ${target}: ${(err as Error).message}`);
+        throw new InternalServerErrorException('No se pudo enviar el SMS de verificación. Por favor intenta de nuevo.');
+      }
     }
   }
 
