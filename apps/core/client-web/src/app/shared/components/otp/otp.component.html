@@ -8,31 +8,22 @@
     </div>
 
     <div class="otp-length-selector" *ngIf="showLengthSelector">
-        <span
+        <span *ngFor="let opt of selectableLengths"
             class="length-option"
-            [class.active]="otpLength === 6"
+            role="button"
+            [class.active]="length() === opt"
+            [attr.aria-pressed]="length() === opt"
             tabindex="0"
-            (keyup.enter)="changeLength(6)"
-            (click)="changeLength(6)">6 dígitos</span>
-        <span
-            class="length-option"
-            [class.active]="otpLength === 8"
-            tabindex="0"
-            (keyup.enter)="changeLength(8)"
-            (click)="changeLength(8)">8 dígitos</span>
-        <span
-            class="length-option"
-            [class.active]="otpLength === 4"
-            tabindex="0"
-            (keyup.enter)="changeLength(4)"
-            (click)="changeLength(4)">4 dígitos</span>
+            (keyup.enter)="changeLength(opt)"
+            (click)="changeLength(opt)">{{ opt }} dígitos</span>
     </div>
 
     <label class="otp-label" for="otp-input-0">Código OTP</label>
-    <div class="otp-inputs-container">
-        <input *ngFor="let val of otpValues(); let i = index"
+    <div class="otp-inputs-container" role="group" aria-label="Código OTP">
+        <input *ngFor="let val of otpValues(); let i = index; trackBy: trackByIndex"
                type="text"
                inputmode="numeric"
+               pattern="[0-9]*"
                maxlength="1"
                class="otp-input"
                [class.filled]="val !== ''"
@@ -42,7 +33,8 @@
                [disabled]="inputsDisabled()"
                [id]="'otp-input-' + i"
                [attr.aria-label]="'Dígito ' + (i + 1) + ' del código OTP'"
-               autocomplete="one-time-code"
+               [attr.aria-invalid]="inputError() || status()?.type === 'error'"
+               [autocomplete]="i === 0 ? 'one-time-code' : 'off'"
                [value]="val"
                (input)="handleInput($event, i)"
                (keydown)="handleKeyDown($event, i)"
@@ -50,16 +42,18 @@
                (focus)="handleFocus($event)"
                #otpInput>
     </div>
-    <span class="otp-helper-text">Ingrese el código de verificación que recibió en su correo electrónico</span>
+    <span class="otp-helper-text" *ngIf="mode === 'email'">Ingrese el código de verificación que recibió en su correo electrónico</span>
+    <span class="otp-helper-text" *ngIf="mode === 'app'">Ingrese el código generado por su aplicación de autenticación</span>
 
     <div class="otp-actions">
-        <div class="timer-container">
+        <div class="timer-container" *ngIf="mode === 'email'">
             <lucide-icon [img]="ClockIcon" size="16"></lucide-icon>
             <span class="timer" [class.expiring]="isExpiring()" [class.expired]="isExpired()">
                 {{ formatTimer(timer()) }}
             </span>
         </div>
         <button class="resend-btn"
+                type="button"
                 [disabled]="cooldown() > 0"
                 (click)="onResend()"
                 *ngIf="mode === 'email'">
@@ -70,19 +64,25 @@
     </div>
 
     <div class="otp-buttons">
-        <button class="btn btn-secondary" (click)="clear()">
+        <button class="btn btn-secondary" type="button" (click)="clear()">
             <lucide-icon [img]="EraserIcon" size="18"></lucide-icon>
             Limpiar
         </button>
         <button class="btn btn-primary"
-                [disabled]="isExpired() || !isComplete()"
+                type="button"
+                [disabled]="!canVerify()"
                 (click)="onVerify()">
             <lucide-icon [img]="CheckCircleIcon" size="18"></lucide-icon>
             Verificar
         </button>
     </div>
 
-    <div class="otp-status" [class.show]="status()" [ngClass]="status()?.type || ''">
+    <div class="otp-status"
+         [class.show]="status()"
+         [ngClass]="status()?.type || ''"
+         role="status"
+         aria-atomic="true"
+         [attr.aria-live]="status()?.type === 'error' || status()?.type === 'warning' ? 'assertive' : 'polite'">
         <lucide-icon *ngIf="status()?.type === 'success'" [img]="CheckCircleIcon" size="18"></lucide-icon>
         <lucide-icon *ngIf="status()?.type === 'error'" [img]="AlertCircleIcon" size="18"></lucide-icon>
         <lucide-icon *ngIf="status()?.type === 'warning'" [img]="AlertTriangleIcon" size="18"></lucide-icon>
@@ -96,7 +96,7 @@
             Consejos de seguridad
         </h3>
         <ul>
-            <li>El código OTP caduca en {{ Math.floor(timerDuration / 60) }} minutos por razones de seguridad.</li>
+            <li *ngIf="mode === 'email'">El código OTP caduca en {{ Math.floor(timerDuration / 60) }} minutos por razones de seguridad.</li>
             <li>No comparta este código con nadie. Nuestro equipo nunca le pedirá su código.</li>
             <li>Si no solicitó este código, ignore este mensaje y revise la seguridad de su cuenta.</li>
             <li *ngIf="showLengthSelector">Puede cambiar la longitud del código según los requisitos de seguridad de su organización.</li>
