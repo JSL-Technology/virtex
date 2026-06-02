@@ -8,7 +8,7 @@ import { CsrfGuard } from '../auth/guards/csrf.guard';
 import { TwoFactorVerifiedGuard } from '../auth/guards/two-factor-verified.guard';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import type { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { PERMISSIONS, ALL_PERMISSIONS } from '../shared/permissions';
 
 // H1 FIX: All role mutations require PermissionsGuard + CsrfGuard + TwoFactorVerifiedGuard.
@@ -31,11 +31,13 @@ export class RolesController {
     return this.rolesService.create(createRoleDto, user.organizationId, user);
   }
 
+  // H2 FIX: Pass actor so assertAssignablePermissions validates the cloner cannot escalate
+  // by copying permissions they don't hold.
   @Post('clone/:id')
   @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
   @HasPermission(PERMISSIONS.ROLES_CREATE)
   clone(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
-    return this.rolesService.cloneRole(id, user.organizationId);
+    return this.rolesService.cloneRole(id, user.organizationId, user);
   }
 
   @Get()

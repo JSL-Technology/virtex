@@ -12,15 +12,15 @@ import { AuthInputComponent } from '../../components/auth-input/auth-input.compo
 import { AuthButtonComponent } from '../../components/auth-button/auth-button.component';
 import { PasswordValidatorComponent } from '../../components/password-validator/password-validator.component';
 
-// Custom validator for strong password
+// H7 FIX: aligned with backend PASSWORD_POLICY_REGEX — uppercase + lowercase + (digit OR special).
 const strongPasswordValidator = (): ValidatorFn => {
   return (control: AbstractControl): ValidationErrors | null => {
     const v: string = control.value || '';
+    if (v.length < 12) return { strongPassword: { minLength: true } };
     const ok =
       /[a-z]/.test(v) &&
       /[A-Z]/.test(v) &&
-      /[0-9]/.test(v) &&
-      /[!@#$%^&*(),.?":{}|<>]/.test(v);
+      (/[0-9]/.test(v) || /\W/.test(v));
     return ok ? null : { strongPassword: true };
   };
 };
@@ -60,9 +60,15 @@ export class ResetPasswordPage implements OnInit {
   token: string | null = null;
 
   ngOnInit(): void {
-    this.token = this.route.snapshot.queryParamMap.get('token');
-    if (!this.token) {
-      this.errorMessage = "Invalid token";
+    // H4 FIX: Read token from URL fragment (#token=...) so it is never sent to the server or
+    // stored in browser history. Clear the fragment from the address bar immediately.
+    const fragment = this.route.snapshot.fragment ?? '';
+    const match = fragment.match(/(?:^|&)token=([^&]+)/);
+    this.token = match ? decodeURIComponent(match[1]) : null;
+    if (this.token) {
+      history.replaceState(null, '', location.pathname + location.search);
+    } else {
+      this.errorMessage = 'Invalid token';
     }
 
     this.resetPasswordForm = this.fb.group({

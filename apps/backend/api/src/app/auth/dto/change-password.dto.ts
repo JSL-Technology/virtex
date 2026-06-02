@@ -1,8 +1,5 @@
 import { IsNotEmpty, IsString, MaxLength, MinLength, Matches } from 'class-validator';
-
-// H11 FIX: Apply the same password policy regex as reset-password.dto.ts and register-user.dto.ts.
-export const PASSWORD_POLICY_REGEX = /((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/;
-export const PASSWORD_POLICY_MESSAGE = 'La contraseña debe contener mayúscula, minúscula y un número o símbolo.';
+import { PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH, PASSWORD_POLICY_REGEX, PASSWORD_POLICY_MESSAGE } from './password-policy';
 
 export class ChangePasswordDto {
   @IsString()
@@ -11,8 +8,8 @@ export class ChangePasswordDto {
 
   @IsString()
   @IsNotEmpty()
-  @MinLength(8, { message: 'La contraseña debe tener al menos 8 caracteres.' })
-  @MaxLength(72)
+  @MinLength(PASSWORD_MIN_LENGTH, { message: `La contraseña debe tener al menos ${PASSWORD_MIN_LENGTH} caracteres.` })
+  @MaxLength(PASSWORD_MAX_LENGTH)
   @Matches(PASSWORD_POLICY_REGEX, { message: PASSWORD_POLICY_MESSAGE })
   newPassword: string;
 }

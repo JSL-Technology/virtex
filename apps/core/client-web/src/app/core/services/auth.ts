@@ -423,10 +423,12 @@ export class AuthService {
       );
   }
 
+  // H4 FIX: Token moved from URL path to POST body — tokens in URLs leak via browser history,
+  // access logs, and Referer headers.
   getInvitationDetails(token: string): Observable<{ firstName: string }> {
-    const url = `${this.apiUrl}/invitation/${token}`;
+    const url = `${this.apiUrl}/invitation/details`;
     return this.http
-      .get<{ firstName: string }>(url, {
+      .post<{ firstName: string }>(url, { token }, {
         context: new HttpContext().set(IS_PUBLIC_API, true)
       })
       .pipe(catchError((err) => this.errorHandlerService.handleError('getInvitationDetails', err)));
@@ -438,30 +440,24 @@ export class AuthService {
    * Invita a un nuevo usuario al sistema.
    */
   inviteUser(payload: UserPayload): Observable<User> {
-    // H16 FIX: Backend exposes /users/invite, not /auth/invite.
-    const usersUrl = this.apiUrl.replace('/auth', '/users');
-    return this.http.post<User>(`${usersUrl}/invite`, payload);
+    return this.http.post<User>(`${this.usersUrl}/invite`, payload);
   }
 
-  /**
-   * Actualiza los datos de un usuario existente.
-   */
+  // H6 FIX: User management operations belong to /users not /auth.
+  private get usersUrl(): string {
+    return `${this.baseUrl}/users`;
+  }
+
   updateUser(id: string, payload: UserPayload): Observable<User> {
-    return this.http.patch<User>(`${this.apiUrl}/${id}`, payload);
+    return this.http.patch<User>(`${this.usersUrl}/${id}`, payload);
   }
 
-  /**
-   * Actualiza únicamente el estado de un usuario (para bloquear, archivar, etc.).
-   */
   updateUserStatus(id: string, status: UserStatus): Observable<User> {
-    return this.http.patch<User>(`${this.apiUrl}/${id}/status`, { status });
+    return this.http.patch<User>(`${this.usersUrl}/${id}/status`, { status });
   }
 
-  /**
-   * Elimina permanentemente a un usuario del sistema.
-   */
   deleteUser(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(`${this.usersUrl}/${id}`);
   }
 
   // --- NUEVOS MÉTODOS PARA SUPLANTACIÓN ---
@@ -513,10 +509,10 @@ export class AuthService {
       );
   }
 
-  changePassword(data: any): Observable<{ message: string }> {
-      return this.http.post<{ message: string }>(`${this.apiUrl}/change-password`, data, {
-          context: new HttpContext().set(IS_PUBLIC_API, true)
-      }).pipe(
+  // H8 FIX: changePassword is an authenticated endpoint; removing IS_PUBLIC_API allows the
+  // interceptor to attach cookies/XSRF and trigger a token refresh on 401 if needed.
+  changePassword(data: { currentPassword: string; newPassword: string }): Observable<{ message: string }> {
+      return this.http.post<{ message: string }>(`${this.apiUrl}/change-password`, data).pipe(
           catchError((err) => this.errorHandlerService.handleError('changePassword', err))
       );
   }

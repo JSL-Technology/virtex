@@ -266,7 +266,8 @@ export class UsersService {
     }
   }
 
-  async getActivityLog(userId: string): Promise<any[]> {
+  // H5 FIX: organizationId scope added so queries are always tenant-scoped.
+  async getActivityLog(userId: string, organizationId: string): Promise<any[]> {
     return [];
   }
 

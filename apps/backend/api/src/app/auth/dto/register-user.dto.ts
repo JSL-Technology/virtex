@@ -10,6 +10,7 @@ import {
     IsOptional,
     IsUUID,
 } from 'class-validator';
+import { PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH, PASSWORD_POLICY_REGEX, PASSWORD_POLICY_MESSAGE } from './password-policy';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterUserDto {
@@ -52,14 +53,9 @@ export class RegisterUserDto {
     @ApiProperty({ example: 'StrongP@ssw0rd', description: 'User Password' })
     @IsString({ message: 'La contraseña debe ser un texto.' })
     @IsNotEmpty({ message: 'La contraseña no puede estar vacía.' })
-    @MinLength(8, { message: 'La contraseña debe tener al menos 8 caracteres.' })
-    @MaxLength(50, {
-        message: 'La contraseña no puede tener más de 50 caracteres.',
-    })
-    @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-        message:
-            'La contraseña debe contener al menos una mayúscula, una minúscula y un número o carácter especial.',
-    })
+    @MinLength(PASSWORD_MIN_LENGTH, { message: `La contraseña debe tener al menos ${PASSWORD_MIN_LENGTH} caracteres.` })
+    @MaxLength(PASSWORD_MAX_LENGTH)
+    @Matches(PASSWORD_POLICY_REGEX, { message: PASSWORD_POLICY_MESSAGE })
     password: string;
 
     @ApiProperty({ description: 'Google Recaptcha V3 Token' })

@@ -199,10 +199,16 @@ export class UsersController {
       return { message: 'Password reset email sent.' };
   }
 
+  // H5 FIX: Validate target user belongs to the requester's organization before returning
+  // audit events, preventing cross-tenant IDOR.
   @Get(':id/activity')
   @HasPermission(PERMISSIONS.USERS_VIEW)
-  async getActivityLog(@Param('id', ParseUUIDPipe) id: string) {
-      return this.usersService.getActivityLog(id);
+  async getActivityLog(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: User,
+  ) {
+      await this.usersService.findOneByOrg(id, (user as any).organizationId);
+      return this.usersService.getActivityLog(id, (user as any).organizationId);
   }
 
   @Post(':id/force-logout')

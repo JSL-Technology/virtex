@@ -1,5 +1,6 @@
 
 import { ConflictException, Injectable, InternalServerErrorException, Logger, ForbiddenException } from '@nestjs/common';
+import { createHash } from 'crypto';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import * as argon2 from 'argon2';
@@ -60,7 +61,9 @@ export class RegistrationService {
     });
 
     if (!recaptchaResult.success) {
-        this.logger.warn(`Recaptcha validation failed for ${email}: ${JSON.stringify(recaptchaResult.errors)}`);
+        // H9 FIX: Hash email before logging to avoid PII in plaintext logs.
+        const emailHash = createHash('sha256').update(email.toLowerCase().trim()).digest('hex').slice(0, 12);
+        this.logger.warn({ event: 'recaptcha_failed', emailHash, errors: recaptchaResult.errors }, 'Recaptcha validation failed');
         throw new ForbiddenException('Error de validación de seguridad (reCAPTCHA).');
     }
 

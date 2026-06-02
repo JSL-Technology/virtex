@@ -1,5 +1,6 @@
 import { Routes, UrlSegment, UrlMatchResult } from '@angular/router';
 import { authGuard } from './core/guards/auth-guard';
+import { publicGuard } from './core/guards/public.guard';
 import { MainLayout } from './layout/main/main.layout';
 import { RouteRedirectorComponent } from './core/components/route-redirector/route-redirector';
 import { languageInitGuard } from './core/guards/language-init.guard';
@@ -277,9 +278,11 @@ export const APP_ROUTES: Routes = [
       // We can rely on router matching order OR regex matchers (available in newer Angular).
       // Or we can be explicit.
 
-      // Let's explicitly put 'auth' FIRST to capture /es/auth/...
+      // H11 FIX: Added canActivateChild: [publicGuard] so authenticated users are redirected
+      // away from auth pages regardless of which sub-path they land on.
       {
         path: 'auth',
+        canActivateChild: [publicGuard],
         children: [
             {
                 path: 'login',

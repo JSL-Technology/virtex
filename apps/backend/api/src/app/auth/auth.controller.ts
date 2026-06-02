@@ -1,5 +1,5 @@
 
-import { Controller, Post, Body, HttpCode, HttpStatus, Res, Get, UseGuards, Req, UsePipes, ValidationPipe, BadRequestException, UnauthorizedException, Param, Ip, Headers, UseFilters, Header, SetMetadata } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Res, Get, UseGuards, Req, UsePipes, ValidationPipe, BadRequestException, UnauthorizedException, Param, Ip, Headers, UseFilters, Header } from '@nestjs/common';
 import type { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { AuthFacade } from './auth.facade';
@@ -22,6 +22,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 
 import { SetPasswordFromInvitationDto } from './dto/set-password-from-invitation.dto';
+import { InvitationDetailsDto } from './dto/invitation-details.dto';
 import { ConfigService } from '@nestjs/config';
 import { AuthConfig } from './auth.config';
 import { TypeOrmExceptionFilter } from '../common/filters/typeorm-exception.filter';
@@ -38,13 +39,14 @@ import { VerifyWebAuthnRegistrationDto, VerifyWebAuthnAuthenticationDto } from '
 import { MfaOrchestratorService } from './services/mfa-orchestrator.service';
 import { JwtService } from '@nestjs/jwt';
 import { TwoFactorVerifiedGuard } from './guards/two-factor-verified.guard';
-import { Public, IS_PUBLIC_KEY } from './decorators/public.decorator';
+import { Public } from './decorators/public.decorator';
 import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
 
+// H1 FIX: @Public() removed from class level. Only individual public endpoints are decorated
+// with @Public(). Authenticated endpoints rely on the global JwtAuthGuard without override.
 @ApiTags('Auth')
 @Controller('auth')
 @UseFilters(TypeOrmExceptionFilter)
-@Public()
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
@@ -58,30 +60,36 @@ export class AuthController {
     private readonly jwtService: JwtService
   ) {}
 
+  @Public()
   @Get('google')
   @UseGuards(AuthGuard('google'))
   async googleAuth(@Req() req: Request) {}
 
+  @Public()
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@SocialUserDecorator() socialUser: SocialUser, @Res() res: Response) {
       await this.handleSocialCallback(socialUser, res);
   }
 
+  @Public()
   @Get('microsoft')
   @UseGuards(AuthGuard('microsoft'))
   async microsoftAuth(@Req() req: Request) {}
 
+  @Public()
   @Get('microsoft/callback')
   @UseGuards(AuthGuard('microsoft'))
   async microsoftAuthRedirect(@SocialUserDecorator() socialUser: SocialUser, @Res() res: Response) {
       await this.handleSocialCallback(socialUser, res);
   }
 
+  @Public()
   @Get('okta')
   @UseGuards(AuthGuard('okta'))
   async oktaAuth(@Req() req: Request) {}
 
+  @Public()
   @Get('okta/callback')
   @UseGuards(AuthGuard('okta'))
   async oktaAuthRedirect(@SocialUserDecorator() socialUser: SocialUser, @Res() res: Response) {
@@ -114,6 +122,7 @@ export class AuthController {
     return res.redirect(`${frontendUrl}/dashboard`);
   }
 
+  @Public()
   @Get('social-register-info')
   @ApiOperation({ summary: 'Decode social register token to pre-fill form' })
   async getSocialRegisterInfo(@Req() req: Request) {
@@ -126,6 +135,7 @@ export class AuthController {
       return this.authFacade.getSocialRegisterInfo(token);
   }
 
+  @Public()
   @Post('register')
   @UseGuards(ThrottlerGuard)
   @ApiOperation({ summary: 'Register a new user and organization' })
@@ -154,6 +164,7 @@ export class AuthController {
     };
   }
 
+  @Public()
   @Post('login')
   @ApiOperation({ summary: 'Login with email and password' })
   @ApiResponse({ status: 200, description: 'Login successful', type: AuthResponseDto })
@@ -191,6 +202,7 @@ export class AuthController {
     };
   }
 
+  @Public()
   @Post('set-password-from-invitation')
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ type: AuthResponseDto })
@@ -209,13 +221,16 @@ export class AuthController {
     };
   }
 
-  @Get('invitation/:token')
+  // H4 FIX: Token moved from URL path to POST body to prevent leakage via browser history,
+  // server access logs, and Referer headers.
+  @Public()
+  @Post('invitation/details')
   @HttpCode(HttpStatus.OK)
-  async getInvitationDetails(@Param('token') token: string) {
-    return this.passwordRecoveryService.getInvitationDetails(token);
+  async getInvitationDetails(@Body() dto: InvitationDetailsDto) {
+    return this.passwordRecoveryService.getInvitationDetails(dto.token);
   }
 
-  // H5 FIX: Refresh rotates tokens (state-changing); must be POST, not GET, and require CSRF.
+  @Public()
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @UseGuards(CsrfGuard)
@@ -242,7 +257,6 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  @SetMetadata(IS_PUBLIC_KEY, false)
   @UseGuards(JwtAuthGuard, CsrfGuard)
   async logout(
     @CurrentUser() user: User,
@@ -256,7 +270,6 @@ export class AuthController {
 
   @Post('logout-all')
   @HttpCode(HttpStatus.OK)
-  @SetMetadata(IS_PUBLIC_KEY, false)
   @UseGuards(JwtAuthGuard, CsrfGuard)
   async logoutAll(
     @CurrentUser() user: User,
@@ -268,7 +281,6 @@ export class AuthController {
   }
 
   @Get('status')
-  @SetMetadata(IS_PUBLIC_KEY, false)
   @UseGuards(JwtAuthGuard)
   @Header('Cache-Control', 'no-store')
   async checkAuthStatus(@CurrentUser() user: User) {
@@ -279,6 +291,7 @@ export class AuthController {
     };
   }
 
+  @Public()
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   @UseGuards(GoogleRecaptchaGuard)
@@ -292,6 +305,7 @@ export class AuthController {
     };
   }
 
+  @Public()
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe())
@@ -417,6 +431,7 @@ export class AuthController {
       return this.mfaOrchestratorService.verifyPhoneOtp(user.id, body.code, body.phoneNumber);
   }
 
+  @Public()
   @Post('verify-2fa')
   @HttpCode(HttpStatus.OK)
   @UseGuards(CsrfGuard)
@@ -452,20 +467,25 @@ export class AuthController {
     return this.webAuthnService.generateRegistrationOptions(user);
   }
 
+  // H3 FIX: WebAuthn credential binding is a critical MFA mutation; requires CSRF + step-up 2FA.
   @Post('webauthn/register/verify')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard, TwoFactorVerifiedGuard)
   @ApiOperation({ summary: 'Verify WebAuthn registration' })
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
   async verifyWebAuthnRegistration(@CurrentUser() user: User, @Body() body: VerifyWebAuthnRegistrationDto) {
     return this.webAuthnService.verifyRegistration(user, body);
   }
 
+  // H10 FIX: WebAuthn challenge generation must be rate-limited to prevent oracle/enumeration abuse.
+  @Public()
   @Post('webauthn/login/options')
   @ApiOperation({ summary: 'Generate WebAuthn authentication options' })
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   async generateWebAuthnAuthenticationOptions(@Body('email') email?: string) {
     return this.webAuthnService.generateAuthenticationOptions(email);
   }
 
+  @Public()
   @Post('webauthn/login/verify')
   @ApiOperation({ summary: 'Verify WebAuthn authentication' })
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
@@ -493,6 +513,7 @@ export class AuthController {
   @Get('sessions')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'List active sessions (devices)' })
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   async getUserSessions(@CurrentUser() user: User, @Req() req: Request) {
       let currentRefreshTokenId: string | undefined;
       const token = req.cookies['refresh_token'];

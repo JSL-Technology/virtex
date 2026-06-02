@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsString, MinLength, Matches } from 'class-validator';
+import { IsNotEmpty, IsString, MinLength, MaxLength, Matches } from 'class-validator';
+import { PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH, PASSWORD_POLICY_REGEX, PASSWORD_POLICY_MESSAGE } from './password-policy';
 
 export class ResetPasswordDto {
     @IsString()
@@ -7,9 +8,8 @@ export class ResetPasswordDto {
 
     @IsString()
     @IsNotEmpty()
-    @MinLength(8, { message: 'La contraseña debe tener al menos 8 caracteres.' })
-    @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-        message: 'La contraseña debe contener mayúscula, minúscula y un número o símbolo.',
-    })
+    @MinLength(PASSWORD_MIN_LENGTH, { message: `La contraseña debe tener al menos ${PASSWORD_MIN_LENGTH} caracteres.` })
+    @MaxLength(PASSWORD_MAX_LENGTH)
+    @Matches(PASSWORD_POLICY_REGEX, { message: PASSWORD_POLICY_MESSAGE })
     password: string;
 }

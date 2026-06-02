@@ -52,7 +52,9 @@ export class RolesService {
         return this.roleRepository.save(role);
     }
 
-    async cloneRole(id: string, organizationId: string): Promise<Role> {
+    // H2 FIX: actor is required so assertAssignablePermissions validates the cloner holds all
+    // permissions of the cloned role, preventing privilege escalation via copy.
+    async cloneRole(id: string, organizationId: string, actor: AuthenticatedUser): Promise<Role> {
         const roleToClone = await this.findOne(id, organizationId);
 
         if (roleToClone.isSystemRole) {
@@ -65,7 +67,7 @@ export class RolesService {
             permissions: roleToClone.permissions,
         };
 
-        return this.create(newRoleDto, organizationId);
+        return this.create(newRoleDto, organizationId, actor);
     }
 
     async update(id: string, updateRoleDto: UpdateRoleDto, organizationId: string, actor?: AuthenticatedUser): Promise<Role> {
@@ -80,11 +82,8 @@ export class RolesService {
 
         const updatedRole = await this.roleRepository.save(role);
 
-        // Invalidate sessions for all users who have this role
-        // This is expensive but necessary for security when permissions change.
-        // We do it asynchronously to not block the response too much?
-        // Actually, we must ensure consistency.
-        // Finding all users with this role:
+        // H12 FIX: Invalidate in parallel instead of sequentially to avoid O(n) await chains
+        // for roles with large user memberships.
         const users = await this.roleRepository.manager.getRepository(User)
             .createQueryBuilder('user')
             .innerJoin('user.roles', 'role')
@@ -92,9 +91,7 @@ export class RolesService {
             .select(['user.id'])
             .getMany();
 
-        for (const user of users) {
-             await this.userCacheService.clearUserSession(user.id);
-        }
+        await Promise.all(users.map((u) => this.userCacheService.clearUserSession(u.id)));
 
         return updatedRole;
     }

@@ -232,6 +232,7 @@ export class SessionService implements OnModuleInit {
         });
       }
 
+      // H9 FIX: Emit audit event with hashed email and masked IP — no PII in plaintext logs.
       this.eventEmitter.emit(
           AuthEvents.AUDIT_ACTION,
           new AuthAuditActionEvent(
@@ -239,7 +240,11 @@ export class SessionService implements OnModuleInit {
               'User',
               user.id,
               ActionType.REFRESH,
-              { email: user.email, ipAddress, userAgent }
+              {
+                  emailHash: crypto.createHash('sha256').update((user.email || '').toLowerCase().trim()).digest('hex').slice(0, 12),
+                  ipAddress: ipAddress ? this.maskIp(ipAddress) : undefined,
+                  ua: userAgent ? userAgent.slice(0, 80) : undefined,
+              }
           )
       );
 
