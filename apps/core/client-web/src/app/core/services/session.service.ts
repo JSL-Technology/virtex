@@ -6,11 +6,16 @@ import { environment } from '../../../environments/environment';
 
 export interface UserSession {
     id: string;
-    ipAddress: string;
-    userAgent: string;
+    ipAddress: string | null;
+    browser?: string;
+    os?: string;
+    deviceType?: string;
+    lastActiveAt?: Date;
     createdAt: Date;
     expiresAt: Date;
     isCurrent: boolean;
+    country?: string;
+    city?: string;
 }
 
 @Injectable({

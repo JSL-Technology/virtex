@@ -82,6 +82,15 @@ const envValidation = Joi.object({
   REDIS_HOST: Joi.string().default('localhost'),
   REDIS_PORT: Joi.number().port().default(6379),
 
+  // H-03: Fail-fast for all cryptographic secrets — prevents startup with weak/missing secrets
+  JWT_SECRET: Joi.string().min(32).required(),
+  JWT_REFRESH_SECRET: Joi.string().min(32).required(),
+  JWT_RESET_PASSWORD_SECRET: Joi.string().min(32).required(),
+  JWT_2FA_TEMP_SECRET: Joi.string().min(32).required(),
+  CSRF_SECRET: Joi.string().min(32).required(),
+  ENCRYPTION_SECRET: Joi.string().min(32).required(),
+  AUTH_SALT: Joi.string().min(16).required(),
+
   RECAPTCHA_V3_SECRET_KEY: Joi.string().required(),
 
 

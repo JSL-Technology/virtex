@@ -23,14 +23,16 @@ import { finalize } from 'rxjs/operators';
             <div *ngFor="let session of sessions()" class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700 flex justify-between items-center">
                 <div>
                     <div class="font-semibold flex items-center gap-2">
-                        {{ session.userAgent }}
+                        {{ session.browser || 'Unknown browser' }} · {{ session.os || 'Unknown OS' }}
+                        <span *ngIf="session.deviceType" class="text-xs text-gray-400">({{ session.deviceType }})</span>
                         <span *ngIf="session.isCurrent" class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Current</span>
                     </div>
                     <div class="text-sm text-gray-500">
-                        IP: {{ session.ipAddress }}
+                        IP: {{ session.ipAddress || 'Unknown' }}
+                        <span *ngIf="session.city || session.country"> · {{ session.city }}{{ session.city && session.country ? ', ' : '' }}{{ session.country }}</span>
                     </div>
                     <div class="text-xs text-gray-400 mt-1">
-                        Started: {{ session.createdAt | date:'medium' }}
+                        Last active: {{ (session.lastActiveAt || session.createdAt) | date:'medium' }}
                     </div>
                 </div>
                 <button

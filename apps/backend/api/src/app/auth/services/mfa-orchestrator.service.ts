@@ -1,4 +1,5 @@
 import { Injectable, UnauthorizedException, BadRequestException, Inject } from '@nestjs/common';
+import * as crypto from 'crypto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
@@ -177,7 +178,10 @@ export class MfaOrchestratorService {
             'User',
             user.id,
             ActionType.LOGIN_FAILED,
-            { email: user.email, reason: 'Invalid 2FA/Backup Code' },
+            {
+              emailHash: crypto.createHash('sha256').update((user.email || '').toLowerCase().trim()).digest('hex').slice(0, 12),
+              reason: 'Invalid 2FA/Backup Code',
+            },
             undefined
          );
          throw new UnauthorizedException('Código 2FA o de recuperación inválido');
@@ -195,7 +199,12 @@ export class MfaOrchestratorService {
         'User',
         user.id,
         ActionType.LOGIN,
-        { email: user.email, ipAddress, userAgent, method },
+        {
+          emailHash: crypto.createHash('sha256').update((user.email || '').toLowerCase().trim()).digest('hex').slice(0, 12),
+          ipHash: ipAddress ? crypto.createHash('sha256').update(ipAddress).digest('hex').slice(0, 12) : undefined,
+          uaHash: userAgent ? crypto.createHash('sha256').update(userAgent).digest('hex').slice(0, 12) : undefined,
+          method,
+        },
         undefined,
     );
 

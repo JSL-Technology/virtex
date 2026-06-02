@@ -1,5 +1,5 @@
 
-import { Injectable, Inject, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Inject, BadRequestException, UnauthorizedException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -17,6 +17,7 @@ import * as crypto from 'crypto';
 
 @Injectable()
 export class WebAuthnService {
+  private readonly logger = new Logger(WebAuthnService.name);
   private rpName: string;
   private rpID: string;
   private origin: string;
@@ -24,8 +25,6 @@ export class WebAuthnService {
   constructor(
     @InjectRepository(Passkey)
     private readonly passkeyRepository: Repository<Passkey>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
     private readonly configService: ConfigService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {
@@ -71,7 +70,8 @@ export class WebAuthnService {
         expectedRPID: this.rpID,
       });
     } catch (error) {
-      throw new BadRequestException(error.message);
+      this.logger.warn({ event: 'webauthn_registration_failed', reason: (error as Error).message }, 'WebAuthn registration error');
+      throw new BadRequestException('WebAuthn registration failed');
     }
 
     if (verification.verified && verification.registrationInfo) {
@@ -95,31 +95,15 @@ export class WebAuthnService {
     throw new BadRequestException('Verification failed');
   }
 
-  async generateAuthenticationOptions(email?: string) {
-    let userPasskeys: Passkey[] = [];
-    let user: User | null = null;
-
-    if (email) {
-       user = await this.userRepository.findOne({ where: { email } });
-       if (user) {
-         userPasskeys = await this.passkeyRepository.find({ where: { userId: user.id } });
-       }
-    }
-
+  async generateAuthenticationOptions(_email?: string) {
     const options = await generateAuthenticationOptions({
       rpID: this.rpID,
-      allowCredentials: userPasskeys.map((passkey) => ({
-        id: passkey.credentialID,
-        type: 'public-key',
-        transports: passkey.transports as any[],
-      })),
-      // H13 FIX: 'required' enforces local device verification for passkey authentication.
+      allowCredentials: [],
       userVerification: 'required',
     });
 
-    // Use crypto.randomBytes for secure challenge ID
     const challengeId = `auth_challenge_${Date.now()}_${crypto.randomBytes(16).toString('hex')}`;
-    await this.cacheManager.set(challengeId, { challenge: options.challenge, userId: user?.id }, 60000);
+    await this.cacheManager.set(challengeId, { challenge: options.challenge }, 60000);
 
     return { ...options, challengeId };
   }
@@ -160,7 +144,8 @@ export class WebAuthnService {
         },
       });
     } catch (error) {
-      throw new BadRequestException(error.message);
+      this.logger.warn({ event: 'webauthn_verification_failed', reason: (error as Error).message }, 'WebAuthn authentication error');
+      throw new BadRequestException('WebAuthn verification failed');
     }
 
     if (verification.verified) {

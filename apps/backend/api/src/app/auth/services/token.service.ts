@@ -157,7 +157,7 @@ export class TokenService {
     const refreshToken = this.getJwtToken(
       refreshTokenPayload,
       refreshExpiration,
-      this.configService.get('JWT_REFRESH_SECRET')
+      this.configService.getOrThrow('JWT_REFRESH_SECRET')
     );
 
     return {

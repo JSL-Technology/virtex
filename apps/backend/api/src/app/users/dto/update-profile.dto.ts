@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsEmail } from 'class-validator';
+import { IsString, IsOptional } from 'class-validator';
 import { IsE164PhoneNumber } from '../../common/validators/is-e164-phone-number.validator';
 
 export class UpdateProfileDto {
@@ -18,10 +18,6 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsString()
   jobTitle?: string;
-
-  @IsOptional()
-  @IsEmail()
-  email?: string;
 
   @IsOptional()
   @IsString()

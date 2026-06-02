@@ -11,6 +11,7 @@ import { UsersService } from './users.service';
 import { InviteUserDto } from './entities/user.entity/invite-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { RequestEmailChangeDto } from './dto/request-email-change.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { PermissionsGuard } from '../auth/guards/permissions/permissions.guard';
 import { CsrfGuard } from '../auth/guards/csrf.guard';
@@ -98,6 +99,7 @@ export class UsersController {
   }
 
   @Patch('profile')
+  @UseGuards(CsrfGuard)
   @ApiOperation({ summary: 'Update current user profile' })
   async updateProfile(
     @CurrentUser() user: User,
@@ -110,8 +112,20 @@ export class UsersController {
     return plainToInstance(UserResponseDto, updatedUser, { excludeExtraneousValues: true });
   }
 
+  @Post('profile/email-change')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(CsrfGuard)
+  @ApiOperation({ summary: 'Change email with current password verification and session invalidation' })
+  async requestEmailChange(
+    @CurrentUser() user: User,
+    @Body() dto: RequestEmailChangeDto,
+  ) {
+    await this.usersService.requestEmailChange(user.id, dto);
+    return { message: 'Email actualizado. Tu sesión ha sido invalidada. Por favor inicia sesión nuevamente.' };
+  }
+
   @Post('profile/avatar')
-  @UseGuards(ThrottlerGuard)
+  @UseGuards(CsrfGuard, ThrottlerGuard)
   @ApiOperation({ summary: 'Upload avatar for current user' })
   @UseInterceptors(FastifyFileInterceptor('file', {
     fileFilter: (req, file, cb) => {

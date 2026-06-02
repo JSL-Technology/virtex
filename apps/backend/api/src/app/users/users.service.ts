@@ -1,5 +1,6 @@
 
-import { Injectable, Inject, NotFoundException, BadRequestException, ForbiddenException, Logger } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, BadRequestException, ForbiddenException, UnauthorizedException, Logger } from '@nestjs/common';
+import * as argon2 from 'argon2';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { User } from './entities/user.entity/user.entity';
@@ -37,11 +38,6 @@ export class UsersService {
   async updateProfile(id: string, updateProfileDto: UpdateProfileDto): Promise<User> {
     const user = await this.findOne(id);
 
-    // Security: Reset verification flags if sensitive data changes
-    if (updateProfileDto.email && updateProfileDto.email !== user.email) {
-      user.isEmailVerified = false;
-    }
-
     if (updateProfileDto.phone && updateProfileDto.phone !== user.phone) {
       user.isPhoneVerified = false;
     }
@@ -49,6 +45,41 @@ export class UsersService {
     Object.assign(user, updateProfileDto);
     await this.userCacheService.clearUserSession(id);
     return this.userRepository.save(user);
+  }
+
+  async requestEmailChange(userId: string, dto: { newEmail: string; currentPassword: string }): Promise<void> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['security'],
+    });
+
+    if (!user || !user.security?.passwordHash) {
+      throw new BadRequestException('No se puede cambiar el email para este usuario.');
+    }
+
+    const isPasswordValid = await argon2.verify(user.security.passwordHash, dto.currentPassword);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Contraseña actual incorrecta.');
+    }
+
+    const normalizedEmail = dto.newEmail.toLowerCase().trim();
+    if (normalizedEmail === user.email.toLowerCase()) {
+      throw new BadRequestException('El nuevo email debe ser diferente al actual.');
+    }
+
+    const existing = await this.userRepository.findOne({ where: { email: normalizedEmail } });
+    if (existing) {
+      throw new BadRequestException('El email ya está en uso por otro usuario.');
+    }
+
+    user.email = normalizedEmail;
+    user.isEmailVerified = false;
+    user.security.tokenVersion = (user.security.tokenVersion || 0) + 1;
+
+    await this.userRepository.save(user);
+    await this.userCacheService.clearUserSession(userId);
+
+    this.eventEmitter.emit('user.email-changed', { userId, newEmail: normalizedEmail });
   }
 
   async findAllByOrg(
@@ -238,20 +269,17 @@ export class UsersService {
         user.security = new UserSecurity();
     }
 
-    const resetToken = crypto.randomBytes(32).toString('hex');
+    const rawToken = crypto.randomBytes(32).toString('base64url');
+    const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
 
-    user.security.passwordResetToken = crypto
-      .createHash('sha256')
-      .update(resetToken)
-      .digest('hex');
-
+    user.security.passwordResetToken = tokenHash;
     user.security.passwordResetExpires = new Date(Date.now() + 3600000);
 
     await this.userRepository.save(user);
     await this.userCacheService.clearUserSession(id);
 
     try {
-      await this.mailService.sendPasswordResetEmail(user, resetToken, '1h');
+      await this.mailService.sendPasswordResetEmail(user, rawToken, '1h');
     } catch (error) {
       // H14 FIX: Do not log email in plain. Use structured logging without PII.
       this.logger.error({ event: 'password_reset_email_failed', userId: user.id }, 'Failed to send password reset email');

@@ -13,14 +13,11 @@ import { Repository, LessThan, MoreThan } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import * as ms from 'ms';
-
 import * as ipaddr from 'ipaddr.js';
 import * as crypto from 'crypto';
 import { RefreshToken } from '../entities/refresh-token.entity';
 import { User, UserStatus } from '../../users/entities/user.entity/user.entity';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
-import { AuthConfig } from '../auth.config';
 // AuditTrailService removed from here, used via event
 import { ActionType } from '../../audit/entities/audit-log.entity';
 import { UserCacheService } from '../modules/user-cache.service';
@@ -94,7 +91,7 @@ export class SessionService implements OnModuleInit {
   async refreshAccessToken(token: string, ipAddress?: string, userAgent?: string) {
     try {
       const payload = this.jwtService.verify<JwtPayload & { jti?: string }>(token, {
-        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+        secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
       });
 
       const user = await this.usersService.findUserByIdForAuth(payload.id);
@@ -114,42 +111,20 @@ export class SessionService implements OnModuleInit {
         });
 
         if (!refreshTokenEntity || refreshTokenEntity.isRevoked) {
-          const GRACE_PERIOD = AuthConfig.REFRESH_GRACE_PERIOD;
-          if (
-            refreshTokenEntity?.revokedAt &&
-            Date.now() - refreshTokenEntity.revokedAt.getTime() < GRACE_PERIOD
-          ) {
-            this.logger.warn(
-              `[SECURITY] Refresh token reused within grace period. Issuing new token.`
-            );
+          this.logger.warn({ event: 'refresh_reuse', jtiPrefix: payload.jti?.substring(0, 8) }, '[SECURITY] Refresh token reuse detected — family invalidated');
 
-            if (refreshTokenEntity.replacedByToken) {
-              await this.refreshTokenRepository.update(refreshTokenEntity.replacedByToken, {
-                isRevoked: true,
-                revokedAt: new Date(),
-              });
-            }
-          } else {
-            // H14 FIX: Never log jti or userId in plain; use hashed prefix for correlation only.
-            this.logger.warn({ event: 'refresh_reuse', jtiPrefix: payload.jti?.substring(0, 8) }, '[SECURITY] Refresh token reuse detected — family invalidated');
-
-            // 10/10 SECURITY: NUCLEAR FAMILY INVALIDATION
-            // When a revoked token is reused (outside grace period), we assume the token family is compromised.
-            // Incrementing tokenVersion invalidates ALL existing Access and Refresh tokens for this user globally.
-            if (user.security) {
-                user.security.tokenVersion = (user.security.tokenVersion || 0) + 1;
-                await this.userSecurityRepository.save(user.security);
-            }
-
-            await this.userCacheService.clearUserSession(user.id);
-            // Also explicitly revoke all refresh tokens in DB for audit purposes
-            await this.refreshTokenRepository.update(
-                { userId: user.id, isRevoked: false },
-                { isRevoked: true, revokedAt: new Date() }
-            );
-
-            throw new UnauthorizedException(AuthError.REFRESH_TOKEN_REVOKED);
+          if (user.security) {
+              user.security.tokenVersion = (user.security.tokenVersion || 0) + 1;
+              await this.userSecurityRepository.save(user.security);
           }
+
+          await this.userCacheService.clearUserSession(user.id);
+          await this.refreshTokenRepository.update(
+              { userId: user.id, isRevoked: false },
+              { isRevoked: true, revokedAt: new Date() }
+          );
+
+          throw new UnauthorizedException(AuthError.REFRESH_TOKEN_REVOKED);
         } else {
           // User Agent Analysis (using new SecurityAnalysisService)
           const sanitizedUserAgent = this.sanitizeUserAgent(userAgent);

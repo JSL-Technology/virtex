@@ -1,6 +1,7 @@
 import { Injectable, ForbiddenException, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as crypto from 'crypto';
 import { User, UserStatus } from '../../users/entities/user.entity/user.entity';
 import { UserCacheService } from '../modules/user-cache.service';
 import { hasPermission } from '@virteex/shared/util-auth';
@@ -21,13 +22,21 @@ export class ImpersonationService {
     return Math.max(0, ...safeRoles.map(r => hierarchy[r.name] || 0));
   }
 
+  private hashPii(value: string): string {
+    return crypto.createHash('sha256').update(value.toLowerCase().trim()).digest('hex').slice(0, 12);
+  }
+
   async validateImpersonationRequest(adminUser: User, targetUserId: string): Promise<User> {
-    // 10/10 SECURITY: Explicit logging of intent
-    this.logger.warn(`[AUDIT] Impersonation attempt: Admin ${adminUser.email} (${adminUser.id}) requesting access to Target ID ${targetUserId}`);
+    this.logger.warn({
+      event: 'impersonation_attempt',
+      adminId: adminUser.id,
+      adminEmailHash: this.hashPii(adminUser.email),
+      targetId: targetUserId,
+    }, '[AUDIT] Impersonation attempt');
 
     const permissions = [...new Set((adminUser.roles || []).flatMap((role) => role.permissions || []))];
     if (!hasPermission(permissions, ['users:impersonate'])) {
-      this.logger.warn(`[SECURITY] Impersonation denied: Missing permissions for Admin ${adminUser.id}`);
+      this.logger.warn({ event: 'impersonation_denied', adminId: adminUser.id, reason: 'missing_permission' }, '[SECURITY] Impersonation denied');
       throw new ForbiddenException(
         'No tienes permisos para suplantar usuarios.',
       );
@@ -49,7 +58,7 @@ export class ImpersonationService {
     }
 
     if (targetUser.organizationId !== adminUser.organizationId) {
-        this.logger.warn(`[SECURITY] Impersonation denied: Cross-organization attempt by Admin ${adminUser.id}`);
+        this.logger.warn({ event: 'impersonation_denied', adminId: adminUser.id, reason: 'cross_org' }, '[SECURITY] Impersonation denied: cross-organization');
         throw new ForbiddenException('No puedes suplantar usuarios de otra organización.');
     }
 
@@ -57,13 +66,13 @@ export class ImpersonationService {
     const targetLevel = this.getRoleLevel(targetUser.roles);
 
     if (targetLevel > adminLevel) {
-      this.logger.warn(`[SECURITY] Impersonation denied: Hierarchy violation by Admin ${adminUser.id}`);
+      this.logger.warn({ event: 'impersonation_denied', adminId: adminUser.id, reason: 'hierarchy_violation' }, '[SECURITY] Impersonation denied: hierarchy violation');
       throw new ForbiddenException(
         'No tienes jerarquía suficiente para suplantar a este usuario.',
       );
     }
 
-    this.logger.log(`[AUDIT] Impersonation authorized: Admin ${adminUser.email} -> Target ${targetUser.email}`);
+    this.logger.log({ event: 'impersonation_authorized', adminId: adminUser.id, targetId: targetUser.id }, '[AUDIT] Impersonation authorized');
     return targetUser;
   }
 
@@ -93,10 +102,9 @@ export class ImpersonationService {
       );
     }
 
-    // Invalidate the impersonation session cache
     await this.userCacheService.clearUserSession(impersonatingUser.id);
 
-    this.logger.log(`[AUDIT] Impersonation ended: Target ${impersonatingUser.email} -> Admin ${adminUser.email}`);
+    this.logger.log({ event: 'impersonation_ended', targetId: impersonatingUser.id, adminId: adminUser.id }, '[AUDIT] Impersonation ended');
     return adminUser;
   }
 }
