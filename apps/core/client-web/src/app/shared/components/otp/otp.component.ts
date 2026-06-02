@@ -30,6 +30,8 @@ const EXPIRING_THRESHOLD = 30;
 const STATUS_AUTO_DISMISS_MS = 5000;
 /** How long the error shake/highlight is shown. */
 const ERROR_FLASH_MS = 3000;
+/** Small delay before auto-submitting a complete code, so the last digit renders first. */
+const AUTO_SUBMIT_DELAY_MS = 120;
 /** Allowed OTP lengths offered by the optional length selector. */
 const SELECTABLE_LENGTHS = [4, 6, 8] as const;
 
@@ -209,6 +211,7 @@ export class OtpComponent implements OnInit, OnChanges, OnDestroy {
     const lastFilled = this.fill(raw, index);
     this.focusInput(Math.min(lastFilled + 1, this.length() - 1));
     this.status.set(null);
+    this.maybeAutoVerify();
   }
 
   handleKeyDown(event: KeyboardEvent, index: number): void {
@@ -252,6 +255,7 @@ export class OtpComponent implements OnInit, OnChanges, OnDestroy {
     const lastFilled = this.fill(pasteData, 0);
     this.focusInput(Math.min(lastFilled + 1, this.length() - 1));
     this.showStatus('Código pegado correctamente', 'success');
+    this.maybeAutoVerify();
   }
 
   handleFocus(event: FocusEvent): void {
@@ -305,6 +309,15 @@ export class OtpComponent implements OnInit, OnChanges, OnDestroy {
     if (!this.canVerify()) return;
     this.verifying.set(true);
     this.verify.emit(this.otpValues().join(''));
+  }
+
+  /**
+   * Submits automatically as soon as every box is filled, so the user does not
+   * need to press "Verificar". A short delay lets the final digit paint first.
+   */
+  private maybeAutoVerify(): void {
+    if (!this.canVerify()) return;
+    this.schedule(() => this.onVerify(), AUTO_SUBMIT_DELAY_MS);
   }
 
   clear(): void {
