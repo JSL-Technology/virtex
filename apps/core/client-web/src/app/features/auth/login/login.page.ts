@@ -2,12 +2,13 @@ import { Component, OnInit, inject, signal, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../core/services/auth';
 import { LanguageService } from '../../../core/services/language';
 import { CountryService } from '../../../core/services/country.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { RecaptchaV3Module, ReCaptchaV3Service } from 'ng-recaptcha-19';
-import { LucideAngularModule, Mail, Lock, User, ArrowRight, AlertCircle, CheckCircle, ShieldCheck } from 'lucide-angular';
+import { LucideAngularModule, Mail, Lock, User, ArrowRight, AlertCircle, CheckCircle, ShieldCheck, Camera, Briefcase, Users, Globe, Rocket, Check, ArrowLeft } from 'lucide-angular';
 
 // Shared Components
 import { AuthLayoutComponent } from '../components/auth-layout/auth-layout.component';
@@ -51,7 +52,22 @@ export class LoginPage implements OnInit {
   public countryService = inject(CountryService);
 
   // Icons
-  readonly icons = { Mail, Lock, User, ArrowRight, AlertCircle, CheckCircle, ShieldCheck };
+  readonly icons = {
+    Mail,
+    Lock,
+    User,
+    ArrowRight,
+    AlertCircle,
+    CheckCircle,
+    ShieldCheck,
+    Camera,
+    Briefcase,
+    Users,
+    Globe,
+    Rocket,
+    Check,
+    ArrowLeft
+  };
 
   // State
   loginForm!: FormGroup;
@@ -59,8 +75,9 @@ export class LoginPage implements OnInit {
 
   errorMessage = signal<string | null>(null);
   isLoggingIn = signal(false);
+  // H-03 FIX: show2faInput driven by server response; no tempToken stored in JS memory.
+  // The pending session ID lives only in the httpOnly cookie set by the server.
   show2faInput = signal(false);
-  tempToken = signal<string | null>(null);
 
   @ViewChild(OtpComponent) otpComponent!: OtpComponent;
 
@@ -115,8 +132,13 @@ export class LoginPage implements OnInit {
         }
         this.isLoggingIn.set(false);
       })
-      .catch(() => {
-        // H14 FIX: Do not log error objects to the console in production (may leak server details).
+      .catch((err) => {
+        // H14/H-10 FIX: Never log full error objects in production; they may contain
+        // request URLs, response bodies, or auth-flow details (OWASP Logging Cheat
+        // Sheet; CWE-532). Only log in development with minimal context.
+        if (!environment.production) {
+          console.warn('Passkey login failed', { status: (err as any)?.status });
+        }
         this.errorMessage.set('LOGIN.ERRORS.PASSKEY_ERROR');
         this.isLoggingIn.set(false);
       });
@@ -136,11 +158,11 @@ export class LoginPage implements OnInit {
         this.authService.login({ email, password, recaptchaToken: token, rememberMe }).subscribe({
           next: (response: any) => {
             if (response && response.require2fa) {
-              this.tempToken.set(response.tempToken);
+              // H-03 FIX: No tempToken to store — pending session cookie was set by server.
               this.show2faInput.set(true);
               this.isLoggingIn.set(false);
             } else {
-              this.handleSuccess(response); // response is User object here per AuthService logic
+              this.handleSuccess(response);
             }
           },
           error: (err) => {
@@ -157,17 +179,16 @@ export class LoginPage implements OnInit {
   }
 
   verify2fa(): void {
-    if (this.otpCodeControl.invalid || !this.tempToken()) return;
+    if (this.otpCodeControl.invalid) return;
     this.onOtpVerify(this.otpCodeControl.value!);
   }
 
   onOtpVerify(code: string): void {
-    if (!this.tempToken()) return;
-
     this.isLoggingIn.set(true);
     this.errorMessage.set(null);
 
-    this.authService.verify2fa(code, this.tempToken()!).subscribe({
+    // H-03 FIX: Only the code is sent — server reads pendingId from the httpOnly cookie.
+    this.authService.verify2fa(code).subscribe({
       next: (user) => {
         this.handleSuccess(user);
       },
@@ -194,6 +215,9 @@ export class LoginPage implements OnInit {
   }
 
   private handleError(err: any): void {
+    if (!environment.production) {
+      console.warn('Login failed', { status: err?.status });
+    }
     if (err && err.status) {
       switch (err.status) {
         case 401: this.errorMessage.set('LOGIN.ERRORS.AUTH_INVALID_CREDENTIALS'); break;

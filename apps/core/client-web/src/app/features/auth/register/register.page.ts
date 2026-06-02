@@ -32,6 +32,8 @@ import { trigger, style, transition, animate } from '@angular/animations';
 import { AuthService } from '../../../core/services/auth';
 import { RegisterPayload } from '../../../shared/interfaces/register-payload.interface';
 import { StepAccountInfo } from './steps/step-account-info/step-account-info';
+import { StepEmailVerify } from './steps/step-email-verify/step-email-verify';
+import { StepPhoneVerify } from './steps/step-phone-verify/step-phone-verify';
 import { StepBusiness } from './steps/step-business/step-business';
 import { StepConfiguration } from './steps/step-configuration/step-configuration';
 import { StepPlan } from './steps/step-plan/step-plan';
@@ -49,7 +51,9 @@ import { AuthButtonComponent } from '../components/auth-button/auth-button.compo
 import { AuthInputComponent } from '../components/auth-input/auth-input.component';
 import { LanguageService } from '../../../core/services/language';
 
-// Validador personalizado para coincidencia de contraseñas
+const FORM_DRAFT_KEY = 'register_form_draft';
+const TOTAL_STEPS = 6;
+
 export function passwordMatchValidator(
   control: AbstractControl,
 ): ValidationErrors | null {
@@ -68,6 +72,8 @@ export function passwordMatchValidator(
     LucideAngularModule,
     RouterLink,
     StepAccountInfo,
+    StepEmailVerify,
+    StepPhoneVerify,
     StepBusiness,
     StepConfiguration,
     StepPlan,
@@ -103,7 +109,6 @@ export function passwordMatchValidator(
   ],
 })
 export class RegisterPage implements OnInit {
-  // Iconos
   protected readonly CheckCircleIcon = CheckCircle;
   protected readonly BarChart2Icon = BarChart2;
   protected readonly PackageIcon = Package;
@@ -125,22 +130,29 @@ export class RegisterPage implements OnInit {
   registerForm!: FormGroup;
   errorMessage = signal<string | null>(null);
   isRegistering = signal(false);
-  stepsCompleted = signal<boolean[]>(new Array(4).fill(false));
+  stepsCompleted = signal<boolean[]>(new Array(TOTAL_STEPS).fill(false));
 
-  // Configuración reactiva basada en el país
+  emailVerified = signal(false);
+  phoneVerified = signal(false);
+
+  readonly steps = Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1);
+
   currentCountryConfig = computed(() => this.countryService.currentCountry());
 
+  get currentEmail(): string {
+    return this.registerForm?.get('accountInfo.email')?.value ?? '';
+  }
+
+  get currentPhone(): string {
+    return this.registerForm?.get('accountInfo.phone')?.value ?? '';
+  }
+
   constructor() {
-    // 1. Efecto: Actualizar validadores y valores cuando cambia la configuración del país
     effect(() => {
       const config = this.currentCountryConfig();
       if (config && this.registerForm) {
-        console.log('[Register] Aplicando configuración de país:', config.code);
-
-        // Actualizar Regex del Tax ID (RNC/NIT/EIN)
         const taxIdControl = this.registerForm.get('configuration.taxId');
         if (taxIdControl) {
-          // Usamos el regex que viene del backend o uno permisivo por defecto
           const pattern = config.taxIdRegex || '^[A-Za-z0-9\\-\\s]+$';
           taxIdControl.setValidators([
             Validators.required,
@@ -149,28 +161,22 @@ export class RegisterPage implements OnInit {
           taxIdControl.updateValueAndValidity();
         }
 
-        // Actualizar Moneda
         const currencyControl = this.registerForm.get('configuration.currency');
         if (currencyControl) {
           currencyControl.setValue(config.currencyCode);
         }
 
-        // Actualizar Región Fiscal (SOLO si el backend envió un ID válido)
-        const fiscalRegionIdControl = this.registerForm.get(
-          'configuration.fiscalRegionId',
-        );
+        const fiscalRegionIdControl = this.registerForm.get('configuration.fiscalRegionId');
         if (fiscalRegionIdControl) {
           if (config.fiscalRegionId) {
             fiscalRegionIdControl.setValue(config.fiscalRegionId);
           } else {
-            // Si no hay región fiscal (ej. país no soportado completamente), limpiar
             fiscalRegionIdControl.setValue(null);
           }
         }
       }
     });
 
-    // 2. Efecto: Sincronizar el dropdown de país en el formulario
     effect(() => {
       const code = this.countryService.currentCountryCode();
       if (code && this.registerForm) {
@@ -183,25 +189,23 @@ export class RegisterPage implements OnInit {
   }
 
   ngOnInit(): void {
-    // Check if we have a country in the route
-    const routeCountry = this.activatedRoute.parent?.parent?.snapshot.paramMap.get('country') ||
-                         this.activatedRoute.parent?.snapshot.paramMap.get('country');
+    const routeCountry =
+      this.activatedRoute.parent?.parent?.snapshot.paramMap.get('country') ||
+      this.activatedRoute.parent?.snapshot.paramMap.get('country');
 
     if (!routeCountry) {
-      // Iniciar detección de país only if not in a country-specific route
       this.countryService.detectAndSetCountry();
     }
 
     this.registerForm = this.fb.group({
-      fax: [''], // Honeypot antispam
-      // Paso 1: Información de Cuenta
+      fax: [''],
       accountInfo: this.fb.group({
         firstName: ['', [Validators.required]],
         lastName: ['', [Validators.required]],
         email: ['', [Validators.required, Validators.email]],
-        jobTitle: [''],
-        phone: [''],
-        avatarUrl: [null],
+        phone: ['', [Validators.required]],
+        emailCode: [''],
+        phoneCode: [''],
         passwordGroup: this.fb.group(
           {
             password: [
@@ -217,32 +221,32 @@ export class RegisterPage implements OnInit {
           { validators: passwordMatchValidator },
         ),
       }),
-      // Paso 2: Configuración Fiscal (Dinámica)
       configuration: this.fb.group({
         country: ['DO', [Validators.required]],
         taxId: ['', [Validators.required]],
-        fiscalRegionId: [null], // Se llena automáticamente vía Effect
+        fiscalRegionId: [null],
         currency: ['DOP', [Validators.required]],
       }),
-      // Paso 3: Perfil de Negocio
       business: this.fb.group({
         companyName: ['', [Validators.required]],
         industry: ['', [Validators.required]],
-        numberOfEmployees: ['', [Validators.required]],
         address: [''],
-        website: [''],
-        logoFile: [null],
       }),
-      // Paso 4: Términos
       plan: this.fb.group({
+        selectedPlanId: ['starter', [Validators.required]],
         agreeToTerms: [false, [Validators.requiredTrue]],
       }),
     });
 
-    // Manejo de tokens de invitación/social
     this.activatedRoute.queryParams.subscribe((params) => {
+      const emailToken = params['email_token'];
+      if (emailToken) {
+        this.handleEmailMagicLink(emailToken);
+        return;
+      }
+
       const socialRegistration = params['social_registration'];
-      // H12 FIX: Token is no longer passed as query param; backend reads it from httpOnly cookie.
+      // H12 FIX: social register token is no longer a query param; backend reads it from the httpOnly cookie.
       if (socialRegistration === 'true') {
         this.authService.getSocialRegisterInfo().subscribe({
           next: (info) => {
@@ -259,7 +263,40 @@ export class RegisterPage implements OnInit {
     });
   }
 
-  // Getters para el template
+  private handleEmailMagicLink(token: string) {
+    this.authService.confirmEmailMagicLink(token).subscribe({
+      next: (response) => {
+        // H-08 FIX: The draft no longer stores PII — just clear the position marker.
+        sessionStorage.removeItem(FORM_DRAFT_KEY);
+
+        this.registerForm.get('accountInfo.emailCode')?.setValue(response.preVerifiedToken);
+        this.emailVerified.set(true);
+
+        this.stepsCompleted.update((c) => {
+          const n = [...c];
+          n[0] = true;
+          n[1] = true;
+          return n;
+        });
+
+        this.currentStep.set(3);
+        this.errorMessage.set(null);
+
+        this.router.navigate([], {
+          relativeTo: this.activatedRoute,
+          queryParams: {},
+          replaceUrl: true,
+        });
+      },
+      error: () => {
+        this.errorMessage.set(
+          'El enlace de confirmación ha expirado o no es válido. Por favor, ingresa el código manualmente.',
+        );
+        this.currentStep.set(2);
+      },
+    });
+  }
+
   get accountInfo() {
     return this.registerForm.get('accountInfo') as FormGroup;
   }
@@ -273,66 +310,100 @@ export class RegisterPage implements OnInit {
     return this.registerForm.get('plan') as FormGroup;
   }
 
+  // Step → form group mapping (null for verification steps)
+  private readonly stepFormMap: (string | null)[] = [
+    'accountInfo',   // 1
+    null,            // 2 — email verify
+    null,            // 3 — phone verify
+    'configuration', // 4
+    'business',      // 5
+    'plan',          // 6
+  ];
+
   private getCurrentStepForm(): FormGroup | null {
-    const stepNames = ['accountInfo', 'configuration', 'business', 'plan'];
-    return this.registerForm.get(
-      stepNames[this.currentStep() - 1],
-    ) as FormGroup;
+    const key = this.stepFormMap[this.currentStep() - 1];
+    return key ? (this.registerForm.get(key) as FormGroup) : null;
   }
 
   nextStep(): void {
-    const currentForm = this.getCurrentStepForm();
-    if (currentForm?.invalid) {
-      currentForm.markAllAsTouched();
-      this.errorMessage.set(
-        'Por favor, completa los campos requeridos correctamente.',
-      );
+    this.errorMessage.set(null);
+
+    // Verification gate for email step
+    if (this.currentStep() === 2 && !this.emailVerified()) {
+      this.errorMessage.set('Debes verificar tu correo electrónico antes de continuar.');
       return;
     }
 
-    // Validación específica antes de pasar del paso 2 (Config)
-    if (this.currentStep() === 2) {
-      const regionId = this.registerForm.get(
-        'configuration.fiscalRegionId',
-      )?.value;
-      const currentCountry = this.countryService
-        .currentCountryCode()
-        .toUpperCase();
+    // Verification gate for phone step
+    if (this.currentStep() === 3 && !this.phoneVerified()) {
+      this.errorMessage.set('Debes verificar tu número de celular antes de continuar.');
+      return;
+    }
 
-      // Si estamos en DO/PA/US, DEBE haber una región fiscal cargada.
+    const currentForm = this.getCurrentStepForm();
+    if (currentForm?.invalid) {
+      currentForm.markAllAsTouched();
+      this.errorMessage.set('Por favor, completa los campos requeridos correctamente.');
+      return;
+    }
+
+    // Fiscal region validation for step 4 (configuration)
+    if (this.currentStep() === 4) {
+      const regionId = this.registerForm.get('configuration.fiscalRegionId')?.value;
+      const currentCountry = this.countryService.currentCountryCode().toUpperCase();
       if (['DO', 'PA', 'US', 'CO'].includes(currentCountry) && !regionId) {
         this.errorMessage.set(
-          'Error de configuración: No se ha cargado la región fiscal. Por favor recarga la página o verifica tu conexión.',
+          'Error de configuración: No se ha cargado la región fiscal. Por favor recarga la página.',
         );
         return;
       }
     }
 
+    // H-08 FIX: Do NOT store PII (name, email, phone) in sessionStorage.
+    // sessionStorage is readable by any JS running in the same origin, making it
+    // an XSS exfiltration target for PII (OWASP HTML5 Security Cheat Sheet;
+    // GDPR data minimisation; CWE-922). Save only the step marker so the magic-
+    // link callback can restore position without exposing personal data.
+    if (this.currentStep() === 1) {
+      sessionStorage.setItem(
+        FORM_DRAFT_KEY,
+        JSON.stringify({ step: this.currentStep(), savedAt: Date.now() }),
+      );
+    }
+
     this.stepsCompleted.update((completed) => {
-      const newCompleted = [...completed];
-      newCompleted[this.currentStep() - 1] = true;
-      return newCompleted;
+      const n = [...completed];
+      n[this.currentStep() - 1] = true;
+      return n;
     });
 
-    if (this.currentStep() < 4) {
-      this.currentStep.update((step) => step + 1);
-      this.errorMessage.set(null);
+    if (this.currentStep() < TOTAL_STEPS) {
+      this.currentStep.update((s) => s + 1);
     }
   }
 
   prevStep(): void {
     if (this.currentStep() > 1) {
-      this.currentStep.update((step) => step - 1);
+      this.currentStep.update((s) => s - 1);
+      this.errorMessage.set(null);
     }
   }
 
   navigateToStep(stepIndex: number): void {
-    if (
-      stepIndex < this.currentStep() &&
-      this.stepsCompleted()[stepIndex - 1]
-    ) {
+    if (stepIndex < this.currentStep() && this.stepsCompleted()[stepIndex - 1]) {
       this.currentStep.set(stepIndex);
+      this.errorMessage.set(null);
     }
+  }
+
+  onEmailVerified(preVerifiedToken: string) {
+    this.registerForm.get('accountInfo.emailCode')?.setValue(preVerifiedToken);
+    this.emailVerified.set(true);
+  }
+
+  onPhoneVerified(preVerifiedToken: string) {
+    this.registerForm.get('accountInfo.phoneCode')?.setValue(preVerifiedToken);
+    this.phoneVerified.set(true);
   }
 
   onSubmit(): void {
@@ -345,32 +416,42 @@ export class RegisterPage implements OnInit {
 
     this.recaptchaV3Service.execute('register').subscribe({
       next: (recaptchaToken) => {
-        // Limpieza final de datos
         const regionId = formValue.configuration.fiscalRegionId;
 
         const payload: RegisterPayload = {
           firstName: formValue.accountInfo.firstName,
           lastName: formValue.accountInfo.lastName,
           email: formValue.accountInfo.email,
+          emailVerificationCode: formValue.accountInfo.emailCode,
+          phone: formValue.accountInfo.phone,
+          phoneVerificationCode: formValue.accountInfo.phoneCode || undefined,
           password: formValue.accountInfo.passwordGroup.password,
           organizationName: formValue.business.companyName,
-          // Datos fiscales
           taxId: formValue.configuration.taxId,
-          // Solo enviar fiscalRegionId si tiene valor real, sino undefined
           fiscalRegionId: regionId && regionId !== '' ? regionId : undefined,
-
           recaptchaToken,
-
-          // Datos de perfilado
           industry: formValue.business.industry,
-          companySize: formValue.business.numberOfEmployees,
           address: formValue.business.address,
-        };
+        } as any;
 
         this.authService.register(payload).subscribe({
           next: () => {
-            this.isRegistering.set(false);
-            this.router.navigate(['/auth/plan-selection']);
+            const planId = formValue.plan.selectedPlanId;
+            this.authService.createCheckoutSession(planId).subscribe({
+              next: (response) => {
+                this.isRegistering.set(false);
+                sessionStorage.removeItem(FORM_DRAFT_KEY);
+                if (response.url) {
+                  window.location.href = response.url;
+                } else {
+                  this.router.navigate(['/dashboard']);
+                }
+              },
+              error: () => {
+                this.isRegistering.set(false);
+                this.router.navigate(['/dashboard']);
+              },
+            });
           },
           error: (err) => {
             let msg = 'Error desconocido en el registro.';

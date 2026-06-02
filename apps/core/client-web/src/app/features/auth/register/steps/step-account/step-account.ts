@@ -1,27 +1,44 @@
-import { Component, Input, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, Input, signal } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, User, Phone, CaseSensitive, Image } from 'lucide-angular';
+import { TranslateModule } from '@ngx-translate/core';
+import { AuthInputComponent } from '../../../components/auth-input/auth-input.component';
+import { PasswordValidatorComponent } from '../../../components/password-validator/password-validator.component';
+import { LucideAngularModule, User, Phone, Briefcase, Mail, Lock, AlertCircle } from 'lucide-angular';
+
 @Component({
-  selector: 'app-step-account', standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule],
-  templateUrl: './step-account.html', styleUrls: ['./step-account.scss']
+  selector: 'app-step-account',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    TranslateModule,
+    AuthInputComponent,
+    PasswordValidatorComponent,
+    LucideAngularModule
+  ],
+  templateUrl: './step-account.html',
+  styleUrls: ['./step-account.scss']
 })
 export class StepAccount {
-  @Input() parentForm!: FormGroup;
-  protected readonly UserIcon = User;
-  protected readonly PhoneIcon = Phone;
-  protected readonly JobIcon = CaseSensitive;
-  protected readonly AvatarIcon = Image;
-  avatarPreview = signal<string | ArrayBuffer | null>(null);
+  @Input() group!: FormGroup;
 
-  onFileSelected(event: Event): void {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (file) {
-      this.parentForm.patchValue({ avatarUrl: file });
-      const reader = new FileReader();
-      reader.onload = () => this.avatarPreview.set(reader.result);
-      reader.readAsDataURL(file);
+  readonly UserIcon = User;
+  readonly PhoneIcon = Phone;
+  readonly JobIcon = Briefcase;
+  readonly MailIcon = Mail;
+  readonly LockIcon = Lock;
+  readonly AlertCircleIcon = AlertCircle;
+
+  getErrorMessage(controlName: string): string {
+    const control = this.group.get(controlName);
+    if (control?.touched && control?.errors) {
+      if (control.errors['required']) return 'REGISTER.ERRORS.REQUIRED';
+      if (control.errors['email']) return 'REGISTER.ERRORS.EMAIL_INVALID';
+      if (control.errors['minlength']) return 'REGISTER.ERRORS.PASSWORD_LENGTH';
+      if (control.errors['strongPassword']) return 'REGISTER.ERRORS.PASSWORD_WEAK';
+      if (control.errors['passwordMismatch']) return 'REGISTER.ERRORS.PASSWORD_MISMATCH';
     }
+    return '';
   }
 }

@@ -28,10 +28,11 @@ export class AuditSubscriber implements EntitySubscriberInterface<any> {
   }
 
   private async log(actionType: ActionType, event: any) {
-    const request = RequestContext.currentContext.req;
+    const request = RequestContext.currentContext?.req;
     if (request && request.user) {
       const auditLog = new AuditLog();
       auditLog.userId = request.user.id;
+      auditLog.organizationId = request.user.organizationId ?? null;
       auditLog.entity = event.metadata.tableName;
       auditLog.entityId = event.entity.id;
       auditLog.actionType = actionType;

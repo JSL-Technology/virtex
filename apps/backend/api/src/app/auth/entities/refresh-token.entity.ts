@@ -64,4 +64,7 @@ export class RefreshToken {
 
   @Column({ name: 'last_active_at', type: 'timestamptz', nullable: true })
   lastActiveAt?: Date;
+
+  @Column({ name: 'token_hash', nullable: true, select: false })
+  tokenHash?: string;
 }

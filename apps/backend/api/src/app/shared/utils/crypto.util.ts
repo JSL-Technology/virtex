@@ -17,13 +17,10 @@ export class CryptoUtil {
   private readonly ivLength = 12;
 
   constructor(private configService: ConfigService) {
-    const secret = this.configService.get<string>('ENCRYPTION_SECRET');
-    if (!secret) {
-      throw new Error('ENCRYPTION_SECRET is not defined in environment variables');
-    }
+    const secret = this.configService.getOrThrow<string>('ENCRYPTION_SECRET');
     const salt = this.configService.get<string>('AUTH_SALT');
-    if (!salt && process.env['NODE_ENV'] === 'production') {
-      throw new Error('AUTH_SALT is not defined in environment variables');
+    if (process.env['NODE_ENV'] === 'production' && !salt) {
+      throw new Error('AUTH_SALT is required in production for 2FA secret encryption');
     }
     const effectiveSalt = salt || 'default-salt-change-me-in-prod';
     // Ensure key is 32 bytes for AES-256

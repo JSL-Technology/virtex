@@ -31,6 +31,9 @@ export class SocialAuthService {
     const user = await this.usersService.findUserForAuth(socialUser.email);
 
     if (user) {
+      // M-02 / H-03: An OAuth identity is "new" to this account if either the provider or the
+      // provider-id differs from what is stored. Cross-provider/cross-method linking is the
+      // pre-account-hijacking risk (OWASP ASVS 2.1.5; OAuth 2.0 Security BCP; CWE-287).
       const isNewLink =
         user.authProvider !== socialUser.provider || user.authProviderId !== socialUser.providerId;
 
@@ -44,33 +47,32 @@ export class SocialAuthService {
           );
         }
 
-        // M-02 FIX: If the account already has a local password, refuse silent linking and
-        // require an authenticated account-linking step (user must sign in locally first).
-        // This prevents a second provider from hijacking a password-protected account.
-        if (user.security?.passwordHash) {
+        // M-02 FIX: If the account already has a local password (or a different provider),
+        // refuse silent linking and require an authenticated account-linking step (user must
+        // sign in with their original method first). This prevents a second sign-in method
+        // from hijacking an existing account.
+        if (user.security?.passwordHash || (user.authProvider && user.authProvider !== socialUser.provider)) {
           throw new ConflictException(
-            'Ya existe una cuenta local con este correo. Inicia sesión con tu contraseña y vincula el proveedor desde tu perfil.',
+            'Ya existe una cuenta con este correo. Inicia sesión con tu método original y vincula el proveedor desde tu perfil.',
           );
         }
 
         await this.usersService.update(user.id, {
-          authProvider: socialUser.provider,
           authProviderId: socialUser.providerId,
-          avatarUrl: user.avatarUrl || socialUser.picture
+          avatarUrl: user.avatarUrl || socialUser.picture,
         });
-
-        user.authProvider = socialUser.provider;
         user.authProviderId = socialUser.providerId;
       }
 
-       if (user.status !== UserStatus.ACTIVE) {
-         throw new UnauthorizedException('Usuario inactivo o bloqueado.');
-       }
+      if (user.status !== UserStatus.ACTIVE) {
+        throw new UnauthorizedException('Usuario inactivo o bloqueado.');
+      }
 
       await this.securityAnalysisService.checkImpossibleTravel(user.id, ipAddress);
 
-      // L-10 FIX: Do not store raw PII (email/IP/UA) in the audit trail. Mirror the hashing
-      // used elsewhere (mfa-orchestrator / session.service) for privacy/GDPR minimization.
+      // L-10 / H-13 FIX: Do not store raw PII (email/IP/UA) in the audit trail. Mirror the
+      // hashing used elsewhere (mfa-orchestrator / session.service) for privacy/GDPR
+      // minimization (OWASP Logging Cheat Sheet; CWE-532).
       await this.auditService.record(
         user.id,
         'User',
@@ -103,7 +105,7 @@ export class SocialAuthService {
         type: 'social-register'
       },
       {
-        secret: this.configService.getOrThrow('JWT_SECRET'),
+        secret: this.configService.getOrThrow('JWT_SOCIAL_REGISTER_SECRET'),
         expiresIn: '10m'
       }
     );
@@ -112,7 +114,7 @@ export class SocialAuthService {
   async getSocialRegisterInfo(token: string): Promise<SocialUser> {
     try {
       const payload = this.jwtService.verify(token, {
-        secret: this.configService.getOrThrow('JWT_SECRET'),
+        secret: this.configService.getOrThrow('JWT_SOCIAL_REGISTER_SECRET'),
       });
 
       if (payload.type !== 'social-register') {

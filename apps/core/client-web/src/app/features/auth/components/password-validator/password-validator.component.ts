@@ -6,19 +6,53 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="mt-2 space-y-1">
-      <div class="flex h-1 gap-1 w-full mb-2">
-        <div class="h-full flex-1 rounded-full transition-colors duration-300" [ngClass]="strength >= 1 ? getColor(1) : 'bg-bg-tertiary'"></div>
-        <div class="h-full flex-1 rounded-full transition-colors duration-300" [ngClass]="strength >= 2 ? getColor(2) : 'bg-bg-tertiary'"></div>
-        <div class="h-full flex-1 rounded-full transition-colors duration-300" [ngClass]="strength >= 3 ? getColor(3) : 'bg-bg-tertiary'"></div>
-        <div class="h-full flex-1 rounded-full transition-colors duration-300" [ngClass]="strength >= 4 ? getColor(4) : 'bg-bg-tertiary'"></div>
+    <div class="password-validator">
+      <div class="strength-bars">
+        <div class="strength-bar" [style.background-color]="strength >= 1 ? getBarColor(1) : ''" [class.active]="strength >= 1"></div>
+        <div class="strength-bar" [style.background-color]="strength >= 2 ? getBarColor(2) : ''" [class.active]="strength >= 2"></div>
+        <div class="strength-bar" [style.background-color]="strength >= 3 ? getBarColor(3) : ''" [class.active]="strength >= 3"></div>
+        <div class="strength-bar" [style.background-color]="strength >= 4 ? getBarColor(4) : ''" [class.active]="strength >= 4"></div>
       </div>
 
-      <p class="text-xs text-text-tertiary text-right" *ngIf="password">
+      <p class="strength-label" *ngIf="password">
         {{ getStrengthLabel() }}
       </p>
     </div>
-  `
+  `,
+  styles: [`
+    .password-validator {
+      margin-top: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+    }
+
+    .strength-bars {
+      display: flex;
+      height: 4px;
+      gap: 0.25rem;
+      width: 100%;
+    }
+
+    .strength-bar {
+      flex: 1;
+      height: 100%;
+      background-color: var(--bg-tertiary);
+      border-radius: 2px;
+      transition: background-color 0.3s ease;
+
+      &.active {
+        // Background color is handled by [style.background-color]
+      }
+    }
+
+    .strength-label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      text-align: right;
+    }
+  `]
 })
 export class PasswordValidatorComponent {
   @Input() password = '';
@@ -33,12 +67,21 @@ export class PasswordValidatorComponent {
     return s;
   }
 
-  getColor(level: number): string {
-    if (this.strength === 1) return 'bg-error';
-    if (this.strength === 2) return 'bg-orange-500'; // Warning
-    if (this.strength === 3) return 'bg-yellow-400'; // Good
-    if (this.strength === 4) return 'bg-success';
-    return 'bg-bg-tertiary';
+  getBarColor(level: number): string {
+    const colors = {
+      1: 'var(--error)',
+      2: '#f59e0b', // Amber-500 for regular
+      3: '#10b981', // Emerald-500 for good
+      4: 'var(--success)'
+    };
+
+    // All active bars show the same color based on current strength
+    if (this.strength === 1) return colors[1];
+    if (this.strength === 2) return colors[2];
+    if (this.strength === 3) return colors[3];
+    if (this.strength === 4) return colors[4];
+
+    return 'var(--bg-tertiary)';
   }
 
   getStrengthLabel(): string {

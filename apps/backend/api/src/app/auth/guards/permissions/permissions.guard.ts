@@ -1,4 +1,4 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException, Type, Inject } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, ForbiddenException, Type } from '@nestjs/common';
 import { Reflector, ModuleRef } from '@nestjs/core';
 import { PERMISSIONS_KEY } from '../../../auth/decorators/permissions.decorator';
 import { Permission } from '../../../shared/permissions';
@@ -48,9 +48,14 @@ export class PermissionsGuard implements CanActivate {
     // ownership) must still be evaluated even for super-admins.
     for (const requirement of requiredPermissions) {
         if (typeof requirement === 'string') {
-            // It's a static permission string
+            // L-07: wildcard-aware matching via the shared util (handles 'users:*' and '*'),
+            // consistent with the frontend guard and impersonation service.
             if (!hasPermission(user.permissions, [requirement])) {
-                throw new ForbiddenException(`Te falta el permiso: ${requirement}`);
+                // H-09 FIX: Never expose internal permission names in HTTP responses.
+                // Log the detail internally; return a generic message to the client
+                // (OWASP Error Handling Cheat Sheet; CWE-209).
+                this.logger.warn(`Permission denied: user=${user.id}, missing=${requirement}`);
+                throw new ForbiddenException('No tienes permisos para realizar esta acción.');
             }
         } else if (typeof requirement === 'function') { // It's a Class (Constructor)
              try {

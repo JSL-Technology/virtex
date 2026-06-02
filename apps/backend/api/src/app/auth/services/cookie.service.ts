@@ -16,32 +16,37 @@ export class CookieService {
   ): void {
     const isProduction = this.configService.get('NODE_ENV') === 'production';
 
-    // 10/10 SECURITY: Strict Cookie Settings
-    // We enforce HTTPOnly and Secure (in production).
+    // 10/10 SECURITY: Strict Cookie Settings. We enforce HTTPOnly and Secure (in production).
     // SameSite=Lax is chosen over Strict to support OAuth redirection flows (Google/Microsoft),
     // which otherwise drop cookies on the callback POST/GET.
     // CSRF is handled separately via Signed Double Submit Cookie (XSRF-TOKEN).
-    const cookieOptions = {
+    //
+    // H-15 FIX: In development (HTTP), __Host- / __Secure- prefixes require Secure=true,
+    // which browsers reject over plain HTTP, breaking local auth.
+    // Use prefixed names only in production (HTTPS) and fall back to unprefixed names
+    // with Secure=false for local dev (RFC 6265bis; OWASP Session Management Cheat Sheet).
+    const accessTokenName = isProduction ? '__Host-access_token' : 'access_token';
+    const refreshTokenName = isProduction ? '__Secure-refresh_token' : 'refresh_token';
+
+    const baseOptions = {
       httpOnly: true,
       secure: isProduction,
       sameSite: 'lax' as 'strict' | 'lax' | 'none',
-      path: '/', // Explicitly set path to root to ensure availability across API and Sockets
+      path: '/',
     };
 
-    // Access Token
-    res.cookie('access_token', accessToken, {
-      ...cookieOptions,
+    res.cookie(accessTokenName, accessToken, {
+      ...baseOptions,
       maxAge: AuthConfig.COOKIE_ACCESS_MAX_AGE,
     });
 
-    // Refresh Token
     if (refreshToken) {
-      res.cookie('refresh_token', refreshToken, {
-        ...cookieOptions,
+      res.cookie(refreshTokenName, refreshToken, {
+        ...baseOptions,
         maxAge: rememberMe
           ? AuthConfig.COOKIE_REFRESH_REMEMBER_ME_MAX_AGE
           : AuthConfig.COOKIE_REFRESH_MAX_AGE,
-        path: '/api/v1/auth/refresh', // 10/10 SECURITY: Limit scope of refresh token
+        path: '/api/v1/auth/refresh',
       });
     }
 
@@ -50,17 +55,17 @@ export class CookieService {
 
   setCsrfCookie(res: Response): void {
     const isProduction = this.configService.get('NODE_ENV') === 'production';
-    // H10 FIX: Signed double-submit CSRF token.
-    // Format: nonce.HMAC(csrfSecret, nonce)
-    // This prevents subdomain cookie injection attacks because the attacker cannot forge the HMAC
-    // without knowing the server secret.
+    // H10/H-07 FIX: Signed double-submit CSRF token. Format: nonce.HMAC(csrfSecret, nonce).
+    // Prevents subdomain cookie injection because the attacker cannot forge the HMAC without
+    // the server secret (OWASP CSRF Prevention Cheat Sheet "Signed Double-Submit Cookie"; CWE-352).
+    // Generation/verification is centralized in this service so the CsrfGuard can delegate to it.
     const csrfToken = this.generateSignedCsrfToken();
     res.cookie('XSRF-TOKEN', csrfToken, {
       secure: isProduction,
-      sameSite: 'lax', // Must be readable on same site
-      httpOnly: false, // Essential for JS to read and send back in header
+      sameSite: 'lax',
+      httpOnly: false, // Must be readable by JS so the client can send it in X-XSRF-TOKEN header
       maxAge: AuthConfig.COOKIE_ACCESS_MAX_AGE,
-      path: '/', // Explicitly set path to root so frontend can read it via document.cookie
+      path: '/',
     });
   }
 
@@ -77,7 +82,11 @@ export class CookieService {
     const [nonce, sig] = parts;
     const secret = this.getCsrfSecret();
     const expected = crypto.createHmac('sha256', secret).update(nonce).digest('hex');
-    return crypto.timingSafeEqual(Buffer.from(sig, 'hex'), Buffer.from(expected, 'hex'));
+    const sigBuf = Buffer.from(sig, 'hex');
+    const expectedBuf = Buffer.from(expected, 'hex');
+    // Guard against length mismatch — timingSafeEqual throws if buffers differ in length.
+    if (sigBuf.length !== expectedBuf.length) return false;
+    return crypto.timingSafeEqual(sigBuf, expectedBuf);
   }
 
   private getCsrfSecret(): string {
@@ -91,20 +100,68 @@ export class CookieService {
     return secret;
   }
 
-  setRegisterTokenCookie(res: Response, token: string): void {
+  // Social-login registration token (used by the OAuth register flow). Kept distinct from the
+  // standard setRegisterTokenCookie below, which uses a different cookie name.
+  setSocialRegisterTokenCookie(res: Response, token: string): void {
     const isProduction = this.configService.get('NODE_ENV') === 'production';
-    res.cookie('register_token', token, {
+    // H-12 FIX: Apply the same env-aware strategy as setAuthCookies.
+    // Browsers reject Secure cookies over plain HTTP, breaking social registration
+    // in local dev. Only use __Host- prefix and Secure=true in production.
+    // (RFC 6265bis cookie prefixes; OWASP Session Management Cheat Sheet)
+    const name = isProduction ? '__Host-social_register_token' : 'social_register_token';
+    res.cookie(name, token, {
       httpOnly: true,
       secure: isProduction,
+      sameSite: 'lax',
+      maxAge: 5 * 60 * 1000,
+      path: '/',
+    });
+  }
+
+  setRegisterTokenCookie(res: Response, token: string): void {
+    res.cookie('__Host-register_token', token, {
+      httpOnly: true,
+      secure: true,
       sameSite: 'lax',
       maxAge: 1000 * 60 * 15, // 15 minutes
       path: '/',
     });
   }
 
+  // H-03 FIX: 2FA pending session delivered as an httpOnly cookie so the token
+  // never touches JavaScript memory, eliminating XSS-based token theft (OWASP MFA Cheat Sheet;
+  // OWASP ASVS 2.8/3.4; CWE-922).
+  set2faPendingCookie(res: Response, pendingId: string): void {
+    const isProduction = this.configService.get('NODE_ENV') === 'production';
+    const name = isProduction ? '__Host-2fa_pending' : '2fa_pending';
+    // H-10 NOTE: Never pass `domain` to this cookie — __Host- prefix enforces it in
+    // production; in dev we rely on the invariant that no domain option is added here.
+    res.cookie(name, pendingId, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'lax',
+      maxAge: 5 * 60 * 1000, // 5 minutes — matches server-side pending session TTL
+      path: '/api/v1/auth/verify-2fa',
+    });
+  }
+
+  clear2faPendingCookie(res: Response): void {
+    const isProduction = this.configService.get('NODE_ENV') === 'production';
+    res.clearCookie('__Host-2fa_pending', { path: '/api/v1/auth/verify-2fa', secure: true });
+    res.clearCookie('2fa_pending', { path: '/api/v1/auth/verify-2fa', secure: isProduction });
+  }
+
   clearAuthCookies(res: Response): void {
-    res.clearCookie('access_token', { path: '/' });
-    res.clearCookie('refresh_token', { path: '/api/v1/auth/refresh' });
+    const isProduction = this.configService.get('NODE_ENV') === 'production';
+    res.clearCookie('__Host-access_token', { path: '/', secure: true });
+    res.clearCookie('access_token', { path: '/', secure: isProduction });
+    // H-10 FIX: Refresh cookie uses __Secure- (not __Host-) to allow path restriction.
+    // INVARIANT: domain must never be set on the refresh cookie. If a domain attribute were
+    // added it would allow subdomain access. This clearCookie call intentionally omits
+    // domain to enforce that invariant — any domain value would have to be set at creation
+    // time, and setAuthCookies above never passes domain.
+    res.clearCookie('__Secure-refresh_token', { path: '/api/v1/auth/refresh', secure: true });
+    res.clearCookie('refresh_token', { path: '/api/v1/auth/refresh', secure: isProduction });
     res.clearCookie('XSRF-TOKEN', { path: '/' });
   }
 }

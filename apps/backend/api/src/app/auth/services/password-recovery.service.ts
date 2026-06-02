@@ -38,7 +38,6 @@ export class PasswordRecoveryService {
     const rawToken = crypto.randomBytes(32).toString('base64url');
     const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
     const expirationTime = AuthConfig.JWT_RESET_PASSWORD_EXPIRATION;
-
     if (!user.security) user.security = new UserSecurity();
     user.security.passwordResetToken = tokenHash;
     user.security.passwordResetExpires = new Date(Date.now() + this.convertToMs(expirationTime));
@@ -96,7 +95,7 @@ export class PasswordRecoveryService {
     });
 
     if (!user) {
-      throw new NotFoundException('Invitación no encontrada o expirada.');
+        throw new NotFoundException('Token inválido o expirado.');
     }
 
     return { firstName: user.firstName };

@@ -16,12 +16,10 @@ export class LoginResponseDto {
     refreshTokenId: string;
 }
 
+// H-03 FIX: No tempToken — the pending session ID is delivered only via an httpOnly cookie.
 export class TwoFactorRequiredResponseDto {
     @ApiProperty({ example: true })
     require2fa: boolean;
-
-    @ApiProperty({ example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' })
-    tempToken: string;
 
     @ApiProperty({ example: '2FA verification required' })
     message: string;

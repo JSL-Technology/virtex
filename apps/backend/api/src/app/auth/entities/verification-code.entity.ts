@@ -13,18 +13,21 @@ export class VerificationCode {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'user_id' })
-  userId: string;
+  @Column({ name: 'user_id', nullable: true })
+  userId?: string;
 
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user?: User;
+
+  @Column({ nullable: true })
+  target?: string; // email or phone number for unauthenticated users
 
   @Column()
   code: string; // Hashed
 
   @Column({ nullable: true })
-  payload?: string; // e.g. Phone Number
+  payload?: string; // extra metadata
 
   @Column({
     type: 'enum',
@@ -35,6 +38,12 @@ export class VerificationCode {
   @Index()
   @Column({ type: 'timestamptz' })
   expiresAt: Date;
+
+  @Column({ type: 'integer', default: 0 })
+  attempts: number;
+
+  @Column({ name: 'last_attempt_at', type: 'timestamptz', nullable: true })
+  lastAttemptAt?: Date;
 
   @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;

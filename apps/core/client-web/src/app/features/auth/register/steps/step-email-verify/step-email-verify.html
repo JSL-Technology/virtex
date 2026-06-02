@@ -1,0 +1,39 @@
+<div class="verify-step">
+  <div class="verify-header">
+    <div class="verify-icon">
+      <lucide-icon [img]="MailIcon" size="28"></lucide-icon>
+    </div>
+    <h3 class="verify-title">Confirma tu correo electrónico</h3>
+    <p class="verify-subtitle" *ngIf="!isSending()">
+      Enviamos un código y un enlace de confirmación a
+      <strong>{{ email }}</strong>
+    </p>
+    <p class="verify-subtitle" *ngIf="isSending()">
+      <lucide-icon [img]="LoaderIcon" size="14" class="spin"></lucide-icon>
+      Enviando código a {{ email }}…
+    </p>
+  </div>
+
+  <div *ngIf="sendError()" class="send-error" role="alert">
+    <lucide-icon [img]="AlertCircleIcon" size="14"></lucide-icon>
+    {{ sendError() }}
+    <button type="button" class="retry-btn" (click)="sendCode()">Reintentar</button>
+  </div>
+
+  <div *ngIf="codeSent() && !sendError()">
+    <app-otp
+      title="Código de verificación"
+      description="Ingresa el código de 6 dígitos que enviamos a tu correo, o haz clic en el enlace del correo."
+      [timerDuration]="300"
+      [resendCooldown]="60"
+      mode="email"
+      (verify)="onVerify($event)"
+      (resend)="onResend()">
+    </app-otp>
+
+    <div class="magic-link-hint">
+      <lucide-icon [img]="MailIcon" size="14"></lucide-icon>
+      <span>¿Prefieres no escribir el código? Busca el botón <strong>"Confirmar correo electrónico"</strong> en el correo que enviamos.</span>
+    </div>
+  </div>
+</div>

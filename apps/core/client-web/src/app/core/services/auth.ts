@@ -6,7 +6,6 @@ import {
   catchError,
   map,
   tap,
-  throwError,
   of,
   take,
   firstValueFrom,
@@ -28,13 +27,17 @@ import { ErrorHandlerService } from './error-handler.service';
 import { IS_PUBLIC_API } from '../tokens/http-context.tokens';
 import { hasPermission } from '@virteex/shared/util-auth';
 
+// H-11 FIX: Backend intentionally omits accessToken/refreshToken from the response body —
+// tokens are delivered exclusively via httpOnly cookies. Removing them from the interface
+// prevents future developers from "fixing" the type by re-exposing tokens in the body
+// (OWASP ASVS 1.5.3; CWE-710).
 interface LoginResponse {
   user: User;
 }
 
+// H-03 FIX: tempToken removed — pending session ID is delivered only via httpOnly cookie.
 interface TwoFactorRequiredResponse {
   require2fa: boolean;
-  tempToken: string;
   message: string;
 }
 
@@ -139,7 +142,7 @@ export class AuthService {
    * @param credentials Objeto con email, password y recaptchaToken.
    * @returns Un observable que emite el objeto User en caso de éxito.
    */
-  login(credentials: LoginCredentials): Observable<User | { require2fa: boolean; tempToken: string }> {
+  login(credentials: LoginCredentials): Observable<User | { require2fa: boolean }> {
     const url = `${this.apiUrl}/login`;
     return this.http
       .post<LoginResult>(url, credentials, {
@@ -149,7 +152,7 @@ export class AuthService {
       .pipe(
         tap((response) => {
           if (isTwoFactorRequired(response)) {
-             // Do not set authenticated yet
+             // Do not set authenticated yet; pending session cookie set by server
              return;
           }
           if (response.user) {
@@ -163,7 +166,8 @@ export class AuthService {
         }),
         map((response) => {
             if (isTwoFactorRequired(response)) {
-                return { require2fa: true, tempToken: response.tempToken };
+                // H-03 FIX: No tempToken — pending session is tracked server-side via httpOnly cookie.
+                return { require2fa: true };
             }
             return (response as LoginResponse).user;
         }),
@@ -171,8 +175,9 @@ export class AuthService {
       );
   }
 
-  verify2fa(code: string, tempToken: string): Observable<User> {
-      return this.http.post<LoginResponse>(`${this.apiUrl}/verify-2fa`, { code, tempToken }, {
+  // H-03 FIX: No tempToken parameter — the server reads the pendingId from the httpOnly cookie.
+  verify2fa(code: string): Observable<User> {
+      return this.http.post<LoginResponse>(`${this.apiUrl}/verify-2fa`, { code }, {
           withCredentials: true,
           context: new HttpContext().set(IS_PUBLIC_API, true)
       }).pipe(
@@ -197,6 +202,31 @@ export class AuthService {
       return this.http.post<{ message: string }>(`${this.apiUrl}/verify-phone`, { code, phoneNumber });
   }
 
+  sendPublicVerification(target: string, type: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/send-public-verification`, { target, type }, {
+      context: new HttpContext().set(IS_PUBLIC_API, true)
+    });
+  }
+
+  verifyPublicCode(target: string, type: string, code: string): Observable<{ message: string; preVerifiedToken: string }> {
+    return this.http.post<{ message: string; preVerifiedToken: string }>(`${this.apiUrl}/verify-public-code`, { target, type, code }, {
+      context: new HttpContext().set(IS_PUBLIC_API, true)
+    });
+  }
+
+  confirmEmailMagicLink(token: string): Observable<{ preVerifiedToken: string }> {
+    return this.http.post<{ preVerifiedToken: string }>(`${this.apiUrl}/confirm-email-magic-link`, { token }, {
+      context: new HttpContext().set(IS_PUBLIC_API, true)
+    });
+  }
+
+  createCheckoutSession(planId: string): Observable<{ url: string }> {
+    // H-02 FIX: Send only planId. successUrl/cancelUrl are now built server-side
+    // from FRONTEND_URL so the backend controls redirect destinations (CWE-601).
+    return this.http.post<{ url: string }>(`${this.apiUrl}/create-checkout-session`, { planId }, { withCredentials: true });
+  }
+
+  // H-05: backend requires currentPassword as step-up when enabling 2FA.
   enable2fa(token: string, currentPassword: string): Observable<any> {
       return this.http.post(`${this.apiUrl}/2fa/enable`, { token, currentPassword });
   }
@@ -248,7 +278,8 @@ export class AuthService {
     );
   }
 
-  // H12 FIX: Token is now read from httpOnly cookie by the backend; do not pass it as a query param.
+  // H12 FIX: Token is now read from the httpOnly social_register_token cookie by the backend;
+  // do not pass it as a query param (URLs leak to browser history, server logs, Referer).
   getSocialRegisterInfo(): Observable<any> {
       return this.http.get(`${this.apiUrl}/social-register-info`, {
           withCredentials: true,
@@ -294,18 +325,34 @@ export class AuthService {
     this._authStatus.set(AuthStatus.unauthenticated);
     this.webSocketService.emit('user-status', { isOnline: false });
     this.webSocketService.disconnect();
-    this.router.navigate(['/auth/login']);
+    const supportedLangs = ['es', 'en'];
+    const storedLang = localStorage.getItem('ui_lang');
+    const lang = storedLang && supportedLangs.includes(storedLang) ? storedLang : 'es';
+    this.router.navigate([`/${lang}/auth/login`]);
 
-    // 2. Notificar al backend si es necesario (best effort)
+    // H-13 FIX: Best-effort server logout via sendBeacon (survives tab close/navigation).
+    // Falls back to fetch on browsers that do not support sendBeacon or when sendBeacon
+    // returns false (large payload / unsupported). If both fail, the user is informed and
+    // can retry (OWASP ASVS 3.3.4; CWE-613).
     if (notifyBackend) {
       const url = `${this.apiUrl}/logout`;
-      // Pass IS_PUBLIC_API to prevent interceptor from trying to refresh token if logout fails (e.g. 401)
-      this.http.post(url, {}, {
-        withCredentials: true,
-        context: new HttpContext().set(IS_PUBLIC_API, true)
-      }).pipe(
-        catchError(() => of(null)) // Ignorar errores del backend durante el logout
-      ).subscribe();
+      const beaconSent = typeof navigator !== 'undefined' && navigator.sendBeacon
+        ? navigator.sendBeacon(url, new Blob([JSON.stringify({})], { type: 'application/json' }))
+        : false;
+
+      if (!beaconSent) {
+        this.http.post(url, {}, {
+          withCredentials: true,
+          context: new HttpContext().set(IS_PUBLIC_API, true),
+        }).pipe(
+          catchError(() => {
+            this.notificationService.showWarning(
+              'No se pudo cerrar la sesión en el servidor. Cierra el navegador o intenta de nuevo.'
+            );
+            return of(null);
+          })
+        ).subscribe();
+      }
     }
   }
 
@@ -319,7 +366,7 @@ export class AuthService {
       const options = await firstValueFrom(this.http.get<any>(`${this.apiUrl}/webauthn/register/options`));
 
       // 2. Pass options to browser
-      const credential = await startRegistration(options);
+      const credential = await startRegistration({ optionsJSON: options });
 
       // 3. Send credential to backend
       await firstValueFrom(this.http.post(`${this.apiUrl}/webauthn/register/verify`, credential));
@@ -340,7 +387,7 @@ export class AuthService {
       }));
 
       // 2. Pass options to browser
-      const credential = await startAuthentication(options);
+      const credential = await startAuthentication({ optionsJSON: options });
 
       // 3. Send credential to backend for verification and login
       // Add challengeId which was returned in options
@@ -406,10 +453,10 @@ export class AuthService {
   setPasswordFromInvitation(
     token: string,
     password: string
-  ): Observable<LoginResponse> {
+  ): Observable<{ user: User }> {
     const url = `${this.apiUrl}/set-password-from-invitation`;
     return this.http
-      .post<LoginResponse>(url, { token, password }, {
+      .post<{ user: User }>(url, { token, password }, {
         withCredentials: true,
         context: new HttpContext().set(IS_PUBLIC_API, true)
       })
@@ -423,8 +470,8 @@ export class AuthService {
       );
   }
 
-  // H4 FIX: Token moved from URL path to POST body — tokens in URLs leak via browser history,
-  // access logs, and Referer headers.
+  // H4/H-02 FIX: Token submitted in POST body — never in URL path/query to prevent
+  // leakage in server logs, browser history, and Referer headers (CWE-598; OWASP ASVS 2.1.7).
   getInvitationDetails(token: string): Observable<{ firstName: string }> {
     const url = `${this.apiUrl}/invitation/details`;
     return this.http
@@ -440,6 +487,7 @@ export class AuthService {
    * Invita a un nuevo usuario al sistema.
    */
   inviteUser(payload: UserPayload): Observable<User> {
+    // Nota: El backend creará este usuario con estado 'PENDING'.
     return this.http.post<User>(`${this.usersUrl}/invite`, payload);
   }
 

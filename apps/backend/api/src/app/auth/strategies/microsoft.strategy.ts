@@ -12,28 +12,34 @@ export class MicrosoftStrategy extends PassportStrategy(Strategy, 'microsoft') {
       clientID: configService.getOrThrow('MICROSOFT_CLIENT_ID'),
       clientSecret: configService.getOrThrow('MICROSOFT_CLIENT_SECRET'),
       callbackURL: configService.getOrThrow('MICROSOFT_CALLBACK_URL'),
-      scope: ['user.read'],
+      scope: ['user.read', 'openid', 'email', 'profile'],
+      state: true,
     });
   }
 
   async validate(accessToken: string, refreshToken: string, profile: any, done: Function): Promise<any> {
     try {
-        const { name, emails, id } = profile;
-        // M-02: Microsoft Entra ID (work/school) and MSA accounts authenticate against
-        // Microsoft's directory, where the mail/userPrincipalName is owned and verified by
-        // the tenant. Honor an explicit claim if present; otherwise treat Microsoft-issued
-        // identities as verified (consistent with the managed-domain assumption).
+        const emails: Array<{ value: string }> = profile.emails || [];
+        const rawEmail: string = emails[0]?.value ?? profile.userPrincipalName ?? '';
+
+        // M-02 / H-03: Whether Microsoft asserts the email is verified. AAD enterprise
+        // accounts (presence of 'oid' — the Object ID — in the token claims) are IdP-managed
+        // and always verified; personal MSA accounts must carry an explicit email_verified
+        // claim. The flag is propagated to SocialAuthService, which enforces verification for
+        // account-linking decisions (OWASP ASVS 2.1.5; OAuth 2.0 Security BCP; CWE-287).
         const json = (profile as any)._json ?? {};
-        const emailVerified =
-          json.email_verified === false || json.email_verified === 'false' ? false : true;
+        const emailVerified: boolean =
+          json.email_verified === true ||
+          json.verified_primary_email === true ||
+          !!json.oid;
         const user: SocialUser = {
-          email: emails && emails.length > 0 ? emails[0].value : profile.userPrincipalName, // Microsoft sometimes uses userPrincipalName
-          firstName: name ? name.givenName : '',
-          lastName: name ? name.familyName : '',
-          picture: null, // Need specific graph call for photo, skipping for now
+          email: rawEmail,
+          firstName: profile.name?.givenName ?? '',
+          lastName: profile.name?.familyName ?? '',
+          picture: null,
           accessToken,
           provider: 'microsoft',
-          providerId: id,
+          providerId: profile.id,
           emailVerified,
         };
         done(null, user);

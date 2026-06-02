@@ -13,13 +13,15 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       clientSecret: configService.getOrThrow('GOOGLE_CLIENT_SECRET'),
       callbackURL: configService.getOrThrow('GOOGLE_CALLBACK_URL'),
       scope: ['email', 'profile'],
+      state: true,
     });
   }
 
   async validate(accessToken: string, refreshToken: string, profile: Profile): Promise<SocialUser> {
     const { name, emails, photos } = profile;
     // M-02: Propagate Google's email_verified OIDC claim. Google reliably sets this for
-    // verified Gmail/Workspace accounts.
+    // verified Gmail/Workspace accounts. Account-linking decisions are made downstream in
+    // SocialAuthService based on this flag, rather than hard-rejecting here.
     const json = (profile as any)._json ?? {};
     const emailVerified =
       json.email_verified === true ||

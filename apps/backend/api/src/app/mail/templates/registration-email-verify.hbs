@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirma tu correo electrónico</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f7fb;font-family:Arial,Helvetica,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f7fb;padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background-color:#ffffff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);overflow:hidden;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background-color:#4f46e5;padding:32px 40px;text-align:center;">
+              <h1 style="color:#ffffff;margin:0;font-size:22px;font-weight:700;letter-spacing:-0.5px;">{{appName}}</h1>
+              <p style="color:#c7d2fe;margin:8px 0 0;font-size:14px;">Confirma tu correo electrónico</p>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:40px;">
+              <p style="color:#374151;font-size:15px;margin:0 0 16px;">Hola, <strong>{{name}}</strong></p>
+              <p style="color:#6b7280;font-size:14px;margin:0 0 28px;line-height:1.6;">
+                Para completar tu registro, debes confirmar tu correo electrónico. Puedes hacerlo de dos maneras:
+              </p>
+
+              <!-- Option 1: Button -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px;">
+                <tr>
+                  <td style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:24px;">
+                    <p style="color:#15803d;font-weight:700;font-size:14px;margin:0 0 8px;">Opción 1 — Un clic</p>
+                    <p style="color:#374151;font-size:13px;margin:0 0 20px;line-height:1.5;">
+                      Haz clic en el botón de abajo para confirmar tu correo y retomar el proceso de registro donde lo dejaste.
+                    </p>
+                    <table cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="border-radius:8px;background-color:#4f46e5;">
+                          <a href="{{magicLinkUrl}}"
+                             style="display:inline-block;padding:13px 32px;color:#ffffff;font-weight:700;font-size:15px;text-decoration:none;letter-spacing:0.2px;">
+                            Confirmar correo electrónico
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Option 2: OTP -->
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="background-color:#f8f9fa;border:1px solid #e9ecef;border-radius:10px;padding:24px;">
+                    <p style="color:#374151;font-weight:700;font-size:14px;margin:0 0 8px;">Opción 2 — Código de verificación</p>
+                    <p style="color:#6b7280;font-size:13px;margin:0 0 16px;">
+                      Ingresa este código en el formulario de registro:
+                    </p>
+                    <div style="text-align:center;background-color:#1e1e2e;border-radius:8px;padding:18px;letter-spacing:12px;font-size:30px;font-weight:900;font-family:'Courier New',monospace;color:#a5f3fc;">
+                      {{code}}
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Expiry notice -->
+              <p style="color:#9ca3af;font-size:12px;margin:20px 0 0;text-align:center;">
+                ⏱ Este código y el enlace expiran en <strong>{{expiresMinutes}} minutos</strong>.
+              </p>
+              <p style="color:#9ca3af;font-size:12px;margin:8px 0 0;text-align:center;">
+                Si no solicitaste esto, puedes ignorar este correo de forma segura.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#f9fafb;border-top:1px solid #e5e7eb;padding:20px 40px;text-align:center;">
+              <p style="color:#9ca3af;font-size:12px;margin:0;">
+                &copy; {{currentYear}} {{appName}}. Todos los derechos reservados.
+              </p>
+              <p style="color:#d1d5db;font-size:11px;margin:6px 0 0;">
+                No compartas este código con nadie. Nuestro equipo nunca te lo pedirá.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

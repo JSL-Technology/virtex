@@ -11,7 +11,10 @@ export class MailService {
   ) {}
 
   async sendPasswordResetEmail(user: User, token: string, expiration: string) {
-    const resetLink = `${this.configService.get<string>('FRONTEND_URL')}/auth/reset-password?token=${token}`;
+    // H-10 FIX: Use URL fragment (#) so the token is NEVER sent to the server in
+    // HTTP request logs or CDN access logs. Fragments are client-side only
+    // (RFC 3986 §3.5; OWASP ASVS 2.1.7; CWE-598).
+    const resetLink = `${this.configService.get<string>('FRONTEND_URL')}/auth/reset-password#token=${token}`;
 
     const expirationText = this.formatExpirationTime(expiration);
 
@@ -91,6 +94,48 @@ export class MailService {
       context: {
         name: name || 'Usuario',
         code,
+        appName: this.configService.get<string>('APP_NAME', 'Virteex ERP'),
+        currentYear: new Date().getFullYear(),
+      },
+    });
+  }
+
+  // H-01 FIX: Sends a confirmation link to the *new* address before the change is applied.
+  // The token is a 32-byte hex nonce — SHA-256 hash is stored in DB, raw value in link.
+  async sendEmailChangeConfirmation(newEmail: string, rawToken: string, firstName: string) {
+    const frontendUrl = this.configService.getOrThrow<string>('FRONTEND_URL');
+    const confirmUrl = `${frontendUrl}/settings/email-change/confirm?token=${rawToken}`;
+
+    await this.mailerService.sendMail({
+      to: newEmail,
+      subject: 'Confirma tu nuevo correo electrónico',
+      template: './email-change-confirm',
+      context: {
+        name: firstName || 'Usuario',
+        confirmUrl,
+        expiresMinutes: 15,
+        appName: this.configService.get<string>('APP_NAME', 'Virteex ERP'),
+        currentYear: new Date().getFullYear(),
+      },
+    });
+  }
+
+  async sendRegistrationEmailVerification(
+    email: string,
+    code: string,
+    name: string,
+    magicLinkUrl: string,
+    expiresMinutes: number,
+  ) {
+    await this.mailerService.sendMail({
+      to: email,
+      subject: 'Confirma tu correo electrónico',
+      template: './registration-email-verify',
+      context: {
+        name: name || 'Usuario',
+        code,
+        magicLinkUrl,
+        expiresMinutes,
         appName: this.configService.get<string>('APP_NAME', 'Virteex ERP'),
         currentYear: new Date().getFullYear(),
       },

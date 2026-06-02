@@ -1,0 +1,68 @@
+.verify-step {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.verify-header {
+  text-align: center;
+
+  .verify-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    background-color: var(--success-light, rgba(16, 185, 129, 0.1));
+    color: var(--success, #10b981);
+    margin-bottom: 1rem;
+  }
+
+  .verify-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .verify-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+  }
+}
+
+.send-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--error-light, rgba(239, 68, 68, 0.08));
+  color: var(--error);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+
+  .retry-btn {
+    margin-left: auto;
+    background: none;
+    border: 1px solid currentColor;
+    border-radius: 0.375rem;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.8125rem;
+    color: inherit;
+    cursor: pointer;
+  }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

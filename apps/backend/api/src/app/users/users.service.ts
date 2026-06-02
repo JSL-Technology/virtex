@@ -1,6 +1,5 @@
 
-import { Injectable, Inject, NotFoundException, BadRequestException, ForbiddenException, UnauthorizedException, Logger } from '@nestjs/common';
-import * as argon2 from 'argon2';
+import { Injectable, Inject, NotFoundException, BadRequestException, ForbiddenException, Logger, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { User } from './entities/user.entity/user.entity';
@@ -9,10 +8,12 @@ import { Organization } from '../organizations/entities/organization.entity';
 import { InviteUserDto } from './entities/user.entity/invite-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { RequestEmailChangeDto, ConfirmEmailChangeDto } from './dto/email-change.dto';
 import { MailService } from '../mail/mail.service';
 import { RolesService } from '../roles/roles.service';
 import * as crypto from 'crypto';
 import { UserCacheService } from '../auth/modules/user-cache.service';
+import { PasswordService } from '../auth/services/password.service';
 import { UserSecurity } from './entities/user-security.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SaasService } from '../saas/saas.service';
@@ -31,6 +32,7 @@ export class UsersService {
     private readonly rolesService: RolesService,
     private readonly mailService: MailService,
     private readonly userCacheService: UserCacheService,
+    private readonly passwordService: PasswordService,
     private readonly eventEmitter: EventEmitter2,
     private readonly saasService: SaasService,
     private readonly dataSource: DataSource
@@ -39,6 +41,8 @@ export class UsersService {
   async updateProfile(id: string, updateProfileDto: UpdateProfileDto): Promise<User> {
     const user = await this.findOne(id);
 
+    // H-01 FIX: email is no longer part of UpdateProfileDto — the ValidationPipe
+    // (whitelist:true) strips it. Phone changes still reset the verified flag.
     if (updateProfileDto.phone && updateProfileDto.phone !== user.phone) {
       user.isPhoneVerified = false;
     }
@@ -48,40 +52,8 @@ export class UsersService {
     return this.userRepository.save(user);
   }
 
-  async requestEmailChange(userId: string, dto: { newEmail: string; currentPassword: string }): Promise<void> {
-    const user = await this.userRepository.findOne({
-      where: { id: userId },
-      relations: ['security'],
-    });
-
-    if (!user || !user.security?.passwordHash) {
-      throw new BadRequestException('No se puede cambiar el email para este usuario.');
-    }
-
-    const isPasswordValid = await argon2.verify(user.security.passwordHash, dto.currentPassword);
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Contraseña actual incorrecta.');
-    }
-
-    const normalizedEmail = dto.newEmail.toLowerCase().trim();
-    if (normalizedEmail === user.email.toLowerCase()) {
-      throw new BadRequestException('El nuevo email debe ser diferente al actual.');
-    }
-
-    const existing = await this.userRepository.findOne({ where: { email: normalizedEmail } });
-    if (existing) {
-      throw new BadRequestException('El email ya está en uso por otro usuario.');
-    }
-
-    user.email = normalizedEmail;
-    user.isEmailVerified = false;
-    user.security.tokenVersion = (user.security.tokenVersion || 0) + 1;
-
-    await this.userRepository.save(user);
-    await this.userCacheService.clearUserSession(userId);
-
-    this.eventEmitter.emit('user.email-changed', { userId, newEmail: normalizedEmail });
-  }
+  // NOTE: the secure two-step email-change flow (requestEmailChange + confirmEmailChange)
+  // is defined further below. The previous single-step variant was removed in favour of it.
 
   async findAllByOrg(
     organizationId: string,
@@ -223,11 +195,11 @@ export class UsersService {
   // H2 FIX: org-scoped findOne prevents IDOR cross-tenant reads.
   async findOneByOrg(id: string, organizationId: string): Promise<User> {
     const user = await this.userRepository.findOne({
-      where: { id: id as any, organizationId },
+      where: { id, organizationId },
     });
 
     if (!user) {
-      throw new NotFoundException('Usuario no encontrado');
+      throw new NotFoundException(`Usuario con id ${id} no encontrado en tu organización`);
     }
     return user;
   }
@@ -300,8 +272,79 @@ export class UsersService {
     }
   }
 
-  // H5 FIX: organizationId scope added so queries are always tenant-scoped.
+  // -----------------------------------------------------------------------
+  // H-01 FIX: Secure email-change flow
+  // Requires step-up (current password) + confirmation token sent to new address.
+  // The live email is never updated until the user clicks the link.
+  // Sessions are invalidated after the switch so stolen tokens cannot persist.
+  // (OWASP ASVS V2/V3; OWASP Forgot Password Cheat Sheet; CWE-620/CWE-287)
+  // -----------------------------------------------------------------------
+
+  async requestEmailChange(userId: string, dto: RequestEmailChangeDto): Promise<void> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['security'],
+    });
+    if (!user || !user.security?.passwordHash) throw new UnauthorizedException();
+
+    const passwordValid = await this.passwordService.verify(user.security.passwordHash, dto.currentPassword);
+    if (!passwordValid) throw new UnauthorizedException('Credenciales incorrectas.');
+
+    const conflict = await this.userRepository.findOne({ where: { email: dto.newEmail } });
+    if (conflict) {
+      // Return generic message to avoid leaking email enumeration
+      throw new BadRequestException('No se pudo completar el cambio de correo electrónico.');
+    }
+
+    const raw = crypto.randomBytes(32).toString('hex');
+    user.security.emailChangeToken = crypto.createHash('sha256').update(raw).digest('hex');
+    user.security.emailChangeTarget = dto.newEmail;
+    user.security.emailChangeExpires = new Date(Date.now() + 15 * 60_000); // 15 min TTL
+    await this.userRepository.save(user);
+
+    await this.mailService.sendEmailChangeConfirmation(dto.newEmail, raw, user.firstName);
+  }
+
+  async confirmEmailChange(userId: string, dto: ConfirmEmailChangeDto): Promise<void> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['security'],
+    });
+
+    if (
+      !user?.security?.emailChangeToken ||
+      !user.security.emailChangeTarget ||
+      !user.security.emailChangeExpires
+    ) {
+      throw new BadRequestException('No hay ningún cambio de correo pendiente.');
+    }
+
+    if (user.security.emailChangeExpires < new Date()) {
+      throw new BadRequestException('El enlace de confirmación ha expirado. Solicita uno nuevo.');
+    }
+
+    const tokenHash = crypto.createHash('sha256').update(dto.token).digest('hex');
+    const stored = Buffer.from(user.security.emailChangeToken);
+    const supplied = Buffer.from(tokenHash);
+    if (stored.length !== supplied.length || !crypto.timingSafeEqual(stored, supplied)) {
+      throw new BadRequestException('Token de confirmación inválido.');
+    }
+
+    user.email = user.security.emailChangeTarget;
+    user.isEmailVerified = true;
+    user.security.emailChangeToken = null;
+    user.security.emailChangeTarget = null;
+    user.security.emailChangeExpires = null;
+    user.security.tokenVersion = (user.security.tokenVersion || 0) + 1;
+
+    await this.userRepository.save(user);
+    await this.userCacheService.clearUserSession(userId);
+  }
+
   async getActivityLog(userId: string, organizationId: string): Promise<any[]> {
+    // H-11 FIX: Verify the target user belongs to the caller's org before returning
+    // any data. This prevents cross-tenant IDOR when real audit data is added.
+    await this.findOneByOrg(userId, organizationId);
     return [];
   }
 
@@ -316,14 +359,18 @@ export class UsersService {
     });
 
     if (existingUser) {
-      throw new BadRequestException(
-        'A user with this email already exists in the organization.',
+      // H-07 FIX: Generic client message prevents internal email enumeration.
+      // Detailed context is logged server-side only (OWASP Error Handling Cheat Sheet; CWE-203/CWE-209).
+      this.logger.warn(
+        `Invite conflict: org=${organizationId} emailHash=${require('crypto').createHash('sha256').update(email).digest('hex').slice(0, 16)}`,
       );
+      throw new BadRequestException('No se pudo enviar la invitación con los datos proporcionados.');
     }
 
     const role = await this.rolesService.findOne(roleId, organizationId);
     if (!role) {
-      throw new NotFoundException(`Role with ID ${roleId} not found.`);
+      this.logger.warn(`Invite role not found: org=${organizationId} roleId=${roleId}`);
+      throw new BadRequestException('No se pudo enviar la invitación con los datos proporcionados.');
     }
 
     // M-03 FIX: Persist only a SHA-256 hash of the invitation token (same approach as the
@@ -351,8 +398,6 @@ export class UsersService {
         // Enforce Limit before saving
         await this.saasService.enforceLimit(manager, organizationId, SaasResource.USERS);
 
-        // We must associate the user entity with the manager to participate in transaction?
-        // TypeORM's manager.save(entity) handles this.
         await manager.save(newUser);
 
         // Email the RAW token (only the hash is stored server-side).
@@ -398,9 +443,9 @@ export class UsersService {
     this.eventEmitter.emit('user.admin.email-changed', { userId, oldEmail, newEmail, organizationId });
   }
 
-  async forceLogout(userId: string, organizationId?: string): Promise<{ message: string }> {
-    const where = organizationId ? { id: userId, organizationId } : { id: userId };
-    const user = await this.userRepository.findOne({ where, relations: ['security'] });
+  // H-11: org is required so force-logout is always tenant-scoped (no IDOR).
+  async forceLogout(userId: string, organizationId: string): Promise<{ message: string }> {
+    const user = await this.userRepository.findOne({ where: { id: userId, organizationId }, relations: ['security'] });
     if (!user) {
       throw new NotFoundException('Usuario no encontrado');
     }
@@ -419,8 +464,8 @@ export class UsersService {
     return { message: 'Se ha cerrado la sesión del usuario.' };
   }
 
-  async blockAndLogout(userId: string): Promise<{ message: string }> {
-    const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['security'] });
+  async blockAndLogout(userId: string, organizationId: string): Promise<{ message: string }> {
+    const user = await this.userRepository.findOne({ where: { id: userId, organizationId }, relations: ['security'] });
     if (!user) {
       throw new NotFoundException('Usuario no encontrado');
     }

@@ -15,6 +15,7 @@ export class UpdateRoleDto {
   // H8 FIX: Validate each permission against the known catalog.
   @IsArray()
   @IsOptional()
+  @IsString({ each: true })
   @IsIn(ALL_PERMISSIONS, { each: true })
   permissions?: Permission[];
 }

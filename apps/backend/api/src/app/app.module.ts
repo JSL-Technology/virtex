@@ -68,10 +68,26 @@ import { ProjectsModule } from './projects/projects.module';
 import { HcmModule } from './hcm/hcm.module';
 import { ProcurementModule } from './procurement/procurement.module';
 
+const requiredSecret = Joi.string().min(32).required();
+
 const envValidation = Joi.object({
   NODE_ENV: Joi.string()
     .valid('development', 'test', 'production')
     .default('development'),
+
+  // H-01 FIX: All cryptographic secrets required at startup — fail fast before any module initializes.
+  JWT_SECRET: requiredSecret,
+  JWT_REFRESH_SECRET: requiredSecret,
+  JWT_2FA_TEMP_SECRET: requiredSecret,
+  JWT_PREVERIFY_SECRET: requiredSecret,
+  CSRF_SECRET: requiredSecret,
+  ENCRYPTION_SECRET: requiredSecret,
+  AUTH_SALT: Joi.string().min(16).required(),
+
+  // RS256 keys: required in production, optional in development (ephemeral key is generated).
+  RS_PRIVATE_KEY: Joi.when('NODE_ENV', { is: 'production', then: Joi.string().required(), otherwise: Joi.string().optional() }),
+  RS_PUBLIC_KEY: Joi.when('NODE_ENV', { is: 'production', then: Joi.string().required(), otherwise: Joi.string().optional() }),
+  RS_KEY_ID: Joi.string().optional().default('key-1'),
 
   DB_HOST: Joi.string().required(),
   DB_PORT: Joi.number().port().default(5432),
@@ -83,17 +99,14 @@ const envValidation = Joi.object({
   REDIS_HOST: Joi.string().default('localhost'),
   REDIS_PORT: Joi.number().port().default(6379),
 
-  // H-03: Fail-fast for all cryptographic secrets — prevents startup with weak/missing secrets
-  JWT_SECRET: Joi.string().min(32).required(),
-  JWT_REFRESH_SECRET: Joi.string().min(32).required(),
-  JWT_RESET_PASSWORD_SECRET: Joi.string().min(32).required(),
-  JWT_2FA_TEMP_SECRET: Joi.string().min(32).required(),
-  CSRF_SECRET: Joi.string().min(32).required(),
-  ENCRYPTION_SECRET: Joi.string().min(32).required(),
-  AUTH_SALT: Joi.string().min(16).required(),
-
-  RECAPTCHA_V3_SECRET_KEY: Joi.string().required(),
-
+  // H-04 FIX: reCAPTCHA controlled by explicit flag, not NODE_ENV.
+  // (crypto secrets are already validated above — do not redeclare them here)
+  RECAPTCHA_DISABLED: Joi.boolean().default(false),
+  RECAPTCHA_V3_SECRET_KEY: Joi.when('RECAPTCHA_DISABLED', {
+    is: true,
+    then: Joi.string().optional(),
+    otherwise: Joi.string().required(),
+  }),
 
   AWS_S3_BUCKET_NAME: Joi.string().required(),
   AWS_REGION: Joi.string().required(),
@@ -121,8 +134,21 @@ const envValidation = Joi.object({
             transport: config.get<string>('NODE_ENV') !== 'production'
               ? { target: 'pino-pretty' }
               : undefined,
-            // 10/10 Observability: Auto-generate/Propagate request IDs
             genReqId: (req) => req.headers['x-correlation-id'] || crypto.randomUUID(),
+            // H-11 FIX: Redact PII and secrets from HTTP access logs (OWASP Logging Cheat Sheet; CWE-532).
+            redact: {
+              paths: [
+                'req.headers.authorization',
+                'req.headers.cookie',
+                'req.body.password',
+                'req.body.token',
+                'req.body.code',
+                'req.body.recaptchaToken',
+                'req.body.currentPassword',
+                'req.body.newPassword',
+              ],
+              censor: '[REDACTED]',
+            },
           },
         };
       },
@@ -168,6 +194,12 @@ const envValidation = Joi.object({
       inject: [ConfigService],
       useFactory: (config: ConfigService): ThrottlerModuleOptions => {
         const redisHost = config.get<string>('REDIS_HOST');
+        const isProduction = config.get<string>('NODE_ENV') === 'production';
+
+        if (isProduction && !redisHost) {
+          throw new Error('REDIS_HOST is required for distributed throttling in production');
+        }
+
         const storage = redisHost
           ? new ThrottlerStorageRedisService({
               host: redisHost,
@@ -188,7 +220,9 @@ const envValidation = Joi.object({
         secretKey: config.get('RECAPTCHA_V3_SECRET_KEY'),
         response: (req) => req.body.recaptchaToken,
         score: 0.7,
-        skipIf: config.get('NODE_ENV') !== 'production',
+        // H-04 FIX: Skip only when RECAPTCHA_DISABLED=true — never couple to NODE_ENV.
+        // Staging/preprod keep reCAPTCHA active unless the flag is explicitly set.
+        skipIf: config.get<boolean>('RECAPTCHA_DISABLED', false) === true,
       }),
     }),
 

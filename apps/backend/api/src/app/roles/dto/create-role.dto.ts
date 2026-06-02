@@ -14,6 +14,7 @@ export class CreateRoleDto {
   // H8 FIX: Validate each permission against the known catalog; prevents privilege escalation via arbitrary permissions.
   @IsArray()
   @ArrayNotEmpty()
+  @IsString({ each: true })
   @IsIn(ALL_PERMISSIONS, { each: true })
   permissions: Permission[];
 }

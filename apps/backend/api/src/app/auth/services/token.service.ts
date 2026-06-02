@@ -1,14 +1,15 @@
 
-import { Injectable, UnauthorizedException, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, UnauthorizedException, Inject, forwardRef, OnModuleInit } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-// import * as ms from 'ms';
 import ms from 'ms';
+import * as crypto from 'crypto';
+import * as ipaddr from 'ipaddr.js';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import * as ipaddr from 'ipaddr.js';
+import { KeyManagementService } from './key-management.service';
 
 import { User } from '../../users/entities/user.entity/user.entity';
 import { RefreshToken } from '../entities/refresh-token.entity';
@@ -20,10 +21,11 @@ import { AuthenticatedUser } from '../interfaces/authenticated-user.interface';
 import { AuthError } from '../enums/auth-error.enum';
 import { UserStatus } from '../../users/entities/user.entity/user.entity';
 import { GeoService } from '../../geo/geo.service';
-import { CryptoUtil } from '../../shared/utils/crypto.util';
 
 @Injectable()
-export class TokenService {
+export class TokenService implements OnModuleInit {
+  private encryptionKey!: Buffer;
+
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
@@ -34,8 +36,49 @@ export class TokenService {
     private readonly usersService: UsersService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly geoService: GeoService,
-    private readonly cryptoUtil: CryptoUtil
+    private readonly keyManagementService: KeyManagementService,
   ) {}
+
+  onModuleInit(): void {
+    // H-01 FIX: Fail fast — getOrThrow throws at startup if any required secret is absent.
+    const secret = this.configService.getOrThrow<string>('ENCRYPTION_SECRET');
+    const salt = this.configService.getOrThrow<string>('AUTH_SALT');
+    const isProduction = process.env['NODE_ENV'] === 'production';
+    if (isProduction && /change-me|default/i.test(secret + salt)) {
+      throw new Error('FATAL: weak ENCRYPTION_SECRET or AUTH_SALT detected in production environment.');
+    }
+    this.encryptionKey = crypto.scryptSync(secret, salt, 32);
+  }
+
+  private maskIp(ip?: string): string | undefined {
+    if (!ip) return undefined;
+    try {
+      if (!ipaddr.isValid(ip)) return '***';
+      const addr = ipaddr.parse(ip);
+      if (addr.kind() === 'ipv4') {
+        const v4 = addr as ipaddr.IPv4;
+        return `${v4.octets[0]}.${v4.octets[1]}.*.*`;
+      }
+      const v6 = addr as ipaddr.IPv6;
+      if (v6.isIPv4MappedAddress()) {
+        const v4 = v6.toIPv4Address();
+        return `::ffff:${v4.octets[0]}.${v4.octets[1]}.*.*`;
+      }
+      const parts = v6.parts;
+      return `${parts[0].toString(16)}:${parts[1].toString(16)}:${parts[2].toString(16)}:*:*:*:*:*`;
+    } catch {
+      return '***';
+    }
+  }
+
+  private encryptIp(ip: string): string {
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv('aes-256-gcm', this.encryptionKey, iv);
+    let encrypted = cipher.update(ip, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    const authTag = cipher.getAuthTag().toString('hex');
+    return `${iv.toString('hex')}:${encrypted}:${authTag}`;
+  }
 
   async validateTokenAndGetUser(payload: JwtPayload): Promise<AuthenticatedUser> {
     // 10/10 OPTIMIZATION: Use CACHE_MANAGER explicitly or via UserCacheService
@@ -124,7 +167,8 @@ export class TokenService {
 
     const expirationDate = new Date(Date.now() + ms(refreshExpiration));
 
-    // H9 FIX: Store masked IP for display; store encrypted IP for forensics only.
+    // H9 FIX: Store masked IP for display; store encrypted IP for forensics only
+    // (privacy: GDPR Art.4, CWE-312).
     const maskedIp = ipAddress ? this.maskIp(ipAddress) : undefined;
     const encryptedIp = ipAddress ? this.encryptIp(ipAddress) : undefined;
 
@@ -161,6 +205,10 @@ export class TokenService {
       this.configService.getOrThrow('JWT_REFRESH_SECRET')
     );
 
+    // 10/10 SECURITY: Store hash of refresh token
+    const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+    await this.refreshTokenRepository.update(refreshTokenRecord.id, { tokenHash });
+
     return {
       user: userWithImpersonationStatus,
       accessToken,
@@ -170,10 +218,27 @@ export class TokenService {
   }
 
   getJwtToken(payload: JwtPayload, expiresIn?: string, secret?: string) {
+    // H-05 FIX: Access tokens use RS256 with kid for key rotation support (OWASP JWT Cheat Sheet;
+    // NIST SP 800-57). Special-purpose tokens (refresh, 2FA, preverify) keep HS256 with their own secrets.
+    if (secret) {
+      return this.jwtService.sign(payload, {
+        secret,
+        expiresIn: expiresIn || AuthConfig.JWT_ACCESS_EXPIRATION,
+        algorithm: 'HS256',
+        issuer: 'virteex-api',
+        audience: 'virteex-web',
+      });
+    }
+
+    const { kid, privateKey } = this.keyManagementService.getActiveKey();
     return this.jwtService.sign(payload, {
-      secret: secret || this.configService.getOrThrow('JWT_SECRET'),
+      privateKey,
       expiresIn: expiresIn || AuthConfig.JWT_ACCESS_EXPIRATION,
-    });
+      algorithm: 'RS256',
+      keyid: kid,
+      issuer: 'virteex-api',
+      audience: 'virteex-web',
+    } as any);
   }
 
   buildSafeUser(user: User) {
@@ -200,32 +265,5 @@ export class TokenService {
       tokenVersion: user.security?.tokenVersion || 0,
       ...extra,
     };
-  }
-
-  // H9: Mask last two octets for IPv4, last segments for IPv6.
-  private maskIp(ip: string): string {
-    try {
-      if (!ipaddr.isValid(ip)) return '***';
-      const addr = ipaddr.parse(ip);
-      if (addr.kind() === 'ipv4') {
-        const v4 = addr as ipaddr.IPv4;
-        return `${v4.octets[0]}.${v4.octets[1]}.*.*`;
-      }
-      const v6 = addr as ipaddr.IPv6;
-      if (v6.isIPv4MappedAddress()) {
-        const v4 = v6.toIPv4Address();
-        return `::ffff:${v4.octets[0]}.${v4.octets[1]}.*.*`;
-      }
-      const parts = v6.parts;
-      return `${parts[0].toString(16)}:${parts[1].toString(16)}:*:*:*:*:*:*`;
-    } catch {
-      return '***';
-    }
-  }
-
-  // L-13 FIX: delegate to the centralized CryptoUtil (single key derivation from
-  // ENCRYPTION_SECRET + AUTH_SALT) instead of a service-local sha256(secret) derivation.
-  private encryptIp(ip: string): string {
-    return this.cryptoUtil.encrypt(ip);
   }
 }

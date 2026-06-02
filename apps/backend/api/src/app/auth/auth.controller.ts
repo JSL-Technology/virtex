@@ -20,9 +20,19 @@ import { GoogleRecaptchaGuard } from '@nestlab/google-recaptcha';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { VerifyWebAuthnAuthDto } from './dto/verify-webauthn-auth.dto';
+import {
+  Verify2faDto,
+  SendPublicVerificationDto,
+  VerifyPublicCodeDto,
+  CreateCheckoutSessionDto,
+  VerifyWebAuthnRegistrationDto,
+  InvitationDetailsDto,
+} from './dto/security-audit.dto';
 
 import { SetPasswordFromInvitationDto } from './dto/set-password-from-invitation.dto';
-import { InvitationDetailsDto } from './dto/invitation-details.dto';
+import { PaymentService } from '../payment/payment.service';
+import { SaasService } from '../saas/saas.service';
 import { ConfigService } from '@nestjs/config';
 import { AuthConfig } from './auth.config';
 import { TypeOrmExceptionFilter } from '../common/filters/typeorm-exception.filter';
@@ -35,7 +45,9 @@ import { plainToInstance } from 'class-transformer';
 import { AuthGuard } from '@nestjs/passport';
 import { EnableTwoFactorDto } from './dto/enable-2fa.dto';
 import { CsrfGuard } from './guards/csrf.guard';
-import { VerifyWebAuthnRegistrationDto, VerifyWebAuthnAuthenticationDto } from './dto/webauthn.dto';
+import { PermissionsGuard } from './guards/permissions/permissions.guard';
+import { HasPermission } from './decorators/permissions.decorator';
+import { PERMISSIONS } from '../shared/permissions';
 import { MfaOrchestratorService } from './services/mfa-orchestrator.service';
 import { JwtService } from '@nestjs/jwt';
 import { TwoFactorVerifiedGuard } from './guards/two-factor-verified.guard';
@@ -57,16 +69,20 @@ export class AuthController {
     private readonly configService: ConfigService,
     private readonly cookieService: CookieService,
     private readonly mfaOrchestratorService: MfaOrchestratorService,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
+    private readonly paymentService: PaymentService,
+    private readonly saasService: SaasService
   ) {}
 
   @Public()
   @Get('google')
+  @Public()
   @UseGuards(AuthGuard('google'))
   async googleAuth(@Req() req: Request) {}
 
   @Public()
   @Get('google/callback')
+  @Public()
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@SocialUserDecorator() socialUser: SocialUser, @Res() res: Response) {
       await this.handleSocialCallback(socialUser, res);
@@ -74,11 +90,13 @@ export class AuthController {
 
   @Public()
   @Get('microsoft')
+  @Public()
   @UseGuards(AuthGuard('microsoft'))
   async microsoftAuth(@Req() req: Request) {}
 
   @Public()
   @Get('microsoft/callback')
+  @Public()
   @UseGuards(AuthGuard('microsoft'))
   async microsoftAuthRedirect(@SocialUserDecorator() socialUser: SocialUser, @Res() res: Response) {
       await this.handleSocialCallback(socialUser, res);
@@ -86,11 +104,13 @@ export class AuthController {
 
   @Public()
   @Get('okta')
+  @Public()
   @UseGuards(AuthGuard('okta'))
   async oktaAuth(@Req() req: Request) {}
 
   @Public()
   @Get('okta/callback')
+  @Public()
   @UseGuards(AuthGuard('okta'))
   async oktaAuthRedirect(@SocialUserDecorator() socialUser: SocialUser, @Res() res: Response) {
       await this.handleSocialCallback(socialUser, res);
@@ -104,14 +124,8 @@ export class AuthController {
         // Generate a secure, short-lived token to transfer PII safely
         const registerToken = await this.authFacade.generateRegisterToken(socialUser);
 
-        // SECURITY 10/10: Use HTTP-only cookie to transfer PII token instead of URL parameter.
-        // This prevents token leakage in browser history or referrer headers.
-        res.cookie('social_register_token', registerToken, {
-            httpOnly: true,
-            secure: this.configService.get('NODE_ENV') === 'production',
-            sameSite: 'lax',
-            maxAge: 5 * 60 * 1000 // 5 minutes
-        });
+        // Use centralised CookieService to avoid inline options drifting out of sync.
+        this.cookieService.setSocialRegisterTokenCookie(res, registerToken);
 
         // Redirect without token in URL
         return res.redirect(`${frontendUrl}/auth/register?social_registration=true`);
@@ -124,19 +138,22 @@ export class AuthController {
 
   @Public()
   @Get('social-register-info')
+  @Public()
   @ApiOperation({ summary: 'Decode social register token to pre-fill form' })
   async getSocialRegisterInfo(@Req() req: Request) {
       // H12 FIX: Read token only from httpOnly cookie; never accept it as a query parameter.
       // Tokens in query strings leak into browser history, server logs, and Referer headers.
-      const token = req.cookies['social_register_token'];
+      // Accept both the dev (social_register_token) and prod-prefixed (__Host-) cookie names.
+      const token = req.cookies['social_register_token'] || req.cookies['__Host-social_register_token'];
       if (!token) {
-          throw new BadRequestException('Token required');
+          throw new BadRequestException('Token de registro no encontrado (cookie requerida)');
       }
       return this.authFacade.getSocialRegisterInfo(token);
   }
 
   @Public()
   @Post('register')
+  @Public()
   @UseGuards(ThrottlerGuard)
   @ApiOperation({ summary: 'Register a new user and organization' })
   @ApiResponse({ status: 201, description: 'User successfully registered.', type: AuthResponseDto })
@@ -161,11 +178,14 @@ export class AuthController {
 
     return {
       user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }),
+      // 10/10 SECURITY: accessToken is NOT returned in the body — it is delivered only via the
+      // httpOnly cookie, reducing XSS exfiltration surface.
     };
   }
 
   @Public()
   @Post('login')
+  @Public()
   @ApiOperation({ summary: 'Login with email and password' })
   @ApiResponse({ status: 200, description: 'Login successful', type: AuthResponseDto })
   @HttpCode(HttpStatus.OK)
@@ -183,8 +203,10 @@ export class AuthController {
 
     // Check if 2FA is required
     if ('require2fa' in result && result.require2fa) {
+        // H-03 FIX: Deliver pendingId exclusively via httpOnly cookie — never in response body.
+        this.cookieService.set2faPendingCookie(res, (result as any).pendingId);
         this.cookieService.setCsrfCookie(res);
-        return result;
+        return { require2fa: true, message: (result as any).message };
     }
 
     // Narrowing type
@@ -199,14 +221,17 @@ export class AuthController {
 
     return {
       user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }),
+      // accessToken omitted — delivered only via httpOnly cookie
     };
   }
 
   @Public()
   @Post('set-password-from-invitation')
+  @Public()
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ type: AuthResponseDto })
-  @UseGuards(CsrfGuard)
+  // No CsrfGuard — the invitationToken is proof-of-possession (SHA-256, 32 bytes).
+  // New users have never logged in and therefore have no XSRF-TOKEN cookie.
   async setPasswordFromInvitation(
     @Body() setPasswordDto: SetPasswordFromInvitationDto,
     @Res({ passthrough: true }) res: Response
@@ -218,11 +243,12 @@ export class AuthController {
 
     return {
       user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }),
+      // accessToken OMITTED — available exclusively via the __Host-access_token cookie (CWE-200)
     };
   }
 
-  // H4 FIX: Token moved from URL path to POST body to prevent leakage via browser history,
-  // server access logs, and Referer headers.
+  // H4/H-02 FIX: Token moved from URL path (:token) to POST body — path/query params are
+  // logged by reverse proxies, CDNs, and browsers, exposing the secret (CWE-598; OWASP ASVS 2.1.7).
   @Public()
   @Post('invitation/details')
   @HttpCode(HttpStatus.OK)
@@ -241,7 +267,7 @@ export class AuthController {
     @Ip() ip: string,
     @Headers('user-agent') userAgent: string
   ): Promise<AuthResponseDto> {
-    const refreshToken = req.cookies?.refresh_token;
+    const refreshToken = req.cookies?.['__Secure-refresh_token'] || req.cookies?.refresh_token;
     if (!refreshToken) {
       throw new BadRequestException('Refresh token no encontrado en cookies');
     }
@@ -252,6 +278,7 @@ export class AuthController {
 
     return {
       user: plainToInstance(UserResponseDto, result.user, { excludeExtraneousValues: true }),
+      // accessToken omitted — delivered only via httpOnly cookie
     };
   }
 
@@ -293,6 +320,7 @@ export class AuthController {
 
   @Public()
   @Post('forgot-password')
+  @Public()
   @HttpCode(HttpStatus.OK)
   @UseGuards(GoogleRecaptchaGuard)
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
@@ -307,14 +335,19 @@ export class AuthController {
 
   @Public()
   @Post('reset-password')
+  @Public()
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe())
-  @UseGuards(CsrfGuard)
+  // No CsrfGuard — the reset token (SHA-256 of 32 random bytes) is proof-of-possession.
+  // Users performing a password reset typically have no active session and therefore
+  // no XSRF-TOKEN cookie. OWASP explicitly exempts endpoints already protected by
+  // a one-time secret from requiring additional CSRF protection.
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     const user = await this.passwordRecoveryService.resetPassword(resetPasswordDto);
-    const { passwordHash, ...userResult } = user;
-    return userResult;
+    // Return only whitelisted fields — never expose security entity (passwordHash,
+    // twoFactorSecret, backupCodes, etc.) regardless of what the ORM loaded.
+    return plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true });
   }
 
   @Post('change-password')
@@ -334,7 +367,8 @@ export class AuthController {
   // re-authentication (TwoFactorVerifiedGuard), consistent with session revocation, 2FA
   // disable, user edit/delete and passkey registration.
   @Post('impersonate')
-  @UseGuards(JwtAuthGuard, CsrfGuard, TwoFactorVerifiedGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard, PermissionsGuard, TwoFactorVerifiedGuard)
+  @HasPermission(PERMISSIONS.USERS_IMPERSONATE)
   async impersonate(
     @CurrentUser() adminUser: User,
     @Body('userId') targetUserId: string,
@@ -345,7 +379,9 @@ export class AuthController {
 
     this.cookieService.setAuthCookies(res, accessToken, refreshToken);
 
-    return { user };
+    // H-06 FIX: Never expose access_token in the response body, and sanitize the user via DTO.
+    // All token delivery is cookie-only to prevent XSS token exfiltration (OWASP ASVS 3.4.3; CWE-200).
+    return { user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }) };
   }
 
   @Post('stop-impersonation')
@@ -359,7 +395,8 @@ export class AuthController {
 
     this.cookieService.setAuthCookies(res, accessToken, refreshToken);
 
-    return { user };
+    // H-06 FIX: Never expose access_token in the response body (OWASP ASVS 3.4.3; CWE-200).
+    return { user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }) };
   }
 
   // ------------------------------------------------------------------
@@ -375,11 +412,12 @@ export class AuthController {
 
   @Post('2fa/enable')
   @UseGuards(JwtAuthGuard, CsrfGuard)
-  @ApiOperation({ summary: 'Verify token and enable 2FA' })
+  @ApiOperation({ summary: 'Verify token and enable 2FA — requires current password as step-up' })
   async enableTwoFactor(
     @CurrentUser() user: User,
     @Body() enableTwoFactorDto: EnableTwoFactorDto,
   ) {
+    // H-05 FIX: Pass currentPassword for step-up verification inside the service
     return this.twoFactorAuthService.enableTwoFactor(user, enableTwoFactorDto.token, enableTwoFactorDto.currentPassword);
   }
 
@@ -416,12 +454,25 @@ export class AuthController {
 
   @Post('send-phone-otp')
   @UseGuards(JwtAuthGuard, CsrfGuard)
-  @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } }) // Rate limit: 3 per minute
+  @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
   async sendPhoneOtp(@CurrentUser() user: User, @Body('phoneNumber') phoneNumber: string) {
       if (!phoneNumber) {
           throw new BadRequestException('Phone number is required');
       }
-      // Use MfaOrchestratorService directly instead of AuthService pass-through
+
+      // Validate E.164 format to prevent SMS abuse with malformed numbers
+      const e164Regex = /^\+[1-9]\d{6,14}$/;
+      if (!e164Regex.test(phoneNumber)) {
+          throw new BadRequestException('Phone number must be in E.164 format (e.g. +18091234567)');
+      }
+
+      // Prevent SMS bombing: if the user already has a verified phone registered,
+      // only allow sending OTP to that same number or to a new unverified one.
+      // Sending to an arbitrary third-party number is not permitted.
+      if (user.isPhoneVerified && user.phone && user.phone !== phoneNumber) {
+          throw new BadRequestException('Cannot send OTP to a phone number not associated with your account');
+      }
+
       await this.mfaOrchestratorService.sendPhoneOtp(user.id, phoneNumber);
       return { message: 'OTP sent successfully' };
   }
@@ -434,27 +485,97 @@ export class AuthController {
       return this.mfaOrchestratorService.verifyPhoneOtp(user.id, body.code, body.phoneNumber);
   }
 
+  @Post('send-public-verification')
   @Public()
+  @UseGuards(ThrottlerGuard, GoogleRecaptchaGuard)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @ApiOperation({ summary: 'Send a verification code for unauthenticated users (email or phone)' })
+  async sendPublicVerification(
+    @Body() dto: SendPublicVerificationDto
+  ) {
+    await this.mfaOrchestratorService.sendPublicVerification(dto.target, dto.type);
+    return { message: 'Si los datos son correctos, se ha enviado un código de verificación.' };
+  }
+
+  @Post('verify-public-code')
+  @Public()
+  @UseGuards(ThrottlerGuard, GoogleRecaptchaGuard)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @ApiOperation({ summary: 'Verify a public code for unauthenticated users' })
+  async verifyPublicCode(
+    @Body() dto: VerifyPublicCodeDto
+  ) {
+    return this.mfaOrchestratorService.verifyPublicCode(dto.target, dto.type, dto.code);
+  }
+
+  @Post('confirm-email-magic-link')
+  @Public()
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @ApiOperation({ summary: 'Verify a registration email confirmation magic link' })
+  async confirmEmailMagicLink(@Body() body: { token: string }) {
+    return this.mfaOrchestratorService.confirmEmailMagicLink(body.token);
+  }
+
+  @Post('create-checkout-session')
+  @ApiOperation({ summary: 'Create a Stripe checkout session for a selected plan' })
+  @UseGuards(JwtAuthGuard, CsrfGuard)
+  async createCheckoutSession(
+    @CurrentUser() user: User,
+    @Body() body: CreateCheckoutSessionDto
+  ) {
+    const plans = await this.saasService.getPlans();
+    const plan = plans.find(p => p.id === body.planId || p.slug === body.planId);
+    if (!plan) {
+      throw new BadRequestException('Plan not found');
+    }
+
+    const priceId = plan.monthlyPriceId;
+    if (!priceId) {
+      throw new BadRequestException('Plan does not have a price ID');
+    }
+
+    // H-02 FIX: Build redirect URLs server-side from FRONTEND_URL.
+    // Never pass client-supplied URLs to Stripe — the backend must control
+    // where users land after checkout (CWE-601; OWASP Unvalidated Redirects).
+    const frontendUrl = this.configService.getOrThrow<string>('FRONTEND_URL');
+    const successUrl = new URL('/dashboard', frontendUrl).toString();
+    const cancelUrl = new URL('/auth/register', frontendUrl).toString();
+
+    return this.paymentService.createCheckoutSession(
+      user.organizationId,
+      user.email,
+      priceId,
+      successUrl,
+      cancelUrl
+    );
+  }
+
   @Post('verify-2fa')
+  @Public()
   @HttpCode(HttpStatus.OK)
   @UseGuards(CsrfGuard)
-  @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } }) // Rate limit 2FA attempts
+  @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
   async verify2fa(
-      @Body() body: { code: string, tempToken: string },
+      @Body() dto: Verify2faDto,
+      @Req() req: Request,
       @Res({ passthrough: true }) res: Response,
       @Ip() ip: string,
       @Headers('user-agent') userAgent: string
   ) {
-      const user = await this.authService.verify2faTempToken(body.tempToken);
-      if (!user) {
-          throw new UnauthorizedException('Invalid or expired session');
+      // H-03 FIX: Read pendingId from httpOnly cookie — never accept tempToken from body.
+      const pendingId = (req as any).cookies?.['__Host-2fa_pending'] || (req as any).cookies?.['2fa_pending'];
+      if (!pendingId) {
+          throw new UnauthorizedException('No active 2FA session — please log in again');
       }
 
-      // Use MfaOrchestratorService directly instead of AuthService pass-through
-      const authResult = await this.mfaOrchestratorService.complete2faLogin(user, body.code, ip, userAgent);
+      const user = await this.authService.consume2faPendingSession(pendingId, ip, userAgent);
+
+      const authResult = await this.mfaOrchestratorService.complete2faLogin(user, dto.code, ip, userAgent);
 
       const { user: authUser, accessToken, refreshToken } = authResult;
 
+      this.cookieService.clear2faPendingCookie(res);
       this.cookieService.setAuthCookies(res, accessToken, refreshToken);
       return { user: authUser };
   }
@@ -482,6 +603,7 @@ export class AuthController {
   // H10 FIX: WebAuthn challenge generation must be rate-limited to prevent oracle/enumeration abuse.
   @Public()
   @Post('webauthn/login/options')
+  @Public()
   @ApiOperation({ summary: 'Generate WebAuthn authentication options' })
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
   async generateWebAuthnAuthenticationOptions(@Body('email') email?: string) {
@@ -490,22 +612,33 @@ export class AuthController {
 
   @Public()
   @Post('webauthn/login/verify')
+  @Public()
   @ApiOperation({ summary: 'Verify WebAuthn authentication' })
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
   @UseGuards(CsrfGuard)
   async verifyWebAuthnAuthentication(
-    @Body() body: VerifyWebAuthnAuthenticationDto,
+    @Body() body: VerifyWebAuthnAuthDto,
     @Res({ passthrough: true }) res: Response
   ) {
     const result = await this.webAuthnService.verifyAuthentication(body);
+    const user = result.user;
 
-    // Create session (same as regular login)
-    const { accessToken, refreshToken } = await this.authFacade.generateTokens(result.user);
+    // FIDO2/WebAuthn is inherently multi-factor (possession + biometric/PIN = NIST AAL2).
+    // However, if the user has explicitly configured TOTP or SMS 2FA, we honour that
+    // organisational policy by requiring the second factor before issuing session cookies.
+    if (user.security?.isTwoFactorEnabled) {
+      // H-03 FIX: Same cookie-based pending session as the password login flow.
+      const pendingId = await this.authService.create2faPendingSession(user, undefined, undefined);
+      this.cookieService.set2faPendingCookie(res, pendingId);
+      return { require2fa: true, message: '2FA verification required' };
+    }
 
+    const { accessToken, refreshToken } = await this.authFacade.generateTokens(user);
     this.cookieService.setAuthCookies(res, accessToken, refreshToken);
 
     return {
-      user: plainToInstance(UserResponseDto, result.user, { excludeExtraneousValues: true }),
+      user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }),
+      // accessToken OMITTED — available exclusively via the __Host-access_token cookie (CWE-200)
     };
   }
 
@@ -519,7 +652,7 @@ export class AuthController {
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
   async getUserSessions(@CurrentUser() user: User, @Req() req: Request) {
       let currentRefreshTokenId: string | undefined;
-      const token = req.cookies['refresh_token'];
+      const token = req.cookies['__Secure-refresh_token'] || req.cookies['refresh_token'];
       if (token) {
           try {
              // We decode to get the 'jti' (ID)

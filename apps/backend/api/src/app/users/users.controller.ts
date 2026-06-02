@@ -1,5 +1,5 @@
 
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Req, UseFilters, ParseUUIDPipe, UseInterceptors, UploadedFile, BadRequestException, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, UseFilters, ParseUUIDPipe, UseInterceptors, UploadedFile, BadRequestException, HttpCode, HttpStatus } from '@nestjs/common';
 import { FastifyFileInterceptor } from '../common/interceptors/fastify-file.interceptor';
 import { FastifyFile } from '../common/interfaces/fastify-file.interface';
 import { ThrottlerGuard } from '@nestjs/throttler';
@@ -11,7 +11,8 @@ import { UsersService } from './users.service';
 import { InviteUserDto } from './entities/user.entity/invite-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { RequestEmailChangeDto } from './dto/request-email-change.dto';
+import { RequestEmailChangeDto, ConfirmEmailChangeDto } from './dto/email-change.dto';
+import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { PermissionsGuard } from '../auth/guards/permissions/permissions.guard';
 import { CsrfGuard } from '../auth/guards/csrf.guard';
@@ -45,7 +46,7 @@ export class UsersController {
   }
 
   @Post('invite')
-  @UseGuards(CsrfGuard)
+  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
   @HasPermission(PERMISSIONS.USERS_CREATE)
   @ApiOperation({ summary: 'Invite a new user to the organization' })
   async inviteUser(
@@ -112,20 +113,36 @@ export class UsersController {
     return plainToInstance(UserResponseDto, updatedUser, { excludeExtraneousValues: true });
   }
 
-  @Post('profile/email-change')
-  @HttpCode(HttpStatus.OK)
+  // ------------------------------------------------------------------
+  // H-01 FIX: Secure email-change flow (step-up + confirmation token)
+  // ------------------------------------------------------------------
+
+  @Post('profile/email-change/request')
   @UseGuards(CsrfGuard)
-  @ApiOperation({ summary: 'Change email with current password verification and session invalidation' })
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Request an email change — requires current password as step-up' })
   async requestEmailChange(
     @CurrentUser() user: User,
     @Body() dto: RequestEmailChangeDto,
   ) {
     await this.usersService.requestEmailChange(user.id, dto);
-    return { message: 'Email actualizado. Tu sesión ha sido invalidada. Por favor inicia sesión nuevamente.' };
+    return { message: 'Si los datos son correctos, se ha enviado un enlace de confirmación al nuevo correo.' };
+  }
+
+  @Post('profile/email-change/confirm')
+  @UseGuards(CsrfGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Confirm email change via token' })
+  async confirmEmailChange(
+    @CurrentUser() user: User,
+    @Body() dto: ConfirmEmailChangeDto,
+  ) {
+    await this.usersService.confirmEmailChange(user.id, dto);
+    return { message: 'Correo electrónico actualizado. Tu sesión se ha invalidado por seguridad.' };
   }
 
   @Post('profile/avatar')
-  @UseGuards(CsrfGuard, ThrottlerGuard)
+  @UseGuards(ThrottlerGuard, CsrfGuard)
   @ApiOperation({ summary: 'Upload avatar for current user' })
   @UseInterceptors(FastifyFileInterceptor('file', {
     fileFilter: (req, file, cb) => {
@@ -198,16 +215,20 @@ export class UsersController {
   @HasPermission(PERMISSIONS.USERS_MANAGE_STATUS)
   async updateStatus(
       @Param('id', ParseUUIDPipe) id: string,
-      @Body('status') status: UserStatus,
+      @Body() dto: UpdateUserStatusDto,
       @CurrentUser() user: User
   ) {
-      const updatedUser = await this.usersService.updateUserStatus(id, status, user.organizationId);
+      // H-08 FIX: Prevent self-block to avoid accidental lock-out of the last admin.
+      if (dto.status === UserStatus.BLOCKED && id === user.id) {
+          throw new BadRequestException('No puedes bloquear tu propia cuenta.');
+      }
+      const updatedUser = await this.usersService.updateUserStatus(id, dto.status, user.organizationId);
       return plainToInstance(UserResponseDto, updatedUser, { excludeExtraneousValues: true });
   }
 
   @Post(':id/reset-password')
   @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
-  @HasPermission(PERMISSIONS.USERS_EDIT)
+  @HasPermission(PERMISSIONS.USERS_PASSWORD_RESET)
   async resetPassword(
       @Param('id', ParseUUIDPipe) id: string,
       @CurrentUser() user: User
@@ -220,17 +241,20 @@ export class UsersController {
   // audit events, preventing cross-tenant IDOR.
   @Get(':id/activity')
   @HasPermission(PERMISSIONS.USERS_VIEW)
+  // H-11 FIX: Scope the activity log query to the caller's organization to prevent a
+  // privileged user from reading another tenant's activity via a cross-org userId
+  // (OWASP API1 BOLA; CWE-639). findOneByOrg also verifies the target belongs to the org.
   async getActivityLog(
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: User,
   ) {
-      await this.usersService.findOneByOrg(id, (user as any).organizationId);
-      return this.usersService.getActivityLog(id, (user as any).organizationId);
+      await this.usersService.findOneByOrg(id, user.organizationId);
+      return this.usersService.getActivityLog(id, user.organizationId);
   }
 
   @Post(':id/force-logout')
   @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
-  @HasPermission(PERMISSIONS.USERS_EDIT)
+  @HasPermission(PERMISSIONS.USERS_FORCE_LOGOUT)
   async forceLogout(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
       return this.usersService.forceLogout(id, user.organizationId);
   }
@@ -249,5 +273,12 @@ export class UsersController {
   ) {
     await this.usersService.adminChangeEmail(id, email, user.organizationId);
     return { message: 'Email actualizado. La sesión del usuario ha sido invalidada.' };
+  }
+
+  @Post(':id/block-and-logout')
+  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+  @HasPermission(PERMISSIONS.USERS_MANAGE_STATUS)
+  async blockAndLogout(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+      return this.usersService.blockAndLogout(id, user.organizationId);
   }
 }

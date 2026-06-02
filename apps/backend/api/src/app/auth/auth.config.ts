@@ -1,6 +1,4 @@
 
-import { ConfigService } from '@nestjs/config';
-
 // H6 FIX: Fail-fast for cryptographic secrets in production.
 // Prevents startup with weak/missing secrets that would allow token forgery.
 function requireSecret(name: string): string {
@@ -36,7 +34,17 @@ export const AuthConfig = {
   get JWT_REFRESH_EXPIRATION() { return process.env.JWT_REFRESH_EXPIRATION || '7d'; },
   get JWT_RESET_PASSWORD_EXPIRATION() { return process.env.JWT_RESET_PASSWORD_EXPIRATION || '15m'; },
   get JWT_REFRESH_REMEMBER_ME_EXPIRATION() { return process.env.JWT_REFRESH_REMEMBER_ME_EXPIRATION || '30d'; },
+  // All cryptographic secrets go through requireSecret(): fail-fast in production
+  // (missing or insecure-default values), dev-only fallback for local ergonomics.
   get JWT_2FA_TEMP_SECRET() { return requireSecret('JWT_2FA_TEMP_SECRET') || 'temp-2fa-dev-only'; },
+
+  get JWT_PREVERIFY_SECRET() { return requireSecret('JWT_PREVERIFY_SECRET') || 'preverify-dev-only'; },
+
+  // H-07 FIX: Dedicated secret for HMAC-signed CSRF tokens.
+  // Using a separate secret (not JWT_SECRET) provides key separation and allows
+  // independent rotation without invalidating user sessions (NIST SP 800-57 §5.2).
+  get CSRF_SECRET() { return requireSecret('CSRF_SECRET') || 'default-csrf-secret-change-me-in-production-32chars'; },
+
 
   // Cookie Max Age (Milliseconds)
   get COOKIE_ACCESS_MAX_AGE() { return parseDuration(process.env.JWT_ACCESS_EXPIRATION || '15m'); },
@@ -45,7 +53,7 @@ export const AuthConfig = {
 
   // Cache
   get CACHE_TTL() { return parseDuration(process.env.AUTH_CACHE_TTL || '15m'); },
-  get REFRESH_GRACE_PERIOD() { return parseInt(process.env.AUTH_REFRESH_GRACE_PERIOD || '10000', 10); },
+  get REFRESH_GRACE_PERIOD() { return parseInt(process.env.AUTH_REFRESH_GRACE_PERIOD || '2000', 10); },
 
   // Throttle
   get THROTTLE_LIMIT() { return parseInt(process.env.AUTH_THROTTLE_LIMIT || '5', 10); },

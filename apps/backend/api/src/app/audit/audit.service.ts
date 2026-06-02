@@ -18,6 +18,7 @@ export class AuditTrailService {
     newValue: object,
     previousValue?: object,
     ipAddress?: string,
+    organizationId?: string | null,
   ): Promise<void> {
     const auditLog = this.auditLogRepository.create({
       userId,
@@ -27,6 +28,7 @@ export class AuditTrailService {
       newValue,
       previousValue,
       ipAddress,
+      organizationId: organizationId ?? null,
     });
     // Fire-and-forget: No esperamos a que se guarde para no bloquear la request.
     // Capturamos errores para no romper el flujo principal.
@@ -47,11 +49,12 @@ export class AuditTrailService {
     });
   }
 
-  async find(entity?: string, entityId?: string): Promise<AuditLog[]> {
+  async find(entity?: string, entityId?: string, organizationId?: string): Promise<AuditLog[]> {
     return this.auditLogRepository.find({
         where: {
             ...(entity && { entity }),
             ...(entityId && { entityId }),
+            ...(organizationId && { organizationId }),
         },
         order: {
             timestamp: 'DESC'

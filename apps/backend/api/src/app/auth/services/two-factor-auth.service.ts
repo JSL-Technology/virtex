@@ -80,41 +80,36 @@ export class TwoFactorAuthService {
   async enableTwoFactor(user: User, token: string, currentPassword: string) {
     const freshUser = await this.userRepository.findOne({
         where: { id: user.id },
-        relations: ['security']
+        relations: ['security'],
     });
 
-    if (!freshUser?.security) {
-      throw new BadRequestException('Security configuration not found.');
-    }
-
-    if (!freshUser.security.twoFactorSecret) {
+    if (!freshUser?.security?.twoFactorSecret) {
       throw new BadRequestException('2FA configuration not initiated. Please generate secret first.');
     }
 
+    // H-05 FIX: Require current password as step-up before registering a new TOTP device.
+    // This prevents an attacker with a stolen JWT from locking the real owner out by
+    // binding their own authenticator app (NIST SP 800-63B §4.2; OWASP ASVS 2.2.2; CWE-306).
     if (!freshUser.security.passwordHash) {
       throw new BadRequestException('Password-based step-up is required but this account has no password set.');
     }
-
     const isPasswordValid = await this.passwordService.verify(freshUser.security.passwordHash, currentPassword);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Current password is incorrect');
     }
 
     const decryptedSecret = this.cryptoUtil.decrypt(freshUser.security.twoFactorSecret);
-
     const isValid = authenticator.verify({ token, secret: decryptedSecret });
     if (!isValid) {
-        throw new UnauthorizedException('Invalid 2FA token');
+      throw new UnauthorizedException('Invalid 2FA token');
     }
 
     freshUser.security.isTwoFactorEnabled = true;
 
-    // Auto-generate backup codes upon enabling
     const { codes, hashedCodes } = await this.createBackupCodes();
     freshUser.security.backupCodes = hashedCodes;
 
     await this.userSecurityRepository.save(freshUser.security);
-
     await this.userCacheService.clearUserSession(user.id);
 
     return { message: '2FA enabled successfully', backupCodes: codes };

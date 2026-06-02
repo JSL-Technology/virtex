@@ -1,9 +1,10 @@
-import { Injectable, Logger, UnauthorizedException, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { authenticator } from 'otplib';
 import * as argon2 from 'argon2';
 import * as Bowser from 'bowser';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { GeoService } from '../../geo/geo.service';
 import { AuditTrailService } from '../../audit/audit.service';
 import { AuthConfig } from '../auth.config';
@@ -23,12 +24,14 @@ export class SecurityAnalysisService {
     private readonly usersService: UsersService,
     @InjectRepository(VerificationCode)
     private readonly verificationCodeRepository: Repository<VerificationCode>,
-    private readonly cryptoUtil: CryptoUtil
+    private readonly cryptoUtil: CryptoUtil,
+    private readonly eventEmitter: EventEmitter2
   ) {}
 
   /**
    * Checks for "Impossible Travel" anomalies based on the user's last login IP.
-   * Throws UnauthorizedException if travel speed exceeds reasonable limits.
+   * Emits a 'security.suspicious_travel' event when suspicious speed is detected,
+   * rather than blocking login — avoids false positives from VPN or flights.
    */
   async checkImpossibleTravel(userId: string, currentIp?: string): Promise<void> {
     if (!currentIp || !userId) return;
@@ -58,15 +61,16 @@ export class SecurityAnalysisService {
 
       if (distanceKm > minDistance && speed > maxSpeed) {
         this.logger.warn(
-          `[SECURITY] Impossible Travel Detected for User ${userId}. Distance: ${distanceKm.toFixed(
-            2
-          )}km, Time: ${timeDiffHours.toFixed(2)}h, Speed: ${speed.toFixed(2)}km/h. Previous IP: ${
-            lastLogin.ipAddress
-          }, Current IP: ${currentIp}`
+          `[SECURITY] Suspicious travel detected for user ${userId}. ` +
+          `Distance: ${distanceKm.toFixed(2)} km, Time: ${timeDiffHours.toFixed(2)} h, Speed: ${speed.toFixed(2)} km/h.`,
         );
-        throw new UnauthorizedException(
-          'Viaje imposible detectado. Por seguridad, su cuenta ha sido bloqueada temporalmente. Contacte a soporte.'
-        );
+        this.eventEmitter.emit('security.suspicious_travel', {
+          userId,
+          speed: speed.toFixed(2),
+          distanceKm: distanceKm.toFixed(2),
+          previousIp: lastLogin.ipAddress,
+          currentIp,
+        });
       }
     }
   }
@@ -97,6 +101,20 @@ export class SecurityAnalysisService {
       });
 
       if (record && new Date() <= record.expiresAt) {
+        // H-08 FIX: Track attempts for LOGIN_2FA codes, mirroring the same brute-force
+        // protection applied to email/phone OTPs (NIST SP 800-63B §5.2.2; OWASP ASVS
+        // 2.2.4; CWE-307). Throttle guard is a coarse defence; per-challenge counter
+        // is the fine-grained one.
+        record.attempts = (record.attempts ?? 0) + 1;
+        record.lastAttemptAt = new Date();
+
+        if (record.attempts > 5) {
+          await this.verificationCodeRepository.delete(record.id);
+          return false; // Caller (mfa-orchestrator) will throw UnauthorizedException
+        }
+
+        await this.verificationCodeRepository.save(record);
+
         isValid2FA = await argon2.verify(record.code, code);
         if (isValid2FA) {
           await this.verificationCodeRepository.delete(record.id);

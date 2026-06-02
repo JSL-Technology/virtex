@@ -1,5 +1,6 @@
 
 import { Module, forwardRef } from '@nestjs/common';
+
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
@@ -44,6 +45,7 @@ import { AbstractSmsProvider } from './services/abstract-sms.provider';
 import { SocialAuthService } from './services/social-auth.service';
 import { MfaOrchestratorService } from './services/mfa-orchestrator.service';
 import { UserCacheModule } from './modules/user-cache.module';
+import { PaymentModule } from '../payment/payment.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { PasswordService } from './services/password.service';
 import { AuthSubscriber } from './events/auth.events';
@@ -53,6 +55,7 @@ import { UsRegistrationStrategy } from './strategies/registration/us-registratio
 import { AuthAuditListener } from './listeners/auth-audit.listener';
 import { CsrfGuard } from './guards/csrf.guard';
 import { IsOrganizationOwnerPolicy } from './policies/is-organization-owner.policy';
+import { KeyManagementService } from './services/key-management.service';
 
 @Module({
   imports: [
@@ -61,7 +64,7 @@ import { IsOrganizationOwnerPolicy } from './policies/is-organization-owner.poli
     AuditModule,
     OrganizationsModule,
     GeoModule,
-    UsersModule,
+    forwardRef(() => UsersModule),
     UserCacheModule,
     TypeOrmModule.forFeature([RefreshToken, Organization, VerificationCode, User, UserSecurity, Passkey]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
@@ -80,6 +83,12 @@ import { IsOrganizationOwnerPolicy } from './policies/is-organization-owner.poli
       inject: [ConfigService],
       useFactory: (config: ConfigService): ThrottlerModuleOptions => {
         const redisHost = config.get<string>('REDIS_HOST');
+        const isProduction = config.get<string>('NODE_ENV') === 'production';
+
+        if (isProduction && !redisHost) {
+          throw new Error('REDIS_HOST is required for distributed throttling in production');
+        }
+
         const storage = redisHost
           ? new ThrottlerStorageRedisService({
               host: redisHost,
@@ -104,10 +113,14 @@ import { IsOrganizationOwnerPolicy } from './policies/is-organization-owner.poli
       useFactory: (config: ConfigService) => ({
         secretKey: config.get<string>('RECAPTCHA_V3_SECRET_KEY'),
         response: (req) => req.body.recaptchaToken,
+        score: 0.7,
+        // H-04 FIX: Controlled by explicit RECAPTCHA_DISABLED flag, not NODE_ENV.
+        skipIf: config.get<boolean>('RECAPTCHA_DISABLED', false) === true,
       }),
     }),
     MailModule,
     LocalizationModule,
+    PaymentModule,
   ],
   controllers: [AuthController],
   providers: [
@@ -139,6 +152,7 @@ import { IsOrganizationOwnerPolicy } from './policies/is-organization-owner.poli
     // M-05 FIX: register the ABAC policy so PermissionsGuard can resolve it via DI
     // (moduleRef.get). Previously it was never provided, so it failed-secure as "not found".
     IsOrganizationOwnerPolicy,
+    KeyManagementService,
     {
       provide: AbstractSmsProvider,
       useClass: TwilioSmsProvider
@@ -149,6 +163,7 @@ import { IsOrganizationOwnerPolicy } from './policies/is-organization-owner.poli
     AuthFacade,
     TwoFactorAuthService,
     PasswordRecoveryService,
+    PasswordService,
     WebAuthnService,
     ImpersonationService,
     PassportModule,
@@ -161,6 +176,7 @@ import { IsOrganizationOwnerPolicy } from './policies/is-organization-owner.poli
     SessionService,
     CsrfGuard,
     IsOrganizationOwnerPolicy,
+    KeyManagementService,
   ],
 })
 export class AuthModule {}

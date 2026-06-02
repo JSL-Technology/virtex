@@ -1,19 +1,17 @@
-<footer class="main-footer">
-  <div class="footer-content">
+<footer class="auth-footer">
+  <div class="footer-container">
 
-    <!-- Language Selector moved here -->
-    <div class="language-selector-container">
+    <div class="footer-top">
       <div class="language-selector">
         <button
           type="button"
           class="selector-trigger"
           (click)="toggleLangDropdown($event)"
           [class.active]="isLangDropdownOpen"
-          [attr.aria-expanded]="isLangDropdownOpen"
           aria-label="Select Language">
-          <lucide-icon [img]="icons.Globe" class="icon-left" size="16"></lucide-icon>
-          <span class="lang-label">{{ currentLangLabel }}</span>
-          <lucide-icon [img]="icons.ChevronUp" class="icon-right" size="16"></lucide-icon>
+          <lucide-icon [img]="icons.Globe" size="16"></lucide-icon>
+          <span>{{ currentLangLabel }}</span>
+          <lucide-icon [img]="icons.ChevronUp" size="14" class="chevron" [class.open]="isLangDropdownOpen"></lucide-icon>
         </button>
 
         <div class="dropdown-menu" [class.show]="isLangDropdownOpen">
@@ -24,28 +22,24 @@
             [class.active]="currentLang === lang.code"
             (click)="changeLang(lang.code)">
             <span>{{ lang.label }}</span>
-            <lucide-icon *ngIf="currentLang === lang.code" [img]="icons.Check" size="14" class="check-icon"></lucide-icon>
+            <lucide-icon *ngIf="currentLang === lang.code" [img]="icons.Check" size="14"></lucide-icon>
           </button>
         </div>
       </div>
+
+      <nav class="footer-nav">
+        <a routerLink="/terms">{{ 'AUTH.TERMS' | translate }}</a>
+        <a routerLink="/privacy">{{ 'AUTH.PRIVACY' | translate }}</a>
+        <a routerLink="/security">{{ 'AUTH.SECURITY' | translate }}</a>
+        <a routerLink="/contact">{{ 'AUTH.CONTACT' | translate }}</a>
+      </nav>
     </div>
 
-    <div class="footer-links">
-      <a routerLink="/terms">{{ 'AUTH.TERMS' | translate }}</a>
-      <a routerLink="/privacy">{{ 'AUTH.PRIVACY' | translate }}</a>
-      <a routerLink="/security">{{ 'AUTH.SECURITY' | translate }}</a>
-      <a routerLink="/contact">{{ 'AUTH.CONTACT' | translate }}</a>
-    </div>
-
-    <div class="copyright-row">
+    <div class="footer-bottom">
       <p class="copyright">
         &copy; {{ currentYear }} FacturaPRO. {{ 'AUTH.ALL_RIGHTS_RESERVED' | translate }}
       </p>
-
-      <!-- <p class="support-text">
-        {{ 'AUTH.NEED_HELP' | translate }}
-        <a routerLink="/support" class="support-link">{{ 'AUTH.SUPPORT_CENTER' | translate }}</a>
-      </p> -->
     </div>
+
   </div>
 </footer>

@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../../core/services/auth';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LanguageService } from '../../../../core/services/language';
+import { LucideAngularModule, Lock, AlertCircle, CheckCircle } from 'lucide-angular';
 
 // Shared
 import { AuthLayoutComponent } from '../../components/auth-layout/auth-layout.component';
@@ -39,12 +40,14 @@ const passwordMatchValidator: ValidatorFn = (group: AbstractControl): Validation
     ReactiveFormsModule,
     RouterModule,
     TranslateModule,
+    LucideAngularModule,
     AuthLayoutComponent,
     AuthInputComponent,
     AuthButtonComponent,
     PasswordValidatorComponent
   ],
-  templateUrl: './reset-password.page.html'
+  templateUrl: './reset-password.page.html',
+  styleUrls: ['./reset-password.page.scss']
 })
 export class ResetPasswordPage implements OnInit {
   private fb = inject(FormBuilder);
@@ -53,6 +56,8 @@ export class ResetPasswordPage implements OnInit {
   private route = inject(ActivatedRoute);
   public languageService = inject(LanguageService);
 
+  readonly icons = { Lock, AlertCircle, CheckCircle };
+
   resetPasswordForm!: FormGroup;
   isLoading = false;
   errorMessage: string | null = null;
@@ -60,8 +65,9 @@ export class ResetPasswordPage implements OnInit {
   token: string | null = null;
 
   ngOnInit(): void {
-    // H4 FIX: Read token from URL fragment (#token=...) so it is never sent to the server or
-    // stored in browser history. Clear the fragment from the address bar immediately.
+    // H4/H-12 FIX: Read token exclusively from the URL fragment (#token=...) so it is never
+    // sent to the server or stored in browser history/logs/Referer (RFC 3986 §3.5; CWE-598).
+    // Clear the fragment from the address bar immediately. No ?token= query fallback.
     const fragment = this.route.snapshot.fragment ?? '';
     const match = fragment.match(/(?:^|&)token=([^&]+)/);
     this.token = match ? decodeURIComponent(match[1]) : null;

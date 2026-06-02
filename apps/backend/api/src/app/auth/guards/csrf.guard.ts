@@ -1,4 +1,3 @@
-
 import {
   Injectable,
   CanActivate,
@@ -22,7 +21,6 @@ export class CsrfGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
     const method = request.method;
 
-    // Skip Safe Methods (GET, HEAD, OPTIONS)
     if (['GET', 'HEAD', 'OPTIONS'].includes(method)) {
       return true;
     }

@@ -7,6 +7,7 @@ import { Request } from 'express';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import CircuitBreaker = require('opossum');
+import { KeyManagementService } from '../../services/key-management.service';
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -30,14 +31,39 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly configService: ConfigService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @InjectRepository(Organization)
-    private readonly orgRepository: Repository<Organization>
+    private readonly orgRepository: Repository<Organization>,
+    private readonly keyManagementService: KeyManagementService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (req: Request | undefined) => req?.cookies?.access_token ?? null,
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+        (req: Request | undefined) => {
+          const cookies = req?.cookies ?? {};
+          const isProduction = configService.get('NODE_ENV') === 'production';
+          return cookies['__Host-access_token'] ??
+            (isProduction ? null : cookies['access_token']) ??
+            null;
+        },
       ]),
       ignoreExpiration: false,
-      secretOrKey: configService.getOrThrow<string>('JWT_SECRET'),
+      // H-05 FIX: Use secretOrKeyProvider to support RS256 with key ID (kid) rotation.
+      // The provider resolves the public key from the token header's kid claim, enabling
+      // key ring rotation without invalidating all active sessions (NIST SP 800-57; RFC 7515).
+      secretOrKeyProvider: async (_req: Request, rawJwt: string, done: (err: Error | null, key?: unknown) => void) => {
+        try {
+          const parts = rawJwt.split('.');
+          if (parts.length < 2) return done(new UnauthorizedException('Malformed JWT'), undefined);
+          const header = JSON.parse(Buffer.from(parts[0], 'base64url').toString('utf8'));
+          const publicKey = keyManagementService.getPublicKey(header.kid);
+          if (!publicKey) return done(new UnauthorizedException('Unknown key ID'), undefined);
+          done(null, publicKey);
+        } catch {
+          done(new UnauthorizedException('JWT key resolution failed'), undefined);
+        }
+      },
+      algorithms: ['RS256'],
+      issuer: 'virteex-api',
+      audience: 'virteex-web',
     });
 
     // Initialize Opossum Circuit Breaker

@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from './entities/user.entity/user.entity';
+import { Organization } from '../organizations/entities/organization.entity';
 import { UserCacheService } from '../auth/modules/user-cache.service';
 import { MailService } from '../mail/mail.service';
 import { RolesService } from '../roles/roles.service';
@@ -38,6 +39,7 @@ describe('UsersService', () => {
       providers: [
         UsersService,
         { provide: getRepositoryToken(User), useValue: userRepositoryMock },
+        { provide: getRepositoryToken(Organization), useValue: {} },
         { provide: UserCacheService, useValue: userCacheServiceMock },
         { provide: MailService, useValue: {} },
         { provide: RolesService, useValue: {} },

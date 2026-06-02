@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { Role } from './entities/role.entity';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
@@ -8,6 +8,7 @@ import { UserCacheService } from '../auth/modules/user-cache.service';
 import { User } from '../users/entities/user.entity/user.entity';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { hasPermission } from '@virteex/shared/util-auth';
+import { UserSecurity } from '../users/entities/user-security.entity';
 
 @Injectable()
 export class RolesService {
@@ -113,25 +114,43 @@ export class RolesService {
         if (role.isSystemRole) {
             throw new ForbiddenException('Los roles del sistema no pueden ser modificados.');
         }
+        // Privilege-escalation guard: an actor may only assign permissions they themselves hold.
         if (actor && updateRoleDto.permissions) {
             this.assertAssignablePermissions(actor, updateRoleDto.permissions);
         }
-        Object.assign(role, updateRoleDto);
 
-        const updatedRole = await this.roleRepository.save(role);
+        return await this.roleRepository.manager.transaction(async transactionalEntityManager => {
+            Object.assign(role, updateRoleDto);
+            const updatedRole = await transactionalEntityManager.save(role);
 
-        // H12 FIX: Invalidate in parallel instead of sequentially to avoid O(n) await chains
-        // for roles with large user memberships.
-        const users = await this.roleRepository.manager.getRepository(User)
-            .createQueryBuilder('user')
-            .innerJoin('user.roles', 'role')
-            .where('role.id = :roleId', { roleId: role.id })
-            .select(['user.id'])
-            .getMany();
+            // 10/10 SECURITY: When a role is updated, we must invalidate all sessions
+            // for users belonging to this role by incrementing their tokenVersion.
+            const users = await transactionalEntityManager.getRepository(User)
+                .createQueryBuilder('user')
+                .innerJoin('user.roles', 'role')
+                .where('role.id = :roleId', { roleId: role.id })
+                .select(['user.id'])
+                .getMany();
 
-        await Promise.all(users.map((u) => this.userCacheService.clearUserSession(u.id)));
+            if (users.length > 0) {
+                const userIds = users.map(u => u.id);
 
-        return updatedRole;
+                // Increment tokenVersion globally for all affected users
+                await transactionalEntityManager.getRepository(UserSecurity)
+                    .createQueryBuilder()
+                    .update()
+                    .set({ tokenVersion: () => 'token_version + 1' })
+                    .where('userId IN (:...userIds)', { userIds })
+                    .execute();
+
+                // Clear cache for each user
+                for (const userId of userIds) {
+                    await this.userCacheService.clearUserSession(userId);
+                }
+            }
+
+            return updatedRole;
+        });
     }
 
     async remove(id: string, organizationId: string): Promise<void> {

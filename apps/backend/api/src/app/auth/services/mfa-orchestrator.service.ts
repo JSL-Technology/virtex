@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
-import { randomInt } from 'crypto';
+import { randomInt, randomUUID } from 'crypto';
 
 import { User } from '../../users/entities/user.entity/user.entity';
 import { VerificationCode, VerificationType } from '../entities/verification-code.entity';
@@ -51,7 +51,7 @@ export class MfaOrchestratorService {
     const verificationCode = this.verificationCodeRepository.create({
       userId,
       code: hash,
-      payload: email,
+      target: email,
       type: VerificationType.EMAIL_VERIFY,
       expiresAt: new Date(Date.now() + AuthConfig.MFA_CODE_EXPIRATION),
     });
@@ -75,6 +75,17 @@ export class MfaOrchestratorService {
       throw new BadRequestException('Verification code expired.');
     }
 
+    // 10/10 SECURITY: Brute force protection for OTP
+    record.attempts += 1;
+    record.lastAttemptAt = new Date();
+
+    if (record.attempts > 5) {
+        await this.verificationCodeRepository.delete(record.id);
+        throw new BadRequestException('Too many attempts. Please request a new code.');
+    }
+
+    await this.verificationCodeRepository.save(record);
+
     const isValid = await argon2.verify(record.code, code);
     if (!isValid) {
       throw new BadRequestException('Invalid verification code.');
@@ -94,7 +105,7 @@ export class MfaOrchestratorService {
     const verificationCode = this.verificationCodeRepository.create({
       userId,
       code: hash,
-      payload: phoneNumber, // Bind code to specific phone number
+      target: phoneNumber, // Bind code to specific phone number
       type: VerificationType.PHONE_VERIFY,
       expiresAt: new Date(Date.now() + AuthConfig.MFA_CODE_EXPIRATION),
     });
@@ -118,9 +129,18 @@ export class MfaOrchestratorService {
       throw new BadRequestException('Verification code expired.');
     }
 
-    // Security: Check if phone number matches the one the code was sent to
-    if (record.payload && record.payload !== phoneNumber) {
-        throw new BadRequestException('Invalid phone number for this verification code.');
+    // Brute-force protection — mirrors verifyEmailOtp (CWE-307, NIST SP 800-63B §5.2.2)
+    record.attempts += 1;
+    record.lastAttemptAt = new Date();
+    if (record.attempts > 5) {
+      await this.verificationCodeRepository.delete(record.id);
+      throw new BadRequestException('Too many attempts. Please request a new code.');
+    }
+    await this.verificationCodeRepository.save(record);
+
+    // Validate that the OTP was issued for this specific phone number (stored in `target`)
+    if (record.target && record.target !== phoneNumber) {
+      throw new BadRequestException('Invalid phone number for this verification code.');
     }
 
     const isValid = await argon2.verify(record.code, code);
@@ -154,6 +174,126 @@ export class MfaOrchestratorService {
       if (user.phone) {
           await this.smsProvider.send(user.phone, `Your Login Code: ${code}`);
       }
+  }
+
+  async sendPublicVerification(target: string, type: VerificationType) {
+    const code = randomInt(100000, 999999).toString();
+    const hash = await argon2.hash(code);
+
+    await this.verificationCodeRepository.delete({ target, type });
+
+    let magicLinkNonce: string | undefined;
+    if (type === VerificationType.EMAIL_VERIFY) {
+      magicLinkNonce = randomUUID();
+    }
+
+    const verificationCode = this.verificationCodeRepository.create({
+      target,
+      code: hash,
+      type,
+      payload: magicLinkNonce,
+      expiresAt: new Date(Date.now() + AuthConfig.MFA_CODE_EXPIRATION),
+    });
+
+    await this.verificationCodeRepository.save(verificationCode);
+
+    if (type === VerificationType.EMAIL_VERIFY) {
+      const magicLinkToken = this.jwtService.sign(
+        { email: target, nonce: magicLinkNonce, type: 'reg_email_magic_link' },
+        {
+          secret: this.configService.getOrThrow('JWT_SECRET'),
+          expiresIn: '15m',
+        },
+      );
+      const frontendUrl = this.configService.get<string>('FRONTEND_URL', 'http://localhost:4200');
+      const magicLinkUrl = `${frontendUrl}/es/auth/register?email_token=${encodeURIComponent(magicLinkToken)}`;
+      const expiresMinutes = Math.round(AuthConfig.MFA_CODE_EXPIRATION / 60000);
+      await this.mailService.sendRegistrationEmailVerification(target, code, 'Usuario', magicLinkUrl, expiresMinutes);
+    } else if (type === VerificationType.PHONE_VERIFY) {
+      await this.smsProvider.send(target, `Your verification code is: ${code}`);
+    }
+  }
+
+  async verifyPublicCode(target: string, type: VerificationType, code: string) {
+    const record = await this.verificationCodeRepository.findOne({
+      where: { target, type },
+    });
+
+    if (!record) {
+      throw new BadRequestException('No verification code found or expired.');
+    }
+
+    if (new Date() > record.expiresAt) {
+      await this.verificationCodeRepository.delete(record.id);
+      throw new BadRequestException('Verification code expired.');
+    }
+
+    // Brute force protection
+    record.attempts += 1;
+    record.lastAttemptAt = new Date();
+    if (record.attempts > 5) {
+      await this.verificationCodeRepository.delete(record.id);
+      throw new BadRequestException('Too many attempts. Please request a new code.');
+    }
+    await this.verificationCodeRepository.save(record);
+
+    const isValid = await argon2.verify(record.code, code);
+    if (!isValid) {
+      throw new BadRequestException('Invalid verification code.');
+    }
+
+    await this.verificationCodeRepository.delete(record.id);
+
+    // Key separation: pre-verification tokens use their own secret (NIST SP 800-57 §5.2, CWE-321)
+    const preVerifiedToken = this.jwtService.sign(
+      { sub: target, verType: type, type: 'VERIFICATION_PRE_VERIFIED' },
+      { secret: AuthConfig.JWT_PREVERIFY_SECRET, expiresIn: '30m' },
+    );
+
+    return { message: 'Verified successfully.', preVerifiedToken };
+  }
+
+  async confirmEmailMagicLink(token: string): Promise<{ preVerifiedToken: string }> {
+    let payload: { email: string; nonce: string; type: string };
+
+    try {
+      payload = this.jwtService.verify(token, {
+        secret: this.configService.getOrThrow('JWT_SECRET'),
+      });
+    } catch {
+      throw new BadRequestException('El enlace de verificación ha expirado o no es válido.');
+    }
+
+    if (payload.type !== 'reg_email_magic_link') {
+      throw new BadRequestException('Tipo de token inválido.');
+    }
+
+    const record = await this.verificationCodeRepository.findOne({
+      where: { target: payload.email, type: VerificationType.EMAIL_VERIFY },
+    });
+
+    if (!record) {
+      throw new BadRequestException('El enlace de verificación ya fue usado o ha expirado.');
+    }
+
+    if (new Date() > record.expiresAt) {
+      await this.verificationCodeRepository.delete(record.id);
+      throw new BadRequestException('El enlace de verificación ha expirado.');
+    }
+
+    if (record.payload !== payload.nonce) {
+      throw new BadRequestException('El enlace de verificación no es válido.');
+    }
+
+    await this.verificationCodeRepository.delete(record.id);
+
+    // Key separation: pre-verification tokens use their own secret (NIST SP 800-57 §5.2, CWE-321)
+    const preVerifiedToken = this.jwtService.sign(
+      { sub: payload.email, verType: VerificationType.EMAIL_VERIFY, type: 'VERIFICATION_PRE_VERIFIED' },
+      { secret: AuthConfig.JWT_PREVERIFY_SECRET, expiresIn: '30m' },
+    );
+
+    return { preVerifiedToken };
   }
 
   async complete2faLogin(user: User, code: string, ipAddress?: string, userAgent?: string) {
@@ -194,6 +334,9 @@ export class MfaOrchestratorService {
        await this.userSecurityRepository.save(user.security);
     }
 
+    // H-13 FIX: Minimize PII in audit payloads. Store userId as primary identifier;
+    // use hashed email (not plain-text) and truncated UA to reduce exposure in logs
+    // (OWASP Logging Cheat Sheet; GDPR data minimization; CWE-532).
     await this.auditService.record(
         user.id,
         'User',

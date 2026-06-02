@@ -3,6 +3,7 @@ import { Controller, Get, Query, Head, NotFoundException, BadRequestException } 
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { UsersService } from '../../users/users.service';
 import { OrganizationsService } from '../../organizations/organizations.service';
+import { Public } from '../../auth/decorators/public.decorator';
 
 @ApiTags('Common')
 @Controller('common')
@@ -13,6 +14,7 @@ export class CommonController {
   ) {}
 
   @Head('users/exists')
+  @Public()
   @ApiOperation({ summary: 'Check if user email exists' })
   @ApiQuery({ name: 'email', required: true })
   @ApiResponse({ status: 200, description: 'User exists' })
@@ -25,6 +27,7 @@ export class CommonController {
   }
 
   @Head('organizations/exists')
+  @Public()
   @ApiOperation({ summary: 'Check if organization tax ID exists' })
   @ApiQuery({ name: 'taxId', required: true })
   @ApiResponse({ status: 200, description: 'Organization exists' })

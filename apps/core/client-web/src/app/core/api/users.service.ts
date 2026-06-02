@@ -97,10 +97,9 @@ export class UsersService {
     return this.http.post<User>(`${this.apiUrl}/invite`, userData);
   }
 
-  setUserStatus(userId: string, isOnline: boolean): Observable<User> {
-      // Corregido: PUT y propiedad isOnline para coincidir con el backend
-      return this.http.put<User>(`${this.apiUrl}/${userId}/status`, {
-        isOnline,
+  setUserStatus(userId: string, status: string): Observable<User> {
+      return this.http.patch<User>(`${this.apiUrl}/${userId}/status`, {
+        status,
       });
   }
 

@@ -11,7 +11,7 @@ import {
   generateAuthenticationOptions,
   verifyAuthenticationResponse,
 } from '@simplewebauthn/server';
-import { User } from '../../users/entities/user.entity/user.entity';
+import { User, UserStatus } from '../../users/entities/user.entity/user.entity';
 import { Passkey } from '../../users/entities/passkey.entity';
 import * as crypto from 'crypto';
 
@@ -152,11 +152,20 @@ export class WebAuthnService {
       const { authenticationInfo } = verification;
       const { newCounter } = authenticationInfo;
 
+      const freshUser = await this.userRepository.findOne({
+        where: { id: passkey.userId },
+        relations: ['roles', 'security'],
+      });
+
+      if (!freshUser || freshUser.status !== UserStatus.ACTIVE) {
+        throw new UnauthorizedException('Usuario inactivo o bloqueado.');
+      }
+
       passkey.counter = newCounter;
       await this.passkeyRepository.save(passkey);
       await this.cacheManager.del(challengeId);
 
-      return { verified: true, user: passkey.user };
+      return { verified: true, user: freshUser };
     }
 
     throw new UnauthorizedException('Verification failed');

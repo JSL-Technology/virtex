@@ -21,6 +21,10 @@ export class AuditLog {
   userId: string;
 
   @Index()
+  @Column({ name: 'organization_id', type: 'uuid', nullable: true, updatable: false })
+  organizationId?: string | null;
+
+  @Index()
   @Column({ updatable: false })
   entity: string;
 

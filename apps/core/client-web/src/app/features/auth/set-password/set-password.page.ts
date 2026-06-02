@@ -6,6 +6,7 @@ import { AuthService } from '../../../core/services/auth';
 import { TranslateModule } from '@ngx-translate/core';
 import { ReCaptchaV3Service, RecaptchaV3Module, RECAPTCHA_V3_SITE_KEY } from 'ng-recaptcha-19';
 import { environment } from '../../../../environments/environment';
+import { LucideAngularModule, Lock, AlertCircle } from 'lucide-angular';
 
 // Shared
 import { AuthLayoutComponent } from '../components/auth-layout/auth-layout.component';
@@ -36,6 +37,7 @@ const passwordMatchValidator: ValidatorFn = (group: AbstractControl): Validation
     RouterModule,
     TranslateModule,
     RecaptchaV3Module,
+    LucideAngularModule,
     AuthLayoutComponent,
     AuthInputComponent,
     AuthButtonComponent,
@@ -45,7 +47,8 @@ const passwordMatchValidator: ValidatorFn = (group: AbstractControl): Validation
     ReCaptchaV3Service,
     { provide: RECAPTCHA_V3_SITE_KEY, useValue: environment.recaptcha.siteKey }
   ],
-  templateUrl: './set-password.page.html'
+  templateUrl: './set-password.page.html',
+  styleUrls: ['./set-password.page.scss']
 })
 export class SetPasswordPage implements OnInit {
   private fb = inject(FormBuilder);
@@ -54,13 +57,22 @@ export class SetPasswordPage implements OnInit {
   private authService = inject(AuthService);
   private recaptchaV3Service = inject(ReCaptchaV3Service);
 
+  readonly icons = { Lock, AlertCircle };
+
   setPasswordForm!: FormGroup;
   isLoading = false;
   errorMessage: string | null = null;
   token: string | null = null;
 
   ngOnInit(): void {
-    this.token = this.route.snapshot.queryParamMap.get('token');
+    // H-02 FIX: Read invitation token from URL fragment (#token=...) — fragments are
+    // never sent to the server or logged by reverse proxies (RFC 3986 §3.5; CWE-598).
+    const hash = window.location.hash;
+    this.token = hash.startsWith('#token=') ? decodeURIComponent(hash.slice('#token='.length)) : null;
+
+    if (this.token) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
     
     this.setPasswordForm = this.fb.group({
       passwordGroup: this.fb.group({

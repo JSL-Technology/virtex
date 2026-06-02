@@ -3,7 +3,7 @@ import {
   Injectable,
   UnauthorizedException,
   Logger,
-  Inject
+  Inject,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -34,6 +34,9 @@ export type LoginResult = LoginResultDto;
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
 
+  private static readonly PENDING_TTL_MS = 5 * 60 * 1000; // 5 minutes
+  private static readonly PENDING_MAX_ATTEMPTS = 5;
+
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
@@ -44,13 +47,8 @@ export class AuthService {
     private readonly mfaOrchestratorService: MfaOrchestratorService,
     private readonly passwordService: PasswordService,
     private readonly eventEmitter: EventEmitter2,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
-
-  // L-11: cache key namespace for one-time 2FA temp-token identifiers (jti).
-  private twoFactorTempKey(jti: string): string {
-    return `2fa_temp:${jti}`;
-  }
 
   async login(loginUserDto: LoginUserDto & { twoFactorCode?: string }, ipAddress?: string, userAgent?: string): Promise<LoginResult> {
     const { email, password, twoFactorCode, rememberMe } = loginUserDto;
@@ -100,20 +98,10 @@ export class AuthService {
     // 2FA Check
     if (user.security && user.security.isTwoFactorEnabled) {
       if (!twoFactorCode) {
-         // Ensure expiration is an integer string in seconds for safety and clarity
-         const expirationSeconds = Math.floor(AuthConfig.MFA_CODE_EXPIRATION / 1000);
-         // L-11 FIX: bind a single-use jti to the temp token and register it in the cache with
-         // a matching TTL. The token is consumed on the first verify-2fa attempt, preventing
-         // replay within the (≈5 min) validity window.
-         const jti = crypto.randomUUID();
-         const tempToken = this.jwtService.sign(
-            { id: user.id, type: '2fa_pending', tokenVersion: user.security.tokenVersion, jti },
-            {
-              expiresIn: `${expirationSeconds}s`,
-              secret: AuthConfig.JWT_2FA_TEMP_SECRET
-            }
-         );
-         await this.cacheManager.set(this.twoFactorTempKey(jti), user.id, AuthConfig.MFA_CODE_EXPIRATION);
+         // H-03 FIX: Store pending 2FA state server-side in cache; never return a bearer
+         // tempToken to JavaScript. The pendingId is delivered only via an httpOnly cookie,
+         // eliminating XSS-based session-hijacking (OWASP MFA Cheat Sheet; OWASP ASVS 2.8/3.4; CWE-922).
+         const pendingId = await this.create2faPendingSession(user, ipAddress, userAgent);
 
          if (user.isPhoneVerified && user.phone) {
              await this.mfaOrchestratorService.sendLoginOtp(user);
@@ -121,7 +109,7 @@ export class AuthService {
 
          return {
             require2fa: true,
-            tempToken,
+            pendingId,
             message: '2FA verification required'
          };
       }
@@ -197,44 +185,82 @@ export class AuthService {
     return this.sessionService.verifyUserFromToken(token);
   }
 
-  async verify2faTempToken(token: string): Promise<User | null> {
-      try {
-          const payload = this.jwtService.verify(token, {
-              secret: AuthConfig.JWT_2FA_TEMP_SECRET
-          });
+  async create2faPendingSession(user: User, ipAddress?: string, userAgent?: string): Promise<string> {
+    const pendingId = crypto.randomUUID();
+    const ipHash = ipAddress
+      ? crypto.createHash('sha256').update(ipAddress).digest('hex').slice(0, 16)
+      : 'unknown';
+    const uaHash = userAgent
+      ? crypto.createHash('sha256').update(userAgent).digest('hex').slice(0, 16)
+      : 'unknown';
 
-          if (payload.type !== '2fa_pending') {
-              throw new UnauthorizedException('Invalid token type');
-          }
+    await this.cacheManager.set(
+      `2fa_pending:${pendingId}`,
+      {
+        userId: user.id,
+        tokenVersion: user.security?.tokenVersion ?? 0,
+        ipHash,
+        uaHash,
+        attempts: 0,
+        expiresAt: Date.now() + AuthService.PENDING_TTL_MS,
+      },
+      AuthService.PENDING_TTL_MS,
+    );
+    return pendingId;
+  }
 
-          // L-11 FIX: enforce single-use. The jti must still be present in the cache; consume
-          // it atomically so the temp token cannot be replayed (success or failure).
-          if (!payload.jti) {
-              throw new UnauthorizedException('Invalid 2FA session token');
-          }
-          const cacheKey = this.twoFactorTempKey(payload.jti);
-          const stored = await this.cacheManager.get<string>(cacheKey);
-          if (!stored || stored !== payload.id) {
-              throw new UnauthorizedException('2FA session token already used or expired');
-          }
-          await this.cacheManager.del(cacheKey);
+  async consume2faPendingSession(
+    pendingId: string,
+    ipAddress?: string,
+    userAgent?: string,
+  ): Promise<User> {
+    const key = `2fa_pending:${pendingId}`;
+    const session = await this.cacheManager.get<{
+      userId: string;
+      tokenVersion: number;
+      ipHash: string;
+      uaHash: string;
+      attempts: number;
+      expiresAt: number;
+    }>(key);
 
-          const user = await this.usersService.findUserByIdForAuth(payload.id);
-          if (!user || !user.security) return null;
+    if (!session || Date.now() > session.expiresAt) {
+      throw new UnauthorizedException('Invalid or expired 2FA session');
+    }
 
-          if (user.security.tokenVersion !== payload.tokenVersion) {
-              return null;
-          }
+    if (session.attempts >= AuthService.PENDING_MAX_ATTEMPTS) {
+      await this.cacheManager.del(key);
+      throw new UnauthorizedException('Too many 2FA attempts — please log in again');
+    }
 
-          return user;
-      } catch (e) {
-          throw new UnauthorizedException('Invalid or expired 2FA session token');
-      }
+    const currentIpHash = ipAddress
+      ? crypto.createHash('sha256').update(ipAddress).digest('hex').slice(0, 16)
+      : 'unknown';
+
+    if (session.ipHash !== 'unknown' && currentIpHash !== 'unknown' && session.ipHash !== currentIpHash) {
+      this.logger.warn(`[SECURITY] 2FA pending session IP mismatch. Invalidating session.`);
+      await this.cacheManager.del(key);
+      throw new UnauthorizedException('Session context changed — please log in again');
+    }
+
+    const user = await this.usersService.findUserByIdForAuth(session.userId);
+    if (!user || !user.security) {
+      await this.cacheManager.del(key);
+      throw new UnauthorizedException('User not found');
+    }
+
+    if ((user.security.tokenVersion ?? 0) !== session.tokenVersion) {
+      await this.cacheManager.del(key);
+      throw new UnauthorizedException('Session invalidated — please log in again');
+    }
+
+    // Consume the session (single-use)
+    await this.cacheManager.del(key);
+    return user;
   }
 
   async changePassword(userId: string, currentPass: string, newPass: string): Promise<void> {
-      const user = await this.usersService.findOne(userId); // ensure loaded with security if possible, or use findUserByIdForAuth
-      const userWithSec = await this.usersService.findUserByIdForAuth(userId); // To get passwordHash
+      const userWithSec = await this.usersService.findUserByIdForAuth(userId);
 
       if (!userWithSec?.security?.passwordHash) {
           throw new AuthException(AuthError.INVALID_CREDENTIALS, 400, 'User has no password set (Social Login?)');
@@ -250,6 +276,8 @@ export class AuthService {
       userWithSec.security.tokenVersion = (userWithSec.security.tokenVersion || 0) + 1; // Invalidate other sessions
 
       await this.usersService.save(userWithSec);
-      await this.sessionService.terminateOtherSessions(userId, ''); // Optionally kill other sessions
+      // Revoke ALL sessions on password change — the tokenVersion bump above already invalidates
+      // all JWTs; this also removes the refresh tokens from the DB (NIST SP 800-63B §7.1).
+      await this.sessionService.terminateAllSessions(userId);
   }
 }

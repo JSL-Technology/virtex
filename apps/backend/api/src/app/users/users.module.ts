@@ -11,6 +11,9 @@ import { RolesModule } from '../roles/roles.module';
 import { UserSubscriber } from './subscribers/user.subscriber';
 import { UserCacheModule } from '../auth/modules/user-cache.module';
 import { StorageModule } from '../storage/storage.module';
+import { AuthModule } from '../auth/auth.module';
+import { TwoFactorVerifiedGuard } from '../auth/guards/two-factor-verified.guard';
+import { PasswordService } from '../auth/services/password.service';
 
 @Module({
   imports: [
@@ -19,10 +22,11 @@ import { StorageModule } from '../storage/storage.module';
     MailModule,
     UserCacheModule,
     StorageModule,
+    forwardRef(() => AuthModule),
   ],
 
   controllers: [UsersController],
-  providers: [UsersService, UserSubscriber],
+  providers: [UsersService, UserSubscriber, TwoFactorVerifiedGuard, PasswordService],
   exports: [UsersService, TypeOrmModule],
 })
 export class UsersModule {}

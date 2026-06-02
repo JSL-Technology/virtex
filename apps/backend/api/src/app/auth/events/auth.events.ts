@@ -1,5 +1,6 @@
 
 import { Injectable, Logger } from '@nestjs/common';
+import { createHash } from 'crypto';
 import { OnEvent } from '@nestjs/event-emitter';
 import { AuditTrailService } from '../../audit/audit.service';
 import { ActionType } from '../../audit/entities/audit-log.entity';
@@ -61,42 +62,6 @@ export class AuthSubscriber {
 
     constructor(private readonly auditService: AuditTrailService) {}
 
-    @OnEvent(AuthEvents.LOGIN_SUCCESS)
-    async handleLoginSuccess(payload: AuthLoginSuccessEvent) {
-        await this.auditService.record(
-            payload.userId,
-            'User',
-            payload.userId,
-            ActionType.LOGIN,
-            {
-                email: payload.email,
-                ipAddress: payload.ipAddress,
-                userAgent: payload.userAgent,
-                correlationId: payload.correlationId
-            },
-            undefined
-        );
-        this.logger.log(`[${payload.correlationId || 'NO-TRACE'}] User ${payload.email} logged in from ${payload.ipAddress}`);
-    }
-
-    @OnEvent(AuthEvents.LOGIN_FAILED)
-    async handleLoginFailed(payload: AuthLoginFailedEvent) {
-        await this.auditService.record(
-            payload.userId,
-            'User',
-            payload.userId,
-            ActionType.LOGIN_FAILED,
-            {
-                email: payload.email,
-                reason: payload.reason,
-                ipAddress: payload.ipAddress,
-                correlationId: payload.correlationId
-            },
-            undefined
-        );
-        this.logger.warn(`[${payload.correlationId || 'NO-TRACE'}] Login failed for ${payload.email}: ${payload.reason}`);
-    }
-
     @OnEvent(AuthEvents.IMPERSONATE)
     async handleImpersonate(payload: AuthImpersonateEvent) {
         await this.auditService.record(
@@ -105,8 +70,8 @@ export class AuthSubscriber {
             payload.targetUserId,
             ActionType.IMPERSONATE,
             {
-                targetUserEmail: payload.targetUserEmail,
-                adminEmail: payload.adminEmail
+                targetEmailHash: createHash('sha256').update(payload.targetUserEmail ?? '').digest('hex').slice(0, 16),
+                adminEmailHash: createHash('sha256').update(payload.adminEmail ?? '').digest('hex').slice(0, 16),
             },
             undefined
         );
