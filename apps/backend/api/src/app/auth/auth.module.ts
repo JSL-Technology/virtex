@@ -24,16 +24,22 @@ import { CookieService } from './services/cookie.service';
 import { SessionService } from './services/session.service';
 import { SecurityAnalysisService } from './services/security-analysis.service';
 import { TokenService } from './services/token.service';
-import { GoogleStrategy } from './strategies/google.strategy';
-import { MicrosoftStrategy } from './strategies/microsoft.strategy';
-import { OktaStrategy } from './strategies/okta.strategy';
+import { OauthStateService } from './services/oauth-state.service';
+import { OidcProviderService } from './services/oidc-provider.service';
+import { EnterpriseSsoService } from './services/enterprise-sso.service';
+import { SecretEncryptionService } from './services/secret-encryption.service';
+import { SsoAdminService } from './services/sso-admin.service';
+import { SsoAdminController } from './sso-admin.controller';
 
 import { RefreshToken } from './entities/refresh-token.entity';
 import { VerificationCode } from './entities/verification-code.entity';
+import { IdentityProvider } from './entities/identity-provider.entity';
 import { Organization } from '../organizations/entities/organization.entity';
+import { OrganizationDomain } from '../organizations/entities/organization-domain.entity';
 import { User } from '../users/entities/user.entity/user.entity';
 import { UserSecurity } from '../users/entities/user-security.entity';
 import { Passkey } from '../users/entities/passkey.entity';
+import { Role } from '../roles/entities/role.entity';
 import { MailModule } from '../mail/mail.module';
 import { LocalizationModule } from '../localization/localization.module';
 import { AuditModule } from '../audit/audit.module';
@@ -66,7 +72,17 @@ import { KeyManagementService } from './services/key-management.service';
     GeoModule,
     forwardRef(() => UsersModule),
     UserCacheModule,
-    TypeOrmModule.forFeature([RefreshToken, Organization, VerificationCode, User, UserSecurity, Passkey]),
+    TypeOrmModule.forFeature([
+      RefreshToken,
+      Organization,
+      VerificationCode,
+      User,
+      UserSecurity,
+      Passkey,
+      IdentityProvider,
+      OrganizationDomain,
+      Role,
+    ]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -123,7 +139,7 @@ import { KeyManagementService } from './services/key-management.service';
     LocalizationModule,
     PaymentModule,
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, SsoAdminController],
   providers: [
     AuthService,
     AuthFacade,
@@ -138,9 +154,11 @@ import { KeyManagementService } from './services/key-management.service';
     SecurityAnalysisService,
     TokenService,
     GoogleRecaptchaGuard,
-    GoogleStrategy,
-    MicrosoftStrategy,
-    OktaStrategy,
+    OauthStateService,
+    OidcProviderService,
+    EnterpriseSsoService,
+    SecretEncryptionService,
+    SsoAdminService,
     SocialAuthService,
     MfaOrchestratorService,
     PasswordService,

@@ -1,5 +1,5 @@
 
-import { Controller, Post, Body, HttpCode, HttpStatus, Res, Get, UseGuards, Req, UsePipes, ValidationPipe, BadRequestException, UnauthorizedException, Param, Ip, Headers, UseFilters, Header } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Res, Get, UseGuards, Req, UsePipes, ValidationPipe, BadRequestException, UnauthorizedException, ConflictException, Param, Ip, Headers, UseFilters, Header } from '@nestjs/common';
 import type { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { AuthFacade } from './auth.facade';
@@ -13,7 +13,6 @@ import { RegisterUserDto } from './dto/register-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { JwtAuthGuard } from './guards/jwt/jwt.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
-import { SocialUserDecorator } from './decorators/social-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { Throttle } from '@nestjs/throttler';
 import { GoogleRecaptchaGuard } from '@nestlab/google-recaptcha';
@@ -56,13 +55,16 @@ import { AuthResponseDto } from './dto/auth-response.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { LoginResponseDto } from './dto/responses/login-response.dto';
 import { plainToInstance } from 'class-transformer';
-import { AuthGuard } from '@nestjs/passport';
 import { EnableTwoFactorDto } from './dto/enable-2fa.dto';
 import { CsrfGuard } from './guards/csrf.guard';
 import { PermissionsGuard } from './guards/permissions/permissions.guard';
 import { HasPermission } from './decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { MfaOrchestratorService } from './services/mfa-orchestrator.service';
+import { OauthStateService } from './services/oauth-state.service';
+import { OidcProviderService } from './services/oidc-provider.service';
+import { EnterpriseSsoService } from './services/enterprise-sso.service';
+import { SsoDiscoverDto } from './dto/sso-discover.dto';
 import { JwtService } from '@nestjs/jwt';
 import { TwoFactorVerifiedGuard } from './guards/two-factor-verified.guard';
 import { Public } from './decorators/public.decorator';
@@ -83,51 +85,110 @@ export class AuthController {
     private readonly configService: ConfigService,
     private readonly cookieService: CookieService,
     private readonly mfaOrchestratorService: MfaOrchestratorService,
+    private readonly oauthStateService: OauthStateService,
+    private readonly oidcProviderService: OidcProviderService,
+    private readonly enterpriseSsoService: EnterpriseSsoService,
     private readonly jwtService: JwtService,
     private readonly paymentService: PaymentService,
     private readonly saasService: SaasService
   ) {}
 
+  // ------------------------------------------------------------------
+  // Social login (Google / Microsoft) — OIDC, stateless handshake.
+  //
+  // The flow is implemented directly with openid-client + a signed/encrypted
+  // transaction cookie (state + nonce + PKCE), NOT Passport. The app runs on Fastify
+  // with no server session, so Passport's session-backed `state` cannot work here.
+  // Each provider verifies the email once; the existing IAM then issues its own tokens.
+  // ------------------------------------------------------------------
+
   @Public()
   @Get('google')
-  @Public()
-  @UseGuards(AuthGuard('google'))
-  async googleAuth(@Req() req: Request) {}
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  async googleAuth(@Res() res: Response) {
+    return this.startSocialLogin('google', res);
+  }
 
   @Public()
   @Get('google/callback')
-  @Public()
-  @UseGuards(AuthGuard('google'))
-  async googleAuthRedirect(@SocialUserDecorator() socialUser: SocialUser, @Res() res: Response) {
-      await this.handleSocialCallback(socialUser, res);
+  async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
+    return this.handleSocialLoginCallback('google', req, res);
   }
 
   @Public()
   @Get('microsoft')
-  @Public()
-  @UseGuards(AuthGuard('microsoft'))
-  async microsoftAuth(@Req() req: Request) {}
-
-  @Public()
-  @Get('microsoft/callback')
-  @Public()
-  @UseGuards(AuthGuard('microsoft'))
-  async microsoftAuthRedirect(@SocialUserDecorator() socialUser: SocialUser, @Res() res: Response) {
-      await this.handleSocialCallback(socialUser, res);
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  async microsoftAuth(@Res() res: Response) {
+    return this.startSocialLogin('microsoft', res);
   }
 
   @Public()
-  @Get('okta')
-  @Public()
-  @UseGuards(AuthGuard('okta'))
-  async oktaAuth(@Req() req: Request) {}
+  @Get('microsoft/callback')
+  async microsoftAuthRedirect(@Req() req: Request, @Res() res: Response) {
+    return this.handleSocialLoginCallback('microsoft', req, res);
+  }
 
-  @Public()
-  @Get('okta/callback')
-  @Public()
-  @UseGuards(AuthGuard('okta'))
-  async oktaAuthRedirect(@SocialUserDecorator() socialUser: SocialUser, @Res() res: Response) {
-      await this.handleSocialCallback(socialUser, res);
+  /** Begin a social login: build the IdP authorization URL and set the transaction cookie. */
+  private async startSocialLogin(provider: string, res: Response) {
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL');
+    if (!this.oidcProviderService.isProviderConfigured(provider)) {
+      return res.redirect(`${frontendUrl}/auth/login?error=provider_unavailable`);
+    }
+    const config = this.oidcProviderService.getProviderConfig(provider);
+    const tx = this.oauthStateService.createTransaction(provider);
+    const codeChallenge = this.oauthStateService.codeChallengeS256(tx.codeVerifier);
+    const authorizationUrl = await this.oidcProviderService.buildAuthorizationUrl(config, {
+      state: tx.state,
+      nonce: tx.nonce,
+      codeChallenge,
+    });
+    this.oauthStateService.setTransactionCookie(res, tx);
+    return res.redirect(authorizationUrl);
+  }
+
+  /** Handle the IdP redirect: validate state, exchange code, validate id_token, sign in. */
+  private async handleSocialLoginCallback(provider: string, req: Request, res: Response) {
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL');
+    try {
+      const query = (req.query ?? {}) as Record<string, string>;
+      if (query.error) {
+        throw new UnauthorizedException(query.error_description || query.error);
+      }
+
+      const tx = this.oauthStateService.readTransaction(req);
+      if (tx.flow !== provider) {
+        throw new BadRequestException('OAuth flow mismatch.');
+      }
+      this.oauthStateService.verifyState(tx.state, query.state);
+
+      if (!query.code) {
+        throw new BadRequestException('Missing authorization code.');
+      }
+
+      const config = this.oidcProviderService.getProviderConfig(provider);
+      const { claims, accessToken } = await this.oidcProviderService.exchangeAndValidate(config, {
+        code: query.code,
+        codeVerifier: tx.codeVerifier,
+        expectedNonce: tx.nonce,
+      });
+
+      const socialUser = this.oidcProviderService.mapClaimsToSocialUser(provider, claims, accessToken);
+      this.oauthStateService.clearTransactionCookie(res);
+      return await this.handleSocialCallback(socialUser, res);
+    } catch (err) {
+      this.oauthStateService.clearTransactionCookie(res);
+      const code = this.mapSocialErrorToCode(err);
+      return res.redirect(`${frontendUrl}/auth/login?error=${code}`);
+    }
+  }
+
+  /** Translate an internal exception into a safe, non-leaky frontend error code. */
+  private mapSocialErrorToCode(err: unknown): string {
+    const message = err instanceof Error ? err.message : '';
+    if (err instanceof ConflictException) return 'account_exists';
+    if (/no ha verificado tu correo|email.*not.*verified/i.test(message)) return 'email_not_verified';
+    if (/inactivo|blocked|inactive/i.test(message)) return 'account_inactive';
+    return 'oauth_failed';
   }
 
   private async handleSocialCallback(socialUser: SocialUser, res: Response) {
@@ -148,6 +209,98 @@ export class AuthController {
     // Login successful
     this.cookieService.setAuthCookies(res, tokens.accessToken, tokens.refreshToken);
     return res.redirect(`${frontendUrl}/dashboard`);
+  }
+
+  // ------------------------------------------------------------------
+  // Enterprise SSO (per-tenant OIDC) — Home Realm Discovery + handshake.
+  //
+  // Each customer organization configures its own IdP (Okta, Entra, Ping, ...). The user
+  // enters their work email; the server resolves the org by verified domain and routes them
+  // to that org's IdP. The app's IAM remains the source of truth (JIT provisioning + own JWT).
+  // ------------------------------------------------------------------
+
+  @Public()
+  @Post('sso/discover')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  @ApiOperation({ summary: 'Home Realm Discovery: does an SSO connection exist for this email domain?' })
+  async ssoDiscover(@Body() dto: SsoDiscoverDto) {
+    const result = await this.enterpriseSsoService.discoverByEmail(dto.email);
+    if (!result) {
+      // Do not reveal domain/tenant existence — just "no SSO here, use normal login".
+      return { ssoAvailable: false };
+    }
+    return {
+      ssoAvailable: true,
+      idpName: result.idpName,
+      startUrl: `/api/v1/auth/sso/${result.idpId}`,
+    };
+  }
+
+  @Public()
+  @Get('sso/:idpId')
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  async ssoStart(@Param('idpId') idpId: string, @Res() res: Response) {
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL');
+    try {
+      const idp = await this.enterpriseSsoService.getEnabledIdpOrThrow(idpId);
+      const config = this.enterpriseSsoService.buildConfig(idp);
+      const tx = this.oauthStateService.createTransaction(`sso:${idpId}`, idp.organizationId);
+      const codeChallenge = this.oauthStateService.codeChallengeS256(tx.codeVerifier);
+      const authorizationUrl = await this.oidcProviderService.buildAuthorizationUrl(config, {
+        state: tx.state,
+        nonce: tx.nonce,
+        codeChallenge,
+      });
+      this.oauthStateService.setTransactionCookie(res, tx);
+      return res.redirect(authorizationUrl);
+    } catch {
+      return res.redirect(`${frontendUrl}/auth/login?error=sso_unavailable`);
+    }
+  }
+
+  @Public()
+  @Get('sso/:idpId/callback')
+  async ssoCallback(
+    @Param('idpId') idpId: string,
+    @Req() req: Request,
+    @Res() res: Response,
+    @Ip() ip: string,
+    @Headers('user-agent') userAgent: string,
+  ) {
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL');
+    try {
+      const query = (req.query ?? {}) as Record<string, string>;
+      if (query.error) {
+        throw new UnauthorizedException(query.error_description || query.error);
+      }
+      const tx = this.oauthStateService.readTransaction(req);
+      if (tx.flow !== `sso:${idpId}`) {
+        throw new BadRequestException('SSO flow mismatch.');
+      }
+      this.oauthStateService.verifyState(tx.state, query.state);
+      if (!query.code) {
+        throw new BadRequestException('Missing authorization code.');
+      }
+
+      const idp = await this.enterpriseSsoService.getEnabledIdpOrThrow(idpId);
+      const config = this.enterpriseSsoService.buildConfig(idp);
+      const { claims, accessToken } = await this.oidcProviderService.exchangeAndValidate(config, {
+        code: query.code,
+        codeVerifier: tx.codeVerifier,
+        expectedNonce: tx.nonce,
+      });
+      const socialUser = this.oidcProviderService.mapClaimsToSocialUser('sso', claims, accessToken);
+      this.oauthStateService.clearTransactionCookie(res);
+
+      const { tokens } = await this.enterpriseSsoService.loginOrProvision(idp, socialUser, ip, userAgent);
+      this.cookieService.setAuthCookies(res, tokens.accessToken, tokens.refreshToken);
+      return res.redirect(`${frontendUrl}/dashboard`);
+    } catch (err) {
+      this.oauthStateService.clearTransactionCookie(res);
+      return res.redirect(`${frontendUrl}/auth/login?error=${this.mapSocialErrorToCode(err)}`);
+    }
   }
 
   @Public()

@@ -142,6 +142,13 @@ export const SETTINGS_ROUTES: Routes = [
                 canActivate: [permissionsGuard],
                 data: { permissions: ['settings:edit_company'] }
             },
+            {
+                path: 'sso',
+                title: 'Inicio de Sesión Único (SSO)',
+                loadComponent: () => import('./system/sso/sso.page').then(m => m.SsoSettingsPage),
+                canActivate: [permissionsGuard],
+                data: { permissions: ['settings:edit_company'] }
+            },
             // Legacy / Mapped
             {
                 path: 'billing',

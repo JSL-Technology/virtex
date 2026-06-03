@@ -225,6 +225,18 @@ export class AuthService {
     });
   }
 
+  /**
+   * Home Realm Discovery: ask the backend whether an enterprise SSO connection exists for the
+   * email's domain. Returns the absolute start URL to redirect the browser to when it does.
+   */
+  discoverSso(email: string): Observable<{ ssoAvailable: boolean; idpName?: string; startUrl?: string }> {
+    return this.http.post<{ ssoAvailable: boolean; idpName?: string; startUrl?: string }>(
+      `${this.apiUrl}/sso/discover`,
+      { email },
+      { context: new HttpContext().set(IS_PUBLIC_API, true) },
+    );
+  }
+
   createCheckoutSession(planId: string): Observable<{ url: string }> {
     // H-02 FIX: Send only planId. successUrl/cancelUrl are now built server-side
     // from FRONTEND_URL so the backend controls redirect destinations (CWE-601).

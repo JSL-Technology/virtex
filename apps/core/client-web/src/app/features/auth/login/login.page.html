@@ -106,6 +106,34 @@
         <app-social-auth-buttons (onLogin)="socialLogin($event)"></app-social-auth-buttons>
       </section>
 
+      <!-- Enterprise SSO: Home Realm Discovery panel -->
+      <section *ngIf="showSsoInput()" class="sso-panel" role="region" aria-label="Enterprise SSO">
+        <label class="sso-label" for="sso-email">{{ 'LOGIN.SSO.PROMPT' | translate }}</label>
+        <div class="sso-row">
+          <input
+            id="sso-email"
+            type="email"
+            class="sso-input"
+            [formControl]="ssoEmailControl"
+            [placeholder]="'LOGIN.EMAIL_PLACEHOLDER' | translate"
+            autocomplete="username"
+            (keyup.enter)="startSso()" />
+          <app-auth-button
+            type="button"
+            variant="primary"
+            size="md"
+            [loading]="ssoChecking()"
+            [disabled]="ssoEmailControl.invalid"
+            (click)="startSso()">
+            {{ 'LOGIN.SSO.CONTINUE' | translate }}
+          </app-auth-button>
+        </div>
+        <p *ngIf="ssoMessage()" class="sso-message" role="alert">{{ ssoMessage()! | translate }}</p>
+        <button type="button" class="sso-cancel" (click)="cancelSso()">
+          {{ 'LOGIN.SSO.CANCEL' | translate }}
+        </button>
+      </section>
+
       <!-- ZONE 4: Footer -->
       <footer class="form-footer">
         <p class="register-text">

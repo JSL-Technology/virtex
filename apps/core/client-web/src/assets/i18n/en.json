@@ -483,6 +483,13 @@
     "NO_ACCOUNT": "Don't have an account?",
     "REGISTER_LINK": "Sign up",
     "LOGGING_IN": "Logging in",
+    "SSO_BUTTON": "SSO",
+    "SSO": {
+        "PROMPT": "Enter your work email to continue with your company's single sign-on.",
+        "CONTINUE": "Continue",
+        "CANCEL": "Cancel",
+        "NOT_FOUND": "No single sign-on is configured for that email domain. Please use another method."
+    },
     "2FA": {
         "TITLE": "2-Step Verification",
         "SUBTITLE": "Enter the 6-digit code sent to your device.",
@@ -509,7 +516,11 @@
       "NETWORK_ERROR": "Network error. Please check your connection and try again.",
       "SERVER_ERROR": "A server error occurred. Please try again later or contact support.",
       "INVALID_CODE": "Invalid code. Please try again.",
-      "PASSKEY_ERROR": "Error signing in with passkey. Please try again or use your password."
+      "PASSKEY_ERROR": "Error signing in with passkey. Please try again or use your password.",
+      "SOCIAL_FAILED": "We couldn't complete sign-in with that provider. Please try again.",
+      "SOCIAL_ACCOUNT_EXISTS": "An account already exists for this email. Sign in with your original method, then link the provider from your profile.",
+      "SOCIAL_EMAIL_NOT_VERIFIED": "Your provider hasn't verified your email, so we can't sign you in.",
+      "SOCIAL_UNAVAILABLE": "That sign-in method is currently unavailable. Please try another."
     },
     "FOOTER": {
       "LANGUAGE_SELECTOR_LABEL": "Select language",

@@ -79,6 +79,12 @@ export class LoginPage implements OnInit {
   // The pending session ID lives only in the httpOnly cookie set by the server.
   show2faInput = signal(false);
 
+  // Enterprise SSO (Home Realm Discovery) state.
+  showSsoInput = signal(false);
+  ssoChecking = signal(false);
+  ssoMessage = signal<string | null>(null);
+  ssoEmailControl = this.fb.control('', [Validators.required, Validators.email]);
+
   @ViewChild(OtpComponent) otpComponent!: OtpComponent;
 
   ngOnInit() {
@@ -88,6 +94,14 @@ export class LoginPage implements OnInit {
       const lang = params.get('lang');
       if (lang) {
         this.languageService.setLanguage(lang);
+      }
+    });
+
+    // Social / SSO callbacks redirect back here with ?error=<code> on failure.
+    this.route.queryParamMap.subscribe(params => {
+      const error = params.get('error');
+      if (error) {
+        this.errorMessage.set(this.mapSocialErrorCode(error));
       }
     });
 
@@ -116,8 +130,67 @@ export class LoginPage implements OnInit {
   }
 
   socialLogin(provider: string) {
+    if (provider === 'sso') {
+      // Open the Home Realm Discovery panel; prefill with the email already typed, if any.
+      this.ssoMessage.set(null);
+      const typedEmail = this.loginForm?.get('email')?.value;
+      if (typedEmail) {
+        this.ssoEmailControl.setValue(typedEmail);
+      }
+      this.showSsoInput.set(true);
+      return;
+    }
     const apiUrl = `${window.location.origin}/api/v1/auth`;
     window.location.href = `${apiUrl}/${provider}`;
+  }
+
+  /** Resolve the org SSO connection for the entered email and redirect to its IdP. */
+  startSso(): void {
+    this.ssoEmailControl.markAsTouched();
+    if (this.ssoEmailControl.invalid) return;
+
+    this.ssoChecking.set(true);
+    this.ssoMessage.set(null);
+
+    this.authService.discoverSso(this.ssoEmailControl.value!).subscribe({
+      next: (res) => {
+        this.ssoChecking.set(false);
+        if (res.ssoAvailable && res.startUrl) {
+          // startUrl is a server-relative path; resolve against the current origin.
+          window.location.href = res.startUrl.startsWith('http')
+            ? res.startUrl
+            : `${window.location.origin}${res.startUrl}`;
+        } else {
+          this.ssoMessage.set('LOGIN.SSO.NOT_FOUND');
+        }
+      },
+      error: () => {
+        this.ssoChecking.set(false);
+        this.ssoMessage.set('LOGIN.SSO.NOT_FOUND');
+      },
+    });
+  }
+
+  cancelSso(): void {
+    this.showSsoInput.set(false);
+    this.ssoMessage.set(null);
+  }
+
+  /** Map a backend social/SSO error code to a translation key shown in the error banner. */
+  private mapSocialErrorCode(code: string): string {
+    switch (code) {
+      case 'account_exists':
+        return 'LOGIN.ERRORS.SOCIAL_ACCOUNT_EXISTS';
+      case 'email_not_verified':
+        return 'LOGIN.ERRORS.SOCIAL_EMAIL_NOT_VERIFIED';
+      case 'account_inactive':
+        return 'LOGIN.ERRORS.ACCOUNT_LOCKED';
+      case 'provider_unavailable':
+      case 'sso_unavailable':
+        return 'LOGIN.ERRORS.SOCIAL_UNAVAILABLE';
+      default:
+        return 'LOGIN.ERRORS.SOCIAL_FAILED';
+    }
   }
 
   onLoginWithPasskey(): void {

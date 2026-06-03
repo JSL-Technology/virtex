@@ -97,6 +97,10 @@
                         <lucide-icon [img]="SmtpIcon" size="18"></lucide-icon>
                         <span>Servidor de Correo</span>
                     </a>
+                    <a routerLink="sso" routerLinkActive="active" class="nav-link" *hasPermission="'settings:edit_company'">
+                        <lucide-icon [img]="SsoIcon" size="18"></lucide-icon>
+                        <span>Inicio de Sesión Único (SSO)</span>
+                    </a>
                 </div>
             </nav>
         </aside>

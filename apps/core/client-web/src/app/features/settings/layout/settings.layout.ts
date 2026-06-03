@@ -75,6 +75,7 @@ export class SettingsLayout implements OnInit, OnDestroy {
   protected readonly SecurityIcon = Lock;
   protected readonly IntegrationsIcon = Server;
   protected readonly SmtpIcon = Mail;
+  protected readonly SsoIcon = Shield;
 
   ngOnInit() {
     this.routerSub = this.router.events.subscribe(event => {

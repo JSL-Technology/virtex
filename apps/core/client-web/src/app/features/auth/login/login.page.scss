@@ -253,3 +253,63 @@
     gap: 1.125rem;
   }
 }
+
+/* Enterprise SSO (Home Realm Discovery) panel */
+.sso-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin-top: 0.875rem;
+  padding: 1rem;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 10px;
+  background: var(--surface-muted, #f8fafc);
+}
+
+.sso-label {
+  font-size: 0.8125rem;
+  color: var(--text-secondary, #475569);
+}
+
+.sso-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.sso-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--border, #cbd5e1);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  background: var(--surface, #fff);
+  color: var(--text-primary, #0f172a);
+}
+
+.sso-input:focus {
+  outline: none;
+  border-color: var(--primary, #4f46e5);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+.sso-message {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--danger, #dc2626);
+}
+
+.sso-cancel {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.8125rem;
+  color: var(--text-secondary, #64748b);
+  cursor: pointer;
+}
+
+.sso-cancel:hover {
+  text-decoration: underline;
+}

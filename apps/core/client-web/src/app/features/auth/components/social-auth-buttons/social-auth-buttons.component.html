@@ -13,10 +13,14 @@
     </div>
   </button>
 
-  <button (click)="loginWith('okta')" class="social-btn" aria-label="Sign in with Okta">
+  <button (click)="loginWith('sso')" class="social-btn" aria-label="Sign in with your company SSO">
     <div class="social-btn-content">
-      <img src="assets/icons/okta.svg" alt="" class="social-icon">
-      <span class="social-label">Okta</span>
+      <svg class="social-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+           xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M3 21h18M5 21V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v16M9 7h2m-2 4h2m-2 4h2m4-8h.01M15 11h.01"
+              stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="social-label">{{ 'LOGIN.SSO_BUTTON' | translate }}</span>
     </div>
   </button>
 </div>

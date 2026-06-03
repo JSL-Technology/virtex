@@ -905,6 +905,13 @@
     "NO_ACCOUNT": "¿No tienes una cuenta?",
     "REGISTER_LINK": "Regístrate",
     "LOGGING_IN": "Iniciando sesión",
+    "SSO_BUTTON": "SSO",
+    "SSO": {
+      "PROMPT": "Ingresa tu correo corporativo para continuar con el inicio de sesión único de tu empresa.",
+      "CONTINUE": "Continuar",
+      "CANCEL": "Cancelar",
+      "NOT_FOUND": "No hay inicio de sesión único configurado para ese dominio de correo. Usa otro método."
+    },
     "2FA": {
       "TITLE": "Verificación de 2 Pasos",
       "SUBTITLE": "Ingresa el código de 6 dígitos enviado a tu dispositivo.",
@@ -931,7 +938,11 @@
       "NETWORK_ERROR": "Error de red. Por favor, comprueba tu conexión e inténtalo de nuevo.",
       "SERVER_ERROR": "Ocurrió un error en el servidor. Por favor, inténtalo más tarde o contacta a soporte.",
       "INVALID_CODE": "Código incorrecto. Intenta de nuevo.",
-      "PASSKEY_ERROR": "Error al iniciar sesión con llave de acceso. Intente nuevamente o use su contraseña."
+      "PASSKEY_ERROR": "Error al iniciar sesión con llave de acceso. Intente nuevamente o use su contraseña.",
+      "SOCIAL_FAILED": "No pudimos completar el inicio de sesión con ese proveedor. Intenta de nuevo.",
+      "SOCIAL_ACCOUNT_EXISTS": "Ya existe una cuenta con este correo. Inicia sesión con tu método original y vincula el proveedor desde tu perfil.",
+      "SOCIAL_EMAIL_NOT_VERIFIED": "Tu proveedor no ha verificado tu correo, así que no podemos iniciar tu sesión.",
+      "SOCIAL_UNAVAILABLE": "Ese método de inicio de sesión no está disponible por ahora. Prueba con otro."
     },
     "FOOTER": {
       "LANGUAGE_SELECTOR_LABEL": "Seleccionar idioma",
