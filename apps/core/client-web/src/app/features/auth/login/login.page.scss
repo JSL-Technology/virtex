@@ -219,26 +219,55 @@
   }
 }
 
-/* ── 2FA View ────────────────────────────────────────── */
-.otp-wrapper {
+/* ── 2FA Modal Overlay ───────────────────────────────── */
+.tfa-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
   display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
 }
 
-.back-row {
-  text-align: center;
+.tfa-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: tfa-fade 0.2s ease;
 }
 
-.back-to-login-btn {
+.tfa-dialog {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  background: var(--bg-card);
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  box-shadow:
+    0 32px 64px rgba(0, 0, 0, 0.28),
+    0 4px 16px rgba(0, 0, 0, 0.12);
+  padding: 2rem 2rem 1.75rem;
+  animation: tfa-in 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.tfa-close {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
   background: none;
   border: none;
   color: var(--text-secondary);
-  cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 500;
-  padding: 0.5rem 0.875rem;
+  cursor: pointer;
+  padding: 0.375rem 0.5rem;
   border-radius: var(--radius-md);
+  margin-bottom: 1.25rem;
   transition: var(--transition);
   font-family: inherit;
 
@@ -246,6 +275,16 @@
     background: var(--bg-secondary);
     color: var(--text-primary);
   }
+}
+
+@keyframes tfa-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes tfa-in {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 @media (max-width: 480px) {

@@ -106,12 +106,24 @@
 <!-- Setup Modal -->
 @if (showSetupModal()) {
   <div class="modal-overlay">
-    <div class="modal-content">
+    <div class="modal-backdrop" (click)="closeSetupModal()" aria-hidden="true"></div>
+    <div class="modal-content" role="dialog" aria-modal="true">
 
       <!-- Close Button -->
-      <button (click)="closeSetupModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors z-10">
-        <lucide-icon [img]="XIcon" class="w-5 h-5"></lucide-icon>
+      <button (click)="closeSetupModal()" class="modal-close" aria-label="Cerrar">
+        <lucide-icon [img]="XIcon" size="18"></lucide-icon>
       </button>
+
+      <!-- Step indicator -->
+      <div class="modal-steps">
+        <span class="modal-step" [class.active]="currentStep() === 'INTRO'" [class.done]="['EMAIL_VERIFY','QR_SETUP','BACKUP_CODES'].includes(currentStep())">1</span>
+        <span class="modal-step-line"></span>
+        <span class="modal-step" [class.active]="currentStep() === 'EMAIL_VERIFY'" [class.done]="['QR_SETUP','BACKUP_CODES'].includes(currentStep())">2</span>
+        <span class="modal-step-line"></span>
+        <span class="modal-step" [class.active]="currentStep() === 'QR_SETUP'" [class.done]="currentStep() === 'BACKUP_CODES'">3</span>
+        <span class="modal-step-line"></span>
+        <span class="modal-step" [class.active]="currentStep() === 'BACKUP_CODES'">4</span>
+      </div>
 
       <!-- Header -->
       <div class="modal-header">
@@ -137,30 +149,24 @@
 
         <!-- STEP 0: INTRO -->
         @if (currentStep() === 'INTRO') {
-          <div class="space-y-6 text-center">
-            <div class="flex justify-center">
-              <div class="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center text-primary-500">
-                <lucide-icon [img]="ShieldIcon" class="w-8 h-8"></lucide-icon>
-              </div>
+          <div class="step-intro">
+            <div class="step-intro__icon">
+              <lucide-icon [img]="ShieldIcon" size="32"></lucide-icon>
             </div>
-
-            <div class="space-y-4">
-              <p class="text-sm text-gray-600 dark:text-gray-300">
-                {{ 'SETTINGS.SECURITY.BEFORE_CONFIG_2FA' | translate }}
-              </p>
-            </div>
-
-            <div class="flex justify-center gap-3 pt-4">
-              <button class="btn-secondary w-full" (click)="closeSetupModal()">
+            <p class="step-intro__desc">
+              {{ 'SETTINGS.SECURITY.BEFORE_CONFIG_2FA' | translate }}
+            </p>
+            <div class="step-intro__actions">
+              <button class="btn-secondary" (click)="closeSetupModal()">
                 {{ 'COMMON.CANCEL' | translate }}
               </button>
-              <button class="btn-primary w-full" (click)="proceedToEmailVerification()">
+              <button class="btn-primary" (click)="proceedToEmailVerification()">
                 {{ 'COMMON.CONTINUE' | translate }}
               </button>
             </div>
           </div>
         }
-        
+
         <!-- STEP 1: EMAIL VERIFY -->
         @if (currentStep() === 'EMAIL_VERIFY') {
            <app-otp
@@ -174,49 +180,35 @@
 
         <!-- STEP 2: QR SETUP -->
         @if (currentStep() === 'QR_SETUP') {
-            <div class="space-y-8">
-                <!-- Setup QR -->
-                <div class="space-y-4">
-                    <div class="flex items-center justify-center mb-6">
-                        <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100">
-                             <qrcode [qrdata]="qrCodeData()" [width]="160" [errorCorrectionLevel]="'M'"></qrcode>
-                        </div>
+            <div class="step-qr">
+                <div class="step-qr__code-wrap">
+                    <qrcode [qrdata]="qrCodeData()" [width]="160" [errorCorrectionLevel]="'M'"></qrcode>
+                </div>
+
+                <div class="step-qr__secret-card">
+                    <div class="step-qr__secret-text">
+                        <p class="step-qr__secret-label">{{ 'SETTINGS.SECURITY.CANT_SCAN' | translate }}</p>
+                        <p class="step-qr__secret-hint">{{ 'SETTINGS.SECURITY.ENTER_SECRET' | translate }}</p>
                     </div>
-
-                    <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
-                         <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-                             <div class="text-center sm:text-left">
-                                 <h4 class="text-sm font-medium mb-1 text-gray-900 dark:text-white">{{ 'SETTINGS.SECURITY.CANT_SCAN' | translate }}</h4>
-                                 <p class="text-xs text-gray-500">{{ 'SETTINGS.SECURITY.ENTER_SECRET' | translate }}</p>
-                             </div>
-
-                             <div class="flex items-center gap-2 w-full sm:w-auto">
-                                 <div class="flex-1 sm:flex-none bg-white dark:bg-gray-800 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 text-xs font-mono select-all text-gray-600 dark:text-gray-300">
-                                     {{ twoFactorSecret() }}
-                                 </div>
-                                 <button class="p-2 text-gray-500 hover:text-primary-600 transition-colors bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-sm"
-                                         (click)="copySecret()"
-                                         title="{{ 'SETTINGS.SECURITY.COPY_CODE' | translate }}">
-                                     <lucide-icon [img]="CopyIcon" class="w-4 h-4"></lucide-icon>
-                                 </button>
-                             </div>
-                         </div>
+                    <div class="step-qr__secret-value">
+                        <code class="step-qr__secret-code">{{ twoFactorSecret() }}</code>
+                        <button class="step-qr__copy-btn"
+                                (click)="copySecret()"
+                                [title]="'SETTINGS.SECURITY.COPY_CODE' | translate">
+                            <lucide-icon [img]="CopyIcon" size="16"></lucide-icon>
+                        </button>
                     </div>
                 </div>
 
-                <!-- Verify -->
-                <div class="space-y-4 pt-4 border-t border-gray-100 dark:border-gray-800">
-                    <!-- Step-up: current password required by backend before enabling 2FA -->
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                            {{ 'SETTINGS.SECURITY.CURRENT_PASSWORD' | translate }}
-                        </label>
+                <div class="step-qr__verify">
+                    <div class="form-field">
+                        <label class="form-label">{{ 'SETTINGS.SECURITY.CURRENT_PASSWORD' | translate }}</label>
                         <input
                             type="password"
+                            class="form-input"
                             [value]="stepUpPassword()"
                             (input)="stepUpPassword.set($any($event.target).value)"
                             autocomplete="current-password"
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                             [placeholder]="'SETTINGS.SECURITY.ENTER_CURRENT_PASSWORD' | translate"
                         />
                     </div>
@@ -232,54 +224,46 @@
 
         <!-- STEP 3: BACKUP CODES -->
         @if (currentStep() === 'BACKUP_CODES') {
-            <div class="space-y-6">
-                 <div class="warning-box">
-                     <lucide-icon [img]="AlertTriangleIcon" class="w-5 h-5 shrink-0"></lucide-icon>
-                     <div>
-                         <p class="font-medium text-orange-800 dark:text-orange-400">
-                             {{ 'SETTINGS.SECURITY.SAVE_BACKUP_CODES' | translate }}
-                         </p>
-                         <p class="mt-1 opacity-90">{{ 'SETTINGS.SECURITY.BACKUP_CODES_WARNING' | translate }}</p>
-                     </div>
-                 </div>
+            <div class="step-backup">
+                <div class="warning-box">
+                    <lucide-icon [img]="AlertTriangleIcon" size="18"></lucide-icon>
+                    <div class="warning-box__content">
+                        <p class="warning-box__title">{{ 'SETTINGS.SECURITY.SAVE_BACKUP_CODES' | translate }}</p>
+                        <p class="warning-box__body">{{ 'SETTINGS.SECURITY.BACKUP_CODES_WARNING' | translate }}</p>
+                    </div>
+                </div>
 
-                 <div class="backup-codes">
-                     @for (code of backupCodes(); track code) {
-                         <div class="backup-codes__code">
-                             {{ code }}
-                         </div>
-                     }
-                 </div>
+                <div class="backup-codes">
+                    @for (code of backupCodes(); track code) {
+                        <div class="backup-codes__code">{{ code }}</div>
+                    }
+                </div>
 
-                 <div class="flex flex-col gap-4">
-                     <div class="flex items-center justify-between gap-3">
-                          <button class="btn-secondary flex-1 flex items-center justify-center gap-2" (click)="copyBackupCodes()">
-                              <lucide-icon [img]="CopyIcon" class="w-4 h-4"></lucide-icon>
-                              {{ 'COMMON.COPY' | translate }}
-                          </button>
-                          <button class="btn-secondary flex-1 flex items-center justify-center gap-2" (click)="downloadBackupCodes()">
-                              <lucide-icon [img]="DownloadIcon" class="w-4 h-4"></lucide-icon>
-                              {{ 'COMMON.DOWNLOAD' | translate }}
-                          </button>
-                     </div>
+                <div class="step-backup__actions">
+                    <button class="btn-secondary" (click)="copyBackupCodes()">
+                        <lucide-icon [img]="CopyIcon" size="16"></lucide-icon>
+                        {{ 'COMMON.COPY' | translate }}
+                    </button>
+                    <button class="btn-secondary" (click)="downloadBackupCodes()">
+                        <lucide-icon [img]="DownloadIcon" size="16"></lucide-icon>
+                        {{ 'COMMON.DOWNLOAD' | translate }}
+                    </button>
+                </div>
 
-                     <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-700">
-                         <input type="checkbox" id="savedCodes" [(ngModel)]="hasSavedBackupCodes" class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500">
-                         <label for="savedCodes" class="text-sm text-gray-700 dark:text-gray-300 select-none cursor-pointer">
-                             {{ 'SETTINGS.SECURITY.I_HAVE_SAVED_CODES' | translate }}
-                         </label>
-                     </div>
-                 </div>
+                <label class="checkbox-row">
+                    <input type="checkbox" [(ngModel)]="hasSavedBackupCodes" class="checkbox-input">
+                    <span class="checkbox-mark"></span>
+                    <span class="checkbox-label">{{ 'SETTINGS.SECURITY.I_HAVE_SAVED_CODES' | translate }}</span>
+                </label>
 
-                 <div class="border-t border-gray-100 dark:border-gray-800 pt-6">
-                     <button
-                         class="btn-primary w-full py-3 text-base"
-                         [disabled]="!hasSavedBackupCodes()"
-                         (click)="completeSetup()"
-                     >
-                         {{ 'COMMON.DONE' | translate }}
-                     </button>
-                 </div>
+                <div class="step-backup__footer">
+                    <button
+                        class="btn-primary btn-full"
+                        [disabled]="!hasSavedBackupCodes()"
+                        (click)="completeSetup()">
+                        {{ 'COMMON.DONE' | translate }}
+                    </button>
+                </div>
             </div>
         }
 

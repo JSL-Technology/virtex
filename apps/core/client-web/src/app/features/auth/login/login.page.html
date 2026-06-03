@@ -1,23 +1,26 @@
 <app-auth-layout>
 
-  <!-- ── 2FA Verification ──────────────────────────────── -->
-  <div *ngIf="show2faInput(); else loginFormTemplate" class="otp-wrapper">
-    <app-otp
-       [title]="'LOGIN.2FA.TITLE' | translate"
-       [description]="'LOGIN.2FA.SUBTITLE' | translate"
-       [otpLength]="6"
-       (verify)="onOtpVerify($event)">
-    </app-otp>
-    <div class="back-row">
-      <button (click)="show2faInput.set(false)" class="back-to-login-btn">
-        ← {{ 'LOGIN.2FA.BACK_TO_LOGIN' | translate }}
-      </button>
+  <!-- ── 2FA Modal Overlay ─────────────────────────────── -->
+  @if (show2faInput()) {
+    <div class="tfa-overlay">
+      <div class="tfa-backdrop" (click)="show2faInput.set(false)" aria-hidden="true"></div>
+      <div class="tfa-dialog" role="dialog" aria-modal="true" aria-label="Verificación en dos pasos">
+        <button class="tfa-close" (click)="show2faInput.set(false)" aria-label="Volver al inicio de sesión">
+          <lucide-icon [img]="icons.ArrowLeft" size="16"></lucide-icon>
+          {{ 'LOGIN.2FA.BACK_TO_LOGIN' | translate }}
+        </button>
+        <app-otp
+           [title]="'LOGIN.2FA.TITLE' | translate"
+           [description]="'LOGIN.2FA.SUBTITLE' | translate"
+           [otpLength]="6"
+           (verify)="onOtpVerify($event)">
+        </app-otp>
+      </div>
     </div>
-  </div>
+  }
 
   <!-- ── Standard Login ────────────────────────────────── -->
-  <ng-template #loginFormTemplate>
-    <div class="login-wrapper">
+  <div class="login-wrapper">
 
       <!-- ZONE 1: Brand & Header -->
       <header class="auth-header">
@@ -151,6 +154,5 @@
       </footer>
 
     </div>
-  </ng-template>
 
 </app-auth-layout>
