@@ -1,13 +1,5 @@
 @use '../../../../assets/styles/variables' as *;
 
-:host {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
-}
-
 .view-container {
     height: 100%;
     overflow: hidden;

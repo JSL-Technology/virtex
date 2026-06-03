@@ -221,24 +221,6 @@ export const APP_ROUTES: Routes = [
         component: RouteRedirectorComponent,
         children: [{ path: '**', component: RouteRedirectorComponent }],
       },
-      // Settings modal — rendered as overlay over any primary route via the 'modal' outlet.
-      {
-        path: 'settings',
-        outlet: 'modal',
-        loadComponent: () =>
-          import('./features/settings/modal/settings-modal.component').then(
-            (m) => m.SettingsModalComponent
-          ),
-        children: [
-          {
-            path: '',
-            loadChildren: () =>
-              import('./features/settings/settings.routes').then(
-                (m) => m.SETTINGS_ROUTES
-              ),
-          },
-        ],
-      },
       {
         path: 'reports',
         title: 'Reports',

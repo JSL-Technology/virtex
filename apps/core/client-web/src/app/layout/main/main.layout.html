@@ -357,5 +357,6 @@
   <router-outlet></router-outlet>
 </main>
 
-<!-- Settings modal overlay — rendered over any primary route -->
-<router-outlet name="modal"></router-outlet>
+@if (isSettingsOpen()) {
+  <app-settings-modal [sectionName]="settingsSection()"></app-settings-modal>
+}

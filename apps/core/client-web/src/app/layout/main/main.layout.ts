@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, startWith } from 'rxjs/operators';
+import { SettingsModalComponent } from '../../features/settings/modal/settings-modal.component';
 import { AuthService } from '../../core/services/auth';
 import { BrandingService } from '../../core/services/branding';
 import { NotificationCenterService } from '../../core/services/notification-center.service';
@@ -42,7 +43,7 @@ import { ClickOutsideDirective } from '../../shared/directives/click-outside.dir
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ThemeToggle, LucideAngularModule, TranslateModule, Sidebar, ClickOutsideDirective], // ✅ Directiva añadida a los imports
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ThemeToggle, LucideAngularModule, TranslateModule, Sidebar, ClickOutsideDirective, SettingsModalComponent], // ✅ Directiva añadida a los imports
   templateUrl: './main.layout.html',
   styleUrls: ['./main.layout.scss'],
 })
@@ -108,7 +109,7 @@ export class MainLayout implements OnInit {
   authService = inject(AuthService);
   brandingService = inject(BrandingService);
   private searchService = inject(SearchService);
-  private router = inject(Router);
+  protected readonly router = inject(Router);
 
   settings = this.brandingService.settings;
 
@@ -126,19 +127,41 @@ export class MainLayout implements OnInit {
     );
   });
 
-  private readonly routerUrl = toSignal(
+  private readonly currentFragment = toSignal(
     this.router.events.pipe(
       filter(e => e instanceof NavigationEnd),
-      map(e => (e as NavigationEnd).url),
-      startWith(this.router.url),
+      map(() => {
+        const url = this.router.url;
+        const idx = url.indexOf('#');
+        return idx >= 0 ? url.slice(idx + 1) : '';
+      }),
+      startWith((() => {
+        const url = this.router.url;
+        const idx = url.indexOf('#');
+        return idx >= 0 ? url.slice(idx + 1) : '';
+      })()),
     ),
-    { initialValue: this.router.url }
+    { initialValue: '' }
   );
 
-  readonly isSettingsOpen = computed(() => this.routerUrl().includes('(modal:settings'));
+  readonly isSettingsOpen = computed(() =>
+    this.currentFragment().startsWith('settings')
+  );
 
-  openSettings(section = 'profile'): void {
-    this.router.navigate([{ outlets: { modal: ['settings', section] } }]);
+  readonly settingsSection = computed(() => {
+    const frag = this.currentFragment();
+    if (frag.startsWith('settings/')) return frag.slice('settings/'.length);
+    if (frag === 'settings') return 'my-profile';
+    return 'my-profile';
+  });
+
+  openSettings(section = 'my-profile'): void {
+    this.router.navigate([], { fragment: 'settings/' + section });
+  }
+
+  closeSettings(): void {
+    const path = this.router.url.split('#')[0];
+    this.router.navigateByUrl(path);
   }
 
   isUserMenuOpen = signal(false);

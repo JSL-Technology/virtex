@@ -1,10 +1,207 @@
 <div class="sm-backdrop" (click)="close()" aria-hidden="true"></div>
 
 <div class="sm-panel" role="dialog" aria-modal="true" aria-label="Configuración">
-  <button class="sm-close" (click)="close()" aria-label="Cerrar configuración">
-    <lucide-icon [img]="XIcon" size="18"></lucide-icon>
-  </button>
-  <div class="sm-content">
-    <router-outlet></router-outlet>
+  <div class="sm-header">
+    <h2>Configuración</h2>
+    <button class="sm-close" (click)="close()" aria-label="Cerrar configuración">&#x00D7;</button>
+  </div>
+
+  <div class="sm-body">
+    <aside class="sm-sidebar">
+      <nav class="sm-nav">
+
+        <!-- GRUPO 1: MI CUENTA -->
+        <div class="nav-group">
+          <h3 class="group-title">Mi Cuenta</h3>
+          <button
+            class="nav-link"
+            [class.active]="section() === 'my-profile'"
+            (click)="navigate('my-profile')"
+          >
+            <lucide-icon [img]="MyProfileIcon" size="16"></lucide-icon>
+            <span>Mi Perfil</span>
+          </button>
+          <button
+            class="nav-link"
+            [class.active]="section() === 'billing'"
+            (click)="navigate('billing')"
+          >
+            <lucide-icon [img]="BillingIcon" size="16"></lucide-icon>
+            <span>Facturación y Plan</span>
+          </button>
+        </div>
+
+        <!-- GRUPO 2: ORGANIZACIÓN -->
+        <div class="nav-group">
+          <h3 class="group-title">Organización</h3>
+          <button
+            class="nav-link"
+            [class.active]="section() === 'profile'"
+            (click)="navigate('profile')"
+          >
+            <lucide-icon [img]="OrgProfileIcon" size="16"></lucide-icon>
+            <span>Perfil de la Empresa</span>
+          </button>
+          <button
+            class="nav-link"
+            [class.active]="section() === 'subsidiaries'"
+            (click)="navigate('subsidiaries')"
+          >
+            <lucide-icon [img]="SubsidiariesIcon" size="16"></lucide-icon>
+            <span>Estructura Empresarial</span>
+          </button>
+          <button
+            class="nav-link"
+            [class.active]="section() === 'branding'"
+            (click)="navigate('branding')"
+          >
+            <lucide-icon [img]="BrandingIcon" size="16"></lucide-icon>
+            <span>Personalización</span>
+          </button>
+        </div>
+
+        <!-- GRUPO 3: FINANZAS -->
+        <div class="nav-group">
+          <h3 class="group-title">Finanzas</h3>
+          <button
+            class="nav-link"
+            [class.active]="section() === 'accounting'"
+            (click)="navigate('accounting')"
+          >
+            <lucide-icon [img]="AccountingIcon" size="16"></lucide-icon>
+            <span>Contabilidad</span>
+          </button>
+          <button
+            class="nav-link"
+            [class.active]="section() === 'currencies'"
+            (click)="navigate('currencies')"
+          >
+            <lucide-icon [img]="CurrenciesIcon" size="16"></lucide-icon>
+            <span>Multimoneda</span>
+          </button>
+          <button
+            class="nav-link"
+            [class.active]="section() === 'taxes'"
+            (click)="navigate('taxes')"
+          >
+            <lucide-icon [img]="TaxesIcon" size="16"></lucide-icon>
+            <span>Impuestos</span>
+          </button>
+          <button
+            class="nav-link"
+            [class.active]="section() === 'closing-rules'"
+            (click)="navigate('closing-rules')"
+          >
+            <lucide-icon [img]="ClosingIcon" size="16"></lucide-icon>
+            <span>Cierre Fiscal</span>
+          </button>
+          <button
+            class="nav-link"
+            [class.active]="section() === 'intercompany'"
+            (click)="navigate('intercompany')"
+          >
+            <lucide-icon [img]="IntercompanyIcon" size="16"></lucide-icon>
+            <span>Intercompany</span>
+          </button>
+        </div>
+
+        <!-- GRUPO 4: OPERACIONES -->
+        <div class="nav-group">
+          <h3 class="group-title">Operaciones</h3>
+          <button
+            class="nav-link"
+            [class.active]="section() === 'sequences'"
+            (click)="navigate('sequences')"
+          >
+            <lucide-icon [img]="SequencesIcon" size="16"></lucide-icon>
+            <span>Secuencias</span>
+          </button>
+          <button
+            class="nav-link"
+            [class.active]="section() === 'approvals'"
+            (click)="navigate('approvals')"
+          >
+            <lucide-icon [img]="WorkflowsIcon" size="16"></lucide-icon>
+            <span>Aprobaciones</span>
+          </button>
+          <button
+            class="nav-link"
+            [class.active]="section() === 'inventory-policies'"
+            (click)="navigate('inventory-policies')"
+          >
+            <lucide-icon [img]="InventoryIcon" size="16"></lucide-icon>
+            <span>Inventario</span>
+          </button>
+        </div>
+
+        <!-- GRUPO 5: SISTEMA -->
+        <div class="nav-group">
+          <h3 class="group-title">Sistema</h3>
+          <button
+            *hasPermission="'users:view'"
+            class="nav-link"
+            [class.active]="section() === 'users'"
+            (click)="navigate('users')"
+          >
+            <lucide-icon [img]="UsersIcon" size="16"></lucide-icon>
+            <span>Usuarios</span>
+          </button>
+          <button
+            *hasPermission="'roles:view'"
+            class="nav-link"
+            [class.active]="section() === 'roles'"
+            (click)="navigate('roles')"
+          >
+            <lucide-icon [img]="RolesIcon" size="16"></lucide-icon>
+            <span>Roles y Permisos</span>
+          </button>
+          <button
+            *hasPermission="'settings:edit_company'"
+            class="nav-link"
+            [class.active]="section() === 'security'"
+            (click)="navigate('security')"
+          >
+            <lucide-icon [img]="SecurityIcon" size="16"></lucide-icon>
+            <span>Seguridad y Auditoría</span>
+          </button>
+          <button
+            *hasPermission="'settings:edit_company'"
+            class="nav-link"
+            [class.active]="section() === 'integrations'"
+            (click)="navigate('integrations')"
+          >
+            <lucide-icon [img]="IntegrationsIcon" size="16"></lucide-icon>
+            <span>Integraciones</span>
+          </button>
+          <button
+            *hasPermission="'settings:edit_company'"
+            class="nav-link"
+            [class.active]="section() === 'smtp'"
+            (click)="navigate('smtp')"
+          >
+            <lucide-icon [img]="SmtpIcon" size="16"></lucide-icon>
+            <span>Servidor de Correo</span>
+          </button>
+          <button
+            *hasPermission="'settings:edit_company'"
+            class="nav-link"
+            [class.active]="section() === 'sso'"
+            (click)="navigate('sso')"
+          >
+            <lucide-icon [img]="SsoIcon" size="16"></lucide-icon>
+            <span>SSO</span>
+          </button>
+        </div>
+
+      </nav>
+    </aside>
+
+    <main class="sm-content">
+      @if (currentComponent()) {
+        <ng-container *ngComponentOutlet="currentComponent()"></ng-container>
+      } @else {
+        <div class="sm-loading">Cargando...</div>
+      }
+    </main>
   </div>
 </div>
