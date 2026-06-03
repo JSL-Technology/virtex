@@ -1,276 +1,482 @@
 @use '../../../../assets/styles/variables' as *;
-@use '../../../../assets/styles/forms' as mixins;
-@use '../../sales/history/history.page.scss';
 
-// Layout principal de la página
-.billing-grid {
+// ──────────────────────────────────────────────
+// Page Shell
+// ──────────────────────────────────────────────
+.billing-page {
+    padding: 2rem;
+    max-width: 1100px;
+    animation: page-enter 0.25s ease-out;
+
+    > * + * { margin-top: 2rem; }
+}
+
+@keyframes page-enter {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.billing-header {
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+
+    &__title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    &__subtitle {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+}
+
+// ──────────────────────────────────────────────
+// Top info grid
+// ──────────────────────────────────────────────
+.billing-top-grid {
     display: grid;
-    grid-template-columns: 350px 1fr;
-    gap: 1.5rem;
-    align-items: flex-start;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+    align-items: start;
+}
 
-    @media (max-width: 992px) {
-        grid-template-columns: 1fr;
+.info-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+
+    &__header {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        padding: 1rem 1.25rem 0.75rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    &__icon {
+        width: 2rem;
+        height: 2rem;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &--plan {
+            background-color: var(--success-bg);
+            color: var(--success);
+        }
+
+        &--payment {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+
+        &--usage {
+            background-color: rgba(217, 119, 6, 0.12);
+            color: #d97706;
+        }
+    }
+
+    &__label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    &__body {
+        padding: 1.25rem;
     }
 }
 
-.current-info-column {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-// Estilos para la tarjeta de Plan Actual
-.card-header {
-    padding: 1.5rem 1.5rem 0;
-
-    h3 {
-        font-size: 1.1rem;
-        font-weight: 600;
-    }
-}
-
-.card-body {
-    padding: 1.5rem;
-}
-
+// Plan card body
 .plan-name {
-    font-size: 1.5rem;
-    font-weight: 600;
+    font-size: 1.125rem;
+    font-weight: 700;
     color: var(--text-primary);
+    margin-bottom: 0.25rem;
 }
 
 .plan-price {
     font-size: 2rem;
-    font-weight: 700;
+    font-weight: 800;
     color: var(--text-primary);
-    margin: 0.5rem 0;
-}
+    line-height: 1.1;
+    margin-bottom: 1rem;
 
-.price-period {
-    font-size: 1rem;
-    font-weight: 400;
-    color: var(--text-secondary);
+    &__period {
+        font-size: 0.9rem;
+        font-weight: 400;
+        color: var(--text-secondary);
+    }
 }
 
 .plan-status {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    padding: 0.75rem;
-    background-color: var(--bg-solid);
-    border-radius: $border-radius;
-    margin-top: 1rem;
-    display: block;
+    font-size: 0.8125rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-md);
+    border-left: 3px solid transparent;
+
+    &--activo {
+        background-color: var(--success-bg);
+        border-left-color: var(--success);
+        color: var(--success);
+    }
+
+    &--prueba {
+        background-color: rgba(217, 119, 6, 0.1);
+        border-left-color: #d97706;
+        color: #d97706;
+    }
 }
 
-.plan-status.activo {
-    border-left: 4px solid #4ade80;
-}
-
-.plan-status.prueba {
-    border-left: 4px solid #fb923c;
-}
-
-// Estilos para el método de pago
-.payment-method {
+// Payment card body
+.payment-card-display {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.875rem;
+    padding: 0.875rem 1rem;
+    background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-hover) 100%);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    margin-bottom: 1rem;
 
-    lucide-icon {
-        color: var(--text-tertiary);
+    &__chip {
+        width: 2rem;
+        height: 1.5rem;
+        border-radius: 4px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+        flex-shrink: 0;
+        opacity: 0.8;
     }
 
-    .pm-details {
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
+    &__info { flex: 1; }
+
+    &__number {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        letter-spacing: 0.1em;
+        margin-bottom: 0.125rem;
     }
 
-    .expiry {
-        font-size: 0.8rem;
+    &__meta {
+        font-size: 0.75rem;
         color: var(--text-secondary);
     }
-
-    .secondary-button {
-        @include mixins.submit-button;
-        background-color: transparent;
-        border: 1px solid var(--border-color);
-        color: var(--text-primary);
-        padding: 0.5rem 1rem;
-        font-size: 0.875rem;
-
-        &:hover {
-            background-color: var(--bg-hover);
-        }
-    }
 }
 
-// Estilos para la tabla de historial y métricas
-.billing-history-column {
-    .card-body {
-        padding: 0;
-    }
-
-    .data-table {
-
-        th,
-        td {
-            padding: 0.75rem 1.5rem;
-        }
-    }
+// Usage list
+.usage-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
 }
 
-// Usage Metrics
-.usage-grid {
-    display: grid;
-    gap: 1.5rem;
-    padding: 1.5rem;
-}
-
-.metric-item {
-    .metric-header {
+.usage-item {
+    &__row {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 0.5rem;
-
-        span:first-child {
-            text-transform: capitalize;
-            font-weight: 500;
-        }
-    }
-
-    .progress-bar-bg {
-        width: 100%;
-        background: var(--bg-solid); // Use variable instead of hardcoded
-        height: 10px;
-        border-radius: 5px;
-        overflow: hidden;
-    }
-
-    .progress-bar-fill {
-        height: 100%;
-        transition: width 0.3s ease-in-out;
-        background-color: var(--accent-primary); // Default
-
-        &.warning {
-            background-color: #f59e0b;
-        }
-
-        &.critical {
-            background-color: #dc2626;
-        }
-    }
-
-    .warning-text {
-        color: #d97706;
-        font-size: 0.8rem;
-        margin-top: 0.25rem;
-        display: flex;
         align-items: center;
-        gap: 0.25rem;
+        margin-bottom: 0.375rem;
+    }
+
+    &__name {
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        text-transform: capitalize;
+    }
+
+    &__value {
+        font-size: 0.8125rem;
+        font-weight: 700;
+        color: var(--text-primary);
     }
 }
 
-// Estilos para la sección de cambio de plan
-.form-section {
-    margin-top: 2.5rem;
+.usage-bar {
+    height: 6px;
+    background-color: var(--bg-tertiary);
+    border-radius: 9999px;
+    overflow: hidden;
 
-    .section-title {
-        font-size: 1.25rem;
-        font-weight: 600;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid var(--border-color);
+    &__fill {
+        height: 100%;
+        border-radius: 9999px;
+        background-color: var(--primary);
+        transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &--warning { background-color: #d97706; }
+        &--critical { background-color: var(--error); }
     }
 }
 
-.plans-container {
+// ──────────────────────────────────────────────
+// Section
+// ──────────────────────────────────────────────
+.billing-section {
+    &__header {
+        margin-bottom: 1.25rem;
+    }
+
+    &__title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    &__subtitle {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+    }
+}
+
+// ──────────────────────────────────────────────
+// Plan Cards Grid
+// ──────────────────────────────────────────────
+.plans-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-
-    @media (max-width: 768px) {
-        grid-template-columns: 1fr;
-    }
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.25rem;
 }
 
 .plan-card {
-    border: 2px solid var(--border-color);
-    border-radius: $border-radius;
-    padding: 1.5rem;
-    text-align: left;
-    cursor: pointer;
     position: relative;
-    transition: all 0.3s ease;
+    background-color: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
 
-    &:hover {
-        transform: translateY(-5px);
-        border-color: var(--accent-primary);
+    &:hover:not(.plan-card--current) {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
     }
 
-    &.selected {
-        border-color: var(--accent-primary);
-        box-shadow: 0 0 0 2px var(--accent-primary);
+    &--selected {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-light);
     }
 
-    .plan-badge {
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: var(--accent-primary);
+    &--current {
+        border-color: var(--success);
+        cursor: default;
+    }
+
+    &__badge {
+        position: absolute;
+        top: -1px;
+        right: 1rem;
+        background-color: var(--success);
+        color: white;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        padding: 0.125rem 0.625rem;
+        border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    &__name {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-primary);
         margin-bottom: 0.5rem;
     }
 
-    .plan-badge.trial {
-        color: #34A853;
-    }
-
-    h4 {
-        font-size: 1.25rem;
-    }
-
-    .plan-price {
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin: 0.25rem 0;
-    }
-
-    .plan-desc {
-        font-size: 0.875rem;
+    &__desc {
+        font-size: 0.8125rem;
         color: var(--text-secondary);
-        min-height: 40px;
+        line-height: 1.5;
+        min-height: 3rem;
     }
 
-    .current-plan-chip {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        background-color: var(--accent-primary);
-        color: var(--accent-text);
-        padding: 2px 8px;
-        font-size: 0.7rem;
-        font-weight: 600;
-        border-radius: 12px;
+    &__check {
+        margin-top: 0.75rem;
+        color: var(--primary);
+        height: 1.25rem;
     }
 }
 
-.update-plan-action {
-    margin-top: 1.5rem;
-    padding: 1rem;
-    background-color: var(--bg-solid);
-    border-radius: $border-radius;
+.plan-change-banner {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.875rem 1.25rem;
+    background-color: var(--primary-light);
+    border: 1px solid rgba(var(--primary-rgb), 0.25);
+    border-radius: var(--radius-md);
+    flex-wrap: wrap;
 
-    p {
+    &__info {
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        font-size: 0.875rem;
         color: var(--text-secondary);
-    }
 
-    .primary-button {
-        @include mixins.submit-button;
+        lucide-icon { color: var(--primary); flex-shrink: 0; }
+        strong { color: var(--text-primary); }
     }
 }
+
+// ──────────────────────────────────────────────
+// Billing History Table
+// ──────────────────────────────────────────────
+.history-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th {
+        padding: 0.625rem 1.25rem;
+        text-align: left;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        background-color: var(--bg-primary);
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    td {
+        padding: 0.875rem 1.25rem;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        vertical-align: middle;
+    }
+
+    tbody tr {
+        transition: background-color 0.1s;
+
+        &:last-child td { border-bottom: none; }
+        &:hover { background-color: var(--bg-hover); }
+    }
+}
+
+.history-date {
+    color: var(--text-tertiary);
+    font-size: 0.8125rem;
+    white-space: nowrap;
+}
+
+.history-amount {
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+
+.history-action { width: 1%; }
+
+.history-empty {
+    text-align: center;
+    color: var(--text-tertiary);
+    padding: 3rem !important;
+    font-size: 0.9rem;
+}
+
+.status-paid {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.1875rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background-color: var(--success-bg);
+    color: var(--success);
+}
+
+// ──────────────────────────────────────────────
+// Shared Buttons
+// ──────────────────────────────────────────────
+.btn-primary {
+    height: 2.5rem;
+    padding: 0 1.25rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    &:hover:not(:disabled) {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
+    }
+
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.btn-outline {
+    height: 2rem;
+    padding: 0 0.875rem;
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+
+    &:hover { background-color: var(--bg-hover); }
+}
+
+.btn-sm { height: 1.875rem; padding: 0 0.75rem; font-size: 0.8rem; }
+
+.icon-btn {
+    width: 2rem;
+    height: 2rem;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    color: var(--text-tertiary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+
+    &:hover {
+        background-color: var(--bg-hover);
+        border-color: var(--border-color);
+        color: var(--text-primary);
+    }
+}
+
+.btn-spinner {
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 9999px;
+    animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }

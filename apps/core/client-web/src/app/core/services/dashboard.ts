@@ -39,58 +39,69 @@ export interface DashboardWidget extends GridsterItem {
   chartType?: ChartType;
 }
 
-// Lista maestra de todos los widgets disponibles en la aplicación
+// Row-height unit = 50px. 1 row = 50px, 3 rows = 150px, 8 rows = 400px.
+// 4-column grid. All x values must be 0-3.
+
 const ALL_AVAILABLE_WIDGETS: Omit<DashboardWidget, 'x' | 'y'>[] = [
-  // KPIs & Stats
-  { id: 'sales-today', componentType: 'stat-card', name: 'Ventas de Hoy', cols: 1, rows: 1, data: { title: 'Ventas de Hoy', value: '$1,250.00', change: '+15%', iconName: 'DollarSign', color: 'blue' } },
-  { id: 'pending-invoices', componentType: 'stat-card', name: 'Facturas Pendientes', cols: 1, rows: 1, data: { title: 'Facturas Pendientes', value: '12', change: '-5%', iconName: 'Receipt', color: 'orange' } },
-  { id: 'low-stock-items', componentType: 'stat-card', name: 'Productos Bajos', cols: 1, rows: 1, data: { title: 'Productos Bajos', value: '8', change: '+2', iconName: 'Package', color: 'red' } },
-  { id: 'active-clients', componentType: 'stat-card', name: 'Clientes Activos', cols: 1, rows: 1, data: { title: 'Clientes Activos', value: '312', change: '+1.2%', iconName: 'Users', color: 'green' } },
-  { id: 'ebitda', componentType: 'kpi-card', name: 'KPI: EBITDA', cols: 1, rows: 2, data: { title: 'EBITDA', value: '$1.2M', comparisonValue: '+5.2%', comparisonPeriod: 'vs Presupuesto', isPositive: true } as Kpi },
-  { id: 'net-margin', componentType: 'kpi-card', name: 'KPI: Margen Neto', cols: 1, rows: 2, data: { title: 'Margen Neto', value: '18.5%', comparisonValue: '-1.5%', comparisonPeriod: 'vs Año Anterior', isPositive: false } as Kpi },
-  { id: 'cash-flow-kpi', componentType: 'kpi-card', name: 'KPI: Cash Flow Libre', cols: 1, rows: 2, data: { title: 'Cash Flow Libre', value: '$350K', comparisonValue: '+20%', comparisonPeriod: 'vs Presupuesto', isPositive: true } as Kpi },
-  { id: 'debt-equity', componentType: 'kpi-card', name: 'KPI: Endeudamiento', cols: 1, rows: 2, data: { title: 'Endeudamiento (D/E)', value: '0.45', comparisonValue: '+0.05', comparisonPeriod: 'vs Q2', isPositive: false } as Kpi },
-  { id: 'financial-ratios', componentType: 'financial-ratios', name: 'KPIs: Ratios Financieros', cols: 4, rows: 2 },
-  { id: 'kpi-roe', componentType: 'kpi-roe', name: 'KPI: ROE', cols: 1, rows: 2 },
-  { id: 'kpi-roa', componentType: 'kpi-roa', name: 'KPI: ROA', cols: 1, rows: 2 },
-  { id: 'kpi-current-ratio', componentType: 'kpi-current-ratio', name: 'KPI: Liquidez Corriente', cols: 1, rows: 2 },
-  { id: 'kpi-quick-ratio', componentType: 'kpi-quick-ratio', name: 'KPI: Prueba Ácida', cols: 1, rows: 2 },
-  { id: 'kpi-working-capital', componentType: 'kpi-working-capital', name: 'KPI: Capital de Trabajo', cols: 1, rows: 2 },
-  { id: 'kpi-leverage', componentType: 'kpi-leverage', name: 'KPI: Apalancamiento', cols: 1, rows: 2 },
-  { id: 'kpi-net-margin', componentType: 'kpi-net-margin', name: 'KPI: Margen Neto', cols: 1, rows: 2 },
-  { id: 'kpi-ebitda', componentType: 'kpi-ebitda', name: 'KPI: EBITDA', cols: 1, rows: 2 },
-  { id: 'kpi-fcf', componentType: 'kpi-fcf', name: 'KPI: Flujo de Caja Libre', cols: 1, rows: 2 },
+  // ── KPI summary cards (stat-card) ─────────────────────────────
+  { id: 'sales-today',       componentType: 'stat-card', name: 'Ventas de Hoy',         cols: 1, rows: 3, data: { title: 'Ventas de Hoy',         value: '$1,250.00', change: '+15%', iconName: 'DollarSign', color: 'blue'   } },
+  { id: 'pending-invoices',  componentType: 'stat-card', name: 'Facturas Pendientes',    cols: 1, rows: 3, data: { title: 'Facturas Pendientes',    value: '12',        change: '-5%',  iconName: 'Receipt',    color: 'orange' } },
+  { id: 'low-stock-items',   componentType: 'stat-card', name: 'Productos Bajos',        cols: 1, rows: 3, data: { title: 'Productos Bajos',        value: '8',         change: '+2',   iconName: 'Package',    color: 'red'    } },
+  { id: 'active-clients',    componentType: 'stat-card', name: 'Clientes Activos',       cols: 1, rows: 3, data: { title: 'Clientes Activos',       value: '312',       change: '+1.2%',iconName: 'Users',      color: 'green'  } },
 
-  // Charts
-  { id: 'real-vs-budget', componentType: 'comparison-chart', name: 'Gráfico Real vs. Presupuesto', cols: 2, rows: 5, chartType: 'column' },
-  { id: 'cashflow-waterfall', componentType: 'cashflow-chart', name: 'Gráfico Flujo de Efectivo', cols: 2, rows: 4, chartType: 'waterfall' },
-  { id: 'expenses-pie', componentType: 'expenses-chart', name: 'Gráfico Desglose de Gastos', cols: 2, rows: 4, chartType: 'pie' },
-  { id: 'ar-aging-bar', componentType: 'ar-aging-chart', name: 'Gráfico Cuentas por Cobrar', cols: 2, rows: 4, chartType: 'bar' },
-  { id: 'sales-chart', componentType: 'sales-chart', name: 'Gráfico de Ingresos', cols: 3, rows: 4, chartType: 'area' },
-  { id: 'invoice-status', componentType: 'invoice-status', name: 'Gráfico Estado de Facturas', cols: 1, rows: 4, chartType: 'pie' },
-  { id: 'top-products', componentType: 'top-products', name: 'Gráfico Productos Más Vendidos', cols: 2, rows: 4, chartType: 'bar' },
+  // ── KPI financial cards (kpi-card, static data) ────────────────
+  { id: 'ebitda',        componentType: 'kpi-card', name: 'KPI: EBITDA',           cols: 1, rows: 3, data: { title: 'EBITDA',              value: '$1.2M',  comparisonValue: '+5.2%', comparisonPeriod: 'vs Presupuesto',  isPositive: true  } as Kpi },
+  { id: 'net-margin',    componentType: 'kpi-card', name: 'KPI: Margen Neto',      cols: 1, rows: 3, data: { title: 'Margen Neto',         value: '18.5%', comparisonValue: '-1.5%', comparisonPeriod: 'vs Año Anterior', isPositive: false } as Kpi },
+  { id: 'cash-flow-kpi', componentType: 'kpi-card', name: 'KPI: Cash Flow Libre',  cols: 1, rows: 3, data: { title: 'Cash Flow Libre',     value: '$350K', comparisonValue: '+20%',  comparisonPeriod: 'vs Presupuesto',  isPositive: true  } as Kpi },
+  { id: 'debt-equity',   componentType: 'kpi-card', name: 'KPI: Endeudamiento',    cols: 1, rows: 3, data: { title: 'Endeudamiento (D/E)', value: '0.45',  comparisonValue: '+0.05', comparisonPeriod: 'vs Q2',           isPositive: false } as Kpi },
 
-  // Lists & Panels
-  { id: 'alerts', componentType: 'alerts-panel', name: 'Panel de Alertas', cols: 1, rows: 5 },
-  { id: 'low-stock-table', componentType: 'low-stock', name: 'Tabla de Bajo Stock', cols: 1, rows: 4 },
-  { id: 'recent-activity', componentType: 'recent-activity', name: 'Actividad Reciente', cols: 1, rows: 4 },
+  // ── KPI API-driven cards ───────────────────────────────────────
+  { id: 'financial-ratios',  componentType: 'financial-ratios',  name: 'Ratios Financieros',      cols: 4, rows: 4 },
+  { id: 'kpi-roe',           componentType: 'kpi-roe',           name: 'KPI: ROE',                cols: 1, rows: 3 },
+  { id: 'kpi-roa',           componentType: 'kpi-roa',           name: 'KPI: ROA',                cols: 1, rows: 3 },
+  { id: 'kpi-current-ratio', componentType: 'kpi-current-ratio', name: 'KPI: Liquidez Corriente', cols: 1, rows: 3 },
+  { id: 'kpi-quick-ratio',   componentType: 'kpi-quick-ratio',   name: 'KPI: Prueba Ácida',       cols: 1, rows: 3 },
+  { id: 'kpi-working-capital',componentType: 'kpi-working-capital', name: 'KPI: Capital de Trabajo',cols: 1, rows: 3 },
+  { id: 'kpi-leverage',      componentType: 'kpi-leverage',      name: 'KPI: Apalancamiento',     cols: 1, rows: 3 },
+  { id: 'kpi-net-margin',    componentType: 'kpi-net-margin',    name: 'KPI: Margen Neto (API)',   cols: 1, rows: 3 },
+  { id: 'kpi-ebitda',        componentType: 'kpi-ebitda',        name: 'KPI: EBITDA (API)',        cols: 1, rows: 3 },
+  { id: 'kpi-fcf',           componentType: 'kpi-fcf',           name: 'KPI: Flujo de Caja Libre', cols: 1, rows: 3 },
+
+  // ── Chart widgets ──────────────────────────────────────────────
+  { id: 'real-vs-budget',    componentType: 'comparison-chart', name: 'Real vs. Presupuesto',      cols: 2, rows: 8, chartType: 'column'    },
+  { id: 'cashflow-waterfall',componentType: 'cashflow-chart',   name: 'Flujo de Efectivo',         cols: 2, rows: 8, chartType: 'waterfall' },
+  { id: 'expenses-pie',      componentType: 'expenses-chart',   name: 'Desglose de Gastos',        cols: 2, rows: 8, chartType: 'pie'       },
+  { id: 'ar-aging-bar',      componentType: 'ar-aging-chart',   name: 'Cuentas por Cobrar',        cols: 2, rows: 8, chartType: 'bar'       },
+  { id: 'sales-chart',       componentType: 'sales-chart',      name: 'Ingresos por Período',      cols: 3, rows: 8, chartType: 'area'      },
+  { id: 'invoice-status',    componentType: 'invoice-status',   name: 'Estado de Facturas',        cols: 1, rows: 8, chartType: 'pie'       },
+  { id: 'top-products',      componentType: 'top-products',     name: 'Productos Más Vendidos',    cols: 2, rows: 8, chartType: 'bar'       },
+
+  // ── List & panel widgets ───────────────────────────────────────
+  { id: 'alerts',            componentType: 'alerts-panel',     name: 'Panel de Alertas',          cols: 2, rows: 7 },
+  { id: 'low-stock-table',   componentType: 'low-stock',        name: 'Bajo Stock',                cols: 2, rows: 7 },
+  { id: 'recent-activity',   componentType: 'recent-activity',  name: 'Actividad Reciente',        cols: 2, rows: 7 },
 ];
 
-// Layout por defecto para el Dashboard Financiero Ejecutivo
+// ── Executive dashboard default layout ─────────────────────────
+// fixedRowHeight = 50px → 3 rows = 150px, 8 rows = 400px, 7 rows = 350px
+// 4-column grid. No position collisions.
 const EXECUTIVE_LAYOUT: DashboardWidget[] = [
-  { id: 'ebitda', componentType: 'kpi-card', x: 0, y: 0, cols: 1, rows: 2, name: 'KPI: EBITDA', data: { title: 'EBITDA', value: '$1.2M', comparisonValue: '+5.2%', comparisonPeriod: 'vs Presupuesto', isPositive: true } as Kpi },
-  { id: 'net-margin', componentType: 'kpi-card', x: 1, y: 0, cols: 1, rows: 2, name: 'KPI: Margen Neto', data: { title: 'Margen Neto', value: '18.5%', comparisonValue: '-1.5%', comparisonPeriod: 'vs Año Anterior', isPositive: false } as Kpi },
-  { id: 'cash-flow-kpi', componentType: 'kpi-card', x: 2, y: 0, cols: 1, rows: 2, name: 'KPI: Cash Flow Libre', data: { title: 'Cash Flow Libre', value: '$350K', comparisonValue: '+20%', comparisonPeriod: 'vs Presupuesto', isPositive: true } as Kpi },
-  { id: 'debt-equity', componentType: 'kpi-card', x: 3, y: 0, cols: 1, rows: 2, name: 'KPI: Endeudamiento', data: { title: 'Endeudamiento (D/E)', value: '0.45', comparisonValue: '+0.05', comparisonPeriod: 'vs Q2', isPositive: false } as Kpi },
-  { id: 'real-vs-budget', componentType: 'comparison-chart', x: 0, y: 2, cols: 2, rows: 5, name: 'Gráfico Real vs. Presupuesto', chartType: 'column' },
-  { id: 'cashflow-waterfall', componentType: 'cashflow-chart', x: 2, y: 2, cols: 2, rows: 5, name: 'Gráfico Flujo de Efectivo', chartType: 'waterfall' },
-  { id: 'alerts', componentType: 'alerts-panel', x: 0, y: 7, cols: 4, rows: 4, name: 'Panel de Alertas' },
-  { id: 'financial-ratios', componentType: 'financial-ratios', x: 0, y: 11, cols: 4, rows: 2, name: 'KPIs: Ratios Financieros' },
-  { id: 'kpi-roe', componentType: 'kpi-roe', x: 0, y: 0, cols: 1, rows: 2, name: 'KPI: ROE' },
-  { id: 'kpi-roa', componentType: 'kpi-roa', x: 1, y: 0, cols: 1, rows: 2, name: 'KPI: ROA' },
-  { id: 'kpi-current-ratio', componentType: 'kpi-current-ratio', x: 2, y: 0, cols: 1, rows: 2, name: 'KPI: Liquidez Corriente' },
-  { id: 'kpi-quick-ratio', componentType: 'kpi-quick-ratio', x: 3, y: 0, cols: 1, rows: 2, name: 'KPI: Prueba Ácida' },
-  { id: 'kpi-working-capital', componentType: 'kpi-working-capital', x: 4, y: 0, cols: 1, rows: 2, name: 'KPI: Capital de Trabajo' },
+  // Row 0-2 (150px): Summary KPIs
+  { id: 'ebitda',        componentType: 'kpi-card',  x: 0, y: 0, cols: 1, rows: 3, name: 'KPI: EBITDA',         data: { title: 'EBITDA',              value: '$1.2M',  comparisonValue: '+5.2%', comparisonPeriod: 'vs Presupuesto',  isPositive: true  } as Kpi },
+  { id: 'net-margin',    componentType: 'kpi-card',  x: 1, y: 0, cols: 1, rows: 3, name: 'KPI: Margen Neto',    data: { title: 'Margen Neto',         value: '18.5%', comparisonValue: '-1.5%', comparisonPeriod: 'vs Año Anterior', isPositive: false } as Kpi },
+  { id: 'cash-flow-kpi', componentType: 'kpi-card',  x: 2, y: 0, cols: 1, rows: 3, name: 'KPI: Cash Flow',      data: { title: 'Cash Flow Libre',     value: '$350K', comparisonValue: '+20%',  comparisonPeriod: 'vs Presupuesto',  isPositive: true  } as Kpi },
+  { id: 'debt-equity',   componentType: 'kpi-card',  x: 3, y: 0, cols: 1, rows: 3, name: 'KPI: Endeudamiento',  data: { title: 'Endeudamiento (D/E)', value: '0.45',  comparisonValue: '+0.05', comparisonPeriod: 'vs Q2',           isPositive: false } as Kpi },
+
+  // Row 3-10 (400px): Main charts
+  { id: 'real-vs-budget',     componentType: 'comparison-chart', x: 0, y: 3, cols: 2, rows: 8, name: 'Real vs. Presupuesto', chartType: 'column'    },
+  { id: 'cashflow-waterfall', componentType: 'cashflow-chart',   x: 2, y: 3, cols: 2, rows: 8, name: 'Flujo de Efectivo',    chartType: 'waterfall' },
+
+  // Row 11-14 (200px): Financial ratios strip
+  { id: 'financial-ratios', componentType: 'financial-ratios', x: 0, y: 11, cols: 4, rows: 4, name: 'Ratios Financieros' },
+
+  // Row 15-21 (350px): Panels
+  { id: 'alerts',          componentType: 'alerts-panel',   x: 0, y: 15, cols: 2, rows: 7, name: 'Panel de Alertas' },
+  { id: 'recent-activity', componentType: 'recent-activity', x: 2, y: 15, cols: 2, rows: 7, name: 'Actividad Reciente' },
 ];
 
 @Injectable({ providedIn: 'root' })

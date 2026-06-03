@@ -1,85 +1,61 @@
-
-import { Component, OnInit, ChangeDetectionStrategy, signal, inject } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import {
+  Component, OnInit, ChangeDetectionStrategy,
+  signal, inject, ChangeDetectorRef
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { LucideAngularModule, Monitor, Smartphone, MapPin, X, RefreshCw, Clock } from 'lucide-angular';
 import { SessionService, UserSession } from '../../../../core/services/session.service';
+import { NotificationService } from '../../../../core/services/notification';
 import { finalize } from 'rxjs/operators';
 
 @Component({
-    selector: 'app-sessions',
-    standalone: true,
-    imports: [CommonModule, DatePipe],
-    template: `
-      <div class="p-6">
-        <h2 class="text-2xl font-bold mb-4">Active Sessions</h2>
-        <p class="text-gray-500 mb-6">Manage your active sessions and devices.</p>
-
-        <div *ngIf="loading()" class="text-center py-4">Loading sessions...</div>
-
-        <div *ngIf="!loading() && sessions().length === 0" class="text-center py-4 text-gray-500">
-            No active sessions found.
-        </div>
-
-        <div class="grid gap-4">
-            <div *ngFor="let session of sessions()" class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                <div>
-                    <div class="font-semibold flex items-center gap-2">
-                        {{ session.browser || 'Unknown browser' }} · {{ session.os || 'Unknown OS' }}
-                        <span *ngIf="session.deviceType" class="text-xs text-gray-400">({{ session.deviceType }})</span>
-                        <span *ngIf="session.isCurrent" class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Current</span>
-                    </div>
-                    <div class="text-sm text-gray-500">
-                        IP: {{ session.ipAddress || 'Unknown' }}
-                        <span *ngIf="session.city || session.country"> · {{ session.city }}{{ session.city && session.country ? ', ' : '' }}{{ session.country }}</span>
-                    </div>
-                    <div class="text-xs text-gray-400 mt-1">
-                        Last active: {{ (session.lastActiveAt || session.createdAt) | date:'medium' }}
-                    </div>
-                </div>
-                <button
-                    *ngIf="!session.isCurrent"
-                    (click)="revoke(session.id)"
-                    class="px-3 py-1 bg-red-50 text-red-600 rounded hover:bg-red-100 text-sm font-medium transition-colors"
-                    [disabled]="processingId() === session.id">
-                    {{ processingId() === session.id ? 'Revoking...' : 'Revoke' }}
-                </button>
-            </div>
-        </div>
-      </div>
-    `,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-sessions',
+  standalone: true,
+  imports: [CommonModule, LucideAngularModule],
+  templateUrl: './sessions.component.html',
+  styleUrls: ['./sessions.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SessionsComponent implements OnInit {
-    private sessionService = inject(SessionService);
+  private sessionService = inject(SessionService);
+  private notificationService = inject(NotificationService);
+  private cdr = inject(ChangeDetectorRef);
 
-    sessions = signal<UserSession[]>([]);
-    loading = signal(true);
-    processingId = signal<string | null>(null);
+  protected readonly MonitorIcon = Monitor;
+  protected readonly SmartphoneIcon = Smartphone;
+  protected readonly MapPinIcon = MapPin;
+  protected readonly RevokeIcon = X;
+  protected readonly RefreshIcon = RefreshCw;
+  protected readonly ClockIcon = Clock;
 
-    ngOnInit() {
-        this.loadSessions();
-    }
+  sessions = signal<UserSession[]>([]);
+  loading = signal(true);
+  processingId = signal<string | null>(null);
 
-    loadSessions() {
-        this.loading.set(true);
-        this.sessionService.getSessions()
-            .pipe(finalize(() => this.loading.set(false)))
-            .subscribe({
-                next: (data) => this.sessions.set(data),
-                error: (err) => console.error('Failed to load sessions', err)
-            });
-    }
+  ngOnInit() {
+    this.load();
+  }
 
-    revoke(sessionId: string) {
-        if (!confirm('Are you sure you want to revoke this session?')) return;
+  load() {
+    this.loading.set(true);
+    this.sessionService.getSessions()
+      .pipe(finalize(() => { this.loading.set(false); this.cdr.markForCheck(); }))
+      .subscribe({
+        next: (data) => this.sessions.set(data),
+        error: () => this.notificationService.showError('No se pudieron cargar las sesiones.'),
+      });
+  }
 
-        this.processingId.set(sessionId);
-        this.sessionService.revokeSession(sessionId)
-            .pipe(finalize(() => this.processingId.set(null)))
-            .subscribe({
-                next: () => {
-                    this.sessions.update(current => current.filter(s => s.id !== sessionId));
-                },
-                error: (err) => alert('Failed to revoke session')
-            });
-    }
+  revoke(sessionId: string) {
+    this.processingId.set(sessionId);
+    this.sessionService.revokeSession(sessionId)
+      .pipe(finalize(() => { this.processingId.set(null); this.cdr.markForCheck(); }))
+      .subscribe({
+        next: () => {
+          this.sessions.update(s => s.filter(x => x.id !== sessionId));
+          this.notificationService.showSuccess('Sesión revocada correctamente.');
+        },
+        error: () => this.notificationService.showError('No se pudo revocar la sesión.'),
+      });
+  }
 }

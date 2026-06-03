@@ -1,0 +1,481 @@
+// ═══════════════════════════════════════════════════════════════
+// Settings Section — Shared Design System
+// @use this file in every settings page SCSS:
+//   @use '../_settings-shared' as s;   (from 1 level deep)
+//   @use '../../_settings-shared' as s; (from 2 levels deep)
+// ═══════════════════════════════════════════════════════════════
+
+// ── Animation ───────────────────────────────────────────────────
+@keyframes settings-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ── Page Shell ──────────────────────────────────────────────────
+@mixin page-shell($max-width: 960px) {
+  padding: 2rem;
+  max-width: $max-width;
+  animation: settings-enter 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+
+  > * + * { margin-top: 1.75rem; }
+}
+
+// ── Page Header ─────────────────────────────────────────────────
+@mixin page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+
+  .ph-text { flex: 1; min-width: 0; }
+
+  .ph-title {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+    line-height: 1.3;
+  }
+
+  .ph-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+}
+
+// ── Settings Card ────────────────────────────────────────────────
+@mixin settings-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+@mixin card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1.125rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--bg-primary);
+
+  .ch-text { flex: 1; }
+
+  .ch-title {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.125rem;
+  }
+
+  .ch-subtitle {
+    font-size: 0.8125rem;
+    color: var(--text-tertiary);
+    line-height: 1.4;
+  }
+}
+
+@mixin card-body($pad: 1.5rem) {
+  padding: $pad;
+}
+
+// ── Form Grid ────────────────────────────────────────────────────
+@mixin form-grid($cols: 2) {
+  display: grid;
+  grid-template-columns: repeat($cols, 1fr);
+  gap: 1.25rem;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ── Form Field ───────────────────────────────────────────────────
+@mixin form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+
+  &--full { grid-column: 1 / -1; }
+}
+
+@mixin form-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+
+  .required {
+    color: var(--error);
+    margin-left: 0.125rem;
+  }
+}
+
+@mixin field-error {
+  font-size: 0.75rem;
+  color: var(--error);
+  margin: 0;
+}
+
+// ── Section Title ────────────────────────────────────────────────
+@mixin section-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 1.25rem;
+}
+
+// ── Divider ──────────────────────────────────────────────────────
+@mixin divider {
+  height: 1px;
+  background-color: var(--border-color);
+  border: none;
+  margin: 1.75rem 0;
+}
+
+// ── Buttons ──────────────────────────────────────────────────────
+@mixin btn-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  border: none;
+  transition: var(--transition);
+  white-space: nowrap;
+  text-decoration: none;
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+}
+
+@mixin btn-primary {
+  @include btn-base;
+  height: 2.375rem;
+  padding: 0 1.125rem;
+  background-color: var(--primary);
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.3);
+  }
+  &:active:not(:disabled) { transform: none; }
+}
+
+@mixin btn-secondary {
+  @include btn-base;
+  height: 2.375rem;
+  padding: 0 1.125rem;
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+
+  &:hover:not(:disabled) { background-color: var(--bg-hover); }
+}
+
+@mixin btn-danger {
+  @include btn-base;
+  height: 2.375rem;
+  padding: 0 1.125rem;
+  background-color: var(--error);
+  color: white;
+
+  &:hover:not(:disabled) { filter: brightness(0.92); }
+}
+
+@mixin btn-ghost {
+  @include btn-base;
+  height: 2.375rem;
+  padding: 0 1rem;
+  background-color: transparent;
+  color: var(--text-secondary);
+
+  &:hover:not(:disabled) { background-color: var(--bg-hover); color: var(--text-primary); }
+}
+
+@mixin icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-md);
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: var(--transition);
+
+  &:hover { background-color: var(--bg-hover); border-color: var(--border-color); color: var(--text-primary); }
+  &:disabled { opacity: 0.35; cursor: not-allowed; }
+  &--danger:hover { background-color: var(--error-bg); color: var(--error); }
+}
+
+@mixin btn-sm {
+  height: 1.875rem;
+  padding: 0 0.75rem;
+  font-size: 0.8125rem;
+}
+
+// ── Badges ───────────────────────────────────────────────────────
+@mixin badge-base {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.1875rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+@mixin badge-success {
+  @include badge-base;
+  background-color: var(--success-bg);
+  color: var(--success);
+}
+
+@mixin badge-warning {
+  @include badge-base;
+  background-color: rgba(217, 119, 6, 0.12);
+  color: #d97706;
+}
+
+@mixin badge-error {
+  @include badge-base;
+  background-color: var(--error-bg);
+  color: var(--error);
+}
+
+@mixin badge-neutral {
+  @include badge-base;
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+@mixin badge-primary {
+  @include badge-base;
+  background-color: var(--primary-light);
+  color: var(--primary);
+}
+
+@mixin badge-system {
+  @include badge-base;
+  background-color: rgba(124, 58, 237, 0.1);
+  color: #7c3aed;
+}
+
+// ── Alerts ───────────────────────────────────────────────────────
+@mixin alert-base {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  border: 1px solid transparent;
+}
+
+@mixin alert-error {
+  @include alert-base;
+  background-color: var(--error-bg);
+  color: var(--error);
+  border-color: rgba(var(--error-rgb), 0.25);
+}
+
+@mixin alert-success {
+  @include alert-base;
+  background-color: var(--success-bg);
+  color: var(--success);
+  border-color: rgba(63, 185, 80, 0.25);
+}
+
+@mixin alert-warning {
+  @include alert-base;
+  background-color: rgba(217, 119, 6, 0.1);
+  color: #b45309;
+  border-color: rgba(217, 119, 6, 0.25);
+}
+
+@mixin alert-info {
+  @include alert-base;
+  background-color: var(--primary-light);
+  color: var(--primary);
+  border-color: rgba(var(--primary-rgb), 0.2);
+}
+
+// ── Data Table ───────────────────────────────────────────────────
+@mixin data-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    padding: 0.625rem 1.25rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background-color: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  td {
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    vertical-align: middle;
+  }
+
+  tbody tr {
+    background-color: var(--bg-card);
+    transition: background-color 0.1s;
+
+    &:last-child td { border-bottom: none; }
+    &:hover { background-color: var(--bg-hover); }
+  }
+}
+
+// ── Inline Form Row ───────────────────────────────────────────────
+@mixin inline-form-row {
+  display: flex;
+  gap: 0.625rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+
+  input {
+    flex: 1;
+    min-width: 200px;
+  }
+}
+
+// ── Modal ────────────────────────────────────────────────────────
+@mixin modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  animation: modal-fade 0.2s ease;
+}
+
+@mixin modal-box($max-width: 560px) {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  width: 100%;
+  max-width: $max-width;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  animation: modal-slide 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@mixin modal-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+
+  .m-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .m-close {
+    @include icon-btn;
+    font-size: 1.125rem;
+    line-height: 1;
+  }
+}
+
+@mixin modal-body($pad: 1.5rem) {
+  padding: $pad;
+  overflow-y: auto;
+  flex: 1;
+}
+
+@mixin modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.625rem;
+  background-color: var(--bg-primary);
+  flex-shrink: 0;
+}
+
+@keyframes modal-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes modal-slide {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+// ── Spinner ──────────────────────────────────────────────────────
+@mixin spinner($size: 1.25rem, $color: white) {
+  width: $size;
+  height: $size;
+  border: 2px solid rgba($color, 0.3);
+  border-top-color: $color;
+  border-radius: 9999px;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+// ── Mono ─────────────────────────────────────────────────────────
+@mixin mono {
+  font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', monospace;
+  font-size: 0.875em;
+}
+
+// ── Empty / Placeholder Row ──────────────────────────────────────
+@mixin table-empty {
+  text-align: center;
+  padding: 3rem 1rem !important;
+  color: var(--text-tertiary);
+  font-size: 0.9rem;
+}
+
+// ── Scrollable Table Wrapper ──────────────────────────────────────
+@mixin table-wrapper {
+  @include settings-card;
+  overflow-x: auto;
+}

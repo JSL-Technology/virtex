@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import ms from 'ms';
 import * as crypto from 'crypto';
 import * as ipaddr from 'ipaddr.js';
+import * as jwt from 'jsonwebtoken';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { KeyManagementService } from './key-management.service';
@@ -230,15 +231,18 @@ export class TokenService implements OnModuleInit {
       });
     }
 
+    // Use jsonwebtoken directly to avoid @nestjs/jwt picking the module-level
+    // `secret` (HS256) over the `privateKey` we pass (RS256).
     const { kid, privateKey } = this.keyManagementService.getActiveKey();
-    return this.jwtService.sign(payload, {
-      privateKey,
-      expiresIn: expiresIn || AuthConfig.JWT_ACCESS_EXPIRATION,
+    // Cast required: ms() types expect StringValue (template literal), not string
+    const expSeconds = Math.floor((ms as (v: string) => number)(expiresIn || AuthConfig.JWT_ACCESS_EXPIRATION) / 1000);
+    return jwt.sign(payload as object, privateKey, {
+      expiresIn: expSeconds,
       algorithm: 'RS256',
       keyid: kid,
       issuer: 'virteex-api',
       audience: 'virteex-web',
-    } as any);
+    });
   }
 
   buildSafeUser(user: User) {

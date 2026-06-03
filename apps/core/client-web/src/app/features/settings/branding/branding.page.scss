@@ -1,29 +1,223 @@
-@use '../../../../assets/styles/forms' as mixins;
-@use '../company-profile/company-profile.page.scss';
-@use '../../auth/register/steps/step-business/step-business.scss';
+@use '../../../../assets/styles/variables' as *;
+@use '../_settings-shared' as s;
 
+// ── Page Shell ───────────────────────────────────────────────────
+:host { display: block; }
 
-// @use '../assets/styles/forms' as mixins;
-// @use '../company-profile/company-profile.page.scss';
-// @use '../../auth/register/steps/step-business/step-business.scss';
+.settings-page-container {
+  padding: 2rem;
+  max-width: 1100px;
+  animation: settings-enter 0.25s ease-out;
+}
 
-// ... (estilos de color-picker, etc. sin cambios)
+@keyframes settings-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ── Page Header ───────────────────────────────────────────────────
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 1.75rem;
+
+  h2 {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+  }
+}
+
+.primary-button {
+  @include s.btn-primary;
+}
+
+// ── Branding Grid ─────────────────────────────────────────────────
+.branding-grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 2rem;
+  align-items: start;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.controls-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+// ── Form Sections ─────────────────────────────────────────────────
+.form-section {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+
+  .section-title {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--bg-primary);
+    margin: 0;
+  }
+}
+
+// ── Form Fields inside form-section ───────────────────────────────
+.form-section > *:not(.section-title) {
+  padding: 1.25rem;
+}
+
+.form-section > .form-field,
+.form-section > .form-row,
+.form-section > app-language-selector {
+  padding: 1.25rem;
+
+  & + .form-field,
+  & + .form-row {
+    padding-top: 0;
+  }
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  padding: 1.25rem;
+
+  .form-field { padding: 0; }
+}
+
+// ── File Input / Logo ─────────────────────────────────────────────
+.file-input-container {
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: border-color 0.2s;
+
+  &:hover { border-color: var(--primary); }
+}
+
+.file-input-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  cursor: pointer;
+  min-height: 6rem;
+  color: var(--text-tertiary);
+  font-size: 0.875rem;
+  transition: background-color 0.15s;
+
+  &:hover { background-color: var(--bg-hover); }
+
+  lucide-icon { opacity: 0.5; }
+
+  img {
+    max-width: 160px;
+    max-height: 80px;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+  }
+}
+
+input[type="file"] { display: none; }
+
+// ── Color Input ───────────────────────────────────────────────────
+input[type="color"] {
+  height: 2.375rem;
+  padding: 0.25rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+// ── Range Input ───────────────────────────────────────────────────
+input[type="range"] {
+  height: 2px;
+  padding: 0;
+  border: none;
+  background: var(--border-color);
+  border-radius: 9999px;
+  accent-color: var(--primary);
+  cursor: pointer;
+
+  &:focus { box-shadow: none; }
+}
+
+// ── Button Group (segmented control) ─────────────────────────────
 .button-group {
   display: flex;
   border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
+  border-radius: var(--radius-md);
   overflow: hidden;
+
   button {
-    flex-grow: 1; padding: var(--space-input-y) var(--space-padding);
-    background-color: var(--bg-layer-1); color: var(--text-secondary);
-    border: none; cursor: pointer; font-weight: 600;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    flex: 1;
+    height: 2.25rem;
+    padding: 0 0.75rem;
+    background-color: var(--bg-card);
+    color: var(--text-secondary);
+    border: none;
+    cursor: pointer;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    transition: background-color 0.15s, color 0.15s;
+    font-family: inherit;
+
     &:not(:last-child) { border-right: 1px solid var(--border-color); }
-    &.active { background-color: var(--accent-primary); color: var(--accent-text); }
+
+    &:hover:not(.active) {
+      background-color: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    &.active {
+      background-color: var(--primary);
+      color: white;
+      font-weight: 600;
+    }
   }
-  &.three-cols { /* Estilos si es necesario */ }
 }
 
-img{
-    width: 200px;
+// ── Preview column ────────────────────────────────────────────────
+.preview-column {
+  position: sticky;
+  top: 1rem;
+}
+
+.section-title:not(.form-section .section-title) {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 1rem;
 }

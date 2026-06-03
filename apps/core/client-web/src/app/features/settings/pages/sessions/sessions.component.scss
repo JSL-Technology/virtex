@@ -1,0 +1,206 @@
+:host { display: block; }
+
+.sess-page {
+  padding: 2rem;
+  max-width: 800px;
+  animation: page-enter 0.25s ease-out;
+
+  > * + * { margin-top: 1.5rem; }
+}
+
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.sess-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  flex-wrap: wrap;
+
+  &__title {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+  }
+
+  &__subtitle {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
+}
+
+.sess-refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: 2.25rem;
+  padding: 0 0.875rem;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+
+  &:hover:not(:disabled) { background: var(--bg-hover); color: var(--text-primary); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.sess-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.sess-loading,
+.sess-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.875rem;
+  padding: 3rem;
+  color: var(--text-tertiary);
+  font-size: 0.9rem;
+
+  lucide-icon { opacity: 0.4; }
+}
+
+.sess-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.1s;
+
+  &:last-child { border-bottom: none; }
+  &:hover { background-color: var(--bg-hover); }
+
+  &--current {
+    background-color: var(--primary-light);
+
+    &:hover { background-color: var(--primary-light); }
+
+    .sess-item__device-icon {
+      background-color: rgba(var(--primary-rgb), 0.15);
+      color: var(--primary);
+    }
+  }
+
+  &__device-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius-md);
+    background-color: var(--bg-tertiary);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: var(--transition);
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__browser {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.25rem;
+  }
+
+  &__os {
+    font-weight: 400;
+    color: var(--text-secondary);
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    color: var(--text-tertiary);
+    flex-wrap: wrap;
+
+    lucide-icon { flex-shrink: 0; opacity: 0.7; }
+  }
+
+  &__sep { opacity: 0.4; }
+  &__ip { font-family: 'SFMono-Regular', 'Consolas', monospace; font-size: 0.75rem; }
+}
+
+.sess-badge-current {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  background-color: var(--primary);
+  color: white;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sess-revoke {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: 2rem;
+  padding: 0 0.75rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+
+  &:hover:not(:disabled) {
+    background-color: var(--error-bg);
+    border-color: rgba(var(--error-rgb), 0.3);
+    color: var(--error);
+  }
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.sess-spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--primary);
+  border-radius: 9999px;
+  animation: spin 0.7s linear infinite;
+
+  &--sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: 2px;
+    border-color: rgba(var(--error-rgb), 0.3);
+    border-top-color: var(--error);
+  }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }

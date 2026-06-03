@@ -1,96 +1,128 @@
-<div class="view-container">
-  <div class="view-header">
-    <div class="header-content">
-      <h1>{{ 'NAV.DASHBOARD' | translate }}</h1>
-      <p>{{ 'DASH.HEADER.SUBTITLE' | translate }}</p>
-    </div>
-    <div class="header-actions">
-      @if (isEditMode()) {
-      <button class="secondary-button" (click)="isAddPanelOpen.set(true)">
-        <lucide-icon [img]="PlusIcon" size="16"></lucide-icon>
-        <span>{{ 'DASH.HEADER.ADD_WIDGET' | translate }}</span>
-      </button>
-      <button class="secondary-button" (click)="resetDashboardLayout()">
-        <lucide-icon [img]="ResetIcon" size="16"></lucide-icon>
-        <span>{{ 'DASH.HEADER.RESTORE' | translate }}</span>
-      </button>
-      }
-      <button class="secondary-button edit-button" [class.active]="isEditMode()" (click)="toggleEditMode()">
-        <lucide-icon [img]="EditIcon" size="16"></lucide-icon>
-        <span>{{ isEditMode() ? ('DASH.HEADER.EDIT_DONE' | translate) : ('DASH.HEADER.EDIT_LAYOUT' | translate)
-          }}</span>
-      </button>
-    </div>
-  </div>
+<div class="db-shell">
 
-  <div class="dashboard-content">
-    <gridster [options]="gridOptions" [class.edit-mode]="isEditMode()">
+  <!-- ── Header ──────────────────────────────────────────────────── -->
+  <header class="db-header">
+    <div class="db-header__left">
+      <div class="db-header__greeting">
+        <h1 class="db-header__title">{{ 'NAV.DASHBOARD' | translate }}</h1>
+        <p class="db-header__subtitle">
+          {{ today | date:'EEEE, d MMMM yyyy' }} &nbsp;·&nbsp; {{ 'DASH.HEADER.SUBTITLE' | translate }}
+        </p>
+      </div>
+    </div>
+
+    <div class="db-header__actions">
+      @if (isEditMode()) {
+        <button class="db-btn db-btn--ghost" (click)="isAddPanelOpen.set(true)">
+          <lucide-icon [img]="PlusIcon" size="15"></lucide-icon>
+          <span>{{ 'DASH.HEADER.ADD_WIDGET' | translate }}</span>
+        </button>
+        <button class="db-btn db-btn--ghost" (click)="resetDashboardLayout()">
+          <lucide-icon [img]="ResetIcon" size="15"></lucide-icon>
+          <span>{{ 'DASH.HEADER.RESTORE' | translate }}</span>
+        </button>
+      }
+      <button class="db-btn" [class.db-btn--editing]="isEditMode()" (click)="toggleEditMode()">
+        <lucide-icon [img]="EditIcon" size="15"></lucide-icon>
+        <span>{{ isEditMode() ? ('DASH.HEADER.EDIT_DONE' | translate) : ('DASH.HEADER.EDIT_LAYOUT' | translate) }}</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Edit mode banner ────────────────────────────────────────── -->
+  @if (isEditMode()) {
+    <div class="db-edit-banner">
+      <lucide-icon [img]="EditIcon" size="14"></lucide-icon>
+      <span>Arrastra los widgets para reorganizarlos. Usa las esquinas para redimensionar.</span>
+    </div>
+  }
+
+  <!-- ── Grid ────────────────────────────────────────────────────── -->
+  <div class="db-grid-wrap">
+    <gridster [options]="gridOptions" [class.is-editing]="isEditMode()">
       @for (widget of dashboard(); track widget.id) {
-      <gridster-item [item]="widget">
-        <div class="widget-container" [class.edit-mode]="isEditMode()">
-          @if (isEditMode() && widget.componentType !== 'top-products') {
-          <button class="remove-widget-btn" [attr.title]="'DASH.ACTIONS.REMOVE_WIDGET' | translate"
-            (mousedown)="removeWidget(widget.id!, $event); $event.stopPropagation()">
-            <lucide-icon [img]="TrashIcon" size="14"></lucide-icon>
-          </button>
-          }
-          @switch (widget.componentType) {
-          @case ('kpi-card') { <app-kpi-card [data]="widget.data" /> }
-          @case ('stat-card') { <app-stat-card [data]="widget.data" /> }
-          @case ('comparison-chart') { <app-comparison-chart [widget]="widget" [isEditMode]="isEditMode()" /> }
-          @case ('alerts-panel') { <app-alerts-panel /> }
-          @case ('sales-chart') { <app-sales-chart [widget]="widget" [isEditMode]="isEditMode()" /> }
-          @case ('invoice-status') { <app-invoice-status [widget]="widget" [isEditMode]="isEditMode()" /> }
-          @case ('low-stock') { <app-low-stock-products /> }
-          @case ('top-products') { <app-top-products-chart [widget]="widget" [isEditMode]="isEditMode()" /> }
-          @case ('recent-activity') { <app-recent-activity /> }
-          @case ('cashflow-chart') { <app-cashflow-chart [widget]="widget" [isEditMode]="isEditMode()" /> }
-          @case ('expenses-chart') { <app-expenses-chart [widget]="widget" [isEditMode]="isEditMode()" /> }
-          @case ('ar-aging-chart') { <app-ar-aging-chart [widget]="widget" [isEditMode]="isEditMode()" /> }
-          @case ('financial-ratios') { <app-financial-ratios /> }
-          @case ('kpi-roe') { <app-kpi-roe /> }
-          @case ('kpi-roa') { <app-kpi-roa /> }
-          @case ('kpi-current-ratio') { <app-kpi-current-ratio /> }
-          @case ('kpi-quick-ratio') { <app-kpi-quick-ratio /> }
-          @case ('kpi-working-capital') { <app-kpi-working-capital /> }
-          @case ('kpi-leverage') { <app-kpi-leverage /> }
-          @case ('kpi-net-margin') { <app-kpi-net-margin /> }
-          @case ('kpi-ebitda') { <app-kpi-ebitda /> }
-          @case ('kpi-fcf') { <app-kpi-fcf /> }
-          }
-        </div>
-      </gridster-item>
+        <gridster-item [item]="widget">
+          <div class="db-widget" [class.db-widget--editing]="isEditMode()">
+
+            <!-- Drag handle (only in edit mode) -->
+            @if (isEditMode()) {
+              <div class="widget-drag-handle" title="Arrastrar">
+                <lucide-icon [img]="DragIcon" size="14"></lucide-icon>
+              </div>
+              <button class="widget-remove-btn"
+                      [attr.title]="'DASH.ACTIONS.REMOVE_WIDGET' | translate"
+                      (mousedown)="removeWidget(widget.id!, $event)">
+                <lucide-icon [img]="TrashIcon" size="13"></lucide-icon>
+              </button>
+            }
+
+            @switch (widget.componentType) {
+              @case ('kpi-card')          { <app-kpi-card [data]="widget.data" /> }
+              @case ('stat-card')         { <app-stat-card [data]="widget.data" /> }
+              @case ('comparison-chart')  { <app-comparison-chart  [widget]="widget" [isEditMode]="isEditMode()" /> }
+              @case ('alerts-panel')      { <app-alerts-panel /> }
+              @case ('sales-chart')       { <app-sales-chart       [widget]="widget" [isEditMode]="isEditMode()" /> }
+              @case ('invoice-status')    { <app-invoice-status    [widget]="widget" [isEditMode]="isEditMode()" /> }
+              @case ('low-stock')         { <app-low-stock-products /> }
+              @case ('top-products')      { <app-top-products-chart [widget]="widget" [isEditMode]="isEditMode()" /> }
+              @case ('recent-activity')   { <app-recent-activity /> }
+              @case ('cashflow-chart')    { <app-cashflow-chart    [widget]="widget" [isEditMode]="isEditMode()" /> }
+              @case ('expenses-chart')    { <app-expenses-chart    [widget]="widget" [isEditMode]="isEditMode()" /> }
+              @case ('ar-aging-chart')    { <app-ar-aging-chart    [widget]="widget" [isEditMode]="isEditMode()" /> }
+              @case ('financial-ratios')  { <app-financial-ratios /> }
+              @case ('kpi-roe')           { <app-kpi-roe /> }
+              @case ('kpi-roa')           { <app-kpi-roa /> }
+              @case ('kpi-current-ratio') { <app-kpi-current-ratio /> }
+              @case ('kpi-quick-ratio')   { <app-kpi-quick-ratio /> }
+              @case ('kpi-working-capital'){ <app-kpi-working-capital /> }
+              @case ('kpi-leverage')      { <app-kpi-leverage /> }
+              @case ('kpi-net-margin')    { <app-kpi-net-margin /> }
+              @case ('kpi-ebitda')        { <app-kpi-ebitda /> }
+              @case ('kpi-fcf')           { <app-kpi-fcf /> }
+            }
+          </div>
+        </gridster-item>
       }
     </gridster>
   </div>
 
 </div>
 
+<!-- ── Add Widget Drawer ────────────────────────────────────────── -->
 @if (isAddPanelOpen()) {
-<div class="modal-overlay" (click)="isAddPanelOpen.set(false)">
-  <div class="add-panel card" (click)="$event.stopPropagation()">
-    <div class="add-panel-header">
-      <h3>{{ 'DASH.ADD_PANEL.TITLE' | translate }}</h3>
-      <p>{{ 'DASH.ADD_PANEL.DESCRIPTION' | translate }}</p>
-      <button class="icon-button close-panel-btn" (click)="isAddPanelOpen.set(false)">
-        <lucide-icon [img]="CloseIcon" size="20"></lucide-icon>
-      </button>
-    </div>
-    <div class="add-panel-body">
-      <ul class="available-widgets-list">
-        @for (widget of availableWidgetsToAdd(); track widget['id']) {
-        <li class="available-widget">
-          <span>{{ widget['name'] }}</span>
-          <button class="secondary-button add-btn" (click)="addWidget(widget['id'])">
-            <lucide-icon [img]="PlusIcon" size="16"></lucide-icon>
-            <span>{{ 'DASH.ADD_PANEL.ADD' | translate }}</span>
-          </button>
-        </li>
-        } @empty {
-        <p class="empty-state">{{ 'DASH.ADD_PANEL.EMPTY' | translate }}</p>
+  <div class="db-drawer-overlay" (click)="isAddPanelOpen.set(false)">
+    <aside class="db-drawer" (click)="$event.stopPropagation()">
+      <div class="db-drawer__header">
+        <div>
+          <h3 class="db-drawer__title">{{ 'DASH.ADD_PANEL.TITLE' | translate }}</h3>
+          <p class="db-drawer__subtitle">{{ 'DASH.ADD_PANEL.DESCRIPTION' | translate }}</p>
+        </div>
+        <button class="db-drawer__close" (click)="isAddPanelOpen.set(false)">
+          <lucide-icon [img]="CloseIcon" size="18"></lucide-icon>
+        </button>
+      </div>
+
+      <div class="db-drawer__body">
+        @if (availableWidgetsToAdd().length > 0) {
+          <ul class="db-widget-list">
+            @for (w of availableWidgetsToAdd(); track w['id']) {
+              <li class="db-widget-item" (click)="addWidget(w['id'])">
+                <div class="db-widget-item__icon">
+                  <lucide-icon [img]="PlusIcon" size="16"></lucide-icon>
+                </div>
+                <span class="db-widget-item__name">{{ w['name'] }}</span>
+                <button class="db-widget-item__add">
+                  <lucide-icon [img]="PlusIcon" size="14"></lucide-icon>
+                </button>
+              </li>
+            }
+          </ul>
+        } @else {
+          <div class="db-drawer__empty">
+            <p>{{ 'DASH.ADD_PANEL.EMPTY' | translate }}</p>
+          </div>
         }
-      </ul>
-    </div>
+      </div>
+    </aside>
   </div>
-</div>
 }

@@ -1,253 +1,369 @@
-@use '../../../assets/styles/view-styles' as views;
-@use '../../../assets/styles/forms' as mixins;
+@use '../../../assets/styles/variables' as *;
 
 :host {
-    display: block;
-    height: 100%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 }
 
-.view-container {
-    @include views.view-container;
+// ── Shell ─────────────────────────────────────────────────────────
+.db-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--bg-primary);
+}
+
+// ── Header ────────────────────────────────────────────────────────
+.db-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.125rem 1.5rem;
+  background-color: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+
+  &__left { min-width: 0; flex: 1; }
+
+  &__title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.125rem;
+  }
+
+  &__subtitle {
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+    text-transform: capitalize;
+  }
+
+  &__actions {
     display: flex;
-    flex-direction: column;
-    height: 100%;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
 }
 
-.view-header {
-    @include views.view-header;
-    flex-shrink: 0;
+// ── Header Buttons ────────────────────────────────────────────────
+.db-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: 2.125rem;
+  padding: 0 0.875rem;
+  border-radius: var(--radius-md);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-card);
+  color: var(--text-secondary);
 
-    // margin: 24px;
-    margin-bottom: 2rem;
-}
+  &:hover { background-color: var(--bg-hover); color: var(--text-primary); }
 
-.header-actions {
-    @include views.header-actions;
-
-    .edit-button {
-
-        // Estilo para cuando el modo edición está activo
-        &.active {
-            background-color: var(--accent-primary);
-            color: var(--accent-text);
-            border-color: var(--accent-primary);
-        }
-    }
-}
-
-// --- Estilos de Gridster ---
-gridster {
-    flex-grow: 1;
-    display: block;
+  &--ghost {
     background-color: transparent;
-    transition: background-image 0.3s ease;
+    border-color: transparent;
 
-    // Placeholder que aparece al arrastrar o redimensionar un widget
-    ::ng-deep .gridster-preview {
-        background: var(--accent-primary-subtle);
-        border-radius: var(--border-radius-md);
-        border: 2px dashed var(--accent-primary);
-        // z-index: 2;
+    &:hover { background-color: var(--bg-hover); border-color: var(--border-color); }
+  }
+
+  &--editing {
+    background-color: var(--primary);
+    border-color: transparent;
+    color: white;
+
+    &:hover { background-color: var(--primary-hover); }
+  }
+}
+
+// ── Edit Mode Banner ──────────────────────────────────────────────
+.db-edit-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.5rem;
+  background-color: var(--primary-light);
+  border-bottom: 1px solid rgba(var(--primary-rgb), 0.2);
+  font-size: 0.8125rem;
+  color: var(--primary);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+// ── Grid Wrapper ──────────────────────────────────────────────────
+.db-grid-wrap {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1rem 1.5rem;
+}
+
+// ── Gridster overrides ─────────────────────────────────────────────
+gridster {
+  background: transparent !important;
+
+  // Drag preview placeholder
+  ::ng-deep .gridster-preview {
+    background: var(--primary-light) !important;
+    border: 2px dashed var(--primary) !important;
+    border-radius: var(--radius-lg) !important;
+    opacity: 0.7;
+  }
+
+  // Grid lines in edit mode
+  &.is-editing {
+    ::ng-deep .gridster-row,
+    ::ng-deep .gridster-column {
+      border-color: var(--border-color) !important;
+      opacity: 0.4;
     }
-
-    // Estilos que se aplican solo en modo edición
-    &.edit-mode {
-        // Líneas de guía sutiles para el grid
-        // background-image:
-        //     linear-gradient(to right, var(--border-color) 1px, transparent 1px),
-        //     linear-gradient(to bottom, var(--border-color) 1px, transparent 1px);
-        // // Se calcula el tamaño de la celda: (100% - márgenes) / # de columnas, y la altura fija de fila
-        // background-size: calc((100% - 48px) / 4) 80px;
-
-        // Manejadores de redimensionamiento siempre visibles
-        // ::ng-deep .gridster-item-resizable-handler {
-        //     display: block !important;
-        //     opacity: 0.8 !important;
-        //     background-color: var(--accent-primary);
-        //     border: 2px solid var(--bg-layer-1);
-        //     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
-        //     width: 14px;
-        //     height: 14px;
-        //     border-radius: 50%;
-        // }
-    }
+  }
 }
 
 gridster-item {
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    box-shadow: none;
-    border-radius: var(--border-radius-md);
+  border-radius: var(--radius-lg) !important;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 
-    &:not(.gridster-item-resizing, .gridster-item-dragging):hover {
-        transform: translateY(-4px);
-        box-shadow: 0 10px 20px -5px var(--shadow-color);
-        z-index: 3;
-    }
+  &:not(.gridster-item-resizing, .gridster-item-dragging):hover {
+    box-shadow: var(--shadow-lg);
+  }
 }
 
-.widget-container {
-    width: 100%;
-    height: 100%;
+// ── Widget Shell ──────────────────────────────────────────────────
+.db-widget {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: relative;
+  transition: border-color 0.15s;
+
+  &--editing {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-light);
+  }
+}
+
+// ── Widget Drag Handle (edit mode only) ───────────────────────────
+.widget-drag-handle {
+  position: absolute;
+  top: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  width: 2rem;
+  height: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  color: var(--text-tertiary);
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  opacity: 0;
+  transition: opacity 0.15s;
+
+  .db-widget--editing:hover & { opacity: 1; }
+
+  &:active { cursor: grabbing; }
+}
+
+// ── Remove Button (edit mode only) ───────────────────────────────
+.widget-remove-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 10;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 9999px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 0.15s, transform 0.15s, background-color 0.15s, color 0.15s;
+
+  .db-widget--editing:hover & {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  &:hover {
+    background-color: var(--error);
+    border-color: var(--error);
+    color: white;
+  }
+}
+
+// ── Add Widget Drawer ─────────────────────────────────────────────
+.db-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(3px);
+  display: flex;
+  justify-content: flex-end;
+  animation: overlay-fade 0.2s ease;
+}
+
+.db-drawer {
+  width: 360px;
+  max-width: 90vw;
+  height: 100%;
+  background-color: var(--bg-card);
+  border-left: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  animation: drawer-slide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &__header {
     display: flex;
-    flex-direction: column;
-    background-color: var(--bg-layer-3);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-md);
-    overflow: hidden;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    position: relative;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--bg-primary);
+    flex-shrink: 0;
+  }
 
-    &.edit-mode {
-        border-color: var(--accent-primary);
-        box-shadow: 0 0 0 3px var(--accent-primary-subtle);
-        cursor: move;
-    }
-}
+  &__title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+  }
 
-.remove-widget-btn {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    z-index: 10;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background-color: rgba(0, 0, 0, 0.3);
-    color: #ffffff;
-    border: none;
-    cursor: pointer;
+  &__subtitle {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+
+  &__close {
+    width: 2rem;
+    height: 2rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0;
-    transform: scale(0.8);
-    transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
-
-    .edit-mode & {
-        opacity: 0.7;
-    }
-
-    &:hover {
-        opacity: 1;
-        transform: scale(1);
-        background-color: #ef4444;
-    }
-}
-
-// --- Estilos para el Panel de Añadir Widgets ---
-
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
-    z-index: 1000;
-    display: flex;
-    justify-content: flex-end;
-    animation: fadeIn 0.3s ease;
-}
-
-.add-panel {
-    @include views.card;
-    width: 100%;
-    max-width: 400px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    border-radius: 0;
-    border-right: none;
-    border-top: none;
-    border-bottom: none;
-    padding: 0;
-    animation: slideIn 0.4s cubic-bezier(0.1, 0.9, 0.2, 1);
-}
-
-@keyframes slideIn {
-    from {
-        transform: translateX(100%);
-    }
-
-    to {
-        transform: translateX(0);
-    }
-}
-
-.add-panel-header {
-    padding: 1.5rem;
-    border-bottom: 1px solid var(--border-color);
-    position: relative;
+    border-radius: var(--radius-md);
+    background: transparent;
+    border: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition: var(--transition);
     flex-shrink: 0;
 
-    h3 {
-        font-size: 1.25rem;
-        color: var(--text-primary);
-    }
+    &:hover { background: var(--bg-hover); color: var(--text-primary); }
+  }
 
-    p {
-        color: var(--text-secondary);
-    }
-
-    .close-panel-btn {
-        // @include mixins.icon-button;
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-    }
-}
-
-.add-panel-body {
-    padding: 1.5rem;
+  &__body {
+    flex: 1;
     overflow-y: auto;
-    flex-grow: 1;
-}
-
-.available-widgets-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.available-widget {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     padding: 1rem;
-    border-radius: var(--border-radius-md);
-    background-color: var(--bg-solid);
+  }
+
+  &__empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-tertiary);
+    font-size: 0.9rem;
+  }
+}
+
+// ── Widget List in Drawer ─────────────────────────────────────────
+.db-widget-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.db-widget-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-primary);
+  cursor: pointer;
+  transition: var(--transition);
+
+  &:hover {
+    background-color: var(--primary-light);
+    border-color: rgba(var(--primary-rgb), 0.3);
+
+    .db-widget-item__add {
+      background-color: var(--primary);
+      border-color: transparent;
+      color: white;
+    }
+  }
+
+  &__icon {
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius-md);
+    background-color: var(--bg-tertiary);
+    color: var(--text-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &__name {
+    flex: 1;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  &__add {
+    width: 1.875rem;
+    height: 1.875rem;
+    border-radius: var(--radius-md);
+    background: transparent;
     border: 1px solid var(--border-color);
-
-    span {
-        font-weight: 600;
-        color: var(--text-primary);
-    }
-
-    .add-btn {
-        @include mixins.submit-button;
-        padding: 0.5rem 1rem;
-        font-size: 0.8rem;
-        background-color: var(--bg-layer-1);
-        color: var(--text-primary);
-        border: 1px solid var(--border-color);
-
-        &:hover {
-            background-color: var(--bg-hover);
-        }
-    }
+    color: var(--text-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+    flex-shrink: 0;
+  }
 }
 
-.empty-state {
-    @include views.empty-state;
+@keyframes overlay-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
-.dashboard-content {
-    padding: 24px;
-    width: 100%;
-    height: 100%;
-    overflow-y: scroll;
+@keyframes drawer-slide {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
 }

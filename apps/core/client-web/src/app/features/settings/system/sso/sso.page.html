@@ -1,26 +1,33 @@
 <div class="sso-settings">
-  <header class="sso-head">
+
+  <!-- Page Header -->
+  <div class="sso-head">
     <h1>Inicio de Sesión Único (SSO)</h1>
     <p class="muted">
       Conecta el proveedor de identidad de tu organización (Okta, Microsoft Entra, Google
-      Workspace, Ping, Auth0…). Tu IAM sigue siendo la fuente de verdad: el proveedor solo
-      verifica el correo una vez por inicio de sesión.
+      Workspace, Ping, Auth0…). Los usuarios de dominios verificados serán redirigidos
+      automáticamente a tu SSO al iniciar sesión.
     </p>
-  </header>
+  </div>
 
-  <div *ngIf="error()" class="alert alert-error" role="alert">{{ error() }}</div>
-  <div *ngIf="notice()" class="alert alert-ok" role="status">{{ notice() }}</div>
+  <!-- Alerts -->
+  @if (error()) {
+    <div class="alert alert-error" role="alert">{{ error() }}</div>
+  }
+  @if (notice()) {
+    <div class="alert alert-ok" role="status">{{ notice() }}</div>
+  }
 
-  <!-- ============ DOMAINS ============ -->
+  <!-- ══ SECTION: DOMAINS ══════════════════════════════════════════ -->
   <section class="card">
     <div class="card-head">
-      <h2>Dominios verificados</h2>
-      <p class="muted">
-        Verifica los dominios de correo de tu empresa. Solo los usuarios de un dominio
-        verificado serán enrutados a tu SSO.
-      </p>
+      <div>
+        <h2>Dominios Verificados</h2>
+        <p class="muted">Solo los usuarios de un dominio verificado serán enrutados a tu SSO.</p>
+      </div>
     </div>
 
+    <!-- Add domain inline form -->
     <form [formGroup]="domainForm" (ngSubmit)="addDomain()" class="inline-form">
       <input type="text" formControlName="domain" placeholder="acme.com" class="input" />
       <button type="submit" class="btn btn-primary" [disabled]="domainForm.invalid">
@@ -28,121 +35,152 @@
       </button>
     </form>
 
-    <table class="table" *ngIf="domains().length; else noDomains">
-      <thead>
-        <tr><th>Dominio</th><th>Estado</th><th>Registro DNS (TXT)</th><th></th></tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let d of domains()">
-          <td class="mono">{{ d.domain }}</td>
-          <td>
-            <span class="badge" [class.badge-ok]="d.verified" [class.badge-pending]="!d.verified">
-              {{ d.verified ? 'Verificado' : 'Pendiente' }}
-            </span>
-          </td>
-          <td>
-            <div class="dns" *ngIf="!d.verified">
-              <div><span class="dns-k">Host:</span> <span class="mono">{{ d.dnsRecord.host }}</span></div>
-              <div><span class="dns-k">Tipo:</span> <span class="mono">{{ d.dnsRecord.type }}</span></div>
-              <div class="dns-val">
-                <span class="dns-k">Valor:</span> <span class="mono">{{ d.dnsRecord.value }}</span>
-                <button type="button" class="btn-link" (click)="copy(d.dnsRecord.value)">copiar</button>
-              </div>
-            </div>
-            <span *ngIf="d.verified" class="muted">—</span>
-          </td>
-          <td class="row-actions">
-            <button *ngIf="!d.verified" type="button" class="btn btn-sm" (click)="verifyDomain(d)">
-              Verificar
-            </button>
-            <button type="button" class="btn btn-sm btn-danger" (click)="deleteDomain(d)">Eliminar</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <ng-template #noDomains>
-      <p class="muted">Aún no has agregado dominios.</p>
-    </ng-template>
+    @if (domains().length > 0) {
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Dominio</th>
+            <th>Estado</th>
+            <th>Registro DNS (TXT)</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (d of domains(); track d.id) {
+            <tr>
+              <td class="mono">{{ d.domain }}</td>
+              <td>
+                <span class="badge" [class.badge-ok]="d.verified" [class.badge-pending]="!d.verified">
+                  {{ d.verified ? 'Verificado' : 'Pendiente' }}
+                </span>
+              </td>
+              <td>
+                @if (!d.verified) {
+                  <div class="dns">
+                    <div><span class="dns-k">Host:</span> <span class="mono">{{ d.dnsRecord.host }}</span></div>
+                    <div><span class="dns-k">Tipo:</span> <span class="mono">{{ d.dnsRecord.type }}</span></div>
+                    <div class="dns-val">
+                      <span class="dns-k">Valor:</span>
+                      <span class="mono">{{ d.dnsRecord.value }}</span>
+                      <button type="button" class="btn-link" (click)="copy(d.dnsRecord.value)">copiar</button>
+                    </div>
+                  </div>
+                } @else {
+                  <span class="muted">—</span>
+                }
+              </td>
+              <td class="row-actions">
+                @if (!d.verified) {
+                  <button type="button" class="btn btn-sm" (click)="verifyDomain(d)">Verificar</button>
+                }
+                <button type="button" class="btn btn-sm btn-danger" (click)="deleteDomain(d)">Eliminar</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <p class="muted" style="padding: 1.5rem; text-align: center;">Aún no has agregado dominios.</p>
+    }
   </section>
 
-  <!-- ============ PROVIDERS ============ -->
+  <!-- ══ SECTION: PROVIDERS ════════════════════════════════════════ -->
   <section class="card">
     <div class="card-head">
-      <h2>Proveedores de identidad (OIDC)</h2>
-      <button type="button" class="btn btn-primary" (click)="startNewProvider()">Añadir proveedor</button>
+      <div>
+        <h2>Proveedores de Identidad (OIDC)</h2>
+        <p class="muted">
+          Configura tu proveedor OIDC. Requiere al menos un dominio verificado para activarlo.
+        </p>
+      </div>
+      <button type="button" class="btn btn-primary btn-sm" (click)="startNewProvider()">
+        Añadir proveedor
+      </button>
     </div>
 
-    <p *ngIf="!hasVerifiedDomain()" class="muted warn">
-      Debes verificar al menos un dominio antes de poder activar un proveedor.
-    </p>
-
-    <!-- Editor -->
-    <form *ngIf="editingProviderId()" [formGroup]="providerForm" (ngSubmit)="saveProvider()" class="provider-form">
-      <div class="grid">
-        <label>
-          <span>Nombre</span>
-          <input type="text" formControlName="name" class="input" placeholder="Acme Okta" />
-        </label>
-        <label>
-          <span>Issuer URL (discovery)</span>
-          <input type="text" formControlName="issuerUrl" class="input" placeholder="https://acme.okta.com/oauth2/default" />
-        </label>
-        <label>
-          <span>Client ID</span>
-          <input type="text" formControlName="clientId" class="input" />
-        </label>
-        <label>
-          <span>Client Secret <span class="muted">(en blanco = sin cambios)</span></span>
-          <input type="password" formControlName="clientSecret" class="input" autocomplete="new-password" />
-        </label>
-        <label>
-          <span>Scopes</span>
-          <input type="text" formControlName="scopes" class="input" placeholder="openid email profile" />
-        </label>
-        <label>
-          <span>Rol por defecto (UUID, opcional)</span>
-          <input type="text" formControlName="defaultRoleId" class="input" />
-        </label>
+    @if (!hasVerifiedDomain()) {
+      <div class="alert alert-ok" style="margin: 1.25rem 1.5rem 0; border-radius: var(--radius-md);">
+        Debes verificar al menos un dominio antes de poder activar un proveedor.
       </div>
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary" [disabled]="providerForm.invalid">Guardar</button>
-        <button type="button" class="btn" (click)="cancelEdit()">Cancelar</button>
-      </div>
-    </form>
+    }
 
-    <table class="table" *ngIf="providers().length; else noProviders">
-      <thead>
-        <tr><th>Nombre</th><th>Issuer</th><th>Redirect URI</th><th>Estado</th><th></th></tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let p of providers()">
-          <td>{{ p.name }}</td>
-          <td class="mono small">{{ p.issuerUrl }}</td>
-          <td class="mono small">
-            {{ p.redirectUri }}
-            <button type="button" class="btn-link" (click)="copy(p.redirectUri)">copiar</button>
-          </td>
-          <td>
-            <span class="badge" [class.badge-ok]="p.enabled" [class.badge-pending]="!p.enabled">
-              {{ p.enabled ? 'Activo' : 'Inactivo' }}
-            </span>
-          </td>
-          <td class="row-actions">
-            <button type="button" class="btn btn-sm" (click)="startEditProvider(p)">Editar</button>
-            <button
-              type="button"
-              class="btn btn-sm"
-              [disabled]="!p.enabled && !hasVerifiedDomain()"
-              (click)="toggleEnabled(p)">
-              {{ p.enabled ? 'Desactivar' : 'Activar' }}
-            </button>
-            <button type="button" class="btn btn-sm btn-danger" (click)="deleteProvider(p)">Eliminar</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <ng-template #noProviders>
-      <p class="muted">No hay proveedores configurados.</p>
-    </ng-template>
+    <!-- Inline Editor Form -->
+    @if (editingProviderId()) {
+      <form [formGroup]="providerForm" (ngSubmit)="saveProvider()" class="provider-form">
+        <div class="grid">
+          <label>
+            <span>Nombre</span>
+            <input type="text" formControlName="name" class="input" placeholder="Acme Okta" />
+          </label>
+          <label>
+            <span>Issuer URL (discovery)</span>
+            <input type="text" formControlName="issuerUrl" class="input" placeholder="https://acme.okta.com/oauth2/default" />
+          </label>
+          <label>
+            <span>Client ID</span>
+            <input type="text" formControlName="clientId" class="input" />
+          </label>
+          <label>
+            <span>Client Secret <span class="muted">(en blanco = sin cambios)</span></span>
+            <input type="password" formControlName="clientSecret" class="input" autocomplete="new-password" />
+          </label>
+          <label>
+            <span>Scopes</span>
+            <input type="text" formControlName="scopes" class="input" placeholder="openid email profile" />
+          </label>
+          <label>
+            <span>Rol por defecto <span class="muted">(UUID, opcional)</span></span>
+            <input type="text" formControlName="defaultRoleId" class="input" />
+          </label>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="providerForm.invalid">Guardar</button>
+          <button type="button" class="btn" (click)="cancelEdit()">Cancelar</button>
+        </div>
+      </form>
+    }
+
+    @if (providers().length > 0) {
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Issuer</th>
+            <th>Redirect URI</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of providers(); track p.id) {
+            <tr>
+              <td style="font-weight: 600; color: var(--text-primary);">{{ p.name }}</td>
+              <td class="mono small">{{ p.issuerUrl }}</td>
+              <td class="mono small">
+                {{ p.redirectUri }}
+                <button type="button" class="btn-link" (click)="copy(p.redirectUri)">copiar</button>
+              </td>
+              <td>
+                <span class="badge" [class.badge-ok]="p.enabled" [class.badge-pending]="!p.enabled">
+                  {{ p.enabled ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="row-actions">
+                <button type="button" class="btn btn-sm" (click)="startEditProvider(p)">Editar</button>
+                <button type="button" class="btn btn-sm"
+                        [disabled]="!p.enabled && !hasVerifiedDomain()"
+                        (click)="toggleEnabled(p)">
+                  {{ p.enabled ? 'Desactivar' : 'Activar' }}
+                </button>
+                <button type="button" class="btn btn-sm btn-danger" (click)="deleteProvider(p)">Eliminar</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <p class="muted" style="padding: 1.5rem; text-align: center;">No hay proveedores configurados.</p>
+    }
   </section>
+
 </div>

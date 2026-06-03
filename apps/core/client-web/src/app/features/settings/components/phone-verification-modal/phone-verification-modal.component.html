@@ -1,80 +1,80 @@
-
-<div class="modal-overlay" *ngIf="isOpen()" (click)="close.emit()">
-
-  <div class="modal-content" (click)="$event.stopPropagation()">
+<div class="pvm-overlay" *ngIf="isOpen()" (click)="close.emit()">
+  <div class="pvm-box" (click)="$event.stopPropagation()">
 
     <!-- Header -->
-    <div class="modal-header">
-      <h3>
-        <lucide-icon [img]="PhoneIcon" class="w-5 h-5 text-primary-500"></lucide-icon>
+    <div class="pvm-header">
+      <div class="pvm-header__title">
+        <lucide-icon [img]="PhoneIcon" size="18"></lucide-icon>
         {{ 'SETTINGS.PROFILE.PHONE_VERIFICATION.TITLE' | translate }}
-      </h3>
-      <button (click)="close.emit()" class="modal-header__close-btn">
-        <lucide-icon [img]="XIcon" class="w-5 h-5"></lucide-icon>
+      </div>
+      <button class="pvm-header__close" (click)="close.emit()">
+        <lucide-icon [img]="XIcon" size="18"></lucide-icon>
       </button>
     </div>
 
     <!-- Body -->
-    <div class="modal-body">
+    <div class="pvm-body">
 
-      <!-- Step 1: Enter Phone -->
-      <div *ngIf="!otpSent()" class="space-y-6">
-        <p class="info-text">
-          {{ 'SETTINGS.PROFILE.PHONE_VERIFICATION.DESCRIPTION' | translate }}
-        </p>
+      <!-- Step 1: Enter phone number -->
+      @if (!otpSent()) {
+        <div class="pvm-step">
+          <p class="pvm-info">{{ 'SETTINGS.PROFILE.PHONE_VERIFICATION.DESCRIPTION' | translate }}</p>
 
-        <div class="form-group">
-          <label>
-            {{ 'SETTINGS.PROFILE.PHONE_NUMBER' | translate }}
-          </label>
-          <input type="tel"
-                 [formControl]="phoneControl"
-                 placeholder="+1234567890">
-          <p *ngIf="phoneControl.invalid && phoneControl.touched" class="form-group__error">
-            {{ 'AUTH.ERRORS.INVALID_PHONE' | translate }}
-          </p>
-        </div>
+          <div class="pvm-field">
+            <label class="pvm-label">{{ 'SETTINGS.PROFILE.PHONE_NUMBER' | translate }}</label>
+            <input type="tel"
+                   [formControl]="phoneControl"
+                   placeholder="+1 (809) 555-0000">
+            @if (phoneControl.invalid && phoneControl.touched) {
+              <p class="pvm-error">{{ 'AUTH.ERRORS.INVALID_PHONE' | translate }}</p>
+            }
+          </div>
 
-        <button (click)="sendOtp()"
-                [disabled]="phoneControl.invalid || isLoading()"
-                class="btn-primary">
-          <span *ngIf="isLoading()" class="mr-2 animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
-          {{ 'SETTINGS.PROFILE.PHONE_VERIFICATION.SEND_CODE' | translate }}
-        </button>
-      </div>
-
-      <!-- Step 2: Enter OTP -->
-      <div *ngIf="otpSent()" class="space-y-6 animate-in slide-in-from-bottom-2 duration-300">
-        <p class="info-text text-center">
-          {{ 'SETTINGS.PROFILE.PHONE_VERIFICATION.OTP_SENT_TO' | translate }}
-          <br>
-          <span class="font-semibold text-gray-900 dark:text-white text-lg block mt-1">{{ phoneControl.value }}</span>
-        </p>
-
-        <div class="form-group">
-          <label class="text-center w-full block">
-            {{ 'SETTINGS.PROFILE.PHONE_VERIFICATION.ENTER_CODE' | translate }}
-          </label>
-          <input type="text"
-                 [formControl]="otpControl"
-                 maxlength="6"
-                 class="otp-input"
-                 placeholder="000000">
-        </div>
-
-        <button (click)="verifyOtp()"
-                [disabled]="otpControl.invalid || isLoading()"
-                class="btn-primary">
-          <span *ngIf="isLoading()" class="mr-2 animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
-          {{ 'SETTINGS.PROFILE.PHONE_VERIFICATION.VERIFY' | translate }}
-        </button>
-
-        <div class="text-center pt-2 border-t border-gray-100 dark:border-gray-800">
-          <button (click)="otpSent.set(false)" class="btn-link">
-            {{ 'SETTINGS.PROFILE.PHONE_VERIFICATION.WRONG_NUMBER' | translate }}
+          <button class="pvm-btn-primary"
+                  (click)="sendOtp()"
+                  [disabled]="phoneControl.invalid || isLoading()">
+            @if (isLoading()) {
+              <span class="pvm-spinner"></span>
+            }
+            {{ 'SETTINGS.PROFILE.PHONE_VERIFICATION.SEND_CODE' | translate }}
           </button>
         </div>
-      </div>
+      }
+
+      <!-- Step 2: Enter OTP -->
+      @if (otpSent()) {
+        <div class="pvm-step pvm-step--otp">
+          <div class="pvm-otp-info">
+            <p class="pvm-info">{{ 'SETTINGS.PROFILE.PHONE_VERIFICATION.OTP_SENT_TO' | translate }}</p>
+            <p class="pvm-phone-display">{{ phoneControl.value }}</p>
+          </div>
+
+          <div class="pvm-field">
+            <label class="pvm-label pvm-label--center">{{ 'SETTINGS.PROFILE.PHONE_VERIFICATION.ENTER_CODE' | translate }}</label>
+            <input type="text"
+                   [formControl]="otpControl"
+                   maxlength="6"
+                   class="pvm-otp-input"
+                   placeholder="000000"
+                   autocomplete="one-time-code">
+          </div>
+
+          <button class="pvm-btn-primary"
+                  (click)="verifyOtp()"
+                  [disabled]="otpControl.invalid || isLoading()">
+            @if (isLoading()) {
+              <span class="pvm-spinner"></span>
+            }
+            {{ 'SETTINGS.PROFILE.PHONE_VERIFICATION.VERIFY' | translate }}
+          </button>
+
+          <div class="pvm-back">
+            <button class="pvm-link" (click)="otpSent.set(false)">
+              {{ 'SETTINGS.PROFILE.PHONE_VERIFICATION.WRONG_NUMBER' | translate }}
+            </button>
+          </div>
+        </div>
+      }
 
     </div>
   </div>

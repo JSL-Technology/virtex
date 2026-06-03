@@ -13,7 +13,7 @@ import { InvoiceStatus } from './widgets/invoice-status/invoice-status';
 import { LowStockProducts } from './widgets/low-stock-products/low-stock-products';
 import { TopProductsChart } from './widgets/top-products-chart/top-products-chart';
 import { RecentActivity } from './widgets/recent-activity/recent-activity';
-import { LucideAngularModule, LayoutDashboard, Settings, Plus, X, Trash } from 'lucide-angular';
+import { LucideAngularModule, LayoutDashboard, Settings, Plus, X, Trash, GripVertical } from 'lucide-angular';
 import { AuthService } from '../../core/services/auth';
 import { CashflowChart } from "./widgets/cashflow-chart/cashflow-chart";
 import { ExpensesChart } from "./widgets/expenses-chart/expenses-chart";
@@ -73,6 +73,9 @@ export class DashboardPage implements OnInit {
   protected readonly PlusIcon = Plus;
   protected readonly CloseIcon = X;
   protected readonly TrashIcon = Trash;
+  protected readonly DragIcon = GripVertical;
+
+  readonly today = new Date();
 
 
   //  private dashboardService = inject(DashboardService);
@@ -126,17 +129,24 @@ export class DashboardPage implements OnInit {
 
   private updateGridOptions(isEditing: boolean): void {
     this.gridOptions = {
-      // gridType: GridType.ScrollVertical,
       gridType: GridType.VerticalFixed,
       compactType: CompactType.None,
-      // margin: 16,
-      margin: 0,
+      margin: 14,
       outerMargin: true,
+      outerMarginTop: 0,
+      outerMarginRight: 0,
+      outerMarginBottom: 24,
+      outerMarginLeft: 0,
       mobileBreakpoint: 768,
-      // minCols: 50,
-      // maxCols: 50,
-      fixedRowHeight: 25,
-      draggable: { enabled: isEditing },
+      fixedRowHeight: 50,
+      minCols: 4,
+      maxCols: 4,
+      minRows: 1,
+      draggable: {
+        enabled: isEditing,
+        ignoreContent: true,
+        dragHandleClass: 'widget-drag-handle',
+      },
       resizable: { enabled: isEditing },
       pushItems: isEditing,
       displayGrid: isEditing ? DisplayGrid.Always : DisplayGrid.None,

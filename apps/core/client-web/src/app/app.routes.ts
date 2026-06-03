@@ -2,6 +2,7 @@ import { Routes, UrlSegment, UrlMatchResult } from '@angular/router';
 import { authGuard } from './core/guards/auth-guard';
 import { publicGuard } from './core/guards/public.guard';
 import { permissionsGuard } from './core/guards/permissions-guard';
+import { settingsModalRedirectGuard } from './core/guards/settings-modal-redirect.guard';
 import { MainLayout } from './layout/main/main.layout';
 import { RouteRedirectorComponent } from './core/components/route-redirector/route-redirector';
 import { languageInitGuard } from './core/guards/language-init.guard';
@@ -213,13 +214,30 @@ export const APP_ROUTES: Routes = [
             (m) => m.ACCOUNTING_ROUTES
           ),
       },
+      // Direct navigation to /settings/* is intercepted and reopened in the modal outlet.
       {
         path: 'settings',
-        title: 'Configuración',
-        loadChildren: () =>
-          import('./features/settings/settings.routes').then(
-            (m) => m.SETTINGS_ROUTES
+        canActivate: [settingsModalRedirectGuard],
+        component: RouteRedirectorComponent,
+        children: [{ path: '**', component: RouteRedirectorComponent }],
+      },
+      // Settings modal — rendered as overlay over any primary route via the 'modal' outlet.
+      {
+        path: 'settings',
+        outlet: 'modal',
+        loadComponent: () =>
+          import('./features/settings/modal/settings-modal.component').then(
+            (m) => m.SettingsModalComponent
           ),
+        children: [
+          {
+            path: '',
+            loadChildren: () =>
+              import('./features/settings/settings.routes').then(
+                (m) => m.SETTINGS_ROUTES
+              ),
+          },
+        ],
       },
       {
         path: 'reports',

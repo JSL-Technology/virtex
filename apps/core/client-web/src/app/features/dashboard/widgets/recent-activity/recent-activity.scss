@@ -1,95 +1,77 @@
-@use '../../../../../assets/styles/forms' as mixins;
 @use '../widget-styles.scss';
 
 .widget-content {
-    padding: 1.5rem 1rem 1.5rem 2rem; // Más padding a la izquierda para la línea de tiempo
+  padding: 0.75rem 1rem 0.75rem 2rem;
 }
 
 .activity-timeline {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    position: relative;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  position: relative;
 
-    // Línea vertical de la línea de tiempo
-    &::before {
-        content: '';
-        position: absolute;
-        left: 17px; // Centrado con el ícono
-        top: 0;
-        bottom: 0;
-        width: 2px;
-        background-color: var(--border-color);
-    }
+  &::before {
+    content: '';
+    position: absolute;
+    left: -1rem;
+    top: 18px;
+    bottom: 18px;
+    width: 2px;
+    background-color: var(--border-color);
+  }
 }
 
 .activity-item {
-    display: flex;
-    gap: 1.25rem;
-    position: relative;
+  display: flex;
+  gap: 0.875rem;
+  position: relative;
 
-    &:not(:last-child) {
-        padding-bottom: 1.75rem;
-    }
+  &:not(:last-child) { padding-bottom: 1.25rem; }
 }
 
-.timeline-connector {
-    flex-shrink: 0;
-    position: relative;
-}
+.timeline-connector { flex-shrink: 0; position: relative; }
 
 .timeline-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    // El fondo del body asegura que la línea de tiempo no pase a través del ícono
-    background-color: var(--bg-layer-1);
-    border: 2px solid;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-card);
+  border: 2px solid var(--border-color);
+  margin-left: -1.9rem;
 
-    &.invoice {
-        border-color: var(--accent-500);
-        color: var(--accent-600);
-    }
-
-    &.product {
-        border-color: #4ade80;
-        color: #16a34a;
-    }
-
-    &.user {
-        border-color: #fb923c;
-        color: #f97316;
-    }
-
-    &.sale {
-        border-color: #8b5cf6;
-        color: #7c3aed;
-    }
+  &.invoice { border-color: var(--primary); color: var(--primary); }
+  &.product { border-color: #22c55e; color: #16a34a; }
+  &.user    { border-color: #f97316; color: #ea580c; }
+  &.sale    { border-color: #a855f7; color: #9333ea; }
 }
 
 .activity-details {
-    padding-top: 0.25rem;
+  padding-top: 0.125rem;
+  flex: 1;
+  min-width: 0;
+}
 
-    .activity-text {
-        font-weight: 500;
-        color: var(--text-primary);
-        margin-bottom: 0.25rem;
-        line-height: 1.4;
-    }
+.activity-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 0.125rem;
+  line-height: 1.4;
+}
 
-    .activity-time {
-        font-size: 0.8rem;
-        color: var(--text-secondary);
-    }
+.activity-time {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
 }
 
 .empty-state {
-    // @include mixins.empty-state;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+  font-size: 0.875rem;
 }

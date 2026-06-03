@@ -17,7 +17,7 @@
   <div class="banner-content">
     <strong>¡Atención!</strong> Tu pago está pendiente. Tienes acceso temporal hasta el {{ authService.currentUser()?.organization?.gracePeriodEnd | date:'mediumDate' }}.
   </div>
-  <a routerLink="/settings/billing" class="btn-resolve">Resolver Ahora</a>
+  <a (click)="openSettings('billing')" class="btn-resolve" style="cursor:pointer">Resolver Ahora</a>
 </div>
 
 
@@ -75,7 +75,7 @@
       <a routerLink="/contacts" routerLinkActive="active" class="nav-link">
         {{ "NAV.CONTACTS" | translate }}
       </a>
-      <a routerLink="/settings" routerLinkActive="active" class="nav-link">
+      <a (click)="openSettings()" [class.active]="isSettingsOpen()" class="nav-link" style="cursor:pointer">
         {{ "NAV.SETTINGS" | translate }}
       </a>
     </nav>
@@ -320,23 +320,21 @@
           </div>
 
           <div class="dropdown-body">
-            <a
-              routerLink="/settings/profile"
+            <button
               class="dropdown-item"
-              (click)="closeUserMenu()"
+              (click)="openSettings('my-profile'); closeUserMenu()"
             >
               <lucide-icon [img]="UserIcon" size="16"></lucide-icon>
               <span>{{ "USER.MY_PROFILE" | translate }}</span>
-            </a>
+            </button>
 
-            <a
-              routerLink="/settings"
+            <button
               class="dropdown-item"
-              (click)="closeUserMenu()"
+              (click)="openSettings(); closeUserMenu()"
             >
               <lucide-icon [img]="SettingsIcon" size="16"></lucide-icon>
               <span>{{ "NAV.SETTINGS" | translate }}</span>
-            </a>
+            </button>
           </div>
 
           <div class="dropdown-footer">
@@ -358,3 +356,6 @@
 <main class="main-content">
   <router-outlet></router-outlet>
 </main>
+
+<!-- Settings modal overlay — rendered over any primary route -->
+<router-outlet name="modal"></router-outlet>

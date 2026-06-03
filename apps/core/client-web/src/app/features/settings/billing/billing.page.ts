@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, CreditCard, Download, CheckCircle, Info } from 'lucide-angular';
+import { LucideAngularModule, CreditCard, Download, CheckCircle, Info, Zap } from 'lucide-angular';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { BillingService, Subscription, PaymentMethod, PaymentHistoryItem } from '../../../core/services/billing';
 

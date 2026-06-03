@@ -1,0 +1,86 @@
+<div class="sess-page">
+
+  <div class="sess-header">
+    <div class="sess-header__text">
+      <h1 class="sess-header__title">Sesiones Activas</h1>
+      <p class="sess-header__subtitle">Revisa y administra los dispositivos con acceso activo a tu cuenta.</p>
+    </div>
+    <button class="sess-refresh" (click)="load()" [disabled]="loading()">
+      <lucide-icon [img]="RefreshIcon" size="16"></lucide-icon>
+      Actualizar
+    </button>
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="sess-card sess-loading">
+      <div class="sess-spinner"></div>
+      <span>Cargando sesiones…</span>
+    </div>
+  }
+
+  <!-- Empty -->
+  @if (!loading() && sessions().length === 0) {
+    <div class="sess-card sess-empty">
+      <lucide-icon [img]="MonitorIcon" size="32"></lucide-icon>
+      <p>No hay sesiones activas registradas.</p>
+    </div>
+  }
+
+  <!-- Session List -->
+  @if (!loading() && sessions().length > 0) {
+    <div class="sess-card">
+      @for (session of sessions(); track session.id) {
+        <div class="sess-item" [class.sess-item--current]="session.isCurrent">
+
+          <div class="sess-item__device-icon">
+            @if (session.deviceType === 'mobile') {
+              <lucide-icon [img]="SmartphoneIcon" size="20"></lucide-icon>
+            } @else {
+              <lucide-icon [img]="MonitorIcon" size="20"></lucide-icon>
+            }
+          </div>
+
+          <div class="sess-item__info">
+            <div class="sess-item__browser">
+              {{ session.browser || 'Navegador desconocido' }}
+              <span class="sess-item__os">en {{ session.os || 'SO desconocido' }}</span>
+              @if (session.isCurrent) {
+                <span class="sess-badge-current">Sesión actual</span>
+              }
+            </div>
+            <div class="sess-item__meta">
+              <span>
+                <lucide-icon [img]="MapPinIcon" size="12"></lucide-icon>
+                {{ session.city || '—' }}{{ session.city && session.country ? ', ' : '' }}{{ session.country || '' }}
+              </span>
+              <span class="sess-item__sep">·</span>
+              <span>
+                <lucide-icon [img]="ClockIcon" size="12"></lucide-icon>
+                {{ (session.lastActiveAt || session.createdAt) | date:'d MMM y, HH:mm' }}
+              </span>
+              <span class="sess-item__sep">·</span>
+              <span class="sess-item__ip">IP {{ session.ipAddress || '—' }}</span>
+            </div>
+          </div>
+
+          @if (!session.isCurrent) {
+            <button class="sess-revoke"
+                    (click)="revoke(session.id)"
+                    [disabled]="processingId() === session.id"
+                    title="Revocar sesión">
+              @if (processingId() === session.id) {
+                <span class="sess-spinner sess-spinner--sm"></span>
+              } @else {
+                <lucide-icon [img]="RevokeIcon" size="16"></lucide-icon>
+              }
+              Revocar
+            </button>
+          }
+
+        </div>
+      }
+    </div>
+  }
+
+</div>

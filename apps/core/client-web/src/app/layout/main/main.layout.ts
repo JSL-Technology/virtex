@@ -2,7 +2,9 @@
 
 import { Component, inject, signal, HostListener, ElementRef, HostBinding, OnInit, WritableSignal, ViewChild, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { filter, map, startWith } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth';
 import { BrandingService } from '../../core/services/branding';
 import { NotificationCenterService } from '../../core/services/notification-center.service';
@@ -123,6 +125,21 @@ export class MainLayout implements OnInit {
       this.authService.currentUser()?.organization?.name || 'FacturaPRO'
     );
   });
+
+  private readonly routerUrl = toSignal(
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd),
+      map(e => (e as NavigationEnd).url),
+      startWith(this.router.url),
+    ),
+    { initialValue: this.router.url }
+  );
+
+  readonly isSettingsOpen = computed(() => this.routerUrl().includes('(modal:settings'));
+
+  openSettings(section = 'profile'): void {
+    this.router.navigate([{ outlets: { modal: ['settings', section] } }]);
+  }
 
   isUserMenuOpen = signal(false);
   isNotificationMenuOpen = signal(false);

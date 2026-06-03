@@ -19,7 +19,8 @@ import {
   Percent,
   CalendarClock,
   ArrowRightLeft,
-  Bell
+  Bell,
+  CreditCard,
 } from 'lucide-angular';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { CommonModule } from '@angular/common';
@@ -51,6 +52,7 @@ export class SettingsLayout implements OnInit, OnDestroy {
   // Categoría: Mi Cuenta
   protected readonly MyProfileIcon = UserCircle;
   protected readonly NotificationsIcon = Bell;
+  protected readonly BillingIcon = CreditCard;
 
   // Categoría: Organización
   protected readonly OrgProfileIcon = Building;

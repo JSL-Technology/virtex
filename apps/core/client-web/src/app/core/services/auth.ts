@@ -275,22 +275,31 @@ export class AuthService {
         }
       }),
       catchError((err: HttpErrorResponse) => {
-        // Mejor manejo de errores: Distinguir entre 401/403 (No autorizado) y 500+ (Error del servidor)
         if (err.status === 401 || err.status === 403) {
-            this._currentUser.set(null);
-            this._authStatus.set(AuthStatus.unauthenticated);
-            this.webSocketService.disconnect();
-            return of(false);
-        } else {
-            // Error de servidor o de red
-            // Opcional: Podríamos mantener el estado anterior o poner un estado 'error',
-            // pero por seguridad asumimos no autenticado si el backend falla,
-            // pero lo logueamos claramente.
-            this._currentUser.set(null);
-            this._authStatus.set(AuthStatus.unauthenticated);
-             this.webSocketService.disconnect();
-            return of(false);
+          // Access token may have expired — attempt a silent refresh before giving up.
+          // IS_PUBLIC_API on the status call prevents the interceptor from doing this
+          // automatically, so we handle it here.
+          return this.refreshAccessToken().pipe(
+            tap((response) => {
+              if (response?.user) {
+                this.webSocketService.connect();
+                this.webSocketService.emit('user-status', { isOnline: true });
+                this.listenForForcedLogout();
+              }
+            }),
+            map((response) => !!response?.user),
+            catchError(() => {
+              this._currentUser.set(null);
+              this._authStatus.set(AuthStatus.unauthenticated);
+              this.webSocketService.disconnect();
+              return of(false);
+            })
+          );
         }
+        this._currentUser.set(null);
+        this._authStatus.set(AuthStatus.unauthenticated);
+        this.webSocketService.disconnect();
+        return of(false);
       })
     );
   }

@@ -1,133 +1,125 @@
-@use '../../../../../assets/styles/forms' as mixins;
 @use '../widget-styles.scss';
 
 .widget-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
+// ── Header action area ────────────────────────────────────────────
 .header-actions {
-    margin-left: auto;
-    position: relative;
-    display: flex;
-    gap: 0.25rem;
+  margin-left: auto;
+  position: relative;
+  display: flex;
+  gap: 0.25rem;
 }
 
 .icon-button {
-    @include mixins.icon-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.875rem;
+  height: 1.875rem;
+  border-radius: var(--radius-md);
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: var(--transition);
+
+  &:hover { background-color: var(--bg-hover); color: var(--text-primary); }
 }
 
+// ── Export / Settings Dropdown ────────────────────────────────────
 .export-dropdown,
 .edit-dropdown {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    min-width: 220px;
-    background-color: var(--bg-layer-1);
-    border: 1px solid var(--border-color);
-    box-shadow: 0 8px 16px var(--shadow-color);
-    border-radius: var(--border-radius-md);
-    padding: 0.5rem;
-    z-index: 1000;
-    animation: dropdown-fade-in 0.2s ease;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 200px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-lg);
+  padding: 0.375rem;
+  z-index: 200;
+  animation: dd-pop 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+
+  button {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 0.4375rem 0.625rem;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-primary);
     display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-
-    .dropdown-section {
-        padding-bottom: 0.5rem;
-
-        &:not(:last-child) {
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 0.5rem;
-        }
-    }
-
-    button {
-        width: 100%;
-        background: none;
-        border: none;
-        padding: 0.5rem 0.75rem;
-        text-align: left;
-        cursor: pointer;
-        font-size: 13px;
-        font-weight: 500;
-        color: var(--text-primary);
-        display: flex;
-        gap: 0.75rem;
-        align-items: center;
-        border-radius: var(--border-radius-sm);
-
-        &:hover {
-            background: var(--bg-hover);
-            color: var(--accent-primary);
-        }
-
-        &.active {
-            color: var(--accent-primary);
-            background: var(--accent-primary-subtle);
-        }
-    }
-
-    .dropdown-title {
-        display: block;
-        padding: 0.5rem 0.75rem;
-        font-size: 11px;
-        font-weight: 700;
-        text-transform: uppercase;
-        color: var(--text-secondary);
-        letter-spacing: .03em;
-    }
-
-    hr {
-        margin: 0.35rem 0;
-        border: none;
-        border-top: 1px solid var(--border-color);
-    }
-}
-
-.color-picker-item {
-    display: flex;
+    gap: 0.625rem;
     align-items: center;
-    justify-content: space-between;
-    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-md);
+    font-family: inherit;
 
-    label {
-        font-size: 0.85rem;
-        font-weight: 500;
-        color: var(--text-primary);
+    &:hover {
+      background: var(--bg-hover);
+      color: var(--primary);
     }
 
-    input[type="color"] {
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-        width: 28px;
-        height: 28px;
-        background-color: transparent;
-        border: none;
-        cursor: pointer;
-
-        &::-webkit-color-swatch-wrapper {
-            padding: 0;
-        }
-
-        &::-webkit-color-swatch {
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius-sm);
-        }
+    &.active {
+      color: var(--primary);
+      background: var(--primary-light);
     }
+  }
+
+  hr {
+    margin: 0.25rem 0;
+    border: none;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .dropdown-title {
+    display: block;
+    padding: 0.375rem 0.625rem 0.125rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    letter-spacing: 0.05em;
+  }
 }
 
-@keyframes dropdown-fade-in {
-    from {
-        opacity: 0;
-        transform: translateY(-5px);
-    }
+// ── Color picker items ────────────────────────────────────────────
+.color-picker-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.375rem 0.625rem;
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  input[type="color"] {
+    width: 28px;
+    height: 28px;
+    padding: 2px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    background: transparent;
+
+    &::-webkit-color-swatch { border-radius: 3px; border: none; }
+    &::-webkit-color-swatch-wrapper { padding: 0; }
+  }
+}
+
+@keyframes dd-pop {
+  from { opacity: 0; transform: scale(0.96) translateY(-4px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
 }

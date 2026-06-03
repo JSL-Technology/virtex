@@ -3,9 +3,24 @@ import { Twilio } from 'twilio';
 import { AuthConfig } from '../auth.config';
 import { AbstractSmsProvider } from './abstract-sms.provider';
 
+// Normalize phone to E.164. Handles the most common user input patterns.
+// Dominican Republic uses NANP (+1), so 10-digit numbers (with or without +) get +1 prepended.
+function normalizeToE164(phone: string): string {
+  const stripped = phone.replace(/[\s\-().]/g, '');
+  // Already correct E.164: + followed by 11-15 digits (country code + subscriber)
+  if (/^\+\d{11,15}$/.test(stripped)) return stripped;
+  // + followed by exactly 10 digits → country code missing, assume NANP (+1)
+  if (/^\+(\d{10})$/.test(stripped)) return `+1${stripped.slice(1)}`;
+  // 11 digits starting with 1 → NANP with country code, just add +
+  if (/^1\d{10}$/.test(stripped)) return `+${stripped}`;
+  // 10 bare digits → NANP, add +1
+  if (/^\d{10}$/.test(stripped)) return `+1${stripped}`;
+  return stripped;
+}
+
 @Injectable()
 export class TwilioSmsProvider implements AbstractSmsProvider {
-  private readonly client: Twilio;
+  private readonly client!: Twilio;
   private readonly logger = new Logger(TwilioSmsProvider.name);
 
   constructor() {
@@ -22,15 +37,17 @@ export class TwilioSmsProvider implements AbstractSmsProvider {
         return;
     }
 
+    const normalized = normalizeToE164(to);
+
     try {
       await this.client.messages.create({
         body,
         from: AuthConfig.TWILIO_PHONE_NUMBER,
-        to,
+        to: normalized,
       });
-      this.logger.log(`SMS sent successfully to ${to}`);
+      this.logger.log(`SMS sent successfully to ${normalized}`);
     } catch (error) {
-      this.logger.error(`Failed to send SMS to ${to}: ${(error as Error).message}`);
+      this.logger.error(`Failed to send SMS to ${normalized}: ${(error as Error).message}`);
       throw error;
     }
   }

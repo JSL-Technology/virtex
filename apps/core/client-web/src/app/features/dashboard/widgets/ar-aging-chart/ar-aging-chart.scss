@@ -24,10 +24,10 @@
     top: calc(100% + 8px);
     right: 0;
     min-width: 220px;
-    background-color: var(--bg-layer-1);
+    background-color: var(--bg-card);
     border: 1px solid var(--border-color);
-    box-shadow: 0 8px 16px var(--shadow-color);
-    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-lg);
+    border-radius: var(--radius-lg);
     padding: 0.5rem;
     z-index: 1000;
     animation: dropdown-fade-in 0.2s ease;
@@ -57,16 +57,16 @@
         display: flex;
         gap: 0.75rem;
         align-items: center;
-        border-radius: var(--border-radius-sm);
+        border-radius: var(--radius-md);
 
         &:hover {
             background: var(--bg-hover);
-            color: var(--accent-primary);
+            color: var(--primary);
         }
 
         &.active {
-            color: var(--accent-primary);
-            background: var(--accent-primary-subtle);
+            color: var(--primary);
+            background: var(--primary-light);
         }
     }
 
@@ -115,7 +115,7 @@
 
         &::-webkit-color-swatch {
             border: 1px solid var(--border-color);
-            border-radius: var(--border-radius-sm);
+            border-radius: var(--radius-md);
         }
     }
 }
