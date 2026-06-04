@@ -1,5 +1,5 @@
 
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, UseFilters, ParseUUIDPipe, UseInterceptors, UploadedFile, BadRequestException, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, UseFilters, ParseUUIDPipe, UseInterceptors, UploadedFile, BadRequestException, HttpCode, HttpStatus, Ip } from '@nestjs/common';
 import { FastifyFileInterceptor } from '../common/interceptors/fastify-file.interceptor';
 import { FastifyFile } from '../common/interfaces/fastify-file.interface';
 import { ThrottlerGuard } from '@nestjs/throttler';
