@@ -14,7 +14,7 @@ import { ToastContainerComponent } from './shared/components/ui/toast/toast-cont
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ModalComponent, CommonModule, LoaderComponent, GeoMismatchModalComponent, ToastContainerComponent],
+  imports: [RouterOutlet, ModalComponent, CommonModule, GeoMismatchModalComponent, ToastContainerComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
