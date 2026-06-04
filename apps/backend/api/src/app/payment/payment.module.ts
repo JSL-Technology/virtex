@@ -8,11 +8,13 @@ import { Organization } from '../organizations/entities/organization.entity';
 import { WebhookEvent } from './entities/webhook-event.entity';
 import { SaasModule } from '../saas/saas.module';
 import { StripePaymentAdapter } from './adapters/stripe-payment.adapter';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
     ConfigModule,
-    TypeOrmModule.forFeature([Organization, WebhookEvent])
+    TypeOrmModule.forFeature([Organization, WebhookEvent]),
+    forwardRef(() => AuthModule),
   ],
   controllers: [PaymentController],
   providers: [

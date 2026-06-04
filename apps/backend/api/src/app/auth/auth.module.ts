@@ -141,7 +141,7 @@ import { KeyManagementService } from './services/key-management.service';
     }),
     MailModule,
     LocalizationModule,
-    PaymentModule,
+    forwardRef(() => PaymentModule),
   ],
   controllers: [AuthController, SsoAdminController],
   providers: [
