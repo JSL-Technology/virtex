@@ -5,15 +5,16 @@
     "experimentalDecorators": true,
     "moduleResolution": "bundler",
     "module": "preserve",
-    
-    "emitDeclarationOnly": false, 
-    "declaration": false,         
-    
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "emitDeclarationOnly": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "skipLibCheck": true,
     "strict": false,
-    "noImplicitReturns": false
+    "noImplicitReturns": false,
+    "resolveJsonModule": true
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
