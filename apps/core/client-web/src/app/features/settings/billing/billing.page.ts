@@ -1,8 +1,9 @@
-import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed, ViewContainerRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, CreditCard, Download, CheckCircle, Info, Zap, ExternalLink, AlertTriangle, RefreshCw, Settings } from 'lucide-angular';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { BillingService, BillingOverview, BillingInvoice } from '../../../core/services/billing';
+import { StepUpService, StepUpScope } from '../../../core/services/step-up.service';
 
 @Component({
   selector: 'app-billing-page',
@@ -14,6 +15,8 @@ import { BillingService, BillingOverview, BillingInvoice } from '../../../core/s
 })
 export class BillingPage implements OnInit {
   private billingService = inject(BillingService);
+  private stepUpService = inject(StepUpService);
+  private viewContainerRef = inject(ViewContainerRef);
 
   protected readonly CreditCardIcon = CreditCard;
   protected readonly DownloadIcon = Download;
@@ -88,11 +91,11 @@ export class BillingPage implements OnInit {
 
     // Existing subscribers manage plan changes through the Stripe portal
     // (proration, downgrades, etc.); new customers go through Checkout.
-    const action$ = this.hasActiveSubscription()
-      ? this.billingService.openBillingPortal()
-      : this.billingService.startCheckout(planSlug);
-
-    action$.subscribe({
+    this.stepUpService.requireStepUp(StepUpScope.MANAGE_PAYMENT, this.viewContainerRef, (token) => {
+      return this.hasActiveSubscription()
+        ? this.billingService.openBillingPortal(token)
+        : this.billingService.startCheckout(planSlug, token);
+    }).subscribe({
       next: (ok) => {
         if (!ok) {
           this.checkoutError.set('No se pudo iniciar el proceso. Intenta de nuevo.');
@@ -110,7 +113,10 @@ export class BillingPage implements OnInit {
   manageBilling(): void {
     this.isOpeningPortal.set(true);
     this.checkoutError.set(null);
-    this.billingService.openBillingPortal().subscribe({
+
+    this.stepUpService.requireStepUp(StepUpScope.MANAGE_PAYMENT, this.viewContainerRef, (token) => {
+      return this.billingService.openBillingPortal(token);
+    }).subscribe({
       next: (ok) => {
         if (!ok) {
           this.checkoutError.set('No se pudo abrir el portal de facturación. Intenta de nuevo.');
