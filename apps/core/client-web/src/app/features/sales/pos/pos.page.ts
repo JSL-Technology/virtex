@@ -1,9 +1,10 @@
-import { Component, ChangeDetectionStrategy, signal, inject, OnInit, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, inject, OnInit, computed, Injector, runInInjectionContext } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { LucideAngularModule, Search, X, Plus, Minus, Trash2, CreditCard } from 'lucide-angular';
+import { LucideAngularModule, Search, X, Plus, Minus, Trash2, CreditCard, ShoppingCart } from 'lucide-angular';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { of, startWith } from 'rxjs';
 import { Product } from '../../../core/models/product.model';
 
 // Reutilizamos el modelo de producto
@@ -19,6 +20,7 @@ import { Product } from '../../../core/models/product.model';
 })
 export class PosPage implements OnInit {
   private fb = inject(FormBuilder);
+  private injector = inject(Injector);
 
   protected readonly SearchIcon = Search;
   protected readonly XIcon = X;
@@ -26,6 +28,7 @@ export class PosPage implements OnInit {
   protected readonly MinusIcon = Minus;
   protected readonly TrashIcon = Trash2;
   protected readonly CreditCardIcon = CreditCard;
+  protected readonly ShoppingCartIcon = ShoppingCart;
 
   // Catálogo de productos simulado
   allProducts = signal<Product[]>([
@@ -37,7 +40,8 @@ export class PosPage implements OnInit {
 
   saleForm!: FormGroup;
 
-  private formChanges = toSignal(this.saleForm.valueChanges, { initialValue: {} });
+  private readonly _formChanges$ = of({}).pipe(startWith({}));
+  private formChanges: any;
 
   subtotal = computed(() => {
     return this.cartItems.controls.reduce((acc, control) => {
@@ -54,6 +58,9 @@ export class PosPage implements OnInit {
     this.saleForm = this.fb.group({
       cartItems: this.fb.array([]),
       customer: ['Cliente General'],
+    });
+    runInInjectionContext(this.injector, () => {
+      this.formChanges = toSignal(this.saleForm.valueChanges, { initialValue: this.saleForm.value });
     });
   }
 

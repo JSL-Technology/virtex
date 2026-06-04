@@ -1,4 +1,4 @@
-<div class="pos-layout">
+<div class="pos-layout" [formGroup]="saleForm">
     <div class="product-catalog">
         <div class="catalog-header">
             <div class="search-bar">
@@ -51,7 +51,7 @@
             </div>
             } @else {
             <div class="empty-cart">
-                <lucide-icon name="shopping-cart" size="48"></lucide-icon>
+                <lucide-icon [img]="ShoppingCartIcon" size="48"></lucide-icon>
                 <span>Añade productos para comenzar una venta.</span>
             </div>
             }

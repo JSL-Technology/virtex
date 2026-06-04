@@ -1,5 +1,5 @@
 
-import { Component, inject, signal, Input, Output, EventEmitter } from '@angular/core';
+import { Component, signal, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Shield, X, AlertCircle, Loader2 } from 'lucide-angular';
@@ -17,8 +17,8 @@ export class PasswordConfirmModalComponent {
   @Input() error: string | null = null;
   @Input() remainingAttempts: number | null = null;
 
-  @Output() confirm = new EventEmitter<string>();
-  @Output() cancel = new EventEmitter<void>();
+  @Output() confirmed = new EventEmitter<string>();
+  @Output() cancelled = new EventEmitter<void>();
 
   protected readonly ShieldIcon = Shield;
   protected readonly XIcon = X;
@@ -29,12 +29,12 @@ export class PasswordConfirmModalComponent {
 
   onConfirm() {
     if (this.password() && !this.isLoading) {
-      this.confirm.emit(this.password());
+      this.confirmed.emit(this.password());
     }
   }
 
   onCancel() {
     this.password.set('');
-    this.cancel.emit();
+    this.cancelled.emit();
   }
 }

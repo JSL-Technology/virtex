@@ -4,7 +4,8 @@ import { AuthService } from '../services/auth';
 import { LanguageService } from '../services/language';
 import { authGuard } from './auth-guard';
 import { of } from 'rxjs';
-import { EnvironmentInjector, runInInjectionContext } from '@angular/core';
+import { EnvironmentInjector, runInInjectionContext, signal } from '@angular/core';
+import { AuthStatus } from '../../shared/enums/auth-status.enum';
 
 describe('authGuard', () => {
   let authServiceMock: any;
@@ -14,7 +15,8 @@ describe('authGuard', () => {
   beforeEach(() => {
     authServiceMock = {
       checkAuthStatus: jest.fn(),
-      isAuthenticated: jest.fn()
+      isAuthenticated: jest.fn(),
+      authStatus: signal(AuthStatus.authenticated)
     };
     routerMock = {
       createUrlTree: jest.fn().mockReturnValue({ toString: () => 'mockUrlTree' })
@@ -33,7 +35,7 @@ describe('authGuard', () => {
   });
 
   it('should return true if authenticated', (done) => {
-    authServiceMock.isAuthenticated.mockReturnValue(true);
+    authServiceMock.authStatus.set(AuthStatus.authenticated);
 
     runInInjectionContext(TestBed.inject(EnvironmentInjector), () => {
       const result = authGuard(null as any, null as any) as any;
@@ -45,7 +47,7 @@ describe('authGuard', () => {
   });
 
   it('should redirect to login if not authenticated', (done) => {
-    authServiceMock.isAuthenticated.mockReturnValue(false);
+    authServiceMock.authStatus.set(AuthStatus.unauthenticated);
     authServiceMock.checkAuthStatus.mockReturnValue(of(false));
 
     runInInjectionContext(TestBed.inject(EnvironmentInjector), () => {
@@ -59,7 +61,7 @@ describe('authGuard', () => {
   });
 
   it('should use default language es if currentLang is undefined', (done) => {
-    authServiceMock.isAuthenticated.mockReturnValue(false);
+    authServiceMock.authStatus.set(AuthStatus.unauthenticated);
     authServiceMock.checkAuthStatus.mockReturnValue(of(false));
     languageServiceMock.currentLang.mockReturnValue(undefined);
 

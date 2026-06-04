@@ -82,14 +82,14 @@ export class StepUpService {
           instance.password.set('');
 
           // Allow another attempt
-          instance.confirm.pipe(take(1)).subscribe(handleConfirm);
+          instance.confirmed.pipe(take(1)).subscribe(handleConfirm);
         }
       });
     };
 
-    instance.confirm.pipe(take(1)).subscribe(handleConfirm);
+    instance.confirmed.pipe(take(1)).subscribe(handleConfirm);
 
-    instance.cancel.subscribe(() => {
+    instance.cancelled.subscribe(() => {
       resultSubject.complete();
       componentRef.destroy();
     });

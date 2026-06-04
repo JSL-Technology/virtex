@@ -1,4 +1,4 @@
-import { Component, Input, forwardRef } from '@angular/core';
+import { Component, Input, forwardRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule, FormControl } from '@angular/forms';
 
@@ -16,7 +16,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule, FormContr
   templateUrl: './auth-input.component.html',
   styleUrls: ['./auth-input.component.scss']
 })
-export class AuthInputComponent implements ControlValueAccessor {
+export class AuthInputComponent implements ControlValueAccessor, OnInit {
   @Input() id = `input-${Math.random().toString(36).substr(2, 9)}`;
   @Input() label = '';
   @Input() type = 'text';
