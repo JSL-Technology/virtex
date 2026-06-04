@@ -26,6 +26,22 @@ export const APP_ROUTES: Routes = [
     canActivate: [languageRedirectGuard]
   },
 
+  // 1b. Post-checkout landing (clean URL, NO :lang prefix).
+  // Stripe redirects here after a signup payment with ?session_id=... The backend
+  // builds this success_url server-side from FRONTEND_URL, so it cannot know the
+  // user's language. Keeping it at the root (like /payment/*) guarantees the route
+  // matches and the session_id survives — otherwise the :lang route captures "auth",
+  // the rest fails to match, and the ** fallback redirects to /login, dropping the
+  // session_id so the account is never confirmed/created.
+  {
+    path: 'auth/checkout-complete',
+    title: 'Confirmando pago | FacturaPRO',
+    loadComponent: () =>
+      import('./features/auth/checkout-complete/checkout-complete.page').then(
+        (m) => m.CheckoutCompletePage
+      ),
+  },
+
   // 2. Authenticated Routes (Clean URLs) - e.g. /dashboard
   {
     path: '',

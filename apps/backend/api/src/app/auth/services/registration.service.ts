@@ -322,14 +322,23 @@ export class RegistrationService {
 
       // Idempotency: the webhook and the frontend confirm call can race. If the
       // account already exists for this email, return it instead of erroring.
+      // NOTE: `organization` is a VIRTUAL property on User (populated manually by
+      // services), NOT a TypeORM relation — only `roles` is. Passing it in
+      // `relations` throws EntityPropertyNotFoundError and aborts the whole
+      // transaction, so we load it explicitly by organizationId instead.
       const existing = await manager.findOne(User, {
         where: { email: pending.email },
-        relations: ['organization', 'roles'],
+        relations: ['roles'],
       });
       if (existing) {
         if (pending.status !== PendingRegistrationStatus.COMPLETED) {
           pending.status = PendingRegistrationStatus.COMPLETED;
           await manager.save(pending);
+        }
+        // Mirror materializeAccount's contract: expose the org as the virtual property.
+        if (existing.organizationId) {
+          existing.organization =
+            (await manager.findOne(Organization, { where: { id: existing.organizationId } })) ?? undefined;
         }
         return existing;
       }
