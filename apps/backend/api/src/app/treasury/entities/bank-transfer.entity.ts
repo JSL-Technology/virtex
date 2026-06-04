@@ -1,5 +1,5 @@
-import { Account } from '../chart-of-accounts/entities/account.entity';
-import { Organization } from '../organizations/entities/organization.entity';
+import { Account } from '../../chart-of-accounts/entities/account.entity';
+import { Organization } from '../../organizations/entities/organization.entity';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
 
 @Entity({ name: 'bank_transfers' })

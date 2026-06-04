@@ -10,6 +10,8 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 import { RequestWithUser } from './interfaces/request-with-user.interface';
 import { SocialUser } from './interfaces/social-user.interface';
 import { RegisterUserDto } from './dto/register-user.dto';
+import { RegisterCheckoutDto } from './dto/register-checkout.dto';
+import { RegisterConfirmDto } from './dto/register-confirm.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { JwtAuthGuard } from './guards/jwt/jwt.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
@@ -347,6 +349,87 @@ export class AuthController {
       user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }),
       // 10/10 SECURITY: accessToken is NOT returned in the body — it is delivered only via the
       // httpOnly cookie, reducing XSS exfiltration surface.
+    };
+  }
+
+  @Post('register-checkout')
+  @Public()
+  @UseGuards(ThrottlerGuard)
+  @ApiOperation({ summary: 'Validate signup and start Stripe Checkout — no account is created until payment succeeds' })
+  @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
+  async registerCheckout(@Body() dto: RegisterCheckoutDto): Promise<{ url: string | null }> {
+    const plans = await this.saasService.getPlans();
+    const plan = plans.find((p) => p.id === dto.planId || p.slug === dto.planId);
+    if (!plan) {
+      throw new BadRequestException('Plan no encontrado.');
+    }
+    if (!plan.monthlyPriceId) {
+      throw new BadRequestException('Este plan no está disponible para contratación en este momento.');
+    }
+
+    // Validate everything and stash a pending registration. NO account yet.
+    const pending = await this.authFacade.createPendingRegistration(dto, plan.slug);
+    if (!pending) {
+      // Honeypot hit — respond as if it succeeded, without a real session.
+      return { url: null };
+    }
+
+    // H-02: redirect URLs are built server-side from FRONTEND_URL. The
+    // {CHECKOUT_SESSION_ID} placeholder must stay literal for Stripe to expand.
+    const frontendUrl = this.configService.getOrThrow<string>('FRONTEND_URL').replace(/\/$/, '');
+    const successUrl = `${frontendUrl}/auth/checkout-complete?session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${frontendUrl}/auth/register`;
+
+    const session = await this.paymentService.createRegistrationCheckoutSession({
+      email: dto.email,
+      priceId: plan.monthlyPriceId,
+      planSlug: plan.slug,
+      trialPeriodDays: plan.trialPeriodDays,
+      successUrl,
+      cancelUrl,
+      metadata: { pendingRegistrationId: pending.id },
+    });
+
+    await this.authFacade.attachSessionToPending(pending.id, session.sessionId);
+
+    return { url: session.url };
+  }
+
+  @Post('register-confirm')
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(ThrottlerGuard)
+  @ApiOperation({ summary: 'Finalize signup after a successful payment and auto-login' })
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  async registerConfirm(
+    @Body() dto: RegisterConfirmDto,
+    @Res({ passthrough: true }) res: Response,
+    @Ip() ip: string,
+    @Headers('user-agent') userAgent: string
+  ): Promise<AuthResponseDto> {
+    const session = await this.paymentService.getCheckoutSession(dto.sessionId);
+
+    // Accept paid checkouts and trials (no_payment_required) but never unpaid/open.
+    const settled = session.paymentStatus === 'paid' || session.paymentStatus === 'no_payment_required';
+    if (session.status !== 'complete' || !settled) {
+      throw new BadRequestException('El pago aún no se ha completado.');
+    }
+    if (!session.pendingRegistrationId) {
+      throw new BadRequestException('Sesión de registro no válida.');
+    }
+
+    const user = await this.authFacade.completePendingRegistration(session.pendingRegistrationId, {
+      customerId: session.customerId as string,
+      subscriptionId: session.subscriptionId,
+      status: session.subscriptionStatus || 'active',
+      currentPeriodEnd: session.currentPeriodEnd,
+    });
+
+    const { accessToken, refreshToken, user: safeUser } = await this.authFacade.generateTokens(user, ip, userAgent);
+    this.cookieService.setAuthCookies(res, accessToken, refreshToken);
+
+    return {
+      user: plainToInstance(UserResponseDto, safeUser, { excludeExtraneousValues: true }),
     };
   }
 

@@ -1,9 +1,19 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule, Rocket, Check, AlertCircle } from 'lucide-angular';
+import { BillingService } from '../../../../../core/services/billing';
+
+interface DisplayPlan {
+  id: string; // slug
+  name: string;
+  price: string;
+  period: string;
+  features: string[];
+  recommended: boolean;
+}
 
 @Component({
   selector: 'app-step-plan',
@@ -25,32 +35,41 @@ export class StepPlan {
   readonly CheckIcon = Check;
   readonly AlertCircleIcon = AlertCircle;
 
-  plans = [
-    {
-      id: 'starter',
-      name: 'Starter',
-      price: '$19',
+  private billingService = inject(BillingService);
+
+  /** Real plans from the backend so prices/limits stay in sync with billing. */
+  plans = computed<DisplayPlan[]>(() => {
+    const list = this.billingService.plans();
+    // "pro" is highlighted as recommended when present; otherwise the middle one.
+    return list.map((p, i) => ({
+      id: p.slug,
+      name: p.name,
+      price: `$${((p.monthlyPrice ?? 0) / 100).toFixed(0)}`,
       period: '/mes',
-      features: ['Hasta 10 facturas/mes', '2 usuarios', 'Soporte básico', 'Reportes estándar'],
-      recommended: false
-    },
-    {
-      id: 'pro',
-      name: 'Professional',
-      price: '$49',
-      period: '/mes',
-      features: ['Hasta 100 facturas/mes', '10 usuarios', 'Soporte prioritario', 'Reportes avanzados', 'Multi-moneda'],
-      recommended: true
-    },
-    {
-      id: 'enterprise',
-      name: 'Enterprise',
-      price: '$99',
-      period: '/mes',
-      features: ['Facturas ilimitadas', 'Usuarios ilimitados', 'Soporte 24/7', 'API access', 'Personalización'],
-      recommended: false
+      features: this.buildFeatures(p),
+      recommended: p.slug === 'pro' || (list.length === 3 && i === 1 && !list.some(x => x.slug === 'pro')),
+    }));
+  });
+
+  plansState = this.billingService.plansState;
+
+  private buildFeatures(p: { description?: string; limits?: { resource: string; limit: number; period: string }[] }): string[] {
+    const features: string[] = [];
+    if (p.description) features.push(p.description);
+    for (const limit of p.limits ?? []) {
+      const resource = limit.resource.replace('_', ' ');
+      if (limit.limit === -1) {
+        features.push(`${resource} ilimitad@s`);
+      } else {
+        features.push(`${limit.limit} ${resource}/${limit.period === 'monthly' ? 'mes' : 'siempre'}`);
+      }
     }
-  ];
+    return features;
+  }
+
+  retry(): void {
+    this.billingService.loadPlans();
+  }
 
   selectPlan(planId: string) {
     this.group.patchValue({ selectedPlanId: planId });

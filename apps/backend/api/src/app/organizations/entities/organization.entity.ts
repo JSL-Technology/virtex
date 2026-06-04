@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
 import { OrganizationSubsidiary } from './organization-subsidiary.entity';
+import { Plan } from '../../saas/entities/plan.entity';
 
 @Entity('organizations')
 @Index(['taxId', 'fiscalRegionId'], { unique: true, where: '"tax_id" IS NOT NULL' })
@@ -60,6 +61,10 @@ export class Organization {
 
   @Column({ name: 'plan_id', nullable: true })
   planId: string;
+
+  @ManyToOne(() => Plan, { nullable: true })
+  @JoinColumn({ name: 'plan_id' })
+  plan: Plan;
 
   @OneToMany(() => OrganizationSubsidiary, sub => sub.parent)
   subsidiaries: OrganizationSubsidiary[];

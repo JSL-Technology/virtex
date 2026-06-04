@@ -1,0 +1,35 @@
+<app-auth-layout>
+  <div class="checkout-complete">
+
+    @switch (state()) {
+      @case ('verifying') {
+        <div class="checkout-complete__icon checkout-complete__icon--spin">
+          <lucide-icon [img]="LoaderIcon" size="40"></lucide-icon>
+        </div>
+        <h1 class="checkout-complete__title">Confirmando tu pago…</h1>
+        <p class="checkout-complete__text">Estamos activando tu cuenta. Esto solo tomará unos segundos.</p>
+      }
+
+      @case ('success') {
+        <div class="checkout-complete__icon checkout-complete__icon--success">
+          <lucide-icon [img]="CheckCircleIcon" size="40"></lucide-icon>
+        </div>
+        <h1 class="checkout-complete__title">¡Pago confirmado!</h1>
+        <p class="checkout-complete__text">Tu cuenta ha sido creada. Te estamos llevando a tu panel…</p>
+      }
+
+      @case ('error') {
+        <div class="checkout-complete__icon checkout-complete__icon--error">
+          <lucide-icon [img]="AlertTriangleIcon" size="40"></lucide-icon>
+        </div>
+        <h1 class="checkout-complete__title">No pudimos confirmar el pago</h1>
+        <p class="checkout-complete__text">{{ errorMessage() }}</p>
+        <div class="checkout-complete__actions">
+          <app-auth-button type="button" (click)="confirm()">Reintentar</app-auth-button>
+          <app-auth-button type="button" variant="outline" (click)="goToLogin()">Ir a iniciar sesión</app-auth-button>
+        </div>
+      }
+    }
+
+  </div>
+</app-auth-layout>

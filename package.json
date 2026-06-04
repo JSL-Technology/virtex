@@ -4,7 +4,11 @@
   "license": "MIT",
   "scripts": {
     "build:client-web": "nx build client-web --configuration=production",
-    "start:client-web": "nx build client-web --configuration=production && npx serve -s dist/apps/core/client-web/browser -l ${PORT:-4200}"
+    "start:client-web": "nx build client-web --configuration=production && npx serve -s dist/apps/core/client-web/browser -l ${PORT:-4200}",
+    "typeorm": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=apps/backend/api/tsconfig.app.json typeorm-ts-node-commonjs -d apps/backend/api/src/app/database/data-source.ts",
+    "migration:run": "npm run typeorm -- migration:run",
+    "migration:revert": "npm run typeorm -- migration:revert",
+    "migration:show": "npm run typeorm -- migration:show"
   },
   "private": true,
   "devDependencies": {

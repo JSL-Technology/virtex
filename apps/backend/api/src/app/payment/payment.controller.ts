@@ -32,6 +32,48 @@ export class PaymentController {
     );
   }
 
+  @Get('overview')
+  @UseGuards(JwtAuthGuard)
+  async getOverview(@CurrentUser() user: User) {
+    if (!user.organizationId) {
+      throw new BadRequestException('User does not belong to an organization');
+    }
+    return this.paymentService.getBillingOverview(user.organizationId);
+  }
+
+  @Post('checkout/confirm')
+  @UseGuards(JwtAuthGuard)
+  async confirmCheckout(
+    @CurrentUser() user: User,
+    @Body() body: { sessionId: string }
+  ) {
+    if (!user.organizationId) {
+      throw new BadRequestException('User does not belong to an organization');
+    }
+    return this.paymentService.confirmOrganizationCheckout(user.organizationId, body.sessionId);
+  }
+
+  @Get('invoices')
+  @UseGuards(JwtAuthGuard)
+  async getInvoices(@CurrentUser() user: User) {
+    if (!user.organizationId) {
+      throw new BadRequestException('User does not belong to an organization');
+    }
+    return this.paymentService.getInvoices(user.organizationId);
+  }
+
+  @Post('portal-session')
+  @UseGuards(JwtAuthGuard)
+  async createPortalSession(
+    @CurrentUser() user: User,
+    @Body() body: { returnUrl: string }
+  ) {
+    if (!user.organizationId) {
+      throw new BadRequestException('User does not belong to an organization');
+    }
+    return this.paymentService.createBillingPortalSession(user.organizationId, body.returnUrl);
+  }
+
   @Get('config')
   async getConfig() {
     const plans = await this.saasService.getPlans();

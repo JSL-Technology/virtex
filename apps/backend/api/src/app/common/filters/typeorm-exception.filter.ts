@@ -5,19 +5,22 @@ import {
   ArgumentsHost,
   HttpStatus,
   Logger,
-  ConflictException,
-  InternalServerErrorException,
 } from '@nestjs/common';
+import { HttpAdapterHost } from '@nestjs/core';
 import { QueryFailedError, EntityNotFoundError } from 'typeorm';
-import { Response } from 'express';
 
 @Catch(QueryFailedError, EntityNotFoundError)
 export class TypeOrmExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(TypeOrmExceptionFilter.name);
 
+  // Use the platform-agnostic HTTP adapter instead of Express-specific
+  // response methods. The app runs on Fastify, where `reply.json()` does not
+  // exist; `httpAdapter.reply()` works on both Express and Fastify.
+  constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
+
   catch(exception: unknown, host: ArgumentsHost) {
+    const { httpAdapter } = this.httpAdapterHost;
     const ctx = host.switchToHttp();
-    const response = ctx.getResponse<Response>();
     const request = ctx.getRequest();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -36,6 +39,7 @@ export class TypeOrmExceptionFilter implements ExceptionFilter {
         message = 'Operación inválida: referencia a entidad no existente.';
         code = 'FOREIGN_KEY_VIOLATION';
       } else {
+        // Do not leak internal SQL details to the client; log them server-side.
         this.logger.error(`Database Error: ${exception.message}`, exception.stack);
       }
     } else if (exception instanceof EntityNotFoundError) {
@@ -46,12 +50,14 @@ export class TypeOrmExceptionFilter implements ExceptionFilter {
       this.logger.error(`Unexpected Error: ${(exception as any).message}`, (exception as any).stack);
     }
 
-    response.status(status).json({
+    const responseBody = {
       statusCode: status,
       message,
       code,
       timestamp: new Date().toISOString(),
-      path: request.url,
-    });
+      path: httpAdapter.getRequestUrl(request),
+    };
+
+    httpAdapter.reply(ctx.getResponse(), responseBody, status);
   }
 }

@@ -1,71 +1,72 @@
 import { Injectable, signal, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { Observable, of, throwError } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
 import { Plan } from '../models/plan.model';
+import { IS_PUBLIC_API } from '../tokens/http-context.tokens';
+import { environment } from '../../../environments/environment';
 
-export interface Subscription {
-  planName: string;
-  planId: string;
-  status: string;
-  price: number;
-  billingCycle: 'mensual' | 'anual';
-  nextBillingDate: string;
-  trialEndsDate?: string;
-}
-
-export interface PaymentMethod {
-  type: string;
+export interface BillingPaymentMethod {
+  brand: string;
   last4: string;
-  expiryDate: string;
+  expMonth: number;
+  expYear: number;
 }
 
-export interface PaymentHistoryItem {
+export interface BillingSubscription {
+  status: string;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+}
+
+export interface BillingOverview {
+  plan: { slug: string; name: string; monthlyPrice: number | null } | null;
+  subscription: BillingSubscription | null;
+  paymentMethod: BillingPaymentMethod | null;
+}
+
+export interface BillingInvoice {
   id: string;
+  number: string | null;
   date: string;
   description: string;
   amount: number;
+  currency: string;
+  status: string;
+  pdfUrl: string | null;
+  hostedUrl: string | null;
 }
+
+export type PlansLoadState = 'loading' | 'loaded' | 'error';
 
 @Injectable({ providedIn: 'root' })
 export class BillingService {
   private http = inject(HttpClient);
-  private apiUrl = '/api/v1'; // Assuming global prefix
+  private apiUrl = environment.apiUrl;
 
-  // Signals for state
-  plans = signal<Plan[]>([]);
-
-  // TODO: Fetch real subscription from Organization details or dedicated endpoint
-  // For now, keeping mock structure but ready to integrate
-  currentSubscription = signal<Subscription>({
-    planName: 'Profesional',
-    planId: 'pro',
-    status: 'Activo',
-    price: 49.00,
-    billingCycle: 'mensual',
-    nextBillingDate: '2025-08-20',
-  });
-
-  paymentMethod = signal<PaymentMethod>({
-    type: 'Visa',
-    last4: '4242',
-    expiryDate: '12/27'
-  });
-
-  paymentHistory = signal<PaymentHistoryItem[]>([
-    { id: 'pay_1', date: '2025-07-20', description: 'Suscripción Mensual - Plan Profesional', amount: 49.00 },
-    { id: 'pay_2', date: '2025-06-20', description: 'Suscripción Mensual - Plan Profesional', amount: 49.00 },
-  ]);
+  readonly plans = signal<Plan[]>([]);
+  readonly plansState = signal<PlansLoadState>('loading');
 
   constructor() {
     this.loadPlans();
   }
 
-  loadPlans() {
-    this.http.get<Plan[]>(`${this.apiUrl}/saas/plans`).pipe(
-      tap(plans => this.plans.set(plans)),
+  loadPlans(): void {
+    this.plansState.set('loading');
+    // Public on purpose: plans are shown on the unauthenticated registration page.
+    // IS_PUBLIC_API tells the auth interceptor NOT to attempt a token refresh /
+    // forced logout if this ever 401s — otherwise an anonymous visitor gets
+    // bounced to /auth/login just for viewing plans.
+    this.http.get<Plan[]>(`${this.apiUrl}/saas/plans`, {
+      context: new HttpContext().set(IS_PUBLIC_API, true),
+    }).pipe(
+      tap(plans => {
+        this.plans.set(plans ?? []);
+        this.plansState.set('loaded');
+      }),
       catchError(err => {
         console.error('Failed to load plans', err);
+        this.plansState.set('error');
         return of([]);
       })
     ).subscribe();
@@ -73,48 +74,90 @@ export class BillingService {
 
   getUsage(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/saas/usage`).pipe(
-        catchError(err => {
-            console.error('Failed to load usage', err);
-            return of([]);
-        })
+      catchError(() => of([]))
     );
   }
 
-  getSubscription(): Observable<Subscription> {
-    return of(this.currentSubscription());
+  getOverview(): Observable<BillingOverview | null> {
+    return this.http.get<BillingOverview>(`${this.apiUrl}/payment/overview`).pipe(
+      catchError(err => {
+        console.error('Failed to load billing overview', err);
+        return of(null);
+      })
+    );
   }
 
-  getPaymentMethod(): Observable<PaymentMethod> {
-    return of(this.paymentMethod());
+  /** Reconciles the org's plan after returning from Checkout (no webhook needed). */
+  confirmCheckout(sessionId: string): Observable<BillingOverview | null> {
+    return this.http.post<BillingOverview>(`${this.apiUrl}/payment/checkout/confirm`, { sessionId }).pipe(
+      catchError(err => {
+        console.error('Failed to confirm checkout', err);
+        return of(null);
+      })
+    );
   }
 
-  getPaymentHistory(): Observable<PaymentHistoryItem[]> {
-    return of(this.paymentHistory());
+  getInvoices(): Observable<BillingInvoice[]> {
+    return this.http.get<BillingInvoice[]>(`${this.apiUrl}/payment/invoices`).pipe(
+      catchError(err => {
+        console.error('Failed to load invoices', err);
+        return of([]);
+      })
+    );
   }
 
-  changePlan(newPlanId: string): Observable<boolean> {
-    console.log('Cambiando al plan:', newPlanId);
-    // In a real app, this would call POST /payment/checkout-session with the priceId from the plan
-    const plan = this.plans().find(p => p.slug === newPlanId || p.id === newPlanId);
-    if (!plan) return of(false);
+  /**
+   * Starts a Stripe Checkout session for a brand-new subscription and redirects
+   * the browser to the hosted payment page. Returns false if the response has
+   * no URL; throws (with a user-facing message) on backend errors.
+   */
+  startCheckout(planSlug: string): Observable<boolean> {
+    const plan = this.plans().find(p => p.slug === planSlug || p.id === planSlug);
+    if (!plan || !plan.monthlyPriceId) {
+      console.error('Plan not found or missing Stripe price ID:', planSlug);
+      return throwError(() => new Error('Este plan no está disponible para contratación en este momento.'));
+    }
 
-    // We would trigger the checkout flow here
-    return this.http.post<{ sessionId: string, url: string }>(`${this.apiUrl}/payment/checkout-session`, {
-        priceId: plan.monthlyPriceId, // Defaulting to monthly for now
-        successUrl: window.location.href,
-        cancelUrl: window.location.href
+    return this.http.post<{ sessionId: string; url: string }>(`${this.apiUrl}/payment/checkout-session`, {
+      priceId: plan.monthlyPriceId,
+      successUrl: `${window.location.origin}/settings/billing?session_id={CHECKOUT_SESSION_ID}`,
+      cancelUrl: `${window.location.origin}/settings/billing`,
     }).pipe(
-        map(res => {
-            if (res.url) {
-                window.location.href = res.url;
-                return true;
-            }
-            return false;
-        }),
-        catchError(err => {
-            console.error('Checkout failed', err);
-            return of(false);
-        })
+      map(res => {
+        if (res.url) {
+          window.location.href = res.url;
+          return true;
+        }
+        return false;
+      }),
+      catchError(err => {
+        console.error('Checkout failed', err);
+        const message = err?.error?.message || 'No se pudo iniciar el pago. Intenta de nuevo.';
+        return throwError(() => new Error(message));
+      })
+    );
+  }
+
+  /**
+   * Opens the Stripe Billing Portal so existing subscribers can change plan,
+   * update their payment method or cancel — all handled securely by Stripe.
+   */
+  openBillingPortal(): Observable<boolean> {
+    return this.http.post<{ url: string }>(`${this.apiUrl}/payment/portal-session`, {
+      returnUrl: `${window.location.origin}/settings/billing`,
+    }).pipe(
+      map(res => {
+        if (res.url) {
+          window.location.href = res.url;
+          return true;
+        }
+        return false;
+      }),
+      catchError(err => {
+        console.error('Portal session failed', err);
+        const message = err?.error?.message || 'No se pudo abrir el portal de facturación. Intenta de nuevo.';
+        return throwError(() => new Error(message));
+      })
     );
   }
 }

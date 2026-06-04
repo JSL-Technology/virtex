@@ -56,7 +56,10 @@ export class SaasService implements OnModuleInit {
             {
                 slug: pConfig.slug,
                 name: pConfig.name,
+                description: pConfig.description,
                 monthlyPriceId: monthlyPriceId,
+                monthlyPrice: pConfig.monthlyPrice,
+                trialPeriodDays: pConfig.trialPeriodDays ?? null,
             },
             ['slug']
         );
@@ -100,7 +103,11 @@ export class SaasService implements OnModuleInit {
   }
 
   async getPlans() {
-    return this.planRepository.find({ relations: ['limits', 'features'] });
+    return this.planRepository.find({
+      where: { isActive: true },
+      relations: ['limits', 'features'],
+      order: { monthlyPrice: 'ASC' },
+    });
   }
 
   async getPlanBySlug(slug: string) {

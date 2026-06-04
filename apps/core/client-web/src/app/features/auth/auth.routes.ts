@@ -51,6 +51,12 @@ export const AUTH_ROUTES: Routes = [
       import('./set-password/set-password.page').then((m) => m.SetPasswordPage),
   },
   {
+    path: 'checkout-complete',
+    title: 'Confirmando pago | FacturaPRO',
+    loadComponent: () =>
+      import('./checkout-complete/checkout-complete.page').then((m) => m.CheckoutCompletePage),
+  },
+  {
     path: 'plan-selection',
     title: 'Seleccionar Plan | FacturaPRO',
     loadComponent: () => import('../payment/components/plan-selection/plan-selection.component').then(m => m.PlanSelectionComponent)

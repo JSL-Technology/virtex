@@ -15,6 +15,8 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { AuthFacade } from './auth.facade';
 import { RegistrationService } from './services/registration.service';
+import { PendingRegistration } from './entities/pending-registration.entity';
+import { RegistrationPaymentListener } from './listeners/registration-payment.listener';
 import { TwoFactorAuthService } from './services/two-factor-auth.service';
 import { PasswordRecoveryService } from './services/password-recovery.service';
 import { WebAuthnService } from './services/webauthn.service';
@@ -82,6 +84,7 @@ import { KeyManagementService } from './services/key-management.service';
       IdentityProvider,
       OrganizationDomain,
       Role,
+      PendingRegistration,
     ]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
@@ -144,6 +147,7 @@ import { KeyManagementService } from './services/key-management.service';
     AuthService,
     AuthFacade,
     RegistrationService,
+    RegistrationPaymentListener,
     TwoFactorAuthService,
     PasswordRecoveryService,
     WebAuthnService,

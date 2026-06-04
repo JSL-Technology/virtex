@@ -1,8 +1,8 @@
-import { Component, ChangeDetectionStrategy, inject, OnInit, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, CreditCard, Download, CheckCircle, Info, Zap } from 'lucide-angular';
+import { LucideAngularModule, CreditCard, Download, CheckCircle, Info, Zap, ExternalLink, AlertTriangle, RefreshCw, Settings } from 'lucide-angular';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { BillingService, Subscription, PaymentMethod, PaymentHistoryItem } from '../../../core/services/billing';
+import { BillingService, BillingOverview, BillingInvoice } from '../../../core/services/billing';
 
 @Component({
   selector: 'app-billing-page',
@@ -15,48 +15,132 @@ import { BillingService, Subscription, PaymentMethod, PaymentHistoryItem } from 
 export class BillingPage implements OnInit {
   private billingService = inject(BillingService);
 
-  // Íconos
   protected readonly CreditCardIcon = CreditCard;
   protected readonly DownloadIcon = Download;
   protected readonly CheckCircleIcon = CheckCircle;
   protected readonly InfoIcon = Info;
+  protected readonly ZapIcon = Zap;
+  protected readonly ExternalLinkIcon = ExternalLink;
+  protected readonly AlertTriangleIcon = AlertTriangle;
+  protected readonly RefreshCwIcon = RefreshCw;
+  protected readonly SettingsIcon = Settings;
 
-  // Convertimos los datos del servicio en señales
-  subscription = toSignal(this.billingService.getSubscription());
-  paymentMethod = toSignal(this.billingService.getPaymentMethod());
-  paymentHistory = toSignal(this.billingService.getPaymentHistory());
+  usageMetrics = toSignal(this.billingService.getUsage(), { initialValue: [] as any[] });
 
-  // Estado para la UI
-  selectedPlan = signal<string>('pro');
-  isSaving = signal(false);
+  overview = signal<BillingOverview | null>(null);
+  overviewLoading = signal(true);
+  invoices = signal<BillingInvoice[]>([]);
+
+  selectedPlan = signal<string | null>(null);
+  isRedirecting = signal(false);
+  isOpeningPortal = signal(false);
+  checkoutError = signal<string | null>(null);
+  successMessage = signal<string | null>(null);
+
   availablePlans = this.billingService.plans;
+  plansState = this.billingService.plansState;
 
-  usageMetrics = toSignal(this.billingService.getUsage(), { initialValue: [] });
+  // True once the org has an active/trialing subscription managed by Stripe.
+  hasActiveSubscription = computed(() => {
+    const sub = this.overview()?.subscription;
+    return !!sub && ['active', 'trialing', 'past_due'].includes(sub.status);
+  });
+
+  currentPlanSlug = computed(() => this.overview()?.plan?.slug ?? null);
 
   ngOnInit(): void {
-    // Inicializa el plan seleccionado con el plan actual del usuario
-    const currentPlanId = this.subscription()?.planId;
-    if (currentPlanId) {
-      this.selectedPlan.set(currentPlanId);
+    // Returning from a successful Stripe Checkout adds ?session_id=...
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('session_id')) {
+      this.successMessage.set('¡Pago completado! Tu suscripción se está activando. Puede tardar unos segundos en reflejarse.');
+      // Clean the URL so a refresh doesn't re-show the banner.
+      window.history.replaceState({}, '', window.location.pathname);
     }
+
+    this.refreshBillingData();
   }
 
-  selectPlan(planId: string): void {
-    this.selectedPlan.set(planId);
+  refreshBillingData(): void {
+    this.overviewLoading.set(true);
+    this.billingService.getOverview().subscribe(data => {
+      this.overview.set(data);
+      this.overviewLoading.set(false);
+    });
+    this.billingService.getInvoices().subscribe(list => this.invoices.set(list));
   }
 
-  updatePlan(): void {
-    this.isSaving.set(true);
-    this.billingService.changePlan(this.selectedPlan()).subscribe({
-      next: () => {
-        // En una app real, recargaríamos los datos de la suscripción
-        console.log('Plan actualizado con éxito');
-        this.isSaving.set(false);
+  retryLoadPlans(): void {
+    this.billingService.loadPlans();
+  }
+
+  selectPlan(planSlug: string): void {
+    if (planSlug === this.currentPlanSlug()) return;
+    this.selectedPlan.set(planSlug);
+    this.checkoutError.set(null);
+  }
+
+  startCheckout(): void {
+    const planSlug = this.selectedPlan();
+    if (!planSlug) return;
+
+    this.isRedirecting.set(true);
+    this.checkoutError.set(null);
+
+    // Existing subscribers manage plan changes through the Stripe portal
+    // (proration, downgrades, etc.); new customers go through Checkout.
+    const action$ = this.hasActiveSubscription()
+      ? this.billingService.openBillingPortal()
+      : this.billingService.startCheckout(planSlug);
+
+    action$.subscribe({
+      next: (ok) => {
+        if (!ok) {
+          this.checkoutError.set('No se pudo iniciar el proceso. Intenta de nuevo.');
+          this.isRedirecting.set(false);
+        }
+        // On success the browser is redirected away — no need to reset state.
       },
-      error: () => {
-        console.error('Error al actualizar el plan');
-        this.isSaving.set(false);
+      error: (err) => {
+        this.checkoutError.set(err?.message || 'Ocurrió un error. Intenta de nuevo.');
+        this.isRedirecting.set(false);
       }
     });
+  }
+
+  manageBilling(): void {
+    this.isOpeningPortal.set(true);
+    this.checkoutError.set(null);
+    this.billingService.openBillingPortal().subscribe({
+      next: (ok) => {
+        if (!ok) {
+          this.checkoutError.set('No se pudo abrir el portal de facturación. Intenta de nuevo.');
+          this.isOpeningPortal.set(false);
+        }
+      },
+      error: (err) => {
+        this.checkoutError.set(err?.message || 'Ocurrió un error. Intenta de nuevo.');
+        this.isOpeningPortal.set(false);
+      }
+    });
+  }
+
+  formatPrice(cents: number | null | undefined): string {
+    return ((cents ?? 0) / 100).toFixed(2);
+  }
+
+  formatDate(iso: string | null): string {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  statusLabel(status: string | undefined): string {
+    switch (status) {
+      case 'active': return 'Activa';
+      case 'trialing': return 'Prueba';
+      case 'past_due': return 'Pago pendiente';
+      case 'canceled': return 'Cancelada';
+      case 'unpaid': return 'Sin pagar';
+      default: return status || '—';
+    }
   }
 }

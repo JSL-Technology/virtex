@@ -30,6 +30,23 @@ export class AuthFacade {
     return this.authService.login(loginUserDto, ip, userAgent);
   }
 
+  /** Payment-first signup: validate + stash a pending registration (no account yet). */
+  async createPendingRegistration(registerUserDto: RegisterUserDto, planSlug: string) {
+    return this.registrationService.createPendingRegistration(registerUserDto, planSlug);
+  }
+
+  async attachSessionToPending(pendingId: string, sessionId: string) {
+    return this.registrationService.attachSessionToPending(pendingId, sessionId);
+  }
+
+  /** Payment-first signup: materialize the account after payment is confirmed. */
+  async completePendingRegistration(
+    pendingId: string,
+    subscription: Parameters<RegistrationService['completePendingRegistration']>[1]
+  ) {
+    return this.registrationService.completePendingRegistration(pendingId, subscription);
+  }
+
   async register(registerUserDto: RegisterUserDto, ip?: string, userAgent?: string) {
     // H18 FIX: Honeypot silent fail — return a flag without fake tokens.
     // Setting fake tokens as cookies pollutes the client state and can confuse telemetry/UX.
@@ -90,7 +107,7 @@ export class AuthFacade {
     return await this.tokenService.generateAuthResponse(adminUser);
   }
 
-  async generateTokens(user: User) {
-      return this.tokenService.generateAuthResponse(user);
+  async generateTokens(user: User, ip?: string, userAgent?: string) {
+      return this.tokenService.generateAuthResponse(user, {}, ip, userAgent);
   }
 }

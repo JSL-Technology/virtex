@@ -35,8 +35,32 @@ export class PaymentService {
     });
   }
 
+  async createRegistrationCheckoutSession(dto: Parameters<PaymentGateway['createRegistrationCheckoutSession']>[0]) {
+    return this.paymentGateway.createRegistrationCheckoutSession(dto);
+  }
+
+  async getCheckoutSession(sessionId: string) {
+    return this.paymentGateway.getCheckoutSession(sessionId);
+  }
+
   async handleWebhook(signature: string, payload: Buffer) {
     // Ahora está completamente abstraído. La implementación del Gateway maneja la lógica específica.
     return this.paymentGateway.handleWebhook(payload, signature);
+  }
+
+  async getBillingOverview(organizationId: string) {
+    return this.paymentGateway.getBillingOverview(organizationId);
+  }
+
+  async confirmOrganizationCheckout(organizationId: string, sessionId: string) {
+    return this.paymentGateway.confirmOrganizationCheckout(organizationId, sessionId);
+  }
+
+  async getInvoices(organizationId: string, limit?: number) {
+    return this.paymentGateway.getInvoices(organizationId, limit);
+  }
+
+  async createBillingPortalSession(organizationId: string, returnUrl: string) {
+    return this.paymentGateway.createBillingPortalSession(organizationId, returnUrl);
   }
 }

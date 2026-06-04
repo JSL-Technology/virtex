@@ -4,8 +4,16 @@
     <p class="step-subtitle">{{ 'REGISTER.STEPS.PLAN.SUBTITLE' | translate }}</p>
   </div>
 
+  @if (plansState() === 'loading') {
+    <div class="plans-loading">Cargando planes…</div>
+  } @else if (plansState() === 'error' || plans().length === 0) {
+    <div class="plans-loading">
+      <span>No se pudieron cargar los planes.</span>
+      <button type="button" class="legal-link" (click)="retry()">Reintentar</button>
+    </div>
+  } @else {
   <div class="plans-grid">
-    <div *ngFor="let plan of plans"
+    <div *ngFor="let plan of plans()"
          class="plan-card"
          [ngClass]="{'recommended': plan.recommended, 'selected': isSelected(plan.id)}"
          (click)="selectPlan(plan.id)">
@@ -31,6 +39,7 @@
       </div>
     </div>
   </div>
+  }
 
   <div class="terms-section">
     <label class="checkbox-container">

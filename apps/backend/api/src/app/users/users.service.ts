@@ -518,15 +518,55 @@ export class UsersService {
 
     if (!user) return null;
 
-    user.organization = await this.orgRepository.findOneBy({ id: user.organizationId }) ?? undefined;
+    user.organization = user.organizationId
+      ? (await this.orgRepository.findOneBy({ id: user.organizationId })) ?? undefined
+      : undefined;
 
-    const userOrgRows = await this.orgRepository.query(
-      'SELECT o.id, o.legal_name as "legalName" FROM organizations o INNER JOIN user_organizations uo ON uo.organization_id = o.id WHERE uo.user_id = $1',
-      [id]
-    ) as Array<{ id: string; legalName: string }>;
-    user.organizations = userOrgRows;
+    // Multi-tenant enrichment: list every organization the user can access.
+    // This is OPTIONAL context. It runs on every authenticated request, so a
+    // failure here (e.g. the join table not yet migrated) must NEVER break auth.
+    user.organizations = await this.findAccessibleOrganizations(id, user.organization);
 
     return user;
+  }
+
+  /**
+   * Resolves the organizations a user can access for multi-tenant access checks.
+   *
+   * Uses the `user_organizations` join table when present and always guarantees
+   * the active organization is included, so a user is never locked out of their
+   * own tenant. Degrades gracefully (falls back to the active organization) if
+   * the table is missing or the query fails — authentication must not depend on
+   * this optional enrichment.
+   */
+  private async findAccessibleOrganizations(
+    userId: string,
+    activeOrg?: Organization,
+  ): Promise<Array<{ id: string; legalName: string }>> {
+    const fallback = activeOrg ? [{ id: activeOrg.id, legalName: activeOrg.legalName }] : [];
+
+    try {
+      const rows = (await this.orgRepository.query(
+        `SELECT o.id, o.legal_name AS "legalName"
+           FROM organizations o
+           INNER JOIN user_organizations uo ON uo.organization_id = o.id
+          WHERE uo.user_id = $1`,
+        [userId],
+      )) as Array<{ id: string; legalName: string }>;
+
+      // Always include the active organization so access checks never fail closed
+      // for the tenant the user is currently operating in.
+      if (activeOrg && !rows.some((r) => r.id === activeOrg.id)) {
+        rows.push({ id: activeOrg.id, legalName: activeOrg.legalName });
+      }
+
+      return rows;
+    } catch (err) {
+      this.logger.warn(
+        `Multi-org membership lookup failed for user ${userId}; falling back to active organization. ${(err as Error).message}`,
+      );
+      return fallback;
+    }
   }
 
   async save(user: User): Promise<User> {

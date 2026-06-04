@@ -243,6 +243,37 @@ export class AuthService {
     return this.http.post<{ url: string }>(`${this.apiUrl}/create-checkout-session`, { planId }, { withCredentials: true });
   }
 
+  /**
+   * Payment-first signup: validates the registration and returns a Stripe
+   * Checkout URL. No account is created until the payment completes — so an
+   * abandoned checkout leaves no orphan account behind.
+   */
+  registerCheckout(payload: RegisterPayload & { planId: string }): Observable<{ url: string | null }> {
+    return this.http.post<{ url: string | null }>(`${this.apiUrl}/register-checkout`, payload, {
+      withCredentials: true,
+      context: new HttpContext().set(IS_PUBLIC_API, true),
+    });
+  }
+
+  /**
+   * Finalizes signup after returning from Stripe Checkout. The backend creates
+   * the account and sets auth cookies (auto-login); we hydrate the session.
+   */
+  confirmRegistration(sessionId: string): Observable<User> {
+    return this.http
+      .post<{ user: User }>(`${this.apiUrl}/register-confirm`, { sessionId }, {
+        withCredentials: true,
+        context: new HttpContext().set(IS_PUBLIC_API, true),
+      })
+      .pipe(
+        map((response) => response.user),
+        tap((user) => {
+          this._currentUser.set(user);
+          this._authStatus.set(AuthStatus.authenticated);
+        })
+      );
+  }
+
   // H-05: backend requires currentPassword as step-up when enabling 2FA.
   enable2fa(token: string, currentPassword: string): Observable<any> {
       return this.http.post(`${this.apiUrl}/2fa/enable`, { token, currentPassword });

@@ -419,7 +419,7 @@ export class RegisterPage implements OnInit {
       next: (recaptchaToken) => {
         const regionId = formValue.configuration.fiscalRegionId;
 
-        const payload: RegisterPayload = {
+        const payload = {
           firstName: formValue.accountInfo.firstName,
           lastName: formValue.accountInfo.lastName,
           email: formValue.accountInfo.email,
@@ -433,26 +433,21 @@ export class RegisterPage implements OnInit {
           recaptchaToken,
           industry: formValue.business.industry,
           address: formValue.business.address,
-        } as any;
+          planId: formValue.plan.selectedPlanId,
+        } as RegisterPayload & { planId: string };
 
-        this.authService.register(payload).subscribe({
-          next: () => {
-            const planId = formValue.plan.selectedPlanId;
-            this.authService.createCheckoutSession(planId).subscribe({
-              next: (response) => {
-                this.isRegistering.set(false);
-                sessionStorage.removeItem(FORM_DRAFT_KEY);
-                if (response.url) {
-                  window.location.href = response.url;
-                } else {
-                  this.router.navigate(['/dashboard']);
-                }
-              },
-              error: () => {
-                this.isRegistering.set(false);
-                this.router.navigate(['/dashboard']);
-              },
-            });
+        // Payment-first: the backend validates and returns a Stripe Checkout URL.
+        // The account is only created after payment succeeds (see checkout-complete).
+        this.authService.registerCheckout(payload).subscribe({
+          next: (response) => {
+            this.isRegistering.set(false);
+            sessionStorage.removeItem(FORM_DRAFT_KEY);
+            if (response.url) {
+              window.location.href = response.url;
+            } else {
+              // Honeypot / no checkout needed — send to login without leaking why.
+              this.router.navigate(['/auth/login']);
+            }
           },
           error: (err) => {
             let msg = 'Error desconocido en el registro.';

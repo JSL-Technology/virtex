@@ -1,0 +1,49 @@
+.checkout-complete {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
+  padding: 2rem 1rem;
+  max-width: 420px;
+  margin: 0 auto;
+
+  &__icon {
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &--success { background-color: var(--success-bg); color: var(--success); }
+    &--error { background-color: rgba(239, 68, 68, 0.1); color: var(--error, #ef4444); }
+    &--spin {
+      background-color: var(--primary-light);
+      color: var(--primary);
+      lucide-icon { animation: cc-spin 0.9s linear infinite; display: inline-flex; }
+    }
+  }
+
+  &__title {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  &__text {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+}
+
+@keyframes cc-spin { to { transform: rotate(360deg); } }
