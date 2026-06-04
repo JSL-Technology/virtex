@@ -7,7 +7,7 @@ import { Organization } from '../organizations/entities/organization.entity';
 import { UserCacheService } from '../auth/modules/user-cache.service';
 import { MailService } from '../mail/mail.service';
 import { RolesService } from '../roles/roles.service';
-import { EventsGateway } from '../websockets/events.gateway';
+import { PasswordService } from '../auth/services/password.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SaasService } from '../saas/saas.service';
 import { DataSource } from 'typeorm';
@@ -43,7 +43,7 @@ describe('UsersService', () => {
         { provide: UserCacheService, useValue: userCacheServiceMock },
         { provide: MailService, useValue: {} },
         { provide: RolesService, useValue: {} },
-        { provide: EventsGateway, useValue: {} },
+        { provide: PasswordService, useValue: {} },
         { provide: EventEmitter2, useValue: {} },
         { provide: SaasService, useValue: {} },
         { provide: DataSource, useValue: {} }
