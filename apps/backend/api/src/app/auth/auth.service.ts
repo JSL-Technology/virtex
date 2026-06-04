@@ -22,6 +22,8 @@ import { SecurityAnalysisService } from './services/security-analysis.service';
 import { TokenService } from './services/token.service';
 import { MfaOrchestratorService } from './services/mfa-orchestrator.service';
 import { PasswordService } from './services/password.service';
+import { AuditTrailService } from '../audit/audit.service';
+import { ActionType } from '../audit/entities/audit-log.entity';
 import { AuthEvents, AuthLoginFailedEvent, AuthLoginSuccessEvent } from './events/auth.events';
 import { SafeUser, AuthenticatedUser } from './interfaces/authenticated-user.interface';
 import { AuthError } from './enums/auth-error.enum';
@@ -46,6 +48,7 @@ export class AuthService {
     private readonly tokenService: TokenService,
     private readonly mfaOrchestratorService: MfaOrchestratorService,
     private readonly passwordService: PasswordService,
+    private readonly auditService: AuditTrailService,
     private readonly eventEmitter: EventEmitter2,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
@@ -257,6 +260,42 @@ export class AuthService {
     // Consume the session (single-use)
     await this.cacheManager.del(key);
     return user;
+  }
+
+  async verifyPassword(userId: string, plain: string, scope: string): Promise<string> {
+      const rateLimitKey = `step-up-rate-limit:${userId}`;
+      const attempts = await this.cacheManager.get<number>(rateLimitKey) || 0;
+
+      if (attempts >= 5) {
+          throw new AuthException(AuthError.USER_BLOCKED, 429, 'Too many attempts. Please try again in 15 minutes.');
+      }
+
+      const user = await this.usersService.findUserByIdForAuth(userId);
+      let isValid = false;
+
+      if (user && user.security && user.security.passwordHash) {
+          isValid = await this.passwordService.verify(user.security.passwordHash, plain);
+      } else {
+          await this.passwordService.verifyDummy(plain);
+          isValid = false;
+      }
+
+      if (!isValid) {
+          await this.cacheManager.set(rateLimitKey, attempts + 1, 15 * 60 * 1000);
+
+          await this.auditService.record(
+            userId,
+            'STEP_UP_VERIFY',
+            userId,
+            ActionType.LOGIN_FAILED,
+            { scope, status: 'failed', attempts: attempts + 1 }
+          );
+
+          throw new AuthException(AuthError.INVALID_CREDENTIALS, 401);
+      }
+
+      await this.cacheManager.del(rateLimitKey);
+      return this.tokenService.generateStepUpToken(userId, scope);
   }
 
   async changePassword(userId: string, currentPass: string, newPass: string): Promise<void> {

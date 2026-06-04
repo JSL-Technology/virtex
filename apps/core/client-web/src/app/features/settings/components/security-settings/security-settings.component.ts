@@ -4,6 +4,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { LucideAngularModule, Shield, Smartphone, QrCode, Monitor, Laptop, Globe, AlertTriangle, CheckCircle, MapPin, Copy, Download, RefreshCw, X, ArrowRight, ImageIcon, User, Mail, Phone, Building } from 'lucide-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../../core/services/auth';
+import { StepUpService } from '../../../../core/services/step-up.service';
 import { SecurityService, Session } from '../../../../core/api/security.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -24,6 +25,7 @@ type SetupStep = 'INTRO' | 'EMAIL_VERIFY' | 'QR_SETUP' | 'BACKUP_CODES';
 })
 export class SecuritySettingsComponent implements OnInit {
   private authService = inject(AuthService);
+  private stepUpService = inject(StepUpService);
   private securityService = inject(SecurityService);
   private notificationService = inject(NotificationService);
   private destroyRef = inject(DestroyRef);
@@ -173,13 +175,19 @@ export class SecuritySettingsComponent implements OnInit {
       });
   }
 
-  verifyAndEnable2fa(code?: string) {
+  async verifyAndEnable2fa(code?: string) {
     const finalCode = code || this.verificationCode();
     const password = this.stepUpPassword();
     if (!finalCode || finalCode.length < 6) return;
     if (!password) {
       this.notificationService.showError('SETTINGS.SECURITY.ERRORS.PASSWORD_REQUIRED');
       return;
+    }
+
+    try {
+        await this.stepUpService.requireStepUp('enable_2fa');
+    } catch (e) {
+        return;
     }
 
     // H-05 FIX: Send currentPassword for step-up; backend verifies it with Argon2
@@ -219,7 +227,13 @@ export class SecuritySettingsComponent implements OnInit {
       });
   }
 
-  downloadBackupCodes() {
+  async downloadBackupCodes() {
+      try {
+          await this.stepUpService.requireStepUp('generate_backup_codes');
+      } catch (e) {
+          return;
+      }
+
       const text = this.backupCodes().join('\n');
       const blob = new Blob([text], { type: 'text/plain' });
       const url = window.URL.createObjectURL(blob);
@@ -245,8 +259,15 @@ export class SecuritySettingsComponent implements OnInit {
     this.showDisableConfirmation.set(true);
   }
 
-  onDisableConfirmed() {
+  async onDisableConfirmed() {
     this.showDisableConfirmation.set(false);
+
+    try {
+        await this.stepUpService.requireStepUp('disable_2fa');
+    } catch (e) {
+        return;
+    }
+
     this.securityService.disable2fa()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

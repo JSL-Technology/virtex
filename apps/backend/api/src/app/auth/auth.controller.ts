@@ -22,6 +22,7 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { VerifyWebAuthnAuthDto } from './dto/verify-webauthn-auth.dto';
+import { VerifyPasswordDto } from './dto/verify-password.dto';
 import {
   Verify2faDto,
   SendPublicVerificationDto,
@@ -69,6 +70,8 @@ import { EnterpriseSsoService } from './services/enterprise-sso.service';
 import { SsoDiscoverDto } from './dto/sso-discover.dto';
 import { JwtService } from '@nestjs/jwt';
 import { TwoFactorVerifiedGuard } from './guards/two-factor-verified.guard';
+import { StepUpGuard } from './guards/step-up.guard';
+import { StepUpScope } from './decorators/step-up-scope.decorator';
 import { Public } from './decorators/public.decorator';
 import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
 
@@ -620,7 +623,8 @@ export class AuthController {
   }
 
   @Post('change-password')
-  @UseGuards(JwtAuthGuard, CsrfGuard, TwoFactorVerifiedGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
+  @StepUpScope('change_password')
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe())
   @ApiOperation({ summary: 'Change password for authenticated user' })
@@ -680,7 +684,8 @@ export class AuthController {
   }
 
   @Post('2fa/enable')
-  @UseGuards(JwtAuthGuard, CsrfGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
+  @StepUpScope('enable_2fa')
   @ApiOperation({ summary: 'Verify token and enable 2FA — requires current password as step-up' })
   async enableTwoFactor(
     @CurrentUser() user: User,
@@ -691,14 +696,16 @@ export class AuthController {
   }
 
   @Post('2fa/disable')
-  @UseGuards(JwtAuthGuard, CsrfGuard, TwoFactorVerifiedGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
+  @StepUpScope('disable_2fa')
   @ApiOperation({ summary: 'Disable 2FA' })
   async disableTwoFactor(@CurrentUser() user: User) {
     return this.twoFactorAuthService.disableTwoFactor(user);
   }
 
   @Post('2fa/backup-codes/generate')
-  @UseGuards(JwtAuthGuard, CsrfGuard, TwoFactorVerifiedGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
+  @StepUpScope('generate_backup_codes')
   @ApiOperation({ summary: 'Generate new backup codes' })
   async generateBackupCodes(@CurrentUser() user: User) {
     return this.twoFactorAuthService.generateBackupCodes(user);
@@ -811,6 +818,18 @@ export class AuthController {
       successUrl,
       cancelUrl
     );
+  }
+
+  @Post('verify-password')
+  @UseGuards(JwtAuthGuard, CsrfGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Verify current password and issue a step-up token' })
+  async verifyPassword(
+    @CurrentUser() user: User,
+    @Body() dto: VerifyPasswordDto,
+  ) {
+    const token = await this.authService.verifyPassword(user.id, dto.password, dto.scope);
+    return { stepUpToken: token };
   }
 
   @Post('verify-2fa')

@@ -16,6 +16,7 @@ import { environment } from '../environments/environment';
 import { ThemeService } from './core/services/theme';
 import { AuthService } from './core/services/auth';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { stepUpInterceptor } from './core/interceptors/step-up.interceptor';
 import { provideServiceWorker } from '@angular/service-worker';
 import { API_URL } from './core/tokens/api-url.token';
 
@@ -89,7 +90,7 @@ export const appConfig: ApplicationConfig = {
     ...CHARTS_PROVIDERS,
     ...I18N_PROVIDERS,
     ...RECAPTCHA_PROVIDERS,
-    provideHttpClient(withInterceptors([authInterceptor]), withFetch()),
+    provideHttpClient(withInterceptors([authInterceptor, stepUpInterceptor]), withFetch()),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',

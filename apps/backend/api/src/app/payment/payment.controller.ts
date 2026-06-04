@@ -3,6 +3,9 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 import { PaymentService } from './payment.service';
 import { Request } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
+import { StepUpGuard } from '../auth/guards/step-up.guard';
+import { StepUpScope } from '../auth/decorators/step-up-scope.decorator';
+import { CsrfGuard } from '../auth/guards/csrf.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { SaasService } from '../saas/saas.service';
@@ -15,7 +18,8 @@ export class PaymentController {
   ) {}
 
   @Post('checkout-session')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
+  @StepUpScope('modify_payment_methods')
   async createCheckoutSession(
     @CurrentUser() user: User,
     @Body() body: { priceId: string; successUrl: string; cancelUrl: string }
@@ -33,7 +37,8 @@ export class PaymentController {
   }
 
   @Get('overview')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
+  @StepUpScope('modify_payment_methods')
   async getOverview(@CurrentUser() user: User) {
     if (!user.organizationId) {
       throw new BadRequestException('User does not belong to an organization');
@@ -54,7 +59,8 @@ export class PaymentController {
   }
 
   @Get('invoices')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
+  @StepUpScope('modify_payment_methods')
   async getInvoices(@CurrentUser() user: User) {
     if (!user.organizationId) {
       throw new BadRequestException('User does not belong to an organization');
@@ -63,7 +69,8 @@ export class PaymentController {
   }
 
   @Post('portal-session')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
+  @StepUpScope('modify_payment_methods')
   async createPortalSession(
     @CurrentUser() user: User,
     @Body() body: { returnUrl: string }

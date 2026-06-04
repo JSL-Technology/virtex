@@ -1046,5 +1046,13 @@
     "SUBMIT_BUTTON": "Guardar Contraseña",
     "SAVING": "Guardando...",
     "SUCCESS": "Contraseña configurada. Iniciando sesión..."
+    },
+    "STEP_UP": {
+      "TITLE": "Confirmar Identidad",
+      "DESCRIPTION": "Por razones de seguridad, debes confirmar tu contraseña actual antes de realizar esta acción.",
+      "PASSWORD_LABEL": "Contraseña actual",
+      "PASSWORD_PLACEHOLDER": "Ingresa tu contraseña",
+      "SHOW_PASSWORD": "Mostrar contraseña",
+      "HIDE_PASSWORD": "Ocultar contraseña"
   }
 }

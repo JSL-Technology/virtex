@@ -17,6 +17,8 @@ import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { PermissionsGuard } from '../auth/guards/permissions/permissions.guard';
 import { CsrfGuard } from '../auth/guards/csrf.guard';
 import { TwoFactorVerifiedGuard } from '../auth/guards/two-factor-verified.guard';
+import { StepUpGuard } from '../auth/guards/step-up.guard';
+import { StepUpScope } from '../auth/decorators/step-up-scope.decorator';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
@@ -118,7 +120,8 @@ export class UsersController {
   // ------------------------------------------------------------------
 
   @Post('profile/email-change/request')
-  @UseGuards(CsrfGuard)
+  @UseGuards(CsrfGuard, StepUpGuard)
+  @StepUpScope('change_email')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request an email change — requires current password as step-up' })
   async requestEmailChange(
@@ -200,7 +203,8 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+  @UseGuards(CsrfGuard, StepUpGuard)
+  @StepUpScope('delete_account')
   // M-05 FIX: Permission + ABAC policy combined in a SINGLE metadata declaration so the
   // ownership policy is actually evaluated (previously @CheckPermissions was silently
   // overwritten by @HasPermission because both write the same 'permissions' metadata key).
