@@ -51,6 +51,11 @@ export class UsersService {
     return this.http.patch<User>(`${this.apiUrl}/profile`, data);
   }
 
+  requestEmailChange(data: { newEmail: string; currentPassword: string }, stepUpToken?: string): Observable<{ message: string }> {
+      const headers = stepUpToken ? { 'x-step-up-token': stepUpToken } : {};
+      return this.http.post<{ message: string }>(`${this.apiUrl}/profile/email-change/request`, data, { headers });
+  }
+
   uploadAvatar(file: File): Observable<{ avatarUrl: string }> {
       const formData = new FormData();
       formData.append('file', file);
@@ -89,8 +94,9 @@ export class UsersService {
     return this.http.patch<User>(`${this.apiUrl}/${id}`, payload);
   }
 
-  deleteUser(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  deleteUser(id: string, stepUpToken?: string): Observable<void> {
+    const headers = stepUpToken ? { 'x-step-up-token': stepUpToken } : {};
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers });
   }
 
   inviteUser(userData: InviteUserDto): Observable<User> {

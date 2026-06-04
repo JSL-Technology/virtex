@@ -40,6 +40,8 @@ export const AuthConfig = {
 
   get JWT_PREVERIFY_SECRET() { return requireSecret('JWT_PREVERIFY_SECRET') || 'preverify-dev-only'; },
 
+  get JWT_STEP_UP_SECRET() { return requireSecret('JWT_STEP_UP_SECRET') || 'step-up-dev-only-secret-32-chars-at-least'; },
+
   // H-07 FIX: Dedicated secret for HMAC-signed CSRF tokens.
   // Using a separate secret (not JWT_SECRET) provides key separation and allows
   // independent rotation without invalidating user sessions (NIST SP 800-57 §5.2).

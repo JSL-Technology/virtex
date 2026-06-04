@@ -231,7 +231,19 @@
 
   "AUTH": {
     "SIGN_OUT": "Cerrar Sesión",
-    "CONTACT": "Contacto"
+    "CONTACT": "Contacto",
+    "STEP_UP": {
+      "TITLE": "Verificación de Seguridad",
+      "DESCRIPTION": "Estás intentando realizar una acción sensible. Por favor, confirma tu contraseña para continuar.",
+      "PASSWORD_LABEL": "Contraseña",
+      "PASSWORD_PLACEHOLDER": "Ingresa tu contraseña actual",
+      "REMAINING_ATTEMPTS": "Intentos restantes: {{count}}",
+      "ERRORS": {
+        "INVALID_PASSWORD": "La contraseña es incorrecta.",
+        "VERIFICATION_FAILED": "No se pudo verificar la contraseña. Inténtalo de nuevo.",
+        "TOO_MANY_ATTEMPTS": "Demasiados intentos. Tu cuenta ha sido bloqueada temporalmente por seguridad."
+      }
+    }
   },
   "ACTIONS": {
     "CREATE_NEW": "Crear Nuevo",

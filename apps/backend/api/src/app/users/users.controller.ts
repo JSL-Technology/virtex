@@ -16,6 +16,9 @@ import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { PermissionsGuard } from '../auth/guards/permissions/permissions.guard';
 import { CsrfGuard } from '../auth/guards/csrf.guard';
+import { StepUpGuard } from '../auth/guards/step-up.guard';
+import { StepUp } from '../auth/decorators/step-up.decorator';
+import { StepUpScope } from '../auth/enums/step-up-scope.enum';
 import { TwoFactorVerifiedGuard } from '../auth/guards/two-factor-verified.guard';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -28,6 +31,8 @@ import { IsOrganizationOwner } from '../auth/policies/is-organization-owner.poli
 import { TypeOrmExceptionFilter } from '../common/filters/typeorm-exception.filter';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { JobTitle } from './enums/job-title.enum';
+import { AuditTrailService } from '../audit/audit.service';
+import { ActionType } from '../audit/entities/audit-log.entity';
 
 @ApiTags('Users')
 @Controller('users')
@@ -36,7 +41,8 @@ import { JobTitle } from './enums/job-title.enum';
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
-    private readonly storageService: StorageService
+    private readonly storageService: StorageService,
+    private readonly auditTrailService: AuditTrailService
   ) {}
 
   @Get('job-titles')
@@ -118,15 +124,23 @@ export class UsersController {
   // ------------------------------------------------------------------
 
   @Post('profile/email-change/request')
-  @UseGuards(CsrfGuard)
+  @UseGuards(CsrfGuard, StepUpGuard)
+  @StepUp(StepUpScope.CHANGE_EMAIL)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request an email change — requires current password as step-up' })
   async requestEmailChange(
     @CurrentUser() user: User,
     @Body() dto: RequestEmailChangeDto,
+    @Ip() ip: string
   ) {
-    await this.usersService.requestEmailChange(user.id, dto);
-    return { message: 'Si los datos son correctos, se ha enviado un enlace de confirmación al nuevo correo.' };
+    try {
+      await this.usersService.requestEmailChange(user.id, dto);
+      await this.auditTrailService.record(user.id, 'User', user.id, ActionType.UPDATE, { action: 'request-email-change', newEmail: dto.newEmail }, undefined, ip, user.organizationId);
+      return { message: 'Si los datos son correctos, se ha enviado un enlace de confirmación al nuevo correo.' };
+    } catch (e) {
+      await this.auditTrailService.record(user.id, 'User', user.id, ActionType.UPDATE, { action: 'request-email-change', newEmail: dto.newEmail, error: e.message }, undefined, ip, user.organizationId);
+      throw e;
+    }
   }
 
   @Post('profile/email-change/confirm')
@@ -200,14 +214,22 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard, StepUpGuard)
+  @StepUp(StepUpScope.DELETE_ACCOUNT)
   // M-05 FIX: Permission + ABAC policy combined in a SINGLE metadata declaration so the
   // ownership policy is actually evaluated (previously @CheckPermissions was silently
   // overwritten by @HasPermission because both write the same 'permissions' metadata key).
   @HasPermission(PERMISSIONS.USERS_DELETE, IsOrganizationOwner)
   @ApiOperation({ summary: 'Remove user' })
-  async remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
-    return this.usersService.remove(id, user.organizationId);
+  async remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User, @Ip() ip: string) {
+    try {
+      const result = await this.usersService.remove(id, user.organizationId);
+      await this.auditTrailService.record(user.id, 'User', id, ActionType.DELETE, { action: 'delete-user' }, undefined, ip, user.organizationId);
+      return result;
+    } catch (e) {
+      await this.auditTrailService.record(user.id, 'User', id, ActionType.DELETE, { action: 'delete-user', error: e.message }, undefined, ip, user.organizationId);
+      throw e;
+    }
   }
 
   @Patch(':id/status')

@@ -1,10 +1,11 @@
 
-import { Component, OnInit, ChangeDetectionStrategy, inject, signal, DestroyRef, ViewChildren, ViewChild, QueryList, ElementRef, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject, signal, DestroyRef, ViewChildren, ViewChild, QueryList, ElementRef, Inject, PLATFORM_ID, ViewContainerRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { LucideAngularModule, Shield, Smartphone, QrCode, Monitor, Laptop, Globe, AlertTriangle, CheckCircle, MapPin, Copy, Download, RefreshCw, X, ArrowRight, ImageIcon, User, Mail, Phone, Building } from 'lucide-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../../core/services/auth';
 import { SecurityService, Session } from '../../../../core/api/security.service';
+import { StepUpService, StepUpScope } from '../../../../core/services/step-up.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { QRCodeComponent } from 'angularx-qrcode';
@@ -29,6 +30,8 @@ export class SecuritySettingsComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private platformId = inject(PLATFORM_ID);
   private translate = inject(TranslateService);
+  private stepUpService = inject(StepUpService);
+  private viewContainerRef = inject(ViewContainerRef);
 
   @ViewChild(OtpComponent) otpComponent?: OtpComponent;
 
@@ -175,34 +178,28 @@ export class SecuritySettingsComponent implements OnInit {
 
   verifyAndEnable2fa(code?: string) {
     const finalCode = code || this.verificationCode();
-    const password = this.stepUpPassword();
     if (!finalCode || finalCode.length < 6) return;
-    if (!password) {
-      this.notificationService.showError('SETTINGS.SECURITY.ERRORS.PASSWORD_REQUIRED');
-      return;
-    }
 
-    // H-05 FIX: Send currentPassword for step-up; backend verifies it with Argon2
-    // before enabling 2FA (OWASP ASVS 2.2.2; CWE-306).
-    this.securityService.enable2fa(finalCode, password)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res) => {
-          if (this.otpComponent) this.otpComponent.handleSuccess(this.translate.instant('SETTINGS.SECURITY.2FA_ENABLED'));
-          setTimeout(() => {
-              this.is2faEnabled.set(true);
-              this.backupCodes.set(res.backupCodes);
-              this.currentStep.set('BACKUP_CODES');
-              this.notificationService.showSuccess('SETTINGS.SECURITY.2FA_ENABLED');
-          }, 1000);
-        },
-        error: () => {
-          this.notificationService.showError('SETTINGS.SECURITY.ERRORS.INVALID_CODE');
-          if (this.otpComponent) {
-            this.otpComponent.handleError(this.translate.instant('SETTINGS.SECURITY.ERRORS.INVALID_CODE'));
-          }
+    this.stepUpService.requireStepUp(StepUpScope.ENABLE_2FA, this.viewContainerRef, (token) => {
+      return this.securityService.enable2fa(finalCode, '', token);
+    }).pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
+      next: (res: any) => {
+        if (this.otpComponent) this.otpComponent.handleSuccess(this.translate.instant('SETTINGS.SECURITY.2FA_ENABLED'));
+        setTimeout(() => {
+            this.is2faEnabled.set(true);
+            this.backupCodes.set(res.backupCodes);
+            this.currentStep.set('BACKUP_CODES');
+            this.notificationService.showSuccess('SETTINGS.SECURITY.2FA_ENABLED');
+        }, 1000);
+      },
+      error: () => {
+        this.notificationService.showError('SETTINGS.SECURITY.ERRORS.INVALID_CODE');
+        if (this.otpComponent) {
+          this.otpComponent.handleError(this.translate.instant('SETTINGS.SECURITY.ERRORS.INVALID_CODE'));
         }
-      });
+      }
+    });
   }
 
   copySecret() {
@@ -247,29 +244,32 @@ export class SecuritySettingsComponent implements OnInit {
 
   onDisableConfirmed() {
     this.showDisableConfirmation.set(false);
-    this.securityService.disable2fa()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.is2faEnabled.set(false);
-          this.notificationService.showSuccess('SETTINGS.SECURITY.2FA_DISABLED');
-          this.authService.checkAuthStatus().subscribe();
-        },
-        error: () => this.notificationService.showError('SETTINGS.SECURITY.ERRORS.DISABLE_FAILED')
-      });
+
+    this.stepUpService.requireStepUp(StepUpScope.DISABLE_2FA, this.viewContainerRef, (token) => {
+      return this.securityService.disable2fa(token);
+    }).pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
+      next: () => {
+        this.is2faEnabled.set(false);
+        this.notificationService.showSuccess('SETTINGS.SECURITY.2FA_DISABLED');
+        this.authService.checkAuthStatus().subscribe();
+      },
+      error: () => this.notificationService.showError('SETTINGS.SECURITY.ERRORS.DISABLE_FAILED')
+    });
   }
 
   revokeSession(sessionId: string, event: Event) {
     event.stopPropagation();
-    this.securityService.revokeSession(sessionId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.loadSessions();
-          this.notificationService.showSuccess('SETTINGS.SECURITY.SESSION_REVOKED');
-        },
-        error: () => this.notificationService.showError('SETTINGS.SECURITY.ERRORS.REVOKE_FAILED')
-      });
+    this.stepUpService.requireStepUp(StepUpScope.REVOKE_SESSION, this.viewContainerRef, (token) => {
+      return this.securityService.revokeSession(sessionId, token);
+    }).pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
+      next: () => {
+        this.loadSessions();
+        this.notificationService.showSuccess('SETTINGS.SECURITY.SESSION_REVOKED');
+      },
+      error: () => this.notificationService.showError('SETTINGS.SECURITY.ERRORS.REVOKE_FAILED')
+    });
   }
 
   disable2fa() {

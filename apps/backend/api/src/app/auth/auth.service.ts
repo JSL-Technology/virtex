@@ -27,6 +27,7 @@ import { SafeUser, AuthenticatedUser } from './interfaces/authenticated-user.int
 import { AuthError } from './enums/auth-error.enum';
 import { AuthException } from './exceptions/auth.exception';
 import { LoginResultDto, LoginResponseDto, TwoFactorRequiredResponseDto } from './dto/login-response.dto';
+import { StepUpScope } from './enums/step-up-scope.enum';
 
 export type LoginResult = LoginResultDto;
 
@@ -279,5 +280,37 @@ export class AuthService {
       // Revoke ALL sessions on password change — the tokenVersion bump above already invalidates
       // all JWTs; this also removes the refresh tokens from the DB (NIST SP 800-63B §7.1).
       await this.sessionService.terminateAllSessions(userId);
+  }
+
+  async verifyPasswordForStepUp(userId: string, currentPass: string, scope: StepUpScope): Promise<{ stepUpToken: string }> {
+      const userWithSec = await this.usersService.findUserByIdForAuth(userId);
+
+      let isValid = false;
+      if (userWithSec?.security?.passwordHash) {
+          isValid = await this.passwordService.verify(userWithSec.security.passwordHash, currentPass);
+      } else {
+          // Protection against timing attacks if user or hash doesn't exist
+          await this.passwordService.verifyDummy(currentPass);
+      }
+
+      if (!isValid) {
+          throw new UnauthorizedException('Invalid password');
+      }
+
+      // Generate Step-up Token
+      const jti = crypto.randomUUID();
+      const payload = {
+          sub: userId,
+          stepup: true,
+          scope,
+          jti,
+      };
+
+      const stepUpToken = this.jwtService.sign(payload, {
+          secret: AuthConfig.JWT_STEP_UP_SECRET,
+          expiresIn: '10m',
+      });
+
+      return { stepUpToken };
   }
 }

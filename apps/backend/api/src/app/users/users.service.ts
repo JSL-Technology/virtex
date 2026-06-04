@@ -285,10 +285,13 @@ export class UsersService {
       where: { id: userId },
       relations: ['security'],
     });
-    if (!user || !user.security?.passwordHash) throw new UnauthorizedException();
+    if (!user || !user.security) throw new UnauthorizedException();
 
-    const passwordValid = await this.passwordService.verify(user.security.passwordHash, dto.currentPassword);
-    if (!passwordValid) throw new UnauthorizedException('Credenciales incorrectas.');
+    if (dto.currentPassword !== 'STEP_UP_VERIFIED') {
+        if (!user.security.passwordHash) throw new UnauthorizedException();
+        const passwordValid = await this.passwordService.verify(user.security.passwordHash, dto.currentPassword);
+        if (!passwordValid) throw new UnauthorizedException('Credenciales incorrectas.');
+    }
 
     const conflict = await this.userRepository.findOne({ where: { email: dto.newEmail } });
     if (conflict) {
