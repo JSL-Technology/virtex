@@ -218,6 +218,40 @@ export class TokenService implements OnModuleInit {
     };
   }
 
+  async generateStepUpToken(userId: string, scope: string): Promise<string> {
+    const jti = crypto.randomUUID();
+    const payload = {
+      sub: userId,
+      stepup: true,
+      scope,
+      jti,
+    };
+
+    return this.getJwtToken(
+      payload as any,
+      '10m',
+      AuthConfig.JWT_STEP_UP_SECRET
+    );
+  }
+
+  async verifyStepUpToken(token: string, requiredScope: string): Promise<{ sub: string; jti: string }> {
+    try {
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: AuthConfig.JWT_STEP_UP_SECRET,
+        issuer: 'virteex-api',
+        audience: 'virteex-web',
+      });
+
+      if (!payload.stepup || payload.scope !== requiredScope) {
+        throw new UnauthorizedException('Invalid step-up token scope');
+      }
+
+      return { sub: payload.sub, jti: payload.jti };
+    } catch (e) {
+      throw new UnauthorizedException('Invalid or expired step-up token');
+    }
+  }
+
   getJwtToken(payload: JwtPayload, expiresIn?: string, secret?: string) {
     // H-05 FIX: Access tokens use RS256 with kid for key rotation support (OWASP JWT Cheat Sheet;
     // NIST SP 800-57). Special-purpose tokens (refresh, 2FA, preverify) keep HS256 with their own secrets.

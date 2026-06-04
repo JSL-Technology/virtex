@@ -57,6 +57,7 @@ import {
 } from '../../../core/api/users.service';
 import { Role, RolesService } from '../../../core/api/roles.service';
 import { AuthService } from '../../../core/services/auth';
+import { StepUpService } from '../../../core/services/step-up.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { User as ApiUser } from '../../../shared/interfaces/user.interface';
 import { UserStatus } from '../../../shared/enums/user-status.enum';
@@ -85,6 +86,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
   private webSocketService = inject(WebSocketService);
   public authService = inject(AuthService);
+  private stepUpService = inject(StepUpService);
 
   // Iconos
   protected readonly UserPlusIcon = UserPlus;
@@ -315,8 +317,15 @@ export class UserManagementPage implements OnInit, OnDestroy {
     }
   }
 
-  confirmDelete(): void {
+  async confirmDelete(): Promise<void> {
     if (!this.selectedUser) return;
+
+    try {
+        await this.stepUpService.requireStepUp('delete_account');
+    } catch (e) {
+        return;
+    }
+
     this.loading.set(true);
     this.usersService.deleteUser(this.selectedUser.id).subscribe({
       next: () => {

@@ -1,6 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PaymentService } from '../../services/payment.service';
+import { StepUpService } from '../../../../core/services/step-up.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -99,6 +100,7 @@ import { Router } from '@angular/router';
 })
 export class PlanSelectionComponent implements OnInit {
   private paymentService = inject(PaymentService);
+  private stepUpService = inject(StepUpService);
   isLoading = signal(false);
   prices = signal<{ starter: string; pro: string; enterprise: string } | null>(null);
 
@@ -111,7 +113,7 @@ export class PlanSelectionComponent implements OnInit {
     });
   }
 
-  selectPlan(planType: 'starter' | 'pro' | 'enterprise') {
+  async selectPlan(planType: 'starter' | 'pro' | 'enterprise') {
     const currentPrices = this.prices();
     if (!currentPrices) {
         alert('Configuración de precios no cargada. Intente de nuevo más tarde.');
@@ -126,6 +128,12 @@ export class PlanSelectionComponent implements OnInit {
          // For now, blocking to force proper setup.
          alert(`El precio para ${planType} no está configurado en el sistema.`);
          return;
+    }
+
+    try {
+        await this.stepUpService.requireStepUp('modify_payment_methods');
+    } catch (e) {
+        return;
     }
 
     this.isLoading.set(true);

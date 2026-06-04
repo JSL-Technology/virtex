@@ -7,6 +7,7 @@ import { CryptoUtil } from '../../shared/utils/crypto.util';
 import { UserCacheService } from '../modules/user-cache.service';
 import { authenticator } from 'otplib';
 import { ConfigService } from '@nestjs/config';
+import { PasswordService } from './password.service';
 
 describe('TwoFactorAuthService', () => {
   let service: TwoFactorAuthService;
@@ -15,6 +16,7 @@ describe('TwoFactorAuthService', () => {
   let userCacheService: any;
   let cryptoUtil: any;
   let configService: any;
+  let passwordService: any;
 
   beforeEach(async () => {
     userSecurityRepo = {
@@ -41,6 +43,9 @@ describe('TwoFactorAuthService', () => {
     configService = {
         get: jest.fn(key => 'App')
     };
+    passwordService = {
+        verify: jest.fn()
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -49,7 +54,8 @@ describe('TwoFactorAuthService', () => {
         { provide: getRepositoryToken(User), useValue: userRepo },
         { provide: UserCacheService, useValue: userCacheService },
         { provide: CryptoUtil, useValue: cryptoUtil },
-        { provide: ConfigService, useValue: configService }
+        { provide: ConfigService, useValue: configService },
+        { provide: PasswordService, useValue: passwordService }
       ],
     }).compile();
 

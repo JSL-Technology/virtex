@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { LucideAngularModule, CreditCard, Download, CheckCircle, Info, Zap, ExternalLink, AlertTriangle, RefreshCw, Settings } from 'lucide-angular';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { BillingService, BillingOverview, BillingInvoice } from '../../../core/services/billing';
+import { StepUpService } from '../../../core/services/step-up.service';
 
 @Component({
   selector: 'app-billing-page',
@@ -14,6 +15,7 @@ import { BillingService, BillingOverview, BillingInvoice } from '../../../core/s
 })
 export class BillingPage implements OnInit {
   private billingService = inject(BillingService);
+  private stepUpService = inject(StepUpService);
 
   protected readonly CreditCardIcon = CreditCard;
   protected readonly DownloadIcon = Download;
@@ -60,11 +62,21 @@ export class BillingPage implements OnInit {
     this.refreshBillingData();
   }
 
-  refreshBillingData(): void {
+  async refreshBillingData(): Promise<void> {
+    try {
+        await this.stepUpService.requireStepUp('modify_payment_methods');
+    } catch (e) {
+        this.overviewLoading.set(false);
+        return;
+    }
+
     this.overviewLoading.set(true);
-    this.billingService.getOverview().subscribe(data => {
-      this.overview.set(data);
-      this.overviewLoading.set(false);
+    this.billingService.getOverview().subscribe({
+      next: (data) => {
+        this.overview.set(data);
+        this.overviewLoading.set(false);
+      },
+      error: () => this.overviewLoading.set(false)
     });
     this.billingService.getInvoices().subscribe(list => this.invoices.set(list));
   }
@@ -79,9 +91,15 @@ export class BillingPage implements OnInit {
     this.checkoutError.set(null);
   }
 
-  startCheckout(): void {
+  async startCheckout(): Promise<void> {
     const planSlug = this.selectedPlan();
     if (!planSlug) return;
+
+    try {
+        await this.stepUpService.requireStepUp('modify_payment_methods');
+    } catch (e) {
+        return;
+    }
 
     this.isRedirecting.set(true);
     this.checkoutError.set(null);
@@ -107,7 +125,13 @@ export class BillingPage implements OnInit {
     });
   }
 
-  manageBilling(): void {
+  async manageBilling(): Promise<void> {
+    try {
+        await this.stepUpService.requireStepUp('modify_payment_methods');
+    } catch (e) {
+        return;
+    }
+
     this.isOpeningPortal.set(true);
     this.checkoutError.set(null);
     this.billingService.openBillingPortal().subscribe({

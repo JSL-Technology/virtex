@@ -29,6 +29,7 @@ import {
   Check,
 } from 'lucide-angular';
 import { AuthService } from '../../../core/services/auth';
+import { StepUpService } from '../../../core/services/step-up.service';
 import { NotificationService } from '../../../core/services/notification';
 import { UsersService } from '../../../core/api/users.service';
 import { SecuritySettingsComponent } from '../components/security-settings/security-settings.component';
@@ -69,6 +70,7 @@ interface ProfileForm {
 export class MyProfilePage implements OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private stepUpService = inject(StepUpService);
   private usersService = inject(UsersService);
   private notificationService = inject(NotificationService);
   private cdr = inject(ChangeDetectorRef);
@@ -177,10 +179,20 @@ export class MyProfilePage implements OnInit {
     this.cdr.markForCheck();
   }
 
-  saveProfile(): void {
+  async saveProfile(): Promise<void> {
     if (this.profileForm.valid) {
-      this.isLoading = true;
       const { firstName, lastName, preferredLanguage, email, phone, jobTitle } = this.profileForm.value;
+      const isEmailChanged = email !== this.currentUser()?.email;
+
+      if (isEmailChanged) {
+          try {
+              await this.stepUpService.requireStepUp('change_email');
+          } catch (e) {
+              return;
+          }
+      }
+
+      this.isLoading = true;
 
       // Clean payload
       const payload = {
@@ -210,7 +222,7 @@ export class MyProfilePage implements OnInit {
     }
   }
 
-  changePassword(): void {
+  async changePassword(): Promise<void> {
     if (this.passwordForm.valid) {
       if (
         this.passwordForm.value.newPassword !==
@@ -218,6 +230,12 @@ export class MyProfilePage implements OnInit {
       ) {
         this.notificationService.showError('SETTINGS.PROFILE.ERRORS.PASSWORDS_DO_NOT_MATCH');
         return;
+      }
+
+      try {
+          await this.stepUpService.requireStepUp('change_password');
+      } catch (e) {
+          return;
       }
 
       this.authService.changePassword(this.passwordForm.value).subscribe({

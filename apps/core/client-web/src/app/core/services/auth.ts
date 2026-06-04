@@ -658,4 +658,10 @@ export class AuthService {
           catchError((err) => this.errorHandlerService.handleError('changePassword', err))
       );
   }
+
+  verifyPassword(password: string, scope: string): Observable<{ stepUpToken: string }> {
+    return this.http.post<{ stepUpToken: string }>(`${this.apiUrl}/verify-password`, { password, scope }, {
+      withCredentials: true
+    });
+  }
 }

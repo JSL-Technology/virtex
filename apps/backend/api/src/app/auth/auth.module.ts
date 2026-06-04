@@ -62,6 +62,7 @@ import { DoRegistrationStrategy } from './strategies/registration/do-registratio
 import { UsRegistrationStrategy } from './strategies/registration/us-registration.strategy';
 import { AuthAuditListener } from './listeners/auth-audit.listener';
 import { CsrfGuard } from './guards/csrf.guard';
+import { StepUpGuard } from './guards/step-up.guard';
 import { IsOrganizationOwnerPolicy } from './policies/is-organization-owner.policy';
 import { KeyManagementService } from './services/key-management.service';
 
@@ -73,6 +74,7 @@ import { KeyManagementService } from './services/key-management.service';
     OrganizationsModule,
     GeoModule,
     forwardRef(() => UsersModule),
+    AuditModule,
     UserCacheModule,
     TypeOrmModule.forFeature([
       RefreshToken,
@@ -172,6 +174,7 @@ import { KeyManagementService } from './services/key-management.service';
     UsRegistrationStrategy,
     AuthAuditListener,
     CsrfGuard,
+    StepUpGuard,
     // M-05 FIX: register the ABAC policy so PermissionsGuard can resolve it via DI
     // (moduleRef.get). Previously it was never provided, so it failed-secure as "not found".
     IsOrganizationOwnerPolicy,
@@ -198,6 +201,7 @@ import { KeyManagementService } from './services/key-management.service';
     UserCacheModule,
     SessionService,
     CsrfGuard,
+    StepUpGuard,
     IsOrganizationOwnerPolicy,
     KeyManagementService,
   ],

@@ -38,6 +38,8 @@ export const AuthConfig = {
   // (missing or insecure-default values), dev-only fallback for local ergonomics.
   get JWT_2FA_TEMP_SECRET() { return requireSecret('JWT_2FA_TEMP_SECRET') || 'temp-2fa-dev-only'; },
 
+  get JWT_STEP_UP_SECRET() { return requireSecret('JWT_STEP_UP_SECRET') || 'step-up-dev-only-change-me'; },
+
   get JWT_PREVERIFY_SECRET() { return requireSecret('JWT_PREVERIFY_SECRET') || 'preverify-dev-only'; },
 
   // H-07 FIX: Dedicated secret for HMAC-signed CSRF tokens.
