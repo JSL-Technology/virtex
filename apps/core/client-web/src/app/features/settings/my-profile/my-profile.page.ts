@@ -5,7 +5,8 @@ import {
   inject,
   signal,
   ChangeDetectorRef,
-  DestroyRef
+  DestroyRef,
+  ViewContainerRef
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -31,6 +32,7 @@ import {
 import { AuthService } from '../../../core/services/auth';
 import { NotificationService } from '../../../core/services/notification';
 import { UsersService } from '../../../core/api/users.service';
+import { StepUpService, StepUpScope } from '../../../core/services/step-up.service';
 import { SecuritySettingsComponent } from '../components/security-settings/security-settings.component';
 import { PhoneVerificationModalComponent } from '../components/phone-verification-modal/phone-verification-modal.component';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -73,6 +75,8 @@ export class MyProfilePage implements OnInit {
   private notificationService = inject(NotificationService);
   private cdr = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
+  private stepUpService = inject(StepUpService);
+  private viewContainerRef = inject(ViewContainerRef);
 
   // Icons
   protected readonly UserIcon = UserIcon;
@@ -121,7 +125,6 @@ export class MyProfilePage implements OnInit {
     }) as FormGroup<ProfileForm>;
 
     this.passwordForm = this.fb.group({
-      currentPassword: ['', Validators.required],
       newPassword: ['', [Validators.required, strongPasswordValidator()]],
       confirmPassword: ['', Validators.required],
     });
@@ -212,22 +215,29 @@ export class MyProfilePage implements OnInit {
 
   changePassword(): void {
     if (this.passwordForm.valid) {
-      if (
-        this.passwordForm.value.newPassword !==
-        this.passwordForm.value.confirmPassword
-      ) {
+      const { newPassword, confirmPassword } = this.passwordForm.value;
+
+      if (newPassword !== confirmPassword) {
         this.notificationService.showError('SETTINGS.PROFILE.ERRORS.PASSWORDS_DO_NOT_MATCH');
         return;
       }
 
-      this.authService.changePassword(this.passwordForm.value).subscribe({
-          next: () => {
-              this.notificationService.showSuccess('SETTINGS.PROFILE.PASSWORD_CHANGED');
-              this.passwordForm.reset();
-          },
-          error: (err) => {
-              this.notificationService.showError('SETTINGS.PROFILE.ERRORS.PASSWORD_CHANGE_FAILED');
-          }
+      this.stepUpService.requireStepUp(StepUpScope.CHANGE_PASSWORD, this.viewContainerRef, (token) => {
+        return this.authService.changePassword({
+          currentPassword: '', // Backend uses the token instead if provided
+          newPassword,
+          stepUpToken: token
+        });
+      }).pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.notificationService.showSuccess('SETTINGS.PROFILE.PASSWORD_CHANGED');
+          this.passwordForm.reset();
+        },
+        error: (err) => {
+          console.error(err);
+          this.notificationService.showError('SETTINGS.PROFILE.ERRORS.PASSWORD_CHANGE_FAILED');
+        }
       });
     }
   }
