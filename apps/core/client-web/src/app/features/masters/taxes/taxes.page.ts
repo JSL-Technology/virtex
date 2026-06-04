@@ -10,7 +10,7 @@ import { HasPermissionDirective } from '../../../shared/directives/has-permissio
 @Component({
   selector: 'app-taxes-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, RouterLink, HasPermissionDirective],
+  imports: [CommonModule, LucideAngularModule, RouterLink],
   templateUrl: './taxes.page.html',
   styleUrls: ['./taxes.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

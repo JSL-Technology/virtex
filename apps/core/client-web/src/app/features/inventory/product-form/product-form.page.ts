@@ -8,7 +8,7 @@ import { HasPermissionDirective } from '../../../shared/directives/has-permissio
 
 @Component({
   selector: 'app-product-form-page',
-  imports: [RouterLink, ReactiveFormsModule, LucideAngularModule, HasPermissionDirective],
+  imports: [RouterLink, ReactiveFormsModule, LucideAngularModule],
   templateUrl: './product-form.page.html',
   styleUrls: ['./product-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

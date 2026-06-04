@@ -93,6 +93,9 @@
   border-radius: 6px;
   transition: all 0.2s ease;
 
+  /* Or use vars if available */
+  color: var(--text-secondary, #6b7280);
+
   &:hover {
     background-color: rgba(0, 0, 0, 0.05);
     color: #111827;
@@ -107,8 +110,6 @@
     }
   }
 
-  /* Or use vars if available */
-  color: var(--text-secondary, #6b7280);
   &:hover {
     background-color: var(--bg-hover, rgba(0,0,0,0.05));
     color: var(--text-primary, #111827);

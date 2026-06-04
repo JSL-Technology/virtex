@@ -1,7 +1,7 @@
 
 import { Injectable, inject, ViewContainerRef, ComponentRef, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, Subject, throwSubject, of, throwError } from 'rxjs';
+import { Observable, Subject, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap, take } from 'rxjs/operators';
 import { PasswordConfirmModalComponent } from '../../shared/components/password-confirm-modal/password-confirm-modal.component';
 import { environment } from '../../../environments/environment';
