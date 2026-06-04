@@ -40,6 +40,7 @@ import {
   WebAuthnLoginOptionsDto,
 } from './dto/auth-payloads.dto';
 import { SetPasswordFromInvitationDto } from './dto/set-password-from-invitation.dto';
+import { VerifyPasswordDto } from './dto/verify-password.dto';
 import {
   PASSWORD_MIN_LENGTH,
   PASSWORD_MAX_LENGTH,
@@ -59,6 +60,9 @@ import { LoginResponseDto } from './dto/responses/login-response.dto';
 import { plainToInstance } from 'class-transformer';
 import { EnableTwoFactorDto } from './dto/enable-2fa.dto';
 import { CsrfGuard } from './guards/csrf.guard';
+import { StepUpGuard } from './guards/step-up.guard';
+import { StepUp } from './decorators/step-up.decorator';
+import { StepUpScope } from './enums/step-up-scope.enum';
 import { PermissionsGuard } from './guards/permissions/permissions.guard';
 import { HasPermission } from './decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
@@ -71,6 +75,8 @@ import { JwtService } from '@nestjs/jwt';
 import { TwoFactorVerifiedGuard } from './guards/two-factor-verified.guard';
 import { Public } from './decorators/public.decorator';
 import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
+import { AuditTrailService } from '../audit/audit.service';
+import { ActionType } from '../audit/entities/audit-log.entity';
 
 // H1 FIX: @Public() removed from class level. Only individual public endpoints are decorated
 // with @Public(). Authenticated endpoints rely on the global JwtAuthGuard without override.
@@ -92,7 +98,8 @@ export class AuthController {
     private readonly enterpriseSsoService: EnterpriseSsoService,
     private readonly jwtService: JwtService,
     private readonly paymentService: PaymentService,
-    private readonly saasService: SaasService
+    private readonly saasService: SaasService,
+    private readonly auditTrailService: AuditTrailService
   ) {}
 
   // ------------------------------------------------------------------
@@ -557,6 +564,18 @@ export class AuthController {
     return { message: 'Todas las sesiones han sido cerradas.' };
   }
 
+  @Post('verify-password')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard, CsrfGuard)
+  @Throttle({ default: { limit: 5, ttl: 900000 } })
+  @ApiOperation({ summary: 'Verify current password for step-up authentication' })
+  async verifyPassword(
+      @CurrentUser() user: User,
+      @Body() dto: VerifyPasswordDto
+  ) {
+      return this.authService.verifyPasswordForStepUp(user.id, dto.password, dto.scope);
+  }
+
   @Get('status')
   @UseGuards(JwtAuthGuard)
   @Header('Cache-Control', 'no-store')
@@ -620,16 +639,24 @@ export class AuthController {
   }
 
   @Post('change-password')
-  @UseGuards(JwtAuthGuard, CsrfGuard, TwoFactorVerifiedGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard, TwoFactorVerifiedGuard, StepUpGuard)
+  @StepUp(StepUpScope.CHANGE_PASSWORD)
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe())
   @ApiOperation({ summary: 'Change password for authenticated user' })
   async changePassword(
       @CurrentUser() user: User,
-      @Body() changePasswordDto: ChangePasswordDto
+      @Body() changePasswordDto: ChangePasswordDto,
+      @Ip() ip: string
   ) {
-      await this.authService.changePassword(user.id, changePasswordDto.currentPassword, changePasswordDto.newPassword);
-      return { message: 'Password updated successfully' };
+      try {
+          await this.authService.changePassword(user.id, changePasswordDto.currentPassword, changePasswordDto.newPassword);
+          await this.auditTrailService.record(user.id, 'User', user.id, ActionType.UPDATE, { action: 'change-password' }, undefined, ip, user.organizationId);
+          return { message: 'Password updated successfully' };
+      } catch (e) {
+          await this.auditTrailService.record(user.id, 'User', user.id, ActionType.UPDATE, { action: 'change-password', error: e.message }, undefined, ip, user.organizationId);
+          throw e;
+      }
   }
 
   // L-09 FIX: Impersonation is one of the most sensitive operations — require step-up 2FA
@@ -680,28 +707,53 @@ export class AuthController {
   }
 
   @Post('2fa/enable')
-  @UseGuards(JwtAuthGuard, CsrfGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
+  @StepUp(StepUpScope.ENABLE_2FA)
   @ApiOperation({ summary: 'Verify token and enable 2FA — requires current password as step-up' })
   async enableTwoFactor(
     @CurrentUser() user: User,
     @Body() enableTwoFactorDto: EnableTwoFactorDto,
+    @Ip() ip: string
   ) {
-    // H-05 FIX: Pass currentPassword for step-up verification inside the service
-    return this.twoFactorAuthService.enableTwoFactor(user, enableTwoFactorDto.token, enableTwoFactorDto.currentPassword);
+    try {
+      // H-05 FIX: Pass currentPassword for step-up verification inside the service
+      const result = await this.twoFactorAuthService.enableTwoFactor(user, enableTwoFactorDto.token, enableTwoFactorDto.currentPassword);
+      await this.auditTrailService.record(user.id, 'UserSecurity', user.id, ActionType.UPDATE, { action: 'enable-2fa' }, undefined, ip, user.organizationId);
+      return result;
+    } catch (e) {
+      await this.auditTrailService.record(user.id, 'UserSecurity', user.id, ActionType.UPDATE, { action: 'enable-2fa', error: e.message }, undefined, ip, user.organizationId);
+      throw e;
+    }
   }
 
   @Post('2fa/disable')
-  @UseGuards(JwtAuthGuard, CsrfGuard, TwoFactorVerifiedGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard, TwoFactorVerifiedGuard, StepUpGuard)
+  @StepUp(StepUpScope.DISABLE_2FA)
   @ApiOperation({ summary: 'Disable 2FA' })
-  async disableTwoFactor(@CurrentUser() user: User) {
-    return this.twoFactorAuthService.disableTwoFactor(user);
+  async disableTwoFactor(@CurrentUser() user: User, @Ip() ip: string) {
+    try {
+      const result = await this.twoFactorAuthService.disableTwoFactor(user);
+      await this.auditTrailService.record(user.id, 'UserSecurity', user.id, ActionType.UPDATE, { action: 'disable-2fa' }, undefined, ip, user.organizationId);
+      return result;
+    } catch (e) {
+      await this.auditTrailService.record(user.id, 'UserSecurity', user.id, ActionType.UPDATE, { action: 'disable-2fa', error: e.message }, undefined, ip, user.organizationId);
+      throw e;
+    }
   }
 
   @Post('2fa/backup-codes/generate')
-  @UseGuards(JwtAuthGuard, CsrfGuard, TwoFactorVerifiedGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard, TwoFactorVerifiedGuard, StepUpGuard)
+  @StepUp(StepUpScope.REGENERATE_BACKUP_CODES)
   @ApiOperation({ summary: 'Generate new backup codes' })
-  async generateBackupCodes(@CurrentUser() user: User) {
-    return this.twoFactorAuthService.generateBackupCodes(user);
+  async generateBackupCodes(@CurrentUser() user: User, @Ip() ip: string) {
+    try {
+      const result = await this.twoFactorAuthService.generateBackupCodes(user);
+      await this.auditTrailService.record(user.id, 'UserSecurity', user.id, ActionType.UPDATE, { action: 'generate-backup-codes' }, undefined, ip, user.organizationId);
+      return result;
+    } catch (e) {
+      await this.auditTrailService.record(user.id, 'UserSecurity', user.id, ActionType.UPDATE, { action: 'generate-backup-codes', error: e.message }, undefined, ip, user.organizationId);
+      throw e;
+    }
   }
 
   @Post('2fa/send-email-verification')
@@ -928,12 +980,21 @@ export class AuthController {
   }
 
   @Post('sessions/:id/revoke') // Using POST or DELETE is fine, usually DELETE for resource removal
-  @UseGuards(JwtAuthGuard, CsrfGuard, TwoFactorVerifiedGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard, TwoFactorVerifiedGuard, StepUpGuard)
+  @StepUp(StepUpScope.REVOKE_SESSION)
   @ApiOperation({ summary: 'Revoke a specific session' })
   async revokeSession(
     @CurrentUser() user: User,
     @Param('id') sessionId: string,
+    @Ip() ip: string
   ) {
-    return this.authService.revokeSession(user.id, sessionId);
+    try {
+      const result = await this.authService.revokeSession(user.id, sessionId);
+      await this.auditTrailService.record(user.id, 'Session', sessionId, ActionType.DELETE, { action: 'revoke-session' }, undefined, ip, user.organizationId);
+      return result;
+    } catch (e) {
+      await this.auditTrailService.record(user.id, 'Session', sessionId, ActionType.DELETE, { action: 'revoke-session', error: e.message }, undefined, ip, user.organizationId);
+      throw e;
+    }
   }
 }

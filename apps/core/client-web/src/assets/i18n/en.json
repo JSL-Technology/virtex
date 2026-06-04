@@ -134,6 +134,18 @@
   "AUTH": {
     "SIGN_OUT": "Sign Out",
     "CONTACT": "Contact",
+    "STEP_UP": {
+      "TITLE": "Security Verification",
+      "DESCRIPTION": "You are attempting to perform a sensitive action. Please confirm your password to continue.",
+      "PASSWORD_LABEL": "Password",
+      "PASSWORD_PLACEHOLDER": "Enter your current password",
+      "REMAINING_ATTEMPTS": "Remaining attempts: {{count}}",
+      "ERRORS": {
+        "INVALID_PASSWORD": "The password is incorrect.",
+        "VERIFICATION_FAILED": "Could not verify password. Please try again.",
+        "TOO_MANY_ATTEMPTS": "Too many attempts. Your account has been temporarily locked for security."
+      }
+    },
     "TERMS": "Terms",
     "PRIVACY": "Privacy",
     "SECURITY": "Security",

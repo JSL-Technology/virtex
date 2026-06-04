@@ -1,35 +1,50 @@
-import { Controller, Post, Get, Body, Headers, Req, BadRequestException, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Body, Headers, Req, BadRequestException, UseGuards, Ip } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { PaymentService } from './payment.service';
 import { Request } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
+import { StepUpGuard } from '../auth/guards/step-up.guard';
+import { StepUp } from '../auth/decorators/step-up.decorator';
+import { StepUpScope } from '../auth/enums/step-up-scope.enum';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { SaasService } from '../saas/saas.service';
+import { AuditTrailService } from '../audit/audit.service';
+import { ActionType } from '../audit/entities/audit-log.entity';
 
 @Controller('payment')
 export class PaymentController {
   constructor(
     private readonly paymentService: PaymentService,
-    private readonly saasService: SaasService
+    private readonly saasService: SaasService,
+    private readonly auditTrailService: AuditTrailService
   ) {}
 
   @Post('checkout-session')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, StepUpGuard)
+  @StepUp(StepUpScope.MANAGE_PAYMENT)
   async createCheckoutSession(
     @CurrentUser() user: User,
-    @Body() body: { priceId: string; successUrl: string; cancelUrl: string }
+    @Body() body: { priceId: string; successUrl: string; cancelUrl: string },
+    @Ip() ip: string
   ) {
     if (!user.organizationId) {
         throw new BadRequestException('User does not belong to an organization');
     }
-    return this.paymentService.createCheckoutSession(
-      user.organizationId,
-      user.email,
-      body.priceId,
-      body.successUrl,
-      body.cancelUrl
-    );
+    try {
+      const result = await this.paymentService.createCheckoutSession(
+        user.organizationId,
+        user.email,
+        body.priceId,
+        body.successUrl,
+        body.cancelUrl
+      );
+      await this.auditTrailService.record(user.id, 'Organization', user.organizationId, ActionType.UPDATE, { action: 'create-checkout-session', priceId: body.priceId }, undefined, ip, user.organizationId);
+      return result;
+    } catch (e) {
+      await this.auditTrailService.record(user.id, 'Organization', user.organizationId, ActionType.UPDATE, { action: 'create-checkout-session', priceId: body.priceId, error: e.message }, undefined, ip, user.organizationId);
+      throw e;
+    }
   }
 
   @Get('overview')
@@ -63,15 +78,24 @@ export class PaymentController {
   }
 
   @Post('portal-session')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, StepUpGuard)
+  @StepUp(StepUpScope.MANAGE_PAYMENT)
   async createPortalSession(
     @CurrentUser() user: User,
-    @Body() body: { returnUrl: string }
+    @Body() body: { returnUrl: string },
+    @Ip() ip: string
   ) {
     if (!user.organizationId) {
       throw new BadRequestException('User does not belong to an organization');
     }
-    return this.paymentService.createBillingPortalSession(user.organizationId, body.returnUrl);
+    try {
+      const result = await this.paymentService.createBillingPortalSession(user.organizationId, body.returnUrl);
+      await this.auditTrailService.record(user.id, 'Organization', user.organizationId, ActionType.UPDATE, { action: 'create-portal-session' }, undefined, ip, user.organizationId);
+      return result;
+    } catch (e) {
+      await this.auditTrailService.record(user.id, 'Organization', user.organizationId, ActionType.UPDATE, { action: 'create-portal-session', error: e.message }, undefined, ip, user.organizationId);
+      throw e;
+    }
   }
 
   @Get('config')
