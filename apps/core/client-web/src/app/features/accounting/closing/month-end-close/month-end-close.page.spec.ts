@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MonthEndClose } from './month-end-close.page';
+import { MonthEndClosePage } from './month-end-close.page';
 
-describe('MonthEndClose', () => {
-  let component: MonthEndClose;
-  let fixture: ComponentFixture<MonthEndClose>;
+describe('MonthEndClosePage', () => {
+  let component: MonthEndClosePage;
+  let fixture: ComponentFixture<MonthEndClosePage>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MonthEndClose]
+      imports: [MonthEndClosePage]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(MonthEndClose);
+    fixture = TestBed.createComponent(MonthEndClosePage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
