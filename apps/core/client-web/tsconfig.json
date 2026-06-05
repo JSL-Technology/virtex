@@ -14,7 +14,8 @@
     "skipLibCheck": true,
     "strict": false,
     "noImplicitReturns": false,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "lib": ["es2022", "dom"]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

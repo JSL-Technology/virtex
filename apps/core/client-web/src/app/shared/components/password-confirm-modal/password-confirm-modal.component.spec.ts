@@ -63,7 +63,7 @@ describe('PasswordConfirmModalComponent', () => {
   it('should show loading icon when isLoading is true', () => {
     component.isLoading = true;
     fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
+    const compiled = fixture.nativeElement as any;
     expect(compiled.querySelector('.spin')).toBeTruthy();
   });
 
@@ -71,7 +71,7 @@ describe('PasswordConfirmModalComponent', () => {
     const errorMessage = 'Invalid password';
     component.error = errorMessage;
     fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
+    const compiled = fixture.nativeElement as any;
     expect(compiled.querySelector('.error-container')).toBeTruthy();
     expect(compiled.querySelector('.error-text')?.textContent).toContain(errorMessage);
   });

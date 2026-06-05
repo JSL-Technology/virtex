@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { GlobalSearch } from './global-search.page';
+import { GlobalSearchPage } from './global-search.page';
 
-describe('GlobalSearch', () => {
-  let component: GlobalSearch;
-  let fixture: ComponentFixture<GlobalSearch>;
+describe('GlobalSearchPage', () => {
+  let component: GlobalSearchPage;
+  let fixture: ComponentFixture<GlobalSearchPage>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [GlobalSearch]
+      imports: [GlobalSearchPage]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(GlobalSearch);
+    fixture = TestBed.createComponent(GlobalSearchPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

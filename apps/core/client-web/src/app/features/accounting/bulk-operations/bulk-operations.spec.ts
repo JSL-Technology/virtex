@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { BulkOperations } from './bulk-operations';
+import { BulkOperationsComponent } from './bulk-operations';
 
-describe('BulkOperations', () => {
-  let component: BulkOperations;
-  let fixture: ComponentFixture<BulkOperations>;
+describe('BulkOperationsComponent', () => {
+  let component: BulkOperationsComponent;
+  let fixture: ComponentFixture<BulkOperationsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BulkOperations]
+      imports: [BulkOperationsComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(BulkOperations);
+    fixture = TestBed.createComponent(BulkOperationsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

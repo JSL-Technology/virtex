@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { VarianceAnalysis } from './variance-analysis.page';
+import { VarianceAnalysisPage } from './variance-analysis.page';
 
-describe('VarianceAnalysis', () => {
-  let component: VarianceAnalysis;
-  let fixture: ComponentFixture<VarianceAnalysis>;
+describe('VarianceAnalysisPage', () => {
+  let component: VarianceAnalysisPage;
+  let fixture: ComponentFixture<VarianceAnalysisPage>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [VarianceAnalysis]
+      imports: [VarianceAnalysisPage]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(VarianceAnalysis);
+    fixture = TestBed.createComponent(VarianceAnalysisPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

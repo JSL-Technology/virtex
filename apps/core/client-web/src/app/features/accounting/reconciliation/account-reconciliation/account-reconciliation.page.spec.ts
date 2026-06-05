@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AccountReconciliation } from './account-reconciliation.page';
+import { AccountReconciliationPage } from './account-reconciliation.page';
 
-describe('AccountReconciliation', () => {
-  let component: AccountReconciliation;
-  let fixture: ComponentFixture<AccountReconciliation>;
+describe('AccountReconciliationPage', () => {
+  let component: AccountReconciliationPage;
+  let fixture: ComponentFixture<AccountReconciliationPage>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AccountReconciliation]
+      imports: [AccountReconciliationPage]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(AccountReconciliation);
+    fixture = TestBed.createComponent(AccountReconciliationPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

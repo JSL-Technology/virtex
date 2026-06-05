@@ -6,16 +6,13 @@
     "target": "es2016",
     "types": ["jest", "node"],
     "moduleResolution": "node",
-    "lib": ["es2022", "dom"],
-    "composite": false,
-    "declaration": false,
-    "declarationMap": false,
-    "emitDeclarationOnly": false
+    "lib": ["es2022", "dom"]
   },
   "files": ["src/test-setup.ts"],
   "include": [
     "jest.config.ts",
     "src/**/*.ts",
+    "src/**/*.json",
     "src/**/*.test.ts",
     "src/**/*.spec.ts",
     "src/**/*.d.ts"

@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { UnitsOfMeasure } from './units-of-measure.page';
+import { UnitsOfMeasurePage } from './units-of-measure.page';
 
-describe('UnitsOfMeasure', () => {
-  let component: UnitsOfMeasure;
-  let fixture: ComponentFixture<UnitsOfMeasure>;
+describe('UnitsOfMeasurePage', () => {
+  let component: UnitsOfMeasurePage;
+  let fixture: ComponentFixture<UnitsOfMeasurePage>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [UnitsOfMeasure]
+      imports: [UnitsOfMeasurePage]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(UnitsOfMeasure);
+    fixture = TestBed.createComponent(UnitsOfMeasurePage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

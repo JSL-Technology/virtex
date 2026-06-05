@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MergeTool } from './merge-tool';
+import { MergeToolComponent } from './merge-tool';
 
-describe('MergeTool', () => {
-  let component: MergeTool;
-  let fixture: ComponentFixture<MergeTool>;
+describe('MergeToolComponent', () => {
+  let component: MergeToolComponent;
+  let fixture: ComponentFixture<MergeToolComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MergeTool]
+      imports: [MergeToolComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(MergeTool);
+    fixture = TestBed.createComponent(MergeToolComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
