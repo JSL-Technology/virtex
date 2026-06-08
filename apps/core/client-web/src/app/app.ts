@@ -11,10 +11,11 @@ import { LoaderComponent } from './shared/components/loader/loader.component';
 import { GeoMismatchModalComponent } from './shared/components/geo-mismatch-modal/geo-mismatch-modal.component';
 import { IdleService } from './core/services/idle.service';
 import { ToastContainerComponent } from './shared/components/ui/toast/toast-container.component';
+import { OfflineBannerComponent } from './shared/components/offline-banner/offline-banner.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ModalComponent, CommonModule, GeoMismatchModalComponent, ToastContainerComponent],
+  imports: [RouterOutlet, ModalComponent, CommonModule, GeoMismatchModalComponent, ToastContainerComponent, OfflineBannerComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
