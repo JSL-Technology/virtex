@@ -1,7 +1,7 @@
 import { registerDecorator, ValidationOptions, ValidationArguments } from 'class-validator';
 
 export function IsRNC(validationOptions?: ValidationOptions) {
-  return function (object: Object, propertyName: string) {
+  return function (object: object, propertyName: string) {
     registerDecorator({
       name: 'isRNC',
       target: object.constructor,
@@ -42,7 +42,7 @@ function validateRNC(rnc: string): boolean {
         //    If Remainder = 0 -> Digit = 2
         //    If Remainder = 1 -> Digit = 1
         //    Else -> Digit = 11 - Remainder
-        let remainder = sum % 11;
+        const remainder = sum % 11;
         let digit = 0;
 
         if (remainder === 0) {
@@ -61,10 +61,10 @@ function validateRNC(rnc: string): boolean {
 }
 
 function validateCedula(ced: string): boolean {
-    let c = ced.replace(/-/g,'');
+    const c = ced.replace(/-/g,'');
     if(c.length !== 11) return false;
-    let cedula = c.substring(0, 10);
-    let verificador = c.substring(10, 11);
+    const cedula = c.substring(0, 10);
+    const verificador = c.substring(10, 11);
     let suma = 0;
 
     for (let i = 0; i < cedula.length; i++) {
@@ -77,6 +77,6 @@ function validateCedula(ced: string): boolean {
         suma += res;
     }
 
-    let el_numero = (10 - (suma % 10)) % 10;
+    const el_numero = (10 - (suma % 10)) % 10;
     return el_numero === parseInt(verificador);
 }

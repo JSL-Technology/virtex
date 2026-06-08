@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { KpiRoa } from './kpi-roa';
 
@@ -8,7 +10,11 @@ describe('KpiRoa', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [KpiRoa]
+      imports: [KpiRoa],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting()
+      ]
     })
     .compileComponents();
 

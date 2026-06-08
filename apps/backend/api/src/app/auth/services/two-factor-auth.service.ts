@@ -7,7 +7,6 @@ import { CryptoUtil } from '../../shared/utils/crypto.util';
 import { UserCacheService } from '../modules/user-cache.service';
 import { UserSecurity } from '../../users/entities/user-security.entity';
 import * as crypto from 'crypto';
-import * as argon2 from 'argon2';
 import { ConfigService } from '@nestjs/config';
 import { PasswordService } from './password.service';
 
@@ -161,7 +160,7 @@ export class TwoFactorAuthService {
       // Check against all hashed codes
       // This is O(N) where N is small (e.g., 10). Acceptable.
       for (const hashedCode of security.backupCodes) {
-          if (await argon2.verify(hashedCode, code)) {
+          if (await this.passwordService.verify(code, hashedCode)) {
               // Code is valid. Remove it (Burn on use).
               security.backupCodes = security.backupCodes.filter(c => c !== hashedCode);
               await this.userSecurityRepository.save(security);
@@ -181,7 +180,7 @@ export class TwoFactorAuthService {
           // Format: XXXX-XXXX
           const formattedCode = `${code.slice(0, 4)}-${code.slice(4)}`;
           codes.push(formattedCode);
-          hashedCodes.push(await argon2.hash(formattedCode));
+          hashedCodes.push(await this.passwordService.hash(formattedCode));
       }
 
       return { codes, hashedCodes };

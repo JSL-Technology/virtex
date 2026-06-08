@@ -2,11 +2,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TwoFactorVerifiedGuard } from './two-factor-verified.guard';
 import { TwoFactorAuthService } from '../services/two-factor-auth.service';
+import { UserCacheService } from '../modules/user-cache.service';
 import { ExecutionContext, UnauthorizedException, ForbiddenException } from '@nestjs/common';
 
 describe('TwoFactorVerifiedGuard', () => {
   let guard: TwoFactorVerifiedGuard;
   let twoFactorService: Partial<TwoFactorAuthService>;
+  let userCacheService: Partial<UserCacheService>;
 
   beforeEach(async () => {
     twoFactorService = {
@@ -14,10 +16,17 @@ describe('TwoFactorVerifiedGuard', () => {
       isTwoFactorEnabled: jest.fn(),
     };
 
+    userCacheService = {
+      get: jest.fn(),
+      set: jest.fn(),
+      del: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TwoFactorVerifiedGuard,
         { provide: TwoFactorAuthService, useValue: twoFactorService },
+        { provide: UserCacheService, useValue: userCacheService },
       ],
     }).compile();
 

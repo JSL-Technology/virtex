@@ -5,6 +5,7 @@ import { User } from '../../users/entities/user.entity/user.entity';
 import { UserSecurity } from '../../users/entities/user-security.entity';
 import { CryptoUtil } from '../../shared/utils/crypto.util';
 import { UserCacheService } from '../modules/user-cache.service';
+import { PasswordService } from './password.service';
 import { authenticator } from 'otplib';
 import { ConfigService } from '@nestjs/config';
 
@@ -15,6 +16,7 @@ describe('TwoFactorAuthService', () => {
   let userCacheService: any;
   let cryptoUtil: any;
   let configService: any;
+  let passwordService: any;
 
   beforeEach(async () => {
     userSecurityRepo = {
@@ -41,6 +43,10 @@ describe('TwoFactorAuthService', () => {
     configService = {
         get: jest.fn(key => 'App')
     };
+    passwordService = {
+        hash: jest.fn(val => Promise.resolve(`hashed-${val}`)),
+        verify: jest.fn((plain, hashed) => Promise.resolve(hashed === `hashed-${plain}`))
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -49,7 +55,8 @@ describe('TwoFactorAuthService', () => {
         { provide: getRepositoryToken(User), useValue: userRepo },
         { provide: UserCacheService, useValue: userCacheService },
         { provide: CryptoUtil, useValue: cryptoUtil },
-        { provide: ConfigService, useValue: configService }
+        { provide: ConfigService, useValue: configService },
+        { provide: PasswordService, useValue: passwordService }
       ],
     }).compile();
 
@@ -65,6 +72,7 @@ describe('TwoFactorAuthService', () => {
           const user = { id: 'user-1', email: 'test@test.com', security: { isTwoFactorEnabled: true } } as User;
 
           userSecurityRepo.save.mockImplementation(sec => Promise.resolve(sec));
+          passwordService.hash.mockImplementation(val => Promise.resolve(`hashed-${val}`));
 
           const result = await service.generateBackupCodes(user);
 
@@ -78,10 +86,8 @@ describe('TwoFactorAuthService', () => {
   describe('verifyBackupCode', () => {
       it('should return true and remove code if valid', async () => {
            const user = { id: 'user-1', security: { isTwoFactorEnabled: true } } as User;
-           // Mock generate first to get codes
-           // Or just mock verify
-           const argon2 = require('argon2');
-           jest.spyOn(argon2, 'verify').mockResolvedValue(true);
+
+           passwordService.verify.mockResolvedValue(true);
 
            user.security.backupCodes = ['hashed-code'];
 
@@ -95,8 +101,7 @@ describe('TwoFactorAuthService', () => {
 
        it('should return false if invalid', async () => {
            const user = { id: 'user-1', security: { isTwoFactorEnabled: true } } as User;
-           const argon2 = require('argon2');
-           jest.spyOn(argon2, 'verify').mockResolvedValue(false);
+           passwordService.verify.mockResolvedValue(false);
 
            user.security.backupCodes = ['hashed-code'];
 

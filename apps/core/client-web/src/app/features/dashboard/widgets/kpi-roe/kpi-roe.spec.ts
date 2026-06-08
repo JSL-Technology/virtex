@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { KpiRoe } from './kpi-roe';
 
@@ -8,7 +10,11 @@ describe('KpiRoe', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [KpiRoe]
+      imports: [KpiRoe],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting()
+      ]
     })
     .compileComponents();
 
