@@ -1,0 +1,77 @@
+<div class="company-switcher" appClickOutside (clickOutside)="closeDropdown()">
+  <button
+    class="switcher-trigger"
+    (click)="toggleDropdown()"
+    [class.active]="isOpen()"
+  >
+    <div class="company-badge">
+      @if (currentOrg()?.logoUrl) {
+        <img [src]="currentOrg()?.logoUrl" [alt]="currentOrg()?.name" class="company-logo">
+      } @else {
+        <div class="company-initial">
+          {{ currentOrg()?.name?.charAt(0) || 'V' }}
+        </div>
+      }
+    </div>
+
+    <div class="company-info">
+      <span class="company-name">{{ currentOrg()?.name || 'Virtex' }}</span>
+      <span class="company-plan">Empresa actual</span>
+    </div>
+
+    <lucide-icon [img]="ChevronsUpDownIcon" size="14" class="trigger-icon"></lucide-icon>
+  </button>
+
+  @if (isOpen()) {
+    <div class="switcher-dropdown">
+      <div class="dropdown-header">
+        <div class="search-container">
+          <lucide-icon [img]="SearchIcon" size="14"></lucide-icon>
+          <input
+            type="text"
+            [placeholder]="'SEARCH.ORGANIZATIONS' | translate"
+            (input)="onSearch($event)"
+            (click)="$event.stopPropagation()"
+            autofocus
+          >
+        </div>
+      </div>
+
+      <div class="dropdown-body">
+        <div class="section-label">Empresas</div>
+        @for (org of filteredOrganizations(); track org.id) {
+          <button
+            class="org-item"
+            [class.selected]="org.id === currentOrg()?.id"
+            (click)="selectOrganization(org)"
+          >
+            <div class="org-icon">
+              @if (org.logoUrl) {
+                <img [src]="org.logoUrl" [alt]="org.name">
+              } @else {
+                <lucide-icon [img]="BuildingIcon" size="16"></lucide-icon>
+              }
+            </div>
+            <span class="org-name">{{ org.name }}</span>
+            @if (org.id === currentOrg()?.id) {
+              <lucide-icon [img]="CheckIcon" size="14" class="selected-icon"></lucide-icon>
+            }
+          </button>
+        } @empty {
+          <div class="no-results">No se encontraron empresas</div>
+        }
+      </div>
+
+      <div class="dropdown-footer">
+        <button class="footer-action">
+          <lucide-icon [img]="PlusIcon" size="14"></lucide-icon>
+          <span>Crear nueva empresa</span>
+        </button>
+        <button class="footer-action">
+          <lucide-icon [img]="SettingsIcon" size="14"></lucide-icon>
+          <span>Gestionar organizaciones</span>
+        </button>
+      </div>
+    </div>
+  }
+</div>

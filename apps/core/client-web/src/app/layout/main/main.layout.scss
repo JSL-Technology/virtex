@@ -199,24 +199,10 @@
   transition: all 0.2s ease;
 
   .logo-container {
+    padding: 1.5rem 1rem;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 180px;
-    height: 180px;
-    margin: 2rem auto;
-
-    .company-logo {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-    }
-
-    .logo-text {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--accent-primary);
-    }
+    flex-direction: column;
+    gap: 1rem;
   }
 
   .sidebar-nav {
@@ -329,17 +315,9 @@
     gap: 1.5rem;
 
     .logo {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--accent-primary);
       display: flex;
       align-items: center;
-      height: 32px;
-
-      .company-logo {
-        max-height: 32px;
-        max-width: 150px;
-      }
+      min-width: 200px;
     }
 
     .topbar-nav {

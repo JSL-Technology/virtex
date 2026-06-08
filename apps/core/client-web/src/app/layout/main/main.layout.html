@@ -26,15 +26,7 @@
 
 <aside class="main-sidebar">
   <div class="logo-container">
-    @if (companyLogo(); as logo) {
-      <img
-        [src]="logo"
-        [alt]="'ALT.COMPANY_LOGO' | translate"
-        class="company-logo"
-      />
-    } @else {
-      <span class="logo-text">{{ companyName() }}</span>
-    }
+    <app-company-switcher></app-company-switcher>
   </div>
 
   <app-sidebar />
@@ -43,15 +35,7 @@
 <header class="main-topbar">
   <div class="topbar-left">
     <div class="logo">
-      @if (companyLogo(); as logo) {
-        <img
-          [src]="logo"
-          [alt]="'ALT.COMPANY_LOGO' | translate"
-          class="company-logo"
-        />
-      } @else {
-        <span class="logo-text">{{ companyName() }}</span>
-      }
+      <app-company-switcher></app-company-switcher>
     </div>
 
     <nav class="topbar-nav">
