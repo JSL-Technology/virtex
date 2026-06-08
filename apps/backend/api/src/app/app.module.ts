@@ -67,6 +67,7 @@ import { SupplyChainModule } from './supply-chain/supply-chain.module';
 import { ProjectsModule } from './projects/projects.module';
 import { HcmModule } from './hcm/hcm.module';
 import { ProcurementModule } from './procurement/procurement.module';
+import { DatasheetsModule } from './datasheets/datasheets.module';
 
 const requiredSecret = Joi.string().min(32).required();
 
@@ -271,7 +272,8 @@ const envValidation = Joi.object({
     SupplyChainModule,
     ProjectsModule,
     HcmModule,
-    ProcurementModule
+    ProcurementModule,
+    DatasheetsModule
   ],
   providers: [
     {

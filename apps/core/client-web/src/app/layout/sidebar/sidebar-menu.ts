@@ -361,6 +361,7 @@ export const SIDEBAR_MENU: SidebarGroup[] = [
           { path: '/reports/closing',              translationKey: 'sidebar.reports.reporting_sub.closing'              },
           { path: '/reports/xbrl',                 translationKey: 'sidebar.reports.reporting_sub.xbrl'                 },
           { path: '/costs/analytics',              translationKey: 'sidebar.reports.reporting_sub.costs_analytics'      },
+          { path: '/datasheets',                   translationKey: 'sidebar.reports.reporting_sub.datasheets'           },
         ],
       },
       {
