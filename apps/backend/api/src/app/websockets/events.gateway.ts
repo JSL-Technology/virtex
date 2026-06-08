@@ -32,9 +32,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection(client: Socket) {
     try {
-      const token = client.handshake.headers.cookie
-        ?.split('; ')
-        .find((row) => row.startsWith('access_token='))
+      const cookies = client.handshake.headers.cookie?.split('; ') || [];
+      const token = cookies
+        .find((row) => row.startsWith('access_token=') || row.startsWith('__Host-access_token='))
         ?.split('=')[1];
 
       if (!token) {
