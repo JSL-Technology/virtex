@@ -22,5 +22,6 @@ import { Organization } from '../organizations/entities/organization.entity';
   ],
   controllers: [DashboardController],
   providers: [DashboardService],
+  exports: [DashboardService],
 })
 export class DashboardModule {}
