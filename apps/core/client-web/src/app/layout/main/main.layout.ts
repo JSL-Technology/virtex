@@ -42,11 +42,25 @@ import {
 import { TranslateModule } from '@ngx-translate/core';
 import { Sidebar } from '../sidebar/sidebar';
 import { ClickOutsideDirective } from '../../shared/directives/click-outside.directive'; // ✅ Directiva añadida
+import { CompanySwitcherComponent } from './components/company-switcher/company-switcher.component';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ThemeToggle, AppLauncherComponent, LucideAngularModule, TranslateModule, Sidebar, ClickOutsideDirective, SettingsModalComponent], // ✅ Directiva añadida a los imports
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    ThemeToggle,
+    AppLauncherComponent,
+    LucideAngularModule,
+    TranslateModule,
+    Sidebar,
+    ClickOutsideDirective,
+    SettingsModalComponent,
+    CompanySwitcherComponent
+  ], // ✅ Directiva añadida a los imports
   templateUrl: './main.layout.html',
   styleUrls: ['./main.layout.scss'],
 })
