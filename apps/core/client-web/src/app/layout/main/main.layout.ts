@@ -10,6 +10,8 @@ import { AuthService } from '../../core/services/auth';
 import { BrandingService } from '../../core/services/branding';
 import { NotificationCenterService } from '../../core/services/notification-center.service';
 import { ThemeToggle } from '../../shared/components/theme-toggle/theme-toggle';
+import { AppLauncherComponent } from './components/app-launcher/app-launcher.component';
+import { PwaService } from '../../core/services/pwa.service';
 import { SearchService, SearchResultGroup } from '../../core/services/search.service';
 import { Subject, of } from 'rxjs';
 import { debounceTime, switchMap, catchError, distinctUntilChanged, tap } from 'rxjs/operators';
@@ -34,7 +36,8 @@ import {
   Box,
   FileSearch,
   UserPlus, // ✅ Icono añadido
-  Package as PackageIcon // ✅ Icono añadido
+  Package as PackageIcon, // ✅ Icono añadido
+  Download // ✅ Icono añadido
 } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { Sidebar } from '../sidebar/sidebar';
@@ -43,12 +46,13 @@ import { ClickOutsideDirective } from '../../shared/directives/click-outside.dir
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ThemeToggle, LucideAngularModule, TranslateModule, Sidebar, ClickOutsideDirective, SettingsModalComponent], // ✅ Directiva añadida a los imports
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ThemeToggle, AppLauncherComponent, LucideAngularModule, TranslateModule, Sidebar, ClickOutsideDirective, SettingsModalComponent], // ✅ Directiva añadida a los imports
   templateUrl: './main.layout.html',
   styleUrls: ['./main.layout.scss'],
 })
 export class MainLayout implements OnInit {
   notificationCenter = inject(NotificationCenterService);
+  pwaService = inject(PwaService);
   private readonly quickCreateShortcuts = [
     { key: 'i', route: '/invoices/new' },
     { key: 'q', route: '/quotes/new' },
@@ -215,6 +219,7 @@ export class MainLayout implements OnInit {
   protected readonly FileSearchIcon = FileSearch;
   protected readonly ReceiptIcon = Receipt; // ✅ Icono añadido
   protected readonly UserPlusIcon = UserPlus; // ✅ Icono añadido
+  protected readonly DownloadIcon = Download; // ✅ Icono añadido
 
   toggleUserMenu(): void {
     this.isUserMenuOpen.update(isOpen => !isOpen);

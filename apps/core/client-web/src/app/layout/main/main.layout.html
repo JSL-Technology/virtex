@@ -176,6 +176,18 @@
 
     <div class="header-right">
       <div class="actions-group">
+        <app-launcher></app-launcher>
+
+        @if (pwaService.canInstall()) {
+          <button
+            class="icon-button"
+            [title]="'PWA.INSTALL' | translate"
+            (click)="pwaService.installApp()"
+          >
+            <lucide-icon [img]="DownloadIcon" size="20"></lucide-icon>
+          </button>
+        }
+
         <div class="quick-create-menu" appClickOutside (clickOutside)="closeQuickCreateModal()">
           <button
             class="icon-button"
@@ -335,6 +347,16 @@
               <lucide-icon [img]="SettingsIcon" size="16"></lucide-icon>
               <span>{{ "NAV.SETTINGS" | translate }}</span>
             </button>
+
+            @if (pwaService.canInstall()) {
+              <button
+                class="dropdown-item"
+                (click)="pwaService.installApp(); closeUserMenu()"
+              >
+                <lucide-icon [img]="DownloadIcon" size="16"></lucide-icon>
+                <span>{{ "PWA.INSTALL" | translate }}</span>
+              </button>
+            }
           </div>
 
           <div class="dropdown-footer">

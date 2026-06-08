@@ -134,6 +134,21 @@
   "DOCS": {
     "DOCUMENTS": "Documentos"
   },
+  "PWA": {
+    "INSTALL": "Instalar App",
+    "OFFLINE_TITLE": "No tienes conexión",
+    "OFFLINE_MESSAGE": "Revisa tu conexión de red y vuelve aquí. Virtex se cargará tan pronto como vuelvas a estar en línea."
+  },
+  "APPS": {
+    "TITLE": "Apps de Virtex",
+    "POS": "Virtex POS",
+    "SHOPFLOOR": "Virtex Shopfloor",
+    "STORE": "Virtex Store",
+    "WMS": "Virtex WMS",
+    "LUNCH": "Virtex Lunch",
+    "HR": "Virtex HR",
+    "CRM": "Virtex CRM"
+  },
   "TOOLS": {
     "DATA_IMPORTS": "Importaciones de Datos",
     "DATA_EXPORTS": "Exportaciones de Datos"
