@@ -477,7 +477,8 @@
       "reporting_sub": {
         "financial": "Financial Statements",
         "sales": "Sales Reports",
-        "audit": "Audit Trails"
+        "audit": "Audit Trails",
+        "datasheets": "DataSheets"
       },
       "bi": "Business Intelligence",
       "bi_sub": {
@@ -651,5 +652,27 @@
     "SUBMIT_BUTTON": "Save Password",
     "SAVING": "Saving...",
     "SUCCESS": "Password set. Logging in..."
+  },
+  "datasheets": {
+    "title": "DataSheets",
+    "subtitle": "Analysis and spreadsheets connected to the ERP in real-time.",
+    "new_document": "New Book",
+    "recent": "Recent",
+    "my_documents": "My Documents",
+    "shared": "Shared",
+    "templates": "Templates",
+    "trash": "Trash",
+    "name": "Name",
+    "owner": "Owner",
+    "last_modified": "Last Modified",
+    "properties": "Properties",
+    "import": "Import",
+    "charts": "Charts",
+    "import_erp": "Import ERP",
+    "insert_chart": "Insert Chart",
+    "share": "Share",
+    "cell_format": "Cell Format",
+    "import_wizard": "Import Wizard",
+    "chart_config": "Chart Configuration"
   }
 }

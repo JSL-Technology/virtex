@@ -771,7 +771,8 @@
         "audit": "Auditoría",
         "closing": "Cierre",
         "xbrl": "XBRL",
-        "costs_analytics": "Analítica de costos"
+        "costs_analytics": "Analítica de costos",
+        "datasheets": "DataSheets"
       },
       "bi": "Inteligencia de Negocio",
       "bi_sub": {
@@ -1073,5 +1074,27 @@
     "SUBMIT_BUTTON": "Guardar Contraseña",
     "SAVING": "Guardando...",
     "SUCCESS": "Contraseña configurada. Iniciando sesión..."
+  },
+  "datasheets": {
+    "title": "DataSheets",
+    "subtitle": "Análisis y hojas de cálculo conectadas al ERP en tiempo real.",
+    "new_document": "Nuevo Libro",
+    "recent": "Recientes",
+    "my_documents": "Mis Documentos",
+    "shared": "Compartidos",
+    "templates": "Plantillas",
+    "trash": "Papelera",
+    "name": "Nombre",
+    "owner": "Propietario",
+    "last_modified": "Última Modificación",
+    "properties": "Propiedades",
+    "import": "Importar",
+    "charts": "Gráficos",
+    "import_erp": "Importar ERP",
+    "insert_chart": "Insertar Gráfico",
+    "share": "Compartir",
+    "cell_format": "Formato de Celda",
+    "import_wizard": "Asistente de Importación",
+    "chart_config": "Configuración de Gráfico"
   }
 }

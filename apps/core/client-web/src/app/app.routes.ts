@@ -248,6 +248,16 @@ export const APP_ROUTES: Routes = [
           ),
       },
       {
+        path: 'datasheets',
+        title: 'DataSheets',
+        canActivate: [permissionsGuard],
+        data: { permissions: ['reports:view'] },
+        loadChildren: () =>
+          import('./features/datasheets/datasheets.routes').then(
+            (m) => m.DATASHEET_ROUTES
+          ),
+      },
+      {
         path: 'purchasing',
         title: 'Purchasing',
         canActivate: [permissionsGuard],
