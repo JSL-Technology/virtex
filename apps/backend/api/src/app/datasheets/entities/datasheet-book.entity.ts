@@ -11,6 +11,8 @@ import {
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity/user.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
+import { DatasheetSheet } from './datasheet-sheet.entity';
+import { DatasheetVersion } from './datasheet-version.entity';
 
 export enum DatasheetMode {
   LIVE = 'live',
