@@ -5,9 +5,10 @@
     "experimentalDecorators": true,
     "moduleResolution": "bundler",
     "module": "preserve",
-    
-    "emitDeclarationOnly": false, 
-    "declaration": false,         
+    "composite": false,
+    "declaration": true,
+    "declarationMap": false,
+    "emitDeclarationOnly": false,
     
     "noUnusedLocals": false,
     "noUnusedParameters": false,

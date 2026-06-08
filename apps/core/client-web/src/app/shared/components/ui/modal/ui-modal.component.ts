@@ -57,7 +57,7 @@ export class UiModalComponent {
   @Input() isOpen = false;
 
   /** Title of the modal displayed in the header */
-  @Input() title: string = '';
+  @Input() title = '';
 
   /** Size of the modal: 'sm' | 'md' | 'lg' | 'xl' | 'full' */
   @Input() size: 'sm' | 'md' | 'lg' | 'xl' | 'full' = 'md';

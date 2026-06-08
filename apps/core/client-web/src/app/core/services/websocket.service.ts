@@ -25,6 +25,7 @@ export class WebSocketService implements OnDestroy {
     console.log('Attempting to connect WebSocket...');
     this.socket = io(baseUrl, {
       withCredentials: true,
+      transports: ['websocket', 'polling'],
     });
 
     this.socket.on('connect', () => {
