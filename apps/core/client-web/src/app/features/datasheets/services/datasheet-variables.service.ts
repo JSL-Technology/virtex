@@ -1,8 +1,9 @@
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import { API_URL } from '../../../core/tokens/api-url.token';
 
 export interface DatasheetBook {
   id?: string;
@@ -25,7 +26,8 @@ export interface ERPVariable {
   providedIn: 'root'
 })
 export class DatasheetVariablesService {
-  private apiUrl = '/api/datasheets';
+  private readonly baseUrl = inject(API_URL);
+  private apiUrl = `${this.baseUrl}/datasheets`;
 
   constructor(private http: HttpClient) {}
 
