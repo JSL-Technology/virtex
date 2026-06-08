@@ -20,7 +20,9 @@ import { Organization } from '../organizations/entities/organization.entity';
     FinancialReportingModule,
     TypeOrmModule.forFeature([Organization]),
   ],
+
   controllers: [DashboardController],
   providers: [DashboardService],
+    exports: [DashboardService],
 })
 export class DashboardModule {}
