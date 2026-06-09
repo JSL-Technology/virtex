@@ -117,7 +117,7 @@ export class LanguageService {
         this.usersService.updateProfile({ preferredLanguage: lang })
       );
       console.log(`Preferencia de idioma del usuario ${userId} sincronizada a '${lang}'.`);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Falló la sincronización de la preferencia de idioma con el perfil del usuario.', error);
     }
   }

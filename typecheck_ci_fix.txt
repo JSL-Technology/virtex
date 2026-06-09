@@ -1,0 +1,11 @@
+
+> nx run client-web:typecheck  [existing outputs match the cache, left as is]
+
+> tsc --build --emitDeclarationOnly
+
+
+
+
+ NX   Successfully ran target typecheck for project client-web
+
+Nx read the output from the cache instead of running the command for 1 out of 1 tasks.

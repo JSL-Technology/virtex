@@ -1,4 +1,4 @@
-import { provideRouter } from "@angular/router";
+import { provideRouter, ActivatedRoute } from "@angular/router";
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ClosingLayout } from './closing.layout';
@@ -9,7 +9,8 @@ describe('Layout', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      providers: [provideRouter([])], imports: [ClosingLayout]
+      providers: [provideRouter([]),
+        { provide: ActivatedRoute, useValue: { snapshot: { data: {} } } }], imports: [ClosingLayout]
     })
     .compileComponents();
 

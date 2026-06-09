@@ -466,7 +466,7 @@ export class AuthService {
       await firstValueFrom(this.http.post(`${this.apiUrl}/webauthn/register/verify`, credential));
 
       this.notificationService.showSuccess('Llave de acceso registrada correctamente');
-    } catch (error) {
+    } catch (error: any) {
       // Passkey registration failed
       this.notificationService.showError('Error al registrar la llave de acceso');
       throw error;
@@ -504,7 +504,7 @@ export class AuthService {
         this.listenForForcedLogout();
       }
       return response.user;
-    } catch (error) {
+    } catch (error: any) {
       // Passkey login failed
       this.notificationService.showError('Error al iniciar sesión con llave de acceso');
       throw error;

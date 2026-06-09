@@ -47,7 +47,7 @@ describe('SettingsLayout', () => {
         { provide: LoaderService, useValue: loaderServiceMock },
         { provide: Router, useValue: routerMock },
         { provide: ActivatedRoute, useValue: { snapshot: { data: {} } } },
-        { provide: AuthService, useValue: {} }
+        { provide: AuthService, useValue: { getPermissions$: () => of([]), hasPermissions: () => true, isAuthenticated$: of(true) } }
       ]
     }).compileComponents();
 

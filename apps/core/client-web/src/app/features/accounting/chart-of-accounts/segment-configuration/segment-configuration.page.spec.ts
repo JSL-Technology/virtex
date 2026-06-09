@@ -1,4 +1,4 @@
-import { provideRouter } from "@angular/router";
+import { provideRouter, ActivatedRoute } from "@angular/router";
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SegmentConfigurationPage } from './segment-configuration.page';
 import { ChartOfAccountsApiService } from '../../../../core/api/chart-of-accounts.service';
@@ -37,6 +37,7 @@ describe('SegmentConfigurationPage', () => {
         SegmentConfigurationPage
       ],
       providers: [provideRouter([]),
+        { provide: ActivatedRoute, useValue: { snapshot: { data: {} } } },
         { provide: ChartOfAccountsApiService, useValue: apiSpy },
         { provide: NotificationService, useValue: notificationSpy },
         { provide: Router, useValue: routerSpy },
