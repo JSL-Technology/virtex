@@ -1,0 +1,21 @@
+
+> nx run client-web:typecheck
+
+> tsc --build --emitDeclarationOnly
+
+src/app/features/settings/user-management/user-management.page.spec.ts(18,108): error TS2739: Type '{ id: string; name: string; }' is missing the following properties from type 'Role': description, permissions, isSystemRole
+src/app/features/settings/user-management/user-management.page.spec.ts(19,109): error TS2739: Type '{ id: string; name: string; }' is missing the following properties from type 'Role': description, permissions, isSystemRole
+src/app/features/settings/user-management/user-management.page.spec.ts(23,5): error TS2739: Type '{ id: string; name: string; permissions: undefined[]; }' is missing the following properties from type 'Role': description, isSystemRole
+src/app/features/settings/user-management/user-management.page.spec.ts(24,5): error TS2739: Type '{ id: string; name: string; permissions: undefined[]; }' is missing the following properties from type 'Role': description, isSystemRole
+src/app/features/settings/user-management/user-management.page.spec.ts(108,53): error TS2552: Cannot find name 'userTo'. Did you mean 'User'?
+src/app/features/settings/user-management/user-management.page.spec.ts(108,60): error TS2304: Cannot find name 'edit'.
+Warning: command "tsc --build --emitDeclarationOnly" exited with non-zero status code
+
+
+ NX   Running target typecheck for project client-web failed
+
+Failed tasks:
+
+- client-web:typecheck
+
+Hint: run the command with --verbose for more details.

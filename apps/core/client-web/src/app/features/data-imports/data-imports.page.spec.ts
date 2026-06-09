@@ -1,18 +1,19 @@
+import { provideRouter } from "@angular/router";
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DataImports } from './data-imports.page';
+import { DataImportsPage } from './data-imports.page';
 
 describe('DataImports', () => {
-  let component: DataImports;
-  let fixture: ComponentFixture<DataImports>;
+  let component: DataImportsPage;
+  let fixture: ComponentFixture<DataImportsPage>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DataImports]
+      providers: [provideRouter([])], imports: [DataImportsPage]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(DataImports);
+    fixture = TestBed.createComponent(DataImportsPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AnnualClose } from './annual-close.page';
+import { AnnualClosePage } from './annual-close.page';
 
 describe('AnnualClose', () => {
-  let component: AnnualClose;
-  let fixture: ComponentFixture<AnnualClose>;
+  let component: AnnualClosePage;
+  let fixture: ComponentFixture<AnnualClosePage>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AnnualClose]
+      imports: [AnnualClosePage]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(AnnualClose);
+    fixture = TestBed.createComponent(AnnualClosePage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

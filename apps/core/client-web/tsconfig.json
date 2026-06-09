@@ -16,6 +16,7 @@
     "strict": false,
     "noImplicitReturns": false,
     "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "lib": ["es2022", "dom"]
   },

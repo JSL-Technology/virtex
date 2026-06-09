@@ -9,7 +9,6 @@ import { HasPermissionDirective } from '../../../shared/directives/has-permissio
 import { LoaderComponent } from '../../../shared/components/loader/loader.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AuthService } from '../../../core/services/auth';
-import { MockAuthService } from '../../../core/services/testing/mock-auth.service';
 import { signal } from '@angular/core';
 
 describe('SettingsLayout', () => {
@@ -48,7 +47,7 @@ describe('SettingsLayout', () => {
         { provide: LoaderService, useValue: loaderServiceMock },
         { provide: Router, useValue: routerMock },
         { provide: ActivatedRoute, useValue: { snapshot: { data: {} } } },
-        { provide: AuthService, useClass: MockAuthService }
+        { provide: AuthService, useValue: {} }
       ]
     }).compileComponents();
 

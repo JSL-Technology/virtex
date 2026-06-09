@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ProfitabilityByCustomer } from './profitability-by-customer.page';
+import { ProfitabilityByCustomerPage } from './profitability-by-customer.page';
 
 describe('ProfitabilityByCustomer', () => {
-  let component: ProfitabilityByCustomer;
-  let fixture: ComponentFixture<ProfitabilityByCustomer>;
+  let component: ProfitabilityByCustomerPage;
+  let fixture: ComponentFixture<ProfitabilityByCustomerPage>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ProfitabilityByCustomer]
+      imports: [ProfitabilityByCustomerPage]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ProfitabilityByCustomer);
+    fixture = TestBed.createComponent(ProfitabilityByCustomerPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

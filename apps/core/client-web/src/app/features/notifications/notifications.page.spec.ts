@@ -1,3 +1,4 @@
+import { provideRouter } from "@angular/router";
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { NotificationsPage } from './notifications.page';
@@ -18,10 +19,11 @@ describe('NotificationsPage', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [NotificationsPage],
       providers: [
+        provideRouter([]),
         { provide: NotificationCenterService, useClass: MockNotificationCenterService }
-      ]
+      ],
+      imports: [NotificationsPage]
     })
     .compileComponents();
 

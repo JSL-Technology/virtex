@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ProfitabilityByProduct } from './profitability-by-product.page';
+import { ProfitabilityByProductPage } from './profitability-by-product.page';
 
 describe('ProfitabilityByProduct', () => {
-  let component: ProfitabilityByProduct;
-  let fixture: ComponentFixture<ProfitabilityByProduct>;
+  let component: ProfitabilityByProductPage;
+  let fixture: ComponentFixture<ProfitabilityByProductPage>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ProfitabilityByProduct]
+      imports: [ProfitabilityByProductPage]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ProfitabilityByProduct);
+    fixture = TestBed.createComponent(ProfitabilityByProductPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

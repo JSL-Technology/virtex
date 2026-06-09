@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { JournalEntryForm } from './journal-entry-form';
+import { JournalEntryFormPage } from './journal-entry-form.page';
 
 describe('JournalEntryForm', () => {
-  let component: JournalEntryForm;
-  let fixture: ComponentFixture<JournalEntryForm>;
+  let component: JournalEntryFormPage;
+  let fixture: ComponentFixture<JournalEntryFormPage>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [JournalEntryForm]
+      imports: [JournalEntryFormPage]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(JournalEntryForm);
+    fixture = TestBed.createComponent(JournalEntryFormPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
