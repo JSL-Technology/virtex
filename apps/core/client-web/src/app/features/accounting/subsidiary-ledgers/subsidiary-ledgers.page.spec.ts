@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SubsidiaryLedgers } from './subsidiary-ledgers.page';
+import { SubsidiaryLedgersPage } from './subsidiary-ledgers.page';
 
 describe('SubsidiaryLedgers', () => {
-  let component: SubsidiaryLedgers;
-  let fixture: ComponentFixture<SubsidiaryLedgers>;
+  let component: SubsidiaryLedgersPage;
+  let fixture: ComponentFixture<SubsidiaryLedgersPage>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SubsidiaryLedgers]
+      imports: [SubsidiaryLedgersPage]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(SubsidiaryLedgers);
+    fixture = TestBed.createComponent(SubsidiaryLedgersPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

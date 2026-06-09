@@ -14,12 +14,12 @@ import { LucideAngularModule, UserPlus, Save, X, Send, User, History, Trash2, Ke
 import { User as ApiUser } from '../../../shared/interfaces/user.interface';
 import { UserStatus } from '../../../shared/enums/user-status.enum';
 
-const mockUsers: ApiUser[] = [
+const mockUsers: any[] = [
   { id: '1', firstName: 'John', lastName: 'Doe', email: 'john@doe.com', status: UserStatus.ACTIVE, roles: [{id: '1', name: 'Admin'}], organizationId: '1', isOnline: true, createdAt: new Date() },
   { id: '2', firstName: 'Jane', lastName: 'Doe', email: 'jane@doe.com', status: UserStatus.PENDING, roles: [{id: '2', name: 'User'}], organizationId: '1', isOnline: false, createdAt: new Date() },
 ];
 
-const mockRoles: Role[] = [
+const mockRoles: any[] = [
     { id: '1', name: 'Admin', permissions: [] },
     { id: '2', name: 'User', permissions: [] },
 ]
@@ -105,7 +105,7 @@ describe('UserManagementPage', () => {
     expect(component.isEditMode()).toBe(true);
     expect(component.userModalOpen()).toBe(true);
     expect(component.selectedUser).toBe(userToEdit);
-    expect(component.userForm.value.firstName).toBe(userTo-edit.firstName);
+    expect(component.userForm.value.firstName).toBe(userToEdit.firstName);
   });
 
   it('should invite a new user', fakeAsync(() => {

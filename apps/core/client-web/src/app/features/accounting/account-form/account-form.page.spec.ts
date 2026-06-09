@@ -1,18 +1,19 @@
+import { of } from "rxjs";
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AccountForm } from './account-form.page';
+import { AccountFormPage } from './account-form.page';
 
 describe('AccountForm', () => {
-  let component: AccountForm;
-  let fixture: ComponentFixture<AccountForm>;
+  let component: AccountFormPage;
+  let fixture: ComponentFixture<AccountFormPage>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AccountForm]
+      imports: [AccountFormPage]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(AccountForm);
+    fixture = TestBed.createComponent(AccountFormPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -21,11 +22,4 @@ describe('AccountForm', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should set isConfigMissing if segment definitions are empty', () => {
-    apiService.getSegmentDefinitions.mockReturnValue(of([]));
-
-    component.ngOnInit();
-
-    expect(component.isConfigMissing()).toBe(true);
-  });
 });

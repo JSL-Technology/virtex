@@ -1,18 +1,19 @@
+import { provideRouter } from "@angular/router";
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DataExports } from './data-exports.page';
+import { DataExportsPage } from './data-exports.page';
 
 describe('DataExports', () => {
-  let component: DataExports;
-  let fixture: ComponentFixture<DataExports>;
+  let component: DataExportsPage;
+  let fixture: ComponentFixture<DataExportsPage>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DataExports]
+      providers: [provideRouter([])], imports: [DataExportsPage]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(DataExports);
+    fixture = TestBed.createComponent(DataExportsPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

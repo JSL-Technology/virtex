@@ -1,3 +1,4 @@
+import { provideRouter } from "@angular/router";
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SegmentConfigurationPage } from './segment-configuration.page';
 import { ChartOfAccountsApiService } from '../../../../core/api/chart-of-accounts.service';
@@ -29,12 +30,13 @@ describe('SegmentConfigurationPage', () => {
     };
 
     await TestBed.configureTestingModule({
+
       imports: [
         ReactiveFormsModule,
         LucideAngularModule.pick({ Save, Plus, Trash2, ArrowLeft, RotateCcw }),
         SegmentConfigurationPage
       ],
-      providers: [
+      providers: [provideRouter([]),
         { provide: ChartOfAccountsApiService, useValue: apiSpy },
         { provide: NotificationService, useValue: notificationSpy },
         { provide: Router, useValue: routerSpy },

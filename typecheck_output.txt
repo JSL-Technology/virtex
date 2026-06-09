@@ -1,0 +1,71 @@
+
+> nx run client-web:typecheck
+
+> tsc --build --emitDeclarationOnly
+
+src/app/features/accounting/account-form/account-form.page.spec.ts(3,10): error TS2305: Module '"./account-form.page"' has no exported member 'AccountForm'.
+src/app/features/accounting/account-form/account-form.page.spec.ts(25,5): error TS2304: Cannot find name 'apiService'.
+src/app/features/accounting/account-form/account-form.page.spec.ts(25,54): error TS2304: Cannot find name 'of'.
+src/app/features/accounting/bulk-operations/bulk-operations.spec.ts(3,10): error TS2305: Module '"./bulk-operations"' has no exported member 'BulkOperations'.
+src/app/features/accounting/closing/annual-close/annual-close.page.spec.ts(3,10): error TS2305: Module '"./annual-close.page"' has no exported member 'AnnualClose'.
+src/app/features/accounting/closing/checklist/checklist.page.spec.ts(3,10): error TS2459: Module '"./checklist.page"' declares 'Checklist' locally, but it is not exported.
+src/app/features/accounting/closing/layout/closing.layout.spec.ts(3,10): error TS2305: Module '"./closing.layout"' has no exported member 'Layout'.
+src/app/features/accounting/closing/month-end-close/month-end-close.page.spec.ts(3,10): error TS2724: '"./month-end-close.page"' has no exported member named 'MonthEndClose'. Did you mean 'MonthEndClosePage'?
+src/app/features/accounting/closing/tasks/tasks.page.spec.ts(3,10): error TS2305: Module '"./tasks.page"' has no exported member 'Tasks'.
+src/app/features/accounting/daily-journal/daily-journal.page.spec.ts(3,10): error TS2724: '"./daily-journal.page"' has no exported member named 'DailyJournal'. Did you mean 'DailyJournalPage'?
+src/app/features/accounting/journal-entries/journal-entries.page.spec.ts(3,10): error TS2724: '"./journal-entries.page"' has no exported member named 'JournalEntries'. Did you mean 'JournalEntriesPage'?
+src/app/features/accounting/journal-entry-form/journal-entry-form.page.spec.ts(3,34): error TS2307: Cannot find module './journal-entry-form' or its corresponding type declarations.
+src/app/features/accounting/layout/accounting.layout.spec.ts(3,10): error TS2305: Module '"./accounting.layout"' has no exported member 'Layout'.
+src/app/features/accounting/merge-tool/merge-tool.spec.ts(3,10): error TS2305: Module '"./merge-tool"' has no exported member 'MergeTool'.
+src/app/features/accounting/periods/periods.page.spec.ts(3,10): error TS2305: Module '"./periods.page"' has no exported member 'Periods'.
+src/app/features/accounting/reconciliation/account-reconciliation/account-reconciliation.page.spec.ts(3,10): error TS2724: '"./account-reconciliation.page"' has no exported member named 'AccountReconciliation'. Did you mean 'AccountReconciliationPage'?
+src/app/features/accounting/subsidiary-ledgers/subsidiary-ledgers.page.spec.ts(3,10): error TS2724: '"./subsidiary-ledgers.page"' has no exported member named 'SubsidiaryLedgers'. Did you mean 'SubsidiaryLedgersPage'?
+src/app/features/accounting/variance-analysis/variance-analysis.page.spec.ts(3,10): error TS2724: '"./variance-analysis.page"' has no exported member named 'VarianceAnalysis'. Did you mean 'VarianceAnalysisPage'?
+src/app/features/approvals/approvals.spec.ts(3,27): error TS2307: Cannot find module './approvals' or its corresponding type declarations.
+src/app/features/dashboard/dashboard.spec.ts(3,10): error TS2305: Module '"./dashboard.page"' has no exported member 'Dashboard'.
+src/app/features/data-exports/data-exports.page.spec.ts(3,10): error TS2305: Module '"./data-exports.page"' has no exported member 'DataExports'.
+src/app/features/data-imports/data-imports.page.spec.ts(3,10): error TS2305: Module '"./data-imports.page"' has no exported member 'DataImports'.
+src/app/features/documents/documents.spec.ts(3,27): error TS2306: File '/app/apps/core/client-web/src/app/features/documents/documents.page.ts' is not a module.
+src/app/features/documents/layout/documents.layout.spec.ts(3,10): error TS2305: Module '"./documents.layout"' has no exported member 'Layout'.
+src/app/features/documents/repository/repository.spec.ts(3,10): error TS2305: Module '"./repository.page"' has no exported member 'Repository'.
+src/app/features/documents/templates/templates.spec.ts(3,10): error TS2305: Module '"./templates.page"' has no exported member 'Templates'.
+src/app/features/global-search/global-search.page.spec.ts(3,10): error TS2724: '"./global-search.page"' has no exported member named 'GlobalSearch'. Did you mean 'GlobalSearchPage'?
+src/app/features/masters/branches/branches.page.spec.ts(3,10): error TS2305: Module '"./branches.page"' has no exported member 'Branches'.
+src/app/features/masters/currencies/currencies.page.spec.ts(3,10): error TS2305: Module '"./currencies.page"' has no exported member 'Currencies'.
+src/app/features/masters/customers/customer-form/customer-form.page.spec.ts(3,10): error TS2724: '"./customer-form.page"' has no exported member named 'CustomerForm'. Did you mean 'CustomerFormPage'?
+src/app/features/masters/customers/customer-list/customer-list.page.spec.ts(3,10): error TS2724: '"./customer-list.page"' has no exported member named 'CustomerList'. Did you mean 'Customer'?
+src/app/features/masters/layout/masters.layout.spec.ts(3,10): error TS2305: Module '"./masters.layout"' has no exported member 'Layout'.
+src/app/features/masters/payment-methods/payment-methods.page.spec.ts(3,10): error TS2724: '"./payment-methods.page"' has no exported member named 'PaymentMethods'. Did you mean 'PaymentMethodsPage'?
+src/app/features/masters/payment-terms/payment-terms.page.spec.ts(3,10): error TS2724: '"./payment-terms.page"' has no exported member named 'PaymentTerms'. Did you mean 'PaymentTermsPage'?
+src/app/features/masters/units-of-measure/units-of-measure.page.spec.ts(3,10): error TS2724: '"./units-of-measure.page"' has no exported member named 'UnitsOfMeasure'. Did you mean 'UnitsOfMeasurePage'?
+src/app/features/masters/warehouses/warehouses.page.spec.ts(3,10): error TS2305: Module '"./warehouses.page"' has no exported member 'Warehouses'.
+src/app/features/my-work/my-work.spec.ts(3,24): error TS2307: Cannot find module './my-work' or its corresponding type declarations.
+src/app/features/purchasing/layout/purchasing.layout.spec.ts(3,24): error TS2307: Cannot find module './layout' or its corresponding type declarations.
+src/app/features/purchasing/orders/orders.page.spec.ts(3,10): error TS2305: Module '"./orders.page"' has no exported member 'Orders'.
+src/app/features/purchasing/requisitions/requisitions.page.spec.ts(3,10): error TS2724: '"./requisitions.page"' has no exported member named 'Requisitions'. Did you mean 'RequisitionsPage'?
+src/app/features/reports/financial-statements/balance-sheet/balance-sheet.page.spec.ts(3,10): error TS2724: '"./balance-sheet.page"' has no exported member named 'BalanceSheet'. Did you mean 'BalanceSheetPage'?
+src/app/features/reports/layout/reports.layout.spec.ts(3,24): error TS2307: Cannot find module './layout' or its corresponding type declarations.
+src/app/features/reports/profitability-by-customer/profitability-by-customer.page.spec.ts(3,10): error TS2724: '"./profitability-by-customer.page"' has no exported member named 'ProfitabilityByCustomer'. Did you mean 'ProfitabilityByCustomerPage'?
+src/app/features/reports/profitability-by-product/profitability-by-product.page.spec.ts(3,10): error TS2724: '"./profitability-by-product.page"' has no exported member named 'ProfitabilityByProduct'. Did you mean 'ProfitabilityByProductPage'?
+src/app/features/sales/history/history.spec.ts(3,10): error TS2305: Module '"./history.page"' has no exported member 'History'.
+src/app/features/sales/pos/pos.spec.ts(3,10): error TS2305: Module '"./pos.page"' has no exported member 'Pos'.
+src/app/features/settings/branding/branding.spec.ts(3,10): error TS2305: Module '"./branding.page"' has no exported member 'Branding'.
+src/app/features/settings/company-profile/company-profile.spec.ts(3,10): error TS2724: '"./company-profile.page"' has no exported member named 'CompanyProfile'. Did you mean 'CompanyProfilePage'?
+src/app/features/settings/layout/settings.layout.spec.ts(12,33): error TS2307: Cannot find module '../../../core/services/testing/mock-auth.service' or its corresponding type declarations.
+src/app/features/settings/user-management/user-management.page.spec.ts(18,108): error TS2739: Type '{ id: string; name: string; }' is missing the following properties from type 'Role': description, permissions, isSystemRole
+src/app/features/settings/user-management/user-management.page.spec.ts(19,109): error TS2739: Type '{ id: string; name: string; }' is missing the following properties from type 'Role': description, permissions, isSystemRole
+src/app/features/settings/user-management/user-management.page.spec.ts(23,5): error TS2739: Type '{ id: string; name: string; permissions: undefined[]; }' is missing the following properties from type 'Role': description, isSystemRole
+src/app/features/settings/user-management/user-management.page.spec.ts(24,5): error TS2739: Type '{ id: string; name: string; permissions: undefined[]; }' is missing the following properties from type 'Role': description, isSystemRole
+src/app/features/settings/user-management/user-management.page.spec.ts(108,53): error TS2552: Cannot find name 'userTo'. Did you mean 'User'?
+src/app/features/settings/user-management/user-management.page.spec.ts(108,60): error TS2304: Cannot find name 'edit'.
+tsconfig.spec.json(3,3): error TS5098: Option 'customConditions' can only be used when 'moduleResolution' is set to 'node16', 'nodenext', or 'bundler'.
+Warning: command "tsc --build --emitDeclarationOnly" exited with non-zero status code
+
+
+ NX   Running target typecheck for project client-web failed
+
+Failed tasks:
+
+- client-web:typecheck
+
+Hint: run the command with --verbose for more details.

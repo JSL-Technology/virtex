@@ -1,18 +1,19 @@
+import { provideRouter } from "@angular/router";
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { GlobalSearch } from './global-search.page';
+import { GlobalSearchPage } from './global-search.page';
 
 describe('GlobalSearch', () => {
-  let component: GlobalSearch;
-  let fixture: ComponentFixture<GlobalSearch>;
+  let component: GlobalSearchPage;
+  let fixture: ComponentFixture<GlobalSearchPage>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [GlobalSearch]
+      providers: [provideRouter([])], imports: [GlobalSearchPage]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(GlobalSearch);
+    fixture = TestBed.createComponent(GlobalSearchPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

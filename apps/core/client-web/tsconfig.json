@@ -4,7 +4,7 @@
     "noPropertyAccessFromIndexSignature": true,
     "experimentalDecorators": true,
     "moduleResolution": "bundler",
-    "module": "preserve",
+    "module": "esnext",
     "composite": false,
     "declaration": true,
     "declarationMap": false,
@@ -14,7 +14,11 @@
     "noUnusedParameters": false,
     "skipLibCheck": true,
     "strict": false,
-    "noImplicitReturns": false
+    "noImplicitReturns": false,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "lib": ["es2022", "dom"]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
