@@ -43,13 +43,15 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Sidebar } from '../sidebar/sidebar';
 import { ClickOutsideDirective } from '../../shared/directives/click-outside.directive'; // ✅ Directiva añadida
 import { CompanySwitcherComponent } from './components/company-switcher/company-switcher.component';
+import { TabContainerComponent } from '../../core/tabs/components/tab-container.component';
+import { TabPersistenceService } from '../../core/tabs/tab-persistence.service';
+import { TabRouterService } from '../../core/tabs/tab-router.service';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
   imports: [
     CommonModule,
-    RouterOutlet,
     RouterLink,
     RouterLinkActive,
     ThemeToggle,
@@ -59,7 +61,8 @@ import { CompanySwitcherComponent } from './components/company-switcher/company-
     Sidebar,
     ClickOutsideDirective,
     SettingsModalComponent,
-    CompanySwitcherComponent
+    CompanySwitcherComponent,
+    TabContainerComponent
   ], // ✅ Directiva añadida a los imports
   templateUrl: './main.layout.html',
   styleUrls: ['./main.layout.scss'],
@@ -67,6 +70,8 @@ import { CompanySwitcherComponent } from './components/company-switcher/company-
 export class MainLayout implements OnInit {
   notificationCenter = inject(NotificationCenterService);
   pwaService = inject(PwaService);
+  tabPersistence = inject(TabPersistenceService);
+  tabRouter = inject(TabRouterService);
   private readonly quickCreateShortcuts = [
     { key: 'i', route: '/invoices/new' },
     { key: 'q', route: '/quotes/new' },
@@ -96,6 +101,7 @@ export class MainLayout implements OnInit {
 
   ngOnInit(): void {
     this.notificationCenter.initialize();
+    this.tabPersistence.restoreState();
     this.searchQuery$.pipe(
       debounceTime(300),
       distinctUntilChanged(),

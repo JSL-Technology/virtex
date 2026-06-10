@@ -138,6 +138,9 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
     "date-fns": "^4.1.0",
+    "dockview": "^1.11.0",
+    "dockview-angular": "^6.6.1",
+    "dockview-core": "^6.6.1",
     "fastify": "^5.6.2",
     "file-saver": "^2.0.5",
     "geoip-lite": "^1.4.10",
@@ -198,6 +201,10 @@
       "@nestjs/common": "$@nestjs/common",
       "@nestjs/core": "$@nestjs/core"
     },
-    "@peculiar/x509": "1.11.0"
+    "@peculiar/x509": "1.11.0",
+    "dockview-angular": {
+      "@angular/common": "$@angular/common",
+      "@angular/core": "$@angular/core"
+    }
   }
 }
