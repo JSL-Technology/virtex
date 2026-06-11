@@ -21,8 +21,8 @@ export class WebSocketService implements OnDestroy {
       return;
     }
 
-    const baseUrl = environment.apiUrl.split('/api')[0];
-    console.log('Attempting to connect WebSocket...');
+    const baseUrl = environment.apiUrl.split('/api')[0].replace(/\/$/, '');
+    console.log(`Attempting to connect WebSocket to: ${baseUrl}`);
     this.socket = io(baseUrl, {
       withCredentials: true,
       transports: ['websocket', 'polling'],
@@ -34,8 +34,18 @@ export class WebSocketService implements OnDestroy {
       this.connectionReady.next();
     });
 
-    this.socket.on('disconnect', (reason) => console.log('WebSocket disconnected:', reason));
-    this.socket.on('connect_error', (err) => console.error('WebSocket connection error:', err.message));
+    this.socket.on('disconnect', (reason) => {
+      console.warn('WebSocket disconnected:', reason);
+      if (reason === 'io server disconnect') {
+        // the disconnection was initiated by the server, you need to reconnect manually
+        console.log('Server disconnected. Attempting to reconnect...');
+        this.socket?.connect();
+      }
+    });
+
+    this.socket.on('connect_error', (err) => {
+      console.error('WebSocket connection error:', err);
+    });
   }
 
   disconnect(): void {

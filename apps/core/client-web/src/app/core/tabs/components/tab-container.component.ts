@@ -55,7 +55,7 @@ export class TabContainerComponent implements OnInit {
       if (this.dockviewApi && activeTabId) {
         const panel = this.panels.get(activeTabId);
         if (panel) {
-          panel.api.setActive();
+          panel.setActive();
         }
       }
     });
@@ -87,13 +87,13 @@ export class TabContainerComponent implements OnInit {
 
         this.panels.set(tab.id, panel);
 
-        panel.api.onDidActiveChange(() => {
-          if (panel.api.isActive) {
+        panel.onDidActiveChange(() => {
+          if (panel.isActive) {
             this.tabState.activateTab(tab.id);
           }
         });
 
-        panel.api.onDidClose(() => {
+        panel.onDidClose(() => {
           this.tabState.closeTab(tab.id);
           this.panels.delete(tab.id);
         });
@@ -101,7 +101,7 @@ export class TabContainerComponent implements OnInit {
         // Update existing panel if title changed
         const panel = this.panels.get(tab.id);
         if (panel && panel.title !== tab.title) {
-          panel.api.setTitle(tab.title);
+          panel.setTitle(tab.title);
         }
       }
     });
@@ -109,7 +109,7 @@ export class TabContainerComponent implements OnInit {
     // Remove closed tabs
     this.panels.forEach((panel, id) => {
       if (!tabs.find(t => t.id === id)) {
-        panel.api.close();
+        panel.close();
         this.panels.delete(id);
       }
     });

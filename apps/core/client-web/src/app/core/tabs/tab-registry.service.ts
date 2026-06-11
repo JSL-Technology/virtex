@@ -7,6 +7,10 @@ import { NewInvoicePage } from '../../features/invoices/new/new.page';
 import { InvoiceDetailPage } from '../../features/invoices/detail/detail.page';
 import { ProductsPage } from '../../features/inventory/products/products.page';
 import { CustomersPage } from '../../features/contacts/customers/customers.page';
+import { MyWorkPage } from '../../features/my-work/my-work.page';
+import { ApprovalsPage } from '../../features/approvals/approvals.page';
+import { NotificationsPage } from '../../features/notifications/notifications.page';
+import { GlobalSearchPage } from '../../features/global-search/global-search.page';
 
 @Injectable({
   providedIn: 'root',
@@ -20,6 +24,34 @@ export class TabRegistryService {
       title: 'Dashboard',
       icon: 'LayoutDashboard',
       isCloseable: false,
+    },
+    {
+      pattern: '/my-work',
+      component: MyWorkPage,
+      tabType: TabType.UTILITY,
+      title: 'Mi trabajo',
+      icon: 'ClipboardList',
+    },
+    {
+      pattern: '/approvals',
+      component: ApprovalsPage,
+      tabType: TabType.UTILITY,
+      title: 'Aprobaciones',
+      icon: 'CheckSquare',
+    },
+    {
+      pattern: '/notifications',
+      component: NotificationsPage,
+      tabType: TabType.UTILITY,
+      title: 'Notificaciones',
+      icon: 'Bell',
+    },
+    {
+      pattern: '/global-search',
+      component: GlobalSearchPage,
+      tabType: TabType.UTILITY,
+      title: 'Búsqueda global',
+      icon: 'Search',
     },
     {
       pattern: '/sales',
