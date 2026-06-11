@@ -13,6 +13,7 @@ import { TabRegistryService } from '../tab-registry.service';
   template: `
     <div class="dockview-container">
       <dv-dockview
+        [components]="components"
         (ready)="onReady($event)"
         class="dockview-theme-abyss"
       >
@@ -37,6 +38,10 @@ export class TabContainerComponent implements OnInit {
   private dockviewApi: any;
   private panels = new Map<string, IDockviewPanel>();
 
+  readonly components = {
+    tabWrapper: TabWrapperComponent,
+  };
+
   constructor() {
     effect(() => {
       const tabs = this.tabState.tabs();
@@ -60,12 +65,6 @@ export class TabContainerComponent implements OnInit {
 
   onReady(event: DockviewReadyEvent): void {
     this.dockviewApi = event.api;
-
-    // Register components
-    this.dockviewApi.registerComponents({
-      'tabWrapper': TabWrapperComponent,
-    });
-
     this.syncTabs(this.tabState.tabs());
   }
 
