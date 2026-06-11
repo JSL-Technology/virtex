@@ -200,6 +200,10 @@
       "@nestjs/common": "$@nestjs/common",
       "@nestjs/core": "$@nestjs/core"
     },
+    "dockview-angular": {
+      "@angular/common": "$@angular/common",
+      "@angular/core": "$@angular/core"
+    },
     "@peculiar/x509": "1.11.0"
   }
 }
