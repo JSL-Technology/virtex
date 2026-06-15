@@ -64,7 +64,6 @@
             [errorMessage]="getErrorMessage('passwordGroup.password')">
             <lucide-icon icon [img]="LockIcon" size="18"></lucide-icon>
           </app-auth-input>
-          <app-password-validator [password]="group.get('passwordGroup.password')?.value"></app-password-validator>
         </div>
 
         <app-auth-input
@@ -78,6 +77,8 @@
           <lucide-icon icon [img]="LockIcon" size="18"></lucide-icon>
         </app-auth-input>
       </div>
+
+      <app-password-strength [password]="group.get('passwordGroup.password')?.value"></app-password-strength>
 
       <div *ngIf="group.get('passwordGroup')?.errors?.['passwordMismatch'] && group.get('passwordGroup.confirmPassword')?.touched" class="password-mismatch-error">
          <lucide-icon [img]="AlertCircleIcon" size="14"></lucide-icon>

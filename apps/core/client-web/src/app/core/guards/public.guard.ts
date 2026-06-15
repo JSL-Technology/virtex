@@ -6,7 +6,7 @@ import { AuthService } from '../services/auth';
 
 /**
  * Guard para proteger rutas públicas de usuarios ya autenticados.
- * Si el usuario ha iniciado sesión, lo redirige al dashboard.
+ * Si el usuario ha iniciado sesión, lo redirige a la página de inicio (Overview).
  * De lo contrario, le permite el acceso a la ruta solicitada (ej. /login).
  */
 export const publicGuard: CanActivateFn = (): Observable<boolean | UrlTree> => {
@@ -17,8 +17,8 @@ export const publicGuard: CanActivateFn = (): Observable<boolean | UrlTree> => {
     take(1), // Toma el primer valor emitido y se desuscribe.
     map(isAuthenticated => {
       if (isAuthenticated) {
-        // Si el usuario está autenticado, crea un UrlTree para redirigir al dashboard.
-        return router.createUrlTree(['/dashboard']);
+        // Si el usuario está autenticado, redirige a la página de inicio (Overview).
+        return router.createUrlTree(['/overview']);
       }
       // Si no está autenticado, permite el acceso a la ruta.
       return true;

@@ -1,0 +1,211 @@
+<div class="ov-shell">
+
+  <!-- ── Hero / saludo ──────────────────────────────────────────────── -->
+  <header class="ov-hero">
+    <div class="ov-hero__text">
+      <h1 class="ov-hero__title">
+        {{ greetingKey() | translate }}<ng-container *ngIf="firstName()">, {{ firstName() }}</ng-container>
+        <span class="ov-hero__wave" aria-hidden="true">👋</span>
+      </h1>
+      <p class="ov-hero__subtitle">
+        <span class="ov-hero__date">{{ today | date:'EEEE, d MMMM y' }}</span>
+        <span class="ov-hero__sep" aria-hidden="true">·</span>
+        <span>{{ 'OVERVIEW.HERO.SUBTITLE' | translate }}</span>
+      </p>
+    </div>
+
+    <div class="ov-hero__actions">
+      <button type="button" class="ov-btn ov-btn--primary" (click)="openNewInvoice()">
+        <lucide-icon [img]="NewInvoiceIcon" size="16"></lucide-icon>
+        <span>{{ 'OVERVIEW.HERO.NEW_INVOICE' | translate }}</span>
+      </button>
+      <button type="button" class="ov-btn ov-btn--ghost" (click)="openDashboard()">
+        <lucide-icon [img]="DashboardIcon" size="16"></lucide-icon>
+        <span>{{ 'OVERVIEW.HERO.OPEN_DASHBOARD' | translate }}</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Accesos rápidos ────────────────────────────────────────────── -->
+  <section class="ov-section" aria-labelledby="ov-quick-title">
+    <h2 id="ov-quick-title" class="ov-section__title">{{ 'OVERVIEW.QUICK.TITLE' | translate }}</h2>
+    <div class="ov-quick-grid">
+      @for (action of quickActions(); track action.id) {
+        <button
+          type="button"
+          class="ov-quick"
+          [attr.data-accent]="action.accent"
+          (click)="open(action.route)">
+          <span class="ov-quick__icon">
+            <lucide-icon [img]="action.icon" size="20"></lucide-icon>
+          </span>
+          <span class="ov-quick__label">{{ action.labelKey | translate }}</span>
+          <lucide-icon class="ov-quick__arrow" [img]="ArrowRightIcon" size="16"></lucide-icon>
+        </button>
+      }
+    </div>
+  </section>
+
+  <!-- ── Cuerpo: actividad + novedades/eventos ──────────────────────── -->
+  <div class="ov-grid">
+
+    <!-- Actividad reciente -->
+    <section class="ov-card ov-card--activity" aria-labelledby="ov-activity-title">
+      <header class="ov-card__head">
+        <div class="ov-card__head-left">
+          <lucide-icon class="ov-card__head-icon" [img]="ActivityIcon" size="18"></lucide-icon>
+          <h2 id="ov-activity-title" class="ov-card__title">{{ 'OVERVIEW.ACTIVITY.TITLE' | translate }}</h2>
+        </div>
+        <button type="button" class="ov-icon-btn" [title]="'OVERVIEW.REFRESH' | translate" (click)="refresh()">
+          <lucide-icon [img]="RefreshIcon" size="15"></lucide-icon>
+        </button>
+      </header>
+
+      <div class="ov-card__body">
+        @switch (activityStatus()) {
+          @case ('loading') {
+            <ul class="ov-activity-list">
+              @for (s of skeletons; track s) {
+                <li class="ov-activity ov-skeleton-row">
+                  <span class="ov-skeleton ov-skeleton--avatar"></span>
+                  <span class="ov-skeleton ov-skeleton--line"></span>
+                </li>
+              }
+            </ul>
+          }
+          @case ('error') {
+            <div class="ov-state">
+              <p>{{ 'OVERVIEW.STATE.ERROR' | translate }}</p>
+              <button type="button" class="ov-btn ov-btn--ghost ov-btn--sm" (click)="refresh()">
+                {{ 'OVERVIEW.STATE.RETRY' | translate }}
+              </button>
+            </div>
+          }
+          @default {
+            @if (activity().length === 0) {
+              <div class="ov-state ov-state--empty">{{ 'OVERVIEW.ACTIVITY.EMPTY' | translate }}</div>
+            } @else {
+              <ul class="ov-activity-list">
+                @for (item of activity(); track item.id) {
+                  <li class="ov-activity" [class.is-clickable]="item.route" (click)="open(item.route)">
+                    <span class="ov-activity__icon" [attr.data-kind]="item.kind">
+                      <lucide-icon [img]="item.icon" size="16"></lucide-icon>
+                    </span>
+                    <span class="ov-activity__body">
+                      <span class="ov-activity__title">{{ item.title }}</span>
+                      <span class="ov-activity__meta">
+                        @if (item.meta) { <strong>{{ item.meta }}</strong> · }
+                        {{ relativeTime(item.timestamp) }}
+                      </span>
+                    </span>
+                  </li>
+                }
+              </ul>
+            }
+          }
+        }
+      </div>
+    </section>
+
+    <!-- Columna lateral: noticias + eventos -->
+    <div class="ov-aside">
+
+      <!-- Noticias de Virtex -->
+      <section class="ov-card" aria-labelledby="ov-news-title">
+        <header class="ov-card__head">
+          <div class="ov-card__head-left">
+            <lucide-icon class="ov-card__head-icon" [img]="NewsIcon" size="18"></lucide-icon>
+            <h2 id="ov-news-title" class="ov-card__title">{{ 'OVERVIEW.NEWS.TITLE' | translate }}</h2>
+          </div>
+        </header>
+
+        <div class="ov-card__body">
+          @switch (newsStatus()) {
+            @case ('loading') {
+              @for (s of skeletons; track s) {
+                <div class="ov-skeleton-row ov-skeleton-row--stacked">
+                  <span class="ov-skeleton ov-skeleton--line ov-skeleton--w60"></span>
+                  <span class="ov-skeleton ov-skeleton--line"></span>
+                </div>
+              }
+            }
+            @case ('error') {
+              <div class="ov-state"><p>{{ 'OVERVIEW.STATE.ERROR' | translate }}</p></div>
+            }
+            @default {
+              @if (news().length === 0) {
+                <div class="ov-state ov-state--empty">{{ 'OVERVIEW.NEWS.EMPTY' | translate }}</div>
+              } @else {
+                <ul class="ov-news-list">
+                  @for (item of news(); track item.id) {
+                    <li class="ov-news">
+                      <span class="ov-news__icon">
+                        <lucide-icon [img]="item.icon" size="16"></lucide-icon>
+                      </span>
+                      <div class="ov-news__body">
+                        <div class="ov-news__top">
+                          @if (item.tag) { <span class="ov-tag">{{ item.tag }}</span> }
+                          <span class="ov-news__date">{{ shortDate(item.date) }}</span>
+                        </div>
+                        <p class="ov-news__title">{{ item.title }}</p>
+                        <p class="ov-news__summary">{{ item.summary }}</p>
+                      </div>
+                    </li>
+                  }
+                </ul>
+              }
+            }
+          }
+        </div>
+      </section>
+
+      <!-- Eventos -->
+      <section class="ov-card" aria-labelledby="ov-events-title">
+        <header class="ov-card__head">
+          <div class="ov-card__head-left">
+            <lucide-icon class="ov-card__head-icon" [img]="EventsIcon" size="18"></lucide-icon>
+            <h2 id="ov-events-title" class="ov-card__title">{{ 'OVERVIEW.EVENTS.TITLE' | translate }}</h2>
+          </div>
+        </header>
+
+        <div class="ov-card__body">
+          @switch (eventsStatus()) {
+            @case ('loading') {
+              @for (s of skeletons; track s) {
+                <div class="ov-skeleton-row">
+                  <span class="ov-skeleton ov-skeleton--date"></span>
+                  <span class="ov-skeleton ov-skeleton--line"></span>
+                </div>
+              }
+            }
+            @case ('error') {
+              <div class="ov-state"><p>{{ 'OVERVIEW.STATE.ERROR' | translate }}</p></div>
+            }
+            @default {
+              @if (events().length === 0) {
+                <div class="ov-state ov-state--empty">{{ 'OVERVIEW.EVENTS.EMPTY' | translate }}</div>
+              } @else {
+                <ul class="ov-events-list">
+                  @for (item of events(); track item.id) {
+                    <li class="ov-event">
+                      <span class="ov-event__date">{{ shortDate(item.date) }}</span>
+                      <div class="ov-event__body">
+                        <p class="ov-event__title">{{ item.title }}</p>
+                        <p class="ov-event__meta">
+                          @if (item.type) { <span class="ov-tag ov-tag--soft">{{ item.type }}</span> }
+                          @if (item.location) { <span>{{ item.location }}</span> }
+                        </p>
+                      </div>
+                    </li>
+                  }
+                </ul>
+              }
+            }
+          }
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+</div>

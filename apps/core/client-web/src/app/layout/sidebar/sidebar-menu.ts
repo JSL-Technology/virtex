@@ -10,7 +10,7 @@ import {
   BellPlus, Mail, Pen, KeyRound, LockKeyhole, ScrollText, Eye,
   ClipboardCheck, BadgeCheck, HelpCircle, LifeBuoy, BookOpen,
   PauseCircle, FileBarChart, AlertTriangle, BarChart, GitBranch,
-  EyeOff, TrendingUp, Shield, Globe
+  EyeOff, TrendingUp, Shield, Globe, Home
 } from 'lucide-angular';
 
 // ────────────────────────────────────────────────────────────────
@@ -43,6 +43,7 @@ export const SIDEBAR_MENU: SidebarGroup[] = [
   {
     groupTranslationKey: 'sidebar.groups.general',
     items: [
+      { path: '/overview',         translationKey: 'sidebar.general.overview',      icon: Home            },
       { path: '/dashboard',        translationKey: 'sidebar.general.dashboard',     icon: LayoutDashboard },
       { path: '/my-work',          translationKey: 'sidebar.general.my_work',       icon: ClipboardList   },
       { path: '/approvals',        translationKey: 'sidebar.general.approvals',     icon: CheckSquare     },

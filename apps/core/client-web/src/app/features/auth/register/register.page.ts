@@ -398,11 +398,21 @@ export class RegisterPage implements OnInit {
   onEmailVerified(preVerifiedToken: string) {
     this.registerForm.get('accountInfo.emailCode')?.setValue(preVerifiedToken);
     this.emailVerified.set(true);
+    // Auto-advance: a verified email leaves nothing else to do on this step, so
+    // move the user forward automatically (no manual "Next" click needed). The
+    // OTP component already shows its success state briefly before emitting.
+    if (this.currentStep() === 2) {
+      this.nextStep();
+    }
   }
 
   onPhoneVerified(preVerifiedToken: string) {
     this.registerForm.get('accountInfo.phoneCode')?.setValue(preVerifiedToken);
     this.phoneVerified.set(true);
+    // Auto-advance once the phone number is verified — same rationale as email.
+    if (this.currentStep() === 3) {
+      this.nextStep();
+    }
   }
 
   onSubmit(): void {

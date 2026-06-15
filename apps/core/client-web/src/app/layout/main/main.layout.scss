@@ -1143,3 +1143,90 @@ router-outlet + * {
   justify-content: center;
   // font-weight: 500;
 }
+
+// --- TOGGLE DE SIDEBAR (visible solo en móvil) ---
+.sidebar-toggle {
+  display: none;
+  margin-right: 0.5rem;
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
+// --- RESPONSIVE ---
+// En pantallas pequeñas el sidebar pasa a ser un overlay deslizante controlado
+// por el botón de menú, y el contenido (Dockview) ocupa todo el ancho.
+@media (max-width: 1024px) {
+  .global-search {
+    width: 100%;
+    max-width: 420px;
+  }
+}
+
+@media (max-width: 768px) {
+  :host.layout-sidenav,
+  :host.layout-topnav {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "banner"
+      "topbar"
+      "content";
+  }
+
+  .main-topbar {
+    grid-area: topbar;
+    padding: 0 12px;
+
+    .topbar-left {
+      display: none;
+    }
+  }
+
+  .header-center {
+    // El buscador deja sitio a las acciones en pantallas estrechas.
+    flex: 1;
+    min-width: 0;
+  }
+
+  .sidebar-toggle {
+    display: inline-flex;
+  }
+
+  .main-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: min(82vw, 300px);
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1200;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+  }
+
+  :host.sidebar-open .main-sidebar {
+    transform: translateX(0);
+  }
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 1150;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(1px);
+    animation: dropdown-fade-in 0.2s ease;
+  }
+}
+
+@media (max-width: 560px) {
+  .global-search {
+    display: none; // El buscador se ofrece desde la búsqueda global a pantalla.
+  }
+
+  .user-menu-trigger .user-info {
+    display: none;
+  }
+}

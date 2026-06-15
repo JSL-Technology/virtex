@@ -35,11 +35,15 @@ export class WebSocketService implements OnDestroy {
     });
 
     this.socket.on('disconnect', (reason) => {
-      console.warn('WebSocket disconnected:', reason);
-      if (reason === 'io server disconnect') {
-        // the disconnection was initiated by the server, you need to reconnect manually
-        console.log('Server disconnected. Attempting to reconnect...');
-        this.socket?.connect();
+      // When the server closes the socket ('io server disconnect'), it did so deliberately —
+      // typically because the session is no longer valid (expired/revoked token, force-logout).
+      // Manually reconnecting here just produces an endless connect/disconnect storm, so we DON'T.
+      // For transport-level drops ('transport close', 'ping timeout') Socket.IO reconnects on its
+      // own, which is the behaviour we actually want.
+      if (reason === 'io server disconnect' || reason === 'io client disconnect') {
+        console.log(`WebSocket closed (${reason}); not auto-reconnecting.`);
+      } else {
+        console.warn('WebSocket disconnected:', reason);
       }
     });
 

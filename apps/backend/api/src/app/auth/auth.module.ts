@@ -64,7 +64,7 @@ import { AuthAuditListener } from './listeners/auth-audit.listener';
 import { CsrfGuard } from './guards/csrf.guard';
 import { StepUpGuard } from './guards/step-up.guard';
 import { IsOrganizationOwnerPolicy } from './policies/is-organization-owner.policy';
-import { KeyManagementService } from './services/key-management.service';
+import { KeyManagementModule } from './services/key-management.module';
 
 @Module({
   imports: [
@@ -73,6 +73,7 @@ import { KeyManagementService } from './services/key-management.service';
     AuditModule,
     OrganizationsModule,
     GeoModule,
+    KeyManagementModule,
     forwardRef(() => UsersModule),
     UserCacheModule,
     TypeOrmModule.forFeature([
@@ -177,7 +178,8 @@ import { KeyManagementService } from './services/key-management.service';
     // M-05 FIX: register the ABAC policy so PermissionsGuard can resolve it via DI
     // (moduleRef.get). Previously it was never provided, so it failed-secure as "not found".
     IsOrganizationOwnerPolicy,
-    KeyManagementService,
+    // KeyManagementService is now provided by the @Global KeyManagementModule so a single
+    // instance is shared with the WebSocket gateway (same RS256 key for sign + verify).
     {
       provide: AbstractSmsProvider,
       useClass: TwilioSmsProvider
@@ -202,7 +204,7 @@ import { KeyManagementService } from './services/key-management.service';
     CsrfGuard,
     StepUpGuard,
     IsOrganizationOwnerPolicy,
-    KeyManagementService,
+    KeyManagementModule,
   ],
 })
 export class AuthModule {}

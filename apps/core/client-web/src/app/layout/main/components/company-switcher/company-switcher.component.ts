@@ -5,6 +5,8 @@ import { LucideAngularModule, Building, Check, ChevronsUpDown, Plus, Settings, S
 import { ClickOutsideDirective } from '../../../../shared/directives/click-outside.directive';
 import { AuthService } from '../../../../core/services/auth';
 import { Organization } from '../../../../shared/interfaces/user.interface';
+import { TabStateService } from '../../../../core/tabs/tab-state.service';
+import { TabPersistenceService } from '../../../../core/tabs/tab-persistence.service';
 
 @Component({
   selector: 'app-company-switcher',
@@ -15,6 +17,8 @@ import { Organization } from '../../../../shared/interfaces/user.interface';
 })
 export class CompanySwitcherComponent {
   private authService = inject(AuthService);
+  private tabState = inject(TabStateService);
+  private tabPersistence = inject(TabPersistenceService);
 
   isOpen = signal(false);
   searchQuery = signal('');
@@ -61,10 +65,17 @@ export class CompanySwitcherComponent {
   }
 
   selectOrganization(org: Organization) {
-    // In a real app, this would call a service to switch organization
-    console.log('Switching to organization:', org.name);
-    // For now, we just close the dropdown
+    const current = this.currentOrg();
     this.closeDropdown();
+
+    // §10: al cambiar de empresa/tenant los datos pertenecen a otro contexto.
+    // Se cierran TODAS las pestañas, se limpia el workspace persistido y se
+    // abre el Dashboard del nuevo tenant.
+    if (current?.id === org.id) return;
+
+    // In a real app, this would call a service to switch organization.
+    this.tabPersistence.clearState();
+    this.tabState.reset();
   }
 
   onSearch(event: Event) {

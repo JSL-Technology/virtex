@@ -15,7 +15,7 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, Shield, Clock, RefreshCw, Eraser, CheckCircle, Info, AlertCircle, AlertTriangle, Lightbulb } from 'lucide-angular';
+import { LucideAngularModule, Shield, Clock, RefreshCw, Eraser, CheckCircle, Info, AlertCircle, AlertTriangle } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 
 type StatusType = 'success' | 'error' | 'warning' | 'info';
@@ -84,7 +84,6 @@ export class OtpComponent implements OnInit, OnChanges, OnDestroy {
   readonly canVerify = computed(() => this.isComplete() && !this.verifying() && !this.inputsDisabled() && !this.isExpired());
 
   protected readonly selectableLengths = SELECTABLE_LENGTHS;
-  protected Math = Math;
 
   private timerInterval: ReturnType<typeof setInterval> | undefined;
   private cooldownInterval: ReturnType<typeof setInterval> | undefined;
@@ -99,7 +98,6 @@ export class OtpComponent implements OnInit, OnChanges, OnDestroy {
   protected readonly InfoIcon = Info;
   protected readonly AlertCircleIcon = AlertCircle;
   protected readonly AlertTriangleIcon = AlertTriangle;
-  protected readonly LightbulbIcon = Lightbulb;
 
   // ── Lifecycle ───────────────────────────────────────────
   ngOnInit(): void {

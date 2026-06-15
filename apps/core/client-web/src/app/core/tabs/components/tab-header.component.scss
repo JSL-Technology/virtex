@@ -1,0 +1,98 @@
+:host {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: stretch;
+}
+
+.tab-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: 100%;
+  padding: 0 0.5rem 0 0.875rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.tab-icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+  transition: color 0.15s ease;
+}
+
+.tab-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+
+/* Énfasis de la pestaña activa: título más marcado e icono con acento. */
+:host-context(.dv-active-tab) {
+  .tab-title { color: var(--text-primary); font-weight: 600; }
+  .tab-icon { color: var(--accent-primary); }
+}
+
+.tab-badge {
+  flex-shrink: 0;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  background: var(--accent-primary);
+  border-radius: 9999px;
+}
+
+.tab-dirty-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+}
+
+.tab-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin-left: 0.1rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  opacity: 0.65;
+  transition: all 0.15s ease;
+
+  &:hover {
+    opacity: 1;
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+}
+
+/* La pestaña dirty oculta su botón de cierre y muestra el punto; al pasar el
+   ratón, el punto cede su lugar al botón de cierre. */
+.tab-header.is-dirty {
+  &:hover .tab-dirty-dot { display: none; }
+  &:not(:hover) .tab-close { display: none; }
+}

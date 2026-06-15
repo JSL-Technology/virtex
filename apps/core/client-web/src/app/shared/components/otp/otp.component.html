@@ -18,7 +18,6 @@
             (click)="changeLength(opt)">{{ opt }} dígitos</span>
     </div>
 
-    <label class="otp-label" for="otp-input-0">Código OTP</label>
     <div class="otp-inputs-container" role="group" aria-label="Código OTP">
         <input *ngFor="let val of otpValues(); let i = index; trackBy: trackByIndex"
                type="text"
@@ -42,8 +41,6 @@
                (focus)="handleFocus($event)"
                #otpInput>
     </div>
-    <span class="otp-helper-text" *ngIf="mode === 'email'">Ingrese el código de verificación que recibió en su correo electrónico</span>
-    <span class="otp-helper-text" *ngIf="mode === 'app'">Ingrese el código generado por su aplicación de autenticación</span>
 
     <div class="otp-actions">
         <div class="timer-container" *ngIf="mode === 'email'">
@@ -90,16 +87,8 @@
         <span>{{ status()?.message }}</span>
     </div>
 
-    <div class="otp-hints">
-        <h3>
-            <lucide-icon [img]="LightbulbIcon" size="16"></lucide-icon>
-            Consejos de seguridad
-        </h3>
-        <ul>
-            <li *ngIf="mode === 'email'">El código OTP caduca en {{ Math.floor(timerDuration / 60) }} minutos por razones de seguridad.</li>
-            <li>No comparta este código con nadie. Nuestro equipo nunca le pedirá su código.</li>
-            <li>Si no solicitó este código, ignore este mensaje y revise la seguridad de su cuenta.</li>
-            <li *ngIf="showLengthSelector">Puede cambiar la longitud del código según los requisitos de seguridad de su organización.</li>
-        </ul>
-    </div>
+    <p class="otp-security-note">
+        <lucide-icon [img]="ShieldIcon" size="13"></lucide-icon>
+        Nunca comparta este código. Nuestro equipo jamás se lo pedirá.
+    </p>
 </div>

@@ -1,71 +1,77 @@
 .register-container {
   width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
+.animate-fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* ── Header ─────────────────────────────────────────────── */
 .view-header {
   text-align: center;
-  margin-bottom: 1.5rem;
-
-  @media (min-width: 768px) {
-    text-align: left;
-  }
+  margin-bottom: 1.75rem;
 
   .view-title {
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--text-primary);
-    margin-bottom: 0.5rem;
-
-    @media (min-width: 768px) {
-      font-size: 1.875rem;
-    }
+    margin-bottom: 0.375rem;
+    letter-spacing: -0.02em;
   }
 
   .view-subtitle {
     font-size: 0.875rem;
     color: var(--text-secondary);
-
-    @media (min-width: 768px) {
-      font-size: 1rem;
-    }
+    margin: 0;
+    line-height: 1.5;
   }
 }
 
+/* ── Steps indicator ────────────────────────────────────── */
 .steps-indicator {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 2rem;
-  padding: 0 0.5rem;
   position: relative;
-  z-index: 10;
+  margin-bottom: 2rem;
+  padding: 0 0.25rem;
+
+  .progress-bar-container {
+    position: absolute;
+    left: 1rem;
+    right: 1rem;
+    top: 1rem;
+    height: 2px;
+  }
 
   .progress-bar-bg {
     position: absolute;
-    left: 0;
-    top: 50%;
-    width: 100%;
-    height: 2px;
+    inset: 0;
     background-color: var(--border-color);
-    z-index: -10;
+    border-radius: 2px;
   }
 
   .progress-bar-active {
     position: absolute;
     left: 0;
-    top: 50%;
-    height: 2px;
+    top: 0;
+    height: 100%;
     background-color: var(--primary);
-    z-index: -10;
-    transition: width 0.5s ease-out;
+    border-radius: 2px;
+    transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .step-items {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 1;
   }
 
   .step-item {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
+    justify-content: center;
   }
 
   .step-circle {
@@ -75,24 +81,25 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 700;
-    border: 2px solid transparent;
-    transition: all 0.3s;
-    position: relative;
+    border: 2px solid var(--border-color);
     background-color: var(--bg-card);
+    color: var(--text-tertiary);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     &.active {
       border-color: var(--primary);
       color: var(--primary);
-      box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.2);
-      transform: scale(1.1);
+      box-shadow: 0 0 0 4px var(--primary-light);
+      transform: scale(1.08);
     }
 
     &.completed {
       border-color: var(--primary);
       background-color: var(--primary);
       color: #ffffff;
+      cursor: pointer;
     }
 
     &.pending {
@@ -102,94 +109,129 @@
   }
 }
 
+/* ── Form / steps ───────────────────────────────────────── */
 .register-form {
   position: relative;
-  min-height: 300px;
   display: flex;
   flex-direction: column;
 }
 
 .step-content {
-  margin-bottom: 2rem;
+  margin-bottom: 1.75rem;
+  overflow: hidden;
 }
 
-.navigation-buttons {
+/* ── Navigation ─────────────────────────────────────────── */
+.navigation-actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
   margin-top: auto;
-  padding-top: 1rem;
+  padding-top: 1.25rem;
   border-top: 1px solid var(--border-color);
-}
-
-.back-btn {
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: color 0.2s;
-
-  &:hover {
-    color: var(--text-primary);
-  }
 }
 
 .spacer {
   flex: 1;
 }
 
-.next-btn-container {
-  margin-left: auto;
-  width: auto;
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  padding: 0.5rem 0.625rem;
+  border-radius: var(--radius-md);
+  transition: var(--transition);
+
+  &:hover {
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+  }
 }
 
-.global-error-message {
-  padding: 0.75rem;
-  border-radius: 0.5rem;
-  background-color: rgba(var(--error-rgb), 0.1);
-  border: 1px solid rgba(var(--error-rgb), 0.2);
-  color: var(--error);
-  font-size: 0.875rem;
+.next-action {
+  margin-left: auto;
+  min-width: 9rem;
+}
+
+/* ── Errors & legal ─────────────────────────────────────── */
+.error-message.global-error {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.5rem;
   margin-top: 1rem;
+  padding: 0.75rem 0.875rem;
+  border-radius: var(--radius-md);
+  background-color: var(--error-bg);
+  border: 1px solid rgba(var(--error-rgb), 0.18);
+  color: var(--error);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+
+  lucide-icon {
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
 }
 
-.recaptcha-legal {
-  font-size: 0.625rem;
+.legal-text {
+  font-size: 0.7rem;
   color: var(--text-tertiary);
   text-align: center;
-  margin-top: 1.5rem;
-  line-height: 1.2;
+  margin: 1.5rem 0 0;
+  line-height: 1.4;
 
   a {
     color: var(--text-secondary);
-    text-decoration: underline;
+    text-decoration: none;
 
     &:hover {
       color: var(--text-primary);
+      text-decoration: underline;
     }
   }
 }
 
-.footer-cta {
+/* ── Footer CTA (projected into auth-layout footer slot) ── */
+.login-cta {
   font-size: 0.875rem;
   color: var(--text-secondary);
+  margin: 0;
+  text-align: center;
 
   .cta-link {
     font-weight: 600;
     color: var(--primary);
     text-decoration: none;
-    transition: color 0.2s;
+    margin-left: 0.25rem;
+    transition: var(--transition);
 
     &:hover {
       text-decoration: underline;
     }
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 540px) {
+  .view-header .view-title {
+    font-size: 1.375rem;
+  }
+
+  .next-action {
+    min-width: 0;
   }
 }

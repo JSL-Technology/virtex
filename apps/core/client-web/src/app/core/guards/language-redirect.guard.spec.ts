@@ -39,13 +39,13 @@ describe('languageRedirectGuard', () => {
     return TestBed.runInInjectionContext(() => languageRedirectGuard({} as any, {} as any));
   };
 
-  it('should redirect to /dashboard if authenticated', () => {
+  it('should redirect to /overview if authenticated', () => {
     authService.isAuthenticated.mockReturnValue(true);
 
     const result = runGuard();
 
-    expect(router.createUrlTree).toHaveBeenCalledWith(['/dashboard']);
-    expect(result).toBe('/dashboard');
+    expect(router.createUrlTree).toHaveBeenCalledWith(['/overview']);
+    expect(result).toBe('/overview');
   });
 
   it('should redirect to /:lang/auth/login if NOT authenticated', () => {

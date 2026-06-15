@@ -24,6 +24,13 @@
 
 
 
+<div
+  class="sidebar-backdrop"
+  *ngIf="isSidebarOpen()"
+  (click)="closeSidebar()"
+  aria-hidden="true"
+></div>
+
 <aside class="main-sidebar">
   <div class="logo-container">
     <app-company-switcher></app-company-switcher>
@@ -33,6 +40,16 @@
 </aside>
 
 <header class="main-topbar">
+  <button
+    class="icon-button sidebar-toggle"
+    type="button"
+    [attr.aria-label]="'NAV.MENU' | translate"
+    [attr.aria-expanded]="isSidebarOpen()"
+    (click)="toggleSidebar()"
+  >
+    <lucide-icon [img]="MenuIcon" size="20"></lucide-icon>
+  </button>
+
   <div class="topbar-left">
     <div class="logo">
       <app-company-switcher></app-company-switcher>
@@ -366,3 +383,5 @@
 @if (isSettingsOpen()) {
   <app-settings-modal [sectionName]="settingsSection()"></app-settings-modal>
 }
+
+<app-dialog-host></app-dialog-host>

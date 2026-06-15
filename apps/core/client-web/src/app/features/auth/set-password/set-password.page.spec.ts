@@ -11,7 +11,7 @@ import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { AuthLayoutComponent } from '../components/auth-layout/auth-layout.component';
 import { AuthInputComponent } from '../components/auth-input/auth-input.component';
 import { AuthButtonComponent } from '../components/auth-button/auth-button.component';
-import { PasswordValidatorComponent } from '../components/password-validator/password-validator.component';
+import { PasswordStrengthComponent } from '../../../shared/components/password-strength/password-strength.component';
 
 class FakeLoader implements TranslateLoader {
   getTranslation(lang: string): Observable<any> {
@@ -42,7 +42,7 @@ describe('SetPasswordPage', () => {
         AuthLayoutComponent,
         AuthInputComponent,
         AuthButtonComponent,
-        PasswordValidatorComponent
+        PasswordStrengthComponent
       ],
       providers: [
         provideHttpClient(),

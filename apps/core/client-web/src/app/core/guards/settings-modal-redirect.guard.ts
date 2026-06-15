@@ -2,7 +2,7 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router, RouterStateSnapshot } from '@angular/router';
 
 /**
- * Intercepts direct navigation to /settings/* and re-routes it to /dashboard
+ * Intercepts direct navigation to /settings/* and re-routes it to /overview
  * with a hash fragment so the settings modal opens as an overlay.
  */
 export const settingsModalRedirectGuard: CanActivateFn = (_route, state: RouterStateSnapshot) => {
@@ -18,6 +18,6 @@ export const settingsModalRedirectGuard: CanActivateFn = (_route, state: RouterS
     ? pathAfterSettings.split('/').filter(Boolean)[0] || 'my-profile'
     : 'my-profile';
 
-  router.navigate(['/dashboard'], { fragment: 'settings/' + section });
+  router.navigate(['/overview'], { fragment: 'settings/' + section });
   return false;
 };

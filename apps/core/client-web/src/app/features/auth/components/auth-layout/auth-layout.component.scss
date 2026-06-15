@@ -125,6 +125,17 @@
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+// Projected footer actions (e.g. the register/login cross-link).
+.auth-extra-actions {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border-color);
+
+  &:empty {
+    display: none;
+  }
+}
+
 // ─── Responsive ──────────────────────────────────────────────────
 @media (max-width: 540px) {
   .auth-card {

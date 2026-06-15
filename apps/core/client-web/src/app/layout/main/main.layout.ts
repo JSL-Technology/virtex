@@ -2,7 +2,7 @@
 
 import { Component, inject, signal, HostListener, ElementRef, HostBinding, OnInit, WritableSignal, ViewChild, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, startWith } from 'rxjs/operators';
 import { SettingsModalComponent } from '../../features/settings/modal/settings-modal.component';
@@ -37,7 +37,8 @@ import {
   FileSearch,
   UserPlus, // ✅ Icono añadido
   Package as PackageIcon, // ✅ Icono añadido
-  Download // ✅ Icono añadido
+  Download, // ✅ Icono añadido
+  Menu, // ✅ Toggle de sidebar (responsive)
 } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { Sidebar } from '../sidebar/sidebar';
@@ -46,13 +47,13 @@ import { CompanySwitcherComponent } from './components/company-switcher/company-
 import { TabContainerComponent } from '../../core/tabs/components/tab-container.component';
 import { TabPersistenceService } from '../../core/tabs/tab-persistence.service';
 import { TabRouterService } from '../../core/tabs/tab-router.service';
+import { DialogHostComponent } from '../../shared/components/dialog-host/dialog-host.component';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
   imports: [
     CommonModule,
-    RouterOutlet,
     RouterLink,
     RouterLinkActive,
     ThemeToggle,
@@ -63,7 +64,8 @@ import { TabRouterService } from '../../core/tabs/tab-router.service';
     ClickOutsideDirective,
     SettingsModalComponent,
     CompanySwitcherComponent,
-    TabContainerComponent
+    TabContainerComponent,
+    DialogHostComponent
   ], // ✅ Directiva añadida a los imports
   templateUrl: './main.layout.html',
   styleUrls: ['./main.layout.scss'],
@@ -103,6 +105,11 @@ export class MainLayout implements OnInit {
   ngOnInit(): void {
     this.notificationCenter.initialize();
     this.tabPersistence.restoreState();
+
+    // Cierra el overlay del sidebar (móvil) al navegar a otra pestaña.
+    this.router.events
+      .pipe(filter(e => e instanceof NavigationEnd))
+      .subscribe(() => this.closeSidebar());
     this.searchQuery$.pipe(
       debounceTime(300),
       distinctUntilChanged(),
@@ -191,14 +198,23 @@ export class MainLayout implements OnInit {
 
   isUserMenuOpen = signal(false);
   isNotificationMenuOpen = signal(false);
+  isSidebarOpen = signal(false); // overlay de sidebar en móvil
   isSearchOpen = signal(false);
+
+  toggleSidebar(): void {
+    this.isSidebarOpen.update(v => !v);
+  }
+
+  closeSidebar(): void {
+    this.isSidebarOpen.set(false);
+  }
   searchResults = signal<SearchResultGroup[]>([]);
   isSearchLoading = signal(false);
   private searchQuery$ = new Subject<string>();
 
   @HostBinding('class')
   get layoutClass() {
-    return `layout-${this.settings().layoutStyle}`;
+    return `layout-${this.settings().layoutStyle}${this.isSidebarOpen() ? ' sidebar-open' : ''}`;
   }
 
   stopImpersonation(): void {
@@ -241,6 +257,7 @@ export class MainLayout implements OnInit {
   protected readonly ReceiptIcon = Receipt; // ✅ Icono añadido
   protected readonly UserPlusIcon = UserPlus; // ✅ Icono añadido
   protected readonly DownloadIcon = Download; // ✅ Icono añadido
+  protected readonly MenuIcon = Menu; // ✅ Toggle de sidebar
 
   toggleUserMenu(): void {
     this.isUserMenuOpen.update(isOpen => !isOpen);
@@ -265,7 +282,8 @@ export class MainLayout implements OnInit {
 
   navigateToSearch(query: string): void {
     if (query && query.trim().length > 0) {
-      this.router.navigate(['/app/global-search'], { queryParams: { q: query.trim() } });
+      // §2/§12 P0-2: la ruta real es /global-search (sin prefijo /app).
+      this.router.navigate(['/global-search'], { queryParams: { q: query.trim() } });
       this.closeSearch();
     }
   }

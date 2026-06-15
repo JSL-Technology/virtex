@@ -389,6 +389,44 @@
       "NEW_REQUISITION": "New Requisition"
     }
   },
+  "OVERVIEW": {
+    "GREETING": {
+      "MORNING": "Good morning",
+      "AFTERNOON": "Good afternoon",
+      "EVENING": "Good evening"
+    },
+    "HERO": {
+      "SUBTITLE": "Here's a snapshot of your day.",
+      "NEW_INVOICE": "New invoice",
+      "OPEN_DASHBOARD": "Open financial dashboard"
+    },
+    "QUICK": {
+      "TITLE": "Quick actions",
+      "NEW_INVOICE": "New invoice",
+      "NEW_QUOTE": "New quote",
+      "NEW_CUSTOMER": "New customer",
+      "NEW_PRODUCT": "New product",
+      "INVOICES": "View invoices",
+      "REPORTS": "Reports"
+    },
+    "ACTIVITY": {
+      "TITLE": "Recent activity",
+      "EMPTY": "No recent activity yet."
+    },
+    "NEWS": {
+      "TITLE": "Virtex news",
+      "EMPTY": "No news right now."
+    },
+    "EVENTS": {
+      "TITLE": "Upcoming events",
+      "EMPTY": "No upcoming events."
+    },
+    "STATE": {
+      "ERROR": "We couldn't load this information.",
+      "RETRY": "Retry"
+    },
+    "REFRESH": "Refresh"
+  },
   "sidebar": {
     "groups": {
       "general": "General",
@@ -399,6 +437,7 @@
       "configuration": "Configuration"
     },
     "general": {
+      "overview": "Home",
       "dashboard": "Dashboard",
       "my_work": "My Work",
       "notifications": "Notifications",

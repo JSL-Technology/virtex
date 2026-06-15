@@ -52,7 +52,7 @@ export class CheckoutCompletePage implements OnInit {
       next: () => {
         this.state.set('success');
         // Brief beat so the user sees the confirmation, then enter the app.
-        setTimeout(() => this.router.navigate(['/dashboard']), 1500);
+        setTimeout(() => this.router.navigate(['/overview']), 1500);
       },
       error: (err) => {
         // The webhook may lag a moment; retry a few times before giving up.

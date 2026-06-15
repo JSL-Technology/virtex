@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthInputComponent } from '../../../components/auth-input/auth-input.component';
-import { PasswordValidatorComponent } from '../../../components/password-validator/password-validator.component';
+import { PasswordStrengthComponent } from '../../../../../shared/components/password-strength/password-strength.component';
 import { HttpClient } from '@angular/common/http';
 import { AsyncValidators } from '../../../../../shared/validators/async.validators';
 import { LucideAngularModule, User, Mail, Lock, Phone, AlertCircle } from 'lucide-angular';
@@ -16,7 +16,7 @@ import { LucideAngularModule, User, Mail, Lock, Phone, AlertCircle } from 'lucid
     ReactiveFormsModule,
     TranslateModule,
     AuthInputComponent,
-    PasswordValidatorComponent,
+    PasswordStrengthComponent,
     LucideAngularModule,
   ],
   templateUrl: './step-account-info.html',

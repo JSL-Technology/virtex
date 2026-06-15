@@ -1,34 +1,52 @@
 @use './variables' as *;
 
+/* ───────────────────────────────────────────────────────────────────────────
+   TEMA OSCURO — Paleta neutra (escala de grises «zinc»).
+   Se evita el tinte azulado del antiguo tema (GitHub #0d1117) en favor de
+   grises neutros, manteniendo un único azul como color de acento.
+   ─────────────────────────────────────────────────────────────────────────── */
 :root {
-  --bg-primary: #0d1117;
-  --bg-secondary: #161b22;
-  --bg-tertiary: #21262d;
-  --bg-card: #161b22;
-  --bg-hover: #30363d;
+  // Superficies (de más profunda a más elevada)
+  --bg-primary: #161618;     // fondo de la app / área de trabajo
+  --bg-secondary: #1c1c1f;   // topbar · sidebar · barra de pestañas
+  --bg-tertiary: #242427;    // controles, chips, zonas hundidas
+  --bg-card: #1d1d20;        // tarjetas, paneles, dropdowns
+  --bg-hover: #2a2a2e;       // estado hover neutro
 
-  --text-primary: #f0f6fc;
-  --text-secondary: #8b949e;
-  --text-tertiary: #6e7681;
+  // Texto
+  --text-primary: #ececee;
+  --text-secondary: #a3a3a8;
+  --text-tertiary: #71717a;
 
-  --primary: #58a6ff;
-  --primary-hover: #79c0ff;
-  --primary-light: rgba(56, 139, 253, 0.15);
-  --primary-rgb: 88, 166, 255;
+  // Acento (azul limpio, único toque de color)
+  --primary: #4f8cff;
+  --primary-hover: #6ea2ff;
+  --primary-light: rgba(79, 140, 255, 0.14);
+  --primary-rgb: 79, 140, 255;
 
-  --error: #f85149;
-  --error-bg: rgba(248, 81, 73, 0.15);
-  --error-rgb: 248, 81, 73;
-  --success: #3fb950;
-  --success-bg: rgba(63, 185, 80, 0.15);
+  // Semánticos
+  --error: #f4615b;
+  --error-bg: rgba(244, 97, 91, 0.15);
+  --error-rgb: 244, 97, 91;
+  --success: #46c266;
+  --success-bg: rgba(70, 194, 102, 0.15);
+  --warning: #e0a13a;
+  --warning-bg: rgba(224, 161, 58, 0.15);
 
-  --border-color: #30363d;
-  --border-light: #484f58;
+  // Bordes y separadores (neutros)
+  --border-color: #2b2b2f;
+  --border-light: #3a3a40;
 
-  --shadow-sm: 0 1px 0 rgba(1, 4, 9, 0.04);
-  --shadow-md: 0 3px 6px rgba(1, 4, 9, 0.15);
-  --shadow-lg: 0 8px 24px rgba(1, 4, 9, 0.2);
+  // Sombras (negro neutro, sin tinte)
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.30);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.36);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.46);
 
+  // Scrollbars
+  --scrollbar-track-bg: transparent;
+  --scrollbar-thumb-bg: #3a3a40;
+
+  // Radios
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 12px;
@@ -36,7 +54,7 @@
 
   --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
-  // Backward compatibility aliases
+  // Alias de retrocompatibilidad
   --bg-solid: var(--bg-primary);
   --bg-layer-1: var(--bg-card);
   --bg-layer-2: var(--bg-tertiary);

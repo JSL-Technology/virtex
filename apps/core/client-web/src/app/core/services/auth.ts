@@ -68,6 +68,10 @@ export class AuthService {
   private _currentUser = signal<User | null>(null);
   // Almacena el estado actual de la autenticación.
   private _authStatus = signal<AuthStatus>(AuthStatus.pending);
+  // Marca un cierre de sesión explícito reciente. Tras un logout no existe sesión que refrescar,
+  // así que checkAuthStatus() debe evitar el intento de /refresh (que devolvería 401/403 y
+  // ensuciaría la consola). Se consume en el siguiente checkAuthStatus().
+  private _recentlyLoggedOut = false;
 
   // --- Selectores Públicos (Computed Signals) ---
 
@@ -157,6 +161,7 @@ export class AuthService {
              return;
           }
           if (response.user) {
+             this._recentlyLoggedOut = false;
              this._currentUser.set(response.user);
              this._authStatus.set(AuthStatus.authenticated);
 
@@ -183,6 +188,7 @@ export class AuthService {
           context: new HttpContext().set(IS_PUBLIC_API, true)
       }).pipe(
           tap((response) => {
+             this._recentlyLoggedOut = false;
              this._currentUser.set(response.user);
              this._authStatus.set(AuthStatus.authenticated);
 
@@ -292,6 +298,7 @@ export class AuthService {
     }).pipe(
       map((res) => {
         if (res.isAuthenticated && res.user) {
+          this._recentlyLoggedOut = false;
           this._currentUser.set(res.user);
           this._authStatus.set(AuthStatus.authenticated);
           this.webSocketService.connect();
@@ -306,6 +313,15 @@ export class AuthService {
         }
       }),
       catchError((err: HttpErrorResponse) => {
+        // Just logged out: the session is intentionally gone, so don't attempt a refresh
+        // (it would only produce a noisy 401/403). Consume the flag and report unauthenticated.
+        if (this._recentlyLoggedOut) {
+          this._recentlyLoggedOut = false;
+          this._currentUser.set(null);
+          this._authStatus.set(AuthStatus.unauthenticated);
+          this.webSocketService.disconnect();
+          return of(false);
+        }
         if (err.status === 401 || err.status === 403) {
           // Access token may have expired — attempt a silent refresh before giving up.
           // IS_PUBLIC_API on the status call prevents the interceptor from doing this
@@ -366,7 +382,7 @@ export class AuthService {
         tap((user) => {
           this._currentUser.set(user);
           this._authStatus.set(AuthStatus.authenticated);
-          this.router.navigate(['/dashboard']);
+          this.router.navigate(['/overview']);
         }),
         catchError((err) => this.errorHandlerService.handleError('register', err))
       );
@@ -380,6 +396,8 @@ export class AuthService {
     // 1. Limpiar estado local inmediatamente para asegurar respuesta rápida de UI
     this._currentUser.set(null);
     this._authStatus.set(AuthStatus.unauthenticated);
+    // Evita que el publicGuard (al navegar a /login) intente un /refresh inútil tras el logout.
+    this._recentlyLoggedOut = true;
     this.webSocketService.emit('user-status', { isOnline: false });
     this.webSocketService.disconnect();
     const supportedLangs = ['es', 'en'];
@@ -441,10 +459,15 @@ export class AuthService {
       withCredentials: true,
       context: new HttpContext().set(IS_PUBLIC_API, true),
     }).pipe(
-      catchError(() => {
-        this.notificationService.showWarning(
-          'No se pudo cerrar la sesión en el servidor. Cierra el navegador o intenta de nuevo.'
-        );
+      catchError((err: HttpErrorResponse) => {
+        // A 401/403 here means the session/token is already invalid server-side — i.e. there is
+        // nothing left to revoke, so the logout effectively succeeded. Only a real failure
+        // (network error, 5xx) warrants warning the user.
+        if (err.status !== 401 && err.status !== 403) {
+          this.notificationService.showWarning(
+            'No se pudo cerrar la sesión en el servidor. Cierra el navegador o intenta de nuevo.'
+          );
+        }
         return of(null);
       })
     ).subscribe();
@@ -496,6 +519,7 @@ export class AuthService {
       }));
 
       if (response.user) {
+        this._recentlyLoggedOut = false;
         this._currentUser.set(response.user);
         this._authStatus.set(AuthStatus.authenticated);
 
@@ -619,7 +643,7 @@ export class AuthService {
           );
           // Usar Router en lugar de recarga forzada
           this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-            this.router.navigate(['/dashboard']);
+            this.router.navigate(['/overview']);
           });
         }),
         map((response) => response.user),
@@ -643,7 +667,7 @@ export class AuthService {
           );
           // Usar Router en lugar de recarga forzada
           this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-            this.router.navigate(['/dashboard']);
+            this.router.navigate(['/overview']);
           });
         }),
         map((response) => response.user),

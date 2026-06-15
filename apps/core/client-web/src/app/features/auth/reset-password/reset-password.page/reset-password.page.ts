@@ -11,7 +11,7 @@ import { LucideAngularModule, Lock, AlertCircle, CheckCircle } from 'lucide-angu
 import { AuthLayoutComponent } from '../../components/auth-layout/auth-layout.component';
 import { AuthInputComponent } from '../../components/auth-input/auth-input.component';
 import { AuthButtonComponent } from '../../components/auth-button/auth-button.component';
-import { PasswordValidatorComponent } from '../../components/password-validator/password-validator.component';
+import { PasswordStrengthComponent } from '../../../../shared/components/password-strength/password-strength.component';
 // H4 FIX: use the shared validator (single source of truth, mirrored from the backend policy)
 // instead of a divergent local copy.
 import { strongPasswordValidator } from '../../../../shared/validators/password.validator';
@@ -34,7 +34,7 @@ const passwordMatchValidator: ValidatorFn = (group: AbstractControl): Validation
     AuthLayoutComponent,
     AuthInputComponent,
     AuthButtonComponent,
-    PasswordValidatorComponent
+    PasswordStrengthComponent
   ],
   templateUrl: './reset-password.page.html',
   styleUrls: ['./reset-password.page.scss']
