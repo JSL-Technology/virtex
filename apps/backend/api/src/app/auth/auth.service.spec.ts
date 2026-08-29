@@ -26,6 +26,7 @@ import { TokenService } from './services/token.service';
 import { SocialAuthService } from './services/social-auth.service';
 import { MfaOrchestratorService } from './services/mfa-orchestrator.service';
 import { PasswordService } from './services/password.service';
+import { TwoFactorAuthService } from './services/two-factor-auth.service';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 describe('AuthService', () => {
@@ -149,6 +150,9 @@ describe('AuthService', () => {
         { provide: SocialAuthService, useValue: mockSocialAuthService },
         { provide: MfaOrchestratorService, useValue: mockMfaOrchestratorService },
         { provide: PasswordService, useValue: { verify: jest.fn(), verifyDummy: jest.fn() } },
+        // Step-up now re-authenticates with the strongest factor the account has, so the
+        // service needs the 2FA verifier as well as the password verifier.
+        { provide: TwoFactorAuthService, useValue: { verifyCode: jest.fn() } },
       ],
     }).compile();
 

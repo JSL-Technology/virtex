@@ -48,3 +48,22 @@ export class SaasFeatureNotEnabledException extends SaasException {
     );
   }
 }
+
+/**
+ * The organization has no plan, so nothing entitles it to a metered operation.
+ *
+ * This is a provisioning fault rather than a quota problem: signup assigns a plan, and every
+ * other path that creates an organization inherits one. Reaching this state means something
+ * upstream did not complete — which is exactly why the previous behaviour (log a warning and
+ * allow the operation) was wrong. An unprovisioned tenant was the one with no limits at all.
+ */
+export class SaasNoPlanException extends SaasException {
+  constructor(organizationId: string) {
+    super(
+      SaasErrorCode.PLAN_NOT_FOUND,
+      organizationId,
+      'Esta organización no tiene un plan activo. Contacta a soporte para completar la activación.',
+      HttpStatus.PAYMENT_REQUIRED,
+    );
+  }
+}

@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { ReactiveFormsModule } from '@angular/forms';
 import { LucideAngularModule, Save, Plus, Trash2, ArrowLeft, RotateCcw } from 'lucide-angular';
+import { routerMock as routerMockFactory } from '../../../../../testing/service-mocks';
 
 describe('SegmentConfigurationPage', () => {
   let component: SegmentConfigurationPage;
@@ -25,9 +26,9 @@ describe('SegmentConfigurationPage', () => {
       showError: jest.fn(),
       showSuccess: jest.fn(),
     };
-    const routerSpy = {
-      navigate: jest.fn(),
-    };
+    // `routerState` is required: routerLink in the template resolves ActivatedRoute through
+    // `router.routerState.root`, so a mock without it fails at component construction.
+    const routerSpy = { ...routerMockFactory(), navigate: jest.fn() };
 
     await TestBed.configureTestingModule({
 
@@ -48,6 +49,9 @@ describe('SegmentConfigurationPage', () => {
     apiService = TestBed.inject(ChartOfAccountsApiService) as jest.Mocked<ChartOfAccountsApiService>;
     notificationService = TestBed.inject(NotificationService) as jest.Mocked<NotificationService>;
     router = TestBed.inject(Router) as jest.Mocked<Router>;
+    // ngOnInit builds `configForm`; without a change-detection pass every test that touches the
+    // form threw "Cannot read properties of undefined (reading 'get')" instead of asserting.
+    fixture.detectChanges();
   });
 
   it('should create', () => {

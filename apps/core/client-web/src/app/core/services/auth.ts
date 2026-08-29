@@ -370,23 +370,6 @@ export class AuthService {
    * @param payload Objeto con los datos del nuevo usuario.
    * @returns Un observable que emite el objeto User del usuario recién creado.
    */
-  register(payload: RegisterPayload): Observable<User> {
-    const url = `${this.apiUrl}/register`;
-    return this.http
-      .post<{ user: User }>(url, payload, {
-        withCredentials: true,
-        context: new HttpContext().set(IS_PUBLIC_API, true)
-      })
-      .pipe(
-        map((response) => response.user),
-        tap((user) => {
-          this._currentUser.set(user);
-          this._authStatus.set(AuthStatus.authenticated);
-          this.router.navigate(['/overview']);
-        }),
-        catchError((err) => this.errorHandlerService.handleError('register', err))
-      );
-  }
 
   /**
    * Cierra la sesión del usuario tanto en el frontend como en el backend.

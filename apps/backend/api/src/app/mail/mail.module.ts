@@ -5,6 +5,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { ConfigService } from '@nestjs/config';
 import { MailService } from './mail.service';
+import { FrontendUrlService } from './frontend-url.service';
 
 @Module({
     imports: [
@@ -33,7 +34,7 @@ import { MailService } from './mail.service';
             inject: [ConfigService],
         }),
     ],
-    providers: [MailService],
-    exports: [MailService],
+    providers: [MailService, FrontendUrlService],
+    exports: [MailService, FrontendUrlService],
 })
 export class MailModule { }

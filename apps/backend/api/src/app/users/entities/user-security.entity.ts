@@ -70,7 +70,7 @@ export class UserSecurity {
    * A TOTP code stays valid for its whole step (plus the skew window), so without recording what
    * was already spent the same six digits can be replayed repeatedly within that window — which
    * matters because the same code also authorises sensitive actions through
-   * TwoFactorVerifiedGuard. NIST SP 800-63B §5.1.4.2 requires the verifier to reject an OTP that
+   * step-up re-authentication. NIST SP 800-63B §5.1.4.2 requires the verifier to reject an OTP that
    * has already been used.
    */
   @Column({ name: 'last_totp_step', type: 'bigint', nullable: true })

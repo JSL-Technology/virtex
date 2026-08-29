@@ -107,7 +107,6 @@
       "ARCHIVED": "Archived"
     }
   },
-
   "USERS": {
     "VIEWS": {
       "ALL": "All"
@@ -145,7 +144,6 @@
       "USERS": "users"
     }
   },
-
   "AUTH": {
     "SIGN_OUT": "Sign Out",
     "CONTACT": "Contact",
@@ -158,8 +156,15 @@
       "ERRORS": {
         "INVALID_PASSWORD": "The password is incorrect.",
         "VERIFICATION_FAILED": "Could not verify password. Please try again.",
-        "TOO_MANY_ATTEMPTS": "Too many attempts. Your account has been temporarily locked for security."
-      }
+        "TOO_MANY_ATTEMPTS": "Too many attempts. Your account has been temporarily locked for security.",
+        "INVALID_CODE": "Invalid verification code."
+      },
+      "SUBTITLE": "Protected action",
+      "DESCRIPTION_OTP": "Enter the code from your authenticator app to confirm this action.",
+      "OTP_LABEL": "Verification code",
+      "OTP_PLACEHOLDER": "123456",
+      "OTP_HINT": "You can also use one of your recovery codes.",
+      "ENROLMENT_REQUIRED": "This action requires two-factor authentication. Enable it in your security settings to continue."
     },
     "TERMS": "Terms",
     "PRIVACY": "Privacy",
@@ -167,22 +172,23 @@
     "ALL_RIGHTS_RESERVED": "All rights reserved."
   },
   "COMMON": {
-      "TOAST": {
-        "SUCCESS": "Success",
-        "ERROR": "Error",
-        "WARNING": "Warning",
-        "INFO": "Information"
-      },
-      "CANCEL": "Cancel",
-      "CONTINUE": "Continue",
-      "CONFIRM": "Confirm",
-      "DONE": "Done",
-      "DOWNLOAD": "Download",
-      "VERIFY": "Verify",
-      "SENDING": "Sending...",
-      "LOADING": "Loading",
-      "COPY": "Copy",
-      "COPIED": "Copied"
+    "TOAST": {
+      "SUCCESS": "Success",
+      "ERROR": "Error",
+      "WARNING": "Warning",
+      "INFO": "Information"
+    },
+    "CANCEL": "Cancel",
+    "CONTINUE": "Continue",
+    "CONFIRM": "Confirm",
+    "DONE": "Done",
+    "DOWNLOAD": "Download",
+    "VERIFY": "Verify",
+    "SENDING": "Sending...",
+    "LOADING": "Loading",
+    "COPY": "Copy",
+    "COPIED": "Copied",
+    "CLOSE": "Close"
   },
   "ACTIONS": {
     "CREATE_NEW": "Create New",
@@ -222,7 +228,7 @@
         "COST_OF_GOODS_SOLD": "Cost of Goods Sold",
         "OPERATING_EXPENSES": "Operating Expenses",
         "INVESTMENTS": "Investments",
-                        "FINANCING": "Financing",
+        "FINANCING": "Financing",
         "ENDING_BALANCE": "Ending Balance"
       }
     },
@@ -531,7 +537,6 @@
       "integrations": "Integrations & API"
     }
   },
-
   "APP_TITLE": "FacturaPRO",
   "LOGIN": {
     "TITLE": "Sign in",
@@ -552,19 +557,19 @@
     "LOGGING_IN": "Logging in",
     "SSO_BUTTON": "SSO",
     "SSO": {
-        "PROMPT": "Enter your work email to continue with your company's single sign-on.",
-        "CONTINUE": "Continue",
-        "CANCEL": "Cancel",
-        "NOT_FOUND": "No single sign-on is configured for that email domain. Please use another method."
+      "PROMPT": "Enter your work email to continue with your company's single sign-on.",
+      "CONTINUE": "Continue",
+      "CANCEL": "Cancel",
+      "NOT_FOUND": "No single sign-on is configured for that email domain. Please use another method."
     },
     "2FA": {
-        "TITLE": "2-Step Verification",
-        "SUBTITLE": "Enter the 6-digit code sent to your device.",
-        "CODE_LABEL": "Verification Code",
-        "CODE_PLACEHOLDER": "123456",
-        "VERIFY_BUTTON": "Verify",
-        "VERIFYING": "Verifying...",
-        "BACK_TO_LOGIN": "Back to login"
+      "TITLE": "2-Step Verification",
+      "SUBTITLE": "Enter the 6-digit code sent to your device.",
+      "CODE_LABEL": "Verification Code",
+      "CODE_PLACEHOLDER": "123456",
+      "VERIFY_BUTTON": "Verify",
+      "VERIFYING": "Verifying...",
+      "BACK_TO_LOGIN": "Back to login"
     },
     "ERRORS": {
       "EMAIL_REQUIRED": "Email address is required.",

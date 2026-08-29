@@ -60,7 +60,10 @@ describe('NotificationsPage', () => {
 
   it('should call markAllAsRead when the "mark all as read" button is clicked', () => {
     fixture.detectChanges();
-    const markAllButton = fixture.nativeElement.querySelector('.mark-all-read-button');
+    // The control is the header action button; the spec looked for a class the template has
+    // never had, so it was asserting against `null.click()` rather than the page.
+    const markAllButton = fixture.nativeElement.querySelector('.header-actions .secondary-button');
+    expect(markAllButton).not.toBeNull();
     markAllButton.click();
     expect(notificationService.markAllAsRead).toHaveBeenCalled();
   });

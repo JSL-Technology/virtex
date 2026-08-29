@@ -7,7 +7,7 @@ import { MailService } from '../../mail/mail.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Organization } from '../../organizations/entities/organization.entity';
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, InternalServerErrorException } from '@nestjs/common';
 import { User } from '../../users/entities/user.entity/user.entity';
 import { Role } from '../../roles/entities/role.entity';
 import { RoleEnum } from '../../roles/enums/role.enum';
@@ -40,6 +40,7 @@ describe('RegistrationService', () => {
 
   const mockDataSource = {
     createQueryRunner: jest.fn().mockReturnValue(mockQueryRunner),
+    transaction: jest.fn(),
   };
 
   const mockOrganizationsService = {
@@ -104,57 +105,104 @@ describe('RegistrationService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('register', () => {
-    const registerDto: RegisterUserDto = {
+  /**
+   * Duplicate-tenant detection during payment-first signup.
+   *
+   * The tax id is unique per fiscal region, not globally: the same nine digits can be a valid RNC
+   * in the Dominican Republic and a valid identifier somewhere else, so the constraint has to
+   * carry the region. These exercised `register()` — the unauthenticated, unpaid endpoint that no
+   * longer exists — so they now go through the real signup path.
+   */
+  describe('completePendingRegistration', () => {
+    const pending = {
+      id: 'pending-1',
+      email: 'test@example.com',
       firstName: 'Test',
       lastName: 'User',
-      email: 'test@example.com',
-      password: 'Password123!',
+      phone: null,
+      phoneVerified: false,
+      passwordHash: 'hashed',
       organizationName: 'Test Org',
       taxId: '123456789',
       fiscalRegionId: 'uuid-region',
-      recaptchaToken: 'token',
-      currency: 'USD',
-      emailVerificationCode: '123456'
-    } as any;
+      industry: null,
+      companySize: null,
+      address: null,
+      planSlug: 'pro',
+      status: 'pending',
+    };
 
-    it('should throw ConflictException if taxId exists in the same fiscal region', async () => {
-      // Mock User not found
-      (mockQueryRunner.manager.findOne as jest.Mock).mockResolvedValueOnce(null);
+    const subscription = {
+      customerId: 'cus_1',
+      subscriptionId: 'sub_1',
+      status: 'active',
+      currentPeriodEnd: new Date(),
+    };
 
-      // Mock Organization found with same taxId AND fiscalRegionId
-      (mockQueryRunner.manager.findOne as jest.Mock).mockResolvedValueOnce({ id: 'existing-org' });
+    /** `dataSource.transaction(cb)` runs the callback with the mocked entity manager. */
+    const runInTransaction = () =>
+      (mockDataSource.transaction as jest.Mock).mockImplementation(
+        async (cb: (m: unknown) => unknown) => cb(mockQueryRunner.manager),
+      );
 
-      await expect(service.register(registerDto)).rejects.toThrow(ConflictException);
+    it('refuses a tax id already registered in the same fiscal region', async () => {
+      runInTransaction();
+      (mockQueryRunner.manager.findOne as jest.Mock)
+        .mockResolvedValueOnce(pending) // the pending registration
+        .mockResolvedValueOnce(null) // no existing user for this email (idempotency probe)
+        .mockResolvedValueOnce(null) // materializeAccount: no user with this email
+        .mockResolvedValueOnce({ id: 'existing-org' }); // an organization already holds the tax id
 
-      expect(mockQueryRunner.manager.findOne).toHaveBeenNthCalledWith(2, Organization, {
-        where: { taxId: '123456789', fiscalRegionId: 'uuid-region' }
+      await expect(
+        service.completePendingRegistration('pending-1', subscription),
+      ).rejects.toThrow(ConflictException);
+
+      expect(mockQueryRunner.manager.findOne).toHaveBeenCalledWith(Organization, {
+        where: { taxId: '123456789', fiscalRegionId: 'uuid-region' },
       });
     });
 
-    it('should NOT throw ConflictException if taxId exists but in different fiscal region', async () => {
-       // This test logic is tricky because findOne returns the first match.
-       // The service calls findOne({ where: { taxId, fiscalRegionId } }).
-       // If I mock findOne to return NULL, it simulates "No organization found in this region with this taxId".
+    it('allows the same tax id in a different fiscal region', async () => {
+      runInTransaction();
+      (mockQueryRunner.manager.findOne as jest.Mock)
+        .mockResolvedValueOnce(pending)
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(null) // nothing in THIS region holds the tax id
+        .mockResolvedValueOnce({ id: 'plan-1', slug: 'pro' }); // the plan exists
+      mockOrganizationsService.create.mockResolvedValue({ id: 'new-org', legalName: 'Test Org' });
+      (mockQueryRunner.manager.create as jest.Mock).mockImplementation((_e, dto) => dto);
+      (mockQueryRunner.manager.save as jest.Mock).mockResolvedValue([]);
 
-       // Mock User not found
-       (mockQueryRunner.manager.findOne as jest.Mock).mockResolvedValueOnce(null);
+      await expect(
+        service.completePendingRegistration('pending-1', subscription),
+      ).resolves.toBeDefined();
 
-       // Mock Organization NOT found in this region
-       (mockQueryRunner.manager.findOne as jest.Mock).mockResolvedValueOnce(null);
+      expect(mockQueryRunner.manager.findOne).toHaveBeenCalledWith(Organization, {
+        where: { taxId: '123456789', fiscalRegionId: 'uuid-region' },
+      });
+    });
 
-       // Mock Org Creation
-       mockOrganizationsService.create.mockResolvedValue({ id: 'new-org', legalName: 'Test Org' });
+    /**
+     * The payment has already been taken by this point. Creating the organization without a plan
+     * used to be a logged warning — and an organization without a plan was exempt from every
+     * limit in the product, so the least-provisioned tenant was also the least restricted.
+     */
+    it('refuses to provision an organization whose plan does not exist', async () => {
+      runInTransaction();
+      (mockQueryRunner.manager.findOne as jest.Mock)
+        .mockResolvedValueOnce(pending)
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(null); // the plan slug resolves to nothing
+      mockOrganizationsService.create.mockResolvedValue({ id: 'new-org', legalName: 'Test Org' });
+      (mockQueryRunner.manager.create as jest.Mock).mockImplementation((_e, dto) => dto);
+      (mockQueryRunner.manager.save as jest.Mock).mockResolvedValue([]);
 
-       // Mock Role creation/save
-       (mockQueryRunner.manager.create as jest.Mock).mockImplementation((entity, dto) => dto);
-       (mockQueryRunner.manager.save as jest.Mock).mockResolvedValue([]);
-
-       await expect(service.register(registerDto)).resolves.not.toThrow();
-
-       expect(mockQueryRunner.manager.findOne).toHaveBeenNthCalledWith(2, Organization, {
-         where: { taxId: '123456789', fiscalRegionId: 'uuid-region' }
-       });
+      await expect(
+        service.completePendingRegistration('pending-1', subscription),
+      ).rejects.toThrow(InternalServerErrorException);
     });
   });
 });

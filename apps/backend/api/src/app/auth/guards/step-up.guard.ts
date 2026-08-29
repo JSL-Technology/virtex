@@ -12,7 +12,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { Request } from 'express';
 import { STEP_UP_SCOPE_KEY } from '../decorators/step-up.decorator';
-import { StepUpScope } from '../enums/step-up-scope.enum';
+import { SINGLE_USE_SCOPES, StepUpScope } from '../enums/step-up-scope.enum';
 import { AuthConfig } from '../auth.config';
 import { STEP_UP_COOKIE_NAMES } from '../services/cookie.service';
 
@@ -24,14 +24,25 @@ interface StepUpPayload {
 }
 
 /**
- * Requires a recent, single-use proof of the caller's own password for a specific scope.
+ * Requires a recent proof of the caller's own identity for a specific action, not merely a live
+ * session.
  *
- * The token is read from an httpOnly cookie rather than an `x-step-up-token` header. It used to
- * be returned in the response body and echoed back in a header, which put a credential capable of
- * authorising the most sensitive actions in the product directly into JavaScript memory — in
- * direct contradiction of the rule the rest of this module follows (access tokens are never
- * returned in a body precisely so XSS cannot exfiltrate them). A cookie is also simpler for the
- * client: it never handles the value at all.
+ * This is the ONLY re-authentication mechanism in the product. It used to share the job with
+ * `TwoFactorVerifiedGuard`, which read the raw password or a TOTP code from an
+ * `x-reauth-password` / `x-otp-code` request header. No client ever sent those headers, so every
+ * route that guard protected — the entire user-administration surface, change-password, disabling
+ * 2FA, impersonation, session revocation — returned 403 to the real application. Its design was
+ * also wrong on its own terms: `pino-http` serialises request headers in full, so a plaintext
+ * password would have been written to the access log on every administrative action.
+ *
+ * The token is minted by `POST /auth/step-up` after verifying the strongest factor the account
+ * holds (TOTP when 2FA is on, the password otherwise) and is delivered as an httpOnly cookie, so
+ * the value never reaches JavaScript and an XSS cannot lift a credential capable of authorising
+ * 2FA changes, impersonation, account deletion or session revocation.
+ *
+ * Reuse policy is declared by the scope, not by the route: irreversible or access-granting
+ * actions burn the token on first use, routine administration may reuse it until it expires.
+ * See `SINGLE_USE_SCOPES`.
  */
 @Injectable()
 export class StepUpGuard implements CanActivate {
@@ -86,7 +97,9 @@ export class StepUpGuard implements CanActivate {
       throw new UnauthorizedException('Step-up token mismatch');
     }
 
-    await this.consumeSingleUse(payload.jti);
+    if (SINGLE_USE_SCOPES.has(payload.scope)) {
+      await this.consumeSingleUse(payload.jti);
+    }
 
     return true;
   }

@@ -12,7 +12,11 @@ import { ConfigService } from '@nestjs/config';
 import { SaasResource } from './enums/saas-resource.enum';
 import { QuotaPeriod } from './enums/quota-period.enum';
 import { SAAS_PLANS } from './saas.config';
-import { SaasLimitReachedException, SaasFeatureNotEnabledException } from './exceptions/saas-exception';
+import {
+  SaasLimitReachedException,
+  SaasFeatureNotEnabledException,
+  SaasNoPlanException,
+} from './exceptions/saas-exception';
 import { DateTime } from 'luxon';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { UsageMetricRepository } from './repositories/usage-metric.repository';
@@ -199,11 +203,22 @@ export class SaasService implements OnModuleInit {
         relations: ['plan', 'plan.limits']
     });
 
-    if (!org || !org.plan) {
-        this.logger.warn(
-          `Organization ${organizationId} has no plan assigned. Skipping SaaS limit enforcement for backward compatibility.`,
+    if (!org) {
+        throw new SaasNoPlanException(organizationId);
+    }
+
+    if (!org.plan) {
+        // Fail CLOSED. This used to return early "for backward compatibility", which meant an
+        // organization without a plan was exempt from every limit in the product — and creating
+        // one was trivial, because the (now removed) free registration endpoint never assigned a
+        // plan and `completePendingRegistration` also continued past a plan slug it could not
+        // resolve. An organization with no plan is a provisioning fault, not a licence to
+        // consume without limit.
+        this.logger.error(
+          { event: 'saas_no_plan', organizationId, resource },
+          '[BILLING] Organization has no plan assigned; refusing the metered operation.',
         );
-        return;
+        throw new SaasNoPlanException(organizationId);
     }
 
     const limitDef = org.plan.limits.find(l => l.resource === resource);
@@ -360,10 +375,13 @@ export class SaasService implements OnModuleInit {
     });
 
     if (!org || !org.plan) {
-        this.logger.warn(
-          `Organization ${organizationId} has no plan assigned. Allowing operation in checkLimit for backward compatibility.`,
+        // Mirrors enforceLimit: no plan means no entitlement. Returning true here made the guard
+        // wave through exactly the requests enforceLimit was meant to stop.
+        this.logger.error(
+          { event: 'saas_no_plan', organizationId, resource },
+          '[BILLING] Organization has no plan assigned; denying the metered operation.',
         );
-        return true;
+        return false;
     }
 
     const limitDef = org.plan.limits.find(l => l.resource === resource);

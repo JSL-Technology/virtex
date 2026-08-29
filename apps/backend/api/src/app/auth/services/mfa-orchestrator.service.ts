@@ -18,6 +18,7 @@ import { TokenService } from './token.service';
 import { UsersService } from '../../users/users.service';
 import { UserSecurity } from '../../users/entities/user-security.entity';
 import { TwoFactorAuthService } from './two-factor-auth.service';
+import { FrontendUrlService } from '../../mail/frontend-url.service';
 
 import { AuthConfig } from '../auth.config';
 
@@ -38,7 +39,8 @@ export class MfaOrchestratorService {
     private readonly tokenService: TokenService,
     private readonly usersService: UsersService,
     private readonly twoFactorAuthService: TwoFactorAuthService,
-    private readonly mailService: MailService
+    private readonly mailService: MailService,
+    private readonly links: FrontendUrlService
   ) {}
 
   async sendEmailOtp(userId: string, email: string) {
@@ -207,8 +209,10 @@ export class MfaOrchestratorService {
           expiresIn: '15m',
         },
       );
-      const frontendUrl = this.configService.get<string>('FRONTEND_URL', 'http://localhost:4200');
-      const magicLinkUrl = `${frontendUrl}/es/auth/register?email_token=${encodeURIComponent(magicLinkToken)}`;
+      // Was `/es/auth/register`, which has no country segment and therefore matches no route:
+      // the link landed on the authenticated shell, whose guard redirected to the login page and
+      // dropped `email_token` on the way. Every registration confirmation email was a dead end.
+      const magicLinkUrl = this.links.confirmRegistrationEmail(magicLinkToken);
       const expiresMinutes = Math.round(AuthConfig.MFA_CODE_EXPIRATION / 60000);
       try {
         await this.mailService.sendRegistrationEmailVerification(target, code, 'Usuario', magicLinkUrl, expiresMinutes);

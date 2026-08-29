@@ -99,7 +99,7 @@ export class TwoFactorAuthService {
    *
    * A code remains valid for its whole 30-second step (plus the configured skew window), so
    * without recording what has been spent the same six digits can be replayed repeatedly inside
-   * that window. That matters here beyond login: TwoFactorVerifiedGuard accepts the same code to
+   * that window. That matters here beyond login: step-up re-authentication accepts the same code to
    * authorise sensitive operations, so one observed code could authorise several of them.
    * NIST SP 800-63B §5.1.4.2 requires the verifier to reject an already-used OTP.
    *
@@ -156,7 +156,7 @@ export class TwoFactorAuthService {
   /**
    * Verify a user's account password.
    *
-   * Lives here rather than in the guard so that TwoFactorVerifiedGuard keeps depending only on
+   * Lives here rather than in the guard so that the step-up path keeps depending only on
    * services every module that uses it can already resolve. Injecting UsersService into the guard
    * would have broken RolesModule at runtime, since it imports AuthModule but not UsersModule —
    * a failure that only appears when the route is actually hit.

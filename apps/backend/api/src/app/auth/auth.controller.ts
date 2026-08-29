@@ -40,7 +40,7 @@ import {
   WebAuthnLoginOptionsDto,
 } from './dto/auth-payloads.dto';
 import { SetPasswordFromInvitationDto } from './dto/set-password-from-invitation.dto';
-import { VerifyPasswordDto } from './dto/verify-password.dto';
+import { StepUpDto } from './dto/step-up.dto';
 import {
   PASSWORD_MIN_LENGTH,
   PASSWORD_MAX_LENGTH,
@@ -53,6 +53,7 @@ import { ConfigService } from '@nestjs/config';
 import { AuthConfig } from './auth.config';
 import { TypeOrmExceptionFilter } from '../common/filters/typeorm-exception.filter';
 import { CookieService } from './services/cookie.service';
+import { FrontendUrlService } from '../mail/frontend-url.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { UserResponseDto } from './dto/user-response.dto';
@@ -73,7 +74,6 @@ import { EnterpriseSsoService } from './services/enterprise-sso.service';
 import { SsoDiscoverDto } from './dto/sso-discover.dto';
 import { JwtService } from '@nestjs/jwt';
 import { KeyManagementService } from './services/key-management.service';
-import { TwoFactorVerifiedGuard } from './guards/two-factor-verified.guard';
 import { Public } from './decorators/public.decorator';
 import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
 import { AuditTrailService } from '../audit/audit.service';
@@ -101,7 +101,11 @@ export class AuthController {
     private readonly paymentService: PaymentService,
     private readonly saasService: SaasService,
     private readonly auditTrailService: AuditTrailService,
-    private readonly keyManagementService: KeyManagementService
+    private readonly keyManagementService: KeyManagementService,
+    // Client routes are declared once, in FrontendUrlService. Every redirect built inline
+    // here pointed at a path the router does not have, so the error code was dropped and
+    // social sign-up dead-ended.
+    private readonly links: FrontendUrlService
   ) {}
 
   // ------------------------------------------------------------------
@@ -141,9 +145,8 @@ export class AuthController {
 
   /** Begin a social login: build the IdP authorization URL and set the transaction cookie. */
   private async startSocialLogin(provider: string, res: Response) {
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL');
     if (!this.oidcProviderService.isProviderConfigured(provider)) {
-      return res.redirect(`${frontendUrl}/auth/login?error=provider_unavailable`);
+      return res.redirect(this.links.login('provider_unavailable'));
     }
     const config = this.oidcProviderService.getProviderConfig(provider);
     const tx = this.oauthStateService.createTransaction(provider);
@@ -159,7 +162,6 @@ export class AuthController {
 
   /** Handle the IdP redirect: validate state, exchange code, validate id_token, sign in. */
   private async handleSocialLoginCallback(provider: string, req: Request, res: Response) {
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL');
     try {
       const query = (req.query ?? {}) as Record<string, string>;
       if (query.error) {
@@ -188,8 +190,7 @@ export class AuthController {
       return await this.handleSocialCallback(socialUser, res);
     } catch (err) {
       this.oauthStateService.clearTransactionCookie(res);
-      const code = this.mapSocialErrorToCode(err);
-      return res.redirect(`${frontendUrl}/auth/login?error=${code}`);
+      return res.redirect(this.links.login(this.mapSocialErrorToCode(err)));
     }
   }
 
@@ -204,7 +205,6 @@ export class AuthController {
 
   private async handleSocialCallback(socialUser: SocialUser, res: Response) {
     const { user, tokens } = await this.authFacade.socialLogin(socialUser);
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL');
 
     if (!user) {
         // Generate a secure, short-lived token to transfer PII safely
@@ -214,12 +214,12 @@ export class AuthController {
         this.cookieService.setSocialRegisterTokenCookie(res, registerToken);
 
         // Redirect without token in URL
-        return res.redirect(`${frontendUrl}/auth/register?social_registration=true`);
+        return res.redirect(this.links.socialRegistration());
     }
 
     // Login successful
     this.cookieService.setAuthCookies(res, tokens.accessToken, tokens.refreshToken, { userId: user.id });
-    return res.redirect(`${frontendUrl}/dashboard`);
+    return res.redirect(this.links.dashboard());
   }
 
   // ------------------------------------------------------------------
@@ -253,7 +253,6 @@ export class AuthController {
   @Get('sso/:idpId')
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
   async ssoStart(@Param('idpId') idpId: string, @Res() res: Response) {
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL');
     try {
       const idp = await this.enterpriseSsoService.getEnabledIdpOrThrow(idpId);
       const config = this.enterpriseSsoService.buildConfig(idp);
@@ -267,7 +266,7 @@ export class AuthController {
       this.oauthStateService.setTransactionCookie(res, tx);
       return res.redirect(authorizationUrl);
     } catch {
-      return res.redirect(`${frontendUrl}/auth/login?error=sso_unavailable`);
+      return res.redirect(this.links.login('sso_unavailable'));
     }
   }
 
@@ -280,7 +279,6 @@ export class AuthController {
     @Ip() ip: string,
     @Headers('user-agent') userAgent: string,
   ) {
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL');
     try {
       const query = (req.query ?? {}) as Record<string, string>;
       if (query.error) {
@@ -307,10 +305,10 @@ export class AuthController {
 
       const { user: ssoUser, tokens } = await this.enterpriseSsoService.loginOrProvision(idp, socialUser, ip, userAgent);
       this.cookieService.setAuthCookies(res, tokens.accessToken, tokens.refreshToken, { userId: ssoUser?.id });
-      return res.redirect(`${frontendUrl}/dashboard`);
+      return res.redirect(this.links.dashboard());
     } catch (err) {
       this.oauthStateService.clearTransactionCookie(res);
-      return res.redirect(`${frontendUrl}/auth/login?error=${this.mapSocialErrorToCode(err)}`);
+      return res.redirect(this.links.login(this.mapSocialErrorToCode(err)));
     }
   }
 
@@ -329,37 +327,19 @@ export class AuthController {
       return this.authFacade.getSocialRegisterInfo(token);
   }
 
-  @Public()
-  @Post('register')
-  @Public()
-  @UseGuards(ThrottlerGuard)
-  @ApiOperation({ summary: 'Register a new user and organization' })
-  @ApiResponse({ status: 201, description: 'User successfully registered.', type: AuthResponseDto })
-  @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
-  async register(
-    @Body() registerUserDto: RegisterUserDto,
-    @Res({ passthrough: true }) res: Response,
-    @Ip() ip: string,
-    @Headers('user-agent') userAgent: string
-  ): Promise<AuthResponseDto> {
-    const result = await this.authFacade.register(registerUserDto, ip, userAgent);
-
-    // H18 FIX: Honeypot returns a flag; do not set real cookies with fake tokens.
-    if ('honeypot' in result && result.honeypot) {
-      return {
-        user: plainToInstance(UserResponseDto, result.user, { excludeExtraneousValues: true }),
-      };
-    }
-
-    const { user, accessToken, refreshToken } = result as { user: any; accessToken: string; refreshToken: string };
-    this.cookieService.setAuthCookies(res, accessToken, refreshToken, { userId: user?.id });
-
-    return {
-      user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }),
-      // 10/10 SECURITY: accessToken is NOT returned in the body — it is delivered only via the
-      // httpOnly cookie, reducing XSS exfiltration surface.
-    };
-  }
+  // -----------------------------------------------------------------------------------------
+  // There is deliberately NO `POST /auth/register`.
+  //
+  // It existed, it was @Public(), and it created an organization, its roles and an administrator
+  // user without touching Stripe or assigning a plan. Combined with SaaS limits that returned
+  // early when an organization had no plan, that was a complete bypass of the product's
+  // monetization: anyone could mint an unlimited free tenant with one request, and no screen in
+  // the application ever called it, so nothing would have shown the abuse.
+  //
+  // Signup is `register-checkout` → Stripe → `register-confirm`. The account is materialised only
+  // once payment is confirmed. Invitations and social sign-in reach the same materialisation via
+  // their own flows, each of which inherits an organization that already has a plan.
+  // -----------------------------------------------------------------------------------------
 
   @Post('register-checkout')
   @Public()
@@ -383,11 +363,10 @@ export class AuthController {
       return { url: null };
     }
 
-    // H-02: redirect URLs are built server-side from FRONTEND_URL. The
-    // {CHECKOUT_SESSION_ID} placeholder must stay literal for Stripe to expand.
-    const frontendUrl = this.configService.getOrThrow<string>('FRONTEND_URL').replace(/\/$/, '');
-    const successUrl = `${frontendUrl}/auth/checkout-complete?session_id={CHECKOUT_SESSION_ID}`;
-    const cancelUrl = `${frontendUrl}/auth/register`;
+    // Redirect URLs are built server-side. The {CHECKOUT_SESSION_ID} placeholder must stay
+    // literal for Stripe to expand it.
+    const successUrl = this.links.checkoutComplete();
+    const cancelUrl = this.links.registerCancelled();
 
     const session = await this.paymentService.createRegistrationCheckoutSession({
       email: dto.email,
@@ -566,18 +545,28 @@ export class AuthController {
     return { message: 'Todas las sesiones han sido cerradas.' };
   }
 
-  @Post('verify-password')
+  /**
+   * Re-authenticate for one sensitive action and receive the proof as an httpOnly cookie.
+   *
+   * This is the single entry point for step-up across the product. It replaces
+   * `POST /auth/verify-password`, which only ever accepted a password: on an account with 2FA
+   * enabled that was a downgrade, since a password alone is not a second factor. The server
+   * decides which factor to demand — see `AuthService.createStepUpToken`.
+   */
+  @Post('step-up')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard, CsrfGuard)
   @Throttle({ default: { limit: 5, ttl: 900000 } })
-  @ApiOperation({ summary: 'Verify current password for step-up authentication' })
-  async verifyPassword(
+  @ApiOperation({ summary: 'Re-authenticate to authorise a sensitive action' })
+  async stepUp(
       @CurrentUser() user: User,
-      @Body() dto: VerifyPasswordDto,
+      @Body() dto: StepUpDto,
       @Res({ passthrough: true }) res: Response,
   ) {
-      const { stepUpToken, maxAgeMs } = await this.authService.verifyPasswordForStepUp(
-          user.id, dto.password, dto.scope,
+      const { stepUpToken, maxAgeMs } = await this.authService.createStepUpToken(
+          user.id,
+          { password: dto.password, otpCode: dto.otpCode },
+          dto.scope,
       );
 
       // The token is delivered as an httpOnly cookie and never enters the response body, so a
@@ -586,6 +575,20 @@ export class AuthController {
       // afterwards; the browser attaches the cookie.
       this.cookieService.setStepUpCookie(res, stepUpToken, maxAgeMs);
       return { success: true, expiresInMs: maxAgeMs };
+  }
+
+  /**
+   * Which factor the client must collect before calling `POST /auth/step-up`.
+   *
+   * Without this the client has to guess, and guessing wrong means the user is shown a password
+   * prompt for an account that requires a TOTP code — a dead end with no way forward.
+   */
+  @Get('step-up/challenge')
+  @UseGuards(JwtAuthGuard)
+  @Header('Cache-Control', 'no-store')
+  @ApiOperation({ summary: 'Ask which factor step-up will require for this account' })
+  async stepUpChallenge(@CurrentUser() user: User) {
+      return this.authService.describeStepUpChallenge(user.id);
   }
 
   @Get('status')
@@ -667,7 +670,7 @@ export class AuthController {
   }
 
   @Post('change-password')
-  @UseGuards(JwtAuthGuard, CsrfGuard, TwoFactorVerifiedGuard, StepUpGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
   @StepUp(StepUpScope.CHANGE_PASSWORD)
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe())
@@ -690,12 +693,13 @@ export class AuthController {
   // Impersonation grants complete access to another person's data and attributes the resulting
   // actions to them, so it carries the strongest protections available:
   //   - PermissionsGuard        the operator must hold users:impersonate
-  //   - TwoFactorVerifiedGuard  a fresh second factor (or password, when 2FA is off)
-  //   - StepUpGuard             a recent proof of the operator's own password, single-use
+  //   - StepUpGuard             a fresh, single-use proof of the operator's own identity, using
+  //                             the strongest factor their account holds (TOTP when 2FA is on,
+  //                             the password otherwise)
   // ImpersonationService additionally refuses any target whose permissions the operator does
   // not already hold, so the feature cannot be used to gain privileges.
   @Post('impersonate')
-  @UseGuards(JwtAuthGuard, CsrfGuard, PermissionsGuard, TwoFactorVerifiedGuard, StepUpGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard, PermissionsGuard, StepUpGuard)
   @StepUp(StepUpScope.IMPERSONATE)
   @HasPermission(PERMISSIONS.USERS_IMPERSONATE)
   async impersonate(
@@ -760,7 +764,7 @@ export class AuthController {
   }
 
   @Post('2fa/disable')
-  @UseGuards(JwtAuthGuard, CsrfGuard, TwoFactorVerifiedGuard, StepUpGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
   @StepUp(StepUpScope.DISABLE_2FA)
   @ApiOperation({ summary: 'Disable 2FA' })
   async disableTwoFactor(@CurrentUser() user: User, @Ip() ip: string) {
@@ -775,7 +779,7 @@ export class AuthController {
   }
 
   @Post('2fa/backup-codes/generate')
-  @UseGuards(JwtAuthGuard, CsrfGuard, TwoFactorVerifiedGuard, StepUpGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
   @StepUp(StepUpScope.REGENERATE_BACKUP_CODES)
   @ApiOperation({ summary: 'Generate new backup codes' })
   async generateBackupCodes(@CurrentUser() user: User, @Ip() ip: string) {
@@ -882,12 +886,10 @@ export class AuthController {
       throw new BadRequestException('Plan does not have a price ID');
     }
 
-    // H-02 FIX: Build redirect URLs server-side from FRONTEND_URL.
-    // Never pass client-supplied URLs to Stripe — the backend must control
-    // where users land after checkout (CWE-601; OWASP Unvalidated Redirects).
-    const frontendUrl = this.configService.getOrThrow<string>('FRONTEND_URL');
-    const successUrl = new URL('/dashboard', frontendUrl).toString();
-    const cancelUrl = new URL('/auth/register', frontendUrl).toString();
+    // Redirect URLs are built server-side. Never pass client-supplied URLs to Stripe — the
+    // backend must control where users land after checkout (CWE-601).
+    const successUrl = this.links.billing(true);
+    const cancelUrl = this.links.billing();
 
     return this.paymentService.createCheckoutSession(
       user.organizationId,
@@ -948,7 +950,8 @@ export class AuthController {
 
   // H3 FIX: WebAuthn credential binding is a critical MFA mutation; requires CSRF + step-up 2FA.
   @Post('webauthn/register/verify')
-  @UseGuards(JwtAuthGuard, CsrfGuard, TwoFactorVerifiedGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
+  @StepUp(StepUpScope.REGISTER_PASSKEY)
   @ApiOperation({ summary: 'Verify WebAuthn registration' })
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
   async verifyWebAuthnRegistration(@CurrentUser() user: User, @Body() body: VerifyWebAuthnRegistrationDto) {
@@ -1018,7 +1021,7 @@ export class AuthController {
 
   @Post('sessions/revoke-others')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard, CsrfGuard, TwoFactorVerifiedGuard, StepUpGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
   @StepUp(StepUpScope.REVOKE_SESSION)
   @ApiOperation({ summary: 'Revoke every session except the current one' })
   async revokeOtherSessions(@CurrentUser() user: AuthenticatedUser, @Ip() ip: string) {
@@ -1031,7 +1034,7 @@ export class AuthController {
   }
 
   @Post('sessions/:id/revoke') // Using POST or DELETE is fine, usually DELETE for resource removal
-  @UseGuards(JwtAuthGuard, CsrfGuard, TwoFactorVerifiedGuard, StepUpGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
   @StepUp(StepUpScope.REVOKE_SESSION)
   @ApiOperation({ summary: 'Revoke a specific session' })
   async revokeSession(

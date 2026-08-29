@@ -13,7 +13,6 @@ import { UserCacheModule } from '../auth/modules/user-cache.module';
 import { StorageModule } from '../storage/storage.module';
 import { AuthModule } from '../auth/auth.module';
 import { AuditModule } from '../audit/audit.module';
-import { TwoFactorVerifiedGuard } from '../auth/guards/two-factor-verified.guard';
 import { PasswordService } from '../auth/services/password.service';
 
 @Module({
@@ -28,7 +27,7 @@ import { PasswordService } from '../auth/services/password.service';
   ],
 
   controllers: [UsersController],
-  providers: [UsersService, UserSubscriber, TwoFactorVerifiedGuard, PasswordService],
+  providers: [UsersService, UserSubscriber, PasswordService],
   exports: [UsersService, TypeOrmModule],
 })
 export class UsersModule {}

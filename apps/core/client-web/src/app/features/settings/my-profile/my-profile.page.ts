@@ -132,6 +132,36 @@ export class MyProfilePage implements OnInit {
     if (user?.avatarUrl) {
       this.avatarPreview.set(user.avatarUrl);
     }
+
+    this.consumeEmailChangeToken();
+  }
+
+  /**
+   * Complete a pending email change when the user arrives from the confirmation link.
+   *
+   * The token travels in the URL fragment so it never reaches a server log, a CDN log or a
+   * `Referer` header. It is removed from the address bar immediately after being read, so a
+   * refresh or a shared URL cannot replay it.
+   */
+  private consumeEmailChangeToken(): void {
+    const fragment = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '';
+    const token = new URLSearchParams(fragment).get('email_change_token');
+    if (!token) return;
+
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+
+    this.usersService.confirmEmailChange(token).subscribe({
+      next: (res) => {
+        this.notificationService.showSuccess(res.message);
+        // The server bumps tokenVersion on confirmation, so this session is already invalid.
+        this.authService.logout();
+      },
+      error: (err) =>
+        this.notificationService.showError(
+          err?.error?.message ||
+            'El enlace de confirmación ha expirado o no es válido. Solicita el cambio de nuevo.',
+        ),
+    });
   }
 
   onFileSelected(event: Event): void {

@@ -13,6 +13,8 @@ import { HasPermissionDirective } from '../../../shared/directives/has-permissio
 import { LucideAngularModule, UserPlus, Save, X, Send, User, History, Trash2, Key, Search, Filter, ArrowUpDown, ArrowUp, ArrowDown, MoreHorizontal, FilePenLine, Ban, UserCog, Mail, ChevronLeft, ChevronRight, Plus, RefreshCw, Power, PowerOff, Building, Lock, Archive, UserCheck, Zap, FileInput, FileOutput, UserCircle2, LogOut } from 'lucide-angular';
 import { User as ApiUser } from '../../../shared/interfaces/user.interface';
 import { UserStatus } from '../../../shared/enums/user-status.enum';
+import { authServiceMock } from '../../../../testing/service-mocks';
+import { StepUpService, StepUpScope } from '../../../core/services/step-up.service';
 
 const mockUsers: any[] = [
   { id: '1', firstName: 'John', lastName: 'Doe', email: 'john@doe.com', status: UserStatus.ACTIVE, roles: [{id: '1', name: 'Admin'}], organizationId: '1', isOnline: true, createdAt: new Date() },
@@ -35,6 +37,11 @@ describe('UserManagementPage', () => {
     inviteUser: jest.fn(() => of(mockUsers[0])),
     updateUser: jest.fn(() => of(mockUsers[0])),
     deleteUser: jest.fn(() => of(undefined)),
+    // The screen exposes these too; the double stopped at the first four, so the tests could not
+    // reach the actions that matter most.
+    sendPasswordReset: jest.fn(() => of({ message: 'Correo enviado.' })),
+    forceLogout: jest.fn(() => of(undefined)),
+    blockAndLogout: jest.fn(() => of(undefined)),
   };
 
   const mockRolesService = {
@@ -51,10 +58,29 @@ describe('UserManagementPage', () => {
     disconnect: jest.fn(),
   };
 
-  const mockAuthService = {
-    currentUser: () => null,
-    impersonate: () => of(null),
+  // The page reads permissions and the current user, and now drives every mutation through the
+  // step-up flow, so the double has to be the real shape rather than two methods.
+  const mockAuthService = authServiceMock({ permissions: ['*'] });
+
+  /**
+   * Every mutation on this screen is guarded server-side by StepUpGuard and therefore goes
+   * through `requireStepUp`, which opens a re-authentication prompt before running the action.
+   * The double stands in for the prompt and runs the action straight away, so these tests keep
+   * asserting what they are about — the request that gets made — rather than the modal.
+   *
+   * `requireStepUp` is asserted on separately, so a mutation that stopped requiring it would
+   * still be caught.
+   */
+  const mockStepUpService = {
+    requireStepUp: jest.fn((_scope: unknown, _vcr: unknown, action: () => unknown) => action()),
   };
+
+  beforeEach(() => {
+    // The doubles are module-level constants shared by every test, so without this the call
+    // counts below accumulate across the file and assert nothing about the test that reads them.
+    jest.clearAllMocks();
+    mockUsersService.getUsers.mockReturnValue(of({ data: mockUsers, total: 2, page: 1, pageSize: 10 }));
+  });
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -72,6 +98,7 @@ describe('UserManagementPage', () => {
         { provide: NotificationService, useValue: mockNotificationService },
         { provide: WebSocketService, useValue: mockWebSocketService },
         { provide: AuthService, useValue: mockAuthService },
+        { provide: StepUpService, useValue: mockStepUpService },
       ],
     }).compileComponents();
 
@@ -127,7 +154,8 @@ describe('UserManagementPage', () => {
     };
     expect(mockUsersService.inviteUser).toHaveBeenCalledWith(payload);
     expect(mockNotificationService.showSuccess).toHaveBeenCalledWith('Usuario invitado con éxito.');
-    expect(mockUsersService.getUsers).toHaveBeenCalledTimes(2); // 1 on init, 1 after save
+    // Once when the page loaded, once after saving so the list reflects the change.
+    expect(mockUsersService.getUsers).toHaveBeenCalledTimes(2);
   }));
 
   it('should update an existing user', fakeAsync(() => {
@@ -166,4 +194,53 @@ describe('UserManagementPage', () => {
     expect(mockNotificationService.showSuccess).toHaveBeenCalledWith('Usuario eliminado con éxito.');
     expect(mockUsersService.getUsers).toHaveBeenCalledTimes(2);
   }));
+
+  /**
+   * The guarantee this screen lost and regained.
+   *
+   * Every mutation here is protected server-side by StepUpGuard, which requires a fresh proof of
+   * the operator's identity delivered as a cookie. The previous guard expected that proof in a
+   * request header no client ever sent, so each of these actions returned 403 — the screen
+   * rendered, the buttons worked, and nothing happened. Asserting the scope, not just that some
+   * step-up occurred, means a mutation cannot quietly be re-scoped to something weaker.
+   */
+  describe('re-authentication', () => {
+    it.each([
+      ['invite', StepUpScope.MANAGE_USERS, () => {
+        component.openInviteModal();
+        component.userForm.patchValue({ firstName: 'A', lastName: 'B', email: 'a@b.com', roleId: '1' });
+        component.save();
+      }],
+      ['delete', StepUpScope.DELETE_ACCOUNT, () => {
+        component.openDeleteModal(mockUsers[0]);
+        component.confirmDelete();
+      }],
+      ['block', StepUpScope.MANAGE_USER_STATUS, () => {
+        jest.spyOn(window, 'confirm').mockReturnValue(true);
+        component.blockAndLogout(mockUsers[0]);
+      }],
+      ['force logout', StepUpScope.MANAGE_USER_CREDENTIALS, () => {
+        jest.spyOn(window, 'confirm').mockReturnValue(true);
+        component.forceLogout(mockUsers[0]);
+      }],
+      ['password reset', StepUpScope.MANAGE_USER_CREDENTIALS, () => {
+        jest.spyOn(window, 'confirm').mockReturnValue(true);
+        component.resetPassword(mockUsers[0]);
+      }],
+      ['impersonate', StepUpScope.IMPERSONATE, () => {
+        jest.spyOn(window, 'confirm').mockReturnValue(true);
+        component.impersonateUser(mockUsers[0]);
+      }],
+    ])('requires step-up before %s', fakeAsync((_label: string, scope: StepUpScope, act: () => void) => {
+      act();
+      tick();
+
+      expect(mockStepUpService.requireStepUp).toHaveBeenCalledWith(
+        scope,
+        expect.anything(),
+        expect.any(Function),
+      );
+    }));
+  });
+
 });

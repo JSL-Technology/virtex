@@ -74,60 +74,6 @@ export class RegistrationService {
   ) {}
 
   /**
-   * Legacy direct registration: validates and creates the account in one step.
-   * Retained for flows that don't gate on payment (e.g. invitations/social).
-   * The payment-first signup uses {@link createPendingRegistration} +
-   * {@link completePendingRegistration} instead.
-   */
-  async register(registerUserDto: RegisterUserDto) {
-    await this.validateRegistration(registerUserDto);
-
-    if (registerUserDto.fax) {
-      return this.honeypotDummyUser(registerUserDto);
-    }
-
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
-    try {
-      await this.passwordService.assertNotBreached(registerUserDto.password);
-      const passwordHash = await this.passwordService.hash(registerUserDto.password);
-      const { user } = await this.materializeAccount(
-        {
-          email: registerUserDto.email,
-          firstName: registerUserDto.firstName,
-          lastName: registerUserDto.lastName,
-          phone: registerUserDto.phone ?? null,
-          phoneVerified: !!registerUserDto.phoneVerificationCode,
-          passwordHash,
-          organizationName: registerUserDto.organizationName,
-          taxId: registerUserDto.taxId ?? null,
-          fiscalRegionId: registerUserDto.fiscalRegionId ?? null,
-          industry: registerUserDto.industry ?? null,
-          companySize: registerUserDto.companySize ?? null,
-          address: registerUserDto.address ?? null,
-        },
-        queryRunner.manager
-      );
-
-      await queryRunner.commitTransaction();
-      return user;
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-      if (error instanceof ConflictException) {
-        throw error;
-      }
-      this.logger.error('Error en el registro:', error);
-      throw new InternalServerErrorException(
-        'Error inesperado, por favor revise los logs del servidor.',
-      );
-    } finally {
-      await queryRunner.release();
-    }
-  }
-
-  /**
    * Validates a registration (reCAPTCHA, verification codes, fiscal strategy)
    * WITHOUT persisting anything. Throws on any failure. Honeypot is handled by
    * the caller so it can return a believable success to bots.
@@ -371,13 +317,23 @@ export class RegistrationService {
       organization.subscriptionStatus = subscription.status;
       organization.subscriptionPeriodEnd = subscription.currentPeriodEnd;
 
+      // An organization without a plan is exempt from every limit in the product, so this used
+      // to log a warning and carry on — creating exactly the tenant that could consume without
+      // bound. The payment has already been taken at this point, so failing loudly (and rolling
+      // the transaction back) is the only correct outcome: the customer is charged and the
+      // account is not silently mis-provisioned.
       const plan = await manager.findOne(Plan, { where: { slug: pending.planSlug } });
-      if (plan) {
-        organization.plan = plan;
-        organization.planId = plan.id;
-      } else {
-        this.logger.warn(`Plan slug ${pending.planSlug} not found while completing registration ${pendingId}.`);
+      if (!plan) {
+        this.logger.error(
+          { event: 'registration_plan_missing', pendingId, planSlug: pending.planSlug },
+          '[BILLING] Paid registration references a plan that does not exist.',
+        );
+        throw new InternalServerErrorException(
+          'No se pudo activar tu plan. Tu pago está registrado; contacta a soporte para completar la activación.',
+        );
       }
+      organization.plan = plan;
+      organization.planId = plan.id;
       await manager.save(organization);
 
       pending.status = PendingRegistrationStatus.COMPLETED;

@@ -55,6 +55,17 @@ export class UsersService {
       return this.http.post<{ message: string }>(`${this.apiUrl}/profile/email-change/request`, data);
   }
 
+  /**
+   * Complete an email change with the token from the confirmation link.
+   *
+   * The backend has had this endpoint since the two-step flow was introduced, but nothing ever
+   * called it: the confirmation email pointed at `/settings/email-change/confirm`, a route that
+   * does not exist. The change could be requested and never applied.
+   */
+  confirmEmailChange(token: string): Observable<{ message: string }> {
+      return this.http.post<{ message: string }>(`${this.apiUrl}/profile/email-change/confirm`, { token });
+  }
+
   uploadAvatar(file: File): Observable<{ avatarUrl: string }> {
       const formData = new FormData();
       formData.append('file', file);
