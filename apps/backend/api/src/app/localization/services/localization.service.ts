@@ -76,10 +76,16 @@ export class LocalizationService implements OnModuleInit {
     }
   }
 
-  getStrategy(countryCode: string): FiscalStrategy {
-    const code = countryCode ? countryCode.toUpperCase() : 'GENERIC';
-    return this.strategies.get(code) || this.strategies.get('GENERIC');
-  }
+  /**
+   * `getStrategy(countryCode)` used to live here, returning the 'GENERIC' strategy for any country
+   * it did not recognise — and that strategy's `validateTaxId` was `return true`. It was the
+   * fallback the DTO validator, the registration factory and the tax-id lookup all reached, so an
+   * unsupported country validated everything and nothing. It has no callers left: validation goes
+   * through `tax-id-validators.ts`, which returns false for a country it has no algorithm for.
+   *
+   * `this.strategies` survives for one purpose: reaching a country's registry in `lookupTaxId`,
+   * looked up by exact country code with no fallback.
+   */
 
   async findAllFiscalRegions(): Promise<FiscalRegion[]> {
     return this.fiscalRegionRepository.find({ order: { name: 'ASC' } });

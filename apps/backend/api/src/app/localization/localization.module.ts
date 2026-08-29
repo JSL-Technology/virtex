@@ -4,7 +4,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bullmq';
 import { HttpModule } from '@nestjs/axios';
 import { LocalizationService } from './services/localization.service';
-import { LocalizationAdminController } from './controllers/localization-admin.controller';
 import { FiscalRegion } from './entities/fiscal-region.entity';
 import { TaxScheme } from './entities/tax-scheme.entity';
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
@@ -53,7 +52,7 @@ import { USStrategy } from './drivers/usa/usa.strategy';
     USStrategy,
     GenericFiscalStrategy
   ],
-  controllers: [LocalizationAdminController, LocalizationController],
+  controllers: [LocalizationController],
   exports: [LocalizationService],
 })
 export class LocalizationModule {}
