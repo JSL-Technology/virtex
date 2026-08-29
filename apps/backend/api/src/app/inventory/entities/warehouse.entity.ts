@@ -1,21 +1,19 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColumn, CreateDateColumn } from "typeorm";
-import { Product } from "./product.entity";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
+import { Product } from './product.entity';
+import { Warehouse } from '../../supply-chain/entities/warehouse.entity';
 
-
-@Entity({ name: 'warehouses' })
-export class Warehouse {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
-  @Column()
-  name: string;
-
-  @Column({ nullable: true })
-  address: string;
-
-  @OneToMany(() => Location, location => location.warehouse)
-  locations: Location[];
-}
+/**
+ * `Warehouse` is defined once, in supply-chain, and re-exported here for the inventory entities
+ * that reference it.
+ *
+ * This file used to declare a SECOND `@Entity({ name: 'warehouses' })` class. Two entities
+ * mapped to the same table is a silent collision: whichever loaded last defined the table, so
+ * the schema TypeORM generated depended on module load order, and a generated migration wanted
+ * to drop every column the other definition contributed. The duplicate also had no
+ * `organization_id`, so warehouses reached through inventory were outside tenant scoping
+ * entirely.
+ */
+export { Warehouse };
 
 
 @Entity({ name: 'locations' })

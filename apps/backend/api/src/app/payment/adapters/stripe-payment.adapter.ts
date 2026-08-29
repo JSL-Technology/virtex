@@ -171,9 +171,7 @@ export class StripePaymentAdapter implements PaymentGateway {
       customerId: typeof session.customer === 'string' ? session.customer : session.customer?.id ?? null,
       subscriptionId: subscription?.id ?? (typeof session.subscription === 'string' ? session.subscription : null),
       subscriptionStatus: subscription?.status ?? null,
-      currentPeriodEnd: subscription && (subscription as any).current_period_end
-        ? new Date((subscription as any).current_period_end * 1000)
-        : null,
+      currentPeriodEnd: subscription ? this.periodEndOf(subscription) : null,
       pendingRegistrationId: session.metadata?.pendingRegistrationId ?? null,
       planSlug: session.metadata?.planSlug ?? null,
     };
@@ -213,8 +211,9 @@ export class StripePaymentAdapter implements PaymentGateway {
       }
       organization.externalSubscriptionId = subscription?.id ?? (typeof session.subscription === 'string' ? session.subscription : organization.externalSubscriptionId);
       organization.subscriptionStatus = subscription?.status ?? 'active';
-      if (subscription && (subscription as any).current_period_end) {
-        organization.subscriptionPeriodEnd = new Date((subscription as any).current_period_end * 1000);
+      const periodEnd = subscription ? this.periodEndOf(subscription) : null;
+      if (periodEnd) {
+        organization.subscriptionPeriodEnd = periodEnd;
       }
 
       const planSlug = session.metadata?.planSlug;
@@ -268,10 +267,10 @@ export class StripePaymentAdapter implements PaymentGateway {
     try {
       if (organization.externalSubscriptionId) {
         const sub = await this.stripe.subscriptions.retrieve(organization.externalSubscriptionId);
-        const periodEnd = (sub as any).current_period_end;
+        const periodEnd = this.periodEndOf(sub);
         overview.subscription = {
           status: sub.status,
-          currentPeriodEnd: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
+          currentPeriodEnd: periodEnd ? periodEnd.toISOString() : null,
           cancelAtPeriodEnd: sub.cancel_at_period_end ?? false,
         };
       }
@@ -383,14 +382,36 @@ export class StripePaymentAdapter implements PaymentGateway {
           try {
               switch (event.type) {
                   case 'checkout.session.completed':
-                      const session = event.data.object as Stripe.Checkout.Session;
-                      await this.handleCheckoutSessionCompleted(session, manager);
+                      await this.handleCheckoutSessionCompleted(
+                          event.data.object as Stripe.Checkout.Session,
+                          manager,
+                      );
                       break;
-                  case 'customer.subscription.deleted':
+
+                  case 'customer.subscription.created':
                   case 'customer.subscription.updated':
-                      const subscription = event.data.object as Stripe.Subscription;
-                      await this.handleSubscriptionUpdated(subscription, manager);
+                  case 'customer.subscription.deleted':
+                      await this.handleSubscriptionUpdated(
+                          event.data.object as Stripe.Subscription,
+                          manager,
+                      );
                       break;
+
+                  // Dunning. Without these the product could not tell a paying customer from one
+                  // whose card has been failing for a fortnight: the subscription row only moved
+                  // when Stripe eventually changed the subscription's own status, which happens
+                  // after the whole retry schedule has run out.
+                  case 'invoice.payment_failed':
+                      await this.handleInvoicePaymentFailed(
+                          event.data.object as Stripe.Invoice,
+                          manager,
+                      );
+                      break;
+
+                  case 'invoice.paid':
+                      await this.handleInvoicePaid(event.data.object as Stripe.Invoice, manager);
+                      break;
+
                   default:
                       this.logger.log(`Unhandled event type: ${event.type}`);
               }
@@ -421,9 +442,7 @@ export class StripePaymentAdapter implements PaymentGateway {
       try {
         const sub = await this.ensureStripe().subscriptions.retrieve(subscriptionId);
         subscriptionStatus = sub.status;
-        if ((sub as any).current_period_end) {
-          currentPeriodEnd = new Date((sub as any).current_period_end * 1000);
-        }
+        currentPeriodEnd = this.periodEndOf(sub);
       } catch (e) {
         this.logger.warn(`Could not retrieve subscription ${subscriptionId} during signup: ${e.message}`);
       }
@@ -477,12 +496,121 @@ export class StripePaymentAdapter implements PaymentGateway {
     }
   }
 
+  /**
+   * A renewal charge failed. Stripe will keep retrying on its own schedule, so access is not cut
+   * off here — the organization enters a bounded grace period and the rest of the product decides
+   * what to restrict. Recording it on the first failure (rather than waiting for the subscription
+   * status to change at the end of the retry cycle) is what makes a dunning email possible.
+   */
+  private async handleInvoicePaymentFailed(invoice: Stripe.Invoice, manager: any) {
+    const subscriptionId = this.subscriptionIdOf(invoice);
+    if (!subscriptionId) return;
+
+    const organization = await manager.findOne(Organization, {
+      where: { externalSubscriptionId: subscriptionId },
+    });
+    if (!organization) {
+      this.logger.warn(`invoice.payment_failed for unknown subscription ${subscriptionId}`);
+      return;
+    }
+
+    // Only extend the grace period; never shorten one already running, or a second failed retry
+    // would silently hand the customer a fresh window.
+    const graceEnd = new Date();
+    graceEnd.setDate(graceEnd.getDate() + SAAS_CONFIG.GRACE_PERIOD_DAYS);
+    if (!organization.gracePeriodEnd || organization.gracePeriodEnd < graceEnd) {
+      organization.gracePeriodEnd = graceEnd;
+    }
+    organization.subscriptionStatus = 'past_due';
+    await manager.save(organization);
+
+    this.eventEmitter.emit('billing.payment_failed', {
+      organizationId: organization.id,
+      invoiceId: invoice.id,
+      amountDue: invoice.amount_due,
+      currency: invoice.currency,
+      attemptCount: invoice.attempt_count ?? 0,
+      nextAttempt: invoice.next_payment_attempt
+        ? new Date(invoice.next_payment_attempt * 1000)
+        : null,
+      gracePeriodEnd: organization.gracePeriodEnd,
+    });
+
+    this.logger.warn(
+      `Payment failed for organization ${organization.id}; grace period until ${organization.gracePeriodEnd?.toISOString()}.`,
+    );
+  }
+
+  /**
+   * A renewal succeeded. Clears the grace period so a customer who recovers is not left in a
+   * degraded state until the next subscription-level event happens to arrive.
+   */
+  private async handleInvoicePaid(invoice: Stripe.Invoice, manager: any) {
+    const subscriptionId = this.subscriptionIdOf(invoice);
+    if (!subscriptionId) return;
+
+    const organization = await manager.findOne(Organization, {
+      where: { externalSubscriptionId: subscriptionId },
+    });
+    if (!organization) return;
+
+    organization.subscriptionStatus = 'active';
+    organization.gracePeriodEnd = null;
+    await manager.save(organization);
+    await this.saasService.clearOrganizationCache(organization.id);
+
+    this.eventEmitter.emit('billing.payment_succeeded', {
+      organizationId: organization.id,
+      invoiceId: invoice.id,
+      amountPaid: invoice.amount_paid,
+      currency: invoice.currency,
+    });
+  }
+
+  /**
+   * Current period end of a subscription, in either shape Stripe has used.
+   *
+   * `current_period_end` lived on the subscription root through the 2025-01 API and moved onto
+   * each subscription item afterwards. Reading only the root returns `undefined` against a newer
+   * API version, and `new Date(undefined * 1000)` is an Invalid Date that TypeORM happily writes
+   * — so the renewal date silently became null and every downstream period calculation drifted.
+   */
+  private periodEndOf(subscription: Stripe.Subscription): Date | null {
+    const root = (subscription as unknown as { current_period_end?: number }).current_period_end;
+    if (typeof root === 'number') return new Date(root * 1000);
+
+    const itemEnd = subscription.items?.data
+      ?.map((item) => (item as unknown as { current_period_end?: number }).current_period_end)
+      .filter((value): value is number => typeof value === 'number')
+      .sort((a, b) => b - a)[0];
+
+    return typeof itemEnd === 'number' ? new Date(itemEnd * 1000) : null;
+  }
+
+  /** Stripe moved `subscription` off the invoice root in newer API versions; read both shapes. */
+  private subscriptionIdOf(invoice: Stripe.Invoice): string | null {
+    const direct = (invoice as unknown as { subscription?: string | { id: string } }).subscription;
+    if (typeof direct === 'string') return direct;
+    if (direct?.id) return direct.id;
+
+    const parentSubscription = (
+      invoice as unknown as {
+        parent?: { subscription_details?: { subscription?: string | { id: string } } };
+      }
+    ).parent?.subscription_details?.subscription;
+    if (typeof parentSubscription === 'string') return parentSubscription;
+    return parentSubscription?.id ?? null;
+  }
+
   private async handleSubscriptionUpdated(subscription: Stripe.Subscription, manager: any) {
     const organization = await manager.findOne(Organization, { where: { externalSubscriptionId: subscription.id } });
 
     if (organization) {
         organization.subscriptionStatus = subscription.status;
-        organization.subscriptionPeriodEnd = new Date((subscription as any).current_period_end * 1000);
+        const periodEnd = this.periodEndOf(subscription);
+        if (periodEnd) {
+          organization.subscriptionPeriodEnd = periodEnd;
+        }
 
         if (subscription.status === 'past_due' || subscription.status === 'unpaid') {
              const graceEnd = new Date();

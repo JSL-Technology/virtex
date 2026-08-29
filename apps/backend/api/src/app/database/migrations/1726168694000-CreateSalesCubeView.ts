@@ -1,5 +1,5 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
-import { Dimension } from '../dimensions/entities/dimension.entity';
+import { Dimension } from '../../dimensions/entities/dimension.entity';
 
 export class RefactorAnalyticalViewForDynamicDimensions1726168695000 implements MigrationInterface {
     name = 'RefactorAnalyticalViewForDynamicDimensions1726168695000'
@@ -30,7 +30,9 @@ export class RefactorAnalyticalViewForDynamicDimensions1726168695000 implements 
                 EXTRACT(MONTH FROM je.date) AS month,
                 EXTRACT(QUARTER FROM je.date) AS quarter,
                 jel.account_id,
-                acc.code AS account_code,
+                (SELECT string_agg(seg."value", '-' ORDER BY seg."order")
+                   FROM "account_segments" seg
+                  WHERE seg."account_id" = acc."id") AS account_code,
                 acc.name AS account_name,
                 acc.type AS account_type,
                 acc.category AS account_category,

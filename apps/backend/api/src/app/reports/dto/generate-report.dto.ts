@@ -1,8 +1,8 @@
 
 import { IsString, IsNotEmpty, IsObject, IsOptional, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { GeneralLedgerReportDto } from '../journal-entries/dto/general-ledger-report.dto';
-import { JournalReportDto } from '../journal-entries/dto/journal-report.dto';
+import { GeneralLedgerReportDto } from '../../journal-entries/dto/general-ledger-report.dto';
+import { JournalReportDto } from '../../journal-entries/dto/journal-report.dto';
 
 export class GenerateReportDto {
   @IsString()

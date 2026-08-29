@@ -8,7 +8,7 @@ import { provideTranslateService, TranslateLoader } from '@ngx-translate/core';
 import { CustomTranslateLoader } from './core/i18n/custom-translate-loader';
 
 // import { RECAPTCHA_V3_SITE_KEY, RecaptchaV3Module } from 'ng-recaptcha';
-// import { environment } from './environments/environment';
+// import { environment } from '../environments/environment';
 
 import { APP_ROUTES } from './app.routes';
 import { RECAPTCHA_SETTINGS, RECAPTCHA_V3_SITE_KEY, RecaptchaSettings, RecaptchaV3Module } from 'ng-recaptcha-19';

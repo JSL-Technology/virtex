@@ -14,7 +14,7 @@ import {
  * logins (anti-takeover control).
  */
 @Entity({ name: 'organization_domains' })
-@Index(['domain'], { unique: true })
+@Index('IDX_organization_domains_domain', ['domain'], { unique: true })
 export class OrganizationDomain {
   @PrimaryGeneratedColumn('uuid')
   id: string;

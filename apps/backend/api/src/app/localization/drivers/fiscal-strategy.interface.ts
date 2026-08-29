@@ -1,6 +1,6 @@
 
 import { Injectable } from '@nestjs/common';
-import { RegisterUserDto } from '../../../auth/dto/register-user.dto';
+import { RegisterUserDto } from '../../auth/dto/register-user.dto';
 
 export interface FiscalStrategy {
   validateTaxId(taxId: string): Promise<boolean>;

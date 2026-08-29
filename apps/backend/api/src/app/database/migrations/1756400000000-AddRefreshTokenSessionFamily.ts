@@ -12,6 +12,10 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
  *
  * Backfill walks the existing `replaced_by_token` chains so tokens that were already rotated end
  * up sharing their original root, preserving session continuity across the deploy.
+ *
+ * The chain walk casts explicitly: `replaced_by_token` was originally declared varchar while
+ * `id` is uuid, and Postgres refuses to compare the two. The column is uuid from the baseline
+ * onwards, but the casts keep this migration correct against a database created before that.
  */
 export class AddRefreshTokenSessionFamily1756400000000 implements MigrationInterface {
   name = 'AddRefreshTokenSessionFamily1756400000000';
@@ -36,13 +40,13 @@ export class AddRefreshTokenSessionFamily1756400000000 implements MigrationInter
         SELECT t."id" AS root_id, t."id" AS current_id
           FROM "refresh_tokens" t
          WHERE NOT EXISTS (
-           SELECT 1 FROM "refresh_tokens" p WHERE p."replaced_by_token" = t."id"
+           SELECT 1 FROM "refresh_tokens" p WHERE p."replaced_by_token"::text = t."id"::text
          )
         UNION ALL
         SELECT c.root_id, r."id"
           FROM chain c
           JOIN "refresh_tokens" r ON r."id" = (
-            SELECT x."replaced_by_token" FROM "refresh_tokens" x WHERE x."id" = c.current_id
+            SELECT x."replaced_by_token"::uuid FROM "refresh_tokens" x WHERE x."id" = c.current_id
           )
       )
       UPDATE "refresh_tokens" rt
@@ -53,6 +57,15 @@ export class AddRefreshTokenSessionFamily1756400000000 implements MigrationInter
 
     await queryRunner.query(`
       ALTER TABLE "refresh_tokens" ALTER COLUMN "session_id" SET NOT NULL
+    `);
+
+    // The default existed only so the column could be added to a table that already had rows.
+    // Every value is now set, and the application supplies session_id explicitly on every
+    // insert, so the default is dropped: keeping it would hide a future bug where the family id
+    // was not computed, and it would leave the live schema permanently different from the
+    // entity definition.
+    await queryRunner.query(`
+      ALTER TABLE "refresh_tokens" ALTER COLUMN "session_id" DROP DEFAULT
     `);
 
     await queryRunner.query(`

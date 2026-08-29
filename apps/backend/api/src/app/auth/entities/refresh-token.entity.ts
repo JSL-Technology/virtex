@@ -22,14 +22,12 @@ export class RefreshToken {
    *   2. "Sesiones activas" in the UI can show one row per real device instead of one per
    *      rotation, and revoking one entry reliably kills that device's whole chain.
    */
-  /**
-   * A database-level default is declared so the column can be added to a table that already has
-   * rows (TypeORM `synchronize`, and any environment where the migration has not run yet)
-   * without violating NOT NULL. The application always sets this explicitly — the default is a
-   * safety net, never the normal path. Each pre-existing token becoming its own session family
-   * is the correct interpretation for historical rows.
-   */
-  @Column({ name: 'session_id', type: 'uuid', default: () => 'gen_random_uuid()' })
+  // No database default on purpose. TokenService always computes the family id before the row
+  // is written, so a default would only ever mask the bug where it forgot to — a token
+  // silently assigned to a session nothing else knows about. The transitional default that
+  // allowed the column to be added to a populated table is dropped by the same migration
+  // once the backfill completes.
+  @Column({ name: 'session_id', type: 'uuid' })
   sessionId: string;
 
   @Column({ name: 'user_id' })
@@ -51,7 +49,15 @@ export class RefreshToken {
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 
-  @Column({ name: 'replaced_by_token', nullable: true })
+  /**
+   * Id of the token that superseded this one during rotation.
+   *
+   * Typed `uuid` rather than the default varchar because it holds `RefreshToken.id`, and
+   * SessionService compares the two directly when it walks a rotation chain to find the family
+   * root. With a varchar column Postgres rejects that comparison outright
+   * ("operator does not exist: character varying = uuid"), so the chain walk could never run.
+   */
+  @Column({ name: 'replaced_by_token', type: 'uuid', nullable: true })
   replacedByToken?: string;
 
   @Column({ name: 'user_agent', nullable: true, type: 'text' })

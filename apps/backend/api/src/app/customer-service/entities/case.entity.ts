@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
-import { Customer } from '../customers/entities/customer.entity';
-import { User } from '../users/entities/user.entity/user.entity';
+import { Customer } from '../../customers/entities/customer.entity';
+import { User } from '../../users/entities/user.entity/user.entity';
 
 export enum CaseStatus {
   OPEN = 'OPEN',

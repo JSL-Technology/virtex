@@ -4,8 +4,8 @@ import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle } from 'lucide-angular';
 import { CustomerReceipt, CustomerReceiptsService } from '../../../core/services/customer-receipts';
 import { NotificationService } from '../../../core/services/notification';
-// import { CustomerReceipt, CustomerReceiptsService } from '../../../../core/services/customer-receipts';
-// import { NotificationService } from '../../../../core/services/notification';
+// import { CustomerReceipt, CustomerReceiptsService } from '../../../core/services/customer-receipts';
+// import { NotificationService } from '../../../core/services/notification';
 // import { CustomerReceiptsService, CustomerReceipt } from '../../../core/services/customer-receipts';
 // import { NotificationService } from '../../../core/services/notification';
 

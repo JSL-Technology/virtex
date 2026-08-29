@@ -1,7 +1,7 @@
 import { Controller, Post, Body, UseGuards, Get, Param, ParseUUIDPipe } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { User } from '../users/entities/user.entity/user.entity';
+import { JwtAuthGuard } from '../../auth/guards/jwt/jwt.guard';
+import { CurrentUser } from '../../auth/decorators/current-user.decorator';
+import { User } from '../../users/entities/user.entity/user.entity';
 import { QuotesService } from '../services/quotes.service';
 import { CreateQuoteDto } from '../dto/create-quote.dto';
 

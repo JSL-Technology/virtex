@@ -50,14 +50,26 @@ export class PaymentFirstSignup1749081600000 implements MigrationInterface {
       `ALTER TABLE "saas_plans" ADD COLUMN IF NOT EXISTS "trial_period_days" integer`,
     );
 
-    // Add the FK on organizations.plan_id (the column already exists). Guarded so
-    // re-running is safe and orphan plan_id values don't block the migration.
+    // Add the FK on organizations.plan_id (the column already exists). Guarded so re-running is
+    // safe and orphan plan_id values don't block the migration.
+    //
+    // The guard matches ANY foreign key on organizations.plan_id, not just one by this name.
+    // Since the baseline migration builds the schema from entity metadata, the relation's own
+    // (hash-named) constraint already exists on a fresh database; adding a second one here left
+    // two identical foreign keys, and every migration:generate then proposed dropping the
+    // hand-named duplicate.
     await queryRunner.query(`
       DO $$
       BEGIN
         IF NOT EXISTS (
-          SELECT 1 FROM information_schema.table_constraints
-          WHERE constraint_name = 'FK_organizations_plan' AND table_name = 'organizations'
+          SELECT 1
+            FROM information_schema.table_constraints tc
+            JOIN information_schema.key_column_usage kcu
+              ON kcu.constraint_name = tc.constraint_name
+             AND kcu.constraint_schema = tc.constraint_schema
+           WHERE tc.constraint_type = 'FOREIGN KEY'
+             AND tc.table_name = 'organizations'
+             AND kcu.column_name = 'plan_id'
         ) THEN
           ALTER TABLE "organizations"
             ADD CONSTRAINT "FK_organizations_plan"

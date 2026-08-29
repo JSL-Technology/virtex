@@ -17,7 +17,10 @@ export class PendingRegistration {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Index()
+  // Named explicitly so the index the entity declares and the one the migration creates are
+  // the same object. With TypeORM's generated name they were two indexes on one column, and
+  // every `migration:generate` proposed dropping the hand-named one.
+  @Index('IDX_pending_registrations_email')
   @Column()
   email: string;
 
@@ -57,7 +60,7 @@ export class PendingRegistration {
   @Column({ name: 'plan_slug' })
   planSlug: string;
 
-  @Index()
+  @Index('IDX_pending_registrations_session')
   @Column({ name: 'stripe_session_id', type: 'varchar', nullable: true })
   stripeSessionId: string | null;
 

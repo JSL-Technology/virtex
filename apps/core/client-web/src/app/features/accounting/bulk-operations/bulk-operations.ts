@@ -18,7 +18,7 @@
 import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-// import { ChartOfAccountsService, BulkOperationResult } from '../../../core/services/chart-of-accounts.service';
+// import { ChartOfAccountsService, BulkOperationResult } from '../../../core/services/chart-of-accounts';
 import { ChartOfAccountsStateService } from '../../../core/state/chart-of-accounts.state';
 import { finalize } from 'rxjs/operators';
 import { BulkOperationResult, ChartOfAccountsService } from '../../../core/services/chart-of-accounts';

@@ -2,40 +2,73 @@ name: CI
 
 on:
   push:
+    # The repository's default branch is `main`. This said `master`, so nothing ever ran on a
+    # push to the branch that actually ships.
     branches:
-      - master
+      - main
   pull_request:
 
 permissions:
   actions: read
   contents: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   main:
     runs-on: ubuntu-latest
+
+    services:
+      # The schema-drift check provisions a scratch database from the migrations and diffs it
+      # against the entity definitions. Without a real Postgres it could not run at all, which is
+      # how the repository ended up with no baseline migration in the first place.
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: virteex_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DB_HOST: localhost
+      DB_PORT: '5432'
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: virteex_ci
+      DB_SSL: 'false'
+
     steps:
       - uses: actions/checkout@v4
         with:
           filter: tree:0
           fetch-depth: 0
 
-      # This enables task distribution via Nx Cloud
-      # Run this command as early as possible, before dependencies are installed
-      # Learn more at https://nx.dev/ci/reference/nx-cloud-cli#npx-nxcloud-startcirun
-      # Uncomment this line to enable task distribution
-      # - run: npx nx start-ci-run --distribute-on="3 linux-medium-js" --stop-agents-after="build"
-
-      # Cache node_modules
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version-file: .nvmrc
           cache: 'npm'
 
+      # The Cypress binary is only needed by the e2e projects, which this workflow does not run.
+      # Downloading it on every job costs ~2 minutes and is a frequent source of flaky installs.
       - run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
 
-      # Prepend any command with "nx-cloud record --" to record its logs to Nx Cloud
-      # - run: npx nx-cloud record -- echo Hello World
       - run: npx nx run-many -t lint test build typecheck
-      # Nx Cloud recommends fixes for failures to help you get CI green faster. Learn more: https://nx.dev/ci/features/self-healing-ci
+
+      # Proves the migrations and the entities describe the same schema. A missing migration is
+      # invisible locally (where the schema was created by an earlier `synchronize`) and only
+      # surfaces as a broken deploy; this turns it into a failing build.
+      - run: npm run check:schema-drift
+
       - run: npx nx fix-ci
         if: always()

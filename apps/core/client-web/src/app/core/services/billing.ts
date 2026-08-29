@@ -113,16 +113,15 @@ export class BillingService {
    */
   startCheckout(planSlug: string): Observable<boolean> {
     const plan = this.plans().find(p => p.slug === planSlug || p.id === planSlug);
-    if (!plan || !plan.monthlyPriceId) {
-      console.error('Plan not found or missing Stripe price ID:', planSlug);
+    if (!plan) {
       return throwError(() => new Error('Este plan no está disponible para contratación en este momento.'));
     }
 
-
+    // Only the plan travels. The Stripe price and both redirect URLs are resolved server-side:
+    // a client-supplied return URL made this an open redirect issued from Stripe's own origin,
+    // and a client-supplied price let a caller subscribe to any price on the account.
     return this.http.post<{ sessionId: string; url: string }>(`${this.apiUrl}/payment/checkout-session`, {
-      priceId: plan.monthlyPriceId,
-      successUrl: `${window.location.origin}/settings/billing?session_id={CHECKOUT_SESSION_ID}`,
-      cancelUrl: `${window.location.origin}/settings/billing`,
+      planSlug: plan.slug,
     }).pipe(
       map(res => {
         if (res.url) {
@@ -144,9 +143,8 @@ export class BillingService {
    * update their payment method or cancel — all handled securely by Stripe.
    */
   openBillingPortal(): Observable<boolean> {
-    return this.http.post<{ url: string }>(`${this.apiUrl}/payment/portal-session`, {
-      returnUrl: `${window.location.origin}/settings/billing`,
-    }).pipe(
+    // No body: the return URL is built server-side from FRONTEND_URL.
+    return this.http.post<{ url: string }>(`${this.apiUrl}/payment/portal-session`, {}).pipe(
       map(res => {
         if (res.url) {
           window.location.href = res.url;

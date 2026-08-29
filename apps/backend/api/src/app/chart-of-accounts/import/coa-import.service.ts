@@ -9,8 +9,8 @@ import {
 } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
-import { EventsGateway } from '../websockets/events.gateway';
-import { FileParserService } from '../journal-entries/parsers/file-parser.service';
+import { EventsGateway } from '../../websockets/events.gateway';
+import { FileParserService } from '../../journal-entries/parsers/file-parser.service';
 import { ChartOfAccountsService } from '../chart-of-accounts.service';
 import { Account } from '../entities/account.entity';
 import {

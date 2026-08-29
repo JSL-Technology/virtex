@@ -2,7 +2,7 @@
 import { Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import { LocalizationService } from '../services/localization.service';
-import { Organization } from '../organizations/entities/organization.entity';
+import { Organization } from '../../organizations/entities/organization.entity';
 import { FiscalRegion } from '../entities/fiscal-region.entity';
 import { Public } from '../../auth/decorators/public.decorator';
 

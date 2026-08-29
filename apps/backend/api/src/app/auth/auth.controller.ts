@@ -911,7 +911,10 @@ export class AuthController {
       @Headers('user-agent') userAgent: string
   ) {
       // H-03 FIX: Read pendingId from httpOnly cookie — never accept tempToken from body.
-      const pendingId = (req as any).cookies?.['__Host-2fa_pending'] || (req as any).cookies?.['2fa_pending'];
+      // The cookie name is owned by CookieService: it depends on the environment and has changed
+      // once already (the `__Host-` prefix is incompatible with the path this cookie needs), so
+      // reading it by literal name here is how the two sides drift apart.
+      const pendingId = this.cookieService.read2faPendingId((req as any).cookies);
       if (!pendingId) {
           throw new UnauthorizedException('No active 2FA session — please log in again');
       }
