@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, LessThan, MoreThan } from 'typeorm';
+import { Repository, LessThan, MoreThan, In } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -29,6 +29,8 @@ import { AuthError } from '../enums/auth-error.enum';
 import { GeoService } from '../../geo/geo.service';
 import { CryptoUtil } from '../../shared/utils/crypto.util';
 import { AuthConfig } from '../auth.config';
+import { SessionRegistryService } from './session-registry.service';
+import { KeyManagementService } from './key-management.service';
 
 @Injectable()
 export class SessionService {
@@ -48,7 +50,9 @@ export class SessionService {
     private readonly tokenService: TokenService,
     private readonly eventEmitter: EventEmitter2,
     private readonly geoService: GeoService,
-    private readonly cryptoUtil: CryptoUtil
+    private readonly cryptoUtil: CryptoUtil,
+    private readonly sessionRegistry: SessionRegistryService,
+    private readonly keyManagementService: KeyManagementService
   ) {}
 
   private sanitizeUserAgent(userAgent?: string): string | null {
@@ -65,6 +69,8 @@ export class SessionService {
     try {
       const payload = this.jwtService.verify<JwtPayload & { jti?: string }>(token, {
         secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
+        issuer: 'virteex-api',
+        audience: 'virteex-web',
       });
 
       const user = await this.usersService.findUserByIdForAuth(payload.id);
@@ -76,135 +82,194 @@ export class SessionService {
         throw new UnauthorizedException(AuthError.USER_INACTIVE);
       }
 
-      if (payload.jti) {
-        // Select encryptedIp if needed for future forensic analysis, though we don't expose it
-        const refreshTokenEntity = await this.refreshTokenRepository.findOne({
-           where: { id: payload.jti },
-           select: ['id', 'isRevoked', 'revokedAt', 'replacedByToken', 'userAgent', 'ipAddress', 'userId']
+      // The refresh path must honour global invalidation exactly like the access path does.
+      // Without this check a refresh token issued before a password change or a "log out
+      // everywhere" kept minting fresh access tokens, because only the access-token validator
+      // ever compared tokenVersion.
+      const currentTokenVersion = user.security?.tokenVersion ?? 0;
+      if (currentTokenVersion !== (payload.tokenVersion ?? 0)) {
+        this.logger.warn(
+          { event: 'refresh_stale_token_version', userId: user.id },
+          '[SECURITY] Refresh token predates a global session invalidation',
+        );
+        throw new UnauthorizedException(AuthError.REFRESH_TOKEN_REVOKED);
+      }
+
+      // A refresh token without a jti cannot be tied to a session and therefore cannot be
+      // rotated or revoked. Reject rather than silently issuing an unanchored session.
+      if (!payload.jti) {
+        throw new UnauthorizedException(AuthError.REFRESH_TOKEN_INVALID);
+      }
+
+      const refreshTokenEntity = await this.refreshTokenRepository.findOne({
+        where: { id: payload.jti },
+        select: [
+          'id', 'sessionId', 'isRevoked', 'revokedAt', 'replacedByToken',
+          'userAgent', 'ipAddress', 'userId', 'expiresAt',
+        ],
+      });
+
+      if (!refreshTokenEntity) {
+        // Unknown id: never issued by us (forged) or already purged. Fail closed WITHOUT
+        // invalidating the family — we cannot attribute it to a live session.
+        this.logger.warn(
+          { event: 'refresh_unknown_jti', jtiPrefix: payload.jti.substring(0, 8) },
+          '[SECURITY] Refresh token with unknown id',
+        );
+        throw new UnauthorizedException(AuthError.REFRESH_TOKEN_INVALID);
+      }
+
+      // Defence in depth: the jti is signed, but binding it to the subject means a row/token
+      // mix-up can never authenticate the wrong account.
+      if (refreshTokenEntity.userId !== user.id) {
+        this.logger.warn(
+          { event: 'refresh_subject_mismatch', userId: user.id },
+          '[SECURITY] Refresh token does not belong to the token subject',
+        );
+        throw new UnauthorizedException(AuthError.REFRESH_TOKEN_INVALID);
+      }
+
+      if (refreshTokenEntity.expiresAt.getTime() < Date.now()) {
+        throw new UnauthorizedException(AuthError.REFRESH_TOKEN_INVALID);
+      }
+
+      // Verify the presented token against the stored hash. The hash column was previously
+      // written on every issue and never read, so it protected nothing. Comparing it means the
+      // database row is bound to the exact token string handed to the client.
+      await this.assertTokenHashMatches(payload.jti, token);
+
+      const sessionId = refreshTokenEntity.sessionId ?? refreshTokenEntity.id;
+
+      // A session revoked out-of-band (logout, "revoke device", admin action) must not be
+      // resurrectable by a refresh token that is still cryptographically valid.
+      if (await this.sessionRegistry.isRevoked(sessionId)) {
+        this.logger.warn(
+          { event: 'refresh_revoked_session', sessionPrefix: sessionId.substring(0, 8) },
+          '[SECURITY] Refresh attempted on a revoked session',
+        );
+        throw new UnauthorizedException(AuthError.REFRESH_TOKEN_REVOKED);
+      }
+
+      // L-14: atomically claim the token (flip is_revoked false→true in one UPDATE). Only one
+      // concurrent request can win, eliminating the read-then-write race that caused
+      // false-positive reuse detection when an SPA fires several refreshes at once.
+      const claim = await this.refreshTokenRepository.update(
+        { id: payload.jti, isRevoked: false },
+        { isRevoked: true, revokedAt: new Date() },
+      );
+
+      if (claim.affected === 0) {
+        // Already revoked. Distinguish a benign concurrent refresh from genuine reuse.
+        //
+        // C-3 FIX: the discriminator is `replacedByToken`, NOT elapsed time. Time alone was
+        // wrong because logout and "revoke session" also stamp revokedAt: presenting a refresh
+        // token within the 2-second grace window of a logout landed in the "benign" branch and
+        // minted a brand-new session, resurrecting the session the user had just ended.
+        //
+        // A token that was superseded by rotation has replacedByToken set; a token revoked by
+        // logout never does. Time is still required as a second condition so a genuinely
+        // replayed old token (stolen after a legitimate rotation) is still caught.
+        const fresh = await this.refreshTokenRepository.findOne({
+          where: { id: payload.jti },
+          select: ['id', 'revokedAt', 'replacedByToken'],
         });
 
-        if (!refreshTokenEntity) {
-          // Unknown token id: it was never issued by us (forged) or already purged. Fail closed
-          // WITHOUT nuking the family (we cannot attribute it to a live session).
-          this.logger.warn({ event: 'refresh_unknown_jti', jtiPrefix: payload.jti.substring(0, 8) }, '[SECURITY] Refresh token with unknown id');
-          throw new UnauthorizedException(AuthError.REFRESH_TOKEN_INVALID);
+        const wasRotated = Boolean(fresh?.replacedByToken);
+        const revokedAt = fresh?.revokedAt ?? refreshTokenEntity.revokedAt ?? null;
+        const withinGrace =
+          !!revokedAt && Date.now() - revokedAt.getTime() <= AuthConfig.REFRESH_GRACE_PERIOD;
+
+        if (!wasRotated || !withinGrace) {
+          const reason = !wasRotated ? 'revoked_not_rotated' : 'outside_grace_window';
+          this.logger.warn(
+            { event: 'refresh_reuse', reason, sessionPrefix: sessionId.substring(0, 8) },
+            '[SECURITY] Refresh token reuse detected — invalidating the whole family',
+          );
+          await this.invalidateSessionFamily(user, sessionId);
+          throw new UnauthorizedException(AuthError.REFRESH_TOKEN_REVOKED);
         }
 
-        // L-14 FIX: Atomically claim the token (flip is_revoked false→true in a single UPDATE).
-        // Only ONE concurrent request can win the claim, eliminating the read-then-write race
-        // that caused false-positive reuse detection (and global logout) when an SPA fires
-        // several refreshes at once.
-        const claim = await this.refreshTokenRepository.update(
-          { id: payload.jti, isRevoked: false },
-          { isRevoked: true, revokedAt: new Date() },
+        // Genuine concurrent rotation (RFC 9700 §4.14.2 concurrency tolerance).
+        this.logger.log(
+          { event: 'refresh_grace', sessionPrefix: sessionId.substring(0, 8) },
+          '[SECURITY] Concurrent refresh tolerated within grace period',
         );
+      } else {
+        // We claimed the token. Run device heuristics on the rotation.
+        const sanitized = this.sanitizeUserAgent(userAgent);
 
-        if (claim.affected === 0) {
-          // The token was already revoked. Distinguish a benign concurrent refresh (within the
-          // grace window) from genuine token reuse.
-          const revokedAt = refreshTokenEntity.revokedAt
-            ?? (await this.refreshTokenRepository.findOne({ where: { id: payload.jti }, select: ['revokedAt'] }))?.revokedAt
-            ?? null;
-          const graceMs = AuthConfig.REFRESH_GRACE_PERIOD;
-          const withinGrace = !!revokedAt && (Date.now() - revokedAt.getTime() <= graceMs);
+        if (refreshTokenEntity.userAgent && sanitized && refreshTokenEntity.userAgent !== sanitized) {
+          const storedUA = this.securityAnalysisService.parseUserAgent(refreshTokenEntity.userAgent);
+          const currentUA = this.securityAnalysisService.parseUserAgent(sanitized);
 
-          if (!withinGrace) {
-            this.logger.warn({ event: 'refresh_reuse', jtiPrefix: payload.jti.substring(0, 8) }, '[SECURITY] Refresh token reuse detected — family invalidated');
-
-            if (user.security) {
-                user.security.tokenVersion = (user.security.tokenVersion || 0) + 1;
-                await this.userSecurityRepository.save(user.security);
-            }
-
-            await this.userCacheService.clearUserSession(user.id);
-            await this.refreshTokenRepository.update(
-                { userId: user.id, isRevoked: false },
-                { isRevoked: true, revokedAt: new Date() }
+          if (storedUA.browser !== currentUA.browser || storedUA.os !== currentUA.os) {
+            // H14: log the browser/OS summary only, never the full UA string.
+            this.logger.warn(
+              { event: 'ua_mismatch', stored: storedUA.browser, current: currentUA.browser },
+              '[SECURITY] User agent mismatch on refresh',
             );
-
-            throw new UnauthorizedException(AuthError.REFRESH_TOKEN_REVOKED);
+            // The token was already consumed by the claim above; revoke the family so a stolen
+            // token replayed from another device cannot continue the session.
+            await this.invalidateSessionFamily(user, sessionId);
+            throw new UnauthorizedException(AuthError.DEVICE_MISMATCH);
           }
+          this.logger.log(
+            { event: 'ua_minor_change', browser: storedUA.browser },
+            '[SECURITY] Minor user agent change (likely a browser update)',
+          );
+        }
 
-          // Concurrent legitimate refresh within grace period — tolerate and mint fresh tokens
-          // without invalidating the family (RFC 9700 §4.14.2 concurrency tolerance).
-          this.logger.log({ event: 'refresh_grace', jtiPrefix: payload.jti.substring(0, 8) }, '[SECURITY] Concurrent refresh tolerated within grace period');
-        } else {
-          // We successfully claimed the token. Run device/IP heuristics on the rotation.
-          const sanitizedUserAgent = this.sanitizeUserAgent(userAgent);
-
-          if (
-            refreshTokenEntity.userAgent &&
-            sanitizedUserAgent &&
-            refreshTokenEntity.userAgent !== sanitizedUserAgent
-          ) {
-            const storedUA = this.securityAnalysisService.parseUserAgent(
-              refreshTokenEntity.userAgent
-            );
-            const currentUA = this.securityAnalysisService.parseUserAgent(sanitizedUserAgent);
-
-            const isBrowserMatch = storedUA.browser === currentUA.browser;
-            const isOSMatch = storedUA.os === currentUA.os;
-
-            if (!isBrowserMatch || !isOSMatch) {
-              // H14 FIX: Log browser/OS summary only; never log full UA strings.
-              this.logger.warn({ event: 'ua_mismatch', stored: storedUA.browser, current: currentUA.browser }, '[SECURITY] User Agent mismatch detected');
-              throw new UnauthorizedException(
-                AuthError.DEVICE_MISMATCH
-              );
-            } else {
-              this.logger.log({ event: 'ua_minor_change', browser: storedUA.browser }, '[SECURITY] Minor User Agent change detected (likely update)');
-            }
-          }
-
-          // H9: ipAddress column now stores masked IP; compare masked values.
-          if (
-            refreshTokenEntity.ipAddress &&
-            ipAddress &&
-            refreshTokenEntity.ipAddress !== this.maskIp(ipAddress)
-          ) {
-            this.logger.log({ event: 'ip_change', from: refreshTokenEntity.ipAddress, to: this.maskIp(ipAddress) }, '[SECURITY] IP Change for Refresh');
-          }
+        if (refreshTokenEntity.ipAddress && ipAddress && refreshTokenEntity.ipAddress !== this.maskIp(ipAddress)) {
+          this.logger.log(
+            { event: 'ip_change', from: refreshTokenEntity.ipAddress, to: this.maskIp(ipAddress) },
+            '[SECURITY] IP change on refresh',
+          );
         }
       }
 
       const sanitizedUserAgent = this.sanitizeUserAgent(userAgent);
-      const authResponse = await this.tokenService.generateAuthResponse(user, {}, ipAddress, sanitizedUserAgent);
-
-      // Parse UA for detailed storage
       const parsedUA = this.securityAnalysisService.parseUserAgent(sanitizedUserAgent || '');
 
-      // Update new refresh token with extended info
+      // Continue the SAME session family so the access token's sessionId claim — and therefore
+      // the entry the user sees under "Sesiones activas" — stays stable across rotations.
+      const authResponse = await this.tokenService.generateAuthResponse(
+        user,
+        {},
+        ipAddress,
+        sanitizedUserAgent ?? undefined,
+        false,
+        { sessionId },
+      );
+
       const updateData: Partial<RefreshToken> = {
-          lastActiveAt: new Date(),
-          browser: parsedUA.browser,
-          os: parsedUA.os,
-          deviceType: parsedUA.deviceType,
+        lastActiveAt: new Date(),
+        browser: parsedUA.browser,
+        os: parsedUA.os,
+        deviceType: parsedUA.deviceType,
       };
 
       if (ipAddress) {
-          // H9: Store masked IP for display, encrypted IP for forensics.
-          updateData.ipAddress = this.maskIp(ipAddress);
-          updateData.encryptedIp = this.encryptIp(ipAddress);
+        // H9: masked IP for display, encrypted IP for forensics.
+        updateData.ipAddress = this.maskIp(ipAddress);
+        updateData.encryptedIp = this.encryptIp(ipAddress);
 
-          const location = this.geoService.getLocation(ipAddress);
-          if (location) {
-             updateData.country = location.country;
-             updateData.city = location.city;
-             updateData.region = location.region;
-             updateData.latitude = location.ll ? location.ll[0] : null;
-             updateData.longitude = location.ll ? location.ll[1] : null;
-          }
+        const location = this.geoService.getLocation(ipAddress);
+        if (location) {
+          updateData.country = location.country;
+          updateData.city = location.city;
+          updateData.region = location.region;
+          updateData.latitude = location.ll ? location.ll[0] : null;
+          updateData.longitude = location.ll ? location.ll[1] : null;
+        }
       }
 
-      this.refreshTokenRepository.update(authResponse.refreshTokenId, updateData).catch(e =>
-          this.logger.error(`Failed to update refresh token metadata: ${e.message}`)
-      );
+      // Awaited: this was previously fire-and-forget, so a failure left the new session row
+      // without device/geo metadata and the "Sesiones activas" list showed a blank device.
+      await this.refreshTokenRepository.update(authResponse.refreshTokenId, updateData);
 
-      if (payload.jti) {
-        await this.refreshTokenRepository.update(payload.jti, {
-          replacedByToken: authResponse.refreshTokenId,
-        });
-      }
+      await this.refreshTokenRepository.update(payload.jti, {
+        replacedByToken: authResponse.refreshTokenId,
+      });
 
       // H9 FIX: Emit audit event with hashed email and masked IP — no PII in plaintext logs.
       this.eventEmitter.emit(
@@ -236,103 +301,262 @@ export class SessionService {
     }
   }
 
-  async getUserSessions(userId: string, currentRefreshTokenId?: string) {
-    const sessions = await this.refreshTokenRepository.find({
-      where: {
-        userId,
-        isRevoked: false,
-        expiresAt: MoreThan(new Date()),
-      },
+  /**
+   * Confirm the presented refresh token matches the hash recorded when it was issued.
+   * `tokenHash` is `select: false`, so it is fetched explicitly.
+   */
+  private async assertTokenHashMatches(tokenId: string, presentedToken: string): Promise<void> {
+    const row = await this.refreshTokenRepository
+      .createQueryBuilder('rt')
+      .select('rt.tokenHash', 'tokenHash')
+      .where('rt.id = :id', { id: tokenId })
+      .getRawOne<{ tokenHash: string | null }>();
+
+    // Rows issued before hashing existed have no hash; accept them rather than logging out
+    // every user at deploy time. Every token issued from now on carries one.
+    if (!row?.tokenHash) return;
+
+    const presentedHash = crypto.createHash('sha256').update(presentedToken).digest('hex');
+    const a = Buffer.from(presentedHash, 'hex');
+    const b = Buffer.from(row.tokenHash, 'hex');
+
+    if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
+      this.logger.warn(
+        { event: 'refresh_hash_mismatch', jtiPrefix: tokenId.substring(0, 8) },
+        '[SECURITY] Refresh token does not match its stored hash',
+      );
+      throw new UnauthorizedException(AuthError.REFRESH_TOKEN_INVALID);
+    }
+  }
+
+  /**
+   * Kill an entire refresh-token family: every row that shares the session id, plus the
+   * denylist entry that stops already-issued access tokens.
+   */
+  private async invalidateSessionFamily(user: User, sessionId: string): Promise<void> {
+    await this.refreshTokenRepository.update(
+      { sessionId, isRevoked: false },
+      { isRevoked: true, revokedAt: new Date() },
+    );
+    await this.sessionRegistry.revoke(sessionId);
+    await this.userCacheService.clearUserSession(user.id);
+  }
+
+  /**
+   * List a user's live sessions, one entry per device rather than one per rotation.
+   *
+   * Rows are grouped by `sessionId` (the family), because a long-lived session produces a new
+   * refresh-token row on every rotation. Grouping keeps the list stable and makes `isCurrent`
+   * meaningful — it is matched against the caller's session claim, which no longer changes when
+   * the token rotates.
+   */
+  async getUserSessions(userId: string, currentSessionId?: string) {
+    const rows = await this.refreshTokenRepository.find({
+      where: { userId, isRevoked: false, expiresAt: MoreThan(new Date()) },
       order: { lastActiveAt: 'DESC', createdAt: 'DESC' },
     });
 
-    // H9 FIX: Return masked IP only; never expose plain IP to the client.
-    return sessions.map((session) => ({
-      id: session.id,
-      ipAddress: session.ipAddress ? this.maskIp(session.ipAddress) : null,
-      browser: session.browser,
-      os: session.os,
-      deviceType: session.deviceType,
-      lastActiveAt: session.lastActiveAt || session.createdAt,
-      createdAt: session.createdAt,
-      expiresAt: session.expiresAt,
-      isCurrent: currentRefreshTokenId ? session.id === currentRefreshTokenId : false,
-      country: session.country,
-      city: session.city,
-    }));
+    const latestPerFamily = new Map<string, RefreshToken>();
+    for (const row of rows) {
+      const family = row.sessionId ?? row.id;
+      const seen = latestPerFamily.get(family);
+      const rowActivity = (row.lastActiveAt ?? row.createdAt).getTime();
+      if (!seen || rowActivity > (seen.lastActiveAt ?? seen.createdAt).getTime()) {
+        latestPerFamily.set(family, row);
+      }
+    }
+
+    // H9: the stored ipAddress is already masked at write time; never expose a full IP.
+    return [...latestPerFamily.entries()]
+      .map(([family, session]) => ({
+        id: family,
+        ipAddress: session.ipAddress ?? null,
+        browser: session.browser,
+        os: session.os,
+        deviceType: session.deviceType,
+        lastActiveAt: session.lastActiveAt || session.createdAt,
+        createdAt: session.createdAt,
+        expiresAt: session.expiresAt,
+        isCurrent: currentSessionId ? family === currentSessionId : false,
+        country: session.country,
+        city: session.city,
+      }))
+      .sort((a, b) => b.lastActiveAt.getTime() - a.lastActiveAt.getTime());
   }
 
+  /**
+   * Revoke one session (the "cerrar sesión en este dispositivo" action).
+   *
+   * C-2: revoking must reach the access token too. Flagging the refresh row alone left the
+   * corresponding access token valid for up to its full lifetime, so the button appeared to work
+   * while the device kept making authenticated calls. Adding the family to the denylist makes
+   * the next request from that device fail.
+   */
   async revokeSession(userId: string, sessionId: string) {
-    const session = await this.refreshTokenRepository.findOne({
-      where: { id: sessionId, userId },
-    });
+    const result = await this.refreshTokenRepository.update(
+      { sessionId, userId, isRevoked: false },
+      { isRevoked: true, revokedAt: new Date() },
+    );
 
-    if (!session) {
+    if (!result.affected) {
+      // Either it does not exist, belongs to someone else, or is already revoked. The message is
+      // deliberately identical in all three cases so it cannot be used to probe other users' ids.
       throw new NotFoundException('Sesión no encontrada o no pertenece al usuario.');
     }
 
-    session.isRevoked = true;
-    session.revokedAt = new Date();
-    await this.refreshTokenRepository.save(session);
+    await this.sessionRegistry.revoke(sessionId);
+    await this.userCacheService.clearUserSession(userId);
 
     return { message: 'Sesión revocada exitosamente.' };
   }
 
-  async terminateOtherSessions(userId: string, currentSessionId: string) {
-    // Revoke all tokens for user except current (if provided)
-    // For password change we usually want to revoke ALL including current if we want them to re-login,
-    // or keep current. The requirement is usually to invalidate OTHERS.
-    // However, for password change, 'tokenVersion' increment in AuthService handles everything anyway.
-    // So this method is actually redundant if we use tokenVersion.
-    // BUT, if we want to mark them as revoked in DB for audit:
-    await this.refreshTokenRepository.update(
-        { userId, isRevoked: false },
-        { isRevoked: true, revokedAt: new Date() }
-    );
-  }
+  /** Revoke every session except the caller's own — "cerrar las demás sesiones". */
+  async terminateOtherSessions(userId: string, currentSessionId: string): Promise<void> {
+    const families = await this.refreshTokenRepository.find({
+      where: { userId, isRevoked: false },
+      select: ['id', 'sessionId'],
+    });
 
-  // H4 FIX: sessionId is required; without it, the refresh token is not revoked on logout.
-  async terminateCurrentSession(userId: string, sessionId: string): Promise<void> {
+    const toRevoke = [
+      ...new Set(
+        families
+          .map((row) => row.sessionId ?? row.id)
+          .filter((family) => family !== currentSessionId),
+      ),
+    ];
+
+    if (!toRevoke.length) return;
+
     await this.refreshTokenRepository.update(
-      { id: sessionId, userId },
+      { sessionId: In(toRevoke), isRevoked: false },
       { isRevoked: true, revokedAt: new Date() },
     );
+    await this.sessionRegistry.revokeMany(toRevoke);
     await this.userCacheService.clearUserSession(userId);
   }
 
-  async terminateAllSessions(userId: string): Promise<void> {
-    await this.userSecurityRepository.increment({ userId }, 'tokenVersion', 1);
+  /**
+   * End the caller's own session (logout).
+   *
+   * C-2: the denylist entry is what actually stops the access token. Without it, logout only
+   * cleared cookies — a token already captured by an attacker stayed valid until expiry.
+   */
+  async terminateCurrentSession(userId: string, sessionId?: string): Promise<void> {
+    if (!sessionId) {
+      // No session anchor (token predates the claim): fall back to a full logout rather than
+      // silently ending nothing.
+      await this.terminateAllSessions(userId);
+      return;
+    }
+
+    await this.refreshTokenRepository.update(
+      { sessionId, userId },
+      { isRevoked: true, revokedAt: new Date() },
+    );
+    await this.sessionRegistry.revoke(sessionId);
     await this.userCacheService.clearUserSession(userId);
+  }
+
+  /**
+   * Global logout: bump tokenVersion (invalidates every access token at once), revoke every
+   * refresh row, and denylist each family so nothing survives on a stale cache read.
+   */
+  async terminateAllSessions(userId: string): Promise<void> {
+    const rows = await this.refreshTokenRepository.find({
+      where: { userId, isRevoked: false },
+      select: ['id', 'sessionId'],
+    });
+    const families = [...new Set(rows.map((row) => row.sessionId ?? row.id))];
+
+    await this.userSecurityRepository.increment({ userId }, 'tokenVersion', 1);
     await this.refreshTokenRepository.update(
       { userId, isRevoked: false },
       { isRevoked: true, revokedAt: new Date() },
     );
+    await this.sessionRegistry.revokeMany(families);
+    await this.userCacheService.clearUserSession(userId);
   }
 
+  /**
+   * Validate an access token outside the HTTP pipeline (WebSocket handshake).
+   *
+   * This previously verified with `JWT_SECRET` using the default HS256, but access tokens have
+   * been RS256-signed with a rotating `kid` since the key-management change — so it rejected
+   * every token it was given and always returned null. It now goes through the same key ring and
+   * the same session/status checks as the HTTP path.
+   */
   async verifyUserFromToken(token: string): Promise<User | null> {
     try {
-      const payload = this.jwtService.verify(token, {
-        secret: this.configService.getOrThrow('JWT_SECRET'),
+      const header = JSON.parse(
+        Buffer.from(token.split('.')[0], 'base64url').toString('utf8'),
+      ) as { kid?: string };
+
+      const publicKey = this.keyManagementService.getPublicKey(header?.kid);
+      if (!publicKey) return null;
+
+      const payload = this.jwtService.verify<JwtPayload>(token, {
+        publicKey,
+        algorithms: ['RS256'],
+        issuer: 'virteex-api',
+        audience: 'virteex-web',
       });
+
+      if (await this.sessionRegistry.isRevoked(payload.sessionId)) {
+        return null;
+      }
 
       const user = await this.usersService.findUserByIdForAuth(payload.id);
 
       if (
         !user ||
         user.status !== UserStatus.ACTIVE ||
-        (user.security?.tokenVersion || 0) !== payload.tokenVersion
+        (user.security?.tokenVersion || 0) !== (payload.tokenVersion ?? 0)
       ) {
         return null;
       }
 
       return user;
-    } catch (e) {
+    } catch {
       return null;
     }
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async handleTokenCleanup() {
+    // Every instance runs its own scheduler, so without coordination each replica would execute
+    // the same batched DELETE sweep simultaneously — multiplying database load and contending on
+    // the same rows. A PostgreSQL advisory lock is held for the duration of the job; whichever
+    // instance acquires it does the work and the rest return immediately.
+    // The lock is session-scoped and released explicitly (and implicitly if the process dies),
+    // so a crash mid-sweep cannot wedge the job permanently.
+    const LOCK_KEY = 4_812_552_001; // arbitrary but stable application-wide identifier
+    const runner = this.refreshTokenRepository.manager.connection.createQueryRunner();
+    await runner.connect();
+
+    try {
+      const [{ locked }] = await runner.query(
+        'SELECT pg_try_advisory_lock($1) AS locked',
+        [LOCK_KEY],
+      );
+
+      if (!locked) {
+        this.logger.debug('Token cleanup already running on another instance — skipping.');
+        return;
+      }
+
+      try {
+        await this.runTokenCleanup();
+      } finally {
+        await runner.query('SELECT pg_advisory_unlock($1)', [LOCK_KEY]);
+      }
+    } catch (error) {
+      this.logger.error(`Token cleanup failed: ${(error as Error).message}`);
+    } finally {
+      await runner.release();
+    }
+  }
+
+  private async runTokenCleanup() {
     this.logger.log('Starting expired refresh token cleanup...');
     const retentionPeriod = 30; // days
 

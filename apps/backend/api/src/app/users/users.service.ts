@@ -1,5 +1,5 @@
 
-import { Injectable, Inject, NotFoundException, BadRequestException, ForbiddenException, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Inject, forwardRef, NotFoundException, BadRequestException, ForbiddenException, Logger, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { User } from './entities/user.entity/user.entity';
@@ -19,6 +19,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SaasService } from '../saas/saas.service';
 import { SaasResource } from '../saas/enums/saas-resource.enum';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { hasPermission } from '@virteex/shared/util-auth';
+import { SessionService } from '../auth/services/session.service';
 
 @Injectable()
 export class UsersService {
@@ -35,19 +37,51 @@ export class UsersService {
     private readonly passwordService: PasswordService,
     private readonly eventEmitter: EventEmitter2,
     private readonly saasService: SaasService,
-    private readonly dataSource: DataSource
+    private readonly dataSource: DataSource,
+    @Inject(forwardRef(() => SessionService))
+    private readonly sessionService: SessionService
   ) {}
+
+  /**
+   * Fields a user may change about themselves through the profile screen.
+   *
+   * This is an explicit allow-list rather than `Object.assign(user, dto)`. The previous version
+   * copied whatever the DTO carried and relied entirely on the global ValidationPipe
+   * (`whitelist: true`) to strip anything dangerous — a single point of failure sitting outside
+   * this service. Any caller that reached it without the pipe (an internal call, a controller
+   * registered without the global pipe, a future refactor) could rewrite `email`, `status`,
+   * `organizationId` or `roles` through what looks like a harmless profile update.
+   *
+   * Email is deliberately absent: changing it is a two-step, token-confirmed operation
+   * (requestEmailChange + confirmEmailChange), because a silent change would let a hijacked
+   * session redirect account recovery and lock out the real owner.
+   */
+  private static readonly SELF_EDITABLE_PROFILE_FIELDS = [
+    'firstName',
+    'lastName',
+    'phone',
+    'jobTitle',
+    'department',
+    'avatarUrl',
+    'preferredLanguage',
+  ] as const;
 
   async updateProfile(id: string, updateProfileDto: UpdateProfileDto): Promise<User> {
     const user = await this.findOne(id);
 
-    // H-01 FIX: email is no longer part of UpdateProfileDto — the ValidationPipe
-    // (whitelist:true) strips it. Phone changes still reset the verified flag.
-    if (updateProfileDto.phone && updateProfileDto.phone !== user.phone) {
+    // A new phone number is unverified until proven, otherwise SMS-based recovery could be
+    // pointed at an attacker-controlled number without any challenge.
+    if (updateProfileDto.phone !== undefined && updateProfileDto.phone !== user.phone) {
       user.isPhoneVerified = false;
     }
 
-    Object.assign(user, updateProfileDto);
+    for (const field of UsersService.SELF_EDITABLE_PROFILE_FIELDS) {
+      const value = (updateProfileDto as Record<string, unknown>)[field];
+      if (value !== undefined) {
+        (user as unknown as Record<string, unknown>)[field] = value;
+      }
+    }
+
     await this.userCacheService.clearUserSession(id);
     return this.userRepository.save(user);
   }
@@ -124,7 +158,7 @@ export class UsersService {
   ): Promise<User> {
     const user = await this.userRepository.findOne({
         where: { id, organizationId },
-        relations: ['security']
+        relations: ['security', 'roles']
     });
     if (!user) {
       throw new NotFoundException(
@@ -145,6 +179,14 @@ export class UsersService {
       // a non-admin holding only `users:edit` could assign the ADMINISTRATOR role ('*') to
       // any user (including themselves) — a vertical privilege escalation.
       this.rolesService.assertCanAssignRole(actor, role);
+
+      // Changing the role can strip administrative standing; make sure someone is left holding it.
+      const wasAdministrator = UsersService.isAdministrator(user);
+      const willBeAdministrator = UsersService.isAdministrator({ roles: [role] });
+      if (wasAdministrator && !willBeAdministrator) {
+        await this.assertOrganizationRetainsAdministrator(organizationId, id);
+      }
+
       user.roles = [role];
       // Increment token version to invalidate sessions on role change
       if (user.security) {
@@ -158,7 +200,51 @@ export class UsersService {
     return this.userRepository.save(user);
   }
 
-  async remove(id: string, organizationId: string): Promise<void> {
+  /**
+   * Permissions that together constitute administrative control of an organization: the ability
+   * to manage members and to rewrite the authorization graph.
+   */
+  private static readonly ADMIN_CAPABILITIES = ['users:edit', 'roles:edit'];
+
+  private static isAdministrator(user: Pick<User, 'roles'>): boolean {
+    const permissions = [...new Set((user.roles ?? []).flatMap((role) => role.permissions ?? []))];
+    return UsersService.ADMIN_CAPABILITIES.every((capability) =>
+      hasPermission(permissions, [capability]),
+    );
+  }
+
+  /**
+   * Refuse any change that would leave an organization with no administrator.
+   *
+   * Nothing prevented this before: the last administrator could be deleted, blocked, or demoted
+   * to a role without `roles:edit`, at which point *no one* could create roles, invite members,
+   * or restore access — the tenant is bricked and only a manual database edit recovers it.
+   * Deleting your own account or blocking yourself achieved the same thing in one click.
+   *
+   * @param excludeUserId the user about to lose administrative standing
+   */
+  private async assertOrganizationRetainsAdministrator(
+    organizationId: string,
+    excludeUserId: string,
+  ): Promise<void> {
+    const candidates = await this.userRepository.find({
+      where: { organizationId, status: UserStatus.ACTIVE },
+      relations: ['roles'],
+    });
+
+    const remainingAdmins = candidates.filter(
+      (candidate) => candidate.id !== excludeUserId && UsersService.isAdministrator(candidate),
+    );
+
+    if (remainingAdmins.length === 0) {
+      throw new ForbiddenException(
+        'Esta acción dejaría a la organización sin ningún administrador activo. ' +
+          'Asigna el rol de administrador a otro usuario antes de continuar.',
+      );
+    }
+  }
+
+  async remove(id: string, organizationId: string, actorId?: string): Promise<void> {
     const user = await this.userRepository.findOne({
       where: { id, organizationId },
       relations: ['roles'],
@@ -170,6 +256,12 @@ export class UsersService {
       );
     }
 
+    if (actorId && actorId === id) {
+      throw new ForbiddenException(
+        'No puedes eliminar tu propia cuenta desde la administración de usuarios.',
+      );
+    }
+
     const isSystemUser = user.roles.some((role) => role.isSystemRole);
     if (isSystemUser) {
       throw new ForbiddenException(
@@ -177,18 +269,34 @@ export class UsersService {
       );
     }
 
+    if (UsersService.isAdministrator(user)) {
+      await this.assertOrganizationRetainsAdministrator(organizationId, id);
+    }
+
     await this.userCacheService.clearUserSession(id);
+    // Sessions must die with the account, otherwise an already-issued access token keeps working
+    // for its remaining lifetime against a user row that no longer exists.
+    await this.sessionService.terminateAllSessions(id);
     await this.userRepository.remove(user);
   }
 
   async findOne(id: string): Promise<User> {
+    // Roles and organization are loaded because UserResponseDto exposes them; without the
+    // relations they serialise as an empty array / null and the profile screen renders blank.
     const user = await this.userRepository.findOne({
-      where: { id: id as any },
+      where: { id },
+      relations: ['roles'],
     });
 
     if (!user) {
       throw new NotFoundException(`Usuario con id ${id} no encontrado`);
     }
+
+    if (user.organizationId) {
+      user.organization = (await this.orgRepository.findOneBy({ id: user.organizationId })) ?? undefined;
+    }
+    user.permissions = [...new Set((user.roles ?? []).flatMap((role) => role.permissions ?? []))];
+
     return user;
   }
 
@@ -216,14 +324,25 @@ export class UsersService {
     id: string,
     status: UserStatus,
     organizationId: string,
+    actorId?: string,
   ): Promise<User> {
     const user = await this.userRepository.findOne({
         where: { id, organizationId },
-        relations: ['security']
+        relations: ['security', 'roles']
     });
     if (!user) {
       throw new NotFoundException(`Usuario no encontrado`);
     }
+
+    if (actorId && actorId === id && status !== UserStatus.ACTIVE) {
+      throw new ForbiddenException('No puedes desactivar o bloquear tu propia cuenta.');
+    }
+
+    // Losing ACTIVE means losing administrative standing.
+    if (status !== UserStatus.ACTIVE && UsersService.isAdministrator(user)) {
+      await this.assertOrganizationRetainsAdministrator(organizationId, id);
+    }
+
     user.status = status;
     // Invalidate sessions on status change (e.g., blocking)
     if (user.security) {

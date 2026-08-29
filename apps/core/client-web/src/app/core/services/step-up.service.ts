@@ -15,6 +15,8 @@ export enum StepUpScope {
   DELETE_ACCOUNT = 'delete_account',
   MANAGE_PAYMENT = 'manage_payment',
   REVOKE_SESSION = 'revoke_session',
+  IMPERSONATE = 'impersonate',
+  MANAGE_ROLES = 'manage_roles',
 }
 
 @Injectable({
@@ -25,16 +27,21 @@ export class StepUpService {
   private apiUrl = `${environment.apiUrl}/auth`;
 
   /**
-   * requireStepUp handles the entire flow:
-   * 1. Opens the password confirmation modal.
-   * 2. Calls /auth/verify-password.
-   * 3. On success, executes the provided action with the step-up token.
-   * 4. Closes the modal.
+   * Drives the whole step-up flow:
+   *   1. opens the password confirmation modal;
+   *   2. POSTs /auth/verify-password;
+   *   3. on success runs the sensitive action;
+   *   4. closes the modal.
+   *
+   * `action` no longer receives a token. The backend now delivers the step-up proof as an
+   * httpOnly cookie instead of returning it in the response body, so the browser attaches it
+   * automatically and the value never enters JavaScript — where an XSS could have lifted a
+   * credential capable of disabling 2FA, impersonating users or deleting the account.
    */
   requireStepUp<T>(
     scope: StepUpScope,
     viewContainerRef: ViewContainerRef,
-    action: (token: string) => Observable<T>
+    action: () => Observable<T>
   ): Observable<T> {
     const resultSubject = new Subject<T>();
 
@@ -45,14 +52,14 @@ export class StepUpService {
       instance.isLoading = true;
       instance.error = null;
 
-      this.http.post<{ stepUpToken: string }>(`${this.apiUrl}/verify-password`, {
+      this.http.post<{ success: boolean }>(`${this.apiUrl}/verify-password`, {
         password,
         scope
       }, { withCredentials: true }).subscribe({
-        next: (res) => {
+        next: () => {
           instance.isLoading = false;
-          // Execute the sensitive action with the token
-          action(res.stepUpToken).subscribe({
+          // The step-up cookie is set; the browser attaches it to the next request.
+          action().subscribe({
             next: (actionResult) => {
               resultSubject.next(actionResult);
               resultSubject.complete();

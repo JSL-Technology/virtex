@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { Role } from './entities/role.entity';
@@ -30,19 +30,51 @@ export class RolesService {
         return role;
     }
 
-    // H8 FIX: Assert that the actor can only assign permissions they already hold (no privilege escalation).
+    /**
+     * H8: an actor may only put permissions into a role that they already hold themselves.
+     *
+     * Matching goes through the shared `hasPermission` util so prefix wildcards are honoured.
+     * It previously used a bare `actorPermissions.includes(p)`, which contradicted
+     * `assertCanAssignRole` right below: an actor holding `users:*` was refused when *creating*
+     * a role containing `users:create`, yet was allowed to *assign* an existing role carrying
+     * exactly that permission. Same authorisation question, two different answers.
+     */
     private assertAssignablePermissions(actor: AuthenticatedUser, permissions: string[]): void {
-        const actorPermissions = actor.permissions || [];
-        const isWildcard = actorPermissions.includes('*');
+        const actorPermissions = actor?.permissions || [];
+
+        // The global wildcard is never delegated into a role: a role carrying '*' would be a
+        // second, unaudited super-admin grant.
         if (permissions.includes('*')) {
-            throw new ForbiddenException('Wildcard permission (*) cannot be delegated to roles.');
+            throw new ForbiddenException('El permiso total (*) no puede delegarse a un rol.');
         }
-        if (!isWildcard) {
-            for (const p of permissions) {
-                if (!actorPermissions.includes(p)) {
-                    throw new ForbiddenException(`You cannot assign permission "${p}" that you do not hold.`);
-                }
+
+        if (actorPermissions.includes('*')) return;
+
+        for (const permission of permissions) {
+            if (!hasPermission(actorPermissions, [permission])) {
+                throw new ForbiddenException(
+                    `No puedes asignar el permiso "${permission}" porque tú no lo posees.`,
+                );
             }
+        }
+    }
+
+    /**
+     * Role names must be unique per organization: the UI and the invite flow both address roles
+     * by name, and duplicates make "Administrador" ambiguous in a way that is easy to weaponise
+     * socially. Excluding `ignoreId` lets an update keep its own name.
+     */
+    private async assertNameAvailable(
+        name: string,
+        organizationId: string,
+        ignoreId?: string,
+    ): Promise<void> {
+        const existing = await this.roleRepository.findOne({
+            where: { name, organizationId },
+            select: ['id'],
+        });
+        if (existing && existing.id !== ignoreId) {
+            throw new ConflictException(`Ya existe un rol llamado "${name}" en tu organización.`);
         }
     }
 
@@ -83,10 +115,22 @@ export class RolesService {
         }
     }
 
-    create(createRoleDto: CreateRoleDto, organizationId: string, actor?: AuthenticatedUser): Promise<Role> {
-        if (actor && createRoleDto.permissions) {
-            this.assertAssignablePermissions(actor, createRoleDto.permissions);
-        }
+    /**
+     * `actor` is REQUIRED, not optional.
+     *
+     * It used to be `actor?`, and the escalation check ran only `if (actor)`. That is a
+     * fail-open design: any future caller that forgot the argument would silently skip the
+     * anti-escalation guard entirely, with nothing at the type level to catch it. Making it
+     * mandatory turns that class of mistake into a compile error.
+     */
+    async create(
+        createRoleDto: CreateRoleDto,
+        organizationId: string,
+        actor: AuthenticatedUser,
+    ): Promise<Role> {
+        this.assertAssignablePermissions(actor, createRoleDto.permissions ?? []);
+        await this.assertNameAvailable(createRoleDto.name, organizationId);
+
         const role = this.roleRepository.create({ ...createRoleDto, organizationId });
         return this.roleRepository.save(role);
     }
@@ -109,14 +153,24 @@ export class RolesService {
         return this.create(newRoleDto, organizationId, actor);
     }
 
-    async update(id: string, updateRoleDto: UpdateRoleDto, organizationId: string, actor?: AuthenticatedUser): Promise<Role> {
+    async update(id: string, updateRoleDto: UpdateRoleDto, organizationId: string, actor: AuthenticatedUser): Promise<Role> {
         const role = await this.findOne(id, organizationId);
         if (role.isSystemRole) {
             throw new ForbiddenException('Los roles del sistema no pueden ser modificados.');
         }
-        // Privilege-escalation guard: an actor may only assign permissions they themselves hold.
-        if (actor && updateRoleDto.permissions) {
+
+        // Privilege-escalation guard. `actor` is mandatory for the same fail-closed reason as in
+        // create(): an optional parameter made the whole check skippable by omission.
+        if (updateRoleDto.permissions) {
             this.assertAssignablePermissions(actor, updateRoleDto.permissions);
+            // An actor must also already hold everything the role currently grants, otherwise
+            // they could "edit" a role more powerful than themselves — narrowing it, broadening
+            // it, or simply mutating a grant they were never entitled to administer.
+            this.assertCanAssignRole(actor, role);
+        }
+
+        if (updateRoleDto.name && updateRoleDto.name !== role.name) {
+            await this.assertNameAvailable(updateRoleDto.name, organizationId, role.id);
         }
 
         return await this.roleRepository.manager.transaction(async transactionalEntityManager => {

@@ -223,7 +223,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Remove user' })
   async remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User, @Ip() ip: string) {
     try {
-      const result = await this.usersService.remove(id, user.organizationId);
+      const result = await this.usersService.remove(id, user.organizationId, user.id);
       await this.auditTrailService.record(user.id, 'User', id, ActionType.DELETE, { action: 'delete-user' }, undefined, ip, user.organizationId);
       return result;
     } catch (e) {
@@ -244,7 +244,7 @@ export class UsersController {
       if (dto.status === UserStatus.BLOCKED && id === user.id) {
           throw new BadRequestException('No puedes bloquear tu propia cuenta.');
       }
-      const updatedUser = await this.usersService.updateUserStatus(id, dto.status, user.organizationId);
+      const updatedUser = await this.usersService.updateUserStatus(id, dto.status, user.organizationId, user.id);
       return plainToInstance(UserResponseDto, updatedUser, { excludeExtraneousValues: true });
   }
 

@@ -14,12 +14,40 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 
+/**
+ * A-1 FIX: Resolve the Fastify `trustProxy` setting from the environment.
+ *
+ * Without trustProxy, `request.ip` behind a reverse proxy (Render/Cloudflare/nginx) is the
+ * proxy's address for EVERY request. That silently defeats: ThrottlerGuard (one shared bucket
+ * for the whole platform => self-DoS and zero brute-force protection), lockout attribution,
+ * impossible-travel detection, geo-location, per-session IP display, and the IP binding of the
+ * pending-2FA session.
+ *
+ * Accepted values, mirroring Fastify's own contract:
+ *   - unset  => `1` in production (trust exactly one proxy hop), `false` in dev (direct socket).
+ *   - "true" => trust every hop. ONLY safe when the app is unreachable except through the proxy;
+ *               otherwise a client can spoof its IP by injecting X-Forwarded-For entries.
+ *   - "2"    => trust N hops (use when chaining CDN + LB).
+ *   - CIDR/IP list ("10.0.0.0/8,192.168.1.1") => trust only these proxies. Most precise option.
+ */
+export function parseTrustProxy(raw?: string): boolean | number | string[] {
+  const value = raw?.trim();
+  if (!value) {
+    return process.env['NODE_ENV'] === 'production' ? 1 : false;
+  }
+  if (value.toLowerCase() === 'true') return true;
+  if (value.toLowerCase() === 'false') return false;
+  if (/^\d+$/.test(value)) return Number(value);
+  return value.split(',').map((entry) => entry.trim()).filter(Boolean);
+}
+
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({
       logger: false, // controlled by pino
       bodyLimit: 10 * 1024 * 1024, // 10MB
+      trustProxy: parseTrustProxy(process.env['TRUST_PROXY']),
     }),
     {
       rawBody: true,

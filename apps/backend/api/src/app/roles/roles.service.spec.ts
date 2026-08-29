@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ForbiddenException } from '@nestjs/common';
+import { ForbiddenException, ConflictException } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { RolesService } from './roles.service';
 import { Role } from './entities/role.entity';
@@ -104,18 +104,18 @@ describe('RolesService — authorization', () => {
   });
 
   describe('create (assertAssignablePermissions)', () => {
-    // The escalation guard runs synchronously before create() returns its save() promise,
-    // so these throw synchronously rather than rejecting.
-    it('refuses to delegate the wildcard (*) permission to a new role', () => {
-      expect(() =>
+    // create() is async (it awaits the per-organization name-uniqueness check), so the guard
+    // surfaces as a rejection rather than a synchronous throw.
+    it('refuses to delegate the wildcard (*) permission to a new role', async () => {
+      await expect(
         service.create({ name: 'X', permissions: ['*'] } as any, 'org-1', actor(['*'])),
-      ).toThrow(ForbiddenException);
+      ).rejects.toThrow(ForbiddenException);
     });
 
-    it('refuses to grant a permission the creator does not hold', () => {
-      expect(() =>
+    it('refuses to grant a permission the creator does not hold', async () => {
+      await expect(
         service.create({ name: 'X', permissions: ['users:delete'] } as any, 'org-1', actor(['users:view'])),
-      ).toThrow(ForbiddenException);
+      ).rejects.toThrow(ForbiddenException);
     });
 
     it('creates the role when the creator holds every requested permission', async () => {
@@ -123,6 +123,23 @@ describe('RolesService — authorization', () => {
         service.create({ name: 'X', permissions: ['users:view'] } as any, 'org-1', actor(['users:view'])),
       ).resolves.toBeDefined();
       expect(roleRepositoryMock.save).toHaveBeenCalled();
+    });
+
+    it('honours prefix wildcards held by the creator', async () => {
+      // Regression guard: assertAssignablePermissions used a bare `includes()`, so an actor
+      // holding 'users:*' was refused when creating a role containing 'users:create' — while
+      // assertCanAssignRole (wildcard-aware) allowed them to ASSIGN a role carrying exactly
+      // that permission. Same question, two different answers.
+      await expect(
+        service.create({ name: 'X', permissions: ['users:create'] } as any, 'org-1', actor(['users:*'])),
+      ).resolves.toBeDefined();
+    });
+
+    it('rejects a duplicate role name within the same organization', async () => {
+      roleRepositoryMock.findOne.mockResolvedValueOnce({ id: 'existing-role' });
+      await expect(
+        service.create({ name: 'Administrador', permissions: [] } as any, 'org-1', actor(['*'])),
+      ).rejects.toThrow(ConflictException);
     });
   });
 

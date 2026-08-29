@@ -22,7 +22,18 @@ describe('UserResponseDto serialization contract', () => {
     isPhoneVerified: true,
     isTwoFactorEnabled: true,
     permissions: ['users:view'],
-    organization: { id: 'org-uuid', legalName: 'Acme', taxId: 'RNC-1' },
+    organization: {
+      id: 'org-uuid',
+      legalName: 'Acme',
+      taxId: 'RNC-1',
+      logoUrl: 'https://cdn.example/logo.png',
+      subscriptionStatus: 'active',
+      gracePeriodEnd: null,
+      // Billing identifiers must never reach the client: they are useful to an attacker
+      // enumerating billing accounts and the UI has no use for them.
+      stripeCustomerId: 'cus_123',
+      stripeSubscriptionId: 'sub_123',
+    },
 
     // --- Fields that MUST NOT survive serialization ---
     token: 'eyJhbGciOi.aaa.bbb',
@@ -92,7 +103,32 @@ describe('UserResponseDto serialization contract', () => {
   it('strips secrets from the nested organization object', () => {
     const result = serialize() as { organization: Record<string, unknown> };
     expect(Object.keys(result.organization).sort()).toEqual(
-      ['id', 'legalName', 'taxId'].sort(),
+      ['id', 'legalName', 'taxId', 'logoUrl', 'subscriptionStatus', 'gracePeriodEnd'].sort(),
     );
+  });
+
+  it('never exposes billing identifiers on the organization', () => {
+    const result = serialize() as { organization: Record<string, unknown> };
+    expect(result.organization).not.toHaveProperty('stripeCustomerId');
+    expect(result.organization).not.toHaveProperty('stripeSubscriptionId');
+  });
+
+  it('normalises roles to an array so the UI can map over it safely', () => {
+    // The members list does `user.roles.map(...)`. An undefined here is a runtime crash, not an
+    // empty state, so the DTO must always emit an array even when the relation was not loaded.
+    const result = serialize() as { roles: unknown; organizations: unknown; permissions: unknown };
+    expect(Array.isArray(result.roles)).toBe(true);
+    expect(Array.isArray(result.organizations)).toBe(true);
+    expect(Array.isArray(result.permissions)).toBe(true);
+  });
+
+  it('exposes the profile fields the UI renders', () => {
+    // These were previously absent from the DTO while the frontend declared and rendered them,
+    // so they arrived as undefined: the members list showed "Sin rol" and the profile screen
+    // could not display — or persist — the user's own phone number.
+    const result = serialize() as Record<string, unknown>;
+    for (const field of ['roles', 'avatarUrl', 'phone', 'jobTitle', 'department', 'isOnline', 'isEmailVerified']) {
+      expect(result).toHaveProperty(field);
+    }
   });
 });

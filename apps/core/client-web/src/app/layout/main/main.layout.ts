@@ -155,7 +155,9 @@ export class MainLayout implements OnInit {
 
   public companyName = computed(() => {
     return (
-      this.authService.currentUser()?.organization?.name || 'FacturaPRO'
+      // The API exposes the organization as `legalName`; `name` never existed on the payload, so
+      // this always fell through to the hardcoded fallback and no tenant ever saw its own name.
+      this.authService.currentUser()?.organization?.legalName || 'FacturaPRO'
     );
   });
 

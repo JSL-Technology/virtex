@@ -14,6 +14,7 @@ import { SetPasswordFromInvitationDto } from '../dto/set-password-from-invitatio
 import { AuthConfig } from '../auth.config';
 import { UserStatus } from '../../users/entities/user.entity/user.entity';
 import { UserSecurity } from '../../users/entities/user-security.entity';
+import { PasswordService } from './password.service';
 
 @Injectable()
 export class PasswordRecoveryService {
@@ -22,7 +23,8 @@ export class PasswordRecoveryService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly mailService: MailService,
-    private readonly userCacheService: UserCacheService
+    private readonly userCacheService: UserCacheService,
+    private readonly passwordService: PasswordService
   ) {}
 
   public async sendPasswordResetLink(forgotPasswordDto: ForgotPasswordDto): Promise<{ message: string }> {
@@ -74,7 +76,11 @@ export class PasswordRecoveryService {
       throw new BadRequestException('La nueva contraseña no puede ser igual a la anterior');
     }
 
-    user.security.passwordHash = await argon2.hash(password);
+    // Routed through PasswordService so the configured Argon2id parameters actually apply.
+    // Calling argon2.hash() directly here silently ignored ARGON2_* config — the same class of
+    // dead-configuration bug that was already fixed inside PasswordService.
+    await this.passwordService.assertNotBreached(password);
+    user.security.passwordHash = await this.passwordService.hash(password);
     user.security.passwordResetToken = null;
     user.security.passwordResetExpires = null;
     user.security.tokenVersion = (user.security.tokenVersion || 0) + 1;
@@ -121,7 +127,11 @@ export class PasswordRecoveryService {
 
     if (!user.security) user.security = new UserSecurity();
 
-    user.security.passwordHash = await argon2.hash(password);
+    // Routed through PasswordService so the configured Argon2id parameters actually apply.
+    // Calling argon2.hash() directly here silently ignored ARGON2_* config — the same class of
+    // dead-configuration bug that was already fixed inside PasswordService.
+    await this.passwordService.assertNotBreached(password);
+    user.security.passwordHash = await this.passwordService.hash(password);
     user.status = UserStatus.ACTIVE;
     user.invitationToken = undefined;
     user.invitationTokenExpires = undefined;

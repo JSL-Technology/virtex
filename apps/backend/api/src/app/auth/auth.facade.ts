@@ -10,6 +10,7 @@ import { RegistrationService } from './services/registration.service';
 import { PasswordRecoveryService } from './services/password-recovery.service';
 import { SocialAuthService } from './services/social-auth.service';
 import { TokenService } from './services/token.service';
+import { AuthConfig } from './auth.config';
 import { ImpersonationService } from './services/impersonation.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AuthEvents, AuthImpersonateEvent } from './events/auth.events';
@@ -96,10 +97,17 @@ export class AuthFacade {
         new AuthImpersonateEvent(adminUser.id, targetUserId, adminUser.email, targetUser.email)
     );
 
-    return await this.tokenService.generateAuthResponse(targetUser, {
-      isImpersonating: true,
-      originalUserId: adminUser.id,
-    });
+    // An impersonated session must not be a normal 7-30 day session. It is a short,
+    // deliberately expiring window: if the operator walks away, the elevated access dies on its
+    // own rather than lingering as a long-lived refresh token tied to someone else's identity.
+    return await this.tokenService.generateAuthResponse(
+      targetUser,
+      { isImpersonating: true, originalUserId: adminUser.id },
+      undefined,
+      undefined,
+      false,
+      { refreshExpirationOverride: AuthConfig.IMPERSONATION_SESSION_DURATION },
+    );
   }
 
   async stopImpersonation(impersonatingUser: User) {

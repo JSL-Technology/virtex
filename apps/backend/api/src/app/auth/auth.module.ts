@@ -26,6 +26,8 @@ import { CookieService } from './services/cookie.service';
 import { SessionService } from './services/session.service';
 import { SecurityAnalysisService } from './services/security-analysis.service';
 import { TokenService } from './services/token.service';
+import { SessionRegistryService } from './services/session-registry.service';
+import { UserIdentityService } from './services/user-identity.service';
 import { OauthStateService } from './services/oauth-state.service';
 import { OidcProviderService } from './services/oidc-provider.service';
 import { EnterpriseSsoService } from './services/enterprise-sso.service';
@@ -159,6 +161,9 @@ import { KeyManagementModule } from './services/key-management.module';
     SessionService,
     SecurityAnalysisService,
     TokenService,
+    // C-2 / A-3: session revocation registry and the single identity-resolution service.
+    SessionRegistryService,
+    UserIdentityService,
     GoogleRecaptchaGuard,
     OauthStateService,
     OidcProviderService,
@@ -201,6 +206,8 @@ import { KeyManagementModule } from './services/key-management.module';
     MfaOrchestratorService,
     UserCacheModule,
     SessionService,
+    SessionRegistryService,
+    UserIdentityService,
     CsrfGuard,
     StepUpGuard,
     IsOrganizationOwnerPolicy,

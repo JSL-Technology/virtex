@@ -23,6 +23,7 @@ import { RoleEnum } from '../../roles/enums/role.enum';
 import { DEFAULT_ROLES } from '../../config/roles.config';
 import { AuthConfig } from '../auth.config';
 import { UserSecurity } from '../../users/entities/user-security.entity';
+import { PasswordService } from './password.service';
 import { PendingRegistration, PendingRegistrationStatus } from '../entities/pending-registration.entity';
 import { Plan } from '../../saas/entities/plan.entity';
 
@@ -68,7 +69,8 @@ export class RegistrationService {
     @InjectRepository(Organization)
     private readonly organizationRepository: Repository<Organization>,
     @InjectRepository(PendingRegistration)
-    private readonly pendingRegistrationRepository: Repository<PendingRegistration>
+    private readonly pendingRegistrationRepository: Repository<PendingRegistration>,
+    private readonly passwordService: PasswordService
   ) {}
 
   /**
@@ -89,7 +91,8 @@ export class RegistrationService {
     await queryRunner.startTransaction();
 
     try {
-      const passwordHash = await argon2.hash(registerUserDto.password);
+      await this.passwordService.assertNotBreached(registerUserDto.password);
+      const passwordHash = await this.passwordService.hash(registerUserDto.password);
       const { user } = await this.materializeAccount(
         {
           email: registerUserDto.email,
@@ -280,7 +283,8 @@ export class RegistrationService {
       throw new ConflictException('No se pudo completar el registro. Verifique que los datos sean correctos o contacte soporte.');
     }
 
-    const passwordHash = await argon2.hash(dto.password);
+    await this.passwordService.assertNotBreached(dto.password);
+    const passwordHash = await this.passwordService.hash(dto.password);
 
     const pending = this.pendingRegistrationRepository.create({
       email: dto.email,

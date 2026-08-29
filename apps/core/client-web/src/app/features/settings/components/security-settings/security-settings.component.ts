@@ -180,8 +180,8 @@ export class SecuritySettingsComponent implements OnInit {
     const finalCode = code || this.verificationCode();
     if (!finalCode || finalCode.length < 6) return;
 
-    this.stepUpService.requireStepUp(StepUpScope.ENABLE_2FA, this.viewContainerRef, (token) => {
-      return this.securityService.enable2fa(finalCode, '', token);
+    this.stepUpService.requireStepUp(StepUpScope.ENABLE_2FA, this.viewContainerRef, () => {
+      return this.securityService.enable2fa(finalCode, '');
     }).pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
       next: (res: any) => {
@@ -245,8 +245,8 @@ export class SecuritySettingsComponent implements OnInit {
   onDisableConfirmed() {
     this.showDisableConfirmation.set(false);
 
-    this.stepUpService.requireStepUp(StepUpScope.DISABLE_2FA, this.viewContainerRef, (token) => {
-      return this.securityService.disable2fa(token);
+    this.stepUpService.requireStepUp(StepUpScope.DISABLE_2FA, this.viewContainerRef, () => {
+      return this.securityService.disable2fa();
     }).pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
       next: () => {
@@ -260,8 +260,8 @@ export class SecuritySettingsComponent implements OnInit {
 
   revokeSession(sessionId: string, event: Event) {
     event.stopPropagation();
-    this.stepUpService.requireStepUp(StepUpScope.REVOKE_SESSION, this.viewContainerRef, (token) => {
-      return this.securityService.revokeSession(sessionId, token);
+    this.stepUpService.requireStepUp(StepUpScope.REVOKE_SESSION, this.viewContainerRef, () => {
+      return this.securityService.revokeSession(sessionId);
     }).pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
       next: () => {

@@ -23,27 +23,31 @@ export class CompanySwitcherComponent {
   isOpen = signal(false);
   searchQuery = signal('');
 
-  // Mock organizations
-  private mockOrganizations = signal<Organization[]>([
-    { id: '1', name: 'Virtex Corp', logoUrl: '' },
-    { id: '2', name: 'Acme Industries', logoUrl: '' },
-    { id: '3', name: 'Globex Corporation', logoUrl: '' }
-  ]);
+  currentOrg = computed(() => this.authService.currentUser()?.organization ?? null);
 
-  currentOrg = computed(() => this.authService.currentUser()?.organization);
+  /**
+   * Tenants the user can actually switch into.
+   *
+   * This used to render three hardcoded placeholders ('Virtex Corp', 'Acme Industries',
+   * 'Globex Corporation') because the API never exposed the membership list — even though the
+   * backend already resolves it from the `user_organizations` join table on every authenticated
+   * request. It is now driven by `user.organizations`, which always contains at least the active
+   * tenant, so the switcher shows real data instead of fiction.
+   */
+  private accessibleOrganizations = computed<Organization[]>(
+    () => this.authService.currentUser()?.organizations ?? [],
+  );
 
   filteredOrganizations = computed(() => {
-    const query = this.searchQuery().toLowerCase();
+    const query = this.searchQuery().trim().toLowerCase();
     const current = this.currentOrg();
-    const all = this.mockOrganizations();
+    const all = this.accessibleOrganizations();
 
-    // Ensure current org is in the list (if it's not already)
-    const list = current && !all.find(o => o.id === current.id)
-      ? [current, ...all]
-      : all;
+    // Defensive: keep the active tenant visible even if the membership list is incomplete.
+    const list = current && !all.some(o => o.id === current.id) ? [current, ...all] : all;
 
     if (!query) return list;
-    return list.filter(org => org.name?.toLowerCase().includes(query));
+    return list.filter(org => org.legalName?.toLowerCase().includes(query));
   });
 
   protected readonly BuildingIcon = Building;

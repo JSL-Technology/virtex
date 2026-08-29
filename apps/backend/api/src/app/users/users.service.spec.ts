@@ -11,6 +11,8 @@ import { EventsGateway } from '../websockets/events.gateway';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SaasService } from '../saas/saas.service';
 import { DataSource } from 'typeorm';
+import { PasswordService } from '../auth/services/password.service';
+import { SessionService } from '../auth/services/session.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 
 describe('UsersService', () => {
@@ -46,7 +48,9 @@ describe('UsersService', () => {
         { provide: EventsGateway, useValue: {} },
         { provide: EventEmitter2, useValue: {} },
         { provide: SaasService, useValue: {} },
-        { provide: DataSource, useValue: {} }
+        { provide: DataSource, useValue: {} },
+        { provide: PasswordService, useValue: { hash: jest.fn(), verify: jest.fn() } },
+        { provide: SessionService, useValue: { terminateAllSessions: jest.fn() } }
       ],
     }).compile();
 
@@ -58,22 +62,27 @@ describe('UsersService', () => {
   });
 
   describe('updateProfile', () => {
-    it('should reset isEmailVerified if email changes', async () => {
-      const user = new User();
-      user.id = '123';
-      user.email = 'old@example.com';
-      user.isEmailVerified = true;
+    it('does NOT change the email — that requires the confirmation flow', async () => {
+      // updateProfile deliberately cannot change the email address. `email` was removed from
+      // UpdateProfileDto and the global ValidationPipe (whitelist: true) strips it, so a client
+      // that submits one is ignored rather than obeyed. Changing an email is a two-step,
+      // token-confirmed operation (requestEmailChange + confirmEmailChange) precisely because a
+      // silent change would let a hijacked session lock the real owner out of their account.
+      const existingUser = {
+        id: '123',
+        email: 'old@example.com',
+        isEmailVerified: true,
+        isPhoneVerified: true,
+        phone: '123',
+      };
+      userRepositoryMock.findOne.mockResolvedValue(existingUser);
+      userRepositoryMock.save.mockImplementation((u: any) => Promise.resolve(u));
 
-      userRepositoryMock.findOne.mockResolvedValue(user);
-      userRepositoryMock.save.mockImplementation((u: User) => Promise.resolve(u));
-
-      const dto: UpdateProfileDto = { email: 'new@example.com' };
-
+      const dto = { email: 'new@example.com' } as unknown as UpdateProfileDto;
       const updatedUser = await service.updateProfile('123', dto);
 
-      expect(updatedUser.isEmailVerified).toBe(false);
-      expect(updatedUser.email).toBe('new@example.com');
-      expect(userCacheServiceMock.clearUserSession).toHaveBeenCalledWith('123');
+      expect(updatedUser.email).toBe('old@example.com');
+      expect(updatedUser.isEmailVerified).toBe(true);
     });
 
     it('should reset isPhoneVerified if phone changes', async () => {

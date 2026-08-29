@@ -677,10 +677,11 @@ export class AuthService {
 
   // H8 FIX: changePassword is an authenticated endpoint; removing IS_PUBLIC_API allows the
   // interceptor to attach cookies/XSRF and trigger a token refresh on 401 if needed.
-  changePassword(data: { currentPassword: string; newPassword: string; stepUpToken?: string }): Observable<{ message: string }> {
-      const { stepUpToken, ...body } = data;
-      const headers = stepUpToken ? { 'x-step-up-token': stepUpToken } : {};
-      return this.http.post<{ message: string }>(`${this.apiUrl}/change-password`, body, { headers }).pipe(
+  // The step-up proof travels as an httpOnly cookie set by /auth/verify-password, so there is
+  // no token for the caller to carry and none for an XSS to steal.
+  changePassword(data: { currentPassword: string; newPassword: string }): Observable<{ message: string }> {
+      const body = data;
+      return this.http.post<{ message: string }>(`${this.apiUrl}/change-password`, body).pipe(
           catchError((err) => this.errorHandlerService.handleError('changePassword', err))
       );
   }
