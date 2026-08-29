@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { Product } from '../../inventory/entities/product.entity';
 import { Invoice } from '../../invoices/entities/invoice.entity';
 import { User } from '../../users/entities/user.entity/user.entity';
+import { TenantPrincipal } from '../../auth/interfaces/authenticated-user.interface';
 
 @Injectable()
 export class DatasheetImportService {
@@ -21,7 +22,7 @@ export class DatasheetImportService {
     ];
   }
 
-  async importData(module: string, set: string, columns: string[], filters: any, user: User) {
+  async importData(module: string, set: string, columns: string[], filters: any, user: TenantPrincipal) {
     let data: any[] = [];
     const orgId = user.organizationId;
 

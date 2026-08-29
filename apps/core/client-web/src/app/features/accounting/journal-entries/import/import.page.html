@@ -12,7 +12,7 @@
         <h2>Paso 1: Seleccionar Fichero</h2>
       </div>
       <div class="card-body">
-        <div class="upload-box" (click)="fileInput.click()">
+        <div class="upload-box" (click)="fileInput.click()" tabindex="0" role="button" (keydown.enter)="fileInput.click()" (keydown.space)="$event.preventDefault(); fileInput.click()">
           <input #fileInput type="file" (change)="onFileSelected($event)" hidden accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
           <lucide-icon [name]="UploadIcon" [size]="48"></lucide-icon>
           <p *ngIf="!selectedFile()">Haz clic aquí para seleccionar un fichero (CSV, Excel)</p>

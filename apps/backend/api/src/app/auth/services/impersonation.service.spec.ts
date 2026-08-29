@@ -4,6 +4,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { ImpersonationService } from './impersonation.service';
 import { UserCacheService } from '../modules/user-cache.service';
 import { User, UserStatus } from '../../users/entities/user.entity/user.entity';
+import { AuthenticatedUser } from '../interfaces/authenticated-user.interface';
 
 /**
  * C-4 regression suite.
@@ -21,7 +22,9 @@ describe('ImpersonationService — privilege escalation guards', () => {
   let service: ImpersonationService;
   let userRepositoryMock: { findOne: jest.Mock };
 
-  const user = (over: Partial<User> & { permissions?: string[] } = {}): User => {
+  // Built as the request principal, which is what the service takes: `User` (the entity) is not
+  // assignable to it, because the principal's `organizationId` is non-null by construction.
+  const user = (over: Partial<User> & { permissions?: string[] } = {}): AuthenticatedUser => {
     const { permissions, ...rest } = over;
     return {
       id: 'target-id',
@@ -30,10 +33,10 @@ describe('ImpersonationService — privilege escalation guards', () => {
       status: UserStatus.ACTIVE,
       roles: permissions ? [{ name: 'custom', permissions }] : [],
       ...rest,
-    } as unknown as User;
+    } as unknown as AuthenticatedUser;
   };
 
-  const operator = (permissions: string[], over: Partial<User> = {}): User =>
+  const operator = (permissions: string[], over: Partial<User> = {}): AuthenticatedUser =>
     user({ id: 'admin-id', email: 'admin@example.com', permissions, ...over });
 
   beforeEach(async () => {

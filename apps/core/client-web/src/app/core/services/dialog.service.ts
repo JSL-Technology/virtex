@@ -25,7 +25,11 @@ export interface ConfirmCloseConfig {
 
 type DialogKind = 'confirm' | 'close';
 
-interface ActiveDialog {
+/**
+ * Exported because `DialogHostComponent.dialog` is a public property of its type, and a
+ * declaration emit cannot name a type it cannot import (TS4029).
+ */
+export interface ActiveDialog {
   kind: DialogKind;
   title: string;
   message: string;

@@ -6,6 +6,7 @@ import { PushSubscription } from './entities/push-subscription.entity';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 
 @Controller('push')
@@ -19,7 +20,7 @@ export class PushNotificationsController {
   @Post('subscribe')
   async subscribe(
     @Body() subscriptionDto: { endpoint: string; p256dh: string; auth: string },
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     const subscription = this.pushSubscriptionRepository.create({
       ...subscriptionDto,
@@ -32,7 +33,7 @@ export class PushNotificationsController {
   @Delete('unsubscribe')
   async unsubscribe(
     @Body() body: { endpoint: string },
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     ) {
     await this.pushSubscriptionRepository.delete({ endpoint: body.endpoint, userId: user.id });
     return { success: true };

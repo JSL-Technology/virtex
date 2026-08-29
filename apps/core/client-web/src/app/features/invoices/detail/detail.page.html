@@ -132,15 +132,15 @@
         <h3>Logística y Entrega</h3>
         <div class="detail-grid">
             <div class="detail-item">
-                <label>Dirección de Envío:</label>
+                <span class="detail-label">Dirección de Envío:</span>
                 <p>{{ inv.customerAddress }}</p>
             </div>
             <div class="detail-item">
-                <label>Método de Envío:</label>
+                <span class="detail-label">Método de Envío:</span>
                 <p>Transporte Terrestre</p>
             </div>
             <div class="detail-item">
-                <label>Persona de Contacto:</label>
+                <span class="detail-label">Persona de Contacto:</span>
                 <p>{{ inv.customerName }}</p>
             </div>
         </div>
@@ -152,19 +152,19 @@
         <h3>Información Financiera</h3>
         <div class="detail-grid">
             <div class="detail-item">
-                <label>Condición de Pago:</label>
+                <span class="detail-label">Condición de Pago:</span>
                 <p>30 Días</p>
             </div>
             <div class="detail-item">
-                <label>Proyecto:</label>
+                <span class="detail-label">Proyecto:</span>
                 <p>General</p>
             </div>
             <div class="detail-item">
-                <label>Indicador de Impuestos:</label>
+                <span class="detail-label">Indicador de Impuestos:</span>
                 <p>ITBIS (18%)</p>
             </div>
             <div class="detail-item">
-                <label>Estado de Cobro:</label>
+                <span class="detail-label">Estado de Cobro:</span>
                 <span class="status-badge" [ngClass]="inv.status.toLowerCase().replace(' ', '-')">
                     {{ inv.status }}
                 </span>

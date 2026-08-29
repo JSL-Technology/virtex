@@ -30,9 +30,10 @@ export class AuthInputComponent implements ControlValueAccessor, OnInit {
   control = new FormControl();
   inputType = 'text';
 
-  // Value Accessor methods
-  onChange = (value: any) => {};
-  onTouched = () => {};
+  // ControlValueAccessor callbacks. No-ops until Angular registers the real ones; typed and named
+  // so the empty body reads as the contract it is rather than as an unfinished implementation.
+  onChange: (value: unknown) => void = () => undefined;
+  onTouched: () => void = () => undefined;
 
   ngOnInit() {
     this.inputType = this.type;
@@ -61,6 +62,10 @@ export class AuthInputComponent implements ControlValueAccessor, OnInit {
   }
 
   setDisabledState?(isDisabled: boolean): void {
-    isDisabled ? this.control.disable() : this.control.enable();
+    if (isDisabled) {
+      this.control.disable();
+    } else {
+      this.control.enable();
+    }
   }
 }

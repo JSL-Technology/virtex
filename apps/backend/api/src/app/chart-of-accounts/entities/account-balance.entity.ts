@@ -11,7 +11,7 @@ export class AccountBalance {
   @PrimaryColumn({ type: 'uuid', name: 'ledger_id' })
   ledgerId: string;
 
-  @ManyToOne('Account', (account) => account.balances, { onDelete: 'CASCADE' })
+  @ManyToOne('Account', (account: Account) => account.balances, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'account_id' })
   account: Account;
 

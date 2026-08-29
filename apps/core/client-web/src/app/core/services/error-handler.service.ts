@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
@@ -7,9 +7,8 @@ import { TranslateService } from '@ngx-translate/core';
   providedIn: 'root',
 })
 export class ErrorHandlerService {
-  constructor(private translate: TranslateService) {}
-
-  handleError(operation: string, error: HttpErrorResponse): Observable<never> {
+  private translate = inject(TranslateService);
+handleError(operation: string, error: HttpErrorResponse): Observable<never> {
     let customErrorMessage =
       'Ocurrió un error inesperado. Por favor, intenta más tarde.';
     console.error(

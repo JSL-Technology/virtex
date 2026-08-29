@@ -9,7 +9,7 @@ import { TranslateModule } from '@ngx-translate/core';
   template: `
     <button
       type="button"
-      (click)="onClick.emit()"
+      (click)="clicked.emit()"
       [disabled]="loading"
       class="passkey-card"
       [class.loading]="loading">
@@ -131,5 +131,5 @@ import { TranslateModule } from '@ngx-translate/core';
 })
 export class PasskeyButtonComponent {
     @Input() loading = false;
-    @Output() onClick = new EventEmitter<void>();
+    @Output() clicked = new EventEmitter<void>();
 }

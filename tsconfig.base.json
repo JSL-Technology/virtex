@@ -17,7 +17,11 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2022",
-    "customConditions": ["@virteex/source"],
+    // `customConditions` lived here and forced node16/nodenext/bundler module resolution on every
+    // project that extends this one. The Jest spec project cannot use those (ts-jest needs
+    // commonjs with node10), so `tsc --build` failed with TS5098 before checking a single file —
+    // which is why the `typecheck` target had never passed. Nothing in this workspace resolves
+    // through package export conditions; the libraries are referenced by path.
     "paths": {
       "@virteex/shared/util-auth": ["libs/shared/util-auth/src/index.ts"],
       "@virteex/shared/types": ["libs/shared/types/src/index.ts"]

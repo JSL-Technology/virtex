@@ -12,19 +12,19 @@ import { UiModalComponent } from '../ui/modal';
 })
 export class ModalComponent {
   @Input() options!: ModalOptions;
-  @Output() onConfirm = new EventEmitter<void>();
-  @Output() onCancel = new EventEmitter<void>();
-  @Output() onCloseModal = new EventEmitter<void>();
+  @Output() confirmed = new EventEmitter<void>();
+  @Output() cancelled = new EventEmitter<void>();
+  @Output() closed = new EventEmitter<void>();
 
   confirm() {
-    this.onConfirm.emit();
+    this.confirmed.emit();
   }
 
   cancel() {
-    this.onCancel.emit();
+    this.cancelled.emit();
   }
   
   close() {
-    this.onCloseModal.emit();
+    this.closed.emit();
   }
 }

@@ -1,5 +1,5 @@
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -17,9 +17,8 @@ export interface ImportModule {
 export class DatasheetImportService {
   private apiUrl = '/api/datasheets/import';
 
-  constructor(private http: HttpClient) {}
-
-  getModules(): Observable<ImportModule[]> {
+  private http = inject(HttpClient);
+getModules(): Observable<ImportModule[]> {
     return this.http.get<ImportModule[]>(`${this.apiUrl}/modules`).pipe(
       catchError(() => of([]))
     );

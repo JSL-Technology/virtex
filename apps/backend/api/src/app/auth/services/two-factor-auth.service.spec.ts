@@ -71,8 +71,8 @@ describe('TwoFactorAuthService', () => {
       it('should generate 10 hashed backup codes', async () => {
           const user = { id: 'user-1', email: 'test@test.com', security: { isTwoFactorEnabled: true } } as User;
 
-          userSecurityRepo.save.mockImplementation(sec => Promise.resolve(sec));
-          passwordService.hash.mockImplementation(val => Promise.resolve(`hashed-${val}`));
+          userSecurityRepo.save.mockImplementation((sec: unknown) => Promise.resolve(sec));
+          passwordService.hash.mockImplementation((val: string) => Promise.resolve(`hashed-${val}`));
 
           const result = await service.generateBackupCodes(user);
 

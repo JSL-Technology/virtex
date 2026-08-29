@@ -23,8 +23,8 @@ export class ClosingAutomationService {
       await this.depreciationService.runMonthlyDepreciation(organizationId, period.endDate, manager);
       this.logger.log(`-> Depreciación de activos fijos completada.`);
     } catch (error) {
-      this.logger.error(`Error durante la depreciación automática para el período ${period.id}`, error.stack);
-      throw new Error(`Fallo en la depreciación de activos fijos: ${error.message}`);
+      this.logger.error(`Error durante la depreciación automática para el período ${period.id}`, (error as Error).stack);
+      throw new Error(`Fallo en la depreciación de activos fijos: ${(error as Error).message}`);
     }
 
 
@@ -33,8 +33,8 @@ export class ClosingAutomationService {
       await this.currencyRevaluationService.run(period.endDate, organizationId, undefined, manager);
       this.logger.log(`-> Revaluación de moneda extranjera completada.`);
     } catch (error) {
-      this.logger.error(`Error durante la revaluación de moneda para el período ${period.id}`, error.stack);
-      throw new Error(`Fallo en la revaluación de moneda: ${error.message}`);
+      this.logger.error(`Error durante la revaluación de moneda para el período ${period.id}`, (error as Error).stack);
+      throw new Error(`Fallo en la revaluación de moneda: ${(error as Error).message}`);
     }
 
     this.logger.log(`Todas las tareas de pre-cierre para el período ${period.name} se completaron exitosamente.`);

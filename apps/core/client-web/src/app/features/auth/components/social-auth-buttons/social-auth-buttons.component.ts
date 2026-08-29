@@ -10,9 +10,9 @@ import { TranslateModule } from '@ngx-translate/core';
   styleUrls: ['./social-auth-buttons.component.scss']
 })
 export class SocialAuthButtonsComponent {
-  @Output() onLogin = new EventEmitter<string>();
+  @Output() login = new EventEmitter<string>();
 
   loginWith(provider: string) {
-    this.onLogin.emit(provider);
+    this.login.emit(provider);
   }
 }

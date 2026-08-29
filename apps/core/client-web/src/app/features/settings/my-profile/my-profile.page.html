@@ -7,9 +7,9 @@
       <div class="p-avatar">
         <img [src]="avatarPreview() || 'assets/images/default-avatar.svg'" alt="Avatar">
       </div>
-      <label class="p-avatar-upload" [title]="'SETTINGS.PROFILE.CHANGE_AVATAR' | translate">
+      <label class="p-avatar-upload" [title]="'SETTINGS.PROFILE.CHANGE_AVATAR' | translate" for="field">
         <lucide-icon [img]="ImageIcon" size="16"></lucide-icon>
-        <input type="file" class="visually-hidden" (change)="onFileSelected($event)" accept="image/*">
+        <input id="field" type="file" class="visually-hidden" (change)="onFileSelected($event)" accept="image/*">
       </label>
     </div>
 
@@ -33,29 +33,29 @@
         <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
           <div class="pf-grid-2">
             <div class="pf-field">
-              <label class="pf-label">{{ 'SETTINGS.PROFILE.FIRST_NAME' | translate }}</label>
-              <input type="text" formControlName="firstName" placeholder="Juan">
+              <label class="pf-label" for="firstname">{{ 'SETTINGS.PROFILE.FIRST_NAME' | translate }}</label>
+              <input id="firstname" type="text" formControlName="firstName" placeholder="Juan">
             </div>
             <div class="pf-field">
-              <label class="pf-label">{{ 'SETTINGS.PROFILE.LAST_NAME' | translate }}</label>
-              <input type="text" formControlName="lastName" placeholder="Pérez">
+              <label class="pf-label" for="lastname">{{ 'SETTINGS.PROFILE.LAST_NAME' | translate }}</label>
+              <input id="lastname" type="text" formControlName="lastName" placeholder="Pérez">
             </div>
           </div>
 
           <div class="pf-field">
-            <label class="pf-label">{{ 'SETTINGS.PROFILE.EMAIL' | translate }}</label>
+            <label class="pf-label" for="email">{{ 'SETTINGS.PROFILE.EMAIL' | translate }}</label>
             <div class="pf-icon-wrap">
               <lucide-icon [img]="MailIcon" size="16" class="pf-icon"></lucide-icon>
-              <input type="email" formControlName="email" class="has-icon" readonly>
+              <input id="email" type="email" formControlName="email" class="has-icon" readonly>
             </div>
           </div>
 
           <div class="pf-field">
-            <label class="pf-label">{{ 'SETTINGS.PROFILE.PHONE' | translate }}</label>
+            <label class="pf-label" for="phone">{{ 'SETTINGS.PROFILE.PHONE' | translate }}</label>
             <div class="pf-phone-row">
               <div class="pf-icon-wrap pf-icon-wrap--grow">
                 <lucide-icon [img]="PhoneIcon" size="16" class="pf-icon"></lucide-icon>
-                <input type="tel" formControlName="phone" class="has-icon" placeholder="+1 (809) 000-0000">
+                <input id="phone" type="tel" formControlName="phone" class="has-icon" placeholder="+1 (809) 000-0000">
               </div>
               <button type="button" class="pf-verify-btn" (click)="openPhoneVerification()">
                 {{ 'SETTINGS.PROFILE.VERIFY' | translate }}
@@ -64,10 +64,10 @@
           </div>
 
           <div class="pf-field">
-            <label class="pf-label">{{ 'SETTINGS.PROFILE.JOB_TITLE' | translate }}</label>
+            <label class="pf-label" for="jobtitle">{{ 'SETTINGS.PROFILE.JOB_TITLE' | translate }}</label>
             <div class="pf-icon-wrap">
               <lucide-icon [img]="CompanyIcon" size="16" class="pf-icon"></lucide-icon>
-              <select formControlName="jobTitle" class="has-icon">
+              <select id="jobtitle" formControlName="jobTitle" class="has-icon">
                 <option value="" disabled>{{ 'SETTINGS.PROFILE.SELECT_JOB_TITLE' | translate }}</option>
                 <option *ngFor="let title of jobTitles()" [value]="title">{{ title }}</option>
               </select>
@@ -75,8 +75,8 @@
           </div>
 
           <div class="pf-field">
-            <label class="pf-label">Idioma Preferido</label>
-            <select formControlName="preferredLanguage">
+            <label class="pf-label" for="preferredlanguage">Idioma Preferido</label>
+            <select id="preferredlanguage" formControlName="preferredLanguage">
               <option value="es">Español</option>
               <option value="en">English</option>
             </select>
@@ -115,12 +115,12 @@
                    [value]="currentUser()?.email">
 
             <div class="pf-field">
-              <label class="pf-label">{{ 'SETTINGS.PROFILE.NEW_PASSWORD' | translate }}</label>
-              <input type="password" formControlName="newPassword" autocomplete="new-password" placeholder="••••••••">
+              <label class="pf-label" for="newpassword">{{ 'SETTINGS.PROFILE.NEW_PASSWORD' | translate }}</label>
+              <input id="newpassword" type="password" formControlName="newPassword" autocomplete="new-password" placeholder="••••••••">
             </div>
             <div class="pf-field">
-              <label class="pf-label">{{ 'SETTINGS.PROFILE.CONFIRM_PASSWORD' | translate }}</label>
-              <input type="password" formControlName="confirmPassword" autocomplete="new-password" placeholder="••••••••">
+              <label class="pf-label" for="confirmpassword">{{ 'SETTINGS.PROFILE.CONFIRM_PASSWORD' | translate }}</label>
+              <input id="confirmpassword" type="password" formControlName="confirmPassword" autocomplete="new-password" placeholder="••••••••">
             </div>
 
             <div class="pf-actions">

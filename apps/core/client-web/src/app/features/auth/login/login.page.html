@@ -104,9 +104,9 @@
       </div>
 
       <section class="secondary-auth">
-        <app-passkey-button (onClick)="onLoginWithPasskey()" [loading]="isLoggingIn()">
+        <app-passkey-button (clicked)="onLoginWithPasskey()" [loading]="isLoggingIn()">
         </app-passkey-button>
-        <app-social-auth-buttons (onLogin)="socialLogin($event)"></app-social-auth-buttons>
+        <app-social-auth-buttons (login)="socialLogin($event)"></app-social-auth-buttons>
       </section>
 
       <!-- Enterprise SSO: Home Realm Discovery panel -->

@@ -19,6 +19,7 @@ import { UpdateVendorBillDto } from './dto/update-vendor-bill.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Controller('accounts-payable')
 @UseGuards(JwtAuthGuard)
@@ -30,7 +31,7 @@ export class AccountsPayableController {
   @Post()
   create(
     @Body() createVendorBillDto: CreateVendorBillDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.accountsPayableService.create(
       createVendorBillDto,
@@ -39,12 +40,12 @@ export class AccountsPayableController {
   }
 
   @Get()
-  findAll(@CurrentUser() user: User) {
+  findAll(@CurrentUser() user: AuthenticatedUser) {
     return this.accountsPayableService.findAll(user.organizationId);
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.accountsPayableService.findOne(id, user.organizationId);
   }
 
@@ -52,7 +53,7 @@ export class AccountsPayableController {
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateVendorBillDto: UpdateVendorBillDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.accountsPayableService.update(
       id,
@@ -66,7 +67,7 @@ export class AccountsPayableController {
   voidBill(
     @Param('id', ParseUUIDPipe) id: string,
     @Body('reason') reason: string,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.accountsPayableService.voidBill(
       id,
@@ -76,7 +77,7 @@ export class AccountsPayableController {
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
 
     return this.accountsPayableService.remove(id, user.organizationId);
   }
@@ -85,7 +86,7 @@ export class AccountsPayableController {
   @HttpCode(HttpStatus.OK)
   submitForApproval(
     @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.accountsPayableService.submitForApproval(
       id,

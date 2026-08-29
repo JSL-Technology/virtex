@@ -1,18 +1,30 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "../../../dist/out-tsc",
+    "outDir": "../../../dist/out-tsc-spec",
     "module": "commonjs",
     "moduleResolution": "node10",
-    "types": ["jest", "node"],
+    "types": ["jest", "node", "multer"],
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "strictPropertyInitialization": false,
+    "isolatedModules": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "rootDir": "../../.."
   },
   "include": [
     "jest.config.ts",
     "jest.config.cts",
+    // Specs import the code they test, so the source has to be in this project's file list too;
+    // without it `tsc --build` reports TS6307 for every import before checking a single type.
+    "src/**/*.ts",
     "src/**/*.test.ts",
     "src/**/*.spec.ts",
-    "src/**/*.d.ts"
+    "src/**/*.d.ts",
+    // Specs import from the shared library through its path alias, and it must be in the file
+    // list or `tsc --build` refuses it with TS6307 before checking anything.
+    "../../../libs/shared/util-auth/src/**/*.ts",
+    "../../../libs/shared/types/src/**/*.ts"
   ]
 }

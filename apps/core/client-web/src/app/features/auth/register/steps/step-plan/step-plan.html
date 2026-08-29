@@ -16,7 +16,7 @@
     <div *ngFor="let plan of plans()"
          class="plan-card"
          [ngClass]="{'recommended': plan.recommended, 'selected': isSelected(plan.id)}"
-         (click)="selectPlan(plan.id)">
+         (click)="selectPlan(plan.id)" tabindex="0" role="button" (keydown.enter)="selectPlan(plan.id)" (keydown.space)="$event.preventDefault(); selectPlan(plan.id)">
 
       <div *ngIf="plan.recommended" class="recommended-badge">Recomendado</div>
 
@@ -42,9 +42,9 @@
   }
 
   <div class="terms-section">
-    <label class="checkbox-container">
+    <label class="checkbox-container" for="field">
       <div class="checkbox-wrapper">
-         <input
+         <input id="field"
            id="agreeToTerms"
            type="checkbox"
            formControlName="agreeToTerms"

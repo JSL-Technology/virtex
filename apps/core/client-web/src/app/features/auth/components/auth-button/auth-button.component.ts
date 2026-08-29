@@ -13,5 +13,5 @@ export class AuthButtonComponent {
   @Input() variant: 'primary' | 'secondary' | 'outline' | 'ghost' = 'primary'; // Kept for API compatibility, though CSS currently overrides to one style
   @Input() disabled = false;
   @Input() loading = false;
-  @Output() onClick = new EventEmitter<Event>();
+  @Output() clicked = new EventEmitter<Event>();
 }

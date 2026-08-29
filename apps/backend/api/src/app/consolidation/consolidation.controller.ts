@@ -7,6 +7,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Controller('consolidation')
 @UseGuards(JwtAuthGuard)
@@ -17,7 +18,7 @@ export class ConsolidationController {
   @HasPermission(PERMISSIONS.FINANCIALS_CONSOLIDATE)
   runConsolidation(
     @Body() runDto: RunConsolidationDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     const asOfDate = new Date(runDto.asOfDate);
     return this.consolidationService.runConsolidation(user.organizationId, asOfDate);

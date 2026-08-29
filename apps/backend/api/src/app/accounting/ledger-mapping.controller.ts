@@ -5,6 +5,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { LedgerMappingService } from './ledger-mapping.service';
 import { CreateOrUpdateLedgerMapDto } from './dto/ledger-mapping.dto';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Controller('accounting/ledger-mappings')
 @UseGuards(JwtAuthGuard)
@@ -15,7 +16,7 @@ export class LedgerMappingController {
   getMap(
     @Param('sourceLedgerId', ParseUUIDPipe) sourceLedgerId: string,
     @Param('targetLedgerId', ParseUUIDPipe) targetLedgerId: string,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.mappingService.getMapForLedgerPair(
       sourceLedgerId,
@@ -27,7 +28,7 @@ export class LedgerMappingController {
   @Post()
   createOrUpdateMap(
     @Body() dto: CreateOrUpdateLedgerMapDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.mappingService.createOrUpdateMap(dto, user.organizationId);
   }

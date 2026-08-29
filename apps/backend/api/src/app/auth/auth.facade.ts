@@ -14,6 +14,7 @@ import { AuthConfig } from './auth.config';
 import { ImpersonationService } from './services/impersonation.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AuthEvents, AuthImpersonateEvent } from './events/auth.events';
+import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
 
 @Injectable()
 export class AuthFacade {
@@ -66,7 +67,7 @@ export class AuthFacade {
     return { user: safeUser, accessToken, refreshToken };
   }
 
-  async impersonate(adminUser: User, targetUserId: string) {
+  async impersonate(adminUser: AuthenticatedUser, targetUserId: string) {
     const targetUser = await this.impersonationService.validateImpersonationRequest(adminUser, targetUserId);
 
     this.eventEmitter.emit(
@@ -87,7 +88,7 @@ export class AuthFacade {
     );
   }
 
-  async stopImpersonation(impersonatingUser: User) {
+  async stopImpersonation(impersonatingUser: AuthenticatedUser) {
     const adminUser = await this.impersonationService.validateStopImpersonation(impersonatingUser);
     return await this.tokenService.generateAuthResponse(adminUser);
   }

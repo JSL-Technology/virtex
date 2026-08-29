@@ -23,6 +23,7 @@ import { AccountNature, AccountType } from '../enums/account-enums';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
 import { CreateAccountDto } from '../dto/create-account.dto';
+import { FastifyFile } from '../../common/interfaces/fastify-file.interface';
 
 @Injectable()
 export class CoaImportService {
@@ -45,7 +46,7 @@ export class CoaImportService {
   }
 
   async preview(
-    file: Express.Multer.File,
+    file: FastifyFile,
     mapping: ColumnMappingDto,
     organizationId: string,
     userId: string,
@@ -220,16 +221,16 @@ export class CoaImportService {
       });
     } catch (error) {
       this.logger.error(
-        `Falló la transacción de importación del lote ${batchId}. Revertiendo cambios. Error: ${error.message}`,
-        error.stack,
+        `Falló la transacción de importación del lote ${batchId}. Revertiendo cambios. Error: ${(error as Error).message}`,
+        (error as Error).stack,
       );
       this.eventsGateway.sendToUser(userId, 'import-complete', {
         batchId,
         status: 'FAILED',
-        message: error.message,
+        message: (error as Error).message,
       });
       throw new InternalServerErrorException(
-        `La importación falló y fue revertida: ${error.message}`,
+        `La importación falló y fue revertida: ${(error as Error).message}`,
       );
     }
 

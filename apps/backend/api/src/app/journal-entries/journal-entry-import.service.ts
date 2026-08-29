@@ -21,6 +21,7 @@ import { FileParserService } from './parsers/file-parser.service';
 import { EventsGateway } from '../websockets/events.gateway';
 import { Journal } from './entities/journal.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
+import { FastifyFile } from '../common/interfaces/fastify-file.interface';
 
 interface ImportBatch {
   id: string;
@@ -44,13 +45,13 @@ export class JournalEntryImportService {
     private readonly eventsGateway: EventsGateway,
   ) {}
 
-  async getFileHeaders(file: Express.Multer.File): Promise<string[]> {
+  async getFileHeaders(file: FastifyFile): Promise<string[]> {
     const { headers } = await this.fileParser.parse(file);
     return headers;
   }
 
   async preview(
-    file: Express.Multer.File,
+    file: FastifyFile,
     mapping: PreviewImportRequestDto,
     organizationId: string,
   ): Promise<PreviewImportResponseDto> {

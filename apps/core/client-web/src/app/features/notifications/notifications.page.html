@@ -19,7 +19,7 @@
             <h3 class="group-title">{{ group.period }}</h3>
             <ul>
                 @for (notification of group.notifications; track notification.id) {
-                <li class="notification-item" [class.unread]="!notification.read" (click)="markAsRead(notification.id)">
+                <li class="notification-item" [class.unread]="!notification.read" (click)="markAsRead(notification.id)" tabindex="0" (keydown.enter)="markAsRead(notification.id)" (keydown.space)="$event.preventDefault(); markAsRead(notification.id)">
                     <div class="notification-content">
                         <h4 class="notification-title">{{ notification.title }}</h4>
                         <p class="notification-description">{{ notification.body }}</p>

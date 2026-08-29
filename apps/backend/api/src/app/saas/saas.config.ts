@@ -1,9 +1,10 @@
 import { SaasResource } from './enums/saas-resource.enum';
+import { QuotaPeriod } from './enums/quota-period.enum';
 
 export interface PlanLimitConfig {
   resource: SaasResource;
   limit: number;
-  period: 'monthly' | 'lifetime';
+  period: QuotaPeriod;
   allowOverage?: boolean;
 }
 
@@ -37,13 +38,13 @@ export const SAAS_PLANS: PlanConfig[] = [
     monthlyPriceIdVar: 'STRIPE_PRICE_STARTER',
     monthlyPrice: 900,
     limits: [
-      { resource: SaasResource.INVOICES, limit: 10, period: 'monthly', allowOverage: false },
-      { resource: SaasResource.USERS, limit: 2, period: 'lifetime', allowOverage: false },
-      { resource: SaasResource.CUSTOMERS, limit: 100, period: 'lifetime', allowOverage: false },
-      { resource: SaasResource.SUPPLIERS, limit: 50, period: 'lifetime', allowOverage: false },
-      { resource: SaasResource.JOURNAL_ENTRIES, limit: 200, period: 'monthly', allowOverage: false },
+      { resource: SaasResource.INVOICES, limit: 10, period: QuotaPeriod.MONTHLY, allowOverage: false },
+      { resource: SaasResource.USERS, limit: 2, period: QuotaPeriod.LIFETIME, allowOverage: false },
+      { resource: SaasResource.CUSTOMERS, limit: 100, period: QuotaPeriod.LIFETIME, allowOverage: false },
+      { resource: SaasResource.SUPPLIERS, limit: 50, period: QuotaPeriod.LIFETIME, allowOverage: false },
+      { resource: SaasResource.JOURNAL_ENTRIES, limit: 200, period: QuotaPeriod.MONTHLY, allowOverage: false },
       // Group consolidation is not part of this tier. A zero limit refuses the first one.
-      { resource: SaasResource.SUBSIDIARIES, limit: 0, period: 'lifetime', allowOverage: false }
+      { resource: SaasResource.SUBSIDIARIES, limit: 0, period: QuotaPeriod.LIFETIME, allowOverage: false }
     ]
   },
   {
@@ -53,12 +54,12 @@ export const SAAS_PLANS: PlanConfig[] = [
     monthlyPriceIdVar: 'STRIPE_PRICE_PRO',
     monthlyPrice: 4900,
     limits: [
-      { resource: SaasResource.INVOICES, limit: 100, period: 'monthly', allowOverage: true },
-      { resource: SaasResource.USERS, limit: 10, period: 'lifetime', allowOverage: false },
-      { resource: SaasResource.CUSTOMERS, limit: 2_000, period: 'lifetime', allowOverage: true },
-      { resource: SaasResource.SUPPLIERS, limit: 1_000, period: 'lifetime', allowOverage: true },
-      { resource: SaasResource.JOURNAL_ENTRIES, limit: 5_000, period: 'monthly', allowOverage: true },
-      { resource: SaasResource.SUBSIDIARIES, limit: 3, period: 'lifetime', allowOverage: false }
+      { resource: SaasResource.INVOICES, limit: 100, period: QuotaPeriod.MONTHLY, allowOverage: true },
+      { resource: SaasResource.USERS, limit: 10, period: QuotaPeriod.LIFETIME, allowOverage: false },
+      { resource: SaasResource.CUSTOMERS, limit: 2_000, period: QuotaPeriod.LIFETIME, allowOverage: true },
+      { resource: SaasResource.SUPPLIERS, limit: 1_000, period: QuotaPeriod.LIFETIME, allowOverage: true },
+      { resource: SaasResource.JOURNAL_ENTRIES, limit: 5_000, period: QuotaPeriod.MONTHLY, allowOverage: true },
+      { resource: SaasResource.SUBSIDIARIES, limit: 3, period: QuotaPeriod.LIFETIME, allowOverage: false }
     ]
   },
   {
@@ -68,12 +69,12 @@ export const SAAS_PLANS: PlanConfig[] = [
     monthlyPriceIdVar: 'STRIPE_PRICE_ENTERPRISE',
     monthlyPrice: 19900,
     limits: [
-      { resource: SaasResource.INVOICES, limit: -1, period: 'monthly', allowOverage: true },
-      { resource: SaasResource.USERS, limit: -1, period: 'lifetime', allowOverage: true },
-      { resource: SaasResource.CUSTOMERS, limit: -1, period: 'lifetime', allowOverage: true },
-      { resource: SaasResource.SUPPLIERS, limit: -1, period: 'lifetime', allowOverage: true },
-      { resource: SaasResource.JOURNAL_ENTRIES, limit: -1, period: 'monthly', allowOverage: true },
-      { resource: SaasResource.SUBSIDIARIES, limit: -1, period: 'lifetime', allowOverage: true }
+      { resource: SaasResource.INVOICES, limit: -1, period: QuotaPeriod.MONTHLY, allowOverage: true },
+      { resource: SaasResource.USERS, limit: -1, period: QuotaPeriod.LIFETIME, allowOverage: true },
+      { resource: SaasResource.CUSTOMERS, limit: -1, period: QuotaPeriod.LIFETIME, allowOverage: true },
+      { resource: SaasResource.SUPPLIERS, limit: -1, period: QuotaPeriod.LIFETIME, allowOverage: true },
+      { resource: SaasResource.JOURNAL_ENTRIES, limit: -1, period: QuotaPeriod.MONTHLY, allowOverage: true },
+      { resource: SaasResource.SUBSIDIARIES, limit: -1, period: QuotaPeriod.LIFETIME, allowOverage: true }
     ]
   }
 ];

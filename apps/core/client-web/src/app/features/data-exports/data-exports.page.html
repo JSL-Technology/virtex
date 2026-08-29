@@ -20,8 +20,8 @@
                     </select>
                 </div>
                 <div class="form-field">
-                    <label>Format*</label>
-                    <div class="button-group">
+                    <span class="input-label" id="export-group-1">Format*</span>
+                    <div class="button-group" role="group" aria-labelledby="export-group-1">
                         <button type="button" [class.active]="exportForm.get('format')?.value === 'csv'"
                             (click)="exportForm.get('format')?.setValue('csv')">CSV</button>
                         <button type="button" [class.active]="exportForm.get('format')?.value === 'xlsx'"

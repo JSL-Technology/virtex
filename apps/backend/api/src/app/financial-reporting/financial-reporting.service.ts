@@ -227,7 +227,7 @@ export class FinancialReportingService {
         .andWhere('valuation.ledgerId = :ledgerId', { ledgerId: ledger.id });
 
     for (const dimensionId in filters) {
-        if (filters.hasOwnProperty(dimensionId)) {
+        if (Object.prototype.hasOwnProperty.call(filters, dimensionId)) {
             const dimensionValueId = filters[dimensionId];
             movementsQuery.andWhere(`line.dimensions ->> :dimensionId = :dimensionValueId`, {
                 dimensionId,
@@ -283,7 +283,7 @@ export class FinancialReportingService {
           .andWhere('valuation.ledgerId = :ledgerId', { ledgerId: ledger.id });
       
       for (const dimensionId in filters) {
-        if (filters.hasOwnProperty(dimensionId)) {
+        if (Object.prototype.hasOwnProperty.call(filters, dimensionId)) {
             const dimensionValueId = filters[dimensionId];
             movementsQuery.andWhere(`line.dimensions ->> :dimensionId = :dimensionValueId`, {
                 dimensionId,
@@ -456,7 +456,7 @@ export class FinancialReportingService {
           .andWhere('valuation.ledgerId = :ledgerId', { ledgerId });
 
       for (const dimensionId in filters) {
-        if (filters.hasOwnProperty(dimensionId)) {
+        if (Object.prototype.hasOwnProperty.call(filters, dimensionId)) {
             const dimensionValueId = filters[dimensionId];
             query.andWhere(`line.dimensions ->> :dimensionId = :dimensionValueId`, {
                 dimensionId,

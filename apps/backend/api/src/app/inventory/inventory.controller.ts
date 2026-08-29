@@ -6,6 +6,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Controller('inventory')
 @UseGuards(JwtAuthGuard)
@@ -13,27 +14,27 @@ export class InventoryController {
   constructor(private readonly inventoryService: InventoryService) {}
 
   @Post()
-  create(@Body() createProductDto: CreateProductDto, @CurrentUser() user: User) {
+  create(@Body() createProductDto: CreateProductDto, @CurrentUser() user: AuthenticatedUser) {
     return this.inventoryService.create(createProductDto, user.organizationId);
   }
 
   @Get()
-  findAll(@CurrentUser() user: User) {
+  findAll(@CurrentUser() user: AuthenticatedUser) {
     return this.inventoryService.findAll(user.organizationId);
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.inventoryService.findOne(id, user.organizationId);
   }
 
   @Patch(':id')
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateProductDto: UpdateProductDto, @CurrentUser() user: User) {
+  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateProductDto: UpdateProductDto, @CurrentUser() user: AuthenticatedUser) {
     return this.inventoryService.update(id, updateProductDto, user.organizationId);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.inventoryService.remove(id, user.organizationId);
   }
 }

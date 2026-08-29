@@ -17,6 +17,7 @@ import { ProposedAdjustmentEvidence } from '../entities/proposed-adjustment-evid
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { AdjustmentsService } from '../../journal-entries/adjustments.service';
 import { User } from '../../users/entities/user.entity/user.entity';
+import { FastifyFile, toUploadableFile } from '../../common/interfaces/fastify-file.interface';
 
 @Injectable()
 export class AuditAdjustmentsService {
@@ -73,7 +74,7 @@ export class AuditAdjustmentsService {
 
   async addEvidence(
     adjustmentId: string,
-    file: Express.Multer.File,
+    file: FastifyFile,
     organizationId: string,
     uploaderId: string,
   ): Promise<ProposedAdjustmentEvidence> {
@@ -86,11 +87,10 @@ export class AuditAdjustmentsService {
         throw new ForbiddenException('Solo se puede añadir evidencia a propuestas pendientes de aprobación.');
       }
 
-      const storedFile = await this.storageService.upload({
-        fileName: file.originalname,
-        mimeType: file.mimetype,
-        buffer: file.buffer,
-      }, organizationId);
+      const storedFile = await this.storageService.upload(
+        toUploadableFile(file),
+        `audit-evidence/${organizationId}`,
+      );
 
       const evidence = manager.create(ProposedAdjustmentEvidence, {
         proposedAdjustmentId: adjustmentId,
@@ -146,10 +146,10 @@ export class AuditAdjustmentsService {
 
         this.logger.log(`Ajuste de auditoría ${documentId} contabilizado exitosamente. Asiento contable creado: ${journalEntry.id}`);
       } catch (error) {
-        this.logger.error(`Fallo al contabilizar el ajuste de auditoría ${documentId}. Revirtiendo estado.`, error.stack);
+        this.logger.error(`Fallo al contabilizar el ajuste de auditoría ${documentId}. Revirtiendo estado.`, (error as Error).stack);
         adjustment.status = AdjustmentStatus.FAILED;
         await adjustmentRepo.save(adjustment);
-        throw new InternalServerErrorException(`Fallo al procesar el ajuste aprobado: ${error.message}`);
+        throw new InternalServerErrorException(`Fallo al procesar el ajuste aprobado: ${(error as Error).message}`);
       }
     });
   }

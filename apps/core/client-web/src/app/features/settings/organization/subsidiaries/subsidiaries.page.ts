@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Building, Plus, MoreVertical, X } from 'lucide-angular';
 import { SubsidiariesService, Subsidiary, CreateSubsidiaryDto } from './subsidiaries.service';
@@ -24,10 +24,12 @@ export class SubsidiariesPage implements OnInit {
   submitting = false;
   createForm: FormGroup;
 
-  constructor(
-    private subsidiariesService: SubsidiariesService,
-    private fb: FormBuilder
-  ) {
+  private subsidiariesService = inject(SubsidiariesService);
+
+  private fb = inject(FormBuilder);
+
+
+  constructor() {
     this.createForm = this.fb.group({
       legalName: ['', [Validators.required]],
       taxId: ['', [Validators.required]],

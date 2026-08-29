@@ -68,7 +68,7 @@ export class PaginationOptionsDto {
   @Min(1)
   @IsOptional()
   @Type(() => Number)
-  page: number = 1;
+  page = 1;
 
   @ApiPropertyOptional({
     description: 'El número de ítems por página.',
@@ -79,7 +79,7 @@ export class PaginationOptionsDto {
   @Min(1)
   @IsOptional()
   @Type(() => Number)
-  limit: number = 100;
+  limit = 100;
 }
 
 export class AnalyticalQueryDto {

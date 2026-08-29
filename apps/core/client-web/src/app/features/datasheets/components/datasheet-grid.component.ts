@@ -6,8 +6,7 @@ import {
   OnDestroy,
   OnInit,
   ViewChild,
-  ViewEncapsulation
-} from '@angular/core';
+  ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HotTableComponent } from '@handsontable/angular-wrapper';
 import { registerAllModules } from 'handsontable/registry';
@@ -39,8 +38,8 @@ export class DatasheetGridComponent implements OnInit, OnDestroy {
   private erpVariables: any[] = [];
   private resolvedValues: Record<string, any> = {};
 
-  constructor(private variablesService: DatasheetVariablesService) {}
-  @Input() data: any[][] = [
+  private variablesService = inject(DatasheetVariablesService);
+@Input() data: any[][] = [
     ['', '', '', ''],
     ['', '', '', ''],
     ['', '', '', '']
@@ -133,7 +132,11 @@ export class DatasheetGridComponent implements OnInit, OnDestroy {
             isFunctionAsync: false,
             parameters: (v.params || []).map(() => ({ argumentType: 'ANY' }))
           });
-        } catch (e) {}
+        } catch (error) {
+          // HyperFormula refuses a duplicate registration; that is expected when the grid is
+          // rebuilt, and silently swallowing every other failure hid genuinely broken formulas.
+          console.warn(`Could not register spreadsheet function ${v.nameEn}:`, error);
+        }
       });
     });
 
@@ -152,7 +155,9 @@ export class DatasheetGridComponent implements OnInit, OnDestroy {
             isFunctionAsync: false,
             parameters: [{ argumentType: 'ANY', amount: { min: 1, max: 20 } }]
           });
-       } catch (e) {}
+       } catch (error) {
+          console.warn(`Could not register spreadsheet function ${fnName}:`, error);
+       }
     });
   }
 
@@ -177,6 +182,11 @@ export class DatasheetGridComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Cleanup logic
+    // The Handsontable instance owns DOM nodes and listeners that outlive the component unless it
+    // is destroyed explicitly; the method was previously an empty body with a `// Cleanup logic`
+    // comment, so every visit to a datasheet leaked one.
+    const instance = (window as never as { Handsontable?: { getInstance(el: HTMLElement | null): { destroy?(): void } | undefined } })
+      .Handsontable?.getInstance(document.getElementById(this.id));
+    instance?.destroy?.();
   }
 }

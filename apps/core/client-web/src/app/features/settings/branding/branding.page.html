@@ -17,7 +17,7 @@
                 </div>
                 <div class="form-section">
                     <h3 class="section-title">Logo y Colores</h3>
-                    <div class="form-field"><label>Logo de la Empresa</label>
+                    <div class="form-field"><label for="logoFile">Logo de la Empresa</label>
                         <div class="file-input-container logo-container">
                             <input type="file" id="logoFile" (change)="onFileSelected($event)"
                                 accept="image/png, image/jpeg, image/svg+xml">
@@ -51,8 +51,8 @@
                             formControlName="borderRadius" min="0" max="24" step="2"></div>
 
                     <div class="form-field">
-                        <label>Diseño de la Aplicación</label>
-                        <div class="button-group">
+                        <span class="input-label" id="branding-group-1">Diseño de la Aplicación</span>
+                        <div class="button-group" role="group" aria-labelledby="branding-group-1">
                             <button type="button" [class.active]="brandingForm.get('layoutStyle')?.value === 'topnav'"
                                 (click)="brandingForm.get('layoutStyle')?.setValue('topnav')">Superior</button>
                             <button type="button" [class.active]="brandingForm.get('layoutStyle')?.value === 'sidenav'"
@@ -61,16 +61,16 @@
                     </div>
 
                     <div class="form-row">
-                        <div class="form-field"><label>Densidad</label>
-                            <div class="button-group">
+                        <div class="form-field"><span class="input-label" id="branding-group-2">Densidad</span>
+                            <div class="button-group" role="group" aria-labelledby="branding-group-2">
                                 <button type="button" [class.active]="brandingForm.get('density')?.value==='compact'"
                                     (click)="brandingForm.get('density')?.setValue('compact')">Compacta</button>
                                 <button type="button" [class.active]="brandingForm.get('density')?.value==='comfy'"
                                     (click)="brandingForm.get('density')?.setValue('comfy')">Cómoda</button>
                             </div>
                         </div>
-                        <div class="form-field"><label>Ancho de Contenido</label>
-                            <div class="button-group">
+                        <div class="form-field"><span class="input-label" id="branding-group-3">Ancho de Contenido</span>
+                            <div class="button-group" role="group" aria-labelledby="branding-group-3">
                                 <button type="button"
                                     [class.active]="brandingForm.get('contentWidth')?.value==='normal'"
                                     (click)="brandingForm.get('contentWidth')?.setValue('normal')">Normal</button>
@@ -87,7 +87,7 @@
                       que se contradecían entre sí.
                     -->
                     <div class="form-field">
-                        <label id="ui-mode-label">Tema</label>
+                        <span class="input-label" id="ui-mode-label">Tema</span>
                         <div class="button-group three-cols" role="radiogroup" aria-labelledby="ui-mode-label">
                             <button type="button" role="radio"
                                 [class.active]="themeService.mode() === 'light'"
@@ -111,8 +111,8 @@
                       obligaba a renunciar al tema oscuro para poder usarlo.
                     -->
                     <div class="form-field">
-                        <label class="switch-field">
-                            <input type="checkbox"
+                        <label class="switch-field" for="field">
+                            <input id="field" type="checkbox"
                                 [checked]="themeService.contrast() === 'high'"
                                 (change)="themeService.setContrast(
                                     themeService.contrast() === 'high' ? 'normal' : 'high')">

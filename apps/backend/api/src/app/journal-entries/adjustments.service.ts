@@ -7,6 +7,7 @@ import { JournalEntry, JournalEntryType } from './entities/journal-entry.entity'
 import { CreatePeriodEndAdjustmentDto } from './dto/period-end-adjustment.dto';
 import { CreateAuditAdjustmentDto } from './dto/audit-adjustment.dto';
 import { FiscalYear, FiscalYearStatus } from '../accounting/entities/fiscal-year.entity';
+import { CreateJournalEntryDto } from './dto/create-journal-entry.dto';
 
 @Injectable()
 export class AdjustmentsService {
@@ -53,7 +54,7 @@ export class AdjustmentsService {
         }
         
 
-        const createWithManager = (d) => this.journalEntriesService.createWithQueryRunner(
+        const createWithManager = (d: CreateJournalEntryDto) => this.journalEntriesService.createWithQueryRunner(
           manager.queryRunner!,
           d,
           organizationId,

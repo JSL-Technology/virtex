@@ -141,11 +141,11 @@
                   <div class="form-field checkbox-field"><input type="checkbox" id="isFxRevaluation" formControlName="isFxRevaluation"><label for="isFxRevaluation">Aplica Revaluación por Tipo de Cambio</label></div>
               </div>
               <div class="form-field full-width" formArrayName="requiredDimensions">
-                  <label>Dimensiones Requeridas</label>
+                  <label for="dimensiones-requeridas">Dimensiones Requeridas</label>
                   <div class="checkbox-group">
                       @for(dim of allDimensions; track dim; let i = $index){
                           <div class="checkbox-item">
-                              <input type="checkbox" [id]="'dim-' + i" [value]="dim" [checked]="isDimensionSelected(dim)" (change)="onDimensionChange($event)">
+                              <input id="dimensiones-requeridas" type="checkbox" [id]="'dim-' + i" [value]="dim" [checked]="isDimensionSelected(dim)" (change)="onDimensionChange($event)">
                               <label [for]="'dim-' + i">{{ dim | titlecase }}</label>
                           </div>
                       }

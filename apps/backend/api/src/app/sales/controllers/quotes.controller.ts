@@ -4,6 +4,7 @@ import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { User } from '../../users/entities/user.entity/user.entity';
 import { QuotesService } from '../services/quotes.service';
 import { CreateQuoteDto } from '../dto/create-quote.dto';
+import { AuthenticatedUser } from '../../auth/interfaces/authenticated-user.interface';
 
 @Controller('sales/quotes')
 @UseGuards(JwtAuthGuard)
@@ -11,17 +12,17 @@ export class QuotesController {
   constructor(private readonly quotesService: QuotesService) {}
 
   @Post()
-  create(@Body() createDto: CreateQuoteDto, @CurrentUser() user: User) {
+  create(@Body() createDto: CreateQuoteDto, @CurrentUser() user: AuthenticatedUser) {
     return this.quotesService.create(createDto, user.organizationId, user);
   }
 
   @Get()
-  findAll(@CurrentUser() user: User) {
+  findAll(@CurrentUser() user: AuthenticatedUser) {
     return this.quotesService.findAll(user.organizationId);
   }
 
   @Post(':id/convert-to-invoice')
-  convertToInvoice(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+  convertToInvoice(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.quotesService.convertToInvoice(id, user.organizationId);
   }
 }

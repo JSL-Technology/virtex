@@ -1,5 +1,5 @@
 
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy, signal, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy, signal, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -17,7 +17,7 @@ import { NotificationService } from '../../../../core/services/notification';
 })
 export class PhoneVerificationModalComponent {
   @Input() isOpen = signal(false);
-  @Output() close = new EventEmitter<void>();
+  @Output() closed = new EventEmitter<void>();
   @Output() verified = new EventEmitter<void>();
 
   private authService = inject(AuthService);
@@ -59,7 +59,7 @@ export class PhoneVerificationModalComponent {
         this.isLoading.set(false);
         this.notificationService.showSuccess('SETTINGS.PROFILE.PHONE_VERIFIED');
         this.verified.emit();
-        this.close.emit();
+        this.closed.emit();
       },
       error: () => {
         this.isLoading.set(false);
@@ -67,4 +67,19 @@ export class PhoneVerificationModalComponent {
       }
     });
   }
+
+  /**
+   * Escape closes the dialog.
+   *
+   * The backdrop's click handler is a mouse convenience; the keyboard equivalent for a modal is
+   * Escape, handled at the document level so it works wherever focus happens to be. Satisfying the
+   * template linter by putting `tabindex="0"` and `role="button"` on the backdrop instead would
+   * have added a phantom tab stop in front of the dialog — a worse experience for exactly the
+   * users the rule exists to protect.
+   */
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    this.closed.emit();
+  }
+
 }

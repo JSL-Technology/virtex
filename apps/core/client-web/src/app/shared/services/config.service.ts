@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, shareReplay } from 'rxjs';
 import { Industry, CompanySize } from '@virteex/shared/types';
@@ -17,9 +17,8 @@ export class ConfigService {
   private apiUrl = environment.apiUrl;
   private registrationOptions$: Observable<RegistrationOptions> | null = null;
 
-  constructor(private http: HttpClient) {}
-
-  getRegistrationOptions(): Observable<RegistrationOptions> {
+  private http = inject(HttpClient);
+getRegistrationOptions(): Observable<RegistrationOptions> {
     if (!this.registrationOptions$) {
       this.registrationOptions$ = this.http.get<RegistrationOptions>(`${this.apiUrl}/config/registration-options`).pipe(
         shareReplay(1)

@@ -5,6 +5,7 @@ import { User } from '../users/entities/user.entity/user.entity';
 import { CasesService } from './cases.service';
 import { KnowledgeBaseService } from './knowledge-base.service';
 import { InvoicesService } from '../invoices/invoices.service';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Controller('customer-portal')
 @UseGuards(JwtAuthGuard)
@@ -16,25 +17,25 @@ export class CustomerPortalController {
   ) {}
 
   @Get('my-cases')
-  getMyCases(@CurrentUser() user: User) {
+  getMyCases(@CurrentUser() user: AuthenticatedUser) {
 
 
     return this.casesService.findAll(user.organizationId);
   }
 
   @Get('my-invoices')
-  getMyInvoices(@CurrentUser() user: User) {
+  getMyInvoices(@CurrentUser() user: AuthenticatedUser) {
 
     return this.invoicesService.findAll(user.organizationId);
   }
 
   @Get('knowledge-base')
-  searchKnowledgeBase(@CurrentUser() user: User) {
+  searchKnowledgeBase(@CurrentUser() user: AuthenticatedUser) {
     return this.knowledgeBaseService.findAllPublished(user.organizationId);
   }
 
   @Get('knowledge-base/:id')
-  getKnowledgeBaseArticle(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+  getKnowledgeBaseArticle(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.knowledgeBaseService.findOnePublished(id, user.organizationId);
   }
 }

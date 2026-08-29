@@ -81,27 +81,27 @@
                 <!-- GRUPO 5: SISTEMA -->
                 <div class="nav-group">
                     <h3 class="group-title">Sistema</h3>
-                    <a routerLink="users" routerLinkActive="active" class="nav-link" *hasPermission="'users:view'">
+                    <a routerLink="users" routerLinkActive="active" class="nav-link" *appHasPermission="'users:view'">
                         <lucide-icon [img]="UsersIcon" size="16"></lucide-icon>
                         <span>Usuarios</span>
                     </a>
-                    <a routerLink="roles" routerLinkActive="active" class="nav-link" *hasPermission="'roles:view'">
+                    <a routerLink="roles" routerLinkActive="active" class="nav-link" *appHasPermission="'roles:view'">
                         <lucide-icon [img]="RolesIcon" size="16"></lucide-icon>
                         <span>Roles y Permisos</span>
                     </a>
-                    <a routerLink="security" routerLinkActive="active" class="nav-link" *hasPermission="'settings:edit_company'">
+                    <a routerLink="security" routerLinkActive="active" class="nav-link" *appHasPermission="'settings:edit_company'">
                         <lucide-icon [img]="SecurityIcon" size="16"></lucide-icon>
                         <span>Seguridad y Auditoría</span>
                     </a>
-                    <a routerLink="integrations" routerLinkActive="active" class="nav-link" *hasPermission="'settings:edit_company'">
+                    <a routerLink="integrations" routerLinkActive="active" class="nav-link" *appHasPermission="'settings:edit_company'">
                         <lucide-icon [img]="IntegrationsIcon" size="16"></lucide-icon>
                         <span>Integraciones</span>
                     </a>
-                    <a routerLink="smtp" routerLinkActive="active" class="nav-link" *hasPermission="'settings:edit_company'">
+                    <a routerLink="smtp" routerLinkActive="active" class="nav-link" *appHasPermission="'settings:edit_company'">
                         <lucide-icon [img]="SmtpIcon" size="16"></lucide-icon>
                         <span>Servidor de Correo</span>
                     </a>
-                    <a routerLink="sso" routerLinkActive="active" class="nav-link" *hasPermission="'settings:edit_company'">
+                    <a routerLink="sso" routerLinkActive="active" class="nav-link" *appHasPermission="'settings:edit_company'">
                         <lucide-icon [img]="SsoIcon" size="16"></lucide-icon>
                         <span>SSO</span>
                     </a>

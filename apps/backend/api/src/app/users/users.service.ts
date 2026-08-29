@@ -703,7 +703,9 @@ export class UsersService {
         relations: ['roles', 'security'],
     });
     if (!user) return null;
-    user.organization = await this.orgRepository.findOneBy({ id: user.organizationId }) ?? undefined;
+    user.organization = user.organizationId
+      ? ((await this.orgRepository.findOneBy({ id: user.organizationId })) ?? undefined)
+      : undefined;
     return user;
   }
 

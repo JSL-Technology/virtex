@@ -24,6 +24,7 @@ import { CookieService } from '../auth/services/cookie.service';
 import { UsersService } from '../users/users.service';
 import { UserResponseDto } from '../auth/dto/user-response.dto';
 import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Controller('organizations')
 @UseGuards(JwtAuthGuard)
@@ -49,7 +50,7 @@ export class OrganizationsController {
   // would trap them there.
   @AllowInactiveSubscription()
   @Get('memberships')
-  async getMemberships(@CurrentUser() user: User) {
+  async getMemberships(@CurrentUser() user: AuthenticatedUser) {
     return this.membershipService.listFor(user.id, user.organizationId);
   }
 
@@ -68,7 +69,7 @@ export class OrganizationsController {
   @Post('switch')
   @HttpCode(HttpStatus.OK)
   async switchOrganization(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Body() dto: SwitchOrganizationDto,
     @Res({ passthrough: true }) res: Response,
     @Ip() ip: string,
@@ -101,7 +102,7 @@ export class OrganizationsController {
   }
 
   @Get('profile')
-  async getProfile(@CurrentUser() user: User) {
+  async getProfile(@CurrentUser() user: AuthenticatedUser) {
     // Serialised, not returned raw. The entity carries `stripe_customer_id` and
     // `stripe_subscription_id`, which OrganizationResponseDto excludes on purpose — this endpoint
     // handed both to any authenticated member of the organization.
@@ -114,14 +115,14 @@ export class OrganizationsController {
   @Patch('profile')
   @CheckPermissions(IsOrganizationOwnerPolicy)
   async updateProfile(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Body() updateOrganizationDto: UpdateOrganizationDto,
   ) {
     return this.organizationsService.update(user.organizationId, updateOrganizationDto);
   }
 
   @Get('subsidiaries')
-  async getSubsidiaries(@CurrentUser() user: User) {
+  async getSubsidiaries(@CurrentUser() user: AuthenticatedUser) {
     return this.organizationsService.getSubsidiaries(user.organizationId);
   }
 
@@ -139,7 +140,7 @@ export class OrganizationsController {
   @StepUp(StepUpScope.MANAGE_ROLES)
   @CheckPermissions(IsOrganizationOwnerPolicy)
   async createSubsidiary(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Body() createSubsidiaryDto: CreateSubsidiaryDto,
   ) {
     return this.organizationsService.createSubsidiary(user.organizationId, createSubsidiaryDto);

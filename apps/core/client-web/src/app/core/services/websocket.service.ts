@@ -14,8 +14,6 @@ export class WebSocketService implements OnDestroy {
   private connectionReady = new Subject<void>();
   public connectionReady$ = this.connectionReady.asObservable();
 
-  constructor() {}
-
   connect(): void {
     if (this.socket?.connected) {
       return;

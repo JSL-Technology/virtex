@@ -255,11 +255,11 @@ export class SessionService {
 
         const location = this.geoService.getLocation(ipAddress);
         if (location) {
-          updateData.country = location.country;
-          updateData.city = location.city;
-          updateData.region = location.region;
-          updateData.latitude = location.ll ? location.ll[0] : null;
-          updateData.longitude = location.ll ? location.ll[1] : null;
+          updateData.country = location.country ?? undefined;
+          updateData.city = location.city ?? undefined;
+          updateData.region = location.region ?? undefined;
+          updateData.latitude = location.ll ? location.ll[0] : undefined;
+          updateData.longitude = location.ll ? location.ll[1] : undefined;
         }
       }
 
@@ -634,7 +634,7 @@ export class SessionService {
         const ipv4 = addr as ipaddr.IPv4;
         return `${ipv4.octets[0]}.${ipv4.octets[1]}.*.*`;
       } else if (addr.kind() === 'ipv6') {
-        let ipv6 = addr as ipaddr.IPv6;
+        const ipv6 = addr as ipaddr.IPv6;
 
         // Handle IPv4-mapped IPv6 addresses (::ffff:127.0.0.1)
         if (ipv6.isIPv4MappedAddress()) {

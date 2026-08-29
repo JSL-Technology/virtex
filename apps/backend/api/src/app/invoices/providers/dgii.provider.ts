@@ -29,7 +29,7 @@ export class DgiiEInvoiceProvider implements EInvoiceProvider {
       );
       return { success, providerId: trackId, message };
     } catch (error) {
-      return { success: false, message: error.message };
+      return { success: false, message: (error as Error).message };
     }
   }
 

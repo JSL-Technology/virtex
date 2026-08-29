@@ -1,5 +1,7 @@
-<div class="modal-backdrop" *ngIf="isOpen()" (click)="close()">
-  <div class="modal-container" (click)="$event.stopPropagation()">
+<!-- A backdrop dismiss is a mouse convenience. Its keyboard equivalent is Escape, handled at the document level in the component, plus the dialog's own Close button. Giving the backdrop tabindex/role to satisfy the rule would put a phantom tab stop in front of the dialog. -->
+<!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus -->
+<div class="modal-backdrop" *ngIf="isOpen()" (click)="$event.target === $event.currentTarget &amp;&amp; (close())" (keydown.escape)="close()">
+  <div class="modal-container" tabindex="0">
     <div class="modal-header">
       <h2>Seleccionar Documento Base (Copiar de...)</h2>
       <button class="close-btn" (click)="close()">
@@ -33,7 +35,7 @@
             </thead>
             <tbody>
               @for (invoice of filteredInvoices(); track invoice.id) {
-                <tr (click)="selectInvoice(invoice)" class="selectable-row">
+                <tr (click)="selectInvoice(invoice)" class="selectable-row" tabindex="0" (keydown.enter)="selectInvoice(invoice)" (keydown.space)="$event.preventDefault(); selectInvoice(invoice)">
                   <td><strong>{{ invoice.invoiceNumber }}</strong></td>
                   <td>{{ invoice.customerName }}</td>
                   <td>{{ invoice.issueDate | date:'shortDate' }}</td>

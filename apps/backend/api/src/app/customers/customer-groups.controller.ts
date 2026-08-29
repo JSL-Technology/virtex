@@ -6,6 +6,7 @@ import { User } from '../users/entities/user.entity/user.entity';
 import { CustomerGroupsService } from './customer-groups.service';
 import { CreateCustomerGroupDto } from './dto/create-customer-group.dto';
 import { UpdateCustomerGroupDto } from './dto/update-customer-group.dto';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Controller('customer-groups')
 @UseGuards(JwtAuthGuard)
@@ -13,27 +14,27 @@ export class CustomerGroupsController {
   constructor(private readonly customerGroupsService: CustomerGroupsService) {}
 
   @Post()
-  create(@Body() createDto: CreateCustomerGroupDto, @CurrentUser() user: User) {
+  create(@Body() createDto: CreateCustomerGroupDto, @CurrentUser() user: AuthenticatedUser) {
     return this.customerGroupsService.create(createDto, user.organizationId);
   }
 
   @Get()
-  findAll(@CurrentUser() user: User) {
+  findAll(@CurrentUser() user: AuthenticatedUser) {
     return this.customerGroupsService.findAll(user.organizationId);
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.customerGroupsService.findOne(id, user.organizationId);
   }
 
   @Patch(':id')
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateDto: UpdateCustomerGroupDto, @CurrentUser() user: User) {
+  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateDto: UpdateCustomerGroupDto, @CurrentUser() user: AuthenticatedUser) {
     return this.customerGroupsService.update(id, updateDto, user.organizationId);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.customerGroupsService.remove(id, user.organizationId);
   }
 }

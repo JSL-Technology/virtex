@@ -1,7 +1,14 @@
 import { waitForPortOpen } from '@nx/node/utils';
 
-/* eslint-disable */
-var __TEARDOWN_MESSAGE__: string;
+/**
+ * The message global teardown prints. Declared on `globalThis` rather than assigned to it
+ * untyped: `globalThis` has no index signature, so `globalThis.__TEARDOWN_MESSAGE__ = …` is an
+ * error under `noImplicitAny`.
+ */
+declare global {
+  // eslint-disable-next-line no-var
+  var __TEARDOWN_MESSAGE__: string;
+}
 
 module.exports = async function () {
   // Start services that that the app needs to run (e.g. database, docker-compose, etc.).

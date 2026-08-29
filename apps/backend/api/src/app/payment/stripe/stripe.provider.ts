@@ -12,7 +12,9 @@ export const stripeProvider: Provider = {
         return null;
     }
     return new Stripe(secretKey, {
-      apiVersion: '2025-01-27.acacia', // Ensure this matches expected version
+      // Pinned to whatever the installed SDK declares, so upgrading the package cannot leave the
+      // client announcing a version it no longer implements.
+      apiVersion: Stripe.API_VERSION as Stripe.StripeConfig['apiVersion'],
     });
   },
   inject: [ConfigService],

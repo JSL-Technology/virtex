@@ -22,7 +22,7 @@ export class GeoService {
     // 1. Handle Debug Override
     if (process.env['NODE_ENV'] !== 'production' && this.DEBUG_COUNTRY_OVERRIDE) {
         this.logger.debug(`Using DEBUG_COUNTRY_OVERRIDE: ${this.DEBUG_COUNTRY_OVERRIDE}`);
-        return { country: this.DEBUG_COUNTRY_OVERRIDE, city: 'Debug City', ll: [0, 0], ip };
+        return { country: this.DEBUG_COUNTRY_OVERRIDE, city: 'Debug City', region: null, ll: [0, 0], ip };
     }
 
     // 2. Handle Localhost / Private IPs

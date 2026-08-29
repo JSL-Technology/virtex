@@ -31,13 +31,13 @@
 
   <!-- Main Actions -->
   <div class="toolbar-group">
-    <button class="tool-btn" (click)="print.emit()" title="Imprimir">
+    <button class="tool-btn" (click)="printRequested.emit()" title="Imprimir">
       <lucide-icon [img]="PrintIcon" size="18"></lucide-icon>
     </button>
-    <button class="tool-btn" (click)="email.emit()" title="Enviar por correo">
+    <button class="tool-btn" (click)="emailRequested.emit()" title="Enviar por correo">
       <lucide-icon [img]="EmailIcon" size="18"></lucide-icon>
     </button>
-    <button class="tool-btn" (click)="search.emit()" title="Búsqueda sobre documento">
+    <button class="tool-btn" (click)="searchRequested.emit()" title="Búsqueda sobre documento">
       <lucide-icon [img]="SearchIcon" size="18"></lucide-icon>
     </button>
   </div>
@@ -46,13 +46,13 @@
 
   <!-- Export Group -->
   <div class="toolbar-group">
-    <button class="tool-btn" (click)="export.emit('pdf')" title="Exportar a PDF">
+    <button class="tool-btn" (click)="exportRequested.emit('pdf')" title="Exportar a PDF">
       <lucide-icon [img]="PdfIcon" size="18"></lucide-icon>
     </button>
-    <button class="tool-btn" (click)="export.emit('excel')" title="Exportar a Excel">
+    <button class="tool-btn" (click)="exportRequested.emit('excel')" title="Exportar a Excel">
       <lucide-icon [img]="ExcelIcon" size="18"></lucide-icon>
     </button>
-    <button class="tool-btn" (click)="export.emit('word')" title="Exportar a Word">
+    <button class="tool-btn" (click)="exportRequested.emit('word')" title="Exportar a Word">
       <lucide-icon [img]="WordIcon" size="18"></lucide-icon>
     </button>
   </div>

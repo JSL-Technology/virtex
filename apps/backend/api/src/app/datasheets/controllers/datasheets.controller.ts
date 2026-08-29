@@ -16,6 +16,7 @@ import { DatasheetBook } from '../entities/datasheet-book.entity';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { User } from '../../users/entities/user.entity/user.entity';
 import { JwtAuthGuard } from '../../auth/guards/jwt/jwt.guard';
+import { AuthenticatedUser } from '../../auth/interfaces/authenticated-user.interface';
 
 @Controller('datasheets')
 @UseGuards(JwtAuthGuard)
@@ -34,7 +35,7 @@ export class DatasheetsController {
   @Post('import/data')
   importData(
     @Body() body: { module: string, set: string, columns: string[], filters: any },
-    @CurrentUser() user: User
+    @CurrentUser() user: AuthenticatedUser
   ) {
     return this.importService.importData(body.module, body.set, body.columns, body.filters, user);
   }
@@ -47,23 +48,23 @@ export class DatasheetsController {
   @Post('resolve-variables')
   resolveVariables(
     @Body('variables') variables: { name: string, params: any[] }[],
-    @CurrentUser() user: User
+    @CurrentUser() user: AuthenticatedUser
   ) {
     return this.variablesService.resolveBatch(variables, user);
   }
 
   @Post()
-  create(@Body() data: Partial<DatasheetBook>, @CurrentUser() user: User) {
+  create(@Body() data: Partial<DatasheetBook>, @CurrentUser() user: AuthenticatedUser) {
     return this.datasheetsService.create(data, user);
   }
 
   @Get()
-  findAll(@CurrentUser() user: User) {
+  findAll(@CurrentUser() user: AuthenticatedUser) {
     return this.datasheetsService.findAll(user);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string, @CurrentUser() user: User) {
+  findOne(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.datasheetsService.findOne(id, user);
   }
 
@@ -71,13 +72,13 @@ export class DatasheetsController {
   update(
     @Param('id') id: string,
     @Body() data: Partial<DatasheetBook>,
-    @CurrentUser() user: User
+    @CurrentUser() user: AuthenticatedUser
   ) {
     return this.datasheetsService.update(id, data, user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @CurrentUser() user: User) {
+  remove(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.datasheetsService.remove(id, user);
   }
 
@@ -85,13 +86,13 @@ export class DatasheetsController {
   createVersion(
     @Param('id') id: string,
     @Body('comment') comment: string,
-    @CurrentUser() user: User
+    @CurrentUser() user: AuthenticatedUser
   ) {
     return this.datasheetsService.createVersion(id, comment, user);
   }
 
   @Get(':id/versions')
-  getVersions(@Param('id') id: string, @CurrentUser() user: User) {
+  getVersions(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.datasheetsService.getVersions(id, user);
   }
 }

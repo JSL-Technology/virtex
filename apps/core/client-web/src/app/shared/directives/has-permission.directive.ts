@@ -3,7 +3,7 @@ import { AuthService } from '../../core/services/auth';
 import { combineLatest, Subscription } from 'rxjs';
 
 @Directive({
-    selector: '[hasPermission]',
+    selector: '[appHasPermission]',
     standalone: true
 })
 export class HasPermissionDirective implements OnDestroy {
@@ -25,7 +25,7 @@ export class HasPermissionDirective implements OnDestroy {
     }
 
     @Input()
-    set hasPermission(value: string | string[] | undefined | null) {
+    set appHasPermission(value: string | string[] | undefined | null) {
         this.requiredPermissions = Array.isArray(value) ? value : (value ? [value] : []);
         this.updateView();
     }

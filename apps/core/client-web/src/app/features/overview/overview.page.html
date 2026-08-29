@@ -87,7 +87,7 @@
             } @else {
               <ul class="ov-activity-list">
                 @for (item of activity(); track item.id) {
-                  <li class="ov-activity" [class.is-clickable]="item.route" (click)="open(item.route)">
+                  <li class="ov-activity" [class.is-clickable]="item.route" (click)="open(item.route)" tabindex="0" (keydown.enter)="open(item.route)" (keydown.space)="$event.preventDefault(); open(item.route)">
                     <span class="ov-activity__icon" [attr.data-kind]="item.kind">
                       <lucide-icon [img]="item.icon" size="16"></lucide-icon>
                     </span>

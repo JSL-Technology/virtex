@@ -1,5 +1,5 @@
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -29,9 +29,8 @@ export interface OrganizationMembership {
 export class OrganizationService {
   private apiUrl = `${environment.apiUrl}/organizations`;
 
-  constructor(private http: HttpClient) {}
-
-  getProfile(): Observable<OrganizationProfile> {
+  private http = inject(HttpClient);
+getProfile(): Observable<OrganizationProfile> {
     return this.http.get<OrganizationProfile>(`${this.apiUrl}/profile`);
   }
 

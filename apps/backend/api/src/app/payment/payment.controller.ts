@@ -16,6 +16,7 @@ import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-sub
 import { Public } from '../auth/decorators/public.decorator';
 import { SkipCsrf } from '../auth/decorators/skip-csrf.decorator';
 import { CreateCheckoutSessionDto, ConfirmCheckoutDto } from './dto/payment.dto';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 /**
  * Billing stays reachable when the subscription is not.
@@ -49,7 +50,7 @@ export class PaymentController {
   @UseGuards(JwtAuthGuard, StepUpGuard)
   @StepUp(StepUpScope.MANAGE_PAYMENT)
   async createCheckoutSession(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Body() dto: CreateCheckoutSessionDto,
     @Ip() ip: string
   ) {
@@ -97,7 +98,7 @@ export class PaymentController {
 
   @Get('overview')
   @UseGuards(JwtAuthGuard)
-  async getOverview(@CurrentUser() user: User) {
+  async getOverview(@CurrentUser() user: AuthenticatedUser) {
     if (!user.organizationId) {
       throw new BadRequestException('User does not belong to an organization');
     }
@@ -107,7 +108,7 @@ export class PaymentController {
   @Post('checkout/confirm')
   @UseGuards(JwtAuthGuard)
   async confirmCheckout(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Body() body: ConfirmCheckoutDto
   ) {
     if (!user.organizationId) {
@@ -118,7 +119,7 @@ export class PaymentController {
 
   @Get('invoices')
   @UseGuards(JwtAuthGuard)
-  async getInvoices(@CurrentUser() user: User) {
+  async getInvoices(@CurrentUser() user: AuthenticatedUser) {
     if (!user.organizationId) {
       throw new BadRequestException('User does not belong to an organization');
     }
@@ -129,7 +130,7 @@ export class PaymentController {
   @UseGuards(JwtAuthGuard, StepUpGuard)
   @StepUp(StepUpScope.MANAGE_PAYMENT)
   async createPortalSession(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Ip() ip: string
   ) {
     if (!user.organizationId) {
@@ -142,7 +143,7 @@ export class PaymentController {
       await this.auditTrailService.record(user.id, 'Organization', user.organizationId, ActionType.UPDATE, { action: 'create-portal-session' }, undefined, ip, user.organizationId);
       return result;
     } catch (e) {
-      await this.auditTrailService.record(user.id, 'Organization', user.organizationId, ActionType.UPDATE, { action: 'create-portal-session', error: e.message }, undefined, ip, user.organizationId);
+      await this.auditTrailService.record(user.id, 'Organization', user.organizationId, ActionType.UPDATE, { action: 'create-portal-session', error: (e as Error).message }, undefined, ip, user.organizationId);
       throw e;
     }
   }

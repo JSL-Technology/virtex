@@ -8,7 +8,7 @@
         </div>
         <div class="product-grid">
             @for (product of allProducts(); track product.id) {
-            <div class="product-card" (click)="addToCart(product)" [class.disabled]="product.stock === 0">
+            <div class="product-card" (click)="addToCart(product)" [class.disabled]="product.stock === 0" tabindex="0" role="button" (keydown.enter)="addToCart(product)" (keydown.space)="$event.preventDefault(); addToCart(product)">
                 <img [src]="product.imageUrl" [alt]="product.name" class="product-image">
                 <div class="product-info">
                     <span class="product-name">{{ product.name }}</span>

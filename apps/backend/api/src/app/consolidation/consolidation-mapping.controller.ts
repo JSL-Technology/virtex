@@ -5,6 +5,7 @@ import { ConsolidationMappingService } from './consolidation-mapping.service';
 import { CreateConsolidationMapDto } from './dto/create-consolidation-map.dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Controller('consolidation/mapping')
 @UseGuards(JwtAuthGuard)
@@ -14,7 +15,7 @@ export class ConsolidationMappingController {
   @Get(':subsidiaryId')
   getMap(
       @Param('subsidiaryId', ParseUUIDPipe) subsidiaryId: string,
-      @CurrentUser() user: User
+      @CurrentUser() user: AuthenticatedUser
   ) {
     return this.mappingService.getMapForSubsidiary(user.organizationId, subsidiaryId);
   }
@@ -22,7 +23,7 @@ export class ConsolidationMappingController {
   @Post()
   createOrUpdateMap(
     @Body() dto: CreateConsolidationMapDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.mappingService.createOrUpdateMap(user.organizationId, dto);
   }

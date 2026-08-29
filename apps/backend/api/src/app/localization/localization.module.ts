@@ -1,7 +1,6 @@
 
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { BullModule } from '@nestjs/bullmq';
 import { HttpModule } from '@nestjs/axios';
 import { LocalizationService } from './services/localization.service';
 import { FiscalRegion } from './entities/fiscal-region.entity';
@@ -11,7 +10,6 @@ import { TaxesModule } from '../taxes/taxes.module';
 import { LocalizationTemplate } from './entities/localization-template.entity';
 import { CoaTemplate } from './entities/coa-template.entity';
 import { TaxTemplate } from './entities/tax-template.entity';
-import { LocalizationConsumer } from './consumers/localization.consumer';
 import { SharedModule } from '../shared/shared.module';
 import { TaxGroup } from './entities/tax-group.entity';
 import { ReportDefinition } from './entities/report-definition.entity';
@@ -36,9 +34,10 @@ import { USStrategy } from './drivers/usa/usa.strategy';
       FiscalDocumentTypeDefinition,
       EInvoiceProviderConfig,
     ]),
-    BullModule.registerQueue({
-      name: 'localization',
-    }),
+    // The 'localization' queue and its consumer are gone. Nothing ever enqueued a job onto it,
+    // and the consumer's handler looped over the chart-of-accounts and tax templates with empty
+    // bodies — so provisioning appeared to be asynchronous and queue-backed while actually being
+    // done synchronously by `LocalizationService.applyFiscalPackage`. Two mechanisms, one real.
     forwardRef(() => ChartOfAccountsModule),
     TaxesModule,
     SharedModule,
@@ -46,7 +45,6 @@ import { USStrategy } from './drivers/usa/usa.strategy';
   ],
   providers: [
     LocalizationService,
-    LocalizationConsumer,
     LocalizationListener,
     DominicanRepublicStrategy,
     USStrategy,

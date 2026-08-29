@@ -1,5 +1,5 @@
 
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -8,12 +8,16 @@ import { TranslateModule } from '@ngx-translate/core';
   standalone: true,
   imports: [CommonModule, TranslateModule],
   template: `
+    <!-- Backdrop dismiss is a mouse convenience; Escape is handled at the document level in the component. See onEscapeKey(). -->
+    <!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus -->
     <div class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
          *ngIf="isOpen"
-         (click)="onCancel()">
+         (click)="$event.target === $event.currentTarget && onCancel()"
+         (keydown.escape)="onCancel()">
 
       <div class="w-full max-w-sm bg-white dark:bg-card-bg rounded-xl shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-800"
-           (click)="$event.stopPropagation()">
+           role="dialog"
+           aria-modal="true">
 
         <div class="p-6 text-center">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{{ title | translate }}</h3>
@@ -39,14 +43,31 @@ export class ConfirmationModalComponent {
   @Input() title = 'COMMON.CONFIRMATION';
   @Input() message = 'COMMON.ARE_YOU_SURE';
 
-  @Output() confirm = new EventEmitter<void>();
-  @Output() cancel = new EventEmitter<void>();
+  @Output() confirmed = new EventEmitter<void>();
+  @Output() cancelled = new EventEmitter<void>();
 
   onConfirm() {
-    this.confirm.emit();
+    this.confirmed.emit();
   }
 
   onCancel() {
-    this.cancel.emit();
+    this.cancelled.emit();
   }
+
+  /**
+   * Escape closes the dialog.
+   *
+   * The backdrop's click handler is a mouse convenience; the keyboard equivalent for a modal is
+   * Escape, handled at the document level so it works wherever focus happens to be. Satisfying the
+   * template linter by putting `tabindex="0"` and `role="button"` on the backdrop instead would
+   * have added a phantom tab stop in front of the dialog — a worse experience for exactly the
+   * users the rule exists to protect.
+   */
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    if (this.isOpen) {
+      this.onCancel();
+    }
+  }
+
 }

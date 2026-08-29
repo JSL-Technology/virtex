@@ -36,8 +36,9 @@ describe('CachedUser — what may be cached', () => {
     lastName: 'Example',
     status: UserStatus.ACTIVE,
     organizationId: 'org-1',
-    permissions: ['invoices:view'],
-    roleNames: ['Member'],
+    roleAssignments: [
+      { name: 'Member', organizationId: 'org-1', permissions: ['invoices:view'] },
+    ],
     tokenVersion: 3,
     isTwoFactorEnabled: false,
   };
@@ -57,8 +58,10 @@ describe('CachedUser — what may be cached', () => {
         'isTwoFactorEnabled',
         'lastName',
         'organizationId',
-        'permissions',
-        'roleNames',
+        // One field, not two: `permissions` and `roleNames` were flattened across every tenant
+        // the user belongs to, which is how administrator rights in one customer leaked into
+        // another. The assignments are kept whole so they can be filtered by active tenant.
+        'roleAssignments',
         'status',
         'tokenVersion',
       ].sort(),

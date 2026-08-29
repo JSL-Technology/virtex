@@ -88,7 +88,10 @@ export class AuthService {
   public isAuthenticated$ = toObservable(this.isAuthenticated);
   public user$ = toObservable(this.currentUser);
 
-  constructor(private modalService: ModalService) {
+  private modalService = inject(ModalService);
+
+
+  constructor() {
     this.listenForForcedLogout();
   }
 
@@ -105,7 +108,9 @@ export class AuthService {
               message: data.reason,
               confirmText: 'Aceptar',
             })
-            ?.onClose$.subscribe(() => {});
+            // Subscribed only to open the modal; the session is already gone, so there is
+            // nothing to do when it closes.
+            ?.onClose$.subscribe();
         });
     });
   }

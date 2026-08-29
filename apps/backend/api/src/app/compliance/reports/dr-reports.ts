@@ -15,16 +15,9 @@ export class DominicanRepublicReports {
       const sales = await invoiceRepository.find({
           relations: ['customer'],
           where: {
-              organizationId: organizationId, // Fix: Changed from customer: { organizationId } to organizationId directly on invoice potentially?
-              // Actually Invoice has organizationId. customer also has it.
-              // Let's stick to invoice organizationId if possible, or verifyrelation.
-              // The original code used: customer: { organizationId }
-              // But Invoice entity has organizationId column usually.
-              // Let's assume original code was correct about relation but we should use invoice.organizationId which is safer.
-              // However, sticking to original logic for query correctness:
-              // Original: customer: { organizationId }
-              // I will use organizationId on Invoice to be safe if it exists.
-              // Looking at Invoice entity in previous reads, it has organizationId.
+              // Scoped by the invoice's own tenant column. This appeared twice in the same
+              // object literal, so the second occurrence silently overwrote the first — the
+              // duplicate is removed rather than left as an accident that happened to work.
               organizationId,
               issueDate: Between(startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]),
               ncfNumber: Not(IsNull()),

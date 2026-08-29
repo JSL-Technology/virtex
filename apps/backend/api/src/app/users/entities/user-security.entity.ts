@@ -82,7 +82,7 @@ export class UserSecurity {
   // for simplicity in this task, a JSON column with hashed values is acceptable if properly handled.
   // Better approach: Store them as a JSON array of HASHED codes.
   @Column('jsonb', { name: 'backup_codes', nullable: true })
-  backupCodes?: string[];
+  backupCodes?: string[] | null;
 
   // H-01 FIX: Email-change confirmation fields.
   // The new email is never applied directly — it's stored here pending token

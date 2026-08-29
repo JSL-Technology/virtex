@@ -10,6 +10,7 @@ import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
 import { PasswordService } from './password.service';
 import { AuthConfig } from '../auth.config';
+import { UserIdentity } from '../interfaces/authenticated-user.interface';
 
 @Injectable()
 export class TwoFactorAuthService {
@@ -25,7 +26,7 @@ export class TwoFactorAuthService {
   /**
    * Checks if 2FA is enabled for a user, fetching the security entity if necessary.
    */
-  async isTwoFactorEnabled(user: User): Promise<boolean> {
+  async isTwoFactorEnabled(user: UserIdentity): Promise<boolean> {
     const security = user.security || await this.ensureSecurityEntity(user);
     return security.isTwoFactorEnabled;
   }
@@ -45,7 +46,7 @@ export class TwoFactorAuthService {
    * Re-enrolling a new device is still possible — via disable (which requires step-up plus the
    * current second factor) followed by enrol.
    */
-  async generateTwoFactorSecret(user: User) {
+  async generateTwoFactorSecret(user: UserIdentity) {
     const security = await this.ensureSecurityEntity(user);
 
     if (security.isTwoFactorEnabled) {
@@ -68,7 +69,7 @@ export class TwoFactorAuthService {
    * Pure verification of TOTP code (or Backup Code) without side effects.
    * Used for Step-up Authentication / Sudo Mode.
    */
-  async verifyCode(user: User, code: string): Promise<boolean> {
+  async verifyCode(user: UserIdentity, code: string): Promise<boolean> {
       const normalized = (code ?? '').trim().toUpperCase();
       if (!normalized) return false;
 
@@ -119,9 +120,11 @@ export class TwoFactorAuthService {
       let matchedStep: number | null = null;
       for (let offset = -window; offset <= window; offset++) {
           const candidateStep = currentStep + offset;
-          const expected = authenticator.generate(secret, {
-              epoch: candidateStep * stepSeconds * 1000,
-          } as never);
+          // `authenticator.generate` takes only the secret; the epoch is set on the instance.
+          // Passing it as a second argument was silently ignored, so EVERY candidate step in the
+          // window generated the code for the CURRENT time — the drift window did nothing.
+          const expected = authenticator.clone({ epoch: candidateStep * stepSeconds * 1000 })
+              .generate(secret);
           // Constant-time comparison: both operands are fixed-length numeric strings.
           if (expected.length === code.length &&
               crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(code))) {
@@ -185,7 +188,7 @@ export class TwoFactorAuthService {
       return Boolean(user?.security?.passwordHash);
   }
 
-  async enableTwoFactor(user: User, token: string, currentPassword: string) {
+  async enableTwoFactor(user: UserIdentity, token: string, currentPassword: string) {
     const freshUser = await this.userRepository.findOne({
         where: { id: user.id },
         relations: ['security'],
@@ -230,7 +233,7 @@ export class TwoFactorAuthService {
     return { message: '2FA enabled successfully', backupCodes: codes };
   }
 
-  async disableTwoFactor(user: User) {
+  async disableTwoFactor(user: UserIdentity) {
       const freshUser = await this.userRepository.findOne({
         where: { id: user.id },
         relations: ['security']
@@ -238,8 +241,10 @@ export class TwoFactorAuthService {
 
       if (freshUser && freshUser.security) {
           // Use update to force nulls/false
-          await this.userSecurityRepository.save({
-              id: freshUser.security.id,
+          // `update`, not `save`: this is a partial write of explicit nulls, which is exactly
+          // what `save`'s DeepPartial type refuses — and `save` would also have re-inserted the
+          // fields it was not given.
+          await this.userSecurityRepository.update(freshUser.security.id, {
               isTwoFactorEnabled: false,
               twoFactorSecret: null,
               // Clear the staged secret too, otherwise a stale enrolment started earlier could
@@ -255,7 +260,7 @@ export class TwoFactorAuthService {
   }
 
   // 10/10 SECURITY: Backup Codes Management
-  async generateBackupCodes(user: User) {
+  async generateBackupCodes(user: UserIdentity) {
       const security = await this.ensureSecurityEntity(user);
 
       if (!security.isTwoFactorEnabled) {
@@ -270,7 +275,7 @@ export class TwoFactorAuthService {
       return { codes };
   }
 
-  async verifyBackupCode(user: User, code: string): Promise<boolean> {
+  async verifyBackupCode(user: UserIdentity, code: string): Promise<boolean> {
       const security = user.security || (await this.ensureSecurityEntity(user));
 
       if (!security.backupCodes || security.backupCodes.length === 0) {
@@ -310,8 +315,8 @@ export class TwoFactorAuthService {
       return { codes, hashedCodes };
   }
 
-  private async ensureSecurityEntity(user: User): Promise<UserSecurity> {
-      let security = user.security;
+  private async ensureSecurityEntity(user: UserIdentity): Promise<UserSecurity> {
+      const security = user.security;
 
       if (!security) {
           const freshUser = await this.userRepository.findOne({ where: { id: user.id }, relations: ['security'] });

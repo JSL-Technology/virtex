@@ -26,7 +26,13 @@ export class InvoiceDetailPage implements OnInit {
   private location = inject(Location);
 
   id = signal('');
-  @Input('id') set idInput(val: string) { this.id.set(val); }
+  /**
+   * Bound by the router's `withComponentInputBinding()`, which matches the route parameter name.
+   * Renaming the input (`@Input('id') set idInput`) hid which parameter it came from at every use
+   * site; naming the setter `id`… would collide with the signal, so the signal keeps the name and
+   * the setter takes the route value.
+   */
+  @Input() set idParam(val: string) { this.id.set(val); }
 
   invoice = signal<Invoice | undefined>(undefined);
   navigationIds = signal<{ first: string, prev: string, next: string, last: string } | null>(null);

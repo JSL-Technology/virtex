@@ -26,6 +26,7 @@ import {
   UpdateIdentityProviderDto,
   AddDomainDto,
 } from './dto/sso-admin.dto';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 /**
  * Per-organization enterprise SSO administration. All endpoints are scoped to the caller's
@@ -38,7 +39,7 @@ import {
 export class SsoAdminController {
   constructor(private readonly ssoAdminService: SsoAdminService) {}
 
-  private orgId(user: User): string {
+  private orgId(user: AuthenticatedUser): string {
     if (!user.organizationId) {
       throw new BadRequestException('User is not associated with an organization.');
     }
@@ -49,20 +50,20 @@ export class SsoAdminController {
 
   @Get('providers')
   @ApiOperation({ summary: 'List the organization SSO identity providers' })
-  listProviders(@CurrentUser() user: User) {
+  listProviders(@CurrentUser() user: AuthenticatedUser) {
     return this.ssoAdminService.listProviders(this.orgId(user));
   }
 
   @Post('providers')
   @ApiOperation({ summary: 'Create an SSO identity provider (disabled until a domain is verified)' })
-  createProvider(@CurrentUser() user: User, @Body() dto: CreateIdentityProviderDto) {
+  createProvider(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateIdentityProviderDto) {
     return this.ssoAdminService.createProvider(this.orgId(user), dto);
   }
 
   @Patch('providers/:id')
   @ApiOperation({ summary: 'Update an SSO identity provider' })
   updateProvider(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
     @Body() dto: UpdateIdentityProviderDto,
   ) {
@@ -72,7 +73,7 @@ export class SsoAdminController {
   @Delete('providers/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete an SSO identity provider' })
-  async deleteProvider(@CurrentUser() user: User, @Param('id') id: string) {
+  async deleteProvider(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
     await this.ssoAdminService.deleteProvider(this.orgId(user), id);
   }
 
@@ -80,27 +81,27 @@ export class SsoAdminController {
 
   @Get('domains')
   @ApiOperation({ summary: 'List the organization email domains and verification status' })
-  listDomains(@CurrentUser() user: User) {
+  listDomains(@CurrentUser() user: AuthenticatedUser) {
     return this.ssoAdminService.listDomains(this.orgId(user));
   }
 
   @Post('domains')
   @ApiOperation({ summary: 'Register an email domain (returns the DNS TXT record to publish)' })
-  addDomain(@CurrentUser() user: User, @Body() dto: AddDomainDto) {
+  addDomain(@CurrentUser() user: AuthenticatedUser, @Body() dto: AddDomainDto) {
     return this.ssoAdminService.addDomain(this.orgId(user), dto.domain);
   }
 
   @Post('domains/:id/verify')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Verify domain ownership via the DNS TXT record' })
-  verifyDomain(@CurrentUser() user: User, @Param('id') id: string) {
+  verifyDomain(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
     return this.ssoAdminService.verifyDomain(this.orgId(user), id);
   }
 
   @Delete('domains/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete an email domain' })
-  async deleteDomain(@CurrentUser() user: User, @Param('id') id: string) {
+  async deleteDomain(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
     await this.ssoAdminService.deleteDomain(this.orgId(user), id);
   }
 }

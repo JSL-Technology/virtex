@@ -133,9 +133,9 @@ export class AccountJobsProcessor extends WorkerHost {
       return { message: finalMessage };
 
     } catch (error) {
-      this.logger.error(`Fallo en el trabajo de fusión de cuentas (Job ID: ${job.id}). Razón: ${error.message}`, error.stack);
+      this.logger.error(`Fallo en el trabajo de fusión de cuentas (Job ID: ${job.id}). Razón: ${(error as Error).message}`, (error as Error).stack);
       await this.eventsGateway.sendToUser(userId, 'job-status', {
-        jobId: job.id, status: 'FAILED', message: `La fusión de cuentas ha fallado: ${error.message}`,
+        jobId: job.id, status: 'FAILED', message: `La fusión de cuentas ha fallado: ${(error as Error).message}`,
       });
       throw error;
     }

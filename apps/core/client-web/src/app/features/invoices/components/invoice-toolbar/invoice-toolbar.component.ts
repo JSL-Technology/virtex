@@ -54,19 +54,19 @@ export class InvoiceToolbarComponent {
   @Input() canCopy = true;
   @Input() isNew = false;
 
-  @Output() navigate = new EventEmitter<'first' | 'prev' | 'next' | 'last'>();
-  @Output() print = new EventEmitter<void>();
-  @Output() email = new EventEmitter<void>();
-  @Output() export = new EventEmitter<'pdf' | 'word' | 'excel'>();
+  @Output() navigateRequested = new EventEmitter<'first' | 'prev' | 'next' | 'last'>();
+  @Output() printRequested = new EventEmitter<void>();
+  @Output() emailRequested = new EventEmitter<void>();
+  @Output() exportRequested = new EventEmitter<'pdf' | 'word' | 'excel'>();
   @Output() copyFrom = new EventEmitter<void>();
   @Output() copyTo = new EventEmitter<void>();
   @Output() back = new EventEmitter<void>();
   @Output() forward = new EventEmitter<void>();
-  @Output() search = new EventEmitter<void>();
+  @Output() searchRequested = new EventEmitter<void>();
   @Output() tools = new EventEmitter<void>();
   @Output() help = new EventEmitter<void>();
 
   onNavigate(direction: 'first' | 'prev' | 'next' | 'last') {
-    this.navigate.emit(direction);
+    this.navigateRequested.emit(direction);
   }
 }

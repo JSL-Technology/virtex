@@ -15,6 +15,7 @@ import { UpdateBudgetDto } from './dto/update-budget.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Controller('budgets')
 @UseGuards(JwtAuthGuard)
@@ -22,19 +23,19 @@ export class BudgetsController {
   constructor(private readonly budgetsService: BudgetsService) {}
 
   @Post()
-  create(@Body() createBudgetDto: CreateBudgetDto, @CurrentUser() user: User) {
+  create(@Body() createBudgetDto: CreateBudgetDto, @CurrentUser() user: AuthenticatedUser) {
 
     return this.budgetsService.create(createBudgetDto, user.organizationId);
   }
 
   @Get()
-  findAll(@CurrentUser() user: User) {
+  findAll(@CurrentUser() user: AuthenticatedUser) {
 
     return this.budgetsService.findAll(user.organizationId);
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
 
     return this.budgetsService.findOne(id, user.organizationId);
   }
@@ -43,14 +44,14 @@ export class BudgetsController {
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateBudgetDto: UpdateBudgetDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
 
     return this.budgetsService.update(id, updateBudgetDto, user.organizationId);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
 
     return this.budgetsService.remove(id, user.organizationId);
   }

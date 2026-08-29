@@ -17,6 +17,7 @@ import { User } from '../users/entities/user.entity/user.entity';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { CreateApprovalPolicyDto, UpdateApprovalPolicyDto } from './dto/approval-policy.dto';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Controller('workflows')
 @UseGuards(JwtAuthGuard)
@@ -26,7 +27,7 @@ export class WorkflowsController {
   @Post('approve/:requestId')
   approve(
     @Param('requestId', ParseUUIDPipe) requestId: string,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     const userRoles = user.roles.map((r) => r.id);
     return this.workflowsService.approve(requestId, user.id, userRoles);
@@ -45,14 +46,14 @@ export class WorkflowsController {
   @HasPermission(PERMISSIONS.WORKFLOWS_MANAGE)
   createPolicy(
     @Body() dto: CreateApprovalPolicyDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.workflowsService.createPolicy(dto, user.organizationId);
   }
 
   @Get('policies')
   @HasPermission(PERMISSIONS.WORKFLOWS_MANAGE)
-  getPolicies(@CurrentUser() user: User) {
+  getPolicies(@CurrentUser() user: AuthenticatedUser) {
     return this.workflowsService.getPolicies(user.organizationId);
   }
 
@@ -61,7 +62,7 @@ export class WorkflowsController {
   updatePolicy(
     @Param('policyId', ParseUUIDPipe) policyId: string,
     @Body() dto: UpdateApprovalPolicyDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.workflowsService.updatePolicy(
       policyId,
@@ -74,7 +75,7 @@ export class WorkflowsController {
   @HasPermission(PERMISSIONS.WORKFLOWS_MANAGE)
   deletePolicy(
     @Param('policyId', ParseUUIDPipe) policyId: string,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.workflowsService.deletePolicy(policyId, user.organizationId);
   }

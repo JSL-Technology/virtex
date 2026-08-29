@@ -24,7 +24,7 @@
             class="step-item"
             (click)="navigateToStep(step)"
             [attr.aria-label]="'Step ' + step"
-          >
+           tabindex="0" role="button" (keydown.enter)="navigateToStep(step)" (keydown.space)="$event.preventDefault(); navigateToStep(step)">
             <div
               class="step-circle"
               [ngClass]="{

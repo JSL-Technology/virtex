@@ -138,7 +138,7 @@
         <div class="nav-group">
           <h3 class="group-title">Sistema</h3>
           <button
-            *hasPermission="'users:view'"
+            *appHasPermission="'users:view'"
             class="nav-link"
             [class.active]="section() === 'users'"
             (click)="navigate('users')"
@@ -147,7 +147,7 @@
             <span>Usuarios</span>
           </button>
           <button
-            *hasPermission="'roles:view'"
+            *appHasPermission="'roles:view'"
             class="nav-link"
             [class.active]="section() === 'roles'"
             (click)="navigate('roles')"
@@ -156,7 +156,7 @@
             <span>Roles y Permisos</span>
           </button>
           <button
-            *hasPermission="'settings:edit_company'"
+            *appHasPermission="'settings:edit_company'"
             class="nav-link"
             [class.active]="section() === 'security'"
             (click)="navigate('security')"
@@ -165,7 +165,7 @@
             <span>Seguridad y Auditoría</span>
           </button>
           <button
-            *hasPermission="'settings:edit_company'"
+            *appHasPermission="'settings:edit_company'"
             class="nav-link"
             [class.active]="section() === 'integrations'"
             (click)="navigate('integrations')"
@@ -174,7 +174,7 @@
             <span>Integraciones</span>
           </button>
           <button
-            *hasPermission="'settings:edit_company'"
+            *appHasPermission="'settings:edit_company'"
             class="nav-link"
             [class.active]="section() === 'smtp'"
             (click)="navigate('smtp')"
@@ -183,7 +183,7 @@
             <span>Servidor de Correo</span>
           </button>
           <button
-            *hasPermission="'settings:edit_company'"
+            *appHasPermission="'settings:edit_company'"
             class="nav-link"
             [class.active]="section() === 'sso'"
             (click)="navigate('sso')"

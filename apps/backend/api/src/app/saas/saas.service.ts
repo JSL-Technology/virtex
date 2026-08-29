@@ -78,7 +78,7 @@ export class SaasService implements OnModuleInit {
             ['slug']
         );
 
-        let plan = await this.planRepository.findOne({ where: { slug: pConfig.slug }, relations: ['limits'] });
+        const plan = await this.planRepository.findOne({ where: { slug: pConfig.slug }, relations: ['limits'] });
 
         if (!plan) continue;
 
@@ -128,7 +128,7 @@ export class SaasService implements OnModuleInit {
     return this.planRepository.findOne({ where: { slug }, relations: ['limits', 'features'] });
   }
 
-  async changePlan(organizationId: string, newPlanSlug: string, userId?: string, reason: string = 'upgrade'): Promise<void> {
+  async changePlan(organizationId: string, newPlanSlug: string, userId?: string, reason = 'upgrade'): Promise<void> {
       await this.dataSource.transaction(async (manager) => {
           const org = await manager.findOne(Organization, { where: { id: organizationId }, relations: ['plan'] });
           if (!org) {
@@ -207,7 +207,7 @@ export class SaasService implements OnModuleInit {
       await this.cacheManager.set(cacheKey, value, 24 * 3600 * 1000);
   }
 
-  async enforceLimit(manager: EntityManager, organizationId: string, resource: SaasResource, increment: number = 1): Promise<void> {
+  async enforceLimit(manager: EntityManager, organizationId: string, resource: SaasResource, increment = 1): Promise<void> {
     const org = await manager.findOne(Organization, {
         where: { id: organizationId },
         relations: ['plan', 'plan.limits']
@@ -274,7 +274,7 @@ export class SaasService implements OnModuleInit {
     try {
         await this.setUsageRedis(organizationId, resource, periodKey, result.count);
     } catch (e) {
-        this.logger.warn(`Redis update failed after DB increment: ${e.message}`);
+        this.logger.warn(`Redis update failed after DB increment: ${(e as Error).message}`);
         // We do not throw here, because DB is committed.
         // The Cron Job will reconcile any drift eventually.
     }
@@ -361,7 +361,9 @@ export class SaasService implements OnModuleInit {
             continue;
         }
 
-        let periodKey = QuotaPeriod.LIFETIME;
+        // `getPeriodKey` returns a formatted period ('2026-08', or the literal 'lifetime'), not
+        // an enum member; typing the variable as the enum made the monthly branch unassignable.
+        let periodKey: string = QuotaPeriod.LIFETIME;
         if (limit.period === QuotaPeriod.MONTHLY) {
              periodKey = monthlyPeriodKey;
         }

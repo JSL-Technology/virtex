@@ -1,4 +1,4 @@
-import { Injectable, ApplicationRef, createComponent, EnvironmentInjector, signal } from '@angular/core';
+import { Injectable, ApplicationRef, createComponent, EnvironmentInjector, signal, inject } from '@angular/core';
 import { Subject } from 'rxjs';
 import { ModalComponent } from '../components/modal/modal.component';
 
@@ -23,12 +23,10 @@ export class ModalService {
   public options = signal<ModalOptions | null>(null);
   // --- FIN DE CAMBIOS ---
 
-  constructor(
-    private appRef: ApplicationRef,
-    private injector: EnvironmentInjector
-  ) {}
+  private appRef = inject(ApplicationRef);
 
-  public open(options: ModalOptions) {
+  private injector = inject(EnvironmentInjector);
+public open(options: ModalOptions) {
     // Evita abrir múltiples modales
     if (this.componentRef) {
       return;

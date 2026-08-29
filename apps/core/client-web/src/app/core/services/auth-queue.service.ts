@@ -9,8 +9,6 @@ export class AuthQueueService {
   private isRefreshing = false;
   private refreshTokenSubject = new BehaviorSubject<boolean | null>(null);
 
-  constructor() {}
-
   /**
    * Verifica si ya se está refrescando el token.
    */

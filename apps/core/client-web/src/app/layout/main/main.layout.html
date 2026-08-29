@@ -17,7 +17,7 @@
   <div class="banner-content">
     <strong>¡Atención!</strong> Tu pago está pendiente. Tienes acceso temporal hasta el {{ authService.currentUser()?.organization?.gracePeriodEnd | date:'mediumDate' }}.
   </div>
-  <a (click)="openSettings('billing')" class="btn-resolve" style="cursor:pointer">Resolver Ahora</a>
+  <button type="button" (click)="openSettings('billing')" class="btn-resolve">Resolver Ahora</button>
 </div>
 
 
@@ -29,7 +29,7 @@
   *ngIf="isSidebarOpen()"
   (click)="closeSidebar()"
   aria-hidden="true"
-></div>
+ tabindex="0" role="button" (keydown.enter)="closeSidebar()" (keydown.space)="$event.preventDefault(); closeSidebar()"></div>
 
 <aside class="main-sidebar">
   <div class="logo-container">
@@ -76,9 +76,9 @@
       <a routerLink="/contacts" routerLinkActive="active" class="nav-link">
         {{ "NAV.CONTACTS" | translate }}
       </a>
-      <a (click)="openSettings()" [class.active]="isSettingsOpen()" class="nav-link" style="cursor:pointer">
+      <button type="button" (click)="openSettings()" [class.active]="isSettingsOpen()" class="nav-link">
         {{ "NAV.SETTINGS" | translate }}
-      </a>
+      </button>
     </nav>
   </div>
 
@@ -161,13 +161,14 @@
 
           @if (searchResults().length > 0) {
           <div class="results-footer">
-            <a
+            <button
+              type="button"
               (click)="navigateToSearch(searchInput.value); closeSearch()"
               class="view-all-link"
             >
               <span>Ver todos los resultados</span>
               <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
-            </a>
+            </button>
           </div>
           }
         </div>

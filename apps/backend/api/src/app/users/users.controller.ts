@@ -1,7 +1,7 @@
 
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, UseFilters, ParseUUIDPipe, UseInterceptors, UploadedFile, BadRequestException, HttpCode, HttpStatus, Ip } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, UseFilters, ParseUUIDPipe, UseInterceptors, UploadedFile, BadRequestException, HttpCode, HttpStatus, Ip, Logger } from '@nestjs/common';
 import { FastifyFileInterceptor } from '../common/interceptors/fastify-file.interceptor';
-import { FastifyFile } from '../common/interfaces/fastify-file.interface';
+import { toUploadableFile, FastifyFile } from '../common/interfaces/fastify-file.interface';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { extname } from 'path';
 import * as os from 'os';
@@ -38,6 +38,8 @@ import { ActionType } from '../audit/entities/audit-log.entity';
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 @UseFilters(TypeOrmExceptionFilter)
 export class UsersController {
+  private readonly logger = new Logger(UsersController.name);
+
   constructor(
     private readonly usersService: UsersService,
     private readonly storageService: StorageService,
@@ -57,7 +59,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Invite a new user to the organization' })
   async inviteUser(
     @Body() inviteUserDto: InviteUserDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     const newUser = await this.usersService.inviteUser(
       inviteUserDto,
@@ -70,7 +72,7 @@ export class UsersController {
   @HasPermission(PERMISSIONS.USERS_VIEW)
   @ApiOperation({ summary: 'List users in organization' })
   async findAll(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Query('page') page = 1,
     @Query('pageSize') pageSize = 10,
     @Query('search') search = '',
@@ -100,7 +102,7 @@ export class UsersController {
 
   @Get('profile')
   @ApiOperation({ summary: 'Get current user profile' })
-  async getProfile(@CurrentUser() user: User) {
+  async getProfile(@CurrentUser() user: AuthenticatedUser) {
     const fullUser = await this.usersService.findOne(user.id);
     return plainToInstance(UserResponseDto, fullUser, { excludeExtraneousValues: true });
   }
@@ -109,7 +111,7 @@ export class UsersController {
   @UseGuards(CsrfGuard)
   @ApiOperation({ summary: 'Update current user profile' })
   async updateProfile(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Body() updateProfileDto: UpdateProfileDto,
   ) {
     const updatedUser = await this.usersService.updateProfile(
@@ -129,7 +131,7 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request an email change — requires current password as step-up' })
   async requestEmailChange(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Body() dto: RequestEmailChangeDto,
     @Ip() ip: string
   ) {
@@ -138,7 +140,7 @@ export class UsersController {
       await this.auditTrailService.record(user.id, 'User', user.id, ActionType.UPDATE, { action: 'request-email-change', newEmail: dto.newEmail }, undefined, ip, user.organizationId);
       return { message: 'Si los datos son correctos, se ha enviado un enlace de confirmación al nuevo correo.' };
     } catch (e) {
-      await this.auditTrailService.record(user.id, 'User', user.id, ActionType.UPDATE, { action: 'request-email-change', newEmail: dto.newEmail, error: e.message }, undefined, ip, user.organizationId);
+      await this.auditTrailService.record(user.id, 'User', user.id, ActionType.UPDATE, { action: 'request-email-change', newEmail: dto.newEmail, error: (e as Error).message }, undefined, ip, user.organizationId);
       throw e;
     }
   }
@@ -148,7 +150,7 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Confirm email change via token' })
   async confirmEmailChange(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Body() dto: ConfirmEmailChangeDto,
   ) {
     await this.usersService.confirmEmailChange(user.id, dto);
@@ -170,18 +172,26 @@ export class UsersController {
     }
   }))
   async uploadAvatar(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @UploadedFile() file: FastifyFile
   ) {
       if (!file) throw new BadRequestException('File is required');
 
       try {
-        const avatarUrl = await this.storageService.upload(file, 'avatars');
-        const updatedUser = await this.usersService.updateProfile(user.id, { avatarUrl });
+        const stored = await this.storageService.upload(toUploadableFile(file), 'avatars');
+        const updatedUser = await this.usersService.updateProfile(user.id, {
+          avatarUrl: stored.url,
+        });
         return { avatarUrl: updatedUser.avatarUrl };
       } finally {
         if (file.path) {
-          await fs.unlink(file.path).catch(() => {});
+          // The upload has already been stored; a failure to remove the temporary file leaves a
+          // stray byte on disk and must not fail the request the user made.
+          await fs
+            .unlink(file.path)
+            .catch((error) =>
+              this.logger.warn(`Failed to remove temporary upload ${file.path}: ${error.message}`),
+            );
         }
       }
   }
@@ -189,7 +199,7 @@ export class UsersController {
   @Get(':id')
   @HasPermission(PERMISSIONS.USERS_VIEW)
   @ApiOperation({ summary: 'Get user by ID' })
-  async findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+  async findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     // H2 FIX: Scope query to current user's organization to prevent IDOR cross-tenant reads.
     const foundUser = await this.usersService.findOneByOrg(id, user.organizationId);
     return plainToInstance(UserResponseDto, foundUser, { excludeExtraneousValues: true });
@@ -203,7 +213,7 @@ export class UsersController {
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     const updatedUser = await this.usersService.updateUser(
       id,
@@ -222,13 +232,13 @@ export class UsersController {
   // overwritten by @HasPermission because both write the same 'permissions' metadata key).
   @HasPermission(PERMISSIONS.USERS_DELETE, IsOrganizationOwner)
   @ApiOperation({ summary: 'Remove user' })
-  async remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User, @Ip() ip: string) {
+  async remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser, @Ip() ip: string) {
     try {
       const result = await this.usersService.remove(id, user.organizationId, user.id);
       await this.auditTrailService.record(user.id, 'User', id, ActionType.DELETE, { action: 'delete-user' }, undefined, ip, user.organizationId);
       return result;
     } catch (e) {
-      await this.auditTrailService.record(user.id, 'User', id, ActionType.DELETE, { action: 'delete-user', error: e.message }, undefined, ip, user.organizationId);
+      await this.auditTrailService.record(user.id, 'User', id, ActionType.DELETE, { action: 'delete-user', error: (e as Error).message }, undefined, ip, user.organizationId);
       throw e;
     }
   }
@@ -240,7 +250,7 @@ export class UsersController {
   async updateStatus(
       @Param('id', ParseUUIDPipe) id: string,
       @Body() dto: UpdateUserStatusDto,
-      @CurrentUser() user: User
+      @CurrentUser() user: AuthenticatedUser
   ) {
       // H-08 FIX: Prevent self-block to avoid accidental lock-out of the last admin.
       if (dto.status === UserStatus.BLOCKED && id === user.id) {
@@ -256,7 +266,7 @@ export class UsersController {
   @HasPermission(PERMISSIONS.USERS_PASSWORD_RESET)
   async resetPassword(
       @Param('id', ParseUUIDPipe) id: string,
-      @CurrentUser() user: User
+      @CurrentUser() user: AuthenticatedUser
   ) {
       await this.usersService.resetPassword(id, user.organizationId);
       return { message: 'Password reset email sent.' };
@@ -271,7 +281,7 @@ export class UsersController {
   // (OWASP API1 BOLA; CWE-639). findOneByOrg also verifies the target belongs to the org.
   async getActivityLog(
     @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
       await this.usersService.findOneByOrg(id, user.organizationId);
       return this.usersService.getActivityLog(id, user.organizationId);
@@ -281,7 +291,7 @@ export class UsersController {
   @UseGuards(CsrfGuard, StepUpGuard)
   @StepUp(StepUpScope.MANAGE_USER_CREDENTIALS)
   @HasPermission(PERMISSIONS.USERS_FORCE_LOGOUT)
-  async forceLogout(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+  async forceLogout(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
       return this.usersService.forceLogout(id, user.organizationId);
   }
 
@@ -296,7 +306,7 @@ export class UsersController {
   async adminChangeEmail(
     @Param('id', ParseUUIDPipe) id: string,
     @Body('email') email: string,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     await this.usersService.adminChangeEmail(id, email, user.organizationId);
     return { message: 'Email actualizado. La sesión del usuario ha sido invalidada.' };
@@ -306,7 +316,7 @@ export class UsersController {
   @UseGuards(CsrfGuard, StepUpGuard)
   @StepUp(StepUpScope.MANAGE_USER_STATUS)
   @HasPermission(PERMISSIONS.USERS_MANAGE_STATUS)
-  async blockAndLogout(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+  async blockAndLogout(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
       return this.usersService.blockAndLogout(id, user.organizationId);
   }
 }

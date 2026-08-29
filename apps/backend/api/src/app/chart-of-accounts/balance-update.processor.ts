@@ -78,7 +78,7 @@ export class BalanceUpdateProcessor extends WorkerHost {
 
       this.logger.log(`Job ${job.id}: Balance for account ${accountId} updated successfully.`);
     } catch (error) {
-      this.logger.error(`Job ${job.id}: Failed with error: ${error.message}`);
+      this.logger.error(`Job ${job.id}: Failed with error: ${(error as Error).message}`);
       throw error;
     } finally {
       await queryRunner.release();

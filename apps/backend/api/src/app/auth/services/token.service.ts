@@ -106,7 +106,7 @@ export class TokenService implements OnModuleInit {
     extraPayload: Partial<JwtPayload> = {},
     ipAddress?: string,
     userAgent?: string,
-    rememberMe: boolean = false,
+    rememberMe = false,
     options: { sessionId?: string; refreshExpirationOverride?: string } = {},
   ) {
     // The tenant these tokens are issued FOR. An organization switch supplies it explicitly; a
@@ -174,11 +174,11 @@ export class TokenService implements OnModuleInit {
     if (ipAddress) {
        const location = this.geoService.getLocation(ipAddress);
        if (location) {
-          refreshTokenRecord.country = location.country;
-          refreshTokenRecord.city = location.city;
-          refreshTokenRecord.region = location.region;
-          refreshTokenRecord.latitude = location.ll ? location.ll[0] : null;
-          refreshTokenRecord.longitude = location.ll ? location.ll[1] : null;
+          refreshTokenRecord.country = location.country ?? undefined;
+          refreshTokenRecord.city = location.city ?? undefined;
+          refreshTokenRecord.region = location.region ?? undefined;
+          refreshTokenRecord.latitude = location.ll ? location.ll[0] : undefined;
+          refreshTokenRecord.longitude = location.ll ? location.ll[1] : undefined;
        }
     }
 
@@ -199,7 +199,9 @@ export class TokenService implements OnModuleInit {
     if (secret) {
       return this.jwtService.sign(payload, {
         secret,
-        expiresIn: expiresIn || AuthConfig.JWT_ACCESS_EXPIRATION,
+        // `jsonwebtoken` types this as its `StringValue` template literal rather than `string`;
+        // the value is always a duration string like '15m'.
+        expiresIn: (expiresIn || AuthConfig.JWT_ACCESS_EXPIRATION) as `${number}m`,
         algorithm: 'HS256',
         issuer: 'virteex-api',
         audience: 'virteex-web',
@@ -229,7 +231,7 @@ export class TokenService implements OnModuleInit {
    * both. A role with a null `organization_id` is a platform role and deliberately applies
    * everywhere.
    */
-  buildSafeUser(user: User, activeOrganizationId?: string | null) {
+  buildSafeUser(user: User, activeOrganizationId?: string | null): AuthenticatedUser {
     const organizationId = activeOrganizationId ?? user.organizationId;
     const permissions = [
       ...new Set(
@@ -244,15 +246,21 @@ export class TokenService implements OnModuleInit {
     const { security, ...safeUser } = user;
     return {
       ...safeUser,
+      // Stamped explicitly, and this is the one line that makes the return type honest:
+      // `User.organizationId` is `string | null` because the column is nullable, whereas a
+      // principal always has a tenant. The spread alone kept the nullable type and the result was
+      // therefore not an `AuthenticatedUser` at all — which the callers papered over.
+      organizationId: (organizationId ?? user.organizationId) as string,
       permissions,
       organization: user.organization,
-      // If we want to expose some security flags (like isTwoFactorEnabled), we should add them back.
-      isTwoFactorEnabled: security?.isTwoFactorEnabled || false
+      isTwoFactorEnabled: security?.isTwoFactorEnabled || false,
     };
   }
 
   buildPayload(user: User, extra: Partial<JwtPayload> = {}): JwtPayload {
-    const organizationId = extra.organizationId ?? user.organizationId;
+    // `User.organizationId` is `string | null` because the column is nullable; a token is only
+    // ever minted for a principal that has a tenant, which the auth guard has already enforced.
+    const organizationId = (extra.organizationId ?? user.organizationId) as string;
     return {
       id: user.id,
       email: user.email,

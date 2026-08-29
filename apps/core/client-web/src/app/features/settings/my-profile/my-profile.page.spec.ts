@@ -9,7 +9,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 
@@ -24,9 +24,10 @@ class MockSecuritySettingsComponent {}
   selector: 'app-phone-verification-modal',
   standalone: true,
   template: '',
-  inputs: ['isOpen']
 })
-class MockPhoneVerificationModalComponent {}
+class MockPhoneVerificationModalComponent {
+  @Input() isOpen = false;
+}
 
 class MockAuthService {
   currentUser = () => ({

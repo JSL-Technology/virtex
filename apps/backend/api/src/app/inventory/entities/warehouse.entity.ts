@@ -24,7 +24,15 @@ export class Location {
   @Column()
   name: string;
 
-  @ManyToOne(() => Warehouse, warehouse => warehouse.locations)
+  /**
+   * One-directional on purpose.
+   *
+   * This declared an inverse side, `warehouse => warehouse.locations`, against a property
+   * `Warehouse` does not have — so TypeScript reported it and TypeORM would refuse to build the
+   * metadata (`Entity metadata for Warehouse#locations was not found`) the moment anything
+   * traversed it. Nothing needs the reverse traversal, so the relation now says what it is.
+   */
+  @ManyToOne(() => Warehouse)
   @JoinColumn({ name: 'warehouse_id' })
   warehouse: Warehouse;
 

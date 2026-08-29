@@ -5,6 +5,7 @@ import * as crypto from 'crypto';
 import { User, UserStatus } from '../../users/entities/user.entity/user.entity';
 import { UserCacheService } from '../modules/user-cache.service';
 import { hasPermission } from '@virteex/shared/util-auth';
+import { AuthenticatedUser } from '../interfaces/authenticated-user.interface';
 
 @Injectable()
 export class ImpersonationService {
@@ -60,7 +61,7 @@ export class ImpersonationService {
     }
   }
 
-  async validateImpersonationRequest(adminUser: User, targetUserId: string): Promise<User> {
+  async validateImpersonationRequest(adminUser: AuthenticatedUser, targetUserId: string): Promise<User> {
     this.logger.warn({
       event: 'impersonation_attempt',
       adminId: adminUser.id,
@@ -123,7 +124,7 @@ export class ImpersonationService {
     return targetUser;
   }
 
-  async validateStopImpersonation(impersonatingUser: User): Promise<User> {
+  async validateStopImpersonation(impersonatingUser: AuthenticatedUser): Promise<User> {
     if (!impersonatingUser.isImpersonating || !impersonatingUser.originalUserId) {
       throw new BadRequestException(
         'No se encontró una sesión de suplantación activa para detener.',

@@ -47,8 +47,8 @@
             <!-- Customer & Basic Info -->
             <div class="invoice-header-section">
               <div class="form-group customer-select">
-                <label class="form-label">Cliente</label>
-                <select formControlName="customerId" class="form-control">
+                <label class="form-label" for="customerid">Cliente</label>
+                <select id="customerid" formControlName="customerId" class="form-control">
                   <option value="" disabled>Seleccionar cliente</option>
                   @for (client of customers(); track client.id) {
                   <option [value]="client.id">
@@ -60,24 +60,24 @@
 
               <div class="invoice-meta-grid">
                 <div class="form-group">
-                  <label class="form-label">Fecha de Emisión</label>
-                  <input
+                  <label class="form-label" for="fecha-de-emisi-n">Fecha de Emisión</label>
+                  <input id="fecha-de-emisi-n"
                     type="date"
                     formControlName="issueDate"
                     class="form-control"
                   />
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Fecha de Vencimiento</label>
-                  <input
+                  <label class="form-label" for="fecha-de-vencimiento">Fecha de Vencimiento</label>
+                  <input id="fecha-de-vencimiento"
                     type="date"
                     formControlName="dueDate"
                     class="form-control"
                   />
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Moneda</label>
-                  <select formControlName="currencyCode" class="form-control">
+                  <label class="form-label" for="currencycode">Moneda</label>
+                  <select id="currencycode" formControlName="currencyCode" class="form-control">
                     @for (currency of currencies(); track currency.code) {
                     <option [value]="currency.code">
                       {{ currency.code }} - {{ currency.name }}
@@ -214,8 +214,8 @@
         <div class="card notes-card">
           <div class="card-body">
             <div class="form-group">
-              <label class="form-label">Notas Adicionales</label>
-              <textarea
+              <label class="form-label" for="notas-adicionales">Notas Adicionales</label>
+              <textarea id="notas-adicionales"
                 formControlName="notes"
                 class="form-control"
                 rows="4"
@@ -233,12 +233,12 @@
             <h3 class="section-title">Logística y Entrega</h3>
             <div class="grid-2-col">
                 <div class="form-group">
-                    <label class="form-label">Dirección de Envío</label>
-                    <textarea class="form-control" rows="3" placeholder="Dirección completa del cliente..."></textarea>
+                    <label class="form-label" for="direcci-n-de-env-o">Dirección de Envío</label>
+                    <textarea id="direcci-n-de-env-o" class="form-control" rows="3" placeholder="Dirección completa del cliente..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Método de Envío</label>
-                    <select class="form-control">
+                    <label class="form-label" for="m-todo-de-env-o">Método de Envío</label>
+                    <select id="m-todo-de-env-o" class="form-control">
                         <option>Transporte Propio</option>
                         <option>Courier Externo</option>
                         <option>Retiro en Almacén</option>
@@ -254,8 +254,8 @@
             <h3 class="section-title">Información Financiera</h3>
             <div class="grid-2-col">
                 <div class="form-group">
-                    <label class="form-label">Condiciones de Pago</label>
-                    <select class="form-control">
+                    <label class="form-label" for="condiciones-de-pago">Condiciones de Pago</label>
+                    <select id="condiciones-de-pago" class="form-control">
                         <option>Contado</option>
                         <option>15 Días</option>
                         <option selected>30 Días</option>
@@ -263,8 +263,8 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Lista de Precios</label>
-                    <select class="form-control">
+                    <label class="form-label" for="lista-de-precios">Lista de Precios</label>
+                    <select id="lista-de-precios" class="form-control">
                         <option>Precio Base</option>
                         <option>Mayorista</option>
                         <option>Distribuidor</option>

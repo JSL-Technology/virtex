@@ -28,8 +28,8 @@ export class LanguageService {
    */
   public currentLang = signal<string>(this.defaultLang);
 
-  constructor(@Inject(PLATFORM_ID) platformId: object) {
-    this.isBrowser = isPlatformBrowser(platformId);
+  constructor() {
+    this.isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
     this.initializeLanguage();
 
     // Efecto que se ejecuta automáticamente cada vez que el signal `currentLang` cambia.

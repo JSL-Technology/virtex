@@ -1,5 +1,5 @@
 
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, ChevronRight, CheckCircle2 } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
@@ -42,8 +42,8 @@ import { firstValueFrom } from 'rxjs';
            <!-- Formatting tools -->
            <div class="space-y-4">
               <div>
-                <label class="text-xs text-slate-500 block mb-1">Tipo de Dato</label>
-                <select class="w-full text-sm rounded-md border-slate-200 dark:bg-slate-800 dark:border-slate-700">
+                <label class="text-xs text-slate-500 block mb-1" for="datasheet-cell-type">Tipo de Dato</label>
+                <select id="datasheet-cell-type" class="w-full text-sm rounded-md border-slate-200 dark:bg-slate-800 dark:border-slate-700">
                   <option>General</option>
                   <option>Número</option>
                   <option>Moneda</option>
@@ -121,9 +121,8 @@ export class DatasheetSidebarComponent implements OnInit {
   ChevronRightIcon = ChevronRight;
   CheckIcon = CheckCircle2;
 
-  constructor(private importService: DatasheetImportService) {}
-
-  async ngOnInit() {
+  private importService = inject(DatasheetImportService);
+async ngOnInit() {
     this.importModules = await firstValueFrom(this.importService.getModules());
   }
 

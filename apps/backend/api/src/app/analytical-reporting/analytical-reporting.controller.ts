@@ -7,6 +7,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Controller('analytical-reporting')
 @UseGuards(JwtAuthGuard)
@@ -18,7 +19,7 @@ export class AnalyticalReportingController {
   query(
     @Body() queryDto: AnalyticalQueryDto,
     @Query() paginationDto: PaginationOptionsDto,
-    @CurrentUser() user: User
+    @CurrentUser() user: AuthenticatedUser
   ) {
 
     return this.reportingService.query(user.organizationId, queryDto, paginationDto);
@@ -36,7 +37,7 @@ export class AnalyticalReportingController {
   @Post('synchronize-view')
   @HttpCode(HttpStatus.ACCEPTED)
   @HasPermission(PERMISSIONS.SYSTEM_MANAGE_VIEWS)
-  synchronizeView(@CurrentUser() user: User) {
+  synchronizeView(@CurrentUser() user: AuthenticatedUser) {
     this.reportingService.synchronizeView(user.organizationId);
     return { message: 'La sincronización de la vista analítica ha sido iniciada.' };
   }

@@ -61,12 +61,12 @@ export class AutoReversalService {
             await this.journalEntriesService.createReversalEntry(entry.id, entry.organizationId);
             this.logger.log(`Successfully reversed journal entry ${entry.id}.`);
           } catch (error) {
-            this.logger.error(`Failed to reverse journal entry ${entry.id}. Reason: ${error.message}`, error.stack);
+            this.logger.error(`Failed to reverse journal entry ${entry.id}. Reason: ${(error as Error).message}`, (error as Error).stack);
           }
         }
       }
     } catch (error) {
-      this.logger.error('An unexpected error occurred during the auto-reversal job.', error.stack);
+      this.logger.error('An unexpected error occurred during the auto-reversal job.', (error as Error).stack);
     } finally {
       this.isJobRunning = false;
       this.logger.log('Finished scheduled job: Automatic Journal Entry Reversals.');

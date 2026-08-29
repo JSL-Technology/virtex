@@ -17,13 +17,13 @@
   <div class="form-grid">
     <!-- Country -->
     <div class="form-field">
-      <label class="input-label">{{ 'REGISTER.COUNTRY' | translate }}</label>
+      <label class="input-label" for="country">{{ 'REGISTER.COUNTRY' | translate }}</label>
       <div class="custom-select-wrapper">
         <div class="flag-icon">
           <img [src]="'assets/flags/' + countryService.currentCountryCode() + '.svg'"
                (error)="onFlagError($event)" alt="">
         </div>
-        <select formControlName="country" (change)="onCountryChange($event)" class="custom-select">
+        <select id="country" formControlName="country" (change)="onCountryChange($event)" class="custom-select">
           <option *ngFor="let c of countries()" [value]="c.countryCode">{{ c.name }}</option>
         </select>
         <div class="select-chevron">
@@ -34,8 +34,8 @@
 
     <!-- Currency, derived from the country -->
     <div class="form-field">
-      <label class="input-label">{{ 'REGISTER.CURRENCY' | translate }}</label>
-      <div class="readonly-value">
+      <span class="input-label" id="currency-derived">{{ 'REGISTER.CURRENCY' | translate }}</span>
+      <div class="readonly-value" role="status" aria-labelledby="currency-derived">
         <span class="currency-code">{{ countryService.currencySymbol() }} {{ config()?.currency }}</span>
       </div>
     </div>
@@ -78,9 +78,9 @@
 
     <!-- Coded catalogue where the country publishes one, free text where it does not. -->
     <div class="form-field" *ngIf="divisions() as divisionList; else freeTextDivision">
-      <label class="input-label">{{ divisionLabel() }}</label>
+      <label class="input-label" for="state">{{ divisionLabel() }}</label>
       <div class="custom-select-wrapper">
-        <select formControlName="state" class="custom-select">
+        <select id="state" formControlName="state" class="custom-select">
           <option value="">{{ 'REGISTER.SELECT' | translate }}</option>
           <option *ngFor="let d of divisionList" [value]="d.code">{{ d.name }}</option>
         </select>

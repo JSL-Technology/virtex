@@ -8,6 +8,7 @@ import { ConfirmCoaImportDto, PreviewCoaImportDto } from './dto/coa-import.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { User } from '../../users/entities/user.entity/user.entity';
+import { AuthenticatedUser } from '../../auth/interfaces/authenticated-user.interface';
 
 @Controller('chart-of-accounts/import')
 @UseGuards(JwtAuthGuard)
@@ -31,7 +32,7 @@ export class CoaImportController {
       }),
     ) file: FastifyFile,
     @Body() dto: PreviewCoaImportDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.coaImportService.preview(file, dto.columnMapping, user.organizationId, user.id);
   }
@@ -39,7 +40,7 @@ export class CoaImportController {
   @Post('confirm')
   confirmImport(
     @Body() dto: ConfirmCoaImportDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.coaImportService.confirm(dto.batchId, user.organizationId, user.id);
   }
