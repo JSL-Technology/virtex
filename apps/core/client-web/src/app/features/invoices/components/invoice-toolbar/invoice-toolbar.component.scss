@@ -5,9 +5,9 @@
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     padding: 0.25rem 0.5rem;
-    gap: 0.25rem;
+    gap: var(--space-1);
     box-shadow: var(--shadow-sm);
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-4);
     overflow-x: auto;
 
     .toolbar-group {
@@ -57,17 +57,15 @@
         &.text-btn {
             width: auto;
             padding: 0 0.75rem;
-            gap: 0.5rem;
-            font-size: 13px;
-            font-weight: 500;
+            gap: var(--space-2);
+            font-size: var(--text-sm);
+            font-weight: var(--font-medium);
         }
     }
 }
 
-// Dark mode adjustments
-:host-context(.theme-dark) {
-    .sap-toolbar {
-        background-color: #1e1e1e;
-        border-color: #333;
-    }
-}
+//  El bloque de ajustes para modo oscuro que había aquí sobra por completo:
+//  `.sap-toolbar` ya se pinta con `--surface-raised` y `--border-subtle`, que
+//  cambian solos con el tema. Además dependía de `:host-context(.theme-dark)`,
+//  una clase que ya no es la fuente de verdad del tema, así que en la práctica
+//  no llegaba a aplicarse.

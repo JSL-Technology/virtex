@@ -1,0 +1,368 @@
+// =============================================================================
+//  VIRTEX DESIGN SYSTEM — CAPA 2: TOKENS SEMÁNTICOS  ·  FUENTE ÚNICA DE VERDAD
+// =============================================================================
+//  Este archivo es EL contrato cromático de la aplicación. Todo color visible
+//  en Virtex nace aquí y en ningún otro sitio.
+//
+//  ── Por qué un solo archivo para ambos temas ────────────────────────────────
+//  La arquitectura anterior compilaba `theme-light.scss` y `theme-dark.scss`
+//  como bundles independientes y los intercambiaba reescribiendo el `href` de
+//  un `<link>`. Eso implicaba:
+//    · Destello sin estilos (FOUC): el `<link>` arranca vacío y el tema no
+//      existe hasta que Angular bootea.
+//    · Una petición de red en cada cambio de tema.
+//    · Imposibilidad de tematizar un subárbol (previsualizaciones, impresión).
+//    · Cero soporte de `prefers-color-scheme` sin JavaScript.
+//  Publicando ambos temas como custom properties en un único hoja de estilos,
+//  cambiar de tema pasa a ser una mutación de atributo: instantánea, sin red,
+//  sin destello, y funcional antes de que arranque el framework.
+//
+//  ── Contrato de accesibilidad ───────────────────────────────────────────────
+//  Cada pareja texto/superficie de este archivo está verificada contra WCAG 2.1
+//  por `tools/verify-contrast.mjs`, que forma parte del pipeline de calidad.
+//  Los valores NO son estéticos por accidente: son la solución de una
+//  restricción. No sustituyas un color aquí sin volver a ejecutar el
+//  verificador.
+//    · Texto principal    ≥ 7:1   (AAA)
+//    · Texto secundario   ≥ 4.5:1 (AA)
+//    · Texto terciario    ≥ 4.5:1 (AA)  ← antes fallaba en ambos temas
+//    · Texto sobre relleno ≥ 4.5:1 (AA) ← antes 3.22:1 en oscuro (fallo real)
+//    · Bordes interactivos ≥ 3:1   (AA no textual) ← antes 1.27:1
+// =============================================================================
+
+@use 'primitives' as p;
+
+// -----------------------------------------------------------------------------
+//  TEMA CLARO
+// -----------------------------------------------------------------------------
+//  Principio de elevación en claro: las superficies elevadas NO se aclaran
+//  (ya están en blanco); se separan mediante sombra y borde. Es lo inverso al
+//  tema oscuro, y es intencional — así funciona la luz en el mundo físico.
+// -----------------------------------------------------------------------------
+@mixin light {
+  color-scheme: light;
+
+  // ── Superficies ────────────────────────────────────────────────────────────
+  --surface-canvas: #{p.neutral(50)};      // Fondo de la aplicación
+  --surface-base: #{p.neutral(0)};         // Superficie de contenido por defecto
+  --surface-raised: #{p.neutral(0)};       // Tarjetas y paneles (separa la sombra)
+  --surface-overlay: #{p.neutral(0)};      // Modales, popovers, menús
+  --surface-sunken: #{p.neutral(100)};     // Campos, pozos, zonas hundidas
+  --surface-hover: #{p.neutral(75)};
+  --surface-active: #{p.neutral(150)};
+  --surface-selected: #{p.blue(50)};
+  --surface-disabled: #{p.neutral(100)};
+  --surface-inverse: #{p.neutral(940)};    // Tooltips, toasts de alto contraste
+
+  // ── Contenido (texto e iconografía) ────────────────────────────────────────
+  --content-primary: #11151d;
+  --content-secondary: #{p.neutral(800)};
+  --content-tertiary: #626980;
+  --content-disabled: #{p.neutral(500)};
+  --content-inverse: #{p.neutral(25)};
+  --content-link: #{p.blue(700)};
+
+  // ── Bordes ─────────────────────────────────────────────────────────────────
+  //  `subtle`   separadores decorativos (sin requisito de contraste)
+  //  `default`  contorno estándar de componente
+  //  `strong`   único indicador del límite de un control → ≥3:1 obligatorio
+  --border-subtle: #{p.neutral(150)};
+  --border-default: #{p.neutral(300)};
+  --border-strong: #7f8794;
+  --border-focus: #{p.blue(600)};
+
+  // ── Acento ─────────────────────────────────────────────────────────────────
+  --accent-solid: #{p.blue(600)};
+  --accent-solid-hover: #{p.blue(700)};
+  --accent-solid-active: #{p.blue(800)};
+  --accent-on-solid: #{p.neutral(0)};
+  --accent-text: #{p.blue(700)};
+  --accent-surface: #{p.blue(50)};
+  --accent-surface-hover: #{p.blue(100)};
+  --accent-border: #{p.blue(200)};
+  --accent-solid-rgb: #{p.rgb-triplet(p.blue(600))};
+
+  // ── Estados semánticos ─────────────────────────────────────────────────────
+  --success-solid: #{p.green(700)};
+  --success-on-solid: #{p.neutral(0)};
+  --success-text: #{p.green(800)};
+  --success-surface: #{p.green(50)};
+  --success-border: #{p.green(200)};
+  --success-rgb: #{p.rgb-triplet(p.green(700))};
+
+  --warning-solid: #{p.amber(400)};
+  --warning-on-solid: #{p.amber(950)};     // Texto oscuro: el ámbar no admite blanco
+  --warning-text: #{p.amber(800)};
+  --warning-surface: #{p.amber(50)};
+  --warning-border: #{p.amber(200)};
+  --warning-rgb: #{p.rgb-triplet(p.amber(400))};
+
+  --error-solid: #{p.red(700)};
+  --error-on-solid: #{p.neutral(0)};
+  --error-text: #{p.red(800)};
+  --error-surface: #{p.red(50)};
+  --error-border: #{p.red(200)};
+  --error-rgb: #{p.rgb-triplet(p.red(700))};
+
+  --info-solid: #{p.cyan(600)};
+  --info-on-solid: #{p.neutral(0)};
+  --info-text: #{p.cyan(700)};
+  --info-surface: #{p.cyan(50)};
+  --info-border: #{p.cyan(200)};
+  --info-rgb: #{p.rgb-triplet(p.cyan(600))};
+
+  // ── Velos y superposiciones ────────────────────────────────────────────────
+  --scrim: #{rgba(p.neutral(960), 0.45)};
+  --skeleton-base: #{p.neutral(100)};
+  --skeleton-shine: #{p.neutral(0)};
+
+  //  Terna de la sombra, para componer opacidades a medida sin escribir
+  //  `rgba(0, 0, 0, …)`. En claro la sombra lleva el mismo tinte frío que los
+  //  neutros: una sombra de negro puro sobre superficies con matiz se ve sucia.
+  --shadow-color-rgb: #{p.rgb-triplet(p.neutral(960))};
+
+  //  Tinte de elevación: el color con el que una superficie se separa de su
+  //  fondo. En claro se OSCURECE (una capa superior proyecta sombra sobre la
+  //  inferior); en oscuro se ACLARA (la capa superior recibe más luz). Este
+  //  token invierte el sentido según el tema, que es justo lo que los
+  //  `rgba(255,255,255,…)` escritos a mano no podían hacer: se veían en oscuro
+  //  y desaparecían en claro.
+  --elevation-tint-rgb: #{p.rgb-triplet(p.neutral(960))};
+
+  // ── Elevación ──────────────────────────────────────────────────────────────
+  //  En claro la sombra es el mecanismo primario de elevación, por lo que se
+  //  define con más presencia que en oscuro.
+  --shadow-xs: 0 1px 2px #{rgba(p.neutral(960), 0.05)};
+  --shadow-sm: 0 1px 3px #{rgba(p.neutral(960), 0.08)}, 0 1px 2px #{rgba(p.neutral(960), 0.04)};
+  --shadow-md: 0 4px 12px #{rgba(p.neutral(960), 0.08)}, 0 2px 4px #{rgba(p.neutral(960), 0.04)};
+  --shadow-lg: 0 12px 28px #{rgba(p.neutral(960), 0.12)}, 0 4px 8px #{rgba(p.neutral(960), 0.05)};
+  --shadow-xl: 0 24px 56px #{rgba(p.neutral(960), 0.16)}, 0 8px 16px #{rgba(p.neutral(960), 0.06)};
+
+  // ── Visualización de datos ─────────────────────────────────────────────────
+  //  Serie categórica ordenada por separación de matiz para que siga siendo
+  //  distinguible en deuteranopía, la deficiencia cromática más frecuente.
+  --viz-1: #{p.blue(600)};
+  --viz-2: #{p.teal(600)};
+  --viz-3: #{p.violet(600)};
+  --viz-4: #{p.amber(500)};
+  --viz-5: #{p.pink(600)};
+  --viz-6: #{p.cyan(600)};
+  --viz-7: #{p.green(700)};
+  --viz-8: #{p.red(600)};
+  --viz-grid: #{p.neutral(200)};
+  --viz-axis: #{p.neutral(600)};
+
+  //  Ternas RGB de las series, para rellenos translúcidos (áreas apiladas,
+  //  bandas de confianza, resaltados al pasar el cursor).
+  --viz-1-rgb: #{p.rgb-triplet(p.blue(600))};
+  --viz-2-rgb: #{p.rgb-triplet(p.teal(600))};
+  --viz-3-rgb: #{p.rgb-triplet(p.violet(600))};
+  --viz-4-rgb: #{p.rgb-triplet(p.amber(500))};
+  --viz-5-rgb: #{p.rgb-triplet(p.pink(600))};
+  --viz-6-rgb: #{p.rgb-triplet(p.cyan(600))};
+  --viz-7-rgb: #{p.rgb-triplet(p.green(700))};
+  --viz-8-rgb: #{p.rgb-triplet(p.red(600))};
+}
+
+// -----------------------------------------------------------------------------
+//  TEMA OSCURO
+// -----------------------------------------------------------------------------
+//  Principio de elevación en oscuro: cada nivel de elevación ACLARA la
+//  superficie, simulando mayor proximidad a la fuente de luz. La sombra existe
+//  pero es secundaria — sobre fondo oscuro apenas se percibe.
+//
+//  Sobre "que se sienta más vivo": la paleta anterior era gris puro (#161618).
+//  Un gris sin croma sobre grandes áreas se lee como plano y muerto. Aquí los
+//  neutros llevan un matiz frío mínimo y los escalones de elevación están
+//  separados lo suficiente para que la jerarquía se perciba sin mirar bordes.
+// -----------------------------------------------------------------------------
+@mixin dark {
+  color-scheme: dark;
+
+  // ── Superficies ────────────────────────────────────────────────────────────
+  --surface-canvas: #{p.neutral(980)};
+  --surface-base: #{p.neutral(960)};
+  --surface-raised: #{p.neutral(940)};
+  --surface-overlay: #{p.neutral(920)};
+  --surface-sunken: #{p.neutral(1000)};
+  --surface-hover: #{p.neutral(900)};
+  --surface-active: #{p.neutral(875)};
+  --surface-selected: #{rgba(p.blue(400), 0.14)};
+  --surface-disabled: #{p.neutral(920)};
+  --surface-inverse: #{p.neutral(100)};
+
+  // ── Contenido ──────────────────────────────────────────────────────────────
+  --content-primary: #f3f5f9;
+  --content-secondary: #b7c0d3;
+  --content-tertiary: #939db4;
+  --content-disabled: #646e85;
+  --content-inverse: #{p.neutral(960)};
+  --content-link: #{p.blue(400)};
+
+  // ── Bordes ─────────────────────────────────────────────────────────────────
+  --border-subtle: #242938;
+  --border-default: #{p.neutral(850)};
+  --border-strong: #747b8b;
+  --border-focus: #{p.blue(400)};
+
+  // ── Acento ─────────────────────────────────────────────────────────────────
+  //  Distinción crítica que la paleta anterior no hacía:
+  //  `--accent-solid` es un RELLENO que carga texto blanco → debe ser lo
+  //  bastante OSCURO para alcanzar 4.5:1 con blanco.
+  //  `--accent-text` es TEXTO sobre fondo oscuro → debe ser lo bastante CLARO
+  //  para alcanzar 4.5:1 con la superficie.
+  //  Usar un único color para ambos roles es imposible: son restricciones
+  //  opuestas. El tema anterior usaba #4f8cff para los dos, dejando el texto
+  //  blanco de todos los botones primarios en 3.22:1 — un incumplimiento real.
+  --accent-solid: #{p.blue(550)};
+  --accent-solid-hover: #4d83f0;
+  --accent-solid-active: #{p.blue(600)};
+  --accent-on-solid: #{p.neutral(0)};
+  --accent-text: #{p.blue(400)};
+  --accent-surface: #{rgba(p.blue(400), 0.13)};
+  --accent-surface-hover: #{rgba(p.blue(400), 0.2)};
+  --accent-border: #{rgba(p.blue(400), 0.32)};
+  --accent-solid-rgb: #{p.rgb-triplet(p.blue(550))};
+
+  // ── Estados semánticos ─────────────────────────────────────────────────────
+  --success-solid: #{p.green(600)};
+  --success-on-solid: #{p.neutral(0)};
+  --success-text: #{p.green(400)};
+  --success-surface: #{rgba(p.green(400), 0.14)};
+  --success-border: #{rgba(p.green(400), 0.32)};
+  --success-rgb: #{p.rgb-triplet(p.green(600))};
+
+  --warning-solid: #{p.amber(400)};
+  --warning-on-solid: #{p.amber(950)};
+  --warning-text: #{p.amber(300)};
+  --warning-surface: #{rgba(p.amber(400), 0.14)};
+  --warning-border: #{rgba(p.amber(400), 0.32)};
+  --warning-rgb: #{p.rgb-triplet(p.amber(400))};
+
+  --error-solid: #{p.red(600)};
+  --error-on-solid: #{p.neutral(0)};
+  --error-text: #{p.red(400)};
+  --error-surface: #{rgba(p.red(400), 0.14)};
+  --error-border: #{rgba(p.red(400), 0.32)};
+  --error-rgb: #{p.rgb-triplet(p.red(600))};
+
+  --info-solid: #{p.cyan(500)};
+  --info-on-solid: #{p.neutral(0)};
+  --info-text: #{p.cyan(300)};
+  --info-surface: #{rgba(p.cyan(300), 0.14)};
+  --info-border: #{rgba(p.cyan(300), 0.32)};
+  --info-rgb: #{p.rgb-triplet(p.cyan(500))};
+
+  // ── Velos y superposiciones ────────────────────────────────────────────────
+  --scrim: #{rgba(#000000, 0.65)};
+  --skeleton-base: #{p.neutral(900)};
+  --skeleton-shine: #{p.neutral(875)};
+
+  --shadow-color-rgb: 0, 0, 0;
+  --elevation-tint-rgb: 255, 255, 255;
+
+  // ── Elevación ──────────────────────────────────────────────────────────────
+  //  Sombras más profundas y opacas: sobre fondo oscuro una sombra suave es
+  //  invisible. Refuerzan la elevación que ya comunica la luminosidad.
+  --shadow-xs: 0 1px 2px #{rgba(#000000, 0.3)};
+  --shadow-sm: 0 1px 3px #{rgba(#000000, 0.4)}, 0 1px 2px #{rgba(#000000, 0.3)};
+  --shadow-md: 0 4px 12px #{rgba(#000000, 0.45)}, 0 2px 4px #{rgba(#000000, 0.3)};
+  --shadow-lg: 0 12px 28px #{rgba(#000000, 0.55)}, 0 4px 8px #{rgba(#000000, 0.35)};
+  --shadow-xl: 0 24px 56px #{rgba(#000000, 0.65)}, 0 8px 16px #{rgba(#000000, 0.4)};
+
+  // ── Visualización de datos ─────────────────────────────────────────────────
+  //  Tramos más claros: sobre fondo oscuro los tonos 600 se hunden.
+  --viz-1: #{p.blue(400)};
+  --viz-2: #{p.teal(400)};
+  --viz-3: #{p.violet(400)};
+  --viz-4: #{p.amber(300)};
+  --viz-5: #{p.pink(400)};
+  --viz-6: #{p.cyan(300)};
+  --viz-7: #{p.green(400)};
+  --viz-8: #{p.red(400)};
+  --viz-grid: #{p.neutral(875)};
+  --viz-axis: #{p.neutral(500)};
+
+  --viz-1-rgb: #{p.rgb-triplet(p.blue(400))};
+  --viz-2-rgb: #{p.rgb-triplet(p.teal(400))};
+  --viz-3-rgb: #{p.rgb-triplet(p.violet(400))};
+  --viz-4-rgb: #{p.rgb-triplet(p.amber(300))};
+  --viz-5-rgb: #{p.rgb-triplet(p.pink(400))};
+  --viz-6-rgb: #{p.rgb-triplet(p.cyan(300))};
+  --viz-7-rgb: #{p.rgb-triplet(p.green(400))};
+  --viz-8-rgb: #{p.rgb-triplet(p.red(400))};
+}
+
+// -----------------------------------------------------------------------------
+//  ALTO CONTRASTE
+// -----------------------------------------------------------------------------
+//  Refuerzo aplicable sobre cualquiera de los dos temas. Sube los bordes a
+//  contraste pleno y elimina el texto terciario tenue. Da cuerpo real a la
+//  opción `uiMode: 'contrast'` que la aplicación ya ofrecía sin implementar.
+// -----------------------------------------------------------------------------
+@mixin high-contrast {
+  --border-subtle: var(--border-strong);
+  --border-default: var(--border-strong);
+  --content-tertiary: var(--content-secondary);
+  --content-disabled: var(--content-tertiary);
+  --focus-ring-width: 3px;
+}
+
+// =============================================================================
+//  APLICACIÓN DE LOS TEMAS
+// =============================================================================
+//  Resolución (equivalente a la cascada nativa, sin JavaScript):
+//    1. `data-theme="light"` explícito  → claro, aunque el SO esté en oscuro
+//    2. `data-theme="dark"`   explícito → oscuro, aunque el SO esté en claro
+//    3. Sin atributo (modo «sistema»)   → lo que indique prefers-color-scheme
+//
+//  Que la regla 3 sea CSS puro es lo que permite pintar el tema correcto en el
+//  primer frame, antes de que Angular exista.
+// =============================================================================
+
+:root {
+  @include light;
+}
+
+:root[data-theme='dark'] {
+  @include dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    @include dark;
+  }
+}
+
+:root[data-contrast='high'] {
+  @include high-contrast;
+}
+
+// -----------------------------------------------------------------------------
+//  TEMATIZACIÓN POR SUBÁRBOL
+// -----------------------------------------------------------------------------
+//  Permite forzar un tema en una región concreta — imprescindible para la
+//  previsualización en vivo del editor de marca, donde hay que mostrar el
+//  aspecto claro y el oscuro simultáneamente en la misma pantalla.
+//  Imposible con la arquitectura anterior de intercambio de `<link>`.
+// -----------------------------------------------------------------------------
+[data-theme-scope='light'] { @include light; }
+[data-theme-scope='dark']  { @include dark; }
+
+// -----------------------------------------------------------------------------
+//  IMPRESIÓN
+// -----------------------------------------------------------------------------
+//  Los documentos contables se imprimen y se exportan a PDF constantemente.
+//  Imprimir el tema oscuro desperdicia tóner y produce un documento ilegible.
+// -----------------------------------------------------------------------------
+@media print {
+  :root {
+    @include light;
+    --surface-canvas: #ffffff;
+    --shadow-xs: none;
+    --shadow-sm: none;
+    --shadow-md: none;
+    --shadow-lg: none;
+    --shadow-xl: none;
+  }
+}

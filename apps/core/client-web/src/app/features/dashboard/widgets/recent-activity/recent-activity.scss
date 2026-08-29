@@ -26,7 +26,7 @@
   gap: 0.875rem;
   position: relative;
 
-  &:not(:last-child) { padding-bottom: 1.25rem; }
+  &:not(:last-child) { padding-bottom: var(--space-5); }
 }
 
 .timeline-connector { flex-shrink: 0; position: relative; }
@@ -34,7 +34,7 @@
 .timeline-icon {
   width: 2rem;
   height: 2rem;
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -43,9 +43,9 @@
   margin-left: -1.9rem;
 
   &.invoice { border-color: var(--primary); color: var(--primary); }
-  &.product { border-color: #22c55e; color: #16a34a; }
-  &.user    { border-color: #f97316; color: #ea580c; }
-  &.sale    { border-color: #a855f7; color: #9333ea; }
+  &.product { border-color: var(--success-border); color: var(--success-text); }
+  &.user    { border-color: var(--warning-border); color: var(--warning-text); }
+  &.sale    { border-color: var(--viz-3); color: var(--viz-3); }
 }
 
 .activity-details {
@@ -55,15 +55,15 @@
 }
 
 .activity-text {
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: var(--text-md);
+  font-weight: var(--font-medium);
   color: var(--text-primary);
   margin-bottom: 0.125rem;
   line-height: 1.4;
 }
 
 .activity-time {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   color: var(--text-tertiary);
 }
 
@@ -73,5 +73,5 @@
   align-items: center;
   justify-content: center;
   color: var(--text-tertiary);
-  font-size: 0.875rem;
+  font-size: var(--text-md);
 }

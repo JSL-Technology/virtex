@@ -376,7 +376,13 @@
   </div>
 </header>
 
-<main class="main-content">
+<!--
+  `id` y `tabindex="-1"`: destino del enlace «Saltar al contenido» de
+  index.html. El `tabindex` negativo es imprescindible — sin él, saltar aquí
+  mueve el scroll pero NO el foco, así que el lector de pantalla sigue leyendo
+  desde la navegación y el salto no sirve de nada.
+-->
+<main class="main-content" id="main-content" tabindex="-1">
   <app-tab-container></app-tab-container>
 </main>
 

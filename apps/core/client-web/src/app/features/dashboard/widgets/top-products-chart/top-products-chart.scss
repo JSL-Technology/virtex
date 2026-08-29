@@ -11,7 +11,7 @@
   margin-left: auto;
   position: relative;
   display: flex;
-  gap: 0.25rem;
+  gap: var(--space-1);
 }
 
 .icon-button {
@@ -28,19 +28,19 @@
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-lg);
   border-radius: var(--radius-lg);
-  padding: 0.5rem;
+  padding: var(--space-2);
   z-index: 1000;
   animation: dropdown-fade-in 0.2s ease;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--space-1);
 
   .dropdown-section {
-    padding-bottom: 0.5rem;
+    padding-bottom: var(--space-2);
 
     &:not(:last-child) {
       border-bottom: 1px solid var(--border-color);
-      margin-bottom: 0.5rem;
+      margin-bottom: var(--space-2);
     }
   }
 
@@ -51,11 +51,11 @@
     padding: 0.5rem 0.75rem;
     text-align: left;
     cursor: pointer;
-    font-size: 13px;
-    font-weight: 500;
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
     color: var(--text-primary);
     display: flex;
-    gap: 0.75rem;
+    gap: var(--space-3);
     align-items: center;
     border-radius: var(--radius-md);
 
@@ -73,8 +73,8 @@
   .dropdown-title {
     display: block;
     padding: 0.5rem 0.75rem;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: var(--text-2xs);
+    font-weight: var(--font-bold);
     text-transform: uppercase;
     color: var(--text-secondary);
     letter-spacing: .03em;
@@ -94,8 +94,8 @@
   padding: 0.5rem 0.75rem;
 
   label {
-    font-size: 0.85rem;
-    font-weight: 500;
+    font-size: var(--text-md);
+    font-weight: var(--font-medium);
     color: var(--text-primary);
   }
 

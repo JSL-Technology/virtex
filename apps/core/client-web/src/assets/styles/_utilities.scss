@@ -1,0 +1,149 @@
+// =============================================================================
+//  VIRTEX — CLASES GLOBALES Y UTILIDADES
+// =============================================================================
+//  Deliberadamente PEQUEÑO. Esto no es un framework de utilidades: es el
+//  conjunto mínimo de clases que ya usan las plantillas y que deben existir de
+//  forma global, más un puñado de auxiliares con verdadero valor transversal.
+//
+//  La lógica de presentación pertenece a la hoja del componente. Una biblioteca
+//  de utilidades completa aquí solo trasladaría el problema de los colores
+//  fijos desde el SCSS hasta los atributos `class` del HTML.
+// =============================================================================
+
+@use 'design-system' as ds;
+
+// -----------------------------------------------------------------------------
+//  BOTONES GLOBALES
+// -----------------------------------------------------------------------------
+//  `.btn-primary` aparece en 27 plantillas. Antes se definía como
+//  `button.btn-primary`, así que no surtía efecto sobre un `<a>` ni sobre un
+//  componente — de ahí que varias pantallas reimplementasen el botón entero a
+//  mano, cada una con su propio azul.
+// -----------------------------------------------------------------------------
+.btn-primary   { @include ds.button-primary; }
+.btn-secondary { @include ds.button-secondary; }
+.btn-ghost     { @include ds.button-ghost; }
+.btn-danger    { @include ds.button-danger; }
+.btn-icon      { @include ds.button-icon; }
+.btn-link      { @include ds.button-link; }
+
+.btn-sm { height: var(--control-height-sm); font-size: var(--text-sm); }
+.btn-lg { height: var(--control-height-lg); font-size: var(--text-base); }
+
+// -----------------------------------------------------------------------------
+//  MENSAJES DE VALIDACIÓN
+// -----------------------------------------------------------------------------
+//  Antes usaban `#f44336` fijo — un rojo de Material Design que no pertenecía a
+//  ninguna de las dos paletas y que, sobre fondo oscuro, quedaba por debajo del
+//  contraste mínimo.
+// -----------------------------------------------------------------------------
+.form-field {
+  &.error,
+  &.is-invalid {
+    .input-wrapper { border-color: var(--error-solid); }
+    label { color: var(--error-text); }
+  }
+}
+
+.error-message {
+  @include ds.field-error;
+}
+
+.hint-message {
+  @include ds.field-hint;
+}
+
+// -----------------------------------------------------------------------------
+//  BANDAS DE MENSAJE
+// -----------------------------------------------------------------------------
+//  El color nunca es el único portador de significado: cada banda lleva además
+//  un rol ARIA y un icono. Un usuario con deficiencia cromática distingue
+//  «guardado» de «error» por la forma y el texto, no por el matiz.
+// -----------------------------------------------------------------------------
+%vx-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+
+  padding: var(--space-3) var(--space-4);
+  margin-block: var(--space-4);
+
+  font-size: var(--text-md);
+  line-height: var(--leading-snug);
+
+  border: 1px solid;
+  border-radius: var(--radius-md);
+}
+
+.global-error,
+.banner-error {
+  @extend %vx-banner;
+  background-color: var(--error-surface);
+  border-color: var(--error-border);
+  color: var(--error-text);
+}
+
+.banner-success {
+  @extend %vx-banner;
+  background-color: var(--success-surface);
+  border-color: var(--success-border);
+  color: var(--success-text);
+}
+
+.banner-warning {
+  @extend %vx-banner;
+  background-color: var(--warning-surface);
+  border-color: var(--warning-border);
+  color: var(--warning-text);
+}
+
+.banner-info {
+  @extend %vx-banner;
+  background-color: var(--info-surface);
+  border-color: var(--info-border);
+  color: var(--info-text);
+}
+
+// -----------------------------------------------------------------------------
+//  INSIGNIAS
+// -----------------------------------------------------------------------------
+.badge          { @include ds.badge('neutral'); }
+.badge-accent   { @include ds.badge('accent'); }
+.badge-success  { @include ds.badge('success'); }
+.badge-warning  { @include ds.badge('warning'); }
+.badge-error    { @include ds.badge('error'); }
+.badge-info     { @include ds.badge('info'); }
+
+// -----------------------------------------------------------------------------
+//  SUPERFICIES
+// -----------------------------------------------------------------------------
+.card { @include ds.surface-card; }
+
+// -----------------------------------------------------------------------------
+//  AUXILIARES DE TEXTO
+// -----------------------------------------------------------------------------
+.truncate      { @include ds.truncate; }
+.numeric       { @include ds.numeric; }
+.section-label { @include ds.section-label; }
+
+.text-secondary { color: var(--content-secondary); }
+.text-tertiary  { color: var(--content-tertiary); }
+.text-success   { color: var(--success-text); }
+.text-warning   { color: var(--warning-text); }
+.text-error     { color: var(--error-text); }
+
+// -----------------------------------------------------------------------------
+//  ESTADOS
+// -----------------------------------------------------------------------------
+.skeleton    { @include ds.skeleton; }
+.empty-state { @include ds.empty-state; }
+
+// -----------------------------------------------------------------------------
+//  IMPRESIÓN
+// -----------------------------------------------------------------------------
+//  Los documentos contables se imprimen a diario; conviene que la aplicación
+//  sepa qué no debe aparecer en el papel.
+// -----------------------------------------------------------------------------
+@media print {
+  .no-print { display: none !important; }
+}

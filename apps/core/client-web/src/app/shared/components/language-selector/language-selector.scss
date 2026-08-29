@@ -1,15 +1,15 @@
 .language-selector-container {
   label {
     display: block;
-    font-size: 0.9rem;
-    font-weight: 600;
+    font-size: var(--text-md);
+    font-weight: var(--font-semibold);
     color: var(--text-primary);
-    margin-bottom: 0.75rem;
+    margin-bottom: var(--space-3);
   }
   .description {
-    font-size: 0.85rem;
+    font-size: var(--text-md);
     color: var(--text-secondary);
-    margin-top: 0.75rem;
+    margin-top: var(--space-3);
   }
 }
 .button-group {
@@ -26,7 +26,7 @@
     color: var(--text-secondary);
     border: none;
     cursor: pointer;
-    font-weight: 600;
+    font-weight: var(--font-semibold);
     transition: background-color 0.2s ease, color 0.2s ease;
     &:not(:last-child) {
       border-right: 1px solid var(--border-color);

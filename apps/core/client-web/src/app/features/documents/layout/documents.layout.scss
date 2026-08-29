@@ -14,14 +14,14 @@
 
 .secondary-nav {
     display: flex;
-    gap: 0.5rem;
+    gap: var(--space-2);
     border-bottom: 1px solid var(--border-color);
-    margin-bottom: 2rem;
+    margin-bottom: var(--space-8);
 
     a {
         padding: 0.75rem 1.25rem;
         text-decoration: none;
-        font-weight: 600;
+        font-weight: var(--font-semibold);
         color: var(--text-secondary);
         border-bottom: 2px solid transparent;
         margin-bottom: -1px; // Aligns the active border with the container border

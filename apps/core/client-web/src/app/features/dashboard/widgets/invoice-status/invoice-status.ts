@@ -5,6 +5,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { HighchartsChartComponent } from 'highcharts-angular';
 import * as Highcharts from 'highcharts';
+import { semanticColors } from '../../../../core/utils/chart-theme';
 
 // Se importan los módulos ESM directamente para sus efectos secundarios.
 import 'highcharts/modules/exporting';
@@ -84,9 +85,13 @@ export class InvoiceStatus {
     const themeOptions = this.getThemeOptions();
 
     const seriesColors = this.widget.data?.seriesColors || {
-      pagadas: '#4ade80',
-      pendientes: '#fb923c',
-      vencidas: '#f87171'
+      //  Estados de factura: verde/ámbar/rojo semánticos, idénticos a los que
+      //  usan las insignias de estado en los listados. Antes cada superficie
+      //  tenía su propio trío y una factura «vencida» era de un rojo distinto
+      //  en el panel que en la tabla.
+      pagadas: semanticColors().positive,
+      pendientes: semanticColors().warning,
+      vencidas: semanticColors().negative
     };
 
     const data = [

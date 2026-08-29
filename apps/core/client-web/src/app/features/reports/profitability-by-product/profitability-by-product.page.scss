@@ -4,6 +4,6 @@
 
 // Estilos específicos si son necesarios
 .font-semibold {
-  font-weight: 600;
+  font-weight: var(--font-semibold);
   color: var(--text-primary);
 }

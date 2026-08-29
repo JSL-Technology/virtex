@@ -12,14 +12,14 @@
     flex-shrink: 0; // El header no se encoge
 
     h3 {
-        font-size: 1.1rem;
-        font-weight: 600;
+        font-size: var(--text-lg);
+        font-weight: var(--font-semibold);
     }
 }
 
 .widget-content {
     flex-grow: 1; // El contenido crece para ocupar el espacio
-    padding: 1rem;
+    padding: var(--space-4);
     // Permite que el gráfico interno se expanda
     display: flex;
 }

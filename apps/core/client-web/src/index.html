@@ -6,18 +6,92 @@
   <title>Virtex</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link id="app-theme" rel="stylesheet" href="">
+
+  <!--
+    ─────────────────────────────────────────────────────────────────────────
+    APLICACIÓN DEL TEMA ANTES DE PINTAR
+    ─────────────────────────────────────────────────────────────────────────
+    Este script es síncrono y va deliberadamente ANTES de la hoja de estilos:
+    se ejecuta antes del primer fotograma, de modo que el atributo `data-theme`
+    ya está puesto cuando el navegador calcula los estilos. El resultado es que
+    no existe ningún instante en el que se vea el tema equivocado.
+
+    Sustituye a `<link id="app-theme" rel="stylesheet" href="">`, que nacía
+    vacío: hasta que Angular booteaba y le asignaba un `href`, la aplicación se
+    pintaba SIN TEMA — fondo blanco del navegador, texto negro— y después
+    saltaba de golpe al tema real. Ese destello era especialmente violento para
+    quien usa tema oscuro.
+
+    En modo «sistema» no se escribe atributo alguno a propósito: decide la
+    regla `@media (prefers-color-scheme: dark)` de la hoja de estilos, sin
+    intervención de JavaScript.
+
+    Va embebido y no en un archivo aparte porque una petición externa aquí
+    reintroduciría exactamente el destello que se pretende eliminar.
+  -->
+  <script>
+    (function () {
+      try {
+        var mode = localStorage.getItem('vx-theme-mode');
+        if (mode === 'light' || mode === 'dark') {
+          document.documentElement.setAttribute('data-theme', mode);
+        }
+        if (localStorage.getItem('vx-contrast-mode') === 'high') {
+          document.documentElement.setAttribute('data-contrast', 'high');
+        }
+        var density = localStorage.getItem('vx-density');
+        if (density === 'compact') {
+          document.documentElement.setAttribute('data-density', 'compact');
+        }
+      } catch (e) {
+        /* Almacenamiento bloqueado (incógnito de Safari): se usa el tema del
+           sistema. Nunca debe impedir el arranque de la aplicación. */
+      }
+    })();
+  </script>
+
+  <!--
+    ─────────────────────────────────────────────────────────────────────────
+    TIPOGRAFÍA
+    ─────────────────────────────────────────────────────────────────────────
+    Antes se descargaban CINCO familias en la ruta crítica —Inter, IBM Plex
+    Sans, Roboto Slab, Source Code Pro y Material Icons Outlined— mientras la
+    hoja de estilos declaraba 'Segoe UI' como fuente base, que no era ninguna
+    de ellas. Es decir: se pagaba la descarga de cinco tipografías para acabar
+    renderizando con la del sistema.
+
+    Material Icons sobraba por completo: la aplicación usa `lucide-angular`,
+    que empaqueta sus iconos como SVG en el bundle.
+
+    Queda Inter, que es la familia que el sistema de diseño declara realmente.
+    `display=swap` muestra texto con la fuente de reserva desde el primer
+    fotograma en lugar de dejar un hueco en blanco mientras descarga.
+  -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Icons+Outlined" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Inter:wght@400;600;700&family=Roboto+Slab:wght@400;600;700&family=Source+Code+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
   <link rel="manifest" href="manifest.webmanifest">
 </head>
 
 <body>
+  <!--
+    Primer elemento enfocable de la página: permite a quien navega con teclado
+    saltarse la navegación lateral, que de otro modo hay que recorrer entera en
+    cada cambio de página. Solo es visible cuando recibe el foco.
+  -->
+  <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
+
   <app-root></app-root>
-  <noscript>Please enable JavaScript to continue using this application.</noscript>
+
+  <noscript>
+    Esta aplicación necesita JavaScript para funcionar. Actívalo en tu navegador
+    para continuar.
+  </noscript>
 </body>
 
 </html>

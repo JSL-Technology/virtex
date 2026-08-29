@@ -3,16 +3,16 @@
 .grid-details {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1.5rem;
+  gap: var(--space-6);
 }
 
 .detail-label {
   display: block;
-  font-size: 0.875rem;
+  font-size: var(--text-md);
   color: var(--text-muted-color);
-  margin-bottom: 0.25rem;
+  margin-bottom: var(--space-1);
 }
 
 .text-bold {
-  font-weight: 600;
+  font-weight: var(--font-semibold);
 }

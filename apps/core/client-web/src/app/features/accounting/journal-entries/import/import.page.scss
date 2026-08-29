@@ -2,8 +2,8 @@
 
 .upload-box {
   border: 2px dashed var(--border-color);
-  border-radius: var(--border-radius);
-  padding: 2rem;
+  border-radius: var(--radius-md);
+  padding: var(--space-8);
   text-align: center;
   cursor: pointer;
   background-color: var(--background-secondary-color);
@@ -14,7 +14,7 @@
   }
 
   lucide-icon {
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-4);
     color: var(--text-muted-color);
   }
 }
@@ -22,5 +22,5 @@
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 1.5rem;
+  margin-top: var(--space-6);
 }

@@ -1,0 +1,159 @@
+// =============================================================================
+//  VIRTEX — INTEGRACIÓN DE DOCKVIEW
+// =============================================================================
+//  Puente entre las custom properties `--dv-*` de Dockview y los tokens de
+//  Virtex, más los ajustes estructurales del espacio de trabajo por pestañas.
+//
+//  Vivía dentro de `styles.scss`, mezclado con el reinicio, los botones y los
+//  estilos de formulario. Aislarlo importa: es código de adaptación a una
+//  biblioteca externa, y cuando Dockview cambie sus nombres de variable habrá
+//  que tocar exactamente este archivo y ningún otro.
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+//  ASIGNACIÓN DE TOKENS
+// -----------------------------------------------------------------------------
+//  Se conservan los tres nombres de clase de tema porque el componente
+//  contenedor los aplica de forma condicional; los tres apuntan ahora a los
+//  mismos tokens, de modo que el espacio de trabajo sigue al tema de la
+//  aplicación sea cual sea la clase que reciba.
+// -----------------------------------------------------------------------------
+.dockview-theme-virtex,
+.dockview-theme-light,
+.dockview-theme-dark {
+  --dv-group-view-background-color: var(--surface-base);
+  --dv-tabs-and-actions-container-background-color: var(--surface-canvas);
+  --dv-tabs-and-actions-container-height: 40px;
+  --dv-tabs-and-actions-container-font-size: var(--text-sm);
+
+  --dv-activegroup-visiblepanel-tab-background-color: var(--surface-base);
+  --dv-activegroup-visiblepanel-tab-color: var(--content-primary);
+  --dv-activegroup-hiddenpanel-tab-background-color: transparent;
+  --dv-activegroup-hiddenpanel-tab-color: var(--content-tertiary);
+
+  --dv-inactivegroup-visiblepanel-tab-background-color: var(--surface-sunken);
+  --dv-inactivegroup-visiblepanel-tab-color: var(--content-secondary);
+  --dv-inactivegroup-hiddenpanel-tab-background-color: transparent;
+  --dv-inactivegroup-hiddenpanel-tab-color: var(--content-tertiary);
+
+  --dv-separator-border: var(--border-subtle);
+  --dv-tab-divider-color: transparent;
+  --dv-active-sash-color: var(--accent-solid);
+  --dv-sash-color: var(--border-subtle);
+  --dv-sash-size: 4px;
+  --dv-sash-hover-size: 4px;
+
+  --dv-icon-hover-background-color: var(--surface-hover);
+  --dv-tabs-container-scrollbar-color: var(--border-default);
+  --dv-tab-close-icon-size: 14px;
+  --dv-tab-border-radius: 0;
+
+  --dv-context-menu-background-color: var(--surface-overlay);
+  --dv-context-menu-color: var(--content-primary);
+
+  --dv-drag-over-background-color: rgba(var(--accent-solid-rgb), 0.16);
+  --dv-drag-over-border-color: var(--accent-solid);
+
+  background-color: var(--surface-base);
+}
+
+// -----------------------------------------------------------------------------
+//  FRANJA DE PESTAÑAS
+// -----------------------------------------------------------------------------
+.dockview-theme-virtex,
+.dockview-theme-light,
+.dockview-theme-dark {
+  .dv-tabs-and-actions-container {
+    border-bottom: 1px solid var(--border-subtle);
+    //  Dockview puede dejar el contenedor en modo vertical, apilando las
+    //  pestañas en columna. Se fuerza la fila horizontal.
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .dv-tabs-container {
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    writing-mode: horizontal-tb !important;
+    align-items: stretch;
+    height: 100%;
+    gap: 2px;
+    padding: var(--space-1) var(--space-1) 0;
+  }
+
+  //  `flex: 0 1 …` con mínimo y máximo: las pestañas se reparten el ancho pero
+  //  nunca se estrechan hasta volver ilegible el título del documento.
+  .dv-tabs-container > .dv-tab {
+    flex: 0 1 200px;
+    min-width: 120px;
+    max-width: 240px;
+    height: 100%;
+    padding: 0;
+
+    border: 1px solid transparent;
+    border-bottom: none;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    overflow: hidden;
+
+    transition: background-color var(--duration-fast) var(--ease-standard),
+                border-color var(--duration-fast) var(--ease-standard);
+
+    &:hover {
+      background-color: var(--surface-hover);
+    }
+
+    &:focus-visible {
+      outline: var(--focus-ring-width) solid var(--focus-ring-color);
+      outline-offset: -2px;
+    }
+  }
+
+  //  Pestaña activa: adopta la superficie del contenido y se une visualmente al
+  //  panel; la barra de acento superior indica cuál está en primer plano.
+  .dv-tab.dv-active-tab {
+    background-color: var(--surface-base);
+    border-color: var(--border-subtle);
+    box-shadow: inset 0 2px 0 0 var(--accent-solid);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//  MENÚ CONTEXTUAL
+// -----------------------------------------------------------------------------
+.dv-context-menu {
+  padding: var(--space-1);
+  min-width: 200px;
+  font-size: var(--text-md);
+
+  background-color: var(--surface-overlay);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.dv-context-menu-item {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--content-secondary);
+
+  &:hover {
+    background-color: var(--surface-hover);
+    color: var(--content-primary);
+  }
+
+  &.dv-context-menu-item--disabled {
+    color: var(--content-disabled);
+    pointer-events: none;
+  }
+}
+
+.dv-context-menu-separator {
+  height: 1px;
+  margin: var(--space-1) var(--space-2);
+  background-color: var(--border-subtle);
+}
+
+.dv-right-actions-container {
+  display: flex;
+  align-items: center;
+}

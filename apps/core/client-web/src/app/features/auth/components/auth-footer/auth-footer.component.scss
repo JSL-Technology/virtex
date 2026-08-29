@@ -1,32 +1,24 @@
+// =============================================================================
+//  Este pie redefinía en `:host` los nombres GLOBALES `--text-primary`,
+//  `--primary`, `--border-color`, `--bg-secondary`… con valores propios, más
+//  un bloque de sobrescritura para tema claro. Es decir: mantenía a mano su
+//  propio tema doble, duplicando el trabajo que ya hace el sistema y quedando
+//  desincronizado de él en cuanto la paleta global cambiaba.
+//
+//  Los tokens semánticos ya cubren los dos temas, así que todo ese bloque
+//  desaparece. El único valor propio que queda es la transparencia sobre el
+//  lienzo de autenticación, con prefijo `--auth-` para no colisionar.
+// =============================================================================
 :host {
-  // Dark mode defaults (footer sits on dark page background)
-  --text-primary:   #CBD5E1;
-  --text-secondary: #94A3B8;
-  --text-tertiary:  #64748B;
-  --primary:        #60A5FA;
-  --primary-light:  rgba(96, 165, 250, 0.15);
-  --border-color:   rgba(255, 255, 255, 0.08);
-  --bg-secondary:   rgba(255, 255, 255, 0.05);
-  --bg-tertiary:    rgba(255, 255, 255, 0.09);
-  --card-bg:        #1A2540;
-  --shadow-xl:      0 8px 32px rgba(0, 0, 0, 0.4);
-  --radius-md:      8px;
-  --radius-sm:      4px;
-  --transition:     all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --auth-footer-surface: rgba(255, 255, 255, 0.05);
+  --auth-footer-surface-strong: rgba(255, 255, 255, 0.09);
+  --auth-footer-border: rgba(255, 255, 255, 0.08);
 }
 
-// ─── Light Mode Override ─────────────────────────────────────────
-:host-context([data-theme='light']) {
-  --text-primary:   #374151;
-  --text-secondary: #6B7280;
-  --text-tertiary:  #9CA3AF;
-  --primary:        #1B4FD8;
-  --primary-light:  rgba(27, 79, 216, 0.10);
-  --border-color:   rgba(0, 0, 0, 0.10);
-  --bg-secondary:   rgba(0, 0, 0, 0.04);
-  --bg-tertiary:    rgba(0, 0, 0, 0.08);
-  --card-bg:        #FFFFFF;
-  --shadow-xl:      0 8px 32px rgba(0, 0, 0, 0.10);
+:host-context(:root[data-theme='light']) {
+  --auth-footer-surface: rgba(0, 0, 0, 0.04);
+  --auth-footer-surface-strong: rgba(0, 0, 0, 0.08);
+  --auth-footer-border: rgba(0, 0, 0, 0.10);
 }
 
 .main-footer {
@@ -41,12 +33,12 @@
     display: grid;
     grid-template-columns: auto 1fr auto;
     align-items: center;
-    gap: 2rem;
+    gap: var(--space-8);
 
     @media (max-width: 768px) {
       display: flex;
       flex-direction: column-reverse;
-      gap: 1.25rem;
+      gap: var(--space-5);
     }
   }
 
@@ -57,22 +49,22 @@
       display: inline-block;
 
       .selector-trigger {
-        background: var(--bg-secondary);
-        border: 1px solid var(--border-color);
-        border-radius: 9999px;
+        background: var(--auth-footer-surface);
+        border: 1px solid var(--auth-footer-border);
+        border-radius: var(--radius-full);
         padding: 0.5rem 1rem;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: var(--space-2);
         cursor: pointer;
         color: var(--text-secondary);
-        font-size: 0.875rem;
+        font-size: var(--text-md);
         transition: var(--transition);
         font-family: inherit;
 
         &:hover,
         &.active {
-          background: var(--bg-tertiary);
+          background: var(--auth-footer-surface-strong);
           color: var(--text-primary);
           border-color: var(--primary);
         }
@@ -90,11 +82,11 @@
         position: absolute;
         bottom: 100%;
         left: 0;
-        margin-bottom: 0.5rem;
-        background: var(--card-bg);
-        border: 1px solid var(--border-color);
+        margin-bottom: var(--space-2);
+        background: var(--surface-overlay);
+        border: 1px solid var(--auth-footer-border);
         border-radius: 0.75rem;
-        padding: 0.5rem;
+        padding: var(--space-2);
         min-width: 140px;
         box-shadow: var(--shadow-xl);
         display: none;
@@ -116,12 +108,12 @@
           color: var(--text-secondary);
           border-radius: 0.5rem;
           cursor: pointer;
-          font-size: 0.875rem;
+          font-size: var(--text-md);
           transition: var(--transition);
           font-family: inherit;
 
           &:hover {
-            background: var(--bg-secondary);
+            background: var(--auth-footer-surface);
             color: var(--text-primary);
           }
 
@@ -138,20 +130,20 @@
   .footer-links {
     display: flex;
     justify-content: center;
-    gap: 1.5rem;
+    gap: var(--space-6);
     flex-wrap: wrap;
 
     a {
       color: var(--text-secondary);
       text-decoration: none;
-      font-size: 0.8125rem;
+      font-size: var(--text-sm);
       transition: color 0.2s;
 
       &:hover { color: var(--primary); }
     }
 
     @media (max-width: 768px) {
-      gap: 1rem;
+      gap: var(--space-4);
     }
   }
 
@@ -161,7 +153,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 0.25rem;
+    gap: var(--space-1);
 
     @media (max-width: 768px) {
       align-items: center;
@@ -170,19 +162,19 @@
 
     .copyright {
       color: var(--text-tertiary);
-      font-size: 0.75rem;
+      font-size: var(--text-xs);
       margin: 0;
     }
 
     .support-text {
       color: var(--text-secondary);
-      font-size: 0.75rem;
+      font-size: var(--text-xs);
       margin: 0;
 
       .support-link {
         color: var(--text-primary);
         text-decoration: none;
-        font-weight: 500;
+        font-weight: var(--font-medium);
 
         &:hover { text-decoration: underline; }
       }

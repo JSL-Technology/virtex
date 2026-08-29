@@ -1,16 +1,20 @@
-<button class="theme-toggle-button" (click)="themeService.toggleTheme()"
-    [attr.data-tooltip]="tooltips[themeService.themeMode()]">
-
-    @switch (themeService.themeMode()) {
-    @case ('light') {
-    <lucide-icon [img]="SunIcon" size="20"></lucide-icon>
-    }
-    @case ('dark') {
-    <lucide-icon [img]="MoonIcon" size="20"></lucide-icon>
-    }
-    @case ('system') {
-    <lucide-icon [img]="MonitorIcon" size="20"></lucide-icon>
-    }
-    }
-
-</button>
+<!--
+  El contenedor lleva `role="radiogroup"`: comunica al lector de pantalla que
+  las tres opciones son excluyentes entre sí y cuál está seleccionada.
+-->
+<div class="theme-toggle" role="radiogroup" aria-label="Apariencia">
+  @for (option of options; track option.mode) {
+    <button
+      type="button"
+      role="radio"
+      class="theme-toggle__option"
+      [class.is-active]="theme.mode() === option.mode"
+      [attr.aria-checked]="theme.mode() === option.mode"
+      [attr.aria-label]="option.label"
+      [attr.title]="option.label"
+      (click)="select(option.mode)"
+    >
+      <lucide-icon [img]="option.icon" [size]="16" aria-hidden="true" />
+    </button>
+  }
+</div>

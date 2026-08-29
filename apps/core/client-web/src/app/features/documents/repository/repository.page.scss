@@ -5,17 +5,17 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--space-6);
 
     h3 {
-        font-size: 1.25rem;
-        font-weight: 600;
+        font-size: var(--text-xl);
+        font-weight: var(--font-semibold);
         color: var(--text-primary);
     }
 
     .header-actions {
         display: flex;
-        gap: 1rem;
+        gap: var(--space-4);
 
         .primary-button,
         .secondary-button {
@@ -48,9 +48,9 @@
 }
 
 .path-breadcrumbs {
-    font-weight: 600;
+    font-weight: var(--font-semibold);
     color: var(--text-primary);
-    font-size: 1rem;
+    font-size: var(--text-base);
 }
 
 .search-bar {
@@ -68,7 +68,7 @@
 
     input {
         padding-left: 36px;
-        font-size: 0.9rem;
+        font-size: var(--text-md);
     }
 }
 
@@ -87,7 +87,7 @@
 .name-cell {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: var(--space-4);
 
     lucide-icon {
         flex-shrink: 0;

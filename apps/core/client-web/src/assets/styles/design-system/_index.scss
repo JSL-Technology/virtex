@@ -1,0 +1,24 @@
+// =============================================================================
+//  VIRTEX DESIGN SYSTEM — API PÚBLICA
+// =============================================================================
+//  Punto de entrada único para las hojas de estilo de componente.
+//
+//      @use 'assets/styles/design-system' as ds;
+//
+//      .toolbar {
+//        background: var(--surface-raised);
+//        @include ds.focus-ring;
+//        @include ds.bp-up('md') { padding: var(--space-6); }
+//      }
+//
+//  Se reexportan MIXINS y FUNCIONES, nunca las primitivas cromáticas. Un
+//  componente no puede alcanzar `neutral(900)` desde aquí, y esa omisión es
+//  deliberada: es la barrera que impide que vuelvan a aparecer colores fijos.
+//
+//  Los tokens (custom properties) no se importan — son globales desde el
+//  momento en que `styles.scss` los emite. Importarlos en cada componente
+//  duplicaría el bloque `:root` en cada bundle de componente.
+// =============================================================================
+
+@forward 'mixins';
+@forward 'breakpoints' as bp-*;

@@ -1,0 +1,138 @@
+// =============================================================================
+//  VIRTEX — ACCESIBILIDAD
+// =============================================================================
+//  Base de accesibilidad global.
+//
+//  Estado previo, medido: 25 reglas `outline: none` frente a 8 archivos (de
+//  174) con `:focus-visible`, y un único archivo respetando
+//  `prefers-reduced-motion`. En la práctica, navegar Virtex con teclado era
+//  imposible en la mayor parte de la interfaz — y para un ERP eso no es un
+//  detalle: hay operarios que introducen asientos todo el día sin tocar el
+//  ratón, y en muchos mercados es además una exigencia legal de contratación.
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+//  FOCO GLOBAL POR DEFECTO
+// -----------------------------------------------------------------------------
+//  Se establece un anillo visible para TODO elemento enfocable. Un componente
+//  puede reemplazarlo por un tratamiento propio, pero ya no puede quedarse sin
+//  ninguna indicación por olvido: el punto de partida es accesible.
+// -----------------------------------------------------------------------------
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-xs);
+}
+
+//  Se suprime el anillo SOLO en interacción con puntero, nunca con teclado.
+:where(a, button, input, select, textarea, summary, [tabindex]):focus:not(:focus-visible) {
+  outline: none;
+}
+
+// -----------------------------------------------------------------------------
+//  SOLO PARA LECTORES DE PANTALLA
+// -----------------------------------------------------------------------------
+//  Oculta visualmente conservando el elemento en el árbol de accesibilidad.
+//  `display: none` y `visibility: hidden` lo eliminarían también para el lector.
+// -----------------------------------------------------------------------------
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+//  Variante que reaparece al recibir foco — el patrón del enlace «saltar al
+//  contenido».
+.sr-only-focusable:not(:focus):not(:focus-within) {
+  @extend .sr-only;
+}
+
+// -----------------------------------------------------------------------------
+//  SALTAR AL CONTENIDO
+// -----------------------------------------------------------------------------
+//  Sin esto, quien navega con teclado debe recorrer toda la navegación lateral
+//  en cada cambio de página antes de llegar al contenido.
+// -----------------------------------------------------------------------------
+.skip-link {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: var(--z-tooltip);
+
+  padding: var(--space-2) var(--space-4);
+  background-color: var(--accent-solid);
+  color: var(--accent-on-solid);
+  border-radius: var(--radius-md);
+  font-size: var(--text-md);
+  font-weight: var(--font-medium);
+  text-decoration: none;
+  box-shadow: var(--shadow-lg);
+
+  transform: translateY(-200%);
+  transition: transform var(--duration-fast) var(--ease-standard);
+
+  &:focus-visible {
+    transform: translateY(0);
+  }
+}
+
+// -----------------------------------------------------------------------------
+//  MOVIMIENTO REDUCIDO — RED DE SEGURIDAD GLOBAL
+// -----------------------------------------------------------------------------
+//  Los tokens de duración ya se neutralizan en `_scales.scss`, lo que cubre
+//  todo lo que use el sistema. Esto atrapa además las animaciones de
+//  bibliotecas de terceros (Dockview, Handsontable, Highcharts, Gridster), que
+//  no conocen nuestros tokens.
+// -----------------------------------------------------------------------------
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+// -----------------------------------------------------------------------------
+//  MODO DE CONTRASTE FORZADO (Windows)
+// -----------------------------------------------------------------------------
+//  En contraste forzado el sistema operativo sustituye todos los colores. Los
+//  elementos dibujados con fondo o sombra pierden entonces su forma. Se
+//  restituye el contorno con `SystemColors`, que sí sobreviven al modo.
+// -----------------------------------------------------------------------------
+@media (forced-colors: active) {
+  :where(button, [role='button'], input, select, textarea) {
+    border: 1px solid ButtonBorder;
+  }
+
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+
+  //  Los iconos SVG monocromos desaparecen si no se les fuerza el color.
+  svg {
+    forced-color-adjust: auto;
+  }
+}
+
+// -----------------------------------------------------------------------------
+//  OBJETIVOS TÁCTILES
+// -----------------------------------------------------------------------------
+//  WCAG 2.2 (2.5.8) exige 24×24 CSS px como mínimo. En dispositivo táctil se
+//  eleva a 44px, el umbral cómodo real para el pulgar.
+// -----------------------------------------------------------------------------
+@media (hover: none) and (pointer: coarse) {
+  :where(button, [role='button'], a[href], input[type='checkbox'], input[type='radio']) {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}

@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { HighchartsChartComponent, provideHighcharts, providePartialHighcharts } from 'highcharts-angular';
 import * as Highcharts from 'highcharts';
+import { semanticColors } from '../../../../core/utils/chart-theme';
 
 // Se importan los módulos base que siempre se usarán
 import 'highcharts/modules/exporting';
@@ -129,8 +130,11 @@ export class CashflowChart {
             series: [{
                 name: this.i18n.instant('CHARTS.CASHFLOW.SERIES_NAME'),
                 type: 'waterfall',
-                upColor: '#4ade80',
-                color: '#f87171',
+                //  Entrada y salida de caja usan los mismos verde/rojo
+                //  semánticos que el resto de la aplicación, no un par
+                //  elegido para este gráfico.
+                upColor: semanticColors().positive,
+                color: semanticColors().negative,
                 data,
                 dataLabels: {
                     enabled: true,

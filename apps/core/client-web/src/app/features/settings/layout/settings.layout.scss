@@ -29,8 +29,8 @@
         border-bottom: 1px solid var(--border-color);
 
         h2 {
-            font-size: 0.875rem;
-            font-weight: 700;
+            font-size: var(--text-md);
+            font-weight: var(--font-bold);
             color: var(--text-primary);
             letter-spacing: 0.025em;
             text-transform: uppercase;
@@ -40,16 +40,16 @@
 }
 
 .settings-nav {
-    padding: 0.75rem;
+    padding: var(--space-3);
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: var(--space-1);
 
     .nav-group {
         display: flex;
         flex-direction: column;
         gap: 0.125rem;
-        padding-bottom: 0.75rem;
+        padding-bottom: var(--space-3);
         border-bottom: 1px solid var(--border-color);
 
         &:last-child {
@@ -58,12 +58,12 @@
         }
 
         .group-title {
-            font-size: 0.6875rem;
+            font-size: var(--text-2xs);
             text-transform: uppercase;
             letter-spacing: 0.08em;
             color: var(--text-tertiary);
             padding: 0.75rem 0.625rem 0.375rem;
-            font-weight: 600;
+            font-weight: var(--font-semibold);
         }
 
         .nav-link {
@@ -73,8 +73,8 @@
             gap: 0.625rem;
             padding: 0.5rem 0.625rem;
             text-decoration: none;
-            font-size: 0.875rem;
-            font-weight: 500;
+            font-size: var(--text-md);
+            font-weight: var(--font-medium);
             color: var(--text-secondary);
             transition: all 0.15s ease;
             border-radius: var(--radius-md);
@@ -105,7 +105,7 @@
             &.active {
                 background-color: var(--primary-light);
                 color: var(--primary);
-                font-weight: 600;
+                font-weight: var(--font-semibold);
 
                 lucide-icon {
                     color: var(--primary);

@@ -14,8 +14,8 @@
   @include views.view-header;
   // Ajustes menores para los headers de subvistas
   h3 {
-    font-size: 1.25rem;
-    font-weight: 600;
+    font-size: var(--text-xl);
+    font-weight: var(--font-semibold);
     color: var(--text-primary);
   }
 }
@@ -42,14 +42,14 @@
 .status-badge {
   display: inline-block;
   padding: 4px 10px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
   border-radius: var(--border-radius-full);
   text-transform: capitalize;
 
   &.status-active {
-    background-color: rgba(74, 222, 128, 0.15); // Verde
-    color: #4ade80;
+    background-color: rgba(var(--success-rgb), 0.15); // Verde
+    color: var(--success-text);
   }
   &.status-inactive {
     background-color: var(--bg-solid);
@@ -57,7 +57,7 @@
     border: 1px solid var(--border-color);
   }
   &.status-draft {
-    background-color: rgba(251, 146, 60, 0.15); // Naranja
-    color: #fb923c;
+    background-color: rgba(var(--warning-rgb), 0.15); // Naranja
+    color: var(--warning-text);
   }
 }

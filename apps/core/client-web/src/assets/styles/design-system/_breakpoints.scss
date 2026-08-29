@@ -1,0 +1,91 @@
+// =============================================================================
+//  VIRTEX DESIGN SYSTEM — PUNTOS DE RUPTURA
+// =============================================================================
+//  La auditoría encontró 15 anchos de corte distintos escritos a mano
+//  (480, 540, 560, 600, 640, 768, 900, 960, 992, 1024...). Cortes vecinos como
+//  900/960/992 no responden a ninguna decisión de diseño: son el residuo de
+//  ajustar cada pantalla por separado. El resultado es que la interfaz se
+//  reordena en momentos distintos según el módulo que estés mirando.
+//
+//  Aquí se cierra a cinco tramos con nombre y se accede solo por mixin.
+// =============================================================================
+
+@use 'sass:map';
+
+$breakpoints: (
+  'xs': 480px,   // Teléfono en vertical
+  'sm': 640px,   // Teléfono grande / vertical pequeño
+  'md': 768px,   // Tableta en vertical
+  'lg': 1024px,  // Tableta apaisada / portátil pequeño
+  'xl': 1280px,  // Escritorio
+  '2xl': 1536px, // Escritorio amplio
+);
+
+@function _bp($name) {
+  @if not map.has-key($breakpoints, $name) {
+    @error 'Punto de ruptura desconocido «#{$name}». Disponibles: #{map.keys($breakpoints)}.';
+  }
+  @return map.get($breakpoints, $name);
+}
+
+// -----------------------------------------------------------------------------
+//  ASCENDENTE (mobile-first) — preferido
+// -----------------------------------------------------------------------------
+//  Se escribe el caso estrecho como base y se ensancha. Produce menos reglas
+//  que el enfoque descendente y evita tener que deshacer estilos.
+//    @include bp.up('md') { ... }
+// -----------------------------------------------------------------------------
+@mixin up($name) {
+  @media (min-width: #{_bp($name)}) {
+    @content;
+  }
+}
+
+// -----------------------------------------------------------------------------
+//  DESCENDENTE — solo para adaptar código heredado
+// -----------------------------------------------------------------------------
+//  Se resta 0.02px para que `down('md')` y `up('md')` no se solapen en
+//  pantallas de densidad fraccionaria, donde el ancho puede no ser entero.
+// -----------------------------------------------------------------------------
+@mixin down($name) {
+  @media (max-width: #{_bp($name) - 0.02px}) {
+    @content;
+  }
+}
+
+@mixin between($from, $to) {
+  @media (min-width: #{_bp($from)}) and (max-width: #{_bp($to) - 0.02px}) {
+    @content;
+  }
+}
+
+// -----------------------------------------------------------------------------
+//  CONSULTAS DE CAPACIDAD
+// -----------------------------------------------------------------------------
+//  Un punto de ruptura por anchura NO indica si hay ratón. Una tableta apaisada
+//  es ancha y táctil a la vez. Distinguirlo es lo que permite dar objetivos
+//  táctiles grandes sin castigar al usuario de escritorio.
+// -----------------------------------------------------------------------------
+@mixin touch {
+  @media (hover: none) and (pointer: coarse) {
+    @content;
+  }
+}
+
+@mixin mouse {
+  @media (hover: hover) and (pointer: fine) {
+    @content;
+  }
+}
+
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+}
+
+@mixin print {
+  @media print {
+    @content;
+  }
+}

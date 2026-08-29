@@ -15,7 +15,7 @@
 
 .form-container {
     @include views.card;
-    padding: 2rem;
+    padding: var(--space-8);
     max-width: 600px;
     margin: 2rem auto;
 }
@@ -23,8 +23,8 @@
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
+    gap: var(--space-6);
+    margin-bottom: var(--space-6);
 }
 
 .form-field {

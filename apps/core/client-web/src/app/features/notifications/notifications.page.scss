@@ -10,8 +10,8 @@
 
 .notification-group {
     .group-title {
-        font-size: 0.9rem;
-        font-weight: 600;
+        font-size: var(--text-md);
+        font-weight: var(--font-semibold);
         color: var(--text-secondary);
         padding: 1rem 1.5rem 0.5rem;
         background-color: var(--bg-solid);
@@ -30,7 +30,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 1rem 1.5rem;
-    gap: 1rem;
+    gap: var(--space-4);
     cursor: pointer;
     transition: background-color 0.2s ease;
 
@@ -43,10 +43,10 @@
     }
 
     &.unread {
-        background-color: var(--accent-primary-subtle);
+        background-color: var(--accent-surface);
 
         .notification-title {
-            font-weight: 700;
+            font-weight: var(--font-bold);
             color: var(--text-primary);
         }
     }
@@ -54,27 +54,27 @@
 
 .notification-content {
     .notification-title {
-        font-size: 0.95rem;
-        font-weight: 600;
+        font-size: var(--text-base);
+        font-weight: var(--font-semibold);
         color: var(--text-primary);
     }
 
     .notification-description {
-        font-size: 0.9rem;
+        font-size: var(--text-md);
         color: var(--text-secondary);
-        margin-top: 0.25rem;
+        margin-top: var(--space-1);
     }
 }
 
 .notification-meta {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: var(--space-4);
     flex-shrink: 0;
 }
 
 .timestamp {
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     color: var(--text-tertiary);
 }
 
@@ -93,8 +93,8 @@
     }
 
     span {
-        font-size: 1.1rem;
-        font-weight: 600;
+        font-size: var(--text-lg);
+        font-weight: var(--font-semibold);
         color: var(--text-primary);
     }
 

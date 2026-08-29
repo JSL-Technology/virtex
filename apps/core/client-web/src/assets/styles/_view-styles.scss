@@ -1,116 +1,182 @@
-@use "variables" as *;
-@use "forms" as mixins;
+// =============================================================================
+//  COMPATIBILIDAD — mixins de vista heredados
+// =============================================================================
+//  31 hojas de componente construyen su pantalla con estos mixins. Se conservan
+//  los nombres; los cuerpos pasan a apoyarse en el sistema de diseño.
+//
+//  Corrección estructural más visible: `view-container` disparaba una animación
+//  `fadeIn` de 500 ms CON DESPLAZAMIENTO en cada navegación, sin comprobar
+//  `prefers-reduced-motion` y sin que nadie la hubiera pedido. En una
+//  aplicación de escritorio de uso continuo, media décima de segundo de retardo
+//  y un salto vertical en cada cambio de pantalla se percibe como lentitud.
+//  Se reduce a una atenuación breve, y desaparece por completo si el usuario ha
+//  pedido menos movimiento.
+//
+//  ARCHIVO EN RETIRADA. Los componentes nuevos usan `ds.page-shell`,
+//  `ds.data-table`, etc.
+// =============================================================================
 
-// Mixins para los elementos comunes de las vistas
+@use 'design-system' as ds;
+
 @mixin view-container {
-  animation: fadeIn 0.5s ease-out;
   height: 100%;
   width: 100%;
+  animation: vx-fade-in var(--duration-normal) var(--ease-decelerate);
+
+  @include ds.bp-reduced-motion {
+    animation: none;
+  }
 }
 
 @mixin view-header {
   display: flex;
-  padding: 24px;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
+  align-items: flex-start;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+
   h1 {
-    font-size: 2rem;
-    font-weight: 600;
+    @include ds.heading('2xl');
   }
+
   p {
-    color: var(--text-secondary);
+    margin-top: var(--space-1);
+    color: var(--content-secondary);
   }
+}
+
+@mixin page-header {
+  @include ds.page-header;
+}
+
+@mixin page-shell {
+  @include ds.page-shell;
+}
+
+@mixin section-title {
+  @include ds.heading('lg');
+  margin-bottom: var(--space-4);
 }
 
 @mixin header-actions {
   display: flex;
-  gap: 1rem;
-  .primary-button,
-  .secondary-button {
-    @include mixins.submit-button;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+
+  .primary-button {
+    @include ds.button-primary;
     text-decoration: none;
-    gap: 0.5rem;
   }
+
   .secondary-button {
-    background-color: var(--bg-layer-1);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
-    &:hover {
-      background-color: var(--bg-hover);
-    }
+    @include ds.button-secondary;
+    text-decoration: none;
   }
 }
 
 @mixin card {
-  background-color: var(--bg-layer-1);
-  border-radius: $border-radius;
-  border: 1px solid var(--border-color);
-  box-shadow: 0 2px 4px var(--shadow-color);
+  @include ds.surface-card;
   overflow-x: auto;
 }
 
+@mixin settings-card {
+  @include ds.surface-card;
+  padding: var(--space-6);
+}
+
+@mixin table-wrapper {
+  @include ds.surface-card;
+  overflow: auto;
+  @include ds.scrollbar;
+}
+
 @mixin data-table {
-  width: 100%;
-  border-collapse: collapse;
-  th,
-  td {
-    padding: 1rem 1.5rem;
-    text-align: left;
-    border-bottom: 1px solid var(--border-color);
-  }
-  thead th {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    background-color: var(--bg-solid);
-  }
-  tbody tr {
-    transition: background-color 0.2s ease;
-    &:last-child td {
-      border-bottom: none;
-    }
+  @include ds.data-table;
+
+  .table-link {
+    color: var(--content-primary);
+    font-weight: var(--font-medium);
+    text-decoration: none;
+
     &:hover {
-      background-color: var(--bg-hover);
+      color: var(--accent-text);
+      text-decoration: underline;
     }
   }
-  td {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    .table-link {
-      color: var(--text-primary);
-      font-weight: 600;
-      text-decoration: none;
-      &:hover {
-        text-decoration: underline;
-      }
-    }
-  }
+
+  //  Se conservan estas dos clases porque las plantillas las usan; ahora
+  //  incluyen cifras tabulares para que las columnas numéricas se alineen.
   .text-right {
     text-align: right;
+    @include ds.numeric;
   }
+
   .actions-column {
     width: 1%;
     text-align: center;
+    white-space: nowrap;
   }
+}
+
+@mixin table-empty {
+  @include ds.empty-state;
 }
 
 @mixin empty-state {
-  text-align: center;
-  padding: 3rem;
-  color: var(--text-secondary);
+  @include ds.empty-state;
 }
 
-// Keyframes para la animación
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+@mixin modal-overlay {
+  @include ds.modal-scrim;
+}
+
+@mixin modal-box($width: 32rem) {
+  @include ds.modal-panel($width);
+}
+
+@mixin modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+
+  padding: var(--space-5) var(--space-6);
+  border-bottom: 1px solid var(--border-subtle);
+
+  h2, h3 {
+    @include ds.heading('lg');
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+}
+
+@mixin modal-body {
+  padding: var(--space-6);
+  overflow-y: auto;
+  @include ds.scrollbar;
+}
+
+@mixin modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--border-subtle);
+  background-color: var(--surface-sunken);
+}
+
+@mixin inline-form-row {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+@mixin mono {
+  font-family: var(--font-mono);
+  @include ds.numeric;
 }

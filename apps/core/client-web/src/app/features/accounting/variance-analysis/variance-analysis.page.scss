@@ -6,15 +6,15 @@
 .variance-table {
   td {
     font-family: "Source Code Pro", monospace;
-    font-weight: 500;
+    font-weight: var(--font-medium);
   }
 
   .positive {
-    color: #10b981; // Verde
+    color: var(--success-text); // Verde
   }
 
   .negative {
-    color: #ef4444; // Rojo
+    color: var(--error-text); // Rojo
   }
 
   .variance-percent-cell {
@@ -22,7 +22,7 @@
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      gap: 0.25rem;
+      gap: var(--space-1);
     }
   }
 }

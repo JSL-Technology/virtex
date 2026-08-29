@@ -1,0 +1,144 @@
+// =============================================================================
+//  VIRTEX DESIGN SYSTEM — CAPA DE COMPATIBILIDAD
+// =============================================================================
+//  Alias de los nombres de token históricos apuntando a los tokens semánticos.
+//
+//  ── Qué resuelve ────────────────────────────────────────────────────────────
+//  La auditoría detectó 40 custom properties USADAS en 41 archivos pero
+//  DEFINIDAS EN NINGUNA PARTE:
+//    --surface, --border, --danger, --shadow-color, --card-bg-color,
+//    --table-header-bg, --text-muted-color, --bg-input, --page-bg-color, ...
+//
+//  Una `var()` sin definir ni valor de reserva no hereda: se descarta la
+//  declaración entera. Esos 41 archivos llevaban tiempo pintando bordes
+//  invisibles y fondos transparentes. Ese es el origen literal de la
+//  «discrepancia de colores y mezcla de temas» — no eran dos paletas
+//  compitiendo, sino tres dialectos de nombres donde solo uno estaba conectado
+//  a algo real:
+//    1. `--bg-primary` / `--text-primary`   (hojas de tema estáticas)
+//    2. `--accent-500` / `--gray-300`       (inyectados por BrandingService)
+//    3. `--surface` / `--card-bg-color`     (nunca definidos por nadie)
+//
+//  ── Naturaleza transitoria ──────────────────────────────────────────────────
+//  Este archivo es un andamio, no arquitectura. Existe para que la migración
+//  sea incremental y verificable en lugar de un único cambio irrepetible de
+//  174 archivos. Cada alias desaparece cuando su último consumidor migra;
+//  `npm run lint:tokens` informa de cuántos quedan.
+//
+//  NO añadas alias nuevos. Los componentes nuevos usan tokens semánticos.
+// =============================================================================
+
+:root {
+  // ── Dialecto 1: hojas de tema estáticas ────────────────────────────────────
+  --bg-primary: var(--surface-canvas);
+  --bg-secondary: var(--surface-raised);
+  --bg-tertiary: var(--surface-sunken);
+  --bg-card: var(--surface-raised);
+  --bg-hover: var(--surface-hover);
+  --bg-solid: var(--surface-canvas);
+  --bg-layer-1: var(--surface-raised);
+  --bg-layer-2: var(--surface-sunken);
+
+  --text-primary: var(--content-primary);
+  --text-secondary: var(--content-secondary);
+  --text-tertiary: var(--content-tertiary);
+
+  --primary: var(--accent-solid);
+  --primary-hover: var(--accent-solid-hover);
+  --primary-light: var(--accent-surface);
+  --primary-rgb: var(--accent-solid-rgb);
+  --accent-primary: var(--accent-solid);
+  --accent-primary-hover: var(--accent-solid-hover);
+
+  --error: var(--error-text);
+  --error-bg: var(--error-surface);
+  --success: var(--success-text);
+  --success-bg: var(--success-surface);
+  --warning: var(--warning-text);
+  --warning-bg: var(--warning-surface);
+
+  --border-color: var(--border-default);
+  --border-light: var(--border-subtle);
+
+  --scrollbar-track-bg: transparent;
+  --scrollbar-thumb-bg: var(--border-default);
+
+  //  `--transition: all …` se conserva por compatibilidad, pero está
+  //  desaconsejado: anima cualquier propiedad, incluidos los colores durante
+  //  el cambio de tema. Los componentes migrados usan el mixin `transition()`.
+  --transition: all var(--duration-fast) var(--ease-standard);
+
+  // ── Dialecto 2: inyectado por BrandingService ──────────────────────────────
+  //  Estos tokens solo existían si el servicio de marca había corrido. Ahora
+  //  tienen valor base siempre, y la marca únicamente los sobrescribe.
+  --accent-500: var(--accent-solid);
+  --accent-600: var(--accent-solid-hover);
+  --accent-info: var(--info-text);
+  --accent-primary-alpha: var(--accent-surface);
+  --gray-300: var(--border-default);
+  --gray-500: var(--content-tertiary);
+
+  --focus-shadow: 0 0 0 3px rgba(var(--accent-solid-rgb), 0.22);
+  --border-radius-sm: var(--radius-sm);
+  --border-radius-md: var(--radius-md);
+  --border-radius-lg: var(--radius-lg);
+  --border-radius-xl: var(--radius-xl);
+  --border-radius-full: var(--radius-full);
+  --font-family-sans: var(--font-sans);
+  --space-base: var(--space-2);
+  --space-input-y: var(--space-2);
+  --space-padding: var(--space-4);
+
+  // ── Dialecto 3: nombres huérfanos (nunca estuvieron definidos) ─────────────
+  --surface: var(--surface-raised);
+  --surface-muted: var(--surface-sunken);
+  --page-bg-color: var(--surface-canvas);
+  --card-bg-color: var(--surface-raised);
+  --background-color-alt: var(--surface-sunken);
+  --background-secondary-color: var(--surface-raised);
+  --background-tertiary-color: var(--surface-sunken);
+
+  --bg-input: var(--surface-base);
+  --input-bg-color: var(--surface-base);
+  --input-focus-bg: var(--surface-base);
+  --bg-disabled: var(--surface-disabled);
+  --bg-hover-soft: var(--surface-hover);
+  --bg-info-soft: var(--info-surface);
+  --bg-overlay: var(--scrim);
+
+  --border: var(--border-default);
+  --border-color-soft: var(--border-subtle);
+
+  --text-color-primary: var(--content-primary);
+  --text-color-secondary: var(--content-secondary);
+  --text-muted-color: var(--content-tertiary);
+  --text-disabled: var(--content-disabled);
+
+  --danger: var(--error-text);
+  --danger-color: var(--error-text);
+  --danger-color-subtle: var(--error-surface);
+  --error-alpha: var(--error-surface);
+  --error-light: var(--error-surface);
+  --success-light: var(--success-surface);
+
+  --table-bg-color: var(--surface-raised);
+  --table-header-bg: var(--surface-sunken);
+  --table-row-hover: var(--surface-hover);
+
+  --button-icon-hover: var(--surface-hover);
+  --button-secondary-hover: var(--surface-hover);
+
+  //  `--shadow-color` se usaba como `box-shadow: 0 4px 12px var(--shadow-color)`,
+  //  es decir esperaba un COLOR, no una sombra completa. Se mantiene esa forma.
+  --shadow-color: rgba(0, 0, 0, 0.12);
+}
+
+:root[data-theme='dark'] {
+  --shadow-color: rgba(0, 0, 0, 0.5);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --shadow-color: rgba(0, 0, 0, 0.5);
+  }
+}

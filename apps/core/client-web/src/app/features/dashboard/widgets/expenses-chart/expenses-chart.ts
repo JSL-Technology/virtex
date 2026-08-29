@@ -5,6 +5,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { HighchartsChartComponent } from 'highcharts-angular';
 import * as Highcharts from 'highcharts';
+import { categoricalPalette } from '../../../../core/utils/chart-theme';
 
 // Se importan los módulos ESM directamente para sus efectos secundarios.
 import 'highcharts/modules/exporting';
@@ -75,13 +76,18 @@ export class ExpensesChart {
   chartOptions = computed<Highcharts.Options>(() => {
     const chartType = (this.widget.chartType || 'pie') as ChartType;
     const themeOptions = this.getThemeOptions();
+    const palette = categoricalPalette();
 
     const seriesColors = this.widget.data?.seriesColors || {
-      'nómina y salarios': '#3b82f6',
-      'marketing y publicidad': '#8b5cf6',
-      'alquiler y servicios': '#ec4899',
-      'suministros de oficina': '#f97316',
-      'otros': '#14b8a6'
+      //  Categorías de gasto: son series sin orden semántico, así que toman
+      //  la paleta categórica del sistema. Los índices fijan qué categoría
+      //  recibe qué matiz, de modo que «nómina» conserva su color entre
+      //  sesiones y entre gráficos.
+      'nómina y salarios': palette[0],
+      'marketing y publicidad': palette[2],
+      'alquiler y servicios': palette[4],
+      'suministros de oficina': palette[3],
+      'otros': palette[1]
     };
 
     const data = [

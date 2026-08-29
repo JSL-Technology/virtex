@@ -131,7 +131,7 @@ export class InvoiceDetailPage implements OnInit {
                 body { font-family: sans-serif; }
                 .invoice-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
                 .line-items-table { width: 100%; border-collapse: collapse; }
-                .line-items-table th, .line-items-table td { border-bottom: 1px solid #ddd; padding: 8px; }
+                .line-items-table th, .line-items-table td { border-bottom: 1px solid #ddd; padding: 8px; } /* Hoja de impresión: tinta sobre papel, independiente del tema */
                 .text-right { text-align: right; }
                 .summary-totals { margin-top: 20px; float: right; width: 250px; }
               </style>

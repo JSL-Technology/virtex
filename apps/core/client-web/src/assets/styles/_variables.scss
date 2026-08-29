@@ -1,17 +1,38 @@
-// ../assets/styles/_variables.scss
+// =============================================================================
+//  COMPATIBILIDAD — variables SCSS heredadas
+// =============================================================================
+//  15 hojas de componente siguen haciendo `@use '…/variables' as *` y usando
+//  `$border-radius`, `$font-family`, `$transition-duration`… Este archivo
+//  mantiene esos nombres vivos, pero cada uno pasa a resolverse contra un token
+//  del sistema de diseño en lugar de un literal.
+//
+//  Consecuencia: esos 15 archivos quedan tematizados sin tocarlos. Un
+//  `border-radius: $border-radius` que antes emitía `8px` fijo emite ahora
+//  `var(--radius-lg)`, y por tanto responde a la personalización de marca.
+//
+//  ARCHIVO EN RETIRADA. No añadas nada aquí: los componentes nuevos usan
+//  `@use 'assets/styles/design-system' as ds` y tokens directamente.
+// =============================================================================
 
-// Tipografía inspirada en Windows 11
-$font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', sans-serif;
-$font-size-base: 1rem; // 16px
-$font-weight-regular: 400;
-$font-weight-semibold: 600;
-$font-weight-bold: 700;
+//  Antes: 'Segoe UI' fija — que además NO era ninguna de las cinco tipografías
+//  que index.html descargaba. Ahora sigue al token, y por tanto a la marca.
+$font-family: var(--font-sans);
+$font-size-base: var(--text-md);
 
-// Diseño y espaciado
-$border-radius: 8px;
-$border-radius-sm: 4px;
-$transition-duration: 0.2s;
-$shadow-sm: 0 2px 4px;
-$shadow-md: 0 4px 8px;
-$shadow-lg: 0 8px 16px;
-$transition-easing: cubic-bezier(0.1, 0.9, 0.2, 1);
+$font-weight-regular: var(--font-regular);
+$font-weight-semibold: var(--font-semibold);
+$font-weight-bold: var(--font-bold);
+
+$border-radius: var(--radius-lg);
+$border-radius-sm: var(--radius-sm);
+
+$transition-duration: var(--duration-fast);
+$transition-easing: var(--ease-standard);
+
+//  Estas tres se usaban como `box-shadow: $shadow-md var(--shadow-color)`,
+//  es decir como geometría a la que se añadía un color aparte. Ahora son
+//  sombras completas y tematizadas; la variable de color que las acompañaba
+//  queda absorbida y es inofensiva.
+$shadow-sm: var(--shadow-sm);
+$shadow-md: var(--shadow-md);
+$shadow-lg: var(--shadow-lg);

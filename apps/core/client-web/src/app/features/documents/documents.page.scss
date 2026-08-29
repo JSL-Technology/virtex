@@ -17,7 +17,7 @@
 }
 
 .path-breadcrumbs {
-    font-weight: 600;
+    font-weight: var(--font-semibold);
     color: var(--text-primary);
 }
 
@@ -35,7 +35,7 @@
 
     input {
         padding-left: 36px;
-        font-size: 0.9rem;
+        font-size: var(--text-md);
     }
 }
 
@@ -46,7 +46,7 @@
 .name-cell {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: var(--space-4);
 
     lucide-icon {
         flex-shrink: 0;

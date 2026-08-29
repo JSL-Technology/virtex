@@ -5,7 +5,7 @@
 .form-grid {
     display: grid;
     grid-template-columns: 2fr 1fr;
-    gap: 1.5rem;
+    gap: var(--space-6);
 
     @media (max-width: 992px) {
         grid-template-columns: 1fr;
@@ -15,7 +15,7 @@
 .form-column {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: var(--space-6);
 }
 
 .card {
@@ -23,15 +23,15 @@
         padding: 1.5rem 1.5rem 0;
 
         h3 {
-            font-size: 1.1rem;
+            font-size: var(--text-lg);
         }
     }
 
     .card-body {
-        padding: 1.5rem;
+        padding: var(--space-6);
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
+        gap: var(--space-6);
     }
 }
 
@@ -42,14 +42,14 @@
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
+    gap: var(--space-6);
 }
 
 input,
 select,
 textarea {
     @include mixins.input-wrapper;
-    padding-left: 1rem;
+    padding-left: var(--space-4);
 }
 
 // ... (estilos para file-upload-field como en el registro)

@@ -2,8 +2,8 @@
 @use '../../../../../assets/styles/forms' as mixins;
 
 .closing-header {
-  margin-bottom: 2rem;
-  h3 { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; }
+  margin-bottom: var(--space-8);
+  h3 { font-size: var(--text-xl); font-weight: var(--font-semibold); margin-bottom: var(--space-4); }
 }
 
 .progress-bar {
@@ -29,22 +29,22 @@
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 1.5rem;
+  gap: var(--space-6);
   padding: 1.25rem 1.5rem;
   &:not(:last-child) { border-bottom: 1px solid var(--border-color); }
 
   &.completed {
-    .task-status-icon { color: #10b981; }
+    .task-status-icon { color: var(--success-text); }
     .task-name { text-decoration: line-through; color: var(--text-secondary); }
   }
   &.in-progress .task-status-icon { color: var(--accent-primary); }
-  &.error .task-status-icon { color: #ef4444; }
+  &.error .task-status-icon { color: var(--error-text); }
   &.pending .task-status-icon { color: var(--text-tertiary); }
 }
 
 .task-details {
-  .task-name { font-weight: 600; color: var(--text-primary); }
-  .task-responsible { font-size: 0.85rem; color: var(--text-secondary); }
+  .task-name { font-weight: var(--font-semibold); color: var(--text-primary); }
+  .task-responsible { font-size: var(--text-md); color: var(--text-secondary); }
 }
 
 .task-action .secondary-button {
@@ -53,7 +53,7 @@
   color: var(--text-primary);
   border: 1px solid var(--border-color);
   padding: 0.5rem 1rem;
-  font-size: 0.875rem;
+  font-size: var(--text-md);
   &:hover { background-color: var(--bg-hover); }
 }
 

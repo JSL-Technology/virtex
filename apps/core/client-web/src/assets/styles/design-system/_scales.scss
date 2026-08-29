@@ -1,0 +1,193 @@
+// =============================================================================
+//  VIRTEX DESIGN SYSTEM — ESCALAS NO CROMÁTICAS
+// =============================================================================
+//  Tipografía, espaciado, radios, movimiento, elevación lógica y apilamiento.
+//
+//  El color no era el único eje sin gobierno. La auditoría encontró 17 tamaños
+//  de fuente distintos (0.7, 0.75, 0.8, 0.8125, 0.85, 0.875, 0.9, 0.9375,
+//  0.95, 1, 1.1, 1.125, 1.25, 1.375, 1.5, 1.75, 2 rem) elegidos uno a uno.
+//  Eso no es una escala tipográfica: es ruido. Aquí se sustituye por una
+//  progresión cerrada y con nombre.
+// =============================================================================
+
+:root {
+  // ───────────────────────────────────────────────────────────────────────────
+  //  TIPOGRAFÍA
+  // ───────────────────────────────────────────────────────────────────────────
+  //  Familias. `--font-sans` es sobrescribible en tiempo de ejecución por el
+  //  servicio de marca; el resto de la pila permanece como reserva para que un
+  //  tipo personalizado que no cargue nunca degrade a un sistema sin serifa.
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SFMono-Regular', 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace;
+
+  //  Cifras tabulares: en una aplicación contable las columnas numéricas DEBEN
+  //  alinearse verticalmente. Sin esto, un «1» ocupa menos que un «8» y las
+  //  cifras bailan de fila en fila.
+  --font-numeric: 'tabular-nums' 1, 'lnum' 1;
+
+  //  Escala tipográfica — 16px = 1rem
+  --text-2xs: 0.6875rem;   // 11px · marcas de eje, texto legal
+  --text-xs: 0.75rem;      // 12px · etiquetas, insignias, pies
+  --text-sm: 0.8125rem;    // 13px · celdas de tabla densas
+  --text-md: 0.875rem;     // 14px · TEXTO BASE de la interfaz
+  --text-base: 0.9375rem;  // 15px · prosa, cuerpo de formulario
+  --text-lg: 1.0625rem;    // 17px · subtítulos
+  --text-xl: 1.25rem;      // 20px · títulos de sección
+  --text-2xl: 1.5rem;      // 24px · títulos de página
+  --text-3xl: 1.875rem;    // 30px · cifras destacadas, KPIs
+  --text-4xl: 2.25rem;     // 36px · portadas, pantallas vacías
+
+  --font-regular: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  //  Interlineado — más ceñido cuanto mayor es el texto, como manda la óptica
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-snug: 1.4;
+  --leading-normal: 1.55;
+  --leading-relaxed: 1.75;
+
+  --tracking-tight: -0.015em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.02em;
+  --tracking-caps: 0.06em;   // Versalitas: sin esto se leen apelmazadas
+
+  // ───────────────────────────────────────────────────────────────────────────
+  //  ESPACIADO — retícula de 4px
+  // ───────────────────────────────────────────────────────────────────────────
+  --space-0: 0;
+  --space-px: 1px;
+  --space-1: 0.25rem;   //  4
+  --space-2: 0.5rem;    //  8
+  --space-3: 0.75rem;   // 12
+  --space-4: 1rem;      // 16
+  --space-5: 1.25rem;   // 20
+  --space-6: 1.5rem;    // 24
+  --space-7: 1.75rem;   // 28
+  --space-8: 2rem;      // 32
+  --space-10: 2.5rem;   // 40
+  --space-12: 3rem;     // 48
+  --space-16: 4rem;     // 64
+  --space-20: 5rem;     // 80
+  --space-24: 6rem;     // 96
+
+  // ───────────────────────────────────────────────────────────────────────────
+  //  RADIOS
+  // ───────────────────────────────────────────────────────────────────────────
+  //  `--radius-md` es el radio de marca y el servicio de marca lo sobrescribe;
+  //  el resto se deriva de él para que personalizar un valor no descuadre el
+  //  conjunto.
+  --radius-none: 0;
+  --radius-xs: 3px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --radius-2xl: 20px;
+  --radius-full: 9999px;
+
+  // ───────────────────────────────────────────────────────────────────────────
+  //  DENSIDAD — alturas de control
+  // ───────────────────────────────────────────────────────────────────────────
+  //  Un ERP se usa a jornada completa: la densidad es una preferencia legítima
+  //  del operador, no un capricho. `[data-density='compact']` recalcula estos
+  //  tokens y toda la interfaz se ciñe sin tocar un solo componente.
+  --control-height-sm: 1.75rem;   // 28px
+  --control-height-md: 2.25rem;   // 36px
+  --control-height-lg: 2.75rem;   // 44px  (mínimo táctil recomendado)
+  --control-padding-x: 0.75rem;
+  --control-gap: 0.5rem;
+
+  // ───────────────────────────────────────────────────────────────────────────
+  //  FOCO
+  // ───────────────────────────────────────────────────────────────────────────
+  //  Un único anillo de foco para toda la aplicación. La auditoría encontró 25
+  //  reglas `outline: none` frente a solo 8 archivos con `:focus-visible`:
+  //  navegar con teclado era, en la práctica, imposible en buena parte de la
+  //  interfaz.
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+  --focus-ring-color: var(--border-focus);
+
+  // ───────────────────────────────────────────────────────────────────────────
+  //  MOVIMIENTO
+  // ───────────────────────────────────────────────────────────────────────────
+  //  Duraciones cortas y deliberadas. Toda transición debe declarar propiedades
+  //  concretas — nunca `all`, que obliga al navegador a vigilar cada propiedad
+  //  y provoca animaciones accidentales al cambiar de tema.
+  --duration-instant: 80ms;
+  --duration-fast: 140ms;
+  --duration-normal: 200ms;
+  --duration-slow: 320ms;
+  --duration-deliberate: 480ms;
+
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-decelerate: cubic-bezier(0, 0, 0, 1);
+  --ease-accelerate: cubic-bezier(0.3, 0, 1, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  // ───────────────────────────────────────────────────────────────────────────
+  //  APILAMIENTO
+  // ───────────────────────────────────────────────────────────────────────────
+  //  Escala explícita y con nombre. Sin ella, los z-index se eligen por
+  //  escalada («9999», «10000») y el orden de apilamiento acaba dependiendo de
+  //  quién editó el archivo más recientemente.
+  --z-base: 0;
+  --z-raised: 10;
+  --z-sticky: 100;        // Cabeceras de tabla fijas
+  --z-header: 200;        // Barra superior de la aplicación
+  --z-drawer: 300;        // Panel lateral
+  --z-dropdown: 400;      // Menús, autocompletado
+  --z-scrim: 500;         // Velo bajo el modal
+  --z-modal: 600;
+  --z-popover: 700;
+  --z-toast: 800;
+  --z-tooltip: 900;
+  --z-debug: 1000;
+
+  // ───────────────────────────────────────────────────────────────────────────
+  //  DISPOSICIÓN
+  // ───────────────────────────────────────────────────────────────────────────
+  --content-max-width: 1280px;
+  --content-max-width-wide: 1600px;
+  --content-max-width-prose: 68ch;  // Medida legible: 45–75 caracteres
+  --sidebar-width: 248px;
+  --sidebar-width-collapsed: 56px;
+  --header-height: 52px;
+}
+
+// -----------------------------------------------------------------------------
+//  DENSIDAD COMPACTA
+// -----------------------------------------------------------------------------
+:root[data-density='compact'] {
+  --control-height-sm: 1.5rem;    // 24px
+  --control-height-md: 1.875rem;  // 30px
+  --control-height-lg: 2.25rem;   // 36px
+  --control-padding-x: 0.5rem;
+  --control-gap: 0.375rem;
+  --header-height: 44px;
+}
+
+// -----------------------------------------------------------------------------
+//  MOVIMIENTO REDUCIDO
+// -----------------------------------------------------------------------------
+//  Se neutralizan los tokens de duración en su origen. Así toda la aplicación
+//  respeta la preferencia del sistema sin que ningún componente tenga que
+//  acordarse de comprobarla — antes solo UN archivo de 174 lo hacía.
+//  No se anula por completo (0.01ms en vez de 0) para que los eventos
+//  `transitionend`/`animationend` sigan disparándose y no se cuelgue ninguna
+//  lógica que dependa de ellos.
+// -----------------------------------------------------------------------------
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-instant: 0.01ms;
+    --duration-fast: 0.01ms;
+    --duration-normal: 0.01ms;
+    --duration-slow: 0.01ms;
+    --duration-deliberate: 0.01ms;
+  }
+}

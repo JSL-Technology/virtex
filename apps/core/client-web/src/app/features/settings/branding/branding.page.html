@@ -30,8 +30,14 @@
                     <div class="form-row">
                         <div class="form-field"><label for="accentColor">Color de Acento</label><input type="color"
                                 id="accentColor" formControlName="accentColor"></div>
-                        <div class="form-field"><label for="grayColor">Color Neutro (Grises)</label><input type="color"
-                                id="grayColor" formControlName="grayColor"></div>
+                        <!--
+                          El campo «Color Neutro» se retira a propósito. Los
+                          neutros son los que sostienen el contraste verificado
+                          de toda la interfaz; dejarlos personalizar permitía
+                          volver ilegible la aplicación entera desde un selector
+                          de color. El acento sí es personalizable porque su
+                          legibilidad se recalcula automáticamente.
+                        -->
                     </div>
                 </div>
 
@@ -73,16 +79,48 @@
                             </div>
                         </div>
                     </div>
+                    <!--
+                      El tema deja de vivir en el formulario de marca: es una
+                      preferencia del usuario, no de la organización, y la
+                      gobierna ThemeService. Antes este control y el conmutador
+                      de la barra superior escribían en almacenes distintos, así
+                      que se contradecían entre sí.
+                    -->
                     <div class="form-field">
-                        <label>Modo de Interfaz</label>
-                        <div class="button-group three-cols">
-                            <button type="button" [class.active]="brandingForm.get('uiMode')?.value==='light'"
-                                (click)="brandingForm.get('uiMode')?.setValue('light')">Claro</button>
-                            <button type="button" [class.active]="brandingForm.get('uiMode')?.value==='dark'"
-                                (click)="brandingForm.get('uiMode')?.setValue('dark')">Oscuro</button>
-                            <button type="button" [class.active]="brandingForm.get('uiMode')?.value==='contrast'"
-                                (click)="brandingForm.get('uiMode')?.setValue('contrast')">Contraste</button>
+                        <label id="ui-mode-label">Tema</label>
+                        <div class="button-group three-cols" role="radiogroup" aria-labelledby="ui-mode-label">
+                            <button type="button" role="radio"
+                                [class.active]="themeService.mode() === 'light'"
+                                [attr.aria-checked]="themeService.mode() === 'light'"
+                                (click)="themeService.setMode('light')">Claro</button>
+                            <button type="button" role="radio"
+                                [class.active]="themeService.mode() === 'dark'"
+                                [attr.aria-checked]="themeService.mode() === 'dark'"
+                                (click)="themeService.setMode('dark')">Oscuro</button>
+                            <button type="button" role="radio"
+                                [class.active]="themeService.mode() === 'system'"
+                                [attr.aria-checked]="themeService.mode() === 'system'"
+                                (click)="themeService.setMode('system')">Sistema</button>
                         </div>
+                    </div>
+
+                    <!--
+                      El alto contraste es ortogonal a claro/oscuro: refuerza
+                      bordes y texto tenue sobre CUALQUIERA de los dos temas.
+                      Antes era un tercer valor excluyente de «modo», lo que
+                      obligaba a renunciar al tema oscuro para poder usarlo.
+                    -->
+                    <div class="form-field">
+                        <label class="switch-field">
+                            <input type="checkbox"
+                                [checked]="themeService.contrast() === 'high'"
+                                (change)="themeService.setContrast(
+                                    themeService.contrast() === 'high' ? 'normal' : 'high')">
+                            <span>Alto contraste</span>
+                        </label>
+                        <small class="field-hint">
+                            Refuerza bordes y texto secundario. Compatible con el tema claro y el oscuro.
+                        </small>
                     </div>
                 </div>
             </div>

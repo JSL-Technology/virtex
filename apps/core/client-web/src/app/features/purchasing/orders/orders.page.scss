@@ -10,11 +10,11 @@
 }
 .subview-header {
   @include views.view-header;
-  padding-bottom: 1.5rem;
+  padding-bottom: var(--space-6);
   margin-bottom: 0;
   h3 {
-    font-size: 1.25rem;
-    font-weight: 600;
+    font-size: var(--text-xl);
+    font-weight: var(--font-semibold);
   }
 }
 .header-actions {
@@ -38,22 +38,22 @@
 .status-badge {
   display: inline-block;
   padding: 4px 10px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
   border-radius: var(--border-radius-full);
   text-transform: capitalize;
 
   &.status-sent {
-    background-color: rgba(74, 222, 128, 0.15); // Verde
-    color: #4ade80;
+    background-color: rgba(var(--success-rgb), 0.15); // Verde
+    color: var(--success-text);
   }
   &.status-approved {
-    background-color: rgba(59, 130, 246, 0.15); // Azul
-    color: #3b82f6;
+    background-color: rgba(var(--accent-solid-rgb), 0.15); // Azul
+    color: var(--accent-text);
   }
   &.status-pending {
-    background-color: rgba(251, 146, 60, 0.15); // Naranja
-    color: #fb923c;
+    background-color: rgba(var(--warning-rgb), 0.15); // Naranja
+    color: var(--warning-text);
   }
   &.status-draft {
     background-color: var(--bg-solid);

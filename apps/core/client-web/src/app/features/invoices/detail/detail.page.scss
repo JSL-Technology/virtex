@@ -4,41 +4,41 @@
 
 .invoice-id {
     color: var(--text-secondary);
-    font-weight: 400;
+    font-weight: var(--font-regular);
 }
 
 .status-badge {
-    margin-left: 1rem;
+    margin-left: var(--space-4);
     vertical-align: middle;
     padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.875rem;
-    font-weight: 500;
+    border-radius: var(--radius-full);
+    font-size: var(--text-md);
+    font-weight: var(--font-medium);
     text-transform: capitalize;
 
     &.paid {
-        background-color: rgba(74, 222, 128, 0.1);
-        color: #4ade80;
+        background-color: rgba(var(--success-rgb), 0.1);
+        color: var(--success-text);
     }
 
     &.pending {
-        background-color: rgba(251, 146, 60, 0.1);
-        color: #fb923c;
+        background-color: rgba(var(--warning-rgb), 0.1);
+        color: var(--warning-text);
     }
 
     &.void, &.credit-note {
-        background-color: rgba(248, 113, 113, 0.1);
-        color: #f87171;
+        background-color: rgba(var(--error-rgb), 0.1);
+        color: var(--error-text);
     }
 
     &.partially-paid {
-        background-color: rgba(59, 130, 246, 0.1);
-        color: #3b82f6;
+        background-color: rgba(var(--accent-solid-rgb), 0.1);
+        color: var(--accent-text);
     }
 }
 
 .invoice-document {
-    padding: 3rem;
+    padding: var(--space-12);
     max-width: 800px;
     margin: auto;
 
@@ -49,10 +49,10 @@
 
 .sap-tabs {
     display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
     border-bottom: 1px solid var(--border-color);
-    padding-bottom: 0.5rem;
+    padding-bottom: var(--space-2);
 
     button {
         background: transparent;
@@ -60,7 +60,7 @@
         color: var(--text-secondary);
         padding: 0.5rem 1rem;
         cursor: pointer;
-        font-weight: 500;
+        font-weight: var(--font-medium);
         transition: all 0.2s;
         border-bottom: 2px solid transparent;
 
@@ -78,20 +78,20 @@
 .detail-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 2rem;
-    margin-top: 1.5rem;
+    gap: var(--space-8);
+    margin-top: var(--space-6);
 
     .detail-item {
         label {
             display: block;
-            font-size: 12px;
+            font-size: var(--text-xs);
             color: var(--text-secondary);
-            margin-bottom: 0.25rem;
+            margin-bottom: var(--space-1);
             text-transform: uppercase;
         }
         p {
             margin: 0;
-            font-weight: 500;
+            font-weight: var(--font-medium);
         }
     }
 }
@@ -99,15 +99,15 @@
 .invoice-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 3rem;
+    margin-bottom: var(--space-12);
 
     .company-info h2 {
-        font-size: 1.5rem;
+        font-size: var(--text-2xl);
         color: var(--text-primary);
     }
 
     .company-info p {
-        font-size: 0.9rem;
+        font-size: var(--text-md);
         color: var(--text-secondary);
         line-height: 1.5;
     }
@@ -117,8 +117,8 @@
     }
 
     .meta-item {
-        font-size: 0.9rem;
-        margin-bottom: 0.5rem;
+        font-size: var(--text-md);
+        margin-bottom: var(--space-2);
 
         span {
             color: var(--text-secondary);
@@ -127,18 +127,18 @@
 
         strong {
             color: var(--text-primary);
-            font-weight: 600;
+            font-weight: var(--font-semibold);
         }
     }
 }
 
 .customer-info {
-    margin-bottom: 3rem;
+    margin-bottom: var(--space-12);
 
     h3 {
-        font-size: 0.9rem;
+        font-size: var(--text-md);
         color: var(--text-secondary);
-        margin-bottom: 0.5rem;
+        margin-bottom: var(--space-2);
     }
 
     p {
@@ -147,7 +147,7 @@
 }
 
 .line-items-toolbar {
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-4);
     display: flex;
     justify-content: flex-end;
 
@@ -157,7 +157,7 @@
         color: var(--text-primary);
         padding: 0.4rem 0.75rem;
         border-radius: 4px;
-        font-size: 13px;
+        font-size: var(--text-sm);
         width: 250px;
 
         &:focus {
@@ -169,7 +169,7 @@
 
 .line-items-table {
     width: 100%;
-    margin-bottom: 3rem;
+    margin-bottom: var(--space-12);
 
     thead th {
         border-bottom: 2px solid var(--text-primary);
@@ -190,12 +190,12 @@
         max-width: 50%;
 
         h4 {
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
+            font-size: var(--text-md);
+            margin-bottom: var(--space-2);
         }
 
         p {
-            font-size: 0.875rem;
+            font-size: var(--text-md);
             color: var(--text-secondary);
         }
     }
@@ -207,24 +207,24 @@
         .summary-total {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 0.75rem;
+            margin-bottom: var(--space-3);
         }
 
         .summary-total {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--color-primary, #4a6cf7);
+            font-size: var(--text-xl);
+            font-weight: var(--font-bold);
+            color: var(--color-primary, var(--accent-text));
             border-top: 1px solid var(--color-border);
-            padding-top: 1rem;
-            margin-top: 0.5rem;
+            padding-top: var(--space-4);
+            margin-top: var(--space-2);
         }
 
         .balance-row {
-            margin-top: 1rem;
-            padding: 0.75rem;
-            background: rgba(248, 113, 113, 0.05);
+            margin-top: var(--space-4);
+            padding: var(--space-3);
+            background: rgba(var(--error-rgb), 0.05);
             border-radius: 4px;
-            color: #f87171;
+            color: var(--error-text);
         }
     }
 }
@@ -250,8 +250,10 @@
         padding: 0;
         border: none;
         box-shadow: none;
-        --text-primary: #000; // Colores para impresión
-        --text-secondary: #555;
+        //  En impresión se fuerza tinta sobre papel, con independencia del
+        //  tema activo en pantalla.
+        --content-primary: #000;
+        --content-secondary: #444;
     }
 
     .view-container {

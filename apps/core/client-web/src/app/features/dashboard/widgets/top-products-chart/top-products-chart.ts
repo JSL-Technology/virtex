@@ -5,6 +5,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { HighchartsChartComponent } from 'highcharts-angular';
 import * as Highcharts from 'highcharts';
+import { categoricalPalette, semanticColors, token } from '../../../../core/utils/chart-theme';
 import { PointOptionsObject } from 'highcharts';
 
 import {
@@ -94,19 +95,19 @@ export class TopProductsChart {
       const palette = vars.map(v => css.getPropertyValue(v).trim()).filter(Boolean);
       if (palette.length) return palette;
     }
-    return ['#60a5fa', '#34d399', '#f59e0b', '#f472b6', '#a78bfa'];
+    return categoricalPalette();
   }
 
   private getThemeOptions(): Highcharts.Options {
     if (typeof window === 'undefined') return {};
     const css = getComputedStyle(document.body);
 
-    const text = css.getPropertyValue('--text-primary').trim() || '#111827';
-    const text2 = css.getPropertyValue('--text-secondary').trim() || '#6b7280';
-    const border = css.getPropertyValue('--border-color').trim() || '#e5e7eb';
+    const text = token('--content-primary');
+    const text2 = token('--content-secondary');
+    const border = token('--border-default');
     const bg = css.getPropertyValue('--bg-layer-1').trim() || 'transparent';
-    const hoverBg = css.getPropertyValue('--bg-hover').trim() || 'rgba(0,0,0,0.06)';
-    const accent = css.getPropertyValue('--accent-primary').trim() || '#6366f1';
+    const hoverBg = token('--surface-hover');
+    const accent = token('--accent-solid');
     const radius = Number(css.getPropertyValue('--radius-md').replace('px', '').trim() || 10) || 10;
 
     return {
@@ -135,7 +136,7 @@ export class TopProductsChart {
   // NEW: colores por defecto hardcodeados como en tu ejemplo
   private getDefaultSeriesColors(categories: string[], chartType: ChartType): Record<string, string> {
     // Base tomada de tu ejemplo: pagadas (verde), pendientes (naranja), vencidas (rojo)
-    const base = ['#4ade80', '#fb923c', '#f87171', '#60a5fa', '#a78bfa']; // extendido para más ítems
+    const base = categoricalPalette();
 
     if (chartType === 'line') {
       // Para líneas usamos un solo color por defecto
@@ -173,7 +174,7 @@ export class TopProductsChart {
       borderColor: 'transparent'
     }));
 
-    const lineColor = seriesColors['__series'] ?? '#4ade80'; // por defecto verde (como tu ejemplo)
+    const lineColor = seriesColors['__series'] ?? semanticColors().positive;
 
     const series: Highcharts.SeriesOptionsType[] = [{
       name: this.i18n.instant('CHARTS.TOP_PRODUCTS.SERIES_NAME'),
@@ -212,7 +213,7 @@ export class TopProductsChart {
       const seriesColors: Record<string, string> =
         ((this.widget?.data as any)?.seriesColors as Record<string, string> | undefined)
         ?? this.getDefaultSeriesColors([], 'line');
-      const color = seriesColors['__series'] ?? '#4ade80';
+      const color = seriesColors['__series'] ?? semanticColors().positive;
       const label = this.i18n.instant('CHARTS.TOP_PRODUCTS.SERIES_NAME') || 'Serie';
       const point: PointOptionsObject = { name: label, color };
       return [point];

@@ -62,7 +62,7 @@ export class TabContainerComponent {
   readonly rightHeaderActions = GroupControlsComponent;
 
   readonly dvTheme = computed(() =>
-    this.themeService.activeTheme() === 'dark' ? themeDark : themeLight
+    this.themeService.appliedTheme() === 'dark' ? themeDark : themeLight
   );
 
   /**
