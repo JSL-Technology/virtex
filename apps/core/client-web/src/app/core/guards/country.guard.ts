@@ -36,14 +36,14 @@ export class CountryGuard implements CanActivate {
         // Si el código de la configuración obtenida (config.code) es diferente al de la URL (countryCode),
         // significa que el país de la URL no existe y el servicio nos dio uno por defecto (fallback).
         // En ese caso, redirigimos al usuario a la URL con el código correcto.
-        if (config && config.code.toLowerCase() !== countryCode.toLowerCase()) {
+        if (config && config.countryCode.toLowerCase() !== countryCode.toLowerCase()) {
             const url = state.url; // ej: /es/asdfas/auth/register
             const segments = url.split('/'); 
             
             // Asumiendo estructura estándar: ['', ':lang', ':country', ...]
             // Reemplazamos el segmento del país (índice 2) por el código válido
             if (segments.length > 2) {
-                segments[2] = config.code.toLowerCase();
+                segments[2] = config.countryCode.toLowerCase();
                 const newUrl = segments.join('/');
                 // Redirige a /es/us/auth/register (o el país por defecto que devuelva el servicio)
                 return this.router.parseUrl(newUrl);

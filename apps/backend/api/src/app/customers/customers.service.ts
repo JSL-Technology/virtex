@@ -5,23 +5,39 @@ import { Repository } from 'typeorm';
 import { Customer } from './entities/customer.entity';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { DataSource } from 'typeorm';
+import { SaasService } from '../saas/saas.service';
+import { SaasResource } from '../saas/enums/saas-resource.enum';
 
 @Injectable()
 export class CustomersService {
   constructor(
     @InjectRepository(Customer)
     private readonly customerRepository: Repository<Customer>,
+    private readonly dataSource: DataSource,
+    private readonly saasService: SaasService,
   ) {}
 
-  create(
+  /**
+   * Create a customer, against the tenant's plan.
+   *
+   * Metered in the same transaction as the insert. Counting outside it lets a rolled-back create
+   * still consume quota, and counting after it lets a burst of concurrent requests all observe the
+   * same pre-increment total and all proceed.
+   */
+  async create(
     createCustomerDto: CreateCustomerDto,
     organizationId: string,
   ): Promise<Customer> {
-    const customer = this.customerRepository.create({
-      ...createCustomerDto,
-      organizationId,
+    return this.dataSource.transaction(async (manager) => {
+      await this.saasService.enforceLimit(manager, organizationId, SaasResource.CUSTOMERS);
+
+      const customer = manager.create(Customer, {
+        ...createCustomerDto,
+        organizationId,
+      });
+      return manager.save(customer);
     });
-    return this.customerRepository.save(customer);
   }
 
   findAll(organizationId: string): Promise<Customer[]> {

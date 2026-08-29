@@ -23,6 +23,7 @@ import { WebAuthnService } from './services/webauthn.service';
 import { ImpersonationService } from './services/impersonation.service';
 import { JwtStrategy } from './strategies/jwt.strategy/jwt.strategy';
 import { CookieService } from './services/cookie.service';
+import { SmsAbuseGuardService } from './services/sms-abuse.guard.service';
 import { SessionService } from './services/session.service';
 import { SecurityAnalysisService } from './services/security-analysis.service';
 import { TokenService } from './services/token.service';
@@ -60,8 +61,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { PasswordService } from './services/password.service';
 import { AuthSubscriber } from './events/auth.events';
 import { RegistrationStrategyFactory } from './strategies/registration/registration-strategy.factory';
-import { DoRegistrationStrategy } from './strategies/registration/do-registration.strategy';
-import { UsRegistrationStrategy } from './strategies/registration/us-registration.strategy';
+import { ProfileRegistrationStrategy } from './strategies/registration/profile-registration.strategy';
 import { AuthAuditListener } from './listeners/auth-audit.listener';
 import { CsrfGuard } from './guards/csrf.guard';
 import { StepUpGuard } from './guards/step-up.guard';
@@ -130,18 +130,15 @@ import { KeyManagementModule } from './services/key-management.module';
         };
       },
     }),
-    GoogleRecaptchaModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        secretKey: config.get<string>('RECAPTCHA_V3_SECRET_KEY'),
-        response: (req) => req.body.recaptchaToken,
-        score: 0.7,
-        // H-04 FIX: Controlled by explicit RECAPTCHA_DISABLED flag, not NODE_ENV.
-        // String comparison is required because ConfigService returns env vars as strings.
-        skipIf: String(config.get('RECAPTCHA_DISABLED', 'false')).toLowerCase() === 'true',
-      }),
-    }),
+    // reCAPTCHA is configured ONCE, in AppModule.
+    //
+    // It used to be registered here as well. `GoogleRecaptchaModule` is global by default, so the
+    // application declared the same global module twice with two different `skipIf` expressions —
+    // one comparing a boolean, one comparing a lowercased string — and which of them governed a
+    // given request depended on provider resolution order. This copy also validated its own
+    // options at boot and threw `Google recaptcha options must be contains "secretKey" xor
+    // "enterprise"` whenever RECAPTCHA_DISABLED was set, so the documented way to turn reCAPTCHA
+    // off stopped the entire application from starting.
     MailModule,
     LocalizationModule,
     forwardRef(() => PaymentModule),
@@ -157,6 +154,7 @@ import { KeyManagementModule } from './services/key-management.module';
     WebAuthnService,
     ImpersonationService,
     JwtStrategy,
+    SmsAbuseGuardService,
     CookieService,
     SessionService,
     SecurityAnalysisService,
@@ -175,8 +173,7 @@ import { KeyManagementModule } from './services/key-management.module';
     PasswordService,
     AuthSubscriber,
     RegistrationStrategyFactory,
-    DoRegistrationStrategy,
-    UsRegistrationStrategy,
+    ProfileRegistrationStrategy,
     AuthAuditListener,
     CsrfGuard,
     StepUpGuard,
@@ -208,6 +205,7 @@ import { KeyManagementModule } from './services/key-management.module';
     SessionService,
     SessionRegistryService,
     UserIdentityService,
+    TokenService,
     CsrfGuard,
     StepUpGuard,
     IsOrganizationOwnerPolicy,

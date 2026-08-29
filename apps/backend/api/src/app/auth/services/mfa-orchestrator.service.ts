@@ -19,6 +19,7 @@ import { UsersService } from '../../users/users.service';
 import { UserSecurity } from '../../users/entities/user-security.entity';
 import { TwoFactorAuthService } from './two-factor-auth.service';
 import { FrontendUrlService } from '../../mail/frontend-url.service';
+import { SmsAbuseGuardService } from './sms-abuse.guard.service';
 
 import { AuthConfig } from '../auth.config';
 
@@ -40,7 +41,8 @@ export class MfaOrchestratorService {
     private readonly usersService: UsersService,
     private readonly twoFactorAuthService: TwoFactorAuthService,
     private readonly mailService: MailService,
-    private readonly links: FrontendUrlService
+    private readonly links: FrontendUrlService,
+    private readonly smsAbuseGuard: SmsAbuseGuardService
   ) {}
 
   async sendEmailOtp(userId: string, email: string) {
@@ -101,6 +103,9 @@ export class MfaOrchestratorService {
   }
 
   async sendPhoneOtp(userId: string, phoneNumber: string) {
+    // Authenticated, but the destination is still caller-supplied, so it spends the same budget.
+    await this.smsAbuseGuard.assertMaySend(phoneNumber);
+
     const code = randomInt(100000, 999999).toString();
     const hash = await argon2.hash(code);
 
@@ -221,6 +226,10 @@ export class MfaOrchestratorService {
         throw new InternalServerErrorException('No se pudo enviar el correo de verificación. Por favor verifica tu correo e intenta de nuevo.');
       }
     } else if (type === VerificationType.PHONE_VERIFY) {
+      // Unauthenticated, and it sends to whatever number the body carries — the exact shape of
+      // SMS pumping. reCAPTCHA and a per-IP throttle do not stop it; refusing destinations the
+      // product does not sell to, and capping what one campaign can cost, does.
+      await this.smsAbuseGuard.assertMaySend(target);
       try {
         await this.smsProvider.send(target, `Your verification code is: ${code}`);
       } catch (err) {

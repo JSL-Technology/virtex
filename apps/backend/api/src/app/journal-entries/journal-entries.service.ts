@@ -49,6 +49,8 @@ import { DimensionRule } from '../dimensions/entities/dimension-rule.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { JournalEntryLineValuation } from './entities/journal-entry-line-valuation.entity';
 import { LedgerMappingRule } from '../accounting/entities/ledger-mapping-rule.entity';
+import { SaasService } from '../saas/saas.service';
+import { SaasResource } from '../saas/enums/saas-resource.enum';
 
 @Injectable()
 export class JournalEntriesService {
@@ -68,6 +70,7 @@ export class JournalEntriesService {
     private readonly balanceUpdateService: BalanceUpdateService,
     private readonly workflowsService: WorkflowsService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly saasService: SaasService,
   ) {}
 
   async create(
@@ -84,6 +87,14 @@ export class JournalEntriesService {
     await queryRunner.startTransaction();
 
     try {
+      // Metered inside the transaction that writes the entry, so a rolled-back post does not
+      // consume quota and concurrent posts cannot all read the same pre-increment total.
+      await this.saasService.enforceLimit(
+        queryRunner.manager,
+        organizationId,
+        SaasResource.JOURNAL_ENTRIES,
+      );
+
       const defaultLedger = await queryRunner.manager.findOneBy(Ledger, {
         organizationId,
         isDefault: true,

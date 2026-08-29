@@ -12,10 +12,20 @@ import { SaasService } from '../saas/saas.service';
 import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
 import { ConfigService } from '@nestjs/config';
+import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
 import { Public } from '../auth/decorators/public.decorator';
-import { CsrfGuard } from '../auth/guards/csrf.guard';
+import { SkipCsrf } from '../auth/decorators/skip-csrf.decorator';
 import { CreateCheckoutSessionDto, ConfirmCheckoutDto } from './dto/payment.dto';
 
+/**
+ * Billing stays reachable when the subscription is not.
+ *
+ * The global `SubscriptionActiveGuard` refuses work for a tenant whose subscription has lapsed.
+ * Applying that to the pages where the customer would pay, read what they owe, or open the Stripe
+ * portal would make a recoverable payment failure unrecoverable — the customer would be locked out
+ * of the only door back in.
+ */
+@AllowInactiveSubscription()
 @Controller('payment')
 export class PaymentController {
   constructor(
@@ -36,7 +46,7 @@ export class PaymentController {
    * The auth controller already resolved this the right way for signup; this is the same fix.
    */
   @Post('checkout-session')
-  @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
+  @UseGuards(JwtAuthGuard, StepUpGuard)
   @StepUp(StepUpScope.MANAGE_PAYMENT)
   async createCheckoutSession(
     @CurrentUser() user: User,
@@ -95,7 +105,7 @@ export class PaymentController {
   }
 
   @Post('checkout/confirm')
-  @UseGuards(JwtAuthGuard, CsrfGuard)
+  @UseGuards(JwtAuthGuard)
   async confirmCheckout(
     @CurrentUser() user: User,
     @Body() body: ConfirmCheckoutDto
@@ -116,7 +126,7 @@ export class PaymentController {
   }
 
   @Post('portal-session')
-  @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
+  @UseGuards(JwtAuthGuard, StepUpGuard)
   @StepUp(StepUpScope.MANAGE_PAYMENT)
   async createPortalSession(
     @CurrentUser() user: User,
@@ -166,6 +176,7 @@ export class PaymentController {
    * is stronger than a session cookie would be: it proves the payload came from Stripe unmodified.
    */
   @Public()
+  @SkipCsrf()
   @Post('webhook')
   @HttpCode(HttpStatus.OK)
   @UseGuards(ThrottlerGuard)

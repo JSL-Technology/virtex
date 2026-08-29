@@ -258,3 +258,18 @@
     transform: translateY(0) scale(1);
   }
 }
+
+/* Feedback while the session is being re-issued for another tenant, and when that fails. */
+.switch-status,
+.switch-error {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.switch-status {
+  opacity: 0.7;
+}
+
+.switch-error {
+  color: #b91c1c;
+}

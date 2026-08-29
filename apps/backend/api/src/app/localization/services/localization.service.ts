@@ -1,10 +1,10 @@
 
 import {
   Injectable,
+  InternalServerErrorException,
   Logger,
-  OnModuleInit,
   NotFoundException,
-  Inject,
+  OnModuleInit,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityManager } from 'typeorm';
@@ -12,16 +12,25 @@ import { FiscalRegion } from '../entities/fiscal-region.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { ChartOfAccountsService } from '../../chart-of-accounts/chart-of-accounts.service';
 import { TaxesService } from '../../taxes/taxes.service';
-import { panamaCoaTemplate } from '../templates/pa-coa.template';
-import { panamaTaxTemplate } from '../templates/pa-taxes.template';
 import { AccountTemplateDto } from '../entities/coa-template.entity';
-import { usGaapCoaTemplate } from '../templates/us-gaap-coa.template';
 import { FiscalStrategy } from '../drivers/fiscal-strategy.interface';
 import { DominicanRepublicStrategy } from '../drivers/dominican-republic/dominican-republic.strategy';
 import { GenericFiscalStrategy } from '../drivers/generic-fiscal.strategy';
 import { USStrategy } from '../drivers/usa/usa.strategy';
 import { DbDrivenFiscalStrategy } from '../drivers/db-driven-fiscal.strategy';
-import { TaxTemplate } from '../entities/tax-template.entity';
+import {
+  COUNTRY_FISCAL_PROFILES,
+  CountryFiscalProfile,
+  findCountryProfile,
+} from '../fiscal/country-profiles';
+import { validateTaxId } from '../fiscal/tax-id-validators';
+import { PublicCountryConfig, TaxIdLookupResult } from '../fiscal/public-country-config';
+import { findTaxScheme } from '../fiscal/country-tax-schemes';
+import {
+  STATUTORY_PLAN_REQUIRED,
+  buildCountryCoaTemplate,
+  requiresStatutoryPlanImport,
+} from '../fiscal/coa-builder';
 
 @Injectable()
 export class LocalizationService implements OnModuleInit {
@@ -31,8 +40,6 @@ export class LocalizationService implements OnModuleInit {
   constructor(
     @InjectRepository(FiscalRegion)
     private readonly fiscalRegionRepository: Repository<FiscalRegion>,
-    @InjectRepository(TaxTemplate)
-    private readonly taxTemplateRepository: Repository<TaxTemplate>,
     private readonly coaService: ChartOfAccountsService,
     private readonly taxesService: TaxesService,
     private readonly doStrategy: DominicanRepublicStrategy,
@@ -69,10 +76,16 @@ export class LocalizationService implements OnModuleInit {
     }
   }
 
-  getStrategy(countryCode: string): FiscalStrategy {
-    const code = countryCode ? countryCode.toUpperCase() : 'GENERIC';
-    return this.strategies.get(code) || this.strategies.get('GENERIC');
-  }
+  /**
+   * `getStrategy(countryCode)` used to live here, returning the 'GENERIC' strategy for any country
+   * it did not recognise — and that strategy's `validateTaxId` was `return true`. It was the
+   * fallback the DTO validator, the registration factory and the tax-id lookup all reached, so an
+   * unsupported country validated everything and nothing. It has no callers left: validation goes
+   * through `tax-id-validators.ts`, which returns false for a country it has no algorithm for.
+   *
+   * `this.strategies` survives for one purpose: reaching a country's registry in `lookupTaxId`,
+   * looked up by exact country code with no fallback.
+   */
 
   async findAllFiscalRegions(): Promise<FiscalRegion[]> {
     return this.fiscalRegionRepository.find({ order: { name: 'ASC' } });
@@ -88,190 +101,246 @@ export class LocalizationService implements OnModuleInit {
     return this.fiscalRegionRepository.findOne({ where: { countryCode } });
   }
 
+  /**
+   * Bring `fiscal_regions` into agreement with the country profiles.
+   *
+   * This used to be a hardcoded array of six countries living inside this method, while the signup
+   * form offered eight and `libs/api/country` listed three others again. A country present in the
+   * form but absent here produced no fiscal region id, so the tenant was created with no chart of
+   * accounts, no taxes and no fiscal identity — and the signup still returned success.
+   *
+   * `COUNTRY_FISCAL_PROFILES` is now the single authority; this method projects it onto the table.
+   * It runs on every boot and is idempotent, so opening a market is a code change that deploys
+   * itself rather than a manual insert somebody has to remember in every environment.
+   */
   private async seedFiscalRegions() {
-    const regions = [
+    for (const profile of COUNTRY_FISCAL_PROFILES) {
+      const row = this.regionRowFor(profile);
+      const existing = await this.fiscalRegionRepository.findOne({
+        where: { countryCode: profile.countryCode },
+      });
+
+      if (existing) {
+        await this.fiscalRegionRepository.save({ ...existing, ...row });
+      } else {
+        this.logger.log(`Sembrando región fiscal ${profile.name} (${profile.countryCode})`);
+        await this.fiscalRegionRepository.save(
+          this.fiscalRegionRepository.create(row),
+        );
+      }
+    }
+
+  }
+
+  /** Project a profile onto the columns of `fiscal_regions`. */
+  private regionRowFor(profile: CountryFiscalProfile): Partial<FiscalRegion> {
+    const documentTypes = [
       {
-        countryCode: 'DO',
-        name: 'República Dominicana',
-        baseCurrency: 'DOP',
-        taxIdLabel: 'RNC',
-        fiscalAuthorityName: 'DGII',
-        provinceLabel: 'Provincia',
-        postalCodeRegex: '\\d{5}',
-        identityDocumentConfig: {
-          types: [
-            {
-              code: 'RNC',
-              label: 'RNC',
-              regex: '^\\d{9,11}$',
-              isCompany: true,
-            },
-            {
-              code: 'CEDULA',
-              label: 'Cédula',
-              regex: '^\\d{11}$',
-              isCompany: false,
-            },
-          ],
-        },
-        requiredFiscalReports: ['606', '607', '608', 'IT-1'],
-        electronicInvoicingDriver: 'DGII_E-FACTURA',
-        requiresElectronicInvoicing: true,
-        dateFormat: 'dd/MM/yyyy',
-      },
-      {
-        countryCode: 'US',
-        name: 'United States',
-        baseCurrency: 'USD',
-        taxIdLabel: 'EIN',
-        fiscalAuthorityName: 'IRS',
-        provinceLabel: 'State',
-        postalCodeRegex: '\\d{5}(-\\d{4})?',
-        identityDocumentConfig: {
-          types: [
-            {
-              code: 'EIN',
-              label: 'EIN',
-              regex: '^\\d{2}-\\d{7}$',
-              isCompany: true,
-            },
-            {
-              code: 'SSN',
-              label: 'SSN',
-              regex: '^\\d{3}-\\d{2}-\\d{4}$',
-              isCompany: false,
-            },
-          ],
-        },
-        dateFormat: 'MM/dd/yyyy',
-        thousandSeparator: ',',
-        decimalSeparator: '.',
-      },
-      {
-        countryCode: 'PA',
-        name: 'Panamá',
-        baseCurrency: 'PAB',
-        taxIdLabel: 'RUC',
-        fiscalAuthorityName: 'DGI',
-        provinceLabel: 'Provincia',
-        identityDocumentConfig: {
-          types: [
-            {
-              code: 'RUC',
-              label: 'RUC',
-              regex: '^[0-9]+-[0-9]+-[0-9]+(-[0-9]+)?$',
-              isCompany: true,
-            },
-          ],
-        },
-      },
-      {
-        countryCode: 'CO',
-        name: 'Colombia',
-        baseCurrency: 'COP',
-        taxIdLabel: 'NIT',
-        fiscalAuthorityName: 'DIAN',
-        provinceLabel: 'Departamento',
-        identityDocumentConfig: {
-          types: [
-            {
-              code: 'NIT',
-              label: 'NIT',
-              regex: '^\\d{9,10}$',
-              isCompany: true,
-            },
-          ],
-        },
-      },
-      {
-        countryCode: 'MX',
-        name: 'México',
-        baseCurrency: 'MXN',
-        taxIdLabel: 'RFC',
-        fiscalAuthorityName: 'SAT',
-        provinceLabel: 'Estado',
-        identityDocumentConfig: {
-          types: [
-            {
-              code: 'RFC',
-              label: 'RFC',
-              regex: '^[A-Z&Ñ]{3,4}\\d{6}[A-V1-9][A-Z1-9][0-9A]$',
-              isCompany: true,
-            },
-          ],
-        },
-      },
-      {
-        countryCode: 'CL',
-        name: 'Chile',
-        baseCurrency: 'CLP',
-        taxIdLabel: 'RUT',
-        fiscalAuthorityName: 'SII',
-        provinceLabel: 'Región',
-        identityDocumentConfig: {
-          types: [
-            {
-              code: 'RUT',
-              label: 'RUT',
-              regex: '^\\d{7,8}-[0-9Kk]$',
-              isCompany: true,
-            },
-          ],
-        },
+        code: profile.taxId.label.replace(/[^A-Za-z]/g, '').toUpperCase() || 'TAXID',
+        label: profile.taxId.label,
+        regex: profile.taxId.pattern,
+        isCompany: true,
       },
     ];
 
-    for (const regionData of regions) {
-      const regionExists = await this.fiscalRegionRepository.findOne({
-        where: { countryCode: regionData.countryCode },
+    if (profile.individualDocument) {
+      documentTypes.push({
+        code: profile.individualDocument.code,
+        label: profile.individualDocument.label,
+        regex: profile.individualDocument.pattern,
+        isCompany: false,
       });
-
-      if (!regionExists) {
-        this.logger.log(
-          `Sembrando región fiscal para ${regionData.name} (${regionData.countryCode})...`,
-        );
-        await this.fiscalRegionRepository.save(regionData as any);
-      } else {
-        // Actualizar datos existentes
-        await this.fiscalRegionRepository.save({
-          ...regionExists,
-          ...regionData,
-        } as any);
-      }
     }
 
-    // Seed Taxes for DO if not exist
-    const doRegion = await this.fiscalRegionRepository.findOneBy({
-      countryCode: 'DO',
-    });
-    if (doRegion) {
-      const itbis = await this.taxTemplateRepository.findOneBy({
-        countryCode: 'DO',
-        name: 'ITBIS 18%',
-      });
-      if (!itbis) {
-        const newTax = await this.taxTemplateRepository.save({
-          countryCode: 'DO',
-          name: 'ITBIS 18%',
-          rate: 18,
-          type: 'VAT',
-        });
-        // Link to region
-        doRegion.defaultTaxes = [newTax];
-        await this.fiscalRegionRepository.save(doRegion);
+    return {
+      countryCode: profile.countryCode,
+      name: profile.name,
+      baseCurrency: profile.currency,
+      taxIdLabel: profile.taxId.label,
+      fiscalAuthorityName: profile.fiscalAuthority,
+      provinceLabel: profile.address.divisionLabel,
+      postalCodeRegex: profile.address.postalCodePattern ?? null,
+      requiresElectronicInvoicing: profile.electronicInvoicing.required,
+      electronicInvoicingDriver: profile.electronicInvoicing.regime,
+      requiredFiscalReports: profile.requiredFiscalReports ?? [],
+      identityDocumentConfig: { types: documentTypes },
+      dateFormat: profile.dateFormat,
+      thousandSeparator: profile.thousandSeparator,
+      decimalSeparator: profile.decimalSeparator,
+    } as Partial<FiscalRegion>;
+  }
+
+  /**
+   * The configuration the signup form needs to render one country's fiscal fields.
+   *
+   * Unlike the strategy-derived config it replaces, an unknown country is an error rather than a
+   * silent fall-through to a "generic" profile that accepted any string as a tax id. If a country
+   * is not modelled, the honest answer is that it cannot be registered yet.
+   */
+  async getPublicCountryConfig(countryCode: string): Promise<PublicCountryConfig> {
+    const profile = findCountryProfile(countryCode);
+    if (!profile) {
+      throw new NotFoundException(
+        `El país "${countryCode}" no está disponible para registro todavía.`,
+      );
+    }
+
+    const region = await this.findRegionByCountryCode(profile.countryCode);
+    if (!region) {
+      // Seeding runs at boot from the same list, so this means the boot seed failed. Surfacing it
+      // is better than handing the form a config whose fiscalRegionId is missing — that is exactly
+      // how tenants used to end up with no chart of accounts.
+      this.logger.error(
+        `No existe fiscal_region para ${profile.countryCode} pese a estar en COUNTRY_FISCAL_PROFILES`,
+      );
+      throw new NotFoundException(
+        `La configuración fiscal de "${profile.countryCode}" no está disponible.`,
+      );
+    }
+
+    return {
+      countryCode: profile.countryCode,
+      name: profile.name,
+      currency: profile.currency,
+      locale: profile.locale,
+      phoneCode: `+${profile.callingCode}`,
+      fiscalAuthority: profile.fiscalAuthority,
+      taxIdLabel: profile.taxId.label,
+      taxIdExample: profile.taxId.example,
+      taxIdPattern: profile.taxId.pattern,
+      taxIdHasCheckDigit: profile.taxId.hasCheckDigit,
+      individualDocument: profile.individualDocument ?? null,
+      address: profile.address,
+      electronicInvoicing: profile.electronicInvoicing,
+      dateFormat: profile.dateFormat,
+      thousandSeparator: profile.thousandSeparator,
+      decimalSeparator: profile.decimalSeparator,
+      fiscalRegionId: region.id,
+    };
+  }
+
+  /** Every country the product can actually onboard, for the signup country selector. */
+  getSupportedCountries(): Array<Pick<CountryFiscalProfile, 'countryCode' | 'name' | 'currency' | 'callingCode'>> {
+    return COUNTRY_FISCAL_PROFILES.map(({ countryCode, name, currency, callingCode }) => ({
+      countryCode,
+      name,
+      currency,
+      callingCode,
+    }));
+  }
+
+  /**
+   * Arithmetic validation of a fiscal identifier. Total, synchronous, and never network-bound.
+   *
+   * This is the check registration must not be able to skip. It is deliberately separate from
+   * {@link lookupTaxId}: a check digit is verifiable offline and always available, whereas a
+   * registry lookup depends on a third party being up.
+   */
+  isValidTaxId(countryCode: string, taxId: string): boolean {
+    return validateTaxId(countryCode, taxId);
+  }
+
+  isSupportedCountry(countryCode: string): boolean {
+    return Boolean(findCountryProfile(countryCode));
+  }
+
+  /**
+   * Resolve a tax id against the country's registry, to pre-fill the legal name at signup.
+   *
+   * The identifier is validated arithmetically FIRST. That ordering is the point: the endpoint is
+   * public, it reaches somebody else's government API, and forwarding unvalidated input to it is
+   * how a platform spends a third party's rate limit and its own standing with them. A wrong check
+   * digit cannot be a registered taxpayer, so it never needs to leave this process.
+   *
+   * A registry that is unreachable returns `valid: true, found: false` — not an error. The check
+   * digit is authoritative for accepting the identifier; the lookup only saves typing.
+   */
+  async lookupTaxId(countryCode: string, taxId: string): Promise<TaxIdLookupResult> {
+    const profile = findCountryProfile(countryCode);
+    if (!profile) {
+      throw new NotFoundException(
+        `El país "${countryCode}" no está disponible para registro todavía.`,
+      );
+    }
+
+    if (!validateTaxId(profile.countryCode, taxId)) {
+      return {
+        countryCode: profile.countryCode,
+        taxId,
+        valid: false,
+        found: false,
+        legalName: null,
+        status: null,
+      };
+    }
+
+    const strategy = this.strategies.get(profile.countryCode);
+    if (!strategy) {
+      return {
+        countryCode: profile.countryCode,
+        taxId,
+        valid: true,
+        found: false,
+        legalName: null,
+        status: null,
+      };
+    }
+
+    try {
+      const details = await strategy.getTaxIdDetails(taxId);
+      if (!details?.legalName) {
+        return {
+          countryCode: profile.countryCode,
+          taxId,
+          valid: true,
+          found: false,
+          legalName: null,
+          status: null,
+        };
       }
+
+      return {
+        countryCode: profile.countryCode,
+        taxId,
+        valid: true,
+        found: true,
+        legalName: details.legalName,
+        status: details.status ?? null,
+      };
+    } catch (error) {
+      this.logger.warn(
+        `Consulta al registro fiscal de ${profile.countryCode} falló: ${(error as Error).message}`,
+      );
+      return {
+        countryCode: profile.countryCode,
+        taxId,
+        valid: true,
+        found: false,
+        legalName: null,
+        status: null,
+      };
     }
   }
 
-  async applyFiscalPackage(
-    organization: Organization,
-    manager?: EntityManager,
-  ) {
+  /**
+   * Give a newly created tenant its chart of accounts and its default taxes.
+   *
+   * Three things were wrong here and all three were silent:
+   *
+   *   1. An organization with no `fiscalRegionId` logged a warning and returned, leaving a tenant
+   *      with an empty ledger. Registration now always resolves a region, so this is a hard error.
+   *   2. Every country except Panama got `usGaapCoaTemplate` — fifteen accounts, in English, with
+   *      no account for the local VAT. A Dominican tenant had nowhere to post ITBIS.
+   *   3. The Dominican default tax was created with `type: 'VAT'`, and `taxes.type` is an enum
+   *      accepting only `Porcentaje` and `Fijo`. The insert raised
+   *      `invalid input value for enum taxes_type_enum: "VAT"` and rolled back the transaction the
+   *      registration ran in.
+   */
+  async applyFiscalPackage(organization: Organization, manager?: EntityManager) {
     if (!organization.fiscalRegionId) {
-      this.logger.warn(
-        `La organización ${organization.id} no tiene una región fiscal asignada. Omitiendo la aplicación del paquete fiscal.`,
+      throw new InternalServerErrorException(
+        `La organización ${organization.id} no tiene región fiscal; no se puede aplicar el paquete fiscal.`,
       );
-      return;
     }
 
     const regionRepo = manager
@@ -279,7 +348,6 @@ export class LocalizationService implements OnModuleInit {
       : this.fiscalRegionRepository;
     const region = await regionRepo.findOne({
       where: { id: organization.fiscalRegionId },
-      relations: ['defaultTaxes'],
     });
 
     if (!region) {
@@ -289,86 +357,73 @@ export class LocalizationService implements OnModuleInit {
     }
 
     this.logger.log(
-      `Aplicando paquete fiscal de ${region.name} para la organización ${organization.id}`,
+      `Aplicando paquete fiscal de ${region.name} a la organización ${organization.id}`,
     );
 
-    // Apply Default Taxes from Relationship
-    if (region.defaultTaxes && region.defaultTaxes.length > 0) {
-      for (const template of region.defaultTaxes) {
-        await this.taxesService.create(
-          {
-            name: template.name,
-            rate: template.rate,
-            type: template.type as any,
-            code: template.name.toUpperCase().replace(/\s+/g, '_'),
-            description: `Impuesto por defecto ${template.name}`,
-          },
-          organization.id,
-          manager,
-        );
-      }
-    }
-
-    switch (region.countryCode) {
-      case 'PA':
-        await this.applyPanamaPackage(organization.id, manager);
-        break;
-      case 'US':
-        await this.applyGenericCoaTemplate(
-          organization.id,
-          usGaapCoaTemplate.accounts,
-          manager,
-        );
-        break;
-      case 'DO':
-        await this.applyGenericCoaTemplate(
-          organization.id,
-          usGaapCoaTemplate.accounts,
-          manager,
-        );
-        break;
-      default:
-        // Para países con estrategia dinámica pero sin paquete contable específico, usamos el genérico
-        this.logger.log(
-          `Usando paquete contable genérico para ${region.countryCode}`,
-        );
-        await this.applyGenericCoaTemplate(
-          organization.id,
-          usGaapCoaTemplate.accounts,
-          manager,
-        );
-    }
+    await this.applyCountryTaxes(region.countryCode, organization.id, manager);
+    await this.applyCountryCoa(region.countryCode, organization.id, manager);
   }
 
-  private async applyPanamaPackage(
+  /**
+   * Seed the country's consumption taxes.
+   *
+   * `computation` is what goes into `taxes.type` — the column is an enum of Porcentaje/Fijo. The
+   * regime (VAT, sales tax) is descriptive and deliberately not written there; conflating the two
+   * is what produced the enum error this replaces.
+   */
+  private async applyCountryTaxes(
+    countryCode: string,
     organizationId: string,
     manager?: EntityManager,
   ) {
-    this.logger.log(
-      `Aplicando impuestos de Panamá para la organización ${organizationId}...`,
-    );
-    for (const tax of panamaTaxTemplate.taxes) {
-      await this.taxesService.create(tax, organizationId, manager);
-    }
-  }
+    const scheme = findTaxScheme(countryCode);
 
-  private async applyGenericCoaTemplate(
-    organizationId: string,
-    accounts: AccountTemplateDto[],
-    manager?: EntityManager,
-  ) {
-    this.logger.log(
-      `Aplicando plantilla de plan de cuentas para la organización ${organizationId}...`,
-    );
-    for (const account of accounts) {
-      await this.createAccountFromTemplate(
-        account,
+    if (!scheme) {
+      throw new InternalServerErrorException(
+        `No hay esquema de impuestos definido para ${countryCode}.`,
+      );
+    }
+
+    if (scheme.configurationRequired) {
+      // Not an error: these are the markets whose tax base is sub-national or regime-dependent, so
+      // there is no correct national rate to seed. The tenant configures it during onboarding.
+      this.logger.log(
+        `${countryCode} requiere configuración de impuestos por parte del contribuyente: ${scheme.configurationNote}`,
+      );
+      return;
+    }
+
+    for (const tax of scheme.taxes) {
+      await this.taxesService.create(
+        {
+          name: tax.name,
+          rate: tax.rate,
+          type: tax.computation,
+          countryCode,
+        },
         organizationId,
-        null,
         manager,
       );
     }
   }
+
+  private async applyCountryCoa(
+    countryCode: string,
+    organizationId: string,
+    manager?: EntityManager,
+  ) {
+    if (requiresStatutoryPlanImport(countryCode)) {
+      this.logger.log(
+        `${countryCode}: ${STATUTORY_PLAN_REQUIRED[countryCode]} Se aplica el plan base NIIF entretanto.`,
+      );
+    }
+
+    const accounts = buildCountryCoaTemplate(countryCode);
+    for (const account of accounts) {
+      await this.createAccountFromTemplate(account, organizationId, null, manager);
+    }
+  }
+
 
   private async createAccountFromTemplate(
     accountDto: AccountTemplateDto,

@@ -1,5 +1,5 @@
 
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RegisterPage } from './register.page';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -9,6 +9,7 @@ import { AuthService } from '../../../core/services/auth';
 import { ReCaptchaV3Service } from 'ng-recaptcha-19';
 import { of, Observable } from 'rxjs';
 import { CountryService } from '../../../core/services/country.service';
+import { MockCountryService, US_CONFIG } from '../../../../testing/country.service.mock';
 import { LanguageService } from '../../../core/services/language';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { UsersService } from '../../../core/api/users.service';
@@ -40,13 +41,6 @@ class MockAuthService {
 class MockRecaptchaService {
   execute = jest.fn().mockReturnValue(of('mock-token'));
 }
-class MockCountryService {
-  currentCountry = jest.fn().mockReturnValue({ code: 'DO', currencyCode: 'DOP', name: 'Dominican Republic', formSchema: {} });
-  currentCountryCode = jest.fn().mockReturnValue('do');
-  detectAndSetCountry = jest.fn();
-  getCountryConfig = jest.fn().mockReturnValue(of({}));
-  lookupTaxId = jest.fn().mockReturnValue(of(null));
-}
 class MockUsersService {
     updateUser = jest.fn().mockReturnValue(of({}));
 }
@@ -77,6 +71,7 @@ describe('RegisterPage', () => {
   let component: RegisterPage;
   let fixture: ComponentFixture<RegisterPage>;
   let httpMock: HttpTestingController;
+  let countryService: MockCountryService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -113,6 +108,7 @@ describe('RegisterPage', () => {
     // component.languageService = langService; // inject() handles this.
 
     httpMock = TestBed.inject(HttpTestingController);
+    countryService = TestBed.inject(CountryService) as unknown as MockCountryService;
     fixture.detectChanges();
   });
 
@@ -133,13 +129,10 @@ describe('RegisterPage', () => {
     expect(component.configuration.get('currency')?.value).toBe('DOP');
   });
 
-  it('should validate required fields', fakeAsync(() => {
+  it('should validate required fields', () => {
     const accountInfo = component.accountInfo;
+    expect(accountInfo.valid).toBe(false);
 
-    // Check initial invalid state
-    expect(accountInfo.valid).toBeFalsy();
-
-    // Fill with valid data
     accountInfo.patchValue({
       firstName: 'John',
       lastName: 'Doe',
@@ -147,26 +140,81 @@ describe('RegisterPage', () => {
       emailCode: '123456',
       phone: '+18090000000',
       phoneCode: '123456',
-      passwordGroup: {
-        password: 'Password123!',
-        confirmPassword: 'Password123!'
-      }
+      passwordGroup: { password: 'Password123!Strong', confirmPassword: 'Password123!Strong' },
     });
 
-    // Advance time for async validator debounce/timer (500ms)
-    tick(500);
+    expect(accountInfo.valid).toBe(true);
+  });
 
-    // Expect the HTTP request for email validation
-    const req = httpMock.expectOne(`${environment.apiUrl}/common/users/exists?email=test@example.com`);
-    expect(req.request.method).toBe('HEAD');
+  /**
+   * The fiscal step is where the product's correctness lives. Everything below states a rule the
+   * previous form did not enforce.
+   */
+  describe('fiscal configuration', () => {
+    const fillConfiguration = (over: Record<string, unknown> = {}) =>
+      component.configuration.patchValue({
+        taxId: '131-12345-7',
+        address: 'Av. Winston Churchill 1099',
+        city: 'Santo Domingo',
+        state: '01',
+        ...over,
+      });
 
-    // Respond with 404 (User not found -> Valid for registration)
-    req.flush(null, { status: 404, statusText: 'Not Found' });
+    it('applies the selected country tax-id pattern, not a permissive fallback', () => {
+      fillConfiguration({ taxId: 'not-a-tax-id' });
+      expect(component.configuration.get('taxId')?.valid).toBe(false);
 
-    // Update validity
-    fixture.detectChanges();
+      fillConfiguration();
+      expect(component.configuration.get('taxId')?.valid).toBe(true);
+    });
 
-    // Should be valid now
-    expect(accountInfo.valid).toBeTruthy();
-  }));
+    it('requires the whole fiscal address', () => {
+      fillConfiguration({ address: '', city: '', state: '' });
+      expect(component.configuration.get('address')?.valid).toBe(false);
+      expect(component.configuration.get('city')?.valid).toBe(false);
+      expect(component.configuration.get('state')?.valid).toBe(false);
+    });
+
+    it('does not require a postal code where the country does not', () => {
+      fillConfiguration();
+      expect(component.configuration.valid).toBe(true);
+    });
+
+    it('requires a postal code once a country that needs one is selected', () => {
+      // United States sales tax is destination-based: no ZIP, no rate.
+      countryService.setConfig(US_CONFIG);
+      fixture.detectChanges();
+
+      fillConfiguration({ taxId: '12-3456789', state: 'TX', postalCode: '' });
+      expect(component.configuration.get('postalCode')?.valid).toBe(false);
+
+      component.configuration.patchValue({ postalCode: '78701' });
+      expect(component.configuration.get('postalCode')?.valid).toBe(true);
+    });
+
+    it('clears a division code that belongs to the previous country', () => {
+      fillConfiguration({ state: '01' }); // a Dominican province
+      countryService.setConfig(US_CONFIG);
+      fixture.detectChanges();
+      expect(component.configuration.get('state')?.value).toBe('');
+    });
+
+    it('takes the fiscal region id from the country, never from user input', () => {
+      expect(component.configuration.get('fiscalRegionId')?.value).toBe(
+        '11111111-1111-4111-8111-111111111111',
+      );
+    });
+
+    it('refuses to advance past the fiscal step with no fiscal region, for ANY country', () => {
+      // The old check listed four countries by hand, so the other four the form offered advanced
+      // with no region and produced a tenant with no chart of accounts.
+      component.configuration.get('fiscalRegionId')?.setValue(null);
+      fillConfiguration();
+      component.currentStep.set(4);
+      component.nextStep();
+
+      expect(component.currentStep()).toBe(4);
+      expect(component.errorMessage()).toContain('configuración fiscal');
+    });
+  });
 });

@@ -1,86 +1,122 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { CompanySwitcherComponent } from './company-switcher.component';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TranslateModule } from '@ngx-translate/core';
-import { LucideAngularModule, Building, Check, ChevronsUpDown, Plus, Settings, Search } from 'lucide-angular';
+import { of, throwError } from 'rxjs';
+import { CompanySwitcherComponent } from './company-switcher.component';
 import { AuthService } from '../../../../core/services/auth';
-import { signal } from '@angular/core';
+import { OrganizationService } from '../../../../shared/service/organization.service';
+import { TabStateService } from '../../../../core/tabs/tab-state.service';
+import { TabPersistenceService } from '../../../../core/tabs/tab-persistence.service';
 
+/**
+ * Switching tenant is a server operation, and this component used to pretend otherwise.
+ *
+ * `selectOrganization` ended at `// In a real app, this would call a service to switch
+ * organization.`: it cleared every open tab and the persisted workspace, then left the user in the
+ * tenant they started in. The interface reported a change that never happened, and destroyed the
+ * user's workspace on the way.
+ */
 describe('CompanySwitcherComponent', () => {
-  let component: CompanySwitcherComponent;
-  let fixture: ComponentFixture<CompanySwitcherComponent>;
-  let mockAuthService: { currentUser: ReturnType<typeof signal<any>> };
+  const ORG_A = { id: 'org-a', legalName: 'Cliente A' };
+  const ORG_B = { id: 'org-b', legalName: 'Cliente B' };
 
-  const activeOrg = { id: '1', legalName: 'Test Org', logoUrl: '' };
-  const otherOrg = { id: '2', legalName: 'Acme Industries', logoUrl: '' };
+  let fixture: ComponentFixture<CompanySwitcherComponent>;
+  let component: CompanySwitcherComponent;
+  let reload: jest.SpyInstance;
+
+  const organizationService = {
+    switchOrganization: jest.fn().mockReturnValue(of({ user: {} })),
+  };
+  const tabState = { reset: jest.fn() };
+  const tabPersistence = { clearState: jest.fn() };
 
   beforeEach(async () => {
-    // The switcher is driven by `user.organizations` — the real membership list the backend
-    // resolves from the user_organizations join table. It previously rendered three hardcoded
-    // placeholders ('Virtex Corp', 'Acme Industries', 'Globex Corporation') because the API never
-    // exposed the field, so every tenant saw the same fictional list.
-    mockAuthService = {
-      currentUser: signal<any>({
-        organization: activeOrg,
-        organizations: [activeOrg, otherOrg],
-      }),
-    };
+    jest.clearAllMocks();
+    organizationService.switchOrganization.mockReturnValue(of({ user: {} }));
 
     await TestBed.configureTestingModule({
-      imports: [
-        CompanySwitcherComponent,
-        HttpClientTestingModule,
-        TranslateModule.forRoot(),
-        LucideAngularModule.pick({ Building, Check, ChevronsUpDown, Plus, Settings, Search }),
+      imports: [CompanySwitcherComponent, TranslateModule.forRoot()],
+      providers: [
+        {
+          provide: AuthService,
+          useValue: {
+            currentUser: () => ({ organization: ORG_A, organizations: [ORG_A, ORG_B] }),
+          },
+        },
+        { provide: OrganizationService, useValue: organizationService },
+        { provide: TabStateService, useValue: tabState },
+        { provide: TabPersistenceService, useValue: tabPersistence },
       ],
-      providers: [{ provide: AuthService, useValue: mockAuthService }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CompanySwitcherComponent);
     component = fixture.componentInstance;
+    // `window.location` cannot be redefined in jsdom, so the reload is observed through the
+    // component's own seam.
+    reload = jest
+      .spyOn(component as unknown as { reloadApplication: () => void }, 'reloadApplication')
+      .mockImplementation(() => undefined);
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('lists the tenants the user actually belongs to', () => {
+    // Three hardcoded placeholders once lived here — 'Virtex Corp', 'Acme Industries',
+    // 'Globex Corporation' — none of which the user could switch into.
+    expect(component.filteredOrganizations().map((o) => o.id)).toEqual(['org-a', 'org-b']);
   });
 
-  it('should toggle dropdown', () => {
-    expect(component.isOpen()).toBeFalsy();
-    component.toggleDropdown();
-    expect(component.isOpen()).toBeTruthy();
-    component.toggleDropdown();
-    expect(component.isOpen()).toBeFalsy();
+  it('calls the server to switch, rather than only clearing local state', () => {
+    component.selectOrganization(ORG_B as never);
+
+    expect(organizationService.switchOrganization).toHaveBeenCalledWith('org-b');
   });
 
-  it('lists the organizations the user actually belongs to', () => {
-    expect(component.filteredOrganizations().map((o) => o.legalName)).toEqual([
-      'Test Org',
-      'Acme Industries',
-    ]);
+  it('clears the workspace only after the server confirms', () => {
+    let confirm!: () => void;
+    organizationService.switchOrganization.mockReturnValue(
+      new (require('rxjs').Observable)((subscriber: { next: (v: unknown) => void }) => {
+        confirm = () => subscriber.next({ user: {} });
+      }),
+    );
+
+    component.selectOrganization(ORG_B as never);
+    expect(tabPersistence.clearState).not.toHaveBeenCalled();
+
+    confirm();
+    expect(tabPersistence.clearState).toHaveBeenCalled();
+    expect(tabState.reset).toHaveBeenCalled();
   });
 
-  it('filters by legal name', () => {
-    component.searchQuery.set('Acme');
-    const filtered = component.filteredOrganizations();
-    expect(filtered.length).toBe(1);
-    expect(filtered[0].legalName).toContain('Acme');
+  it('reloads so every resolver re-runs against the new tenant', () => {
+    component.selectOrganization(ORG_B as never);
+    expect(reload).toHaveBeenCalled();
   });
 
-  it('shows nothing when the query matches no membership', () => {
-    // With the old hardcoded list a user could see — and attempt to switch into — tenants they
-    // had no membership in.
-    component.searchQuery.set('Globex');
-    expect(component.filteredOrganizations()).toEqual([]);
+  it('keeps the workspace intact when the switch fails', () => {
+    organizationService.switchOrganization.mockReturnValue(throwError(() => new Error('403')));
+
+    component.selectOrganization(ORG_B as never);
+
+    expect(tabPersistence.clearState).not.toHaveBeenCalled();
+    expect(reload).not.toHaveBeenCalled();
+    expect(component.switchError()).toBe('No se pudo cambiar de empresa.');
+    expect(component.switching()).toBe(false);
   });
 
-  it('keeps the active organization visible even if the membership list omits it', () => {
-    mockAuthService.currentUser.set({ organization: activeOrg, organizations: [] });
-    expect(component.filteredOrganizations().map((o) => o.id)).toEqual(['1']);
+  it('does nothing when the active tenant is selected again', () => {
+    component.selectOrganization(ORG_A as never);
+
+    expect(organizationService.switchOrganization).not.toHaveBeenCalled();
   });
 
-  it('renders an empty list rather than crashing when there is no user', () => {
-    mockAuthService.currentUser.set(null);
-    expect(component.filteredOrganizations()).toEqual([]);
+  it('will not close the dropdown mid-switch, which would hide the error', () => {
+    organizationService.switchOrganization.mockReturnValue(
+      new (require('rxjs').Observable)(() => undefined),
+    );
+    component.isOpen.set(true);
+
+    component.selectOrganization(ORG_B as never);
+    component.closeDropdown();
+
+    expect(component.isOpen()).toBe(true);
   });
 });

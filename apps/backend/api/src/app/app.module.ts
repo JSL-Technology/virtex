@@ -8,7 +8,9 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerGuard, ThrottlerModule, ThrottlerModuleOptions } from '@nestjs/throttler';
 import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
 import { APP_GUARD } from '@nestjs/core';
+import { SubscriptionActiveGuard } from './saas/guards/subscription-active.guard';
 import { JwtAuthGuard } from './auth/guards/jwt/jwt.guard';
+import { CsrfGuard } from './auth/guards/csrf.guard';
 import { GoogleRecaptchaModule } from '@nestlab/google-recaptcha';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerModule } from 'nestjs-pino';
@@ -58,7 +60,6 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { PushNotificationsModule } from './push-notifications/push-notifications.module';
 import { BiModule } from './bi/bi.module';
 import { PaymentModule } from './payment/payment.module';
-import { CountryModule } from '../../../../../libs/api/country/src/lib/country.module';
 import { GeoModule } from './geo/geo.module';
 import { CommonModule } from './common/common.module';
 import { SaasModule } from './saas/saas.module';
@@ -85,6 +86,36 @@ const envValidation = Joi.object({
   ENCRYPTION_SECRET: requiredSecret,
   AUTH_SALT: Joi.string().min(16).required(),
 
+  // Used with `getOrThrow` at runtime but absent from this schema, so the application started
+  // happily and then failed on the first social sign-up with a 500 that named no cause.
+  JWT_SOCIAL_REGISTER_SECRET: requiredSecret,
+  JWT_STEP_UP_SECRET: requiredSecret,
+
+  // Passkeys are bound to the relying-party id. It defaulted to 'localhost', which does not match
+  // any production origin, so every WebAuthn operation failed the origin check — silently, since
+  // the browser simply refuses. Required wherever a real origin exists.
+  WEBAUTHN_RP_ID: Joi.when('NODE_ENV', {
+    is: Joi.valid('development', 'test'),
+    then: Joi.string().optional().default('localhost'),
+    otherwise: Joi.string().hostname().required(),
+  }),
+
+  // Where the client lives. Every emailed link and OAuth redirect is built from it.
+  FRONTEND_URL: Joi.string().uri().required(),
+  CORS_ORIGIN: Joi.string().required(),
+  API_PREFIX: Joi.string().optional().default('api/v1'),
+
+  // Stripe price ids, one per plan. Without them the plans exist but cannot be subscribed to,
+  // and signup fails at the last step with "this plan is not available".
+  STRIPE_PRICE_STARTER: Joi.string().required(),
+  STRIPE_PRICE_PRO: Joi.string().required(),
+  STRIPE_PRICE_ENTERPRISE: Joi.string().required(),
+
+  // Outbound SMS fraud controls. Both have safe defaults; naming them here documents that they
+  // exist and are meant to be tuned per market.
+  SMS_ALLOWED_COUNTRY_CODES: Joi.string().optional(),
+  SMS_GLOBAL_DAILY_LIMIT: Joi.number().integer().positive().optional(),
+
   // RS256 keys: required in production, optional in development (ephemeral key is generated).
   RS_PRIVATE_KEY: Joi.when('NODE_ENV', { is: 'production', then: Joi.string().required(), otherwise: Joi.string().optional() }),
   RS_PUBLIC_KEY: Joi.when('NODE_ENV', { is: 'production', then: Joi.string().required(), otherwise: Joi.string().optional() }),
@@ -97,6 +128,19 @@ const envValidation = Joi.object({
   DB_NAME: Joi.string().required(),
   DB_SYNCHRONIZE: Joi.boolean().default(false),
 
+  // Declared so Joi COERCES them to real booleans.
+  //
+  // `ConfigService.get<boolean>(key, false)` returns whatever is in the environment, and every
+  // environment variable is a string: `'false'` is truthy. `DB_SSL=false` therefore turned TLS ON
+  // and the application failed to connect with `DEPTH_ZERO_SELF_SIGNED_CERT` against a database
+  // that speaks plaintext — the opposite of what the setting says. The type parameter on `get` is
+  // an assertion, not a conversion; only the validation schema converts. Every boolean flag the
+  // application reads is declared here for that reason.
+  DB_SSL: Joi.boolean().default(false),
+  DB_SSL_REJECT_UNAUTHORIZED: Joi.boolean().default(true),
+  DB_SSL_CA: Joi.string().optional(),
+  DB_LOGGING: Joi.boolean().default(false),
+
   REDIS_HOST: Joi.string().default('localhost'),
   REDIS_PORT: Joi.number().port().default(6379),
 
@@ -108,6 +152,17 @@ const envValidation = Joi.object({
     then: Joi.string().optional(),
     otherwise: Joi.string().required(),
   }),
+
+  // Web push. Optional as a group: all three or none. The service used to call
+  // `webpush.setVapidDetails` unconditionally, which throws on a missing key — from a constructor,
+  // so a missing VAPID key stopped the whole application from booting. `VAPID_SUBJECT` must be a
+  // real contact address (`mailto:` or an https URL): push services use it to reach the operator,
+  // and it was hardcoded to `mailto:youremail@example.com`.
+  VAPID_PUBLIC_KEY: Joi.string().optional(),
+  VAPID_PRIVATE_KEY: Joi.string().optional(),
+  VAPID_SUBJECT: Joi.string()
+    .pattern(/^(mailto:.+@.+\..+|https:\/\/.+)$/)
+    .optional(),
 
   AWS_S3_BUCKET_NAME: Joi.string().required(),
   AWS_REGION: Joi.string().required(),
@@ -136,17 +191,41 @@ const envValidation = Joi.object({
               ? { target: 'pino-pretty' }
               : undefined,
             genReqId: (req) => req.headers['x-correlation-id'] || crypto.randomUUID(),
-            // H-11 FIX: Redact PII and secrets from HTTP access logs (OWASP Logging Cheat Sheet; CWE-532).
+            // Redact PII and secrets from HTTP access logs (OWASP Logging Cheat Sheet; CWE-532).
+            //
+            // `pino-http`'s default request serializer writes the ENTIRE header object, so this
+            // list has to name every header that can carry a credential — not only the obvious
+            // two. The `x-*` entries below are why: re-authentication used to accept the raw
+            // account password in `x-reauth-password`, which this list did not cover, so an
+            // administrator's password was written to the access log on every sensitive action.
+            // That mechanism is gone, but the headers stay listed: a redaction rule that is only
+            // correct for today's code is not a redaction rule.
+            //
+            // Response headers matter too — `set-cookie` carries the session on every login.
             redact: {
               paths: [
                 'req.headers.authorization',
                 'req.headers.cookie',
+                'req.headers["x-xsrf-token"]',
+                'req.headers["x-reauth-password"]',
+                'req.headers["x-otp-code"]',
+                'req.headers["x-api-key"]',
+                'req.headers["stripe-signature"]',
+                'res.headers["set-cookie"]',
                 'req.body.password',
+                'req.body.newPassword',
+                'req.body.currentPassword',
+                'req.body.confirmPassword',
                 'req.body.token',
                 'req.body.code',
+                'req.body.otpCode',
                 'req.body.recaptchaToken',
-                'req.body.currentPassword',
-                'req.body.newPassword',
+                'req.body.emailVerificationCode',
+                'req.body.phoneVerificationCode',
+                'req.body.clientSecret',
+                'req.body.email',
+                'req.body.phone',
+                'req.body.taxId',
               ],
               censor: '[REDACTED]',
             },
@@ -217,14 +296,26 @@ const envValidation = Joi.object({
     GoogleRecaptchaModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        secretKey: config.get('RECAPTCHA_V3_SECRET_KEY'),
-        response: (req) => req.body.recaptchaToken,
-        score: 0.7,
-        // H-04 FIX: Skip only when RECAPTCHA_DISABLED=true — never couple to NODE_ENV.
-        // Staging/preprod keep reCAPTCHA active unless the flag is explicitly set.
-        skipIf: config.get<boolean>('RECAPTCHA_DISABLED', false) === true,
-      }),
+      useFactory: (config: ConfigService) => {
+        const disabled = config.get<boolean>('RECAPTCHA_DISABLED', false) === true;
+
+        // The library validates its own options and rejects a missing `secretKey` outright
+        // ("Google recaptcha options must be contains \"secretKey\" xor \"enterprise\""), even
+        // when every check is skipped. The environment schema makes the key optional precisely
+        // when RECAPTCHA_DISABLED is set, so the documented way to turn reCAPTCHA off stopped the
+        // application from booting at all. A placeholder satisfies the validator; `skipIf` means
+        // it is never sent anywhere.
+        const secretKey = config.get<string>('RECAPTCHA_V3_SECRET_KEY');
+
+        return {
+          secretKey: secretKey || (disabled ? 'recaptcha-disabled' : ''),
+          response: (req) => req.body.recaptchaToken,
+          score: 0.7,
+          // H-04 FIX: Skip only when RECAPTCHA_DISABLED=true — never couple to NODE_ENV.
+          // Staging/preprod keep reCAPTCHA active unless the flag is explicitly set.
+          skipIf: disabled,
+        };
+      },
     }),
 
 
@@ -264,7 +355,6 @@ const envValidation = Joi.object({
     PushNotificationsModule,
     BiModule,
     PaymentModule,
-    CountryModule,
     GeoModule,
     CommonModule,
     SaasModule,
@@ -283,6 +373,25 @@ const envValidation = Joi.object({
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      // CSRF is enforced by default on every state-changing request. Declared per-endpoint it
+      // reached 4 of the 50 controllers that mutate state; a control that has to be remembered
+      // is a control that is missing. Routes that genuinely cannot use it opt out with
+      // @SkipCsrf() and say why.
+      //
+      // Ordering matters: this runs after JwtAuthGuard, so `request.user` is populated and the
+      // token's user binding can be verified rather than only its signature.
+      provide: APP_GUARD,
+      useClass: CsrfGuard,
+    },
+    {
+      // Entitlement, enforced by default. Declared per-controller it reached 1 of 67 controllers,
+      // so every module except invoices kept working indefinitely after a subscription lapsed.
+      // Runs after JwtAuthGuard so the tenant and its subscription status are on the request.
+      // Routes a suspended customer must still reach opt out with @AllowInactiveSubscription().
+      provide: APP_GUARD,
+      useClass: SubscriptionActiveGuard,
     },
   ],
 })

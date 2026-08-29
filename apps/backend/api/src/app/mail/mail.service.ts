@@ -70,6 +70,28 @@ export class MailService {
     });
   }
 
+  /**
+   * Tell somebody who already has an account that they now have access to another tenant.
+   *
+   * Distinct from `sendUserInvitation` on purpose: that one carries a set-your-password link, and
+   * sending it to a person who already has a password is both confusing and a nudge towards
+   * changing a credential they never asked to change. This one points at sign-in and says which
+   * organization added them.
+   */
+  async sendAddedToOrganizationEmail(user: User, organizationName: string) {
+    await this.mailerService.sendMail({
+      to: user.email,
+      subject: `Ahora tienes acceso a ${organizationName}`,
+      template: 'organization-added',
+      context: {
+        name: user.firstName,
+        organizationName,
+        appName: this.configService.get<string>('APP_NAME', 'Virteex ERP'),
+        url: this.links.login(undefined, user.preferredLanguage),
+      },
+    });
+  }
+
   async sendDuplicateRegistrationEmail(email: string, name: string) {
     const loginUrl = this.links.login();
     const resetPasswordUrl = this.links.forgotPassword();

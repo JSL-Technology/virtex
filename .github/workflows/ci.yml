@@ -38,6 +38,16 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     env:
       DB_HOST: localhost
       DB_PORT: '5432'
@@ -69,6 +79,40 @@ jobs:
       # invisible locally (where the schema was created by an earlier `synchronize`) and only
       # surfaces as a broken deploy; this turns it into a failing build.
       - run: npm run check:schema-drift
+
+      # Proves the application can actually START. A build only proves the code compiles; a missing
+      # provider, an unexported service, a module registered twice, or a constructor that throws on
+      # a missing environment variable all compile cleanly and fail on deploy. Three such faults
+      # were found the first time this ran: reCAPTCHA registered globally in two modules with
+      # conflicting disable logic, a push-notification constructor that threw on an undeclared
+      # VAPID key and took the whole process down with it, and `DB_SSL=false` enabling TLS because
+      # the flag was never coerced from its string form.
+      - run: npm run verify:boot
+        env:
+          NODE_ENV: test
+          JWT_SECRET: ci-secret-ci-secret-ci-secret-ci-secret
+          JWT_REFRESH_SECRET: ci-refresh-ci-refresh-ci-refresh-ci-refresh
+          JWT_2FA_TEMP_SECRET: ci-2fa-ci-2fa-ci-2fa-ci-2fa-ci-2fa-ci
+          JWT_PREVERIFY_SECRET: ci-pre-ci-pre-ci-pre-ci-pre-ci-pre-ci
+          JWT_SOCIAL_REGISTER_SECRET: ci-social-ci-social-ci-social-ci-social
+          JWT_STEP_UP_SECRET: ci-stepup-ci-stepup-ci-stepup-ci-stepup
+          CSRF_SECRET: ci-csrf-ci-csrf-ci-csrf-ci-csrf-ci-csrf
+          ENCRYPTION_SECRET: ci-enc-ci-enc-ci-enc-ci-enc-ci-enc-ci
+          AUTH_SALT: ci-salt-ci-salt-ci
+          FRONTEND_URL: https://ci.example.com
+          CORS_ORIGIN: https://ci.example.com
+          STRIPE_PRICE_STARTER: price_ci_starter
+          STRIPE_PRICE_PRO: price_ci_pro
+          STRIPE_PRICE_ENTERPRISE: price_ci_enterprise
+          STRIPE_SECRET_KEY: sk_test_ci
+          STRIPE_WEBHOOK_SECRET: whsec_ci
+          AWS_S3_BUCKET_NAME: ci-bucket
+          AWS_REGION: us-east-1
+          AWS_ACCESS_KEY_ID: ci-key
+          AWS_SECRET_ACCESS_KEY: ci-secret
+          RECAPTCHA_DISABLED: 'true'
+          REDIS_HOST: localhost
+          REDIS_PORT: '6379'
 
       - run: npx nx fix-ci
         if: always()

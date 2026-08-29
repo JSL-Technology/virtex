@@ -4,7 +4,13 @@ import { AuthGuard } from '@nestjs/passport';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { Public } from '../auth/decorators/public.decorator';
 import { Request } from 'express';
+import { AllowInactiveSubscription } from './decorators/allow-inactive-subscription.decorator';
 
+/**
+ * Plans and usage remain visible to a suspended tenant: they are what explains the suspension and
+ * what the customer needs to see in order to resolve it.
+ */
+@AllowInactiveSubscription()
 @Controller('saas')
 export class SaasController {
   constructor(private readonly saasService: SaasService) {}

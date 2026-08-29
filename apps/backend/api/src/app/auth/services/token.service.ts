@@ -109,8 +109,13 @@ export class TokenService implements OnModuleInit {
     rememberMe: boolean = false,
     options: { sessionId?: string; refreshExpirationOverride?: string } = {},
   ) {
+    // The tenant these tokens are issued FOR. An organization switch supplies it explicitly; a
+    // normal sign-in falls back to the user's own. Both the payload and the returned principal are
+    // built from it, so the rights in the token match the tenant in the token.
+    const activeOrganizationId = extraPayload.organizationId ?? user.organizationId;
+
     const payload = this.buildPayload(user, extraPayload);
-    const safeUser = this.buildSafeUser(user);
+    const safeUser = this.buildSafeUser(user, activeOrganizationId);
 
     const userWithImpersonationStatus = {
       ...safeUser,
@@ -215,8 +220,24 @@ export class TokenService implements OnModuleInit {
     });
   }
 
-  buildSafeUser(user: User) {
-    const permissions = [...new Set(user.roles.flatMap((role) => role.permissions))];
+  /**
+   * The principal handed back to the client, with permissions scoped to one tenant.
+   *
+   * `[...new Set(user.roles.flatMap((role) => role.permissions))]` took every role the user held,
+   * in every organization, and merged them. Roles carry `organization_id`, so somebody who
+   * administered one customer and merely viewed another was handed administrator permissions in
+   * both. A role with a null `organization_id` is a platform role and deliberately applies
+   * everywhere.
+   */
+  buildSafeUser(user: User, activeOrganizationId?: string | null) {
+    const organizationId = activeOrganizationId ?? user.organizationId;
+    const permissions = [
+      ...new Set(
+        (user.roles ?? [])
+          .filter((role) => role.organizationId === null || role.organizationId === organizationId)
+          .flatMap((role) => role.permissions ?? []),
+      ),
+    ];
     // Security fields are now in user.security, so they are not directly on user.
     // However, if user.security is loaded (eager: true), we should exclude it or transform it.
     // User entity no longer has passwordHash or twoFactorSecret directly.
@@ -231,11 +252,15 @@ export class TokenService implements OnModuleInit {
   }
 
   buildPayload(user: User, extra: Partial<JwtPayload> = {}): JwtPayload {
+    const organizationId = extra.organizationId ?? user.organizationId;
     return {
       id: user.id,
       email: user.email,
-      organizationId: user.organizationId,
-      roles: user.roles.map((r) => r.name),
+      organizationId,
+      // Role names are scoped to the tenant the token is for, on the same rule as the permissions.
+      roles: (user.roles ?? [])
+        .filter((r) => r.organizationId === null || r.organizationId === organizationId)
+        .map((r) => r.name),
       tokenVersion: user.security?.tokenVersion || 0,
       ...extra,
     };

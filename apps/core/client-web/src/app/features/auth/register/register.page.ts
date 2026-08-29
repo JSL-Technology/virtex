@@ -146,43 +146,48 @@ export class RegisterPage implements OnInit {
   }
 
   constructor() {
+    /**
+     * Re-shape the fiscal fields whenever the country changes.
+     *
+     * The previous version fell back to `'^[A-Za-z0-9\\-\\s]+$'` when the country carried no
+     * pattern — and the country service supplied `'.*'` on any load failure — so a network hiccup
+     * silently disabled tax-id validation and the user was told their input was fine until the
+     * server rejected it. There is no fallback pattern now: the country's own pattern applies, and
+     * when no country is loaded the fields carry only `required`, which cannot pass silently.
+     */
     effect(() => {
       const config = this.currentCountryConfig();
-      if (config && this.registerForm) {
-        const taxIdControl = this.registerForm.get('configuration.taxId');
-        if (taxIdControl) {
-          const pattern = config.taxIdRegex || '^[A-Za-z0-9\\-\\s]+$';
-          taxIdControl.setValidators([
-            Validators.required,
-            Validators.pattern(pattern),
-          ]);
-          taxIdControl.updateValueAndValidity();
-        }
+      if (!config || !this.registerForm) return;
 
-        const currencyControl = this.registerForm.get('configuration.currency');
-        if (currencyControl) {
-          currencyControl.setValue(config.currencyCode);
-        }
+      const taxIdControl = this.registerForm.get('configuration.taxId');
+      taxIdControl?.setValidators([Validators.required, Validators.pattern(config.taxIdPattern)]);
+      taxIdControl?.updateValueAndValidity({ emitEvent: false });
 
-        const fiscalRegionIdControl = this.registerForm.get('configuration.fiscalRegionId');
-        if (fiscalRegionIdControl) {
-          if (config.fiscalRegionId) {
-            fiscalRegionIdControl.setValue(config.fiscalRegionId);
-          } else {
-            fiscalRegionIdControl.setValue(null);
-          }
-        }
+      // The postal code is required only where the country requires it — United States sales tax
+      // is destination-based and cannot be computed without a ZIP, whereas most of Latin America
+      // does not use postal codes on fiscal documents at all.
+      const postalCodeControl = this.registerForm.get('configuration.postalCode');
+      const postalValidators = config.address.postalCodeRequired ? [Validators.required] : [];
+      if (config.address.postalCodePattern) {
+        postalValidators.push(Validators.pattern(config.address.postalCodePattern));
       }
-    });
+      postalCodeControl?.setValidators(postalValidators);
+      postalCodeControl?.updateValueAndValidity({ emitEvent: false });
 
-    effect(() => {
-      const code = this.countryService.currentCountryCode();
-      if (code && this.registerForm) {
-        const countryControl = this.registerForm.get('configuration.country');
-        if (countryControl && countryControl.value !== code.toUpperCase()) {
-          countryControl.setValue(code.toUpperCase(), { emitEvent: false });
-        }
+      // Switching country invalidates a division code from the previous country's catalogue.
+      const stateControl = this.registerForm.get('configuration.state');
+      if (config.address.divisions && stateControl?.value) {
+        const stillValid = config.address.divisions.some((d) => d.code === stateControl.value);
+        if (!stillValid) stateControl.setValue('', { emitEvent: false });
       }
+
+      this.registerForm.get('configuration.currency')?.setValue(config.currency, { emitEvent: false });
+      this.registerForm
+        .get('configuration.fiscalRegionId')
+        ?.setValue(config.fiscalRegionId ?? null, { emitEvent: false });
+      this.registerForm
+        .get('configuration.country')
+        ?.setValue(config.countryCode, { emitEvent: false });
     });
   }
 
@@ -225,11 +230,18 @@ export class RegisterPage implements OnInit {
         taxId: ['', [Validators.required]],
         fiscalRegionId: [null],
         currency: ['DOP', [Validators.required]],
+        // The fiscal address. Structured, and collected here rather than as one free-text line on
+        // the next step: every electronic-invoicing regime in these markets stamps these fields
+        // individually, so a single line would have to be re-collected before invoicing can work.
+        address: ['', [Validators.required]],
+        city: ['', [Validators.required]],
+        state: ['', [Validators.required]],
+        postalCode: [''],
       }),
       business: this.fb.group({
         companyName: ['', [Validators.required]],
         industry: ['', [Validators.required]],
-        address: [''],
+        companySize: [''],
       }),
       plan: this.fb.group({
         selectedPlanId: ['starter', [Validators.required]],
@@ -346,16 +358,17 @@ export class RegisterPage implements OnInit {
       return;
     }
 
-    // Fiscal region validation for step 4 (configuration)
-    if (this.currentStep() === 4) {
-      const regionId = this.registerForm.get('configuration.fiscalRegionId')?.value;
-      const currentCountry = this.countryService.currentCountryCode().toUpperCase();
-      if (['DO', 'PA', 'US', 'CO'].includes(currentCountry) && !regionId) {
-        this.errorMessage.set(
-          'Error de configuración: No se ha cargado la región fiscal. Por favor recarga la página.',
-        );
-        return;
-      }
+    // Every country needs a fiscal region, not just four of them.
+    //
+    // This used to check `['DO', 'PA', 'US', 'CO']`, so choosing any other country — including the
+    // four others the form offered — passed the gate with no region and produced a tenant with no
+    // chart of accounts and no taxes. The region is now required for whatever country is selected,
+    // which is the only version of this check that means anything.
+    if (this.currentStep() === 4 && !this.registerForm.get('configuration.fiscalRegionId')?.value) {
+      this.errorMessage.set(
+        'No se pudo cargar la configuración fiscal de ese país. Recarga la página o elige otro país.',
+      );
+      return;
     }
 
     // H-08 FIX: Do NOT store PII (name, email, phone) in sessionStorage.
@@ -425,9 +438,7 @@ export class RegisterPage implements OnInit {
 
     this.recaptchaV3Service.execute('register').subscribe({
       next: (recaptchaToken) => {
-        const regionId = formValue.configuration.fiscalRegionId;
-
-        const payload = {
+        const payload: RegisterPayload & { planId: string } = {
           firstName: formValue.accountInfo.firstName,
           lastName: formValue.accountInfo.lastName,
           email: formValue.accountInfo.email,
@@ -436,13 +447,20 @@ export class RegisterPage implements OnInit {
           phoneVerificationCode: formValue.accountInfo.phoneCode || undefined,
           password: formValue.accountInfo.passwordGroup.password,
           organizationName: formValue.business.companyName,
+          // The country is now the authoritative fiscal field. The server resolves the region from
+          // it and ignores any region id the client supplies, so a payload cannot be validated
+          // under one country's rules and provisioned under another's.
+          countryCode: formValue.configuration.country,
           taxId: formValue.configuration.taxId,
-          fiscalRegionId: regionId && regionId !== '' ? regionId : undefined,
           recaptchaToken,
           industry: formValue.business.industry,
-          address: formValue.business.address,
+          companySize: formValue.business.companySize || undefined,
+          address: formValue.configuration.address,
+          city: formValue.configuration.city,
+          state: formValue.configuration.state,
+          postalCode: formValue.configuration.postalCode || undefined,
           planId: formValue.plan.selectedPlanId,
-        } as RegisterPayload & { planId: string };
+        };
 
         // Payment-first: the backend validates and returns a Stripe Checkout URL.
         // The account is only created after payment succeeds (see checkout-complete).

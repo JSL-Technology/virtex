@@ -63,8 +63,16 @@ describe('OauthStateService', () => {
     service.setTransactionCookie(res, tx);
 
     // Flip a character in the ciphertext segment.
+    //
+    // It must be the FIRST character, not the last. In base64url the final character of a segment
+    // can carry padding bits that the decoder discards, so swapping it sometimes decodes to
+    // identical bytes — nothing is tampered, GCM verifies, and the test fails intermittently for
+    // reasons that have nothing to do with the code under test. The first character's bits are
+    // always significant. The assertion below proves the bytes really did change.
     const parts = cookieValue.split('.');
-    parts[1] = parts[1].slice(0, -1) + (parts[1].slice(-1) === 'A' ? 'B' : 'A');
+    const original = Buffer.from(parts[1], 'base64url');
+    parts[1] = (parts[1][0] === 'A' ? 'B' : 'A') + parts[1].slice(1);
+    expect(Buffer.from(parts[1], 'base64url').equals(original)).toBe(false);
     const tampered = parts.join('.');
 
     const req = { cookies: { oauth_tx: tampered } } as any;

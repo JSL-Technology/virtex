@@ -141,7 +141,7 @@
       <footer class="form-footer">
         <p class="register-text">
           {{ 'LOGIN.NO_ACCOUNT' | translate }}
-          <a [routerLink]="['/', languageService.currentLang(), countryService.currentCountry()?.code || 'do', 'auth', 'register']"
+          <a [routerLink]="['/', languageService.currentLang(), countryService.currentCountryCode(), 'auth', 'register']"
              class="register-link" tabindex="0">
             {{ 'LOGIN.REGISTER_LINK' | translate }}
           </a>

@@ -19,6 +19,7 @@ import { MfaOrchestratorService } from './mfa-orchestrator.service';
 import { PendingRegistration } from '../entities/pending-registration.entity';
 import { PasswordService } from './password.service';
 import { JwtService } from '@nestjs/jwt';
+import { MembershipService } from '../../organizations/services/membership.service';
 
 describe('RegistrationService', () => {
   let service: RegistrationService;
@@ -89,6 +90,9 @@ describe('RegistrationService', () => {
         // Password hashing routes through PasswordService so the configured Argon2id
         // parameters and the breach check are applied consistently everywhere.
         { provide: PasswordService, useValue: { hash: jest.fn().mockResolvedValue('hashed'), assertNotBreached: jest.fn().mockResolvedValue(undefined) } },
+        // Memberships are written in the same transaction as the account, so the service needs
+        // the real collaborator here even though these tests assert nothing about it.
+        { provide: MembershipService, useValue: { grant: jest.fn(), listFor: jest.fn().mockResolvedValue([]) } },
       ],
     }).compile();
 

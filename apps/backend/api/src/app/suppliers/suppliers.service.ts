@@ -4,23 +4,33 @@ import { Repository } from 'typeorm';
 import { Supplier } from './entities/supplier.entity';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
 import { UpdateSupplierDto } from './dto/update-supplier.dto';
+import { DataSource } from 'typeorm';
+import { SaasService } from '../saas/saas.service';
+import { SaasResource } from '../saas/enums/saas-resource.enum';
 
 @Injectable()
 export class SuppliersService {
   constructor(
     @InjectRepository(Supplier)
     private readonly supplierRepository: Repository<Supplier>,
+    private readonly dataSource: DataSource,
+    private readonly saasService: SaasService,
   ) {}
 
-  create(
+  /** Create a supplier, metered in the same transaction as the insert. */
+  async create(
     createSupplierDto: CreateSupplierDto,
     organizationId: string,
   ): Promise<Supplier> {
-    const supplier = this.supplierRepository.create({
-      ...createSupplierDto,
-      organizationId,
+    return this.dataSource.transaction(async (manager) => {
+      await this.saasService.enforceLimit(manager, organizationId, SaasResource.SUPPLIERS);
+
+      const supplier = manager.create(Supplier, {
+        ...createSupplierDto,
+        organizationId,
+      });
+      return manager.save(supplier);
     });
-    return this.supplierRepository.save(supplier);
   }
 
   findAll(organizationId: string): Promise<Supplier[]> {

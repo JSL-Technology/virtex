@@ -1,14 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { CountryGuard } from './country.guard';
 import { CountryService } from '../services/country.service';
+import { MockCountryService } from '../../../testing/country.service.mock';
 import { LanguageService } from '../services/language';
 import { GeoLocationService } from '../services/geo-location.service';
 import { Router, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
-class MockCountryService {
-  getCountryConfig = jest.fn().mockReturnValue(of({ code: 'do' }));
-}
 
 class MockLanguageService {
   setLanguage = jest.fn();

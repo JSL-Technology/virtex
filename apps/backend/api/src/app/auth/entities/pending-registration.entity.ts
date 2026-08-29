@@ -54,8 +54,29 @@ export class PendingRegistration {
   @Column({ name: 'company_size', type: 'varchar', nullable: true })
   companySize: string | null;
 
+  /**
+   * The fiscal address, structured.
+   *
+   * A pending registration is replayed into a real tenant hours later, so anything not captured
+   * here is lost: the payload that was validated at step one is the only record of it. The single
+   * `address` line this used to hold could not satisfy any of the electronic-invoicing regimes the
+   * supported markets mandate.
+   */
   @Column({ type: 'varchar', nullable: true })
   address: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  city: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  state: string | null;
+
+  @Column({ name: 'postal_code', type: 'varchar', nullable: true })
+  postalCode: string | null;
+
+  /** ISO 3166-1 alpha-2. Authoritative: the fiscal region is resolved from it. */
+  @Column({ name: 'country_code', type: 'varchar', length: 2, nullable: true })
+  countryCode: string | null;
 
   @Column({ name: 'plan_slug' })
   planSlug: string;

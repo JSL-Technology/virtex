@@ -12,6 +12,7 @@ import { catchError, switchMap } from 'rxjs/operators';
 import { AuthService } from '../services/auth';
 import { AuthQueueService } from '../services/auth-queue.service';
 import { IS_PUBLIC_API } from '../tokens/http-context.tokens';
+import { Router } from '@angular/router';
 
 export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
@@ -42,6 +43,31 @@ export const authInterceptor: HttpInterceptorFn = (
 
       // Verificamos si la ruta es pública usando el HttpContextToken
       const isPublicAuthApiRoute = req.context.get(IS_PUBLIC_API);
+
+      /**
+       * The tenant's subscription is not in good standing.
+       *
+       * Entitlement is now enforced on every authenticated route rather than on the one controller
+       * that happened to declare the guard, so a lapsed subscription produces a 403 on every data
+       * call at once. Left unhandled that is a wall of failed requests and no explanation; the
+       * customer needs to land on the page where they can fix it.
+       *
+       * Routed once per navigation, not once per failed request: a dashboard fires a dozen calls
+       * in parallel and they all fail together.
+       */
+      const message = String(error.error?.message ?? '');
+      if (
+        error.status === 403 &&
+        (message.startsWith('SUBSCRIPTION_SUSPENDED') || message === 'SUBSCRIPTION_REQUIRED')
+      ) {
+        const router = injector.get(Router);
+        if (!router.url.includes('/settings/billing')) {
+          router.navigate(['/settings/billing'], {
+            queryParams: { reason: message.split(':')[0] },
+          });
+        }
+        return throwError(() => error);
+      }
 
       if (isUnauthorized && !isPublicAuthApiRoute) {
         if (!authQueueService.isRefreshingToken) {

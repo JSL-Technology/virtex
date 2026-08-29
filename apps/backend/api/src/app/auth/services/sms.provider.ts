@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { Twilio } from 'twilio';
 import { AuthConfig } from '../auth.config';
 import { AbstractSmsProvider } from './abstract-sms.provider';
@@ -33,8 +33,16 @@ export class TwilioSmsProvider implements AbstractSmsProvider {
 
   async send(to: string, body: string): Promise<void> {
     if (!this.client) {
-        this.logger.warn(`Twilio client not initialized. Skipped sending SMS to ${to}`);
-        return;
+        // Returning quietly here told the caller the code had been sent. The user then waited for
+        // an SMS that was never going to arrive, with no error anywhere to explain it. A missing
+        // credential is a configuration fault and has to surface as one.
+        this.logger.error(
+          { event: 'sms_provider_unconfigured' },
+          'Twilio credentials are not configured; cannot send SMS.',
+        );
+        throw new ServiceUnavailableException(
+          'El envío de SMS no está disponible en este momento. Usa la verificación por correo.',
+        );
     }
 
     const normalized = normalizeToE164(to);

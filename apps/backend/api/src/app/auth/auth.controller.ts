@@ -78,10 +78,20 @@ import { Public } from './decorators/public.decorator';
 import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
 import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
+import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
 
 // H1 FIX: @Public() removed from class level. Only individual public endpoints are decorated
 // with @Public(). Authenticated endpoints rely on the global JwtAuthGuard without override.
 @ApiTags('Auth')
+/**
+ * Authentication is never gated on billing.
+ *
+ * Signing in, signing out, refreshing a session, completing 2FA and reading session state must all
+ * work for a tenant whose subscription has lapsed. Otherwise a billing failure locks the customer
+ * out of the product entirely — including out of the ability to sign in and pay — and locks them
+ * out of ending their own sessions, which is a security control, not a paid feature.
+ */
+@AllowInactiveSubscription()
 @Controller('auth')
 @UseFilters(TypeOrmExceptionFilter)
 export class AuthController {
@@ -934,7 +944,11 @@ export class AuthController {
       await this.authService.clear2faPendingSession(pendingId);
       this.cookieService.clear2faPendingCookie(res);
       this.cookieService.setAuthCookies(res, accessToken, refreshToken, { userId: authUser?.id });
-      return { user: authUser };
+      // Through the DTO, like every other auth response. `buildSafeUser` only strips the
+      // `security` relation, so returning its output directly leaked `invitationToken`,
+      // `invitationTokenExpires` and `authProviderId` — and it did so on the ONE response that
+      // completes a second-factor login (CWE-200).
+      return { user: plainToInstance(UserResponseDto, authUser, { excludeExtraneousValues: true }) };
   }
 
   // ------------------------------------------------------------------
