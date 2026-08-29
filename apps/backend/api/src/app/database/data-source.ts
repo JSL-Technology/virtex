@@ -10,8 +10,8 @@ import { DataSource, DataSourceOptions } from 'typeorm';
  *  1. It must see EVERY entity the running application registers. The API loads entities with
  *     `autoLoadEntities`, which picks up entities contributed by libraries under `libs/` as well
  *     as those under `apps/backend/api/src/app`. A CLI data source that only globbed the app
- *     directory silently omitted `CountryConfig`, so a generated migration would have dropped
- *     the table it did not know about.
+ *     directory silently omitted a library entity, and a generated migration would then have
+ *     dropped the table it did not know about. The glob still covers `libs/` for that reason.
  *
  *  2. TLS is validated the same way. This file previously hardcoded
  *     `rejectUnauthorized: false`, which disabled certificate validation for every migration run

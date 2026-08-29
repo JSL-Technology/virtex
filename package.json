@@ -13,7 +13,8 @@
     "lint:contrast": "node tools/verify-contrast.mjs",
     "lint:design-system": "npm run lint:tokens && npm run lint:contrast",
     "generate:env": "node tools/generate-environment.mjs",
-    "check:schema-drift": "node tools/check-schema-drift.mjs"
+    "check:schema-drift": "node tools/check-schema-drift.mjs",
+    "verify:markets": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=apps/backend/api/tsconfig.app.json ts-node tools/verify/provision-all-markets.ts"
   },
   "private": true,
   "devDependencies": {

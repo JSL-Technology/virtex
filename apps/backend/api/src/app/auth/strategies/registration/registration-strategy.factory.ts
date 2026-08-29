@@ -1,25 +1,30 @@
-
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CountryRegistrationStrategy } from './country-registration.strategy';
-import { DoRegistrationStrategy } from './do-registration.strategy';
-import { UsRegistrationStrategy } from './us-registration.strategy';
+import { ProfileRegistrationStrategy } from './profile-registration.strategy';
+import { findCountryProfile } from '../../../localization/fiscal/country-profiles';
 
+/**
+ * Resolve the registration rules for a country, or refuse the country.
+ *
+ * The previous implementation ended in `default: return this.usStrategy` — a strategy whose
+ * `validate()` body was a comment. Every market outside the Dominican Republic and the United
+ * States, including the six the signup form offered, was therefore registered with no fiscal
+ * validation and provisioned with the United States chart of accounts.
+ *
+ * Refusing is the correct behaviour, not a degradation: a tenant that cannot be validated cannot
+ * be invoiced for, and discovering that at signup costs a support conversation while discovering
+ * it at the first invoice costs the customer a filing deadline.
+ */
 @Injectable()
 export class RegistrationStrategyFactory {
-  constructor(
-    private readonly doStrategy: DoRegistrationStrategy,
-    private readonly usStrategy: UsRegistrationStrategy
-  ) {}
+  constructor(private readonly profileStrategy: ProfileRegistrationStrategy) {}
 
   getStrategy(countryCode: string): CountryRegistrationStrategy {
-    const code = countryCode?.toUpperCase();
-    switch (code) {
-      case 'DO':
-        return this.doStrategy;
-      case 'US':
-        return this.usStrategy;
-      default:
-        return this.usStrategy;
+    if (!findCountryProfile(countryCode)) {
+      throw new BadRequestException(
+        `El país "${countryCode}" todavía no está disponible para registro.`,
+      );
     }
+    return this.profileStrategy;
   }
 }

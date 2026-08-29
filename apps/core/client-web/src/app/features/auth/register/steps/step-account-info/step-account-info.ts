@@ -36,7 +36,8 @@ export class StepAccountInfo implements OnInit {
     if (this.group) {
       const emailControl = this.group.get('email');
       if (emailControl) {
-        emailControl.addAsyncValidators(AsyncValidators.createEmailValidator(this.http));
+        // No live "is this email taken?" check: the endpoint behind it was an unauthenticated
+        // account-enumeration oracle. Uniqueness is enforced when the form is submitted.
         emailControl.updateValueAndValidity();
       }
     }

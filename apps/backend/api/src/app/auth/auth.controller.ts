@@ -934,7 +934,11 @@ export class AuthController {
       await this.authService.clear2faPendingSession(pendingId);
       this.cookieService.clear2faPendingCookie(res);
       this.cookieService.setAuthCookies(res, accessToken, refreshToken, { userId: authUser?.id });
-      return { user: authUser };
+      // Through the DTO, like every other auth response. `buildSafeUser` only strips the
+      // `security` relation, so returning its output directly leaked `invitationToken`,
+      // `invitationTokenExpires` and `authProviderId` — and it did so on the ONE response that
+      // completes a second-factor login (CWE-200).
+      return { user: plainToInstance(UserResponseDto, authUser, { excludeExtraneousValues: true }) };
   }
 
   // ------------------------------------------------------------------

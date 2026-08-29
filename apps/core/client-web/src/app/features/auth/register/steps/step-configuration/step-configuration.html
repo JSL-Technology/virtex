@@ -4,23 +4,27 @@
     <p class="step-subtitle">{{ 'REGISTER.STEPS.CONFIGURATION.SUBTITLE' | translate }}</p>
   </div>
 
+  <!-- The country list could not be loaded. Say so instead of offering a stale hardcoded list
+       whose entries the server may not be able to provision. -->
+  <div class="config-alert" *ngIf="countriesFailed()">
+    No se pudo cargar la lista de países. Recarga la página para continuar con el registro.
+  </div>
+
+  <div class="config-alert" *ngIf="countryService.loadFailed()">
+    No se pudo cargar la configuración fiscal de ese país. Recarga la página o elige otro país.
+  </div>
+
   <div class="form-grid">
-    <!-- Country Selector -->
+    <!-- Country -->
     <div class="form-field">
-      <label class="input-label">
-        {{ 'REGISTER.COUNTRY' | translate }}
-      </label>
+      <label class="input-label">{{ 'REGISTER.COUNTRY' | translate }}</label>
       <div class="custom-select-wrapper">
         <div class="flag-icon">
-          <img [src]="'assets/flags/' + (countryService.currentCountryCode() || 'do').toLowerCase() + '.svg'"
-               (error)="onFlagError($event)" alt="Flag">
+          <img [src]="'assets/flags/' + countryService.currentCountryCode() + '.svg'"
+               (error)="onFlagError($event)" alt="">
         </div>
-        <select
-          formControlName="country"
-          (change)="onCountryChange($event)"
-          class="custom-select"
-        >
-          <option *ngFor="let c of countries" [value]="c.code">{{ c.name }}</option>
+        <select formControlName="country" (change)="onCountryChange($event)" class="custom-select">
+          <option *ngFor="let c of countries()" [value]="c.countryCode">{{ c.name }}</option>
         </select>
         <div class="select-chevron">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-9"/></svg>
@@ -28,26 +32,88 @@
       </div>
     </div>
 
-    <!-- Currency Display (Read-Only) -->
+    <!-- Currency, derived from the country -->
     <div class="form-field">
       <label class="input-label">{{ 'REGISTER.CURRENCY' | translate }}</label>
       <div class="readonly-value">
-        <span class="currency-code">{{ countryService.currentCountry()?.currencyCode }}</span>
-        <span class="currency-name" *ngIf="countryService.currentCountry()?.currencyName">{{ countryService.currentCountry()?.currencyName }}</span>
+        <span class="currency-code">{{ countryService.currencySymbol() }} {{ config()?.currency }}</span>
       </div>
     </div>
 
-    <!-- Tax ID -->
+    <!-- Tax id -->
     <div class="full-width">
       <app-auth-input
         formControlName="taxId"
-        [label]="countryService.currentCountry()?.formSchema?.taxId?.label || ('REGISTER.TAX_ID' | translate)"
-        [placeholder]="countryService.currentCountry()?.formSchema?.taxId?.placeholder || ''"
+        [label]="taxIdLabel()"
+        [placeholder]="taxIdPlaceholder()"
         [required]="true"
         [hasIcon]="true"
         [errorMessage]="getTaxIdError()">
         <svg icon xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
       </app-auth-input>
+      <p class="field-hint" *ngIf="config()?.taxIdHasCheckDigit">
+        Verificamos el dígito verificador ante {{ config()?.fiscalAuthority }}.
+      </p>
+    </div>
+
+    <!-- Fiscal address. Required because the country's invoicing regime requires it, not for form. -->
+    <div class="full-width">
+      <app-auth-input
+        formControlName="address"
+        label="Dirección fiscal"
+        placeholder="Calle y número"
+        [required]="true"
+        [errorMessage]="errorFor('address')">
+      </app-auth-input>
+    </div>
+
+    <div class="form-field">
+      <app-auth-input
+        formControlName="city"
+        label="Ciudad"
+        [required]="true"
+        [errorMessage]="errorFor('city')">
+      </app-auth-input>
+    </div>
+
+    <!-- Coded catalogue where the country publishes one, free text where it does not. -->
+    <div class="form-field" *ngIf="divisions() as divisionList; else freeTextDivision">
+      <label class="input-label">{{ divisionLabel() }}</label>
+      <div class="custom-select-wrapper">
+        <select formControlName="state" class="custom-select">
+          <option value="">{{ 'REGISTER.SELECT' | translate }}</option>
+          <option *ngFor="let d of divisionList" [value]="d.code">{{ d.name }}</option>
+        </select>
+        <div class="select-chevron">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-9"/></svg>
+        </div>
+      </div>
+      <p class="field-error" *ngIf="errorFor('state')">{{ errorFor('state') | translate }}</p>
+    </div>
+
+    <ng-template #freeTextDivision>
+      <div class="form-field">
+        <app-auth-input
+          formControlName="state"
+          [label]="divisionLabel()"
+          [required]="true"
+          [errorMessage]="errorFor('state')">
+        </app-auth-input>
+      </div>
+    </ng-template>
+
+    <div class="form-field">
+      <app-auth-input
+        formControlName="postalCode"
+        [label]="postalCodeLabel()"
+        [required]="postalCodeRequired()"
+        [errorMessage]="errorFor('postalCode')">
+      </app-auth-input>
     </div>
   </div>
+
+  <p class="invoicing-notice" *ngIf="invoicingNotice() as regime">
+    {{ config()?.name }} exige facturación electrónica ({{ regime }}). Estos datos forman parte del
+    comprobante, por eso los pedimos ahora.
+  </p>
 </div>

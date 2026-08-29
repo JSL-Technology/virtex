@@ -7,6 +7,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { AuthService } from '../../../core/services/auth';
 import { ReCaptchaV3Service, RECAPTCHA_V3_SITE_KEY } from 'ng-recaptcha-19';
 import { of, Observable } from 'rxjs';
+import { MockCountryService } from '../../../../testing/country.service.mock';
 import { CountryService } from '../../../core/services/country.service';
 import { LanguageService } from '../../../core/services/language';
 import { TranslateModule, TranslateLoader, TranslateService } from '@ngx-translate/core';
@@ -31,10 +32,6 @@ class MockAuthService {
 }
 class MockRecaptchaService {
   execute = jest.fn().mockReturnValue(of('mock-token'));
-}
-class MockCountryService {
-  currentCountry = jest.fn().mockReturnValue({ code: 'DO', currencyCode: 'DOP', name: 'Dominican Republic' });
-  detectAndSetCountry = jest.fn();
 }
 class MockLanguageService {
     currentLang = jest.fn().mockReturnValue('es');

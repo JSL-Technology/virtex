@@ -9,6 +9,7 @@ import { ThrottlerGuard, ThrottlerModule, ThrottlerModuleOptions } from '@nestjs
 import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards/jwt/jwt.guard';
+import { CsrfGuard } from './auth/guards/csrf.guard';
 import { GoogleRecaptchaModule } from '@nestlab/google-recaptcha';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerModule } from 'nestjs-pino';
@@ -58,7 +59,6 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { PushNotificationsModule } from './push-notifications/push-notifications.module';
 import { BiModule } from './bi/bi.module';
 import { PaymentModule } from './payment/payment.module';
-import { CountryModule } from '../../../../../libs/api/country/src/lib/country.module';
 import { GeoModule } from './geo/geo.module';
 import { CommonModule } from './common/common.module';
 import { SaasModule } from './saas/saas.module';
@@ -84,6 +84,36 @@ const envValidation = Joi.object({
   CSRF_SECRET: requiredSecret,
   ENCRYPTION_SECRET: requiredSecret,
   AUTH_SALT: Joi.string().min(16).required(),
+
+  // Used with `getOrThrow` at runtime but absent from this schema, so the application started
+  // happily and then failed on the first social sign-up with a 500 that named no cause.
+  JWT_SOCIAL_REGISTER_SECRET: requiredSecret,
+  JWT_STEP_UP_SECRET: requiredSecret,
+
+  // Passkeys are bound to the relying-party id. It defaulted to 'localhost', which does not match
+  // any production origin, so every WebAuthn operation failed the origin check — silently, since
+  // the browser simply refuses. Required wherever a real origin exists.
+  WEBAUTHN_RP_ID: Joi.when('NODE_ENV', {
+    is: Joi.valid('development', 'test'),
+    then: Joi.string().optional().default('localhost'),
+    otherwise: Joi.string().hostname().required(),
+  }),
+
+  // Where the client lives. Every emailed link and OAuth redirect is built from it.
+  FRONTEND_URL: Joi.string().uri().required(),
+  CORS_ORIGIN: Joi.string().required(),
+  API_PREFIX: Joi.string().optional().default('api/v1'),
+
+  // Stripe price ids, one per plan. Without them the plans exist but cannot be subscribed to,
+  // and signup fails at the last step with "this plan is not available".
+  STRIPE_PRICE_STARTER: Joi.string().required(),
+  STRIPE_PRICE_PRO: Joi.string().required(),
+  STRIPE_PRICE_ENTERPRISE: Joi.string().required(),
+
+  // Outbound SMS fraud controls. Both have safe defaults; naming them here documents that they
+  // exist and are meant to be tuned per market.
+  SMS_ALLOWED_COUNTRY_CODES: Joi.string().optional(),
+  SMS_GLOBAL_DAILY_LIMIT: Joi.number().integer().positive().optional(),
 
   // RS256 keys: required in production, optional in development (ephemeral key is generated).
   RS_PRIVATE_KEY: Joi.when('NODE_ENV', { is: 'production', then: Joi.string().required(), otherwise: Joi.string().optional() }),
@@ -136,17 +166,41 @@ const envValidation = Joi.object({
               ? { target: 'pino-pretty' }
               : undefined,
             genReqId: (req) => req.headers['x-correlation-id'] || crypto.randomUUID(),
-            // H-11 FIX: Redact PII and secrets from HTTP access logs (OWASP Logging Cheat Sheet; CWE-532).
+            // Redact PII and secrets from HTTP access logs (OWASP Logging Cheat Sheet; CWE-532).
+            //
+            // `pino-http`'s default request serializer writes the ENTIRE header object, so this
+            // list has to name every header that can carry a credential — not only the obvious
+            // two. The `x-*` entries below are why: re-authentication used to accept the raw
+            // account password in `x-reauth-password`, which this list did not cover, so an
+            // administrator's password was written to the access log on every sensitive action.
+            // That mechanism is gone, but the headers stay listed: a redaction rule that is only
+            // correct for today's code is not a redaction rule.
+            //
+            // Response headers matter too — `set-cookie` carries the session on every login.
             redact: {
               paths: [
                 'req.headers.authorization',
                 'req.headers.cookie',
+                'req.headers["x-xsrf-token"]',
+                'req.headers["x-reauth-password"]',
+                'req.headers["x-otp-code"]',
+                'req.headers["x-api-key"]',
+                'req.headers["stripe-signature"]',
+                'res.headers["set-cookie"]',
                 'req.body.password',
+                'req.body.newPassword',
+                'req.body.currentPassword',
+                'req.body.confirmPassword',
                 'req.body.token',
                 'req.body.code',
+                'req.body.otpCode',
                 'req.body.recaptchaToken',
-                'req.body.currentPassword',
-                'req.body.newPassword',
+                'req.body.emailVerificationCode',
+                'req.body.phoneVerificationCode',
+                'req.body.clientSecret',
+                'req.body.email',
+                'req.body.phone',
+                'req.body.taxId',
               ],
               censor: '[REDACTED]',
             },
@@ -264,7 +318,6 @@ const envValidation = Joi.object({
     PushNotificationsModule,
     BiModule,
     PaymentModule,
-    CountryModule,
     GeoModule,
     CommonModule,
     SaasModule,
@@ -283,6 +336,17 @@ const envValidation = Joi.object({
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      // CSRF is enforced by default on every state-changing request. Declared per-endpoint it
+      // reached 4 of the 50 controllers that mutate state; a control that has to be remembered
+      // is a control that is missing. Routes that genuinely cannot use it opt out with
+      // @SkipCsrf() and say why.
+      //
+      // Ordering matters: this runs after JwtAuthGuard, so `request.user` is populated and the
+      // token's user binding can be verified rather than only its signature.
+      provide: APP_GUARD,
+      useClass: CsrfGuard,
     },
   ],
 })

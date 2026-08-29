@@ -100,14 +100,13 @@ export class UserIdentityService {
       throw new UnauthorizedException(AuthError.USER_NOT_FOUND);
     }
 
-    // Re-checked against the freshly loaded entity: the cached copy may have been stale.
-    if ((user.security?.tokenVersion ?? 0) !== (tokenVersion ?? 0)) {
+    // Re-checked against the freshly loaded record: the cached copy may have been stale.
+    if ((user.tokenVersion ?? 0) !== (tokenVersion ?? 0)) {
       throw new UnauthorizedException(AuthError.SESSION_EXPIRED);
     }
 
     this.assertAuthenticable(user);
 
-    const permissions = user._cachedPermissions ?? this.computePermissions(user);
     const organization = await this.resolveOrganizationContext(user, organizationId);
 
     return {
@@ -116,10 +115,10 @@ export class UserIdentityService {
       firstName: user.firstName,
       lastName: user.lastName,
       organizationId: user.organizationId as string,
-      roles: user.roles ?? [],
-      permissions,
+      roles: user.roleNames.map((name) => ({ name })) as never,
+      permissions: user.permissions,
       organization,
-      isTwoFactorEnabled: user.security?.isTwoFactorEnabled ?? false,
+      isTwoFactorEnabled: user.isTwoFactorEnabled,
       isImpersonating: payload.isImpersonating,
       originalUserId: payload.originalUserId,
       sessionId,
@@ -143,10 +142,10 @@ export class UserIdentityService {
       firstName: user.firstName,
       lastName: user.lastName,
       organizationId: user.organizationId as string,
-      roles: user.roles ?? [],
-      permissions: user._cachedPermissions ?? this.computePermissions(user),
+      roles: user.roleNames.map((name) => ({ name })) as never,
+      permissions: user.permissions,
       organization: await this.resolveOrganizationContext(user, current.organization?.id),
-      isTwoFactorEnabled: user.security?.isTwoFactorEnabled ?? false,
+      isTwoFactorEnabled: user.isTwoFactorEnabled,
       isImpersonating: current.isImpersonating ?? false,
       originalUserId: current.originalUserId,
       sessionId: current.sessionId,
@@ -170,7 +169,7 @@ export class UserIdentityService {
     }
 
     if (cached && expectedTokenVersion !== undefined) {
-      if ((cached.security?.tokenVersion ?? 0) !== expectedTokenVersion) {
+      if ((cached.tokenVersion ?? 0) !== expectedTokenVersion) {
         cached = null; // stale — fall through to the database
       }
     }
@@ -180,11 +179,7 @@ export class UserIdentityService {
     const dbUser = await this.usersService.findUserByIdForAuth(userId);
     if (!dbUser) return null;
 
-    // Always cache the SAME shape: the entity plus precomputed permissions. Writing two
-    // different shapes from two call sites is what made `_cachedPermissions` unreliable before.
-    const toCache: CachedUser = Object.assign(Object.create(Object.getPrototypeOf(dbUser)), dbUser, {
-      _cachedPermissions: this.computePermissions(dbUser),
-    });
+    const toCache = UserIdentityService.project(dbUser);
 
     if (!this.cacheBreaker.opened) {
       try {
@@ -197,17 +192,42 @@ export class UserIdentityService {
     return toCache;
   }
 
-  private assertAuthenticable(user: User): void {
+  /**
+   * Reduce a loaded user to what the request pipeline reads.
+   *
+   * The cache used to hold the entity itself, `security` relation included, which put password
+   * hashes, TOTP secrets and backup codes into Redis for the lifetime of every session. Nothing
+   * on the authenticated path needs them: authorisation needs permissions, tenancy needs the
+   * organization, and session validity needs `tokenVersion`. The paths that DO need a secret
+   * (login, step-up, 2FA) read the database, which is correct for them anyway — they must never
+   * see a stale value.
+   */
+  private static project(user: User): CachedUser {
+    const permissions = [...new Set((user.roles ?? []).flatMap((role) => role.permissions ?? []))];
+
+    return {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      status: user.status,
+      organizationId: user.organizationId,
+      permissions,
+      roleNames: (user.roles ?? []).map((role) => role.name),
+      tokenVersion: user.security?.tokenVersion ?? 0,
+      isTwoFactorEnabled: user.security?.isTwoFactorEnabled ?? false,
+      organization: user.organization,
+      organizations: user.organizations,
+    };
+  }
+
+  private assertAuthenticable(user: Pick<CachedUser, 'status'>): void {
     if (!UserIdentityService.AUTHENTICABLE_STATUSES.has(user.status)) {
       if (user.status === UserStatus.BLOCKED) {
         throw new UnauthorizedException(AuthError.USER_BLOCKED);
       }
       throw new UnauthorizedException(AuthError.USER_INACTIVE);
     }
-  }
-
-  private computePermissions(user: Pick<User, 'roles'>): string[] {
-    return [...new Set((user.roles ?? []).flatMap((role) => role.permissions ?? []))];
   }
 
   /**

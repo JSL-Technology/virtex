@@ -23,6 +23,7 @@ import { WebAuthnService } from './services/webauthn.service';
 import { ImpersonationService } from './services/impersonation.service';
 import { JwtStrategy } from './strategies/jwt.strategy/jwt.strategy';
 import { CookieService } from './services/cookie.service';
+import { SmsAbuseGuardService } from './services/sms-abuse.guard.service';
 import { SessionService } from './services/session.service';
 import { SecurityAnalysisService } from './services/security-analysis.service';
 import { TokenService } from './services/token.service';
@@ -60,8 +61,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { PasswordService } from './services/password.service';
 import { AuthSubscriber } from './events/auth.events';
 import { RegistrationStrategyFactory } from './strategies/registration/registration-strategy.factory';
-import { DoRegistrationStrategy } from './strategies/registration/do-registration.strategy';
-import { UsRegistrationStrategy } from './strategies/registration/us-registration.strategy';
+import { ProfileRegistrationStrategy } from './strategies/registration/profile-registration.strategy';
 import { AuthAuditListener } from './listeners/auth-audit.listener';
 import { CsrfGuard } from './guards/csrf.guard';
 import { StepUpGuard } from './guards/step-up.guard';
@@ -157,6 +157,7 @@ import { KeyManagementModule } from './services/key-management.module';
     WebAuthnService,
     ImpersonationService,
     JwtStrategy,
+    SmsAbuseGuardService,
     CookieService,
     SessionService,
     SecurityAnalysisService,
@@ -175,8 +176,7 @@ import { KeyManagementModule } from './services/key-management.module';
     PasswordService,
     AuthSubscriber,
     RegistrationStrategyFactory,
-    DoRegistrationStrategy,
-    UsRegistrationStrategy,
+    ProfileRegistrationStrategy,
     AuthAuditListener,
     CsrfGuard,
     StepUpGuard,

@@ -50,6 +50,10 @@ interface MaterializeAccountData {
   industry: string | null;
   companySize: string | null;
   address: string | null;
+  city: string | null;
+  state: string | null;
+  postalCode: string | null;
+  countryCode: string | null;
 }
 
 @Injectable()
@@ -79,7 +83,7 @@ export class RegistrationService {
    * the caller so it can return a believable success to bots.
    */
   private async validateRegistration(dto: RegisterUserDto): Promise<void> {
-    const { email, phone, emailVerificationCode, phoneVerificationCode, fiscalRegionId, recaptchaToken } = dto;
+    const { email, phone, emailVerificationCode, phoneVerificationCode, recaptchaToken } = dto;
 
     const recaptchaResult = await this.recaptchaValidator.validate({
       response: recaptchaToken,
@@ -109,13 +113,36 @@ export class RegistrationService {
       throw new BadRequestException('El código de verificación de celular es obligatorio.');
     }
 
-    if (fiscalRegionId) {
-      const region = await this.localizationService.findById(fiscalRegionId);
-      if (region) {
-        const strategy = this.registrationStrategyFactory.getStrategy(region.countryCode);
-        await strategy.validate(dto);
-      }
+    // The country's registration rules are not conditional on anything. This used to run only
+    // when the payload happened to carry a `fiscalRegionId`, and only when that id resolved to a
+    // row — so a client that simply omitted the field skipped fiscal validation entirely, and a
+    // stale id skipped it silently. `getStrategy` now throws for a country the product does not
+    // support, which is the only safe outcome for a fiscal product.
+    const strategy = this.registrationStrategyFactory.getStrategy(dto.countryCode);
+    await strategy.validate(dto);
+  }
+
+  /**
+   * Resolve the `fiscal_regions` row for a country code.
+   *
+   * The client's `fiscalRegionId` is deliberately ignored: it is attacker-controlled and, if it
+   * disagreed with `countryCode`, the tenant would be validated under one country's rules and
+   * provisioned under another's. The country is the single input; the row is derived from it.
+   */
+  private async resolveFiscalRegionId(countryCode: string): Promise<string> {
+    const region = await this.localizationService.findRegionByCountryCode(
+      countryCode.toUpperCase(),
+    );
+    if (!region) {
+      this.logger.error(
+        { event: 'fiscal_region_missing', countryCode },
+        '[REGISTRATION] Supported country has no fiscal_regions row; boot seeding failed.',
+      );
+      throw new InternalServerErrorException(
+        'La configuración fiscal de ese país no está disponible en este momento.',
+      );
     }
+    return region.id;
   }
 
   /**
@@ -156,6 +183,10 @@ export class RegistrationService {
         industry: data.industry,
         companySize: data.companySize,
         address: data.address,
+        city: data.city,
+        state: data.state,
+        postalCode: data.postalCode,
+        country: data.countryCode,
       },
       manager
     );
@@ -241,10 +272,14 @@ export class RegistrationService {
       passwordHash,
       organizationName: dto.organizationName,
       taxId: dto.taxId ?? null,
-      fiscalRegionId: dto.fiscalRegionId ?? null,
+      fiscalRegionId: await this.resolveFiscalRegionId(dto.countryCode),
       industry: dto.industry ?? null,
       companySize: dto.companySize ?? null,
       address: dto.address ?? null,
+      city: dto.city ?? null,
+      state: dto.state ?? null,
+      postalCode: dto.postalCode ?? null,
+      countryCode: dto.countryCode.toUpperCase(),
       planSlug,
       status: PendingRegistrationStatus.PENDING,
       expiresAt: new Date(Date.now() + PENDING_REGISTRATION_TTL_MS),
@@ -307,6 +342,10 @@ export class RegistrationService {
           industry: pending.industry,
           companySize: pending.companySize,
           address: pending.address,
+          city: pending.city,
+          state: pending.state,
+          postalCode: pending.postalCode,
+          countryCode: pending.countryCode,
         },
         manager
       );

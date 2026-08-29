@@ -1,55 +1,121 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { StepConfiguration } from './step-configuration';
-import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { CountryService } from '../../../../../core/services/country.service';
-import { of } from 'rxjs';
 import { Router } from '@angular/router';
+import { throwError } from 'rxjs';
+import { StepConfiguration } from './step-configuration';
+import { CountryService } from '../../../../../core/services/country.service';
+import { MockCountryService, US_CONFIG } from '../../../../../../testing/country.service.mock';
+
+const makeGroup = () =>
+  new FormGroup({
+    country: new FormControl('DO'),
+    taxId: new FormControl(''),
+    address: new FormControl(''),
+    city: new FormControl(''),
+    state: new FormControl(''),
+    postalCode: new FormControl(''),
+  });
 
 describe('StepConfiguration', () => {
   let component: StepConfiguration;
   let fixture: ComponentFixture<StepConfiguration>;
-  let mockCountryService: any;
-  let mockRouter: any;
+  let countryService: MockCountryService;
+  const mockRouter = { url: '/es/do/auth/register', navigateByUrl: jest.fn() };
 
-  beforeEach(async () => {
-    mockCountryService = {
-      currentCountry: jest.fn().mockReturnValue({ code: 'DO', name: 'Dominican Republic', currencyCode: 'DOP' }),
-      currentCountryCode: jest.fn().mockReturnValue('do'),
-      getCountryConfig: jest.fn().mockReturnValue(of({}))
-    };
-
-    mockRouter = {
-      url: '/es/do/auth/register',
-      navigateByUrl: jest.fn()
-    };
-
+  const build = async () => {
     await TestBed.configureTestingModule({
       imports: [StepConfiguration, ReactiveFormsModule, TranslateModule.forRoot()],
       providers: [
-        { provide: CountryService, useValue: mockCountryService },
-        { provide: Router, useValue: mockRouter }
-      ]
+        { provide: CountryService, useClass: MockCountryService },
+        { provide: Router, useValue: mockRouter },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(StepConfiguration);
     component = fixture.componentInstance;
-    component.group = new FormGroup({
-      country: new FormControl('DO'),
-      taxId: new FormControl('')
-    });
+    countryService = TestBed.inject(CountryService) as unknown as MockCountryService;
+    component.group = makeGroup();
     fixture.detectChanges();
+  };
+
+  beforeEach(async () => {
+    jest.clearAllMocks();
+    await build();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should call getCountryConfig and navigate on country change', () => {
-    const event = { target: { value: 'US' } };
-    component.onCountryChange(event);
+  describe('country list', () => {
+    it('comes from the server, not a list hardcoded in the component', () => {
+      // The hardcoded list offered eight countries; two of them had no fiscal region on the
+      // server, so choosing one produced a tenant with no chart of accounts and no taxes.
+      expect(countryService.getSupportedCountries).toHaveBeenCalled();
+      expect(component.countries().map((c) => c.countryCode)).toEqual(['DO', 'US']);
+    });
 
-    expect(mockCountryService.getCountryConfig).toHaveBeenCalledWith('US');
+    it('reports a failure instead of falling back to a stale list', async () => {
+      TestBed.resetTestingModule();
+      const failing = new MockCountryService();
+      failing.getSupportedCountries = jest.fn(() => throwError(() => new Error('offline')));
+
+      await TestBed.configureTestingModule({
+        imports: [StepConfiguration, ReactiveFormsModule, TranslateModule.forRoot()],
+        providers: [
+          { provide: CountryService, useValue: failing },
+          { provide: Router, useValue: mockRouter },
+        ],
+      }).compileComponents();
+
+      const f = TestBed.createComponent(StepConfiguration);
+      f.componentInstance.group = makeGroup();
+      f.detectChanges();
+
+      expect(f.componentInstance.countries()).toEqual([]);
+      expect(f.componentInstance.countriesFailed()).toBe(true);
+    });
+  });
+
+  it('loads the country config and keeps the URL in step on change', () => {
+    component.onCountryChange({ target: { value: 'US' } } as unknown as Event);
+
+    expect(countryService.getCountryConfig).toHaveBeenCalledWith('US');
     expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/es/us/auth/register');
+  });
+
+  describe('country-specific labels', () => {
+    it('labels the tax id with the country terminology and shows a real example', () => {
+      // These came from `formSchema`, a field no backend endpoint ever populated, so every country
+      // showed the generic "Tax ID" label and an empty placeholder.
+      expect(component.taxIdLabel()).toBe('RNC / Cédula');
+      expect(component.taxIdPlaceholder()).toBe('131-12345-7');
+      expect(component.divisionLabel()).toBe('Provincia');
+    });
+
+    it('follows the country when it changes', () => {
+      countryService.setConfig(US_CONFIG);
+      fixture.detectChanges();
+
+      expect(component.taxIdLabel()).toBe('EIN');
+      expect(component.divisionLabel()).toBe('State');
+      expect(component.postalCodeLabel()).toBe('ZIP code');
+      expect(component.postalCodeRequired()).toBe(true);
+    });
+
+    it('offers the coded divisions the country publishes', () => {
+      expect(component.divisions()).toEqual(
+        expect.arrayContaining([{ code: '01', name: 'Distrito Nacional' }]),
+      );
+    });
+
+    it('explains the invoicing regime that makes the address mandatory', () => {
+      expect(component.invoicingNotice()).toBe('DGII e-CF');
+
+      countryService.setConfig(US_CONFIG);
+      fixture.detectChanges();
+      expect(component.invoicingNotice()).toBeNull();
+    });
   });
 });

@@ -1,41 +1,26 @@
+import { Controller } from '@nestjs/common';
 
-import { Controller, Get, Query, Head, NotFoundException, BadRequestException } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
-import { UsersService } from '../../users/users.service';
-import { OrganizationsService } from '../../organizations/organizations.service';
-import { Public } from '../../auth/decorators/public.decorator';
-
-@ApiTags('Common')
+/**
+ * Reserved for cross-cutting endpoints that belong to no single module.
+ *
+ * It previously exposed two @Public() existence probes:
+ *
+ *   HEAD /common/users/exists?email=…          200 when the address is registered, 404 otherwise
+ *   HEAD /common/organizations/exists?taxId=…  200 when the tax id is registered, 404 otherwise
+ *
+ * The first is a plain account-enumeration oracle, and it undid the entire anti-enumeration
+ * design of the auth module: the login path verifies the password before checking account state
+ * and pays a dummy Argon2 cost for unknown addresses precisely so that no request can distinguish
+ * a registered address from an unregistered one, and registration returns the same message for a
+ * duplicate as for a success. One unauthenticated HEAD request answered the question directly.
+ *
+ * The second was worse in an ERP: tax ids are public in several of the markets this product
+ * serves, so anyone could enumerate which companies are customers — competitive intelligence
+ * about the customer base, disclosed by the product itself.
+ *
+ * The registration form used them for live feedback. That check now happens server-side when the
+ * form is submitted, where the answer is only revealed to someone who has already proven they
+ * control the address (see RegistrationService.validateRegistration).
+ */
 @Controller('common')
-export class CommonController {
-  constructor(
-    private readonly usersService: UsersService,
-    private readonly organizationsService: OrganizationsService
-  ) {}
-
-  @Head('users/exists')
-  @Public()
-  @ApiOperation({ summary: 'Check if user email exists' })
-  @ApiQuery({ name: 'email', required: true })
-  @ApiResponse({ status: 200, description: 'User exists' })
-  @ApiResponse({ status: 404, description: 'User does not exist' })
-  async checkUserExists(@Query('email') email: string) {
-    if (!email) throw new BadRequestException('Email is required');
-    const user = await this.usersService.findOneByEmail(email);
-    if (!user) throw new NotFoundException();
-    return;
-  }
-
-  @Head('organizations/exists')
-  @Public()
-  @ApiOperation({ summary: 'Check if organization tax ID exists' })
-  @ApiQuery({ name: 'taxId', required: true })
-  @ApiResponse({ status: 200, description: 'Organization exists' })
-  @ApiResponse({ status: 404, description: 'Organization does not exist' })
-  async checkOrgExists(@Query('taxId') taxId: string) {
-      if (!taxId) throw new BadRequestException('Tax ID is required');
-      const org = await this.organizationsService.findByTaxId(taxId);
-      if (!org) throw new NotFoundException();
-      return;
-  }
-}
+export class CommonController {}
