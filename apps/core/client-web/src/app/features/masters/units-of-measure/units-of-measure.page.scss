@@ -10,12 +10,12 @@
 
 .subview-header {
     @include views.view-header;
-    padding-bottom: 1.5rem;
+    padding-bottom: var(--space-6);
     margin-bottom: 0;
 
     h3 {
-        font-size: 1.25rem;
-        font-weight: 600;
+        font-size: var(--text-xl);
+        font-weight: var(--font-semibold);
     }
 }
 

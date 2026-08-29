@@ -13,13 +13,13 @@
   justify-content: center;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 1rem;
+  padding: var(--space-4);
 }
 
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.4); /* Darkening */
+  background-color: rgba(var(--shadow-color-rgb), 0.4); /* Darkening */
   backdrop-filter: blur(12px); /* Windows 11 Acrylic Blur strength */
   -webkit-backdrop-filter: blur(12px);
   z-index: -1;
@@ -41,10 +41,10 @@
   flex-direction: column;
   width: 100%;
   background-color: var(--bg-card); /* Uses application theme color */
-  border: 1px solid rgba(255, 255, 255, 0.08); /* Subtle border for depth/glass effect */
+  border: 1px solid rgba(var(--elevation-tint-rgb), 0.08); /* Subtle border for depth/glass effect */
   box-shadow:
-    0 25px 50px -12px rgba(0, 0, 0, 0.25),
-    0 0 0 1px rgba(0, 0, 0, 0.05); /* Deep shadow */
+    0 25px 50px -12px rgba(var(--shadow-color-rgb), 0.25),
+    0 0 0 1px rgba(var(--shadow-color-rgb), 0.05); /* Deep shadow */
   border-radius: 12px; /* Win 11 rounded corners */
   overflow: hidden;
   max-height: calc(100vh - 4rem);
@@ -68,8 +68,8 @@
   padding: 1.25rem 1.5rem 0.5rem 1.5rem; /* Top padding more for title breathing room */
 
   .modal-title {
-    font-size: 1.125rem;
-    font-weight: 600;
+    font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
     color: var(--text-primary);
     margin: 0;
     line-height: 1.5;
@@ -87,32 +87,32 @@
   justify-content: center;
   border: none;
   background: transparent;
-  color: #6b7280; /* Neutral gray */
+  color: var(--content-secondary); /* Neutral gray */
   cursor: pointer;
-  padding: 0.5rem;
+  padding: var(--space-2);
   border-radius: 6px;
   transition: all 0.2s ease;
 
   /* Or use vars if available */
-  color: var(--text-secondary, #6b7280);
+  color: var(--text-secondary, var(--content-secondary));
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-    color: #111827;
+    background-color: rgba(var(--shadow-color-rgb), 0.05);
+    color: var(--content-primary);
   }
 
   /* Dark mode adjust via parent var or simple media query if vars aren't sufficient */
   @media (prefers-color-scheme: dark) {
-    color: #9ca3af;
+    color: var(--content-tertiary);
     &:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-      color: #f3f4f6;
+      background-color: rgba(var(--elevation-tint-rgb), 0.1);
+      color: var(--content-primary);
     }
   }
 
   &:hover {
-    background-color: var(--bg-hover, rgba(0,0,0,0.05));
-    color: var(--text-primary, #111827);
+    background-color: var(--bg-hover, rgba(var(--shadow-color-rgb), 0.05));
+    color: var(--text-primary, var(--content-primary));
   }
 
   .icon {
@@ -131,15 +131,15 @@
 /* Footer */
 .modal-footer {
   padding: 1rem 1.5rem;
-  background-color: rgba(0,0,0, 0.02); /* Very subtle offset */
-  border-top: 1px solid rgba(0,0,0, 0.05);
+  background-color: rgba(var(--shadow-color-rgb), 0.02); /* Very subtle offset */
+  border-top: 1px solid rgba(var(--shadow-color-rgb), 0.05);
   display: flex;
   justify-content: flex-end;
-  gap: 0.75rem;
+  gap: var(--space-3);
 
   /* Dark mode specific override if vars allow, otherwise rely on opacity */
   :host-context(.dark) & {
-    background-color: rgba(255,255,255, 0.02);
-    border-top-color: rgba(255,255,255, 0.05);
+    background-color: rgba(var(--elevation-tint-rgb), 0.02);
+    border-top-color: rgba(var(--elevation-tint-rgb), 0.05);
   }
 }

@@ -1,0 +1,231 @@
+// =============================================================================
+//  VIRTEX — ELEMENTOS BASE
+// =============================================================================
+//  Estilos por defecto de los elementos HTML nativos, expresados solo con
+//  tokens. Cuanto mejor se comporte el HTML sin clases, menos CSS necesita cada
+//  pantalla — y menos ocasiones hay de volver a escribir un color a mano.
+// =============================================================================
+
+@use '../design-system' as ds;
+
+html {
+  //  El tamaño base NO se fija en px: hacerlo ignora el tamaño de fuente que el
+  //  usuario haya configurado en el navegador, que es una preferencia de
+  //  accesibilidad real y frecuente entre usuarios présbitas.
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+  background-color: var(--surface-canvas);
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  font-weight: var(--font-regular);
+  line-height: var(--leading-normal);
+  color: var(--content-primary);
+  background-color: var(--surface-canvas);
+
+  //  Sin transición de color en `body`: al cambiar de tema una transición aquí
+  //  produce un barrido perceptible mientras el resto de la interfaz ya ha
+  //  conmutado. El cambio de tema debe ser instantáneo.
+}
+
+// -----------------------------------------------------------------------------
+//  TIPOGRAFÍA
+// -----------------------------------------------------------------------------
+h1, h2, h3, h4, h5, h6 {
+  font-weight: var(--font-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--content-primary);
+  text-wrap: balance;   // Evita títulos con una sola palabra colgando
+}
+
+h1 { font-size: var(--text-3xl); }
+h2 { font-size: var(--text-2xl); }
+h3 { font-size: var(--text-xl); }
+h4 { font-size: var(--text-lg); }
+h5 { font-size: var(--text-base); }
+h6 { font-size: var(--text-md); }
+
+p {
+  text-wrap: pretty;    // Elimina líneas huérfanas al final del párrafo
+}
+
+small {
+  font-size: var(--text-xs);
+  color: var(--content-tertiary);
+}
+
+strong, b { font-weight: var(--font-semibold); }
+
+code, kbd, samp, pre {
+  font-family: var(--font-mono);
+  font-size: 0.9em;   // Las monoespaciadas se ven mayores al mismo tamaño
+}
+
+code {
+  padding: 0.125em 0.375em;
+  background-color: var(--surface-sunken);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  color: var(--content-primary);
+}
+
+hr {
+  height: 1px;
+  margin-block: var(--space-4);
+  border: none;
+  background-color: var(--border-subtle);
+}
+
+// -----------------------------------------------------------------------------
+//  ENLACES
+// -----------------------------------------------------------------------------
+a {
+  color: var(--accent-text);
+  text-decoration: none;
+  //  El subrayado se separa de las letras descendentes y respeta sus curvas.
+  text-underline-offset: 0.15em;
+  text-decoration-thickness: 1px;
+  @include ds.transition(color);
+
+  &:hover { text-decoration: underline; }
+}
+
+// -----------------------------------------------------------------------------
+//  FORMULARIOS
+// -----------------------------------------------------------------------------
+//  Antes existía una regla global `input, select, textarea { … }` que aplicaba
+//  a TODO campo de la aplicación con `width: 100%`, incluidas casillas y
+//  radios, que quedaban deformados. Aquí se excluyen explícitamente los tipos
+//  que no son campos de texto.
+// -----------------------------------------------------------------------------
+input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='color']),
+select,
+textarea {
+  @include ds.input-base;
+}
+
+textarea {
+  height: auto;
+  min-height: calc(var(--control-height-md) * 2);
+  padding-block: var(--space-2);
+  line-height: var(--leading-normal);
+}
+
+//  Las casillas y radios adoptan el color de acento en su estado marcado sin
+//  necesidad de reimplementar el control.
+input[type='checkbox'],
+input[type='radio'] {
+  accent-color: var(--accent-solid);
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+}
+
+label {
+  color: var(--content-secondary);
+}
+
+fieldset {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+}
+
+legend {
+  padding-inline: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--content-secondary);
+}
+
+//  Autocompletado de Chrome: fuerza un fondo amarillo que ignora el tema. No
+//  existe forma de anularlo con `background`; el truco admitido es una sombra
+//  interior enorme del color de la superficie.
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--surface-base) inset;
+  -webkit-text-fill-color: var(--content-primary);
+  caret-color: var(--content-primary);
+}
+
+::selection {
+  background-color: rgba(var(--accent-solid-rgb), 0.28);
+  color: var(--content-primary);
+}
+
+// -----------------------------------------------------------------------------
+//  TABLAS
+// -----------------------------------------------------------------------------
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+// -----------------------------------------------------------------------------
+//  DESPLAZAMIENTO
+// -----------------------------------------------------------------------------
+//  La barra de scroll anterior se pintaba con un gris fijo, así que en tema
+//  oscuro aparecía una franja clara. Ahora sigue al tema.
+* {
+  @include ds.scrollbar;
+}
+
+// -----------------------------------------------------------------------------
+//  ICONOGRAFÍA
+// -----------------------------------------------------------------------------
+//  Los iconos heredan el color del texto salvo indicación contraria: así un
+//  botón sin estilos propios ya tiene el icono del color correcto.
+lucide-icon,
+lucide-angular {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: currentColor;
+  flex-shrink: 0;
+}
+
+// -----------------------------------------------------------------------------
+//  ANIMACIONES COMPARTIDAS
+// -----------------------------------------------------------------------------
+@keyframes vx-skeleton-sweep {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+@keyframes vx-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes vx-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes vx-slide-up {
+  from { opacity: 0; transform: translateY(var(--space-2)); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// -----------------------------------------------------------------------------
+//  TERCEROS
+// -----------------------------------------------------------------------------
+//  La insignia de reCAPTCHA se oculta; el aviso legal exigido por Google se
+//  presenta como texto en los formularios afectados.
+.grecaptcha-badge {
+  visibility: hidden;
+}
+
+//  Gridster pintaba sus guías con un blanco translúcido fijo, invisible en
+//  tema claro sobre fondo blanco.
+gridster .gridster-row,
+gridster .gridster-column {
+  border-color: var(--border-subtle) !important;
+}
+
+gridster-item {
+  background: transparent !important;
+}

@@ -1,11 +1,11 @@
 :host { display: block; }
 
 .sess-page {
-  padding: 2rem;
+  padding: var(--space-8);
   max-width: 800px;
   animation: page-enter 0.25s ease-out;
 
-  > * + * { margin-top: 1.5rem; }
+  > * + * { margin-top: var(--space-6); }
 }
 
 @keyframes page-enter {
@@ -17,20 +17,20 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 1rem;
-  padding-bottom: 1.5rem;
+  gap: var(--space-4);
+  padding-bottom: var(--space-6);
   border-bottom: 1px solid var(--border-color);
   flex-wrap: wrap;
 
   &__title {
-    font-size: 1.375rem;
-    font-weight: 700;
+    font-size: var(--text-xl);
+    font-weight: var(--font-bold);
     color: var(--text-primary);
-    margin-bottom: 0.25rem;
+    margin-bottom: var(--space-1);
   }
 
   &__subtitle {
-    font-size: 0.875rem;
+    font-size: var(--text-md);
     color: var(--text-secondary);
   }
 }
@@ -45,8 +45,8 @@
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   color: var(--text-secondary);
-  font-size: 0.8125rem;
-  font-weight: 500;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
   cursor: pointer;
   transition: var(--transition);
   flex-shrink: 0;
@@ -70,9 +70,9 @@
   align-items: center;
   justify-content: center;
   gap: 0.875rem;
-  padding: 3rem;
+  padding: var(--space-12);
   color: var(--text-tertiary);
-  font-size: 0.9rem;
+  font-size: var(--text-md);
 
   lucide-icon { opacity: 0.4; }
 }
@@ -80,7 +80,7 @@
 .sess-item {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-4);
   padding: 1rem 1.25rem;
   border-bottom: 1px solid var(--border-color);
   transition: background-color 0.1s;
@@ -118,26 +118,26 @@
   }
 
   &__browser {
-    font-size: 0.9rem;
-    font-weight: 600;
+    font-size: var(--text-md);
+    font-weight: var(--font-semibold);
     color: var(--text-primary);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--space-2);
     flex-wrap: wrap;
-    margin-bottom: 0.25rem;
+    margin-bottom: var(--space-1);
   }
 
   &__os {
-    font-weight: 400;
+    font-weight: var(--font-regular);
     color: var(--text-secondary);
   }
 
   &__meta {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.78rem;
+    gap: var(--space-2);
+    font-size: var(--text-xs);
     color: var(--text-tertiary);
     flex-wrap: wrap;
 
@@ -145,18 +145,18 @@
   }
 
   &__sep { opacity: 0.4; }
-  &__ip { font-family: 'SFMono-Regular', 'Consolas', monospace; font-size: 0.75rem; }
+  &__ip { font-family: 'SFMono-Regular', 'Consolas', monospace; font-size: var(--text-xs); }
 }
 
 .sess-badge-current {
   display: inline-flex;
   align-items: center;
   padding: 0.125rem 0.5rem;
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
   background-color: var(--primary);
   color: white;
-  font-size: 0.6875rem;
-  font-weight: 700;
+  font-size: var(--text-2xs);
+  font-weight: var(--font-bold);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -171,8 +171,8 @@
   border: 1px solid var(--border-color);
   background: transparent;
   color: var(--text-secondary);
-  font-size: 0.8125rem;
-  font-weight: 500;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
   cursor: pointer;
   transition: var(--transition);
   flex-shrink: 0;
@@ -191,7 +191,7 @@
   height: 2rem;
   border: 2px solid var(--border-color);
   border-top-color: var(--primary);
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
   animation: spin 0.7s linear infinite;
 
   &--sm {

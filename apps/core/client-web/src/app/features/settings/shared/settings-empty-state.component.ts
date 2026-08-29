@@ -67,9 +67,9 @@ import { CommonModule } from '@angular/common';
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      background-color: rgba(217, 119, 6, 0.12);
-      color: #b45309;
-      border: 1px solid rgba(217, 119, 6, 0.2);
+      background-color: var(--warning-surface);
+      color: var(--warning-text);
+      border: 1px solid var(--warning-border);
       margin-bottom: 1rem;
     }
 

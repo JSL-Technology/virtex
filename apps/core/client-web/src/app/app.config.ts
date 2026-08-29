@@ -76,7 +76,7 @@ const RECAPTCHA_PROVIDERS = [
         size: 'invisible',
         badge: 'bottomleft', // Cambia esto si necesitas otro badge
         // Ahora el tema es dinámico basado en el servicio
-        theme: themeService.activeTheme(),
+        theme: themeService.appliedTheme(),
       };
     },
     deps: [ThemeService] // Declara la dependencia a inyectar

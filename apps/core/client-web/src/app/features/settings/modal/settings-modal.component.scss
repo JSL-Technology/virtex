@@ -5,13 +5,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem;
+  padding: var(--space-6);
 }
 
 .sm-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(var(--shadow-color-rgb), 0.45);
   backdrop-filter: blur(4px);
   animation: sm-fade 0.2s ease;
 }
@@ -24,7 +24,7 @@
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 25px 50px rgba(var(--shadow-color-rgb), 0.25);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -40,8 +40,8 @@
   flex-shrink: 0;
 
   h2 {
-    font-size: 0.9375rem;
-    font-weight: 700;
+    font-size: var(--text-base);
+    font-weight: var(--font-bold);
     color: var(--text-primary);
     text-transform: uppercase;
     letter-spacing: 0.025em;
@@ -59,7 +59,7 @@
   border: 1px solid var(--border-color);
   background: var(--bg-card);
   color: var(--text-secondary);
-  font-size: 1.25rem;
+  font-size: var(--text-xl);
   line-height: 1;
   cursor: pointer;
   transition: background-color 0.15s, color 0.15s;
@@ -95,17 +95,17 @@
 }
 
 .sm-nav {
-  padding: 0.75rem;
+  padding: var(--space-3);
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--space-1);
 }
 
 .nav-group {
   display: flex;
   flex-direction: column;
   gap: 0.125rem;
-  padding-bottom: 0.75rem;
+  padding-bottom: var(--space-3);
   border-bottom: 1px solid var(--border-color);
 
   &:last-child {
@@ -114,12 +114,12 @@
   }
 
   .group-title {
-    font-size: 0.6875rem;
+    font-size: var(--text-2xs);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: var(--text-tertiary);
     padding: 0.75rem 0.625rem 0.375rem;
-    font-weight: 600;
+    font-weight: var(--font-semibold);
     margin: 0;
   }
 }
@@ -130,8 +130,8 @@
   align-items: center;
   gap: 0.625rem;
   padding: 0.5rem 0.625rem;
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: var(--text-md);
+  font-weight: var(--font-medium);
   color: var(--text-secondary);
   background: transparent;
   border: none;
@@ -167,7 +167,7 @@
   &.active {
     background: var(--primary-light);
     color: var(--accent-primary);
-    font-weight: 600;
+    font-weight: var(--font-semibold);
 
     lucide-icon {
       color: var(--accent-primary);
@@ -200,7 +200,7 @@
   justify-content: center;
   height: 100%;
   color: var(--text-secondary);
-  font-size: 0.875rem;
+  font-size: var(--text-md);
 }
 
 @keyframes sm-fade {

@@ -9,7 +9,7 @@
     // Las celdas con rowspan necesitan alineación vertical en la parte superior
     td[rowspan] {
         vertical-align: top;
-        padding-top: 1.25rem; // Más padding para la primera fila del asiento
+        padding-top: var(--space-5); // Más padding para la primera fila del asiento
     }
 
     .journal-row {
@@ -22,13 +22,13 @@
 
     // Celda con sangría para las cuentas
     .account-cell {
-        padding-left: 2.5rem;
+        padding-left: var(--space-10);
         color: var(--text-primary);
     }
 
     .amount-cell {
         font-family: 'Source Code Pro', monospace; // Fuente monoespaciada para números
-        font-weight: 600;
+        font-weight: var(--font-semibold);
     }
 
     // Fila separadora entre asientos

@@ -6,7 +6,7 @@
 .switcher-trigger {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
   width: 100%;
   padding: 8px 12px;
   background: transparent;
@@ -46,8 +46,8 @@
   }
 
   .company-initial {
-    font-weight: 700;
-    font-size: 14px;
+    font-weight: var(--font-bold);
+    font-size: var(--text-md);
     text-transform: uppercase;
   }
 }
@@ -59,8 +59,8 @@
   flex-direction: column;
 
   .company-name {
-    font-size: 14px;
-    font-weight: 600;
+    font-size: var(--text-md);
+    font-weight: var(--font-semibold);
     color: var(--text-primary);
     white-space: nowrap;
     overflow: hidden;
@@ -68,7 +68,7 @@
   }
 
   .company-plan {
-    font-size: 11px;
+    font-size: var(--text-2xs);
     color: var(--text-tertiary);
     text-transform: uppercase;
     letter-spacing: 0.02em;
@@ -97,13 +97,13 @@
 }
 
 .dropdown-header {
-  padding: 12px;
+  padding: var(--space-3);
   border-bottom: 1px solid var(--border-color);
 
   .search-container {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--space-2);
     padding: 6px 10px;
     background: var(--bg-primary);
     border: 1px solid var(--border-color);
@@ -113,7 +113,7 @@
     input {
       border: none;
       background: transparent;
-      font-size: 13px;
+      font-size: var(--text-sm);
       color: var(--text-primary);
       width: 100%;
       outline: none;
@@ -126,14 +126,14 @@
 }
 
 .dropdown-body {
-  padding: 8px;
+  padding: var(--space-2);
   max-height: 240px;
   overflow-y: auto;
 
   .section-label {
     padding: 4px 8px 8px;
-    font-size: 11px;
-    font-weight: 600;
+    font-size: var(--text-2xs);
+    font-weight: var(--font-semibold);
     color: var(--text-tertiary);
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -145,7 +145,7 @@
   align-items: center;
   gap: 10px;
   width: 100%;
-  padding: 8px;
+  padding: var(--space-2);
   border: none;
   background: transparent;
   border-radius: var(--radius-md);
@@ -190,8 +190,8 @@
 
   .org-name {
     flex: 1;
-    font-size: 13px;
-    font-weight: 500;
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -203,7 +203,7 @@
 }
 
 .dropdown-footer {
-  padding: 8px;
+  padding: var(--space-2);
   border-top: 1px solid var(--border-color);
   background: var(--bg-primary);
   display: flex;
@@ -216,16 +216,16 @@
   align-items: center;
   gap: 10px;
   width: 100%;
-  padding: 8px;
+  padding: var(--space-2);
   border: none;
   background: transparent;
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: left;
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--text-secondary);
-  font-weight: 500;
+  font-weight: var(--font-medium);
 
   lucide-icon {
     color: var(--text-tertiary);
@@ -242,9 +242,9 @@
 }
 
 .no-results {
-  padding: 12px;
+  padding: var(--space-3);
   text-align: center;
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--text-tertiary);
 }
 

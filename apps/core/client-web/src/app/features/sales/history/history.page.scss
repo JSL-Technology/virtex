@@ -25,11 +25,11 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 2rem;
+    margin-bottom: var(--space-8);
 
     h1 {
-        font-size: 2rem;
-        font-weight: 600;
+        font-size: var(--text-3xl);
+        font-weight: var(--font-semibold);
     }
 
     p {
@@ -39,13 +39,13 @@
 
 .header-actions {
     display: flex;
-    gap: 1rem;
+    gap: var(--space-4);
 
     .primary-button,
     .secondary-button {
         @include mixins.submit-button;
         text-decoration: none;
-        gap: 0.5rem;
+        gap: var(--space-2);
     }
 
     .secondary-button {
@@ -80,8 +80,8 @@
     }
 
     thead th {
-        font-size: 0.8rem;
-        font-weight: 600;
+        font-size: var(--text-sm);
+        font-weight: var(--font-semibold);
         color: var(--text-secondary);
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -101,12 +101,12 @@
     }
 
     td {
-        font-size: 0.9rem;
+        font-size: var(--text-md);
         color: var(--text-secondary);
 
         .table-link {
             color: var(--text-primary);
-            font-weight: 600;
+            font-weight: var(--font-semibold);
             text-decoration: none;
 
             &:hover {
@@ -128,23 +128,23 @@
 .status-badge {
     display: inline-block;
     padding: 4px 10px;
-    font-size: 0.75rem;
-    font-weight: 600;
+    font-size: var(--text-xs);
+    font-weight: var(--font-semibold);
     border-radius: 12px;
 
     &.status-completed {
-        background-color: rgba(74, 222, 128, 0.1);
-        color: #4ade80;
+        background-color: rgba(var(--success-rgb), 0.1);
+        color: var(--success-text);
     }
 
     &.status-pending {
-        background-color: rgba(251, 146, 60, 0.1);
-        color: #fb923c;
+        background-color: rgba(var(--warning-rgb), 0.1);
+        color: var(--warning-text);
     }
 
     &.status-cancelled {
-        background-color: rgba(248, 113, 113, 0.1);
-        color: #f87171;
+        background-color: rgba(var(--error-rgb), 0.1);
+        color: var(--error-text);
     }
 }
 
@@ -153,7 +153,7 @@
     border: none;
     cursor: pointer;
     color: var(--text-tertiary);
-    padding: 4px;
+    padding: var(--space-1);
     border-radius: 50%;
     display: flex;
 
@@ -165,6 +165,6 @@
 
 .empty-state {
     text-align: center;
-    padding: 3rem;
+    padding: var(--space-12);
     color: var(--text-secondary);
 }

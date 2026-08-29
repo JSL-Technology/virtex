@@ -5,7 +5,7 @@
 :host { display: block; }
 
 .settings-page-container {
-  padding: 2rem;
+  padding: var(--space-8);
   max-width: 1100px;
   animation: settings-enter 0.25s ease-out;
 }
@@ -20,15 +20,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-4);
   flex-wrap: wrap;
-  padding-bottom: 1.5rem;
+  padding-bottom: var(--space-6);
   border-bottom: 1px solid var(--border-color);
-  margin-bottom: 1.75rem;
+  margin-bottom: var(--space-7);
 
   h2 {
-    font-size: 1.375rem;
-    font-weight: 700;
+    font-size: var(--text-xl);
+    font-weight: var(--font-bold);
     color: var(--text-primary);
     margin: 0;
   }
@@ -42,7 +42,7 @@
 .branding-grid {
   display: grid;
   grid-template-columns: 360px 1fr;
-  gap: 2rem;
+  gap: var(--space-8);
   align-items: start;
 
   @media (max-width: 900px) {
@@ -53,7 +53,7 @@
 .controls-column {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--space-6);
 }
 
 // ── Form Sections ─────────────────────────────────────────────────
@@ -65,8 +65,8 @@
   overflow: hidden;
 
   .section-title {
-    font-size: 0.8125rem;
-    font-weight: 700;
+    font-size: var(--text-sm);
+    font-weight: var(--font-bold);
     color: var(--text-tertiary);
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -79,13 +79,13 @@
 
 // ── Form Fields inside form-section ───────────────────────────────
 .form-section > *:not(.section-title) {
-  padding: 1.25rem;
+  padding: var(--space-5);
 }
 
 .form-section > .form-field,
 .form-section > .form-row,
 .form-section > app-language-selector {
-  padding: 1.25rem;
+  padding: var(--space-5);
 
   & + .form-field,
   & + .form-row {
@@ -96,11 +96,11 @@
 .form-field {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-2);
 
   label {
-    font-size: 0.8125rem;
-    font-weight: 600;
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
     color: var(--text-secondary);
   }
 }
@@ -108,8 +108,8 @@
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  padding: 1.25rem;
+  gap: var(--space-4);
+  padding: var(--space-5);
 
   .form-field { padding: 0; }
 }
@@ -129,12 +129,12 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 1.5rem;
+  gap: var(--space-2);
+  padding: var(--space-6);
   cursor: pointer;
   min-height: 6rem;
   color: var(--text-tertiary);
-  font-size: 0.875rem;
+  font-size: var(--text-md);
   transition: background-color 0.15s;
 
   &:hover { background-color: var(--bg-hover); }
@@ -154,7 +154,7 @@ input[type="file"] { display: none; }
 // ── Color Input ───────────────────────────────────────────────────
 input[type="color"] {
   height: 2.375rem;
-  padding: 0.25rem;
+  padding: var(--space-1);
   border-radius: var(--radius-md);
   cursor: pointer;
 }
@@ -165,7 +165,7 @@ input[type="range"] {
   padding: 0;
   border: none;
   background: var(--border-color);
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
   accent-color: var(--primary);
   cursor: pointer;
 
@@ -187,8 +187,8 @@ input[type="range"] {
     color: var(--text-secondary);
     border: none;
     cursor: pointer;
-    font-size: 0.8125rem;
-    font-weight: 500;
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
     transition: background-color 0.15s, color 0.15s;
     font-family: inherit;
 
@@ -202,7 +202,7 @@ input[type="range"] {
     &.active {
       background-color: var(--primary);
       color: white;
-      font-weight: 600;
+      font-weight: var(--font-semibold);
     }
   }
 }
@@ -214,10 +214,10 @@ input[type="range"] {
 }
 
 .section-title:not(.form-section .section-title) {
-  font-size: 0.8125rem;
-  font-weight: 700;
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-4);
 }

@@ -1,51 +1,54 @@
-@use '../../../../assets/styles/variables' as *;
+@use '../../../../assets/styles/design-system' as ds;
 
-.theme-toggle-button {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    background-color: transparent;
-    border: 1px solid transparent;
-    border-radius: $border-radius;
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: background-color $transition-duration $transition-easing,
-        color $transition-duration $transition-easing;
+/**
+ * Grupo segmentado de tres opciones.
+ *
+ * El control es un «pozo» hundido con la opción activa elevada sobre él: la
+ * metáfora de un interruptor físico, que se entiende sin leer nada. El tooltip
+ * artificial en `::after` de la versión anterior desaparece — un pseudoelemento
+ * no es alcanzable por lector de pantalla ni por teclado. El texto vive ahora
+ * en `aria-label` y `title`, donde el navegador y las tecnologías de apoyo
+ * saben encontrarlo.
+ */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
 
-    &:hover {
-        background-color: var(--bg-hover);
-        color: var(--text-primary);
-    }
+  padding: 2px;
+  background-color: var(--surface-sunken);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+}
 
-    // Estilo del Tooltip
-    &::after {
-        content: attr(data-tooltip);
-        position: absolute;
-        bottom: 125%;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: var(--bg-layer-1);
-        color: var(--text-primary);
-        padding: 6px 10px;
-        border-radius: $border-radius;
-        font-size: 0.875rem;
-        font-weight: $font-weight-semibold;
-        white-space: nowrap;
-        box-shadow: 0 4px 8px var(--shadow-color);
-        border: 1px solid var(--border-color);
+.theme-toggle__option {
+  display: grid;
+  place-items: center;
 
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.2s ease, visibility 0.2s ease;
-        z-index: 10;
-    }
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
 
-    &:hover::after {
-        opacity: 1;
-        visibility: visible;
-        transition-delay: 0.5s;
-    }
+  background-color: transparent;
+  border: none;
+  border-radius: var(--radius-full);
+  color: var(--content-tertiary);
+  cursor: pointer;
+
+  @include ds.transition(background-color, color, box-shadow);
+  @include ds.focus-ring(1px);
+
+  &:hover:not(.is-active) {
+    color: var(--content-primary);
+    background-color: var(--surface-hover);
+  }
+
+  //  La opción activa se distingue por TRES señales a la vez —superficie,
+  //  color de texto y sombra— y no solo por el color. Así sigue siendo
+  //  distinguible con deficiencia cromática o en contraste forzado.
+  &.is-active {
+    background-color: var(--surface-raised);
+    color: var(--accent-text);
+    box-shadow: var(--shadow-xs);
+  }
 }

@@ -27,20 +27,20 @@
   &::-webkit-scrollbar { width: 4px; }
   &::-webkit-scrollbar-thumb {
     background: var(--border-color);
-    border-radius: 9999px;
+    border-radius: var(--radius-full);
   }
 }
 
 // ── Group ─────────────────────────────────────────────────────────
 .menu-group {
-  margin-bottom: 1.25rem;
+  margin-bottom: var(--space-5);
 
   &:last-child { margin-bottom: 0; }
 }
 
 .group-title {
-  font-size: 0.625rem;
-  font-weight: 700;
+  font-size: var(--text-2xs);
+  font-weight: var(--font-bold);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-tertiary);
@@ -65,8 +65,8 @@
   text-decoration: none;
   color: var(--text-secondary);
   transition: background-color 0.12s ease, color 0.12s ease;
-  font-size: 0.8375rem;
-  font-weight: 500;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
   position: relative;
   background: transparent;
   border: none;
@@ -83,7 +83,7 @@
   &.active {
     background-color: var(--primary-light);
     color: var(--primary);
-    font-weight: 600;
+    font-weight: var(--font-semibold);
 
     .item-icon { color: var(--primary); }
 
@@ -149,8 +149,8 @@
   border-radius: var(--radius-md);
   text-decoration: none;
   color: var(--text-tertiary);
-  font-size: 0.8125rem;
-  font-weight: 400;
+  font-size: var(--text-sm);
+  font-weight: var(--font-regular);
   transition: background-color 0.12s, color 0.12s;
   position: relative;
 
@@ -163,7 +163,7 @@
 
   &.active {
     color: var(--primary);
-    font-weight: 600;
+    font-weight: var(--font-semibold);
 
     .sub-dot { background-color: var(--primary); transform: scale(1.4); }
   }
@@ -172,7 +172,7 @@
 .sub-dot {
   width: 5px;
   height: 5px;
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
   background-color: var(--border-light);
   flex-shrink: 0;
   transition: background-color 0.12s, transform 0.12s;

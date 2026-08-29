@@ -4,6 +4,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HighchartsChartComponent } from 'highcharts-angular';
+import { severityScale } from '../../../../core/utils/chart-theme';
 import * as Highcharts from 'highcharts';
 
 // Se importan los módulos ESM necesarios
@@ -78,13 +79,18 @@ export class ArAgingChart {
     const chartType = (this.widget.chartType || 'bar') as ChartType;
     const themeOptions = this.getThemeOptions();
 
-    const data = [
-      { name: 'Corriente', y: 65000, color: '#4ade80' },
-      { name: '1-30 Días', y: 22000, color: '#fbbf24' },
-      { name: '31-60 Días', y: 15000, color: '#fb923c' },
-      { name: '61-90 Días', y: 8500, color: '#f87171' },
-      { name: '+90 Días', y: 4000, color: '#ef4444' }
-    ];
+    //  La antigüedad de saldos es una escala de SEVERIDAD, no categorías
+    //  sueltas: el orden verde → ámbar → rojo comunica el deterioro de la
+    //  cartera. Se toma de `severityScale()` para que ese mismo gradiente sea
+    //  idéntico en todos los informes de riesgo de la aplicación.
+    const severity = severityScale();
+    const buckets = ['Corriente', '1-30 Días', '31-60 Días', '61-90 Días', '+90 Días'];
+    const amounts = [65000, 22000, 15000, 8500, 4000];
+    const data = buckets.map((name, i) => ({
+      name,
+      y: amounts[i],
+      color: severity[i],
+    }));
 
     const baseOptions: Highcharts.Options = {
       chart: { type: chartType },

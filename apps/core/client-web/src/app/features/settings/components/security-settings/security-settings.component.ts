@@ -12,6 +12,7 @@ import { QRCodeComponent } from 'angularx-qrcode';
 import { FormsModule } from '@angular/forms';
 import { ConfirmationModalComponent } from '../../../../shared/components/confirmation-modal/confirmation-modal.component';
 import { OtpComponent } from '../../../../shared/components/otp/otp.component';
+import { token } from '../../../../core/utils/chart-theme';
 
 type SetupStep = 'INTRO' | 'EMAIL_VERIFY' | 'QR_SETUP' | 'BACKUP_CODES';
 
@@ -312,8 +313,10 @@ export class SecuritySettingsComponent implements OnInit {
 
     L.circleMarker([lat, lng], {
         radius: 8,
-        fillColor: '#F97316',
-        color: '#fff',
+        //  Marcador de mapa: se toma del sistema para que el punto de sesión
+        //  contraste con el mapa en ambos temas.
+        fillColor: token('--warning-solid'),
+        color: token('--warning-on-solid'),
         weight: 2,
         opacity: 1,
         fillOpacity: 1

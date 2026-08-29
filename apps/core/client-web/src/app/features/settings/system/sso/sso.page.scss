@@ -1,11 +1,11 @@
 :host { display: block; }
 
 .sso-settings {
-  padding: 2rem;
+  padding: var(--space-8);
   max-width: 960px;
   display: flex;
   flex-direction: column;
-  gap: 1.75rem;
+  gap: var(--space-7);
   animation: page-enter 0.25s ease-out;
 }
 
@@ -16,12 +16,12 @@
 
 // ── Page Header ──────────────────────────────────────────────────
 .sso-head {
-  padding-bottom: 1.5rem;
+  padding-bottom: var(--space-6);
   border-bottom: 1px solid var(--border-color);
 
   h1 {
-    font-size: 1.375rem;
-    font-weight: 700;
+    font-size: var(--text-xl);
+    font-weight: var(--font-bold);
     color: var(--text-primary);
     margin-bottom: 0.375rem;
   }
@@ -31,7 +31,7 @@
 .alert {
   padding: 0.75rem 1rem;
   border-radius: var(--radius-md);
-  font-size: 0.875rem;
+  font-size: var(--text-md);
   line-height: 1.5;
   border: 1px solid transparent;
 }
@@ -45,7 +45,7 @@
 .alert-ok {
   background-color: var(--success-bg);
   color: var(--success);
-  border-color: rgba(63, 185, 80, 0.25);
+  border-color: rgba(var(--success-rgb), 0.25);
 }
 
 // ── Card ─────────────────────────────────────────────────────────
@@ -63,20 +63,20 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 1rem;
+  gap: var(--space-4);
   flex-wrap: wrap;
   padding: 1.125rem 1.5rem;
   border-bottom: 1px solid var(--border-color);
   background-color: var(--bg-primary);
 
   h2 {
-    font-size: 0.9375rem;
-    font-weight: 700;
+    font-size: var(--text-base);
+    font-weight: var(--font-bold);
     color: var(--text-primary);
     margin: 0;
   }
 
-  p.muted { margin-top: 0.25rem; }
+  p.muted { margin-top: var(--space-1); }
 }
 
 // ── Inline Form Row ───────────────────────────────────────────────
@@ -98,8 +98,8 @@
   th {
     padding: 0.625rem 1.25rem;
     text-align: left;
-    font-size: 0.75rem;
-    font-weight: 700;
+    font-size: var(--text-xs);
+    font-weight: var(--font-bold);
     color: var(--text-tertiary);
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -111,7 +111,7 @@
   td {
     padding: 0.875rem 1.25rem;
     border-bottom: 1px solid var(--border-color);
-    font-size: 0.875rem;
+    font-size: var(--text-md);
     color: var(--text-secondary);
     vertical-align: middle;
   }
@@ -130,29 +130,29 @@
   margin: 0 1.5rem 1.5rem;
   border: 1px dashed var(--border-color);
   border-radius: var(--radius-md);
-  padding: 1.25rem;
+  padding: var(--space-5);
   background-color: var(--bg-primary);
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
+  gap: var(--space-4);
 
   label {
     display: flex;
     flex-direction: column;
     gap: 0.375rem;
-    font-size: 0.8125rem;
-    font-weight: 600;
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
     color: var(--text-secondary);
 
     .muted {
-      font-size: 0.75rem;
-      font-weight: 400;
+      font-size: var(--text-xs);
+      font-weight: var(--font-regular);
     }
   }
 
@@ -164,7 +164,7 @@
 .form-actions {
   display: flex;
   gap: 0.625rem;
-  padding-top: 0.5rem;
+  padding-top: var(--space-2);
   border-top: 1px solid var(--border-color);
 }
 
@@ -173,7 +173,7 @@
   width: 100%;
   height: 2.375rem;
   padding: 0 0.75rem;
-  font-size: 0.875rem;
+  font-size: var(--text-md);
   font-family: inherit;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
@@ -204,8 +204,8 @@
   border: 1px solid var(--border-color);
   background-color: var(--bg-card);
   color: var(--text-primary);
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: var(--text-md);
+  font-weight: var(--font-medium);
   cursor: pointer;
   transition: var(--transition);
   white-space: nowrap;
@@ -227,7 +227,7 @@
   &.btn-sm {
     height: 1.875rem;
     padding: 0 0.75rem;
-    font-size: 0.8125rem;
+    font-size: var(--text-sm);
   }
 
   &.btn-danger {
@@ -245,8 +245,8 @@
   border: none;
   color: var(--primary);
   cursor: pointer;
-  font-size: 0.8125rem;
-  font-weight: 500;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
   padding: 0;
   transition: color 0.15s;
 
@@ -266,9 +266,9 @@
   display: inline-flex;
   align-items: center;
   padding: 0.1875rem 0.625rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
   white-space: nowrap;
 
   &.badge-ok {
@@ -277,8 +277,8 @@
   }
 
   &.badge-pending {
-    background-color: rgba(217, 119, 6, 0.12);
-    color: #d97706;
+    background-color: rgba(var(--warning-rgb), 0.12);
+    color: var(--warning-text);
   }
 }
 
@@ -286,19 +286,19 @@
 .dns {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  font-size: 0.8rem;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
 }
 
 .dns-k {
   color: var(--text-tertiary);
-  margin-right: 0.25rem;
-  font-weight: 600;
+  margin-right: var(--space-1);
+  font-weight: var(--font-semibold);
 }
 
 .dns-val {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-2);
   align-items: center;
   flex-wrap: wrap;
 }
@@ -309,20 +309,20 @@
   font-size: 0.85em;
 }
 
-.small { font-size: 0.78rem; word-break: break-all; }
+.small { font-size: var(--text-xs); word-break: break-all; }
 
 // ── Typography ────────────────────────────────────────────────────
 .muted {
   color: var(--text-secondary);
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   line-height: 1.5;
 
-  &.warn { color: #b45309; }
+  &.warn { color: var(--warning-text); }
 }
 
 // ── Empty ─────────────────────────────────────────────────────────
 ng-template + * p.muted,
 p.muted:only-child {
-  padding: 1.5rem;
+  padding: var(--space-6);
   text-align: center;
 }

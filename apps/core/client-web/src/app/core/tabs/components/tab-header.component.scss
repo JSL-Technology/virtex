@@ -8,11 +8,11 @@
 .tab-header {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
   width: 100%;
   height: 100%;
   padding: 0 0.5rem 0 0.875rem;
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
   color: var(--text-secondary);
   cursor: pointer;
   user-select: none;
@@ -32,13 +32,13 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-weight: 500;
+  font-weight: var(--font-medium);
   letter-spacing: -0.005em;
 }
 
 /* Énfasis de la pestaña activa: título más marcado e icono con acento. */
 :host-context(.dv-active-tab) {
-  .tab-title { color: var(--text-primary); font-weight: 600; }
+  .tab-title { color: var(--text-primary); font-weight: var(--font-semibold); }
   .tab-icon { color: var(--accent-primary); }
 }
 
@@ -50,12 +50,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.65rem;
-  font-weight: 700;
+  font-size: var(--text-2xs);
+  font-weight: var(--font-bold);
   line-height: 1;
-  color: #fff;
+  color: var(--content-inverse);
   background: var(--accent-primary);
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
 }
 
 .tab-dirty-dot {

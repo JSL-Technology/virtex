@@ -8,11 +8,11 @@
 // Page Shell
 // ──────────────────────────────────────────────
 .page-shell {
-    padding: 2rem;
+    padding: var(--space-8);
     max-width: 900px;
     animation: page-enter 0.25s ease-out;
 
-    > * + * { margin-top: 1.5rem; }
+    > * + * { margin-top: var(--space-6); }
 }
 
 @keyframes page-enter {
@@ -27,22 +27,22 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 1rem;
+    gap: var(--space-4);
     flex-wrap: wrap;
-    padding-bottom: 1.5rem;
+    padding-bottom: var(--space-6);
     border-bottom: 1px solid var(--border-color);
 
     &__text { flex: 1; }
 
     &__title {
-        font-size: 1.5rem;
-        font-weight: 700;
+        font-size: var(--text-2xl);
+        font-weight: var(--font-bold);
         color: var(--text-primary);
-        margin-bottom: 0.25rem;
+        margin-bottom: var(--space-1);
     }
 
     &__subtitle {
-        font-size: 0.9rem;
+        font-size: var(--text-md);
         color: var(--text-secondary);
     }
 }
@@ -54,12 +54,12 @@
     color: white;
     border: none;
     border-radius: var(--radius-md);
-    font-size: 0.875rem;
-    font-weight: 600;
+    font-size: var(--text-md);
+    font-weight: var(--font-semibold);
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--space-2);
     flex-shrink: 0;
     transition: var(--transition);
 
@@ -88,19 +88,19 @@
     }
 
     &__title {
-        font-size: 0.9375rem;
-        font-weight: 700;
+        font-size: var(--text-base);
+        font-weight: var(--font-bold);
         color: var(--text-primary);
         margin-bottom: 0.125rem;
     }
 
     &__subtitle {
-        font-size: 0.8125rem;
+        font-size: var(--text-sm);
         color: var(--text-tertiary);
     }
 
     &__body {
-        padding: 1.5rem;
+        padding: var(--space-6);
     }
 }
 
@@ -110,7 +110,7 @@
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.25rem;
+    gap: var(--space-5);
 
     @media (max-width: 640px) {
         grid-template-columns: 1fr;
@@ -128,8 +128,8 @@
 }
 
 .form-label {
-    font-size: 0.8125rem;
-    font-weight: 600;
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
     color: var(--text-secondary);
 
     .required {
@@ -139,7 +139,7 @@
 }
 
 .field-error {
-    font-size: 0.75rem;
+    font-size: var(--text-xs);
     color: var(--error);
     margin: 0;
 }
@@ -151,21 +151,21 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 1rem;
+    gap: var(--space-4);
     flex-wrap: wrap;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1.5rem;
+    margin-bottom: var(--space-6);
+    padding-bottom: var(--space-6);
     border-bottom: 1px solid var(--border-color);
 
     h2, .page-title {
-        font-size: 1.5rem;
-        font-weight: 700;
+        font-size: var(--text-2xl);
+        font-weight: var(--font-bold);
         color: var(--text-primary);
-        margin-bottom: 0.25rem;
+        margin-bottom: var(--space-1);
     }
 
     .page-subtitle {
-        font-size: 0.9rem;
+        font-size: var(--text-md);
         color: var(--text-secondary);
     }
 }
@@ -174,19 +174,19 @@
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
-    padding: 1.5rem;
+    padding: var(--space-6);
     max-width: 900px;
 }
 
 .form-section {
-    margin-bottom: 1.75rem;
+    margin-bottom: var(--space-7);
 
     .section-title {
-        font-size: 0.9375rem;
-        font-weight: 700;
+        font-size: var(--text-base);
+        font-weight: var(--font-bold);
         color: var(--text-primary);
-        margin-bottom: 1.25rem;
-        padding-bottom: 0.75rem;
+        margin-bottom: var(--space-5);
+        padding-bottom: var(--space-3);
         border-bottom: 1px solid var(--border-color);
     }
 }
@@ -198,7 +198,7 @@
 }
 
 .settings-page-container {
-    padding: 2rem;
+    padding: var(--space-8);
 }
 
 .primary-button {
@@ -208,12 +208,12 @@
     color: white;
     border: none;
     border-radius: var(--radius-md);
-    font-size: 0.875rem;
-    font-weight: 600;
+    font-size: var(--text-md);
+    font-weight: var(--font-semibold);
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--space-2);
     transition: var(--transition);
 
     &:hover:not(:disabled) {
@@ -225,6 +225,6 @@
 }
 
 .error-message {
-    font-size: 0.75rem;
+    font-size: var(--text-xs);
     color: var(--error);
 }

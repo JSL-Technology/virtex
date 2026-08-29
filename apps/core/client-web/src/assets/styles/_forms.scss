@@ -1,179 +1,166 @@
-@use 'variables' as *;
+// =============================================================================
+//  COMPATIBILIDAD — mixins de formulario heredados
+// =============================================================================
+//  25 hojas de componente consumen estos mixins. Se conservan sus nombres y sus
+//  firmas; sus cuerpos se reimplementan sobre el sistema de diseño.
+//
+//  Correcciones que esto propaga a los 25 archivos sin tocarlos:
+//    · `#e53e3e` fijo en los estados de error (un rojo que no pertenecía a
+//      ninguna de las dos paletas y que en tema oscuro quedaba por debajo del
+//      contraste mínimo) → `--error-*`.
+//    · `var(--accent-text)` en `submit-button` significaba «texto SOBRE el
+//      acento», pero solo existía si BrandingService había corrido; en carga
+//      inicial el botón salía con texto sin color → `--accent-on-solid`.
+//    · `var(--bg-disabled)` y `var(--text-disabled)` no estaban definidos en
+//      ninguna parte: los botones deshabilitados no se distinguían de los
+//      activos → tokens reales.
+//
+//  ARCHIVO EN RETIRADA. Los componentes nuevos usan `ds.input-base`,
+//  `ds.button-primary`, etc.
+// =============================================================================
+
+@use 'design-system' as ds;
 
 @mixin auth-card {
-    background: var(--bg-layer-1);
-    padding: 2rem 2.5rem;
-    border-radius: $border-radius;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 4px 12px var(--shadow-color);
-    width: 100%;
+  width: 100%;
+  padding: var(--space-8);
+  @include ds.surface-card;
+  box-shadow: var(--shadow-md);
 }
 
 @mixin auth-header {
-    text-align: center;
-    margin-bottom: 2rem;
+  text-align: center;
+  margin-bottom: var(--space-8);
 
-    .auth-title {
-        font-size: 1.75rem;
-        font-weight: $font-weight-semibold;
-        color: var(--text-primary);
-        margin-bottom: 0.5rem;
-    }
+  .auth-title {
+    @include ds.heading('2xl');
+    margin-bottom: var(--space-2);
+  }
 
-    .auth-subtitle {
-        font-size: 1rem;
-        color: var(--text-secondary);
-    }
+  .auth-subtitle {
+    font-size: var(--text-base);
+    color: var(--content-secondary);
+  }
 }
 
 @mixin form-field {
-    label {
-        display: block;
-        font-size: 0.875rem;
-        font-weight: $font-weight-semibold;
-        color: var(--text-secondary);
-        margin-bottom: 0.5rem;
-    }
+  label {
+    @include ds.field-label;
+  }
+}
+
+@mixin form-label {
+  @include ds.field-label;
 }
 
 @mixin input-wrapper {
-    position: relative;
+  position: relative;
 
-    .input-icon {
-        position: absolute;
-        left: 14px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--text-tertiary);
-        pointer-events: none;
-    }
+  .input-icon {
+    position: absolute;
+    left: var(--space-3);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--content-tertiary);
+    pointer-events: none;
+    z-index: 1;
+  }
 
-    input,
-    select {
-        width: 100%;
-        padding: 12px 14px 12px 40px;
-        font-family: $font-family;
-        font-size: $font-size-base;
-        color: var(--text-primary);
-        background-color: var(--bg-layer-2);
-        border: 1px solid var(--border-color);
-        border-radius: $border-radius;
-        transition: border-color $transition-duration $transition-easing, box-shadow $transition-duration $transition-easing;
+  //  El relleno izquierdo solo se amplía cuando existe realmente un icono; de
+  //  lo contrario todo campo de la aplicación arrastraba una sangría fantasma.
+  &:has(.input-icon) input,
+  &:has(.input-icon) select {
+    padding-left: var(--space-10);
+  }
 
-        &:focus {
-            outline: none;
-            border-color: var(--border-focus);
-            box-shadow: var(--focus-shadow);
-        }
+  input,
+  select {
+    @include ds.input-base;
+  }
 
-        &.is-invalid {
-            border-color: #e53e3e;
-
-            &:focus {
-                box-shadow: 0 0 0 2px rgba(229, 62, 62, 0.3);
-            }
-        }
-    }
+  .is-invalid {
+    border-color: var(--error-solid);
+  }
 }
 
 @mixin error-message {
-    font-size: 0.8rem;
-    color: #e53e3e;
-    padding-top: 0.25rem;
+  @include ds.field-error;
 }
 
 @mixin global-error {
-    background-color: rgba(229, 62, 62, 0.1);
-    border: 1px solid rgba(229, 62, 62, 0.2);
-    border-radius: $border-radius;
-    padding: 0.75rem;
-    text-align: center;
-    margin-top: -0.25rem;
-    margin-bottom: 0.75rem;
+  padding: var(--space-3);
+  margin-bottom: var(--space-3);
+
+  font-size: var(--text-md);
+  text-align: center;
+
+  background-color: var(--error-surface);
+  border: 1px solid var(--error-border);
+  border-radius: var(--radius-md);
+  color: var(--error-text);
 }
 
 @mixin submit-button {
-    padding: 12px 24px;
-    font-family: $font-family;
-    font-size: $font-size-base;
-    font-weight: $font-weight-semibold;
-    border-radius: $border-radius;
-    border: none;
-    cursor: pointer;
-    transition: background-color $transition-duration $transition-easing, transform $transition-duration $transition-easing;
-    background-color: var(--accent-primary);
-    color: var(--accent-text);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-
-    &:hover:not(:disabled) {
-        background-color: var(--accent-primary-hover);
-        transform: translateY(-1px);
-    }
-
-    &:disabled {
-        cursor: not-allowed;
-        background-color: var(--bg-disabled);
-        color: var(--text-disabled);
-        transform: none;
-    }
+  @include ds.button-primary('lg');
+  width: 100%;
 }
 
 @mixin auth-footer {
-    text-align: center;
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border-color);
-    font-size: 0.875rem;
+  margin-top: var(--space-6);
+  padding-top: var(--space-6);
 
-    .footer-link {
-        color: var(--accent-primary);
-        text-decoration: none;
-        font-weight: $font-weight-semibold;
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+  border-top: 1px solid var(--border-subtle);
 
-        &:hover {
-            text-decoration: underline;
-        }
-    }
+  .footer-link {
+    @include ds.button-link;
+    font-weight: var(--font-semibold);
+  }
 }
 
-// ✅ MIXIN AÑADIDO
 @mixin link {
-    color: var(--accent-primary);
-    text-decoration: none;
-    font-weight: 600;
-
-    &:hover {
-        text-decoration: underline;
-    }
+  @include ds.button-link;
+  font-weight: var(--font-semibold);
 }
 
 @mixin icon-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--text-tertiary);
-    padding: 4px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  @include ds.button-icon('sm');
+  border-radius: var(--radius-full);
+}
 
-    &:hover {
-        background-color: var(--bg-hover);
-        color: var(--text-primary);
-    }
+@mixin icon-btn {
+  @include ds.button-icon('sm');
+}
+
+@mixin text-button {
+  @include ds.button-link;
 }
 
 @mixin checkbox-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
 
-  input[type="checkbox"] {
+  input[type='checkbox'] {
     width: 1rem;
     height: 1rem;
+    accent-color: var(--accent-solid);
+  }
+}
+
+@mixin spinner {
+  width: 1rem;
+  height: 1rem;
+
+  border: 2px solid currentColor;
+  border-top-color: transparent;   // El hueco es lo que hace visible el giro
+  border-radius: var(--radius-full);
+
+  animation: vx-spin 0.6s linear infinite;
+
+  @include ds.bp-reduced-motion {
+    animation-duration: 1.5s;
   }
 }

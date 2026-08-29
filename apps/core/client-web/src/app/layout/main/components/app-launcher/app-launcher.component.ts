@@ -148,12 +148,12 @@ export class AppLauncherComponent {
   protected readonly GridIcon = Grid2X2;
 
   apps: VirtexApp[] = [
-    { id: 'pos', nameKey: 'APPS.POS', icon: ShoppingCart, color: '#3b82f6', url: 'https://pos.virteex.com' },
-    { id: 'shopfloor', nameKey: 'APPS.SHOPFLOOR', icon: HardHat, color: '#f59e0b', url: 'https://shopfloor.virteex.com' },
-    { id: 'store', nameKey: 'APPS.STORE', icon: Store, color: '#10b981', url: 'https://store.virteex.com' },
-    { id: 'wms', nameKey: 'APPS.WMS', icon: Box, color: '#8b5cf6', url: 'https://wms.virteex.com' },
-    { id: 'lunch', nameKey: 'APPS.LUNCH', icon: Utensils, color: '#ef4444', url: 'https://lunch.virteex.com' },
-    { id: 'hr', nameKey: 'APPS.HR', icon: UserCircle, color: '#ec4899', url: 'https://hr.virteex.com' },
+    { id: 'pos', nameKey: 'APPS.POS', icon: ShoppingCart, color: 'var(--viz-1)', url: 'https://pos.virteex.com' },
+    { id: 'shopfloor', nameKey: 'APPS.SHOPFLOOR', icon: HardHat, color: 'var(--viz-4)', url: 'https://shopfloor.virteex.com' },
+    { id: 'store', nameKey: 'APPS.STORE', icon: Store, color: 'var(--viz-7)', url: 'https://store.virteex.com' },
+    { id: 'wms', nameKey: 'APPS.WMS', icon: Box, color: 'var(--viz-3)', url: 'https://wms.virteex.com' },
+    { id: 'lunch', nameKey: 'APPS.LUNCH', icon: Utensils, color: 'var(--viz-8)', url: 'https://lunch.virteex.com' },
+    { id: 'hr', nameKey: 'APPS.HR', icon: UserCircle, color: 'var(--viz-5)', url: 'https://hr.virteex.com' },
     { id: 'crm', nameKey: 'APPS.CRM', icon: Users, color: '#06b6d4', url: 'https://crm.virteex.com' },
   ];
 

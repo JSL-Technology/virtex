@@ -1,20 +1,20 @@
 @use '../../../../assets/styles/variables' as *;
 
 .page-container {
-    padding: 2rem;
+    padding: var(--space-8);
 }
 
 .page-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1.5rem;
+    margin-bottom: var(--space-6);
+    padding-bottom: var(--space-6);
     border-bottom: 1px solid var(--border-color);
 
     h1 {
-        font-size: 1.5rem;
-        font-weight: 700;
+        font-size: var(--text-2xl);
+        font-weight: var(--font-bold);
         color: var(--text-primary);
     }
 }
@@ -26,13 +26,13 @@
     color: white;
     border: none;
     border-radius: var(--radius-md);
-    font-size: 0.875rem;
-    font-weight: 600;
+    font-size: var(--text-md);
+    font-weight: var(--font-semibold);
     cursor: pointer;
     transition: var(--transition);
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--space-2);
 
     &:hover:not(:disabled) {
         background: var(--primary-hover);
@@ -49,13 +49,13 @@
     color: var(--text-primary);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
-    font-size: 0.875rem;
-    font-weight: 500;
+    font-size: var(--text-md);
+    font-weight: var(--font-medium);
     cursor: pointer;
     transition: var(--transition);
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--space-2);
 
     &:hover { background: var(--bg-hover); }
 }
@@ -82,8 +82,8 @@ table {
     }
 
     th {
-        font-size: 0.75rem;
-        font-weight: 600;
+        font-size: var(--text-xs);
+        font-weight: var(--font-semibold);
         color: var(--text-tertiary);
         text-transform: uppercase;
         letter-spacing: 0.05em;
@@ -91,7 +91,7 @@ table {
     }
 
     td {
-        font-size: 0.875rem;
+        font-size: var(--text-md);
         color: var(--text-secondary);
     }
 
@@ -108,9 +108,9 @@ table {
     display: inline-flex;
     align-items: center;
     padding: 0.1875rem 0.625rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 600;
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+    font-weight: var(--font-semibold);
     background-color: var(--bg-tertiary);
     color: var(--text-secondary);
     border: 1px solid var(--border-color);
@@ -126,7 +126,7 @@ table {
     width: 1%;
     white-space: nowrap;
     display: flex;
-    gap: 0.25rem;
+    gap: var(--space-1);
 }
 
 .icon-button {
@@ -165,13 +165,13 @@ table {
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(var(--shadow-color-rgb), 0.5);
     backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    padding: 1rem;
+    padding: var(--space-4);
     animation: modal-fade 0.2s ease;
 }
 
@@ -196,8 +196,8 @@ table {
     align-items: center;
 
     h2 {
-        font-size: 1.0625rem;
-        font-weight: 600;
+        font-size: var(--text-lg);
+        font-weight: var(--font-semibold);
         color: var(--text-primary);
     }
 }
@@ -205,15 +205,15 @@ table {
 .modal-body {
     overflow-y: auto;
     flex-grow: 1;
-    padding: 1.5rem;
+    padding: var(--space-6);
 
     .form-field {
-        margin-bottom: 1rem;
+        margin-bottom: var(--space-4);
 
         label {
             display: block;
-            font-size: 0.8125rem;
-            font-weight: 600;
+            font-size: var(--text-sm);
+            font-weight: var(--font-semibold);
             color: var(--text-secondary);
             margin-bottom: 0.375rem;
         }
@@ -225,7 +225,7 @@ table {
             border: 1px solid var(--border-color);
             background-color: var(--bg-primary);
             color: var(--text-primary);
-            font-size: 0.875rem;
+            font-size: var(--text-md);
             transition: var(--transition);
 
             &:focus {
@@ -243,7 +243,7 @@ table {
     border-top: 1px solid var(--border-color);
     display: flex;
     justify-content: flex-end;
-    gap: 0.75rem;
+    gap: var(--space-3);
     background-color: var(--bg-primary);
 }
 
@@ -251,27 +251,27 @@ table {
 // Permissions Grid
 // ──────────────────────────────────────────────
 .permissions-grid {
-    margin-top: 1.5rem;
+    margin-top: var(--space-6);
     border-top: 1px solid var(--border-color);
-    padding-top: 1.5rem;
+    padding-top: var(--space-6);
 
     h3 {
-        font-size: 0.9375rem;
-        font-weight: 600;
+        font-size: var(--text-base);
+        font-weight: var(--font-semibold);
         color: var(--text-primary);
-        margin-bottom: 1.25rem;
+        margin-bottom: var(--space-5);
     }
 
     .permission-group {
-        margin-bottom: 1.5rem;
+        margin-bottom: var(--space-6);
         background-color: var(--bg-primary);
         border: 1px solid var(--border-color);
         border-radius: var(--radius-md);
         overflow: hidden;
 
         h4 {
-            font-size: 0.8125rem;
-            font-weight: 700;
+            font-size: var(--text-sm);
+            font-weight: var(--font-bold);
             color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.05em;
@@ -302,7 +302,7 @@ table {
             }
 
             label {
-                font-size: 0.875rem;
+                font-size: var(--text-md);
                 color: var(--text-secondary);
                 cursor: pointer;
                 user-select: none;

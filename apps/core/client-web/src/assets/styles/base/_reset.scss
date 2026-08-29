@@ -1,0 +1,87 @@
+// =============================================================================
+//  VIRTEX — REINICIO
+// =============================================================================
+//  Reinicio moderno y con criterio. El anterior era `* { margin:0; padding:0;
+//  box-sizing:border-box }`, que además de ser lento (el selector universal con
+//  herencia de caja obliga a recalcular todo) borra el margen de los elementos
+//  de texto sin dar nada a cambio, dejando la tipografía sin ritmo vertical.
+// =============================================================================
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+//  Los márgenes se retiran de forma selectiva: solo de los elementos donde el
+//  margen por defecto del navegador estorba a la maquetación.
+body,
+h1, h2, h3, h4, h5, h6,
+p, figure, blockquote, dl, dd,
+fieldset, legend {
+  margin: 0;
+}
+
+//  Solo se quita la viñeta a las listas marcadas explícitamente como
+//  navegación o interfaz. Una lista dentro de contenido real conserva sus
+//  viñetas — quitarlas a todas destruye la semántica visual de la prosa.
+ul[role='list'],
+ol[role='list'],
+.list-unstyled {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  //  Se acepta `scroll-behavior: smooth` solo si el usuario no ha pedido menos
+  //  movimiento; para quien sufre trastornos vestibulares el desplazamiento
+  //  animado puede provocar náuseas.
+  @media (prefers-reduced-motion: no-preference) {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;   // Evita el salto por la barra de URL en móvil
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+//  Los medios son de bloque y nunca desbordan su contenedor. Es la causa más
+//  frecuente de scroll horizontal accidental.
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
+
+//  Los controles de formulario no heredan la tipografía por defecto: hay que
+//  pedirlo explícitamente o aparecen en la fuente del sistema.
+input, button, textarea, select {
+  font: inherit;
+  color: inherit;
+}
+
+//  Impide que un texto largo sin espacios (un IBAN, un identificador) rompa la
+//  maquetación empujando el contenedor.
+p, h1, h2, h3, h4, h5, h6, li, td, th, dd {
+  overflow-wrap: break-word;
+}
+
+//  El redimensionado horizontal de un textarea rompe cualquier rejilla.
+textarea {
+  resize: vertical;
+}
+
+//  Un `hidden` debe ganar siempre: si algo está oculto, está oculto.
+[hidden] {
+  display: none !important;
+}
+
+//  Ancla los objetivos de scroll por debajo de la cabecera fija; sin esto el
+//  destino de un enlace interno queda tapado por la barra superior.
+:target {
+  scroll-margin-block-start: calc(var(--header-height) + var(--space-4));
+}

@@ -16,7 +16,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 1rem 1.5rem;
-    gap: 1rem;
+    gap: var(--space-4);
 
     &:not(:last-child) {
         border-bottom: 1px solid var(--border-color);
@@ -25,27 +25,27 @@
 
 .item-main {
     .item-title {
-        font-size: 1rem;
-        font-weight: 600;
+        font-size: var(--text-base);
+        font-weight: var(--font-semibold);
     }
 
     .item-subtitle {
-        font-size: 0.85rem;
+        font-size: var(--text-md);
         color: var(--text-secondary);
-        margin-top: 0.25rem;
+        margin-top: var(--space-1);
     }
 }
 
 .item-meta {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: var(--space-6);
     flex-shrink: 0;
 }
 
 .item-amount {
-    font-size: 1.1rem;
-    font-weight: 600;
+    font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
     color: var(--text-primary);
     min-width: 120px;
     text-align: right;
@@ -53,29 +53,29 @@
 
 .item-actions {
     display: flex;
-    gap: 0.75rem;
+    gap: var(--space-3);
 }
 
 .action-button {
     @include mixins.submit-button;
     padding: 0.5rem 1rem;
-    font-size: 0.875rem;
+    font-size: var(--text-md);
 
     &.reject {
         background-color: var(--bg-layer-1);
-        color: #ef4444;
-        border: 1px solid #ef4444;
+        color: var(--error-text);
+        border: 1px solid var(--error-border);
 
         &:hover {
-            background-color: rgba(239, 68, 68, 0.1);
+            background-color: rgba(var(--error-rgb), 0.1);
         }
     }
 
     &.approve {
-        background-color: #10b981;
+        background-color: var(--success-solid);
 
         &:hover {
-            background-color: #059669;
+            background-color: var(--success-solid);
         }
     }
 }

@@ -8,7 +8,10 @@
     "typeorm": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=apps/backend/api/tsconfig.app.json typeorm-ts-node-commonjs -d apps/backend/api/src/app/database/data-source.ts",
     "migration:run": "npm run typeorm -- migration:run",
     "migration:revert": "npm run typeorm -- migration:revert",
-    "migration:show": "npm run typeorm -- migration:show"
+    "migration:show": "npm run typeorm -- migration:show",
+    "lint:tokens": "node tools/lint-tokens.mjs",
+    "lint:contrast": "node tools/verify-contrast.mjs",
+    "lint:design-system": "npm run lint:tokens && npm run lint:contrast"
   },
   "private": true,
   "devDependencies": {
