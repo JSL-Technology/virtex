@@ -80,26 +80,28 @@ export class DepreciationService {
         const usefulLifeInMonths = asset.usefulLife;
 
         switch (asset.depreciationMethod) {
-          case 'SUM_OF_YEARS_DIGITS':
-            const n = usefulLifeInMonths / 12;
-            const sumOfDigits = (n * (n + 1)) / 2;
-            const currentYear = Math.floor(ageInMonths / 12) + 1;
-            if (currentYear <= n) {
-              const yearlyDepreciation = (depreciableValue * (n - currentYear + 1)) / sumOfDigits;
-              monthlyDepreciation = yearlyDepreciation / 12;
-            }
-            break;
+          case 'SUM_OF_YEARS_DIGITS': {
+              const n = usefulLifeInMonths / 12;
+              const sumOfDigits = (n * (n + 1)) / 2;
+              const currentYear = Math.floor(ageInMonths / 12) + 1;
+              if (currentYear <= n) {
+                const yearlyDepreciation = (depreciableValue * (n - currentYear + 1)) / sumOfDigits;
+                monthlyDepreciation = yearlyDepreciation / 12;
+              }
+              break;
+          }
 
-          case 'DOUBLE_DECLINING_BALANCE':
-            const bookValue = asset.cost - asset.accumulatedDepreciation;
-            const straightLineRate = 1 / usefulLifeInMonths;
-            const doubleDecliningRate = straightLineRate * 2;
-            monthlyDepreciation = bookValue * doubleDecliningRate;
+          case 'DOUBLE_DECLINING_BALANCE': {
+              const bookValue = asset.cost - asset.accumulatedDepreciation;
+              const straightLineRate = 1 / usefulLifeInMonths;
+              const doubleDecliningRate = straightLineRate * 2;
+              monthlyDepreciation = bookValue * doubleDecliningRate;
             
-            if (asset.cost - (asset.accumulatedDepreciation + monthlyDepreciation) < asset.residualValue) {
-              monthlyDepreciation = (asset.cost - asset.accumulatedDepreciation) - asset.residualValue;
-            }
-            break;
+              if (asset.cost - (asset.accumulatedDepreciation + monthlyDepreciation) < asset.residualValue) {
+                monthlyDepreciation = (asset.cost - asset.accumulatedDepreciation) - asset.residualValue;
+              }
+              break;
+          }
           
           case 'STRAIGHT_LINE':
           default:

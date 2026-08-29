@@ -3,7 +3,8 @@ import { CallHandler, ExecutionContext, Injectable, NestInterceptor, BadRequestE
 import { Observable } from 'rxjs';
 import { FastifyRequest } from 'fastify';
 import { pipeline } from 'stream/promises';
-import { createWriteStream, writeFile } from 'fs/promises';
+import { createWriteStream } from 'fs';
+import { writeFile } from 'fs/promises';
 import { join, extname } from 'path';
 import { tmpdir } from 'os';
 import { randomBytes } from 'crypto';
@@ -101,7 +102,7 @@ export function FastifyFileInterceptor(fieldName: string, options: Omit<FastifyF
         delete body[fieldName];
 
       } catch (err) {
-        throw new BadRequestException('File upload failed: ' + err.message);
+        throw new BadRequestException('File upload failed: ' + (err as Error).message);
       }
 
       return next.handle();

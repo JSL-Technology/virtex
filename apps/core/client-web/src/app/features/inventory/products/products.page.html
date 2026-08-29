@@ -5,7 +5,7 @@
       <p>Gestiona todos los productos y servicios de tu empresa.</p>
     </div>
     <div class="header-actions">
-      <a routerLink="/inventory/products/new" class="primary-button" *hasPermission="'products:create'">
+      <a routerLink="/inventory/products/new" class="primary-button" *appHasPermission="'products:create'">
         <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
         <span>Nuevo Producto</span>
       </a>
@@ -61,8 +61,8 @@
                     <lucide-icon [img]="MoreHorizontalIcon" size="18"></lucide-icon>
                   </button>
                   <div class="dropdown-menu">
-                    <a (click)="navigateToEdit(product.id)" *hasPermission="'products:edit'">Editar</a>
-                    <a (click)="deleteProduct(product)" class="danger" *hasPermission="'products:delete'">Eliminar</a>
+                    <button type="button" (click)="navigateToEdit(product.id)" *appHasPermission="'products:edit'">Editar</button>
+                    <button type="button" (click)="deleteProduct(product)" class="danger" *appHasPermission="'products:delete'">Eliminar</button>
                   </div>
                 </div>
               </td>

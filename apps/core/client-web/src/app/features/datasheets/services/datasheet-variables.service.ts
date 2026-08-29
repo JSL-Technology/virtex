@@ -29,9 +29,8 @@ export class DatasheetVariablesService {
   private readonly baseUrl = inject(API_URL);
   private apiUrl = `${this.baseUrl}/datasheets`;
 
-  constructor(private http: HttpClient) {}
-
-  getVariables(): Observable<ERPVariable[]> {
+  private http = inject(HttpClient);
+getVariables(): Observable<ERPVariable[]> {
     return this.http.get<ERPVariable[]>(`${this.apiUrl}/variables`).pipe(
       catchError(() => of([]))
     );

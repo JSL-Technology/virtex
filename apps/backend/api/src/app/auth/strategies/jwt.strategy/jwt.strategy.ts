@@ -17,6 +17,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     keyManagementService: KeyManagementService,
     private readonly userIdentityService: UserIdentityService,
   ) {
+    // `passport-jwt`'s options overloads are split on whether `passReqToCallback` is set, and the
+    // cookie extractor's `Request | undefined` parameter matches neither branch exactly. The
+    // options object is correct; the cast selects the overload.
     super({
       // H1: cookie-only extraction. `ExtractJwt.fromAuthHeaderAsBearerToken()` was removed —
       // access tokens travel exclusively in httpOnly cookies and are never returned in a response
@@ -66,7 +69,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       algorithms: ['RS256'],
       issuer: 'virteex-api',
       audience: 'virteex-web',
-    });
+    } as unknown as ConstructorParameters<typeof Strategy>[0]);
   }
 
   /**

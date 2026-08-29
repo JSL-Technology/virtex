@@ -8,7 +8,7 @@ export class AccountSegment {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne('Account', account => account.segments, { onDelete: 'CASCADE' })
+  @ManyToOne('Account', (account: Account) => account.segments, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'account_id' })
   account: Account;
 

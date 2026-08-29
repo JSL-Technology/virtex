@@ -95,9 +95,13 @@ import { KeyManagementModule } from './services/key-management.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService): JwtModuleOptions => ({
-        secret: config.get<string>('JWT_SECRET'),
+        secret: config.getOrThrow<string>('JWT_SECRET'),
         signOptions: {
-          expiresIn: config.get<string>('JWT_EXPIRATION_TIME', '1h'),
+          // Cast because `jsonwebtoken` types `expiresIn` as the template-literal `StringValue`
+          // ('1h', '30m', …) rather than plain `string`, and a config value is always a string.
+          // `getOrThrow` is deliberate: a JWT module signing with `undefined` as its secret is a
+          // failure that must stop the boot, not one that surfaces on the first login.
+          expiresIn: config.get<string>('JWT_EXPIRATION_TIME', '1h') as `${number}h`,
         },
       }),
     }),

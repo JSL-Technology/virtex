@@ -16,7 +16,7 @@ export class AnalyticalReportingCron {
     try {
       await this.reportingService.refreshMaterializedView();
     } catch (error) {
-      this.logger.error('Fallo el job de refresco de la vista materializada', error.stack);
+      this.logger.error('Fallo el job de refresco de la vista materializada', (error as Error).stack);
     }
   }
 }

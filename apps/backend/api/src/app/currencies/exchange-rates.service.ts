@@ -7,6 +7,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { ExchangeRate } from './entities/exchange-rate.entity';
 import { Currency } from './entities/currency.entity';
 import { firstValueFrom } from 'rxjs';
+import type { AxiosError } from 'axios';
 
 @Injectable()
 export class ExchangeRatesService {
@@ -80,7 +81,7 @@ export class ExchangeRatesService {
       return { message: 'Tasas de cambio actualizadas exitosamente.', rates_updated: updatedCount };
 
     } catch (error) {
-      this.logger.error('Error al obtener las tasas de cambio de Xe:', error.response?.data || error.message);
+      this.logger.error('Error al obtener las tasas de cambio de Xe:', (error as AxiosError).response?.data ?? (error as Error).message);
       throw new Error('No se pudieron obtener las tasas de cambio.');
     }
   }

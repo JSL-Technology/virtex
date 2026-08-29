@@ -56,20 +56,20 @@
             <thead>
               <tr>
                 <th style="width: 30px"><input type="checkbox" /></th>
-                <th (click)="sortTable('firstName')">
+                <th (click)="sortTable('firstName')" tabindex="0" (keydown.enter)="sortTable('firstName')" (keydown.space)="$event.preventDefault(); sortTable('firstName')">
                   {{ "USERS.TABLE.NAME" | translate }}
                   <lucide-icon [name]="SortIcon" size="14" *ngIf="sortColumn() !== 'firstName'"></lucide-icon>
                   <lucide-icon [name]="SortUpIcon" size="14" *ngIf="sortColumn() === 'firstName' && sortDirection() === 'ASC'"></lucide-icon>
                   <lucide-icon [name]="SortDownIcon" size="14" *ngIf="sortColumn() === 'firstName' && sortDirection() === 'DESC'"></lucide-icon>
                 </th>
-                <th (click)="sortTable('email')">
+                <th (click)="sortTable('email')" tabindex="0" (keydown.enter)="sortTable('email')" (keydown.space)="$event.preventDefault(); sortTable('email')">
                   {{ "USERS.TABLE.EMAIL" | translate }}
                   <lucide-icon [name]="SortIcon" size="14" *ngIf="sortColumn() !== 'email'"></lucide-icon>
                   <lucide-icon [name]="SortUpIcon" size="14" *ngIf="sortColumn() === 'email' && sortDirection() === 'ASC'"></lucide-icon>
                   <lucide-icon [name]="SortDownIcon" size="14" *ngIf="sortColumn() === 'email' && sortDirection() === 'DESC'"></lucide-icon>
                 </th>
                 <th>{{ "USERS.TABLE.ROLE" | translate }}</th>
-                <th (click)="sortTable('status')">
+                <th (click)="sortTable('status')" tabindex="0" (keydown.enter)="sortTable('status')" (keydown.space)="$event.preventDefault(); sortTable('status')">
                   {{ "USERS.TABLE.STATUS" | translate }}
                   <lucide-icon [name]="SortIcon" size="14" *ngIf="sortColumn() !== 'status'"></lucide-icon>
                   <lucide-icon [name]="SortUpIcon" size="14" *ngIf="sortColumn() === 'status' && sortDirection() === 'ASC'"></lucide-icon>
@@ -147,28 +147,28 @@
       <form [formGroup]="userForm">
         <div class="form-row">
           <div class="form-col">
-            <label class="form-label">Nombre</label>
-            <input type="text" class="form-control" placeholder="Nombre" formControlName="firstName" required />
+            <label class="form-label" for="firstname">Nombre</label>
+            <input id="firstname" type="text" class="form-control" placeholder="Nombre" formControlName="firstName" required />
           </div>
           <div class="form-col">
-            <label class="form-label">Apellido</label>
-            <input type="text" class="form-control" placeholder="Apellido" formControlName="lastName" required />
+            <label class="form-label" for="lastname">Apellido</label>
+            <input id="lastname" type="text" class="form-control" placeholder="Apellido" formControlName="lastName" required />
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Correo Electrónico</label>
-          <input type="email" class="form-control" placeholder="usuario@empresa.com" formControlName="email" required />
+          <label class="form-label" for="email">Correo Electrónico</label>
+          <input id="email" type="email" class="form-control" placeholder="usuario@empresa.com" formControlName="email" required />
         </div>
         <div class="form-group">
-          <label class="form-label">Rol</label>
-          <select class="form-control" formControlName="roleId" required>
+          <label class="form-label" for="roleid">Rol</label>
+          <select id="roleid" class="form-control" formControlName="roleId" required>
             <option [ngValue]="null" disabled>Seleccionar rol</option>
             <option *ngFor="let role of roles()" [value]="role.id">{{ role.name }}</option>
           </select>
         </div>
          <div class="form-group" *ngIf="!isEditMode()">
-            <label class="form-label">Mensaje de invitación (opcional)</label>
-            <textarea class="form-control" rows="3" placeholder="Mensaje personalizado para el usuario..." formControlName="invitationMessage"></textarea>
+            <label class="form-label" for="invitationmessage">Mensaje de invitación (opcional)</label>
+            <textarea id="invitationmessage" class="form-control" rows="3" placeholder="Mensaje personalizado para el usuario..." formControlName="invitationMessage"></textarea>
           </div>
       </form>
     </div>
@@ -201,12 +201,12 @@
 
 <!-- Context Menu -->
 <div class="windows-menu" *ngIf="showContextMenu" [style.left.px]="contextMenuPosition.x" [style.top.px]="contextMenuPosition.y">
-  <div class="menu-item" (click)="handleAction('edit', contextMenuUser!)"><lucide-icon [name]="EditIcon" size="16"></lucide-icon> Editar Usuario</div>
-  <div class="menu-item" (click)="handleAction('resetPassword', contextMenuUser!)"><lucide-icon [name]="KeyIcon" size="16"></lucide-icon> Resetear Contraseña</div>
+  <div class="menu-item" (click)="handleAction('edit', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('edit', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('edit', contextMenuUser!)"><lucide-icon [name]="EditIcon" size="16"></lucide-icon> Editar Usuario</div>
+  <div class="menu-item" (click)="handleAction('resetPassword', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('resetPassword', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('resetPassword', contextMenuUser!)"><lucide-icon [name]="KeyIcon" size="16"></lucide-icon> Resetear Contraseña</div>
   <div class="menu-divider"></div>
-  <div class="menu-item" (click)="handleAction('impersonate', contextMenuUser!)" *hasPermission="'users:impersonate'"><lucide-icon [name]="UserCogIcon" size="16"></lucide-icon> Suplantar Usuario</div>
-  <div class="menu-item" (click)="handleAction('force-logout', contextMenuUser!)"><lucide-icon [name]="PowerOff" size="16"></lucide-icon> Forzar Cierre de Sesión</div>
-  <div class="menu-item" (click)="handleAction('block-and-logout', contextMenuUser!)"><lucide-icon [name]="BanIcon" size="16"></lucide-icon> Bloquear y Cerrar Sesión</div>
+  <div class="menu-item" (click)="handleAction('impersonate', contextMenuUser!)" *appHasPermission="'users:impersonate'" tabindex="0" role="button" (keydown.enter)="handleAction('impersonate', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('impersonate', contextMenuUser!)"><lucide-icon [name]="UserCogIcon" size="16"></lucide-icon> Suplantar Usuario</div>
+  <div class="menu-item" (click)="handleAction('force-logout', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('force-logout', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('force-logout', contextMenuUser!)"><lucide-icon [name]="PowerOff" size="16"></lucide-icon> Forzar Cierre de Sesión</div>
+  <div class="menu-item" (click)="handleAction('block-and-logout', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('block-and-logout', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('block-and-logout', contextMenuUser!)"><lucide-icon [name]="BanIcon" size="16"></lucide-icon> Bloquear y Cerrar Sesión</div>
   <div class="menu-divider"></div>
-  <div class="menu-item menu-item-danger" (click)="handleAction('delete', contextMenuUser!)"><lucide-icon [name]="TrashIcon" size="16"></lucide-icon> Eliminar Cuenta</div>
+  <div class="menu-item menu-item-danger" (click)="handleAction('delete', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('delete', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('delete', contextMenuUser!)"><lucide-icon [name]="TrashIcon" size="16"></lucide-icon> Eliminar Cuenta</div>
 </div>

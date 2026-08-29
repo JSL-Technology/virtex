@@ -23,6 +23,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { BatchDeactivateAccountsDto } from './dto/batch-operations.dto';
 import { MergeAccountsDto } from './dto/merge-accounts.dto';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Controller('chart-of-accounts')
 @UseGuards(JwtAuthGuard)
@@ -34,7 +35,7 @@ export class ChartOfAccountsController {
   @Post()
   create(
     @Body() createAccountDto: CreateAccountDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.chartOfAccountsService.create(
       createAccountDto,
@@ -43,13 +44,13 @@ export class ChartOfAccountsController {
   }
 
   @Get()
-  findAll(@CurrentUser() user: User) {
+  findAll(@CurrentUser() user: AuthenticatedUser) {
     return this.chartOfAccountsService.findAllForOrg(user.organizationId);
   }
 
   @Get('tree/roots')
   findTreeRoots(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(100), ParseIntPipe) limit: number,
   ) {
@@ -62,7 +63,7 @@ export class ChartOfAccountsController {
   @Get('tree/children/:parentId')
   findTreeChildren(
     @Param('parentId', ParseUUIDPipe) parentId: string,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.chartOfAccountsService.findChildrenOf(
       parentId,
@@ -71,7 +72,7 @@ export class ChartOfAccountsController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.chartOfAccountsService.findOne(id, user.organizationId);
   }
 
@@ -79,7 +80,7 @@ export class ChartOfAccountsController {
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateAccountDto: UpdateAccountDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
 
 
@@ -95,14 +96,14 @@ export class ChartOfAccountsController {
   @HttpCode(HttpStatus.OK)
   deactivate(
     @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.chartOfAccountsService.deactivate(id, user.organizationId);
   }
 
   @Patch(':id/block')
   @HttpCode(HttpStatus.OK)
-  block(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+  block(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.chartOfAccountsService.blockForPosting(
       id,
       user.organizationId,
@@ -112,7 +113,7 @@ export class ChartOfAccountsController {
 
   @Patch(':id/unblock')
   @HttpCode(HttpStatus.OK)
-  unblock(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+  unblock(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.chartOfAccountsService.unblockForPosting(
       id,
       user.organizationId,
@@ -124,7 +125,7 @@ export class ChartOfAccountsController {
   @HttpCode(HttpStatus.OK)
   batchDeactivate(
     @Body() dto: BatchDeactivateAccountsDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.chartOfAccountsService.batchDeactivate(
       dto.accountIds,
@@ -134,7 +135,7 @@ export class ChartOfAccountsController {
 
   @Post('merge')
   @HttpCode(HttpStatus.OK)
-  mergeAccounts(@Body() mergeDto: MergeAccountsDto, @CurrentUser() user: User) {
+  mergeAccounts(@Body() mergeDto: MergeAccountsDto, @CurrentUser() user: AuthenticatedUser) {
     return this.chartOfAccountsService.merge(
       mergeDto,
       user.organizationId,

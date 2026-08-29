@@ -18,6 +18,7 @@ import { PERMISSIONS } from '../shared/permissions';
 import { ModulePeriodDto } from './dto/module-period.dto';
 import { LockAccountInPeriodDto } from './dto/lock-account-period.dto';
 import { ReopenPeriodDto } from './dto/reopen-period.dto';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @ApiTags('Accounting')
 @ApiBearerAuth()
@@ -36,7 +37,7 @@ export class AccountingController {
   @ApiResponse({ status: 404, description: 'Período no encontrado.' })
   async closePeriod(
     @Body() closePeriodDto: ClosePeriodDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     const closedPeriod = await this.periodClosingService.closePeriod(
       closePeriodDto.periodId,
@@ -58,7 +59,7 @@ export class AccountingController {
   @ApiResponse({ status: 404, description: 'Período no encontrado.'})
   async reopenPeriod(
     @Body() reopenPeriodDto: ReopenPeriodDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     const reopenedPeriod = await this.periodClosingService.reopenPeriod(
       reopenPeriodDto,
@@ -78,7 +79,7 @@ export class AccountingController {
   @ApiResponse({ status: 200, description: 'Módulo del período cerrado exitosamente.' })
   async closeModulePeriod(
     @Body() dto: ModulePeriodDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     const period = await this.periodClosingService.closeModulePeriod(
       dto.periodId,
@@ -98,7 +99,7 @@ export class AccountingController {
   @ApiResponse({ status: 200, description: 'Módulo del período reabierto exitosamente.' })
   async reopenModulePeriod(
     @Body() dto: ModulePeriodDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     const period = await this.periodClosingService.reopenModulePeriod(
       dto.periodId,
@@ -118,7 +119,7 @@ export class AccountingController {
   @ApiResponse({ status: 200, description: 'Cuenta bloqueada exitosamente para el período.' })
   lockAccountInPeriod(
     @Body() dto: LockAccountInPeriodDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.periodClosingService.lockAccountInPeriod(dto, user.organizationId);
   }
@@ -130,7 +131,7 @@ export class AccountingController {
   @ApiResponse({ status: 200, description: 'Bloqueo de cuenta removido exitosamente para el período.' })
   unlockAccountInPeriod(
     @Body() dto: LockAccountInPeriodDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.periodClosingService.unlockAccountInPeriod(dto, user.organizationId);
   }

@@ -38,6 +38,7 @@ import {
 import { JournalEntryImportService } from './journal-entry-import.service';
 import { ConfirmImportDto, PreviewImportRequestDto } from './dto/journal-entry-import.dto';
 import { TemporalValidityGuard } from '../financial-reporting/guards/temporal-validity.guard';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Controller('journal-entries')
 @UseGuards(JwtAuthGuard, PermissionsGuard)
@@ -52,7 +53,7 @@ export class JournalEntriesController {
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_CREATE)
   create(
     @Body() createJournalEntryDto: CreateJournalEntryDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.journalEntriesService.create(
       createJournalEntryDto,
@@ -62,13 +63,13 @@ export class JournalEntriesController {
 
   @Get()
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_VIEW)
-  findAll(@CurrentUser() user: User) {
+  findAll(@CurrentUser() user: AuthenticatedUser) {
     return this.journalEntriesService.findAll(user.organizationId);
   }
 
   @Get(':id')
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_VIEW)
-  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.journalEntriesService.findOne(id, user.organizationId);
   }
 
@@ -78,7 +79,7 @@ export class JournalEntriesController {
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateDto: UpdateJournalEntryDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.journalEntriesService.update(id, user.organizationId, updateDto);
   }
@@ -89,7 +90,7 @@ export class JournalEntriesController {
   reverse(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() reverseDto: ReverseJournalEntryDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.journalEntriesService.reverse(
       id,
@@ -101,7 +102,7 @@ export class JournalEntriesController {
   @Post(':id/create-reversal')
   @HttpCode(HttpStatus.CREATED)
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_CREATE)
-  createReversal(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+  createReversal(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
       return this.journalEntriesService.createReversalEntry(id, user.organizationId);
   }
 
@@ -120,7 +121,7 @@ export class JournalEntriesController {
     )
     file: FastifyFile,
     @Body() mapping: PreviewImportRequestDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.importService.preview(file, mapping, user.organizationId);
   }
@@ -129,7 +130,7 @@ export class JournalEntriesController {
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_CREATE)
   confirmImport(
     @Body() confirmDto: ConfirmImportDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.importService.confirm(confirmDto, user.organizationId, user.id);
   }
@@ -139,7 +140,7 @@ export class JournalEntriesController {
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_EDIT)
   uploadAttachments(
     @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @UploadedFiles() files: Array<FastifyFile>,
   ) {
     const uploadPromises = files.map((file) =>
@@ -153,7 +154,7 @@ export class JournalEntriesController {
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_VIEW)
   async getAttachments(
     @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     const entry = await this.journalEntriesService.findOne(
       id,
@@ -166,7 +167,7 @@ export class JournalEntriesController {
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_VIEW)
   async downloadAttachment(
     @Param('attachmentId', ParseUUIDPipe) attachmentId: string,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ): Promise<StreamableFile> {
     const { metadata, streamable } =
       await this.journalEntriesService.getAttachment(
@@ -185,7 +186,7 @@ export class JournalEntriesController {
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_EDIT)
   async deleteAttachment(
     @Param('attachmentId', ParseUUIDPipe) attachmentId: string,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     await this.journalEntriesService.deleteAttachment(
       attachmentId,

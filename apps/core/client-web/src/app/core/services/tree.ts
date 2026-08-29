@@ -22,8 +22,6 @@ import { FlattenedAccount } from '../models/flattened-account.model';
 })
 export class TreeService {
 
-  constructor() { }
-
   /**
    * Construye una estructura de árbol jerárquico a partir de una lista plana de cuentas.
    * El algoritmo es eficiente (complejidad O(n)) ya que solo recorre la lista una vez.

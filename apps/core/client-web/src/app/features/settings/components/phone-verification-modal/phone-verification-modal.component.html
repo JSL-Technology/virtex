@@ -1,5 +1,7 @@
-<div class="pvm-overlay" *ngIf="isOpen()" (click)="close.emit()">
-  <div class="pvm-box" (click)="$event.stopPropagation()">
+<!-- A backdrop dismiss is a mouse convenience. Its keyboard equivalent is Escape, handled at the document level in the component, plus the dialog's own Close button. Giving the backdrop tabindex/role to satisfy the rule would put a phantom tab stop in front of the dialog. -->
+<!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus -->
+<div class="pvm-overlay" *ngIf="isOpen()" (click)="$event.target === $event.currentTarget &amp;&amp; (close.emit())" (keydown.escape)="close.emit()">
+  <div class="pvm-box" tabindex="0">
 
     <!-- Header -->
     <div class="pvm-header">
@@ -21,8 +23,8 @@
           <p class="pvm-info">{{ 'SETTINGS.PROFILE.PHONE_VERIFICATION.DESCRIPTION' | translate }}</p>
 
           <div class="pvm-field">
-            <label class="pvm-label">{{ 'SETTINGS.PROFILE.PHONE_NUMBER' | translate }}</label>
-            <input type="tel"
+            <label class="pvm-label" for="field">{{ 'SETTINGS.PROFILE.PHONE_NUMBER' | translate }}</label>
+            <input id="field" type="tel"
                    [formControl]="phoneControl"
                    placeholder="+1 (809) 555-0000">
             @if (phoneControl.invalid && phoneControl.touched) {
@@ -50,8 +52,8 @@
           </div>
 
           <div class="pvm-field">
-            <label class="pvm-label pvm-label--center">{{ 'SETTINGS.PROFILE.PHONE_VERIFICATION.ENTER_CODE' | translate }}</label>
-            <input type="text"
+            <label class="pvm-label pvm-label--center" for="field-2">{{ 'SETTINGS.PROFILE.PHONE_VERIFICATION.ENTER_CODE' | translate }}</label>
+            <input id="field-2" type="text"
                    [formControl]="otpControl"
                    maxlength="6"
                    class="pvm-otp-input"

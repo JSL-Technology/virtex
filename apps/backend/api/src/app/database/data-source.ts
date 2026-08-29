@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import * as fs from 'fs';
 import { DataSource, DataSourceOptions } from 'typeorm';
+import type { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
 /**
  * Standalone DataSource used by the TypeORM CLI (migration:run / :generate / :revert).
@@ -23,7 +24,7 @@ import { DataSource, DataSourceOptions } from 'typeorm';
 const bool = (value: string | undefined, fallback = false): boolean =>
   value === undefined ? fallback : value.toLowerCase() === 'true';
 
-const sslConfig = (): DataSourceOptions['ssl'] => {
+const sslConfig = (): PostgresConnectionOptions['ssl'] => {
   if (!bool(process.env['DB_SSL'])) return false;
 
   const ca = process.env['DB_SSL_CA'];

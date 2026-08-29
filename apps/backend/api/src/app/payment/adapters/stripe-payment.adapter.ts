@@ -293,7 +293,7 @@ export class StripePaymentAdapter implements PaymentGateway {
       }
     } catch (e) {
       // A Stripe hiccup must not break the billing page — log and return what we have.
-      this.logger.warn(`Failed to fetch live billing data for org ${organizationId}: ${e.message}`);
+      this.logger.warn(`Failed to fetch live billing data for org ${organizationId}: ${(e as Error).message}`);
     }
 
     return overview;
@@ -329,7 +329,7 @@ export class StripePaymentAdapter implements PaymentGateway {
         hostedUrl: inv.hosted_invoice_url ?? null,
       }));
     } catch (e) {
-      this.logger.warn(`Failed to fetch invoices for org ${organizationId}: ${e.message}`);
+      this.logger.warn(`Failed to fetch invoices for org ${organizationId}: ${(e as Error).message}`);
       return [];
     }
   }
@@ -365,7 +365,7 @@ export class StripePaymentAdapter implements PaymentGateway {
       try {
         event = stripe.webhooks.constructEvent(payload, signature, webhookSecret);
       } catch (err) {
-        this.logger.error(`Webhook signature verification failed: ${err.message}`);
+        this.logger.error(`Webhook signature verification failed: ${(err as Error).message}`);
         throw new BadRequestException('Webhook signature verification failed');
       }
 
@@ -420,7 +420,7 @@ export class StripePaymentAdapter implements PaymentGateway {
               await manager.save(WebhookEvent, { id: event.id });
 
           } catch (error) {
-              this.logger.error(`Error processing event ${event.id}: ${error.message}`);
+              this.logger.error(`Error processing event ${event.id}: ${(error as Error).message}`);
               throw error;
           }
       });
@@ -444,7 +444,7 @@ export class StripePaymentAdapter implements PaymentGateway {
         subscriptionStatus = sub.status;
         currentPeriodEnd = this.periodEndOf(sub);
       } catch (e) {
-        this.logger.warn(`Could not retrieve subscription ${subscriptionId} during signup: ${e.message}`);
+        this.logger.warn(`Could not retrieve subscription ${subscriptionId} during signup: ${(e as Error).message}`);
       }
 
       await this.eventEmitter.emitAsync(
@@ -485,7 +485,7 @@ export class StripePaymentAdapter implements PaymentGateway {
                     }
                 }
             } catch (e) {
-                this.logger.error(`Failed to sync plan for org ${organization.id}: ${e.message}`);
+                this.logger.error(`Failed to sync plan for org ${organization.id}: ${(e as Error).message}`);
             }
         }
 

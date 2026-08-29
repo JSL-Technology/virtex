@@ -90,8 +90,10 @@
 
 <!-- ── Add Widget Drawer ────────────────────────────────────────── -->
 @if (isAddPanelOpen()) {
-  <div class="db-drawer-overlay" (click)="isAddPanelOpen.set(false)">
-    <aside class="db-drawer" (click)="$event.stopPropagation()">
+  <!-- A backdrop dismiss is a mouse convenience. Its keyboard equivalent is Escape, handled at the document level in the component, plus the dialog's own Close button. Giving the backdrop tabindex/role to satisfy the rule would put a phantom tab stop in front of the dialog. -->
+  <!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus -->
+  <div class="db-drawer-overlay" (click)="$event.target === $event.currentTarget &amp;&amp; (isAddPanelOpen.set(false))" (keydown.escape)="isAddPanelOpen.set(false)">
+    <aside class="db-drawer">
       <div class="db-drawer__header">
         <div>
           <h3 class="db-drawer__title">{{ 'DASH.ADD_PANEL.TITLE' | translate }}</h3>
@@ -106,7 +108,7 @@
         @if (availableWidgetsToAdd().length > 0) {
           <ul class="db-widget-list">
             @for (w of availableWidgetsToAdd(); track w['id']) {
-              <li class="db-widget-item" (click)="addWidget(w['id'])">
+              <li class="db-widget-item" (click)="addWidget(w['id'])" tabindex="0" (keydown.enter)="addWidget(w['id'])" (keydown.space)="$event.preventDefault(); addWidget(w['id'])">
                 <div class="db-widget-item__icon">
                   <lucide-icon [img]="PlusIcon" size="16"></lucide-icon>
                 </div>

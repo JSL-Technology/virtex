@@ -68,7 +68,7 @@ export class UiModalComponent {
   /** Whether clicking the backdrop closes the modal */
   @Input() closeOnBackdropClick = true;
 
-  @Output() close = new EventEmitter<void>();
+  @Output() closed = new EventEmitter<void>();
 
   readonly XIcon = X;
 
@@ -84,6 +84,6 @@ export class UiModalComponent {
   }
 
   closeModal() {
-    this.close.emit();
+    this.closed.emit();
   }
 }

@@ -12,7 +12,11 @@ import { DialogService } from '../../../core/services/dialog.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (dialog(); as d) {
-      <div class="dialog-overlay" (click)="onBackdrop()">
+      <!-- Backdrop dismiss is a mouse convenience; Escape is handled at the document level in the component. See onEscapeKey(). -->
+      <!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus -->
+      <div class="dialog-overlay"
+           (click)="$event.target === $event.currentTarget && onBackdrop()"
+           (keydown.escape)="onBackdrop()">
         <div
           class="dialog-card"
           [class.variant-danger]="d.variant === 'danger'"
@@ -20,7 +24,7 @@ import { DialogService } from '../../../core/services/dialog.service';
           role="dialog"
           aria-modal="true"
           [attr.aria-label]="d.title"
-          (click)="$event.stopPropagation()"
+
         >
           <button class="dialog-close" type="button" aria-label="Cerrar" (click)="cancel()">
             <lucide-icon [img]="XIcon" size="18"></lucide-icon>
@@ -42,7 +46,7 @@ import { DialogService } from '../../../core/services/dialog.service';
                 <lucide-icon [img]="Trash2Icon" size="16"></lucide-icon>
                 {{ d.discardText }}
               </button>
-              <button class="btn btn-primary" type="button" autofocus (click)="resolve('save')">
+              <button class="btn btn-primary" type="button" (click)="resolve('save')">
                 <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
                 {{ d.saveText }}
               </button>
@@ -53,7 +57,7 @@ import { DialogService } from '../../../core/services/dialog.service';
               <button
                 class="btn"
                 type="button"
-                autofocus
+               
                 [class.btn-primary]="d.variant === 'primary'"
                 [class.btn-danger]="d.variant === 'danger' || d.variant === 'warning'"
                 (click)="resolve(true)"

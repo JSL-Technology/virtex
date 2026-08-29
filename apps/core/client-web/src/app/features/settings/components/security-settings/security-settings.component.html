@@ -46,7 +46,7 @@
 
       <div class="sessions-list__items">
         @for (session of sessions(); track session.id) {
-          <div class="sessions-list__item" (click)="toggleSessionDetails(session)">
+          <div class="sessions-list__item" (click)="toggleSessionDetails(session)" tabindex="0" role="button" (keydown.enter)="toggleSessionDetails(session)" (keydown.space)="$event.preventDefault(); toggleSessionDetails(session)">
             <div class="sessions-list__content">
               <div class="sessions-list__info">
                 <div class="sessions-list__device-icon">
@@ -106,7 +106,7 @@
 <!-- Setup Modal -->
 @if (showSetupModal()) {
   <div class="modal-overlay">
-    <div class="modal-backdrop" (click)="closeSetupModal()" aria-hidden="true"></div>
+    <div class="modal-backdrop" (click)="closeSetupModal()" aria-hidden="true" tabindex="0" role="button" (keydown.enter)="closeSetupModal()" (keydown.space)="$event.preventDefault(); closeSetupModal()"></div>
     <div class="modal-content" role="dialog" aria-modal="true">
 
       <!-- Close Button -->
@@ -202,8 +202,8 @@
 
                 <div class="step-qr__verify">
                     <div class="form-field">
-                        <label class="form-label">{{ 'SETTINGS.SECURITY.CURRENT_PASSWORD' | translate }}</label>
-                        <input
+                        <label class="form-label" for="field">{{ 'SETTINGS.SECURITY.CURRENT_PASSWORD' | translate }}</label>
+                        <input id="field"
                             type="password"
                             class="form-input"
                             [value]="stepUpPassword()"
@@ -250,8 +250,8 @@
                     </button>
                 </div>
 
-                <label class="checkbox-row">
-                    <input type="checkbox" [(ngModel)]="hasSavedBackupCodes" class="checkbox-input">
+                <label class="checkbox-row" for="field-2">
+                    <input id="field-2" type="checkbox" [(ngModel)]="hasSavedBackupCodes" class="checkbox-input">
                     <span class="checkbox-mark"></span>
                     <span class="checkbox-label">{{ 'SETTINGS.SECURITY.I_HAVE_SAVED_CODES' | translate }}</span>
                 </label>

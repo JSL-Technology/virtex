@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed, effect } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed, effect, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GridsterModule, GridsterConfig, GridType, CompactType, DisplayGrid } from 'angular-gridster2';
 import { DashboardService, DashboardWidget } from '../../core/services/dashboard';
@@ -105,6 +105,20 @@ export class DashboardPage implements OnInit {
 
   ngOnInit(): void {
     this.updateGridOptions(this.isEditMode());
+  }
+
+  /**
+   * Escape closes the widget drawer.
+   *
+   * The overlay's click handler is a mouse convenience; Escape is the keyboard equivalent, and it
+   * is handled here at the document level rather than by giving the overlay a tab stop it should
+   * not have.
+   */
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    if (this.isAddPanelOpen()) {
+      this.isAddPanelOpen.set(false);
+    }
   }
 
   toggleEditMode(): void {

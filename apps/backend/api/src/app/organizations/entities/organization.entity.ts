@@ -12,48 +12,48 @@ export class Organization {
   @Column({ name: 'legal_name' })
   legalName: string;
 
-  @Column({ name: 'tax_id', nullable: true })
-  taxId: string;
+  @Column({ type: 'varchar', name: 'tax_id', nullable: true })
+  taxId: string | null;
 
-  @Column({ nullable: true })
-  address: string;
+  @Column({ type: 'varchar', nullable: true })
+  address: string | null;
 
-  @Column({ nullable: true })
-  city: string;
+  @Column({ type: 'varchar', nullable: true })
+  city: string | null;
 
   /**
    * First-level administrative division. A coded value (`CMX`, `TX`, `32`) where the country
    * publishes a catalogue, free text otherwise — see `country-profiles.ts`.
    */
-  @Column({ nullable: true })
-  state: string;
+  @Column({ type: 'varchar', nullable: true })
+  state: string | null;
 
-  @Column({ name: 'postal_code', nullable: true })
-  postalCode: string;
+  @Column({ type: 'varchar', name: 'postal_code', nullable: true })
+  postalCode: string | null;
 
   /**
    * ISO 3166-1 alpha-2. Registration never used to set this, so every tenant in the database had
    * a null country while its fiscal region said otherwise — two sources for one fact, one of them
    * always empty.
    */
-  @Column({ nullable: true })
-  country: string;
+  @Column({ type: 'varchar', nullable: true })
+  country: string | null;
 
   /** Self-reported headcount band, collected at signup. */
-  @Column({ name: 'company_size', nullable: true })
-  companySize: string;
+  @Column({ type: 'varchar', name: 'company_size', nullable: true })
+  companySize: string | null;
 
-  @Column({ nullable: true })
-  phone: string;
+  @Column({ type: 'varchar', nullable: true })
+  phone: string | null;
 
-  @Column({ nullable: true })
-  website: string;
+  @Column({ type: 'varchar', nullable: true })
+  website: string | null;
 
-  @Column({ nullable: true })
-  industry: string;
+  @Column({ type: 'varchar', nullable: true })
+  industry: string | null;
 
-  @Column({ name: 'logo_url', nullable: true })
-  logoUrl: string;
+  @Column({ type: 'varchar', name: 'logo_url', nullable: true })
+  logoUrl: string | null;
 
   /**
    * The tenant's fiscal region. A real uuid with a real foreign key: it was a bare `varchar` with
@@ -61,7 +61,7 @@ export class Organization {
    * chart of accounts, no taxes and no fiscal identity.
    */
   @Column({ name: 'fiscal_region_id', type: 'uuid', nullable: true })
-  fiscalRegionId: string;
+  fiscalRegionId: string | null;
 
   @ManyToOne(() => FiscalRegion, { nullable: true, onDelete: 'RESTRICT' })
   // Named explicitly so the constraint the entity declares and the one the migration creates are
@@ -69,29 +69,29 @@ export class Organization {
   @JoinColumn({ name: 'fiscal_region_id', foreignKeyConstraintName: 'FK_organizations_fiscal_region' })
   fiscalRegion: FiscalRegion;
 
-  @Column({ name: 'stripe_customer_id', nullable: true })
-  externalCustomerId: string;
+  @Column({ type: 'varchar', name: 'stripe_customer_id', nullable: true })
+  externalCustomerId: string | null;
 
-  @Column({ name: 'stripe_subscription_id', nullable: true })
-  externalSubscriptionId: string;
+  @Column({ type: 'varchar', name: 'stripe_subscription_id', nullable: true })
+  externalSubscriptionId: string | null;
 
-  @Column({ name: 'subscription_status', nullable: true })
-  subscriptionStatus: string;
+  @Column({ type: 'varchar', name: 'subscription_status', nullable: true })
+  subscriptionStatus: string | null;
 
   @Column({ name: 'subscription_period_start', type: 'timestamptz', nullable: true })
-  subscriptionPeriodStart: Date;
+  subscriptionPeriodStart: Date | null;
 
   @Column({ name: 'subscription_period_end', type: 'timestamptz', nullable: true })
-  subscriptionPeriodEnd: Date;
+  subscriptionPeriodEnd: Date | null;
 
   @Column({ name: 'grace_period_end', type: 'timestamptz', nullable: true })
-  gracePeriodEnd: Date;
+  gracePeriodEnd: Date | null;
 
   @Column({ default: 'UTC' })
   timezone: string;
 
-  @Column({ name: 'plan_id', nullable: true })
-  planId: string;
+  @Column({ type: 'uuid', name: 'plan_id', nullable: true })
+  planId: string | null;
 
   @ManyToOne(() => Plan, { nullable: true })
   @JoinColumn({ name: 'plan_id' })

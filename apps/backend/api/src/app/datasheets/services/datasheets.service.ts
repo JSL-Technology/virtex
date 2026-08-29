@@ -7,6 +7,7 @@ import { DatasheetSheet } from '../entities/datasheet-sheet.entity';
 import { DatasheetVersion } from '../entities/datasheet-version.entity';
 import { DatasheetPermission, DatasheetAccessRole } from '../entities/datasheet-permission.entity';
 import { User } from '../../users/entities/user.entity/user.entity';
+import { TenantPrincipal } from '../../auth/interfaces/authenticated-user.interface';
 
 @Injectable()
 export class DatasheetsService {
@@ -21,7 +22,7 @@ export class DatasheetsService {
     private permissionRepo: Repository<DatasheetPermission>
   ) {}
 
-  async findAll(user: User): Promise<DatasheetBook[]> {
+  async findAll(user: TenantPrincipal): Promise<DatasheetBook[]> {
     return this.bookRepo.find({
       where: [
         { ownerId: user.id },
@@ -31,7 +32,7 @@ export class DatasheetsService {
     });
   }
 
-  async findOne(id: string, user: User): Promise<DatasheetBook> {
+  async findOne(id: string, user: TenantPrincipal): Promise<DatasheetBook> {
     const book = await this.bookRepo.findOne({
       where: { id },
       relations: ['sheets']
@@ -49,7 +50,7 @@ export class DatasheetsService {
     return book;
   }
 
-  async create(data: Partial<DatasheetBook>, user: User): Promise<DatasheetBook> {
+  async create(data: Partial<DatasheetBook>, user: TenantPrincipal): Promise<DatasheetBook> {
     const book = this.bookRepo.create({
       ...data,
       ownerId: user.id,
@@ -71,7 +72,7 @@ export class DatasheetsService {
     return this.findOne(savedBook.id, user);
   }
 
-  async update(id: string, data: Partial<DatasheetBook>, user: User): Promise<DatasheetBook> {
+  async update(id: string, data: Partial<DatasheetBook>, user: TenantPrincipal): Promise<DatasheetBook> {
     const book = await this.findOne(id, user);
 
     // Authorization check
@@ -96,7 +97,7 @@ export class DatasheetsService {
     return this.findOne(id, user);
   }
 
-  async remove(id: string, user: User): Promise<void> {
+  async remove(id: string, user: TenantPrincipal): Promise<void> {
     const book = await this.findOne(id, user);
     if (book.ownerId !== user.id) {
       throw new ForbiddenException('Only the owner can delete this document');
@@ -104,7 +105,7 @@ export class DatasheetsService {
     await this.bookRepo.remove(book);
   }
 
-  async createVersion(id: string, comment: string, user: User): Promise<DatasheetVersion> {
+  async createVersion(id: string, comment: string, user: TenantPrincipal): Promise<DatasheetVersion> {
     const book = await this.findOne(id, user);
 
     const lastVersion = await this.versionRepo.findOne({
@@ -128,7 +129,7 @@ export class DatasheetsService {
     return this.versionRepo.save(version);
   }
 
-  async getVersions(id: string, user: User): Promise<DatasheetVersion[]> {
+  async getVersions(id: string, user: TenantPrincipal): Promise<DatasheetVersion[]> {
     await this.findOne(id, user);
     return this.versionRepo.find({
       where: { bookId: id },

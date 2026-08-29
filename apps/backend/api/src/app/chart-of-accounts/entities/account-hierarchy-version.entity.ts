@@ -8,7 +8,7 @@ export class AccountHierarchyVersion {
     @Column() accountId: string;
     @Column({ type: 'uuid', nullable: true }) parentId: string | null;
     @Column() effectiveDate: Date;
-    @ManyToOne('Account', account => account.history)
+    @ManyToOne('Account', (account: Account) => account.history)
     @JoinColumn({ name: 'accountId' })
     account: Account;
 }

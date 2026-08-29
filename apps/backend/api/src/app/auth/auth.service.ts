@@ -365,12 +365,12 @@ export class AuthService {
       const userWithSec = await this.usersService.findUserByIdForAuth(userId);
 
       if (!userWithSec?.security?.passwordHash) {
-          throw new AuthException(AuthError.INVALID_CREDENTIALS, 400, 'User has no password set (Social Login?)');
+          throw new AuthException(AuthError.INVALID_CREDENTIALS, 400, { reason: 'no_password_set' });
       }
 
       const isValid = await this.passwordService.verify(userWithSec.security.passwordHash, currentPass);
       if (!isValid) {
-          throw new AuthException(AuthError.INVALID_CREDENTIALS, 401, 'Invalid current password');
+          throw new AuthException(AuthError.INVALID_CREDENTIALS, 401, { reason: 'invalid_current_password' });
       }
 
       await this.passwordService.assertNotBreached(newPass);
@@ -459,7 +459,7 @@ export class AuthService {
           { sub: userId, stepup: true, scope, jti: crypto.randomUUID() },
           {
               secret: AuthConfig.JWT_STEP_UP_SECRET,
-              expiresIn: AuthConfig.JWT_STEP_UP_EXPIRATION,
+              expiresIn: AuthConfig.JWT_STEP_UP_EXPIRATION as `${number}m`,
               // A distinct audience prevents a step-up token from ever being accepted by the
               // access-token path (and vice versa) even if the secrets were misconfigured.
               issuer: 'virteex-api',

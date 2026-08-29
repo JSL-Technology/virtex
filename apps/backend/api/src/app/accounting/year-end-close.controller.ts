@@ -5,6 +5,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { YearEndCloseService } from './year-end-close.service';
 import { YearEndCloseDto } from './dto/year-end-close.dto';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Controller('accounting/year-end-close')
 @UseGuards(JwtAuthGuard)
@@ -15,7 +16,7 @@ export class YearEndCloseController {
   @HttpCode(HttpStatus.OK)
   async closePeriod(
     @Body() closeDto: YearEndCloseDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     const closedYear = await this.yearEndCloseService.closeFiscalYear(
       closeDto,

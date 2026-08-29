@@ -4,6 +4,7 @@ import { CreateCustomerPaymentDto } from './dto/create-customer-payment.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Controller('customer-payments')
 @UseGuards(JwtAuthGuard)
@@ -13,7 +14,7 @@ export class CustomerPaymentsController {
   ) {}
 
   @Post()
-  create(@Body() createCustomerPaymentDto: CreateCustomerPaymentDto, @CurrentUser() user: User) {
+  create(@Body() createCustomerPaymentDto: CreateCustomerPaymentDto, @CurrentUser() user: AuthenticatedUser) {
     return this.customerPaymentsService.create(createCustomerPaymentDto, user.organizationId);
   }
 }

@@ -1,4 +1,4 @@
-import { Component, signal, Input, Output, EventEmitter } from '@angular/core';
+import { Component, signal, Input, Output, EventEmitter, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Shield, X, AlertCircle, Loader2, KeyRound } from 'lucide-angular';
@@ -27,8 +27,8 @@ export class PasswordConfirmModalComponent {
   @Input() remainingAttempts: number | null = null;
   @Input() factor: StepUpFactor = 'password';
 
-  @Output() confirm = new EventEmitter<string>();
-  @Output() cancel = new EventEmitter<void>();
+  @Output() confirmed = new EventEmitter<string>();
+  @Output() cancelled = new EventEmitter<void>();
 
   protected readonly ShieldIcon = Shield;
   protected readonly XIcon = X;
@@ -54,12 +54,27 @@ export class PasswordConfirmModalComponent {
 
   onConfirm(): void {
     if (this.credential() && !this.isLoading && !this.cannotStepUp) {
-      this.confirm.emit(this.credential());
+      this.confirmed.emit(this.credential());
     }
   }
 
   onCancel(): void {
     this.credential.set('');
-    this.cancel.emit();
+    this.cancelled.emit();
   }
+
+  /**
+   * Escape closes the dialog.
+   *
+   * The backdrop's click handler is a mouse convenience; the keyboard equivalent for a modal is
+   * Escape, handled at the document level so it works wherever focus happens to be. Satisfying the
+   * template linter by putting `tabindex="0"` and `role="button"` on the backdrop instead would
+   * have added a phantom tab stop in front of the dialog — a worse experience for exactly the
+   * users the rule exists to protect.
+   */
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    this.onCancel();
+  }
+
 }

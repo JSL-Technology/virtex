@@ -69,12 +69,12 @@ describe('UserResponseDto serialization contract', () => {
     plainToInstance(UserResponseDto, dirtyUser, { excludeExtraneousValues: true });
 
   it.each(SECRET_FIELDS)('does not expose the "%s" field', (field) => {
-    const result = serialize() as Record<string, unknown>;
+    const result = serialize() as unknown as Record<string, unknown>;
     expect(result).not.toHaveProperty(field);
   });
 
   it('exposes the whitelisted, non-sensitive fields', () => {
-    const result = serialize() as Record<string, unknown>;
+    const result = serialize() as unknown as Record<string, unknown>;
     for (const field of [
       'id',
       'email',
@@ -93,7 +93,7 @@ describe('UserResponseDto serialization contract', () => {
   });
 
   it('never leaks a secret field even if new properties are added to the source', () => {
-    const result = serialize() as Record<string, unknown>;
+    const result = serialize() as unknown as Record<string, unknown>;
     const leaked = Object.keys(result).filter((k) =>
       (SECRET_FIELDS as readonly string[]).includes(k),
     );
@@ -101,14 +101,14 @@ describe('UserResponseDto serialization contract', () => {
   });
 
   it('strips secrets from the nested organization object', () => {
-    const result = serialize() as { organization: Record<string, unknown> };
+    const result = serialize() as unknown as { organization: Record<string, unknown> };
     expect(Object.keys(result.organization).sort()).toEqual(
       ['id', 'legalName', 'taxId', 'logoUrl', 'subscriptionStatus', 'gracePeriodEnd'].sort(),
     );
   });
 
   it('never exposes billing identifiers on the organization', () => {
-    const result = serialize() as { organization: Record<string, unknown> };
+    const result = serialize() as unknown as { organization: Record<string, unknown> };
     expect(result.organization).not.toHaveProperty('stripeCustomerId');
     expect(result.organization).not.toHaveProperty('stripeSubscriptionId');
   });
@@ -126,7 +126,7 @@ describe('UserResponseDto serialization contract', () => {
     // These were previously absent from the DTO while the frontend declared and rendered them,
     // so they arrived as undefined: the members list showed "Sin rol" and the profile screen
     // could not display — or persist — the user's own phone number.
-    const result = serialize() as Record<string, unknown>;
+    const result = serialize() as unknown as Record<string, unknown>;
     for (const field of ['roles', 'avatarUrl', 'phone', 'jobTitle', 'department', 'isOnline', 'isEmailVerified']) {
       expect(result).toHaveProperty(field);
     }

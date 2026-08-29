@@ -5,6 +5,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { LedgersService } from './ledgers.service';
 import { Ledger } from './entities/ledger.entity';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Controller('accounting/ledgers')
 @UseGuards(JwtAuthGuard)
@@ -16,7 +17,7 @@ export class LedgersController {
     @Query('accountId') accountId: string,
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.ledgersService.getGeneralLedger(
       user.organizationId,
@@ -27,17 +28,17 @@ export class LedgersController {
   }
 
   @Post()
-  create(@Body() createDto: Partial<Ledger>, @CurrentUser() user: User) {
+  create(@Body() createDto: Partial<Ledger>, @CurrentUser() user: AuthenticatedUser) {
     return this.ledgersService.create(createDto, user.organizationId);
   }
 
   @Get()
-  findAll(@CurrentUser() user: User) {
+  findAll(@CurrentUser() user: AuthenticatedUser) {
     return this.ledgersService.findAll(user.organizationId);
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.ledgersService.findOne(id, user.organizationId);
   }
 
@@ -45,7 +46,7 @@ export class LedgersController {
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateDto: Partial<Ledger>,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.ledgersService.update(id, updateDto, user.organizationId);
   }

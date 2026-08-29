@@ -19,12 +19,12 @@
     </div>
 
     <div class="form-field">
-      <label class="input-label">{{ 'REGISTER.INDUSTRY' | translate }}</label>
+      <label class="input-label" for="industry">{{ 'REGISTER.INDUSTRY' | translate }}</label>
       <div class="custom-select-wrapper">
         <div class="select-icon">
           <lucide-icon [img]="BriefcaseIcon" size="18"></lucide-icon>
         </div>
-        <select formControlName="industry" class="custom-select">
+        <select id="industry" formControlName="industry" class="custom-select">
           <option value="" disabled selected>{{ 'REGISTER.INDUSTRY_PLACEHOLDER' | translate }}</option>
           <option *ngFor="let ind of industries" [value]="ind.id">{{ ind.label | translate }}</option>
         </select>

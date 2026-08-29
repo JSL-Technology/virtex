@@ -55,8 +55,8 @@
 </div>
 
 <!-- Simple Modal Overlay -->
-<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()" tabindex="0" role="button" (keydown.enter)="closeModal()" (keydown.space)="$event.preventDefault(); closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()" tabindex="0" role="button" (keydown.enter)="$event.stopPropagation()" (keydown.space)="$event.preventDefault(); $event.stopPropagation()">
     <div class="modal-header">
       <h3>Nueva Subsidiaria</h3>
       <button class="close-btn" (click)="closeModal()">
@@ -67,25 +67,25 @@
     <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
       <div class="modal-body">
         <div class="form-field">
-          <label>Nombre Legal</label>
-          <input type="text" formControlName="legalName" placeholder="Ej. Virteex Latam S.A.">
+          <label for="legalname">Nombre Legal</label>
+          <input id="legalname" type="text" formControlName="legalName" placeholder="Ej. Virteex Latam S.A.">
         </div>
 
         <div class="form-row">
           <div class="form-field">
-            <label>ID Fiscal (RNC/Tax ID)</label>
-            <input type="text" formControlName="taxId" placeholder="Ej. 132-45678-9">
+            <label for="taxid">ID Fiscal (RNC/Tax ID)</label>
+            <input id="taxid" type="text" formControlName="taxId" placeholder="Ej. 132-45678-9">
           </div>
 
           <div class="form-field">
-            <label>País</label>
-            <input type="text" formControlName="country" placeholder="Ej. República Dominicana">
+            <label for="country">País</label>
+            <input id="country" type="text" formControlName="country" placeholder="Ej. República Dominicana">
           </div>
         </div>
 
         <div class="form-field">
-          <label>Porcentaje de Propiedad (%)</label>
-          <input type="number" formControlName="ownership" min="0" max="100">
+          <label for="ownership">Porcentaje de Propiedad (%)</label>
+          <input id="ownership" type="number" formControlName="ownership" min="0" max="100">
         </div>
       </div>
 

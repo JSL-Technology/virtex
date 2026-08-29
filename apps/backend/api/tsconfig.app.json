@@ -2,14 +2,39 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../../dist/out-tsc",
+    // The shared libraries live outside this project, so the compilation root is the workspace.
+    "rootDir": "../../..",
     "module": "nodenext",
-    "types": ["node"],
+    "types": ["node", "multer"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "target": "es2021",
-    "moduleResolution": "nodenext"
+    "moduleResolution": "nodenext",
+
+    // NestJS + TypeORM assign these fields, not the constructor.
+    //
+    // The workspace base config turns on full `strict`, which includes
+    // `strictPropertyInitialization`. Every entity column, every DTO field and every `@Input()` is
+    // then an error — 3,912 of them — because TypeORM hydrates entities and the global
+    // ValidationPipe populates DTOs. Declaring `field!: string` on several thousand properties
+    // would assert non-nullness the compiler cannot check and buy nothing. This is the
+    // configuration NestJS itself ships for the same reason.
+    //
+    // `strictNullChecks` stays ON: that is the check that actually finds bugs here, and the
+    // remaining errors under it were fixed rather than silenced.
+    "strictPropertyInitialization": false,
+
+    // Decorator metadata emission requires the declaration to be reachable at runtime, which
+    // `isolatedModules` + `verbatimModuleSyntax` interact badly with for type-only entity imports.
+    "isolatedModules": false,
+
+    // Unused locals are reported by ESLint (as warnings, with the same coverage) rather than
+    // failing the type build; a type error and a tidiness warning are different severities.
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
   },
-  "include": ["src/**/*.ts", "../../../libs/shared/util-auth/src/index.ts"],
+  "include": ["src/**/*.ts", "../../../libs/shared/util-auth/src/**/*.ts",
+    "../../../libs/shared/types/src/**/*.ts"],
   "exclude": [
     "jest.config.ts",
     "jest.config.cts",

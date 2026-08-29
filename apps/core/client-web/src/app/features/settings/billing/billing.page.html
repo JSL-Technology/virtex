@@ -161,7 +161,7 @@
                 <div class="plan-card"
                      [class.plan-card--selected]="selectedPlan() === plan.slug"
                      [class.plan-card--current]="currentPlanSlug() === plan.slug"
-                     (click)="selectPlan(plan.slug)">
+                     (click)="selectPlan(plan.slug)" tabindex="0" role="button" (keydown.enter)="selectPlan(plan.slug)" (keydown.space)="$event.preventDefault(); selectPlan(plan.slug)">
 
                     @if (currentPlanSlug() === plan.slug) {
                     <div class="plan-card__badge">Plan actual</div>

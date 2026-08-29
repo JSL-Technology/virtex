@@ -17,33 +17,33 @@ export class AuditLog {
   id: string;
 
   @Index()
-  @Column({ name: 'user_id', type: 'uuid', updatable: false })
+  @Column({ name: 'user_id', type: 'uuid', update: false })
   userId: string;
 
   @Index()
-  @Column({ name: 'organization_id', type: 'uuid', nullable: true, updatable: false })
+  @Column({ name: 'organization_id', type: 'uuid', nullable: true, update: false })
   organizationId?: string | null;
 
   @Index()
-  @Column({ updatable: false })
+  @Column({ update: false })
   entity: string;
 
   @Index()
-  @Column({ name: 'entity_id', updatable: false })
+  @Column({ name: 'entity_id', update: false })
   entityId: string;
 
-  @Column({ type: 'enum', enum: ActionType, updatable: false })
+  @Column({ type: 'enum', enum: ActionType, update: false })
   actionType: ActionType;
 
-  @Column({ name: 'ip_address', nullable: true, updatable: false })
+  @Column({ name: 'ip_address', nullable: true, update: false })
   ipAddress?: string;
 
-  @Column({ type: 'jsonb', name: 'previous_value', nullable: true, updatable: false })
+  @Column({ type: 'jsonb', name: 'previous_value', nullable: true, update: false })
   previousValue?: object;
 
-  @Column({ type: 'jsonb', name: 'new_value', nullable: true, updatable: false })
+  @Column({ type: 'jsonb', name: 'new_value', nullable: true, update: false })
   newValue: object | null;
 
-  @CreateDateColumn({ name: 'created_at', type: 'timestamptz', updatable: false })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamptz', update: false })
   timestamp: Date;
 }

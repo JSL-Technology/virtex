@@ -101,7 +101,7 @@ export class SaasCronService {
                  await this.cacheManager.del(checkCacheKey);
 
             } catch (e) {
-                this.logger.error(`Failed to reconcile metric ${metric.id}: ${e.message}`);
+                this.logger.error(`Failed to reconcile metric ${metric.id}: ${(e as Error).message}`);
             }
         }
 
@@ -128,7 +128,7 @@ export class SaasCronService {
                  return result === 'OK';
              }
           } catch (e) {
-              this.logger.error(`Failed to acquire lock via Redis: ${e.message}`);
+              this.logger.error(`Failed to acquire lock via Redis: ${(e as Error).message}`);
           }
       }
       return true; // Fallback: if no redis client, assume single instance (dev)
@@ -146,7 +146,7 @@ export class SaasCronService {
                    await client.del(key);
                }
            } catch (e) {
-               this.logger.error(`Failed to release lock: ${e.message}`);
+               this.logger.error(`Failed to release lock: ${(e as Error).message}`);
            }
       }
   }

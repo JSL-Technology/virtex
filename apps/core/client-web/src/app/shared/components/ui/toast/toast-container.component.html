@@ -2,7 +2,7 @@
   @for (toast of toastService.toasts(); track toast.id) {
     <app-toast
       [toast]="toast"
-      (onClose)="toastService.remove($event)">
+      (closed)="toastService.remove($event)">
     </app-toast>
   }
 </div>

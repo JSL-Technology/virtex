@@ -3,7 +3,7 @@
   [disabled]="disabled || loading"
   class="submit-button"
   [class.loading]="loading"
-  (click)="onClick.emit($event)">
+  (click)="clicked.emit($event)">
 
   <!-- Loading Spinner -->
   <div *ngIf="loading" class="spinner"></div>

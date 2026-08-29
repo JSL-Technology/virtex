@@ -5,6 +5,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { User } from '../users/entities/user.entity/user.entity';
 import { MyWorkDto } from './dto/my-work.dto';
 import { MyWorkService } from './my-work.service';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @ApiTags('My Work')
 @Controller('my-work')
@@ -14,7 +15,7 @@ export class MyWorkController {
 
   @Get()
   @ApiOkResponse({ type: MyWorkDto })
-  getMyWork(@CurrentUser() user: User): Promise<MyWorkDto> {
+  getMyWork(@CurrentUser() user: AuthenticatedUser): Promise<MyWorkDto> {
     return this.myWorkService.getWorkItems(user.id, user.organizationId);
   }
 }

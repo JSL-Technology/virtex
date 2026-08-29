@@ -48,8 +48,9 @@ export class PasswordService {
    */
   needsRehash(hash: string): boolean {
     try {
+      // `type` is not a `needsRehash` option — the variant is read from the hash string itself,
+      // which is the whole point of the encoded prefix. Passing it here was silently ignored.
       return argon2.needsRehash(hash, {
-        type: argon2.argon2id,
         memoryCost: AuthConfig.ARGON2_MEMORY_COST,
         timeCost: AuthConfig.ARGON2_TIME_COST,
         parallelism: AuthConfig.ARGON2_PARALLELISM,

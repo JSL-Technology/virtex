@@ -123,14 +123,14 @@ export class RecurringJournalEntriesService {
 
         return today.getDay() === startDate.getDay();
       
-      case Frequency.MONTHLY:
+      case Frequency.MONTHLY: {
         const startDayOfMonth = startDate.getDate();
-
 
         if (startDayOfMonth > 28 && isLastDayOfMonth(today)) {
           return true;
         }
         return today.getDate() === startDayOfMonth;
+      }
       
       case Frequency.ANNUALLY: 
 

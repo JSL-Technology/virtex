@@ -4,6 +4,9 @@
     "allowJs": true,
     "outDir": "../../../dist/out-tsc",
     "module": "commonjs",
+    // Must accompany `module: commonjs`; the base config sets NodeNext resolution and TypeScript
+    // refuses the mismatch (TS5110), which failed the type build before it checked anything.
+    "moduleResolution": "node10",
     "types": ["cypress", "node"],
     "sourceMap": false,
     "strict": true,

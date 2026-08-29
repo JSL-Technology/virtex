@@ -27,7 +27,7 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
 })
 export class ToastComponent {
   public toast = input.required<Toast>();
-  public onClose = output<string>();
+  public closed = output<string>();
 
   protected readonly CheckCircleIcon = CheckCircle;
   protected readonly XCircleIcon = XCircle;
@@ -52,6 +52,6 @@ export class ToastComponent {
   });
 
   close() {
-    this.onClose.emit(this.toast().id);
+    this.closed.emit(this.toast().id);
   }
 }

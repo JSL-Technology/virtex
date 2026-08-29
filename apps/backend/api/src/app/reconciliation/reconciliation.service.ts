@@ -30,6 +30,8 @@ import { addDays, subDays } from 'date-fns';
 import { Journal } from '../journal-entries/entities/journal.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
+import { FastifyFile } from '../common/interfaces/fastify-file.interface';
+import { readFile } from 'fs/promises';
 
 @Injectable()
 export class ReconciliationService {
@@ -50,7 +52,7 @@ export class ReconciliationService {
   ) {}
   
   async processStatementUpload(
-    file: Express.Multer.File,
+    file: FastifyFile,
     dto: UploadStatementDto,
     organizationId: string,
   ): Promise<BankStatement> {
@@ -77,7 +79,12 @@ export class ReconciliationService {
     const savedStatement = await this.statementRepository.save(newStatement);
 
     try {
-      const transactions = await this.csvParser.parse(file.buffer, {
+      const bytes = file.buffer ?? (file.path ? await readFile(file.path) : undefined);
+      if (!bytes) {
+        throw new BadRequestException('El archivo subido está vacío o no se pudo leer.');
+      }
+
+      const transactions = await this.csvParser.parse(bytes, {
         date: dto.dateColumn,
         description: dto.descriptionColumn,
         debit: dto.debitColumn,
@@ -95,7 +102,7 @@ export class ReconciliationService {
 
       savedStatement.status = StatementStatus.COMPLETED;
     } catch (error) {
-      this.logger.error('Fallo al procesar el archivo CSV', error.stack);
+      this.logger.error('Fallo al procesar el archivo CSV', (error as Error).stack);
       savedStatement.status = StatementStatus.FAILED;
       await this.statementRepository.save(savedStatement);
       throw new BadRequestException(
@@ -243,7 +250,7 @@ export class ReconciliationService {
       await queryRunner.commitTransaction();
     } catch(err) {
         await queryRunner.rollbackTransaction();
-        this.logger.error(`Error en la auto-conciliación para el estado de cuenta ${statementId}`, err.stack);
+        this.logger.error(`Error en la auto-conciliación para el estado de cuenta ${statementId}`, (err as Error).stack);
     } finally {
         await queryRunner.release();
     }

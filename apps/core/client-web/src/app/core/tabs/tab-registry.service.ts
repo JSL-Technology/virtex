@@ -23,7 +23,9 @@ export class TabRegistryService {
 
   private readonly registry: TabDefinition[];
 
-  constructor(@Optional() @Inject(TAB_DEFINITIONS) provided?: TabDefinition[][]) {
+  constructor() {
+    // `multi: true` providers arrive as an array of the provided values.
+    const provided = inject<TabDefinition[][]>(TAB_DEFINITIONS, { optional: true });
     const fromProviders = (provided ?? []).flat();
     // Orden por especificidad (menos parámetros → más específico) y, a igualdad,
     // por longitud de patrón. Así /invoices/new vence a /invoices/:id.

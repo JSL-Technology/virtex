@@ -7,6 +7,7 @@ import { User } from '../users/entities/user.entity/user.entity';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { PERMISSIONS } from '../shared/permissions';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @ApiTags('Financial Reporting')
 @ApiBearerAuth()
@@ -28,7 +29,7 @@ export class FinancialReportingController {
   @ApiQuery({ name: 'costCenterId', required: false, type: String, description: 'Filtrar por ID de la dimensión Centro de Costo.' })
   @ApiQuery({ name: 'projectId', required: false, type: String, description: 'Filtrar por ID de la dimensión Proyecto.' })
   getBalanceSheet(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Query('asOfDate') asOfDate: string,
     @Query('ledgerId') ledgerId?: string,
     @Query('costCenterId') costCenterId?: string,
@@ -60,7 +61,7 @@ export class FinancialReportingController {
   @ApiQuery({ name: 'costCenterId', required: false, type: String, description: 'Filtrar por ID de la dimensión Centro de Costo.' })
   @ApiQuery({ name: 'projectId', required: false, type: String, description: 'Filtrar por ID de la dimensión Proyecto.' })
   getIncomeStatement(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Query('startDate') startDateStr: string,
     @Query('endDate') endDateStr: string,
     @Query('ledgerId') ledgerId?: string,
@@ -95,7 +96,7 @@ export class FinancialReportingController {
   @ApiQuery({ name: 'endDate', required: false, type: String, description: 'Fecha de fin del período (formato YYYY-MM-DD). Por defecto, es la fecha actual.' })
   @ApiQuery({ name: 'ledgerId', required: false, type: String, description: 'ID del libro contable a utilizar. Por defecto, se usa el libro principal.' })
   getCashFlowStatement(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Query('startDate') startDateStr: string,
     @Query('endDate') endDateStr: string,
     @Query('ledgerId') ledgerId?: string,

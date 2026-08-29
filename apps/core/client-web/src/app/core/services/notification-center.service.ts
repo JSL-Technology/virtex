@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { WebSocketService } from './websocket.service';
 import { PushNotificationService } from './push-notification.service';
@@ -21,11 +21,14 @@ export class NotificationCenterService {
   notifications = signal<Notification[]>([]);
   unreadCount = signal(0);
 
-  constructor(
-    private http: HttpClient,
-    private websocketService: WebSocketService,
-    private pushNotificationService: PushNotificationService
-  ) {
+  private http = inject(HttpClient);
+
+  private websocketService = inject(WebSocketService);
+
+  private pushNotificationService = inject(PushNotificationService);
+
+
+  constructor() {
     this.websocketService.connectionReady$.subscribe(() => {
       this.listenForNewNotifications();
     });

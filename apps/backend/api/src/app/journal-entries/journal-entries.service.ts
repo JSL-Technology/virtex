@@ -51,6 +51,7 @@ import { JournalEntryLineValuation } from './entities/journal-entry-line-valuati
 import { LedgerMappingRule } from '../accounting/entities/ledger-mapping-rule.entity';
 import { SaasService } from '../saas/saas.service';
 import { SaasResource } from '../saas/enums/saas-resource.enum';
+import { FastifyFile, toUploadableFile } from '../common/interfaces/fastify-file.interface';
 
 @Injectable()
 export class JournalEntriesService {
@@ -161,7 +162,7 @@ export class JournalEntriesService {
       await queryRunner.rollbackTransaction();
       this.logger.error(
         'Error al crear asiento contable con flujo de aprobación',
-        error.stack,
+        (error as Error).stack,
       );
       throw error;
     } finally {
@@ -750,7 +751,7 @@ export class JournalEntriesService {
 
   async addAttachment(
     journalEntryId: string,
-    file: Express.Multer.File,
+    file: FastifyFile,
     organizationId: string,
     uploadedByUserId: string,
   ): Promise<JournalEntryAttachment> {
@@ -760,13 +761,11 @@ export class JournalEntriesService {
 
 
 
+    // Through the adapter, so a streamed upload (which arrives as a path, not a buffer) is stored
+    // rather than silently written as an empty object.
     const storedFile = await this.storageService.upload(
-      {
-        fileName: file.originalname,
-        mimeType: file.mimetype,
-        buffer: file.buffer,
-      },
-      organizationId,
+      toUploadableFile(file),
+      `journal-entries/${organizationId}`,
     );
 
     const attachment = this.attachmentRepository.create({

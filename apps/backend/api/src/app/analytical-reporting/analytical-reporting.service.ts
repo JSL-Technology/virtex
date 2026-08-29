@@ -77,8 +77,8 @@ export class AnalyticalReportingService {
       return { message: 'Vista materializada sincronizada y recreada con las dimensiones actuales.' };
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      this.logger.error('Fallo la sincronización de la vista materializada.', error.stack);
-      throw new BadRequestException(`No se pudo sincronizar la vista analítica: ${error.message}`);
+      this.logger.error('Fallo la sincronización de la vista materializada.', (error as Error).stack);
+      throw new BadRequestException(`No se pudo sincronizar la vista analítica: ${(error as Error).message}`);
     } finally {
       await queryRunner.release();
     }
@@ -166,7 +166,7 @@ export class AnalyticalReportingService {
       await this.dataSource.query(`REFRESH MATERIALIZED VIEW CONCURRENTLY "${this.VIEW_NAME}"`);
       this.logger.log('Vista materializada refrescada exitosamente.');
     } catch (error) {
-      this.logger.error('Fallo al refrescar la vista materializada. Puede que necesite ser recreada.', error.stack);
+      this.logger.error('Fallo al refrescar la vista materializada. Puede que necesite ser recreada.', (error as Error).stack);
 
     }
   }

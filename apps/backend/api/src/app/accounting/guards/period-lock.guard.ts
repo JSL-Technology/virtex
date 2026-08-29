@@ -71,7 +71,9 @@ export class PeriodLockGuard implements CanActivate {
     }
 
 
-    const accountIds = (body.lines || []).map(line => line.accountId).filter(Boolean);
+    const accountIds = ((body.lines ?? []) as Array<{ accountId?: string }>)
+      .map((line) => line.accountId)
+      .filter(Boolean);
     if (accountIds.length > 0) {
         const lockedAccount = await this.lockRepo.createQueryBuilder('lock')
             .innerJoin('lock.account', 'account')

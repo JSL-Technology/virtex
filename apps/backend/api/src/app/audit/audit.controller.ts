@@ -3,6 +3,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { AuditTrailService } from './audit.service';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 
 
@@ -15,7 +16,7 @@ export class AuditController {
   @Get()
 
   findAll(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Query('entity') entity?: string,
     @Query('entityId') entityId?: string,
   ) {

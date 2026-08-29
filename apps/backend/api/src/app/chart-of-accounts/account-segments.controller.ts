@@ -5,6 +5,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { AccountSegmentsService } from './account-segments.service';
 import { ConfigureAccountSegmentsDto } from './dto/account-segment-definition.dto';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Controller('chart-of-accounts/segment-definitions')
 @UseGuards(JwtAuthGuard)
@@ -12,17 +13,17 @@ export class AccountSegmentsController {
   constructor(private readonly segmentsService: AccountSegmentsService) {}
 
   @Get()
-  getDefinitions(@CurrentUser() user: User) {
+  getDefinitions(@CurrentUser() user: AuthenticatedUser) {
     return this.segmentsService.findByOrg(user.organizationId);
   }
 
   @Post()
-  configureSegments(@Body() dto: ConfigureAccountSegmentsDto, @CurrentUser() user: User) {
+  configureSegments(@Body() dto: ConfigureAccountSegmentsDto, @CurrentUser() user: AuthenticatedUser) {
     return this.segmentsService.configure(dto, user.organizationId);
   }
 
   @Post('initialize')
-  initialize(@CurrentUser() user: User) {
+  initialize(@CurrentUser() user: AuthenticatedUser) {
     return this.segmentsService.initializeDefault(user.organizationId);
   }
 }

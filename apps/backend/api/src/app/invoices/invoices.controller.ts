@@ -22,6 +22,8 @@ import { PERMISSIONS } from '../shared/permissions';
 import { CheckPlanLimit } from '../saas/decorators/plan-limit.decorator';
 import { PlanLimitCheckGuard } from '../saas/guards/plan-limit-check.guard';
 import { SaasResource } from '../saas/enums/saas-resource.enum';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { CreateCreditNoteDto } from './dto/create-credit-note.dto';
 
 @Controller('invoices')
 @UseGuards(JwtAuthGuard)
@@ -34,18 +36,18 @@ export class InvoicesController {
   @CheckPlanLimit(SaasResource.INVOICES, 1)
   create(
     @Body() createInvoiceDto: CreateInvoiceDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.invoicesService.create(createInvoiceDto, user.organizationId);
   }
 
   @Get()
-  findAll(@CurrentUser() user: User) {
+  findAll(@CurrentUser() user: AuthenticatedUser) {
     return this.invoicesService.findAll(user.organizationId);
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.invoicesService.findOne(id, user.organizationId);
   }
 
@@ -53,15 +55,19 @@ export class InvoicesController {
   @HttpCode(HttpStatus.CREATED)
   createCreditNote(
     @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser() user: User,
+    @Body() dto: CreateCreditNoteDto,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.invoicesService.createCreditNote(id, user.organizationId);
+    return this.invoicesService.createCreditNote(
+      { ...dto, invoiceId: id },
+      user.organizationId,
+    );
   }
   
   @Get(':id/pdf')
   async downloadPdf(
     @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Res() res: Response,
   ) {
     const pdfBuffer = await this.invoicesService.generateInvoicePdf(
@@ -83,7 +89,7 @@ export class InvoicesController {
   registerPayment(
     @Param('id', ParseUUIDPipe) id: string,
     @Body('amount') amount: number,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.invoicesService.registerPayment(
       id,

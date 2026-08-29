@@ -16,6 +16,7 @@ import { UpdateVendorDebitNoteDto } from './dto/update-vendor-debit-note.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Controller('vendor-debit-notes')
 @UseGuards(JwtAuthGuard)
@@ -27,18 +28,18 @@ export class VendorDebitNotesController {
   @Post()
   create(
     @Body() createDto: CreateVendorDebitNoteDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.vendorDebitNotesService.create(createDto, user.organizationId);
   }
 
   @Get()
-  findAll(@CurrentUser() user: User) {
+  findAll(@CurrentUser() user: AuthenticatedUser) {
     return this.vendorDebitNotesService.findAll(user.organizationId);
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.vendorDebitNotesService.findOne(id, user.organizationId);
   }
 
@@ -46,7 +47,7 @@ export class VendorDebitNotesController {
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateDto: UpdateVendorDebitNoteDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.vendorDebitNotesService.update(
       id,
@@ -56,7 +57,7 @@ export class VendorDebitNotesController {
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.vendorDebitNotesService.remove(id, user.organizationId);
   }
 }

@@ -9,6 +9,7 @@ import { GenerateReportDto } from './dto/generate-report.dto';
 import { GeneralLedgerReportDto } from '../journal-entries/dto/general-ledger-report.dto';
 import { JournalReportDto } from '../journal-entries/dto/journal-report.dto';
 import { AgingReportDto } from './dto/aging-report.dto';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @ApiTags('Reports')
 @Controller('reports')
@@ -19,7 +20,7 @@ export class ReportsController {
   @Get('aging')
   @ApiOperation({ summary: 'Get aging report' })
   @ApiResponse({ status: 200, description: 'Return aging report.' })
-  getAgingReport(@CurrentUser() user: User, @Query() query: AgingReportDto) {
+  getAgingReport(@CurrentUser() user: AuthenticatedUser, @Query() query: AgingReportDto) {
 
     return this.reportsService.getAgingReport(
       user.organizationId,
@@ -30,7 +31,7 @@ export class ReportsController {
   @Post('generate')
   @ApiOperation({ summary: 'Generate a new financial report' })
   async generateReport(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Body() generateReportDto: GenerateReportDto,
   ) {
     switch (generateReportDto.reportType) {

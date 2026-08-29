@@ -145,6 +145,6 @@ export class PasswordRecoveryService {
   }
 
   private convertToMs(time: string): number {
-    return ms(time) as number;
+    return (ms as unknown as (value: string) => number)(time);
   }
 }

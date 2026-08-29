@@ -9,6 +9,7 @@ import { User } from '../users/entities/user.entity/user.entity';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { hasPermission } from '@virteex/shared/util-auth';
 import { UserSecurity } from '../users/entities/user-security.entity';
+import type { Permission } from '../shared/permissions';
 
 @Injectable()
 export class RolesService {
@@ -147,7 +148,8 @@ export class RolesService {
         const newRoleDto: CreateRoleDto = {
             name: `${roleToClone.name} (Copia)`,
             description: roleToClone.description,
-            permissions: roleToClone.permissions,
+            // Already validated against the catalogue when the source role was created.
+            permissions: roleToClone.permissions as Permission[],
         };
 
         return this.create(newRoleDto, organizationId, actor);

@@ -1,5 +1,5 @@
 
-import { Component, OnInit, ViewChild, signal } from '@angular/core';
+import { Component, OnInit, ViewChild, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -142,12 +142,10 @@ export class DatasheetEditorPage implements OnInit {
   suggestions: any[] = [];
   allVariables: any[] = [];
 
-  constructor(
-    private route: ActivatedRoute,
-    private variablesService: DatasheetVariablesService
-  ) {}
+  private route = inject(ActivatedRoute);
 
-  async ngOnInit(): Promise<void> {
+  private variablesService = inject(DatasheetVariablesService);
+async ngOnInit(): Promise<void> {
     this.bookId = this.route.snapshot.paramMap.get('id');
     if (this.bookId && this.bookId !== 'new') {
        const book = await firstValueFrom(this.variablesService.getBook(this.bookId));

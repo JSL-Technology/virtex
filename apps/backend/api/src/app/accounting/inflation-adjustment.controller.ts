@@ -7,6 +7,7 @@ import { RunInflationAdjustmentDto } from './dto/run-inflation-adjustment.dto';
 import { InflationAdjustmentService } from './inflation-adjustment.service';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Controller('accounting/inflation-adjustment')
 @UseGuards(JwtAuthGuard)
@@ -16,7 +17,7 @@ export class InflationAdjustmentController {
   @Post('run')
   @HttpCode(HttpStatus.OK)
   @HasPermission(PERMISSIONS.ACCOUNTING_RUN_INFLATION_ADJUSTMENT)
-  async run(@Body() dto: RunInflationAdjustmentDto, @CurrentUser() user: User) {
+  async run(@Body() dto: RunInflationAdjustmentDto, @CurrentUser() user: AuthenticatedUser) {
     await this.adjustmentService.runAdjustment(dto.year, dto.month, user.organizationId);
     return { message: 'Proceso de ajuste por inflación ejecutado exitosamente.' };
   }

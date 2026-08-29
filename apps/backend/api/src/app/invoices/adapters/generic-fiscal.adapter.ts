@@ -16,7 +16,8 @@ export class GenericFiscalAdapter implements FiscalAdapter {
     // Could generate a simple sequential invoice number if not already handled,
     // but InvoicesService already handles internal sequence.
 
-    invoice.ncfNumber = null; // No NCF for generic
+    // Generic regimes issue no NCF; the field is optional, so absent is the correct value.
+    invoice.ncfNumber = undefined;
   }
 
   async processCreditNote(
@@ -25,6 +26,6 @@ export class GenericFiscalAdapter implements FiscalAdapter {
     organizationId: string,
     manager: EntityManager
   ): Promise<void> {
-    creditNote.ncfNumber = null;
+    creditNote.ncfNumber = undefined;
   }
 }

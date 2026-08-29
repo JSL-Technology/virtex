@@ -3,7 +3,11 @@
   "compilerOptions": {
     "outDir": "../../../dist/out-tsc",
     "module": "commonjs",
-    "types": ["jest", "node"]
+    // `moduleResolution` must accompany `module: commonjs`; the base config sets NodeNext, and
+    // TypeScript refuses the mismatch (TS5110).
+    "moduleResolution": "node10",
+    "types": ["jest", "node"],
+    "noUnusedLocals": false
   },
   "include": ["jest.config.ts", "src/**/*.ts"]
 }

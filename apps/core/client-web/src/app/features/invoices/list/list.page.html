@@ -26,8 +26,8 @@
         </div>
         <div class="filters">
             <div class="filter-group">
-                <label>Estado:</label>
-                <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+                <label for="estado">Estado:</label>
+                <select id="estado" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
                     <option value="All">Todos</option>
                     <option value="Paid">Cobrada</option>
                     <option value="Pending">Pendiente</option>
@@ -42,31 +42,31 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th class="sortable" (click)="toggleSort('invoiceNumber')">
+                    <th class="sortable" (click)="toggleSort('invoiceNumber')" tabindex="0" (keydown.enter)="toggleSort('invoiceNumber')" (keydown.space)="$event.preventDefault(); toggleSort('invoiceNumber')">
                         Factura #
                         @if (sortBy() === 'invoiceNumber') {
                             <lucide-icon [img]="sortDirection() === 'asc' ? ArrowUpIcon : ArrowDownIcon" size="12"></lucide-icon>
                         }
                     </th>
-                    <th class="sortable" (click)="toggleSort('customerName')">
+                    <th class="sortable" (click)="toggleSort('customerName')" tabindex="0" (keydown.enter)="toggleSort('customerName')" (keydown.space)="$event.preventDefault(); toggleSort('customerName')">
                         Cliente
                         @if (sortBy() === 'customerName') {
                             <lucide-icon [img]="sortDirection() === 'asc' ? ArrowUpIcon : ArrowDownIcon" size="12"></lucide-icon>
                         }
                     </th>
-                    <th class="sortable" (click)="toggleSort('issueDate')">
+                    <th class="sortable" (click)="toggleSort('issueDate')" tabindex="0" (keydown.enter)="toggleSort('issueDate')" (keydown.space)="$event.preventDefault(); toggleSort('issueDate')">
                         Creación
                         @if (sortBy() === 'issueDate') {
                             <lucide-icon [img]="sortDirection() === 'asc' ? ArrowUpIcon : ArrowDownIcon" size="12"></lucide-icon>
                         }
                     </th>
-                    <th class="sortable" (click)="toggleSort('dueDate')">
+                    <th class="sortable" (click)="toggleSort('dueDate')" tabindex="0" (keydown.enter)="toggleSort('dueDate')" (keydown.space)="$event.preventDefault(); toggleSort('dueDate')">
                         Vencimiento
                         @if (sortBy() === 'dueDate') {
                             <lucide-icon [img]="sortDirection() === 'asc' ? ArrowUpIcon : ArrowDownIcon" size="12"></lucide-icon>
                         }
                     </th>
-                    <th class="text-right sortable" (click)="toggleSort('total')">
+                    <th class="text-right sortable" (click)="toggleSort('total')" tabindex="0" (keydown.enter)="toggleSort('total')" (keydown.space)="$event.preventDefault(); toggleSort('total')">
                         Total
                         @if (sortBy() === 'total') {
                             <lucide-icon [img]="sortDirection() === 'asc' ? ArrowUpIcon : ArrowDownIcon" size="12"></lucide-icon>

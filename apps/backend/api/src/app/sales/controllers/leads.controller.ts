@@ -5,6 +5,7 @@ import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { User } from '../../users/entities/user.entity/user.entity';
 import { LeadsService } from '../services/leads.service';
 import { CreateLeadDto } from '../dto/create-lead.dto';
+import { AuthenticatedUser } from '../../auth/interfaces/authenticated-user.interface';
 
 @Controller('sales/leads')
 @UseGuards(JwtAuthGuard)
@@ -12,17 +13,17 @@ export class LeadsController {
   constructor(private readonly leadsService: LeadsService) {}
 
   @Post()
-  create(@Body() createDto: CreateLeadDto, @CurrentUser() user: User) {
+  create(@Body() createDto: CreateLeadDto, @CurrentUser() user: AuthenticatedUser) {
     return this.leadsService.create(createDto, user.organizationId, user.id);
   }
 
   @Get()
-  findAll(@CurrentUser() user: User) {
+  findAll(@CurrentUser() user: AuthenticatedUser) {
     return this.leadsService.findAll(user.organizationId);
   }
   
   @Post(':id/convert')
-  convertLead(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+  convertLead(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.leadsService.convertLeadToOpportunity(id, user.organizationId);
   }
 }

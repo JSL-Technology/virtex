@@ -21,4 +21,5 @@ export class Warehouse extends BaseEntity {
 
   @Column({ name: 'country_code', nullable: true })
   countryCode: string;
+
 }

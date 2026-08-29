@@ -1,7 +1,7 @@
 
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
+import { Repository, DataSource, QueryRunner } from 'typeorm';
 import { MonthlyAccountBalance } from './entities/monthly-account-balance.entity';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line.entity';
@@ -71,13 +71,18 @@ export class ReportingService {
         }, ['accountId', 'year', 'month', 'organizationId']);
       }
     } catch (error) {
-      this.logger.error(`Fallo al actualizar vistas para la organización ${organizationId}`, error.stack);
+      this.logger.error(`Fallo al actualizar vistas para la organización ${organizationId}`, (error as Error).stack);
     } finally {
       await queryRunner.release();
     }
   }
 
-  private async calculateEndBalance(queryRunner, accountId, year, month): Promise<number> {
+  private async calculateEndBalance(
+    queryRunner: QueryRunner,
+    accountId: string,
+    year: number,
+    month: number,
+  ): Promise<number> {
       const lastDayOfMonth = new Date(year, month, 0);
       const result = await queryRunner.manager.getRepository(JournalEntryLine)
           .createQueryBuilder('line')

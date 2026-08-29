@@ -79,6 +79,7 @@ import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
 import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
 import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
+import { TwoFactorRequiredResponseDto } from './dto/login-response.dto';
 
 // H1 FIX: @Public() removed from class level. Only individual public endpoints are decorated
 // with @Public(). Authenticated endpoints rely on the global JwtAuthGuard without override.
@@ -452,7 +453,7 @@ export class AuthController {
     // Check if 2FA is required
     if ('require2fa' in result && result.require2fa) {
         // H-03 FIX: Deliver pendingId exclusively via httpOnly cookie — never in response body.
-        this.cookieService.set2faPendingCookie(res, (result as any).pendingId);
+        this.cookieService.set2faPendingCookie(res, (result as TwoFactorRequiredResponseDto).pendingId as string);
         this.cookieService.setCsrfCookie(res);
         return { require2fa: true, message: (result as any).message };
     }
@@ -534,7 +535,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard, CsrfGuard)
   async logout(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Res({ passthrough: true }) res: Response,
   ) {
     const sessionId = (user as unknown as AuthenticatedUser).sessionId;
@@ -547,7 +548,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard, CsrfGuard)
   async logoutAll(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Res({ passthrough: true }) res: Response,
   ) {
     await this.authService.logoutAll(user.id);
@@ -569,7 +570,7 @@ export class AuthController {
   @Throttle({ default: { limit: 5, ttl: 900000 } })
   @ApiOperation({ summary: 'Re-authenticate to authorise a sensitive action' })
   async stepUp(
-      @CurrentUser() user: User,
+      @CurrentUser() user: AuthenticatedUser,
       @Body() dto: StepUpDto,
       @Res({ passthrough: true }) res: Response,
   ) {
@@ -597,14 +598,14 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Header('Cache-Control', 'no-store')
   @ApiOperation({ summary: 'Ask which factor step-up will require for this account' })
-  async stepUpChallenge(@CurrentUser() user: User) {
+  async stepUpChallenge(@CurrentUser() user: AuthenticatedUser) {
       return this.authService.describeStepUpChallenge(user.id);
   }
 
   @Get('status')
   @UseGuards(JwtAuthGuard)
   @Header('Cache-Control', 'no-store')
-  async checkAuthStatus(@CurrentUser() user: User) {
+  async checkAuthStatus(@CurrentUser() user: AuthenticatedUser) {
     const statusResponse = await this.authService.status(user as unknown as AuthenticatedUser);
     return {
       isAuthenticated: true,
@@ -686,7 +687,7 @@ export class AuthController {
   @UsePipes(new ValidationPipe())
   @ApiOperation({ summary: 'Change password for authenticated user' })
   async changePassword(
-      @CurrentUser() user: User,
+      @CurrentUser() user: AuthenticatedUser,
       @Body() changePasswordDto: ChangePasswordDto,
       @Ip() ip: string
   ) {
@@ -695,7 +696,7 @@ export class AuthController {
           await this.auditTrailService.record(user.id, 'User', user.id, ActionType.UPDATE, { action: 'change-password' }, undefined, ip, user.organizationId);
           return { message: 'Password updated successfully' };
       } catch (e) {
-          await this.auditTrailService.record(user.id, 'User', user.id, ActionType.UPDATE, { action: 'change-password', error: e.message }, undefined, ip, user.organizationId);
+          await this.auditTrailService.record(user.id, 'User', user.id, ActionType.UPDATE, { action: 'change-password', error: (e as Error).message }, undefined, ip, user.organizationId);
           throw e;
       }
   }
@@ -713,7 +714,7 @@ export class AuthController {
   @StepUp(StepUpScope.IMPERSONATE)
   @HasPermission(PERMISSIONS.USERS_IMPERSONATE)
   async impersonate(
-    @CurrentUser() adminUser: User,
+    @CurrentUser() adminUser: AuthenticatedUser,
     @Body() dto: ImpersonateDto,
     @Res({ passthrough: true }) res: Response
   ) {
@@ -730,7 +731,7 @@ export class AuthController {
   @Post('stop-impersonation')
   @UseGuards(JwtAuthGuard, CsrfGuard)
   async stopImpersonation(
-    @CurrentUser() impersonatingUser: User,
+    @CurrentUser() impersonatingUser: AuthenticatedUser,
     @Res({ passthrough: true }) res: Response
   ) {
     const { user, accessToken, refreshToken } =
@@ -749,7 +750,7 @@ export class AuthController {
   @Post('2fa/generate')
   @UseGuards(JwtAuthGuard, CsrfGuard)
   @ApiOperation({ summary: 'Generate 2FA secret and QR code URL' })
-  async generateTwoFactorSecret(@CurrentUser() user: User) {
+  async generateTwoFactorSecret(@CurrentUser() user: AuthenticatedUser) {
     return this.twoFactorAuthService.generateTwoFactorSecret(user);
   }
 
@@ -758,7 +759,7 @@ export class AuthController {
   @StepUp(StepUpScope.ENABLE_2FA)
   @ApiOperation({ summary: 'Verify token and enable 2FA — requires current password as step-up' })
   async enableTwoFactor(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Body() enableTwoFactorDto: EnableTwoFactorDto,
     @Ip() ip: string
   ) {
@@ -768,7 +769,7 @@ export class AuthController {
       await this.auditTrailService.record(user.id, 'UserSecurity', user.id, ActionType.UPDATE, { action: 'enable-2fa' }, undefined, ip, user.organizationId);
       return result;
     } catch (e) {
-      await this.auditTrailService.record(user.id, 'UserSecurity', user.id, ActionType.UPDATE, { action: 'enable-2fa', error: e.message }, undefined, ip, user.organizationId);
+      await this.auditTrailService.record(user.id, 'UserSecurity', user.id, ActionType.UPDATE, { action: 'enable-2fa', error: (e as Error).message }, undefined, ip, user.organizationId);
       throw e;
     }
   }
@@ -777,13 +778,13 @@ export class AuthController {
   @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
   @StepUp(StepUpScope.DISABLE_2FA)
   @ApiOperation({ summary: 'Disable 2FA' })
-  async disableTwoFactor(@CurrentUser() user: User, @Ip() ip: string) {
+  async disableTwoFactor(@CurrentUser() user: AuthenticatedUser, @Ip() ip: string) {
     try {
       const result = await this.twoFactorAuthService.disableTwoFactor(user);
       await this.auditTrailService.record(user.id, 'UserSecurity', user.id, ActionType.UPDATE, { action: 'disable-2fa' }, undefined, ip, user.organizationId);
       return result;
     } catch (e) {
-      await this.auditTrailService.record(user.id, 'UserSecurity', user.id, ActionType.UPDATE, { action: 'disable-2fa', error: e.message }, undefined, ip, user.organizationId);
+      await this.auditTrailService.record(user.id, 'UserSecurity', user.id, ActionType.UPDATE, { action: 'disable-2fa', error: (e as Error).message }, undefined, ip, user.organizationId);
       throw e;
     }
   }
@@ -792,13 +793,13 @@ export class AuthController {
   @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
   @StepUp(StepUpScope.REGENERATE_BACKUP_CODES)
   @ApiOperation({ summary: 'Generate new backup codes' })
-  async generateBackupCodes(@CurrentUser() user: User, @Ip() ip: string) {
+  async generateBackupCodes(@CurrentUser() user: AuthenticatedUser, @Ip() ip: string) {
     try {
       const result = await this.twoFactorAuthService.generateBackupCodes(user);
       await this.auditTrailService.record(user.id, 'UserSecurity', user.id, ActionType.UPDATE, { action: 'generate-backup-codes' }, undefined, ip, user.organizationId);
       return result;
     } catch (e) {
-      await this.auditTrailService.record(user.id, 'UserSecurity', user.id, ActionType.UPDATE, { action: 'generate-backup-codes', error: e.message }, undefined, ip, user.organizationId);
+      await this.auditTrailService.record(user.id, 'UserSecurity', user.id, ActionType.UPDATE, { action: 'generate-backup-codes', error: (e as Error).message }, undefined, ip, user.organizationId);
       throw e;
     }
   }
@@ -807,7 +808,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard, CsrfGuard)
   @ApiOperation({ summary: 'Send email verification code for 2FA setup' })
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
-  async sendEmailVerification(@CurrentUser() user: User) {
+  async sendEmailVerification(@CurrentUser() user: AuthenticatedUser) {
     await this.mfaOrchestratorService.sendEmailOtp(user.id, user.email);
     return { message: 'Verification code sent to email' };
   }
@@ -816,14 +817,14 @@ export class AuthController {
   @UseGuards(JwtAuthGuard, CsrfGuard)
   @ApiOperation({ summary: 'Verify email code for 2FA setup' })
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
-  async verifyEmailVerification(@CurrentUser() user: User, @Body() dto: VerifyEmailCodeDto) {
+  async verifyEmailVerification(@CurrentUser() user: AuthenticatedUser, @Body() dto: VerifyEmailCodeDto) {
     return this.mfaOrchestratorService.verifyEmailOtp(user.id, dto.code);
   }
 
   @Post('send-phone-otp')
   @UseGuards(JwtAuthGuard, CsrfGuard)
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
-  async sendPhoneOtp(@CurrentUser() user: User, @Body() dto: SendPhoneOtpDto) {
+  async sendPhoneOtp(@CurrentUser() user: AuthenticatedUser, @Body() dto: SendPhoneOtpDto) {
       // Presence + E.164 format are now enforced by SendPhoneOtpDto via the global ValidationPipe.
       const { phoneNumber } = dto;
 
@@ -841,7 +842,7 @@ export class AuthController {
   @Post('verify-phone')
   @UseGuards(JwtAuthGuard, CsrfGuard)
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
-  async verifyPhoneOtp(@CurrentUser() user: User, @Body() dto: VerifyPhoneOtpDto) {
+  async verifyPhoneOtp(@CurrentUser() user: AuthenticatedUser, @Body() dto: VerifyPhoneOtpDto) {
       // Use MfaOrchestratorService directly instead of AuthService pass-through
       return this.mfaOrchestratorService.verifyPhoneOtp(user.id, dto.code, dto.phoneNumber);
   }
@@ -882,7 +883,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Create a Stripe checkout session for a selected plan' })
   @UseGuards(JwtAuthGuard, CsrfGuard)
   async createCheckoutSession(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Body() body: CreateCheckoutSessionDto
   ) {
     const plans = await this.saasService.getPlans();
@@ -958,7 +959,7 @@ export class AuthController {
   @Get('webauthn/register/options')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Generate WebAuthn registration options' })
-  async generateWebAuthnRegistrationOptions(@CurrentUser() user: User) {
+  async generateWebAuthnRegistrationOptions(@CurrentUser() user: AuthenticatedUser) {
     return this.webAuthnService.generateRegistrationOptions(user);
   }
 
@@ -968,7 +969,7 @@ export class AuthController {
   @StepUp(StepUpScope.REGISTER_PASSKEY)
   @ApiOperation({ summary: 'Verify WebAuthn registration' })
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
-  async verifyWebAuthnRegistration(@CurrentUser() user: User, @Body() body: VerifyWebAuthnRegistrationDto) {
+  async verifyWebAuthnRegistration(@CurrentUser() user: AuthenticatedUser, @Body() body: VerifyWebAuthnRegistrationDto) {
     return this.webAuthnService.verifyRegistration(user, body);
   }
 
@@ -1052,7 +1053,7 @@ export class AuthController {
   @StepUp(StepUpScope.REVOKE_SESSION)
   @ApiOperation({ summary: 'Revoke a specific session' })
   async revokeSession(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Param('id', ParseUUIDPipe) sessionId: string,
     @Ip() ip: string
   ) {
@@ -1061,7 +1062,7 @@ export class AuthController {
       await this.auditTrailService.record(user.id, 'Session', sessionId, ActionType.DELETE, { action: 'revoke-session' }, undefined, ip, user.organizationId);
       return result;
     } catch (e) {
-      await this.auditTrailService.record(user.id, 'Session', sessionId, ActionType.DELETE, { action: 'revoke-session', error: e.message }, undefined, ip, user.organizationId);
+      await this.auditTrailService.record(user.id, 'Session', sessionId, ActionType.DELETE, { action: 'revoke-session', error: (e as Error).message }, undefined, ip, user.organizationId);
       throw e;
     }
   }

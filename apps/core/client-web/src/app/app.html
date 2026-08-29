@@ -8,9 +8,9 @@
 @if (modalService.isOpen() && modalService.options(); as options) {
   <app-modal 
     [options]="options"
-    (onCloseModal)="modalService.close(null)"
-    (onConfirm)="modalService.close(true)"
-    (onCancel)="modalService.close(false)"
+    (closed)="modalService.close(null)"
+    (confirmed)="modalService.close(true)"
+    (cancelled)="modalService.close(false)"
   />
 }
 

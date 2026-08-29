@@ -9,6 +9,7 @@ import { CreatePeriodEndAdjustmentDto } from './dto/period-end-adjustment.dto';
 import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Controller('journal-entries/adjustments')
 @UseGuards(JwtAuthGuard, PeriodLockGuard)
@@ -19,7 +20,7 @@ export class AdjustmentsController {
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_CREATE)
   createReclassification(
     @Body() dto: CreateReclassificationEntryDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.adjustmentsService.createReclassification(
       dto,
@@ -31,7 +32,7 @@ export class AdjustmentsController {
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_CREATE)
   createPeriodEndAdjustment(
     @Body() dto: CreatePeriodEndAdjustmentDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.adjustmentsService.createPeriodEndAdjustment(
       dto,

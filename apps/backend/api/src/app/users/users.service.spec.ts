@@ -116,7 +116,13 @@ describe('UsersService', () => {
       userRepositoryMock.findOne.mockResolvedValue(user);
       userRepositoryMock.save.mockImplementation((u: User) => Promise.resolve(u));
 
-      const dto: UpdateProfileDto = { email: 'same@example.com', phone: '111111', firstName: 'NewName' };
+      // `email` is deliberately NOT part of UpdateProfileDto — changing it goes through the
+      // confirmation flow — and this test asserts that sending it anyway is ignored.
+      const dto = {
+        email: 'same@example.com',
+        phone: '111111',
+        firstName: 'NewName',
+      } as UpdateProfileDto & { email: string };
 
       const updatedUser = await service.updateProfile('123', dto);
 

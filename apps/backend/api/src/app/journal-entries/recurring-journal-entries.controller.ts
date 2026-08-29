@@ -18,6 +18,7 @@ import {
   CreateRecurringJournalEntryDto,
   UpdateRecurringJournalEntryDto,
 } from './dto/recurring-and-templates.dto';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Controller('recurring-journal-entries')
 @UseGuards(JwtAuthGuard)
@@ -29,18 +30,18 @@ export class RecurringJournalEntriesController {
   @Post()
   create(
     @Body() createDto: CreateRecurringJournalEntryDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.recurringService.create(createDto, user.organizationId);
   }
 
   @Get()
-  findAll(@CurrentUser() user: User) {
+  findAll(@CurrentUser() user: AuthenticatedUser) {
     return this.recurringService.findAll(user.organizationId);
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.recurringService.findOne(id, user.organizationId);
   }
 
@@ -48,13 +49,13 @@ export class RecurringJournalEntriesController {
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateDto: UpdateRecurringJournalEntryDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.recurringService.update(id, updateDto, user.organizationId);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.recurringService.remove(id, user.organizationId);
   }
 }

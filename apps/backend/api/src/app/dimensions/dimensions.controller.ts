@@ -6,6 +6,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { CreateDimensionDto, UpdateDimensionDto } from './dto/dimension.dto';
 import { CreateDimensionRuleDto } from './dto/dimension-rule.dto';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Controller('dimensions')
 @UseGuards(JwtAuthGuard)
@@ -13,17 +14,17 @@ export class DimensionsController {
   constructor(private readonly dimensionsService: DimensionsService) {}
 
   @Post()
-  create(@Body() createDto: CreateDimensionDto, @CurrentUser() user: User) {
+  create(@Body() createDto: CreateDimensionDto, @CurrentUser() user: AuthenticatedUser) {
     return this.dimensionsService.create(createDto, user.organizationId);
   }
 
   @Get()
-  findAll(@CurrentUser() user: User) {
+  findAll(@CurrentUser() user: AuthenticatedUser) {
     return this.dimensionsService.findAll(user.organizationId);
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.dimensionsService.findOne(id, user.organizationId);
   }
 
@@ -31,13 +32,13 @@ export class DimensionsController {
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateDto: UpdateDimensionDto,
-    @CurrentUser() user: User
+    @CurrentUser() user: AuthenticatedUser
   ) {
     return this.dimensionsService.update(id, updateDto, user.organizationId);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
+  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.dimensionsService.remove(id, user.organizationId);
   }
 
@@ -45,13 +46,13 @@ export class DimensionsController {
 
 
   @Get('rules/:accountId')
-  getRulesForAccount(@Param('accountId', ParseUUIDPipe) accountId: string, @CurrentUser() user: User) {
+  getRulesForAccount(@Param('accountId', ParseUUIDPipe) accountId: string, @CurrentUser() user: AuthenticatedUser) {
     return this.dimensionsService.getRulesForAccount(accountId, user.organizationId);
   }
   
   @Post('rules')
   @HttpCode(HttpStatus.CREATED)
-  createRule(@Body() createRuleDto: CreateDimensionRuleDto, @CurrentUser() user: User) {
+  createRule(@Body() createRuleDto: CreateDimensionRuleDto, @CurrentUser() user: AuthenticatedUser) {
     return this.dimensionsService.createRule(createRuleDto, user.organizationId);
   }
 
@@ -60,7 +61,7 @@ export class DimensionsController {
   deleteRule(
     @Param('accountId', ParseUUIDPipe) accountId: string,
     @Param('dimensionId', ParseUUIDPipe) dimensionId: string,
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.dimensionsService.deleteRule(accountId, dimensionId, user.organizationId);
   }
