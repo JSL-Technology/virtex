@@ -22,7 +22,11 @@
         </div>
     </div>
 
-    <div class="sale-ticket card">
+    <!--
+      The `formArrayName` below needs an enclosing form group; without it Angular throws
+      NG01054 and the whole point of sale fails to render. The binding was simply missing.
+    -->
+    <div class="sale-ticket card" [formGroup]="saleForm">
         <div class="ticket-header">
             <h3>Orden Actual</h3>
             <div class="customer-info">Cliente: <strong>{{ saleForm.get('customer')?.value }}</strong></div>
@@ -51,7 +55,7 @@
             </div>
             } @else {
             <div class="empty-cart">
-                <lucide-icon name="shopping-cart" size="48"></lucide-icon>
+                <lucide-icon [img]="ShoppingCartIcon" size="48"></lucide-icon>
                 <span>Añade productos para comenzar una venta.</span>
             </div>
             }

@@ -19,7 +19,6 @@ import { CsrfGuard } from '../auth/guards/csrf.guard';
 import { StepUpGuard } from '../auth/guards/step-up.guard';
 import { StepUp } from '../auth/decorators/step-up.decorator';
 import { StepUpScope } from '../auth/enums/step-up-scope.enum';
-import { TwoFactorVerifiedGuard } from '../auth/guards/two-factor-verified.guard';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
@@ -52,7 +51,8 @@ export class UsersController {
   }
 
   @Post('invite')
-  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+  @UseGuards(CsrfGuard, StepUpGuard)
+  @StepUp(StepUpScope.MANAGE_USERS)
   @HasPermission(PERMISSIONS.USERS_CREATE)
   @ApiOperation({ summary: 'Invite a new user to the organization' })
   async inviteUser(
@@ -196,7 +196,8 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+  @UseGuards(CsrfGuard, StepUpGuard)
+  @StepUp(StepUpScope.MANAGE_USERS)
   @HasPermission(PERMISSIONS.USERS_EDIT)
   @ApiOperation({ summary: 'Update user (Admin)' })
   async update(
@@ -214,7 +215,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard, StepUpGuard)
+  @UseGuards(CsrfGuard, StepUpGuard)
   @StepUp(StepUpScope.DELETE_ACCOUNT)
   // M-05 FIX: Permission + ABAC policy combined in a SINGLE metadata declaration so the
   // ownership policy is actually evaluated (previously @CheckPermissions was silently
@@ -233,7 +234,8 @@ export class UsersController {
   }
 
   @Patch(':id/status')
-  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+  @UseGuards(CsrfGuard, StepUpGuard)
+  @StepUp(StepUpScope.MANAGE_USER_STATUS)
   @HasPermission(PERMISSIONS.USERS_MANAGE_STATUS)
   async updateStatus(
       @Param('id', ParseUUIDPipe) id: string,
@@ -249,7 +251,8 @@ export class UsersController {
   }
 
   @Post(':id/reset-password')
-  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+  @UseGuards(CsrfGuard, StepUpGuard)
+  @StepUp(StepUpScope.MANAGE_USER_CREDENTIALS)
   @HasPermission(PERMISSIONS.USERS_PASSWORD_RESET)
   async resetPassword(
       @Param('id', ParseUUIDPipe) id: string,
@@ -275,7 +278,8 @@ export class UsersController {
   }
 
   @Post(':id/force-logout')
-  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+  @UseGuards(CsrfGuard, StepUpGuard)
+  @StepUp(StepUpScope.MANAGE_USER_CREDENTIALS)
   @HasPermission(PERMISSIONS.USERS_FORCE_LOGOUT)
   async forceLogout(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
       return this.usersService.forceLogout(id, user.organizationId);
@@ -283,7 +287,8 @@ export class UsersController {
 
   @Post(':id/email-change')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+  @UseGuards(CsrfGuard, StepUpGuard)
+  @StepUp(StepUpScope.MANAGE_USER_CREDENTIALS)
   // L-08 FIX: use the catalog constant ('users:edit') — the previous 'users.edit' string
   // did not exist in PERMISSIONS and only ever passed for wildcard admins.
   @HasPermission(PERMISSIONS.USERS_EDIT)
@@ -298,7 +303,8 @@ export class UsersController {
   }
 
   @Post(':id/block-and-logout')
-  @UseGuards(CsrfGuard, TwoFactorVerifiedGuard)
+  @UseGuards(CsrfGuard, StepUpGuard)
+  @StepUp(StepUpScope.MANAGE_USER_STATUS)
   @HasPermission(PERMISSIONS.USERS_MANAGE_STATUS)
   async blockAndLogout(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: User) {
       return this.usersService.blockAndLogout(id, user.organizationId);

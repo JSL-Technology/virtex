@@ -1,7 +1,7 @@
 
 import { Injectable } from '@nestjs/common';
 import { FiscalReportGenerator, ReportData } from './fiscal-report.interface';
-import { Invoice } from '../invoices/entities/invoice.entity';
+import { Invoice } from '../../invoices/entities/invoice.entity';
 import { Between, Not, IsNull, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 

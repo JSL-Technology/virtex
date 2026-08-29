@@ -10,6 +10,7 @@ import { LoaderComponent } from '../../../shared/components/loader/loader.compon
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AuthService } from '../../../core/services/auth';
 import { signal } from '@angular/core';
+import { authServiceMock, routerMock as routerMockFactory } from '../../../../testing/service-mocks';
 
 describe('SettingsLayout', () => {
   let component: SettingsLayout;
@@ -26,13 +27,9 @@ describe('SettingsLayout', () => {
     };
 
     routerEventsSubject = new Subject<any>();
-    routerMock = {
-      events: routerEventsSubject.asObservable(),
-      url: '/settings',
-      navigate: jest.fn(),
-      createUrlTree: jest.fn(),
-      serializeUrl: jest.fn()
-    };
+    // A Router double must carry `routerState`: Angular resolves ActivatedRoute through a factory
+    // that reads `router.routerState.root`, and every routerLink in the template injects it.
+    routerMock = { ...routerMockFactory('/settings'), events: routerEventsSubject.asObservable() };
 
     await TestBed.configureTestingModule({
       imports: [
@@ -47,7 +44,8 @@ describe('SettingsLayout', () => {
         { provide: LoaderService, useValue: loaderServiceMock },
         { provide: Router, useValue: routerMock },
         { provide: ActivatedRoute, useValue: { snapshot: { data: {} } } },
-        { provide: AuthService, useValue: {} }
+        // The layout reads permissions and authentication state; `{}` threw on the first call.
+        { provide: AuthService, useValue: authServiceMock({ permissions: ['*'] }) }
       ]
     }).compileComponents();
 

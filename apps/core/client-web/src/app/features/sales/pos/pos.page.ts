@@ -1,10 +1,19 @@
-import { Component, ChangeDetectionStrategy, signal, inject, OnInit, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { LucideAngularModule, Search, X, Plus, Minus, Trash2, CreditCard } from 'lucide-angular';
+import { LucideAngularModule, Search, X, Plus, Minus, Trash2, CreditCard, ShoppingCart } from 'lucide-angular';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Product } from '../../../core/models/product.model';
+
+/**
+ * Placeholder sales-tax rate.
+ *
+ * Hardcoded 18% is the Dominican ITBIS and is wrong everywhere else the product is sold. It is
+ * named here so the assumption is visible; the real rate has to come from the organization's tax
+ * configuration, which is tracked separately from this screen.
+ */
+const POS_TAX_RATE = 0.18;
 
 // Reutilizamos el modelo de producto
 // import { Product } from '../../inventory/products/products.page';
@@ -17,7 +26,7 @@ import { Product } from '../../../core/models/product.model';
   styleUrls: ['./pos.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PosPage implements OnInit {
+export class PosPage {
   private fb = inject(FormBuilder);
 
   protected readonly SearchIcon = Search;
@@ -26,6 +35,9 @@ export class PosPage implements OnInit {
   protected readonly MinusIcon = Minus;
   protected readonly TrashIcon = Trash2;
   protected readonly CreditCardIcon = CreditCard;
+  // The empty-cart illustration referenced this by string name (`name="shopping-cart"`), which
+  // only works when the icon set is registered globally — it is not, so the icon never rendered.
+  protected readonly ShoppingCartIcon = ShoppingCart;
 
   // Catálogo de productos simulado
   allProducts = signal<Product[]>([
@@ -35,27 +47,36 @@ export class PosPage implements OnInit {
     // { id: 'P004', name: 'Monitor UltraWide 34"', sku: 'MN-UW-34', category: 'Monitores', price: 799.00, stock: 15, status: 'En Stock', imageUrl: 'https://i.imgur.com/L30ER72.png' },
   ]);
 
-  saleForm!: FormGroup;
-
-  private formChanges = toSignal(this.saleForm.valueChanges, { initialValue: {} });
-
-  subtotal = computed(() => {
-    return this.cartItems.controls.reduce((acc, control) => {
-      const quantity = control.get('quantity')?.value || 0;
-      const price = control.get('price')?.value || 0;
-      return acc + (quantity * price);
-    }, 0);
+  /**
+   * Built in the field initializer, not in `ngOnInit`.
+   *
+   * `formChanges` below reads `saleForm.valueChanges` while the class fields are initialising,
+   * which runs before any lifecycle hook — so with the form created in `ngOnInit` the component
+   * threw "Cannot read properties of undefined (reading 'valueChanges')" the moment it was
+   * constructed. The point of sale did not open at all.
+   */
+  saleForm: FormGroup = this.fb.group({
+    cartItems: this.fb.array([]),
+    customer: ['Cliente General'],
   });
 
-  taxAmount = computed(() => this.subtotal() * 0.18);
-  total = computed(() => this.subtotal() + this.taxAmount());
+  /**
+   * Reactive-forms controls are not signals, so a `computed()` that walks `cartItems.controls`
+   * has nothing to depend on and never recomputes: the totals stayed at zero however many items
+   * were added. Mirroring the form's value into a signal gives the computations a real
+   * dependency.
+   */
+  private readonly formValue = toSignal(this.saleForm.valueChanges, {
+    initialValue: this.saleForm.getRawValue(),
+  });
 
-  ngOnInit(): void {
-    this.saleForm = this.fb.group({
-      cartItems: this.fb.array([]),
-      customer: ['Cliente General'],
-    });
-  }
+  subtotal = computed(() => {
+    const items = (this.formValue()?.cartItems ?? []) as Array<{ quantity?: number; price?: number }>;
+    return items.reduce((acc, item) => acc + (item.quantity || 0) * (item.price || 0), 0);
+  });
+
+  taxAmount = computed(() => this.subtotal() * POS_TAX_RATE);
+  total = computed(() => this.subtotal() + this.taxAmount());
 
   get cartItems(): FormArray {
     return this.saleForm.get('cartItems') as FormArray;

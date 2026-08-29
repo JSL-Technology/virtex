@@ -7,7 +7,7 @@ import { ThemeService } from '../../../core/services/theme';
 import { LivePreview } from '../../../shared/components/live-preview/live-preview';
 import { LanguageSelector } from '../../../shared/components/language-selector/language-selector';
 import { TranslateModule } from '@ngx-translate/core';
-// import { LivePreview } from '../../shared/components/live-preview/live-preview'; // Importar el nuevo componente
+// import { LivePreview } from '../../../shared/components/live-preview/live-preview'; // Importar el nuevo componente
 
 @Component({
   selector: 'app-branding-page',

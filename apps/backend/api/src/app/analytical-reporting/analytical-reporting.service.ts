@@ -44,7 +44,9 @@ export class AnalyticalReportingService {
               EXTRACT(MONTH FROM je.date) AS month,
               EXTRACT(QUARTER FROM je.date) AS quarter,
               jel.account_id,
-              acc.code AS account_code,
+              (SELECT string_agg(seg."value", '-' ORDER BY seg."order")
+                   FROM "account_segments" seg
+                  WHERE seg."account_id" = acc."id") AS account_code,
               acc.name AS account_name,
               acc.type AS account_type,
               acc.category AS account_category,

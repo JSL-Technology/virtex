@@ -1,9 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import { Customer } from '../customers/entities/customer.entity';
-import { User } from '../users/entities/user.entity/user.entity';
+import { Customer } from '../../customers/entities/customer.entity';
+import { User } from '../../users/entities/user.entity/user.entity';
 import { Opportunity } from './opportunity.entity';
 import { QuoteLine } from './quote-line.entity';
-import { Currency } from '../currencies/entities/currency.entity';
+import { Currency } from '../../currencies/entities/currency.entity';
 
 export enum QuoteStatus {
   DRAFT = 'DRAFT',

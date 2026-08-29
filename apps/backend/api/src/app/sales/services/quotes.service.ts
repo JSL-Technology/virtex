@@ -3,12 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, LessThanOrEqual } from 'typeorm';
 import { Quote, QuoteStatus } from '../entities/quote.entity';
 import { CreateQuoteDto } from '../dto/create-quote.dto';
-import { CustomersService } from '../customers/customers.service';
-import { DocumentSequencesService } from '../shared/document-sequences/document-sequences.service';
-import { DocumentType } from '../shared/document-sequences/entities/document-sequence.entity';
-import { InvoicesService } from '../invoices/invoices.service';
-import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
-import { ExchangeRate } from '../currencies/entities/exchange-rate.entity';
+import { CustomersService } from '../../customers/customers.service';
+import { DocumentSequencesService } from '../../shared/document-sequences/document-sequences.service';
+import { DocumentType } from '../../shared/document-sequences/entities/document-sequence.entity';
+import { InvoicesService } from '../../invoices/invoices.service';
+import { OrganizationSettings } from '../../organizations/entities/organization-settings.entity';
+import { ExchangeRate } from '../../currencies/entities/exchange-rate.entity';
 
 @Injectable()
 export class QuotesService {

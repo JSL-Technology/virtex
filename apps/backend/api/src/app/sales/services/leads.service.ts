@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { Lead } from '../entities/lead.entity';
 import { CreateLeadDto } from '../dto/create-lead.dto';
 import { Opportunity } from '../entities/opportunity.entity';
-import { Customer, CustomerStatus } from '../customers/entities/customer.entity';
+import { Customer, CustomerStatus } from '../../customers/entities/customer.entity';
 
 @Injectable()
 export class LeadsService {

@@ -14,7 +14,7 @@ export const MASTERS_ROUTES: Routes = [
             { path: 'suppliers/:id/edit', title: 'Edit Supplier', loadComponent: () => import('./suppliers/supplier-form/supplier-form').then(m => m.SupplierForm) },
             { path: 'products', title: 'Products', loadComponent: () => import('../../features/inventory/products/products.page').then(m => m.ProductsPage) },
             { path: 'price-lists', title: 'Price Lists', loadComponent: () => import('./price-lists/price-lists.page').then(m => m.PriceListsPage) },
-            // { path: 'price-lists/new', title: 'New Price List', loadComponent: () => import('./price-lists/price-list-form/price-list-form.page').then(m => m.PriceListFormPage) },
+            // { path: 'price-lists/new', title: 'New Price List', loadComponent: () => import('./price-lists/price-lists-form/price-list-form.page').then(m => m.PriceListFormPage) },
             { path: 'price-lists/new', title: 'New Price List', loadComponent: () => import('./price-lists/price-lists-form/price-list-form.page').then(m => m.PriceListFormPage) },
             { path: 'price-lists/:id/edit', title: 'Edit Price List', loadComponent: () => import('./price-lists/price-lists-form/price-list-form.page').then(m => m.PriceListFormPage) },
             { path: 'taxes', title: 'Taxes', loadComponent: () => import('./taxes/taxes.page').then(m => m.TaxesPage) },

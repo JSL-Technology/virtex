@@ -10,13 +10,13 @@ import {
 import { DataSource, EntityManager } from 'typeorm';
 import { ProposedAdjustment, AdjustmentStatus } from '../entities/proposed-adjustment.entity';
 import { CreateProposedAdjustmentDto } from '../dto/proposed-adjustment.dto';
-import { WorkflowsService } from '../workflows/workflows.service';
-import { DocumentTypeForApproval } from '../workflows/entities/approval-policy.entity';
-import { StorageService } from '../storage/storage.service';
+import { WorkflowsService } from '../../workflows/workflows.service';
+import { DocumentTypeForApproval } from '../../workflows/entities/approval-policy.entity';
+import { StorageService } from '../../storage/storage.service';
 import { ProposedAdjustmentEvidence } from '../entities/proposed-adjustment-evidence.entity';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { AdjustmentsService } from '../journal-entries/adjustments.service';
-import { User } from '../users/entities/user.entity/user.entity';
+import { AdjustmentsService } from '../../journal-entries/adjustments.service';
+import { User } from '../../users/entities/user.entity/user.entity';
 
 @Injectable()
 export class AuditAdjustmentsService {

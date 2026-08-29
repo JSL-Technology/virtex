@@ -5,6 +5,7 @@ import {
   signal,
   computed,
   OnDestroy,
+  ViewContainerRef,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -63,6 +64,7 @@ import { UserStatus } from '../../../shared/enums/user-status.enum';
 import { WebSocketService } from '../../../core/services/websocket.service';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { debounceTime, distinctUntilChanged, Subject, Subscription } from 'rxjs';
+import { StepUpService, StepUpScope } from '../../../core/services/step-up.service';
 
 @Component({
   selector: 'app-user-management-page',
@@ -85,6 +87,11 @@ export class UserManagementPage implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
   private webSocketService = inject(WebSocketService);
   public authService = inject(AuthService);
+  // Every mutation below is guarded server-side by StepUpGuard: the request must carry a fresh
+  // proof of the operator's own identity. Nothing on this screen worked before, because the
+  // previous guard expected that proof in a request header no client ever sent.
+  private stepUp = inject(StepUpService);
+  private viewContainerRef = inject(ViewContainerRef);
 
   // Iconos
   protected readonly UserPlusIcon = UserPlus;
@@ -283,17 +290,24 @@ export class UserManagementPage implements OnInit, OnDestroy {
         email: formValue.email,
         roleId: formValue.roleId,
       };
-      this.usersService.updateUser(formValue.id, payload).subscribe({
-        next: () => {
-          this.notificationService.showSuccess('Usuario actualizado con éxito.');
-          this.closeUserModal();
-          this.loadUsers();
-        },
-        error: (err) => {
-          this.notificationService.showError('Error al actualizar el usuario.');
-          this.loading.set(false);
-        },
-      });
+      this.stepUp
+        .requireStepUp(StepUpScope.MANAGE_USERS, this.viewContainerRef, () =>
+          this.usersService.updateUser(formValue.id, payload),
+        )
+        .subscribe({
+          next: () => {
+            this.notificationService.showSuccess('Usuario actualizado con éxito.');
+            this.closeUserModal();
+            this.loadUsers();
+          },
+          error: (err) => {
+            this.notificationService.showError(
+              err?.error?.message || 'Error al actualizar el usuario.',
+            );
+            this.loading.set(false);
+          },
+          complete: () => this.loading.set(false),
+        });
     } else {
       const payload: InviteUserDto = {
         firstName: formValue.firstName,
@@ -301,35 +315,48 @@ export class UserManagementPage implements OnInit, OnDestroy {
         email: formValue.email,
         roleId: formValue.roleId,
       };
-      this.usersService.inviteUser(payload).subscribe({
-        next: () => {
-          this.notificationService.showSuccess('Usuario invitado con éxito.');
-          this.closeUserModal();
-          this.loadUsers();
-        },
-        error: (err) => {
-          this.notificationService.showError('Error al invitar al usuario.');
-          this.loading.set(false);
-        },
-      });
+      this.stepUp
+        .requireStepUp(StepUpScope.MANAGE_USERS, this.viewContainerRef, () =>
+          this.usersService.inviteUser(payload),
+        )
+        .subscribe({
+          next: () => {
+            this.notificationService.showSuccess('Usuario invitado con éxito.');
+            this.closeUserModal();
+            this.loadUsers();
+          },
+          error: (err) => {
+            this.notificationService.showError(
+              err?.error?.message || 'Error al invitar al usuario.',
+            );
+            this.loading.set(false);
+          },
+          complete: () => this.loading.set(false),
+        });
     }
   }
 
   confirmDelete(): void {
     if (!this.selectedUser) return;
     this.loading.set(true);
-    this.usersService.deleteUser(this.selectedUser.id).subscribe({
-      next: () => {
-        this.notificationService.showSuccess('Usuario eliminado con éxito.');
-        this.closeDeleteModal();
-        this.loadUsers();
-      },
-      error: (err) => {
-        this.notificationService.showError(err.error?.message || 'Error al eliminar el usuario.');
-        this.loading.set(false);
-        this.closeDeleteModal();
-      },
-    });
+    const userId = this.selectedUser.id;
+    this.stepUp
+      .requireStepUp(StepUpScope.DELETE_ACCOUNT, this.viewContainerRef, () =>
+        this.usersService.deleteUser(userId),
+      )
+      .subscribe({
+        next: () => {
+          this.notificationService.showSuccess('Usuario eliminado con éxito.');
+          this.closeDeleteModal();
+          this.loadUsers();
+        },
+        error: (err) => {
+          this.notificationService.showError(err.error?.message || 'Error al eliminar el usuario.');
+          this.loading.set(false);
+          this.closeDeleteModal();
+        },
+        complete: () => this.loading.set(false),
+      });
   }
 
   handleAction(action: string, user: ApiUser): void {
@@ -359,37 +386,67 @@ export class UserManagementPage implements OnInit, OnDestroy {
 
   resetPassword(user: ApiUser): void {
     if (confirm(`¿Enviar un correo para resetear la contraseña de ${user.firstName}?`)) {
-      this.usersService.sendPasswordReset(user.id).subscribe({
-        next: (res) => this.notificationService.showSuccess(res.message),
-        error: (err) => this.notificationService.showError(err.error?.message || 'Error al enviar el correo.'),
-      });
+      this.stepUp
+        .requireStepUp(StepUpScope.MANAGE_USER_CREDENTIALS, this.viewContainerRef, () =>
+          this.usersService.sendPasswordReset(user.id),
+        )
+        .subscribe({
+          next: (res) => this.notificationService.showSuccess(res.message),
+          error: (err) =>
+            this.notificationService.showError(err.error?.message || 'Error al enviar el correo.'),
+        });
     }
   }
 
   forceLogout(user: ApiUser): void {
     if (confirm(`¿Estás seguro que quieres cerrar la sesión de ${user.firstName}?`)) {
-      this.usersService.forceLogout(user.id).subscribe({
-        next: () => this.notificationService.showSuccess('La sesión del usuario ha sido cerrada.'),
-        error: (err) => this.notificationService.showError(err.message || 'Error al cerrar la sesión.'),
-      });
+      this.stepUp
+        .requireStepUp(StepUpScope.MANAGE_USER_CREDENTIALS, this.viewContainerRef, () =>
+          this.usersService.forceLogout(user.id),
+        )
+        .subscribe({
+          next: () => this.notificationService.showSuccess('La sesión del usuario ha sido cerrada.'),
+          error: (err) =>
+            this.notificationService.showError(
+              err?.error?.message || 'Error al cerrar la sesión.',
+            ),
+        });
     }
   }
 
   blockAndLogout(user: ApiUser): void {
     if (confirm(`¿Estás seguro que quieres BLOQUEAR y cerrar la sesión de ${user.firstName}?`)) {
-      this.usersService.blockAndLogout(user.id).subscribe({
-        next: () => {
-          this.notificationService.showSuccess('El usuario ha sido bloqueado y su sesión cerrada.');
-          this.loadUsers();
-        },
-        error: (err) => this.notificationService.showError(err.message || 'Error al bloquear al usuario.'),
-      });
+      this.stepUp
+        .requireStepUp(StepUpScope.MANAGE_USER_STATUS, this.viewContainerRef, () =>
+          this.usersService.blockAndLogout(user.id),
+        )
+        .subscribe({
+          next: () => {
+            this.notificationService.showSuccess(
+              'El usuario ha sido bloqueado y su sesión cerrada.',
+            );
+            this.loadUsers();
+          },
+          error: (err) =>
+            this.notificationService.showError(
+              err?.error?.message || 'Error al bloquear al usuario.',
+            ),
+        });
     }
   }
 
   impersonateUser(user: ApiUser): void {
     if (confirm(`¿Estás seguro que quieres suplantar a ${user.firstName}?`)) {
-        this.authService.impersonate(user.id).subscribe();
+      this.stepUp
+        .requireStepUp(StepUpScope.IMPERSONATE, this.viewContainerRef, () =>
+          this.authService.impersonate(user.id),
+        )
+        .subscribe({
+          error: (err) =>
+            this.notificationService.showError(
+              err?.error?.message || 'No se pudo iniciar la suplantación.',
+            ),
+        });
     }
   }
 

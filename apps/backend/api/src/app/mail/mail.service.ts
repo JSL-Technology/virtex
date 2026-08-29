@@ -2,19 +2,20 @@ import { Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
 import { User } from '../users/entities/user.entity/user.entity';
+import { FrontendUrlService } from './frontend-url.service';
 
 @Injectable()
 export class MailService {
   constructor(
     private readonly mailerService: MailerService,
     private readonly configService: ConfigService,
+    // Every link into the web client goes through this. Built inline at each call site, they
+    // were all pointing at routes that do not exist — see FrontendUrlService for the list.
+    private readonly links: FrontendUrlService,
   ) {}
 
   async sendPasswordResetEmail(user: User, token: string, expiration: string) {
-    // H-10 FIX: Use URL fragment (#) so the token is NEVER sent to the server in
-    // HTTP request logs or CDN access logs. Fragments are client-side only
-    // (RFC 3986 §3.5; OWASP ASVS 2.1.7; CWE-598).
-    const resetLink = `${this.configService.get<string>('FRONTEND_URL')}/auth/reset-password#token=${token}`;
+    const resetLink = this.links.passwordReset(token, user.preferredLanguage);
 
     const expirationText = this.formatExpirationTime(expiration);
 
@@ -55,7 +56,8 @@ export class MailService {
 
   async sendUserInvitation(user: User, token: string) {
 
-    const setPasswordUrl = `${process.env.FRONTEND_URL}/auth/set-password?token=${token}`;
+    // Was `?token=` while the page reads only `#token=`, so the invitation arrived without one.
+    const setPasswordUrl = this.links.setPasswordFromInvitation(token, user.preferredLanguage);
 
     await this.mailerService.sendMail({
       to: user.email,
@@ -69,8 +71,8 @@ export class MailService {
   }
 
   async sendDuplicateRegistrationEmail(email: string, name: string) {
-    const loginUrl = `${this.configService.get<string>('FRONTEND_URL')}/auth/login`;
-    const resetPasswordUrl = `${this.configService.get<string>('FRONTEND_URL')}/auth/forgot-password`;
+    const loginUrl = this.links.login();
+    const resetPasswordUrl = this.links.forgotPassword();
 
     await this.mailerService.sendMail({
       to: email,
@@ -103,8 +105,7 @@ export class MailService {
   // H-01 FIX: Sends a confirmation link to the *new* address before the change is applied.
   // The token is a 32-byte hex nonce — SHA-256 hash is stored in DB, raw value in link.
   async sendEmailChangeConfirmation(newEmail: string, rawToken: string, firstName: string) {
-    const frontendUrl = this.configService.getOrThrow<string>('FRONTEND_URL');
-    const confirmUrl = `${frontendUrl}/settings/email-change/confirm?token=${rawToken}`;
+    const confirmUrl = this.links.confirmEmailChange(rawToken);
 
     await this.mailerService.sendMail({
       to: newEmail,

@@ -2,6 +2,8 @@
 import {
   Injectable,
   UnauthorizedException,
+  BadRequestException,
+  ForbiddenException,
   Logger,
   Inject,
 } from '@nestjs/common';
@@ -21,6 +23,7 @@ import { SessionService } from './services/session.service';
 import { SecurityAnalysisService } from './services/security-analysis.service';
 import { TokenService } from './services/token.service';
 import { MfaOrchestratorService } from './services/mfa-orchestrator.service';
+import { TwoFactorAuthService } from './services/two-factor-auth.service';
 import { PasswordService } from './services/password.service';
 import { AuthEvents, AuthLoginFailedEvent, AuthLoginSuccessEvent } from './events/auth.events';
 import { SafeUser, AuthenticatedUser } from './interfaces/authenticated-user.interface';
@@ -38,6 +41,14 @@ export class AuthService {
   private static readonly PENDING_TTL_MS = 5 * 60 * 1000; // 5 minutes
   private static readonly PENDING_MAX_ATTEMPTS = 5;
 
+  /** Re-authentication attempts allowed per user before a cooling-off period (CWE-307). */
+  private static readonly STEP_UP_MAX_ATTEMPTS = 5;
+  private static readonly STEP_UP_WINDOW_MS = 5 * 60 * 1000;
+
+  private static stepUpAttemptKey(userId: string): string {
+    return `step-up-attempts:${userId}`;
+  }
+
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
@@ -46,6 +57,7 @@ export class AuthService {
     private readonly securityAnalysisService: SecurityAnalysisService,
     private readonly tokenService: TokenService,
     private readonly mfaOrchestratorService: MfaOrchestratorService,
+    private readonly twoFactorAuthService: TwoFactorAuthService,
     private readonly passwordService: PasswordService,
     private readonly eventEmitter: EventEmitter2,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
@@ -372,20 +384,76 @@ export class AuthService {
       await this.sessionService.terminateAllSessions(userId);
   }
 
-  async verifyPasswordForStepUp(userId: string, currentPass: string, scope: StepUpScope): Promise<{ stepUpToken: string; maxAgeMs: number }> {
-      const userWithSec = await this.usersService.findUserByIdForAuth(userId);
+  /**
+   * Mint a step-up token after re-authenticating the caller with the strongest factor their
+   * account actually has.
+   *
+   * This replaces two mechanisms that did not work together. `StepUpGuard` read a token from an
+   * httpOnly cookie, while `TwoFactorVerifiedGuard` expected the raw password or a TOTP code in
+   * an `x-reauth-password` / `x-otp-code` request header — headers no client ever sent, so every
+   * endpoint it guarded (the whole user-administration surface, plus change-password, disable
+   * 2FA, impersonation and session revocation) answered 403 to the real product. The header
+   * design was also wrong on its own terms: it put a plaintext password into a header that
+   * `pino-http` serialises in full, and it contradicted the rule the rest of the module follows,
+   * that a credential capable of authorising these actions never enters JavaScript.
+   *
+   * There is now one path. The caller proves identity once, at `POST /auth/step-up`, and the
+   * proof comes back as an httpOnly cookie the browser attaches by itself.
+   *
+   * Which factor is required is decided here, not by the caller:
+   *   - 2FA enabled  → a TOTP code or a backup code. A password alone is not a second factor.
+   *   - otherwise    → the account password.
+   *   - neither available (a federated identity with no local password) → refused, with an
+   *     instruction to enrol a second factor. Failing open here would leave exactly those
+   *     accounts unprotected on the most sensitive operations in the product.
+   */
+  async createStepUpToken(
+      userId: string,
+      credentials: { password?: string; otpCode?: string },
+      scope: StepUpScope,
+  ): Promise<{ stepUpToken: string; maxAgeMs: number }> {
+      await this.assertWithinStepUpAttemptBudget(userId);
 
+      const userWithSec = await this.usersService.findUserByIdForAuth(userId);
+      if (!userWithSec) {
+          throw new UnauthorizedException('Invalid credentials');
+      }
+
+      const twoFactorEnabled = Boolean(userWithSec.security?.isTwoFactorEnabled);
       let isValid = false;
-      if (userWithSec?.security?.passwordHash) {
-          isValid = await this.passwordService.verify(userWithSec.security.passwordHash, currentPass);
+
+      if (twoFactorEnabled) {
+          if (!credentials.otpCode) {
+              throw new BadRequestException(
+                  'Se requiere un código de verificación para confirmar esta acción.',
+              );
+          }
+          isValid = await this.twoFactorAuthService.verifyCode(userWithSec, credentials.otpCode);
+      } else if (userWithSec.security?.passwordHash) {
+          if (!credentials.password) {
+              throw new BadRequestException('Se requiere tu contraseña para confirmar esta acción.');
+          }
+          isValid = await this.passwordService.verify(
+              userWithSec.security.passwordHash,
+              credentials.password,
+          );
       } else {
-          // Protection against timing attacks if user or hash doesn't exist
-          await this.passwordService.verifyDummy(currentPass);
+          // Equalise timing so "no local password" is not measurably different from a wrong one,
+          // then refuse: this account has no factor strong enough to authorise the action.
+          await this.passwordService.verifyDummy(credentials.password ?? '');
+          throw new ForbiddenException(
+              'Esta acción requiere verificación en dos pasos. Actívala en tu configuración de seguridad.',
+          );
       }
 
       if (!isValid) {
-          throw new UnauthorizedException('Invalid password');
+          throw new UnauthorizedException(
+              twoFactorEnabled ? 'Código de verificación inválido.' : 'Contraseña incorrecta.',
+          );
       }
+
+      // Only a successful challenge clears the budget, so failures keep accumulating.
+      await this.cacheManager.del(AuthService.stepUpAttemptKey(userId));
 
       const stepUpToken = this.jwtService.sign(
           { sub: userId, stepup: true, scope, jti: crypto.randomUUID() },
@@ -402,5 +470,47 @@ export class AuthService {
       // Returned to the controller, which delivers it as an httpOnly cookie. It is deliberately
       // NOT part of the HTTP response body — see StepUpGuard.
       return { stepUpToken, maxAgeMs: AuthConfig.STEP_UP_TOKEN_TTL };
+  }
+
+  /**
+   * Describe the step-up challenge for a user, so the client knows which factor to collect.
+   *
+   * Deliberately reports only the *kind* of factor. It is called with a valid session, so it
+   * reveals nothing an attacker holding that session could not already discover, and it never
+   * leaks whether a password exists for an account that has 2FA on.
+   */
+  async describeStepUpChallenge(
+      userId: string,
+  ): Promise<{ factor: 'otp' | 'password' | 'none' }> {
+      const user = await this.usersService.findUserByIdForAuth(userId);
+      if (user?.security?.isTwoFactorEnabled) return { factor: 'otp' };
+      if (user?.security?.passwordHash) return { factor: 'password' };
+      // A federated identity with no local password has no factor strong enough. The client
+      // shows the "enrol a second factor" path instead of an unanswerable prompt.
+      return { factor: 'none' };
+  }
+
+  /**
+   * Rate-limit re-authentication attempts.
+   *
+   * The counter is incremented BEFORE the factor is verified, so an attempt that fails or throws
+   * still consumes budget. Reading the counter and then writing `attempts + 1` afterwards would
+   * let a burst of parallel guesses all observe the same low count.
+   */
+  private async assertWithinStepUpAttemptBudget(userId: string): Promise<void> {
+      const key = AuthService.stepUpAttemptKey(userId);
+      const current = (await this.cacheManager.get<number>(key)) ?? 0;
+
+      if (current >= AuthService.STEP_UP_MAX_ATTEMPTS) {
+          this.logger.warn(
+              { event: 'step_up_rate_limited', userId },
+              '[SECURITY] Step-up re-authentication rate limit reached',
+          );
+          throw new ForbiddenException(
+              'Demasiados intentos de verificación. Espera 5 minutos e inténtalo de nuevo.',
+          );
+      }
+
+      await this.cacheManager.set(key, current + 1, AuthService.STEP_UP_WINDOW_MS);
   }
 }

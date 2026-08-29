@@ -1,7 +1,7 @@
 
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Tax } from './tax.entity';
-import { FiscalRegion } from '../localization/entities/fiscal-region.entity';
+import { FiscalRegion } from '../../localization/entities/fiscal-region.entity';
 
 export enum CustomerTaxType {
   INDIVIDUAL = 'INDIVIDUAL',

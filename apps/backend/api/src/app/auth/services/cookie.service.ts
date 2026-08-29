@@ -31,6 +31,47 @@ export class CookieService {
     return isDevLikeEnvironment() && this.configService.get('NODE_ENV') !== 'production';
   }
 
+  /**
+   * Absolute path of an API route, derived from the same `API_PREFIX` the application registers
+   * with `setGlobalPrefix`.
+   *
+   * Path-scoped cookies used to hardcode `/api/v1/...`. Changing `API_PREFIX` therefore did not
+   * move the cookie with the route: the browser stopped sending it and the session broke with no
+   * error anywhere. Deriving the path from the same source removes the possibility.
+   */
+  private apiPath(route: string): string {
+    const prefix = this.configService.get<string>('API_PREFIX', 'api/v1').replace(/^\/|\/$/g, '');
+    return `/${prefix}/${route.replace(/^\//, '')}`;
+  }
+
+  /**
+   * Pick a cookie name and path that are actually accepted by the browser.
+   *
+   * The `__Host-` prefix is the strongest binding available — it forces `Secure`, forbids
+   * `Domain`, and pins `Path=/`, so a sibling subdomain can neither read nor overwrite the
+   * cookie (RFC 6265bis §4.1.3.2). The catch is that all three conditions are mandatory: a
+   * `__Host-` cookie with any path other than `/` is silently discarded.
+   *
+   * That is exactly what happened to the pending-2FA cookie. It was issued as
+   * `__Host-2fa_pending` with `Path=/api/v1/auth/verify-2fa`, so in production the browser threw
+   * it away, `POST /auth/verify-2fa` found no cookie, and every account with a second factor was
+   * locked out. Local development hid the bug completely, because there the name carries no
+   * prefix.
+   *
+   * So a path-scoped cookie takes the `__Secure-` prefix instead, which mandates `Secure` and
+   * forbids nothing else. It is a genuine step down in strength — `__Secure-` does not stop a
+   * sibling subdomain from setting the cookie — which is why the value it carries is a random
+   * server-side session id that is useless without the matching cache entry, and why the entry
+   * is additionally bound to the client's IP and User-Agent.
+   */
+  private scopedCookie(baseName: string, route: string): { name: string; path: string } {
+    const insecureDev = this.isInsecureDevEnvironment();
+    return {
+      name: insecureDev ? baseName : `__Secure-${baseName}`,
+      path: this.apiPath(route),
+    };
+  }
+
   setAuthCookies(
     res: Response,
     accessToken: string,
@@ -48,7 +89,7 @@ export class CookieService {
     // H-15: __Host-/__Secure- prefixes mandate Secure=true, which browsers reject over plain
     // HTTP. Use prefixed names only when we actually set Secure (RFC 6265bis §4.1.3).
     const accessTokenName = insecureDev ? 'access_token' : '__Host-access_token';
-    const refreshTokenName = insecureDev ? 'refresh_token' : '__Secure-refresh_token';
+    const refresh = this.scopedCookie('refresh_token', 'auth/refresh');
 
     const baseOptions = {
       httpOnly: true,
@@ -63,13 +104,13 @@ export class CookieService {
     });
 
     if (refreshToken) {
-      res.cookie(refreshTokenName, refreshToken, {
+      res.cookie(refresh.name, refreshToken, {
         ...baseOptions,
         maxAge: rememberMe
           ? AuthConfig.COOKIE_REFRESH_REMEMBER_ME_MAX_AGE
           : AuthConfig.COOKIE_REFRESH_MAX_AGE,
         // Path-scoped so the long-lived refresh token is not attached to every API call.
-        path: '/api/v1/auth/refresh',
+        path: refresh.path,
       });
     }
 
@@ -189,22 +230,39 @@ export class CookieService {
   // JavaScript, removing XSS as a path to bypassing the second factor.
   set2faPendingCookie(res: Response, pendingId: string): void {
     const insecureDev = this.isInsecureDevEnvironment();
-    const name = insecureDev ? '2fa_pending' : '__Host-2fa_pending';
-    // INVARIANT: never pass `domain` here. In production the __Host- prefix enforces it; in dev
-    // we rely on this call site omitting it, so the cookie can never widen to sibling subdomains.
+    const { name, path } = this.scopedCookie('2fa_pending', 'auth/verify-2fa');
+    // INVARIANT: never pass `domain` here, so the cookie cannot widen to sibling subdomains.
     res.cookie(name, pendingId, {
       httpOnly: true,
       secure: !insecureDev,
       sameSite: 'lax',
       maxAge: 5 * 60 * 1000, // matches the server-side pending-session TTL
-      path: '/api/v1/auth/verify-2fa',
+      path,
     });
+  }
+
+  /** Every name this cookie has ever been issued under, so a rename cannot strand a live one. */
+  private twoFactorPendingCookieNames(): string[] {
+    return ['__Secure-2fa_pending', '2fa_pending', '__Host-2fa_pending'];
+  }
+
+  /** Read the pending-2FA session id, accepting any name the cookie has been issued under. */
+  read2faPendingId(cookies: Record<string, string | undefined> | undefined): string | undefined {
+    if (!cookies) return undefined;
+    for (const name of this.twoFactorPendingCookieNames()) {
+      if (cookies[name]) return cookies[name];
+    }
+    return undefined;
   }
 
   clear2faPendingCookie(res: Response): void {
     const insecureDev = this.isInsecureDevEnvironment();
-    res.clearCookie('__Host-2fa_pending', { path: '/api/v1/auth/verify-2fa', secure: true });
-    res.clearCookie('2fa_pending', { path: '/api/v1/auth/verify-2fa', secure: !insecureDev });
+    const path = this.apiPath('auth/verify-2fa');
+    // `__Host-2fa_pending` is cleared too: it was issued under that name before the prefix bug
+    // was fixed. Browsers discarded it, but a proxy or an older client may still present one.
+    for (const name of this.twoFactorPendingCookieNames()) {
+      res.clearCookie(name, { path, secure: name.startsWith('__') || !insecureDev });
+    }
   }
 
   /**
@@ -245,8 +303,9 @@ export class CookieService {
     // H-10: the refresh cookie uses __Secure- rather than __Host- because it needs a narrowed
     // Path. INVARIANT: `domain` is never set on it — setAuthCookies above omits it — so it
     // cannot be read from a sibling subdomain.
-    res.clearCookie('__Secure-refresh_token', { path: '/api/v1/auth/refresh', secure: true });
-    res.clearCookie('refresh_token', { path: '/api/v1/auth/refresh', secure: !insecureDev });
+    const refreshPath = this.apiPath('auth/refresh');
+    res.clearCookie('__Secure-refresh_token', { path: refreshPath, secure: true });
+    res.clearCookie('refresh_token', { path: refreshPath, secure: !insecureDev });
     res.clearCookie('XSRF-TOKEN', { path: '/' });
     this.clearStepUpCookie(res);
   }

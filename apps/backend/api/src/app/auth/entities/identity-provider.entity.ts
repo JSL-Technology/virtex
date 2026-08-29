@@ -22,7 +22,7 @@ export enum IdentityProviderType {
  * it is never returned to the client.
  */
 @Entity({ name: 'identity_providers' })
-@Index(['organizationId'])
+@Index('IDX_identity_providers_org', ['organizationId'])
 export class IdentityProvider {
   @PrimaryGeneratedColumn('uuid')
   id: string;

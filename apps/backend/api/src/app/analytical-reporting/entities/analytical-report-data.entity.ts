@@ -16,7 +16,17 @@ import { ViewEntity, ViewColumn, DataSource } from 'typeorm';
       .addSelect('EXTRACT(MONTH FROM je.date)', 'month')
       .addSelect('EXTRACT(QUARTER FROM je.date)', 'quarter')
       .addSelect('jel.account_id', 'account_id')
-      .addSelect('acc.code', 'account_code')
+      // `Account.code` is a TypeScript getter that joins the account's segments in order — it is
+      // NOT a column, so `acc.code` was invalid SQL and `CREATE MATERIALIZED VIEW` failed with
+      // "column acc.code does not exist". That made the whole analytical-reporting module
+      // impossible to provision. The same composition is done here in SQL so the view matches
+      // what the entity getter returns.
+      .addSelect(
+        `(SELECT string_agg(seg."value", '-' ORDER BY seg."order")
+            FROM "account_segments" seg
+           WHERE seg."account_id" = acc."id")`,
+        'account_code',
+      )
       .addSelect('acc.name', 'account_name')
       .addSelect('acc.type', 'account_type')
       .addSelect('acc.category', 'account_category')

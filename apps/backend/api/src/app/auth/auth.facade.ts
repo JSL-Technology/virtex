@@ -48,29 +48,6 @@ export class AuthFacade {
     return this.registrationService.completePendingRegistration(pendingId, subscription);
   }
 
-  async register(registerUserDto: RegisterUserDto, ip?: string, userAgent?: string) {
-    // H18 FIX: Honeypot silent fail — return a flag without fake tokens.
-    // Setting fake tokens as cookies pollutes the client state and can confuse telemetry/UX.
-    if (registerUserDto.fax) {
-      return {
-        honeypot: true,
-        user: {
-          id: 'fake-id',
-          email: registerUserDto.email,
-          firstName: registerUserDto.firstName,
-          lastName: registerUserDto.lastName,
-        } as any,
-      };
-    }
-
-    // 1. Register User
-    const user = await this.registrationService.register(registerUserDto);
-    // 2. Create Tokens
-    const { accessToken, refreshToken, user: safeUser } = await this.tokenService.generateAuthResponse(user, {}, ip, userAgent);
-
-    return { user: safeUser, accessToken, refreshToken };
-  }
-
   async socialLogin(socialUser: SocialUser, ip?: string, userAgent?: string) {
     return this.socialAuthService.validateOAuthLogin(socialUser, ip, userAgent);
   }
