@@ -16,6 +16,9 @@ import { GoogleRecaptchaValidator } from '@nestlab/google-recaptcha';
 import { RegistrationStrategyFactory } from '../strategies/registration/registration-strategy.factory';
 import { LocalizationService } from '../../localization/services/localization.service';
 import { MfaOrchestratorService } from './mfa-orchestrator.service';
+import { PendingRegistration } from '../entities/pending-registration.entity';
+import { PasswordService } from './password.service';
+import { JwtService } from '@nestjs/jwt';
 
 describe('RegistrationService', () => {
   let service: RegistrationService;
@@ -80,6 +83,11 @@ describe('RegistrationService', () => {
         { provide: RegistrationStrategyFactory, useValue: mockStrategyFactory },
         { provide: LocalizationService, useValue: mockLocalizationService },
         { provide: MfaOrchestratorService, useValue: { verifyPublicCode: jest.fn().mockResolvedValue(true) } },
+        { provide: JwtService, useValue: { sign: jest.fn(), verify: jest.fn() } },
+        { provide: getRepositoryToken(PendingRegistration), useValue: { create: jest.fn(), save: jest.fn(), findOne: jest.fn(), update: jest.fn() } },
+        // Password hashing routes through PasswordService so the configured Argon2id
+        // parameters and the breach check are applied consistently everywhere.
+        { provide: PasswordService, useValue: { hash: jest.fn().mockResolvedValue('hashed'), assertNotBreached: jest.fn().mockResolvedValue(undefined) } },
       ],
     }).compile();
 

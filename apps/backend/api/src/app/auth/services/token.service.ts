@@ -19,9 +19,8 @@ import { AuthConfig } from '../auth.config';
 import { UserCacheService } from '../modules/user-cache.service';
 import { UsersService } from '../../users/users.service';
 import { AuthenticatedUser } from '../interfaces/authenticated-user.interface';
-import { AuthError } from '../enums/auth-error.enum';
-import { UserStatus } from '../../users/entities/user.entity/user.entity';
 import { GeoService } from '../../geo/geo.service';
+import { UserIdentityService } from './user-identity.service';
 
 @Injectable()
 export class TokenService implements OnModuleInit {
@@ -38,6 +37,7 @@ export class TokenService implements OnModuleInit {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly geoService: GeoService,
     private readonly keyManagementService: KeyManagementService,
+    private readonly userIdentityService: UserIdentityService,
   ) {}
 
   onModuleInit(): void {
@@ -81,75 +81,33 @@ export class TokenService implements OnModuleInit {
     return `${iv.toString('hex')}:${encrypted}:${authTag}`;
   }
 
+  // A-3: identity resolution is centralised in UserIdentityService. These two methods used to
+  // carry their own copy of the cache/status/tokenVersion logic, which had already drifted from
+  // the copy in JwtStrategy (notably on which UserStatus values may authenticate). They now
+  // delegate so there is exactly one policy.
   async validateTokenAndGetUser(payload: JwtPayload): Promise<AuthenticatedUser> {
-    // 10/10 OPTIMIZATION: Use CACHE_MANAGER explicitly or via UserCacheService
-    // UserCacheService already handles Redis/Memory caching of User entity.
-    let user = await this.userCacheService.getUser(payload.id);
-
-    if (!user) {
-      user = await this.usersService.findUserByIdForAuth(payload.id);
-
-      if (user) {
-        await this.userCacheService.setUser(payload.id, user, AuthConfig.CACHE_TTL);
-      }
-    }
-
-    if (!user || user.status === UserStatus.BLOCKED) {
-      throw new UnauthorizedException(AuthError.USER_BLOCKED);
-    }
-
-    if (user.status !== UserStatus.ACTIVE) {
-      throw new UnauthorizedException(AuthError.USER_INACTIVE);
-    }
-
-    // Check token version against user security settings
-    const tokenVersion = user.security?.tokenVersion || 0;
-
-    if (tokenVersion !== payload.tokenVersion) {
-      throw new UnauthorizedException(AuthError.SESSION_EXPIRED);
-    }
-
-    const safeUser = this.buildSafeUser(user);
-
-    return {
-      ...safeUser,
-      isImpersonating: payload.isImpersonating,
-      originalUserId: payload.originalUserId,
-    };
+    return this.userIdentityService.resolveFromPayload(payload);
   }
 
   async getFreshUserStatus(userFromJwt: AuthenticatedUser) {
-    let freshUser = await this.userCacheService.getUser(userFromJwt.id);
-
-    if (!freshUser) {
-        freshUser = await this.usersService.findUserByIdForAuth(userFromJwt.id);
-
-        if (freshUser) {
-            await this.userCacheService.setUser(userFromJwt.id, freshUser, AuthConfig.CACHE_TTL);
-        }
-    }
-
-    if (!freshUser) {
-      throw new UnauthorizedException(AuthError.USER_NOT_FOUND);
-    }
-
-    const safeUser = this.buildSafeUser(freshUser);
-
-    const userWithImpersonationStatus: AuthenticatedUser = {
-      ...safeUser,
-      isImpersonating: userFromJwt.isImpersonating || false,
-      originalUserId: userFromJwt.originalUserId || undefined,
-    };
-
-    return { user: userWithImpersonationStatus };
+    return { user: await this.userIdentityService.resolveFresh(userFromJwt) };
   }
 
+  /**
+   * Issue an access/refresh token pair and persist the refresh-token row that anchors the session.
+   *
+   * @param options.sessionId  Family id to continue. Omit when starting a NEW session (login,
+   *                           social login, invitation); pass the previous token's `sessionId`
+   *                           when rotating, so the session keeps a stable identity across
+   *                           rotations (see RefreshToken.sessionId).
+   */
   async generateAuthResponse(
     user: User,
     extraPayload: Partial<JwtPayload> = {},
     ipAddress?: string,
     userAgent?: string,
-    rememberMe: boolean = false
+    rememberMe: boolean = false,
+    options: { sessionId?: string; refreshExpirationOverride?: string } = {},
   ) {
     const payload = this.buildPayload(user, extraPayload);
     const safeUser = this.buildSafeUser(user);
@@ -160,20 +118,41 @@ export class TokenService implements OnModuleInit {
       originalUserId: payload.originalUserId || undefined,
     };
 
-    // 10/10 SECURITY: Correct "Remember Me" handling
-    // Ensure DB record expiration matches the cookie/token intent.
-    const refreshExpiration = rememberMe
+    // "Remember me" must widen the DB row's expiry too, not just the cookie, otherwise the
+    // server-side record expires while the browser still holds a usable cookie.
+    const refreshExpiration =
+      options.refreshExpirationOverride ??
+      (rememberMe
         ? AuthConfig.JWT_REFRESH_REMEMBER_ME_EXPIRATION
-        : AuthConfig.JWT_REFRESH_EXPIRATION;
+        : AuthConfig.JWT_REFRESH_EXPIRATION);
 
-    const expirationDate = new Date(Date.now() + ms(refreshExpiration));
+    const expirationDate = new Date(Date.now() + ms(refreshExpiration as ms.StringValue));
 
-    // H9 FIX: Store masked IP for display; store encrypted IP for forensics only
-    // (privacy: GDPR Art.4, CWE-312).
+    // H9: masked IP is what we display; the encrypted copy exists only for incident forensics
+    // (GDPR Art.4 data minimisation, CWE-312).
     const maskedIp = ipAddress ? this.maskIp(ipAddress) : undefined;
     const encryptedIp = ipAddress ? this.encryptIp(ipAddress) : undefined;
 
+    // The row id is generated up-front rather than by the database so both tokens can be signed
+    // and the token hash computed BEFORE the row is written. The previous implementation saved
+    // the row, signed the refresh token, then issued a second UPDATE to store its hash — leaving
+    // a window in which a live refresh token had no hash on record to verify against.
+    const rowId = crypto.randomUUID();
+    const familyId = options.sessionId ?? rowId;
+
+    const payloadWithSession: JwtPayload = { ...payload, sessionId: familyId };
+    const accessToken = this.getJwtToken(payloadWithSession, AuthConfig.JWT_ACCESS_EXPIRATION);
+
+    const refreshTokenPayload = { ...payload, jti: rowId, sessionId: familyId };
+    const refreshToken = this.getJwtToken(
+      refreshTokenPayload,
+      refreshExpiration,
+      this.configService.getOrThrow('JWT_REFRESH_SECRET')
+    );
+
     const refreshTokenRecord = this.refreshTokenRepository.create({
+      id: rowId,
+      sessionId: familyId,
       user: user,
       userId: user.id,
       isRevoked: false,
@@ -181,6 +160,10 @@ export class TokenService implements OnModuleInit {
       ipAddress: maskedIp,
       encryptedIp,
       userAgent,
+      // Bind the row to the exact token string that was handed out, so a forged JWT that happens
+      // to carry a valid jti cannot be swapped in (verified on every refresh).
+      tokenHash: crypto.createHash('sha256').update(refreshToken).digest('hex'),
+      lastActiveAt: new Date(),
     });
 
     if (ipAddress) {
@@ -196,25 +179,12 @@ export class TokenService implements OnModuleInit {
 
     await this.refreshTokenRepository.save(refreshTokenRecord);
 
-    const payloadWithSession: JwtPayload = { ...payload, sessionId: refreshTokenRecord.id };
-    const accessToken = this.getJwtToken(payloadWithSession, AuthConfig.JWT_ACCESS_EXPIRATION);
-
-    const refreshTokenPayload = { ...payload, jti: refreshTokenRecord.id };
-    const refreshToken = this.getJwtToken(
-      refreshTokenPayload,
-      refreshExpiration,
-      this.configService.getOrThrow('JWT_REFRESH_SECRET')
-    );
-
-    // 10/10 SECURITY: Store hash of refresh token
-    const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
-    await this.refreshTokenRepository.update(refreshTokenRecord.id, { tokenHash });
-
     return {
       user: userWithImpersonationStatus,
       accessToken,
       refreshToken,
-      refreshTokenId: refreshTokenRecord.id,
+      refreshTokenId: rowId,
+      sessionId: familyId,
     };
   }
 

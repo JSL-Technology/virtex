@@ -6,16 +6,16 @@
   >
     <div class="company-badge">
       @if (currentOrg()?.logoUrl) {
-        <img [src]="currentOrg()?.logoUrl" [alt]="currentOrg()?.name" class="company-logo">
+        <img [src]="currentOrg()?.logoUrl" [alt]="currentOrg()?.legalName" class="company-logo">
       } @else {
         <div class="company-initial">
-          {{ currentOrg()?.name?.charAt(0) || 'V' }}
+          {{ currentOrg()?.legalName?.charAt(0) || 'V' }}
         </div>
       }
     </div>
 
     <div class="company-info">
-      <span class="company-name">{{ currentOrg()?.name || 'Virtex' }}</span>
+      <span class="company-name">{{ currentOrg()?.legalName || 'Virtex' }}</span>
       <span class="company-plan">Empresa actual</span>
     </div>
 
@@ -47,12 +47,12 @@
           >
             <div class="org-icon">
               @if (org.logoUrl) {
-                <img [src]="org.logoUrl" [alt]="org.name">
+                <img [src]="org.logoUrl" [alt]="org.legalName">
               } @else {
                 <lucide-icon [img]="BuildingIcon" size="16"></lucide-icon>
               }
             </div>
-            <span class="org-name">{{ org.name }}</span>
+            <span class="org-name">{{ org.legalName }}</span>
             @if (org.id === currentOrg()?.id) {
               <lucide-icon [img]="CheckIcon" size="14" class="selected-icon"></lucide-icon>
             }

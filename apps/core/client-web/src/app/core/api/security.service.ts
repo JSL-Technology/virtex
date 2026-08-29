@@ -41,9 +41,8 @@ export class SecurityService {
   }
 
   // H15 FIX: Backend uses POST /sessions/:id/revoke, not DELETE /sessions/:id.
-  revokeSession(sessionId: string, stepUpToken?: string): Observable<void> {
-    const headers = stepUpToken ? { 'x-step-up-token': stepUpToken } : {};
-    return this.http.post<void>(`${this.apiUrl}/sessions/${sessionId}/revoke`, {}, { headers });
+  revokeSession(sessionId: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/sessions/${sessionId}/revoke`, {});
   }
 
   generate2faSecret(): Observable<TwoFactorSetupResponse> {
@@ -52,19 +51,16 @@ export class SecurityService {
 
   // H-05 FIX: Backend requires `currentPassword` for step-up before enabling 2FA
   // (OWASP ASVS 2.2.2 reauthentication for sensitive operations; CWE-306).
-  enable2fa(token: string, currentPassword: string, stepUpToken?: string): Observable<{ backupCodes: string[] }> {
-    const headers = stepUpToken ? { 'x-step-up-token': stepUpToken } : {};
-    return this.http.post<{ backupCodes: string[] }>(`${this.apiUrl}/2fa/enable`, { token, currentPassword }, { headers });
+  enable2fa(token: string, currentPassword: string): Observable<{ backupCodes: string[] }> {
+    return this.http.post<{ backupCodes: string[] }>(`${this.apiUrl}/2fa/enable`, { token, currentPassword });
   }
 
-  disable2fa(stepUpToken?: string): Observable<void> {
-    const headers = stepUpToken ? { 'x-step-up-token': stepUpToken } : {};
-    return this.http.post<void>(`${this.apiUrl}/2fa/disable`, {}, { headers });
+  disable2fa(): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/2fa/disable`, {});
   }
 
-  generateBackupCodes(stepUpToken?: string): Observable<BackupCodesResponse> {
-    const headers = stepUpToken ? { 'x-step-up-token': stepUpToken } : {};
-    return this.http.post<BackupCodesResponse>(`${this.apiUrl}/2fa/backup-codes/generate`, {}, { headers });
+  generateBackupCodes(): Observable<BackupCodesResponse> {
+    return this.http.post<BackupCodesResponse>(`${this.apiUrl}/2fa/backup-codes/generate`, {});
   }
 
   sendEmailVerification(): Observable<void> {

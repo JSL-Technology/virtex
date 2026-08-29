@@ -111,20 +111,19 @@ export class BillingService {
    * the browser to the hosted payment page. Returns false if the response has
    * no URL; throws (with a user-facing message) on backend errors.
    */
-  startCheckout(planSlug: string, stepUpToken?: string): Observable<boolean> {
+  startCheckout(planSlug: string): Observable<boolean> {
     const plan = this.plans().find(p => p.slug === planSlug || p.id === planSlug);
     if (!plan || !plan.monthlyPriceId) {
       console.error('Plan not found or missing Stripe price ID:', planSlug);
       return throwError(() => new Error('Este plan no está disponible para contratación en este momento.'));
     }
 
-    const headers = stepUpToken ? { 'x-step-up-token': stepUpToken } : {};
 
     return this.http.post<{ sessionId: string; url: string }>(`${this.apiUrl}/payment/checkout-session`, {
       priceId: plan.monthlyPriceId,
       successUrl: `${window.location.origin}/settings/billing?session_id={CHECKOUT_SESSION_ID}`,
       cancelUrl: `${window.location.origin}/settings/billing`,
-    }, { headers }).pipe(
+    }).pipe(
       map(res => {
         if (res.url) {
           window.location.href = res.url;
@@ -144,11 +143,10 @@ export class BillingService {
    * Opens the Stripe Billing Portal so existing subscribers can change plan,
    * update their payment method or cancel — all handled securely by Stripe.
    */
-  openBillingPortal(stepUpToken?: string): Observable<boolean> {
-    const headers = stepUpToken ? { 'x-step-up-token': stepUpToken } : {};
+  openBillingPortal(): Observable<boolean> {
     return this.http.post<{ url: string }>(`${this.apiUrl}/payment/portal-session`, {
       returnUrl: `${window.location.origin}/settings/billing`,
-    }, { headers }).pipe(
+    }).pipe(
       map(res => {
         if (res.url) {
           window.location.href = res.url;

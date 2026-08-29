@@ -222,11 +222,10 @@ export class MyProfilePage implements OnInit {
         return;
       }
 
-      this.stepUpService.requireStepUp(StepUpScope.CHANGE_PASSWORD, this.viewContainerRef, (token) => {
+      this.stepUpService.requireStepUp(StepUpScope.CHANGE_PASSWORD, this.viewContainerRef, () => {
         return this.authService.changePassword({
           currentPassword: '', // Backend uses the token instead if provided
-          newPassword,
-          stepUpToken: token
+          newPassword
         });
       }).pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

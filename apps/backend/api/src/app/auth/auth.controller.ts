@@ -1,5 +1,5 @@
 
-import { Controller, Post, Body, HttpCode, HttpStatus, Res, Get, UseGuards, Req, UsePipes, ValidationPipe, BadRequestException, UnauthorizedException, ConflictException, Param, Ip, Headers, UseFilters, Header } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Res, Get, UseGuards, Req, UsePipes, ValidationPipe, BadRequestException, UnauthorizedException, ConflictException, Param, ParseUUIDPipe, Ip, Headers, UseFilters, Header } from '@nestjs/common';
 import type { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { AuthFacade } from './auth.facade';
@@ -72,6 +72,7 @@ import { OidcProviderService } from './services/oidc-provider.service';
 import { EnterpriseSsoService } from './services/enterprise-sso.service';
 import { SsoDiscoverDto } from './dto/sso-discover.dto';
 import { JwtService } from '@nestjs/jwt';
+import { KeyManagementService } from './services/key-management.service';
 import { TwoFactorVerifiedGuard } from './guards/two-factor-verified.guard';
 import { Public } from './decorators/public.decorator';
 import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
@@ -99,7 +100,8 @@ export class AuthController {
     private readonly jwtService: JwtService,
     private readonly paymentService: PaymentService,
     private readonly saasService: SaasService,
-    private readonly auditTrailService: AuditTrailService
+    private readonly auditTrailService: AuditTrailService,
+    private readonly keyManagementService: KeyManagementService
   ) {}
 
   // ------------------------------------------------------------------
@@ -216,7 +218,7 @@ export class AuthController {
     }
 
     // Login successful
-    this.cookieService.setAuthCookies(res, tokens.accessToken, tokens.refreshToken);
+    this.cookieService.setAuthCookies(res, tokens.accessToken, tokens.refreshToken, { userId: user.id });
     return res.redirect(`${frontendUrl}/dashboard`);
   }
 
@@ -303,8 +305,8 @@ export class AuthController {
       const socialUser = this.oidcProviderService.mapClaimsToSocialUser('sso', claims, accessToken);
       this.oauthStateService.clearTransactionCookie(res);
 
-      const { tokens } = await this.enterpriseSsoService.loginOrProvision(idp, socialUser, ip, userAgent);
-      this.cookieService.setAuthCookies(res, tokens.accessToken, tokens.refreshToken);
+      const { user: ssoUser, tokens } = await this.enterpriseSsoService.loginOrProvision(idp, socialUser, ip, userAgent);
+      this.cookieService.setAuthCookies(res, tokens.accessToken, tokens.refreshToken, { userId: ssoUser?.id });
       return res.redirect(`${frontendUrl}/dashboard`);
     } catch (err) {
       this.oauthStateService.clearTransactionCookie(res);
@@ -350,7 +352,7 @@ export class AuthController {
     }
 
     const { user, accessToken, refreshToken } = result as { user: any; accessToken: string; refreshToken: string };
-    this.cookieService.setAuthCookies(res, accessToken, refreshToken);
+    this.cookieService.setAuthCookies(res, accessToken, refreshToken, { userId: user?.id });
 
     return {
       user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }),
@@ -433,7 +435,7 @@ export class AuthController {
     });
 
     const { accessToken, refreshToken, user: safeUser } = await this.authFacade.generateTokens(user, ip, userAgent);
-    this.cookieService.setAuthCookies(res, accessToken, refreshToken);
+    this.cookieService.setAuthCookies(res, accessToken, refreshToken, { userId: user.id });
 
     return {
       user: plainToInstance(UserResponseDto, safeUser, { excludeExtraneousValues: true }),
@@ -474,7 +476,7 @@ export class AuthController {
     const { user, accessToken, refreshToken } = result;
     const rememberMe = loginUserDto.rememberMe || false;
 
-    this.cookieService.setAuthCookies(res, accessToken, refreshToken, rememberMe);
+    this.cookieService.setAuthCookies(res, accessToken, refreshToken, { rememberMe, userId: user.id });
 
     return {
       user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }),
@@ -496,7 +498,7 @@ export class AuthController {
     const { user, accessToken, refreshToken } =
       await this.authFacade.setPasswordFromInvitation(setPasswordDto);
 
-    this.cookieService.setAuthCookies(res, accessToken, refreshToken);
+    this.cookieService.setAuthCookies(res, accessToken, refreshToken, { userId: user.id });
 
     return {
       user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }),
@@ -531,7 +533,7 @@ export class AuthController {
 
     const result = await this.authService.refreshAccessToken(refreshToken, ip, userAgent);
 
-    this.cookieService.setAuthCookies(res, result.accessToken, result.refreshToken);
+    this.cookieService.setAuthCookies(res, result.accessToken, result.refreshToken, { userId: result.user?.id });
 
     return {
       user: plainToInstance(UserResponseDto, result.user, { excludeExtraneousValues: true }),
@@ -571,9 +573,19 @@ export class AuthController {
   @ApiOperation({ summary: 'Verify current password for step-up authentication' })
   async verifyPassword(
       @CurrentUser() user: User,
-      @Body() dto: VerifyPasswordDto
+      @Body() dto: VerifyPasswordDto,
+      @Res({ passthrough: true }) res: Response,
   ) {
-      return this.authService.verifyPasswordForStepUp(user.id, dto.password, dto.scope);
+      const { stepUpToken, maxAgeMs } = await this.authService.verifyPasswordForStepUp(
+          user.id, dto.password, dto.scope,
+      );
+
+      // The token is delivered as an httpOnly cookie and never enters the response body, so a
+      // successful XSS cannot lift a credential that authorises 2FA changes, impersonation,
+      // account deletion or session revocation. The client simply calls the sensitive endpoint
+      // afterwards; the browser attaches the cookie.
+      this.cookieService.setStepUpCookie(res, stepUpToken, maxAgeMs);
+      return { success: true, expiresInMs: maxAgeMs };
   }
 
   @Get('status')
@@ -591,6 +603,22 @@ export class AuthController {
   // align its validators without hardcoding rules (preventing permanent drift between client
   // and server). The policy is not sensitive — it is already enforced server-side and visible
   // in client validation. Public + cacheable.
+  /**
+   * JWKS endpoint (RFC 7517).
+   *
+   * Publishing the public half of the signing key ring lets other services validate access
+   * tokens locally without sharing the private key, and makes key rotation propagate on its own
+   * instead of requiring a coordinated redeploy. Public by definition — it contains only public
+   * keys — and cacheable, but only briefly, so a rotation is picked up quickly.
+   */
+  @Public()
+  @Get('.well-known/jwks.json')
+  @Header('Cache-Control', 'public, max-age=300')
+  @ApiOperation({ summary: 'Public JSON Web Key Set used to verify access tokens' })
+  getJwks() {
+    return this.keyManagementService.getJwks();
+  }
+
   @Public()
   @Get('password-policy')
   @HttpCode(HttpStatus.OK)
@@ -659,11 +687,16 @@ export class AuthController {
       }
   }
 
-  // L-09 FIX: Impersonation is one of the most sensitive operations — require step-up 2FA
-  // re-authentication (TwoFactorVerifiedGuard), consistent with session revocation, 2FA
-  // disable, user edit/delete and passkey registration.
+  // Impersonation grants complete access to another person's data and attributes the resulting
+  // actions to them, so it carries the strongest protections available:
+  //   - PermissionsGuard        the operator must hold users:impersonate
+  //   - TwoFactorVerifiedGuard  a fresh second factor (or password, when 2FA is off)
+  //   - StepUpGuard             a recent proof of the operator's own password, single-use
+  // ImpersonationService additionally refuses any target whose permissions the operator does
+  // not already hold, so the feature cannot be used to gain privileges.
   @Post('impersonate')
-  @UseGuards(JwtAuthGuard, CsrfGuard, PermissionsGuard, TwoFactorVerifiedGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard, PermissionsGuard, TwoFactorVerifiedGuard, StepUpGuard)
+  @StepUp(StepUpScope.IMPERSONATE)
   @HasPermission(PERMISSIONS.USERS_IMPERSONATE)
   async impersonate(
     @CurrentUser() adminUser: User,
@@ -673,7 +706,7 @@ export class AuthController {
     const { user, accessToken, refreshToken } =
       await this.authFacade.impersonate(adminUser, dto.userId);
 
-    this.cookieService.setAuthCookies(res, accessToken, refreshToken);
+    this.cookieService.setAuthCookies(res, accessToken, refreshToken, { userId: user?.id });
 
     // H-06 FIX: Never expose access_token in the response body, and sanitize the user via DTO.
     // All token delivery is cookie-only to prevent XSS token exfiltration (OWASP ASVS 3.4.3; CWE-200).
@@ -689,7 +722,7 @@ export class AuthController {
     const { user, accessToken, refreshToken } =
       await this.authFacade.stopImpersonation(impersonatingUser);
 
-    this.cookieService.setAuthCookies(res, accessToken, refreshToken);
+    this.cookieService.setAuthCookies(res, accessToken, refreshToken, { userId: user?.id });
 
     // H-06 FIX: Never expose access_token in the response body (OWASP ASVS 3.4.3; CWE-200).
     return { user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }) };
@@ -883,14 +916,19 @@ export class AuthController {
           throw new UnauthorizedException('No active 2FA session — please log in again');
       }
 
+      // Loads the pending session and counts the attempt, but does NOT destroy it — a mistyped
+      // code must not force the user to restart the whole login.
       const user = await this.authService.consume2faPendingSession(pendingId, ip, userAgent);
 
       const authResult = await this.mfaOrchestratorService.complete2faLogin(user, dto.code, ip, userAgent);
 
       const { user: authUser, accessToken, refreshToken } = authResult;
 
+      // The second factor is verified: the pending session has served its purpose and must not
+      // be replayable.
+      await this.authService.clear2faPendingSession(pendingId);
       this.cookieService.clear2faPendingCookie(res);
-      this.cookieService.setAuthCookies(res, accessToken, refreshToken);
+      this.cookieService.setAuthCookies(res, accessToken, refreshToken, { userId: authUser?.id });
       return { user: authUser };
   }
 
@@ -948,7 +986,7 @@ export class AuthController {
     }
 
     const { accessToken, refreshToken } = await this.authFacade.generateTokens(user);
-    this.cookieService.setAuthCookies(res, accessToken, refreshToken);
+    this.cookieService.setAuthCookies(res, accessToken, refreshToken, { userId: user.id });
 
     return {
       user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }),
@@ -964,19 +1002,29 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'List active sessions (devices)' })
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
-  async getUserSessions(@CurrentUser() user: User, @Req() req: Request) {
-      let currentRefreshTokenId: string | undefined;
-      const token = req.cookies['__Secure-refresh_token'] || req.cookies['refresh_token'];
-      if (token) {
-          try {
-             // We decode to get the 'jti' (ID)
-             const payload: any = this.jwtService.decode(token);
-             if (payload && payload.jti) {
-                 currentRefreshTokenId = payload.jti;
-             }
-          } catch(e) {}
-      }
-      return this.authService.getUserSessions(user.id, currentRefreshTokenId);
+  async getUserSessions(@CurrentUser() user: AuthenticatedUser) {
+      // The current session comes from the access token's `sessionId` claim.
+      //
+      // This previously decoded the refresh-token cookie to read its `jti`, which could never
+      // work: that cookie is path-scoped to /api/v1/auth/refresh, so the browser does not send it
+      // to this endpoint. `currentRefreshTokenId` was therefore always undefined and every row
+      // rendered with isCurrent=false, leaving the user unable to tell which device they were on.
+      // The claim is always present and, since the session-family change, stable across rotation.
+      return this.authService.getUserSessions(user.id, user.sessionId);
+  }
+
+  @Post('sessions/revoke-others')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard, CsrfGuard, TwoFactorVerifiedGuard, StepUpGuard)
+  @StepUp(StepUpScope.REVOKE_SESSION)
+  @ApiOperation({ summary: 'Revoke every session except the current one' })
+  async revokeOtherSessions(@CurrentUser() user: AuthenticatedUser, @Ip() ip: string) {
+    await this.authService.terminateOtherSessions(user.id, user.sessionId);
+    await this.auditTrailService.record(
+      user.id, 'Session', user.id, ActionType.DELETE,
+      { action: 'revoke-other-sessions' }, undefined, ip, user.organizationId,
+    );
+    return { message: 'Se han cerrado las demás sesiones.' };
   }
 
   @Post('sessions/:id/revoke') // Using POST or DELETE is fine, usually DELETE for resource removal
@@ -985,7 +1033,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Revoke a specific session' })
   async revokeSession(
     @CurrentUser() user: User,
-    @Param('id') sessionId: string,
+    @Param('id', ParseUUIDPipe) sessionId: string,
     @Ip() ip: string
   ) {
     try {

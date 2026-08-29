@@ -91,10 +91,10 @@ export class BillingPage implements OnInit {
 
     // Existing subscribers manage plan changes through the Stripe portal
     // (proration, downgrades, etc.); new customers go through Checkout.
-    this.stepUpService.requireStepUp(StepUpScope.MANAGE_PAYMENT, this.viewContainerRef, (token) => {
+    this.stepUpService.requireStepUp(StepUpScope.MANAGE_PAYMENT, this.viewContainerRef, () => {
       return this.hasActiveSubscription()
-        ? this.billingService.openBillingPortal(token)
-        : this.billingService.startCheckout(planSlug, token);
+        ? this.billingService.openBillingPortal()
+        : this.billingService.startCheckout(planSlug);
     }).subscribe({
       next: (ok) => {
         if (!ok) {
@@ -114,8 +114,8 @@ export class BillingPage implements OnInit {
     this.isOpeningPortal.set(true);
     this.checkoutError.set(null);
 
-    this.stepUpService.requireStepUp(StepUpScope.MANAGE_PAYMENT, this.viewContainerRef, (token) => {
-      return this.billingService.openBillingPortal(token);
+    this.stepUpService.requireStepUp(StepUpScope.MANAGE_PAYMENT, this.viewContainerRef, () => {
+      return this.billingService.openBillingPortal();
     }).subscribe({
       next: (ok) => {
         if (!ok) {

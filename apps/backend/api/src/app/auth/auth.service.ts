@@ -57,18 +57,31 @@ export class AuthService {
 
     const user = await this.usersService.findUserForAuth(email);
 
-    if (user && user.security && user.security.lockoutUntil && new Date() < user.security.lockoutUntil) {
-      throw new AuthException(AuthError.USER_BLOCKED, 401, {
-        lockoutUntil: user.security.lockoutUntil
-      });
-    }
+    // ------------------------------------------------------------------------------------
+    // ACCOUNT ENUMERATION
+    //
+    // The password is verified FIRST, before any account-state check, and every rejection
+    // below this point returns the same INVALID_CREDENTIALS error.
+    //
+    // The previous order leaked account state to anyone who could POST an email address: the
+    // lockout check ran before the password check and threw USER_BLOCKED, and inactive accounts
+    // threw USER_INACTIVE. An attacker submitting a junk password could therefore map which
+    // addresses were registered and which were locked or disabled — useful both for targeting
+    // and as confirmation that a stuffing list is landing.
+    //
+    // Distinct states are still reported, but ONLY to a caller who has already proved they hold
+    // the password, at which point they are not learning anything they did not already know.
+    // ------------------------------------------------------------------------------------
+    const isLockedOut = Boolean(
+      user?.security?.lockoutUntil && new Date() < user.security.lockoutUntil,
+    );
 
     let isPasswordValid = false;
-    if (user && user.security && user.security.passwordHash) {
+    if (user?.security?.passwordHash) {
         isPasswordValid = await this.passwordService.verify(user.security.passwordHash, password);
     } else {
+        // Equalise timing so an unknown address is not measurably faster than a real one.
         await this.passwordService.verifyDummy(password);
-        isPasswordValid = false;
     }
 
     if (!user || !isPasswordValid) {
@@ -83,6 +96,17 @@ export class AuthService {
           throw new AuthException(AuthError.INVALID_CREDENTIALS);
     }
 
+    // Credentials are correct from here on, so revealing account state is safe.
+    if (isLockedOut) {
+      this.eventEmitter.emit(
+          AuthEvents.LOGIN_FAILED,
+          new AuthLoginFailedEvent(user.id, user.email, 'Account Locked', ipAddress, userAgent, correlationId)
+      );
+      throw new AuthException(AuthError.USER_BLOCKED, 401, {
+        lockoutUntil: user.security?.lockoutUntil,
+      });
+    }
+
     if (user.status !== UserStatus.ACTIVE) {
        this.eventEmitter.emit(
            AuthEvents.LOGIN_FAILED,
@@ -95,6 +119,10 @@ export class AuthService {
            throw new AuthException(AuthError.USER_INACTIVE);
        }
     }
+
+    // Login is the only moment the plaintext is legitimately available, so it is the only
+    // chance to transparently upgrade a hash created under weaker Argon2 parameters.
+    await this.upgradePasswordHashIfNeeded(user, password);
 
     // 2FA Check
     if (user.security && user.security.isTwoFactorEnabled) {
@@ -174,6 +202,17 @@ export class AuthService {
     await this.sessionService.terminateAllSessions(userId);
   }
 
+  /** Revoke every session except the caller's own. */
+  async terminateOtherSessions(userId: string, currentSessionId?: string): Promise<void> {
+    if (!currentSessionId) {
+      // Without a session anchor we cannot single out "the current one"; ending everything is
+      // the safe interpretation and forces a clean re-login.
+      await this.sessionService.terminateAllSessions(userId);
+      return;
+    }
+    await this.sessionService.terminateOtherSessions(userId, currentSessionId);
+  }
+
   async getUserSessions(userId: string, currentRefreshTokenId?: string) {
     return this.sessionService.getUserSessions(userId, currentRefreshTokenId);
   }
@@ -238,8 +277,23 @@ export class AuthService {
       ? crypto.createHash('sha256').update(ipAddress).digest('hex').slice(0, 16)
       : 'unknown';
 
-    if (session.ipHash !== 'unknown' && currentIpHash !== 'unknown' && session.ipHash !== currentIpHash) {
-      this.logger.warn(`[SECURITY] 2FA pending session IP mismatch. Invalidating session.`);
+    const currentUaHash = userAgent
+      ? crypto.createHash('sha256').update(userAgent).digest('hex').slice(0, 16)
+      : 'unknown';
+
+    // Both halves of the binding are enforced. `uaHash` was previously computed and stored when
+    // the pending session was created but never compared on consumption, so half the intended
+    // device binding did nothing: a stolen pendingId could be redeemed from another browser.
+    const ipChanged =
+      session.ipHash !== 'unknown' && currentIpHash !== 'unknown' && session.ipHash !== currentIpHash;
+    const uaChanged =
+      session.uaHash !== 'unknown' && currentUaHash !== 'unknown' && session.uaHash !== currentUaHash;
+
+    if (ipChanged || uaChanged) {
+      this.logger.warn(
+        { event: '2fa_pending_context_mismatch', ipChanged, uaChanged },
+        '[SECURITY] 2FA pending session context changed. Invalidating session.',
+      );
       await this.cacheManager.del(key);
       throw new UnauthorizedException('Session context changed — please log in again');
     }
@@ -255,9 +309,44 @@ export class AuthService {
       throw new UnauthorizedException('Session invalidated — please log in again');
     }
 
-    // Consume the session (single-use)
-    await this.cacheManager.del(key);
+    // Count this attempt. The session is NOT deleted here.
+    //
+    // It previously was: `consume2faPendingSession` deleted the entry and only afterwards did the
+    // controller verify the OTP. A single mistyped digit therefore destroyed the pending session
+    // and forced the user to restart the whole login — and because the entry was gone, the
+    // `attempts` counter it carried could never be incremented, making the 5-attempt brute-force
+    // limit dead code. The session is now cleared explicitly on SUCCESS, via
+    // clear2faPendingSession, and survives a wrong code so the counter can do its job.
+    await this.cacheManager.set(
+      key,
+      { ...session, attempts: session.attempts + 1 },
+      Math.max(session.expiresAt - Date.now(), 1000),
+    );
+
     return user;
+  }
+
+  /** Invalidate a pending 2FA session once the second factor has actually been verified. */
+  async clear2faPendingSession(pendingId: string): Promise<void> {
+    await this.cacheManager.del(`2fa_pending:${pendingId}`);
+  }
+
+  /**
+   * Re-hash a password in place when the stored hash uses weaker parameters than currently
+   * configured. Failures are swallowed: an upgrade is an optimisation, never a reason to fail a
+   * login the user has already legitimately passed.
+   */
+  private async upgradePasswordHashIfNeeded(user: User, plainPassword: string): Promise<void> {
+    try {
+      const hash = user.security?.passwordHash;
+      if (!hash || !this.passwordService.needsRehash(hash)) return;
+
+      user.security.passwordHash = await this.passwordService.hash(plainPassword);
+      await this.usersService.save(user);
+      this.logger.log({ event: 'password_hash_upgraded', userId: user.id }, 'Password hash upgraded to current Argon2 parameters');
+    } catch (error) {
+      this.logger.warn(`Password hash upgrade failed: ${(error as Error).message}`);
+    }
   }
 
   async changePassword(userId: string, currentPass: string, newPass: string): Promise<void> {
@@ -272,6 +361,7 @@ export class AuthService {
           throw new AuthException(AuthError.INVALID_CREDENTIALS, 401, 'Invalid current password');
       }
 
+      await this.passwordService.assertNotBreached(newPass);
       const newHash = await this.passwordService.hash(newPass);
       userWithSec.security.passwordHash = newHash;
       userWithSec.security.tokenVersion = (userWithSec.security.tokenVersion || 0) + 1; // Invalidate other sessions
@@ -282,7 +372,7 @@ export class AuthService {
       await this.sessionService.terminateAllSessions(userId);
   }
 
-  async verifyPasswordForStepUp(userId: string, currentPass: string, scope: StepUpScope): Promise<{ stepUpToken: string }> {
+  async verifyPasswordForStepUp(userId: string, currentPass: string, scope: StepUpScope): Promise<{ stepUpToken: string; maxAgeMs: number }> {
       const userWithSec = await this.usersService.findUserByIdForAuth(userId);
 
       let isValid = false;
@@ -297,20 +387,20 @@ export class AuthService {
           throw new UnauthorizedException('Invalid password');
       }
 
-      // Generate Step-up Token
-      const jti = crypto.randomUUID();
-      const payload = {
-          sub: userId,
-          stepup: true,
-          scope,
-          jti,
-      };
+      const stepUpToken = this.jwtService.sign(
+          { sub: userId, stepup: true, scope, jti: crypto.randomUUID() },
+          {
+              secret: AuthConfig.JWT_STEP_UP_SECRET,
+              expiresIn: AuthConfig.JWT_STEP_UP_EXPIRATION,
+              // A distinct audience prevents a step-up token from ever being accepted by the
+              // access-token path (and vice versa) even if the secrets were misconfigured.
+              issuer: 'virteex-api',
+              audience: 'virteex-step-up',
+          },
+      );
 
-      const stepUpToken = this.jwtService.sign(payload, {
-          secret: AuthConfig.JWT_STEP_UP_SECRET,
-          expiresIn: '10m',
-      });
-
-      return { stepUpToken };
+      // Returned to the controller, which delivers it as an httpOnly cookie. It is deliberately
+      // NOT part of the HTTP response body — see StepUpGuard.
+      return { stepUpToken, maxAgeMs: AuthConfig.STEP_UP_TOKEN_TTL };
   }
 }

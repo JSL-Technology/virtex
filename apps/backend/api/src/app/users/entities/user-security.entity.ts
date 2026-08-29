@@ -49,7 +49,32 @@ export class UserSecurity {
   isTwoFactorEnabled: boolean;
 
   @Column({ name: 'two_factor_secret', type: 'varchar', nullable: true })
-  twoFactorSecret?: string;
+  twoFactorSecret?: string | null;
+
+  /**
+   * A-5: secret for an enrolment that has been started but not yet confirmed.
+   *
+   * Enrolment used to write straight into `two_factor_secret`, even when 2FA was already active
+   * and even though POST /2fa/generate required nothing beyond a valid session. Anyone holding a
+   * hijacked session could overwrite the secret; `is_two_factor_enabled` stayed true, so the
+   * legitimate owner's authenticator silently stopped matching and they were locked out of their
+   * own account. Staging the candidate here means a started-but-abandoned enrolment can never
+   * disturb the working one.
+   */
+  @Column({ name: 'pending_two_factor_secret', type: 'varchar', nullable: true })
+  pendingTwoFactorSecret?: string | null;
+
+  /**
+   * A-6: the last TOTP time-step accepted for this user, for replay protection.
+   *
+   * A TOTP code stays valid for its whole step (plus the skew window), so without recording what
+   * was already spent the same six digits can be replayed repeatedly within that window — which
+   * matters because the same code also authorises sensitive actions through
+   * TwoFactorVerifiedGuard. NIST SP 800-63B §5.1.4.2 requires the verifier to reject an OTP that
+   * has already been used.
+   */
+  @Column({ name: 'last_totp_step', type: 'bigint', nullable: true })
+  lastTotpStep?: string | null;
 
   // 10/10 SECURITY: Backup Codes
   // Stored as a hashed array or simpler: plain text is DANGEROUS.

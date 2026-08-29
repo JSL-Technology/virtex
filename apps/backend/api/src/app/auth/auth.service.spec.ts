@@ -26,6 +26,7 @@ import { TokenService } from './services/token.service';
 import { SocialAuthService } from './services/social-auth.service';
 import { MfaOrchestratorService } from './services/mfa-orchestrator.service';
 import { PasswordService } from './services/password.service';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -95,6 +96,8 @@ describe('AuthService', () => {
         { provide: getRepositoryToken(RefreshToken), useValue: mockRepository },
         { provide: getRepositoryToken(VerificationCode), useValue: mockRepository },
         { provide: 'SmsProvider', useValue: { send: jest.fn() } },
+        // AuthService caches the pending-2FA session in CACHE_MANAGER.
+        { provide: CACHE_MANAGER, useValue: { get: jest.fn(), set: jest.fn(), del: jest.fn() } },
         { provide: JwtService, useValue: { sign: jest.fn(), verify: jest.fn() } },
         { provide: ConfigService, useValue: { get: jest.fn(), getOrThrow: jest.fn() } },
         { provide: DataSource, useValue: mockDataSource },

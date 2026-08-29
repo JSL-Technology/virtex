@@ -2,16 +2,12 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import type { RoleContract } from '@virteex/shared/types';
 // import { environment } from '../../../../environments/environment';
 
-// Interfaces que coinciden con los DTOs del Backend
-export interface Role {
-  id: string;
-  name: string;
-  description: string;
-  permissions: string[];
-  isSystemRole: boolean;
-}
+// The Role shape is defined once in @virteex/shared/types and implemented by the backend's
+// RoleResponseDto, so the two cannot drift. Re-exported here to keep existing imports working.
+export type Role = RoleContract;
 
 export interface CreateRoleDto {
   name: string;

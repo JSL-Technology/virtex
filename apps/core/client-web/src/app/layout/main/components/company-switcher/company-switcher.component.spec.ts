@@ -9,13 +9,21 @@ import { signal } from '@angular/core';
 describe('CompanySwitcherComponent', () => {
   let component: CompanySwitcherComponent;
   let fixture: ComponentFixture<CompanySwitcherComponent>;
-  let mockAuthService: any;
+  let mockAuthService: { currentUser: ReturnType<typeof signal<any>> };
+
+  const activeOrg = { id: '1', legalName: 'Test Org', logoUrl: '' };
+  const otherOrg = { id: '2', legalName: 'Acme Industries', logoUrl: '' };
 
   beforeEach(async () => {
+    // The switcher is driven by `user.organizations` — the real membership list the backend
+    // resolves from the user_organizations join table. It previously rendered three hardcoded
+    // placeholders ('Virtex Corp', 'Acme Industries', 'Globex Corporation') because the API never
+    // exposed the field, so every tenant saw the same fictional list.
     mockAuthService = {
-      currentUser: signal({
-        organization: { id: '1', name: 'Test Org', logoUrl: '' }
-      })
+      currentUser: signal<any>({
+        organization: activeOrg,
+        organizations: [activeOrg, otherOrg],
+      }),
     };
 
     await TestBed.configureTestingModule({
@@ -23,11 +31,9 @@ describe('CompanySwitcherComponent', () => {
         CompanySwitcherComponent,
         HttpClientTestingModule,
         TranslateModule.forRoot(),
-        LucideAngularModule.pick({ Building, Check, ChevronsUpDown, Plus, Settings, Search })
+        LucideAngularModule.pick({ Building, Check, ChevronsUpDown, Plus, Settings, Search }),
       ],
-      providers: [
-        { provide: AuthService, useValue: mockAuthService }
-      ]
+      providers: [{ provide: AuthService, useValue: mockAuthService }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CompanySwitcherComponent);
@@ -47,10 +53,34 @@ describe('CompanySwitcherComponent', () => {
     expect(component.isOpen()).toBeFalsy();
   });
 
-  it('should filter organizations based on search query', () => {
+  it('lists the organizations the user actually belongs to', () => {
+    expect(component.filteredOrganizations().map((o) => o.legalName)).toEqual([
+      'Test Org',
+      'Acme Industries',
+    ]);
+  });
+
+  it('filters by legal name', () => {
     component.searchQuery.set('Acme');
     const filtered = component.filteredOrganizations();
     expect(filtered.length).toBe(1);
-    expect(filtered[0].name).toContain('Acme');
+    expect(filtered[0].legalName).toContain('Acme');
+  });
+
+  it('shows nothing when the query matches no membership', () => {
+    // With the old hardcoded list a user could see — and attempt to switch into — tenants they
+    // had no membership in.
+    component.searchQuery.set('Globex');
+    expect(component.filteredOrganizations()).toEqual([]);
+  });
+
+  it('keeps the active organization visible even if the membership list omits it', () => {
+    mockAuthService.currentUser.set({ organization: activeOrg, organizations: [] });
+    expect(component.filteredOrganizations().map((o) => o.id)).toEqual(['1']);
+  });
+
+  it('renders an empty list rather than crashing when there is no user', () => {
+    mockAuthService.currentUser.set(null);
+    expect(component.filteredOrganizations()).toEqual([]);
   });
 });

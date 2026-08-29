@@ -9,6 +9,7 @@ import { UserSecurity } from '../../users/entities/user-security.entity';
 import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
 import { PasswordService } from './password.service';
+import { AuthConfig } from '../auth.config';
 
 @Injectable()
 export class TwoFactorAuthService {
@@ -29,17 +30,35 @@ export class TwoFactorAuthService {
     return security.isTwoFactorEnabled;
   }
 
+  /**
+   * Begin TOTP enrolment.
+   *
+   * A-5 FIX: the candidate secret is staged in `pendingTwoFactorSecret` and the call is refused
+   * outright when 2FA is already active.
+   *
+   * Previously this wrote directly into `twoFactorSecret` with no check on
+   * `isTwoFactorEnabled`, and the endpoint required nothing but a valid session. An attacker
+   * with a hijacked session could therefore replace the secret of an account that already had
+   * 2FA on: the flag stayed true, so the owner's authenticator stopped matching and they were
+   * locked out of their own account without any confirmation step ever running.
+   *
+   * Re-enrolling a new device is still possible — via disable (which requires step-up plus the
+   * current second factor) followed by enrol.
+   */
   async generateTwoFactorSecret(user: User) {
+    const security = await this.ensureSecurityEntity(user);
+
+    if (security.isTwoFactorEnabled) {
+      throw new BadRequestException(
+        'La verificación en dos pasos ya está activa. Desactívala antes de registrar un nuevo dispositivo.',
+      );
+    }
+
     const secret = authenticator.generateSecret();
     const appName = this.configService.get<string>('APP_NAME') || 'Virteex ERP';
     const otpauthUrl = authenticator.keyuri(user.email, appName, secret);
 
-    // Encrypt secret before saving
-    const encryptedSecret = this.cryptoUtil.encrypt(secret);
-
-    let security = await this.ensureSecurityEntity(user);
-
-    security.twoFactorSecret = encryptedSecret;
+    security.pendingTwoFactorSecret = this.cryptoUtil.encrypt(secret);
     await this.userSecurityRepository.save(security);
 
     return { secret, otpauthUrl };
@@ -50,30 +69,120 @@ export class TwoFactorAuthService {
    * Used for Step-up Authentication / Sudo Mode.
    */
   async verifyCode(user: User, code: string): Promise<boolean> {
-      // 1. Try Backup Code first (if format matches backup code, e.g. 8 chars or hyphenated)
-      // Backup codes are usually longer or formatted. TOTP is 6 digits.
-      // Simple heuristic: If length > 6, try backup code.
-      if (code.length > 6 || code.includes('-')) {
-          return this.verifyBackupCode(user, code);
+      const normalized = (code ?? '').trim().toUpperCase();
+      if (!normalized) return false;
+
+      // Backup codes are issued as XXXX-XXXX; TOTP is exactly six digits. Routing on the exact
+      // shape rather than on "length > 6" means a mistyped 7-digit TOTP is rejected as a TOTP
+      // instead of being silently sent down the backup-code path.
+      const isTotpShaped = /^\d{6}$/.test(normalized);
+      if (!isTotpShaped) {
+          return this.verifyBackupCode(user, normalized);
       }
 
-      // 2. Try TOTP
-      // We need the secret.
       const security = user.security || await this.ensureSecurityEntity(user);
 
       if (!security.isTwoFactorEnabled || !security.twoFactorSecret) {
-          // If 2FA is not enabled, we cannot verify a code.
-          // However, the Guard usually skips checking if 2FA is disabled.
-          // If we reach here, it implies we want to verify.
           return false;
       }
 
       try {
           const decryptedSecret = this.cryptoUtil.decrypt(security.twoFactorSecret);
-          return authenticator.verify({ token: code, secret: decryptedSecret });
-      } catch (e) {
+          return await this.verifyTotpWithReplayProtection(security, decryptedSecret, normalized);
+      } catch {
           return false;
       }
+  }
+
+  /**
+   * A-6 FIX: verify a TOTP code and burn the time-step it belongs to.
+   *
+   * A code remains valid for its whole 30-second step (plus the configured skew window), so
+   * without recording what has been spent the same six digits can be replayed repeatedly inside
+   * that window. That matters here beyond login: TwoFactorVerifiedGuard accepts the same code to
+   * authorise sensitive operations, so one observed code could authorise several of them.
+   * NIST SP 800-63B §5.1.4.2 requires the verifier to reject an already-used OTP.
+   *
+   * The step is persisted with a conditional UPDATE, so two concurrent requests presenting the
+   * same code cannot both win: exactly one row update succeeds.
+   */
+  private async verifyTotpWithReplayProtection(
+      security: UserSecurity,
+      secret: string,
+      code: string,
+  ): Promise<boolean> {
+      const window = AuthConfig.TOTP_WINDOW;
+      const stepSeconds = AuthConfig.TOTP_STEP_SECONDS;
+      const currentStep = Math.floor(Date.now() / 1000 / stepSeconds);
+
+      // Identify which step within the accepted window this code belongs to.
+      let matchedStep: number | null = null;
+      for (let offset = -window; offset <= window; offset++) {
+          const candidateStep = currentStep + offset;
+          const expected = authenticator.generate(secret, {
+              epoch: candidateStep * stepSeconds * 1000,
+          } as never);
+          // Constant-time comparison: both operands are fixed-length numeric strings.
+          if (expected.length === code.length &&
+              crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(code))) {
+              matchedStep = candidateStep;
+              break;
+          }
+      }
+
+      if (matchedStep === null) return false;
+
+      const lastStep = security.lastTotpStep != null ? Number(security.lastTotpStep) : null;
+      if (lastStep !== null && matchedStep <= lastStep) {
+          // Already spent (or an older step being replayed).
+          return false;
+      }
+
+      // Atomic claim: only the first request to burn this step succeeds.
+      const claim = await this.userSecurityRepository
+          .createQueryBuilder()
+          .update(UserSecurity)
+          .set({ lastTotpStep: String(matchedStep) })
+          .where('id = :id', { id: security.id })
+          .andWhere('(last_totp_step IS NULL OR last_totp_step < :step)', { step: matchedStep })
+          .execute();
+
+      if (!claim.affected) return false;
+
+      security.lastTotpStep = String(matchedStep);
+      return true;
+  }
+
+  /**
+   * Verify a user's account password.
+   *
+   * Lives here rather than in the guard so that TwoFactorVerifiedGuard keeps depending only on
+   * services every module that uses it can already resolve. Injecting UsersService into the guard
+   * would have broken RolesModule at runtime, since it imports AuthModule but not UsersModule —
+   * a failure that only appears when the route is actually hit.
+   *
+   * @returns false when the account has no local password (a pure SSO identity), so the caller
+   *          can decide the policy rather than having it silently succeed.
+   */
+  async verifyAccountPassword(userId: string, password: string): Promise<boolean> {
+      const user = await this.userRepository.findOne({
+          where: { id: userId },
+          relations: ['security'],
+      });
+
+      const hash = user?.security?.passwordHash;
+      if (!hash) return false;
+
+      return this.passwordService.verify(hash, password);
+  }
+
+  /** Whether the account can be challenged for a password at all (federated identities cannot). */
+  async hasLocalPassword(userId: string): Promise<boolean> {
+      const user = await this.userRepository.findOne({
+          where: { id: userId },
+          relations: ['security'],
+      });
+      return Boolean(user?.security?.passwordHash);
   }
 
   async enableTwoFactor(user: User, token: string, currentPassword: string) {
@@ -82,7 +191,7 @@ export class TwoFactorAuthService {
         relations: ['security'],
     });
 
-    if (!freshUser?.security?.twoFactorSecret) {
+    if (!freshUser?.security?.pendingTwoFactorSecret) {
       throw new BadRequestException('2FA configuration not initiated. Please generate secret first.');
     }
 
@@ -97,13 +206,20 @@ export class TwoFactorAuthService {
       throw new UnauthorizedException('Current password is incorrect');
     }
 
-    const decryptedSecret = this.cryptoUtil.decrypt(freshUser.security.twoFactorSecret);
+    // Validate against the STAGED secret. Only once the user has proved they can generate a
+    // correct code is it promoted to the live secret — so an abandoned or hostile enrolment
+    // never displaces a working authenticator.
+    const decryptedSecret = this.cryptoUtil.decrypt(freshUser.security.pendingTwoFactorSecret);
     const isValid = authenticator.verify({ token, secret: decryptedSecret });
     if (!isValid) {
       throw new UnauthorizedException('Invalid 2FA token');
     }
 
+    freshUser.security.twoFactorSecret = freshUser.security.pendingTwoFactorSecret;
+    freshUser.security.pendingTwoFactorSecret = null;
     freshUser.security.isTwoFactorEnabled = true;
+    // Start the replay window fresh for the newly bound authenticator.
+    freshUser.security.lastTotpStep = null;
 
     const { codes, hashedCodes } = await this.createBackupCodes();
     freshUser.security.backupCodes = hashedCodes;
@@ -126,7 +242,11 @@ export class TwoFactorAuthService {
               id: freshUser.security.id,
               isTwoFactorEnabled: false,
               twoFactorSecret: null,
-              backupCodes: null // Clear backup codes
+              // Clear the staged secret too, otherwise a stale enrolment started earlier could
+              // be confirmed after the user had deliberately turned 2FA off.
+              pendingTwoFactorSecret: null,
+              lastTotpStep: null,
+              backupCodes: null
           });
       }
 
@@ -160,7 +280,11 @@ export class TwoFactorAuthService {
       // Check against all hashed codes
       // This is O(N) where N is small (e.g., 10). Acceptable.
       for (const hashedCode of security.backupCodes) {
-          if (await this.passwordService.verify(code, hashedCode)) {
+          // The arguments were previously swapped (verify(code, hashedCode)). PasswordService's
+          // signature is verify(hash, plain), so argon2 received the plaintext code where it
+          // expected an encoded hash, failed to parse it, and threw — meaning backup codes never
+          // worked at all and surfaced as a 500 rather than "invalid code".
+          if (await this.passwordService.verify(hashedCode, code)) {
               // Code is valid. Remove it (Burn on use).
               security.backupCodes = security.backupCodes.filter(c => c !== hashedCode);
               await this.userSecurityRepository.save(security);

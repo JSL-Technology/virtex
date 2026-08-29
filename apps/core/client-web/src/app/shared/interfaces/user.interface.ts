@@ -1,72 +1,36 @@
-import { Role } from '../../core/api/roles.service';
-import { UserStatus } from '../enums/user-status.enum';
-
-export interface Organization {
-  id: string;
-  name?: string;
-  logoUrl?: string;
-  subscriptionStatus?: string;
-  gracePeriodEnd?: Date | string;
-}
+import type {
+  AuthUserContract,
+  OrganizationContract,
+  RoleContract,
+} from '@virteex/shared/types';
 
 /**
- * Representa la estructura de un usuario en la aplicación.
- * Esta interfaz debe mantenerse alineada con la entidad `User` del backend.
+ * The user model consumed by the app.
  *
+ * It derives from `AuthUserContract`, the single declaration shared with the backend, where
+ * `UserResponseDto implements AuthUserContract`. This is deliberate: the two used to be written
+ * independently and had drifted, and because the DTO serialises with
+ * `excludeExtraneousValues: true`, every field declared here but missing there arrived as
+ * `undefined` at runtime while TypeScript reported no problem on either side.
  *
+ * The concrete damage that caused:
+ *   - `roles` was declared required here and read by `user-management.page.ts`
+ *     (`user.roles.map(r => r.name)`), but the DTO never exposed it — the members list always
+ *     showed "Sin rol" and the edit dialog could not preselect a role;
+ *   - `phone`, `jobTitle`, `avatarUrl` and `department` were likewise absent, so the profile
+ *     screen could not render them and saving the profile returned a payload without `phone`,
+ *     blanking the field the user had just filled in.
  *
- *
+ * Extending the shared contract turns that entire class of mismatch into a compile error.
+ * Add fields to the contract, not to this interface.
  */
-export interface User {
-  /** Identificador único del usuario (UUID). */
-  id: string;
+export type Role = RoleContract;
+export type Organization = OrganizationContract;
 
-  /** Correo electrónico del usuario. */
-  email: string;
-
-  /** Nombre del usuario. */
-  firstName: string;
-
-  /** Apellido del usuario. */
-  lastName: string;
-
-  /** Indica si la cuenta del usuario está activa. */
-  // isActive: boolean;
-
+export interface User extends AuthUserContract {
   /**
-   * Lista de roles asignados al usuario.
-   * Cada elemento es un objeto Role con sus propiedades.
+   * UI-only presence flag, derived from the websocket channel rather than the REST payload.
+   * `isOnline` is the server's persisted value; this mirrors the live socket state.
    */
-  roles: Role[];
-
-  // 3. Añade la nueva propiedad de estado
-  status: UserStatus;
-
-  /**
-   * Lista de permisos calculados del usuario.
-   * El backend los añade al payload del JWT a partir de los roles.
-   * Ejemplo: ["users.create", "users.delete"]
-   */
-  permissions: string[];
-
-  // H3 FIX: `token` and `passwordHash` were removed from this interface. The backend delivers
-  // access/refresh tokens exclusively via httpOnly cookies (never in the body) and never
-  // serializes the password hash. Modeling them here invited developers to re-expose secrets in
-  // responses or to render/log them if they ever leaked. Keep this contract free of any secret
-  // material. (OWASP API3 Excessive Data Exposure; ASVS data minimization; CWE-200/CWE-922.)
-  isOnline: boolean;
-
-  department?: string;
-  avatarUrl?: string;
-  online: boolean;
-  phone?: string;
-  jobTitle?: string;
-
-  isImpersonating?: boolean;
-  originalUserId?: string;
-
-  organization: Organization;
-
-  preferredLanguage?: string;
-  isTwoFactorEnabled?: boolean;
+  online?: boolean;
 }
