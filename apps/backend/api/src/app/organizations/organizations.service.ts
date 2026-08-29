@@ -7,6 +7,8 @@ import { OrganizationSubsidiary } from './entities/organization-subsidiary.entit
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { CreateSubsidiaryDto } from './dto/create-subsidiary.dto';
 import { AccountSegmentsService } from '../chart-of-accounts/account-segments.service';
+import { SaasService } from '../saas/saas.service';
+import { SaasResource } from '../saas/enums/saas-resource.enum';
 
 @Injectable()
 export class OrganizationsService {
@@ -16,6 +18,7 @@ export class OrganizationsService {
     @InjectRepository(OrganizationSubsidiary)
     private readonly subsidiaryRepository: Repository<OrganizationSubsidiary>,
     private readonly accountSegmentsService: AccountSegmentsService,
+    private readonly saasService: SaasService,
   ) {}
 
   async findOne(id: string): Promise<Organization> {
@@ -41,6 +44,14 @@ export class OrganizationsService {
 
   async createSubsidiary(parentOrganizationId: string, createSubsidiaryDto: CreateSubsidiaryDto): Promise<OrganizationSubsidiary> {
     return this.organizationRepository.manager.transaction(async (manager) => {
+      // Group consolidation is an enterprise capability, and every subsidiary is a second set of
+      // books. Unmetered, a starter plan could carry an unlimited group structure.
+      await this.saasService.enforceLimit(
+        manager,
+        parentOrganizationId,
+        SaasResource.SUBSIDIARIES,
+      );
+
       // 1. Create the new organization for the subsidiary
       const newOrg = manager.create(Organization, {
         legalName: createSubsidiaryDto.legalName,

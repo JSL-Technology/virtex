@@ -14,6 +14,7 @@ import { DataSource } from 'typeorm';
 import { PasswordService } from '../auth/services/password.service';
 import { SessionService } from '../auth/services/session.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { MembershipService } from '../organizations/services/membership.service';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -50,7 +51,9 @@ describe('UsersService', () => {
         { provide: SaasService, useValue: {} },
         { provide: DataSource, useValue: {} },
         { provide: PasswordService, useValue: { hash: jest.fn(), verify: jest.fn() } },
-        { provide: SessionService, useValue: { terminateAllSessions: jest.fn() } }
+        { provide: SessionService, useValue: { terminateAllSessions: jest.fn() } },
+        // `user_organizations` is written by this service now, not just read by a raw query.
+        { provide: MembershipService, useValue: { grant: jest.fn(), isMember: jest.fn().mockResolvedValue(false), listFor: jest.fn().mockResolvedValue([]) } }
       ],
     }).compile();
 

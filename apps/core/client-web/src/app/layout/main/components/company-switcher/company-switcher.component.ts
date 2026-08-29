@@ -7,6 +7,7 @@ import { AuthService } from '../../../../core/services/auth';
 import { Organization } from '../../../../shared/interfaces/user.interface';
 import { TabStateService } from '../../../../core/tabs/tab-state.service';
 import { TabPersistenceService } from '../../../../core/tabs/tab-persistence.service';
+import { OrganizationService } from '../../../../shared/service/organization.service';
 
 @Component({
   selector: 'app-company-switcher',
@@ -19,9 +20,12 @@ export class CompanySwitcherComponent {
   private authService = inject(AuthService);
   private tabState = inject(TabStateService);
   private tabPersistence = inject(TabPersistenceService);
+  private organizationService = inject(OrganizationService);
 
   isOpen = signal(false);
   searchQuery = signal('');
+  switching = signal(false);
+  switchError = signal<string | null>(null);
 
   currentOrg = computed(() => this.authService.currentUser()?.organization ?? null);
 
@@ -65,21 +69,59 @@ export class CompanySwitcherComponent {
   }
 
   closeDropdown() {
+    // Never while a switch is in flight: closing would hide the only place the failure is shown.
+    if (this.switching()) return;
     this.isOpen.set(false);
   }
 
+  /**
+   * Switch the active tenant.
+   *
+   * This used to end at `// In a real app, this would call a service to switch organization.` —
+   * it cleared the workspace and did nothing else, so choosing a different company closed every
+   * open tab and left the user in exactly the tenant they started in. That is worse than not
+   * offering the control: the interface reported a change that never happened.
+   *
+   * The switch has to reach the server because the tenant is a claim in the access token; a
+   * client-side selection would leave the API enforcing the previous tenant. The workspace is
+   * cleared only AFTER the server confirms, and the page then reloads so every resolver re-runs
+   * against the new tenant rather than leaving the previous customer's data on screen.
+   */
   selectOrganization(org: Organization) {
     const current = this.currentOrg();
-    this.closeDropdown();
+    if (current?.id === org.id) {
+      this.closeDropdown();
+      return;
+    }
 
-    // §10: al cambiar de empresa/tenant los datos pertenecen a otro contexto.
-    // Se cierran TODAS las pestañas, se limpia el workspace persistido y se
-    // abre el Dashboard del nuevo tenant.
-    if (current?.id === org.id) return;
+    this.switching.set(true);
+    this.switchError.set(null);
 
-    // In a real app, this would call a service to switch organization.
-    this.tabPersistence.clearState();
-    this.tabState.reset();
+    this.organizationService.switchOrganization(org.id).subscribe({
+      next: () => {
+        // §10: the data belongs to another tenant now — close every tab and drop the persisted
+        // workspace before reloading.
+        this.tabPersistence.clearState();
+        this.tabState.reset();
+        this.reloadApplication();
+      },
+      error: () => {
+        this.switching.set(false);
+        this.switchError.set('No se pudo cambiar de empresa.');
+      },
+    });
+  }
+
+  /**
+   * Reload the application after a tenant switch.
+   *
+   * A full reload rather than a router navigation: the tenant changes the answer to every resolver
+   * and every cached signal in the app, and re-running them piecemeal is how one customer's data
+   * ends up rendered beside another's. Isolated as a method so tests can observe it — `location`
+   * is not redefinable in jsdom.
+   */
+  protected reloadApplication(): void {
+    window.location.reload();
   }
 
   onSearch(event: Event) {

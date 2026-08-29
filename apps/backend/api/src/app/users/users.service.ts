@@ -11,6 +11,7 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { RequestEmailChangeDto, ConfirmEmailChangeDto } from './dto/email-change.dto';
 import { MailService } from '../mail/mail.service';
 import { RolesService } from '../roles/roles.service';
+import { Role } from '../roles/entities/role.entity';
 import * as crypto from 'crypto';
 import { UserCacheService } from '../auth/modules/user-cache.service';
 import { PasswordService } from '../auth/services/password.service';
@@ -18,6 +19,7 @@ import { UserSecurity } from './entities/user-security.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SaasService } from '../saas/saas.service';
 import { SaasResource } from '../saas/enums/saas-resource.enum';
+import { MembershipService } from '../organizations/services/membership.service';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { hasPermission } from '@virteex/shared/util-auth';
 import { SessionService } from '../auth/services/session.service';
@@ -39,7 +41,8 @@ export class UsersService {
     private readonly saasService: SaasService,
     private readonly dataSource: DataSource,
     @Inject(forwardRef(() => SessionService))
-    private readonly sessionService: SessionService
+    private readonly sessionService: SessionService,
+    private readonly membershipService: MembershipService,
   ) {}
 
   /**
@@ -470,29 +473,47 @@ export class UsersService {
     return [];
   }
 
+  /**
+   * Invite somebody to a tenant.
+   *
+   * Two cases, and only one of them used to work.
+   *
+   * A person with no account anywhere gets one, plus a membership and the assigned role. That is
+   * what the previous implementation did.
+   *
+   * A person who already has an account — at ANY tenant on the platform — is added to this one:
+   * a membership row and a role in this organization, against their existing identity. Previously
+   * this created a second `users` row, and `users.email` carries a global unique constraint, so
+   * the insert failed with `duplicate key value violates unique constraint
+   * "UQ_97672ac88f789774dd47f7c8be3"` — a 500 with a database error in it. The pre-check could
+   * never catch it, because it looked up `{ email, organizationId }` and the conflicting row
+   * belongs to a different organization. For a product sold to many tenants in one region, an
+   * accountant working with two clients is the normal case, not an edge one.
+   *
+   * One identity per person is also what credentials require: a password, a TOTP secret and a set
+   * of backup codes belong to a human being, not to each customer they work with.
+   */
   async inviteUser(
     inviteUserDto: InviteUserDto,
     organizationId: string,
   ): Promise<User> {
     const { email, firstName, lastName, roleId } = inviteUserDto;
 
-    const existingUser = await this.userRepository.findOne({
-      where: { email, organizationId },
-    });
-
-    if (existingUser) {
-      // H-07 FIX: Generic client message prevents internal email enumeration.
-      // Detailed context is logged server-side only (OWASP Error Handling Cheat Sheet; CWE-203/CWE-209).
-      this.logger.warn(
-        `Invite conflict: org=${organizationId} emailHash=${require('crypto').createHash('sha256').update(email).digest('hex').slice(0, 16)}`,
-      );
-      throw new BadRequestException('No se pudo enviar la invitación con los datos proporcionados.');
-    }
-
     const role = await this.rolesService.findOne(roleId, organizationId);
     if (!role) {
       this.logger.warn(`Invite role not found: org=${organizationId} roleId=${roleId}`);
       throw new BadRequestException('No se pudo enviar la invitación con los datos proporcionados.');
+    }
+
+    // Platform-wide, not organization-scoped. The unique constraint is platform-wide, so a
+    // lookup that is not tells you nothing about whether the insert can succeed.
+    const existingUser = await this.userRepository.findOne({
+      where: { email },
+      relations: ['roles'],
+    });
+
+    if (existingUser) {
+      return this.addExistingUserToOrganization(existingUser, organizationId, role);
     }
 
     // M-03 FIX: Persist only a SHA-256 hash of the invitation token (same approach as the
@@ -515,12 +536,14 @@ export class UsersService {
       security: new UserSecurity() // Initialize security
     });
 
-    // Wrap in transaction for atomicity
     return this.dataSource.transaction(async (manager) => {
-        // Enforce Limit before saving
         await this.saasService.enforceLimit(manager, organizationId, SaasResource.USERS);
 
         await manager.save(newUser);
+
+        // The membership is written INSIDE the transaction. Written outside, it would survive a
+        // rollback and grant access to a tenant for a user that was never created.
+        await this.membershipService.grant(newUser.id, organizationId, manager);
 
         // Email the RAW token (only the hash is stored server-side).
         await this.mailService.sendUserInvitation(newUser, rawInvitationToken);
@@ -529,6 +552,59 @@ export class UsersService {
         delete newUser.invitationTokenExpires;
 
         return newUser;
+    });
+  }
+
+  /**
+   * Add somebody who already has an account to another tenant.
+   *
+   * They keep their identity, their password and their MFA factors; they gain a membership and a
+   * role scoped to this organization. Because roles carry `organization_id` and permissions are
+   * now resolved per active tenant, holding a role here says nothing about their rights anywhere
+   * else.
+   *
+   * Re-inviting somebody who is already a member is not an error and not a way to probe: the same
+   * generic response is returned either way, so the endpoint cannot be used to ask "does this
+   * person have an account with you".
+   */
+  private async addExistingUserToOrganization(
+    user: User,
+    organizationId: string,
+    role: Role,
+  ): Promise<User> {
+    const alreadyMember = await this.membershipService.isMember(user.id, organizationId);
+    const alreadyHasRoleHere = (user.roles ?? []).some(
+      (existing) => existing.organizationId === organizationId,
+    );
+
+    if (alreadyMember && alreadyHasRoleHere) {
+      this.logger.log(
+        { event: 'invite_existing_member', organizationId, userId: user.id },
+        'Invitation for a user who is already a member of this organization; no change made.',
+      );
+      return user;
+    }
+
+    return this.dataSource.transaction(async (manager) => {
+      await this.saasService.enforceLimit(manager, organizationId, SaasResource.USERS);
+
+      await this.membershipService.grant(user.id, organizationId, manager);
+
+      if (!alreadyHasRoleHere) {
+        user.roles = [...(user.roles ?? []), role];
+        await manager.save(User, user);
+      }
+
+      // Their existing sessions carry a permission set computed before this role existed.
+      await this.userCacheService.clearUserSession(user.id);
+
+      const organization = await manager.findOne(Organization, { where: { id: organizationId } });
+      await this.mailService.sendAddedToOrganizationEmail(
+        user,
+        organization?.legalName ?? 'una organización',
+      );
+
+      return user;
     });
   }
 
@@ -644,51 +720,26 @@ export class UsersService {
       ? (await this.orgRepository.findOneBy({ id: user.organizationId })) ?? undefined
       : undefined;
 
-    // Multi-tenant enrichment: list every organization the user can access.
-    // This is OPTIONAL context. It runs on every authenticated request, so a
-    // failure here (e.g. the join table not yet migrated) must NEVER break auth.
+    // Multi-tenant enrichment: every organization the user can act in.
     user.organizations = await this.findAccessibleOrganizations(id, user.organization);
 
     return user;
   }
 
   /**
-   * Resolves the organizations a user can access for multi-tenant access checks.
+   * The organizations a user may act in.
    *
-   * Uses the `user_organizations` join table when present and always guarantees
-   * the active organization is included, so a user is never locked out of their
-   * own tenant. Degrades gracefully (falls back to the active organization) if
-   * the table is missing or the query fails — authentication must not depend on
-   * this optional enrichment.
+   * This was a raw SQL join written inline here, wrapped in a try/catch that fell back to the
+   * active organization on any error — which meant a broken query degraded silently into
+   * single-tenant behaviour and nobody found out. The membership table now has an owner
+   * (`MembershipService`), one that writes it as well as reads it, and a failure is a failure.
    */
   private async findAccessibleOrganizations(
     userId: string,
     activeOrg?: Organization,
   ): Promise<Array<{ id: string; legalName: string }>> {
-    const fallback = activeOrg ? [{ id: activeOrg.id, legalName: activeOrg.legalName }] : [];
-
-    try {
-      const rows = (await this.orgRepository.query(
-        `SELECT o.id, o.legal_name AS "legalName"
-           FROM organizations o
-           INNER JOIN user_organizations uo ON uo.organization_id = o.id
-          WHERE uo.user_id = $1`,
-        [userId],
-      )) as Array<{ id: string; legalName: string }>;
-
-      // Always include the active organization so access checks never fail closed
-      // for the tenant the user is currently operating in.
-      if (activeOrg && !rows.some((r) => r.id === activeOrg.id)) {
-        rows.push({ id: activeOrg.id, legalName: activeOrg.legalName });
-      }
-
-      return rows;
-    } catch (err) {
-      this.logger.warn(
-        `Multi-org membership lookup failed for user ${userId}; falling back to active organization. ${(err as Error).message}`,
-      );
-      return fallback;
-    }
+    const memberships = await this.membershipService.listFor(userId, activeOrg?.id ?? null);
+    return memberships.map(({ id, legalName }) => ({ id, legalName }));
   }
 
   async save(user: User): Promise<User> {

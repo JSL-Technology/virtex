@@ -60,6 +60,13 @@
         } @empty {
           <div class="no-results">No se encontraron empresas</div>
         }
+
+        @if (switching()) {
+          <div class="switch-status">Cambiando de empresa…</div>
+        }
+        @if (switchError()) {
+          <div class="switch-error">{{ switchError() }}</div>
+        }
       </div>
 
       <div class="dropdown-footer">

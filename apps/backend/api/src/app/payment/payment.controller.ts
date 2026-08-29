@@ -12,10 +12,20 @@ import { SaasService } from '../saas/saas.service';
 import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
 import { ConfigService } from '@nestjs/config';
+import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
 import { Public } from '../auth/decorators/public.decorator';
 import { SkipCsrf } from '../auth/decorators/skip-csrf.decorator';
 import { CreateCheckoutSessionDto, ConfirmCheckoutDto } from './dto/payment.dto';
 
+/**
+ * Billing stays reachable when the subscription is not.
+ *
+ * The global `SubscriptionActiveGuard` refuses work for a tenant whose subscription has lapsed.
+ * Applying that to the pages where the customer would pay, read what they owe, or open the Stripe
+ * portal would make a recoverable payment failure unrecoverable — the customer would be locked out
+ * of the only door back in.
+ */
+@AllowInactiveSubscription()
 @Controller('payment')
 export class PaymentController {
   constructor(

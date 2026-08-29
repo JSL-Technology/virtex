@@ -28,11 +28,18 @@ export interface CachedUser {
   status: UserStatus;
   organizationId: string | null;
 
-  /** Flattened from every assigned role, so authorisation needs no joins on the hot path. */
-  permissions: string[];
-
-  /** Role names only. The permission set above is what guards actually evaluate. */
-  roleNames: string[];
+  /**
+   * Every role assignment the user holds, WITH the tenant it belongs to.
+   *
+   * Storing the tenant is not bookkeeping. Roles are per-organization (`roles.organization_id`),
+   * and permissions used to be flattened across all of them —
+   * `[...new Set(user.roles.flatMap((role) => role.permissions))]` — with no filter. A user who
+   * administered one tenant and merely viewed another therefore carried administrator permissions
+   * in both, and the tenant-context check that decided WHICH organization they were acting in did
+   * nothing about WHICH permissions came along. Keeping the assignment intact is what lets the
+   * permission set be computed for the active tenant, and only that tenant.
+   */
+  roleAssignments: Array<{ name: string; organizationId: string | null; permissions: string[] }>;
 
   /** Bumped on password change, role change, forced logout — invalidates every issued token. */
   tokenVersion: number;

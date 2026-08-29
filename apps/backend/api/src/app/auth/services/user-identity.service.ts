@@ -109,14 +109,19 @@ export class UserIdentityService {
 
     const organization = await this.resolveOrganizationContext(user, organizationId);
 
+    // Both the tenant AND the rights are resolved for the organization the request acts in.
+    const activeOrganizationId = organization?.id ?? user.organizationId;
+
     return {
       id: user.id,
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
-      organizationId: user.organizationId as string,
-      roles: user.roleNames.map((name) => ({ name })) as never,
-      permissions: user.permissions,
+      organizationId: activeOrganizationId as string,
+      roles: UserIdentityService.roleNamesFor(user, activeOrganizationId).map((name) => ({
+        name,
+      })) as never,
+      permissions: UserIdentityService.permissionsFor(user, activeOrganizationId),
       organization,
       isTwoFactorEnabled: user.isTwoFactorEnabled,
       isImpersonating: payload.isImpersonating,
@@ -136,15 +141,20 @@ export class UserIdentityService {
     }
     this.assertAuthenticable(user);
 
+    const organization = await this.resolveOrganizationContext(user, current.organization?.id);
+    const activeOrganizationId = organization?.id ?? user.organizationId;
+
     return {
       id: user.id,
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
-      organizationId: user.organizationId as string,
-      roles: user.roleNames.map((name) => ({ name })) as never,
-      permissions: user.permissions,
-      organization: await this.resolveOrganizationContext(user, current.organization?.id),
+      organizationId: activeOrganizationId as string,
+      roles: UserIdentityService.roleNamesFor(user, activeOrganizationId).map((name) => ({
+        name,
+      })) as never,
+      permissions: UserIdentityService.permissionsFor(user, activeOrganizationId),
+      organization,
       isTwoFactorEnabled: user.isTwoFactorEnabled,
       isImpersonating: current.isImpersonating ?? false,
       originalUserId: current.originalUserId,
@@ -203,8 +213,6 @@ export class UserIdentityService {
    * see a stale value.
    */
   private static project(user: User): CachedUser {
-    const permissions = [...new Set((user.roles ?? []).flatMap((role) => role.permissions ?? []))];
-
     return {
       id: user.id,
       email: user.email,
@@ -212,13 +220,46 @@ export class UserIdentityService {
       lastName: user.lastName,
       status: user.status,
       organizationId: user.organizationId,
-      permissions,
-      roleNames: (user.roles ?? []).map((role) => role.name),
+      // Assignments are kept whole, with the tenant each belongs to. Flattening them here is
+      // what produced permissions that crossed tenant boundaries; the flattening now happens
+      // per active organization, in `permissionsFor`.
+      roleAssignments: (user.roles ?? []).map((role) => ({
+        name: role.name,
+        organizationId: role.organizationId ?? null,
+        permissions: role.permissions ?? [],
+      })),
       tokenVersion: user.security?.tokenVersion ?? 0,
       isTwoFactorEnabled: user.security?.isTwoFactorEnabled ?? false,
       organization: user.organization,
       organizations: user.organizations,
     };
+  }
+
+  /**
+   * The permissions a user holds IN one tenant.
+   *
+   * Roles carry `organization_id`, and a user can hold roles in several tenants at once — the
+   * platform's whole multi-tenancy model depends on that. Permissions were nonetheless flattened
+   * across every assignment with no filter, so somebody who administered one customer and merely
+   * viewed another arrived at the second one holding administrator rights. The tenant-context
+   * check decided which organization the request acted in and left the permission set alone.
+   *
+   * A role with a null `organization_id` is a platform-level role (support, operations) and
+   * applies everywhere by design; those are seeded, not self-assignable.
+   */
+  static permissionsFor(user: CachedUser, organizationId?: string | null): string[] {
+    const scoped = user.roleAssignments.filter(
+      (assignment) =>
+        assignment.organizationId === null || assignment.organizationId === organizationId,
+    );
+    return [...new Set(scoped.flatMap((assignment) => assignment.permissions))];
+  }
+
+  /** Role names for the active tenant, on the same rule as the permissions above. */
+  static roleNamesFor(user: CachedUser, organizationId?: string | null): string[] {
+    return user.roleAssignments
+      .filter((a) => a.organizationId === null || a.organizationId === organizationId)
+      .map((a) => a.name);
   }
 
   private assertAuthenticable(user: Pick<CachedUser, 'status'>): void {

@@ -8,6 +8,7 @@ import {
   ManyToMany,
   ManyToOne,
   JoinTable,
+  JoinColumn,
   OneToMany,
   OneToOne,
 } from 'typeorm';
@@ -67,11 +68,34 @@ export class User {
   @Column({ name: 'last_activity', type: 'timestamptz', nullable: true })
   lastActivity?: Date;
 
-  @Column({ name: 'organization_id', type: 'varchar', nullable: true })
+  /**
+   * The tenant this person is currently acting in.
+   *
+   * A real uuid with a real foreign key. It was a bare `varchar` with no constraint, so a value
+   * referencing no organization was storable — and the resulting user authenticated into a tenant
+   * that did not exist. Every other membership lives in `user_organizations`; this column names
+   * which of them is active.
+   */
+  @Column({ name: 'organization_id', type: 'uuid', nullable: true })
   organizationId: string | null;
 
-  // Virtual property — populated manually by services, NOT a TypeORM relation.
-  // TypeORM does not persist this field.
+  /**
+   * The active tenant, as a real relation.
+   *
+   * It used to be a plain untyped property that services populated by hand, with a comment warning
+   * that passing it in `relations` throws `EntityPropertyNotFoundError` — which it did, and which
+   * cost a transaction in `completePendingRegistration` before somebody worked out why. Declaring
+   * the relation is what lets the column carry a foreign key at all, and it makes
+   * `relations: ['organization']` work the way every reader expects.
+   *
+   * Not eager: the hot authentication path loads a projection, not the entity, and an eager join
+   * on every user read would be a cost paid on every request for a value most of them ignore.
+   */
+  // The target is named by string rather than by constructor: `Organization` is a type-only
+  // import here to break the cycle between the users and organizations modules, so there is no
+  // runtime value to reference.
+  @ManyToOne('Organization', { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'organization_id', foreignKeyConstraintName: 'FK_users_organization' })
   organization?: Organization;
 
   // Virtual property — populated manually for multi-tenant access checks.

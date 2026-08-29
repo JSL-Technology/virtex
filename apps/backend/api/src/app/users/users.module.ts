@@ -14,6 +14,7 @@ import { StorageModule } from '../storage/storage.module';
 import { AuthModule } from '../auth/auth.module';
 import { AuditModule } from '../audit/audit.module';
 import { PasswordService } from '../auth/services/password.service';
+import { OrganizationsModule } from '../organizations/organizations.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { PasswordService } from '../auth/services/password.service';
     StorageModule,
     forwardRef(() => AuthModule),
     forwardRef(() => AuditModule),
+    forwardRef(() => OrganizationsModule),
   ],
 
   controllers: [UsersController],

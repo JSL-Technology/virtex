@@ -26,6 +26,7 @@ import { UserSecurity } from '../../users/entities/user-security.entity';
 import { PasswordService } from './password.service';
 import { PendingRegistration, PendingRegistrationStatus } from '../entities/pending-registration.entity';
 import { Plan } from '../../saas/entities/plan.entity';
+import { MembershipService } from '../../organizations/services/membership.service';
 
 /** Subscription facts captured from Stripe when a pending registration is completed. */
 export interface CompletedSubscriptionInfo {
@@ -74,7 +75,8 @@ export class RegistrationService {
     private readonly organizationRepository: Repository<Organization>,
     @InjectRepository(PendingRegistration)
     private readonly pendingRegistrationRepository: Repository<PendingRegistration>,
-    private readonly passwordService: PasswordService
+    private readonly passwordService: PasswordService,
+    private readonly membershipService: MembershipService,
   ) {}
 
   /**
@@ -220,6 +222,11 @@ export class RegistrationService {
       security: userSecurity,
     });
     await manager.save(user);
+
+    // The owner's membership, written in the same transaction that creates them. Registration
+    // never wrote this row, so `user_organizations` held only what a one-off backfill had put
+    // there and every tenant created since was invisible to the multi-tenancy that depends on it.
+    await this.membershipService.grant(user.id, organization.id, manager);
 
     await this.eventEmitter.emitAsync(
       'user.registered',

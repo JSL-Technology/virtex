@@ -43,10 +43,20 @@ export class SaasService implements OnModuleInit {
     private metricsService: MetricsService
   ) {}
 
+  /**
+   * Bring the plan catalogue into agreement with `SAAS_PLANS` on every boot.
+   *
+   * This used to run only when `SAAS_SEED_ENABLED` was set to the string `'true'` — a variable
+   * declared nowhere, documented nowhere, and absent from every environment. So the limits in
+   * `saas.config.ts` were aspirational: adding one changed nothing until somebody remembered the
+   * flag, and `enforceLimit` treats a plan with no row for a resource as unlimited. A metered
+   * resource that reaches production unseeded is a resource nobody is charged for.
+   *
+   * The sync is idempotent and derived entirely from code, which is what makes running it
+   * unconditionally the safe option rather than the risky one.
+   */
   async onModuleInit() {
-    if (this.configService.get('SAAS_SEED_ENABLED') === 'true') {
-      await this.seedPlans();
-    }
+    await this.seedPlans();
   }
 
   async seedPlans() {
@@ -223,7 +233,16 @@ export class SaasService implements OnModuleInit {
 
     const limitDef = org.plan.limits.find(l => l.resource === resource);
     if (!limitDef) {
-        return;
+        // Fail CLOSED, for the same reason a missing plan does. A plan with no row for a resource
+        // used to mean "unlimited", so every resource added to the enum without a matching entry
+        // in every plan was silently free on every tier — and the seeding that would have created
+        // those rows was itself behind an unset feature flag. `seedPlans` runs on every boot now,
+        // so a missing row is a genuine configuration fault and worth refusing over.
+        this.logger.error(
+          { event: 'saas_no_limit_defined', organizationId, plan: org.plan.slug, resource },
+          '[BILLING] Plan defines no limit for this resource; refusing the metered operation.',
+        );
+        throw new SaasNoPlanException(organizationId);
     }
 
     if (limitDef.valueType === LimitType.BOOLEAN) {

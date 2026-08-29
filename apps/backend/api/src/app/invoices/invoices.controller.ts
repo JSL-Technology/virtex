@@ -19,13 +19,12 @@ import type { Response } from 'express';
 import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
-import { SubscriptionActiveGuard } from '../saas/guards/subscription-active.guard';
 import { CheckPlanLimit } from '../saas/decorators/plan-limit.decorator';
 import { PlanLimitCheckGuard } from '../saas/guards/plan-limit-check.guard';
 import { SaasResource } from '../saas/enums/saas-resource.enum';
 
 @Controller('invoices')
-@UseGuards(JwtAuthGuard, SubscriptionActiveGuard)
+@UseGuards(JwtAuthGuard)
 export class InvoicesController {
   constructor(private readonly invoicesService: InvoicesService) {}
 
