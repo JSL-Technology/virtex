@@ -186,9 +186,9 @@ export class RegisterPage implements OnInit {
       const config = this.currentCountryConfig();
       if (!config || !this.registerForm) return;
 
-      const taxIdControl = this.registerForm.get('configuration.taxId');
-      taxIdControl?.setValidators([Validators.required, Validators.pattern(config.taxIdPattern)]);
-      taxIdControl?.updateValueAndValidity({ emitEvent: false });
+      // The pattern follows the taxpayer kind, because several countries issue a different
+      // document to a natural person: an EIN pattern applied to an SSN rejects a valid value.
+      this.syncTaxIdValidator(config);
 
       // The postal code is required only where the country requires it — United States sales tax
       // is destination-based and cannot be computed without a ZIP, whereas most of Latin America
@@ -355,21 +355,59 @@ export class RegisterPage implements OnInit {
           const allowed = (field.options ?? []).filter(
             (option) => !option.appliesTo || !kind || option.appliesTo.includes(kind),
           );
-          if (!allowed.some((option) => option.code === current.value)) {
+          if (field.multiple) {
+            // Drop only the entries that are no longer offered, keeping the rest of the choice.
+            const kept = (current.value as string[]).filter((code) =>
+              allowed.some((option) => option.code === code),
+            );
+            if (kept.length !== (current.value as string[]).length) {
+              current.setValue(kept, { emitEvent: false });
+            }
+          } else if (!allowed.some((option) => option.code === current.value)) {
             current.setValue('', { emitEvent: false });
           }
         }
         current.setValidators(validators);
         current.updateValueAndValidity({ emitEvent: false });
       } else {
-        group.addControl(field.key, this.fb.control('', validators), { emitEvent: false });
+        // A multi-valued field holds an array from the start: initialising it with `''` and
+        // letting the template push strings in produces a control whose emptiness check
+        // (`Validators.required`) passes for `['']`.
+        group.addControl(
+          field.key,
+          this.fb.control(field.multiple ? [] : '', validators),
+          { emitEvent: false },
+        );
       }
     }
   }
 
+  /**
+   * The client-side shape for the tax id, for the country AND the taxpayer kind.
+   *
+   * A country that issues a separate document to natural persons publishes it as
+   * `individualDocument`. Validating a sole proprietor's SSN against the EIN pattern rejected a
+   * value the server accepts, which is the worst kind of validation error: the user is told they
+   * are wrong about their own identifier.
+   */
+  private syncTaxIdValidator(config: { taxIdPattern: string; individualDocument?: { pattern: string } | null }): void {
+    const kind = this.registerForm.get('configuration.taxpayerKind')?.value as TaxpayerKind | undefined;
+    const pattern =
+      kind === 'individual' && config.individualDocument
+        ? config.individualDocument.pattern
+        : config.taxIdPattern;
+
+    const control = this.registerForm.get('configuration.taxId');
+    control?.setValidators([Validators.required, Validators.pattern(pattern)]);
+    control?.updateValueAndValidity({ emitEvent: false });
+  }
+
   /** Rebuild the fiscal fields when the taxpayer kind changes, not only when the country does. */
   onTaxpayerKindChange(): void {
-    this.syncFiscalFields(this.currentCountryConfig());
+    const config = this.currentCountryConfig();
+    this.syncFiscalFields(config);
+    // The identifier scheme changes with the kind, so the pattern has to change with it.
+    if (config) this.syncTaxIdValidator(config);
     // The tax id was validated against the other scheme; re-checking it now tells the user
     // immediately rather than after they reach the plan step.
     this.registerForm.get('configuration.taxId')?.updateValueAndValidity();
@@ -401,9 +439,7 @@ export class RegisterPage implements OnInit {
         });
       },
       error: () => {
-        this.errorMessage.set(
-          'El enlace de confirmación ha expirado o no es válido. Por favor, ingresa el código manualmente.',
-        );
+        this.errorMessage.set('REGISTER.ERRORS.MAGIC_LINK_EXPIRED');
         this.currentStep.set(2);
       },
     });
@@ -442,21 +478,21 @@ export class RegisterPage implements OnInit {
 
     // Verification gate for email step
     if (this.currentStep() === 2 && !this.emailVerified()) {
-      this.errorMessage.set('Debes verificar tu correo electrónico antes de continuar.');
+      this.errorMessage.set('REGISTER.ERRORS.EMAIL_VERIFY_REQUIRED');
       return;
     }
 
     // Verification gate for phone step — only when a number was actually given. The phone is
     // optional; demanding an SMS for an empty field made the step impossible to pass.
     if (this.currentStep() === 3 && this.currentPhone && !this.phoneVerified()) {
-      this.errorMessage.set('Debes verificar tu número de celular antes de continuar.');
+      this.errorMessage.set('REGISTER.ERRORS.PHONE_VERIFY_REQUIRED');
       return;
     }
 
     const currentForm = this.getCurrentStepForm();
     if (currentForm?.invalid) {
       currentForm.markAllAsTouched();
-      this.errorMessage.set('Por favor, completa los campos requeridos correctamente.');
+      this.errorMessage.set('REGISTER.ERRORS.REQUIRED_FIELDS');
       return;
     }
 
@@ -467,9 +503,7 @@ export class RegisterPage implements OnInit {
     // chart of accounts and no taxes. The region is now required for whatever country is selected,
     // which is the only version of this check that means anything.
     if (this.currentStep() === 4 && !this.registerForm.get('configuration.fiscalRegionId')?.value) {
-      this.errorMessage.set(
-        'No se pudo cargar la configuración fiscal de ese país. Recarga la página o elige otro país.',
-      );
+      this.errorMessage.set('REGISTER.ERRORS.COUNTRY_CONFIG');
       return;
     }
 
@@ -580,7 +614,7 @@ export class RegisterPage implements OnInit {
             }
           },
           error: (err) => {
-            let msg = 'Error desconocido en el registro.';
+            let msg = 'REGISTER.ERRORS.UNKNOWN';
             if (err.error?.message) {
               msg = Array.isArray(err.error.message)
                 ? err.error.message.join(', ')
@@ -592,7 +626,7 @@ export class RegisterPage implements OnInit {
         });
       },
       error: () => {
-        this.errorMessage.set('Error al validar seguridad (reCAPTCHA).');
+        this.errorMessage.set('REGISTER.ERRORS.RECAPTCHA');
         this.isRegistering.set(false);
       },
     });

@@ -8,7 +8,9 @@ import { UsageMetric } from '../entities/usage-metric.entity';
 import { SaasService } from '../saas.service';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { SaasCacheKeyFactory } from '../utils/saas-cache-key.factory';
-import Redis from 'ioredis';
+import { DataSource } from 'typeorm';
+import { SaasResource } from '../enums/saas-resource.enum';
+import { QuotaPeriod } from '../enums/quota-period.enum';
 
 @Injectable()
 export class SaasCronService {
@@ -20,6 +22,7 @@ export class SaasCronService {
     @InjectRepository(Organization)
     private readonly orgRepository: Repository<Organization>,
     private readonly saasService: SaasService,
+    private readonly dataSource: DataSource,
     @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {}
 
@@ -45,9 +48,88 @@ export class SaasCronService {
     }
 
     try {
+        // Order matters: recount the lifetime quotas from the rows that actually exist FIRST,
+        // then push the corrected numbers out to the cache.
+        await this.recountLifetimeQuotas();
         await this.performReconciliation();
     } finally {
         await this.releaseLock(lockKey, lockValue);
+    }
+  }
+
+  /**
+   * Bring every LIFETIME quota back in line with the rows that actually exist.
+   *
+   * The previous job reconciled Redis against the database and stopped there — it corrected the
+   * cache and never the counter. So any path that created or removed a record outside the
+   * metered code (a rolled-back transaction, a restored backup, a bulk import, a hard delete)
+   * left the quota permanently wrong, and wrong in the direction the customer cannot fix: too
+   * high. The counter is a derived value, and a derived value that is never recomputed from its
+   * source drifts by construction.
+   *
+   * Monthly quotas are deliberately NOT recounted. They measure activity within a period, so
+   * "how many invoices exist right now" is not the same question as "how many were issued this
+   * month", and deleting an invoice does not un-issue it.
+   */
+  private async recountLifetimeQuotas(): Promise<void> {
+    // resource → the table and column that is its source of truth.
+    const SOURCES: ReadonlyArray<{ resource: SaasResource; sql: string }> = [
+      {
+        resource: SaasResource.USERS,
+        sql: 'SELECT COUNT(*)::int AS n FROM user_organizations WHERE organization_id = $1',
+      },
+      {
+        resource: SaasResource.CUSTOMERS,
+        sql: 'SELECT COUNT(*)::int AS n FROM customers WHERE organization_id = $1',
+      },
+      {
+        resource: SaasResource.SUPPLIERS,
+        sql: 'SELECT COUNT(*)::int AS n FROM suppliers WHERE organization_id = $1',
+      },
+      {
+        resource: SaasResource.SUBSIDIARIES,
+        sql: 'SELECT COUNT(*)::int AS n FROM organization_subsidiaries WHERE parent_organization_id = $1',
+      },
+    ];
+
+    const organizations = await this.orgRepository.find({ select: ['id'] });
+    let corrected = 0;
+
+    for (const org of organizations) {
+      for (const source of SOURCES) {
+        try {
+          const rows = await this.dataSource.query(source.sql, [org.id]);
+          const actual = Number(rows?.[0]?.n ?? 0);
+
+          const stored = await this.usageRepository.findOne({
+            where: { organizationId: org.id, resource: source.resource, period: QuotaPeriod.LIFETIME },
+          });
+          if (stored && stored.count === actual) continue;
+
+          await this.saasService.recountLifetimeUsage(
+            this.dataSource.manager,
+            org.id,
+            source.resource,
+            actual,
+          );
+          corrected++;
+          this.logger.log(
+            { event: 'usage_recounted', organizationId: org.id, resource: source.resource, from: stored?.count ?? null, to: actual },
+            'Lifetime quota recounted from the source of truth.',
+          );
+        } catch (e) {
+          this.logger.error(
+            `Failed to recount ${source.resource} for ${org.id}: ${(e as Error).message}`,
+          );
+        }
+      }
+    }
+
+    if (corrected > 0) {
+      this.logger.warn(
+        { event: 'usage_recount_drift', corrected },
+        `Corrected ${corrected} lifetime quota counters that had drifted from the underlying rows.`,
+      );
     }
   }
 

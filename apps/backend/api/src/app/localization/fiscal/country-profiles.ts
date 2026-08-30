@@ -56,6 +56,15 @@ export interface FiscalFieldSpec {
   help?: string;
   required: boolean;
   type: 'select' | 'text';
+  /**
+   * True when the authority admits SEVERAL answers at once.
+   *
+   * Colombia is the case that forced this: a RUT lists every `responsabilidad fiscal` the
+   * taxpayer holds — a large taxpayer that is also a VAT withholding agent carries `O-13` and
+   * `O-23` — and DIAN's invoice XML carries them as a list. Modelling it as a single select
+   * meant the tenant had to pick one and the invoice would then be wrong for the others.
+   */
+  multiple?: boolean;
   /** For `select`. Codes are the authority's own. */
   options?: readonly FiscalFieldOption[];
   /** For `text`. Anchored on both ends by the validator. */
@@ -260,6 +269,421 @@ const DOMINICAN_PROVINCES: AdministrativeDivision[] = [
 ].map(([code, name]) => ({ code, name }));
 
 /**
+ * DANE departamentos. The code is what DIAN's invoice XML carries in `ID` for the fiscal
+ * address; the two-digit form is the department, and it is the level the e-invoicing schema
+ * requires.
+ */
+const COLOMBIAN_DEPARTMENTS: AdministrativeDivision[] = [
+  ['05', 'Antioquia'],
+  ['08', 'Atlántico'],
+  ['11', 'Bogotá D.C.'],
+  ['13', 'Bolívar'],
+  ['15', 'Boyacá'],
+  ['17', 'Caldas'],
+  ['18', 'Caquetá'],
+  ['19', 'Cauca'],
+  ['20', 'Cesar'],
+  ['23', 'Córdoba'],
+  ['25', 'Cundinamarca'],
+  ['27', 'Chocó'],
+  ['41', 'Huila'],
+  ['44', 'La Guajira'],
+  ['47', 'Magdalena'],
+  ['50', 'Meta'],
+  ['52', 'Nariño'],
+  ['54', 'Norte de Santander'],
+  ['63', 'Quindío'],
+  ['66', 'Risaralda'],
+  ['68', 'Santander'],
+  ['70', 'Sucre'],
+  ['73', 'Tolima'],
+  ['76', 'Valle del Cauca'],
+  ['81', 'Arauca'],
+  ['85', 'Casanare'],
+  ['86', 'Putumayo'],
+  ['88', 'San Andrés y Providencia'],
+  ['91', 'Amazonas'],
+  ['94', 'Guainía'],
+  ['95', 'Guaviare'],
+  ['97', 'Vaupés'],
+  ['99', 'Vichada'],
+].map(([code, name]) => ({ code, name }));
+
+/**
+ * SII regiones, in the official ordinal order. The DTE carries the commune, and the region is
+ * the level above it that the taxpayer's own address is registered at.
+ */
+const CHILEAN_REGIONS: AdministrativeDivision[] = [
+  ['AP', 'Arica y Parinacota'],
+  ['TA', 'Tarapacá'],
+  ['AN', 'Antofagasta'],
+  ['AT', 'Atacama'],
+  ['CO', 'Coquimbo'],
+  ['VS', 'Valparaíso'],
+  ['RM', 'Región Metropolitana de Santiago'],
+  ['LI', 'Libertador General Bernardo O\'Higgins'],
+  ['ML', 'Maule'],
+  ['NB', 'Ñuble'],
+  ['BI', 'Biobío'],
+  ['AR', 'La Araucanía'],
+  ['LR', 'Los Ríos'],
+  ['LL', 'Los Lagos'],
+  ['AI', 'Aysén del General Carlos Ibáñez del Campo'],
+  ['MA', 'Magallanes y de la Antártica Chilena'],
+].map(([code, name]) => ({ code, name }));
+
+/**
+ * INEI departamentos. The first two digits of the six-digit ubigeo SUNAT requires on the
+ * electronic receipt, collected separately so the two cannot disagree.
+ */
+const PERUVIAN_DEPARTMENTS: AdministrativeDivision[] = [
+  ['01', 'Amazonas'],
+  ['02', 'Áncash'],
+  ['03', 'Apurímac'],
+  ['04', 'Arequipa'],
+  ['05', 'Ayacucho'],
+  ['06', 'Cajamarca'],
+  ['07', 'Callao'],
+  ['08', 'Cusco'],
+  ['09', 'Huancavelica'],
+  ['10', 'Huánuco'],
+  ['11', 'Ica'],
+  ['12', 'Junín'],
+  ['13', 'La Libertad'],
+  ['14', 'Lambayeque'],
+  ['15', 'Lima'],
+  ['16', 'Loreto'],
+  ['17', 'Madre de Dios'],
+  ['18', 'Moquegua'],
+  ['19', 'Pasco'],
+  ['20', 'Piura'],
+  ['21', 'Puno'],
+  ['22', 'San Martín'],
+  ['23', 'Tacna'],
+  ['24', 'Tumbes'],
+  ['25', 'Ucayali'],
+].map(([code, name]) => ({ code, name }));
+
+/**
+ * IBGE unidades federativas. The UF is what an NF-e carries, and it decides the ICMS regime,
+ * so free text here is not a smaller problem than a missing field.
+ */
+const BRAZILIAN_STATES: AdministrativeDivision[] = [
+  ['AC', 'Acre'],
+  ['AL', 'Alagoas'],
+  ['AP', 'Amapá'],
+  ['AM', 'Amazonas'],
+  ['BA', 'Bahia'],
+  ['CE', 'Ceará'],
+  ['DF', 'Distrito Federal'],
+  ['ES', 'Espírito Santo'],
+  ['GO', 'Goiás'],
+  ['MA', 'Maranhão'],
+  ['MT', 'Mato Grosso'],
+  ['MS', 'Mato Grosso do Sul'],
+  ['MG', 'Minas Gerais'],
+  ['PA', 'Pará'],
+  ['PB', 'Paraíba'],
+  ['PR', 'Paraná'],
+  ['PE', 'Pernambuco'],
+  ['PI', 'Piauí'],
+  ['RJ', 'Rio de Janeiro'],
+  ['RN', 'Rio Grande do Norte'],
+  ['RS', 'Rio Grande do Sul'],
+  ['RO', 'Rondônia'],
+  ['RR', 'Roraima'],
+  ['SC', 'Santa Catarina'],
+  ['SP', 'São Paulo'],
+  ['SE', 'Sergipe'],
+  ['TO', 'Tocantins'],
+].map(([code, name]) => ({ code, name }));
+
+/**
+ * AFIP/INDEC provincias. The code is the one AFIP publishes for the issuer's address on an
+ * electronic invoice.
+ */
+const ARGENTINE_PROVINCES: AdministrativeDivision[] = [
+  ['00', 'Ciudad Autónoma de Buenos Aires'],
+  ['01', 'Buenos Aires'],
+  ['02', 'Catamarca'],
+  ['03', 'Córdoba'],
+  ['04', 'Corrientes'],
+  ['05', 'Entre Ríos'],
+  ['06', 'Jujuy'],
+  ['07', 'Mendoza'],
+  ['08', 'La Rioja'],
+  ['09', 'Salta'],
+  ['10', 'San Juan'],
+  ['11', 'San Luis'],
+  ['12', 'Santa Fe'],
+  ['13', 'Santiago del Estero'],
+  ['14', 'Tucumán'],
+  ['16', 'Chaco'],
+  ['17', 'Chubut'],
+  ['18', 'Formosa'],
+  ['19', 'Misiones'],
+  ['20', 'Neuquén'],
+  ['21', 'La Pampa'],
+  ['22', 'Río Negro'],
+  ['23', 'Santa Cruz'],
+  ['24', 'Tierra del Fuego'],
+].map(([code, name]) => ({ code, name }));
+
+/**
+ * INEC provincias. The first two digits of the SRI establishment code.
+ */
+const ECUADORIAN_PROVINCES: AdministrativeDivision[] = [
+  ['01', 'Azuay'],
+  ['02', 'Bolívar'],
+  ['03', 'Cañar'],
+  ['04', 'Carchi'],
+  ['05', 'Cotopaxi'],
+  ['06', 'Chimborazo'],
+  ['07', 'El Oro'],
+  ['08', 'Esmeraldas'],
+  ['09', 'Guayas'],
+  ['10', 'Imbabura'],
+  ['11', 'Loja'],
+  ['12', 'Los Ríos'],
+  ['13', 'Manabí'],
+  ['14', 'Morona Santiago'],
+  ['15', 'Napo'],
+  ['16', 'Pastaza'],
+  ['17', 'Pichincha'],
+  ['18', 'Tungurahua'],
+  ['19', 'Zamora Chinchipe'],
+  ['20', 'Galápagos'],
+  ['21', 'Sucumbíos'],
+  ['22', 'Orellana'],
+  ['23', 'Santo Domingo de los Tsáchilas'],
+  ['24', 'Santa Elena'],
+].map(([code, name]) => ({ code, name }));
+
+/**
+ * DGI/INE departamentos.
+ */
+const URUGUAYAN_DEPARTMENTS: AdministrativeDivision[] = [
+  ['MO', 'Montevideo'],
+  ['AR', 'Artigas'],
+  ['CA', 'Canelones'],
+  ['CL', 'Cerro Largo'],
+  ['CO', 'Colonia'],
+  ['DU', 'Durazno'],
+  ['FS', 'Flores'],
+  ['FD', 'Florida'],
+  ['LA', 'Lavalleja'],
+  ['MA', 'Maldonado'],
+  ['PA', 'Paysandú'],
+  ['RN', 'Río Negro'],
+  ['RV', 'Rivera'],
+  ['RO', 'Rocha'],
+  ['SA', 'Salto'],
+  ['SJ', 'San José'],
+  ['SO', 'Soriano'],
+  ['TA', 'Tacuarembó'],
+  ['TT', 'Treinta y Tres'],
+].map(([code, name]) => ({ code, name }));
+
+/**
+ * SET/DGEEC departamentos, with Asunción as the capital district.
+ */
+const PARAGUAYAN_DEPARTMENTS: AdministrativeDivision[] = [
+  ['00', 'Asunción'],
+  ['01', 'Concepción'],
+  ['02', 'San Pedro'],
+  ['03', 'Cordillera'],
+  ['04', 'Guairá'],
+  ['05', 'Caaguazú'],
+  ['06', 'Caazapá'],
+  ['07', 'Itapúa'],
+  ['08', 'Misiones'],
+  ['09', 'Paraguarí'],
+  ['10', 'Alto Paraná'],
+  ['11', 'Central'],
+  ['12', 'Ñeembucú'],
+  ['13', 'Amambay'],
+  ['14', 'Canindeyú'],
+  ['15', 'Presidente Hayes'],
+  ['16', 'Alto Paraguay'],
+  ['17', 'Boquerón'],
+].map(([code, name]) => ({ code, name }));
+
+/**
+ * SIN/INE departamentos.
+ */
+const BOLIVIAN_DEPARTMENTS: AdministrativeDivision[] = [
+  ['01', 'Chuquisaca'],
+  ['02', 'La Paz'],
+  ['03', 'Cochabamba'],
+  ['04', 'Oruro'],
+  ['05', 'Potosí'],
+  ['06', 'Tarija'],
+  ['07', 'Santa Cruz'],
+  ['08', 'Beni'],
+  ['09', 'Pando'],
+].map(([code, name]) => ({ code, name }));
+
+/**
+ * SENIAT/INE estados, including the Capital District.
+ */
+const VENEZUELAN_STATES: AdministrativeDivision[] = [
+  ['01', 'Distrito Capital'],
+  ['02', 'Amazonas'],
+  ['03', 'Anzoátegui'],
+  ['04', 'Apure'],
+  ['05', 'Aragua'],
+  ['06', 'Barinas'],
+  ['07', 'Bolívar'],
+  ['08', 'Carabobo'],
+  ['09', 'Cojedes'],
+  ['10', 'Delta Amacuro'],
+  ['11', 'Falcón'],
+  ['12', 'Guárico'],
+  ['13', 'Lara'],
+  ['14', 'Mérida'],
+  ['15', 'Miranda'],
+  ['16', 'Monagas'],
+  ['17', 'Nueva Esparta'],
+  ['18', 'Portuguesa'],
+  ['19', 'Sucre'],
+  ['20', 'Táchira'],
+  ['21', 'Trujillo'],
+  ['22', 'La Guaira'],
+  ['23', 'Yaracuy'],
+  ['24', 'Zulia'],
+  ['25', 'Dependencias Federales'],
+].map(([code, name]) => ({ code, name }));
+
+/**
+ * DGI provincias and comarcas indígenas, which are first-level divisions in their own right
+ * and not sub-divisions of a province.
+ */
+const PANAMANIAN_PROVINCES: AdministrativeDivision[] = [
+  ['01', 'Bocas del Toro'],
+  ['02', 'Coclé'],
+  ['03', 'Colón'],
+  ['04', 'Chiriquí'],
+  ['05', 'Darién'],
+  ['06', 'Herrera'],
+  ['07', 'Los Santos'],
+  ['08', 'Panamá'],
+  ['09', 'Veraguas'],
+  ['10', 'Guna Yala'],
+  ['11', 'Emberá-Wounaan'],
+  ['12', 'Ngäbe-Buglé'],
+  ['13', 'Panamá Oeste'],
+  ['14', 'Naso Tjër Di'],
+].map(([code, name]) => ({ code, name }));
+
+/**
+ * Hacienda provincias — the first digit of the location code the electronic invoice carries.
+ */
+const COSTA_RICAN_PROVINCES: AdministrativeDivision[] = [
+  ['1', 'San José'],
+  ['2', 'Alajuela'],
+  ['3', 'Cartago'],
+  ['4', 'Heredia'],
+  ['5', 'Guanacaste'],
+  ['6', 'Puntarenas'],
+  ['7', 'Limón'],
+].map(([code, name]) => ({ code, name }));
+
+/**
+ * SAT/INE departamentos.
+ */
+const GUATEMALAN_DEPARTMENTS: AdministrativeDivision[] = [
+  ['01', 'Guatemala'],
+  ['02', 'El Progreso'],
+  ['03', 'Sacatepéquez'],
+  ['04', 'Chimaltenango'],
+  ['05', 'Escuintla'],
+  ['06', 'Santa Rosa'],
+  ['07', 'Sololá'],
+  ['08', 'Totonicapán'],
+  ['09', 'Quetzaltenango'],
+  ['10', 'Suchitepéquez'],
+  ['11', 'Retalhuleu'],
+  ['12', 'San Marcos'],
+  ['13', 'Huehuetenango'],
+  ['14', 'Quiché'],
+  ['15', 'Baja Verapaz'],
+  ['16', 'Alta Verapaz'],
+  ['17', 'Petén'],
+  ['18', 'Izabal'],
+  ['19', 'Zacapa'],
+  ['20', 'Chiquimula'],
+  ['21', 'Jalapa'],
+  ['22', 'Jutiapa'],
+].map(([code, name]) => ({ code, name }));
+
+/**
+ * Ministerio de Hacienda departamentos — the code the DTE carries.
+ */
+const SALVADORAN_DEPARTMENTS: AdministrativeDivision[] = [
+  ['01', 'Ahuachapán'],
+  ['02', 'Santa Ana'],
+  ['03', 'Sonsonate'],
+  ['04', 'Chalatenango'],
+  ['05', 'La Libertad'],
+  ['06', 'San Salvador'],
+  ['07', 'Cuscatlán'],
+  ['08', 'La Paz'],
+  ['09', 'Cabañas'],
+  ['10', 'San Vicente'],
+  ['11', 'Usulután'],
+  ['12', 'San Miguel'],
+  ['13', 'Morazán'],
+  ['14', 'La Unión'],
+].map(([code, name]) => ({ code, name }));
+
+/**
+ * SAR/INE departamentos.
+ */
+const HONDURAN_DEPARTMENTS: AdministrativeDivision[] = [
+  ['01', 'Atlántida'],
+  ['02', 'Colón'],
+  ['03', 'Comayagua'],
+  ['04', 'Copán'],
+  ['05', 'Cortés'],
+  ['06', 'Choluteca'],
+  ['07', 'El Paraíso'],
+  ['08', 'Francisco Morazán'],
+  ['09', 'Gracias a Dios'],
+  ['10', 'Intibucá'],
+  ['11', 'Islas de la Bahía'],
+  ['12', 'La Paz'],
+  ['13', 'Lempira'],
+  ['14', 'Ocotepeque'],
+  ['15', 'Olancho'],
+  ['16', 'Santa Bárbara'],
+  ['17', 'Valle'],
+  ['18', 'Yoro'],
+].map(([code, name]) => ({ code, name }));
+
+/**
+ * DGI/INIDE departamentos and the two autonomous Caribbean regions.
+ */
+const NICARAGUAN_DEPARTMENTS: AdministrativeDivision[] = [
+  ['05', 'Boaco'],
+  ['10', 'Carazo'],
+  ['20', 'Chinandega'],
+  ['25', 'Chontales'],
+  ['30', 'Estelí'],
+  ['35', 'Granada'],
+  ['40', 'Jinotega'],
+  ['45', 'León'],
+  ['50', 'Madriz'],
+  ['55', 'Managua'],
+  ['60', 'Masaya'],
+  ['65', 'Matagalpa'],
+  ['70', 'Nueva Segovia'],
+  ['75', 'Río San Juan'],
+  ['80', 'Rivas'],
+  ['85', 'Costa Caribe Norte'],
+  ['90', 'Costa Caribe Sur'],
+].map(([code, name]) => ({ code, name }));
+
+/**
  * Every market, in the order they are offered.
  *
  * Adding one means adding a validator in `tax-id-validators.ts`, a chart-of-accounts template and
@@ -324,14 +748,15 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     countryCode: 'CO', name: 'Colombia', currency: 'COP', locale: 'es-CO',
     callingCode: '57', fiscalAuthority: 'DIAN',
     taxId: { label: 'NIT', example: '900123456-8', pattern: '^\\d{9,10}-?\\d$', hasCheckDigit: true },
-    address: { divisionLabel: 'Departamento', postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{6}$', postalCodeRequired: false },
+    address: { divisionLabel: 'Departamento', divisions: COLOMBIAN_DEPARTMENTS, postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{6}$', postalCodeRequired: false },
     electronicInvoicing: { required: true, regime: 'DIAN Factura Electrónica' },
     marketStatus: 'preview',
     fiscalFields: [
       {
-        key: 'responsabilidadesFiscales', label: 'Responsabilidad fiscal', required: true, type: 'select',
+        key: 'responsabilidadesFiscales', label: 'Responsabilidades fiscales', required: true,
+        type: 'select', multiple: true,
         options: COLOMBIAN_FISCAL_RESPONSIBILITIES,
-        help: 'Figura en tu RUT y viaja en el XML de la factura electrónica.',
+        help: 'Selecciona todas las que figuren en tu RUT. Viajan como lista en el XML de la factura electrónica.',
       },
     ],
     dateFormat: 'dd/MM/yyyy', thousandSeparator: '.', decimalSeparator: ',',
@@ -340,7 +765,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     countryCode: 'CL', name: 'Chile', currency: 'CLP', locale: 'es-CL',
     callingCode: '56', fiscalAuthority: 'SII',
     taxId: { label: 'RUT', example: '76.086.428-5', pattern: '^\\d{1,2}\\.?\\d{3}\\.?\\d{3}-?[0-9Kk]$', hasCheckDigit: true },
-    address: { divisionLabel: 'Región', postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{7}$', postalCodeRequired: false },
+    address: { divisionLabel: 'Región', divisions: CHILEAN_REGIONS, postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{7}$', postalCodeRequired: false },
     electronicInvoicing: { required: true, regime: 'SII DTE' },
     marketStatus: 'preview',
     fiscalFields: [
@@ -360,7 +785,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     countryCode: 'PE', name: 'Perú', currency: 'PEN', locale: 'es-PE',
     callingCode: '51', fiscalAuthority: 'SUNAT',
     taxId: { label: 'RUC', example: '20123456786', pattern: '^(10|15|17|20)\\d{9}$', hasCheckDigit: true },
-    address: { divisionLabel: 'Departamento', postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{5}$', postalCodeRequired: false },
+    address: { divisionLabel: 'Departamento', divisions: PERUVIAN_DEPARTMENTS, postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{5}$', postalCodeRequired: false },
     electronicInvoicing: { required: true, regime: 'SUNAT CPE' },
     marketStatus: 'preview',
     fiscalFields: [
@@ -376,7 +801,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     countryCode: 'AR', name: 'Argentina', currency: 'ARS', locale: 'es-AR',
     callingCode: '54', fiscalAuthority: 'AFIP',
     taxId: { label: 'CUIT', example: '30-71234567-1', pattern: '^\\d{2}-?\\d{8}-?\\d$', hasCheckDigit: true },
-    address: { divisionLabel: 'Provincia', postalCodeLabel: 'Código postal', postalCodePattern: '^[A-Z]?\\d{4}[A-Z]{0,3}$', postalCodeRequired: true },
+    address: { divisionLabel: 'Provincia', divisions: ARGENTINE_PROVINCES, postalCodeLabel: 'Código postal', postalCodePattern: '^[A-Z]?\\d{4}[A-Z]{0,3}$', postalCodeRequired: true },
     electronicInvoicing: { required: true, regime: 'AFIP CAE' },
     marketStatus: 'preview',
     fiscalFields: [
@@ -397,7 +822,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     countryCode: 'BR', name: 'Brasil', currency: 'BRL', locale: 'pt-BR',
     callingCode: '55', fiscalAuthority: 'Receita Federal',
     taxId: { label: 'CNPJ', example: '11.222.333/0001-81', pattern: '^\\d{2}\\.?\\d{3}\\.?\\d{3}/?\\d{4}-?\\d{2}$', hasCheckDigit: true },
-    address: { divisionLabel: 'Estado', postalCodeLabel: 'CEP', postalCodePattern: '^\\d{5}-?\\d{3}$', postalCodeRequired: true },
+    address: { divisionLabel: 'Estado', divisions: BRAZILIAN_STATES, postalCodeLabel: 'CEP', postalCodePattern: '^\\d{5}-?\\d{3}$', postalCodeRequired: true },
     electronicInvoicing: { required: true, regime: 'NF-e' },
     marketStatus: 'preview',
     fiscalFields: [
@@ -422,7 +847,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     countryCode: 'EC', name: 'Ecuador', currency: 'USD', locale: 'es-EC',
     callingCode: '593', fiscalAuthority: 'SRI',
     taxId: { label: 'RUC', example: '1790123456001', pattern: '^\\d{13}$', hasCheckDigit: true },
-    address: { divisionLabel: 'Provincia', postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{6}$', postalCodeRequired: false },
+    address: { divisionLabel: 'Provincia', divisions: ECUADORIAN_PROVINCES, postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{6}$', postalCodeRequired: false },
     electronicInvoicing: { required: true, regime: 'SRI Comprobantes Electrónicos' },
     marketStatus: 'preview',
     fiscalFields: [
@@ -442,7 +867,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     countryCode: 'UY', name: 'Uruguay', currency: 'UYU', locale: 'es-UY',
     callingCode: '598', fiscalAuthority: 'DGI',
     taxId: { label: 'RUT', example: '211003420017', pattern: '^\\d{12}$', hasCheckDigit: true },
-    address: { divisionLabel: 'Departamento', postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{5}$', postalCodeRequired: false },
+    address: { divisionLabel: 'Departamento', divisions: URUGUAYAN_DEPARTMENTS, postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{5}$', postalCodeRequired: false },
     electronicInvoicing: { required: true, regime: 'DGI CFE' },
     marketStatus: 'preview',
     dateFormat: 'dd/MM/yyyy', thousandSeparator: '.', decimalSeparator: ',',
@@ -451,7 +876,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     countryCode: 'PY', name: 'Paraguay', currency: 'PYG', locale: 'es-PY',
     callingCode: '595', fiscalAuthority: 'SET',
     taxId: { label: 'RUC', example: '80012345-0', pattern: '^\\d{5,8}-?\\d$', hasCheckDigit: true },
-    address: { divisionLabel: 'Departamento', postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{4}$', postalCodeRequired: false },
+    address: { divisionLabel: 'Departamento', divisions: PARAGUAYAN_DEPARTMENTS, postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{4}$', postalCodeRequired: false },
     electronicInvoicing: { required: true, regime: 'SET e-Kuatia' },
     marketStatus: 'preview',
     dateFormat: 'dd/MM/yyyy', thousandSeparator: '.', decimalSeparator: ',',
@@ -460,7 +885,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     countryCode: 'BO', name: 'Bolivia', currency: 'BOB', locale: 'es-BO',
     callingCode: '591', fiscalAuthority: 'SIN',
     taxId: { label: 'NIT', example: '1234567890', pattern: '^\\d{7,12}$', hasCheckDigit: false },
-    address: { divisionLabel: 'Departamento', postalCodeLabel: 'Código postal', postalCodeRequired: false },
+    address: { divisionLabel: 'Departamento', divisions: BOLIVIAN_DEPARTMENTS, postalCodeLabel: 'Código postal', postalCodeRequired: false },
     electronicInvoicing: { required: true, regime: 'SIN Facturación en Línea' },
     marketStatus: 'preview',
     dateFormat: 'dd/MM/yyyy', thousandSeparator: '.', decimalSeparator: ',',
@@ -469,7 +894,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     countryCode: 'VE', name: 'Venezuela', currency: 'VES', locale: 'es-VE',
     callingCode: '58', fiscalAuthority: 'SENIAT',
     taxId: { label: 'RIF', example: 'J-30599168-5', pattern: '^[VEJPGvejpg]-?\\d{8}-?\\d$', hasCheckDigit: true },
-    address: { divisionLabel: 'Estado', postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{4}$', postalCodeRequired: false },
+    address: { divisionLabel: 'Estado', divisions: VENEZUELAN_STATES, postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{4}$', postalCodeRequired: false },
     electronicInvoicing: { required: false, regime: null },
     marketStatus: 'preview',
     dateFormat: 'dd/MM/yyyy', thousandSeparator: '.', decimalSeparator: ',',
@@ -478,7 +903,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     countryCode: 'PA', name: 'Panamá', currency: 'PAB', locale: 'es-PA',
     callingCode: '507', fiscalAuthority: 'DGI',
     taxId: { label: 'RUC', example: '15512345-2-2018', pattern: '^[\\dA-Za-z]+(-[\\dA-Za-z]+){1,4}$', hasCheckDigit: false },
-    address: { divisionLabel: 'Provincia', postalCodeLabel: 'Código postal', postalCodeRequired: false },
+    address: { divisionLabel: 'Provincia', divisions: PANAMANIAN_PROVINCES, postalCodeLabel: 'Código postal', postalCodeRequired: false },
     electronicInvoicing: { required: true, regime: 'DGI SFEP' },
     marketStatus: 'preview',
     dateFormat: 'dd/MM/yyyy', thousandSeparator: ',', decimalSeparator: '.',
@@ -487,7 +912,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     countryCode: 'CR', name: 'Costa Rica', currency: 'CRC', locale: 'es-CR',
     callingCode: '506', fiscalAuthority: 'Ministerio de Hacienda',
     taxId: { label: 'Cédula jurídica', example: '3101123456', pattern: '^\\d{9,12}$', hasCheckDigit: false },
-    address: { divisionLabel: 'Provincia', postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{5}$', postalCodeRequired: false },
+    address: { divisionLabel: 'Provincia', divisions: COSTA_RICAN_PROVINCES, postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{5}$', postalCodeRequired: false },
     electronicInvoicing: { required: true, regime: 'Hacienda Factura Electrónica' },
     marketStatus: 'preview',
     dateFormat: 'dd/MM/yyyy', thousandSeparator: '.', decimalSeparator: ',',
@@ -496,7 +921,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     countryCode: 'GT', name: 'Guatemala', currency: 'GTQ', locale: 'es-GT',
     callingCode: '502', fiscalAuthority: 'SAT',
     taxId: { label: 'NIT', example: '1234567-9', pattern: '^\\d{2,12}-?[0-9Kk]$', hasCheckDigit: true },
-    address: { divisionLabel: 'Departamento', postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{5}$', postalCodeRequired: false },
+    address: { divisionLabel: 'Departamento', divisions: GUATEMALAN_DEPARTMENTS, postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{5}$', postalCodeRequired: false },
     electronicInvoicing: { required: true, regime: 'SAT FEL' },
     marketStatus: 'preview',
     dateFormat: 'dd/MM/yyyy', thousandSeparator: ',', decimalSeparator: '.',
@@ -505,7 +930,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     countryCode: 'SV', name: 'El Salvador', currency: 'USD', locale: 'es-SV',
     callingCode: '503', fiscalAuthority: 'Ministerio de Hacienda',
     taxId: { label: 'NIT', example: '0614-123456-001-2', pattern: '^\\d{4}-?\\d{6}-?\\d{3}-?\\d$', hasCheckDigit: false },
-    address: { divisionLabel: 'Departamento', postalCodeLabel: 'Código postal', postalCodeRequired: false },
+    address: { divisionLabel: 'Departamento', divisions: SALVADORAN_DEPARTMENTS, postalCodeLabel: 'Código postal', postalCodeRequired: false },
     electronicInvoicing: { required: true, regime: 'DTE El Salvador' },
     marketStatus: 'preview',
     dateFormat: 'dd/MM/yyyy', thousandSeparator: ',', decimalSeparator: '.',
@@ -514,7 +939,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     countryCode: 'HN', name: 'Honduras', currency: 'HNL', locale: 'es-HN',
     callingCode: '504', fiscalAuthority: 'SAR',
     taxId: { label: 'RTN', example: '08019012345678', pattern: '^\\d{14}$', hasCheckDigit: false },
-    address: { divisionLabel: 'Departamento', postalCodeLabel: 'Código postal', postalCodeRequired: false },
+    address: { divisionLabel: 'Departamento', divisions: HONDURAN_DEPARTMENTS, postalCodeLabel: 'Código postal', postalCodeRequired: false },
     electronicInvoicing: { required: false, regime: null },
     marketStatus: 'preview',
     dateFormat: 'dd/MM/yyyy', thousandSeparator: ',', decimalSeparator: '.',
@@ -523,7 +948,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     countryCode: 'NI', name: 'Nicaragua', currency: 'NIO', locale: 'es-NI',
     callingCode: '505', fiscalAuthority: 'DGI',
     taxId: { label: 'RUC', example: 'J0310000012345', pattern: '^[A-Za-z0-9]{14}$', hasCheckDigit: false },
-    address: { divisionLabel: 'Departamento', postalCodeLabel: 'Código postal', postalCodeRequired: false },
+    address: { divisionLabel: 'Departamento', divisions: NICARAGUAN_DEPARTMENTS, postalCodeLabel: 'Código postal', postalCodeRequired: false },
     electronicInvoicing: { required: false, regime: null },
     marketStatus: 'preview',
     dateFormat: 'dd/MM/yyyy', thousandSeparator: ',', decimalSeparator: '.',
@@ -594,6 +1019,24 @@ export function validateFiscalFields(
 
   for (const field of expected) {
     const raw = values[field.key];
+
+    // A multi-valued field accepts an array or a comma-separated string, and every entry has to
+    // be a published code — a list where one member is wrong is not "mostly valid", it produces
+    // an invoice the authority rejects.
+    if (field.multiple) {
+      const selected = parseMultiValue(raw);
+      if (selected.length === 0) {
+        if (field.required) errors.push({ key: field.key, label: field.label, reason: 'required' });
+        continue;
+      }
+      const allowed = fiscalFieldOptionsFor(field, kind);
+      const unknown = selected.some((code) => !allowed.some((option) => option.code === code));
+      if (unknown) {
+        errors.push({ key: field.key, label: field.label, reason: 'unknown_option' });
+      }
+      continue;
+    }
+
     const value = typeof raw === 'string' ? raw.trim() : '';
 
     if (!value) {
@@ -626,7 +1069,31 @@ export function normalizeFiscalFields(
   const result: Record<string, string> = {};
   for (const field of fiscalFieldsFor(countryCode, kind)) {
     const raw = values[field.key];
+    if (field.multiple) {
+      const selected = parseMultiValue(raw);
+      // Stored comma-separated, de-duplicated and in a stable order, so two tenants that chose
+      // the same responsibilities in a different order hold the same value.
+      if (selected.length) result[field.key] = [...new Set(selected)].sort().join(',');
+      continue;
+    }
     if (typeof raw === 'string' && raw.trim()) result[field.key] = raw.trim();
   }
   return result;
+}
+
+/**
+ * Read a multi-valued fiscal answer from whatever shape it arrived in.
+ *
+ * The signup form posts an array; a value already stored is a comma-separated string. Both are
+ * accepted so the round-trip through the database does not change what the field means.
+ */
+function parseMultiValue(raw: unknown): string[] {
+  const parts = Array.isArray(raw)
+    ? raw
+    : typeof raw === 'string'
+      ? raw.split(',')
+      : [];
+  return parts
+    .map((part) => (typeof part === 'string' ? part.trim() : ''))
+    .filter((part) => part.length > 0);
 }

@@ -5,7 +5,7 @@ import { publicGuard } from '../../core/guards/public.guard';
 export const REGISTER_ROUTES: Routes = [
   {
     path: 'register',
-    title: 'Crear Cuenta | FacturaPRO',
+    title: 'AUTH.TITLES.REGISTER',
     // Aplica el guard a esta ruta.
     canActivate: [publicGuard],
     loadComponent: () =>
@@ -21,7 +21,7 @@ export const REGISTER_ROUTES: Routes = [
 export const AUTH_ROUTES: Routes = [
   {
     path: 'login',
-    title: 'Iniciar Sesión | FacturaPRO',
+    title: 'AUTH.TITLES.LOGIN',
     // Aplica el guard a esta ruta.
     canActivate: [publicGuard],
     loadComponent: () => import('./login/login.page').then((m) => m.LoginPage),
@@ -46,19 +46,19 @@ export const AUTH_ROUTES: Routes = [
   },
   {
     path: 'set-password',
-    title: 'Configurar Contraseña',
+    title: 'AUTH.TITLES.SET_PASSWORD',
     loadComponent: () =>
       import('./set-password/set-password.page').then((m) => m.SetPasswordPage),
   },
   {
     path: 'checkout-complete',
-    title: 'Confirmando pago | FacturaPRO',
+    title: 'AUTH.TITLES.CHECKOUT',
     loadComponent: () =>
       import('./checkout-complete/checkout-complete.page').then((m) => m.CheckoutCompletePage),
   },
   {
     path: 'plan-selection',
-    title: 'Seleccionar Plan | FacturaPRO',
+    title: 'AUTH.TITLES.PLAN',
     loadComponent: () => import('../payment/components/plan-selection/plan-selection.component').then(m => m.PlanSelectionComponent)
   },
   {

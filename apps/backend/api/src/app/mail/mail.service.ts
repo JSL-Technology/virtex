@@ -110,6 +110,29 @@ export class MailService {
     });
   }
 
+  /**
+   * Tell somebody their payment went through but their account could not be created.
+   *
+   * Payment-first signup means the charge happens before the account exists, so this failure
+   * leaves a real customer with a real charge and nothing to show for it. Silence was the
+   * previous behaviour and it is the worst one: the screen told them to "sign in in a few
+   * minutes" to an account that does not exist, with no reference to quote to support.
+   */
+  async sendRegistrationFailedEmail(email: string, name: string, reference: string) {
+    await this.mailerService.sendMail({
+      to: email,
+      subject: 'No pudimos crear tu cuenta — tu pago fue reembolsado',
+      template: './registration-failed',
+      context: {
+        name: name || 'Usuario',
+        appName: this.configService.get<string>('APP_NAME', 'Virteex ERP'),
+        registerUrl: this.links.register(),
+        reference,
+        currentYear: new Date().getFullYear(),
+      },
+    });
+  }
+
   async sendVerificationCodeEmail(email: string, code: string, name: string) {
     await this.mailerService.sendMail({
       to: email,

@@ -15,7 +15,101 @@
       "ERRORS": {
         "INVALID_EMAIL": "That email address is not valid.",
         "EMAIL_UNCHANGED": "That is already your current address.",
-        "EMAIL_CHANGE_FAILED": "The email change could not be started."
+        "EMAIL_CHANGE_FAILED": "The email change could not be started.",
+        "FILE_TOO_LARGE": "That file is too large (2 MB max).",
+        "INVALID_FORMAT": "That image format isn't supported.",
+        "UPDATE_FAILED": "We couldn't update your profile.",
+        "PASSWORD_CHANGE_FAILED": "We couldn't change your password.",
+        "PASSWORDS_DO_NOT_MATCH": "Those passwords don't match.",
+        "AVATAR_UPLOAD": "We couldn't upload the image.",
+        "OTP_SEND": "We couldn't send the code.",
+        "OTP_INVALID": "That code isn't right."
+      },
+      "PERSONAL_INFO": "Personal information",
+      "FIRST_NAME": "First name",
+      "LAST_NAME": "Last name",
+      "EMAIL": "Email",
+      "PHONE": "Phone",
+      "JOB_TITLE": "Job title",
+      "SELECT_JOB_TITLE": "Select a job title",
+      "SAVE_CHANGES": "Save changes",
+      "SECURITY": "Security",
+      "CURRENT_PASSWORD": "Current password",
+      "NEW_PASSWORD": "New password",
+      "CONFIRM_PASSWORD": "Confirm password",
+      "UPDATE_PASSWORD": "Update password",
+      "VERIFY": "Verify",
+      "UPDATED": "Profile updated.",
+      "PASSWORD_CHANGED": "Password updated.",
+      "AVATAR_UPDATED": "Picture updated.",
+      "OTP_SENT": "Code sent.",
+      "PHONE_VERIFIED": "Phone verified.",
+      "PHONE_VERIFICATION": {
+        "TITLE": "Phone verification",
+        "DESCRIPTION": "To secure your account, we need to verify your phone number.",
+        "SEND_CODE": "Send code",
+        "OTP_SENT_TO": "Code sent to",
+        "ENTER_CODE": "Enter the code",
+        "VERIFY": "Verify code",
+        "WRONG_NUMBER": "Wrong number?",
+        "RESEND": "Resend"
+      }
+    },
+    "SECURITY": {
+      "2FA_TITLE": "Two-Factor Authentication (2FA)",
+      "2FA_DESC": "Protect your account with an extra layer of security.",
+      "TWO_STEP_VERIF": "Two-step verification",
+      "VERIFY_IDENTITY_DESC": "Identity verification",
+      "BEFORE_CONFIG_2FA": "For your security, we need to confirm it's you before setting up two-step verification.",
+      "ACCOUNT_PROTECTED": "Your account is protected.",
+      "ACCOUNT_NOT_PROTECTED": "Your account is not protected.",
+      "ACTIVATE_2FA": "Turn on 2FA",
+      "DEACTIVATE": "Turn off",
+      "BACKUP_CODES": "Recovery codes",
+      "BACKUP_CODES_DESC": "Use these if you lose access to your device.",
+      "GENERATE_NEW": "Generate new",
+      "SAVE_CODES_WARNING": "Store these codes somewhere safe.",
+      "ACTIVE_SESSIONS": "Active sessions",
+      "SESSIONS_DESC": "Manage the devices you're signed in on.",
+      "CURRENT": "Current",
+      "LOGOUT_SESSION": "Sign out",
+      "SETUP_2FA": "Set up 2FA",
+      "SCAN_QR": "Scan the QR code",
+      "CHECK_EMAIL": "Check your email",
+      "EMAIL_SENT_TO": "We sent a verification code to: {{email}}",
+      "ENTER_CODE": "Enter the code",
+      "RESEND": "Resend code",
+      "SETUP_AUTHENTICATOR": "Set up authenticator app",
+      "SETUP_AUTHENTICATOR_DESC": "Scan the QR code, or enter the secret key by hand.",
+      "CANT_SCAN": "Can't scan the QR code?",
+      "ENTER_SECRET": "Enter this secret instead:",
+      "COPY_CODE": "Copy code",
+      "ENTER_VERIFICATION_CODE": "Get verification code",
+      "ENTER_6_DIGIT": "Enter the 6-digit code shown in your authenticator app.",
+      "BACKUP_CODES_TITLE": "Two-step verification is on",
+      "BACKUP_CODES_SUCCESS_DESC": "You've added two-step verification to your account.",
+      "BACKUP_CODES_WARNING": "Keep your backup codes safe",
+      "I_HAVE_SAVED_CODES": "I've saved my backup codes",
+      "CONFIRM_BACKUP_CODES": "Please confirm you've saved the codes.",
+      "EMAIL_CODE_SENT": "Verification code sent.",
+      "OPEN_AUTH_APP": "(Open your authenticator app)",
+      "ENTER_MANUALLY": "Or enter this key by hand",
+      "2FA_ACTIVATED": "2FA is on.",
+      "2FA_ENABLED": "2FA is on.",
+      "2FA_DEACTIVATED": "2FA is off.",
+      "2FA_DISABLED": "2FA is off.",
+      "DISABLE_2FA_TITLE": "Turn off 2FA?",
+      "DISABLE_2FA_MESSAGE": "Your account will be less secure. Are you sure?",
+      "NEW_CODES_GENERATED": "New codes generated.",
+      "SESSION_REVOKED": "Session signed out.",
+      "ERRORS": {
+        "LOAD_SESSIONS": "We couldn't load your sessions.",
+        "SEND_FAILED": "We couldn't send the code.",
+        "REVOKE_SESSION": "We couldn't sign that session out.",
+        "INIT_2FA": "We couldn't start 2FA setup.",
+        "INVALID_CODE": "That code isn't right.",
+        "DISABLE_2FA": "We couldn't turn 2FA off.",
+        "GENERATE_CODES": "We couldn't generate the codes."
       }
     }
   },
@@ -175,12 +269,26 @@
       "OTP_LABEL": "Verification code",
       "OTP_PLACEHOLDER": "123456",
       "OTP_HINT": "You can also use one of your recovery codes.",
-      "ENROLMENT_REQUIRED": "This action requires two-factor authentication. Enable it in your security settings to continue."
+      "ENROLMENT_REQUIRED": "This action requires two-factor authentication. Enable it in your security settings to continue.",
+      "DESCRIPTION_SSO": "This account verifies with your identity provider. We'll take you there to confirm it's you, and bring you back to this page.",
+      "DESCRIPTION_SSO_NAMED": "This account verifies with {{provider}}. We'll take you there to confirm it's you, and bring you back to this page.",
+      "CONTINUE_WITH_IDP": "Continue with your provider",
+      "FEDERATED_OK": "Identity verified. Click the action you wanted to perform again.",
+      "FEDERATED_FAILED": "We couldn't verify your identity with the provider. Please try again."
     },
     "TERMS": "Terms",
     "PRIVACY": "Privacy",
     "SECURITY": "Security",
-    "ALL_RIGHTS_RESERVED": "All rights reserved."
+    "ALL_RIGHTS_RESERVED": "All rights reserved.",
+    "TITLES": {
+      "LOGIN": "Sign in",
+      "REGISTER": "Create account",
+      "SET_PASSWORD": "Set password",
+      "CHECKOUT": "Confirming payment",
+      "PLAN": "Choose plan",
+      "FORGOT_PASSWORD": "Recover password",
+      "RESET_PASSWORD": "Reset password"
+    }
   },
   "COMMON": {
     "TOAST": {
@@ -453,14 +561,41 @@
       "operations": "Operations",
       "master_data": "Master Data",
       "reports": "Reports & Analytics",
-      "configuration": "Configuration"
+      "configuration": "Configuration",
+      "psa": "Projects & Costing",
+      "hr": "HR & Payroll",
+      "tax": "Tax & Compliance",
+      "intelligence": "Intelligence & Planning",
+      "platform": "Platform & Integrations",
+      "security": "Users & Security",
+      "portals": "Portals",
+      "support": "Support & Help",
+      "revenue": "Revenue Recognition",
+      "expenses": "Expenses & Cards",
+      "organization": "Organization",
+      "logistics": "Logistics",
+      "grc": "GRC",
+      "esg": "ESG",
+      "data": "Data Governance",
+      "mobile": "Mobile / PWA"
     },
     "general": {
       "overview": "Home",
       "dashboard": "Dashboard",
       "my_work": "My Work",
       "notifications": "Notifications",
-      "search": "Global Search"
+      "search": "Global Search",
+      "approvals": "Approvals",
+      "documents": "Documents",
+      "documents_sub": {
+        "all": "All documents",
+        "templates": "Templates"
+      },
+      "etl": "ETL",
+      "etl_sub": {
+        "import": "Imports",
+        "export": "Exports"
+      }
     },
     "finance": {
       "gl": "General Ledger",
@@ -469,7 +604,36 @@
         "coa": "Chart of Accounts",
         "periods": "Period Management",
         "closing": "Closing Process",
-        "reconciliation": "GL Reconciliation"
+        "reconciliation": "GL Reconciliation",
+        "book_journal": "Book: Journal",
+        "book_gl": "Book: General ledger",
+        "book_subledgers": "Book: Subledgers",
+        "closing_monthly": "Closing — Monthly",
+        "closing_annual": "Closing — Annual",
+        "closing_checklist": "Closing — Checklist",
+        "closing_tasks": "Closing — Tasks",
+        "reconciliation_accounts": "Account reconciliations",
+        "variance_analysis": "Variance analysis",
+        "multi_ledger": "Multi-ledger",
+        "allocations": "Allocations",
+        "ic_transactions": "Intercompany — Transactions",
+        "ic_reconciliation": "Intercompany — Reconciliation",
+        "ic_netting": "Intercompany — Netting",
+        "ic_billing": "Intercompany — Billing",
+        "cons_structure": "Consolidation — Structure",
+        "cons_eliminations": "Consolidation — Eliminations",
+        "cons_ownership": "Consolidation — Ownership",
+        "cons_cta": "Consolidation — CTA",
+        "cons_hyperinflation": "Consolidation — Hyperinflation",
+        "cons_ownership_changes": "Consolidation — Ownership changes",
+        "multi_gaap": "Multi-GAAP",
+        "monetary_revaluation": "Monetary revaluation",
+        "rules_engine": "Rules engine",
+        "simulator": "Simulator",
+        "audit": "Audit",
+        "reconciliation_subledger_gl": "Reconciliation — Subledger ↔ GL",
+        "periods_subledger": "Subledger periods",
+        "revaluation_subledger": "Subledger revaluation"
       },
       "treasury": "Treasury & Banks",
       "treasury_sub": {
@@ -477,25 +641,79 @@
         "accounts": "Bank Accounts",
         "reconciliation": "Bank Reconciliation",
         "cash_flow": "Cash Flow Forecast",
-        "payments": "Payment Batches"
+        "payments": "Payment Batches",
+        "reconciliation_manual": "Reconciliation — Manual",
+        "reconciliation_auto": "Reconciliation — Automatic",
+        "bank_files": "Bank files",
+        "file_adapters": "File adapters",
+        "bank_validations": "Bank validations",
+        "scheduled_payments": "Scheduled payments",
+        "mass_payments": "Bulk payments",
+        "mandates": "Mandates",
+        "positive_pay": "Positive Pay",
+        "cash_flow_actual": "Cash flow — Actual",
+        "cash_flow_forecast": "Cash flow — Forecast",
+        "forecasting": "Forecasting",
+        "exchange_rates": "Exchange rates",
+        "cash_pooling": "Cash pooling",
+        "fx_hedging": "FX hedging",
+        "derivatives": "Derivatives",
+        "hedge_accounting": "Hedge accounting",
+        "checkbooks": "Checkbooks",
+        "debt": "Debt",
+        "in_house_bank": "In-house bank",
+        "guarantees": "Guarantees",
+        "investments": "Investments",
+        "exposures": "Exposures"
       },
       "ar": "Accounts Receivable",
       "ar_sub": {
         "dashboard": "AR Dashboard",
         "invoices": "Sales Invoices",
         "receipts": "Receipts & Collections",
-        "statements": "Customer Statements"
+        "statements": "Customer Statements",
+        "credit_notes": "Credit notes",
+        "debit_notes": "Debit notes",
+        "cash_application": "Cash application",
+        "dunning": "Dunning",
+        "disputes": "Disputes",
+        "online_payments": "Online payments",
+        "psp": "Payment providers (PSP)",
+        "psp_reconciliation": "PSP reconciliation",
+        "settings": "Settings",
+        "factoring": "Factoring",
+        "payment_plans": "Payment plans",
+        "chargebacks": "Chargebacks"
       },
       "ap": "Accounts Payable",
       "ap_sub": {
         "dashboard": "AP Dashboard",
         "invoices": "Supplier Invoices",
-        "payments": "Payments"
+        "payments": "Payments",
+        "credit_notes": "Credit notes",
+        "withholdings": "Withholdings",
+        "approvals": "Approvals",
+        "ocr": "OCR",
+        "suppliers": "Suppliers",
+        "advances": "Advances",
+        "dynamic_discounting": "Dynamic discounting",
+        "scf_confirming": "Confirming (SCF)"
       },
       "fixed_assets": "Fixed Assets",
       "fa_sub": {
         "list": "Asset Master",
-        "depreciation": "Depreciation Run"
+        "depreciation": "Depreciation Run",
+        "new": "New",
+        "detail": "Detail",
+        "disposals": "Disposals",
+        "revaluations": "Revaluations",
+        "components": "Components",
+        "leases": "Leases",
+        "ap_integration": "Purchasing integration",
+        "maintenance_plans": "Maintenance plans",
+        "maintenance_orders": "Maintenance orders",
+        "cip": "CIP",
+        "afe": "AFE"
       }
     },
     "operations": {
@@ -503,32 +721,92 @@
       "sales_sub": {
         "quotes": "Quotes",
         "orders": "Sales Orders",
-        "contracts": "Contracts"
+        "contracts": "Contracts",
+        "returns": "Returns",
+        "credit_notes": "Credit notes",
+        "cpq": "CPQ",
+        "subscriptions": "Subscriptions",
+        "subscriptions_usage": "Subscriptions — Usage",
+        "subscriptions_rating": "Subscriptions — Rating",
+        "pricing_lists": "Price lists",
+        "commissions": "Commissions",
+        "invoices_list": "Invoices — List",
+        "invoices_new": "Invoices — New"
       },
       "purchasing": "Purchasing (P2P)",
       "purchasing_sub": {
         "requisitions": "Requisitions",
         "orders": "Purchase Orders",
-        "matching": "Invoice Matching"
+        "matching": "Invoice Matching",
+        "receipts": "Receipts",
+        "contracts": "Contracts",
+        "approvals": "Approvals",
+        "match_3way": "3-way match",
+        "match_4way": "4-way match",
+        "analytics": "Analytics",
+        "returns": "Returns",
+        "rfq": "RFQ",
+        "catalogs": "Catalogs",
+        "supplier_performance": "Supplier performance",
+        "supplier_onboarding": "Supplier onboarding",
+        "invoice_matching": "Invoice matching"
       },
       "inventory": "Inventory & WMS",
       "inventory_sub": {
         "dashboard": "Inventory Dashboard",
         "stock": "Stock Levels",
         "movements": "Movements History",
-        "adjustments": "Adjustments & Counts"
+        "adjustments": "Adjustments & Counts",
+        "transfers": "Transfers",
+        "locations": "Locations",
+        "lots_serials": "Lots & serials",
+        "cycle_counts": "Cycle counts",
+        "picking_packing": "Picking & packing",
+        "shipments": "Shipments",
+        "costs_landed": "Costs — Landed",
+        "kits_bom": "Kits & BOM",
+        "reservations": "Reservations",
+        "planning": "Planning",
+        "quality": "Quality",
+        "quarantines": "Quarantines",
+        "mobile_warehouse": "Mobile — Warehouse",
+        "costs_methods": "Costing — Methods",
+        "costs_close": "Costing — Close",
+        "costs_revaluations": "Costing — Revaluations"
       },
       "manufacturing": "Manufacturing",
       "manufacturing_sub": {
         "orders": "Production Orders",
         "mrp": "MRP Planning",
-        "costing": "Production Costing"
+        "costing": "Production Costing",
+        "master_data": "Master data",
+        "shop_floor": "Shop floor",
+        "wip": "WIP"
+      },
+      "deliveries": "Delivery notes",
+      "deliveries_sub": {
+        "list": "Delivery notes",
+        "new": "New delivery note",
+        "detail": "Delivery note detail"
       }
     },
     "master_data": {
       "customers": "Customers",
       "suppliers": "Suppliers",
-      "products": "Products & Services"
+      "products": "Products & Services",
+      "price_lists": "Price lists",
+      "taxes": "Taxes",
+      "uom": "Units of measure",
+      "currencies": "Currencies",
+      "banks": "Banks",
+      "branches": "Branches",
+      "warehouses": "Warehouses",
+      "payment_methods": "Payment methods",
+      "payment_terms": "Payment terms",
+      "dimensions": "Dimensions",
+      "data_governance": "Data governance",
+      "data_quality": "Data quality",
+      "duplicates": "Duplicates"
     },
     "reports": {
       "reporting": "Reporting",
@@ -536,7 +814,20 @@
         "financial": "Financial Statements",
         "sales": "Sales Reports",
         "audit": "Audit Trails",
-        "datasheets": "DataSheets"
+        "datasheets": "DataSheets",
+        "financial_statements": "Financial statements",
+        "profitability": "Profitability",
+        "comparatives": "Comparatives",
+        "tax": "Tax reports",
+        "ar_aging": "AR aging",
+        "ap_aging": "AP aging",
+        "consolidated": "Consolidated",
+        "treasury": "Treasury",
+        "inventory": "Inventory",
+        "assets": "Assets",
+        "closing": "Closing",
+        "xbrl": "XBRL",
+        "costs_analytics": "Cost analytics"
       },
       "bi": "Business Intelligence",
       "bi_sub": {
@@ -547,10 +838,166 @@
     "configuration": {
       "system": "System Settings",
       "security": "Users & Security",
-      "integrations": "Integrations & API"
+      "integrations": "Integrations & API",
+      "accounting_accounts": "Chart of accounts",
+      "permissions": "Permissions",
+      "alerts": "Alerts",
+      "email_templates": "Email templates",
+      "digital_signatures": "Digital signatures"
+    },
+    "psa": {
+      "projects": "Projects",
+      "projects_sub": {
+        "list": "Projects",
+        "timesheets": "Timesheets",
+        "milestones_wip": "Milestones & WIP",
+        "billing": "Billing",
+        "wbs": "WBS",
+        "budgeting": "Budgeting",
+        "resources": "Resources",
+        "capitalization": "Capitalization"
+      },
+      "cost_centers": "Cost centers",
+      "cost_allocation": "Cost allocation"
+    },
+    "hr": {
+      "dashboard": "Payroll dashboard",
+      "process": "Run payroll",
+      "employees": "Employees",
+      "incidents": "Payroll inputs",
+      "absences": "Absences",
+      "loans": "Loans",
+      "severance": "Final settlements",
+      "reports": "Reports",
+      "self_service": "Self-service"
+    },
+    "tax": {
+      "tax": "Tax & Compliance",
+      "sub": {
+        "summary": "Summary",
+        "calendar": "Calendar",
+        "filings": "Filings",
+        "localizations": "Localizations",
+        "certificates": "Certificates",
+        "withholdings": "Withholdings",
+        "e_invoicing": "E-invoicing",
+        "e_invoicing_country": "E-invoicing by country",
+        "deferred": "Deferred tax",
+        "reconciliation": "Reconciliation",
+        "determination_engine": "Determination engine",
+        "transfer_pricing": "Transfer pricing",
+        "cbcr": "CbCR",
+        "saft": "SAF-T",
+        "localizations_country": "Localization — Country"
+      }
+    },
+    "intelligence": {
+      "analytics": "Intelligence & Planning",
+      "sub": {
+        "dashboard": "Dashboard",
+        "what_if": "What-if",
+        "kpis": "KPIs",
+        "process_mining": "Process mining",
+        "semantic": "Semantic layer",
+        "budget_models": "Budget models",
+        "budget_execution": "Budget execution",
+        "rolling_forecast": "Rolling forecast"
+      }
+    },
+    "platform": {
+      "integrations": "Integrations (Settings)",
+      "api": "API",
+      "api_sub": {
+        "credentials": "Credentials",
+        "webhooks": "Webhooks",
+        "rate_limits": "Rate limits",
+        "audit": "API audit"
+      },
+      "integrations_area": "Integrations",
+      "integrations_sub": {
+        "edi": "EDI",
+        "monitoring": "Monitoring",
+        "reprocessing": "Reprocessing"
+      },
+      "automation": "Automation",
+      "automation_sub": {
+        "ocr": "OCR",
+        "workflows": "Workflows"
+      },
+      "operations": "Operations",
+      "operations_sub": {
+        "jobs": "Jobs",
+        "logs": "Logs",
+        "archive": "Archiving",
+        "transports": "Transports",
+        "environments": "Environments",
+        "apm": "APM",
+        "feature_flags": "Feature flags",
+        "capacity": "Capacity planning"
+      },
+      "data_warehouse": "Data warehouse",
+      "marketplace_connectors": "Marketplace — Connectors"
+    },
+    "security": {
+      "users": "Users",
+      "user_permissions": "User permissions",
+      "sso_mfa": "SSO & MFA",
+      "sod": "Segregation of duties",
+      "policies": "Policies",
+      "dsar": "DSAR",
+      "third_party_screening": "Third-party screening",
+      "audit": "Audit"
+    },
+    "portals": {
+      "customers": "Customer portal",
+      "suppliers": "Supplier portal",
+      "employees": "Employee portal"
+    },
+    "support": {
+      "help": "Help",
+      "support": "Support",
+      "status": "Service status"
+    },
+    "revenue": {
+      "performance_obligations": "Performance obligations",
+      "contracts": "Contracts",
+      "schedules": "Schedules",
+      "deferrals": "Deferrals",
+      "reports": "Reports"
+    },
+    "expenses": {
+      "reports": "Expense reports",
+      "cards": "Cards",
+      "approvals": "Approvals"
+    },
+    "organization": {
+      "companies": "Companies"
+    },
+    "logistics": {
+      "tms": "Transportation Management (TMS)",
+      "3pl": "3PL"
+    },
+    "grc": {
+      "risks": "Risks",
+      "controls": "Controls",
+      "certifications": "Certifications"
+    },
+    "esg": {
+      "data": "Data",
+      "reports": "Reports",
+      "audit": "Audit"
+    },
+    "data": {
+      "catalog": "Data catalog",
+      "lineage": "Data lineage",
+      "masking_sandbox": "Sandbox masking"
+    },
+    "mobile": {
+      "approvals": "Approvals",
+      "expenses": "Expenses"
     }
   },
-  "APP_TITLE": "FacturaPRO",
+  "APP_TITLE": "Virtex",
   "LOGIN": {
     "TITLE": "Sign in",
     "SUBTITLE": "Access your workspace to continue.",
@@ -612,8 +1059,9 @@
       "TERMS": "Terms",
       "PRIVACY": "Privacy",
       "SECURITY": "Security",
-      "COPYRIGHT": "© 2025 FacturaPRO, Inc. All rights reserved."
-    }
+      "COPYRIGHT": "© {{year}} Virtex. All rights reserved."
+    },
+    "OR_WITH_EMAIL": "or use your email"
   },
   "REGISTER": {
     "TITLE": "Create Account",
@@ -639,7 +1087,8 @@
       },
       "PLAN": {
         "TITLE": "Choose your Plan",
-        "SUBTITLE": "Select the plan that best fits you"
+        "SUBTITLE": "Select the plan that best fits you",
+        "PER_MONTH": "/mo"
       }
     },
     "UPLOAD_PHOTO": "Upload photo",
@@ -685,7 +1134,18 @@
       "SERVER_ERROR": "Error registering. Please try again.",
       "PASSWORD_MISMATCH": "Passwords do not match.",
       "REQUIRED": "This field is required.",
-      "TERMS_REQUIRED": "You must accept the terms and conditions."
+      "TERMS_REQUIRED": "You must accept the terms and conditions.",
+      "EMAIL_VERIFY_REQUIRED": "Verify your email address before continuing.",
+      "PHONE_VERIFY_REQUIRED": "Verify your mobile number before continuing.",
+      "MAGIC_LINK_EXPIRED": "That confirmation link has expired or isn't valid. Enter the code by hand instead.",
+      "COUNTRY_CONFIG": "We couldn't load the tax settings for that country. Reload the page or pick another country.",
+      "COUNTRY_LIST": "We couldn't load the country list. Reload the page to continue signing up.",
+      "RECAPTCHA": "We couldn't verify the form's security check. Please try again.",
+      "UNKNOWN": "We couldn't complete your registration. Please try again.",
+      "EMAIL_TAKEN": "That email is already registered.",
+      "CODE_INVALID": "That code isn't right. Please try again.",
+      "CODE_SEND": "We couldn't send the code. Please try again.",
+      "REQUIRED_FIELDS": "Please complete the required fields correctly."
     },
     "STEP_OF": "Step {{current}} of {{total}}",
     "PROGRESS": {
@@ -695,7 +1155,42 @@
       "FISCAL": "Tax",
       "BUSINESS": "Company",
       "PLAN": "Plan"
-    }
+    },
+    "VERIFY": {
+      "EMAIL_TITLE": "Confirm your email address",
+      "PHONE_TITLE": "Confirm your mobile number",
+      "EMAIL_OK": "Email verified.",
+      "PHONE_OK": "Number verified.",
+      "PREFER_LINK": "Would rather not type the code? Look for the “Confirm email address” button in the message we sent you."
+    },
+    "TAXPAYER": {
+      "LABEL": "Taxpayer type",
+      "COMPANY": "Company / legal entity",
+      "INDIVIDUAL": "Individual"
+    },
+    "ADDRESS": {
+      "STREET": "Tax address",
+      "STREET_PLACEHOLDER": "Street and number",
+      "CITY": "City"
+    },
+    "ACCESS": {
+      "OR_EMAIL": "Or use your email",
+      "PASSWORD_MISMATCH": "Those passwords don't match"
+    },
+    "PLAN": {
+      "LOADING": "Loading plans…",
+      "LOAD_FAILED": "We couldn't load the plans.",
+      "RETRY": "Try again",
+      "RECOMMENDED": "Recommended",
+      "SELECTED": "Plan selected",
+      "CHOOSE": "Choose plan",
+      "UNLIMITED": "Unlimited {{resource}}",
+      "QUOTA_MONTHLY": "{{limit}} {{resource}} per month",
+      "QUOTA_LIFETIME": "{{limit}} {{resource}}"
+    },
+    "TAXID_HINT": "We check the verification digit against {{authority}}.",
+    "TAXID_FORMAT": "Expected format: {{example}}",
+    "MULTI_SELECT_HINT": "Select several by holding Ctrl (or Cmd) while clicking."
   },
   "FORGOT_PASSWORD": {
     "TITLE": "Recover Password",
@@ -713,7 +1208,7 @@
     "SUCCESS": "Your password has been successfully updated."
   },
   "SET_PASSWORD": {
-    "TITLE": "Set Password",
+    "TITLE": "Set password",
     "SUBTITLE": "Set a password for your account",
     "SUBMIT_BUTTON": "Save Password",
     "SAVING": "Saving...",
@@ -740,5 +1235,15 @@
     "cell_format": "Cell Format",
     "import_wizard": "Import Wizard",
     "chart_config": "Chart Configuration"
+  },
+  "CHECKOUT": {
+    "ACTIVATING": "We're activating your account. This will only take a few seconds.",
+    "CONFIRMED": "Payment confirmed.",
+    "GO_TO_LOGIN": "Go to sign in",
+    "NO_SESSION": "We couldn't find your payment session.",
+    "UNCONFIRMED": "We couldn't confirm your payment automatically. If you were charged, sign in in a few minutes."
+  },
+  "PASSWORD_STRENGTH": {
+    "WEAK": "Weak"
   }
 }

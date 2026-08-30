@@ -86,12 +86,12 @@ export class StepPhoneVerify implements OnInit {
     ).subscribe({
       next: (response) => {
         this.isVerifying.set(false);
-        this.otpComponent?.handleSuccess('¡Número verificado correctamente!');
+        this.otpComponent?.handleSuccess('REGISTER.VERIFY.PHONE_OK');
         setTimeout(() => this.verified.emit(response.preVerifiedToken), 600);
       },
       error: (err) => {
         this.isVerifying.set(false);
-        const msg = err?.error?.message || 'Código incorrecto. Inténtalo de nuevo.';
+        const msg = err?.error?.message || 'REGISTER.ERRORS.CODE_INVALID';
         this.otpComponent?.handleError(msg);
       },
     });

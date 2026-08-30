@@ -89,9 +89,11 @@ describe('RegisterUserDto', () => {
     });
 
     it('is validated against the country in the SAME payload', async () => {
-      // The Chilean RUT above, declared as Chilean this time, is accepted.
+      // The Chilean RUT above, declared as Chilean this time, is accepted. `RM` is the SII's
+      // own code for the Metropolitan Region — Chile now publishes a coded catalogue, so the
+      // region travels as a code rather than as whatever the user typed.
       expect(
-        await errorsFor({ countryCode: 'CL', taxId: '76.086.428-5', state: 'Metropolitana' }),
+        await errorsFor({ countryCode: 'CL', taxId: '76.086.428-5', state: 'RM' }),
       ).toEqual([]);
     });
 
@@ -118,10 +120,23 @@ describe('RegisterUserDto', () => {
       expect(await errorsFor({ state: '99' })).toContain('state');
     });
 
-    it('accepts free text where the country publishes no coded catalogue', async () => {
+    /**
+     * Every one of the nineteen markets now publishes a coded catalogue for its first-level
+     * division. That matters beyond tidiness: DIAN, the SII, SUNAT and the SEFAZ all carry the
+     * division as a CODE in the stamped document, so a tenant who typed "Bs. As." or "Buenos
+     * Aires Provincia" had stored something no invoice could be built from — and the product
+     * would have had to go back and ask every existing customer for it again.
+     */
+    it('accepts the code the authority publishes', async () => {
+      expect(
+        await errorsFor({ countryCode: 'AR', taxId: '30-71234567-1', state: '01', postalCode: 'C1425' }),
+      ).toEqual([]);
+    });
+
+    it('refuses free text now that every market publishes a catalogue', async () => {
       expect(
         await errorsFor({ countryCode: 'AR', taxId: '30-71234567-1', state: 'Buenos Aires', postalCode: 'C1425' }),
-      ).toEqual([]);
+      ).toContain('state');
     });
 
     describe('postal code', () => {
@@ -238,7 +253,7 @@ describe('RegisterUserDto — fiscal identity', () => {
         await errorsFor({
           countryCode: 'UY',
           taxId: '211003420017',
-          state: 'Montevideo',
+          state: 'MO',
           fiscalProfile: {},
         }),
       ).toEqual([]);

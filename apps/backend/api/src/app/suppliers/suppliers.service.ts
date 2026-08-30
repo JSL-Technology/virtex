@@ -63,8 +63,19 @@ export class SuppliersService {
     return this.supplierRepository.save(updatedSupplier);
   }
 
+  /**
+   * Delete a supplier, and give the seat of quota back.
+   *
+   * `SUPPLIERS` is a LIFETIME quota, so without the release it counted "suppliers ever created"
+   * rather than "suppliers that exist" — a tenant at its limit could delete every record it had
+   * and still be unable to create one. Both happen in the same transaction, so a failed delete
+   * cannot hand out free quota.
+   */
   async remove(id: string, organizationId: string): Promise<void> {
     const supplier = await this.findOne(id, organizationId);
-    await this.supplierRepository.remove(supplier);
+    await this.dataSource.transaction(async (manager) => {
+      await manager.remove(Supplier, supplier);
+      await this.saasService.releaseUsage(manager, organizationId, SaasResource.SUPPLIERS);
+    });
   }
 }

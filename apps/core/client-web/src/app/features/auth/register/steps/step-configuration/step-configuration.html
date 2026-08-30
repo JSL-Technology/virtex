@@ -137,17 +137,27 @@
           <label class="input-label" [attr.for]="'fiscal-' + field.key">
             {{ field.label }}<span *ngIf="field.required" aria-hidden="true"> *</span>
           </label>
-          <div class="custom-select-wrapper">
-            <select [id]="'fiscal-' + field.key" [formControlName]="field.key" class="custom-select">
-              <option value="">{{ 'REGISTER.SELECT' | translate }}</option>
+          <!--
+            Varias respuestas a la vez donde la autoridad las admite: el RUT colombiano lista
+            todas las responsabilidades fiscales del contribuyente y el XML de la factura las
+            lleva como lista. Un desplegable de un solo valor obligaba a elegir una y dejaba la
+            factura mal para las demás.
+          -->
+          <div class="custom-select-wrapper" [class.custom-select-wrapper--multi]="field.multiple">
+            <select [id]="'fiscal-' + field.key" [formControlName]="field.key" class="custom-select"
+                    [multiple]="field.multiple" [attr.size]="field.multiple ? 5 : null">
+              <option value="" *ngIf="!field.multiple">{{ 'REGISTER.SELECT' | translate }}</option>
               <option *ngFor="let option of optionsFor(field)" [value]="option.code">
                 {{ option.code }} — {{ option.label }}
               </option>
             </select>
-            <div class="select-chevron">
+            <div class="select-chevron" *ngIf="!field.multiple">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-9"/></svg>
             </div>
           </div>
+          <p class="field-hint" *ngIf="field.multiple">
+            {{ 'REGISTER.MULTI_SELECT_HINT' | translate }}
+          </p>
           <p class="field-hint" *ngIf="field.help">{{ field.help }}</p>
           <p class="field-error" *ngIf="errorForFiscalField(field.key)">
             {{ errorForFiscalField(field.key) | translate }}

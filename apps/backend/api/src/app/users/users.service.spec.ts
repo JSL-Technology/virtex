@@ -16,13 +16,23 @@ import { SessionService } from '../auth/services/session.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { MembershipService } from '../organizations/services/membership.service';
 import { AuditTrailService } from '../audit/audit.service';
+import { ForbiddenException } from '@nestjs/common';
 
 describe('UsersService', () => {
   let service: UsersService;
   let userRepositoryMock: any;
   let userCacheServiceMock: any;
+  let rolesServiceMock: any;
 
   beforeEach(async () => {
+    rolesServiceMock = {
+      findOne: jest.fn(),
+      assertCanAssignRole: jest.fn(),
+    };
+
+    // `findOne` resolves roles for one tenant, so it goes through a query builder now. The
+    // double answers from the same `findOne` mock the tests already set up, which keeps them
+    // readable and still exercises the real scoping argument.
     userRepositoryMock = {
       findOne: jest.fn(),
       save: jest.fn(),
@@ -30,9 +40,10 @@ describe('UsersService', () => {
         where: jest.fn().mockReturnThis(),
         leftJoinAndSelect: jest.fn().mockReturnThis(),
         leftJoin: jest.fn().mockReturnThis(),
+        innerJoin: jest.fn().mockReturnThis(),
         addSelect: jest.fn().mockReturnThis(),
-        getOne: jest.fn()
-      }))
+        getOne: jest.fn(() => userRepositoryMock.findOne()),
+      })),
     };
 
     userCacheServiceMock = {
@@ -43,10 +54,11 @@ describe('UsersService', () => {
       providers: [
         UsersService,
         { provide: getRepositoryToken(User), useValue: userRepositoryMock },
-        { provide: getRepositoryToken(Organization), useValue: {} },
+        // `findOne` resolves the ACTIVE organization now, not the user's home one.
+        { provide: getRepositoryToken(Organization), useValue: { findOneBy: jest.fn().mockResolvedValue(null) } },
         { provide: UserCacheService, useValue: userCacheServiceMock },
         { provide: MailService, useValue: {} },
-        { provide: RolesService, useValue: {} },
+        { provide: RolesService, useValue: rolesServiceMock },
         { provide: EventsGateway, useValue: {} },
         { provide: EventEmitter2, useValue: {} },
         { provide: SaasService, useValue: {} },
@@ -85,7 +97,7 @@ describe('UsersService', () => {
       userRepositoryMock.save.mockImplementation((u: any) => Promise.resolve(u));
 
       const dto = { email: 'new@example.com' } as unknown as UpdateProfileDto;
-      const updatedUser = await service.updateProfile('123', dto);
+      const updatedUser = await service.updateProfile('123', dto, 'org-1');
 
       expect(updatedUser.email).toBe('old@example.com');
       expect(updatedUser.isEmailVerified).toBe(true);
@@ -102,7 +114,7 @@ describe('UsersService', () => {
 
       const dto: UpdateProfileDto = { phone: '0987654321' };
 
-      const updatedUser = await service.updateProfile('123', dto);
+      const updatedUser = await service.updateProfile('123', dto, 'org-1');
 
       expect(updatedUser.isPhoneVerified).toBe(false);
       expect(updatedUser.phone).toBe('0987654321');
@@ -127,11 +139,61 @@ describe('UsersService', () => {
         firstName: 'NewName',
       } as UpdateProfileDto & { email: string };
 
-      const updatedUser = await service.updateProfile('123', dto);
+      const updatedUser = await service.updateProfile('123', dto, 'org-1');
 
       expect(updatedUser.isEmailVerified).toBe(true);
       expect(updatedUser.isPhoneVerified).toBe(true);
       expect(updatedUser.firstName).toBe('NewName');
+    });
+  });
+
+  /**
+   * An invitation grants a role, so it is a privilege delegation. `updateUser` had guarded that
+   * since the H-01 fix; `inviteUser` never did, which meant an operator holding only
+   * `users:create` could invite an address they control as ADMINISTRATOR ('*') and own the
+   * tenant. These tests exist so that hole cannot silently reopen.
+   */
+  describe('inviteUser', () => {
+    const invite = { email: 'new@example.com', firstName: 'A', lastName: 'B', roleId: 'role-1' };
+    const actor = { id: 'actor-1', permissions: ['users:create'] } as never;
+
+    it('refuses to delegate a role the actor does not hold', async () => {
+      const adminRole = { id: 'role-1', name: 'ADMINISTRATOR', permissions: ['*'] };
+      rolesServiceMock.findOne.mockResolvedValue(adminRole);
+      rolesServiceMock.assertCanAssignRole.mockImplementation(() => {
+        throw new ForbiddenException('No puedes asignar un rol con privilegios totales (*).');
+      });
+
+      await expect(service.inviteUser(invite as never, 'org-1', actor)).rejects.toThrow(
+        ForbiddenException,
+      );
+
+      expect(rolesServiceMock.assertCanAssignRole).toHaveBeenCalledWith(actor, adminRole);
+      // The check has to happen BEFORE anything is written or emailed.
+      expect(userRepositoryMock.findOne).not.toHaveBeenCalled();
+    });
+
+    it('checks the role before branching on whether the person already has an account', async () => {
+      // The existing-account path assigns a role too; both branches must be covered by one check.
+      rolesServiceMock.findOne.mockResolvedValue({ id: 'role-1', permissions: ['invoices:read'] });
+      rolesServiceMock.assertCanAssignRole.mockImplementation(() => {
+        throw new ForbiddenException('nope');
+      });
+      userRepositoryMock.findOne.mockResolvedValue({ id: 'existing-user' });
+
+      await expect(service.inviteUser(invite as never, 'org-1', actor)).rejects.toThrow(
+        ForbiddenException,
+      );
+      expect(userRepositoryMock.findOne).not.toHaveBeenCalled();
+    });
+
+    it('rejects an unknown role without revealing that it is the role that is wrong', async () => {
+      rolesServiceMock.findOne.mockResolvedValue(null);
+
+      await expect(service.inviteUser(invite as never, 'org-1', actor)).rejects.toThrow(
+        'No se pudo enviar la invitación con los datos proporcionados.',
+      );
+      expect(rolesServiceMock.assertCanAssignRole).not.toHaveBeenCalled();
     });
   });
 });

@@ -11,7 +11,7 @@ import { Organization } from '../organizations/entities/organization.entity';
 import { ConfigService } from '@nestjs/config';
 import { SaasResource } from './enums/saas-resource.enum';
 import { QuotaPeriod } from './enums/quota-period.enum';
-import { SAAS_PLANS } from './saas.config';
+import { SAAS_PLANS, minorUnitFactor, type PlanConfig } from './saas.config';
 import {
   SaasLimitReachedException,
   SaasFeatureNotEnabledException,
@@ -76,7 +76,9 @@ export class SaasService implements OnModuleInit {
                 name: pConfig.name,
                 description: pConfig.description,
                 monthlyPriceId: monthlyPriceId,
-                monthlyPrice: pConfig.monthlyPrice,
+                // The column keeps the BASE-currency amount. Per-currency amounts live in
+                // `SAAS_PLANS[].monthlyPrices`, which is what the catalogue endpoint quotes from.
+                monthlyPrice: pConfig.monthlyPrices[SaasService.baseCurrency()] ?? null,
                 trialPeriodDays: pConfig.trialPeriodDays ?? null,
             },
             ['slug']
@@ -115,6 +117,46 @@ export class SaasService implements OnModuleInit {
         if (limitsToRemove.length > 0) {
             await this.limitRepository.remove(limitsToRemove);
         }
+
+        // Capabilities, on the same footing as limits.
+        //
+        // `saas_plan_features` was never written by anything, so it was empty after every boot,
+        // `checkFeature` returned false for every key, and `FeatureFlagGuard` and `@CheckFeature`
+        // were unreachable. Seeding here is what makes the plan tiers differ by capability and
+        // not only by six numbers.
+        const planWithFeatures = await this.planRepository.findOne({
+            where: { slug: pConfig.slug },
+            relations: ['features'],
+        });
+        const existingFeatures = planWithFeatures?.features ?? [];
+
+        for (const cFeature of pConfig.features) {
+            const existing = existingFeatures.find(f => f.featureKey === cFeature.featureKey);
+            if (existing) {
+                if (existing.isEnabled !== cFeature.isEnabled) {
+                    existing.isEnabled = cFeature.isEnabled;
+                    await this.featureRepository.save(existing);
+                }
+            } else {
+                await this.featureRepository.save(
+                    this.featureRepository.create({
+                        plan,
+                        featureKey: cFeature.featureKey,
+                        isEnabled: cFeature.isEnabled,
+                    }),
+                );
+            }
+        }
+
+        const configFeatureKeys = pConfig.features.map(f => f.featureKey);
+        const featuresToRemove = existingFeatures.filter(f => !configFeatureKeys.includes(f.featureKey));
+        if (featuresToRemove.length > 0) {
+            await this.featureRepository.remove(featuresToRemove);
+        }
+
+        // No cache sweep is needed here: `checkFeature` keys its answer by the organization's
+        // cache generation, so `clearOrganizationCache` invalidates it for that tenant, and the
+        // 60-second TTL bounds the window after a seed changes a plan globally.
     }
 
     this.logger.log('SaaS Plans seeded.');
@@ -139,28 +181,63 @@ export class SaasService implements OnModuleInit {
    * An unknown or unsupported country falls back to the platform's base currency rather than
    * guessing: converting an amount with an invented rate would be worse than quoting the base.
    */
+  /**
+   * The catalogue, quoted in the currency the market will actually be charged in — and at the
+   * amount it will actually be charged.
+   *
+   * `currency` and `monthlyPrice` are resolved together, from the same table, by the same
+   * function the checkout uses. That is the property that was missing: the endpoint used to
+   * relabel a fixed USD amount with the local currency, so a Colombian saw "$49" and Stripe
+   * charged 4.900 COP. `minorUnits` is published alongside so a client cannot get the decimal
+   * placement wrong for CLP or PYG, which have none.
+   */
   async getPlansForCountry(countryCode?: string) {
     const plans = await this.getPlans();
     const currency = SaasService.currencyForCountry(countryCode);
-    return plans.map((plan) => ({ ...plan, currency }));
+    return plans.map((plan) => ({
+      ...plan,
+      currency,
+      monthlyPrice: SaasService.priceFor(plan.slug, currency) ?? plan.monthlyPrice,
+      minorUnits: minorUnitFactor(currency),
+    }));
   }
 
-  /** ISO 4217 for a market, or the platform base currency when it has no profile. */
+  /** The platform's base currency: what a market with no local price is quoted and charged in. */
+  static baseCurrency(): string {
+    return (process.env['SAAS_BASE_CURRENCY'] || 'USD').toUpperCase();
+  }
+
+  /** The configured amount for a plan in a currency, in that currency's minor units. */
+  static priceFor(planSlug: string, currency: string): number | undefined {
+    const plan: PlanConfig | undefined = SAAS_PLANS.find((p) => p.slug === planSlug);
+    return plan?.monthlyPrices[(currency ?? '').toUpperCase()];
+  }
+
+  /**
+   * The currency a market is quoted and charged in.
+   *
+   * A market gets its own currency only when EVERY plan carries an amount for it. Anything less
+   * would let one plan be quoted locally and another in dollars on the same screen, or — worse —
+   * be quoted locally and charged in the Price's default currency.
+   *
+   * This used to be gated on a `SAAS_SUPPORTED_CURRENCIES` environment variable that was set
+   * nowhere, so the whole feature was inert; and because the amount was not resolved alongside
+   * the currency, turning it on would have started charging the wrong number rather than fixing
+   * anything.
+   */
   static currencyForCountry(countryCode?: string): string {
-    const base = (process.env['SAAS_BASE_CURRENCY'] || 'USD').toUpperCase();
+    const base = SaasService.baseCurrency();
     if (!countryCode) return base;
     const profile = findCountryProfile(countryCode);
     if (!profile) return base;
 
-    // Only currencies the platform is actually configured to settle in. A market whose currency
-    // has no Stripe `currency_options` entry is quoted — and charged — in the base currency, which
-    // is honest, rather than quoted locally and then charged in dollars.
-    const supported = (process.env['SAAS_SUPPORTED_CURRENCIES'] || base)
-      .split(',')
-      .map((code) => code.trim().toUpperCase())
-      .filter(Boolean);
+    const local = profile.currency.toUpperCase();
+    if (local === base) return base;
 
-    return supported.includes(profile.currency) ? profile.currency : base;
+    const pricedEverywhere = SAAS_PLANS.every(
+      (plan) => typeof plan.monthlyPrices[local] === 'number',
+    );
+    return pricedEverywhere ? local : base;
   }
 
   async getPlanBySlug(slug: string) {
@@ -357,8 +434,17 @@ export class SaasService implements OnModuleInit {
     }
   }
 
+  /**
+   * Whether a plan grants a capability. Fails CLOSED, like `enforceLimit`.
+   *
+   * Keyed by the organization's cache generation so a plan change through `changePlan` — which
+   * calls `clearOrganizationCache` — takes effect immediately rather than at TTL expiry. Keyed
+   * without it, an upgrade left the customer refused for up to a minute after paying.
+   */
   async checkFeature(organizationId: string, featureKey: string): Promise<boolean> {
-     const cacheKey = SaasCacheKeyFactory.featureFlag(organizationId, featureKey);
+     const versionKey = SaasCacheKeyFactory.limitVersion(organizationId);
+     const version = (await this.cacheManager.get<number>(versionKey)) || 0;
+     const cacheKey = `${SaasCacheKeyFactory.featureFlag(organizationId, featureKey)}:${version}`;
      const cached = await this.cacheManager.get<boolean>(cacheKey);
      if (cached !== undefined) return cached;
 
@@ -374,6 +460,72 @@ export class SaasService implements OnModuleInit {
 
      await this.cacheManager.set(cacheKey, isEnabled, 60 * 1000);
      return isEnabled;
+  }
+
+  /**
+   * Release a unit of a metered resource, so the quota reflects what exists rather than what has
+   * ever been created.
+   *
+   * Only meaningful for `LIFETIME` quotas — a monthly counter is a volume of activity in a
+   * period, and deleting an invoice does not un-issue it. Calling it for a monthly resource is a
+   * no-op by design rather than an error, so callers do not have to know the period.
+   *
+   * Failures are logged and swallowed: refusing to delete a customer because a counter could not
+   * be decremented would be a worse outcome than a counter that reconciliation will correct.
+   */
+  async releaseUsage(
+    manager: EntityManager,
+    organizationId: string,
+    resource: SaasResource,
+    decrement = 1,
+  ): Promise<void> {
+    try {
+      const org = await manager.findOne(Organization, {
+        where: { id: organizationId },
+        relations: ['plan', 'plan.limits'],
+      });
+      const limitDef = org?.plan?.limits?.find((l) => l.resource === resource);
+      if (!limitDef || limitDef.period !== QuotaPeriod.LIFETIME) return;
+
+      const periodKey = this.getPeriodKey(limitDef.period, org as Organization);
+      const count = await this.usageMetricRepository.decrementUsage(
+        manager,
+        organizationId,
+        resource,
+        periodKey,
+        decrement,
+      );
+      await this.setUsageRedis(organizationId, resource, periodKey, count);
+    } catch (error) {
+      this.logger.error(
+        { event: 'usage_release_failed', organizationId, resource },
+        `Could not release quota: ${(error as Error).message}`,
+      );
+    }
+  }
+
+  /**
+   * Recount a lifetime quota from the rows that actually exist and write that number back.
+   *
+   * The nightly job only ever reconciled Redis against the database, which corrected the cache
+   * and never the counter. Anything that created or removed a record outside the metered path —
+   * a rolled-back transaction, a restored backup, a bulk import — left the quota permanently
+   * wrong in a direction the customer cannot fix.
+   */
+  async recountLifetimeUsage(
+    manager: EntityManager,
+    organizationId: string,
+    resource: SaasResource,
+    actual: number,
+  ): Promise<void> {
+    await this.usageMetricRepository.setUsage(
+      manager,
+      organizationId,
+      resource,
+      QuotaPeriod.LIFETIME,
+      actual,
+    );
+    await this.setUsageRedis(organizationId, resource, QuotaPeriod.LIFETIME, actual);
   }
 
   async getUsage(organizationId: string) {

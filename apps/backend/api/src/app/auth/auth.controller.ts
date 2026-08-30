@@ -52,7 +52,7 @@ import { SaasService } from '../saas/saas.service';
 import { ConfigService } from '@nestjs/config';
 import { AuthConfig } from './auth.config';
 import { TypeOrmExceptionFilter } from '../common/filters/typeorm-exception.filter';
-import { CookieService } from './services/cookie.service';
+import { CookieService, STEP_UP_COOKIE_NAMES } from './services/cookie.service';
 import { FrontendUrlService } from '../mail/frontend-url.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { AuthResponseDto } from './dto/auth-response.dto';
@@ -654,6 +654,7 @@ export class AuthController {
   async stepUpSsoStart(
     @CurrentUser() user: AuthenticatedUser,
     @Query('scope') scope: string,
+    @Query('returnTo') returnTo: string | undefined,
     @Res() res: Response,
   ) {
     if (!Object.values(StepUpScope).includes(scope as StepUpScope)) {
@@ -667,9 +668,13 @@ export class AuthController {
       );
     }
 
+    // Where to put the user back afterwards. It is sealed into the transaction cookie rather
+    // than echoed through the IdP, so the caller cannot swap it for somebody else's origin
+    // between start and callback (CWE-601).
     const tx = this.oauthStateService.createTransaction(
       `stepup:${federated.flow}:${scope}`,
       user.organizationId,
+      returnTo,
     );
     const codeChallenge = this.oauthStateService.codeChallengeS256(tx.codeVerifier);
     const authorizationUrl = await this.oidcProviderService.buildAuthorizationUrl(
@@ -749,14 +754,21 @@ export class AuthController {
         scope as StepUpScope,
       );
       this.cookieService.setStepUpCookie(res, stepUpToken, maxAgeMs);
-      return res.redirect(this.links.stepUpComplete(scope));
+      return res.redirect(this.links.stepUpComplete(scope, tx.returnTo));
     } catch (err) {
       this.oauthStateService.clearTransactionCookie(res);
       this.logger.warn(
         { event: 'step_up_sso_failed', reason: (err as Error).message },
         '[SECURITY] IdP re-authentication for step-up failed',
       );
-      return res.redirect(this.links.stepUpFailed());
+      // `tx` may not have been read yet, so the return path is recovered defensively.
+      let failedReturnTo: string | undefined;
+      try {
+        failedReturnTo = this.oauthStateService.readTransaction(req).returnTo;
+      } catch {
+        failedReturnTo = undefined;
+      }
+      return res.redirect(this.links.stepUpFailed(failedReturnTo));
     }
   }
 
@@ -810,6 +822,34 @@ export class AuthController {
   @ApiOperation({ summary: 'Ask which factor step-up will require for this account' })
   async stepUpChallenge(@CurrentUser() user: AuthenticatedUser) {
       return this.authService.describeStepUpChallenge(user.id);
+  }
+
+  /**
+   * Whether a usable step-up proof for this scope is already held.
+   *
+   * The proof lives in an httpOnly cookie the client cannot read, and federated
+   * re-authentication is a full page navigation that destroys whatever the client was about to
+   * do. Asking the server is what lets the client resume after the IdP sends the user back —
+   * and it also stops a second prompt appearing for a proof that is still valid.
+   *
+   * Reading a token is not spending it: single-use scopes are burned by `StepUpGuard` on the
+   * guarded route, never here.
+   */
+  @Get('step-up/status')
+  @UseGuards(JwtAuthGuard)
+  @Header('Cache-Control', 'no-store')
+  @ApiOperation({ summary: 'Is a step-up proof for this scope already held?' })
+  stepUpStatus(
+      @CurrentUser() user: AuthenticatedUser,
+      @Query('scope') scope: string,
+      @Req() req: Request,
+  ) {
+      if (!Object.values(StepUpScope).includes(scope as StepUpScope)) {
+          throw new BadRequestException('Alcance de verificación no válido.');
+      }
+      const cookies = req.cookies as Record<string, string | undefined> | undefined;
+      const token = STEP_UP_COOKIE_NAMES.map((name) => cookies?.[name]).find(Boolean);
+      return this.authService.verifyStepUpToken(token, user.id, scope as StepUpScope);
   }
 
   @Get('status')
@@ -967,15 +1007,16 @@ export class AuthController {
   @Post('2fa/enable')
   @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
   @StepUp(StepUpScope.ENABLE_2FA)
-  @ApiOperation({ summary: 'Verify token and enable 2FA — requires current password as step-up' })
+  @ApiOperation({ summary: 'Verify the code and enable 2FA — re-authentication is handled by StepUpGuard' })
   async enableTwoFactor(
     @CurrentUser() user: AuthenticatedUser,
     @Body() enableTwoFactorDto: EnableTwoFactorDto,
     @Ip() ip: string
   ) {
     try {
-      // H-05 FIX: Pass currentPassword for step-up verification inside the service
-      const result = await this.twoFactorAuthService.enableTwoFactor(user, enableTwoFactorDto.token, enableTwoFactorDto.currentPassword);
+      // No password is passed: StepUpGuard has already re-authenticated this caller with the
+      // strongest factor the account holds, and burned the token doing it.
+      const result = await this.twoFactorAuthService.enableTwoFactor(user, enableTwoFactorDto.token);
       await this.auditTrailService.record(user.id, 'UserSecurity', user.id, ActionType.UPDATE, { action: 'enable-2fa' }, undefined, ip, user.organizationId);
       return result;
     } catch (e) {

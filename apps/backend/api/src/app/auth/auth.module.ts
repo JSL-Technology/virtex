@@ -15,7 +15,9 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { AuthFacade } from './auth.facade';
 import { RegistrationService } from './services/registration.service';
+import { PendingRegistrationCleanupService } from './services/pending-registration-cleanup.service';
 import { PendingRegistration } from './entities/pending-registration.entity';
+import { UserOrganization } from '../organizations/entities/user-organization.entity';
 import { RegistrationPaymentListener } from './listeners/registration-payment.listener';
 import { TwoFactorAuthService } from './services/two-factor-auth.service';
 import { PasswordRecoveryService } from './services/password-recovery.service';
@@ -89,6 +91,8 @@ import { KeyManagementModule } from './services/key-management.module';
       OrganizationDomain,
       Role,
       PendingRegistration,
+      // The ownership policy resolves authority by membership, like the rest of the platform.
+      UserOrganization,
     ]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
@@ -152,6 +156,10 @@ import { KeyManagementModule } from './services/key-management.module';
     AuthService,
     AuthFacade,
     RegistrationService,
+    // Enforces the retention limit on `pending_registrations`, whose `expires_at` was written
+    // and never read — leaving the personal data of people who never became customers on record
+    // indefinitely.
+    PendingRegistrationCleanupService,
     RegistrationPaymentListener,
     TwoFactorAuthService,
     PasswordRecoveryService,

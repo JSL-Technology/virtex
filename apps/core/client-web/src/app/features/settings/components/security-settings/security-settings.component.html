@@ -201,17 +201,13 @@
                 </div>
 
                 <div class="step-qr__verify">
-                    <div class="form-field">
-                        <label class="form-label" for="field">{{ 'SETTINGS.SECURITY.CURRENT_PASSWORD' | translate }}</label>
-                        <input id="field"
-                            type="password"
-                            class="form-input"
-                            [value]="stepUpPassword()"
-                            (input)="stepUpPassword.set($any($event.target).value)"
-                            autocomplete="current-password"
-                            [placeholder]="'SETTINGS.SECURITY.ENTER_CURRENT_PASSWORD' | translate"
-                        />
-                    </div>
+                    <!--
+                      No hay campo de contraseña aquí a propósito. Al confirmar el código, el
+                      flujo de step-up abre su propio diálogo y pide el factor que esta cuenta
+                      realmente usa —TOTP, contraseña o el proveedor de identidad—. Este input
+                      pedía siempre una contraseña, que las cuentas federadas no tienen, y su
+                      valor ni siquiera se enviaba.
+                    -->
                     <app-otp
                         [title]="'SETTINGS.SECURITY.ENTER_VERIFICATION_CODE' | translate"
                         [description]="'SETTINGS.SECURITY.ENTER_6_DIGIT' | translate"

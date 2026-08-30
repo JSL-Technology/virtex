@@ -241,6 +241,18 @@ export class AuthService {
     return this.sessionService.getUserSessions(userId, currentRefreshTokenId);
   }
 
+  /**
+   * Whether a session was opened with "remember me".
+   *
+   * It is not in the token — it is in how long the stored row was given — so it is re-derived
+   * from the row's own lifetime, the same way `SessionService` does across a rotation. Without
+   * it, switching organization silently downgraded a thirty-day session to a seven-day one.
+   */
+  async isRememberedSession(sessionId?: string): Promise<boolean> {
+      if (!sessionId) return false;
+      return this.sessionService.isRememberedSession(sessionId);
+  }
+
   async revokeSession(userId: string, sessionId: string) {
     return this.sessionService.revokeSession(userId, sessionId);
   }
@@ -494,6 +506,43 @@ export class AuthService {
   }
 
   /**
+   * Whether the caller ALREADY holds a valid step-up proof for a scope.
+   *
+   * This is what makes federated re-authentication usable. The IdP round-trip is a full page
+   * navigation, so the closure the client wanted to run does not survive it — but the proof
+   * does, as an httpOnly cookie the client cannot read. Without a way to ask, the client would
+   * prompt again on return and send the user back to the IdP in a loop.
+   *
+   * Deliberately does NOT consume a single-use token: `StepUpGuard` burns the jti on the guarded
+   * route, and burning it here would spend the proof on the question rather than the action.
+   */
+  verifyStepUpToken(
+      token: string | undefined,
+      userId: string,
+      scope: StepUpScope,
+  ): { valid: boolean; expiresInMs: number } {
+      if (!token) return { valid: false, expiresInMs: 0 };
+      try {
+          const payload = this.jwtService.verify<{
+              sub: string;
+              stepup: boolean;
+              scope: StepUpScope;
+              exp: number;
+          }>(token, {
+              secret: AuthConfig.JWT_STEP_UP_SECRET,
+              issuer: 'virteex-api',
+              audience: 'virteex-step-up',
+          });
+          if (!payload.stepup || payload.sub !== userId || payload.scope !== scope) {
+              return { valid: false, expiresInMs: 0 };
+          }
+          return { valid: true, expiresInMs: Math.max(payload.exp * 1000 - Date.now(), 0) };
+      } catch {
+          return { valid: false, expiresInMs: 0 };
+      }
+  }
+
+  /**
    * Describe the step-up challenge for a user, so the client knows which factor to collect.
    *
    * Deliberately reports only the *kind* of factor. It is called with a valid session, so it
@@ -502,7 +551,7 @@ export class AuthService {
    */
   async describeStepUpChallenge(
       userId: string,
-  ): Promise<{ factor: StepUpFactor; ssoStartPath?: string }> {
+  ): Promise<{ factor: StepUpFactor; ssoStartPath?: string; idpName?: string }> {
       const user = await this.usersService.findUserByIdForAuth(userId);
       if (user?.security?.isTwoFactorEnabled) return { factor: 'otp' };
       if (user?.security?.passwordHash) return { factor: 'password' };
@@ -512,8 +561,26 @@ export class AuthService {
       // do so again with `prompt=login`. Returning 'none' here is what dead-ended every SSO
       // account: the client showed an "enrol a second factor" prompt for an action that itself
       // required a second factor.
-      if (user && (await this.hasFederatedIdentity(user))) {
-          return { factor: 'sso', ssoStartPath: '/auth/step-up/sso' };
+      if (user) {
+          // Resolved ONCE. The provider is named so the prompt can say where the user is being
+          // sent — "Continue" with no destination is exactly the redirect people are taught not
+          // to accept — and the organization's IdP takes precedence over a social provider.
+          const enterprise = await this.enterpriseSsoService.discoverByEmail(user.email);
+          if (enterprise) {
+              return {
+                  factor: 'sso',
+                  ssoStartPath: '/auth/step-up/sso',
+                  idpName: enterprise.idpName,
+              };
+          }
+          if (user.authProvider && this.oidcProviderService.isProviderConfigured(user.authProvider)) {
+              const labels: Record<string, string> = { google: 'Google', microsoft: 'Microsoft' };
+              return {
+                  factor: 'sso',
+                  ssoStartPath: '/auth/step-up/sso',
+                  idpName: labels[user.authProvider] ?? user.authProvider,
+              };
+          }
       }
 
       return { factor: 'none' };
@@ -571,9 +638,9 @@ export class AuthService {
    */
   private async assertWithinStepUpAttemptBudget(userId: string): Promise<void> {
       const key = AuthService.stepUpAttemptKey(userId);
-      const current = (await this.cacheManager.get<number>(key)) ?? 0;
+      const attempts = await this.incrementAttempts(key, AuthService.STEP_UP_WINDOW_MS);
 
-      if (current >= AuthService.STEP_UP_MAX_ATTEMPTS) {
+      if (attempts > AuthService.STEP_UP_MAX_ATTEMPTS) {
           this.logger.warn(
               { event: 'step_up_rate_limited', userId },
               '[SECURITY] Step-up re-authentication rate limit reached',
@@ -582,7 +649,47 @@ export class AuthService {
               'Demasiados intentos de verificación. Espera 5 minutos e inténtalo de nuevo.',
           );
       }
+  }
 
-      await this.cacheManager.set(key, current + 1, AuthService.STEP_UP_WINDOW_MS);
+  /**
+   * Count one attempt and return the new total, atomically where the store allows it.
+   *
+   * The previous implementation was a `get` followed by a `set(current + 1)` — and carried a
+   * comment claiming it avoided exactly that, on the grounds that "reading the counter and then
+   * writing attempts + 1 afterwards would let a burst of parallel guesses all observe the same
+   * low count". It is what the code did. Under concurrency the budget was worth as many attempts
+   * as the attacker could issue in parallel, which for a brute-force limit is the whole control.
+   *
+   * Redis `INCR` is atomic and `PEXPIRE` sets the window on first use only, so the window starts
+   * at the first attempt rather than sliding forward with every one. The in-memory fallback keeps
+   * the old shape, which is correct there because that store is single-process by construction —
+   * the same reasoning `StepUpGuard` already applies to its single-use jti claim.
+   */
+  private async incrementAttempts(key: string, windowMs: number): Promise<number> {
+      const redis = this.redisClient();
+      if (redis) {
+          const attempts = await redis.incr(key);
+          if (attempts === 1) {
+              await redis.pexpire(key, windowMs);
+          }
+          return attempts;
+      }
+
+      const current = (await this.cacheManager.get<number>(key)) ?? 0;
+      const next = current + 1;
+      await this.cacheManager.set(key, next, windowMs);
+      return next;
+  }
+
+  /** The underlying Redis client, when the cache is backed by one. See `StepUpGuard`. */
+  private redisClient(): { incr(key: string): Promise<number>; pexpire(key: string, ms: number): Promise<number> } | null {
+      const store = (this.cacheManager as unknown as { store?: Record<string, unknown> }).store;
+      const candidate = (store?.['client'] ?? store?.['redis'] ?? store?.['getClient']) as
+          | { incr?: unknown }
+          | undefined;
+      const resolved = typeof candidate === 'function' ? (candidate as () => unknown)() : candidate;
+      return resolved && typeof (resolved as { incr?: unknown }).incr === 'function'
+          ? (resolved as never)
+          : null;
   }
 }

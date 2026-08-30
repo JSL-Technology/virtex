@@ -214,7 +214,9 @@ describe('RegisterPage', () => {
       component.nextStep();
 
       expect(component.currentStep()).toBe(4);
-      expect(component.errorMessage()).toContain('configuración fiscal');
+      // The message is a translation key now: the wizard used to carry Spanish literals, which
+      // a US customer would have read in Spanish regardless of the language they chose.
+      expect(component.errorMessage()).toBe('REGISTER.ERRORS.COUNTRY_CONFIG');
     });
   });
 });

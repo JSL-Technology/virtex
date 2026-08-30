@@ -299,19 +299,10 @@ export class CookieService {
     }
   }
 
-  setRegisterTokenCookie(res: Response, token: string): void {
-    // Previously hardcoded `__Host-` + Secure=true, which browsers silently drop over plain
-    // HTTP — breaking the local registration flow. Now consistent with every other cookie here.
-    const insecureDev = this.isInsecureDevEnvironment();
-    const name = insecureDev ? 'register_token' : '__Host-register_token';
-    res.cookie(name, token, {
-      httpOnly: true,
-      secure: !insecureDev,
-      sameSite: 'lax',
-      maxAge: 15 * 60 * 1000,
-      path: '/',
-    });
-  }
+  // There is deliberately NO `setRegisterTokenCookie`. It wrote a `register_token` cookie that
+  // nothing in the product ever set or read — the social sign-up flow uses
+  // `setSocialRegisterTokenCookie`, and payment-first signup uses the registration transaction
+  // cookie. Its only remaining reference was its own unit test, which is a test of dead code.
 
   // H-03: the 2FA pending-session id is delivered as an httpOnly cookie so it never reaches
   // JavaScript, removing XSS as a path to bypassing the second factor.
@@ -397,5 +388,9 @@ export class CookieService {
       res.clearCookie(name, { path: '/', secure: name.startsWith('__') || !insecureDev });
     }
     this.clearStepUpCookie(res);
+    // Signing out must not leave a pending second-factor cookie behind. It is short-lived and
+    // useless without its server-side entry, but "logout cleared everything except one auth
+    // cookie" is not a property worth having to reason about.
+    this.clear2faPendingCookie(res);
   }
 }

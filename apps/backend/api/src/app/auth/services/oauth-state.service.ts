@@ -20,6 +20,15 @@ export interface OauthTransaction {
   codeVerifier: string;
   /** Optional org id for enterprise SSO flows (Phase 2). */
   orgId?: string;
+  /**
+   * Where the client should land when the handshake finishes, as a path on our own origin.
+   *
+   * It travels INSIDE the sealed cookie rather than as a query parameter so the caller cannot
+   * change it between start and callback, and it is re-validated as a relative path before use
+   * — an open redirect out of an authenticated flow is worth more to an attacker than the flow
+   * itself (CWE-601).
+   */
+  returnTo?: string;
   /** Issued-at (epoch ms) for TTL enforcement independent of the cookie maxAge. */
   iat: number;
 }
@@ -84,11 +93,31 @@ export class OauthStateService implements OnModuleInit {
     }
   }
 
+  /**
+   * A caller-supplied return path, reduced to something that can only point at this application.
+   *
+   * Anything that is not a single-slash-prefixed relative path is discarded rather than
+   * sanitised: `//evil.example` and `/\evil.example` are both read as protocol-relative URLs by
+   * browsers, and `javascript:` survives naive prefix checks.
+   */
+  static safeReturnPath(candidate: unknown): string | undefined {
+    if (typeof candidate !== 'string') return undefined;
+    const value = candidate.trim();
+    if (!value.startsWith('/')) return undefined;
+    if (value.startsWith('//') || value.startsWith('/\\')) return undefined;
+    if (value.length > 512) return undefined;
+    // Control characters would let a crafted value break out of the Location header.
+    // eslint-disable-next-line no-control-regex
+    if (/[\u0000-\u001F\u007F]/.test(value)) return undefined;
+    return value;
+  }
+
   /** Create a fresh transaction with new state/nonce/PKCE values. */
-  createTransaction(flow: string, orgId?: string): OauthTransaction {
+  createTransaction(flow: string, orgId?: string, returnTo?: string): OauthTransaction {
     return {
       flow,
       orgId,
+      returnTo: OauthStateService.safeReturnPath(returnTo),
       state: crypto.randomBytes(32).toString('base64url'),
       nonce: crypto.randomBytes(32).toString('base64url'),
       // RFC 7636: code_verifier is 43-128 chars of unreserved characters; 32 random bytes → 43 chars.

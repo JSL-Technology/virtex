@@ -65,7 +65,7 @@ export const COUNTRY_TAX_SCHEMES: Readonly<Record<string, CountryTaxScheme>> = {
   US: {
     configurationRequired: true,
     configurationNote:
-      'El impuesto sobre las ventas en Estados Unidos lo fijan el estado, el condado y la ciudad de destino; no existe una tasa federal. Configura las jurisdicciones donde tienes nexo antes de facturar.',
+      'El impuesto sobre las ventas en Estados Unidos lo fijan el estado, el condado y la ciudad de destino; no existe una tasa federal. Configura las jurisdicciones donde tienes nexo antes de facturar. Puerto Rico no es una jurisdicción estatal más: su IVU es un régimen propio que se declara ante Hacienda de Puerto Rico (SURI), con su propia tasa estatal y municipal.',
     taxes: [],
   },
 

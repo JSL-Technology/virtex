@@ -124,7 +124,6 @@ describe('CookieService — cookie prefix invariants', () => {
       service.setAuthCookies(res, 'access', 'refresh', { userId: 'u1' });
       service.set2faPendingCookie(res, 'pending-1');
       service.setStepUpCookie(res, 'step-up', 60_000);
-      service.setRegisterTokenCookie(res, 'reg');
       service.setSocialRegisterTokenCookie(res, 'social');
 
       const violations = cookies

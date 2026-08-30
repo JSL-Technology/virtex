@@ -8,9 +8,19 @@ import { User } from '../users/entities/user.entity/user.entity';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { CheckFeature } from '../saas/guards/feature-flag.guard';
 
+/**
+ * Group consolidation is a plan capability, not just a permission.
+ *
+ * The plan catalogue already says so: Starter carries a `SUBSIDIARIES` limit of 0. Without the
+ * capability check the tenant was blocked from CREATING a subsidiary but could still reach the
+ * consolidation run, which reports on a group they cannot have — a worse answer than saying the
+ * plan does not include it.
+ */
 @Controller('consolidation')
 @UseGuards(JwtAuthGuard)
+@CheckFeature('group_consolidation')
 export class ConsolidationController {
   constructor(private readonly consolidationService: ConsolidationService) {}
 

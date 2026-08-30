@@ -4,6 +4,15 @@ export enum PendingRegistrationStatus {
   PENDING = 'pending',
   COMPLETED = 'completed',
   EXPIRED = 'expired',
+  /**
+   * Payment succeeded but the account could not be created.
+   *
+   * This state had no representation, and its absence is what made an orphan payment
+   * unrecoverable: a duplicate email, a tax-id collision or a missing plan rolled the
+   * materialisation transaction back, the customer was left charged with no account, and
+   * nothing recorded that it had happened. A row in this state is a support queue.
+   */
+  FAILED = 'failed',
 }
 
 /**
@@ -96,8 +105,25 @@ export class PendingRegistration {
   @Column({ type: 'varchar', default: PendingRegistrationStatus.PENDING })
   status: PendingRegistrationStatus;
 
+  /**
+   * When the signup stops being redeemable, and when its personal data stops being kept.
+   *
+   * The column was written and then read by nothing: no lookup checked it and no job purged by
+   * it. So every abandoned signup left a name, an email, a phone number, a tax identifier, a
+   * full fiscal address and an Argon2 password hash on record indefinitely, for somebody who
+   * never became a customer. `PendingRegistrationCleanupService` now enforces it.
+   */
+  @Index('IDX_pending_registrations_expires_at')
   @Column({ name: 'expires_at', type: 'timestamptz' })
   expiresAt: Date;
+
+  /** Why materialisation failed, for the operator who has to resolve the charge. */
+  @Column({ name: 'failure_reason', type: 'varchar', length: 500, nullable: true })
+  failureReason: string | null;
+
+  /** The Stripe subscription created for a payment whose account could not be materialised. */
+  @Column({ name: 'orphaned_subscription_id', type: 'varchar', nullable: true })
+  orphanedSubscriptionId: string | null;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

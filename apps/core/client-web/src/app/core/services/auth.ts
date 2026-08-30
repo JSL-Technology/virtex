@@ -285,9 +285,9 @@ export class AuthService {
       );
   }
 
-  // H-05: backend requires currentPassword as step-up when enabling 2FA.
-  enable2fa(token: string, currentPassword: string): Observable<any> {
-      return this.http.post(`${this.apiUrl}/2fa/enable`, { token, currentPassword });
+  // Re-authentication travels as the httpOnly step-up cookie, not as a password in the body.
+  enable2fa(token: string): Observable<unknown> {
+      return this.http.post(`${this.apiUrl}/2fa/enable`, { token });
   }
 
   disable2fa(): Observable<any> {

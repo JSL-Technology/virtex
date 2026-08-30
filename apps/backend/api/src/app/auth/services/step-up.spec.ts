@@ -219,11 +219,16 @@ describe('AuthService — step-up re-authentication', () => {
      */
     it('offers the SSO path when the account has an enterprise identity provider', async () => {
       usersService.findUserByIdForAuth.mockResolvedValue(federatedUser);
+      // `describeStepUpChallenge` resolves the provider once, so a single queued value is
+      // enough — and using `Once` keeps the mock from leaking into the tests that follow.
       enterpriseSsoService.discoverByEmail.mockResolvedValueOnce({ idpId: 'idp-1', idpName: 'Okta' });
 
+      // The provider is named so the prompt can say where it is sending the user; "Continue"
+      // with no destination is exactly the redirect people are taught not to accept.
       await expect(service.describeStepUpChallenge(federatedUser.id)).resolves.toEqual({
         factor: 'sso',
         ssoStartPath: '/auth/step-up/sso',
+        idpName: 'Okta',
       });
     });
 
@@ -232,9 +237,12 @@ describe('AuthService — step-up re-authentication', () => {
       enterpriseSsoService.discoverByEmail.mockResolvedValueOnce(null);
       oidcProviderService.isProviderConfigured.mockReturnValueOnce(true);
 
+      // The provider is named so the prompt can say where it is sending the user; "Continue"
+      // with no destination is exactly the redirect people are taught not to accept.
       await expect(service.describeStepUpChallenge(federatedUser.id)).resolves.toEqual({
         factor: 'sso',
         ssoStartPath: '/auth/step-up/sso',
+        idpName: 'Google',
       });
     });
 

@@ -102,6 +102,18 @@ export const PERMISSIONS = {
 
   SETTINGS_EDIT_COMPANY: 'settings:edit_company',
   SETTINGS_EDIT_BRANDING: 'settings:edit_branding',
+
+  /**
+   * Read the tenant's subscription, payment method and invoice history.
+   *
+   * The billing routes carried no permission at all — only `JwtAuthGuard` — so the plan, the
+   * subscription status, the card's last four digits and every invoice were readable by any
+   * authenticated member, including a Seller or a Member whose role grants two view permissions.
+   * Commercial terms are not team-wide information.
+   */
+  BILLING_VIEW: 'billing:view',
+  /** Start a checkout, reconcile one, or open the Stripe portal. */
+  BILLING_MANAGE: 'billing:manage',
   
 
   SYSTEM_MANAGE_VIEWS: 'system:manage_views',

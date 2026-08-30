@@ -10,6 +10,7 @@ import { OrganizationsService } from './organizations.service';
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
 import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
+import { UserCacheModule } from '../auth/modules/user-cache.module';
 
 @Module({
   imports: [
@@ -20,6 +21,9 @@ import { UsersModule } from '../users/users.module';
       UserOrganization,
     ]),
     ChartOfAccountsModule,
+    // Revoking a membership has to invalidate the cached principal, or the removal only takes
+    // effect when the entry expires fifteen minutes later.
+    UserCacheModule,
     forwardRef(() => AuthModule),
     forwardRef(() => UsersModule),
   ],

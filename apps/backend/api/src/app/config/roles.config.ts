@@ -46,6 +46,9 @@ export const DEFAULT_ROLES: DefaultRole[] = [
       name: RoleEnum.ACCOUNTANT,
       description: 'USER.ROLE.ACCOUNTANT_DESC',
       permissions: [
+        // An accountant reconciles the subscription against the books, so they read billing —
+        // but they do not change the plan or the payment method. Administrators keep '*'.
+        PERMISSIONS.BILLING_VIEW,
         PERMISSIONS.REPORTS_VIEW_FINANCIAL,
         PERMISSIONS.REPORTS_VIEW_SALES,
         PERMISSIONS.CUSTOMERS_VIEW,

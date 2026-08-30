@@ -20,7 +20,15 @@ export interface BillingSubscription {
 }
 
 export interface BillingOverview {
-  plan: { slug: string; name: string; monthlyPrice: number | null } | null;
+  plan: {
+    slug: string;
+    name: string;
+    monthlyPrice: number | null;
+    /** ISO 4217 the tenant is billed in. */
+    currency: string;
+    /** Minor units per unit of `currency` (1 for CLP/PYG, 100 otherwise). */
+    minorUnits: number;
+  } | null;
   subscription: BillingSubscription | null;
   paymentMethod: BillingPaymentMethod | null;
 }
@@ -47,17 +55,30 @@ export class BillingService {
   readonly plans = signal<Plan[]>([]);
   readonly plansState = signal<PlansLoadState>('loading');
 
+  /** The market the catalogue is currently quoted for; remembered across reloads. */
+  private country?: string;
+
   constructor() {
     this.loadPlans();
   }
 
-  loadPlans(): void {
+  /**
+   * Load the catalogue for a market.
+   *
+   * The country is not optional decoration: it decides the currency AND the amount, which the
+   * server resolves together from one table. Calling this without it — which is what the app did
+   * everywhere — meant every visitor was quoted the base currency while Checkout billed the
+   * market currency. Passing it is what makes the price on the card the price on the invoice.
+   */
+  loadPlans(countryCode?: string): void {
     this.plansState.set('loading');
+    this.country = countryCode ?? this.country;
     // Public on purpose: plans are shown on the unauthenticated registration page.
     // IS_PUBLIC_API tells the auth interceptor NOT to attempt a token refresh /
     // forced logout if this ever 401s — otherwise an anonymous visitor gets
     // bounced to /auth/login just for viewing plans.
     this.http.get<Plan[]>(`${this.apiUrl}/saas/plans`, {
+      params: this.country ? { country: this.country } : {},
       context: new HttpContext().set(IS_PUBLIC_API, true),
     }).pipe(
       tap(plans => {
