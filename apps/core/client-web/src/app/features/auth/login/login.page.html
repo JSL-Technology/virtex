@@ -1,117 +1,135 @@
 <app-auth-layout>
 
-  <!-- ── 2FA Modal Overlay ─────────────────────────────── -->
+  <!--
+    ── Verificación en dos pasos ─────────────────────────────────────────────
+    Va en una lámina propia POR ENCIMA del formulario, no sustituyéndolo. Es una
+    decisión de flujo: si el segundo factor reemplazara la pantalla, volver
+    atrás significaría reconstruir el formulario y perder el correo ya escrito.
+    Con la lámina encima, cancelar devuelve al usuario exactamente donde estaba.
+
+    El contenido de debajo se marca `inert`: sin eso el tabulador sigue entrando
+    en un formulario que el usuario no ve, y el foco desaparece de la pantalla.
+  -->
   @if (show2faInput()) {
     <div class="tfa-overlay">
-      <div class="tfa-backdrop" (click)="show2faInput.set(false)" aria-hidden="true"></div>
-      <div class="tfa-dialog" role="dialog" aria-modal="true" aria-label="Verificación en dos pasos">
-        <button class="tfa-close" (click)="show2faInput.set(false)" aria-label="Volver al inicio de sesión">
-          <lucide-icon [img]="icons.ArrowLeft" size="16"></lucide-icon>
+      <div class="tfa-backdrop" (click)="closeTwoFactor()" aria-hidden="true"></div>
+
+      <div class="tfa-dialog"
+           role="dialog"
+           aria-modal="true"
+           [attr.aria-label]="'LOGIN.2FA.TITLE' | translate">
+        <button type="button" class="tfa-close" (click)="closeTwoFactor()">
+          <lucide-icon [img]="icons.ArrowLeft" size="15"></lucide-icon>
           {{ 'LOGIN.2FA.BACK_TO_LOGIN' | translate }}
         </button>
+
         <app-otp
-           [title]="'LOGIN.2FA.TITLE' | translate"
-           [description]="'LOGIN.2FA.SUBTITLE' | translate"
-           [otpLength]="6"
-           (verify)="onOtpVerify($event)">
+          [title]="'LOGIN.2FA.TITLE' | translate"
+          [description]="'LOGIN.2FA.SUBTITLE' | translate"
+          [otpLength]="6"
+          (verify)="onOtpVerify($event)">
         </app-otp>
       </div>
     </div>
   }
 
-  <!-- ── Standard Login ────────────────────────────────── -->
-  <div class="login-wrapper">
+  <div class="login-view" [attr.inert]="show2faInput() ? '' : null">
 
-      <!-- ZONE 1: Brand & Header -->
-      <header class="auth-header">
-        <div class="brand-mark" aria-hidden="true">
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="32" height="32" rx="7" fill="var(--primary)"/>
-            <rect x="8" y="9" width="16" height="2.5" rx="1.25" fill="white"/>
-            <rect x="8" y="14.75" width="12" height="2.5" rx="1.25" fill="white"/>
-            <rect x="8" y="20.5" width="8" height="2.5" rx="1.25" fill="white"/>
-          </svg>
+    <!-- ZONA 1 · Identidad -->
+    <header class="auth-head">
+      <span class="auth-seal" aria-hidden="true">
+        <app-brand-logo variant="mark" [size]="30"></app-brand-logo>
+      </span>
+      <h1 class="auth-title">{{ 'LOGIN.TITLE' | translate }}</h1>
+      <p class="auth-subtitle">{{ 'LOGIN.SUBTITLE' | translate }}</p>
+    </header>
+
+    <!-- ZONA 2 · Credenciales (acción principal) -->
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form vx-stagger" novalidate>
+
+      <app-auth-input
+        formControlName="email"
+        type="email"
+        [label]="'LOGIN.EMAIL_LABEL' | translate"
+        [placeholder]="'LOGIN.EMAIL_PLACEHOLDER' | translate"
+        [hasIcon]="true"
+        [required]="true"
+        autocomplete="username"
+        [errorMessage]="getErrorMessage('email')">
+        <lucide-icon icon [img]="icons.Mail" size="16"></lucide-icon>
+      </app-auth-input>
+
+      <app-auth-input
+        formControlName="password"
+        type="password"
+        [label]="'LOGIN.PASSWORD_LABEL' | translate"
+        placeholder="••••••••"
+        [hasIcon]="true"
+        [required]="true"
+        autocomplete="current-password"
+        [errorMessage]="getErrorMessage('password')">
+        <lucide-icon icon [img]="icons.Lock" size="16"></lucide-icon>
+
+        <!--
+          El enlace de recuperación va en la CABECERA del campo, alineado con su
+          etiqueta. Debajo del campo competía por el sitio con el mensaje de
+          error, y cuando ambos aparecían a la vez —que es justo cuando alguien
+          no recuerda su contraseña— se pisaban.
+        -->
+        <a header-extra
+           class="forgot-link"
+           [routerLink]="['/', languageService.currentLang(), 'auth', 'forgot-password']">
+          {{ 'LOGIN.FORGOT_PASSWORD' | translate }}
+        </a>
+      </app-auth-input>
+
+      <label class="remember-label">
+        <input type="checkbox" formControlName="rememberMe" class="remember-checkbox">
+        <span class="checkmark" aria-hidden="true">
+          <lucide-icon [img]="icons.Check" size="12"></lucide-icon>
+        </span>
+        <span class="remember-text">{{ 'LOGIN.REMEMBER_ME' | translate }}</span>
+      </label>
+
+      @if (errorMessage()) {
+        <div class="error-alert" role="alert">
+          <lucide-icon [img]="icons.AlertCircle" size="16"></lucide-icon>
+          <span>{{ errorMessage()! | translate }}</span>
         </div>
-        <h1 class="auth-title">{{ 'LOGIN.TITLE' | translate }}</h1>
-        <p class="auth-subtitle">{{ 'LOGIN.SUBTITLE' | translate }}</p>
-      </header>
+      }
 
-      <!-- ZONE 2: Credentials Form (Primary Action) -->
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <!--
+        El botón NO se deshabilita con el formulario inválido. Un botón apagado
+        no explica qué falta: el usuario pulsa, no pasa nada y no hay mensaje.
+        Al enviar se marcan los campos y cada uno dice lo suyo.
+      -->
+      <app-auth-button
+        type="submit"
+        variant="primary"
+        [loading]="isLoggingIn()">
+        {{ (isLoggingIn() ? 'LOGIN.LOGGING_IN' : 'LOGIN.SUBMIT_BUTTON') | translate }}
+        @if (!isLoggingIn()) {
+          <lucide-icon [img]="icons.ArrowRight" size="16"></lucide-icon>
+        }
+      </app-auth-button>
 
-        <app-auth-input
-          formControlName="email"
-          type="email"
-          [label]="'LOGIN.EMAIL_LABEL' | translate"
-          [placeholder]="'LOGIN.EMAIL_PLACEHOLDER' | translate"
-          [hasIcon]="true"
-          [required]="true"
-          autocomplete="username"
-          [errorMessage]="getErrorMessage('email')">
-          <lucide-icon icon [img]="icons.Mail" size="16"></lucide-icon>
-        </app-auth-input>
+    </form>
 
-        <div class="password-group">
-          <app-auth-input
-            formControlName="password"
-            type="password"
-            [label]="'LOGIN.PASSWORD_LABEL' | translate"
-            placeholder="••••••••"
-            [hasIcon]="true"
-            [required]="true"
-            autocomplete="current-password"
-            [errorMessage]="getErrorMessage('password')">
-            <lucide-icon icon [img]="icons.Lock" size="16"></lucide-icon>
-          </app-auth-input>
+    <!-- ZONA 3 · Métodos alternativos -->
+    <div class="alt-divider">
+      <span>{{ 'LOGIN.OR' | translate }}</span>
+    </div>
 
-          <div class="forgot-row">
-            <a [routerLink]="['/', languageService.currentLang(), 'auth', 'forgot-password']"
-               class="forgot-link" tabindex="0">
-              {{ 'LOGIN.FORGOT_PASSWORD' | translate }}
-            </a>
-          </div>
-        </div>
+    <section class="secondary-auth">
+      <app-passkey-button (clicked)="onLoginWithPasskey()" [loading]="isLoggingIn()"></app-passkey-button>
+      <app-social-auth-buttons (login)="socialLogin($event)"></app-social-auth-buttons>
+    </section>
 
-        <div class="form-options">
-          <label class="remember-label" tabindex="0"
-                 (keyup.enter)="loginForm.get('rememberMe')?.setValue(!loginForm.get('rememberMe')?.value)">
-            <input type="checkbox" formControlName="rememberMe" class="remember-checkbox" tabindex="-1">
-            <span class="checkmark"></span>
-            <span class="remember-text">{{ 'LOGIN.REMEMBER_ME' | translate }}</span>
-          </label>
-        </div>
-
-        <div *ngIf="errorMessage()" class="error-alert" role="alert">
-          <lucide-icon [img]="icons.AlertCircle" size="15"></lucide-icon>
-          <span>{{ errorMessage() | translate }}</span>
-        </div>
-
-        <app-auth-button
-          type="submit"
-          variant="primary"
-          size="lg"
-          [loading]="isLoggingIn()"
-          [disabled]="loginForm.invalid">
-          {{ (isLoggingIn() ? 'LOGIN.LOGGING_IN' : 'LOGIN.SUBMIT_BUTTON') | translate }}
-          <lucide-icon *ngIf="!isLoggingIn()" [img]="icons.ArrowRight" size="16"></lucide-icon>
-        </app-auth-button>
-
-      </form>
-
-      <!-- ZONE 3: Secondary Auth Methods -->
-      <div class="alt-divider">
-        <span>{{ 'LOGIN.OR' | translate }}</span>
-      </div>
-
-      <section class="secondary-auth">
-        <app-passkey-button (clicked)="onLoginWithPasskey()" [loading]="isLoggingIn()">
-        </app-passkey-button>
-        <app-social-auth-buttons (login)="socialLogin($event)"></app-social-auth-buttons>
-      </section>
-
-      <!-- Enterprise SSO: Home Realm Discovery panel -->
-      <section *ngIf="showSsoInput()" class="sso-panel" role="region" aria-label="Enterprise SSO">
+    <!-- Descubrimiento de dominio para el acceso único corporativo -->
+    @if (showSsoInput()) {
+      <section class="sso-panel" role="region" aria-label="Enterprise SSO">
         <label class="sso-label" for="sso-email">{{ 'LOGIN.SSO.PROMPT' | translate }}</label>
+
         <div class="sso-row">
           <input
             id="sso-email"
@@ -121,38 +139,41 @@
             [placeholder]="'LOGIN.EMAIL_PLACEHOLDER' | translate"
             autocomplete="username"
             (keyup.enter)="startSso()" />
+
           <app-auth-button
             type="button"
             variant="primary"
-            size="md"
             [loading]="ssoChecking()"
             [disabled]="ssoEmailControl.invalid"
-            (click)="startSso()">
+            (clicked)="startSso()">
             {{ 'LOGIN.SSO.CONTINUE' | translate }}
           </app-auth-button>
         </div>
-        <p *ngIf="ssoMessage()" class="sso-message" role="alert">{{ ssoMessage()! | translate }}</p>
+
+        @if (ssoMessage()) {
+          <p class="sso-message" role="alert">{{ ssoMessage()! | translate }}</p>
+        }
+
         <button type="button" class="sso-cancel" (click)="cancelSso()">
           {{ 'LOGIN.SSO.CANCEL' | translate }}
         </button>
       </section>
+    }
 
-      <!-- ZONE 4: Footer -->
-      <footer class="form-footer">
-        <p class="register-text">
-          {{ 'LOGIN.NO_ACCOUNT' | translate }}
-          <a [routerLink]="['/', languageService.currentLang(), countryService.currentCountryCode(), 'auth', 'register']"
-             class="register-link" tabindex="0">
-            {{ 'LOGIN.REGISTER_LINK' | translate }}
-          </a>
-        </p>
-        <p class="legal-text">
-          Protected by reCAPTCHA.
-          <a href="https://policies.google.com/privacy" target="_blank" tabindex="0">Privacy</a> &
-          <a href="https://policies.google.com/terms" target="_blank" tabindex="0">Terms</a>.
-        </p>
-      </footer>
+    <p class="legal-text">
+      Protected by reCAPTCHA.
+      <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy</a> &amp;
+      <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms</a>.
+    </p>
 
-    </div>
+  </div>
+
+  <!-- ZONA 4 · Enlace cruzado, proyectado al pie de la lámina -->
+  <p footer-actions class="cross-link">
+    {{ 'LOGIN.NO_ACCOUNT' | translate }}
+    <a [routerLink]="['/', languageService.currentLang(), countryService.currentCountryCode(), 'auth', 'register']">
+      {{ 'LOGIN.REGISTER_LINK' | translate }}
+    </a>
+  </p>
 
 </app-auth-layout>

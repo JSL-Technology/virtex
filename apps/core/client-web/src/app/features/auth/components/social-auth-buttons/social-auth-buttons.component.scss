@@ -1,3 +1,12 @@
+// =============================================================================
+//  PROVEEDORES DE IDENTIDAD EXTERNOS
+// =============================================================================
+//  Tres botones iguales en una fila. La igualdad es deliberada: ninguno de los
+//  tres es «el recomendado», y darle más peso a uno empuja al usuario hacia un
+//  proveedor que quizá no sea el suyo.
+// =============================================================================
+@use '../../../../../assets/styles/design-system' as ds;
+
 .social-auth-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -6,49 +15,43 @@
 }
 
 .social-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-2);
-  background: var(--bg-card);
-  border: 1.5px solid var(--border-color);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: var(--transition);
-  height: 40px;
-  font-family: inherit;
-
-  &:hover {
-    background: var(--bg-secondary);
-    border-color: var(--border-light);
-    box-shadow: 0 2px 6px rgba(var(--shadow-color-rgb), 0.06);
-  }
-
-  &:active { transform: scale(0.97); }
-
-  &:focus-visible {
-    outline: 2px solid var(--primary);
-    outline-offset: 1px;
-  }
+  @include ds.glass-button-secondary('lg');
+  padding-inline: var(--space-2);
+  min-width: 0;
 
   .social-btn-content {
     display: flex;
     align-items: center;
-    gap: 0.375rem;
+    justify-content: center;
+    gap: var(--space-2);
+    min-width: 0;
   }
 
   .social-icon {
-    width: 16px;
-    height: 16px;
+    width: 1.05rem;
+    height: 1.05rem;
     flex-shrink: 0;
   }
 
   .social-label {
+    @include ds.truncate;
     font-size: var(--text-sm);
     font-weight: var(--font-medium);
-    color: var(--text-secondary);
-    transition: var(--transition);
+    color: var(--content-secondary);
+    @include ds.transition(color);
   }
 
-  &:hover .social-label { color: var(--text-primary); }
+  &:hover:not(:disabled) .social-label {
+    color: var(--content-primary);
+  }
+}
+
+//  Por debajo del móvil grande, tres etiquetas no caben sin recortarse hasta
+//  volverse ilegibles («Goo…», «Mic…»). Se conserva el icono, que es lo que
+//  identifica al proveedor de un vistazo, y la etiqueta pasa al `aria-label`
+//  que el botón ya llevaba.
+@include ds.bp-down('xs') {
+  .social-btn .social-label {
+    @include ds.visually-hidden;
+  }
 }

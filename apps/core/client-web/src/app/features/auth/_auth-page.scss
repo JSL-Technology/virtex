@@ -1,0 +1,213 @@
+// =============================================================================
+//  ARMAZÓN COMÚN DE LAS PANTALLAS PÚBLICAS
+// =============================================================================
+//  Acceso, alta, recuperación, restablecimiento, alta por invitación y
+//  confirmación de pago comparten cabecera, avisos, enlaces y estado de éxito.
+//  Antes cada una los reescribía: seis definiciones de «título de pantalla de
+//  acceso» con seis tamaños distintos, y un sello de marca que en cinco de
+//  ellas era un logotipo de relleno —tres barras blancas— que no tenía nada
+//  que ver con Virtex.
+//
+//  Todo lo de aquí se dibuja SOBRE la lámina de cristal del marco, así que no
+//  hay ni una superficie opaca.
+// =============================================================================
+@use '../../../assets/styles/design-system' as ds;
+
+// ── Cabecera ─────────────────────────────────────────────────────────────────
+@mixin head {
+  text-align: center;
+  margin-bottom: var(--space-7);
+  animation: vx-rise var(--duration-slow) var(--ease-decelerate) both;
+  animation-delay: 120ms;
+}
+
+//  Pastilla de cristal con halo que contiene la marca —o el icono de estado de
+//  la pantalla. Es el ancla visual de todas las puertas de entrada.
+@mixin seal($size: 3.5rem) {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+
+  width: $size;
+  height: $size;
+  margin-bottom: var(--space-4);
+
+  border-radius: var(--radius-xl);
+  @include ds.glass-surface('subtle', 10px);
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -30%;
+    z-index: -1;
+    border-radius: var(--radius-full);
+    background: radial-gradient(circle, rgba(var(--accent-solid-rgb), 0.28) 0%, transparent 68%);
+    animation: vx-halo 6s var(--ease-standard) infinite;
+  }
+}
+
+@mixin title {
+  margin: 0 0 var(--space-2);
+  @include ds.heading('2xl');
+}
+
+@mixin subtitle {
+  margin: 0;
+  color: var(--content-secondary);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+}
+
+@mixin form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+// ── Avisos ───────────────────────────────────────────────────────────────────
+@mixin error-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+
+  padding: var(--space-3) var(--space-4);
+
+  background-color: var(--error-surface);
+  border: 1px solid var(--error-border);
+  border-radius: var(--radius-lg);
+  color: var(--error-text);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+
+  animation: vx-rise var(--duration-fast) var(--ease-decelerate) both;
+
+  svg,
+  lucide-icon {
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+}
+
+// ── Estado de éxito ──────────────────────────────────────────────────────────
+//  Una pantalla de éxito tiene que decir tres cosas: que salió bien, qué pasó,
+//  y qué hacer ahora. El anillo verde responde a la primera de un vistazo; sin
+//  él, el usuario lee un párrafo para averiguar si el envío funcionó.
+@mixin success-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+
+  padding-block: var(--space-4);
+  animation: vx-rise var(--duration-slow) var(--ease-decelerate) both;
+
+  .success-icon-ring {
+    position: relative;
+    display: grid;
+    place-items: center;
+
+    width: 3.75rem;
+    height: 3.75rem;
+    margin-bottom: var(--space-2);
+
+    border: 1px solid var(--success-border);
+    border-radius: var(--radius-full);
+    background-color: var(--success-surface);
+    color: var(--success-text);
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: -25%;
+      z-index: -1;
+      border-radius: var(--radius-full);
+      background: radial-gradient(circle, rgba(var(--success-rgb), 0.24) 0%, transparent 68%);
+      animation: vx-halo 6s var(--ease-standard) infinite;
+    }
+  }
+
+  .success-title {
+    margin: 0;
+    @include ds.heading('xl');
+  }
+
+  .success-text {
+    margin: 0;
+    max-width: 40ch;
+    color: var(--content-secondary);
+    font-size: var(--text-md);
+    line-height: var(--leading-normal);
+  }
+}
+
+// ── Enlaces ──────────────────────────────────────────────────────────────────
+@mixin back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--content-secondary);
+  text-decoration: none;
+
+  @include ds.transition(color, gap);
+  @include ds.focus-ring(3px);
+
+  &:hover {
+    color: var(--content-primary);
+    //  El hueco se abre un pelo al apuntar: el icono «retrocede», que es
+    //  exactamente lo que el enlace promete.
+    gap: var(--space-3);
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+@mixin primary-link {
+  @include ds.glass-button-primary('lg');
+  width: 100%;
+  margin-top: var(--space-2);
+  text-decoration: none;
+}
+
+@mixin legal-text {
+  margin: var(--space-6) 0 0;
+  font-size: var(--text-2xs);
+  color: var(--content-tertiary);
+  text-align: center;
+  line-height: var(--leading-snug);
+
+  a {
+    color: var(--content-secondary);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--content-primary);
+      text-decoration: underline;
+    }
+  }
+}
+
+//  Enlace cruzado del pie de la lámina (acceso ↔ alta).
+@mixin cross-link {
+  margin: 0;
+  font-size: var(--text-md);
+  color: var(--content-secondary);
+
+  a {
+    margin-left: var(--space-1);
+    font-weight: var(--font-semibold);
+    color: var(--accent-text);
+    text-decoration: none;
+    @include ds.focus-ring(3px);
+
+    &:hover {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+  }
+}

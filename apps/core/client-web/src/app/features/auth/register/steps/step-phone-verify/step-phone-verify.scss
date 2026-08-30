@@ -1,68 +1,13 @@
+// =============================================================================
+//  PASO 3 · CONFIRMACIÓN DEL MÓVIL
+// =============================================================================
+@use '../step-chrome' as step;
+
 .verify-step {
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
 }
 
-.verify-header {
-  text-align: center;
-
-  .verify-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 3.5rem;
-    height: 3.5rem;
-    border-radius: 50%;
-    background-color: var(--success-light, rgba(var(--info-rgb), 0.1));
-    color: var(--success, var(--success-text));
-    margin-bottom: var(--space-4);
-  }
-
-  .verify-title {
-    font-size: var(--text-xl);
-    font-weight: var(--font-bold);
-    color: var(--text-primary);
-    margin-bottom: var(--space-2);
-  }
-
-  .verify-subtitle {
-    font-size: var(--text-md);
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.375rem;
-  }
-}
-
-.send-error {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: 0.75rem 1rem;
-  background-color: var(--error-light, rgba(var(--error-rgb), 0.08));
-  color: var(--error);
-  border-radius: 0.5rem;
-  font-size: var(--text-md);
-
-  .retry-btn {
-    margin-left: auto;
-    background: none;
-    border: 1px solid currentColor;
-    border-radius: 0.375rem;
-    padding: 0.25rem 0.625rem;
-    font-size: var(--text-sm);
-    color: inherit;
-    cursor: pointer;
-  }
-}
-
-.spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
+.verify-header { @include step.verify-header; }
+.send-error    { @include step.send-error; }

@@ -14,6 +14,7 @@ import { LucideAngularModule, Mail, AlertCircle, CheckCircle, ArrowLeft } from '
 import { AuthLayoutComponent } from '../../components/auth-layout/auth-layout.component';
 import { AuthInputComponent } from '../../components/auth-input/auth-input.component';
 import { AuthButtonComponent } from '../../components/auth-button/auth-button.component';
+import { BrandLogo } from '../../../../shared/components/brand-logo/brand-logo';
 
 @Component({
   selector: 'app-forgot-password',
@@ -27,7 +28,8 @@ import { AuthButtonComponent } from '../../components/auth-button/auth-button.co
     LucideAngularModule,
     AuthLayoutComponent,
     AuthInputComponent,
-    AuthButtonComponent
+    AuthButtonComponent,
+    BrandLogo,
   ],
   providers: [
     ReCaptchaV3Service,

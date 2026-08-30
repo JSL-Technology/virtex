@@ -12,6 +12,7 @@ import { AuthLayoutComponent } from '../../components/auth-layout/auth-layout.co
 import { AuthInputComponent } from '../../components/auth-input/auth-input.component';
 import { AuthButtonComponent } from '../../components/auth-button/auth-button.component';
 import { PasswordStrengthComponent } from '../../../../shared/components/password-strength/password-strength.component';
+import { BrandLogo } from '../../../../shared/components/brand-logo/brand-logo';
 // H4 FIX: use the shared validator (single source of truth, mirrored from the backend policy)
 // instead of a divergent local copy.
 import { strongPasswordValidator } from '../../../../shared/validators/password.validator';
@@ -34,7 +35,8 @@ const passwordMatchValidator: ValidatorFn = (group: AbstractControl): Validation
     AuthLayoutComponent,
     AuthInputComponent,
     AuthButtonComponent,
-    PasswordStrengthComponent
+    PasswordStrengthComponent,
+    BrandLogo
   ],
   templateUrl: './reset-password.page.html',
   styleUrls: ['./reset-password.page.scss']

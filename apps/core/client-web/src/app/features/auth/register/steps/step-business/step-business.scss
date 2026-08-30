@@ -1,182 +1,65 @@
-.step-container {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
-}
+// =============================================================================
+//  PASO 5 · PERFIL DE EMPRESA
+// =============================================================================
+@use '../step-chrome' as step;
+@use '../../../../../../assets/styles/design-system' as ds;
 
-.step-header {
-  text-align: center;
-  margin-bottom: var(--space-2);
-
-  .step-title {
-    font-size: var(--text-xl);
-    font-weight: var(--font-bold);
-    color: var(--text-primary);
-    margin-bottom: var(--space-1);
-  }
-
-  .step-subtitle {
-    font-size: var(--text-md);
-    color: var(--text-secondary);
-  }
-}
-
-.logo-upload-section {
-  display: flex;
-  justify-content: center;
-  margin-bottom: var(--space-4);
-}
-
-.logo-container {
-  position: relative;
-
-  .hidden-input {
-    display: none;
-  }
-
-  .logo-label {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 8rem;
-    height: 5rem;
-    border-radius: var(--radius-md);
-    border: 2px dashed var(--border-color);
-    background-color: var(--bg-secondary);
-    cursor: pointer;
-    overflow: hidden;
-    transition: var(--transition);
-    position: relative;
-
-    &:hover {
-      border-color: var(--primary);
-      background-color: var(--bg-hover);
-
-      .logo-overlay {
-        opacity: 1;
-      }
-    }
-  }
-
-  .logo-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-1);
-    color: var(--text-tertiary);
-
-    span {
-      font-size: var(--text-2xs);
-      font-weight: var(--font-semibold);
-      text-transform: uppercase;
-    }
-  }
-
-  .logo-img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    padding: var(--space-2);
-  }
-
-  .logo-overlay {
-    position: absolute;
-    inset: 0;
-    background-color: rgba(var(--shadow-color-rgb), 0.4);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: var(--transition);
-  }
-}
+.step-container { @include step.container; }
+.step-header    { @include step.header; }
 
 .form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-5);
-
-  @media (max-width: 640px) {
-    grid-template-columns: 1fr;
-  }
-
-  .full-width {
-    grid-column: 1 / -1;
-  }
-}
-
-.form-field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.input-label {
-  font-size: var(--text-md);
-  font-weight: var(--font-semibold);
-  color: var(--text-primary);
-}
-
-.custom-select-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-
-  .select-icon {
-    position: absolute;
-    left: 1rem;
-    color: var(--text-tertiary);
-    pointer-events: none;
-    display: flex;
-    align-items: center;
-    z-index: 1;
-    transition: var(--transition);
-  }
-
-  .custom-select {
-    width: 100%;
-    height: 3.25rem;
-    padding: 0 2.5rem 0 3rem;
-    background-color: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    color: var(--text-primary);
-    font-size: var(--text-base);
-    font-weight: var(--font-medium);
-    cursor: pointer;
-    appearance: none;
-    transition: var(--transition);
-
-    &:hover {
-      border-color: var(--text-tertiary);
-    }
-
-    &:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px var(--primary-light);
-      background-color: var(--bg-card);
-      outline: none;
-
-      & ~ .select-icon {
-        color: var(--primary);
-      }
-    }
-  }
-
-  .select-chevron {
-    position: absolute;
-    right: 1rem;
-    color: var(--text-tertiary);
-    pointer-events: none;
-    display: flex;
-    align-items: center;
-  }
+  @include step.form-grid;
+  @include step.select-field;
 }
 
 .error-text {
-  font-size: var(--text-xs);
-  color: var(--error);
-  padding: 0 0.25rem;
+  @include step.error-text;
+}
+
+// ── Logotipo de la organización ──────────────────────────────────────────────
+.logo-upload {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  @include ds.glass-surface('subtle', 8px);
+
+  .hidden-input {
+    @include ds.visually-hidden;
+  }
+
+  .logo-preview {
+    display: grid;
+    place-items: center;
+
+    width: 4rem;
+    height: 4rem;
+    flex-shrink: 0;
+
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-lg);
+    background-color: var(--glass-field-bg);
+    color: var(--content-tertiary);
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  }
+
+  .logo-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+
+  .logo-hint {
+    font-size: var(--text-xs);
+    color: var(--content-tertiary);
+  }
 }

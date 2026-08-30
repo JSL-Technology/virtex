@@ -162,6 +162,68 @@
   --viz-6-rgb: #{p.rgb-triplet(p.cyan(600))};
   --viz-7-rgb: #{p.rgb-triplet(p.green(700))};
   --viz-8-rgb: #{p.rgb-triplet(p.red(600))};
+
+  // ── Cristal (glassmorphism) ────────────────────────────────────────────────
+  //  Superficies translúcidas que dejan ver el lienzo que tienen detrás. Se
+  //  publican como tokens y no como valores sueltos porque el efecto solo
+  //  funciona si TODOS los paneles comparten el mismo índice de refracción:
+  //  dos cristales con desenfoques distintos en la misma pantalla se leen como
+  //  un error de renderizado, no como profundidad.
+  //
+  //  En claro el cristal es LECHOSO: parte de blanco y se opacifica. Sobre un
+  //  lienzo pálido, un cristal oscuro se vería como una mancha.
+  --glass-tint-rgb: 255, 255, 255;
+  --glass-bg: #{rgba(p.neutral(0), 0.66)};
+  --glass-bg-strong: #{rgba(p.neutral(0), 0.82)};
+  --glass-bg-subtle: #{rgba(p.neutral(0), 0.42)};
+  --glass-bg-hover: #{rgba(p.neutral(0), 0.9)};
+
+  //  El borde del cristal es un REFLEJO, no una línea de contorno: por eso es
+  //  más claro que la superficie, no más oscuro.
+  --glass-border: #{rgba(p.neutral(0), 0.9)};
+  --glass-border-soft: #{rgba(p.neutral(0), 0.6)};
+  --glass-highlight: #{rgba(p.neutral(0), 0.95)};
+
+  //  El borde del cristal es un reflejo y por eso es CLARO — pero un reflejo no
+  //  sirve para separar dos zonas DENTRO del panel: sobre el propio cristal, un
+  //  blanco sobre blanco no se ve. Los separadores internos necesitan por tanto
+  //  su propio token, que va en sentido contrario al borde: oscuro en claro,
+  //  claro en oscuro.
+  --glass-divider: #{rgba(p.neutral(700), 0.16)};
+
+  //  Campos hundidos dentro de un panel de cristal. No pueden usar
+  //  `--surface-sunken` (opaco) sin romper la translucidez del conjunto.
+  --glass-field-bg: #{rgba(p.neutral(0), 0.55)};
+  --glass-field-bg-focus: #{rgba(p.neutral(0), 0.92)};
+  --glass-field-border: #{rgba(p.neutral(700), 0.22)};
+
+  //  Desenfoque y saturación. La saturación por encima del 100 % compensa el
+  //  lavado de color que introduce el desenfoque: sin ella el cristal apaga
+  //  todo lo que hay debajo y el efecto se lee como niebla gris.
+  --glass-blur: 18px;
+  --glass-blur-strong: 30px;
+  --glass-saturate: 180%;
+
+  --glass-shadow:
+    0 1px 1px #{rgba(p.neutral(960), 0.04)},
+    0 8px 24px #{rgba(p.neutral(960), 0.06)},
+    0 24px 64px #{rgba(p.neutral(960), 0.1)};
+  --glass-shadow-soft: 0 8px 30px #{rgba(p.neutral(960), 0.07)};
+  --glass-glow: 0 0 0 1px #{rgba(p.blue(600), 0.1)}, 0 12px 40px #{rgba(p.blue(600), 0.14)};
+
+  // ── Aurora — lienzo animado de las pantallas de acceso ─────────────────────
+  //  Cuatro velos de color que se desplazan lentamente bajo el cristal. Son
+  //  tokens y no literales porque el mismo lienzo se usa en acceso, registro,
+  //  recuperación de contraseña y confirmación de pago: si divergen, cada
+  //  puerta de entrada al producto parece de un producto distinto.
+  --aurora-canvas: #{p.neutral(50)};
+  --aurora-1: #{rgba(p.blue(500), 0.5)};
+  --aurora-2: #{rgba(p.violet(500), 0.38)};
+  --aurora-3: #{rgba(p.cyan(400), 0.34)};
+  --aurora-4: #{rgba(p.pink(400), 0.2)};
+  --aurora-veil: #{rgba(p.neutral(0), 0.38)};
+  --aurora-grid: #{rgba(p.neutral(700), 0.06)};
+  --aurora-silk: #{rgba(p.blue(600), 0.16)};
 }
 
 // -----------------------------------------------------------------------------
@@ -291,6 +353,50 @@
   --viz-6-rgb: #{p.rgb-triplet(p.cyan(300))};
   --viz-7-rgb: #{p.rgb-triplet(p.green(400))};
   --viz-8-rgb: #{p.rgb-triplet(p.red(400))};
+
+  // ── Cristal (glassmorphism) ────────────────────────────────────────────────
+  //  En oscuro el cristal parte de la superficie profunda y se ACLARA lo justo:
+  //  un cristal blanco translúcido sobre fondo oscuro produce el gris lechoso
+  //  característico de las imitaciones baratas del efecto. Lo que da la
+  //  sensación de vidrio aquí es el borde luminoso y el desenfoque, no el
+  //  relleno.
+  --glass-tint-rgb: 255, 255, 255;
+  --glass-bg: #{rgba(p.neutral(940), 0.62)};
+  --glass-bg-strong: #{rgba(p.neutral(940), 0.84)};
+  --glass-bg-subtle: #{rgba(p.neutral(940), 0.4)};
+  --glass-bg-hover: #{rgba(p.neutral(920), 0.86)};
+
+  --glass-border: #{rgba(p.neutral(0), 0.12)};
+  --glass-border-soft: #{rgba(p.neutral(0), 0.07)};
+  --glass-highlight: #{rgba(p.neutral(0), 0.22)};
+  --glass-divider: #{rgba(p.neutral(0), 0.1)};
+
+  --glass-field-bg: #{rgba(p.neutral(0), 0.05)};
+  --glass-field-bg-focus: #{rgba(p.neutral(0), 0.09)};
+  --glass-field-border: #{rgba(p.neutral(0), 0.14)};
+
+  --glass-blur: 20px;
+  --glass-blur-strong: 34px;
+  --glass-saturate: 150%;
+
+  --glass-shadow:
+    0 1px 1px #{rgba(#000000, 0.4)},
+    0 12px 32px #{rgba(#000000, 0.45)},
+    0 32px 80px #{rgba(#000000, 0.55)};
+  --glass-shadow-soft: 0 10px 34px #{rgba(#000000, 0.45)};
+  --glass-glow: 0 0 0 1px #{rgba(p.blue(400), 0.18)}, 0 16px 48px #{rgba(p.blue(500), 0.22)};
+
+  // ── Aurora ─────────────────────────────────────────────────────────────────
+  //  Los velos son más saturados y el lienzo casi negro: es la lectura oscura
+  //  de la misma composición, no una paleta distinta.
+  --aurora-canvas: #05070d;
+  --aurora-1: #{rgba(p.blue(500), 0.55)};
+  --aurora-2: #{rgba(p.violet(500), 0.42)};
+  --aurora-3: #{rgba(p.cyan(400), 0.34)};
+  --aurora-4: #{rgba(p.pink(500), 0.2)};
+  --aurora-veil: #{rgba(#000000, 0.45)};
+  --aurora-grid: #{rgba(p.neutral(0), 0.035)};
+  --aurora-silk: #{rgba(p.blue(300), 0.22)};
 }
 
 // -----------------------------------------------------------------------------
@@ -306,6 +412,45 @@
   --content-tertiary: var(--content-secondary);
   --content-disabled: var(--content-tertiary);
   --focus-ring-width: 3px;
+
+  //  El cristal se OPACIFICA. La translucidez es, por definición, contraste
+  //  variable: el texto de un panel de cristal se lee sobre lo que haya debajo,
+  //  que en una aurora en movimiento cambia segundo a segundo. Quien pide alto
+  //  contraste está pidiendo justo lo contrario. El panel conserva su forma,
+  //  su borde y su sombra; pierde únicamente la transparencia.
+  --glass-bg: var(--surface-raised);
+  --glass-bg-strong: var(--surface-raised);
+  --glass-bg-subtle: var(--surface-base);
+  --glass-bg-hover: var(--surface-hover);
+  --glass-border: var(--border-strong);
+  --glass-border-soft: var(--border-default);
+  --glass-highlight: var(--border-strong);
+  --glass-divider: var(--border-strong);
+  --glass-field-bg: var(--surface-base);
+  --glass-field-bg-focus: var(--surface-base);
+  --glass-field-border: var(--border-strong);
+  --glass-blur: 0px;
+  --glass-blur-strong: 0px;
+  --glass-saturate: 100%;
+}
+
+// -----------------------------------------------------------------------------
+//  TRANSPARENCIA REDUCIDA
+// -----------------------------------------------------------------------------
+//  Preferencia del sistema (macOS «Reducir transparencia», Windows «Efectos de
+//  transparencia»). Quien la activa lo hace por mareo, por fatiga visual o por
+//  un equipo que no compone desenfoques con soltura. Se atiende en el ORIGEN,
+//  igual que `prefers-reduced-motion`: ningún componente tiene que acordarse.
+// -----------------------------------------------------------------------------
+@mixin opaque-glass {
+  --glass-bg: var(--surface-raised);
+  --glass-bg-strong: var(--surface-overlay);
+  --glass-bg-subtle: var(--surface-base);
+  --glass-bg-hover: var(--surface-hover);
+  --glass-field-bg: var(--surface-sunken);
+  --glass-field-bg-focus: var(--surface-base);
+  --glass-blur: 0px;
+  --glass-blur-strong: 0px;
 }
 
 // =============================================================================
@@ -338,6 +483,12 @@
   @include high-contrast;
 }
 
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    @include opaque-glass;
+  }
+}
+
 // -----------------------------------------------------------------------------
 //  TEMATIZACIÓN POR SUBÁRBOL
 // -----------------------------------------------------------------------------
@@ -358,7 +509,9 @@
 @media print {
   :root {
     @include light;
+    @include opaque-glass;
     --surface-canvas: #ffffff;
+    --aurora-canvas: #ffffff;
     --shadow-xs: none;
     --shadow-sm: none;
     --shadow-md: none;

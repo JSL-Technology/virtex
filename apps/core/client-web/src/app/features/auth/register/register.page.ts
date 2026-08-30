@@ -92,18 +92,25 @@ export function passwordMatchValidator(
   templateUrl: './register.page.html',
   styleUrls: ['./register.page.scss'],
   animations: [
+    //  El disparador va sobre el VISOR, que persiste entre pasos, y recibe el
+    //  número de paso como valor. Antes estaba en el `div` de cada paso, que
+    //  `*ngIf` destruía y volvía a crear: `:increment` compara el valor nuevo
+    //  con el anterior DEL MISMO elemento, y un elemento recién creado no tiene
+    //  anterior, así que ninguna de las dos transiciones llegó a ejecutarse
+    //  nunca. La dirección del deslizamiento —hacia dónde va la vista— es
+    //  justamente lo que le dice al usuario si avanza o retrocede.
     trigger('stepAnimation', [
       transition(':increment', [
-        style({ transform: 'translateX(100%)', opacity: 0 }),
+        style({ transform: 'translateX(3%)', opacity: 0 }),
         animate(
-          '300ms ease-out',
+          '280ms cubic-bezier(0, 0, 0, 1)',
           style({ transform: 'translateX(0)', opacity: 1 }),
         ),
       ]),
       transition(':decrement', [
-        style({ transform: 'translateX(-100%)', opacity: 0 }),
+        style({ transform: 'translateX(-3%)', opacity: 0 }),
         animate(
-          '300ms ease-out',
+          '280ms cubic-bezier(0, 0, 0, 1)',
           style({ transform: 'translateX(0)', opacity: 1 }),
         ),
       ]),
@@ -138,6 +145,22 @@ export class RegisterPage implements OnInit {
   phoneVerified = signal(false);
 
   readonly steps = Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1);
+
+  /**
+   * Rótulos del riel de progreso, en el orden de los pasos.
+   *
+   * Un asistente de seis pasos numerados no dice nada: «vas por el 4 de 6» no
+   * es información, porque el usuario no sabe qué le espera en el 5 ni en el 6.
+   * Con el rótulo puesto, el riel se convierte además en un índice del alta.
+   */
+  readonly stepLabelKeys = [
+    'REGISTER.PROGRESS.ACCOUNT',
+    'REGISTER.PROGRESS.EMAIL',
+    'REGISTER.PROGRESS.PHONE',
+    'REGISTER.PROGRESS.FISCAL',
+    'REGISTER.PROGRESS.BUSINESS',
+    'REGISTER.PROGRESS.PLAN',
+  ];
 
   currentCountryConfig = computed(() => this.countryService.currentCountry());
 

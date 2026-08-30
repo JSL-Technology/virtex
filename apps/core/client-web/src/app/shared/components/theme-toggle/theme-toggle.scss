@@ -52,3 +52,31 @@
     box-shadow: var(--shadow-xs);
   }
 }
+
+// -----------------------------------------------------------------------------
+//  SOBRE CRISTAL
+// -----------------------------------------------------------------------------
+//  Las pantallas públicas colocan este control sobre la lámina de cristal del
+//  marco de acceso. El pozo opaco se vería allí como un parche pegado encima,
+//  así que el propio componente publica su lectura translúcida: el que compone
+//  la pantalla añade la clase y no tiene que perforar la encapsulación del
+//  componente para conseguirlo.
+// -----------------------------------------------------------------------------
+:host(.on-glass) {
+  .theme-toggle {
+    background-color: var(--glass-bg-subtle);
+    border-color: var(--glass-border-soft);
+    @include ds.glass-blur(10px);
+  }
+
+  .theme-toggle__option {
+    &:hover:not(.is-active) {
+      background-color: var(--glass-bg-hover);
+    }
+
+    &.is-active {
+      background-color: var(--glass-bg-strong);
+      box-shadow: var(--glass-shadow-soft);
+    }
+  }
+}

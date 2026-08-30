@@ -100,14 +100,28 @@ a {
 //  a TODO campo de la aplicación con `width: 100%`, incluidas casillas y
 //  radios, que quedaban deformados. Aquí se excluyen explícitamente los tipos
 //  que no son campos de texto.
+//
+//  ── Por qué `:where()` ──────────────────────────────────────────────────────
+//  Cada `:not([type=…])` aporta la especificidad de un selector de atributo, o
+//  sea la de una clase. Cinco exclusiones convertían esta regla de base en un
+//  selector (0,5,1): MÁS específico que casi cualquier regla de componente.
+//  El efecto era silencioso y desconcertante — una hoja de componente escribía
+//  `.input-wrapper input { height: … }` y no pasaba nada, porque la capa base
+//  ganaba. Así es como el campo del formulario de acceso quedaba a la altura
+//  media en lugar de la grande, y cómo el relleno reservado para el icono
+//  desaparecía dejando el texto debajo del icono.
+//
+//  `:where()` aporta especificidad CERO. La regla sigue aplicándose a los
+//  mismos elementos, pero cualquier componente puede sobrescribirla — que es
+//  justo lo que debe hacer una capa base: poner el suelo, no el techo.
 // -----------------------------------------------------------------------------
-input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='color']),
-select,
-textarea {
+:where(input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='color'])),
+:where(select),
+:where(textarea) {
   @include ds.input-base;
 }
 
-textarea {
+:where(textarea) {
   height: auto;
   min-height: calc(var(--control-height-md) * 2);
   padding-block: var(--space-2);
@@ -116,15 +130,15 @@ textarea {
 
 //  Las casillas y radios adoptan el color de acento en su estado marcado sin
 //  necesidad de reimplementar el control.
-input[type='checkbox'],
-input[type='radio'] {
+:where(input[type='checkbox']),
+:where(input[type='radio']) {
   accent-color: var(--accent-solid);
   width: 1rem;
   height: 1rem;
   cursor: pointer;
 }
 
-label {
+:where(label) {
   color: var(--content-secondary);
 }
 
@@ -208,6 +222,102 @@ lucide-angular {
 @keyframes vx-slide-up {
   from { opacity: 0; transform: translateY(var(--space-2)); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+//  Entrada escalonada de los elementos de un formulario. `translateY` pequeño y
+//  escala casi imperceptible: la pieza debe parecer que ASIENTA, no que entra
+//  volando. Los `--vx-delay-*` los pone el componente para escalonar.
+@keyframes vx-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+//  Aparición de una lámina de cristal: además de subir, «enfoca». El
+//  desenfoque inicial vende la idea de material óptico.
+@keyframes vx-glass-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+//  Destello que barre un botón o una tarjeta. Una sola pasada.
+@keyframes vx-sheen {
+  from { transform: translateX(-120%); }
+  to   { transform: translateX(120%); }
+}
+
+//  Deriva de los velos de la aurora. Tres recorridos distintos para que las
+//  capas nunca vuelvan a coincidir: si compartieran trayectoria el fondo
+//  «latiría» con un periodo evidente y delataría el truco.
+@keyframes vx-aurora-a {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  33%  { transform: translate3d(6%, -4%, 0) scale(1.12); }
+  66%  { transform: translate3d(-4%, 5%, 0) scale(1.04); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes vx-aurora-b {
+  0%   { transform: translate3d(0, 0, 0) scale(1.08); }
+  40%  { transform: translate3d(-7%, 6%, 0) scale(1); }
+  75%  { transform: translate3d(5%, 3%, 0) scale(1.14); }
+  100% { transform: translate3d(0, 0, 0) scale(1.08); }
+}
+
+@keyframes vx-aurora-c {
+  0%   { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50%  { transform: translate3d(4%, 6%, 0) rotate(6deg); }
+  100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+}
+
+//  Ondulación de las cintas de seda del lienzo de acceso.
+@keyframes vx-silk {
+  0%   { transform: translate3d(-6%, 0, 0) rotate(-2deg) scaleY(1); }
+  50%  { transform: translate3d(6%, -3%, 0) rotate(2deg) scaleY(1.12); }
+  100% { transform: translate3d(-6%, 0, 0) rotate(-2deg) scaleY(1); }
+}
+
+//  Flotación mínima para marcas y sellos. 8 px en 7 s.
+@keyframes vx-float {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-8px); }
+  100% { transform: translateY(0); }
+}
+
+//  Halo que respira. Se usa en el estado de espera de la verificación en dos
+//  pasos, donde comunica «seguimos aquí» sin ocupar sitio.
+@keyframes vx-halo {
+  0%, 100% { opacity: 0.45; transform: scale(1); }
+  50%      { opacity: 0.9; transform: scale(1.06); }
+}
+
+// -----------------------------------------------------------------------------
+//  MOVIMIENTO REDUCIDO
+// -----------------------------------------------------------------------------
+//  Los tokens de duración ya se neutralizan en `_scales.scss`, pero una
+//  animación en BUCLE con duración 0.01 ms no se detiene: se acelera hasta
+//  parpadear, que es peor que el movimiento original. Las de bucle se paran
+//  aquí de raíz.
+@media (prefers-reduced-motion: reduce) {
+  [class*='vx-aurora'],
+  .aurora-veil,
+  .aurora-silk,
+  .vx-float,
+  .vx-halo {
+    animation: none !important;
+  }
 }
 
 // -----------------------------------------------------------------------------

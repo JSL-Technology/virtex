@@ -25,8 +25,8 @@
         <h1 class="checkout-complete__title">No pudimos confirmar el pago</h1>
         <p class="checkout-complete__text">{{ errorMessage() }}</p>
         <div class="checkout-complete__actions">
-          <app-auth-button type="button" (click)="confirm()">Reintentar</app-auth-button>
-          <app-auth-button type="button" variant="outline" (click)="goToLogin()">Ir a iniciar sesión</app-auth-button>
+          <app-auth-button type="button" (clicked)="confirm()">Reintentar</app-auth-button>
+          <app-auth-button type="button" variant="outline" (clicked)="goToLogin()">Ir a iniciar sesión</app-auth-button>
         </div>
       }
     }

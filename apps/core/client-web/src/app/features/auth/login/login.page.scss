@@ -1,354 +1,250 @@
-.login-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 1.375rem;
+// =============================================================================
+//  PANTALLA DE ACCESO
+// =============================================================================
+//  Cuatro zonas, en orden de intención decreciente:
+//
+//    1. Identidad      quién eres y dónde estás
+//    2. Credenciales   el camino que usa el 95 % de la gente
+//    3. Alternativas   llave de paso, proveedores externos, SSO corporativo
+//    4. Enlace cruzado el 5 % restante: los que aún no tienen cuenta
+//
+//  El separador entre 2 y 3 no es adorno: marca el punto donde el usuario deja
+//  de escribir y empieza a elegir. Sin él, la llave de paso parece un campo más
+//  del formulario.
+// =============================================================================
+@use '../auth-page' as auth;
+@use '../../../../assets/styles/design-system' as ds;
+
+// ── Zona 1 · Identidad ───────────────────────────────────────────────────────
+//  El sello de marca —la «V» en una pastilla de cristal con halo— es el ancla
+//  visual de todas las puertas de entrada; vive en el armazón compartido para
+//  que acceso, alta y recuperación tengan literalmente la misma cabecera.
+.auth-head     { @include auth.head; }
+.auth-seal     { @include auth.seal; }
+.auth-title    { @include auth.title; }
+.auth-subtitle { @include auth.subtitle; }
+
+// ── Zona 2 · Credenciales ────────────────────────────────────────────────────
+.auth-form     { @include auth.form; }
+
+.forgot-link {
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  color: var(--accent-text);
+  text-decoration: none;
+  white-space: nowrap;
+
+  @include ds.transition(color);
+  @include ds.focus-ring(3px);
+
+  &:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
 }
 
-/* ── Header ─────────────────────────────────────────── */
-.auth-header {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
+// ── Casilla de sesión persistente ────────────────────────────────────────────
+//  Casilla nativa oculta pero PRESENTE: conserva el foco, el teclado, el estado
+//  del formulario y el anuncio del lector de pantalla. Lo que se dibuja es el
+//  `.checkmark`, que la sigue con `:checked +`. La versión anterior ponía
+//  `tabindex="-1"` en la casilla y `tabindex="0"` en la etiqueta, dejando el
+//  control inalcanzable con teclado salvo por un manejador de tecla a medida.
+.remember-label {
+  display: inline-flex;
   align-items: center;
-  gap: 0.625rem;
-  padding-bottom: var(--space-1);
-
-  .brand-mark {
-    margin-bottom: 0.125rem;
-  }
-
-  .auth-title {
-    font-size: var(--text-2xl);
-    font-weight: var(--font-semibold);
-    color: var(--text-primary);
-    margin: 0;
-    letter-spacing: -0.02em;
-    line-height: 1.25;
-  }
-
-  .auth-subtitle {
-    font-size: var(--text-md);
-    color: var(--text-secondary);
-    margin: 0;
-    line-height: 1.5;
-  }
-}
-
-/* ── Form ────────────────────────────────────────────── */
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.password-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-
-  .forgot-row {
-    display: flex;
-    justify-content: flex-end;
-
-    .forgot-link {
-      font-size: var(--text-sm);
-      color: var(--primary);
-      text-decoration: none;
-      font-weight: var(--font-medium);
-      transition: var(--transition);
-
-      &:hover {
-        color: var(--primary-hover);
-        text-decoration: underline;
-      }
-    }
-  }
-}
-
-.form-options {
-  .remember-label {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    cursor: pointer;
-    user-select: none;
-    position: relative;
-
-    input.remember-checkbox {
-      position: absolute;
-      opacity: 0;
-      width: 0;
-      height: 0;
-
-      &:checked ~ .checkmark {
-        background: var(--primary);
-        border-color: var(--primary);
-
-        &::after {
-          display: block;
-        }
-      }
-    }
-
-    .checkmark {
-      flex-shrink: 0;
-      width: 16px;
-      height: 16px;
-      background: transparent;
-      border: 1.5px solid var(--border-color);
-      border-radius: 4px;
-      position: relative;
-      transition: var(--transition);
-
-      &::after {
-        content: '';
-        position: absolute;
-        display: none;
-        left: 4px;
-        top: 1px;
-        width: 4px;
-        height: 8px;
-        border: solid white;
-        border-width: 0 1.5px 1.5px 0;
-        transform: rotate(45deg);
-      }
-    }
-
-    &:hover .checkmark {
-      border-color: var(--primary);
-    }
-
-    .remember-text {
-      font-size: var(--text-sm);
-      color: var(--text-secondary);
-      transition: var(--transition);
-    }
-
-    &:hover .remember-text {
-      color: var(--text-primary);
-    }
-  }
-}
-
-.error-alert {
-  display: flex;
-  align-items: flex-start;
   gap: var(--space-2);
-  padding: 0.75rem 0.875rem;
-  background: var(--error-bg);
-  border: 1px solid rgba(var(--error-rgb), 0.15);
-  border-radius: var(--radius-md);
-  color: var(--error);
-  font-size: var(--text-sm);
-  line-height: 1.45;
+  cursor: pointer;
+  user-select: none;
+  align-self: flex-start;
+}
+
+.remember-checkbox {
+  @include ds.visually-hidden;
+}
+
+.checkmark {
+  display: grid;
+  place-items: center;
+
+  width: 1.125rem;
+  height: 1.125rem;
+
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background-color: var(--glass-field-bg);
+  color: var(--accent-on-solid);
+
+  @include ds.transition(background-color, border-color, color);
 
   lucide-icon {
-    flex-shrink: 0;
-    margin-top: 1px;
+    opacity: 0;
+    transform: scale(0.6);
+    @include ds.transition(opacity, transform);
   }
 }
 
-/* ── Divider ─────────────────────────────────────────── */
+.remember-checkbox:checked + .checkmark {
+  background-color: var(--accent-solid);
+  border-color: var(--accent-solid);
+
+  lucide-icon {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.remember-checkbox:focus-visible + .checkmark {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.remember-text {
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+}
+
+// ── Aviso de error ───────────────────────────────────────────────────────────
+.error-alert { @include auth.error-alert; }
+
+// ── Zona 3 · Alternativas ────────────────────────────────────────────────────
 .alt-divider {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  color: var(--text-tertiary);
-  font-size: var(--text-2xs);
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  font-weight: var(--font-medium);
+  margin: var(--space-6) 0;
 
+  color: var(--content-tertiary);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+
+  //  La línea se desvanece hacia el centro, donde está la palabra. Una regla
+  //  recta cortada en dos deja dos extremos duros a ambos lados del texto.
   &::before,
   &::after {
     content: '';
     flex: 1;
     height: 1px;
-    background: var(--border-color);
+    background: linear-gradient(90deg, transparent, var(--glass-divider), transparent);
   }
 }
 
-/* ── Secondary Auth ──────────────────────────────────── */
 .secondary-auth {
   display: flex;
   flex-direction: column;
-  gap: 0.625rem;
-}
-
-/* ── Footer ──────────────────────────────────────────── */
-.form-footer {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
   gap: var(--space-3);
-  border-top: 1px solid var(--border-color);
-  padding-top: 1.125rem;
-  margin-top: 0.125rem;
-
-  .register-text {
-    font-size: var(--text-md);
-    color: var(--text-secondary);
-    margin: 0;
-
-    .register-link {
-      color: var(--primary);
-      font-weight: var(--font-medium);
-      text-decoration: none;
-      margin-left: var(--space-1);
-
-      &:hover {
-        text-decoration: underline;
-      }
-    }
-  }
-
-  .legal-text {
-    font-size: var(--text-2xs);
-    color: var(--text-tertiary);
-    margin: 0;
-
-    a {
-      color: var(--text-tertiary);
-      text-decoration: none;
-
-      &:hover {
-        color: var(--text-secondary);
-        text-decoration: underline;
-      }
-    }
-  }
 }
 
-/* ── 2FA Modal Overlay ───────────────────────────────── */
-.tfa-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-6);
-}
-
-.tfa-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(var(--shadow-color-rgb), 0.55);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  animation: tfa-fade 0.2s ease;
-}
-
-.tfa-dialog {
-  position: relative;
-  width: 100%;
-  max-width: 460px;
-  background: var(--bg-card);
-  border-radius: 16px;
-  border: 1px solid var(--border-color);
-  box-shadow:
-    0 32px 64px rgba(var(--shadow-color-rgb), 0.28),
-    0 4px 16px rgba(var(--shadow-color-rgb), 0.12);
-  padding: 2rem 2rem 1.75rem;
-  animation: tfa-in 0.28s cubic-bezier(0.32, 0.72, 0, 1);
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.tfa-close {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  background: none;
-  border: none;
-  color: var(--text-secondary);
-  font-size: var(--text-sm);
-  font-weight: var(--font-medium);
-  cursor: pointer;
-  padding: 0.375rem 0.5rem;
-  border-radius: var(--radius-md);
-  margin-bottom: var(--space-5);
-  transition: var(--transition);
-  font-family: inherit;
-
-  &:hover {
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-  }
-}
-
-@keyframes tfa-fade {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-@keyframes tfa-in {
-  from { opacity: 0; transform: scale(0.96) translateY(8px); }
-  to   { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-@media (max-width: 480px) {
-  .login-wrapper {
-    gap: 1.125rem;
-  }
-}
-
-/* Enterprise SSO (Home Realm Discovery) panel */
+// ── Acceso único corporativo ─────────────────────────────────────────────────
 .sso-panel {
   display: flex;
   flex-direction: column;
-  gap: 0.625rem;
-  margin-top: 0.875rem;
+  gap: var(--space-3);
+
+  margin-top: var(--space-5);
   padding: var(--space-4);
-  border: 1px solid var(--border, var(--border-default));
-  border-radius: 10px;
-  background: var(--surface-muted, var(--surface-sunken));
+  border-radius: var(--radius-lg);
+
+  @include ds.glass-surface('subtle', 10px);
+  animation: vx-rise var(--duration-normal) var(--ease-decelerate) both;
 }
 
 .sso-label {
   font-size: var(--text-sm);
   color: var(--content-secondary);
+  line-height: var(--leading-snug);
 }
 
 .sso-row {
   display: flex;
+  align-items: center;
   gap: var(--space-2);
-  align-items: stretch;
+
+  //  El botón no se estira: la longitud de «Continuar» no debe decidir el
+  //  ancho del campo de correo, que es lo que el usuario tiene que leer.
+  app-auth-button {
+    flex-shrink: 0;
+    width: auto;
+  }
 }
 
 .sso-input {
-  flex: 1 1 auto;
+  @include ds.glass-field;
+  flex: 1;
   min-width: 0;
-  padding: 0.625rem 0.75rem;
-  border: 1px solid var(--border, var(--border-default));
-  border-radius: 8px;
-  font-size: var(--text-md);
-  background: var(--surface, var(--surface-base));
-  color: var(--text-primary, var(--content-primary));
-}
-
-.sso-input:focus {
-  outline: none;
-  border-color: var(--accent-solid);
-  box-shadow: 0 0 0 3px rgba(var(--accent-solid-rgb), 0.15);
 }
 
 .sso-message {
   margin: 0;
-  font-size: var(--text-sm);
-  color: var(--danger, var(--error-text));
+  font-size: var(--text-xs);
+  color: var(--error-text);
 }
 
 .sso-cancel {
+  @include ds.button-link;
   align-self: flex-start;
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: var(--text-sm);
-  color: var(--text-secondary, var(--content-secondary));
-  cursor: pointer;
+  font-size: var(--text-xs);
+  color: var(--content-tertiary);
 }
 
-.sso-cancel:hover {
-  text-decoration: underline;
+// ── Aviso legal y enlace cruzado ─────────────────────────────────────────────
+.legal-text { @include auth.legal-text; }
+.cross-link { @include auth.cross-link; }
+
+// ── Segundo factor ───────────────────────────────────────────────────────────
+.tfa-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+}
+
+.tfa-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: var(--scrim);
+  @include ds.glass-blur(6px);
+  animation: vx-fade-in var(--duration-normal) var(--ease-standard) both;
+}
+
+.tfa-dialog {
+  position: relative;
+  z-index: 1;
+
+  width: 100%;
+  max-width: 27rem;
+  max-height: calc(100dvh - var(--space-8));
+  overflow-y: auto;
+
+  padding: var(--space-6);
+
+  @include ds.glass-card;
+  @include ds.glass-edge(var(--space-6));
+  @include ds.scrollbar;
+
+  animation: vx-glass-in var(--duration-slow) var(--ease-decelerate) both;
+}
+
+.tfa-close {
+  @include ds.button-ghost('sm');
+  margin-bottom: var(--space-4);
+  padding-inline: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+// ── Adaptación ───────────────────────────────────────────────────────────────
+@include ds.bp-down('xs') {
+  .auth-seal {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .sso-row {
+    flex-direction: column;
+    align-items: stretch;
+
+    app-auth-button { width: 100%; }
+  }
 }

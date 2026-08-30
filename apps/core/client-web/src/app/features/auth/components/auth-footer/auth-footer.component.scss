@@ -1,188 +1,160 @@
 // =============================================================================
-//  Este pie redefinía en `:host` los nombres GLOBALES `--text-primary`,
-//  `--primary`, `--border-color`, `--bg-secondary`… con valores propios, más
-//  un bloque de sobrescritura para tema claro. Es decir: mantenía a mano su
-//  propio tema doble, duplicando el trabajo que ya hace el sistema y quedando
-//  desincronizado de él en cuanto la paleta global cambiaba.
-//
-//  Los tokens semánticos ya cubren los dos temas, así que todo ese bloque
-//  desaparece. El único valor propio que queda es la transparencia sobre el
-//  lienzo de autenticación, con prefijo `--auth-` para no colisionar.
+//  PIE DE LAS PANTALLAS PÚBLICAS
 // =============================================================================
+//  ── Dos defectos que corrige esta hoja ──────────────────────────────────────
+//  1. Los selectores no coincidían con la plantilla. La hoja estilaba
+//     `.main-footer .footer-content .language-selector-container`; la plantilla
+//     escribía `.auth-footer .footer-container .language-selector`. Ni una sola
+//     regla llegaba a aplicarse: el pie se veía sin estilos y nadie lo notaba
+//     porque «se veía discreto», que es justo lo que parece un pie sin CSS.
+//  2. `:host` redefinía `--auth-footer-*` a mano para claro y oscuro. Eso ya lo
+//     resuelven los tokens `--glass-*`, que además comparten valor con el resto
+//     de la pantalla — antes el pie tenía su propia idea de qué es translúcido.
+// =============================================================================
+@use '../../../../../assets/styles/design-system' as ds;
+
 :host {
-  --auth-footer-surface: rgba(255, 255, 255, 0.05);
-  --auth-footer-surface-strong: rgba(255, 255, 255, 0.09);
-  --auth-footer-border: rgba(255, 255, 255, 0.08);
-}
-
-:host-context(:root[data-theme='light']) {
-  --auth-footer-surface: rgba(0, 0, 0, 0.04);
-  --auth-footer-surface-strong: rgba(0, 0, 0, 0.08);
-  --auth-footer-border: rgba(0, 0, 0, 0.10);
-}
-
-.main-footer {
-  padding: 1.5rem 2rem;
-  width: 100%;
+  display: block;
   margin-top: auto;
-  background: transparent;
+}
 
-  .footer-content {
-    max-width: 1000px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: var(--space-8);
+.auth-footer {
+  padding: var(--space-5) var(--space-6) var(--space-6);
+}
 
-    @media (max-width: 768px) {
-      display: flex;
-      flex-direction: column-reverse;
-      gap: var(--space-5);
-    }
+.footer-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+
+  max-width: var(--content-max-width);
+  margin-inline: auto;
+}
+
+// ── Selector de idioma ───────────────────────────────────────────────────────
+.language-selector {
+  position: relative;
+}
+
+.selector-trigger {
+  @include ds.button-base('md');
+  border-radius: var(--radius-full);
+  background-color: var(--glass-bg-subtle);
+  border-color: var(--glass-border-soft);
+  color: var(--content-secondary);
+  font-size: var(--text-sm);
+  @include ds.glass-blur(10px);
+
+  &:hover,
+  &.active {
+    background-color: var(--glass-bg-hover);
+    border-color: var(--accent-border);
+    color: var(--content-primary);
   }
 
-  // ── Language Selector ────────────────────────────────────────
-  .language-selector-container {
-    .language-selector {
-      position: relative;
-      display: inline-block;
+  .icon-left { opacity: 0.75; }
 
-      .selector-trigger {
-        background: var(--auth-footer-surface);
-        border: 1px solid var(--auth-footer-border);
-        border-radius: var(--radius-full);
-        padding: 0.5rem 1rem;
-        display: flex;
-        align-items: center;
-        gap: var(--space-2);
-        cursor: pointer;
-        color: var(--text-secondary);
-        font-size: var(--text-md);
-        transition: var(--transition);
-        font-family: inherit;
-
-        &:hover,
-        &.active {
-          background: var(--auth-footer-surface-strong);
-          color: var(--text-primary);
-          border-color: var(--primary);
-        }
-
-        .icon-left  { opacity: 0.7; }
-        .icon-right {
-          opacity: 0.5;
-          transition: transform 0.2s;
-        }
-
-        &.active .icon-right { transform: rotate(180deg); }
-      }
-
-      .dropdown-menu {
-        position: absolute;
-        bottom: 100%;
-        left: 0;
-        margin-bottom: var(--space-2);
-        background: var(--surface-overlay);
-        border: 1px solid var(--auth-footer-border);
-        border-radius: 0.75rem;
-        padding: var(--space-2);
-        min-width: 140px;
-        box-shadow: var(--shadow-xl);
-        display: none;
-        backdrop-filter: blur(10px);
-        animation: slideUpFade 0.2s ease-out;
-        z-index: 50;
-
-        &.show { display: block; }
-
-        .dropdown-item {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          width: 100%;
-          padding: 0.5rem 0.75rem;
-          background: none;
-          border: none;
-          text-align: left;
-          color: var(--text-secondary);
-          border-radius: 0.5rem;
-          cursor: pointer;
-          font-size: var(--text-md);
-          transition: var(--transition);
-          font-family: inherit;
-
-          &:hover {
-            background: var(--auth-footer-surface);
-            color: var(--text-primary);
-          }
-
-          &.active {
-            color: var(--primary);
-            background: var(--primary-light);
-          }
-        }
-      }
-    }
+  .icon-right {
+    opacity: 0.6;
+    @include ds.transition(transform);
   }
 
-  // ── Footer Links ─────────────────────────────────────────────
-  .footer-links {
-    display: flex;
-    justify-content: center;
-    gap: var(--space-6);
-    flex-wrap: wrap;
+  &.active .icon-right { transform: rotate(180deg); }
+}
 
-    a {
-      color: var(--text-secondary);
-      text-decoration: none;
-      font-size: var(--text-sm);
-      transition: color 0.2s;
+.dropdown-menu {
+  position: absolute;
+  bottom: calc(100% + var(--space-2));
+  left: 0;
+  z-index: var(--z-dropdown);
 
-      &:hover { color: var(--primary); }
-    }
+  min-width: 11rem;
+  padding: var(--space-1);
 
-    @media (max-width: 768px) {
-      gap: var(--space-4);
-    }
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-shadow);
+  @include ds.glass-surface('strong');
+
+  animation: vx-rise var(--duration-fast) var(--ease-decelerate) both;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+
+  padding: var(--space-2) var(--space-3);
+
+  background: none;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--content-secondary);
+  font: inherit;
+  font-size: var(--text-md);
+  text-align: left;
+  cursor: pointer;
+
+  @include ds.transition(background-color, color);
+  @include ds.focus-ring(-2px);
+
+  &:hover {
+    background-color: var(--glass-bg-hover);
+    color: var(--content-primary);
   }
 
-  // ── Copyright ─────────────────────────────────────────────────
-  .copyright-row {
-    text-align: right;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: var(--space-1);
+  &.active {
+    color: var(--accent-text);
+    font-weight: var(--font-medium);
+  }
+}
 
-    @media (max-width: 768px) {
-      align-items: center;
-      text-align: center;
-    }
+// ── Enlaces legales ──────────────────────────────────────────────────────────
+.footer-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  flex-wrap: wrap;
 
-    .copyright {
-      color: var(--text-tertiary);
-      font-size: var(--text-xs);
-      margin: 0;
-    }
+  a {
+    font-size: var(--text-sm);
+    color: var(--content-tertiary);
+    text-decoration: none;
+    @include ds.transition(color);
+    @include ds.focus-ring(3px);
 
-    .support-text {
-      color: var(--text-secondary);
-      font-size: var(--text-xs);
-      margin: 0;
-
-      .support-link {
-        color: var(--text-primary);
-        text-decoration: none;
-        font-weight: var(--font-medium);
-
-        &:hover { text-decoration: underline; }
-      }
+    &:hover {
+      color: var(--content-primary);
+      text-decoration: underline;
+      text-underline-offset: 3px;
     }
   }
 }
 
-@keyframes slideUpFade {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+.copyright {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--content-tertiary);
+}
+
+// ── Adaptación ───────────────────────────────────────────────────────────────
+@include ds.bp-down('md') {
+  .footer-container {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .footer-nav {
+    justify-content: center;
+    gap: var(--space-4);
+  }
+
+  //  En columna, el menú desplegado a la izquierda se sale de la pantalla.
+  .dropdown-menu {
+    left: 50%;
+    transform: translateX(-50%);
+  }
 }

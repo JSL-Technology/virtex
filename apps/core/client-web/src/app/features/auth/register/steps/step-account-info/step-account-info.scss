@@ -1,62 +1,72 @@
-.step-container {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
-}
+// =============================================================================
+//  PASO 1 · DATOS DE LA CUENTA
+// =============================================================================
+@use '../step-chrome' as step;
+@use '../../../../../../assets/styles/design-system' as ds;
 
-.step-header {
-  text-align: center;
-  margin-bottom: var(--space-2);
+.step-container { @include step.container; }
+.step-header    { @include step.header; }
+.form-grid      { @include step.form-grid; }
 
-  .step-title {
-    font-size: var(--text-xl);
-    font-weight: var(--font-bold);
-    color: var(--text-primary);
-    margin-bottom: var(--space-1);
-  }
+.password-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
 
-  .step-subtitle {
-    font-size: var(--text-md);
-    color: var(--text-secondary);
+  @include ds.bp-down('sm') {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
   }
 }
 
+.password-mismatch-error {
+  @include step.error-text;
+  margin-top: var(--space-2);
+}
+
+// ── Retrato ──────────────────────────────────────────────────────────────────
 .avatar-upload-section {
   display: flex;
   justify-content: center;
-  margin-bottom: var(--space-4);
 }
 
 .avatar-container {
   position: relative;
-  
+
   .hidden-input {
-    display: none;
+    @include ds.visually-hidden;
   }
 
   .avatar-label {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    place-items: center;
+
     width: 6rem;
     height: 6rem;
-    border-radius: 50%;
-    border: 2px dashed var(--border-color);
-    background-color: var(--bg-secondary);
+
+    border: 2px dashed var(--border-strong);
+    border-radius: var(--radius-full);
+    background-color: var(--glass-field-bg);
     cursor: pointer;
     overflow: hidden;
-    transition: var(--transition);
     position: relative;
 
-    &:hover {
-      border-color: var(--primary);
-      background-color: var(--bg-hover);
+    @include ds.transition(border-color, background-color);
 
-      .avatar-overlay {
-        opacity: 1;
-      }
+    &:hover {
+      border-color: var(--accent-solid);
+      background-color: var(--accent-surface);
+
+      .avatar-overlay { opacity: 1; }
     }
+  }
+
+  //  El foco viaja en el `<input type=file>` oculto, no en la etiqueta: el
+  //  anillo tiene que dibujarse aquí o quien navega con teclado no ve nunca
+  //  dónde está.
+  .hidden-input:focus-visible + .avatar-label {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
   }
 
   .avatar-placeholder {
@@ -64,12 +74,13 @@
     flex-direction: column;
     align-items: center;
     gap: var(--space-1);
-    color: var(--text-tertiary);
+    color: var(--content-tertiary);
 
     span {
       font-size: var(--text-2xs);
       font-weight: var(--font-semibold);
       text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
     }
   }
 
@@ -82,47 +93,13 @@
   .avatar-overlay {
     position: absolute;
     inset: 0;
-    background-color: rgba(var(--shadow-color-rgb), 0.4);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    place-items: center;
+
+    background-color: rgba(var(--shadow-color-rgb), 0.45);
+    color: var(--accent-on-solid);
     opacity: 0;
-    transition: var(--transition);
+
+    @include ds.transition(opacity);
   }
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-5);
-
-  @media (max-width: 640px) {
-    grid-template-columns: 1fr;
-  }
-
-  .full-width {
-    grid-column: 1 / -1;
-  }
-}
-
-.password-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-5);
-
-  @media (max-width: 640px) {
-    grid-template-columns: 1fr;
-    gap: var(--space-2);
-  }
-}
-
-.password-mismatch-error {
-  font-size: var(--text-xs);
-  color: var(--error);
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  margin-top: var(--space-2);
-  padding: 0 0.5rem;
 }

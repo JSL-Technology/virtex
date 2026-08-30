@@ -1,140 +1,281 @@
 // =============================================================================
-//  DISPOSICIÓN DE AUTENTICACIÓN
+//  MARCO DE LAS PANTALLAS DE ACCESO
 // =============================================================================
-//  El bloque de tokens que ocupaba este espacio redefinía en `:host` los
-//  MISMOS NOMBRES que el sistema global: `--bg-card`, `--text-primary`,
-//  `--primary`, `--border-color`, `--shadow-*`, `--radius-*`…
+//  ── Historia de este archivo ────────────────────────────────────────────────
+//  Antes redefinía en `:host` los MISMOS nombres que el sistema global
+//  —`--bg-card`, `--text-primary`, `--primary`, `--border-color`…—, lo que
+//  secuestraba esos tokens para todo su subárbol: cualquier hijo que pidiera
+//  `--text-primary` recibía el valor de esta pantalla, no el del tema. Por eso
+//  las pantallas de acceso no respondían al conmutador de tema. El detalle que
+//  delataba el enredo: el bloque estaba rotulado «Dark Mode Tokens» y contenía
+//  valores CLAROS.
 //
-//  Redefinir un token global dentro de un componente lo secuestra para todo su
-//  subárbol: cualquier hijo que pidiera `--text-primary` recibía el valor de
-//  esta pantalla, no el del tema. Por eso las pantallas de acceso no
-//  respondían al conmutador de tema.
+//  Ahora todo sale de los tokens `--glass-*` y `--aurora-*`, que son parte del
+//  sistema y tienen lectura clara y oscura. Este archivo no define ni un solo
+//  color: solo compone.
 //
-//  El detalle que delata el origen del enredo: el bloque estaba rotulado
-//  «Dark Mode Tokens (Default)» pero contenía valores CLAROS
-//  (`--bg-card: #FFFFFF`, `--text-primary: #0F172A`). Etiqueta y contenido se
-//  contradecían, y el bloque `:host-context([data-theme='light'])` de debajo
-//  ajustaba entonces el tema equivocado.
+//  ── Cómo está construido el lienzo ──────────────────────────────────────────
+//  Cuatro velos radiales + dos cintas de seda + una retícula + un velo de
+//  contraste. Las capas se mueven con `transform` sobre `will-change`, nunca
+//  con `background-position`: lo primero lo compone la GPU sin repintar; lo
+//  segundo repinta el área entera en cada fotograma y hace que escribir en el
+//  formulario se sienta pastoso.
 //
-//  La intención de diseño sí era buena y se conserva: un lienzo profundo con
-//  textura y una tarjeta luminosa flotando encima. Se expresa ahora con
-//  tokens propios del componente, con prefijo `--auth-` para que NO puedan
-//  colisionar con los globales.
+//  El velo final (`.aurora-veil`) no es decorativo: es lo que garantiza que el
+//  texto del formulario mantenga su contraste pase lo que pase por debajo. Sin
+//  él, un velo azul deslizándose bajo una etiqueta secundaria la deja por
+//  debajo del mínimo legible durante unos segundos, y ese fallo es intermitente
+//  — el peor tipo de fallo de accesibilidad, porque no aparece en una captura.
 // =============================================================================
-:host {
-  //  Tokens locales, con prefijo propio. La tarjeta se fuerza a superficie
-  //  clara en ambos temas porque el lienzo es siempre oscuro: es una decisión
-  //  de composición de esta pantalla, no una fuga del tema.
-  --auth-canvas: #0b1220;
-  --auth-grid-line: rgba(255, 255, 255, 0.03);
-  --auth-glow: rgba(var(--accent-solid-rgb), 0.10);
-  --auth-card-border: rgba(255, 255, 255, 0.08);
+@use '../../../../../assets/styles/design-system' as ds;
 
+:host {
+  display: block;
+  min-height: 100vh;
+  min-height: 100dvh;
+  color: var(--content-primary);
+  font-family: var(--font-sans);
+  @include ds.aurora-canvas;
+}
+
+// ── Lienzo ───────────────────────────────────────────────────────────────────
+.auth-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background-color: var(--aurora-canvas);
+}
+
+//  Velos de color. `filter: blur()` sobre un degradado radial —y no un radial
+//  muy difuminado a secas— es lo que produce el borde orgánico: un radial puro
+//  se delata como una circunferencia perfecta en cuanto se mueve.
+.aurora {
+  position: absolute;
+  border-radius: var(--radius-full);
+  filter: blur(80px);
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.aurora--one {
+  top: -18%;
+  left: -10%;
+  width: 62vw;
+  height: 62vw;
+  background: radial-gradient(circle at 50% 50%, var(--aurora-1) 0%, transparent 68%);
+  animation: vx-aurora-a 34s var(--ease-standard) infinite;
+}
+
+.aurora--two {
+  top: 6%;
+  right: -16%;
+  width: 58vw;
+  height: 58vw;
+  background: radial-gradient(circle at 50% 50%, var(--aurora-2) 0%, transparent 66%);
+  animation: vx-aurora-b 46s var(--ease-standard) infinite;
+}
+
+.aurora--three {
+  bottom: -26%;
+  left: 18%;
+  width: 66vw;
+  height: 52vw;
+  background: radial-gradient(ellipse at 50% 50%, var(--aurora-3) 0%, transparent 70%);
+  animation: vx-aurora-c 58s var(--ease-standard) infinite;
+}
+
+.aurora--four {
+  bottom: 4%;
+  right: 6%;
+  width: 34vw;
+  height: 34vw;
+  background: radial-gradient(circle at 50% 50%, var(--aurora-4) 0%, transparent 64%);
+  animation: vx-aurora-a 68s var(--ease-standard) infinite reverse;
+}
+
+//  Cintas de seda. Son el gesto que da carácter a la composición: dos bandas
+//  muy alargadas, giradas en sentidos opuestos, que cruzan la pantalla y se
+//  ondulan. Sin ellas el fondo es una nube de color más; con ellas hay una
+//  dirección, y la mirada entra por ahí.
+.aurora-silk {
+  position: absolute;
+  left: -20%;
+  width: 140%;
+  height: 42vh;
+  border-radius: var(--radius-full);
+  filter: blur(50px);
+  opacity: 0.85;
+  will-change: transform;
+}
+
+.aurora-silk--a {
+  top: 12%;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    var(--aurora-silk) 28%,
+    var(--aurora-1) 52%,
+    var(--aurora-silk) 74%,
+    transparent 100%
+  );
+  animation: vx-silk 42s var(--ease-standard) infinite;
+}
+
+.aurora-silk--b {
+  bottom: 6%;
+  background: linear-gradient(
+    80deg,
+    transparent 0%,
+    var(--aurora-2) 34%,
+    var(--aurora-silk) 60%,
+    transparent 100%
+  );
+  animation: vx-silk 56s var(--ease-standard) infinite reverse;
+}
+
+//  Retícula técnica, tenue. Es lo que recuerda que esto es un ERP y no una
+//  aplicación de meditación: da una referencia ortogonal bajo las curvas.
+.aurora-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--aurora-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--aurora-grid) 1px, transparent 1px);
+  background-size: 56px 56px;
+  //  Se desvanece hacia los bordes: una retícula que llega al borde de la
+  //  ventana se lee como un error de fondo, no como textura.
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, #000 30%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, #000 30%, transparent 100%);
+}
+
+//  Velo de contraste. Ver comentario de cabecera: sostiene la legibilidad.
+.aurora-veil {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 42%, transparent 0%, var(--aurora-veil) 100%),
+    linear-gradient(180deg, transparent 40%, var(--aurora-veil) 100%);
+}
+
+// ── Estructura ───────────────────────────────────────────────────────────────
+.auth-shell {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   min-height: 100dvh;
-
-  background: var(--auth-canvas);
-  color: var(--content-primary);
-  font-family: var(--font-sans);
 }
 
-//  En tema claro el lienzo se aclara, pero conserva profundidad para que la
-//  tarjeta siga leyéndose como elevada.
-:host-context(:root[data-theme='light']) {
-  --auth-canvas: #e8edf7;
-  --auth-grid-line: rgba(var(--accent-solid-rgb), 0.05);
-  --auth-glow: rgba(var(--accent-solid-rgb), 0.06);
-  --auth-card-border: var(--border-subtle);
-}
-
-// ─── Layout Shell ────────────────────────────────────────────────
-.login-wrapper {
+.auth-topbar {
   display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  width: 100%;
-  position: relative;
-  background: var(--auth-canvas);
-
-  // Subtle grid texture
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image:
-      linear-gradient(var(--auth-grid-line) 1px, transparent 1px),
-      linear-gradient(90deg, var(--auth-grid-line) 1px, transparent 1px);
-    background-size: 48px 48px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  // Radial ambient glow
-  &::after {
-    content: '';
-    position: absolute;
-    top: -15%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 900px;
-    height: 500px;
-    background: radial-gradient(ellipse at center, var(--auth-glow) 0%, transparent 65%);
-    pointer-events: none;
-    z-index: 0;
-  }
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-6);
+  animation: vx-rise var(--duration-slow) var(--ease-decelerate) both;
 }
 
-.auth-container {
+.auth-brand {
+  display: inline-flex;
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  @include ds.focus-ring(6px);
+}
+
+//  El conmutador de tema publica su propia lectura sobre cristal — ver la clase
+//  `on-glass` en `theme-toggle.scss`. Aquí solo se le da sitio.
+.auth-theme-toggle {
+  flex-shrink: 0;
+}
+
+.auth-main {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem 1.5rem;
-  width: 100%;
-  position: relative;
-  z-index: 1;
+  padding: var(--space-6) var(--space-5) var(--space-10);
 }
 
+// ── La lámina ────────────────────────────────────────────────────────────────
 .auth-card {
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-xl);
-  padding: var(--space-10);
-  border: 1px solid var(--auth-card-border);
+  position: relative;
   width: 100%;
-  max-width: 480px;
-  animation: cardEnter 0.45s cubic-bezier(0.4, 0, 0.2, 1) both;
+  max-width: 27rem;
+  padding: var(--space-10) var(--space-8) var(--space-8);
+
+  @include ds.glass-card;
+  @include ds.glass-edge(var(--space-6));
+
+  //  Entrada: sube, se enfoca y asienta. La combinación de desenfoque y escala
+  //  es lo que la hace parecer una lámina física acercándose, y no una caja
+  //  que aparece.
+  animation: vx-glass-in var(--duration-deliberate) var(--ease-decelerate) both;
+  animation-delay: 60ms;
+
+  //  Reflejo diagonal fijo. Sutil hasta el punto de no verse conscientemente;
+  //  su ausencia, en cambio, sí se nota: sin él la lámina se lee como plástico.
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      rgba(var(--glass-tint-rgb), 0.1) 0%,
+      transparent 42%,
+      transparent 100%
+    );
+    pointer-events: none;
+  }
 }
 
-@keyframes cardEnter {
-  from { opacity: 0; transform: translateY(14px) scale(0.99); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+.auth-card--wide {
+  max-width: 40rem;
+  padding-inline: var(--space-10);
 }
 
-// Projected footer actions (e.g. the register/login cross-link).
+//  Acciones proyectadas (el enlace cruzado acceso ↔ registro).
 .auth-extra-actions {
   margin-top: var(--space-6);
   padding-top: var(--space-5);
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--glass-divider);
+  text-align: center;
 
   &:empty {
     display: none;
   }
 }
 
-// ─── Responsive ──────────────────────────────────────────────────
-@media (max-width: 540px) {
-  .auth-card {
-    padding: 1.75rem 1.25rem;
-    border-radius: 12px;
-    box-shadow: var(--shadow-lg);
+// ── Adaptación ───────────────────────────────────────────────────────────────
+@include ds.bp-down('sm') {
+  .auth-main {
+    align-items: flex-start;
+    padding: var(--space-4) var(--space-3) var(--space-8);
   }
 
-  .auth-container {
+  .auth-topbar {
     padding: var(--space-4);
-    align-items: flex-start;
-    padding-top: var(--space-6);
+  }
+
+  .auth-card {
+    padding: var(--space-7) var(--space-5) var(--space-6);
+    border-radius: var(--radius-xl);
+  }
+
+  .auth-card--wide {
+    padding-inline: var(--space-5);
+  }
+
+  //  Los velos gigantes escalados a `vw` desbordan mucho en móvil y obligan al
+  //  compositor a mover superficies enormes. Se recortan y se ralentizan.
+  .aurora {
+    filter: blur(56px);
+  }
+
+  .aurora-silk {
+    height: 34vh;
   }
 }

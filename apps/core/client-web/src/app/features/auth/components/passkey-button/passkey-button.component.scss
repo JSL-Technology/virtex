@@ -1,0 +1,94 @@
+// =============================================================================
+//  BOTÓN DE LLAVE DE PASO
+// =============================================================================
+@use '../../../../../assets/styles/design-system' as ds;
+
+:host {
+  display: block;
+}
+
+.passkey-card {
+  @include ds.glass-button-secondary('lg');
+  width: 100%;
+  height: auto;
+  justify-content: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+
+  &:disabled {
+    //  Se conserva el aspecto de cristal mientras espera al autenticador del
+    //  sistema: el diálogo del navegador ya está encima, y un botón que además
+    //  se apaga da la impresión de que la acción ha fallado.
+    background-color: var(--glass-bg-subtle);
+    border-color: var(--glass-field-border);
+    color: var(--content-secondary);
+    cursor: progress;
+  }
+}
+
+.icon-wrapper {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-lg);
+
+  background-color: var(--accent-surface);
+  border: 1px solid var(--accent-border);
+  @include ds.transition(background-color, transform);
+}
+
+.passkey-card:hover:not(:disabled) .icon-wrapper {
+  background-color: var(--accent-surface-hover);
+  transform: scale(1.04);
+}
+
+.passkey-icon {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.text-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+
+.passkey-title {
+  font-size: var(--text-md);
+  font-weight: var(--font-semibold);
+  color: var(--content-primary);
+  @include ds.truncate;
+}
+
+.passkey-subtitle {
+  font-size: var(--text-xs);
+  color: var(--content-tertiary);
+  @include ds.truncate;
+}
+
+.passkey-chevron {
+  flex-shrink: 0;
+  color: var(--content-tertiary);
+  @include ds.transition(transform, color);
+}
+
+.passkey-card:hover:not(:disabled) .passkey-chevron {
+  transform: translateX(3px);
+  color: var(--accent-text);
+}
+
+.spinner {
+  flex-shrink: 0;
+  width: 1.05rem;
+  height: 1.05rem;
+  border: 2px solid var(--border-subtle);
+  border-top-color: var(--accent-solid);
+  border-radius: var(--radius-full);
+  animation: vx-spin 0.75s linear infinite;
+}

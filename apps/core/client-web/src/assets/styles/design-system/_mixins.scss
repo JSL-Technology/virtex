@@ -391,6 +391,30 @@
 // -----------------------------------------------------------------------------
 //  UTILIDADES DE TEXTO
 // -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+//  OCULTO A LA VISTA, PRESENTE PARA EL LECTOR
+// -----------------------------------------------------------------------------
+//  `display: none` y `visibility: hidden` sacan el elemento también del árbol de
+//  accesibilidad: quien usa lector de pantalla deja de oírlo. Esta es la única
+//  forma correcta de esconder texto que sigue haciendo falta —la etiqueta de un
+//  botón que en pantalla estrecha se queda solo con el icono, por ejemplo.
+//
+//  Existe además la clase global `.sr-only`, que consume este mismo mixin. Se
+//  usa la clase cuando el elemento nace oculto y el mixin cuando depende de una
+//  consulta de medios, donde una clase no llega.
+// -----------------------------------------------------------------------------
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 @mixin truncate {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -548,4 +572,254 @@
     font-size: var(--text-md);
     line-height: var(--leading-normal);
   }
+}
+
+// -----------------------------------------------------------------------------
+//  CRISTAL — GLASSMORPHISM
+// -----------------------------------------------------------------------------
+//  Un panel de cristal son CUATRO cosas a la vez, y quitar cualquiera de ellas
+//  lo convierte en «un div semitransparente»:
+//
+//    1. Relleno translúcido        → deja ver el lienzo, da el color
+//    2. Desenfoque de fondo        → separa figura de fondo; sin esto el texto
+//                                    compite con lo que tiene detrás
+//    3. Saturación > 100 %         → devuelve el color que el desenfoque lava
+//    4. Borde-reflejo + sombra     → dan el CANTO del vidrio; es lo que hace
+//                                    que se lea como una lámina física
+//
+//  Todo sale de tokens `--glass-*`, de modo que el mismo mixin produce vidrio
+//  lechoso en claro y vidrio ahumado en oscuro sin una sola condición.
+//
+//  `backdrop-filter` va SIEMPRE dentro de `@supports`: donde no existe, el
+//  relleno translúcido por sí solo deja el texto ilegible sobre la aurora, así
+//  que en ese caso se sube la superficie a opaca. Es una degradación
+//  deliberada, no un olvido.
+// -----------------------------------------------------------------------------
+@mixin glass-blur($amount: var(--glass-blur)) {
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    -webkit-backdrop-filter: blur($amount) saturate(var(--glass-saturate));
+    backdrop-filter: blur($amount) saturate(var(--glass-saturate));
+  }
+}
+
+//  $level: 'subtle' | 'base' | 'strong'  — cuánto oculta el panel lo que tiene
+//  detrás. `strong` es para superficies con texto largo; `subtle` para adornos.
+@mixin glass-surface($level: 'base', $blur: var(--glass-blur)) {
+  @if $level == 'strong' {
+    background-color: var(--glass-bg-strong);
+  } @else if $level == 'subtle' {
+    background-color: var(--glass-bg-subtle);
+  } @else {
+    background-color: var(--glass-bg);
+  }
+
+  border: 1px solid var(--glass-border);
+  @include glass-blur($blur);
+
+  //  Sin desenfoque disponible el cristal no separa: se vuelve opaco para no
+  //  sacrificar la legibilidad del contenido.
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    background-color: var(--surface-overlay);
+    border-color: var(--border-default);
+  }
+}
+
+//  Tarjeta de cristal completa: la unidad de composición de las pantallas de
+//  acceso y de los paneles flotantes.
+@mixin glass-card($radius: var(--radius-2xl)) {
+  position: relative;
+  border-radius: $radius;
+  box-shadow: var(--glass-shadow);
+  @include glass-surface('strong', var(--glass-blur-strong));
+}
+
+//  Filo superior iluminado. Es el detalle que separa un panel de cristal de un
+//  rectángulo translúcido: reproduce el canto de la lámina donde la luz incide
+//  en rasante. Va en `::before` para no gastar el `::after` del componente.
+@mixin glass-edge($inset: 1px) {
+  &::before {
+    content: '';
+    position: absolute;
+    inset-inline: $inset;
+    top: 0;
+    height: 1px;
+    border-radius: inherit;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--glass-highlight) 22%,
+      var(--glass-highlight) 78%,
+      transparent 100%
+    );
+    pointer-events: none;
+  }
+}
+
+//  Campo de formulario sobre cristal. No puede ser `input-base`: una superficie
+//  opaca dentro de un panel translúcido rompe la ilusión de lámina única.
+@mixin glass-field {
+  width: 100%;
+  height: var(--control-height-lg);
+  padding-inline: var(--control-padding-x);
+
+  font-family: inherit;
+  font-size: var(--text-base);
+  color: var(--content-primary);
+
+  background-color: var(--glass-field-bg);
+  border: 1px solid var(--glass-field-border);
+  border-radius: var(--radius-lg);
+  @include glass-blur(6px);
+  @include transition(background-color, border-color, box-shadow);
+
+  &::placeholder {
+    color: var(--content-tertiary);
+    opacity: 1;
+  }
+
+  &:hover:not(:disabled):not(:read-only) {
+    border-color: var(--border-strong);
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    background-color: var(--glass-field-bg-focus);
+    border-color: var(--accent-solid);
+    box-shadow: 0 0 0 4px rgba(var(--accent-solid-rgb), 0.16);
+  }
+
+  &:disabled {
+    color: var(--content-disabled);
+    background-color: var(--surface-disabled);
+    border-color: var(--border-subtle);
+    cursor: not-allowed;
+  }
+
+  &[aria-invalid='true'],
+  &.error,
+  &.is-invalid {
+    border-color: var(--error-solid);
+
+    &:focus,
+    &:focus-visible {
+      box-shadow: 0 0 0 4px rgba(var(--error-rgb), 0.18);
+    }
+  }
+}
+
+//  Botón principal de las superficies de cristal. El degradado no es adorno:
+//  sobre un lienzo en movimiento un relleno plano se lee como un agujero,
+//  mientras que un degradado sutil devuelve la sensación de material.
+@mixin glass-button-primary($size: 'lg') {
+  @include button-base($size);
+  position: relative;
+  overflow: hidden;
+
+  background-image: linear-gradient(
+    180deg,
+    rgba(var(--elevation-tint-rgb), 0.16) 0%,
+    rgba(var(--elevation-tint-rgb), 0) 55%
+  );
+  background-color: var(--accent-solid);
+  color: var(--accent-on-solid);
+  border-color: transparent;
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-semibold);
+  box-shadow:
+    0 1px 2px rgba(var(--shadow-color-rgb), 0.24),
+    0 10px 26px rgba(var(--accent-solid-rgb), 0.3);
+
+  &:hover:not(:disabled) {
+    background-color: var(--accent-solid-hover);
+    box-shadow:
+      0 1px 2px rgba(var(--shadow-color-rgb), 0.28),
+      0 14px 34px rgba(var(--accent-solid-rgb), 0.4);
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    background-color: var(--accent-solid-active);
+    box-shadow: 0 1px 2px rgba(var(--shadow-color-rgb), 0.24);
+  }
+
+  @include transition(background-color, box-shadow, transform, color);
+
+  //  Destello que barre el botón al apuntarlo. Corto y de una sola pasada:
+  //  un brillo en bucle convierte la acción principal en un anuncio.
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-120%);
+    background: linear-gradient(
+      100deg,
+      transparent 20%,
+      rgba(var(--elevation-tint-rgb), 0.28) 50%,
+      transparent 80%
+    );
+    pointer-events: none;
+  }
+
+  &:hover:not(:disabled)::after {
+    animation: vx-sheen var(--duration-deliberate) var(--ease-decelerate) forwards;
+  }
+
+  @include bp.reduced-motion {
+    &:hover:not(:disabled) { transform: none; }
+    &::after { display: none; }
+  }
+}
+
+//  Botón secundario de cristal: contorno luminoso, relleno casi ausente.
+@mixin glass-button-secondary($size: 'lg') {
+  @include button-base($size);
+  background-color: var(--glass-bg-subtle);
+  border-color: var(--glass-field-border);
+  border-radius: var(--radius-lg);
+  color: var(--content-primary);
+  font-weight: var(--font-medium);
+  @include glass-blur(8px);
+  @include transition(background-color, border-color, transform, box-shadow);
+
+  &:hover:not(:disabled) {
+    background-color: var(--glass-bg-hover);
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+    box-shadow: var(--glass-shadow-soft);
+  }
+
+  &:active:not(:disabled) { transform: translateY(0); }
+
+  @include bp.reduced-motion {
+    &:hover:not(:disabled) { transform: none; }
+  }
+}
+
+// -----------------------------------------------------------------------------
+//  AURORA — LIENZO DE LAS PANTALLAS PÚBLICAS
+// -----------------------------------------------------------------------------
+//  Cuatro velos radiales que derivan muy despacio. Se dibujan en un
+//  pseudoelemento a pantalla completa y NO en el `background` del contenedor,
+//  porque animar `background-position` fuerza repintado; animar `transform`
+//  sobre una capa propia lo resuelve la GPU.
+//
+//  Duraciones largas a propósito (30–70 s): un fondo que se mueve a velocidad
+//  perceptible compite con el formulario. Debe notarse solo si uno se detiene
+//  a mirarlo.
+// -----------------------------------------------------------------------------
+@mixin aurora-canvas {
+  position: relative;
+  isolation: isolate;
+  background-color: var(--aurora-canvas);
+  overflow: hidden;
+}
+
+@mixin aurora-layer {
+  position: absolute;
+  inset: -25%;
+  z-index: -1;
+  pointer-events: none;
+  will-change: transform;
 }

@@ -1,144 +1,152 @@
-<app-auth-layout>
-  <div class="register-container animate-fade-in">
-    <!-- Header -->
-    <header class="view-header">
-      <h1 class="view-title">
-        {{ "REGISTER.TITLE" | translate }}
-      </h1>
-      <p class="view-subtitle">
-        {{ "REGISTER.SUBTITLE" | translate }}
-      </p>
+<app-auth-layout width="wide">
+  <div class="register-view">
+
+    <!-- ── Cabecera ────────────────────────────────────────────────────── -->
+    <header class="auth-head">
+      <h1 class="auth-title">{{ 'REGISTER.TITLE' | translate }}</h1>
+      <p class="auth-subtitle">{{ 'REGISTER.SUBTITLE' | translate }}</p>
     </header>
 
-    <!-- Steps Indicator -->
-    <div class="steps-indicator">
-      <div class="progress-bar-container">
-        <div class="progress-bar-bg"></div>
-        <div class="progress-bar-active"
-             [style.width]="((currentStep() - 1) / (steps.length - 1)) * 100 + '%'"></div>
+    <!--
+      ── Indicador de progreso ──────────────────────────────────────────────
+      Seis pasos son muchos, y un asistente que no dice cuántos quedan se
+      abandona. El riel muestra a la vez dónde estás, cuánto llevas y cuánto
+      falta; los pasos ya completados son pulsables para volver a revisarlos, y
+      los futuros no, porque saltarse una verificación no llevaría a ninguna
+      parte.
+
+      `aria-current="step"` es lo que hace que un lector de pantalla anuncie
+      cuál es el paso activo. Sin él, el riel es una fila de botones sin
+      significado.
+    -->
+    <nav class="stepper" [attr.aria-label]="'REGISTER.STEP_OF' | translate:{ current: currentStep(), total: steps.length }">
+      <div class="stepper-rail" aria-hidden="true">
+        <span class="stepper-rail__fill"
+              [style.width.%]="((currentStep() - 1) / (steps.length - 1)) * 100"></span>
       </div>
 
-      <div class="step-items">
-        <ng-container *ngFor="let step of steps; let i = index">
-          <div
-            class="step-item"
-            (click)="navigateToStep(step)"
-            [attr.aria-label]="'Step ' + step"
-           tabindex="0" role="button" (keydown.enter)="navigateToStep(step)" (keydown.space)="$event.preventDefault(); navigateToStep(step)">
-            <div
-              class="step-circle"
-              [ngClass]="{
-                'active': currentStep() === step,
-                'completed': currentStep() > step,
-                'pending': currentStep() < step
-              }"
-            >
-              <ng-container *ngIf="currentStep() > step; else number">
-                <lucide-icon [img]="CheckIcon" size="12"></lucide-icon>
-              </ng-container>
-              <ng-template #number>{{ step }}</ng-template>
+      <ol class="stepper-items">
+        @for (step of steps; track step; let i = $index) {
+          <li class="stepper-item">
+            <button
+              type="button"
+              class="stepper-node"
+              [class.is-active]="currentStep() === step"
+              [class.is-done]="currentStep() > step"
+              [disabled]="!(step < currentStep() && stepsCompleted()[step - 1])"
+              [attr.aria-current]="currentStep() === step ? 'step' : null"
+              (click)="navigateToStep(step)">
+              @if (currentStep() > step) {
+                <lucide-icon [img]="CheckIcon" size="13"></lucide-icon>
+              } @else {
+                <span>{{ step }}</span>
+              }
+            </button>
+            <span class="stepper-label">{{ stepLabelKeys[i] | translate }}</span>
+          </li>
+        }
+      </ol>
+    </nav>
+
+    <p class="stepper-counter" aria-hidden="true">
+      {{ 'REGISTER.STEP_OF' | translate:{ current: currentStep(), total: steps.length } }}
+    </p>
+
+    <!-- ── Contenido del paso ──────────────────────────────────────────── -->
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form" novalidate>
+
+      <div class="step-viewport" [@stepAnimation]="currentStep()">
+        @switch (currentStep()) {
+          @case (1) {
+            <div class="step-content">
+              <app-step-account-info [group]="accountInfo"></app-step-account-info>
             </div>
-          </div>
-        </ng-container>
-      </div>
-    </div>
-
-    <!-- Steps Content -->
-    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
-
-      <!-- Step 1: Account Info -->
-      <div *ngIf="currentStep() === 1" [@stepAnimation] class="step-content">
-        <app-step-account-info [group]="accountInfo"></app-step-account-info>
-      </div>
-
-      <!-- Step 2: Email Verification -->
-      <div *ngIf="currentStep() === 2" [@stepAnimation] class="step-content">
-        <app-step-email-verify
-          [email]="currentEmail"
-          (verified)="onEmailVerified($event)">
-        </app-step-email-verify>
-      </div>
-
-      <!-- Step 3: Phone Verification -->
-      <div *ngIf="currentStep() === 3" [@stepAnimation] class="step-content">
-        <app-step-phone-verify
-          [phone]="currentPhone"
-          (verified)="onPhoneVerified($event)">
-        </app-step-phone-verify>
-      </div>
-
-      <!-- Step 4: Configuration (Country/Tax) -->
-      <div *ngIf="currentStep() === 4" [@stepAnimation] class="step-content">
-        <app-step-configuration [group]="configuration" (taxpayerKindChanged)="onTaxpayerKindChange()"></app-step-configuration>
+          }
+          @case (2) {
+            <div class="step-content">
+              <app-step-email-verify [email]="currentEmail" (verified)="onEmailVerified($event)"></app-step-email-verify>
+            </div>
+          }
+          @case (3) {
+            <div class="step-content">
+              <app-step-phone-verify [phone]="currentPhone" (verified)="onPhoneVerified($event)"></app-step-phone-verify>
+            </div>
+          }
+          @case (4) {
+            <div class="step-content">
+              <app-step-configuration [group]="configuration" (taxpayerKindChanged)="onTaxpayerKindChange()"></app-step-configuration>
+            </div>
+          }
+          @case (5) {
+            <div class="step-content">
+              <app-step-business [group]="business"></app-step-business>
+            </div>
+          }
+          @case (6) {
+            <div class="step-content">
+              <app-step-plan [group]="plan"></app-step-plan>
+            </div>
+          }
+        }
       </div>
 
-      <!-- Step 5: Business Info -->
-      <div *ngIf="currentStep() === 5" [@stepAnimation] class="step-content">
-        <app-step-business [group]="business"></app-step-business>
-      </div>
-
-      <!-- Step 6: Plan / Confirmation -->
-      <div *ngIf="currentStep() === 6" [@stepAnimation] class="step-content">
-        <app-step-plan [group]="plan"></app-step-plan>
-      </div>
-
-      <!-- Navigation Buttons -->
-      <div class="navigation-actions">
-        <button
-          type="button"
-          *ngIf="currentStep() > 1"
-          (click)="prevStep()"
-          class="btn-back">
-          <lucide-icon [img]="ArrowLeftIcon" size="16"></lucide-icon>
-          {{ 'COMMON.BACK' | translate }}
-        </button>
-
-        <div class="spacer" *ngIf="currentStep() === 1"></div>
-
-        <div class="next-action" *ngIf="currentStep() < steps.length">
-          <app-auth-button
-            (onClick)="nextStep()"
-            variant="primary">
-            {{ 'COMMON.NEXT' | translate }}
-            <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
-          </app-auth-button>
+      @if (errorMessage()) {
+        <div class="error-alert" role="alert">
+          <lucide-icon [img]="AlertCircleIcon" size="16"></lucide-icon>
+          <span>{{ errorMessage()! | translate }}</span>
         </div>
+      }
 
-        <div class="next-action" *ngIf="currentStep() === steps.length">
-          <app-auth-button
-            type="submit"
-            variant="primary"
-            [loading]="isRegistering()"
-            [disabled]="registerForm.invalid">
-            {{ "REGISTER.SUBMIT_BUTTON" | translate }}
-            <lucide-icon *ngIf="!isRegistering()" [img]="RocketIcon" size="18"></lucide-icon>
-          </app-auth-button>
+      <!-- ── Navegación ────────────────────────────────────────────────── -->
+      <div class="step-actions">
+        @if (currentStep() > 1) {
+          <button type="button" class="btn-back" (click)="prevStep()">
+            <lucide-icon [img]="ArrowLeftIcon" size="16"></lucide-icon>
+            {{ 'COMMON.BACK' | translate }}
+          </button>
+        }
+
+        <div class="step-actions__primary">
+          @if (currentStep() < steps.length) {
+            <!--
+              `(clicked)`, no `(onClick)`. La plantilla anterior escuchaba
+              `onClick`, que no es la salida del componente sino un nombre de
+              evento del DOM que nadie emite: el botón «Siguiente» del registro
+              no hacía absolutamente nada. Es el defecto que impedía completar
+              el alta más allá del primer paso.
+            -->
+            <app-auth-button type="button" variant="primary" (clicked)="nextStep()">
+              {{ 'COMMON.NEXT' | translate }}
+              <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
+            </app-auth-button>
+          } @else {
+            <app-auth-button
+              type="submit"
+              variant="primary"
+              [loading]="isRegistering()">
+              {{ (isRegistering() ? 'REGISTER.REGISTERING' : 'REGISTER.SUBMIT_BUTTON') | translate }}
+              @if (!isRegistering()) {
+                <lucide-icon [img]="RocketIcon" size="17"></lucide-icon>
+              }
+            </app-auth-button>
+          }
         </div>
       </div>
 
     </form>
 
-    <!-- Global Error Message -->
-    <div *ngIf="errorMessage()" class="error-message global-error animate-fade-in" role="alert">
-       <lucide-icon [img]="AlertCircleIcon" size="16"></lucide-icon>
-       <span>{{ errorMessage() | translate }}</span>
-    </div>
-
-    <!-- ReCAPTCHA Legal -->
     <p class="legal-text">
       This site is protected by reCAPTCHA and the Google
-      <a href="https://policies.google.com/privacy" target="_blank">Privacy Policy</a> and
-      <a href="https://policies.google.com/terms" target="_blank">Terms of Service</a> apply.
+      <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Policy</a> and
+      <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms of Service</a> apply.
     </p>
 
   </div>
 
-  <!-- Footer CTA -->
-  <p footer-actions class="login-cta">
-    {{ "REGISTER.HAS_ACCOUNT" | translate }}
-    <a [routerLink]="['/', languageService.currentLang(), 'auth', 'login']"
-       class="cta-link">
-       {{ "REGISTER.LOGIN_LINK" | translate }}
+  <p footer-actions class="cross-link">
+    {{ 'REGISTER.HAS_ACCOUNT' | translate }}
+    <a [routerLink]="['/', languageService.currentLang(), 'auth', 'login']">
+      {{ 'REGISTER.LOGIN_LINK' | translate }}
     </a>
   </p>
 </app-auth-layout>

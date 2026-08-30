@@ -1,14 +1,43 @@
+// =============================================================================
+//  CAMPO DE FORMULARIO DE ACCESO
+// =============================================================================
+//  ── Dos defectos reales que corrige esta hoja ───────────────────────────────
+//  1. El icono se dibujaba en `position: absolute` a la izquierda del campo,
+//     pero el `<input>` llevaba `padding: 0 1rem` fijo. El texto empezaba
+//     DEBAJO del icono. La clase `.has-icon` existía en la plantilla desde el
+//     principio y no tenía ni una regla asociada.
+//  2. Con el ojo de mostrar contraseña, el texto largo pasaba por debajo del
+//     botón. Mismo origen: relleno derecho fijo, control superpuesto.
+//
+//  Ambos se resuelven con relleno condicional, que es lo que las clases de la
+//  plantilla venían pidiendo.
+// =============================================================================
+@use '../../../../../assets/styles/design-system' as ds;
+
 .form-field {
   display: flex;
   flex-direction: column;
-  gap: 0.375rem;
+  gap: var(--space-2);
+}
 
-  .input-label {
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    color: var(--text-primary);
-    letter-spacing: 0.005em;
-  }
+.field-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.input-label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--content-secondary);
+  letter-spacing: var(--tracking-wide);
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
 }
 
 .input-wrapper {
@@ -16,82 +45,77 @@
   display: flex;
   align-items: center;
 
-  .input-icon {
-    position: absolute;
-    left: 0.875rem;
-    color: var(--text-tertiary);
-    z-index: 1;
-    pointer-events: none;
-    display: flex;
-    align-items: center;
-    height: 100%;
-    transition: var(--transition);
-  }
-
   input {
-    width: 100%;
-    height: 2.75rem;
-    padding: 0 1rem;
-    font-size: var(--text-md);
-    color: var(--text-primary);
-    background: var(--bg-primary);
-    border: 1.5px solid var(--border-color);
-    border-radius: var(--radius-md);
-    outline: none;
-    transition: var(--transition);
-    font-family: inherit;
+    @include ds.glass-field;
 
-    &::placeholder { color: var(--text-tertiary); }
-
-    &:hover:not(:focus):not(.error) {
-      border-color: var(--border-light);
-    }
-
-    &:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px var(--primary-light);
-      background: var(--bg-card);
-    }
-
-    &.error {
-      border-color: var(--error);
-      &:focus { box-shadow: 0 0 0 3px var(--error-bg); }
-    }
-  }
-
-  &:focus-within .input-icon { color: var(--primary); }
-
-  .toggle-password {
-    position: absolute;
-    right: 0.5rem;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--text-tertiary);
-    padding: 0.375rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--radius-sm);
-    transition: var(--transition);
-
-    &:hover {
-      color: var(--text-secondary);
-      background: var(--bg-secondary);
-    }
+    //  Relleno reservado para los adornos. `2.625rem` = 0.875rem de margen +
+    //  1rem de icono + 0.75rem de aire antes del texto.
+    &.has-icon { padding-left: 2.625rem; }
+    &.has-toggle { padding-right: 2.75rem; }
   }
 }
 
-.error-message {
-  font-size: var(--text-xs);
-  color: var(--error);
+.input-icon {
+  position: absolute;
+  left: 0.875rem;
   display: flex;
   align-items: center;
-  gap: 0.375rem;
-  animation: slideDown 0.15s ease-out;
+  color: var(--content-tertiary);
+  pointer-events: none;
+  z-index: 1;
+  @include ds.transition(color, transform);
 }
 
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-3px); }
-  to   { opacity: 1; transform: translateY(0); }
+//  El icono se tiñe de acento al enfocar. Es una señal secundaria de foco: la
+//  primaria sigue siendo el anillo, que no depende del color.
+.input-wrapper:focus-within .input-icon {
+  color: var(--accent-text);
+}
+
+.toggle-password {
+  position: absolute;
+  right: var(--space-2);
+  display: grid;
+  place-items: center;
+
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+
+  background: none;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--content-tertiary);
+  cursor: pointer;
+
+  @include ds.transition(color, background-color);
+  @include ds.focus-ring(1px);
+
+  &:hover {
+    color: var(--content-primary);
+    background-color: var(--glass-bg-hover);
+  }
+
+  svg {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+}
+
+// ── Error ────────────────────────────────────────────────────────────────────
+//  El mensaje ENTRA con la altura, no aparece de golpe: así el resto del
+//  formulario no salta bajo el cursor mientras se escribe.
+.error-message {
+  @include ds.field-error;
+  animation: vx-rise var(--duration-fast) var(--ease-decelerate) both;
+
+  svg {
+    flex-shrink: 0;
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+}
+
+.form-field.error-state .input-label {
+  color: var(--error-text);
 }
