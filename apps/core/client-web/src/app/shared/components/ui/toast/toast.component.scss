@@ -1,38 +1,54 @@
+// =============================================================================
+//  AVISO EMERGENTE
+// =============================================================================
+//  ── Lo que había ────────────────────────────────────────────────────────────
+//  Un bloque `:host-context(.dark)` que pintaba el aviso entero de AZUL —
+//  `rgba(var(--accent-solid-rgb), 0.9)`— y que además dependía de una clase
+//  `.dark` que ya no pone nadie: el tema vive en `data-theme`. Es decir, un
+//  aviso de error en tema oscuro debía salir azul, y ni siquiera salía, porque
+//  la regla no llegaba a aplicarse. Los tokens lo resuelven sin ramas: la misma
+//  declaración da vidrio lechoso en claro y ahumado en oscuro.
+//
+//  El aviso conserva su filo de color a la izquierda, que es lo que permite
+//  identificar el tipo de un vistazo sin leerlo — y va acompañado del icono,
+//  para que el tipo no dependa solo del color.
+// =============================================================================
+@use '../../../../../assets/styles/design-system' as ds;
+
 .toast-item {
   display: flex;
   align-items: flex-start;
-  gap: 0.875rem;
+  gap: var(--space-3);
+
+  min-width: 20rem;
+  max-width: 26rem;
   padding: var(--space-4);
-  border-radius: 12px;
-  background-color: var(--bg-card);
-  border: 1px solid rgba(var(--shadow-color-rgb), 0.08);
-  box-shadow:
-    0 10px 15px -3px rgba(var(--shadow-color-rgb), 0.1),
-    0 4px 6px -2px rgba(var(--shadow-color-rgb), 0.05);
-  min-width: 22rem;
-  max-width: 28rem;
+
+  border-radius: var(--radius-xl);
+  box-shadow: var(--glass-shadow);
+  @include ds.glass-surface('strong', var(--glass-blur-strong));
+
   pointer-events: auto;
   user-select: none;
 
-  /* Mica / Acrylic Effect */
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-
   &.toast-success {
+    border-left: 3px solid var(--success-solid);
     .toast-icon { color: var(--success-text); }
-    border-left: 4px solid var(--success-border);
   }
+
   &.toast-error {
+    border-left: 3px solid var(--error-solid);
     .toast-icon { color: var(--error-text); }
-    border-left: 4px solid var(--error-border);
   }
+
   &.toast-warning {
+    border-left: 3px solid var(--warning-solid);
     .toast-icon { color: var(--warning-text); }
-    border-left: 4px solid var(--warning-border);
   }
+
   &.toast-info {
+    border-left: 3px solid var(--accent-solid);
     .toast-icon { color: var(--accent-text); }
-    border-left: 4px solid var(--accent-border);
   }
 }
 
@@ -40,12 +56,12 @@
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
   padding-top: 0.125rem;
 }
 
 .toast-content {
-  flex-grow: 1;
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
@@ -53,63 +69,23 @@
 
 .toast-title {
   font-size: var(--text-md);
-  font-weight: var(--font-bold);
-  color: var(--text-primary);
-  line-height: 1.2;
+  font-weight: var(--font-semibold);
+  color: var(--content-primary);
+  line-height: var(--leading-tight);
 }
 
-.toast-message {
-  p {
-    margin: 0;
-    font-size: var(--text-sm);
-    font-weight: var(--font-regular);
-    line-height: 1.4;
-    color: var(--text-secondary);
-  }
+.toast-message p {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+  line-height: var(--leading-snug);
 }
 
 .toast-close {
+  @include ds.button-icon('sm');
   flex-shrink: 0;
-  padding: var(--space-1);
-  border-radius: 6px;
-  border: none;
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 
-  &:hover {
-    background-color: var(--bg-hover);
-    color: var(--text-primary);
-  }
-}
-
-/* Dark mode overrides */
-:host-context(.dark) {
-  .toast-item {
-    background-color: rgba(var(--accent-solid-rgb), 0.9);
-    border-color: rgba(var(--elevation-tint-rgb), 0.15);
-    box-shadow:
-      0 20px 25px -5px rgba(var(--shadow-color-rgb), 0.4),
-      0 10px 10px -5px rgba(var(--shadow-color-rgb), 0.2);
-  }
-
-  .toast-title {
-    color: var(--content-primary); /* Slate-50 */
-  }
-
-  .toast-message p {
-    color: var(--content-tertiary); /* Slate-300 */
-  }
-
-  .toast-close {
-    color: var(--content-tertiary); /* Slate-400 */
-    &:hover {
-      color: var(--content-primary);
-      background-color: rgba(var(--elevation-tint-rgb), 0.1);
-    }
+  &:hover:not(:disabled) {
+    background-color: var(--glass-bg-hover);
   }
 }

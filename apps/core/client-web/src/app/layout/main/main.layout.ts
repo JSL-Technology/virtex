@@ -44,6 +44,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Sidebar } from '../sidebar/sidebar';
 import { ClickOutsideDirective } from '../../shared/directives/click-outside.directive'; // ✅ Directiva añadida
 import { CompanySwitcherComponent } from './components/company-switcher/company-switcher.component';
+import { BrandLogo } from '../../shared/components/brand-logo/brand-logo';
 import { TabContainerComponent } from '../../core/tabs/components/tab-container.component';
 import { TabPersistenceService } from '../../core/tabs/tab-persistence.service';
 import { TabRouterService } from '../../core/tabs/tab-router.service';
@@ -64,6 +65,7 @@ import { DialogHostComponent } from '../../shared/components/dialog-host/dialog-
     ClickOutsideDirective,
     SettingsModalComponent,
     CompanySwitcherComponent,
+    BrandLogo,
     TabContainerComponent,
     DialogHostComponent
   ], // ✅ Directiva añadida a los imports

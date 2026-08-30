@@ -33,6 +33,16 @@
 
 <aside class="main-sidebar">
   <div class="logo-container">
+    <!--
+      La marca del PRODUCTO va encima del selector de EMPRESA, y no al revés:
+      son dos identidades distintas y confundirlas es lo que hacía que, con una
+      organización con logotipo propio, la aplicación no dijera en ningún sitio
+      que era Virtex.
+    -->
+    <a class="sidebar-brand" routerLink="/overview" aria-label="Virtex ERP">
+      <app-brand-logo [size]="26" label="Virtex ERP"></app-brand-logo>
+    </a>
+
     <app-company-switcher></app-company-switcher>
   </div>
 
