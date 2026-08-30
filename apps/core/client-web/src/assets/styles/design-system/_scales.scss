@@ -130,6 +130,13 @@
   --ease-accelerate: cubic-bezier(0.3, 0, 1, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
+  //  Retardo de entrada, pensado para escalonarse desde la plantilla:
+  //      <li style="--vx-delay: 120ms">
+  //  Se declara aquí con valor cero para que la animación funcione sin que
+  //  nadie tenga que acordarse de definirlo, y para que el guardián de tokens
+  //  lo reconozca como token del sistema y no como una `var()` huérfana.
+  --vx-delay: 0ms;
+
   // ───────────────────────────────────────────────────────────────────────────
   //  APILAMIENTO
   // ───────────────────────────────────────────────────────────────────────────

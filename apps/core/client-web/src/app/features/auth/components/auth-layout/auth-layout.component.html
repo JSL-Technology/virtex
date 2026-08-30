@@ -1,20 +1,49 @@
-<div class="auth-layout">
-  <!-- Top Language Selector removed from here, now in footer for cleaner look -->
+<!--
+  ── El lienzo ───────────────────────────────────────────────────────────────
+  Cuatro velos de color y dos cintas de seda, todos `aria-hidden`: para un
+  lector de pantalla esta pantalla es un formulario, no una obra abstracta.
+
+  Van en elementos propios y no en pseudoelementos del contenedor porque cada
+  capa necesita su propia animación, y un elemento solo tiene dos
+  pseudoelementos. Además, así cada velo es su propia capa de composición y el
+  movimiento lo resuelve la GPU sin repintar el formulario en cada fotograma.
+-->
+<div class="auth-canvas" aria-hidden="true">
+  <span class="aurora aurora--one"></span>
+  <span class="aurora aurora--two"></span>
+  <span class="aurora aurora--three"></span>
+  <span class="aurora aurora--four"></span>
+
+  <span class="aurora-silk aurora-silk--a"></span>
+  <span class="aurora-silk aurora-silk--b"></span>
+
+  <span class="aurora-grid"></span>
+  <span class="aurora-veil"></span>
+</div>
+
+<div class="auth-shell">
+  <header class="auth-topbar">
+    @if (showBrand) {
+      <a class="auth-brand" href="/" aria-label="Virtex ERP">
+        <app-brand-logo [size]="30" label="Virtex ERP"></app-brand-logo>
+      </a>
+    } @else {
+      <span></span>
+    }
+
+    <app-theme-toggle class="auth-theme-toggle on-glass"></app-theme-toggle>
+  </header>
 
   <main class="auth-main">
-    <div class="auth-container">
-      <div class="auth-card animate-fade-in">
-        <!-- Main Content -->
-        <ng-content></ng-content>
+    <div class="auth-card" [class.auth-card--wide]="width === 'wide'">
+      <ng-content></ng-content>
 
-        <!-- Dynamic Footer Actions (e.g. Register Link) -->
-        <div class="auth-extra-actions">
-          <ng-content select="[footer-actions]"></ng-content>
-        </div>
+      <!-- Acciones proyectadas: el enlace cruzado acceso ↔ registro. -->
+      <div class="auth-extra-actions">
+        <ng-content select="[footer-actions]"></ng-content>
       </div>
     </div>
   </main>
 
-  <!-- Professional Footer -->
   <app-auth-footer></app-auth-footer>
 </div>

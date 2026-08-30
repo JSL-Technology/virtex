@@ -1,237 +1,214 @@
-.register-container {
-  width: 100%;
+// =============================================================================
+//  ALTA DE CUENTA — ASISTENTE DE SEIS PASOS
+// =============================================================================
+//  Un alta larga se abandona por dos motivos: no saber cuánto queda y no poder
+//  volver atrás. El riel de progreso responde a lo primero; los nodos ya
+//  completados, pulsables, a lo segundo.
+//
+//  El visor de pasos tiene altura mínima para que el marco no dé un salto al
+//  pasar de un paso corto —verificación de teléfono— a uno largo —perfil de
+//  empresa—. Sin ese mínimo, el botón «Siguiente» se desplaza bajo el cursor
+//  justo después de pulsarlo.
+// =============================================================================
+@use '../auth-page' as auth;
+@use '../../../../assets/styles/design-system' as ds;
+
+.register-view {
   display: flex;
   flex-direction: column;
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
-}
+// ── Cabecera ─────────────────────────────────────────────────────────────────
+.auth-head     { @include auth.head; }
+.auth-title    { @include auth.title; }
+.auth-subtitle { @include auth.subtitle; }
 
-/* ── Header ─────────────────────────────────────────────── */
-.view-header {
-  text-align: center;
-  margin-bottom: var(--space-7);
-
-  .view-title {
-    font-size: var(--text-2xl);
-    font-weight: var(--font-bold);
-    color: var(--text-primary);
-    margin-bottom: 0.375rem;
-    letter-spacing: -0.02em;
-  }
-
-  .view-subtitle {
-    font-size: var(--text-md);
-    color: var(--text-secondary);
-    margin: 0;
-    line-height: 1.5;
-  }
-}
-
-/* ── Steps indicator ────────────────────────────────────── */
-.steps-indicator {
+// ── Riel de progreso ─────────────────────────────────────────────────────────
+.stepper {
   position: relative;
-  margin-bottom: var(--space-8);
-  padding: 0 0.25rem;
-
-  .progress-bar-container {
-    position: absolute;
-    left: 1rem;
-    right: 1rem;
-    top: 1rem;
-    height: 2px;
-  }
-
-  .progress-bar-bg {
-    position: absolute;
-    inset: 0;
-    background-color: var(--border-color);
-    border-radius: 2px;
-  }
-
-  .progress-bar-active {
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
-    background-color: var(--primary);
-    border-radius: 2px;
-    transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .step-items {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    z-index: 1;
-  }
-
-  .step-item {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .step-circle {
-    width: 2rem;
-    height: 2rem;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: var(--text-sm);
-    font-weight: var(--font-bold);
-    border: 2px solid var(--border-color);
-    background-color: var(--bg-card);
-    color: var(--text-tertiary);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-    &.active {
-      border-color: var(--primary);
-      color: var(--primary);
-      box-shadow: 0 0 0 4px var(--primary-light);
-      transform: scale(1.08);
-    }
-
-    &.completed {
-      border-color: var(--primary);
-      background-color: var(--primary);
-      color: var(--content-inverse);
-      cursor: pointer;
-    }
-
-    &.pending {
-      border-color: var(--border-color);
-      color: var(--text-tertiary);
-    }
-  }
-}
-
-/* ── Form / steps ───────────────────────────────────────── */
-.register-form {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-}
-
-.step-content {
   margin-bottom: var(--space-7);
+}
+
+.stepper-rail {
+  position: absolute;
+  top: 0.875rem;
+  //  El riel arranca y muere en el CENTRO de los nodos extremos, no en el borde
+  //  del contenedor: una línea que sobresale del primer y del último nodo
+  //  sugiere que hay pasos fuera de la pantalla.
+  left: 0.875rem;
+  right: 0.875rem;
+  height: 2px;
+  border-radius: var(--radius-full);
+  background-color: var(--glass-divider);
   overflow: hidden;
 }
 
-/* ── Navigation ─────────────────────────────────────────── */
-.navigation-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  margin-top: auto;
-  padding-top: var(--space-5);
-  border-top: 1px solid var(--border-color);
+.stepper-rail__fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--accent-solid), var(--accent-text));
+  transition: width var(--duration-slow) var(--ease-standard);
 }
 
-.spacer {
+.stepper-items {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stepper-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
   flex: 1;
 }
 
-.btn-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: var(--text-md);
-  font-weight: var(--font-medium);
-  color: var(--text-secondary);
-  padding: 0.5rem 0.625rem;
-  border-radius: var(--radius-md);
-  transition: var(--transition);
+.stepper-node {
+  display: grid;
+  place-items: center;
 
-  &:hover {
-    color: var(--text-primary);
-    background: var(--bg-secondary);
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+
+  border: 1px solid var(--glass-field-border);
+  border-radius: var(--radius-full);
+  background-color: var(--glass-bg-strong);
+  color: var(--content-tertiary);
+
+  font-size: var(--text-xs);
+  font-weight: var(--font-bold);
+  font-variant-numeric: tabular-nums;
+
+  @include ds.glass-blur(8px);
+  @include ds.transition(background-color, border-color, color, box-shadow, transform);
+  @include ds.focus-ring(3px);
+
+  &:not(:disabled) { cursor: pointer; }
+
+  //  Un nodo futuro está deshabilitado, pero NO se apaga como un control roto:
+  //  sigue siendo la referencia de «lo que viene». Se anula el estilo de
+  //  deshabilitado que hereda del sistema.
+  &:disabled {
+    background-color: var(--glass-bg-strong);
+    border-color: var(--glass-field-border);
+    color: var(--content-tertiary);
+    cursor: default;
+  }
+
+  &.is-active {
+    border-color: var(--accent-solid);
+    color: var(--accent-text);
+    box-shadow: 0 0 0 4px rgba(var(--accent-solid-rgb), 0.16);
+    transform: scale(1.1);
+  }
+
+  &.is-done {
+    background-color: var(--accent-solid);
+    border-color: var(--accent-solid);
+    color: var(--accent-on-solid);
+
+    &:hover { background-color: var(--accent-solid-hover); }
   }
 }
 
-.next-action {
-  margin-left: auto;
-  min-width: 9rem;
-}
-
-/* ── Errors & legal ─────────────────────────────────────── */
-.error-message.global-error {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-2);
-  margin-top: var(--space-4);
-  padding: 0.75rem 0.875rem;
-  border-radius: var(--radius-md);
-  background-color: var(--error-bg);
-  border: 1px solid rgba(var(--error-rgb), 0.18);
-  color: var(--error);
-  font-size: var(--text-sm);
-  line-height: 1.45;
-
-  lucide-icon {
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
-}
-
-.legal-text {
+.stepper-label {
+  @include ds.truncate;
+  max-width: 100%;
   font-size: var(--text-2xs);
-  color: var(--text-tertiary);
+  color: var(--content-tertiary);
   text-align: center;
-  margin: 1.5rem 0 0;
-  line-height: 1.4;
-
-  a {
-    color: var(--text-secondary);
-    text-decoration: none;
-
-    &:hover {
-      color: var(--text-primary);
-      text-decoration: underline;
-    }
-  }
 }
 
-/* ── Footer CTA (projected into auth-layout footer slot) ── */
-.login-cta {
-  font-size: var(--text-md);
-  color: var(--text-secondary);
-  margin: 0;
+.stepper-item:has(.is-active) .stepper-label {
+  color: var(--accent-text);
+  font-weight: var(--font-semibold);
+}
+
+//  El contador textual solo aparece cuando los rótulos no caben. Es la misma
+//  información en la forma que cabe en el espacio disponible.
+.stepper-counter {
+  display: none;
+  margin: 0 0 var(--space-6);
+  font-size: var(--text-xs);
+  color: var(--content-tertiary);
   text-align: center;
-
-  .cta-link {
-    font-weight: var(--font-semibold);
-    color: var(--primary);
-    text-decoration: none;
-    margin-left: var(--space-1);
-    transition: var(--transition);
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+// ── Pasos ────────────────────────────────────────────────────────────────────
+.register-form {
+  display: flex;
+  flex-direction: column;
 }
 
-/* ── Responsive ─────────────────────────────────────────── */
-@media (max-width: 540px) {
-  .view-header .view-title {
-    font-size: var(--text-xl);
+.step-viewport {
+  min-height: 19rem;
+}
+
+.step-content {
+  display: block;
+}
+
+// ── Navegación ───────────────────────────────────────────────────────────────
+.step-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--glass-divider);
+}
+
+.step-actions__primary {
+  //  Empuja la acción principal a la derecha exista o no el botón «Atrás»,
+  //  para que no cambie de sitio entre el primer paso y el resto.
+  margin-left: auto;
+  min-width: 9.5rem;
+}
+
+.btn-back {
+  @include ds.button-ghost('lg');
+  border-radius: var(--radius-lg);
+  padding-inline: var(--space-3);
+}
+
+// ── Errores y aviso legal ────────────────────────────────────────────────────
+.error-alert {
+  @include auth.error-alert;
+  margin-top: var(--space-5);
+}
+
+.legal-text { @include auth.legal-text; }
+.cross-link { @include auth.cross-link; }
+
+// ── Adaptación ───────────────────────────────────────────────────────────────
+@include ds.bp-down('sm') {
+  //  Seis rótulos no caben en un móvil sin recortarse hasta ser ilegibles. Se
+  //  dejan los nodos —que siguen comunicando avance— y el contador textual
+  //  toma el relevo de los rótulos.
+  .stepper-label { display: none; }
+  .stepper-counter { display: block; }
+
+  .stepper { margin-bottom: var(--space-4); }
+
+  .step-viewport { min-height: 0; }
+
+  .step-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
   }
 
-  .next-action {
+  .step-actions__primary {
+    margin-left: 0;
     min-width: 0;
   }
 }

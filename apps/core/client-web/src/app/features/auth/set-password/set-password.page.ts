@@ -13,6 +13,7 @@ import { AuthLayoutComponent } from '../components/auth-layout/auth-layout.compo
 import { AuthInputComponent } from '../components/auth-input/auth-input.component';
 import { AuthButtonComponent } from '../components/auth-button/auth-button.component';
 import { PasswordStrengthComponent } from '../../../shared/components/password-strength/password-strength.component';
+import { BrandLogo } from '../../../shared/components/brand-logo/brand-logo';
 // H4 FIX: single source of truth for password rules, mirrored from the backend policy
 // (min 12 / max 72 / upper + lower + (digit OR symbol)). Removes the divergent local validator.
 import { strongPasswordValidator } from '../../../shared/validators/password.validator';
@@ -36,7 +37,8 @@ const passwordMatchValidator: ValidatorFn = (group: AbstractControl): Validation
     AuthLayoutComponent,
     AuthInputComponent,
     AuthButtonComponent,
-    PasswordStrengthComponent
+    PasswordStrengthComponent,
+    BrandLogo
   ],
   providers: [
     ReCaptchaV3Service,

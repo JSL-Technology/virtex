@@ -199,7 +199,9 @@
     "LOADING": "Loading",
     "COPY": "Copy",
     "COPIED": "Copied",
-    "CLOSE": "Close"
+    "CLOSE": "Close",
+    "BACK": "Back",
+    "NEXT": "Next"
   },
   "ACTIONS": {
     "CREATE_NEW": "Create New",
@@ -684,6 +686,15 @@
       "PASSWORD_MISMATCH": "Passwords do not match.",
       "REQUIRED": "This field is required.",
       "TERMS_REQUIRED": "You must accept the terms and conditions."
+    },
+    "STEP_OF": "Step {{current}} of {{total}}",
+    "PROGRESS": {
+      "ACCOUNT": "Account",
+      "EMAIL": "Email",
+      "PHONE": "Phone",
+      "FISCAL": "Tax",
+      "BUSINESS": "Company",
+      "PLAN": "Plan"
     }
   },
   "FORGOT_PASSWORD": {

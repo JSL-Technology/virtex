@@ -301,7 +301,9 @@
     "LOADING": "Cargando",
     "COPY": "Copiar",
     "COPIED": "Copiado",
-    "CLOSE": "Cerrar"
+    "CLOSE": "Cerrar",
+    "BACK": "Atrás",
+    "NEXT": "Siguiente"
   },
   "ALT": {
     "COMPANY_LOGO": "Logo de la empresa"
@@ -1103,6 +1105,15 @@
       "PASSWORD_MISMATCH": "Las contraseñas no coinciden.",
       "REQUIRED": "Este campo es obligatorio.",
       "TERMS_REQUIRED": "Debes aceptar los términos y condiciones."
+    },
+    "STEP_OF": "Paso {{current}} de {{total}}",
+    "PROGRESS": {
+      "ACCOUNT": "Cuenta",
+      "EMAIL": "Correo",
+      "PHONE": "Teléfono",
+      "FISCAL": "Fiscal",
+      "BUSINESS": "Empresa",
+      "PLAN": "Plan"
     }
   },
   "FORGOT_PASSWORD": {

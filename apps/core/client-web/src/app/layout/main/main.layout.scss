@@ -1,24 +1,60 @@
 @use "../../../assets/styles/forms" as mixins;
 @use "../../../assets/styles/design-system" as ds;
 
+// =============================================================================
+//  DÓNDE SE APLICA EL CRISTAL Y DÓNDE NO
+// =============================================================================
+//  El cristal es para el ARMAZÓN y para las CAPAS FLOTANTES —barra superior,
+//  riel lateral, menús, diálogos, avisos—: superficies que enmarcan el trabajo
+//  y que ganan al dejar entrever lo que hay debajo.
+//
+//  El contenido NO lleva cristal. Una tabla de asientos contables, una rejilla
+//  de inventario o un formulario de factura se leen durante horas seguidas, y
+//  un fondo translúcido bajo miles de cifras cansa la vista, arruina el
+//  contraste de las filas alternas y obliga al compositor a rehacer el
+//  desenfoque en cada desplazamiento. Ahí se usan superficies opacas.
+//
+//  Esa frontera —marco translúcido, contenido opaco— es lo que separa el
+//  glassmorphism de un efecto aplicado a bulto.
+// =============================================================================
+
 :host {
   display: grid;
   height: 100vh;
   width: 100vw;
   overflow: hidden;
-  background-color: var(--bg-primary);
+  background-color: var(--surface-canvas);
   font-family: inherit;
   transition: grid-template-columns 0.3s ease-in-out;
+  position: relative;
+  isolation: isolate;
+
+  //  Ambiente. Sin algo de color detrás, una superficie translúcida sobre un
+  //  gris plano se ve simplemente gris: el desenfoque no tiene nada que
+  //  recoger. Este velo es deliberadamente tenue —es un ERP, no una portada— y
+  //  no se mueve: la aurora animada pertenece a las pantallas públicas, donde
+  //  el usuario está de paso.
+  &::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.5;
+    background:
+      radial-gradient(60rem 32rem at 6% -8%, var(--aurora-1), transparent 68%),
+      radial-gradient(48rem 28rem at 104% 2%, var(--aurora-2), transparent 70%);
+  }
   
 
   
 
   
   // --- Variables para la Búsqueda Global ---
-  --search-popover-bg: var(--bg-card);
-  --search-popover-border: var(--border-color);
-  --search-popover-shadow: var(--shadow-lg);
-  --search-header-bg: var(--bg-primary);
+  --search-popover-bg: var(--glass-bg-strong);
+  --search-popover-border: var(--glass-border);
+  --search-popover-shadow: var(--glass-shadow);
+  --search-header-bg: transparent;
   --search-group-title: var(--text-tertiary);
   --search-item-hover: var(--bg-hover);
   --search-item-border: var(--border-color);
@@ -194,16 +230,29 @@
 // --- BARRA LATERAL (SIDEBAR) ---
 .main-sidebar {
   flex-direction: column;
-  background-color: var(--bg-card);
-  border-right: 1px solid var(--border-color);
+  position: relative;
   z-index: 101;
-  transition: all 0.2s ease;
+  border-right: 1px solid var(--glass-border);
+  @include ds.glass-surface('strong');
+  border-block: 0;
+  border-left: 0;
+  @include ds.transition(background-color, border-color);
 
   .logo-container {
-    padding: 1.5rem 1rem;
+    padding: var(--space-5) var(--space-4) var(--space-4);
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
+    border-bottom: 1px solid var(--glass-divider);
+  }
+
+  .sidebar-brand {
+    display: inline-flex;
+    align-self: flex-start;
+    padding-inline: var(--space-1);
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    @include ds.focus-ring(4px);
   }
 
   .sidebar-nav {
@@ -290,9 +339,14 @@
   justify-content: space-between;
   align-items: center;
   height: 64px;
-  background-color: var(--bg-card);
-  border-bottom: 1px solid var(--border-color);
   padding: 0 24px;
+
+  position: relative;
+  z-index: 100;
+  border-bottom: 1px solid var(--glass-border);
+  @include ds.glass-surface('strong');
+  border-block-start: 0;
+  border-inline: 0;
 
   .topbar-left {
     align-items: center;
@@ -342,6 +396,8 @@
   overflow: hidden;
   height: 100%;
   width: 100%;
+  position: relative;
+  z-index: 1;
 
   //  Es el destino del enlace «Saltar al contenido» y lleva `tabindex="-1"`
   //  para poder recibir el foco. Sin esto el navegador dibujaría un anillo
@@ -403,11 +459,10 @@
   top: calc(100% + 12px);
   right: 0;
   width: 280px;
-  background-color: var(--bg-card);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-lg);
-  z-index: 1010;
+  box-shadow: var(--glass-shadow);
+  @include ds.glass-surface('strong');
+  z-index: var(--z-dropdown);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -515,11 +570,10 @@
   top: calc(100% + 12px);
   right: 0;
   width: 380px;
-  background-color: var(--bg-card);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-lg);
-  z-index: 1010;
+  box-shadow: var(--glass-shadow);
+  @include ds.glass-surface('strong');
+  z-index: var(--z-dropdown);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -724,11 +778,10 @@
   top: calc(100% + 12px);
   right: 0;
   width: 260px;
-  background-color: var(--bg-card);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-lg);
-  z-index: 110;
+  box-shadow: var(--glass-shadow);
+  @include ds.glass-surface('strong');
+  z-index: var(--z-dropdown);
   overflow: hidden;
   animation: dropdown-fade-in 0.2s ease;
   transform-origin: top right;
@@ -879,6 +932,7 @@
     flex-direction: column;
     border: 1px solid var(--search-popover-border);
     animation: searchFadeIn 0.2s ease;
+    @include ds.glass-blur(var(--glass-blur-strong));
 
     .results-header {
       padding: 12px 16px;

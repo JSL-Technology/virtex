@@ -1,45 +1,55 @@
 <footer class="auth-footer">
   <div class="footer-container">
 
-    <div class="footer-top">
-      <div class="language-selector">
-        <button
-          type="button"
-          class="selector-trigger"
-          (click)="toggleLangDropdown($event)"
-          [class.active]="isLangDropdownOpen"
-          aria-label="Select Language">
-          <lucide-icon [img]="icons.Globe" size="16"></lucide-icon>
-          <span>{{ currentLangLabel }}</span>
-          <lucide-icon [img]="icons.ChevronUp" size="14" class="chevron" [class.open]="isLangDropdownOpen"></lucide-icon>
-        </button>
+    <div class="language-selector">
+      <button
+        type="button"
+        class="selector-trigger"
+        (click)="toggleLangDropdown($event)"
+        [class.active]="isLangDropdownOpen"
+        [attr.aria-expanded]="isLangDropdownOpen"
+        aria-haspopup="listbox"
+        aria-label="Seleccionar idioma">
+        <lucide-icon [img]="icons.Globe" size="15" class="icon-left" aria-hidden="true"></lucide-icon>
+        <span>{{ currentLangLabel }}</span>
+        <lucide-icon [img]="icons.ChevronUp" size="13" class="icon-right" aria-hidden="true"></lucide-icon>
+      </button>
 
-        <div class="dropdown-menu" [class.show]="isLangDropdownOpen">
-          <button
-            type="button"
-            class="dropdown-item"
-            *ngFor="let lang of availableLanguages"
-            [class.active]="currentLang === lang.code"
-            (click)="changeLang(lang.code)">
-            <span>{{ lang.label }}</span>
-            <lucide-icon *ngIf="currentLang === lang.code" [img]="icons.Check" size="14"></lucide-icon>
-          </button>
+      <!--
+        El menú se despliega HACIA ARRIBA porque el pie está al final de la
+        página: hacia abajo quedaría fuera de la ventana y habría que
+        desplazarse para elegir idioma.
+      -->
+      @if (isLangDropdownOpen) {
+        <div class="dropdown-menu" role="listbox">
+          @for (lang of availableLanguages; track lang.code) {
+            <button
+              type="button"
+              class="dropdown-item"
+              role="option"
+              [class.active]="currentLang === lang.code"
+              [attr.aria-selected]="currentLang === lang.code"
+              (click)="changeLang(lang.code)">
+              <span>{{ lang.label }}</span>
+              @if (currentLang === lang.code) {
+                <lucide-icon [img]="icons.Check" size="14" aria-hidden="true"></lucide-icon>
+              }
+            </button>
+          }
         </div>
-      </div>
-
-      <nav class="footer-nav">
-        <a routerLink="/terms">{{ 'AUTH.TERMS' | translate }}</a>
-        <a routerLink="/privacy">{{ 'AUTH.PRIVACY' | translate }}</a>
-        <a routerLink="/security">{{ 'AUTH.SECURITY' | translate }}</a>
-        <a routerLink="/contact">{{ 'AUTH.CONTACT' | translate }}</a>
-      </nav>
+      }
     </div>
 
-    <div class="footer-bottom">
-      <p class="copyright">
-        &copy; {{ currentYear }} FacturaPRO. {{ 'AUTH.ALL_RIGHTS_RESERVED' | translate }}
-      </p>
-    </div>
+    <nav class="footer-nav" aria-label="Enlaces legales">
+      <a routerLink="/terms">{{ 'AUTH.TERMS' | translate }}</a>
+      <a routerLink="/privacy">{{ 'AUTH.PRIVACY' | translate }}</a>
+      <a routerLink="/security">{{ 'AUTH.SECURITY' | translate }}</a>
+      <a routerLink="/contact">{{ 'AUTH.CONTACT' | translate }}</a>
+    </nav>
+
+    <p class="copyright">
+      &copy; {{ currentYear }} Virtex. {{ 'AUTH.ALL_RIGHTS_RESERVED' | translate }}
+    </p>
 
   </div>
 </footer>

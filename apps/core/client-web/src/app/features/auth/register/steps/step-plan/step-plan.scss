@@ -1,159 +1,132 @@
-.step-container {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
-}
+// =============================================================================
+//  PASO 6 · PLAN Y CONDICIONES
+// =============================================================================
+//  Las tarjetas de plan son la única superficie de esta pantalla que compite
+//  con la lámina que las contiene, así que se resuelven como cristal DENTRO de
+//  cristal: relleno más tenue, borde más marcado y elevación solo al elegirlas.
+//  La recomendada no se distingue por color —eso la volvería una promoción—
+//  sino por un filo de acento y una etiqueta que dice por qué destaca.
+// =============================================================================
+@use '../step-chrome' as step;
+@use '../../../../../../assets/styles/design-system' as ds;
 
-.step-header {
-  text-align: center;
-  margin-bottom: var(--space-1);
+.step-container { @include step.container; }
+.step-header    { @include step.header; }
 
-  .step-title {
-    font-size: var(--text-xl);
-    font-weight: var(--font-bold);
-    color: var(--text-primary);
-    margin-bottom: var(--space-1);
-  }
-
-  .step-subtitle {
-    font-size: var(--text-md);
-    color: var(--text-secondary);
-  }
-}
-
-/* ── Loading / error state ─────────────────────────────── */
 .plans-loading {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 0.625rem;
-  padding: 2.5rem 1rem;
-  color: var(--text-secondary);
+  justify-content: center;
+  gap: var(--space-3);
+
+  padding: var(--space-10);
+  border-radius: var(--radius-lg);
+  @include ds.glass-surface('subtle', 8px);
+
+  color: var(--content-tertiary);
   font-size: var(--text-md);
-  text-align: center;
 }
 
-/* ── Plans grid ────────────────────────────────────────── */
+// ── Tarjetas ─────────────────────────────────────────────────────────────────
 .plans-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
   gap: var(--space-4);
-
-  @media (max-width: 640px) {
-    grid-template-columns: 1fr;
-  }
+  align-items: stretch;
 }
 
 .plan-card {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
-  padding: 1.5rem 1.25rem 1.25rem;
-  background: var(--bg-card);
-  border: 1.5px solid var(--border-color);
-  border-radius: var(--radius-lg);
+  gap: var(--space-3);
+
+  padding: var(--space-5) var(--space-4);
+  border-radius: var(--radius-xl);
   cursor: pointer;
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-              border-color 0.2s ease,
-              box-shadow 0.2s ease,
-              background-color 0.2s ease;
-  -webkit-tap-highlight-color: transparent;
+
+  @include ds.glass-surface('subtle', 10px);
+  @include ds.transition(background-color, border-color, box-shadow, transform);
+  @include ds.focus-ring(3px);
 
   &:hover {
-    transform: translateY(-3px);
-    border-color: var(--border-light);
-    box-shadow: var(--shadow-md);
+    border-color: var(--border-strong);
+    transform: translateY(-2px);
+    box-shadow: var(--glass-shadow-soft);
   }
 
-  &:focus-visible {
-    outline: 2px solid var(--primary);
-    outline-offset: 2px;
-  }
-
-  /* Highlighted "recommended" plan */
   &.recommended {
-    border-color: rgba(var(--primary-rgb), 0.4);
+    border-color: var(--accent-border);
   }
 
-  /* Selected plan — primary ring + tinted surface */
+  //  Elegida: acento, elevación y —para no depender del color— el indicador
+  //  inferior relleno con su marca.
   &.selected {
-    border-color: var(--primary);
-    background: linear-gradient(
-      180deg,
-      var(--primary-light) 0%,
-      var(--bg-card) 55%
-    );
-    box-shadow: 0 0 0 3px var(--primary-light);
+    background-color: var(--accent-surface);
+    border-color: var(--accent-solid);
+    box-shadow: 0 0 0 1px var(--accent-solid), var(--glass-shadow-soft);
+  }
 
-    .radio-circle {
-      border-color: var(--primary);
-      background: var(--primary);
-
-      &::after {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-
-    .selection-indicator {
-      color: var(--primary);
-      font-weight: var(--font-semibold);
-    }
+  @include ds.bp-reduced-motion {
+    &:hover { transform: none; }
   }
 }
 
 .recommended-badge {
   position: absolute;
   top: 0;
-  right: 1.25rem;
-  transform: translateY(-50%);
-  padding: 0.25rem 0.625rem;
-  background: var(--primary);
-  color: var(--content-inverse);
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  padding: 0.125rem var(--space-3);
+
+  background-color: var(--accent-solid);
+  color: var(--accent-on-solid);
+  border-radius: var(--radius-full);
+
   font-size: var(--text-2xs);
-  font-weight: var(--font-bold);
-  letter-spacing: 0.05em;
+  font-weight: var(--font-semibold);
   text-transform: uppercase;
-  border-radius: 999px;
-  box-shadow: 0 2px 8px rgba(var(--primary-rgb), 0.35);
+  letter-spacing: var(--tracking-caps);
+  white-space: nowrap;
 }
 
 .plan-name {
-  font-size: var(--text-base);
-  font-weight: var(--font-bold);
-  color: var(--text-primary);
   margin: 0;
-  letter-spacing: -0.01em;
+  font-size: var(--text-md);
+  font-weight: var(--font-semibold);
+  color: var(--content-primary);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
 }
 
 .plan-price {
   display: flex;
   align-items: baseline;
   gap: var(--space-1);
+}
 
-  .price-amount {
-    font-size: var(--text-3xl);
-    font-weight: 800;
-    color: var(--text-primary);
-    letter-spacing: -0.03em;
-    line-height: 1;
-  }
+.price-amount {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-bold);
+  color: var(--content-primary);
+  letter-spacing: var(--tracking-tight);
+  @include ds.numeric;
+}
 
-  .price-period {
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    color: var(--text-tertiary);
-  }
+.price-period {
+  font-size: var(--text-sm);
+  color: var(--content-tertiary);
 }
 
 .plan-features-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.625rem;
+  gap: var(--space-2);
+
+  margin: 0;
+  padding: 0;
+  list-style: none;
   flex: 1;
 
   li {
@@ -161,60 +134,70 @@
     align-items: flex-start;
     gap: var(--space-2);
     font-size: var(--text-sm);
-    line-height: 1.4;
-    color: var(--text-secondary);
+    color: var(--content-secondary);
+    line-height: var(--leading-snug);
+  }
 
-    lucide-icon {
-      flex-shrink: 0;
-      margin-top: 1px;
-      color: var(--success);
-    }
+  lucide-icon {
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: var(--success-text);
   }
 }
 
-/* ── Selection footer ──────────────────────────────────── */
+// ── Indicador de selección ───────────────────────────────────────────────────
 .selection-indicator {
   display: flex;
   align-items: center;
   gap: var(--space-2);
+
   margin-top: auto;
-  padding-top: 0.875rem;
-  border-top: 1px solid var(--border-color);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--glass-divider);
+
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
-  color: var(--text-secondary);
+  color: var(--content-secondary);
+}
+
+.radio-circle {
+  position: relative;
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius-full);
+
+  @include ds.transition(border-color, background-color);
+}
+
+.plan-card.selected {
+  .selection-indicator { color: var(--accent-text); }
 
   .radio-circle {
-    position: relative;
-    flex-shrink: 0;
-    width: 18px;
-    height: 18px;
-    border: 2px solid var(--border-light);
-    border-radius: 50%;
-    transition: var(--transition);
+    border-color: var(--accent-solid);
+    background-color: var(--accent-solid);
 
     &::after {
       content: '';
       position: absolute;
-      inset: 0;
-      margin: auto;
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--surface-base);
-      opacity: 0;
-      transform: scale(0.4);
-      transition: opacity 0.18s ease, transform 0.18s ease;
+      inset: 3px;
+      border-radius: var(--radius-full);
+      background-color: var(--accent-on-solid);
     }
   }
 }
 
-/* ── Terms & conditions ────────────────────────────────── */
+// ── Términos ─────────────────────────────────────────────────────────────────
 .terms-section {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
-  margin-top: var(--space-2);
+  gap: var(--space-2);
+
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  @include ds.glass-surface('subtle', 8px);
 }
 
 .checkbox-container {
@@ -222,97 +205,92 @@
   align-items: flex-start;
   gap: var(--space-3);
   cursor: pointer;
-  user-select: none;
+}
 
-  &:hover .checkbox-custom {
-    border-color: var(--primary);
-  }
+.checkbox-wrapper {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
 
-  .checkbox-wrapper {
-    position: relative;
-    padding-top: 0.0625rem;
-  }
+.hidden-checkbox {
+  @include ds.visually-hidden;
+}
 
-  .hidden-checkbox {
-    position: absolute;
+.checkbox-custom {
+  display: grid;
+  place-items: center;
+
+  width: 1.125rem;
+  height: 1.125rem;
+
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background-color: var(--glass-field-bg);
+
+  @include ds.transition(background-color, border-color);
+
+  //  La marca se dibuja con dos bordes girados: no depende de ninguna fuente de
+  //  iconos y escala con el control.
+  &::after {
+    content: '';
+    width: 0.3125rem;
+    height: 0.5625rem;
+    margin-top: -2px;
+
+    border: solid var(--accent-on-solid);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) scale(0.4);
     opacity: 0;
-    cursor: pointer;
-    height: 0;
-    width: 0;
 
-    &:checked ~ .checkbox-custom {
-      background-color: var(--primary);
-      border-color: var(--primary);
-
-      &::after {
-        display: block;
-      }
-    }
-
-    &:focus-visible ~ .checkbox-custom {
-      box-shadow: 0 0 0 3px var(--primary-light);
-    }
-  }
-
-  .checkbox-custom {
-    height: 1.125rem;
-    width: 1.125rem;
-    background-color: transparent;
-    border: 1.5px solid var(--border-color);
-    border-radius: 4px;
-    position: relative;
-    transition: var(--transition);
-
-    &::after {
-      content: '';
-      position: absolute;
-      display: none;
-      left: 5px;
-      top: 1px;
-      width: 4px;
-      height: 9px;
-      border: solid white;
-      border-width: 0 2px 2px 0;
-      transform: rotate(45deg);
-    }
-  }
-
-  .checkbox-label {
-    font-size: var(--text-sm);
-    color: var(--text-secondary);
-    line-height: 1.5;
-
-    .legal-link {
-      color: var(--primary);
-      font-weight: var(--font-semibold);
-      text-decoration: none;
-
-      &:hover {
-        text-decoration: underline;
-      }
-    }
+    @include ds.transition(opacity, transform);
   }
 }
 
+.hidden-checkbox:checked + .checkbox-custom {
+  background-color: var(--accent-solid);
+  border-color: var(--accent-solid);
+
+  &::after {
+    opacity: 1;
+    transform: rotate(45deg) scale(1);
+  }
+}
+
+.hidden-checkbox:focus-visible + .checkbox-custom {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.checkbox-label {
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+  line-height: var(--leading-snug);
+}
+
+//  Se usa tanto en `<a>` (términos, privacidad) como en `<button>` (reintentar
+//  la carga de planes): el reinicio del botón va incluido para que ambos se
+//  vean idénticos, que es lo que el usuario espera de dos textos que se
+//  comportan igual.
 .legal-link {
+  padding: 0;
   background: none;
   border: none;
-  padding: 0;
   font: inherit;
-  color: var(--primary);
-  font-weight: var(--font-semibold);
+  color: var(--accent-text);
+  font-weight: var(--font-medium);
+  text-decoration: none;
   cursor: pointer;
+
+  @include ds.focus-ring(3px);
 
   &:hover {
     text-decoration: underline;
+    text-underline-offset: 2px;
   }
 }
 
 .error-text {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  font-size: var(--text-xs);
-  color: var(--error);
-  padding-left: 1.875rem;
+  @include step.error-text;
 }

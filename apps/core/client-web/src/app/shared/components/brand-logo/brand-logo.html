@@ -1,0 +1,28 @@
+<span class="brand-logo__mark" [class.is-mono]="monochrome" aria-hidden="true">
+  <svg viewBox="0 0 104 100" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg">
+    <!--
+      Asta izquierda. Las dos `Q` son las esquinas redondeadas: el punto de
+      control coincide con el vértice teórico, así el radio se mantiene igual
+      aunque cambie la inclinación.
+    -->
+    <path
+      class="brand-logo__stroke-accent"
+      d="M18 6 L33 6 L66.9 86.6 Q70 94 62 94 L47 94 L13.1 13.4 Q10 6 18 6 Z" />
+
+    <!-- Asta derecha, biselada contra el canto interior de la anterior. -->
+    <path
+      class="brand-logo__stroke-ink"
+      d="M72 6 L95 6 L64.4 80.7 L52.8 53 Z" />
+  </svg>
+</span>
+
+@if (variant !== 'mark') {
+  <span class="brand-logo__type">
+    <span class="brand-logo__word">virtex</span>
+    @if (showTagline) {
+      <span class="brand-logo__tagline">ERP</span>
+    }
+  </span>
+}
+
+<span class="sr-only">{{ label }}</span>

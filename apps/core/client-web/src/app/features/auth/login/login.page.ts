@@ -17,6 +17,7 @@ import { AuthButtonComponent } from '../components/auth-button/auth-button.compo
 import { SocialAuthButtonsComponent } from '../components/social-auth-buttons/social-auth-buttons.component';
 import { PasskeyButtonComponent } from '../components/passkey-button/passkey-button.component';
 import { OtpComponent } from '../../../shared/components/otp/otp.component';
+import { BrandLogo } from '../../../shared/components/brand-logo/brand-logo';
 
 @Component({
   selector: 'app-login',
@@ -33,7 +34,8 @@ import { OtpComponent } from '../../../shared/components/otp/otp.component';
     AuthButtonComponent,
     SocialAuthButtonsComponent,
     PasskeyButtonComponent,
-    OtpComponent
+    OtpComponent,
+    BrandLogo
   ],
   providers: [ReCaptchaV3Service],
   templateUrl: './login.page.html',
@@ -249,6 +251,18 @@ export class LoginPage implements OnInit {
         this.isLoggingIn.set(false);
       }
     });
+  }
+
+  /**
+   * Cierra el segundo factor y devuelve al usuario al formulario intacto.
+   *
+   * Limpia además el mensaje de error: si llegó por un código equivocado, ese
+   * texto no describe el estado del formulario de credenciales al que se
+   * vuelve, y dejarlo puesto hace pensar que las credenciales fallaron.
+   */
+  closeTwoFactor(): void {
+    this.show2faInput.set(false);
+    this.errorMessage.set(null);
   }
 
   verify2fa(): void {

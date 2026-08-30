@@ -1,78 +1,94 @@
+// =============================================================================
+//  DIÁLOGO
+// =============================================================================
+//  ── Lo que había ────────────────────────────────────────────────────────────
+//  Un panel opaco con comentarios que hablaban de «Mica» y «Acrílico» de
+//  Windows 11 y un `background-clip` que no producía ninguno de los dos, más
+//  tres bloques de tema hechos a mano: un `@media (prefers-color-scheme: dark)`
+//  dentro del botón de cierre y un `:host-context(.dark)` en el pie —una clase
+//  que ningún servicio pone ya, porque el tema vive en `data-theme`—. El
+//  resultado: en oscuro el pie no se distinguía y el botón de cierre cambiaba
+//  de color solo si el SISTEMA estaba en oscuro, ignorando el tema elegido en
+//  la aplicación.
+//
+//  Con los tokens `--glass-*` los tres bloques desaparecen: el mismo código
+//  produce vidrio lechoso en claro y ahumado en oscuro, y sigue al tema de la
+//  aplicación, no al del sistema operativo.
+// =============================================================================
+@use '../../../../../assets/styles/design-system' as ds;
+
 :host {
   display: block;
-  z-index: 9999;
   position: relative;
+  z-index: var(--z-modal);
 }
 
 .modal-container {
   position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: var(--z-modal);
+
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden auto;
   padding: var(--space-4);
 }
 
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background-color: rgba(var(--shadow-color-rgb), 0.4); /* Darkening */
-  backdrop-filter: blur(12px); /* Windows 11 Acrylic Blur strength */
-  -webkit-backdrop-filter: blur(12px);
   z-index: -1;
+  background-color: var(--scrim);
+  @include ds.glass-blur(10px);
 }
 
 .modal-panel-wrapper {
   position: relative;
   width: 100%;
   display: flex;
-  justify-content: center;
   align-items: center;
-  pointer-events: none; /* Let clicks pass through wrapper to backdrop if clicked outside */
+  justify-content: center;
+  //  Deja pasar el clic hacia el velo cuando se pulsa fuera del panel.
+  pointer-events: none;
 }
 
 .modal-panel {
   pointer-events: auto;
   position: relative;
+
   display: flex;
   flex-direction: column;
   width: 100%;
-  background-color: var(--bg-card); /* Uses application theme color */
-  border: 1px solid rgba(var(--elevation-tint-rgb), 0.08); /* Subtle border for depth/glass effect */
-  box-shadow:
-    0 25px 50px -12px rgba(var(--shadow-color-rgb), 0.25),
-    0 0 0 1px rgba(var(--shadow-color-rgb), 0.05); /* Deep shadow */
-  border-radius: 12px; /* Win 11 rounded corners */
+  max-height: calc(100dvh - var(--space-16));
   overflow: hidden;
-  max-height: calc(100vh - 4rem);
 
-  /* Mica Effect Simulation */
-  background-clip: padding-box;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--glass-shadow);
+  @include ds.glass-surface('strong', var(--glass-blur-strong));
+  @include ds.glass-edge(var(--space-6));
 
-  /* Size Variants */
   &.size-sm { max-width: 24rem; }
   &.size-md { max-width: 32rem; }
   &.size-lg { max-width: 48rem; }
   &.size-xl { max-width: 64rem; }
-  &.size-full { max-width: 95vw; height: 95vh; }
+  &.size-full {
+    max-width: 95vw;
+    height: 95vh;
+  }
 }
 
-/* Header */
+// ── Cabecera ─────────────────────────────────────────────────────────────────
 .modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.25rem 1.5rem 0.5rem 1.5rem; /* Top padding more for title breathing room */
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-6) var(--space-2);
 
   .modal-title {
-    font-size: var(--text-lg);
-    font-weight: var(--font-semibold);
-    color: var(--text-primary);
     margin: 0;
-    line-height: 1.5;
+    @include ds.heading('lg');
   }
 
   .modal-actions {
@@ -80,66 +96,33 @@
   }
 }
 
-/* Close Button (Win 11 Style) */
 .close-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: transparent;
-  color: var(--content-secondary); /* Neutral gray */
-  cursor: pointer;
-  padding: var(--space-2);
-  border-radius: 6px;
-  transition: all 0.2s ease;
-
-  /* Or use vars if available */
-  color: var(--text-secondary, var(--content-secondary));
-
-  &:hover {
-    background-color: rgba(var(--shadow-color-rgb), 0.05);
-    color: var(--content-primary);
-  }
-
-  /* Dark mode adjust via parent var or simple media query if vars aren't sufficient */
-  @media (prefers-color-scheme: dark) {
-    color: var(--content-tertiary);
-    &:hover {
-      background-color: rgba(var(--elevation-tint-rgb), 0.1);
-      color: var(--content-primary);
-    }
-  }
-
-  &:hover {
-    background-color: var(--bg-hover, rgba(var(--shadow-color-rgb), 0.05));
-    color: var(--text-primary, var(--content-primary));
-  }
+  @include ds.button-icon('md');
+  border-radius: var(--radius-md);
 
   .icon {
-    width: 20px;
-    height: 20px;
+    width: 1.25rem;
+    height: 1.25rem;
   }
 }
 
-/* Content */
+// ── Cuerpo ───────────────────────────────────────────────────────────────────
+//  El contenido de un diálogo puede ser una tabla o un formulario largo: se
+//  desplaza y lleva la barra del sistema de diseño, no la del navegador.
 .modal-content {
-  padding: 1rem 1.5rem 1.5rem 1.5rem;
-  color: var(--text-primary);
+  padding: var(--space-4) var(--space-6) var(--space-6);
+  color: var(--content-primary);
   overflow-y: auto;
+  @include ds.scrollbar;
 }
 
-/* Footer */
+// ── Pie ──────────────────────────────────────────────────────────────────────
 .modal-footer {
-  padding: 1rem 1.5rem;
-  background-color: rgba(var(--shadow-color-rgb), 0.02); /* Very subtle offset */
-  border-top: 1px solid rgba(var(--shadow-color-rgb), 0.05);
   display: flex;
   justify-content: flex-end;
   gap: var(--space-3);
 
-  /* Dark mode specific override if vars allow, otherwise rely on opacity */
-  :host-context(.dark) & {
-    background-color: rgba(var(--elevation-tint-rgb), 0.02);
-    border-top-color: rgba(var(--elevation-tint-rgb), 0.05);
-  }
+  padding: var(--space-4) var(--space-6);
+  background-color: var(--glass-bg-subtle);
+  border-top: 1px solid var(--glass-divider);
 }

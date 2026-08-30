@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 100" width="360" height="100" role="img" aria-label="Virtex ERP">
+  <title>Virtex ERP</title>
+  <g>
+    <path d="M18 6 L33 6 L66.9 86.6 Q70 94 62 94 L47 94 L13.1 13.4 Q10 6 18 6 Z" fill="#2563eb"/>
+    <path d="M72 6 L95 6 L64.4 80.7 L52.8 53 Z" fill="#f3f5f9"/>
+  </g>
+  <text x="128" y="66" fill="#f3f5f9" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="48" font-weight="500" letter-spacing="3.2">virtex</text>
+  <text x="130" y="88" fill="#7aa9ff" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="17" font-weight="600" letter-spacing="8.4">ERP</text>
+</svg>

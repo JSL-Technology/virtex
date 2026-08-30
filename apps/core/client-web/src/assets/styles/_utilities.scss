@@ -120,6 +120,64 @@
 .card { @include ds.surface-card; }
 
 // -----------------------------------------------------------------------------
+//  CRISTAL
+// -----------------------------------------------------------------------------
+//  Tres niveles, y solo tres. La tentación con el glassmorphism es dar a cada
+//  panel su propio grado de transparencia; el resultado es una pantalla donde
+//  nada parece estar a la misma distancia. Con tres planos la jerarquía se lee
+//  de un vistazo:
+//
+//    .glass-panel  velo de fondo   — barras, cabeceras, rieles
+//    .glass-card   lámina flotante — tarjetas, formularios, diálogos
+//    .glass-tile   pieza pequeña   — insignias, píldoras, adornos
+// -----------------------------------------------------------------------------
+.glass-panel {
+  @include ds.glass-surface('base');
+  border-radius: var(--radius-xl);
+}
+
+.glass-card {
+  @include ds.glass-card;
+  @include ds.glass-edge;
+}
+
+.glass-tile {
+  @include ds.glass-surface('subtle', 8px);
+  border-radius: var(--radius-lg);
+}
+
+// -----------------------------------------------------------------------------
+//  ENTRADAS ANIMADAS
+// -----------------------------------------------------------------------------
+//  `--vx-delay` permite escalonar una lista sin escribir una regla por hijo:
+//    <li style="--vx-delay: 60ms">
+//  Sin retardo declarado el valor por defecto es 0 y la animación arranca ya.
+// -----------------------------------------------------------------------------
+.vx-rise {
+  animation: vx-rise var(--duration-slow) var(--ease-decelerate) both;
+  animation-delay: var(--vx-delay, 0ms);
+}
+
+.vx-glass-in {
+  animation: vx-glass-in var(--duration-deliberate) var(--ease-decelerate) both;
+  animation-delay: var(--vx-delay, 0ms);
+}
+
+.vx-float {
+  animation: vx-float 7s var(--ease-standard) infinite;
+}
+
+//  Escalonado automático de hasta ocho hijos directos. Más allá de ocho la
+//  espera acumulada empieza a percibirse como lentitud, no como elegancia.
+.vx-stagger > * {
+  animation: vx-rise var(--duration-slow) var(--ease-decelerate) both;
+
+  @for $i from 1 through 8 {
+    &:nth-child(#{$i}) { animation-delay: #{($i - 1) * 55}ms; }
+  }
+}
+
+// -----------------------------------------------------------------------------
 //  AUXILIARES DE TEXTO
 // -----------------------------------------------------------------------------
 .truncate      { @include ds.truncate; }

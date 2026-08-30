@@ -1,15 +1,23 @@
 <button
   [type]="type"
-  [disabled]="disabled || loading"
   class="submit-button"
+  [ngClass]="'submit-button--' + variant"
   [class.loading]="loading"
+  [disabled]="disabled || loading"
+  [attr.aria-busy]="loading || null"
   (click)="clicked.emit($event)">
 
-  <!-- Loading Spinner -->
-  <div *ngIf="loading" class="spinner"></div>
+  <!--
+    El indicador acompaña al texto, no lo sustituye. Cuando lo sustituía, el
+    botón cambiaba de ancho al pulsarlo y el formulario se recomponía justo en
+    el instante de máxima atención del usuario. Quien llama decide qué dice la
+    etiqueta mientras carga («Iniciando sesión…»).
+  -->
+  @if (loading) {
+    <span class="spinner" aria-hidden="true"></span>
+  }
 
-  <!-- Button Content -->
-  <span *ngIf="!loading" class="btn-content">
+  <span class="btn-content">
     <ng-content select="[icon]"></ng-content>
     <ng-content></ng-content>
   </span>

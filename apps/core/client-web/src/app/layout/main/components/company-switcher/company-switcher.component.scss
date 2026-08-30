@@ -1,3 +1,5 @@
+@use '../../../../../assets/styles/design-system' as ds;
+
 .company-switcher {
   position: relative;
   width: 100%;
@@ -17,13 +19,13 @@
   text-align: left;
 
   &:hover {
-    background: var(--bg-hover);
+    background: var(--glass-bg-hover);
   }
 
   &.active {
-    background: var(--bg-card);
-    border-color: var(--border-color);
-    box-shadow: var(--shadow-sm);
+    background: var(--glass-bg-hover);
+    border-color: var(--glass-border);
+    box-shadow: var(--glass-shadow-soft);
   }
 }
 
@@ -80,20 +82,22 @@
   flex-shrink: 0;
 }
 
+//  Este panel ya pedía `backdrop-filter: blur(20px)` sobre un fondo OPACO, con
+//  lo que el desenfoque no tenía nada que desenfocar: se pagaba el coste de
+//  composición sin ver el efecto. Ahora la superficie es translúcida de verdad
+//  y el desenfoque sale de los mismos tokens que el resto de capas flotantes.
 .switcher-dropdown {
   position: absolute;
   top: calc(100% + 8px);
   left: 0;
   width: 280px;
-  background: var(--bg-card);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  z-index: 1000;
+  box-shadow: var(--glass-shadow);
+  z-index: var(--z-dropdown);
   overflow: hidden;
   animation: dropdown-fade-in 0.2s ease-out;
   transform-origin: top left;
+  @include ds.glass-surface('strong');
 }
 
 .dropdown-header {
@@ -271,5 +275,5 @@
 }
 
 .switch-error {
-  color: #b91c1c;
+  color: var(--error-text);
 }

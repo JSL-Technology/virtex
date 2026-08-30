@@ -42,15 +42,22 @@
   }
 
   <div class="terms-section">
-    <label class="checkbox-container" for="field">
-      <div class="checkbox-wrapper">
-         <input id="field"
-           id="agreeToTerms"
-           type="checkbox"
-           formControlName="agreeToTerms"
-           class="hidden-checkbox">
-         <div class="checkbox-custom"></div>
-      </div>
+    <!--
+      La casilla llevaba DOS atributos `id` —`field` y `agreeToTerms`— y la
+      etiqueta apuntaba al primero. Con identificadores duplicados el navegador
+      se queda con uno cualquiera, así que la asociación etiqueta/control era
+      cuestión de suerte: en la práctica, pulsar el texto de los términos no
+      siempre marcaba la casilla.
+    -->
+    <label class="checkbox-container" for="agreeToTerms">
+      <span class="checkbox-wrapper">
+        <input
+          id="agreeToTerms"
+          type="checkbox"
+          formControlName="agreeToTerms"
+          class="hidden-checkbox">
+        <span class="checkbox-custom" aria-hidden="true"></span>
+      </span>
       <span class="checkbox-label">
           {{ 'REGISTER.TERMS_AGREEMENT_1' | translate }}
           <a routerLink="/terms" target="_blank" class="legal-link">{{ 'REGISTER.TERMS' | translate }}</a>

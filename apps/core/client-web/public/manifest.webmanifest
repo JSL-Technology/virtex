@@ -1,12 +1,17 @@
 {
-  "name": "Virtex",
+  "name": "Virtex ERP",
   "short_name": "Virtex",
-  "theme_color": "#1976d2",
-  "background_color": "#fafafa",
+  "theme_color": "#0b0e17",
+  "background_color": "#05070d",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",
   "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
     {
       "src": "icons/icon-72x72.png",
       "sizes": "72x72",

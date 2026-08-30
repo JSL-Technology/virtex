@@ -1,3 +1,5 @@
+@use '../../../../assets/styles/design-system' as ds;
+
 @keyframes slideUpFade {
   0% { opacity: 0; transform: translate(-50%, -40%) scale(0.95); }
   100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
@@ -11,14 +13,13 @@
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: var(--z-modal);
   display: flex;
   align-items: center;
   justify-content: center;
-  // Use a slight overlay color, but let backdrop-filter do the work for glass effect if desired
-  background-color: rgba(var(--shadow-color-rgb), 0.4);
-  backdrop-filter: blur(4px);
+  background-color: var(--scrim);
   animation: backdropFade 0.3s ease-out forwards;
+  @include ds.glass-blur(8px);
 }
 
 .modal-content {
@@ -29,16 +30,13 @@
   width: 90%;
   max-width: 440px;
   
-  // Use global theme variables
-  background-color: var(--bg-card); 
-  border: 1px solid var(--border-color);
-  
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--glass-shadow);
   padding: var(--space-8);
+  @include ds.glass-surface('strong', var(--glass-blur-strong));
   animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   
-  color: var(--text-secondary);
+  color: var(--content-secondary);
 }
 
 .modal-header {
@@ -73,7 +71,7 @@
 
 .modal-body {
   text-align: center;
-  color: var(--text-secondary);
+  color: var(--content-secondary);
   margin-bottom: var(--space-8);
   font-size: var(--text-base);
   line-height: 1.6;
@@ -112,7 +110,7 @@
 
     &.btn-secondary {
       background: transparent;
-      color: var(--text-secondary);
+      color: var(--content-secondary);
       border-color: var(--border-color);
 
       &:hover {
