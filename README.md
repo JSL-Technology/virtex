@@ -1,5 +1,51 @@
 # Virteex
 
+## Ejecutar en local
+
+Necesitas Postgres y Redis. Nada más: con `NODE_ENV` sin definir o en `development`, la API genera
+sus propios secretos, apunta a `localhost` y trata Stripe, S3 y reCAPTCHA como opcionales, así que
+arranca sin `.env` y sin credenciales de terceros.
+
+```bash
+# 1. Infraestructura (o usa tus propias instancias)
+docker run -d --name virteex-db -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:16
+docker run -d --name virteex-redis -p 6379:6379 redis:7
+docker exec virteex-db psql -U postgres -c 'CREATE DATABASE erp'
+
+# 2. Esquema (obligatorio: la API aborta al arrancar si las tablas no existen)
+npm run migration:run
+
+# 3. Arrancar API (:3000) y cliente (:4200) a la vez
+npm run dev
+```
+
+También por separado: `npm run dev:api` y `npm run dev:web`.
+
+Los valores por defecto de desarrollo coinciden exactamente con esos contenedores
+(`localhost:5432`, usuario y contraseña `postgres`, base `erp`). Si usas otros, ponlos en `.env`
+—`cp .env.example .env`— o expórtalos; cualquier variable definida gana sobre el valor por defecto.
+
+**Si la consola del navegador muestra `ERR_CONNECTION_REFUSED` contra `localhost:3000`**, la API no
+está corriendo. El cliente en `:4200` la espera en `:3000` (`environment.apiUrl`); arráncala con
+`npm run dev:api` y revisa su salida. Dos causas habituales, ambas con mensaje explícito en esa
+salida: falta ejecutar `npm run migration:run` (`relation "saas_plans" does not exist`), o Postgres
+no está levantado (`ECONNREFUSED 127.0.0.1:5432`).
+
+Qué queda desactivado sin credenciales, y cómo se nota:
+
+| Sin configurar | Efecto |
+| --- | --- |
+| `STRIPE_SECRET_KEY`, `STRIPE_PRICE_*` | El alta de pago responde `Este plan no está disponible para contratación en este momento.` en el paso de checkout. Login, sesiones, validación fiscal y el resto del ERP funcionan. |
+| `AWS_*` | Se usa `LocalStorageStrategy`; los adjuntos van al disco local. Solo hacen falta con `STORAGE_DRIVER=s3`, y entonces se exigen también en desarrollo. |
+| `RECAPTCHA_V3_SECRET_KEY` | `RECAPTCHA_DISABLED` vale `true` por defecto en desarrollo: el guard se salta y los DTO dejan de exigir `recaptchaToken`. Ponlo a `false` para probar el flujo real. |
+| `MAIL_*` | Los correos transaccionales fallan al enviarse y se registra el error; el flujo no se rompe. |
+
+En producción no hay nada de esto: con `NODE_ENV=production` el esquema de configuración exige
+todos los secretos y credenciales al arrancar, y el proceso no acepta tráfico si falta alguno. Los
+valores generados de desarrollo son inalcanzables fuera de `development` y `test` —cualquier otro
+valor, incluido `staging` o `NODE_ENV` mal escrito, falla en el arranque—. Las dos reglas están
+fijadas en `apps/backend/api/src/app/config/env.validation.spec.ts`.
+
 ## Topología de despliegue
 
 **La API y el cliente web deben servirse desde el MISMO ORIGEN.** Las cookies de sesión son

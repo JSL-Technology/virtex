@@ -50,3 +50,6 @@ Thumbs.db
 typecheck_*.txt
 tmp-*.cjs
 *_audit.txt
+
+# Redis snapshot written into the working tree by a local redis-server
+dump.rdb

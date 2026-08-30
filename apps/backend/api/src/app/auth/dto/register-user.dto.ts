@@ -1,4 +1,4 @@
-
+import { IsRecaptchaToken } from './recaptcha-token.decorator';
 import {
     IsFiscalProfileValidForCountry,
     IsPostalCodeValidForCountry,
@@ -129,9 +129,7 @@ export class RegisterUserDto {
     @Matches(PASSWORD_POLICY_REGEX, { message: PASSWORD_POLICY_MESSAGE })
     password: string;
 
-    @ApiProperty({ description: 'Google Recaptcha V3 Token' })
-    @IsString()
-    @IsNotEmpty({ message: 'El token de reCAPTCHA es obligatorio.' })
+    @IsRecaptchaToken()
     recaptchaToken: string;
 
     // Added fields for provisioning
