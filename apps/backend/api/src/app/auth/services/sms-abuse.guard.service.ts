@@ -1,4 +1,4 @@
-import { ForbiddenException, Inject, Injectable, Logger } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { ConfigService } from '@nestjs/config';
@@ -150,8 +150,25 @@ export class SmsAbuseGuardService {
     reason: string,
     context: Record<string, unknown>,
   ): Promise<void> {
-    const current = ((await this.cache.get<number>(key)) ?? 0) + 1;
-    await this.cache.set(key, current, windowMs);
+    let current: number;
+    try {
+      current = ((await this.cache.get<number>(key)) ?? 0) + 1;
+      await this.cache.set(key, current, windowMs);
+    } catch (error) {
+      // Fail CLOSED. These counters ARE the fraud control; a cache outage that made
+      // `get` throw would otherwise reset every one of them to zero on every call and
+      // silently disable all four limits at once — precisely when an attacker is
+      // hammering the endpoint hard enough to be the cause of the outage. Refusing to
+      // send costs a few legitimate signups an SMS for the duration; failing open costs
+      // an unbounded Twilio invoice.
+      this.logger.error(
+        { event: 'sms_budget_unavailable', reason: (error as Error).message },
+        '[SECURITY] SMS abuse counters are unavailable; refusing to send.',
+      );
+      throw new ServiceUnavailableException(
+        'No podemos enviar SMS en este momento. Usa la verificación por correo.',
+      );
+    }
 
     if (current > limit) {
       this.reject(reason, { ...context, count: current, limit });

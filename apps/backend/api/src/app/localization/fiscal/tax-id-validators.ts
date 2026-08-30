@@ -22,10 +22,8 @@
  * Stripping is not the same as ignoring. A value containing letters is not a mis-formatted number,
  * it is a different string, and silently deleting the letters made `900123456K` validate as the
  * Colombian NIT `900123456` — a Chilean-style check character accepted by a country that never
- * issues one. `numericOnly` rejects such a value instead of quietly rewriting it; `digitsOnly` is
- * kept for the algorithms that legitimately operate on a mixed alphabet.
+ * issues one. `numericOnly` rejects such a value instead of quietly rewriting it.
  */
-const digitsOnly = (value: string): string => value.replace(/\D/g, '');
 
 /**
  * Digits with separators removed, or `null` when the input contains anything else.
@@ -110,7 +108,7 @@ export function isValidDominicanTaxId(value: string): boolean {
 }
 
 // ---------------------------------------------------------------------------------------------
-// United States — EIN (9 digits), IRS
+// United States — EIN (companies) and SSN/ITIN (sole proprietors), IRS
 // ---------------------------------------------------------------------------------------------
 /**
  * An EIN has no check digit, so the only structural signal is the two-digit prefix: the IRS
@@ -126,12 +124,66 @@ const IRS_ASSIGNED_PREFIXES = new Set([
   '91','92','93','94','95','98','99',
 ]);
 
-export function isValidUsEin(value: string): boolean {
+/** Strict EIN check. Used when the caller knows the taxpayer is a company. */
+export function isValidUsEinStrict(value: string): boolean {
   const digits = numericOnly(value);
   if (digits === null || digits.length !== 9) return false;
   // 00-, 07-, 08-, 09-, 17-, 18-, 19-, 28-, 29-, 49-, 69-, 70-, 78-, 79-, 89-, 96-, 97- are unassigned.
   return IRS_ASSIGNED_PREFIXES.has(digits.slice(0, 2));
 }
+
+/**
+ * SSN (natural person) and ITIN (resident alien without an SSN).
+ *
+ * Both are nine digits in `AAA-GG-SSSS` form. The rules that make a value un-issuable are
+ * published by the SSA and the IRS:
+ *   - area 000, 666 and 900-999 are never issued as an SSN; 900-999 IS the ITIN range, so an
+ *     ITIN is recognised by its area plus its group, which the IRS restricts to 50-65, 70-88,
+ *     90-92 and 94-99;
+ *   - group 00 and serial 0000 are never issued in either scheme.
+ *
+ * This matters commercially: a US sole proprietor files under an SSN or ITIN, not an EIN, and
+ * they are a large share of the small-business market the product sells into.
+ */
+export function isValidUsSsnOrItin(value: string): boolean {
+  const digits = numericOnly(value);
+  if (digits === null || digits.length !== 9) return false;
+
+  const area = Number(digits.slice(0, 3));
+  const group = Number(digits.slice(3, 5));
+  const serial = Number(digits.slice(5));
+
+  if (group === 0 || serial === 0) return false;
+
+  // ITIN: area 900-999 with an IRS-assigned group range.
+  if (area >= 900 && area <= 999) {
+    return (
+      (group >= 50 && group <= 65) ||
+      (group >= 70 && group <= 88) ||
+      (group >= 90 && group <= 92) ||
+      (group >= 94 && group <= 99)
+    );
+  }
+
+  // SSN: any area except 000 and 666.
+  return area !== 0 && area !== 666;
+}
+
+/**
+ * A United States taxpayer identifier, of either kind.
+ *
+ * The country profile has always advertised `individualDocument: { code: 'SSN', label:
+ * 'SSN / ITIN' }` and the comment beside it says rejecting that shape "would lock out a whole
+ * class of customer" — and then `validateTaxId` only ever ran the company validator, so it locked
+ * them out. Any SSN whose first two digits fall outside the IRS's EIN prefix list was refused:
+ * `078-05-1120` among them.
+ */
+export function isValidUsTaxId(value: string): boolean {
+  return isValidUsEinStrict(value) || isValidUsSsnOrItin(value);
+}
+
+/** @deprecated Use {@link isValidUsTaxId} for registration, or {@link isValidUsEinStrict} when the taxpayer is known to be a company. */
+export const isValidUsEin = isValidUsEinStrict;
 
 // ---------------------------------------------------------------------------------------------
 // Mexico — RFC, SAT. 12 characters for a company, 13 for a person, last is a check digit.
@@ -173,7 +225,16 @@ export function isValidMexicanRfc(value: string): boolean {
 // ---------------------------------------------------------------------------------------------
 // Colombia — NIT, DIAN. 9 digits plus a verification digit (DV).
 // ---------------------------------------------------------------------------------------------
-const NIT_WEIGHTS = [41, 37, 29, 23, 19, 17, 13, 7, 3];
+/**
+ * DIAN's published weight series, right-aligned to the body.
+ *
+ * The table previously stopped at nine entries while the length guard admitted an eleven-digit
+ * value, so the ten-digit branch was unreachable: `body.length > NIT_WEIGHTS.length` rejected it
+ * before any arithmetic ran. Ten-digit NITs are ordinary — they are the ones derived from a
+ * cédula, which is what every Colombian sole trader and most small companies file under — so the
+ * validator refused a whole class of legitimate taxpayer while reporting a bad check digit.
+ */
+const NIT_WEIGHTS = [71, 67, 59, 53, 47, 43, 41, 37, 29, 23, 19, 17, 13, 7, 3];
 
 export function isValidColombianNit(value: string): boolean {
   const digits = numericOnly(value);
@@ -186,11 +247,12 @@ export function isValidColombianNit(value: string): boolean {
   // only integrity check a NIT has. DIAN issues the NIT together with its DV and every electronic
   // invoice carries both, so requiring it costs a customer nothing and is the difference between
   // validating and pretending to.
-  if (digits.length < 10 || digits.length > 11) return false;
-
+  //
+  // Body length 5..15 covers everything DIAN issues: legacy short NITs, the 9-digit company form
+  // and the 10-digit cédula-derived form.
   const body = digits.slice(0, -1);
   const provided = digits.slice(-1);
-  if (body.length > NIT_WEIGHTS.length) return false;
+  if (body.length < 5 || body.length > NIT_WEIGHTS.length) return false;
 
   // Weights align to the RIGHT of the body.
   const weights = NIT_WEIGHTS.slice(NIT_WEIGHTS.length - body.length);
@@ -252,6 +314,29 @@ export function isValidArgentineCuit(value: string): boolean {
 }
 
 // ---------------------------------------------------------------------------------------------
+// Brazil — CPF (natural person), Receita Federal. 11 digits, two check digits.
+// ---------------------------------------------------------------------------------------------
+/**
+ * A Brazilian natural person files under a CPF, not a CNPJ. An ERP sold to Brazilian sole traders
+ * has to accept one, and NF-e carries whichever the issuer holds.
+ */
+export function isValidBrazilianCpf(value: string): boolean {
+  const digits = numericOnly(value);
+  if (digits === null || digits.length !== 11) return false;
+  if (/^(\d)\1{10}$/.test(digits)) return false;
+
+  const checkDigit = (body: string): string => {
+    const start = body.length + 1;
+    let sum = 0;
+    for (let i = 0; i < body.length; i++) sum += Number(body[i]) * (start - i);
+    const remainder = (sum * 10) % 11;
+    return String(remainder === 10 ? 0 : remainder);
+  };
+
+  return checkDigit(digits.slice(0, 9)) === digits[9] && checkDigit(digits.slice(0, 10)) === digits[10];
+}
+
+// ---------------------------------------------------------------------------------------------
 // Brazil — CNPJ, Receita Federal. 14 digits, two check digits.
 // ---------------------------------------------------------------------------------------------
 export function isValidBrazilianCnpj(value: string): boolean {
@@ -301,23 +386,37 @@ export function isValidEcuadorianRuc(value: string): boolean {
   if (digits === null) return false;
   if (digits.length !== 13) return false;
 
+  // Provinces 1-24, plus 30 for Ecuadorians registered abroad. Rejecting 30 turned every RUC
+  // issued to a non-resident taxpayer into a "bad check digit" error.
   const province = Number(digits.slice(0, 2));
-  if (province < 1 || province > 24) return false;
+  if ((province < 1 || province > 24) && province !== 30) return false;
+
+  // The trailing three digits are the establishment code, and SRI's published rule for the RUC
+  // itself is that they are 001: branch codes (002, 003…) belong to the `estab` field of an
+  // electronic document, not to the taxpayer's RUC. Kept strict deliberately — for a fiscal
+  // validator, widening acceptance on a rule that is not published is the wrong direction.
   if (!digits.endsWith('001')) return false;
 
   const thirdDigit = Number(digits[2]);
 
-  // Natural person: modulus 10 over the first nine digits.
+  // Natural person: the RUC is the 10-digit cédula plus the establishment code, so the cédula's
+  // own check digit is the TENTH digit, computed over the first nine with coefficients
+  // 2,1,2,1,2,1,2,1,2.
+  //
+  // This previously ran eight coefficients over the first eight digits and compared the result
+  // against digits[8] — the ninth. Off by one in both the body and the target, so it rejected
+  // every valid natural-person RUC in the country. `1710034065001` is a worked example: the
+  // published rule yields check digit 5 and matches; the old code computed 8 against digits[8]=6.
   if (thirdDigit < 6) {
-    const weights = [2, 1, 2, 1, 2, 1, 2, 1];
+    const weights = [2, 1, 2, 1, 2, 1, 2, 1, 2];
     let sum = 0;
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 9; i++) {
       let product = Number(digits[i]) * weights[i];
       if (product > 9) product -= 9;
       sum += product;
     }
     const expected = (10 - (sum % 10)) % 10;
-    return expected === Number(digits[8]);
+    return expected === Number(digits[9]);
   }
 
   // Public entity (6) and private company (9) use modulus 11 with different weights and lengths.
@@ -374,16 +473,29 @@ export function isValidParaguayanRuc(value: string): boolean {
 // ---------------------------------------------------------------------------------------------
 const RIF_TYPE_WEIGHT: Record<string, number> = { V: 1, E: 2, J: 3, P: 4, G: 5 };
 
+/**
+ * SENIAT's weight series: 4 for the type letter, then 3,2,7,6,5,4,3,2 across the eight body
+ * digits.
+ *
+ * The previous implementation shifted the series one position onto the digits — 4,3,2,7,6,5,4,3 —
+ * so the first body digit was weighted 4 instead of 3 and every subsequent one was wrong too. It
+ * rejected real RIFs: `J-00123072-6` (PDVSA) and `J-00002950-4` among them. The one value it
+ * accepted was the example in the country profile, `J-30599168-5`, and that is a coincidence —
+ * for those particular digits the difference between the two sums happens to be exactly 11, so
+ * both series land on the same residue. The unit test used that same value, so the defect was
+ * invisible from inside the suite.
+ */
+const RIF_DIGIT_WEIGHTS = [3, 2, 7, 6, 5, 4, 3, 2];
+
 export function isValidVenezuelanRif(value: string): boolean {
   const cleaned = value.toUpperCase().replace(/[^0-9A-Z]/g, '');
   if (!/^[VEJPG]\d{9}$/.test(cleaned)) return false;
 
   const typeWeight = RIF_TYPE_WEIGHT[cleaned[0]];
   const digits = cleaned.slice(1);
-  const weights = [4, 3, 2, 7, 6, 5, 4, 3];
 
   let sum = typeWeight * 4;
-  for (let i = 0; i < 8; i++) sum += Number(digits[i]) * weights[i];
+  for (let i = 0; i < 8; i++) sum += Number(digits[i]) * RIF_DIGIT_WEIGHTS[i];
 
   const remainder = 11 - (sum % 11);
   const expected = remainder >= 10 ? 0 : remainder;
@@ -447,39 +559,229 @@ export function isValidNicaraguanRuc(value: string): boolean {
   return cleaned.length === 14;
 }
 
+// ---------------------------------------------------------------------------------------------
+// Canonical storage form
+// ---------------------------------------------------------------------------------------------
+
 /**
- * Validator lookup by ISO 3166-1 alpha-2 country code.
+ * How a tax id is written to the database, per country.
+ *
+ * Registration used to store `taxId.replace(/[^\d]/g, '')` — every non-digit deleted, for every
+ * country. That is not normalisation, it is destruction, and it broke six markets at once:
+ *
+ *   - Mexico    `DEM010203AB5` → `0102035`. The RFC's three or four leading letters encode the
+ *               company name and the trailing two are its check pair; stripping them leaves the
+ *               date of incorporation. Every Mexican company incorporated on the same day
+ *               collapsed to the same stored value, and `organizations` carries a unique index on
+ *               `(tax_id, fiscal_region_id)` — so the second one to sign up was rejected with a
+ *               generic "no se pudo completar el registro", after paying.
+ *   - Chile     `76.086.428-K` → `76086428`. The check character is lost, and a RUT ending in K
+ *               becomes indistinguishable from a different RUT.
+ *   - Venezuela `J-30599168-5` and `V-30599168-5` → the same digits. J is a company and V a
+ *               natural person: two different taxpayers, one stored value.
+ *   - Guatemala the K check character, as in Chile.
+ *   - Nicaragua the leading letter of the RUC.
+ *   - Panama    the segment structure of a composite RUC.
+ *
+ * Canonicalising means removing only what a tax authority prints as decoration — spaces, dots,
+ * slashes, parentheses, and hyphens where the hyphen is a separator rather than structure — and
+ * upper-casing. Nothing that carries information is removed. The result is what the unique index
+ * compares and what an electronic invoice will later have to reproduce.
+ */
+type Canonicalizer = (value: string) => string;
+
+/** Digits only. For identifiers that are purely numeric once formatting is removed. */
+const canonicalDigits: Canonicalizer = (value) => value.replace(/\D/g, '');
+
+/** Letters and digits, upper-cased. Preserves RFC letters, RUT/NIT `K`, RIF and RUC prefixes. */
+const canonicalAlphanumeric: Canonicalizer = (value) =>
+  value.toUpperCase().replace(/[^0-9A-ZÑ&]/g, '');
+
+/**
+ * Upper-cased alphanumeric segments joined by hyphens.
+ *
+ * Panama's RUC is genuinely composite (`15512345-2-2018`): the hyphens separate meaningful fields
+ * rather than grouping digits, so collapsing them would merge distinct identifiers.
+ */
+const canonicalSegmented: Canonicalizer = (value) =>
+  value
+    .toUpperCase()
+    .split('-')
+    .map((segment) => segment.replace(/[^0-9A-Z]/g, ''))
+    .filter(Boolean)
+    .join('-');
+
+/**
+ * Whether the taxpayer is a legal entity or a natural person.
+ *
+ * Several countries issue a *different identifier* to each — the United States an EIN versus an
+ * SSN/ITIN, Brazil a CNPJ versus a CPF, the Dominican Republic an RNC versus a cédula — and
+ * several more encode the distinction inside one identifier: a Mexican RFC is twelve characters
+ * for a company and thirteen for a person, an Argentine CUIT starts 30/33/34 versus 20/23/24/27,
+ * a Peruvian RUC starts 20 versus 10, a Venezuelan RIF starts J/G/P versus V/E.
+ *
+ * Without it the validator has to accept the union of both schemes, which is materially weaker.
+ * A nine-digit United States number is a valid EIN under prefix 66 *and* an un-issuable SSN under
+ * area 666; asked to judge it with no context, the only safe answer is "accepted", and a typo
+ * gets through. Knowing the kind is what makes the check meaningful, and every regime the product
+ * targets requires the distinction on the invoice anyway.
+ */
+export enum TaxpayerKind {
+  COMPANY = 'company',
+  INDIVIDUAL = 'individual',
+}
+
+interface TaxIdRules {
+  /** `kind` is optional so callers that genuinely cannot know accept either scheme. */
+  validate: (value: string, kind?: TaxpayerKind) => boolean;
+  canonicalize: Canonicalizer;
+  /**
+   * True when the country's identifier — or the pair of identifiers — differs by taxpayer kind,
+   * so the signup form knows to ask. Where the same identifier serves both (a Colombian NIT, a
+   * Chilean RUT), asking would be noise.
+   */
+  kindAffectsValidation: boolean;
+}
+
+/** Restrict a shared validator to one shape, then defer to the country's own arithmetic. */
+const byLength = (
+  validate: (value: string) => boolean,
+  normalise: (value: string) => string,
+  companyLength: number,
+  individualLength: number,
+) => (value: string, kind?: TaxpayerKind): boolean => {
+  const length = normalise(value).length;
+  if (kind === TaxpayerKind.COMPANY && length !== companyLength) return false;
+  if (kind === TaxpayerKind.INDIVIDUAL && length !== individualLength) return false;
+  return validate(value);
+};
+
+/** Restrict a shared validator to the prefixes the country assigns to one kind. */
+const byPrefix = (
+  validate: (value: string) => boolean,
+  companyPrefixes: readonly string[],
+  individualPrefixes: readonly string[],
+) => (value: string, kind?: TaxpayerKind): boolean => {
+  if (!validate(value)) return false;
+  const prefix = (numericOnly(value) ?? '').slice(0, 2);
+  if (kind === TaxpayerKind.COMPANY) return companyPrefixes.includes(prefix);
+  if (kind === TaxpayerKind.INDIVIDUAL) return individualPrefixes.includes(prefix);
+  return true;
+};
+
+/**
+ * Validation and canonical form, per ISO 3166-1 alpha-2 country code.
  *
  * A country absent from this map has NO validator, and the registration strategy treats that as a
  * reason to refuse the signup rather than to accept anything. Accepting an unvalidated tax id in
  * a fiscal product means the first thing the customer discovers is that their invoices are
  * rejected.
  */
-export const TAX_ID_VALIDATORS: Readonly<Record<string, (value: string) => boolean>> = {
-  DO: isValidDominicanTaxId,
-  US: isValidUsEin,
-  MX: isValidMexicanRfc,
-  CO: isValidColombianNit,
-  CL: isValidChileanRut,
-  AR: isValidArgentineCuit,
-  BR: isValidBrazilianCnpj,
-  PE: isValidPeruvianRuc,
-  EC: isValidEcuadorianRuc,
-  UY: isValidUruguayanRut,
-  PY: isValidParaguayanRuc,
-  VE: isValidVenezuelanRif,
-  GT: isValidGuatemalanNit,
-  PA: isValidPanamanianRuc,
-  CR: isValidCostaRicanId,
-  BO: isValidBolivianNit,
-  SV: isValidSalvadoranNit,
-  HN: isValidHonduranRtn,
-  NI: isValidNicaraguanRuc,
+export const TAX_ID_RULES: Readonly<Record<string, TaxIdRules>> = {
+  // RNC (9 digits) for a company, cédula (11) for a natural person.
+  DO: {
+    validate: byLength(isValidDominicanTaxId, (v) => numericOnly(v) ?? '', 9, 11),
+    canonicalize: canonicalDigits,
+    kindAffectsValidation: true,
+  },
+  // EIN for a company, SSN or ITIN for a sole proprietor. Two separate schemes.
+  US: {
+    validate: (value, kind) =>
+      kind === TaxpayerKind.COMPANY
+        ? isValidUsEinStrict(value)
+        : kind === TaxpayerKind.INDIVIDUAL
+          ? isValidUsSsnOrItin(value)
+          : isValidUsTaxId(value),
+    canonicalize: canonicalDigits,
+    kindAffectsValidation: true,
+  },
+  // RFC: 12 characters for a persona moral, 13 for a persona física.
+  MX: {
+    validate: byLength(isValidMexicanRfc, alphanumeric, 12, 13),
+    canonicalize: canonicalAlphanumeric,
+    kindAffectsValidation: true,
+  },
+  // One NIT for both.
+  CO: { validate: isValidColombianNit, canonicalize: canonicalDigits, kindAffectsValidation: false },
+  // One RUT for both; the numeric range is conventional, not normative.
+  CL: { validate: isValidChileanRut, canonicalize: canonicalAlphanumeric, kindAffectsValidation: false },
+  // CUIT: 30/33/34 legal entity, 20/23/24/27 natural person, 50/51/55 other.
+  AR: {
+    validate: byPrefix(isValidArgentineCuit, ['30', '33', '34', '50', '51', '55'], ['20', '23', '24', '27']),
+    canonicalize: canonicalDigits,
+    kindAffectsValidation: true,
+  },
+  // CNPJ for a company, CPF for a natural person. Two separate schemes.
+  BR: {
+    validate: (value, kind) =>
+      kind === TaxpayerKind.COMPANY
+        ? isValidBrazilianCnpj(value)
+        : kind === TaxpayerKind.INDIVIDUAL
+          ? isValidBrazilianCpf(value)
+          : isValidBrazilianCnpj(value) || isValidBrazilianCpf(value),
+    canonicalize: canonicalDigits,
+    kindAffectsValidation: true,
+  },
+  // RUC: 20 company, 10 natural person, 15/17 legacy.
+  PE: {
+    validate: byPrefix(isValidPeruvianRuc, ['20'], ['10', '15', '17']),
+    canonicalize: canonicalDigits,
+    kindAffectsValidation: true,
+  },
+  // RUC: third digit 9 = company, 6 = public entity, <6 = natural person.
+  EC: {
+    validate: (value, kind) => {
+      if (!isValidEcuadorianRuc(value)) return false;
+      const third = Number((numericOnly(value) ?? '')[2]);
+      if (kind === TaxpayerKind.COMPANY) return third >= 6;
+      if (kind === TaxpayerKind.INDIVIDUAL) return third < 6;
+      return true;
+    },
+    canonicalize: canonicalDigits,
+    kindAffectsValidation: true,
+  },
+  UY: { validate: isValidUruguayanRut, canonicalize: canonicalDigits, kindAffectsValidation: false },
+  PY: { validate: isValidParaguayanRuc, canonicalize: canonicalDigits, kindAffectsValidation: false },
+  // RIF: J (company), G (public), P (partnership) versus V/E (natural person).
+  VE: {
+    validate: (value, kind) => {
+      if (!isValidVenezuelanRif(value)) return false;
+      const type = value.trim().toUpperCase().replace(/[^A-Z]/g, '')[0];
+      if (kind === TaxpayerKind.COMPANY) return type === 'J' || type === 'G' || type === 'P';
+      if (kind === TaxpayerKind.INDIVIDUAL) return type === 'V' || type === 'E';
+      return true;
+    },
+    canonicalize: canonicalAlphanumeric,
+    kindAffectsValidation: true,
+  },
+  GT: { validate: isValidGuatemalanNit, canonicalize: canonicalAlphanumeric, kindAffectsValidation: false },
+  PA: { validate: isValidPanamanianRuc, canonicalize: canonicalSegmented, kindAffectsValidation: false },
+  // Cédula jurídica (10 digits) for a company, física (9) for a natural person.
+  CR: {
+    validate: byLength(isValidCostaRicanId, (v) => numericOnly(v) ?? '', 10, 9),
+    canonicalize: canonicalDigits,
+    kindAffectsValidation: true,
+  },
+  BO: { validate: isValidBolivianNit, canonicalize: canonicalDigits, kindAffectsValidation: false },
+  SV: { validate: isValidSalvadoranNit, canonicalize: canonicalDigits, kindAffectsValidation: false },
+  HN: { validate: isValidHonduranRtn, canonicalize: canonicalDigits, kindAffectsValidation: false },
+  NI: { validate: isValidNicaraguanRuc, canonicalize: canonicalAlphanumeric, kindAffectsValidation: false },
 };
+
+/** True when the signup form must ask whether the taxpayer is a company or a natural person. */
+export function taxpayerKindAffectsValidation(countryCode: string): boolean {
+  return TAX_ID_RULES[countryCode?.toUpperCase() ?? '']?.kindAffectsValidation ?? false;
+}
+
+/** Validator-only view of {@link TAX_ID_RULES}, kept for callers that only need the predicate. */
+export const TAX_ID_VALIDATORS: Readonly<Record<string, (value: string) => boolean>> =
+  Object.fromEntries(
+    Object.entries(TAX_ID_RULES).map(([code, rules]) => [code, rules.validate]),
+  );
 
 /** True when the country has a validator at all — i.e. the product can be sold there. */
 export function isSupportedFiscalCountry(countryCode: string): boolean {
-  return Object.prototype.hasOwnProperty.call(TAX_ID_VALIDATORS, countryCode?.toUpperCase() ?? '');
+  return Object.prototype.hasOwnProperty.call(TAX_ID_RULES, countryCode?.toUpperCase() ?? '');
 }
 
 /**
@@ -488,8 +790,23 @@ export function isSupportedFiscalCountry(countryCode: string): boolean {
  * Returns false for an unsupported country: there is no safe way to "probably" validate a fiscal
  * identifier, and a permissive default is what let six countries through with no checking at all.
  */
-export function validateTaxId(countryCode: string, taxId: string): boolean {
-  const validator = TAX_ID_VALIDATORS[countryCode?.toUpperCase() ?? ''];
-  if (!validator) return false;
-  return Boolean(taxId?.trim()) && validator(taxId.trim());
+export function validateTaxId(countryCode: string, taxId: string, kind?: TaxpayerKind): boolean {
+  const rules = TAX_ID_RULES[countryCode?.toUpperCase() ?? ''];
+  if (!rules) return false;
+  return Boolean(taxId?.trim()) && rules.validate(taxId.trim(), kind);
+}
+
+/**
+ * The form a validated tax id is stored in.
+ *
+ * Throws for an unsupported country rather than guessing: a caller that reaches this without
+ * having validated first has a bug, and silently inventing a canonical form for an unknown
+ * country is how the destructive `replace(/[^\d]/g, '')` survived as long as it did.
+ */
+export function canonicalizeTaxId(countryCode: string, taxId: string): string {
+  const rules = TAX_ID_RULES[countryCode?.toUpperCase() ?? ''];
+  if (!rules) {
+    throw new Error(`No canonical tax-id form is defined for country "${countryCode}".`);
+  }
+  return rules.canonicalize(taxId.trim());
 }

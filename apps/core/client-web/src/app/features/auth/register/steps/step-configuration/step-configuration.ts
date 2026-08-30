@@ -1,9 +1,14 @@
-import { Component, Input, computed, inject, signal } from '@angular/core';
+import { Component, EventEmitter, Input, Output, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { CountryService, SupportedCountry } from '../../../../../core/services/country.service';
+import {
+  CountryService,
+  type FiscalFieldSpec,
+  type SupportedCountry,
+  type TaxpayerKind,
+} from '../../../../../core/services/country.service';
 import { AuthInputComponent } from '../../../components/auth-input/auth-input.component';
 
 /**
@@ -31,6 +36,9 @@ import { AuthInputComponent } from '../../../components/auth-input/auth-input.co
 export class StepConfiguration {
   @Input() group!: FormGroup;
 
+  /** Raised when the taxpayer kind changes, so the parent can rebuild the fiscal controls. */
+  @Output() taxpayerKindChanged = new EventEmitter<void>();
+
   public countryService = inject(CountryService);
   private router = inject(Router);
 
@@ -41,6 +49,27 @@ export class StepConfiguration {
 
   /** The country's first-level divisions, when it publishes a coded catalogue. */
   readonly divisions = computed(() => this.config()?.address.divisions ?? null);
+
+  /** Whether this country issues a different identifier to companies and to natural persons. */
+  readonly taxpayerKindRequired = computed(() => this.config()?.taxpayerKindRequired ?? false);
+
+  /** The country's extra fiscal fields, filtered to the taxpayer kind currently selected. */
+  readonly fiscalFields = computed<FiscalFieldSpec[]>(() => {
+    const kind = this.selectedKind();
+    return (this.config()?.fiscalFields ?? []).filter(
+      (field) => !field.appliesTo || !kind || field.appliesTo.includes(kind),
+    );
+  });
+
+  /**
+   * What the product can actually do for this market today.
+   *
+   * The step used to say "{{country}} exige facturación electrónica ({{regime}}). Estos datos
+   * forman parte del comprobante, por eso los pedimos ahora" for every country whose law requires
+   * e-invoicing — including twelve with no adapter behind them. That is a promise the product
+   * cannot keep, made to somebody who is about to pay. Now the notice distinguishes the two cases.
+   */
+  readonly invoicingSupported = computed(() => this.config()?.marketStatus === 'available');
 
   readonly taxIdLabel = computed(() => this.config()?.taxIdLabel ?? 'Tax ID');
   readonly taxIdPlaceholder = computed(() => this.config()?.taxIdExample ?? '');
@@ -67,6 +96,36 @@ export class StepConfiguration {
       // failure this replaces; an honest error is better than a signup that cannot complete.
       error: () => this.countriesFailed.set(true),
     });
+  }
+
+  /** The taxpayer kind currently chosen, read reactively so the field list follows it. */
+  private readonly kindSignal = signal<TaxpayerKind | undefined>('company');
+  readonly selectedKind = this.kindSignal.asReadonly();
+
+  onTaxpayerKindChange(event: Event) {
+    const value = (event.target as HTMLSelectElement).value as TaxpayerKind;
+    this.kindSignal.set(value);
+    this.taxpayerKindChanged.emit();
+  }
+
+  /** Options of one select, filtered to the taxpayer kind. */
+  optionsFor(field: FiscalFieldSpec) {
+    const kind = this.selectedKind();
+    return (field.options ?? []).filter(
+      (option) => !option.appliesTo || !kind || option.appliesTo.includes(kind),
+    );
+  }
+
+  /** The dynamic fiscal-field group, for the template's `formGroupName`. */
+  get fiscalProfileGroup(): FormGroup {
+    return this.group.get('fiscalProfile') as FormGroup;
+  }
+
+  errorForFiscalField(key: string): string {
+    const control = this.fiscalProfileGroup?.get(key);
+    if (!control?.touched || !control.errors) return '';
+    if (control.errors['required']) return 'REGISTER.ERRORS.REQUIRED';
+    return 'REGISTER.ERRORS.INVALID_FORMAT';
   }
 
   onFlagError(event: Event) {

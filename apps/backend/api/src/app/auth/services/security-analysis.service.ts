@@ -1,7 +1,6 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { authenticator } from 'otplib';
 import * as argon2 from 'argon2';
 import * as Bowser from 'bowser';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -10,8 +9,9 @@ import { AuditTrailService } from '../../audit/audit.service';
 import { AuthConfig } from '../auth.config';
 import { User } from '../../users/entities/user.entity/user.entity';
 import { VerificationCode, VerificationType } from '../entities/verification-code.entity';
-import { CryptoUtil } from '../../shared/utils/crypto.util';
+import { UserSecurity } from '../../users/entities/user-security.entity';
 import { UsersService } from '../../users/users.service';
+import { TwoFactorAuthService } from './two-factor-auth.service';
 
 @Injectable()
 export class SecurityAnalysisService {
@@ -24,8 +24,11 @@ export class SecurityAnalysisService {
     private readonly usersService: UsersService,
     @InjectRepository(VerificationCode)
     private readonly verificationCodeRepository: Repository<VerificationCode>,
-    private readonly cryptoUtil: CryptoUtil,
-    private readonly eventEmitter: EventEmitter2
+    @InjectRepository(UserSecurity)
+    private readonly userSecurityRepository: Repository<UserSecurity>,
+    private readonly eventEmitter: EventEmitter2,
+    @Inject(forwardRef(() => TwoFactorAuthService))
+    private readonly twoFactorAuthService: TwoFactorAuthService,
   ) {}
 
   /**
@@ -77,21 +80,26 @@ export class SecurityAnalysisService {
 
   /**
    * Validates a 2FA code (TOTP or SMS).
+   *
+   * TOTP verification is delegated to `TwoFactorAuthService.verifyCode`, which burns the accepted
+   * time-step. This method used to call `authenticator.verify()` directly, so the login path had
+   * NO replay protection while the step-up path did — two implementations of the same check with
+   * different security properties, and the weaker one on the more exposed route.
+   *
+   * What that allowed, concretely: a code observed once (a phishing proxy, a shoulder-surf, an
+   * infostealer reading the authenticator screen) stayed usable for the remainder of its 30-second
+   * step at `POST /auth/login`; and because the login path never advanced `last_totp_step`, the
+   * same six digits could then be spent AGAIN to authorise a step-up action. It also made
+   * `AUTH_TOTP_WINDOW` dead configuration here, since `authenticator.verify` defaults to a window
+   * of zero and the drift tolerance operators had configured simply did not apply.
+   * (NIST SP 800-63B §5.1.4.2: the verifier shall reject an already-used OTP.)
    */
   async validateTwoFactorCode(user: User, code: string): Promise<boolean> {
     let isValid2FA = false;
 
     // 1. Try TOTP (Authenticator App) if secret exists
-    if (user.security && user.security.twoFactorSecret) {
-      const decryptedSecret = this.cryptoUtil.decrypt(user.security.twoFactorSecret);
-      try {
-        isValid2FA = authenticator.verify({
-          token: code,
-          secret: decryptedSecret,
-        });
-      } catch (e) {
-        this.logger.error(`TOTP Verification Error for user ${user.id}: ${(e as Error).message}`);
-      }
+    if (user.security?.twoFactorSecret) {
+      isValid2FA = await this.twoFactorAuthService.verifyCode(user, code);
     }
 
     // 2. If not valid via TOTP, try SMS OTP (if verification code exists)
@@ -149,21 +157,46 @@ export class SecurityAnalysisService {
     }
   }
 
+  /**
+   * Count one failed authentication attempt and lock the account once the budget is spent.
+   *
+   * The increment is done by the DATABASE, not by reading a value into memory and writing back
+   * `value + 1`. The read-modify-write version lost increments under exactly the conditions the
+   * counter exists for: a credential-stuffing run fires attempts in parallel, every one of them
+   * reads the same count, and they all write the same number — so a burst of fifty guesses could
+   * register as one. Worse, `usersService.save(user)` persisted the whole entity graph, so two
+   * concurrent failures could also clobber unrelated fields of `user_security`.
+   *
+   * A single UPDATE with `failed_login_attempts = failed_login_attempts + 1` is atomic per row,
+   * and the lockout is applied in the same statement so there is no window between passing the
+   * threshold and being locked.
+   */
   async handleFailedLoginAttempt(user: User) {
     if (!user.security) return;
 
-    const MAX_FAILED_ATTEMPTS = AuthConfig.MAX_FAILED_ATTEMPTS;
-    // LOCKOUT_DURATION is in ms
+    const maxAttempts = AuthConfig.MAX_FAILED_ATTEMPTS;
     const lockoutMs = AuthConfig.LOCKOUT_DURATION;
 
-    user.security.failedLoginAttempts = (user.security.failedLoginAttempts || 0) + 1;
+    const [updated] = await this.userSecurityRepository.query(
+      `
+      UPDATE "user_security"
+         SET "failed_login_attempts" = "failed_login_attempts" + 1,
+             "lockout_until" = CASE
+               WHEN "failed_login_attempts" + 1 >= $2 THEN now() + ($3 || ' milliseconds')::interval
+               ELSE "lockout_until"
+             END
+       WHERE "id" = $1
+       RETURNING "failed_login_attempts", "lockout_until"
+      `,
+      [user.security.id, maxAttempts, String(lockoutMs)],
+    );
 
-    if (user.security.failedLoginAttempts >= MAX_FAILED_ATTEMPTS) {
-      const lockoutTime = new Date(Date.now() + lockoutMs);
-      user.security.lockoutUntil = lockoutTime;
+    // Keep the in-memory copy consistent with what the row now holds, so a caller that inspects
+    // it after this call (the login path reports lockout state) does not see a stale value.
+    if (updated) {
+      user.security.failedLoginAttempts = Number(updated.failed_login_attempts);
+      user.security.lockoutUntil = updated.lockout_until ? new Date(updated.lockout_until) : null;
     }
-
-    await this.usersService.save(user);
   }
 
   async resetLoginAttempts(user: User) {

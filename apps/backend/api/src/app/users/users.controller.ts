@@ -11,10 +11,9 @@ import { UsersService } from './users.service';
 import { InviteUserDto } from './entities/user.entity/invite-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { RequestEmailChangeDto, ConfirmEmailChangeDto } from './dto/email-change.dto';
+import { RequestEmailChangeDto, ConfirmEmailChangeDto, AdminChangeEmailDto } from './dto/email-change.dto';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
-import { PermissionsGuard } from '../auth/guards/permissions/permissions.guard';
 import { CsrfGuard } from '../auth/guards/csrf.guard';
 import { StepUpGuard } from '../auth/guards/step-up.guard';
 import { StepUp } from '../auth/decorators/step-up.decorator';
@@ -35,7 +34,7 @@ import { ActionType } from '../audit/entities/audit-log.entity';
 
 @ApiTags('Users')
 @Controller('users')
-@UseGuards(JwtAuthGuard, PermissionsGuard)
+@UseGuards(JwtAuthGuard)
 @UseFilters(TypeOrmExceptionFilter)
 export class UsersController {
   private readonly logger = new Logger(UsersController.name);
@@ -136,7 +135,11 @@ export class UsersController {
     @Ip() ip: string
   ) {
     try {
-      await this.usersService.requestEmailChange(user.id, dto);
+      // StepUpGuard has already re-verified this caller's identity with the strongest factor their
+      // account holds, so the service does not demand a password as well. Passed as an explicit
+      // argument; it used to be signalled by sending the literal string 'STEP_UP_VERIFIED' in the
+      // password field, which is a backdoor for any caller that reaches the service without a guard.
+      await this.usersService.requestEmailChange(user.id, dto, true);
       await this.auditTrailService.record(user.id, 'User', user.id, ActionType.UPDATE, { action: 'request-email-change', newEmail: dto.newEmail }, undefined, ip, user.organizationId);
       return { message: 'Si los datos son correctos, se ha enviado un enlace de confirmación al nuevo correo.' };
     } catch (e) {
@@ -305,10 +308,15 @@ export class UsersController {
   @ApiOperation({ summary: 'Admin: change user email with session invalidation' })
   async adminChangeEmail(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body('email') email: string,
+    @Body() dto: AdminChangeEmailDto,
     @CurrentUser() user: AuthenticatedUser,
+    @Ip() ip: string,
   ) {
-    await this.usersService.adminChangeEmail(id, email, user.organizationId);
+    await this.usersService.adminChangeEmail(id, dto.email, user.organizationId);
+    await this.auditTrailService.record(
+      user.id, 'User', id, ActionType.UPDATE,
+      { action: 'admin-change-email' }, undefined, ip, user.organizationId,
+    );
     return { message: 'Email actualizado. La sesión del usuario ha sido invalidada.' };
   }
 

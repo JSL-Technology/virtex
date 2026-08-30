@@ -7,14 +7,21 @@ import { StepConfiguration } from './step-configuration';
 import { CountryService } from '../../../../../core/services/country.service';
 import { MockCountryService, US_CONFIG } from '../../../../../../testing/country.service.mock';
 
+/**
+ * The same shape `RegisterPage` builds. `taxpayerKind` and the `fiscalProfile` sub-group are part
+ * of the contract now: the country decides which extra fiscal fields exist and the parent adds the
+ * controls, so the component renders whatever is in the group rather than a fixed list.
+ */
 const makeGroup = () =>
   new FormGroup({
     country: new FormControl('DO'),
+    taxpayerKind: new FormControl('company'),
     taxId: new FormControl(''),
     address: new FormControl(''),
     city: new FormControl(''),
     state: new FormControl(''),
     postalCode: new FormControl(''),
+    fiscalProfile: new FormGroup({}),
   });
 
 describe('StepConfiguration', () => {

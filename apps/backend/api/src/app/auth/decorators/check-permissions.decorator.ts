@@ -1,12 +1,12 @@
+import { HasPermission, PERMISSIONS_KEY } from './permissions.decorator';
 
-import { applyDecorators, UseGuards, SetMetadata } from '@nestjs/common';
-import { PermissionsGuard, PermissionOrPolicy } from '../guards/permissions/permissions.guard';
+export { PERMISSIONS_KEY };
 
-export const PERMISSIONS_KEY = 'permissions';
-
-export function CheckPermissions(...permissions: PermissionOrPolicy[]) {
-  return applyDecorators(
-    SetMetadata(PERMISSIONS_KEY, permissions),
-    UseGuards(PermissionsGuard),
-  );
-}
+/**
+ * Historical alias of {@link HasPermission}.
+ *
+ * The two decorators were separate implementations of the same idea and had diverged: this one
+ * applied `PermissionsGuard`, the other did not. They are now one function under two names, kept
+ * because controllers import both spellings. New code should use `HasPermission`.
+ */
+export const CheckPermissions = HasPermission;

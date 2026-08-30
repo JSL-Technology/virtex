@@ -1,4 +1,4 @@
-
+import { IsRecaptchaToken } from './recaptcha-token.decorator';
 import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -19,9 +19,7 @@ export class LoginUserDto {
   @IsOptional()
   rememberMe?: boolean;
 
-  @ApiProperty({ description: 'Google Recaptcha V3 Token' })
-  @IsString()
-  @IsNotEmpty({ message: 'El token de reCAPTCHA es obligatorio.' })
+  @IsRecaptchaToken()
   recaptchaToken: string;
 
   @ApiProperty({ example: '123456', description: '2FA Code if enabled', required: false })

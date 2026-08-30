@@ -102,8 +102,15 @@
         "PASSWORDS_DO_NOT_MATCH": "Las contraseñas no coinciden.",
         "AVATAR_UPLOAD": "Error al subir la imagen.",
         "OTP_SEND": "Error al enviar código.",
-        "OTP_INVALID": "Código incorrecto."
-      }
+        "OTP_INVALID": "Código incorrecto.",
+        "INVALID_EMAIL": "El formato del correo electrónico no es válido.",
+        "EMAIL_UNCHANGED": "Ese ya es tu correo actual.",
+        "EMAIL_CHANGE_FAILED": "No se pudo iniciar el cambio de correo."
+      },
+      "CHANGE_EMAIL": "Cambiar correo",
+      "SEND_CONFIRMATION": "Enviar confirmación",
+      "EMAIL_CHANGE_HINT": "Te enviaremos un enlace de confirmación al nuevo correo. El cambio se aplica cuando lo abras, y avisamos al correo anterior.",
+      "EMAIL_CHANGE_REQUESTED": "Si los datos son correctos, enviamos un enlace de confirmación al nuevo correo."
     }
   },
   "SECTIONS": {

@@ -40,6 +40,22 @@
       </div>
     </div>
 
+    <!-- Company or natural person. Asked before the tax id because it decides which identifier
+         scheme the value is checked against, and which régimen fiscal options apply. -->
+    <div class="form-field" *ngIf="taxpayerKindRequired()">
+      <label class="input-label" for="taxpayerKind">Tipo de contribuyente</label>
+      <div class="custom-select-wrapper">
+        <select id="taxpayerKind" formControlName="taxpayerKind"
+                (change)="onTaxpayerKindChange($event)" class="custom-select">
+          <option value="company">Empresa / persona jurídica</option>
+          <option value="individual">Persona física</option>
+        </select>
+        <div class="select-chevron">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-9"/></svg>
+        </div>
+      </div>
+    </div>
+
     <!-- Tax id -->
     <div class="full-width">
       <app-auth-input
@@ -110,10 +126,61 @@
         [errorMessage]="errorFor('postalCode')">
       </app-auth-input>
     </div>
+
+    <!-- The country's own fiscal requirements: régimen fiscal, condición frente al IVA, CRT,
+         giro, ubigeo… Rendered from the spec the server publishes, so adding a market is a
+         backend change rather than a new branch here. -->
+    <ng-container [formGroupName]="'fiscalProfile'">
+      <div class="form-field" *ngFor="let field of fiscalFields()"
+           [class.full-width]="field.type === 'select' && optionsFor(field).length > 6">
+        <ng-container *ngIf="field.type === 'select'; else fiscalTextField">
+          <label class="input-label" [attr.for]="'fiscal-' + field.key">
+            {{ field.label }}<span *ngIf="field.required" aria-hidden="true"> *</span>
+          </label>
+          <div class="custom-select-wrapper">
+            <select [id]="'fiscal-' + field.key" [formControlName]="field.key" class="custom-select">
+              <option value="">{{ 'REGISTER.SELECT' | translate }}</option>
+              <option *ngFor="let option of optionsFor(field)" [value]="option.code">
+                {{ option.code }} — {{ option.label }}
+              </option>
+            </select>
+            <div class="select-chevron">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-9"/></svg>
+            </div>
+          </div>
+          <p class="field-hint" *ngIf="field.help">{{ field.help }}</p>
+          <p class="field-error" *ngIf="errorForFiscalField(field.key)">
+            {{ errorForFiscalField(field.key) | translate }}
+          </p>
+        </ng-container>
+
+        <ng-template #fiscalTextField>
+          <app-auth-input
+            [formControlName]="field.key"
+            [label]="field.label"
+            [placeholder]="field.example || ''"
+            [required]="field.required"
+            [errorMessage]="errorForFiscalField(field.key)">
+          </app-auth-input>
+          <p class="field-hint" *ngIf="field.help">{{ field.help }}</p>
+        </ng-template>
+      </div>
+    </ng-container>
   </div>
 
+  <!-- What the product can actually do for this market, stated before payment.
+       This used to promise the country's regime unconditionally, for twelve markets with no
+       implementation behind them. -->
   <p class="invoicing-notice" *ngIf="invoicingNotice() as regime">
-    {{ config()?.name }} exige facturación electrónica ({{ regime }}). Estos datos forman parte del
-    comprobante, por eso los pedimos ahora.
+    <ng-container *ngIf="invoicingSupported(); else invoicingPreview">
+      {{ config()?.name }} exige facturación electrónica ({{ regime }}). Estos datos forman parte
+      del comprobante, por eso los pedimos ahora.
+    </ng-container>
+    <ng-template #invoicingPreview>
+      <strong>Facturación electrónica aún no disponible en {{ config()?.name }}.</strong>
+      Todo el ERP —contabilidad, inventario, compras, nómina e informes— funciona con normalidad, y
+      guardamos estos datos fiscales para poder emitir comprobantes ({{ regime }}) en cuanto
+      habilitemos el país. Si necesitas timbrar hoy, escríbenos antes de contratar.
+    </ng-template>
   </p>
 </div>

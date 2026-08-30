@@ -16,6 +16,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CryptoUtil } from '../shared/utils/crypto.util';
 import { OrganizationsService } from '../organizations/organizations.service';
 import { RegistrationService } from './services/registration.service';
+import { EnterpriseSsoService } from './services/enterprise-sso.service';
+import { OidcProviderService } from './services/oidc-provider.service';
 import { GeoService } from '../geo/geo.service';
 import { PasswordRecoveryService } from './services/password-recovery.service';
 import { ImpersonationService } from './services/impersonation.service';
@@ -153,6 +155,10 @@ describe('AuthService', () => {
         // Step-up now re-authenticates with the strongest factor the account has, so the
         // service needs the 2FA verifier as well as the password verifier.
         { provide: TwoFactorAuthService, useValue: { verifyCode: jest.fn() } },
+        // Step-up can also be satisfied by re-authenticating against the account's identity
+        // provider; neither is configured in this suite, so the federated path stays inert.
+        { provide: EnterpriseSsoService, useValue: { discoverByEmail: jest.fn().mockResolvedValue(null) } },
+        { provide: OidcProviderService, useValue: { isProviderConfigured: jest.fn().mockReturnValue(false) } },
       ],
     }).compile();
 

@@ -134,6 +134,19 @@ export class StripePaymentAdapter implements PaymentGateway {
       line_items: [{ price: dto.priceId, quantity: 1 }],
       success_url: dto.successUrl,
       cancel_url: dto.cancelUrl,
+      // Bill in the market's own currency. Stripe resolves it against the Price's
+      // `currency_options`; without it every customer in all nineteen markets was charged in the
+      // Price's default currency, i.e. USD.
+      ...(dto.currency ? { currency: dto.currency.toLowerCase() } : {}),
+      // Selling software to a Mexican or Colombian company obliges US to issue that company a
+      // compliant invoice with its tax identifier on it — our own compliance, not the customer's.
+      // None of this was configured, so the subscription was billed with no tax treatment at all
+      // and the buyer's tax id was never recorded against the Stripe customer.
+      automatic_tax: { enabled: true },
+      tax_id_collection: { enabled: true },
+      // Required by Stripe whenever automatic_tax is on: the address it derives the rate from has
+      // to be allowed to change during checkout.
+      billing_address_collection: 'required',
       subscription_data: {
         ...(dto.trialPeriodDays && dto.trialPeriodDays > 0
           ? { trial_period_days: dto.trialPeriodDays }

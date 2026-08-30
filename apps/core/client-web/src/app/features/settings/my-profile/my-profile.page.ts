@@ -270,4 +270,61 @@ export class MyProfilePage implements OnInit {
       });
     }
   }
+
+  /** True while the user is entering a new address, so the form can swap in the input. */
+  readonly changingEmail = signal(false);
+  readonly newEmail = signal('');
+
+  startEmailChange(): void {
+    this.newEmail.set('');
+    this.changingEmail.set(true);
+  }
+
+  cancelEmailChange(): void {
+    this.changingEmail.set(false);
+    this.newEmail.set('');
+  }
+
+  /**
+   * Request a change of the account's email address.
+   *
+   * The backend has had this endpoint, with step-up, a hashed single-use token, a 15-minute TTL
+   * and session invalidation, since the two-step flow was introduced — and NOTHING called it.
+   * `UsersService.requestEmailChange` existed in the client and no screen invoked it, so the only
+   * half of the flow a user could reach was the confirmation link, which they had no way to
+   * trigger. Changing your own email was simply not a feature the product offered.
+   *
+   * The new address is not applied here: the server emails it a confirmation link, and the change
+   * lands when that link is followed (see `handleEmailChangeToken` above). The previous address is
+   * notified separately, so a hijacked session cannot move the account silently.
+   */
+  requestEmailChange(): void {
+    const newEmail = this.newEmail().trim();
+    if (!newEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+      this.notificationService.showError('SETTINGS.PROFILE.ERRORS.INVALID_EMAIL');
+      return;
+    }
+    if (newEmail.toLowerCase() === (this.currentUser()?.email ?? '').toLowerCase()) {
+      this.notificationService.showError('SETTINGS.PROFILE.ERRORS.EMAIL_UNCHANGED');
+      return;
+    }
+
+    this.stepUpService
+      .requireStepUp(StepUpScope.CHANGE_EMAIL, this.viewContainerRef, () =>
+        // The password field is unused: StepUpGuard has already re-verified identity with the
+        // strongest factor the account holds, and the service is told so explicitly.
+        this.usersService.requestEmailChange({ newEmail, currentPassword: '' }),
+      )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.changingEmail.set(false);
+          this.notificationService.showSuccess('SETTINGS.PROFILE.EMAIL_CHANGE_REQUESTED');
+        },
+        error: (err) => {
+          console.error(err);
+          this.notificationService.showError('SETTINGS.PROFILE.ERRORS.EMAIL_CHANGE_FAILED');
+        },
+      });
+  }
 }

@@ -181,6 +181,15 @@ export const AuthConfig = {
   /** Single-use marker lifetime for a step-up jti; matches the token's own expiry. */
   get STEP_UP_TOKEN_TTL() { return parseDuration(AuthConfig.JWT_STEP_UP_EXPIRATION); },
 
+  /**
+   * How long a started signup may take to come back from Stripe and be confirmed.
+   *
+   * Sized to match `PENDING_REGISTRATION_TTL_MS` in RegistrationService: the transaction cookie
+   * that binds a checkout to its browser must not expire before the pending row it names, or the
+   * customer pays and then cannot be signed in.
+   */
+  get PENDING_REGISTRATION_TTL() { return parseDuration(envDuration('AUTH_PENDING_REGISTRATION_TTL', '24h')); },
+
   // ---------------------------------------------------------------------------
   // Throttling & lockout
   // ---------------------------------------------------------------------------

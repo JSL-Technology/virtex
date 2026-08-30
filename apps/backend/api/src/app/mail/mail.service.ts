@@ -143,6 +143,28 @@ export class MailService {
     });
   }
 
+  /**
+   * Warn the address that is losing the account.
+   *
+   * The confirmation above goes to the NEW address, which is the wrong side for the case that
+   * actually needs a signal: a hijacked session changing the email silently redirects account
+   * recovery, and the legitimate owner learns nothing. The old address is the one channel the
+   * attacker no longer controls at that point.
+   */
+  async sendEmailChangedNotice(previousEmail: string, firstName: string, newEmail: string) {
+    await this.mailerService.sendMail({
+      to: previousEmail,
+      subject: 'El correo de tu cuenta ha cambiado',
+      template: './email-changed-notice',
+      context: {
+        name: firstName || 'Usuario',
+        newEmail,
+        appName: this.configService.get<string>('APP_NAME', 'Virteex ERP'),
+        currentYear: new Date().getFullYear(),
+      },
+    });
+  }
+
   async sendRegistrationEmailVerification(
     email: string,
     code: string,

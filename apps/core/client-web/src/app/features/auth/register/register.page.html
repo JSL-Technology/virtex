@@ -69,7 +69,7 @@
 
       <!-- Step 4: Configuration (Country/Tax) -->
       <div *ngIf="currentStep() === 4" [@stepAnimation] class="step-content">
-        <app-step-configuration [group]="configuration"></app-step-configuration>
+        <app-step-configuration [group]="configuration" (taxpayerKindChanged)="onTaxpayerKindChange()"></app-step-configuration>
       </div>
 
       <!-- Step 5: Business Info -->

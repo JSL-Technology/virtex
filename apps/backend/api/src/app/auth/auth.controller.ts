@@ -1,6 +1,6 @@
 
-import { Controller, Post, Body, HttpCode, HttpStatus, Res, Get, UseGuards, Req, UsePipes, ValidationPipe, BadRequestException, UnauthorizedException, ConflictException, Param, ParseUUIDPipe, Ip, Headers, UseFilters, Header } from '@nestjs/common';
-import type { Response, Request } from 'express';
+import { Controller, Post, Body, HttpCode, HttpStatus, Res, Get, UseGuards, Req, UsePipes, ValidationPipe, BadRequestException, UnauthorizedException, ConflictException, Param, ParseUUIDPipe, Query, Ip, Headers, UseFilters, Header, Logger } from '@nestjs/common';
+import type { HttpResponse as Response, HttpRequest as Request } from '../common/http/http.types';
 import { AuthService } from './auth.service';
 import { AuthFacade } from './auth.facade';
 import { TwoFactorAuthService } from './services/two-factor-auth.service';
@@ -64,12 +64,11 @@ import { CsrfGuard } from './guards/csrf.guard';
 import { StepUpGuard } from './guards/step-up.guard';
 import { StepUp } from './decorators/step-up.decorator';
 import { StepUpScope } from './enums/step-up-scope.enum';
-import { PermissionsGuard } from './guards/permissions/permissions.guard';
 import { HasPermission } from './decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { MfaOrchestratorService } from './services/mfa-orchestrator.service';
 import { OauthStateService } from './services/oauth-state.service';
-import { OidcProviderService } from './services/oidc-provider.service';
+import { OidcProviderService, type OidcClientConfig } from './services/oidc-provider.service';
 import { EnterpriseSsoService } from './services/enterprise-sso.service';
 import { SsoDiscoverDto } from './dto/sso-discover.dto';
 import { JwtService } from '@nestjs/jwt';
@@ -96,6 +95,8 @@ import { TwoFactorRequiredResponseDto } from './dto/login-response.dto';
 @Controller('auth')
 @UseFilters(TypeOrmExceptionFilter)
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(
     private readonly authService: AuthService,
     private readonly authFacade: AuthFacade,
@@ -357,7 +358,10 @@ export class AuthController {
   @UseGuards(ThrottlerGuard)
   @ApiOperation({ summary: 'Validate signup and start Stripe Checkout — no account is created until payment succeeds' })
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
-  async registerCheckout(@Body() dto: RegisterCheckoutDto): Promise<{ url: string | null }> {
+  async registerCheckout(
+    @Body() dto: RegisterCheckoutDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<{ url: string | null }> {
     const plans = await this.saasService.getPlans();
     const plan = plans.find((p) => p.id === dto.planId || p.slug === dto.planId);
     if (!plan) {
@@ -386,10 +390,23 @@ export class AuthController {
       trialPeriodDays: plan.trialPeriodDays,
       successUrl,
       cancelUrl,
+      // Bill the market in its own currency and let Stripe determine the tax. Both were missing,
+      // so every customer in all nineteen markets was charged in the Price's default currency with
+      // no tax treatment at all.
+      currency: SaasService.currencyForCountry(dto.countryCode),
+      countryCode: dto.countryCode,
       metadata: { pendingRegistrationId: pending.id },
     });
 
     await this.authFacade.attachSessionToPending(pending.id, session.sessionId);
+
+    // Bind this pending registration to THIS browser. `register-confirm` will not issue a session
+    // without it, so a leaked Stripe session id is no longer enough to take over the account.
+    this.cookieService.setRegistrationTransactionCookie(
+      res,
+      pending.id,
+      AuthConfig.PENDING_REGISTRATION_TTL,
+    );
 
     return { url: session.url };
   }
@@ -402,10 +419,27 @@ export class AuthController {
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   async registerConfirm(
     @Body() dto: RegisterConfirmDto,
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
     @Ip() ip: string,
     @Headers('user-agent') userAgent: string
   ): Promise<AuthResponseDto> {
+    // Proof that this browser is the one that started the checkout.
+    //
+    // Without it the Stripe `session_id` alone minted a full owner session — and that id reaches
+    // the browser in a query string, so it lands in history, in the `Referer` sent to any
+    // third-party resource on the landing page, and in every proxy log in between. It also never
+    // stopped working: once the account exists, `completePendingRegistration` returns the existing
+    // user, so the same id could be replayed for a session weeks later.
+    const transactionId = this.cookieService.readRegistrationTransactionId(
+      (req as unknown as { cookies?: Record<string, string | undefined> }).cookies,
+    );
+    if (!transactionId) {
+      throw new UnauthorizedException(
+        'No encontramos tu sesión de registro en este navegador. Inicia sesión con el correo y la contraseña que registraste.',
+      );
+    }
+
     const session = await this.paymentService.getCheckoutSession(dto.sessionId);
 
     // Accept paid checkouts and trials (no_payment_required) but never unpaid/open.
@@ -417,6 +451,18 @@ export class AuthController {
       throw new BadRequestException('Sesión de registro no válida.');
     }
 
+    // The cookie and the checkout session must describe the SAME signup. Comparing them stops a
+    // caller from pairing their own transaction cookie with somebody else's session id.
+    if (session.pendingRegistrationId !== transactionId) {
+      this.logger.warn(
+        { event: 'register_confirm_transaction_mismatch' },
+        '[SECURITY] register-confirm presented a checkout session that does not match its transaction cookie',
+      );
+      throw new UnauthorizedException(
+        'Esta sesión de pago no corresponde a este navegador. Inicia sesión con tus credenciales.',
+      );
+    }
+
     const user = await this.authFacade.completePendingRegistration(session.pendingRegistrationId, {
       customerId: session.customerId as string,
       subscriptionId: session.subscriptionId,
@@ -426,6 +472,8 @@ export class AuthController {
 
     const { accessToken, refreshToken, user: safeUser } = await this.authFacade.generateTokens(user, ip, userAgent);
     this.cookieService.setAuthCookies(res, accessToken, refreshToken, { userId: user.id });
+    // Single use: the transaction has served its purpose and must not be replayable.
+    this.cookieService.clearRegistrationTransactionCookie(res);
 
     return {
       user: plainToInstance(UserResponseDto, safeUser, { excludeExtraneousValues: true }),
@@ -589,6 +637,168 @@ export class AuthController {
   }
 
   /**
+   * Begin re-authentication against the account's identity provider.
+   *
+   * The step-up equivalent of signing in again, for accounts that have no local password and no
+   * TOTP secret because their identity lives at an IdP. `prompt=login` and `max_age=0` tell the
+   * provider to challenge the user afresh rather than silently re-issuing from an existing SSO
+   * session — without them the "re-authentication" would be a redirect that proves nothing.
+   *
+   * The requested scope travels inside the sealed, httpOnly transaction cookie, not in the query
+   * string, so the caller cannot widen it between start and callback.
+   */
+  @Get('step-up/sso')
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  @ApiOperation({ summary: 'Re-authenticate with the identity provider to authorise a sensitive action' })
+  async stepUpSsoStart(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('scope') scope: string,
+    @Res() res: Response,
+  ) {
+    if (!Object.values(StepUpScope).includes(scope as StepUpScope)) {
+      throw new BadRequestException('Alcance de verificación no válido.');
+    }
+
+    const federated = await this.resolveFederatedProvider(user);
+    if (!federated) {
+      throw new BadRequestException(
+        'Esta cuenta no está vinculada a un proveedor de identidad.',
+      );
+    }
+
+    const tx = this.oauthStateService.createTransaction(
+      `stepup:${federated.flow}:${scope}`,
+      user.organizationId,
+    );
+    const codeChallenge = this.oauthStateService.codeChallengeS256(tx.codeVerifier);
+    const authorizationUrl = await this.oidcProviderService.buildAuthorizationUrl(
+      {
+        ...federated.config,
+        extraAuthParams: {
+          ...(federated.config.extraAuthParams ?? {}),
+          // Force a fresh authentication at the provider. Both are sent: `prompt=login` is the
+          // OIDC-standard instruction, `max_age=0` is what providers that ignore prompt honour.
+          prompt: 'login',
+          max_age: '0',
+          login_hint: user.email,
+        },
+      },
+      { state: tx.state, nonce: tx.nonce, codeChallenge },
+    );
+    this.oauthStateService.setTransactionCookie(res, tx);
+    return res.redirect(authorizationUrl);
+  }
+
+  /**
+   * Finish IdP re-authentication and deliver the step-up proof as an httpOnly cookie.
+   *
+   * The identity the provider returns must be the identity already signed in here. Without that
+   * check, a user could authenticate as somebody else at the IdP and receive a step-up token for
+   * their own session.
+   */
+  @Get('step-up/sso/callback')
+  @UseGuards(JwtAuthGuard)
+  async stepUpSsoCallback(
+    @CurrentUser() user: AuthenticatedUser,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    try {
+      const query = (req.query ?? {}) as Record<string, string>;
+      if (query.error) {
+        throw new UnauthorizedException(query.error_description || query.error);
+      }
+
+      const tx = this.oauthStateService.readTransaction(req);
+      const [marker, provider, scope] = tx.flow.split(':');
+      if (marker !== 'stepup' || !provider || !scope) {
+        throw new BadRequestException('Flujo de verificación no válido.');
+      }
+      this.oauthStateService.verifyState(tx.state, query.state);
+      if (!query.code) {
+        throw new BadRequestException('Falta el código de autorización.');
+      }
+
+      const federated = await this.resolveFederatedProvider(user);
+      if (!federated || federated.flow !== provider) {
+        throw new UnauthorizedException('El proveedor de identidad no coincide.');
+      }
+
+      const { claims } = await this.oidcProviderService.exchangeAndValidate(federated.config, {
+        code: query.code,
+        codeVerifier: tx.codeVerifier,
+        expectedNonce: tx.nonce,
+      });
+
+      // The provider must have re-authenticated the SAME person. Email is compared
+      // case-insensitively because providers differ on the casing they return.
+      const returnedEmail = typeof claims.email === 'string' ? claims.email.toLowerCase() : '';
+      if (!returnedEmail || returnedEmail !== user.email.toLowerCase()) {
+        this.logger.warn(
+          { event: 'step_up_sso_subject_mismatch', userId: user.id },
+          '[SECURITY] IdP re-authentication returned a different identity than the signed-in user',
+        );
+        throw new UnauthorizedException('La identidad verificada no coincide con tu sesión.');
+      }
+
+      this.oauthStateService.clearTransactionCookie(res);
+
+      const { stepUpToken, maxAgeMs } = this.authService.issueStepUpTokenAfterFederatedReauth(
+        user.id,
+        scope as StepUpScope,
+      );
+      this.cookieService.setStepUpCookie(res, stepUpToken, maxAgeMs);
+      return res.redirect(this.links.stepUpComplete(scope));
+    } catch (err) {
+      this.oauthStateService.clearTransactionCookie(res);
+      this.logger.warn(
+        { event: 'step_up_sso_failed', reason: (err as Error).message },
+        '[SECURITY] IdP re-authentication for step-up failed',
+      );
+      return res.redirect(this.links.stepUpFailed());
+    }
+  }
+
+  /**
+   * The OIDC client configuration to re-authenticate this user against.
+   *
+   * The organization's enterprise IdP takes precedence over a social provider: an account that
+   * belongs to a tenant with SSO configured must re-authenticate there, not against whichever
+   * consumer provider it happened to sign up with.
+   */
+  private async resolveFederatedProvider(
+    user: AuthenticatedUser,
+  ): Promise<{ flow: string; config: OidcClientConfig } | null> {
+    const discovered = await this.enterpriseSsoService.discoverByEmail(user.email);
+    if (discovered) {
+      const idp = await this.enterpriseSsoService.getEnabledIdpOrThrow(discovered.idpId);
+      return {
+        flow: `sso-${discovered.idpId}`,
+        // The step-up flow has its own callback, so the config's sign-in redirect URI is
+        // replaced. It must match on both the authorization request and the token exchange.
+        config: {
+          ...this.enterpriseSsoService.buildConfig(idp),
+          redirectUri: this.oidcProviderService.stepUpRedirectUri(),
+        },
+      };
+    }
+
+    const fullUser = await this.authService.findUserForStepUp(user.id);
+    const provider = fullUser?.authProvider;
+    if (provider && this.oidcProviderService.isProviderConfigured(provider)) {
+      return {
+        flow: provider,
+        config: {
+          ...this.oidcProviderService.getProviderConfig(provider),
+          redirectUri: this.oidcProviderService.stepUpRedirectUri(),
+        },
+      };
+    }
+    return null;
+  }
+
+  /**
    * Which factor the client must collect before calling `POST /auth/step-up`.
    *
    * Without this the client has to guess, and guessing wrong means the user is shown a password
@@ -710,7 +920,7 @@ export class AuthController {
   // ImpersonationService additionally refuses any target whose permissions the operator does
   // not already hold, so the feature cannot be used to gain privileges.
   @Post('impersonate')
-  @UseGuards(JwtAuthGuard, CsrfGuard, PermissionsGuard, StepUpGuard)
+  @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
   @StepUp(StepUpScope.IMPERSONATE)
   @HasPermission(PERMISSIONS.USERS_IMPERSONATE)
   async impersonate(

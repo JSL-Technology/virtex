@@ -6,6 +6,17 @@
       "TITLE": "Advanced Customization",
       "DESCRIPTION": "Complete the information to customize your application's appearance.",
       "SAVE_BUTTON": "Save Changes"
+    },
+    "PROFILE": {
+      "CHANGE_EMAIL": "Change email",
+      "SEND_CONFIRMATION": "Send confirmation",
+      "EMAIL_CHANGE_HINT": "We will send a confirmation link to the new address. The change takes effect when you open it, and we notify the previous address.",
+      "EMAIL_CHANGE_REQUESTED": "If the details are correct, we sent a confirmation link to the new address.",
+      "ERRORS": {
+        "INVALID_EMAIL": "That email address is not valid.",
+        "EMAIL_UNCHANGED": "That is already your current address.",
+        "EMAIL_CHANGE_FAILED": "The email change could not be started."
+      }
     }
   },
   "SECTIONS": {

@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { Response, Request } from 'express';
+import type { HttpResponse as Response, HttpRequest as Request } from '../../common/http/http.types';
 import * as crypto from 'crypto';
 
 /**

@@ -16,7 +16,7 @@ import { StepUpGuard } from '../auth/guards/step-up.guard';
 import { StepUp } from '../auth/decorators/step-up.decorator';
 import { StepUpScope } from '../auth/enums/step-up-scope.enum';
 import { Ip, Headers, Res, HttpCode, HttpStatus, ForbiddenException } from '@nestjs/common';
-import { Response } from 'express';
+import type { HttpResponse as Response } from '../common/http/http.types';
 import { MembershipService } from './services/membership.service';
 import { SwitchOrganizationDto } from './dto/switch-organization.dto';
 import { TokenService } from '../auth/services/token.service';

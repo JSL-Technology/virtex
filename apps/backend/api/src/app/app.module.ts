@@ -2,7 +2,6 @@
 
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import * as Joi from 'joi';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerGuard, ThrottlerModule, ThrottlerModuleOptions } from '@nestjs/throttler';
@@ -69,109 +68,7 @@ import { ProjectsModule } from './projects/projects.module';
 import { HcmModule } from './hcm/hcm.module';
 import { ProcurementModule } from './procurement/procurement.module';
 import { DatasheetsModule } from './datasheets/datasheets.module';
-
-const requiredSecret = Joi.string().min(32).required();
-
-const envValidation = Joi.object({
-  NODE_ENV: Joi.string()
-    .valid('development', 'test', 'production')
-    .default('development'),
-
-  // H-01 FIX: All cryptographic secrets required at startup — fail fast before any module initializes.
-  JWT_SECRET: requiredSecret,
-  JWT_REFRESH_SECRET: requiredSecret,
-  JWT_2FA_TEMP_SECRET: requiredSecret,
-  JWT_PREVERIFY_SECRET: requiredSecret,
-  CSRF_SECRET: requiredSecret,
-  ENCRYPTION_SECRET: requiredSecret,
-  AUTH_SALT: Joi.string().min(16).required(),
-
-  // Used with `getOrThrow` at runtime but absent from this schema, so the application started
-  // happily and then failed on the first social sign-up with a 500 that named no cause.
-  JWT_SOCIAL_REGISTER_SECRET: requiredSecret,
-  JWT_STEP_UP_SECRET: requiredSecret,
-
-  // Passkeys are bound to the relying-party id. It defaulted to 'localhost', which does not match
-  // any production origin, so every WebAuthn operation failed the origin check — silently, since
-  // the browser simply refuses. Required wherever a real origin exists.
-  WEBAUTHN_RP_ID: Joi.when('NODE_ENV', {
-    is: Joi.valid('development', 'test'),
-    then: Joi.string().optional().default('localhost'),
-    otherwise: Joi.string().hostname().required(),
-  }),
-
-  // Where the client lives. Every emailed link and OAuth redirect is built from it.
-  FRONTEND_URL: Joi.string().uri().required(),
-  CORS_ORIGIN: Joi.string().required(),
-  API_PREFIX: Joi.string().optional().default('api/v1'),
-
-  // Stripe price ids, one per plan. Without them the plans exist but cannot be subscribed to,
-  // and signup fails at the last step with "this plan is not available".
-  STRIPE_PRICE_STARTER: Joi.string().required(),
-  STRIPE_PRICE_PRO: Joi.string().required(),
-  STRIPE_PRICE_ENTERPRISE: Joi.string().required(),
-
-  // Outbound SMS fraud controls. Both have safe defaults; naming them here documents that they
-  // exist and are meant to be tuned per market.
-  SMS_ALLOWED_COUNTRY_CODES: Joi.string().optional(),
-  SMS_GLOBAL_DAILY_LIMIT: Joi.number().integer().positive().optional(),
-
-  // RS256 keys: required in production, optional in development (ephemeral key is generated).
-  RS_PRIVATE_KEY: Joi.when('NODE_ENV', { is: 'production', then: Joi.string().required(), otherwise: Joi.string().optional() }),
-  RS_PUBLIC_KEY: Joi.when('NODE_ENV', { is: 'production', then: Joi.string().required(), otherwise: Joi.string().optional() }),
-  RS_KEY_ID: Joi.string().optional().default('key-1'),
-
-  DB_HOST: Joi.string().required(),
-  DB_PORT: Joi.number().port().default(5432),
-  DB_USERNAME: Joi.string().required(),
-  DB_PASSWORD: Joi.string().allow('').required(),
-  DB_NAME: Joi.string().required(),
-  DB_SYNCHRONIZE: Joi.boolean().default(false),
-
-  // Declared so Joi COERCES them to real booleans.
-  //
-  // `ConfigService.get<boolean>(key, false)` returns whatever is in the environment, and every
-  // environment variable is a string: `'false'` is truthy. `DB_SSL=false` therefore turned TLS ON
-  // and the application failed to connect with `DEPTH_ZERO_SELF_SIGNED_CERT` against a database
-  // that speaks plaintext — the opposite of what the setting says. The type parameter on `get` is
-  // an assertion, not a conversion; only the validation schema converts. Every boolean flag the
-  // application reads is declared here for that reason.
-  DB_SSL: Joi.boolean().default(false),
-  DB_SSL_REJECT_UNAUTHORIZED: Joi.boolean().default(true),
-  DB_SSL_CA: Joi.string().optional(),
-  DB_LOGGING: Joi.boolean().default(false),
-
-  REDIS_HOST: Joi.string().default('localhost'),
-  REDIS_PORT: Joi.number().port().default(6379),
-
-  // H-04 FIX: reCAPTCHA controlled by explicit flag, not NODE_ENV.
-  // (crypto secrets are already validated above — do not redeclare them here)
-  RECAPTCHA_DISABLED: Joi.boolean().default(false),
-  RECAPTCHA_V3_SECRET_KEY: Joi.when('RECAPTCHA_DISABLED', {
-    is: true,
-    then: Joi.string().optional(),
-    otherwise: Joi.string().required(),
-  }),
-
-  // Web push. Optional as a group: all three or none. The service used to call
-  // `webpush.setVapidDetails` unconditionally, which throws on a missing key — from a constructor,
-  // so a missing VAPID key stopped the whole application from booting. `VAPID_SUBJECT` must be a
-  // real contact address (`mailto:` or an https URL): push services use it to reach the operator,
-  // and it was hardcoded to `mailto:youremail@example.com`.
-  VAPID_PUBLIC_KEY: Joi.string().optional(),
-  VAPID_PRIVATE_KEY: Joi.string().optional(),
-  VAPID_SUBJECT: Joi.string()
-    .pattern(/^(mailto:.+@.+\..+|https:\/\/.+)$/)
-    .optional(),
-
-  AWS_S3_BUCKET_NAME: Joi.string().required(),
-  AWS_REGION: Joi.string().required(),
-  AWS_ACCESS_KEY_ID: Joi.string().required(),
-  AWS_SECRET_ACCESS_KEY: Joi.string().required(),
-
-  STRIPE_SECRET_KEY: Joi.string().required(),
-  STRIPE_WEBHOOK_SECRET: Joi.string().required(),
-});
+import { envValidation } from './config/env.validation';
 
 @Module({
   imports: [

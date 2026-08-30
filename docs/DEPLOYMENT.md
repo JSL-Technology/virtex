@@ -77,15 +77,48 @@ substituting a default — when `API_URL` or `RECAPTCHA_V3_SITE_KEY` is missing,
 non-HTTPS `API_URL`, because session cookies are issued `Secure` and a plain-HTTP API can never
 hold a session.
 
-## 4. Same-site requirement
+## 4. Same-ORIGIN requirement
 
-**The API and the web client must be served from the same site.**
+**The API and the web client must be served from the same origin.**
 
-Session cookies are `HttpOnly; Secure; SameSite=Lax`. A browser does not attach `SameSite=Lax`
-cookies to cross-site XHR, so a client on `app.example.com` calling an API on `api.example.com`
-would authenticate once and then be logged out on the next request. Serve the API under the same
-registrable domain — a path prefix (`https://app.example.com/api/v1`) or a subdomain fronted by
-the same origin.
+This section previously said "same site" and offered "a subdomain fronted by the same origin" as an
+option. Same-site is not sufficient, and the subdomain wording was ambiguous enough to be read as
+`api.example.com` alongside `app.example.com`, which does not work. Two independent reasons:
+
+1. **Session cookies.** They are `HttpOnly; Secure; SameSite=Lax`, and a browser does not attach
+   `SameSite=Lax` cookies to cross-site XHR at all.
+2. **The CSRF cookie.** It is issued as `__Host-XSRF-TOKEN`, which by definition carries no
+   `Domain` attribute — it is host-only. The SPA reads it from `document.cookie` on its OWN origin
+   and copies it into the `X-XSRF-TOKEN` header. Served from a different host, the client cannot
+   see the cookie, sends no header, and every state-changing request answers `403 Invalid CSRF
+   Token`. The prefix is not optional: without it a compromised sibling subdomain could overwrite
+   the cookie, which is precisely what the signed double-submit exists to prevent.
+
+Supported topologies:
+
+- A path prefix on the same origin: `https://app.example.com/api/v1` (recommended).
+- A reverse proxy that fronts both the SPA and the API under one hostname.
+
+Not supported: the client on one host and the API on another, whatever the shared registrable
+domain. Note that the repository README describes deploying `client-web` to Render as a standalone
+static site — that is a separate origin, and authentication cannot work that way.
+
+Set `CORS_ORIGIN` and `FRONTEND_URL` to the client's origin, and `API_URL` to the API's base URL
+including the version prefix.
+
+## 4b. Identity-provider redirect URIs
+
+Every OIDC provider — the built-in social ones and each customer's enterprise IdP — must have BOTH
+of these registered:
+
+- `{API_PUBLIC_URL}/auth/{provider}/callback` (or `/auth/sso/{idpId}/callback`) — sign-in.
+- `{API_PUBLIC_URL}/auth/step-up/sso/callback` — **re-authentication for sensitive actions.**
+
+The second one is new. Accounts provisioned through SSO have no local password and no TOTP secret,
+so they cannot answer a password or OTP step-up challenge; they re-authenticate against their own
+identity provider with `prompt=login`. Without this redirect URI registered, an SSO tenant's
+administrators cannot invite users, edit them, revoke sessions, create subsidiaries, open the
+billing portal or change their own email.
 
 Set `CORS_ORIGIN` and `FRONTEND_URL` to the client's origin, and `API_URL` to the API's base URL
 including the version prefix.

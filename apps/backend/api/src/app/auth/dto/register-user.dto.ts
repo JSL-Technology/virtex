@@ -1,14 +1,18 @@
-
+import { IsRecaptchaToken } from './recaptcha-token.decorator';
 import {
+    IsFiscalProfileValidForCountry,
     IsPostalCodeValidForCountry,
     IsStateValidForCountry,
     IsSupportedCountry,
     IsTaxIdValidForCountry,
 } from '../../common/validators/fiscal-profile.validator';
+import { TaxpayerKind } from '../../localization/fiscal/tax-id-validators';
+import { IsE164PhoneNumber } from '../../common/validators/is-e164-phone-number.validator';
 import {
     IsString,
     IsNotEmpty,
     IsEmail,
+    IsEnum,
     MinLength,
     MaxLength,
     Matches,
@@ -43,15 +47,53 @@ export class RegisterUserDto {
     countryCode: string;
 
     /**
+     * Whether the tenant is a legal entity or a natural person.
+     *
+     * Declared BEFORE `taxId` on purpose: class-validator evaluates in declaration order and the
+     * tax-id constraint reads this off the same object, so a payload whose kind fails validation
+     * should not also produce a confusing tax-id error derived from it.
+     *
+     * Nine of the nineteen markets issue a different identifier to each kind, or encode the
+     * distinction inside one — the United States an EIN versus an SSN/ITIN, Brazil a CNPJ versus a
+     * CPF, Mexico a 12- versus a 13-character RFC. It also selects which `regimenFiscal` options
+     * the SAT catalogue offers, so it has to be answered before the fiscal profile can be.
+     */
+    @ApiProperty({ enum: TaxpayerKind, example: TaxpayerKind.COMPANY, description: 'Legal entity or natural person' })
+    @IsEnum(TaxpayerKind, { message: 'Indica si el contribuyente es una empresa o una persona física.' })
+    taxpayerKind: TaxpayerKind;
+
+    /**
      * The fiscal identifier, validated arithmetically against the country's algorithm — not a
-     * regex. Required: a fiscal product whose tenants have no verifiable tax identity cannot issue
-     * a compliant document for any of these markets.
+     * regex — and against the scheme that applies to `taxpayerKind`. Required: a fiscal product
+     * whose tenants have no verifiable tax identity cannot issue a compliant document for any of
+     * these markets.
      */
     @ApiProperty({ example: '131-12345-7', description: 'Tax ID (RNC, RFC, EIN, NIT, RUT…)' })
     @IsString({ message: 'El ID Fiscal debe ser un texto.' })
     @IsNotEmpty({ message: 'El ID Fiscal es obligatorio.' })
     @IsTaxIdValidForCountry()
     taxId: string;
+
+    /**
+     * The country's remaining fiscal data, keyed by the `FiscalFieldSpec.key` it answers.
+     *
+     * A free-form object rather than nineteen optional properties, because which keys exist is a
+     * property of the country and the taxpayer kind. The constraint rejects unknown keys, so this
+     * is not a hole: nothing the country did not ask for reaches the database.
+     *
+     * Deliberately NOT `@IsOptional()` and NOT `@IsObject()`. `@IsOptional()` short-circuits every
+     * other constraint when the value is absent, and "absent" is precisely the case this has to
+     * catch: a Mexican signup that simply omits the object must fail on the missing
+     * `regimenFiscal`, not pass because the whole field was left out. The constraint decides per
+     * country whether an empty object is acceptable, and rejects a non-object itself.
+     */
+    @ApiProperty({
+        required: false,
+        example: { regimenFiscal: '601' },
+        description: 'Country-specific fiscal data (régimen fiscal, condición IVA, CRT, giro…)',
+    })
+    @IsFiscalProfileValidForCountry()
+    fiscalProfile?: Record<string, string>;
 
     /**
      * Accepted for backwards compatibility only. The server resolves the fiscal region from
@@ -87,9 +129,7 @@ export class RegisterUserDto {
     @Matches(PASSWORD_POLICY_REGEX, { message: PASSWORD_POLICY_MESSAGE })
     password: string;
 
-    @ApiProperty({ description: 'Google Recaptcha V3 Token' })
-    @IsString()
-    @IsNotEmpty({ message: 'El token de reCAPTCHA es obligatorio.' })
+    @IsRecaptchaToken()
     recaptchaToken: string;
 
     // Added fields for provisioning
@@ -137,9 +177,20 @@ export class RegisterUserDto {
     @IsPostalCodeValidForCountry()
     postalCode?: string;
 
-    @ApiProperty({ example: '+18090000000', description: 'User Phone', required: false })
-    @IsString()
+    /**
+     * Optional, and validated as E.164 when present.
+     *
+     * It was `@IsString() @IsOptional()` with no format check, while `UpdateProfileDto.phone` —
+     * the same datum on the same person — required E.164. The signup form meanwhile marked it
+     * required and gated the whole wizard on an SMS verification, so the three layers disagreed
+     * three ways. Optional is the right answer for a B2B ERP: mandatory SMS at signup is real
+     * friction for corporate buyers and an SMS-pumping surface, and the second factor is enrolled
+     * later from the security settings by whoever wants one.
+     */
+    @ApiProperty({ example: '+18090000000', description: 'User phone in E.164 format', required: false })
     @IsOptional()
+    @IsString()
+    @IsE164PhoneNumber({ message: 'El teléfono debe estar en formato internacional E.164 (por ejemplo, +18095551234).' })
     phone?: string;
 
     @ApiProperty({ example: '123456', description: 'Email Verification Code', required: false })

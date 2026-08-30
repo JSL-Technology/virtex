@@ -20,9 +20,22 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SaasService } from '../saas/saas.service';
 import { SaasResource } from '../saas/enums/saas-resource.enum';
 import { MembershipService } from '../organizations/services/membership.service';
+import { UserOrganization } from '../organizations/entities/user-organization.entity';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { hasPermission } from '@virteex/shared/util-auth';
 import { SessionService } from '../auth/services/session.service';
+import { AuditTrailService } from '../audit/audit.service';
+
+/** One row of a user's activity, as the administration screen renders it. */
+export interface UserActivityEntry {
+  id: string;
+  action: string;
+  entity: string;
+  entityId: string | null;
+  at: Date;
+  ipAddress: string | null;
+  details: Record<string, unknown> | null;
+}
 
 @Injectable()
 export class UsersService {
@@ -43,6 +56,7 @@ export class UsersService {
     @Inject(forwardRef(() => SessionService))
     private readonly sessionService: SessionService,
     private readonly membershipService: MembershipService,
+    private readonly auditTrailService: AuditTrailService,
   ) {}
 
   /**
@@ -64,7 +78,6 @@ export class UsersService {
     'lastName',
     'phone',
     'jobTitle',
-    'department',
     'avatarUrl',
     'preferredLanguage',
   ] as const;
@@ -112,11 +125,32 @@ export class UsersService {
       sortDirection,
     } = options;
 
+    // Membership, not the single `users.organization_id` column.
+    //
+    // Every administration query in this service filtered by that column, while authentication
+    // resolved access from `user_organizations`. The two disagreed for exactly the case the
+    // multi-tenancy exists to serve: an accountant invited by a second customer keeps their
+    // original `organization_id`, so for that second tenant they were invisible — absent from the
+    // user list, un-editable, un-blockable — while holding a live role there and working in the
+    // data. The service's own comment calls that "the normal case, not an edge one".
+    //
+    // Roles are additionally filtered to the tenant being administered, so a user's role in
+    // ANOTHER organization is never displayed or acted on here.
     const queryBuilder = this.userRepository.createQueryBuilder('user');
 
     queryBuilder
-      .where('user.organizationId = :organizationId', { organizationId })
-      .leftJoinAndSelect('user.roles', 'role')
+      .innerJoin(
+        UserOrganization,
+        'membership',
+        'membership.user_id = user.id AND membership.organization_id = :organizationId',
+        { organizationId },
+      )
+      .leftJoinAndSelect(
+        'user.roles',
+        'role',
+        'role.organizationId = :organizationId OR role.organizationId IS NULL',
+        { organizationId },
+      )
       .skip((page - 1) * pageSize)
       .take(pageSize);
 
@@ -159,15 +193,7 @@ export class UsersService {
     organizationId: string,
     actor: AuthenticatedUser,
   ): Promise<User> {
-    const user = await this.userRepository.findOne({
-        where: { id, organizationId },
-        relations: ['security', 'roles']
-    });
-    if (!user) {
-      throw new NotFoundException(
-        `Usuario con ID ${id} no encontrado en tu organización.`,
-      );
-    }
+    const user = await this.findMemberWithSecurity(id, organizationId);
 
     const { roleId, ...userData } = updateUserDto;
 
@@ -230,10 +256,27 @@ export class UsersService {
     organizationId: string,
     excludeUserId: string,
   ): Promise<void> {
-    const candidates = await this.userRepository.find({
-      where: { organizationId, status: UserStatus.ACTIVE },
-      relations: ['roles'],
-    });
+    // Candidates are the tenant's MEMBERS, and only their roles IN this tenant count. Reading
+    // `users.organization_id` missed every administrator who had joined by invitation from
+    // another tenant, so the "last administrator" guard could refuse a legitimate change — or,
+    // worse, let the real last administrator be demoted because someone else's role in a
+    // different organization looked like administrative standing here.
+    const candidates = await this.userRepository
+      .createQueryBuilder('user')
+      .innerJoin(
+        UserOrganization,
+        'membership',
+        'membership.user_id = user.id AND membership.organization_id = :organizationId',
+        { organizationId },
+      )
+      .leftJoinAndSelect(
+        'user.roles',
+        'roles',
+        'roles.organizationId = :organizationId OR roles.organizationId IS NULL',
+        { organizationId },
+      )
+      .where('user.status = :status', { status: UserStatus.ACTIVE })
+      .getMany();
 
     const remainingAdmins = candidates.filter(
       (candidate) => candidate.id !== excludeUserId && UsersService.isAdministrator(candidate),
@@ -247,17 +290,23 @@ export class UsersService {
     }
   }
 
+  /**
+   * Remove somebody from a tenant.
+   *
+   * Not "delete the user". One person has one identity across the whole platform — `users.email`
+   * is globally unique and a password and MFA factors belong to a human being, not to each
+   * customer they work with — so deleting the row on behalf of one tenant would destroy that
+   * person's access to every other tenant they belong to. That is what this did.
+   *
+   * What actually happens: the membership is revoked, the roles they held IN THIS TENANT are
+   * dropped, and the identity itself is deleted only when this was their last membership, i.e.
+   * when nothing else on the platform refers to them any more.
+   *
+   * There was also no way to do this at all: `MembershipService.revoke` existed and was called
+   * from nowhere, so a tenant could add people and never remove them.
+   */
   async remove(id: string, organizationId: string, actorId?: string): Promise<void> {
-    const user = await this.userRepository.findOne({
-      where: { id, organizationId },
-      relations: ['roles'],
-    });
-
-    if (!user) {
-      throw new NotFoundException(
-        `Usuario con ID ${id} no encontrado en tu organización.`,
-      );
-    }
+    const user = await this.findMemberWithSecurity(id, organizationId);
 
     if (actorId && actorId === id) {
       throw new ForbiddenException(
@@ -265,7 +314,7 @@ export class UsersService {
       );
     }
 
-    const isSystemUser = user.roles.some((role) => role.isSystemRole);
+    const isSystemUser = (user.roles ?? []).some((role) => role.isSystemRole);
     if (isSystemUser) {
       throw new ForbiddenException(
         'No se puede eliminar un usuario con un rol de sistema.',
@@ -276,11 +325,37 @@ export class UsersService {
       await this.assertOrganizationRetainsAdministrator(organizationId, id);
     }
 
+    await this.dataSource.transaction(async (manager) => {
+      await this.membershipService.revoke(id, organizationId, manager);
+
+      // Drop only the roles scoped to this tenant. A platform role (null organization) and roles
+      // held in other tenants are none of this tenant's business. Reloaded inside the transaction
+      // because `user.roles` was filtered to this organization by the lookup above.
+      const fresh = await manager.findOne(User, { where: { id }, relations: ['roles'] });
+      if (fresh) {
+        fresh.roles = (fresh.roles ?? []).filter((role) => role.organizationId !== organizationId);
+        await manager.save(User, fresh);
+      }
+
+      const stillBelongsSomewhere = await manager.count(UserOrganization, { where: { userId: id } });
+      if (stillBelongsSomewhere === 0) {
+        // Nothing else refers to this person; the identity itself goes.
+        await manager.delete(User, { id });
+      } else if (fresh?.organizationId === organizationId) {
+        // Their "home" tenant was the one they just left. Point it at one they still belong to,
+        // otherwise `resolveOrganizationContext` rejects every request they make: it requires a
+        // linked organization and would find one they can no longer access.
+        const next = await manager.findOne(UserOrganization, { where: { userId: id } });
+        if (next) {
+          await manager.update(User, { id }, { organizationId: next.organizationId });
+        }
+      }
+    });
+
     await this.userCacheService.clearUserSession(id);
-    // Sessions must die with the account, otherwise an already-issued access token keeps working
-    // for its remaining lifetime against a user row that no longer exists.
+    // Their sessions carry a tenant and a permission set that no longer apply. Ending them is
+    // what makes the revocation take effect now rather than at cache expiry.
     await this.sessionService.terminateAllSessions(id);
-    await this.userRepository.remove(user);
   }
 
   async findOne(id: string): Promise<User> {
@@ -303,14 +378,54 @@ export class UsersService {
     return user;
   }
 
-  // H2 FIX: org-scoped findOne prevents IDOR cross-tenant reads.
+  /**
+   * A user this tenant may administer, resolved by MEMBERSHIP.
+   *
+   * The single source of "does this tenant have authority over this user". Every mutating
+   * administration method goes through it, so the tenant check exists in one place rather than as
+   * a `where: { id, organizationId }` repeated at eight call sites — which is how it came to mean
+   * something different from what authentication meant by the same question.
+   */
   async findOneByOrg(id: string, organizationId: string): Promise<User> {
-    const user = await this.userRepository.findOne({
-      where: { id, organizationId },
-    });
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .innerJoin(
+        UserOrganization,
+        'membership',
+        'membership.user_id = user.id AND membership.organization_id = :organizationId',
+        { organizationId },
+      )
+      .where('user.id = :id', { id })
+      .getOne();
 
     if (!user) {
       throw new NotFoundException(`Usuario con id ${id} no encontrado en tu organización`);
+    }
+    return user;
+  }
+
+  /** Same check, with the relations the mutating paths need. */
+  private async findMemberWithSecurity(id: string, organizationId: string): Promise<User> {
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .innerJoin(
+        UserOrganization,
+        'membership',
+        'membership.user_id = user.id AND membership.organization_id = :organizationId',
+        { organizationId },
+      )
+      .leftJoinAndSelect('user.security', 'security')
+      .leftJoinAndSelect(
+        'user.roles',
+        'roles',
+        'roles.organizationId = :organizationId OR roles.organizationId IS NULL',
+        { organizationId },
+      )
+      .where('user.id = :id', { id })
+      .getOne();
+
+    if (!user) {
+      throw new NotFoundException(`Usuario con ID ${id} no encontrado en tu organización.`);
     }
     return user;
   }
@@ -329,13 +444,7 @@ export class UsersService {
     organizationId: string,
     actorId?: string,
   ): Promise<User> {
-    const user = await this.userRepository.findOne({
-        where: { id, organizationId },
-        relations: ['security', 'roles']
-    });
-    if (!user) {
-      throw new NotFoundException(`Usuario no encontrado`);
-    }
+    const user = await this.findMemberWithSecurity(id, organizationId);
 
     if (actorId && actorId === id && status !== UserStatus.ACTIVE) {
       throw new ForbiddenException('No puedes desactivar o bloquear tu propia cuenta.');
@@ -356,13 +465,7 @@ export class UsersService {
   }
 
   async resetPassword(id: string, organizationId: string): Promise<void> {
-    const user = await this.userRepository.findOne({
-        where: { id, organizationId },
-        relations: ['security']
-    });
-    if (!user) {
-      throw new NotFoundException(`Usuario no encontrado`);
-    }
+    const user = await this.findMemberWithSecurity(id, organizationId);
 
     // Ensure security entity exists (it should, but for safety)
     if (!user.security) {
@@ -402,14 +505,31 @@ export class UsersService {
   // (OWASP ASVS V2/V3; OWASP Forgot Password Cheat Sheet; CWE-620/CWE-287)
   // -----------------------------------------------------------------------
 
-  async requestEmailChange(userId: string, dto: RequestEmailChangeDto): Promise<void> {
+  /**
+   * Begin an email change. The new address is not applied until its owner clicks the link.
+   *
+   * @param alreadyReauthenticated  the caller has already proved identity through StepUpGuard,
+   *   so no password is demanded here. Passed explicitly by the controller.
+   *
+   * This used to be expressed as `if (dto.currentPassword !== 'STEP_UP_VERIFIED')` — a literal
+   * sentinel inside the field that carries the secret. Guarded by StepUpGuard it was not
+   * exploitable over HTTP, but it is a backdoor by construction: any internal caller, or any
+   * future route that reaches this service without the guard, skips the password check by sending
+   * one magic string. Whether re-authentication has happened is a fact about the CALL, so it is
+   * now a parameter of the call.
+   */
+  async requestEmailChange(
+    userId: string,
+    dto: RequestEmailChangeDto,
+    alreadyReauthenticated = false,
+  ): Promise<void> {
     const user = await this.userRepository.findOne({
       where: { id: userId },
       relations: ['security'],
     });
     if (!user || !user.security) throw new UnauthorizedException();
 
-    if (dto.currentPassword !== 'STEP_UP_VERIFIED') {
+    if (!alreadyReauthenticated) {
         if (!user.security.passwordHash) throw new UnauthorizedException();
         const passwordValid = await this.passwordService.verify(user.security.passwordHash, dto.currentPassword);
         if (!passwordValid) throw new UnauthorizedException('Credenciales incorrectas.');
@@ -455,6 +575,8 @@ export class UsersService {
       throw new BadRequestException('Token de confirmación inválido.');
     }
 
+    const previousEmail = user.email;
+
     user.email = user.security.emailChangeTarget;
     user.isEmailVerified = true;
     user.security.emailChangeToken = null;
@@ -464,13 +586,46 @@ export class UsersService {
 
     await this.userRepository.save(user);
     await this.userCacheService.clearUserSession(userId);
+
+    // Tell the address that is LOSING the account.
+    //
+    // Only the new address was ever notified, which is the wrong way round for the case that
+    // matters: a hijacked session changing the email silently redirects password recovery and
+    // locks the real owner out with no signal at all. The old address is the only channel the
+    // attacker does not control by then. Delivery failure must not roll back a change the user
+    // legitimately confirmed, so it is logged rather than thrown.
+    try {
+      await this.mailService.sendEmailChangedNotice(previousEmail, user.firstName, user.email);
+    } catch (error) {
+      this.logger.error(
+        { event: 'email_change_notice_failed', userId },
+        `Could not notify the previous address of an email change: ${(error as Error).message}`,
+      );
+    }
   }
 
-  async getActivityLog(userId: string, organizationId: string): Promise<any[]> {
-    // H-11 FIX: Verify the target user belongs to the caller's org before returning
-    // any data. This prevents cross-tenant IDOR when real audit data is added.
+  /**
+   * What this user has done, from the audit trail.
+   *
+   * This returned `[]` unconditionally. The endpoint was published, permission-gated and
+   * commented about IDOR prevention, and the screen behind it always rendered empty — while
+   * `AuditTrailService` had been recording these very actions all along. The tenant check stays:
+   * it is what stops a privileged user reading another tenant's activity through a cross-org id.
+   */
+  async getActivityLog(userId: string, organizationId: string): Promise<UserActivityEntry[]> {
     await this.findOneByOrg(userId, organizationId);
-    return [];
+
+    const entries = await this.auditTrailService.findByActor(userId, organizationId);
+
+    return entries.map((entry) => ({
+      id: entry.id,
+      action: entry.actionType,
+      entity: entry.entity,
+      entityId: entry.entityId ?? null,
+      at: entry.timestamp,
+      ipAddress: entry.ipAddress ?? null,
+      details: (entry.newValue as Record<string, unknown> | null) ?? null,
+    }));
   }
 
   /**
@@ -614,13 +769,7 @@ export class UsersService {
       throw new BadRequestException('Formato de email inválido.');
     }
 
-    const user = await this.userRepository.findOne({
-      where: { id: userId, organizationId },
-      relations: ['security'],
-    });
-    if (!user) {
-      throw new NotFoundException(`Usuario no encontrado`);
-    }
+    const user = await this.findMemberWithSecurity(userId, organizationId);
 
     const existing = await this.userRepository.findOne({ where: { email: newEmail } });
     if (existing && existing.id !== userId) {
@@ -643,10 +792,7 @@ export class UsersService {
 
   // H-11: org is required so force-logout is always tenant-scoped (no IDOR).
   async forceLogout(userId: string, organizationId: string): Promise<{ message: string }> {
-    const user = await this.userRepository.findOne({ where: { id: userId, organizationId }, relations: ['security'] });
-    if (!user) {
-      throw new NotFoundException('Usuario no encontrado');
-    }
+    const user = await this.findMemberWithSecurity(userId, organizationId);
 
     if (user.security) {
         user.security.tokenVersion += 1;
@@ -663,10 +809,7 @@ export class UsersService {
   }
 
   async blockAndLogout(userId: string, organizationId: string): Promise<{ message: string }> {
-    const user = await this.userRepository.findOne({ where: { id: userId, organizationId }, relations: ['security'] });
-    if (!user) {
-      throw new NotFoundException('Usuario no encontrado');
-    }
+    const user = await this.findMemberWithSecurity(userId, organizationId);
 
     user.status = UserStatus.BLOCKED;
     if (user.security) {

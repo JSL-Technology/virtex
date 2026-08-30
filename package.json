@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "dev": "nx run-many -t serve -p api client-web",
+    "dev:api": "nx serve api",
+    "dev:web": "nx serve client-web",
     "build:client-web": "node tools/generate-environment.mjs && nx build client-web --configuration=production",
     "start:client-web": "npm run build:client-web && npx serve -s dist/apps/core/client-web/browser -l ${PORT:-4200}",
     "typeorm": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=apps/backend/api/tsconfig.app.json typeorm-ts-node-commonjs -d apps/backend/api/src/app/database/data-source.ts",
@@ -16,7 +19,8 @@
     "check:schema-drift": "node tools/check-schema-drift.mjs",
     "verify:markets": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=apps/backend/api/tsconfig.app.json ts-node tools/verify/provision-all-markets.ts",
     "verify:boot": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/boot-module-graph.ts",
-    "verify:tenancy": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/cross-tenant-membership.ts"
+    "verify:tenancy": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/cross-tenant-membership.ts",
+    "verify:fiscal-identity": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/fiscal-identity-roundtrip.ts"
   },
   "private": true,
   "devDependencies": {
