@@ -80,6 +80,19 @@ jobs:
       # surfaces as a broken deploy; this turns it into a failing build.
       - run: npm run check:schema-drift
 
+      # Proves that a tenant's fiscal identity survives storage, and that two distinct taxpayers
+      # no longer collide on the unique index over (tax_id, fiscal_region_id). The failure this
+      # guards is a database constraint firing on the second insert, which no unit test can show.
+      - run: npm run verify:fiscal-identity
+        env:
+          NODE_ENV: test
+
+      # Proves multi-tenancy actually holds: one identity across tenants, per-tenant permissions,
+      # and a tenant the user does not belong to refused.
+      - run: npm run verify:tenancy
+        env:
+          NODE_ENV: test
+
       # Proves the application can actually START. A build only proves the code compiles; a missing
       # provider, an unexported service, a module registered twice, or a constructor that throws on
       # a missing environment variable all compile cleanly and fail on deploy. Three such faults

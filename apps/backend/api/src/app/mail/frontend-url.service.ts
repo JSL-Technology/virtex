@@ -129,6 +129,21 @@ export class FrontendUrlService {
     return `${this.origin}/auth/checkout-complete?session_id={CHECKOUT_SESSION_ID}`;
   }
 
+  /**
+   * Where the IdP re-authentication lands once a step-up proof has been issued.
+   *
+   * The cookie carrying the proof is already set by then; the page's job is to resume whatever
+   * the user was doing. The scope travels so the client knows which pending action to retry.
+   */
+  stepUpComplete(scope: string): string {
+    return `${this.origin}/settings/security?step_up=ok&scope=${encodeURIComponent(scope)}`;
+  }
+
+  /** Where it lands when the provider refused or the identity did not match. */
+  stepUpFailed(): string {
+    return `${this.origin}/settings/security?step_up=failed`;
+  }
+
   /** Where Checkout returns when the visitor abandons signup. */
   registerCancelled(language?: string | null, country?: string | null): string {
     return `${this.origin}/${this.language(language)}/${this.country(country)}/auth/register`;

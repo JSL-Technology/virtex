@@ -45,6 +45,14 @@ export class PendingRegistration {
   @Column({ name: 'tax_id', type: 'varchar', nullable: true })
   taxId: string | null;
 
+  /** Mirrors `organizations.taxpayer_kind`; see the note on this entity about what it captures. */
+  @Column({ name: 'taxpayer_kind', type: 'varchar', length: 16, nullable: true })
+  taxpayerKind: string | null;
+
+  /** Mirrors `organizations.fiscal_profile`. */
+  @Column({ name: 'fiscal_profile', type: 'jsonb', nullable: true })
+  fiscalProfile: Record<string, string> | null;
+
   @Column({ name: 'fiscal_region_id', type: 'varchar', nullable: true })
   fiscalRegionId: string | null;
 

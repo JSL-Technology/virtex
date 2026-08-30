@@ -49,6 +49,21 @@ export class AuditTrailService {
     });
   }
 
+  /**
+   * Everything one user did inside one tenant, newest first.
+   *
+   * Backs `GET /users/:id/activity`, which returned a hardcoded empty array while these rows were
+   * being written all along. The organization is part of the WHERE clause, not a post-filter, so
+   * a cross-tenant id returns nothing rather than someone else's history.
+   */
+  async findByActor(userId: string, organizationId: string, limit = 100): Promise<AuditLog[]> {
+    return this.auditLogRepository.find({
+      where: { userId, organizationId },
+      order: { timestamp: 'DESC' },
+      take: limit,
+    });
+  }
+
   async find(entity?: string, entityId?: string, organizationId?: string): Promise<AuditLog[]> {
     return this.auditLogRepository.find({
         where: {

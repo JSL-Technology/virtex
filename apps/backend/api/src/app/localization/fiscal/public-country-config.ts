@@ -1,4 +1,4 @@
-import { AdministrativeDivision, CountryFiscalProfile } from './country-profiles';
+import { AdministrativeDivision, CountryFiscalProfile, FiscalFieldSpec } from './country-profiles';
 
 /**
  * What the signup form is told about a country, before anyone has an account.
@@ -37,6 +37,21 @@ export interface PublicCountryConfig {
   };
 
   electronicInvoicing: { required: boolean; regime: string | null };
+
+  /**
+   * Whether the product can issue documents for this regime yet.
+   *
+   * Published so the signup form can tell the truth BEFORE payment. It previously announced
+   * "México exige facturación electrónica (CFDI 4.0), por eso pedimos estos datos" for a market
+   * with no adapter behind it.
+   */
+  marketStatus: 'available' | 'preview';
+
+  /** Whether the form must ask company-versus-natural-person; see `TaxpayerKind`. */
+  taxpayerKindRequired: boolean;
+
+  /** The country's extra fiscal fields, rendered generically by the form. */
+  fiscalFields: readonly FiscalFieldSpec[];
 
   dateFormat: string;
   thousandSeparator: string;

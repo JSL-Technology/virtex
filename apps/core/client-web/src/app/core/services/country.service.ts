@@ -20,6 +20,33 @@ export interface AdministrativeDivision {
  * The shape now mirrors `PublicCountryConfig` on the server, field for field. There is no defaulting
  * and no fallback object: if the country cannot be loaded, the form says so rather than pretending.
  */
+export type TaxpayerKind = 'company' | 'individual';
+
+/** One entry of a tax authority's published catalogue. */
+export interface FiscalFieldOption {
+  code: string;
+  label: string;
+  appliesTo?: TaxpayerKind[];
+}
+
+/**
+ * A fiscal datum the country requires beyond name, tax id and address.
+ *
+ * Declared by the server and rendered generically here, so opening a market is a change to one
+ * list on the backend rather than a new branch in this component.
+ */
+export interface FiscalFieldSpec {
+  key: string;
+  label: string;
+  help?: string;
+  required: boolean;
+  type: 'select' | 'text';
+  options?: FiscalFieldOption[];
+  pattern?: string;
+  example?: string;
+  appliesTo?: TaxpayerKind[];
+}
+
 export interface CountryConfig {
   countryCode: string;
   name: string;
@@ -44,6 +71,21 @@ export interface CountryConfig {
   };
 
   electronicInvoicing: { required: boolean; regime: string | null };
+
+  /**
+   * Whether the product can issue documents for this country's regime yet.
+   *
+   * `available` means a fiscal adapter exists. `preview` means the ERP works but that country's
+   * e-invoicing is not implemented, and the signup form has to say so before payment instead of
+   * promising a regime it cannot satisfy.
+   */
+  marketStatus: 'available' | 'preview';
+
+  /** Whether the form must ask company versus natural person. */
+  taxpayerKindRequired: boolean;
+
+  /** The country's extra fiscal fields, rendered generically. */
+  fiscalFields: FiscalFieldSpec[];
 
   dateFormat: string;
   thousandSeparator: string;

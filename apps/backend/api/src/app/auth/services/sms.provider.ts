@@ -1,21 +1,37 @@
-import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
+import { createHash } from 'crypto';
 import { Twilio } from 'twilio';
 import { AuthConfig } from '../auth.config';
 import { AbstractSmsProvider } from './abstract-sms.provider';
 
-// Normalize phone to E.164. Handles the most common user input patterns.
-// Dominican Republic uses NANP (+1), so 10-digit numbers (with or without +) get +1 prepended.
-function normalizeToE164(phone: string): string {
+/**
+ * Tidy an E.164 number for the provider, without guessing a country.
+ *
+ * The previous version prepended `+1` to any bare ten-digit input, on the reasoning that the
+ * Dominican Republic is NANP. Mexico, Colombia and Argentina also use ten-digit national numbers,
+ * so a Mexican customer typing `5512345678` had their verification code sent to `+15512345678` —
+ * a New Jersey landline. There is no way to infer the country from digits alone, and inventing one
+ * sends a code to a stranger and charges us for it.
+ *
+ * Callers must supply E.164. Every entry point now enforces that (`IsE164PhoneNumber` on the
+ * profile DTO, `IsVerificationTarget` on the public verification DTO), so this only strips the
+ * formatting a human types and rejects anything that is still not E.164.
+ */
+export function normalizeToE164(phone: string): string {
   const stripped = phone.replace(/[\s\-().]/g, '');
-  // Already correct E.164: + followed by 11-15 digits (country code + subscriber)
-  if (/^\+\d{11,15}$/.test(stripped)) return stripped;
-  // + followed by exactly 10 digits → country code missing, assume NANP (+1)
-  if (/^\+(\d{10})$/.test(stripped)) return `+1${stripped.slice(1)}`;
-  // 11 digits starting with 1 → NANP with country code, just add +
-  if (/^1\d{10}$/.test(stripped)) return `+${stripped}`;
-  // 10 bare digits → NANP, add +1
-  if (/^\d{10}$/.test(stripped)) return `+1${stripped}`;
+  if (!/^\+[1-9]\d{6,14}$/.test(stripped)) {
+    throw new BadRequestException(
+      'El número debe estar en formato internacional E.164, incluyendo el código de país (por ejemplo, +528112345678).',
+    );
+  }
   return stripped;
+}
+
+/** Country code plus a short digest: correlatable, not identifying. */
+function maskPhone(e164: string): string {
+  const digits = e164.replace(/^\+/, '');
+  const digest = createHash('sha256').update(digits).digest('hex').slice(0, 10);
+  return `+${digits.slice(0, 3)}…${digest}`;
 }
 
 @Injectable()
@@ -53,9 +69,19 @@ export class TwilioSmsProvider implements AbstractSmsProvider {
         from: AuthConfig.TWILIO_PHONE_NUMBER,
         to: normalized,
       });
-      this.logger.log(`SMS sent successfully to ${normalized}`);
+      // The destination is personal data. Logged as a country code plus a salted hash, which is
+      // enough to correlate delivery problems and to spot a pumping pattern, and useless to
+      // anyone reading the logs. Everything else in this module already follows that rule —
+      // hashed emails, masked IPs, truncated user agents — and these two lines did not.
+      this.logger.log(
+        { event: 'sms_sent', destination: maskPhone(normalized) },
+        'Verification SMS sent',
+      );
     } catch (error) {
-      this.logger.error(`Failed to send SMS to ${normalized}: ${(error as Error).message}`);
+      this.logger.error(
+        { event: 'sms_send_failed', destination: maskPhone(normalized) },
+        `Failed to send verification SMS: ${(error as Error).message}`,
+      );
       throw error;
     }
   }

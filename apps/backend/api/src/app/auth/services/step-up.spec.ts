@@ -12,6 +12,8 @@ import { SecurityAnalysisService } from './security-analysis.service';
 import { TokenService } from './token.service';
 import { MfaOrchestratorService } from './mfa-orchestrator.service';
 import { TwoFactorAuthService } from './two-factor-auth.service';
+import { EnterpriseSsoService } from './enterprise-sso.service';
+import { OidcProviderService } from './oidc-provider.service';
 import { PasswordService } from './password.service';
 import { StepUpScope, SINGLE_USE_SCOPES } from '../enums/step-up-scope.enum';
 
@@ -49,6 +51,10 @@ describe('AuthService — step-up re-authentication', () => {
     security: { isTwoFactorEnabled: false, passwordHash: null },
   };
 
+  /** No enterprise IdP and no configured social provider unless a test says otherwise. */
+  const enterpriseSsoService = { discoverByEmail: jest.fn().mockResolvedValue(null) };
+  const oidcProviderService = { isProviderConfigured: jest.fn().mockReturnValue(false) };
+
   beforeEach(async () => {
     process.env['NODE_ENV'] = 'test';
     cache.clear();
@@ -68,6 +74,8 @@ describe('AuthService — step-up re-authentication', () => {
         { provide: TwoFactorAuthService, useValue: twoFactorAuthService },
         { provide: PasswordService, useValue: passwordService },
         { provide: EventEmitter2, useValue: { emit: jest.fn() } },
+        { provide: EnterpriseSsoService, useValue: enterpriseSsoService },
+        { provide: OidcProviderService, useValue: oidcProviderService },
         { provide: CACHE_MANAGER, useValue: cacheManager },
       ],
     }).compile();
@@ -198,10 +206,43 @@ describe('AuthService — step-up re-authentication', () => {
     it.each([
       [userWithTwoFactor, 'otp'],
       [userWithPassword, 'password'],
-      [federatedUser, 'none'],
     ])('reports the factor the account can actually satisfy', async (user, expected) => {
       usersService.findUserByIdForAuth.mockResolvedValue(user);
       await expect(service.describeStepUpChallenge(user.id)).resolves.toEqual({ factor: expected });
+    });
+
+    /**
+     * A federated account is NOT unverifiable — it is verifiable at its identity provider. This
+     * used to report 'none', which sent the client to an "enrol a second factor" prompt for an
+     * action that itself required a second factor, so every SSO-provisioned account was
+     * permanently unable to administer anything.
+     */
+    it('offers the SSO path when the account has an enterprise identity provider', async () => {
+      usersService.findUserByIdForAuth.mockResolvedValue(federatedUser);
+      enterpriseSsoService.discoverByEmail.mockResolvedValueOnce({ idpId: 'idp-1', idpName: 'Okta' });
+
+      await expect(service.describeStepUpChallenge(federatedUser.id)).resolves.toEqual({
+        factor: 'sso',
+        ssoStartPath: '/auth/step-up/sso',
+      });
+    });
+
+    it('offers the SSO path when the account signed up with a configured social provider', async () => {
+      usersService.findUserByIdForAuth.mockResolvedValue({ ...federatedUser, authProvider: 'google' });
+      enterpriseSsoService.discoverByEmail.mockResolvedValueOnce(null);
+      oidcProviderService.isProviderConfigured.mockReturnValueOnce(true);
+
+      await expect(service.describeStepUpChallenge(federatedUser.id)).resolves.toEqual({
+        factor: 'sso',
+        ssoStartPath: '/auth/step-up/sso',
+      });
+    });
+
+    it('reports none only when there is genuinely no factor anywhere', async () => {
+      usersService.findUserByIdForAuth.mockResolvedValue(federatedUser);
+      await expect(service.describeStepUpChallenge(federatedUser.id)).resolves.toEqual({
+        factor: 'none',
+      });
     });
   });
 });

@@ -10,7 +10,7 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import { Request } from 'express';
+import type { HttpRequest as Request } from '../../common/http/http.types';
 import { STEP_UP_SCOPE_KEY } from '../decorators/step-up.decorator';
 import { SINGLE_USE_SCOPES, StepUpScope } from '../enums/step-up-scope.enum';
 import { AuthConfig } from '../auth.config';
@@ -105,13 +105,17 @@ export class StepUpGuard implements CanActivate {
   }
 
   /**
-   * Enforce single use by claiming the jti.
+   * Enforce single use by claiming the jti ATOMICALLY.
    *
-   * `cache-manager` has no atomic set-if-absent, so a get-then-set would let two concurrent
-   * requests both observe "unused" and both proceed. We therefore treat a *successful claim* as
-   * ownership: read, and only continue if the value we then wrote is still ours. In the
-   * single-node/dev memory-store case this is exact; on Redis it narrows the race to the
-   * microseconds between GET and SET, and the token is single-scope and expires in minutes.
+   * A get-then-set leaves a window in which two concurrent requests both read "unused" and both
+   * proceed — and for the scopes that are single-use, that window is the whole protection:
+   * impersonation, account deletion, session revocation. The previous implementation documented
+   * the race and accepted it "because cache-manager has no atomic set-if-absent". Redis does:
+   * `SET key value NX PX ttl` returns nil when the key already exists, so the claim and the check
+   * are one round trip and exactly one caller can win.
+   *
+   * The in-memory store used in development and tests has no NX either, so the get-then-set path
+   * remains as a fallback — correct there, because that store is single-process by construction.
    */
   private async consumeSingleUse(jti: string): Promise<void> {
     if (!jti) {
@@ -119,13 +123,40 @@ export class StepUpGuard implements CanActivate {
     }
 
     const key = `stepup_jti:${jti}`;
+    const ttl = AuthConfig.STEP_UP_TOKEN_TTL;
+
+    const redis = this.redisClient();
+    if (redis) {
+      // NX: set only if absent. A nil reply means somebody already spent this token.
+      const claimed = await redis.set(key, '1', 'PX', ttl, 'NX');
+      if (claimed !== 'OK') {
+        throw new UnauthorizedException('Step-up token already used');
+      }
+      return;
+    }
 
     if (await this.cacheManager.get(key)) {
       throw new UnauthorizedException('Step-up token already used');
     }
+    await this.cacheManager.set(key, 1, ttl);
+  }
 
-    // TTL matches the token's own lifetime: past expiry the JWT is rejected on its own, so
-    // retaining the marker any longer serves no purpose.
-    await this.cacheManager.set(key, 1, AuthConfig.STEP_UP_TOKEN_TTL);
+  /**
+   * The underlying Redis client, when the cache is backed by one.
+   *
+   * Reached through the store rather than injected so this guard keeps working unchanged with the
+   * in-memory store, and so no module has to gain a Redis dependency it otherwise would not have.
+   */
+  private redisClient(): {
+    set(key: string, value: string, mode: 'PX', ttl: number, nx: 'NX'): Promise<string | null>;
+  } | null {
+    const store = (this.cacheManager as unknown as { store?: Record<string, unknown> }).store;
+    const client = (store?.['client'] ?? store?.['redis'] ?? store?.['getClient']) as
+      | { set?: unknown }
+      | undefined;
+    const resolved = typeof client === 'function' ? (client as () => unknown)() : client;
+    return resolved && typeof (resolved as { set?: unknown }).set === 'function'
+      ? (resolved as never)
+      : null;
   }
 }

@@ -44,10 +44,42 @@
 
           <div class="pf-field">
             <label class="pf-label" for="email">{{ 'SETTINGS.PROFILE.EMAIL' | translate }}</label>
-            <div class="pf-icon-wrap">
-              <lucide-icon [img]="MailIcon" size="16" class="pf-icon"></lucide-icon>
-              <input id="email" type="email" formControlName="email" class="has-icon" readonly>
-            </div>
+
+            <!-- Read-only, with the two-step change flow behind the button. The address cannot be
+                 edited in place: a silent change would redirect account recovery, so it is
+                 confirmed from the new address and announced to the old one. -->
+            <ng-container *ngIf="!changingEmail(); else emailChangeForm">
+              <div class="pf-phone-row">
+                <div class="pf-icon-wrap pf-icon-wrap--grow">
+                  <lucide-icon [img]="MailIcon" size="16" class="pf-icon"></lucide-icon>
+                  <input id="email" type="email" formControlName="email" class="has-icon" readonly>
+                </div>
+                <button type="button" class="pf-verify-btn" (click)="startEmailChange()">
+                  {{ 'SETTINGS.PROFILE.CHANGE_EMAIL' | translate }}
+                </button>
+              </div>
+            </ng-container>
+
+            <ng-template #emailChangeForm>
+              <div class="pf-phone-row">
+                <div class="pf-icon-wrap pf-icon-wrap--grow">
+                  <lucide-icon [img]="MailIcon" size="16" class="pf-icon"></lucide-icon>
+                  <input id="new-email" type="email" class="has-icon"
+                         [value]="newEmail()"
+                         (input)="newEmail.set($any($event.target).value)"
+                         placeholder="nuevo@correo.com" autocomplete="email">
+                </div>
+                <button type="button" class="pf-verify-btn" (click)="requestEmailChange()">
+                  {{ 'SETTINGS.PROFILE.SEND_CONFIRMATION' | translate }}
+                </button>
+                <button type="button" class="pf-verify-btn" (click)="cancelEmailChange()">
+                  {{ 'COMMON.CANCEL' | translate }}
+                </button>
+              </div>
+              <p class="pf-hint">
+                {{ 'SETTINGS.PROFILE.EMAIL_CHANGE_HINT' | translate }}
+              </p>
+            </ng-template>
           </div>
 
           <div class="pf-field">

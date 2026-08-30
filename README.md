@@ -1,5 +1,17 @@
 # Virteex
 
+## Topología de despliegue
+
+**La API y el cliente web deben servirse desde el MISMO ORIGEN.** Las cookies de sesión son
+`SameSite=Lax` y la cookie CSRF lleva el prefijo `__Host-`, que la hace host-only: servidos desde
+hosts distintos, el navegador ni adjunta la sesión ni deja que el SPA lea el token CSRF, y toda
+petición que cambie estado responde 403. Usa un prefijo de ruta (`https://app.ejemplo.com/api/v1`)
+o un proxy inverso que sirva ambos bajo un solo host. Ver `docs/DEPLOYMENT.md`.
+
+Las instrucciones de Render de abajo describen cómo construir el bundle del cliente. Si lo sirves
+como sitio estático independiente, apúntalo detrás del mismo proxy que la API — un servicio
+separado en otro dominio no puede autenticar.
+
 ## Deploy de `client-web` en Render
 
 Si en Render ves una pantalla como:

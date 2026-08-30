@@ -23,10 +23,14 @@ import { UsageMetricRepository } from './repositories/usage-metric.repository';
 import { OrganizationSubscriptionHistory } from '../organizations/entities/organization-subscription-history.entity';
 import { MetricsService } from '../metrics/metrics.service';
 import { SaasCacheKeyFactory } from './utils/saas-cache-key.factory';
+import { findCountryProfile } from '../localization/fiscal/country-profiles';
 
 @Injectable()
 export class SaasService implements OnModuleInit {
   private readonly logger = new Logger(SaasService.name);
+
+  /** Effectively "never" for the monotonically increasing cache-generation counter. */
+  private static readonly CACHE_GENERATION_TTL_MS = 10 * 365 * 24 * 60 * 60 * 1000;
 
   constructor(
     @InjectRepository(Plan) private planRepository: Repository<Plan>,
@@ -124,6 +128,41 @@ export class SaasService implements OnModuleInit {
     });
   }
 
+  /**
+   * The plan catalogue, quoted in the currency the market will actually be charged in.
+   *
+   * `Plan.monthlyPrice` is a single integer of minor units and carries no currency, so every
+   * screen implicitly rendered it as USD for all nineteen markets. The amount per currency lives
+   * on the Stripe Price's `currency_options` — one Price, many currencies, configured where prices
+   * belong — so what this has to get right is which currency applies, and to say so.
+   *
+   * An unknown or unsupported country falls back to the platform's base currency rather than
+   * guessing: converting an amount with an invented rate would be worse than quoting the base.
+   */
+  async getPlansForCountry(countryCode?: string) {
+    const plans = await this.getPlans();
+    const currency = SaasService.currencyForCountry(countryCode);
+    return plans.map((plan) => ({ ...plan, currency }));
+  }
+
+  /** ISO 4217 for a market, or the platform base currency when it has no profile. */
+  static currencyForCountry(countryCode?: string): string {
+    const base = (process.env['SAAS_BASE_CURRENCY'] || 'USD').toUpperCase();
+    if (!countryCode) return base;
+    const profile = findCountryProfile(countryCode);
+    if (!profile) return base;
+
+    // Only currencies the platform is actually configured to settle in. A market whose currency
+    // has no Stripe `currency_options` entry is quoted — and charged — in the base currency, which
+    // is honest, rather than quoted locally and then charged in dollars.
+    const supported = (process.env['SAAS_SUPPORTED_CURRENCIES'] || base)
+      .split(',')
+      .map((code) => code.trim().toUpperCase())
+      .filter(Boolean);
+
+    return supported.includes(profile.currency) ? profile.currency : base;
+  }
+
   async getPlanBySlug(slug: string) {
     return this.planRepository.findOne({ where: { slug }, relations: ['limits', 'features'] });
   }
@@ -164,10 +203,20 @@ export class SaasService implements OnModuleInit {
       });
   }
 
+  /**
+   * Bump the cache generation for an organization, invalidating every limit answer cached under
+   * the previous one.
+   *
+   * The TTL is a number of milliseconds. It used to be `{ ttl: 0 } as any` — an object where
+   * cache-manager expects a number, silenced by the cast — so the counter quietly took the store's
+   * default TTL instead of living forever. When it expired the generation reset to 0, and any
+   * limit answers still cached under generation 0 became live again. A ten-year TTL is the
+   * practical spelling of "does not expire" for a key that is only ever incremented.
+   */
   async clearOrganizationCache(organizationId: string) {
       const versionKey = SaasCacheKeyFactory.limitVersion(organizationId);
       const currentVersion = await this.cacheManager.get<number>(versionKey) || 0;
-      await this.cacheManager.set(versionKey, currentVersion + 1, { ttl: 0 } as any);
+      await this.cacheManager.set(versionKey, currentVersion + 1, SaasService.CACHE_GENERATION_TTL_MS);
 
       this.logger.log(`Cache invalidated for Organization ${organizationId} (v${currentVersion + 1})`);
   }
@@ -406,7 +455,19 @@ export class SaasService implements OnModuleInit {
     }
 
     const limitDef = org.plan.limits.find(l => l.resource === resource);
-    if (!limitDef) return true;
+    if (!limitDef) {
+        // Fail CLOSED, exactly as `enforceLimit` does for the same condition.
+        //
+        // This returned `true`, so the guard waved through precisely the requests `enforceLimit`
+        // then refused. The net effect was safe but the experience was not: the user got a
+        // success-looking action that failed halfway, and the two functions that answer the same
+        // question — "may this tenant consume one more of this?" — gave opposite answers.
+        this.logger.error(
+          { event: 'saas_no_limit_defined', organizationId, plan: org.plan.slug, resource },
+          '[BILLING] Plan defines no limit for this resource; denying the metered operation.',
+        );
+        return false;
+    }
 
     if (limitDef.valueType === LimitType.BOOLEAN) {
         return limitDef.isEnabled;

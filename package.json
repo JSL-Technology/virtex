@@ -16,7 +16,8 @@
     "check:schema-drift": "node tools/check-schema-drift.mjs",
     "verify:markets": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=apps/backend/api/tsconfig.app.json ts-node tools/verify/provision-all-markets.ts",
     "verify:boot": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/boot-module-graph.ts",
-    "verify:tenancy": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/cross-tenant-membership.ts"
+    "verify:tenancy": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/cross-tenant-membership.ts",
+    "verify:fiscal-identity": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/fiscal-identity-roundtrip.ts"
   },
   "private": true,
   "devDependencies": {

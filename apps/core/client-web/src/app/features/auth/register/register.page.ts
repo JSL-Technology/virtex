@@ -44,7 +44,11 @@ import {
   ReCaptchaV3Service,
 } from 'ng-recaptcha-19';
 import { environment } from '../../../../environments/environment';
-import { CountryService } from '../../../core/services/country.service';
+import {
+  CountryService,
+  type FiscalFieldSpec,
+  type TaxpayerKind,
+} from '../../../core/services/country.service';
 import { GeoMismatchModalComponent } from '../../../shared/components/geo-mismatch-modal/geo-mismatch-modal.component';
 import { AuthLayoutComponent } from '../components/auth-layout/auth-layout.component';
 import { AuthButtonComponent } from '../components/auth-button/auth-button.component';
@@ -181,6 +185,8 @@ export class RegisterPage implements OnInit {
         if (!stillValid) stateControl.setValue('', { emitEvent: false });
       }
 
+      this.syncFiscalFields(config);
+
       this.registerForm.get('configuration.currency')?.setValue(config.currency, { emitEvent: false });
       this.registerForm
         .get('configuration.fiscalRegionId')
@@ -206,7 +212,11 @@ export class RegisterPage implements OnInit {
         firstName: ['', [Validators.required]],
         lastName: ['', [Validators.required]],
         email: ['', [Validators.required, Validators.email]],
-        phone: ['', [Validators.required]],
+        // Optional, matching the server. It was required here while the DTO marked it optional,
+        // and the wizard additionally blocked progress on an SMS verification — mandatory SMS at
+        // signup is real friction for corporate buyers and an SMS-pumping surface. A second
+        // factor is enrolled later, from the security settings, by whoever wants one.
+        phone: [''],
         emailCode: [''],
         phoneCode: [''],
         passwordGroup: this.fb.group(
@@ -227,9 +237,18 @@ export class RegisterPage implements OnInit {
       }),
       configuration: this.fb.group({
         country: ['DO', [Validators.required]],
+        // Company or natural person. Nine of the nineteen markets issue a different fiscal
+        // identifier to each, or encode the distinction inside one, and it also selects which
+        // régimen fiscal options the SAT catalogue offers — so it has to be answered before the
+        // tax id can be validated at all.
+        taxpayerKind: ['company', [Validators.required]],
         taxId: ['', [Validators.required]],
         fiscalRegionId: [null],
         currency: ['DOP', [Validators.required]],
+        // Country-specific fiscal answers, added and removed by the effect below as the country
+        // or the taxpayer kind changes. Declared as an empty group rather than a fixed set,
+        // because which controls exist is a property of the country.
+        fiscalProfile: this.fb.group({}),
         // The fiscal address. Structured, and collected here rather than as one free-text line on
         // the next step: every electronic-invoicing regime in these markets stamps these fields
         // individually, so a single line would have to be re-collected before invoicing can work.
@@ -272,6 +291,65 @@ export class RegisterPage implements OnInit {
         });
       }
     });
+  }
+
+  /**
+   * Rebuild the country's extra fiscal controls.
+   *
+   * Which fields exist depends on the country AND on whether the taxpayer is a company or a
+   * natural person — a Mexican persona moral picks from a different `RegimenFiscal` list than a
+   * persona física. Rather than hardcode a branch per country, the server publishes the specs and
+   * this rebuilds the group from them, so opening a market changes one list on the backend.
+   *
+   * Existing answers are carried over when the field survives the change, so switching taxpayer
+   * kind does not silently wipe an address the user already typed.
+   */
+  private syncFiscalFields(config: { fiscalFields?: FiscalFieldSpec[] } | null): void {
+    const group = this.registerForm.get('configuration.fiscalProfile') as FormGroup | null;
+    if (!group) return;
+
+    const kind = this.registerForm.get('configuration.taxpayerKind')?.value as
+      | TaxpayerKind
+      | undefined;
+    const specs = (config?.fiscalFields ?? []).filter(
+      (field) => !field.appliesTo || !kind || field.appliesTo.includes(kind),
+    );
+    const wanted = new Set(specs.map((field) => field.key));
+
+    for (const existing of Object.keys(group.controls)) {
+      if (!wanted.has(existing)) group.removeControl(existing, { emitEvent: false });
+    }
+
+    for (const field of specs) {
+      const validators = field.required ? [Validators.required] : [];
+      if (field.type === 'text' && field.pattern) {
+        validators.push(Validators.pattern(field.pattern));
+      }
+      const current = group.get(field.key);
+      if (current) {
+        // A select whose option list no longer contains the chosen code must not keep it.
+        if (field.type === 'select' && current.value) {
+          const allowed = (field.options ?? []).filter(
+            (option) => !option.appliesTo || !kind || option.appliesTo.includes(kind),
+          );
+          if (!allowed.some((option) => option.code === current.value)) {
+            current.setValue('', { emitEvent: false });
+          }
+        }
+        current.setValidators(validators);
+        current.updateValueAndValidity({ emitEvent: false });
+      } else {
+        group.addControl(field.key, this.fb.control('', validators), { emitEvent: false });
+      }
+    }
+  }
+
+  /** Rebuild the fiscal fields when the taxpayer kind changes, not only when the country does. */
+  onTaxpayerKindChange(): void {
+    this.syncFiscalFields(this.currentCountryConfig());
+    // The tax id was validated against the other scheme; re-checking it now tells the user
+    // immediately rather than after they reach the plan step.
+    this.registerForm.get('configuration.taxId')?.updateValueAndValidity();
   }
 
   private handleEmailMagicLink(token: string) {
@@ -345,8 +423,9 @@ export class RegisterPage implements OnInit {
       return;
     }
 
-    // Verification gate for phone step
-    if (this.currentStep() === 3 && !this.phoneVerified()) {
+    // Verification gate for phone step — only when a number was actually given. The phone is
+    // optional; demanding an SMS for an empty field made the step impossible to pass.
+    if (this.currentStep() === 3 && this.currentPhone && !this.phoneVerified()) {
       this.errorMessage.set('Debes verificar tu número de celular antes de continuar.');
       return;
     }
@@ -443,7 +522,7 @@ export class RegisterPage implements OnInit {
           lastName: formValue.accountInfo.lastName,
           email: formValue.accountInfo.email,
           emailVerificationCode: formValue.accountInfo.emailCode,
-          phone: formValue.accountInfo.phone,
+          phone: formValue.accountInfo.phone || undefined,
           phoneVerificationCode: formValue.accountInfo.phoneCode || undefined,
           password: formValue.accountInfo.passwordGroup.password,
           organizationName: formValue.business.companyName,
@@ -451,7 +530,9 @@ export class RegisterPage implements OnInit {
           // it and ignores any region id the client supplies, so a payload cannot be validated
           // under one country's rules and provisioned under another's.
           countryCode: formValue.configuration.country,
+          taxpayerKind: formValue.configuration.taxpayerKind,
           taxId: formValue.configuration.taxId,
+          fiscalProfile: formValue.configuration.fiscalProfile ?? {},
           recaptchaToken,
           industry: formValue.business.industry,
           companySize: formValue.business.companySize || undefined,

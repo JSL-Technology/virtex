@@ -23,6 +23,11 @@ import { SmsAbuseGuardService } from './sms-abuse.guard.service';
 
 import { AuthConfig } from '../auth.config';
 
+/** A stable, non-identifying handle for a verification destination, for logs. */
+function hashTarget(target: string): string {
+  return crypto.createHash('sha256').update(target.toLowerCase().trim()).digest('hex').slice(0, 12);
+}
+
 @Injectable()
 export class MfaOrchestratorService {
   private readonly logger = new Logger(MfaOrchestratorService.name);
@@ -222,7 +227,12 @@ export class MfaOrchestratorService {
       try {
         await this.mailService.sendRegistrationEmailVerification(target, code, 'Usuario', magicLinkUrl, expiresMinutes);
       } catch (err) {
-        this.logger.error(`Failed to send registration email to ${target}: ${(err as Error).message}`);
+        // Hashed, not in the clear: the address is personal data and this is the one place the
+        // module wrote one out in full.
+        this.logger.error(
+          { event: 'registration_email_failed', targetHash: hashTarget(target) },
+          `Failed to send registration verification email: ${(err as Error).message}`,
+        );
         throw new InternalServerErrorException('No se pudo enviar el correo de verificación. Por favor verifica tu correo e intenta de nuevo.');
       }
     } else if (type === VerificationType.PHONE_VERIFY) {
@@ -233,7 +243,10 @@ export class MfaOrchestratorService {
       try {
         await this.smsProvider.send(target, `Your verification code is: ${code}`);
       } catch (err) {
-        this.logger.error(`Failed to send SMS to ${target}: ${(err as Error).message}`);
+        this.logger.error(
+          { event: 'verification_sms_failed', targetHash: hashTarget(target) },
+          `Failed to send verification SMS: ${(err as Error).message}`,
+        );
         throw new InternalServerErrorException('No se pudo enviar el SMS de verificación. Por favor intenta de nuevo.');
       }
     }
@@ -322,6 +335,18 @@ export class MfaOrchestratorService {
   }
 
   async complete2faLogin(user: User, code: string, ipAddress?: string, userAgent?: string) {
+      // A locked account cannot complete a second factor either.
+      //
+      // The lockout was only ever consulted on the password step, so once an attacker had the
+      // password the second factor was an unbounded oracle: every wrong code was rejected and
+      // nothing accumulated. Checking here closes both routes into this method — the inline
+      // `twoFactorCode` on POST /auth/login and the cookie-bound POST /auth/verify-2fa.
+      if (user.security?.lockoutUntil && new Date() < user.security.lockoutUntil) {
+          throw new UnauthorizedException(
+              'Cuenta bloqueada temporalmente por demasiados intentos. Inténtalo más tarde.',
+          );
+      }
+
       // 1. Try Standard TOTP
       let isValid2FA = await this.securityAnalysisService.validateTwoFactorCode(user, code);
       let method = '2FA';
@@ -338,6 +363,17 @@ export class MfaOrchestratorService {
       }
 
       if (!isValid2FA) {
+         // A failed second factor counts against the same lockout budget as a failed password.
+         //
+         // Nothing did this before. `POST /auth/login` accepts `twoFactorCode` in the same body as
+         // the password (see LoginUserDto), and that path never touches the pending-session
+         // counter, so an attacker who already held the password could grind six-digit codes
+         // bounded only by a per-IP throttle — trivially evaded from a botnet — against an account
+         // that would never lock. Counting the attempt here covers every route that completes a
+         // second factor, because they all arrive through this method.
+         // (NIST SP 800-63B §5.2.2; OWASP ASVS 2.2.1; CWE-307.)
+         await this.securityAnalysisService.handleFailedLoginAttempt(user);
+
          await this.auditService.record(
             user.id,
             'User',

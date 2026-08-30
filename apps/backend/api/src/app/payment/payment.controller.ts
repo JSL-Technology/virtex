@@ -1,7 +1,7 @@
 import { Controller, Post, Get, Body, Headers, Req, BadRequestException, UseGuards, Ip, HttpCode, HttpStatus } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { PaymentService } from './payment.service';
-import { Request } from 'express';
+import type { HttpRequest as Request } from '../common/http/http.types';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { StepUpGuard } from '../auth/guards/step-up.guard';
 import { StepUp } from '../auth/decorators/step-up.decorator';

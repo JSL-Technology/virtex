@@ -27,6 +27,8 @@ import { PasswordService } from './password.service';
 import { PendingRegistration, PendingRegistrationStatus } from '../entities/pending-registration.entity';
 import { Plan } from '../../saas/entities/plan.entity';
 import { MembershipService } from '../../organizations/services/membership.service';
+import { canonicalizeTaxId } from '../../localization/fiscal/tax-id-validators';
+import { normalizeFiscalFields } from '../../localization/fiscal/country-profiles';
 
 /** Subscription facts captured from Stripe when a pending registration is completed. */
 export interface CompletedSubscriptionInfo {
@@ -36,7 +38,14 @@ export interface CompletedSubscriptionInfo {
   currentPeriodEnd: Date | null;
 }
 
-const PENDING_REGISTRATION_TTL_MS = 24 * 60 * 60 * 1000; // 24h to complete payment
+/**
+ * How long a started signup may take to complete payment.
+ *
+ * Read from AuthConfig so the pending row and the transaction cookie that binds it to a browser
+ * cannot be given different lifetimes — a cookie that expires first means a paid customer who
+ * cannot be signed in.
+ */
+const PENDING_REGISTRATION_TTL_MS = AuthConfig.PENDING_REGISTRATION_TTL;
 
 interface MaterializeAccountData {
   email: string;
@@ -55,6 +64,8 @@ interface MaterializeAccountData {
   state: string | null;
   postalCode: string | null;
   countryCode: string | null;
+  taxpayerKind: string | null;
+  fiscalProfile: Record<string, string> | null;
 }
 
 @Injectable()
@@ -164,10 +175,22 @@ export class RegistrationService {
       throw new ConflictException('No se pudo completar el registro. Verifique que los datos sean correctos o contacte soporte.');
     }
 
-    let taxId = data.taxId;
-    if (taxId) {
-      taxId = taxId.replace(/[^\d]/g, '');
-      const whereClause: any = { taxId };
+    // The tax id is stored in the country's canonical form, NOT as bare digits.
+    //
+    // `taxId.replace(/[^\d]/g, '')` deleted every non-digit for every country, which is not
+    // normalisation but destruction. It reduced `DEM010203AB5` to `0102035`, so every Mexican
+    // company incorporated on the same date collapsed to one stored value — and `organizations`
+    // carries a unique index on `(tax_id, fiscal_region_id)`, so the second one to sign up was
+    // rejected with a generic conflict, after paying. It also dropped the `K` from Chilean and
+    // Guatemalan check characters and the type letter that separates a Venezuelan company from a
+    // natural person. See `canonicalizeTaxId`.
+    let taxId: string | null = null;
+    if (data.taxId) {
+      taxId = data.countryCode
+        ? canonicalizeTaxId(data.countryCode, data.taxId)
+        : data.taxId.trim();
+
+      const whereClause: Record<string, unknown> = { taxId };
       if (data.fiscalRegionId) {
         whereClause.fiscalRegionId = data.fiscalRegionId;
       }
@@ -192,6 +215,14 @@ export class RegistrationService {
       },
       manager
     );
+
+    // Fiscal identity, written on the same row the organization was just created with. The
+    // identifier has been validated arithmetically and canonicalised in this request, so it is
+    // verified by construction — unlike the rows that predate the canonical form.
+    organization.taxpayerKind = data.taxpayerKind;
+    organization.fiscalProfile = data.fiscalProfile ?? null;
+    organization.taxIdVerifiedAt = taxId ? new Date() : null;
+    await manager.save(Organization, organization);
 
     const defaultRoles = this.getDefaultRolesForOrganization(organization.id);
     const roleEntities = defaultRoles.map((role) => manager.create(Role, { ...role }));
@@ -279,6 +310,15 @@ export class RegistrationService {
       passwordHash,
       organizationName: dto.organizationName,
       taxId: dto.taxId ?? null,
+      taxpayerKind: dto.taxpayerKind ?? null,
+      // Only the answers the country actually asks for are kept. The DTO constraint has already
+      // rejected unknown keys; normalising again here means a future caller that reaches this
+      // service without the HTTP pipe cannot store arbitrary data either.
+      fiscalProfile: normalizeFiscalFields(
+        dto.countryCode,
+        dto.taxpayerKind as 'company' | 'individual' | undefined,
+        dto.fiscalProfile ?? {},
+      ),
       fiscalRegionId: await this.resolveFiscalRegionId(dto.countryCode),
       industry: dto.industry ?? null,
       companySize: dto.companySize ?? null,
@@ -353,6 +393,8 @@ export class RegistrationService {
           state: pending.state,
           postalCode: pending.postalCode,
           countryCode: pending.countryCode,
+          taxpayerKind: pending.taxpayerKind,
+          fiscalProfile: pending.fiscalProfile,
         },
         manager
       );
@@ -388,15 +430,6 @@ export class RegistrationService {
       this.logger.log(`Materialized account for ${pending.email} (org ${organization.id}, plan ${pending.planSlug}).`);
       return user;
     });
-  }
-
-  private honeypotDummyUser(dto: RegisterUserDto): User {
-    this.logger.warn(`Spam registration detected (Honeypot): ${dto.email}`);
-    const dummyUser = new User();
-    dummyUser.email = dto.email;
-    dummyUser.firstName = dto.firstName;
-    dummyUser.lastName = dto.lastName;
-    return dummyUser;
   }
 
   private async verifyCode(target: string, type: VerificationType, code: string) {

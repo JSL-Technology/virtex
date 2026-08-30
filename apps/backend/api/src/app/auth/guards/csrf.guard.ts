@@ -6,7 +6,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Request } from 'express';
+import type { HttpRequest as Request } from '../../common/http/http.types';
 import { CookieService } from '../services/cookie.service';
 import { SKIP_CSRF_KEY } from '../decorators/skip-csrf.decorator';
 
@@ -77,7 +77,11 @@ export class CsrfGuard implements CanActivate {
     }
 
     const tokenFromHeader = request.headers['x-xsrf-token'] as string | undefined;
-    const tokenFromCookie = request.cookies?.['XSRF-TOKEN'] as string | undefined;
+    // Read through CookieService: the name depends on the environment and has a `__Host-` prefix
+    // in every deployment, so a literal here is how the two sides drift apart.
+    const tokenFromCookie = this.cookieService.readCsrfToken(
+      request.cookies as Record<string, string | undefined> | undefined,
+    );
 
     if (!tokenFromHeader || !tokenFromCookie || tokenFromHeader !== tokenFromCookie) {
       this.logger.warn(

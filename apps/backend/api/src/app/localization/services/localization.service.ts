@@ -23,7 +23,7 @@ import {
   CountryFiscalProfile,
   findCountryProfile,
 } from '../fiscal/country-profiles';
-import { validateTaxId } from '../fiscal/tax-id-validators';
+import { taxpayerKindAffectsValidation, validateTaxId } from '../fiscal/tax-id-validators';
 import { PublicCountryConfig, TaxIdLookupResult } from '../fiscal/public-country-config';
 import { findTaxScheme } from '../fiscal/country-tax-schemes';
 import {
@@ -212,6 +212,9 @@ export class LocalizationService implements OnModuleInit {
       individualDocument: profile.individualDocument ?? null,
       address: profile.address,
       electronicInvoicing: profile.electronicInvoicing,
+      marketStatus: profile.marketStatus,
+      taxpayerKindRequired: taxpayerKindAffectsValidation(profile.countryCode),
+      fiscalFields: profile.fiscalFields ?? [],
       dateFormat: profile.dateFormat,
       thousandSeparator: profile.thousandSeparator,
       decimalSeparator: profile.decimalSeparator,

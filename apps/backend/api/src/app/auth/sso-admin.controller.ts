@@ -15,7 +15,6 @@ import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from './guards/jwt/jwt.guard';
 import { CsrfGuard } from './guards/csrf.guard';
-import { PermissionsGuard } from './guards/permissions/permissions.guard';
 import { HasPermission } from './decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { CurrentUser } from './decorators/current-user.decorator';
@@ -34,7 +33,7 @@ import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interfa
  */
 @ApiTags('Auth/SSO Admin')
 @Controller('auth/sso/admin')
-@UseGuards(JwtAuthGuard, CsrfGuard, PermissionsGuard)
+@UseGuards(JwtAuthGuard, CsrfGuard)
 @HasPermission(PERMISSIONS.SETTINGS_EDIT_COMPANY)
 export class SsoAdminController {
   constructor(private readonly ssoAdminService: SsoAdminService) {}

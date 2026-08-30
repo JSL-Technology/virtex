@@ -4,7 +4,6 @@ import {
   HttpHandlerFn,
   HttpEvent,
   HttpErrorResponse,
-  HttpXsrfTokenExtractor,
 } from '@angular/common/http';
 import { inject, Injector } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
@@ -14,6 +13,33 @@ import { AuthQueueService } from '../services/auth-queue.service';
 import { IS_PUBLIC_API } from '../tokens/http-context.tokens';
 import { Router } from '@angular/router';
 
+/**
+ * Names the CSRF cookie may carry, most-secure first.
+ *
+ * Production issues `__Host-XSRF-TOKEN`; local plain-HTTP development cannot, because the prefix
+ * mandates `Secure` and browsers reject a Secure cookie over HTTP. Both are read so the same build
+ * works in either.
+ *
+ * NOTE: this reads `document.cookie` on the SPA's own origin. The cookie is host-only (it carries
+ * no `Domain`, and `__Host-` forbids one), so the API must be served from the SAME origin as the
+ * client — a path prefix such as `https://app.example.com/api/v1`, or a reverse proxy that fronts
+ * both. A split-subdomain deployment cannot work: the browser would not expose the cookie here,
+ * and `SameSite=Lax` session cookies would not be attached to the API calls either. See
+ * docs/DEPLOYMENT.md.
+ */
+const CSRF_COOKIE_NAMES = ['__Host-XSRF-TOKEN', 'XSRF-TOKEN'] as const;
+
+function readCsrfCookie(): string | null {
+  if (typeof document === 'undefined') return null;
+  for (const name of CSRF_COOKIE_NAMES) {
+    const match = document.cookie.match(
+      new RegExp(`(?:^|;\\s*)${name.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&')}=([^;]*)`),
+    );
+    if (match) return decodeURIComponent(match[1]);
+  }
+  return null;
+}
+
 export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
   next: HttpHandlerFn,
@@ -21,16 +47,18 @@ export const authInterceptor: HttpInterceptorFn = (
   const injector = inject(Injector);
   // Inject AuthQueueService (Singleton) to manage state across requests
   const authQueueService = inject(AuthQueueService);
-  // Inyectar el extractor de tokens para manejar CSRF manualmente
-  const tokenExtractor = inject(HttpXsrfTokenExtractor);
 
   let authReq = req.clone({
     withCredentials: true,
   });
 
-  // Obtener el token XSRF de las cookies y agregarlo a los headers manualmente
-  // Esto es necesario porque withFetch() o ciertas configuraciones pueden omitir la inclusión automática
-  const xsrfToken = tokenExtractor.getToken();
+  // Read the CSRF cookie ourselves rather than through HttpXsrfTokenExtractor.
+  //
+  // The extractor only knows the name it was configured with, and the server now issues the
+  // cookie as `__Host-XSRF-TOKEN` in every deployment — the prefix is what stops a compromised
+  // sibling subdomain from overwriting it. Angular's default extractor looks for the unprefixed
+  // name, finds nothing, sends no header, and every state-changing request comes back 403.
+  const xsrfToken = readCsrfCookie();
   if (xsrfToken && !['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
     authReq = authReq.clone({
       headers: authReq.headers.set('X-XSRF-TOKEN', xsrfToken),
@@ -82,7 +110,7 @@ export const authInterceptor: HttpInterceptorFn = (
 
               // Al reintentar la petición, nos aseguramos de usar el token XSRF más reciente
               // por si cambió durante el refresco o la redirección
-              const newToken = tokenExtractor.getToken();
+              const newToken = readCsrfCookie();
               let retryReq = authReq;
               if (
                 newToken &&
@@ -116,7 +144,7 @@ export const authInterceptor: HttpInterceptorFn = (
               }
 
               // Igual que arriba, actualizamos el token XSRF antes de reintentar
-              const newToken = tokenExtractor.getToken();
+              const newToken = readCsrfCookie();
               let retryReq = authReq;
               if (
                 newToken &&

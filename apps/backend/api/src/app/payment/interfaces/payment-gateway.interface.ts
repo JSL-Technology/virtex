@@ -21,6 +21,19 @@ export interface CreateRegistrationCheckoutDto {
   successUrl: string;
   cancelUrl: string;
   metadata?: Record<string, any>;
+  /**
+   * ISO 4217 currency the subscription should be billed in.
+   *
+   * Stripe resolves it against the Price's `currency_options`, so one Price serves every market
+   * and the amounts are configured where prices belong — in Stripe — rather than duplicated in a
+   * per-country table here. Omitted, the Price's default currency applies, which is what happened
+   * for every customer in all nineteen markets: everyone was billed in USD.
+   */
+  currency?: string;
+  /** ISO 3166-1 alpha-2, for tax determination. */
+  countryCode?: string;
+  /** The buyer's own tax identifier, so the invoice Stripe issues carries it. */
+  taxId?: { type: string; value: string } | null;
 }
 
 export interface CheckoutSessionInfo {

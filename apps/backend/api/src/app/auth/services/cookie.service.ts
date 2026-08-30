@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Response } from 'express';
+import type { HttpResponse as Response } from '../../common/http/http.types';
 import { AuthConfig, isDevLikeEnvironment } from '../auth.config';
 import * as crypto from 'crypto';
 
@@ -117,9 +117,39 @@ export class CookieService {
     this.setCsrfCookie(res, userId);
   }
 
+  /**
+   * Names the CSRF cookie has been issued under, most-secure first.
+   *
+   * `__Host-` does NOT stop JavaScript from reading a cookie — it forces `Secure`, forbids
+   * `Domain`, and pins `Path=/`. That is exactly the protection this cookie needs and did not
+   * have: without the prefix a compromised sibling subdomain can OVERWRITE it, which is the
+   * scenario `CsrfGuard`'s own comment says the signed double-submit exists to cover. The HMAC
+   * signature blocks a forged value, but an attacker does not need to forge one — they can obtain
+   * a validly signed `anon` token simply by calling `POST /auth/login`, then plant it and send the
+   * matching header. On authenticated routes the user binding still rejects it; on `POST
+   * /auth/refresh`, which has no authenticated principal, an `anon` token is accepted by design.
+   */
+  private csrfCookieNames(): string[] {
+    return ['__Host-XSRF-TOKEN', 'XSRF-TOKEN'];
+  }
+
+  /** The name this environment writes. Prefixed everywhere except plain-HTTP local development. */
+  csrfCookieName(): string {
+    return this.isInsecureDevEnvironment() ? 'XSRF-TOKEN' : '__Host-XSRF-TOKEN';
+  }
+
+  /** Read the CSRF token under whichever name it was issued. */
+  readCsrfToken(cookies: Record<string, string | undefined> | undefined): string | undefined {
+    if (!cookies) return undefined;
+    for (const name of this.csrfCookieNames()) {
+      if (cookies[name]) return cookies[name];
+    }
+    return undefined;
+  }
+
   setCsrfCookie(res: Response, userId?: string): void {
     const csrfToken = this.generateSignedCsrfToken(userId);
-    res.cookie('XSRF-TOKEN', csrfToken, {
+    res.cookie(this.csrfCookieName(), csrfToken, {
       secure: !this.isInsecureDevEnvironment(),
       sameSite: 'lax',
       // Must stay readable by JS: the SPA copies it into the X-XSRF-TOKEN header.
@@ -210,6 +240,63 @@ export class CookieService {
       maxAge: 5 * 60 * 1000,
       path: '/',
     });
+  }
+
+  /**
+   * Names the registration transaction cookie has been issued under, most-secure first.
+   * Both are read so a dev/prod switch cannot strand a checkout in flight.
+   */
+  private registrationTransactionCookieNames(): string[] {
+    return ['__Secure-reg_txn', 'reg_txn'];
+  }
+
+  /**
+   * Bind a pending registration to the browser that started its checkout.
+   *
+   * `POST /auth/register-confirm` is necessarily public — the account does not exist yet — and it
+   * used to accept a Stripe `session_id` from the request body as its ONLY input, then mint full
+   * session cookies for the tenant owner. That made the checkout session id a bearer credential
+   * for the account, and Stripe returns it to the browser in the success URL's query string:
+   * browser history, the `Referer` sent to any third-party resource on that page, and every proxy
+   * access log along the way. Worse, it never expired as one, because
+   * `completePendingRegistration` returns the existing user once the account is created, so the
+   * same id kept minting sessions indefinitely.
+   *
+   * The proof is now possession of this cookie, which is httpOnly, `SameSite=Lax` so it survives
+   * the return redirect from Stripe, scoped to the confirm route, and never leaves the browser
+   * that began the signup. Knowing the session id is no longer sufficient.
+   */
+  setRegistrationTransactionCookie(res: Response, pendingRegistrationId: string, maxAgeMs: number): void {
+    const insecureDev = this.isInsecureDevEnvironment();
+    const { name, path } = this.scopedCookie('reg_txn', 'auth/register-confirm');
+    res.cookie(name, pendingRegistrationId, {
+      httpOnly: true,
+      secure: !insecureDev,
+      // Lax, not Strict: Stripe redirects the browser back to us cross-site, and a Strict cookie
+      // would not be attached to the navigation that follows.
+      sameSite: 'lax',
+      maxAge: maxAgeMs,
+      path,
+    });
+  }
+
+  /** The pending-registration id this browser started, if it started one. */
+  readRegistrationTransactionId(
+    cookies: Record<string, string | undefined> | undefined,
+  ): string | undefined {
+    if (!cookies) return undefined;
+    for (const name of this.registrationTransactionCookieNames()) {
+      if (cookies[name]) return cookies[name];
+    }
+    return undefined;
+  }
+
+  clearRegistrationTransactionCookie(res: Response): void {
+    const insecureDev = this.isInsecureDevEnvironment();
+    const path = this.apiPath('auth/register-confirm');
+    for (const name of this.registrationTransactionCookieNames()) {
+      res.clearCookie(name, { path, secure: name.startsWith('__') || !insecureDev });
+    }
   }
 
   setRegisterTokenCookie(res: Response, token: string): void {
@@ -306,7 +393,9 @@ export class CookieService {
     const refreshPath = this.apiPath('auth/refresh');
     res.clearCookie('__Secure-refresh_token', { path: refreshPath, secure: true });
     res.clearCookie('refresh_token', { path: refreshPath, secure: !insecureDev });
-    res.clearCookie('XSRF-TOKEN', { path: '/' });
+    for (const name of this.csrfCookieNames()) {
+      res.clearCookie(name, { path: '/', secure: name.startsWith('__') || !insecureDev });
+    }
     this.clearStepUpCookie(res);
   }
 }

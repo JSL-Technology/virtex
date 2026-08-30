@@ -90,6 +90,19 @@ export class OidcProviderService {
     }
   }
 
+  /**
+   * Absolute URL the IdP returns to after a step-up re-authentication.
+   *
+   * Distinct from the sign-in callback on purpose: the two flows do different things with the
+   * response — one starts a session, the other mints a scoped, single-use step-up proof — and
+   * sharing a redirect URI would mean the callback had to guess which. It must be registered at
+   * every provider alongside the sign-in one; see docs/DEPLOYMENT.md.
+   */
+  stepUpRedirectUri(): string {
+    const apiBase = this.configService.get<string>('API_PUBLIC_URL', 'http://localhost:3000/api/v1');
+    return `${apiBase.replace(/\/$/, '')}/auth/step-up/sso/callback`;
+  }
+
   private required(key: string): string {
     const value = this.configService.get<string>(key);
     if (!value) {

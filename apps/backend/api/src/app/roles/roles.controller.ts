@@ -3,7 +3,6 @@ import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
-import { PermissionsGuard } from '../auth/guards/permissions/permissions.guard';
 import { CsrfGuard } from '../auth/guards/csrf.guard';
 import { StepUpGuard } from '../auth/guards/step-up.guard';
 import { StepUp } from '../auth/decorators/step-up.decorator';
@@ -17,7 +16,7 @@ import { PERMISSIONS, ALL_PERMISSIONS } from '../shared/permissions';
 // PermissionsGuard + CsrfGuard + a fresh step-up proof scoped to MANAGE_ROLES.
 // Without this, any authenticated user could escalate privileges by creating/editing roles.
 @Controller('roles')
-@UseGuards(JwtAuthGuard, PermissionsGuard)
+@UseGuards(JwtAuthGuard)
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 

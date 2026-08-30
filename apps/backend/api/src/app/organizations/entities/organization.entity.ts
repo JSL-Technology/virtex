@@ -15,6 +15,40 @@ export class Organization {
   @Column({ type: 'varchar', name: 'tax_id', nullable: true })
   taxId: string | null;
 
+  /**
+   * Whether the tenant is a legal entity or a natural person.
+   *
+   * Not cosmetic: it selects which identifier scheme `tax_id` was validated against, which
+   * `RegimenFiscal` options the SAT catalogue offers, and which invoice class AFIP permits.
+   */
+  @Column({ type: 'varchar', name: 'taxpayer_kind', length: 16, nullable: true })
+  taxpayerKind: string | null;
+
+  /**
+   * The country's remaining fiscal data, keyed by `FiscalFieldSpec.key`.
+   *
+   * Régimen fiscal for Mexico, condición frente al IVA and punto de venta for Argentina,
+   * responsabilidades fiscales for Colombia, CRT and inscrição estadual for Brazil, giro and
+   * código de actividad for Chile, ubigeo for Peru. Each regime stamps these into the document it
+   * issues, so a tenant without them cannot invoice — which is why they are collected at signup
+   * rather than asked for afterwards.
+   */
+  @Column({ type: 'jsonb', name: 'fiscal_profile', nullable: true })
+  fiscalProfile: Record<string, string> | null;
+
+  /**
+   * When the tenant's fiscal identifier was last confirmed to be canonical.
+   *
+   * NULL means it is not trusted. Rows created before the destructive
+   * `taxId.replace(/[^\d]/g, '')` was removed carry an identifier whose letters and check
+   * characters were deleted — an RFC reduced to its date of incorporation, a RUT without its `K`,
+   * a RIF without its type letter — and no migration can reconstruct them. Rather than let a
+   * corrupt value look authoritative, those rows are marked unverified and the tenant is asked to
+   * confirm before the product issues anything on their behalf.
+   */
+  @Column({ type: 'timestamptz', name: 'tax_id_verified_at', nullable: true })
+  taxIdVerifiedAt: Date | null;
+
   @Column({ type: 'varchar', nullable: true })
   address: string | null;
 

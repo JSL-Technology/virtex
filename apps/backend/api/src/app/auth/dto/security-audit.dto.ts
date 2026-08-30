@@ -1,6 +1,7 @@
 import { IsString, Length, IsEnum, IsObject, IsOptional } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { VerificationType } from '../entities/verification-code.entity';
+import { IsVerificationTarget } from '../../common/validators/is-verification-target.validator';
 
 // H-03 FIX: tempToken removed — pending session is tracked via httpOnly cookie only.
 export class Verify2faDto {
@@ -21,9 +22,19 @@ export class InvitationDetailsDto {
 }
 
 export class SendPublicVerificationDto {
-  @ApiProperty({ description: 'Email or phone number' })
+  /**
+   * Where the code goes: an email address for EMAIL_VERIFY, an E.164 number for PHONE_VERIFY.
+   *
+   * This was `@IsString() @Length(3, 320)` and nothing else, on an UNAUTHENTICATED endpoint that
+   * hands the value straight to Twilio. Any string reached the SMS provider, which is the exact
+   * shape of SMS pumping — an operator drives traffic to premium-rate ranges they are paid for and
+   * the bill lands on this account. `SmsAbuseGuardService` contains the damage, but the first line
+   * of defence is refusing input that is not a phone number at all.
+   */
+  @ApiProperty({ description: 'Email address or E.164 phone number' })
   @IsString()
   @Length(3, 320)
+  @IsVerificationTarget()
   target!: string;
 
   @ApiProperty({ enum: VerificationType })

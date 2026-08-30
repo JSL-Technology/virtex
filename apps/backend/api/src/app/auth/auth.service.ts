@@ -29,10 +29,20 @@ import { AuthEvents, AuthLoginFailedEvent, AuthLoginSuccessEvent } from './event
 import { SafeUser, AuthenticatedUser } from './interfaces/authenticated-user.interface';
 import { AuthError } from './enums/auth-error.enum';
 import { AuthException } from './exceptions/auth.exception';
-import { LoginResultDto, LoginResponseDto, TwoFactorRequiredResponseDto } from './dto/login-response.dto';
+import { LoginResultDto } from './dto/login-response.dto';
 import { StepUpScope } from './enums/step-up-scope.enum';
+import { EnterpriseSsoService } from './services/enterprise-sso.service';
+import { OidcProviderService } from './services/oidc-provider.service';
 
 export type LoginResult = LoginResultDto;
+
+/**
+ * Which credential the server will accept to re-authenticate this account.
+ *
+ * `sso` is the case that used to be reported as `none`: an account with no local password and no
+ * TOTP secret is not un-verifiable, it is verifiable somewhere else.
+ */
+export type StepUpFactor = 'otp' | 'password' | 'sso' | 'none';
 
 @Injectable()
 export class AuthService {
@@ -60,6 +70,8 @@ export class AuthService {
     private readonly twoFactorAuthService: TwoFactorAuthService,
     private readonly passwordService: PasswordService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly enterpriseSsoService: EnterpriseSsoService,
+    private readonly oidcProviderService: OidcProviderService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
@@ -438,11 +450,20 @@ export class AuthService {
               credentials.password,
           );
       } else {
-          // Equalise timing so "no local password" is not measurably different from a wrong one,
-          // then refuse: this account has no factor strong enough to authorise the action.
+          // A federated identity has no local password and no TOTP secret, so there is nothing to
+          // verify HERE — but that does not mean it cannot be re-authenticated. It means the proof
+          // has to come from the identity provider that owns the account, via
+          // `GET /auth/step-up/sso`, which sends the user back to their IdP with `prompt=login`.
+          //
+          // This used to refuse outright, telling the user to "activar la verificación en dos
+          // pasos" — an instruction they could not follow, because enabling 2FA is itself a
+          // step-up-gated action. Every SSO-provisioned account was therefore permanently unable
+          // to invite a colleague, edit a user, revoke a session, create a subsidiary, open the
+          // billing portal, change its own email, or enrol any second factor at all. For a product
+          // sold to enterprises, that is the whole enterprise segment with no administration.
           await this.passwordService.verifyDummy(credentials.password ?? '');
           throw new ForbiddenException(
-              'Esta acción requiere verificación en dos pasos. Actívala en tu configuración de seguridad.',
+              'Esta cuenta se autentica con tu proveedor de identidad. Confirma la acción volviendo a iniciar sesión con él.',
           );
       }
 
@@ -481,13 +502,64 @@ export class AuthService {
    */
   async describeStepUpChallenge(
       userId: string,
-  ): Promise<{ factor: 'otp' | 'password' | 'none' }> {
+  ): Promise<{ factor: StepUpFactor; ssoStartPath?: string }> {
       const user = await this.usersService.findUserByIdForAuth(userId);
       if (user?.security?.isTwoFactorEnabled) return { factor: 'otp' };
       if (user?.security?.passwordHash) return { factor: 'password' };
-      // A federated identity with no local password has no factor strong enough. The client
-      // shows the "enrol a second factor" path instead of an unanswerable prompt.
+
+      // No local credential. If the account is federated, the identity provider IS the factor —
+      // it is the one that authenticated this person in the first place, and it can be asked to
+      // do so again with `prompt=login`. Returning 'none' here is what dead-ended every SSO
+      // account: the client showed an "enrol a second factor" prompt for an action that itself
+      // required a second factor.
+      if (user && (await this.hasFederatedIdentity(user))) {
+          return { factor: 'sso', ssoStartPath: '/auth/step-up/sso' };
+      }
+
       return { factor: 'none' };
+  }
+
+  /**
+   * Whether the account can be re-authenticated against an identity provider.
+   *
+   * Enterprise SSO first (resolved from the organization's configured IdP by verified email
+   * domain), then a social provider recorded on the user at sign-up. Either is a real factor: the
+   * user proves possession of an account at a provider we already trust for this identity.
+   */
+  /** Load the full user record for a step-up decision that needs fields the principal omits. */
+  async findUserForStepUp(userId: string): Promise<User | null> {
+      return this.usersService.findUserByIdForAuth(userId);
+  }
+
+  async hasFederatedIdentity(user: User): Promise<boolean> {
+      if (await this.enterpriseSsoService.discoverByEmail(user.email)) return true;
+      return Boolean(
+          user.authProvider && this.oidcProviderService.isProviderConfigured(user.authProvider),
+      );
+  }
+
+  /**
+   * Mint a step-up token after the identity provider has re-authenticated the user.
+   *
+   * Called only from the SSO step-up callback, which has already validated the IdP's response —
+   * state, PKCE, nonce, signature — and confirmed that the returned subject is the signed-in user.
+   * It is deliberately separate from `createStepUpToken` so the two proofs cannot be confused: no
+   * request body reaches this path, so there is nothing a caller could supply to reach it.
+   */
+  issueStepUpTokenAfterFederatedReauth(
+      userId: string,
+      scope: StepUpScope,
+  ): { stepUpToken: string; maxAgeMs: number } {
+      const stepUpToken = this.jwtService.sign(
+          { sub: userId, stepup: true, scope, jti: crypto.randomUUID() },
+          {
+              secret: AuthConfig.JWT_STEP_UP_SECRET,
+              expiresIn: AuthConfig.JWT_STEP_UP_EXPIRATION as `${number}m`,
+              issuer: 'virteex-api',
+              audience: 'virteex-step-up',
+          },
+      );
+      return { stepUpToken, maxAgeMs: AuthConfig.STEP_UP_TOKEN_TTL };
   }
 
   /**

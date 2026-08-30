@@ -15,7 +15,7 @@ import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
-import type { Response } from 'express';
+import type { HttpResponse as Response } from '../common/http/http.types';
 import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
@@ -75,13 +75,15 @@ export class InvoicesController {
       user.organizationId,
     );
 
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader(
-      'Content-Disposition',
-      `attachment; filename="invoice-${id}.pdf"`,
-    );
-    res.setHeader('Content-Length', pdfBuffer.length);
-    res.send(pdfBuffer);
+    // `res.setHeader` is a Node/Express method and does not exist on a Fastify reply, so this
+    // threw `res.setHeader is not a function` on every call — invoice PDF download was broken in
+    // production. It compiled cleanly because the file typed its response as `express.Response`
+    // while the application boots on `FastifyAdapter`. Fastify's own API is `header()`.
+    res
+      .header('Content-Type', 'application/pdf')
+      .header('Content-Disposition', `attachment; filename="invoice-${id}.pdf"`)
+      .header('Content-Length', String(pdfBuffer.length))
+      .send(pdfBuffer);
   }
 
   @Post(':id/payments')

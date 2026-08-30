@@ -27,7 +27,6 @@ import { CreateJournalEntryDto } from './dto/create-journal-entry.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
-import { PermissionsGuard } from '../auth/guards/permissions/permissions.guard';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
@@ -41,7 +40,7 @@ import { TemporalValidityGuard } from '../financial-reporting/guards/temporal-va
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Controller('journal-entries')
-@UseGuards(JwtAuthGuard, PermissionsGuard)
+@UseGuards(JwtAuthGuard)
 export class JournalEntriesController {
   constructor(
     private readonly journalEntriesService: JournalEntriesService,

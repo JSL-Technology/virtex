@@ -46,3 +46,7 @@ Thumbs.db
 .angular
 .env
 *.log
+# Salidas de herramientas que se colaron al control de versiones.
+typecheck_*.txt
+tmp-*.cjs
+*_audit.txt

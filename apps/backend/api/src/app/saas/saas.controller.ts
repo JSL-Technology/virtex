@@ -1,9 +1,12 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
+import { ApiOperation } from '@nestjs/swagger';
+import { plainToInstance } from 'class-transformer';
+import { PlanResponseDto } from './dto/plan-response.dto';
 import { SaasService } from './saas.service';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { Public } from '../auth/decorators/public.decorator';
-import { Request } from 'express';
+import type { HttpRequest as Request } from '../common/http/http.types';
 import { AllowInactiveSubscription } from './decorators/allow-inactive-subscription.decorator';
 
 /**
@@ -21,14 +24,18 @@ export class SaasController {
   // logout that bounces the visitor to /auth/login.
   @Public()
   @Get('plans')
-  getPlans() {
-    return this.saasService.getPlans();
+  @ApiOperation({ summary: 'Plans available for signup' })
+  async getPlans(@Query('country') country?: string): Promise<PlanResponseDto[]> {
+    // The country selects the currency the plan is quoted in. Omitted, the plan comes back in the
+    // platform's base currency, which is what an anonymous visitor with no country yet sees.
+    const plans = await this.saasService.getPlansForCountry(country);
+    return plans.map((plan) => plainToInstance(PlanResponseDto, plan, { excludeExtraneousValues: true }));
   }
 
   @Get('usage')
   @UseGuards(AuthGuard('jwt'))
   async getUsage(@Req() req: Request) {
-    const user = req.user as AuthenticatedUser;
+    const user = (req as unknown as { user: AuthenticatedUser }).user;
     if (!user.organizationId) {
         return [];
     }

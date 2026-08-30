@@ -2,7 +2,17 @@ import { ApiProperty } from '@nestjs/swagger';
 import { AuthenticatedUser } from '../interfaces/authenticated-user.interface';
 import { User } from '../../users/entities/user.entity/user.entity';
 
-export class LoginResponseDto {
+/**
+ * What the login SERVICE returns internally — tokens included.
+ *
+ * Renamed from `LoginResponseDto`, which was also the name of the HTTP response DTO in
+ * `dto/responses/login-response.dto.ts`. Both were imported into `auth.controller.ts` at once, and
+ * the two shapes are opposites on the point that matters: this one declares `accessToken` and
+ * `refreshToken` as required, while the HTTP one deliberately omits them because tokens are
+ * delivered only as httpOnly cookies. Two different meanings under one name, in one file, is how
+ * a token ends up in a response body.
+ */
+export class AuthenticatedLoginResult {
     @ApiProperty({ type: () => User })
     user: AuthenticatedUser;
 
@@ -36,4 +46,4 @@ export class TwoFactorRequiredResponseDto {
     pendingId?: string;
 }
 
-export type LoginResultDto = LoginResponseDto | TwoFactorRequiredResponseDto;
+export type LoginResultDto = AuthenticatedLoginResult | TwoFactorRequiredResponseDto;

@@ -1,6 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException, Type } from '@nestjs/common';
 import { Reflector, ModuleRef } from '@nestjs/core';
-import { PERMISSIONS_KEY } from '../../../auth/decorators/permissions.decorator';
+import { PERMISSIONS_KEY } from '../../decorators/permissions.constants';
 import { Permission } from '../../../shared/permissions';
 import { AuthenticatedRequest, hasPermission } from '@virteex/shared/util-auth';
 

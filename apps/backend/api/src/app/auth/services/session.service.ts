@@ -12,6 +12,7 @@ import { Repository, LessThan, MoreThan, In } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import ms from 'ms';
 import * as ipaddr from 'ipaddr.js';
 import * as crypto from 'crypto';
 import { RefreshToken } from '../entities/refresh-token.entity';
@@ -105,7 +106,7 @@ export class SessionService {
         where: { id: payload.jti },
         select: [
           'id', 'sessionId', 'isRevoked', 'revokedAt', 'replacedByToken',
-          'userAgent', 'ipAddress', 'userId', 'expiresAt',
+          'userAgent', 'ipAddress', 'userId', 'expiresAt', 'createdAt',
         ],
       });
 
@@ -230,15 +231,42 @@ export class SessionService {
       const sanitizedUserAgent = this.sanitizeUserAgent(userAgent);
       const parsedUA = this.securityAnalysisService.parseUserAgent(sanitizedUserAgent || '');
 
+      // Whether this was a "remember me" session is not in the token — it is in how long the
+      // stored row was given. Re-deriving it from the row's own lifetime keeps the property across
+      // rotations without adding a claim a client could tamper with. The comparison uses a margin
+      // because the row was written slightly before its expiry was computed.
+      const originalLifetimeMs =
+        refreshTokenEntity.expiresAt.getTime() - refreshTokenEntity.createdAt.getTime();
+      const rememberMe =
+        originalLifetimeMs > ms(AuthConfig.JWT_REFRESH_EXPIRATION as ms.StringValue) * 1.5;
+
+      // An impersonated session has a deliberately short life; a rotation must not silently
+      // promote it back to a normal one.
+      const refreshExpirationOverride = payload.isImpersonating
+        ? AuthConfig.IMPERSONATION_SESSION_DURATION
+        : undefined;
+
       // Continue the SAME session family so the access token's sessionId claim — and therefore
       // the entry the user sees under "Sesiones activas" — stays stable across rotations.
+      // Carry the session's own facts across the rotation.
+      //
+      // Both of these were dropped. `{}` meant `generateAuthResponse` fell back to
+      // `user.organizationId` — the home tenant — so a user who had switched organizations was
+      // silently moved back to their original one on the next refresh, i.e. every fifteen minutes,
+      // while continuing to look switched in the UI. And `rememberMe: false` re-issued a
+      // thirty-day session as a seven-day one on its first rotation, in the cookie AND in the
+      // database row, so "recordarme" quietly expired early.
+      //
+      // The organization comes from the refresh token's own claim rather than from the user
+      // record, and `resolveOrganizationContext` re-checks membership against the database on
+      // every request, so a membership revoked since the token was minted is still refused.
       const authResponse = await this.tokenService.generateAuthResponse(
         user,
-        {},
+        payload.organizationId ? { organizationId: payload.organizationId } : {},
         ipAddress,
         sanitizedUserAgent ?? undefined,
-        false,
-        { sessionId },
+        rememberMe,
+        { sessionId, refreshExpirationOverride },
       );
 
       const updateData: Partial<RefreshToken> = {
