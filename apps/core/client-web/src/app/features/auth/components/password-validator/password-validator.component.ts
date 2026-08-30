@@ -87,7 +87,7 @@ export class PasswordValidatorComponent {
   getStrengthLabel(): string {
       switch(this.strength) {
           case 0: return '';
-          case 1: return 'Débil';
+          case 1: return 'PASSWORD_STRENGTH.WEAK';
           case 2: return 'Regular';
           case 3: return 'Buena';
           case 4: return 'Fuerte';

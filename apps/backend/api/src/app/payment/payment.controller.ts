@@ -7,6 +7,8 @@ import { StepUpGuard } from '../auth/guards/step-up.guard';
 import { StepUp } from '../auth/decorators/step-up.decorator';
 import { StepUpScope } from '../auth/enums/step-up-scope.enum';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { PERMISSIONS } from '../shared/permissions';
 import { User } from '../users/entities/user.entity/user.entity';
 import { SaasService } from '../saas/saas.service';
 import { AuditTrailService } from '../audit/audit.service';
@@ -49,6 +51,7 @@ export class PaymentController {
   @Post('checkout-session')
   @UseGuards(JwtAuthGuard, StepUpGuard)
   @StepUp(StepUpScope.MANAGE_PAYMENT)
+  @HasPermission(PERMISSIONS.BILLING_MANAGE)
   async createCheckoutSession(
     @CurrentUser() user: AuthenticatedUser,
     @Body() dto: CreateCheckoutSessionDto,
@@ -96,8 +99,17 @@ export class PaymentController {
     };
   }
 
+  /**
+   * Commercial terms are not team-wide information.
+   *
+   * This, `invoices` and `checkout/confirm` carried authentication and nothing else, so the
+   * plan, the subscription status, the card's last four digits and the whole invoice history
+   * were readable by any member of the tenant — a Seller, a Member with two view permissions,
+   * anyone. `PermissionsGuard` only applies where `@HasPermission` puts it.
+   */
   @Get('overview')
   @UseGuards(JwtAuthGuard)
+  @HasPermission(PERMISSIONS.BILLING_VIEW)
   async getOverview(@CurrentUser() user: AuthenticatedUser) {
     if (!user.organizationId) {
       throw new BadRequestException('User does not belong to an organization');
@@ -107,6 +119,7 @@ export class PaymentController {
 
   @Post('checkout/confirm')
   @UseGuards(JwtAuthGuard)
+  @HasPermission(PERMISSIONS.BILLING_MANAGE)
   async confirmCheckout(
     @CurrentUser() user: AuthenticatedUser,
     @Body() body: ConfirmCheckoutDto
@@ -119,6 +132,7 @@ export class PaymentController {
 
   @Get('invoices')
   @UseGuards(JwtAuthGuard)
+  @HasPermission(PERMISSIONS.BILLING_VIEW)
   async getInvoices(@CurrentUser() user: AuthenticatedUser) {
     if (!user.organizationId) {
       throw new BadRequestException('User does not belong to an organization');
@@ -129,6 +143,7 @@ export class PaymentController {
   @Post('portal-session')
   @UseGuards(JwtAuthGuard, StepUpGuard)
   @StepUp(StepUpScope.MANAGE_PAYMENT)
+  @HasPermission(PERMISSIONS.BILLING_MANAGE)
   async createPortalSession(
     @CurrentUser() user: AuthenticatedUser,
     @Ip() ip: string
@@ -148,20 +163,16 @@ export class PaymentController {
     }
   }
 
-  @Get('config')
-  async getConfig() {
-    const plans = await this.saasService.getPlans();
-    // Transform to expected format if needed, or better, return the plans directly
-    // Returning legacy format for backward compatibility + new format
-    return {
-      prices: {
-        starter: plans.find(p => p.slug === 'starter')?.monthlyPriceId,
-        pro: plans.find(p => p.slug === 'pro')?.monthlyPriceId,
-        enterprise: plans.find(p => p.slug === 'enterprise')?.monthlyPriceId,
-      },
-      plans: plans
-    };
-  }
+  // -----------------------------------------------------------------------------------------
+  // There is deliberately NO `GET /payment/config`.
+  //
+  // It returned `{ prices: { starter, pro, enterprise } }` — the raw Stripe Price identifiers —
+  // plus every `Plan` entity unfiltered, to any authenticated member. That is the exact leak
+  // `PlanResponseDto` was introduced to close on the public catalogue, reopened on an
+  // authenticated route, and no screen in the application ever called it.
+  //
+  // The plan catalogue is `GET /saas/plans`, which serves an allow-listed DTO.
+  // -----------------------------------------------------------------------------------------
 
   /**
    * Stripe webhook endpoint.

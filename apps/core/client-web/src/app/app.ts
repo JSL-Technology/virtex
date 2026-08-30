@@ -10,6 +10,8 @@ import { CommonModule } from '@angular/common';
 import { LoaderComponent } from './shared/components/loader/loader.component';
 import { GeoMismatchModalComponent } from './shared/components/geo-mismatch-modal/geo-mismatch-modal.component';
 import { IdleService } from './core/services/idle.service';
+import { StepUpService } from './core/services/step-up.service';
+import { NotificationService } from './core/services/notification';
 import { ToastContainerComponent } from './shared/components/ui/toast/toast-container.component';
 import { OfflineBannerComponent } from './shared/components/offline-banner/offline-banner.component';
 
@@ -27,6 +29,8 @@ export class App implements OnInit {
   public loaderService = inject(LoaderService);
   private router = inject(Router);
   private idleService = inject(IdleService); // Initialize Idle Service
+  private stepUpService = inject(StepUpService);
+  private notificationService = inject(NotificationService);
 
   ngOnInit(): void {
     this.router.events.subscribe(event => {
@@ -54,7 +58,46 @@ export class App implements OnInit {
       ) {
         this.loaderService.hide('global');
       }
+
+      if (event instanceof NavigationEnd) {
+        this.reportFederatedStepUpReturn(event.urlAfterRedirects);
+      }
     });
+  }
+
+  /**
+   * Report the outcome of an identity-provider re-authentication.
+   *
+   * Re-authenticating against an IdP is a full page navigation, so whatever the user was about
+   * to do does not survive it — the proof does, as an httpOnly cookie. Handled here rather than
+   * on the security page because the server returns the user to wherever they started, which is
+   * just as often billing or user administration.
+   *
+   * Without this the user came back to a silently ordinary page and had no way to tell whether
+   * the verification had worked.
+   */
+  private reportFederatedStepUpReturn(url: string): void {
+    const query = url.split('?')[1];
+    if (!query) return;
+    const outcome = new URLSearchParams(query).get('step_up');
+    if (outcome !== 'ok' && outcome !== 'failed') return;
+
+    // Consumed either way, so a reload does not repeat the message.
+    this.stepUpService.consumePendingScope();
+
+    if (outcome === 'ok') {
+      this.notificationService.showSuccess('AUTH.STEP_UP.FEDERATED_OK');
+    } else {
+      this.notificationService.showError('AUTH.STEP_UP.FEDERATED_FAILED');
+    }
+
+    // Strip the marker so it does not survive a refresh or get shared in a copied URL.
+    const [path] = url.split('?');
+    const params = new URLSearchParams(query);
+    params.delete('step_up');
+    params.delete('scope');
+    const rest = params.toString();
+    void this.router.navigateByUrl(rest ? `${path}?${rest}` : path, { replaceUrl: true });
   }
 
   openTestModal(): void {

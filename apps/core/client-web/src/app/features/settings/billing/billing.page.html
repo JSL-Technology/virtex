@@ -33,7 +33,7 @@
                     <div class="plan-name">{{ overview()?.plan?.name }}</div>
                     @if (overview()?.plan?.monthlyPrice) {
                     <div class="plan-price">
-                        ${{ formatPrice(overview()?.plan?.monthlyPrice) }}<span class="plan-price__period">/mes</span>
+                        {{ formatPrice(overview()?.plan?.monthlyPrice, overview()?.plan?.currency, overview()?.plan?.minorUnits) }}<span class="plan-price__period">{{ 'REGISTER.STEPS.PLAN.PER_MONTH' | translate }}</span>
                     </div>
                     }
                     @if (overview()?.subscription; as sub) {
@@ -178,7 +178,7 @@
 
                     @if (plan.monthlyPrice) {
                     <div class="plan-card__price">
-                        <span class="plan-card__price-amount">${{ formatPrice(plan.monthlyPrice) }}</span>
+                        <span class="plan-card__price-amount">{{ formatPrice(plan.monthlyPrice, plan.currency, plan.minorUnits) }}</span>
                         <span class="plan-card__price-period">/mes</span>
                     </div>
                     }
@@ -258,7 +258,7 @@
                     <tr>
                         <td class="history-date">{{ formatDate(inv.date) }}</td>
                         <td>{{ inv.description }}</td>
-                        <td class="history-amount">${{ formatPrice(inv.amount) }} {{ inv.currency }}</td>
+                        <td class="history-amount">{{ formatInvoiceAmount(inv) }}</td>
                         <td>
                             @if (inv.status === 'paid') {
                                 <span class="status-paid">Pagada</span>

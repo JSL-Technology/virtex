@@ -1,6 +1,6 @@
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import * as argon2 from 'argon2';
 import * as Bowser from 'bowser';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -10,6 +10,7 @@ import { AuthConfig } from '../auth.config';
 import { User } from '../../users/entities/user.entity/user.entity';
 import { VerificationCode, VerificationType } from '../entities/verification-code.entity';
 import { UserSecurity } from '../../users/entities/user-security.entity';
+import { RefreshToken } from '../entities/refresh-token.entity';
 import { UsersService } from '../../users/users.service';
 import { TwoFactorAuthService } from './two-factor-auth.service';
 
@@ -26,6 +27,8 @@ export class SecurityAnalysisService {
     private readonly verificationCodeRepository: Repository<VerificationCode>,
     @InjectRepository(UserSecurity)
     private readonly userSecurityRepository: Repository<UserSecurity>,
+    @InjectRepository(RefreshToken)
+    private readonly refreshTokenRepository: Repository<RefreshToken>,
     private readonly eventEmitter: EventEmitter2,
     @Inject(forwardRef(() => TwoFactorAuthService))
     private readonly twoFactorAuthService: TwoFactorAuthService,
@@ -39,20 +42,28 @@ export class SecurityAnalysisService {
   async checkImpossibleTravel(userId: string, currentIp?: string): Promise<void> {
     if (!currentIp || !userId) return;
 
-    const lastLogin = await this.auditService.getLastLogin(userId);
-    if (!lastLogin || !lastLogin.ipAddress) return;
-
-    if (lastLogin.ipAddress === currentIp) return;
+    // The previous location comes from the SESSION record, not from the audit log.
+    //
+    // This check could never fire before. It read `auditService.getLastLogin().ipAddress`, but
+    // the login listener records the address inside `new_value.ipAddressMasked` and passes only
+    // six arguments to `record()` — whose seventh parameter is `ipAddress` — so the column was
+    // always NULL and the guard returned on its first line. Even had it been populated, the
+    // stored value is masked (`186.19.*.*`), which no geolocation database can resolve.
+    //
+    // `refresh_tokens` already stores the resolved country, city and coordinates for every
+    // session, written from the real address at sign-in and never afterwards. It is the correct
+    // source: it exists, it is accurate, and using it adds no new personal data anywhere.
+    const previous = await this.lastKnownLocation(userId);
+    if (!previous) return;
 
     const currentLocation = this.geoService.getLocation(currentIp);
-    const lastLocation = this.geoService.getLocation(lastLogin.ipAddress);
 
-    if (currentLocation.ll && lastLocation.ll) {
+    if (currentLocation.ll && previous.ll) {
       const [currentLat, currentLon] = currentLocation.ll;
-      const [lastLat, lastLon] = lastLocation.ll;
+      const [lastLat, lastLon] = previous.ll;
 
       const distanceKm = this.geoService.calculateDistance(lastLat, lastLon, currentLat, currentLon);
-      const timeDiffHours = (Date.now() - lastLogin.timestamp.getTime()) / (1000 * 60 * 60);
+      const timeDiffHours = (Date.now() - previous.at.getTime()) / (1000 * 60 * 60);
 
       // Avoid division by zero
       const safeTimeDiff = timeDiffHours < 0.01 ? 0.01 : timeDiffHours;
@@ -64,15 +75,19 @@ export class SecurityAnalysisService {
 
       if (distanceKm > minDistance && speed > maxSpeed) {
         this.logger.warn(
+          { event: 'impossible_travel', userId, distanceKm: Math.round(distanceKm), speedKmh: Math.round(speed) },
           `[SECURITY] Suspicious travel detected for user ${userId}. ` +
           `Distance: ${distanceKm.toFixed(2)} km, Time: ${timeDiffHours.toFixed(2)} h, Speed: ${speed.toFixed(2)} km/h.`,
         );
+        // The raw addresses are deliberately NOT in the payload: listeners persist and email
+        // this, and the country pair is what a human needs to judge the alert.
         this.eventEmitter.emit('security.suspicious_travel', {
           userId,
           speed: speed.toFixed(2),
           distanceKm: distanceKm.toFixed(2),
-          previousIp: lastLogin.ipAddress,
-          currentIp,
+          fromCountry: previous.country,
+          toCountry: currentLocation.country,
+          at: new Date().toISOString(),
         });
       }
     }
@@ -132,6 +147,31 @@ export class SecurityAnalysisService {
 
     return isValid2FA;
   }
+
+  /**
+   * Where this user was last seen, from the session records.
+   *
+   * Only rows that actually carry coordinates are considered: a session opened from an address
+   * the geolocation database does not know contributes nothing, and treating "unknown" as a
+   * position would manufacture the very alert this is meant to raise honestly.
+   */
+  private async lastKnownLocation(
+    userId: string,
+  ): Promise<{ ll: [number, number]; country: string | null; at: Date } | null> {
+    const row = await this.refreshTokenRepository.findOne({
+      where: { userId, latitude: Not(IsNull()), longitude: Not(IsNull()) },
+      order: { lastActiveAt: 'DESC' },
+      select: ['latitude', 'longitude', 'country', 'lastActiveAt', 'createdAt'],
+    });
+
+    if (!row || row.latitude === null || row.longitude === null) return null;
+    return {
+      ll: [Number(row.latitude), Number(row.longitude)],
+      country: row.country ?? null,
+      at: row.lastActiveAt ?? row.createdAt,
+    };
+  }
+
 
   /**
    * Lightweight User Agent Parser.

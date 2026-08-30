@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { IPolicy } from '../guards/permissions/permissions.guard';
 import { AuthenticatedRequest } from '@virteex/shared/util-auth';
 import { User } from '../../users/entities/user.entity/user.entity';
+import { UserOrganization } from '../../organizations/entities/user-organization.entity';
 import { RoleEnum } from '../../roles/enums/role.enum';
 import { PERMISSIONS } from '../../shared/permissions';
 
@@ -29,20 +30,34 @@ export class IsOrganizationOwnerPolicy implements IPolicy {
     constructor(
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
+        @InjectRepository(UserOrganization)
+        private readonly membershipRepository: Repository<UserOrganization>,
     ) {}
 
     async can(user: any, request: AuthenticatedRequest): Promise<boolean> {
         const resourceId = (request.params as Record<string, string> | undefined)?.id;
 
-        // Resource-scoped route: verify the target belongs to the caller's organization.
+        // Resource-scoped route: the target must be somebody this tenant administers.
+        //
+        // Authority is MEMBERSHIP, not `users.organization_id`. That column names the tenant a
+        // person is currently acting in — their home tenant — and the platform's whole
+        // multi-tenancy model is that one identity belongs to several. Comparing it here denied
+        // exactly the case `UsersService` calls "the normal case, not an edge one": an accountant
+        // whose home tenant is customer A, invited into customer B, could not be removed or
+        // administered by B even though they hold a live role there and work in the data.
+        //
+        // `findOneByOrg`, `findMemberWithSecurity` and `findAllByOrg` all resolve authority by
+        // membership. This is the same question, so it gets the same answer.
         if (resourceId) {
             const targetUser = await this.userRepository.findOne({
                 where: { id: resourceId },
-                select: ['id', 'organizationId'],
+                select: ['id'],
             });
 
             if (targetUser) {
-                const allowed = targetUser.organizationId === user.organizationId;
+                const allowed = await this.membershipRepository.exist({
+                    where: { userId: resourceId, organizationId: user.organizationId },
+                });
                 if (!allowed) {
                     this.logger.warn(
                         `IsOrganizationOwnerPolicy denied: user ${user.id} (org ${user.organizationId}) attempted cross-tenant access to user ${resourceId}.`,

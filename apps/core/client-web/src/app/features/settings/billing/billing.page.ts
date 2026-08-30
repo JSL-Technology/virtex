@@ -4,11 +4,14 @@ import { LucideAngularModule, CreditCard, Download, CheckCircle, Info, Zap, Exte
 import { toSignal } from '@angular/core/rxjs-interop';
 import { BillingService, BillingOverview, BillingInvoice } from '../../../core/services/billing';
 import { StepUpService, StepUpScope } from '../../../core/services/step-up.service';
+import { formatPlanPrice, minorUnitFactorFor } from '../../../core/models/plan.model';
+import { LanguageService } from '../../../core/services/language';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-billing-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   templateUrl: './billing.page.html',
   styleUrls: ['./billing.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -16,6 +19,7 @@ import { StepUpService, StepUpScope } from '../../../core/services/step-up.servi
 export class BillingPage implements OnInit {
   private billingService = inject(BillingService);
   private stepUpService = inject(StepUpService);
+  private languageService = inject(LanguageService);
   private viewContainerRef = inject(ViewContainerRef);
 
   protected readonly CreditCardIcon = CreditCard;
@@ -130,8 +134,31 @@ export class BillingPage implements OnInit {
     });
   }
 
-  formatPrice(cents: number | null | undefined): string {
-    return ((cents ?? 0) / 100).toFixed(2);
+  /**
+   * Render an amount in the currency it is actually billed in.
+   *
+   * This used to divide by 100 and be prefixed with a hardcoded `$` in the template, which was
+   * wrong twice over: wrong symbol for every non-dollar market, and wrong magnitude for CLP and
+   * PYG, which have no minor unit at all.
+   */
+  formatPrice(amount: number | null | undefined, currency?: string, minorUnits?: number): string {
+    return formatPlanPrice(
+      {
+        monthlyPrice: amount ?? 0,
+        currency: currency ?? 'USD',
+        minorUnits: minorUnits ?? 100,
+      },
+      this.languageService.currentLang() ?? 'es',
+    );
+  }
+
+  /**
+   * An invoice is rendered in the currency Stripe issued it in, which is authoritative and may
+   * differ from the tenant's current plan currency for historical invoices.
+   */
+  formatInvoiceAmount(invoice: BillingInvoice): string {
+    const currency = (invoice.currency || 'usd').toUpperCase();
+    return this.formatPrice(invoice.amount, currency, minorUnitFactorFor(currency));
   }
 
   formatDate(iso: string | null): string {

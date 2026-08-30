@@ -188,7 +188,29 @@ export class TwoFactorAuthService {
       return Boolean(user?.security?.passwordHash);
   }
 
-  async enableTwoFactor(user: UserIdentity, token: string, currentPassword: string) {
+  /**
+   * Bind a verified TOTP authenticator to the account.
+   *
+   * Re-authentication is NOT performed here. `StepUpGuard` with `StepUpScope.ENABLE_2FA` already
+   * proved the caller's identity with the strongest factor the account holds, and did so before
+   * this method was reached — that is the whole point of having one step-up mechanism.
+   *
+   * Asking for the password a second time was not defence in depth, it was a second, weaker
+   * gate that made the feature unusable:
+   *
+   *   - The settings screen calls this AFTER completing step-up, so it had no password to send
+   *     and passed an empty string. `@IsNotEmpty()` on the DTO then rejected every request with
+   *     400 before the service ran, and the client rendered that as "invalid code" — so nobody,
+   *     on any account, could enable 2FA from the product.
+   *   - A federated identity has no `passwordHash` at all, so even with the client fixed this
+   *     threw `BadRequestException` for every SSO and social account. Enabling a second factor
+   *     is exactly what those accounts need in order to stop depending on the IdP.
+   *
+   * The protection the password was there to provide (an attacker with a stolen session binding
+   * their own authenticator) is provided by the step-up guard, which demands a fresh credential
+   * and burns the token on first use — see SINGLE_USE_SCOPES.
+   */
+  async enableTwoFactor(user: UserIdentity, token: string) {
     const freshUser = await this.userRepository.findOne({
         where: { id: user.id },
         relations: ['security'],
@@ -196,17 +218,6 @@ export class TwoFactorAuthService {
 
     if (!freshUser?.security?.pendingTwoFactorSecret) {
       throw new BadRequestException('2FA configuration not initiated. Please generate secret first.');
-    }
-
-    // H-05 FIX: Require current password as step-up before registering a new TOTP device.
-    // This prevents an attacker with a stolen JWT from locking the real owner out by
-    // binding their own authenticator app (NIST SP 800-63B §4.2; OWASP ASVS 2.2.2; CWE-306).
-    if (!freshUser.security.passwordHash) {
-      throw new BadRequestException('Password-based step-up is required but this account has no password set.');
-    }
-    const isPasswordValid = await this.passwordService.verify(freshUser.security.passwordHash, currentPassword);
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Current password is incorrect');
     }
 
     // Validate against the STAGED secret. Only once the user has proved they can generate a

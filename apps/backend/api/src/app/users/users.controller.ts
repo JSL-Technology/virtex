@@ -29,6 +29,7 @@ import { IsOrganizationOwner } from '../auth/policies/is-organization-owner.poli
 import { TypeOrmExceptionFilter } from '../common/filters/typeorm-exception.filter';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { JobTitle } from './enums/job-title.enum';
+import { ListUsersQueryDto } from './dto/list-users-query.dto';
 import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
 
@@ -63,6 +64,7 @@ export class UsersController {
     const newUser = await this.usersService.inviteUser(
       inviteUserDto,
       user.organizationId,
+      user,
     );
     return plainToInstance(UserResponseDto, newUser, { excludeExtraneousValues: true });
   }
@@ -72,13 +74,9 @@ export class UsersController {
   @ApiOperation({ summary: 'List users in organization' })
   async findAll(
     @CurrentUser() user: AuthenticatedUser,
-    @Query('page') page = 1,
-    @Query('pageSize') pageSize = 10,
-    @Query('search') search = '',
-    @Query('status') status = 'all',
-    @Query('sortColumn') sortColumn = 'createdAt',
-    @Query('sortDirection') sortDirection: 'ASC' | 'DESC' = 'DESC',
+    @Query() query: ListUsersQueryDto,
   ) {
+    const { page, pageSize, search, status, sortColumn, sortDirection } = query;
     const { data, total } = await this.usersService.findAllByOrg(
       user.organizationId,
       {
@@ -102,7 +100,9 @@ export class UsersController {
   @Get('profile')
   @ApiOperation({ summary: 'Get current user profile' })
   async getProfile(@CurrentUser() user: AuthenticatedUser) {
-    const fullUser = await this.usersService.findOne(user.id);
+    // Scoped to the tenant the request is acting in: a person who works for two customers must
+    // not see, in their own profile, the roles they hold at the other one.
+    const fullUser = await this.usersService.findOne(user.id, user.organizationId);
     return plainToInstance(UserResponseDto, fullUser, { excludeExtraneousValues: true });
   }
 
@@ -116,6 +116,7 @@ export class UsersController {
     const updatedUser = await this.usersService.updateProfile(
       user.id,
       updateProfileDto,
+      user.organizationId,
     );
     return plainToInstance(UserResponseDto, updatedUser, { excludeExtraneousValues: true });
   }
@@ -182,9 +183,11 @@ export class UsersController {
 
       try {
         const stored = await this.storageService.upload(toUploadableFile(file), 'avatars');
-        const updatedUser = await this.usersService.updateProfile(user.id, {
-          avatarUrl: stored.url,
-        });
+        const updatedUser = await this.usersService.updateProfile(
+          user.id,
+          { avatarUrl: stored.url },
+          user.organizationId,
+        );
         return { avatarUrl: updatedUser.avatarUrl };
       } finally {
         if (file.path) {

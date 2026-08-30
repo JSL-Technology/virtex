@@ -70,8 +70,19 @@ export class CustomersService {
     return this.customerRepository.save(updatedCustomer);
   }
 
+  /**
+   * Delete a customer, and give the seat of quota back.
+   *
+   * `CUSTOMERS` is a LIFETIME quota, so without the release it counted "customers ever created"
+   * rather than "customers that exist" — a tenant at its limit could delete every record it had
+   * and still be unable to create one. Both happen in the same transaction, so a failed delete
+   * cannot hand out free quota.
+   */
   async remove(id: string, organizationId: string): Promise<void> {
     const customer = await this.findOne(id, organizationId);
-    await this.customerRepository.remove(customer);
+    await this.dataSource.transaction(async (manager) => {
+      await manager.remove(Customer, customer);
+      await this.saasService.releaseUsage(manager, organizationId, SaasResource.CUSTOMERS);
+    });
   }
 }

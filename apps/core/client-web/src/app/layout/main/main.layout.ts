@@ -40,7 +40,7 @@ import {
   Download, // ✅ Icono añadido
   Menu, // ✅ Toggle de sidebar (responsive)
 } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Sidebar } from '../sidebar/sidebar';
 import { ClickOutsideDirective } from '../../shared/directives/click-outside.directive'; // ✅ Directiva añadida
 import { CompanySwitcherComponent } from './components/company-switcher/company-switcher.component';
@@ -141,6 +141,7 @@ export class MainLayout implements OnInit {
   }
   private elementRef = inject(ElementRef);
   authService = inject(AuthService);
+  private translate = inject(TranslateService);
   brandingService = inject(BrandingService);
   private searchService = inject(SearchService);
   protected readonly router = inject(Router);
@@ -159,7 +160,9 @@ export class MainLayout implements OnInit {
     return (
       // The API exposes the organization as `legalName`; `name` never existed on the payload, so
       // this always fell through to the hardcoded fallback and no tenant ever saw its own name.
-      this.authService.currentUser()?.organization?.legalName || 'FacturaPRO'
+      // Falls back to the product name, not to a different product's. Until the profile
+      // loads there is no tenant to name, and "FacturaPRO" was a leftover brand.
+      this.authService.currentUser()?.organization?.legalName || this.translate.instant('APP_TITLE')
     );
   });
 

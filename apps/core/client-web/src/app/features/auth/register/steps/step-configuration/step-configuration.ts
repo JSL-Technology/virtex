@@ -71,8 +71,28 @@ export class StepConfiguration {
    */
   readonly invoicingSupported = computed(() => this.config()?.marketStatus === 'available');
 
-  readonly taxIdLabel = computed(() => this.config()?.taxIdLabel ?? 'Tax ID');
-  readonly taxIdPlaceholder = computed(() => this.config()?.taxIdExample ?? '');
+  /**
+   * The label, example and pattern for the identifier THIS taxpayer actually files under.
+   *
+   * A country that issues a different document to a natural person publishes it as
+   * `individualDocument` — SSN/ITIN in the United States, Cédula in the Dominican Republic. The
+   * form ignored that field entirely: a US sole proprietor was shown "EIN", the placeholder
+   * `12-3456789`, and the EIN pattern, so typing a real SSN as `123-45-6789` was rejected by the
+   * client even though the server validates it correctly for that taxpayer kind.
+   */
+  private readonly documentSpec = computed(() => {
+    const config = this.config();
+    if (!config) return null;
+    const individual = this.selectedKind() === 'individual' ? config.individualDocument : null;
+    return individual
+      ? { label: individual.label, example: '', pattern: individual.pattern }
+      : { label: config.taxIdLabel, example: config.taxIdExample, pattern: config.taxIdPattern };
+  });
+
+  readonly taxIdLabel = computed(() => this.documentSpec()?.label ?? 'Tax ID');
+  readonly taxIdPlaceholder = computed(() => this.documentSpec()?.example ?? '');
+  /** The shape the client validates against, following the taxpayer kind. */
+  readonly taxIdPattern = computed(() => this.documentSpec()?.pattern ?? null);
   readonly divisionLabel = computed(() => this.config()?.address.divisionLabel ?? 'Provincia');
   readonly postalCodeLabel = computed(() => this.config()?.address.postalCodeLabel ?? 'Código postal');
   readonly postalCodeRequired = computed(() => this.config()?.address.postalCodeRequired ?? false);
@@ -158,7 +178,7 @@ export class StepConfiguration {
     const control = this.group.get('taxId');
     if (control?.touched && control.errors?.['pattern']) {
       const config = this.config();
-      return config ? `Formato esperado: ${config.taxIdExample}` : 'REGISTER.ERRORS.INVALID_FORMAT';
+      return this.taxIdPlaceholder() ? 'REGISTER.TAXID_FORMAT' : 'REGISTER.ERRORS.INVALID_FORMAT';
     }
     return this.errorFor('taxId');
   }

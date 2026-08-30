@@ -51,8 +51,15 @@ export class SecurityService {
 
   // H-05 FIX: Backend requires `currentPassword` for step-up before enabling 2FA
   // (OWASP ASVS 2.2.2 reauthentication for sensitive operations; CWE-306).
-  enable2fa(token: string, currentPassword: string): Observable<{ backupCodes: string[] }> {
-    return this.http.post<{ backupCodes: string[] }>(`${this.apiUrl}/2fa/enable`, { token, currentPassword });
+  /**
+   * Confirm the staged TOTP secret. Only the code travels: the step-up cookie set by
+   * `POST /auth/step-up` is what re-authenticates the caller, and the browser attaches it.
+   *
+   * This used to take a `currentPassword` the caller did not have — the settings screen passed
+   * an empty string — and the server's `@IsNotEmpty()` rejected every request with 400.
+   */
+  enable2fa(token: string): Observable<{ backupCodes: string[] }> {
+    return this.http.post<{ backupCodes: string[] }>(`${this.apiUrl}/2fa/enable`, { token });
   }
 
   disable2fa(): Observable<void> {

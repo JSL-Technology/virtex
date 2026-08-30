@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>No pudimos crear tu cuenta</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #2c3e50;">Hola {{name}},</h2>
+
+        <p>Tu pago se procesó correctamente, pero no pudimos crear tu cuenta en <strong>{{appName}}</strong>. Lamentamos el inconveniente.</p>
+
+        <p><strong>Ya cancelamos la suscripción y solicitamos la devolución del cargo.</strong> Según tu banco, el reembolso puede tardar entre 5 y 10 días hábiles en aparecer en tu estado de cuenta.</p>
+
+        <p>No hace falta que hagas nada. Si prefieres volver a intentarlo, puedes registrarte de nuevo cuando quieras:</p>
+
+        <p style="text-align: center;">
+            <a href="{{registerUrl}}" style="background-color: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Crear mi cuenta</a>
+        </p>
+
+        <p>Si tienes cualquier duda sobre el cargo, escríbenos citando esta referencia y lo resolvemos:</p>
+
+        <p style="text-align: center; font-family: monospace; font-size: 16px; background: #f4f6f5; padding: 12px; border-radius: 4px;">
+            {{reference}}
+        </p>
+
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="font-size: 12px; color: #999;">&copy; {{currentYear}} {{appName}}. Todos los derechos reservados.</p>
+    </div>
+</body>
+</html>

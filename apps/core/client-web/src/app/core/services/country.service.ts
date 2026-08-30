@@ -41,6 +41,8 @@ export interface FiscalFieldSpec {
   help?: string;
   required: boolean;
   type: 'select' | 'text';
+  /** True when the authority admits several answers at once (Colombia's DIAN responsibilities). */
+  multiple?: boolean;
   options?: FiscalFieldOption[];
   pattern?: string;
   example?: string;

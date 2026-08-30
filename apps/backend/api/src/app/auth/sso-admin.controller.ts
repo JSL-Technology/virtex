@@ -26,6 +26,7 @@ import {
   AddDomainDto,
 } from './dto/sso-admin.dto';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { CheckFeature } from '../saas/guards/feature-flag.guard';
 
 /**
  * Per-organization enterprise SSO administration. All endpoints are scoped to the caller's
@@ -35,6 +36,8 @@ import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interfa
 @Controller('auth/sso/admin')
 @UseGuards(JwtAuthGuard, CsrfGuard)
 @HasPermission(PERMISSIONS.SETTINGS_EDIT_COMPANY)
+// Configuring a per-tenant identity provider is the capability the Enterprise tier is named for.
+@CheckFeature('enterprise_sso')
 export class SsoAdminController {
   constructor(private readonly ssoAdminService: SsoAdminService) {}
 

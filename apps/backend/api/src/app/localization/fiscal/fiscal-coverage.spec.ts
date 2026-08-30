@@ -180,4 +180,60 @@ describe('Fiscal coverage', () => {
       expect(validateTaxId(code, '12345678901')).toBe(false);
     });
   });
+
+  /**
+   * Every market publishes a coded catalogue for its first-level administrative division.
+   *
+   * Only the Dominican Republic, the United States and Mexico used to, and the other sixteen
+   * accepted free text. The comment justifying the structured address said, in the same file,
+   * that "DIAN and SII require a coded municipality" — so the product was collecting a value it
+   * had already documented as unusable, from sixteen of the nineteen countries it sells to. The
+   * cost of that lands later than the bug: re-asking a paying customer for their address.
+   */
+  describe('administrative divisions', () => {
+    it.each(COUNTRY_FISCAL_PROFILES.map((p) => [p.countryCode, p] as const))(
+      '%s publishes a coded catalogue',
+      (_code, profile) => {
+        expect(profile.address.divisions).toBeDefined();
+        expect(profile.address.divisions!.length).toBeGreaterThan(0);
+      },
+    );
+
+    it.each(COUNTRY_FISCAL_PROFILES.map((p) => [p.countryCode, p] as const))(
+      '%s uses unique, non-empty codes',
+      (_code, profile) => {
+        const codes = (profile.address.divisions ?? []).map((d) => d.code);
+        expect(codes.filter((c) => !c.trim())).toEqual([]);
+        expect(new Set(codes).size).toBe(codes.length);
+      },
+    );
+
+    it.each(COUNTRY_FISCAL_PROFILES.map((p) => [p.countryCode, p] as const))(
+      '%s names every division',
+      (_code, profile) => {
+        expect((profile.address.divisions ?? []).filter((d) => !d.name.trim())).toEqual([]);
+      },
+    );
+  });
+
+  /**
+   * A multi-valued field is a different contract from a single select — it stores a list, it
+   * validates every member, and the form renders it differently. Pinning which fields are
+   * multi-valued keeps the three layers from disagreeing about one of them.
+   */
+  describe('multi-valued fiscal fields', () => {
+    it('models the DIAN fiscal responsibilities as a list', () => {
+      const colombia = COUNTRY_FISCAL_PROFILES.find((p) => p.countryCode === 'CO')!;
+      const field = colombia.fiscalFields!.find((f) => f.key === 'responsabilidadesFiscales')!;
+      expect(field.multiple).toBe(true);
+    });
+
+    it('only marks select fields as multi-valued', () => {
+      for (const profile of COUNTRY_FISCAL_PROFILES) {
+        for (const field of profile.fiscalFields ?? []) {
+          if (field.multiple) expect(field.type).toBe('select');
+        }
+      }
+    });
+  });
 });

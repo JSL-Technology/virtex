@@ -51,7 +51,9 @@ export class MfaOrchestratorService {
   ) {}
 
   async sendEmailOtp(userId: string, email: string) {
-    const user = await this.usersService.findOne(userId);
+    // Only the first name is needed, for the greeting. `findOne` now requires a tenant because
+    // it resolves roles, and loading an authorization graph to address an email would be absurd.
+    const user = await this.usersService.findBasicById(userId);
     if (!user) throw new BadRequestException('User not found');
 
     const code = randomInt(100000, 999999).toString();

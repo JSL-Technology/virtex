@@ -20,6 +20,7 @@ import type { HttpResponse as Response } from '../common/http/http.types';
 import { MembershipService } from './services/membership.service';
 import { SwitchOrganizationDto } from './dto/switch-organization.dto';
 import { TokenService } from '../auth/services/token.service';
+import { AuthService } from '../auth/auth.service';
 import { CookieService } from '../auth/services/cookie.service';
 import { UsersService } from '../users/users.service';
 import { UserResponseDto } from '../auth/dto/user-response.dto';
@@ -34,6 +35,7 @@ export class OrganizationsController {
     private readonly membershipService: MembershipService,
     private readonly usersService: UsersService,
     private readonly tokenService: TokenService,
+    private readonly authService: AuthService,
     private readonly cookieService: CookieService,
   ) {}
 
@@ -86,15 +88,31 @@ export class OrganizationsController {
       throw new ForbiddenException('No tienes acceso a esa organización.');
     }
 
+    // The session being replaced. Switching tenant issues a NEW session family, so without
+    // ending the old one every switch left an orphan row in "Active sessions" — a list the user
+    // reads to spot intruders, filling up with their own abandoned sessions.
+    const previousSessionId = user.sessionId;
+
+    // "Remember me" is a property of the session, and it was dropped here: a thirty-day session
+    // came back as a seven-day one, in the cookie and in the database row, every time somebody
+    // changed organization. The refresh path goes to some length to preserve it across rotation;
+    // this path threw it away.
+    const rememberMe = await this.authService.isRememberedSession(previousSessionId);
+
     const { accessToken, refreshToken, user: safeUser } =
       await this.tokenService.generateAuthResponse(
         fullUser,
         { organizationId: dto.organizationId },
         ip,
         userAgent,
+        rememberMe,
       );
 
-    this.cookieService.setAuthCookies(res, accessToken, refreshToken, { userId: user.id });
+    if (previousSessionId) {
+      await this.authService.revokeSession(user.id, previousSessionId);
+    }
+
+    this.cookieService.setAuthCookies(res, accessToken, refreshToken, { userId: user.id, rememberMe });
 
     return {
       user: plainToInstance(UserResponseDto, safeUser, { excludeExtraneousValues: true }),

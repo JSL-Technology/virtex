@@ -43,6 +43,11 @@ export class PaymentService {
     return this.paymentGateway.getCheckoutSession(sessionId);
   }
 
+  /** Cancel and refund a subscription whose account could not be created. See the gateway. */
+  async voidOrphanedSubscription(subscriptionId: string, reason: string): Promise<void> {
+    return this.paymentGateway.voidOrphanedSubscription(subscriptionId, reason);
+  }
+
   async handleWebhook(signature: string, payload: Buffer) {
     // Ahora está completamente abstraído. La implementación del Gateway maneja la lógica específica.
     return this.paymentGateway.handleWebhook(payload, signature);

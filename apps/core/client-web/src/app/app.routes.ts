@@ -50,7 +50,7 @@ export const APP_ROUTES: Routes = [
   // session_id so the account is never confirmed/created.
   {
     path: 'auth/checkout-complete',
-    title: 'Confirmando pago | FacturaPRO',
+    title: 'AUTH.TITLES.CHECKOUT',
     loadComponent: () =>
       import('./features/auth/checkout-complete/checkout-complete.page').then(
         (m) => m.CheckoutCompletePage
@@ -99,7 +99,7 @@ export const APP_ROUTES: Routes = [
         children: [
             {
                 path: 'login',
-                title: 'Iniciar Sesión | FacturaPRO',
+                title: 'AUTH.TITLES.LOGIN',
                 loadComponent: () => import('./features/auth/login/login.page').then((m) => m.LoginPage),
             },
              {
@@ -118,7 +118,7 @@ export const APP_ROUTES: Routes = [
             },
             {
                 path: 'set-password',
-                title: 'Configurar Contraseña',
+                title: 'AUTH.TITLES.SET_PASSWORD',
                 loadComponent: () =>
                 import('./features/auth/set-password/set-password.page').then((m) => m.SetPasswordPage),
             },

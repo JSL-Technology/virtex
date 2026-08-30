@@ -20,6 +20,7 @@ import { PendingRegistration } from '../entities/pending-registration.entity';
 import { PasswordService } from './password.service';
 import { JwtService } from '@nestjs/jwt';
 import { MembershipService } from '../../organizations/services/membership.service';
+import { PaymentService } from '../../payment/payment.service';
 
 describe('RegistrationService', () => {
   let service: RegistrationService;
@@ -50,6 +51,14 @@ describe('RegistrationService', () => {
 
   const mockMailService = {
     sendDuplicateRegistrationEmail: jest.fn(),
+    sendRegistrationFailedEmail: jest.fn(),
+  };
+
+  const mockPendingRepo = {
+    create: jest.fn(),
+    save: jest.fn(),
+    findOne: jest.fn(),
+    update: jest.fn(),
   };
 
   const mockEventEmitter = {
@@ -72,6 +81,11 @@ describe('RegistrationService', () => {
       findById: jest.fn().mockResolvedValue({ countryCode: 'DO' })
   };
 
+  // Signup charges before the account exists, so a materialisation failure has to be compensated.
+  const mockPaymentService = {
+      voidOrphanedSubscription: jest.fn().mockResolvedValue(undefined),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -86,13 +100,14 @@ describe('RegistrationService', () => {
         { provide: LocalizationService, useValue: mockLocalizationService },
         { provide: MfaOrchestratorService, useValue: { verifyPublicCode: jest.fn().mockResolvedValue(true) } },
         { provide: JwtService, useValue: { sign: jest.fn(), verify: jest.fn() } },
-        { provide: getRepositoryToken(PendingRegistration), useValue: { create: jest.fn(), save: jest.fn(), findOne: jest.fn(), update: jest.fn() } },
+        { provide: getRepositoryToken(PendingRegistration), useValue: mockPendingRepo },
         // Password hashing routes through PasswordService so the configured Argon2id
         // parameters and the breach check are applied consistently everywhere.
         { provide: PasswordService, useValue: { hash: jest.fn().mockResolvedValue('hashed'), assertNotBreached: jest.fn().mockResolvedValue(undefined) } },
         // Memberships are written in the same transaction as the account, so the service needs
         // the real collaborator here even though these tests assert nothing about it.
         { provide: MembershipService, useValue: { grant: jest.fn(), listFor: jest.fn().mockResolvedValue([]) } },
+        { provide: PaymentService, useValue: mockPaymentService },
       ],
     }).compile();
 
@@ -208,5 +223,74 @@ describe('RegistrationService', () => {
         service.completePendingRegistration('pending-1', subscription),
       ).rejects.toThrow(InternalServerErrorException);
     });
+
+    /**
+     * The customer has already been charged by the time materialisation runs.
+     *
+     * A failure used to roll the transaction back and stop there: no account, a live subscription
+     * that would renew the following month, and no record anywhere that it had happened. These
+     * tests pin the compensation — mark the row, undo the charge, tell the customer — because it
+     * is the part nothing would notice missing again.
+     */
+    describe('when a paid registration cannot be materialised', () => {
+      beforeEach(() => {
+        runInTransaction();
+        // The pending row is found, then the plan lookup returns nothing.
+        (mockQueryRunner.manager.findOne as jest.Mock)
+          .mockResolvedValueOnce(pending)
+          .mockResolvedValue(null);
+        mockOrganizationsService.create.mockResolvedValue({ id: 'new-org', legalName: 'Test Org' });
+        (mockQueryRunner.manager.create as jest.Mock).mockImplementation((_e, dto) => dto);
+        (mockQueryRunner.manager.save as jest.Mock).mockResolvedValue([]);
+        (mockPendingRepo.findOne as jest.Mock).mockResolvedValue(pending);
+      });
+
+      it('records the failure against the pending registration', async () => {
+        await expect(
+          service.completePendingRegistration('pending-1', subscription),
+        ).rejects.toThrow(InternalServerErrorException);
+
+        expect(mockPendingRepo.update).toHaveBeenCalledWith(
+          expect.objectContaining({ id: 'pending-1' }),
+          expect.objectContaining({
+            status: 'failed',
+            orphanedSubscriptionId: 'sub_1',
+            failureReason: expect.any(String),
+          }),
+        );
+      });
+
+      it('cancels and refunds the subscription the customer paid for', async () => {
+        await expect(
+          service.completePendingRegistration('pending-1', subscription),
+        ).rejects.toThrow(InternalServerErrorException);
+
+        expect(mockPaymentService.voidOrphanedSubscription).toHaveBeenCalledWith(
+          'sub_1',
+          expect.stringContaining('pending-1'),
+        );
+      });
+
+      it('tells the customer, with a reference they can quote to support', async () => {
+        await expect(
+          service.completePendingRegistration('pending-1', subscription),
+        ).rejects.toThrow(InternalServerErrorException);
+
+        expect(mockMailService.sendRegistrationFailedEmail).toHaveBeenCalledWith(
+          pending.email,
+          pending.firstName,
+          'pending-1',
+        );
+      });
+
+      it('still surfaces the original failure to the caller', async () => {
+        // The compensation must not swallow the error: the confirm endpoint has to answer with a
+        // failure, not report a success for an account that does not exist.
+        await expect(
+          service.completePendingRegistration('pending-1', subscription),
+        ).rejects.toThrow(/Referencia: pending-1/);
+      });
+    });
   });
+
 });

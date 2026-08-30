@@ -1,7 +1,6 @@
 
 import { Injectable } from '@nestjs/common';
 import { RegisterUserDto } from './dto/register-user.dto';
-import { LoginUserDto } from './dto/login-user.dto';
 import { SocialUser } from './interfaces/social-user.interface';
 import { SetPasswordFromInvitationDto } from './dto/set-password-from-invitation.dto';
 import { User } from '../users/entities/user.entity/user.entity';
@@ -27,10 +26,6 @@ export class AuthFacade {
     private readonly impersonationService: ImpersonationService,
     private readonly eventEmitter: EventEmitter2
   ) {}
-
-  async login(loginUserDto: LoginUserDto & { twoFactorCode?: string }, ip?: string, userAgent?: string) {
-    return this.authService.login(loginUserDto, ip, userAgent);
-  }
 
   /** Payment-first signup: validate + stash a pending registration (no account yet). */
   async createPendingRegistration(registerUserDto: RegisterUserDto, planSlug: string) {

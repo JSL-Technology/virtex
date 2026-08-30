@@ -194,6 +194,10 @@ export class FiscalProfileForCountryConstraint implements ValidatorConstraintInt
       return false;
     }
     const kind = kindOf(args) as TaxpayerKindValue | undefined;
+    // Values may be strings OR arrays: a country whose authority admits several answers at once
+    // — Colombia's `responsabilidades fiscales` — posts a list. `validateFiscalFields` accepts
+    // both shapes, so nothing is coerced here; coercing is how a list would silently become the
+    // string "O-13,O-23" and then fail an option check.
     return (
       validateFiscalFields(country, kind, (value ?? {}) as Record<string, unknown>).length === 0
     );

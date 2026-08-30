@@ -36,7 +36,7 @@ export class CheckoutCompletePage implements OnInit {
     this.sessionId = this.route.snapshot.queryParamMap.get('session_id');
     if (!this.sessionId) {
       this.state.set('error');
-      this.errorMessage.set('No se encontró la sesión de pago.');
+      this.errorMessage.set('CHECKOUT.NO_SESSION');
       return;
     }
     this.confirm();
@@ -62,7 +62,7 @@ export class CheckoutCompletePage implements OnInit {
         }
         this.state.set('error');
         this.errorMessage.set(
-          err?.error?.message || 'No pudimos confirmar tu pago automáticamente. Si el cargo se realizó, inicia sesión en unos minutos.'
+          err?.error?.message || 'CHECKOUT.UNCONFIRMED'
         );
       },
     });

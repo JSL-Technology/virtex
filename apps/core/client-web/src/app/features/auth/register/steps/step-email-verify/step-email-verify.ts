@@ -66,7 +66,7 @@ export class StepEmailVerify implements OnInit {
         this.isSending.set(false);
       },
       error: () => {
-        this.sendError.set('No se pudo enviar el código. Por favor intenta de nuevo.');
+        this.sendError.set('REGISTER.ERRORS.CODE_SEND');
         this.isSending.set(false);
       },
     });
@@ -87,12 +87,12 @@ export class StepEmailVerify implements OnInit {
     ).subscribe({
       next: (response) => {
         this.isVerifying.set(false);
-        this.otpComponent?.handleSuccess('¡Correo verificado correctamente!');
+        this.otpComponent?.handleSuccess('REGISTER.VERIFY.EMAIL_OK');
         setTimeout(() => this.verified.emit(response.preVerifiedToken), 600);
       },
       error: (err) => {
         this.isVerifying.set(false);
-        const msg = err?.error?.message || 'Código incorrecto. Inténtalo de nuevo.';
+        const msg = err?.error?.message || 'REGISTER.ERRORS.CODE_INVALID';
         this.otpComponent?.handleError(msg);
       },
     });

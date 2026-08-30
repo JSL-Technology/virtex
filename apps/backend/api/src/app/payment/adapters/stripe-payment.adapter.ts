@@ -1,5 +1,5 @@
 
-import { Injectable, Inject, BadRequestException, ServiceUnavailableException, Logger, forwardRef } from '@nestjs/common';
+import { Injectable, Inject, BadRequestException, ServiceUnavailableException, Logger, forwardRef, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 import { PaymentGateway, CreateCheckoutSessionDto, CreateRegistrationCheckoutDto, CheckoutSessionInfo, CheckoutSessionResult, WebhookResult, BillingOverview, BillingInvoice } from '../interfaces/payment-gateway.interface';
@@ -9,12 +9,12 @@ import { Organization } from '../../organizations/entities/organization.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SaasService } from '../../saas/saas.service';
 import { WebhookEvent } from '../entities/webhook-event.entity';
-import { SAAS_CONFIG } from '../../saas/saas.config';
+import { SAAS_CONFIG, SAAS_PLANS, minorUnitFactor } from '../../saas/saas.config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { RegistrationPaymentCompletedEvent } from '../events/registration-payment-completed.event';
 
 @Injectable()
-export class StripePaymentAdapter implements PaymentGateway {
+export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
   private readonly logger = new Logger(StripePaymentAdapter.name);
 
   constructor(
@@ -27,6 +27,87 @@ export class StripePaymentAdapter implements PaymentGateway {
     private eventEmitter: EventEmitter2
   ) {}
 
+  async onModuleInit(): Promise<void> {
+    await this.verifyPriceCatalog();
+  }
+
+  /**
+   * Assert that every amount we DISPLAY is the amount Stripe will CHARGE.
+   *
+   * The catalogue in `SAAS_PLANS` is what the plan cards and the checkout both quote from, and
+   * Stripe bills from its own Price. Two numbers in two systems drift by default, and the way
+   * that drift surfaces is a customer being charged something other than what they agreed to —
+   * a chargeback and a consumer-protection problem, not a bug report.
+   *
+   * So it is checked at boot, against the live Price:
+   *   - production: a mismatch aborts startup. Serving a wrong price is worse than not serving.
+   *   - elsewhere: logged loudly, because Stripe is usually not configured in development.
+   *
+   * A currency present in our table but absent from the Price's `currency_options` is the same
+   * class of fault: `currencyForCountry` would offer it and Checkout would fall back to the
+   * Price's default currency.
+   */
+  private async verifyPriceCatalog(): Promise<void> {
+    if (!this.stripe) {
+      this.logger.warn(
+        { event: 'price_catalog_unverified' },
+        'Stripe is not configured; plan prices could not be verified against the payment processor.',
+      );
+      return;
+    }
+
+    const problems: string[] = [];
+
+    for (const plan of SAAS_PLANS) {
+      const priceId = process.env[plan.monthlyPriceIdVar];
+      if (!priceId) {
+        problems.push(`${plan.slug}: ${plan.monthlyPriceIdVar} is not set`);
+        continue;
+      }
+
+      let price: Stripe.Price;
+      try {
+        price = await this.stripe.prices.retrieve(priceId, { expand: ['currency_options'] });
+      } catch (error) {
+        problems.push(`${plan.slug}: price ${priceId} could not be read (${(error as Error).message})`);
+        continue;
+      }
+
+      for (const [currency, expected] of Object.entries(plan.monthlyPrices)) {
+        const code = currency.toLowerCase();
+        const actual =
+          code === price.currency
+            ? price.unit_amount
+            : price.currency_options?.[code]?.unit_amount ?? null;
+
+        if (actual === null || actual === undefined) {
+          problems.push(
+            `${plan.slug}: we quote ${currency} but price ${priceId} has no amount for it`,
+          );
+          continue;
+        }
+        if (actual !== expected) {
+          const factor = minorUnitFactor(currency);
+          problems.push(
+            `${plan.slug}/${currency}: we display ${expected / factor} but Stripe charges ${actual / factor}`,
+          );
+        }
+      }
+    }
+
+    if (problems.length === 0) {
+      this.logger.log({ event: 'price_catalog_verified' }, 'Plan prices match Stripe.');
+      return;
+    }
+
+    const summary = `Plan prices disagree with Stripe:\n  - ${problems.join('\n  - ')}`;
+    if (this.configService.get('NODE_ENV') === 'production') {
+      this.logger.error({ event: 'price_catalog_mismatch' }, summary);
+      throw new Error(`FATAL: ${summary}`);
+    }
+    this.logger.warn({ event: 'price_catalog_mismatch' }, summary);
+  }
+
   /**
    * Ensures the Stripe SDK was initialized. The provider returns `null` when
    * STRIPE_SECRET_KEY is not configured; surfacing a clear 503 here beats an
@@ -38,6 +119,29 @@ export class StripePaymentAdapter implements PaymentGateway {
       throw new ServiceUnavailableException('El sistema de pagos no está configurado. Contacta al administrador.');
     }
     return this.stripe;
+  }
+
+  /**
+   * The payment methods a market actually uses.
+   *
+   * `payment_method_types: ['card']` was hardcoded, which is a card-only funnel. In the markets
+   * this product is sold in, that is not a subset of buyers — in Brazil PIX and Boleto carry the
+   * majority of B2B SME payments, in Mexico OXXO and SPEI do, in Colombia PSE does. A signup that
+   * validates a CNPJ, a régime tributário and an Inscrição Estadual and then only accepts a card
+   * loses the customer at the last step.
+   *
+   * Returning `undefined` lets Stripe decide from what the account has enabled and what the
+   * currency and customer location support, which is the behaviour that keeps working as methods
+   * are turned on in the Stripe dashboard. The explicit lists exist so a market whose method
+   * requires opting in is not silently omitted.
+   */
+  private paymentMethodsFor(countryCode?: string): Stripe.Checkout.SessionCreateParams.PaymentMethodType[] | undefined {
+    const byCountry: Record<string, Stripe.Checkout.SessionCreateParams.PaymentMethodType[]> = {
+      BR: ['card', 'boleto'],
+      MX: ['card', 'oxxo'],
+      US: ['card', 'us_bank_account'],
+    };
+    return byCountry[(countryCode ?? '').toUpperCase()];
   }
 
   async createCheckoutSession(dto: CreateCheckoutSessionDto): Promise<CheckoutSessionResult> {
@@ -74,10 +178,12 @@ export class StripePaymentAdapter implements PaymentGateway {
     const plan = plans.find(p => p.monthlyPriceId === priceId || p.annualPriceId === priceId);
     const planSlug = plan ? plan.slug : 'unknown';
 
+    const methods = this.paymentMethodsFor(organization.country ?? undefined);
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: 'subscription',
-      payment_method_types: ['card'],
+      ...(methods ? { payment_method_types: methods } : {}),
       line_items: [
         {
           price: priceId,
@@ -126,9 +232,14 @@ export class StripePaymentAdapter implements PaymentGateway {
       ...(dto.metadata || {}),
     };
 
+    const methods = this.paymentMethodsFor(dto.countryCode);
+
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
-      payment_method_types: ['card'],
+      // Omitted entirely when the market has no explicit list, so Stripe offers whatever the
+      // account has enabled for that currency and country. Pinning `['card']` excluded PIX,
+      // Boleto, OXXO, SPEI and PSE from every Latin American signup.
+      ...(methods ? { payment_method_types: methods } : {}),
       customer_email: dto.email,
       allow_promotion_codes: true,
       line_items: [{ price: dto.priceId, quantity: 1 }],
@@ -201,8 +312,24 @@ export class StripePaymentAdapter implements PaymentGateway {
 
     const session = await stripe.checkout.sessions.retrieve(sessionId, { expand: ['subscription'] });
 
-    // Security: only reconcile sessions that were created for this org.
-    if (session.metadata?.organizationId && session.metadata.organizationId !== organizationId) {
+    // Security: only reconcile sessions that were created FOR this org — fail closed.
+    //
+    // The condition used to be `if (metadata.organizationId && mismatch)`, so a session with no
+    // `organizationId` in its metadata skipped the check entirely. Registration checkouts are
+    // exactly that: they carry `{ planSlug, pendingRegistrationId }` and no organization,
+    // because no organization exists yet. Any member of any tenant could therefore take the
+    // session id of a signup they had paid for themselves and reconcile it onto their employer,
+    // overwriting `externalCustomerId` and `externalSubscriptionId` — pointing the tenant's
+    // billing relationship, its invoices and its portal access at their own Stripe customer.
+    if (session.metadata?.organizationId !== organizationId) {
+      this.logger.warn(
+        {
+          event: 'checkout_confirm_org_mismatch',
+          organizationId,
+          sessionOrganizationId: session.metadata?.organizationId ?? null,
+        },
+        '[SECURITY] Checkout confirmation presented a session that does not belong to this organization.',
+      );
       throw new BadRequestException('La sesión de pago no corresponde a esta organización.');
     }
 
@@ -251,6 +378,63 @@ export class StripePaymentAdapter implements PaymentGateway {
    * configured or the org has no customer/subscription yet, we still return the
    * DB plan so the UI can render the current state without a hard failure.
    */
+  /**
+   * Cancel and refund a subscription whose account was never created.
+   *
+   * Payment-first signup takes the money before the organization exists, so when
+   * `completePendingRegistration` fails the customer is charged for something they cannot use —
+   * and, left alone, is charged again next month. Nothing did anything about that: the failure
+   * rolled back the transaction and the subscription kept running.
+   *
+   * Cancellation comes first and the refund is best-effort after it: stopping the recurring
+   * charge is the part that must not be missed, and a refund can be issued by hand later, while
+   * an uncancelled subscription quietly bills a stranger every month.
+   *
+   * Errors are logged, never thrown. This runs inside a failure path already; making the
+   * compensation itself able to fail the request would replace one bad outcome with two.
+   */
+  async voidOrphanedSubscription(subscriptionId: string, reason: string): Promise<void> {
+    if (!this.stripe || !subscriptionId) return;
+
+    try {
+      await this.stripe.subscriptions.cancel(subscriptionId, {
+        prorate: false,
+      });
+      this.logger.warn(
+        { event: 'orphaned_subscription_cancelled', subscriptionId, reason },
+        '[BILLING] Cancelled a subscription whose account could not be created.',
+      );
+    } catch (error) {
+      this.logger.error(
+        { event: 'orphaned_subscription_cancel_failed', subscriptionId, reason },
+        `[BILLING] Could not cancel orphaned subscription: ${(error as Error).message}. Resolve it by hand.`,
+      );
+      return;
+    }
+
+    try {
+      const invoices = await this.stripe.invoices.list({ subscription: subscriptionId, limit: 1 });
+      const charged = invoices.data.find((invoice) => (invoice.amount_paid ?? 0) > 0);
+      const paymentIntent = (charged as unknown as { payment_intent?: string | null })?.payment_intent;
+      if (typeof paymentIntent === 'string') {
+        await this.stripe.refunds.create({
+          payment_intent: paymentIntent,
+          reason: 'requested_by_customer',
+          metadata: { orphanedSubscriptionId: subscriptionId, failure: reason.slice(0, 200) },
+        });
+        this.logger.warn(
+          { event: 'orphaned_subscription_refunded', subscriptionId },
+          '[BILLING] Refunded the charge for an account that could not be created.',
+        );
+      }
+    } catch (error) {
+      this.logger.error(
+        { event: 'orphaned_subscription_refund_failed', subscriptionId },
+        `[BILLING] Subscription cancelled but the refund failed: ${(error as Error).message}. Issue it by hand.`,
+      );
+    }
+  }
+
   async getBillingOverview(organizationId: string): Promise<BillingOverview> {
     const organization = await this.organizationRepository.findOne({
       where: { id: organizationId },
@@ -260,12 +444,22 @@ export class StripePaymentAdapter implements PaymentGateway {
       throw new BadRequestException('Organization not found');
     }
 
+    // What this tenant is actually billed in, resolved exactly as the signup did — so the
+    // amount on the billing screen is the amount on the invoice. The screen used to print
+    // `$` + amount/100 for every tenant in every market.
+    const currency = SaasService.currencyForCountry(organization.country ?? undefined);
+
     const overview: BillingOverview = {
       plan: organization.plan
         ? {
             slug: organization.plan.slug,
             name: organization.plan.name,
-            monthlyPrice: organization.plan.monthlyPrice ?? null,
+            monthlyPrice:
+              SaasService.priceFor(organization.plan.slug, currency) ??
+              organization.plan.monthlyPrice ??
+              null,
+            currency,
+            minorUnits: minorUnitFactor(currency),
           }
         : null,
       subscription: null,

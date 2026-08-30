@@ -107,6 +107,58 @@ export class UsageMetricRepository {
     }
   }
 
+  /**
+   * Give a unit of quota back.
+   *
+   * Its absence was a hard commercial dead end. `USERS`, `CUSTOMERS`, `SUPPLIERS` and
+   * `SUBSIDIARIES` are all `LIFETIME` quotas, and with only an increment they counted "created
+   * ever" rather than "existing now": a Starter tenant that deleted fifty customers still could
+   * not create one, and removing an employee never freed their seat. The only remedy was a
+   * support engineer editing `saas_usage_metrics` by hand.
+   *
+   * Floors at zero rather than letting the counter go negative — a negative counter would hand
+   * out free quota, which is the mirror image of the bug and harder to notice.
+   */
+  async decrementUsage(
+    manager: EntityManager,
+    organizationId: string,
+    resource: SaasResource,
+    periodKey: string,
+    decrement = 1,
+  ): Promise<number> {
+    const result = await manager.query(
+      `UPDATE saas_usage_metrics
+          SET count = GREATEST(count - $1, 0), updated_at = NOW()
+        WHERE organization_id = $2 AND resource = $3 AND period = $4
+        RETURNING count`,
+      [decrement, organizationId, resource, periodKey],
+    );
+    return result[0]?.count ?? 0;
+  }
+
+  /**
+   * Overwrite a counter with a value counted from the source of truth.
+   *
+   * Used by reconciliation. `incrementUsage` is authoritative in the moment, but a rolled-back
+   * transaction, a restored backup or a bulk import performed outside the metered path all leave
+   * it drifted from the rows that actually exist, and nothing ever corrected it.
+   */
+  async setUsage(
+    manager: EntityManager,
+    organizationId: string,
+    resource: SaasResource,
+    periodKey: string,
+    count: number,
+  ): Promise<void> {
+    await manager.query(
+      `INSERT INTO saas_usage_metrics (organization_id, resource, period, count, updated_at)
+            VALUES ($1, $2, $3, $4, NOW())
+       ON CONFLICT (organization_id, resource, period)
+       DO UPDATE SET count = EXCLUDED.count, updated_at = NOW()`,
+      [organizationId, resource, periodKey, count],
+    );
+  }
+
   async findOne(manager: EntityManager, organizationId: string, resource: SaasResource, period: string): Promise<UsageMetric | null> {
       return manager.findOne(UsageMetric, {
           where: { organizationId, resource, period }

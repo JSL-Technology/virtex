@@ -269,7 +269,25 @@
       "OTP_LABEL": "Código de verificación",
       "OTP_PLACEHOLDER": "123456",
       "OTP_HINT": "También puedes usar uno de tus códigos de recuperación.",
-      "ENROLMENT_REQUIRED": "Esta acción requiere verificación en dos pasos. Actívala en tu configuración de seguridad para continuar."
+      "ENROLMENT_REQUIRED": "Esta acción requiere verificación en dos pasos. Actívala en tu configuración de seguridad para continuar.",
+      "DESCRIPTION_SSO": "Esta cuenta se verifica con tu proveedor de identidad. Te llevaremos allí para confirmar que eres tú y volverás a esta misma página.",
+      "DESCRIPTION_SSO_NAMED": "Esta cuenta se verifica con {{provider}}. Te llevaremos allí para confirmar que eres tú y volverás a esta misma página.",
+      "CONTINUE_WITH_IDP": "Continuar con tu proveedor",
+      "FEDERATED_OK": "Identidad verificada. Vuelve a pulsar la acción que querías realizar.",
+      "FEDERATED_FAILED": "No pudimos verificar tu identidad con el proveedor. Inténtalo de nuevo."
+    },
+    "TERMS": "Términos",
+    "PRIVACY": "Privacidad",
+    "SECURITY": "Seguridad",
+    "ALL_RIGHTS_RESERVED": "Todos los derechos reservados.",
+    "TITLES": {
+      "LOGIN": "Iniciar sesión",
+      "REGISTER": "Crear cuenta",
+      "SET_PASSWORD": "Configurar contraseña",
+      "CHECKOUT": "Confirmando pago",
+      "PLAN": "Seleccionar plan",
+      "FORGOT_PASSWORD": "Recuperar contraseña",
+      "RESET_PASSWORD": "Restablecer contraseña"
     }
   },
   "ACTIONS": {
@@ -631,7 +649,9 @@
         "audit": "Auditoría",
         "reconciliation_subledger_gl": "Conciliación — Subledger↔GL",
         "periods_subledger": "Periodos de subledger",
-        "revaluation_subledger": "Revaluación de subledger"
+        "revaluation_subledger": "Revaluación de subledger",
+        "closing": "Cierre",
+        "reconciliation": "Conciliación"
       },
       "treasury": "Tesorería y Bancos",
       "treasury_sub": {
@@ -659,7 +679,10 @@
         "in_house_bank": "Banco in‑house",
         "guarantees": "Garantías",
         "investments": "Inversiones",
-        "exposures": "Exposiciones"
+        "exposures": "Exposiciones",
+        "reconciliation": "Conciliación",
+        "cash_flow": "Flujo de efectivo",
+        "payments": "Pagos"
       },
       "ar": "Cuentas por Cobrar",
       "ar_sub": {
@@ -707,7 +730,8 @@
         "maintenance_plans": "Planes de mantenimiento",
         "maintenance_orders": "Órdenes de mantenimiento",
         "cip": "CIP",
-        "afe": "AFE"
+        "afe": "AFE",
+        "depreciation": "Depreciación"
       }
     },
     "operations": {
@@ -742,7 +766,8 @@
         "catalogs": "Catálogos",
         "supplier_performance": "Desempeño de proveedores",
         "supplier_onboarding": "Onboarding de proveedores",
-        "invoice_matching": "Conciliación de facturas"
+        "invoice_matching": "Conciliación de facturas",
+        "matching": "Conciliación"
       },
       "inventory": "Inventario y WMS Ligero",
       "inventory_sub": {
@@ -826,7 +851,9 @@
         "closing": "Cierre",
         "xbrl": "XBRL",
         "costs_analytics": "Analítica de costos",
-        "datasheets": "DataSheets"
+        "datasheets": "DataSheets",
+        "financial": "Financieros",
+        "sales": "Ventas"
       },
       "bi": "Inteligencia de Negocio",
       "bi_sub": {
@@ -907,7 +934,9 @@
       "permissions": "Permisos",
       "alerts": "Alertas",
       "email_templates": "Plantillas de email",
-      "digital_signatures": "Firmas digitales"
+      "digital_signatures": "Firmas digitales",
+      "security": "Seguridad",
+      "integrations": "Integraciones"
     },
     "security": {
       "users": "Usuarios",
@@ -968,7 +997,7 @@
       "expenses": "Gastos"
     }
   },
-  "APP_TITLE": "FacturaPRO",
+  "APP_TITLE": "Virtex",
   "LOGIN": {
     "TITLE": "Iniciar sesión",
     "SUBTITLE": "Accede a tu espacio de trabajo para continuar.",
@@ -1031,7 +1060,7 @@
       "TERMS": "Términos",
       "PRIVACY": "Privacidad",
       "SECURITY": "Seguridad",
-      "COPYRIGHT": "© 2025 FacturaPRO, Inc. Todos los derechos reservados."
+      "COPYRIGHT": "© {{year}} Virtex. Todos los derechos reservados."
     }
   },
   "REGISTER": {
@@ -1058,7 +1087,8 @@
       },
       "PLAN": {
         "TITLE": "Elige tu Plan",
-        "SUBTITLE": "Selecciona el plan que mejor se adapte a ti"
+        "SUBTITLE": "Selecciona el plan que mejor se adapte a ti",
+        "PER_MONTH": "/mes"
       }
     },
     "UPLOAD_PHOTO": "Subir foto",
@@ -1104,7 +1134,18 @@
       "SERVER_ERROR": "Error al registrarse. Intente nuevamente.",
       "PASSWORD_MISMATCH": "Las contraseñas no coinciden.",
       "REQUIRED": "Este campo es obligatorio.",
-      "TERMS_REQUIRED": "Debes aceptar los términos y condiciones."
+      "TERMS_REQUIRED": "Debes aceptar los términos y condiciones.",
+      "EMAIL_VERIFY_REQUIRED": "Debes verificar tu correo electrónico antes de continuar.",
+      "PHONE_VERIFY_REQUIRED": "Debes verificar tu número de celular antes de continuar.",
+      "MAGIC_LINK_EXPIRED": "El enlace de confirmación ha expirado o no es válido. Ingresa el código manualmente.",
+      "COUNTRY_CONFIG": "No se pudo cargar la configuración fiscal de ese país. Recarga la página o elige otro país.",
+      "COUNTRY_LIST": "No se pudo cargar la lista de países. Recarga la página para continuar con el registro.",
+      "RECAPTCHA": "No pudimos validar la seguridad del formulario. Inténtalo de nuevo.",
+      "UNKNOWN": "No se pudo completar el registro. Inténtalo de nuevo.",
+      "EMAIL_TAKEN": "Este correo ya está registrado.",
+      "CODE_INVALID": "Código incorrecto. Inténtalo de nuevo.",
+      "CODE_SEND": "No se pudo enviar el código. Inténtalo de nuevo.",
+      "REQUIRED_FIELDS": "Completa los campos requeridos correctamente."
     },
     "STEP_OF": "Paso {{current}} de {{total}}",
     "PROGRESS": {
@@ -1114,7 +1155,42 @@
       "FISCAL": "Fiscal",
       "BUSINESS": "Empresa",
       "PLAN": "Plan"
-    }
+    },
+    "VERIFY": {
+      "EMAIL_TITLE": "Confirma tu correo electrónico",
+      "PHONE_TITLE": "Confirma tu número de celular",
+      "EMAIL_OK": "¡Correo verificado!",
+      "PHONE_OK": "¡Número verificado!",
+      "PREFER_LINK": "¿Prefieres no escribir el código? Busca el botón «Confirmar correo electrónico» en el mensaje que te enviamos."
+    },
+    "TAXPAYER": {
+      "LABEL": "Tipo de contribuyente",
+      "COMPANY": "Empresa / persona jurídica",
+      "INDIVIDUAL": "Persona física"
+    },
+    "ADDRESS": {
+      "STREET": "Dirección fiscal",
+      "STREET_PLACEHOLDER": "Calle y número",
+      "CITY": "Ciudad"
+    },
+    "ACCESS": {
+      "OR_EMAIL": "O usa tu correo electrónico",
+      "PASSWORD_MISMATCH": "Las contraseñas no coinciden"
+    },
+    "PLAN": {
+      "LOADING": "Cargando planes…",
+      "LOAD_FAILED": "No se pudieron cargar los planes.",
+      "RETRY": "Reintentar",
+      "RECOMMENDED": "Recomendado",
+      "SELECTED": "Plan seleccionado",
+      "CHOOSE": "Elegir plan",
+      "UNLIMITED": "{{resource}} ilimitados",
+      "QUOTA_MONTHLY": "{{limit}} {{resource}} al mes",
+      "QUOTA_LIFETIME": "{{limit}} {{resource}}"
+    },
+    "TAXID_HINT": "Verificamos el dígito verificador ante {{authority}}.",
+    "TAXID_FORMAT": "Formato esperado: {{example}}",
+    "MULTI_SELECT_HINT": "Puedes seleccionar varias manteniendo Ctrl (o Cmd) al hacer clic."
   },
   "FORGOT_PASSWORD": {
     "TITLE": "Recuperar Contraseña",
@@ -1132,7 +1208,7 @@
     "SUCCESS": "Tu contraseña ha sido actualizada correctamente."
   },
   "SET_PASSWORD": {
-    "TITLE": "Configurar Contraseña",
+    "TITLE": "Configurar contraseña",
     "SUBTITLE": "Establece una contraseña para tu cuenta",
     "SUBMIT_BUTTON": "Guardar Contraseña",
     "SAVING": "Guardando...",
@@ -1159,5 +1235,15 @@
     "cell_format": "Formato de Celda",
     "import_wizard": "Asistente de Importación",
     "chart_config": "Configuración de Gráfico"
+  },
+  "CHECKOUT": {
+    "ACTIVATING": "Estamos activando tu cuenta. Esto solo tomará unos segundos.",
+    "CONFIRMED": "¡Pago confirmado!",
+    "GO_TO_LOGIN": "Ir a iniciar sesión",
+    "NO_SESSION": "No encontramos la sesión de pago.",
+    "UNCONFIRMED": "No pudimos confirmar tu pago automáticamente. Si el cargo se realizó, inicia sesión en unos minutos."
+  },
+  "PASSWORD_STRENGTH": {
+    "WEAK": "Débil"
   }
 }

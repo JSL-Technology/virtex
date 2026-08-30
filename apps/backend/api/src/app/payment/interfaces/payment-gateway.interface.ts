@@ -73,6 +73,10 @@ export interface BillingOverview {
     slug: string;
     name: string;
     monthlyPrice: number | null;
+    /** ISO 4217 the tenant is actually billed in. */
+    currency: string;
+    /** Minor units per unit of `currency` (1 for CLP/PYG, 100 otherwise). */
+    minorUnits: number;
   } | null;
   subscription: BillingSubscription | null;
   paymentMethod: BillingPaymentMethod | null;
@@ -99,4 +103,13 @@ export interface PaymentGateway {
   confirmOrganizationCheckout(organizationId: string, sessionId: string): Promise<BillingOverview>;
   getInvoices(organizationId: string, limit?: number): Promise<BillingInvoice[]>;
   createBillingPortalSession(organizationId: string, returnUrl: string): Promise<{ url: string }>;
+  /**
+   * Undo a subscription that was paid for but whose account could not be created.
+   *
+   * Signup charges before the account exists, so a materialisation failure leaves a live
+   * subscription attached to nothing and a customer billed for a product they cannot reach —
+   * and it would keep renewing. Cancelling and refunding is the compensating action that was
+   * missing entirely.
+   */
+  voidOrphanedSubscription(subscriptionId: string, reason: string): Promise<void>;
 }

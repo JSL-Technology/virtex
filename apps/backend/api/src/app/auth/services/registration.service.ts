@@ -1,5 +1,5 @@
 
-import { ConflictException, Injectable, InternalServerErrorException, Logger, ForbiddenException, BadRequestException } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, InternalServerErrorException, Logger, ForbiddenException, BadRequestException, forwardRef } from '@nestjs/common';
 import { createHash } from 'crypto';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository, EntityManager } from 'typeorm';
@@ -29,6 +29,7 @@ import { Plan } from '../../saas/entities/plan.entity';
 import { MembershipService } from '../../organizations/services/membership.service';
 import { canonicalizeTaxId } from '../../localization/fiscal/tax-id-validators';
 import { normalizeFiscalFields } from '../../localization/fiscal/country-profiles';
+import { PaymentService } from '../../payment/payment.service';
 
 /** Subscription facts captured from Stripe when a pending registration is completed. */
 export interface CompletedSubscriptionInfo {
@@ -88,6 +89,10 @@ export class RegistrationService {
     private readonly pendingRegistrationRepository: Repository<PendingRegistration>,
     private readonly passwordService: PasswordService,
     private readonly membershipService: MembershipService,
+    // forwardRef: PaymentModule already depends on AuthModule for its guards, so the two modules
+    // reference each other. Needed here to undo a charge whose account could not be created.
+    @Inject(forwardRef(() => PaymentService))
+    private readonly paymentService: PaymentService,
   ) {}
 
   /**
@@ -346,6 +351,81 @@ export class RegistrationService {
    * already created (e.g. webhook + redirect race), returns the existing user.
    */
   async completePendingRegistration(pendingId: string, subscription: CompletedSubscriptionInfo): Promise<User> {
+    try {
+      return await this.materializePaidRegistration(pendingId, subscription);
+    } catch (error) {
+      // The customer has ALREADY been charged at this point. A failure here used to roll the
+      // transaction back and stop: no account, a live subscription that would renew next month,
+      // no record that any of it happened, and a screen telling the customer to "sign in in a
+      // few minutes" to an account that does not exist.
+      //
+      // Recording the failure and undoing the charge is the compensating action. It is done
+      // outside the transaction that just rolled back, and its own failure is contained, because
+      // a compensation that can throw turns one bad outcome into two.
+      await this.recordMaterializationFailure(pendingId, subscription, error as Error);
+      throw error;
+    }
+  }
+
+  /**
+   * Mark a paid signup as unrecoverable and undo its charge.
+   *
+   * Leaves the row in `FAILED` with the reason and the subscription id on it, so the charge is a
+   * work item somebody can resolve rather than an invisible loss. The row is deliberately NOT
+   * deleted: it is the only record that this person paid.
+   */
+  private async recordMaterializationFailure(
+    pendingId: string,
+    subscription: CompletedSubscriptionInfo,
+    error: Error,
+  ): Promise<void> {
+    this.logger.error(
+      {
+        event: 'registration_materialization_failed',
+        pendingId,
+        subscriptionId: subscription.subscriptionId,
+        reason: error.message,
+      },
+      '[BILLING] A paid registration could not be materialised. The customer has been charged.',
+    );
+
+    try {
+      await this.pendingRegistrationRepository.update(
+        { id: pendingId, status: PendingRegistrationStatus.PENDING },
+        {
+          status: PendingRegistrationStatus.FAILED,
+          failureReason: error.message.slice(0, 500),
+          orphanedSubscriptionId: subscription.subscriptionId,
+        },
+      );
+    } catch (updateError) {
+      this.logger.error(
+        { event: 'registration_failure_not_recorded', pendingId },
+        `Could not record the failure: ${(updateError as Error).message}`,
+      );
+    }
+
+    if (subscription.subscriptionId) {
+      await this.paymentService.voidOrphanedSubscription(
+        subscription.subscriptionId,
+        `registration ${pendingId} could not be materialised: ${error.message}`,
+      );
+    }
+
+    const pending = await this.pendingRegistrationRepository.findOne({ where: { id: pendingId } });
+    if (pending) {
+      try {
+        await this.mailService.sendRegistrationFailedEmail(pending.email, pending.firstName, pendingId);
+      } catch (mailError) {
+        this.logger.error(
+          { event: 'registration_failure_email_not_sent', pendingId },
+          `Could not tell the customer: ${(mailError as Error).message}`,
+        );
+      }
+    }
+  }
+
+  private async materializePaidRegistration(pendingId: string, subscription: CompletedSubscriptionInfo): Promise<User> {
     return this.dataSource.transaction(async (manager) => {
       const pending = await manager.findOne(PendingRegistration, { where: { id: pendingId } });
       if (!pending) {
@@ -417,7 +497,7 @@ export class RegistrationService {
           '[BILLING] Paid registration references a plan that does not exist.',
         );
         throw new InternalServerErrorException(
-          'No se pudo activar tu plan. Tu pago está registrado; contacta a soporte para completar la activación.',
+          `No se pudo activar tu plan. Tu pago está registrado y lo estamos revirtiendo automáticamente. Referencia: ${pendingId}.`,
         );
       }
       organization.plan = plan;

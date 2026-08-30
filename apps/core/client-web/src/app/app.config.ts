@@ -1,9 +1,10 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection, isDevMode, APP_INITIALIZER, inject } from '@angular/core';
-import { provideRouter, withInMemoryScrolling } from '@angular/router';
+import { provideRouter, withInMemoryScrolling, TitleStrategy } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideHighcharts } from 'highcharts-angular';
 import { provideTranslateService, TranslateLoader } from '@ngx-translate/core';
+import { TranslatedTitleStrategy } from './core/i18n/page-title.strategy';
 // import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { CustomTranslateLoader } from './core/i18n/custom-translate-loader';
 
@@ -31,6 +32,8 @@ const CORE_PROVIDERS = [
   { provide: API_URL, useValue: environment.apiUrl || 'http://localhost:3000/api/v1' },
   provideBrowserGlobalErrorListeners(),
   provideZonelessChangeDetection(),
+  // One title strategy: route titles are translation keys, composed with APP_TITLE.
+  { provide: TitleStrategy, useClass: TranslatedTitleStrategy },
   provideRouter(
     APP_ROUTES,
     withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'top' }),

@@ -35,9 +35,20 @@ export class PlanResponseDto {
   @ApiProperty() @Expose() name!: string;
   @ApiProperty() @Expose() description!: string;
 
-  /** Amount in the smallest unit of `currency`. */
+  /**
+   * Amount in the smallest unit of `currency` — and the amount Checkout will actually charge,
+   * because both are resolved from one table by one function and verified against Stripe at boot.
+   */
   @ApiProperty() @Expose() monthlyPrice!: number | null;
   @ApiProperty({ example: 'USD' }) @Expose() currency!: string;
+
+  /**
+   * How many minor units make one unit of `currency`: 1 for CLP and PYG, 100 for the rest.
+   *
+   * Published rather than left to the client to know. The plan card divided every amount by 100
+   * regardless, which understates a Chilean or Paraguayan price by a factor of a hundred.
+   */
+  @ApiProperty({ example: 100 }) @Expose() minorUnits!: number;
 
   @ApiProperty() @Expose() trialPeriodDays!: number | null;
 

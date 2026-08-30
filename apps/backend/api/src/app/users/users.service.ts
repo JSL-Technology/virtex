@@ -82,8 +82,14 @@ export class UsersService {
     'preferredLanguage',
   ] as const;
 
-  async updateProfile(id: string, updateProfileDto: UpdateProfileDto): Promise<User> {
-    const user = await this.findOne(id);
+  async updateProfile(
+    id: string,
+    updateProfileDto: UpdateProfileDto,
+    organizationId: string,
+  ): Promise<User> {
+    // Tenant-scoped so the response carries the roles for THIS tenant, matching what the profile
+    // screen renders and what `GET /users/profile` returns.
+    const user = await this.findOne(id, organizationId);
 
     // A new phone number is unverified until proven, otherwise SMS-based recovery could be
     // pointed at an attacker-controlled number without any challenge.
@@ -337,6 +343,10 @@ export class UsersService {
         await manager.save(User, fresh);
       }
 
+      // The seat goes back to the tenant. `USERS` is a LIFETIME quota, so without this a tenant
+      // that removed somebody could never replace them: the counter measured hires, not staff.
+      await this.saasService.releaseUsage(manager, organizationId, SaasResource.USERS);
+
       const stillBelongsSomewhere = await manager.count(UserOrganization, { where: { userId: id } });
       if (stillBelongsSomewhere === 0) {
         // Nothing else refers to this person; the identity itself goes.
@@ -358,21 +368,47 @@ export class UsersService {
     await this.sessionService.terminateAllSessions(id);
   }
 
-  async findOne(id: string): Promise<User> {
-    // Roles and organization are loaded because UserResponseDto exposes them; without the
-    // relations they serialise as an empty array / null and the profile screen renders blank.
-    const user = await this.userRepository.findOne({
-      where: { id },
-      relations: ['roles'],
-    });
+  /**
+   * A user, with no roles and no tenant context.
+   *
+   * For callers that need the identity itself — a first name for an email, an address for an
+   * OTP — and have no business loading an authorization graph to get it.
+   */
+  async findBasicById(id: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { id } });
+  }
+
+  /**
+   * One user, with the roles and permissions they hold IN ONE TENANT.
+   *
+   * `organizationId` is required, and that is the fix. This method backs `GET /users/profile`
+   * and loaded `relations: ['roles']` with no filter, then flattened `permissions` across every
+   * role the person held anywhere — so an accountant working for two customers received, in
+   * their own profile, the roles and permission names they hold at the OTHER customer. That
+   * discloses both the existence of the commercial relationship and the level of access, and it
+   * contradicts the scoping `UserIdentityService.permissionsFor` and `TokenService.buildSafeUser`
+   * already apply on every other path.
+   *
+   * A role with a null `organization_id` is a platform role and applies everywhere by design.
+   */
+  async findOne(id: string, organizationId: string): Promise<User> {
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect(
+        'user.roles',
+        'role',
+        'role.organizationId = :organizationId OR role.organizationId IS NULL',
+        { organizationId },
+      )
+      .where('user.id = :id', { id })
+      .getOne();
 
     if (!user) {
       throw new NotFoundException(`Usuario con id ${id} no encontrado`);
     }
 
-    if (user.organizationId) {
-      user.organization = (await this.orgRepository.findOneBy({ id: user.organizationId })) ?? undefined;
-    }
+    // The organization shown is the one the request is acting in, not the user's home tenant.
+    user.organization = (await this.orgRepository.findOneBy({ id: organizationId })) ?? undefined;
     user.permissions = [...new Set((user.roles ?? []).flatMap((role) => role.permissions ?? []))];
 
     return user;
@@ -395,12 +431,23 @@ export class UsersService {
         'membership.user_id = user.id AND membership.organization_id = :organizationId',
         { organizationId },
       )
+      // Roles for THIS tenant. Without the join `GET /users/:id` returned a user whose `roles`
+      // and `permissions` were always empty — the DTO substitutes `[]` for a missing relation —
+      // so the detail screen could never show what a member is actually allowed to do. Scoped
+      // like everywhere else, so a role held at another customer is neither shown nor acted on.
+      .leftJoinAndSelect(
+        'user.roles',
+        'role',
+        'role.organizationId = :organizationId OR role.organizationId IS NULL',
+        { organizationId },
+      )
       .where('user.id = :id', { id })
       .getOne();
 
     if (!user) {
       throw new NotFoundException(`Usuario con id ${id} no encontrado en tu organización`);
     }
+    user.permissions = [...new Set((user.roles ?? []).flatMap((role) => role.permissions ?? []))];
     return user;
   }
 
@@ -651,6 +698,7 @@ export class UsersService {
   async inviteUser(
     inviteUserDto: InviteUserDto,
     organizationId: string,
+    actor: AuthenticatedUser,
   ): Promise<User> {
     const { email, firstName, lastName, roleId } = inviteUserDto;
 
@@ -659,6 +707,16 @@ export class UsersService {
       this.logger.warn(`Invite role not found: org=${organizationId} roleId=${roleId}`);
       throw new BadRequestException('No se pudo enviar la invitación con los datos proporcionados.');
     }
+
+    // An invitation grants a role, so it is a privilege delegation and carries the same limit
+    // `updateUser` applies: nobody may hand out rights they do not hold themselves.
+    //
+    // This check was missing here and in `addExistingUserToOrganization`, which were the only
+    // other two places a role is assigned. An operator holding just `users:create` could invite
+    // an address they control as ADMINISTRATOR — a role carrying '*' — and take over the tenant.
+    // The MANAGE_USERS step-up in front of the route does not help: it proves who the caller is,
+    // not what they are entitled to give away.
+    this.rolesService.assertCanAssignRole(actor, role);
 
     // Platform-wide, not organization-scoped. The unique constraint is platform-wide, so a
     // lookup that is not tells you nothing about whether the insert can succeed.
@@ -727,6 +785,9 @@ export class UsersService {
     organizationId: string,
     role: Role,
   ): Promise<User> {
+    // The caller (`inviteUser`) has already run `assertCanAssignRole` for this role, before
+    // branching on whether the person already has an account — so both halves of the invitation
+    // are covered by one check. Any future caller of this method must do the same.
     const alreadyMember = await this.membershipService.isMember(user.id, organizationId);
     const alreadyHasRoleHere = (user.roles ?? []).some(
       (existing) => existing.organizationId === organizationId,

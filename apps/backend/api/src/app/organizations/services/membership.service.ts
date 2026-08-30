@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { UserOrganization } from '../entities/user-organization.entity';
 import { Organization } from '../entities/organization.entity';
+import { UserCacheService } from '../../auth/modules/user-cache.service';
 
 /** One tenant a person can act in, as the UI and the token both need it. */
 export interface MembershipSummary {
@@ -32,6 +33,7 @@ export class MembershipService {
     private readonly membershipRepository: Repository<UserOrganization>,
     @InjectRepository(Organization)
     private readonly organizationRepository: Repository<Organization>,
+    private readonly userCacheService: UserCacheService,
   ) {}
 
   /**
@@ -53,10 +55,21 @@ export class MembershipService {
       .execute();
   }
 
-  /** Remove a membership. The caller decides policy; this only performs the removal. */
+  /**
+   * Remove a membership, and make the removal take effect immediately.
+   *
+   * Deleting the row is not sufficient on its own. `resolveOrganizationContext` validates the
+   * tenant against `user.organizations` from the CACHED projection, which lives for fifteen
+   * minutes, so a revoked membership kept working until that entry expired. Today the only
+   * caller — `UsersService.remove` — also clears the cache and ends the user's sessions, so the
+   * window was closed by luck rather than by design; a second caller would have reopened it.
+   *
+   * The caller still decides policy. This makes the removal true.
+   */
   async revoke(userId: string, organizationId: string, manager?: EntityManager): Promise<void> {
     const repo = manager ? manager.getRepository(UserOrganization) : this.membershipRepository;
     await repo.delete({ userId, organizationId });
+    await this.userCacheService.clearUserSession(userId);
   }
 
   async isMember(userId: string, organizationId: string): Promise<boolean> {

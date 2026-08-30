@@ -66,6 +66,25 @@ export class SessionService {
       return truncated.replace(/[\r\n]/g, '');
   }
 
+  /**
+   * Whether a session family was opened with "remember me".
+   *
+   * Derived from the stored row's own lifetime rather than from a claim, so it cannot be
+   * tampered with and survives rotation — the same rule `refreshAccessToken` applies below. The
+   * margin exists because the row is written slightly before its expiry is computed.
+   */
+  async isRememberedSession(sessionId: string): Promise<boolean> {
+    const row = await this.refreshTokenRepository.findOne({
+      where: { sessionId },
+      order: { createdAt: 'DESC' },
+      select: ['expiresAt', 'createdAt'],
+    });
+    if (!row) return false;
+
+    const lifetimeMs = row.expiresAt.getTime() - row.createdAt.getTime();
+    return lifetimeMs > ms(AuthConfig.JWT_REFRESH_EXPIRATION as ms.StringValue) * 1.5;
+  }
+
   async refreshAccessToken(token: string, ipAddress?: string, userAgent?: string) {
     try {
       const payload = this.jwtService.verify<JwtPayload & { jti?: string }>(token, {
