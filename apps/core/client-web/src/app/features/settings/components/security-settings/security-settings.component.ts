@@ -230,7 +230,7 @@ export class SecuritySettingsComponent implements OnInit {
           return;
       }
       this.closeSetupModal();
-      this.authService.checkAuthStatus().subscribe();
+      this.authService.reloadSession().subscribe();
   }
 
   // --- End 2FA Setup Flow ---
@@ -249,7 +249,7 @@ export class SecuritySettingsComponent implements OnInit {
       next: () => {
         this.is2faEnabled.set(false);
         this.notificationService.showSuccess('SETTINGS.SECURITY.2FA_DISABLED');
-        this.authService.checkAuthStatus().subscribe();
+        this.authService.reloadSession().subscribe();
       },
       error: () => this.notificationService.showError('SETTINGS.SECURITY.ERRORS.DISABLE_FAILED')
     });

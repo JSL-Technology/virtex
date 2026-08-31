@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection, isDevMode, APP_INITIALIZER, inject } from '@angular/core';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection, isDevMode, provideAppInitializer, inject } from '@angular/core';
 import { provideRouter, withInMemoryScrolling, TitleStrategy } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
@@ -21,14 +21,13 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { API_URL } from './core/tokens/api-url.token';
 
 const CORE_PROVIDERS = [
-  {
-      provide: APP_INITIALIZER,
-      useFactory: () => {
-          const authService = inject(AuthService);
-          return () => authService.checkAuthStatus();
-      },
-      multi: true
-  },
+  // Resolve the session before the first route is evaluated, so the guards never see a "pending"
+  // state and no screen is painted for the wrong audience. `provideAppInitializer` replaces the
+  // deprecated APP_INITIALIZER multi-provider (Angular 19+); the returned observable is awaited.
+  //
+  // This is the ONLY place the session is fetched. `resolveSession()` memoises its result, so
+  // every guard on every route afterwards reads that same answer without a request.
+  provideAppInitializer(() => inject(AuthService).resolveSession()),
   { provide: API_URL, useValue: environment.apiUrl || 'http://localhost:3000/api/v1' },
   provideBrowserGlobalErrorListeners(),
   provideZonelessChangeDetection(),

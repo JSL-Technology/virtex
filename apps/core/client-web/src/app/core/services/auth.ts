@@ -1,10 +1,12 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpContext, HttpXsrfTokenExtractor } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpContext } from '@angular/common/http';
 import { Router } from '@angular/router';
 import {
   Observable,
   catchError,
   map,
+  shareReplay,
+  switchMap,
   tap,
   of,
   take,
@@ -25,6 +27,7 @@ import { WebSocketService } from './websocket.service';
 import { ModalService } from '../../shared/service/modal.service';
 import { ErrorHandlerService } from './error-handler.service';
 import { IS_PUBLIC_API } from '../tokens/http-context.tokens';
+import { readCsrfCookie } from '../auth/csrf-token';
 import { hasPermission } from '@virteex/shared/util-auth';
 
 // H-11 FIX: Backend intentionally omits accessToken/refreshToken from the response body —
@@ -43,6 +46,17 @@ interface TwoFactorRequiredResponse {
 
 type LoginResult = { user: User } | TwoFactorRequiredResponse;
 
+/**
+ * What `GET /auth/session` answers. See the endpoint's own documentation for why every field is
+ * needed: together they let the client know the session state without probing for it.
+ */
+interface SessionSnapshot {
+  authenticated: boolean;
+  user: User | null;
+  /** Whether `POST /auth/refresh` can succeed. Never call it when this is false. */
+  refreshable: boolean;
+}
+
 function isTwoFactorRequired(res: LoginResult): res is TwoFactorRequiredResponse {
     return (res as TwoFactorRequiredResponse).require2fa === true;
 }
@@ -56,7 +70,6 @@ export class AuthService {
   private notificationService = inject(NotificationService);
   private webSocketService = inject(WebSocketService);
   private errorHandlerService = inject(ErrorHandlerService);
-  private xsrfTokenExtractor = inject(HttpXsrfTokenExtractor);
   private readonly baseUrl = inject(API_URL);
 
   // URL base de tu API de autenticación.
@@ -68,10 +81,25 @@ export class AuthService {
   private _currentUser = signal<User | null>(null);
   // Almacena el estado actual de la autenticación.
   private _authStatus = signal<AuthStatus>(AuthStatus.pending);
-  // Marca un cierre de sesión explícito reciente. Tras un logout no existe sesión que refrescar,
-  // así que checkAuthStatus() debe evitar el intento de /refresh (que devolvería 401/403 y
-  // ensuciaría la consola). Se consume en el siguiente checkAuthStatus().
-  private _recentlyLoggedOut = false;
+  /**
+   * The session resolution for this application load — the single source of truth, and the only
+   * thing that ever issues a session request.
+   *
+   * It is a memoised observable rather than a method that fetches, because the old design had no
+   * memo at all: `checkAuthStatus()` re-issued the network call on every guard evaluation AND
+   * reset the status back to `pending` as it started, which defeated the very caching the guards
+   * were written to do. A single page load resolved the session three times over — once from the
+   * app initializer and twice more from `canActivateChild`, which Angular runs once per nested
+   * child level — each time with a failed request behind it.
+   *
+   * Every path that establishes or ends a session replaces this with an already-settled
+   * `of(true)` / `of(false)`, so the memo and the signals can never disagree, and so a guard
+   * evaluated after bootstrap resolves synchronously without touching the network.
+   */
+  private sessionResolution: Observable<boolean> | null = null;
+
+  /** Guards `listenForForcedLogout` against stacking a new socket subscription per sign-in. */
+  private forcedLogoutListenerAttached = false;
 
   // --- Selectores Públicos (Computed Signals) ---
 
@@ -96,6 +124,12 @@ export class AuthService {
   }
 
   private listenForForcedLogout(): void {
+    // Attached once for the lifetime of the service. It used to be re-invoked on every sign-in
+    // and on every status check, stacking one more `force-logout` subscription each time — so a
+    // single forced logout eventually opened one modal per past re-invocation.
+    if (this.forcedLogoutListenerAttached) return;
+    this.forcedLogoutListenerAttached = true;
+
     // Espera a que la conexión esté lista
     this.webSocketService.connectionReady$.pipe(take(1)).subscribe(() => {
       this.webSocketService
@@ -140,10 +174,9 @@ export class AuthService {
       .pipe(
         tap((response) => {
           if (response?.user) {
-            this._currentUser.set(response.user);
-            this._authStatus.set(AuthStatus.authenticated);
+            this.applyAuthenticated(response.user);
           }
-        })
+        }),
       );
   }
 
@@ -166,13 +199,7 @@ export class AuthService {
              return;
           }
           if (response.user) {
-             this._recentlyLoggedOut = false;
-             this._currentUser.set(response.user);
-             this._authStatus.set(AuthStatus.authenticated);
-
-             this.webSocketService.connect();
-             this.webSocketService.emit('user-status', { isOnline: true });
-             this.listenForForcedLogout();
+             this.applyAuthenticated(response.user);
           }
         }),
         map((response) => {
@@ -192,15 +219,7 @@ export class AuthService {
           withCredentials: true,
           context: new HttpContext().set(IS_PUBLIC_API, true)
       }).pipe(
-          tap((response) => {
-             this._recentlyLoggedOut = false;
-             this._currentUser.set(response.user);
-             this._authStatus.set(AuthStatus.authenticated);
-
-             this.webSocketService.connect();
-             this.webSocketService.emit('user-status', { isOnline: true });
-             this.listenForForcedLogout();
-          }),
+          tap((response) => this.applyAuthenticated(response.user)),
           map((response) => response.user),
           catchError((err) => this.errorHandlerService.handleError('verify2fa', err))
       );
@@ -278,10 +297,7 @@ export class AuthService {
       })
       .pipe(
         map((response) => response.user),
-        tap((user) => {
-          this._currentUser.set(user);
-          this._authStatus.set(AuthStatus.authenticated);
-        })
+        tap((user) => this.applyAuthenticated(user)),
       );
   }
 
@@ -294,66 +310,116 @@ export class AuthService {
       return this.http.post(`${this.apiUrl}/2fa/disable`, {});
   }
 
-  checkAuthStatus(): Observable<boolean> {
-    const url = `${this.apiUrl}/status`;
-    this._authStatus.set(AuthStatus.pending);
-    return this.http.get<{ isAuthenticated: boolean; user: User | null }>(url, {
-      withCredentials: true,
-      context: new HttpContext().set(IS_PUBLIC_API, true)
-    }).pipe(
-      map((res) => {
-        if (res.isAuthenticated && res.user) {
-          this._recentlyLoggedOut = false;
-          this._currentUser.set(res.user);
-          this._authStatus.set(AuthStatus.authenticated);
-          this.webSocketService.connect();
-          this.webSocketService.emit('user-status', { isOnline: true });
-          this.listenForForcedLogout();
-          return true;
-        } else {
-          this._currentUser.set(null);
-          this._authStatus.set(AuthStatus.unauthenticated);
-          this.webSocketService.disconnect();
-          return false;
-        }
-      }),
-      catchError((err: HttpErrorResponse) => {
-        // Just logged out: the session is intentionally gone, so don't attempt a refresh
-        // (it would only produce a noisy 401/403). Consume the flag and report unauthenticated.
-        if (this._recentlyLoggedOut) {
-          this._recentlyLoggedOut = false;
-          this._currentUser.set(null);
-          this._authStatus.set(AuthStatus.unauthenticated);
-          this.webSocketService.disconnect();
-          return of(false);
-        }
-        if (err.status === 401 || err.status === 403) {
-          // Access token may have expired — attempt a silent refresh before giving up.
-          // IS_PUBLIC_API on the status call prevents the interceptor from doing this
-          // automatically, so we handle it here.
-          return this.refreshAccessToken().pipe(
-            tap((response) => {
-              if (response?.user) {
-                this.webSocketService.connect();
-                this.webSocketService.emit('user-status', { isOnline: true });
-                this.listenForForcedLogout();
-              }
-            }),
-            map((response) => !!response?.user),
-            catchError(() => {
-              this._currentUser.set(null);
-              this._authStatus.set(AuthStatus.unauthenticated);
-              this.webSocketService.disconnect();
-              return of(false);
-            })
-          );
-        }
-        this._currentUser.set(null);
-        this._authStatus.set(AuthStatus.unauthenticated);
-        this.webSocketService.disconnect();
-        return of(false);
+  // ------------------------------------------------------------------
+  // Session lifecycle
+  // ------------------------------------------------------------------
+
+  /**
+   * Resolve who is signed in. Safe to call from anywhere, any number of times.
+   *
+   * The first call performs the bootstrap; every later one replays its result, synchronously,
+   * without a request. That is what makes the guards cheap enough to leave on every route: they
+   * can each ask, and the question is only ever answered once per application load.
+   */
+  resolveSession(): Observable<boolean> {
+    return (this.sessionResolution ??= this.readSession().pipe(
+      // refCount:false — the result must survive the app initializer unsubscribing, otherwise the
+      // first guard to run would re-trigger the whole bootstrap.
+      shareReplay({ bufferSize: 1, refCount: false }),
+    ));
+  }
+
+  /**
+   * Discard the memoised result and read the session again.
+   *
+   * For the cases where the PRINCIPAL itself changed underneath us and the client must see it now
+   * — enabling or disabling a second factor, editing the profile, switching organization. Routing
+   * must never call this: that is what `resolveSession()` is for.
+   */
+  reloadSession(): Observable<boolean> {
+    this.sessionResolution = null;
+    return this.resolveSession();
+  }
+
+  /**
+   * The bootstrap itself: one request, and a second one only when the server has said it can
+   * succeed.
+   *
+   * `GET /auth/session` always answers 200 — "signed out" is an answer, not an error — and says
+   * whether a silent refresh is possible. So the three outcomes are all quiet:
+   *
+   *   authenticated              → one request, done.
+   *   expired access token       → session + refresh, both 200.
+   *   never signed in / signed out → one request, and NO refresh attempt.
+   *
+   * That last line is the whole point. The previous implementation could not tell those two apart
+   * — it asked a protected endpoint, read the 401 as "maybe just expired", and fired a refresh to
+   * find out — so a visitor sitting on the login screen produced a 401 followed by a 400, 401 or
+   * 403, three times over.
+   */
+  private readSession(): Observable<boolean> {
+    return this.http
+      .get<SessionSnapshot>(`${this.apiUrl}/session`, {
+        withCredentials: true,
+        context: new HttpContext().set(IS_PUBLIC_API, true),
       })
-    );
+      .pipe(
+        switchMap((snapshot) => {
+          if (snapshot.authenticated && snapshot.user) {
+            return of(this.applyAuthenticated(snapshot.user));
+          }
+
+          if (snapshot.refreshable) {
+            // `refreshAccessToken()` adopts the principal itself on success, so this only has to
+            // report the outcome — applying it twice would re-open the socket for no reason.
+            return this.refreshAccessToken().pipe(
+              map((response) => (response?.user ? true : this.applySignedOut())),
+              // The refresh token was revoked, replayed or expired between being issued and being
+              // used. The server has already cleared the cookies; we only have to agree.
+              catchError(() => of(this.applySignedOut())),
+            );
+          }
+
+          return of(this.applySignedOut());
+        }),
+        catchError((error: HttpErrorResponse) => {
+          // The API is unreachable or failing. We do not KNOW that the user is signed out — we
+          // only know we could not find out. Unlike every other outcome above, that IS an
+          // anomaly, so it gets one line in the console; and unlike them it is not an answer
+          // worth keeping, so the memo is dropped and the next navigation asks again rather than
+          // pinning the app to the login screen for the rest of the session over one bad
+          // response. The order matters: `applySignedOut` pins the memo, so it is cleared after.
+          console.warn(`No se pudo resolver la sesión (HTTP ${error.status}).`);
+          const signedOut = this.applySignedOut();
+          this.sessionResolution = null;
+          return of(signedOut);
+        }),
+      );
+  }
+
+  /**
+   * Adopt a signed-in principal. Every entry point into an authenticated state goes through here
+   * — bootstrap, refresh, login, 2FA, signup — so none of them can forget a step.
+   */
+  private applyAuthenticated(user: User): boolean {
+    this._currentUser.set(user);
+    this._authStatus.set(AuthStatus.authenticated);
+    this.sessionResolution = of(true);
+
+    this.webSocketService.connect();
+    this.webSocketService.emit('user-status', { isOnline: true });
+    this.listenForForcedLogout();
+    return true;
+  }
+
+  /** The mirror image: the single way the client enters a signed-out state. */
+  private applySignedOut(): boolean {
+    this._currentUser.set(null);
+    this._authStatus.set(AuthStatus.unauthenticated);
+    this.sessionResolution = of(false);
+
+    this.webSocketService.disconnect();
+    return false;
   }
 
   // H12 FIX: Token is now read from the httpOnly social_register_token cookie by the backend;
@@ -381,13 +447,13 @@ export class AuthService {
    * @param notifyBackend Si es true, envía una petición de logout al backend. Si es false, solo limpia el estado local.
    */
   logout(notifyBackend = true): void {
-    // 1. Limpiar estado local inmediatamente para asegurar respuesta rápida de UI
-    this._currentUser.set(null);
-    this._authStatus.set(AuthStatus.unauthenticated);
-    // Evita que el publicGuard (al navegar a /login) intente un /refresh inútil tras el logout.
-    this._recentlyLoggedOut = true;
+    // 1. Limpiar estado local inmediatamente para asegurar respuesta rápida de UI.
+    // `applySignedOut` also pins the memoised session resolution to "signed out", so the guards
+    // that run during the redirect below settle without a request — and, because the server
+    // clears the session marker cookie, a later hard reload is told `refreshable: false` and does
+    // not probe either.
     this.webSocketService.emit('user-status', { isOnline: false });
-    this.webSocketService.disconnect();
+    this.applySignedOut();
     const supportedLangs = ['es', 'en'];
     const storedLang = localStorage.getItem('ui_lang');
     const lang = storedLang && supportedLangs.includes(storedLang) ? storedLang : 'es';
@@ -414,7 +480,11 @@ export class AuthService {
    */
   private revokeServerSession(): void {
     const url = `${this.apiUrl}/logout`;
-    const xsrfToken = this.xsrfTokenExtractor.getToken();
+    // Read through the same helper the interceptor uses. This used to go through Angular's
+    // `HttpXsrfTokenExtractor`, which only knows the unprefixed `XSRF-TOKEN` name — so in every
+    // deployment, where the cookie is `__Host-XSRF-TOKEN`, it found nothing and the keepalive
+    // path silently never ran.
+    const xsrfToken = readCsrfCookie();
 
     const canKeepaliveFetch =
       typeof fetch === 'function' &&
@@ -507,13 +577,7 @@ export class AuthService {
       }));
 
       if (response.user) {
-        this._recentlyLoggedOut = false;
-        this._currentUser.set(response.user);
-        this._authStatus.set(AuthStatus.authenticated);
-
-        this.webSocketService.connect();
-        this.webSocketService.emit('user-status', { isOnline: true });
-        this.listenForForcedLogout();
+        this.applyAuthenticated(response.user);
       }
       return response.user;
     } catch (error) {

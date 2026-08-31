@@ -185,7 +185,7 @@ export class MyProfilePage implements OnInit {
         .subscribe({
           next: (res) => {
               this.notificationService.showSuccess('SETTINGS.PROFILE.AVATAR_UPDATED');
-              this.authService.checkAuthStatus().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
+              this.authService.reloadSession().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
           },
           error: (error: HttpErrorResponse) => {
               if (error.status === 413) {
@@ -206,7 +206,7 @@ export class MyProfilePage implements OnInit {
 
   onPhoneVerified() {
     // Reload user info to update UI state
-    this.authService.checkAuthStatus().subscribe();
+    this.authService.reloadSession().subscribe();
     this.cdr.markForCheck();
   }
 
@@ -228,7 +228,7 @@ export class MyProfilePage implements OnInit {
       this.usersService.updateProfile(payload).subscribe({
         next: () => {
           this.notificationService.showSuccess('SETTINGS.PROFILE.UPDATED');
-          this.authService.checkAuthStatus().subscribe();
+          this.authService.reloadSession().subscribe();
           this.profileForm.markAsPristine();
           this.isLoading = false;
           this.cdr.markForCheck();
