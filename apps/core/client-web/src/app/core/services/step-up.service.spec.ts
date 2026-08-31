@@ -43,10 +43,15 @@ describe('StepUpService', () => {
     // Leaving the page and reading it are the service's two seams onto `window.location`, which
     // jsdom does not let a test redefine. Intercepting them here is what makes the destination
     // of the federated redirect assertable.
-    redirect = jest.spyOn(service as never, 'redirect').mockImplementation(() => undefined);
-    currentPath = jest
-      .spyOn(service as never, 'currentPath')
-      .mockReturnValue('/settings/security' as never);
+    // Typed through the protected surface rather than `as never`: casting the subject to `never`
+    // collapses the spy's own types too, so `mockImplementation` and `mockReturnValue` are then
+    // assigning `any` to `never` — which is the typecheck error this file used to emit.
+    const seams = service as unknown as {
+      redirect(url: string): void;
+      currentPath(): string;
+    };
+    redirect = jest.spyOn(seams, 'redirect').mockImplementation(() => undefined);
+    currentPath = jest.spyOn(seams, 'currentPath').mockReturnValue('/settings/security');
   });
 
   afterEach(() => http.verify());

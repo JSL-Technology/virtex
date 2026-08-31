@@ -4,12 +4,36 @@
     <p class="step-subtitle">{{ 'REGISTER.STEPS.PLAN.SUBTITLE' | translate }}</p>
   </div>
 
+  <!--
+    Billing period. Shown only when every plan can actually be billed annually — the server
+    publishes `annualBillingAvailable` per plan and refuses a period it has no Stripe Price for,
+    so a toggle that appeared without it would fail at checkout.
+  -->
+  @if (annualAvailable()) {
+    <div class="billing-toggle" role="group" [attr.aria-label]="'REGISTER.STEPS.PLAN.BILLING_PERIOD' | translate">
+      <button type="button"
+              class="billing-toggle__option"
+              [class.is-active]="billingPeriod() === 'monthly'"
+              [attr.aria-pressed]="billingPeriod() === 'monthly'"
+              (click)="setBillingPeriod('monthly')">
+        {{ 'REGISTER.STEPS.PLAN.MONTHLY' | translate }}
+      </button>
+      <button type="button"
+              class="billing-toggle__option"
+              [class.is-active]="billingPeriod() === 'annual'"
+              [attr.aria-pressed]="billingPeriod() === 'annual'"
+              (click)="setBillingPeriod('annual')">
+        {{ 'REGISTER.STEPS.PLAN.ANNUAL' | translate }}
+      </button>
+    </div>
+  }
+
   @if (plansState() === 'loading') {
-    <div class="plans-loading">Cargando planes…</div>
+    <div class="plans-loading">{{ 'REGISTER.STEPS.PLAN.LOADING' | translate }}</div>
   } @else if (plansState() === 'error' || plans().length === 0) {
     <div class="plans-loading">
-      <span>No se pudieron cargar los planes.</span>
-      <button type="button" class="legal-link" (click)="retry()">Reintentar</button>
+      <span>{{ 'REGISTER.STEPS.PLAN.LOAD_FAILED' | translate }}</span>
+      <button type="button" class="legal-link" (click)="retry()">{{ 'COMMON.RETRY' | translate }}</button>
     </div>
   } @else {
   <div class="plans-grid">
@@ -18,13 +42,18 @@
          [ngClass]="{'recommended': plan.recommended, 'selected': isSelected(plan.id)}"
          (click)="selectPlan(plan.id)" tabindex="0" role="button" (keydown.enter)="selectPlan(plan.id)" (keydown.space)="$event.preventDefault(); selectPlan(plan.id)">
 
-      <div *ngIf="plan.recommended" class="recommended-badge">Recomendado</div>
+      <div *ngIf="plan.recommended" class="recommended-badge">{{ 'REGISTER.STEPS.PLAN.RECOMMENDED' | translate }}</div>
 
       <h4 class="plan-name">{{ plan.name }}</h4>
       <div class="plan-price">
         <span class="price-amount">{{ plan.price }}</span>
         <span class="price-period">{{ plan.period | translate }}</span>
       </div>
+      @if (billingPeriod() === 'annual' && plan.annualSaving) {
+        <div class="plan-saving">
+          {{ 'REGISTER.STEPS.PLAN.SAVE_PERCENT' | translate: { percent: plan.annualSaving } }}
+        </div>
+      }
 
       <ul class="plan-features-list">
         <li *ngFor="let feature of plan.features">
@@ -35,7 +64,7 @@
 
       <div class="selection-indicator">
         <div class="radio-circle"></div>
-        <span>{{ isSelected(plan.id) ? 'Plan Seleccionado' : 'Elegir Plan' }}</span>
+        <span>{{ (isSelected(plan.id) ? 'REGISTER.STEPS.PLAN.SELECTED' : 'REGISTER.STEPS.PLAN.CHOOSE') | translate }}</span>
       </div>
     </div>
   </div>

@@ -69,6 +69,7 @@ import { HcmModule } from './hcm/hcm.module';
 import { ProcurementModule } from './procurement/procurement.module';
 import { DatasheetsModule } from './datasheets/datasheets.module';
 import { envValidation } from './config/env.validation';
+import { redisConnectionOptions } from './cache/redis.config';
 
 @Module({
   imports: [
@@ -170,19 +171,18 @@ import { envValidation } from './config/env.validation';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService): ThrottlerModuleOptions => {
-        const redisHost = config.get<string>('REDIS_HOST');
         const isProduction = config.get<string>('NODE_ENV') === 'production';
+        const hasRedis = Boolean(config.get<string>('REDIS_URL') || config.get<string>('REDIS_HOST'));
 
-        if (isProduction && !redisHost) {
-          throw new Error('REDIS_HOST is required for distributed throttling in production');
+        if (isProduction && !hasRedis) {
+          throw new Error('REDIS_URL or REDIS_HOST is required for distributed throttling in production');
         }
 
-        const storage = redisHost
-          ? new ThrottlerStorageRedisService({
-              host: redisHost,
-              port: config.get<number>('REDIS_PORT', 6379),
-            })
-          : undefined; // Default to memory if no Redis host
+        // Same connection description as the cache and the queues, so credentials and TLS are
+        // configured once. Host-and-port only meant every managed Redis was out of reach.
+        const storage = hasRedis
+          ? new ThrottlerStorageRedisService(redisConnectionOptions(config))
+          : undefined; // Development only: an in-memory bucket, correct for a single process.
 
         return {
           throttlers: [{ ttl: 60000, limit: 20 }],

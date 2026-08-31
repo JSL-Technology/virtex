@@ -61,8 +61,23 @@
         "INIT_2FA": "Error al iniciar configuración 2FA.",
         "INVALID_CODE": "Código incorrecto.",
         "DISABLE_2FA": "Error al desactivar 2FA.",
-        "GENERATE_CODES": "Error al generar códigos."
-      }
+        "GENERATE_CODES": "Error al generar códigos.",
+        "SETUP_FAILED": "No se pudo iniciar la configuración. Inténtalo de nuevo.",
+        "DISABLE_FAILED": "No se pudo desactivar la verificación en dos pasos.",
+        "REVOKE_FAILED": "No se pudo cerrar esa sesión."
+      },
+      "SETUP_2FA_TITLE": "Verificación en dos pasos",
+      "SETUP_2FA_DESC": "Escanea el código con tu aplicación de autenticación y escribe el código de seis dígitos que muestre.",
+      "2FA_DESCRIPTION": "Añade un segundo factor a tu inicio de sesión. Te pediremos un código además de tu contraseña.",
+      "ENABLE": "Activar",
+      "DISABLE": "Desactivar",
+      "ENABLED": "Activada",
+      "DISABLED": "Desactivada",
+      "COPIED": "Copiado al portapapeles",
+      "SAVE_BACKUP_CODES": "Guarda estos códigos de recuperación en un lugar seguro. Cada uno sirve una sola vez y son la única forma de entrar si pierdes tu dispositivo.",
+      "SESSIONS_TITLE": "Sesiones activas",
+      "SESSIONS_DESCRIPTION": "Dispositivos donde tu cuenta tiene la sesión abierta. Si no reconoces alguno, ciérralo.",
+      "CURRENT_SESSION": "Este dispositivo"
     },
     "PROFILE": {
       "PERSONAL_INFO": "Información Personal",
@@ -110,7 +125,9 @@
       "CHANGE_EMAIL": "Cambiar correo",
       "SEND_CONFIRMATION": "Enviar confirmación",
       "EMAIL_CHANGE_HINT": "Te enviaremos un enlace de confirmación al nuevo correo. El cambio se aplica cuando lo abras, y avisamos al correo anterior.",
-      "EMAIL_CHANGE_REQUESTED": "Si los datos son correctos, enviamos un enlace de confirmación al nuevo correo."
+      "EMAIL_CHANGE_REQUESTED": "Si los datos son correctos, enviamos un enlace de confirmación al nuevo correo.",
+      "CHANGE_AVATAR": "Cambiar foto",
+      "PHONE_NUMBER": "Número de teléfono"
     }
   },
   "SECTIONS": {
@@ -136,7 +153,8 @@
     "REPORTS": "Reportes",
     "CUSTOMERS": "Clientes",
     "PRODUCTS": "Productos",
-    "PRICE_LISTS": "Listas de Precios"
+    "PRICE_LISTS": "Listas de Precios",
+    "MENU": "Menú"
   },
   "DOCS": {
     "DOCUMENTS": "Documentos"
@@ -288,6 +306,9 @@
       "PLAN": "Seleccionar plan",
       "FORGOT_PASSWORD": "Recuperar contraseña",
       "RESET_PASSWORD": "Restablecer contraseña"
+    },
+    "ERRORS": {
+      "INVALID_PHONE": "Escribe un número en formato internacional, por ejemplo +18095551234."
     }
   },
   "ACTIONS": {
@@ -321,14 +342,19 @@
     "COPIED": "Copiado",
     "CLOSE": "Cerrar",
     "BACK": "Atrás",
-    "NEXT": "Siguiente"
+    "NEXT": "Siguiente",
+    "ARE_YOU_SURE": "¿Seguro que quieres continuar?",
+    "CONFIRMATION": "Confirmación",
+    "SUCCESS": "Listo",
+    "RETRY": "Reintentar"
   },
   "ALT": {
     "COMPANY_LOGO": "Logo de la empresa"
   },
   "SEARCH": {
     "MAIN_PLACEHOLDER": "Buscar facturas, clientes, productos…",
-    "ARIA_GLOBAL": "Búsqueda global"
+    "ARIA_GLOBAL": "Búsqueda global",
+    "ORGANIZATIONS": "Buscar organizaciones"
   },
   "CHARTS": {
     "COMMON": {
@@ -1088,7 +1114,28 @@
       "PLAN": {
         "TITLE": "Elige tu Plan",
         "SUBTITLE": "Selecciona el plan que mejor se adapte a ti",
-        "PER_MONTH": "/mes"
+        "PER_MONTH": "/mes",
+        "BILLING_PERIOD": "Periodo de facturación",
+        "MONTHLY": "Mensual",
+        "ANNUAL": "Anual",
+        "PER_YEAR": "/año",
+        "SAVE_PERCENT": "Ahorras {{percent}}% al año",
+        "SELECTED": "Plan seleccionado",
+        "CHOOSE": "Elegir plan",
+        "RECOMMENDED": "Recomendado",
+        "LOADING": "Cargando planes…",
+        "LOAD_FAILED": "No se pudieron cargar los planes.",
+        "UNLIMITED": "{{resource}} sin límite",
+        "PER_PERIOD_MONTH": "{{count}} {{resource}} al mes",
+        "TOTAL": "{{count}} {{resource}} en total",
+        "RESOURCES": {
+          "INVOICES": "facturas",
+          "USERS": "usuarios",
+          "CUSTOMERS": "clientes",
+          "SUPPLIERS": "proveedores",
+          "JOURNAL_ENTRIES": "asientos contables",
+          "SUBSIDIARIES": "subsidiarias"
+        }
       }
     },
     "UPLOAD_PHOTO": "Subir foto",
@@ -1145,7 +1192,11 @@
       "EMAIL_TAKEN": "Este correo ya está registrado.",
       "CODE_INVALID": "Código incorrecto. Inténtalo de nuevo.",
       "CODE_SEND": "No se pudo enviar el código. Inténtalo de nuevo.",
-      "REQUIRED_FIELDS": "Completa los campos requeridos correctamente."
+      "REQUIRED_FIELDS": "Completa los campos requeridos correctamente.",
+      "EMAIL_INVALID": "Escribe un correo electrónico válido.",
+      "INVALID_FORMAT": "El formato no es válido.",
+      "PASSWORD_LENGTH": "La contraseña debe tener al menos 12 caracteres.",
+      "PASSWORD_WEAK": "La contraseña debe incluir una mayúscula, una minúscula y un número o símbolo."
     },
     "STEP_OF": "Paso {{current}} de {{total}}",
     "PROGRESS": {
@@ -1190,7 +1241,19 @@
     },
     "TAXID_HINT": "Verificamos el dígito verificador ante {{authority}}.",
     "TAXID_FORMAT": "Formato esperado: {{example}}",
-    "MULTI_SELECT_HINT": "Puedes seleccionar varias manteniendo Ctrl (o Cmd) al hacer clic."
+    "MULTI_SELECT_HINT": "Puedes seleccionar varias manteniendo Ctrl (o Cmd) al hacer clic.",
+    "SELECT": "Selecciona una opción",
+    "COMPANY_SIZE": "Tamaño de la empresa",
+    "COMPANY_SIZE_PLACEHOLDER": "Selecciona el número de empleados",
+    "INDUSTRIES": {
+      "TECHNOLOGY": "Tecnología",
+      "RETAIL": "Comercio y retail",
+      "MANUFACTURING": "Manufactura",
+      "SERVICES": "Servicios profesionales",
+      "HEALTHCARE": "Salud",
+      "CONSTRUCTION": "Construcción",
+      "OTHER": "Otro"
+    }
   },
   "FORGOT_PASSWORD": {
     "TITLE": "Recuperar Contraseña",
@@ -1198,14 +1261,19 @@
     "SUBMIT_BUTTON": "Enviar Instrucciones",
     "SENDING": "Enviando...",
     "BACK_TO_LOGIN": "Volver al inicio de sesión",
-    "SUCCESS": "Si existe una cuenta con este correo, recibirás instrucciones en breve."
+    "SUCCESS": "Si existe una cuenta con este correo, recibirás instrucciones en breve.",
+    "EMAIL_SENT_TITLE": "Revisa tu correo"
   },
   "RESET_PASSWORD": {
     "TITLE": "Restablecer Contraseña",
     "SUBTITLE": "Ingresa tu nueva contraseña",
     "SUBMIT_BUTTON": "Cambiar Contraseña",
     "CHANGING": "Cambiando...",
-    "SUCCESS": "Tu contraseña ha sido actualizada correctamente."
+    "SUCCESS": "Tu contraseña ha sido actualizada correctamente.",
+    "SUCCESS_REDIRECT": "Contraseña actualizada. Te llevamos al inicio de sesión…",
+    "ERRORS": {
+      "INVALID_TOKEN": "Este enlace ya no es válido. Solicita uno nuevo."
+    }
   },
   "SET_PASSWORD": {
     "TITLE": "Configurar contraseña",
@@ -1245,5 +1313,11 @@
   },
   "PASSWORD_STRENGTH": {
     "WEAK": "Débil"
+  },
+  "WIDGETS": {
+    "LOADING": "Cargando…",
+    "ERRORS": {
+      "UNABLE_TO_LOAD": "No se pudieron cargar los datos."
+    }
   }
 }

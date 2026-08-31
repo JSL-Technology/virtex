@@ -161,6 +161,10 @@ export class OrganizationsController {
     @CurrentUser() user: AuthenticatedUser,
     @Body() createSubsidiaryDto: CreateSubsidiaryDto,
   ) {
-    return this.organizationsService.createSubsidiary(user.organizationId, createSubsidiaryDto);
+    return this.organizationsService.createSubsidiary(
+      user.organizationId,
+      createSubsidiaryDto,
+      user.id,
+    );
   }
 }

@@ -294,3 +294,53 @@
 .error-text {
   @include step.error-text;
 }
+
+/* Billing-period toggle. Two mutually exclusive options, styled as one control. */
+.billing-toggle {
+  display: inline-flex;
+  align-self: center;
+  margin: 0 auto 1.25rem;
+  padding: 3px;
+  border: 1px solid var(--border-color, #d7dcdf);
+  border-radius: 999px;
+  background: var(--surface-2, #f4f6f6);
+}
+
+.billing-toggle__option {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary, #56646c);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding: 6px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.billing-toggle__option:hover { color: var(--text-primary, #10171c); }
+
+.billing-toggle__option.is-active {
+  background: var(--surface, #fff);
+  color: var(--text-primary, #10171c);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+}
+
+.billing-toggle__option:focus-visible {
+  outline: 2px solid var(--accent, #0b6e77);
+  outline-offset: 2px;
+}
+
+.plan-saving {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--success, #1f6b45);
+  margin-top: -0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .billing-toggle__option { transition: none; }
+}

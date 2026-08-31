@@ -54,6 +54,9 @@ export class CreateAccountDto {
   @IsBoolean() @IsOptional() isActive?: boolean = true;
   @IsBoolean() @IsOptional() isPostable?: boolean = false;
 
+  /** Declares that `nature` is deliberately the opposite of the type's normal balance. */
+  @IsBoolean() @IsOptional() isContraAccount?: boolean = false;
+
 
   @IsBoolean() @IsOptional() isSystemAccount?: boolean = false;
   @IsBoolean() @IsOptional() isMultiCurrency?: boolean = false;

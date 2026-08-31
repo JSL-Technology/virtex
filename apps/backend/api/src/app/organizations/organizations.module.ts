@@ -8,6 +8,8 @@ import { MembershipService } from './services/membership.service';
 import { OrganizationsController } from './organizations.controller';
 import { OrganizationsService } from './organizations.service';
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
+import { LocalizationModule } from '../localization/localization.module';
+import { SaasModule } from '../saas/saas.module';
 import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
 import { UserCacheModule } from '../auth/modules/user-cache.module';
@@ -21,6 +23,10 @@ import { UserCacheModule } from '../auth/modules/user-cache.module';
       UserOrganization,
     ]),
     ChartOfAccountsModule,
+    // A subsidiary is provisioned with its country's chart of accounts and taxes in the same
+    // transaction that creates it, exactly like a signup.
+    forwardRef(() => LocalizationModule),
+    forwardRef(() => SaasModule),
     // Revoking a membership has to invalidate the cached principal, or the removal only takes
     // effect when the entry expires fifteen minutes later.
     UserCacheModule,

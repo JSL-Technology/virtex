@@ -326,7 +326,6 @@ export class AuthController {
 
   @Public()
   @Get('social-register-info')
-  @Public()
   @ApiOperation({ summary: 'Decode social register token to pre-fill form' })
   async getSocialRegisterInfo(@Req() req: Request) {
       // H12 FIX: Read token only from httpOnly cookie; never accept it as a query parameter.
@@ -357,7 +356,13 @@ export class AuthController {
   @Public()
   @UseGuards(ThrottlerGuard)
   @ApiOperation({ summary: 'Validate signup and start Stripe Checkout — no account is created until payment succeeds' })
-  @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
+  // Deliberately looser than the credential endpoints. This route validates a nineteen-field
+  // fiscal form and rejects it field by field, so a customer correcting an RFC, then a régimen
+  // fiscal, then a postal code legitimately submits it several times in a row — and at the shared
+  // limit of five a minute the funnel closed on them, mid-correction, with a 429. There is no
+  // credential to guess here; abuse is covered by reCAPTCHA and by the fact that nothing is
+  // created until Stripe confirms a payment.
+  @Throttle({ default: { limit: 20, ttl: AuthConfig.THROTTLE_TTL } })
   async registerCheckout(
     @Body() dto: RegisterCheckoutDto,
     @Res({ passthrough: true }) res: Response,
@@ -367,8 +372,14 @@ export class AuthController {
     if (!plan) {
       throw new BadRequestException('Plan no encontrado.');
     }
-    if (!plan.monthlyPriceId) {
-      throw new BadRequestException('Este plan no está disponible para contratación en este momento.');
+    const billingPeriod = dto.billingPeriod ?? 'monthly';
+    const priceId = SaasService.priceIdFor(plan, billingPeriod);
+    if (!priceId) {
+      throw new BadRequestException(
+        billingPeriod === 'annual'
+          ? 'Este plan no admite facturación anual en este momento.'
+          : 'Este plan no está disponible para contratación en este momento.',
+      );
     }
 
     // Validate everything and stash a pending registration. NO account yet.
@@ -385,7 +396,7 @@ export class AuthController {
 
     const session = await this.paymentService.createRegistrationCheckoutSession({
       email: dto.email,
-      priceId: plan.monthlyPriceId,
+      priceId,
       planSlug: plan.slug,
       trialPeriodDays: plan.trialPeriodDays,
       successUrl,
@@ -482,7 +493,6 @@ export class AuthController {
 
   @Public()
   @Post('login')
-  @Public()
   @ApiOperation({ summary: 'Login with email and password' })
   @ApiResponse({ status: 200, description: 'Login successful', type: AuthResponseDto })
   @HttpCode(HttpStatus.OK)
@@ -524,7 +534,6 @@ export class AuthController {
 
   @Public()
   @Post('set-password-from-invitation')
-  @Public()
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ type: AuthResponseDto })
   // No CsrfGuard — the invitationToken is proof-of-possession (SHA-256, 32 bytes).
@@ -900,7 +909,6 @@ export class AuthController {
 
   @Public()
   @Post('forgot-password')
-  @Public()
   @HttpCode(HttpStatus.OK)
   @UseGuards(GoogleRecaptchaGuard)
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
@@ -915,7 +923,6 @@ export class AuthController {
 
   @Public()
   @Post('reset-password')
-  @Public()
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe())
   // No CsrfGuard — the reset token (SHA-256 of 32 random bytes) is proof-of-possession.
@@ -1143,9 +1150,9 @@ export class AuthController {
       throw new BadRequestException('Plan not found');
     }
 
-    const priceId = plan.monthlyPriceId;
+    const priceId = SaasService.priceIdFor(plan, body.billingPeriod ?? 'monthly');
     if (!priceId) {
-      throw new BadRequestException('Plan does not have a price ID');
+      throw new BadRequestException('Este plan no admite ese periodo de facturación.');
     }
 
     // Redirect URLs are built server-side. Never pass client-supplied URLs to Stripe — the
@@ -1227,7 +1234,6 @@ export class AuthController {
   // H10 FIX: WebAuthn challenge generation must be rate-limited to prevent oracle/enumeration abuse.
   @Public()
   @Post('webauthn/login/options')
-  @Public()
   @ApiOperation({ summary: 'Generate WebAuthn authentication options' })
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
   async generateWebAuthnAuthenticationOptions(@Body() dto: WebAuthnLoginOptionsDto) {
@@ -1236,7 +1242,6 @@ export class AuthController {
 
   @Public()
   @Post('webauthn/login/verify')
-  @Public()
   @ApiOperation({ summary: 'Verify WebAuthn authentication' })
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
   @UseGuards(CsrfGuard)

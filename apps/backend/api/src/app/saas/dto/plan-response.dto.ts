@@ -50,6 +50,14 @@ export class PlanResponseDto {
    */
   @ApiProperty({ example: 100 }) @Expose() minorUnits!: number;
 
+  /**
+   * The yearly amount, in the same currency and units — `null` when the plan has no annual Stripe
+   * Price or no amount configured for this currency. The client shows the annual option only when
+   * this is present, so it can never offer a period the checkout cannot charge.
+   */
+  @ApiProperty({ required: false }) @Expose() annualPrice!: number | null;
+  @ApiProperty() @Expose() annualBillingAvailable!: boolean;
+
   @ApiProperty() @Expose() trialPeriodDays!: number | null;
 
   @ApiProperty({ type: [PlanLimitResponseDto] })

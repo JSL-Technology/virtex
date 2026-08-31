@@ -148,8 +148,48 @@ export const envValidation = Joi.object({
   DB_SSL_CA: Joi.string().optional(),
   DB_LOGGING: Joi.boolean().default(false),
 
-  REDIS_HOST: Joi.string().default('localhost'),
+  /**
+   * Redis. Not optional: the shared cache carries the revoked-session denylist, the pending-2FA
+   * session, the single-use step-up markers, the re-authentication attempt budget, the cached
+   * principal and the SaaS usage counters. Every one of those degrades into a per-process
+   * approximation without it, silently.
+   *
+   * `REDIS_URL` is what every managed provider hands out and takes precedence when set; the
+   * discrete variables remain for local development. Credentials and TLS are declared here
+   * because nothing read them before — `CacheModule`, `QueuesModule` and the throttler each built
+   * a host-and-port connection, so no managed Redis (which all require AUTH, most require TLS)
+   * could be used at all.
+   */
+  REDIS_URL: Joi.string().uri({ scheme: ['redis', 'rediss'] }).optional(),
+  REDIS_HOST: devDefault('localhost'),
   REDIS_PORT: Joi.number().port().default(6379),
+  REDIS_USERNAME: Joi.string().optional(),
+  REDIS_PASSWORD: Joi.string().optional(),
+  // Declared so Joi coerces it; see the DB_SSL note above for why a bare string flag is a hazard.
+  REDIS_TLS: Joi.boolean().default(false),
+  REDIS_NAMESPACE: Joi.string().default('virteex'),
+
+  /**
+   * Outbound mail. Required in a deployment, and this is not a nicety.
+   *
+   * Signup demands an emailed verification code before it will accept a registration, so an API
+   * that starts without SMTP has a closed funnel and answers 500 on the second step of the
+   * wizard. None of these variables were declared here at all, so a production deployment booted
+   * cleanly into exactly that state with nothing to indicate it — while the README claimed
+   * "los correos transaccionales fallan al enviarse y se registra el error; el flujo no se rompe".
+   */
+  MAIL_HOST: optionalInDev(),
+  MAIL_PORT: Joi.number().port().default(587),
+  MAIL_USER: optionalInDev(),
+  MAIL_PASSWORD: optionalInDev(),
+  MAIL_FROM_ADDRESS: Joi.when('NODE_ENV', {
+    is: DEV_LIKE,
+    then: Joi.string().email().default('no-reply@virteex.local'),
+    otherwise: Joi.string().email().required(),
+  }),
+  MAIL_FROM_NAME: devDefault('Virteex'),
+  /** Implicit TLS (port 465). Port 587 upgrades with STARTTLS and must leave this false. */
+  MAIL_SECURE: Joi.boolean().default(false),
 
   // H-04 FIX: reCAPTCHA controlled by explicit flag, not NODE_ENV.
   // (crypto secrets are already validated above — do not redeclare them here)

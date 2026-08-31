@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { AtomicCacheService } from '../../cache/atomic-cache.service';
 
 import { AuthService } from '../auth.service';
 import { UsersService } from '../../users/users.service';
@@ -32,6 +33,22 @@ describe('AuthService — step-up re-authentication', () => {
     get: jest.fn(async (key: string) => cache.get(key)),
     set: jest.fn(async (key: string, value: unknown) => void cache.set(key, value)),
     del: jest.fn(async (key: string) => void cache.delete(key)),
+  };
+
+  /**
+   * The attempt budget goes through `AtomicCacheService`, which performs a Redis `INCR` in a
+   * deployment. The stub reproduces its contract — increment and return the new total — rather
+   * than the storage, because what these tests pin is the policy: five attempts, counted before
+   * the factor is verified, cleared only by a success.
+   */
+  const atomicCache = {
+    increment: jest.fn(async (key: string) => {
+      const next = ((cache.get(key) as number) ?? 0) + 1;
+      cache.set(key, next);
+      return next;
+    }),
+    reset: jest.fn(async (key: string) => void cache.delete(key)),
+    claimOnce: jest.fn(async () => true),
   };
 
   const usersService = { findUserByIdForAuth: jest.fn() };
@@ -77,6 +94,7 @@ describe('AuthService — step-up re-authentication', () => {
         { provide: EnterpriseSsoService, useValue: enterpriseSsoService },
         { provide: OidcProviderService, useValue: oidcProviderService },
         { provide: CACHE_MANAGER, useValue: cacheManager },
+        { provide: AtomicCacheService, useValue: atomicCache },
       ],
     }).compile();
 
@@ -199,7 +217,7 @@ describe('AuthService — step-up re-authentication', () => {
 
     await service.createStepUpToken('user-1', { password: 'right' }, StepUpScope.DELETE_ACCOUNT);
 
-    expect(cacheManager.del).toHaveBeenCalledWith('step-up-attempts:user-1');
+    expect(atomicCache.reset).toHaveBeenCalledWith('step-up-attempts:user-1');
   });
 
   describe('describeStepUpChallenge', () => {

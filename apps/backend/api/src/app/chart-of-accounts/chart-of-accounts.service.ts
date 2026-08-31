@@ -114,10 +114,25 @@ export class ChartOfAccountsService {
       );
     }
 
-    const nature = this.getNatureFromType(accountData.type);
-    if (nature !== accountData.nature) {
+    // The nature must match the type's normal balance — UNLESS the account declares itself a
+    // contra account, in which case it must be the opposite.
+    //
+    // The rule used to be an unconditional equality, which forbade contra accounts outright:
+    // accumulated depreciation, an allowance for doubtful accounts and sales returns are all an
+    // account whose balance runs against its type, and all three are in the opening chart every
+    // tenant is provisioned with. So the check rejected the product's own templates on the second
+    // account it reached. Making the exception explicit keeps the guard doing its real job —
+    // catching a nature chosen by mistake — while allowing the case accounting actually requires.
+    const normalNature = this.getNatureFromType(accountData.type);
+    const expectedNature = createAccountDto.isContraAccount
+      ? this.oppositeNature(normalNature)
+      : normalNature;
+
+    if (expectedNature !== accountData.nature) {
       throw new BadRequestException(
-        `La naturaleza de la cuenta no corresponde a su tipo.`,
+        createAccountDto.isContraAccount
+          ? 'Una cuenta de naturaleza contraria debe llevar la naturaleza opuesta a la de su tipo.'
+          : 'La naturaleza de la cuenta no corresponde a su tipo. Si es una cuenta de naturaleza contraria (depreciación acumulada, provisiones, devoluciones), márcala como tal.',
       );
     }
 
@@ -293,6 +308,10 @@ export class ChartOfAccountsService {
 
       return accountRepo.save(updatedAccountEntity);
     });
+  }
+
+  private oppositeNature(nature: AccountNature): AccountNature {
+    return nature === AccountNature.DEBIT ? AccountNature.CREDIT : AccountNature.DEBIT;
   }
 
   private getNatureFromType(type: AccountType): AccountNature {

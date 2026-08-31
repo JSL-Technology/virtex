@@ -21,6 +21,7 @@ import {
   TaxpayerKind,
 } from '../../apps/backend/api/src/app/localization/fiscal/tax-id-validators';
 import { validateFiscalFields } from '../../apps/backend/api/src/app/localization/fiscal/country-profiles';
+import { purgeProbeAccounts } from './probe-cleanup';
 
 const GREEN = '\u001b[32m';
 const RED = '\u001b[31m';
@@ -48,6 +49,14 @@ async function main() {
   const orgs = ds.getRepository(Organization);
   const regions = ds.getRepository(FiscalRegion);
   const created: string[] = [];
+
+  // The identities below are the same well-formed ones `verify:provisioning` registers, and
+  // `organizations` is uniquely indexed on (tax_id, fiscal_region_id). Two verification scripts
+  // sharing one database must not depend on the order they happen to run in: whichever ran second
+  // failed on a duplicate key and reported it as the product colliding distinct taxpayers, which
+  // is the precise opposite of what it proves.
+  const released = await purgeProbeAccounts(ds);
+  if (released > 0) console.log(`\n  · released ${released} fiscal identity(ies) held by a previous run`);
 
   try {
     console.log('\nCanonical form is preserved end to end');

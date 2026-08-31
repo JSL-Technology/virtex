@@ -5,7 +5,10 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+import { Organization } from './organization.entity';
 
 /**
  * An email domain claimed by an organization for enterprise SSO routing (Home Realm
@@ -21,6 +24,14 @@ export class OrganizationDomain {
 
   @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
+
+  /**
+   * `domain` is globally unique, so a claim left behind by a deleted tenant would block the
+   * domain for everyone else — permanently, and with no tenant left to release it.
+   */
+  @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'organization_id' })
+  organization?: Organization;
 
   /** Lowercased domain, e.g. "acme.com". Unique across all organizations. */
   @Column()

@@ -9,6 +9,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   OneToMany,
+  Index,
 } from 'typeorm';
 import { CustomerAddress } from './customer-address.entity';
 import { CustomerContact } from './customer-contact.entity';
@@ -22,7 +23,28 @@ export enum CustomerStatus {
   ON_HOLD = 'ON_HOLD',
 }
 
+/**
+ * A customer belongs to ONE tenant, and so does its uniqueness.
+ *
+ * `email` and `taxId` carried platform-wide unique constraints on a table that is scoped by
+ * `organization_id`. Two consequences, both serious for a product sold to many companies in the
+ * same market:
+ *
+ *   - two tenants could not have the same customer, which in Latin America is the ordinary case —
+ *     a distributor and its competitor invoice the same supermarket chain, and the second one to
+ *     type the RNC was refused;
+ *   - the refusal was an oracle. Any tenant could probe a tax id and learn, from the conflict,
+ *     that another tenant already had that customer.
+ *
+ * `organizations` had already been corrected the same way, to `(tax_id, fiscal_region_id)`. These
+ * are the composite indexes that finish the job.
+ */
 @Entity({ name: 'customers' })
+@Index('UQ_customers_org_email', ['organizationId', 'email'], { unique: true })
+@Index('UQ_customers_org_tax_id', ['organizationId', 'taxId'], {
+  unique: true,
+  where: '"taxId" IS NOT NULL',
+})
 export class Customer {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -35,13 +57,13 @@ export class Customer {
   @Column({ nullable: true })
   contactPerson?: string;
 
-  @Column({ unique: true })
+  @Column()
   email: string;
 
   @Column({ nullable: true })
   phone: string;
 
-  @Column({ nullable: true, unique: true })
+  @Column({ nullable: true })
   taxId?: string;
   
 

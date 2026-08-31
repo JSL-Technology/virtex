@@ -1,25 +1,51 @@
-import { Injectable } from '@nestjs/common';
-import { MailerService } from '@nestjs-modules/mailer';
+import { Injectable, Logger } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
 import { ConfigService } from '@nestjs/config';
+import { Queue } from 'bullmq';
 import { User } from '../users/entities/user.entity/user.entity';
 import { FrontendUrlService } from './frontend-url.service';
+import { MAIL_JOB_OPTIONS, MAIL_QUEUE, MailJob } from './mail.queue';
 
+/**
+ * Transactional email, enqueued rather than sent inline.
+ *
+ * Every method here used to `await mailerService.sendMail(...)` directly, with no try/catch
+ * anywhere in the class. That put an SMTP round trip on the request thread, gave a transient
+ * failure no second chance, and — in `UsersService.inviteUser`, which sent inside its database
+ * transaction — let an unreachable mail server roll back the user it had just created.
+ *
+ * The public surface is unchanged; what changed is that the promise now resolves when the job is
+ * durably queued, and `MailProcessor` does the delivery with retries and backoff.
+ */
 @Injectable()
 export class MailService {
+  private readonly logger = new Logger(MailService.name);
+
   constructor(
-    private readonly mailerService: MailerService,
+    @InjectQueue(MAIL_QUEUE) private readonly mailQueue: Queue<MailJob>,
     private readonly configService: ConfigService,
     // Every link into the web client goes through this. Built inline at each call site, they
     // were all pointing at routes that do not exist — see FrontendUrlService for the list.
     private readonly links: FrontendUrlService,
   ) {}
 
+  /**
+   * Hand one email to the queue.
+   *
+   * Throws when the job cannot be queued at all — that is a Redis outage, not a mail problem, and
+   * the callers that must know (signup verification, password reset) still find out. What no
+   * longer reaches them is an SMTP failure, which is the queue's business.
+   */
+  private async enqueue(job: MailJob): Promise<void> {
+    await this.mailQueue.add(job.template, job, MAIL_JOB_OPTIONS);
+  }
+
   async sendPasswordResetEmail(user: User, token: string, expiration: string) {
     const resetLink = this.links.passwordReset(token, user.preferredLanguage);
 
     const expirationText = this.formatExpirationTime(expiration);
 
-    await this.mailerService.sendMail({
+    await this.enqueue({
       to: user.email,
       subject: 'Restablecimiento de Contraseña',
       template: './password-reset',
@@ -59,7 +85,7 @@ export class MailService {
     // Was `?token=` while the page reads only `#token=`, so the invitation arrived without one.
     const setPasswordUrl = this.links.setPasswordFromInvitation(token, user.preferredLanguage);
 
-    await this.mailerService.sendMail({
+    await this.enqueue({
       to: user.email,
       subject: '¡Has sido invitado a unirte a nuestra plataforma!',
       template: 'user-invitation',
@@ -79,7 +105,7 @@ export class MailService {
    * organization added them.
    */
   async sendAddedToOrganizationEmail(user: User, organizationName: string) {
-    await this.mailerService.sendMail({
+    await this.enqueue({
       to: user.email,
       subject: `Ahora tienes acceso a ${organizationName}`,
       template: 'organization-added',
@@ -96,7 +122,7 @@ export class MailService {
     const loginUrl = this.links.login();
     const resetPasswordUrl = this.links.forgotPassword();
 
-    await this.mailerService.sendMail({
+    await this.enqueue({
       to: email,
       subject: 'Intento de registro detectado',
       template: './duplicate-registration',
@@ -119,7 +145,7 @@ export class MailService {
    * minutes" to an account that does not exist, with no reference to quote to support.
    */
   async sendRegistrationFailedEmail(email: string, name: string, reference: string) {
-    await this.mailerService.sendMail({
+    await this.enqueue({
       to: email,
       subject: 'No pudimos crear tu cuenta — tu pago fue reembolsado',
       template: './registration-failed',
@@ -134,7 +160,7 @@ export class MailService {
   }
 
   async sendVerificationCodeEmail(email: string, code: string, name: string) {
-    await this.mailerService.sendMail({
+    await this.enqueue({
       to: email,
       subject: 'Código de verificación 2FA',
       template: './verification-code',
@@ -152,7 +178,7 @@ export class MailService {
   async sendEmailChangeConfirmation(newEmail: string, rawToken: string, firstName: string) {
     const confirmUrl = this.links.confirmEmailChange(rawToken);
 
-    await this.mailerService.sendMail({
+    await this.enqueue({
       to: newEmail,
       subject: 'Confirma tu nuevo correo electrónico',
       template: './email-change-confirm',
@@ -175,7 +201,7 @@ export class MailService {
    * attacker no longer controls at that point.
    */
   async sendEmailChangedNotice(previousEmail: string, firstName: string, newEmail: string) {
-    await this.mailerService.sendMail({
+    await this.enqueue({
       to: previousEmail,
       subject: 'El correo de tu cuenta ha cambiado',
       template: './email-changed-notice',
@@ -188,6 +214,31 @@ export class MailService {
     });
   }
 
+  /**
+   * A billing or quota notice, to everybody in the tenant who can act on it.
+   *
+   * One job per recipient rather than one job with many addresses: a bounce for one person must
+   * not stop the others being told, and BullMQ retries per job.
+   */
+  async sendBillingNotice(recipients: string[], title: string, body: string): Promise<void> {
+    const billingUrl = this.links.billing();
+
+    for (const to of recipients) {
+      await this.enqueue({
+        to,
+        subject: title,
+        template: './billing-notice',
+        context: {
+          title,
+          body,
+          billingUrl,
+          appName: this.configService.get<string>('APP_NAME', 'Virteex ERP'),
+          currentYear: new Date().getFullYear(),
+        },
+      });
+    }
+  }
+
   async sendRegistrationEmailVerification(
     email: string,
     code: string,
@@ -195,7 +246,7 @@ export class MailService {
     magicLinkUrl: string,
     expiresMinutes: number,
   ) {
-    await this.mailerService.sendMail({
+    await this.enqueue({
       to: email,
       subject: 'Confirma tu correo electrónico',
       template: './registration-email-verify',

@@ -12,6 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import { SaasResource } from './enums/saas-resource.enum';
 import { QuotaPeriod } from './enums/quota-period.enum';
 import { SAAS_PLANS, minorUnitFactor, type PlanConfig } from './saas.config';
+import type { BillingPeriod } from './enums/billing-period.enum';
 import {
   SaasLimitReachedException,
   SaasFeatureNotEnabledException,
@@ -24,6 +25,7 @@ import { OrganizationSubscriptionHistory } from '../organizations/entities/organ
 import { MetricsService } from '../metrics/metrics.service';
 import { SaasCacheKeyFactory } from './utils/saas-cache-key.factory';
 import { findCountryProfile } from '../localization/fiscal/country-profiles';
+import { UserCacheService } from '../auth/modules/user-cache.service';
 
 @Injectable()
 export class SaasService implements OnModuleInit {
@@ -44,7 +46,8 @@ export class SaasService implements OnModuleInit {
     private usageMetricRepository: UsageMetricRepository,
     private dataSource: DataSource,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
-    private metricsService: MetricsService
+    private metricsService: MetricsService,
+    private userCacheService: UserCacheService,
   ) {}
 
   /**
@@ -68,6 +71,10 @@ export class SaasService implements OnModuleInit {
 
     for (const pConfig of SAAS_PLANS) {
         const monthlyPriceId = process.env[pConfig.monthlyPriceIdVar];
+        // Annual billing is offered only where a Stripe Price exists for it. Absent, the plan is
+        // monthly-only and the client never shows the option — rather than showing a toggle that
+        // fails at checkout.
+        const annualPriceId = process.env[pConfig.annualPriceIdVar];
 
         // 10/10 Improvement: Use upsert for atomic plan creation/update
         await this.planRepository.upsert(
@@ -76,6 +83,7 @@ export class SaasService implements OnModuleInit {
                 name: pConfig.name,
                 description: pConfig.description,
                 monthlyPriceId: monthlyPriceId,
+                annualPriceId: annualPriceId,
                 // The column keeps the BASE-currency amount. Per-currency amounts live in
                 // `SAAS_PLANS[].monthlyPrices`, which is what the catalogue endpoint quotes from.
                 monthlyPrice: pConfig.monthlyPrices[SaasService.baseCurrency()] ?? null,
@@ -194,12 +202,40 @@ export class SaasService implements OnModuleInit {
   async getPlansForCountry(countryCode?: string) {
     const plans = await this.getPlans();
     const currency = SaasService.currencyForCountry(countryCode);
-    return plans.map((plan) => ({
-      ...plan,
-      currency,
-      monthlyPrice: SaasService.priceFor(plan.slug, currency) ?? plan.monthlyPrice,
-      minorUnits: minorUnitFactor(currency),
-    }));
+    return plans.map((plan) => {
+      const annualPrice = SaasService.annualPriceFor(plan.slug, currency);
+      return {
+        ...plan,
+        currency,
+        monthlyPrice: SaasService.priceFor(plan.slug, currency) ?? plan.monthlyPrice,
+        // Annual is offered only when BOTH a Stripe Price and an amount exist. Quoting a yearly
+        // figure the checkout cannot charge is the same class of defect as quoting a local
+        // currency and billing in dollars.
+        annualPrice: plan.annualPriceId ? (annualPrice ?? null) : null,
+        annualBillingAvailable: Boolean(plan.annualPriceId && annualPrice !== undefined),
+        minorUnits: minorUnitFactor(currency),
+      };
+    });
+  }
+
+  /** The configured annual amount for a plan in a currency, in that currency's minor units. */
+  static annualPriceFor(planSlug: string, currency: string): number | undefined {
+    const plan: PlanConfig | undefined = SAAS_PLANS.find((p) => p.slug === planSlug);
+    return plan?.annualPrices[(currency ?? '').toUpperCase()];
+  }
+
+  /**
+   * The Stripe Price a plan should be billed from for a billing period.
+   *
+   * Centralised so the signup, the in-app upgrade and the price verification all agree; a caller
+   * that asks for annual on a plan with no annual Price gets `null` rather than a silent fallback
+   * to monthly, which would charge a different amount than the customer chose.
+   */
+  static priceIdFor(
+    plan: { monthlyPriceId?: string | null; annualPriceId?: string | null },
+    period: BillingPeriod,
+  ): string | null {
+    return (period === 'annual' ? plan.annualPriceId : plan.monthlyPriceId) ?? null;
   }
 
   /** The platform's base currency: what a market with no local price is quoted and charged in. */
@@ -294,6 +330,13 @@ export class SaasService implements OnModuleInit {
       const versionKey = SaasCacheKeyFactory.limitVersion(organizationId);
       const currentVersion = await this.cacheManager.get<number>(versionKey) || 0;
       await this.cacheManager.set(versionKey, currentVersion + 1, SaasService.CACHE_GENERATION_TTL_MS);
+
+      // The cached PRINCIPAL carries the organization, and `SubscriptionActiveGuard` reads its
+      // `subscriptionStatus` from that copy. Bumping only the limit generation left the
+      // entitlement decision running on data up to a full cache TTL old — so a customer who had
+      // just paid stayed suspended, and one who had just cancelled kept working. Both directions
+      // are wrong, and the first one is wrong on the screen where they are trying to fix it.
+      await this.userCacheService.clearOrganizationMembers(organizationId);
 
       this.logger.log(`Cache invalidated for Organization ${organizationId} (v${currentVersion + 1})`);
   }

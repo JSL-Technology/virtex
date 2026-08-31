@@ -19,10 +19,22 @@ export interface Plan {
   currency: string;
   /** Minor units per unit of `currency`: 1 for CLP and PYG, 100 for the rest. */
   minorUnits: number;
+  /**
+   * The yearly amount in the same currency and units, or null when the plan has no annual price.
+   *
+   * Published by the server rather than derived here: an annual figure the checkout cannot charge
+   * is the same defect as a local currency that is billed in dollars.
+   */
+  annualPrice: number | null;
+  /** True only when both a Stripe annual Price and an amount for this currency exist. */
+  annualBillingAvailable: boolean;
   trialPeriodDays: number | null;
   limits: PlanLimit[];
   features?: { featureKey: string; isEnabled: boolean }[];
 }
+
+/** Monthly or annual, as the server names them. */
+export type BillingPeriod = 'monthly' | 'annual';
 
 /**
  * Currencies with no minor unit. Mirrors the server's list; an amount in one of these is already
@@ -39,9 +51,14 @@ export function minorUnitFactorFor(currency: string): number {
 }
 
 /** Render an amount the way its own market writes it. */
-export function formatPlanPrice(plan: Pick<Plan, 'monthlyPrice' | 'currency' | 'minorUnits'>, locale: string): string {
+export function formatPlanPrice(
+  plan: Pick<Plan, 'monthlyPrice' | 'annualPrice' | 'currency' | 'minorUnits'>,
+  locale: string,
+  period: BillingPeriod = 'monthly',
+): string {
   const factor = plan.minorUnits || 100;
-  const amount = (plan.monthlyPrice ?? 0) / factor;
+  const minorUnits = period === 'annual' ? (plan.annualPrice ?? 0) : (plan.monthlyPrice ?? 0);
+  const amount = minorUnits / factor;
   try {
     return new Intl.NumberFormat(locale, {
       style: 'currency',
@@ -54,4 +71,17 @@ export function formatPlanPrice(plan: Pick<Plan, 'monthlyPrice' | 'currency' | '
     // An unknown currency code must not blank the price card.
     return `${plan.currency} ${amount}`;
   }
+}
+
+/**
+ * How much a year of the annual price saves against twelve monthly ones, as a whole percentage.
+ * Returns null when the plan has no annual price, or when annual is not actually cheaper.
+ */
+export function annualSavingPercent(
+  plan: Pick<Plan, 'monthlyPrice' | 'annualPrice'>,
+): number | null {
+  if (!plan.annualPrice || !plan.monthlyPrice) return null;
+  const twelveMonths = plan.monthlyPrice * 12;
+  if (plan.annualPrice >= twelveMonths) return null;
+  return Math.round(((twelveMonths - plan.annualPrice) / twelveMonths) * 100);
 }

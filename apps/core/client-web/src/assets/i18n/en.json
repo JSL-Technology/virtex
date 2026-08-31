@@ -53,7 +53,9 @@
         "VERIFY": "Verify code",
         "WRONG_NUMBER": "Wrong number?",
         "RESEND": "Resend"
-      }
+      },
+      "CHANGE_AVATAR": "Change photo",
+      "PHONE_NUMBER": "Phone number"
     },
     "SECURITY": {
       "2FA_TITLE": "Two-Factor Authentication (2FA)",
@@ -109,8 +111,23 @@
         "INIT_2FA": "We couldn't start 2FA setup.",
         "INVALID_CODE": "That code isn't right.",
         "DISABLE_2FA": "We couldn't turn 2FA off.",
-        "GENERATE_CODES": "We couldn't generate the codes."
-      }
+        "GENERATE_CODES": "We couldn't generate the codes.",
+        "SETUP_FAILED": "Setup could not be started. Please try again.",
+        "DISABLE_FAILED": "Two-step verification could not be turned off.",
+        "REVOKE_FAILED": "That session could not be signed out."
+      },
+      "SETUP_2FA_TITLE": "Two-step verification",
+      "SETUP_2FA_DESC": "Scan the code with your authenticator app and enter the six-digit code it shows.",
+      "2FA_DESCRIPTION": "Add a second factor to your sign-in. We will ask for a code as well as your password.",
+      "ENABLE": "Turn on",
+      "DISABLE": "Turn off",
+      "ENABLED": "On",
+      "DISABLED": "Off",
+      "COPIED": "Copied to clipboard",
+      "SAVE_BACKUP_CODES": "Keep these recovery codes somewhere safe. Each one works once, and they are the only way back in if you lose your device.",
+      "SESSIONS_TITLE": "Active sessions",
+      "SESSIONS_DESCRIPTION": "Devices where your account is signed in. If you do not recognise one, sign it out.",
+      "CURRENT_SESSION": "This device"
     }
   },
   "SECTIONS": {
@@ -136,7 +153,8 @@
     "REPORTS": "Reports",
     "CUSTOMERS": "Customers",
     "PRODUCTS": "Products",
-    "PRICE_LISTS": "Price Lists"
+    "PRICE_LISTS": "Price Lists",
+    "MENU": "Menu"
   },
   "DOCS": {
     "DOCUMENTS": "Documents"
@@ -288,6 +306,9 @@
       "PLAN": "Choose plan",
       "FORGOT_PASSWORD": "Recover password",
       "RESET_PASSWORD": "Reset password"
+    },
+    "ERRORS": {
+      "INVALID_PHONE": "Enter a number in international format, for example +18095551234."
     }
   },
   "COMMON": {
@@ -309,7 +330,11 @@
     "COPIED": "Copied",
     "CLOSE": "Close",
     "BACK": "Back",
-    "NEXT": "Next"
+    "NEXT": "Next",
+    "ARE_YOU_SURE": "Are you sure you want to continue?",
+    "CONFIRMATION": "Confirmation",
+    "SUCCESS": "Done",
+    "RETRY": "Try again"
   },
   "ACTIONS": {
     "CREATE_NEW": "Create New",
@@ -328,7 +353,8 @@
   },
   "SEARCH": {
     "MAIN_PLACEHOLDER": "Search invoices, customers, products…",
-    "ARIA_GLOBAL": "Global search"
+    "ARIA_GLOBAL": "Global search",
+    "ORGANIZATIONS": "Search organizations"
   },
   "CHARTS": {
     "COMMON": {
@@ -1088,7 +1114,28 @@
       "PLAN": {
         "TITLE": "Choose your Plan",
         "SUBTITLE": "Select the plan that best fits you",
-        "PER_MONTH": "/mo"
+        "PER_MONTH": "/mo",
+        "BILLING_PERIOD": "Billing period",
+        "MONTHLY": "Monthly",
+        "ANNUAL": "Yearly",
+        "PER_YEAR": "/year",
+        "SAVE_PERCENT": "Save {{percent}}% a year",
+        "SELECTED": "Plan selected",
+        "CHOOSE": "Choose plan",
+        "RECOMMENDED": "Recommended",
+        "LOADING": "Loading plans…",
+        "LOAD_FAILED": "The plans could not be loaded.",
+        "UNLIMITED": "Unlimited {{resource}}",
+        "PER_PERIOD_MONTH": "{{count}} {{resource}} a month",
+        "TOTAL": "{{count}} {{resource}} in total",
+        "RESOURCES": {
+          "INVOICES": "invoices",
+          "USERS": "users",
+          "CUSTOMERS": "customers",
+          "SUPPLIERS": "suppliers",
+          "JOURNAL_ENTRIES": "journal entries",
+          "SUBSIDIARIES": "subsidiaries"
+        }
       }
     },
     "UPLOAD_PHOTO": "Upload photo",
@@ -1145,7 +1192,11 @@
       "EMAIL_TAKEN": "That email is already registered.",
       "CODE_INVALID": "That code isn't right. Please try again.",
       "CODE_SEND": "We couldn't send the code. Please try again.",
-      "REQUIRED_FIELDS": "Please complete the required fields correctly."
+      "REQUIRED_FIELDS": "Please complete the required fields correctly.",
+      "EMAIL_INVALID": "Enter a valid email address.",
+      "INVALID_FORMAT": "That format is not valid.",
+      "PASSWORD_LENGTH": "The password must be at least 12 characters long.",
+      "PASSWORD_WEAK": "The password needs an uppercase letter, a lowercase letter and a number or symbol."
     },
     "STEP_OF": "Step {{current}} of {{total}}",
     "PROGRESS": {
@@ -1190,7 +1241,19 @@
     },
     "TAXID_HINT": "We check the verification digit against {{authority}}.",
     "TAXID_FORMAT": "Expected format: {{example}}",
-    "MULTI_SELECT_HINT": "Select several by holding Ctrl (or Cmd) while clicking."
+    "MULTI_SELECT_HINT": "Select several by holding Ctrl (or Cmd) while clicking.",
+    "SELECT": "Select an option",
+    "COMPANY_SIZE": "Company size",
+    "COMPANY_SIZE_PLACEHOLDER": "Select the number of employees",
+    "INDUSTRIES": {
+      "TECHNOLOGY": "Technology",
+      "RETAIL": "Retail and commerce",
+      "MANUFACTURING": "Manufacturing",
+      "SERVICES": "Professional services",
+      "HEALTHCARE": "Healthcare",
+      "CONSTRUCTION": "Construction",
+      "OTHER": "Other"
+    }
   },
   "FORGOT_PASSWORD": {
     "TITLE": "Recover Password",
@@ -1198,14 +1261,19 @@
     "SUBMIT_BUTTON": "Send Instructions",
     "SENDING": "Sending...",
     "BACK_TO_LOGIN": "Back to login",
-    "SUCCESS": "If an account exists with this email, you will receive instructions shortly."
+    "SUCCESS": "If an account exists with this email, you will receive instructions shortly.",
+    "EMAIL_SENT_TITLE": "Check your inbox"
   },
   "RESET_PASSWORD": {
     "TITLE": "Reset Password",
     "SUBTITLE": "Enter your new password",
     "SUBMIT_BUTTON": "Change Password",
     "CHANGING": "Changing...",
-    "SUCCESS": "Your password has been successfully updated."
+    "SUCCESS": "Your password has been successfully updated.",
+    "SUCCESS_REDIRECT": "Password updated. Taking you to sign in…",
+    "ERRORS": {
+      "INVALID_TOKEN": "This link is no longer valid. Request a new one."
+    }
   },
   "SET_PASSWORD": {
     "TITLE": "Set password",
@@ -1245,5 +1313,11 @@
   },
   "PASSWORD_STRENGTH": {
     "WEAK": "Weak"
+  },
+  "WIDGETS": {
+    "LOADING": "Loading…",
+    "ERRORS": {
+      "UNABLE_TO_LOAD": "The data could not be loaded."
+    }
   }
 }

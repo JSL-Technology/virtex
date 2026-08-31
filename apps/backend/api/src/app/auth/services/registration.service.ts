@@ -7,6 +7,7 @@ import * as argon2 from 'argon2';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { GoogleRecaptchaValidator } from '@nestlab/google-recaptcha';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 import { RegisterUserDto } from '../dto/register-user.dto';
 import { RegistrationStrategyFactory } from '../strategies/registration/registration-strategy.factory';
@@ -89,6 +90,7 @@ export class RegistrationService {
     private readonly pendingRegistrationRepository: Repository<PendingRegistration>,
     private readonly passwordService: PasswordService,
     private readonly membershipService: MembershipService,
+    private readonly configService: ConfigService,
     // forwardRef: PaymentModule already depends on AuthModule for its guards, so the two modules
     // reference each other. Needed here to undo a charge whose account could not be created.
     @Inject(forwardRef(() => PaymentService))
@@ -103,16 +105,35 @@ export class RegistrationService {
   private async validateRegistration(dto: RegisterUserDto): Promise<void> {
     const { email, phone, emailVerificationCode, phoneVerificationCode, recaptchaToken } = dto;
 
-    const recaptchaResult = await this.recaptchaValidator.validate({
-      response: recaptchaToken,
-      score: 0.5,
-      action: 'register',
-    });
+    /**
+     * reCAPTCHA, honouring the same switch the guards honour.
+     *
+     * `GoogleRecaptchaGuard` respects `skipIf`, which the application wires to
+     * `RECAPTCHA_DISABLED`. This validator does NOT — `validate()` performs the network call
+     * whatever the module is configured with. Signup is the one flow whose reCAPTCHA check lives
+     * here rather than on a guard, so with the flag on (its default in development) every
+     * `POST /auth/register-checkout` answered
+     * "Error de validación de seguridad (reCAPTCHA)" and the product could not be signed up for
+     * locally at all — while the README described the flag as making the check "skip".
+     *
+     * Read from the same variable rather than from NODE_ENV: staging must keep the check unless
+     * somebody deliberately turns it off, which is the rule `auth.config.ts` and the environment
+     * schema already encode.
+     */
+    const recaptchaDisabled = this.configService.get<boolean>('RECAPTCHA_DISABLED', false) === true;
 
-    if (!recaptchaResult.success) {
-      const emailHash = createHash('sha256').update(email.toLowerCase().trim()).digest('hex').slice(0, 12);
-      this.logger.warn({ event: 'recaptcha_failed', emailHash, errors: recaptchaResult.errors }, 'Recaptcha validation failed');
-      throw new ForbiddenException('Error de validación de seguridad (reCAPTCHA).');
+    if (!recaptchaDisabled) {
+      const recaptchaResult = await this.recaptchaValidator.validate({
+        response: recaptchaToken,
+        score: 0.5,
+        action: 'register',
+      });
+
+      if (!recaptchaResult.success) {
+        const emailHash = createHash('sha256').update(email.toLowerCase().trim()).digest('hex').slice(0, 12);
+        this.logger.warn({ event: 'recaptcha_failed', emailHash, errors: recaptchaResult.errors }, 'Recaptcha validation failed');
+        throw new ForbiddenException('Error de validación de seguridad (reCAPTCHA).');
+      }
     }
 
     if (dto.fax) {
@@ -168,17 +189,30 @@ export class RegistrationService {
    * and emits the provisioning event. Pure persistence — all validation must
    * have happened already. Reused by both the direct and payment-first flows.
    */
-  private async materializeAccount(data: MaterializeAccountData, manager: EntityManager): Promise<{ user: User; organization: Organization }> {
-    const existingUser = await manager.findOne(User, { where: { email: data.email } });
-    if (existingUser) {
-      try {
-        await this.mailService.sendDuplicateRegistrationEmail(data.email, existingUser.firstName);
-      } catch (e) {
-        this.logger.error('Failed to send duplicate registration email', e);
-      }
-      await this.simulateDelay();
-      throw new ConflictException('No se pudo completar el registro. Verifique que los datos sean correctos o contacte soporte.');
-    }
+  private async materializeAccount(
+    data: MaterializeAccountData,
+    manager: EntityManager,
+  ): Promise<{ user: User; organization: Organization; isNewIdentity: boolean }> {
+    /**
+     * Somebody who already uses the product signing their SECOND company up.
+     *
+     * This used to be a `ConflictException`: `users.email` is globally unique, so an existing
+     * address meant "duplicate registration" and the signup was refused after the customer had
+     * paid. For an ERP sold across nineteen markets that is precisely backwards — accountants,
+     * bookkeepers and consultants running several companies are not an edge case, they are the
+     * segment, and the platform's whole multi-tenancy exists so one identity can hold several
+     * tenants. The only thing standing in the way was this branch.
+     *
+     * Reusing the identity is safe because the signup has already PROVEN control of the mailbox:
+     * `validateRegistration` verifies an emailed code against this exact address before anything
+     * reaches here. Nothing about the existing account is touched — not the password, not the
+     * status, not the home organization. What the person gains is a new tenant, a membership in
+     * it, and the administrator role scoped to it.
+     */
+    const existingUser = await manager.findOne(User, {
+      where: { email: data.email },
+      relations: ['roles'],
+    });
 
     // The tax id is stored in the country's canonical form, NOT as bare digits.
     //
@@ -238,41 +272,78 @@ export class RegistrationService {
       throw new InternalServerErrorException('No se pudo encontrar el rol de administrador predeterminado.');
     }
 
-    const userSecurity = manager.create(UserSecurity, {
-      passwordHash: data.passwordHash,
-      failedLoginAttempts: 0,
-      lockoutUntil: null,
-    });
+    let user: User;
 
-    const user = manager.create(User, {
-      firstName: data.firstName,
-      lastName: data.lastName,
-      email: data.email,
-      phone: data.phone ?? undefined,
-      isEmailVerified: true,
-      isPhoneVerified: data.phoneVerified,
-      organization,
-      organizationId: organization.id,
-      roles: [adminRole],
-      status: UserStatus.ACTIVE,
-      security: userSecurity,
-    });
-    await manager.save(user);
+    if (existingUser) {
+      // An identity that already exists gains a role in the NEW tenant and nothing else. Roles
+      // carry `organization_id`, so this grants no rights anywhere they already work, and their
+      // active organization is deliberately left alone — they can switch to the new one when
+      // they choose, rather than being moved out from under whatever they had open.
+      existingUser.roles = [...(existingUser.roles ?? []), adminRole];
+      await manager.save(User, existingUser);
+      user = existingUser;
+    } else {
+      const userSecurity = manager.create(UserSecurity, {
+        passwordHash: data.passwordHash,
+        failedLoginAttempts: 0,
+        lockoutUntil: null,
+      });
+
+      user = manager.create(User, {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        phone: data.phone ?? undefined,
+        isEmailVerified: true,
+        isPhoneVerified: data.phoneVerified,
+        organization,
+        organizationId: organization.id,
+        roles: [adminRole],
+        status: UserStatus.ACTIVE,
+        security: userSecurity,
+      });
+      await manager.save(user);
+    }
 
     // The owner's membership, written in the same transaction that creates them. Registration
     // never wrote this row, so `user_organizations` held only what a one-off backfill had put
     // there and every tenant created since was invisible to the multi-tenancy that depends on it.
     await this.membershipService.grant(user.id, organization.id, manager);
 
+    // The country's chart of accounts and taxes — IN this transaction, awaited, and fatal on
+    // failure.
+    //
+    // This is what an ERP alta is FOR, and it never ran. `ProfileRegistrationStrategy.provision()`
+    // existed and its only caller was its own unit test; the `user.registered` event below was
+    // supposed to carry it, and its single listener had an empty body described as a
+    // "Placeholder implementation to satisfy build requirements". So every tenant that ever paid
+    // opened its books with zero accounts and zero taxes: no journal entry, no invoice, no period
+    // close — a fiscal product that cannot post a debit.
+    //
+    // Deliberately NOT an event listener. `emitAsync` swallows the distinction between "no
+    // subscriber", "subscriber threw" and "subscriber succeeded", which is exactly how this got
+    // lost; and provisioning must share the transaction, so a chart of accounts that fails
+    // half-written rolls back with the account rather than leaving a tenant nobody can use.
+    if (data.countryCode) {
+      const strategy = this.registrationStrategyFactory.getStrategy(data.countryCode);
+      await strategy.provision(organization, user, manager);
+    }
+
+    // Kept as an integration point (outbound webhooks subscribe to it), but nothing the tenant
+    // needs in order to function may depend on a listener existing.
     await this.eventEmitter.emitAsync(
       'user.registered',
       new UserRegisteredEvent(user, organization, manager)
     );
 
+    // The caller signs the person into the tenant they just paid for, so the principal it gets
+    // back describes THAT tenant — for an existing identity the stored `organizationId` still
+    // points at their previous one, which is correct in the database and wrong in this response.
     user.organization = organization;
+    user.organizationId = organization.id;
     user.roles = [adminRole];
 
-    return { user, organization };
+    return { user, organization, isNewIdentity: !existingUser };
   }
 
   /**
@@ -290,17 +361,32 @@ export class RegistrationService {
       return null;
     }
 
-    // Pre-flight duplicate check for fast, friendly feedback. The DB unique
-    // constraint + completion idempotency remain the real safety net.
-    const existingUser = await this.organizationRepository.manager.findOne(User, { where: { email: dto.email } });
-    if (existingUser) {
-      try {
-        await this.mailService.sendDuplicateRegistrationEmail(dto.email, existingUser.firstName);
-      } catch (e) {
-        this.logger.error('Failed to send duplicate registration email', e);
-      }
+    const fiscalRegionId = await this.resolveFiscalRegionId(dto.countryCode);
+
+    /**
+     * The fiscal identity is checked BEFORE the customer is sent to Stripe.
+     *
+     * `organizations` carries a unique index on `(tax_id, fiscal_region_id)`, and the only place
+     * that used to be evaluated was `materializeAccount` — which runs after the charge. So a
+     * company that was already registered paid first and was told "no se pudo completar el
+     * registro" second, and the platform then had to cancel the subscription and issue a refund.
+     * The check costs one indexed lookup and moves the rejection to where the customer can still
+     * do something about it.
+     *
+     * The email is deliberately NOT pre-checked any more: an address that already exists is a
+     * customer registering an additional company, which is now supported (see
+     * `materializeAccount`).
+     */
+    const canonicalTaxId = canonicalizeTaxId(dto.countryCode, dto.taxId);
+    const duplicateOrg = await this.organizationRepository.findOne({
+      where: { taxId: canonicalTaxId, fiscalRegionId },
+    });
+    if (duplicateOrg) {
       await this.simulateDelay();
-      throw new ConflictException('No se pudo completar el registro. Verifique que los datos sean correctos o contacte soporte.');
+      throw new ConflictException(
+        'Ya existe una organización registrada con ese identificador fiscal. ' +
+          'Si trabajas en esa empresa, pide a un administrador que te invite.',
+      );
     }
 
     await this.passwordService.assertNotBreached(dto.password);
@@ -324,7 +410,7 @@ export class RegistrationService {
         dto.taxpayerKind as 'company' | 'individual' | undefined,
         dto.fiscalProfile ?? {},
       ),
-      fiscalRegionId: await this.resolveFiscalRegionId(dto.countryCode),
+      fiscalRegionId,
       industry: dto.industry ?? null,
       companySize: dto.companySize ?? null,
       address: dto.address ?? null,
@@ -432,30 +518,31 @@ export class RegistrationService {
         throw new BadRequestException('Registro pendiente no encontrado o expirado.');
       }
 
-      // Idempotency: the webhook and the frontend confirm call can race. If the
-      // account already exists for this email, return it instead of erroring.
-      // NOTE: `organization` is a VIRTUAL property on User (populated manually by
-      // services), NOT a TypeORM relation — only `roles` is. Passing it in
-      // `relations` throws EntityPropertyNotFoundError and aborts the whole
-      // transaction, so we load it explicitly by organizationId instead.
-      const existing = await manager.findOne(User, {
-        where: { email: pending.email },
-        relations: ['roles'],
-      });
-      if (existing) {
-        if (pending.status !== PendingRegistrationStatus.COMPLETED) {
-          pending.status = PendingRegistrationStatus.COMPLETED;
-          await manager.save(pending);
+      // Idempotency: the Stripe webhook and the browser's confirm call race each other, and both
+      // land here. The question is whether THIS signup has already produced its organization —
+      // not whether a user with this email exists anywhere, which is what it used to ask and
+      // which now has a legitimate "yes" for every customer registering a second company.
+      if (pending.organizationId) {
+        const already = await manager.findOne(User, {
+          where: { email: pending.email },
+          relations: ['roles'],
+        });
+        if (already) {
+          if (pending.status !== PendingRegistrationStatus.COMPLETED) {
+            pending.status = PendingRegistrationStatus.COMPLETED;
+            await manager.save(pending);
+          }
+          // Report the tenant THIS signup created, not the user's home organization: for an
+          // existing identity registering a second company they are different rows.
+          already.organization =
+            (await manager.findOne(Organization, { where: { id: pending.organizationId } })) ??
+            undefined;
+          already.organizationId = pending.organizationId;
+          return already;
         }
-        // Mirror materializeAccount's contract: expose the org as the virtual property.
-        if (existing.organizationId) {
-          existing.organization =
-            (await manager.findOne(Organization, { where: { id: existing.organizationId } })) ?? undefined;
-        }
-        return existing;
       }
 
-      const { user, organization } = await this.materializeAccount(
+      const { user, organization, isNewIdentity } = await this.materializeAccount(
         {
           email: pending.email,
           firstName: pending.firstName,
@@ -505,9 +592,18 @@ export class RegistrationService {
       await manager.save(organization);
 
       pending.status = PendingRegistrationStatus.COMPLETED;
+      pending.organizationId = organization.id;
       await manager.save(pending);
 
-      this.logger.log(`Materialized account for ${pending.email} (org ${organization.id}, plan ${pending.planSlug}).`);
+      this.logger.log(
+        {
+          event: 'registration_materialized',
+          organizationId: organization.id,
+          planSlug: pending.planSlug,
+          newIdentity: isNewIdentity,
+        },
+        `Materialized ${isNewIdentity ? 'a new account' : 'an additional organization'} (org ${organization.id}, plan ${pending.planSlug}).`,
+      );
       return user;
     });
   }

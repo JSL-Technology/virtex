@@ -5,6 +5,7 @@ import { Repository, DataSource, EntityManager } from 'typeorm';
 import { AccountSegmentDefinition } from './entities/account-segment-definition.entity';
 import { ConfigureAccountSegmentsDto } from './dto/account-segment-definition.dto';
 import { Account } from './entities/account.entity';
+import { coaSegmentsFor } from '../localization/fiscal/coa-builder';
 
 @Injectable()
 export class AccountSegmentsService {
@@ -61,12 +62,21 @@ export class AccountSegmentsService {
   }
 
   /**
-   * Inicializa la estructura de segmentos por defecto para una organización
-   * si no tiene una definida. Es idempotente.
+   * Give an organization the account-code structure its chart of accounts is written in.
+   *
+   * `structure` comes from `coaSegmentsFor(countryCode)`, which is declared beside the country's
+   * chart-of-accounts template. That is the whole point: this used to write a fixed four-level
+   * structure (1-2-2-3) into every organization while the templates emitted a single four-digit
+   * code, so `ChartOfAccountsService.create` rejected the first account of every new tenant and
+   * provisioning died on the opening balance sheet. One declaration now feeds both sides.
+   *
+   * Idempotent, and deliberately so: it runs on organization creation and is also exposed as an
+   * endpoint for tenants that predate it.
    */
   async initializeDefault(
     organizationId: string,
     manager?: EntityManager,
+    structure?: readonly { name: string; length: number; isRequired: boolean }[],
   ): Promise<AccountSegmentDefinition[]> {
     const repo = manager
       ? manager.getRepository(AccountSegmentDefinition)
@@ -83,12 +93,15 @@ export class AccountSegmentsService {
       return existing;
     }
 
-    const defaults = [
-      { name: 'Nivel 1', length: 1, isRequired: true, order: 0 },
-      { name: 'Nivel 2', length: 2, isRequired: true, order: 1 },
-      { name: 'Nivel 3', length: 2, isRequired: true, order: 2 },
-      { name: 'Nivel 4', length: 3, isRequired: true, order: 3 },
-    ];
+    // Falls back to the country-agnostic template shape rather than to the old 1-2-2-3 guess,
+    // so a caller that omits the structure still produces codes the templates can satisfy.
+    const specs = structure ?? coaSegmentsFor('');
+    const defaults = specs.map((spec, order) => ({
+      name: spec.name,
+      length: spec.length,
+      isRequired: spec.isRequired,
+      order,
+    }));
 
     const definitions = defaults.map((d) =>
       repo.create({

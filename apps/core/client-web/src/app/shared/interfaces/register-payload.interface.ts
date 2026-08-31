@@ -49,4 +49,13 @@ export interface RegisterPayload {
     phone?: string;
     emailVerificationCode?: string;
     phoneVerificationCode?: string;
+
+    /**
+     * Honeypot. Hidden from people, offered to bots.
+     *
+     * Present in the type so it cannot be dropped from the payload again: the control existed in
+     * the form and was rendered nowhere, so nothing ever submitted it and the server's honeypot
+     * branch — which answers a hit with a believable success and no session — was dead code.
+     */
+    fax?: string;
 }

@@ -145,6 +145,7 @@ export class BillingPage implements OnInit {
     return formatPlanPrice(
       {
         monthlyPrice: amount ?? 0,
+        annualPrice: null,
         currency: currency ?? 'USD',
         minorUnits: minorUnits ?? 100,
       },

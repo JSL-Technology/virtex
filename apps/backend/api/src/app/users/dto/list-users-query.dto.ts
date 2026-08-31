@@ -25,7 +25,7 @@ export class ListUsersQueryDto {
   @Transform(({ value }) => (value === undefined || value === '' ? 1 : Number(value)))
   @IsInt({ message: 'La página debe ser un número entero.' })
   @Min(1, { message: 'La página debe ser 1 o mayor.' })
-  page: number = 1;
+  page = 1;
 
   @ApiPropertyOptional({ default: 25, minimum: 1, maximum: 100 })
   @IsOptional()
@@ -33,18 +33,18 @@ export class ListUsersQueryDto {
   @IsInt({ message: 'El tamaño de página debe ser un número entero.' })
   @Min(1, { message: 'El tamaño de página debe ser 1 o mayor.' })
   @Max(100, { message: 'El tamaño de página no puede ser mayor que 100.' })
-  pageSize: number = 25;
+  pageSize = 25;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
   @MaxLength(120, { message: 'La búsqueda no puede tener más de 120 caracteres.' })
-  search: string = '';
+  search = '';
 
   @ApiPropertyOptional({ enum: [...Object.values(UserStatus), 'all'], default: 'all' })
   @IsOptional()
   @IsEnum([...Object.values(UserStatus), 'all'], { message: 'El estado no es válido.' })
-  status: string = 'all';
+  status = 'all';
 
   @ApiPropertyOptional({ enum: USER_SORT_COLUMNS, default: 'createdAt' })
   @IsOptional()

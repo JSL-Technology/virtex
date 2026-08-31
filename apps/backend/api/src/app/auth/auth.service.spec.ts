@@ -30,6 +30,7 @@ import { MfaOrchestratorService } from './services/mfa-orchestrator.service';
 import { PasswordService } from './services/password.service';
 import { TwoFactorAuthService } from './services/two-factor-auth.service';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { AtomicCacheService } from '../cache/atomic-cache.service';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -159,6 +160,7 @@ describe('AuthService', () => {
         // provider; neither is configured in this suite, so the federated path stays inert.
         { provide: EnterpriseSsoService, useValue: { discoverByEmail: jest.fn().mockResolvedValue(null) } },
         { provide: OidcProviderService, useValue: { isProviderConfigured: jest.fn().mockReturnValue(false) } },
+        { provide: AtomicCacheService, useValue: { increment: jest.fn(async () => 1), reset: jest.fn(), claimOnce: jest.fn(async () => true) } },
       ],
     }).compile();
 

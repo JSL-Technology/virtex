@@ -103,6 +103,21 @@ try {
       'apps/backend/api/src/app/database/migrations/<Name>) and commit it.\n',
   );
   process.exit(1);
+} catch (e) {
+  // Without this, a Postgres that is simply unreachable surfaces as Node dumping the raw stdout
+  // and stderr Buffers of the failed `psql` as arrays of byte values — several screens of decimal
+  // numbers, with the one line that says what went wrong nowhere in sight.
+  const detail = [e?.stderr, e?.stdout]
+    .map((b) => (b ? Buffer.from(b).toString().trim() : ''))
+    .filter(Boolean)
+    .join('\n');
+  console.error('\n  ✗ check-schema-drift could not run:\n');
+  console.error(`    ${detail || e?.message || String(e)}\n`);
+  console.error(
+    '    It needs a reachable Postgres. Set DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD and\n' +
+      '    DB_NAME; the scratch database is created and dropped by this script.\n',
+  );
+  process.exitCode = 1;
 } finally {
   if (scratchDir) rmSync(scratchDir, { recursive: true, force: true });
   try {

@@ -33,6 +33,7 @@ import { LoginResultDto } from './dto/login-response.dto';
 import { StepUpScope } from './enums/step-up-scope.enum';
 import { EnterpriseSsoService } from './services/enterprise-sso.service';
 import { OidcProviderService } from './services/oidc-provider.service';
+import { AtomicCacheService } from '../cache/atomic-cache.service';
 
 export type LoginResult = LoginResultDto;
 
@@ -73,6 +74,7 @@ export class AuthService {
     private readonly enterpriseSsoService: EnterpriseSsoService,
     private readonly oidcProviderService: OidcProviderService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    private readonly atomicCache: AtomicCacheService,
   ) {}
 
   async login(loginUserDto: LoginUserDto & { twoFactorCode?: string }, ipAddress?: string, userAgent?: string): Promise<LoginResult> {
@@ -486,7 +488,7 @@ export class AuthService {
       }
 
       // Only a successful challenge clears the budget, so failures keep accumulating.
-      await this.cacheManager.del(AuthService.stepUpAttemptKey(userId));
+      await this.atomicCache.reset(AuthService.stepUpAttemptKey(userId));
 
       const stepUpToken = this.jwtService.sign(
           { sub: userId, stepup: true, scope, jti: crypto.randomUUID() },
@@ -652,44 +654,19 @@ export class AuthService {
   }
 
   /**
-   * Count one attempt and return the new total, atomically where the store allows it.
+   * Count one attempt and return the new total, atomically.
    *
-   * The previous implementation was a `get` followed by a `set(current + 1)` — and carried a
-   * comment claiming it avoided exactly that, on the grounds that "reading the counter and then
-   * writing attempts + 1 afterwards would let a burst of parallel guesses all observe the same
-   * low count". It is what the code did. Under concurrency the budget was worth as many attempts
-   * as the attacker could issue in parallel, which for a brute-force limit is the whole control.
+   * The counter is the whole brute-force control, so a read-then-write would let a burst of
+   * parallel guesses all observe the same low count. `AtomicCacheService` performs a Redis `INCR`
+   * with `PEXPIRE` on first use, so the window starts at the first attempt rather than sliding
+   * forward with every one.
    *
-   * Redis `INCR` is atomic and `PEXPIRE` sets the window on first use only, so the window starts
-   * at the first attempt rather than sliding forward with every one. The in-memory fallback keeps
-   * the old shape, which is correct there because that store is single-process by construction —
-   * the same reasoning `StepUpGuard` already applies to its single-use jti claim.
+   * This used to reach into `cacheManager.store` for a client itself — a property cache-manager 7
+   * does not expose — so the atomic branch was never taken and the budget was, in practice, per
+   * process. Centralising it also means the service refuses to boot a deployment where no shared
+   * client exists, instead of silently approximating one.
    */
   private async incrementAttempts(key: string, windowMs: number): Promise<number> {
-      const redis = this.redisClient();
-      if (redis) {
-          const attempts = await redis.incr(key);
-          if (attempts === 1) {
-              await redis.pexpire(key, windowMs);
-          }
-          return attempts;
-      }
-
-      const current = (await this.cacheManager.get<number>(key)) ?? 0;
-      const next = current + 1;
-      await this.cacheManager.set(key, next, windowMs);
-      return next;
-  }
-
-  /** The underlying Redis client, when the cache is backed by one. See `StepUpGuard`. */
-  private redisClient(): { incr(key: string): Promise<number>; pexpire(key: string, ms: number): Promise<number> } | null {
-      const store = (this.cacheManager as unknown as { store?: Record<string, unknown> }).store;
-      const candidate = (store?.['client'] ?? store?.['redis'] ?? store?.['getClient']) as
-          | { incr?: unknown }
-          | undefined;
-      const resolved = typeof candidate === 'function' ? (candidate as () => unknown)() : candidate;
-      return resolved && typeof (resolved as { incr?: unknown }).incr === 'function'
-          ? (resolved as never)
-          : null;
+      return this.atomicCache.increment(key, windowMs);
   }
 }

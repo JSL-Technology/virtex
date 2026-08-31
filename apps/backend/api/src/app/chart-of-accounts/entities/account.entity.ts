@@ -62,6 +62,26 @@ export class Account {
   })
   nature: AccountNature;
 
+  /**
+   * A contra account: its normal balance is the OPPOSITE of what its type implies.
+   *
+   * Accumulated depreciation is an asset with a credit balance; an allowance for doubtful accounts
+   * is an asset with a credit balance; sales returns are revenue with a debit balance. Without
+   * this flag the only consistent rule available was "nature must equal the type's normal
+   * nature", which `ChartOfAccountsService` enforced — and which makes those three accounts
+   * impossible to create. Every IFRS opening chart needs all three, so the rule rejected the
+   * product's own templates.
+   *
+   * Stored rather than derived so financial statements can net a contra account against its
+   * siblings instead of inferring intent from a mismatch.
+   */
+  @Column({
+    name: 'is_contra_account',
+    default: false,
+    comment: 'Cuenta de naturaleza contraria a su tipo (depreciación acumulada, provisiones, devoluciones).',
+  })
+  isContraAccount: boolean;
+
   @Column({ default: true })
   isActive: boolean;
 
