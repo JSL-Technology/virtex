@@ -11,34 +11,9 @@ import { catchError, switchMap } from 'rxjs/operators';
 import { AuthService } from '../services/auth';
 import { AuthQueueService } from '../services/auth-queue.service';
 import { IS_PUBLIC_API } from '../tokens/http-context.tokens';
+import { AuthStatus } from '../../shared/enums/auth-status.enum';
+import { readCsrfCookie } from '../auth/csrf-token';
 import { Router } from '@angular/router';
-
-/**
- * Names the CSRF cookie may carry, most-secure first.
- *
- * Production issues `__Host-XSRF-TOKEN`; local plain-HTTP development cannot, because the prefix
- * mandates `Secure` and browsers reject a Secure cookie over HTTP. Both are read so the same build
- * works in either.
- *
- * NOTE: this reads `document.cookie` on the SPA's own origin. The cookie is host-only (it carries
- * no `Domain`, and `__Host-` forbids one), so the API must be served from the SAME origin as the
- * client — a path prefix such as `https://app.example.com/api/v1`, or a reverse proxy that fronts
- * both. A split-subdomain deployment cannot work: the browser would not expose the cookie here,
- * and `SameSite=Lax` session cookies would not be attached to the API calls either. See
- * docs/DEPLOYMENT.md.
- */
-const CSRF_COOKIE_NAMES = ['__Host-XSRF-TOKEN', 'XSRF-TOKEN'] as const;
-
-function readCsrfCookie(): string | null {
-  if (typeof document === 'undefined') return null;
-  for (const name of CSRF_COOKIE_NAMES) {
-    const match = document.cookie.match(
-      new RegExp(`(?:^|;\\s*)${name.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&')}=([^;]*)`),
-    );
-    if (match) return decodeURIComponent(match[1]);
-  }
-  return null;
-}
 
 export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
@@ -97,7 +72,21 @@ export const authInterceptor: HttpInterceptorFn = (
         return throwError(() => error);
       }
 
-      if (isUnauthorized && !isPublicAuthApiRoute) {
+      // A 401 is only worth answering with a refresh when we believe there is a session to renew.
+      // Without this check, any authenticated call made while signed out — a stray component that
+      // outlived a logout, a deep link that starts loading before the redirect lands — answers the
+      // 401 with a refresh that can only fail, and that failure then triggers a logout of a user
+      // who is already logged out. The session state is authoritative here because
+      // `resolveSession()` establishes it before the first route is ever evaluated.
+      //
+      // Resolved lazily, and only once we already know we are on the 401 path, so the interceptor
+      // still cannot create the AuthService -> HttpClient -> interceptor construction cycle.
+      const needsRefresh =
+        isUnauthorized &&
+        !isPublicAuthApiRoute &&
+        injector.get(AuthService).authStatus() === AuthStatus.authenticated;
+
+      if (needsRefresh) {
         if (!authQueueService.isRefreshingToken) {
           authQueueService.startRefresh();
 

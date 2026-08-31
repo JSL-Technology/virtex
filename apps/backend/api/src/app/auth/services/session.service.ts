@@ -338,6 +338,11 @@ export class SessionService {
         user: authResponse.user,
         accessToken: authResponse.accessToken,
         refreshToken: authResponse.refreshToken,
+        // Carried out to the controller so the cookie's Max-Age matches the token's real
+        // lifetime. It was re-derived here and then dropped: the rotated token was minted for
+        // thirty days while the cookie carrying it was written for seven, so a "recordarme"
+        // session died at seven days anyway — the fix one layer down, undone one layer up.
+        rememberMe,
       };
     } catch (error) {
       this.logger.error('Error al verificar el refresh token:', (error as Error).message);

@@ -42,7 +42,8 @@ export function authServiceMock(options: AuthServiceMockOptions = {}) {
       permissions.includes('*') || required.every((p) => permissions.includes(p)),
     getPermissions$: (): Observable<string[]> => of(permissions),
 
-    checkAuthStatus: jest.fn(() => of(authenticated)),
+    resolveSession: jest.fn(() => of(authenticated)),
+    reloadSession: jest.fn(() => of(authenticated)),
     refreshAccessToken: jest.fn(() => of({ user })),
     login: jest.fn(() => of(user)),
     logout: jest.fn(),
