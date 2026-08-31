@@ -1,5 +1,5 @@
 
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LessThanOrEqual, Not, Repository, DataSource } from 'typeorm';
 import { Account } from '../chart-of-accounts/entities/account.entity';
@@ -10,6 +10,7 @@ import { OrganizationSettings } from '../organizations/entities/organization-set
 import { CreateJournalEntryDto, CreateJournalEntryLineDto } from '../journal-entries/dto/create-journal-entry.dto';
 import { Journal } from '../journal-entries/entities/journal.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
+import { BadRequestError } from '../i18n/localized.exception';
 
 @Injectable()
 export class CurrencyRevaluationService {
@@ -39,12 +40,12 @@ export class CurrencyRevaluationService {
     
     const generalJournal = await this.journalRepository.findOneBy({ organizationId, code: 'GENERAL' });
     if (!generalJournal) {
-        throw new BadRequestException('Diario General (GENERAL) no encontrado.');
+        throw new BadRequestError('CURRENCIES.DIARIO_GENERAL_GENERAL_NO_ENCONTRADO');
     }
     
     const defaultLedger = await this.dataSource.getRepository(Ledger).findOneBy({ organizationId, isDefault: true });
     if (!defaultLedger) {
-        throw new BadRequestException('No se ha configurado un libro contable por defecto para la organización.');
+        throw new BadRequestError('CURRENCIES.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION');
     }
 
     const balancesToRevalue = await this.accountBalanceRepository.find({

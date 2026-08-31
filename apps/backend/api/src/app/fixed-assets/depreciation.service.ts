@@ -1,6 +1,6 @@
 
 
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, EntityManager } from 'typeorm';
 import { FixedAsset, FixedAssetStatus } from './entities/fixed-asset.entity';
@@ -11,6 +11,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { Organization } from '../organizations/entities/organization.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
+import { BadRequestError } from '../i18n/localized.exception';
 
 @Injectable()
 export class DepreciationService {
@@ -55,7 +56,7 @@ export class DepreciationService {
 
       const depreciationJournal = await transactionManager.findOneBy(Journal, { organizationId, code: 'DEPREC' });
       if (!depreciationJournal) {
-          throw new BadRequestException('Diario de Depreciación (DEPREC) no encontrado. Por favor, cree un diario con este código para continuar.');
+          throw new BadRequestError('FIXED_ASSETS.DIARIO_DEPRECIACION_DEPREC_NO_ENCONTRADO_FAVOR_CREE');
       }
       
       const assetsToDepreciate = await transactionManager.find(FixedAsset, { 

@@ -7,6 +7,7 @@ import { join, extname } from 'path';
 import { tmpdir } from 'os';
 import { randomBytes } from 'crypto';
 import { FastifyFile } from '../interfaces/fastify-file.interface';
+import { BadRequestError } from '../../i18n/localized.exception';
 
 export interface FastifyFilesInterceptorOptions {
   fieldName: string;
@@ -40,7 +41,7 @@ export function FastifyFilesInterceptor(fieldName: string, maxCount = 10, option
       }
 
       if (filesPart.length > maxCount) {
-         throw new BadRequestException('Too many files');
+         throw new BadRequestError('COMMON.TOO_MANY_FILES');
       }
 
       const files: FastifyFile[] = [];
@@ -57,14 +58,14 @@ export function FastifyFilesInterceptor(fieldName: string, maxCount = 10, option
                });
 
                if (error || !accepted) {
-                  throw error || new BadRequestException('File type not allowed');
+                  throw error || new BadRequestError('COMMON.FILE_TYPE_NOT_ALLOWED');
                }
             }
 
             const buffer = await filePart.toBuffer();
 
             if (options.limits?.fileSize && buffer.length > options.limits.fileSize) {
-               throw new BadRequestException(`File ${filePart.filename} too large`);
+               throw new BadRequestError('COMMON.FILE_TOO_LARGE_2', { filename: filePart.filename });
             }
 
             const filename = `${randomBytes(16).toString('hex')}${extname(filePart.filename)}`;

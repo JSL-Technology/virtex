@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
@@ -9,6 +9,7 @@ import { UserIdentityService } from '../../services/user-identity.service';
 import { JwtPayload } from '../../interfaces/jwt-payload.interface';
 import { AuthenticatedUser } from '../../interfaces/authenticated-user.interface';
 import { isDevLikeEnvironment } from '../../auth.config';
+import { UnauthorizedError } from '../../../i18n/localized.exception';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -50,7 +51,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         try {
           const parts = rawJwt.split('.');
           if (parts.length !== 3) {
-            return done(new UnauthorizedException('Malformed JWT'), undefined);
+            return done(new UnauthorizedError('AUTH.MALFORMED_JWT'), undefined);
           }
           const header = JSON.parse(Buffer.from(parts[0], 'base64url').toString('utf8'));
           // `alg` is additionally pinned by the `algorithms` option below, so a token claiming
@@ -59,11 +60,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
             typeof header?.kid === 'string' ? header.kid : undefined,
           );
           if (!publicKey) {
-            return done(new UnauthorizedException('Unknown key ID'), undefined);
+            return done(new UnauthorizedError('AUTH.UNKNOWN_KEY_ID'), undefined);
           }
           done(null, publicKey);
         } catch {
-          done(new UnauthorizedException('JWT key resolution failed'), undefined);
+          done(new UnauthorizedError('AUTH.JWT_KEY_RESOLUTION_FAILED'), undefined);
         }
       },
       algorithms: ['RS256'],

@@ -1,5 +1,5 @@
 
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, LessThan, Between } from 'typeorm';
 import { Ledger } from './entities/ledger.entity';
@@ -7,6 +7,7 @@ import { Account } from '../chart-of-accounts/entities/account.entity';
 import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line.entity';
 import { GeneralLedger } from '../core/models/general-ledger.model';
 import { AccountNature } from '../chart-of-accounts/enums/account-enums';
+import { NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class LedgersService {
@@ -27,7 +28,7 @@ export class LedgersService {
   ): Promise<GeneralLedger> {
     const account = await this.accountRepository.findOne({ where: { id: accountId, organizationId } });
     if (!account) {
-      throw new NotFoundException(`Cuenta con ID "${accountId}" no encontrada.`);
+      throw new NotFoundError('ACCOUNTING.CUENTA_ID_NO_ENCONTRADA', { accountId });
     }
 
     const start = new Date(startDate);
@@ -107,7 +108,7 @@ export class LedgersService {
   async findOne(id: string, organizationId: string): Promise<Ledger> {
     const ledger = await this.ledgerRepository.findOne({ where: { id, organizationId } });
     if (!ledger) {
-      throw new NotFoundException(`Libro contable con ID "${id}" no encontrado.`);
+      throw new NotFoundError('ACCOUNTING.LIBRO_CONTABLE_ID_NO_ENCONTRADO', { id });
     }
     return ledger;
   }

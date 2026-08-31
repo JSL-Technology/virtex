@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { DataSource, In, Between } from 'typeorm';
 import { AccountingPeriod } from './entities/accounting-period.entity';
 import {
@@ -17,6 +17,7 @@ import {
   ApprovalRequest,
   ApprovalStatus,
 } from '../workflows/entities/approval-request.entity';
+import { NotFoundError } from '../i18n/localized.exception';
 
 export interface ChecklistItem {
   id: string;
@@ -44,9 +45,7 @@ export class ClosingChecklistService {
       .getRepository(AccountingPeriod)
       .findOneBy({ id: periodId, organizationId });
     if (!period) {
-      throw new NotFoundException(
-        `Período contable con ID "${periodId}" no encontrado.`,
-      );
+      throw new NotFoundError('ACCOUNTING.PERIODO_CONTABLE_ID_NO_ENCONTRADO', { periodId });
     }
 
     const checklist: ChecklistItem[] = [];

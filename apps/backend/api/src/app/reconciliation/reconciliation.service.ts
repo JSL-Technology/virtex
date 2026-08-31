@@ -1,10 +1,5 @@
 
-import {
-  Injectable,
-  BadRequestException,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   BankStatement,
@@ -32,6 +27,7 @@ import { Ledger } from '../accounting/entities/ledger.entity';
 import { CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
 import { FastifyFile } from '../common/interfaces/fastify-file.interface';
 import { readFile } from 'fs/promises';
+import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class ReconciliationService {
@@ -60,9 +56,7 @@ export class ReconciliationService {
       where: { id: dto.accountId, organizationId },
     });
     if (!account) {
-      throw new BadRequestException(
-        'La cuenta bancaria especificada no es válida.',
-      );
+      throw new BadRequestError('RECONCILIATION.CUENTA_BANCARIA_ESPECIFICADA_NO_ES_VALIDA');
     }
 
     const newStatement = this.statementRepository.create({
@@ -81,7 +75,7 @@ export class ReconciliationService {
     try {
       const bytes = file.buffer ?? (file.path ? await readFile(file.path) : undefined);
       if (!bytes) {
-        throw new BadRequestException('El archivo subido está vacío o no se pudo leer.');
+        throw new BadRequestError('RECONCILIATION.ARCHIVO_SUBIDO_ESTA_VACIO_NO_PUDO_LEER');
       }
 
       const transactions = await this.csvParser.parse(bytes, {
@@ -105,9 +99,7 @@ export class ReconciliationService {
       this.logger.error('Fallo al procesar el archivo CSV', (error as Error).stack);
       savedStatement.status = StatementStatus.FAILED;
       await this.statementRepository.save(savedStatement);
-      throw new BadRequestException(
-        'El formato del archivo CSV no es válido, está corrupto, o el mapeo de columnas es incorrecto.',
-      );
+      throw new BadRequestError('RECONCILIATION.FORMATO_ARCHIVO_CSV_NO_ES_VALIDO_ESTA');
     }
 
     const finalStatement = await this.statementRepository.save(savedStatement);
@@ -137,7 +129,7 @@ export class ReconciliationService {
     });
 
     if (!statement) {
-      throw new NotFoundException('Estado de cuenta no encontrado.');
+      throw new NotFoundError('RECONCILIATION.ESTADO_CUENTA_NO_ENCONTRADO');
     }
 
     const searchStartDate = subDays(statement.startDate, 30);
@@ -193,7 +185,7 @@ export class ReconciliationService {
       
       const reconciliationJournal = await manager.findOneBy(Journal, { organizationId, code: 'CONCIL' });
       if (!reconciliationJournal) {
-          throw new BadRequestException('Diario de Conciliación (CONCIL) no encontrado.');
+          throw new BadRequestError('RECONCILIATION.DIARIO_CONCILIACION_CONCIL_NO_ENCONTRADO');
       }
 
       const rules = await manager.findBy(ReconciliationRule, { organizationId });
@@ -266,7 +258,7 @@ export class ReconciliationService {
       return this.dataSource.transaction(async manager => {
         const statement = await manager.findOneBy(BankStatement, { id: statementId, organizationId });
         if (!statement) {
-            throw new NotFoundException('Estado de cuenta no encontrado.');
+            throw new NotFoundError('RECONCILIATION.ESTADO_CUENTA_NO_ENCONTRADO');
         }
 
         for(const match of matches) {
@@ -274,7 +266,7 @@ export class ReconciliationService {
             const journalLine = await manager.findOneBy(JournalEntryLine, { id: match.journalEntryLineId });
 
             if (!bankTx || !journalLine) {
-                throw new BadRequestException(`La transacción bancaria o el asiento contable especificado no es válido (ID Tx: ${match.bankTransactionId}, ID Asiento: ${match.journalEntryLineId})`);
+                throw new BadRequestError('RECONCILIATION.TRANSACCION_BANCARIA_ASIENTO_CONTABLE_ESPECIFICADO_NO_ES', { bankTransactionId: match.bankTransactionId, journalEntryLineId: match.journalEntryLineId });
             }
             if (bankTx.status !== TransactionStatus.UNRECONCILED) {
                 this.logger.warn(`Intento de conciliar una transacción ya procesada: ${bankTx.id}`);

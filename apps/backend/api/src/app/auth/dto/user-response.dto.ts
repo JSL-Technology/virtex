@@ -177,6 +177,17 @@ export class UserResponseDto implements AuthUserContract {
   @Expose()
   preferredLanguage: LanguageCode | null;
 
+  /**
+   * Country, currency, timezone and formatting locale for this session.
+   *
+   * Filled by `LocaleInterceptor` rather than by the twenty-odd `plainToInstance` call sites, so
+   * there is no call site that can forget it. `@Expose()` without a source property because the
+   * value is computed at the edge, not read off the entity.
+   */
+  @ApiPropertyOptional()
+  @Expose()
+  localeContext: LocaleContextContract | null;
+
   // ---- Account state ----
   @ApiProperty()
   @Expose()

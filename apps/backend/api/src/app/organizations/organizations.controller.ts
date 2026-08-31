@@ -26,6 +26,7 @@ import { UsersService } from '../users/users.service';
 import { UserResponseDto } from '../auth/dto/user-response.dto';
 import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { ForbiddenError } from '../i18n/localized.exception';
 
 @Controller('organizations')
 @UseGuards(JwtAuthGuard)
@@ -80,12 +81,12 @@ export class OrganizationsController {
     if (!(await this.membershipService.isMember(user.id, dto.organizationId))) {
       // Same message whether the organization does not exist or the user is simply not a member,
       // so the endpoint cannot be used to enumerate tenants by id.
-      throw new ForbiddenException('No tienes acceso a esa organización.');
+      throw new ForbiddenError('ORGANIZATIONS.NO_TIENES_ACCESO_ESA_ORGANIZACION');
     }
 
     const fullUser = await this.usersService.findUserByIdForAuth(user.id);
     if (!fullUser) {
-      throw new ForbiddenException('No tienes acceso a esa organización.');
+      throw new ForbiddenError('ORGANIZATIONS.NO_TIENES_ACCESO_ESA_ORGANIZACION');
     }
 
     // The session being replaced. Switching tenant issues a NEW session family, so without

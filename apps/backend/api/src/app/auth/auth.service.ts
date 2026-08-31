@@ -1,12 +1,5 @@
 
-import {
-  Injectable,
-  UnauthorizedException,
-  BadRequestException,
-  ForbiddenException,
-  Logger,
-  Inject,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException, Logger, Inject } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -34,6 +27,7 @@ import { StepUpScope } from './enums/step-up-scope.enum';
 import { EnterpriseSsoService } from './services/enterprise-sso.service';
 import { OidcProviderService } from './services/oidc-provider.service';
 import { AtomicCacheService } from '../cache/atomic-cache.service';
+import { BadRequestError, ForbiddenError, UnauthorizedError } from '../i18n/localized.exception';
 
 export type LoginResult = LoginResultDto;
 
@@ -303,12 +297,12 @@ export class AuthService {
     }>(key);
 
     if (!session || Date.now() > session.expiresAt) {
-      throw new UnauthorizedException('Invalid or expired 2FA session');
+      throw new UnauthorizedError('AUTH.INVALID_OR_EXPIRED_2FA_SESSION');
     }
 
     if (session.attempts >= AuthService.PENDING_MAX_ATTEMPTS) {
       await this.cacheManager.del(key);
-      throw new UnauthorizedException('Too many 2FA attempts — please log in again');
+      throw new UnauthorizedError('AUTH.TOO_MANY_2FA_ATTEMPTS_PLEASE_LOG_IN');
     }
 
     const currentIpHash = ipAddress
@@ -333,18 +327,18 @@ export class AuthService {
         '[SECURITY] 2FA pending session context changed. Invalidating session.',
       );
       await this.cacheManager.del(key);
-      throw new UnauthorizedException('Session context changed — please log in again');
+      throw new UnauthorizedError('AUTH.SESSION_CONTEXT_CHANGED_PLEASE_LOG_IN_AGAIN');
     }
 
     const user = await this.usersService.findUserByIdForAuth(session.userId);
     if (!user || !user.security) {
       await this.cacheManager.del(key);
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedError('AUTH.USER_NOT_FOUND');
     }
 
     if ((user.security.tokenVersion ?? 0) !== session.tokenVersion) {
       await this.cacheManager.del(key);
-      throw new UnauthorizedException('Session invalidated — please log in again');
+      throw new UnauthorizedError('AUTH.SESSION_INVALIDATED_PLEASE_LOG_IN_AGAIN');
     }
 
     // Count this attempt. The session is NOT deleted here.
@@ -442,7 +436,7 @@ export class AuthService {
 
       const userWithSec = await this.usersService.findUserByIdForAuth(userId);
       if (!userWithSec) {
-          throw new UnauthorizedException('Invalid credentials');
+          throw new UnauthorizedError('AUTH.INVALID_CREDENTIALS');
       }
 
       const twoFactorEnabled = Boolean(userWithSec.security?.isTwoFactorEnabled);
@@ -450,14 +444,12 @@ export class AuthService {
 
       if (twoFactorEnabled) {
           if (!credentials.otpCode) {
-              throw new BadRequestException(
-                  'Se requiere un código de verificación para confirmar esta acción.',
-              );
+              throw new BadRequestError('AUTH.REQUIERE_CODIGO_VERIFICACION_CONFIRMAR_ESTA_ACCION');
           }
           isValid = await this.twoFactorAuthService.verifyCode(userWithSec, credentials.otpCode);
       } else if (userWithSec.security?.passwordHash) {
           if (!credentials.password) {
-              throw new BadRequestException('Se requiere tu contraseña para confirmar esta acción.');
+              throw new BadRequestError('AUTH.REQUIERE_TU_CONTRASENA_CONFIRMAR_ESTA_ACCION');
           }
           isValid = await this.passwordService.verify(
               userWithSec.security.passwordHash,
@@ -476,9 +468,7 @@ export class AuthService {
           // billing portal, change its own email, or enrol any second factor at all. For a product
           // sold to enterprises, that is the whole enterprise segment with no administration.
           await this.passwordService.verifyDummy(credentials.password ?? '');
-          throw new ForbiddenException(
-              'Esta cuenta se autentica con tu proveedor de identidad. Confirma la acción volviendo a iniciar sesión con él.',
-          );
+          throw new ForbiddenError('AUTH.ESTA_CUENTA_AUTENTICA_TU_PROVEEDOR_IDENTIDAD_CONFIRMA');
       }
 
       if (!isValid) {
@@ -647,9 +637,7 @@ export class AuthService {
               { event: 'step_up_rate_limited', userId },
               '[SECURITY] Step-up re-authentication rate limit reached',
           );
-          throw new ForbiddenException(
-              'Demasiados intentos de verificación. Espera 5 minutos e inténtalo de nuevo.',
-          );
+          throw new ForbiddenError('AUTH.DEMASIADOS_INTENTOS_VERIFICACION_ESPERA_MINUTOS_INTENTALO_NUEVO');
       }
   }
 

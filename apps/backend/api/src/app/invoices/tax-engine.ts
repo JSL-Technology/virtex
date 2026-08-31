@@ -1,5 +1,6 @@
-import { BadRequestException } from '@nestjs/common';
+
 import { COUNTRY_TAX_SCHEMES } from '../localization/fiscal/country-tax-schemes';
+import { BadRequestError } from '../i18n/localized.exception';
 
 /**
  * Server-side tax validation.
@@ -35,8 +36,6 @@ export function assertAllowedTaxRate(
   const ok = allowed.some((r) => Math.abs(r - requestedFraction) < EPSILON);
   if (!ok) {
     const list = allowed.map((r) => `${(r * 100).toFixed(0)}%`).join(', ');
-    throw new BadRequestException(
-      `La tasa de impuesto ${(requestedFraction * 100).toFixed(2)}% no es válida para ${countryCode}. Tasas permitidas: ${list}.`,
-    );
+    throw new BadRequestError('INVOICES.TASA_IMPUESTO_NO_ES_VALIDA_TASAS_PERMITIDAS', { p1: (requestedFraction * 100).toFixed(2), countryCode, list });
   }
 }

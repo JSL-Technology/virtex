@@ -1,4 +1,4 @@
-import { Injectable, ForbiddenException, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as crypto from 'crypto';
@@ -6,6 +6,7 @@ import { User, UserStatus } from '../../users/entities/user.entity/user.entity';
 import { UserCacheService } from '../modules/user-cache.service';
 import { hasPermission } from '@virteex/shared/util-auth';
 import { AuthenticatedUser } from '../interfaces/authenticated-user.interface';
+import { BadRequestError, ForbiddenError, NotFoundError } from '../../i18n/localized.exception';
 
 @Injectable()
 export class ImpersonationService {
@@ -44,9 +45,7 @@ export class ImpersonationService {
 
     // The wildcard is absolute: only another super-admin may assume it.
     if (targetPermissions.includes('*') && !actorPermissions.includes('*')) {
-      throw new ForbiddenException(
-        'No puedes suplantar a un usuario con privilegios totales (*).',
-      );
+      throw new ForbiddenError('AUTH.NO_PUEDES_SUPLANTAR_USUARIO_PRIVILEGIOS_TOTALES');
     }
 
     for (const permission of targetPermissions) {
@@ -54,9 +53,7 @@ export class ImpersonationService {
       // 'users:*' legitimately covers a target's 'users:read'. This keeps the decision
       // consistent with PermissionsGuard and RolesService.
       if (!hasPermission(actorPermissions, [permission])) {
-        throw new ForbiddenException(
-          'No puedes suplantar a un usuario con permisos que tú no posees.',
-        );
+        throw new ForbiddenError('AUTH.NO_PUEDES_SUPLANTAR_USUARIO_PERMISOS_TU_NO');
       }
     }
   }
@@ -72,13 +69,11 @@ export class ImpersonationService {
     // Impersonating while already impersonating would make the audit trail ambiguous about who
     // the real operator is, and would let a chain launder privileges one hop at a time.
     if (adminUser.isImpersonating) {
-      throw new ForbiddenException(
-        'Ya estás suplantando a otro usuario. Finaliza la sesión actual antes de iniciar otra.',
-      );
+      throw new ForbiddenError('AUTH.YA_ESTAS_SUPLANTANDO_OTRO_USUARIO_FINALIZA_SESION');
     }
 
     if (adminUser.id === targetUserId) {
-      throw new BadRequestException('No puedes suplantarte a ti mismo.');
+      throw new BadRequestError('AUTH.NO_PUEDES_SUPLANTARTE_TI_MISMO');
     }
 
     const actorPermissions = this.permissionsOf(adminUser);
@@ -87,7 +82,7 @@ export class ImpersonationService {
         { event: 'impersonation_denied', adminId: adminUser.id, reason: 'missing_permission' },
         '[SECURITY] Impersonation denied',
       );
-      throw new ForbiddenException('No tienes permisos para suplantar usuarios.');
+      throw new ForbiddenError('AUTH.NO_TIENES_PERMISOS_SUPLANTAR_USUARIOS');
     }
 
     const targetUser = await this.userRepository.findOne({
@@ -96,7 +91,7 @@ export class ImpersonationService {
     });
 
     if (!targetUser) {
-      throw new NotFoundException('El usuario a suplantar no fue encontrado.');
+      throw new NotFoundError('AUTH.USUARIO_SUPLANTAR_NO_FUE_ENCONTRADO');
     }
 
     // Strict tenant isolation: impersonation must never cross an organization boundary.
@@ -107,12 +102,12 @@ export class ImpersonationService {
       );
       // Deliberately the same message as "not found" would be, so this cannot be used to probe
       // for the existence of user ids in other tenants.
-      throw new NotFoundException('El usuario a suplantar no fue encontrado.');
+      throw new NotFoundError('AUTH.USUARIO_SUPLANTAR_NO_FUE_ENCONTRADO');
     }
 
     // Assuming a suspended or archived account would resurrect access that was deliberately cut.
     if (targetUser.status !== UserStatus.ACTIVE) {
-      throw new ForbiddenException('No puedes suplantar a un usuario que no está activo.');
+      throw new ForbiddenError('AUTH.NO_PUEDES_SUPLANTAR_USUARIO_NO_ESTA_ACTIVO');
     }
 
     this.assertNoPrivilegeGain(actorPermissions, targetUser);
@@ -126,9 +121,7 @@ export class ImpersonationService {
 
   async validateStopImpersonation(impersonatingUser: AuthenticatedUser): Promise<User> {
     if (!impersonatingUser.isImpersonating || !impersonatingUser.originalUserId) {
-      throw new BadRequestException(
-        'No se encontró una sesión de suplantación activa para detener.',
-      );
+      throw new BadRequestError('AUTH.NO_ENCONTRO_SESION_SUPLANTACION_ACTIVA_DETENER');
     }
 
     const adminUser = await this.userRepository.findOne({
@@ -137,10 +130,10 @@ export class ImpersonationService {
     });
 
     if (!adminUser) {
-      throw new NotFoundException('La cuenta del administrador original no fue encontrada.');
+      throw new NotFoundError('AUTH.CUENTA_ADMINISTRADOR_ORIGINAL_NO_FUE_ENCONTRADA');
     }
     if (adminUser.status !== UserStatus.ACTIVE) {
-      throw new ForbiddenException('La cuenta del administrador original ya no está activa.');
+      throw new ForbiddenError('AUTH.CUENTA_ADMINISTRADOR_ORIGINAL_YA_NO_ESTA_ACTIVA');
     }
 
     await this.userCacheService.clearUserSession(impersonatingUser.id);

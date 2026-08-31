@@ -1,5 +1,5 @@
 
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { EntityManager, Repository } from 'typeorm';
@@ -7,6 +7,7 @@ import { NcfSequence, NcfType } from './entities/ncf-sequence.entity';
 import { VendorBill } from '../accounts-payable/entities/vendor-bill.entity';
 import { Invoice } from '../invoices/entities/invoice.entity';
 import { DominicanRepublicReports } from './reports/dr-reports';
+import { InternalServerError } from '../i18n/localized.exception';
 
 @Injectable()
 export class ComplianceService {
@@ -35,7 +36,7 @@ export class ComplianceService {
       .getOne();
 
     if (!sequence) {
-      throw new InternalServerErrorException(`No se encontró una secuencia de NCF activa para el tipo ${type}`);
+      throw new InternalServerError('COMPLIANCE.NO_ENCONTRO_SECUENCIA_NCF_ACTIVA_TIPO', { type });
     }
 
     // `starts_at`, `ends_at` and `current_sequence` are `bigint` columns, which the driver returns
@@ -46,19 +47,17 @@ export class ComplianceService {
     const current = Number(sequence.currentSequence);
     const end = Number(sequence.endsAt);
     if (!Number.isFinite(current) || !Number.isFinite(end)) {
-      throw new InternalServerErrorException(`La secuencia de NCF para el tipo ${type} tiene límites no numéricos.`);
+      throw new InternalServerError('COMPLIANCE.SECUENCIA_NCF_TIPO_TIENE_LIMITES_NO_NUMERICOS', { type });
     }
 
     if (current >= end) {
-      throw new InternalServerErrorException(`La secuencia de NCF para el tipo ${type} se ha agotado.`);
+      throw new InternalServerError('COMPLIANCE.SECUENCIA_NCF_TIPO_HA_AGOTADO', { type });
     }
 
     if (sequence.expiresAt) {
       const today = new Date().toISOString().split('T')[0];
       if (sequence.expiresAt < today) {
-        throw new InternalServerErrorException(
-          `La autorización de la secuencia de NCF para el tipo ${type} venció el ${sequence.expiresAt}.`,
-        );
+        throw new InternalServerError('COMPLIANCE.AUTORIZACION_SECUENCIA_NCF_TIPO_VENCIO', { type, expiresAt: sequence.expiresAt });
       }
     }
 
@@ -85,7 +84,7 @@ export class ComplianceService {
   ): Promise<NcfSequence> {
     const { type, prefix, startsAt, endsAt } = input;
     if (!Number.isInteger(startsAt) || !Number.isInteger(endsAt) || startsAt < 1 || endsAt < startsAt) {
-      throw new InternalServerErrorException('El rango de la secuencia NCF es inválido (startsAt/endsAt).');
+      throw new InternalServerError('COMPLIANCE.RANGO_SECUENCIA_NCF_ES_INVALIDO_STARTSAT_ENDSAT');
     }
 
     return this.ncfSequenceRepository.manager.transaction(async (manager) => {

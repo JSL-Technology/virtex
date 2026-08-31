@@ -1,5 +1,5 @@
 
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { RecurringJournalEntry, Frequency } from './entities/recurring-journal-entry.entity';
@@ -8,6 +8,7 @@ import { CreateRecurringJournalEntryDto, UpdateRecurringJournalEntryDto } from '
 import { addDays, addMonths, addYears, isSameDay, isLastDayOfMonth } from 'date-fns';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { NotFoundError } from '../i18n/localized.exception';
 
 export interface RecurringJobData {
     recurringEntryId: string;
@@ -42,7 +43,7 @@ export class RecurringJournalEntriesService {
   async findOne(id: string, organizationId: string): Promise<RecurringJournalEntry> {
     const entry = await this.recurringRepository.findOneBy({ id, organizationId });
     if (!entry) {
-      throw new NotFoundException(`Plantilla de asiento recurrente con ID "${id}" no encontrada.`);
+      throw new NotFoundError('JOURNAL_ENTRIES.PLANTILLA_ASIENTO_RECURRENTE_ID_NO_ENCONTRADA', { id });
     }
     return entry;
   }
@@ -56,7 +57,7 @@ export class RecurringJournalEntriesService {
   async remove(id: string, organizationId: string): Promise<void> {
     const result = await this.recurringRepository.delete({ id, organizationId });
     if (result.affected === 0) {
-      throw new NotFoundException(`Plantilla de asiento recurrente con ID "${id}" no encontrada.`);
+      throw new NotFoundError('JOURNAL_ENTRIES.PLANTILLA_ASIENTO_RECURRENTE_ID_NO_ENCONTRADA', { id });
     }
   }
 

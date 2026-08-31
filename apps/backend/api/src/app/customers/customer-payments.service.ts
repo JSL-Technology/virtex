@@ -1,5 +1,5 @@
 
-import { Injectable, BadRequestException, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, In } from 'typeorm';
 import { CustomerPayment } from './entities/customer-payment.entity';
@@ -11,6 +11,7 @@ import { OrganizationSettings } from '../organizations/entities/organization-set
 import { Journal } from '../journal-entries/entities/journal.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
+import { BadRequestError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class CustomerPaymentsService {
@@ -36,17 +37,17 @@ export class CustomerPaymentsService {
         const { customerId, bankAccountId, lines, paymentDate, reference } = dto;
 
         const customer = await queryRunner.manager.findOneBy(Customer, { id: customerId, organizationId });
-        if (!customer) throw new NotFoundException('Cliente no encontrado.');
+        if (!customer) throw new NotFoundError('CUSTOMERS.CLIENTE_NO_ENCONTRADO');
         
         const defaultLedger = await queryRunner.manager.findOneBy(Ledger, { organizationId, isDefault: true });
         if (!defaultLedger) {
-            throw new BadRequestException('No se ha configurado un libro contable por defecto para la organización.');
+            throw new BadRequestError('CUSTOMERS.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION');
         }
 
         const invoiceIds = lines.map(l => l.invoiceId);
         const invoices = await queryRunner.manager.find(Invoice, { where: { id: In(invoiceIds), customerId } });
         if (invoices.length !== invoiceIds.length) {
-            throw new BadRequestException('Una o más facturas no son válidas o no pertenecen al cliente especificado.');
+            throw new BadRequestError('CUSTOMERS.MAS_FACTURAS_NO_SON_VALIDAS_NO_PERTENECEN');
         }
 
         const totalPaymentAmount = lines.reduce((sum, line) => sum + line.amount, 0);
@@ -68,11 +69,11 @@ export class CustomerPaymentsService {
         for (const line of lines) {
             const invoice = invoices.find(inv => inv.id === line.invoiceId);
             if (!invoice) {
-                throw new NotFoundException(`Factura con ID ${line.invoiceId} no encontrada en el lote.`);
+                throw new NotFoundError('CUSTOMERS.FACTURA_ID_NO_ENCONTRADA_LOTE', { invoiceId: line.invoiceId });
             }
 
             if (line.amount > invoice.balance) {
-                throw new BadRequestException(`El monto del pago para la factura ${invoice.invoiceNumber} (${line.amount}) excede su saldo pendiente (${invoice.balance}).`);
+                throw new BadRequestError('CUSTOMERS.MONTO_PAGO_FACTURA_EXCEDE_SALDO_PENDIENTE', { invoiceNumber: invoice.invoiceNumber, amount: line.amount, balance: invoice.balance });
             }
 
             invoice.balance -= line.amount;
@@ -87,16 +88,16 @@ export class CustomerPaymentsService {
         
         const settings = await queryRunner.manager.findOneBy(OrganizationSettings, { organizationId });
         if (!settings || !settings.defaultAccountsReceivableId) {
-            throw new BadRequestException('La cuenta por cobrar por defecto no está configurada para la organización.');
+            throw new BadRequestError('CUSTOMERS.CUENTA_COBRAR_DEFECTO_NO_ESTA_CONFIGURADA_ORGANIZACION');
         }
         
         const paymentJournal = await queryRunner.manager.findOneBy(Journal, { organizationId, code: 'COBROS' });
         if (!paymentJournal) {
-            throw new BadRequestException('Diario de Cobros (COBROS) no encontrado. Por favor, cree un diario con este código.');
+            throw new BadRequestError('CUSTOMERS.DIARIO_COBROS_COBROS_NO_ENCONTRADO_FAVOR_CREE');
         }
 
         if (!queryRunner) {
-          throw new InternalServerErrorException('No se pudo obtener el Query Runner de la transacción.');
+          throw new InternalServerError('CUSTOMERS.NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION');
         }
         
         const entryDto: CreateJournalEntryDto = {

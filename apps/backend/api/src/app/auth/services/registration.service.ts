@@ -1,5 +1,5 @@
 
-import { ConflictException, Inject, Injectable, InternalServerErrorException, Logger, ForbiddenException, BadRequestException, forwardRef } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
 import { createHash } from 'crypto';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository, EntityManager } from 'typeorm';
@@ -31,6 +31,7 @@ import { MembershipService } from '../../organizations/services/membership.servi
 import { canonicalizeTaxId } from '../../localization/fiscal/tax-id-validators';
 import { normalizeFiscalFields } from '../../localization/fiscal/country-profiles';
 import { PaymentService } from '../../payment/payment.service';
+import { BadRequestError, ConflictError, ForbiddenError, InternalServerError } from '../../i18n/localized.exception';
 
 /** Subscription facts captured from Stripe when a pending registration is completed. */
 export interface CompletedSubscriptionInfo {
@@ -132,7 +133,7 @@ export class RegistrationService {
       if (!recaptchaResult.success) {
         const emailHash = createHash('sha256').update(email.toLowerCase().trim()).digest('hex').slice(0, 12);
         this.logger.warn({ event: 'recaptcha_failed', emailHash, errors: recaptchaResult.errors }, 'Recaptcha validation failed');
-        throw new ForbiddenException('Error de validación de seguridad (reCAPTCHA).');
+        throw new ForbiddenError('AUTH.ERROR_VALIDACION_SEGURIDAD_RECAPTCHA');
       }
     }
 
@@ -142,14 +143,14 @@ export class RegistrationService {
     }
 
     if (!emailVerificationCode) {
-      throw new BadRequestException('El código de verificación de correo es obligatorio.');
+      throw new BadRequestError('AUTH.CODIGO_VERIFICACION_CORREO_ES_OBLIGATORIO');
     }
     await this.verifyCode(email, VerificationType.EMAIL_VERIFY, emailVerificationCode);
 
     if (phone && phoneVerificationCode) {
       await this.verifyCode(phone, VerificationType.PHONE_VERIFY, phoneVerificationCode);
     } else if (phone && !phoneVerificationCode) {
-      throw new BadRequestException('El código de verificación de celular es obligatorio.');
+      throw new BadRequestError('AUTH.CODIGO_VERIFICACION_CELULAR_ES_OBLIGATORIO');
     }
 
     // The country's registration rules are not conditional on anything. This used to run only
@@ -177,9 +178,7 @@ export class RegistrationService {
         { event: 'fiscal_region_missing', countryCode },
         '[REGISTRATION] Supported country has no fiscal_regions row; boot seeding failed.',
       );
-      throw new InternalServerErrorException(
-        'La configuración fiscal de ese país no está disponible en este momento.',
-      );
+      throw new InternalServerError('AUTH.CONFIGURACION_FISCAL_ESE_PAIS_NO_ESTA_DISPONIBLE');
     }
     return region.id;
   }
@@ -235,7 +234,7 @@ export class RegistrationService {
       }
       const existingOrg = await manager.findOne(Organization, { where: whereClause });
       if (existingOrg) {
-        throw new ConflictException('No se pudo completar el registro. Verifique que los datos sean correctos o contacte soporte.');
+        throw new ConflictError('AUTH.NO_PUDO_COMPLETAR_REGISTRO_VERIFIQUE_DATOS_SEAN');
       }
     }
 
@@ -269,7 +268,7 @@ export class RegistrationService {
 
     const adminRole = roleEntities.find((r) => r.name === RoleEnum.ADMINISTRATOR);
     if (!adminRole) {
-      throw new InternalServerErrorException('No se pudo encontrar el rol de administrador predeterminado.');
+      throw new InternalServerError('AUTH.NO_PUDO_ENCONTRAR_ROL_ADMINISTRADOR_PREDETERMINADO');
     }
 
     let user: User;
@@ -515,7 +514,7 @@ export class RegistrationService {
     return this.dataSource.transaction(async (manager) => {
       const pending = await manager.findOne(PendingRegistration, { where: { id: pendingId } });
       if (!pending) {
-        throw new BadRequestException('Registro pendiente no encontrado o expirado.');
+        throw new BadRequestError('AUTH.REGISTRO_PENDIENTE_NO_ENCONTRADO_EXPIRADO');
       }
 
       // Idempotency: the Stripe webhook and the browser's confirm call race each other, and both
@@ -583,9 +582,7 @@ export class RegistrationService {
           { event: 'registration_plan_missing', pendingId, planSlug: pending.planSlug },
           '[BILLING] Paid registration references a plan that does not exist.',
         );
-        throw new InternalServerErrorException(
-          `No se pudo activar tu plan. Tu pago está registrado y lo estamos revirtiendo automáticamente. Referencia: ${pendingId}.`,
-        );
+        throw new InternalServerError('AUTH.NO_PUDO_ACTIVAR_TU_PLAN_TU_PAGO', { pendingId });
       }
       organization.plan = plan;
       organization.planId = plan.id;
@@ -616,10 +613,10 @@ export class RegistrationService {
           secret: AuthConfig.JWT_PREVERIFY_SECRET,
         });
       } catch {
-        throw new BadRequestException('El código de verificación ha expirado o no es válido.');
+        throw new BadRequestError('AUTH.CODIGO_VERIFICACION_HA_EXPIRADO_NO_ES_VALIDO');
       }
       if (payload.type !== 'VERIFICATION_PRE_VERIFIED' || payload.sub !== target || payload.verType !== type) {
-        throw new BadRequestException('El código de verificación no coincide.');
+        throw new BadRequestError('AUTH.CODIGO_VERIFICACION_NO_COINCIDE');
       }
     } else {
       await this.mfaOrchestratorService.verifyPublicCode(target, type, code);

@@ -1,8 +1,9 @@
-import { BadRequestException, Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
+import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { createHash } from 'crypto';
 import { Twilio } from 'twilio';
 import { AuthConfig } from '../auth.config';
 import { AbstractSmsProvider } from './abstract-sms.provider';
+import { BadRequestError } from '../../i18n/localized.exception';
 
 /**
  * Tidy an E.164 number for the provider, without guessing a country.
@@ -20,9 +21,7 @@ import { AbstractSmsProvider } from './abstract-sms.provider';
 export function normalizeToE164(phone: string): string {
   const stripped = phone.replace(/[\s\-().]/g, '');
   if (!/^\+[1-9]\d{6,14}$/.test(stripped)) {
-    throw new BadRequestException(
-      'El número debe estar en formato internacional E.164, incluyendo el código de país (por ejemplo, +528112345678).',
-    );
+    throw new BadRequestError('AUTH.NUMERO_DEBE_ESTAR_FORMATO_INTERNACIONAL_164_INCLUYENDO');
   }
   return stripped;
 }

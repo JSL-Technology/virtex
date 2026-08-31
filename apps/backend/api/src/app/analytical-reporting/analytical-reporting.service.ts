@@ -1,8 +1,9 @@
 
-import { Injectable, Logger, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { AnalyticalQueryDto, PaginationOptionsDto } from './dto/analytical-query.dto';
 import { Dimension } from '../dimensions/entities/dimension.entity';
+import { BadRequestError } from '../i18n/localized.exception';
 
 @Injectable()
 export class AnalyticalReportingService {
@@ -78,7 +79,7 @@ export class AnalyticalReportingService {
     } catch (error) {
       await queryRunner.rollbackTransaction();
       this.logger.error('Fallo la sincronización de la vista materializada.', (error as Error).stack);
-      throw new BadRequestException(`No se pudo sincronizar la vista analítica: ${(error as Error).message}`);
+      throw new BadRequestError('ANALYTICAL_REPORTING.NO_PUDO_SINCRONIZAR_VISTA_ANALITICA', { p1: (error as Error).message });
     } finally {
       await queryRunner.release();
     }
@@ -117,11 +118,11 @@ export class AnalyticalReportingService {
           qb.andWhere(`${sanitizedField} != :${paramName}`, { [paramName]: filter.value });
           break;
         case 'in':
-          if (!Array.isArray(filter.value)) throw new BadRequestException(`El valor para el operador 'in' debe ser un array.`);
+          if (!Array.isArray(filter.value)) throw new BadRequestError('ANALYTICAL_REPORTING.VALOR_OPERADOR_IN_DEBE_SER_ARRAY');
           qb.andWhere(`${sanitizedField} IN (:...${paramName})`, { [paramName]: filter.value });
           break;
         default:
-          throw new BadRequestException(`Operador de filtro no soportado: ${filter.operator}`);
+          throw new BadRequestError('ANALYTICAL_REPORTING.OPERADOR_FILTRO_NO_SOPORTADO', { operator: filter.operator });
       }
     });
 
@@ -173,7 +174,7 @@ export class AnalyticalReportingService {
 
   private sanitizeColumnName(name: string): string {
     if (!/^[a-zA-Z0-9_ ]+$/.test(name)) {
-      throw new BadRequestException(`El nombre de dimensión o campo contiene caracteres no válidos: ${name}`);
+      throw new BadRequestError('ANALYTICAL_REPORTING.NOMBRE_DIMENSION_CAMPO_CONTIENE_CARACTERES_NO_VALIDOS', { name });
     }
     return name.replace(/ /g, '_').toLowerCase();
   }

@@ -1,11 +1,12 @@
 
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Lead } from '../entities/lead.entity';
 import { CreateLeadDto } from '../dto/create-lead.dto';
 import { Opportunity } from '../entities/opportunity.entity';
 import { Customer, CustomerStatus } from '../../customers/entities/customer.entity';
+import { NotFoundError } from '../../i18n/localized.exception';
 
 @Injectable()
 export class LeadsService {
@@ -27,7 +28,7 @@ export class LeadsService {
   async convertLeadToOpportunity(leadId: string, organizationId: string): Promise<Opportunity> {
     const lead = await this.leadRepository.findOneBy({ id: leadId, organizationId });
     if (!lead) {
-      throw new NotFoundException('Lead no encontrado.');
+      throw new NotFoundError('SALES.LEAD_NO_ENCONTRADO');
     }
 
 

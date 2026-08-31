@@ -33,7 +33,7 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false
   },
-  "include": ["src/**/*.ts", "../../../libs/shared/util-auth/src/**/*.ts",
+  "include": ["src/**/*.ts", "src/app/i18n/messages/*.json", "../../../libs/shared/util-auth/src/**/*.ts",
     "../../../libs/shared/types/src/**/*.ts"],
   "exclude": [
     "../../../libs/**/*.spec.ts",

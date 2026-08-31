@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, LessThanOrEqual } from 'typeorm';
 import { Quote, QuoteStatus } from '../entities/quote.entity';
@@ -9,6 +9,7 @@ import { DocumentType } from '../../shared/document-sequences/entities/document-
 import { InvoicesService } from '../../invoices/invoices.service';
 import { OrganizationSettings } from '../../organizations/entities/organization-settings.entity';
 import { ExchangeRate } from '../../currencies/entities/exchange-rate.entity';
+import { BadRequestError, NotFoundError } from '../../i18n/localized.exception';
 
 @Injectable()
 export class QuotesService {
@@ -43,7 +44,7 @@ export class QuotesService {
                 order: { date: 'DESC' }
             });
             if (!rate) {
-              throw new BadRequestException(`No se encontró una tasa de cambio válida para ${currencyCode} en la fecha especificada.`);
+              throw new BadRequestError('SALES.NO_ENCONTRO_TASA_CAMBIO_VALIDA_FECHA_ESPECIFICADA', { currencyCode });
             }
             exchangeRate = rate.rate;
         }
@@ -74,8 +75,8 @@ export class QuotesService {
 
   async convertToInvoice(quoteId: string, organizationId: string): Promise<any> {
     const quote = await this.quoteRepository.findOneBy({ id: quoteId, organizationId });
-    if (!quote) throw new NotFoundException('Cotización no encontrada.');
-    if (quote.status !== QuoteStatus.ACCEPTED) throw new BadRequestException('Solo se pueden facturar cotizaciones aceptadas.');
+    if (!quote) throw new NotFoundError('SALES.COTIZACION_NO_ENCONTRADA');
+    if (quote.status !== QuoteStatus.ACCEPTED) throw new BadRequestError('SALES.SOLO_PUEDEN_FACTURAR_COTIZACIONES_ACEPTADAS');
 
 
     const invoiceDto = {

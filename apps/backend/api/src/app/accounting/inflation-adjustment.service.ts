@@ -1,5 +1,5 @@
 
-import { Injectable, NotFoundException, BadRequestException, Logger, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Not, Repository } from 'typeorm';
 import { InflationIndex } from './entities/inflation-index.entity';
@@ -9,6 +9,7 @@ import { JournalEntriesService } from '../journal-entries/journal-entries.servic
 import { Journal } from '../journal-entries/entities/journal.entity';
 import { CreateJournalEntryLineDto, CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
 import { Ledger } from './entities/ledger.entity';
+import { BadRequestError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class InflationAdjustmentService {
@@ -30,17 +31,17 @@ export class InflationAdjustmentService {
 
     const inflationIndex = await this.inflationIndexRepository.findOneBy({ year, month, organizationId });
     if (!inflationIndex) {
-      throw new NotFoundException(`Índice de inflación para ${year}-${month} no encontrado.`);
+      throw new NotFoundError('ACCOUNTING.INDICE_INFLACION_NO_ENCONTRADO', { year, month });
     }
 
     const settings = await this.orgSettingsRepository.findOneBy({ organizationId });
     if (!settings?.defaultInflationAdjustmentAccountId) {
-        throw new BadRequestException('La cuenta para el ajuste por inflación no está configurada.');
+        throw new BadRequestError('ACCOUNTING.CUENTA_AJUSTE_INFLACION_NO_ESTA_CONFIGURADA');
     }
 
     const defaultLedger = await this.dataSource.getRepository(Ledger).findOneBy({ organizationId, isDefault: true });
     if (!defaultLedger) {
-        throw new BadRequestException('No se ha configurado un libro contable por defecto para la organización.');
+        throw new BadRequestError('ACCOUNTING.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION');
     }
     
     const accountsToAdjust = await this.accountRepository.find({
@@ -56,7 +57,7 @@ export class InflationAdjustmentService {
     await this.dataSource.transaction(async manager => {
         const adjustmentJournal = await manager.findOneBy(Journal, { organizationId, code: 'AJU-INF' });
         if (!adjustmentJournal) {
-            throw new BadRequestException('Diario de Ajuste por Inflación (AJU-INF) no encontrado.');
+            throw new BadRequestError('ACCOUNTING.DIARIO_AJUSTE_INFLACION_AJU_INF_NO_ENCONTRADO');
         }
 
         let totalAdjustment = 0;
@@ -108,11 +109,11 @@ export class InflationAdjustmentService {
               }]
           });
         } else {
-            throw new InternalServerErrorException('La cuenta de ajuste por inflación desapareció a mitad de la transacción.');
+            throw new InternalServerError('ACCOUNTING.CUENTA_AJUSTE_INFLACION_DESAPARECIO_MITAD_TRANSACCION');
         }
 
         if (!manager.queryRunner) {
-          throw new InternalServerErrorException('No se pudo obtener el Query Runner de la transacción.');
+          throw new InternalServerError('ACCOUNTING.NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION');
         }
 
 

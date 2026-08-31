@@ -1,5 +1,5 @@
 
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In, DataSource, LessThanOrEqual } from 'typeorm';
 import { Account, AccountType, AccountCategory } from '../chart-of-accounts/entities/account.entity';
@@ -8,6 +8,7 @@ import { OrganizationSettings } from '../organizations/entities/organization-set
 import { MonthlyAccountBalance } from '../reporting/entities/monthly-account-balance.entity';
 import { subDays } from 'date-fns';
 import { Ledger } from '../accounting/entities/ledger.entity';
+import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 
 export type DimensionFilters = Record<string, string>;
 
@@ -43,12 +44,12 @@ export class FinancialReportingService {
     if (ledgerId) {
       ledger = await ledgerRepo.findOneBy({ id: ledgerId, organizationId });
       if (!ledger) {
-        throw new NotFoundException(`El libro contable con ID "${ledgerId}" no fue encontrado o no pertenece a su organización.`);
+        throw new NotFoundError('FINANCIAL_REPORTING.LIBRO_CONTABLE_ID_NO_FUE_ENCONTRADO_NO', { ledgerId });
       }
     } else {
       ledger = await ledgerRepo.findOneBy({ organizationId, isDefault: true });
       if (!ledger) {
-        throw new BadRequestException('No se ha especificado un libro contable y no hay uno configurado por defecto para la organización.');
+        throw new BadRequestError('FINANCIAL_REPORTING.NO_HA_ESPECIFICADO_LIBRO_CONTABLE_NO_HAY');
       }
     }
     return ledger;

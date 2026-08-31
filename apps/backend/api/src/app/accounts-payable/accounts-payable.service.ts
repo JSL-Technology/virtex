@@ -1,13 +1,6 @@
 
 
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-  Logger,
-  ForbiddenException,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In, DataSource, LessThanOrEqual } from 'typeorm';
 import { VendorBill, VendorBillStatus } from './entities/vendor-bill.entity';
@@ -29,6 +22,7 @@ import { BudgetControlService } from '../budgets/budget-control.service';
 import { ExchangeRate } from '../currencies/entities/exchange-rate.entity';
 import { Journal } from '../journal-entries/entities/journal.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
+import { BadRequestError, ForbiddenError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class AccountsPayableService {
@@ -70,7 +64,7 @@ export class AccountsPayableService {
             order: { date: 'DESC' }
         });
         if (!rate) {
-          throw new BadRequestException(`No se encontró una tasa de cambio válida para ${currencyCode} en la fecha especificada.`);
+          throw new BadRequestError('ACCOUNTS_PAYABLE.NO_ENCONTRO_TASA_CAMBIO_VALIDA_FECHA_ESPECIFICADA', { currencyCode });
         }
         exchangeRate = rate.rate;
     }
@@ -95,7 +89,7 @@ export class AccountsPayableService {
   async submitForApproval(billId: string, organizationId: string): Promise<VendorBill> {
     const bill = await this.findOne(billId, organizationId);
     if (bill.status !== VendorBillStatus.DRAFT) {
-        throw new BadRequestException('Solo las facturas en estado borrador pueden ser enviadas para aprobación.');
+        throw new BadRequestError('ACCOUNTS_PAYABLE.SOLO_FACTURAS_ESTADO_BORRADOR_PUEDEN_SER_ENVIADAS');
     }
 
     for (const line of bill.lines) {
@@ -104,7 +98,7 @@ export class AccountsPayableService {
             const budgetCheck = await this.budgetControlService.checkBudget(organizationId, line.expenseAccountId, line.total, bill.date);
 
             if (budgetCheck.isExceeded) {
-                throw new ForbiddenException(`Control presupuestario fallido: ${budgetCheck.message}`);
+                throw new ForbiddenError('ACCOUNTS_PAYABLE.CONTROL_PRESUPUESTARIO_FALLIDO', { message: budgetCheck.message });
             }
         }
     }
@@ -139,7 +133,7 @@ export class AccountsPayableService {
       relations: ['lines', 'vendor'],
     });
     if (!bill) {
-      throw new NotFoundException(`La factura de proveedor con ID "${id}" no fue encontrada.`);
+      throw new NotFoundError('ACCOUNTS_PAYABLE.FACTURA_PROVEEDOR_ID_NO_FUE_ENCONTRADA', { id });
     }
     return bill;
   }
@@ -151,10 +145,10 @@ export class AccountsPayableService {
   ): Promise<VendorBill> {
     const bill = await this.findOne(id, organizationId);
     if (bill.status !== VendorBillStatus.DRAFT) {
-        throw new ForbiddenException("Solo se pueden editar facturas en estado 'Borrador'.");
+        throw new ForbiddenError('ACCOUNTS_PAYABLE.SOLO_PUEDEN_EDITAR_FACTURAS_ESTADO_BORRADOR');
     }
     if(updateVendorBillDto.lines) {
-        throw new BadRequestException("La modificación de las líneas de una factura existente debe hacerse a través de notas de crédito/débito.");
+        throw new BadRequestError('ACCOUNTS_PAYABLE.MODIFICACION_LINEAS_FACTURA_EXISTENTE_DEBE_HACERSE_TRAVES');
     }
 
     const updatedBill = this.vendorBillRepository.merge(
@@ -169,13 +163,13 @@ export class AccountsPayableService {
     return this.dataSource.transaction(async (manager) => {
         const bill = await manager.findOne(VendorBill, { where: { id, organizationId }, relations: ['lines', 'vendor']});
         if (!bill) {
-            throw new NotFoundException(`Factura a anular con ID "${id}" no encontrada.`);
+            throw new NotFoundError('ACCOUNTS_PAYABLE.FACTURA_ANULAR_ID_NO_ENCONTRADA', { id });
         }
         if (bill.status === VendorBillStatus.VOID) {
-            throw new BadRequestException('La factura ya ha sido anulada.');
+            throw new BadRequestError('ACCOUNTS_PAYABLE.FACTURA_YA_HA_SIDO_ANULADA');
         }
         if (bill.status === VendorBillStatus.PAID) {
-            throw new BadRequestException('No se puede anular una factura pagada. Primero anule el pago.');
+            throw new BadRequestError('ACCOUNTS_PAYABLE.NO_PUEDE_ANULAR_FACTURA_PAGADA_PRIMERO_ANULE');
         }
 
         if (bill.status === VendorBillStatus.OPEN || bill.status === VendorBillStatus.PARTIALLY_PAID) {
@@ -198,7 +192,7 @@ export class AccountsPayableService {
   }
   
   async remove(id: string, organizationId: string): Promise<void> {
-    throw new ForbiddenException('La eliminación de facturas no está permitida. Use la función de "Anular".');
+    throw new ForbiddenError('ACCOUNTS_PAYABLE.ELIMINACION_FACTURAS_NO_ESTA_PERMITIDA_USE_FUNCION');
   }
 
   async createPaymentBatch(
@@ -210,12 +204,12 @@ export class AccountsPayableService {
     return this.dataSource.transaction(async (manager) => {
       const settings = await manager.findOneBy(OrganizationSettings, { organizationId });
       if (!settings || !settings.defaultAccountsPayableId) {
-        throw new BadRequestException('La cuenta de Cuentas por Pagar no está configurada.');
+        throw new BadRequestError('ACCOUNTS_PAYABLE.CUENTA_CUENTAS_PAGAR_NO_ESTA_CONFIGURADA');
       }
       
       const defaultLedger = await manager.findOneBy(Ledger, { organizationId, isDefault: true });
       if (!defaultLedger) {
-        throw new BadRequestException('No se ha configurado un libro contable por defecto para la organización.');
+        throw new BadRequestError('ACCOUNTS_PAYABLE.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION');
       }
 
       const billsToPay = await manager.findBy(VendorBill, {
@@ -225,7 +219,7 @@ export class AccountsPayableService {
       });
 
       if (billsToPay.length === 0) {
-        throw new BadRequestException('Ninguna de las facturas seleccionadas es válida para el pago.');
+        throw new BadRequestError('ACCOUNTS_PAYABLE.NINGUNA_FACTURAS_SELECCIONADAS_ES_VALIDA_PAGO');
       }
       if (billsToPay.length !== billIds.length) {
         this.logger.warn('Algunas facturas no se procesaron en el lote por no ser válidas.');
@@ -235,7 +229,7 @@ export class AccountsPayableService {
 
       const paymentJournal = await manager.findOneBy(Journal, { organizationId, code: 'PAGOS' });
       if (!paymentJournal) {
-          throw new BadRequestException('Diario de Pagos (PAGOS) no encontrado.');
+          throw new BadRequestError('ACCOUNTS_PAYABLE.DIARIO_PAGOS_PAGOS_NO_ENCONTRADO');
       }
 
       const newBatch = manager.create(PaymentBatch, {
@@ -262,7 +256,7 @@ export class AccountsPayableService {
       }
       
       if (!manager.queryRunner) {
-        throw new InternalServerErrorException('No se pudo obtener el Query Runner de la transacción.');
+        throw new InternalServerError('ACCOUNTS_PAYABLE.NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION');
       }
       
       const entryDto: CreateJournalEntryDto = {
@@ -314,17 +308,17 @@ export class AccountsPayableService {
       const organizationId = bill.organizationId;
       const settings = await manager.findOneBy(OrganizationSettings, { organizationId });
       if (!settings || !settings.defaultAccountsPayableId) {
-        throw new BadRequestException('La cuenta por pagar por defecto no está configurada.');
+        throw new BadRequestError('ACCOUNTS_PAYABLE.CUENTA_PAGAR_DEFECTO_NO_ESTA_CONFIGURADA');
       }
       
       const defaultLedger = await manager.findOneBy(Ledger, { organizationId, isDefault: true });
       if (!defaultLedger) {
-        throw new BadRequestException('No se ha configurado un libro contable por defecto para la organización.');
+        throw new BadRequestError('ACCOUNTS_PAYABLE.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION');
       }
       
       const purchaseJournal = await manager.findOneBy(Journal, { organizationId, code: 'COMPRAS' });
       if (!purchaseJournal) {
-          throw new BadRequestException('Diario de Compras (COMPRAS) no encontrado.');
+          throw new BadRequestError('ACCOUNTS_PAYABLE.DIARIO_COMPRAS_COMPRAS_NO_ENCONTRADO');
       }
 
       const journalLines: CreateJournalEntryLineDto[] = [];
@@ -334,13 +328,13 @@ export class AccountsPayableService {
 
         if (line.productId) {
             if(!settings.defaultInventoryId) {
-                throw new BadRequestException('La cuenta de inventario por defecto no está configurada.');
+                throw new BadRequestError('ACCOUNTS_PAYABLE.CUENTA_INVENTARIO_DEFECTO_NO_ESTA_CONFIGURADA');
             }
             accountId = settings.defaultInventoryId;
             description = `Compra de: ${line.product}`;
         } else {
             if (!line.expenseAccountId) {
-                throw new BadRequestException(`La línea "${line.product}" no es de inventario y requiere una cuenta de gasto.`);
+                throw new BadRequestError('ACCOUNTS_PAYABLE.LINEA_NO_ES_INVENTARIO_REQUIERE_CUENTA_GASTO', { product: line.product });
             }
             accountId = line.expenseAccountId;
             description = line.product;
@@ -372,7 +366,7 @@ export class AccountsPayableService {
       });
       
       if (!manager.queryRunner) {
-        throw new InternalServerErrorException('No se pudo obtener el Query Runner de la transacción.');
+        throw new InternalServerError('ACCOUNTS_PAYABLE.NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION');
       }
       
       const entryDto: CreateJournalEntryDto = {

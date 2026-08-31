@@ -1,11 +1,5 @@
 
-import {
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-  OnModuleInit,
-} from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityManager } from 'typeorm';
 import { FiscalRegion } from '../entities/fiscal-region.entity';
@@ -31,6 +25,7 @@ import {
   buildCountryCoaTemplate,
   requiresStatutoryPlanImport,
 } from '../fiscal/coa-builder';
+import { InternalServerError, NotFoundError } from '../../i18n/localized.exception';
 
 @Injectable()
 export class LocalizationService implements OnModuleInit {
@@ -180,9 +175,7 @@ export class LocalizationService implements OnModuleInit {
   async getPublicCountryConfig(countryCode: string): Promise<PublicCountryConfig> {
     const profile = findCountryProfile(countryCode);
     if (!profile) {
-      throw new NotFoundException(
-        `El país "${countryCode}" no está disponible para registro todavía.`,
-      );
+      throw new NotFoundError('LOCALIZATION.PAIS_NO_ESTA_DISPONIBLE_REGISTRO_TODAVIA', { countryCode });
     }
 
     const region = await this.findRegionByCountryCode(profile.countryCode);
@@ -193,9 +186,7 @@ export class LocalizationService implements OnModuleInit {
       this.logger.error(
         `No existe fiscal_region para ${profile.countryCode} pese a estar en COUNTRY_FISCAL_PROFILES`,
       );
-      throw new NotFoundException(
-        `La configuración fiscal de "${profile.countryCode}" no está disponible.`,
-      );
+      throw new NotFoundError('LOCALIZATION.CONFIGURACION_FISCAL_NO_ESTA_DISPONIBLE', { countryCode: profile.countryCode });
     }
 
     return {
@@ -261,9 +252,7 @@ export class LocalizationService implements OnModuleInit {
   async lookupTaxId(countryCode: string, taxId: string): Promise<TaxIdLookupResult> {
     const profile = findCountryProfile(countryCode);
     if (!profile) {
-      throw new NotFoundException(
-        `El país "${countryCode}" no está disponible para registro todavía.`,
-      );
+      throw new NotFoundError('LOCALIZATION.PAIS_NO_ESTA_DISPONIBLE_REGISTRO_TODAVIA', { countryCode });
     }
 
     if (!validateTaxId(profile.countryCode, taxId)) {
@@ -341,9 +330,7 @@ export class LocalizationService implements OnModuleInit {
    */
   async applyFiscalPackage(organization: Organization, manager?: EntityManager) {
     if (!organization.fiscalRegionId) {
-      throw new InternalServerErrorException(
-        `La organización ${organization.id} no tiene región fiscal; no se puede aplicar el paquete fiscal.`,
-      );
+      throw new InternalServerError('LOCALIZATION.ORGANIZACION_NO_TIENE_REGION_FISCAL_NO_PUEDE', { id: organization.id });
     }
 
     const regionRepo = manager
@@ -354,9 +341,7 @@ export class LocalizationService implements OnModuleInit {
     });
 
     if (!region) {
-      throw new NotFoundException(
-        `Región fiscal con ID "${organization.fiscalRegionId}" no encontrada.`,
-      );
+      throw new NotFoundError('LOCALIZATION.REGION_FISCAL_ID_NO_ENCONTRADA', { fiscalRegionId: organization.fiscalRegionId });
     }
 
     this.logger.log(
@@ -382,9 +367,7 @@ export class LocalizationService implements OnModuleInit {
     const scheme = findTaxScheme(countryCode);
 
     if (!scheme) {
-      throw new InternalServerErrorException(
-        `No hay esquema de impuestos definido para ${countryCode}.`,
-      );
+      throw new InternalServerError('LOCALIZATION.NO_HAY_ESQUEMA_IMPUESTOS_DEFINIDO', { countryCode });
     }
 
     if (scheme.configurationRequired) {

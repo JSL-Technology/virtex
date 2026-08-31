@@ -1,10 +1,11 @@
 
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CustomerGroup } from './entities/customer-group.entity';
 import { CreateCustomerGroupDto } from './dto/create-customer-group.dto';
 import { UpdateCustomerGroupDto } from './dto/update-customer-group.dto';
+import { NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class CustomerGroupsService {
@@ -25,7 +26,7 @@ export class CustomerGroupsService {
   async findOne(id: string, organizationId: string): Promise<CustomerGroup> {
     const group = await this.customerGroupRepository.findOne({ where: { id, organizationId } });
     if (!group) {
-      throw new NotFoundException(`Grupo de clientes con ID "${id}" no encontrado.`);
+      throw new NotFoundError('CUSTOMERS.GRUPO_CLIENTES_ID_NO_ENCONTRADO', { id });
     }
     return group;
   }
@@ -39,7 +40,7 @@ export class CustomerGroupsService {
   async remove(id: string, organizationId: string): Promise<void> {
     const result = await this.customerGroupRepository.delete({ id, organizationId });
     if (result.affected === 0) {
-      throw new NotFoundException(`Grupo de clientes con ID "${id}" no encontrado.`);
+      throw new NotFoundError('CUSTOMERS.GRUPO_CLIENTES_ID_NO_ENCONTRADO', { id });
     }
   }
 }

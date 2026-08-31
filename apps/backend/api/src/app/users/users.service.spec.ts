@@ -17,6 +17,7 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { MembershipService } from '../organizations/services/membership.service';
 import { AuditTrailService } from '../audit/audit.service';
 import { ForbiddenException } from '@nestjs/common';
+import { expectLocalizedError } from '../i18n/testing/expect-localized-error';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -190,8 +191,9 @@ describe('UsersService', () => {
     it('rejects an unknown role without revealing that it is the role that is wrong', async () => {
       rolesServiceMock.findOne.mockResolvedValue(null);
 
-      await expect(service.inviteUser(invite as never, 'org-1', actor)).rejects.toThrow(
-        'No se pudo enviar la invitación con los datos proporcionados.',
+      await expectLocalizedError(
+        service.inviteUser(invite as never, 'org-1', actor),
+        'USERS.NO_PUDO_ENVIAR_INVITACION_DATOS_PROPORCIONADOS',
       );
       expect(rolesServiceMock.assertCanAssignRole).not.toHaveBeenCalled();
     });

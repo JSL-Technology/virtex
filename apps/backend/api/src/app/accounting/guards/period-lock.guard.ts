@@ -1,14 +1,10 @@
 
-import {
-  Injectable,
-  CanActivate,
-  ExecutionContext,
-  ForbiddenException,
-} from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 import { AccountingPeriod, PeriodStatus } from '../entities/accounting-period.entity';
 import { AccountPeriodLock } from '../entities/account-period-lock.entity';
+import { ForbiddenError } from '../../i18n/localized.exception';
 
 @Injectable()
 export class PeriodLockGuard implements CanActivate {
@@ -58,16 +54,12 @@ export class PeriodLockGuard implements CanActivate {
         return true;
       }
 
-      throw new ForbiddenException(
-        `La fecha de la transacción ${transactionDate.toISOString().split('T')[0]} no pertenece a ningún período contable definido.`,
-      );
+      throw new ForbiddenError('ACCOUNTING.FECHA_TRANSACCION_NO_PERTENECE_NINGUN_PERIODO_CONTABLE', { p1: transactionDate.toISOString().split('T')[0] });
     }
 
 
     if (period.status === PeriodStatus.CLOSED) {
-      throw new ForbiddenException(
-        `La fecha de la transacción está dentro de un período contable (${period.name}) que ya ha sido cerrado.`,
-      );
+      throw new ForbiddenError('ACCOUNTING.FECHA_TRANSACCION_ESTA_DENTRO_PERIODO_CONTABLE_YA', { name: period.name });
     }
 
 
@@ -83,9 +75,7 @@ export class PeriodLockGuard implements CanActivate {
             .getOne();
 
         if (lockedAccount) {
-            throw new ForbiddenException(
-                `La cuenta #${lockedAccount.account.code} está bloqueada para transacciones en el período ${period.name}.`
-            );
+            throw new ForbiddenError('ACCOUNTING.CUENTA_ESTA_BLOQUEADA_TRANSACCIONES_PERIODO', { code: lockedAccount.account.code, name: period.name });
         }
     }
 

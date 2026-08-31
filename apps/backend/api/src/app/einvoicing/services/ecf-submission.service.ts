@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  Logger,
-  NotFoundException,
-  BadRequestException,
-  ServiceUnavailableException,
-} from '@nestjs/common';
+import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EcfSubmission, EcfStatus } from '../entities/ecf-submission.entity';
@@ -18,6 +12,7 @@ import { DgiiAuthService } from './dgii-auth.service';
 import { DgiiTransportService } from './dgii-transport.service';
 import { DgiiConfigService } from './dgii-config.service';
 import { mapDgiiEstado, isTerminalStatus } from '../ecf-status.util';
+import { BadRequestError, NotFoundError } from '../../i18n/localized.exception';
 
 /**
  * Orchestrates the full e-CF lifecycle for one invoice: build → sign → transmit → track. It is
@@ -60,26 +55,24 @@ export class EcfSubmissionService {
       where: { id: invoiceId, organizationId },
       relations: ['lineItems', 'customer'],
     });
-    if (!invoice) throw new NotFoundException(`Factura ${invoiceId} no encontrada.`);
+    if (!invoice) throw new NotFoundError('EINVOICING.FACTURA_NO_ENCONTRADA', { invoiceId });
     if (!invoice.ncfNumber || !invoice.ncfNumber.startsWith('E')) {
-      throw new BadRequestException('La factura no tiene un e-NCF electrónico asignado.');
+      throw new BadRequestError('EINVOICING.FACTURA_NO_TIENE_NCF_ELECTRONICO_ASIGNADO');
     }
 
     const org = await this.orgRepo.findOne({ where: { id: organizationId } });
-    if (!org) throw new NotFoundException('Organización no encontrada.');
-    if (!org.taxId) throw new BadRequestException('La organización no tiene RNC configurado.');
+    if (!org) throw new NotFoundError('EINVOICING.ORGANIZACION_NO_ENCONTRADA');
+    if (!org.taxId) throw new BadRequestError('EINVOICING.ORGANIZACION_NO_TIENE_RNC_CONFIGURADO');
 
     const cert = await this.certRepo.findOne({
       where: { organizationId, isActive: true },
       order: { createdAt: 'DESC' },
     });
     if (!cert) {
-      throw new BadRequestException(
-        'No hay un certificado digital activo para firmar e-CF. Cargue el certificado en la configuración fiscal.',
-      );
+      throw new BadRequestError('EINVOICING.NO_HAY_CERTIFICADO_DIGITAL_ACTIVO_FIRMAR_CF');
     }
     if (cert.notAfter && cert.notAfter.getTime() < Date.now()) {
-      throw new BadRequestException(`El certificado digital venció el ${cert.notAfter.toISOString().split('T')[0]}.`);
+      throw new BadRequestError('EINVOICING.CERTIFICADO_DIGITAL_VENCIO', { p1: cert.notAfter.toISOString().split('T')[0] });
     }
 
     const loaded = this.vault.load(cert);

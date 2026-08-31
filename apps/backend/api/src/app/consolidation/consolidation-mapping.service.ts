@@ -1,10 +1,11 @@
 
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConsolidationMap } from './entities/consolidation-map.entity';
 import { CreateConsolidationMapDto } from './dto/create-consolidation-map.dto';
 import { Organization } from '../organizations/entities/organization.entity';
+import { NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class ConsolidationMappingService {
@@ -28,7 +29,7 @@ export class ConsolidationMappingService {
 
     const parentOrg = await this.orgRepository.findOneBy({ id: parentOrganizationId });
     const subOrg = await this.orgRepository.findOneBy({ id: subsidiaryOrganizationId });
-    if (!parentOrg || !subOrg) throw new NotFoundException('Organización no encontrada.');
+    if (!parentOrg || !subOrg) throw new NotFoundError('CONSOLIDATION.ORGANIZACION_NO_ENCONTRADA');
 
     await this.mapRepository.delete({ parentOrganizationId, subsidiaryOrganizationId });
 

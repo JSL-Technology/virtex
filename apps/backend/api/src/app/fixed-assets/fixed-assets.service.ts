@@ -1,5 +1,5 @@
 
-import { Injectable, NotFoundException, InternalServerErrorException, BadRequestException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, EntityManager } from 'typeorm';
 import { FixedAsset, FixedAssetStatus } from './entities/fixed-asset.entity';
@@ -10,6 +10,7 @@ import { JournalEntriesService } from '../journal-entries/journal-entries.servic
 import { Journal } from '../journal-entries/entities/journal.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
+import { BadRequestError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class FixedAssetsService {
@@ -33,7 +34,7 @@ export class FixedAssetsService {
   async findOne(id: string, organizationId: string): Promise<FixedAsset> {
     const asset = await this.fixedAssetRepository.findOneBy({ id, organizationId });
     if (!asset) {
-        throw new NotFoundException(`Activo fijo con ID "${id}" no encontrado.`);
+        throw new NotFoundError('FIXED_ASSETS.ACTIVO_FIJO_ID_NO_ENCONTRADO', { id });
     }
     return asset;
   }
@@ -47,7 +48,7 @@ export class FixedAssetsService {
   async remove(id: string, organizationId: string): Promise<void> {
     const result = await this.fixedAssetRepository.delete({ id, organizationId });
     if (result.affected === 0) {
-        throw new NotFoundException(`Activo fijo con ID "${id}" no encontrado.`);
+        throw new NotFoundError('FIXED_ASSETS.ACTIVO_FIJO_ID_NO_ENCONTRADO', { id });
     }
   }
 
@@ -60,17 +61,17 @@ export class FixedAssetsService {
 
       const asset = await manager.findOneBy(FixedAsset, { id, organizationId });
       if (!asset || asset.status !== FixedAssetStatus.IN_USE) {
-        throw new NotFoundException('Activo no encontrado o ya ha sido dado de baja.');
+        throw new NotFoundError('FIXED_ASSETS.ACTIVO_NO_ENCONTRADO_YA_HA_SIDO_DADO');
       }
       
       const defaultLedger = await manager.findOneBy(Ledger, { organizationId, isDefault: true });
       if (!defaultLedger) {
-          throw new BadRequestException('No se ha configurado un libro contable por defecto para la organización.');
+          throw new BadRequestError('FIXED_ASSETS.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION');
       }
 
       const fixedAssetJournal = await manager.findOneBy(Journal, { organizationId, code: 'ACT-FIJOS' });
       if (!fixedAssetJournal) {
-          throw new BadRequestException('Diario de Activos Fijos (ACT-FIJOS) no encontrado.');
+          throw new BadRequestError('FIXED_ASSETS.DIARIO_ACTIVOS_FIJOS_ACT_FIJOS_NO_ENCONTRADO');
       }
 
       const { disposalDate, salePrice, disposalReason, cashAccountId, gainOnDisposalAccountId, lossOnDisposalAccountId } = disposeDto;
@@ -129,7 +130,7 @@ export class FixedAssetsService {
 
 
       if (!manager.queryRunner) {
-        throw new InternalServerErrorException('No se pudo obtener el QueryRunner de la transacción.');
+        throw new InternalServerError('FIXED_ASSETS.NO_PUDO_OBTENER_QUERYRUNNER_TRANSACCION');
       }
       await this.journalEntriesService.createWithQueryRunner(manager.queryRunner, entryDto, organizationId);
 

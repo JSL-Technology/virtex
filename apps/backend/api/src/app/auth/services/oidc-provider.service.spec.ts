@@ -1,6 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { BadRequestException } from '@nestjs/common';
 import { OidcProviderService } from './oidc-provider.service';
+import { BadRequestError, isLocalizedError } from '../../i18n/localized.exception';
 
 function makeService(env: Record<string, string> = {}): OidcProviderService {
   const config = {
@@ -49,7 +50,15 @@ describe('OidcProviderService', () => {
 
     it('throws when provider credentials are missing', () => {
       const service = makeService({});
-      expect(() => service.getProviderConfig('google')).toThrow(/missing GOOGLE_CLIENT_ID/);
+      // Which environment variable is missing is the point of the test, and it now travels as a
+      // parameter instead of being concatenated into a sentence.
+      expect(() => service.getProviderConfig('google')).toThrow(BadRequestError);
+      try {
+        service.getProviderConfig('google');
+      } catch (error) {
+        expect(isLocalizedError(error) && error.messageKey).toBe('AUTH.PROVIDER_NOT_CONFIGURED_MISSING');
+        expect(isLocalizedError(error) && error.params).toMatchObject({ key: 'GOOGLE_CLIENT_ID' });
+      }
     });
   });
 

@@ -1,18 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Delete,
-  Param,
-  Body,
-  UseGuards,
-  UseInterceptors,
-  UploadedFile,
-  ParseUUIDPipe,
-  BadRequestException,
-  NotFoundException,
-  Res,
-} from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Body, UseGuards, UseInterceptors, UploadedFile, ParseUUIDPipe, Res } from '@nestjs/common';
 import { readFile, unlink } from 'fs/promises';
 import { FastifyFileInterceptor } from '../common/interceptors/fastify-file.interceptor';
 import { FastifyFile } from '../common/interfaces/fastify-file.interface';
@@ -24,6 +10,7 @@ import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interfa
 import type { HttpResponse as Response } from '../common/http/http.types';
 import { EcfCertificateService } from './services/ecf-certificate.service';
 import { EcfSubmissionService } from './services/ecf-submission.service';
+import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 
 /**
  * Tenant-facing e-CF operations: manage the DGII signing certificate, inspect a document's e-CF
@@ -46,12 +33,12 @@ export class EinvoicingController {
     @Body() body: Record<string, unknown>,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    if (!file?.path) throw new BadRequestException('Debe adjuntar el archivo del certificado (.p12/.pfx).');
+    if (!file?.path) throw new BadRequestError('EINVOICING.DEBE_ADJUNTAR_ARCHIVO_CERTIFICADO_P12_PFX');
 
     // With attachFieldsToBody, text fields arrive either raw or wrapped as `{ value }`.
     const password = this.field(body, 'password');
     const alias = this.field(body, 'alias');
-    if (!password) throw new BadRequestException('La contraseña del certificado es obligatoria.');
+    if (!password) throw new BadRequestError('EINVOICING.CONTRASENA_CERTIFICADO_ES_OBLIGATORIA');
 
     try {
       const pfx = await readFile(file.path);
@@ -84,7 +71,7 @@ export class EinvoicingController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     const submission = await this.submissions.findByInvoice(invoiceId, user.organizationId);
-    if (!submission) throw new NotFoundException('Esta factura no tiene un e-CF asociado.');
+    if (!submission) throw new NotFoundError('EINVOICING.ESTA_FACTURA_NO_TIENE_CF_ASOCIADO');
     return this.toStatusView(submission);
   }
 
@@ -106,7 +93,7 @@ export class EinvoicingController {
     @Res() res: Response,
   ) {
     const submission = await this.submissions.findByInvoice(invoiceId, user.organizationId);
-    if (!submission?.signedXml) throw new NotFoundException('No hay un e-CF firmado para esta factura.');
+    if (!submission?.signedXml) throw new NotFoundError('EINVOICING.NO_HAY_CF_FIRMADO_ESTA_FACTURA');
     res
       .header('Content-Type', 'application/xml; charset=utf-8')
       .header('Content-Disposition', `attachment; filename="${submission.ncf}.xml"`)

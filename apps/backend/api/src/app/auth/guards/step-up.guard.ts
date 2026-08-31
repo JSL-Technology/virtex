@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  CanActivate,
-  ExecutionContext,
-  UnauthorizedException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import type { HttpRequest as Request } from '../../common/http/http.types';
@@ -13,6 +7,7 @@ import { SINGLE_USE_SCOPES, StepUpScope } from '../enums/step-up-scope.enum';
 import { AuthConfig } from '../auth.config';
 import { STEP_UP_COOKIE_NAMES } from '../services/cookie.service';
 import { AtomicCacheService } from '../../cache/atomic-cache.service';
+import { UnauthorizedError } from '../../i18n/localized.exception';
 
 interface StepUpPayload {
   sub: string;
@@ -66,7 +61,7 @@ export class StepUpGuard implements CanActivate {
     const token = STEP_UP_COOKIE_NAMES.map((name) => request.cookies?.[name]).find(Boolean);
 
     if (!token) {
-      throw new UnauthorizedException('Step-up authentication required');
+      throw new UnauthorizedError('AUTH.STEP_UP_AUTHENTICATION_REQUIRED');
     }
 
     let payload: StepUpPayload;
@@ -77,11 +72,11 @@ export class StepUpGuard implements CanActivate {
         audience: 'virteex-step-up',
       });
     } catch {
-      throw new UnauthorizedException('Invalid or expired step-up token');
+      throw new UnauthorizedError('AUTH.INVALID_OR_EXPIRED_STEP_UP_TOKEN');
     }
 
     if (!payload.stepup || payload.scope !== requiredScope) {
-      throw new UnauthorizedException('Invalid step-up token scope');
+      throw new UnauthorizedError('AUTH.INVALID_STEP_UP_TOKEN_SCOPE');
     }
 
     // Ownership is checked BEFORE the token is consumed. The previous order burned the jti
@@ -92,7 +87,7 @@ export class StepUpGuard implements CanActivate {
         { event: 'step_up_subject_mismatch', userId: request.user?.id },
         '[SECURITY] Step-up token does not belong to the authenticated user',
       );
-      throw new UnauthorizedException('Step-up token mismatch');
+      throw new UnauthorizedError('AUTH.STEP_UP_TOKEN_MISMATCH');
     }
 
     if (SINGLE_USE_SCOPES.has(payload.scope)) {
@@ -117,7 +112,7 @@ export class StepUpGuard implements CanActivate {
    */
   private async consumeSingleUse(jti: string): Promise<void> {
     if (!jti) {
-      throw new UnauthorizedException('Malformed step-up token');
+      throw new UnauthorizedError('AUTH.MALFORMED_STEP_UP_TOKEN');
     }
 
     const claimed = await this.atomicCache.claimOnce(
@@ -126,7 +121,7 @@ export class StepUpGuard implements CanActivate {
     );
 
     if (!claimed) {
-      throw new UnauthorizedException('Step-up token already used');
+      throw new UnauthorizedError('AUTH.STEP_UP_TOKEN_ALREADY_USED');
     }
   }
 }

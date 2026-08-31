@@ -1,12 +1,5 @@
 
-import {
-  Injectable,
-  BadRequestException,
-  Logger,
-  NotFoundException,
-  InternalServerErrorException,
-  Inject,
-} from '@nestjs/common';
+import { Injectable, Logger, Inject } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { EventsGateway } from '../../websockets/events.gateway';
@@ -24,6 +17,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
 import { CreateAccountDto } from '../dto/create-account.dto';
 import { FastifyFile } from '../../common/interfaces/fastify-file.interface';
+import { BadRequestError, InternalServerError, NotFoundError } from '../../i18n/localized.exception';
 
 @Injectable()
 export class CoaImportService {
@@ -52,7 +46,7 @@ export class CoaImportService {
     userId: string,
   ): Promise<PreviewCoaImportResponseDto> {
     const { data } = await this.fileParser.parse(file);
-    if (data.length === 0) throw new BadRequestException('File is empty.');
+    if (data.length === 0) throw new BadRequestError('CHART_OF_ACCOUNTS.FILE_EMPTY');
 
     const existingAccounts =
       await this.coaService.findAllForOrg(organizationId);
@@ -139,7 +133,7 @@ export class CoaImportService {
       batch.organizationId !== organizationId ||
       batch.userId !== userId
     ) {
-      throw new NotFoundException('Import batch not found or expired.');
+      throw new NotFoundError('CHART_OF_ACCOUNTS.IMPORT_BATCH_NOT_FOUND_OR_EXPIRED');
     }
 
     this.logger.log(
@@ -178,9 +172,7 @@ export class CoaImportService {
             } else if (parentInDb) {
               parentId = parentInDb.id;
             } else {
-              throw new BadRequestException(
-                `Error de consistencia: La cuenta padre '${parentCode}' para la cuenta '${rowData[batch.mapping.code]}' no fue encontrada. La transacción será revertida.`,
-              );
+              throw new BadRequestError('CHART_OF_ACCOUNTS.ERROR_CONSISTENCIA_CUENTA_PADRE_CUENTA_NO_FUE', { parentCode, p2: rowData[batch.mapping.code] });
             }
           }
 
@@ -229,9 +221,7 @@ export class CoaImportService {
         status: 'FAILED',
         message: (error as Error).message,
       });
-      throw new InternalServerErrorException(
-        `La importación falló y fue revertida: ${(error as Error).message}`,
-      );
+      throw new InternalServerError('CHART_OF_ACCOUNTS.IMPORTACION_FALLO_FUE_REVERTIDA', { p1: (error as Error).message });
     }
 
     await this.cacheManager.del(`coa-import-batch:${batchId}`);

@@ -1,5 +1,5 @@
 
-import { Injectable, BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { JournalEntriesService } from './journal-entries.service';
 import { CreateReclassificationEntryDto } from './dto/reclassification-entry.dto';
@@ -8,6 +8,7 @@ import { CreatePeriodEndAdjustmentDto } from './dto/period-end-adjustment.dto';
 import { CreateAuditAdjustmentDto } from './dto/audit-adjustment.dto';
 import { FiscalYear, FiscalYearStatus } from '../accounting/entities/fiscal-year.entity';
 import { CreateJournalEntryDto } from './dto/create-journal-entry.dto';
+import { BadRequestError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class AdjustmentsService {
@@ -18,7 +19,7 @@ export class AdjustmentsService {
 
   async createReclassification(dto: CreateReclassificationEntryDto, organizationId: string): Promise<JournalEntry> {
     if (dto.fromAccountId === dto.toAccountId) {
-      throw new BadRequestException('La cuenta de origen y destino no pueden ser la misma.');
+      throw new BadRequestError('JOURNAL_ENTRIES.CUENTA_ORIGEN_DESTINO_NO_PUEDEN_SER_MISMA');
     }
 
 
@@ -50,7 +51,7 @@ export class AdjustmentsService {
   async createPeriodEndAdjustment(dto: CreatePeriodEndAdjustmentDto, organizationId: string): Promise<{ adjustment: JournalEntry }> {
     return this.dataSource.transaction(async manager => {
         if (!manager.queryRunner) {
-            throw new InternalServerErrorException("No se pudo obtener el Query Runner de la transacción.");
+            throw new InternalServerError('JOURNAL_ENTRIES.NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION');
         }
         
 
@@ -83,13 +84,13 @@ export class AdjustmentsService {
     const fiscalYear = await fiscalYearRepo.findOneBy({ id: fiscalYearId, organizationId });
 
     if (!fiscalYear) {
-      throw new NotFoundException('Año fiscal no encontrado.');
+      throw new NotFoundError('JOURNAL_ENTRIES.ANO_FISCAL_NO_ENCONTRADO');
     }
     if (fiscalYear.status === FiscalYearStatus.OPEN) {
-      throw new BadRequestException('Los ajustes de auditoría solo pueden aplicarse a años fiscales cerrados.');
+      throw new BadRequestError('JOURNAL_ENTRIES.AJUSTES_AUDITORIA_SOLO_PUEDEN_APLICARSE_ANOS_FISCALES');
     }
     if (fiscalYear.status === FiscalYearStatus.LOCKED) {
-      throw new BadRequestException('El año fiscal está archivado y no se puede modificar.');
+      throw new BadRequestError('JOURNAL_ENTRIES.ANO_FISCAL_ESTA_ARCHIVADO_NO_PUEDE_MODIFICAR');
     }
 
 

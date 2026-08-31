@@ -12,6 +12,7 @@ export interface IPolicy {
 export type PermissionOrPolicy = Permission | Type<IPolicy>;
 
 import { Logger } from '@nestjs/common';
+import { ForbiddenError } from '../../../i18n/localized.exception';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
@@ -36,7 +37,7 @@ export class PermissionsGuard implements CanActivate {
     const { user } = request;
 
     if (!user || !user.permissions) {
-        throw new ForbiddenException('No tienes permisos para realizar esta acción.');
+        throw new ForbiddenError('AUTH.NO_TIENES_PERMISOS_REALIZAR_ESTA_ACCION');
     }
 
     // L-07 FIX: delegate permission matching to the shared `hasPermission` util so the
@@ -55,7 +56,7 @@ export class PermissionsGuard implements CanActivate {
                 // Log the detail internally; return a generic message to the client
                 // (OWASP Error Handling Cheat Sheet; CWE-209).
                 this.logger.warn(`Permission denied: user=${user.id}, missing=${requirement}`);
-                throw new ForbiddenException('No tienes permisos para realizar esta acción.');
+                throw new ForbiddenError('AUTH.NO_TIENES_PERMISOS_REALIZAR_ESTA_ACCION');
             }
         } else if (typeof requirement === 'function') { // It's a Class (Constructor)
              try {
@@ -68,19 +69,19 @@ export class PermissionsGuard implements CanActivate {
                     // If not found in DI container, we log error and fail secure.
                     // We do NOT manually instantiate, as that breaks DI contract.
                      this.logger.error(`Policy ${requirement.name} not found in DI container. Make sure it is decorated with @Injectable() and provided in the module.`);
-                     throw new ForbiddenException('Configuration Error: Policy not found.');
+                     throw new ForbiddenError('AUTH.CONFIGURATION_ERROR_POLICY_NOT_FOUND');
                 }
 
                 if (policy) {
                     const allowed = await policy.can(user, request);
                     if (!allowed) {
-                        throw new ForbiddenException('No cumples con la política de acceso requerida.');
+                        throw new ForbiddenError('AUTH.NO_CUMPLES_POLITICA_ACCESO_REQUERIDA');
                     }
                 }
              } catch (e) {
                  if (e instanceof ForbiddenException) throw e;
                  this.logger.error(`Policy check failed: ${(e as Error).message}`, (e as Error).stack);
-                 throw new ForbiddenException('Error validando política de seguridad.');
+                 throw new ForbiddenError('AUTH.ERROR_VALIDANDO_POLITICA_SEGURIDAD');
              }
         }
     }

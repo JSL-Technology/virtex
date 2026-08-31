@@ -1,10 +1,11 @@
 
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { Ledger } from './entities/ledger.entity';
 import { LedgerMappingRule } from './entities/ledger-mapping-rule.entity';
 import { CreateOrUpdateLedgerMapDto } from './dto/ledger-mapping.dto';
+import { NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class LedgerMappingService {
@@ -40,7 +41,7 @@ export class LedgerMappingService {
         manager.findOneBy(Ledger, { id: targetLedgerId, organizationId }),
       ]);
       if (!sourceLedger || !targetLedger) {
-        throw new NotFoundException('Uno o ambos libros contables no fueron encontrados.');
+        throw new NotFoundError('ACCOUNTING.UNO_AMBOS_LIBROS_CONTABLES_NO_FUERON_ENCONTRADOS');
       }
 
 

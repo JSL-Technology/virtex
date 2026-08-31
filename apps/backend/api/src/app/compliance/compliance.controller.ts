@@ -1,14 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Query,
-  UseGuards,
-  BadRequestException,
-  ParseIntPipe,
-  Res,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, UseGuards, ParseIntPipe, Res } from '@nestjs/common';
 import { ComplianceService } from './compliance.service';
 import { ProvisionNcfSequenceDto } from './dto/provision-ncf-sequence.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
@@ -17,6 +7,7 @@ import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import type { HttpResponse as Response } from '../common/http/http.types';
+import { BadRequestError } from '../i18n/localized.exception';
 
 /**
  * Dominican Republic fiscal compliance: NCF/e-NCF range provisioning and the DGII 606/607 reports.
@@ -35,7 +26,7 @@ export class ComplianceController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     if (dto.endsAt < dto.startsAt) {
-      throw new BadRequestException('endsAt no puede ser menor que startsAt.');
+      throw new BadRequestError('COMPLIANCE.ENDSAT_NO_PUEDE_SER_MENOR_STARTSAT');
     }
     return this.complianceService.provisionNcfSequence(user.organizationId, dto);
   }
@@ -74,10 +65,10 @@ export class ComplianceController {
 
   private assertPeriod(year: number, month: number): void {
     if (month < 1 || month > 12) {
-      throw new BadRequestException('El mes debe estar entre 1 y 12.');
+      throw new BadRequestError('COMPLIANCE.MES_DEBE_ESTAR_ENTRE_12');
     }
     if (year < 2000 || year > 2100) {
-      throw new BadRequestException('El año no es válido.');
+      throw new BadRequestError('COMPLIANCE.ANO_NO_ES_VALIDO');
     }
   }
 

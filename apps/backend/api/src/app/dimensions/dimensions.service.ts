@@ -1,5 +1,5 @@
 
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, In } from 'typeorm';
 import { Dimension } from './entities/dimension.entity';
@@ -8,6 +8,7 @@ import { DimensionValue } from './entities/dimension-value.entity';
 import { DimensionRule } from './entities/dimension-rule.entity';
 import { CreateDimensionRuleDto } from './dto/dimension-rule.dto';
 import { Account } from '../chart-of-accounts/entities/account.entity';
+import { NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class DimensionsService {
@@ -32,7 +33,7 @@ export class DimensionsService {
       where: { id, organizationId },
       relations: ['values'],
     });
-    if (!dimension) throw new NotFoundException(`Dimensión con ID "${id}" no encontrada.`);
+    if (!dimension) throw new NotFoundError('DIMENSIONS.DIMENSION_ID_NO_ENCONTRADA', { id });
     return dimension;
   }
 
@@ -55,7 +56,7 @@ export class DimensionsService {
             relations: ['values'],
         });
 
-        if (!dimension) throw new NotFoundException(`Dimensión con ID "${id}" no encontrada.`);
+        if (!dimension) throw new NotFoundError('DIMENSIONS.DIMENSION_ID_NO_ENCONTRADA', { id });
         if (updateDto.name) dimension.name = updateDto.name;
 
         if (updateDto.values) {
@@ -86,12 +87,12 @@ export class DimensionsService {
 
   async remove(id: string, organizationId: string): Promise<void> {
     const result = await this.dimensionRepository.delete({ id, organizationId });
-    if (result.affected === 0) throw new NotFoundException(`Dimensión con ID "${id}" no encontrada.`);
+    if (result.affected === 0) throw new NotFoundError('DIMENSIONS.DIMENSION_ID_NO_ENCONTRADA', { id });
   }
   
   async getRulesForAccount(accountId: string, organizationId: string): Promise<DimensionRule[]> {
       const account = await this.dataSource.getRepository(Account).findOneBy({ id: accountId, organizationId });
-      if (!account) throw new NotFoundException(`Cuenta con ID "${accountId}" no encontrada.`);
+      if (!account) throw new NotFoundError('DIMENSIONS.CUENTA_ID_NO_ENCONTRADA', { accountId });
       
       return this.dimensionRuleRepository.find({ where: { accountId }, relations: ['dimension'] });
   }
@@ -104,8 +105,8 @@ export class DimensionsService {
           this.dimensionRepository.findOneBy({ id: dimensionId, organizationId }),
       ]);
 
-      if (!account) throw new NotFoundException(`Cuenta con ID "${accountId}" no encontrada en su organización.`);
-      if (!dimension) throw new NotFoundException(`Dimensión con ID "${dimensionId}" no encontrada en su organización.`);
+      if (!account) throw new NotFoundError('DIMENSIONS.CUENTA_ID_NO_ENCONTRADA_ORGANIZACION', { accountId });
+      if (!dimension) throw new NotFoundError('DIMENSIONS.DIMENSION_ID_NO_ENCONTRADA_ORGANIZACION', { dimensionId });
       
       const rule = this.dimensionRuleRepository.create({ ...dto, isRequired: true });
       return this.dimensionRuleRepository.save(rule);
@@ -118,7 +119,7 @@ export class DimensionsService {
       });
 
       if (!rule || rule.account.organizationId !== organizationId) {
-          throw new NotFoundException('La regla de dimensión especificada no fue encontrada.');
+          throw new NotFoundError('DIMENSIONS.REGLA_DIMENSION_ESPECIFICADA_NO_FUE_ENCONTRADA');
       }
       
       await this.dimensionRuleRepository.remove(rule);

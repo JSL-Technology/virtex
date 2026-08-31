@@ -1,5 +1,5 @@
 
-import { Injectable, Inject, BadRequestException, UnauthorizedException, Logger } from '@nestjs/common';
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -15,6 +15,7 @@ import { User, UserStatus } from '../../users/entities/user.entity/user.entity';
 import { Passkey } from '../../users/entities/passkey.entity';
 import * as crypto from 'crypto';
 import { UserIdentity } from '../interfaces/authenticated-user.interface';
+import { BadRequestError, UnauthorizedError } from '../../i18n/localized.exception';
 
 @Injectable()
 export class WebAuthnService {
@@ -65,7 +66,7 @@ export class WebAuthnService {
   async verifyRegistration(user: UserIdentity, body: any) {
     const challenge = await this.cacheManager.get<string>(`webauthn_challenge_${user.id}`);
     if (!challenge) {
-      throw new BadRequestException('Challenge expired or not found');
+      throw new BadRequestError('AUTH.CHALLENGE_EXPIRED_OR_NOT_FOUND');
     }
 
     let verification;
@@ -78,7 +79,7 @@ export class WebAuthnService {
       });
     } catch (error) {
       this.logger.warn({ event: 'webauthn_registration_failed', reason: (error as Error).message }, 'WebAuthn registration error');
-      throw new BadRequestException('WebAuthn registration failed');
+      throw new BadRequestError('AUTH.WEBAUTHN_REGISTRATION_FAILED');
     }
 
     if (verification.verified && verification.registrationInfo) {
@@ -103,7 +104,7 @@ export class WebAuthnService {
       return { verified: true };
     }
 
-    throw new BadRequestException('Verification failed');
+    throw new BadRequestError('AUTH.VERIFICATION_FAILED');
   }
 
   async generateAuthenticationOptions(_email?: string) {
@@ -124,7 +125,7 @@ export class WebAuthnService {
     const storedData = await this.cacheManager.get<{ challenge: string, userId?: string }>(challengeId);
 
     if (!storedData) {
-      throw new BadRequestException('Challenge expired or invalid');
+      throw new BadRequestError('AUTH.CHALLENGE_EXPIRED_OR_INVALID');
     }
 
     const passkey = await this.passkeyRepository.findOne({
@@ -133,11 +134,11 @@ export class WebAuthnService {
     });
 
     if (!passkey) {
-      throw new UnauthorizedException('Passkey not found');
+      throw new UnauthorizedError('AUTH.PASSKEY_NOT_FOUND');
     }
 
     if (storedData.userId && storedData.userId !== passkey.userId) {
-        throw new UnauthorizedException('Invalid user for this passkey');
+        throw new UnauthorizedError('AUTH.INVALID_USER_FOR_THIS_PASSKEY');
     }
 
     let verification;
@@ -160,7 +161,7 @@ export class WebAuthnService {
       });
     } catch (error) {
       this.logger.warn({ event: 'webauthn_verification_failed', reason: (error as Error).message }, 'WebAuthn authentication error');
-      throw new BadRequestException('WebAuthn verification failed');
+      throw new BadRequestError('AUTH.WEBAUTHN_VERIFICATION_FAILED');
     }
 
     if (verification.verified) {
@@ -173,7 +174,7 @@ export class WebAuthnService {
       });
 
       if (!freshUser || freshUser.status !== UserStatus.ACTIVE) {
-        throw new UnauthorizedException('Usuario inactivo o bloqueado.');
+        throw new UnauthorizedError('AUTH.USUARIO_INACTIVO_BLOQUEADO');
       }
 
       passkey.counter = newCounter;
@@ -183,6 +184,6 @@ export class WebAuthnService {
       return { verified: true, user: freshUser };
     }
 
-    throw new UnauthorizedException('Verification failed');
+    throw new UnauthorizedError('AUTH.VERIFICATION_FAILED');
   }
 }

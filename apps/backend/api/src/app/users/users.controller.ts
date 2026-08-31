@@ -1,5 +1,5 @@
 
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, UseFilters, ParseUUIDPipe, UseInterceptors, UploadedFile, BadRequestException, HttpCode, HttpStatus, Ip, Logger } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, ParseUUIDPipe, UseInterceptors, UploadedFile, HttpCode, HttpStatus, Ip, Logger } from '@nestjs/common';
 import { FastifyFileInterceptor } from '../common/interceptors/fastify-file.interceptor';
 import { toUploadableFile, FastifyFile } from '../common/interfaces/fastify-file.interface';
 import { ThrottlerGuard } from '@nestjs/throttler';
@@ -26,17 +26,16 @@ import { PERMISSIONS } from '../shared/permissions';
 import { UserResponseDto } from '../auth/dto/user-response.dto';
 import { plainToInstance } from 'class-transformer';
 import { IsOrganizationOwner } from '../auth/policies/is-organization-owner.policy';
-import { TypeOrmExceptionFilter } from '../common/filters/typeorm-exception.filter';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { JobTitle } from './enums/job-title.enum';
 import { ListUsersQueryDto } from './dto/list-users-query.dto';
 import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
+import { BadRequestError } from '../i18n/localized.exception';
 
 @ApiTags('Users')
 @Controller('users')
 @UseGuards(JwtAuthGuard)
-@UseFilters(TypeOrmExceptionFilter)
 export class UsersController {
   private readonly logger = new Logger(UsersController.name);
 
@@ -167,7 +166,7 @@ export class UsersController {
   @UseInterceptors(FastifyFileInterceptor('file', {
     fileFilter: (req, file, cb) => {
         if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
-            return cb(new BadRequestException('Only image files are allowed!'), false);
+            return cb(new BadRequestError('USERS.ONLY_IMAGE_FILES_ARE_ALLOWED'), false);
         }
         cb(null, true);
     },
@@ -179,7 +178,7 @@ export class UsersController {
     @CurrentUser() user: AuthenticatedUser,
     @UploadedFile() file: FastifyFile
   ) {
-      if (!file) throw new BadRequestException('File is required');
+      if (!file) throw new BadRequestError('USERS.FILE_REQUIRED');
 
       try {
         const stored = await this.storageService.upload(toUploadableFile(file), 'avatars');
@@ -260,7 +259,7 @@ export class UsersController {
   ) {
       // H-08 FIX: Prevent self-block to avoid accidental lock-out of the last admin.
       if (dto.status === UserStatus.BLOCKED && id === user.id) {
-          throw new BadRequestException('No puedes bloquear tu propia cuenta.');
+          throw new BadRequestError('USERS.NO_PUEDES_BLOQUEAR_TU_PROPIA_CUENTA');
       }
       const updatedUser = await this.usersService.updateUserStatus(id, dto.status, user.organizationId, user.id);
       return plainToInstance(UserResponseDto, updatedUser, { excludeExtraneousValues: true });

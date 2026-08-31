@@ -1,11 +1,12 @@
 
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PriceList } from './entities/price-list.entity';
 import { CreatePriceListDto } from './dto/create-price-list.dto';
 import { UpdatePriceListDto } from './dto/update-price-list.dto';
 import { PriceListItem } from './entities/price-list-item.entity';
+import { NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class PriceListsService {
@@ -36,7 +37,7 @@ export class PriceListsService {
       where: { id, organizationId },
     });
     if (!priceList) {
-      throw new NotFoundException(`Price list with ID "${id}" not found.`);
+      throw new NotFoundError('PRICE_LISTS.PRICE_LIST_WITH_ID_NOT_FOUND', { id });
     }
     return priceList;
   }

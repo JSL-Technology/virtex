@@ -13,8 +13,9 @@ import {
   QueryRunner,
 } from 'typeorm';
 import { RequestContext } from 'nestjs-request-context';
-import { UnauthorizedException, ForbiddenException } from '@nestjs/common';
+
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
+import { ForbiddenError } from '../i18n/localized.exception';
 
 export interface ITenanted {
   organizationId: string;
@@ -28,9 +29,7 @@ export class TenantedRepository<
     const organizationId = request?.user?.organizationId;
 
     if (!organizationId) {
-      throw new ForbiddenException(
-        'No se pudo determinar la organización para esta operación. Acceso denegado.',
-      );
+      throw new ForbiddenError('DATABASE.NO_PUDO_DETERMINAR_ORGANIZACION_ESTA_OPERACION_ACCESO');
     }
     return organizationId;
   }
@@ -98,9 +97,7 @@ export class TenantedRepository<
     
     const ensureOwnership = (entity: T) => {
       if (entity.organizationId !== organizationId) {
-        throw new ForbiddenException(
-          'Intento de eliminar una entidad que no pertenece a la organización.',
-        );
+        throw new ForbiddenError('DATABASE.INTENTO_ELIMINAR_ENTIDAD_NO_PERTENECE_ORGANIZACION');
       }
     };
 

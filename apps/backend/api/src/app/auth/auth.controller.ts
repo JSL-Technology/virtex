@@ -1,5 +1,5 @@
 
-import { Controller, Post, Body, HttpCode, HttpStatus, Res, Get, UseGuards, Req, UsePipes, ValidationPipe, BadRequestException, UnauthorizedException, ConflictException, Param, ParseUUIDPipe, Query, Ip, Headers, UseFilters, Header, Logger } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Res, Get, UseGuards, Req, UsePipes, ValidationPipe, BadRequestException, UnauthorizedException, ConflictException, Param, ParseUUIDPipe, Query, Ip, Headers, Header, Logger } from '@nestjs/common';
 import type { HttpResponse as Response, HttpRequest as Request } from '../common/http/http.types';
 import { AuthService } from './auth.service';
 import { AuthFacade } from './auth.facade';
@@ -52,7 +52,6 @@ import { PaymentService } from '../payment/payment.service';
 import { SaasService } from '../saas/saas.service';
 import { ConfigService } from '@nestjs/config';
 import { AuthConfig } from './auth.config';
-import { TypeOrmExceptionFilter } from '../common/filters/typeorm-exception.filter';
 import { CookieService, STEP_UP_COOKIE_NAMES } from './services/cookie.service';
 import { FrontendUrlService } from '../mail/frontend-url.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
@@ -81,6 +80,7 @@ import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
 import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
 import { TwoFactorRequiredResponseDto } from './dto/login-response.dto';
+import { BadRequestError, UnauthorizedError } from '../i18n/localized.exception';
 
 // H1 FIX: @Public() removed from class level. Only individual public endpoints are decorated
 // with @Public(). Authenticated endpoints rely on the global JwtAuthGuard without override.
@@ -95,7 +95,6 @@ import { TwoFactorRequiredResponseDto } from './dto/login-response.dto';
  */
 @AllowInactiveSubscription()
 @Controller('auth')
-@UseFilters(TypeOrmExceptionFilter)
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
 
@@ -184,12 +183,12 @@ export class AuthController {
 
       const tx = this.oauthStateService.readTransaction(req);
       if (tx.flow !== provider) {
-        throw new BadRequestException('OAuth flow mismatch.');
+        throw new BadRequestError('AUTH.OAUTH_FLOW_MISMATCH');
       }
       this.oauthStateService.verifyState(tx.state, query.state);
 
       if (!query.code) {
-        throw new BadRequestException('Missing authorization code.');
+        throw new BadRequestError('AUTH.MISSING_AUTHORIZATION_CODE');
       }
 
       const config = this.oidcProviderService.getProviderConfig(provider);
@@ -300,11 +299,11 @@ export class AuthController {
       }
       const tx = this.oauthStateService.readTransaction(req);
       if (tx.flow !== `sso:${idpId}`) {
-        throw new BadRequestException('SSO flow mismatch.');
+        throw new BadRequestError('AUTH.SSO_FLOW_MISMATCH');
       }
       this.oauthStateService.verifyState(tx.state, query.state);
       if (!query.code) {
-        throw new BadRequestException('Missing authorization code.');
+        throw new BadRequestError('AUTH.MISSING_AUTHORIZATION_CODE');
       }
 
       const idp = await this.enterpriseSsoService.getEnabledIdpOrThrow(idpId);
@@ -335,7 +334,7 @@ export class AuthController {
       // Accept both the dev (social_register_token) and prod-prefixed (__Host-) cookie names.
       const token = req.cookies['social_register_token'] || req.cookies['__Host-social_register_token'];
       if (!token) {
-          throw new BadRequestException('Token de registro no encontrado (cookie requerida)');
+          throw new BadRequestError('AUTH.TOKEN_REGISTRO_NO_ENCONTRADO_COOKIE_REQUERIDA');
       }
       return this.authFacade.getSocialRegisterInfo(token);
   }
@@ -372,7 +371,7 @@ export class AuthController {
     const plans = await this.saasService.getPlans();
     const plan = plans.find((p) => p.id === dto.planId || p.slug === dto.planId);
     if (!plan) {
-      throw new BadRequestException('Plan no encontrado.');
+      throw new BadRequestError('AUTH.PLAN_NO_ENCONTRADO');
     }
     const billingPeriod = dto.billingPeriod ?? 'monthly';
     const priceId = SaasService.priceIdFor(plan, billingPeriod);
@@ -448,9 +447,7 @@ export class AuthController {
       (req as unknown as { cookies?: Record<string, string | undefined> }).cookies,
     );
     if (!transactionId) {
-      throw new UnauthorizedException(
-        'No encontramos tu sesión de registro en este navegador. Inicia sesión con el correo y la contraseña que registraste.',
-      );
+      throw new UnauthorizedError('AUTH.NO_ENCONTRAMOS_TU_SESION_REGISTRO_ESTE_NAVEGADOR');
     }
 
     const session = await this.paymentService.getCheckoutSession(dto.sessionId);
@@ -458,10 +455,10 @@ export class AuthController {
     // Accept paid checkouts and trials (no_payment_required) but never unpaid/open.
     const settled = session.paymentStatus === 'paid' || session.paymentStatus === 'no_payment_required';
     if (session.status !== 'complete' || !settled) {
-      throw new BadRequestException('El pago aún no se ha completado.');
+      throw new BadRequestError('AUTH.PAGO_AUN_NO_HA_COMPLETADO');
     }
     if (!session.pendingRegistrationId) {
-      throw new BadRequestException('Sesión de registro no válida.');
+      throw new BadRequestError('AUTH.SESION_REGISTRO_NO_VALIDA');
     }
 
     // The cookie and the checkout session must describe the SAME signup. Comparing them stops a
@@ -471,9 +468,7 @@ export class AuthController {
         { event: 'register_confirm_transaction_mismatch' },
         '[SECURITY] register-confirm presented a checkout session that does not match its transaction cookie',
       );
-      throw new UnauthorizedException(
-        'Esta sesión de pago no corresponde a este navegador. Inicia sesión con tus credenciales.',
-      );
+      throw new UnauthorizedError('AUTH.ESTA_SESION_PAGO_NO_CORRESPONDE_ESTE_NAVEGADOR');
     }
 
     const user = await this.authFacade.completePendingRegistration(session.pendingRegistrationId, {
@@ -583,7 +578,7 @@ export class AuthController {
       // behind it, and would otherwise be told "refreshable" on every bootstrap for the rest of
       // that marker's life.
       this.cookieService.clearAuthCookies(res);
-      throw new UnauthorizedException('No hay sesión que renovar.');
+      throw new UnauthorizedError('AUTH.NO_HAY_SESION_RENOVAR');
     }
 
     let result: Awaited<ReturnType<AuthService['refreshAccessToken']>>;
@@ -691,14 +686,12 @@ export class AuthController {
     @Res() res: Response,
   ) {
     if (!Object.values(StepUpScope).includes(scope as StepUpScope)) {
-      throw new BadRequestException('Alcance de verificación no válido.');
+      throw new BadRequestError('AUTH.ALCANCE_VERIFICACION_NO_VALIDO');
     }
 
     const federated = await this.resolveFederatedProvider(user);
     if (!federated) {
-      throw new BadRequestException(
-        'Esta cuenta no está vinculada a un proveedor de identidad.',
-      );
+      throw new BadRequestError('AUTH.ESTA_CUENTA_NO_ESTA_VINCULADA_PROVEEDOR_IDENTIDAD');
     }
 
     // Where to put the user back afterwards. It is sealed into the transaction cookie rather
@@ -751,16 +744,16 @@ export class AuthController {
       const tx = this.oauthStateService.readTransaction(req);
       const [marker, provider, scope] = tx.flow.split(':');
       if (marker !== 'stepup' || !provider || !scope) {
-        throw new BadRequestException('Flujo de verificación no válido.');
+        throw new BadRequestError('AUTH.FLUJO_VERIFICACION_NO_VALIDO');
       }
       this.oauthStateService.verifyState(tx.state, query.state);
       if (!query.code) {
-        throw new BadRequestException('Falta el código de autorización.');
+        throw new BadRequestError('AUTH.FALTA_CODIGO_AUTORIZACION');
       }
 
       const federated = await this.resolveFederatedProvider(user);
       if (!federated || federated.flow !== provider) {
-        throw new UnauthorizedException('El proveedor de identidad no coincide.');
+        throw new UnauthorizedError('AUTH.PROVEEDOR_IDENTIDAD_NO_COINCIDE');
       }
 
       const { claims } = await this.oidcProviderService.exchangeAndValidate(federated.config, {
@@ -777,7 +770,7 @@ export class AuthController {
           { event: 'step_up_sso_subject_mismatch', userId: user.id },
           '[SECURITY] IdP re-authentication returned a different identity than the signed-in user',
         );
-        throw new UnauthorizedException('La identidad verificada no coincide con tu sesión.');
+        throw new UnauthorizedError('AUTH.IDENTIDAD_VERIFICADA_NO_COINCIDE_TU_SESION');
       }
 
       this.oauthStateService.clearTransactionCookie(res);
@@ -878,7 +871,7 @@ export class AuthController {
       @Req() req: Request,
   ) {
       if (!Object.values(StepUpScope).includes(scope as StepUpScope)) {
-          throw new BadRequestException('Alcance de verificación no válido.');
+          throw new BadRequestError('AUTH.ALCANCE_VERIFICACION_NO_VALIDO');
       }
       const cookies = req.cookies as Record<string, string | undefined> | undefined;
       const token = STEP_UP_COOKIE_NAMES.map((name) => cookies?.[name]).find(Boolean);
@@ -1191,7 +1184,7 @@ export class AuthController {
       // only allow sending OTP to that same number or to a new unverified one.
       // Sending to an arbitrary third-party number is not permitted.
       if (user.isPhoneVerified && user.phone && user.phone !== phoneNumber) {
-          throw new BadRequestException('Cannot send OTP to a phone number not associated with your account');
+          throw new BadRequestError('AUTH.CANNOT_SEND_OTP_PHONE_NUMBER_NOT_ASSOCIATED');
       }
 
       await this.mfaOrchestratorService.sendPhoneOtp(user.id, phoneNumber);
@@ -1248,12 +1241,12 @@ export class AuthController {
     const plans = await this.saasService.getPlans();
     const plan = plans.find(p => p.id === body.planId || p.slug === body.planId);
     if (!plan) {
-      throw new BadRequestException('Plan not found');
+      throw new BadRequestError('AUTH.PLAN_NOT_FOUND');
     }
 
     const priceId = SaasService.priceIdFor(plan, body.billingPeriod ?? 'monthly');
     if (!priceId) {
-      throw new BadRequestException('Este plan no admite ese periodo de facturación.');
+      throw new BadRequestError('AUTH.ESTE_PLAN_NO_ADMITE_ESE_PERIODO_FACTURACION');
     }
 
     // Redirect URLs are built server-side. Never pass client-supplied URLs to Stripe — the
@@ -1288,7 +1281,7 @@ export class AuthController {
       // reading it by literal name here is how the two sides drift apart.
       const pendingId = this.cookieService.read2faPendingId((req as any).cookies);
       if (!pendingId) {
-          throw new UnauthorizedException('No active 2FA session — please log in again');
+          throw new UnauthorizedError('AUTH.NO_ACTIVE_2FA_SESSION_PLEASE_LOG_IN');
       }
 
       // Loads the pending session and counts the attempt, but does NOT destroy it — a mistyped

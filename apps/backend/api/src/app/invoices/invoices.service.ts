@@ -1,12 +1,6 @@
 
 
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-  Logger,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Repository, DataSource, LessThanOrEqual, LessThan, In } from 'typeorm';
@@ -36,6 +30,7 @@ import { SaasService } from '../saas/saas.service';
 import { SaasResource } from '../saas/enums/saas-resource.enum';
 import { EcfSubmissionService } from '../einvoicing/services/ecf-submission.service';
 import { assertAllowedTaxRate } from './tax-engine';
+import { BadRequestError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class InvoicesService {
@@ -127,9 +122,7 @@ export class InvoicesService {
           organizationId,
         });
         if (!product) {
-          throw new BadRequestException(
-            `Producto con ID "${itemDto.productId}" no encontrado.`,
-          );
+          throw new BadRequestError('INVOICES.PRODUCTO_ID_NO_ENCONTRADO', { productId: itemDto.productId });
         }
 
         const linePrice = itemDto.price ?? product.price;
@@ -176,7 +169,7 @@ export class InvoicesService {
               order: { date: 'DESC' }
           });
           if (!rate) {
-            throw new BadRequestException(`No se encontró una tasa de cambio válida para ${currencyCode} en la fecha especificada.`);
+            throw new BadRequestError('INVOICES.NO_ENCONTRO_TASA_CAMBIO_VALIDA_FECHA_ESPECIFICADA', { currencyCode });
           }
           // `exchange_rates.rate` is stored as units of `toCurrency` per 1 `fromCurrency`
           // (fromCurrency = base, toCurrency = transaction). `Invoice.exchangeRate` is documented as
@@ -185,7 +178,7 @@ export class InvoicesService {
           // raw base→transaction rate inflated `totalInBaseCurrency` by rate^2; we invert it here.
           const baseToTransaction = Number(rate.rate);
           if (!Number.isFinite(baseToTransaction) || baseToTransaction <= 0) {
-            throw new BadRequestException(`La tasa de cambio configurada para ${currencyCode} no es válida.`);
+            throw new BadRequestError('INVOICES.TASA_CAMBIO_CONFIGURADA_NO_ES_VALIDA', { currencyCode });
           }
           exchangeRate = 1 / baseToTransaction;
       }
@@ -263,7 +256,7 @@ export class InvoicesService {
       relations: ['lineItems', 'lineItems.product', 'customer'],
     });
     if (!invoice) {
-      throw new NotFoundException(`Factura con ID "${id}" no encontrada.`);
+      throw new NotFoundError('INVOICES.FACTURA_ID_NO_ENCONTRADA', { id });
     }
     return invoice;
   }
@@ -276,10 +269,10 @@ export class InvoicesService {
     const organization = await this.organizationRepository.findOneBy({ id: organizationId });
 
     if (!organization) {
-        throw new NotFoundException('No se encontró la información de la organización.');
+        throw new NotFoundError('INVOICES.NO_ENCONTRO_INFORMACION_ORGANIZACION');
     }
     if (!this.invoiceTemplate) {
-        throw new InternalServerErrorException('La plantilla para generar PDF no está disponible.');
+        throw new InternalServerError('INVOICES.PLANTILLA_GENERAR_PDF_NO_ESTA_DISPONIBLE');
     }
 
     const data = {
@@ -320,12 +313,12 @@ export class InvoicesService {
         });
         
         if (!originalInvoice) {
-            throw new NotFoundException(`Factura original con ID "${invoiceId}" no encontrada.`);
+            throw new NotFoundError('INVOICES.FACTURA_ORIGINAL_ID_NO_ENCONTRADA', { invoiceId });
         }
         if (
             originalInvoice.status === InvoiceStatus.VOID
         ) {
-            throw new BadRequestException('La factura ya ha sido anulada.');
+            throw new BadRequestError('INVOICES.FACTURA_YA_HA_SIDO_ANULADA');
         }
         
         // If items are provided, this is a partial credit note. 
@@ -347,10 +340,10 @@ export class InvoicesService {
             for (const item of items) {
                 const originalLine = originalInvoice.lineItems.find(l => l.product.id === item.productId);
                 if (!originalLine) {
-                    throw new BadRequestException(`El producto con ID ${item.productId} no pertenece a la factura original.`);
+                    throw new BadRequestError('INVOICES.PRODUCTO_ID_NO_PERTENECE_FACTURA_ORIGINAL', { productId: item.productId });
                 }
                 if (item.quantity > originalLine.quantity) {
-                    throw new BadRequestException(`La cantidad a devolver (${item.quantity}) excede la cantidad original (${originalLine.quantity}) para el producto ${originalLine.product.name}.`);
+                    throw new BadRequestError('INVOICES.CANTIDAD_DEVOLVER_EXCEDE_CANTIDAD_ORIGINAL_PRODUCTO', { quantity: item.quantity, quantity2: originalLine.quantity, name: originalLine.product.name });
                 }
                 itemsToReturn.push({
                     productId: item.productId,
@@ -475,16 +468,14 @@ export class InvoicesService {
     amount: number,
     organizationId: string,
   ): Promise<Invoice> {
-    throw new BadRequestException(
-      'Este endpoint está obsoleto. La creación de pagos ahora se gestiona a través del endpoint de Recibos de Cliente (/customer-payments) para permitir pagos de múltiples facturas a la vez.',
-    );
+    throw new BadRequestError('INVOICES.ESTE_ENDPOINT_ESTA_OBSOLETO_CREACION_PAGOS_AHORA');
   }
 
   private async getOrgAccountingConfig(organizationId: string): Promise<OrganizationSettings> {
 
     const settings = await this.orgSettingsRepository.findOne({ where: { organizationId } });
     if (!settings || !settings.defaultAccountsReceivableId || !settings.defaultSalesRevenueId || !settings.defaultSalesTaxId) {
-      throw new BadRequestException('La configuración de cuentas automáticas para esta organización es incompleta. Faltan cuentas de Cuentas por Cobrar, Ingresos por Ventas o Impuestos sobre Ventas.');
+      throw new BadRequestError('INVOICES.CONFIGURACION_CUENTAS_AUTOMATICAS_ESTA_ORGANIZACION_ES_INCOMPLETA');
     }
 
     return settings;

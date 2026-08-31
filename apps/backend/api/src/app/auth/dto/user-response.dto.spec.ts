@@ -103,7 +103,20 @@ describe('UserResponseDto serialization contract', () => {
   it('strips secrets from the nested organization object', () => {
     const result = serialize() as unknown as { organization: Record<string, unknown> };
     expect(Object.keys(result.organization).sort()).toEqual(
-      ['id', 'legalName', 'taxId', 'logoUrl', 'subscriptionStatus', 'gracePeriodEnd'].sort(),
+      [
+        'id',
+        'legalName',
+        'taxId',
+        'logoUrl',
+        'subscriptionStatus',
+        'gracePeriodEnd',
+        // Locale context: what the browser cannot infer and needs in order to format an amount
+        // or an accounting date the way this tenant reads them.
+        'countryCode',
+        'currency',
+        'timezone',
+        'booksLanguage',
+      ].sort(),
     );
   });
 

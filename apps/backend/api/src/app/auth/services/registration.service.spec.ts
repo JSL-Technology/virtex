@@ -22,6 +22,7 @@ import { JwtService } from '@nestjs/jwt';
 import { MembershipService } from '../../organizations/services/membership.service';
 import { PaymentService } from '../../payment/payment.service';
 import { ConfigService } from '@nestjs/config';
+import { expectLocalizedError } from '../../i18n/testing/expect-localized-error';
 
 describe('RegistrationService', () => {
   let service: RegistrationService;
@@ -292,9 +293,11 @@ describe('RegistrationService', () => {
       it('still surfaces the original failure to the caller', async () => {
         // The compensation must not swallow the error: the confirm endpoint has to answer with a
         // failure, not report a success for an account that does not exist.
-        await expect(
+        await expectLocalizedError(
           service.completePendingRegistration('pending-1', subscription),
-        ).rejects.toThrow(/Referencia: pending-1/);
+          'AUTH.NO_PUDO_ACTIVAR_TU_PLAN_TU_PAGO',
+          { pendingId: 'pending-1' },
+        );
       });
     });
   });

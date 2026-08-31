@@ -1,11 +1,4 @@
-import {
-  Injectable,
-  UnauthorizedException,
-  Logger,
-  NotFoundException,
-  Inject,
-  forwardRef,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException, Logger, Inject, forwardRef } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, LessThan, MoreThan, In } from 'typeorm';
@@ -32,6 +25,7 @@ import { CryptoUtil } from '../../shared/utils/crypto.util';
 import { AuthConfig } from '../auth.config';
 import { SessionRegistryService } from './session-registry.service';
 import { KeyManagementService } from './key-management.service';
+import { NotFoundError } from '../../i18n/localized.exception';
 
 @Injectable()
 export class SessionService {
@@ -453,7 +447,7 @@ export class SessionService {
     if (!result.affected) {
       // Either it does not exist, belongs to someone else, or is already revoked. The message is
       // deliberately identical in all three cases so it cannot be used to probe other users' ids.
-      throw new NotFoundException('Sesión no encontrada o no pertenece al usuario.');
+      throw new NotFoundError('AUTH.SESION_NO_ENCONTRADA_NO_PERTENECE_USUARIO');
     }
 
     await this.sessionRegistry.revoke(sessionId);

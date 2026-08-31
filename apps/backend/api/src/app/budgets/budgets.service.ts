@@ -1,5 +1,5 @@
 
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Budget } from './entities/budget.entity';
@@ -7,6 +7,7 @@ import { CreateBudgetDto } from './dto/create-budget.dto';
 import { UpdateBudgetDto } from './dto/update-budget.dto';
 import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line.entity';
 import { BudgetLine } from './entities/budget-line.entity';
+import { NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class BudgetsService {
@@ -46,7 +47,7 @@ export class BudgetsService {
         relations: ['lines']
     });
     if (!budget) {
-      throw new NotFoundException(`Presupuesto con ID "${id}" no encontrado.`);
+      throw new NotFoundError('BUDGETS.PRESUPUESTO_ID_NO_ENCONTRADO', { id });
     }
     return budget;
   }
@@ -74,7 +75,7 @@ export class BudgetsService {
   async remove(id: string, organizationId: string): Promise<void> {
     const result = await this.budgetRepository.delete({ id, organizationId });
     if (result.affected === 0) {
-        throw new NotFoundException(`Presupuesto con ID "${id}" no encontrado.`);
+        throw new NotFoundError('BUDGETS.PRESUPUESTO_ID_NO_ENCONTRADO', { id });
     }
   }
 

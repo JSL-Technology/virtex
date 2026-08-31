@@ -1,5 +1,5 @@
 
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Customer } from './entities/customer.entity';
@@ -8,6 +8,7 @@ import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { DataSource } from 'typeorm';
 import { SaasService } from '../saas/saas.service';
 import { SaasResource } from '../saas/enums/saas-resource.enum';
+import { NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class CustomersService {
@@ -52,7 +53,7 @@ export class CustomersService {
       where: { id, organizationId },
     });
     if (!customer) {
-      throw new NotFoundException(`Cliente con ID "${id}" no encontrado.`);
+      throw new NotFoundError('CUSTOMERS.CLIENTE_ID_NO_ENCONTRADO', { id });
     }
     return customer;
   }
