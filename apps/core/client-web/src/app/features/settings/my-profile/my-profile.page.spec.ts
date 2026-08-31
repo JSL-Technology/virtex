@@ -39,7 +39,7 @@ class MockAuthService {
     preferredLanguage: 'en',
     isTwoFactorEnabled: false
   });
-  checkAuthStatus = jest.fn().mockReturnValue(of({}));
+  reloadSession = jest.fn().mockReturnValue(of(true));
 }
 
 class MockUsersService {

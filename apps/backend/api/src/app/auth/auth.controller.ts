@@ -14,6 +14,7 @@ import { RegisterCheckoutDto } from './dto/register-checkout.dto';
 import { RegisterConfirmDto } from './dto/register-confirm.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { JwtAuthGuard } from './guards/jwt/jwt.guard';
+import { OptionalJwtAuthGuard } from './guards/jwt/optional-jwt.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { Throttle } from '@nestjs/throttler';
@@ -58,6 +59,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { LoginResponseDto } from './dto/responses/login-response.dto';
+import { SessionResponseDto } from './dto/responses/session-response.dto';
 import { plainToInstance } from 'class-transformer';
 import { EnableTwoFactorDto } from './dto/enable-2fa.dto';
 import { CsrfGuard } from './guards/csrf.guard';
@@ -575,12 +577,34 @@ export class AuthController {
   ): Promise<AuthResponseDto> {
     const refreshToken = req.cookies?.['__Secure-refresh_token'] || req.cookies?.refresh_token;
     if (!refreshToken) {
-      throw new BadRequestException('Refresh token no encontrado en cookies');
+      // No credential was presented, which is 401 — not 400. The request is perfectly well
+      // formed; it simply carries nothing to renew. Clearing here matters more than the status
+      // code: a browser that reached this point holds a session marker with no refresh token
+      // behind it, and would otherwise be told "refreshable" on every bootstrap for the rest of
+      // that marker's life.
+      this.cookieService.clearAuthCookies(res);
+      throw new UnauthorizedException('No hay sesión que renovar.');
     }
 
-    const result = await this.authService.refreshAccessToken(refreshToken, ip, userAgent);
+    let result: Awaited<ReturnType<AuthService['refreshAccessToken']>>;
+    try {
+      result = await this.authService.refreshAccessToken(refreshToken, ip, userAgent);
+    } catch (error) {
+      // Expired, revoked, replayed, or bound to another device: the session is over and cannot
+      // be revived. Leaving its cookies in place would make every subsequent page load repeat
+      // this exact failure, so the browser is put back into a clean signed-out state and the
+      // client is told once, plainly.
+      if (error instanceof UnauthorizedException) {
+        this.cookieService.clearAuthCookies(res);
+      }
+      throw error;
+    }
 
-    this.cookieService.setAuthCookies(res, result.accessToken, result.refreshToken, { userId: result.user?.id });
+    this.cookieService.setAuthCookies(res, result.accessToken, result.refreshToken, {
+      userId: result.user?.id,
+      // Preserved across the rotation — see SessionService.refreshAccessToken.
+      rememberMe: result.rememberMe,
+    });
 
     return {
       user: plainToInstance(UserResponseDto, result.user, { excludeExtraneousValues: true }),
@@ -861,14 +885,91 @@ export class AuthController {
       return this.authService.verifyStepUpToken(token, user.id, scope as StepUpScope);
   }
 
-  @Get('status')
-  @UseGuards(JwtAuthGuard)
+  /**
+   * Session bootstrap: what session does this browser have?
+   *
+   * This replaces `GET /auth/status`, which was `JwtAuthGuard`-protected and therefore answered
+   * the most common state the application is ever in — nobody signed in — with 401. The client
+   * could not distinguish "your access token just expired" from "you have never signed in", so it
+   * responded to both by firing `POST /auth/refresh`, which for a signed-out visitor could only
+   * fail as well. Loading the login page cost two failed requests, and did so on every guard
+   * evaluation. None of it indicated a fault: a 401 has to mean something is wrong, or it means
+   * nothing at all, and an error rate that is always red is an error rate nobody reads.
+   *
+   * So the question is now asked of an endpoint that always answers, and answers completely:
+   *
+   *   - `authenticated` — resolved by the same `JwtStrategy` as every protected route, through
+   *     {@link OptionalJwtAuthGuard}, which reports absence instead of rejecting it. An expired or
+   *     tampered token is indistinguishable from none: both are simply "not authenticated".
+   *   - `refreshable` — whether a silent refresh is worth attempting, read from the session marker
+   *     cookie. This is what removes the guessing: the client calls `POST /auth/refresh` only when
+   *     the server has said it can succeed.
+   *   - the CSRF token — reissued on every call, bound to whoever turned out to be signed in.
+   *
+   * That last point closes a real gap rather than merely quieting the console. The token used to
+   * be minted only alongside a session, so a browser holding a session cookie but no readable
+   * XSRF cookie — cleared cookies, a rotated `CSRF_SECRET`, a token bound to a user who has since
+   * signed out — could never satisfy `CsrfGuard` again. `POST /auth/refresh` answered 403 for the
+   * rest of that cookie's life and the only exit was clearing site data by hand. Bootstrap now
+   * hands out a valid, correctly bound token before the SPA needs one, so that state repairs
+   * itself on the next page load.
+   *
+   * `@Public()` exempts it from the global `JwtAuthGuard`; `OptionalJwtAuthGuard` then resolves
+   * the principal when there is one. The response is `no-store` — it is per-browser session state
+   * and must never be served from a cache — and it discloses nothing to an anonymous caller
+   * beyond what that caller already sent.
+   */
+  @Public()
+  @Get('session')
+  @UseGuards(OptionalJwtAuthGuard)
   @Header('Cache-Control', 'no-store')
-  async checkAuthStatus(@CurrentUser() user: AuthenticatedUser) {
-    const statusResponse = await this.authService.status(user as unknown as AuthenticatedUser);
+  @ApiOperation({
+    summary: 'Report the caller\'s session state. Always 200 — "signed out" is an answer, not an error.',
+  })
+  @ApiResponse({ status: 200, type: SessionResponseDto })
+  async getSession(
+    @CurrentUser() user: AuthenticatedUser | null,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<SessionResponseDto> {
+    const cookies = req.cookies as Record<string, string | undefined> | undefined;
+
+    if (user) {
+      try {
+        // Re-read from the source of truth: a role change, a deactivation or an organization
+        // switch must reach the client on the next page load, not at token expiry.
+        const { user: freshUser } = await this.authService.status(user);
+        this.cookieService.setCsrfCookie(res, freshUser.id);
+        return {
+          authenticated: true,
+          user: plainToInstance(UserResponseDto, freshUser, { excludeExtraneousValues: true }),
+          // Nothing to renew: the access token presented with this request is valid.
+          refreshable: false,
+        };
+      } catch (error) {
+        // The token verified but the principal behind it no longer may sign in — deactivated,
+        // locked, deleted. Only that case: an infrastructure failure must still surface as 5xx
+        // rather than being reported to the user as "you are signed out".
+        if (!(error instanceof UnauthorizedException)) {
+          throw error;
+        }
+        this.logger.log(
+          { event: 'session_principal_rejected', userId: user.id },
+          'Session bootstrap: token valid but principal is no longer authenticable',
+        );
+        // Cookies for a session that cannot be revived are worse than no cookies: they would keep
+        // this browser reporting `refreshable` forever.
+        this.cookieService.clearAuthCookies(res);
+        this.cookieService.setCsrfCookie(res);
+        return { authenticated: false, user: null, refreshable: false };
+      }
+    }
+
+    this.cookieService.setCsrfCookie(res);
     return {
-      isAuthenticated: true,
-      user: plainToInstance(UserResponseDto, statusResponse.user, { excludeExtraneousValues: true }),
+      authenticated: false,
+      user: null,
+      refreshable: this.cookieService.hasSessionMarker(cookies),
     };
   }
 

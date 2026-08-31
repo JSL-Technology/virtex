@@ -125,19 +125,83 @@ export class CookieService {
     });
 
     if (refreshToken) {
+      const refreshMaxAge = rememberMe
+        ? AuthConfig.COOKIE_REFRESH_REMEMBER_ME_MAX_AGE
+        : AuthConfig.COOKIE_REFRESH_MAX_AGE;
+
       res.cookie(refresh.name, refreshToken, {
         ...baseOptions,
-        maxAge: CookieService.maxAgeSeconds(
-          rememberMe
-            ? AuthConfig.COOKIE_REFRESH_REMEMBER_ME_MAX_AGE
-            : AuthConfig.COOKIE_REFRESH_MAX_AGE,
-        ),
+        maxAge: CookieService.maxAgeSeconds(refreshMaxAge),
         // Path-scoped so the long-lived refresh token is not attached to every API call.
         path: refresh.path,
       });
+
+      // Mirrors the refresh cookie's lifetime at Path=/ so `GET /auth/session` can see it.
+      this.setSessionMarkerCookie(res, refreshMaxAge);
     }
 
     this.setCsrfCookie(res, userId);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Session marker
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Names the session marker has been issued under, most-secure first.
+   *
+   * Same rule as everywhere else here: the prefixed form is what a deployment writes, the bare
+   * one exists only in local plain-HTTP development where browsers reject `Secure`.
+   */
+  private sessionMarkerCookieNames(): string[] {
+    return ['__Host-auth_session', 'auth_session'];
+  }
+
+  /** The name this environment writes. */
+  sessionMarkerCookieName(): string {
+    return this.isInsecureDevEnvironment() ? 'auth_session' : '__Host-auth_session';
+  }
+
+  /**
+   * A presence flag saying "this browser holds a refresh token", readable at `Path=/`.
+   *
+   * The refresh cookie itself is deliberately scoped to `POST /auth/refresh`, so that a long-lived
+   * credential is not attached to every API call. The cost of that scoping is that NO other
+   * endpoint can see it — including the one that has to tell the SPA whether a silent refresh is
+   * worth attempting. Without an answer the client has only two options, and both are wrong: never
+   * refresh (every expired access token becomes a forced re-login) or always refresh (every
+   * signed-out visitor fires a request that can only fail — the 400/401/403 noise this cookie
+   * exists to remove).
+   *
+   * It carries no authority whatsoever: a constant, not a token. Presenting it proves nothing and
+   * grants nothing — `POST /auth/refresh` still demands the real refresh token and a valid CSRF
+   * token. It is `httpOnly` even so, because nothing in the browser needs to read it and an
+   * attribute that costs nothing to set should be set. Its lifetime is the refresh cookie's, so
+   * the two expire together and a stale marker cannot outlive the session it describes; both are
+   * also cleared together on sign-out and on a refresh that the server rejects.
+   */
+  setSessionMarkerCookie(res: Response, maxAgeMs: number): void {
+    const insecureDev = this.isInsecureDevEnvironment();
+    res.cookie(this.sessionMarkerCookieName(), '1', {
+      httpOnly: true,
+      secure: !insecureDev,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: CookieService.maxAgeSeconds(maxAgeMs),
+    });
+  }
+
+  /** Whether this browser claims to hold a refresh token. Never a grant of authority — see above. */
+  hasSessionMarker(cookies: Record<string, string | undefined> | undefined): boolean {
+    if (!cookies) return false;
+    return this.sessionMarkerCookieNames().some((name) => Boolean(cookies[name]));
+  }
+
+  clearSessionMarkerCookie(res: Response): void {
+    const insecureDev = this.isInsecureDevEnvironment();
+    for (const name of this.sessionMarkerCookieNames()) {
+      res.clearCookie(name, { path: '/', secure: name.startsWith('__') || !insecureDev });
+    }
   }
 
   /**
@@ -410,6 +474,7 @@ export class CookieService {
     for (const name of this.csrfCookieNames()) {
       res.clearCookie(name, { path: '/', secure: name.startsWith('__') || !insecureDev });
     }
+    this.clearSessionMarkerCookie(res);
     this.clearStepUpCookie(res);
     // Signing out must not leave a pending second-factor cookie behind. It is short-lived and
     // useless without its server-side entry, but "logout cleared everything except one auth
