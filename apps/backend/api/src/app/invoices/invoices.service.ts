@@ -34,6 +34,8 @@ import { ExchangeRate } from '../currencies/entities/exchange-rate.entity';
 import { Buffer } from 'buffer';
 import { SaasService } from '../saas/saas.service';
 import { SaasResource } from '../saas/enums/saas-resource.enum';
+import { EcfSubmissionService } from '../einvoicing/services/ecf-submission.service';
+import { assertAllowedTaxRate } from './tax-engine';
 
 @Injectable()
 export class InvoicesService {
@@ -56,7 +58,8 @@ export class InvoicesService {
     private readonly complianceService: ComplianceService,
     private readonly documentSequencesService: DocumentSequencesService,
     private readonly fiscalAdapterFactory: FiscalAdapterFactory,
-    private readonly saasService: SaasService
+    private readonly saasService: SaasService,
+    private readonly ecfSubmissionService: EcfSubmissionService
   ) {
     this.compileTemplate();
   }
@@ -95,7 +98,7 @@ export class InvoicesService {
     createInvoiceDto: CreateInvoiceDto,
     organizationId: string,
   ): Promise<Invoice> {
-    return this.dataSource.transaction(async (manager) => {
+    const created = await this.dataSource.transaction(async (manager) => {
       // Enforce SaaS Limit transactionally
       await this.saasService.enforceLimit(manager, organizationId, SaasResource.INVOICES);
 
@@ -105,8 +108,14 @@ export class InvoicesService {
       );
 
       const settings = await this.getOrgAccountingConfig(organizationId);
-      // Remove hardcoded defaultTaxRate here. If not provided in DTO, it should be 0 or validated elsewhere.
-      // Ideally, the frontend sends the correct tax rate. If missing, we assume 0 or handle it via a tax engine in the future.
+
+      // Tax rates are validated server-side against the organization's market so a client cannot bill
+      // an invented rate. See tax-engine.ts.
+      const organization = await manager.findOne(Organization, {
+        where: { id: organizationId },
+        select: ['id', 'country'],
+      });
+      const orgCountry = organization?.country ?? null;
 
       let subtotal = 0;
       let totalTax = 0;
@@ -126,9 +135,10 @@ export class InvoicesService {
         const linePrice = itemDto.price ?? product.price;
         const lineTotal = linePrice * itemDto.quantity;
         
-        // Calculate tax per line
-        // If taxRate is undefined, we default to 0 instead of 0.18 to avoid unexpected taxes.
+        // Calculate tax per line. If taxRate is undefined we default to 0; whatever the value, it is
+        // validated against the market's real tax rates so an invalid rate is rejected up front.
         const lineTaxRate = itemDto.taxRate !== undefined ? itemDto.taxRate : 0;
+        assertAllowedTaxRate(orgCountry, lineTaxRate);
         const lineTaxAmount = lineTotal * lineTaxRate;
 
         subtotal += lineTotal;
@@ -161,14 +171,23 @@ export class InvoicesService {
       const currencyCode = createInvoiceDto.currencyCode || baseCurrency;
 
       if (currencyCode !== baseCurrency) {
-          const rate = await this.exchangeRateRepository.findOne({ 
-              where: { fromCurrency: baseCurrency, toCurrency: currencyCode, date: LessThanOrEqual(new Date(createInvoiceDto.issueDate)) }, 
+          const rate = await this.exchangeRateRepository.findOne({
+              where: { fromCurrency: baseCurrency, toCurrency: currencyCode, date: LessThanOrEqual(new Date(createInvoiceDto.issueDate)) },
               order: { date: 'DESC' }
           });
           if (!rate) {
             throw new BadRequestException(`No se encontró una tasa de cambio válida para ${currencyCode} en la fecha especificada.`);
           }
-          exchangeRate = rate.rate;
+          // `exchange_rates.rate` is stored as units of `toCurrency` per 1 `fromCurrency`
+          // (fromCurrency = base, toCurrency = transaction). `Invoice.exchangeRate` is documented as
+          // the rate to convert FROM the transaction currency TO the base currency — i.e. base units
+          // per 1 transaction unit — so it is the inverse. Multiplying the transaction total by the
+          // raw base→transaction rate inflated `totalInBaseCurrency` by rate^2; we invert it here.
+          const baseToTransaction = Number(rate.rate);
+          if (!Number.isFinite(baseToTransaction) || baseToTransaction <= 0) {
+            throw new BadRequestException(`La tasa de cambio configurada para ${currencyCode} no es válida.`);
+          }
+          exchangeRate = 1 / baseToTransaction;
       }
 
       
@@ -210,6 +229,24 @@ export class InvoicesService {
       this.logger.log(`Factura ${savedInvoice.invoiceNumber} creada exitosamente en ${savedInvoice.currencyCode}.`);
       return savedInvoice;
     });
+
+    // e-CF is transmitted AFTER the sale is committed, so a slow/unreachable DGII never rolls back
+    // the invoice. Fire-and-forget: the submission row records the outcome and the reconciler retries
+    // anything left in contingency/error.
+    this.triggerEcfSubmission(created);
+    return created;
+  }
+
+  /** Kicks off asynchronous e-CF transmission for an electronic e-NCF (E-series) document. */
+  private triggerEcfSubmission(invoice: Invoice): void {
+    if (!invoice.ncfNumber || !invoice.ncfNumber.startsWith('E')) return;
+    this.ecfSubmissionService
+      .submitInvoice(invoice.id, invoice.organizationId)
+      .catch((err) =>
+        this.logger.error(
+          `Fallo al transmitir el e-CF de la factura ${invoice.invoiceNumber}: ${(err as Error).message}`,
+        ),
+      );
   }
 
   findAll(organizationId: string): Promise<Invoice[]> {
@@ -275,7 +312,7 @@ export class InvoicesService {
     dto: CreateCreditNoteDto,
     organizationId: string,
   ): Promise<Invoice> {
-    return this.dataSource.transaction(async (manager) => {
+    const created = await this.dataSource.transaction(async (manager) => {
         const { invoiceId, items } = dto;
         const originalInvoice = await manager.findOne(Invoice, {
             where: { id: invoiceId, organizationId },
@@ -428,6 +465,9 @@ export class InvoicesService {
         this.logger.log(`Nota de crédito ${savedCreditNote.invoiceNumber} creada para factura ${originalInvoice.invoiceNumber}.`);
         return savedCreditNote;
     });
+
+    this.triggerEcfSubmission(created);
+    return created;
   }
 
   async registerPayment(

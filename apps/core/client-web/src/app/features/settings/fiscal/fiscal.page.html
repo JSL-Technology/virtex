@@ -1,0 +1,138 @@
+<div class="fiscal-page">
+  <header class="page-header">
+    <h1>Facturación electrónica (RD · DGII)</h1>
+    <p>Configura el certificado de firma, los rangos de e-NCF autorizados y descarga los reportes 606/607.</p>
+  </header>
+
+  <!-- Certificado digital -->
+  <section class="card">
+    <h2>Certificado digital</h2>
+    <p class="hint">
+      Sube tu certificado (.p12 / .pfx) emitido por una entidad autorizada por la DGII. Se cifra en
+      reposo y solo se usa para firmar e-CF.
+    </p>
+
+    <form [formGroup]="certForm" (ngSubmit)="uploadCertificate()" class="form-grid">
+      <label>
+        <span>Alias</span>
+        <input type="text" formControlName="alias" placeholder="Certificado DGII 2025" />
+      </label>
+      <label>
+        <span>Contraseña del certificado</span>
+        <input type="password" formControlName="password" autocomplete="off" />
+      </label>
+      <label>
+        <span>Archivo (.p12 / .pfx)</span>
+        <input type="file" accept=".p12,.pfx" (change)="onFileSelected($event)" />
+      </label>
+      <button type="submit" [disabled]="uploading()">
+        {{ uploading() ? 'Subiendo…' : 'Subir certificado' }}
+      </button>
+    </form>
+
+    <table class="data-table" *ngIf="certificates().length; else noCerts">
+      <thead>
+        <tr><th>Alias</th><th>Titular</th><th>Vence</th><th>Estado</th><th></th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of certificates()">
+          <td>{{ c.alias }}</td>
+          <td>{{ c.subjectCommonName || '—' }}</td>
+          <td [class.expired]="c.expired">{{ c.notAfter ? (c.notAfter | date:'dd/MM/yyyy') : '—' }}</td>
+          <td>
+            <span class="badge" [class.active]="c.isActive && !c.expired" [class.inactive]="!c.isActive || c.expired">
+              {{ c.expired ? 'Vencido' : (c.isActive ? 'Activo' : 'Inactivo') }}
+            </span>
+          </td>
+          <td>
+            <button type="button" class="link-danger" *ngIf="c.isActive" (click)="deactivateCertificate(c.id)">
+              Desactivar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <ng-template #noCerts><p class="empty">Aún no has cargado un certificado.</p></ng-template>
+  </section>
+
+  <!-- Secuencias e-NCF -->
+  <section class="card">
+    <h2>Rangos de e-NCF autorizados</h2>
+    <p class="hint">
+      Registra los rangos que la DGII te autorizó. Sin un rango activo del tipo correspondiente no se
+      puede emitir el comprobante.
+    </p>
+
+    <form [formGroup]="sequenceForm" (ngSubmit)="provisionSequence()" class="form-grid">
+      <label>
+        <span>Tipo</span>
+        <select formControlName="type">
+          <option *ngFor="let t of ncfTypes" [value]="t.value">{{ t.label }}</option>
+        </select>
+      </label>
+      <label>
+        <span>Prefijo</span>
+        <input type="text" formControlName="prefix" />
+      </label>
+      <label>
+        <span>Desde</span>
+        <input type="number" formControlName="startsAt" min="1" />
+      </label>
+      <label>
+        <span>Hasta</span>
+        <input type="number" formControlName="endsAt" min="1" />
+      </label>
+      <button type="submit" [disabled]="provisioning()">
+        {{ provisioning() ? 'Registrando…' : 'Registrar rango' }}
+      </button>
+    </form>
+
+    <table class="data-table" *ngIf="sequences().length; else noSeq">
+      <thead>
+        <tr><th>Tipo</th><th>Prefijo</th><th>Desde</th><th>Hasta</th><th>Actual</th><th>Estado</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let s of sequences()">
+          <td>{{ s.type }}</td>
+          <td>{{ s.prefix }}</td>
+          <td>{{ s.startsAt }}</td>
+          <td>{{ s.endsAt }}</td>
+          <td>{{ s.currentSequence }}</td>
+          <td>
+            <span class="badge" [class.active]="s.isActive" [class.inactive]="!s.isActive">
+              {{ s.isActive ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <ng-template #noSeq><p class="empty">Aún no has registrado rangos de e-NCF.</p></ng-template>
+  </section>
+
+  <!-- Reportes DGII -->
+  <section class="card">
+    <h2>Reportes DGII (606 / 607)</h2>
+    <p class="hint">Genera los formatos de envío de compras (606) y ventas (607) para un período.</p>
+
+    <form [formGroup]="reportForm" (ngSubmit)="downloadReport()" class="form-grid">
+      <label>
+        <span>Reporte</span>
+        <select formControlName="kind">
+          <option value="607">607 · Ventas</option>
+          <option value="606">606 · Compras</option>
+        </select>
+      </label>
+      <label>
+        <span>Año</span>
+        <input type="number" formControlName="year" min="2000" />
+      </label>
+      <label>
+        <span>Mes</span>
+        <input type="number" formControlName="month" min="1" max="12" />
+      </label>
+      <button type="submit" [disabled]="downloading()">
+        {{ downloading() ? 'Generando…' : 'Descargar' }}
+      </button>
+    </form>
+  </section>
+</div>
