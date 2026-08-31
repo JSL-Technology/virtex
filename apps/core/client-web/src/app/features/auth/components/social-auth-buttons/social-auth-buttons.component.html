@@ -1,26 +1,22 @@
+<!--
+  Solo iconos. El nombre del proveedor vive en el `aria-label` de cada botón:
+  un lector de pantalla lo anuncia, y sobre el cristal el logotipo identifica al
+  proveedor de un vistazo sin necesidad de etiqueta.
+-->
 <div class="social-auth-grid">
   <button (click)="loginWith('google')" class="social-btn" aria-label="Sign in with Google">
-    <div class="social-btn-content">
-      <img src="assets/icons/google.svg" alt="" class="social-icon">
-      <span class="social-label">Google</span>
-    </div>
+    <img src="assets/icons/google.svg" alt="" class="social-icon">
   </button>
 
   <button (click)="loginWith('microsoft')" class="social-btn" aria-label="Sign in with Microsoft">
-    <div class="social-btn-content">
-      <img src="assets/icons/microsoft.svg" alt="" class="social-icon">
-      <span class="social-label">Microsoft</span>
-    </div>
+    <img src="assets/icons/microsoft.svg" alt="" class="social-icon">
   </button>
 
-  <button (click)="loginWith('sso')" class="social-btn" aria-label="Sign in with your company SSO">
-    <div class="social-btn-content">
-      <svg class="social-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
-           xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M3 21h18M5 21V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v16M9 7h2m-2 4h2m-2 4h2m4-8h.01M15 11h.01"
-              stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <span class="social-label">{{ 'LOGIN.SSO_BUTTON' | translate }}</span>
-    </div>
+  <button (click)="loginWith('sso')" class="social-btn" [attr.aria-label]="'LOGIN.SSO_BUTTON' | translate">
+    <svg class="social-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+         xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M3 21h18M5 21V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v16M9 7h2m-2 4h2m-2 4h2m4-8h.01M15 11h.01"
+            stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
   </button>
 </div>

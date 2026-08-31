@@ -1,27 +1,40 @@
 <button
   type="button"
   class="passkey-card"
+  [class.passkey-card--icon]="iconOnly"
   [class.loading]="loading"
   [disabled]="loading"
   [attr.aria-busy]="loading || null"
+  [attr.aria-label]="iconOnly ? ('LOGIN.PASSKEY_BUTTON_SHORT' | translate) : null"
   (click)="clicked.emit()">
 
-  <span class="icon-wrapper" aria-hidden="true">
-    <img src="assets/icons/passkey.svg" alt="" class="passkey-icon">
-  </span>
-
-  <span class="text-wrapper">
-    <span class="passkey-title">{{ 'LOGIN.PASSKEY_BUTTON_SHORT' | translate }}</span>
-    <span class="passkey-subtitle">{{ 'LOGIN.PASSKEY_SUBTITLE' | translate }}</span>
-  </span>
-
-  @if (loading) {
-    <span class="spinner" aria-hidden="true"></span>
+  @if (iconOnly) {
+    <!-- Solo icono: el nombre va en el aria-label del botón. -->
+    @if (loading) {
+      <span class="spinner" aria-hidden="true"></span>
+    } @else {
+      <span class="icon-wrapper" aria-hidden="true">
+        <img src="assets/icons/passkey.svg" alt="" class="passkey-icon">
+      </span>
+    }
   } @else {
-    <svg class="passkey-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none"
-         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-         aria-hidden="true">
-      <path d="m9 18 6-6-6-6"/>
-    </svg>
+    <span class="icon-wrapper" aria-hidden="true">
+      <img src="assets/icons/passkey.svg" alt="" class="passkey-icon">
+    </span>
+
+    <span class="text-wrapper">
+      <span class="passkey-title">{{ 'LOGIN.PASSKEY_BUTTON_SHORT' | translate }}</span>
+      <span class="passkey-subtitle">{{ 'LOGIN.PASSKEY_SUBTITLE' | translate }}</span>
+    </span>
+
+    @if (loading) {
+      <span class="spinner" aria-hidden="true"></span>
+    } @else {
+      <svg class="passkey-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+           aria-hidden="true">
+        <path d="m9 18 6-6-6-6"/>
+      </svg>
+    }
   }
 </button>

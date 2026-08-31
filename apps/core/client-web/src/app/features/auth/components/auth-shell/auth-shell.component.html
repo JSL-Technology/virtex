@@ -1,0 +1,10 @@
+<app-auth-layout [width]="width()" [backgroundImage]="backgroundImage">
+  <!--
+    El contenido de cada pantalla se renderiza aquí dentro. El `[@authContent]`
+    se re-evalúa con el `path` de la ruta activa, así que la transición se
+    dispara en cada navegación sin tocar el armazón que lo rodea.
+  -->
+  <div class="auth-content" [@authContent]="routeState(outlet)">
+    <router-outlet #outlet="outlet"></router-outlet>
+  </div>
+</app-auth-layout>

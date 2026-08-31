@@ -294,6 +294,7 @@
       "FEDERATED_OK": "Identidad verificada. Vuelve a pulsar la acción que querías realizar.",
       "FEDERATED_FAILED": "No pudimos verificar tu identidad con el proveedor. Inténtalo de nuevo."
     },
+    "RECAPTCHA_PROTECTED": "Protegido por reCAPTCHA.",
     "TERMS": "Términos",
     "PRIVACY": "Privacidad",
     "SECURITY": "Seguridad",
@@ -1044,9 +1045,10 @@
     "LOGGING_IN": "Iniciando sesión",
     "SSO_BUTTON": "SSO",
     "SSO": {
+      "TITLE": "Acceso corporativo",
       "PROMPT": "Ingresa tu correo corporativo para continuar con el inicio de sesión único de tu empresa.",
       "CONTINUE": "Continuar",
-      "CANCEL": "Cancelar",
+      "CANCEL": "Volver al inicio de sesión",
       "NOT_FOUND": "No hay inicio de sesión único configurado para ese dominio de correo. Usa otro método."
     },
     "2FA": {

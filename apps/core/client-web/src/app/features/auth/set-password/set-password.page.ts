@@ -9,7 +9,6 @@ import { environment } from '../../../../environments/environment';
 import { LucideAngularModule, Lock, AlertCircle } from 'lucide-angular';
 
 // Shared
-import { AuthLayoutComponent } from '../components/auth-layout/auth-layout.component';
 import { AuthInputComponent } from '../components/auth-input/auth-input.component';
 import { AuthButtonComponent } from '../components/auth-button/auth-button.component';
 import { PasswordStrengthComponent } from '../../../shared/components/password-strength/password-strength.component';
@@ -34,7 +33,6 @@ const passwordMatchValidator: ValidatorFn = (group: AbstractControl): Validation
     TranslateModule,
     RecaptchaV3Module,
     LucideAngularModule,
-    AuthLayoutComponent,
     AuthInputComponent,
     AuthButtonComponent,
     PasswordStrengthComponent,

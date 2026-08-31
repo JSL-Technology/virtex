@@ -1,0 +1,11 @@
+:host {
+  display: block;
+}
+
+//  `position: relative` es lo que ancla a la pantalla saliente, que durante la
+//  transición se saca del flujo (`position: absolute`) para superponerse con la
+//  entrante en el mismo sitio.
+.auth-content {
+  position: relative;
+  display: block;
+}

@@ -174,24 +174,6 @@
   text-decoration: none;
 }
 
-@mixin legal-text {
-  margin: var(--space-6) 0 0;
-  font-size: var(--text-2xs);
-  color: var(--content-tertiary);
-  text-align: center;
-  line-height: var(--leading-snug);
-
-  a {
-    color: var(--content-secondary);
-    text-decoration: none;
-
-    &:hover {
-      color: var(--content-primary);
-      text-decoration: underline;
-    }
-  }
-}
-
 //  Enlace cruzado del pie de la lámina (acceso ↔ alta).
 @mixin cross-link {
   margin: 0;

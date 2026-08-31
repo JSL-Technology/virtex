@@ -11,7 +11,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, Mail, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-angular';
 
 // Shared Components
-import { AuthLayoutComponent } from '../../components/auth-layout/auth-layout.component';
 import { AuthInputComponent } from '../../components/auth-input/auth-input.component';
 import { AuthButtonComponent } from '../../components/auth-button/auth-button.component';
 import { BrandLogo } from '../../../../shared/components/brand-logo/brand-logo';
@@ -26,7 +25,6 @@ import { BrandLogo } from '../../../../shared/components/brand-logo/brand-logo';
     RouterModule,
     TranslateModule,
     LucideAngularModule,
-    AuthLayoutComponent,
     AuthInputComponent,
     AuthButtonComponent,
     BrandLogo,

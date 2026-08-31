@@ -294,6 +294,7 @@
       "FEDERATED_OK": "Identity verified. Click the action you wanted to perform again.",
       "FEDERATED_FAILED": "We couldn't verify your identity with the provider. Please try again."
     },
+    "RECAPTCHA_PROTECTED": "Protected by reCAPTCHA.",
     "TERMS": "Terms",
     "PRIVACY": "Privacy",
     "SECURITY": "Security",
@@ -1043,9 +1044,10 @@
     "LOGGING_IN": "Logging in",
     "SSO_BUTTON": "SSO",
     "SSO": {
+      "TITLE": "Company sign-in",
       "PROMPT": "Enter your work email to continue with your company's single sign-on.",
       "CONTINUE": "Continue",
-      "CANCEL": "Cancel",
+      "CANCEL": "Back to sign in",
       "NOT_FOUND": "No single sign-on is configured for that email domain. Please use another method."
     },
     "2FA": {

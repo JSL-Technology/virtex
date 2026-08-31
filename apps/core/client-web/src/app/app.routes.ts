@@ -97,35 +97,65 @@ export const APP_ROUTES: Routes = [
         path: 'auth',
         canActivateChild: [publicGuard],
         children: [
+            // Pantallas que conservan su propio armazón (no comparten la lámina
+            // persistente): la confirmación de pago y la selección de plan.
             {
-                path: 'login',
-                title: 'AUTH.TITLES.LOGIN',
-                loadComponent: () => import('./features/auth/login/login.page').then((m) => m.LoginPage),
-            },
-             {
-                path: 'forgot-password',
+                path: 'checkout-complete',
+                title: 'AUTH.TITLES.CHECKOUT',
                 loadComponent: () =>
-                import('./features/auth/forgot-password/forgot-password/forgot-password.page').then(
-                    (m) => m.ForgotPasswordPage
+                import('./features/auth/checkout-complete/checkout-complete.page').then(
+                    (m) => m.CheckoutCompletePage
                 ),
             },
             {
-                path: 'reset-password',
+                path: 'plan-selection',
+                title: 'AUTH.TITLES.PLAN',
                 loadComponent: () =>
-                import('./features/auth/reset-password/reset-password.page/reset-password.page').then(
-                    (m) => m.ResetPasswordPage
+                import('./features/payment/components/plan-selection/plan-selection.component').then(
+                    (m) => m.PlanSelectionComponent
                 ),
             },
+            // Armazón persistente: acceso, recuperación y restablecimiento
+            // comparten lienzo y lámina; al navegar solo cambia el contenido
+            // interior, con una transición suave.
             {
-                path: 'set-password',
-                title: 'AUTH.TITLES.SET_PASSWORD',
-                loadComponent: () =>
-                import('./features/auth/set-password/set-password.page').then((m) => m.SetPasswordPage),
-            },
-             {
                 path: '',
-                loadChildren: () =>
-                import('./features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
+                loadComponent: () =>
+                import('./features/auth/components/auth-shell/auth-shell.component').then(
+                    (m) => m.AuthShellComponent
+                ),
+                children: [
+                    {
+                        path: 'login',
+                        title: 'AUTH.TITLES.LOGIN',
+                        loadComponent: () => import('./features/auth/login/login.page').then((m) => m.LoginPage),
+                    },
+                    {
+                        path: 'forgot-password',
+                        loadComponent: () =>
+                        import('./features/auth/forgot-password/forgot-password/forgot-password.page').then(
+                            (m) => m.ForgotPasswordPage
+                        ),
+                    },
+                    {
+                        path: 'reset-password',
+                        loadComponent: () =>
+                        import('./features/auth/reset-password/reset-password.page/reset-password.page').then(
+                            (m) => m.ResetPasswordPage
+                        ),
+                    },
+                    {
+                        path: 'set-password',
+                        title: 'AUTH.TITLES.SET_PASSWORD',
+                        loadComponent: () =>
+                        import('./features/auth/set-password/set-password.page').then((m) => m.SetPasswordPage),
+                    },
+                    {
+                        path: '',
+                        pathMatch: 'full',
+                        redirectTo: 'login',
+                    },
+                ],
             },
         ]
       },

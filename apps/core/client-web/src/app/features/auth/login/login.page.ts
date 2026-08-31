@@ -11,7 +11,6 @@ import { RecaptchaV3Module, ReCaptchaV3Service } from 'ng-recaptcha-19';
 import { LucideAngularModule, Mail, Lock, User, ArrowRight, AlertCircle, CheckCircle, ShieldCheck, Camera, Briefcase, Users, Globe, Rocket, Check, ArrowLeft } from 'lucide-angular';
 
 // Shared Components
-import { AuthLayoutComponent } from '../components/auth-layout/auth-layout.component';
 import { AuthInputComponent } from '../components/auth-input/auth-input.component';
 import { AuthButtonComponent } from '../components/auth-button/auth-button.component';
 import { SocialAuthButtonsComponent } from '../components/social-auth-buttons/social-auth-buttons.component';
@@ -29,7 +28,6 @@ import { BrandLogo } from '../../../shared/components/brand-logo/brand-logo';
     TranslateModule,
     RecaptchaV3Module,
     LucideAngularModule,
-    AuthLayoutComponent,
     AuthInputComponent,
     AuthButtonComponent,
     SocialAuthButtonsComponent,

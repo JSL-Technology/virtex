@@ -51,5 +51,16 @@
       &copy; {{ currentYear }} {{ 'APP_TITLE' | translate }}. {{ 'AUTH.ALL_RIGHTS_RESERVED' | translate }}
     </p>
 
+    <!--
+      Aviso de reCAPTCHA. Vive aquí, en el pie compartido, y no repetido al pie
+      de cada formulario: es un texto legal fijo que no cambia entre pantallas.
+    -->
+    <p class="recaptcha-notice">
+      {{ 'AUTH.RECAPTCHA_PROTECTED' | translate }}
+      <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">{{ 'AUTH.PRIVACY' | translate }}</a>
+      &amp;
+      <a href="https://policies.google.com/terms" target="_blank" rel="noopener">{{ 'AUTH.TERMS' | translate }}</a>.
+    </p>
+
   </div>
 </footer>

@@ -1,11 +1,16 @@
 // =============================================================================
 //  PROVEEDORES DE IDENTIDAD EXTERNOS
 // =============================================================================
-//  Tres botones iguales en una fila. La igualdad es deliberada: ninguno de los
+//  Tres botones iguales, solo icono. La igualdad es deliberada: ninguno de los
 //  tres es «el recomendado», y darle más peso a uno empuja al usuario hacia un
-//  proveedor que quizá no sea el suyo.
+//  proveedor que quizá no sea el suyo. El nombre del proveedor vive en el
+//  `aria-label` de cada botón.
 // =============================================================================
 @use '../../../../../assets/styles/design-system' as ds;
+
+:host {
+  display: block;
+}
 
 .social-auth-grid {
   display: grid;
@@ -19,39 +24,14 @@
   padding-inline: var(--space-2);
   min-width: 0;
 
-  .social-btn-content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-2);
-    min-width: 0;
-  }
-
   .social-icon {
-    width: 1.05rem;
-    height: 1.05rem;
+    width: 1.15rem;
+    height: 1.15rem;
     flex-shrink: 0;
+    @include ds.transition(transform);
   }
 
-  .social-label {
-    @include ds.truncate;
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    color: var(--content-secondary);
-    @include ds.transition(color);
-  }
-
-  &:hover:not(:disabled) .social-label {
-    color: var(--content-primary);
-  }
-}
-
-//  Por debajo del móvil grande, tres etiquetas no caben sin recortarse hasta
-//  volverse ilegibles («Goo…», «Mic…»). Se conserva el icono, que es lo que
-//  identifica al proveedor de un vistazo, y la etiqueta pasa al `aria-label`
-//  que el botón ya llevaba.
-@include ds.bp-down('xs') {
-  .social-btn .social-label {
-    @include ds.visually-hidden;
+  &:hover:not(:disabled) .social-icon {
+    transform: scale(1.08);
   }
 }

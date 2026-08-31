@@ -150,6 +150,17 @@
   -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, #000 30%, transparent 100%);
 }
 
+//  Fotografía de fondo. Alternativa a los velos de aurora: una imagen a sangre
+//  que cubre el lienzo. El velo de contraste sigue yendo ENCIMA (ver más abajo)
+//  para sostener la legibilidad del formulario sobre cualquier zona de la foto.
+.auth-photo {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
 //  Velo de contraste. Ver comentario de cabecera: sostiene la legibilidad.
 .aurora-veil {
   position: absolute;
@@ -205,6 +216,23 @@
   width: 100%;
   max-width: 27rem;
   padding: var(--space-10) var(--space-8) var(--space-8);
+
+  //  La lámina cambia de tamaño de forma continua, no de golpe: al navegar entre
+  //  pantallas el contenido interior tiene distinta altura (y el alta, distinto
+  //  ancho), así que en vez de saltar, el alto y el ancho se interpolan.
+  //
+  //  `interpolate-size: allow-keywords` es lo que permite animar el valor `auto`
+  //  del alto —sin él, `transition` no sabe interpolar hacia una altura
+  //  intrínseca—. Donde no está soportado, el cambio simplemente vuelve a ser
+  //  instantáneo (degradación limpia). `overflow: clip` evita que el contenido
+  //  nuevo asome bajo el borde mientras la lámina todavía se agranda: se revela
+  //  a medida que crece.
+  interpolate-size: allow-keywords;
+  overflow: clip;
+  transition:
+    max-width var(--duration-slow) var(--ease-standard),
+    height var(--duration-slow) var(--ease-standard),
+    padding var(--duration-slow) var(--ease-standard);
 
   @include ds.glass-card;
   @include ds.glass-edge(var(--space-6));

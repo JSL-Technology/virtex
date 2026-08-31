@@ -39,4 +39,12 @@ export class AuthLayoutComponent {
 
   /** Oculta la marca superior en pantallas que traen la suya propia. */
   @Input() showBrand = true;
+
+  /**
+   * Fotografía de fondo opcional. Cuando se indica, sustituye a los velos de
+   * aurora en movimiento por una imagen a sangre; el velo de contraste se
+   * mantiene encima para que el formulario siga siendo legible sobre cualquier
+   * zona de la foto. Solo el acceso y el registro la usan.
+   */
+  @Input() backgroundImage: string | null = null;
 }

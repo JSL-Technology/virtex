@@ -129,49 +129,34 @@
   }
 }
 
+//  Una sola fila: la llave de paso ocupa una celda y los tres proveedores
+//  externos las otras tres. El reparto 1:3 deja las cuatro celdas del mismo
+//  ancho, porque el componente social ya divide su parte interna en tres.
 .secondary-auth {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
+  align-items: stretch;
+  gap: var(--space-2);
 }
 
-// ── Acceso único corporativo ─────────────────────────────────────────────────
-.sso-panel {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
+.provider-cell--passkey { flex: 1 1 0; min-width: 0; }
+.provider-cell--social  { flex: 3 1 0; min-width: 0; }
 
-  margin-top: var(--space-5);
-  padding: var(--space-4);
-  border-radius: var(--radius-lg);
-
-  @include ds.glass-surface('subtle', 10px);
+// ── Acceso único corporativo (vista dedicada) ────────────────────────────────
+//  Ya no es un panel añadido bajo el formulario: en el modo SSO ocupa la tarjeta
+//  entera y comparte la cabecera con las demás puertas de entrada (`.auth-head`).
+.sso-view {
   animation: vx-rise var(--duration-normal) var(--ease-decelerate) both;
 }
 
-.sso-label {
-  font-size: var(--text-sm);
-  color: var(--content-secondary);
-  line-height: var(--leading-snug);
-}
-
-.sso-row {
+.sso-form {
   display: flex;
-  align-items: center;
-  gap: var(--space-2);
-
-  //  El botón no se estira: la longitud de «Continuar» no debe decidir el
-  //  ancho del campo de correo, que es lo que el usuario tiene que leer.
-  app-auth-button {
-    flex-shrink: 0;
-    width: auto;
-  }
+  flex-direction: column;
+  gap: var(--space-3);
 }
 
 .sso-input {
   @include ds.glass-field;
-  flex: 1;
-  min-width: 0;
+  width: 100%;
 }
 
 .sso-message {
@@ -182,14 +167,27 @@
 
 .sso-cancel {
   @include ds.button-link;
-  align-self: flex-start;
-  font-size: var(--text-xs);
-  color: var(--content-tertiary);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  align-self: center;
+  margin-top: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+
+  &:hover { color: var(--content-primary); }
 }
 
-// ── Aviso legal y enlace cruzado ─────────────────────────────────────────────
-.legal-text { @include auth.legal-text; }
-.cross-link { @include auth.cross-link; }
+// ── Enlace cruzado ───────────────────────────────────────────────────────────
+//  Ya no se proyecta al slot del pie de la lámina (que aportaba el separador),
+//  sino que vive en el contenido; reproduce aquí ese separador superior.
+.cross-link {
+  @include auth.cross-link;
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--glass-divider);
+  text-align: center;
+}
 
 // ── Segundo factor ───────────────────────────────────────────────────────────
 .tfa-overlay {
@@ -239,12 +237,5 @@
   .auth-seal {
     width: 3rem;
     height: 3rem;
-  }
-
-  .sso-row {
-    flex-direction: column;
-    align-items: stretch;
-
-    app-auth-button { width: 100%; }
   }
 }

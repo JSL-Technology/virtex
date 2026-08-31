@@ -50,7 +50,6 @@ import {
   type TaxpayerKind,
 } from '../../../core/services/country.service';
 import { GeoMismatchModalComponent } from '../../../shared/components/geo-mismatch-modal/geo-mismatch-modal.component';
-import { AuthLayoutComponent } from '../components/auth-layout/auth-layout.component';
 import { AuthButtonComponent } from '../components/auth-button/auth-button.component';
 import { AuthInputComponent } from '../components/auth-input/auth-input.component';
 import { LanguageService } from '../../../core/services/language';
@@ -82,7 +81,6 @@ export function passwordMatchValidator(
     StepConfiguration,
     StepPlan,
     RecaptchaV3Module,
-    AuthLayoutComponent,
     AuthButtonComponent,
   ],
   providers: [

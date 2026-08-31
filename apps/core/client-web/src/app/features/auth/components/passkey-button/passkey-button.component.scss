@@ -27,6 +27,34 @@
   }
 }
 
+// ── Variante compacta (solo icono) ───────────────────────────────────────────
+//  Para alinearla en la misma fila que los proveedores externos: misma altura y
+//  aspecto que ellos, con el icono centrado y sin la caja de acento ni el texto.
+.passkey-card--icon {
+  justify-content: center;
+  gap: 0;
+  padding: 0 var(--space-2);
+  text-align: center;
+
+  .icon-wrapper {
+    width: auto;
+    height: auto;
+    background: none;
+    border: none;
+    border-radius: 0;
+  }
+
+  .passkey-icon {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+
+  &:hover:not(:disabled) .icon-wrapper {
+    background: none;
+    transform: scale(1.08);
+  }
+}
+
 .icon-wrapper {
   display: grid;
   place-items: center;

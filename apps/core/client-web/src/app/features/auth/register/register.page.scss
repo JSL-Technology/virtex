@@ -187,8 +187,15 @@
   margin-top: var(--space-5);
 }
 
-.legal-text { @include auth.legal-text; }
-.cross-link { @include auth.cross-link; }
+//  Reproduce el separador superior que antes aportaba el slot del pie de la
+//  lámina, ahora que el enlace vive en el contenido de la pantalla.
+.cross-link {
+  @include auth.cross-link;
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--glass-divider);
+  text-align: center;
+}
 
 // ── Adaptación ───────────────────────────────────────────────────────────────
 @include ds.bp-down('sm') {

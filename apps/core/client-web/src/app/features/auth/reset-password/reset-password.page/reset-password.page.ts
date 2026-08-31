@@ -8,7 +8,6 @@ import { LanguageService } from '../../../../core/services/language';
 import { LucideAngularModule, Lock, AlertCircle, CheckCircle } from 'lucide-angular';
 
 // Shared
-import { AuthLayoutComponent } from '../../components/auth-layout/auth-layout.component';
 import { AuthInputComponent } from '../../components/auth-input/auth-input.component';
 import { AuthButtonComponent } from '../../components/auth-button/auth-button.component';
 import { PasswordStrengthComponent } from '../../../../shared/components/password-strength/password-strength.component';
@@ -32,7 +31,6 @@ const passwordMatchValidator: ValidatorFn = (group: AbstractControl): Validation
     RouterModule,
     TranslateModule,
     LucideAngularModule,
-    AuthLayoutComponent,
     AuthInputComponent,
     AuthButtonComponent,
     PasswordStrengthComponent,

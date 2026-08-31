@@ -140,6 +140,31 @@
   color: var(--content-tertiary);
 }
 
+// ── Aviso de reCAPTCHA ───────────────────────────────────────────────────────
+//  Ocupa su propia línea (base del 100 %) bajo la fila de idioma/enlaces: es un
+//  descargo legal, no un enlace de navegación, y no debe competir por sitio con
+//  ellos.
+.recaptcha-notice {
+  flex-basis: 100%;
+  margin: 0;
+  text-align: center;
+  font-size: var(--text-2xs);
+  color: var(--content-tertiary);
+  line-height: var(--leading-snug);
+
+  a {
+    color: var(--content-secondary);
+    text-decoration: none;
+    @include ds.focus-ring(3px);
+
+    &:hover {
+      color: var(--content-primary);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+  }
+}
+
 // ── Adaptación ───────────────────────────────────────────────────────────────
 @include ds.bp-down('md') {
   .footer-container {

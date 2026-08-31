@@ -1,5 +1,8 @@
-<app-auth-layout width="wide">
-  <div class="register-view">
+<!--
+  El armazón (lienzo, lámina ancha y pie) lo aporta `AuthShellComponent`; la
+  medida ancha la pide la ruta con `data.authWidth: 'wide'`.
+-->
+<div class="register-view">
 
     <!-- ── Cabecera ────────────────────────────────────────────────────── -->
     <header class="auth-head">
@@ -135,18 +138,11 @@
 
     </form>
 
-    <p class="legal-text">
-      This site is protected by reCAPTCHA and the Google
-      <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Policy</a> and
-      <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms of Service</a> apply.
-    </p>
-
   </div>
 
-  <p footer-actions class="cross-link">
+  <p class="cross-link">
     {{ 'REGISTER.HAS_ACCOUNT' | translate }}
     <a [routerLink]="['/', languageService.currentLang(), 'auth', 'login']">
       {{ 'REGISTER.LOGIN_LINK' | translate }}
     </a>
   </p>
-</app-auth-layout>

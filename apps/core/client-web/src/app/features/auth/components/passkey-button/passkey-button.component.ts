@@ -18,5 +18,13 @@ import { TranslateModule } from '@ngx-translate/core';
 })
 export class PasskeyButtonComponent {
   @Input() loading = false;
+
+  /**
+   * Modo compacto: solo el icono, para alinearlo en la misma fila que los
+   * proveedores externos. El nombre pasa al `aria-label`. Por defecto conserva
+   * la tarjeta completa con título y subtítulo.
+   */
+  @Input() iconOnly = false;
+
   @Output() clicked = new EventEmitter<void>();
 }
