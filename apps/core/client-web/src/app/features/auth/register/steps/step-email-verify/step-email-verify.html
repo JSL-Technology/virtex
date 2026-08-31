@@ -3,26 +3,26 @@
     <div class="verify-icon">
       <lucide-icon [img]="MailIcon" size="28"></lucide-icon>
     </div>
-    <h3 class="verify-title">Confirma tu correo electrónico</h3>
+    <h3 class="verify-title">{{ 'AUTH.STEP_EMAIL_VERIFY.CONFIRMA_TU_CORREO_ELECTRONICO' | translate }}</h3>
     <p class="verify-subtitle" *ngIf="!isSending()">
-      Enviamos un código y un enlace de confirmación a
+      {{ 'AUTH.STEP_EMAIL_VERIFY.ENVIAMOS_CODIGO_ENLACE_CONFIRMACION' | translate }}
       <strong>{{ email }}</strong>
     </p>
     <p class="verify-subtitle" *ngIf="isSending()">
       <lucide-icon [img]="LoaderIcon" size="14" class="spin"></lucide-icon>
-      Enviando código a {{ email }}…
+      {{ 'AUTH.STEP_EMAIL_VERIFY.ENVIANDO_CODIGO_EMAIL' | translate: { email: email } }}
     </p>
   </div>
 
   <div *ngIf="sendError()" class="send-error" role="alert">
     <lucide-icon [img]="AlertCircleIcon" size="14"></lucide-icon>
     {{ sendError() }}
-    <button type="button" class="retry-btn" (click)="sendCode()">Reintentar</button>
+    <button type="button" class="retry-btn" (click)="sendCode()">{{ 'AUTH.STEP_EMAIL_VERIFY.REINTENTAR' | translate }}</button>
   </div>
 
   <div *ngIf="codeSent() && !sendError()">
     <app-otp
-      title="Código de verificación"
+      [title]="'AUTH.STEP_EMAIL_VERIFY.CODIGO_VERIFICACION' | translate"
       description="Ingresa el código de 6 dígitos que enviamos a tu correo, o haz clic en el enlace del correo."
       [timerDuration]="300"
       [resendCooldown]="60"
@@ -33,7 +33,7 @@
 
     <div class="magic-link-hint">
       <lucide-icon [img]="MailIcon" size="14"></lucide-icon>
-      <span>¿Prefieres no escribir el código? Busca el botón <strong>"Confirmar correo electrónico"</strong> en el correo que enviamos.</span>
+      <span>{{ 'AUTH.STEP_EMAIL_VERIFY.PREFIERES_NO_ESCRIBIR_CODIGO_BUSCA_BOTON' | translate }} <strong>{{ 'AUTH.STEP_EMAIL_VERIFY.CONFIRMAR_CORREO_ELECTRONICO' | translate }}</strong> {{ 'AUTH.STEP_EMAIL_VERIFY.CORREO_ENVIAMOS' | translate }}</span>
     </div>
   </div>
 </div>

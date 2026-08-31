@@ -1,9 +1,9 @@
 <div class="templates-container">
     <div class="templates-header">
-        <h3>Document Templates</h3>
+        <h3>{{ 'DOCUMENTS.TEMPLATES.DOCUMENT_TEMPLATES' | translate }}</h3>
         <button class="primary-button">
             <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
-            <span>New Template</span>
+            <span>{{ 'DOCUMENTS.TEMPLATES.NEW_TEMPLATE' | translate }}</span>
         </button>
     </div>
     <div class="templates-grid">
@@ -12,13 +12,13 @@
             <lucide-icon [img]="FileIcon" size="32" class="card-icon"></lucide-icon>
             <div class="card-content">
                 <span class="template-name">{{ template.name }}</span>
-                <span class="template-meta">{{ template.type }} • Last Modified: {{ template.lastModified }}</span>
+                <span class="template-meta">{{ 'DOCUMENTS.TEMPLATES.TYPE_LAST_MODIFIED_LASTMODIFIED' | translate: { type: template.type, lastModified: template.lastModified } }}</span>
             </div>
         </div>
         }
         <div class="template-card new-template">
             <lucide-icon [img]="PlusCircleIcon" size="32"></lucide-icon>
-            <span>Create New Template</span>
+            <span>{{ 'DOCUMENTS.TEMPLATES.CREATE_NEW_TEMPLATE' | translate }}</span>
         </div>
     </div>
 </div>

@@ -5,11 +5,12 @@ import { Observable } from 'rxjs';
 import { LucideAngularModule, PlusCircle } from 'lucide-angular';
 import { LedgersService,  } from '../../../core/api/ledgers.service';
 import { Ledger } from '../../../core/models/ledger.model';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-ledger-list-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule],
+  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule],
   templateUrl: './ledger-list.page.html',
   styleUrls: ['./ledger-list.page.scss'],
 })

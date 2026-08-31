@@ -1,3 +1,10 @@
+<!--
+  i18n-ignore-file
+
+  El wordmark NO se traduce: es la marca, no una palabra. Esta es la unica plantilla del
+  producto con texto literal, y la exencion queda declarada aqui — tanto la herramienta de
+  extraccion como `no-hardcoded-strings.spec.ts` respetan el marcador.
+-->
 <span class="brand-logo__mark" [class.is-mono]="monochrome" aria-hidden="true">
   <svg viewBox="0 0 104 100" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg">
     <!--
@@ -18,7 +25,7 @@
 
 @if (variant !== 'mark') {
   <span class="brand-logo__type">
-    <span class="brand-logo__word">virtex</span>
+    <span class="brand-logo__word">Virtex</span>
     @if (showTagline) {
       <span class="brand-logo__tagline">ERP</span>
     }

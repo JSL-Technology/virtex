@@ -29,6 +29,7 @@ import {
   NewsItem,
   EventItem,
 } from './overview.service';
+import { FORMAT_PIPES } from '../../core/i18n/pipes/format.pipes';
 
 type SectionStatus = 'loading' | 'ready' | 'error';
 
@@ -43,7 +44,7 @@ type SectionStatus = 'loading' | 'ready' | 'error';
 @Component({
   selector: 'app-overview-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './overview.page.html',
   styleUrls: ['./overview.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

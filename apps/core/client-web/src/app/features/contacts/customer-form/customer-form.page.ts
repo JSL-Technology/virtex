@@ -4,10 +4,11 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { LucideAngularModule, Save } from 'lucide-angular';
 import { CustomersService, CreateCustomerDto, UpdateCustomerDto } from '../../../core/api/customers.service';
 import { NotificationService } from '../../../core/services/notification';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-customer-form-page',
-  imports: [RouterLink, ReactiveFormsModule, LucideAngularModule],
+  imports: [RouterLink, ReactiveFormsModule, LucideAngularModule, TranslateModule],
   templateUrl: './customer-form.page.html',
   styleUrls: ['./customer-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -62,7 +63,7 @@ export class CustomerFormPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.notificationService.showError('No se pudo cargar el cliente.');
+        this.notificationService.showError('CONTACTS.CUSTOMER_FORM.PUDO_CARGAR_CLIENTE');
         this.router.navigate(['/contacts/customers']);
       },
     });
@@ -71,7 +72,7 @@ export class CustomerFormPage implements OnInit {
   saveCustomer(): void {
     if (this.customerForm.invalid) {
       this.customerForm.markAllAsTouched();
-      this.notificationService.showError('Por favor, completa los campos requeridos.');
+      this.notificationService.showError('CONTACTS.CUSTOMER_FORM.FAVOR_COMPLETA_CAMPOS_REQUERIDOS');
       return;
     }
 
@@ -85,11 +86,11 @@ export class CustomerFormPage implements OnInit {
 
     operation.subscribe({
       next: () => {
-        this.notificationService.showSuccess(`Cliente ${this.isEditMode() ? 'actualizado' : 'creado'} exitosamente.`);
+        this.notificationService.showSuccess(this.isEditMode() ? 'CONTACTS.CUSTOMER_FORM.CLIENTE_ACTUALIZADO_EXITOSAMENTE' : 'CONTACTS.CUSTOMER_FORM.CLIENTE_CREADO_EXITOSAMENTE');
         this.router.navigate(['/contacts/customers']);
       },
       error: () => {
-        this.notificationService.showError(`Error al ${this.isEditMode() ? 'actualizar' : 'crear'} el cliente.`);
+        this.notificationService.showError(this.isEditMode() ? 'CONTACTS.CUSTOMER_FORM.ERROR_ACTUALIZAR_CLIENTE' : 'CONTACTS.CUSTOMER_FORM.ERROR_CREAR_CLIENTE');
         this.isLoading.set(false);
       },
     });

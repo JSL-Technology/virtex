@@ -3,26 +3,26 @@
     <div class="verify-icon">
       <lucide-icon [img]="PhoneIcon" size="28"></lucide-icon>
     </div>
-    <h3 class="verify-title">Confirma tu número de celular</h3>
+    <h3 class="verify-title">{{ 'AUTH.STEP_PHONE_VERIFY.CONFIRMA_TU_NUMERO_CELULAR' | translate }}</h3>
     <p class="verify-subtitle" *ngIf="!isSending()">
-      Enviamos un SMS con el código a
+      {{ 'AUTH.STEP_PHONE_VERIFY.ENVIAMOS_SMS_CODIGO' | translate }}
       <strong>{{ phone }}</strong>
     </p>
     <p class="verify-subtitle" *ngIf="isSending()">
       <lucide-icon [img]="LoaderIcon" size="14" class="spin"></lucide-icon>
-      Enviando SMS a {{ phone }}…
+      {{ 'AUTH.STEP_PHONE_VERIFY.ENVIANDO_SMS_PHONE' | translate: { phone: phone } }}
     </p>
   </div>
 
   <div *ngIf="sendError()" class="send-error" role="alert">
     <lucide-icon [img]="AlertCircleIcon" size="14"></lucide-icon>
     {{ sendError() }}
-    <button type="button" class="retry-btn" (click)="sendCode()">Reintentar</button>
+    <button type="button" class="retry-btn" (click)="sendCode()">{{ 'AUTH.STEP_PHONE_VERIFY.REINTENTAR' | translate }}</button>
   </div>
 
   <div *ngIf="codeSent() && !sendError()">
     <app-otp
-      title="Código de verificación SMS"
+      [title]="'AUTH.STEP_PHONE_VERIFY.CODIGO_VERIFICACION_SMS' | translate"
       description="Ingresa el código de 6 dígitos que enviamos a tu número de celular."
       [timerDuration]="300"
       [resendCooldown]="60"

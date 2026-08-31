@@ -2,6 +2,8 @@ import { Component, ChangeDetectionStrategy, computed, inject } from '@angular/c
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Check, BellOff } from 'lucide-angular';
 import { NotificationCenterService, Notification } from '../../core/services/notification-center.service';
+import { TranslateModule } from '@ngx-translate/core';
+import { FORMAT_PIPES } from '../../core/i18n/pipes/format.pipes';
 
 interface NotificationGroup {
   period: string;
@@ -11,7 +13,7 @@ interface NotificationGroup {
 @Component({
   selector: 'app-notifications-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './notifications.page.html',
   styleUrls: ['./notifications.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

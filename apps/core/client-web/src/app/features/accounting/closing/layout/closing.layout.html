@@ -1,9 +1,9 @@
 <div class="subview-container">
     <nav class="tertiary-nav">
-        <a routerLink="month-end" routerLinkActive="active">Month-End</a>
-        <a routerLink="annual-close" routerLinkActive="active">Annual</a>
-        <a routerLink="checklist" routerLinkActive="active">Checklists</a>
-        <a routerLink="tasks" routerLinkActive="active">Tasks</a>
+        <a routerLink="month-end" routerLinkActive="active">{{ 'ACCOUNTING.LAYOUT.MONTH_END' | translate }}</a>
+        <a routerLink="annual-close" routerLinkActive="active">{{ 'ACCOUNTING.LAYOUT.ANNUAL' | translate }}</a>
+        <a routerLink="checklist" routerLinkActive="active">{{ 'ACCOUNTING.LAYOUT.CHECKLISTS' | translate }}</a>
+        <a routerLink="tasks" routerLinkActive="active">{{ 'ACCOUNTING.LAYOUT.TASKS' | translate }}</a>
     </nav>
     <div class="content-outlet">
         <router-outlet></router-outlet>

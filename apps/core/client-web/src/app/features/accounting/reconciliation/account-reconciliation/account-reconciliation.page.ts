@@ -1,6 +1,8 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Filter, MoreHorizontal, CheckCircle, Clock, AlertCircle } from 'lucide-angular';
+import { TranslateModule } from '@ngx-translate/core';
+import { FORMAT_PIPES } from '../../../../core/i18n/pipes/format.pipes';
 
 type ReconciliationStatus = 'Reconciled' | 'Pending' | 'With Differences';
 
@@ -16,7 +18,7 @@ interface ReconciliationItem {
 @Component({
   selector: 'app-account-reconciliation-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './account-reconciliation.page.html',
   styleUrls: ['./account-reconciliation.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

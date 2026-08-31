@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-transaction-flow',
-  imports: [],
+  imports: [TranslateModule],
   templateUrl: './transaction-flow.html',
   styleUrl: './transaction-flow.scss'
 })

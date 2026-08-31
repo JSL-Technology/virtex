@@ -11,7 +11,7 @@
     </nav>
 
     <p class="copyright">
-      &copy; {{ currentYear }} {{ 'APP_TITLE' | translate }}. {{ 'AUTH.ALL_RIGHTS_RESERVED' | translate }}
+      {{ 'AUTH.COPYRIGHT' | translate: { year: currentYear, app: ('APP_TITLE' | translate) } }}
     </p>
 
     <!--
@@ -21,7 +21,7 @@
     <p class="recaptcha-notice">
       {{ 'AUTH.RECAPTCHA_PROTECTED' | translate }}
       <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">{{ 'AUTH.PRIVACY' | translate }}</a>
-      &amp;
+      {{ 'AUTH.AUTH_FOOTER.AMP' | translate }}
       <a href="https://policies.google.com/terms" target="_blank" rel="noopener">{{ 'AUTH.TERMS' | translate }}</a>.
     </p>
 

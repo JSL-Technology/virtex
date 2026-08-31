@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, Receipt, Package, UserPlus, FilePlus } from 'lucide-angular';
+import { TranslateModule } from '@ngx-translate/core';
 
 // Interfaz para definir la estructura de un item de actividad
 interface ActivityItem {
@@ -14,7 +15,7 @@ interface ActivityItem {
 @Component({
   selector: 'app-recent-activity',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   templateUrl: './recent-activity.html',
   styleUrls: ['./recent-activity.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

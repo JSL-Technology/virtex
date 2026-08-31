@@ -1,29 +1,27 @@
 <div class="widget-header">
-    <h3>Estado de Facturas</h3>
+    <h3>{{ 'DASHBOARD.INVOICE_STATUS.ESTADO_FACTURAS' | translate }}</h3>
 
     <div class="header-actions" (mousedown)="$event.stopPropagation()">
         <!-- Botón de Exportación -->
         <div class="widget-edit-menu">
-            <button class="icon-button" title="Exportar" (mousedown)="toggleExportMenu($event)">
+            <button class="icon-button" [title]="'DASHBOARD.INVOICE_STATUS.EXPORTAR' | translate" (mousedown)="toggleExportMenu($event)">
                 <lucide-icon [img]="MenuIcon" size="18"></lucide-icon>
             </button>
             @if (isExportMenuOpen()) {
             <div class="edit-dropdown export-dropdown" (mousedown)="$event.stopPropagation()">
                 <button (mousedown)="viewFullscreen($event)"><lucide-icon [img]="FullscreenIcon"
-                        size="14"></lucide-icon> Pantalla completa</button>
+                        size="14"></lucide-icon> {{ 'DASHBOARD.INVOICE_STATUS.PANTALLA_COMPLETA' | translate }}</button>
                 <button (mousedown)="printChart($event)"><lucide-icon [img]="PrintIcon" size="14"></lucide-icon>
-                    Imprimir gráfico</button>
+                    {{ 'DASHBOARD.INVOICE_STATUS.IMPRIMIR_GRAFICO' | translate }}</button>
                 <hr />
-                <span class="dropdown-title">Descargar</span>
-                <button (mousedown)="downloadPNG($event)"><lucide-icon [img]="PngIcon" size="14"></lucide-icon> Imagen
-                    PNG</button>
-                <button (mousedown)="downloadJPEG($event)">Imagen JPEG</button>
-                <button (mousedown)="downloadPDF($event)">Documento PDF</button>
-                <button (mousedown)="downloadSVG($event)">Vector SVG</button>
+                <span class="dropdown-title">{{ 'DASHBOARD.INVOICE_STATUS.DESCARGAR' | translate }}</span>
+                <button (mousedown)="downloadPNG($event)"><lucide-icon [img]="PngIcon" size="14"></lucide-icon> {{ 'DASHBOARD.INVOICE_STATUS.IMAGEN_PNG' | translate }}</button>
+                <button (mousedown)="downloadJPEG($event)">{{ 'DASHBOARD.INVOICE_STATUS.IMAGEN_JPEG' | translate }}</button>
+                <button (mousedown)="downloadPDF($event)">{{ 'DASHBOARD.INVOICE_STATUS.DOCUMENTO_PDF' | translate }}</button>
+                <button (mousedown)="downloadSVG($event)">{{ 'DASHBOARD.INVOICE_STATUS.VECTOR_SVG' | translate }}</button>
                 <hr />
-                <button (mousedown)="downloadCSV($event)"><lucide-icon [img]="CsvIcon" size="14"></lucide-icon> Datos
-                    CSV</button>
-                <button (mousedown)="downloadXLS($event)">Hoja de cálculo XLS</button>
+                <button (mousedown)="downloadCSV($event)"><lucide-icon [img]="CsvIcon" size="14"></lucide-icon> {{ 'DASHBOARD.INVOICE_STATUS.DATOS_CSV' | translate }}</button>
+                <button (mousedown)="downloadXLS($event)">{{ 'DASHBOARD.INVOICE_STATUS.HOJA_CALCULO_XLS' | translate }}</button>
             </div>
             }
         </div>
@@ -31,22 +29,22 @@
         <!-- Botón de Configuración -->
         @if (isEditMode) {
         <div class="widget-edit-menu">
-            <button class="icon-button" title="Configurar widget" (mousedown)="toggleSettings($event)">
+            <button class="icon-button" [title]="'DASHBOARD.INVOICE_STATUS.CONFIGURAR_WIDGET' | translate" (mousedown)="toggleSettings($event)">
                 <lucide-icon [img]="SettingsIcon" size="18"></lucide-icon>
             </button>
             @if (isSettingsOpen()) {
             <div class="edit-dropdown" (mousedown)="$event.stopPropagation()">
                 <div class="dropdown-section">
-                    <span class="dropdown-title">Tipo de Gráfico</span>
+                    <span class="dropdown-title">{{ 'DASHBOARD.INVOICE_STATUS.TIPO_GRAFICO' | translate }}</span>
                     <button (mousedown)="changeChartType('pie', $event)"
                         [class.active]="widget.chartType === 'pie' || !widget.chartType"><lucide-icon [img]="PieIcon"
-                            size="14"></lucide-icon> Pastel</button>
+                            size="14"></lucide-icon> {{ 'DASHBOARD.INVOICE_STATUS.PASTEL' | translate }}</button>
                     <button (mousedown)="changeChartType('column', $event)"
                         [class.active]="widget.chartType === 'column'"><lucide-icon [img]="ColumnIcon"
-                            size="14"></lucide-icon> Columnas</button>
+                            size="14"></lucide-icon> {{ 'DASHBOARD.INVOICE_STATUS.COLUMNAS' | translate }}</button>
                 </div>
                 <div class="dropdown-section">
-                    <span class="dropdown-title">Personalizar Colores</span>
+                    <span class="dropdown-title">{{ 'DASHBOARD.INVOICE_STATUS.PERSONALIZAR_COLORES' | translate }}</span>
                     @for (point of chartDataPoints(); track point.name) {
                     <div class="color-picker-item">
                         <label [for]="point.name">{{ point.name }}</label>

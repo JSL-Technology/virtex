@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, CheckCircle, Circle, Loader, AlertCircle } from 'lucide-angular';
+import { TranslateModule } from '@ngx-translate/core';
 
 interface ClosingTask {
   id: string;
@@ -13,7 +14,7 @@ interface ClosingTask {
 @Component({
   selector: 'app-annual-close-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   templateUrl: './annual-close.page.html',
   styleUrls: ['./annual-close.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

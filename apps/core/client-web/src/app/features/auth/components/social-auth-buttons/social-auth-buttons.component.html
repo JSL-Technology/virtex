@@ -4,11 +4,11 @@
   proveedor de un vistazo sin necesidad de etiqueta.
 -->
 <div class="social-auth-grid">
-  <button (click)="loginWith('google')" class="social-btn" aria-label="Sign in with Google">
+  <button (click)="loginWith('google')" class="social-btn" [attr.aria-label]="'AUTH.SOCIAL_AUTH_BUTTONS.SIGN_IN_WITH_GOOGLE' | translate">
     <img src="assets/icons/google.svg" alt="" class="social-icon">
   </button>
 
-  <button (click)="loginWith('microsoft')" class="social-btn" aria-label="Sign in with Microsoft">
+  <button (click)="loginWith('microsoft')" class="social-btn" [attr.aria-label]="'AUTH.SOCIAL_AUTH_BUTTONS.SIGN_IN_WITH_MICROSOFT' | translate">
     <img src="assets/icons/microsoft.svg" alt="" class="social-icon">
   </button>
 

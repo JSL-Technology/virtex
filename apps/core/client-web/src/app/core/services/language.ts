@@ -139,10 +139,15 @@ export class LanguageService {
    * The session has been established or refreshed.
    *
    * The user's stored preference wins over whatever the device guessed, because it is the only
-   * value that represents a decision rather than an inference. When the user has no stored
-   * preference — a fresh account, or one created before they were asked — the language currently
-   * on screen is written to the profile, so the guess becomes a decision exactly once instead of
-   * being re-made on every device.
+   * value that represents a decision rather than an inference.
+   *
+   * When there is NO stored preference, nothing is written. That is deliberate: `null` means the
+   * person has never been asked, and the server treats it as an invitation to negotiate
+   * `Accept-Language` on every request — so a colleague who reads English gets English on their
+   * own machine and Spanish on the shared terminal in the warehouse, which is right. Writing a
+   * guess here would freeze one device's browser setting into the account and end that
+   * negotiation permanently: the same mistake the old effect made, in the other direction — the
+   * client's inference overwriting what the server correctly knows it does not know.
    */
   applySessionPreference(
     userId: string,
@@ -153,13 +158,7 @@ export class LanguageService {
     this.session.set({ userId, preferred: matched });
     this.store.setTenantContext(localeContext ?? null);
 
-    if (matched) {
-      this.store.setLanguage(matched);
-      return;
-    }
-
-    // No stored preference. Adopt the current one so the account has an answer from now on.
-    this.persistToProfile(this.store.language());
+    if (matched) this.store.setLanguage(matched);
   }
 
   /** The session ended. The device keeps its language; the profile is no longer ours to write. */

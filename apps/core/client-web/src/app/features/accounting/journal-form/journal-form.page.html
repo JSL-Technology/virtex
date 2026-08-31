@@ -3,30 +3,30 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title">{{ isEditMode ? 'Edit' : 'Create' }} Journal</h4>
+                    <h4 class="card-title">{{ (isEditMode ? 'ACCOUNTING.JOURNAL_FORM.TITLE_EDIT' : 'ACCOUNTING.JOURNAL_FORM.TITLE_CREATE') | translate }}</h4>
                 </div>
                 <div class="card-body">
                     <form [formGroup]="journalForm" (ngSubmit)="onSubmit()">
                         <div class="mb-3">
-                            <label for="name" class="form-label">Name</label>
+                            <label for="name" class="form-label">{{ 'ACCOUNTING.JOURNAL_FORM.NAME' | translate }}</label>
                             <input type="text" id="name" formControlName="name" class="form-control">
                         </div>
                         <div class="mb-3">
-                            <label for="code" class="form-label">Code</label>
+                            <label for="code" class="form-label">{{ 'ACCOUNTING.JOURNAL_FORM.CODE' | translate }}</label>
                             <input type="text" id="code" formControlName="code" class="form-control">
                         </div>
                         <div class="mb-3">
-                            <label for="type" class="form-label">Type</label>
+                            <label for="type" class="form-label">{{ 'ACCOUNTING.JOURNAL_FORM.TYPE' | translate }}</label>
                             <select id="type" formControlName="type" class="form-select">
-                                <option value="SALES">Sales</option>
-                                <option value="PURCHASES">Purchases</option>
-                                <option value="CASH">Cash</option>
-                                <option value="BANK">Bank</option>
-                                <option value="GENERAL">General</option>
+                                <option value="SALES">{{ 'ACCOUNTING.JOURNAL_FORM.SALES' | translate }}</option>
+                                <option value="PURCHASES">{{ 'ACCOUNTING.JOURNAL_FORM.PURCHASES' | translate }}</option>
+                                <option value="CASH">{{ 'ACCOUNTING.JOURNAL_FORM.CASH' | translate }}</option>
+                                <option value="BANK">{{ 'ACCOUNTING.JOURNAL_FORM.BANK' | translate }}</option>
+                                <option value="GENERAL">{{ 'ACCOUNTING.JOURNAL_FORM.GENERAL' | translate }}</option>
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-primary" [disabled]="journalForm.invalid">Save</button>
-                        <a [routerLink]="['/accounting/journals']" class="btn btn-secondary ms-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary" [disabled]="journalForm.invalid">{{ 'ACCOUNTING.JOURNAL_FORM.SAVE' | translate }}</button>
+                        <a [routerLink]="['/accounting/journals']" class="btn btn-secondary ms-2">{{ 'ACCOUNTING.JOURNAL_FORM.CANCEL' | translate }}</a>
                     </form>
                 </div>
             </div>

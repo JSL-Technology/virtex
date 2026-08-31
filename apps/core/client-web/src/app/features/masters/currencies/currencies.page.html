@@ -1,14 +1,14 @@
 <div class="subview-container">
     <div class="subview-header">
-        <h3>Currencies</h3>
+        <h3>{{ 'MASTERS.CURRENCIES.CURRENCIES' | translate }}</h3>
         <div class="header-actions">
             <button class="secondary-button">
                 <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
-                <span>Filters</span>
+                <span>{{ 'MASTERS.CURRENCIES.FILTERS' | translate }}</span>
             </button>
             <button class="primary-button">
                 <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
-                <span>New Currency</span>
+                <span>{{ 'MASTERS.CURRENCIES.NEW_CURRENCY' | translate }}</span>
             </button>
         </div>
     </div>
@@ -16,10 +16,10 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Currency Name</th>
-                    <th class="text-center">Code</th>
-                    <th class="text-center">Symbol</th>
-                    <th class="text-center">Base Currency</th>
+                    <th>{{ 'MASTERS.CURRENCIES.CURRENCY_NAME' | translate }}</th>
+                    <th class="text-center">{{ 'MASTERS.CURRENCIES.CODE' | translate }}</th>
+                    <th class="text-center">{{ 'MASTERS.CURRENCIES.SYMBOL' | translate }}</th>
+                    <th class="text-center">{{ 'MASTERS.CURRENCIES.BASE_CURRENCY' | translate }}</th>
                     <th class="actions-column"></th>
                 </tr>
             </thead>
@@ -31,7 +31,7 @@
                     <td class="text-center">{{ currency.symbol }}</td>
                     <td class="text-center">
                         @if (currency.isBase) {
-                        <span class="status-badge active">Yes</span>
+                        <span class="status-badge active">{{ 'MASTERS.CURRENCIES.YES' | translate }}</span>
                         }
                     </td>
                     <td class="actions-column">
@@ -42,7 +42,7 @@
                 </tr>
                 } @empty {
                 <tr>
-                    <td colspan="5" class="empty-state">No currencies configured.</td>
+                    <td colspan="5" class="empty-state">{{ 'MASTERS.CURRENCIES.NO_CURRENCIES_CONFIGURED' | translate }}</td>
                 </tr>
                 }
             </tbody>

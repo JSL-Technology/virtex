@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal, FileText, CheckSquare } from 'lucide-angular';
+import { TranslateModule } from '@ngx-translate/core';
 
 interface Checklist {
   id: string;
@@ -13,7 +14,7 @@ interface Checklist {
 @Component({
   selector: 'app-checklist-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   templateUrl: './checklist.page.html',
   styleUrls: ['./checklist.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

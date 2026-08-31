@@ -5,11 +5,12 @@ import { LucideAngularModule, ShieldAlert, Mail } from 'lucide-angular';
 import { AuthService } from '../../core/services/auth';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-unauthorized-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, RouterLink],
+  imports: [CommonModule, LucideAngularModule, RouterLink, TranslateModule],
   templateUrl: './unauthorized.page.html',
   styleUrls: ['./unauthorized.page.scss']
 })

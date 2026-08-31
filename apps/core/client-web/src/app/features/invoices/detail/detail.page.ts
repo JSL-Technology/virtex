@@ -10,11 +10,13 @@ import { NotificationService } from '../../../core/services/notification';
 import { InvoiceToolbarComponent } from '../components/invoice-toolbar/invoice-toolbar.component';
 import { asBlob } from 'html-docx-js-typescript';
 import { saveAs } from 'file-saver';
+import { TranslateModule } from '@ngx-translate/core';
+import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 
 @Component({
   selector: 'app-invoice-detail-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, DecimalPipe, DatePipe, InvoiceToolbarComponent, FormsModule],
+  imports: [CommonModule, LucideAngularModule, DecimalPipe, DatePipe, InvoiceToolbarComponent, FormsModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './detail.page.html',
   styleUrls: ['./detail.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -82,7 +84,7 @@ export class InvoiceDetailPage implements OnInit {
             }
         },
         error: (err) => {
-            this.notificationService.showError('No se pudo cargar la factura.');
+            this.notificationService.showError('INVOICES.DETAIL.PUDO_CARGAR_FACTURA');
             console.error(err);
         }
     });
@@ -102,7 +104,7 @@ export class InvoiceDetailPage implements OnInit {
         next: (status) => {
             this.ecf.set(status);
             this.ecfBusy.set(false);
-            this.notificationService.showSuccess('e-CF reenviado a la DGII.');
+            this.notificationService.showSuccess('INVOICES.DETAIL.CF_REENVIADO_DGII');
         },
         error: (err) => {
             this.ecfBusy.set(false);
@@ -121,7 +123,7 @@ export class InvoiceDetailPage implements OnInit {
             a.click();
             URL.revokeObjectURL(url);
         },
-        error: () => this.notificationService.showError('No hay XML firmado disponible.'),
+        error: () => this.notificationService.showError('INVOICES.DETAIL.HAY_XML_FIRMADO_DISPONIBLE'),
     });
   }
 
@@ -162,7 +164,7 @@ export class InvoiceDetailPage implements OnInit {
     } else if (format === 'word') {
         this.downloadWord();
     } else {
-        this.notificationService.showInfo(`Exportación a ${format.toUpperCase()} estará disponible próximamente.`);
+        this.notificationService.showInfo('INVOICES.DETAIL.EXPORTACION_ESTARA_DISPONIBLE_PROXIMAMENTE', { toUpperCase: format.toUpperCase() });
     }
   }
 
@@ -179,7 +181,7 @@ export class InvoiceDetailPage implements OnInit {
         document.body.removeChild(a);
       },
       error: () => {
-        this.notificationService.showError('No se pudo descargar el PDF de la factura.');
+        this.notificationService.showError('INVOICES.DETAIL.PUDO_DESCARGAR_PDF_FACTURA');
       }
     });
   }
@@ -209,16 +211,16 @@ export class InvoiceDetailPage implements OnInit {
         `;
         const blob = await asBlob(html);
         saveAs(blob as Blob, `factura-${this.invoice()?.invoiceNumber}.docx`);
-        this.notificationService.showSuccess('Documento Word generado con éxito.');
+        this.notificationService.showSuccess('INVOICES.DETAIL.DOCUMENTO_WORD_GENERADO_EXITO');
     }
   }
 
   handleCopyFrom(): void {
-    this.notificationService.showInfo('Función "Copiar de" abierta. Seleccione un documento base.');
+    this.notificationService.showInfo('INVOICES.DETAIL.FUNCION_COPIAR_ABIERTA_SELECCIONE_DOCUMENTO_BASE');
   }
 
   handleCopyTo(): void {
-    this.notificationService.showInfo('Copiando documento actual a nuevo borrador...');
+    this.notificationService.showInfo('INVOICES.DETAIL.COPIANDO_DOCUMENTO_ACTUAL_NUEVO_BORRADOR');
     // Lógica para navegar a /new con el ID actual como base
     this.router.navigate(['/invoices/new'], { queryParams: { copyFrom: this.id() } });
   }
@@ -235,7 +237,7 @@ export class InvoiceDetailPage implements OnInit {
       if(confirm('¿Estás seguro de que quieres anular esta factura con una nota de crédito? Esta acción no se puede deshacer.')) {
           this.invoicesService.createCreditNote(invoiceId).subscribe({
               next: () => {
-                  this.notificationService.showSuccess('Factura anulada y nota de crédito creada.');
+                  this.notificationService.showSuccess('INVOICES.DETAIL.FACTURA_ANULADA_NOTA_CREDITO_CREADA');
                   this.loadInvoice();
               },
               error: (err) => this.notificationService.showError(err.message)

@@ -1,3 +1,4 @@
+import { TranslateModule } from '@ngx-translate/core';
 // import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 // import { CommonModule } from '@angular/common';
 // import { LucideAngularModule, Folder, File, Upload, Search, MoreHorizontal } from 'lucide-angular';
@@ -17,7 +18,7 @@
 // @Component({
 //   selector: 'app-documents-page',
 //   standalone: true,
-//   imports: [CommonModule, LucideAngularModule],
+//   imports: [CommonModule, LucideAngularModule, TranslateModule],
 //   templateUrl: './documents.page.html',
 //   styleUrls: ['./documents.page.scss'],
 //   changeDetection: ChangeDetectionStrategy.OnPush,

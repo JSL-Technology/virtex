@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, signal, Input } from '@angular/core
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, Package, AlertCircle } from 'lucide-angular';
+import { TranslateModule } from '@ngx-translate/core';
 
 // Se puede mover a un archivo de modelos si se usa en más sitios
 export interface Product {
@@ -18,7 +19,7 @@ export interface Product {
 @Component({
   selector: 'app-low-stock-products',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule],
+  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule],
   templateUrl: './low-stock-products.html',
   styleUrls: ['./low-stock-products.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

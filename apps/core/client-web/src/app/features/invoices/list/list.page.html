@@ -1,17 +1,17 @@
 <div class="view-container">
     <div class="view-header">
         <div class="header-content">
-            <h1>Facturas</h1>
-            <p>Gestión completa de facturación y seguimiento de documentos.</p>
+            <h1>{{ 'INVOICES.LIST.FACTURAS' | translate }}</h1>
+            <p>{{ 'INVOICES.LIST.GESTION_COMPLETA_FACTURACION_SEGUIMIENTO_DOCUMENTOS' | translate }}</p>
         </div>
         <div class="header-actions">
             <button class="secondary-button" (click)="exportToExcel()">
                 <lucide-icon [img]="SpreadsheetIcon" size="16"></lucide-icon>
-                <span>Exportar Excel</span>
+                <span>{{ 'INVOICES.LIST.EXPORTAR_EXCEL' | translate }}</span>
             </button>
             <a routerLink="/invoices/new" class="primary-button">
                 <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
-                <span>Nueva factura de venta</span>
+                <span>{{ 'INVOICES.LIST.NUEVA_FACTURA_VENTA' | translate }}</span>
             </a>
         </div>
     </div>
@@ -22,17 +22,17 @@
             <input type="text"
                    [ngModel]="searchTerm()"
                    (ngModelChange)="searchTerm.set($event)"
-                   placeholder="Buscar por cliente o número de factura...">
+                   [placeholder]="'INVOICES.LIST.BUSCAR_CLIENTE_NUMERO_FACTURA' | translate">
         </div>
         <div class="filters">
             <div class="filter-group">
-                <label for="estado">Estado:</label>
+                <label for="estado">{{ 'INVOICES.LIST.ESTADO' | translate }}</label>
                 <select id="estado" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
-                    <option value="All">Todos</option>
-                    <option value="Paid">Cobrada</option>
-                    <option value="Pending">Pendiente</option>
-                    <option value="Partially Paid">Parcial</option>
-                    <option value="Void">Anulada</option>
+                    <option value="All">{{ 'INVOICES.LIST.TODOS' | translate }}</option>
+                    <option value="Paid">{{ 'INVOICES.LIST.COBRADA' | translate }}</option>
+                    <option value="Pending">{{ 'INVOICES.LIST.PENDIENTE' | translate }}</option>
+                    <option value="Partially Paid">{{ 'INVOICES.LIST.PARCIAL' | translate }}</option>
+                    <option value="Void">{{ 'INVOICES.LIST.ANULADA' | translate }}</option>
                 </select>
             </div>
         </div>
@@ -72,7 +72,7 @@
                             <lucide-icon [img]="sortDirection() === 'asc' ? ArrowUpIcon : ArrowDownIcon" size="12"></lucide-icon>
                         }
                     </th>
-                    <th>Estado</th>
+                    <th>{{ 'INVOICES.LIST.ESTADO_2' | translate }}</th>
                     <th class="actions-column"></th>
                 </tr>
             </thead>
@@ -81,7 +81,7 @@
                     <tr>
                         <td colspan="7" class="loading-state">
                             <div class="spinner"></div>
-                            <span>Cargando facturas...</span>
+                            <span>{{ 'INVOICES.LIST.CARGANDO_FACTURAS' | translate }}</span>
                         </td>
                     </tr>
                 } @else {
@@ -93,14 +93,14 @@
                             </a>
                         </td>
                         <td>{{ invoice.customerName }}</td>
-                        <td>{{ invoice.issueDate | date: 'dd/MM/yyyy' }}</td>
+                        <td>{{ invoice.issueDate | vxDate: 'date' }}</td>
                         <td>
                             <span [class.text-danger]="invoice.status === 'Pending' && invoice.dueDate < today">
-                                {{ invoice.dueDate | date: 'dd/MM/yyyy' }}
+                                {{ invoice.dueDate | vxDate: 'date' }}
                             </span>
                         </td>
                         <td class="text-right font-semibold">
-                            {{ invoice.currencyCode }} {{ invoice.total | number:'1.2-2' }}
+                            {{ invoice.currencyCode }} {{ invoice.total | vxNumber:'1.2-2' }}
                         </td>
                         <td>
                             <span class="status-badge" [ngClass]="getStatusClass(invoice.status)">
@@ -118,7 +118,7 @@
                     </tr>
                     } @empty {
                     <tr>
-                        <td colspan="7" class="empty-state">No se encontraron facturas que coincidan con la búsqueda.</td>
+                        <td colspan="7" class="empty-state">{{ 'INVOICES.LIST.NO_ENCONTRARON_FACTURAS_COINCIDAN_BUSQUEDA' | translate }}</td>
                     </tr>
                     }
                 }

@@ -7,11 +7,13 @@ import { InventoryService } from '../../../core/api/inventory.service';
 import { NotificationService } from '../../../core/services/notification';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { Product } from '../../../core/models/product.model';
+import { TranslateModule } from '@ngx-translate/core';
+import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 
 @Component({
   selector: 'app-products-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, HasPermissionDirective],
+  imports: [CommonModule, RouterLink, LucideAngularModule, HasPermissionDirective, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './products.page.html',
   styleUrls: ['./products.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -82,10 +84,10 @@ export class ProductsPage implements OnInit {
     if (confirm(`¿Estás seguro de que quieres eliminar el producto "${product.name}"?`)) {
       this.inventoryService.deleteProduct(product.id).subscribe({
         next: () => {
-          this.notificationService.showSuccess('Producto eliminado exitosamente.');
+          this.notificationService.showSuccess('INVENTORY.PRODUCTS.PRODUCTO_ELIMINADO_EXITOSAMENTE');
           this.loadProducts(); // Recargar la lista
         },
-        error: () => this.notificationService.showError('Error al eliminar el producto.')
+        error: () => this.notificationService.showError('INVENTORY.PRODUCTS.ERROR_ELIMINAR_PRODUCTO')
       });
     }
   }

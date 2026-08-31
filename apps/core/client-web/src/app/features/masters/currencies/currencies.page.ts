@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal } from 'lucide-angular';
+import { TranslateModule } from '@ngx-translate/core';
 
 // Interfaz para definir la estructura de una divisa
 interface Currency {
@@ -15,7 +16,7 @@ interface Currency {
 @Component({
   selector: 'app-currencies-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   templateUrl: './currencies.page.html',
   styleUrls: ['./currencies.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

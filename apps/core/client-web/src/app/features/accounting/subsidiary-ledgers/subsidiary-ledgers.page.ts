@@ -1,6 +1,8 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Filter, FileDown, Calendar, Users } from 'lucide-angular';
+import { TranslateModule } from '@ngx-translate/core';
+import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 
 interface LedgerLine {
   date: string;
@@ -14,7 +16,7 @@ interface LedgerLine {
 @Component({
   selector: 'app-subsidiary-ledgers-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './subsidiary-ledgers.page.html',
   styleUrls: ['./subsidiary-ledgers.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

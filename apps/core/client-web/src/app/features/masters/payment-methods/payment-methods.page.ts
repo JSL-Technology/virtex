@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal } from 'lucide-angular';
+import { TranslateModule } from '@ngx-translate/core';
 
 interface PaymentMethod {
   id: string;
@@ -12,7 +13,7 @@ interface PaymentMethod {
 @Component({
   selector: 'app-payment-methods-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   templateUrl: './payment-methods.page.html',
   styleUrls: ['./payment-methods.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

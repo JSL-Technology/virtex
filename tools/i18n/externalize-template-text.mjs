@@ -109,7 +109,19 @@ function files(dir) {
   });
 }
 
-/** Regions of the source that must not be touched: comments, scripts, styles. */
+/**
+ * Regions of the source that must not be touched.
+ *
+ * Comments, scripts, styles and inline SVG — and, crucially, the QUOTED VALUE OF EVERY
+ * ATTRIBUTE. An Angular binding is an expression, and expressions contain `>` and `<`:
+ *
+ *     [class.usage-bar__fill--warning]="(metric.used / metric.limit) >= 0.8 && (…) < 1"
+ *
+ * A scan for `>…<` reads the `>=` and the `<` as tag boundaries and "externalises" the comparison
+ * in between, producing a template that does not parse. It did exactly that to two files before
+ * this mask existed. Attribute values are handled by their own pass, which knows which attributes
+ * hold prose.
+ */
 function maskedRanges(source) {
   const ranges = [];
   const patterns = [
@@ -122,6 +134,84 @@ function maskedRanges(source) {
     for (const match of source.matchAll(pattern)) {
       ranges.push([match.index, match.index + match[0].length]);
     }
+  }
+
+  for (const range of attributeValueRanges(source)) ranges.push(range);
+  for (const range of controlFlowHeaderRanges(source)) ranges.push(range);
+  return ranges;
+}
+
+/**
+ * Angular control-flow headers: `@if (…) {`, `@for (…; …) {`, `@switch (…) {`.
+ *
+ * These sit in TEXT position, not inside a tag, and their conditions contain comparisons:
+ *
+ *     @if (inv.balance > 0 && inv.balance < inv.total) {
+ *
+ * A scan for `>…<` reads that `>` and that `<` as tag boundaries and externalises the middle of
+ * the condition — producing a template that does not compile. Same failure as the one in
+ * attribute values, in the one other place an expression lives outside quotes.
+ */
+function controlFlowHeaderRanges(source) {
+  const ranges = [];
+  const pattern = /@(if|else\s+if|for|switch|case|defer|placeholder|loading|empty|let)\b\s*\(/g;
+
+  for (const match of source.matchAll(pattern)) {
+    let depth = 0;
+    let index = match.index + match[0].length - 1;
+    while (index < source.length) {
+      const char = source[index];
+      if (char === '"' || char === "'") {
+        index++;
+        while (index < source.length && source[index] !== char) index++;
+      } else if (char === '(') depth++;
+      else if (char === ')') {
+        depth--;
+        if (depth === 0) break;
+      }
+      index++;
+    }
+    ranges.push([match.index, Math.min(index + 1, source.length)]);
+  }
+  return ranges;
+}
+
+/**
+ * Every quoted attribute value, found by scanning rather than by a regex.
+ *
+ * A regex for a tag (`/<[a-z][^]*?>/`) stops at the first `>` — and the first `>` in
+ * `[class.warn]="(a / b) >= 0.8 && (a / b) < 1"` is INSIDE the quotes, so the tag appears to end
+ * mid-attribute and the rest goes unmasked. That is the same class of mistake as the one this
+ * mask exists to prevent, one level up. Tracking quote state while walking is the only way to
+ * know where a tag really ends.
+ */
+function attributeValueRanges(source) {
+  const ranges = [];
+  let index = 0;
+
+  while (index < source.length) {
+    if (source[index] !== '<') {
+      index++;
+      continue;
+    }
+    // Not a tag: `a < b` in text. Only a name, a closing slash or a doctype starts one.
+    if (!/[a-zA-Z@!/]/.test(source[index + 1] ?? '')) {
+      index++;
+      continue;
+    }
+
+    index++;
+    while (index < source.length && source[index] !== '>') {
+      const quote = source[index];
+      if (quote === '"' || quote === "'") {
+        const start = index;
+        index++;
+        while (index < source.length && source[index] !== quote) index++;
+        ranges.push([start, Math.min(index + 1, source.length)]);
+      }
+      index++;
+    }
+    index++;
   }
   return ranges;
 }
@@ -138,10 +228,13 @@ const HAS_LETTERS = /[A-Za-zÁÉÍÓÚÑÜáéíóúñü]{3}/;
  * or a units suffix that is the same in every language.
  */
 function isProse(text) {
-  if (!HAS_LETTERS.test(text)) return false;
+  // Entities first: `&nbsp;·&nbsp;` is decoration between two expressions, but the letters in
+  // `nbsp` make it look like a word.
+  const prose = text.replace(/&[a-z]+;|&#x?[0-9a-f]+;/gi, ' ');
+  if (!HAS_LETTERS.test(prose)) return false;
   // A single all-caps token is usually an acronym or a code (NCF, RNC, ITBIS, SKU) that reads the
   // same in every language. Two or more words is prose.
-  if (/^[A-Z0-9/&.\-]+$/.test(text) && !text.includes(' ')) return false;
+  if (/^[A-Z0-9/&.\-]+$/.test(prose.trim()) && !prose.trim().includes(' ')) return false;
   return true;
 }
 
@@ -153,6 +246,50 @@ function isProse(text) {
  * is not this tool's job — it is a person's, because the result needs a judgement about where the
  * emphasis belongs in each language.
  */
+
+/**
+ * Find `{{ … }}` spans, matching braces rather than scanning for the first `}}`.
+ *
+ * `{{ 'KEY' | translate: { name: value } }}` contains a nested object literal, so a regex that
+ * stops at the first `}}` misses it entirely — and a text node that "contains no interpolation"
+ * is then treated as plain prose and wrapped a second time. Running the extraction twice would
+ * have produced `{{ '…' | translate }}` inside another `{{ '…' | translate }}`, which is the kind
+ * of damage a codemod must not be able to do on a re-run.
+ */
+function findInterpolations(text) {
+  const found = [];
+  for (let index = 0; index < text.length - 1; index++) {
+    if (text[index] !== '{' || text[index + 1] !== '{') continue;
+
+    let depth = 0;
+    let cursor = index;
+    while (cursor < text.length) {
+      if (text[cursor] === '{') depth++;
+      else if (text[cursor] === '}') {
+        depth--;
+        if (depth === 0) break;
+      }
+      cursor++;
+    }
+    if (depth !== 0) break; // Unbalanced: leave the whole node alone.
+
+    const whole = text.slice(index, cursor + 1);
+    found.push({ 0: whole, 1: whole.slice(2, -2).trim(), index });
+    index = cursor;
+  }
+  return found;
+}
+
+function stripInterpolations(text) {
+  let out = '';
+  let cursor = 0;
+  for (const hole of findInterpolations(text)) {
+    out += text.slice(cursor, hole.index) + '\u0000';
+    cursor = hole.index + hole[0].length;
+  }
+  return out + text.slice(cursor);
+}
+
 const INLINE_TAGS = /^<\/?(strong|b|em|i|u|span|a|small|code|mark|abbr|sup|sub|br)\b/i;
 
 /**
@@ -216,6 +353,65 @@ function toParameterised(rawText, interpolations) {
   return { message: trimmed, params, leading, trailing };
 }
 
+
+/**
+ * Find the text nodes, by walking the source rather than matching `>([^<>]*)<`.
+ *
+ * Three separate bugs came out of that regex, all the same mistake: `>` and `<` are ordinary
+ * characters inside an expression, and the expression can live in an attribute value
+ * (`[class.warn]="a >= 0.8"`), in a control-flow header (`@if (a > 0 && a < b)`), or in an
+ * interpolation (`{{ a > 0 ? 'x' : 'y' }}`). Each one was read as a tag boundary, and the
+ * "text node" between them was a piece of somebody's condition. Two templates stopped compiling.
+ *
+ * Masking the first two got most of it; the third cannot be masked, because an interpolation is
+ * legitimately PART of a text node — `Hola {{name}}, bienvenido` is one sentence. So the scan has
+ * to know the difference: skip over an interpolation, and keep going to the real `<`.
+ *
+ * Yields the same shape as the regex it replaces: `{ index, 1: text }`, where `index` points at
+ * the opening `>`.
+ */
+function textNodes(source, masked) {
+  const nodes = [];
+  let index = 0;
+
+  while (index < source.length) {
+    if (source[index] !== '>' || inRange(masked, index)) {
+      index++;
+      continue;
+    }
+
+    const open = index;
+    let cursor = index + 1;
+    let closed = false;
+
+    while (cursor < source.length) {
+      // An interpolation is part of the text, not a boundary. Step over it whole.
+      if (source[cursor] === '{' && source[cursor + 1] === '{') {
+        let depth = 0;
+        while (cursor < source.length) {
+          if (source[cursor] === '{') depth++;
+          else if (source[cursor] === '}') {
+            depth--;
+            if (depth === 0) break;
+          }
+          cursor++;
+        }
+        cursor++;
+        continue;
+      }
+      if (source[cursor] === '<' || source[cursor] === '>') {
+        closed = source[cursor] === '<';
+        break;
+      }
+      cursor++;
+    }
+
+    if (closed) nodes.push({ index: open, 1: source.slice(open + 1, cursor) });
+    index = cursor;
+  }
+  return nodes;
+}
+
 const catalogue = {};
 const report = { rewritten: 0, attributes: 0, mixed: [], skipped: [] };
 
@@ -255,6 +451,12 @@ function keyFor(namespace, text) {
 
 for (const file of files(CONFIG.root)) {
   const original = readFileSync(file, 'utf8');
+
+  // An explicit opt-out, for the one thing in the product that must NOT be translated: the
+  // wordmark. A brand is a name, not a word, and `no-hardcoded-strings.spec.ts` honours the same
+  // marker so the exception is declared in one place and visible in the file it applies to.
+  if (original.includes('i18n-ignore-file')) continue;
+
   const namespace = CONFIG.namespace(file);
   const masked = maskedRanges(original);
 
@@ -262,7 +464,7 @@ for (const file of files(CONFIG.root)) {
   const edits = [];
 
   // ---- Text nodes -----------------------------------------------------------
-  for (const match of original.matchAll(/>([^<>]*)</g)) {
+  for (const match of textNodes(original, masked)) {
     const start = match.index + 1;
     if (inRange(masked, start)) continue;
 
@@ -273,8 +475,8 @@ for (const file of files(CONFIG.root)) {
     // A control-flow header (`@if (...) {`) or a stray brace is not prose in any form.
     if (/@[a-z]+\s*[({]|^\s*\}/.test(rawText)) continue;
 
-    const interpolations = [...rawText.matchAll(/\{\{\s*([^}]*?)\s*\}\}/g)];
-    const literalPart = rawText.replace(/\{\{[^}]*\}\}/g, '\u0000').trim();
+    const interpolations = findInterpolations(rawText);
+    const literalPart = stripInterpolations(rawText).trim();
 
     if (!isProse(literalPart.replace(/\u0000/g, ' '))) continue;
 
@@ -320,8 +522,19 @@ for (const file of files(CONFIG.root)) {
     if (!isProse(trimmed) || /\{\{|\}\}/.test(value)) continue;
 
     const key = keyFor(namespace, trimmed);
-    // Bound, because a translated attribute is an expression rather than a literal.
-    const replacement = `${space}[attr.${name}]="'${key}' | translate"`;
+
+    // Property binding, not `[attr.…]`.
+    //
+    // `label="Dirección fiscal"` on `<app-input>` is an @Input, and rewriting it to
+    // `[attr.label]` would set an HTML attribute the component never reads — the field would
+    // silently lose its label. Property binding is correct for both cases: `placeholder`,
+    // `title` and `alt` are real DOM properties on the native elements that take them, and an
+    // @Input on a component.
+    //
+    // ARIA is the exception: `aria-label` is an attribute with no property behind it, so it has
+    // to go through `[attr.]`.
+    const binding = name.startsWith('aria-') ? `[attr.${name}]` : `[${name}]`;
+    const replacement = `${space}${binding}="'${key}' | translate"`;
     const hbsReplacement = `${space}${name}${equals}"${CONFIG.wrapAttribute(key)}"`;
     edits.push({
       start: match.index,

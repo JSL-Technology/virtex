@@ -3,7 +3,7 @@
         <div class="search-bar">
             <lucide-icon [img]="SearchIcon" size="24"></lucide-icon>
             <input type="text" [value]="searchQuery()" (input)="handleSearchInput($event)"
-                (keyup.enter)="performSearch(searchQuery())" placeholder="Buscar en todo el sistema...">
+                (keyup.enter)="performSearch(searchQuery())" [placeholder]="'GLOBAL_SEARCH.BUSCAR_TODO_SISTEMA' | translate">
         </div>
     </div>
 
@@ -11,15 +11,15 @@
         @if (isLoading()) {
         <div class="loading-state">
             <div class="spinner"></div>
-            <p>Buscando...</p>
+            <p>{{ 'GLOBAL_SEARCH.BUSCANDO' | translate }}</p>
         </div>
         } @else {
         <div class="results-summary">
             @if (totalResults() > 0) {
-            <p>Se encontraron <strong>{{ totalResults() }}</strong> resultados para "<strong>{{ searchQuery()
+            <p>{{ 'GLOBAL_SEARCH.ENCONTRARON' | translate }} <strong>{{ totalResults() }}</strong> {{ 'GLOBAL_SEARCH.RESULTADOS' | translate }}<strong>{{ searchQuery()
                     }}</strong>"</p>
             } @else {
-            <p>No se encontraron resultados para "<strong>{{ searchQuery() }}</strong>"</p>
+            <p>{{ 'GLOBAL_SEARCH.NO_ENCONTRARON_RESULTADOS' | translate }}<strong>{{ searchQuery() }}</strong>"</p>
             }
         </div>
 
@@ -46,8 +46,8 @@
         </div>
         } @else {
         <div class="empty-state">
-            <h4>Prueba con otros términos de búsqueda</h4>
-            <p>Intenta buscar por número de factura, nombre de cliente, SKU de producto, etc.</p>
+            <h4>{{ 'GLOBAL_SEARCH.PRUEBA_OTROS_TERMINOS_BUSQUEDA' | translate }}</h4>
+            <p>{{ 'GLOBAL_SEARCH.INTENTA_BUSCAR_NUMERO_FACTURA_NOMBRE_CLIENTE' | translate }}</p>
         </div>
         }
         }

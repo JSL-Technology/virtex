@@ -5,10 +5,11 @@ import { LucideAngularModule, Save, Image } from 'lucide-angular';
 import { InventoryService, CreateProductDto, UpdateProductDto } from '../../../core/api/inventory.service';
 import { NotificationService } from '../../../core/services/notification';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-product-form-page',
-  imports: [RouterLink, ReactiveFormsModule, LucideAngularModule],
+  imports: [RouterLink, ReactiveFormsModule, LucideAngularModule, TranslateModule],
   templateUrl: './product-form.page.html',
   styleUrls: ['./product-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -69,7 +70,7 @@ export class ProductFormPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.notificationService.showError('No se pudo cargar el producto.');
+        this.notificationService.showError('INVENTORY.PRODUCT_FORM.PUDO_CARGAR_PRODUCTO');
         this.router.navigate(['/inventory/products']);
       }
     });
@@ -87,7 +88,7 @@ export class ProductFormPage implements OnInit {
   saveProduct(): void {
     if (this.productForm.invalid) {
       this.productForm.markAllAsTouched();
-      this.notificationService.showError('Por favor, completa los campos requeridos.');
+      this.notificationService.showError('INVENTORY.PRODUCT_FORM.FAVOR_COMPLETA_CAMPOS_REQUERIDOS');
       return;
     }
 
@@ -101,11 +102,11 @@ export class ProductFormPage implements OnInit {
 
     operation.subscribe({
       next: () => {
-        this.notificationService.showSuccess(`Producto ${this.isEditMode() ? 'actualizado' : 'creado'} exitosamente.`);
+        this.notificationService.showSuccess(this.isEditMode() ? 'INVENTORY.PRODUCT_FORM.PRODUCTO_ACTUALIZADO_EXITOSAMENTE' : 'INVENTORY.PRODUCT_FORM.PRODUCTO_CREADO_EXITOSAMENTE');
         this.router.navigate(['/inventory/products']);
       },
       error: (err) => {
-        this.notificationService.showError(`Error al ${this.isEditMode() ? 'actualizar' : 'crear'} el producto.`);
+        this.notificationService.showError(this.isEditMode() ? 'INVENTORY.PRODUCT_FORM.ERROR_ACTUALIZAR_PRODUCTO' : 'INVENTORY.PRODUCT_FORM.ERROR_CREAR_PRODUCTO');
         this.isLoading.set(false);
       }
     });

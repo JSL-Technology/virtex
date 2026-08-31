@@ -3,10 +3,10 @@
     <div class="view-header">
       <div class="header-content">
         <h1>@if(isEditMode()){ Editar } @else { Nueva } Lista de Precios</h1>
-        <p>Define precios para un conjunto específico de productos.</p>
+        <p>{{ 'MASTERS.PRICE_LISTS_FORM.DEFINE_PRECIOS_CONJUNTO_ESPECIFICO_PRODUCTOS' | translate }}</p>
       </div>
       <div class="header-actions">
-        <a routerLink="/masters/price-lists" class="secondary-button">Cancelar</a>
+        <a routerLink="/masters/price-lists" class="secondary-button">{{ 'MASTERS.PRICE_LISTS_FORM.CANCELAR' | translate }}</a>
         <button type="submit" class="primary-button" [disabled]="isLoading() || isSaving()">
           <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
           <span>@if(isSaving()){ Guardando... } @else { Guardar Lista }</span>
@@ -17,11 +17,11 @@
     <div class="form-container card">
         <div class="form-grid">
             <div class="form-field">
-                <label for="name">Nombre de la Lista*</label>
+                <label for="name">{{ 'MASTERS.PRICE_LISTS_FORM.NOMBRE_LISTA' | translate }}</label>
                 <input id="name" formControlName="name">
             </div>
              <div class="form-field">
-                <label for="status">Estado*</label>
+                <label for="status">{{ 'MASTERS.PRICE_LISTS_FORM.ESTADO' | translate }}</label>
                 <select id="status" formControlName="status">
                     @for (s of statusOptions; track s) {
                         <option [value]="s">{{s}}</option>
@@ -29,34 +29,34 @@
                 </select>
             </div>
             <div class="form-field">
-                <label for="currency">Moneda*</label>
+                <label for="currency">{{ 'MASTERS.PRICE_LISTS_FORM.MONEDA' | translate }}</label>
                 <select id="currency" formControlName="currency">
-                    <option value="USD">USD - Dólar Estadounidense</option>
-                    <option value="DOP">DOP - Peso Dominicano</option>
-                    <option value="EUR">EUR - Euro</option>
+                    <option value="USD">{{ 'MASTERS.PRICE_LISTS_FORM.USD_DOLAR_ESTADOUNIDENSE' | translate }}</option>
+                    <option value="DOP">{{ 'MASTERS.PRICE_LISTS_FORM.DOP_PESO_DOMINICANO' | translate }}</option>
+                    <option value="EUR">{{ 'MASTERS.PRICE_LISTS_FORM.EUR_EURO' | translate }}</option>
                 </select>
             </div>
         </div>
         <div class="form-grid">
             <div class="form-field">
-                <label for="validFrom">Válido Desde*</label>
+                <label for="validFrom">{{ 'MASTERS.PRICE_LISTS_FORM.VALIDO_DESDE' | translate }}</label>
                 <input id="validFrom" type="date" formControlName="validFrom">
             </div>
             <div class="form-field">
-                <label for="validTo">Válido Hasta*</label>
+                <label for="validTo">{{ 'MASTERS.PRICE_LISTS_FORM.VALIDO_HASTA' | translate }}</label>
                 <input id="validTo" type="date" formControlName="validTo">
             </div>
         </div>
 
         <div class="line-items-section">
-            <h3 class="section-title">Ítems de la Lista de Precios</h3>
+            <h3 class="section-title">{{ 'MASTERS.PRICE_LISTS_FORM.ITEMS_LISTA_PRECIOS' | translate }}</h3>
             <div class="table-container">
                 <table class="data-table" formArrayName="items">
                     <thead>
                         <tr>
-                            <th style="width: 50%;">Producto*</th>
-                            <th class="text-right" style="width: 40%;">Precio*</th>
-                            <th class="actions-column">Acciones</th>
+                            <th style="width: 50%;">{{ 'MASTERS.PRICE_LISTS_FORM.PRODUCTO' | translate }}</th>
+                            <th class="text-right" style="width: 40%;">{{ 'MASTERS.PRICE_LISTS_FORM.PRECIO' | translate }}</th>
+                            <th class="actions-column">{{ 'MASTERS.PRICE_LISTS_FORM.ACCIONES' | translate }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -64,7 +64,7 @@
                             <tr [formGroupName]="i">
                                 <td>
                                     <select formControlName="productId">
-                                        <option value="" disabled>Selecciona un producto...</option>
+                                        <option value="" disabled>{{ 'MASTERS.PRICE_LISTS_FORM.SELECCIONA_PRODUCTO' | translate }}</option>
                                         @for (product of products(); track product.id) {
                                             <option [value]="product.id">
                                                 {{ product.name }} ({{product.sku}})
@@ -87,7 +87,7 @@
             </div>
             <button type="button" class="secondary-button add-line-btn" (click)="addLine()">
                 <lucide-icon [img]="PlusIcon" size="16"></lucide-icon>
-                <span>Añadir Línea</span>
+                <span>{{ 'MASTERS.PRICE_LISTS_FORM.ANADIR_LINEA' | translate }}</span>
             </button>
         </div>
     </div>

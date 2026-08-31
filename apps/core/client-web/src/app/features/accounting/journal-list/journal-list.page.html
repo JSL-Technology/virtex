@@ -3,19 +3,19 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="card-title">Journals</h4>
+                    <h4 class="card-title">{{ 'ACCOUNTING.JOURNAL_LIST.JOURNALS' | translate }}</h4>
                     <a [routerLink]="['/accounting/journals/new']" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Create Journal
+                        <i class="fas fa-plus"></i> {{ 'ACCOUNTING.JOURNAL_LIST.CREATE_JOURNAL' | translate }}
                     </a>
                 </div>
                 <div class="card-body">
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Code</th>
-                                <th>Type</th>
-                                <th>Actions</th>
+                                <th>{{ 'ACCOUNTING.JOURNAL_LIST.NAME' | translate }}</th>
+                                <th>{{ 'ACCOUNTING.JOURNAL_LIST.CODE' | translate }}</th>
+                                <th>{{ 'ACCOUNTING.JOURNAL_LIST.TYPE' | translate }}</th>
+                                <th>{{ 'ACCOUNTING.JOURNAL_LIST.ACTIONS' | translate }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -26,7 +26,7 @@
                                     <td>{{ journal.type }}</td>
                                     <td>
                                         <a [routerLink]="['/accounting/journals', journal.id, 'edit']" class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-edit"></i> Edit
+                                            <i class="fas fa-edit"></i> {{ 'ACCOUNTING.JOURNAL_LIST.EDIT' | translate }}
                                         </a>
                                     </td>
                                 </tr>

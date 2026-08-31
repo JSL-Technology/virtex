@@ -5,13 +5,14 @@ import * as Highcharts from 'highcharts';
 import { DashboardWidget, DashboardService, ChartType } from '../../../../core/services/dashboard';
 import { LucideAngularModule, Settings, AreaChart, LineChart } from 'lucide-angular';
 import Exporting from 'highcharts/modules/exporting';
+import { TranslateModule } from '@ngx-translate/core';
 
 // Exporting(Highcharts);
 
 @Component({
   selector: 'app-sales-chart',
   standalone: true,
-  imports: [CommonModule, HighchartsChartComponent, LucideAngularModule],
+  imports: [CommonModule, HighchartsChartComponent, LucideAngularModule, TranslateModule],
   templateUrl: './sales-chart.html',
   styleUrls: ['../widget-styles.scss'],
 })

@@ -1,6 +1,8 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Filter, FileDown, Calendar } from 'lucide-angular';
+import { TranslateModule } from '@ngx-translate/core';
+import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 
 interface JournalLine {
   accountCode: string;
@@ -19,7 +21,7 @@ interface JournalEntryView {
 @Component({
   selector: 'app-daily-journal-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './daily-journal.page.html',
   styleUrls: ['./daily-journal.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

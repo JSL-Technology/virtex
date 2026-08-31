@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Lock, Unlock } from 'lucide-angular';
+import { TranslateModule } from '@ngx-translate/core';
 
 interface AccountingPeriod {
   month: string;
@@ -13,7 +14,7 @@ interface AccountingPeriod {
 @Component({
   selector: 'app-periods-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   templateUrl: './periods.page.html',
   styleUrls: ['./periods.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

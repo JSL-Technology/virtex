@@ -1,14 +1,14 @@
 <div class="repository-container">
     <div class="repository-header">
-        <h3>File Repository</h3>
+        <h3>{{ 'DOCUMENTS.REPOSITORY.FILE_REPOSITORY' | translate }}</h3>
         <div class="header-actions">
             <button class="secondary-button">
                 <lucide-icon [img]="FolderIcon" size="16"></lucide-icon>
-                <span>New Folder</span>
+                <span>{{ 'DOCUMENTS.REPOSITORY.NEW_FOLDER' | translate }}</span>
             </button>
             <button class="primary-button">
                 <lucide-icon [img]="UploadIcon" size="16"></lucide-icon>
-                <span>Upload File</span>
+                <span>{{ 'DOCUMENTS.REPOSITORY.UPLOAD_FILE' | translate }}</span>
             </button>
         </div>
     </div>
@@ -16,11 +16,11 @@
     <div class="file-explorer card">
         <div class="explorer-toolbar">
             <div class="path-breadcrumbs">
-                <span class="path-item">Home</span>
+                <span class="path-item">{{ 'DOCUMENTS.REPOSITORY.HOME' | translate }}</span>
             </div>
             <div class="search-bar">
                 <lucide-icon [img]="SearchIcon" size="16"></lucide-icon>
-                <input type="text" placeholder="Search in this folder...">
+                <input type="text" [placeholder]="'DOCUMENTS.REPOSITORY.SEARCH_IN_THIS_FOLDER' | translate">
             </div>
         </div>
 
@@ -29,9 +29,9 @@
                 <thead>
                     <tr>
                         <th style="width: 1%;"><input type="checkbox"></th>
-                        <th>Name</th>
-                        <th>Last Modified</th>
-                        <th>File Size</th>
+                        <th>{{ 'DOCUMENTS.REPOSITORY.NAME' | translate }}</th>
+                        <th>{{ 'DOCUMENTS.REPOSITORY.LAST_MODIFIED' | translate }}</th>
+                        <th>{{ 'DOCUMENTS.REPOSITORY.FILE_SIZE' | translate }}</th>
                         <th class="actions-column"></th>
                     </tr>
                 </thead>
@@ -56,7 +56,7 @@
                     </tr>
                     } @empty {
                     <tr>
-                        <td colspan="5" class="empty-state">This folder is empty.</td>
+                        <td colspan="5" class="empty-state">{{ 'DOCUMENTS.REPOSITORY.THIS_FOLDER_EMPTY' | translate }}</td>
                     </tr>
                     }
                 </tbody>

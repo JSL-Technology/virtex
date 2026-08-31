@@ -2,15 +2,15 @@
   <div class="page-header">
     <div class="header-title">
       <div class="breadcrumb">
-        <a [routerLink]="['/invoices']">Facturas</a>
+        <a [routerLink]="['/invoices']">{{ 'INVOICES.NEW.FACTURAS' | translate }}</a>
         <span class="divider">/</span>
-        <span>Nueva Factura</span>
+        <span>{{ 'INVOICES.NEW.NUEVA_FACTURA' | translate }}</span>
       </div>
-      <h1>Crear Nueva Factura de Venta</h1>
+      <h1>{{ 'INVOICES.NEW.CREAR_NUEVA_FACTURA_VENTA' | translate }}</h1>
     </div>
     <div class="page-header-actions">
       <button class="btn btn-secondary" [routerLink]="['/invoices']">
-        Cancelar
+        {{ 'INVOICES.NEW.CANCELAR' | translate }}
       </button>
       <button
         class="btn btn-primary"
@@ -33,9 +33,9 @@
 
   <!-- Document Tabs -->
   <div class="sap-tabs">
-    <button [class.active]="activeTab() === 'content'" (click)="activeTab.set('content')">Contenido</button>
-    <button [class.active]="activeTab() === 'logistics'" (click)="activeTab.set('logistics')">Logística</button>
-    <button [class.active]="activeTab() === 'finance'" (click)="activeTab.set('finance')">Finanzas</button>
+    <button [class.active]="activeTab() === 'content'" (click)="activeTab.set('content')">{{ 'INVOICES.NEW.CONTENIDO' | translate }}</button>
+    <button [class.active]="activeTab() === 'logistics'" (click)="activeTab.set('logistics')">{{ 'INVOICES.NEW.LOGISTICA' | translate }}</button>
+    <button [class.active]="activeTab() === 'finance'" (click)="activeTab.set('finance')">{{ 'INVOICES.NEW.FINANZAS' | translate }}</button>
   </div>
 
   <form [formGroup]="invoiceForm">
@@ -47,9 +47,9 @@
             <!-- Customer & Basic Info -->
             <div class="invoice-header-section">
               <div class="form-group customer-select">
-                <label class="form-label" for="customerid">Cliente</label>
+                <label class="form-label" for="customerid">{{ 'INVOICES.NEW.CLIENTE' | translate }}</label>
                 <select id="customerid" formControlName="customerId" class="form-control">
-                  <option value="" disabled>Seleccionar cliente</option>
+                  <option value="" disabled>{{ 'INVOICES.NEW.SELECCIONAR_CLIENTE' | translate }}</option>
                   @for (client of customers(); track client.id) {
                   <option [value]="client.id">
                     {{ client.companyName }}
@@ -60,7 +60,7 @@
 
               <div class="invoice-meta-grid">
                 <div class="form-group">
-                  <label class="form-label" for="fecha-de-emisi-n">Fecha de Emisión</label>
+                  <label class="form-label" for="fecha-de-emisi-n">{{ 'INVOICES.NEW.FECHA_EMISION' | translate }}</label>
                   <input id="fecha-de-emisi-n"
                     type="date"
                     formControlName="issueDate"
@@ -68,7 +68,7 @@
                   />
                 </div>
                 <div class="form-group">
-                  <label class="form-label" for="fecha-de-vencimiento">Fecha de Vencimiento</label>
+                  <label class="form-label" for="fecha-de-vencimiento">{{ 'INVOICES.NEW.FECHA_VENCIMIENTO' | translate }}</label>
                   <input id="fecha-de-vencimiento"
                     type="date"
                     formControlName="dueDate"
@@ -76,7 +76,7 @@
                   />
                 </div>
                 <div class="form-group">
-                  <label class="form-label" for="currencycode">Moneda</label>
+                  <label class="form-label" for="currencycode">{{ 'INVOICES.NEW.MONEDA' | translate }}</label>
                   <select id="currencycode" formControlName="currencyCode" class="form-control">
                     @for (currency of currencies(); track currency.code) {
                     <option [value]="currency.code">
@@ -90,16 +90,16 @@
 
             <!-- Line Items -->
             <div class="line-items-section">
-              <h3 class="section-title">Conceptos de Factura</h3>
+              <h3 class="section-title">{{ 'INVOICES.NEW.CONCEPTOS_FACTURA' | translate }}</h3>
               <div class="table-container">
                 <table class="line-items-table">
                   <thead>
                     <tr>
-                      <th class="col-product">Producto / Servicio</th>
-                      <th class="col-qty">Cant.</th>
-                      <th class="col-price">Precio Unit.</th>
-                      <th class="col-tax">Imp. (%)</th>
-                      <th class="col-total">Total</th>
+                      <th class="col-product">{{ 'INVOICES.NEW.PRODUCTO_SERVICIO' | translate }}</th>
+                      <th class="col-qty">{{ 'INVOICES.NEW.CANT' | translate }}</th>
+                      <th class="col-price">{{ 'INVOICES.NEW.PRECIO_UNIT' | translate }}</th>
+                      <th class="col-tax">{{ 'INVOICES.NEW.IMP' | translate }}</th>
+                      <th class="col-total">{{ 'INVOICES.NEW.TOTAL' | translate }}</th>
                       <th class="col-actions"></th>
                     </tr>
                   </thead>
@@ -113,7 +113,7 @@
                           (change)="onProductSelect(i)"
                           class="form-control"
                         >
-                          <option value="" disabled>Seleccionar</option>
+                          <option value="" disabled>{{ 'INVOICES.NEW.SELECCIONAR' | translate }}</option>
                           @for (product of products(); track product.id) {
                           <option [value]="product.id">
                             {{ product.name }}
@@ -121,7 +121,7 @@
                           }
                         </select>
                         @if (!validateStock(i)) {
-                        <div class="stock-error">Stock insuficiente</div>
+                        <div class="stock-error">{{ 'INVOICES.NEW.STOCK_INSUFICIENTE' | translate }}</div>
                         }
                       </td>
                       <td>
@@ -153,7 +153,7 @@
                       <td class="text-right font-semibold">
                         {{
                           (item.get('quantity')?.value * item.get('price')?.value) * (1 + item.get('taxRate')?.value)
-                            | number : '1.2-2'
+                            | vxNumber : '1.2-2'
                         }}
                       </td>
                       <td>
@@ -161,7 +161,7 @@
                           type="button"
                           class="btn-icon btn-danger-soft"
                           (click)="removeLineItem(i)"
-                          title="Eliminar"
+                          [title]="'INVOICES.NEW.ELIMINAR' | translate"
                         >
                           <span class="icon-trash">×</span>
                         </button>
@@ -176,7 +176,7 @@
                 class="btn btn-add-line"
                 (click)="addLineItem()"
               >
-                <span class="icon-plus">+</span> Agregar línea
+                <span class="icon-plus">+</span> {{ 'INVOICES.NEW.AGREGAR_LINEA' | translate }}
               </button>
             </div>
           </div>
@@ -187,24 +187,24 @@
       <div class="sidebar-content">
         <div class="card summary-card">
           <div class="card-body">
-            <h3 class="section-title">Resumen</h3>
+            <h3 class="section-title">{{ 'INVOICES.NEW.RESUMEN' | translate }}</h3>
             <div class="totals-list">
               <div class="total-row">
-                <span class="label">Subtotal</span>
+                <span class="label">{{ 'INVOICES.NEW.SUBTOTAL' | translate }}</span>
                 <span class="value">{{
-                  totals.subtotal | number : '1.2-2'
+                  totals.subtotal | vxNumber : '1.2-2'
                 }}</span>
               </div>
               <div class="total-row">
-                <span class="label">Impuestos</span>
-                <span class="value">{{ totals.tax | number : '1.2-2' }}</span>
+                <span class="label">{{ 'INVOICES.NEW.IMPUESTOS' | translate }}</span>
+                <span class="value">{{ totals.tax | vxNumber : '1.2-2' }}</span>
               </div>
               <div class="total-divider"></div>
               <div class="total-row total-grand">
-                <span class="label">Total</span>
+                <span class="label">{{ 'INVOICES.NEW.TOTAL' | translate }}</span>
                 <span class="value"
                   >{{ invoiceForm.get('currencyCode')?.value }}
-                  {{ totals.total | number : '1.2-2' }}</span
+                  {{ totals.total | vxNumber : '1.2-2' }}</span
                 >
               </div>
             </div>
@@ -214,12 +214,12 @@
         <div class="card notes-card">
           <div class="card-body">
             <div class="form-group">
-              <label class="form-label" for="notas-adicionales">Notas Adicionales</label>
+              <label class="form-label" for="notas-adicionales">{{ 'INVOICES.NEW.NOTAS_ADICIONALES' | translate }}</label>
               <textarea id="notas-adicionales"
                 formControlName="notes"
                 class="form-control"
                 rows="4"
-                placeholder="Términos, condiciones, instrucciones de pago..."
+                [placeholder]="'INVOICES.NEW.TERMINOS_CONDICIONES_INSTRUCCIONES_PAGO' | translate"
               ></textarea>
             </div>
           </div>
@@ -230,18 +230,18 @@
     <!-- Logistics Tab Content -->
     <div class="invoice-document card" *ngIf="activeTab() === 'logistics'">
         <div class="card-body">
-            <h3 class="section-title">Logística y Entrega</h3>
+            <h3 class="section-title">{{ 'INVOICES.NEW.LOGISTICA_ENTREGA' | translate }}</h3>
             <div class="grid-2-col">
                 <div class="form-group">
-                    <label class="form-label" for="direcci-n-de-env-o">Dirección de Envío</label>
-                    <textarea id="direcci-n-de-env-o" class="form-control" rows="3" placeholder="Dirección completa del cliente..."></textarea>
+                    <label class="form-label" for="direcci-n-de-env-o">{{ 'INVOICES.NEW.DIRECCION_ENVIO' | translate }}</label>
+                    <textarea id="direcci-n-de-env-o" class="form-control" rows="3" [placeholder]="'INVOICES.NEW.DIRECCION_COMPLETA_CLIENTE' | translate"></textarea>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="m-todo-de-env-o">Método de Envío</label>
+                    <label class="form-label" for="m-todo-de-env-o">{{ 'INVOICES.NEW.METODO_ENVIO' | translate }}</label>
                     <select id="m-todo-de-env-o" class="form-control">
-                        <option>Transporte Propio</option>
-                        <option>Courier Externo</option>
-                        <option>Retiro en Almacén</option>
+                        <option>{{ 'INVOICES.NEW.TRANSPORTE_PROPIO' | translate }}</option>
+                        <option>{{ 'INVOICES.NEW.COURIER_EXTERNO' | translate }}</option>
+                        <option>{{ 'INVOICES.NEW.RETIRO_ALMACEN' | translate }}</option>
                     </select>
                 </div>
             </div>
@@ -251,23 +251,23 @@
     <!-- Finance Tab Content -->
     <div class="invoice-document card" *ngIf="activeTab() === 'finance'">
         <div class="card-body">
-            <h3 class="section-title">Información Financiera</h3>
+            <h3 class="section-title">{{ 'INVOICES.NEW.INFORMACION_FINANCIERA' | translate }}</h3>
             <div class="grid-2-col">
                 <div class="form-group">
-                    <label class="form-label" for="condiciones-de-pago">Condiciones de Pago</label>
+                    <label class="form-label" for="condiciones-de-pago">{{ 'INVOICES.NEW.CONDICIONES_PAGO' | translate }}</label>
                     <select id="condiciones-de-pago" class="form-control">
-                        <option>Contado</option>
-                        <option>15 Días</option>
-                        <option selected>30 Días</option>
-                        <option>60 Días</option>
+                        <option>{{ 'INVOICES.NEW.CONTADO' | translate }}</option>
+                        <option>{{ 'INVOICES.NEW.15_DIAS' | translate }}</option>
+                        <option selected>{{ 'INVOICES.NEW.30_DIAS' | translate }}</option>
+                        <option>{{ 'INVOICES.NEW.60_DIAS' | translate }}</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="lista-de-precios">Lista de Precios</label>
+                    <label class="form-label" for="lista-de-precios">{{ 'INVOICES.NEW.LISTA_PRECIOS' | translate }}</label>
                     <select id="lista-de-precios" class="form-control">
-                        <option>Precio Base</option>
-                        <option>Mayorista</option>
-                        <option>Distribuidor</option>
+                        <option>{{ 'INVOICES.NEW.PRECIO_BASE' | translate }}</option>
+                        <option>{{ 'INVOICES.NEW.MAYORISTA' | translate }}</option>
+                        <option>{{ 'INVOICES.NEW.DISTRIBUIDOR' | translate }}</option>
                     </select>
                 </div>
             </div>

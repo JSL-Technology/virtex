@@ -5,6 +5,8 @@ import { LucideAngularModule, Search, X, Plus, Minus, Trash2, CreditCard, Shoppi
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Product } from '../../../core/models/product.model';
+import { TranslateModule } from '@ngx-translate/core';
+import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 
 /**
  * Placeholder sales-tax rate.
@@ -21,7 +23,7 @@ const POS_TAX_RATE = 0.18;
 @Component({
   selector: 'app-pos-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './pos.page.html',
   styleUrls: ['./pos.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

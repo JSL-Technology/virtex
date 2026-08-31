@@ -1,5 +1,5 @@
 <div class="widget-header">
-  <h3>Ingresos Mensuales</h3>
+  <h3>{{ 'DASHBOARD.SALES_CHART.INGRESOS_MENSUALES' | translate }}</h3>
   @if (isEditMode) {
   <div class="widget-edit-menu">
     <button class="icon-button" (mousedown)="toggleSettings($event); $event.stopPropagation()">
@@ -7,11 +7,11 @@
     </button>
     @if (isSettingsOpen()) {
     <div class="edit-dropdown" (mousedown)="$event.stopPropagation()">
-      <span class="dropdown-title">Tipo de Gráfico</span>
+      <span class="dropdown-title">{{ 'DASHBOARD.SALES_CHART.TIPO_GRAFICO' | translate }}</span>
       <button (mousedown)="changeChartType('area', $event)" [class.active]="widget.chartType === 'area'"><lucide-icon
-          [img]="AreaIcon" size="14"></lucide-icon> Área</button>
+          [img]="AreaIcon" size="14"></lucide-icon> {{ 'DASHBOARD.SALES_CHART.AREA' | translate }}</button>
       <button (mousedown)="changeChartType('line', $event)" [class.active]="widget.chartType === 'line'"><lucide-icon
-          [img]="LineIcon" size="14"></lucide-icon> Línea</button>
+          [img]="LineIcon" size="14"></lucide-icon> {{ 'DASHBOARD.SALES_CHART.LINEA' | translate }}</button>
     </div>
     }
   </div>

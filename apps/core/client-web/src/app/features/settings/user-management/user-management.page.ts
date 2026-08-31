@@ -228,7 +228,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
         this.loading.set(false);
       },
       error: () => {
-        this.notificationService.showError('No se pudieron cargar los usuarios.');
+        this.notificationService.showError('SETTINGS.USER_MANAGEMENT.PUDIERON_CARGAR_USUARIOS');
         this.loading.set(false);
       },
     });
@@ -296,7 +296,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
         )
         .subscribe({
           next: () => {
-            this.notificationService.showSuccess('Usuario actualizado con éxito.');
+            this.notificationService.showSuccess('SETTINGS.USER_MANAGEMENT.USUARIO_ACTUALIZADO_EXITO');
             this.closeUserModal();
             this.loadUsers();
           },
@@ -321,7 +321,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
         )
         .subscribe({
           next: () => {
-            this.notificationService.showSuccess('Usuario invitado con éxito.');
+            this.notificationService.showSuccess('SETTINGS.USER_MANAGEMENT.USUARIO_INVITADO_EXITO');
             this.closeUserModal();
             this.loadUsers();
           },
@@ -346,7 +346,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
       )
       .subscribe({
         next: () => {
-          this.notificationService.showSuccess('Usuario eliminado con éxito.');
+          this.notificationService.showSuccess('SETTINGS.USER_MANAGEMENT.USUARIO_ELIMINADO_EXITO');
           this.closeDeleteModal();
           this.loadUsers();
         },
@@ -405,7 +405,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
           this.usersService.forceLogout(user.id),
         )
         .subscribe({
-          next: () => this.notificationService.showSuccess('La sesión del usuario ha sido cerrada.'),
+          next: () => this.notificationService.showSuccess('SETTINGS.USER_MANAGEMENT.SESION_USUARIO_HA_SIDO_CERRADA'),
           error: (err) =>
             this.notificationService.showError(
               err?.error?.message || 'Error al cerrar la sesión.',
@@ -422,9 +422,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
         )
         .subscribe({
           next: () => {
-            this.notificationService.showSuccess(
-              'El usuario ha sido bloqueado y su sesión cerrada.',
-            );
+            this.notificationService.showSuccess('SETTINGS.USER_MANAGEMENT.USUARIO_HA_SIDO_BLOQUEADO_SESION_CERRADA');
             this.loadUsers();
           },
           error: (err) =>

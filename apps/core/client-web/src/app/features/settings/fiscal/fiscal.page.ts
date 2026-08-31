@@ -8,6 +8,8 @@ import {
   NcfType,
 } from '../../../core/services/einvoicing';
 import { NotificationService } from '../../../core/services/notification';
+import { TranslateModule } from '@ngx-translate/core';
+import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 
 /**
  * Dominican Republic fiscal configuration: DGII signing certificate, authorized e-NCF ranges, and
@@ -17,7 +19,7 @@ import { NotificationService } from '../../../core/services/notification';
 @Component({
   selector: 'app-fiscal-settings-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './fiscal.page.html',
   styleUrls: ['./fiscal.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -77,14 +79,14 @@ export class FiscalSettingsPage implements OnInit {
   private loadCertificates(): void {
     this.einvoicing.listCertificates().subscribe({
       next: (c) => this.certificates.set(c),
-      error: () => this.notifications.showError('No se pudieron cargar los certificados.'),
+      error: () => this.notifications.showError('SETTINGS.FISCAL.PUDIERON_CARGAR_CERTIFICADOS'),
     });
   }
 
   private loadSequences(): void {
     this.einvoicing.listSequences().subscribe({
       next: (s) => this.sequences.set(s),
-      error: () => this.notifications.showError('No se pudieron cargar las secuencias NCF.'),
+      error: () => this.notifications.showError('SETTINGS.FISCAL.PUDIERON_CARGAR_SECUENCIAS_NCF'),
     });
   }
 
@@ -96,7 +98,7 @@ export class FiscalSettingsPage implements OnInit {
   uploadCertificate(): void {
     const file = this.selectedFile();
     if (!file) {
-      this.notifications.showError('Seleccione el archivo del certificado (.p12 / .pfx).');
+      this.notifications.showError('SETTINGS.FISCAL.SELECCIONE_ARCHIVO_CERTIFICADO_P12_PFX');
       return;
     }
     if (this.certForm.invalid) {
@@ -107,7 +109,7 @@ export class FiscalSettingsPage implements OnInit {
     const { alias, password } = this.certForm.getRawValue();
     this.einvoicing.uploadCertificate(file, password!, alias!).subscribe({
       next: () => {
-        this.notifications.showSuccess('Certificado cargado y validado correctamente.');
+        this.notifications.showSuccess('SETTINGS.FISCAL.CERTIFICADO_CARGADO_VALIDADO_CORRECTAMENTE');
         this.certForm.reset();
         this.selectedFile.set(null);
         this.uploading.set(false);
@@ -123,10 +125,10 @@ export class FiscalSettingsPage implements OnInit {
   deactivateCertificate(id: string): void {
     this.einvoicing.deactivateCertificate(id).subscribe({
       next: () => {
-        this.notifications.showInfo('Certificado desactivado.');
+        this.notifications.showInfo('SETTINGS.FISCAL.CERTIFICADO_DESACTIVADO');
         this.loadCertificates();
       },
-      error: () => this.notifications.showError('No se pudo desactivar el certificado.'),
+      error: () => this.notifications.showError('SETTINGS.FISCAL.PUDO_DESACTIVAR_CERTIFICADO'),
     });
   }
 
@@ -137,7 +139,7 @@ export class FiscalSettingsPage implements OnInit {
     }
     const value = this.sequenceForm.getRawValue();
     if (value.endsAt! < value.startsAt!) {
-      this.notifications.showError('El número final no puede ser menor que el inicial.');
+      this.notifications.showError('SETTINGS.FISCAL.NUMERO_FINAL_PUEDE_SER_MENOR_INICIAL');
       return;
     }
     this.provisioning.set(true);
@@ -150,7 +152,7 @@ export class FiscalSettingsPage implements OnInit {
       })
       .subscribe({
         next: () => {
-          this.notifications.showSuccess('Rango de e-NCF registrado.');
+          this.notifications.showSuccess('SETTINGS.FISCAL.RANGO_NCF_REGISTRADO');
           this.provisioning.set(false);
           this.loadSequences();
         },

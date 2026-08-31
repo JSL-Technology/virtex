@@ -8,11 +8,12 @@ import { take } from 'rxjs/operators';
 import { AccountType, AccountCategory, AccountNature, CashFlowCategory, RequiredDimension } from '../../../core/models/account.model';
 import { LucideAngularModule, Save, AlertTriangle, Settings } from 'lucide-angular';
 import { NotificationService } from '../../../core/services/notification';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-account-form-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideAngularModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideAngularModule, TranslateModule],
   templateUrl: './account-form.page.html',
   styleUrls: ['./account-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -66,7 +67,7 @@ export class AccountFormPage implements OnInit {
         }
       },
       error: () => {
-        this.notificationService.showError('Error al cargar la configuración de segmentos.');
+        this.notificationService.showError('ACCOUNTING.ACCOUNT_FORM.ERROR_CARGAR_CONFIGURACION_SEGMENTOS');
       }
     });
   }
@@ -162,7 +163,7 @@ export class AccountFormPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.notificationService.showError('Error al cargar los datos de la cuenta.');
+        this.notificationService.showError('ACCOUNTING.ACCOUNT_FORM.ERROR_CARGAR_DATOS_CUENTA');
         this.isLoading.set(false);
         this.router.navigate(['/accounting/chart-of-accounts']);
       }
@@ -171,13 +172,13 @@ export class AccountFormPage implements OnInit {
 
   onSave(): void {
     if (this.isConfigMissing()) {
-      this.notificationService.showError('No se puede guardar la cuenta sin una estructura de segmentos configurada.');
+      this.notificationService.showError('ACCOUNTING.ACCOUNT_FORM.PUEDE_GUARDAR_CUENTA_SIN_ESTRUCTURA_SEGMENTOS');
       return;
     }
 
     if (this.accountForm.invalid) {
       this.accountForm.markAllAsTouched();
-      this.notificationService.showError('Por favor, complete todos los campos requeridos.');
+      this.notificationService.showError('ACCOUNTING.ACCOUNT_FORM.FAVOR_COMPLETE_TODOS_CAMPOS_REQUERIDOS');
       // Abrir el tab que contiene el primer error
       this.findAndFocusFirstInvalidTab();
       return;
@@ -188,7 +189,7 @@ export class AccountFormPage implements OnInit {
     const segments = this.parseCodeToSegments(formData.code);
 
     if (!this.isEditing() && segments.length === 0) {
-      this.notificationService.showError('El código de cuenta debe tener al menos un segmento válido.');
+      this.notificationService.showError('ACCOUNTING.ACCOUNT_FORM.CODIGO_CUENTA_DEBE_TENER_MENOS_SEGMENTO');
       this.isLoading.set(false);
       this.activeTab.set('general');
       return;
@@ -217,7 +218,7 @@ export class AccountFormPage implements OnInit {
   
     saveOperation.pipe(take(1)).subscribe({
       next: () => {
-        this.notificationService.showSuccess(`Cuenta ${this.isEditing() ? 'actualizada' : 'creada'} con éxito.`);
+        this.notificationService.showSuccess(this.isEditing() ? 'ACCOUNTING.ACCOUNT_FORM.CUENTA_ACTUALIZADA_EXITO' : 'ACCOUNTING.ACCOUNT_FORM.CUENTA_CREADA_EXITO');
         this.stateService.refreshAccounts();
         this.router.navigate(['/accounting/chart-of-accounts']);
       },

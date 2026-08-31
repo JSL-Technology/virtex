@@ -18,11 +18,13 @@ import { CommonModule, DecimalPipe } from '@angular/common';
 import { InvoiceToolbarComponent } from '../components/invoice-toolbar/invoice-toolbar.component';
 import { InvoiceSelectionDialogComponent } from '../components/invoice-selection-dialog/invoice-selection-dialog.component';
 import { ViewChild } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
+import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 
 @Component({
   selector: 'app-new-invoice-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, DecimalPipe, InvoiceToolbarComponent, InvoiceSelectionDialogComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, DecimalPipe, InvoiceToolbarComponent, InvoiceSelectionDialogComponent, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './new.page.html',
   styleUrls: ['./new.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -85,7 +87,7 @@ export class NewInvoicePage implements OnInit {
           this.lineItems.push(group);
         });
 
-        this.notificationService.showInfo(`Datos cargados desde la factura ${invoice.invoiceNumber}`);
+        this.notificationService.showInfo('INVOICES.NEW.DATOS_CARGADOS_DESDE_FACTURA', { invoiceNumber: invoice.invoiceNumber });
       });
     }
   }
@@ -192,13 +194,13 @@ export class NewInvoicePage implements OnInit {
       this.lineItems.push(group);
     });
 
-    this.notificationService.showSuccess(`Datos cargados desde la factura ${invoice.invoiceNumber}`);
+    this.notificationService.showSuccess('INVOICES.NEW.DATOS_CARGADOS_DESDE_FACTURA', { invoiceNumber: invoice.invoiceNumber });
   }
 
   onSubmit(): void {
     if (this.invoiceForm.invalid) {
       this.invoiceForm.markAllAsTouched();
-      this.notificationService.showError('Por favor, completa todos los campos requeridos.');
+      this.notificationService.showError('INVOICES.NEW.FAVOR_COMPLETA_TODOS_CAMPOS_REQUERIDOS');
       return;
     }
 
@@ -221,13 +223,13 @@ export class NewInvoicePage implements OnInit {
 
     this.invoicesService.createInvoice(payload).subscribe({
       next: () => {
-        this.notificationService.showSuccess('Factura creada exitosamente.');
+        this.notificationService.showSuccess('INVOICES.NEW.FACTURA_CREADA_EXITOSAMENTE');
         this.router.navigate(['/invoices']);
       },
       error: (err) => {
         console.error('Error body:', err.error);
         const errorMessage = err.error?.message || err.message || 'Error desconocido al crear la factura.';
-        this.notificationService.showError(`Error al crear la factura: ${errorMessage}`);
+        this.notificationService.showError('INVOICES.NEW.ERROR_CREAR_FACTURA', { errorMessage: errorMessage });
         this.isSaving.set(false);
       },
     });

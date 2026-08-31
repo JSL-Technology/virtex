@@ -2,13 +2,13 @@
   <div class="view-header">
     <div class="header-content">
       <h1>{{ 'NAV.PURCHASING' | translate }}</h1>
-      <p>Manage requisitions, purchase orders, and goods receipts.</p>
+      <p>{{ 'PURCHASING.LAYOUT.MANAGE_REQUISITIONS_PURCHASE_ORDERS_AND_GOODS' | translate }}</p>
     </div>
   </div>
   <nav class="secondary-nav">
-    <a routerLink="orders" routerLinkActive="active"><lucide-icon [img]="OrdersIcon" size="16"></lucide-icon><span>Purchase Orders</span></a>
-    <a routerLink="requisitions" routerLinkActive="active"><lucide-icon [img]="RequisitionsIcon" size="16"></lucide-icon><span>Requisitions</span></a>
-    <a routerLink="receipts" routerLinkActive="active"><lucide-icon [img]="ReceiptsIcon" size="16"></lucide-icon><span>Receipts</span></a>
+    <a routerLink="orders" routerLinkActive="active"><lucide-icon [img]="OrdersIcon" size="16"></lucide-icon><span>{{ 'PURCHASING.LAYOUT.PURCHASE_ORDERS' | translate }}</span></a>
+    <a routerLink="requisitions" routerLinkActive="active"><lucide-icon [img]="RequisitionsIcon" size="16"></lucide-icon><span>{{ 'PURCHASING.LAYOUT.REQUISITIONS' | translate }}</span></a>
+    <a routerLink="receipts" routerLinkActive="active"><lucide-icon [img]="ReceiptsIcon" size="16"></lucide-icon><span>{{ 'PURCHASING.LAYOUT.RECEIPTS' | translate }}</span></a>
   </nav>
   <div class="content-outlet">
     <router-outlet></router-outlet>

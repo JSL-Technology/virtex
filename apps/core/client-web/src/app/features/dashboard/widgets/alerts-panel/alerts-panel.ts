@@ -2,10 +2,11 @@ import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, AlertTriangle, CheckCircle } from 'lucide-angular';
 import { AlertItem } from '../../../../core/models/finance';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-alerts-panel', standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   templateUrl: './alerts-panel.html',
   styleUrls: ['../widget-styles.scss']
 })

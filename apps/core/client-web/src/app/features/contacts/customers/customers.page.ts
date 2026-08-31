@@ -4,10 +4,11 @@ import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal, Edit, Trash2 }
 import { Customer } from '../../../core/models/customer.model';
 import { CustomersService } from '../../../core/api/customers.service';
 import { NotificationService } from '../../../core/services/notification';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-customers-page',
-  imports: [RouterLink, LucideAngularModule],
+  imports: [RouterLink, LucideAngularModule, TranslateModule],
   templateUrl: './customers.page.html',
   styleUrls: ['./customers.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -37,7 +38,7 @@ export class CustomersPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.notificationService.showError('No se pudieron cargar los clientes.');
+        this.notificationService.showError('CONTACTS.CUSTOMERS.PUDIERON_CARGAR_CLIENTES');
         this.isLoading.set(false);
       },
     });
@@ -47,11 +48,11 @@ export class CustomersPage implements OnInit {
     if (confirm('¿Estás seguro de que deseas eliminar este cliente?')) {
       this.customersService.deleteCustomer(id).subscribe({
         next: () => {
-          this.notificationService.showSuccess('Cliente eliminado exitosamente.');
+          this.notificationService.showSuccess('CONTACTS.CUSTOMERS.CLIENTE_ELIMINADO_EXITOSAMENTE');
           this.loadCustomers();
         },
         error: () => {
-          this.notificationService.showError('No se pudo eliminar el cliente.');
+          this.notificationService.showError('CONTACTS.CUSTOMERS.PUDO_ELIMINAR_CLIENTE');
         }
       });
     }

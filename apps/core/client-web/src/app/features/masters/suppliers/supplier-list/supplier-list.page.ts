@@ -5,11 +5,12 @@ import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal } from 'lucide-
 import { SuppliersService } from '../../../../core/api/suppliers.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { Supplier } from '../../../../core/models/supplier.model';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-suppliers-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule],
+  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule],
   templateUrl: './supplier-list.page.html',
   styleUrls: ['./supplier-list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -37,7 +38,7 @@ export class SupplierListPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.notificationService.showError('No se pudieron cargar los proveedores.');
+        this.notificationService.showError('MASTERS.SUPPLIER_LIST.PUDIERON_CARGAR_PROVEEDORES');
         this.isLoading.set(false);
       },
     });

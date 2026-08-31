@@ -2,12 +2,12 @@
   class="impersonation-banner banner"
   *ngIf="authService.currentUser()?.isImpersonating"
 >
-  Estás viendo el sistema como:
+  {{ 'MAIN.ESTAS_VIENDO_SISTEMA_COMO' | translate }}
   <strong>
     {{ authService.currentUser()?.firstName }}
     {{ authService.currentUser()?.lastName }}
   </strong>
-  <button (click)="stopImpersonation()">Volver a mi cuenta</button>
+  <button (click)="stopImpersonation()">{{ 'MAIN.VOLVER_MI_CUENTA' | translate }}</button>
 </div>
 
 <div
@@ -15,9 +15,10 @@
   *ngIf="authService.currentUser()?.organization?.subscriptionStatus === 'past_due' && isGracePeriodActive()"
 >
   <div class="banner-content">
-    <strong>¡Atención!</strong> Tu pago está pendiente. Tienes acceso temporal hasta el {{ authService.currentUser()?.organization?.gracePeriodEnd | date:'mediumDate' }}.
+    <strong>{{ 'MAIN.ATENCION' | translate }}</strong>
+    {{ 'MAIN.GRACE_PERIOD_BANNER' | translate: { date: (authService.currentUser()?.organization?.gracePeriodEnd | vxDate: 'dateLong') } }}
   </div>
-  <button type="button" (click)="openSettings('billing')" class="btn-resolve">Resolver Ahora</button>
+  <button type="button" (click)="openSettings('billing')" class="btn-resolve">{{ 'MAIN.RESOLVER_AHORA' | translate }}</button>
 </div>
 
 
@@ -39,8 +40,8 @@
       organización con logotipo propio, la aplicación no dijera en ningún sitio
       que era Virtex.
     -->
-    <a class="sidebar-brand" routerLink="/overview" aria-label="Virtex ERP">
-      <app-brand-logo [size]="26" label="Virtex ERP"></app-brand-logo>
+    <a class="sidebar-brand" routerLink="/overview" [attr.aria-label]="'MAIN.VIRTEX_ERP' | translate">
+      <app-brand-logo [size]="26" [label]="'MAIN.VIRTEX_ERP' | translate"></app-brand-logo>
     </a>
 
     <app-company-switcher></app-company-switcher>
@@ -111,7 +112,7 @@
         <div class="search-results-popover">
           <div class="results-header">
             <div class="results-title-container">
-              <span class="results-title">Resultados de la Búsqueda</span>
+              <span class="results-title">{{ 'MAIN.RESULTADOS_BUSQUEDA' | translate }}</span>
               @if (isSearchLoading()) {
               <div class="loading-spinner">
                 <div class="spinner"></div>
@@ -125,10 +126,10 @@
             <div class="no-results-container">
               <lucide-icon [img]="FileSearchIcon" size="48"></lucide-icon>
               <span class="no-results-title"
-                >No se encontraron resultados</span
+                >{{ 'MAIN.NO_ENCONTRARON_RESULTADOS' | translate }}</span
               >
               <span class="no-results-description"
-                >Intenta con otra palabra clave o revisa la ortografía.</span
+                >{{ 'MAIN.INTENTA_OTRA_PALABRA_CLAVE_REVISA_ORTOGRAFIA' | translate }}</span
               >
             </div>
             } @else { @for(group of searchResults(); track group.type) {
@@ -176,7 +177,7 @@
               (click)="navigateToSearch(searchInput.value); closeSearch()"
               class="view-all-link"
             >
-              <span>Ver todos los resultados</span>
+              <span>{{ 'MAIN.VER_TODOS_RESULTADOS' | translate }}</span>
               <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
             </button>
           </div>
@@ -222,7 +223,7 @@
               >
                 <lucide-icon [img]="FileTextIcon" size="20"></lucide-icon>
                 <span class="quick-action-label">{{ 'ACTIONS.NEW_INVOICE' | translate }}</span>
-                <span class="quick-action-shortcut">Alt + Shift + I</span>
+                <span class="quick-action-shortcut">{{ 'MAIN.ALT_SHIFT' | translate }}</span>
               </a>
               <a
                 routerLink="/quotes/new"
@@ -231,7 +232,7 @@
               >
                 <lucide-icon [img]="ReceiptIcon" size="20"></lucide-icon>
                 <span class="quick-action-label">{{ 'ACTIONS.NEW_QUOTE' | translate }}</span>
-                <span class="quick-action-shortcut">Alt + Shift + Q</span>
+                <span class="quick-action-shortcut">{{ 'MAIN.ALT_SHIFT_2' | translate }}</span>
               </a>
               <a
                 routerLink="/customers/new"
@@ -240,7 +241,7 @@
               >
                 <lucide-icon [img]="UserPlusIcon" size="20"></lucide-icon>
                 <span class="quick-action-label">{{ 'ACTIONS.NEW_CUSTOMER' | translate }}</span>
-                <span class="quick-action-shortcut">Alt + Shift + C</span>
+                <span class="quick-action-shortcut">{{ 'MAIN.ALT_SHIFT_3' | translate }}</span>
               </a>
               <a
                 routerLink="/products/new"
@@ -249,7 +250,7 @@
               >
                 <lucide-icon [img]="PackageIcon" size="20"></lucide-icon>
                 <span class="quick-action-label">{{ 'ACTIONS.NEW_PRODUCT' | translate }}</span>
-                <span class="quick-action-shortcut">Alt + Shift + P</span>
+                <span class="quick-action-shortcut">{{ 'MAIN.ALT_SHIFT_4' | translate }}</span>
               </a>
             </div>
           </div>
@@ -280,7 +281,7 @@
                     <div class="notification-content">
                       <p class="notification-title">{{ notification.title }}</p>
                       <p class="notification-body">{{ notification.body }}</p>
-                      <span class="notification-time">{{ notification.createdAt | date:'short' }}</span>
+                      <span class="notification-time">{{ notification.createdAt | vxDate: 'dateTime' }}</span>
                     </div>
                   </button>
                 } @empty {

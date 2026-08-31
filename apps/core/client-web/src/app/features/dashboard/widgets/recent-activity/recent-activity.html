@@ -1,5 +1,5 @@
 <div class="widget-header">
-    <h3>Actividad Reciente</h3>
+    <h3>{{ 'DASHBOARD.RECENT_ACTIVITY.ACTIVIDAD_RECIENTE' | translate }}</h3>
 </div>
 <div class="widget-content">
     @if (activities().length > 0) {
@@ -20,7 +20,7 @@
     </ul>
     } @else {
     <div class="empty-state">
-        <p>No hay actividad reciente para mostrar.</p>
+        <p>{{ 'DASHBOARD.RECENT_ACTIVITY.NO_HAY_ACTIVIDAD_RECIENTE_MOSTRAR' | translate }}</p>
     </div>
     }
 </div>

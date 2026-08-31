@@ -1,18 +1,18 @@
 <div class="preview-container">
     <div class="preview-header">
-        <div class="logo-placeholder">Tu Logo</div>
-        <div class="nav-placeholder">Dashboard</div>
+        <div class="logo-placeholder">{{ 'SHARED.LIVE_PREVIEW.TU_LOGO' | translate }}</div>
+        <div class="nav-placeholder">{{ 'SHARED.LIVE_PREVIEW.DASHBOARD' | translate }}</div>
     </div>
     <div class="preview-content">
-        <h4>Ejemplo de Tarjeta</h4>
-        <p>Este es un texto de ejemplo para ver la tipografía.</p>
+        <h4>{{ 'SHARED.LIVE_PREVIEW.EJEMPLO_TARJETA' | translate }}</h4>
+        <p>{{ 'SHARED.LIVE_PREVIEW.ESTE_ES_TEXTO_EJEMPLO_VER_TIPOGRAFIA' | translate }}</p>
         <div class="preview-actions">
-            <button class="secondary-button">Cancelar</button>
-            <button class="primary-button">Aceptar</button>
+            <button class="secondary-button">{{ 'SHARED.LIVE_PREVIEW.CANCELAR' | translate }}</button>
+            <button class="primary-button">{{ 'SHARED.LIVE_PREVIEW.ACEPTAR' | translate }}</button>
         </div>
         <div class="input-field">
-            <label for="campo-de-ejemplo">Campo de ejemplo</label>
-            <input id="campo-de-ejemplo" type="text" placeholder="Escribe aquí...">
+            <label for="campo-de-ejemplo">{{ 'SHARED.LIVE_PREVIEW.CAMPO_EJEMPLO' | translate }}</label>
+            <input id="campo-de-ejemplo" type="text" [placeholder]="'SHARED.LIVE_PREVIEW.ESCRIBE_AQUI' | translate">
         </div>
     </div>
 </div>

@@ -1,6 +1,6 @@
 <div class="subview-container">
     <div class="subview-header">
-        <h3>Balance General</h3>
+        <h3>{{ 'REPORTS.BALANCE_SHEET.BALANCE_GENERAL' | translate }}</h3>
         <div class="header-actions">
             <button class="secondary-button">
                 <lucide-icon [img]="CalendarIcon" size="16"></lucide-icon>
@@ -8,7 +8,7 @@
             </button>
             <button class="primary-button">
                 <lucide-icon [img]="ExportIcon" size="16"></lucide-icon>
-                <span>Exportar PDF</span>
+                <span>{{ 'REPORTS.BALANCE_SHEET.EXPORTAR_PDF' | translate }}</span>
             </button>
         </div>
     </div>
@@ -16,25 +16,25 @@
     <div class="asdfsdfarsgassadfargpokqrpeot">
         <div class="report-container card">
         <div class="report-header">
-            <h2>Balance General</h2>
+            <h2>{{ 'REPORTS.BALANCE_SHEET.BALANCE_GENERAL' | translate }}</h2>
             <p>Al {{ reportDate() }}</p>
         </div>
 
         <div class="report-body">
             <div class="report-section">
-                <div class="section-title"><span>Activos</span></div>
+                <div class="section-title"><span>{{ 'REPORTS.BALANCE_SHEET.ACTIVOS' | translate }}</span></div>
 
                 <div class="subsection">
                     <div class="subsection-title">{{ assets().current.title }}</div>
                     @for(line of assets().current.lines; track line.accountName) {
                     <div class="report-line">
                         <span>{{ line.accountName }}</span>
-                        <span class="amount">{{ line.amount | number:'1.2-2' }}</span>
+                        <span class="amount">{{ line.amount | vxNumber:'1.2-2' }}</span>
                     </div>
                     }
                     <div class="report-line subtotal-line">
-                        <span>Total {{ assets().current.title }}</span>
-                        <span class="amount">{{ assets().current.subtotal | number:'1.2-2' }}</span>
+                        <span>{{ 'REPORTS.BALANCE_SHEET.TOTAL_TITLE' | translate: { title: assets().current.title } }}</span>
+                        <span class="amount">{{ assets().current.subtotal | vxNumber:'1.2-2' }}</span>
                     </div>
                 </div>
 
@@ -43,35 +43,35 @@
                     @for(line of assets().nonCurrent.lines; track line.accountName) {
                     <div class="report-line">
                         <span>{{ line.accountName }}</span>
-                        <span class="amount">{{ line.amount | number:'1.2-2' }}</span>
+                        <span class="amount">{{ line.amount | vxNumber:'1.2-2' }}</span>
                     </div>
                     }
                     <div class="report-line subtotal-line">
-                        <span>Total {{ assets().nonCurrent.title }}</span>
-                        <span class="amount">{{ assets().nonCurrent.subtotal | number:'1.2-2' }}</span>
+                        <span>{{ 'REPORTS.BALANCE_SHEET.TOTAL_TITLE' | translate: { title: assets().nonCurrent.title } }}</span>
+                        <span class="amount">{{ assets().nonCurrent.subtotal | vxNumber:'1.2-2' }}</span>
                     </div>
                 </div>
 
                 <div class="report-line total-line">
-                    <span>Total Activos</span>
-                    <span class="amount">${{ totalAssets() | number:'1.2-2' }}</span>
+                    <span>{{ 'REPORTS.BALANCE_SHEET.TOTAL_ACTIVOS' | translate }}</span>
+                    <span class="amount">${{ totalAssets() | vxNumber:'1.2-2' }}</span>
                 </div>
             </div>
 
             <div class="report-section">
-                <div class="section-title"><span>Pasivos y Patrimonio</span></div>
+                <div class="section-title"><span>{{ 'REPORTS.BALANCE_SHEET.PASIVOS_PATRIMONIO' | translate }}</span></div>
 
                 <div class="subsection">
                     <div class="subsection-title">{{ liabilities().current.title }}</div>
                     @for(line of liabilities().current.lines; track line.accountName) {
                     <div class="report-line">
                         <span>{{ line.accountName }}</span>
-                        <span class="amount">{{ line.amount | number:'1.2-2' }}</span>
+                        <span class="amount">{{ line.amount | vxNumber:'1.2-2' }}</span>
                     </div>
                     }
                     <div class="report-line subtotal-line">
-                        <span>Total {{ liabilities().current.title }}</span>
-                        <span class="amount">{{ liabilities().current.subtotal | number:'1.2-2' }}</span>
+                        <span>{{ 'REPORTS.BALANCE_SHEET.TOTAL_TITLE' | translate: { title: liabilities().current.title } }}</span>
+                        <span class="amount">{{ liabilities().current.subtotal | vxNumber:'1.2-2' }}</span>
                     </div>
                 </div>
 
@@ -80,12 +80,12 @@
                     @for(line of liabilities().nonCurrent.lines; track line.accountName) {
                     <div class="report-line">
                         <span>{{ line.accountName }}</span>
-                        <span class="amount">{{ line.amount | number:'1.2-2' }}</span>
+                        <span class="amount">{{ line.amount | vxNumber:'1.2-2' }}</span>
                     </div>
                     }
                     <div class="report-line subtotal-line">
-                        <span>Total {{ liabilities().nonCurrent.title }}</span>
-                        <span class="amount">{{ liabilities().nonCurrent.subtotal | number:'1.2-2' }}</span>
+                        <span>{{ 'REPORTS.BALANCE_SHEET.TOTAL_TITLE' | translate: { title: liabilities().nonCurrent.title } }}</span>
+                        <span class="amount">{{ liabilities().nonCurrent.subtotal | vxNumber:'1.2-2' }}</span>
                     </div>
                 </div>
 
@@ -94,18 +94,18 @@
                     @for(line of equity().lines; track line.accountName) {
                     <div class="report-line">
                         <span>{{ line.accountName }}</span>
-                        <span class="amount">{{ line.amount | number:'1.2-2' }}</span>
+                        <span class="amount">{{ line.amount | vxNumber:'1.2-2' }}</span>
                     </div>
                     }
                     <div class="report-line subtotal-line">
-                        <span>Total {{ equity().title }}</span>
-                        <span class="amount">{{ equity().total | number:'1.2-2' }}</span>
+                        <span>{{ 'REPORTS.BALANCE_SHEET.TOTAL_TITLE' | translate: { title: equity().title } }}</span>
+                        <span class="amount">{{ equity().total | vxNumber:'1.2-2' }}</span>
                     </div>
                 </div>
 
                 <div class="report-line total-line">
-                    <span>Total Pasivos y Patrimonio</span>
-                    <span class="amount">${{ totalLiabilitiesAndEquity() | number:'1.2-2' }}</span>
+                    <span>{{ 'REPORTS.BALANCE_SHEET.TOTAL_PASIVOS_PATRIMONIO' | translate }}</span>
+                    <span class="amount">${{ totalLiabilitiesAndEquity() | vxNumber:'1.2-2' }}</span>
                 </div>
             </div>
         </div>

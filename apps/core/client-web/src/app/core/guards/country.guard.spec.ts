@@ -9,7 +9,11 @@ import { of, throwError } from 'rxjs';
 
 
 class MockLanguageService {
+  // The guard applies the URL's language without persisting it — a market landing page is a link,
+  // not a preference. `setLanguage` is here so the test can assert it is NOT called.
+  applyRouteLanguage = jest.fn();
   setLanguage = jest.fn();
+  currentLanguage = jest.fn().mockReturnValue('es');
 }
 
 class MockGeoLocationService {
@@ -64,7 +68,8 @@ describe('CountryGuard', () => {
 
     (obs as any).subscribe((result: boolean) => {
       expect(result).toBe(true);
-      expect(languageService.setLanguage).toHaveBeenCalledWith('es');
+      expect(languageService.applyRouteLanguage).toHaveBeenCalledWith('es');
+      expect(languageService.setLanguage).not.toHaveBeenCalled();
       expect(countryService.getCountryConfig).toHaveBeenCalledWith('do');
       done();
     });
@@ -83,11 +88,13 @@ describe('CountryGuard', () => {
       const obs = guard.canActivate(route, state);
 
       (obs as any).subscribe((result: any) => {
-        // Expect logic to try fallback or createUrlTree
-        // In the guard code: return of(this.router.parseUrl(segments.join('/'))); for fallback
-        // or return of(this.router.createUrlTree(['/es/do/auth/login']));
-        // Since we are mocking everything, we just check if it completed without error
-        expect(result).toBeDefined();
+        // The configuration endpoint is down. Sending the visitor to a country picked at random
+        // would be worse than sending them to sign-in, so the guard redirects THERE — and to the
+        // sign-in route that actually exists. It used to aim at `/es/do/auth/login`, which is not
+        // a route: the country-prefixed branch carries only `register`, so the URL fell through
+        // to the global wildcard and bounced onward through a redirect chain nobody intended.
+        expect(router.createUrlTree).toHaveBeenCalledWith(['/es/auth/login']);
+        expect(result).toBe('/es/auth/login');
         done();
       });
   });

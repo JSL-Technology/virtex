@@ -7,11 +7,13 @@ import { ChartOfAccountsStateService } from '../../../core/state/chart-of-accoun
 import { LucideAngularModule, Plus, ChevronDown, ChevronRight, Edit, Trash, FileDown, Search, RefreshCcw, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-angular';
 import { Account, AccountType } from '../../../core/models/account.model';
 import { FlattenedAccount } from '../../../core/models/flattened-account.model';
+import { TranslateModule } from '@ngx-translate/core';
+import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 
 @Component({
   selector: 'app-chart-of-accounts-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, LucideAngularModule, TitleCasePipe],
+  imports: [CommonModule, FormsModule, RouterLink, LucideAngularModule, TitleCasePipe, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './chart-of-accounts.page.html',
   styleUrls: ['./chart-of-accounts.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

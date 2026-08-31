@@ -6,11 +6,13 @@ import { Tax } from '../../../core/models/tax.model';
 import { TaxesService } from '../../../core/api/taxes.service';
 import { NotificationService } from '../../../core/services/notification';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
+import { TranslateModule } from '@ngx-translate/core';
+import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 
 @Component({
   selector: 'app-taxes-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, RouterLink],
+  imports: [CommonModule, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './taxes.page.html',
   styleUrls: ['./taxes.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,7 +41,7 @@ export class TaxesPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.notificationService.showError('No se pudieron cargar los impuestos.');
+        this.notificationService.showError('MASTERS.TAXES.PUDIERON_CARGAR_IMPUESTOS');
         this.isLoading.set(false);
       },
     });
@@ -49,10 +51,10 @@ export class TaxesPage implements OnInit {
     if (confirm(`¿Está seguro de que desea eliminar el impuesto "${tax.name}"?`)) {
       this.taxesService.deleteTax(tax.id).subscribe({
         next: () => {
-          this.notificationService.showSuccess('Impuesto eliminado exitosamente.');
+          this.notificationService.showSuccess('MASTERS.TAXES.IMPUESTO_ELIMINADO_EXITOSAMENTE');
           this.loadTaxes();
         },
-        error: () => this.notificationService.showError('Error al eliminar el impuesto.'),
+        error: () => this.notificationService.showError('MASTERS.TAXES.ERROR_ELIMINAR_IMPUESTO'),
       });
     }
   }

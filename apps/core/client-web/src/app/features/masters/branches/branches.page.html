@@ -1,14 +1,14 @@
 <div class="subview-container">
     <div class="subview-header">
-        <h3>Branches & Locations</h3>
+        <h3>{{ 'MASTERS.BRANCHES.BRANCHES_LOCATIONS' | translate }}</h3>
         <div class="header-actions">
             <button class="secondary-button">
                 <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
-                <span>Filters</span>
+                <span>{{ 'MASTERS.BRANCHES.FILTERS' | translate }}</span>
             </button>
             <button class="primary-button">
                 <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
-                <span>New Branch</span>
+                <span>{{ 'MASTERS.BRANCHES.NEW_BRANCH' | translate }}</span>
             </button>
         </div>
     </div>
@@ -16,10 +16,10 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Address</th>
-                    <th>City</th>
-                    <th>Phone</th>
+                    <th>{{ 'MASTERS.BRANCHES.NAME' | translate }}</th>
+                    <th>{{ 'MASTERS.BRANCHES.ADDRESS' | translate }}</th>
+                    <th>{{ 'MASTERS.BRANCHES.CITY' | translate }}</th>
+                    <th>{{ 'MASTERS.BRANCHES.PHONE' | translate }}</th>
                     <th class="actions-column"></th>
                 </tr>
             </thead>
@@ -38,7 +38,7 @@
                 </tr>
                 } @empty {
                 <tr>
-                    <td colspan="5" class="empty-state">No branches configured.</td>
+                    <td colspan="5" class="empty-state">{{ 'MASTERS.BRANCHES.NO_BRANCHES_CONFIGURED' | translate }}</td>
                 </tr>
                 }
             </tbody>

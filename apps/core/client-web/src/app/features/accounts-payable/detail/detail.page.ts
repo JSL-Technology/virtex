@@ -6,11 +6,13 @@ import { AccountsPayableService, VendorBill } from '../../../core/services/accou
 import { NotificationService } from '../../../core/services/notification';
 import { EMPTY, Observable } from 'rxjs';
 import { switchMap, catchError } from 'rxjs/operators';
+import { TranslateModule } from '@ngx-translate/core';
+import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 
 @Component({
   selector: 'app-vendor-bill-detail-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule],
+  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './detail.page.html',
   styleUrls: ['./detail.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -61,7 +63,7 @@ export class VendorBillDetailPage implements OnInit {
     this.isLoading.set(true);
     this.accountsPayableService.voidBill(billId, reason).subscribe({
       next: () => {
-        this.notificationService.showSuccess('Factura anulada con éxito.');
+        this.notificationService.showSuccess('ACCOUNTS_PAYABLE.DETAIL.FACTURA_ANULADA_EXITO');
         // Optionally, refresh data or navigate away
         this.router.navigate(['/accounts-payable']);
       },
@@ -79,6 +81,6 @@ export class VendorBillDetailPage implements OnInit {
 
   private handleNotFound(): void {
     this.router.navigate(['/accounts-payable']);
-    this.notificationService.showError('Factura no encontrada.');
+    this.notificationService.showError('ACCOUNTS_PAYABLE.DETAIL.FACTURA_ENCONTRADA');
   }
 }

@@ -6,11 +6,13 @@ import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal, Search, Downlo
 import { InvoicesService, Invoice } from '../../../core/services/invoices';
 import { NotificationService } from '../../../core/services/notification';
 import * as XLSX from 'xlsx';
+import { TranslateModule } from '@ngx-translate/core';
+import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 
 @Component({
   selector: 'app-invoices-list-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, FormsModule],
+  imports: [CommonModule, RouterLink, LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -129,6 +131,6 @@ export class InvoicesListPage implements OnInit {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Facturas');
     XLSX.writeFile(workbook, `Facturas_${new Date().toISOString().split('T')[0]}.xlsx`);
-    this.notificationService.showSuccess('Exportación a Excel completada.');
+    this.notificationService.showSuccess('INVOICES.LIST.EXPORTACION_EXCEL_COMPLETADA');
   }
 }

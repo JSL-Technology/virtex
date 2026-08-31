@@ -6,11 +6,12 @@ import { LucideAngularModule, Save } from 'lucide-angular';
 import { TaxesService, CreateTaxDto, UpdateTaxDto } from '../../../../core/api/taxes.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { TaxType } from '../../../../core/models/tax.model';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-tax-form-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, LucideAngularModule],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, LucideAngularModule, TranslateModule],
   templateUrl: './tax-form.page.html',
   styleUrls: ['./tax-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,7 +53,7 @@ export class TaxFormPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.notificationService.showError('No se pudo cargar el impuesto.');
+        this.notificationService.showError('MASTERS.TAX_FORM.PUDO_CARGAR_IMPUESTO');
         this.router.navigate(['/masters/taxes']);
       },
     });
@@ -61,7 +62,7 @@ export class TaxFormPage implements OnInit {
   saveTax(): void {
     if (this.taxForm.invalid) {
       this.taxForm.markAllAsTouched();
-      this.notificationService.showError('Por favor, complete los campos requeridos.');
+      this.notificationService.showError('MASTERS.TAX_FORM.FAVOR_COMPLETE_CAMPOS_REQUERIDOS');
       return;
     }
 
@@ -74,11 +75,11 @@ export class TaxFormPage implements OnInit {
 
     operation.subscribe({
       next: () => {
-        this.notificationService.showSuccess(`Impuesto ${this.isEditMode() ? 'actualizado' : 'creado'} exitosamente.`);
+        this.notificationService.showSuccess(this.isEditMode() ? 'MASTERS.TAX_FORM.IMPUESTO_ACTUALIZADO_EXITOSAMENTE' : 'MASTERS.TAX_FORM.IMPUESTO_CREADO_EXITOSAMENTE');
         this.router.navigate(['/masters/taxes']);
       },
       error: () => {
-        this.notificationService.showError(`Error al ${this.isEditMode() ? 'actualizar' : 'crear'} el impuesto.`);
+        this.notificationService.showError(this.isEditMode() ? 'MASTERS.TAX_FORM.ERROR_ACTUALIZAR_IMPUESTO' : 'MASTERS.TAX_FORM.ERROR_CREAR_IMPUESTO');
         this.isLoading.set(false);
       },
     });

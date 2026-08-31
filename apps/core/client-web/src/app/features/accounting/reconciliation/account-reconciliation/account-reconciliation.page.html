@@ -1,10 +1,10 @@
 <div class="subview-container">
     <div class="subview-header">
-        <h3>Account Reconciliation</h3>
+        <h3>{{ 'ACCOUNTING.ACCOUNT_RECONCILIATION.ACCOUNT_RECONCILIATION' | translate }}</h3>
         <div class="header-actions">
             <button class="secondary-button">
                 <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
-                <span>Filter by Period: July 2025</span>
+                <span>{{ 'ACCOUNTING.ACCOUNT_RECONCILIATION.FILTER_BY_PERIOD_JULY_2025' | translate }}</span>
             </button>
         </div>
     </div>
@@ -12,11 +12,11 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Account</th>
-                    <th class="text-right">Current Balance</th>
-                    <th>Last Reconciled By</th>
-                    <th>Last Reconciled Date</th>
-                    <th class="text-center">Status</th>
+                    <th>{{ 'ACCOUNTING.ACCOUNT_RECONCILIATION.ACCOUNT' | translate }}</th>
+                    <th class="text-right">{{ 'ACCOUNTING.ACCOUNT_RECONCILIATION.CURRENT_BALANCE' | translate }}</th>
+                    <th>{{ 'ACCOUNTING.ACCOUNT_RECONCILIATION.LAST_RECONCILED_BY' | translate }}</th>
+                    <th>{{ 'ACCOUNTING.ACCOUNT_RECONCILIATION.LAST_RECONCILED_DATE' | translate }}</th>
+                    <th class="text-center">{{ 'ACCOUNTING.ACCOUNT_RECONCILIATION.STATUS' | translate }}</th>
                     <th class="actions-column"></th>
                 </tr>
             </thead>
@@ -29,7 +29,7 @@
                             <a href="#" class="table-link">{{ account.accountName }}</a>
                         </div>
                     </td>
-                    <td class="text-right">{{ account.balance | number:'1.2-2' }}</td>
+                    <td class="text-right">{{ account.balance | vxNumber:'1.2-2' }}</td>
                     <td>{{ account.lastReconciledBy }}</td>
                     <td>{{ account.lastReconciledDate }}</td>
                     <td class="text-center">
@@ -46,7 +46,7 @@
                 </tr>
                 } @empty {
                 <tr>
-                    <td colspan="6" class="empty-state">No accounts require reconciliation for this period.</td>
+                    <td colspan="6" class="empty-state">{{ 'ACCOUNTING.ACCOUNT_RECONCILIATION.NO_ACCOUNTS_REQUIRE_RECONCILIATION_FOR_THIS' | translate }}</td>
                 </tr>
                 }
             </tbody>

@@ -7,11 +7,11 @@
   <!-- The country list could not be loaded. Say so instead of offering a stale hardcoded list
        whose entries the server may not be able to provision. -->
   <div class="config-alert" *ngIf="countriesFailed()">
-    No se pudo cargar la lista de países. Recarga la página para continuar con el registro.
+    {{ 'AUTH.STEP_CONFIGURATION.NO_PUDO_CARGAR_LISTA_PAISES_RECARGA' | translate }}
   </div>
 
   <div class="config-alert" *ngIf="countryService.loadFailed()">
-    No se pudo cargar la configuración fiscal de ese país. Recarga la página o elige otro país.
+    {{ 'AUTH.STEP_CONFIGURATION.NO_PUDO_CARGAR_CONFIGURACION_FISCAL_ESE' | translate }}
   </div>
 
   <div class="form-grid">
@@ -43,12 +43,12 @@
     <!-- Company or natural person. Asked before the tax id because it decides which identifier
          scheme the value is checked against, and which régimen fiscal options apply. -->
     <div class="form-field" *ngIf="taxpayerKindRequired()">
-      <label class="input-label" for="taxpayerKind">Tipo de contribuyente</label>
+      <label class="input-label" for="taxpayerKind">{{ 'AUTH.STEP_CONFIGURATION.TIPO_CONTRIBUYENTE' | translate }}</label>
       <div class="custom-select-wrapper">
         <select id="taxpayerKind" formControlName="taxpayerKind"
                 (change)="onTaxpayerKindChange($event)" class="custom-select">
-          <option value="company">Empresa / persona jurídica</option>
-          <option value="individual">Persona física</option>
+          <option value="company">{{ 'AUTH.STEP_CONFIGURATION.EMPRESA_PERSONA_JURIDICA' | translate }}</option>
+          <option value="individual">{{ 'AUTH.STEP_CONFIGURATION.PERSONA_FISICA' | translate }}</option>
         </select>
         <div class="select-chevron">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-9"/></svg>
@@ -68,7 +68,7 @@
         <svg icon xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
       </app-auth-input>
       <p class="field-hint" *ngIf="config()?.taxIdHasCheckDigit">
-        Verificamos el dígito verificador ante {{ config()?.fiscalAuthority }}.
+        {{ 'AUTH.STEP_CONFIGURATION.VERIFICAMOS_DIGITO_VERIFICADOR_ANTE_FISCALAUTHORITY' | translate: { fiscalAuthority: config()?.fiscalAuthority } }}
       </p>
     </div>
 
@@ -76,8 +76,8 @@
     <div class="full-width">
       <app-auth-input
         formControlName="address"
-        label="Dirección fiscal"
-        placeholder="Calle y número"
+        [label]="'AUTH.STEP_CONFIGURATION.DIRECCION_FISCAL' | translate"
+        [placeholder]="'AUTH.STEP_CONFIGURATION.CALLE_NUMERO' | translate"
         [required]="true"
         [errorMessage]="errorFor('address')">
       </app-auth-input>
@@ -86,7 +86,7 @@
     <div class="form-field">
       <app-auth-input
         formControlName="city"
-        label="Ciudad"
+        [label]="'AUTH.STEP_CONFIGURATION.CIUDAD' | translate"
         [required]="true"
         [errorMessage]="errorFor('city')">
       </app-auth-input>
@@ -183,14 +183,11 @@
        implementation behind them. -->
   <p class="invoicing-notice" *ngIf="invoicingNotice() as regime">
     <ng-container *ngIf="invoicingSupported(); else invoicingPreview">
-      {{ config()?.name }} exige facturación electrónica ({{ regime }}). Estos datos forman parte
-      del comprobante, por eso los pedimos ahora.
+      {{ 'AUTH.STEP_CONFIGURATION.NAME_EXIGE_FACTURACION_ELECTRONICA_REGIME_ESTOS' | translate: { name: config()?.name, regime: regime } }}
     </ng-container>
     <ng-template #invoicingPreview>
-      <strong>Facturación electrónica aún no disponible en {{ config()?.name }}.</strong>
-      Todo el ERP —contabilidad, inventario, compras, nómina e informes— funciona con normalidad, y
-      guardamos estos datos fiscales para poder emitir comprobantes ({{ regime }}) en cuanto
-      habilitemos el país. Si necesitas timbrar hoy, escríbenos antes de contratar.
+      <strong>{{ 'REGISTER.CONFIGURATION.EINVOICING_UNAVAILABLE' | translate: { country: config()?.name } }}</strong>
+      {{ 'REGISTER.CONFIGURATION.EINVOICING_PREVIEW_DETAIL' | translate: { regime: regime } }}
     </ng-template>
   </p>
 </div>

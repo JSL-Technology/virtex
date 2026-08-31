@@ -10,7 +10,8 @@ import { StepUpScope } from '../auth/enums/step-up-scope.enum';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
-import { PERMISSIONS, ALL_PERMISSIONS } from '../shared/permissions';
+import { PERMISSIONS } from '../shared/permissions';
+import { buildPermissionCatalogue } from './permission-catalogue';
 
 // Every role mutation rewrites the authorization graph, so all of them require
 // PermissionsGuard + CsrfGuard + a fresh step-up proof scoped to MANAGE_ROLES.
@@ -20,10 +21,18 @@ import { PERMISSIONS, ALL_PERMISSIONS } from '../shared/permissions';
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
+  /**
+   * The permission list, grouped and named.
+   *
+   * This returned the raw slugs and the roles screen built its own labels by splitting on the
+   * colon — so an administrator deciding who may reverse a journal entry saw a group called
+   * "Journal_entries" and a checkbox called "view". The catalogue names both, through keys the
+   * client translates, and keeps the slug as the value it stores.
+   */
   @Get('available-permissions')
   @HasPermission(PERMISSIONS.ROLES_VIEW)
   getAvailablePermissions() {
-    return ALL_PERMISSIONS;
+    return buildPermissionCatalogue();
   }
 
   @Post()

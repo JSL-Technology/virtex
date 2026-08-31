@@ -1,5 +1,5 @@
 <div class="widget-header">
-    <h3>Productos con Bajo Stock</h3>
+    <h3>{{ 'DASHBOARD.LOW_STOCK_PRODUCTS.PRODUCTOS_BAJO_STOCK' | translate }}</h3>
 </div>
 <div class="widget-content">
     @if (lowStockProducts().length > 0) {
@@ -13,7 +13,7 @@
                 @if (product.stock === 0) {
                 <lucide-icon [img]="AlertIcon" size="14"></lucide-icon>
                 }
-                <span>{{ product.stock }} unidades</span>
+                <span>{{ 'DASHBOARD.LOW_STOCK_PRODUCTS.STOCK_UNIDADES' | translate: { stock: product.stock } }}</span>
             </div>
         </li>
         }
@@ -21,8 +21,8 @@
     } @else {
     <div class="empty-state">
         <lucide-icon [img]="PackageIcon" size="48"></lucide-icon>
-        <span>¡Excelente!</span>
-        <p>No hay productos con bajo inventario en este momento.</p>
+        <span>{{ 'DASHBOARD.LOW_STOCK_PRODUCTS.EXCELENTE' | translate }}</span>
+        <p>{{ 'DASHBOARD.LOW_STOCK_PRODUCTS.NO_HAY_PRODUCTOS_BAJO_INVENTARIO_ESTE' | translate }}</p>
     </div>
     }
 </div>

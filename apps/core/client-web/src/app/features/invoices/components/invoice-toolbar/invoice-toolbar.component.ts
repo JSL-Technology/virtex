@@ -19,11 +19,12 @@ import {
   HelpCircle,
   FileUp
 } from 'lucide-angular';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-invoice-toolbar',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   templateUrl: './invoice-toolbar.component.html',
   styleUrls: ['./invoice-toolbar.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -35,11 +35,12 @@ import {
   CreditCard,
 } from 'lucide-angular';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-settings-modal',
   standalone: true,
-  imports: [CommonModule, NgComponentOutlet, LucideAngularModule, HasPermissionDirective],
+  imports: [CommonModule, NgComponentOutlet, LucideAngularModule, HasPermissionDirective, TranslateModule],
   templateUrl: './settings-modal.component.html',
   styleUrls: ['./settings-modal.component.scss'],
 })

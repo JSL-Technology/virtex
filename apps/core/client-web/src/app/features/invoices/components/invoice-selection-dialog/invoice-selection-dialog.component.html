@@ -3,7 +3,7 @@
 <div class="modal-backdrop" *ngIf="isOpen()" (click)="$event.target === $event.currentTarget &amp;&amp; (close())" (keydown.escape)="close()">
   <div class="modal-container" tabindex="0">
     <div class="modal-header">
-      <h2>Seleccionar Documento Base (Copiar de...)</h2>
+      <h2>{{ 'INVOICES.INVOICE_SELECTION_DIALOG.SELECCIONAR_DOCUMENTO_BASE_COPIAR' | translate }}</h2>
       <button class="close-btn" (click)="close()">
         <lucide-icon [img]="CloseIcon" size="20"></lucide-icon>
       </button>
@@ -14,7 +14,7 @@
         <lucide-icon [img]="SearchIcon" size="18"></lucide-icon>
         <input
           type="text"
-          placeholder="Buscar por número o cliente..."
+          [placeholder]="'INVOICES.INVOICE_SELECTION_DIALOG.BUSCAR_NUMERO_CLIENTE' | translate"
           [ngModel]="searchTerm()"
           (ngModelChange)="searchTerm.set($event)"
         >
@@ -22,15 +22,15 @@
 
       <div class="invoice-list" [class.loading]="isLoading()">
         @if (isLoading()) {
-          <div class="loader">Cargando documentos...</div>
+          <div class="loader">{{ 'INVOICES.INVOICE_SELECTION_DIALOG.CARGANDO_DOCUMENTOS' | translate }}</div>
         } @else {
           <table>
             <thead>
               <tr>
-                <th>Factura #</th>
-                <th>Cliente</th>
-                <th>Fecha</th>
-                <th>Total</th>
+                <th>{{ 'INVOICES.INVOICE_SELECTION_DIALOG.FACTURA' | translate }}</th>
+                <th>{{ 'INVOICES.INVOICE_SELECTION_DIALOG.CLIENTE' | translate }}</th>
+                <th>{{ 'INVOICES.INVOICE_SELECTION_DIALOG.FECHA' | translate }}</th>
+                <th>{{ 'INVOICES.INVOICE_SELECTION_DIALOG.TOTAL' | translate }}</th>
               </tr>
             </thead>
             <tbody>
@@ -38,12 +38,12 @@
                 <tr (click)="selectInvoice(invoice)" class="selectable-row" tabindex="0" (keydown.enter)="selectInvoice(invoice)" (keydown.space)="$event.preventDefault(); selectInvoice(invoice)">
                   <td><strong>{{ invoice.invoiceNumber }}</strong></td>
                   <td>{{ invoice.customerName }}</td>
-                  <td>{{ invoice.issueDate | date:'shortDate' }}</td>
-                  <td class="text-right">{{ invoice.currencyCode }} {{ invoice.total | number:'1.2-2' }}</td>
+                  <td>{{ invoice.issueDate | vxDate: 'date' }}</td>
+                  <td class="text-right">{{ invoice.currencyCode }} {{ invoice.total | vxNumber:'1.2-2' }}</td>
                 </tr>
               } @empty {
                 <tr>
-                  <td colspan="4" class="empty-msg">No se encontraron facturas.</td>
+                  <td colspan="4" class="empty-msg">{{ 'INVOICES.INVOICE_SELECTION_DIALOG.NO_ENCONTRARON_FACTURAS' | translate }}</td>
                 </tr>
               }
             </tbody>
@@ -53,7 +53,7 @@
     </div>
 
     <div class="modal-footer">
-      <button class="secondary-button" (click)="close()">Cancelar</button>
+      <button class="secondary-button" (click)="close()">{{ 'INVOICES.INVOICE_SELECTION_DIALOG.CANCELAR' | translate }}</button>
     </div>
   </div>
 </div>

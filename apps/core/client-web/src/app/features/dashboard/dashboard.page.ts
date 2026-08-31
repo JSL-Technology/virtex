@@ -29,39 +29,13 @@ import { KpiNetMarginComponent } from './widgets/kpi-net-margin/kpi-net-margin';
 import { KpiEbitdaComponent } from './widgets/kpi-ebitda/kpi-ebitda';
 import { KpiFcfComponent } from './widgets/kpi-fcf/kpi-fcf';
 import { TranslateModule } from '@ngx-translate/core';
+import { FORMAT_PIPES } from '../../core/i18n/pipes/format.pipes';
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [
-    CommonModule,
-    GridsterModule,
-    LucideAngularModule,
-    // ✅ CORRECCIÓN: Se añaden todos los widgets a la lista de imports
-    KpiCard,
-    StatCard,
-    ComparisonChart,
-    AlertsPanel,
-    SalesChart,
-    InvoiceStatus,
-    LowStockProducts,
-    TopProductsChart,
-    RecentActivity,
-    CashflowChart,
-    ExpensesChart,
-    ArAgingChart,
-    FinancialRatios,
-    KpiRoe,
-    KpiRoa,
-    KpiCurrentRatio,
-    KpiQuickRatio,
-    KpiWorkingCapital,
-    KpiLeverageComponent,
-    KpiNetMarginComponent,
-    KpiEbitdaComponent,
-    KpiFcfComponent,
-    TranslateModule
-  ],
+  imports: [CommonModule, GridsterModule, LucideAngularModule, // ✅ CORRECCIÓN: Se añaden todos los widgets a la lista de imports
+    KpiCard, StatCard, ComparisonChart, AlertsPanel, SalesChart, InvoiceStatus, LowStockProducts, TopProductsChart, RecentActivity, CashflowChart, ExpensesChart, ArAgingChart, FinancialRatios, KpiRoe, KpiRoa, KpiCurrentRatio, KpiQuickRatio, KpiWorkingCapital, KpiLeverageComponent, KpiNetMarginComponent, KpiEbitdaComponent, KpiFcfComponent, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

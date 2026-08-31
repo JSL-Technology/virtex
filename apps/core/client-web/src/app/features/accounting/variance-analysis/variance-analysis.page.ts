@@ -1,6 +1,8 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Filter, FileDown, ArrowUp, ArrowDown } from 'lucide-angular';
+import { TranslateModule } from '@ngx-translate/core';
+import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 
 interface VarianceItem {
   accountCode: string;
@@ -14,7 +16,7 @@ interface VarianceItem {
 @Component({
   selector: 'app-variance-analysis-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './variance-analysis.page.html',
   styleUrls: ['./variance-analysis.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,60 +1,55 @@
 import { TestBed } from '@angular/core/testing';
+import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { languageInitGuard } from './language-init.guard';
 import { LanguageService } from '../services/language';
-import { Router, RouterStateSnapshot, ActivatedRouteSnapshot } from '@angular/router';
-import { of } from 'rxjs';
 
-class MockLanguageService {
+/**
+ * The guard adopts the language a URL names — and does NOT write it to the account.
+ *
+ * That distinction is the point. A language-prefixed link says what to render now; it is often a
+ * link somebody was sent, or one a marketing campaign built. Treating it as a preference would let
+ * a shared URL silently rewrite the account setting of whoever opened it.
+ *
+ * The guard used to carry a second branch that rebuilt the URL when the language was unsupported.
+ * It could never run: `langCodeMatcher` only matches a first segment that IS a supported code, so
+ * the route does not activate at all for `/fr/…`. The test that exercised it was testing an input
+ * the router cannot produce.
+ */
+class LanguageServiceStub {
+  applyRouteLanguage = jest.fn();
   setLanguage = jest.fn();
-  getInitialLanguage = jest.fn().mockReturnValue('es');
-}
-
-class MockRouter {
-  createUrlTree = jest.fn((commands) => commands.join('/'));
 }
 
 describe('languageInitGuard', () => {
-  let guard: typeof languageInitGuard;
-  let languageService: MockLanguageService;
-  let router: MockRouter;
+  let language: LanguageServiceStub;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        { provide: LanguageService, useClass: MockLanguageService },
-        { provide: Router, useClass: MockRouter }
-      ]
+      providers: [{ provide: LanguageService, useClass: LanguageServiceStub }],
     });
-
-    // We can't inject a function guard directly like a service in older Angular versions easily,
-    // but in newer ones we can run it in injection context.
-    // However, usually we test it by calling TestBed.runInInjectionContext
-    languageService = TestBed.inject(LanguageService) as unknown as MockLanguageService;
-    router = TestBed.inject(Router) as unknown as MockRouter;
+    language = TestBed.inject(LanguageService) as unknown as LanguageServiceStub;
   });
 
-  const runGuard = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
-    return TestBed.runInInjectionContext(() => languageInitGuard(route, state));
-  };
+  const run = (params: Record<string, string>) =>
+    TestBed.runInInjectionContext(() =>
+      languageInitGuard({ params } as unknown as ActivatedRouteSnapshot, {} as RouterStateSnapshot),
+    );
 
-  it('should allow navigation if language is supported', () => {
-    const route = { params: { lang: 'es' } } as unknown as ActivatedRouteSnapshot;
-    const state = { url: '/es/home' } as RouterStateSnapshot;
-
-    const result = runGuard(route, state);
-
-    expect(result).toBe(true);
-    expect(languageService.setLanguage).toHaveBeenCalledWith('es');
+  it('adopts the language named in the URL', () => {
+    expect(run({ lang: 'en' })).toBe(true);
+    expect(language.applyRouteLanguage).toHaveBeenCalledWith('en');
   });
 
-  it('should redirect to default language if language is NOT supported', () => {
-    const route = { params: { lang: 'fr' } } as unknown as ActivatedRouteSnapshot;
-    const state = { url: '/fr/home' } as RouterStateSnapshot;
+  it('does not persist it to the account', () => {
+    run({ lang: 'pt' });
+    // `setLanguage` is the entry point that writes to the profile. A link must not use it.
+    expect(language.setLanguage).not.toHaveBeenCalled();
+  });
 
-    const result = runGuard(route, state);
-
-    expect(router.createUrlTree).toHaveBeenCalledWith(['/es/home']);
-    // result would be the return value of createUrlTree, which is mocked string here
-    expect(result).toBe('/es/home');
+  it('activates even when the route somehow carries no language', () => {
+    // Defensive: the matcher guarantees a language, so there is nothing to redirect to and
+    // blocking navigation would strand the visitor on a blank page.
+    expect(run({})).toBe(true);
+    expect(language.applyRouteLanguage).not.toHaveBeenCalled();
   });
 });

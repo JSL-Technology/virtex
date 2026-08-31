@@ -3,20 +3,20 @@
     <a routerLink="/accounting/journal-entries" class="btn-icon">
       <lucide-icon [name]="BackIcon" [size]="24"></lucide-icon>
     </a>
-    <h1>Importar Asientos Contables</h1>
+    <h1>{{ 'ACCOUNTING.IMPORT.IMPORTAR_ASIENTOS_CONTABLES' | translate }}</h1>
   </div>
 
   <div class="view-content">
     <div class="card">
       <div class="card-header">
-        <h2>Paso 1: Seleccionar Fichero</h2>
+        <h2>{{ 'ACCOUNTING.IMPORT.PASO_SELECCIONAR_FICHERO' | translate }}</h2>
       </div>
       <div class="card-body">
         <div class="upload-box" (click)="fileInput.click()" tabindex="0" role="button" (keydown.enter)="fileInput.click()" (keydown.space)="$event.preventDefault(); fileInput.click()">
           <input #fileInput type="file" (change)="onFileSelected($event)" hidden accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
           <lucide-icon [name]="UploadIcon" [size]="48"></lucide-icon>
-          <p *ngIf="!selectedFile()">Haz clic aquí para seleccionar un fichero (CSV, Excel)</p>
-          <p *ngIf="selectedFile()">Fichero seleccionado: <strong>{{ selectedFile()?.name }}</strong></p>
+          <p *ngIf="!selectedFile()">{{ 'ACCOUNTING.IMPORT.HAZ_CLIC_AQUI_SELECCIONAR_FICHERO_CSV' | translate }}</p>
+          <p *ngIf="selectedFile()">{{ 'ACCOUNTING.IMPORT.FICHERO_SELECCIONADO' | translate }} <strong>{{ selectedFile()?.name }}</strong></p>
         </div>
         <div class="form-actions">
           <button (click)="previewImport()" class="btn-primary" [disabled]="!selectedFile() || isLoading()">
@@ -27,7 +27,7 @@
     </div>
 
     <div *ngIf="isLoading()" class="loading-shade">
-      <p>Analizando el fichero...</p>
+      <p>{{ 'ACCOUNTING.IMPORT.ANALIZANDO_FICHERO' | translate }}</p>
     </div>
 
     <div *ngIf="error()" class="error-message">
@@ -36,14 +36,14 @@
 
     <div *ngIf="previewData()" class="card">
       <div class="card-header">
-        <h2>Paso 2: Previsualización y Confirmación</h2>
+        <h2>{{ 'ACCOUNTING.IMPORT.PASO_PREVISUALIZACION_CONFIRMACION' | translate }}</h2>
       </div>
       <div class="card-body">
         <!-- The preview data table would be rendered here -->
-        <p>Previsualización de los datos a importar:</p>
+        <p>{{ 'ACCOUNTING.IMPORT.PREVISUALIZACION_DATOS_IMPORTAR' | translate }}</p>
         <pre>{{ previewData() | json }}</pre>
         <div class="form-actions">
-          <button (click)="confirmImport()" class="btn-primary">Confirmar e Importar</button>
+          <button (click)="confirmImport()" class="btn-primary">{{ 'ACCOUNTING.IMPORT.CONFIRMAR_IMPORTAR' | translate }}</button>
         </div>
       </div>
     </div>

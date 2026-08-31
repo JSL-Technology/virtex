@@ -2,11 +2,11 @@
     <form [formGroup]="ledgerForm" (ngSubmit)="saveLedger()">
         <div class="view-header">
             <div class="header-content">
-                <h1>{{ isEditMode() ? 'Editar' : 'Nuevo' }} Libro Mayor</h1>
-                <p>Define un nuevo libro para registrar transacciones contables.</p>
+                <h1>{{ (isEditMode() ? 'ACCOUNTING.LEDGER_FORM.TITLE_EDIT' : 'ACCOUNTING.LEDGER_FORM.TITLE_CREATE') | translate }}</h1>
+                <p>{{ 'ACCOUNTING.LEDGER_FORM.DEFINE_NUEVO_LIBRO_REGISTRAR_TRANSACCIONES_CONTABLES' | translate }}</p>
             </div>
             <div class="header-actions">
-                <a routerLink="/accounting/general-ledger" class="secondary-button">Cancelar</a>
+                <a routerLink="/accounting/general-ledger" class="secondary-button">{{ 'ACCOUNTING.LEDGER_FORM.CANCELAR' | translate }}</a>
                 <button type="submit" class="primary-button" [disabled]="isLoading() || ledgerForm.invalid">
                     <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
                     <span>{{ isLoading() ? 'Guardando...' : 'Guardar Libro' }}</span>
@@ -16,16 +16,16 @@
 
         <div class="form-container card">
             <div class="form-field">
-                <label for="name">Nombre del Libro*</label>
-                <input id="name" formControlName="name" placeholder="Ej: Libro Principal IFRS">
+                <label for="name">{{ 'ACCOUNTING.LEDGER_FORM.NOMBRE_LIBRO' | translate }}</label>
+                <input id="name" formControlName="name" [placeholder]="'ACCOUNTING.LEDGER_FORM.EJ_LIBRO_PRINCIPAL_IFRS' | translate">
             </div>
             <div class="form-field">
-                <label for="description">Descripción</label>
-                <textarea id="description" formControlName="description" rows="4" placeholder="Ej: Utilizado para reportes financieros bajo NIIF."></textarea>
+                <label for="description">{{ 'ACCOUNTING.LEDGER_FORM.DESCRIPCION' | translate }}</label>
+                <textarea id="description" formControlName="description" rows="4" [placeholder]="'ACCOUNTING.LEDGER_FORM.EJ_UTILIZADO_REPORTES_FINANCIEROS_BAJO_NIIF' | translate"></textarea>
             </div>
             <div class="form-field checkbox-field">
                 <input id="isDefault" type="checkbox" formControlName="isDefault">
-                <label for="isDefault">Establecer como libro por defecto</label>
+                <label for="isDefault">{{ 'ACCOUNTING.LEDGER_FORM.ESTABLECER_COMO_LIBRO_DEFECTO' | translate }}</label>
             </div>
         </div>
     </form>

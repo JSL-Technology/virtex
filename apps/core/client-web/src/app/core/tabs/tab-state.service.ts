@@ -56,7 +56,7 @@ export class TabStateService {
 
     // §5.3 / §10: permisos (espejo de permissionsGuard).
     if (!this.registry.canOpen(definition)) {
-      this.notify.showWarning('No tienes permiso para abrir este módulo.');
+      this.notify.showWarning('CORE.TABS.TIENES_PERMISO_ABRIR_ESTE_MODULO');
       return;
     }
 
@@ -140,7 +140,7 @@ export class TabStateService {
           if (!ok) return false; // guardar falló → no cerrar
         } else {
           // Sin handler de guardado: avisar y conservar la pestaña.
-          this.notify.showInfo('Guarda los cambios desde la propia vista antes de cerrar.');
+          this.notify.showInfo('CORE.TABS.GUARDA_CAMBIOS_DESDE_PROPIA_VISTA_ANTES');
           return false;
         }
       }
@@ -316,9 +316,7 @@ export class TabStateService {
       .sort((a, b) => a.lastActivatedAt.getTime() - b.lastActivatedAt.getTime())[0];
 
     if (!candidate) {
-      this.notify.showWarning(
-        `Has alcanzado el máximo de ${this.maxTabs} pestañas. Cierra alguna para continuar.`
-      );
+      this.notify.showWarning('CORE.TABS.HAS_ALCANZADO_MAXIMO_PESTANAS_CIERRA_ALGUNA', { maxTabs: this.maxTabs });
       return false;
     }
     this.removeTabSilently(candidate.id);

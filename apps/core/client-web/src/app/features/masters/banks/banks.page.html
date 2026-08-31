@@ -1,14 +1,14 @@
 <div class="subview-container">
     <div class="subview-header">
-        <h3>Banks</h3>
+        <h3>{{ 'MASTERS.BANKS.BANKS' | translate }}</h3>
         <div class="header-actions">
             <button class="secondary-button">
                 <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
-                <span>Filters</span>
+                <span>{{ 'MASTERS.BANKS.FILTERS' | translate }}</span>
             </button>
             <button class="primary-button">
                 <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
-                <span>New Bank</span>
+                <span>{{ 'MASTERS.BANKS.NEW_BANK' | translate }}</span>
             </button>
         </div>
     </div>
@@ -16,9 +16,9 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Bank Name</th>
-                    <th>SWIFT Code</th>
-                    <th>Country</th>
+                    <th>{{ 'MASTERS.BANKS.BANK_NAME' | translate }}</th>
+                    <th>{{ 'MASTERS.BANKS.SWIFT_CODE' | translate }}</th>
+                    <th>{{ 'MASTERS.BANKS.COUNTRY' | translate }}</th>
                     <th class="actions-column"></th>
                 </tr>
             </thead>
@@ -36,7 +36,7 @@
                 </tr>
                 } @empty {
                 <tr>
-                    <td colspan="4" class="empty-state">No banks configured.</td>
+                    <td colspan="4" class="empty-state">{{ 'MASTERS.BANKS.NO_BANKS_CONFIGURED' | translate }}</td>
                 </tr>
                 }
             </tbody>

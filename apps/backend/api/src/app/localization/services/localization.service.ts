@@ -26,6 +26,9 @@ import {
   requiresStatutoryPlanImport,
 } from '../fiscal/coa-builder';
 import { InternalServerError, NotFoundError } from '../../i18n/localized.exception';
+import { fiscalLabelKey } from '../fiscal/fiscal-label-keys';
+import { I18nService } from '../../i18n/i18n.service';
+import { currentLanguage } from '../../i18n/request-locale';
 
 @Injectable()
 export class LocalizationService implements OnModuleInit {
@@ -40,6 +43,7 @@ export class LocalizationService implements OnModuleInit {
     private readonly doStrategy: DominicanRepublicStrategy,
     private readonly usStrategy: USStrategy,
     private readonly genericStrategy: GenericFiscalStrategy,
+    private readonly i18n: I18nService,
   ) {
     // Inicialmente cargamos las estrategias hardcoded que tienen lógica especial
     this.strategies.set('DO', this.doStrategy);
@@ -189,6 +193,16 @@ export class LocalizationService implements OnModuleInit {
       throw new NotFoundError('LOCALIZATION.CONFIGURACION_FISCAL_NO_ESTA_DISPONIBLE', { countryCode: profile.countryCode });
     }
 
+    // Every human-readable label goes out in the language of the request. The signup form used to
+    // render these raw, so a Spanish-speaking founder registering in the United States met
+    // 'State' and 'ZIP code', and an English-speaking one registering in the Dominican Republic
+    // met 'Tipo de ingreso' and a paragraph about the DGII. See `fiscal-label-keys.ts` for which
+    // labels are translated and which stay in the country's own words.
+    const t = (label: string): string => {
+      const key = fiscalLabelKey(label);
+      return key ? this.i18n.translate(key, currentLanguage()) : label;
+    };
+
     return {
       countryCode: profile.countryCode,
       name: profile.name,
@@ -201,11 +215,20 @@ export class LocalizationService implements OnModuleInit {
       taxIdPattern: profile.taxId.pattern,
       taxIdHasCheckDigit: profile.taxId.hasCheckDigit,
       individualDocument: profile.individualDocument ?? null,
-      address: profile.address,
+      address: {
+        ...profile.address,
+        divisionLabel: t(profile.address.divisionLabel),
+        postalCodeLabel: t(profile.address.postalCodeLabel),
+      },
       electronicInvoicing: profile.electronicInvoicing,
       marketStatus: profile.marketStatus,
       taxpayerKindRequired: taxpayerKindAffectsValidation(profile.countryCode),
-      fiscalFields: profile.fiscalFields ?? [],
+      fiscalFields: (profile.fiscalFields ?? []).map((field) => ({
+        ...field,
+        label: t(field.label),
+        help: field.help ? t(field.help) : field.help,
+        options: field.options?.map((option) => ({ ...option, label: t(option.label) })),
+      })),
       dateFormat: profile.dateFormat,
       thousandSeparator: profile.thousandSeparator,
       decimalSeparator: profile.decimalSeparator,

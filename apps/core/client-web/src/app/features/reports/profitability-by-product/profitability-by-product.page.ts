@@ -1,6 +1,8 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Filter, FileDown, Calendar } from 'lucide-angular';
+import { TranslateModule } from '@ngx-translate/core';
+import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 
 interface ProductProfitability {
   id: string;
@@ -16,7 +18,7 @@ interface ProductProfitability {
 @Component({
   selector: 'app-profitability-by-product-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './profitability-by-product.page.html',
   styleUrls: ['./profitability-by-product.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

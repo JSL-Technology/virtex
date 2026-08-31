@@ -27,18 +27,12 @@ import { CommonModule } from '@angular/common';
 import { LoaderService } from '../../../shared/service/loader.service';
 import { LoaderComponent } from '../../../shared/components/loader/loader.component';
 import { Subscription } from 'rxjs';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-settings-layout',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterOutlet,
-    RouterLink,
-    RouterLinkActive,
-    LucideAngularModule,
-    HasPermissionDirective,
-  ],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, LucideAngularModule, HasPermissionDirective, TranslateModule],
   templateUrl: './settings.layout.html',
   styleUrls: ['./settings.layout.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

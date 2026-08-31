@@ -543,9 +543,7 @@ export class AuthService {
         // nothing left to revoke, so the logout effectively succeeded. Only a real failure
         // (network error, 5xx) warrants warning the user.
         if (err.status !== 401 && err.status !== 403) {
-          this.notificationService.showWarning(
-            'No se pudo cerrar la sesión en el servidor. Cierra el navegador o intenta de nuevo.'
-          );
+          this.notificationService.showWarning('CORE.SERVICES.PUDO_CERRAR_SESION_SERVIDOR_CIERRA_NAVEGADOR');
         }
         return of(null);
       })
@@ -567,10 +565,10 @@ export class AuthService {
       // 3. Send credential to backend
       await firstValueFrom(this.http.post(`${this.apiUrl}/webauthn/register/verify`, credential));
 
-      this.notificationService.showSuccess('Llave de acceso registrada correctamente');
+      this.notificationService.showSuccess('CORE.SERVICES.LLAVE_ACCESO_REGISTRADA_CORRECTAMENTE');
     } catch (error) {
       // Passkey registration failed
-      this.notificationService.showError('Error al registrar la llave de acceso');
+      this.notificationService.showError('CORE.SERVICES.ERROR_REGISTRAR_LLAVE_ACCESO');
       throw error;
     }
   }
@@ -603,7 +601,7 @@ export class AuthService {
       return response.user;
     } catch (error) {
       // Passkey login failed
-      this.notificationService.showError('Error al iniciar sesión con llave de acceso');
+      this.notificationService.showError('CORE.SERVICES.ERROR_INICIAR_SESION_LLAVE_ACCESO');
       throw error;
     }
   }

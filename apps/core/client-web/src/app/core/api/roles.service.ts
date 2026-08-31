@@ -17,6 +17,18 @@ export interface CreateRoleDto {
 
 export type UpdateRoleDto = Partial<CreateRoleDto>;
 
+/** One permission, as the catalogue describes it. `value` is stored; `actionKey` is displayed. */
+export interface PermissionEntryContract {
+  value: string;
+  actionKey: string;
+}
+
+export interface PermissionGroupContract {
+  key: string;
+  labelKey: string;
+  permissions: PermissionEntryContract[];
+}
+
 
 @Injectable({ providedIn: 'root' })
 export class RolesService {
@@ -27,8 +39,15 @@ export class RolesService {
     return this.http.get<Role[]>(this.apiUrl);
   }
 
-  getAvailablePermissions(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.apiUrl}/available-permissions`);
+  /**
+   * The permission catalogue, grouped and named by the server.
+   *
+   * This returned a flat list of slugs and the roles page built its own labels by splitting on
+   * the colon — so the screen that governs access to the ledger showed a group called
+   * "Journal_entries" and a checkbox called "view". The server now names both, as keys.
+   */
+  getAvailablePermissions(): Observable<PermissionGroupContract[]> {
+    return this.http.get<PermissionGroupContract[]>(`${this.apiUrl}/available-permissions`);
   }
 
   createRole(role: CreateRoleDto): Observable<Role> {

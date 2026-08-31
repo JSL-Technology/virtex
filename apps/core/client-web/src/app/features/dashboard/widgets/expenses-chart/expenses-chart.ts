@@ -21,6 +21,7 @@ import {
 import { DashboardWidget, DashboardService, ChartType } from '../../../../core/services/dashboard';
 import { BrandingService } from '../../../../core/services/branding';
 import { PointOptionsObject } from 'highcharts';
+import { TranslateModule } from '@ngx-translate/core';
 
 type ExportingChart = Highcharts.Chart & {
   print: () => void;
@@ -33,7 +34,7 @@ type ExportingChart = Highcharts.Chart & {
 @Component({
   selector: 'app-expenses-chart',
   standalone: true,
-  imports: [CommonModule, HighchartsChartComponent, LucideAngularModule],
+  imports: [CommonModule, HighchartsChartComponent, LucideAngularModule, TranslateModule],
   templateUrl: './expenses-chart.html',
   styleUrls: ['./expenses-chart.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

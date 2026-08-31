@@ -3,10 +3,10 @@
         <div class="view-header">
             <div class="header-content">
                 <h1>@if(isEditMode()){ Editar } @else { Nuevo } Producto</h1>
-                <p>Completa la información detallada de tu producto o servicio.</p>
+                <p>{{ 'INVENTORY.PRODUCT_FORM.COMPLETA_INFORMACION_DETALLADA_TU_PRODUCTO_SERVICIO' | translate }}</p>
             </div>
             <div class="header-actions">
-                <a routerLink="/inventory/products" class="secondary-button">Cancelar</a>
+                <a routerLink="/inventory/products" class="secondary-button">{{ 'INVENTORY.PRODUCT_FORM.CANCELAR' | translate }}</a>
                 <button type="submit" class="primary-button" [disabled]="isLoading()">
                     <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
                     <span>@if(isLoading()){ Guardando... } @else { Guardar Producto }</span>
@@ -18,26 +18,26 @@
             <div class="form-column">
                 <div class="card">
                     <div class="card-header">
-                        <h3>Información Básica</h3>
+                        <h3>{{ 'INVENTORY.PRODUCT_FORM.INFORMACION_BASICA' | translate }}</h3>
                     </div>
                     <div class="card-body">
                         <div class="form-field">
-                            <label for="name">Nombre del Producto*</label>
+                            <label for="name">{{ 'INVENTORY.PRODUCT_FORM.NOMBRE_PRODUCTO' | translate }}</label>
                             <input id="name" formControlName="name">
                         </div>
                         <div class="form-field">
-                            <label for="sku">SKU (Código de Producto)</label>
+                            <label for="sku">{{ 'INVENTORY.PRODUCT_FORM.SKU_CODIGO_PRODUCTO' | translate }}</label>
                             <input id="sku" formControlName="sku">
                         </div>
                         <div class="form-field">
-                            <label for="description">Descripción</label>
+                            <label for="description">{{ 'INVENTORY.PRODUCT_FORM.DESCRIPCION' | translate }}</label>
                             <textarea id="description" formControlName="description" rows="5"></textarea>
                         </div>
                     </div>
                 </div>
                 <div class="card">
                     <div class="card-header">
-                        <h3>Imagen del Producto</h3>
+                        <h3>{{ 'INVENTORY.PRODUCT_FORM.IMAGEN_PRODUCTO' | translate }}</h3>
                     </div>
                     <div class="card-body">
                         <div class="form-field file-upload-field">
@@ -46,10 +46,10 @@
                                     accept="image/png, image/jpeg">
                                 <label for="imageFile" class="file-input-label">
                                     @if(imagePreview()){
-                                        <img [src]="imagePreview()" alt="Vista previa">
+                                        <img [src]="imagePreview()" [alt]="'INVENTORY.PRODUCT_FORM.VISTA_PREVIA' | translate">
                                     } @else {
                                         <lucide-icon [img]="ImageIcon" size="32" />
-                                        <span>Subir imagen</span>
+                                        <span>{{ 'INVENTORY.PRODUCT_FORM.SUBIR_IMAGEN' | translate }}</span>
                                     }
                                 </label>
                             </div>
@@ -60,44 +60,44 @@
             <div class="form-column">
                 <div class="card">
                     <div class="card-header">
-                        <h3>Precios y Stock</h3>
+                        <h3>{{ 'INVENTORY.PRODUCT_FORM.PRECIOS_STOCK' | translate }}</h3>
                     </div>
                     <div class="card-body">
                         <div class="form-row">
                             <div class="form-field">
-                                <label for="price">Precio de Venta*</label>
+                                <label for="price">{{ 'INVENTORY.PRODUCT_FORM.PRECIO_VENTA' | translate }}</label>
                                 <input type="number" id="price" formControlName="price">
                             </div>
                             <div class="form-field">
-                                <label for="stock">Cantidad en Stock*</label>
+                                <label for="stock">{{ 'INVENTORY.PRODUCT_FORM.CANTIDAD_STOCK' | translate }}</label>
                                 <input type="number" id="stock" formControlName="stock">
                             </div>
                         </div>
                         <div class="form-field">
-                            <label for="reorderLevel">Nivel de Reorden</label>
+                            <label for="reorderLevel">{{ 'INVENTORY.PRODUCT_FORM.NIVEL_REORDEN' | translate }}</label>
                             <input type="number" id="reorderLevel" formControlName="reorderLevel">
                         </div>
                     </div>
                 </div>
                 <div class="card">
                     <div class="card-header">
-                        <h3>Organización</h3>
+                        <h3>{{ 'INVENTORY.PRODUCT_FORM.ORGANIZACION' | translate }}</h3>
                     </div>
                     <div class="card-body">
                         <div class="form-field">
-                            <label for="category">Categoría*</label>
+                            <label for="category">{{ 'INVENTORY.PRODUCT_FORM.CATEGORIA' | translate }}</label>
                             <select id="category" formControlName="category">
-                                <option value="" disabled>Seleccionar...</option>
-                                <option value="Electrónica">Electrónica</option>
-                                <option value="Accesorios">Accesorios</option>
-                                <option value="Monitores">Monitores</option>
+                                <option value="" disabled>{{ 'INVENTORY.PRODUCT_FORM.SELECCIONAR' | translate }}</option>
+                                <option value="Electrónica">{{ 'INVENTORY.PRODUCT_FORM.ELECTRONICA' | translate }}</option>
+                                <option value="Accesorios">{{ 'INVENTORY.PRODUCT_FORM.ACCESORIOS' | translate }}</option>
+                                <option value="Monitores">{{ 'INVENTORY.PRODUCT_FORM.MONITORES' | translate }}</option>
                             </select>
                         </div>
                         <div class="form-field">
-                            <label for="status">Estado*</label>
+                            <label for="status">{{ 'INVENTORY.PRODUCT_FORM.ESTADO' | translate }}</label>
                             <select id="status" formControlName="status">
-                                <option value="Active">Activo</option>
-                                <option value="Inactive">Inactivo</option>
+                                <option value="Active">{{ 'INVENTORY.PRODUCT_FORM.ACTIVO' | translate }}</option>
+                                <option value="Inactive">{{ 'INVENTORY.PRODUCT_FORM.INACTIVO' | translate }}</option>
                             </select>
                         </div>
                     </div>

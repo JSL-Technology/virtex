@@ -1,10 +1,10 @@
 <div class="subview-container">
     <div class="subview-header">
-        <h3>Payment Terms</h3>
+        <h3>{{ 'MASTERS.PAYMENT_TERMS.PAYMENT_TERMS' | translate }}</h3>
         <div class="header-actions">
             <button class="primary-button">
                 <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
-                <span>New Term</span>
+                <span>{{ 'MASTERS.PAYMENT_TERMS.NEW_TERM' | translate }}</span>
             </button>
         </div>
     </div>
@@ -12,8 +12,8 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Name</th>
-                    <th class="text-right">Net Days</th>
+                    <th>{{ 'MASTERS.PAYMENT_TERMS.NAME' | translate }}</th>
+                    <th class="text-right">{{ 'MASTERS.PAYMENT_TERMS.NET_DAYS' | translate }}</th>
                     <th class="actions-column"></th>
                 </tr>
             </thead>

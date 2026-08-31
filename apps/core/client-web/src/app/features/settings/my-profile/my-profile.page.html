@@ -5,7 +5,7 @@
     <div class="p-avatar-wrap">
       <div class="p-avatar-halo" aria-hidden="true"></div>
       <div class="p-avatar">
-        <img [src]="avatarPreview() || 'assets/images/default-avatar.svg'" alt="Avatar">
+        <img [src]="avatarPreview() || 'assets/images/default-avatar.svg'" [alt]="'SETTINGS.MY_PROFILE.AVATAR' | translate">
       </div>
       <label class="p-avatar-upload" [title]="'SETTINGS.PROFILE.CHANGE_AVATAR' | translate" for="field">
         <lucide-icon [img]="ImageIcon" size="16"></lucide-icon>
@@ -34,11 +34,11 @@
           <div class="pf-grid-2">
             <div class="pf-field">
               <label class="pf-label" for="firstname">{{ 'SETTINGS.PROFILE.FIRST_NAME' | translate }}</label>
-              <input id="firstname" type="text" formControlName="firstName" placeholder="Juan">
+              <input id="firstname" type="text" formControlName="firstName" [placeholder]="'SETTINGS.MY_PROFILE.JUAN' | translate">
             </div>
             <div class="pf-field">
               <label class="pf-label" for="lastname">{{ 'SETTINGS.PROFILE.LAST_NAME' | translate }}</label>
-              <input id="lastname" type="text" formControlName="lastName" placeholder="Pérez">
+              <input id="lastname" type="text" formControlName="lastName" [placeholder]="'SETTINGS.MY_PROFILE.PEREZ' | translate">
             </div>
           </div>
 
@@ -67,7 +67,7 @@
                   <input id="new-email" type="email" class="has-icon"
                          [value]="newEmail()"
                          (input)="newEmail.set($any($event.target).value)"
-                         placeholder="nuevo@correo.com" autocomplete="email">
+                         [placeholder]="'SETTINGS.MY_PROFILE.NUEVO_CORREO_COM' | translate" autocomplete="email">
                 </div>
                 <button type="button" class="pf-verify-btn" (click)="requestEmailChange()">
                   {{ 'SETTINGS.PROFILE.SEND_CONFIRMATION' | translate }}
@@ -107,10 +107,10 @@
           </div>
 
           <div class="pf-field">
-            <label class="pf-label" for="preferredlanguage">Idioma Preferido</label>
+            <label class="pf-label" for="preferredlanguage">{{ 'SETTINGS.MY_PROFILE.IDIOMA_PREFERIDO' | translate }}</label>
             <select id="preferredlanguage" formControlName="preferredLanguage">
-              <option value="es">Español</option>
-              <option value="en">English</option>
+              <option value="es">{{ 'SETTINGS.MY_PROFILE.ESPANOL' | translate }}</option>
+              <option value="en">{{ 'SETTINGS.MY_PROFILE.ENGLISH' | translate }}</option>
             </select>
           </div>
 

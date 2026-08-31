@@ -6,11 +6,12 @@ import { ChartOfAccountsApiService, AccountSegmentDefinition } from '../../../..
 import { LucideAngularModule, Save, Plus, Trash2, ArrowLeft, RotateCcw } from 'lucide-angular';
 import { NotificationService } from '../../../../core/services/notification';
 import { take } from 'rxjs/operators';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-segment-configuration',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideAngularModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideAngularModule, TranslateModule],
   templateUrl: './segment-configuration.page.html',
   styleUrls: ['./segment-configuration.page.scss'],
 })
@@ -59,7 +60,7 @@ export class SegmentConfigurationPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.notificationService.showError('Error al cargar la configuración de segmentos.');
+        this.notificationService.showError('ACCOUNTING.SEGMENT_CONFIGURATION.ERROR_CARGAR_CONFIGURACION_SEGMENTOS');
         this.isLoading.set(false);
       }
     });
@@ -85,12 +86,12 @@ export class SegmentConfigurationPage implements OnInit {
   public onSave(): void {
     if (this.configForm.invalid) {
       this.configForm.markAllAsTouched();
-      this.notificationService.showError('Por favor, corrija los errores en el formulario.');
+      this.notificationService.showError('ACCOUNTING.SEGMENT_CONFIGURATION.FAVOR_CORRIJA_ERRORES_FORMULARIO');
       return;
     }
 
     if (this.segments.length === 0) {
-      this.notificationService.showError('Debe definir al menos un segmento.');
+      this.notificationService.showError('ACCOUNTING.SEGMENT_CONFIGURATION.DEBE_DEFINIR_MENOS_SEGMENTO');
       return;
     }
 
@@ -101,7 +102,7 @@ export class SegmentConfigurationPage implements OnInit {
 
     this.apiService.configureSegmentDefinitions(dto).pipe(take(1)).subscribe({
       next: () => {
-        this.notificationService.showSuccess('Estructura de segmentos guardada correctamente.');
+        this.notificationService.showSuccess('ACCOUNTING.SEGMENT_CONFIGURATION.ESTRUCTURA_SEGMENTOS_GUARDADA_CORRECTAMENTE');
         this.isSaving.set(false);
         this.router.navigate(['/accounting/chart-of-accounts']);
       },
@@ -122,7 +123,7 @@ export class SegmentConfigurationPage implements OnInit {
                 defs.sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).forEach(def => {
                     this.addSegmentToForm(def);
                 });
-                this.notificationService.showSuccess('Estructura por defecto inicializada.');
+                this.notificationService.showSuccess('ACCOUNTING.SEGMENT_CONFIGURATION.ESTRUCTURA_DEFECTO_INICIALIZADA');
                 this.isSaving.set(false);
             },
             error: (err) => {

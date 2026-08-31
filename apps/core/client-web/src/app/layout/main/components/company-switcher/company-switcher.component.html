@@ -16,7 +16,7 @@
 
     <div class="company-info">
       <span class="company-name">{{ currentOrg()?.legalName || 'Virtex' }}</span>
-      <span class="company-plan">Empresa actual</span>
+      <span class="company-plan">{{ 'MAIN.COMPANY_SWITCHER.EMPRESA_ACTUAL' | translate }}</span>
     </div>
 
     <lucide-icon [img]="ChevronsUpDownIcon" size="14" class="trigger-icon"></lucide-icon>
@@ -38,7 +38,7 @@
       </div>
 
       <div class="dropdown-body">
-        <div class="section-label">Empresas</div>
+        <div class="section-label">{{ 'MAIN.COMPANY_SWITCHER.EMPRESAS' | translate }}</div>
         @for (org of filteredOrganizations(); track org.id) {
           <button
             class="org-item"
@@ -58,11 +58,11 @@
             }
           </button>
         } @empty {
-          <div class="no-results">No se encontraron empresas</div>
+          <div class="no-results">{{ 'MAIN.COMPANY_SWITCHER.NO_ENCONTRARON_EMPRESAS' | translate }}</div>
         }
 
         @if (switching()) {
-          <div class="switch-status">Cambiando de empresa…</div>
+          <div class="switch-status">{{ 'MAIN.COMPANY_SWITCHER.CAMBIANDO_EMPRESA' | translate }}</div>
         }
         @if (switchError()) {
           <div class="switch-error">{{ switchError() }}</div>
@@ -72,11 +72,11 @@
       <div class="dropdown-footer">
         <button class="footer-action">
           <lucide-icon [img]="PlusIcon" size="14"></lucide-icon>
-          <span>Crear nueva empresa</span>
+          <span>{{ 'MAIN.COMPANY_SWITCHER.CREAR_NUEVA_EMPRESA' | translate }}</span>
         </button>
         <button class="footer-action">
           <lucide-icon [img]="SettingsIcon" size="14"></lucide-icon>
-          <span>Gestionar organizaciones</span>
+          <span>{{ 'MAIN.COMPANY_SWITCHER.GESTIONAR_ORGANIZACIONES' | translate }}</span>
         </button>
       </div>
     </div>

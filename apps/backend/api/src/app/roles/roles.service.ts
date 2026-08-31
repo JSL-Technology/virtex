@@ -11,17 +11,35 @@ import { hasPermission } from '@virteex/shared/util-auth';
 import { UserSecurity } from '../users/entities/user-security.entity';
 import type { Permission } from '../shared/permissions';
 import { ConflictError, ForbiddenError, NotFoundError } from '../i18n/localized.exception';
+import { I18nService } from '../i18n/i18n.service';
+import { currentLanguage } from '../i18n/request-locale';
 
 @Injectable()
 export class RolesService {
     constructor(
         @InjectRepository(Role)
         private readonly roleRepository: Repository<Role>,
-        private readonly userCacheService: UserCacheService
+        private readonly userCacheService: UserCacheService,
+        private readonly i18n: I18nService,
     ) { }
 
-    findAllByOrg(organizationId: string) {
-        return this.roleRepository.find({ where: { organizationId } });
+    /**
+     * The tenant's roles, with the four system ones described in the reader's language.
+     *
+     * A system role's `description` column holds a catalogue key, written there when the
+     * organisation was provisioned. The roles screen rendered it raw, so customers read
+     * `USER.ROLE.ADMINISTRATOR_DESC` in a table. Resolving it here keeps the client from having
+     * to know which descriptions are keys and which are text a user typed.
+     */
+    async findAllByOrg(organizationId: string): Promise<Role[]> {
+        const roles = await this.roleRepository.find({ where: { organizationId } });
+        const language = currentLanguage();
+
+        return roles.map((role) => {
+            if (!role.description || !this.i18n.has(role.description)) return role;
+            role.description = this.i18n.translate(role.description, language);
+            return role;
+        });
     }
 
     async findOne(id: string, organizationId: string): Promise<Role> {

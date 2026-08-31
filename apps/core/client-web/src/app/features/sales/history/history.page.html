@@ -1,17 +1,17 @@
 <div class="view-container">
     <div class="view-header">
         <div class="header-content">
-            <h1>Historial de Ventas</h1>
-            <p>Consulta, filtra y gestiona todas las transacciones registradas.</p>
+            <h1>{{ 'SALES.HISTORY.HISTORIAL_VENTAS' | translate }}</h1>
+            <p>{{ 'SALES.HISTORY.CONSULTA_FILTRA_GESTIONA_TODAS_TRANSACCIONES_REGISTRADAS' | translate }}</p>
         </div>
         <div class="header-actions">
             <button class="secondary-button">
                 <lucide-icon [img]="FileDownIcon" size="16"></lucide-icon>
-                <span>Exportar</span>
+                <span>{{ 'SALES.HISTORY.EXPORTAR' | translate }}</span>
             </button>
             <a routerLink="/sales/pos" class="primary-button">
                 <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
-                <span>Nueva Venta</span>
+                <span>{{ 'SALES.HISTORY.NUEVA_VENTA' | translate }}</span>
             </a>
         </div>
     </div>
@@ -20,12 +20,12 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>ID Venta</th>
-                    <th>Fecha</th>
-                    <th>Cliente</th>
-                    <th class="text-right">Total</th>
-                    <th>Método de Pago</th>
-                    <th>Estado</th>
+                    <th>{{ 'SALES.HISTORY.ID_VENTA' | translate }}</th>
+                    <th>{{ 'SALES.HISTORY.FECHA' | translate }}</th>
+                    <th>{{ 'SALES.HISTORY.CLIENTE' | translate }}</th>
+                    <th class="text-right">{{ 'SALES.HISTORY.TOTAL' | translate }}</th>
+                    <th>{{ 'SALES.HISTORY.METODO_PAGO' | translate }}</th>
+                    <th>{{ 'SALES.HISTORY.ESTADO' | translate }}</th>
                     <th class="actions-column"></th>
                 </tr>
             </thead>
@@ -35,7 +35,7 @@
                     <td><a href="#" class="table-link">{{ sale.id }}</a></td>
                     <td>{{ sale.date }}</td>
                     <td>{{ sale.customer }}</td>
-                    <td class="text-right">{{ sale.total | number:'1.2-2' }}</td>
+                    <td class="text-right">{{ sale.total | vxNumber:'1.2-2' }}</td>
                     <td>{{ sale.paymentMethod }}</td>
                     <td>
                         <span class="status-badge" [ngClass]="getStatusClass(sale.status)">
@@ -50,7 +50,7 @@
                 </tr>
                 } @empty {
                 <tr>
-                    <td colspan="7" class="empty-state">No se encontraron ventas.</td>
+                    <td colspan="7" class="empty-state">{{ 'SALES.HISTORY.NO_ENCONTRARON_VENTAS' | translate }}</td>
                 </tr>
                 }
             </tbody>

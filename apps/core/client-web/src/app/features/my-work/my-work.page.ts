@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { LucideAngularModule, Check, Clock, Bell, Key } from 'lucide-angular';
 import { MyWorkService, WorkItem } from './my-work.service';
 import { AuthService } from '../../core/services/auth';
+import { TranslateModule } from '@ngx-translate/core';
 
 type WorkItemStatus = 'pending' | 'in-progress' | 'completed';
 type WorkItemType = 'tasks' | 'approvals' | 'notifications' | 'security';
@@ -11,7 +12,7 @@ type WorkItemType = 'tasks' | 'approvals' | 'notifications' | 'security';
 @Component({
   selector: 'app-my-work-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule],
+  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule],
   templateUrl: './my-work.page.html',
   styleUrls: ['./my-work.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

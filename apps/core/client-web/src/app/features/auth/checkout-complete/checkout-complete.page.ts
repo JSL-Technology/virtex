@@ -5,13 +5,14 @@ import { LucideAngularModule, CheckCircle, AlertTriangle, Loader } from 'lucide-
 import { AuthService } from '../../../core/services/auth';
 import { AuthLayoutComponent } from '../components/auth-layout/auth-layout.component';
 import { AuthButtonComponent } from '../components/auth-button/auth-button.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 type CompleteState = 'verifying' | 'success' | 'error';
 
 @Component({
   selector: 'app-checkout-complete',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, AuthLayoutComponent, AuthButtonComponent],
+  imports: [CommonModule, LucideAngularModule, AuthLayoutComponent, AuthButtonComponent, TranslateModule],
   templateUrl: './checkout-complete.page.html',
   styleUrls: ['./checkout-complete.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

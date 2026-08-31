@@ -4,11 +4,12 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { JournalsService } from '../../../core/api/journals.service';
 import { Journal } from '../../../core/models/journal.model';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-journal-list',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslateModule],
   templateUrl: './journal-list.page.html',
   styleUrls: ['./journal-list.page.scss']
 })

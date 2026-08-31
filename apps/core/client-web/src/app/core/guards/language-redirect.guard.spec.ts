@@ -5,7 +5,9 @@ import { AuthService } from '../services/auth';
 import { Router } from '@angular/router';
 
 class MockLanguageService {
-  getInitialLanguage = jest.fn().mockReturnValue('es');
+  // The guard reads the language that is actually active, not a fresh re-derivation of it: the
+  // visitor may have chosen one on the sign-in page a moment ago.
+  currentLanguage = jest.fn().mockReturnValue('es');
 }
 
 class MockAuthService {
@@ -50,7 +52,7 @@ describe('languageRedirectGuard', () => {
 
   it('should redirect to /:lang/auth/login if NOT authenticated', () => {
     authService.isAuthenticated.mockReturnValue(false);
-    languageService.getInitialLanguage.mockReturnValue('en');
+    languageService.currentLanguage.mockReturnValue('en');
 
     const result = runGuard();
 

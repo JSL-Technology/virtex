@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { LucideAngularModule, Users, Package, Tag, Banknote, Warehouse, Building, Landmark, Landmark as BranchesIcon, CreditCard, Clock } from 'lucide-angular';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-masters-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, LucideAngularModule],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, LucideAngularModule, TranslateModule],
   templateUrl: './masters.layout.html',
   styleUrls: ['./masters.layout.scss']
 })

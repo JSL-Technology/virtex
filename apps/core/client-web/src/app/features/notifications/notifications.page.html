@@ -1,13 +1,13 @@
 <div class="view-container">
     <div class="view-header">
         <div class="header-content">
-            <h1>Notificaciones</h1>
-            <p>Mantente al día con las últimas actualizaciones y alertas de tu cuenta.</p>
+            <h1>{{ 'NOTIFICATIONS.NOTIFICACIONES' | translate }}</h1>
+            <p>{{ 'NOTIFICATIONS.MANTENTE_DIA_ULTIMAS_ACTUALIZACIONES_ALERTAS_TU' | translate }}</p>
         </div>
         <div class="header-actions">
             <button class="secondary-button" (click)="markAllAsRead()">
                 <lucide-icon [img]="MarkAllReadIcon" size="16"></lucide-icon>
-                <span>Marcar todas como leídas</span>
+                <span>{{ 'NOTIFICATIONS.MARCAR_TODAS_COMO_LEIDAS' | translate }}</span>
             </button>
         </div>
     </div>
@@ -25,9 +25,9 @@
                         <p class="notification-description">{{ notification.body }}</p>
                     </div>
                     <div class="notification-meta">
-                        <span class="timestamp">{{ notification.createdAt | date:'shortTime' }}</span>
+                        <span class="timestamp">{{ notification.createdAt | vxDate: 'time' }}</span>
                         @if (!notification.read) {
-                        <span class="unread-indicator" title="No leído"></span>
+                        <span class="unread-indicator" [title]="'NOTIFICATIONS.NO_LEIDO' | translate"></span>
                         }
                     </div>
                 </li>
@@ -38,8 +38,8 @@
         } @else {
         <div class="empty-state">
             <lucide-icon [img]="NoNotificationsIcon" size="48"></lucide-icon>
-            <span>Todo está al día</span>
-            <p>No tienes notificaciones nuevas en este momento.</p>
+            <span>{{ 'NOTIFICATIONS.TODO_ESTA_DIA' | translate }}</span>
+            <p>{{ 'NOTIFICATIONS.NO_TIENES_NOTIFICACIONES_NUEVAS_ESTE_MOMENTO' | translate }}</p>
         </div>
         }
     </div>

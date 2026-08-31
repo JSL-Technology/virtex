@@ -1,10 +1,10 @@
 <div class="subview-container">
     <div class="subview-header">
-        <h3>Payment Methods</h3>
+        <h3>{{ 'MASTERS.PAYMENT_METHODS.PAYMENT_METHODS' | translate }}</h3>
         <div class="header-actions">
             <button class="primary-button">
                 <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
-                <span>New Method</span>
+                <span>{{ 'MASTERS.PAYMENT_METHODS.NEW_METHOD' | translate }}</span>
             </button>
         </div>
     </div>
@@ -12,9 +12,9 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Type</th>
-                    <th class="text-center">Default Method</th>
+                    <th>{{ 'MASTERS.PAYMENT_METHODS.NAME' | translate }}</th>
+                    <th>{{ 'MASTERS.PAYMENT_METHODS.TYPE' | translate }}</th>
+                    <th class="text-center">{{ 'MASTERS.PAYMENT_METHODS.DEFAULT_METHOD' | translate }}</th>
                     <th class="actions-column"></th>
                 </tr>
             </thead>
@@ -25,7 +25,7 @@
                     <td>{{ method.type }}</td>
                     <td class="text-center">
                         @if (method.isDefault) {
-                        <span class="status-badge active">Yes</span>
+                        <span class="status-badge active">{{ 'MASTERS.PAYMENT_METHODS.YES' | translate }}</span>
                         }
                     </td>
                     <td class="actions-column">

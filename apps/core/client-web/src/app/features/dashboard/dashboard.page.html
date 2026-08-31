@@ -6,7 +6,7 @@
       <div class="db-header__greeting">
         <h1 class="db-header__title">{{ 'NAV.DASHBOARD' | translate }}</h1>
         <p class="db-header__subtitle">
-          {{ today | date:'EEEE, d MMMM yyyy' }} &nbsp;·&nbsp; {{ 'DASH.HEADER.SUBTITLE' | translate }}
+          {{ today | vxDate: 'weekday' }} &nbsp;·&nbsp; {{ 'DASH.HEADER.SUBTITLE' | translate }}
         </p>
       </div>
     </div>
@@ -33,7 +33,7 @@
   @if (isEditMode()) {
     <div class="db-edit-banner">
       <lucide-icon [img]="EditIcon" size="14"></lucide-icon>
-      <span>Arrastra los widgets para reorganizarlos. Usa las esquinas para redimensionar.</span>
+      <span>{{ 'DASHBOARD.ARRASTRA_WIDGETS_REORGANIZARLOS_USA_ESQUINAS_REDIMENSIONAR' | translate }}</span>
     </div>
   }
 
@@ -46,7 +46,7 @@
 
             <!-- Drag handle (only in edit mode) -->
             @if (isEditMode()) {
-              <div class="widget-drag-handle" title="Arrastrar">
+              <div class="widget-drag-handle" [title]="'DASHBOARD.ARRASTRAR' | translate">
                 <lucide-icon [img]="DragIcon" size="14"></lucide-icon>
               </div>
               <button class="widget-remove-btn"

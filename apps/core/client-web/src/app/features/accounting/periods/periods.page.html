@@ -1,6 +1,6 @@
 <div class="subview-container">
   <div class="subview-header">
-    <h3>Accounting Periods</h3>
+    <h3>{{ 'ACCOUNTING.PERIODS.ACCOUNTING_PERIODS' | translate }}</h3>
     <div class="header-actions">
       </div>
   </div>
@@ -8,11 +8,11 @@
     <table class="data-table">
       <thead>
         <tr>
-          <th>Period</th>
-          <th>Start Date</th>
-          <th>End Date</th>
-          <th class="text-center">Status</th>
-          <th class="actions-column">Action</th>
+          <th>{{ 'ACCOUNTING.PERIODS.PERIOD' | translate }}</th>
+          <th>{{ 'ACCOUNTING.PERIODS.START_DATE' | translate }}</th>
+          <th>{{ 'ACCOUNTING.PERIODS.END_DATE' | translate }}</th>
+          <th class="text-center">{{ 'ACCOUNTING.PERIODS.STATUS' | translate }}</th>
+          <th class="actions-column">{{ 'ACCOUNTING.PERIODS.ACTION' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -31,10 +31,10 @@
                 <button class="action-button" (click)="togglePeriodStatus(period)">
                   @if (period.status === 'Open') {
                     <lucide-icon [img]="LockIcon" size="16"></lucide-icon>
-                    <span>Close Period</span>
+                    <span>{{ 'ACCOUNTING.PERIODS.CLOSE_PERIOD' | translate }}</span>
                   } @else {
                     <lucide-icon [img]="UnlockIcon" size="16"></lucide-icon>
-                    <span>Re-Open</span>
+                    <span>{{ 'ACCOUNTING.PERIODS.RE_OPEN' | translate }}</span>
                   }
                 </button>
               }

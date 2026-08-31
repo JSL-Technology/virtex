@@ -1,9 +1,9 @@
 <div class="page-container">
   <!-- Encabezado -->
   <div class="page-header">
-    <h1><i class="fas fa-code-merge"></i> Herramienta de Fusión de Cuentas</h1>
+    <h1><i class="fas fa-code-merge"></i> {{ 'ACCOUNTING.MERGE_TOOL.HERRAMIENTA_FUSION_CUENTAS' | translate }}</h1>
     <a routerLink="/accounting/chart-of-accounts" class="btn btn-secondary">
-      <i class="fas fa-arrow-left"></i> Volver al Plan de Cuentas
+      <i class="fas fa-arrow-left"></i> {{ 'ACCOUNTING.MERGE_TOOL.VOLVER_PLAN_CUENTAS' | translate }}
     </a>
   </div>
 
@@ -12,19 +12,19 @@
     <!-- PASO 1: Selección -->
     <div *ngSwitchCase="'selection'" class="wizard-step">
       <div class="step-header">
-        <h2>Paso 1: Seleccionar Cuentas</h2>
-        <p>Elige una <strong>cuenta origen</strong> (la que será fusionada) y una <strong>cuenta destino</strong> (la que conservará los movimientos y saldo).</p>
+        <h2>{{ 'ACCOUNTING.MERGE_TOOL.PASO_SELECCIONAR_CUENTAS' | translate }}</h2>
+        <p>{{ 'ACCOUNTING.MERGE_TOOL.ELIGE' | translate }} <strong>{{ 'ACCOUNTING.MERGE_TOOL.CUENTA_ORIGEN' | translate }}</strong> {{ 'ACCOUNTING.MERGE_TOOL.SERA_FUSIONADA' | translate }} <strong>{{ 'ACCOUNTING.MERGE_TOOL.CUENTA_DESTINO' | translate }}</strong> {{ 'ACCOUNTING.MERGE_TOOL.CONSERVARA_MOVIMIENTOS_SALDO' | translate }}</p>
       </div>
 
       <div class="grid-2">
         <!-- Origen -->
         <div class="account-selection-box">
-          <h3><i class="fas fa-sign-out-alt"></i> Cuenta Origen (a fusionar)</h3>
+          <h3><i class="fas fa-sign-out-alt"></i> {{ 'ACCOUNTING.MERGE_TOOL.CUENTA_ORIGEN_FUSIONAR' | translate }}</h3>
 
           <input
             type="text"
             class="form-control"
-            placeholder="Buscar por código o nombre..."
+            [placeholder]="'ACCOUNTING.MERGE_TOOL.BUSCAR_CODIGO_NOMBRE' | translate"
             [ngModel]="sourceAccountQuery()"
             (ngModelChange)="sourceAccountQuery.set($event)" />
 
@@ -38,22 +38,22 @@
           </select>
 
           <div *ngIf="selectedSourceAccount()" class="selection-details">
-            <h4>Cuenta Seleccionada:</h4>
+            <h4>{{ 'ACCOUNTING.MERGE_TOOL.CUENTA_SELECCIONADA' | translate }}</h4>
             <p>
               <strong>{{ selectedSourceAccount()?.code }} - {{ selectedSourceAccount()?.name }}</strong>
             </p>
-            <p>Tipo: {{ selectedSourceAccount()?.type }}</p>
+            <p>{{ 'ACCOUNTING.MERGE_TOOL.TIPO_TYPE' | translate: { type: selectedSourceAccount()?.type } }}</p>
           </div>
         </div>
 
         <!-- Destino -->
         <div class="account-selection-box">
-          <h3><i class="fas fa-sign-in-alt"></i> Cuenta Destino (recibe la fusión)</h3>
+          <h3><i class="fas fa-sign-in-alt"></i> {{ 'ACCOUNTING.MERGE_TOOL.CUENTA_DESTINO_RECIBE_FUSION' | translate }}</h3>
 
           <input
             type="text"
             class="form-control"
-            placeholder="Buscar por código o nombre..."
+            [placeholder]="'ACCOUNTING.MERGE_TOOL.BUSCAR_CODIGO_NOMBRE' | translate"
             [ngModel]="targetAccountQuery()"
             (ngModelChange)="targetAccountQuery.set($event)" />
 
@@ -67,90 +67,90 @@
           </select>
 
           <div *ngIf="selectedTargetAccount()" class="selection-details">
-            <h4>Cuenta Seleccionada:</h4>
+            <h4>{{ 'ACCOUNTING.MERGE_TOOL.CUENTA_SELECCIONADA' | translate }}</h4>
             <p>
               <strong>{{ selectedTargetAccount()?.code }} - {{ selectedTargetAccount()?.name }}</strong>
             </p>
-            <p>Tipo: {{ selectedTargetAccount()?.type }}</p>
+            <p>{{ 'ACCOUNTING.MERGE_TOOL.TIPO_TYPE' | translate: { type: selectedTargetAccount()?.type } }}</p>
           </div>
         </div>
       </div>
 
       <div class="wizard-actions">
-        <button class="btn btn-primary" (click)="goToAnalysis()">Analizar</button>
-        <button class="btn btn-outline" (click)="reset()">Limpiar</button>
+        <button class="btn btn-primary" (click)="goToAnalysis()">{{ 'ACCOUNTING.MERGE_TOOL.ANALIZAR' | translate }}</button>
+        <button class="btn btn-outline" (click)="reset()">{{ 'ACCOUNTING.MERGE_TOOL.LIMPIAR' | translate }}</button>
       </div>
     </div>
 
     <!-- PASO 2: Análisis -->
     <div *ngSwitchCase="'analysis'" class="wizard-step">
       <div class="step-header">
-        <h2>Paso 2: Análisis de Impacto</h2>
-        <p>Se muestra un resumen del *dry-run* antes de ejecutar la fusión.</p>
+        <h2>{{ 'ACCOUNTING.MERGE_TOOL.PASO_ANALISIS_IMPACTO' | translate }}</h2>
+        <p>{{ 'ACCOUNTING.MERGE_TOOL.MUESTRA_RESUMEN_DRY_RUN_ANTES_EJECUTAR' | translate }}</p>
       </div>
 
       <div class="analysis-box" *ngIf="analysis() as a">
-        <p><strong>Origen:</strong> {{ selectedSourceAccount()?.code }} - {{ selectedSourceAccount()?.name }}</p>
-        <p><strong>Destino:</strong> {{ selectedTargetAccount()?.code }} - {{ selectedTargetAccount()?.name }}</p>
+        <p><strong>{{ 'ACCOUNTING.MERGE_TOOL.ORIGEN' | translate }}</strong> {{ selectedSourceAccount()?.code }} - {{ selectedSourceAccount()?.name }}</p>
+        <p><strong>{{ 'ACCOUNTING.MERGE_TOOL.DESTINO' | translate }}</strong> {{ selectedTargetAccount()?.code }} - {{ selectedTargetAccount()?.name }}</p>
         <ul class="facts">
-          <li>Transacciones a mover: <strong>{{ a.transactionsToMove }}</strong></li>
-          <li>Saldo en origen: <strong>{{ a.sourceBalance | number:'1.2-2' }}</strong></li>
-          <li>Saldo en destino: <strong>{{ a.targetBalance | number:'1.2-2' }}</strong></li>
+          <li>{{ 'ACCOUNTING.MERGE_TOOL.TRANSACCIONES_MOVER' | translate }} <strong>{{ a.transactionsToMove }}</strong></li>
+          <li>{{ 'ACCOUNTING.MERGE_TOOL.SALDO_ORIGEN' | translate }} <strong>{{ a.sourceBalance | vxNumber:'1.2-2' }}</strong></li>
+          <li>{{ 'ACCOUNTING.MERGE_TOOL.SALDO_DESTINO' | translate }} <strong>{{ a.targetBalance | vxNumber:'1.2-2' }}</strong></li>
         </ul>
         <div *ngIf="a.warnings?.length">
-          <p><strong>Advertencias:</strong></p>
+          <p><strong>{{ 'ACCOUNTING.MERGE_TOOL.ADVERTENCIAS' | translate }}</strong></p>
           <ul>
             <li *ngFor="let w of a.warnings">{{ w }}</li>
           </ul>
         </div>
         <div *ngIf="!a.ok" class="alert alert-danger">
-          El análisis reportó problemas. Corrige la selección.
+          {{ 'ACCOUNTING.MERGE_TOOL.ANALISIS_REPORTO_PROBLEMAS_CORRIGE_SELECCION' | translate }}
         </div>
       </div>
 
       <div class="wizard-actions">
-        <button class="btn btn-secondary" (click)="goToSelection()">Volver</button>
-        <button class="btn btn-primary" [disabled]="!analysis()?.ok || isAnalyzing()" (click)="goToConfirmation()">Continuar</button>
+        <button class="btn btn-secondary" (click)="goToSelection()">{{ 'ACCOUNTING.MERGE_TOOL.VOLVER' | translate }}</button>
+        <button class="btn btn-primary" [disabled]="!analysis()?.ok || isAnalyzing()" (click)="goToConfirmation()">{{ 'ACCOUNTING.MERGE_TOOL.CONTINUAR' | translate }}</button>
       </div>
     </div>
 
     <!-- PASO 3: Confirmación -->
     <div *ngSwitchCase="'confirmation'" class="wizard-step">
       <div class="step-header">
-        <h2>Paso 3: Confirmación</h2>
-        <p>Confirma que deseas fusionar la cuenta <strong>{{ selectedSourceAccount()?.code }}</strong> en <strong>{{ selectedTargetAccount()?.code }}</strong>.</p>
+        <h2>{{ 'ACCOUNTING.MERGE_TOOL.PASO_CONFIRMACION' | translate }}</h2>
+        <p>{{ 'ACCOUNTING.MERGE_TOOL.CONFIRMA_DESEAS_FUSIONAR_CUENTA' | translate }} <strong>{{ selectedSourceAccount()?.code }}</strong> en <strong>{{ selectedTargetAccount()?.code }}</strong>.</p>
       </div>
       <div class="wizard-actions">
-        <button class="btn btn-secondary" (click)="goToAnalysis()">Volver</button>
-        <button class="btn btn-danger" [disabled]="isMerging()" (click)="confirmAndMerge()">Confirmar Fusión</button>
+        <button class="btn btn-secondary" (click)="goToAnalysis()">{{ 'ACCOUNTING.MERGE_TOOL.VOLVER' | translate }}</button>
+        <button class="btn btn-danger" [disabled]="isMerging()" (click)="confirmAndMerge()">{{ 'ACCOUNTING.MERGE_TOOL.CONFIRMAR_FUSION' | translate }}</button>
       </div>
     </div>
 
     <!-- RESULTADO -->
     <div *ngSwitchCase="'result'" class="wizard-step">
       <div class="step-header">
-        <h2>Resultado</h2>
+        <h2>{{ 'ACCOUNTING.MERGE_TOOL.RESULTADO' | translate }}</h2>
       </div>
       <div *ngIf="mergeSucceeded(); else errorTpl" class="alert alert-success">
-        <strong>¡Fusión completada!</strong>
-        <p>La cuenta <strong>{{ selectedSourceAccount()?.code }}</strong> fue fusionada en <strong>{{ selectedTargetAccount()?.code }}</strong>.</p>
+        <strong>{{ 'ACCOUNTING.MERGE_TOOL.FUSION_COMPLETADA' | translate }}</strong>
+        <p>{{ 'ACCOUNTING.MERGE_TOOL.CUENTA' | translate }} <strong>{{ selectedSourceAccount()?.code }}</strong> {{ 'ACCOUNTING.MERGE_TOOL.FUE_FUSIONADA' | translate }} <strong>{{ selectedTargetAccount()?.code }}</strong>.</p>
       </div>
       <ng-template #errorTpl>
         <div class="alert alert-danger">
-          <strong>La fusión no se completó.</strong>
+          <strong>{{ 'ACCOUNTING.MERGE_TOOL.FUSION_NO_COMPLETO' | translate }}</strong>
           <p>{{ errorMessage() || 'Ocurrió un error inesperado.' }}</p>
         </div>
       </ng-template>
 
       <div class="wizard-actions">
-        <button class="btn btn-secondary" (click)="reset()">Realizar otra fusión</button>
-        <a routerLink="/accounting/chart-of-accounts" class="btn btn-primary">Volver al Plan de Cuentas</a>
+        <button class="btn btn-secondary" (click)="reset()">{{ 'ACCOUNTING.MERGE_TOOL.REALIZAR_OTRA_FUSION' | translate }}</button>
+        <a routerLink="/accounting/chart-of-accounts" class="btn btn-primary">{{ 'ACCOUNTING.MERGE_TOOL.VOLVER_PLAN_CUENTAS' | translate }}</a>
       </div>
     </div>
 
     <!-- Error global -->
     <div *ngIf="errorMessage()" class="alert alert-danger global-error">
-      <strong>Error:</strong> {{ errorMessage() }}
+      <strong>{{ 'ACCOUNTING.MERGE_TOOL.ERROR' | translate }}</strong> {{ errorMessage() }}
     </div>
   </div>
 </div>
