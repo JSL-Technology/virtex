@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { RouterStateSnapshot, TitleStrategy } from '@angular/router';
+import { Router, RouterStateSnapshot, TitleStrategy } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 
 /**
@@ -17,11 +17,27 @@ import { TranslateService } from '@ngx-translate/core';
  *
  * A route with no `title` gets the product name alone rather than whatever the previous page had
  * left behind, which is what an unset title actually does.
+ *
+ * ## Why it listens for the language change
+ *
+ * `updateTitle` runs on navigation. Changing the language is not a navigation, so the tab kept
+ * the previous language's title until the reader happened to move to another page — the one part
+ * of the interface that did not follow the switch. Re-rendering on `onLangChange` costs one
+ * translation lookup and removes that inconsistency.
  */
 @Injectable({ providedIn: 'root' })
 export class TranslatedTitleStrategy extends TitleStrategy {
   private readonly title = inject(Title);
   private readonly translate = inject(TranslateService);
+  private readonly router = inject(Router);
+
+  constructor() {
+    super();
+    this.translate.onLangChange.subscribe(() => {
+      const snapshot = this.router.routerState.snapshot;
+      if (snapshot) this.updateTitle(snapshot);
+    });
+  }
 
   override updateTitle(snapshot: RouterStateSnapshot): void {
     const key = this.buildTitle(snapshot);

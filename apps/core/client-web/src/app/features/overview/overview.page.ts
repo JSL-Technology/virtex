@@ -22,6 +22,7 @@ import {
 import { AuthService } from '../../core/services/auth';
 import { TabStateService } from '../../core/tabs/tab-state.service';
 import { TabAware } from '../../core/tabs/tab.model';
+import { FormatService } from '../../core/i18n/format.service';
 import {
   OverviewService,
   ActivityItem,
@@ -52,6 +53,7 @@ export class OverviewPage implements OnInit, TabAware {
   private auth = inject(AuthService);
   private tabState = inject(TabStateService);
   private translate = inject(TranslateService);
+  private readonly format = inject(FormatService);
 
   // Iconos expuestos a la plantilla.
   protected readonly ArrowRightIcon = ArrowRight;
@@ -161,29 +163,20 @@ export class OverviewPage implements OnInit, TabAware {
   }
 
   // ── Formato de fechas/tiempos ──────────────────────────────────────────────
-
-  private get locale(): string {
-    return this.translate.currentLang || this.translate.defaultLang || 'es';
-  }
+  //
+  // Delegado en `FormatService`: la pagina construia sus propios `Intl` con
+  // `translate.currentLang`, que es el IDIOMA y no la region — de modo que un
+  // lector en Buenos Aires y otro en Santo Domingo, ambos en espanol, veian el
+  // mismo formato aunque no comparten separadores ni orden de fecha. El
+  // servicio ademas usa la zona horaria del inquilino, no la del navegador.
 
   /** Tiempo relativo legible (p. ej. «hace 5 minutos»). */
   relativeTime(iso: string): string {
-    const diffMs = new Date(iso).getTime() - Date.now();
-    const abs = Math.abs(diffMs);
-    const minute = 60_000;
-    const hour = 3_600_000;
-    const day = 86_400_000;
-    const rtf = new Intl.RelativeTimeFormat(this.locale, { numeric: 'auto' });
-    if (abs < hour) return rtf.format(Math.round(diffMs / minute), 'minute');
-    if (abs < day) return rtf.format(Math.round(diffMs / hour), 'hour');
-    return rtf.format(Math.round(diffMs / day), 'day');
+    return this.format.relativeTime(iso);
   }
 
   /** Fecha corta para eventos/noticias (p. ej. «15 jun»). */
   shortDate(iso: string): string {
-    return new Intl.DateTimeFormat(this.locale, {
-      day: '2-digit',
-      month: 'short',
-    }).format(new Date(iso));
+    return this.format.date(iso, 'dayMonth');
   }
 }

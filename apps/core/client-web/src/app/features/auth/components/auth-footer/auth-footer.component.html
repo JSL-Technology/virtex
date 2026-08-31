@@ -1,46 +1,9 @@
 <footer class="auth-footer">
   <div class="footer-container">
 
-    <div class="language-selector">
-      <button
-        type="button"
-        class="selector-trigger"
-        (click)="toggleLangDropdown($event)"
-        [class.active]="isLangDropdownOpen"
-        [attr.aria-expanded]="isLangDropdownOpen"
-        aria-haspopup="listbox"
-        aria-label="Seleccionar idioma">
-        <lucide-icon [img]="icons.Globe" size="15" class="icon-left" aria-hidden="true"></lucide-icon>
-        <span>{{ currentLangLabel }}</span>
-        <lucide-icon [img]="icons.ChevronUp" size="13" class="icon-right" aria-hidden="true"></lucide-icon>
-      </button>
+    <app-language-selector variant="compact" />
 
-      <!--
-        El menú se despliega HACIA ARRIBA porque el pie está al final de la
-        página: hacia abajo quedaría fuera de la ventana y habría que
-        desplazarse para elegir idioma.
-      -->
-      @if (isLangDropdownOpen) {
-        <div class="dropdown-menu" role="listbox">
-          @for (lang of availableLanguages; track lang.code) {
-            <button
-              type="button"
-              class="dropdown-item"
-              role="option"
-              [class.active]="currentLang === lang.code"
-              [attr.aria-selected]="currentLang === lang.code"
-              (click)="changeLang(lang.code)">
-              <span>{{ lang.label }}</span>
-              @if (currentLang === lang.code) {
-                <lucide-icon [img]="icons.Check" size="14" aria-hidden="true"></lucide-icon>
-              }
-            </button>
-          }
-        </div>
-      }
-    </div>
-
-    <nav class="footer-nav" aria-label="Enlaces legales">
+    <nav class="footer-nav" [attr.aria-label]="'AUTH.LEGAL_LINKS' | translate">
       <a routerLink="/terms">{{ 'AUTH.TERMS' | translate }}</a>
       <a routerLink="/privacy">{{ 'AUTH.PRIVACY' | translate }}</a>
       <a routerLink="/security">{{ 'AUTH.SECURITY' | translate }}</a>
@@ -52,8 +15,8 @@
     </p>
 
     <!--
-      Aviso de reCAPTCHA. Vive aquí, en el pie compartido, y no repetido al pie
-      de cada formulario: es un texto legal fijo que no cambia entre pantallas.
+      Aviso de reCAPTCHA. Vive aqui, en el pie compartido, y no repetido al pie de cada
+      formulario: es un texto legal fijo que no cambia entre pantallas.
     -->
     <p class="recaptcha-notice">
       {{ 'AUTH.RECAPTCHA_PROTECTED' | translate }}

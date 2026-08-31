@@ -1,4 +1,5 @@
 import { IsEmail, IsIn, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
+import { LanguageCode, SUPPORTED_LANGUAGES } from '@virteex/shared/types';
 
 export class InviteUserDto {
   @IsEmail()
@@ -20,7 +21,9 @@ export class InviteUserDto {
 
   @IsString()
   @IsOptional()
-  @IsIn(['en', 'es'])
-  preferredLanguage?: string;
+  @IsIn(SUPPORTED_LANGUAGES as readonly string[], {
+    message: `preferredLanguage must be one of: ${SUPPORTED_LANGUAGES.join(', ')}`,
+  })
+  preferredLanguage?: LanguageCode;
 
 }

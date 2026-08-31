@@ -1,70 +1,75 @@
 import { Injectable, inject } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
+import {
+  ActivatedRouteSnapshot,
+  CanActivate,
+  Router,
+  RouterStateSnapshot,
+  UrlTree,
+} from '@angular/router';
 import { Observable, catchError, map, of, tap } from 'rxjs';
 import { CountryService } from '../services/country.service';
 import { LanguageService } from '../services/language';
 import { GeoLocationService } from '../services/geo-location.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+/**
+ * Resolves the `:country` segment of the signup routes (`/es/do/auth/register`).
+ *
+ * The language part of the URL is applied through `LanguageService.applyRouteLanguage`, not
+ * `setLanguage`: a country-and-language link is somebody being sent to a market's signup form,
+ * which decides what this page renders in and must not rewrite the account preference of a user
+ * who happens to already have one.
+ */
+@Injectable({ providedIn: 'root' })
 export class CountryGuard implements CanActivate {
   private countryService = inject(CountryService);
   private languageService = inject(LanguageService);
   private geoService = inject(GeoLocationService);
   private router = inject(Router);
 
+  /**
+   * Where an unusable URL goes.
+   *
+   * This used to be `/es/do/auth/login`, which is not a route: the country-prefixed branch of the
+   * router carries only `register`. The URL fell through to the global wildcard and bounced to
+   * `/es/auth/login` through a redirect chain nobody intended — it worked by accident. The
+   * sign-in page has no country segment, so the language alone is what belongs here.
+   */
+  private signInUrl(): UrlTree {
+    return this.router.createUrlTree([`/${this.languageService.currentLanguage()}/auth/login`]);
+  }
+
   canActivate(
     route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
+    state: RouterStateSnapshot,
   ): Observable<boolean | UrlTree> | boolean | UrlTree {
     const countryCode = route.paramMap.get('country');
     const langCode = route.paramMap.get('lang');
 
-    // Validación básica: si falta algo, redirigir al login por defecto
-    if (!countryCode || !langCode) {
-       return this.router.createUrlTree(['/es/do/auth/login']);
-    }
+    if (langCode) this.languageService.applyRouteLanguage(langCode);
+    if (!countryCode || !langCode) return this.signInUrl();
 
-    // Establecer idioma
-    this.languageService.setLanguage(langCode);
-
-    // Obtener Configuración de País
     return this.countryService.getCountryConfig(countryCode).pipe(
       map((config) => {
-        // Lógica de Redirección Inteligente:
-        // Si el código de la configuración obtenida (config.code) es diferente al de la URL (countryCode),
-        // significa que el país de la URL no existe y el servicio nos dio uno por defecto (fallback).
-        // En ese caso, redirigimos al usuario a la URL con el código correcto.
+        // The service answers with a default profile when the URL names a country it does not
+        // know, so a mismatch between what was asked for and what came back means the URL is
+        // wrong. Rewriting it — rather than rendering a Dominican form under `/mx/` — keeps the
+        // address bar and the form telling the same story.
         if (config && config.countryCode.toLowerCase() !== countryCode.toLowerCase()) {
-            const url = state.url; // ej: /es/asdfas/auth/register
-            const segments = url.split('/'); 
-            
-            // Asumiendo estructura estándar: ['', ':lang', ':country', ...]
-            // Reemplazamos el segmento del país (índice 2) por el código válido
-            if (segments.length > 2) {
-                segments[2] = config.countryCode.toLowerCase();
-                const newUrl = segments.join('/');
-                // Redirige a /es/us/auth/register (o el país por defecto que devuelva el servicio)
-                return this.router.parseUrl(newUrl);
-            }
+          const segments = state.url.split('/');
+          if (segments.length > 2) {
+            segments[2] = config.countryCode.toLowerCase();
+            return this.router.parseUrl(segments.join('/'));
+          }
         }
-        
-        // Si coinciden, permitimos la navegación
         return true;
       }),
       tap(() => this.geoService.checkAndNotifyMismatch(countryCode)),
       catchError(() => {
-        // En caso de error crítico (API caída), intentar redirigir a 'do' preservando la ruta
-        const fallbackCountry = 'do';
-        const segments = state.url.split('/');
-        if (segments.length > 2) {
-            segments[2] = fallbackCountry;
-            return of(this.router.parseUrl(segments.join('/')));
-        }
-        // Si todo falla, al login
-        return of(this.router.createUrlTree(['/es/do/auth/login']));
-      })
+        // The configuration endpoint is unreachable. Sending the visitor to a country picked at
+        // random would be worse than sending them to sign-in, where the message is at least
+        // truthful about what happened.
+        return of(this.signInUrl());
+      }),
     );
   }
 }

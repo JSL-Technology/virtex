@@ -1,39 +1,143 @@
-.language-selector-container {
-  label {
+// =============================================================================
+//  SELECTOR DE IDIOMA
+// =============================================================================
+//  Un solo componente con dos presentaciones. Antes eran dos componentes con dos
+//  comportamientos: el del pie de autenticacion guardaba la eleccion bajo una
+//  clave que nadie leia, de modo que el idioma se perdia al recargar.
+//
+//  Los estilos de la variante compacta vivian en la hoja del pie. Al pasar el
+//  selector a componente propio, la encapsulacion de vistas dejaba de aplicarlos
+//  y el desplegable perdia el cristal; se mudan aqui, junto al marcado que
+//  estilan.
+// =============================================================================
+@use '../../../../assets/styles/design-system' as ds;
+
+.language-selector {
+  position: relative;
+}
+
+// ── Fila de ajustes ──────────────────────────────────────────────────────────
+.language-selector--settings {
+  .selector-label {
     display: block;
     font-size: var(--text-md);
     font-weight: var(--font-semibold);
     color: var(--text-primary);
     margin-bottom: var(--space-3);
   }
+
   .description {
     font-size: var(--text-md);
     color: var(--text-secondary);
     margin-top: var(--space-3);
   }
-}
-.button-group {
-  display: flex;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  overflow: hidden;
-  max-width: 250px;
 
-  button {
-    flex-grow: 1;
-    padding: var(--space-input-y) var(--space-padding);
-    background-color: var(--bg-layer-1);
-    color: var(--text-secondary);
-    border: none;
-    cursor: pointer;
-    font-weight: var(--font-semibold);
-    transition: background-color 0.2s ease, color 0.2s ease;
-    &:not(:last-child) {
-      border-right: 1px solid var(--border-color);
+  .button-group {
+    display: flex;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    overflow: hidden;
+    // Ancho segun contenido: los endonimos no miden lo mismo en cada idioma y un
+    // tercero ya no tiene que caber en una caja medida para dos.
+    width: fit-content;
+
+    button {
+      flex: 1 1 auto;
+      padding: var(--space-input-y) var(--space-padding);
+      background-color: var(--bg-layer-1);
+      color: var(--text-secondary);
+      border: none;
+      cursor: pointer;
+      font-weight: var(--font-semibold);
+      white-space: nowrap;
+      @include ds.transition(background-color, color);
+      @include ds.focus-ring(-2px);
+
+      &:not(:last-child) {
+        border-inline-end: 1px solid var(--border-color);
+      }
+
+      &.active {
+        background-color: var(--accent-primary);
+        color: var(--accent-text);
+      }
     }
+  }
+}
+
+// ── Desplegable compacto (pie de autenticacion) ──────────────────────────────
+.language-selector--compact {
+  .selector-trigger {
+    @include ds.button-base('md');
+    border-radius: var(--radius-full);
+    background-color: var(--glass-bg-subtle);
+    border-color: var(--glass-border-soft);
+    color: var(--content-secondary);
+    font-size: var(--text-sm);
+    @include ds.glass-blur(10px);
+
+    &:hover,
     &.active {
-      background-color: var(--accent-primary);
+      background-color: var(--glass-bg-hover);
+      border-color: var(--accent-border);
+      color: var(--content-primary);
+    }
+
+    .icon-left { opacity: 0.75; }
+
+    .icon-right {
+      opacity: 0.6;
+      @include ds.transition(transform);
+    }
+
+    &.active .icon-right { transform: rotate(180deg); }
+  }
+
+  .dropdown-menu {
+    position: absolute;
+    bottom: calc(100% + var(--space-2));
+    left: 0;
+    z-index: var(--z-dropdown);
+
+    min-width: 11rem;
+    padding: var(--space-1);
+
+    border-radius: var(--radius-lg);
+    box-shadow: var(--glass-shadow);
+    @include ds.glass-surface('strong');
+
+    animation: vx-rise var(--duration-fast) var(--ease-decelerate) both;
+  }
+
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    width: 100%;
+
+    padding: var(--space-2) var(--space-3);
+
+    background: none;
+    border: none;
+    border-radius: var(--radius-md);
+    color: var(--content-secondary);
+    font: inherit;
+    font-size: var(--text-md);
+    text-align: left;
+    cursor: pointer;
+
+    @include ds.transition(background-color, color);
+    @include ds.focus-ring(-2px);
+
+    &:hover {
+      background-color: var(--glass-bg-hover);
+      color: var(--content-primary);
+    }
+
+    &.active {
       color: var(--accent-text);
+      font-weight: var(--font-medium);
     }
   }
 }

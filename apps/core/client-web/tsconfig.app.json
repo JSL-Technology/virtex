@@ -12,6 +12,7 @@
     "../../../libs/shared/types/src/**/*.ts"
   ],
   "exclude": [
+    "../../../libs/**/*.spec.ts",
     "jest.config.ts",
     "src/test-setup.ts",
     "src/**/*.test.ts",

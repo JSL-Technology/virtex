@@ -3,10 +3,16 @@ import { provideRouter, withInMemoryScrolling, TitleStrategy } from '@angular/ro
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideHighcharts } from 'highcharts-angular';
-import { provideTranslateService, TranslateLoader } from '@ngx-translate/core';
+import {
+  MissingTranslationHandler,
+  provideTranslateService,
+  TranslateLoader,
+} from '@ngx-translate/core';
+import { DEFAULT_LANGUAGE } from '@virteex/shared/types';
 import { TranslatedTitleStrategy } from './core/i18n/page-title.strategy';
-// import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
-import { CustomTranslateLoader } from './core/i18n/custom-translate-loader';
+import { LazyTranslateLoader } from './core/i18n/translate-loader';
+import { VirtexMissingTranslationHandler } from './core/i18n/missing-translation.handler';
+import { LanguageService } from './core/services/language';
 
 // import { RECAPTCHA_V3_SITE_KEY, RecaptchaV3Module } from 'ng-recaptcha';
 // import { environment } from '../environments/environment';
@@ -27,6 +33,11 @@ const CORE_PROVIDERS = [
   //
   // This is the ONLY place the session is fetched. `resolveSession()` memoises its result, so
   // every guard on every route afterwards reads that same answer without a request.
+  // The active message catalogue is loaded before the first route is evaluated. `instant()` is
+  // synchronous and returns the KEY when the table is empty, and both the title strategy and the
+  // HTTP error handler call it — so without this the first screen after a cold start can show
+  // `AUTH.TITLES.LOGIN` in the browser tab.
+  provideAppInitializer(() => inject(LanguageService).preload()),
   provideAppInitializer(() => inject(AuthService).resolveSession()),
   { provide: API_URL, useValue: environment.apiUrl || 'http://localhost:3000/api/v1' },
   provideBrowserGlobalErrorListeners(),
@@ -58,11 +69,13 @@ const CHARTS_PROVIDERS = [
 
 const I18N_PROVIDERS = [
   provideTranslateService({
-    loader: {
-      provide: TranslateLoader,
-      useClass: CustomTranslateLoader
+    loader: { provide: TranslateLoader, useClass: LazyTranslateLoader },
+    // A key with no entry must not reach the screen as a dotted identifier. See the handler.
+    missingTranslationHandler: {
+      provide: MissingTranslationHandler,
+      useClass: VirtexMissingTranslationHandler,
     },
-    fallbackLang: 'es',
+    fallbackLang: DEFAULT_LANGUAGE,
   }),
 ];
 

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { DEFAULT_LANGUAGE, matchLanguage } from '@virteex/shared/types';
 
 /**
  * Builds links into the web client.
@@ -24,10 +25,6 @@ import { ConfigService } from '@nestjs/config';
  */
 @Injectable()
 export class FrontendUrlService {
-  /** Languages the client has translations for. Must match SUPPORTED_LANGS in app.routes.ts. */
-  private static readonly SUPPORTED_LANGUAGES = ['es', 'en'] as const;
-  private static readonly DEFAULT_LANGUAGE = 'es';
-
   /**
    * Country used when a link has no better information. The signup route requires a country
    * segment, and a missing one produces a URL that does not resolve.
@@ -40,11 +37,16 @@ export class FrontendUrlService {
     return this.configService.getOrThrow<string>('FRONTEND_URL').replace(/\/+$/, '');
   }
 
+  /**
+   * The language segment of a link.
+   *
+   * Resolved through the shared catalogue rather than a private copy of the language list: this
+   * service and the client's router must agree on which prefixes exist, and they used to agree
+   * only by coincidence — a language added to one was a link pointing at a route that does not
+   * match in the other.
+   */
   private language(preferred?: string | null): string {
-    const candidate = (preferred ?? '').slice(0, 2).toLowerCase();
-    return (FrontendUrlService.SUPPORTED_LANGUAGES as readonly string[]).includes(candidate)
-      ? candidate
-      : FrontendUrlService.DEFAULT_LANGUAGE;
+    return matchLanguage(preferred) ?? DEFAULT_LANGUAGE;
   }
 
   private country(preferred?: string | null): string {

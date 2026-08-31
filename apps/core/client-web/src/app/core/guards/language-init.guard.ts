@@ -1,49 +1,24 @@
 import { inject } from '@angular/core';
-import {
-  CanActivateFn,
-  Router,
-  ActivatedRouteSnapshot,
-  RouterStateSnapshot,
-  UrlTree,
-} from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivateFn } from '@angular/router';
 import { LanguageService } from '../services/language';
 
-export const languageInitGuard: CanActivateFn = (
-  route: ActivatedRouteSnapshot,
-  state: RouterStateSnapshot
-): boolean | UrlTree => {
-  const languageService = inject(LanguageService);
-  const router = inject(Router);
-
-  // Accessing the 'lang' parameter from the route
-  const langParam = route.params['lang'];
-  const supportedLangs = ['es', 'en'];
-
-  // 1. Validation: Is the language in the URL supported?
-  if (supportedLangs.includes(langParam)) {
-    // 2. Initialization: Tell the service to use this language
-    languageService.setLanguage(langParam);
-    // (The service handles localStorage persistence and updating the <html> tag)
-
-    return true;
+/**
+ * Adopt the language named in the URL.
+ *
+ * The route matcher (`langCodeMatcher` in `app.routes.ts`) only matches a first segment that is a
+ * supported language code, so by the time this runs the parameter is already known-good. The
+ * guard's previous validation branch — rebuilding the URL with a default language when the
+ * segment was unrecognised — was therefore unreachable: no unsupported code could ever get here.
+ * It is gone rather than kept as decoration.
+ *
+ * The language is applied but NOT written to the signed-in user's profile: a link somebody was
+ * sent decides what this page renders in, not what that person chose for their account. See
+ * `LanguageService.applyRouteLanguage`.
+ */
+export const languageInitGuard: CanActivateFn = (route: ActivatedRouteSnapshot): boolean => {
+  const language = route.params['lang'];
+  if (typeof language === 'string') {
+    inject(LanguageService).applyRouteLanguage(language);
   }
-
-  // 3. Error Handling: Redirect to default language if invalid
-  const defaultLang = languageService.getInitialLanguage() || 'es';
-
-  // We need to replace the invalid language segment with the default one,
-  // or just redirect to the default language root if the path structure is broken.
-  // Assuming the structure is /:lang/...
-  // We can just redirect to defaultLang + whatever was after, or just default home.
-  // For safety/simplicity, let's redirect to default home/root of that language.
-
-  // Construct the new URL.
-  // If URL was /fr/home -> redirect to /es/home
-  const urlSegments = state.url.split('/').filter(Boolean);
-  if (urlSegments.length > 0) {
-     urlSegments[0] = defaultLang;
-     return router.createUrlTree(['/' + urlSegments.join('/')]);
-  }
-
-  return router.createUrlTree(['/' + defaultLang]);
+  return true;
 };

@@ -29,6 +29,8 @@ import { ErrorHandlerService } from './error-handler.service';
 import { IS_PUBLIC_API } from '../tokens/http-context.tokens';
 import { readCsrfCookie } from '../auth/csrf-token';
 import { hasPermission } from '@virteex/shared/util-auth';
+import { TranslateService } from '@ngx-translate/core';
+import { LanguageService } from './language';
 
 // H-11 FIX: Backend intentionally omits accessToken/refreshToken from the response body —
 // tokens are delivered exclusively via httpOnly cookies. Removing them from the interface
@@ -70,6 +72,8 @@ export class AuthService {
   private notificationService = inject(NotificationService);
   private webSocketService = inject(WebSocketService);
   private errorHandlerService = inject(ErrorHandlerService);
+  private languageService = inject(LanguageService);
+  private translate = inject(TranslateService);
   private readonly baseUrl = inject(API_URL);
 
   // URL base de tu API de autenticación.
@@ -406,6 +410,20 @@ export class AuthService {
     this._authStatus.set(AuthStatus.authenticated);
     this.sessionResolution = of(true);
 
+    // The account's stored language wins over whatever this device guessed.
+    //
+    // Nothing used to read `preferredLanguage` when a session was restored, so a user whose
+    // profile said English, opening the application in a private window, resolved to Spanish —
+    // and the language service's sync effect then OVERWROTE the profile with that guess. The
+    // server's answer was destroyed by the client's assumption on every visit from a new device.
+    // The tenant's locale context travels with it: country, currency and timezone are what make
+    // an amount and a posting date render correctly, and the browser cannot infer any of them.
+    this.languageService.applySessionPreference(
+      user.id,
+      user.preferredLanguage,
+      user.localeContext,
+    );
+
     this.webSocketService.connect();
     this.webSocketService.emit('user-status', { isOnline: true });
     this.listenForForcedLogout();
@@ -417,6 +435,9 @@ export class AuthService {
     this._currentUser.set(null);
     this._authStatus.set(AuthStatus.unauthenticated);
     this.sessionResolution = of(false);
+
+    // The device keeps the language it is reading in; the profile is no longer ours to write.
+    this.languageService.detachSession();
 
     this.webSocketService.disconnect();
     return false;
@@ -454,10 +475,10 @@ export class AuthService {
     // not probe either.
     this.webSocketService.emit('user-status', { isOnline: false });
     this.applySignedOut();
-    const supportedLangs = ['es', 'en'];
-    const storedLang = localStorage.getItem('ui_lang');
-    const lang = storedLang && supportedLangs.includes(storedLang) ? storedLang : 'es';
-    this.router.navigate([`/${lang}/auth/login`]);
+    // The sign-in page the user lands on must be in the language they were just using. The
+    // language lives in one place — `LanguageService` — rather than being re-derived here from a
+    // storage key this file also had to know the name of.
+    this.router.navigate([`/${this.languageService.currentLanguage()}/auth/login`]);
 
     // H5 FIX: The backend /logout endpoint is protected by CsrfGuard, which requires the
     // X-XSRF-TOKEN header to match the signed XSRF-TOKEN cookie. navigator.sendBeacon cannot set
@@ -632,9 +653,10 @@ export class AuthService {
       })
       .pipe(
         tap((response) => {
-          // Al establecer la contraseña, también iniciamos sesión
-          this._currentUser.set(response.user);
-          this._authStatus.set(AuthStatus.authenticated);
+          // Setting the password also signs the user in, so it goes through the one funnel:
+          // setting the two signals by hand skipped the socket connection, the forced-logout
+          // listener and the language the account is configured in.
+          this.applyAuthenticated(response.user);
         }),
         catchError((err) => this.errorHandlerService.handleError('setPasswordFromInvitation', err))
       );
@@ -688,10 +710,11 @@ export class AuthService {
       )
       .pipe(
         tap((response) => {
-          this._currentUser.set(response.user);
-          this._authStatus.set(AuthStatus.authenticated);
+          // Through the funnel: impersonation swaps the principal, so the socket must reconnect
+          // as the new one and the interface must follow THAT account's language.
+          this.applyAuthenticated(response.user);
           this.notificationService.showSuccess(
-            `Ahora estás viendo como ${response.user.firstName}`
+            this.translate.instant('AUTH.IMPERSONATION.STARTED', { name: response.user.firstName }),
           );
           // Usar Router en lugar de recarga forzada
           this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
@@ -712,10 +735,9 @@ export class AuthService {
       )
       .pipe(
         tap((response) => {
-          this._currentUser.set(response.user);
-          this._authStatus.set(AuthStatus.authenticated);
+          this.applyAuthenticated(response.user);
           this.notificationService.showSuccess(
-            'Has vuelto a tu cuenta original.'
+            this.translate.instant('AUTH.IMPERSONATION.STOPPED'),
           );
           // Usar Router en lugar de recarga forzada
           this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {

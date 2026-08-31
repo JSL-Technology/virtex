@@ -6,7 +6,8 @@ import { BillingService, BillingOverview, BillingInvoice } from '../../../core/s
 import { StepUpService, StepUpScope } from '../../../core/services/step-up.service';
 import { formatPlanPrice, minorUnitFactorFor } from '../../../core/models/plan.model';
 import { LanguageService } from '../../../core/services/language';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { FormatService } from '../../../core/i18n/format.service';
 
 @Component({
   selector: 'app-billing-page',
@@ -20,6 +21,8 @@ export class BillingPage implements OnInit {
   private billingService = inject(BillingService);
   private stepUpService = inject(StepUpService);
   private languageService = inject(LanguageService);
+  private readonly format = inject(FormatService);
+  private readonly translate = inject(TranslateService);
   private viewContainerRef = inject(ViewContainerRef);
 
   protected readonly CreditCardIcon = CreditCard;
@@ -149,7 +152,9 @@ export class BillingPage implements OnInit {
         currency: currency ?? 'USD',
         minorUnits: minorUnits ?? 100,
       },
-      this.languageService.currentLang() ?? 'es',
+      // The REGIONAL locale, not the language. `'es'` alone formats as es-419, which is not what
+      // a Mexican or an Argentine tenant reads: the group and decimal separators differ.
+      this.languageService.currentLocale(),
     );
   }
 
@@ -162,19 +167,28 @@ export class BillingPage implements OnInit {
     return this.formatPrice(invoice.amount, currency, minorUnitFactorFor(currency));
   }
 
+  /**
+   * A billing date.
+   *
+   * Was pinned to `es-MX` — one market's format shown to nineteen — and rendered in the browser's
+   * timezone rather than the tenant's. Both come from `FormatService` now.
+   */
   formatDate(iso: string | null): string {
     if (!iso) return '—';
-    return new Date(iso).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
+    return this.format.date(iso, 'dateLong') || '—';
   }
 
+  /**
+   * Stripe's subscription status, in the reader's language.
+   *
+   * The status values are Stripe's own vocabulary and are stable, so they map to keys rather than
+   * being shown raw. An unrecognised one falls back to the code itself: a new Stripe status must
+   * be visible as something, and inventing a label for it would be worse than showing what it is.
+   */
   statusLabel(status: string | undefined): string {
-    switch (status) {
-      case 'active': return 'Activa';
-      case 'trialing': return 'Prueba';
-      case 'past_due': return 'Pago pendiente';
-      case 'canceled': return 'Cancelada';
-      case 'unpaid': return 'Sin pagar';
-      default: return status || '—';
-    }
+    if (!status) return '—';
+    const key = `BILLING.SUBSCRIPTION_STATUS.${status.toUpperCase()}`;
+    const translated = this.translate.instant(key);
+    return translated === key ? status : translated;
   }
 }

@@ -1,12 +1,58 @@
-<div class="language-selector-container">
-    <label for="language-select">Idioma de la Interfaz</label>
-    <div class="button-group">
-        <button (click)="languageService.setLanguage('es')" [class.active]="languageService.currentLang() === 'es'">
-            Español
+@if (variant() === 'settings') {
+  <div class="language-selector language-selector--settings">
+    <label id="language-selector-label" class="selector-label">
+      {{ 'SETTINGS.LANGUAGE.LABEL' | translate }}
+    </label>
+
+    <div class="button-group" role="radiogroup" aria-labelledby="language-selector-label">
+      @for (language of languages; track language.code) {
+        <button
+          type="button"
+          role="radio"
+          [lang]="language.code"
+          [class.active]="languageService.currentLanguage() === language.code"
+          [attr.aria-checked]="languageService.currentLanguage() === language.code"
+          (click)="select(language.code)">
+          {{ language.label }}
         </button>
-        <button (click)="languageService.setLanguage('en')" [class.active]="languageService.currentLang() === 'en'">
-            English
-        </button>
+      }
     </div>
-    <p class="description">Selecciona el idioma en que se mostrará la aplicación.</p>
-</div>
+
+    <p class="description">{{ 'SETTINGS.LANGUAGE.DESCRIPTION' | translate }}</p>
+  </div>
+} @else {
+  <div class="language-selector language-selector--compact" (keydown.escape)="close()">
+    <button
+      type="button"
+      class="selector-trigger"
+      [class.active]="isOpen"
+      [attr.aria-expanded]="isOpen"
+      aria-haspopup="listbox"
+      [attr.aria-label]="'SETTINGS.LANGUAGE.CHOOSE' | translate"
+      (click)="toggle($event)">
+      <lucide-icon [img]="icons.Globe" size="15" class="icon-left" aria-hidden="true"></lucide-icon>
+      <span [lang]="languageService.currentLanguage()">{{ currentLabel }}</span>
+      <lucide-icon [img]="icons.ChevronDown" size="13" class="icon-right" aria-hidden="true"></lucide-icon>
+    </button>
+
+    @if (isOpen) {
+      <div class="dropdown-menu" role="listbox" [attr.aria-label]="'SETTINGS.LANGUAGE.LABEL' | translate">
+        @for (language of languages; track language.code) {
+          <button
+            type="button"
+            class="dropdown-item"
+            role="option"
+            [lang]="language.code"
+            [class.active]="languageService.currentLanguage() === language.code"
+            [attr.aria-selected]="languageService.currentLanguage() === language.code"
+            (click)="select(language.code)">
+            <span>{{ language.label }}</span>
+            @if (languageService.currentLanguage() === language.code) {
+              <lucide-icon [img]="icons.Check" size="14" aria-hidden="true"></lucide-icon>
+            }
+          </button>
+        }
+      </div>
+    }
+  </div>
+}

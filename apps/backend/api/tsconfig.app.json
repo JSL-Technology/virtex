@@ -36,6 +36,7 @@
   "include": ["src/**/*.ts", "../../../libs/shared/util-auth/src/**/*.ts",
     "../../../libs/shared/types/src/**/*.ts"],
   "exclude": [
+    "../../../libs/**/*.spec.ts",
     "jest.config.ts",
     "jest.config.cts",
     "src/**/*.spec.ts",

@@ -1,5 +1,6 @@
-import { IsString, IsOptional, MaxLength, Matches, IsUrl } from 'class-validator';
+import { IsString, IsOptional, MaxLength, IsIn, IsUrl } from 'class-validator';
 import { IsE164PhoneNumber } from '../../common/validators/is-e164-phone-number.validator';
+import { LanguageCode, SUPPORTED_LANGUAGES } from '@virteex/shared/types';
 
 export class UpdateProfileDto {
   @IsOptional()
@@ -28,14 +29,24 @@ export class UpdateProfileDto {
   // strips it from any incoming payload before it reaches the service.
   // (OWASP ASVS V2 Authentication; CWE-620 Unverified Password Change)
 
-  // H-16 FIX: Constrain preferredLanguage to BCP-47 language tags (e.g. "en", "es", "en-US")
-  // and avatarUrl to a valid HTTPS URL with a reasonable length cap
-  // (OWASP ASVS 5.1.3/5.1.4; CWE-20 Improper Input Validation).
+  /**
+   * The interface language, constrained to a catalogue that actually exists.
+   *
+   * This accepted any well-formed BCP-47 tag, so `fr-FR` was stored happily — and then nothing
+   * could render it: `LanguageService.setLanguage` ignores an unsupported code, the profile
+   * `<select>` has no matching option, and the link builder falls back to Spanish. The value was
+   * accepted, persisted, and unreachable. The invitation endpoint meanwhile used
+   * `@IsIn(['en','es'])`, so the same field had two different contracts depending on which door
+   * it came through. Both now read the one catalogue.
+   *
+   * (OWASP ASVS 5.1.3/5.1.4; CWE-20 Improper Input Validation.)
+   */
   @IsOptional()
   @IsString()
-  @Matches(/^[a-z]{2}(-[A-Z]{2})?$/, { message: 'preferredLanguage must be a BCP-47 tag (e.g. "en" or "es-DO")' })
-  @MaxLength(5)
-  preferredLanguage?: string;
+  @IsIn(SUPPORTED_LANGUAGES as readonly string[], {
+    message: `preferredLanguage must be one of: ${SUPPORTED_LANGUAGES.join(', ')}`,
+  })
+  preferredLanguage?: LanguageCode;
 
   @IsOptional()
   @IsUrl({ protocols: ['https'], require_protocol: true }, { message: 'avatarUrl must be a valid HTTPS URL' })

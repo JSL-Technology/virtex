@@ -8,6 +8,7 @@ import { RouteRedirectorComponent } from './core/components/route-redirector/rou
 import { languageInitGuard } from './core/guards/language-init.guard';
 import { languageRedirectGuard } from './core/guards/language-redirect.guard';
 import { CountryGuard } from './core/guards/country.guard';
+import { isLanguageCode } from '@virteex/shared/types';
 
 // Only match 2-letter country codes so route segments like 'login' or 'auth' never bleed into :country
 export function countryCodeMatcher(segments: UrlSegment[]): UrlMatchResult | null {
@@ -24,9 +25,8 @@ export function countryCodeMatcher(segments: UrlSegment[]): UrlMatchResult | nul
 // `/dashboard` would be captured here as `:lang`, and (worse) the unauthenticated
 // redirect target `/{lang}/auth/login` would fall into the shell's `**`, whose
 // authGuard would redirect to `/{lang}/auth/login` again → infinite redirect loop.
-const SUPPORTED_LANGS = ['es', 'en'];
 export function langCodeMatcher(segments: UrlSegment[]): UrlMatchResult | null {
-  if (segments.length > 0 && SUPPORTED_LANGS.includes(segments[0].path.toLowerCase())) {
+  if (segments.length > 0 && isLanguageCode(segments[0].path.toLowerCase())) {
     return { consumed: [segments[0]], posParams: { lang: segments[0] } };
   }
   return null;
