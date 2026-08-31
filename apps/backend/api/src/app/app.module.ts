@@ -33,6 +33,7 @@ import { SharedModule } from './shared/shared.module';
 import { ChartOfAccountsModule } from './chart-of-accounts/chart-of-accounts.module';
 import { RolesModule } from './roles/roles.module';
 import { InvoicesModule } from './invoices/invoices.module';
+import { EinvoicingModule } from './einvoicing/einvoicing.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { CustomersModule } from './customers/customers.module';
 import { SuppliersModule } from './suppliers/suppliers.module';
@@ -223,6 +224,7 @@ import { redisConnectionOptions } from './cache/redis.config';
     ChartOfAccountsModule,
     RolesModule,
     InvoicesModule,
+    EinvoicingModule,
     InventoryModule,
     CustomersModule,
     SuppliersModule,

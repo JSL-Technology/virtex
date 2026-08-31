@@ -65,6 +65,7 @@ import { Organization } from '../organizations/entities/organization.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { ExchangeRate } from '../currencies/entities/exchange-rate.entity';
 import { SharedModule } from '../shared/shared.module';
+import { EinvoicingModule } from '../einvoicing/einvoicing.module';
 
 @Module({
   imports: [
@@ -84,6 +85,7 @@ import { SharedModule } from '../shared/shared.module';
     TaxesModule,
     ComplianceModule,
     AccountingModule,
+    EinvoicingModule,
     forwardRef(() => SharedModule),
   ],
   controllers: [InvoicesController],

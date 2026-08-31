@@ -121,6 +121,23 @@ export const envValidation = Joi.object({
   SMS_ALLOWED_COUNTRY_CODES: Joi.string().optional(),
   SMS_GLOBAL_DAILY_LIMIT: Joi.number().integer().positive().optional(),
 
+  // Electronic invoicing (e-CF, Dominican Republic / DGII).
+  // AES-256-GCM key that encrypts DGII signing certificates at rest. Mandatory to ISSUE e-CF — the
+  // certificate vault refuses to operate without it — but optional here so tenants that do not use
+  // electronic invoicing can boot without configuring it.
+  ECF_CERT_ENCRYPTION_KEY: Joi.string().min(16).optional(),
+  // Which DGII environment to transmit to, and optional per-service endpoint overrides (the DGII
+  // versions its paths; overrides let an operator pin the exact ones its environment publishes).
+  DGII_ECF_ENVIRONMENT: Joi.string().valid('TesteCF', 'CerteCF', 'Produccion').optional(),
+  DGII_ECF_BASE_URL: Joi.string().uri().optional(),
+  DGII_ECF_SEED_URL: Joi.string().uri().optional(),
+  DGII_ECF_VALIDATE_SEED_URL: Joi.string().uri().optional(),
+  DGII_ECF_RECEPTION_URL: Joi.string().uri().optional(),
+  DGII_ECF_STATUS_URL: Joi.string().uri().optional(),
+  DGII_ECF_TRACKIDS_URL: Joi.string().uri().optional(),
+  DGII_ECF_APPROVAL_URL: Joi.string().uri().optional(),
+  DGII_ECF_HTTP_TIMEOUT_MS: Joi.number().integer().positive().optional(),
+
   // RS256 keys: required in production, optional in development (ephemeral key is generated).
   RS_PRIVATE_KEY: Joi.when('NODE_ENV', { is: 'production', then: Joi.string().required(), otherwise: Joi.string().optional() }),
   RS_PUBLIC_KEY: Joi.when('NODE_ENV', { is: 'production', then: Joi.string().required(), otherwise: Joi.string().optional() }),

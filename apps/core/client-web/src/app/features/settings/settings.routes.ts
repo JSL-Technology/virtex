@@ -82,6 +82,13 @@ export const SETTINGS_ROUTES: Routes = [
                 data: { permissions: ['settings:finance:view'] },
                 loadComponent: () => import('./finance/intercompany/intercompany.page').then(m => m.IntercompanyPage)
             },
+            {
+                path: 'fiscal',
+                title: 'Facturación Electrónica (RD)',
+                canActivate: [permissionsGuard],
+                data: { permissions: ['settings:edit_company'] },
+                loadComponent: () => import('./fiscal/fiscal.page').then(m => m.FiscalSettingsPage)
+            },
 
             // --- GRUPO 4: OPERACIONES (Reglas de Proceso) ---
             {

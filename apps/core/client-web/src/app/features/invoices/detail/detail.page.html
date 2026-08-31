@@ -172,6 +172,50 @@
         </div>
     </div>
   </div>
+
+  <!-- Facturación electrónica (e-CF / DGII) -->
+  <div class="invoice-document card" *ngIf="ecf() as e">
+    <div class="card-body">
+      <h3>Comprobante Fiscal Electrónico (e-CF)</h3>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="detail-label">e-NCF:</span>
+          <p><strong>{{ e.ncf }}</strong></p>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Estado DGII:</span>
+          <span class="status-badge" [ngClass]="e.status.toLowerCase()">{{ ecfStatusLabel(e.status) }}</span>
+        </div>
+        <div class="detail-item" *ngIf="e.trackId">
+          <span class="detail-label">TrackID:</span>
+          <p>{{ e.trackId }}</p>
+        </div>
+        <div class="detail-item" *ngIf="e.securityCode">
+          <span class="detail-label">Código de seguridad:</span>
+          <p>{{ e.securityCode }}</p>
+        </div>
+      </div>
+
+      <div class="ecf-messages" *ngIf="e.messages?.length">
+        <span class="detail-label">Mensajes de la DGII:</span>
+        <ul>
+          <li *ngFor="let m of e.messages">{{ m }}</li>
+        </ul>
+      </div>
+
+      <div class="ecf-qr" *ngIf="e.qrUrl">
+        <span class="detail-label">Representación impresa (QR):</span>
+        <a [href]="e.qrUrl" target="_blank" rel="noopener">Verificar en la DGII</a>
+      </div>
+
+      <div class="ecf-actions">
+        <button type="button" (click)="downloadEcfXml()">Descargar XML firmado</button>
+        <button type="button" [disabled]="ecfBusy()" (click)="resubmitEcf()">
+          {{ ecfBusy() ? 'Reenviando…' : 'Reenviar a la DGII' }}
+        </button>
+      </div>
+    </div>
+  </div>
   } @else {
   <div class="card">
     <p class="placeholder">

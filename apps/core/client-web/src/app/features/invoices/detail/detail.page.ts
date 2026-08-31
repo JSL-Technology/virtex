@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { Invoice, InvoicesService } from '../../../core/services/invoices';
+import { EinvoicingService, EcfSubmissionView } from '../../../core/services/einvoicing';
 import { NotificationService } from '../../../core/services/notification';
 import { InvoiceToolbarComponent } from '../components/invoice-toolbar/invoice-toolbar.component';
 import { asBlob } from 'html-docx-js-typescript';
@@ -20,6 +21,7 @@ import { saveAs } from 'file-saver';
 })
 export class InvoiceDetailPage implements OnInit {
   private invoicesService = inject(InvoicesService);
+  private einvoicingService = inject(EinvoicingService);
   private notificationService = inject(NotificationService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -35,6 +37,8 @@ export class InvoiceDetailPage implements OnInit {
   @Input() set idParam(val: string) { this.id.set(val); }
 
   invoice = signal<Invoice | undefined>(undefined);
+  ecf = signal<EcfSubmissionView | null>(null);
+  ecfBusy = signal(false);
   navigationIds = signal<{ first: string, prev: string, next: string, last: string } | null>(null);
   activeTab = signal<'content' | 'logistics' | 'finance'>('content');
   lineItemSearch = signal('');
@@ -71,12 +75,68 @@ export class InvoiceDetailPage implements OnInit {
     this.invoicesService.getInvoiceById(this.id()).subscribe({
         next: (data) => {
             this.invoice.set(data);
+            this.ecf.set(null);
+            // Electronic e-NCF (E-series) documents carry a DGII e-CF lifecycle.
+            if (data.ncfNumber?.startsWith('E')) {
+                this.loadEcfStatus();
+            }
         },
         error: (err) => {
             this.notificationService.showError('No se pudo cargar la factura.');
             console.error(err);
         }
     });
+  }
+
+  loadEcfStatus(): void {
+    this.einvoicingService.getInvoiceStatus(this.id()).subscribe({
+        next: (status) => this.ecf.set(status),
+        // 404 simply means no e-CF was generated for this document yet.
+        error: () => this.ecf.set(null),
+    });
+  }
+
+  resubmitEcf(): void {
+    this.ecfBusy.set(true);
+    this.einvoicingService.submitInvoice(this.id()).subscribe({
+        next: (status) => {
+            this.ecf.set(status);
+            this.ecfBusy.set(false);
+            this.notificationService.showSuccess('e-CF reenviado a la DGII.');
+        },
+        error: (err) => {
+            this.ecfBusy.set(false);
+            this.notificationService.showError(err?.error?.message || 'No se pudo reenviar el e-CF.');
+        }
+    });
+  }
+
+  downloadEcfXml(): void {
+    this.einvoicingService.downloadXml(this.id()).subscribe({
+        next: (blob) => {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${this.ecf()?.ncf || 'ecf'}.xml`;
+            a.click();
+            URL.revokeObjectURL(url);
+        },
+        error: () => this.notificationService.showError('No hay XML firmado disponible.'),
+    });
+  }
+
+  ecfStatusLabel(status: string): string {
+    const labels: Record<string, string> = {
+        PENDING: 'Pendiente',
+        SIGNED: 'Firmado',
+        SENT: 'Enviado (en proceso)',
+        ACCEPTED: 'Aceptado',
+        ACCEPTED_WITH_OBSERVATIONS: 'Aceptado condicional',
+        REJECTED: 'Rechazado',
+        CONTINGENCY: 'En contingencia',
+        ERROR: 'Error',
+    };
+    return labels[status] || status;
   }
 
   loadNavigation(): void {
