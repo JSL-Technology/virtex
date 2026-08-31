@@ -37,6 +37,8 @@
     "../../../libs/shared/types/src/**/*.ts"],
   "exclude": [
     "../../../libs/**/*.spec.ts",
+    // Test-only helpers: they use jest globals and belong to the spec project.
+    "src/**/testing/**/*.ts",
     "jest.config.ts",
     "jest.config.cts",
     "src/**/*.spec.ts",

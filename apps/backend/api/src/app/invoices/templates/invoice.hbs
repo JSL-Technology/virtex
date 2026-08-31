@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{language}}" dir="{{dir}}">
 <head>
     <meta charset="UTF-8">
-    <title>Factura - {{organization.legalName}}</title>
+    <title>{{t 'INVOICE.PDF.TITLE' number=invoiceNumber}}</title>
     <style>
         /* Estilos optimizados para la plantilla */
         body { font-family: 'Helvetica Neue', 'Helvetica', Arial, sans-serif; color: #333; }
         .invoice-box { max-width: 800px; margin: auto; padding: 30px; border: 1px solid #eee; box-shadow: 0 0 10px rgba(0, 0, 0, .15); font-size: 16px; line-height: 24px; }
-        .invoice-box table { width: 100%; line-height: inherit; text-align: left; border-collapse: collapse; }
+        .invoice-box table { width: 100%; line-height: inherit; text-align: start; border-collapse: collapse; }
         .invoice-box table td { padding: 5px; vertical-align: top; }
         .invoice-box .top-section table td { padding-bottom: 20px; }
         .invoice-box .top-section .title { font-size: 45px; line-height: 45px; color: #333; }
@@ -17,7 +17,8 @@
         .invoice-box .item td { border-bottom: 1px solid #eee; }
         .invoice-box .item.last td { border-bottom: none; }
         .invoice-box .total td:nth-child(2) { border-top: 2px solid #eee; font-weight: bold; }
-        .text-right { text-align: right; }
+        /* `end`, not `right`: the alignment of a figures column follows the writing direction. */
+        .text-end { text-align: end; }
         .logo-img { max-width: 150px; max-height: 75px; }
     </style>
 </head>
@@ -30,15 +31,15 @@
                         <tr>
                             <td class="title">
                                 {{#if organization.logoUrl}}
-                                    <img src="{{organization.logoUrl}}" alt="{{organization.legalName}} Logo" class="logo-img">
+                                    <img src="{{organization.logoUrl}}" alt="{{organization.legalName}}" class="logo-img">
                                 {{else}}
                                     <h2>{{organization.legalName}}</h2>
                                 {{/if}}
                             </td>
                             <td>
-                                <strong>Factura #:</strong> {{invoiceNumber}}<br>
-                                <strong>Fecha de Emisión:</strong> {{issueDate}}<br>
-                                <strong>Fecha de Vencimiento:</strong> {{dueDate}}
+                                <strong>{{t 'INVOICE.PDF.NUMBER'}}</strong> {{invoiceNumber}}<br>
+                                <strong>{{t 'INVOICE.PDF.ISSUE_DATE'}}</strong> {{issueDate}}<br>
+                                <strong>{{t 'INVOICE.PDF.DUE_DATE'}}</strong> {{dueDate}}
                             </td>
                         </tr>
                     </table>
@@ -51,7 +52,13 @@
                             <td>
                                 {{organization.legalName}}<br>
                                 {{organization.address}}<br>
-                                RNC: {{organization.taxId}}
+                                {{!--
+                                  The tax-identifier label comes from the country profile. It was
+                                  the literal "RNC:" — the Dominican one — printed on every
+                                  invoice from every market, so a Mexican tenant's CFDI showed its
+                                  RFC under a Dominican heading.
+                                --}}
+                                {{taxIdLabel}}: {{organization.taxId}}
                             </td>
                             <td>
                                 {{customerName}}<br>
@@ -62,35 +69,40 @@
                 </td>
             </tr>
             <tr class="heading">
-                <td>Descripción</td>
-                <td class="text-right">Cantidad</td>
-                <td class="text-right">Precio Unit.</td>
-                <td class="text-right">Total</td>
+                <td>{{t 'INVOICE.PDF.DESCRIPTION'}}</td>
+                <td class="text-end">{{t 'INVOICE.PDF.QUANTITY'}}</td>
+                <td class="text-end">{{t 'INVOICE.PDF.UNIT_PRICE'}}</td>
+                <td class="text-end">{{t 'INVOICE.PDF.LINE_TOTAL'}}</td>
             </tr>
             {{#each lineItems}}
             <tr class="item">
                 <td>{{this.description}}</td>
-                <td class="text-right">{{this.quantity}}</td>
-                <td class="text-right">${{formatNumber this.price}}</td>
-                <td class="text-right">${{formatNumber (multiply this.quantity this.price)}}</td>
+                <td class="text-end">{{number this.quantity}}</td>
+                {{!--
+                  `money` carries the invoice's own currency code. The template used to print a
+                  literal `$` in front of a figure formatted as `en-US`, so a DOP invoice read as
+                  dollars and an Argentine one lost its thousands separator.
+                --}}
+                <td class="text-end">{{money this.price ../currencyCode}}</td>
+                <td class="text-end">{{money (multiply this.quantity this.price) ../currencyCode}}</td>
             </tr>
             {{/each}}
             <tr class="total">
-                <td colspan="3" class="text-right">Subtotal</td>
-                <td class="text-right">${{formatNumber subtotal}}</td>
+                <td colspan="3" class="text-end">{{t 'INVOICE.PDF.SUBTOTAL'}}</td>
+                <td class="text-end">{{money subtotal currencyCode}}</td>
             </tr>
             <tr class="total">
-                <td colspan="3" class="text-right">Impuestos</td>
-                <td class="text-right">${{formatNumber tax}}</td>
+                <td colspan="3" class="text-end">{{taxLabel}}</td>
+                <td class="text-end">{{money tax currencyCode}}</td>
             </tr>
             <tr class="total">
-                <td colspan="3" class="text-right"><strong>Total</strong></td>
-                <td class="text-right"><strong>${{formatNumber total}}</strong></td>
+                <td colspan="3" class="text-end"><strong>{{t 'INVOICE.PDF.TOTAL'}}</strong></td>
+                <td class="text-end"><strong>{{money total currencyCode}}</strong></td>
             </tr>
         </table>
         {{#if notes}}
         <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
-            <strong>Notas:</strong><br>
+            <strong>{{t 'INVOICE.PDF.NOTES'}}</strong><br>
             {{notes}}
         </div>
         {{/if}}

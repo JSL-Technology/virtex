@@ -4,6 +4,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { Job } from 'bullmq';
 import { createHash } from 'crypto';
 
+import { I18nService } from '../i18n/i18n.service';
 import { MAIL_QUEUE, MailJob } from './mail.queue';
 
 /**
@@ -17,7 +18,10 @@ import { MAIL_QUEUE, MailJob } from './mail.queue';
 export class MailProcessor extends WorkerHost {
   private readonly logger = new Logger(MailProcessor.name);
 
-  constructor(private readonly mailerService: MailerService) {
+  constructor(
+    private readonly mailerService: MailerService,
+    private readonly i18n: I18nService,
+  ) {
     super();
   }
 
@@ -26,10 +30,21 @@ export class MailProcessor extends WorkerHost {
   }
 
   async process(job: Job<MailJob>): Promise<void> {
-    const { to, subject, template, context } = job.data;
+    const { to, subjectKey, subjectParams, language, template, context } = job.data;
+
+    // Subject and body are translated from the same `language`, at the same moment, so they
+    // cannot disagree. They used to: the subject was a Spanish literal written in `MailService`
+    // while the link inside the body was built for the recipient's own language segment, so an
+    // English-speaking customer got a Spanish subject pointing at an English page.
+    const subject = this.i18n.translate(subjectKey, language, subjectParams ?? {});
 
     try {
-      await this.mailerService.sendMail({ to, subject, template, context });
+      await this.mailerService.sendMail({
+        to,
+        subject,
+        template,
+        context: { ...context, language },
+      });
       this.logger.log(
         { event: 'mail_sent', template, recipientHash: this.recipientHash(to) },
         'Transactional email delivered.',

@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColum
 import { OrganizationSubsidiary } from './organization-subsidiary.entity';
 import { Plan } from '../../saas/entities/plan.entity';
 import { FiscalRegion } from '../../localization/entities/fiscal-region.entity';
+import type { LanguageCode } from '@virteex/shared/types';
 
 @Entity('organizations')
 @Index(['taxId', 'fiscalRegionId'], { unique: true, where: '"tax_id" IS NOT NULL' })
@@ -121,8 +122,25 @@ export class Organization {
   @Column({ name: 'grace_period_end', type: 'timestamptz', nullable: true })
   gracePeriodEnd: Date | null;
 
+  /**
+   * IANA timezone the tenant's accounting dates are rendered in.
+   *
+   * Defaulted to 'UTC' and was never written, so every tenant claimed a zone that is nobody's
+   * civil time in these markets and is four to six hours off all of them. Provisioning now sets
+   * it from the country, and `LocalizedNotifications1788500000000` backfilled the existing rows.
+   */
   @Column({ default: 'UTC' })
   timezone: string;
+
+  /**
+   * The statutory language of this tenant's books — see `LanguageAxis.Books`.
+   *
+   * Fixed at provisioning from the country, and deliberately independent of who is reading:
+   * account names and fiscal document types are what the ledger was opened with, and an auditor
+   * asking for it expects those names. The INTERFACE follows the reader; this does not.
+   */
+  @Column({ name: 'books_language', type: 'varchar', length: 5, nullable: true })
+  booksLanguage?: LanguageCode | null;
 
   @Column({ type: 'uuid', name: 'plan_id', nullable: true })
   planId: string | null;

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="es" dir="ltr">
+<html lang="{{language}}" dir="{{dir}}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width">
   <meta name="x-apple-disable-message-reformatting">
   <meta name="color-scheme" content="light dark">
   <meta name="supported-color-schemes" content="light dark">
-  <title>El correo de tu cuenta ha cambiado | {{appName}}</title>
+  <title>{{t 'MAIL.EMAIL_CHANGED_NOTICE.CORREO_TU_CUENTA_HA_CAMBIADO_APPNAME' appName=appName}}</title>
   <style>
     html, body { margin:0 !important; padding:0 !important; height:100% !important; width:100% !important; }
     * { -ms-text-size-adjust:100%; -webkit-text-size-adjust:100%; }
@@ -33,7 +33,7 @@
 </head>
 <body class="bg-body" style="background:#f2f4f7; margin:0; padding:0;">
   <div style="display:none !important; visibility:hidden; opacity:0; color:transparent; height:0; width:0; max-height:0; max-width:0; overflow:hidden; mso-hide:all;">
-    El correo de tu cuenta en {{appName}} se cambió a {{newEmail}}. Si no fuiste tú, contacta a soporte.
+    {{t 'MAIL.EMAIL_CHANGED_NOTICE.CORREO_TU_CUENTA_APPNAME_CAMBIO_NEWEMAIL' appName=appName newEmail=newEmail}}
   </div>
 
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f2f4f7;">
@@ -60,26 +60,26 @@
           <tr>
             <td class="content bg-card" style="padding:36px 40px;">
               <h1 style="margin:0 0 16px; font:600 24px/1.25 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#0f172a; letter-spacing:-0.3px;">
-                El correo de tu cuenta ha cambiado
+                {{t 'MAIL.EMAIL_CHANGED_NOTICE.CORREO_TU_CUENTA_HA_CAMBIADO'}}
               </h1>
               <p class="text" style="margin:0 0 16px; font:400 16px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#334155;">
-                Hola {{name}},
+                {{t 'MAIL.COMMON.GREETING' name=name}}
               </p>
               <p class="text" style="margin:0 0 16px; font:400 16px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#334155;">
-                El correo electrónico de tu cuenta en <strong style="font-weight:600; color:#0f172a;">{{appName}}</strong> se cambió a <strong style="font-weight:600; color:#0f172a;">{{newEmail}}</strong>. A partir de ahora, los avisos y la recuperación de contraseña irán a esa dirección.
+                {{t 'MAIL.EMAIL_CHANGED_NOTICE.CORREO_ELECTRONICO_TU_CUENTA'}} <strong style="font-weight:600; color:#0f172a;">{{appName}}</strong> {{t 'MAIL.EMAIL_CHANGED_NOTICE.CAMBIO'}} <strong style="font-weight:600; color:#0f172a;">{{newEmail}}</strong>{{t 'MAIL.EMAIL_CHANGED_NOTICE.PARTIR_AHORA_AVISOS_RECUPERACION_CONTRASENA_IRAN'}}
               </p>
               <p class="text" style="margin:0 0 16px; font:400 16px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#334155;">
-                Todas las sesiones abiertas se cerraron como medida de seguridad.
+                {{t 'MAIL.EMAIL_CHANGED_NOTICE.TODAS_SESIONES_ABIERTAS_CERRARON_COMO_MEDIDA'}}
               </p>
 
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0 0;">
                 <tr>
                   <td style="background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:16px 16px;">
                     <p style="margin:0 0 8px; font:600 15px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#991b1b;">
-                      ¿No fuiste tú?
+                      {{t 'MAIL.EMAIL_CHANGED_NOTICE.NO_FUISTE_TU'}}
                     </p>
                     <p style="margin:0; font:400 14px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#7f1d1d;">
-                      Contacta a soporte de inmediato desde esta misma dirección. Este mensaje se envía a tu correo anterior precisamente para que puedas reaccionar si el cambio no lo hiciste tú.
+                      {{t 'MAIL.EMAIL_CHANGED_NOTICE.CONTACTA_SOPORTE_INMEDIATO_DESDE_ESTA_MISMA'}}
                     </p>
                   </td>
                 </tr>
@@ -90,10 +90,10 @@
           <tr>
             <td class="footer" align="center" style="padding:24px 32px; background:#f6f7fb; border-top:1px solid #eceff3;">
               <p class="muted" style="margin:8px 0 0; font:400 12px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#98a2b3;">
-                © {{currentYear}} {{appName}}. Todos los derechos reservados.
+                {{t 'MAIL.COMMON.COPYRIGHT' currentYear=currentYear appName=appName}}
               </p>
               <p class="muted" style="margin:4px 0 0; font:400 12px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#98a2b3;">
-                Este es un correo transaccional automático; no respondas a este mensaje.
+                {{t 'MAIL.EMAIL_CHANGED_NOTICE.ESTE_ES_CORREO_TRANSACCIONAL_AUTOMATICO_NO'}}
               </p>
             </td>
           </tr>

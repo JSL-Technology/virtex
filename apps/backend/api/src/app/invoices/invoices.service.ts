@@ -31,6 +31,19 @@ import { SaasResource } from '../saas/enums/saas-resource.enum';
 import { EcfSubmissionService } from '../einvoicing/services/ecf-submission.service';
 import { assertAllowedTaxRate } from './tax-engine';
 import { BadRequestError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
+import {
+  DEFAULT_LANGUAGE,
+  DEFAULT_LOCALE,
+  LANGUAGE_DIRECTION,
+  LanguageCode,
+  isLanguageCode,
+  matchLanguage,
+  resolveLocale,
+} from '@virteex/shared/types';
+import { I18nService } from '../i18n/i18n.service';
+import { findCountryProfile } from '../localization/fiscal/country-profiles';
+import { principalTaxName } from '../localization/fiscal/country-tax-schemes';
+import { languageOfCountry } from '../localization/fiscal/country-language';
 
 @Injectable()
 export class InvoicesService {
@@ -54,7 +67,8 @@ export class InvoicesService {
     private readonly documentSequencesService: DocumentSequencesService,
     private readonly fiscalAdapterFactory: FiscalAdapterFactory,
     private readonly saasService: SaasService,
-    private readonly ecfSubmissionService: EcfSubmissionService
+    private readonly ecfSubmissionService: EcfSubmissionService,
+    private readonly i18n: I18nService,
   ) {
     this.compileTemplate();
   }
@@ -72,20 +86,66 @@ export class InvoicesService {
   }
 
 
+  /**
+   * Compile the invoice template once, with the helpers it needs to be readable in any market.
+   *
+   * `formatNumber` used to pin every figure to `en-US` and the template printed a literal `$` in
+   * front of it, so a DOP invoice read as dollars, an Argentine one lost its thousands separator,
+   * and a Chilean one grew two decimal places its currency does not have. The helpers now take
+   * the locale from the document being rendered and the currency from the invoice itself.
+   */
   private async compileTemplate() {
     try {
         const templatePath = path.join(__dirname, 'templates', 'invoice.hbs');
         const templateHtml = fs.readFileSync(templatePath, 'utf8');
-        
-        handlebars.registerHelper('formatNumber', (value) => {
-            if (typeof value !== 'number') return value;
-            return new Intl.NumberFormat('en-US', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
+
+        const localeOf = (options: handlebars.HelperOptions): string => {
+          const root = options?.data?.root as { locale?: unknown } | undefined;
+          return typeof root?.locale === 'string' ? root.locale : DEFAULT_LOCALE;
+        };
+        const languageOf = (options: handlebars.HelperOptions): LanguageCode => {
+          const root = options?.data?.root as { language?: unknown } | undefined;
+          return isLanguageCode(root?.language) ? root.language : DEFAULT_LANGUAGE;
+        };
+
+        handlebars.registerHelper('t', (key: unknown, options: handlebars.HelperOptions) =>
+          typeof key === 'string'
+            ? this.i18n.translate(key, languageOf(options), { ...(options?.hash ?? {}) })
+            : '',
+        );
+
+        handlebars.registerHelper('number', (value: unknown, options: handlebars.HelperOptions) => {
+          const amount = typeof value === 'number' ? value : Number(value);
+          return Number.isFinite(amount) ? new Intl.NumberFormat(localeOf(options)).format(amount) : '';
         });
-        handlebars.registerHelper('multiply', (a, b) => (a * b));
+
+        handlebars.registerHelper(
+          'money',
+          (value: unknown, currency: unknown, options: handlebars.HelperOptions) => {
+            const amount = typeof value === 'number' ? value : Number(value);
+            if (!Number.isFinite(amount)) return '';
+            const code = typeof currency === 'string' && currency ? currency.toUpperCase() : 'USD';
+            try {
+              return new Intl.NumberFormat(localeOf(options), {
+                style: 'currency',
+                currency: code,
+              }).format(amount);
+            } catch {
+              // An unrecognised ISO code must not blank the total on an invoice.
+              return `${code} ${amount.toFixed(2)}`;
+            }
+          },
+        );
+
+        handlebars.registerHelper('dir', (options: handlebars.HelperOptions) =>
+          LANGUAGE_DIRECTION[languageOf(options)],
+        );
+
+        handlebars.registerHelper('multiply', (a: number, b: number) => a * b);
 
         this.invoiceTemplate = handlebars.compile(templateHtml);
     } catch (error) {
-        this.logger.error('Error al compilar la plantilla de factura Handlebars', error);
+        this.logger.error('Could not compile the invoice PDF template.', error);
     }
   }
 
@@ -275,11 +335,46 @@ export class InvoicesService {
         throw new InternalServerError('INVOICES.PLANTILLA_GENERAR_PDF_NO_ESTA_DISPONIBLE');
     }
 
+    /*
+     * An invoice is written in the language of its RECIPIENT.
+     *
+     * Not the issuer's, and not the language of whoever pressed the button: a Dominican company
+     * invoicing a Brazilian customer sends Portuguese. The customer's stated preference wins;
+     * otherwise their country decides; otherwise the tenant's own books language. Every date and
+     * figure on the page follows the same choice — it used to be `es-DO` for all nineteen markets,
+     * so a US tenant's invoice read "15 de enero de 2026" to a customer in Ohio.
+     */
+    const language =
+      matchLanguage(invoice.customer?.preferredLanguage) ??
+      languageOfCountry(invoice.customer?.country) ??
+      matchLanguage(organization.booksLanguage) ??
+      DEFAULT_LANGUAGE;
+
+    const countryCode = (organization.country ?? 'DO').toUpperCase();
+    const locale = resolveLocale(language, countryCode);
+    const profile = findCountryProfile(countryCode);
+
+    /**
+     * Accounting dates are `date` columns: no time, no zone. Formatted in UTC so the calendar
+     * date on the page is the one that was stored — converting it into a zone is what renders a
+     * 1 January invoice as 31 December.
+     */
+    const asDate = (value: string | Date): string =>
+      new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeZone: 'UTC' }).format(
+        new Date(`${String(value).slice(0, 10)}T00:00:00Z`),
+      );
+
     const data = {
         ...invoice,
         organization,
-        issueDate: new Date(invoice.issueDate).toLocaleDateString('es-DO', { year: 'numeric', month: 'long', day: 'numeric' }),
-        dueDate: new Date(invoice.dueDate).toLocaleDateString('es-DO', { year: 'numeric', month: 'long', day: 'numeric' }),
+        language,
+        locale,
+        // The country's own name for its tax identifier and its consumption tax, rather than the
+        // Dominican "RNC" and a generic "Impuestos" printed on every market's documents.
+        taxIdLabel: profile?.taxId.label ?? 'ID',
+        taxLabel: principalTaxName(countryCode),
+        issueDate: asDate(invoice.issueDate),
+        dueDate: asDate(invoice.dueDate),
     };
 
     const htmlContent = this.invoiceTemplate(data);

@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import {
   DEFAULT_LANGUAGE,
   LanguageCode,
+  LocaleTag,
+  NEUTRAL_LOCALE,
   SUPPORTED_LANGUAGES,
   isLanguageCode,
 } from '@virteex/shared/types';
@@ -69,6 +71,7 @@ export class I18nService {
     key: string,
     language: LanguageCode = DEFAULT_LANGUAGE,
     params: Record<string, unknown> = {},
+    options: { locale?: LocaleTag } = {},
   ): string {
     const resolvedKey = this.applyPlural(key, language, params);
     const template =
@@ -85,7 +88,59 @@ export class I18nService {
       return key;
     }
 
-    return interpolate(template, params);
+    return interpolate(template, this.formatParams(params, language, options.locale));
+  }
+
+  /**
+   * Prepare parameter values for a message.
+   *
+   * Three conventions, each of which exists because the alternative is worse:
+   *
+   * 1. **A value that is itself a catalogue key is translated.** `{{resource}}` receiving
+   *    `'SAAS.RESOURCES.INVOICES'` renders "facturas"/"invoices"/"faturas". Without this, a
+   *    notification about a quota would have to build its noun in the emitter — where the
+   *    reader's language is not known — which is how the listener ended up with a table of
+   *    Spanish literals in it.
+   *
+   * 2. **`amount` beside `currency` is formatted as money.** An unformatted `1234.5` in a dunning
+   *    notice is not a figure a customer can check against their statement, and formatting it at
+   *    the emitter would pin every recipient to one locale.
+   *
+   * 3. **An ISO-8601 timestamp is formatted as a date.** `2026-03-01T00:00:00.000Z` is not a
+   *    date to anybody; `1 de marzo de 2026` is.
+   *
+   * Everything else passes through untouched. The conventions are keyed on the SHAPE of the
+   * value, never on guesswork about the name alone, so a parameter that happens to be called
+   * `amount` and holds a string is left exactly as it is.
+   */
+  private formatParams(
+    params: Record<string, unknown>,
+    language: LanguageCode,
+    locale?: LocaleTag,
+  ): Record<string, unknown> {
+    const target = locale ?? NEUTRAL_LOCALE[language];
+    const currency = typeof params['currency'] === 'string' ? params['currency'] : null;
+    const out: Record<string, unknown> = {};
+
+    for (const [name, value] of Object.entries(params)) {
+      if (typeof value === 'string' && KEY_SHAPE.test(value) && this.has(value)) {
+        out[name] = this.translate(value, language, {}, { locale });
+        continue;
+      }
+
+      if (typeof value === 'number' && (name === 'amount' || name.endsWith('Amount')) && currency) {
+        out[name] = formatMoney(value, currency, target);
+        continue;
+      }
+
+      if (typeof value === 'string' && ISO_TIMESTAMP.test(value)) {
+        out[name] = formatDate(value, target);
+        continue;
+      }
+
+      out[name] = value;
+    }
+    return out;
   }
 
   /** True when the key exists in any catalogue — used by the exception filter to tell a key from a sentence. */
@@ -130,6 +185,31 @@ export class I18nService {
     }
     return false;
   }
+}
+
+/** A value shaped like a catalogue key, so it can be resolved rather than printed. */
+const KEY_SHAPE = /^[A-Z][A-Z0-9_]*(?:\.[A-Z0-9_]+)+$/;
+
+/** An ISO-8601 instant, which is never something to show a reader as-is. */
+const ISO_TIMESTAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
+
+function formatMoney(amount: number, currency: string, locale: string): string {
+  try {
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: currency.toUpperCase(),
+    }).format(amount);
+  } catch {
+    // An unrecognised ISO code must not blank the figure a customer is being asked to pay.
+    return `${currency.toUpperCase()} ${amount.toFixed(2)}`;
+  }
+}
+
+function formatDate(iso: string, locale: string): string {
+  const parsed = new Date(iso);
+  if (Number.isNaN(parsed.getTime())) return iso;
+  // UTC: a server-side render has no reader timezone, and guessing one is how a due date moves.
+  return new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeZone: 'UTC' }).format(parsed);
 }
 
 /** `{ A: { B: 'x' } }` becomes `'A.B' -> 'x'`. */

@@ -470,11 +470,33 @@
     "NO_PUEDE_ELIMINAR_ROL_ASIGNADO_USUARIO_REASIGNA": "No se puede eliminar un rol asignado a {{assignedCount}} usuario(s). Reasigna esos usuarios a otro rol antes de eliminarlo."
   },
   "SAAS": {
-    "ORGANIZATION_CONTEXT_REQUIRED_FOR_FEATURE_CHECK": "Organization context required for feature check",
-    "FEATURE_DISABLED": "FEATURE_DISABLED: {{featureKey}}",
-    "ORGANIZATION_CONTEXT_REQUIRED_FOR_LIMIT_CHECK": "Organization context required for limit check",
-    "SUBSCRIPTION_REQUIRED": "SUBSCRIPTION_REQUIRED",
-    "SUBSCRIPTION_SUSPENDED": "SUBSCRIPTION_SUSPENDED: {{status}}"
+    "RESOURCES": {
+      "INVOICES": "facturas",
+      "USERS": "usuarios",
+      "CUSTOMERS": "clientes",
+      "SUPPLIERS": "proveedores",
+      "JOURNAL_ENTRIES": "asientos contables",
+      "SUBSIDIARIES": "subsidiarias"
+    },
+    "PAYMENT_FAILED": {
+      "TITLE": "No pudimos cobrar tu suscripción",
+      "BODY": "El cobro de {{amount}} no se pudo completar. Actualiza tu método de pago en Configuración → Facturación.",
+      "BODY_RETRY": "El cobro de {{amount}} no se pudo completar. Lo reintentaremos el {{nextAttempt}}. Actualiza tu método de pago en Configuración → Facturación.",
+      "BODY_GRACE": "El cobro de {{amount}} no se pudo completar. Tu acceso continúa hasta el {{gracePeriodEnd}}. Actualiza tu método de pago en Configuración → Facturación.",
+      "BODY_RETRY_AND_GRACE": "El cobro de {{amount}} no se pudo completar. Lo reintentaremos el {{nextAttempt}} y tu acceso continúa hasta el {{gracePeriodEnd}}. Actualiza tu método de pago en Configuración → Facturación."
+    },
+    "PAYMENT_SUCCEEDED": {
+      "TITLE": "Tu suscripción está al día",
+      "BODY": "Recibimos el pago de {{amount}}. Gracias."
+    },
+    "LIMIT_WARNING": {
+      "TITLE": "Te acercas al límite de {{resource}}",
+      "BODY": "Has usado {{used}} de {{limit}} {{resource}} de tu plan. Puedes ampliarlo en Configuración → Facturación antes de alcanzarlo."
+    },
+    "LIMIT_REACHED": {
+      "TITLE": "Alcanzaste el límite de {{resource}}",
+      "BODY": "Tu plan permite {{limit}} {{resource}}. Amplía el plan en Configuración → Facturación para seguir trabajando."
+    }
   },
   "SALES": {
     "LEAD_NO_ENCONTRADO": "Lead no encontrado.",
@@ -576,6 +598,147 @@
     "HOURS_one": "{{count}} hora",
     "HOURS_other": "{{count}} horas",
     "DAYS_one": "{{count}} día",
-    "DAYS_other": "{{count}} días"
+    "DAYS_other": "{{count}} días",
+    "UNSPECIFIED": "un tiempo limitado"
+  },
+  "MAIL": {
+    "BILLING_NOTICE": {
+      "IR_FACTURACION": "Ir a Facturación"
+    },
+    "DUPLICATE_REGISTRATION": {
+      "INTENTO_REGISTRO": "Intento de Registro",
+      "RECIBIMOS_SOLICITUD_REGISTRAR_NUEVA_CUENTA": "Recibimos una solicitud para registrar una nueva cuenta en",
+      "UTILIZANDO_ESTA_DIRECCION_CORREO_ELECTRONICO": "utilizando esta dirección de correo electrónico.",
+      "SIN_EMBARGO_YA_EXISTE_CUENTA_ASOCIADA": "Sin embargo, ya existe una cuenta asociada a este correo.",
+      "SI_FUISTE_TU_QUIEN_INTENTO_REGISTRARSE": "Si fuiste tú quien intentó registrarse, puedes iniciar sesión directamente aquí:",
+      "INICIAR_SESION": "Iniciar Sesión",
+      "SI_OLVIDASTE_TU_CONTRASENA_PUEDES_RESTABLECERLA": "Si olvidaste tu contraseña, puedes restablecerla aquí:",
+      "RESTABLECER_CONTRASENA": "Restablecer Contraseña",
+      "SI_NO_FUISTE_TU_PUEDES_IGNORAR": "Si no fuiste tú, puedes ignorar este correo de forma segura.",
+      "SUBJECT": "Intento de registro con tu correo"
+    },
+    "EMAIL_CHANGE_CONFIRM": {
+      "CONFIRMA_TU_NUEVO_CORREO_APPNAME": "Confirma tu nuevo correo | {{appName}}",
+      "CONFIRMA_CAMBIO_TU_CORREO_ELECTRONICO_APPNAME": "Confirma el cambio de tu correo electrónico en {{appName}}. El enlace vence en {{expiresMinutes}} minutos.",
+      "CONFIRMA_TU_NUEVO_CORREO_ELECTRONICO": "Confirma tu nuevo correo electrónico",
+      "HEMOS_RECIBIDO_SOLICITUD_CAMBIAR_CORREO_ELECTRONICO": "Hemos recibido una solicitud para cambiar el correo electrónico de tu cuenta en",
+      "CONFIRMAR_CAMBIO_HAZ_CLIC_BOTON_CONTINUACION": ". Para confirmar el cambio, haz clic en el botón a continuación.",
+      "CONFIRMAR_CORREO_ELECTRONICO": "Confirmar correo electrónico",
+      "ESTE_ENLACE_ES_VALIDO": "Este enlace es válido por",
+      "SI_BOTON_NO_FUNCIONA_COPIA_PEGA": "Si el botón no funciona, copia y pega esta URL en tu navegador:",
+      "NO_SOLICITASTE_ESTE_CAMBIO_PUEDES_IGNORAR": "¿No solicitaste este cambio? Puedes ignorar este correo con seguridad. Tu correo actual permanecerá sin cambios.",
+      "ESTE_ES_CORREO_TRANSACCIONAL_AUTOMATICO_NO": "Este es un correo transaccional automático; no respondas a este mensaje."
+    },
+    "EMAIL_CHANGED_NOTICE": {
+      "CORREO_TU_CUENTA_HA_CAMBIADO_APPNAME": "El correo de tu cuenta ha cambiado | {{appName}}",
+      "CORREO_TU_CUENTA_APPNAME_CAMBIO_NEWEMAIL": "El correo de tu cuenta en {{appName}} se cambió a {{newEmail}}. Si no fuiste tú, contacta a soporte.",
+      "CORREO_TU_CUENTA_HA_CAMBIADO": "El correo de tu cuenta ha cambiado",
+      "CORREO_ELECTRONICO_TU_CUENTA": "El correo electrónico de tu cuenta en",
+      "CAMBIO": "se cambió a",
+      "PARTIR_AHORA_AVISOS_RECUPERACION_CONTRASENA_IRAN": ". A partir de ahora, los avisos y la recuperación de contraseña irán a esa dirección.",
+      "TODAS_SESIONES_ABIERTAS_CERRARON_COMO_MEDIDA": "Todas las sesiones abiertas se cerraron como medida de seguridad.",
+      "NO_FUISTE_TU": "¿No fuiste tú?",
+      "CONTACTA_SOPORTE_INMEDIATO_DESDE_ESTA_MISMA": "Contacta a soporte de inmediato desde esta misma dirección. Este mensaje se envía a tu correo anterior precisamente para que puedas reaccionar si el cambio no lo hiciste tú.",
+      "ESTE_ES_CORREO_TRANSACCIONAL_AUTOMATICO_NO": "Este es un correo transaccional automático; no respondas a este mensaje.",
+      "SUBJECT": "El correo de tu cuenta ha cambiado"
+    },
+    "ORGANIZATION_ADDED": {
+      "ACCESO_NUEVA_ORGANIZACION": "Acceso a una nueva organización",
+      "TE_HA_DADO_ACCESO_CUENTA_APPNAME": "te ha dado acceso a su cuenta en {{appName}}.",
+      "USA_TU_CONTRASENA_SIEMPRE_ES_MISMA": "Usa tu contraseña de siempre: es la misma cuenta que ya tienes. Al iniciar sesión podrás\n        cambiar entre las organizaciones a las que perteneces desde el selector de organización.",
+      "INICIAR_SESION": "Iniciar sesión",
+      "SI_NO_ESPERABAS_ESTE_ACCESO_CONTACTA": "Si no esperabas este acceso, contacta a tu administrador o a soporte.",
+      "SUBJECT": "Ahora tienes acceso a {{organization}}"
+    },
+    "PASSWORD_RESET": {
+      "RESTABLECIMIENTO_CONTRASENA_APPNAME": "Restablecimiento de contraseña | {{appName}}",
+      "USA_SIGUIENTE_ENLACE_RESTABLECER_TU_CONTRASENA": "Usa el siguiente enlace para restablecer tu contraseña de {{appName}}. El enlace vence en {{expiration}}.",
+      "RESTABLECIMIENTO_CONTRASENA": "Restablecimiento de contraseña",
+      "HEMOS_RECIBIDO_SOLICITUD_RESTABLECER_CONTRASENA_TU": "Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en",
+      "CONTINUAR_UTILIZA_BOTON_SEGURO_CONTINUACION": ". Para continuar, utiliza el botón seguro a continuación.",
+      "RESTABLECER_CONTRASENA": "Restablecer contraseña",
+      "SI_BOTON_NO_FUNCIONA_COPIA_PEGA": "Si el botón no funciona, copia y pega esta URL en tu navegador:",
+      "NO_SOLICITASTE_ESTE_CAMBIO_PUEDES_IGNORAR": "¿No solicitaste este cambio? Puedes ignorar este correo con seguridad. Tu contraseña no se modificará.",
+      "SI_NECESITAS_AYUDA_VISITA": "Si necesitas ayuda, visita",
+      "SOPORTE": "Soporte",
+      "ESCRIBENOS": "o escríbenos a",
+      "PROBLEMAS_VER_ESTE_CORREO": "¿Problemas para ver este correo?",
+      "ABRELO_NAVEGADOR": "Ábrelo en el navegador",
+      "PRIVACIDAD": "Privacidad",
+      "TERMINOS": "Términos",
+      "ESTE_ES_CORREO_TRANSACCIONAL_AUTOMATICO_NO": "Este es un correo transaccional automático; no respondas a este mensaje.",
+      "HAS_RECIBIDO_ESTE_MENSAJE_PORQUE_EXISTE": "Has recibido este mensaje porque existe una cuenta de {{appName}} asociada a esta dirección de correo.",
+      "LINK_VALID_FOR": "Este enlace es válido durante {{expiration}}.",
+      "SUBJECT": "Restablece tu contraseña"
+    },
+    "REGISTRATION_EMAIL_VERIFY": {
+      "CONFIRMA_TU_CORREO_ELECTRONICO": "Confirma tu correo electrónico",
+      "HOLA": "Hola,",
+      "COMPLETAR_TU_REGISTRO_DEBES_CONFIRMAR_TU": "Para completar tu registro, debes confirmar tu correo electrónico. Puedes hacerlo de dos maneras:",
+      "OPCION_CLIC": "Opción 1 — Un clic",
+      "HAZ_CLIC_BOTON_ABAJO_CONFIRMAR_TU": "Haz clic en el botón de abajo para confirmar tu correo y retomar el proceso de registro donde lo dejaste.",
+      "CONFIRMAR_CORREO_ELECTRONICO": "Confirmar correo electrónico",
+      "OPCION_CODIGO_VERIFICACION": "Opción 2 — Código de verificación",
+      "INGRESA_ESTE_CODIGO_FORMULARIO_REGISTRO": "Ingresa este código en el formulario de registro:",
+      "ESTE_CODIGO_ENLACE_EXPIRAN": "⏱ Este código y el enlace expiran en",
+      "SI_NO_SOLICITASTE_ESTO_PUEDES_IGNORAR": "Si no solicitaste esto, puedes ignorar este correo de forma segura.",
+      "NO_COMPARTAS_ESTE_CODIGO_NADIE_NUESTRO": "No compartas este código con nadie. Nuestro equipo nunca te lo pedirá."
+    },
+    "REGISTRATION_FAILED": {
+      "NO_PUDIMOS_CREAR_TU_CUENTA": "No pudimos crear tu cuenta",
+      "TU_PAGO_PROCESO_CORRECTAMENTE_PERO_NO": "Tu pago se procesó correctamente, pero no pudimos crear tu cuenta en",
+      "LAMENTAMOS_INCONVENIENTE": ". Lamentamos el inconveniente.",
+      "YA_CANCELAMOS_SUSCRIPCION_SOLICITAMOS_DEVOLUCION_CARGO": "Ya cancelamos la suscripción y solicitamos la devolución del cargo.",
+      "SEGUN_TU_BANCO_REEMBOLSO_PUEDE_TARDAR": "Según tu banco, el reembolso puede tardar entre 5 y 10 días hábiles en aparecer en tu estado de cuenta.",
+      "NO_HACE_FALTA_HAGAS_NADA_SI": "No hace falta que hagas nada. Si prefieres volver a intentarlo, puedes registrarte de nuevo cuando quieras:",
+      "CREAR_MI_CUENTA": "Crear mi cuenta",
+      "SI_TIENES_CUALQUIER_DUDA_SOBRE_CARGO": "Si tienes cualquier duda sobre el cargo, escríbenos citando esta referencia y lo resolvemos:",
+      "SUBJECT": "No pudimos crear tu cuenta — tu pago fue reembolsado"
+    },
+    "USER_INVITATION": {
+      "INVITACION_PLATAFORMA": "Invitación a la Plataforma",
+      "HAS_SIDO_INVITADO_UNIRTE_NUESTRA_PLATAFORMA": "Has sido invitado a unirte a nuestra plataforma. Por favor, haz clic en el siguiente enlace para configurar tu cuenta y establecer tu contraseña.",
+      "CONFIGURAR_MI_CUENTA": "Configurar mi cuenta",
+      "SI_NO_HAS_SOLICITADO_ESTA_INVITACION": "Si no has solicitado esta invitación, por favor ignora este correo.",
+      "ESTE_ENLACE_EXPIRARA_DIAS": "Este enlace expirará en 7 días."
+    },
+    "VERIFICATION_CODE": {
+      "CODIGO_VERIFICACION": "Código de Verificación",
+      "HAS_SOLICITADO_HABILITAR_AUTENTICACION_DOS_PASOS": "Has solicitado habilitar la autenticación de dos pasos (2FA) en tu cuenta.",
+      "CONTINUAR_FAVOR_INGRESA_SIGUIENTE_CODIGO_VERIFICACION": "Para continuar, por favor ingresa el siguiente código de verificación:",
+      "ESTE_CODIGO_EXPIRARA_10_MINUTOS": "Este código expirará en 10 minutos.",
+      "SI_NO_SOLICITASTE_ESTE_CAMBIO_FAVOR": "Si no solicitaste este cambio, por favor ignora este correo o contacta a soporte.",
+      "SALUDOS": "Saludos,",
+      "SUBJECT": "Tu código de verificación"
+    },
+    "COMMON": {
+      "SIGNATURE": "El equipo de {{appName}}",
+      "GREETING": "¡Hola, {{name}}!",
+      "COPYRIGHT": "© {{currentYear}} {{appName}}. Todos los derechos reservados."
+    },
+    "INVITATION": {
+      "SUBJECT": "Te invitaron a unirte a {{appName}}"
+    },
+    "EMAIL_CHANGE": {
+      "SUBJECT": "Confirma tu nuevo correo electrónico"
+    },
+    "REGISTRATION_VERIFY": {
+      "SUBJECT": "Confirma tu correo electrónico"
+    }
+  },
+  "INVOICE": {
+    "PDF": {
+      "TITLE": "Factura {{number}}",
+      "NUMBER": "Factura n.º:",
+      "ISSUE_DATE": "Fecha de emisión:",
+      "DUE_DATE": "Fecha de vencimiento:",
+      "DESCRIPTION": "Descripción",
+      "QUANTITY": "Cantidad",
+      "UNIT_PRICE": "Precio unitario",
+      "LINE_TOTAL": "Total",
+      "SUBTOTAL": "Subtotal",
+      "TOTAL": "Total",
+      "NOTES": "Notas:"
+    }
   }
 }

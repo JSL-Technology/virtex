@@ -10,6 +10,7 @@ import { PERMISSIONS } from '../../shared/permissions';
 import { NotificationsService } from '../../notifications/notifications.service';
 import { MailService } from '../../mail/mail.service';
 import { SaasResource } from '../enums/saas-resource.enum';
+import { DEFAULT_LANGUAGE, matchLanguage } from '@virteex/shared/types';
 
 interface PaymentFailedEvent {
   organizationId: string;
@@ -34,14 +35,18 @@ interface LimitEvent {
   percentage?: number;
 }
 
-/** Human names for the metered resources, so a notification does not read `journal_entries`. */
-const RESOURCE_LABELS: Readonly<Record<string, string>> = {
-  [SaasResource.INVOICES]: 'facturas',
-  [SaasResource.USERS]: 'usuarios',
-  [SaasResource.CUSTOMERS]: 'clientes',
-  [SaasResource.SUPPLIERS]: 'proveedores',
-  [SaasResource.JOURNAL_ENTRIES]: 'asientos contables',
-  [SaasResource.SUBSIDIARIES]: 'subsidiarias',
+/**
+ * Catalogue keys for the metered resources, so a notification does not read `journal_entries` —
+ * and does not read `facturas` to somebody who asked for English, which is what a table of
+ * Spanish literals here produced.
+ */
+const RESOURCE_LABEL_KEYS: Readonly<Record<string, string>> = {
+  [SaasResource.INVOICES]: 'SAAS.RESOURCES.INVOICES',
+  [SaasResource.USERS]: 'SAAS.RESOURCES.USERS',
+  [SaasResource.CUSTOMERS]: 'SAAS.RESOURCES.CUSTOMERS',
+  [SaasResource.SUPPLIERS]: 'SAAS.RESOURCES.SUPPLIERS',
+  [SaasResource.JOURNAL_ENTRIES]: 'SAAS.RESOURCES.JOURNAL_ENTRIES',
+  [SaasResource.SUBSIDIARIES]: 'SAAS.RESOURCES.SUBSIDIARIES',
 };
 
 /**
@@ -84,9 +89,9 @@ export class BillingNotificationsListener {
    * Falls back to every member when the tenant somehow has nobody with the permission, because a
    * dunning notice nobody receives is the failure this whole listener exists to prevent.
    */
-  private async recipients(
-    organizationId: string,
-  ): Promise<Array<{ id: string; email: string; firstName: string }>> {
+  private async recipients(organizationId: string): Promise<
+    Array<{ id: string; email: string; firstName: string; preferredLanguage: string | null }>
+  > {
     // Roles are stored as a `simple-array` (a comma-separated text column), so the permission
     // test cannot be a SQL predicate without becoming a substring match — `billing:manage` would
     // also match a hypothetical `billing:manage-later`. It is done in TypeScript with the same
@@ -124,33 +129,51 @@ export class BillingNotificationsListener {
       id: member.id,
       email: member.email,
       firstName: member.firstName,
+      preferredLanguage: member.preferredLanguage ?? null,
     }));
   }
 
-  private formatAmount(minorUnits: number, currency: string): string {
+  /**
+   * Turn Stripe's minor units into a real amount plus its currency.
+   *
+   * Formatting is deferred to the point of rendering, where the reader's locale is known. It used
+   * to be done here with `toLocaleString('es', …)` and the ISO code appended, so every recipient
+   * read `1.234,56 USD` in Spanish grouping regardless of language or market.
+   */
+  private amountOf(minorUnits: number, currency: string): { amount: number; currency: string } {
     const upper = (currency ?? 'usd').toUpperCase();
     // Zero-decimal currencies (CLP, PYG) are whole units already; dividing them by 100 understates
     // the amount a hundredfold, which on a dunning notice is worse than showing nothing.
     const zeroDecimal = new Set(['CLP', 'PYG', 'JPY', 'KRW', 'VND']);
-    const value = zeroDecimal.has(upper) ? minorUnits : minorUnits / 100;
-    return `${value.toLocaleString('es', { minimumFractionDigits: zeroDecimal.has(upper) ? 0 : 2 })} ${upper}`;
+    return { amount: zeroDecimal.has(upper) ? minorUnits : minorUnits / 100, currency: upper };
   }
 
   @OnEvent('billing.payment_failed')
   async onPaymentFailed(event: PaymentFailedEvent): Promise<void> {
-    await this.notifyEveryone(
-      event.organizationId,
-      'No pudimos cobrar tu suscripción',
-      `El cobro de ${this.formatAmount(event.amountDue, event.currency)} no se pudo completar` +
-        (event.nextAttempt
-          ? `. Lo reintentaremos el ${event.nextAttempt.toLocaleDateString('es')}.`
-          : '.') +
-        (event.gracePeriodEnd
-          ? ` Tu acceso continúa hasta el ${new Date(event.gracePeriodEnd).toLocaleDateString('es')}.`
-          : '') +
-        ' Actualiza tu método de pago en Configuración → Facturación.',
-      'payment_failed',
-    );
+    const { amount, currency } = this.amountOf(event.amountDue, event.currency);
+
+    // Four sentences were concatenated in TypeScript, with two conditional clauses spliced in by
+    // `+`. That is untranslatable by construction: no other language can be relied on to put the
+    // retry date and the grace period in the same order or the same clause. Each combination is
+    // now a whole sentence in the catalogue, chosen here.
+    const bodyKey = event.nextAttempt
+      ? event.gracePeriodEnd
+        ? 'SAAS.PAYMENT_FAILED.BODY_RETRY_AND_GRACE'
+        : 'SAAS.PAYMENT_FAILED.BODY_RETRY'
+      : event.gracePeriodEnd
+        ? 'SAAS.PAYMENT_FAILED.BODY_GRACE'
+        : 'SAAS.PAYMENT_FAILED.BODY';
+
+    await this.notifyEveryone(event.organizationId, 'payment_failed', {
+      titleKey: 'SAAS.PAYMENT_FAILED.TITLE',
+      bodyKey,
+      params: {
+        amount,
+        currency,
+        nextAttempt: event.nextAttempt?.toISOString() ?? null,
+        gracePeriodEnd: event.gracePeriodEnd ? new Date(event.gracePeriodEnd).toISOString() : null,
+      },
+    });
   }
 
   @OnEvent('billing.payment_succeeded')
@@ -162,38 +185,55 @@ export class BillingNotificationsListener {
     });
     if (!organization || organization.subscriptionStatus !== 'active') return;
 
+    const { amount, currency } = this.amountOf(event.amountPaid, event.currency);
     await this.notifyEveryone(
       event.organizationId,
-      'Tu suscripción está al día',
-      `Recibimos el pago de ${this.formatAmount(event.amountPaid, event.currency)}. Gracias.`,
       'payment_succeeded',
+      {
+        titleKey: 'SAAS.PAYMENT_SUCCEEDED.TITLE',
+        bodyKey: 'SAAS.PAYMENT_SUCCEEDED.BODY',
+        params: { amount, currency },
+      },
       { emailToo: false },
     );
   }
 
   @OnEvent('saas.limit_warning')
   async onLimitWarning(event: LimitEvent): Promise<void> {
-    const label = RESOURCE_LABELS[event.resource] ?? event.resource;
     await this.notifyEveryone(
       event.organizationId,
-      `Te acercas al límite de ${label}`,
-      `Has usado ${event.currentUsage} de ${event.limit} ${label} de tu plan. ` +
-        'Puedes ampliarlo en Configuración → Facturación antes de alcanzarlo.',
       'limit_warning',
+      {
+        titleKey: 'SAAS.LIMIT_WARNING.TITLE',
+        bodyKey: 'SAAS.LIMIT_WARNING.BODY',
+        params: {
+          resource: this.i18nResource(event.resource),
+          used: event.currentUsage,
+          limit: event.limit,
+        },
+      },
       { emailToo: false },
     );
   }
 
+  /**
+   * The resource name as a nested catalogue reference.
+   *
+   * Passed as a `{{resource}}` parameter whose value is itself a key, resolved by the template's
+   * `t` helper and by `I18nService` before interpolation — so "facturas"/"invoices"/"faturas"
+   * follows the reader rather than the server.
+   */
+  private i18nResource(resource: SaasResource): string {
+    return RESOURCE_LABEL_KEYS[resource] ?? resource;
+  }
+
   @OnEvent('saas.limit_reached')
   async onLimitReached(event: LimitEvent): Promise<void> {
-    const label = RESOURCE_LABELS[event.resource] ?? event.resource;
-    await this.notifyEveryone(
-      event.organizationId,
-      `Alcanzaste el límite de ${label}`,
-      `Tu plan permite ${event.limit} ${label}. Amplía el plan en Configuración → Facturación ` +
-        'para seguir trabajando.',
-      'limit_reached',
-    );
+    await this.notifyEveryone(event.organizationId, 'limit_reached', {
+      titleKey: 'SAAS.LIMIT_REACHED.TITLE',
+      bodyKey: 'SAAS.LIMIT_REACHED.BODY',
+      params: { resource: this.i18nResource(event.resource), limit: event.limit },
+    });
   }
 
   /**
@@ -205,9 +245,8 @@ export class BillingNotificationsListener {
    */
   private async notifyEveryone(
     organizationId: string,
-    title: string,
-    body: string,
     event: string,
+    message: { titleKey: string; bodyKey: string; params?: Record<string, unknown> },
     options: { emailToo?: boolean } = {},
   ): Promise<void> {
     const { emailToo = true } = options;
@@ -223,21 +262,25 @@ export class BillingNotificationsListener {
       }
 
       for (const person of people) {
-        await this.notifications.createNotification(person.id, title, body).catch((error) =>
-          this.logger.warn(
-            { event: 'billing_notification_failed', organizationId, notification: event },
-            `In-app notification failed: ${(error as Error).message}`,
-          ),
-        );
+        // Each person in their own language: a tenant is not monolingual, and the one message a
+        // customer must not misread is the one telling them their card was declined.
+        await this.notifications
+          .createLocalizedNotification(
+            person.id,
+            matchLanguage(person.preferredLanguage) ?? DEFAULT_LANGUAGE,
+            message,
+          )
+          .catch((error) =>
+            this.logger.warn(
+              { event: 'billing_notification_failed', organizationId, notification: event },
+              `In-app notification failed: ${(error as Error).message}`,
+            ),
+          );
       }
 
       if (emailToo) {
         await this.mailService
-          .sendBillingNotice(
-            people.map((p) => p.email),
-            title,
-            body,
-          )
+          .sendBillingNotice(people, message)
           .catch((error) =>
             this.logger.warn(
               { event: 'billing_email_not_queued', organizationId, notification: event },

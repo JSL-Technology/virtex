@@ -1,21 +1,22 @@
 <!DOCTYPE html>
-<html>
+<html lang="{{language}}" dir="{{dir}}">
 <head>
     <meta charset="UTF-8">
-    <title>{{title}}</title>
+    <title>{{t titleKey}}</title>
 </head>
 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
     <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h2 style="color: #2c3e50;">{{title}}</h2>
+        <h2 style="color: #2c3e50;">{{t titleKey}}</h2>
 
-        <p>{{body}}</p>
+        {{!-- The body is a key plus its values, resolved in the recipient's language. --}}
+        <p>{{t bodyKey params=params}}</p>
 
         <p style="text-align: center;">
-            <a href="{{billingUrl}}" style="background-color: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Ir a Facturación</a>
+            <a href="{{billingUrl}}" style="background-color: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">{{t 'MAIL.BILLING_NOTICE.IR_FACTURACION'}}</a>
         </p>
 
         <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-        <p style="font-size: 12px; color: #999;">&copy; {{currentYear}} {{appName}}. Todos los derechos reservados.</p>
+        <p style="font-size: 12px; color: #999;">{{t 'MAIL.COMMON.COPYRIGHT' currentYear=currentYear appName=appName}}</p>
     </div>
 </body>
 </html>
