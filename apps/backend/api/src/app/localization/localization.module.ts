@@ -16,7 +16,6 @@ import { ReportDefinition } from './entities/report-definition.entity';
 import { FiscalDocumentTypeDefinition } from './entities/fiscal-document-type-definition.entity';
 import { EInvoiceProviderConfig } from './entities/einvoice-provider-config.entity';
 import { LocalizationController } from './controllers/localization.controller';
-import { LocalizationListener } from './listeners/localization.listener';
 import { DominicanRepublicStrategy } from './drivers/dominican-republic/dominican-republic.strategy';
 import { GenericFiscalStrategy } from './drivers/generic-fiscal.strategy';
 import { USStrategy } from './drivers/usa/usa.strategy';
@@ -45,7 +44,6 @@ import { USStrategy } from './drivers/usa/usa.strategy';
   ],
   providers: [
     LocalizationService,
-    LocalizationListener,
     DominicanRepublicStrategy,
     USStrategy,
     GenericFiscalStrategy

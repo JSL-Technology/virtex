@@ -62,15 +62,73 @@ export interface PlanConfig {
   name: string;
   description: string;
   monthlyPriceIdVar: string; // Name of ENV var
+  /** Name of the ENV var holding the annual Stripe Price id. Annual billing is offered only when set. */
+  annualPriceIdVar: string;
   /**
    * Amounts per ISO 4217 currency, in minor units (or whole units for the zero-decimal
    * currencies — see `minorUnitFactor`). `SAAS_BASE_CURRENCY` must be one of the keys.
    */
   monthlyPrices: PlanPriceTable;
+  /** Annual amounts, same units. Empty until the business sets an annual price. */
+  annualPrices: PlanPriceTable;
   trialPeriodDays?: number; // Optional free-trial length; omit/0 = charge immediately
   limits: PlanLimitConfig[];
   /** Every plan declares every key, so "missing" can never quietly mean "enabled". */
   features: PlanFeatureConfig[];
+}
+
+/**
+ * Amounts, from the environment, merged over the table below.
+ *
+ * What a plan costs in Mexican pesos is a commercial decision, not an engineering one, and it has
+ * to be made in lockstep with a `currency_options` entry on the Stripe Price — `verifyPriceCatalog`
+ * aborts a production boot when the two disagree, which is the property that makes the displayed
+ * price and the charged price the same number.
+ *
+ * Reading it from the environment is what lets that decision be made without a code deploy:
+ *
+ *     SAAS_PRICE_PRO_MXN=99900      # MXN 999.00, matching the Stripe Price's currency_options
+ *     SAAS_PRICE_STARTER_MXN=19900
+ *     SAAS_PRICE_ENTERPRISE_MXN=399900
+ *
+ * `currencyForCountry` still only offers a currency once EVERY plan carries an amount for it, so a
+ * half-configured market keeps being quoted and charged in the base currency — honest — rather
+ * than quoted locally and charged in dollars.
+ */
+function pricesFromEnvironment(slug: string, period: 'PRICE' | 'ANNUAL'): PlanPriceTable {
+  const prefix = `SAAS_${period}_${slug.toUpperCase()}_`;
+  const table: Record<string, number> = {};
+
+  for (const [name, value] of Object.entries(process.env)) {
+    if (!name.startsWith(prefix) || !value) continue;
+    const currency = name.slice(prefix.length).toUpperCase();
+    if (!/^[A-Z]{3}$/.test(currency)) continue;
+    const amount = Number(value);
+    if (!Number.isInteger(amount) || amount < 0) {
+      throw new Error(
+        `FATAL: ${name} must be a whole number of minor units (got "${value}").`,
+      );
+    }
+    table[currency] = amount;
+  }
+  return table;
+}
+
+/** The trial length for a plan: `SAAS_TRIAL_<SLUG>` days, else `SAAS_TRIAL_DAYS`, else none. */
+function trialFromEnvironment(slug: string): number | undefined {
+  const raw =
+    process.env[`SAAS_TRIAL_${slug.toUpperCase()}`] ?? process.env['SAAS_TRIAL_DAYS'];
+  if (!raw) return undefined;
+  const days = Number(raw);
+  if (!Number.isInteger(days) || days < 0 || days > 365) {
+    throw new Error(`FATAL: trial length for "${slug}" must be 0-365 days (got "${raw}").`);
+  }
+  return days || undefined;
+}
+
+/** Merge the environment's amounts over a plan's declared ones. */
+function resolvePrices(slug: string, declared: PlanPriceTable, period: 'PRICE' | 'ANNUAL'): PlanPriceTable {
+  return Object.freeze({ ...declared, ...pricesFromEnvironment(slug, period) });
 }
 
 /**
@@ -106,9 +164,13 @@ export const SAAS_PLANS: PlanConfig[] = [
     name: 'Starter',
     description: 'Ideal para equipos pequeños que empiezan',
     monthlyPriceIdVar: 'STRIPE_PRICE_STARTER',
-    // Only USD is priced. Every market is therefore quoted AND charged in USD until a local
-    // amount is added here together with its Stripe `currency_options` entry.
-    monthlyPrices: { USD: 900 },
+    annualPriceIdVar: 'STRIPE_PRICE_STARTER_ANNUAL',
+    // USD is the only amount declared in code. Local amounts are added through the environment
+    // (`SAAS_PRICE_STARTER_MXN=…`) alongside the matching Stripe `currency_options` entry; until
+    // both exist for EVERY plan, the market is quoted and charged in the base currency.
+    monthlyPrices: resolvePrices('starter', { USD: 900 }, 'PRICE'),
+    annualPrices: resolvePrices('starter', {}, 'ANNUAL'),
+    trialPeriodDays: trialFromEnvironment('starter'),
     limits: [
       { resource: SaasResource.INVOICES, limit: 10, period: QuotaPeriod.MONTHLY, allowOverage: false },
       { resource: SaasResource.USERS, limit: 2, period: QuotaPeriod.LIFETIME, allowOverage: false },
@@ -129,7 +191,10 @@ export const SAAS_PLANS: PlanConfig[] = [
     name: 'Professional',
     description: 'Para empresas en crecimiento con necesidades avanzadas',
     monthlyPriceIdVar: 'STRIPE_PRICE_PRO',
-    monthlyPrices: { USD: 4900 },
+    annualPriceIdVar: 'STRIPE_PRICE_PRO_ANNUAL',
+    monthlyPrices: resolvePrices('pro', { USD: 4900 }, 'PRICE'),
+    annualPrices: resolvePrices('pro', {}, 'ANNUAL'),
+    trialPeriodDays: trialFromEnvironment('pro'),
     limits: [
       { resource: SaasResource.INVOICES, limit: 100, period: QuotaPeriod.MONTHLY, allowOverage: true },
       { resource: SaasResource.USERS, limit: 10, period: QuotaPeriod.LIFETIME, allowOverage: false },
@@ -148,7 +213,10 @@ export const SAAS_PLANS: PlanConfig[] = [
     name: 'Enterprise',
     description: 'Solución completa sin límites para grandes organizaciones',
     monthlyPriceIdVar: 'STRIPE_PRICE_ENTERPRISE',
-    monthlyPrices: { USD: 19900 },
+    annualPriceIdVar: 'STRIPE_PRICE_ENTERPRISE_ANNUAL',
+    monthlyPrices: resolvePrices('enterprise', { USD: 19900 }, 'PRICE'),
+    annualPrices: resolvePrices('enterprise', {}, 'ANNUAL'),
+    trialPeriodDays: trialFromEnvironment('enterprise'),
     limits: [
       { resource: SaasResource.INVOICES, limit: -1, period: QuotaPeriod.MONTHLY, allowOverage: true },
       { resource: SaasResource.USERS, limit: -1, period: QuotaPeriod.LIFETIME, allowOverage: true },

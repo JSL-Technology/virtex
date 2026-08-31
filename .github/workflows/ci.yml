@@ -48,13 +48,58 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+    # Hoisted to the job so every verification step below runs against the same configuration.
+    # These used to be repeated per step, which is how `verify:markets`, `verify:provisioning`
+    # and `verify:auth-contract` could each be added and each quietly need a different subset.
     env:
+      NODE_ENV: test
       DB_HOST: localhost
       DB_PORT: '5432'
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
       DB_NAME: virteex_ci
       DB_SSL: 'false'
+
+      # Redis is no longer optional: the cache, the throttler and the mail queue all resolve
+      # their connection from these, and the application refuses to boot outside development
+      # without a reachable server. A single-process in-memory fallback would make the
+      # rate-limit and session-revocation checks pass for the wrong reason.
+      REDIS_HOST: localhost
+      REDIS_PORT: '6379'
+
+      # Nothing listens on 1025 in the runner and nothing needs to: nodemailer connects on the
+      # first send, and no verification step sends mail. `example.com` rather than `example.test`
+      # because Joi validates the address against the IANA TLD list, and `.test` — reserved by
+      # RFC 6761 but never delegated — is not on it.
+      MAIL_HOST: localhost
+      MAIL_PORT: '1025'
+      MAIL_FROM_ADDRESS: ci@example.com
+      MAIL_FROM_NAME: Virteex CI
+
+      JWT_SECRET: ci-secret-ci-secret-ci-secret-ci-secret
+      JWT_REFRESH_SECRET: ci-refresh-ci-refresh-ci-refresh-ci-refresh
+      JWT_2FA_TEMP_SECRET: ci-2fa-ci-2fa-ci-2fa-ci-2fa-ci-2fa-ci
+      JWT_PREVERIFY_SECRET: ci-pre-ci-pre-ci-pre-ci-pre-ci-pre-ci
+      JWT_SOCIAL_REGISTER_SECRET: ci-social-ci-social-ci-social-ci-social
+      JWT_STEP_UP_SECRET: ci-stepup-ci-stepup-ci-stepup-ci-stepup
+      CSRF_SECRET: ci-csrf-ci-csrf-ci-csrf-ci-csrf-ci-csrf
+      ENCRYPTION_SECRET: ci-enc-ci-enc-ci-enc-ci-enc-ci-enc-ci
+      AUTH_SALT: ci-salt-ci-salt-ci
+      FRONTEND_URL: https://ci.example.com
+      CORS_ORIGIN: https://ci.example.com
+      STRIPE_PRICE_STARTER: price_ci_starter
+      STRIPE_PRICE_PRO: price_ci_pro
+      STRIPE_PRICE_ENTERPRISE: price_ci_enterprise
+      STRIPE_SECRET_KEY: sk_test_ci
+      STRIPE_WEBHOOK_SECRET: whsec_ci
+      AWS_S3_BUCKET_NAME: ci-bucket
+      AWS_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: ci-key
+      AWS_SECRET_ACCESS_KEY: ci-secret
+
+      # The signup endpoints are exercised for real below; without this every one of them is
+      # answered 403 by the reCAPTCHA guard and nothing underneath is ever reached.
+      RECAPTCHA_DISABLED: 'true'
 
     steps:
       - uses: actions/checkout@v4
@@ -67,11 +112,12 @@ jobs:
           node-version-file: .nvmrc
           cache: 'npm'
 
-      # The Cypress binary is only needed by the e2e projects, which this workflow does not run.
-      # Downloading it on every job costs ~2 minutes and is a frequent source of flaky installs.
       - run: npm ci
-        env:
-          CYPRESS_INSTALL_BINARY: '0'
+
+      # The TypeScript project references are derived from the dependency graph, and `typecheck`
+      # refuses to run against stale ones. Checking it explicitly turns "the workspace is out of
+      # sync" into a named failure instead of a confusing one inside the next step.
+      - run: npx nx sync:check
 
       - run: npx nx run-many -t lint test build typecheck
 
@@ -84,14 +130,10 @@ jobs:
       # no longer collide on the unique index over (tax_id, fiscal_region_id). The failure this
       # guards is a database constraint firing on the second insert, which no unit test can show.
       - run: npm run verify:fiscal-identity
-        env:
-          NODE_ENV: test
 
       # Proves multi-tenancy actually holds: one identity across tenants, per-tenant permissions,
       # and a tenant the user does not belong to refused.
       - run: npm run verify:tenancy
-        env:
-          NODE_ENV: test
 
       # Proves the application can actually START. A build only proves the code compiles; a missing
       # provider, an unexported service, a module registered twice, or a constructor that throws on
@@ -101,31 +143,26 @@ jobs:
       # VAPID key and took the whole process down with it, and `DB_SSL=false` enabling TLS because
       # the flag was never coerced from its string form.
       - run: npm run verify:boot
-        env:
-          NODE_ENV: test
-          JWT_SECRET: ci-secret-ci-secret-ci-secret-ci-secret
-          JWT_REFRESH_SECRET: ci-refresh-ci-refresh-ci-refresh-ci-refresh
-          JWT_2FA_TEMP_SECRET: ci-2fa-ci-2fa-ci-2fa-ci-2fa-ci-2fa-ci
-          JWT_PREVERIFY_SECRET: ci-pre-ci-pre-ci-pre-ci-pre-ci-pre-ci
-          JWT_SOCIAL_REGISTER_SECRET: ci-social-ci-social-ci-social-ci-social
-          JWT_STEP_UP_SECRET: ci-stepup-ci-stepup-ci-stepup-ci-stepup
-          CSRF_SECRET: ci-csrf-ci-csrf-ci-csrf-ci-csrf-ci-csrf
-          ENCRYPTION_SECRET: ci-enc-ci-enc-ci-enc-ci-enc-ci-enc-ci
-          AUTH_SALT: ci-salt-ci-salt-ci
-          FRONTEND_URL: https://ci.example.com
-          CORS_ORIGIN: https://ci.example.com
-          STRIPE_PRICE_STARTER: price_ci_starter
-          STRIPE_PRICE_PRO: price_ci_pro
-          STRIPE_PRICE_ENTERPRISE: price_ci_enterprise
-          STRIPE_SECRET_KEY: sk_test_ci
-          STRIPE_WEBHOOK_SECRET: whsec_ci
-          AWS_S3_BUCKET_NAME: ci-bucket
-          AWS_REGION: us-east-1
-          AWS_ACCESS_KEY_ID: ci-key
-          AWS_SECRET_ACCESS_KEY: ci-secret
-          RECAPTCHA_DISABLED: 'true'
-          REDIS_HOST: localhost
-          REDIS_PORT: '6379'
+
+      # Proves every one of the nineteen markets can actually be provisioned, through the real
+      # services rather than a fixture: a chart of accounts, its segment definitions, and the
+      # consumption taxes the country's scheme calls for. A market that seeds nothing is a
+      # customer with an ERP that cannot post a journal entry, and nothing else in the build
+      # would notice.
+      - run: npm run verify:markets
+
+      # Proves that a PAID signup materialises a working tenant, end to end, for a representative
+      # spread of fiscal regimes — ledger, roles, owner membership, plan, subscription, verified
+      # fiscal identity — and that completing it twice yields one account rather than two. The
+      # webhook and the browser redirect race each other on every real signup, so idempotency
+      # here is not a nicety.
+      - run: npm run verify:provisioning
+
+      # Proves the authentication surface over real HTTP: cookie-only tokens with the lifetimes
+      # they claim, CSRF enforced and rotated, refresh rotation, step-up refused without proof,
+      # enumeration parity between a wrong password and an unknown mailbox, and a revoked session
+      # dying immediately. This is what the Nx e2e placeholders were standing in for.
+      - run: npm run verify:auth-contract
 
       - run: npx nx fix-ci
         if: always()

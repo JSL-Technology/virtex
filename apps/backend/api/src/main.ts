@@ -121,6 +121,20 @@ async function bootstrap() {
       transformOptions: {
         enableImplicitConversion: true,
       },
+      /**
+       * One error per field.
+       *
+       * Without this, an empty `address` on the signup form produced three messages at once —
+       * "address must be shorter than or equal to 200 characters", "La dirección fiscal es
+       * obligatoria." and "La dirección debe ser un texto." — of which the first is wrong (the
+       * value was missing, not too long), the second is the real one, and the third is noise. The
+       * client renders them joined by commas, so the customer read a contradiction on the form
+       * that takes their money.
+       *
+       * Constraints are evaluated in declaration order, and the DTOs declare presence before
+       * shape, so the first error is the one that actually explains the problem.
+       */
+      stopAtFirstError: true,
     }),
   );
 

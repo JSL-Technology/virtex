@@ -11,6 +11,7 @@ import {
   JoinColumn,
   OneToMany,
   OneToOne,
+  Index,
 } from 'typeorm';
 import type { Organization } from '../../../organizations/entities/organization.entity';
 import { Role } from '../../../roles/entities/role.entity';
@@ -118,7 +119,14 @@ export class User {
   @Column({ name: 'preferred_language', length: 5, nullable: true })
   preferredLanguage?: string;
 
-  @Column({ type: 'varchar', length: 20, unique: true, nullable: true })
+  /**
+   * Not unique across the platform. Nothing looks an account up by phone, and a shared company
+   * switchboard is the ordinary case in these markets — a global constraint refused the second
+   * employee to save their profile and bought nothing in return. Indexed, because administration
+   * screens filter on it.
+   */
+  @Index('IDX_users_phone')
+  @Column({ type: 'varchar', length: 20, nullable: true })
   phone?: string | null;
 
   @Column({ name: 'is_phone_verified', default: false })

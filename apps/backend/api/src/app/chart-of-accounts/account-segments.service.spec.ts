@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AccountSegmentsService } from './account-segments.service';
+import { coaSegmentsFor } from '../localization/fiscal/coa-builder';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { AccountSegmentDefinition } from './entities/account-segment-definition.entity';
 import { Account } from './entities/account.entity';
@@ -62,7 +63,30 @@ describe('AccountSegmentsService', () => {
 
       expect(segmentRepo.find).toHaveBeenCalledWith({ where: { organizationId: orgId } });
       expect(segmentRepo.save).toHaveBeenCalled();
-      expect(result).toHaveLength(4);
+      // The structure comes from `coaSegmentsFor`, declared beside the country's chart-of-accounts
+      // template, which writes four-digit codes as ONE segment. It used to be a fixed 1-2-2-3 that
+      // no template could satisfy, so provisioning threw on the first account of every tenant.
+      expect(result).toEqual(coaSegmentsFor('').map((spec, order) => expect.objectContaining({
+        name: spec.name,
+        length: spec.length,
+        isRequired: spec.isRequired,
+        order,
+        organizationId: orgId,
+      })));
+    });
+
+    it('uses the structure the country template declares when one is given', async () => {
+      segmentRepo.find.mockResolvedValue([]);
+      const structure = [
+        { name: 'Clase', length: 1, isRequired: true },
+        { name: 'Cuenta', length: 3, isRequired: true },
+      ];
+
+      const result = await service.initializeDefault('org-2', undefined, structure);
+
+      expect(result).toHaveLength(2);
+      expect(result.map((d) => d.length)).toEqual([1, 3]);
+      expect(result.map((d) => d.order)).toEqual([0, 1]);
     });
 
     it('should not initialize if segments already exist', async () => {

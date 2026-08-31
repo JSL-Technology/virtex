@@ -4,15 +4,6 @@
   "files": [],
   "references": [
     {
-      "path": "./apps/core/client-web-e2e"
-    },
-    {
-      "path": "./apps/backend/api-e2e"
-    },
-    {
-      "path": "./apps/core/client-web"
-    },
-    {
       "path": "./apps/backend/api"
     }
   ]

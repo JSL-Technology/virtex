@@ -72,6 +72,27 @@ export class CookieService {
     };
   }
 
+  /**
+   * Convert a lifetime in milliseconds to the unit `Set-Cookie` actually uses.
+   *
+   * `Max-Age` is defined in SECONDS (RFC 6265 §5.2.2). Express's `res.cookie` divides by 1000 for
+   * you; `@fastify/cookie` hands the value straight to `cookie.serialize`, which writes it
+   * verbatim. This application runs on Fastify and every call site passed milliseconds, so a
+   * fifteen-minute access cookie was issued as `Max-Age=900000` — ten and a half days — the
+   * refresh cookie as roughly nineteen years, and the CSRF cookie as eighty-two.
+   *
+   * The server still expired everything on time (the JWT's own `exp`, and the `refresh_tokens`
+   * row), so this was never an authentication bypass. What it was is a bearer credential left on
+   * disk in the browser effectively forever, and a "remember me" distinction that meant nothing
+   * on the client side.
+   *
+   * Durations stay in milliseconds everywhere else in the codebase — that is what `ms()` and
+   * `parseDuration` produce — and are converted here, once, at the boundary that needs seconds.
+   */
+  private static maxAgeSeconds(milliseconds: number): number {
+    return Math.floor(milliseconds / 1000);
+  }
+
   setAuthCookies(
     res: Response,
     accessToken: string,
@@ -100,15 +121,17 @@ export class CookieService {
 
     res.cookie(accessTokenName, accessToken, {
       ...baseOptions,
-      maxAge: AuthConfig.COOKIE_ACCESS_MAX_AGE,
+      maxAge: CookieService.maxAgeSeconds(AuthConfig.COOKIE_ACCESS_MAX_AGE),
     });
 
     if (refreshToken) {
       res.cookie(refresh.name, refreshToken, {
         ...baseOptions,
-        maxAge: rememberMe
-          ? AuthConfig.COOKIE_REFRESH_REMEMBER_ME_MAX_AGE
-          : AuthConfig.COOKIE_REFRESH_MAX_AGE,
+        maxAge: CookieService.maxAgeSeconds(
+          rememberMe
+            ? AuthConfig.COOKIE_REFRESH_REMEMBER_ME_MAX_AGE
+            : AuthConfig.COOKIE_REFRESH_MAX_AGE,
+        ),
         // Path-scoped so the long-lived refresh token is not attached to every API call.
         path: refresh.path,
       });
@@ -159,7 +182,7 @@ export class CookieService {
       // cookie, a 15-minute lifetime made every refresh after that point fail with 403 — which
       // the interceptor turns into a logout. Sessions could never outlive 15 minutes and
       // "remember me" was inert. The CSRF cookie must outlive the refresh token.
-      maxAge: AuthConfig.COOKIE_CSRF_MAX_AGE,
+      maxAge: CookieService.maxAgeSeconds(AuthConfig.COOKIE_CSRF_MAX_AGE),
       path: '/',
     });
   }
@@ -237,7 +260,7 @@ export class CookieService {
       httpOnly: true,
       secure: !insecureDev,
       sameSite: 'lax',
-      maxAge: 5 * 60 * 1000,
+      maxAge: CookieService.maxAgeSeconds(5 * 60 * 1000),
       path: '/',
     });
   }
@@ -275,7 +298,7 @@ export class CookieService {
       // Lax, not Strict: Stripe redirects the browser back to us cross-site, and a Strict cookie
       // would not be attached to the navigation that follows.
       sameSite: 'lax',
-      maxAge: maxAgeMs,
+      maxAge: CookieService.maxAgeSeconds(maxAgeMs),
       path,
     });
   }
@@ -314,7 +337,7 @@ export class CookieService {
       httpOnly: true,
       secure: !insecureDev,
       sameSite: 'lax',
-      maxAge: 5 * 60 * 1000, // matches the server-side pending-session TTL
+      maxAge: CookieService.maxAgeSeconds(5 * 60 * 1000), // matches the server-side pending-session TTL
       path,
     });
   }
@@ -361,7 +384,7 @@ export class CookieService {
       httpOnly: true,
       secure: !insecureDev,
       sameSite: 'lax',
-      maxAge: maxAgeMs,
+      maxAge: CookieService.maxAgeSeconds(maxAgeMs),
       path: '/',
     });
   }

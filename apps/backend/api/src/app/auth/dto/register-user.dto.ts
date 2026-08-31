@@ -25,8 +25,11 @@ import { ApiProperty } from '@nestjs/swagger';
 export class RegisterUserDto {
 
     @ApiProperty({ example: 'Acme Corp', description: 'Organization Legal Name' })
-    @IsString({ message: 'El nombre de la organización debe ser un texto.' })
+    // Presence is declared BEFORE shape on every field in this DTO. With `stopAtFirstError` the
+    // first failing constraint is the one the customer sees, and "está vacío" explains an empty
+    // field where "debe ser un texto" does not.
     @IsNotEmpty({ message: 'El nombre de la organización no puede estar vacío.' })
+    @IsString({ message: 'El nombre de la organización debe ser un texto.' })
     @MinLength(2, {
         message: 'El nombre de la organización debe tener al menos 2 caracteres.',
     })
@@ -69,8 +72,8 @@ export class RegisterUserDto {
      * these markets.
      */
     @ApiProperty({ example: '131-12345-7', description: 'Tax ID (RNC, RFC, EIN, NIT, RUT…)' })
-    @IsString({ message: 'El ID Fiscal debe ser un texto.' })
     @IsNotEmpty({ message: 'El ID Fiscal es obligatorio.' })
+    @IsString({ message: 'El ID Fiscal debe ser un texto.' })
     @IsTaxIdValidForCountry()
     taxId: string;
 
@@ -106,13 +109,13 @@ export class RegisterUserDto {
     fiscalRegionId?: string;
 
     @ApiProperty({ example: 'John', description: 'User First Name' })
-    @IsString({ message: 'El nombre debe ser un texto.' })
     @IsNotEmpty({ message: 'El nombre no puede estar vacío.' })
+    @IsString({ message: 'El nombre debe ser un texto.' })
     firstName: string;
 
     @ApiProperty({ example: 'Doe', description: 'User Last Name' })
-    @IsString({ message: 'El apellido debe ser un texto.' })
     @IsNotEmpty({ message: 'El apellido no puede estar vacío.' })
+    @IsString({ message: 'El apellido debe ser un texto.' })
     lastName: string;
 
     @ApiProperty({ example: 'john.doe@example.com', description: 'User Email' })
@@ -122,10 +125,10 @@ export class RegisterUserDto {
     email: string;
 
     @ApiProperty({ example: 'StrongP@ssw0rd', description: 'User Password' })
-    @IsString({ message: 'La contraseña debe ser un texto.' })
     @IsNotEmpty({ message: 'La contraseña no puede estar vacía.' })
+    @IsString({ message: 'La contraseña debe ser un texto.' })
     @MinLength(PASSWORD_MIN_LENGTH, { message: `La contraseña debe tener al menos ${PASSWORD_MIN_LENGTH} caracteres.` })
-    @MaxLength(PASSWORD_MAX_LENGTH)
+    @MaxLength(PASSWORD_MAX_LENGTH, { message: `La contraseña no puede tener más de ${PASSWORD_MAX_LENGTH} caracteres.` })
     @Matches(PASSWORD_POLICY_REGEX, { message: PASSWORD_POLICY_MESSAGE })
     password: string;
 
@@ -152,15 +155,15 @@ export class RegisterUserDto {
      * state and ZIP. Collecting one line means re-collecting all of it before invoicing can work.
      */
     @ApiProperty({ example: 'Av. Winston Churchill 1099', description: 'Fiscal street address' })
-    @IsString({ message: 'La dirección debe ser un texto.' })
     @IsNotEmpty({ message: 'La dirección fiscal es obligatoria.' })
-    @MaxLength(200)
+    @IsString({ message: 'La dirección debe ser un texto.' })
+    @MaxLength(200, { message: 'La dirección no puede tener más de 200 caracteres.' })
     address: string;
 
     @ApiProperty({ example: 'Santo Domingo', description: 'City / municipality' })
-    @IsString({ message: 'La ciudad debe ser un texto.' })
     @IsNotEmpty({ message: 'La ciudad es obligatoria.' })
-    @MaxLength(120)
+    @IsString({ message: 'La ciudad debe ser un texto.' })
+    @MaxLength(120, { message: 'La ciudad no puede tener más de 120 caracteres.' })
     city: string;
 
     @ApiProperty({ example: '32', description: 'First-level administrative division code or name' })

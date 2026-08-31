@@ -42,7 +42,12 @@ export class ProfileRegistrationStrategy implements CountryRegistrationStrategy 
     // Re-checked here even though the DTO already validated it. The DTO constraint protects the
     // HTTP boundary; this protects every other caller — the payment-first flow replays a stored
     // payload that was validated hours earlier, and a stored payload is still untrusted input.
-    if (!validateTaxId(profile.countryCode, dto.taxId)) {
+    //
+    // The taxpayer kind is passed. Without it `validateTaxId` accepts the UNION of both schemes,
+    // which made this "defence in depth" strictly weaker than the check it was backing up: a
+    // United States nine-digit value passes as an EIN under one prefix rule and as an SSN under
+    // another, and only the kind decides which applies.
+    if (!validateTaxId(profile.countryCode, dto.taxId, dto.taxpayerKind)) {
       throw new BadRequestException(
         `El ${profile.taxId.label} no es válido para ${profile.name}.`,
       );

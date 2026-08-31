@@ -36,6 +36,16 @@ const productionEnv = (): Record<string, string> => ({
   DB_PASSWORD: 'hunter2',
   DB_NAME: 'virteex',
   RECAPTCHA_V3_SECRET_KEY: 'recaptcha_secret',
+  // Redis is not optional: the shared cache carries the revoked-session denylist, the pending-2FA
+  // session, the single-use step-up markers and the SaaS counters.
+  REDIS_HOST: 'redis.internal',
+  // Outbound mail is not optional either: signup demands an emailed verification code, so an API
+  // that boots without SMTP has a closed funnel and answers 500 on step two of the wizard.
+  MAIL_HOST: 'smtp.internal',
+  MAIL_USER: 'postmaster',
+  MAIL_PASSWORD: 'hunter2',
+  MAIL_FROM_ADDRESS: 'no-reply@virteex.com',
+  MAIL_FROM_NAME: 'Virteex',
 });
 
 describe('environment validation', () => {
@@ -111,6 +121,54 @@ describe('environment validation', () => {
       delete env[name];
       const { error } = check(env);
       expect(error?.details.map((d) => d.context?.key)).toContain(name);
+    });
+
+    it.each([
+      'MAIL_HOST',
+      'MAIL_USER',
+      'MAIL_PASSWORD',
+      'MAIL_FROM_ADDRESS',
+      'MAIL_FROM_NAME',
+    ])('refuses to boot a deployment without %s', (name) => {
+      // Registration REQUIRES an emailed verification code. A production deployment that starts
+      // without SMTP has a signup funnel that answers 500 on its second step, and nothing
+      // anywhere says so — which is exactly what happened before these were declared.
+      const env = productionEnv();
+      delete env[name];
+      const { error } = check(env);
+      expect(error?.details.map((d) => d.context?.key)).toContain(name);
+    });
+
+    it('refuses to boot a deployment with no Redis', () => {
+      const env = productionEnv();
+      delete env.REDIS_HOST;
+      const { error } = check(env);
+      expect(error?.details.map((d) => d.context?.key)).toContain('REDIS_HOST');
+    });
+
+    it('accepts REDIS_URL in place of the discrete Redis variables', () => {
+      const env = productionEnv();
+      delete env.REDIS_HOST;
+      env.REDIS_URL = 'rediss://default:secret@cache.internal:6380';
+      // REDIS_HOST keeps its own requirement, so both are supplied by real deployments; what this
+      // pins is that the URL form is accepted and validated as one.
+      env.REDIS_HOST = 'cache.internal';
+      const { error, value } = check(env);
+      expect(error).toBeUndefined();
+      expect(value.REDIS_URL).toBe('rediss://default:secret@cache.internal:6380');
+    });
+
+    it('rejects a Redis URL that is not a redis URL', () => {
+      const env = productionEnv();
+      env.REDIS_URL = 'https://cache.internal';
+      const { error } = check(env);
+      expect(error?.details.map((d) => d.context?.key)).toContain('REDIS_URL');
+    });
+
+    it('coerces REDIS_TLS to a real boolean', () => {
+      // Same hazard as DB_SSL: every environment variable is a string, and `'false'` is truthy.
+      const { value } = check({ ...productionEnv(), REDIS_TLS: 'false' });
+      expect(value.REDIS_TLS).toBe(false);
     });
 
     it('accepts production once everything is supplied', () => {

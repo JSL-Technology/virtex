@@ -21,6 +21,7 @@ import { PasswordService } from './password.service';
 import { JwtService } from '@nestjs/jwt';
 import { MembershipService } from '../../organizations/services/membership.service';
 import { PaymentService } from '../../payment/payment.service';
+import { ConfigService } from '@nestjs/config';
 
 describe('RegistrationService', () => {
   let service: RegistrationService;
@@ -73,8 +74,15 @@ describe('RegistrationService', () => {
       validate: jest.fn().mockResolvedValue({ success: true, errors: [] })
   };
 
+  // `provision` is what gives a new tenant its chart of accounts and taxes. It is part of the
+  // strategy contract now because registration CALLS it — for a long time nothing did, and the
+  // only caller in the repository was the strategy's own unit test.
+  const mockStrategy = {
+    validate: jest.fn().mockResolvedValue(true),
+    provision: jest.fn().mockResolvedValue(undefined),
+  };
   const mockStrategyFactory = {
-      getStrategy: jest.fn().mockReturnValue({ validate: jest.fn().mockResolvedValue(true) })
+      getStrategy: jest.fn().mockReturnValue(mockStrategy)
   };
 
   const mockLocalizationService = {
@@ -108,6 +116,7 @@ describe('RegistrationService', () => {
         // the real collaborator here even though these tests assert nothing about it.
         { provide: MembershipService, useValue: { grant: jest.fn(), listFor: jest.fn().mockResolvedValue([]) } },
         { provide: PaymentService, useValue: mockPaymentService },
+        { provide: ConfigService, useValue: { get: jest.fn(() => false) } },
       ],
     }).compile();
 
@@ -168,8 +177,7 @@ describe('RegistrationService', () => {
       runInTransaction();
       (mockQueryRunner.manager.findOne as jest.Mock)
         .mockResolvedValueOnce(pending) // the pending registration
-        .mockResolvedValueOnce(null) // no existing user for this email (idempotency probe)
-        .mockResolvedValueOnce(null) // materializeAccount: no user with this email
+        .mockResolvedValueOnce(null) // materializeAccount: no identity with this email yet
         .mockResolvedValueOnce({ id: 'existing-org' }); // an organization already holds the tax id
 
       await expect(
@@ -185,8 +193,7 @@ describe('RegistrationService', () => {
       runInTransaction();
       (mockQueryRunner.manager.findOne as jest.Mock)
         .mockResolvedValueOnce(pending)
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(null) // no identity with this email yet
         .mockResolvedValueOnce(null) // nothing in THIS region holds the tax id
         .mockResolvedValueOnce({ id: 'plan-1', slug: 'pro' }); // the plan exists
       mockOrganizationsService.create.mockResolvedValue({ id: 'new-org', legalName: 'Test Org' });
@@ -211,9 +218,8 @@ describe('RegistrationService', () => {
       runInTransaction();
       (mockQueryRunner.manager.findOne as jest.Mock)
         .mockResolvedValueOnce(pending)
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(null) // no identity with this email yet
+        .mockResolvedValueOnce(null) // nothing holds the tax id
         .mockResolvedValueOnce(null); // the plan slug resolves to nothing
       mockOrganizationsService.create.mockResolvedValue({ id: 'new-org', legalName: 'Test Org' });
       (mockQueryRunner.manager.create as jest.Mock).mockImplementation((_e, dto) => dto);

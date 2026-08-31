@@ -29,12 +29,47 @@
           <option *ngFor="let ind of industries" [value]="ind.id">{{ ind.label | translate }}</option>
         </select>
         <div class="select-chevron">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-9"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </div>
       </div>
       <div *ngIf="group.get('industry')?.touched && group.get('industry')?.invalid" class="error-text">
         {{ 'REGISTER.ERRORS.REQUIRED' | translate }}
       </div>
+    </div>
+
+    <!--
+      Company size. The control and its options existed in the component and were never rendered,
+      so the field was collected by nobody, accepted by the DTO, and stored as null on every
+      tenant — while the plan step is meant to use it to recommend a tier.
+    -->
+    <div class="form-field">
+      <label class="input-label" for="companySize">{{ 'REGISTER.COMPANY_SIZE' | translate }}</label>
+      <div class="custom-select-wrapper">
+        <div class="select-icon">
+          <lucide-icon [img]="UsersIcon" size="18"></lucide-icon>
+        </div>
+        <select id="companySize" formControlName="companySize" class="custom-select">
+          <option value="" disabled selected>{{ 'REGISTER.COMPANY_SIZE_PLACEHOLDER' | translate }}</option>
+          <option *ngFor="let size of companySizes" [value]="size.id">{{ size.label }}</option>
+        </select>
+        <div class="select-chevron">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!--
+      Honeypot. Hidden from people, offered to bots, and it has to be INSIDE the form and INSIDE
+      the payload to do anything: the control was declared in `register.page.ts` and rendered
+      nowhere, so no submission ever carried it and the server's honeypot branch — with its
+      believable fake success and its timing delay — was unreachable from the product.
+
+      `aria-hidden` plus `tabindex="-1"` keeps it away from screen readers and from the tab order,
+      which is what separates a honeypot from an accessibility defect.
+    -->
+    <div class="hp-field" aria-hidden="true">
+      <label for="fax">Fax</label>
+      <input id="fax" type="text" formControlName="fax" tabindex="-1" autocomplete="off">
     </div>
 
   </div>

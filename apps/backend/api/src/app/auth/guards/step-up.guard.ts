@@ -3,18 +3,16 @@ import {
   CanActivate,
   ExecutionContext,
   UnauthorizedException,
-  Inject,
   Logger,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
 import type { HttpRequest as Request } from '../../common/http/http.types';
 import { STEP_UP_SCOPE_KEY } from '../decorators/step-up.decorator';
 import { SINGLE_USE_SCOPES, StepUpScope } from '../enums/step-up-scope.enum';
 import { AuthConfig } from '../auth.config';
 import { STEP_UP_COOKIE_NAMES } from '../services/cookie.service';
+import { AtomicCacheService } from '../../cache/atomic-cache.service';
 
 interface StepUpPayload {
   sub: string;
@@ -51,7 +49,7 @@ export class StepUpGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
     private jwtService: JwtService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private readonly atomicCache: AtomicCacheService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -109,54 +107,26 @@ export class StepUpGuard implements CanActivate {
    *
    * A get-then-set leaves a window in which two concurrent requests both read "unused" and both
    * proceed — and for the scopes that are single-use, that window is the whole protection:
-   * impersonation, account deletion, session revocation. The previous implementation documented
-   * the race and accepted it "because cache-manager has no atomic set-if-absent". Redis does:
-   * `SET key value NX PX ttl` returns nil when the key already exists, so the claim and the check
-   * are one round trip and exactly one caller can win.
+   * impersonation, account deletion, session revocation.
    *
-   * The in-memory store used in development and tests has no NX either, so the get-then-set path
-   * remains as a fallback — correct there, because that store is single-process by construction.
+   * The atomic claim lives in `AtomicCacheService`. It used to live here, reaching into
+   * `cacheManager.store` for a Redis client — a property cache-manager 7 does not have, so the
+   * lookup always returned null and the guard always took the non-atomic in-memory branch. The
+   * shared service finds the client through Keyv's documented accessor and refuses to boot a
+   * deployment that has none, so the fallback can no longer be reached without anyone noticing.
    */
   private async consumeSingleUse(jti: string): Promise<void> {
     if (!jti) {
       throw new UnauthorizedException('Malformed step-up token');
     }
 
-    const key = `stepup_jti:${jti}`;
-    const ttl = AuthConfig.STEP_UP_TOKEN_TTL;
+    const claimed = await this.atomicCache.claimOnce(
+      `stepup_jti:${jti}`,
+      AuthConfig.STEP_UP_TOKEN_TTL,
+    );
 
-    const redis = this.redisClient();
-    if (redis) {
-      // NX: set only if absent. A nil reply means somebody already spent this token.
-      const claimed = await redis.set(key, '1', 'PX', ttl, 'NX');
-      if (claimed !== 'OK') {
-        throw new UnauthorizedException('Step-up token already used');
-      }
-      return;
-    }
-
-    if (await this.cacheManager.get(key)) {
+    if (!claimed) {
       throw new UnauthorizedException('Step-up token already used');
     }
-    await this.cacheManager.set(key, 1, ttl);
-  }
-
-  /**
-   * The underlying Redis client, when the cache is backed by one.
-   *
-   * Reached through the store rather than injected so this guard keeps working unchanged with the
-   * in-memory store, and so no module has to gain a Redis dependency it otherwise would not have.
-   */
-  private redisClient(): {
-    set(key: string, value: string, mode: 'PX', ttl: number, nx: 'NX'): Promise<string | null>;
-  } | null {
-    const store = (this.cacheManager as unknown as { store?: Record<string, unknown> }).store;
-    const client = (store?.['client'] ?? store?.['redis'] ?? store?.['getClient']) as
-      | { set?: unknown }
-      | undefined;
-    const resolved = typeof client === 'function' ? (client as () => unknown)() : client;
-    return resolved && typeof (resolved as { set?: unknown }).set === 'function'
-      ? (resolved as never)
-      : null;
   }
 }

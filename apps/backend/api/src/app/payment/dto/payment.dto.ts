@@ -1,5 +1,6 @@
-import { IsNotEmpty, IsString, Matches, MaxLength } from 'class-validator';
+import { IsIn, IsNotEmpty, IsOptional, IsString, Matches, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { BILLING_PERIODS, type BillingPeriod } from '../../saas/enums/billing-period.enum';
 
 /**
  * Start a Checkout session for an existing organization.
@@ -19,6 +20,12 @@ export class CreateCheckoutSessionDto {
   // anything that is not a plan slug from reaching the lookup at all.
   @Matches(/^[a-z0-9][a-z0-9-]*$/, { message: 'El plan seleccionado no es válido.' })
   planSlug!: string;
+
+  /** Monthly or annual. Defaults to monthly. */
+  @ApiProperty({ enum: BILLING_PERIODS, required: false, default: 'monthly' })
+  @IsOptional()
+  @IsIn(BILLING_PERIODS, { message: 'El periodo de facturación no es válido.' })
+  billingPeriod?: BillingPeriod;
 }
 
 /** Reconcile an organization's subscription after the browser returns from Checkout. */

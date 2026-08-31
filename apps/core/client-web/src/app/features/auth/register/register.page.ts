@@ -230,7 +230,6 @@ export class RegisterPage implements OnInit {
     }
 
     this.registerForm = this.fb.group({
-      fax: [''],
       accountInfo: this.fb.group({
         firstName: ['', [Validators.required]],
         lastName: ['', [Validators.required]],
@@ -284,9 +283,17 @@ export class RegisterPage implements OnInit {
         companyName: ['', [Validators.required]],
         industry: ['', [Validators.required]],
         companySize: [''],
+        // Honeypot. It lives in THIS group because that is the one `StepBusiness` renders — it
+        // used to sit at the root of the form, where no template referenced it, so it was never
+        // shown to a bot and never submitted. A honeypot that is not in the payload is not a
+        // honeypot; the server's entire spam branch was unreachable from the product.
+        fax: [''],
       }),
       plan: this.fb.group({
         selectedPlanId: ['starter', [Validators.required]],
+        // Monthly unless the customer picks otherwise, and only offered when every plan has an
+        // annual Stripe Price behind it — the server refuses a period it cannot charge.
+        billingPeriod: ['monthly', [Validators.required]],
         agreeToTerms: [false, [Validators.requiredTrue]],
       }),
     });
@@ -574,7 +581,7 @@ export class RegisterPage implements OnInit {
 
     this.recaptchaV3Service.execute('register').subscribe({
       next: (recaptchaToken) => {
-        const payload: RegisterPayload & { planId: string } = {
+        const payload: RegisterPayload & { planId: string; billingPeriod: string } = {
           firstName: formValue.accountInfo.firstName,
           lastName: formValue.accountInfo.lastName,
           email: formValue.accountInfo.email,
@@ -593,11 +600,15 @@ export class RegisterPage implements OnInit {
           recaptchaToken,
           industry: formValue.business.industry,
           companySize: formValue.business.companySize || undefined,
+          // Sent only when a bot filled it. The server answers a honeypot hit with a believable
+          // success and no session, so the payload has to carry the field for that to ever run.
+          fax: formValue.business.fax || undefined,
           address: formValue.configuration.address,
           city: formValue.configuration.city,
           state: formValue.configuration.state,
           postalCode: formValue.configuration.postalCode || undefined,
           planId: formValue.plan.selectedPlanId,
+          billingPeriod: formValue.plan.billingPeriod,
         };
 
         // Payment-first: the backend validates and returns a Stripe Checkout URL.

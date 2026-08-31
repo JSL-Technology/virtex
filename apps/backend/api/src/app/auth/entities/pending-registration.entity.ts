@@ -1,4 +1,13 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, Index } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  Index,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
+import { Organization } from '../../organizations/entities/organization.entity';
 
 export enum PendingRegistrationStatus {
   PENDING = 'pending',
@@ -122,6 +131,31 @@ export class PendingRegistration {
   failureReason: string | null;
 
   /** The Stripe subscription created for a payment whose account could not be materialised. */
+  /**
+   * The organization this signup produced, once it has produced one.
+   *
+   * Completion used to be judged by looking up `users` by email: if a user with that address
+   * existed, the signup was treated as already done. That reasoning only holds while one email
+   * can own exactly one tenant — and it stopped holding the moment an existing customer was
+   * allowed to register a second company, because then the lookup finds their FIRST account and
+   * the second one is silently never created, after payment.
+   *
+   * Idempotency is now a fact about this row: it either has an organization or it does not.
+   */
+  // Named so the entity and the migration describe ONE index rather than two on the same column.
+  @Index('IDX_pending_registrations_organization_id')
+  @Column({ name: 'organization_id', type: 'uuid', nullable: true })
+  organizationId: string | null;
+
+  /**
+   * Deleted with the tenant. This row holds the applicant's argon2 hash, their full fiscal
+   * identity and their address; once the account it produced is gone, keeping it is retention
+   * of personal data with no purpose left to serve.
+   */
+  @ManyToOne(() => Organization, { onDelete: 'CASCADE', nullable: true })
+  @JoinColumn({ name: 'organization_id' })
+  organization?: Organization | null;
+
   @Column({ name: 'orphaned_subscription_id', type: 'varchar', nullable: true })
   orphanedSubscriptionId: string | null;
 

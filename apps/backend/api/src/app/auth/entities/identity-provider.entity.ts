@@ -5,7 +5,10 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+import { Organization } from '../../organizations/entities/organization.entity';
 
 export enum IdentityProviderType {
   OIDC = 'oidc',
@@ -29,6 +32,14 @@ export class IdentityProvider {
 
   @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
+
+  /**
+   * Enforced by the database, not merely by convention. A federation trust that outlives the
+   * tenant it was configured for is a login path into an account that no longer exists.
+   */
+  @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'organization_id' })
+  organization?: Organization;
 
   @Column({ length: 120 })
   name: string;

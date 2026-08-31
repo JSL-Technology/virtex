@@ -1,5 +1,10 @@
-
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityManager } from 'typeorm';
 import { Organization } from './entities/organization.entity';
@@ -9,6 +14,11 @@ import { CreateSubsidiaryDto } from './dto/create-subsidiary.dto';
 import { AccountSegmentsService } from '../chart-of-accounts/account-segments.service';
 import { SaasService } from '../saas/saas.service';
 import { SaasResource } from '../saas/enums/saas-resource.enum';
+import { LocalizationService } from '../localization/services/localization.service';
+import { MembershipService } from './services/membership.service';
+import { coaSegmentsFor } from '../localization/fiscal/coa-builder';
+import { findCountryProfile } from '../localization/fiscal/country-profiles';
+import { canonicalizeTaxId, validateTaxId } from '../localization/fiscal/tax-id-validators';
 
 @Injectable()
 export class OrganizationsService {
@@ -19,6 +29,8 @@ export class OrganizationsService {
     private readonly subsidiaryRepository: Repository<OrganizationSubsidiary>,
     private readonly accountSegmentsService: AccountSegmentsService,
     private readonly saasService: SaasService,
+    private readonly localizationService: LocalizationService,
+    private readonly membershipService: MembershipService,
   ) {}
 
   async findOne(id: string): Promise<Organization> {
@@ -42,7 +54,48 @@ export class OrganizationsService {
     });
   }
 
-  async createSubsidiary(parentOrganizationId: string, createSubsidiaryDto: CreateSubsidiaryDto): Promise<OrganizationSubsidiary> {
+  /**
+   * Create a subsidiary that is a usable tenant from the moment it exists.
+   *
+   * It previously created an `Organization` carrying a legal name, a tax id and a country and
+   * nothing else — no fiscal region, no chart of accounts, no taxes, no plan, no subscription
+   * status and no membership. With entitlement enforced globally, that tenant refused every
+   * request it ever received; and with no `user_organizations` row, nobody could switch into it
+   * to find out. It was a write-only record.
+   *
+   * A subsidiary is a second set of books under the same commercial relationship, so:
+   *   - its fiscal identity is validated and canonicalised exactly like a signup's,
+   *   - it receives the country's chart of accounts and taxes in the same transaction,
+   *   - it inherits the parent's plan and subscription — it is not billed separately, and
+   *     inheriting is what stops `SubscriptionActiveGuard` from refusing every request,
+   *   - the person who created it becomes a member, so they can actually switch to it.
+   */
+  async createSubsidiary(
+    parentOrganizationId: string,
+    createSubsidiaryDto: CreateSubsidiaryDto,
+    createdByUserId: string,
+  ): Promise<OrganizationSubsidiary> {
+    const country = createSubsidiaryDto.country?.toUpperCase() ?? '';
+    const profile = findCountryProfile(country);
+    if (!profile) {
+      throw new BadRequestException(
+        `El país "${createSubsidiaryDto.country}" todavía no está disponible.`,
+      );
+    }
+    if (!validateTaxId(country, createSubsidiaryDto.taxId)) {
+      throw new BadRequestException(
+        `El ${profile.taxId.label} no es válido para ${profile.name}.`,
+      );
+    }
+
+    const taxId = canonicalizeTaxId(country, createSubsidiaryDto.taxId);
+    const region = await this.localizationService.findRegionByCountryCode(country);
+    if (!region) {
+      throw new InternalServerErrorException(
+        'La configuración fiscal de ese país no está disponible en este momento.',
+      );
+    }
+
     return this.organizationRepository.manager.transaction(async (manager) => {
       // Group consolidation is an enterprise capability, and every subsidiary is a second set of
       // books. Unmetered, a starter plan could carry an unlimited group structure.
@@ -52,19 +105,51 @@ export class OrganizationsService {
         SaasResource.SUBSIDIARIES,
       );
 
-      // 1. Create the new organization for the subsidiary
-      const newOrg = manager.create(Organization, {
-        legalName: createSubsidiaryDto.legalName,
-        taxId: createSubsidiaryDto.taxId,
-        country: createSubsidiaryDto.country,
-        // Default fields
+      const parent = await manager.findOne(Organization, {
+        where: { id: parentOrganizationId },
       });
-      const savedOrg = await manager.save(newOrg);
+      if (!parent) {
+        throw new NotFoundException('Organización matriz no encontrada.');
+      }
 
-      // 2. Initialize segment definitions
-      await this.accountSegmentsService.initializeDefault(savedOrg.id, manager);
+      // Same rule the signup applies: one fiscal identity per market.
+      const duplicate = await manager.findOne(Organization, {
+        where: { taxId, fiscalRegionId: region.id },
+      });
+      if (duplicate) {
+        throw new ConflictException(
+          `Ya existe una organización registrada con ese ${profile.taxId.label}.`,
+        );
+      }
 
-      // 3. Create the relationship
+      const savedOrg = await this.create(
+        {
+          legalName: createSubsidiaryDto.legalName,
+          taxId,
+          country,
+          fiscalRegionId: region.id,
+          taxIdVerifiedAt: new Date(),
+          // Billed through the parent. Copied rather than left null because the entitlement guard
+          // reads these fields on every request the subsidiary serves.
+          planId: parent.planId,
+          subscriptionStatus: parent.subscriptionStatus,
+          subscriptionPeriodEnd: parent.subscriptionPeriodEnd,
+          gracePeriodEnd: parent.gracePeriodEnd,
+          externalCustomerId: parent.externalCustomerId,
+          externalSubscriptionId: parent.externalSubscriptionId,
+          timezone: parent.timezone,
+        },
+        manager,
+      );
+
+      // Chart of accounts and taxes, in the same transaction that created the books they belong
+      // to. A subsidiary without them is exactly the empty tenant a signup used to produce.
+      await this.localizationService.applyFiscalPackage(savedOrg, manager);
+
+      // Without this the creator cannot switch into the tenant they just created:
+      // `resolveOrganizationContext` validates the target against `user_organizations`.
+      await this.membershipService.grant(createdByUserId, savedOrg.id, manager);
+
       const subsidiary = manager.create(OrganizationSubsidiary, {
         parentOrganizationId: parentOrganizationId,
         subsidiaryOrganizationId: savedOrg.id,
@@ -75,21 +160,30 @@ export class OrganizationsService {
     });
   }
 
+  /**
+   * Create an organization together with the account-code structure its chart of accounts needs.
+   *
+   * The structure is derived from the country — `coaSegmentsFor` is declared beside the country's
+   * chart-of-accounts template — rather than from a fixed 1-2-2-3 default that no template could
+   * satisfy. See `AccountSegmentsService.initializeDefault`.
+   */
   async create(
     createOrganizationDto: Partial<Organization>,
     manager?: EntityManager,
   ): Promise<Organization> {
+    const segments = coaSegmentsFor(createOrganizationDto.country ?? '');
+
     if (manager) {
       const org = manager.create(Organization, createOrganizationDto);
       const savedOrg = await manager.save(org);
-      await this.accountSegmentsService.initializeDefault(savedOrg.id, manager);
+      await this.accountSegmentsService.initializeDefault(savedOrg.id, manager, segments);
       return savedOrg;
     }
 
     return this.organizationRepository.manager.transaction(async (m) => {
       const org = m.create(Organization, createOrganizationDto);
       const savedOrg = await m.save(org);
-      await this.accountSegmentsService.initializeDefault(savedOrg.id, m);
+      await this.accountSegmentsService.initializeDefault(savedOrg.id, m, segments);
       return savedOrg;
     });
   }

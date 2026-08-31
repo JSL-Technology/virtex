@@ -1,7 +1,8 @@
-import { IsString, Length, IsEnum, IsObject, IsOptional } from 'class-validator';
+import { IsString, Length, IsEnum, IsObject, IsOptional, IsIn } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { VerificationType } from '../entities/verification-code.entity';
 import { IsVerificationTarget } from '../../common/validators/is-verification-target.validator';
+import { BILLING_PERIODS, type BillingPeriod } from '../../saas/enums/billing-period.enum';
 
 // H-03 FIX: tempToken removed — pending session is tracked via httpOnly cookie only.
 export class Verify2faDto {
@@ -63,6 +64,12 @@ export class CreateCheckoutSessionDto {
   @IsString()
   @Length(1, 80)
   planId!: string;
+
+  /** Monthly or annual. Defaults to monthly. */
+  @ApiProperty({ enum: BILLING_PERIODS, required: false, default: 'monthly' })
+  @IsOptional()
+  @IsIn(BILLING_PERIODS, { message: 'El periodo de facturación no es válido.' })
+  billingPeriod?: BillingPeriod;
 }
 
 export class VerifyWebAuthnRegistrationDto {

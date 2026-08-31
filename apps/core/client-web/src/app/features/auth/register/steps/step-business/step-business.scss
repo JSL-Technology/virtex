@@ -63,3 +63,21 @@
     color: var(--content-tertiary);
   }
 }
+
+/**
+ * The honeypot is positioned off-screen rather than `display: none`.
+ *
+ * A field that is `display:none` or `hidden` is skipped by many bots precisely because it is the
+ * obvious trap; one that is merely moved out of view is filled by the same automation that fills
+ * the rest of the form. It stays out of the tab order and out of the accessibility tree through
+ * `tabindex="-1"` and `aria-hidden` on the markup.
+ */
+.hp-field {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}

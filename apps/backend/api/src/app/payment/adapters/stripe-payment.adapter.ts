@@ -59,38 +59,57 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
     const problems: string[] = [];
 
     for (const plan of SAAS_PLANS) {
-      const priceId = process.env[plan.monthlyPriceIdVar];
-      if (!priceId) {
-        problems.push(`${plan.slug}: ${plan.monthlyPriceIdVar} is not set`);
-        continue;
-      }
+      // Both billing periods are verified. The annual one is optional — a plan with no annual
+      // Price is monthly-only and the catalogue says so — but where it exists, its amounts must
+      // agree with ours exactly as the monthly ones do.
+      const periods: Array<{ label: string; priceId?: string; amounts: Readonly<Record<string, number>>; required: boolean }> = [
+        { label: 'monthly', priceId: process.env[plan.monthlyPriceIdVar], amounts: plan.monthlyPrices, required: true },
+        { label: 'annual', priceId: process.env[plan.annualPriceIdVar], amounts: plan.annualPrices, required: false },
+      ];
 
-      let price: Stripe.Price;
-      try {
-        price = await this.stripe.prices.retrieve(priceId, { expand: ['currency_options'] });
-      } catch (error) {
-        problems.push(`${plan.slug}: price ${priceId} could not be read (${(error as Error).message})`);
-        continue;
-      }
+      for (const period of periods) {
+        if (!period.priceId) {
+          if (period.required) {
+            problems.push(`${plan.slug}: ${plan.monthlyPriceIdVar} is not set`);
+          } else if (Object.keys(period.amounts).length > 0) {
+            // An amount with no Price to charge it from is worse than no annual plan at all: the
+            // catalogue would quote a yearly figure that checkout cannot honour.
+            problems.push(
+              `${plan.slug}: annual amounts are configured but ${plan.annualPriceIdVar} is not set`,
+            );
+          }
+          continue;
+        }
 
-      for (const [currency, expected] of Object.entries(plan.monthlyPrices)) {
-        const code = currency.toLowerCase();
-        const actual =
-          code === price.currency
-            ? price.unit_amount
-            : price.currency_options?.[code]?.unit_amount ?? null;
-
-        if (actual === null || actual === undefined) {
+        let price: Stripe.Price;
+        try {
+          price = await this.stripe.prices.retrieve(period.priceId, { expand: ['currency_options'] });
+        } catch (error) {
           problems.push(
-            `${plan.slug}: we quote ${currency} but price ${priceId} has no amount for it`,
+            `${plan.slug}/${period.label}: price ${period.priceId} could not be read (${(error as Error).message})`,
           );
           continue;
         }
-        if (actual !== expected) {
-          const factor = minorUnitFactor(currency);
-          problems.push(
-            `${plan.slug}/${currency}: we display ${expected / factor} but Stripe charges ${actual / factor}`,
-          );
+
+        for (const [currency, expected] of Object.entries(period.amounts)) {
+          const code = currency.toLowerCase();
+          const actual =
+            code === price.currency
+              ? price.unit_amount
+              : price.currency_options?.[code]?.unit_amount ?? null;
+
+          if (actual === null || actual === undefined) {
+            problems.push(
+              `${plan.slug}/${period.label}: we quote ${currency} but price ${period.priceId} has no amount for it`,
+            );
+            continue;
+          }
+          if (actual !== expected) {
+            const factor = minorUnitFactor(currency);
+            problems.push(
+              `${plan.slug}/${period.label}/${currency}: we display ${expected / factor} but Stripe charges ${actual / factor}`,
+            );
+          }
         }
       }
     }
@@ -697,6 +716,7 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
         }
 
         await manager.save(organization);
+        await this.saasService.clearOrganizationCache(organization.id);
         this.logger.log(`Updated organization ${organization.id} with subscription ${subscriptionId}`);
     } else {
         this.logger.error(`Organization not found for customer ${customerId}`);
@@ -730,6 +750,10 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
     }
     organization.subscriptionStatus = 'past_due';
     await manager.save(organization);
+    // The entitlement guard reads the subscription status from the CACHED principal, so a status
+    // change that does not invalidate it is a change the product does not act on for a full cache
+    // TTL. Only the paid path used to do this.
+    await this.saasService.clearOrganizationCache(organization.id);
 
     this.eventEmitter.emit('billing.payment_failed', {
       organizationId: organization.id,
@@ -830,6 +854,7 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
         }
 
         await manager.save(organization);
+        await this.saasService.clearOrganizationCache(organization.id);
         this.logger.log(`Updated organization ${organization.id} subscription status to ${subscription.status}`);
     }
   }

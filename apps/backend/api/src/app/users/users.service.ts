@@ -532,14 +532,17 @@ export class UsersService {
       await this.mailService.sendPasswordResetEmail(user, rawToken, '1h');
     } catch (error) {
       // H14 FIX: Do not log email in plain. Use structured logging without PII.
-      this.logger.error({ event: 'password_reset_email_failed', userId: user.id }, 'Failed to send password reset email');
+      this.logger.error(
+        { event: 'password_reset_email_not_queued', userId: user.id },
+        `Failed to queue the password reset email: ${(error as Error).message}`,
+      );
 
-      user.security.passwordResetToken = null;
-      user.security.passwordResetExpires = null;
-      await this.userRepository.save(user);
-
+      // The token stays. It used to be cleared here, which made sense when the send was a direct
+      // SMTP call that had definitively failed; now delivery is a queued job with retries, so
+      // destroying the token would invalidate a link the queue is still going to deliver. What
+      // reaches this branch is a queue outage, and the administrator can simply try again.
       throw new Error(
-        'Could not send password reset email. Please try again later.',
+        'No se pudo encolar el correo de restablecimiento. Inténtalo de nuevo en unos minutos.',
       );
     }
   }
@@ -749,7 +752,7 @@ export class UsersService {
       security: new UserSecurity() // Initialize security
     });
 
-    return this.dataSource.transaction(async (manager) => {
+    const created = await this.dataSource.transaction(async (manager) => {
         await this.saasService.enforceLimit(manager, organizationId, SaasResource.USERS);
 
         await manager.save(newUser);
@@ -758,14 +761,32 @@ export class UsersService {
         // rollback and grant access to a tenant for a user that was never created.
         await this.membershipService.grant(newUser.id, organizationId, manager);
 
-        // Email the RAW token (only the hash is stored server-side).
-        await this.mailService.sendUserInvitation(newUser, rawInvitationToken);
-
-        delete newUser.invitationToken;
-        delete newUser.invitationTokenExpires;
-
         return newUser;
     });
+
+    // Queued AFTER the transaction commits, and deliberately so.
+    //
+    // The invitation used to be sent inside it, which had the failure modes back to front: an
+    // unreachable SMTP server rolled back a user that had been created correctly, while an email
+    // queued before a later rollback would have invited somebody to an account that does not
+    // exist. Committing first and queueing after is the only order where neither happens.
+    //
+    // A queue failure is logged rather than thrown: the member exists and can be re-invited, and
+    // failing the request after a successful commit would tell the administrator the opposite of
+    // what happened.
+    try {
+      await this.mailService.sendUserInvitation(created, rawInvitationToken);
+    } catch (error) {
+      this.logger.error(
+        { event: 'invitation_email_not_queued', userId: created.id },
+        `User created but the invitation could not be queued: ${(error as Error).message}`,
+      );
+    }
+
+    delete created.invitationToken;
+    delete created.invitationTokenExpires;
+
+    return created;
   }
 
   /**

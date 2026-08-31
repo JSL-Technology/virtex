@@ -35,6 +35,91 @@ export const STATUTORY_PLAN_REQUIRED: Readonly<Record<string, string>> = {
   BO: 'Bolivia exige el plan de cuentas del SIN para la presentación de estados financieros.',
 };
 
+/**
+ * The shape of an account CODE, per country — declared here, beside the codes themselves.
+ *
+ * `accounts` are addressed by an ordered list of segments (`AccountSegmentDefinition`), and
+ * `ChartOfAccountsService.create` refuses any account whose segment count differs from the
+ * organization's definition. Those two facts lived in two modules that never agreed: this file
+ * emitted one segment per account while `AccountSegmentsService.initializeDefault` wrote a fixed
+ * four-level structure into every organization, so the FIRST account of the FIRST tenant was
+ * rejected — provisioning could not survive its own opening balance sheet.
+ *
+ * Declaring the structure next to the template makes the two impossible to separate: `group()`
+ * and `leaf()` split their code through {@link splitCoaCode}, `OrganizationsService` initialises
+ * the organization from {@link coaSegmentsFor}, and `coa-segments.spec.ts` asserts for every
+ * supported country that every code the template emits fits the structure the same country
+ * declares. A statutory plan added later — Colombia's PUC writes `1105.05`, Peru's PCGE `10.1` —
+ * declares its own lengths here and the template follows automatically.
+ */
+export interface CoaSegmentSpec {
+  name: string;
+  length: number;
+  isRequired: boolean;
+}
+
+/**
+ * The IFRS starting plan below writes four-digit codes (`1000` → `1100` → `1110`), which is one
+ * segment, not four. A code is a single addressable value here; the hierarchy is carried by
+ * `parentId`, not by the code's punctuation.
+ */
+const DEFAULT_COA_SEGMENTS: readonly CoaSegmentSpec[] = Object.freeze([
+  Object.freeze({ name: 'Cuenta', length: 4, isRequired: true }),
+]);
+
+/** Countries whose statutory plan uses a different code shape declare it here. */
+const COA_SEGMENTS_BY_COUNTRY: Readonly<Record<string, readonly CoaSegmentSpec[]>> = {};
+
+/** The account-code structure a country's chart of accounts is written in. */
+export function coaSegmentsFor(countryCode: string): readonly CoaSegmentSpec[] {
+  return COA_SEGMENTS_BY_COUNTRY[countryCode?.toUpperCase() ?? ''] ?? DEFAULT_COA_SEGMENTS;
+}
+
+/** Total number of characters a country's account code carries. */
+export function coaCodeLength(countryCode: string): number {
+  return coaSegmentsFor(countryCode).reduce((total, segment) => total + segment.length, 0);
+}
+
+/**
+ * Split a template code into the segments the country's structure declares.
+ *
+ * Throws rather than truncating: a code that does not fit the structure is a defect in the
+ * template, and the only thing worse than failing to provision is provisioning a chart whose
+ * codes have been silently reshaped.
+ */
+export function splitCoaCode(countryCode: string, code: string): string[] {
+  const specs = coaSegmentsFor(countryCode);
+  const expected = coaCodeLength(countryCode);
+  if (code.length !== expected) {
+    throw new Error(
+      `El código contable "${code}" no encaja en la estructura de ${countryCode} ` +
+        `(${specs.map((s) => s.length).join('-')}, ${expected} caracteres).`,
+    );
+  }
+  const segments: string[] = [];
+  let offset = 0;
+  for (const spec of specs) {
+    segments.push(code.slice(offset, offset + spec.length));
+    offset += spec.length;
+  }
+  return segments;
+}
+
+/**
+ * The balance a type normally carries. An account whose nature differs from this is a CONTRA
+ * account, and must say so — `ChartOfAccountsService` refuses the mismatch otherwise, which is
+ * how the opening chart's accumulated depreciation, allowance for doubtful accounts and sales
+ * returns used to abort provisioning on the second account they reached.
+ *
+ * Derived here rather than hand-flagged at each call site, so a future template account with an
+ * opposite balance is marked automatically instead of failing at run time.
+ */
+function normalNatureFor(type: AccountType): AccountNature {
+  return type === AccountType.ASSET || type === AccountType.EXPENSE
+    ? AccountNature.DEBIT
+    : AccountNature.CREDIT;
+}
+
 interface Leaf {
   code: string;
   name: string;
@@ -175,6 +260,7 @@ function labelsFor(countryCode: string): typeof ES {
 }
 
 function group(
+  countryCode: string,
   code: string,
   name: string,
   type: AccountType,
@@ -182,21 +268,33 @@ function group(
   nature: AccountNature,
   children: AccountTemplateDto[],
 ): AccountTemplateDto {
-  return { segments: [code], name, type, category, nature, isPostable: false, children };
+  return {
+    segments: splitCoaCode(countryCode, code),
+    name,
+    type,
+    category,
+    nature,
+    isContraAccount: nature !== normalNatureFor(type),
+    isPostable: false,
+    children,
+  };
 }
 
 function leaf(
+  countryCode: string,
   { code, name, nature }: Leaf,
   type: AccountType,
   category: AccountCategory,
   defaultNature: AccountNature,
 ): AccountTemplateDto {
+  const resolvedNature = nature ?? defaultNature;
   return {
-    segments: [code],
+    segments: splitCoaCode(countryCode, code),
     name,
     type,
     category,
-    nature: nature ?? defaultNature,
+    nature: resolvedNature,
+    isContraAccount: resolvedNature !== normalNatureFor(type),
     isPostable: true,
   };
 }
@@ -242,61 +340,61 @@ export function buildCountryCoaTemplate(countryCode: string): AccountTemplateDto
   const C = AccountNature.CREDIT;
 
   return [
-    group('1000', t.assets, AccountType.ASSET, AccountCategory.CURRENT_ASSET, D, [
-      group('1100', t.currentAssets, AccountType.ASSET, AccountCategory.CURRENT_ASSET, D, [
-        leaf({ code: '1110', name: t.cash }, AccountType.ASSET, AccountCategory.CURRENT_ASSET, D),
-        leaf({ code: '1120', name: t.banks }, AccountType.ASSET, AccountCategory.CURRENT_ASSET, D),
-        leaf({ code: '1130', name: t.receivables }, AccountType.ASSET, AccountCategory.CURRENT_ASSET, D),
-        leaf({ code: '1135', name: t.allowance, nature: C }, AccountType.ASSET, AccountCategory.CURRENT_ASSET, C),
-        leaf({ code: '1140', name: t.inventory }, AccountType.ASSET, AccountCategory.CURRENT_ASSET, D),
-        leaf({ code: '1150', name: taxReceivable }, AccountType.ASSET, AccountCategory.CURRENT_ASSET, D),
-        leaf({ code: '1155', name: withholdingReceivable }, AccountType.ASSET, AccountCategory.CURRENT_ASSET, D),
-        leaf({ code: '1160', name: t.prepaid }, AccountType.ASSET, AccountCategory.CURRENT_ASSET, D),
+    group(code, '1000', t.assets, AccountType.ASSET, AccountCategory.CURRENT_ASSET, D, [
+      group(code, '1100', t.currentAssets, AccountType.ASSET, AccountCategory.CURRENT_ASSET, D, [
+        leaf(code, { code: '1110', name: t.cash }, AccountType.ASSET, AccountCategory.CURRENT_ASSET, D),
+        leaf(code, { code: '1120', name: t.banks }, AccountType.ASSET, AccountCategory.CURRENT_ASSET, D),
+        leaf(code, { code: '1130', name: t.receivables }, AccountType.ASSET, AccountCategory.CURRENT_ASSET, D),
+        leaf(code, { code: '1135', name: t.allowance, nature: C }, AccountType.ASSET, AccountCategory.CURRENT_ASSET, C),
+        leaf(code, { code: '1140', name: t.inventory }, AccountType.ASSET, AccountCategory.CURRENT_ASSET, D),
+        leaf(code, { code: '1150', name: taxReceivable }, AccountType.ASSET, AccountCategory.CURRENT_ASSET, D),
+        leaf(code, { code: '1155', name: withholdingReceivable }, AccountType.ASSET, AccountCategory.CURRENT_ASSET, D),
+        leaf(code, { code: '1160', name: t.prepaid }, AccountType.ASSET, AccountCategory.CURRENT_ASSET, D),
       ]),
-      group('1200', t.nonCurrentAssets, AccountType.ASSET, AccountCategory.NON_CURRENT_ASSET, D, [
-        leaf({ code: '1210', name: t.ppe }, AccountType.ASSET, AccountCategory.NON_CURRENT_ASSET, D),
-        leaf({ code: '1220', name: t.depreciation, nature: C }, AccountType.ASSET, AccountCategory.NON_CURRENT_ASSET, C),
-        leaf({ code: '1230', name: t.intangibles }, AccountType.ASSET, AccountCategory.NON_CURRENT_ASSET, D),
-      ]),
-    ]),
-
-    group('2000', t.liabilities, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C, [
-      group('2100', t.currentLiabilities, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C, [
-        leaf({ code: '2110', name: t.payables }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
-        leaf({ code: '2120', name: t.accrued }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
-        leaf({ code: '2130', name: taxPayable }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
-        leaf({ code: '2135', name: withholdingPayable }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
-        leaf({ code: '2140', name: t.payroll }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
-        leaf({ code: '2150', name: t.incomeTax }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
-      ]),
-      group('2200', t.nonCurrentLiabilities, AccountType.LIABILITY, AccountCategory.NON_CURRENT_LIABILITY, C, [
-        leaf({ code: '2210', name: t.longTermDebt }, AccountType.LIABILITY, AccountCategory.NON_CURRENT_LIABILITY, C),
+      group(code, '1200', t.nonCurrentAssets, AccountType.ASSET, AccountCategory.NON_CURRENT_ASSET, D, [
+        leaf(code, { code: '1210', name: t.ppe }, AccountType.ASSET, AccountCategory.NON_CURRENT_ASSET, D),
+        leaf(code, { code: '1220', name: t.depreciation, nature: C }, AccountType.ASSET, AccountCategory.NON_CURRENT_ASSET, C),
+        leaf(code, { code: '1230', name: t.intangibles }, AccountType.ASSET, AccountCategory.NON_CURRENT_ASSET, D),
       ]),
     ]),
 
-    group('3000', t.equity, AccountType.EQUITY, AccountCategory.OWNERS_EQUITY, C, [
-      leaf({ code: '3100', name: t.capital }, AccountType.EQUITY, AccountCategory.OWNERS_EQUITY, C),
-      leaf({ code: '3200', name: t.legalReserve }, AccountType.EQUITY, AccountCategory.OWNERS_EQUITY, C),
-      leaf({ code: '3300', name: t.retained }, AccountType.EQUITY, AccountCategory.RETAINED_EARNINGS, C),
-      leaf({ code: '3400', name: t.periodResult }, AccountType.EQUITY, AccountCategory.RETAINED_EARNINGS, C),
+    group(code, '2000', t.liabilities, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C, [
+      group(code, '2100', t.currentLiabilities, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C, [
+        leaf(code, { code: '2110', name: t.payables }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
+        leaf(code, { code: '2120', name: t.accrued }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
+        leaf(code, { code: '2130', name: taxPayable }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
+        leaf(code, { code: '2135', name: withholdingPayable }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
+        leaf(code, { code: '2140', name: t.payroll }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
+        leaf(code, { code: '2150', name: t.incomeTax }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
+      ]),
+      group(code, '2200', t.nonCurrentLiabilities, AccountType.LIABILITY, AccountCategory.NON_CURRENT_LIABILITY, C, [
+        leaf(code, { code: '2210', name: t.longTermDebt }, AccountType.LIABILITY, AccountCategory.NON_CURRENT_LIABILITY, C),
+      ]),
     ]),
 
-    group('4000', t.revenue, AccountType.REVENUE, AccountCategory.OPERATING_REVENUE, C, [
-      leaf({ code: '4100', name: t.sales }, AccountType.REVENUE, AccountCategory.OPERATING_REVENUE, C),
-      leaf({ code: '4200', name: t.serviceRevenue }, AccountType.REVENUE, AccountCategory.OPERATING_REVENUE, C),
-      leaf({ code: '4300', name: t.discounts, nature: D }, AccountType.REVENUE, AccountCategory.OPERATING_REVENUE, D),
-      leaf({ code: '4900', name: t.otherIncome }, AccountType.REVENUE, AccountCategory.NON_OPERATING_REVENUE, C),
+    group(code, '3000', t.equity, AccountType.EQUITY, AccountCategory.OWNERS_EQUITY, C, [
+      leaf(code, { code: '3100', name: t.capital }, AccountType.EQUITY, AccountCategory.OWNERS_EQUITY, C),
+      leaf(code, { code: '3200', name: t.legalReserve }, AccountType.EQUITY, AccountCategory.OWNERS_EQUITY, C),
+      leaf(code, { code: '3300', name: t.retained }, AccountType.EQUITY, AccountCategory.RETAINED_EARNINGS, C),
+      leaf(code, { code: '3400', name: t.periodResult }, AccountType.EQUITY, AccountCategory.RETAINED_EARNINGS, C),
     ]),
 
-    group('5000', t.expenses, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D, [
-      leaf({ code: '5100', name: t.cogs }, AccountType.EXPENSE, AccountCategory.COST_OF_GOODS_SOLD, D),
-      leaf({ code: '5200', name: t.salaries }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),
-      leaf({ code: '5300', name: t.rent }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),
-      leaf({ code: '5400', name: t.utilities }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),
-      leaf({ code: '5500', name: t.depreciationExpense }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),
-      leaf({ code: '5600', name: t.professional }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),
-      leaf({ code: '5700', name: t.financial }, AccountType.EXPENSE, AccountCategory.NON_OPERATING_EXPENSE, D),
-      leaf({ code: '5900', name: t.otherExpenses }, AccountType.EXPENSE, AccountCategory.NON_OPERATING_EXPENSE, D),
+    group(code, '4000', t.revenue, AccountType.REVENUE, AccountCategory.OPERATING_REVENUE, C, [
+      leaf(code, { code: '4100', name: t.sales }, AccountType.REVENUE, AccountCategory.OPERATING_REVENUE, C),
+      leaf(code, { code: '4200', name: t.serviceRevenue }, AccountType.REVENUE, AccountCategory.OPERATING_REVENUE, C),
+      leaf(code, { code: '4300', name: t.discounts, nature: D }, AccountType.REVENUE, AccountCategory.OPERATING_REVENUE, D),
+      leaf(code, { code: '4900', name: t.otherIncome }, AccountType.REVENUE, AccountCategory.NON_OPERATING_REVENUE, C),
+    ]),
+
+    group(code, '5000', t.expenses, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D, [
+      leaf(code, { code: '5100', name: t.cogs }, AccountType.EXPENSE, AccountCategory.COST_OF_GOODS_SOLD, D),
+      leaf(code, { code: '5200', name: t.salaries }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),
+      leaf(code, { code: '5300', name: t.rent }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),
+      leaf(code, { code: '5400', name: t.utilities }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),
+      leaf(code, { code: '5500', name: t.depreciationExpense }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),
+      leaf(code, { code: '5600', name: t.professional }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),
+      leaf(code, { code: '5700', name: t.financial }, AccountType.EXPENSE, AccountCategory.NON_OPERATING_EXPENSE, D),
+      leaf(code, { code: '5900', name: t.otherExpenses }, AccountType.EXPENSE, AccountCategory.NON_OPERATING_EXPENSE, D),
     ]),
   ];
 }

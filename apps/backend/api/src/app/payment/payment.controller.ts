@@ -65,8 +65,13 @@ export class PaymentController {
     if (!plan) {
       throw new BadRequestException('Plan no encontrado.');
     }
-    if (!plan.monthlyPriceId) {
-      throw new BadRequestException('Este plan no está disponible para contratación en este momento.');
+    const priceId = SaasService.priceIdFor(plan, dto.billingPeriod ?? 'monthly');
+    if (!priceId) {
+      throw new BadRequestException(
+        dto.billingPeriod === 'annual'
+          ? 'Este plan no admite facturación anual en este momento.'
+          : 'Este plan no está disponible para contratación en este momento.',
+      );
     }
 
     const { successUrl, cancelUrl } = this.billingRedirectUrls();
@@ -75,7 +80,7 @@ export class PaymentController {
       const result = await this.paymentService.createCheckoutSession(
         user.organizationId,
         user.email,
-        plan.monthlyPriceId,
+        priceId,
         successUrl,
         cancelUrl
       );
