@@ -137,6 +137,25 @@ describe('translation coverage', () => {
     const cases: Array<[string, readonly string[]]> = [
       ['USER.STATUS', ['PENDING', 'ACTIVE', 'INACTIVE', 'ARCHIVED', 'BLOCKED']],
       ['USER.ROLE', ['ADMINISTRATOR', 'MEMBER', 'SELLER', 'ACCOUNTANT', 'NO_ROLE']],
+      // Stored values the client turns into keys. They are English words in the database and were
+      // once rendered straight into the badge, which is how a Spanish screen said "Partially Paid".
+      [
+        'INVOICES.STATUS',
+        ['DRAFT', 'PENDING', 'PAID', 'PARTIALLY_PAID', 'VOID', 'CREDIT_NOTE'],
+      ],
+      [
+        'INVOICES.PAYMENT_METHOD',
+        ['CASH', 'CHECK', 'CREDIT_CARD', 'DEBIT_CARD', 'CREDIT', 'BANK_TRANSFER', 'GIFT_CARD', 'SWAP', 'OTHER'],
+      ],
+      [
+        'ACCOUNTING.JOURNAL_ENTRIES',
+        ['STATUS_DRAFT', 'STATUS_PENDING_APPROVAL', 'STATUS_POSTED', 'STATUS_MODIFIED', 'STATUS_VOID', 'STATUS_REJECTED'],
+      ],
+      ['ACCOUNTING.PERIODS', ['STATUS_OPEN', 'STATUS_CLOSED']],
+      [
+        'ACCOUNTING.ACCOUNT_RECONCILIATION',
+        ['STATUS_RECONCILED', 'STATUS_PENDING', 'STATUS_WITH_DIFFERENCES'],
+      ],
     ];
 
     it.each(

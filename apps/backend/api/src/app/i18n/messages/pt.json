@@ -5,22 +5,22 @@
     "ANO_FISCAL_NO_ESTA_ABIERTO": "El año fiscal no está abierto.",
     "CHECKLIST": {
       "ITEMS": {
-        "CURRENCY_REVALUATION": "Ejecutar la revaluación de moneda extranjera para el cierre del período.",
-        "FIXED_ASSETS_DEPRECIATION": "Ejecutar la depreciación de activos fijos del período.",
-        "PENDING_APPROVALS": "Revisar y procesar todas las solicitudes de aprobación pendientes.",
-        "PENDING_APPROVALS_one": "Queda 1 solicitud de aprobación pendiente.",
-        "PENDING_APPROVALS_other": "Quedan {{count}} solicitudes de aprobación pendientes.",
-        "UNAPPROVED_VENDOR_BILLS": "Verificar y procesar todas las facturas de proveedor en borrador o pendientes de aprobación.",
-        "UNAPPROVED_VENDOR_BILLS_one": "Queda 1 factura de proveedor en borrador o pendiente de aprobación.",
-        "UNAPPROVED_VENDOR_BILLS_other": "Quedan {{count}} facturas de proveedor en borrador o pendientes de aprobación.",
-        "UNPOSTED_JOURNAL_ENTRIES": "Verificar y procesar todos los asientos contables en borrador o pendientes de aprobación.",
-        "UNPOSTED_JOURNAL_ENTRIES_one": "Queda 1 asiento contable en borrador o pendiente de aprobación.",
-        "UNPOSTED_JOURNAL_ENTRIES_other": "Quedan {{count}} asientos contables en borrador o pendientes de aprobación.",
-        "UNRECONCILED_BANK_TRANSACTIONS": "Conciliar todas las transacciones bancarias del período.",
-        "UNRECONCILED_BANK_TRANSACTIONS_one": "Queda 1 transacción bancaria sin conciliar.",
-        "UNRECONCILED_BANK_TRANSACTIONS_other": "Quedan {{count}} transacciones bancarias sin conciliar."
+        "CURRENCY_REVALUATION": "Execute a reavaliação cambial para o fechamento do período.",
+        "FIXED_ASSETS_DEPRECIATION": "Execute a depreciação do ativo imobilizado do período.",
+        "PENDING_APPROVALS": "Revise e resolva todas as solicitações de aprovação pendentes.",
+        "PENDING_APPROVALS_one": "Resta 1 solicitação de aprovação pendente.",
+        "PENDING_APPROVALS_other": "Restam {{count}} solicitações de aprovação pendentes.",
+        "UNAPPROVED_VENDOR_BILLS": "Revise e contabilize todas as faturas de fornecedor em rascunho ou aguardando aprovação.",
+        "UNAPPROVED_VENDOR_BILLS_one": "Resta 1 fatura de fornecedor em rascunho ou aguardando aprovação.",
+        "UNAPPROVED_VENDOR_BILLS_other": "Restam {{count}} faturas de fornecedor em rascunho ou aguardando aprovação.",
+        "UNPOSTED_JOURNAL_ENTRIES": "Revise e contabilize todos os lançamentos em rascunho ou aguardando aprovação.",
+        "UNPOSTED_JOURNAL_ENTRIES_one": "Resta 1 lançamento contábil em rascunho ou aguardando aprovação.",
+        "UNPOSTED_JOURNAL_ENTRIES_other": "Restam {{count}} lançamentos contábeis em rascunho ou aguardando aprovação.",
+        "UNRECONCILED_BANK_TRANSACTIONS": "Concilie todas as transações bancárias do período.",
+        "UNRECONCILED_BANK_TRANSACTIONS_one": "Resta 1 transação bancária sem conciliar.",
+        "UNRECONCILED_BANK_TRANSACTIONS_other": "Restam {{count}} transações bancárias sem conciliar."
       },
-      "MANUAL_STEP": "Este es un paso manual: asegúrate de haberlo ejecutado antes de cerrar."
+      "MANUAL_STEP": "Esta é uma etapa manual: confirme que a executou antes de encerrar."
     },
     "CUENTA_AJUSTE_INFLACION_DESAPARECIO_MITAD_TRANSACCION": "La cuenta de ajuste por inflación desapareció a mitad de la transacción.",
     "CUENTA_AJUSTE_INFLACION_NO_ESTA_CONFIGURADA": "La cuenta para el ajuste por inflación no está configurada.",
@@ -262,7 +262,7 @@
     "WEBAUTHN_REGISTRATION_FAILED": "WebAuthn registration failed",
     "WEBAUTHN_VERIFICATION_FAILED": "WebAuthn verification failed",
     "YA_ESTAS_SUPLANTANDO_OTRO_USUARIO_FINALIZA_SESION": "Ya estás suplantando a otro usuario. Finaliza la sesión actual antes de iniciar otra.",
-    "YA_EXISTE_CUENTA_ESTE_CORREO_INICIA_SESION": "Ya existe una cuenta con este correo. Inicia sesión con tu método original y vincula el proveedor desde tu perfil."
+    "YA_EXISTE_CUENTA_ESTE_CORREO_INICIA_SESION": "Já existe uma conta com este e-mail. Entre pelo método original e vincule o provedor no seu perfil."
   },
   "BATCH_PROCESSES": {
     "DIARIO_GENERAL_GENERAL_NO_ENCONTRADO_ORGANIZACION": "Diario General (GENERAL) no encontrado para la organización {{organizationId}}.",
@@ -559,7 +559,7 @@
   },
   "INVOICE": {
     "PDF": {
-      "CANT": "Cant.",
+      "CANT": "Qtd.",
       "CODIGO_QR_VERIFICACION_COMPROBANTE": "Código QR de verificación del comprobante",
       "CODIGO_SEGURIDAD": "Código de seguridad",
       "COMPRADOR": "Comprador",
@@ -584,12 +584,12 @@
       "MONTO_EXENTO": "Monto exento",
       "MONTO_GRAVADO": "Monto gravado",
       "NETO_PAGAR": "Neto a pagar",
-      "NOTAS": "Notas:",
-      "NOTES": "Notas:",
+      "NOTAS": "Observações:",
+      "NOTES": "Observações:",
       "NUMBER": "Factura n.º:",
-      "PRECIO": "Precio",
+      "PRECIO": "Preço",
       "PROPINA_LEGAL_10": "Propina legal (10%)",
-      "QUANTITY": "Cantidad",
+      "QUANTITY": "Quantidade",
       "SIN_VALOR_FISCAL": "Sin valor fiscal",
       "SUBTOTAL": "Subtotal",
       "TEL_PHONE": "Tel.: {{phone}}",
@@ -604,7 +604,7 @@
       },
       "UNIT_PRICE": "Precio unitario",
       "VALID_UNTIL": "Válido hasta: {{date}}",
-      "VERIFICACION_DGII": "Verificación DGII"
+      "VERIFICACION_DGII": "Verificação DGII"
     }
   },
   "INVOICES": {
@@ -712,7 +712,7 @@
       "INICIAR_SESION": "Iniciar Sesión",
       "INTENTO_REGISTRO": "Intento de Registro",
       "RECIBIMOS_SOLICITUD_REGISTRAR_NUEVA_CUENTA": "Recibimos una solicitud para registrar una nueva cuenta en",
-      "RESTABLECER_CONTRASENA": "Restablecer Contraseña",
+      "RESTABLECER_CONTRASENA": "Redefinir Senha",
       "SI_FUISTE_TU_QUIEN_INTENTO_REGISTRARSE": "Si fuiste tú quien intentó registrarse, puedes iniciar sesión directamente aquí:",
       "SI_NO_FUISTE_TU_PUEDES_IGNORAR": "Si no fuiste tú, puedes ignorar este correo de forma segura.",
       "SI_OLVIDASTE_TU_CONTRASENA_PUEDES_RESTABLECERLA": "Si olvidaste tu contraseña, puedes restablecerla aquí:",
@@ -753,7 +753,7 @@
     },
     "ORGANIZATION_ADDED": {
       "ACCESO_NUEVA_ORGANIZACION": "Acceso a una nueva organización",
-      "INICIAR_SESION": "Iniciar sesión",
+      "INICIAR_SESION": "Entrar",
       "SI_NO_ESPERABAS_ESTE_ACCESO_CONTACTA": "Si no esperabas este acceso, contacta a tu administrador o a soporte.",
       "SUBJECT": "Ahora tienes acceso a {{organization}}",
       "TE_HA_DADO_ACCESO_CUENTA_APPNAME": "te ha dado acceso a su cuenta en {{appName}}.",
@@ -768,21 +768,21 @@
       "HEMOS_RECIBIDO_SOLICITUD_RESTABLECER_CONTRASENA_TU": "Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en",
       "LINK_VALID_FOR": "Este enlace es válido durante {{expiration}}.",
       "NO_SOLICITASTE_ESTE_CAMBIO_PUEDES_IGNORAR": "¿No solicitaste este cambio? Puedes ignorar este correo con seguridad. Tu contraseña no se modificará.",
-      "PRIVACIDAD": "Privacidad",
+      "PRIVACIDAD": "Privacidade",
       "PROBLEMAS_VER_ESTE_CORREO": "¿Problemas para ver este correo?",
-      "RESTABLECER_CONTRASENA": "Restablecer contraseña",
+      "RESTABLECER_CONTRASENA": "Redefinir senha",
       "RESTABLECIMIENTO_CONTRASENA": "Restablecimiento de contraseña",
       "RESTABLECIMIENTO_CONTRASENA_APPNAME": "Restablecimiento de contraseña | {{appName}}",
       "SI_BOTON_NO_FUNCIONA_COPIA_PEGA": "Si el botón no funciona, copia y pega esta URL en tu navegador:",
       "SI_NECESITAS_AYUDA_VISITA": "Si necesitas ayuda, visita",
-      "SOPORTE": "Soporte",
+      "SOPORTE": "Suporte",
       "SUBJECT": "Restablece tu contraseña",
-      "TERMINOS": "Términos",
+      "TERMINOS": "Termos",
       "USA_SIGUIENTE_ENLACE_RESTABLECER_TU_CONTRASENA": "Usa el siguiente enlace para restablecer tu contraseña de {{appName}}. El enlace vence en {{expiration}}."
     },
     "REGISTRATION_EMAIL_VERIFY": {
       "COMPLETAR_TU_REGISTRO_DEBES_CONFIRMAR_TU": "Para completar tu registro, debes confirmar tu correo electrónico. Puedes hacerlo de dos maneras:",
-      "CONFIRMA_TU_CORREO_ELECTRONICO": "Confirma tu correo electrónico",
+      "CONFIRMA_TU_CORREO_ELECTRONICO": "Confirme seu e-mail",
       "CONFIRMAR_CORREO_ELECTRONICO": "Confirmar correo electrónico",
       "ESTE_CODIGO_ENLACE_EXPIRAN": "⏱ Este código y el enlace expiran en",
       "HAZ_CLIC_BOTON_ABAJO_CONFIRMAR_TU": "Haz clic en el botón de abajo para confirmar tu correo y retomar el proceso de registro donde lo dejaste.",
@@ -805,7 +805,7 @@
       "YA_CANCELAMOS_SUSCRIPCION_SOLICITAMOS_DEVOLUCION_CARGO": "Ya cancelamos la suscripción y solicitamos la devolución del cargo."
     },
     "REGISTRATION_VERIFY": {
-      "SUBJECT": "Confirma tu correo electrónico"
+      "SUBJECT": "Confirme seu e-mail"
     },
     "USER_INVITATION": {
       "CONFIGURAR_MI_CUENTA": "Configurar mi cuenta",
@@ -815,7 +815,7 @@
       "SI_NO_HAS_SOLICITADO_ESTA_INVITACION": "Si no has solicitado esta invitación, por favor ignora este correo."
     },
     "VERIFICATION_CODE": {
-      "CODIGO_VERIFICACION": "Código de Verificación",
+      "CODIGO_VERIFICACION": "Código de Verificação",
       "CONTINUAR_FAVOR_INGRESA_SIGUIENTE_CODIGO_VERIFICACION": "Para continuar, por favor ingresa el siguiente código de verificación:",
       "ESTE_CODIGO_EXPIRARA_10_MINUTOS": "Este código expirará en 10 minutos.",
       "HAS_SOLICITADO_HABILITAR_AUTENTICACION_DOS_PASOS": "Has solicitado habilitar la autenticación de dos pasos (2FA) en tu cuenta.",
@@ -865,7 +865,7 @@
       "MANAGE_STATUS": "Cambiar el estado",
       "MANAGE_VIEWS": "Administrar vistas",
       "MERGE": "Fusionar",
-      "PASSWORD_RESET": "Restablecer contraseña",
+      "PASSWORD_RESET": "Redefinir senha",
       "PROPOSE_ADJUSTMENT": "Proponer ajuste",
       "REOPEN_PERIOD": "Reabrir período",
       "REVERSE": "Reversar",
@@ -877,21 +877,21 @@
       "VIEW_SALES": "Ver reportes de ventas",
       "VIEW_STOCK": "Ver existencias",
       "VIEW_TRAIL": "Ver pista de auditoría",
-      "VOID": "Anular"
+      "VOID": "Cancelar"
     },
     "GROUPS": {
       "ACCOUNTING": "Contabilidade",
-      "AUDIT": "Auditoría",
+      "AUDIT": "Auditoria",
       "BILLING": "Facturación del plan",
       "BILLS": "Facturas de compra",
-      "COA": "Plan de cuentas",
+      "COA": "Plano de contas",
       "COST_ACCOUNTING": "Contabilidad de costos",
       "CUSTOMERS": "Clientes",
-      "FINANCIALS": "Estados financieros",
+      "FINANCIALS": "Demonstrações financeiras",
       "INVENTORY": "Estoque",
       "INVOICES": "Facturas de venta",
       "JOURNAL_ENTRIES": "Asientos contables",
-      "PRICE_LISTS": "Listas de precios",
+      "PRICE_LISTS": "Tabelas de preços",
       "PRODUCTS": "Produtos",
       "REPORTS": "Relatórios",
       "ROLES": "Roles",
@@ -967,10 +967,10 @@
     },
     "RESOURCES": {
       "CUSTOMERS": "clientes",
-      "INVOICES": "facturas",
-      "JOURNAL_ENTRIES": "asientos contables",
-      "SUBSIDIARIES": "subsidiarias",
-      "SUPPLIERS": "proveedores",
+      "INVOICES": "faturas",
+      "JOURNAL_ENTRIES": "lançamentos contábeis",
+      "SUBSIDIARIES": "subsidiárias",
+      "SUPPLIERS": "fornecedores",
       "USERS": "usuários"
     }
   },

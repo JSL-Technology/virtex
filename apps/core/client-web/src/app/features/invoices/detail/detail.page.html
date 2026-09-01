@@ -31,11 +31,12 @@
       <!-- Invoice Header -->
       <div class="invoice-header">
         <div class="company-info">
-          <h2>{{ 'INVOICES.DETAIL.VIRTEEX_ERP' | translate }}</h2>
-          <p>{{ 'INVOICES.DETAIL.CALLE_PRINCIPAL_123' | translate }}<br />
-             {{ 'INVOICES.DETAIL.SANTO_DOMINGO_REPUBLICA_DOMINICANA' | translate }}<br />
-             {{ 'INVOICES.DETAIL.RNC_31_12345' | translate }}<br />
-             {{ 'INVOICES.DETAIL.TEL_809_555_0123' | translate }}</p>
+          @if (issuer(); as org) {
+            <h2>{{ org.legalName }}</h2>
+            @if (org.taxId) {
+              <p>{{ 'INVOICES.DETAIL.ISSUER_TAX_ID' | translate: { taxId: org.taxId } }}</p>
+            }
+          }
         </div>
         <div class="invoice-meta">
           <div class="meta-item">
@@ -137,7 +138,7 @@
             </div>
             <div class="detail-item">
                 <span class="detail-label">{{ 'INVOICES.DETAIL.METODO_ENVIO' | translate }}</span>
-                <p>{{ 'INVOICES.DETAIL.TRANSPORTE_TERRESTRE' | translate }}</p>
+                <p>{{ 'COMMON.NOT_RECORDED' | translate }}</p>
             </div>
             <div class="detail-item">
                 <span class="detail-label">{{ 'INVOICES.DETAIL.PERSONA_CONTACTO' | translate }}</span>
@@ -153,20 +154,16 @@
         <div class="detail-grid">
             <div class="detail-item">
                 <span class="detail-label">{{ 'INVOICES.DETAIL.CONDICION_PAGO' | translate }}</span>
-                <p>{{ 'INVOICES.DETAIL.30_DIAS' | translate }}</p>
-            </div>
-            <div class="detail-item">
-                <span class="detail-label">{{ 'INVOICES.DETAIL.PROYECTO' | translate }}</span>
-                <p>{{ 'INVOICES.DETAIL.GENERAL' | translate }}</p>
+                <p>{{ paymentMethodKey(inv.paymentMethod) | translate }}</p>
             </div>
             <div class="detail-item">
                 <span class="detail-label">{{ 'INVOICES.DETAIL.INDICADOR_IMPUESTOS' | translate }}</span>
-                <p>{{ 'INVOICES.DETAIL.ITBIS_18' | translate }}</p>
+                <p>{{ 'INVOICES.DETAIL.TAX_RATE_APPLIED' | translate: { rate: effectiveTaxRate(inv) | vxPercent } }}</p>
             </div>
             <div class="detail-item">
                 <span class="detail-label">{{ 'INVOICES.DETAIL.ESTADO_COBRO' | translate }}</span>
-                <span class="status-badge" [ngClass]="inv.status.toLowerCase().replace(' ', '-')">
-                    {{ inv.status }}
+                <span class="status-badge" [ngClass]="statusClass(inv.status)">
+                    {{ statusKey(inv.status) | translate }}
                 </span>
             </div>
         </div>

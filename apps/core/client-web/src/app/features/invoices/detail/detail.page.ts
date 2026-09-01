@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 // Se importa ActivatedRoute para acceder a los parámetros de la URL.
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
-import { Invoice, InvoicesService } from '../../../core/services/invoices';
+import { Invoice, InvoicesService, InvoiceStatus, PaymentMethod } from '../../../core/services/invoices';
 import { EinvoicingService, EcfSubmissionView } from '../../../core/services/einvoicing';
 import { NotificationService } from '../../../core/services/notification';
 import { InvoiceToolbarComponent } from '../components/invoice-toolbar/invoice-toolbar.component';
@@ -13,6 +13,7 @@ import { asBlob } from 'html-docx-js-typescript';
 import { saveAs } from 'file-saver';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 import { TranslateModule } from '@ngx-translate/core';
+import { AuthService } from '../../../core/services/auth';
 
 @Component({
   selector: 'app-invoice-detail-page',
@@ -31,6 +32,60 @@ export class InvoiceDetailPage implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private location = inject(Location);
+  private readonly auth = inject(AuthService);
+
+  /**
+   * The issuer shown on the printed preview: the signed-in tenant, not a constant.
+   *
+   * The header used to be four catalogue keys holding a made-up company — "VIRTEEX ERP", "Calle
+   * Principal #123", "RNC: 1-31-12345-6" — which meant every customer's on-screen invoice named
+   * somebody else's business, and those five lines of sample data were queued for translation into
+   * three languages. The address and phone are not on `OrganizationContract`, so they are simply
+   * not shown here; the server-rendered PDF, which is the fiscal representation, carries them.
+   */
+  readonly issuer = computed(() => this.auth.currentUser()?.organization ?? null);
+
+  /**
+   * The stored status becomes a catalogue key.
+   *
+   * `InvoiceStatus` is a set of English stored values — `'Partially Paid'`, `'Credit Note'` — and
+   * the badge printed them straight through, so a Spanish screen said "Partially Paid" and the
+   * CSS class was built by lowercasing and replacing spaces in the same string. Both now go
+   * through a lookup, which also means a status the client has not been taught about is visible
+   * rather than silently styled as something else.
+   */
+  statusKey(status: InvoiceStatus): string {
+    const keys: Record<InvoiceStatus, string> = {
+      Draft: 'INVOICES.STATUS.DRAFT',
+      Pending: 'INVOICES.STATUS.PENDING',
+      Paid: 'INVOICES.STATUS.PAID',
+      'Partially Paid': 'INVOICES.STATUS.PARTIALLY_PAID',
+      Void: 'INVOICES.STATUS.VOID',
+      'Credit Note': 'INVOICES.STATUS.CREDIT_NOTE',
+    };
+    return keys[status] ?? status;
+  }
+
+  statusClass(status: InvoiceStatus): string {
+    return status.toLowerCase().replace(/\s+/g, '-');
+  }
+
+  paymentMethodKey(method: PaymentMethod | null | undefined): string {
+    return method ? `INVOICES.PAYMENT_METHOD.${method}` : 'COMMON.NOT_RECORDED';
+  }
+
+  /**
+   * The rate the document actually carries, derived rather than assumed.
+   *
+   * The panel used to read "ITBIS (18%)" on every invoice — the Dominican general rate, printed
+   * for a Mexican tenant at 16 %, for a zero-rated export, and for an exempt line alike. Tax over
+   * the taxed base is the one figure that is true for whatever mix of rates the lines carry.
+   */
+  effectiveTaxRate(invoice: Invoice): number {
+    const base = Number(invoice.taxedTotal ?? 0);
+    if (!base) return 0;
+    return Number(invoice.tax ?? 0) / base;
+  }
 
   id = signal('');
   /**

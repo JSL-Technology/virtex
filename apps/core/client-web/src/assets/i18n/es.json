@@ -882,11 +882,6 @@
       "HERRAMIENTA_FUSION_CUENTAS": "Herramienta de Fusión de Cuentas",
       "VOLVER_PLAN_CUENTAS": "Volver al Plan de Cuentas",
       "PASO_SELECCIONAR_CUENTAS": "Paso 1: Seleccionar Cuentas",
-      "ELIGE": "Elige una",
-      "CUENTA_ORIGEN": "cuenta origen",
-      "SERA_FUSIONADA": "(la que será fusionada) y una",
-      "CUENTA_DESTINO": "cuenta destino",
-      "CONSERVARA_MOVIMIENTOS_SALDO": "(la que conservará los movimientos y saldo).",
       "CUENTA_ORIGEN_FUSIONAR": "Cuenta Origen (a fusionar)",
       "CUENTA_SELECCIONADA": "Cuenta Seleccionada:",
       "TIPO_TYPE": "Tipo: {{type}}",
@@ -905,16 +900,16 @@
       "VOLVER": "Volver",
       "CONTINUAR": "Continuar",
       "PASO_CONFIRMACION": "Paso 3: Confirmación",
-      "CONFIRMA_DESEAS_FUSIONAR_CUENTA": "Confirma que deseas fusionar la cuenta",
       "CONFIRMAR_FUSION": "Confirmar Fusión",
       "RESULTADO": "Resultado",
       "FUSION_COMPLETADA": "¡Fusión completada!",
-      "CUENTA": "La cuenta",
-      "FUE_FUSIONADA": "fue fusionada en",
       "FUSION_NO_COMPLETO": "La fusión no se completó.",
       "REALIZAR_OTRA_FUSION": "Realizar otra fusión",
       "ERROR": "Error:",
-      "BUSCAR_CODIGO_NOMBRE": "Buscar por código o nombre..."
+      "BUSCAR_CODIGO_NOMBRE": "Buscar por código o nombre...",
+      "STEP_1_HELP": "Elige una <strong>cuenta origen</strong> (la que será fusionada) y una <strong>cuenta destino</strong> (la que conservará los movimientos y el saldo).",
+      "CONFIRM_QUESTION": "Confirma que deseas fusionar la cuenta {{source}} en {{target}}.",
+      "MERGE_DONE": "La cuenta {{source}} fue fusionada en {{target}}."
     },
     "ACCOUNT_RECONCILIATION": {
       "ACCOUNT_RECONCILIATION": "Conciliación de cuentas",
@@ -1047,9 +1042,6 @@
       "REINTENTAR": "Reintentar",
       "IR_INICIAR_SESION": "Ir a iniciar sesión"
     },
-    "AUTH_FOOTER": {
-      "AMP": "&amp;"
-    },
     "AUTH_LAYOUT": {
       "VIRTEX_ERP": "Virtex ERP"
     },
@@ -1136,7 +1128,8 @@
     "CONFIRMATION": "Confirmación",
     "SUCCESS": "Listo",
     "RETRY": "Reintentar",
-    "REFRESH": "Actualizar"
+    "REFRESH": "Actualizar",
+    "NOT_RECORDED": "Sin registrar"
   },
   "ALT": {
     "COMPANY_LOGO": "Logo de la empresa"
@@ -1326,31 +1319,31 @@
       "DESCRIPTION": "Crea, rastrea y gestiona todas tus órdenes de compra a proveedores.",
       "NEW_ORDER": "Nueva Orden",
       "FILTERS": "Filtros",
-      "ORDER": "Order #",
-      "SUPPLIER": "Supplier",
+      "ORDER": "N.º de orden",
+      "SUPPLIER": "Proveedor",
       "ORDER_DATE": "Fecha de la orden",
       "TOTAL": "Total",
       "STATUS": "Estado",
-      "NO_PURCHASE_ORDERS_FOUND": "No purchase orders found."
+      "NO_PURCHASE_ORDERS_FOUND": "No se encontraron órdenes de compra."
     },
     "REQUISITIONS": {
       "TITLE": "Requisiciones de Compra",
       "DESCRIPTION": "Revisa, aprueba y da seguimiento a todas las solicitudes de compra internas.",
       "NEW_REQUISITION": "Nueva Requisición",
       "FILTERS": "Filtros",
-      "REQUISITION": "Requisition #",
-      "REQUESTER": "Requester",
-      "DEPARTMENT": "Department",
+      "REQUISITION": "N.º de requisición",
+      "REQUESTER": "Solicitante",
+      "DEPARTMENT": "Departamento",
       "DATE": "Fecha",
       "TOTAL": "Total",
       "STATUS": "Estado",
-      "NO_PURCHASE_REQUISITIONS_FOUND": "No purchase requisitions found."
+      "NO_PURCHASE_REQUISITIONS_FOUND": "No se encontraron requisiciones de compra."
     },
     "LAYOUT": {
       "MANAGE_REQUISITIONS_PURCHASE_ORDERS_AND_GOODS": "Administra las requisiciones, las órdenes de compra y las recepciones de mercancía.",
-      "PURCHASE_ORDERS": "Purchase Orders",
-      "REQUISITIONS": "Requisitions",
-      "RECEIPTS": "Receipts"
+      "PURCHASE_ORDERS": "Órdenes de compra",
+      "REQUISITIONS": "Requisiciones",
+      "RECEIPTS": "Recepciones"
     }
   },
   "OVERVIEW": {
@@ -2376,11 +2369,6 @@
       "CONTENIDO": "Contenido",
       "LOGISTICA": "Logística",
       "FINANZAS": "Finanzas",
-      "VIRTEEX_ERP": "VIRTEEX ERP",
-      "CALLE_PRINCIPAL_123": "Calle Principal #123",
-      "SANTO_DOMINGO_REPUBLICA_DOMINICANA": "Santo Domingo, República Dominicana",
-      "RNC_31_12345": "RNC: 1-31-12345-6",
-      "TEL_809_555_0123": "Tel: (809) 555-0123",
       "FACTURADO": "FACTURADO A:",
       "DESCRIPCION": "Descripción",
       "CANT": "Cant.",
@@ -2394,15 +2382,10 @@
       "LOGISTICA_ENTREGA": "Logística y Entrega",
       "DIRECCION_ENVIO": "Dirección de Envío:",
       "METODO_ENVIO": "Método de Envío:",
-      "TRANSPORTE_TERRESTRE": "Transporte Terrestre",
       "PERSONA_CONTACTO": "Persona de Contacto:",
       "INFORMACION_FINANCIERA": "Información Financiera",
       "CONDICION_PAGO": "Condición de Pago:",
-      "30_DIAS": "30 Días",
-      "PROYECTO": "Proyecto:",
-      "GENERAL": "General",
       "INDICADOR_IMPUESTOS": "Indicador de Impuestos:",
-      "ITBIS_18": "ITBIS (18%)",
       "ESTADO_COBRO": "Estado de Cobro:",
       "COMPROBANTE_FISCAL_ELECTRONICO_CF": "Comprobante Fiscal Electrónico (e-CF)",
       "NCF": "e-NCF:",
@@ -2420,7 +2403,9 @@
       "NO_TIENE_COMPROBANTE_FISCAL_ASIGNADO_NO": "No tiene comprobante fiscal asignado y no tiene valor ante la autoridad tributaria.",
       "ELIMINAR_BORRADOR": "Eliminar borrador",
       "VERIFICACION_DGII": "Verificación DGII",
-      "ABRIR_CONSULTA_TIMBRE": "Abrir la consulta del timbre"
+      "ABRIR_CONSULTA_TIMBRE": "Abrir la consulta del timbre",
+      "ISSUER_TAX_ID": "Identificación fiscal: {{taxId}}",
+      "TAX_RATE_APPLIED": "{{rate}} sobre el monto gravado"
     },
     "LIST": {
       "EXPORTACION_EXCEL_COMPLETADA": "Exportación a Excel completada.",
@@ -2552,6 +2537,25 @@
       "COPIAR_4": "Copiar a...",
       "PARAMETRIZACIONES_FORMULARIO": "Parametrizaciones de formulario",
       "AYUDA": "Ayuda"
+    },
+    "STATUS": {
+      "DRAFT": "Borrador",
+      "PENDING": "Pendiente",
+      "PAID": "Cobrada",
+      "PARTIALLY_PAID": "Cobrada parcialmente",
+      "VOID": "Anulada",
+      "CREDIT_NOTE": "Nota de crédito"
+    },
+    "PAYMENT_METHOD": {
+      "CASH": "Contado",
+      "CHECK": "Cheque",
+      "CREDIT_CARD": "Tarjeta de crédito",
+      "DEBIT_CARD": "Tarjeta de débito",
+      "CREDIT": "Crédito",
+      "BANK_TRANSFER": "Transferencia bancaria",
+      "GIFT_CARD": "Tarjeta de regalo",
+      "SWAP": "Permuta",
+      "OTHER": "Otro medio"
     }
   },
   "MASTERS": {

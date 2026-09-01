@@ -5,22 +5,22 @@
     "ANO_FISCAL_NO_ESTA_ABIERTO": "El año fiscal no está abierto.",
     "CHECKLIST": {
       "ITEMS": {
-        "CURRENCY_REVALUATION": "Ejecutar la revaluación de moneda extranjera para el cierre del período.",
-        "FIXED_ASSETS_DEPRECIATION": "Ejecutar la depreciación de activos fijos del período.",
-        "PENDING_APPROVALS": "Revisar y procesar todas las solicitudes de aprobación pendientes.",
-        "PENDING_APPROVALS_one": "Queda 1 solicitud de aprobación pendiente.",
-        "PENDING_APPROVALS_other": "Quedan {{count}} solicitudes de aprobación pendientes.",
-        "UNAPPROVED_VENDOR_BILLS": "Verificar y procesar todas las facturas de proveedor en borrador o pendientes de aprobación.",
-        "UNAPPROVED_VENDOR_BILLS_one": "Queda 1 factura de proveedor en borrador o pendiente de aprobación.",
-        "UNAPPROVED_VENDOR_BILLS_other": "Quedan {{count}} facturas de proveedor en borrador o pendientes de aprobación.",
-        "UNPOSTED_JOURNAL_ENTRIES": "Verificar y procesar todos los asientos contables en borrador o pendientes de aprobación.",
-        "UNPOSTED_JOURNAL_ENTRIES_one": "Queda 1 asiento contable en borrador o pendiente de aprobación.",
-        "UNPOSTED_JOURNAL_ENTRIES_other": "Quedan {{count}} asientos contables en borrador o pendientes de aprobación.",
-        "UNRECONCILED_BANK_TRANSACTIONS": "Conciliar todas las transacciones bancarias del período.",
-        "UNRECONCILED_BANK_TRANSACTIONS_one": "Queda 1 transacción bancaria sin conciliar.",
-        "UNRECONCILED_BANK_TRANSACTIONS_other": "Quedan {{count}} transacciones bancarias sin conciliar."
+        "CURRENCY_REVALUATION": "Run the foreign-currency revaluation for the period close.",
+        "FIXED_ASSETS_DEPRECIATION": "Run the fixed-asset depreciation for the period.",
+        "PENDING_APPROVALS": "Review and resolve every pending approval request.",
+        "PENDING_APPROVALS_one": "1 approval request is still pending.",
+        "PENDING_APPROVALS_other": "{{count}} approval requests are still pending.",
+        "UNAPPROVED_VENDOR_BILLS": "Review and post every vendor bill that is still a draft or awaiting approval.",
+        "UNAPPROVED_VENDOR_BILLS_one": "1 vendor bill is still a draft or awaiting approval.",
+        "UNAPPROVED_VENDOR_BILLS_other": "{{count}} vendor bills are still drafts or awaiting approval.",
+        "UNPOSTED_JOURNAL_ENTRIES": "Review and post every journal entry that is still a draft or awaiting approval.",
+        "UNPOSTED_JOURNAL_ENTRIES_one": "1 journal entry is still a draft or awaiting approval.",
+        "UNPOSTED_JOURNAL_ENTRIES_other": "{{count}} journal entries are still drafts or awaiting approval.",
+        "UNRECONCILED_BANK_TRANSACTIONS": "Reconcile every bank transaction in the period.",
+        "UNRECONCILED_BANK_TRANSACTIONS_one": "1 bank transaction is still unreconciled.",
+        "UNRECONCILED_BANK_TRANSACTIONS_other": "{{count}} bank transactions are still unreconciled."
       },
-      "MANUAL_STEP": "Este es un paso manual: asegúrate de haberlo ejecutado antes de cerrar."
+      "MANUAL_STEP": "This is a manual step: make sure you have run it before closing."
     },
     "CUENTA_AJUSTE_INFLACION_DESAPARECIO_MITAD_TRANSACCION": "La cuenta de ajuste por inflación desapareció a mitad de la transacción.",
     "CUENTA_AJUSTE_INFLACION_NO_ESTA_CONFIGURADA": "La cuenta para el ajuste por inflación no está configurada.",
@@ -559,7 +559,7 @@
   },
   "INVOICE": {
     "PDF": {
-      "CANT": "Cant.",
+      "CANT": "Qty",
       "CODIGO_QR_VERIFICACION_COMPROBANTE": "Código QR de verificación del comprobante",
       "CODIGO_SEGURIDAD": "Código de seguridad",
       "COMPRADOR": "Comprador",
@@ -584,12 +584,12 @@
       "MONTO_EXENTO": "Monto exento",
       "MONTO_GRAVADO": "Monto gravado",
       "NETO_PAGAR": "Neto a pagar",
-      "NOTAS": "Notas:",
-      "NOTES": "Notas:",
+      "NOTAS": "Notes:",
+      "NOTES": "Notes:",
       "NUMBER": "Factura n.º:",
-      "PRECIO": "Precio",
+      "PRECIO": "Price",
       "PROPINA_LEGAL_10": "Propina legal (10%)",
-      "QUANTITY": "Cantidad",
+      "QUANTITY": "Quantity",
       "SIN_VALOR_FISCAL": "Sin valor fiscal",
       "SUBTOTAL": "Subtotal",
       "TEL_PHONE": "Tel.: {{phone}}",
@@ -604,7 +604,7 @@
       },
       "UNIT_PRICE": "Precio unitario",
       "VALID_UNTIL": "Válido hasta: {{date}}",
-      "VERIFICACION_DGII": "Verificación DGII"
+      "VERIFICACION_DGII": "DGII verification"
     }
   },
   "INVOICES": {
@@ -877,7 +877,7 @@
       "VIEW_SALES": "Ver reportes de ventas",
       "VIEW_STOCK": "Ver existencias",
       "VIEW_TRAIL": "Ver pista de auditoría",
-      "VOID": "Anular"
+      "VOID": "Void"
     },
     "GROUPS": {
       "ACCOUNTING": "Accounting",
