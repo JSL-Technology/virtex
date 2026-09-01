@@ -17,6 +17,18 @@ export interface FastifyFileInterceptorOptions {
   limits?: {
     fileSize?: number;
   };
+  /**
+   * Also write the upload to a temporary file.
+   *
+   * Off by default. The interceptor already holds the bytes in memory, and writing them to
+   * `os.tmpdir()` creates a window in which the content exists unencrypted on a shared filesystem.
+   * For a DGII signing certificate — a PKCS#12 containing the tenant's private key — that window is
+   * a real exposure, and the file survives a crash between the write and the handler's cleanup.
+   * Only a handler that genuinely needs a path (a streaming parser, an external tool) should ask.
+   */
+  persistToDisk?: boolean;
+  /** Accepted MIME types. An upload of any other type is refused before it is read. */
+  allowedMimeTypes?: readonly string[];
 }
 
 export function FastifyFileInterceptor(fieldName: string, options: Omit<FastifyFileInterceptorOptions, 'fieldName'> = {}): Type<NestInterceptor> {
@@ -71,18 +83,31 @@ export function FastifyFileInterceptor(fieldName: string, options: Omit<FastifyF
            }
         }
 
+        if (
+          options.allowedMimeTypes &&
+          options.allowedMimeTypes.length > 0 &&
+          !options.allowedMimeTypes.includes(filePart.mimetype)
+        ) {
+          throw new BadRequestError('COMMON.TIPO_ARCHIVO_NO_PERMITIDO', { mimetype: filePart.mimetype });
+        }
+
         const buffer = await filePart.toBuffer();
 
-        // Limits check? fastify-multipart handles limits globally,
-        // but if we want per-route limit we can check buffer.length
         if (options.limits?.fileSize && buffer.length > options.limits.fileSize) {
            throw new BadRequestError('COMMON.FILE_TOO_LARGE');
         }
 
-        const filename = `${randomBytes(16).toString('hex')}${extname(filePart.filename)}`;
-        const filepath = join(tmpdir(), filename);
+        // The original file name is never used as a path component: `extname` of attacker-supplied
+        // text is attacker-supplied text.
+        const extension = sanitizeExtension(extname(filePart.filename ?? ''));
+        const filename = `${randomBytes(16).toString('hex')}${extension}`;
 
-        await writeFile(filepath, buffer);
+        let filepath: string | undefined;
+        if (options.persistToDisk) {
+          filepath = join(tmpdir(), filename);
+          // 0600: readable only by the process owner, for the window it exists.
+          await writeFile(filepath, buffer, { mode: 0o600 });
+        }
 
         const fileObject: FastifyFile = {
           fieldname: filePart.fieldname,
@@ -92,6 +117,7 @@ export function FastifyFileInterceptor(fieldName: string, options: Omit<FastifyF
           filename: filename,
           path: filepath,
           size: buffer.length,
+          buffer,
         };
 
         // Assign to req.file for decorators
@@ -111,4 +137,9 @@ export function FastifyFileInterceptor(fieldName: string, options: Omit<FastifyF
   }
 
   return mixin(MixinInterceptor);
+}
+
+/** Only a short, alphanumeric extension survives; anything else is dropped. */
+function sanitizeExtension(extension: string): string {
+  return /^\.[A-Za-z0-9]{1,10}$/.test(extension) ? extension.toLowerCase() : '';
 }

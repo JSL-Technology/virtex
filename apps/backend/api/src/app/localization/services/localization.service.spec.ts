@@ -31,6 +31,7 @@ describe('LocalizationService — public country configuration', () => {
       (overrides.doStrategy as never) ?? ({ getTaxIdDetails: jest.fn() } as never),
       { getTaxIdDetails: jest.fn() } as never,
       { getTaxIdDetails: jest.fn() } as never,
+      {} as never, // TenantBookkeepingProvisioner — only reached when a tenant is provisioned
       // The real catalogue, not a stub: the public country config is asserted on for its
       // TRANSLATED labels, so a stub returning the key would make the test pass on a lie.
       new I18nService(),

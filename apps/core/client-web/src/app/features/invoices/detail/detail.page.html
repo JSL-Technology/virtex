@@ -173,6 +173,23 @@
     </div>
   </div>
 
+  @if (inv.status === 'Draft') {
+    <div class="alert alert-info draft-banner" role="status">
+      <div>
+        <strong>{{ 'INVOICES.DETAIL.ESTE_DOCUMENTO_ES_BORRADOR' | translate }}</strong>
+        {{ 'INVOICES.DETAIL.NO_TIENE_COMPROBANTE_FISCAL_ASIGNADO_NO' | translate }}
+      </div>
+      <div class="draft-actions">
+        <button type="button" class="btn btn-primary" [disabled]="ecfBusy()" (click)="issue()">
+          {{ ecfBusy() ? 'Emitiendo…' : 'Emitir comprobante' }}
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="discardDraft()">
+          {{ 'INVOICES.DETAIL.ELIMINAR_BORRADOR' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+
   <!-- Facturación electrónica (e-CF / DGII) -->
   <div class="invoice-document card" *ngIf="ecf() as e">
     <div class="card-body">
@@ -204,8 +221,10 @@
       </div>
 
       <div class="ecf-qr" *ngIf="e.qrUrl">
-        <span class="detail-label">{{ 'INVOICES.DETAIL.REPRESENTACION_IMPRESA_QR' | translate }}</span>
-        <a [href]="e.qrUrl" target="_blank" rel="noopener">{{ 'INVOICES.DETAIL.VERIFICAR_DGII' | translate }}</a>
+        <span class="detail-label">{{ 'INVOICES.DETAIL.VERIFICACION_DGII' | translate }}</span>
+        <!-- The actual QR, not a link to it: it is what a customer scans off the printed document. -->
+        <qrcode [qrdata]="e.qrUrl" [width]="180" [errorCorrectionLevel]="'M'" [margin]="0"></qrcode>
+        <a [href]="e.qrUrl" target="_blank" rel="noopener">{{ 'INVOICES.DETAIL.ABRIR_CONSULTA_TIMBRE' | translate }}</a>
       </div>
 
       <div class="ecf-actions">

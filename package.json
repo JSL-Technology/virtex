@@ -22,7 +22,9 @@
     "verify:tenancy": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/cross-tenant-membership.ts",
     "verify:auth-contract": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/auth-http-contract.ts",
     "verify:provisioning": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/registration-provisioning.ts",
-    "verify:fiscal-identity": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/fiscal-identity-roundtrip.ts"
+    "verify:fiscal-identity": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/fiscal-identity-roundtrip.ts",
+    "verify:invoicing": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/invoicing-lifecycle.ts",
+    "verify:ecf": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/ecf-conformance.ts"
   },
   "private": true,
   "devDependencies": {
@@ -156,6 +158,7 @@
     "dockview-angular": "^6.6.1",
     "fastify": "^5.6.2",
     "file-saver": "^2.0.5",
+    "form-data": "^4.0.5",
     "geoip-lite": "^1.4.10",
     "google-libphonenumber": "^3.2.43",
     "handlebars": "^4.7.8",

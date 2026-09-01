@@ -59,6 +59,16 @@
                         <lucide-icon [img]="IntercompanyIcon" size="16"></lucide-icon>
                         <span>{{ 'SETTINGS.LAYOUT.INTERCOMPANY' | translate }}</span>
                     </a>
+                    <!--
+                        Facturación Electrónica was reachable only by typing its URL: the route
+                        existed and neither this menu nor the settings modal listed it. It is the
+                        only screen that uploads the DGII certificate and registers the authorized
+                        e-NCF ranges, so without it electronic invoicing could not be switched on.
+                    -->
+                    <a routerLink="fiscal" routerLinkActive="active" class="nav-link">
+                        <lucide-icon [img]="EInvoicingIcon" size="16"></lucide-icon>
+                        <span>{{ 'SETTINGS.LAYOUT.FACTURACION_ELECTRONICA' | translate }}</span>
+                    </a>
                 </div>
 
                 <!-- GRUPO 4: OPERACIONES -->

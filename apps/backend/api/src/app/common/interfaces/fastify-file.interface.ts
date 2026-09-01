@@ -5,9 +5,11 @@ export interface FastifyFile {
   encoding: string;
   mimetype: string;
   filename: string;
-  path: string;
+  /** Present only when the interceptor was asked to persist the upload. */
+  path?: string;
   size: number;
-  buffer?: Buffer; // Optional, if we keep it in memory
+  /** The uploaded bytes, always present: the interceptor reads them to apply its own limits. */
+  buffer?: Buffer;
 }
 
 /**

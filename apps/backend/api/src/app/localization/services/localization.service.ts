@@ -20,6 +20,7 @@ import {
 import { taxpayerKindAffectsValidation, validateTaxId } from '../fiscal/tax-id-validators';
 import { PublicCountryConfig, TaxIdLookupResult } from '../fiscal/public-country-config';
 import { findTaxScheme } from '../fiscal/country-tax-schemes';
+import { TenantBookkeepingProvisioner } from '../../shared/provisioning/tenant-bookkeeping.provisioner';
 import {
   STATUTORY_PLAN_REQUIRED,
   buildCountryCoaTemplate,
@@ -29,6 +30,9 @@ import { InternalServerError, NotFoundError } from '../../i18n/localized.excepti
 import { fiscalLabelKey } from '../fiscal/fiscal-label-keys';
 import { I18nService } from '../../i18n/i18n.service';
 import { currentLanguage } from '../../i18n/request-locale';
+
+/** Fallback when a country profile carries no currency; every shipped profile does. */
+const DEFAULT_BASE_CURRENCY = 'USD';
 
 @Injectable()
 export class LocalizationService implements OnModuleInit {
@@ -43,6 +47,7 @@ export class LocalizationService implements OnModuleInit {
     private readonly doStrategy: DominicanRepublicStrategy,
     private readonly usStrategy: USStrategy,
     private readonly genericStrategy: GenericFiscalStrategy,
+    private readonly bookkeeping: TenantBookkeepingProvisioner,
     private readonly i18n: I18nService,
   ) {
     // Inicialmente cargamos las estrategias hardcoded que tienen lógica especial
@@ -373,6 +378,19 @@ export class LocalizationService implements OnModuleInit {
 
     await this.applyCountryTaxes(region.countryCode, organization.id, manager);
     await this.applyCountryCoa(region.countryCode, organization.id, manager);
+
+    // A chart of accounts and a tax list are not enough to record a transaction. The tenant also
+    // needs its accounting settings, a ledger, journals, document sequences and open periods —
+    // none of which existed for any tenant, which is why the first invoice always failed. The
+    // provisioner runs in this same transaction, so a tenant is either able to keep books or is
+    // not created at all.
+    const baseCurrency =
+      findCountryProfile(region.countryCode)?.currency ?? DEFAULT_BASE_CURRENCY;
+    await this.bookkeeping.provision(
+      organization,
+      baseCurrency,
+      manager ?? this.fiscalRegionRepository.manager,
+    );
   }
 
   /**

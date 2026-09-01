@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException, Logger, Inject, forwardRef } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
+import type { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { Repository, LessThan, MoreThan, In } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
@@ -282,7 +283,10 @@ export class SessionService {
         { sessionId, refreshExpirationOverride },
       );
 
-      const updateData: Partial<RefreshToken> = {
+      // `QueryDeepPartialEntity` rather than `Partial`: `Repository.update` accepts column values,
+      // not loaded relations, and `Partial<RefreshToken>` admits a hydrated `user` graph that the
+      // update builder cannot serialise. Only scalar columns are ever assigned below.
+      const updateData: QueryDeepPartialEntity<RefreshToken> = {
         lastActiveAt: new Date(),
         browser: parsedUA.browser,
         os: parsedUA.os,

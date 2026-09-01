@@ -13,6 +13,7 @@ import { MembershipService } from './services/membership.service';
 import { coaSegmentsFor } from '../localization/fiscal/coa-builder';
 import { findCountryProfile } from '../localization/fiscal/country-profiles';
 import { canonicalizeTaxId, validateTaxId } from '../localization/fiscal/tax-id-validators';
+import { organizationTimeZone } from '../shared/fiscal-clock';
 import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
@@ -160,15 +161,27 @@ export class OrganizationsService {
   ): Promise<Organization> {
     const segments = coaSegmentsFor(createOrganizationDto.country ?? '');
 
+    // The column defaulted to 'UTC' and nothing ever wrote it, so every tenant in every market
+    // looked like it kept books in UTC — and every fiscal timestamp was produced accordingly. Santo
+    // Domingo is four hours behind it: a sale made at 20:30 was dated the following day. The zone
+    // is part of creating the tenant, not something an operator has to remember to set.
+    const attributes: Partial<Organization> = {
+      ...createOrganizationDto,
+      timezone:
+        createOrganizationDto.timezone && createOrganizationDto.timezone !== 'UTC'
+          ? createOrganizationDto.timezone
+          : organizationTimeZone({ country: createOrganizationDto.country ?? null }),
+    };
+
     if (manager) {
-      const org = manager.create(Organization, createOrganizationDto);
+      const org = manager.create(Organization, attributes);
       const savedOrg = await manager.save(org);
       await this.accountSegmentsService.initializeDefault(savedOrg.id, manager, segments);
       return savedOrg;
     }
 
     return this.organizationRepository.manager.transaction(async (m) => {
-      const org = m.create(Organization, createOrganizationDto);
+      const org = m.create(Organization, attributes);
       const savedOrg = await m.save(org);
       await this.accountSegmentsService.initializeDefault(savedOrg.id, m, segments);
       return savedOrg;

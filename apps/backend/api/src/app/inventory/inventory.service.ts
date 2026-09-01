@@ -52,29 +52,61 @@ export class InventoryService {
     await this.productRepository.remove(product);
   }
 
-  async decreaseStock(productId: string, quantity: number, manager: EntityManager): Promise<void> {
-    const product = await manager.findOneBy(Product, { id: productId });
+  /**
+   * Move stock out, under a row lock and scoped to the tenant.
+   *
+   * Two defects fixed together. It read the product with `findOneBy`, checked the balance and saved
+   * — a read-modify-write with no lock, so two concurrent sales of the last unit both saw stock and
+   * both succeeded, overselling it. And it did not filter by organization, so the caller's tenant
+   * scoping was the only thing standing between a product id and another tenant's inventory.
+   *
+   * `SELECT … FOR UPDATE` serialises the two transactions; the second waits and then sees the
+   * decremented balance.
+   */
+  async decreaseStock(
+    productId: string,
+    quantity: number,
+    manager: EntityManager,
+    organizationId: string,
+  ): Promise<void> {
+    const product = await this.lockProduct(productId, organizationId, manager);
 
-    if (!product) {
-      throw new NotFoundError('INVENTORY.PRODUCTO_ID_NO_ENCONTRADO_TRANSACCION', { productId });
+    const available = Number(product.stock);
+    if (available < quantity) {
+      throw new BadRequestError('INVENTORY.STOCK_INSUFICIENTE_DISPONIBLES_SOLICITADAS', { name: product.name, available, quantity });
     }
 
-    if (product.stock < quantity) {
-      throw new BadRequestError('INVENTORY.STOCK_INSUFICIENTE_PRODUCTO', { name: product.name });
-    }
-
-    product.stock -= quantity;
+    product.stock = available - quantity;
     await manager.save(Product, product);
   }
 
-  async increaseStock(productId: string, quantity: number, manager: EntityManager): Promise<void> {
-      const product = await manager.findOneBy(Product, { id: productId });
+  /** Move stock back in — a return, a credit note that restocks — under the same lock. */
+  async increaseStock(
+    productId: string,
+    quantity: number,
+    manager: EntityManager,
+    organizationId: string,
+  ): Promise<void> {
+    const product = await this.lockProduct(productId, organizationId, manager);
+    product.stock = Number(product.stock) + quantity;
+    await manager.save(Product, product);
+  }
 
-      if (!product) {
-          throw new NotFoundError('INVENTORY.PRODUCTO_ID_NO_ENCONTRADO_TRANSACCION', { productId });
-      }
+  private async lockProduct(
+    productId: string,
+    organizationId: string,
+    manager: EntityManager,
+  ): Promise<Product> {
+    const product = await manager
+      .createQueryBuilder(Product, 'product')
+      .where('product.id = :productId', { productId })
+      .andWhere('product.organizationId = :organizationId', { organizationId })
+      .setLock('pessimistic_write')
+      .getOne();
 
-      product.stock += quantity;
-      await manager.save(Product, product);
+    if (!product) {
+      throw new NotFoundError('INVENTORY.PRODUCTO_ID_NO_ENCONTRADO_ESTA_ORGANIZACION', { productId });
+    }
+    return product;
   }
 }

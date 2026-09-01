@@ -254,7 +254,8 @@
     "FILE_TYPE_NOT_ALLOWED": "File type not allowed",
     "FILE_TOO_LARGE": "File too large",
     "TOO_MANY_FILES": "Too many files",
-    "FILE_TOO_LARGE_2": "File {{filename}} too large"
+    "FILE_TOO_LARGE_2": "File {{filename}} too large",
+    "TIPO_ARCHIVO_NO_PERMITIDO": "Tipo de archivo no permitido ({{mimetype}})."
   },
   "COMPLIANCE": {
     "ENDSAT_NO_PUEDE_SER_MENOR_STARTSAT": "endsAt no puede ser menor que startsAt.",
@@ -264,7 +265,15 @@
     "SECUENCIA_NCF_TIPO_TIENE_LIMITES_NO_NUMERICOS": "La secuencia de NCF para el tipo {{type}} tiene límites no numéricos.",
     "SECUENCIA_NCF_TIPO_HA_AGOTADO": "La secuencia de NCF para el tipo {{type}} se ha agotado.",
     "AUTORIZACION_SECUENCIA_NCF_TIPO_VENCIO": "La autorización de la secuencia de NCF para el tipo {{type}} venció el {{expiresAt}}.",
-    "RANGO_SECUENCIA_NCF_ES_INVALIDO_STARTSAT_ENDSAT": "El rango de la secuencia NCF es inválido (startsAt/endsAt)."
+    "RANGO_SECUENCIA_NCF_ES_INVALIDO_STARTSAT_ENDSAT": "El rango de la secuencia NCF es inválido (startsAt/endsAt).",
+    "NUMERO_FINAL_NO_PUEDE_SER_MENOR_INICIAL": "El número final no puede ser menor que el inicial.",
+    "FORMATO_NO_RECONOCIDO_FORMATOS_DISPONIBLES_SON_606": "Formato \"{{kind}}\" no reconocido. Los formatos disponibles son 606, 607, 608 y 609.",
+    "RANGO_SECUENCIA_NCF_ES_INVALIDO_NUMERO_FINAL": "El rango de la secuencia NCF es inválido: el número final debe ser mayor o igual que el inicial.",
+    "PREFIJO_NO_CORRESPONDE_TIPO_COMPROBANTE": "El prefijo \"{{prefix}}\" no corresponde al tipo de comprobante {{type}}.",
+    "FECHA_VENCIMIENTO_AUTORIZACION_YA_PASO_RANGO_NO": "La fecha de vencimiento de la autorización ya pasó; el rango no podría usarse.",
+    "SECUENCIA_NCF_NO_ENCONTRADA": "Secuencia NCF no encontrada.",
+    "ORGANIZACION_NO_ENCONTRADA": "Organización no encontrada.",
+    "YA_EXISTEN_COMPROBANTE_EMITIDOS_NUMEROS_DENTRO_RANGO": "Ya existen {{alreadyIssued}} comprobante(s) emitidos con números dentro del rango {{first}}–{{last}}."
   },
   "CONSOLIDATION": {
     "ORGANIZACION_NO_ENCONTRADA": "Organización no encontrada.",
@@ -325,10 +334,20 @@
     "DOCUMENTO_FIRMADO_NO_CONTIENE_SIGNATUREVALUE": "El documento firmado no contiene un SignatureValue.",
     "FACTURA_NO_TIENE_NCF_ELECTRONICO_ASIGNADO": "La factura no tiene un e-NCF electrónico asignado.",
     "ORGANIZACION_NO_TIENE_RNC_CONFIGURADO": "La organización no tiene RNC configurado.",
-    "NO_HAY_CERTIFICADO_DIGITAL_ACTIVO_FIRMAR_CF": "No hay un certificado digital activo para firmar e-CF. Cargue el certificado en la configuración fiscal.",
+    "NO_HAY_CERTIFICADO_DIGITAL_ACTIVO_FIRMAR_CF": "No hay un certificado digital activo para firmar e-CF. Cárgalo en Ajustes → Facturación Electrónica.",
     "CERTIFICADO_DIGITAL_VENCIO": "El certificado digital venció el {{p1}}.",
     "FACTURA_NO_ENCONTRADA": "Factura {{invoiceId}} no encontrada.",
-    "ORGANIZACION_NO_ENCONTRADA": "Organización no encontrada."
+    "ORGANIZACION_NO_ENCONTRADA": "Organización no encontrada.",
+    "TIPO_MENSAJE_DESCONOCIDO_USA_COMMERCIAL_APPROVAL_SEQUENCE": "Tipo de mensaje desconocido: {{kind}}. Usa COMMERCIAL_APPROVAL o SEQUENCE_VOID.",
+    "RECHAZO_COMERCIAL_DEBE_INDICAR_MOTIVO_DGII_EXIGE": "Un rechazo comercial debe indicar el motivo: la DGII lo exige y el emisor lo necesita para corregir.",
+    "RNC_EMISOR_COMPROBANTE_ES_OBLIGATORIO": "El RNC del emisor del comprobante es obligatorio.",
+    "NO_ES_TIPO_ELECTRONICO_ANULACION_RANGOS_APLICA": "{{type}} no es un tipo electrónico; la anulación de rangos aplica solo a e-NCF.",
+    "FINAL_RANGO_NO_PUEDE_SER_MENOR_INICIO": "El final del rango no puede ser menor que su inicio.",
+    "RANGO_AUTORIZADO_TERMINA_NO_PUEDES_ANULAR_MAS": "El rango autorizado termina en {{endsAt}}; no puedes anular más allá de su límite.",
+    "ORGANIZACION_NO_TIENE_RNC_CONFIGURADO_COMPLETALO_AJUSTES": "La organización no tiene RNC configurado. Complétalo en Ajustes → Empresa.",
+    "NO_HAY_CERTIFICADO_DIGITAL_ACTIVO_FIRMAR_CARGALO": "No hay un certificado digital activo para firmar. Cárgalo en Ajustes → Facturación Electrónica.",
+    "NO_HAY_SECUENCIA_ACTIVA_ESTA_ORGANIZACION": "No hay una secuencia activa de {{type}} para esta organización.",
+    "COMPROBANTE_YA_FUE_RESPONDIDO_COMERCIALMENTE": "El comprobante {{ncf}} de {{issuerRnc}} ya fue respondido comercialmente."
   },
   "FINANCIAL_REPORTING": {
     "NO_HA_ESPECIFICADO_LIBRO_CONTABLE_NO_HAY": "No se ha especificado un libro contable y no hay uno configurado por defecto para la organización.",
@@ -358,7 +377,9 @@
   "INVENTORY": {
     "STOCK_INSUFICIENTE_PRODUCTO": "Stock insuficiente para el producto \"{{name}}\".",
     "PRODUCTO_ID_NO_ENCONTRADO": "Producto con ID \"{{id}}\" no encontrado.",
-    "PRODUCTO_ID_NO_ENCONTRADO_TRANSACCION": "Producto con ID \"{{productId}}\" no encontrado en la transacción."
+    "PRODUCTO_ID_NO_ENCONTRADO_TRANSACCION": "Producto con ID \"{{productId}}\" no encontrado en la transacción.",
+    "STOCK_INSUFICIENTE_DISPONIBLES_SOLICITADAS": "Stock insuficiente para \"{{name}}\": disponibles {{available}}, solicitadas {{quantity}}.",
+    "PRODUCTO_ID_NO_ENCONTRADO_ESTA_ORGANIZACION": "Producto con ID \"{{productId}}\" no encontrado en esta organización."
   },
   "INVOICES": {
     "PRODUCTO_ID_NO_ENCONTRADO": "Producto con ID \"{{productId}}\" no encontrado.",
@@ -369,11 +390,41 @@
     "CANTIDAD_DEVOLVER_EXCEDE_CANTIDAD_ORIGINAL_PRODUCTO": "La cantidad a devolver ({{quantity}}) excede la cantidad original ({{quantity2}}) para el producto {{name}}.",
     "ESTE_ENDPOINT_ESTA_OBSOLETO_CREACION_PAGOS_AHORA": "Este endpoint está obsoleto. La creación de pagos ahora se gestiona a través del endpoint de Recibos de Cliente (/customer-payments) para permitir pagos de múltiples facturas a la vez.",
     "CONFIGURACION_CUENTAS_AUTOMATICAS_ESTA_ORGANIZACION_ES_INCOMPLETA": "La configuración de cuentas automáticas para esta organización es incompleta. Faltan cuentas de Cuentas por Cobrar, Ingresos por Ventas o Impuestos sobre Ventas.",
-    "FACTURA_ID_NO_ENCONTRADA": "Factura con ID \"{{id}}\" no encontrada.",
+    "FACTURA_ID_NO_ENCONTRADA": "Factura con ID \"{{invoiceId}}\" no encontrada.",
     "NO_ENCONTRO_INFORMACION_ORGANIZACION": "No se encontró la información de la organización.",
     "FACTURA_ORIGINAL_ID_NO_ENCONTRADA": "Factura original con ID \"{{invoiceId}}\" no encontrada.",
     "PLANTILLA_GENERAR_PDF_NO_ESTA_DISPONIBLE": "La plantilla para generar PDF no está disponible.",
-    "TASA_IMPUESTO_NO_ES_VALIDA_TASAS_PERMITIDAS": "La tasa de impuesto {{p1}}% no es válida para {{countryCode}}. Tasas permitidas: {{list}}."
+    "TASA_IMPUESTO_NO_ES_VALIDA_TASAS_PERMITIDAS": "La tasa de impuesto {{p1}}% no es válida para {{countryCode}}. Tasas permitidas: {{list}}.",
+    "TIPO_COMPROBANTE_NO_CORRESPONDE_DOCUMENTO_VENTA": "El tipo de comprobante {{type}} no corresponde a un documento de venta.",
+    "TIPO_NO_ES_COMPROBANTE_NOTA_CREDITO_VALIDO": "El tipo {{type}} no es un comprobante de nota de crédito válido.",
+    "FECHA_VENCIMIENTO_NO_PUEDE_SER_ANTERIOR_FECHA": "La fecha de vencimiento no puede ser anterior a la fecha de emisión.",
+    "PRODUCTO_NO_ENCONTRADO_CATALOGO": "Producto{{p1}} no encontrado{{p2}} en el catálogo: {{p3}}.",
+    "LINEA_NECESITA_DESCRIPCION_PRODUCTO_CATALOGO": "La línea {{p1}} necesita una descripción o un producto del catálogo.",
+    "LINEA_NO_TIENE_PRECIO_INDICALO_SELECCIONA_PRODUCTO": "La línea {{p1}} no tiene precio: indícalo o selecciona un producto del catálogo.",
+    "BORRADOR_NO_ACREDITA_ELIMINALO_MODIFICALO_DIRECTAMENTE": "Un borrador no se acredita: elimínalo o modifícalo directamente.",
+    "SOLO_FACTURA_PUEDE_SER_ACREDITADA": "Solo una factura puede ser acreditada.",
+    "FACTURA_ORIGINAL_NO_TIENE_LINEAS_ACREDITAR": "La factura original no tiene líneas que acreditar.",
+    "LINEA_APARECE_DOS_VECES_SOLICITUD": "La línea {{lineId}} aparece dos veces en la solicitud.",
+    "LINEA_NO_PERTENECE_FACTURA": "La línea {{lineId}} no pertenece a la factura {{invoiceNumber}}.",
+    "NOTA_CREDITO_DEBE_REFERENCIAR_FACTURA_MODIFICA": "Una nota de crédito debe referenciar la factura que modifica.",
+    "FACTURA_REFERENCIADA_NOTA_CREDITO_NO_EXISTE": "La factura referenciada por la nota de crédito no existe.",
+    "FACTURA_ID_NO_ENCONTRADA_2": "Factura con ID \"{{id}}\" no encontrada.",
+    "ORGANIZACION_NO_ENCONTRADA": "Organización no encontrada.",
+    "DOCUMENTO_YA_FUE_EMITIDO_NO_PUEDE_EMITIRSE": "El documento {{invoiceNumber}} ya fue emitido; no puede emitirse de nuevo.",
+    "SOLO_PUEDE_MODIFICAR_BORRADOR_COMPROBANTE_EMITIDO_CORRIGE": "Solo se puede modificar un borrador. Un comprobante emitido se corrige con una nota de crédito.",
+    "COMPROBANTE_EMITIDO_NO_ELIMINA_ANULALO_NOTA_CREDITO": "Un comprobante emitido no se elimina: anúlalo con una nota de crédito.",
+    "FACTURA_YA_FUE_ANULADA_TOTALIDAD": "La factura ya fue anulada en su totalidad.",
+    "FACTURA_YA_FUE_ACREDITADA_TOTALIDAD": "La factura ya fue acreditada en su totalidad.",
+    "DESCUENTO_LINEA_DEBE_ESTAR_ENTRE_100_EXCLUSIVO": "El descuento de línea debe estar entre 0 % y 100 % (exclusivo).",
+    "TASA_IMPUESTO_DEBE_EXPRESARSE_COMO_FRACCION_ENTRE": "La tasa de impuesto debe expresarse como fracción entre 0 y 1.",
+    "DESCUENTO_DOCUMENTO_DEBE_ESTAR_ENTRE_100_EXCLUSIVO": "El descuento del documento debe estar entre 0 % y 100 % (exclusivo).",
+    "PROPINA_LEGAL_DEBE_ESTAR_ENTRE_50": "La propina legal debe estar entre 0 % y 50 %.",
+    "DEBE_SER_NUMERO_MAYOR_CERO": "{{label}} debe ser un número mayor que cero.",
+    "DEBE_SER_NUMERO_MAYOR_IGUAL_CERO": "{{label}} debe ser un número mayor o igual que cero.",
+    "DEBE_EXPRESARSE_COMO_FRACCION_ENTRE": "{{label}} debe expresarse como fracción entre 0 y 1.",
+    "ORGANIZACION_NO_TIENE_LIBRO_CONTABLE_DEFECTO_CREALO": "La organización no tiene un libro contable por defecto. Créalo en Ajustes → Contabilidad.",
+    "NO_EXISTE_DIARIO_ESTA_ORGANIZACION_CREALO_AJUSTES": "No existe el diario \"{{code}}\" para esta organización. Créalo en Ajustes → Contabilidad.",
+    "NO_ENCONTRO_PLANTILLA_IMPRESION_FACTURAS": "No se encontró la plantilla de impresión de facturas ({{resolved}}): {{p2}}"
   },
   "JOURNAL_ENTRIES": {
     "CUENTA_ORIGEN_DESTINO_NO_PUEDEN_SER_MISMA": "La cuenta de origen y destino no pueden ser la misma.",
@@ -516,10 +567,14 @@
     "LEAD_NO_ENCONTRADO": "Lead no encontrado.",
     "NO_ENCONTRO_TASA_CAMBIO_VALIDA_FECHA_ESPECIFICADA": "No se encontró una tasa de cambio válida para {{currencyCode}} en la fecha especificada.",
     "SOLO_PUEDEN_FACTURAR_COTIZACIONES_ACEPTADAS": "Solo se pueden facturar cotizaciones aceptadas.",
-    "COTIZACION_NO_ENCONTRADA": "Cotización no encontrada."
+    "COTIZACION_NO_ENCONTRADA": "Cotización no encontrada.",
+    "TASA_CAMBIO_CONFIGURADA_NO_ES_VALIDA": "La tasa de cambio configurada para {{currencyCode}} no es válida.",
+    "COTIZACION_NO_TIENE_LINEAS_FACTURAR": "La cotización no tiene líneas que facturar.",
+    "COTIZACION_YA_FUE_FACTURADA": "La cotización {{quoteNumber}} ya fue facturada."
   },
   "SHARED": {
-    "NO_ENCONTRO_SECUENCIA_DOCUMENTO_ACTIVA_TIPO_FAVOR": "No se encontró una secuencia de documento activa para el tipo {{type}}. Por favor, configure las secuencias."
+    "NO_ENCONTRO_SECUENCIA_DOCUMENTO_ACTIVA_TIPO_FAVOR": "No se encontró una secuencia de documento activa para el tipo {{type}}. Por favor, configure las secuencias.",
+    "ORGANIZACION_NO_ESTA_LISTA_FACTURAR_FALTA": "La organización no está lista para facturar. Falta: {{p1}}."
   },
   "STORAGE": {
     "ARCHIVO_NO_ESTA_DISPONIBLE": "El archivo no está disponible."
@@ -752,7 +807,42 @@
       "LINE_TOTAL": "Total",
       "SUBTOTAL": "Subtotal",
       "TOTAL": "Total",
-      "NOTES": "Notas:"
+      "NOTES": "Notas:",
+      "TEL_PHONE": "Tel.: {{phone}}",
+      "SIN_VALOR_FISCAL": "Sin valor fiscal",
+      "TITLE_ELECTRONICA": "{{title}} ELECTRÓNICA",
+      "COMPRADOR": "Comprador",
+      "DOCUMENTO": "Documento",
+      "FECHA_EMISION": "Fecha de emisión:",
+      "FECHA_VENCIMIENTO_DUEDATE": "Fecha de vencimiento: {{dueDate}}",
+      "MONEDA_CURRENCYCODE": "Moneda: {{currencyCode}}",
+      "FECHA_HORA_FIRMA_SIGNEDAT": "Fecha y hora de firma: {{signedAt}}",
+      "DESCRIPCION": "Descripción",
+      "CANT": "Cant.",
+      "PRECIO": "Precio",
+      "DESC": "Desc.",
+      "IMPORTE": "Importe",
+      "VERIFICACION_DGII": "Verificación DGII",
+      "CODIGO_SEGURIDAD": "Código de seguridad",
+      "DESCUENTO": "Descuento",
+      "MONTO_EXENTO": "Monto exento",
+      "MONTO_GRAVADO": "Monto gravado",
+      "PROPINA_LEGAL_10": "Propina legal (10%)",
+      "TOTAL_CURRENCYCODE": "Total {{currencyCode}}",
+      "ITBIS_RETENIDO": "ITBIS retenido",
+      "ISR_RETENIDO": "ISR retenido",
+      "NETO_PAGAR": "Neto a pagar",
+      "NOTAS": "Notas:",
+      "CODIGO_QR_VERIFICACION_COMPROBANTE": "Código QR de verificación del comprobante",
+      "VALID_UNTIL": "Válido hasta: {{date}}",
+      "INTERNAL_NUMBER": "Documento interno: {{number}}",
+      "LEGAL_ISSUED": "Representación impresa de un Comprobante Fiscal Electrónico (e-CF). Verifique su validez en el portal de la DGII con el código QR o el código de seguridad mostrados arriba.",
+      "LEGAL_DRAFT": "Este documento es un borrador interno, no ampara crédito fiscal y no ha sido transmitido a la DGII.",
+      "TYPE": {
+        "INVOICE": "FACTURA",
+        "CREDIT_NOTE": "NOTA DE CRÉDITO",
+        "DEBIT_NOTE": "NOTA DE DÉBITO"
+      }
     }
   },
   "FISCAL": {

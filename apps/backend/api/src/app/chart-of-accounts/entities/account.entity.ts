@@ -20,6 +20,7 @@ import {
   AccountType,
   AccountCategory,
   AccountNature,
+  AccountRole,
 } from '../enums/account-enums';
 import { AccountBalance } from './account-balance.entity';
 import { AccountSegment } from './account-segment.entity';
@@ -32,6 +33,12 @@ export * from '../enums/account-enums';
 @Entity({ name: 'accounts' })
 @Tree('closure-table')
 @Index(['organizationId'])
+// One account per operational role per tenant: the automatic postings resolve a role to exactly one
+// account, and two candidates would make the choice arbitrary.
+@Index('UQ_accounts_org_system_role', ['organizationId', 'systemRole'], {
+  unique: true,
+  where: '"system_role" IS NOT NULL',
+})
 export class Account {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -81,6 +88,16 @@ export class Account {
     comment: 'Cuenta de naturaleza contraria a su tipo (depreciación acumulada, provisiones, devoluciones).',
   })
   isContraAccount: boolean;
+
+  /**
+   * The operational job this account does, for the automatic postings that must find it.
+   *
+   * Nullable because most accounts have none; unique per organization where present, so the
+   * product can resolve "the receivable account" without matching on a localized name or a code
+   * that a statutory plan would write differently. See {@link AccountRole}.
+   */
+  @Column({ name: 'system_role', type: 'varchar', length: 40, nullable: true })
+  systemRole: AccountRole | null;
 
   @Column({ default: true })
   isActive: boolean;

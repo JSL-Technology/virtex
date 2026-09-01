@@ -456,6 +456,7 @@ export class JournalEntriesService {
       }
       if (balanceUpdates.size > 0) {
         await this.balanceUpdateService.queueBalanceUpdates(
+          manager,
           organizationId,
           ledgerId,
           balanceUpdates,
@@ -480,6 +481,22 @@ export class JournalEntriesService {
       createDto,
       organizationId,
     );
+  }
+
+  /**
+   * Post an entry on a caller-supplied `EntityManager`.
+   *
+   * `createWithQueryRunner` only accepts a `QueryRunner`, which forced every caller that already
+   * runs inside `dataSource.transaction(...)` — the invoicing module among them — either to open a
+   * second, independent transaction or to give up on posting altogether. A document and its ledger
+   * entry must commit or roll back together; this is the entry point that lets them.
+   */
+  public async createWithManager(
+    manager: EntityManager,
+    createDto: CreateJournalEntryDto,
+    organizationId: string,
+  ): Promise<JournalEntry> {
+    return this._postJournalEntry(manager, createDto, organizationId);
   }
 
 

@@ -347,7 +347,8 @@
       "ROLES_PERMISOS": "Roles y Permisos",
       "SEGURIDAD_AUDITORIA": "Seguridad y Auditoría",
       "INTEGRACIONES": "Integraciones",
-      "SERVIDOR_CORREO": "Servidor de Correo"
+      "SERVIDOR_CORREO": "Servidor de Correo",
+      "FACTURACION_ELECTRONICA": "Facturación Electrónica"
     },
     "MODAL": {
       "CONFIGURACION": "Configuración",
@@ -375,7 +376,8 @@
       "INTEGRACIONES": "Integraciones",
       "SERVIDOR_CORREO": "Servidor de Correo",
       "CARGANDO": "Cargando...",
-      "CERRAR_CONFIGURACION": "Cerrar configuración"
+      "CERRAR_CONFIGURACION": "Cerrar configuración",
+      "FACTURACION_ELECTRONICA": "Facturación Electrónica"
     },
     "MY_PROFILE": {
       "IDIOMA_PREFERIDO": "Idioma Preferido",
@@ -2355,7 +2357,8 @@
       "VERIFICAR_DGII": "Verificar en la DGII",
       "DESCARGAR_XML_FIRMADO": "Descargar XML firmado",
       "CARGANDO_DATOS_FACTURA_FACTURA_NO_FUE": "Cargando datos de la factura o la factura no fue encontrada...",
-      "BUSCAR_LINEAS": "Buscar en líneas..."
+      "BUSCAR_LINEAS": "Buscar en líneas...",
+      "BORRADOR_ELIMINADO": "Borrador eliminado."
     },
     "LIST": {
       "EXPORTACION_EXCEL_COMPLETADA": "Exportación a Excel completada.",
@@ -2372,7 +2375,17 @@
       "ESTADO_2": "Estado",
       "CARGANDO_FACTURAS": "Cargando facturas...",
       "NO_ENCONTRARON_FACTURAS_COINCIDAN_BUSQUEDA": "No se encontraron facturas que coincidan con la búsqueda.",
-      "BUSCAR_CLIENTE_NUMERO_FACTURA": "Buscar por cliente o número de factura..."
+      "BUSCAR_CLIENTE_NUMERO_FACTURA": "Buscar por cliente o número de factura...",
+      "FACTURA": "Factura #",
+      "CLIENTE": "Cliente",
+      "CREACION": "Creación",
+      "VENCIMIENTO": "Vencimiento",
+      "TOTAL": "Total",
+      "ANTERIOR": "Anterior",
+      "PAGINA_PAGE_PAGES": "Página {{page}} de {{pages}}",
+      "SIGUIENTE": "Siguiente",
+      "PAGINACION_FACTURAS": "Paginación de facturas",
+      "PUDO_EXPORTAR_LISTADO": "No se pudo exportar el listado."
     },
     "NEW": {
       "DATOS_CARGADOS_DESDE_FACTURA": "Datos cargados desde la factura {{invoiceNumber}}",
@@ -2380,7 +2393,7 @@
       "FAVOR_COMPLETA_TODOS_CAMPOS_REQUERIDOS": "Por favor, completa todos los campos requeridos.",
       "ERROR_CREAR_FACTURA": "Error al crear la factura: {{errorMessage}}",
       "FACTURAS": "Facturas",
-      "NUEVA_FACTURA": "Nueva Factura",
+      "NUEVA_FACTURA": "Nueva factura",
       "CREAR_NUEVA_FACTURA_VENTA": "Crear Nueva Factura de Venta",
       "CANCELAR": "Cancelar",
       "CONTENIDO": "Contenido",
@@ -2388,8 +2401,8 @@
       "FINANZAS": "Finanzas",
       "CLIENTE": "Cliente",
       "SELECCIONAR_CLIENTE": "Seleccionar cliente",
-      "FECHA_EMISION": "Fecha de Emisión",
-      "FECHA_VENCIMIENTO": "Fecha de Vencimiento",
+      "FECHA_EMISION": "Fecha de emisión",
+      "FECHA_VENCIMIENTO": "Fecha de vencimiento",
       "MONEDA": "Moneda",
       "CONCEPTOS_FACTURA": "Conceptos de Factura",
       "PRODUCTO_SERVICIO": "Producto / Servicio",
@@ -2422,7 +2435,30 @@
       "DISTRIBUIDOR": "Distribuidor",
       "ELIMINAR": "Eliminar",
       "TERMINOS_CONDICIONES_INSTRUCCIONES_PAGO": "Términos, condiciones, instrucciones de pago...",
-      "DIRECCION_COMPLETA_CLIENTE": "Dirección completa del cliente..."
+      "DIRECCION_COMPLETA_CLIENTE": "Dirección completa del cliente...",
+      "CREAR_FACTURA_VENTA": "Crear factura de venta",
+      "GUARDAR_BORRADOR": "Guardar borrador",
+      "TODAVIA_NO_PUEDES_EMITIR_COMPROBANTES": "Todavía no puedes emitir comprobantes.",
+      "IR_CONFIGURACION_FISCAL": "Ir a la configuración fiscal",
+      "FISCAL_COBRO": "Fiscal y cobro",
+      "ARTICULO": "Artículo",
+      "DESCRIPCION": "Descripción",
+      "CANTIDAD": "Cantidad",
+      "PRECIO": "Precio",
+      "DESC": "Desc. %",
+      "TRATAMIENTO": "Tratamiento",
+      "CONCEPTO_LIBRE": "— Concepto libre —",
+      "GRAVADO": "Gravado",
+      "TASA_CERO": "Tasa cero",
+      "EXENTO": "Exento",
+      "ANADIR_LINEA": "+ Añadir línea",
+      "NOTAS": "Notas",
+      "ELIMINAR_LINEA": "Eliminar línea",
+      "STOCK_SHORTFALL": "Faltan {{units}} unidades en existencia",
+      "PUDO_CARGAR_CONFIGURACION_FACTURACION": "No se pudo cargar la configuración de facturación.",
+      "REVISA_CAMPOS_MARCADOS_ANTES_CONTINUAR": "Revisa los campos marcados antes de continuar.",
+      "MAS_LINEAS_SUPERAN_EXISTENCIAS_DISPONIBLES_AJUSTA": "Una o más líneas superan las existencias disponibles. Ajusta las cantidades o repone el inventario.",
+      "DATOS_CARGADOS_DESDE": "Datos cargados desde {{invoiceNumber}}."
     },
     "INVOICE_SELECTION_DIALOG": {
       "SELECCIONAR_DOCUMENTO_BASE_COPIAR": "Seleccionar Documento Base (Copiar de...)",
@@ -3072,5 +3108,23 @@
   "GEO_MISMATCH": {
     "SWITCH_TO": "Cambiar a {{country}}",
     "STAY_IN": "Continuar en {{country}}"
+  },
+  "ERRORS": {
+    "UNEXPECTED": "No pudimos completar la operación. Vuelve a intentarlo.",
+    "NETWORK": "No hay conexión con el servidor. Revisa tu conexión a internet y vuelve a intentarlo.",
+    "INTERNAL": "Ocurrió un problema en el servidor. El equipo ya fue notificado; vuelve a intentarlo en unos minutos.",
+    "HTTP_400": "La solicitud no es válida. Revisa los datos e inténtalo de nuevo.",
+    "HTTP_401": "Tu sesión no es válida o ha expirado. Inicia sesión de nuevo.",
+    "HTTP_403": "No tienes permiso para realizar esta acción.",
+    "HTTP_404": "No encontramos lo que buscabas.",
+    "HTTP_409": "La operación entra en conflicto con el estado actual del registro.",
+    "HTTP_413": "El archivo o la solicitud supera el tamaño permitido.",
+    "HTTP_415": "El formato del archivo no es compatible.",
+    "HTTP_422": "Los datos son válidos en forma pero no se pueden procesar. Revisa el detalle.",
+    "HTTP_429": "Demasiados intentos. Espera un momento antes de volver a intentarlo.",
+    "HTTP_500": "Ocurrió un problema en el servidor. El equipo ya fue notificado; vuelve a intentarlo en unos minutos.",
+    "HTTP_503": "El servicio no está disponible temporalmente. Vuelve a intentarlo en unos minutos.",
+    "UNIQUE_VIOLATION": "Ya existe un registro con esos datos.",
+    "FOREIGN_KEY_VIOLATION": "La operación hace referencia a un registro que no existe."
   }
 }

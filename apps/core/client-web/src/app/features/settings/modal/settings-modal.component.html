@@ -103,6 +103,14 @@
             <lucide-icon [img]="IntercompanyIcon" size="16"></lucide-icon>
             <span>{{ 'SETTINGS.MODAL.INTERCOMPANY' | translate }}</span>
           </button>
+          <button
+            class="nav-link"
+            [class.active]="section() === 'fiscal'"
+            (click)="navigate('fiscal')"
+          >
+            <lucide-icon [img]="EInvoicingIcon" size="16"></lucide-icon>
+            <span>{{ 'SETTINGS.MODAL.FACTURACION_ELECTRONICA' | translate }}</span>
+          </button>
         </div>
 
         <!-- GRUPO 4: OPERACIONES -->

@@ -41,12 +41,24 @@ import { basename, join, relative, sep } from 'node:path';
 const DRY = process.argv.includes('--dry');
 const HBS = process.argv.includes('--hbs');
 
+/**
+ * Handlebars templates live in two places: the transactional e-mails, and the fiscal documents
+ * the product prints. Both are read by a customer, so both are scanned — `roots` rather than a
+ * single `root`, because the invoice PDF was invisible to the first version of this and shipped
+ * its Spanish headings to every market.
+ */
 const CONFIG = HBS
   ? {
-      root: 'apps/backend/api/src/app/mail/templates',
+      roots: [
+        'apps/backend/api/src/app/mail/templates',
+        'apps/backend/api/src/app/invoices/templates',
+      ],
       extension: '.hbs',
       catalogue: 'apps/backend/api/src/app/i18n/messages/es.json',
-      namespace: (file) => `MAIL.${basename(file, '.hbs').replace(/-/g, '_').toUpperCase()}`,
+      namespace: (file) =>
+        file.includes(`invoices${sep}templates`)
+          ? 'INVOICE.PDF'
+          : `MAIL.${basename(file, '.hbs').replace(/-/g, '_').toUpperCase()}`,
       wrap: (key) => `{{t '${key}'}}`,
       wrapAttribute: (key) => `{{t '${key}'}}`,
       wrapWithParams: (key, params) =>
@@ -55,7 +67,7 @@ const CONFIG = HBS
       skipFiles: [],
     }
   : {
-      root: 'apps/core/client-web/src/app',
+      roots: ['apps/core/client-web/src/app'],
       extension: '.html',
       catalogue: 'apps/core/client-web/src/assets/i18n/es.json',
       namespace: namespaceForAngular,
@@ -76,7 +88,7 @@ const CONFIG = HBS
  * is what a developer looking for a string actually knows.
  */
 function namespaceForAngular(file) {
-  const parts = relative(CONFIG.root, file).split(sep);
+  const parts = relative(CONFIG.roots[0], file).split(sep);
   const folder = parts.at(-2) ?? parts.at(-1);
   const area = parts[0] === 'features' || parts[0] === 'layout' ? parts[1] : parts[0];
   const name = (folder ?? 'common').replace(/[^A-Za-z0-9]+/g, '_').toUpperCase();
@@ -367,8 +379,9 @@ function toParameterised(rawText, interpolations) {
  * legitimately PART of a text node — `Hola {{name}}, bienvenido` is one sentence. So the scan has
  * to know the difference: skip over an interpolation, and keep going to the real `<`.
  *
- * Yields the same shape as the regex it replaces: `{ index, 1: text }`, where `index` points at
- * the opening `>`.
+ * Yields the same shape as the regex it replaces — `{ index, 0: whole, 1: text }`, where `index`
+ * points at the opening `>` and `0` is the full `>text<` span. Both are used: `1` is the text,
+ * and `index + 0.length` is what `isSplitSentence` needs to look at the tag on the far side.
  */
 function textNodes(source, masked) {
   const nodes = [];
@@ -406,7 +419,13 @@ function textNodes(source, masked) {
       cursor++;
     }
 
-    if (closed) nodes.push({ index: open, 1: source.slice(open + 1, cursor) });
+    if (closed) {
+      nodes.push({
+        index: open,
+        0: source.slice(open, cursor + 1),
+        1: source.slice(open + 1, cursor),
+      });
+    }
     index = cursor;
   }
   return nodes;
@@ -449,7 +468,7 @@ function keyFor(namespace, text) {
   }
 }
 
-for (const file of files(CONFIG.root)) {
+for (const file of CONFIG.roots.flatMap((root) => files(root))) {
   const original = readFileSync(file, 'utf8');
 
   // An explicit opt-out, for the one thing in the product that must NOT be translated: the
@@ -586,5 +605,5 @@ console.log(`attributes externalised   ${report.attributes}`);
 console.log(`catalogue keys added      ${countLeaves(catalogue)}`);
 console.log(`mixed blocks for a human  ${report.mixed.length}`);
 for (const item of report.mixed.slice(0, 60)) {
-  console.log(`  ${relative(CONFIG.root, item.file)}: ${item.text}`);
+  console.log(`  ${relative(CONFIG.roots[0], item.file)}: ${item.text}`);
 }

@@ -1,5 +1,6 @@
 
-import { Entity, PrimaryGeneratedColumn, Column, Index } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, Index, ManyToOne, JoinColumn } from 'typeorm';
+import { Organization } from '../../organizations/entities/organization.entity';
 
 export enum PeriodStatus {
   OPEN = 'OPEN',
@@ -20,8 +21,19 @@ export class AccountingPeriod {
   id: string;
 
   @Index()
-  @Column({ name: 'organization_id' })
+  /**
+   * `uuid`, matching `organizations.id`, with a foreign key.
+   *
+   * Twenty tables held the tenant reference as `character varying` while the column it points at
+   * is a uuid. A join between them was a type error PostgreSQL refused outright, and a row whose
+   * organization had been deleted was perfectly storable.
+   */
+  @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
+
+  @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'organization_id' })
+  organization: Organization;
 
   @Column()
   name: string;

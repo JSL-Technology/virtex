@@ -10,6 +10,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DocumentSequence } from './document-sequences/entities/document-sequence.entity';
 import { DocumentSequencesService } from './document-sequences/document-sequences.service';
 import { CryptoUtil } from './utils/crypto.util';
+import { TenantBookkeepingProvisioner } from './provisioning/tenant-bookkeeping.provisioner';
+import { AfterCommitService } from './after-commit/after-commit.service';
 
 @Global()
 @Module({
@@ -18,11 +20,15 @@ import { CryptoUtil } from './utils/crypto.util';
   ], 
   providers: [
     DocumentSequencesService,
-    CryptoUtil
+    CryptoUtil,
+    TenantBookkeepingProvisioner,
+    AfterCommitService,
   ],
   exports: [
     DocumentSequencesService,
-    CryptoUtil
+    CryptoUtil,
+    TenantBookkeepingProvisioner,
+    AfterCommitService,
   ],
 })
 export class SharedModule {}
