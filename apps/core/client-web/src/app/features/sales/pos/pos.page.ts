@@ -7,15 +7,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { Product } from '../../../core/models/product.model';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
-
-/**
- * Placeholder sales-tax rate.
- *
- * Hardcoded 18% is the Dominican ITBIS and is wrong everywhere else the product is sold. It is
- * named here so the assumption is visible; the real rate has to come from the organization's tax
- * configuration, which is tracked separately from this screen.
- */
-const POS_TAX_RATE = 0.18;
+import { InvoicesService } from '../../../core/services/invoices';
 
 // Reutilizamos el modelo de producto
 // import { Product } from '../../inventory/products/products.page';
@@ -30,6 +22,26 @@ const POS_TAX_RATE = 0.18;
 })
 export class PosPage {
   private fb = inject(FormBuilder);
+  private readonly invoicesService = inject(InvoicesService);
+
+  /**
+   * The market's own invoicing context: currency, and the rates it levies.
+   *
+   * The tax rate used to be `const POS_TAX_RATE = 0.18` — the Dominican ITBIS, applied to a
+   * Mexican tenant's till at 16 %, to a United States one that has no national rate at all, and
+   * printed on the ticket as the literal label "Impuestos (18%)". `InvoicesService.context()`
+   * already answers this per tenant and is what the invoice form uses; the till now asks the same
+   * question rather than assuming the answer.
+   */
+  private readonly context = toSignal(this.invoicesService.context(), { initialValue: null });
+
+  /** The market's standard rate, as a fraction. Zero where the tenant has yet to configure one. */
+  readonly taxRate = computed(() => this.context()?.taxRates?.[0] ?? 0);
+  readonly currencyCode = computed(() => this.context()?.baseCurrency ?? null);
+  /** True where the rate is sub-national (US, Brazil) and cannot be assumed from the country. */
+  readonly taxNeedsConfiguration = computed(
+    () => this.context()?.taxRequiresConfiguration === true,
+  );
 
   protected readonly SearchIcon = Search;
   protected readonly XIcon = X;
@@ -77,7 +89,7 @@ export class PosPage {
     return items.reduce((acc, item) => acc + (item.quantity || 0) * (item.price || 0), 0);
   });
 
-  taxAmount = computed(() => this.subtotal() * POS_TAX_RATE);
+  taxAmount = computed(() => this.subtotal() * this.taxRate());
   total = computed(() => this.subtotal() + this.taxAmount());
 
   get cartItems(): FormArray {

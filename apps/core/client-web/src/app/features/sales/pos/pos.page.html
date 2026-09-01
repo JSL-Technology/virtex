@@ -61,9 +61,21 @@
             }
         </div>
         <div class="ticket-footer">
-            <div class="summary-row"><span>{{ 'SALES.POS.SUBTOTAL' | translate }}</span><span>{{ subtotal() | vxNumber:'1.2-2' }}</span></div>
-            <div class="summary-row"><span>{{ 'SALES.POS.IMPUESTOS_18' | translate }}</span><span>{{ taxAmount() | vxNumber:'1.2-2' }}</span></div>
-            <div class="summary-total"><span>{{ 'SALES.POS.TOTAL_PAGAR' | translate }}</span><span>${{ total() | vxNumber:'1.2-2' }}</span></div>
+            <div class="summary-row">
+              <span>{{ 'SALES.POS.SUBTOTAL' | translate }}</span>
+              <span>{{ subtotal() | vxMoney: currencyCode() }}</span>
+            </div>
+            <div class="summary-row">
+              <span>{{ 'SALES.POS.TAX_AT_RATE' | translate: { rate: taxRate() | vxPercent } }}</span>
+              <span>{{ taxAmount() | vxMoney: currencyCode() }}</span>
+            </div>
+            <div class="summary-total">
+              <span>{{ 'SALES.POS.TOTAL_PAGAR' | translate }}</span>
+              <span>{{ total() | vxMoney: currencyCode() }}</span>
+            </div>
+            @if (taxNeedsConfiguration()) {
+              <p class="tax-warning">{{ 'SALES.POS.TAX_NEEDS_CONFIGURATION' | translate }}</p>
+            }
             <button class="primary-button charge-btn" (click)="completeSale()" [disabled]="cartItems.length === 0">
                 <lucide-icon [img]="CreditCardIcon" size="18"></lucide-icon>
                 <span>{{ 'SALES.POS.COBRAR' | translate }}</span>

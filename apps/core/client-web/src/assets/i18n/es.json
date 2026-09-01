@@ -451,15 +451,6 @@
       "CHOOSE": "Elegir idioma"
     }
   },
-  "SECTIONS": {
-    "WORKSPACE": "Espacio de Trabajo",
-    "MASTER_DATA": "Datos Maestros",
-    "OPERATIONS": "Operaciones",
-    "ACCOUNTING": "Contabilidad",
-    "REPORTS": "Reportes",
-    "TOOLS": "Herramientas",
-    "MANAGEMENT": "Gestión"
-  },
   "NAV": {
     "DASHBOARD": "Dashboard",
     "MY_WORK": "Mi Trabajo",
@@ -477,9 +468,6 @@
     "PRICE_LISTS": "Listas de Precios",
     "MENU": "Menú"
   },
-  "DOCS": {
-    "DOCUMENTS": "Documentos"
-  },
   "PWA": {
     "INSTALL": "Instalar App",
     "OFFLINE_TITLE": "No tienes conexión",
@@ -494,10 +482,6 @@
     "LUNCH": "Virtex Lunch",
     "HR": "Virtex HR",
     "CRM": "Virtex CRM"
-  },
-  "TOOLS": {
-    "DATA_IMPORTS": "Importaciones de Datos",
-    "DATA_EXPORTS": "Exportaciones de Datos"
   },
   "ACCOUNTING": {
     "CHART_OF_ACCOUNTS": {
@@ -619,27 +603,6 @@
       "EMPTY": "Todavía no hay períodos contables definidos.",
       "REOPEN_REASON_PROMPT": "Indica la razón por la que se reabre este período contable (mínimo 10 caracteres).",
       "REASON_TOO_SHORT": "La razón debe tener al menos 10 caracteres."
-    },
-    "COA": {
-      "TITLE": "Plan de Cuentas",
-      "ACTIONS": {
-        "FILTERS": "Filtros",
-        "NEW_ACCOUNT": "Nueva Cuenta"
-      },
-      "TABLE": {
-        "HEADERS": {
-          "CODE": "Código",
-          "ACCOUNT_NAME": "Nombre de la Cuenta",
-          "TYPE": "Tipo",
-          "BALANCE": "Saldo",
-          "ACTIONS": "Acciones"
-        }
-      },
-      "ARIA": {
-        "EXPAND_ROW": "Expandir cuenta",
-        "COLLAPSE_ROW": "Contraer cuenta",
-        "MORE_ACTIONS": "Más acciones"
-      }
     },
     "ACCOUNT_FORM": {
       "ERROR_CARGAR_CONFIGURACION_SEGMENTOS": "Error al cargar la configuración de segmentos.",
@@ -958,23 +921,6 @@
       "ALL": "Todos"
     },
     "SEARCH_PLACEHOLDER": "Buscar usuarios...",
-    "FILTERS": {
-      "ADVANCED": "Filtros Avanzados",
-      "DEPARTMENT": "Departamento",
-      "ROLE": "Rol"
-    },
-    "DEPARTMENTS": {
-      "ALL": "Todos",
-      "IT": "TI",
-      "FINANCE": "Finanzas",
-      "HR": "Recursos Humanos",
-      "SALES": "Ventas"
-    },
-    "ROLES": {
-      "ALL": "Todos",
-      "STANDARD_USER": "Usuario Estándar",
-      "MANAGER": "Gerente"
-    },
     "TABLE": {
       "NAME": "Nombre",
       "EMAIL": "Email",
@@ -983,12 +929,7 @@
       "STATUS": "Estado",
       "ACTIONS": "Acciones"
     },
-    "NO_DEPARTMENT": "Sin departamento",
-    "PAGINATION": {
-      "SHOWING": "Mostrando",
-      "OF": "de",
-      "USERS": "usuarios"
-    }
+    "NO_DEPARTMENT": "Sin departamento"
   },
   "AUTH": {
     "SIGN_OUT": "Cerrar Sesión",
@@ -1049,7 +990,6 @@
       "SIGN_IN_WITH_GOOGLE": "Continuar con Google",
       "SIGN_IN_WITH_MICROSOFT": "Continuar con Microsoft"
     },
-    "REGISTER": {},
     "STEP_BUSINESS": {
       "FAX": "Fax"
     },
@@ -1082,7 +1022,6 @@
       "REINTENTAR": "Reintentar",
       "CODIGO_VERIFICACION_SMS": "Código de verificación SMS"
     },
-    "STEP_PLAN": {},
     "COPYRIGHT": "© {{year}} {{app}}. Todos los derechos reservados.",
     "LEGAL_LINKS": "Enlaces legales"
   },
@@ -1130,9 +1069,6 @@
     "RETRY": "Reintentar",
     "REFRESH": "Actualizar",
     "NOT_RECORDED": "Sin registrar"
-  },
-  "ALT": {
-    "COMPANY_LOGO": "Logo de la empresa"
   },
   "SEARCH": {
     "MAIN_PLACEHOLDER": "Buscar facturas, clientes, productos…",
@@ -1885,13 +1821,6 @@
       "SOCIAL_ACCOUNT_EXISTS": "Ya existe una cuenta con este correo. Inicia sesión con tu método original y vincula el proveedor desde tu perfil.",
       "SOCIAL_EMAIL_NOT_VERIFIED": "Tu proveedor no ha verificado tu correo, así que no podemos iniciar tu sesión.",
       "SOCIAL_UNAVAILABLE": "Ese método de inicio de sesión no está disponible por ahora. Prueba con otro."
-    },
-    "FOOTER": {
-      "LANGUAGE_SELECTOR_LABEL": "Seleccionar idioma",
-      "TERMS": "Términos",
-      "PRIVACY": "Privacidad",
-      "SECURITY": "Seguridad",
-      "COPYRIGHT": "© {{year}} Virtex. Todos los derechos reservados."
     }
   },
   "REGISTER": {
@@ -1971,13 +1900,6 @@
     "AND": "y la",
     "PRIVACY": "Política de Privacidad",
     "UPLOAD_LOGO": "Subir logo",
-    "PLAN_SUMMARY": {
-      "TITLE": "Prueba Gratuita de 30 Días",
-      "SUBTITLE": "Acceso completo a todas las funciones Premium.",
-      "FEATURE_1": "Sin tarjeta de crédito requerida",
-      "FEATURE_2": "Cancela en cualquier momento",
-      "FEATURE_3": "Soporte prioritario incluido"
-    },
     "COUNTRY": "País",
     "CURRENCY": "Moneda",
     "TAX_ID": "Identificación Fiscal",
@@ -2018,31 +1940,6 @@
       "EMAIL_OK": "¡Correo verificado!",
       "PHONE_OK": "¡Número verificado!",
       "PREFER_LINK": "¿Prefieres no escribir el código? Busca el botón «Confirmar correo electrónico» en el mensaje que te enviamos."
-    },
-    "TAXPAYER": {
-      "LABEL": "Tipo de contribuyente",
-      "COMPANY": "Empresa / persona jurídica",
-      "INDIVIDUAL": "Persona física"
-    },
-    "ADDRESS": {
-      "STREET": "Dirección fiscal",
-      "STREET_PLACEHOLDER": "Calle y número",
-      "CITY": "Ciudad"
-    },
-    "ACCESS": {
-      "OR_EMAIL": "O usa tu correo electrónico",
-      "PASSWORD_MISMATCH": "Las contraseñas no coinciden"
-    },
-    "PLAN": {
-      "LOADING": "Cargando planes…",
-      "LOAD_FAILED": "No se pudieron cargar los planes.",
-      "RETRY": "Reintentar",
-      "RECOMMENDED": "Recomendado",
-      "SELECTED": "Plan seleccionado",
-      "CHOOSE": "Elegir plan",
-      "UNLIMITED": "{{resource}} ilimitados",
-      "QUOTA_MONTHLY": "{{limit}} {{resource}} al mes",
-      "QUOTA_LIFETIME": "{{limit}} {{resource}}"
     },
     "TAXID_HINT": "Verificamos el dígito verificador ante {{authority}}.",
     "TAXID_FORMAT": "Formato esperado: {{example}}",
@@ -2645,14 +2542,14 @@
     },
     "SUPPLIER_LIST": {
       "PUDIERON_CARGAR_PROVEEDORES": "No se pudieron cargar los proveedores.",
-      "SUPPLIERS": "Suppliers",
+      "SUPPLIERS": "Proveedores",
       "FILTERS": "Filtros",
       "NEW_SUPPLIER": "Nuevo proveedor",
       "COMPANY_NAME": "Razón social",
-      "TAX_ID": "Tax ID",
+      "TAX_ID": "Identificación fiscal",
       "EMAIL": "Email",
-      "PHONE": "Phone",
-      "NO_SUPPLIERS_FOUND": "No suppliers found."
+      "PHONE": "Teléfono",
+      "NO_SUPPLIERS_FOUND": "No se encontraron proveedores."
     },
     "TAX_FORM": {
       "PUDO_CARGAR_IMPUESTO": "No se pudo cargar el impuesto.",
@@ -2674,85 +2571,85 @@
       "IMPUESTO_ELIMINADO_EXITOSAMENTE": "Impuesto eliminado exitosamente.",
       "PUDIERON_CARGAR_IMPUESTOS": "No se pudieron cargar los impuestos.",
       "ERROR_ELIMINAR_IMPUESTO": "Error al eliminar el impuesto.",
-      "TAX_RATES": "Tax Rates",
+      "TAX_RATES": "Tasas de impuesto",
       "FILTERS": "Filtros",
       "NEW_TAX": "Nuevo impuesto",
       "NAME": "Nombre",
       "TYPE": "Tipo",
-      "RATE": "Rate (%)",
-      "COUNTRY": "Country",
-      "NO_TAXES_CONFIGURED": "No taxes configured."
+      "RATE": "Tasa (%)",
+      "COUNTRY": "País",
+      "NO_TAXES_CONFIGURED": "No hay impuestos configurados."
     },
     "BANKS": {
-      "BANKS": "Banks",
+      "BANKS": "Bancos",
       "FILTERS": "Filtros",
       "NEW_BANK": "Nuevo banco",
       "BANK_NAME": "Nombre del banco",
-      "SWIFT_CODE": "SWIFT Code",
+      "SWIFT_CODE": "Código SWIFT",
       "COUNTRY": "Country",
-      "NO_BANKS_CONFIGURED": "No banks configured."
+      "NO_BANKS_CONFIGURED": "No hay bancos configurados."
     },
     "BRANCHES": {
-      "BRANCHES_LOCATIONS": "Branches & Locations",
+      "BRANCHES_LOCATIONS": "Sucursales y ubicaciones",
       "FILTERS": "Filtros",
       "NEW_BRANCH": "Nueva sucursal",
       "NAME": "Nombre",
-      "ADDRESS": "Address",
-      "CITY": "City",
+      "ADDRESS": "Dirección",
+      "CITY": "Ciudad",
       "PHONE": "Phone",
-      "NO_BRANCHES_CONFIGURED": "No branches configured."
+      "NO_BRANCHES_CONFIGURED": "No hay sucursales configuradas."
     },
     "CURRENCIES": {
-      "CURRENCIES": "Currencies",
+      "CURRENCIES": "Monedas",
       "FILTERS": "Filtros",
       "NEW_CURRENCY": "Nueva moneda",
       "CURRENCY_NAME": "Nombre de la moneda",
-      "CODE": "Code",
-      "SYMBOL": "Symbol",
-      "BASE_CURRENCY": "Base Currency",
-      "YES": "Yes",
-      "NO_CURRENCIES_CONFIGURED": "No currencies configured."
+      "CODE": "Código",
+      "SYMBOL": "Símbolo",
+      "BASE_CURRENCY": "Moneda base",
+      "YES": "Sí",
+      "NO_CURRENCIES_CONFIGURED": "No hay monedas configuradas."
     },
     "CUSTOMER_LIST": {
-      "CUSTOMERS": "Customers",
+      "CUSTOMERS": "Clientes",
       "FILTERS": "Filtros",
       "NEW_CUSTOMER": "Nuevo cliente",
       "COMPANY_NAME": "Razón social",
       "TAX_ID": "Tax ID",
       "EMAIL": "Email",
       "PHONE": "Phone",
-      "LOCATION": "Location",
-      "NO_CUSTOMERS_FOUND_START_BY_ADDING": "No customers found. Start by adding a new one."
+      "LOCATION": "Ubicación",
+      "NO_CUSTOMERS_FOUND_START_BY_ADDING": "No se encontraron clientes. Empieza agregando uno."
     },
     "LAYOUT": {
-      "MASTER_DATA": "Master Data",
+      "MASTER_DATA": "Datos maestros",
       "MANAGE_CORE_REFERENCE_DATA_FOR_YOUR": "Administra los datos maestros de tu organización.",
       "CUSTOMERS": "Customers",
       "SUPPLIERS": "Suppliers",
-      "PRODUCTS": "Products",
-      "PRICE_LISTS": "Price Lists",
-      "TAXES": "Taxes",
-      "WAREHOUSES": "Warehouses",
-      "UNITS": "Units",
+      "PRODUCTS": "Productos",
+      "PRICE_LISTS": "Listas de precios",
+      "TAXES": "Impuestos",
+      "WAREHOUSES": "Almacenes",
+      "UNITS": "Unidades",
       "CURRENCIES": "Currencies",
       "BANKS": "Banks",
-      "BRANCHES": "Branches",
-      "PAYMENT_METHODS": "Payment Methods",
-      "PAYMENT_TERMS": "Payment Terms"
+      "BRANCHES": "Sucursales",
+      "PAYMENT_METHODS": "Formas de pago",
+      "PAYMENT_TERMS": "Condiciones de pago"
     },
     "PAYMENT_METHODS": {
       "PAYMENT_METHODS": "Payment Methods",
       "NEW_METHOD": "Nuevo método",
       "NAME": "Nombre",
       "TYPE": "Tipo",
-      "DEFAULT_METHOD": "Default Method",
+      "DEFAULT_METHOD": "Forma predeterminada",
       "YES": "Yes"
     },
     "PAYMENT_TERMS": {
       "PAYMENT_TERMS": "Payment Terms",
       "NEW_TERM": "Nueva condición",
       "NAME": "Nombre",
-      "NET_DAYS": "Net Days"
+      "NET_DAYS": "Días netos"
     },
     "UNITS_OF_MEASURE": {
       "UNITS_MEASURE": "Unidades de medida",
@@ -2761,7 +2658,7 @@
       "NAME": "Nombre",
       "SYMBOL": "Symbol",
       "TYPE": "Tipo",
-      "NO_UNITS_MEASURE_CONFIGURED": "No units of measure configured."
+      "NO_UNITS_MEASURE_CONFIGURED": "No hay unidades de medida configuradas."
     },
     "WAREHOUSES": {
       "WAREHOUSES": "Warehouses",
@@ -2769,9 +2666,9 @@
       "NEW_WAREHOUSE": "Nuevo almacén",
       "NAME": "Nombre",
       "LOCATION": "Location",
-      "MANAGER": "Manager",
+      "MANAGER": "Encargado",
       "STATUS": "Estado",
-      "NO_WAREHOUSES_CONFIGURED": "No warehouses configured."
+      "NO_WAREHOUSES_CONFIGURED": "No hay almacenes configurados."
     }
   },
   "APPROVALS": {
@@ -2879,68 +2776,68 @@
     }
   },
   "DATA_EXPORTS": {
-    "DATA_EXPORTS": "Data Exports",
+    "DATA_EXPORTS": "Exportaciones de datos",
     "GENERATE_AND_DOWNLOAD_YOUR_MASTER_OR": "Genera y descarga tus datos maestros o transaccionales en distintos formatos.",
     "NEW_EXPORT": "Nueva exportación",
     "DATA_EXPORT": "Datos a exportar*",
     "SELECT_DATA_TYPE": "Selecciona un tipo de dato...",
-    "FORMAT": "Format*",
+    "FORMAT": "Formato*",
     "EXCEL_XLSX": "Excel (XLSX)",
-    "GENERATING": "Generating...",
-    "GENERATE_FILE": "Generate File",
-    "RECENT_EXPORTS": "Recent Exports",
+    "GENERATING": "Generando...",
+    "GENERATE_FILE": "Generar archivo",
+    "RECENT_EXPORTS": "Exportaciones recientes",
     "DATA_TYPE": "Tipo de dato",
-    "FORMAT_2": "Format",
+    "FORMAT_2": "Formato",
     "DATE": "Fecha",
-    "USER": "User",
+    "USER": "Usuario",
     "STATUS": "Estado",
-    "ACTION": "Action",
-    "DOWNLOAD": "Download"
+    "ACTION": "Acción",
+    "DOWNLOAD": "Descargar"
   },
   "DATA_IMPORTS": {
-    "DATA_IMPORTS_ETL": "Data Imports (ETL)",
-    "UPLOAD_MASTER_OR_TRANSACTIONAL_DATA_IN": "Upload master or transactional data in bulk using CSV or Excel files.",
+    "DATA_IMPORTS_ETL": "Importaciones de datos (ETL)",
+    "UPLOAD_MASTER_OR_TRANSACTIONAL_DATA_IN": "Carga datos maestros o transaccionales de forma masiva con archivos CSV o Excel.",
     "SELECT_DATA_TYPE": "Selecciona el tipo de dato",
     "CHOOSE_TYPE_DATA_YOU_WANT_IMPORT": "Elige el tipo de dato que quieres importar para que el mapeo sea el correcto.",
     "SELECT_DATA_TYPE_2": "Selecciona un tipo de dato...",
     "DOWNLOAD_NAME_TEMPLATE": "Descargar la plantilla de {{name}}",
-    "UPLOAD_FILE": "Upload File",
+    "UPLOAD_FILE": "Subir archivo",
     "SELECT_CSV_OR_EXCEL_FILE_FROM": "Selecciona el archivo CSV o Excel desde tu computadora.",
     "CLICK_BROWSE_OR_DRAG_DROP": "Haz clic para buscar o arrastra el archivo aquí",
-    "START_IMPORT": "Start Import",
+    "START_IMPORT": "Comenzar la importación",
     "ONCE_YOUR_FILE_SELECTED_BEGIN_IMPORT": "Cuando el archivo esté seleccionado, comienza la importación.",
-    "PROCESSING": "Processing...",
-    "IMPORT_DATA": "Import Data",
-    "RECENT_IMPORTS": "Recent Imports",
+    "PROCESSING": "Procesando...",
+    "IMPORT_DATA": "Importar datos",
+    "RECENT_IMPORTS": "Importaciones recientes",
     "DATA_TYPE": "Tipo de dato",
     "FILE_NAME": "Nombre del archivo",
     "DATE": "Fecha",
     "USER": "User",
     "STATUS": "Estado",
-    "PROCESSED": "Processed",
-    "FAILED": "Failed"
+    "PROCESSED": "Procesados",
+    "FAILED": "Fallidos"
   },
   "DOCUMENTS": {
-    "DOCUMENTS": "Documents",
+    "DOCUMENTS": "Documentos",
     "MANAGE_AND_ORGANIZE_ALL_YOUR_BUSINESS": "Administra y organiza los archivos y adjuntos de tu empresa.",
     "NEW_FOLDER": "Nueva carpeta",
     "UPLOAD_FILE": "Upload File",
     "NAME": "Nombre",
     "LAST_MODIFIED": "Última modificación",
-    "FILE_SIZE": "File Size",
-    "THIS_FOLDER_EMPTY": "This folder is empty.",
-    "SEARCH_IN_THIS_FOLDER": "Search in this folder...",
+    "FILE_SIZE": "Tamaño",
+    "THIS_FOLDER_EMPTY": "Esta carpeta está vacía.",
+    "SEARCH_IN_THIS_FOLDER": "Buscar en esta carpeta...",
     "LAYOUT": {
-      "DOCUMENT_CENTER": "Document Center",
+      "DOCUMENT_CENTER": "Centro de documentos",
       "MANAGE_YOUR_COMPANY_FILES_ATTACHMENTS_AND": "Administra los archivos, adjuntos y plantillas de documentos de tu empresa.",
-      "REPOSITORY": "Repository",
-      "TEMPLATES": "Templates"
+      "REPOSITORY": "Repositorio",
+      "TEMPLATES": "Plantillas"
     },
     "REPOSITORY": {
-      "FILE_REPOSITORY": "File Repository",
+      "FILE_REPOSITORY": "Repositorio de archivos",
       "NEW_FOLDER": "Nueva carpeta",
       "UPLOAD_FILE": "Upload File",
-      "HOME": "Home",
+      "HOME": "Inicio",
       "NAME": "Nombre",
       "LAST_MODIFIED": "Última modificación",
       "FILE_SIZE": "File Size",
@@ -2948,7 +2845,7 @@
       "SEARCH_IN_THIS_FOLDER": "Search in this folder..."
     },
     "TEMPLATES": {
-      "DOCUMENT_TEMPLATES": "Document Templates",
+      "DOCUMENT_TEMPLATES": "Plantillas de documentos",
       "NEW_TEMPLATE": "Nueva plantilla",
       "TYPE_LAST_MODIFIED_LASTMODIFIED": "{{type}} • Última modificación: {{lastModified}}",
       "CREATE_NEW_TEMPLATE": "Crear una plantilla"
@@ -2964,18 +2861,18 @@
     "BUSCAR_TODO_SISTEMA": "Buscar en todo el sistema..."
   },
   "MY_WORK": {
-    "MY_WORK": "My Work",
+    "MY_WORK": "Mi trabajo",
     "YOUR_CENTRALIZED_INBOX_FOR_TASKS_APPROVALS": "Tu bandeja centralizada de tareas, aprobaciones y notificaciones.",
     "TASKS": "Tareas",
-    "APPROVALS": "Approvals",
-    "NOTIFICATIONS": "Notifications",
-    "SECURITY": "Security",
+    "APPROVALS": "Aprobaciones",
+    "NOTIFICATIONS": "Notificaciones",
+    "SECURITY": "Seguridad",
     "DUE_DUEDATE": "Vence: {{dueDate}}",
-    "NO_PENDING_TASKS_GREAT_JOB": "No pending tasks. Great job!",
-    "REQUESTED_DUEDATE": "Requested: {{dueDate}}",
-    "NO_PENDING_APPROVAL_REQUESTS": "No pending approval requests.",
+    "NO_PENDING_TASKS_GREAT_JOB": "No hay tareas pendientes.",
+    "REQUESTED_DUEDATE": "Solicitado: {{dueDate}}",
+    "NO_PENDING_APPROVAL_REQUESTS": "No hay solicitudes de aprobación pendientes.",
     "DATE_DUEDATE": "Fecha: {{dueDate}}",
-    "NO_NEW_NOTIFICATIONS": "No new notifications."
+    "NO_NEW_NOTIFICATIONS": "No hay notificaciones nuevas."
   },
   "REPORTS": {
     "BALANCE_SHEET": {
@@ -2988,12 +2885,12 @@
       "TOTAL_PASIVOS_PATRIMONIO": "Total Pasivos y Patrimonio"
     },
     "LAYOUT": {
-      "REPORTS_ANALYTICS": "Reports & Analytics",
+      "REPORTS_ANALYTICS": "Reportes y análisis",
       "ANALYZE_YOUR_BUSINESS_PERFORMANCE_WITH_DETAILED": "Analiza el desempeño de tu negocio con reportes financieros y operativos detallados.",
-      "PROFITABILITY_BY_PRODUCT": "Profitability by Product",
-      "PROFITABILITY_BY_CUSTOMER": "Profitability by Customer",
-      "FINANCIAL_STATEMENTS": "Financial Statements",
-      "COMPARATIVE_ANALYSIS": "Comparative Analysis"
+      "PROFITABILITY_BY_PRODUCT": "Rentabilidad por producto",
+      "PROFITABILITY_BY_CUSTOMER": "Rentabilidad por cliente",
+      "FINANCIAL_STATEMENTS": "Estados financieros",
+      "COMPARATIVE_ANALYSIS": "Análisis comparativo"
     },
     "PROFITABILITY_BY_CUSTOMER": {
       "PROFITABILITY_BY_CUSTOMER": "Profitability by Customer",
@@ -3001,19 +2898,19 @@
       "FILTERS": "Filtros",
       "EXPORT": "Exportar",
       "CUSTOMER_NAME": "Cliente",
-      "TOTAL_REVENUE": "Total Revenue",
-      "TOTAL_COST": "Total Cost",
-      "GROSS_PROFIT": "Gross Profit",
-      "GROSS_MARGIN": "Gross Margin (%)",
-      "NO_PROFITABILITY_DATA_AVAILABLE_FOR_SELECTED": "No profitability data available for the selected period."
+      "TOTAL_REVENUE": "Ingreso total",
+      "TOTAL_COST": "Costo total",
+      "GROSS_PROFIT": "Utilidad bruta",
+      "GROSS_MARGIN": "Margen bruto (%)",
+      "NO_PROFITABILITY_DATA_AVAILABLE_FOR_SELECTED": "No hay datos de rentabilidad para el período seleccionado."
     },
     "PROFITABILITY_BY_PRODUCT": {
       "PROFITABILITY_BY_PRODUCT": "Profitability by Product",
       "LAST_90_DAYS": "Últimos 90 días",
       "FILTERS": "Filtros",
       "EXPORT": "Exportar",
-      "PRODUCT": "Product",
-      "UNITS_SOLD": "Units Sold",
+      "PRODUCT": "Producto",
+      "UNITS_SOLD": "Unidades vendidas",
       "TOTAL_REVENUE": "Total Revenue",
       "TOTAL_COST": "Total Cost",
       "GROSS_PROFIT": "Gross Profit",
@@ -3041,10 +2938,11 @@
       "CLIENTE": "Cliente:",
       "ANADE_PRODUCTOS_COMENZAR_VENTA": "Añade productos para comenzar una venta.",
       "SUBTOTAL": "Subtotal",
-      "IMPUESTOS_18": "Impuestos (18%)",
       "TOTAL_PAGAR": "Total a Pagar",
       "COBRAR": "Cobrar",
-      "BUSCAR_PRODUCTOS_NOMBRE_SKU": "Buscar productos por nombre o SKU..."
+      "BUSCAR_PRODUCTOS_NOMBRE_SKU": "Buscar productos por nombre o SKU...",
+      "TAX_AT_RATE": "Impuestos ({{rate}})",
+      "TAX_NEEDS_CONFIGURATION": "Este país calcula el impuesto por estado o municipio. Configúralo en Ajustes → Impuestos antes de cobrar."
     }
   },
   "UNAUTHORIZED": {
@@ -3109,7 +3007,6 @@
       "NUNCA_COMPARTA_ESTE_CODIGO_NUESTRO_EQUIPO": "Nunca comparta este código. Nuestro equipo jamás se lo pedirá.",
       "CODIGO_OTP": "Código OTP"
     },
-    "PASSWORD_CONFIRM_MODAL": {},
     "THEME_TOGGLE": {
       "APARIENCIA": "Apariencia"
     },
