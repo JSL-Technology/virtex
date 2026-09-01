@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-  ConflictException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, LessThanOrEqual } from 'typeorm';
 import { Quote, QuoteStatus } from '../entities/quote.entity';
@@ -15,6 +10,7 @@ import { InvoicesService } from '../../invoices/invoices.service';
 import { Invoice } from '../../invoices/entities/invoice.entity';
 import { OrganizationSettings } from '../../organizations/entities/organization-settings.entity';
 import { ExchangeRate } from '../../currencies/entities/exchange-rate.entity';
+import { BadRequestError, ConflictError, NotFoundError } from '../../i18n/localized.exception';
 
 @Injectable()
 export class QuotesService {
@@ -49,14 +45,12 @@ export class QuotesService {
                 order: { date: 'DESC' }
             });
             if (!rate) {
-              throw new BadRequestException(`No se encontró una tasa de cambio válida para ${currencyCode} en la fecha especificada.`);
+              throw new BadRequestError('SALES.NO_ENCONTRO_TASA_CAMBIO_VALIDA_FECHA_ESPECIFICADA', { currencyCode });
             }
             // Stored as units of `toCurrency` per 1 `fromCurrency`; the document needs the inverse.
             const baseToTransaction = Number(rate.rate);
             if (!Number.isFinite(baseToTransaction) || baseToTransaction <= 0) {
-              throw new BadRequestException(
-                `La tasa de cambio configurada para ${currencyCode} no es válida.`,
-              );
+              throw new BadRequestError('SALES.TASA_CAMBIO_CONFIGURADA_NO_ES_VALIDA', { currencyCode });
             }
             exchangeRate = 1 / baseToTransaction;
         }
@@ -117,15 +111,15 @@ export class QuotesService {
       where: { id: quoteId, organizationId },
       relations: ['customer', 'lines', 'lines.product'],
     });
-    if (!quote) throw new NotFoundException('Cotización no encontrada.');
+    if (!quote) throw new NotFoundError('SALES.COTIZACION_NO_ENCONTRADA');
     if (quote.status === QuoteStatus.INVOICED) {
-      throw new ConflictException(`La cotización ${quote.quoteNumber} ya fue facturada.`);
+      throw new ConflictError('SALES.COTIZACION_YA_FUE_FACTURADA', { quoteNumber: quote.quoteNumber });
     }
     if (quote.status !== QuoteStatus.ACCEPTED) {
-      throw new BadRequestException('Solo se pueden facturar cotizaciones aceptadas.');
+      throw new BadRequestError('SALES.SOLO_PUEDEN_FACTURAR_COTIZACIONES_ACEPTADAS');
     }
     if (!quote.lines?.length) {
-      throw new BadRequestException('La cotización no tiene líneas que facturar.');
+      throw new BadRequestError('SALES.COTIZACION_NO_TIENE_LINEAS_FACTURAR');
     }
 
     const today = new Date().toISOString().split('T')[0];

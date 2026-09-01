@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { CountryRegistrationStrategy } from './country-registration.strategy';
 import { RegisterUserDto } from '../../dto/register-user.dto';
@@ -7,6 +7,7 @@ import { User } from '../../../users/entities/user.entity/user.entity';
 import { LocalizationService } from '../../../localization/services/localization.service';
 import { findCountryProfile } from '../../../localization/fiscal/country-profiles';
 import { validateTaxId } from '../../../localization/fiscal/tax-id-validators';
+import { BadRequestError } from '../../../i18n/localized.exception';
 
 /**
  * The registration rules for every supported market, driven by the country profile.
@@ -28,15 +29,11 @@ export class ProfileRegistrationStrategy implements CountryRegistrationStrategy 
   async validate(dto: RegisterUserDto): Promise<void> {
     const profile = findCountryProfile(dto.countryCode);
     if (!profile) {
-      throw new BadRequestException(
-        `El país "${dto.countryCode}" todavía no está disponible para registro.`,
-      );
+      throw new BadRequestError('AUTH.PAIS_TODAVIA_NO_ESTA_DISPONIBLE_REGISTRO', { countryCode: dto.countryCode });
     }
 
     if (!dto.taxId?.trim()) {
-      throw new BadRequestException(
-        `El ${profile.taxId.label} es obligatorio para ${profile.name}.`,
-      );
+      throw new BadRequestError('AUTH.ES_OBLIGATORIO', { label: profile.taxId.label, name: profile.name });
     }
 
     // Re-checked here even though the DTO already validated it. The DTO constraint protects the
@@ -48,15 +45,11 @@ export class ProfileRegistrationStrategy implements CountryRegistrationStrategy 
     // United States nine-digit value passes as an EIN under one prefix rule and as an SSN under
     // another, and only the kind decides which applies.
     if (!validateTaxId(profile.countryCode, dto.taxId, dto.taxpayerKind)) {
-      throw new BadRequestException(
-        `El ${profile.taxId.label} no es válido para ${profile.name}.`,
-      );
+      throw new BadRequestError('AUTH.NO_ES_VALIDO', { label: profile.taxId.label, name: profile.name });
     }
 
     if (profile.address.postalCodeRequired && !dto.postalCode?.trim()) {
-      throw new BadRequestException(
-        `El ${profile.address.postalCodeLabel} es obligatorio para ${profile.name}.`,
-      );
+      throw new BadRequestError('AUTH.ES_OBLIGATORIO_2', { postalCodeLabel: profile.address.postalCodeLabel, name: profile.name });
     }
   }
 

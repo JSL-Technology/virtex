@@ -1,9 +1,9 @@
 <div class="page-container">
   <div class="page-header">
-    <h1>Roles y Permisos</h1>
+    <h1>{{ 'SETTINGS.ROLES.ROLES_PERMISOS' | translate }}</h1>
     <button class="primary-button" (click)="openRoleModal()" *appHasPermission="'roles:create'">
       <lucide-icon [img]="PlusIcon" size="16"></lucide-icon>
-      <span>Crear Rol</span>
+      <span>{{ 'SETTINGS.ROLES.CREAR_ROL' | translate }}</span>
     </button>
   </div>
 
@@ -11,10 +11,10 @@
     <table class="data-table">
       <thead>
         <tr>
-          <th>Nombre del Rol</th>
-          <th>Descripción</th>
-          <th>Tipo</th>
-          <th class="actions-column">Acciones</th>
+          <th>{{ 'SETTINGS.ROLES.NOMBRE_ROL' | translate }}</th>
+          <th>{{ 'SETTINGS.ROLES.DESCRIPCION' | translate }}</th>
+          <th>{{ 'SETTINGS.ROLES.TIPO' | translate }}</th>
+          <th class="actions-column">{{ 'SETTINGS.ROLES.ACCIONES' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -28,13 +28,13 @@
             </span>
           </td>
           <td class="actions-column">
-            <button class="icon-button" (click)="cloneRole(role)" title="Clonar Rol" *appHasPermission="'roles:create'">
+            <button class="icon-button" (click)="cloneRole(role)" [title]="'SETTINGS.ROLES.CLONAR_ROL' | translate" *appHasPermission="'roles:create'">
               <lucide-icon [img]="CloneIcon" size="18"></lucide-icon>
             </button>
-            <button class="icon-button" (click)="openRoleModal(role)" [disabled]="role.isSystemRole" title="Editar Rol" *appHasPermission="'roles:edit'">
+            <button class="icon-button" (click)="openRoleModal(role)" [disabled]="role.isSystemRole" [title]="'SETTINGS.ROLES.EDITAR_ROL' | translate" *appHasPermission="'roles:edit'">
               <lucide-icon [img]="EditIcon" size="18"></lucide-icon>
             </button>
-            <button class="icon-button danger" (click)="deleteRole(role)" [disabled]="role.isSystemRole" title="Eliminar Rol" *appHasPermission="'roles:delete'">
+            <button class="icon-button danger" (click)="deleteRole(role)" [disabled]="role.isSystemRole" [title]="'SETTINGS.ROLES.ELIMINAR_ROL' | translate" *appHasPermission="'roles:delete'">
               <lucide-icon [img]="TrashIcon" size="18"></lucide-icon>
             </button>
           </td>
@@ -54,10 +54,10 @@
     </div>
     <div class="modal-body">
       <form [formGroup]="roleForm">
-        <div class="form-field"><label for="name">Nombre del Rol</label><input id="name" type="text" formControlName="name"></div>
-        <div class="form-field"><label for="description">Descripción</label><textarea id="description" formControlName="description"></textarea></div>
+        <div class="form-field"><label for="name">{{ 'SETTINGS.ROLES.NOMBRE_ROL' | translate }}</label><input id="name" type="text" formControlName="name"></div>
+        <div class="form-field"><label for="description">{{ 'SETTINGS.ROLES.DESCRIPCION' | translate }}</label><textarea id="description" formControlName="description"></textarea></div>
         <div class="permissions-grid">
-          <h3>Permisos</h3>
+          <h3>{{ 'SETTINGS.ROLES.PERMISOS' | translate }}</h3>
           @for(group of permissionGroups(); track group.name) {
           <div class="permission-group">
             <h4>{{ group.name }}</h4>
@@ -73,8 +73,8 @@
       </form>
     </div>
     <div class="modal-footer">
-      <button class="secondary-button" (click)="closeModal()">Cancelar</button>
-      <button class="primary-button" (click)="saveRole()" [disabled]="roleForm.invalid">Guardar</button>
+      <button class="secondary-button" (click)="closeModal()">{{ 'SETTINGS.ROLES.CANCELAR' | translate }}</button>
+      <button class="primary-button" (click)="saveRole()" [disabled]="roleForm.invalid">{{ 'SETTINGS.ROLES.GUARDAR' | translate }}</button>
     </div>
   </div>
 </div>

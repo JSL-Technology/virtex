@@ -1,10 +1,5 @@
 
-import {
-  Injectable,
-  BadRequestException,
-  NotFoundException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, In } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
@@ -22,6 +17,8 @@ import { EventsGateway } from '../websockets/events.gateway';
 import { Journal } from './entities/journal.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { FastifyFile } from '../common/interfaces/fastify-file.interface';
+import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
+import { LocalizedResult } from '../i18n/localized-message';
 
 interface ImportBatch {
   id: string;
@@ -56,19 +53,19 @@ export class JournalEntryImportService {
     organizationId: string,
   ): Promise<PreviewImportResponseDto> {
     const { data } = await this.fileParser.parse(file);
-    if (data.length === 0) throw new BadRequestException('El archivo no contiene datos.');
+    if (data.length === 0) throw new BadRequestError('JOURNAL_ENTRIES.ARCHIVO_NO_CONTIENE_DATOS');
 
     const accountsInDb = await this.accountRepository.find({ where: { organizationId } });
     const accountCodeMap = new Map(accountsInDb.map((acc) => [acc.code, acc]));
     
     const generalJournal = await this.dataSource.getRepository(Journal).findOneBy({ organizationId, code: 'GENERAL' });
     if (!generalJournal) {
-        throw new BadRequestException('Diario General (GENERAL) no encontrado, necesario para la importación.');
+        throw new BadRequestError('JOURNAL_ENTRIES.DIARIO_GENERAL_GENERAL_NO_ENCONTRADO_NECESARIO_IMPORTACION');
     }
     
     const defaultLedger = await this.dataSource.getRepository(Ledger).findOneBy({ organizationId, isDefault: true });
     if (!defaultLedger) {
-        throw new BadRequestException('No se ha configurado un libro contable por defecto para la organización.');
+        throw new BadRequestError('JOURNAL_ENTRIES.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION');
     }
 
     const groupedEntries = this.groupCsvRows(data, mapping.columnMapping.entryId);
@@ -162,10 +159,10 @@ export class JournalEntryImportService {
     confirmDto: ConfirmImportDto,
     organizationId: string,
     userId: string,
-  ): Promise<{ message: string; createdEntriesCount: number }> {
+  ): Promise<LocalizedResult<{ createdEntriesCount: number }>> {
     const batch = importBatchCache.get(confirmDto.batchId);
     if (!batch || batch.organizationId !== organizationId || batch.status !== 'PENDING') {
-      throw new NotFoundException('Lote de importación no encontrado, expirado o ya procesado.');
+      throw new NotFoundError('JOURNAL_ENTRIES.LOTE_IMPORTACION_NO_ENCONTRADO_EXPIRADO_YA_PROCESADO');
     }
 
     const totalEntries = batch.entries.length;
@@ -198,7 +195,7 @@ export class JournalEntryImportService {
     });
 
     return {
-      message: 'Importación confirmada y procesada exitosamente.',
+      messageKey: 'JOURNAL_ENTRIES.IMPORTACION_CONFIRMADA_PROCESADA_EXITOSAMENTE',
       createdEntriesCount: totalEntries,
     };
   }

@@ -43,10 +43,10 @@ class RulesDto {
 export class CreateAccountDto {
   @IsArray()
   @IsString({ each: true })
-  @ArrayMinSize(1)
+  @ArrayMinSize(1, { message: 'VALIDATION.CONSTRAINTS.ARRAY_MIN_SIZE|{"min":1}' })
   segments: string[];
 
-  @IsString() @IsNotEmpty() @MaxLength(255) name: string;
+  @IsString() @IsNotEmpty() @MaxLength(255, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":255}' }) name: string;
   @IsString() @IsOptional() description?: string;
   @IsEnum(AccountType) @IsNotEmpty() type: AccountType;
   @IsEnum(AccountCategory) @IsNotEmpty() category: AccountCategory;

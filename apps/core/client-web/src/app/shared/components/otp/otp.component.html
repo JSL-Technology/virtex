@@ -15,10 +15,10 @@
             [attr.aria-pressed]="length() === opt"
             tabindex="0"
             (keyup.enter)="changeLength(opt)"
-            (click)="changeLength(opt)">{{ opt }} dígitos</span>
+            (click)="changeLength(opt)">{{ 'SHARED.OTP.OPT_DIGITOS' | translate: { opt: opt } }}</span>
     </div>
 
-    <div class="otp-inputs-container" role="group" aria-label="Código OTP">
+    <div class="otp-inputs-container" role="group" [attr.aria-label]="'SHARED.OTP.CODIGO_OTP' | translate">
         <input *ngFor="let val of otpValues(); let i = index; trackBy: trackByIndex"
                type="text"
                inputmode="numeric"
@@ -55,22 +55,22 @@
                 (click)="onResend()"
                 *ngIf="mode === 'email'">
             <lucide-icon [img]="RefreshIcon" size="16"></lucide-icon>
-            <span *ngIf="cooldown() > 0">Reenviar ({{ cooldown() }}s)</span>
-            <span *ngIf="cooldown() <= 0">Reenviar código</span>
+            <span *ngIf="cooldown() > 0">{{ 'SHARED.OTP.REENVIAR_COOLDOWN' | translate: { cooldown: cooldown() } }}</span>
+            <span *ngIf="cooldown() <= 0">{{ 'SHARED.OTP.REENVIAR_CODIGO' | translate }}</span>
         </button>
     </div>
 
     <div class="otp-buttons">
         <button class="btn btn-secondary" type="button" (click)="clear()">
             <lucide-icon [img]="EraserIcon" size="18"></lucide-icon>
-            Limpiar
+            {{ 'SHARED.OTP.LIMPIAR' | translate }}
         </button>
         <button class="btn btn-primary"
                 type="button"
                 [disabled]="!canVerify()"
                 (click)="onVerify()">
             <lucide-icon [img]="CheckCircleIcon" size="18"></lucide-icon>
-            Verificar
+            {{ 'SHARED.OTP.VERIFICAR' | translate }}
         </button>
     </div>
 
@@ -89,6 +89,6 @@
 
     <p class="otp-security-note">
         <lucide-icon [img]="ShieldIcon" size="13"></lucide-icon>
-        Nunca comparta este código. Nuestro equipo jamás se lo pedirá.
+        {{ 'SHARED.OTP.NUNCA_COMPARTA_ESTE_CODIGO_NUESTRO_EQUIPO' | translate }}
     </p>
 </div>

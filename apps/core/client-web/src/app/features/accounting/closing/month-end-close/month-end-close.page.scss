@@ -59,3 +59,14 @@
 
 .spinner { animation: spin 1.5s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+.progress-caption {
+  margin: 6px 0 0;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.task-note {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}

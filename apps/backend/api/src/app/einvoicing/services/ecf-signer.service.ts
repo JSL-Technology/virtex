@@ -1,6 +1,7 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { SignedXml } from 'xml-crypto';
 import type { LoadedCertificate } from './certificate-vault.service';
+import { InternalServerError } from '../../i18n/localized.exception';
 
 /**
  * Applies the enveloped XMLDSig signature the DGII mandates for e-CF and for the authentication
@@ -46,9 +47,7 @@ export class EcfSignerService {
     try {
       sig.computeSignature(xml, { location: { reference: rootXpath, action: 'append' } });
     } catch (err) {
-      throw new InternalServerErrorException(
-        `No se pudo firmar el documento e-CF: ${(err as Error).message}`,
-      );
+      throw new InternalServerError('EINVOICING.NO_PUDO_FIRMAR_DOCUMENTO_CF', { p1: (err as Error).message });
     }
 
     return sig.getSignedXml();
@@ -66,7 +65,7 @@ export class EcfSignerService {
   private extractSignatureValue(signedXml: string): string {
     const match = signedXml.match(/<(?:[\w-]+:)?SignatureValue[^>]*>([\s\S]*?)<\/(?:[\w-]+:)?SignatureValue>/);
     if (!match) {
-      throw new InternalServerErrorException('El documento firmado no contiene un SignatureValue.');
+      throw new InternalServerError('EINVOICING.DOCUMENTO_FIRMADO_NO_CONTIENE_SIGNATUREVALUE');
     }
     return match[1];
   }

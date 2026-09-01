@@ -12,6 +12,7 @@ import {
   SALES_NCF_TYPES,
 } from '../../compliance/entities/ncf-sequence.entity';
 import { validateTaxId } from '../../localization/fiscal/tax-id-validators';
+import { BadRequestError } from '../../i18n/localized.exception';
 
 /**
  * Dominican Republic fiscal numbering (DGII).
@@ -49,9 +50,7 @@ export class DominicanRepublicFiscalAdapter implements FiscalAdapter {
 
     const type = requestedType ?? this.inferSalesType(invoice);
     if (!SALES_NCF_TYPES.includes(type)) {
-      throw new BadRequestException(
-        `El tipo de comprobante ${type} no corresponde a un documento de venta.`,
-      );
+      throw new BadRequestError('INVOICES.TIPO_COMPROBANTE_NO_CORRESPONDE_DOCUMENTO_VENTA', { type });
     }
     if (type === NcfType.E31 && !this.hasValidDominicanTaxId(invoice)) {
       throw new BadRequestException(
@@ -77,9 +76,7 @@ export class DominicanRepublicFiscalAdapter implements FiscalAdapter {
     const type = requestedType ?? inferred;
 
     if (!CREDIT_NOTE_NCF_TYPES.includes(type)) {
-      throw new BadRequestException(
-        `El tipo ${type} no es un comprobante de nota de crédito válido.`,
-      );
+      throw new BadRequestError('INVOICES.TIPO_NO_ES_COMPROBANTE_NOTA_CREDITO_VALIDO', { type });
     }
 
     const assigned = await this.complianceService.getNextNcf(organizationId, type, manager);

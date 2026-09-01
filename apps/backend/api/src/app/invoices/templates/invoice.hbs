@@ -75,27 +75,27 @@
       {{/if}}
       <h1>{{organization.legalName}}</h1>
       {{#if organization.commercialName}}<p>{{organization.commercialName}}</p>{{/if}}
-      <p>RNC: <strong>{{organization.taxId}}</strong></p>
+      <p>{{taxIdLabel}}: <strong>{{organization.taxId}}</strong></p>
       {{#if organization.address}}<p>{{organization.address}}</p>{{/if}}
       <p>
         {{#if organization.city}}{{organization.city}}{{/if}}{{#if organization.state}}, {{organization.state}}{{/if}}
       </p>
-      {{#if organization.phone}}<p>Tel.: {{organization.phone}}</p>{{/if}}
+      {{#if organization.phone}}<p>{{t 'INVOICE.PDF.TEL_PHONE' phone=organization.phone}}</p>{{/if}}
       {{#if organization.email}}<p>{{organization.email}}</p>{{/if}}
     </div>
 
     {{#if fiscal.isDraft}}
       <div class="draft-banner">
         BORRADOR<br>
-        <span style="font-weight:400;letter-spacing:0">Sin valor fiscal</span>
+        <span style="font-weight:400;letter-spacing:0">{{t 'INVOICE.PDF.SIN_VALOR_FISCAL'}}</span>
       </div>
     {{else}}
       <div class="fiscal-box">
-        <div class="doc-title">{{title}} ELECTRÓNICA</div>
+        <div class="doc-title">{{t 'INVOICE.PDF.TITLE_ELECTRONICA' title=title}}</div>
         <div class="ncf">{{fiscal.ncf}}</div>
         <div class="meta">
-          {{#if fiscal.validUntil}}Válido hasta: {{fiscal.validUntil}}<br>{{/if}}
-          Documento interno: {{invoice.invoiceNumber}}
+          {{#if fiscal.validUntil}}{{t 'INVOICE.PDF.VALID_UNTIL' date=fiscal.validUntil}}<br>{{/if}}
+          {{t 'INVOICE.PDF.INTERNAL_NUMBER' number=invoice.invoiceNumber}}
         </div>
       </div>
     {{/if}}
@@ -103,17 +103,17 @@
 
   <div class="parties">
     <div class="party">
-      <h2>Comprador</h2>
+      <h2>{{t 'INVOICE.PDF.COMPRADOR'}}</h2>
       <p><strong>{{invoice.customerName}}</strong></p>
-      {{#if invoice.customerTaxId}}<p>RNC / Cédula: {{invoice.customerTaxId}}</p>{{/if}}
+      {{#if invoice.customerTaxId}}<p>{{customerTaxIdLabel}}: {{invoice.customerTaxId}}</p>{{/if}}
       {{#if invoice.customerAddress}}<p>{{invoice.customerAddress}}</p>{{/if}}
     </div>
     <div class="party">
-      <h2>Documento</h2>
-      <p>Fecha de emisión: <strong>{{issueDate}}</strong></p>
-      <p>Fecha de vencimiento: {{dueDate}}</p>
-      <p>Moneda: {{currencyCode}}</p>
-      {{#if fiscal.signedAt}}<p>Fecha y hora de firma: {{fiscal.signedAt}}</p>{{/if}}
+      <h2>{{t 'INVOICE.PDF.DOCUMENTO'}}</h2>
+      <p>{{t 'INVOICE.PDF.FECHA_EMISION'}} <strong>{{issueDate}}</strong></p>
+      <p>{{t 'INVOICE.PDF.FECHA_VENCIMIENTO_DUEDATE' dueDate=dueDate}}</p>
+      <p>{{t 'INVOICE.PDF.MONEDA_CURRENCYCODE' currencyCode=currencyCode}}</p>
+      {{#if fiscal.signedAt}}<p>{{t 'INVOICE.PDF.FECHA_HORA_FIRMA_SIGNEDAT' signedAt=fiscal.signedAt}}</p>{{/if}}
     </div>
   </div>
 
@@ -121,13 +121,13 @@
     <thead>
       <tr>
         <th style="width:6%">#</th>
-        <th>Descripción</th>
-        <th style="width:10%" class="num">Cant.</th>
+        <th>{{t 'INVOICE.PDF.DESCRIPCION'}}</th>
+        <th style="width:10%" class="num">{{t 'INVOICE.PDF.CANT'}}</th>
         <th style="width:8%" class="center">U/M</th>
-        <th style="width:14%" class="num">Precio</th>
-        <th style="width:10%" class="num">Desc.</th>
+        <th style="width:14%" class="num">{{t 'INVOICE.PDF.PRECIO'}}</th>
+        <th style="width:10%" class="num">{{t 'INVOICE.PDF.DESC'}}</th>
         <th style="width:8%" class="center">ITBIS</th>
-        <th style="width:16%" class="num">Importe</th>
+        <th style="width:16%" class="num">{{t 'INVOICE.PDF.IMPORTE'}}</th>
       </tr>
     </thead>
     <tbody>
@@ -149,12 +149,12 @@
   <div class="footer-grid">
     {{#unless fiscal.isDraft}}
     <div class="verification">
-      <div class="label">Verificación DGII</div>
+      <div class="label">{{t 'INVOICE.PDF.VERIFICACION_DGII'}}</div>
       {{#if fiscal.qrDataUri}}
-        <img src="{{fiscal.qrDataUri}}" alt="Código QR de verificación del comprobante">
+        <img src="{{fiscal.qrDataUri}}" alt="{{t 'INVOICE.PDF.CODIGO_QR_VERIFICACION_COMPROBANTE'}}">
       {{/if}}
       {{#if fiscal.securityCode}}
-        <div class="label" style="margin-top:4px">Código de seguridad</div>
+        <div class="label" style="margin-top:4px">{{t 'INVOICE.PDF.CODIGO_SEGURIDAD'}}</div>
         <div class="code">{{fiscal.securityCode}}</div>
       {{/if}}
       {{#if fiscal.qrUrl}}<div class="url">{{fiscal.qrUrl}}</div>{{/if}}
@@ -163,30 +163,29 @@
 
     <div style="margin-left:auto">
       <table class="totals">
-        <tr><td class="label">Subtotal</td><td class="num">{{totals.subtotal}}</td></tr>
-        {{#if totals.discount}}<tr><td class="label">Descuento</td><td class="num">−{{totals.discount}}</td></tr>{{/if}}
-        {{#if totals.exempt}}<tr><td class="label">Monto exento</td><td class="num">{{totals.exempt}}</td></tr>{{/if}}
-        <tr><td class="label">Monto gravado</td><td class="num">{{totals.taxed}}</td></tr>
+        <tr><td class="label">{{t 'INVOICE.PDF.SUBTOTAL'}}</td><td class="num">{{totals.subtotal}}</td></tr>
+        {{#if totals.discount}}<tr><td class="label">{{t 'INVOICE.PDF.DESCUENTO'}}</td><td class="num">−{{totals.discount}}</td></tr>{{/if}}
+        {{#if totals.exempt}}<tr><td class="label">{{t 'INVOICE.PDF.MONTO_EXENTO'}}</td><td class="num">{{totals.exempt}}</td></tr>{{/if}}
+        <tr><td class="label">{{t 'INVOICE.PDF.MONTO_GRAVADO'}}</td><td class="num">{{totals.taxed}}</td></tr>
         <tr><td class="label">ITBIS</td><td class="num">{{totals.tax}}</td></tr>
-        {{#if totals.serviceCharge}}<tr><td class="label">Propina legal (10%)</td><td class="num">{{totals.serviceCharge}}</td></tr>{{/if}}
-        <tr class="grand"><td class="label">Total {{currencyCode}}</td><td class="num">{{totals.total}}</td></tr>
-        {{#if totals.taxWithheld}}<tr><td class="label">ITBIS retenido</td><td class="num">−{{totals.taxWithheld}}</td></tr>{{/if}}
-        {{#if totals.incomeTaxWithheld}}<tr><td class="label">ISR retenido</td><td class="num">−{{totals.incomeTaxWithheld}}</td></tr>{{/if}}
-        {{#if totals.netReceivable}}<tr><td class="label">Neto a pagar</td><td class="num"><strong>{{totals.netReceivable}}</strong></td></tr>{{/if}}
+        {{#if totals.serviceCharge}}<tr><td class="label">{{t 'INVOICE.PDF.PROPINA_LEGAL_10'}}</td><td class="num">{{totals.serviceCharge}}</td></tr>{{/if}}
+        <tr class="grand"><td class="label">{{t 'INVOICE.PDF.TOTAL_CURRENCYCODE' currencyCode=currencyCode}}</td><td class="num">{{totals.total}}</td></tr>
+        {{#if totals.taxWithheld}}<tr><td class="label">{{t 'INVOICE.PDF.ITBIS_RETENIDO'}}</td><td class="num">−{{totals.taxWithheld}}</td></tr>{{/if}}
+        {{#if totals.incomeTaxWithheld}}<tr><td class="label">{{t 'INVOICE.PDF.ISR_RETENIDO'}}</td><td class="num">−{{totals.incomeTaxWithheld}}</td></tr>{{/if}}
+        {{#if totals.netReceivable}}<tr><td class="label">{{t 'INVOICE.PDF.NETO_PAGAR'}}</td><td class="num"><strong>{{totals.netReceivable}}</strong></td></tr>{{/if}}
       </table>
     </div>
   </div>
 
   {{#if invoice.notes}}
-  <div class="notes"><strong>Notas:</strong> {{invoice.notes}}</div>
+  <div class="notes"><strong>{{t 'INVOICE.PDF.NOTAS'}}</strong> {{invoice.notes}}</div>
   {{/if}}
 
   <div class="legal">
     {{#unless fiscal.isDraft}}
-      Representación impresa de un Comprobante Fiscal Electrónico (e-CF). Verifique su validez en el
-      portal de la DGII con el código QR o el código de seguridad mostrados arriba.
+      {{t 'INVOICE.PDF.LEGAL_ISSUED'}}
     {{else}}
-      Este documento es un borrador interno, no ampara crédito fiscal y no ha sido transmitido a la DGII.
+      {{t 'INVOICE.PDF.LEGAL_DRAFT'}}
     {{/unless}}
   </div>
 

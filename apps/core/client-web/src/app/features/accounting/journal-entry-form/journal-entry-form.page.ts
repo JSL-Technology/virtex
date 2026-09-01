@@ -12,6 +12,7 @@ import { LedgersService } from '../../../core/api/ledgers.service';
 import { JournalsService } from '../../../core/api/journals.service';
 import { Ledger } from '../../../core/models/ledger.model';
 import { Journal } from '../../../core/models/journal.model';
+import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 
 // Validador personalizado para el asiento contable
 export const journalEntryValidator = (control: AbstractControl): ValidationErrors | null => {
@@ -102,7 +103,7 @@ const translations = {
 @Component({
   selector: 'app-journal-entry-form-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, LucideAngularModule, DecimalPipe],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, LucideAngularModule, DecimalPipe, ...FORMAT_PIPES],
   templateUrl: './journal-entry-form.page.html',
   styleUrls: ['./journal-entry-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -164,15 +165,15 @@ export class JournalEntryFormPage implements OnInit {
   loadInitialData(): void {
     this.accountingService.getAccounts().subscribe({
         next: data => this.accounts.set(data),
-        error: () => this.notificationService.showError('Error al cargar las cuentas contables.')
+        error: () => this.notificationService.showError('ACCOUNTING.JOURNAL_ENTRY_FORM.ERROR_CARGAR_CUENTAS_CONTABLES')
     });
     this.ledgersService.getLedgers().subscribe({
       next: data => this.ledgers.set(data),
-      error: () => this.notificationService.showError('Error al cargar los libros mayores.')
+      error: () => this.notificationService.showError('ACCOUNTING.JOURNAL_ENTRY_FORM.ERROR_CARGAR_LIBROS_MAYORES')
     });
     this.journalsService.getJournals().subscribe({
       next: data => this.journals.set(data),
-      error: () => this.notificationService.showError('Error al cargar los diarios.')
+      error: () => this.notificationService.showError('ACCOUNTING.JOURNAL_ENTRY_FORM.ERROR_CARGAR_DIARIOS')
     });
   }
 
@@ -221,7 +222,7 @@ export class JournalEntryFormPage implements OnInit {
 
     this.journalEntriesService.create(formData).subscribe({
       next: () => {
-        this.notificationService.showSuccess('Asiento contable creado con éxito!');
+        this.notificationService.showSuccess('ACCOUNTING.JOURNAL_ENTRY_FORM.ASIENTO_CONTABLE_CREADO_EXITO');
         this.router.navigate(['/accounting/journal-entries']);
       },
       error: (err) => {

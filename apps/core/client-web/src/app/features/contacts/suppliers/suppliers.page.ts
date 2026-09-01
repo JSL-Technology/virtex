@@ -4,10 +4,11 @@ import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal, Edit, Trash2 }
 import { Supplier } from '../../../core/models/supplier.model';
 import { SuppliersService } from '../../../core/api/suppliers.service';
 import { NotificationService } from '../../../core/services/notification';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-suppliers-page',
-  imports: [RouterLink, LucideAngularModule],
+  imports: [RouterLink, LucideAngularModule, TranslateModule],
   templateUrl: './suppliers.page.html',
   styleUrls: ['./suppliers.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -37,7 +38,7 @@ export class SuppliersPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.notificationService.showError('No se pudieron cargar los proveedores.');
+        this.notificationService.showError('CONTACTS.SUPPLIERS.PUDIERON_CARGAR_PROVEEDORES');
         this.isLoading.set(false);
       },
     });
@@ -47,11 +48,11 @@ export class SuppliersPage implements OnInit {
     if (confirm('¿Estás seguro de que deseas eliminar este proveedor?')) {
       this.suppliersService.deleteSupplier(id).subscribe({
         next: () => {
-          this.notificationService.showSuccess('Proveedor eliminado exitosamente.');
+          this.notificationService.showSuccess('CONTACTS.SUPPLIERS.PROVEEDOR_ELIMINADO_EXITOSAMENTE');
           this.loadSuppliers();
         },
         error: () => {
-          this.notificationService.showError('No se pudo eliminar el proveedor.');
+          this.notificationService.showError('CONTACTS.SUPPLIERS.PUDO_ELIMINAR_PROVEEDOR');
         }
       });
     }

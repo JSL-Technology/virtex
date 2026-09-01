@@ -1,5 +1,5 @@
 
-import { Injectable, BadRequestException, Logger, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { DataSource, Between, In, Not } from 'typeorm';
 import { FiscalYear, FiscalYearStatus } from './entities/fiscal-year.entity';
 import { JournalEntry, JournalEntryStatus, JournalEntryType } from '../journal-entries/entities/journal-entry.entity';
@@ -11,6 +11,7 @@ import { Ledger } from './entities/ledger.entity';
 import { AccountBalance } from '../chart-of-accounts/entities/account-balance.entity';
 import { CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
 import { AccountingPeriod, PeriodStatus } from './entities/accounting-period.entity';
+import { BadRequestError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class YearEndCloseService {
@@ -32,8 +33,8 @@ export class YearEndCloseService {
       const periodRepo = manager.getRepository(AccountingPeriod);
 
       const fiscalYear = await fiscalYearRepo.findOneBy({ id: dto.fiscalYearId, organizationId });
-      if (!fiscalYear) throw new NotFoundException('Año fiscal no encontrado.');
-      if (fiscalYear.status !== FiscalYearStatus.OPEN) throw new BadRequestException('El año fiscal no está abierto.');
+      if (!fiscalYear) throw new NotFoundError('ACCOUNTING.ANO_FISCAL_NO_ENCONTRADO');
+      if (fiscalYear.status !== FiscalYearStatus.OPEN) throw new BadRequestError('ACCOUNTING.ANO_FISCAL_NO_ESTA_ABIERTO');
 
 
 
@@ -47,7 +48,7 @@ export class YearEndCloseService {
       
       const openPeriods = periodsInYear.filter(p => p.status !== PeriodStatus.CLOSED);
       if(openPeriods.length > 0) {
-          throw new BadRequestException(`No se puede cerrar el año fiscal. Los siguientes períodos aún están abiertos: ${openPeriods.map(p => p.name).join(', ')}`);
+          throw new BadRequestError('ACCOUNTING.NO_PUEDE_CERRAR_ANO_FISCAL_SIGUIENTES_PERIODOS', { p1: openPeriods.map(p => p.name).join(', ') });
       }
       
       const draftEntries = await journalEntryRepo.count({
@@ -58,14 +59,14 @@ export class YearEndCloseService {
         },
       });
       if (draftEntries > 0) {
-        throw new BadRequestException(`Existen ${draftEntries} asientos en borrador o pendientes de aprobación. Deben ser contabilizados o eliminados.`);
+        throw new BadRequestError('ACCOUNTING.EXISTEN_ASIENTOS_BORRADOR_PENDIENTES_APROBACION_DEBEN_SER', { draftEntries });
       }
 
 
 
       
       const defaultLedger = await manager.findOneBy(Ledger, { organizationId, isDefault: true });
-      if (!defaultLedger) throw new BadRequestException('No se ha configurado un libro contable por defecto para la organización.');
+      if (!defaultLedger) throw new BadRequestError('ACCOUNTING.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION');
       
       const incomeStatementAccounts = await accountRepo.find({
         where: { organizationId, type: In([AccountType.REVENUE, AccountType.EXPENSE]) },
@@ -106,9 +107,9 @@ export class YearEndCloseService {
           });
           
           const closingJournal = await manager.findOneBy(Journal, { organizationId, code: 'CIERRE-ANUAL' });
-          if (!closingJournal) throw new BadRequestException('Diario de Cierre Anual (CIERRE-ANUAL) no encontrado.');
+          if (!closingJournal) throw new BadRequestError('ACCOUNTING.DIARIO_CIERRE_ANUAL_CIERRE_ANUAL_NO_ENCONTRADO');
           
-          if (!manager.queryRunner) throw new InternalServerErrorException('No se pudo obtener el Query Runner de la transacción.');
+          if (!manager.queryRunner) throw new InternalServerError('ACCOUNTING.NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION');
           
           const closingEntryDto: CreateJournalEntryDto = {
             date: fiscalYear.endDate.toISOString(),
@@ -137,7 +138,7 @@ export class YearEndCloseService {
       await fiscalYearRepo.save(nextYear);
       
       const openingBalanceJournal = await manager.findOneBy(Journal, { organizationId, code: 'APERTURA' });
-      if (!openingBalanceJournal) throw new BadRequestException('Diario de Apertura (APERTURA) no encontrado.');
+      if (!openingBalanceJournal) throw new BadRequestError('ACCOUNTING.DIARIO_APERTURA_APERTURA_NO_ENCONTRADO');
       
       const balanceSheetAccountsBalances = await balanceRepo.createQueryBuilder("balance")
           .innerJoin("balance.account", "account")
@@ -161,7 +162,7 @@ export class YearEndCloseService {
             };
         });
 
-        if (!manager.queryRunner) throw new InternalServerErrorException('No se pudo obtener el Query Runner de la transacción para el asiento de apertura.');
+        if (!manager.queryRunner) throw new InternalServerError('ACCOUNTING.NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION_ASIENTO');
 
         const openingEntryDto: CreateJournalEntryDto = {
           date: nextYear.startDate.toISOString(),

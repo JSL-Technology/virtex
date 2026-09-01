@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal, FileDown } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
+import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 
 // Interfaz para definir la estructura de una Orden de Compra
 interface PurchaseOrder {
@@ -17,7 +18,7 @@ interface PurchaseOrder {
 @Component({
   selector: 'app-orders-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule],
+  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './orders.page.html',
   styleUrls: ['./orders.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

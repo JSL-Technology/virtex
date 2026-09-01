@@ -1,8 +1,9 @@
-import { Injectable, InternalServerErrorException, BadRequestException, Logger } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
 import * as forge from 'node-forge';
 import { EcfCertificate } from '../entities/ecf-certificate.entity';
+import { BadRequestError, InternalServerError } from '../../i18n/localized.exception';
 
 export interface LoadedCertificate {
   privateKeyPem: string;
@@ -30,9 +31,7 @@ export class CertificateVaultService {
   private key(): Buffer {
     const secret = this.config.get<string>('ECF_CERT_ENCRYPTION_KEY');
     if (!secret || secret.length < 16) {
-      throw new InternalServerErrorException(
-        'ECF_CERT_ENCRYPTION_KEY no está configurada (mínimo 16 caracteres). Es obligatoria para cifrar los certificados e-CF.',
-      );
+      throw new InternalServerError('EINVOICING.ECF_CERT_ENCRYPTION_KEY_NO_ESTA_CONFIGURADA');
     }
     return crypto.scryptSync(secret, CertificateVaultService.SALT, 32);
   }
@@ -51,7 +50,7 @@ export class CertificateVaultService {
   decrypt(payload: string): Buffer {
     const parts = payload.split(':');
     if (parts.length !== 3) {
-      throw new InternalServerErrorException('Formato de dato cifrado de certificado inválido.');
+      throw new InternalServerError('EINVOICING.FORMATO_DATO_CIFRADO_CERTIFICADO_INVALIDO');
     }
     const [ivB64, tagB64, dataB64] = parts;
     const decipher = crypto.createDecipheriv('aes-256-gcm', this.key(), Buffer.from(ivB64, 'base64'));
@@ -70,7 +69,7 @@ export class CertificateVaultService {
       const asn1 = forge.asn1.fromDer(forge.util.createBuffer(pfx.toString('binary')));
       p12 = forge.pkcs12.pkcs12FromAsn1(asn1, password);
     } catch {
-      throw new BadRequestException('No se pudo abrir el certificado: archivo inválido o contraseña incorrecta.');
+      throw new BadRequestError('EINVOICING.NO_PUDO_ABRIR_CERTIFICADO_ARCHIVO_INVALIDO_CONTRASENA');
     }
 
     const keyBags = p12.getBags({ bagType: forge.pki.oids.pkcs8ShroudedKeyBag });
@@ -79,7 +78,7 @@ export class CertificateVaultService {
     const certBag = certBags[forge.pki.oids.certBag]?.[0];
 
     if (!keyBag?.key || !certBag?.cert) {
-      throw new BadRequestException('El certificado no contiene una clave privada y un certificado X.509 válidos.');
+      throw new BadRequestError('EINVOICING.CERTIFICADO_NO_CONTIENE_CLAVE_PRIVADA_CERTIFICADO_509');
     }
 
     const cert = certBag.cert;

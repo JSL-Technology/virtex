@@ -1,7 +1,8 @@
 
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { Account } from '../../chart-of-accounts/entities/account.entity';
+import { ForbiddenError } from '../../i18n/localized.exception';
 
 @Injectable()
 export class TemporalValidityGuard implements CanActivate {
@@ -27,10 +28,10 @@ export class TemporalValidityGuard implements CanActivate {
 
     for (const account of accounts) {
       if (account.effectiveFrom && transactionDate < new Date(account.effectiveFrom)) {
-        throw new ForbiddenException(`La cuenta ${account.code} no es válida hasta ${account.effectiveFrom}.`);
+        throw new ForbiddenError('FINANCIAL_REPORTING.CUENTA_NO_ES_VALIDA_HASTA', { code: account.code, effectiveFrom: account.effectiveFrom });
       }
       if (account.effectiveTo && transactionDate > new Date(account.effectiveTo)) {
-        throw new ForbiddenException(`La cuenta ${account.code} expiró el ${account.effectiveTo}.`);
+        throw new ForbiddenError('FINANCIAL_REPORTING.CUENTA_EXPIRO', { code: account.code, effectiveTo: account.effectiveTo });
       }
     }
 

@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -10,6 +10,7 @@ import {
   StoredFileStream,
   UploadableFile,
 } from '../storage.service';
+import { NotFoundError } from '../../i18n/localized.exception';
 
 /**
  * Filesystem storage, for development and single-node deployments.
@@ -64,7 +65,7 @@ export class LocalStorageStrategy implements StorageService {
     try {
       stat = await fs.promises.stat(fullPath);
     } catch {
-      throw new NotFoundException('El archivo no está disponible.');
+      throw new NotFoundError('STORAGE.ARCHIVO_NO_ESTA_DISPONIBLE');
     }
 
     return {
@@ -96,7 +97,7 @@ export class LocalStorageStrategy implements StorageService {
   private resolve(storageKey: string): string {
     const full = path.resolve(this.uploadDir, storageKey);
     if (full !== this.uploadDir && !full.startsWith(this.uploadDir + path.sep)) {
-      throw new NotFoundException('El archivo no está disponible.');
+      throw new NotFoundError('STORAGE.ARCHIVO_NO_ESTA_DISPONIBLE');
     }
     return full;
   }

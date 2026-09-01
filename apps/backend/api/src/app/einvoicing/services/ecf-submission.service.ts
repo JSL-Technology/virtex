@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  Logger,
-  NotFoundException,
-  BadRequestException,
-  ServiceUnavailableException,
-} from '@nestjs/common';
+import { Injectable, Logger, BadRequestException, ServiceUnavailableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EcfSubmission, EcfStatus } from '../entities/ecf-submission.entity';
@@ -34,6 +28,8 @@ import {
   unitOfMeasureCode,
 } from '../config/dgii-catalogues';
 import { dgiiTimestamp, organizationTimeZone } from '../../shared/fiscal-clock';
+import { BadRequestError, NotFoundError } from '../../i18n/localized.exception';
+import { I18nService } from '../../i18n/i18n.service';
 
 /**
  * Orchestrates the full e-CF lifecycle for one document: build → validate → sign → transmit → track.
@@ -76,6 +72,7 @@ export class EcfSubmissionService {
     private readonly signer: EcfSignerService,
     private readonly builder: EcfXmlBuilderService,
     private readonly validator: EcfValidatorService,
+    private readonly i18n: I18nService,
     private readonly auth: DgiiAuthService,
     private readonly transport: DgiiTransportService,
     private readonly dgiiConfig: DgiiConfigService,
@@ -90,9 +87,9 @@ export class EcfSubmissionService {
       where: { id: invoiceId, organizationId },
       relations: ['lineItems', 'customer'],
     });
-    if (!invoice) throw new NotFoundException(`Factura ${invoiceId} no encontrada.`);
+    if (!invoice) throw new NotFoundError('EINVOICING.FACTURA_NO_ENCONTRADA', { invoiceId });
     if (!invoice.isElectronicFiscalDocument) {
-      throw new BadRequestException('La factura no tiene un e-NCF electrónico asignado.');
+      throw new BadRequestError('EINVOICING.FACTURA_NO_TIENE_NCF_ELECTRONICO_ASIGNADO');
     }
 
     // Scoped by tenant, and read only after the invoice has been resolved within the tenant.
@@ -126,11 +123,9 @@ export class EcfSubmissionService {
     organizationId: string,
   ): Promise<EcfSubmission> {
     const org = await this.orgRepo.findOne({ where: { id: organizationId } });
-    if (!org) throw new NotFoundException('Organización no encontrada.');
+    if (!org) throw new NotFoundError('EINVOICING.ORGANIZACION_NO_ENCONTRADA');
     if (!org.taxId) {
-      throw new BadRequestException(
-        'La organización no tiene RNC configurado. Complétalo en Ajustes → Empresa.',
-      );
+      throw new BadRequestError('EINVOICING.ORGANIZACION_NO_TIENE_RNC_CONFIGURADO_COMPLETALO_AJUSTES');
     }
 
     const cert = await this.certRepo.findOne({
@@ -138,9 +133,7 @@ export class EcfSubmissionService {
       order: { createdAt: 'DESC' },
     });
     if (!cert) {
-      throw new BadRequestException(
-        'No hay un certificado digital activo para firmar e-CF. Cárgalo en Ajustes → Facturación Electrónica.',
-      );
+      throw new BadRequestError('EINVOICING.NO_HAY_CERTIFICADO_DIGITAL_ACTIVO_FIRMAR_CF');
     }
     if (cert.notAfter && cert.notAfter.getTime() < Date.now()) {
       throw new BadRequestException(
@@ -200,7 +193,14 @@ export class EcfSubmissionService {
       // A document that does not satisfy the format will not satisfy it on a retry either. It is an
       // error the tenant has to fix, so it is stored with the field-by-field detail.
       submission.status = EcfStatus.ERROR;
-      submission.messages = error.issues.map((issue) => `${issue.field}: ${issue.message}`);
+      // Resolved here rather than stored as keys, because this column also holds the DGII's own
+      // text and a mixed array of prose and identifiers is unreadable. The language is the one the
+      // request is being made in: whoever pressed "issue" is who has to fix the document. The
+      // DGII's element name is not translated — `RNCComprador` is what its documentation calls it.
+      submission.messages = error.issues.map(
+        (issue) =>
+          `${issue.field}: ${this.i18n.t(issue.messageKey, issue.params ?? {})}`,
+      );
       this.logger.error(`e-CF ${submission.ncf} inválido: ${error.message}`);
     } else {
       submission.status = EcfStatus.ERROR;

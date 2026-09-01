@@ -1,125 +1,190 @@
-import { Injectable, signal, effect, Inject, PLATFORM_ID, inject, untracked } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
+import {
+  DEFAULT_LANGUAGE,
+  LANGUAGE_ENDONYMS,
+  LanguageCode,
+  LocaleContextContract,
+  SUPPORTED_LANGUAGES,
+  matchLanguage,
+} from '@virteex/shared/types';
+import { LocaleStore } from '../i18n/locale.store';
 import { UsersService } from '../api/users.service';
-import { AuthService } from './auth';
 
-// Clave estandarizada para guardar el idioma en el almacenamiento local del navegador.
-const UI_LANG_KEY = 'ui_lang';
-
-@Injectable({
-  providedIn: 'root',
-})
+/**
+ * The policy layer over {@link LocaleStore}: who decides the language, and when it is persisted.
+ *
+ * ## The two bugs this file exists to end
+ *
+ * **1. The preference was write-only.** The old effect sent `PATCH /users/profile` whenever the
+ * language changed and differed from the signed-in user's `preferredLanguage`, but nothing ever
+ * *read* `preferredLanguage` when a session was restored — the initial language came from
+ * `localStorage`, then the browser, then Spanish. So a user whose profile said `en`, opening the
+ * application in a private window or on a second machine, resolved to Spanish and the effect
+ * immediately overwrote their saved preference with that guess. The server's answer was destroyed
+ * by the client's assumption on every visit. Now the session is the authority
+ * ({@link applySessionPreference}) and the client only writes when the reader actually chooses
+ * ({@link setLanguage}).
+ *
+ * **2. Two switchers, two behaviours.** The auth footer called `translate.use()` directly and
+ * wrote its own `localStorage` key, so the choice did not survive a reload, did not update
+ * `<html lang>`, and left this service's signal stale — after which the route guard's
+ * `setLanguage` short-circuited on `lang !== current` and never restored anything. There is now
+ * exactly one way to change the language and it goes through here.
+ *
+ * ## Dependency direction
+ *
+ * This injects `UsersService` (an HTTP client) and `LocaleStore` (platform only). It deliberately
+ * does NOT inject `AuthService`: `AuthService` needs the language, to send a signed-out user to
+ * the right sign-in page, and the previous arrangement made that a cycle. Authentication pushes
+ * the session in via {@link applySessionPreference} and {@link detachSession} instead.
+ */
+@Injectable({ providedIn: 'root' })
 export class LanguageService {
-  // --- Propiedades ---
-  private isBrowser: boolean;
-  private readonly supportedLangs = ['en', 'es'];
-  private readonly defaultLang = 'es';
+  private readonly store = inject(LocaleStore);
+  private readonly translate = inject(TranslateService);
+  private readonly users = inject(UsersService);
 
-  // --- Inyección de Dependencias ---
-  private translate = inject(TranslateService);
-  private usersService = inject(UsersService);
-  private authService = inject(AuthService);
+  /** The active interface language. */
+  readonly currentLanguage = this.store.language;
+
+  /** Regional formatting locale (`es-DO`, `en-US`, `pt-BR`). */
+  readonly currentLocale = this.store.locale;
+
+  readonly direction = this.store.direction;
+
+  /** The languages this build can render, each named in its own language. */
+  readonly availableLanguages = SUPPORTED_LANGUAGES.map((code) => ({
+    code,
+    label: LANGUAGE_ENDONYMS[code],
+  }));
 
   /**
-   * Signal que almacena el idioma actual de la UI.
-   * Es el estado centralizado; cualquier cambio aquí desencadenará efectos.
+   * The signed-in user, when there is one. Held here rather than read from `AuthService` so the
+   * dependency points one way; `AuthService` calls {@link applySessionPreference} on every event
+   * that establishes or refreshes a session.
    */
-  public currentLang = signal<string>(this.defaultLang);
+  private readonly session = signal<{ userId: string; preferred: LanguageCode | null } | null>(null);
+
+  /** True once a catalogue has been loaded, so `instant()` is safe. */
+  private readonly _ready = signal(false);
+  readonly ready = this._ready.asReadonly();
+
+  /** Backwards-compatible alias. Templates and older call sites read `currentLang()`. */
+  readonly currentLang = computed(() => this.store.language());
 
   constructor() {
-    this.isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
-    this.initializeLanguage();
+    this.translate.addLangs([...SUPPORTED_LANGUAGES]);
+    this.translate.setFallbackLang(DEFAULT_LANGUAGE);
 
-    // Efecto que se ejecuta automáticamente cada vez que el signal `currentLang` cambia.
+    // One effect, one job: keep the translation runtime pointed at the store's language. Storage,
+    // `<html lang>` and direction are the store's business and are handled there, so there is no
+    // second place that can disagree about what the language is.
     effect(() => {
-      const lang = this.currentLang();
-      
-      // 1. Actualiza el servicio ngx-translate para que los pipes usen el nuevo idioma.
-      this.translate.use(lang);
-
-      // 2. Realiza operaciones solo si estamos en el navegador (evita errores en SSR).
-      if (this.isBrowser) {
-        // 2a. Guarda la preferencia en localStorage para persistencia entre visitas.
-        localStorage.setItem(UI_LANG_KEY, lang);
-        
-        // 2b. Actualiza el atributo 'lang' de la etiqueta <html> para accesibilidad y SEO.
-        document.documentElement.lang = lang;
-
-        // 2c. Sincroniza con el backend si hay un usuario logueado.
-        // `untracked` evita que el efecto se vuelva a ejecutar si `currentUser` cambia,
-        // solo nos interesa reaccionar a cambios de `currentLang`.
-        const currentUser = untracked(this.authService.currentUser);
-        if (currentUser && currentUser.preferredLanguage !== lang) {
-          this.syncWithUserProfile(currentUser.id, lang);
-        }
-      }
+      const language = this.store.language();
+      untracked(() => {
+        this.translate.use(language).subscribe({
+          next: () => this._ready.set(true),
+          error: () => this._ready.set(true),
+        });
+      });
     });
   }
 
   /**
-   * Configura los idiomas soportados y establece el idioma inicial de la aplicación.
+   * Load the active catalogue before the first screen is painted.
+   *
+   * Called from `provideAppInitializer`. Without it the first navigation can run
+   * `TranslateService.instant()` — which the title strategy and the error handler both do —
+   * against an empty table, and those calls return the key rather than waiting.
    */
-  private initializeLanguage(): void {
-    this.translate.addLangs(this.supportedLangs);
-    this.translate.setDefaultLang(this.defaultLang);
-    const initialLang = this.getInitialLanguage();
-    this.currentLang.set(initialLang);
-  }
-
-  /**
-   * Determina el idioma inicial a usar siguiendo un orden de prioridad.
-   * Este método es crucial para el `languageRedirectGuard`.
-   * @returns El código de idioma (ej. 'es' o 'en').
-   */
-  public getInitialLanguage(): string {
-    // Si no estamos en un navegador (ej. durante SSR), usamos el idioma por defecto.
-    if (!this.isBrowser) {
-      return this.defaultLang;
-    }
-
-    // Prioridad 1: Idioma guardado en localStorage de una visita anterior.
-    const storedLang = localStorage.getItem(UI_LANG_KEY);
-    if (storedLang && this.supportedLangs.includes(storedLang)) {
-      return storedLang;
-    }
-
-    // Prioridad 2: Idioma preferido del navegador del usuario.
-    const browserLang = this.translate.getBrowserLang()?.substring(0, 2);
-    if (browserLang && this.supportedLangs.includes(browserLang)) {
-      return browserLang;
-    }
-
-    // Prioridad 3: Fallback al idioma por defecto.
-    return this.defaultLang;
-  }
-
-  /**
-   * Método público para cambiar el idioma de la aplicación.
-   * Simplemente actualiza el signal `currentLang`, y el `effect` se encarga del resto.
-   * @param lang El nuevo código de idioma a establecer (ej. 'en').
-   */
-  public setLanguage(lang: string): void {
-    if (this.supportedLangs.includes(lang) && lang !== this.currentLang()) {
-      this.currentLang.set(lang);
-    }
-  }
-
-  /**
-   * Envía una petición al backend para actualizar la preferencia de idioma en el perfil del usuario.
-   * @param userId El ID del usuario logueado.
-   * @param lang El nuevo idioma preferido.
-   */
-  private async syncWithUserProfile(userId: string, lang: string): Promise<void> {
+  async preload(): Promise<void> {
     try {
-      await firstValueFrom(
-        this.usersService.updateProfile({ preferredLanguage: lang })
-      );
-      console.log(`Preferencia de idioma del usuario ${userId} sincronizada a '${lang}'.`);
-    } catch (error) {
-      console.error('Falló la sincronización de la preferencia de idioma con el perfil del usuario.', error);
+      await firstValueFrom(this.translate.use(this.store.language()));
+    } finally {
+      this._ready.set(true);
     }
+  }
+
+  /**
+   * Change the language because the reader asked for it.
+   *
+   * This is the only entry point that persists: an explicit choice is remembered on the device
+   * and, when there is a session, saved to the profile so the next device starts there too.
+   */
+  setLanguage(language: string): void {
+    const matched = matchLanguage(language);
+    if (!matched || matched === this.store.language()) return;
+
+    this.store.setLanguage(matched);
+    this.persistToProfile(matched);
+  }
+
+  /**
+   * Adopt the language a route asked for (`/en/auth/login`).
+   *
+   * A language-prefixed URL is an explicit request — somebody was sent that link, or bookmarked
+   * it — so it is treated like a choice and remembered. It is not, however, allowed to overwrite
+   * a signed-in user's stored profile preference: the URL says what to render now, the profile
+   * says what they chose, and a shared link must not silently rewrite somebody's account setting.
+   */
+  applyRouteLanguage(language: string): void {
+    const matched = matchLanguage(language);
+    if (!matched || matched === this.store.language()) return;
+    this.store.setLanguage(matched);
+  }
+
+  /**
+   * The session has been established or refreshed.
+   *
+   * The user's stored preference wins over whatever the device guessed, because it is the only
+   * value that represents a decision rather than an inference.
+   *
+   * When there is NO stored preference, nothing is written. That is deliberate: `null` means the
+   * person has never been asked, and the server treats it as an invitation to negotiate
+   * `Accept-Language` on every request — so a colleague who reads English gets English on their
+   * own machine and Spanish on the shared terminal in the warehouse, which is right. Writing a
+   * guess here would freeze one device's browser setting into the account and end that
+   * negotiation permanently: the same mistake the old effect made, in the other direction — the
+   * client's inference overwriting what the server correctly knows it does not know.
+   */
+  applySessionPreference(
+    userId: string,
+    preferred: string | null | undefined,
+    localeContext?: LocaleContextContract | null,
+  ): void {
+    const matched = matchLanguage(preferred ?? null);
+    this.session.set({ userId, preferred: matched });
+    this.store.setTenantContext(localeContext ?? null);
+
+    if (matched) this.store.setLanguage(matched);
+  }
+
+  /** The session ended. The device keeps its language; the profile is no longer ours to write. */
+  detachSession(): void {
+    this.session.set(null);
+    this.store.setTenantContext(null);
+  }
+
+  /**
+   * Save the preference to the profile, best effort.
+   *
+   * A failure here is not shown and not retried: the language on screen is already correct, and
+   * an error toast about a background preference save is noise at the moment somebody is simply
+   * reading their own interface in their own language. The next explicit change tries again.
+   */
+  private persistToProfile(language: LanguageCode): void {
+    const session = untracked(this.session);
+    if (!session || session.preferred === language) return;
+
+    this.session.set({ ...session, preferred: language });
+    this.users.updateProfile({ preferredLanguage: language }).subscribe({
+      error: () => {
+        // Roll the local record back so a later attempt is not skipped as "already saved".
+        const current = untracked(this.session);
+        if (current) this.session.set({ ...current, preferred: session.preferred });
+      },
+    });
   }
 }
-

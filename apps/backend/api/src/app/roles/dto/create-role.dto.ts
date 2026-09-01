@@ -3,12 +3,12 @@ import { ALL_PERMISSIONS, Permission } from '../../shared/permissions';
 
 export class CreateRoleDto {
   @IsString()
-  @Length(3, 100)
+  @Length(3, 100, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":3,"max":100}' })
   name: string;
 
   @IsString()
   @IsOptional()
-  @Length(0, 255)
+  @Length(0, 255, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":0,"max":255}' })
   description?: string;
 
   // H8 FIX: Validate each permission against the known catalog; prevents privilege escalation via arbitrary permissions.

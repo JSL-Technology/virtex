@@ -1,8 +1,9 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EcfCertificate } from '../entities/ecf-certificate.entity';
 import { CertificateVaultService } from './certificate-vault.service';
+import { BadRequestError } from '../../i18n/localized.exception';
 
 /** Certificate view without any encrypted material — safe to return over the API. */
 export interface EcfCertificateView {
@@ -33,8 +34,8 @@ export class EcfCertificateService {
     organizationId: string,
     input: { pfx: Buffer; password: string; alias: string },
   ): Promise<EcfCertificateView> {
-    if (!input.pfx?.length) throw new BadRequestException('El archivo del certificado está vacío.');
-    if (!input.password) throw new BadRequestException('La contraseña del certificado es obligatoria.');
+    if (!input.pfx?.length) throw new BadRequestError('EINVOICING.ARCHIVO_CERTIFICADO_ESTA_VACIO');
+    if (!input.password) throw new BadRequestError('EINVOICING.CONTRASENA_CERTIFICADO_ES_OBLIGATORIA');
 
     // Validate before persisting — a bad password / malformed file throws here, not at signing time.
     const parsed = this.vault.parsePkcs12(input.pfx, input.password);

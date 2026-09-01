@@ -1,5 +1,5 @@
 
-import { Injectable, Inject, BadRequestException, ServiceUnavailableException, Logger, forwardRef, OnModuleInit } from '@nestjs/common';
+import { Injectable, Inject, ServiceUnavailableException, Logger, forwardRef, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 import { PaymentGateway, CreateCheckoutSessionDto, CreateRegistrationCheckoutDto, CheckoutSessionInfo, CheckoutSessionResult, WebhookResult, BillingOverview, BillingInvoice } from '../interfaces/payment-gateway.interface';
@@ -12,6 +12,7 @@ import { WebhookEvent } from '../entities/webhook-event.entity';
 import { SAAS_CONFIG, SAAS_PLANS, minorUnitFactor } from '../../saas/saas.config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { RegistrationPaymentCompletedEvent } from '../events/registration-payment-completed.event';
+import { BadRequestError } from '../../i18n/localized.exception';
 
 @Injectable()
 export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
@@ -169,12 +170,12 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
     const stripe = this.ensureStripe();
 
     if (!priceId) {
-      throw new BadRequestException('No se especificó un plan válido (priceId faltante).');
+      throw new BadRequestError('PAYMENT.NO_ESPECIFICO_PLAN_VALIDO_PRICEID_FALTANTE');
     }
 
     const organization = await this.organizationRepository.findOne({ where: { id: organizationId } });
     if (!organization) {
-      throw new BadRequestException('Organization not found');
+      throw new BadRequestError('PAYMENT.ORGANIZATION_NOT_FOUND');
     }
 
     let customerId = organization.externalCustomerId;
@@ -226,7 +227,7 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
     });
 
     if (!session.url) {
-        throw new BadRequestException('Failed to create Stripe session URL');
+        throw new BadRequestError('PAYMENT.FAILED_CREATE_STRIPE_SESSION_URL');
     }
 
     return { sessionId: session.id, url: session.url };
@@ -243,7 +244,7 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
     const stripe = this.ensureStripe();
 
     if (!dto.priceId) {
-      throw new BadRequestException('No se especificó un plan válido (priceId faltante).');
+      throw new BadRequestError('PAYMENT.NO_ESPECIFICO_PLAN_VALIDO_PRICEID_FALTANTE');
     }
 
     const metadata = {
@@ -287,7 +288,7 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
     });
 
     if (!session.url) {
-      throw new BadRequestException('Failed to create Stripe session URL');
+      throw new BadRequestError('PAYMENT.FAILED_CREATE_STRIPE_SESSION_URL');
     }
 
     return { sessionId: session.id, url: session.url };
@@ -349,7 +350,7 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
         },
         '[SECURITY] Checkout confirmation presented a session that does not belong to this organization.',
       );
-      throw new BadRequestException('La sesión de pago no corresponde a esta organización.');
+      throw new BadRequestError('PAYMENT.SESION_PAGO_NO_CORRESPONDE_ESTA_ORGANIZACION');
     }
 
     const settled = session.status === 'complete' &&
@@ -358,7 +359,7 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
     if (settled) {
       const organization = await this.organizationRepository.findOne({ where: { id: organizationId } });
       if (!organization) {
-        throw new BadRequestException('Organization not found');
+        throw new BadRequestError('PAYMENT.ORGANIZATION_NOT_FOUND');
       }
 
       const subscription = (session.subscription && typeof session.subscription !== 'string')
@@ -460,7 +461,7 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
       relations: ['plan'],
     });
     if (!organization) {
-      throw new BadRequestException('Organization not found');
+      throw new BadRequestError('PAYMENT.ORGANIZATION_NOT_FOUND');
     }
 
     // What this tenant is actually billed in, resolved exactly as the signup did — so the
@@ -528,7 +529,7 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
   async getInvoices(organizationId: string, limit = 12): Promise<BillingInvoice[]> {
     const organization = await this.organizationRepository.findOne({ where: { id: organizationId } });
     if (!organization) {
-      throw new BadRequestException('Organization not found');
+      throw new BadRequestError('PAYMENT.ORGANIZATION_NOT_FOUND');
     }
 
     if (!this.stripe || !organization.externalCustomerId) {
@@ -565,10 +566,10 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
 
     const organization = await this.organizationRepository.findOne({ where: { id: organizationId } });
     if (!organization) {
-      throw new BadRequestException('Organization not found');
+      throw new BadRequestError('PAYMENT.ORGANIZATION_NOT_FOUND');
     }
     if (!organization.externalCustomerId) {
-      throw new BadRequestException('No existe una suscripción activa para gestionar.');
+      throw new BadRequestError('PAYMENT.NO_EXISTE_SUSCRIPCION_ACTIVA_GESTIONAR');
     }
 
     const session = await stripe.billingPortal.sessions.create({
@@ -592,7 +593,7 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
         event = stripe.webhooks.constructEvent(payload, signature, webhookSecret);
       } catch (err) {
         this.logger.error(`Webhook signature verification failed: ${(err as Error).message}`);
-        throw new BadRequestException('Webhook signature verification failed');
+        throw new BadRequestError('PAYMENT.WEBHOOK_SIGNATURE_VERIFICATION_FAILED');
       }
 
       // Process safely inside a transaction

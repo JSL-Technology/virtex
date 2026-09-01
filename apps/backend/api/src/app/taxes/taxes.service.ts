@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityManager } from 'typeorm';
 import { Tax } from './entities/tax.entity';
 import { CreateTaxDto } from './dto/create-tax.dto';
 import { UpdateTaxDto } from './dto/update-tax.dto';
+import { NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class TaxesService {
@@ -28,7 +29,7 @@ export class TaxesService {
   async findOne(id: string, organizationId: string): Promise<Tax> {
     const tax = await this.taxRepository.findOne({ where: { id, organizationId } });
     if (!tax) {
-      throw new NotFoundException(`Impuesto con ID "${id}" no encontrado.`);
+      throw new NotFoundError('TAXES.IMPUESTO_ID_NO_ENCONTRADO', { id });
     }
     return tax;
   }

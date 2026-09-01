@@ -1,5 +1,5 @@
 
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, UseFilters, ParseUUIDPipe, UseInterceptors, UploadedFile, BadRequestException, HttpCode, HttpStatus, Ip, Logger } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, ParseUUIDPipe, UseInterceptors, UploadedFile, HttpCode, HttpStatus, Ip, Logger } from '@nestjs/common';
 import { FastifyFileInterceptor } from '../common/interceptors/fastify-file.interceptor';
 import { toUploadableFile, FastifyFile } from '../common/interfaces/fastify-file.interface';
 import { ThrottlerGuard } from '@nestjs/throttler';
@@ -26,17 +26,16 @@ import { PERMISSIONS } from '../shared/permissions';
 import { UserResponseDto } from '../auth/dto/user-response.dto';
 import { plainToInstance } from 'class-transformer';
 import { IsOrganizationOwner } from '../auth/policies/is-organization-owner.policy';
-import { TypeOrmExceptionFilter } from '../common/filters/typeorm-exception.filter';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { JobTitle } from './enums/job-title.enum';
 import { ListUsersQueryDto } from './dto/list-users-query.dto';
 import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
+import { BadRequestError } from '../i18n/localized.exception';
 
 @ApiTags('Users')
 @Controller('users')
 @UseGuards(JwtAuthGuard)
-@UseFilters(TypeOrmExceptionFilter)
 export class UsersController {
   private readonly logger = new Logger(UsersController.name);
 
@@ -142,7 +141,7 @@ export class UsersController {
       // password field, which is a backdoor for any caller that reaches the service without a guard.
       await this.usersService.requestEmailChange(user.id, dto, true);
       await this.auditTrailService.record(user.id, 'User', user.id, ActionType.UPDATE, { action: 'request-email-change', newEmail: dto.newEmail }, undefined, ip, user.organizationId);
-      return { message: 'Si los datos son correctos, se ha enviado un enlace de confirmación al nuevo correo.' };
+      return { messageKey: 'USERS.SI_DATOS_SON_CORRECTOS_ENVIADO_ENLACE_CONFIRMACION_NUEVO' };
     } catch (e) {
       await this.auditTrailService.record(user.id, 'User', user.id, ActionType.UPDATE, { action: 'request-email-change', newEmail: dto.newEmail, error: (e as Error).message }, undefined, ip, user.organizationId);
       throw e;
@@ -158,7 +157,7 @@ export class UsersController {
     @Body() dto: ConfirmEmailChangeDto,
   ) {
     await this.usersService.confirmEmailChange(user.id, dto);
-    return { message: 'Correo electrónico actualizado. Tu sesión se ha invalidado por seguridad.' };
+    return { messageKey: 'USERS.CORREO_ELECTRONICO_ACTUALIZADO_TU_SESION_INVALIDADO_POR_SEGURIDAD' };
   }
 
   @Post('profile/avatar')
@@ -167,7 +166,7 @@ export class UsersController {
   @UseInterceptors(FastifyFileInterceptor('file', {
     fileFilter: (req, file, cb) => {
         if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
-            return cb(new BadRequestException('Only image files are allowed!'), false);
+            return cb(new BadRequestError('USERS.ONLY_IMAGE_FILES_ARE_ALLOWED'), false);
         }
         cb(null, true);
     },
@@ -179,7 +178,7 @@ export class UsersController {
     @CurrentUser() user: AuthenticatedUser,
     @UploadedFile() file: FastifyFile
   ) {
-      if (!file) throw new BadRequestException('File is required');
+      if (!file) throw new BadRequestError('USERS.FILE_REQUIRED');
 
       try {
         const stored = await this.storageService.upload(toUploadableFile(file), 'avatars');
@@ -260,7 +259,7 @@ export class UsersController {
   ) {
       // H-08 FIX: Prevent self-block to avoid accidental lock-out of the last admin.
       if (dto.status === UserStatus.BLOCKED && id === user.id) {
-          throw new BadRequestException('No puedes bloquear tu propia cuenta.');
+          throw new BadRequestError('USERS.NO_PUEDES_BLOQUEAR_TU_PROPIA_CUENTA');
       }
       const updatedUser = await this.usersService.updateUserStatus(id, dto.status, user.organizationId, user.id);
       return plainToInstance(UserResponseDto, updatedUser, { excludeExtraneousValues: true });
@@ -275,7 +274,7 @@ export class UsersController {
       @CurrentUser() user: AuthenticatedUser
   ) {
       await this.usersService.resetPassword(id, user.organizationId);
-      return { message: 'Password reset email sent.' };
+      return { messageKey: 'USERS.PASSWORD_RESET_EMAIL_SENT' };
   }
 
   // H5 FIX: Validate target user belongs to the requester's organization before returning
@@ -320,7 +319,7 @@ export class UsersController {
       user.id, 'User', id, ActionType.UPDATE,
       { action: 'admin-change-email' }, undefined, ip, user.organizationId,
     );
-    return { message: 'Email actualizado. La sesión del usuario ha sido invalidada.' };
+    return { messageKey: 'USERS.EMAIL_ACTUALIZADO_SESION_USUARIO_INVALIDADA' };
   }
 
   @Post(':id/block-and-logout')

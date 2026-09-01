@@ -2,62 +2,62 @@
     <div class="settings-layout">
         <aside class="settings-sidebar">
             <div class="sidebar-header">
-                <h2>Configuración</h2>
+                <h2>{{ 'SETTINGS.LAYOUT.CONFIGURACION' | translate }}</h2>
             </div>
             <nav class="settings-nav">
 
                 <!-- GRUPO 1: MI CUENTA -->
                 <div class="nav-group">
-                    <h3 class="group-title">Mi Cuenta</h3>
+                    <h3 class="group-title">{{ 'SETTINGS.LAYOUT.MI_CUENTA' | translate }}</h3>
                     <a routerLink="my-profile" routerLinkActive="active" class="nav-link">
                         <lucide-icon [img]="MyProfileIcon" size="16"></lucide-icon>
-                        <span>Mi Perfil</span>
+                        <span>{{ 'SETTINGS.LAYOUT.MI_PERFIL' | translate }}</span>
                     </a>
                     <a routerLink="billing" routerLinkActive="active" class="nav-link">
                         <lucide-icon [img]="BillingIcon" size="16"></lucide-icon>
-                        <span>Facturación y Plan</span>
+                        <span>{{ 'SETTINGS.LAYOUT.FACTURACION_PLAN' | translate }}</span>
                     </a>
                 </div>
 
                 <!-- GRUPO 2: ORGANIZACIÓN -->
                 <div class="nav-group">
-                    <h3 class="group-title">Organización</h3>
+                    <h3 class="group-title">{{ 'SETTINGS.LAYOUT.ORGANIZACION' | translate }}</h3>
                     <a routerLink="profile" routerLinkActive="active" class="nav-link">
                         <lucide-icon [img]="OrgProfileIcon" size="16"></lucide-icon>
-                        <span>Perfil de la Empresa</span>
+                        <span>{{ 'SETTINGS.LAYOUT.PERFIL_EMPRESA' | translate }}</span>
                     </a>
                     <a routerLink="subsidiaries" routerLinkActive="active" class="nav-link">
                         <lucide-icon [img]="SubsidiariesIcon" size="16"></lucide-icon>
-                        <span>Estructura Empresarial</span>
+                        <span>{{ 'SETTINGS.LAYOUT.ESTRUCTURA_EMPRESARIAL' | translate }}</span>
                     </a>
                     <a routerLink="branding" routerLinkActive="active" class="nav-link">
                         <lucide-icon [img]="BrandingIcon" size="16"></lucide-icon>
-                        <span>Personalización</span>
+                        <span>{{ 'SETTINGS.LAYOUT.PERSONALIZACION' | translate }}</span>
                     </a>
                 </div>
 
                 <!-- GRUPO 3: FINANZAS -->
                 <div class="nav-group">
-                    <h3 class="group-title">Finanzas</h3>
+                    <h3 class="group-title">{{ 'SETTINGS.LAYOUT.FINANZAS' | translate }}</h3>
                     <a routerLink="accounting" routerLinkActive="active" class="nav-link">
                         <lucide-icon [img]="AccountingIcon" size="16"></lucide-icon>
-                        <span>Contabilidad</span>
+                        <span>{{ 'SETTINGS.LAYOUT.CONTABILIDAD' | translate }}</span>
                     </a>
                     <a routerLink="currencies" routerLinkActive="active" class="nav-link">
                         <lucide-icon [img]="CurrenciesIcon" size="16"></lucide-icon>
-                        <span>Multimoneda</span>
+                        <span>{{ 'SETTINGS.LAYOUT.MULTIMONEDA' | translate }}</span>
                     </a>
                     <a routerLink="taxes" routerLinkActive="active" class="nav-link">
                         <lucide-icon [img]="TaxesIcon" size="16"></lucide-icon>
-                        <span>Impuestos</span>
+                        <span>{{ 'SETTINGS.LAYOUT.IMPUESTOS' | translate }}</span>
                     </a>
                     <a routerLink="closing-rules" routerLinkActive="active" class="nav-link">
                         <lucide-icon [img]="ClosingIcon" size="16"></lucide-icon>
-                        <span>Cierre Fiscal</span>
+                        <span>{{ 'SETTINGS.LAYOUT.CIERRE_FISCAL' | translate }}</span>
                     </a>
                     <a routerLink="intercompany" routerLinkActive="active" class="nav-link">
                         <lucide-icon [img]="IntercompanyIcon" size="16"></lucide-icon>
-                        <span>Intercompany</span>
+                        <span>{{ 'SETTINGS.LAYOUT.INTERCOMPANY' | translate }}</span>
                     </a>
                     <!--
                         Facturación Electrónica was reachable only by typing its URL: the route
@@ -67,49 +67,49 @@
                     -->
                     <a routerLink="fiscal" routerLinkActive="active" class="nav-link">
                         <lucide-icon [img]="EInvoicingIcon" size="16"></lucide-icon>
-                        <span>Facturación Electrónica</span>
+                        <span>{{ 'SETTINGS.LAYOUT.FACTURACION_ELECTRONICA' | translate }}</span>
                     </a>
                 </div>
 
                 <!-- GRUPO 4: OPERACIONES -->
                 <div class="nav-group">
-                    <h3 class="group-title">Operaciones</h3>
+                    <h3 class="group-title">{{ 'SETTINGS.LAYOUT.OPERACIONES' | translate }}</h3>
                     <a routerLink="sequences" routerLinkActive="active" class="nav-link">
                         <lucide-icon [img]="SequencesIcon" size="16"></lucide-icon>
-                        <span>Secuencias</span>
+                        <span>{{ 'SETTINGS.LAYOUT.SECUENCIAS' | translate }}</span>
                     </a>
                     <a routerLink="approvals" routerLinkActive="active" class="nav-link">
                         <lucide-icon [img]="WorkflowsIcon" size="16"></lucide-icon>
-                        <span>Aprobaciones</span>
+                        <span>{{ 'SETTINGS.LAYOUT.APROBACIONES' | translate }}</span>
                     </a>
                     <a routerLink="inventory-policies" routerLinkActive="active" class="nav-link">
                         <lucide-icon [img]="InventoryIcon" size="16"></lucide-icon>
-                        <span>Inventario</span>
+                        <span>{{ 'SETTINGS.LAYOUT.INVENTARIO' | translate }}</span>
                     </a>
                 </div>
 
                 <!-- GRUPO 5: SISTEMA -->
                 <div class="nav-group">
-                    <h3 class="group-title">Sistema</h3>
+                    <h3 class="group-title">{{ 'SETTINGS.LAYOUT.SISTEMA' | translate }}</h3>
                     <a routerLink="users" routerLinkActive="active" class="nav-link" *appHasPermission="'users:view'">
                         <lucide-icon [img]="UsersIcon" size="16"></lucide-icon>
-                        <span>Usuarios</span>
+                        <span>{{ 'SETTINGS.LAYOUT.USUARIOS' | translate }}</span>
                     </a>
                     <a routerLink="roles" routerLinkActive="active" class="nav-link" *appHasPermission="'roles:view'">
                         <lucide-icon [img]="RolesIcon" size="16"></lucide-icon>
-                        <span>Roles y Permisos</span>
+                        <span>{{ 'SETTINGS.LAYOUT.ROLES_PERMISOS' | translate }}</span>
                     </a>
                     <a routerLink="security" routerLinkActive="active" class="nav-link" *appHasPermission="'settings:edit_company'">
                         <lucide-icon [img]="SecurityIcon" size="16"></lucide-icon>
-                        <span>Seguridad y Auditoría</span>
+                        <span>{{ 'SETTINGS.LAYOUT.SEGURIDAD_AUDITORIA' | translate }}</span>
                     </a>
                     <a routerLink="integrations" routerLinkActive="active" class="nav-link" *appHasPermission="'settings:edit_company'">
                         <lucide-icon [img]="IntegrationsIcon" size="16"></lucide-icon>
-                        <span>Integraciones</span>
+                        <span>{{ 'SETTINGS.LAYOUT.INTEGRACIONES' | translate }}</span>
                     </a>
                     <a routerLink="smtp" routerLinkActive="active" class="nav-link" *appHasPermission="'settings:edit_company'">
                         <lucide-icon [img]="SmtpIcon" size="16"></lucide-icon>
-                        <span>Servidor de Correo</span>
+                        <span>{{ 'SETTINGS.LAYOUT.SERVIDOR_CORREO' | translate }}</span>
                     </a>
                     <a routerLink="sso" routerLinkActive="active" class="nav-link" *appHasPermission="'settings:edit_company'">
                         <lucide-icon [img]="SsoIcon" size="16"></lucide-icon>

@@ -5,12 +5,12 @@ import { Type } from 'class-transformer';
 
 export class CsvParsingOptionsDto {
   @IsString()
-  @Length(1, 1)
+  @Length(1, 1, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":1,"max":1}' })
   @IsOptional()
   delimiter?: string;
 
   @IsString()
-  @Length(1, 1)
+  @Length(1, 1, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":1,"max":1}' })
   @IsOptional()
   quoteChar?: string;
 }

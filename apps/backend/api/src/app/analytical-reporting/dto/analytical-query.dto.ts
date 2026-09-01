@@ -65,7 +65,7 @@ export class PaginationOptionsDto {
     minimum: 1,
   })
   @IsInt()
-  @Min(1)
+  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
   @IsOptional()
   @Type(() => Number)
   page = 1;
@@ -76,7 +76,7 @@ export class PaginationOptionsDto {
     minimum: 1,
   })
   @IsInt()
-  @Min(1)
+  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
   @IsOptional()
   @Type(() => Number)
   limit = 100;

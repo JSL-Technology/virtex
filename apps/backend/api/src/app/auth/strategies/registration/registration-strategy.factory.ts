@@ -1,7 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CountryRegistrationStrategy } from './country-registration.strategy';
 import { ProfileRegistrationStrategy } from './profile-registration.strategy';
 import { findCountryProfile } from '../../../localization/fiscal/country-profiles';
+import { BadRequestError } from '../../../i18n/localized.exception';
 
 /**
  * Resolve the registration rules for a country, or refuse the country.
@@ -21,9 +22,7 @@ export class RegistrationStrategyFactory {
 
   getStrategy(countryCode: string): CountryRegistrationStrategy {
     if (!findCountryProfile(countryCode)) {
-      throw new BadRequestException(
-        `El país "${countryCode}" todavía no está disponible para registro.`,
-      );
+      throw new BadRequestError('AUTH.PAIS_TODAVIA_NO_ESTA_DISPONIBLE_REGISTRO', { countryCode });
     }
     return this.profileStrategy;
   }

@@ -21,6 +21,8 @@ import {
 } from '../../../core/services/invoices';
 import { NotificationService } from '../../../core/services/notification';
 import * as XLSX from 'xlsx';
+import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { TranslateModule } from '@ngx-translate/core';
 
 /**
  * The invoice list.
@@ -38,7 +40,7 @@ import * as XLSX from 'xlsx';
 @Component({
   selector: 'app-invoices-list-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, FormsModule],
+  imports: [CommonModule, RouterLink, LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -185,7 +187,7 @@ export class InvoicesListPage implements OnInit {
               : 'Exportación completada.',
           );
         },
-        error: () => this.notificationService.showError('No se pudo exportar el listado.'),
+        error: () => this.notificationService.showError('INVOICES.LIST.PUDO_EXPORTAR_LISTADO'),
       });
   }
 }

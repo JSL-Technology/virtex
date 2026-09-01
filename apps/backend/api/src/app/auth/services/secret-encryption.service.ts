@@ -1,6 +1,7 @@
-import { Injectable, OnModuleInit, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
+import { InternalServerError } from '../../i18n/localized.exception';
 
 /**
  * Reusable authenticated encryption (AES-256-GCM) for secrets stored at rest, such as
@@ -37,7 +38,7 @@ export class SecretEncryptionService implements OnModuleInit {
   decrypt(payload: string): string {
     const parts = payload.split(':');
     if (parts.length !== 3) {
-      throw new InternalServerErrorException('Malformed encrypted secret.');
+      throw new InternalServerError('AUTH.MALFORMED_ENCRYPTED_SECRET');
     }
     try {
       const iv = Buffer.from(parts[0], 'hex');
@@ -47,7 +48,7 @@ export class SecretEncryptionService implements OnModuleInit {
       decipher.setAuthTag(tag);
       return Buffer.concat([decipher.update(ct), decipher.final()]).toString('utf8');
     } catch {
-      throw new InternalServerErrorException('Failed to decrypt stored secret.');
+      throw new InternalServerError('AUTH.FAILED_DECRYPT_STORED_SECRET');
     }
   }
 }

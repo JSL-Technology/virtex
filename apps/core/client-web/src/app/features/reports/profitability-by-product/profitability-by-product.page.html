@@ -1,18 +1,18 @@
 <div class="subview-container">
     <div class="subview-header">
-        <h3>Profitability by Product</h3>
+        <h3>{{ 'REPORTS.PROFITABILITY_BY_PRODUCT.PROFITABILITY_BY_PRODUCT' | translate }}</h3>
         <div class="header-actions">
             <button class="secondary-button">
                 <lucide-icon [img]="CalendarIcon" size="16"></lucide-icon>
-                <span>Last 90 Days</span>
+                <span>{{ 'REPORTS.PROFITABILITY_BY_PRODUCT.LAST_90_DAYS' | translate }}</span>
             </button>
             <button class="secondary-button">
                 <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
-                <span>Filters</span>
+                <span>{{ 'REPORTS.PROFITABILITY_BY_PRODUCT.FILTERS' | translate }}</span>
             </button>
             <button class="primary-button">
                 <lucide-icon [img]="ExportIcon" size="16"></lucide-icon>
-                <span>Export</span>
+                <span>{{ 'REPORTS.PROFITABILITY_BY_PRODUCT.EXPORT' | translate }}</span>
             </button>
         </div>
     </div>
@@ -20,12 +20,12 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Product</th>
-                    <th class="text-center">Units Sold</th>
-                    <th class="text-right">Total Revenue</th>
-                    <th class="text-right">Total Cost</th>
-                    <th class="text-right">Gross Profit</th>
-                    <th class="text-right">Gross Margin (%)</th>
+                    <th>{{ 'REPORTS.PROFITABILITY_BY_PRODUCT.PRODUCT' | translate }}</th>
+                    <th class="text-center">{{ 'REPORTS.PROFITABILITY_BY_PRODUCT.UNITS_SOLD' | translate }}</th>
+                    <th class="text-right">{{ 'REPORTS.PROFITABILITY_BY_PRODUCT.TOTAL_REVENUE' | translate }}</th>
+                    <th class="text-right">{{ 'REPORTS.PROFITABILITY_BY_PRODUCT.TOTAL_COST' | translate }}</th>
+                    <th class="text-right">{{ 'REPORTS.PROFITABILITY_BY_PRODUCT.GROSS_PROFIT' | translate }}</th>
+                    <th class="text-right">{{ 'REPORTS.PROFITABILITY_BY_PRODUCT.GROSS_MARGIN' | translate }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -33,14 +33,14 @@
                 <tr>
                     <td>{{ item.sku }} - {{ item.name }}</td>
                     <td class="text-center">{{ item.unitsSold }}</td>
-                    <td class="text-right">{{ item.totalRevenue | number:'1.2-2' }}</td>
-                    <td class="text-right">{{ item.totalCost | number:'1.2-2' }}</td>
-                    <td class="text-right font-semibold">{{ item.grossProfit | number:'1.2-2' }}</td>
-                    <td class="text-right font-semibold">{{ item.grossMargin | number:'1.1-1' }}%</td>
+                    <td class="text-right">{{ item.totalRevenue | vxNumber:'1.2-2' }}</td>
+                    <td class="text-right">{{ item.totalCost | vxNumber:'1.2-2' }}</td>
+                    <td class="text-right font-semibold">{{ item.grossProfit | vxNumber:'1.2-2' }}</td>
+                    <td class="text-right font-semibold">{{ item.grossMargin | vxNumber:'1.1-1' }}%</td>
                 </tr>
                 } @empty {
                 <tr>
-                    <td colspan="6" class="empty-state">No profitability data available for the selected period.</td>
+                    <td colspan="6" class="empty-state">{{ 'REPORTS.PROFITABILITY_BY_PRODUCT.NO_PROFITABILITY_DATA_AVAILABLE_FOR_SELECTED' | translate }}</td>
                 </tr>
                 }
             </tbody>

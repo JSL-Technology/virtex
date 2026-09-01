@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Supplier } from './entities/supplier.entity';
@@ -7,6 +7,7 @@ import { UpdateSupplierDto } from './dto/update-supplier.dto';
 import { DataSource } from 'typeorm';
 import { SaasService } from '../saas/saas.service';
 import { SaasResource } from '../saas/enums/saas-resource.enum';
+import { NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class SuppliersService {
@@ -45,7 +46,7 @@ export class SuppliersService {
       where: { id, organizationId },
     });
     if (!supplier) {
-      throw new NotFoundException(`Proveedor con ID "${id}" no encontrado.`);
+      throw new NotFoundError('SUPPLIERS.PROVEEDOR_ID_NO_ENCONTRADO', { id });
     }
     return supplier;
   }

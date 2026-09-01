@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Building, Plus, MoreVertical, X } from 'lucide-angular';
 import { SubsidiariesService, Subsidiary, CreateSubsidiaryDto } from './subsidiaries.service';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-subsidiaries',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, ReactiveFormsModule],
+  imports: [CommonModule, LucideAngularModule, ReactiveFormsModule, TranslateModule],
   templateUrl: './subsidiaries.page.html',
   styleUrls: ['./subsidiaries.page.scss']
 })

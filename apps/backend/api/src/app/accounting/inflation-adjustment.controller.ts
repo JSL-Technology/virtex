@@ -19,6 +19,6 @@ export class InflationAdjustmentController {
   @HasPermission(PERMISSIONS.ACCOUNTING_RUN_INFLATION_ADJUSTMENT)
   async run(@Body() dto: RunInflationAdjustmentDto, @CurrentUser() user: AuthenticatedUser) {
     await this.adjustmentService.runAdjustment(dto.year, dto.month, user.organizationId);
-    return { message: 'Proceso de ajuste por inflación ejecutado exitosamente.' };
+    return { messageKey: 'ACCOUNTING.PROCESO_AJUSTE_POR_INFLACION_EJECUTADO_EXITOSAMENTE' };
   }
 }

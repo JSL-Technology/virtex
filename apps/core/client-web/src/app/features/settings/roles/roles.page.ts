@@ -5,19 +5,29 @@ import { ReactiveFormsModule } from '@angular/forms';
 // ✅ CORREGIDO: Se importa el ícono 'X' que se usará como CloseIcon.
 import { LucideAngularModule, Plus, Edit, Trash, Copy, X } from 'lucide-angular';
 
-import { RolesService, Role, CreateRoleDto, UpdateRoleDto } from '../../../core/api/roles.service';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import {
+  RolesService,
+  Role,
+  CreateRoleDto,
+  UpdateRoleDto,
+  PermissionGroupContract,
+} from '../../../core/api/roles.service';
 import { NotificationService } from '../../../core/services/notification';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 
-interface PermissionGroup {
-  name: string;
-  permissions: { label: string; value: string }[];
-}
+
 
 @Component({
   selector: 'app-roles-management-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, HasPermissionDirective],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    LucideAngularModule,
+    HasPermissionDirective,
+    TranslateModule,
+  ],
   templateUrl: './roles.page.html',
   styleUrls: ['./roles.page.scss'],
 })
@@ -25,6 +35,7 @@ export class RolesManagementPage implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly rolesService = inject(RolesService);
   private readonly notificationService = inject(NotificationService);
+  private readonly translate = inject(TranslateService);
 
   /** Iconos */
   protected readonly PlusIcon = Plus;
@@ -35,7 +46,7 @@ export class RolesManagementPage implements OnInit {
 
   /** Estado */
   readonly roles = signal<Role[]>([]);
-  readonly permissionGroups = signal<PermissionGroup[]>([]);
+  readonly permissionGroups = signal<PermissionGroupContract[]>([]);
   readonly isModalOpen = signal(false);
   readonly editingRole = signal<Role | null>(null);
 
@@ -56,34 +67,22 @@ export class RolesManagementPage implements OnInit {
     this.rolesService.getRoles().subscribe({
       next: (roles: Role[]) => this.roles.set(roles),
       error: () =>
-        this.notificationService.showError('No se pudieron cargar los roles.'),
+        this.notificationService.showError('SETTINGS.ROLES.ERRORS.LOAD_ROLES'),
     });
   }
 
-  /** Cargar permisos disponibles y agruparlos */
+  /**
+   * Load the permission catalogue.
+   *
+   * The grouping and the names come from the server as keys. This used to derive them by
+   * splitting the slug on its colon and capitalising the first letter, which is how the screen
+   * that governs access to the ledger came to show a group called "Journal_entries" with a
+   * checkbox called "view".
+   */
   private loadPermissions(): void {
     this.rolesService.getAvailablePermissions().subscribe({
-      next: (permissions: string[]) => {
-        const groups = permissions.reduce(
-          (acc: Record<string, PermissionGroup>, permission) => {
-            const [groupName, label] = permission.split(':');
-            if (!acc[groupName]) {
-              acc[groupName] = {
-                name: groupName.charAt(0).toUpperCase() + groupName.slice(1),
-                permissions: [],
-              };
-            }
-            acc[groupName].permissions.push({ label, value: permission });
-            return acc;
-          },
-          {},
-        );
-        this.permissionGroups.set(Object.values(groups));
-      },
-      error: () =>
-        this.notificationService.showError(
-          'No se pudieron cargar los permisos.',
-        ),
+      next: (groups) => this.permissionGroups.set(groups),
+      error: () => this.notificationService.showError('SETTINGS.ROLES.ERRORS.LOAD_PERMISSIONS'),
     });
   }
 
@@ -110,9 +109,7 @@ export class RolesManagementPage implements OnInit {
   cloneRole(role: Role): void {
     this.rolesService.cloneRole(role.id).subscribe({
       next: () => {
-        this.notificationService.showSuccess(
-          `Rol "${role.name}" clonado exitosamente.`,
-        );
+        this.notificationService.showSuccess('SETTINGS.ROLES.ROL_CLONADO_EXITOSAMENTE', { name: role.name });
         this.loadRoles();
       },
       error: (err: unknown) =>
@@ -162,9 +159,7 @@ export class RolesManagementPage implements OnInit {
 
     request.subscribe({
       next: () => {
-        this.notificationService.showSuccess(
-          `Rol ${editing ? 'actualizado' : 'creado'} exitosamente.`,
-        );
+        this.notificationService.showSuccess(editing ? 'SETTINGS.ROLES.ROL_ACTUALIZADO_EXITOSAMENTE' : 'SETTINGS.ROLES.ROL_CREADO_EXITOSAMENTE');
         this.loadRoles();
         this.closeModal();
       },
@@ -181,7 +176,7 @@ export class RolesManagementPage implements OnInit {
 
     this.rolesService.deleteRole(role.id).subscribe({
       next: () => {
-        this.notificationService.showSuccess('Rol eliminado exitosamente.');
+        this.notificationService.showSuccess('SETTINGS.ROLES.ROL_ELIMINADO_EXITOSAMENTE');
         this.loadRoles();
       },
       error: (err: unknown) =>

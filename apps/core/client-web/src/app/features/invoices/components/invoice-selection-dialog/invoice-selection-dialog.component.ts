@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Search, X } from 'lucide-angular';
 import { InvoicesService, Invoice } from '../../../../core/services/invoices';
+import { TranslateModule } from '@ngx-translate/core';
+import { FORMAT_PIPES } from '../../../../core/i18n/pipes/format.pipes';
 
 @Component({
   selector: 'app-invoice-selection-dialog',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './invoice-selection-dialog.component.html',
   styleUrls: ['./invoice-selection-dialog.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -2,6 +2,8 @@ import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle, MoreHorizontal, FileDown } from 'lucide-angular';
+import { TranslateModule } from '@ngx-translate/core';
+import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 
 export interface Sale {
   id: string;
@@ -15,7 +17,7 @@ export interface Sale {
 @Component({
   selector: 'app-history-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule],
+  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './history.page.html',
   styleUrls: ['./history.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

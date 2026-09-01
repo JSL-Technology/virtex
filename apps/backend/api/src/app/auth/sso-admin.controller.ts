@@ -1,16 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Patch,
-  Delete,
-  Body,
-  Param,
-  UseGuards,
-  HttpCode,
-  HttpStatus,
-  BadRequestException,
-} from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from './guards/jwt/jwt.guard';
@@ -27,6 +15,7 @@ import {
 } from './dto/sso-admin.dto';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { CheckFeature } from '../saas/guards/feature-flag.guard';
+import { BadRequestError } from '../i18n/localized.exception';
 
 /**
  * Per-organization enterprise SSO administration. All endpoints are scoped to the caller's
@@ -43,7 +32,7 @@ export class SsoAdminController {
 
   private orgId(user: AuthenticatedUser): string {
     if (!user.organizationId) {
-      throw new BadRequestException('User is not associated with an organization.');
+      throw new BadRequestError('AUTH.USER_NOT_ASSOCIATED_WITH_ORGANIZATION');
     }
     return user.organizationId;
   }

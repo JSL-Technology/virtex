@@ -5,11 +5,12 @@ import { Kpi } from '../../../../core/models/finance';
 import { DashboardApiService } from '../../../../core/api/dashboard-api.service';
 import { Observable, map } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
+import { FORMAT_PIPES } from '../../../../core/i18n/pipes/format.pipes';
 
 @Component({
   selector: 'app-kpi-current-ratio',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './kpi-current-ratio.html',
   styleUrls: ['../kpi-roe/kpi-roe.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

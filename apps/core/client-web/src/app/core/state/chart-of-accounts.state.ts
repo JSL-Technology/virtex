@@ -110,10 +110,10 @@ export class ChartOfAccountsStateService {
   public deleteAccount(accountId: string): void {
     this.apiService.deleteAccount(accountId).pipe(take(1)).subscribe({
         next: () => {
-            this.notificationService.showSuccess('Account deleted successfully.');
+            this.notificationService.showSuccess('CORE.STATE.ACCOUNT_DELETED_SUCCESSFULLY');
             this.refreshAccounts();
         },
-        error: () => this.notificationService.showError('Failed to delete account.')
+        error: () => this.notificationService.showError('CORE.STATE.FAILED_DELETE_ACCOUNT')
     });
   }
 

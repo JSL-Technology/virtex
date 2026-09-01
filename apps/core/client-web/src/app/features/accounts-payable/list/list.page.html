@@ -1,34 +1,34 @@
 <div class="view-container">
   <div class="view-header">
-    <h1>Facturas de Proveedor</h1>
+    <h1>{{ 'ACCOUNTS_PAYABLE.LIST.FACTURAS_PROVEEDOR' | translate }}</h1>
     <div class="header-actions">
       <button class="btn-secondary">
         <lucide-icon [name]="FilterIcon" [size]="16"></lucide-icon>
-        <span>Filtrar</span>
+        <span>{{ 'ACCOUNTS_PAYABLE.LIST.FILTRAR' | translate }}</span>
       </button>
       <a routerLink="../new" class="btn-primary">
         <lucide-icon [name]="PlusCircleIcon" [size]="16"></lucide-icon>
-        <span>Nueva Factura</span>
+        <span>{{ 'ACCOUNTS_PAYABLE.LIST.NUEVA_FACTURA' | translate }}</span>
       </a>
     </div>
   </div>
 
   <div class="view-content">
     <div *ngIf="isLoading()" class="loading-shade">
-      <p>Cargando facturas...</p>
+      <p>{{ 'ACCOUNTS_PAYABLE.LIST.CARGANDO_FACTURAS' | translate }}</p>
     </div>
 
     <div *ngIf="error()" class="error-message">
       <p>{{ error() }}</p>
-      <button (click)="loadVendorBills()" class="btn-primary">Reintentar</button>
+      <button (click)="loadVendorBills()" class="btn-primary">{{ 'ACCOUNTS_PAYABLE.LIST.REINTENTAR' | translate }}</button>
     </div>
 
     <div *ngIf="!isLoading() && !error() && vendorBills().length === 0" class="empty-state">
-      <h2>No hay facturas de proveedor</h2>
-      <p>Crea tu primera factura de proveedor para empezar.</p>
+      <h2>{{ 'ACCOUNTS_PAYABLE.LIST.NO_HAY_FACTURAS_PROVEEDOR' | translate }}</h2>
+      <p>{{ 'ACCOUNTS_PAYABLE.LIST.CREA_TU_PRIMERA_FACTURA_PROVEEDOR_EMPEZAR' | translate }}</p>
       <a routerLink="../new" class="btn-primary">
         <lucide-icon [name]="PlusCircleIcon" [size]="16"></lucide-icon>
-        <span>Crear Factura</span>
+        <span>{{ 'ACCOUNTS_PAYABLE.LIST.CREAR_FACTURA' | translate }}</span>
       </a>
     </div>
 
@@ -36,13 +36,13 @@
       <table>
         <thead>
           <tr>
-            <th>Proveedor</th>
-            <th>Número</th>
-            <th>Fecha</th>
-            <th>Vencimiento</th>
-            <th class="text-right">Total</th>
-            <th class="text-right">Balance</th>
-            <th class="text-center">Estado</th>
+            <th>{{ 'ACCOUNTS_PAYABLE.LIST.PROVEEDOR' | translate }}</th>
+            <th>{{ 'ACCOUNTS_PAYABLE.LIST.NUMERO' | translate }}</th>
+            <th>{{ 'ACCOUNTS_PAYABLE.LIST.FECHA' | translate }}</th>
+            <th>{{ 'ACCOUNTS_PAYABLE.LIST.VENCIMIENTO' | translate }}</th>
+            <th class="text-right">{{ 'ACCOUNTS_PAYABLE.LIST.TOTAL' | translate }}</th>
+            <th class="text-right">{{ 'ACCOUNTS_PAYABLE.LIST.BALANCE' | translate }}</th>
+            <th class="text-center">{{ 'ACCOUNTS_PAYABLE.LIST.ESTADO' | translate }}</th>
             <th></th>
           </tr>
         </thead>
@@ -52,10 +52,10 @@
             <td>
               <a [routerLink]="['../', bill.id]">{{ bill.billNumber }}</a>
             </td>
-            <td>{{ bill.issueDate | date:'dd/MM/yyyy' }}</td>
-            <td>{{ bill.dueDate | date:'dd/MM/yyyy' }}</td>
-            <td class="text-right">{{ bill.total | number:'1.2-2' }}</td>
-            <td class="text-right">{{ bill.balance | number:'1.2-2' }}</td>
+            <td>{{ bill.issueDate | vxDate: 'date' }}</td>
+            <td>{{ bill.dueDate | vxDate: 'date' }}</td>
+            <td class="text-right">{{ bill.total | vxNumber:'1.2-2' }}</td>
+            <td class="text-right">{{ bill.balance | vxNumber:'1.2-2' }}</td>
             <td class="text-center">
               <span class="status-badge" [ngClass]="getStatusClass(bill.status)">
                 {{ bill.status }}

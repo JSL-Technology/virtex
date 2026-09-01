@@ -1,11 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { NcfSequence, NcfType } from './entities/ncf-sequence.entity';
@@ -13,6 +6,7 @@ import { VendorBill } from '../accounts-payable/entities/vendor-bill.entity';
 import { Invoice } from '../invoices/entities/invoice.entity';
 import { Organization } from '../organizations/entities/organization.entity';
 import { DominicanRepublicReports } from './reports/dr-reports';
+import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
 
 /** A fiscal number, together with the authorization window it was drawn from. */
 export interface AssignedFiscalNumber {
@@ -97,9 +91,7 @@ export class ComplianceService {
     const current = Number(sequence.currentSequence);
     const end = Number(sequence.endsAt);
     if (!Number.isFinite(current) || !Number.isFinite(end)) {
-      throw new InternalServerErrorException(
-        `La secuencia de NCF para el tipo ${type} tiene límites no numéricos.`,
-      );
+      throw new InternalServerError('COMPLIANCE.SECUENCIA_NCF_TIPO_TIENE_LIMITES_NO_NUMERICOS', { type });
     }
 
     if (current >= end) {
@@ -166,21 +158,15 @@ export class ComplianceService {
     const { type, prefix, startsAt, endsAt } = input;
 
     if (!Number.isInteger(startsAt) || !Number.isInteger(endsAt) || startsAt < 1 || endsAt < startsAt) {
-      throw new BadRequestException(
-        'El rango de la secuencia NCF es inválido: el número final debe ser mayor o igual que el inicial.',
-      );
+      throw new BadRequestError('COMPLIANCE.RANGO_SECUENCIA_NCF_ES_INVALIDO_NUMERO_FINAL');
     }
     if (prefix.toUpperCase() !== type) {
-      throw new BadRequestException(
-        `El prefijo "${prefix}" no corresponde al tipo de comprobante ${type}.`,
-      );
+      throw new BadRequestError('COMPLIANCE.PREFIJO_NO_CORRESPONDE_TIPO_COMPROBANTE', { prefix, type });
     }
     if (input.expiresAt) {
       const today = new Date().toISOString().split('T')[0];
       if (input.expiresAt < today) {
-        throw new BadRequestException(
-          'La fecha de vencimiento de la autorización ya pasó; el rango no podría usarse.',
-        );
+        throw new BadRequestError('COMPLIANCE.FECHA_VENCIMIENTO_AUTORIZACION_YA_PASO_RANGO_NO');
       }
     }
 
@@ -217,9 +203,7 @@ export class ComplianceService {
         .andWhere('invoice.ncfNumber BETWEEN :first AND :last', { first, last })
         .getCount();
       if (alreadyIssued > 0) {
-        throw new ConflictException(
-          `Ya existen ${alreadyIssued} comprobante(s) emitidos con números dentro del rango ${first}–${last}.`,
-        );
+        throw new ConflictError('COMPLIANCE.YA_EXISTEN_COMPROBANTE_EMITIDOS_NUMEROS_DENTRO_RANGO', { alreadyIssued, first, last });
       }
 
       // Only one range of a type may be active; the unique index enforces it, this makes the
@@ -255,7 +239,7 @@ export class ComplianceService {
     return this.ncfSequenceRepository.manager.transaction(async (manager) => {
       const repo = manager.getRepository(NcfSequence);
       const sequence = await repo.findOne({ where: { id: sequenceId, organizationId } });
-      if (!sequence) throw new NotFoundException('Secuencia NCF no encontrada.');
+      if (!sequence) throw new NotFoundError('COMPLIANCE.SECUENCIA_NCF_NO_ENCONTRADA');
 
       if (isActive) {
         await repo.update({ organizationId, type: sequence.type, isActive: true }, { isActive: false });
@@ -353,7 +337,7 @@ export class ComplianceService {
 
   private async requireOrganization(organizationId: string): Promise<Organization> {
     const organization = await this.organizationRepository.findOne({ where: { id: organizationId } });
-    if (!organization) throw new NotFoundException('Organización no encontrada.');
+    if (!organization) throw new NotFoundError('COMPLIANCE.ORGANIZACION_NO_ENCONTRADA');
     return organization;
   }
 

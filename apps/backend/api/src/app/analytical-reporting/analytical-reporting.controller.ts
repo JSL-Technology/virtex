@@ -30,7 +30,7 @@ export class AnalyticalReportingController {
   refreshView() {
 
     this.reportingService.refreshMaterializedView();
-    return { message: 'El refresco de la vista materializada ha sido iniciado.' };
+    return { messageKey: 'ANALYTICAL_REPORTING.REFRESCO_VISTA_MATERIALIZADA_INICIADO' };
   }
 
 
@@ -39,7 +39,7 @@ export class AnalyticalReportingController {
   @HasPermission(PERMISSIONS.SYSTEM_MANAGE_VIEWS)
   synchronizeView(@CurrentUser() user: AuthenticatedUser) {
     this.reportingService.synchronizeView(user.organizationId);
-    return { message: 'La sincronización de la vista analítica ha sido iniciada.' };
+    return { messageKey: 'ANALYTICAL_REPORTING.SINCRONIZACION_VISTA_ANALITICA_INICIADA' };
   }
 
 }

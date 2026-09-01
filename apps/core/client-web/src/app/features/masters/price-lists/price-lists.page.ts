@@ -5,10 +5,12 @@ import { PriceList } from '../../../core/models/price-list.model';
 import { PriceListsService } from '../../../core/api/price-lists.service';
 import { NotificationService } from '../../../core/services/notification';
 import { DatePipe } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
+import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 
 @Component({
   selector: 'app-price-lists-page',
-  imports: [RouterLink, LucideAngularModule, DatePipe],
+  imports: [RouterLink, LucideAngularModule, DatePipe, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './price-lists.page.html',
   styleUrls: ['./price-lists.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,7 +40,7 @@ export class PriceListsPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.notificationService.showError('No se pudieron cargar las listas de precios.');
+        this.notificationService.showError('MASTERS.PRICE_LISTS.PUDIERON_CARGAR_LISTAS_PRECIOS');
         this.isLoading.set(false);
       },
     });
@@ -48,11 +50,11 @@ export class PriceListsPage implements OnInit {
     if (confirm('¿Estás seguro de que deseas eliminar esta lista de precios?')) {
       this.priceListsService.deletePriceList(id).subscribe({
         next: () => {
-          this.notificationService.showSuccess('Lista de precios eliminada exitosamente.');
+          this.notificationService.showSuccess('MASTERS.PRICE_LISTS.LISTA_PRECIOS_ELIMINADA_EXITOSAMENTE');
           this.loadPriceLists();
         },
         error: () => {
-          this.notificationService.showError('No se pudo eliminar la lista de precios.');
+          this.notificationService.showError('MASTERS.PRICE_LISTS.PUDO_ELIMINAR_LISTA_PRECIOS');
         }
       });
     }

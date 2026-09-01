@@ -4,14 +4,14 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class LoginUserDto {
   @ApiProperty({ example: 'user@example.com', description: 'User email address' })
-  @IsEmail({}, { message: 'El formato del correo electrónico no es válido.' })
-  @IsNotEmpty({ message: 'El correo electrónico no puede estar vacío.' })
-  @MaxLength(254, { message: 'El email no puede tener más de 254 caracteres (RFC 5321).' })
+  @IsEmail({}, { message: 'VALIDATION.LOGIN_USER.FORMATO_CORREO_ELECTRONICO_NO_VALIDO' })
+  @IsNotEmpty({ message: 'VALIDATION.LOGIN_USER.CORREO_ELECTRONICO_NO_PUEDE_ESTAR_VACIO' })
+  @MaxLength(254, { message: 'VALIDATION.LOGIN_USER.EMAIL_NO_PUEDE_TENER_MAS_254_CARACTERES_RFC' })
   email: string;
 
   @ApiProperty({ example: 'SecureP@ssw0rd', description: 'User password' })
-  @IsString({ message: 'La contraseña debe ser un texto.' })
-  @IsNotEmpty({ message: 'La contraseña no puede estar vacía.' })
+  @IsString({ message: 'VALIDATION.LOGIN_USER.CONTRASENA_DEBE_TEXTO' })
+  @IsNotEmpty({ message: 'VALIDATION.LOGIN_USER.CONTRASENA_NO_PUEDE_ESTAR_VACIA' })
   password: string;
 
   @ApiProperty({ example: false, description: 'Remember session', required: false })

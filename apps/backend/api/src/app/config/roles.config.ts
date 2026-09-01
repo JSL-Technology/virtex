@@ -10,6 +10,15 @@ type AssignablePermission = Permission | '*';
 
 export interface DefaultRole {
   name: RoleEnum;
+  /**
+   * A catalogue key, NOT a sentence.
+   *
+   * These four strings are written into the `description` column of every organisation created,
+   * and `roles.page.html` rendered `{{ role.description }}` with no pipe — so the settings screen
+   * showed the literal text `USER.ROLE.ADMINISTRATOR_DESC` to every customer, in both languages.
+   * The key was right; nothing translated it, and nothing defined it either. `RolesService` now
+   * resolves it on the way out, and `roles.config.spec.ts` asserts the keys exist.
+   */
   description: string;
   permissions: AssignablePermission[];
   isSystemRole: boolean;
@@ -18,19 +27,19 @@ export interface DefaultRole {
 export const DEFAULT_ROLES: DefaultRole[] = [
     {
       name: RoleEnum.ADMINISTRATOR,
-      description: 'USER.ROLE.ADMINISTRATOR_DESC',
+      description: 'ROLES.SYSTEM.ADMINISTRATOR.DESCRIPTION',
       permissions: ['*'],
       isSystemRole: true,
     },
     {
       name: RoleEnum.MEMBER,
-      description: 'USER.ROLE.MEMBER_DESC',
+      description: 'ROLES.SYSTEM.MEMBER.DESCRIPTION',
       permissions: [PERMISSIONS.INVOICES_VIEW, PERMISSIONS.PRODUCTS_VIEW],
       isSystemRole: true,
     },
     {
       name: RoleEnum.SELLER,
-      description: 'USER.ROLE.SELLER_DESC',
+      description: 'ROLES.SYSTEM.SELLER.DESCRIPTION',
       permissions: [
         PERMISSIONS.CUSTOMERS_VIEW,
         PERMISSIONS.CUSTOMERS_CREATE,
@@ -44,7 +53,7 @@ export const DEFAULT_ROLES: DefaultRole[] = [
     },
     {
       name: RoleEnum.ACCOUNTANT,
-      description: 'USER.ROLE.ACCOUNTANT_DESC',
+      description: 'ROLES.SYSTEM.ACCOUNTANT.DESCRIPTION',
       permissions: [
         // An accountant reconciles the subscription against the books, so they read billing —
         // but they do not change the plan or the payment method. Administrators keep '*'.
@@ -58,6 +67,9 @@ export const DEFAULT_ROLES: DefaultRole[] = [
         PERMISSIONS.JOURNAL_ENTRIES_VIEW,
         PERMISSIONS.CHART_OF_ACCOUNTS_VIEW,
         PERMISSIONS.CHART_OF_ACCOUNTS_EDIT,
+        // Reading the period calendar is what tells an accountant which month they may still post
+        // into. Closing and reopening it stay separate permissions.
+        PERMISSIONS.ACCOUNTING_VIEW,
       ],
       isSystemRole: true,
     },

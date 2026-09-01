@@ -1,21 +1,20 @@
 <div class="subview-container">
     <div class="subview-header">
-        <h3>Warehouses</h3>
+        <h3>{{ 'MASTERS.WAREHOUSES.WAREHOUSES' | translate }}</h3>
         <div class="header-actions">
             <button class="secondary-button"><lucide-icon [img]="FilterIcon"
-                    size="16"></lucide-icon><span>Filters</span></button>
-            <button class="primary-button"><lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon><span>New
-                    Warehouse</span></button>
+                    size="16"></lucide-icon><span>{{ 'MASTERS.WAREHOUSES.FILTERS' | translate }}</span></button>
+            <button class="primary-button"><lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon><span>{{ 'MASTERS.WAREHOUSES.NEW_WAREHOUSE' | translate }}</span></button>
         </div>
     </div>
     <div class="table-container card">
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Location</th>
-                    <th>Manager</th>
-                    <th class="text-center">Status</th>
+                    <th>{{ 'MASTERS.WAREHOUSES.NAME' | translate }}</th>
+                    <th>{{ 'MASTERS.WAREHOUSES.LOCATION' | translate }}</th>
+                    <th>{{ 'MASTERS.WAREHOUSES.MANAGER' | translate }}</th>
+                    <th class="text-center">{{ 'MASTERS.WAREHOUSES.STATUS' | translate }}</th>
                     <th class="actions-column"></th>
                 </tr>
             </thead>
@@ -35,7 +34,7 @@
                 </tr>
                 } @empty {
                 <tr>
-                    <td colspan="5" class="empty-state">No warehouses configured.</td>
+                    <td colspan="5" class="empty-state">{{ 'MASTERS.WAREHOUSES.NO_WAREHOUSES_CONFIGURED' | translate }}</td>
                 </tr>
                 }
             </tbody>

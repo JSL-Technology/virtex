@@ -34,6 +34,7 @@ export const PERMISSIONS = {
   JOURNAL_ENTRIES_REVERSE: 'journal_entries:reverse',
 
 
+  ACCOUNTING_VIEW: 'accounting:view',
   ACCOUNTING_CLOSE_PERIOD: 'accounting:close_period',
   ACCOUNTING_REOPEN_PERIOD: 'accounting:reopen_period',
   ACCOUNTING_RUN_INFLATION_ADJUSTMENT: 'accounting:run_inflation_adjustment',

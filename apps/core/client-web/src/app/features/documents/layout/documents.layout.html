@@ -1,13 +1,13 @@
 <div class="view-container">
     <div class="view-header">
         <div class="header-content">
-            <h1>Document Center</h1>
-            <p>Manage your company's files, attachments, and document templates.</p>
+            <h1>{{ 'DOCUMENTS.LAYOUT.DOCUMENT_CENTER' | translate }}</h1>
+            <p>{{ 'DOCUMENTS.LAYOUT.MANAGE_YOUR_COMPANY_FILES_ATTACHMENTS_AND' | translate }}</p>
         </div>
     </div>
     <nav class="secondary-nav">
-        <a routerLink="repository" routerLinkActive="active">Repository</a>
-        <a routerLink="templates" routerLinkActive="active">Templates</a>
+        <a routerLink="repository" routerLinkActive="active">{{ 'DOCUMENTS.LAYOUT.REPOSITORY' | translate }}</a>
+        <a routerLink="templates" routerLinkActive="active">{{ 'DOCUMENTS.LAYOUT.TEMPLATES' | translate }}</a>
     </nav>
     <div class="content-outlet">
         <router-outlet></router-outlet>

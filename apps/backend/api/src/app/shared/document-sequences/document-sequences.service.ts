@@ -1,7 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { DocumentSequence, DocumentType } from './entities/document-sequence.entity';
+import { InternalServerError } from '../../i18n/localized.exception';
 
 @Injectable()
 export class DocumentSequencesService {
@@ -26,7 +27,7 @@ export class DocumentSequencesService {
       .getOne();
 
     if (!sequence) {
-      throw new InternalServerErrorException(`No se encontró una secuencia de documento activa para el tipo ${type}. Por favor, configure las secuencias.`);
+      throw new InternalServerError('SHARED.NO_ENCONTRO_SECUENCIA_DOCUMENTO_ACTIVA_TIPO_FAVOR', { type });
     }
 
     const nextNumber = sequence.nextNumber;

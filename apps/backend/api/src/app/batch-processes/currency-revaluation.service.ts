@@ -1,5 +1,5 @@
 
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LessThanOrEqual, Not, Repository, DataSource, In, EntityManager } from 'typeorm';
 import { Account } from '../chart-of-accounts/entities/account.entity';
@@ -10,6 +10,7 @@ import { OrganizationSettings } from '../organizations/entities/organization-set
 import { CreateJournalEntryDto, CreateJournalEntryLineDto } from '../journal-entries/dto/create-journal-entry.dto';
 import { Journal } from '../journal-entries/entities/journal.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
+import { BadRequestError } from '../i18n/localized.exception';
 
 @Injectable()
 export class CurrencyRevaluationService {
@@ -37,7 +38,7 @@ export class CurrencyRevaluationService {
       });
 
       if (ledgersToProcess.length === 0) {
-          throw new BadRequestException(`No se encontraron libros contables para procesar en la organización ${organizationId}.`);
+          throw new BadRequestError('BATCH_PROCESSES.NO_ENCONTRARON_LIBROS_CONTABLES_PROCESAR_ORGANIZACION', { organizationId });
       }
 
       for (const ledger of ledgersToProcess) {
@@ -63,7 +64,7 @@ export class CurrencyRevaluationService {
     
     const generalJournal = await manager.findOneBy(Journal, { organizationId, code: 'GENERAL' });
     if (!generalJournal) {
-        throw new BadRequestException(`Diario General (GENERAL) no encontrado para la organización ${organizationId}.`);
+        throw new BadRequestError('BATCH_PROCESSES.DIARIO_GENERAL_GENERAL_NO_ENCONTRADO_ORGANIZACION', { organizationId });
     }
 
 

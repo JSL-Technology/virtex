@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException, BadRequestException, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThan } from 'typeorm';
 import * as argon2 from 'argon2';
@@ -15,6 +15,7 @@ import { AuthConfig } from '../auth.config';
 import { UserStatus } from '../../users/entities/user.entity/user.entity';
 import { UserSecurity } from '../../users/entities/user-security.entity';
 import { PasswordService } from './password.service';
+import { BadRequestError, NotFoundError, UnauthorizedError } from '../../i18n/localized.exception';
 
 @Injectable()
 export class PasswordRecoveryService {
@@ -64,16 +65,16 @@ export class PasswordRecoveryService {
       .getOne();
 
     if (!user || !user.security) {
-      throw new UnauthorizedException('Token inválido o expirado');
+      throw new UnauthorizedError('AUTH.TOKEN_INVALIDO_EXPIRADO_2');
     }
 
     if (!user.security.passwordHash) {
-      throw new BadRequestException('No se encontró una contraseña previa para este usuario.');
+      throw new BadRequestError('AUTH.NO_ENCONTRO_CONTRASENA_PREVIA_ESTE_USUARIO');
     }
 
     const isSamePassword = await argon2.verify(user.security.passwordHash, password);
     if (isSamePassword) {
-      throw new BadRequestException('La nueva contraseña no puede ser igual a la anterior');
+      throw new BadRequestError('AUTH.NUEVA_CONTRASENA_NO_PUEDE_SER_IGUAL_ANTERIOR');
     }
 
     // Routed through PasswordService so the configured Argon2id parameters actually apply.
@@ -101,7 +102,7 @@ export class PasswordRecoveryService {
     });
 
     if (!user) {
-        throw new NotFoundException('Token inválido o expirado.');
+        throw new NotFoundError('AUTH.TOKEN_INVALIDO_EXPIRADO');
     }
 
     return { firstName: user.firstName };
@@ -122,7 +123,7 @@ export class PasswordRecoveryService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('El token de invitación es inválido o ha expirado.');
+      throw new UnauthorizedError('AUTH.TOKEN_INVITACION_ES_INVALIDO_HA_EXPIRADO');
     }
 
     if (!user.security) user.security = new UserSecurity();

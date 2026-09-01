@@ -1,8 +1,9 @@
-import { Injectable, Logger, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Issuer } from 'openid-client';
 import { createRemoteJWKSet, jwtVerify, type JWTPayload } from 'jose';
 import { SocialUser } from '../interfaces/social-user.interface';
+import { BadRequestError, UnauthorizedError } from '../../i18n/localized.exception';
 
 /**
  * A fully-resolved OIDC client configuration. Phase 1 builds these from environment
@@ -86,7 +87,7 @@ export class OidcProviderService {
         };
       }
       default:
-        throw new BadRequestException(`Unsupported social provider: ${provider}`);
+        throw new BadRequestError('AUTH.UNSUPPORTED_SOCIAL_PROVIDER', { provider });
     }
   }
 
@@ -106,7 +107,7 @@ export class OidcProviderService {
   private required(key: string): string {
     const value = this.configService.get<string>(key);
     if (!value) {
-      throw new BadRequestException(`Provider not configured: missing ${key}`);
+      throw new BadRequestError('AUTH.PROVIDER_NOT_CONFIGURED_MISSING', { key });
     }
     return value;
   }
@@ -122,7 +123,7 @@ export class OidcProviderService {
         // Don't cache failures — allow the next request to retry discovery.
         this.issuerCache.delete(issuerUrl);
         this.logger.error(`OIDC discovery failed for ${issuerUrl}: ${err?.message}`);
-        throw new BadRequestException('Identity provider is temporarily unavailable.');
+        throw new BadRequestError('AUTH.IDENTITY_PROVIDER_TEMPORARILY_UNAVAILABLE');
       });
       this.issuerCache.set(issuerUrl, cached);
     }
@@ -149,7 +150,7 @@ export class OidcProviderService {
     const issuer = await this.discover(config.issuerUrl);
     const authEndpoint = issuer.metadata.authorization_endpoint;
     if (!authEndpoint) {
-      throw new BadRequestException('Identity provider has no authorization endpoint.');
+      throw new BadRequestError('AUTH.IDENTITY_PROVIDER_HAS_NO_AUTHORIZATION_ENDPOINT');
     }
     const url = new URL(authEndpoint);
     url.searchParams.set('client_id', config.clientId);
@@ -185,7 +186,7 @@ export class OidcProviderService {
     const tokenEndpoint = issuer.metadata.token_endpoint;
     const jwksUri = issuer.metadata.jwks_uri;
     if (!tokenEndpoint || !jwksUri) {
-      throw new BadRequestException('Identity provider metadata is incomplete.');
+      throw new BadRequestError('AUTH.IDENTITY_PROVIDER_METADATA_INCOMPLETE');
     }
 
     // --- 1. Exchange the code for tokens (confidential client + PKCE) ---
@@ -207,12 +208,12 @@ export class OidcProviderService {
     if (!tokenRes.ok) {
       const detail = await tokenRes.text().catch(() => '');
       this.logger.warn(`Token exchange failed (${config.key}, ${tokenRes.status}): ${detail.slice(0, 200)}`);
-      throw new UnauthorizedException('Failed to complete sign-in with the identity provider.');
+      throw new UnauthorizedError('AUTH.FAILED_COMPLETE_SIGN_IN_WITH_IDENTITY_PROVIDER');
     }
 
     const tokens = (await tokenRes.json()) as { id_token?: string; access_token?: string };
     if (!tokens.id_token) {
-      throw new UnauthorizedException('Identity provider did not return an id_token.');
+      throw new UnauthorizedError('AUTH.IDENTITY_PROVIDER_DID_NOT_RETURN_ID_TOKEN');
     }
 
     // --- 2. Cryptographically validate the id_token ---
@@ -229,7 +230,7 @@ export class OidcProviderService {
       ({ payload } = await jwtVerify(tokens.id_token, jwks, verifyOptions));
     } catch (err) {
       this.logger.warn(`id_token validation failed (${config.key}): ${(err as Error)?.message}`);
-      throw new UnauthorizedException('Identity token validation failed.');
+      throw new UnauthorizedError('AUTH.IDENTITY_TOKEN_VALIDATION_FAILED');
     }
 
     // Microsoft multi-tenant: validate the per-tenant issuer explicitly.
@@ -237,13 +238,13 @@ export class OidcProviderService {
       const tid = payload['tid'] as string | undefined;
       const expectedIss = `https://login.microsoftonline.com/${tid}/v2.0`;
       if (!tid || payload.iss !== expectedIss) {
-        throw new UnauthorizedException('Untrusted token issuer.');
+        throw new UnauthorizedError('AUTH.UNTRUSTED_TOKEN_ISSUER');
       }
     }
 
     // --- 3. Nonce binding (replay protection) ---
     if (payload['nonce'] !== input.expectedNonce) {
-      throw new UnauthorizedException('Identity token nonce mismatch.');
+      throw new UnauthorizedError('AUTH.IDENTITY_TOKEN_NONCE_MISMATCH');
     }
 
     return { claims: payload, accessToken: tokens.access_token };
@@ -257,7 +258,7 @@ export class OidcProviderService {
     const sub = String(claims.sub ?? '');
     const email = this.extractEmail(claims);
     if (!email) {
-      throw new UnauthorizedException('Identity provider did not return an email address.');
+      throw new UnauthorizedError('AUTH.IDENTITY_PROVIDER_DID_NOT_RETURN_EMAIL_ADDRESS');
     }
     const { firstName, lastName } = this.extractName(claims);
 

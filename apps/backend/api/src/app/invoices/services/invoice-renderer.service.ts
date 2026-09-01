@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, Logger, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as handlebars from 'handlebars';
@@ -8,14 +8,35 @@ import { Invoice, InvoiceType } from '../entities/invoice.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { EcfSubmission } from '../../einvoicing/entities/ecf-submission.entity';
 import { minorUnitsFor } from '../../currencies/currency-catalogue';
+import { InternalServerError } from '../../i18n/localized.exception';
+import {
+  DEFAULT_LANGUAGE,
+  LANGUAGE_DIRECTION,
+  LanguageCode,
+  isLanguageCode,
+  matchLanguage,
+  resolveLocale,
+} from '@virteex/shared/types';
+import { I18nService } from '../../i18n/i18n.service';
+import { findCountryProfile } from '../../localization/fiscal/country-profiles';
+import { languageOfCountry } from '../../localization/fiscal/country-language';
 
 /** Everything the template needs, resolved before rendering. */
 export interface InvoiceRenderContext {
   invoice: Invoice;
   organization: Organization;
   submission?: EcfSubmission | null;
-  /** ISO 4217 symbol/format hints for the document currency. */
+  /**
+   * Overrides the language and locale the document is written in.
+   *
+   * Left unset for the ordinary case: a document follows its RECIPIENT, and the renderer works
+   * that out from the customer's stated preference, then their country, then the tenant's books
+   * language. A Dominican company invoicing a Brazilian customer sends Portuguese. Set this only
+   * when the caller genuinely knows better — a preview the issuer asked to see in their own
+   * language, for instance.
+   */
   locale?: string;
+  language?: LanguageCode;
 }
 
 /**
@@ -50,6 +71,8 @@ export class InvoiceRendererService implements OnModuleDestroy {
   private active = 0;
   private static readonly MAX_CONCURRENT_RENDERS = 4;
 
+  constructor(private readonly i18n: I18nService) {}
+
   async renderPdf(context: InvoiceRenderContext): Promise<Buffer> {
     const html = await this.renderHtml(context);
     return this.withSlot(async () => {
@@ -76,7 +99,26 @@ export class InvoiceRendererService implements OnModuleDestroy {
 
     const qrDataUri = submission?.qrUrl ? await this.qrDataUri(submission.qrUrl) : null;
     const decimals = minorUnitsFor(invoice.currencyCode);
-    const locale = context.locale ?? 'es-DO';
+
+    /*
+     * A fiscal document is written in the language of its RECIPIENT.
+     *
+     * Not the issuer's, and not the language of whoever pressed the button. `'es-DO'` as a fixed
+     * default is one market's format shown to nineteen: it prints `15/01/2026` to a reader in
+     * Ohio and groups an Argentine figure with the wrong separator. The FORMAT still follows the
+     * issuer's country, because the amounts are in the issuer's books and the tax authority reads
+     * them — only the WORDS follow the reader.
+     */
+    const language =
+      context.language ??
+      matchLanguage(invoice.customer?.preferredLanguage) ??
+      languageOfCountry(invoice.customer?.country) ??
+      matchLanguage(organization.booksLanguage) ??
+      DEFAULT_LANGUAGE;
+
+    const issuerCountry = (organization.country ?? 'DO').toUpperCase();
+    const locale = context.locale ?? resolveLocale(language, issuerCountry);
+    const profile = findCountryProfile(issuerCountry);
 
     const format = (value: number): string =>
       new Intl.NumberFormat(locale, {
@@ -101,7 +143,12 @@ export class InvoiceRendererService implements OnModuleDestroy {
           taxRate: line.taxRate > 0 ? `${(line.taxRate * 100).toFixed(2).replace(/\.00$/, '')}%` : 'E',
           amount: format(line.lineSubtotal),
         })),
-      title: this.documentTitle(invoice),
+      language,
+      // The country's own name for its tax identifier. The template carried the Dominican "RNC:"
+      // for every market, so a Mexican tenant's document showed its RFC under a Dominican heading.
+      taxIdLabel: profile?.taxId.label ?? 'ID',
+      customerTaxIdLabel: profile?.individualDocument?.label ?? profile?.taxId.label ?? 'ID',
+      title: this.i18n.translate(this.documentTitleKey(invoice), language),
       currencyCode: invoice.currencyCode,
       issueDate: formatDate(invoice.issueDate, locale),
       dueDate: formatDate(invoice.dueDate, locale),
@@ -146,10 +193,27 @@ export class InvoiceRendererService implements OnModuleDestroy {
     try {
       source = fs.readFileSync(resolved, 'utf8');
     } catch (error) {
-      throw new InternalServerErrorException(
-        `No se encontró la plantilla de impresión de facturas (${resolved}): ${(error as Error).message}`,
-      );
+      throw new InternalServerError('INVOICES.NO_ENCONTRO_PLANTILLA_IMPRESION_FACTURAS', { resolved, p2: (error as Error).message });
     }
+
+    /*
+     * The template's own helpers, registered once alongside the compilation.
+     *
+     * `t` reads the language off the render context, so one template serves every market — the
+     * alternative was one `.hbs` per language, which for a document this precise means three
+     * copies of the DGII layout drifting apart.
+     */
+    handlebars.registerHelper('t', (key: unknown, options: handlebars.HelperOptions) => {
+      if (typeof key !== 'string') return '';
+      const root = options?.data?.root as { language?: unknown } | undefined;
+      const language = isLanguageCode(root?.language) ? root.language : DEFAULT_LANGUAGE;
+      return this.i18n.translate(key, language, { ...(options?.hash ?? {}) });
+    });
+
+    handlebars.registerHelper('dir', (options: handlebars.HelperOptions) => {
+      const root = options?.data?.root as { language?: unknown } | undefined;
+      return LANGUAGE_DIRECTION[isLanguageCode(root?.language) ? root.language : DEFAULT_LANGUAGE];
+    });
 
     this.template = handlebars.compile(source);
     return this.template;
@@ -165,14 +229,21 @@ export class InvoiceRendererService implements OnModuleDestroy {
     }
   }
 
-  private documentTitle(invoice: Invoice): string {
+  /**
+   * The document's own name, as a catalogue key.
+   *
+   * `NOTA DE CRÉDITO` printed on a document sent to a reader who does not read Spanish is not a
+   * fiscal requirement, it is an untranslated string: the Dominican norm prescribes the e-NCF and
+   * the document-type code, both of which are printed separately and unchanged.
+   */
+  private documentTitleKey(invoice: Invoice): string {
     switch (invoice.type) {
       case InvoiceType.CREDIT_NOTE:
-        return 'NOTA DE CRÉDITO';
+        return 'INVOICE.PDF.TYPE.CREDIT_NOTE';
       case InvoiceType.DEBIT_NOTE:
-        return 'NOTA DE DÉBITO';
+        return 'INVOICE.PDF.TYPE.DEBIT_NOTE';
       default:
-        return invoice.fiscalDocumentType === 'E32' ? 'FACTURA DE CONSUMO' : 'FACTURA';
+        return 'INVOICE.PDF.TYPE.INVOICE';
     }
   }
 

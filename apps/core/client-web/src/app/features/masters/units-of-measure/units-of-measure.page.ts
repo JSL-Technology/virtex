@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal } from 'lucide-angular';
+import { TranslateModule } from '@ngx-translate/core';
 
 // Interfaz para definir la estructura de una unidad de medida
 interface UnitOfMeasure {
@@ -14,7 +15,7 @@ interface UnitOfMeasure {
 @Component({
   selector: 'app-units-of-measure-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   templateUrl: './units-of-measure.page.html',
   styleUrls: ['./units-of-measure.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

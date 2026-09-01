@@ -32,6 +32,7 @@ import { LedgerMappingService } from './ledger-mapping.service';
 import { LedgerMappingController } from './ledger-mapping.controller';
 
 import { LedgerMappingRuleCondition } from './entities/ledger-mapping-rule-condition.entity';
+import { ClosingChecklistService } from './closing-checklist.service';
 
 
 @Module({
@@ -64,6 +65,7 @@ import { LedgerMappingRuleCondition } from './entities/ledger-mapping-rule-condi
     YearEndCloseService,
     PeriodLockGuard,
     ClosingAutomationService,
+    ClosingChecklistService,
     LedgerMappingService,
   ],
   controllers: [

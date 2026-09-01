@@ -1,4 +1,4 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException, Inject, Logger } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, Inject, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
@@ -8,6 +8,7 @@ import { PLAN_LIMIT_KEY } from '../decorators/plan-limit.decorator';
 import { SaasResource } from '../enums/saas-resource.enum';
 import { SaasLimitReachedException } from '../exceptions/saas-exception';
 import { SaasCacheKeyFactory } from '../utils/saas-cache-key.factory';
+import { ForbiddenError } from '../../i18n/localized.exception';
 
 /**
  * PlanLimitCheckGuard
@@ -48,12 +49,12 @@ export class PlanLimitCheckGuard implements CanActivate {
     const user = request.user;
 
     if (!user) {
-       throw new ForbiddenException('Organization context required for limit check');
+       throw new ForbiddenError('SAAS.ORGANIZATION_CONTEXT_REQUIRED_FOR_LIMIT_CHECK');
     }
 
     const organizationId = user.organization?.id ?? user.organizationId;
     if (!organizationId) {
-      throw new ForbiddenException('Organization context required for limit check');
+      throw new ForbiddenError('SAAS.ORGANIZATION_CONTEXT_REQUIRED_FOR_LIMIT_CHECK');
     }
 
     // Use Factory for consistent keys

@@ -1,8 +1,8 @@
 <div class="view-container">
     <div class="view-header">
         <div class="header-content">
-            <h1>Data Imports (ETL)</h1>
-            <p>Upload master or transactional data in bulk using CSV or Excel files.</p>
+            <h1>{{ 'DATA_IMPORTS.DATA_IMPORTS_ETL' | translate }}</h1>
+            <p>{{ 'DATA_IMPORTS.UPLOAD_MASTER_OR_TRANSACTIONAL_DATA_IN' | translate }}</p>
         </div>
     </div>
 
@@ -10,10 +10,10 @@
         <div class="step-card card">
             <div class="step-number">1</div>
             <div class="step-content">
-                <h3>Select Data Type</h3>
-                <p>Choose the type of data you want to import to ensure correct mapping.</p>
+                <h3>{{ 'DATA_IMPORTS.SELECT_DATA_TYPE' | translate }}</h3>
+                <p>{{ 'DATA_IMPORTS.CHOOSE_TYPE_DATA_YOU_WANT_IMPORT' | translate }}</p>
                 <select (change)="onDataTypeChange($event)">
-                    <option [value]="null" disabled selected>Select a data type...</option>
+                    <option [value]="null" disabled selected>{{ 'DATA_IMPORTS.SELECT_DATA_TYPE_2' | translate }}</option>
                     @for (type of dataTypes; track type.id) {
                     <option [value]="type.id">{{ type.name }}</option>
                     }
@@ -21,7 +21,7 @@
                 @if (selectedDataTypeInfo(); as info) {
                 <a [href]="info.templateUrl" download class="template-link">
                     <lucide-icon [img]="DownloadIcon" size="16"></lucide-icon>
-                    <span>Download {{ info.name }} Template</span>
+                    <span>{{ 'DATA_IMPORTS.DOWNLOAD_NAME_TEMPLATE' | translate: { name: info.name } }}</span>
                 </a>
                 }
             </div>
@@ -30,8 +30,8 @@
         <div class="step-card card">
             <div class="step-number">2</div>
             <div class="step-content">
-                <h3>Upload File</h3>
-                <p>Select the CSV or Excel file from your computer.</p>
+                <h3>{{ 'DATA_IMPORTS.UPLOAD_FILE' | translate }}</h3>
+                <p>{{ 'DATA_IMPORTS.SELECT_CSV_OR_EXCEL_FILE_FROM' | translate }}</p>
                 <div class="file-upload-container">
                     <input type="file" id="fileUpload" (change)="onFileSelected($event)"
                         [disabled]="!selectedDataTypeId()"
@@ -41,7 +41,7 @@
                         @if (selectedFile()) {
                         <span class="file-name">{{ selectedFile()?.name }}</span>
                         } @else {
-                        <span>Click to browse or drag & drop</span>
+                        <span>{{ 'DATA_IMPORTS.CLICK_BROWSE_OR_DRAG_DROP' | translate }}</span>
                         }
                     </label>
                 </div>
@@ -51,15 +51,15 @@
         <div class="step-card card">
             <div class="step-number">3</div>
             <div class="step-content">
-                <h3>Start Import</h3>
-                <p>Once your file is selected, begin the import process.</p>
+                <h3>{{ 'DATA_IMPORTS.START_IMPORT' | translate }}</h3>
+                <p>{{ 'DATA_IMPORTS.ONCE_YOUR_FILE_SELECTED_BEGIN_IMPORT' | translate }}</p>
                 <button class="primary-button" (click)="startImport()" [disabled]="!selectedFile() || isUploading()">
                     @if (isUploading()) {
                     <lucide-icon [img]="ProcessingIcon" size="18" class="spinner"></lucide-icon>
-                    <span>Processing...</span>
+                    <span>{{ 'DATA_IMPORTS.PROCESSING' | translate }}</span>
                     } @else {
                     <lucide-icon [img]="UploadIcon" size="18"></lucide-icon>
-                    <span>Import Data</span>
+                    <span>{{ 'DATA_IMPORTS.IMPORT_DATA' | translate }}</span>
                     }
                 </button>
             </div>
@@ -67,18 +67,18 @@
     </div>
 
     <div class="history-section">
-        <h2 class="section-title">Recent Imports</h2>
+        <h2 class="section-title">{{ 'DATA_IMPORTS.RECENT_IMPORTS' | translate }}</h2>
         <div class="table-container card">
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th>Data Type</th>
-                        <th>File Name</th>
-                        <th>Date</th>
-                        <th>User</th>
-                        <th class="text-center">Status</th>
-                        <th class="text-right">Processed</th>
-                        <th class="text-right">Failed</th>
+                        <th>{{ 'DATA_IMPORTS.DATA_TYPE' | translate }}</th>
+                        <th>{{ 'DATA_IMPORTS.FILE_NAME' | translate }}</th>
+                        <th>{{ 'DATA_IMPORTS.DATE' | translate }}</th>
+                        <th>{{ 'DATA_IMPORTS.USER' | translate }}</th>
+                        <th class="text-center">{{ 'DATA_IMPORTS.STATUS' | translate }}</th>
+                        <th class="text-right">{{ 'DATA_IMPORTS.PROCESSED' | translate }}</th>
+                        <th class="text-right">{{ 'DATA_IMPORTS.FAILED' | translate }}</th>
                     </tr>
                 </thead>
                 <tbody>

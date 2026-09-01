@@ -1,14 +1,14 @@
 <div class="subview-container">
     <div class="subview-header">
-        <h3>Listas de Precios</h3>
+        <h3>{{ 'MASTERS.PRICE_LISTS.LISTAS_PRECIOS' | translate }}</h3>
         <div class="header-actions">
             <button class="secondary-button" [disabled]="isLoading()">
                 <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
-                <span>Filtros</span>
+                <span>{{ 'MASTERS.PRICE_LISTS.FILTROS' | translate }}</span>
             </button>
             <a routerLink="/masters/price-lists/new" class="primary-button">
                 <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
-                <span>Nueva Lista</span>
+                <span>{{ 'MASTERS.PRICE_LISTS.NUEVA_LISTA' | translate }}</span>
             </a>
         </div>
     </div>
@@ -16,19 +16,19 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Nombre</th>
-                    <th>Moneda</th>
-                    <th>Válido Desde</th>
-                    <th>Válido Hasta</th>
-                    <th class="text-center">Ítems</th>
-                    <th>Estado</th>
-                    <th class="actions-column">Acciones</th>
+                    <th>{{ 'MASTERS.PRICE_LISTS.NOMBRE' | translate }}</th>
+                    <th>{{ 'MASTERS.PRICE_LISTS.MONEDA' | translate }}</th>
+                    <th>{{ 'MASTERS.PRICE_LISTS.VALIDO_DESDE' | translate }}</th>
+                    <th>{{ 'MASTERS.PRICE_LISTS.VALIDO_HASTA' | translate }}</th>
+                    <th class="text-center">{{ 'MASTERS.PRICE_LISTS.ITEMS' | translate }}</th>
+                    <th>{{ 'MASTERS.PRICE_LISTS.ESTADO' | translate }}</th>
+                    <th class="actions-column">{{ 'MASTERS.PRICE_LISTS.ACCIONES' | translate }}</th>
                 </tr>
             </thead>
             <tbody>
                 @if (isLoading()) {
                     <tr>
-                        <td colspan="7" class="loading-state">Cargando listas de precios...</td>
+                        <td colspan="7" class="loading-state">{{ 'MASTERS.PRICE_LISTS.CARGANDO_LISTAS_PRECIOS' | translate }}</td>
                     </tr>
                 } @else {
                     @for (list of priceLists(); track list.id) {
@@ -39,8 +39,8 @@
                                 </a>
                             </td>
                             <td>{{ list.currency }}</td>
-                            <td>{{ list.validFrom | date:'mediumDate' }}</td>
-                            <td>{{ list.validTo | date:'mediumDate' }}</td>
+                            <td>{{ list.validFrom | vxDate: 'dateLong' }}</td>
+                            <td>{{ list.validTo | vxDate: 'dateLong' }}</td>
                             <td class="text-center">{{ list.items.length }}</td>
                             <td>
                                 <span class="status-badge" [class]="getStatusClass(list.status)">
@@ -49,10 +49,10 @@
                             </td>
                             <td class="actions-column">
                                 <div class="action-buttons">
-                                    <a [routerLink]="['/masters/price-lists', list.id, 'edit']" class="icon-button" title="Editar">
+                                    <a [routerLink]="['/masters/price-lists', list.id, 'edit']" class="icon-button" [title]="'MASTERS.PRICE_LISTS.EDITAR' | translate">
                                         <lucide-icon [img]="EditIcon" size="18"></lucide-icon>
                                     </a>
-                                    <button class="icon-button delete" (click)="deletePriceList(list.id)" title="Eliminar">
+                                    <button class="icon-button delete" (click)="deletePriceList(list.id)" [title]="'MASTERS.PRICE_LISTS.ELIMINAR' | translate">
                                         <lucide-icon [img]="TrashIcon" size="18"></lucide-icon>
                                     </button>
                                 </div>
@@ -60,7 +60,7 @@
                         </tr>
                     } @empty {
                         <tr>
-                            <td colspan="7" class="empty-state">No se encontraron listas de precios.</td>
+                            <td colspan="7" class="empty-state">{{ 'MASTERS.PRICE_LISTS.NO_ENCONTRARON_LISTAS_PRECIOS' | translate }}</td>
                         </tr>
                     }
                 }

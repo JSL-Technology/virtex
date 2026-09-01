@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { LucideAngularModule, Search, FileText, Package, User } from 'lucide-angular';
 import { SearchService, SearchResultGroup as BaseSearchResultGroup } from '../../core/services/search.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 interface SearchResultGroup extends BaseSearchResultGroup {
   icon: any;
@@ -11,7 +12,7 @@ interface SearchResultGroup extends BaseSearchResultGroup {
 @Component({
   selector: 'app-global-search-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule],
+  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule],
   templateUrl: './global-search.page.html',
   styleUrls: ['./global-search.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

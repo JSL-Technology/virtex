@@ -8,6 +8,7 @@ import { CustomersService } from '../../../core/api/customers.service';
 import { InventoryService } from '../../../core/api/inventory.service';
 import { CurrenciesService } from '../../../core/api/currencies.service';
 import { NotificationService } from '../../../core/services/notification';
+import { TranslateModule } from '@ngx-translate/core';
 
 /**
  * The form takes its defaults from the tenant's market, not from a constant.
@@ -44,7 +45,7 @@ describe('NewInvoicePage', () => {
 
     await TestBed.resetTestingModule()
       .configureTestingModule({
-        imports: [NewInvoicePage, NoopAnimationsModule],
+        imports: [NewInvoicePage, NoopAnimationsModule, TranslateModule.forRoot()],
         providers: [
           { provide: InvoicesService, useValue: invoicesService },
           { provide: CustomersService, useValue: { getCustomers: () => of([]) } },

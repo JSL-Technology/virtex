@@ -1,16 +1,16 @@
 <div class="sap-toolbar">
   <!-- Navigation Group -->
   <div class="toolbar-group" *ngIf="canNavigate">
-    <button class="tool-btn" (click)="onNavigate('first')" title="Primero">
+    <button class="tool-btn" (click)="onNavigate('first')" [title]="'INVOICES.INVOICE_TOOLBAR.PRIMERO' | translate">
       <lucide-icon [img]="FirstIcon" size="18"></lucide-icon>
     </button>
-    <button class="tool-btn" (click)="onNavigate('prev')" title="Anterior">
+    <button class="tool-btn" (click)="onNavigate('prev')" [title]="'INVOICES.INVOICE_TOOLBAR.ANTERIOR' | translate">
       <lucide-icon [img]="PrevIcon" size="18"></lucide-icon>
     </button>
-    <button class="tool-btn" (click)="onNavigate('next')" title="Siguiente">
+    <button class="tool-btn" (click)="onNavigate('next')" [title]="'INVOICES.INVOICE_TOOLBAR.SIGUIENTE' | translate">
       <lucide-icon [img]="NextIcon" size="18"></lucide-icon>
     </button>
-    <button class="tool-btn" (click)="onNavigate('last')" title="Último">
+    <button class="tool-btn" (click)="onNavigate('last')" [title]="'INVOICES.INVOICE_TOOLBAR.ULTIMO' | translate">
       <lucide-icon [img]="LastIcon" size="18"></lucide-icon>
     </button>
   </div>
@@ -19,10 +19,10 @@
 
   <!-- History Navigation -->
   <div class="toolbar-group">
-    <button class="tool-btn" (click)="back.emit()" title="Volver">
+    <button class="tool-btn" (click)="back.emit()" [title]="'INVOICES.INVOICE_TOOLBAR.VOLVER' | translate">
       <lucide-icon [img]="BackIcon" size="18"></lucide-icon>
     </button>
-    <button class="tool-btn" (click)="forward.emit()" title="Avanzar">
+    <button class="tool-btn" (click)="forward.emit()" [title]="'INVOICES.INVOICE_TOOLBAR.AVANZAR' | translate">
       <lucide-icon [img]="ForwardIcon" size="18"></lucide-icon>
     </button>
   </div>
@@ -31,13 +31,13 @@
 
   <!-- Main Actions -->
   <div class="toolbar-group">
-    <button class="tool-btn" (click)="printRequested.emit()" title="Imprimir">
+    <button class="tool-btn" (click)="printRequested.emit()" [title]="'INVOICES.INVOICE_TOOLBAR.IMPRIMIR' | translate">
       <lucide-icon [img]="PrintIcon" size="18"></lucide-icon>
     </button>
-    <button class="tool-btn" (click)="emailRequested.emit()" title="Enviar por correo">
+    <button class="tool-btn" (click)="emailRequested.emit()" [title]="'INVOICES.INVOICE_TOOLBAR.ENVIAR_CORREO' | translate">
       <lucide-icon [img]="EmailIcon" size="18"></lucide-icon>
     </button>
-    <button class="tool-btn" (click)="searchRequested.emit()" title="Búsqueda sobre documento">
+    <button class="tool-btn" (click)="searchRequested.emit()" [title]="'INVOICES.INVOICE_TOOLBAR.BUSQUEDA_SOBRE_DOCUMENTO' | translate">
       <lucide-icon [img]="SearchIcon" size="18"></lucide-icon>
     </button>
   </div>
@@ -46,13 +46,13 @@
 
   <!-- Export Group -->
   <div class="toolbar-group">
-    <button class="tool-btn" (click)="exportRequested.emit('pdf')" title="Exportar a PDF">
+    <button class="tool-btn" (click)="exportRequested.emit('pdf')" [title]="'INVOICES.INVOICE_TOOLBAR.EXPORTAR_PDF' | translate">
       <lucide-icon [img]="PdfIcon" size="18"></lucide-icon>
     </button>
-    <button class="tool-btn" (click)="exportRequested.emit('excel')" title="Exportar a Excel">
+    <button class="tool-btn" (click)="exportRequested.emit('excel')" [title]="'INVOICES.INVOICE_TOOLBAR.EXPORTAR_EXCEL' | translate">
       <lucide-icon [img]="ExcelIcon" size="18"></lucide-icon>
     </button>
-    <button class="tool-btn" (click)="exportRequested.emit('word')" title="Exportar a Word">
+    <button class="tool-btn" (click)="exportRequested.emit('word')" [title]="'INVOICES.INVOICE_TOOLBAR.EXPORTAR_WORD' | translate">
       <lucide-icon [img]="WordIcon" size="18"></lucide-icon>
     </button>
   </div>
@@ -61,13 +61,13 @@
 
   <!-- Copy Group -->
   <div class="toolbar-group" *ngIf="canCopy">
-    <button class="tool-btn text-btn" (click)="copyFrom.emit()" title="Copiar de...">
+    <button class="tool-btn text-btn" (click)="copyFrom.emit()" [title]="'INVOICES.INVOICE_TOOLBAR.COPIAR_3' | translate">
         <lucide-icon [img]="ImportIcon" size="16"></lucide-icon>
-        <span>Copiar de</span>
+        <span>{{ 'INVOICES.INVOICE_TOOLBAR.COPIAR' | translate }}</span>
     </button>
-    <button class="tool-btn text-btn" (click)="copyTo.emit()" title="Copiar a...">
+    <button class="tool-btn text-btn" (click)="copyTo.emit()" [title]="'INVOICES.INVOICE_TOOLBAR.COPIAR_4' | translate">
         <lucide-icon [img]="CopyIcon" size="16"></lucide-icon>
-        <span>Copiar a</span>
+        <span>{{ 'INVOICES.INVOICE_TOOLBAR.COPIAR_2' | translate }}</span>
     </button>
   </div>
 
@@ -75,10 +75,10 @@
 
   <!-- Utility Group -->
   <div class="toolbar-group">
-    <button class="tool-btn" (click)="tools.emit()" title="Parametrizaciones de formulario">
+    <button class="tool-btn" (click)="tools.emit()" [title]="'INVOICES.INVOICE_TOOLBAR.PARAMETRIZACIONES_FORMULARIO' | translate">
       <lucide-icon [img]="ToolsIcon" size="18"></lucide-icon>
     </button>
-    <button class="tool-btn" (click)="help.emit()" title="Ayuda">
+    <button class="tool-btn" (click)="help.emit()" [title]="'INVOICES.INVOICE_TOOLBAR.AYUDA' | translate">
       <lucide-icon [img]="HelpIcon" size="18"></lucide-icon>
     </button>
   </div>

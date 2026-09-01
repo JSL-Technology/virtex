@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
@@ -9,6 +9,7 @@ import { SecurityAnalysisService } from './security-analysis.service';
 import { AuditTrailService } from '../../audit/audit.service';
 import { ActionType } from '../../audit/entities/audit-log.entity';
 import { TokenService } from './token.service';
+import { ConflictError, UnauthorizedError } from '../../i18n/localized.exception';
 
 @Injectable()
 export class SocialAuthService {
@@ -42,9 +43,7 @@ export class SocialAuthService {
         // provider asserts the email is verified. A malicious/custom IdP could otherwise claim
         // a victim's email and take over the account (pre-account-hijacking).
         if (!socialUser.emailVerified) {
-          throw new UnauthorizedException(
-            'El proveedor no ha verificado tu correo. No es posible vincular la cuenta.',
-          );
+          throw new UnauthorizedError('AUTH.PROVEEDOR_NO_HA_VERIFICADO_TU_CORREO_NO');
         }
 
         // M-02 FIX: If the account already has a local password (or a different provider),
@@ -52,9 +51,7 @@ export class SocialAuthService {
         // sign in with their original method first). This prevents a second sign-in method
         // from hijacking an existing account.
         if (user.security?.passwordHash || (user.authProvider && user.authProvider !== socialUser.provider)) {
-          throw new ConflictException(
-            'Ya existe una cuenta con este correo. Inicia sesión con tu método original y vincula el proveedor desde tu perfil.',
-          );
+          throw new ConflictError('AUTH.YA_EXISTE_CUENTA_ESTE_CORREO_INICIA_SESION');
         }
 
         await this.usersService.update(user.id, {
@@ -65,7 +62,7 @@ export class SocialAuthService {
       }
 
       if (user.status !== UserStatus.ACTIVE) {
-        throw new UnauthorizedException('Usuario inactivo o bloqueado.');
+        throw new UnauthorizedError('AUTH.USUARIO_INACTIVO_BLOQUEADO');
       }
 
       await this.securityAnalysisService.checkImpossibleTravel(user.id, ipAddress);
@@ -118,7 +115,7 @@ export class SocialAuthService {
       });
 
       if (payload.type !== 'social-register') {
-        throw new UnauthorizedException('Token inválido para registro.');
+        throw new UnauthorizedError('AUTH.TOKEN_INVALIDO_REGISTRO');
       }
 
       return {
@@ -131,7 +128,7 @@ export class SocialAuthService {
         accessToken: ''
       };
     } catch (e) {
-      throw new UnauthorizedException('Token de registro inválido o expirado.');
+      throw new UnauthorizedError('AUTH.TOKEN_REGISTRO_INVALIDO_EXPIRADO');
     }
   }
 }

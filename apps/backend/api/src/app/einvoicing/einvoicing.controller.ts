@@ -1,19 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Delete,
-  Query,
-  Param,
-  Body,
-  UseGuards,
-  UseInterceptors,
-  UploadedFile,
-  ParseUUIDPipe,
-  BadRequestException,
-  NotFoundException,
-  Res,
-} from '@nestjs/common';
+import { Controller, Get, Post, Delete, Query, Param, Body, UseGuards, UseInterceptors, UploadedFile, ParseUUIDPipe, Res } from '@nestjs/common';
 import { FastifyFileInterceptor } from '../common/interceptors/fastify-file.interceptor';
 import { FastifyFile } from '../common/interfaces/fastify-file.interface';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
@@ -28,6 +13,7 @@ import { EcfLifecycleService } from './services/ecf-lifecycle.service';
 import { CommercialApprovalDto } from './dto/commercial-approval.dto';
 import { VoidSequenceRangeDto } from './dto/void-sequence-range.dto';
 import { EcfMessageKind } from './entities/ecf-lifecycle-message.entity';
+import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 
 /**
  * Tenant-facing e-CF operations: manage the DGII signing certificate, inspect a document's e-CF
@@ -66,13 +52,13 @@ export class EinvoicingController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     if (!file?.buffer?.length) {
-      throw new BadRequestException('Debe adjuntar el archivo del certificado (.p12/.pfx).');
+      throw new BadRequestError('EINVOICING.DEBE_ADJUNTAR_ARCHIVO_CERTIFICADO_P12_PFX');
     }
 
     // With attachFieldsToBody, text fields arrive either raw or wrapped as `{ value }`.
     const password = this.field(body, 'password');
     const alias = this.field(body, 'alias');
-    if (!password) throw new BadRequestException('La contraseña del certificado es obligatoria.');
+    if (!password) throw new BadRequestError('EINVOICING.CONTRASENA_CERTIFICADO_ES_OBLIGATORIA');
 
     return this.certificates.upload(user.organizationId, { pfx: file.buffer, password, alias });
   }
@@ -100,7 +86,7 @@ export class EinvoicingController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     const submission = await this.submissions.findByInvoice(invoiceId, user.organizationId);
-    if (!submission) throw new NotFoundException('Esta factura no tiene un e-CF asociado.');
+    if (!submission) throw new NotFoundError('EINVOICING.ESTA_FACTURA_NO_TIENE_CF_ASOCIADO');
     return this.toStatusView(submission);
   }
 
@@ -122,7 +108,7 @@ export class EinvoicingController {
     @Res() res: Response,
   ) {
     const submission = await this.submissions.findByInvoice(invoiceId, user.organizationId);
-    if (!submission?.signedXml) throw new NotFoundException('No hay un e-CF firmado para esta factura.');
+    if (!submission?.signedXml) throw new NotFoundError('EINVOICING.NO_HAY_CF_FIRMADO_ESTA_FACTURA');
     res
       .header('Content-Type', 'application/xml; charset=utf-8')
       .header('Content-Disposition', `attachment; filename="${submission.ncf}.xml"`)
@@ -174,9 +160,7 @@ export class EinvoicingController {
     @Query('kind') kind?: string,
   ) {
     if (kind && !(kind in EcfMessageKind)) {
-      throw new BadRequestException(
-        `Tipo de mensaje desconocido: ${kind}. Usa COMMERCIAL_APPROVAL o SEQUENCE_VOID.`,
-      );
+      throw new BadRequestError('EINVOICING.TIPO_MENSAJE_DESCONOCIDO_USA_COMMERCIAL_APPROVAL_SEQUENCE', { kind });
     }
     const messages = await this.lifecycle.list(
       user.organizationId,

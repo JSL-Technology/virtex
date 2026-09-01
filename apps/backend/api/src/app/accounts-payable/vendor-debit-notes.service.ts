@@ -1,11 +1,5 @@
 
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-  Logger,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { VendorDebitNote } from './entities/vendor-debit-note.entity';
@@ -17,6 +11,7 @@ import { UpdateVendorDebitNoteDto } from './dto/update-vendor-debit-note.dto';
 import { Journal } from '../journal-entries/entities/journal.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
+import { BadRequestError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class VendorDebitNotesService {
@@ -41,36 +36,30 @@ export class VendorDebitNotesService {
         organizationId,
       });
       if (!vendorBill) {
-        throw new NotFoundException(
-          'La factura del proveedor no fue encontrada.',
-        );
+        throw new NotFoundError('ACCOUNTS_PAYABLE.FACTURA_PROVEEDOR_NO_FUE_ENCONTRADA');
       }
       if (vendorBill.status !== VendorBillStatus.OPEN && vendorBill.status !== VendorBillStatus.PARTIALLY_PAID) {
-          throw new BadRequestException('Solo se pueden aplicar notas de débito a facturas abiertas o parcialmente pagadas.');
+          throw new BadRequestError('ACCOUNTS_PAYABLE.SOLO_PUEDEN_APLICAR_NOTAS_DEBITO_FACTURAS_ABIERTAS');
       }
       if (vendorBill.balance < amount) {
-        throw new BadRequestException(
-          'El monto de la nota de débito no puede ser mayor al saldo de la factura.',
-        );
+        throw new BadRequestError('ACCOUNTS_PAYABLE.MONTO_NOTA_DEBITO_NO_PUEDE_SER_MAYOR');
       }
 
       const settings = await manager.findOneBy(OrganizationSettings, {
         organizationId,
       });
       if (!settings || !settings.defaultAccountsPayableId) {
-        throw new BadRequestException(
-          'La cuenta por pagar por defecto no está configurada.',
-        );
+        throw new BadRequestError('ACCOUNTS_PAYABLE.CUENTA_PAGAR_DEFECTO_NO_ESTA_CONFIGURADA');
       }
 
       const defaultLedger = await manager.findOneBy(Ledger, { organizationId, isDefault: true });
       if (!defaultLedger) {
-        throw new BadRequestException('No se ha configurado un libro contable por defecto para la organización.');
+        throw new BadRequestError('ACCOUNTS_PAYABLE.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION');
       }
 
       const journal = await manager.findOneBy(Journal, { organizationId, code: 'COMPRAS' });
       if (!journal) {
-          throw new BadRequestException('Diario de Compras (COMPRAS) no encontrado para registrar la nota de débito.');
+          throw new BadRequestError('ACCOUNTS_PAYABLE.DIARIO_COMPRAS_COMPRAS_NO_ENCONTRADO_REGISTRAR_NOTA');
       }
 
       const debitNote = manager.create(VendorDebitNote, {
@@ -84,7 +73,7 @@ export class VendorDebitNotesService {
       await manager.save(vendorBill);
 
       if (!manager.queryRunner) {
-        throw new InternalServerErrorException('No se pudo obtener el Query Runner de la transacción.');
+        throw new InternalServerError('ACCOUNTS_PAYABLE.NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION');
       }
 
       const entryDto: CreateJournalEntryDto = {
@@ -139,7 +128,7 @@ export class VendorDebitNotesService {
       where: { id, organizationId },
     });
     if (!debitNote) {
-      throw new NotFoundException(`Nota de débito con ID "${id}" no encontrada.`);
+      throw new NotFoundError('ACCOUNTS_PAYABLE.NOTA_DEBITO_ID_NO_ENCONTRADA', { id });
     }
     return debitNote;
   }
@@ -160,7 +149,7 @@ export class VendorDebitNotesService {
   async remove(id: string, organizationId: string): Promise<void> {
     const result = await this.vendorDebitNoteRepository.delete({ id, organizationId });
     if (result.affected === 0) {
-      throw new NotFoundException(`Nota de débito con ID "${id}" no encontrada.`);
+      throw new NotFoundError('ACCOUNTS_PAYABLE.NOTA_DEBITO_ID_NO_ENCONTRADA', { id });
     }
   }
 
@@ -173,6 +162,6 @@ export class VendorDebitNotesService {
     this.logger.warn(
       `Funcionalidad de anulación de nota de débito (ID: ${id}) no implementada completamente. Razón de anulación: ${reason}`,
     );
-    throw new BadRequestException('La funcionalidad de anulación de notas de débito aún no está implementada.');
+    throw new BadRequestError('ACCOUNTS_PAYABLE.FUNCIONALIDAD_ANULACION_NOTAS_DEBITO_AUN_NO_ESTA');
   }
 }

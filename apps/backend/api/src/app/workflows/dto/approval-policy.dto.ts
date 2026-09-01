@@ -5,11 +5,11 @@ import { DocumentTypeForApproval } from '../entities/approval-policy.entity';
 
 class ApprovalPolicyStepDto {
   @IsNumber()
-  @Min(0)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   order: number;
 
   @IsNumber()
-  @Min(0)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   minAmount: number;
 
   @IsUUID()

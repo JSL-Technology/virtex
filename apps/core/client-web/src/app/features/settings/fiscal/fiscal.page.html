@@ -1,28 +1,27 @@
 <div class="fiscal-page">
   <header class="page-header">
-    <h1>Facturación electrónica (RD · DGII)</h1>
-    <p>Configura el certificado de firma, los rangos de e-NCF autorizados y descarga los reportes 606/607.</p>
+    <h1>{{ 'SETTINGS.FISCAL.FACTURACION_ELECTRONICA_RD_DGII' | translate }}</h1>
+    <p>{{ 'SETTINGS.FISCAL.CONFIGURA_CERTIFICADO_FIRMA_RANGOS_NCF_AUTORIZADOS' | translate }}</p>
   </header>
 
   <!-- Certificado digital -->
   <section class="card">
-    <h2>Certificado digital</h2>
+    <h2>{{ 'SETTINGS.FISCAL.CERTIFICADO_DIGITAL' | translate }}</h2>
     <p class="hint">
-      Sube tu certificado (.p12 / .pfx) emitido por una entidad autorizada por la DGII. Se cifra en
-      reposo y solo se usa para firmar e-CF.
+      {{ 'SETTINGS.FISCAL.SUBE_TU_CERTIFICADO_P12_PFX_EMITIDO' | translate }}
     </p>
 
     <form [formGroup]="certForm" (ngSubmit)="uploadCertificate()" class="form-grid">
       <label>
-        <span>Alias</span>
-        <input type="text" formControlName="alias" placeholder="Certificado DGII 2025" />
+        <span>{{ 'SETTINGS.FISCAL.ALIAS' | translate }}</span>
+        <input type="text" formControlName="alias" [placeholder]="'SETTINGS.FISCAL.CERTIFICADO_DGII_2025' | translate" />
       </label>
       <label>
-        <span>Contraseña del certificado</span>
+        <span>{{ 'SETTINGS.FISCAL.CONTRASENA_CERTIFICADO' | translate }}</span>
         <input type="password" formControlName="password" autocomplete="off" />
       </label>
       <label>
-        <span>Archivo (.p12 / .pfx)</span>
+        <span>{{ 'SETTINGS.FISCAL.ARCHIVO_P12_PFX' | translate }}</span>
         <input type="file" accept=".p12,.pfx" (change)="onFileSelected($event)" />
       </label>
       <button type="submit" [disabled]="uploading()">
@@ -32,13 +31,13 @@
 
     <table class="data-table" *ngIf="certificates().length; else noCerts">
       <thead>
-        <tr><th>Alias</th><th>Titular</th><th>Vence</th><th>Estado</th><th></th></tr>
+        <tr><th>{{ 'SETTINGS.FISCAL.ALIAS' | translate }}</th><th>{{ 'SETTINGS.FISCAL.TITULAR' | translate }}</th><th>{{ 'SETTINGS.FISCAL.VENCE' | translate }}</th><th>{{ 'SETTINGS.FISCAL.ESTADO' | translate }}</th><th></th></tr>
       </thead>
       <tbody>
         <tr *ngFor="let c of certificates()">
           <td>{{ c.alias }}</td>
           <td>{{ c.subjectCommonName || '—' }}</td>
-          <td [class.expired]="c.expired">{{ c.notAfter ? (c.notAfter | date:'dd/MM/yyyy') : '—' }}</td>
+          <td [class.expired]="c.expired">{{ c.notAfter ? (c.notAfter | vxDate: 'date') : '—' }}</td>
           <td>
             <span class="badge" [class.active]="c.isActive && !c.expired" [class.inactive]="!c.isActive || c.expired">
               {{ c.expired ? 'Vencido' : (c.isActive ? 'Activo' : 'Inactivo') }}
@@ -46,40 +45,39 @@
           </td>
           <td>
             <button type="button" class="link-danger" *ngIf="c.isActive" (click)="deactivateCertificate(c.id)">
-              Desactivar
+              {{ 'SETTINGS.FISCAL.DESACTIVAR' | translate }}
             </button>
           </td>
         </tr>
       </tbody>
     </table>
-    <ng-template #noCerts><p class="empty">Aún no has cargado un certificado.</p></ng-template>
+    <ng-template #noCerts><p class="empty">{{ 'SETTINGS.FISCAL.AUN_NO_HAS_CARGADO_CERTIFICADO' | translate }}</p></ng-template>
   </section>
 
   <!-- Secuencias e-NCF -->
   <section class="card">
-    <h2>Rangos de e-NCF autorizados</h2>
+    <h2>{{ 'SETTINGS.FISCAL.RANGOS_NCF_AUTORIZADOS' | translate }}</h2>
     <p class="hint">
-      Registra los rangos que la DGII te autorizó. Sin un rango activo del tipo correspondiente no se
-      puede emitir el comprobante.
+      {{ 'SETTINGS.FISCAL.REGISTRA_RANGOS_DGII_TE_AUTORIZO_SIN' | translate }}
     </p>
 
     <form [formGroup]="sequenceForm" (ngSubmit)="provisionSequence()" class="form-grid">
       <label>
-        <span>Tipo</span>
+        <span>{{ 'SETTINGS.FISCAL.TIPO' | translate }}</span>
         <select formControlName="type">
           <option *ngFor="let t of ncfTypes" [value]="t.value">{{ t.label }}</option>
         </select>
       </label>
       <label>
-        <span>Prefijo</span>
+        <span>{{ 'SETTINGS.FISCAL.PREFIJO' | translate }}</span>
         <input type="text" formControlName="prefix" />
       </label>
       <label>
-        <span>Desde</span>
+        <span>{{ 'SETTINGS.FISCAL.DESDE' | translate }}</span>
         <input type="number" formControlName="startsAt" min="1" />
       </label>
       <label>
-        <span>Hasta</span>
+        <span>{{ 'SETTINGS.FISCAL.HASTA' | translate }}</span>
         <input type="number" formControlName="endsAt" min="1" />
       </label>
       <button type="submit" [disabled]="provisioning()">
@@ -89,7 +87,7 @@
 
     <table class="data-table" *ngIf="sequences().length; else noSeq">
       <thead>
-        <tr><th>Tipo</th><th>Prefijo</th><th>Desde</th><th>Hasta</th><th>Actual</th><th>Estado</th></tr>
+        <tr><th>{{ 'SETTINGS.FISCAL.TIPO' | translate }}</th><th>{{ 'SETTINGS.FISCAL.PREFIJO' | translate }}</th><th>{{ 'SETTINGS.FISCAL.DESDE' | translate }}</th><th>{{ 'SETTINGS.FISCAL.HASTA' | translate }}</th><th>{{ 'SETTINGS.FISCAL.ACTUAL' | translate }}</th><th>{{ 'SETTINGS.FISCAL.ESTADO' | translate }}</th></tr>
       </thead>
       <tbody>
         <tr *ngFor="let s of sequences()">
@@ -106,28 +104,28 @@
         </tr>
       </tbody>
     </table>
-    <ng-template #noSeq><p class="empty">Aún no has registrado rangos de e-NCF.</p></ng-template>
+    <ng-template #noSeq><p class="empty">{{ 'SETTINGS.FISCAL.AUN_NO_HAS_REGISTRADO_RANGOS_NCF' | translate }}</p></ng-template>
   </section>
 
   <!-- Reportes DGII -->
   <section class="card">
-    <h2>Reportes DGII (606 / 607)</h2>
-    <p class="hint">Genera los formatos de envío de compras (606) y ventas (607) para un período.</p>
+    <h2>{{ 'SETTINGS.FISCAL.REPORTES_DGII_606_607' | translate }}</h2>
+    <p class="hint">{{ 'SETTINGS.FISCAL.GENERA_FORMATOS_ENVIO_COMPRAS_606_VENTAS' | translate }}</p>
 
     <form [formGroup]="reportForm" (ngSubmit)="downloadReport()" class="form-grid">
       <label>
-        <span>Reporte</span>
+        <span>{{ 'SETTINGS.FISCAL.REPORTE' | translate }}</span>
         <select formControlName="kind">
-          <option value="607">607 · Ventas</option>
-          <option value="606">606 · Compras</option>
+          <option value="607">{{ 'SETTINGS.FISCAL.607_VENTAS' | translate }}</option>
+          <option value="606">{{ 'SETTINGS.FISCAL.606_COMPRAS' | translate }}</option>
         </select>
       </label>
       <label>
-        <span>Año</span>
+        <span>{{ 'SETTINGS.FISCAL.ANO' | translate }}</span>
         <input type="number" formControlName="year" min="2000" />
       </label>
       <label>
-        <span>Mes</span>
+        <span>{{ 'SETTINGS.FISCAL.MES' | translate }}</span>
         <input type="number" formControlName="month" min="1" max="12" />
       </label>
       <button type="submit" [disabled]="downloading()">

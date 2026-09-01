@@ -13,7 +13,7 @@ export class ReopenPeriodDto {
 
   @IsString()
   @IsNotEmpty()
-  @MinLength(10)
+  @MinLength(10, { message: 'VALIDATION.CONSTRAINTS.MIN_LENGTH|{"min":10}' })
   @ApiProperty({
     description: 'La justificación detallada para la reapertura del período.',
     example: 'Corrección de asientos de depreciación mal calculados.',
@@ -32,7 +32,7 @@ export class ReopenFiscalYearDto {
 
   @IsString()
   @IsNotEmpty()
-  @MinLength(10)
+  @MinLength(10, { message: 'VALIDATION.CONSTRAINTS.MIN_LENGTH|{"min":10}' })
   @ApiProperty({
     description: 'La justificación detallada para la reapertura del año fiscal.',
     example: 'Ajustes de auditoría externa para el año fiscal cerrado.',

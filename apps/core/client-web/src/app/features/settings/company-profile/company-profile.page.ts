@@ -4,11 +4,12 @@ import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Save } from 'lucide-angular';
 import { OrganizationService } from '../../../shared/service/organization.service';
 import { NotificationService } from '../../../core/services/notification';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-company-profile-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule],
   templateUrl: './company-profile.page.html',
   styleUrls: ['./company-profile.page.scss']
 })
@@ -45,7 +46,7 @@ export class CompanyProfilePage implements OnInit {
       },
       error: (error) => {
         console.error('Error loading company profile', error);
-        this.notificationService.showError('Error cargando el perfil de la empresa');
+        this.notificationService.showError('SETTINGS.COMPANY_PROFILE.ERROR_CARGANDO_PERFIL_EMPRESA');
         this.isLoading = false;
       }
     });
@@ -56,12 +57,12 @@ export class CompanyProfilePage implements OnInit {
       this.isLoading = true;
       this.organizationService.updateProfile(this.profileForm.value).subscribe({
         next: (data) => {
-          this.notificationService.showSuccess('Perfil actualizado correctamente');
+          this.notificationService.showSuccess('SETTINGS.COMPANY_PROFILE.PERFIL_ACTUALIZADO_CORRECTAMENTE');
           this.isLoading = false;
         },
         error: (error) => {
           console.error('Error updating profile', error);
-          this.notificationService.showError('Error actualizando el perfil');
+          this.notificationService.showError('SETTINGS.COMPANY_PROFILE.ERROR_ACTUALIZANDO_PERFIL');
           this.isLoading = false;
         }
       });

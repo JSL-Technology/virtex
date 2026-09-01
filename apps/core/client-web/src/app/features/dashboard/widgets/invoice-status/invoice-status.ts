@@ -21,6 +21,7 @@ import {
 import { DashboardWidget, DashboardService, ChartType } from '../../../../core/services/dashboard';
 import { BrandingService } from '../../../../core/services/branding';
 import { PointOptionsObject } from 'highcharts';
+import { TranslateModule } from '@ngx-translate/core';
 
 // Extiende tipos que Highcharts no declara en Chart para los métodos de exportación
 type ExportingChart = Highcharts.Chart & {
@@ -34,7 +35,7 @@ type ExportingChart = Highcharts.Chart & {
 @Component({
   selector: 'app-invoice-status',
   standalone: true,
-  imports: [CommonModule, HighchartsChartComponent, LucideAngularModule],
+  imports: [CommonModule, HighchartsChartComponent, LucideAngularModule, TranslateModule],
   templateUrl: './invoice-status.html',
   styleUrls: ['./invoice-status.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

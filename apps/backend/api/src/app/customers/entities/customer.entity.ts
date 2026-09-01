@@ -15,6 +15,7 @@ import { CustomerAddress } from './customer-address.entity';
 import { CustomerContact } from './customer-contact.entity';
 import type { CustomerGroup } from './customer-group.entity';
 import { User } from '../../users/entities/user.entity/user.entity';
+import type { LanguageCode } from '@virteex/shared/types';
 
 export enum CustomerStatus {
   LEAD = 'LEAD',
@@ -81,6 +82,17 @@ export class Customer {
 
   @Column({ nullable: true })
   country: string;
+
+  /**
+   * The language this customer's documents are written in.
+   *
+   * A document follows its recipient — a Dominican company invoicing a Brazilian customer sends
+   * Portuguese — which is a different axis from the interface language of whoever pressed the
+   * button and from the statutory language of the ledger. Null means "not stated", and the
+   * country is then the better guess.
+   */
+  @Column({ name: 'preferred_language', type: 'varchar', length: 5, nullable: true })
+  preferredLanguage?: LanguageCode | null;
 
 
 

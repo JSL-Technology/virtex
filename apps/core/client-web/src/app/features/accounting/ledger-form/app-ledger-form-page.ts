@@ -9,11 +9,12 @@ import { LedgersService, CreateLedgerDto, UpdateLedgerDto } from '../../../core/
 // FIX: Importar el tipo Ledger directamente desde su modelo, ya que el servicio no lo re-exporta.
 import { Ledger } from '../../../core/models/ledger.model';
 import { NotificationService } from '../../../core/services/notification';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-ledger-form-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideAngularModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideAngularModule, TranslateModule],
   templateUrl: './app-ledger-form-page.html',
   styleUrls: ['./app-ledger-form-page.scss']
 })
@@ -52,7 +53,7 @@ export class LedgerFormPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.notificationService.showError('No se pudo cargar el libro mayor.');
+        this.notificationService.showError('ACCOUNTING.LEDGER_FORM.PUDO_CARGAR_LIBRO_MAYOR');
         this.router.navigate(['/accounting']);
       }
     });
@@ -60,7 +61,7 @@ export class LedgerFormPage implements OnInit {
 
   saveLedger(): void {
     if (this.ledgerForm.invalid) {
-      this.notificationService.showError('Por favor, completa los campos requeridos.');
+      this.notificationService.showError('ACCOUNTING.LEDGER_FORM.FAVOR_COMPLETA_CAMPOS_REQUERIDOS');
       this.ledgerForm.markAllAsTouched();
       return;
     }
@@ -75,11 +76,11 @@ export class LedgerFormPage implements OnInit {
 
     operation.subscribe({
       next: () => {
-        this.notificationService.showSuccess(`Libro Mayor ${this.isEditMode() ? 'actualizado' : 'creado'} exitosamente.`);
+        this.notificationService.showSuccess(this.isEditMode() ? 'ACCOUNTING.LEDGER_FORM.LIBRO_MAYOR_ACTUALIZADO_EXITOSAMENTE' : 'ACCOUNTING.LEDGER_FORM.LIBRO_MAYOR_CREADO_EXITOSAMENTE');
         this.router.navigate(['/accounting/general-ledger']);
       },
       error: (err) => {
-        this.notificationService.showError(`Error al ${this.isEditMode() ? 'actualizar' : 'crear'} el Libro Mayor.`);
+        this.notificationService.showError(this.isEditMode() ? 'ACCOUNTING.LEDGER_FORM.ERROR_ACTUALIZAR_LIBRO_MAYOR' : 'ACCOUNTING.LEDGER_FORM.ERROR_CREAR_LIBRO_MAYOR');
         this.isLoading.set(false);
       }
     });

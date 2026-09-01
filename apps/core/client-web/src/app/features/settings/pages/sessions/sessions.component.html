@@ -2,12 +2,12 @@
 
   <div class="sess-header">
     <div class="sess-header__text">
-      <h1 class="sess-header__title">Sesiones Activas</h1>
-      <p class="sess-header__subtitle">Revisa y administra los dispositivos con acceso activo a tu cuenta.</p>
+      <h1 class="sess-header__title">{{ 'SETTINGS.SESSIONS.SESIONES_ACTIVAS' | translate }}</h1>
+      <p class="sess-header__subtitle">{{ 'SETTINGS.SESSIONS.REVISA_ADMINISTRA_DISPOSITIVOS_ACCESO_ACTIVO_TU' | translate }}</p>
     </div>
     <button class="sess-refresh" (click)="load()" [disabled]="loading()">
       <lucide-icon [img]="RefreshIcon" size="16"></lucide-icon>
-      Actualizar
+      {{ 'SETTINGS.SESSIONS.ACTUALIZAR' | translate }}
     </button>
   </div>
 
@@ -15,7 +15,7 @@
   @if (loading()) {
     <div class="sess-card sess-loading">
       <div class="sess-spinner"></div>
-      <span>Cargando sesiones…</span>
+      <span>{{ 'SETTINGS.SESSIONS.CARGANDO_SESIONES' | translate }}</span>
     </div>
   }
 
@@ -23,7 +23,7 @@
   @if (!loading() && sessions().length === 0) {
     <div class="sess-card sess-empty">
       <lucide-icon [img]="MonitorIcon" size="32"></lucide-icon>
-      <p>No hay sesiones activas registradas.</p>
+      <p>{{ 'SETTINGS.SESSIONS.NO_HAY_SESIONES_ACTIVAS_REGISTRADAS' | translate }}</p>
     </div>
   }
 
@@ -46,7 +46,7 @@
               {{ session.browser || 'Navegador desconocido' }}
               <span class="sess-item__os">en {{ session.os || 'SO desconocido' }}</span>
               @if (session.isCurrent) {
-                <span class="sess-badge-current">Sesión actual</span>
+                <span class="sess-badge-current">{{ 'SETTINGS.SESSIONS.SESION_ACTUAL' | translate }}</span>
               }
             </div>
             <div class="sess-item__meta">
@@ -57,7 +57,7 @@
               <span class="sess-item__sep">·</span>
               <span>
                 <lucide-icon [img]="ClockIcon" size="12"></lucide-icon>
-                {{ (session.lastActiveAt || session.createdAt) | date:'d MMM y, HH:mm' }}
+                {{ (session.lastActiveAt || session.createdAt) | vxDate: 'dateTime' }}
               </span>
               <span class="sess-item__sep">·</span>
               <span class="sess-item__ip">IP {{ session.ipAddress || '—' }}</span>
@@ -68,7 +68,7 @@
             <button class="sess-revoke"
                     (click)="revoke(session.id)"
                     [disabled]="processingId() === session.id"
-                    title="Revocar sesión">
+                    [title]="'SETTINGS.SESSIONS.REVOCAR_SESION' | translate">
               @if (processingId() === session.id) {
                 <span class="sess-spinner sess-spinner--sm"></span>
               } @else {

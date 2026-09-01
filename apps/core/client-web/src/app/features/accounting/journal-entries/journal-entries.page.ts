@@ -1,39 +1,100 @@
-import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal } from 'lucide-angular';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import {
+  JournalEntriesApiService,
+  JournalEntry,
+  JournalEntryStatus,
+} from '../../../core/api/journal-entries.service';
 
-interface JournalEntry {
-  id: string;
-  date: string;
-  description: string;
-  debit: number;
-  credit: number;
-  status: 'Posted' | 'Draft';
-}
-
+/**
+ * The journal.
+ *
+ * ## What this page used to be
+ *
+ * Three hardcoded rows (`JE-001 … 'Jul 28, 2025'`), amounts already rounded into the array, and
+ * `{{ entry.status }}` printed straight into the badge — so a Spanish screen said "Posted" and a
+ * Portuguese one said it too. The endpoint it needed already existed.
+ *
+ * ## Totals are derived, never stored
+ *
+ * An entry's debit and credit totals are the sums of its lines. Sending them separately would be
+ * a second copy of a number the ledger already holds, and the copy is the one that goes stale.
+ * `Number()` guards the decimal columns, which TypeORM hands back as strings.
+ */
 @Component({
   selector: 'app-journal-entries-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule,RouterLink, TranslateModule],
+  imports: [CommonModule, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './journal-entries.page.html',
   styleUrls: ['./journal-entries.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JournalEntriesPage {
+  private readonly entriesApi = inject(JournalEntriesApiService);
+
   protected readonly PlusCircleIcon = PlusCircle;
   protected readonly FilterIcon = Filter;
   protected readonly MoreHorizontalIcon = MoreHorizontal;
 
-  entries = signal<JournalEntry[]>([
-    { id: 'JE-001', date: 'Jul 28, 2025', description: 'Registro de Venta #V-2025-001', debit: 350.00, credit: 350.00, status: 'Posted' },
-    { id: 'JE-002', date: 'Jul 28, 2025', description: 'Pago de Nómina - Quincena 1', debit: 15200.00, credit: 15200.00, status: 'Posted' },
-    { id: 'JE-003', date: 'Jul 29, 2025', description: 'Ajuste de fin de mes (Borrador)', debit: 0, credit: 0, status: 'Draft' },
-  ]);
+  readonly entries = signal<JournalEntry[]>([]);
+  readonly loading = signal(true);
+  readonly failed = signal(false);
 
-  getStatusClass(status: JournalEntry['status']): string {
+  readonly isEmpty = computed(() => !this.loading() && !this.failed() && this.entries().length === 0);
+
+  constructor() {
+    this.load();
+  }
+
+  load(): void {
+    this.loading.set(true);
+    this.failed.set(false);
+    this.entriesApi.list().subscribe({
+      next: (entries) => {
+        this.entries.set(entries);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.failed.set(true);
+        this.loading.set(false);
+      },
+    });
+  }
+
+  debitTotal(entry: JournalEntry): number {
+    return (entry.lines ?? []).reduce((sum, line) => sum + Number(line.debit ?? 0), 0);
+  }
+
+  creditTotal(entry: JournalEntry): number {
+    return (entry.lines ?? []).reduce((sum, line) => sum + Number(line.credit ?? 0), 0);
+  }
+
+  /**
+   * The stored status becomes a catalogue key.
+   *
+   * Unknown values fall through to the raw status rather than to an empty cell: a status the
+   * client has not been taught about is a deployment mismatch, and showing it is how anybody
+   * finds out.
+   */
+  statusKey(status: JournalEntryStatus): string {
+    const keys: Record<string, string> = {
+      Draft: 'ACCOUNTING.JOURNAL_ENTRIES.STATUS_DRAFT',
+      'Pending Approval': 'ACCOUNTING.JOURNAL_ENTRIES.STATUS_PENDING_APPROVAL',
+      Posted: 'ACCOUNTING.JOURNAL_ENTRIES.STATUS_POSTED',
+      Modified: 'ACCOUNTING.JOURNAL_ENTRIES.STATUS_MODIFIED',
+      Void: 'ACCOUNTING.JOURNAL_ENTRIES.STATUS_VOID',
+      Rejected: 'ACCOUNTING.JOURNAL_ENTRIES.STATUS_REJECTED',
+    };
+    return keys[status] ?? status;
+  }
+
+  statusClass(status: JournalEntryStatus): string {
     if (status === 'Posted') return 'status-posted';
+    if (status === 'Void' || status === 'Rejected') return 'status-void';
     return 'status-draft';
   }
 }

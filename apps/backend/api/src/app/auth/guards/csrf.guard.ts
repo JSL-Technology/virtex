@@ -1,14 +1,9 @@
-import {
-  Injectable,
-  CanActivate,
-  ExecutionContext,
-  ForbiddenException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import type { HttpRequest as Request } from '../../common/http/http.types';
 import { CookieService } from '../services/cookie.service';
 import { SKIP_CSRF_KEY } from '../decorators/skip-csrf.decorator';
+import { ForbiddenError } from '../../i18n/localized.exception';
 
 /**
  * Signed double-submit CSRF validation, applied to every state-changing request.
@@ -88,7 +83,7 @@ export class CsrfGuard implements CanActivate {
         { event: 'csrf_mismatch', method, url: request.url },
         '[SECURITY] CSRF token header/cookie mismatch',
       );
-      throw new ForbiddenException('Invalid CSRF Token');
+      throw new ForbiddenError('AUTH.INVALID_CSRF_TOKEN');
     }
 
     // The global JwtAuthGuard runs before this one, so on authenticated routes `request.user` is
@@ -101,7 +96,7 @@ export class CsrfGuard implements CanActivate {
         { event: 'csrf_invalid', method, url: request.url, bound: Boolean(currentUserId) },
         '[SECURITY] CSRF token signature or binding invalid',
       );
-      throw new ForbiddenException('Invalid CSRF Token');
+      throw new ForbiddenError('AUTH.INVALID_CSRF_TOKEN');
     }
 
     return true;

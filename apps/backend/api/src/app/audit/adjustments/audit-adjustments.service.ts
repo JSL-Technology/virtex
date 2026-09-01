@@ -1,12 +1,5 @@
 
-import {
-  Injectable,
-  Logger,
-  NotFoundException,
-  BadRequestException,
-  InternalServerErrorException,
-  ForbiddenException,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { DataSource, EntityManager } from 'typeorm';
 import { ProposedAdjustment, AdjustmentStatus } from '../entities/proposed-adjustment.entity';
 import { CreateProposedAdjustmentDto } from '../dto/proposed-adjustment.dto';
@@ -18,6 +11,7 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { AdjustmentsService } from '../../journal-entries/adjustments.service';
 import { User } from '../../users/entities/user.entity/user.entity';
 import { FastifyFile, toUploadableFile } from '../../common/interfaces/fastify-file.interface';
+import { ForbiddenError, InternalServerError, NotFoundError } from '../../i18n/localized.exception';
 
 @Injectable()
 export class AuditAdjustmentsService {
@@ -81,10 +75,10 @@ export class AuditAdjustmentsService {
     return this.dataSource.transaction(async (manager) => {
       const adjustment = await manager.findOneBy(ProposedAdjustment, { id: adjustmentId, organizationId });
       if (!adjustment) {
-        throw new NotFoundException(`Propuesta de ajuste con ID "${adjustmentId}" no encontrada.`);
+        throw new NotFoundError('AUDIT.PROPUESTA_AJUSTE_ID_NO_ENCONTRADA', { adjustmentId });
       }
       if (adjustment.status !== AdjustmentStatus.PENDING_APPROVAL) {
-        throw new ForbiddenException('Solo se puede añadir evidencia a propuestas pendientes de aprobación.');
+        throw new ForbiddenError('AUDIT.SOLO_PUEDE_ANADIR_EVIDENCIA_PROPUESTAS_PENDIENTES_APROBACION');
       }
 
       const storedFile = await this.storageService.upload(
@@ -149,7 +143,7 @@ export class AuditAdjustmentsService {
         this.logger.error(`Fallo al contabilizar el ajuste de auditoría ${documentId}. Revirtiendo estado.`, (error as Error).stack);
         adjustment.status = AdjustmentStatus.FAILED;
         await adjustmentRepo.save(adjustment);
-        throw new InternalServerErrorException(`Fallo al procesar el ajuste aprobado: ${(error as Error).message}`);
+        throw new InternalServerError('AUDIT.FALLO_PROCESAR_AJUSTE_APROBADO', { p1: (error as Error).message });
       }
     });
   }

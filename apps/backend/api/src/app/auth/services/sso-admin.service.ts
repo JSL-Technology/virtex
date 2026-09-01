@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  ConflictException,
-  BadRequestException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -15,6 +9,7 @@ import { IdentityProvider } from '../entities/identity-provider.entity';
 import { OrganizationDomain } from '../../organizations/entities/organization-domain.entity';
 import { SecretEncryptionService } from './secret-encryption.service';
 import { CreateIdentityProviderDto, UpdateIdentityProviderDto } from '../dto/sso-admin.dto';
+import { BadRequestError, ConflictError, NotFoundError } from '../../i18n/localized.exception';
 
 // DNS host (relative to the domain) where the org must publish the verification TXT record.
 const DNS_VERIFICATION_PREFIX = '_virteex-sso';
@@ -103,7 +98,7 @@ export class SsoAdminService {
         where: { organizationId, verified: true },
       });
       if (verifiedCount === 0) {
-        throw new BadRequestException('Verify at least one domain before enabling SSO.');
+        throw new BadRequestError('AUTH.VERIFY_AT_LEAST_ONE_DOMAIN_BEFORE_ENABLING');
       }
     }
 
@@ -126,7 +121,7 @@ export class SsoAdminService {
 
   private async getOwnedProvider(organizationId: string, id: string): Promise<IdentityProvider> {
     const idp = await this.idpRepository.findOne({ where: { id, organizationId } });
-    if (!idp) throw new NotFoundException('Identity provider not found.');
+    if (!idp) throw new NotFoundError('AUTH.IDENTITY_PROVIDER_NOT_FOUND');
     return idp;
   }
 
@@ -152,7 +147,7 @@ export class SsoAdminService {
     const existing = await this.domainRepository.findOne({ where: { domain } });
     if (existing) {
       // Unique across all orgs — prevents two tenants claiming the same domain.
-      throw new ConflictException('This domain is already registered.');
+      throw new ConflictError('AUTH.THIS_DOMAIN_ALREADY_REGISTERED');
     }
     const created = this.domainRepository.create({
       organizationId,
@@ -171,7 +166,7 @@ export class SsoAdminService {
 
   async deleteDomain(organizationId: string, id: string): Promise<void> {
     const domain = await this.domainRepository.findOne({ where: { id, organizationId } });
-    if (!domain) throw new NotFoundException('Domain not found.');
+    if (!domain) throw new NotFoundError('AUTH.DOMAIN_NOT_FOUND');
     await this.domainRepository.remove(domain);
   }
 
@@ -181,7 +176,7 @@ export class SsoAdminService {
    */
   async verifyDomain(organizationId: string, id: string) {
     const domain = await this.domainRepository.findOne({ where: { id, organizationId } });
-    if (!domain) throw new NotFoundException('Domain not found.');
+    if (!domain) throw new NotFoundError('AUTH.DOMAIN_NOT_FOUND');
     if (domain.verified) return { verified: true };
 
     const host = `${DNS_VERIFICATION_PREFIX}.${domain.domain}`;
@@ -190,15 +185,13 @@ export class SsoAdminService {
       records = await dns.resolveTxt(host);
     } catch (err) {
       this.logger.warn(`DNS TXT lookup failed for ${host}: ${(err as Error)?.message}`);
-      throw new BadRequestException(
-        `No TXT record found at ${host}. Add it and allow time for DNS propagation.`,
-      );
+      throw new BadRequestError('AUTH.NO_TXT_RECORD_FOUND_AT_ADD_IT', { host });
     }
 
     const flattened = records.map((chunks) => chunks.join(''));
     const matches = flattened.some((value) => value.trim() === domain.verificationToken);
     if (!matches) {
-      throw new BadRequestException('TXT record found but the value does not match. Check the record.');
+      throw new BadRequestError('AUTH.TXT_RECORD_FOUND_BUT_VALUE_DOES_NOT');
     }
 
     domain.verified = true;

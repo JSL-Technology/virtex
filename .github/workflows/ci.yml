@@ -125,6 +125,34 @@ jobs:
 
       - run: npx nx run-many -t lint test build typecheck
 
+      # Proves the translation tooling still agrees with the code it is checking.
+      #
+      # `no-hardcoded-strings.spec.ts` runs the extractor in report mode, so a literal that
+      # reappears in a template fails the build. This step runs the extractor for real and fails
+      # if it CHANGED anything — which is the other half: a tool that has drifted from the state
+      # of the repository would report zero for the wrong reason.
+      - name: i18n extraction is idempotent
+        run: |
+          node tools/i18n/externalize-template-text.mjs
+          node tools/i18n/externalize-template-text.mjs --hbs
+          node tools/i18n/extract-client-messages.mjs
+          node tools/i18n/extract-backend-messages.mjs
+          node tools/i18n/ensure-translate-imports.mjs
+          node tools/i18n/externalize-validation-messages.mjs
+          node tools/i18n/externalize-response-messages.mjs
+          node tools/i18n/apply-glossary.mjs
+          git diff --exit-code || {
+            echo '::error::The i18n extractors changed files. Run them locally and commit the result.'
+            exit 1
+          }
+
+      # A key nothing references costs a line in three catalogues and a translator's time, and
+      # accumulates silently every time a template is rewritten. Reported rather than enforced:
+      # `find-orphan-keys.mjs --prune` is the fix, and it is a judgement call which stragglers are
+      # genuinely dead, so the build surfaces the count instead of failing on it.
+      - name: report orphan translation keys
+        run: node tools/i18n/find-orphan-keys.mjs
+
       # Proves the migrations and the entities describe the same schema. A missing migration is
       # invisible locally (where the schema was created by an earlier `synchronize`) and only
       # surfaces as a broken deploy; this turns it into a failing build.

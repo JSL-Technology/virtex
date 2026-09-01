@@ -3,10 +3,10 @@
         <div class="view-header">
             <div class="header-content">
                 <h1>@if(isEditMode()){ Editar } @else { Nuevo } Cliente</h1>
-                <p>Completa la información detallada de tu cliente.</p>
+                <p>{{ 'CONTACTS.CUSTOMER_FORM.COMPLETA_INFORMACION_DETALLADA_TU_CLIENTE' | translate }}</p>
             </div>
             <div class="header-actions">
-                <a routerLink="/contacts/customers" class="secondary-button">Cancelar</a>
+                <a routerLink="/contacts/customers" class="secondary-button">{{ 'CONTACTS.CUSTOMER_FORM.CANCELAR' | translate }}</a>
                 <button type="submit" class="primary-button" [disabled]="isLoading()">
                     <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
                     <span>@if(isLoading()){ Guardando... } @else { Guardar Cliente }</span>
@@ -17,34 +17,34 @@
             <div class="form-column">
                 <div class="card">
                     <div class="card-header">
-                        <h3>Información Principal</h3>
+                        <h3>{{ 'CONTACTS.CUSTOMER_FORM.INFORMACION_PRINCIPAL' | translate }}</h3>
                     </div>
                     <div class="card-body">
                         <div class="form-field">
-                            <label for="companyName">Nombre de la Empresa*</label>
+                            <label for="companyName">{{ 'CONTACTS.CUSTOMER_FORM.NOMBRE_EMPRESA' | translate }}</label>
                             <input id="companyName" formControlName="companyName">
                         </div>
                         <div class="form-field">
-                            <label for="contactPerson">Persona de Contacto*</label>
+                            <label for="contactPerson">{{ 'CONTACTS.CUSTOMER_FORM.PERSONA_CONTACTO' | translate }}</label>
                             <input id="contactPerson" formControlName="contactPerson">
                         </div>
                         <div class="form-field">
-                            <label for="taxId">ID Fiscal (RNC, etc.)</label>
+                            <label for="taxId">{{ 'CONTACTS.CUSTOMER_FORM.ID_FISCAL_RNC_ETC' | translate }}</label>
                             <input id="taxId" formControlName="taxId">
                         </div>
                     </div>
                 </div>
                 <div class="card">
                     <div class="card-header">
-                        <h3>Datos de Contacto</h3>
+                        <h3>{{ 'CONTACTS.CUSTOMER_FORM.DATOS_CONTACTO' | translate }}</h3>
                     </div>
                     <div class="card-body">
                         <div class="form-field">
-                            <label for="email">Correo Electrónico*</label>
+                            <label for="email">{{ 'CONTACTS.CUSTOMER_FORM.CORREO_ELECTRONICO' | translate }}</label>
                             <input type="email" id="email" formControlName="email">
                         </div>
                         <div class="form-field">
-                            <label for="phone">Teléfono*</label>
+                            <label for="phone">{{ 'CONTACTS.CUSTOMER_FORM.TELEFONO' | translate }}</label>
                             <input type="tel" id="phone" formControlName="phone">
                         </div>
                     </div>
@@ -53,32 +53,32 @@
             <div class="form-column">
                 <div class="card">
                     <div class="card-header">
-                        <h3>Dirección</h3>
+                        <h3>{{ 'CONTACTS.CUSTOMER_FORM.DIRECCION' | translate }}</h3>
                     </div>
                     <div class="card-body">
                         <div class="form-field">
-                            <label for="address">Línea de Dirección</label>
+                            <label for="address">{{ 'CONTACTS.CUSTOMER_FORM.LINEA_DIRECCION' | translate }}</label>
                             <input id="address" formControlName="address">
                         </div>
                         <div class="form-row three-cols">
                             <div class="form-field">
-                                <label for="city">Ciudad</label>
+                                <label for="city">{{ 'CONTACTS.CUSTOMER_FORM.CIUDAD' | translate }}</label>
                                 <input id="city" formControlName="city">
                             </div>
                             <div class="form-field">
-                                <label for="stateOrProvince">Estado/Provincia</label>
+                                <label for="stateOrProvince">{{ 'CONTACTS.CUSTOMER_FORM.ESTADO_PROVINCIA' | translate }}</label>
                                 <input id="stateOrProvince" formControlName="stateOrProvince">
                             </div>
                             <div class="form-field">
-                                <label for="postalCode">Código Postal</label>
+                                <label for="postalCode">{{ 'CONTACTS.CUSTOMER_FORM.CODIGO_POSTAL' | translate }}</label>
                                 <input id="postalCode" formControlName="postalCode">
                             </div>
                         </div>
                         <div class="form-field">
-                            <label for="country">País*</label>
+                            <label for="country">{{ 'CONTACTS.CUSTOMER_FORM.PAIS' | translate }}</label>
                             <select id="country" formControlName="country">
-                                <option value="DO">República Dominicana</option>
-                                <option value="US">Estados Unidos</option>
+                                <option value="DO">{{ 'CONTACTS.CUSTOMER_FORM.REPUBLICA_DOMINICANA' | translate }}</option>
+                                <option value="US">{{ 'CONTACTS.CUSTOMER_FORM.ESTADOS_UNIDOS' | translate }}</option>
                             </select>
                         </div>
                     </div>

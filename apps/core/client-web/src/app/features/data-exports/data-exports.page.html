@@ -1,41 +1,41 @@
 <div class="view-container">
     <div class="view-header">
         <div class="header-content">
-            <h1>Data Exports</h1>
-            <p>Generate and download your master or transactional data in different formats.</p>
+            <h1>{{ 'DATA_EXPORTS.DATA_EXPORTS' | translate }}</h1>
+            <p>{{ 'DATA_EXPORTS.GENERATE_AND_DOWNLOAD_YOUR_MASTER_OR' | translate }}</p>
         </div>
     </div>
 
     <div class="export-form-container card">
         <form [formGroup]="exportForm" (ngSubmit)="startExport()">
-            <h3 class="form-title">New Export</h3>
+            <h3 class="form-title">{{ 'DATA_EXPORTS.NEW_EXPORT' | translate }}</h3>
             <div class="form-grid">
                 <div class="form-field">
-                    <label for="dataType">Data to Export*</label>
+                    <label for="dataType">{{ 'DATA_EXPORTS.DATA_EXPORT' | translate }}</label>
                     <select id="dataType" formControlName="dataType">
-                        <option [value]="null" disabled>Select a data type...</option>
+                        <option [value]="null" disabled>{{ 'DATA_EXPORTS.SELECT_DATA_TYPE' | translate }}</option>
                         @for (type of dataTypes; track type.id) {
                         <option [value]="type.id">{{ type.name }}</option>
                         }
                     </select>
                 </div>
                 <div class="form-field">
-                    <span class="input-label" id="export-group-1">Format*</span>
+                    <span class="input-label" id="export-group-1">{{ 'DATA_EXPORTS.FORMAT' | translate }}</span>
                     <div class="button-group" role="group" aria-labelledby="export-group-1">
                         <button type="button" [class.active]="exportForm.get('format')?.value === 'csv'"
                             (click)="exportForm.get('format')?.setValue('csv')">CSV</button>
                         <button type="button" [class.active]="exportForm.get('format')?.value === 'xlsx'"
-                            (click)="exportForm.get('format')?.setValue('xlsx')">Excel (XLSX)</button>
+                            (click)="exportForm.get('format')?.setValue('xlsx')">{{ 'DATA_EXPORTS.EXCEL_XLSX' | translate }}</button>
                     </div>
                 </div>
                 <div class="action-field">
                     <button class="primary-button" type="submit" [disabled]="exportForm.invalid || isGenerating()">
                         @if (isGenerating()) {
                         <lucide-icon [img]="ProcessingIcon" size="18" class="spinner"></lucide-icon>
-                        <span>Generating...</span>
+                        <span>{{ 'DATA_EXPORTS.GENERATING' | translate }}</span>
                         } @else {
                         <lucide-icon [img]="DownloadIcon" size="18"></lucide-icon>
-                        <span>Generate File</span>
+                        <span>{{ 'DATA_EXPORTS.GENERATE_FILE' | translate }}</span>
                         }
                     </button>
                 </div>
@@ -44,17 +44,17 @@
     </div>
 
     <div class="history-section">
-        <h2 class="section-title">Recent Exports</h2>
+        <h2 class="section-title">{{ 'DATA_EXPORTS.RECENT_EXPORTS' | translate }}</h2>
         <div class="table-container card">
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th>Data Type</th>
-                        <th>Format</th>
-                        <th>Date</th>
-                        <th>User</th>
-                        <th class="text-center">Status</th>
-                        <th class="actions-column">Action</th>
+                        <th>{{ 'DATA_EXPORTS.DATA_TYPE' | translate }}</th>
+                        <th>{{ 'DATA_EXPORTS.FORMAT_2' | translate }}</th>
+                        <th>{{ 'DATA_EXPORTS.DATE' | translate }}</th>
+                        <th>{{ 'DATA_EXPORTS.USER' | translate }}</th>
+                        <th class="text-center">{{ 'DATA_EXPORTS.STATUS' | translate }}</th>
+                        <th class="actions-column">{{ 'DATA_EXPORTS.ACTION' | translate }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -77,7 +77,7 @@
                             @if (item.status === 'Completed' && item.downloadUrl) {
                             <a [href]="item.downloadUrl" download class="secondary-button download-btn">
                                 <lucide-icon [img]="DownloadIcon" size="14"></lucide-icon>
-                                <span>Download</span>
+                                <span>{{ 'DATA_EXPORTS.DOWNLOAD' | translate }}</span>
                             </a>
                             }
                         </td>

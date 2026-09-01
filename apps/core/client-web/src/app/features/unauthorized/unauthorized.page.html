@@ -6,35 +6,35 @@
       </div>
     </div>
 
-    <h1>Acceso Denegado</h1>
+    <h1>{{ 'UNAUTHORIZED.ACCESO_DENEGADO' | translate }}</h1>
 
     <p class="subtitle">
-      No tienes los permisos necesarios para acceder a este recurso.
+      {{ 'UNAUTHORIZED.NO_TIENES_PERMISOS_NECESARIOS_ACCEDER_ESTE' | translate }}
     </p>
 
     <div class="details" *ngIf="attemptedUrl$ | async as url">
-      <p><strong>Ruta solicitada:</strong></p>
+      <p><strong>{{ 'UNAUTHORIZED.RUTA_SOLICITADA' | translate }}</strong></p>
       <code>{{ url }}</code>
-      <p><strong>Error:</strong> 403 Forbidden</p>
+      <p><strong>{{ 'UNAUTHORIZED.ERROR' | translate }}</strong> {{ 'UNAUTHORIZED.403_FORBIDDEN' | translate }}</p>
     </div>
 
     <p class="contact-admin">
-      Si crees que esto es un error, contacta al administrador del sistema o solicita los permisos necesarios.
+      {{ 'UNAUTHORIZED.SI_CREES_ESTO_ES_ERROR_CONTACTA' | translate }}
     </p>
 
     <div class="actions">
       <a [href]="constructMailtoLink( (attemptedUrl$ | async) )" class="btn btn-primary">
         <lucide-icon [img]="MailIcon" size="16"></lucide-icon>
-        <span>Solicitar Permiso</span>
+        <span>{{ 'UNAUTHORIZED.SOLICITAR_PERMISO' | translate }}</span>
       </a>
 
       <a routerLink="/dashboard" class="btn btn-secondary">
-        <i class="fas fa-arrow-left"></i> <span>Volver al Dashboard</span>
+        <i class="fas fa-arrow-left"></i> <span>{{ 'UNAUTHORIZED.VOLVER_DASHBOARD' | translate }}</span>
       </a>
     </div>
 
     <div class="permission-hint">
-      <p>¿No sabes qué permisos necesitas? <a href="#">Consulta nuestra guía de permisos</a></p>
+      <p>{{ 'UNAUTHORIZED.NO_SABES_PERMISOS_NECESITAS' | translate }} <a href="#">{{ 'UNAUTHORIZED.CONSULTA_NUESTRA_GUIA_PERMISOS' | translate }}</a></p>
     </div>
   </div>
 </div>

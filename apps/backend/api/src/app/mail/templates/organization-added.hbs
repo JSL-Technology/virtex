@@ -1,16 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="{{language}}" dir="{{dir}}">
 <head>
-    <title>Acceso a una nueva organización</title>
+    <title>{{t 'MAIL.ORGANIZATION_ADDED.ACCESO_NUEVA_ORGANIZACION'}}</title>
 </head>
 <body>
-    <h1>¡Hola, {{name}}!</h1>
-    <p><strong>{{organizationName}}</strong> te ha dado acceso a su cuenta en {{appName}}.</p>
+    <h1>{{t 'MAIL.COMMON.GREETING' name=name}}</h1>
+    <p><strong>{{organizationName}}</strong> {{t 'MAIL.ORGANIZATION_ADDED.TE_HA_DADO_ACCESO_CUENTA_APPNAME' appName=appName}}</p>
     <p>
-        Usa tu contraseña de siempre: es la misma cuenta que ya tienes. Al iniciar sesión podrás
-        cambiar entre las organizaciones a las que perteneces desde el selector de organización.
+        {{t 'MAIL.ORGANIZATION_ADDED.USA_TU_CONTRASENA_SIEMPRE_ES_MISMA'}}
     </p>
-    <a href="{{url}}">Iniciar sesión</a>
-    <p>Si no esperabas este acceso, contacta a tu administrador o a soporte.</p>
+    <a href="{{url}}">{{t 'MAIL.ORGANIZATION_ADDED.INICIAR_SESION'}}</a>
+    <p>{{t 'MAIL.ORGANIZATION_ADDED.SI_NO_ESPERABAS_ESTE_ACCESO_CONTACTA'}}</p>
 </body>
 </html>

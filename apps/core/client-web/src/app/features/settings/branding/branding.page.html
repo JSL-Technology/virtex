@@ -5,30 +5,30 @@
                    <h2>{{ 'SETTINGS.BRANDING.TITLE' | translate }}</h2>
             <button type="submit" class="primary-button" [disabled]="brandingForm.pristine">
                 <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
-                <span>Guardar Cambios</span>
+                <span>{{ 'SETTINGS.BRANDING.GUARDAR_CAMBIOS' | translate }}</span>
             </button>
         </div>
 
         <div class="branding-grid">
             <div class="controls-column">
                 <div class="form-section">
-                    <h3 class="section-title">Preferencias de Idioma</h3>
+                    <h3 class="section-title">{{ 'SETTINGS.BRANDING.PREFERENCIAS_IDIOMA' | translate }}</h3>
                     <app-language-selector />
                 </div>
                 <div class="form-section">
-                    <h3 class="section-title">Logo y Colores</h3>
-                    <div class="form-field"><label for="logoFile">Logo de la Empresa</label>
+                    <h3 class="section-title">{{ 'SETTINGS.BRANDING.LOGO_COLORES' | translate }}</h3>
+                    <div class="form-field"><label for="logoFile">{{ 'SETTINGS.BRANDING.LOGO_EMPRESA' | translate }}</label>
                         <div class="file-input-container logo-container">
                             <input type="file" id="logoFile" (change)="onFileSelected($event)"
                                 accept="image/png, image/jpeg, image/svg+xml">
                             <label for="logoFile" class="file-input-label">
-                                @if (logoPreview()) { <img [src]="logoPreview()" alt="Vista previa del logo"> }
-                                @else { <lucide-icon [img]="ImageIcon" size="32" /><span>Subir logo</span> }
+                                @if (logoPreview()) { <img [src]="logoPreview()" [alt]="'SETTINGS.BRANDING.VISTA_PREVIA_LOGO' | translate"> }
+                                @else { <lucide-icon [img]="ImageIcon" size="32" /><span>{{ 'SETTINGS.BRANDING.SUBIR_LOGO' | translate }}</span> }
                             </label>
                         </div>
                     </div>
                     <div class="form-row">
-                        <div class="form-field"><label for="accentColor">Color de Acento</label><input type="color"
+                        <div class="form-field"><label for="accentColor">{{ 'SETTINGS.BRANDING.COLOR_ACENTO' | translate }}</label><input type="color"
                                 id="accentColor" formControlName="accentColor"></div>
                         <!--
                           El campo «Color Neutro» se retira a propósito. Los
@@ -42,40 +42,39 @@
                 </div>
 
                 <div class="form-section">
-                    <h3 class="section-title">Apariencia y Layout</h3>
-                    <div class="form-field"><label for="fontFamily">Tipografía</label><select id="fontFamily"
+                    <h3 class="section-title">{{ 'SETTINGS.BRANDING.APARIENCIA_LAYOUT' | translate }}</h3>
+                    <div class="form-field"><label for="fontFamily">{{ 'SETTINGS.BRANDING.TIPOGRAFIA' | translate }}</label><select id="fontFamily"
                             formControlName="fontFamily">@for(font of fonts; track font.id){<option [value]="font.id">
                                 {{font.name}}</option>}</select></div>
-                    <div class="form-field"><label for="borderRadius">Radio de Bordes ({{
-                            brandingForm.get('borderRadius')?.value }}px)</label><input type="range" id="borderRadius"
+                    <div class="form-field"><label for="borderRadius">{{ 'SETTINGS.BRANDING.BORDER_RADIUS' | translate: { value: brandingForm.get('borderRadius')?.value } }}</label><input type="range" id="borderRadius"
                             formControlName="borderRadius" min="0" max="24" step="2"></div>
 
                     <div class="form-field">
-                        <span class="input-label" id="branding-group-1">Diseño de la Aplicación</span>
+                        <span class="input-label" id="branding-group-1">{{ 'SETTINGS.BRANDING.DISENO_APLICACION' | translate }}</span>
                         <div class="button-group" role="group" aria-labelledby="branding-group-1">
                             <button type="button" [class.active]="brandingForm.get('layoutStyle')?.value === 'topnav'"
-                                (click)="brandingForm.get('layoutStyle')?.setValue('topnav')">Superior</button>
+                                (click)="brandingForm.get('layoutStyle')?.setValue('topnav')">{{ 'SETTINGS.BRANDING.SUPERIOR' | translate }}</button>
                             <button type="button" [class.active]="brandingForm.get('layoutStyle')?.value === 'sidenav'"
-                                (click)="brandingForm.get('layoutStyle')?.setValue('sidenav')">Lateral</button>
+                                (click)="brandingForm.get('layoutStyle')?.setValue('sidenav')">{{ 'SETTINGS.BRANDING.LATERAL' | translate }}</button>
                         </div>
                     </div>
 
                     <div class="form-row">
-                        <div class="form-field"><span class="input-label" id="branding-group-2">Densidad</span>
+                        <div class="form-field"><span class="input-label" id="branding-group-2">{{ 'SETTINGS.BRANDING.DENSIDAD' | translate }}</span>
                             <div class="button-group" role="group" aria-labelledby="branding-group-2">
                                 <button type="button" [class.active]="brandingForm.get('density')?.value==='compact'"
-                                    (click)="brandingForm.get('density')?.setValue('compact')">Compacta</button>
+                                    (click)="brandingForm.get('density')?.setValue('compact')">{{ 'SETTINGS.BRANDING.COMPACTA' | translate }}</button>
                                 <button type="button" [class.active]="brandingForm.get('density')?.value==='comfy'"
-                                    (click)="brandingForm.get('density')?.setValue('comfy')">Cómoda</button>
+                                    (click)="brandingForm.get('density')?.setValue('comfy')">{{ 'SETTINGS.BRANDING.COMODA' | translate }}</button>
                             </div>
                         </div>
-                        <div class="form-field"><span class="input-label" id="branding-group-3">Ancho de Contenido</span>
+                        <div class="form-field"><span class="input-label" id="branding-group-3">{{ 'SETTINGS.BRANDING.ANCHO_CONTENIDO' | translate }}</span>
                             <div class="button-group" role="group" aria-labelledby="branding-group-3">
                                 <button type="button"
                                     [class.active]="brandingForm.get('contentWidth')?.value==='normal'"
-                                    (click)="brandingForm.get('contentWidth')?.setValue('normal')">Normal</button>
+                                    (click)="brandingForm.get('contentWidth')?.setValue('normal')">{{ 'SETTINGS.BRANDING.NORMAL' | translate }}</button>
                                 <button type="button" [class.active]="brandingForm.get('contentWidth')?.value==='wide'"
-                                    (click)="brandingForm.get('contentWidth')?.setValue('wide')">Ancho</button>
+                                    (click)="brandingForm.get('contentWidth')?.setValue('wide')">{{ 'SETTINGS.BRANDING.ANCHO' | translate }}</button>
                             </div>
                         </div>
                     </div>
@@ -87,20 +86,20 @@
                       que se contradecían entre sí.
                     -->
                     <div class="form-field">
-                        <span class="input-label" id="ui-mode-label">Tema</span>
+                        <span class="input-label" id="ui-mode-label">{{ 'SETTINGS.BRANDING.TEMA' | translate }}</span>
                         <div class="button-group three-cols" role="radiogroup" aria-labelledby="ui-mode-label">
                             <button type="button" role="radio"
                                 [class.active]="themeService.mode() === 'light'"
                                 [attr.aria-checked]="themeService.mode() === 'light'"
-                                (click)="themeService.setMode('light')">Claro</button>
+                                (click)="themeService.setMode('light')">{{ 'SETTINGS.BRANDING.CLARO' | translate }}</button>
                             <button type="button" role="radio"
                                 [class.active]="themeService.mode() === 'dark'"
                                 [attr.aria-checked]="themeService.mode() === 'dark'"
-                                (click)="themeService.setMode('dark')">Oscuro</button>
+                                (click)="themeService.setMode('dark')">{{ 'SETTINGS.BRANDING.OSCURO' | translate }}</button>
                             <button type="button" role="radio"
                                 [class.active]="themeService.mode() === 'system'"
                                 [attr.aria-checked]="themeService.mode() === 'system'"
-                                (click)="themeService.setMode('system')">Sistema</button>
+                                (click)="themeService.setMode('system')">{{ 'SETTINGS.BRANDING.SISTEMA' | translate }}</button>
                         </div>
                     </div>
 
@@ -116,17 +115,17 @@
                                 [checked]="themeService.contrast() === 'high'"
                                 (change)="themeService.setContrast(
                                     themeService.contrast() === 'high' ? 'normal' : 'high')">
-                            <span>Alto contraste</span>
+                            <span>{{ 'SETTINGS.BRANDING.ALTO_CONTRASTE' | translate }}</span>
                         </label>
                         <small class="field-hint">
-                            Refuerza bordes y texto secundario. Compatible con el tema claro y el oscuro.
+                            {{ 'SETTINGS.BRANDING.REFUERZA_BORDES_TEXTO_SECUNDARIO_COMPATIBLE_TEMA' | translate }}
                         </small>
                     </div>
                 </div>
             </div>
 
             <div class="preview-column">
-                <h3 class="section-title">Vista Previa en Vivo</h3>
+                <h3 class="section-title">{{ 'SETTINGS.BRANDING.VISTA_PREVIA_VIVO' | translate }}</h3>
                 <app-live-preview />
             </div>
         </div>

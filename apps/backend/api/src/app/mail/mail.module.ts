@@ -3,6 +3,8 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { BullModule } from '@nestjs/bullmq';
 import { ConfigService } from '@nestjs/config';
+import { I18nService } from '../i18n/i18n.service';
+import { mailTemplateHelpers } from './mail-template.helpers';
 import { MailService } from './mail.service';
 import { MailProcessor } from './mail.processor';
 import { FrontendUrlService } from './frontend-url.service';
@@ -12,7 +14,7 @@ import { MAIL_QUEUE } from './mail.queue';
   imports: [
     BullModule.registerQueue({ name: MAIL_QUEUE }),
     MailerModule.forRootAsync({
-      useFactory: async (config: ConfigService) => ({
+      useFactory: async (config: ConfigService, i18n: I18nService) => ({
         transport: {
           host: config.get<string>('MAIL_HOST'),
           // Read as a number. Nodemailer treats a string port as a hostname-ish value and the
@@ -35,13 +37,16 @@ import { MAIL_QUEUE } from './mail.queue';
         },
         template: {
           dir: __dirname + '/templates',
-          adapter: new HandlebarsAdapter(),
+          // One template per email, in every language: the copy lives in the catalogue and the
+          // template carries `{{t 'KEY'}}` holes. See `mail-template.helpers.ts` for why this
+          // beats thirty files that drift apart.
+          adapter: new HandlebarsAdapter(mailTemplateHelpers(i18n)),
           options: {
             strict: true,
           },
         },
       }),
-      inject: [ConfigService],
+      inject: [ConfigService, I18nService],
     }),
   ],
   providers: [MailService, MailProcessor, FrontendUrlService],

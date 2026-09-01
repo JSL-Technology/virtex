@@ -1,7 +1,8 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import * as argon2 from 'argon2';
 import * as crypto from 'crypto';
 import { AuthConfig } from '../auth.config';
+import { BadRequestError } from '../../i18n/localized.exception';
 
 @Injectable()
 export class PasswordService {
@@ -129,9 +130,7 @@ export class PasswordService {
       if (hashSuffix !== suffix) continue;
       // Padded responses include synthetic entries with a count of 0; those are not real hits.
       if (Number(countRaw) > 0) {
-        throw new BadRequestException(
-          'Esta contraseña aparece en filtraciones de datos conocidas. Elige una diferente.',
-        );
+        throw new BadRequestError('AUTH.ESTA_CONTRASENA_APARECE_FILTRACIONES_DATOS_CONOCIDAS_ELIGE');
       }
       return;
     }

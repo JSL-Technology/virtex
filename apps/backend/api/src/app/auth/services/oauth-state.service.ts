@@ -1,7 +1,8 @@
-import { Injectable, BadRequestException, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { HttpResponse as Response, HttpRequest as Request } from '../../common/http/http.types';
 import * as crypto from 'crypto';
+import { BadRequestError } from '../../i18n/localized.exception';
 
 /**
  * The payload carried across the OAuth/OIDC redirect handshake. It never touches the
@@ -78,7 +79,7 @@ export class OauthStateService implements OnModuleInit {
   /** Verify + decrypt a token string back into a transaction. Throws on any tampering. */
   private open(token: string): OauthTransaction {
     const parts = token.split('.');
-    if (parts.length !== 3) throw new BadRequestException('Invalid OAuth state.');
+    if (parts.length !== 3) throw new BadRequestError('AUTH.INVALID_OAUTH_STATE');
     try {
       const iv = Buffer.from(parts[0], 'base64url');
       const ciphertext = Buffer.from(parts[1], 'base64url');
@@ -89,7 +90,7 @@ export class OauthStateService implements OnModuleInit {
       return JSON.parse(plaintext.toString('utf8')) as OauthTransaction;
     } catch {
       // GCM auth failure (tampered cookie) or malformed payload — fail closed.
-      throw new BadRequestException('Invalid or tampered OAuth state.');
+      throw new BadRequestError('AUTH.INVALID_OR_TAMPERED_OAUTH_STATE');
     }
   }
 
@@ -148,10 +149,10 @@ export class OauthStateService implements OnModuleInit {
   /** Read + validate the transaction from the request, enforcing TTL. Does not clear it. */
   readTransaction(req: Request): OauthTransaction {
     const raw = req.cookies?.[this.cookieName()] || req.cookies?.['oauth_tx'] || req.cookies?.['__Secure-oauth_tx'];
-    if (!raw) throw new BadRequestException('Missing OAuth state — please restart the sign-in.');
+    if (!raw) throw new BadRequestError('AUTH.MISSING_OAUTH_STATE_PLEASE_RESTART_SIGN_IN');
     const tx = this.open(raw);
     if (!tx.iat || Date.now() - tx.iat > TX_TTL_MS) {
-      throw new BadRequestException('OAuth state expired — please restart the sign-in.');
+      throw new BadRequestError('AUTH.OAUTH_STATE_EXPIRED_PLEASE_RESTART_SIGN_IN');
     }
     return tx;
   }
@@ -169,12 +170,12 @@ export class OauthStateService implements OnModuleInit {
    */
   verifyState(expected: string, actual: unknown): void {
     if (typeof actual !== 'string' || actual.length === 0) {
-      throw new BadRequestException('Missing OAuth state parameter.');
+      throw new BadRequestError('AUTH.MISSING_OAUTH_STATE_PARAMETER');
     }
     const a = Buffer.from(expected);
     const b = Buffer.from(actual);
     if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
-      throw new BadRequestException('OAuth state mismatch — possible CSRF.');
+      throw new BadRequestError('AUTH.OAUTH_STATE_MISMATCH_POSSIBLE_CSRF');
     }
   }
 }

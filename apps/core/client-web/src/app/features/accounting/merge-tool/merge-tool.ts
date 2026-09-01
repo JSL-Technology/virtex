@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
+import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 
 /**
  * Herramienta de Fusión de Cuentas (Standalone Component)
@@ -35,7 +37,7 @@ export interface MergeAnalysis {
 @Component({
   selector: 'app-merge-tool',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './merge-tool.html',
   // Se omite styleUrls para evitar errores si el archivo SCSS no existe aún.
   changeDetection: ChangeDetectionStrategy.OnPush,

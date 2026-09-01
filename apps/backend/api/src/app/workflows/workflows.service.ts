@@ -1,10 +1,11 @@
 
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ApprovalPolicy, DocumentTypeForApproval } from './entities/approval-policy.entity';
 import { ApprovalRequest, ApprovalStatus } from './entities/approval-request.entity';
 import { CreateApprovalPolicyDto, UpdateApprovalPolicyDto } from './dto/approval-policy.dto';
+import { BadRequestError, ForbiddenError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class WorkflowsService {
@@ -30,7 +31,7 @@ export class WorkflowsService {
 
   async updatePolicy(policyId: string, dto: UpdateApprovalPolicyDto, organizationId: string): Promise<ApprovalPolicy> {
       const policy = await this.policyRepository.findOneBy({ id: policyId, organizationId });
-      if (!policy) throw new NotFoundException('Política de aprobación no encontrada.');
+      if (!policy) throw new NotFoundError('WORKFLOWS.POLITICA_APROBACION_NO_ENCONTRADA');
       
       const updatedPolicy = this.policyRepository.merge(policy, dto);
       return this.policyRepository.save(updatedPolicy);
@@ -38,7 +39,7 @@ export class WorkflowsService {
 
   async deletePolicy(policyId: string, organizationId: string): Promise<void> {
       const result = await this.policyRepository.delete({ id: policyId, organizationId });
-      if (result.affected === 0) throw new NotFoundException('Política de aprobación no encontrada.');
+      if (result.affected === 0) throw new NotFoundError('WORKFLOWS.POLITICA_APROBACION_NO_ENCONTRADA');
   }
 
 
@@ -79,21 +80,21 @@ export class WorkflowsService {
 
   async approve(requestId: string, userId: string, userRoles: string[]): Promise<ApprovalRequest> {
     const request = await this.requestRepository.findOneBy({ id: requestId });
-    if (!request) throw new NotFoundException('Solicitud de aprobación no encontrada.');
+    if (!request) throw new NotFoundError('WORKFLOWS.SOLICITUD_APROBACION_NO_ENCONTRADA');
     if (request.status !== ApprovalStatus.PENDING) {
-        throw new BadRequestException('La solicitud ya ha sido procesada.');
+        throw new BadRequestError('WORKFLOWS.SOLICITUD_YA_HA_SIDO_PROCESADA');
     }
 
     const policy = await this.policyRepository.findOne({ where: { id: request.policyId }, relations: ['steps'] });
     
     if (!policy) {
-      throw new InternalServerErrorException(`No se encontró la política de aprobación con ID "${request.policyId}" asociada a esta solicitud.`);
+      throw new InternalServerError('WORKFLOWS.NO_ENCONTRO_POLITICA_APROBACION_ID_ASOCIADA_ESTA', { policyId: request.policyId });
     }
 
     const currentStepConfig = policy.steps.find(s => s.order === request.currentStep);
 
     if (!currentStepConfig || !userRoles.includes(currentStepConfig.roleId)) {
-      throw new ForbiddenException('No tienes permisos para aprobar este paso.');
+      throw new ForbiddenError('WORKFLOWS.NO_TIENES_PERMISOS_APROBAR_ESTE_PASO');
     }
 
     const nextStep = policy.steps.find(s => s.order > request.currentStep);
@@ -111,7 +112,7 @@ export class WorkflowsService {
 
   async reject(requestId: string, reason: string): Promise<ApprovalRequest> {
     const request = await this.requestRepository.findOneBy({ id: requestId });
-    if (!request) throw new NotFoundException('Solicitud no encontrada.');
+    if (!request) throw new NotFoundError('WORKFLOWS.SOLICITUD_NO_ENCONTRADA');
 
     request.status = ApprovalStatus.REJECTED;
     request.rejectionReason = reason;

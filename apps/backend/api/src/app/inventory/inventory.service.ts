@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityManager } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class InventoryService {
@@ -32,7 +33,7 @@ export class InventoryService {
       where: { id, organizationId },
     });
     if (!product) {
-      throw new NotFoundException(`Producto con ID "${id}" no encontrado.`);
+      throw new NotFoundError('INVENTORY.PRODUCTO_ID_NO_ENCONTRADO', { id });
     }
     return product;
   }
@@ -72,9 +73,7 @@ export class InventoryService {
 
     const available = Number(product.stock);
     if (available < quantity) {
-      throw new BadRequestException(
-        `Stock insuficiente para "${product.name}": disponibles ${available}, solicitadas ${quantity}.`,
-      );
+      throw new BadRequestError('INVENTORY.STOCK_INSUFICIENTE_DISPONIBLES_SOLICITADAS', { name: product.name, available, quantity });
     }
 
     product.stock = available - quantity;
@@ -106,9 +105,7 @@ export class InventoryService {
       .getOne();
 
     if (!product) {
-      throw new NotFoundException(
-        `Producto con ID "${productId}" no encontrado en esta organización.`,
-      );
+      throw new NotFoundError('INVENTORY.PRODUCTO_ID_NO_ENCONTRADO_ESTA_ORGANIZACION', { productId });
     }
     return product;
   }

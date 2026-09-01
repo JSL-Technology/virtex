@@ -4,24 +4,24 @@ import { Transform } from 'class-transformer';
 
 export class UploadStatementDto {
   @IsString()
-  @IsNotEmpty({ message: 'El ID de la cuenta no puede estar vacío.' })
+  @IsNotEmpty({ message: 'VALIDATION.UPLOAD_STATEMENT.ID_CUENTA_NO_PUEDE_ESTAR_VACIO' })
   accountId: string;
 
-  @IsDateString({}, { message: 'La fecha de inicio debe ser una fecha válida.' })
-  @IsNotEmpty({ message: 'La fecha de inicio no puede estar vacía.' })
+  @IsDateString({}, { message: 'VALIDATION.UPLOAD_STATEMENT.FECHA_INICIO_DEBE_FECHA_VALIDA' })
+  @IsNotEmpty({ message: 'VALIDATION.UPLOAD_STATEMENT.FECHA_INICIO_NO_PUEDE_ESTAR_VACIA' })
   startDate: string;
 
-  @IsDateString({}, { message: 'La fecha de fin debe ser una fecha válida.' })
-  @IsNotEmpty({ message: 'La fecha de fin no puede estar vacía.' })
+  @IsDateString({}, { message: 'VALIDATION.UPLOAD_STATEMENT.FECHA_FIN_DEBE_FECHA_VALIDA' })
+  @IsNotEmpty({ message: 'VALIDATION.UPLOAD_STATEMENT.FECHA_FIN_NO_PUEDE_ESTAR_VACIA' })
   endDate: string;
 
-  @IsNumberString({}, { message: 'El saldo inicial debe ser un número.' })
-  @IsNotEmpty({ message: 'El saldo inicial no puede estar vacío.' })
+  @IsNumberString({}, { message: 'VALIDATION.UPLOAD_STATEMENT.SALDO_INICIAL_DEBE_NUMERO' })
+  @IsNotEmpty({ message: 'VALIDATION.UPLOAD_STATEMENT.SALDO_INICIAL_NO_PUEDE_ESTAR_VACIO' })
   @Transform(({ value }) => parseFloat(value))
   startingBalance: number;
 
-  @IsNumberString({}, { message: 'El saldo final debe ser un número.' })
-  @IsNotEmpty({ message: 'El saldo final no puede estar vacío.' })
+  @IsNumberString({}, { message: 'VALIDATION.UPLOAD_STATEMENT.SALDO_FINAL_DEBE_NUMERO' })
+  @IsNotEmpty({ message: 'VALIDATION.UPLOAD_STATEMENT.SALDO_FINAL_NO_PUEDE_ESTAR_VACIO' })
   @Transform(({ value }) => parseFloat(value))
   endingBalance: number;
 

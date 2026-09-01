@@ -7,7 +7,7 @@
     <span class="kpi-title">{{ kpi.title | translate }}</span>
   </div>
   <div class="kpi-body">
-    <span class="kpi-value">{{ kpi.value | number:'1.2-2' }}</span>
+    <span class="kpi-value">{{ kpi.value | vxNumber:'1.2-2' }}</span>
   </div>
   <div class="kpi-footer">
     @if(kpi.comparisonValue) {

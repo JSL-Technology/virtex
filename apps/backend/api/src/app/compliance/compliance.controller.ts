@@ -1,17 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Patch,
-  Body,
-  Param,
-  Query,
-  UseGuards,
-  BadRequestException,
-  ParseIntPipe,
-  ParseUUIDPipe,
-  Res,
-} from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards, ParseIntPipe, ParseUUIDPipe, Res } from '@nestjs/common';
 import { ComplianceService } from './compliance.service';
 import { ProvisionNcfSequenceDto } from './dto/provision-ncf-sequence.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
@@ -20,6 +7,7 @@ import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import type { HttpResponse as Response } from '../common/http/http.types';
+import { BadRequestError } from '../i18n/localized.exception';
 
 type ReportKind = '606' | '607' | '608' | '609';
 
@@ -38,7 +26,7 @@ export class ComplianceController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     if (dto.endsAt < dto.startsAt) {
-      throw new BadRequestException('El número final no puede ser menor que el inicial.');
+      throw new BadRequestError('COMPLIANCE.NUMERO_FINAL_NO_PUEDE_SER_MENOR_INICIAL');
     }
     return this.complianceService.provisionNcfSequence(user.organizationId, dto);
   }
@@ -106,17 +94,15 @@ export class ComplianceController {
 
   private assertKind(kind: string): ReportKind {
     if (kind === '606' || kind === '607' || kind === '608' || kind === '609') return kind;
-    throw new BadRequestException(
-      `Formato "${kind}" no reconocido. Los formatos disponibles son 606, 607, 608 y 609.`,
-    );
+    throw new BadRequestError('COMPLIANCE.FORMATO_NO_RECONOCIDO_FORMATOS_DISPONIBLES_SON_606', { kind });
   }
 
   private assertPeriod(year: number, month: number): void {
     if (!Number.isInteger(month) || month < 1 || month > 12) {
-      throw new BadRequestException('El mes debe estar entre 1 y 12.');
+      throw new BadRequestError('COMPLIANCE.MES_DEBE_ESTAR_ENTRE_12');
     }
     if (!Number.isInteger(year) || year < 2000 || year > 2100) {
-      throw new BadRequestException('El año no es válido.');
+      throw new BadRequestError('COMPLIANCE.ANO_NO_ES_VALIDO');
     }
   }
 }

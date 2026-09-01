@@ -5,11 +5,12 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { LucideAngularModule, Save } from 'lucide-angular';
 import { SuppliersService, CreateSupplierDto, UpdateSupplierDto } from '../../../../core/api/suppliers.service';
 import { NotificationService } from '../../../../core/services/notification';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-supplier-form-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, LucideAngularModule],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, LucideAngularModule, TranslateModule],
   templateUrl: './supplier-form.html',
   styleUrls: ['./supplier-form.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -54,7 +55,7 @@ export class SupplierForm implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.notificationService.showError('No se pudo cargar el proveedor.');
+        this.notificationService.showError('MASTERS.SUPPLIER_FORM.PUDO_CARGAR_PROVEEDOR');
         this.router.navigate(['/masters/suppliers']);
       },
     });
@@ -63,7 +64,7 @@ export class SupplierForm implements OnInit {
   saveSupplier(): void {
     if (this.supplierForm.invalid) {
       this.supplierForm.markAllAsTouched();
-      this.notificationService.showError('Por favor, completa los campos requeridos.');
+      this.notificationService.showError('MASTERS.SUPPLIER_FORM.FAVOR_COMPLETA_CAMPOS_REQUERIDOS');
       return;
     }
 
@@ -76,11 +77,11 @@ export class SupplierForm implements OnInit {
 
     operation.subscribe({
       next: () => {
-        this.notificationService.showSuccess(`Proveedor ${this.isEditMode() ? 'actualizado' : 'creado'} exitosamente.`);
+        this.notificationService.showSuccess(this.isEditMode() ? 'MASTERS.SUPPLIER_FORM.PROVEEDOR_ACTUALIZADO_EXITOSAMENTE' : 'MASTERS.SUPPLIER_FORM.PROVEEDOR_CREADO_EXITOSAMENTE');
         this.router.navigate(['/masters/suppliers']);
       },
       error: () => {
-        this.notificationService.showError(`Error al ${this.isEditMode() ? 'actualizar' : 'crear'} el proveedor.`);
+        this.notificationService.showError(this.isEditMode() ? 'MASTERS.SUPPLIER_FORM.ERROR_ACTUALIZAR_PROVEEDOR' : 'MASTERS.SUPPLIER_FORM.ERROR_CREAR_PROVEEDOR');
         this.isLoading.set(false);
       },
     });

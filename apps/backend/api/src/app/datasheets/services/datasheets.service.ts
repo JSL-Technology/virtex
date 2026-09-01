@@ -1,5 +1,5 @@
 
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DatasheetBook, DatasheetMode } from '../entities/datasheet-book.entity';
@@ -8,6 +8,7 @@ import { DatasheetVersion } from '../entities/datasheet-version.entity';
 import { DatasheetPermission, DatasheetAccessRole } from '../entities/datasheet-permission.entity';
 import { User } from '../../users/entities/user.entity/user.entity';
 import { TenantPrincipal } from '../../auth/interfaces/authenticated-user.interface';
+import { ForbiddenError, NotFoundError } from '../../i18n/localized.exception';
 
 @Injectable()
 export class DatasheetsService {
@@ -39,7 +40,7 @@ export class DatasheetsService {
     });
 
     if (!book) {
-      throw new NotFoundException(`Datasheet with ID ${id} not found`);
+      throw new NotFoundError('DATASHEETS.DATASHEET_WITH_ID_NOT_FOUND', { id });
     }
 
     // Check permissions
@@ -100,7 +101,7 @@ export class DatasheetsService {
   async remove(id: string, user: TenantPrincipal): Promise<void> {
     const book = await this.findOne(id, user);
     if (book.ownerId !== user.id) {
-      throw new ForbiddenException('Only the owner can delete this document');
+      throw new ForbiddenError('DATASHEETS.ONLY_OWNER_CAN_DELETE_THIS_DOCUMENT');
     }
     await this.bookRepo.remove(book);
   }

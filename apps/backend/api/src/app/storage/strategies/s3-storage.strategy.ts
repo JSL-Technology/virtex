@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   DeleteObjectCommand,
@@ -16,6 +16,7 @@ import {
   StoredFileStream,
   UploadableFile,
 } from '../storage.service';
+import { NotFoundError } from '../../i18n/localized.exception';
 
 /**
  * S3 storage.
@@ -92,7 +93,7 @@ export class S3StorageStrategy implements StorageService {
       };
     } catch (error) {
       this.logger.warn(`S3 object unavailable (${storageKey}): ${(error as Error).message}`);
-      throw new NotFoundException('El archivo no está disponible.');
+      throw new NotFoundError('STORAGE.ARCHIVO_NO_ESTA_DISPONIBLE');
     }
   }
 

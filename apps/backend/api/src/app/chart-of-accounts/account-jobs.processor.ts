@@ -12,6 +12,7 @@ import { ActionType } from '../audit/entities/audit-log.entity';
 import { MergeAccountsDto } from './dto/merge-accounts.dto';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { AccountBalance } from './entities/account-balance.entity';
+import { LocalizedMessage } from '../i18n/localized-message';
 
 
 interface MergeAccountsJobData {
@@ -39,11 +40,11 @@ export class AccountJobsProcessor extends WorkerHost {
 
 
 
-  async process(job: Job<MergeAccountsJobData>): Promise<{ message: string }> {
+  async process(job: Job<MergeAccountsJobData>): Promise<LocalizedMessage> {
 
     if (job.name !== 'merge-accounts') {
         this.logger.warn(`Job con nombre desconocido recibido: ${job.name}`);
-        return { message: 'Job desconocido ignorado.' };
+        return { messageKey: 'CHART_OF_ACCOUNTS.JOB_DESCONOCIDO_IGNORADO' };
     }
 
     const { dto, organizationId, userId } = job.data;
@@ -55,7 +56,7 @@ export class AccountJobsProcessor extends WorkerHost {
         jobId: job.id,
         status: 'ACTIVE',
         progress: 0,
-        message: 'Iniciando la fusión de cuentas...',
+        messageKey: 'CHART_OF_ACCOUNTS.INICIANDO_FUSION_CUENTAS',
     });
 
     try {
@@ -70,12 +71,12 @@ export class AccountJobsProcessor extends WorkerHost {
         if (!sourceAccount || !destAccount) throw new Error('La cuenta de origen o destino ya no existe.');
 
         await job.updateProgress(10);
-        await this.eventsGateway.sendToUser(userId, 'job-status', { jobId: job.id, progress: 10, message: 'Reasignando cuentas hijas...' });
+        await this.eventsGateway.sendToUser(userId, 'job-status', { jobId: job.id, progress: 10, messageKey: 'CHART_OF_ACCOUNTS.REASIGNANDO_CUENTAS_HIJAS' });
         await manager.update(Account, { parentId: sourceAccountId }, { parentId: destinationAccountId });
         this.logger.log(`Job ${job.id}: Cuentas hijas de ${sourceAccountId} reasignadas a ${destinationAccountId}.`);
         
         await job.updateProgress(30);
-        await this.eventsGateway.sendToUser(userId, 'job-status', { jobId: job.id, progress: 30, message: 'Reasignando transacciones (esto puede tardar)...' });
+        await this.eventsGateway.sendToUser(userId, 'job-status', { jobId: job.id, progress: 30, messageKey: 'CHART_OF_ACCOUNTS.REASIGNANDO_TRANSACCIONES_ESTO_PUEDE_TARDAR' });
         
         let updatedLinesCount = 0;
         
@@ -96,7 +97,7 @@ export class AccountJobsProcessor extends WorkerHost {
         this.logger.log(`Job ${job.id}: Total de ${updatedLinesCount} líneas de transacción reasignadas.`);
 
         await job.updateProgress(90);
-        await this.eventsGateway.sendToUser(userId, 'job-status', { jobId: job.id, progress: 90, message: 'Desactivando cuenta de origen y recalculando saldos...' });
+        await this.eventsGateway.sendToUser(userId, 'job-status', { jobId: job.id, progress: 90, messageKey: 'CHART_OF_ACCOUNTS.DESACTIVANDO_CUENTA_ORIGEN_RECALCULANDO_SALDOS' });
         
 
         const ledgers = await manager.find(Ledger, { where: { organizationId } });
@@ -124,18 +125,26 @@ export class AccountJobsProcessor extends WorkerHost {
       });
       
       await job.updateProgress(100);
-      const finalMessage = `Fusión completada: La cuenta ${dto.sourceAccountId} ha sido fusionada en ${dto.destinationAccountId}.`;
-      
+      const completed = {
+        messageKey: 'CHART_OF_ACCOUNTS.MERGE_COMPLETED',
+        messageParams: { source: dto.sourceAccountId, destination: dto.destinationAccountId },
+      };
+
+      // The socket carries the key too: the browser holds the catalogue and the job may finish
+      // long after the request that started it, possibly for a colleague reading in another
+      // language. Sending a finished sentence would freeze the language at job-completion time.
       await this.eventsGateway.sendToUser(userId, 'job-status', {
-        jobId: job.id, status: 'COMPLETED', progress: 100, message: finalMessage,
+        jobId: job.id, status: 'COMPLETED', progress: 100, ...completed,
       });
 
-      return { message: finalMessage };
+      return completed;
 
     } catch (error) {
       this.logger.error(`Fallo en el trabajo de fusión de cuentas (Job ID: ${job.id}). Razón: ${(error as Error).message}`, (error as Error).stack);
       await this.eventsGateway.sendToUser(userId, 'job-status', {
-        jobId: job.id, status: 'FAILED', message: `La fusión de cuentas ha fallado: ${(error as Error).message}`,
+        // The cause is not translated and not shown as prose: it is whatever threw, and forwarding
+        // it verbatim to a browser is how a stack trace or a SQL fragment reaches a customer.
+        jobId: job.id, status: 'FAILED', messageKey: 'CHART_OF_ACCOUNTS.MERGE_FAILED',
       });
       throw error;
     }

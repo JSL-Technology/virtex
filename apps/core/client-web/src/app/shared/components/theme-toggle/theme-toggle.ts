@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { LucideAngularModule, Monitor, Moon, Sun } from 'lucide-angular';
 
 import { ThemeMode, ThemeService } from '../../../core/services/theme';
+import { TranslateModule } from '@ngx-translate/core';
 
 interface ThemeOption {
   readonly mode: ThemeMode;
@@ -31,7 +32,7 @@ interface ThemeOption {
 @Component({
   selector: 'app-theme-toggle',
   standalone: true,
-  imports: [LucideAngularModule],
+  imports: [LucideAngularModule, TranslateModule],
   templateUrl: './theme-toggle.html',
   styleUrls: ['./theme-toggle.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

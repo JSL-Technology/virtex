@@ -3,11 +3,11 @@ import { PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH, PASSWORD_POLICY_REGEX, PASSWO
 
 export class ChangePasswordDto {
   @IsString()
-  @IsNotEmpty({ message: 'La contraseña actual no puede estar vacía.' })
+  @IsNotEmpty({ message: 'VALIDATION.CHANGE_PASSWORD.CONTRASENA_ACTUAL_NO_PUEDE_ESTAR_VACIA' })
   currentPassword: string;
 
   @IsString()
-  @IsNotEmpty({ message: 'La nueva contraseña no puede estar vacía.' })
+  @IsNotEmpty({ message: 'VALIDATION.CHANGE_PASSWORD.NUEVA_CONTRASENA_NO_PUEDE_ESTAR_VACIA' })
   @MinLength(PASSWORD_MIN_LENGTH, { message: `La contraseña debe tener al menos ${PASSWORD_MIN_LENGTH} caracteres.` })
   @MaxLength(PASSWORD_MAX_LENGTH)
   @Matches(PASSWORD_POLICY_REGEX, { message: PASSWORD_POLICY_MESSAGE })

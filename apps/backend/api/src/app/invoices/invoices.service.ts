@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-  ConflictException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, EntityManager, LessThanOrEqual, In } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -38,6 +32,7 @@ import { COUNTRY_TAX_SCHEMES } from '../localization/fiscal/country-tax-schemes'
 import { EcfSubmission } from '../einvoicing/entities/ecf-submission.entity';
 import { InvoiceRenderContext } from './services/invoice-renderer.service';
 import { fiscalDate, organizationTimeZone } from '../shared/fiscal-clock';
+import { BadRequestError, ConflictError, NotFoundError } from '../i18n/localized.exception';
 
 export interface InvoiceListQuery {
   page?: number;
@@ -149,11 +144,9 @@ export class InvoicesService {
         where: { id: invoiceId, organizationId },
         relations: ['lineItems', 'customer'],
       });
-      if (!invoice) throw new NotFoundException(`Factura con ID "${invoiceId}" no encontrada.`);
+      if (!invoice) throw new NotFoundError('INVOICES.FACTURA_ID_NO_ENCONTRADA', { invoiceId });
       if (invoice.status !== InvoiceStatus.DRAFT) {
-        throw new ConflictException(
-          `El documento ${invoice.invoiceNumber} ya fue emitido; no puede emitirse de nuevo.`,
-        );
+        throw new ConflictError('INVOICES.DOCUMENTO_YA_FUE_EMITIDO_NO_PUEDE_EMITIRSE', { invoiceNumber: invoice.invoiceNumber });
       }
       return this.issueWithin(invoice, type ?? null, organizationId, manager);
     });
@@ -233,9 +226,7 @@ export class InvoicesService {
     const customer = await this.customersService.findOne(dto.customerId, organizationId);
 
     if (new Date(dto.dueDate) < new Date(dto.issueDate)) {
-      throw new BadRequestException(
-        'La fecha de vencimiento no puede ser anterior a la fecha de emisión.',
-      );
+      throw new BadRequestError('INVOICES.FECHA_VENCIMIENTO_NO_PUEDE_SER_ANTERIOR_FECHA');
     }
 
     const { currencyCode, exchangeRate } = await this.resolveCurrency(
@@ -361,9 +352,7 @@ export class InvoicesService {
     const map = new Map(products.map((p) => [p.id, p]));
     const missing = ids.filter((id) => !map.has(id));
     if (missing.length > 0) {
-      throw new BadRequestException(
-        `Producto${missing.length > 1 ? 's' : ''} no encontrado${missing.length > 1 ? 's' : ''} en el catálogo: ${missing.join(', ')}.`,
-      );
+      throw new BadRequestError('INVOICES.PRODUCTO_NO_ENCONTRADO_CATALOGO', { p1: missing.length > 1 ? 's' : '', p2: missing.length > 1 ? 's' : '', p3: missing.join(', ') });
     }
     return map;
   }
@@ -384,16 +373,12 @@ export class InvoicesService {
 
     const description = (dto.description ?? product?.name ?? '').trim();
     if (!description) {
-      throw new BadRequestException(
-        `La línea ${index + 1} necesita una descripción o un producto del catálogo.`,
-      );
+      throw new BadRequestError('INVOICES.LINEA_NECESITA_DESCRIPCION_PRODUCTO_CATALOGO', { p1: index + 1 });
     }
 
     const unitPrice = dto.unitPrice ?? Number(product?.price ?? NaN);
     if (!Number.isFinite(unitPrice)) {
-      throw new BadRequestException(
-        `La línea ${index + 1} no tiene precio: indícalo o selecciona un producto del catálogo.`,
-      );
+      throw new BadRequestError('INVOICES.LINEA_NO_TIENE_PRECIO_INDICALO_SELECCIONA_PRODUCTO', { p1: index + 1 });
     }
 
     const isService = dto.isService ?? product?.kind === ProductKind.SERVICE;
@@ -468,9 +453,7 @@ export class InvoicesService {
 
     const baseToTransaction = Number(rate.rate);
     if (!Number.isFinite(baseToTransaction) || baseToTransaction <= 0) {
-      throw new BadRequestException(
-        `La tasa de cambio configurada para ${currencyCode} no es válida.`,
-      );
+      throw new BadRequestError('INVOICES.TASA_CAMBIO_CONFIGURADA_NO_ES_VALIDA', { currencyCode });
     }
     return { currencyCode, exchangeRate: 1 / baseToTransaction };
   }
@@ -503,11 +486,9 @@ export class InvoicesService {
         where: { id: invoiceId, organizationId },
         relations: ['lineItems'],
       });
-      if (!existing) throw new NotFoundException(`Factura con ID "${invoiceId}" no encontrada.`);
+      if (!existing) throw new NotFoundError('INVOICES.FACTURA_ID_NO_ENCONTRADA', { invoiceId });
       if (existing.status !== InvoiceStatus.DRAFT) {
-        throw new ConflictException(
-          'Solo se puede modificar un borrador. Un comprobante emitido se corrige con una nota de crédito.',
-        );
+        throw new ConflictError('INVOICES.SOLO_PUEDE_MODIFICAR_BORRADOR_COMPROBANTE_EMITIDO_CORRIGE');
       }
 
       const rebuilt = await this.buildDocument(dto, organizationId, manager);
@@ -552,11 +533,9 @@ export class InvoicesService {
     const invoice = await this.invoicesRepository.findOne({
       where: { id: invoiceId, organizationId },
     });
-    if (!invoice) throw new NotFoundException(`Factura con ID "${invoiceId}" no encontrada.`);
+    if (!invoice) throw new NotFoundError('INVOICES.FACTURA_ID_NO_ENCONTRADA', { invoiceId });
     if (invoice.status !== InvoiceStatus.DRAFT) {
-      throw new ConflictException(
-        'Un comprobante emitido no se elimina: anúlalo con una nota de crédito.',
-      );
+      throw new ConflictError('INVOICES.COMPROBANTE_EMITIDO_NO_ELIMINA_ANULALO_NOTA_CREDITO');
     }
     await this.invoicesRepository.delete({ id: invoiceId, organizationId });
   }
@@ -597,18 +576,16 @@ export class InvoicesService {
       });
 
       if (!original) {
-        throw new NotFoundException(`Factura original con ID "${dto.invoiceId}" no encontrada.`);
+        throw new NotFoundError('INVOICES.FACTURA_ORIGINAL_ID_NO_ENCONTRADA', { invoiceId: dto.invoiceId });
       }
       if (original.status === InvoiceStatus.DRAFT) {
-        throw new BadRequestException(
-          'Un borrador no se acredita: elimínalo o modifícalo directamente.',
-        );
+        throw new BadRequestError('INVOICES.BORRADOR_NO_ACREDITA_ELIMINALO_MODIFICALO_DIRECTAMENTE');
       }
       if (original.status === InvoiceStatus.VOID) {
-        throw new ConflictException('La factura ya fue anulada en su totalidad.');
+        throw new ConflictError('INVOICES.FACTURA_YA_FUE_ANULADA_TOTALIDAD');
       }
       if (original.type !== InvoiceType.INVOICE) {
-        throw new BadRequestException('Solo una factura puede ser acreditada.');
+        throw new BadRequestError('INVOICES.SOLO_FACTURA_PUEDE_SER_ACREDITADA');
       }
 
       const selections = this.resolveCreditSelections(original, dto);
@@ -795,7 +772,7 @@ export class InvoicesService {
   ): CreditSelection[] {
     const lines = original.lineItems ?? [];
     if (lines.length === 0) {
-      throw new BadRequestException('La factura original no tiene líneas que acreditar.');
+      throw new BadRequestError('INVOICES.FACTURA_ORIGINAL_NO_TIENE_LINEAS_ACREDITAR');
     }
 
     if (!dto.items || dto.items.length === 0) {
@@ -803,7 +780,7 @@ export class InvoicesService {
         .map((line) => ({ line, quantity: round6(line.quantity - line.creditedQuantity) }))
         .filter((s) => s.quantity > 0);
       if (selections.length === 0) {
-        throw new ConflictException('La factura ya fue acreditada en su totalidad.');
+        throw new ConflictError('INVOICES.FACTURA_YA_FUE_ACREDITADA_TOTALIDAD');
       }
       return selections;
     }
@@ -814,15 +791,13 @@ export class InvoicesService {
 
     for (const item of dto.items) {
       if (seen.has(item.lineId)) {
-        throw new BadRequestException(`La línea ${item.lineId} aparece dos veces en la solicitud.`);
+        throw new BadRequestError('INVOICES.LINEA_APARECE_DOS_VECES_SOLICITUD', { lineId: item.lineId });
       }
       seen.add(item.lineId);
 
       const line = byId.get(item.lineId);
       if (!line) {
-        throw new BadRequestException(
-          `La línea ${item.lineId} no pertenece a la factura ${original.invoiceNumber}.`,
-        );
+        throw new BadRequestError('INVOICES.LINEA_NO_PERTENECE_FACTURA', { lineId: item.lineId, invoiceNumber: original.invoiceNumber });
       }
       const available = round6(line.quantity - line.creditedQuantity);
       if (item.quantity > available + 1e-6) {
@@ -851,13 +826,13 @@ export class InvoicesService {
     manager: EntityManager,
   ): Promise<Invoice> {
     if (!invoice.originalInvoiceId) {
-      throw new BadRequestException('Una nota de crédito debe referenciar la factura que modifica.');
+      throw new BadRequestError('INVOICES.NOTA_CREDITO_DEBE_REFERENCIAR_FACTURA_MODIFICA');
     }
     const original = await manager
       .getRepository(Invoice)
       .findOne({ where: { id: invoice.originalInvoiceId, organizationId } });
     if (!original) {
-      throw new NotFoundException('La factura referenciada por la nota de crédito no existe.');
+      throw new NotFoundError('INVOICES.FACTURA_REFERENCIADA_NOTA_CREDITO_NO_EXISTE');
     }
     return original;
   }
@@ -908,7 +883,7 @@ export class InvoicesService {
       relations: ['lineItems', 'lineItems.product', 'customer'],
     });
     if (!invoice) {
-      throw new NotFoundException(`Factura con ID "${id}" no encontrada.`);
+      throw new NotFoundError('INVOICES.FACTURA_ID_NO_ENCONTRADA_2', { id });
     }
     invoice.lineItems?.sort((a, b) => a.sortOrder - b.sortOrder);
     return invoice;
@@ -926,7 +901,7 @@ export class InvoicesService {
     const organization = await this.organizationRepository.findOne({
       where: { id: organizationId },
     });
-    if (!organization) throw new NotFoundException('Organización no encontrada.');
+    if (!organization) throw new NotFoundError('INVOICES.ORGANIZACION_NO_ENCONTRADA');
 
     const submission = await this.dataSource.getRepository(EcfSubmission).findOne({
       where: { invoiceId: invoice.id, organizationId },

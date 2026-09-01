@@ -5,6 +5,7 @@ import * as XLSX from 'xlsx';
 import { CsvParsingOptionsDto } from '../dto/journal-entry-import.dto';
 import { FastifyFile } from '../../common/interfaces/fastify-file.interface';
 import { readFile } from 'fs/promises';
+import { BadRequestError } from '../../i18n/localized.exception';
 
 export enum FileType {
     CSV = 'text/csv',
@@ -20,7 +21,7 @@ export class FileParserService {
         // less clearly than saying so here.
         const bytes = file.buffer ?? (file.path ? await readFile(file.path) : undefined);
         if (!bytes) {
-            throw new BadRequestException('El archivo subido está vacío o no se pudo leer.');
+            throw new BadRequestError('JOURNAL_ENTRIES.ARCHIVO_SUBIDO_ESTA_VACIO_NO_PUDO_LEER');
         }
 
         if (file.mimetype === FileType.CSV) {
@@ -28,7 +29,7 @@ export class FileParserService {
         } else if (file.mimetype.includes('spreadsheet') || file.mimetype.includes('excel')) {
             return this.parseExcel(bytes);
         } else {
-            throw new BadRequestException(`Tipo de archivo no soportado: ${file.mimetype}`);
+            throw new BadRequestError('JOURNAL_ENTRIES.TIPO_ARCHIVO_NO_SOPORTADO', { mimetype: file.mimetype });
         }
     }
 

@@ -8,7 +8,7 @@
         <span class="ov-hero__wave" aria-hidden="true">👋</span>
       </h1>
       <p class="ov-hero__subtitle">
-        <span class="ov-hero__date">{{ today | date:'EEEE, d MMMM y' }}</span>
+        <span class="ov-hero__date">{{ today | vxDate: 'weekday' }}</span>
         <span class="ov-hero__sep" aria-hidden="true">·</span>
         <span>{{ 'OVERVIEW.HERO.SUBTITLE' | translate }}</span>
       </p>

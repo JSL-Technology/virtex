@@ -11,6 +11,8 @@
     }
   ],
   "compilerOptions": {
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    // The server message catalogues are JSON, imported by `I18nService`.
+    "resolveJsonModule": true
   }
 }

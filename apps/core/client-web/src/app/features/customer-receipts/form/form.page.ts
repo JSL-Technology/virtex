@@ -5,11 +5,12 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, ChevronLeft } from 'lucide-angular';
 import { CustomerReceiptsService } from '../../../core/services/customer-receipts';
 import { NotificationService } from '../../../core/services/notification';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-customer-receipt-form-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideAngularModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideAngularModule, TranslateModule],
   templateUrl: './form.page.html',
   styleUrls: ['./form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,7 +39,7 @@ export class CustomerReceiptFormPage implements OnInit {
 
   save(): void {
     if (this.form.invalid) {
-      this.notificationService.showError('Por favor, completa todos los campos requeridos.');
+      this.notificationService.showError('CUSTOMER_RECEIPTS.FORM.FAVOR_COMPLETA_TODOS_CAMPOS_REQUERIDOS');
       return;
     }
 

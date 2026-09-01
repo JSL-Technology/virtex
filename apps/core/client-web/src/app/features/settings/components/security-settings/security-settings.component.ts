@@ -13,13 +13,14 @@ import { FormsModule } from '@angular/forms';
 import { ConfirmationModalComponent } from '../../../../shared/components/confirmation-modal/confirmation-modal.component';
 import { OtpComponent } from '../../../../shared/components/otp/otp.component';
 import { token } from '../../../../core/utils/chart-theme';
+import { FORMAT_PIPES } from '../../../../core/i18n/pipes/format.pipes';
 
 type SetupStep = 'INTRO' | 'EMAIL_VERIFY' | 'QR_SETUP' | 'BACKUP_CODES';
 
 @Component({
   selector: 'app-security-settings',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, QRCodeComponent, FormsModule, ConfirmationModalComponent, OtpComponent],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, QRCodeComponent, FormsModule, ConfirmationModalComponent, OtpComponent, ...FORMAT_PIPES],
   templateUrl: './security-settings.component.html',
   styleUrls: ['./security-settings.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

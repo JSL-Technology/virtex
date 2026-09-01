@@ -2,21 +2,21 @@
   <div class="page-container">
     <header class="page-header">
       <div>
-        <h1>Catálogo de Cuentas</h1>
+        <h1>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.CATALOGO_CUENTAS' | translate }}</h1>
         <div class="breadcrumb">
-          <a href="#">Contabilidad</a>
+          <a href="#">{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.CONTABILIDAD' | translate }}</a>
           <span class="divider">/</span>
-          <span>Catálogo</span>
+          <span>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.CATALOGO' | translate }}</span>
         </div>
       </div>
       <div class="page-header-actions">
         <button class="btn">
           <lucide-icon [name]="ExportIcon" size="16"></lucide-icon>
-          <span>Exportar</span>
+          <span>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.EXPORTAR' | translate }}</span>
         </button>
         <button class="btn btn-primary" (click)="goToAccountForm()">
           <lucide-icon [name]="PlusIcon" size="16"></lucide-icon>
-          <span>Nueva Cuenta</span>
+          <span>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.NUEVA_CUENTA' | translate }}</span>
         </button>
       </div>
     </header>
@@ -27,7 +27,7 @@
           <lucide-icon [name]="search" class="search-icon" size="18"></lucide-icon>
           <input
             type="text"
-            placeholder="Buscar por código o nombre..."
+            [placeholder]="'ACCOUNTING.CHART_OF_ACCOUNTS.BUSCAR_CODIGO_NOMBRE' | translate"
             [ngModel]="state.searchTerm()"
             (ngModelChange)="onSearchTermChange($event)"
           />
@@ -35,12 +35,12 @@
         <div class="filters">
           <!-- <select class="filter-select" [ngModel]="state.filters.status()" (ngModelChange)="onFilterChange('status', $event)"> -->
           <select class="filter-select" [ngModel]="" (ngModelChange)="onFilterChange('status', $event)">
-            <option value="ALL">Todos los Estados</option>
-            <option value="ACTIVE">Activa</option>
-            <option value="INACTIVE">Inactiva</option>
+            <option value="ALL">{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.TODOS_ESTADOS' | translate }}</option>
+            <option value="ACTIVE">{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.ACTIVA' | translate }}</option>
+            <option value="INACTIVE">{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.INACTIVA' | translate }}</option>
           </select>
           <select class="filter-select" [ngModel]="" (ngModelChange)="onFilterChange('type', $event)">
-            <option value="ALL">Todos los Tipos</option>
+            <option value="ALL">{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.TODOS_TIPOS' | translate }}</option>
             @for(type of accountTypes; track type) {
               <option [value]="type">{{ type | titlecase }}</option>
             }
@@ -89,7 +89,7 @@
               <tr>
                 <td colspan="5">
                   <div class="empty-state">
-                    <h3>Error al Cargar Cuentas</h3>
+                    <h3>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.ERROR_CARGAR_CUENTAS' | translate }}</h3>
                     <p>{{ state.error() }}</p>
                   </div>
                 </td>
@@ -137,7 +137,7 @@
                 </td>
                 <td>{{ account.type }}</td>
                 <td class="balance-cell" [class.negative]="account.balance < 0">
-                  {{ account.balance | number : "1.2-2" }}
+                  {{ account.balance | vxNumber : "1.2-2" }}
                 </td>
                 <td>
                   <span
@@ -152,14 +152,14 @@
                   <button
                     class="btn-icon"
                     (click)="goToAccountForm(account.id)"
-                    title="Editar"
+                    [title]="'ACCOUNTING.CHART_OF_ACCOUNTS.EDITAR' | translate"
                   >
                     <lucide-icon [name]="EditIcon" size="16"></lucide-icon>
                   </button>
                   <button
                     class="btn-icon danger"
                     (click)="deleteAccount(account)"
-                    title="Eliminar"
+                    [title]="'ACCOUNTING.CHART_OF_ACCOUNTS.ELIMINAR' | translate"
                     [disabled]="account.isSystemAccount"
                   >
                     <lucide-icon [name]="TrashIcon" size="16"></lucide-icon>
@@ -170,10 +170,9 @@
               <tr>
                 <td colspan="5">
                   <div class="empty-state">
-                    <h3>No se encontraron cuentas</h3>
+                    <h3>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.NO_ENCONTRARON_CUENTAS' | translate }}</h3>
                     <p>
-                      Añade una nueva cuenta para empezar a gestionar tu
-                      catálogo.
+                      {{ 'ACCOUNTING.CHART_OF_ACCOUNTS.ANADE_NUEVA_CUENTA_EMPEZAR_GESTIONAR_TU' | translate }}
                     </p>
                   </div>
                 </td>
@@ -186,8 +185,8 @@
 
       <div class="card-footer">
         <div class="pagination-info">
-          Mostrando <strong>10</strong> de
-          <strong>{{ state.displayAccounts().length }}</strong> cuentas
+          {{ 'ACCOUNTING.CHART_OF_ACCOUNTS.MOSTRANDO' | translate }} <strong>10</strong> de
+          <strong>{{ state.displayAccounts().length }}</strong> {{ 'ACCOUNTING.CHART_OF_ACCOUNTS.CUENTAS' | translate }}
         </div>
       </div>
     </div>

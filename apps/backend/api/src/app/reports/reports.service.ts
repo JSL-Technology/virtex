@@ -1,5 +1,5 @@
 
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository, Between, DataSource } from 'typeorm';
 import { Invoice, InvoiceStatus } from '../invoices/entities/invoice.entity';
@@ -11,6 +11,7 @@ import { JournalEntryStatus } from '../journal-entries/entities/journal-entry.en
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { CustomerPaymentLine } from '../customers/entities/customer-payment-line.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
+import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class ReportsService {
@@ -32,19 +33,19 @@ export class ReportsService {
     if (ledgerId) {
       targetLedger = await ledgerRepo.findOneBy({ id: ledgerId, organizationId });
       if (!targetLedger) {
-        throw new NotFoundException(`Libro contable con ID "${ledgerId}" no encontrado.`);
+        throw new NotFoundError('REPORTS.LIBRO_CONTABLE_ID_NO_ENCONTRADO', { ledgerId });
       }
     } else {
       targetLedger = await ledgerRepo.findOneBy({ organizationId, isDefault: true });
     }
 
     if (!targetLedger) {
-        throw new BadRequestException('No se pudo determinar el libro contable para el reporte. No se especificó uno y no hay uno por defecto.');
+        throw new BadRequestError('REPORTS.NO_PUDO_DETERMINAR_LIBRO_CONTABLE_REPORTE_NO');
     }
 
     const settings = await this.dataSource.getRepository(OrganizationSettings).findOneBy({ organizationId });
     if (!settings || !settings.defaultAccountsReceivableId) {
-        throw new BadRequestException('La cuenta de Cuentas por Cobrar por defecto no está configurada.');
+        throw new BadRequestError('REPORTS.CUENTA_CUENTAS_COBRAR_DEFECTO_NO_ESTA_CONFIGURADA');
     }
     const arAccountId = settings.defaultAccountsReceivableId;
 
@@ -57,7 +58,7 @@ export class ReportsService {
     });
 
     if (openInvoices.length === 0) {
-        return { message: "No hay facturas pendientes de pago para generar el reporte." };
+        return { messageKey: 'REPORTS.NO_HAY_FACTURAS_PENDIENTES_PAGO_PARA_GENERAR_REPORTE' };
     }
 
     const paymentLines = await this.dataSource.getRepository(CustomerPaymentLine)

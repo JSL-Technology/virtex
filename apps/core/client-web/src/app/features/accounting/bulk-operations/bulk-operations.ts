@@ -22,11 +22,12 @@ import { RouterLink } from '@angular/router';
 import { ChartOfAccountsStateService } from '../../../core/state/chart-of-accounts.state';
 import { finalize } from 'rxjs/operators';
 import { BulkOperationResult, ChartOfAccountsService } from '../../../core/services/chart-of-accounts';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-bulk-operations',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslateModule],
   templateUrl: './bulk-operations.html',
   styleUrls: ['./bulk-operations.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,10 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityManager } from 'typeorm';
 import { Organization } from './entities/organization.entity';
@@ -20,6 +14,7 @@ import { coaSegmentsFor } from '../localization/fiscal/coa-builder';
 import { findCountryProfile } from '../localization/fiscal/country-profiles';
 import { canonicalizeTaxId, validateTaxId } from '../localization/fiscal/tax-id-validators';
 import { organizationTimeZone } from '../shared/fiscal-clock';
+import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class OrganizationsService {
@@ -37,7 +32,7 @@ export class OrganizationsService {
   async findOne(id: string): Promise<Organization> {
     const organization = await this.organizationRepository.findOneBy({ id });
     if (!organization) {
-      throw new NotFoundException(`Organization with ID ${id} not found`);
+      throw new NotFoundError('ORGANIZATIONS.ORGANIZATION_WITH_ID_NOT_FOUND', { id });
     }
     return organization;
   }
@@ -79,22 +74,16 @@ export class OrganizationsService {
     const country = createSubsidiaryDto.country?.toUpperCase() ?? '';
     const profile = findCountryProfile(country);
     if (!profile) {
-      throw new BadRequestException(
-        `El país "${createSubsidiaryDto.country}" todavía no está disponible.`,
-      );
+      throw new BadRequestError('ORGANIZATIONS.PAIS_TODAVIA_NO_ESTA_DISPONIBLE', { country: createSubsidiaryDto.country });
     }
     if (!validateTaxId(country, createSubsidiaryDto.taxId)) {
-      throw new BadRequestException(
-        `El ${profile.taxId.label} no es válido para ${profile.name}.`,
-      );
+      throw new BadRequestError('ORGANIZATIONS.NO_ES_VALIDO', { label: profile.taxId.label, name: profile.name });
     }
 
     const taxId = canonicalizeTaxId(country, createSubsidiaryDto.taxId);
     const region = await this.localizationService.findRegionByCountryCode(country);
     if (!region) {
-      throw new InternalServerErrorException(
-        'La configuración fiscal de ese país no está disponible en este momento.',
-      );
+      throw new InternalServerError('ORGANIZATIONS.CONFIGURACION_FISCAL_ESE_PAIS_NO_ESTA_DISPONIBLE');
     }
 
     return this.organizationRepository.manager.transaction(async (manager) => {
@@ -110,7 +99,7 @@ export class OrganizationsService {
         where: { id: parentOrganizationId },
       });
       if (!parent) {
-        throw new NotFoundException('Organización matriz no encontrada.');
+        throw new NotFoundError('ORGANIZATIONS.ORGANIZACION_MATRIZ_NO_ENCONTRADA');
       }
 
       // Same rule the signup applies: one fiscal identity per market.
@@ -118,9 +107,7 @@ export class OrganizationsService {
         where: { taxId, fiscalRegionId: region.id },
       });
       if (duplicate) {
-        throw new ConflictException(
-          `Ya existe una organización registrada con ese ${profile.taxId.label}.`,
-        );
+        throw new ConflictError('ORGANIZATIONS.YA_EXISTE_ORGANIZACION_REGISTRADA_ESE', { label: profile.taxId.label });
       }
 
       const savedOrg = await this.create(

@@ -4,7 +4,7 @@
         <div class="header-actions">
             <button class="secondary-button">
                 <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
-                <span>Filters</span>
+                <span>{{ 'PURCHASING.ORDERS.FILTERS' | translate }}</span>
             </button>
             <a routerLink="/purchasing/orders/new" class="primary-button">
                 <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
@@ -16,11 +16,11 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Order #</th>
-                    <th>Supplier</th>
-                    <th>Order Date</th>
-                    <th class="text-right">Total</th>
-                    <th class="text-center">Status</th>
+                    <th>{{ 'PURCHASING.ORDERS.ORDER' | translate }}</th>
+                    <th>{{ 'PURCHASING.ORDERS.SUPPLIER' | translate }}</th>
+                    <th>{{ 'PURCHASING.ORDERS.ORDER_DATE' | translate }}</th>
+                    <th class="text-right">{{ 'PURCHASING.ORDERS.TOTAL' | translate }}</th>
+                    <th class="text-center">{{ 'PURCHASING.ORDERS.STATUS' | translate }}</th>
                     <th class="actions-column"></th>
                 </tr>
             </thead>
@@ -31,7 +31,7 @@
                             }}</a></td>
                     <td>{{ order.supplierName }}</td>
                     <td>{{ order.orderDate }}</td>
-                    <td class="text-right">{{ order.total | number:'1.2-2' }}</td>
+                    <td class="text-right">{{ order.total | vxNumber:'1.2-2' }}</td>
                     <td class="text-center">
                         <span class="status-badge" [ngClass]="getStatusClass(order.status)">
                             {{ order.status }}
@@ -45,7 +45,7 @@
                 </tr>
                 } @empty {
                 <tr>
-                    <td colspan="6" class="empty-state">No purchase orders found.</td>
+                    <td colspan="6" class="empty-state">{{ 'PURCHASING.ORDERS.NO_PURCHASE_ORDERS_FOUND' | translate }}</td>
                 </tr>
                 }
             </tbody>

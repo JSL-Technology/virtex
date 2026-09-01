@@ -90,13 +90,6 @@ export class LoginPage implements OnInit {
   ngOnInit() {
     this.countryService.detectAndSetCountry();
 
-    this.route.paramMap.subscribe(params => {
-      const lang = params.get('lang');
-      if (lang) {
-        this.languageService.setLanguage(lang);
-      }
-    });
-
     // Social / SSO callbacks redirect back here with ?error=<code> on failure.
     this.route.queryParamMap.subscribe(params => {
       const error = params.get('error');
@@ -291,10 +284,17 @@ export class LoginPage implements OnInit {
     });
   }
 
-  private handleSuccess(user: any): void {
-    if (user && user.preferredLanguage) {
-      this.languageService.setLanguage(user.preferredLanguage);
-    }
+  /**
+   * The language is NOT applied here.
+   *
+   * `AuthService.applyAuthenticated` is the one funnel every path into a signed-in state goes
+   * through — bootstrap, refresh, login, 2FA, invitation, impersonation — and it applies the
+   * account's language and the tenant's locale context there. Doing it again here would mean two
+   * places that have to agree, and the five paths that do NOT come through this method would
+   * still be missing it.
+   */
+  private handleSuccess(user: unknown): void {
+    void user;
     this.router.navigate(['/overview']);
     this.isLoggingIn.set(false);
   }

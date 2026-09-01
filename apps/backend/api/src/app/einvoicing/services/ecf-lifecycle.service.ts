@@ -1,11 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  Logger,
-  NotFoundException,
-  ServiceUnavailableException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
@@ -32,6 +25,7 @@ import { DgiiAuthService } from './dgii-auth.service';
 import { DgiiTransportService } from './dgii-transport.service';
 import { mapDgiiEstado, isTerminalStatus } from '../ecf-status.util';
 import { dgiiTimestamp, isoToDgiiDate, organizationTimeZone } from '../../shared/fiscal-clock';
+import { BadRequestError, ConflictError, NotFoundError } from '../../i18n/localized.exception';
 
 export interface CommercialApprovalRequest {
   /** RNC of the supplier that issued the comprobante. */
@@ -101,14 +95,12 @@ export class EcfLifecycleService {
       request.verdict === CommercialApprovalVerdict.REJECTED &&
       !request.rejectionReason?.trim()
     ) {
-      throw new BadRequestException(
-        'Un rechazo comercial debe indicar el motivo: la DGII lo exige y el emisor lo necesita para corregir.',
-      );
+      throw new BadRequestError('EINVOICING.RECHAZO_COMERCIAL_DEBE_INDICAR_MOTIVO_DGII_EXIGE');
     }
 
     const issuerRnc = digitsOf(request.issuerRnc);
     if (!issuerRnc) {
-      throw new BadRequestException('El RNC del emisor del comprobante es obligatorio.');
+      throw new BadRequestError('EINVOICING.RNC_EMISOR_COMPROBANTE_ES_OBLIGATORIO');
     }
 
     const org = await this.requireIssuer(organizationId);
@@ -124,9 +116,7 @@ export class EcfLifecycleService {
       },
     });
     if (existing && isTerminalStatus(existing.status)) {
-      throw new ConflictException(
-        `El comprobante ${request.ncf} de ${issuerRnc} ya fue respondido comercialmente.`,
-      );
+      throw new ConflictError('EINVOICING.COMPROBANTE_YA_FUE_RESPONDIDO_COMERCIALMENTE', { ncf: request.ncf, issuerRnc });
     }
 
     const message =
@@ -191,21 +181,17 @@ export class EcfLifecycleService {
     request: SequenceVoidRequest,
   ): Promise<EcfLifecycleMessage> {
     if (!isElectronicNcfType(request.type)) {
-      throw new BadRequestException(
-        `${request.type} no es un tipo electrónico; la anulación de rangos aplica solo a e-NCF.`,
-      );
+      throw new BadRequestError('EINVOICING.NO_ES_TIPO_ELECTRONICO_ANULACION_RANGOS_APLICA', { type: request.type });
     }
     if (request.to < request.from) {
-      throw new BadRequestException('El final del rango no puede ser menor que su inicio.');
+      throw new BadRequestError('EINVOICING.FINAL_RANGO_NO_PUEDE_SER_MENOR_INICIO');
     }
 
     const sequence = await this.sequenceRepo.findOne({
       where: { organizationId, type: request.type, isActive: true },
     });
     if (!sequence) {
-      throw new NotFoundException(
-        `No hay una secuencia activa de ${request.type} para esta organización.`,
-      );
+      throw new NotFoundError('EINVOICING.NO_HAY_SECUENCIA_ACTIVA_ESTA_ORGANIZACION', { type: request.type });
     }
 
     const current = Number(sequence.currentSequence);
@@ -223,9 +209,7 @@ export class EcfLifecycleService {
       );
     }
     if (request.to > endsAt) {
-      throw new BadRequestException(
-        `El rango autorizado termina en ${endsAt}; no puedes anular más allá de su límite.`,
-      );
+      throw new BadRequestError('EINVOICING.RANGO_AUTORIZADO_TERMINA_NO_PUEDES_ANULAR_MAS', { endsAt });
     }
 
     const org = await this.requireIssuer(organizationId);
@@ -297,11 +281,9 @@ export class EcfLifecycleService {
 
   private async requireIssuer(organizationId: string): Promise<Organization> {
     const org = await this.orgRepo.findOne({ where: { id: organizationId } });
-    if (!org) throw new NotFoundException('Organización no encontrada.');
+    if (!org) throw new NotFoundError('EINVOICING.ORGANIZACION_NO_ENCONTRADA');
     if (!org.taxId) {
-      throw new BadRequestException(
-        'La organización no tiene RNC configurado. Complétalo en Ajustes → Empresa.',
-      );
+      throw new BadRequestError('EINVOICING.ORGANIZACION_NO_TIENE_RNC_CONFIGURADO_COMPLETALO_AJUSTES');
     }
     return org;
   }
@@ -312,9 +294,7 @@ export class EcfLifecycleService {
       order: { createdAt: 'DESC' },
     });
     if (!cert) {
-      throw new BadRequestException(
-        'No hay un certificado digital activo para firmar. Cárgalo en Ajustes → Facturación Electrónica.',
-      );
+      throw new BadRequestError('EINVOICING.NO_HAY_CERTIFICADO_DIGITAL_ACTIVO_FIRMAR_CARGALO');
     }
     if (cert.notAfter && cert.notAfter.getTime() < Date.now()) {
       throw new BadRequestException(

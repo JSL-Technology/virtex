@@ -2,11 +2,9 @@
 
   <!-- Page Header -->
   <div class="sso-head">
-    <h1>Inicio de Sesión Único (SSO)</h1>
+    <h1>{{ 'SETTINGS.SSO.INICIO_SESION_UNICO_SSO' | translate }}</h1>
     <p class="muted">
-      Conecta el proveedor de identidad de tu organización (Okta, Microsoft Entra, Google
-      Workspace, Ping, Auth0…). Los usuarios de dominios verificados serán redirigidos
-      automáticamente a tu SSO al iniciar sesión.
+      {{ 'SETTINGS.SSO.CONECTA_PROVEEDOR_IDENTIDAD_TU_ORGANIZACION_OKTA' | translate }}
     </p>
   </div>
 
@@ -22,16 +20,16 @@
   <section class="card">
     <div class="card-head">
       <div>
-        <h2>Dominios Verificados</h2>
-        <p class="muted">Solo los usuarios de un dominio verificado serán enrutados a tu SSO.</p>
+        <h2>{{ 'SETTINGS.SSO.DOMINIOS_VERIFICADOS' | translate }}</h2>
+        <p class="muted">{{ 'SETTINGS.SSO.SOLO_USUARIOS_DOMINIO_VERIFICADO_SERAN_ENRUTADOS' | translate }}</p>
       </div>
     </div>
 
     <!-- Add domain inline form -->
     <form [formGroup]="domainForm" (ngSubmit)="addDomain()" class="inline-form">
-      <input type="text" formControlName="domain" placeholder="acme.com" class="input" />
+      <input type="text" formControlName="domain" [placeholder]="'SETTINGS.SSO.ACME_COM' | translate" class="input" />
       <button type="submit" class="btn btn-primary" [disabled]="domainForm.invalid">
-        Agregar dominio
+        {{ 'SETTINGS.SSO.AGREGAR_DOMINIO' | translate }}
       </button>
     </form>
 
@@ -39,9 +37,9 @@
       <table class="table">
         <thead>
           <tr>
-            <th>Dominio</th>
-            <th>Estado</th>
-            <th>Registro DNS (TXT)</th>
+            <th>{{ 'SETTINGS.SSO.DOMINIO' | translate }}</th>
+            <th>{{ 'SETTINGS.SSO.ESTADO' | translate }}</th>
+            <th>{{ 'SETTINGS.SSO.REGISTRO_DNS_TXT' | translate }}</th>
             <th></th>
           </tr>
         </thead>
@@ -57,12 +55,12 @@
               <td>
                 @if (!d.verified) {
                   <div class="dns">
-                    <div><span class="dns-k">Host:</span> <span class="mono">{{ d.dnsRecord.host }}</span></div>
-                    <div><span class="dns-k">Tipo:</span> <span class="mono">{{ d.dnsRecord.type }}</span></div>
+                    <div><span class="dns-k">{{ 'SETTINGS.SSO.HOST' | translate }}</span> <span class="mono">{{ d.dnsRecord.host }}</span></div>
+                    <div><span class="dns-k">{{ 'SETTINGS.SSO.TIPO' | translate }}</span> <span class="mono">{{ d.dnsRecord.type }}</span></div>
                     <div class="dns-val">
-                      <span class="dns-k">Valor:</span>
+                      <span class="dns-k">{{ 'SETTINGS.SSO.VALOR' | translate }}</span>
                       <span class="mono">{{ d.dnsRecord.value }}</span>
-                      <button type="button" class="btn-link" (click)="copy(d.dnsRecord.value)">copiar</button>
+                      <button type="button" class="btn-link" (click)="copy(d.dnsRecord.value)">{{ 'SETTINGS.SSO.COPIAR' | translate }}</button>
                     </div>
                   </div>
                 } @else {
@@ -71,16 +69,16 @@
               </td>
               <td class="row-actions">
                 @if (!d.verified) {
-                  <button type="button" class="btn btn-sm" (click)="verifyDomain(d)">Verificar</button>
+                  <button type="button" class="btn btn-sm" (click)="verifyDomain(d)">{{ 'SETTINGS.SSO.VERIFICAR' | translate }}</button>
                 }
-                <button type="button" class="btn btn-sm btn-danger" (click)="deleteDomain(d)">Eliminar</button>
+                <button type="button" class="btn btn-sm btn-danger" (click)="deleteDomain(d)">{{ 'SETTINGS.SSO.ELIMINAR' | translate }}</button>
               </td>
             </tr>
           }
         </tbody>
       </table>
     } @else {
-      <p class="muted" style="padding: 1.5rem; text-align: center;">Aún no has agregado dominios.</p>
+      <p class="muted" style="padding: 1.5rem; text-align: center;">{{ 'SETTINGS.SSO.AUN_NO_HAS_AGREGADO_DOMINIOS' | translate }}</p>
     }
   </section>
 
@@ -88,19 +86,19 @@
   <section class="card">
     <div class="card-head">
       <div>
-        <h2>Proveedores de Identidad (OIDC)</h2>
+        <h2>{{ 'SETTINGS.SSO.PROVEEDORES_IDENTIDAD_OIDC' | translate }}</h2>
         <p class="muted">
-          Configura tu proveedor OIDC. Requiere al menos un dominio verificado para activarlo.
+          {{ 'SETTINGS.SSO.CONFIGURA_TU_PROVEEDOR_OIDC_REQUIERE_MENOS' | translate }}
         </p>
       </div>
       <button type="button" class="btn btn-primary btn-sm" (click)="startNewProvider()">
-        Añadir proveedor
+        {{ 'SETTINGS.SSO.ANADIR_PROVEEDOR' | translate }}
       </button>
     </div>
 
     @if (!hasVerifiedDomain()) {
       <div class="alert alert-ok" style="margin: 1.25rem 1.5rem 0; border-radius: var(--radius-md);">
-        Debes verificar al menos un dominio antes de poder activar un proveedor.
+        {{ 'SETTINGS.SSO.DEBES_VERIFICAR_MENOS_DOMINIO_ANTES_PODER' | translate }}
       </div>
     }
 
@@ -109,33 +107,33 @@
       <form [formGroup]="providerForm" (ngSubmit)="saveProvider()" class="provider-form">
         <div class="grid">
           <label>
-            <span>Nombre</span>
-            <input type="text" formControlName="name" class="input" placeholder="Acme Okta" />
+            <span>{{ 'SETTINGS.SSO.NOMBRE' | translate }}</span>
+            <input type="text" formControlName="name" class="input" [placeholder]="'SETTINGS.SSO.ACME_OKTA' | translate" />
           </label>
           <label>
-            <span>Issuer URL (discovery)</span>
-            <input type="text" formControlName="issuerUrl" class="input" placeholder="https://acme.okta.com/oauth2/default" />
+            <span>{{ 'SETTINGS.SSO.ISSUER_URL_DISCOVERY' | translate }}</span>
+            <input type="text" formControlName="issuerUrl" class="input" [placeholder]="'SETTINGS.SSO.HTTPS_ACME_OKTA_COM_OAUTH2_DEFAULT' | translate" />
           </label>
           <label>
-            <span>Client ID</span>
+            <span>{{ 'SETTINGS.SSO.CLIENT_ID' | translate }}</span>
             <input type="text" formControlName="clientId" class="input" />
           </label>
           <label>
-            <span>Client Secret <span class="muted">(en blanco = sin cambios)</span></span>
+            <span>{{ 'SETTINGS.SSO.CLIENT_SECRET' | translate }} <span class="muted">{{ 'SETTINGS.SSO.BLANCO_SIN_CAMBIOS' | translate }}</span></span>
             <input type="password" formControlName="clientSecret" class="input" autocomplete="new-password" />
           </label>
           <label>
-            <span>Scopes</span>
-            <input type="text" formControlName="scopes" class="input" placeholder="openid email profile" />
+            <span>{{ 'SETTINGS.SSO.SCOPES' | translate }}</span>
+            <input type="text" formControlName="scopes" class="input" [placeholder]="'SETTINGS.SSO.OPENID_EMAIL_PROFILE' | translate" />
           </label>
           <label>
-            <span>Rol por defecto <span class="muted">(UUID, opcional)</span></span>
+            <span>{{ 'SETTINGS.SSO.ROL_DEFECTO' | translate }} <span class="muted">{{ 'SETTINGS.SSO.UUID_OPCIONAL' | translate }}</span></span>
             <input type="text" formControlName="defaultRoleId" class="input" />
           </label>
         </div>
         <div class="form-actions">
-          <button type="submit" class="btn btn-primary" [disabled]="providerForm.invalid">Guardar</button>
-          <button type="button" class="btn" (click)="cancelEdit()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="providerForm.invalid">{{ 'SETTINGS.SSO.GUARDAR' | translate }}</button>
+          <button type="button" class="btn" (click)="cancelEdit()">{{ 'SETTINGS.SSO.CANCELAR' | translate }}</button>
         </div>
       </form>
     }
@@ -144,10 +142,10 @@
       <table class="table">
         <thead>
           <tr>
-            <th>Nombre</th>
-            <th>Issuer</th>
-            <th>Redirect URI</th>
-            <th>Estado</th>
+            <th>{{ 'SETTINGS.SSO.NOMBRE' | translate }}</th>
+            <th>{{ 'SETTINGS.SSO.ISSUER' | translate }}</th>
+            <th>{{ 'SETTINGS.SSO.REDIRECT_URI' | translate }}</th>
+            <th>{{ 'SETTINGS.SSO.ESTADO' | translate }}</th>
             <th></th>
           </tr>
         </thead>
@@ -158,7 +156,7 @@
               <td class="mono small">{{ p.issuerUrl }}</td>
               <td class="mono small">
                 {{ p.redirectUri }}
-                <button type="button" class="btn-link" (click)="copy(p.redirectUri)">copiar</button>
+                <button type="button" class="btn-link" (click)="copy(p.redirectUri)">{{ 'SETTINGS.SSO.COPIAR' | translate }}</button>
               </td>
               <td>
                 <span class="badge" [class.badge-ok]="p.enabled" [class.badge-pending]="!p.enabled">
@@ -166,20 +164,20 @@
                 </span>
               </td>
               <td class="row-actions">
-                <button type="button" class="btn btn-sm" (click)="startEditProvider(p)">Editar</button>
+                <button type="button" class="btn btn-sm" (click)="startEditProvider(p)">{{ 'SETTINGS.SSO.EDITAR' | translate }}</button>
                 <button type="button" class="btn btn-sm"
                         [disabled]="!p.enabled && !hasVerifiedDomain()"
                         (click)="toggleEnabled(p)">
                   {{ p.enabled ? 'Desactivar' : 'Activar' }}
                 </button>
-                <button type="button" class="btn btn-sm btn-danger" (click)="deleteProvider(p)">Eliminar</button>
+                <button type="button" class="btn btn-sm btn-danger" (click)="deleteProvider(p)">{{ 'SETTINGS.SSO.ELIMINAR' | translate }}</button>
               </td>
             </tr>
           }
         </tbody>
       </table>
     } @else {
-      <p class="muted" style="padding: 1.5rem; text-align: center;">No hay proveedores configurados.</p>
+      <p class="muted" style="padding: 1.5rem; text-align: center;">{{ 'SETTINGS.SSO.NO_HAY_PROVEEDORES_CONFIGURADOS' | translate }}</p>
     }
   </section>
 

@@ -1,9 +1,9 @@
 <div class="page-container">
     <!-- Encabezado de la Página -->
     <div class="page-header">
-        <h1>Operaciones Masivas</h1>
+        <h1>{{ 'ACCOUNTING.BULK_OPERATIONS.OPERACIONES_MASIVAS' | translate }}</h1>
         <a routerLink="/accounting/chart-of-accounts" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Volver al Plan de Cuentas
+            <i class="fas fa-arrow-left"></i> {{ 'ACCOUNTING.BULK_OPERATIONS.VOLVER_PLAN_CUENTAS' | translate }}
         </a>
     </div>
 
@@ -11,16 +11,15 @@
         <!-- Sección de Importación -->
         <div class="card">
             <div class="card-header">
-                <h2><i class="fas fa-upload"></i> Importar Plan de Cuentas</h2>
+                <h2><i class="fas fa-upload"></i> {{ 'ACCOUNTING.BULK_OPERATIONS.IMPORTAR_PLAN_CUENTAS' | translate }}</h2>
             </div>
             <div class="card-body">
                 <p class="instructions">
-                    Sube un archivo en formato CSV o XLSX para crear o actualizar cuentas de forma masiva.
-                    Asegúrate de que el archivo siga la estructura requerida.
+                    {{ 'ACCOUNTING.BULK_OPERATIONS.SUBE_ARCHIVO_FORMATO_CSV_XLSX_CREAR' | translate }}
                 </p>
                 <div class="template-download">
                     <a href="javascript:void(0)" (click)="downloadTemplate()">
-                        <i class="fas fa-file-csv"></i> Descargar plantilla de ejemplo (CSV)
+                        <i class="fas fa-file-csv"></i> {{ 'ACCOUNTING.BULK_OPERATIONS.DESCARGAR_PLANTILLA_EJEMPLO_CSV' | translate }}
                     </a>
                 </div>
 
@@ -33,9 +32,9 @@
                         accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
 
                     <button class="btn btn-primary" (click)="onUpload()" [disabled]="!selectedFile() || isUploading()">
-                        <span *ngIf="!isUploading()"><i class="fas fa-cogs"></i> Procesar Archivo</span>
+                        <span *ngIf="!isUploading()"><i class="fas fa-cogs"></i> {{ 'ACCOUNTING.BULK_OPERATIONS.PROCESAR_ARCHIVO' | translate }}</span>
                         <span *ngIf="isUploading()">
-                            <i class="fas fa-spinner fa-spin"></i> Procesando...
+                            <i class="fas fa-spinner fa-spin"></i> {{ 'ACCOUNTING.BULK_OPERATIONS.PROCESANDO' | translate }}
                         </span>
                     </button>
                 </div>
@@ -43,26 +42,26 @@
 
             <!-- Sección de Resultados de la Importación -->
             <div class="card-footer" *ngIf="uploadResult()">
-                <h3>Resultados de la Importación</h3>
+                <h3>{{ 'ACCOUNTING.BULK_OPERATIONS.RESULTADOS_IMPORTACION' | translate }}</h3>
                 <div class="results-summary">
                     <div class="result-box success">
                         <span class="count">{{ uploadResult()!.successCount }}</span>
-                        <span class="label">Cuentas Creadas/Actualizadas</span>
+                        <span class="label">{{ 'ACCOUNTING.BULK_OPERATIONS.CUENTAS_CREADAS_ACTUALIZADAS' | translate }}</span>
                     </div>
                     <div class="result-box error" [class.has-errors]="uploadResult()!.errorCount > 0">
                         <span class="count">{{ uploadResult()!.errorCount }}</span>
-                        <span class="label">Registros con Errores</span>
+                        <span class="label">{{ 'ACCOUNTING.BULK_OPERATIONS.REGISTROS_ERRORES' | translate }}</span>
                     </div>
                 </div>
 
                 <div class="error-details" *ngIf="uploadResult()!.errorCount > 0">
-                    <h4>Detalle de Errores:</h4>
+                    <h4>{{ 'ACCOUNTING.BULK_OPERATIONS.DETALLE_ERRORES' | translate }}</h4>
                     <table>
                         <thead>
                             <tr>
-                                <th>Fila</th>
-                                <th>Código de Cuenta</th>
-                                <th>Mensaje de Error</th>
+                                <th>{{ 'ACCOUNTING.BULK_OPERATIONS.FILA' | translate }}</th>
+                                <th>{{ 'ACCOUNTING.BULK_OPERATIONS.CODIGO_CUENTA' | translate }}</th>
+                                <th>{{ 'ACCOUNTING.BULK_OPERATIONS.MENSAJE_ERROR' | translate }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -80,7 +79,7 @@
         <!-- Sección de Exportación -->
         <div class="card">
             <div class="card-header">
-                <h2><i class="fas fa-download"></i> Exportar Plan de Cuentas</h2>
+                <h2><i class="fas fa-download"></i> {{ 'ACCOUNTING.BULK_OPERATIONS.EXPORTAR_PLAN_CUENTAS' | translate }}</h2>
             </div>
             <!-- <div class="card-body">
                 <p class="instructions">

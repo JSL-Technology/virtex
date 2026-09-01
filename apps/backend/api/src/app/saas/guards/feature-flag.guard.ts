@@ -1,7 +1,8 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException, Inject, SetMetadata, UseGuards, applyDecorators, forwardRef } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, Inject, SetMetadata, UseGuards, applyDecorators, forwardRef } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { SaasService } from '../saas.service';
 import type { SaasFeatureKey } from '../saas.config';
+import { ForbiddenError } from '../../i18n/localized.exception';
 
 export const FEATURE_FLAG_KEY = 'feature_flag';
 
@@ -39,12 +40,12 @@ export class FeatureFlagGuard implements CanActivate {
     const user = request.user;
 
     if (!user || !user.organizationId) {
-       throw new ForbiddenException('Organization context required for feature check');
+       throw new ForbiddenError('SAAS.ORGANIZATION_CONTEXT_REQUIRED_FOR_FEATURE_CHECK');
     }
 
     const isEnabled = await this.saasService.checkFeature(user.organizationId, featureKey);
     if (!isEnabled) {
-        throw new ForbiddenException(`FEATURE_DISABLED: ${featureKey}`);
+        throw new ForbiddenError('SAAS.FEATURE_DISABLED', { featureKey });
     }
 
     return true;

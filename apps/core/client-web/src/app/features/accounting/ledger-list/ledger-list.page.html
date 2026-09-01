@@ -1,9 +1,9 @@
 <div class="page-container">
   <div class="page-header">
-    <h1 class="page-title">Libros Contables</h1>
+    <h1 class="page-title">{{ 'ACCOUNTING.LEDGER_LIST.LIBROS_CONTABLES' | translate }}</h1>
     <a [routerLink]="['/accounting/ledger-form/new']" class="btn btn-primary">
       <lucide-icon [name]="CreateIcon" [size]="16" class="mr-2"></lucide-icon>
-      Crear Nuevo Libro
+      {{ 'ACCOUNTING.LEDGER_LIST.CREAR_NUEVO_LIBRO' | translate }}
     </a>
   </div>
 
@@ -12,9 +12,9 @@
       <table class="table">
         <thead>
           <tr>
-            <th>Nombre</th>
-            <th>Descripción</th>
-            <th>Por Defecto</th>
+            <th>{{ 'ACCOUNTING.LEDGER_LIST.NOMBRE' | translate }}</th>
+            <th>{{ 'ACCOUNTING.LEDGER_LIST.DESCRIPCION' | translate }}</th>
+            <th>{{ 'ACCOUNTING.LEDGER_LIST.DEFECTO' | translate }}</th>
             <th class="w-1"></th>
           </tr>
         </thead>
@@ -28,12 +28,12 @@
               </td>
               <td>
                 <a [routerLink]="['/accounting/ledger-form', ledger.id]" class="btn btn-sm btn-ghost">
-                  Editar
+                  {{ 'ACCOUNTING.LEDGER_LIST.EDITAR' | translate }}
                 </a>
               </td>
             </tr>
             <tr *ngIf="ledgers.length === 0">
-              <td colspan="4" class="text-center">No se han encontrado libros contables.</td>
+              <td colspan="4" class="text-center">{{ 'ACCOUNTING.LEDGER_LIST.NO_HAN_ENCONTRADO_LIBROS_CONTABLES' | translate }}</td>
             </tr>
           </ng-container>
         </tbody>

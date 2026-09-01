@@ -1,14 +1,14 @@
 <div class="closing-container">
     <div class="closing-header">
-        <h3>Closing Process Checklists</h3>
+        <h3>{{ 'ACCOUNTING.CHECKLIST.CLOSING_PROCESS_CHECKLISTS' | translate }}</h3>
         <div class="header-actions">
             <button class="secondary-button">
                 <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
-                <span>Filters</span>
+                <span>{{ 'ACCOUNTING.CHECKLIST.FILTERS' | translate }}</span>
             </button>
             <button class="primary-button">
                 <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
-                <span>New Checklist</span>
+                <span>{{ 'ACCOUNTING.CHECKLIST.NEW_CHECKLIST' | translate }}</span>
             </button>
         </div>
     </div>
@@ -16,10 +16,10 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Checklist Name</th>
-                    <th class="text-center">Type</th>
-                    <th class="text-center">Task Count</th>
-                    <th>Assigned To</th>
+                    <th>{{ 'ACCOUNTING.CHECKLIST.CHECKLIST_NAME' | translate }}</th>
+                    <th class="text-center">{{ 'ACCOUNTING.CHECKLIST.TYPE' | translate }}</th>
+                    <th class="text-center">{{ 'ACCOUNTING.CHECKLIST.TASK_COUNT' | translate }}</th>
+                    <th>{{ 'ACCOUNTING.CHECKLIST.ASSIGNED' | translate }}</th>
                     <th class="actions-column"></th>
                 </tr>
             </thead>
@@ -45,7 +45,7 @@
                 </tr>
                 } @empty {
                 <tr>
-                    <td colspan="5" class="empty-state">No checklists have been created yet.</td>
+                    <td colspan="5" class="empty-state">{{ 'ACCOUNTING.CHECKLIST.NO_CHECKLISTS_HAVE_BEEN_CREATED_YET' | translate }}</td>
                 </tr>
                 }
             </tbody>

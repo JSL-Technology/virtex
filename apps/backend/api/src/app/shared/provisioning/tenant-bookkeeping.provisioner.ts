@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { Account } from '../../chart-of-accounts/entities/account.entity';
 import { AccountRole } from '../../chart-of-accounts/enums/account-enums';
@@ -11,6 +11,7 @@ import {
   DocumentSequence,
   DocumentType,
 } from '../document-sequences/entities/document-sequence.entity';
+import { InternalServerError } from '../../i18n/localized.exception';
 
 /**
  * Everything a tenant needs in order to record a transaction, created at the moment the tenant is.
@@ -262,9 +263,7 @@ export class TenantBookkeepingProvisioner {
   async assertCanInvoice(organizationId: string, manager: EntityManager): Promise<void> {
     const missing = await this.invoicingGaps(organizationId, manager);
     if (missing.length > 0) {
-      throw new InternalServerErrorException(
-        `La organización no está lista para facturar. Falta: ${missing.join('; ')}.`,
-      );
+      throw new InternalServerError('SHARED.ORGANIZACION_NO_ESTA_LISTA_FACTURAR_FALTA', { p1: missing.join('; ') });
     }
   }
 

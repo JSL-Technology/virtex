@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, Folder, File, Upload, Search, MoreHorizontal } from 'lucide-angular';
+import { TranslateModule } from '@ngx-translate/core';
 
 type FileItemType = 'folder' | 'pdf' | 'spreadsheet' | 'image' | 'document';
 
@@ -17,7 +18,7 @@ interface FileItem {
 @Component({
   selector: 'app-repository-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   templateUrl: './repository.page.html',
   styleUrls: ['./repository.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

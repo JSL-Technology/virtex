@@ -3,24 +3,24 @@
     <div class="view-header">
       <div class="header-content">
         <h1>{{ isEditing() ? 'Editar Cuenta Contable' : 'Nueva Cuenta Contable' }}</h1>
-        <p>Completa la información detallada de la cuenta.</p>
+        <p>{{ 'ACCOUNTING.ACCOUNT_FORM.COMPLETA_INFORMACION_DETALLADA_CUENTA' | translate }}</p>
       </div>
       <div class="header-actions">
-        <button type="button" class="secondary-button" (click)="onCancel()">Cancelar</button>
+        <button type="button" class="secondary-button" (click)="onCancel()">{{ 'ACCOUNTING.ACCOUNT_FORM.CANCELAR' | translate }}</button>
         <button type="submit" class="primary-button" [disabled]="isLoading() || accountForm.invalid">
           @if (isLoading()) {
             <span class="spinner"></span>
-            <span>Guardando...</span>
+            <span>{{ 'ACCOUNTING.ACCOUNT_FORM.GUARDANDO' | translate }}</span>
           } @else {
             <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
-            <span>Guardar Cuenta</span>
+            <span>{{ 'ACCOUNTING.ACCOUNT_FORM.GUARDAR_CUENTA' | translate }}</span>
           }
         </button>
       </div>
     </div>
 
     @if (isLoading()) {
-      <p class="loading-state">Cargando datos de la cuenta...</p>
+      <p class="loading-state">{{ 'ACCOUNTING.ACCOUNT_FORM.CARGANDO_DATOS_CUENTA' | translate }}</p>
     } @else {
       @if (isConfigMissing()) {
         <div class="config-warning-banner card">
@@ -28,13 +28,13 @@
             <lucide-icon [img]="AlertIcon" size="24"></lucide-icon>
           </div>
           <div class="warning-content">
-            <h3>Estructura de segmentos no configurada</h3>
-            <p>Para crear cuentas contables, primero debes definir la estructura de niveles (segmentos) de tu organización.</p>
+            <h3>{{ 'ACCOUNTING.ACCOUNT_FORM.ESTRUCTURA_SEGMENTOS_NO_CONFIGURADA' | translate }}</h3>
+            <p>{{ 'ACCOUNTING.ACCOUNT_FORM.CREAR_CUENTAS_CONTABLES_PRIMERO_DEBES_DEFINIR' | translate }}</p>
           </div>
           <div class="warning-actions">
             <a routerLink="/accounting/chart-of-accounts/segments-configuration" class="primary-button">
               <lucide-icon [img]="SettingsIcon" size="16"></lucide-icon>
-              <span>Configurar Segmentos</span>
+              <span>{{ 'ACCOUNTING.ACCOUNT_FORM.CONFIGURAR_SEGMENTOS' | translate }}</span>
             </a>
           </div>
         </div>
@@ -42,53 +42,53 @@
 
       <div class="form-container card" [class.disabled-form]="isConfigMissing()">
         <div class="tabs">
-          <button type="button" class="tab-link" [class.active]="activeTab() === 'general'" (click)="activeTab.set('general')">General</button>
-          <button type="button" class="tab-link" [class.active]="activeTab() === 'mappings'" (click)="activeTab.set('mappings')">Mapeos</button>
-          <button type="button" class="tab-link" [class.active]="activeTab() === 'rules'" (click)="activeTab.set('rules')">Reglas</button>
-          <button type="button" class="tab-link" [class.active]="activeTab() === 'advanced'" (click)="activeTab.set('advanced')">Avanzado</button>
+          <button type="button" class="tab-link" [class.active]="activeTab() === 'general'" (click)="activeTab.set('general')">{{ 'ACCOUNTING.ACCOUNT_FORM.GENERAL' | translate }}</button>
+          <button type="button" class="tab-link" [class.active]="activeTab() === 'mappings'" (click)="activeTab.set('mappings')">{{ 'ACCOUNTING.ACCOUNT_FORM.MAPEOS' | translate }}</button>
+          <button type="button" class="tab-link" [class.active]="activeTab() === 'rules'" (click)="activeTab.set('rules')">{{ 'ACCOUNTING.ACCOUNT_FORM.REGLAS' | translate }}</button>
+          <button type="button" class="tab-link" [class.active]="activeTab() === 'advanced'" (click)="activeTab.set('advanced')">{{ 'ACCOUNTING.ACCOUNT_FORM.AVANZADO' | translate }}</button>
         </div>
 
         <div class="tab-content">
           @if (activeTab() === 'general') {
             <section class="form-grid">
               <div class="form-field">
-                <label for="code">Código de Cuenta*</label>
+                <label for="code">{{ 'ACCOUNTING.ACCOUNT_FORM.CODIGO_CUENTA' | translate }}</label>
                 <input id="code" formControlName="code" [readonly]="isEditing()">
               </div>
               <div class="form-field">
-                <label for="name">Nombre de la Cuenta*</label>
+                <label for="name">{{ 'ACCOUNTING.ACCOUNT_FORM.NOMBRE_CUENTA' | translate }}</label>
                 <input id="name" formControlName="name">
               </div>
               <div class="form-field full-width">
-                <label for="description">Descripción</label>
+                <label for="description">{{ 'ACCOUNTING.ACCOUNT_FORM.DESCRIPCION' | translate }}</label>
                 <textarea id="description" formControlName="description" rows="3"></textarea>
               </div>
               <div class="form-field">
-                <label for="parentId">Cuenta Padre (Agrupadora)</label>
+                <label for="parentId">{{ 'ACCOUNTING.ACCOUNT_FORM.CUENTA_PADRE_AGRUPADORA' | translate }}</label>
                 <select id="parentId" formControlName="parentId">
-                  <option [ngValue]="null">-- Ninguna (Cuenta Raíz) --</option>
+                  <option [ngValue]="null">{{ 'ACCOUNTING.ACCOUNT_FORM.NINGUNA_CUENTA_RAIZ' | translate }}</option>
                   @for (opt of stateService.parentAccountOptions(); track opt.id) {
                     <option [value]="opt.id">{{ opt.code }} - {{ opt.name }}</option>
                   }
                 </select>
               </div>
               <div class="form-field">
-                <label for="type">Tipo de Cuenta*</label>
+                <label for="type">{{ 'ACCOUNTING.ACCOUNT_FORM.TIPO_CUENTA' | translate }}</label>
                 <select id="type" formControlName="type" [attr.disabled]="isEditing() ? true : null">
-                  <option [ngValue]="null" disabled>Seleccionar tipo...</option>
+                  <option [ngValue]="null" disabled>{{ 'ACCOUNTING.ACCOUNT_FORM.SELECCIONAR_TIPO' | translate }}</option>
                   @for (type of accountTypes; track type) {
                     <option [value]="type">{{ type }}</option>
                   }
                 </select>
               </div>
                <div class="form-field">
-                <label for="nature">Naturaleza (Automático)</label>
+                <label for="nature">{{ 'ACCOUNTING.ACCOUNT_FORM.NATURALEZA_AUTOMATICO' | translate }}</label>
                 <input id="nature" formControlName="nature" readonly>
               </div>
               <div class="form-field">
-                <label for="category">Categoría*</label>
+                <label for="category">{{ 'ACCOUNTING.ACCOUNT_FORM.CATEGORIA' | translate }}</label>
                 <select id="category" formControlName="category">
-                  <option [ngValue]="null" disabled>Seleccionar categoría...</option>
+                  <option [ngValue]="null" disabled>{{ 'ACCOUNTING.ACCOUNT_FORM.SELECCIONAR_CATEGORIA' | translate }}</option>
                   @for (cat of accountCategories; track cat) {
                     <option [value]="cat">{{ cat }}</option>
                   }
@@ -96,30 +96,30 @@
               </div>
               <div class="form-field checkbox-field">
                 <input id="isPostable" type="checkbox" formControlName="isPostable">
-                <label for="isPostable">Es una cuenta imputable (permite transacciones)</label>
+                <label for="isPostable">{{ 'ACCOUNTING.ACCOUNT_FORM.ES_CUENTA_IMPUTABLE_PERMITE_TRANSACCIONES' | translate }}</label>
               </div>
               <div class="form-field checkbox-field">
                 <input id="isActive" type="checkbox" formControlName="isActive">
-                <label for="isActive">Cuenta activa</label>
+                <label for="isActive">{{ 'ACCOUNTING.ACCOUNT_FORM.CUENTA_ACTIVA' | translate }}</label>
               </div>
             </section>
           }
 
           @if (activeTab() === 'mappings') {
             <section formGroupName="statementMapping">
-              <h3>Mapeo de Estados Financieros</h3>
-              <p class="section-description">Define cómo se representa esta cuenta en los reportes financieros clave.</p>
+              <h3>{{ 'ACCOUNTING.ACCOUNT_FORM.MAPEO_ESTADOS_FINANCIEROS' | translate }}</h3>
+              <p class="section-description">{{ 'ACCOUNTING.ACCOUNT_FORM.DEFINE_COMO_REPRESENTA_ESTA_CUENTA_REPORTES' | translate }}</p>
               <div class="form-grid">
                 <div class="form-field">
-                  <label for="balanceSheetCategory">Categoría de Balance General</label>
-                  <input id="balanceSheetCategory" formControlName="balanceSheetCategory" placeholder="Ej: Activos Circulantes">
+                  <label for="balanceSheetCategory">{{ 'ACCOUNTING.ACCOUNT_FORM.CATEGORIA_BALANCE_GENERAL' | translate }}</label>
+                  <input id="balanceSheetCategory" formControlName="balanceSheetCategory" [placeholder]="'ACCOUNTING.ACCOUNT_FORM.EJ_ACTIVOS_CIRCULANTES' | translate">
                 </div>
                 <div class="form-field">
-                  <label for="incomeStatementCategory">Categoría de Estado de Resultados</label>
-                  <input id="incomeStatementCategory" formControlName="incomeStatementCategory" placeholder="Ej: Ingresos Operativos">
+                  <label for="incomeStatementCategory">{{ 'ACCOUNTING.ACCOUNT_FORM.CATEGORIA_ESTADO_RESULTADOS' | translate }}</label>
+                  <input id="incomeStatementCategory" formControlName="incomeStatementCategory" [placeholder]="'ACCOUNTING.ACCOUNT_FORM.EJ_INGRESOS_OPERATIVOS' | translate">
                 </div>
                 <div class="form-field">
-                  <label for="cashFlowCategory">Categoría de Flujo de Efectivo</label>
+                  <label for="cashFlowCategory">{{ 'ACCOUNTING.ACCOUNT_FORM.CATEGORIA_FLUJO_EFECTIVO' | translate }}</label>
                   <select id="cashFlowCategory" formControlName="cashFlowCategory">
                     @for (cat of cashFlowCategories; track cat) {
                       <option [value]="cat">{{ cat | titlecase }}</option>
@@ -132,16 +132,16 @@
 
           @if (activeTab() === 'rules') {
             <section formGroupName="rules">
-              <h3>Reglas de Contabilización</h3>
-              <p class="section-description">Establece restricciones y comportamientos específicos para esta cuenta.</p>
+              <h3>{{ 'ACCOUNTING.ACCOUNT_FORM.REGLAS_CONTABILIZACION' | translate }}</h3>
+              <p class="section-description">{{ 'ACCOUNTING.ACCOUNT_FORM.ESTABLECE_RESTRICCIONES_COMPORTAMIENTOS_ESPECIFICOS_ESTA_CUENTA' | translate }}</p>
               <div class="form-grid">
-                  <div class="form-field checkbox-field"><input type="checkbox" id="requiresReconciliation" formControlName="requiresReconciliation"><label for="requiresReconciliation">Requiere Reconciliación</label></div>
-                  <div class="form-field checkbox-field"><input type="checkbox" id="isCashOrBank" formControlName="isCashOrBank"><label for="isCashOrBank">Es Cuenta de Caja o Banco</label></div>
-                  <div class="form-field checkbox-field"><input type="checkbox" id="allowsIntercompany" formControlName="allowsIntercompany"><label for="allowsIntercompany">Permite Transacciones Intercompañía</label></div>
-                  <div class="form-field checkbox-field"><input type="checkbox" id="isFxRevaluation" formControlName="isFxRevaluation"><label for="isFxRevaluation">Aplica Revaluación por Tipo de Cambio</label></div>
+                  <div class="form-field checkbox-field"><input type="checkbox" id="requiresReconciliation" formControlName="requiresReconciliation"><label for="requiresReconciliation">{{ 'ACCOUNTING.ACCOUNT_FORM.REQUIERE_RECONCILIACION' | translate }}</label></div>
+                  <div class="form-field checkbox-field"><input type="checkbox" id="isCashOrBank" formControlName="isCashOrBank"><label for="isCashOrBank">{{ 'ACCOUNTING.ACCOUNT_FORM.ES_CUENTA_CAJA_BANCO' | translate }}</label></div>
+                  <div class="form-field checkbox-field"><input type="checkbox" id="allowsIntercompany" formControlName="allowsIntercompany"><label for="allowsIntercompany">{{ 'ACCOUNTING.ACCOUNT_FORM.PERMITE_TRANSACCIONES_INTERCOMPANIA' | translate }}</label></div>
+                  <div class="form-field checkbox-field"><input type="checkbox" id="isFxRevaluation" formControlName="isFxRevaluation"><label for="isFxRevaluation">{{ 'ACCOUNTING.ACCOUNT_FORM.APLICA_REVALUACION_TIPO_CAMBIO' | translate }}</label></div>
               </div>
               <div class="form-field full-width" formArrayName="requiredDimensions">
-                  <label for="dimensiones-requeridas">Dimensiones Requeridas</label>
+                  <label for="dimensiones-requeridas">{{ 'ACCOUNTING.ACCOUNT_FORM.DIMENSIONES_REQUERIDAS' | translate }}</label>
                   <div class="checkbox-group">
                       @for(dim of allDimensions; track dim; let i = $index){
                           <div class="checkbox-item">
@@ -156,23 +156,23 @@
           
           @if (activeTab() === 'advanced') {
             <section formGroupName="advanced">
-                <h3>Configuración Avanzada</h3>
-                <p class="section-description">Parámetros de control y auditoría para la cuenta.</p>
+                <h3>{{ 'ACCOUNTING.ACCOUNT_FORM.CONFIGURACION_AVANZADA' | translate }}</h3>
+                <p class="section-description">{{ 'ACCOUNTING.ACCOUNT_FORM.PARAMETROS_CONTROL_AUDITORIA_CUENTA' | translate }}</p>
                 <div class="form-grid">
                     <div class="form-field">
-                        <label for="version">Versión del Catálogo</label>
+                        <label for="version">{{ 'ACCOUNTING.ACCOUNT_FORM.VERSION_CATALOGO' | translate }}</label>
                         <input id="version" type="number" formControlName="version">
                     </div>
                     <div class="form-field">
-                        <label for="hierarchyType">Tipo de Jerarquía</label>
+                        <label for="hierarchyType">{{ 'ACCOUNTING.ACCOUNT_FORM.TIPO_JERARQUIA' | translate }}</label>
                         <input id="hierarchyType" formControlName="hierarchyType">
                     </div>
                     <div class="form-field">
-                        <label for="effectiveFrom">Vigente Desde</label>
+                        <label for="effectiveFrom">{{ 'ACCOUNTING.ACCOUNT_FORM.VIGENTE_DESDE' | translate }}</label>
                         <input id="effectiveFrom" type="date" formControlName="effectiveFrom">
                     </div>
                     <div class="form-field">
-                        <label for="effectiveTo">Vigente Hasta</label>
+                        <label for="effectiveTo">{{ 'ACCOUNTING.ACCOUNT_FORM.VIGENTE_HASTA' | translate }}</label>
                         <input id="effectiveTo" type="date" formControlName="effectiveTo">
                     </div>
                 </div>

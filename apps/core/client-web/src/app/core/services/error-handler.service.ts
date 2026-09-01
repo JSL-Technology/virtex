@@ -1,69 +1,123 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, isDevMode } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 
-@Injectable({
-  providedIn: 'root',
-})
+/**
+ * Turns any HTTP failure into a sentence the reader's language can hold.
+ *
+ * ## What was wrong
+ *
+ * This service already injected `TranslateService` and still carried six hard-coded Spanish
+ * fallbacks — `'Ocurrió un error inesperado…'`, `'Error interno del servidor.'`, `'No tienes
+ * permiso…'`, `'El recurso solicitado no fue encontrado.'` — so an English-speaking user hit
+ * Spanish the moment anything failed. Worse, the unrecognised branch did this:
+ *
+ *     customErrorMessage = serverError?.message || errorCode;
+ *
+ * which forwarded the backend's message verbatim, and the backend's messages are 197 Spanish
+ * literals (`'El asiento contable no está balanceado.'`). The interface was translated; its
+ * error states were not.
+ *
+ * ## What replaces it
+ *
+ * The server now answers with a stable, machine-readable `code`, translated by
+ * `ERRORS.<CODE>` on this side — and, because the backend has its own catalogue and negotiates
+ * the language, its `message` arrives already in the reader's language as a second line of
+ * defence. Order of preference:
+ *
+ *   1. `ERRORS.<code>` from the client catalogue — the client knows the screen context.
+ *   2. The server's `message`, which is now localised server-side.
+ *   3. `ERRORS.HTTP_<status>` — a generic, translated sentence for the status class.
+ *   4. `ERRORS.UNEXPECTED`.
+ *
+ * A raw backend string is never shown without one of the first three having had its chance, and
+ * a stack trace or SQL fragment is never shown at all.
+ */
+@Injectable({ providedIn: 'root' })
 export class ErrorHandlerService {
-  private translate = inject(TranslateService);
-handleError(operation: string, error: HttpErrorResponse): Observable<never> {
-    let customErrorMessage =
-      'Ocurrió un error inesperado. Por favor, intenta más tarde.';
-    console.error(
-      `Error en la operación '${operation}'. Código: ${error.status}`,
-      error.error
-    );
+  private readonly translate = inject(TranslateService);
 
-    if (error.error instanceof ErrorEvent) {
-      customErrorMessage = `Error de red: ${error.error.message}`;
-    } else {
-      const serverError = error.error;
+  handleError(operation: string, error: HttpErrorResponse): Observable<never> {
+    const code = this.extractCode(error);
+    const message = this.resolveMessage(error, code);
 
-      // Check for structured AuthError code or SaasError code
-      // Priority: 'error' (the code) > 'message' (the human readable text)
-      // The backend SaasException sends { message: "...", error: "SAAS_..." }
-      const errorCode = serverError?.error || serverError?.message;
-
-      if (typeof errorCode === 'string') {
-          if (errorCode.startsWith('AUTH_')) {
-              const translationKey = `LOGIN.ERRORS.${errorCode}`;
-              const translated = this.translate.instant(translationKey);
-              customErrorMessage = translated !== translationKey ? translated : 'Error de autenticación.';
-          } else if (errorCode.startsWith('SAAS_')) {
-              // 10/10 IMPROVEMENT: Handle SaaS specific errors (Limits, Features)
-              const translationKey = `SAAS.ERRORS.${errorCode}`;
-              const translated = this.translate.instant(translationKey);
-              customErrorMessage = translated !== translationKey ? translated : 'Límite del plan alcanzado.';
-          } else {
-             // Avoid exposing raw backend errors if not recognized
-             // If we used 'error' as errorCode but it wasn't a known code,
-             // we might want to fall back to 'message' for display if safe.
-             // But for now, we stick to safe defaults.
-             if (error.status >= 500) {
-                 customErrorMessage = 'Error interno del servidor.';
-             } else {
-                 // If errorCode was actually a message (from fallback), show it.
-                 // If it was a code like "Bad Request", show it.
-                 customErrorMessage = serverError?.message || errorCode;
-             }
-          }
-      } else if (error.status === 401) {
-        customErrorMessage = this.translate.instant('LOGIN.ERRORS.AUTH_INVALID_CREDENTIALS');
-      } else if (error.status === 403) {
-        customErrorMessage =
-          'No tienes permiso o la verificación reCAPTCHA ha fallado.';
-      } else if (error.status === 404) {
-        customErrorMessage = 'El recurso solicitado no fue encontrado.';
-      } else if (error.status === 429) {
-        customErrorMessage = this.translate.instant('LOGIN.ERRORS.TOO_MANY_ATTEMPTS');
-      }
+    if (isDevMode()) {
+      // Status and code only. The body can carry a customer's data, and a console log is the
+      // easiest place to leak it from.
+      console.error(`[http] ${operation} failed`, { status: error.status, code });
     }
 
-    return throwError(() => ({
-      status: error.status,
-      message: customErrorMessage,
-    }));
+    return throwError(() => ({ status: error.status, code, message }));
+  }
+
+  /**
+   * Translate a message for a failure without re-throwing it.
+   *
+   * For call sites that already catch the error and only need the sentence.
+   */
+  messageFor(error: HttpErrorResponse): string {
+    return this.resolveMessage(error, this.extractCode(error));
+  }
+
+  /**
+   * The stable identifier the server sends alongside the human sentence.
+   *
+   * `error` is the field NestJS exception filters use for the code; `code` is what the domain
+   * exceptions add. Both are read because both are in the wire format today, and a response that
+   * carries neither yields null rather than a guess.
+   */
+  private extractCode(error: HttpErrorResponse): string | null {
+    const body = error?.error as { code?: unknown; error?: unknown } | null | undefined;
+    for (const candidate of [body?.code, body?.error]) {
+      // A NestJS default filter puts the reason phrase ("Bad Request") in `error`. That is a
+      // status name, not a domain code, and translating `ERRORS.BAD REQUEST` finds nothing —
+      // requiring the screaming-snake shape keeps it out.
+      if (typeof candidate === 'string' && /^[A-Z][A-Z0-9_]{2,}$/.test(candidate)) return candidate;
+    }
+    return null;
+  }
+
+  private resolveMessage(error: HttpErrorResponse, code: string | null): string {
+    // A browser-level failure: DNS, TLS, or the device being offline. There is no server answer
+    // to read, and the browser's own message is neither translated nor meaningful to a reader.
+    if (error?.error instanceof ProgressEvent || error?.status === 0) {
+      return this.translate.instant('ERRORS.NETWORK');
+    }
+
+    if (code) {
+      const translated = this.translate.instant(`ERRORS.${code}`);
+      if (translated !== `ERRORS.${code}`) return translated;
+    }
+
+    const serverMessage = this.serverMessage(error);
+    if (serverMessage) return serverMessage;
+
+    const statusKey = `ERRORS.HTTP_${error?.status}`;
+    const byStatus = this.translate.instant(statusKey);
+    if (byStatus !== statusKey) return byStatus;
+
+    return this.translate.instant('ERRORS.UNEXPECTED');
+  }
+
+  /**
+   * The server's own sentence, when it is one.
+   *
+   * `class-validator` answers with an array of messages; the first is shown, because a form that
+   * failed three rules is still one thing the reader has to fix and a wall of text is not help.
+   * Anything that looks like a stack trace, a SQL statement or an internal identifier is refused:
+   * a 500 must not put the database schema on the screen.
+   */
+  private serverMessage(error: HttpErrorResponse): string | null {
+    const raw = (error?.error as { message?: unknown } | null | undefined)?.message;
+    const candidate = Array.isArray(raw) ? raw[0] : raw;
+    if (typeof candidate !== 'string' || !candidate.trim()) return null;
+
+    // Server faults are never forwarded: their messages are written for an operator.
+    if (error.status >= 500) return null;
+    if (/(\bat\s+\w+\.|SELECT\s|INSERT\s|relation ".*"|ECONNREFUSED|\bstack\b)/i.test(candidate)) {
+      return null;
+    }
+    return candidate;
   }
 }

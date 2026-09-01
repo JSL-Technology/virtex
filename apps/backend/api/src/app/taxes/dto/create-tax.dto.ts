@@ -7,7 +7,7 @@ export class CreateTaxDto {
   name: string;
 
   @IsNumber()
-  @Min(0)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   rate: number;
 
   @IsEnum(TaxType)

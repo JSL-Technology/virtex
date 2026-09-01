@@ -1,10 +1,5 @@
 
-import {
-  Injectable,
-  Logger,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, LessThanOrEqual } from 'typeorm';
 import { Organization } from '../organizations/entities/organization.entity';
@@ -13,6 +8,7 @@ import { FinancialReportingService } from '../financial-reporting/financial-repo
 import { ConsolidationMap } from './entities/consolidation-map.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { ExchangeRate } from '../currencies/entities/exchange-rate.entity';
+import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class ConsolidationService {
@@ -42,19 +38,17 @@ export class ConsolidationService {
     });
 
     if (!parentOrg) {
-      throw new NotFoundException('Organización matriz no encontrada.');
+      throw new NotFoundError('CONSOLIDATION.ORGANIZACION_MATRIZ_NO_ENCONTRADA');
     }
     if (!parentOrg.subsidiaries || parentOrg.subsidiaries.length === 0) {
-      throw new BadRequestException(
-        'La organización no tiene subsidiarias configuradas para consolidar.',
-      );
+      throw new BadRequestError('CONSOLIDATION.ORGANIZACION_NO_TIENE_SUBSIDIARIAS_CONFIGURADAS_CONSOLIDAR');
     }
 
     const parentSettings = await this.orgSettingsRepository.findOneBy({
         organizationId: parentOrganizationId
     });
     if(!parentSettings) {
-        throw new NotFoundException(`Configuraciones para la organización matriz ${parentOrganizationId} no encontradas.`);
+        throw new NotFoundError('CONSOLIDATION.CONFIGURACIONES_ORGANIZACION_MATRIZ_NO_ENCONTRADAS', { parentOrganizationId });
     }
     const parentBaseCurrency = parentSettings.baseCurrency;
 

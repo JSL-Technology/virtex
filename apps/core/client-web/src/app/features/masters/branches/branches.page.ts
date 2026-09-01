@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal } from 'lucide-angular';
+import { TranslateModule } from '@ngx-translate/core';
 
 interface Branch {
   id: string;
@@ -14,7 +15,7 @@ interface Branch {
 @Component({
   selector: 'app-branches-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   templateUrl: './branches.page.html',
   styleUrls: ['./branches.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

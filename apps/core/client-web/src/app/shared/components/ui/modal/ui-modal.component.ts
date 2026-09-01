@@ -2,11 +2,12 @@ import { Component, Input, Output, EventEmitter, HostListener } from '@angular/c
 import { CommonModule } from '@angular/common';
 import { trigger, style, animate, transition, query, animateChild, group } from '@angular/animations';
 import { LucideAngularModule, X } from 'lucide-angular';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-ui-modal',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   templateUrl: './ui-modal.component.html',
   styleUrls: ['./ui-modal.component.scss'],
   animations: [

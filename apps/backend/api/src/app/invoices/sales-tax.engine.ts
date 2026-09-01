@@ -2,6 +2,7 @@ import { BadRequestException } from '@nestjs/common';
 import { COUNTRY_TAX_SCHEMES } from '../localization/fiscal/country-tax-schemes';
 import { TaxTreatment } from './entities/invoice-line-item.entity';
 import { minorUnitsFor } from '../currencies/currency-catalogue';
+import { BadRequestError } from '../i18n/localized.exception';
 
 /**
  * The arithmetic of a sales document, in one place.
@@ -160,7 +161,7 @@ export function computeDocument(input: DocumentTaxInput): ComputedDocument {
 
     const discountRate = line.discountRate ?? 0;
     if (discountRate < 0 || discountRate >= 1) {
-      throw new BadRequestException('El descuento de línea debe estar entre 0 % y 100 % (exclusivo).');
+      throw new BadRequestError('INVOICES.DESCUENTO_LINEA_DEBE_ESTAR_ENTRE_100_EXCLUSIVO');
     }
 
     const gross = round(line.quantity * line.unitPrice);
@@ -169,7 +170,7 @@ export function computeDocument(input: DocumentTaxInput): ComputedDocument {
 
     const effectiveRate = line.taxTreatment === TaxTreatment.TAXED ? line.taxRate : 0;
     if (effectiveRate < 0 || effectiveRate > 1) {
-      throw new BadRequestException('La tasa de impuesto debe expresarse como fracción entre 0 y 1.');
+      throw new BadRequestError('INVOICES.TASA_IMPUESTO_DEBE_EXPRESARSE_COMO_FRACCION_ENTRE');
     }
     assertAllowedTaxRate(input.countryCode, effectiveRate);
 
@@ -207,13 +208,13 @@ export function computeDocument(input: DocumentTaxInput): ComputedDocument {
 
   const documentDiscountRate = input.documentDiscountRate ?? 0;
   if (documentDiscountRate < 0 || documentDiscountRate >= 1) {
-    throw new BadRequestException('El descuento del documento debe estar entre 0 % y 100 % (exclusivo).');
+    throw new BadRequestError('INVOICES.DESCUENTO_DOCUMENTO_DEBE_ESTAR_ENTRE_100_EXCLUSIVO');
   }
   const discountTotal = round(subtotal * documentDiscountRate);
 
   const serviceChargeRate = input.serviceChargeRate ?? 0;
   if (serviceChargeRate < 0 || serviceChargeRate > 0.5) {
-    throw new BadRequestException('La propina legal debe estar entre 0 % y 50 %.');
+    throw new BadRequestError('INVOICES.PROPINA_LEGAL_DEBE_ESTAR_ENTRE_50');
   }
   // The service charge is levied on the amount actually billed for goods and services, never on the
   // tax, and it is itself outside the tax base.
@@ -250,18 +251,18 @@ export function computeDocument(input: DocumentTaxInput): ComputedDocument {
 
 function assertFinitePositive(value: number, label: string): void {
   if (!Number.isFinite(value) || value <= 0) {
-    throw new BadRequestException(`${label} debe ser un número mayor que cero.`);
+    throw new BadRequestError('INVOICES.DEBE_SER_NUMERO_MAYOR_CERO', { label });
   }
 }
 
 function assertFiniteNonNegative(value: number, label: string): void {
   if (!Number.isFinite(value) || value < 0) {
-    throw new BadRequestException(`${label} debe ser un número mayor o igual que cero.`);
+    throw new BadRequestError('INVOICES.DEBE_SER_NUMERO_MAYOR_IGUAL_CERO', { label });
   }
 }
 
 function assertRateBetweenZeroAndOne(value: number, label: string): void {
   if (!Number.isFinite(value) || value < 0 || value > 1) {
-    throw new BadRequestException(`${label} debe expresarse como fracción entre 0 y 1.`);
+    throw new BadRequestError('INVOICES.DEBE_EXPRESARSE_COMO_FRACCION_ENTRE', { label });
   }
 }

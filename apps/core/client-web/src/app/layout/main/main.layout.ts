@@ -49,26 +49,12 @@ import { TabContainerComponent } from '../../core/tabs/components/tab-container.
 import { TabPersistenceService } from '../../core/tabs/tab-persistence.service';
 import { TabRouterService } from '../../core/tabs/tab-router.service';
 import { DialogHostComponent } from '../../shared/components/dialog-host/dialog-host.component';
+import { FORMAT_PIPES } from '../../core/i18n/pipes/format.pipes';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterLink,
-    RouterLinkActive,
-    ThemeToggle,
-    AppLauncherComponent,
-    LucideAngularModule,
-    TranslateModule,
-    Sidebar,
-    ClickOutsideDirective,
-    SettingsModalComponent,
-    CompanySwitcherComponent,
-    BrandLogo,
-    TabContainerComponent,
-    DialogHostComponent
-  ], // ✅ Directiva añadida a los imports
+  imports: [CommonModule, RouterLink, RouterLinkActive, ThemeToggle, AppLauncherComponent, LucideAngularModule, TranslateModule, Sidebar, ClickOutsideDirective, SettingsModalComponent, CompanySwitcherComponent, BrandLogo, TabContainerComponent, DialogHostComponent, ...FORMAT_PIPES], // ✅ Directiva añadida a los imports
   templateUrl: './main.layout.html',
   styleUrls: ['./main.layout.scss'],
 })

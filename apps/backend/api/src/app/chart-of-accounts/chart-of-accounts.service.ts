@@ -1,11 +1,5 @@
 
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-  Logger,
-  ForbiddenException,
-} from '@nestjs/common';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   Repository,
@@ -38,6 +32,7 @@ import { MergeAccountsDto } from './dto/merge-accounts.dto';
 import { AccountBalance } from './entities/account-balance.entity';
 
 import { AccountHierarchyVersion } from './entities/account-hierarchy-version.entity';
+import { BadRequestError, ForbiddenError, NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class ChartOfAccountsService {
@@ -85,15 +80,11 @@ export class ChartOfAccountsService {
     });
 
     if (segmentDefinitions.length === 0) {
-      throw new BadRequestException(
-        'La estructura de segmentos de cuenta no ha sido configurada para esta organización.',
-      );
+      throw new BadRequestError('CHART_OF_ACCOUNTS.ESTRUCTURA_SEGMENTOS_CUENTA_NO_HA_SIDO_CONFIGURADA');
     }
 
     if (segmentValues.length !== segmentDefinitions.length) {
-      throw new BadRequestException(
-        `El número de segmentos proporcionados (${segmentValues.length}) no coincide con la definición de la organización (${segmentDefinitions.length}).`,
-      );
+      throw new BadRequestError('CHART_OF_ACCOUNTS.NUMERO_SEGMENTOS_PROPORCIONADOS_NO_COINCIDE_DEFINICION_ORGANIZACION', { length: segmentValues.length, length2: segmentDefinitions.length });
     }
 
     const fullCode = segmentValues.join('-');
@@ -109,9 +100,7 @@ export class ChartOfAccountsService {
       .getOne();
 
     if (existingAccount) {
-      throw new BadRequestException(
-        `El código de cuenta '${fullCode}' ya existe.`,
-      );
+      throw new BadRequestError('CHART_OF_ACCOUNTS.CODIGO_CUENTA_YA_EXISTE', { fullCode });
     }
 
     // The nature must match the type's normal balance — UNLESS the account declares itself a
@@ -159,9 +148,7 @@ export class ChartOfAccountsService {
     const segments = segmentValues.map((value, index) => {
       const def = segmentDefinitions[index];
       if (value.length !== def.length) {
-        throw new BadRequestException(
-          `El segmento '${def.name}' (valor: ${value}) debe tener una longitud de ${def.length} caracteres.`,
-        );
+        throw new BadRequestError('CHART_OF_ACCOUNTS.SEGMENTO_VALOR_DEBE_TENER_LONGITUD_CARACTERES', { name: def.name, value, length: def.length });
       }
       return manager.create(AccountSegment, { order: def.order, value });
     });
@@ -201,9 +188,7 @@ export class ChartOfAccountsService {
       relations: ['children', 'parent', 'segments', 'history'],
     });
     if (!account) {
-      throw new NotFoundException(
-        `Cuenta contable con ID "${id}" no encontrada.`,
-      );
+      throw new NotFoundError('CHART_OF_ACCOUNTS.CUENTA_CONTABLE_ID_NO_ENCONTRADA', { id });
     }
     return account;
   }
@@ -225,23 +210,17 @@ export class ChartOfAccountsService {
       });
 
       if (!account) {
-        throw new NotFoundException(
-          `Cuenta contable con ID "${id}" no encontrada.`,
-        );
+        throw new NotFoundError('CHART_OF_ACCOUNTS.CUENTA_CONTABLE_ID_NO_ENCONTRADA', { id });
       }
 
       if (
         updateAccountDto.segments &&
         updateAccountDto.segments.join('-') !== account.code
       ) {
-        throw new BadRequestException(
-          'El código de la cuenta (segmentos) no puede ser modificado.',
-        );
+        throw new BadRequestError('CHART_OF_ACCOUNTS.CODIGO_CUENTA_SEGMENTOS_NO_PUEDE_SER_MODIFICADO');
       }
       if (updateAccountDto.type && updateAccountDto.type !== account.type) {
-        throw new BadRequestException(
-          'El tipo de cuenta no puede ser modificado.',
-        );
+        throw new BadRequestError('CHART_OF_ACCOUNTS.TIPO_CUENTA_NO_PUEDE_SER_MODIFICADO');
       }
 
       const { reasonForChange, parentId, segments, ...accountDataDto } =
@@ -270,9 +249,7 @@ export class ChartOfAccountsService {
           where: { accountId: id },
         });
         if (transactionCount > 0) {
-          throw new BadRequestException(
-            `No se puede cambiar la jerarquía de la cuenta "${account.name['es']}" porque tiene transacciones. Considere la fusión de cuentas.`,
-          );
+          throw new BadRequestError('CHART_OF_ACCOUNTS.NO_PUEDE_CAMBIAR_JERARQUIA_CUENTA_PORQUE_TIENE', { p1: account.name['es'] });
         }
 
         const hierarchyVersion = hierarchyRepo.create({
@@ -324,7 +301,7 @@ export class ChartOfAccountsService {
       case AccountType.REVENUE:
         return AccountNature.CREDIT;
       default:
-        throw new BadRequestException(`Tipo de cuenta inválido: ${type}`);
+        throw new BadRequestError('CHART_OF_ACCOUNTS.TIPO_CUENTA_INVALIDO', { type });
     }
   }
 
@@ -337,9 +314,7 @@ export class ChartOfAccountsService {
     const { sourceAccountId, destinationAccountId } = dto;
 
     if (sourceAccountId === destinationAccountId) {
-      throw new BadRequestException(
-        'La cuenta de origen y destino no pueden ser la misma.',
-      );
+      throw new BadRequestError('CHART_OF_ACCOUNTS.CUENTA_ORIGEN_DESTINO_NO_PUEDEN_SER_MISMA');
     }
 
 
@@ -353,17 +328,13 @@ export class ChartOfAccountsService {
     ]);
 
     if (!sourceAccount || !destAccount) {
-      throw new NotFoundException('Una o ambas cuentas no fueron encontradas.');
+      throw new NotFoundError('CHART_OF_ACCOUNTS.AMBAS_CUENTAS_NO_FUERON_ENCONTRADAS');
     }
     if (!sourceAccount.isPostable || !destAccount.isPostable) {
-      throw new BadRequestException(
-        'Ambas cuentas deben permitir contabilización para poder ser fusionadas.',
-      );
+      throw new BadRequestError('CHART_OF_ACCOUNTS.AMBAS_CUENTAS_DEBEN_PERMITIR_CONTABILIZACION_PODER_SER');
     }
     if (sourceAccount.isSystemAccount) {
-      throw new ForbiddenException(
-        'Las cuentas de sistema no pueden ser fusionadas.',
-      );
+      throw new ForbiddenError('CHART_OF_ACCOUNTS.CUENTAS_SISTEMA_NO_PUEDEN_SER_FUSIONADAS');
     }
 
 
@@ -398,7 +369,7 @@ export class ChartOfAccountsService {
   ): Promise<Account> {
     const account = await this.findOne(accountId, organizationId);
     if (account.isBlockedForPosting) {
-      throw new BadRequestException('La cuenta ya está bloqueada.');
+      throw new BadRequestError('CHART_OF_ACCOUNTS.CUENTA_YA_ESTA_BLOQUEADA');
     }
     const previousValue = { isBlockedForPosting: account.isBlockedForPosting };
     account.isBlockedForPosting = true;
@@ -423,7 +394,7 @@ export class ChartOfAccountsService {
   ): Promise<Account> {
     const account = await this.findOne(accountId, organizationId);
     if (!account.isBlockedForPosting) {
-      throw new BadRequestException('La cuenta no está bloqueada.');
+      throw new BadRequestError('CHART_OF_ACCOUNTS.CUENTA_NO_ESTA_BLOQUEADA');
     }
     const previousValue = { isBlockedForPosting: account.isBlockedForPosting };
     account.isBlockedForPosting = false;
@@ -447,22 +418,16 @@ export class ChartOfAccountsService {
   ): Promise<{ message: string; account: Account }> {
     const account = await this.findOne(id, organizationId);
     if (account.isSystemAccount) {
-      throw new BadRequestException(
-        'Las cuentas del sistema no pueden ser desactivadas.',
-      );
+      throw new BadRequestError('CHART_OF_ACCOUNTS.CUENTAS_SISTEMA_NO_PUEDEN_SER_DESACTIVADAS');
     }
     if (account.children && account.children.length > 0) {
-      throw new BadRequestException(
-        `La cuenta no puede ser desactivada porque tiene cuentas hijas.`,
-      );
+      throw new BadRequestError('CHART_OF_ACCOUNTS.CUENTA_NO_PUEDE_SER_DESACTIVADA_PORQUE_TIENE');
     }
     const firstTransaction = await this.journalEntryLineRepository.findOne({
       where: { accountId: id },
     });
     if (firstTransaction) {
-      throw new BadRequestException(
-        `La cuenta no puede ser desactivada porque tiene transacciones asociadas.`,
-      );
+      throw new BadRequestError('CHART_OF_ACCOUNTS.CUENTA_NO_PUEDE_SER_DESACTIVADA_PORQUE_TIENE_2');
     }
     account.isActive = false;
     const deactivatedAccount = await this.accountRepository.save(account);
@@ -504,9 +469,7 @@ export class ChartOfAccountsService {
         relations: ['children', 'segments'],
       });
       if (accounts.length !== accountIds.length) {
-        throw new BadRequestException(
-          'Una o más de las cuentas especificadas no fueron encontradas.',
-        );
+        throw new BadRequestError('CHART_OF_ACCOUNTS.MAS_CUENTAS_ESPECIFICADAS_NO_FUERON_ENCONTRADAS');
       }
       const errors: string[] = [];
       const accountsToDeactivate: Account[] = [];

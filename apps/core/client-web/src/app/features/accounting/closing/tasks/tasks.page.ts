@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal, User, Calendar } from 'lucide-angular';
+import { TranslateModule } from '@ngx-translate/core';
 
 type TaskStatus = 'Pending' | 'In Progress' | 'Completed';
 
@@ -16,7 +17,7 @@ interface ClosingTask {
 @Component({
   selector: 'app-tasks-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   templateUrl: './tasks.page.html',
   styleUrls: ['./tasks.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

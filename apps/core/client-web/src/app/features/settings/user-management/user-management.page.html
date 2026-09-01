@@ -2,16 +2,16 @@
   <div class="page-container">
     <div class="page-header">
       <div>
-        <h1>Gestión de Usuarios</h1>
+        <h1>{{ 'SETTINGS.USER_MANAGEMENT.GESTION_USUARIOS' | translate }}</h1>
         <div class="breadcrumb">
-          <a href="javascript:void(0)" onclick="window.history.back()">Administración</a>
+          <a href="javascript:void(0)" onclick="window.history.back()">{{ 'SETTINGS.USER_MANAGEMENT.ADMINISTRACION' | translate }}</a>
           <span class="divider">/</span>
-          <span>Usuarios</span>
+          <span>{{ 'SETTINGS.USER_MANAGEMENT.USUARIOS' | translate }}</span>
         </div>
       </div>
       <div class="page-header-actions">
         <button class="btn btn-primary" (click)="openInviteModal()">
-          <lucide-icon [name]="UserPlusIcon" size="16"></lucide-icon> Invitar Usuario
+          <lucide-icon [name]="UserPlusIcon" size="16"></lucide-icon> {{ 'SETTINGS.USER_MANAGEMENT.INVITAR_USUARIO' | translate }}
         </button>
       </div>
     </div>
@@ -106,7 +106,7 @@
                 </td>
               </tr>
               <tr *ngIf="!loading() && users().length === 0">
-                <td colspan="6" style="text-align: center;">No se encontraron usuarios.</td>
+                <td colspan="6" style="text-align: center;">{{ 'SETTINGS.USER_MANAGEMENT.NO_ENCONTRARON_USUARIOS' | translate }}</td>
               </tr>
             </tbody>
           </table>
@@ -115,7 +115,7 @@
 
       <div class="card-footer">
         <div class="pagination-info">
-          Mostrando <strong>{{ users().length }}</strong> de <strong>{{ totalUsers() }}</strong> usuarios
+          {{ 'SETTINGS.USER_MANAGEMENT.MOSTRANDO' | translate }} <strong>{{ users().length }}</strong> de <strong>{{ totalUsers() }}</strong> {{ 'SETTINGS.USER_MANAGEMENT.USUARIOS_2' | translate }}
         </div>
         <div class="pagination-controls">
           <button class="pagination-btn" [disabled]="currentPage() === 1" (click)="changePage(currentPage() - 1)">
@@ -141,39 +141,39 @@
   <div class="modal-content">
     <div class="modal-header">
       <h3 class="modal-title">{{ isEditMode() ? "Editar Usuario" : "Invitar Nuevo Usuario" }}</h3>
-      <button class="modal-close" (click)="closeUserModal()">&times;</button>
+      <button class="modal-close" (click)="closeUserModal()">{{ 'SETTINGS.USER_MANAGEMENT.TIMES' | translate }}</button>
     </div>
     <div class="modal-body">
       <form [formGroup]="userForm">
         <div class="form-row">
           <div class="form-col">
-            <label class="form-label" for="firstname">Nombre</label>
-            <input id="firstname" type="text" class="form-control" placeholder="Nombre" formControlName="firstName" required />
+            <label class="form-label" for="firstname">{{ 'SETTINGS.USER_MANAGEMENT.NOMBRE' | translate }}</label>
+            <input id="firstname" type="text" class="form-control" [placeholder]="'SETTINGS.USER_MANAGEMENT.NOMBRE' | translate" formControlName="firstName" required />
           </div>
           <div class="form-col">
-            <label class="form-label" for="lastname">Apellido</label>
-            <input id="lastname" type="text" class="form-control" placeholder="Apellido" formControlName="lastName" required />
+            <label class="form-label" for="lastname">{{ 'SETTINGS.USER_MANAGEMENT.APELLIDO' | translate }}</label>
+            <input id="lastname" type="text" class="form-control" [placeholder]="'SETTINGS.USER_MANAGEMENT.APELLIDO' | translate" formControlName="lastName" required />
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label" for="email">Correo Electrónico</label>
-          <input id="email" type="email" class="form-control" placeholder="usuario@empresa.com" formControlName="email" required />
+          <label class="form-label" for="email">{{ 'SETTINGS.USER_MANAGEMENT.CORREO_ELECTRONICO' | translate }}</label>
+          <input id="email" type="email" class="form-control" [placeholder]="'SETTINGS.USER_MANAGEMENT.USUARIO_EMPRESA_COM' | translate" formControlName="email" required />
         </div>
         <div class="form-group">
-          <label class="form-label" for="roleid">Rol</label>
+          <label class="form-label" for="roleid">{{ 'SETTINGS.USER_MANAGEMENT.ROL' | translate }}</label>
           <select id="roleid" class="form-control" formControlName="roleId" required>
-            <option [ngValue]="null" disabled>Seleccionar rol</option>
+            <option [ngValue]="null" disabled>{{ 'SETTINGS.USER_MANAGEMENT.SELECCIONAR_ROL' | translate }}</option>
             <option *ngFor="let role of roles()" [value]="role.id">{{ role.name }}</option>
           </select>
         </div>
          <div class="form-group" *ngIf="!isEditMode()">
-            <label class="form-label" for="invitationmessage">Mensaje de invitación (opcional)</label>
-            <textarea id="invitationmessage" class="form-control" rows="3" placeholder="Mensaje personalizado para el usuario..." formControlName="invitationMessage"></textarea>
+            <label class="form-label" for="invitationmessage">{{ 'SETTINGS.USER_MANAGEMENT.MENSAJE_INVITACION_OPCIONAL' | translate }}</label>
+            <textarea id="invitationmessage" class="form-control" rows="3" [placeholder]="'SETTINGS.USER_MANAGEMENT.MENSAJE_PERSONALIZADO_USUARIO' | translate" formControlName="invitationMessage"></textarea>
           </div>
       </form>
     </div>
     <div class="modal-footer">
-      <button class="btn" (click)="closeUserModal()">Cancelar</button>
+      <button class="btn" (click)="closeUserModal()">{{ 'SETTINGS.USER_MANAGEMENT.CANCELAR' | translate }}</button>
       <button class="btn btn-primary" (click)="save()" [disabled]="userForm.invalid">
         {{ isEditMode() ? "Guardar Cambios" : "Enviar Invitación" }}
       </button>
@@ -185,28 +185,28 @@
 <div class="modal" [style.display]="deleteModalOpen() ? 'flex' : 'none'">
   <div class="modal-content">
     <div class="modal-header">
-      <h3 class="modal-title">Eliminar Usuario</h3>
-      <button class="modal-close" (click)="closeDeleteModal()">&times;</button>
+      <h3 class="modal-title">{{ 'SETTINGS.USER_MANAGEMENT.ELIMINAR_USUARIO' | translate }}</h3>
+      <button class="modal-close" (click)="closeDeleteModal()">{{ 'SETTINGS.USER_MANAGEMENT.TIMES' | translate }}</button>
     </div>
     <div class="modal-body">
-      <p>¿Está seguro que desea eliminar permanentemente al usuario <strong>{{ selectedUser?.firstName }} {{ selectedUser?.lastName }}</strong>?</p>
-      <p class="danger-zone-content">Esta acción no se puede deshacer.</p>
+      <p>{{ 'SETTINGS.USER_MANAGEMENT.ESTA_SEGURO_DESEA_ELIMINAR_PERMANENTEMENTE_USUARIO' | translate }} <strong>{{ selectedUser?.firstName }} {{ selectedUser?.lastName }}</strong>?</p>
+      <p class="danger-zone-content">{{ 'SETTINGS.USER_MANAGEMENT.ESTA_ACCION_NO_PUEDE_DESHACER' | translate }}</p>
     </div>
     <div class="modal-footer">
-      <button class="btn" (click)="closeDeleteModal()">Cancelar</button>
-      <button class="btn btn-danger" (click)="confirmDelete()">Eliminar Permanentemente</button>
+      <button class="btn" (click)="closeDeleteModal()">{{ 'SETTINGS.USER_MANAGEMENT.CANCELAR' | translate }}</button>
+      <button class="btn btn-danger" (click)="confirmDelete()">{{ 'SETTINGS.USER_MANAGEMENT.ELIMINAR_PERMANENTEMENTE' | translate }}</button>
     </div>
   </div>
 </div>
 
 <!-- Context Menu -->
 <div class="windows-menu" *ngIf="showContextMenu" [style.left.px]="contextMenuPosition.x" [style.top.px]="contextMenuPosition.y">
-  <div class="menu-item" (click)="handleAction('edit', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('edit', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('edit', contextMenuUser!)"><lucide-icon [name]="EditIcon" size="16"></lucide-icon> Editar Usuario</div>
-  <div class="menu-item" (click)="handleAction('resetPassword', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('resetPassword', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('resetPassword', contextMenuUser!)"><lucide-icon [name]="KeyIcon" size="16"></lucide-icon> Resetear Contraseña</div>
+  <div class="menu-item" (click)="handleAction('edit', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('edit', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('edit', contextMenuUser!)"><lucide-icon [name]="EditIcon" size="16"></lucide-icon> {{ 'SETTINGS.USER_MANAGEMENT.EDITAR_USUARIO' | translate }}</div>
+  <div class="menu-item" (click)="handleAction('resetPassword', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('resetPassword', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('resetPassword', contextMenuUser!)"><lucide-icon [name]="KeyIcon" size="16"></lucide-icon> {{ 'SETTINGS.USER_MANAGEMENT.RESETEAR_CONTRASENA' | translate }}</div>
   <div class="menu-divider"></div>
-  <div class="menu-item" (click)="handleAction('impersonate', contextMenuUser!)" *appHasPermission="'users:impersonate'" tabindex="0" role="button" (keydown.enter)="handleAction('impersonate', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('impersonate', contextMenuUser!)"><lucide-icon [name]="UserCogIcon" size="16"></lucide-icon> Suplantar Usuario</div>
-  <div class="menu-item" (click)="handleAction('force-logout', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('force-logout', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('force-logout', contextMenuUser!)"><lucide-icon [name]="PowerOff" size="16"></lucide-icon> Forzar Cierre de Sesión</div>
-  <div class="menu-item" (click)="handleAction('block-and-logout', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('block-and-logout', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('block-and-logout', contextMenuUser!)"><lucide-icon [name]="BanIcon" size="16"></lucide-icon> Bloquear y Cerrar Sesión</div>
+  <div class="menu-item" (click)="handleAction('impersonate', contextMenuUser!)" *appHasPermission="'users:impersonate'" tabindex="0" role="button" (keydown.enter)="handleAction('impersonate', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('impersonate', contextMenuUser!)"><lucide-icon [name]="UserCogIcon" size="16"></lucide-icon> {{ 'SETTINGS.USER_MANAGEMENT.SUPLANTAR_USUARIO' | translate }}</div>
+  <div class="menu-item" (click)="handleAction('force-logout', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('force-logout', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('force-logout', contextMenuUser!)"><lucide-icon [name]="PowerOff" size="16"></lucide-icon> {{ 'SETTINGS.USER_MANAGEMENT.FORZAR_CIERRE_SESION' | translate }}</div>
+  <div class="menu-item" (click)="handleAction('block-and-logout', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('block-and-logout', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('block-and-logout', contextMenuUser!)"><lucide-icon [name]="BanIcon" size="16"></lucide-icon> {{ 'SETTINGS.USER_MANAGEMENT.BLOQUEAR_CERRAR_SESION' | translate }}</div>
   <div class="menu-divider"></div>
-  <div class="menu-item menu-item-danger" (click)="handleAction('delete', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('delete', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('delete', contextMenuUser!)"><lucide-icon [name]="TrashIcon" size="16"></lucide-icon> Eliminar Cuenta</div>
+  <div class="menu-item menu-item-danger" (click)="handleAction('delete', contextMenuUser!)" tabindex="0" role="button" (keydown.enter)="handleAction('delete', contextMenuUser!)" (keydown.space)="$event.preventDefault(); handleAction('delete', contextMenuUser!)"><lucide-icon [name]="TrashIcon" size="16"></lucide-icon> {{ 'SETTINGS.USER_MANAGEMENT.ELIMINAR_CUENTA' | translate }}</div>
 </div>

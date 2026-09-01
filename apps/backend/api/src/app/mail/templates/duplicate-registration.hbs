@@ -1,32 +1,32 @@
 
 <!DOCTYPE html>
-<html>
+<html lang="{{language}}" dir="{{dir}}">
 <head>
     <meta charset="UTF-8">
-    <title>Intento de Registro</title>
+    <title>{{t 'MAIL.DUPLICATE_REGISTRATION.INTENTO_REGISTRO'}}</title>
 </head>
 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
     <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h2 style="color: #2c3e50;">Hola {{name}},</h2>
-        <p>Recibimos una solicitud para registrar una nueva cuenta en <strong>{{appName}}</strong> utilizando esta dirección de correo electrónico.</p>
+        <h2 style="color: #2c3e50;">{{t 'MAIL.COMMON.GREETING' name=name}}</h2>
+        <p>{{t 'MAIL.DUPLICATE_REGISTRATION.RECIBIMOS_SOLICITUD_REGISTRAR_NUEVA_CUENTA'}} <strong>{{appName}}</strong> {{t 'MAIL.DUPLICATE_REGISTRATION.UTILIZANDO_ESTA_DIRECCION_CORREO_ELECTRONICO'}}</p>
 
-        <p>Sin embargo, ya existe una cuenta asociada a este correo.</p>
+        <p>{{t 'MAIL.DUPLICATE_REGISTRATION.SIN_EMBARGO_YA_EXISTE_CUENTA_ASOCIADA'}}</p>
 
-        <p>Si fuiste tú quien intentó registrarse, puedes iniciar sesión directamente aquí:</p>
+        <p>{{t 'MAIL.DUPLICATE_REGISTRATION.SI_FUISTE_TU_QUIEN_INTENTO_REGISTRARSE'}}</p>
 
         <p style="text-align: center;">
-            <a href="{{loginUrl}}" style="background-color: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Iniciar Sesión</a>
+            <a href="{{loginUrl}}" style="background-color: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">{{t 'MAIL.DUPLICATE_REGISTRATION.INICIAR_SESION'}}</a>
         </p>
 
-        <p>Si olvidaste tu contraseña, puedes restablecerla aquí:</p>
+        <p>{{t 'MAIL.DUPLICATE_REGISTRATION.SI_OLVIDASTE_TU_CONTRASENA_PUEDES_RESTABLECERLA'}}</p>
          <p style="text-align: center;">
-            <a href="{{resetPasswordUrl}}" style="color: #3498db; text-decoration: none;">Restablecer Contraseña</a>
+            <a href="{{resetPasswordUrl}}" style="color: #3498db; text-decoration: none;">{{t 'MAIL.DUPLICATE_REGISTRATION.RESTABLECER_CONTRASENA'}}</a>
         </p>
 
-        <p>Si no fuiste tú, puedes ignorar este correo de forma segura.</p>
+        <p>{{t 'MAIL.DUPLICATE_REGISTRATION.SI_NO_FUISTE_TU_PUEDES_IGNORAR'}}</p>
 
         <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-        <p style="font-size: 12px; color: #999;">&copy; {{currentYear}} {{appName}}. Todos los derechos reservados.</p>
+        <p style="font-size: 12px; color: #999;">{{t 'MAIL.COMMON.COPYRIGHT' currentYear=currentYear appName=appName}}</p>
     </div>
 </body>
 </html>

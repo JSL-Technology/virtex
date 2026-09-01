@@ -6,6 +6,7 @@ import {
   SsoDomain,
   SsoIdentityProvider,
 } from '../../../../core/services/sso-admin.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 /**
  * Per-organization enterprise SSO settings: manage verified email domains and OIDC identity
@@ -15,7 +16,7 @@ import {
 @Component({
   selector: 'app-sso-settings',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule],
   templateUrl: './sso.page.html',
   styleUrls: ['./sso.page.scss'],
 })

@@ -2,14 +2,14 @@
   <div class="page-header">
     <div class="header-title">
       <div class="breadcrumb">
-        <a [routerLink]="['/invoices']">Facturas</a>
+        <a [routerLink]="['/invoices']">{{ 'INVOICES.NEW.FACTURAS' | translate }}</a>
         <span class="divider">/</span>
-        <span>Nueva factura</span>
+        <span>{{ 'INVOICES.NEW.NUEVA_FACTURA' | translate }}</span>
       </div>
-      <h1>Crear factura de venta</h1>
+      <h1>{{ 'INVOICES.NEW.CREAR_FACTURA_VENTA' | translate }}</h1>
     </div>
     <div class="page-header-actions">
-      <button class="btn btn-secondary" [routerLink]="['/invoices']">Cancelar</button>
+      <button class="btn btn-secondary" [routerLink]="['/invoices']">{{ 'INVOICES.NEW.CANCELAR' | translate }}</button>
       <!--
         Two distinct actions, because they are two distinct things. Saving a draft consumes no
         fiscal numbering and posts nothing; issuing assigns the e-NCF, posts the ledger entry and
@@ -17,7 +17,7 @@
         so preparing one burned a number the DGII then expected to receive.
       -->
       <button class="btn btn-secondary" (click)="saveDraft()" [disabled]="isSaving()">
-        Guardar borrador
+        {{ 'INVOICES.NEW.GUARDAR_BORRADOR' | translate }}
       </button>
       <button
         class="btn btn-primary"
@@ -35,13 +35,13 @@
 
   @if (blockers().length > 0) {
     <div class="alert alert-warning" role="alert">
-      <strong>Todavía no puedes emitir comprobantes.</strong>
+      <strong>{{ 'INVOICES.NEW.TODAVIA_NO_PUEDES_EMITIR_COMPROBANTES' | translate }}</strong>
       <ul>
         @for (item of blockers(); track item) {
           <li>{{ item }}</li>
         }
       </ul>
-      <a routerLink="/settings/fiscal">Ir a la configuración fiscal</a>
+      <a routerLink="/settings/fiscal">{{ 'INVOICES.NEW.IR_CONFIGURACION_FISCAL' | translate }}</a>
     </div>
   }
 
@@ -52,8 +52,8 @@
   ></app-invoice-toolbar>
 
   <div class="sap-tabs">
-    <button [class.active]="activeTab() === 'content'" (click)="activeTab.set('content')">Contenido</button>
-    <button [class.active]="activeTab() === 'finance'" (click)="activeTab.set('finance')">Fiscal y cobro</button>
+    <button [class.active]="activeTab() === 'content'" (click)="activeTab.set('content')">{{ 'INVOICES.NEW.CONTENIDO' | translate }}</button>
+    <button [class.active]="activeTab() === 'finance'" (click)="activeTab.set('finance')">{{ 'INVOICES.NEW.FISCAL_COBRO' | translate }}</button>
   </div>
 
   <form [formGroup]="invoiceForm">
@@ -64,9 +64,9 @@
           <div class="card-body">
             <div class="invoice-header-section">
               <div class="form-group customer-select">
-                <label class="form-label" for="customerId">Cliente</label>
+                <label class="form-label" for="customerId">{{ 'INVOICES.NEW.CLIENTE' | translate }}</label>
                 <select id="customerId" formControlName="customerId" class="form-control">
-                  <option value="" disabled>Seleccionar cliente</option>
+                  <option value="" disabled>{{ 'INVOICES.NEW.SELECCIONAR_CLIENTE' | translate }}</option>
                   @for (client of customers(); track client.id) {
                     <option [value]="client.id">{{ client.companyName }}</option>
                   }
@@ -74,17 +74,17 @@
               </div>
 
               <div class="form-group">
-                <label class="form-label" for="issueDate">Fecha de emisión</label>
+                <label class="form-label" for="issueDate">{{ 'INVOICES.NEW.FECHA_EMISION' | translate }}</label>
                 <input id="issueDate" type="date" formControlName="issueDate" class="form-control" />
               </div>
 
               <div class="form-group">
-                <label class="form-label" for="dueDate">Fecha de vencimiento</label>
+                <label class="form-label" for="dueDate">{{ 'INVOICES.NEW.FECHA_VENCIMIENTO' | translate }}</label>
                 <input id="dueDate" type="date" formControlName="dueDate" class="form-control" />
               </div>
 
               <div class="form-group">
-                <label class="form-label" for="currencyCode">Moneda</label>
+                <label class="form-label" for="currencyCode">{{ 'INVOICES.NEW.MONEDA' | translate }}</label>
                 <select id="currencyCode" formControlName="currencyCode" class="form-control">
                   @for (currency of currencies(); track currency.code) {
                     <option [value]="currency.code">{{ currency.code }} · {{ currency.name }}</option>
@@ -96,12 +96,12 @@
             <table class="line-items-table">
               <thead>
                 <tr>
-                  <th style="width: 24%">Artículo</th>
-                  <th>Descripción</th>
-                  <th style="width: 10%" class="text-right">Cantidad</th>
-                  <th style="width: 13%" class="text-right">Precio</th>
-                  <th style="width: 9%" class="text-right">Desc. %</th>
-                  <th style="width: 13%">Tratamiento</th>
+                  <th style="width: 24%">{{ 'INVOICES.NEW.ARTICULO' | translate }}</th>
+                  <th>{{ 'INVOICES.NEW.DESCRIPCION' | translate }}</th>
+                  <th style="width: 10%" class="text-right">{{ 'INVOICES.NEW.CANTIDAD' | translate }}</th>
+                  <th style="width: 13%" class="text-right">{{ 'INVOICES.NEW.PRECIO' | translate }}</th>
+                  <th style="width: 9%" class="text-right">{{ 'INVOICES.NEW.DESC' | translate }}</th>
+                  <th style="width: 13%">{{ 'INVOICES.NEW.TRATAMIENTO' | translate }}</th>
                   <th style="width: 10%">ITBIS</th>
                   <th style="width: 4%"></th>
                 </tr>
@@ -111,7 +111,7 @@
                   <tr [formGroupName]="i">
                     <td>
                       <select formControlName="productId" class="form-control" (change)="onProductSelect(i)">
-                        <option value="">— Concepto libre —</option>
+                        <option value="">{{ 'INVOICES.NEW.CONCEPTO_LIBRE' | translate }}</option>
                         @for (product of products(); track product.id) {
                           <option [value]="product.id">{{ product.name }}</option>
                         }
@@ -123,7 +123,7 @@
                              class="form-control text-right" />
                       @if (stockShortfall(i) > 0) {
                         <small class="field-error">
-                          Faltan {{ stockShortfall(i) | number: '1.0-6' }} unidades en existencia
+                          {{ 'INVOICES.NEW.STOCK_SHORTFALL' | translate: { units: (stockShortfall(i) | vxNumber: '1.0-6') } }}
                         </small>
                       }
                     </td>
@@ -137,16 +137,16 @@
                     </td>
                     <td>
                       <select formControlName="taxTreatment" class="form-control">
-                        <option value="TAXED">Gravado</option>
-                        <option value="ZERO_RATED">Tasa cero</option>
-                        <option value="EXEMPT">Exento</option>
+                        <option value="TAXED">{{ 'INVOICES.NEW.GRAVADO' | translate }}</option>
+                        <option value="ZERO_RATED">{{ 'INVOICES.NEW.TASA_CERO' | translate }}</option>
+                        <option value="EXEMPT">{{ 'INVOICES.NEW.EXENTO' | translate }}</option>
                       </select>
                     </td>
                     <td>
                       @if (taxRates().length > 0) {
                         <select formControlName="taxRate" class="form-control">
                           @for (rate of taxRates(); track rate) {
-                            <option [value]="rate">{{ rate * 100 | number: '1.0-2' }}%</option>
+                            <option [value]="rate">{{ rate * 100 | vxNumber: '1.0-2' }}%</option>
                           }
                         </select>
                       } @else {
@@ -156,17 +156,17 @@
                     </td>
                     <td>
                       <button type="button" class="btn-icon" (click)="removeLineItem(i)"
-                              [disabled]="lineItems.length === 1" aria-label="Eliminar línea">×</button>
+                              [disabled]="lineItems.length === 1" [attr.aria-label]="'INVOICES.NEW.ELIMINAR_LINEA' | translate">×</button>
                     </td>
                   </tr>
                 }
               </tbody>
             </table>
 
-            <button type="button" class="btn btn-link" (click)="addLineItem()">+ Añadir línea</button>
+            <button type="button" class="btn btn-link" (click)="addLineItem()">{{ 'INVOICES.NEW.ANADIR_LINEA' | translate }}</button>
 
             <div class="form-group">
-              <label class="form-label" for="notes">Notas</label>
+              <label class="form-label" for="notes">{{ 'INVOICES.NEW.NOTAS' | translate }}</label>
               <textarea id="notes" formControlName="notes" class="form-control" rows="2"></textarea>
             </div>
           </div>
@@ -176,23 +176,23 @@
       <aside class="summary-panel">
         <div class="card">
           <div class="card-body">
-            <h3>Resumen</h3>
+            <h3>{{ 'INVOICES.NEW.RESUMEN' | translate }}</h3>
             <!-- An estimate: the figures that reach the comprobante are the server's. -->
             <p class="hint">Cálculo estimado. El servidor recalcula y sella los importes definitivos.</p>
             <dl class="summary-totals">
-              <dt>Subtotal</dt><dd>{{ totals.subtotal | number: '1.2-2' }}</dd>
+              <dt>Subtotal</dt><dd>{{ totals.subtotal | vxNumber: '1.2-2' }}</dd>
               @if (totals.discount > 0) {
-                <dt>Descuento</dt><dd>−{{ totals.discount | number: '1.2-2' }}</dd>
+                <dt>Descuento</dt><dd>−{{ totals.discount | vxNumber: '1.2-2' }}</dd>
               }
-              <dt>ITBIS</dt><dd>{{ totals.tax | number: '1.2-2' }}</dd>
+              <dt>ITBIS</dt><dd>{{ totals.tax | vxNumber: '1.2-2' }}</dd>
               @if (totals.serviceCharge > 0) {
-                <dt>Propina legal</dt><dd>{{ totals.serviceCharge | number: '1.2-2' }}</dd>
+                <dt>Propina legal</dt><dd>{{ totals.serviceCharge | vxNumber: '1.2-2' }}</dd>
               }
               <dt class="grand">Total</dt>
-              <dd class="grand">{{ totals.total | number: '1.2-2' }} {{ invoiceForm.get('currencyCode')?.value }}</dd>
+              <dd class="grand">{{ totals.total | vxNumber: '1.2-2' }} {{ invoiceForm.get('currencyCode')?.value }}</dd>
               @if (totals.withheld > 0) {
-                <dt>Retenciones</dt><dd>−{{ totals.withheld | number: '1.2-2' }}</dd>
-                <dt>Neto a cobrar</dt><dd>{{ totals.net | number: '1.2-2' }}</dd>
+                <dt>Retenciones</dt><dd>−{{ totals.withheld | vxNumber: '1.2-2' }}</dd>
+                <dt>Neto a cobrar</dt><dd>{{ totals.net | vxNumber: '1.2-2' }}</dd>
               }
             </dl>
           </div>
@@ -259,7 +259,7 @@
               <div class="form-group">
                 <label class="form-label" for="serviceChargeRate">
                   Propina legal (fracción; en este mercado es
-                  {{ (context()?.serviceChargeRate ?? 0) * 100 | number: '1.0-0' }}%)
+                  {{ (context()?.serviceChargeRate ?? 0) * 100 | vxNumber: '1.0-0' }}%)
                 </label>
                 <input id="serviceChargeRate" type="number" step="0.01" min="0" max="0.5"
                        formControlName="serviceChargeRate" class="form-control" />

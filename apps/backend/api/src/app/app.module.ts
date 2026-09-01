@@ -30,6 +30,7 @@ import { AccountingModule } from './accounting/accounting.module';
 import { ConsolidationModule } from './consolidation/consolidation.module';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { SharedModule } from './shared/shared.module';
+import { I18nModule } from './i18n/i18n.module';
 import { ChartOfAccountsModule } from './chart-of-accounts/chart-of-accounts.module';
 import { RolesModule } from './roles/roles.module';
 import { InvoicesModule } from './invoices/invoices.module';
@@ -81,6 +82,11 @@ import { redisConnectionOptions } from './cache/redis.config';
       envFilePath: ['.env.local', '.env'],
       validationSchema: envValidation,
     }),
+
+    // Global, and imported before anything that can throw: it registers the exception filter
+    // that turns a message key into a sentence, and the middleware that decides which language
+    // that sentence is in. A feature module that forgot to import it would answer untranslated.
+    I18nModule,
     LoggerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

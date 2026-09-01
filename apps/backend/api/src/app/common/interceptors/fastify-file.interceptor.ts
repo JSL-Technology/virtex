@@ -9,6 +9,7 @@ import { join, extname } from 'path';
 import { tmpdir } from 'os';
 import { randomBytes } from 'crypto';
 import { FastifyFile } from '../interfaces/fastify-file.interface';
+import { BadRequestError } from '../../i18n/localized.exception';
 
 export interface FastifyFileInterceptorOptions {
   fieldName: string;
@@ -64,7 +65,7 @@ export function FastifyFileInterceptor(fieldName: string, options: Omit<FastifyF
       // OR if it's an array of files, it returns an array.
 
       if (Array.isArray(filePart)) {
-         throw new BadRequestException('Single file expected');
+         throw new BadRequestError('COMMON.SINGLE_FILE_EXPECTED');
       }
 
       try {
@@ -78,7 +79,7 @@ export function FastifyFileInterceptor(fieldName: string, options: Omit<FastifyF
            });
 
            if (error || !accepted) {
-              throw error || new BadRequestException('File type not allowed');
+              throw error || new BadRequestError('COMMON.FILE_TYPE_NOT_ALLOWED');
            }
         }
 
@@ -87,15 +88,13 @@ export function FastifyFileInterceptor(fieldName: string, options: Omit<FastifyF
           options.allowedMimeTypes.length > 0 &&
           !options.allowedMimeTypes.includes(filePart.mimetype)
         ) {
-          throw new BadRequestException(
-            `Tipo de archivo no permitido (${filePart.mimetype}).`,
-          );
+          throw new BadRequestError('COMMON.TIPO_ARCHIVO_NO_PERMITIDO', { mimetype: filePart.mimetype });
         }
 
         const buffer = await filePart.toBuffer();
 
         if (options.limits?.fileSize && buffer.length > options.limits.fileSize) {
-           throw new BadRequestException('File too large');
+           throw new BadRequestError('COMMON.FILE_TOO_LARGE');
         }
 
         // The original file name is never used as a path component: `extname` of attacker-supplied

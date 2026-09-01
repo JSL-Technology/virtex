@@ -17,6 +17,7 @@ import type { Organization } from '../../../organizations/entities/organization.
 import { Role } from '../../../roles/entities/role.entity';
 import { Passkey } from '../passkey.entity';
 import { UserSecurity } from '../user-security.entity';
+import type { LanguageCode } from '@virteex/shared/types';
 
 export enum UserStatus {
   PENDING = 'PENDING',
@@ -115,9 +116,19 @@ export class User {
   isImpersonating?: boolean;
   originalUserId?: string;
 
-  // Localization: Removing hardcoded default 'es'. Will be handled dynamically or by client preference.
+  /**
+   * The interface language this person chose, or null if they never chose one.
+   *
+   * Deliberately nullable with no database default. A default here would be indistinguishable
+   * from a real choice, and the server would then have no way to tell "this user wants Spanish"
+   * from "nobody ever asked" — so it could never honour an `Accept-Language` header without
+   * overriding what looks like a preference. Null means unanswered; the resolver negotiates.
+   *
+   * The column stays `length: 5` to leave room for a future regional preference (`pt-BR`)
+   * without a migration; the values written today are the two-letter catalogue codes.
+   */
   @Column({ name: 'preferred_language', length: 5, nullable: true })
-  preferredLanguage?: string;
+  preferredLanguage?: LanguageCode | null;
 
   /**
    * Not unique across the platform. Nothing looks an account up by phone, and a shared company

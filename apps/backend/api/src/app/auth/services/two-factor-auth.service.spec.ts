@@ -8,6 +8,7 @@ import { UserCacheService } from '../modules/user-cache.service';
 import { PasswordService } from './password.service';
 import { authenticator } from 'otplib';
 import { ConfigService } from '@nestjs/config';
+import { expectLocalizedError } from '../../i18n/testing/expect-localized-error';
 
 describe('TwoFactorAuthService', () => {
   let service: TwoFactorAuthService;
@@ -164,18 +165,20 @@ describe('TwoFactorAuthService', () => {
       it('still refuses a wrong code', async () => {
           userWith({ passwordHash: 'hashed-whatever' });
 
-          await expect(
+          await expectLocalizedError(
               service.enableTwoFactor({ id: 'user-1' } as User, '000000'),
-          ).rejects.toThrow('Invalid 2FA token');
+              'AUTH.INVALID_2FA_TOKEN',
+          );
           expect(userSecurityRepo.save).not.toHaveBeenCalled();
       });
 
       it('refuses when no secret was staged first', async () => {
           userRepo.findOne.mockResolvedValue({ id: 'user-1', security: { pendingTwoFactorSecret: null } });
 
-          await expect(
+          await expectLocalizedError(
               service.enableTwoFactor({ id: 'user-1' } as User, '123456'),
-          ).rejects.toThrow('2FA configuration not initiated. Please generate secret first.');
+              'AUTH.2FA_CONFIGURATION_NOT_INITIATED_PLEASE_GENERATE_SECRET',
+          );
       });
   });
 

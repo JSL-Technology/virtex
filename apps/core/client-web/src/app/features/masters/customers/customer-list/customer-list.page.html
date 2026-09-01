@@ -1,22 +1,22 @@
 <div class="subview-container">
     <div class="subview-header">
-        <h3>Customers</h3>
+        <h3>{{ 'MASTERS.CUSTOMER_LIST.CUSTOMERS' | translate }}</h3>
         <div class="header-actions">
             <button class="secondary-button"><lucide-icon [img]="FilterIcon"
-                    size="16"></lucide-icon><span>Filters</span></button>
+                    size="16"></lucide-icon><span>{{ 'MASTERS.CUSTOMER_LIST.FILTERS' | translate }}</span></button>
             <a routerLink="/masters/customers/new" class="primary-button"><lucide-icon [img]="PlusCircleIcon"
-                    size="16"></lucide-icon><span>New Customer</span></a>
+                    size="16"></lucide-icon><span>{{ 'MASTERS.CUSTOMER_LIST.NEW_CUSTOMER' | translate }}</span></a>
         </div>
     </div>
     <div class="table-container card">
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Company Name</th>
-                    <th>Tax ID</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Location</th>
+                    <th>{{ 'MASTERS.CUSTOMER_LIST.COMPANY_NAME' | translate }}</th>
+                    <th>{{ 'MASTERS.CUSTOMER_LIST.TAX_ID' | translate }}</th>
+                    <th>{{ 'MASTERS.CUSTOMER_LIST.EMAIL' | translate }}</th>
+                    <th>{{ 'MASTERS.CUSTOMER_LIST.PHONE' | translate }}</th>
+                    <th>{{ 'MASTERS.CUSTOMER_LIST.LOCATION' | translate }}</th>
                     <th class="actions-column"></th>
                 </tr>
             </thead>
@@ -34,7 +34,7 @@
                 </tr>
                 } @empty {
                 <tr>
-                    <td colspan="6" class="empty-state">No customers found. Start by adding a new one.</td>
+                    <td colspan="6" class="empty-state">{{ 'MASTERS.CUSTOMER_LIST.NO_CUSTOMERS_FOUND_START_BY_ADDING' | translate }}</td>
                 </tr>
                 }
             </tbody>

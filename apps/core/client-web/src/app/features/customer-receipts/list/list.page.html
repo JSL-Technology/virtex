@@ -1,32 +1,32 @@
 <div class="view-container">
   <div class="view-header">
-    <h1>Recibos de Cliente</h1>
+    <h1>{{ 'CUSTOMER_RECEIPTS.LIST.RECIBOS_CLIENTE' | translate }}</h1>
     <div class="header-actions">
       <a routerLink="new" class="btn-primary">
         <lucide-icon [name]="PlusCircleIcon" [size]="16"></lucide-icon>
-        <span>Nuevo Recibo</span>
+        <span>{{ 'CUSTOMER_RECEIPTS.LIST.NUEVO_RECIBO' | translate }}</span>
       </a>
     </div>
   </div>
 
   <div class="view-content">
     <div *ngIf="isLoading()" class="loading-shade">
-      <p>Cargando recibos...</p>
+      <p>{{ 'CUSTOMER_RECEIPTS.LIST.CARGANDO_RECIBOS' | translate }}</p>
     </div>
 
     <div *ngIf="!isLoading() && receipts().length === 0" class="empty-state">
-      <h2>No hay recibos de cliente</h2>
-      <p>Crea tu primer recibo para registrar un pago.</p>
+      <h2>{{ 'CUSTOMER_RECEIPTS.LIST.NO_HAY_RECIBOS_CLIENTE' | translate }}</h2>
+      <p>{{ 'CUSTOMER_RECEIPTS.LIST.CREA_TU_PRIMER_RECIBO_REGISTRAR_PAGO' | translate }}</p>
     </div>
 
     <div *ngIf="!isLoading() && receipts().length > 0" class="table-container">
       <table>
         <thead>
           <tr>
-            <th>Cliente</th>
-            <th>Número</th>
-            <th>Fecha</th>
-            <th class="text-right">Monto</th>
+            <th>{{ 'CUSTOMER_RECEIPTS.LIST.CLIENTE' | translate }}</th>
+            <th>{{ 'CUSTOMER_RECEIPTS.LIST.NUMERO' | translate }}</th>
+            <th>{{ 'CUSTOMER_RECEIPTS.LIST.FECHA' | translate }}</th>
+            <th class="text-right">{{ 'CUSTOMER_RECEIPTS.LIST.MONTO' | translate }}</th>
             <th></th>
           </tr>
         </thead>
@@ -36,8 +36,8 @@
             <td>
               <a [routerLink]="[receipt.id]">{{ receipt.receiptNumber }}</a>
             </td>
-            <td>{{ receipt.paymentDate | date:'dd/MM/yyyy' }}</td>
-            <td class="text-right">{{ receipt.amount | number:'1.2-2' }}</td>
+            <td>{{ receipt.paymentDate | vxDate: 'date' }}</td>
+            <td class="text-right">{{ receipt.amount | vxNumber:'1.2-2' }}</td>
             <td class="text-center">
               <!-- Action buttons can go here -->
             </td>

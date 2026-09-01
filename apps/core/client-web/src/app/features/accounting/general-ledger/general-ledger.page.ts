@@ -9,11 +9,13 @@ import { GeneralLedgerLine, GeneralLedger as GeneralLedgerData } from '../../../
 import { LedgersService } from '../../../core/api/ledgers.service';
 import { NotificationService } from '../../../core/services/notification';
 import { EMPTY } from 'rxjs';
+import { TranslateModule } from '@ngx-translate/core';
+import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 
 @Component({
   selector: 'app-general-ledger-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, FormsModule],
+  imports: [CommonModule, LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './general-ledger.page.html',
   styleUrls: ['./general-ledger.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -66,7 +68,7 @@ export class GeneralLedgerPage implements OnInit {
       switchMap(params => {
         const accountId = params.get('accountId');
         if (!accountId) {
-          this.notificationService.showError('No se ha especificado una cuenta.');
+          this.notificationService.showError('ACCOUNTING.GENERAL_LEDGER.HA_ESPECIFICADO_CUENTA');
           this.loading.set(false);
           return EMPTY;
         }

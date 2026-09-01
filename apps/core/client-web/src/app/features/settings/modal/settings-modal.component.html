@@ -1,9 +1,9 @@
 <div class="sm-backdrop" (click)="close()" aria-hidden="true"></div>
 
-<div class="sm-panel" role="dialog" aria-modal="true" aria-label="Configuración">
+<div class="sm-panel" role="dialog" aria-modal="true" [attr.aria-label]="'SETTINGS.MODAL.CONFIGURACION' | translate">
   <div class="sm-header">
-    <h2>Configuración</h2>
-    <button class="sm-close" (click)="close()" aria-label="Cerrar configuración">&#x00D7;</button>
+    <h2>{{ 'SETTINGS.MODAL.CONFIGURACION' | translate }}</h2>
+    <button class="sm-close" (click)="close()" [attr.aria-label]="'SETTINGS.MODAL.CERRAR_CONFIGURACION' | translate">&#x00D7;</button>
   </div>
 
   <div class="sm-body">
@@ -12,14 +12,14 @@
 
         <!-- GRUPO 1: MI CUENTA -->
         <div class="nav-group">
-          <h3 class="group-title">Mi Cuenta</h3>
+          <h3 class="group-title">{{ 'SETTINGS.MODAL.MI_CUENTA' | translate }}</h3>
           <button
             class="nav-link"
             [class.active]="section() === 'my-profile'"
             (click)="navigate('my-profile')"
           >
             <lucide-icon [img]="MyProfileIcon" size="16"></lucide-icon>
-            <span>Mi Perfil</span>
+            <span>{{ 'SETTINGS.MODAL.MI_PERFIL' | translate }}</span>
           </button>
           <button
             class="nav-link"
@@ -27,20 +27,20 @@
             (click)="navigate('billing')"
           >
             <lucide-icon [img]="BillingIcon" size="16"></lucide-icon>
-            <span>Facturación y Plan</span>
+            <span>{{ 'SETTINGS.MODAL.FACTURACION_PLAN' | translate }}</span>
           </button>
         </div>
 
         <!-- GRUPO 2: ORGANIZACIÓN -->
         <div class="nav-group">
-          <h3 class="group-title">Organización</h3>
+          <h3 class="group-title">{{ 'SETTINGS.MODAL.ORGANIZACION' | translate }}</h3>
           <button
             class="nav-link"
             [class.active]="section() === 'profile'"
             (click)="navigate('profile')"
           >
             <lucide-icon [img]="OrgProfileIcon" size="16"></lucide-icon>
-            <span>Perfil de la Empresa</span>
+            <span>{{ 'SETTINGS.MODAL.PERFIL_EMPRESA' | translate }}</span>
           </button>
           <button
             class="nav-link"
@@ -48,7 +48,7 @@
             (click)="navigate('subsidiaries')"
           >
             <lucide-icon [img]="SubsidiariesIcon" size="16"></lucide-icon>
-            <span>Estructura Empresarial</span>
+            <span>{{ 'SETTINGS.MODAL.ESTRUCTURA_EMPRESARIAL' | translate }}</span>
           </button>
           <button
             class="nav-link"
@@ -56,20 +56,20 @@
             (click)="navigate('branding')"
           >
             <lucide-icon [img]="BrandingIcon" size="16"></lucide-icon>
-            <span>Personalización</span>
+            <span>{{ 'SETTINGS.MODAL.PERSONALIZACION' | translate }}</span>
           </button>
         </div>
 
         <!-- GRUPO 3: FINANZAS -->
         <div class="nav-group">
-          <h3 class="group-title">Finanzas</h3>
+          <h3 class="group-title">{{ 'SETTINGS.MODAL.FINANZAS' | translate }}</h3>
           <button
             class="nav-link"
             [class.active]="section() === 'accounting'"
             (click)="navigate('accounting')"
           >
             <lucide-icon [img]="AccountingIcon" size="16"></lucide-icon>
-            <span>Contabilidad</span>
+            <span>{{ 'SETTINGS.MODAL.CONTABILIDAD' | translate }}</span>
           </button>
           <button
             class="nav-link"
@@ -77,7 +77,7 @@
             (click)="navigate('currencies')"
           >
             <lucide-icon [img]="CurrenciesIcon" size="16"></lucide-icon>
-            <span>Multimoneda</span>
+            <span>{{ 'SETTINGS.MODAL.MULTIMONEDA' | translate }}</span>
           </button>
           <button
             class="nav-link"
@@ -85,7 +85,7 @@
             (click)="navigate('taxes')"
           >
             <lucide-icon [img]="TaxesIcon" size="16"></lucide-icon>
-            <span>Impuestos</span>
+            <span>{{ 'SETTINGS.MODAL.IMPUESTOS' | translate }}</span>
           </button>
           <button
             class="nav-link"
@@ -93,7 +93,7 @@
             (click)="navigate('closing-rules')"
           >
             <lucide-icon [img]="ClosingIcon" size="16"></lucide-icon>
-            <span>Cierre Fiscal</span>
+            <span>{{ 'SETTINGS.MODAL.CIERRE_FISCAL' | translate }}</span>
           </button>
           <button
             class="nav-link"
@@ -101,7 +101,7 @@
             (click)="navigate('intercompany')"
           >
             <lucide-icon [img]="IntercompanyIcon" size="16"></lucide-icon>
-            <span>Intercompany</span>
+            <span>{{ 'SETTINGS.MODAL.INTERCOMPANY' | translate }}</span>
           </button>
           <button
             class="nav-link"
@@ -109,20 +109,20 @@
             (click)="navigate('fiscal')"
           >
             <lucide-icon [img]="EInvoicingIcon" size="16"></lucide-icon>
-            <span>Facturación Electrónica</span>
+            <span>{{ 'SETTINGS.MODAL.FACTURACION_ELECTRONICA' | translate }}</span>
           </button>
         </div>
 
         <!-- GRUPO 4: OPERACIONES -->
         <div class="nav-group">
-          <h3 class="group-title">Operaciones</h3>
+          <h3 class="group-title">{{ 'SETTINGS.MODAL.OPERACIONES' | translate }}</h3>
           <button
             class="nav-link"
             [class.active]="section() === 'sequences'"
             (click)="navigate('sequences')"
           >
             <lucide-icon [img]="SequencesIcon" size="16"></lucide-icon>
-            <span>Secuencias</span>
+            <span>{{ 'SETTINGS.MODAL.SECUENCIAS' | translate }}</span>
           </button>
           <button
             class="nav-link"
@@ -130,7 +130,7 @@
             (click)="navigate('approvals')"
           >
             <lucide-icon [img]="WorkflowsIcon" size="16"></lucide-icon>
-            <span>Aprobaciones</span>
+            <span>{{ 'SETTINGS.MODAL.APROBACIONES' | translate }}</span>
           </button>
           <button
             class="nav-link"
@@ -138,13 +138,13 @@
             (click)="navigate('inventory-policies')"
           >
             <lucide-icon [img]="InventoryIcon" size="16"></lucide-icon>
-            <span>Inventario</span>
+            <span>{{ 'SETTINGS.MODAL.INVENTARIO' | translate }}</span>
           </button>
         </div>
 
         <!-- GRUPO 5: SISTEMA -->
         <div class="nav-group">
-          <h3 class="group-title">Sistema</h3>
+          <h3 class="group-title">{{ 'SETTINGS.MODAL.SISTEMA' | translate }}</h3>
           <button
             *appHasPermission="'users:view'"
             class="nav-link"
@@ -152,7 +152,7 @@
             (click)="navigate('users')"
           >
             <lucide-icon [img]="UsersIcon" size="16"></lucide-icon>
-            <span>Usuarios</span>
+            <span>{{ 'SETTINGS.MODAL.USUARIOS' | translate }}</span>
           </button>
           <button
             *appHasPermission="'roles:view'"
@@ -161,7 +161,7 @@
             (click)="navigate('roles')"
           >
             <lucide-icon [img]="RolesIcon" size="16"></lucide-icon>
-            <span>Roles y Permisos</span>
+            <span>{{ 'SETTINGS.MODAL.ROLES_PERMISOS' | translate }}</span>
           </button>
           <button
             *appHasPermission="'settings:edit_company'"
@@ -170,7 +170,7 @@
             (click)="navigate('security')"
           >
             <lucide-icon [img]="SecurityIcon" size="16"></lucide-icon>
-            <span>Seguridad y Auditoría</span>
+            <span>{{ 'SETTINGS.MODAL.SEGURIDAD_AUDITORIA' | translate }}</span>
           </button>
           <button
             *appHasPermission="'settings:edit_company'"
@@ -179,7 +179,7 @@
             (click)="navigate('integrations')"
           >
             <lucide-icon [img]="IntegrationsIcon" size="16"></lucide-icon>
-            <span>Integraciones</span>
+            <span>{{ 'SETTINGS.MODAL.INTEGRACIONES' | translate }}</span>
           </button>
           <button
             *appHasPermission="'settings:edit_company'"
@@ -188,7 +188,7 @@
             (click)="navigate('smtp')"
           >
             <lucide-icon [img]="SmtpIcon" size="16"></lucide-icon>
-            <span>Servidor de Correo</span>
+            <span>{{ 'SETTINGS.MODAL.SERVIDOR_CORREO' | translate }}</span>
           </button>
           <button
             *appHasPermission="'settings:edit_company'"
@@ -208,7 +208,7 @@
       @if (currentComponent()) {
         <ng-container *ngComponentOutlet="currentComponent()"></ng-container>
       } @else {
-        <div class="sm-loading">Cargando...</div>
+        <div class="sm-loading">{{ 'SETTINGS.MODAL.CARGANDO' | translate }}</div>
       }
     </main>
   </div>

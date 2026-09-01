@@ -17,6 +17,8 @@ import { Customer } from '../../../core/models/customer.model';
 import { Product } from '../../../core/models/product.model';
 import { NotificationService } from '../../../core/services/notification';
 import { InvoiceToolbarComponent } from '../components/invoice-toolbar/invoice-toolbar.component';
+import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { TranslateModule } from '@ngx-translate/core';
 
 /** How the tenant's fiscal document types are presented, in the market's own vocabulary. */
 const FISCAL_TYPE_LABELS: Record<string, string> = {
@@ -52,7 +54,7 @@ const FISCAL_TYPE_LABELS: Record<string, string> = {
 @Component({
   selector: 'app-new-invoice-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, DecimalPipe, InvoiceToolbarComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, DecimalPipe, InvoiceToolbarComponent, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './new.page.html',
   styleUrls: ['./new.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -140,7 +142,7 @@ export class NewInvoicePage implements OnInit {
         }
       },
       error: () =>
-        this.notificationService.showError('No se pudo cargar la configuración de facturación.'),
+        this.notificationService.showError('INVOICES.NEW.PUDO_CARGAR_CONFIGURACION_FACTURACION'),
     });
   }
 
@@ -170,7 +172,7 @@ export class NewInvoicePage implements OnInit {
         });
         this.lineItems.push(group);
       }
-      this.notificationService.showInfo(`Datos cargados desde ${invoice.invoiceNumber}.`);
+      this.notificationService.showInfo('INVOICES.NEW.DATOS_CARGADOS_DESDE', { invoiceNumber: invoice.invoiceNumber });
     });
   }
 
@@ -283,13 +285,11 @@ export class NewInvoicePage implements OnInit {
   private submit(issue: boolean): void {
     if (this.invoiceForm.invalid) {
       this.invoiceForm.markAllAsTouched();
-      this.notificationService.showError('Revisa los campos marcados antes de continuar.');
+      this.notificationService.showError('INVOICES.NEW.REVISA_CAMPOS_MARCADOS_ANTES_CONTINUAR');
       return;
     }
     if (issue && this.hasStockShortfall()) {
-      this.notificationService.showError(
-        'Una o más líneas superan las existencias disponibles. Ajusta las cantidades o repone el inventario.',
-      );
+      this.notificationService.showError('INVOICES.NEW.MAS_LINEAS_SUPERAN_EXISTENCIAS_DISPONIBLES_AJUSTA');
       return;
     }
 

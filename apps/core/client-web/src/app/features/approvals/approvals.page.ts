@@ -2,6 +2,8 @@ import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, Check, X, FileText, ShoppingCart, Briefcase } from 'lucide-angular';
+import { TranslateModule } from '@ngx-translate/core';
+import { FORMAT_PIPES } from '../../core/i18n/pipes/format.pipes';
 
 // Tipos de datos para la página
 type ApprovalStatus = 'pending' | 'approved' | 'rejected';
@@ -20,7 +22,7 @@ interface ApprovalItem {
 @Component({
   selector: 'app-approvals-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule],
+  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './approvals.page.html',
   styleUrls: ['./approvals.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

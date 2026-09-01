@@ -13,28 +13,28 @@ import { BILLING_PERIODS, type BillingPeriod } from '../../saas/enums/billing-pe
  */
 export class CreateCheckoutSessionDto {
   @ApiProperty({ example: 'pro', description: 'Slug of the plan to subscribe to' })
-  @IsString({ message: 'El plan seleccionado no es válido.' })
-  @IsNotEmpty({ message: 'Debes seleccionar un plan.' })
-  @MaxLength(64)
+  @IsString({ message: 'VALIDATION.PAYMENT.PLAN_SELECCIONADO_NO_VALIDO' })
+  @IsNotEmpty({ message: 'VALIDATION.PAYMENT.DEBES_SELECCIONAR_PLAN' })
+  @MaxLength(64, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":64}' })
   // Slugs are internal identifiers: lowercase, digits and hyphens. Constraining the shape keeps
   // anything that is not a plan slug from reaching the lookup at all.
-  @Matches(/^[a-z0-9][a-z0-9-]*$/, { message: 'El plan seleccionado no es válido.' })
+  @Matches(/^[a-z0-9][a-z0-9-]*$/, { message: 'VALIDATION.PAYMENT.PLAN_SELECCIONADO_NO_VALIDO' })
   planSlug!: string;
 
   /** Monthly or annual. Defaults to monthly. */
   @ApiProperty({ enum: BILLING_PERIODS, required: false, default: 'monthly' })
   @IsOptional()
-  @IsIn(BILLING_PERIODS, { message: 'El periodo de facturación no es válido.' })
+  @IsIn(BILLING_PERIODS, { message: 'VALIDATION.PAYMENT.PERIODO_FACTURACION_NO_VALIDO' })
   billingPeriod?: BillingPeriod;
 }
 
 /** Reconcile an organization's subscription after the browser returns from Checkout. */
 export class ConfirmCheckoutDto {
   @ApiProperty({ example: 'cs_test_a1B2c3', description: 'Stripe Checkout session id' })
-  @IsString({ message: 'La sesión de pago no es válida.' })
-  @IsNotEmpty({ message: 'La sesión de pago no es válida.' })
-  @MaxLength(255)
+  @IsString({ message: 'VALIDATION.PAYMENT.SESION_PAGO_NO_VALIDA' })
+  @IsNotEmpty({ message: 'VALIDATION.PAYMENT.SESION_PAGO_NO_VALIDA' })
+  @MaxLength(255, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":255}' })
   // Stripe checkout session ids are `cs_` followed by an alphanumeric body.
-  @Matches(/^cs_[A-Za-z0-9_]+$/, { message: 'La sesión de pago no es válida.' })
+  @Matches(/^cs_[A-Za-z0-9_]+$/, { message: 'VALIDATION.PAYMENT.SESION_PAGO_NO_VALIDA' })
   sessionId!: string;
 }

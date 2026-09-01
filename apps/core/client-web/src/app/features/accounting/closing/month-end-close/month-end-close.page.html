@@ -1,26 +1,60 @@
 <div class="closing-container">
   <div class="closing-header">
-    <h3>Month-End Closing Process - July 2025</h3>
-    <div class="progress-bar">
-      <div class="progress" style="width: 30%;"></div>
+    @if (period(); as open) {
+      <h3>
+        {{
+          'ACCOUNTING.MONTH_END_CLOSE.TITLE'
+            | translate: { period: open.startDate | vxDate: 'monthYear' : true }
+        }}
+      </h3>
+    } @else {
+      <h3>{{ 'ACCOUNTING.MONTH_END_CLOSE.TITLE_NO_PERIOD' | translate }}</h3>
+    }
+
+    <div
+      class="progress-bar"
+      role="progressbar"
+      [attr.aria-valuenow]="progress()"
+      aria-valuemin="0"
+      aria-valuemax="100"
+    >
+      <div class="progress" [style.width.%]="progress()"></div>
     </div>
+    <p class="progress-caption">
+      {{ 'ACCOUNTING.MONTH_END_CLOSE.PROGRESS' | translate: { percent: progress() / 100 | vxPercent } }}
+    </p>
   </div>
+
   <div class="tasks-list card">
-    @for (task of closingTasks(); track task.id) {
-      <div class="task-item" [ngClass]="task.status">
-        <div class="task-status-icon">
-          <lucide-icon [img]="getIconForStatus(task.status)" size="24" [class.spinner]="task.status === 'in-progress'"></lucide-icon>
+    @if (loading()) {
+      <p class="empty-state">{{ 'ACCOUNTING.MONTH_END_CLOSE.LOADING' | translate }}</p>
+    } @else if (failed()) {
+      <p class="empty-state">{{ 'ACCOUNTING.MONTH_END_CLOSE.LOAD_FAILED' | translate }}</p>
+    } @else if (!period()) {
+      <p class="empty-state">{{ 'ACCOUNTING.MONTH_END_CLOSE.NO_OPEN_PERIOD' | translate }}</p>
+    } @else if (isEmpty()) {
+      <p class="empty-state">{{ 'ACCOUNTING.MONTH_END_CLOSE.EMPTY' | translate }}</p>
+    } @else {
+      @for (item of items(); track item.id) {
+        <div class="task-item" [ngClass]="statusClass(item)">
+          <div class="task-status-icon">
+            <lucide-icon [img]="iconFor(item)" size="24"></lucide-icon>
+          </div>
+          <div class="task-details">
+            <span class="task-name">{{ item.descriptionKey | translate: item.params }}</span>
+            @if (item.noteKey) {
+              <span class="task-note">{{ item.noteKey | translate }}</span>
+            }
+          </div>
+          <div class="task-action">
+            @if (item.resolutionLink && !item.isCompleted) {
+              <a [routerLink]="item.resolutionLink" class="secondary-button">
+                {{ 'ACCOUNTING.MONTH_END_CLOSE.GO_TASK' | translate }}
+              </a>
+            }
+          </div>
         </div>
-        <div class="task-details">
-          <span class="task-name">{{ task.name }}</span>
-          <span class="task-responsible">Responsible: {{ task.responsible }}</span>
-        </div>
-        <div class="task-action">
-          @if(task.link) {
-            <a [href]="task.link" class="secondary-button">Go to Task</a>
-          }
-        </div>
-      </div>
+      }
     }
   </div>
 </div>

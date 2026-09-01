@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, BadRequestException, Inject, Logger, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import * as crypto from 'crypto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -22,6 +22,7 @@ import { FrontendUrlService } from '../../mail/frontend-url.service';
 import { SmsAbuseGuardService } from './sms-abuse.guard.service';
 
 import { AuthConfig } from '../auth.config';
+import { BadRequestError, InternalServerError, UnauthorizedError } from '../../i18n/localized.exception';
 
 /** A stable, non-identifying handle for a verification destination, for logs. */
 function hashTarget(target: string): string {
@@ -54,7 +55,7 @@ export class MfaOrchestratorService {
     // Only the first name is needed, for the greeting. `findOne` now requires a tenant because
     // it resolves roles, and loading an authorization graph to address an email would be absurd.
     const user = await this.usersService.findBasicById(userId);
-    if (!user) throw new BadRequestException('User not found');
+    if (!user) throw new BadRequestError('AUTH.USER_NOT_FOUND');
 
     const code = randomInt(100000, 999999).toString();
     const hash = await argon2.hash(code);
@@ -80,12 +81,12 @@ export class MfaOrchestratorService {
     });
 
     if (!record) {
-      throw new BadRequestException('No verification code found or expired.');
+      throw new BadRequestError('AUTH.NO_VERIFICATION_CODE_FOUND_OR_EXPIRED');
     }
 
     if (new Date() > record.expiresAt) {
       await this.verificationCodeRepository.delete(record.id);
-      throw new BadRequestException('Verification code expired.');
+      throw new BadRequestError('AUTH.VERIFICATION_CODE_EXPIRED');
     }
 
     // 10/10 SECURITY: Brute force protection for OTP
@@ -94,19 +95,19 @@ export class MfaOrchestratorService {
 
     if (record.attempts > 5) {
         await this.verificationCodeRepository.delete(record.id);
-        throw new BadRequestException('Too many attempts. Please request a new code.');
+        throw new BadRequestError('AUTH.TOO_MANY_ATTEMPTS_PLEASE_REQUEST_NEW_CODE');
     }
 
     await this.verificationCodeRepository.save(record);
 
     const isValid = await argon2.verify(record.code, code);
     if (!isValid) {
-      throw new BadRequestException('Invalid verification code.');
+      throw new BadRequestError('AUTH.INVALID_VERIFICATION_CODE');
     }
 
     await this.verificationCodeRepository.delete(record.id);
 
-    return { message: 'Email verified successfully.' };
+    return { messageKey: 'AUTH.EMAIL_VERIFIED_SUCCESSFULLY' };
   }
 
   async sendPhoneOtp(userId: string, phoneNumber: string) {
@@ -137,12 +138,12 @@ export class MfaOrchestratorService {
     });
 
     if (!record) {
-      throw new BadRequestException('No verification code found or expired.');
+      throw new BadRequestError('AUTH.NO_VERIFICATION_CODE_FOUND_OR_EXPIRED');
     }
 
     if (new Date() > record.expiresAt) {
       await this.verificationCodeRepository.delete(record.id);
-      throw new BadRequestException('Verification code expired.');
+      throw new BadRequestError('AUTH.VERIFICATION_CODE_EXPIRED');
     }
 
     // Brute-force protection — mirrors verifyEmailOtp (CWE-307, NIST SP 800-63B §5.2.2)
@@ -150,18 +151,18 @@ export class MfaOrchestratorService {
     record.lastAttemptAt = new Date();
     if (record.attempts > 5) {
       await this.verificationCodeRepository.delete(record.id);
-      throw new BadRequestException('Too many attempts. Please request a new code.');
+      throw new BadRequestError('AUTH.TOO_MANY_ATTEMPTS_PLEASE_REQUEST_NEW_CODE');
     }
     await this.verificationCodeRepository.save(record);
 
     // Validate that the OTP was issued for this specific phone number (stored in `target`)
     if (record.target && record.target !== phoneNumber) {
-      throw new BadRequestException('Invalid phone number for this verification code.');
+      throw new BadRequestError('AUTH.INVALID_PHONE_NUMBER_FOR_THIS_VERIFICATION_CODE');
     }
 
     const isValid = await argon2.verify(record.code, code);
     if (!isValid) {
-      throw new BadRequestException('Invalid verification code.');
+      throw new BadRequestError('AUTH.INVALID_VERIFICATION_CODE');
     }
 
     await this.usersService.update(userId, {
@@ -171,7 +172,7 @@ export class MfaOrchestratorService {
 
     await this.verificationCodeRepository.delete(record.id);
 
-    return { message: 'Phone number verified successfully.' };
+    return { messageKey: 'AUTH.PHONE_NUMBER_VERIFIED_SUCCESSFULLY' };
   }
 
   async sendLoginOtp(user: User) {
@@ -235,7 +236,7 @@ export class MfaOrchestratorService {
           { event: 'registration_email_failed', targetHash: hashTarget(target) },
           `Failed to send registration verification email: ${(err as Error).message}`,
         );
-        throw new InternalServerErrorException('No se pudo enviar el correo de verificación. Por favor verifica tu correo e intenta de nuevo.');
+        throw new InternalServerError('AUTH.NO_PUDO_ENVIAR_CORREO_VERIFICACION_FAVOR_VERIFICA');
       }
     } else if (type === VerificationType.PHONE_VERIFY) {
       // Unauthenticated, and it sends to whatever number the body carries — the exact shape of
@@ -249,7 +250,7 @@ export class MfaOrchestratorService {
           { event: 'verification_sms_failed', targetHash: hashTarget(target) },
           `Failed to send verification SMS: ${(err as Error).message}`,
         );
-        throw new InternalServerErrorException('No se pudo enviar el SMS de verificación. Por favor intenta de nuevo.');
+        throw new InternalServerError('AUTH.NO_PUDO_ENVIAR_SMS_VERIFICACION_FAVOR_INTENTA');
       }
     }
   }
@@ -260,12 +261,12 @@ export class MfaOrchestratorService {
     });
 
     if (!record) {
-      throw new BadRequestException('No verification code found or expired.');
+      throw new BadRequestError('AUTH.NO_VERIFICATION_CODE_FOUND_OR_EXPIRED');
     }
 
     if (new Date() > record.expiresAt) {
       await this.verificationCodeRepository.delete(record.id);
-      throw new BadRequestException('Verification code expired.');
+      throw new BadRequestError('AUTH.VERIFICATION_CODE_EXPIRED');
     }
 
     // Brute force protection
@@ -273,13 +274,13 @@ export class MfaOrchestratorService {
     record.lastAttemptAt = new Date();
     if (record.attempts > 5) {
       await this.verificationCodeRepository.delete(record.id);
-      throw new BadRequestException('Too many attempts. Please request a new code.');
+      throw new BadRequestError('AUTH.TOO_MANY_ATTEMPTS_PLEASE_REQUEST_NEW_CODE');
     }
     await this.verificationCodeRepository.save(record);
 
     const isValid = await argon2.verify(record.code, code);
     if (!isValid) {
-      throw new BadRequestException('Invalid verification code.');
+      throw new BadRequestError('AUTH.INVALID_VERIFICATION_CODE');
     }
 
     await this.verificationCodeRepository.delete(record.id);
@@ -290,7 +291,7 @@ export class MfaOrchestratorService {
       { secret: AuthConfig.JWT_PREVERIFY_SECRET, expiresIn: '30m' },
     );
 
-    return { message: 'Verified successfully.', preVerifiedToken };
+    return { messageKey: 'AUTH.VERIFIED_SUCCESSFULLY', preVerifiedToken };
   }
 
   async confirmEmailMagicLink(token: string): Promise<{ preVerifiedToken: string }> {
@@ -301,11 +302,11 @@ export class MfaOrchestratorService {
         secret: this.configService.getOrThrow('JWT_SECRET'),
       });
     } catch {
-      throw new BadRequestException('El enlace de verificación ha expirado o no es válido.');
+      throw new BadRequestError('AUTH.ENLACE_VERIFICACION_HA_EXPIRADO_NO_ES_VALIDO');
     }
 
     if (payload.type !== 'reg_email_magic_link') {
-      throw new BadRequestException('Tipo de token inválido.');
+      throw new BadRequestError('AUTH.TIPO_TOKEN_INVALIDO');
     }
 
     const record = await this.verificationCodeRepository.findOne({
@@ -313,16 +314,16 @@ export class MfaOrchestratorService {
     });
 
     if (!record) {
-      throw new BadRequestException('El enlace de verificación ya fue usado o ha expirado.');
+      throw new BadRequestError('AUTH.ENLACE_VERIFICACION_YA_FUE_USADO_HA_EXPIRADO');
     }
 
     if (new Date() > record.expiresAt) {
       await this.verificationCodeRepository.delete(record.id);
-      throw new BadRequestException('El enlace de verificación ha expirado.');
+      throw new BadRequestError('AUTH.ENLACE_VERIFICACION_HA_EXPIRADO');
     }
 
     if (record.payload !== payload.nonce) {
-      throw new BadRequestException('El enlace de verificación no es válido.');
+      throw new BadRequestError('AUTH.ENLACE_VERIFICACION_NO_ES_VALIDO');
     }
 
     await this.verificationCodeRepository.delete(record.id);
@@ -344,9 +345,7 @@ export class MfaOrchestratorService {
       // nothing accumulated. Checking here closes both routes into this method — the inline
       // `twoFactorCode` on POST /auth/login and the cookie-bound POST /auth/verify-2fa.
       if (user.security?.lockoutUntil && new Date() < user.security.lockoutUntil) {
-          throw new UnauthorizedException(
-              'Cuenta bloqueada temporalmente por demasiados intentos. Inténtalo más tarde.',
-          );
+          throw new UnauthorizedError('AUTH.CUENTA_BLOQUEADA_TEMPORALMENTE_DEMASIADOS_INTENTOS_INTENTALO_MAS');
       }
 
       // 1. Try Standard TOTP
@@ -387,7 +386,7 @@ export class MfaOrchestratorService {
             },
             undefined
          );
-         throw new UnauthorizedException('Código 2FA o de recuperación inválido');
+         throw new UnauthorizedError('AUTH.CODIGO_2FA_RECUPERACION_INVALIDO');
       }
 
     // Reset attempts on successful 2FA

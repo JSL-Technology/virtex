@@ -33,9 +33,12 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false
   },
-  "include": ["src/**/*.ts", "../../../libs/shared/util-auth/src/**/*.ts",
+  "include": ["src/**/*.ts", "src/app/i18n/messages/*.json", "../../../libs/shared/util-auth/src/**/*.ts",
     "../../../libs/shared/types/src/**/*.ts"],
   "exclude": [
+    "../../../libs/**/*.spec.ts",
+    // Test-only helpers: they use jest globals and belong to the spec project.
+    "src/**/testing/**/*.ts",
     "jest.config.ts",
     "jest.config.cts",
     "src/**/*.spec.ts",

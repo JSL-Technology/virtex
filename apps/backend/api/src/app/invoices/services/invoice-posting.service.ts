@@ -10,6 +10,7 @@ import {
   CreateJournalEntryLineDto,
 } from '../../journal-entries/dto/create-journal-entry.dto';
 import { roundToCurrency } from '../sales-tax.engine';
+import { BadRequestError } from '../../i18n/localized.exception';
 
 /**
  * Turns a sales document into a balanced ledger entry.
@@ -275,9 +276,7 @@ export class InvoicePostingService {
       .getRepository(Ledger)
       .findOne({ where: { organizationId, isDefault: true } });
     if (!ledger) {
-      throw new BadRequestException(
-        'La organización no tiene un libro contable por defecto. Créalo en Ajustes → Contabilidad.',
-      );
+      throw new BadRequestError('INVOICES.ORGANIZACION_NO_TIENE_LIBRO_CONTABLE_DEFECTO_CREALO');
     }
     return ledger;
   }
@@ -289,9 +288,7 @@ export class InvoicePostingService {
   ): Promise<Journal> {
     const journal = await manager.getRepository(Journal).findOne({ where: { organizationId, code } });
     if (!journal) {
-      throw new BadRequestException(
-        `No existe el diario "${code}" para esta organización. Créalo en Ajustes → Contabilidad.`,
-      );
+      throw new BadRequestError('INVOICES.NO_EXISTE_DIARIO_ESTA_ORGANIZACION_CREALO_AJUSTES', { code });
     }
     return journal;
   }

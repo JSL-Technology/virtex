@@ -1,12 +1,5 @@
 
-import {
-  Injectable,
-  BadRequestException,
-  Logger,
-  NotFoundException,
-  InternalServerErrorException,
-  ForbiddenException,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In, DataSource, MoreThan, Between, IsNull } from 'typeorm';
 import {
@@ -35,6 +28,8 @@ import { ReopenPeriodDto } from './dto/reopen-period.dto';
 import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
 import { ClosingAutomationService } from './closing-automation.service';
+import { BadRequestError, ForbiddenError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
+import { LocalizedMessage } from '../i18n/localized-message';
 
 @Injectable()
 export class PeriodClosingService {
@@ -53,6 +48,32 @@ export class PeriodClosingService {
     private readonly closingAutomationService: ClosingAutomationService,
   ) {}
 
+  /**
+   * The tenant's accounting periods, oldest first.
+   *
+   * The calendar is data, not presentation: the reader's own language decides how
+   * "2026-03-01" is spelled, so this returns the dates and the per-module statuses and lets the
+   * client render them. `name` is whatever the tenant called the period and is therefore in
+   * whatever language they wrote it in — it travels as a secondary label, never as the identity
+   * of the row.
+   */
+  async listPeriods(
+    organizationId: string,
+    filters: { year?: number } = {},
+  ): Promise<AccountingPeriod[]> {
+    const where: Record<string, unknown> = { organizationId };
+    if (filters.year !== undefined) {
+      where['startDate'] = Between(
+        `${filters.year}-01-01` as unknown as Date,
+        `${filters.year}-12-31` as unknown as Date,
+      );
+    }
+    return this.periodRepository.find({
+      where,
+      order: { startDate: 'ASC' },
+    });
+  }
+
   async closePeriod(
     periodId: string,
     organizationId: string,
@@ -67,12 +88,10 @@ export class PeriodClosingService {
         organizationId,
       });
       if (!period) {
-        throw new NotFoundException(
-          'El período contable especificado no fue encontrado.',
-        );
+        throw new NotFoundError('ACCOUNTING.PERIODO_CONTABLE_ESPECIFICADO_NO_FUE_ENCONTRADO');
       }
       if (period.status === PeriodStatus.CLOSED) {
-        throw new BadRequestException('El período ya se encuentra cerrado.');
+        throw new BadRequestError('ACCOUNTING.PERIODO_YA_ENCUENTRA_CERRADO');
       }
       
 
@@ -80,7 +99,7 @@ export class PeriodClosingService {
       
       const defaultLedger = await manager.findOneBy(Ledger, { organizationId, isDefault: true });
       if (!defaultLedger) {
-          throw new BadRequestException('No se ha configurado un libro contable por defecto para la organización.');
+          throw new BadRequestError('ACCOUNTING.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION');
       }
 
       const draftEntriesCount = await manager.count(JournalEntry, {
@@ -91,23 +110,19 @@ export class PeriodClosingService {
         },
       });
       if (draftEntriesCount > 0) {
-        throw new BadRequestException(
-          `No se puede cerrar el período. Existen ${draftEntriesCount} asientos contables en borrador o pendientes de aprobación.`,
-        );
+        throw new BadRequestError('ACCOUNTING.NO_PUEDE_CERRAR_PERIODO_EXISTEN_ASIENTOS_CONTABLES', { draftEntriesCount });
       }
 
       const settings = await manager.findOneBy(OrganizationSettings, {
         organizationId,
       });
       if (!settings || !settings.defaultRetainedEarningsAccountId) {
-        throw new BadRequestException(
-          'La cuenta de Resultados del Ejercicio (Ganancias Retenidas) no está configurada para la organización.',
-        );
+        throw new BadRequestError('ACCOUNTING.CUENTA_RESULTADOS_EJERCICIO_GANANCIAS_RETENIDAS_NO_ESTA');
       }
 
       const closingJournal = await manager.findOneBy(Journal, { organizationId, code: 'CIERRE' });
       if (!closingJournal) {
-          throw new BadRequestException('Diario de Cierre (CIERRE) no encontrado. Por favor, cree un diario con este código.');
+          throw new BadRequestError('ACCOUNTING.DIARIO_CIERRE_CIERRE_NO_ENCONTRADO_FAVOR_CREE');
       }
       
       const incomeStatementAccounts = await manager.find(Account, {
@@ -168,9 +183,7 @@ export class PeriodClosingService {
             );
 
             if (!manager.queryRunner) {
-              throw new InternalServerErrorException(
-                'No se pudo obtener el Query Runner de la transacción para crear el asiento de cierre.',
-              );
+              throw new InternalServerError('ACCOUNTING.NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION_CREAR');
             }
             
             const entryDto: CreateJournalEntryDto = {
@@ -209,7 +222,7 @@ export class PeriodClosingService {
 
         const openingJournal = await manager.findOneBy(Journal, { organizationId, code: 'APERTURA' });
         if (!openingJournal) {
-          throw new BadRequestException('Diario de Apertura (APERTURA) no encontrado.');
+          throw new BadRequestError('ACCOUNTING.DIARIO_APERTURA_APERTURA_NO_ENCONTRADO');
         }
 
         const balanceSheetAccountsBalances = await manager.getRepository(AccountBalance).createQueryBuilder("balance")
@@ -235,7 +248,7 @@ export class PeriodClosingService {
           });
           
           if (!manager.queryRunner) {
-            throw new InternalServerErrorException('No se pudo obtener QueryRunner para el asiento de apertura.');
+            throw new InternalServerError('ACCOUNTING.NO_PUDO_OBTENER_QUERYRUNNER_ASIENTO_APERTURA');
           }
 
           const openingEntryDto: CreateJournalEntryDto = {
@@ -263,21 +276,21 @@ export class PeriodClosingService {
 
     return this.dataSource.transaction(async manager => {
         const periodToReopen = await manager.findOneBy(AccountingPeriod, { id: periodId, organizationId });
-        if (!periodToReopen) throw new NotFoundException('Período a reabrir no encontrado.');
-        if (periodToReopen.status !== PeriodStatus.CLOSED) throw new BadRequestException('El período no está cerrado.');
+        if (!periodToReopen) throw new NotFoundError('ACCOUNTING.PERIODO_REABRIR_NO_ENCONTRADO');
+        if (periodToReopen.status !== PeriodStatus.CLOSED) throw new BadRequestError('ACCOUNTING.PERIODO_NO_ESTA_CERRADO');
 
         const nextPeriod = await manager.findOne(AccountingPeriod, {
             where: { organizationId, startDate: MoreThan(periodToReopen.endDate) },
             order: { startDate: 'ASC' }
         });
         if (nextPeriod && nextPeriod.status === PeriodStatus.CLOSED) {
-            throw new ForbiddenException('No se puede reabrir este período porque el período siguiente ya está cerrado.');
+            throw new ForbiddenError('ACCOUNTING.NO_PUEDE_REABRIR_ESTE_PERIODO_PORQUE_PERIODO');
         }
         
         const journalRepo = manager.getRepository(JournalEntry);
         const reopeningJournal = await manager.findOneBy(Journal, { organizationId, code: 'REAPERTURA' });
         if (!reopeningJournal) {
-          throw new BadRequestException('Diario de Reapertura (REAPERTURA) no encontrado.');
+          throw new BadRequestError('ACCOUNTING.DIARIO_REAPERTURA_REAPERTURA_NO_ENCONTRADO');
         }
 
         const closingEntry = await journalRepo.findOne({
@@ -344,7 +357,7 @@ export class PeriodClosingService {
       case ModuleSlug.INVENTORY:
         return 'inventoryStatus';
       default:
-        throw new BadRequestException(`Módulo desconocido: ${module}`);
+        throw new BadRequestError('ACCOUNTING.MODULO_DESCONOCIDO', { module });
     }
   }
 
@@ -357,7 +370,7 @@ export class PeriodClosingService {
       id: periodId,
       organizationId,
     });
-    if (!period) throw new NotFoundException('Período no encontrado.');
+    if (!period) throw new NotFoundError('ACCOUNTING.PERIODO_NO_ENCONTRADO');
 
     const statusColumn = this.getModuleStatusColumn(module);
     (period as any)[statusColumn] = PeriodStatus.CLOSED;
@@ -374,11 +387,9 @@ export class PeriodClosingService {
       id: periodId,
       organizationId,
     });
-    if (!period) throw new NotFoundException('Período no encontrado.');
+    if (!period) throw new NotFoundError('ACCOUNTING.PERIODO_NO_ENCONTRADO');
     if (period.status === PeriodStatus.CLOSED) {
-      throw new BadRequestException(
-        'No se puede reabrir un módulo si el período contable general está cerrado.',
-      );
+      throw new BadRequestError('ACCOUNTING.NO_PUEDE_REABRIR_MODULO_SI_PERIODO_CONTABLE');
     }
 
     const statusColumn = this.getModuleStatusColumn(module);
@@ -396,14 +407,14 @@ export class PeriodClosingService {
     return this.accountLockRepository.save(lock);
   }
 
-  async unlockAccountInPeriod(dto: LockAccountInPeriodDto, organizationId: string): Promise<{ message: string }> {
+  async unlockAccountInPeriod(dto: LockAccountInPeriodDto, organizationId: string): Promise<LocalizedMessage> {
     const result = await this.accountLockRepository.delete({
       ...dto,
       organizationId,
     });
     if (result.affected === 0) {
-      throw new NotFoundException('No se encontró un bloqueo para la cuenta y período especificados.');
+      throw new NotFoundError('ACCOUNTING.NO_ENCONTRO_BLOQUEO_CUENTA_PERIODO_ESPECIFICADOS');
     }
-    return { message: 'El bloqueo de la cuenta para el período ha sido removido.' };
+    return { messageKey: 'ACCOUNTING.ACCOUNT_PERIOD_LOCK_REMOVED' };
   }
 }

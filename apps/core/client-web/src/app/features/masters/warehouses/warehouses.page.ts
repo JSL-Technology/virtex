@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal } from 'lucide-angular';
+import { TranslateModule } from '@ngx-translate/core';
 
 interface Warehouse {
   id: string;
@@ -13,7 +14,7 @@ interface Warehouse {
 @Component({
   selector: 'app-warehouses-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   templateUrl: './warehouses.page.html',
   styleUrls: ['./warehouses.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,0 +1,6519 @@
+{
+  "overrides": {},
+  "terms": {
+    "123456": {
+      "en": "123456",
+      "pt": "123456"
+    },
+    "(Abre tu App de Autenticación)": {
+      "en": "(Open your authenticator app)",
+      "pt": "(Abra seu aplicativo autenticador)"
+    },
+    "/año": {
+      "en": "/year",
+      "pt": "/ano"
+    },
+    "/mes": {
+      "en": "/mo",
+      "pt": "/mês"
+    },
+    "2FA Activado exitosamente.": {
+      "en": "2FA is on.",
+      "pt": "2FA ativado."
+    },
+    "2FA Desactivado exitosamente.": {
+      "en": "2FA is off.",
+      "pt": "2FA foi desativado."
+    },
+    "2FA Desactivado.": {
+      "en": "2FA is off.",
+      "pt": "2FA desativado."
+    },
+    "3PL": {
+      "en": "3PL",
+      "pt": "3PL"
+    },
+    "3‑Way Match": {
+      "en": "3-way match",
+      "pt": "3-Way Match"
+    },
+    "4‑Way Match": {
+      "en": "4-way match",
+      "pt": "4-Way Match"
+    },
+    "AFE": {
+      "en": "AFE",
+      "pt": "AFE"
+    },
+    "API": {
+      "en": "API",
+      "pt": "API"
+    },
+    "APM": {
+      "en": "APM",
+      "pt": "APM"
+    },
+    "Accede a tu espacio de trabajo para continuar.": {
+      "en": "Access your workspace to continue.",
+      "pt": "Acesse sua área de trabalho para continuar."
+    },
+    "Acceso completo a todas las funciones Premium.": {
+      "en": "Full access to all Premium features.",
+      "pt": "Acesso completo a todos os recursos Premium."
+    },
+    "Acceso corporativo": {
+      "en": "Company sign-in",
+      "pt": "Acesso corporativo"
+    },
+    "Accesos rápidos": {
+      "en": "Quick actions",
+      "pt": "Atalhos"
+    },
+    "Acciones": {
+      "en": "Actions",
+      "pt": "Ações"
+    },
+    "Acción protegida": {
+      "en": "Protected action",
+      "pt": "Ação protegida"
+    },
+    "Acepto los": {
+      "en": "I agree to the",
+      "pt": "Aceito os"
+    },
+    "Activada": {
+      "en": "On",
+      "pt": "Ativada"
+    },
+    "Activar": {
+      "en": "Turn on",
+      "pt": "Ativar"
+    },
+    "Activar 2FA": {
+      "en": "Turn on 2FA",
+      "pt": "Ativar 2FA"
+    },
+    "Actividad Reciente": {
+      "en": "Recent Activity",
+      "pt": "Atividade Recente"
+    },
+    "Actividad reciente": {
+      "en": "Recent activity",
+      "pt": "Atividade recente"
+    },
+    "Activo": {
+      "en": "Active",
+      "pt": "Ativo"
+    },
+    "Activos": {
+      "en": "Assets",
+      "pt": "Ativos"
+    },
+    "Activos Fijos": {
+      "en": "Fixed Assets",
+      "pt": "Ativo Imobilizado"
+    },
+    "Actual": {
+      "en": "Current",
+      "pt": "Atual"
+    },
+    "Actualizar": {
+      "en": "Refresh",
+      "pt": "Atualizar"
+    },
+    "Actualizar Contraseña": {
+      "en": "Update password",
+      "pt": "Atualizar senha"
+    },
+    "Adaptadores de archivos": {
+      "en": "File adapters",
+      "pt": "Adaptadores de arquivos"
+    },
+    "Administra los detalles de tu cuenta, empresa y usuarios.": {
+      "en": "Manage your account, company, and user details.",
+      "pt": "Gerencie os detalhes da sua conta, empresa e usuários."
+    },
+    "Administra tu plan de cuentas, asientos contables y períodos contables.": {
+      "en": "Manage your chart of accounts, journal entries, and accounting periods.",
+      "pt": "Gerencie seu plano de contas, lançamentos contábeis e períodos contábeis."
+    },
+    "Administrador": {
+      "en": "Administrator",
+      "pt": "Administrador"
+    },
+    "Advertencia": {
+      "en": "Warning",
+      "pt": "Aviso"
+    },
+    "Ahorras {{percent}}% al año": {
+      "en": "Save {{percent}}% a year",
+      "pt": "Economize {{percent}}% ao ano"
+    },
+    "Ajustes": {
+      "en": "Adjustments & Counts",
+      "pt": "Ajustes"
+    },
+    "Alertas": {
+      "en": "Alerts",
+      "pt": "Alertas"
+    },
+    "Almacenes": {
+      "en": "Warehouses",
+      "pt": "Depósitos"
+    },
+    "Ambientes": {
+      "en": "Environments",
+      "pt": "Ambientes"
+    },
+    "Analítica de costos": {
+      "en": "Cost analytics",
+      "pt": "Análise de custos"
+    },
+    "Anticipos": {
+      "en": "Advances",
+      "pt": "Adiantamentos"
+    },
+    "Antigüedad de Cuentas por Cobrar": {
+      "en": "Accounts Receivable Aging",
+      "pt": "Aging de Contas a Receber"
+    },
+    "Anual": {
+      "en": "Yearly",
+      "pt": "Anual"
+    },
+    "Análisis": {
+      "en": "Analytics",
+      "pt": "Análise"
+    },
+    "Análisis de variaciones": {
+      "en": "Variance analysis",
+      "pt": "Análise de variações"
+    },
+    "Análisis y hojas de cálculo conectadas al ERP en tiempo real.": {
+      "en": "Analysis and spreadsheets connected to the ERP in real-time.",
+      "pt": "Análises e planilhas conectadas ao ERP em tempo real."
+    },
+    "Apalancamiento (D/E)": {
+      "en": "Leverage (D/E)",
+      "pt": "Alavancagem (D/E)"
+    },
+    "Apellidos": {
+      "en": "Last Name",
+      "pt": "Sobrenome"
+    },
+    "Aplicación de cobros": {
+      "en": "Cash application",
+      "pt": "Baixa de recebimentos"
+    },
+    "Apps de Virtex": {
+      "en": "Virtex Apps",
+      "pt": "Apps do Virtex"
+    },
+    "Aprobaciones": {
+      "en": "Approvals",
+      "pt": "Aprovações"
+    },
+    "Aquí tienes un resumen de tu día.": {
+      "en": "Here's a snapshot of your day.",
+      "pt": "Aqui está um resumo do seu dia."
+    },
+    "Archivado": {
+      "en": "Archiving",
+      "pt": "Arquivado"
+    },
+    "Archivos bancarios": {
+      "en": "Bank files",
+      "pt": "Arquivos bancários"
+    },
+    "Arrendamientos": {
+      "en": "Leases",
+      "pt": "Arrendamentos"
+    },
+    "Asientos": {
+      "en": "Journal Entries",
+      "pt": "Lançamentos"
+    },
+    "Asignación de costos": {
+      "en": "Cost allocation",
+      "pt": "Alocação de custos"
+    },
+    "Asistente de Importación": {
+      "en": "Import Wizard",
+      "pt": "Assistente de Importação"
+    },
+    "Atrás": {
+      "en": "Back",
+      "pt": "Voltar"
+    },
+    "Auditoría": {
+      "en": "Audit",
+      "pt": "Auditoria"
+    },
+    "Auditoría de API": {
+      "en": "API audit",
+      "pt": "Auditoria da API"
+    },
+    "Ausencias": {
+      "en": "Absences",
+      "pt": "Ausências"
+    },
+    "Autenticación de Dos Factores (2FA)": {
+      "en": "Two-Factor Authentication (2FA)",
+      "pt": "Autenticação de dois fatores (2FA)"
+    },
+    "Automatización": {
+      "en": "Automation",
+      "pt": "Automação"
+    },
+    "Autoservicio": {
+      "en": "Self-service",
+      "pt": "Autoatendimento"
+    },
+    "Ayuda": {
+      "en": "Help",
+      "pt": "Ajuda"
+    },
+    "Añade nuevos widgets a tu dashboard.": {
+      "en": "Add new widgets to your dashboard.",
+      "pt": "Adicione novos widgets ao seu painel."
+    },
+    "Añade un segundo factor a tu inicio de sesión. Te pediremos un código además de tu contraseña.": {
+      "en": "Add a second factor to your sign-in. We will ask for a code as well as your password.",
+      "pt": "Adicione um segundo fator ao seu login. Pediremos um código além da sua senha."
+    },
+    "Añadir": {
+      "en": "Add",
+      "pt": "Adicionar"
+    },
+    "Añadir Widget": {
+      "en": "Add Widget",
+      "pt": "Adicionar Widget"
+    },
+    "Aún no hay actividad reciente.": {
+      "en": "No recent activity yet.",
+      "pt": "Ainda não há atividade recente."
+    },
+    "Bajas": {
+      "en": "Disposals",
+      "pt": "Baixas"
+    },
+    "Banco in‑house": {
+      "en": "In-house bank",
+      "pt": "Banco in-house"
+    },
+    "Bancos": {
+      "en": "Banks",
+      "pt": "Bancos"
+    },
+    "Barras": {
+      "en": "Bar",
+      "pt": "Barras"
+    },
+    "Bloqueado": {
+      "en": "Blocked",
+      "pt": "Bloqueado"
+    },
+    "Buenas noches": {
+      "en": "Good evening",
+      "pt": "Boa noite"
+    },
+    "Buenas tardes": {
+      "en": "Good afternoon",
+      "pt": "Boa tarde"
+    },
+    "Buenos días": {
+      "en": "Good morning",
+      "pt": "Bom dia"
+    },
+    "Buscar facturas, clientes, productos…": {
+      "en": "Search invoices, customers, products…",
+      "pt": "Buscar faturas, clientes, produtos…"
+    },
+    "Buscar organizaciones": {
+      "en": "Search organizations",
+      "pt": "Buscar organizações"
+    },
+    "Buscar usuarios...": {
+      "en": "Search users...",
+      "pt": "Buscar usuários..."
+    },
+    "Búsqueda global": {
+      "en": "Global Search",
+      "pt": "Busca global"
+    },
+    "CBCR": {
+      "en": "CbCR",
+      "pt": "CbCR"
+    },
+    "CIP": {
+      "en": "CIP",
+      "pt": "CIP"
+    },
+    "CPQ": {
+      "en": "CPQ",
+      "pt": "CPQ"
+    },
+    "Calendario": {
+      "en": "Calendar",
+      "pt": "Calendário"
+    },
+    "Calidad": {
+      "en": "Quality",
+      "pt": "Qualidade"
+    },
+    "Calidad de datos": {
+      "en": "Data quality",
+      "pt": "Qualidade de dados"
+    },
+    "Calle y número": {
+      "en": "Street and number",
+      "pt": "Rua e número"
+    },
+    "Cambiando...": {
+      "en": "Changing...",
+      "pt": "Alterando..."
+    },
+    "Cambiar Contraseña": {
+      "en": "Change Password",
+      "pt": "Alterar Senha"
+    },
+    "Cambiar correo": {
+      "en": "Change email",
+      "pt": "Alterar e-mail"
+    },
+    "Cambiar foto": {
+      "en": "Change photo",
+      "pt": "Alterar foto"
+    },
+    "Cambio de dispositivo detectado. Por favor inicie sesión nuevamente.": {
+      "en": "Device change detected. Please log in again.",
+      "pt": "Detectamos uma troca de dispositivo. Entre novamente."
+    },
+    "Cancela en cualquier momento": {
+      "en": "Cancel anytime",
+      "pt": "Cancele quando quiser"
+    },
+    "Cancelar": {
+      "en": "Cancel",
+      "pt": "Cancelar"
+    },
+    "Capa semántica": {
+      "en": "Semantic layer",
+      "pt": "Camada semântica"
+    },
+    "Capital de Trabajo": {
+      "en": "Working Capital",
+      "pt": "Capital de Giro"
+    },
+    "Capitalización": {
+      "en": "Capitalization",
+      "pt": "Capitalização"
+    },
+    "Cargando": {
+      "en": "Loading",
+      "pt": "Carregando"
+    },
+    "Cargando planes…": {
+      "en": "Loading plans…",
+      "pt": "Carregando planos…"
+    },
+    "Cargando…": {
+      "en": "Loading…",
+      "pt": "Carregando…"
+    },
+    "Cargo": {
+      "en": "Job Title",
+      "pt": "Cargo"
+    },
+    "Cartera AP": {
+      "en": "AP aging",
+      "pt": "Carteira AP"
+    },
+    "Cartera AR": {
+      "en": "AR aging",
+      "pt": "Carteira AR"
+    },
+    "Cash pooling": {
+      "en": "Cash pooling"
+    },
+    "Catálogo de datos": {
+      "en": "Data catalog",
+      "pt": "Catálogo de dados"
+    },
+    "Catálogos": {
+      "en": "Catalogs",
+      "pt": "Catálogos"
+    },
+    "Centros de costo": {
+      "en": "Cost centers",
+      "pt": "Centros de custo"
+    },
+    "Cerrar": {
+      "en": "Close",
+      "pt": "Fechar"
+    },
+    "Cerrar Sesión": {
+      "en": "Sign Out",
+      "pt": "Sair"
+    },
+    "Cerrar sesión": {
+      "en": "Sign out",
+      "pt": "Encerrar sessão"
+    },
+    "Certificaciones": {
+      "en": "Certifications",
+      "pt": "Certificações"
+    },
+    "Certificados": {
+      "en": "Certificates",
+      "pt": "Certificados"
+    },
+    "Chequeras": {
+      "en": "Checkbooks",
+      "pt": "Talões de cheques"
+    },
+    "Cierre": {
+      "en": "Closing",
+      "pt": "Fechamento"
+    },
+    "Cierre Contable": {
+      "en": "Period Close",
+      "pt": "Fechamento Contábil"
+    },
+    "Cierre — Anual": {
+      "en": "Closing — Annual",
+      "pt": "Fechamento — Anual"
+    },
+    "Cierre — Checklist": {
+      "en": "Closing — Checklist",
+      "pt": "Fechamento — Checklist"
+    },
+    "Cierre — Mensual": {
+      "en": "Closing — Monthly",
+      "pt": "Fechamento — Mensal"
+    },
+    "Cierre — Tareas": {
+      "en": "Closing — Tasks",
+      "pt": "Fechamento — Tarefas"
+    },
+    "Ciudad": {
+      "en": "City",
+      "pt": "Cidade"
+    },
+    "Clientes": {
+      "en": "Customers",
+      "pt": "Clientes"
+    },
+    "Clientes Activos": {
+      "en": "Active Customers",
+      "pt": "Clientes Ativos"
+    },
+    "Coberturas FX": {
+      "en": "FX hedging",
+      "pt": "Hedge cambial"
+    },
+    "Cobranza (dunning)": {
+      "en": "Dunning",
+      "pt": "Cobrança (dunning)"
+    },
+    "Comercio y retail": {
+      "en": "Retail and commerce",
+      "pt": "Comércio e varejo"
+    },
+    "Comienza tu prueba gratuita de 30 días": {
+      "en": "Start your 30-day free trial",
+      "pt": "Comece seu teste gratuito de 30 dias"
+    },
+    "Comisiones": {
+      "en": "Commissions",
+      "pt": "Comissões"
+    },
+    "Comparativos": {
+      "en": "Comparatives",
+      "pt": "Comparativos"
+    },
+    "Compartidos": {
+      "en": "Shared",
+      "pt": "Compartilhados"
+    },
+    "Compartir": {
+      "en": "Share",
+      "pt": "Compartilhar"
+    },
+    "Compañías": {
+      "en": "Companies",
+      "pt": "Empresas"
+    },
+    "Completa la información para personalizar la apariencia de tu aplicación.": {
+      "en": "Complete the information to customize your application's appearance.",
+      "pt": "Preencha as informações para personalizar a aparência do seu aplicativo."
+    },
+    "Completa los campos requeridos correctamente.": {
+      "en": "Please complete the required fields correctly.",
+      "pt": "Preencha corretamente os campos obrigatórios."
+    },
+    "Componentes": {
+      "en": "Components",
+      "pt": "Componentes"
+    },
+    "Compras": {
+      "en": "Purchasing (P2P)",
+      "pt": "Compras"
+    },
+    "Conciliaciones de cuentas": {
+      "en": "Account reconciliations",
+      "pt": "Conciliações de contas"
+    },
+    "Conciliación": {
+      "en": "Reconciliation",
+      "pt": "Conciliação"
+    },
+    "Conciliación PSP": {
+      "en": "PSP reconciliation",
+      "pt": "Conciliação PSP"
+    },
+    "Conciliación de facturas": {
+      "en": "Invoice matching",
+      "pt": "Conciliação de faturas"
+    },
+    "Conciliación — Automática": {
+      "en": "Reconciliation — Automatic",
+      "pt": "Conciliação — Automática"
+    },
+    "Conciliación — Manual": {
+      "en": "Reconciliation — Manual",
+      "pt": "Conciliação — Manual"
+    },
+    "Conciliación — Subledger↔GL": {
+      "en": "Reconciliation — Subledger ↔ GL",
+      "pt": "Conciliação — Subledger↔GL"
+    },
+    "Condiciones de pago": {
+      "en": "Payment terms",
+      "pt": "Condições de pagamento"
+    },
+    "Conduces": {
+      "en": "Delivery notes",
+      "pt": "Notas de remessa"
+    },
+    "Configuración": {
+      "en": "Settings",
+      "pt": "Configurações"
+    },
+    "Configuración Fiscal": {
+      "en": "Fiscal Configuration",
+      "pt": "Configuração Fiscal"
+    },
+    "Configuración de Gráfico": {
+      "en": "Chart Configuration",
+      "pt": "Configuração do Gráfico"
+    },
+    "Configurar 2FA": {
+      "en": "Set up 2FA",
+      "pt": "Configurar 2FA"
+    },
+    "Configurar App Autenticadora": {
+      "en": "Set up authenticator app",
+      "pt": "Configurar aplicativo autenticador"
+    },
+    "Configurar contraseña": {
+      "en": "Set password",
+      "pt": "Definir senha"
+    },
+    "Confirma tu correo electrónico": {
+      "en": "Confirm your email address",
+      "pt": "Confirme seu e-mail"
+    },
+    "Confirma tu número de celular": {
+      "en": "Confirm your mobile number",
+      "pt": "Confirme seu número de celular"
+    },
+    "Confirmación": {
+      "en": "Confirmation",
+      "pt": "Confirmação"
+    },
+    "Confirmando pago": {
+      "en": "Confirming payment",
+      "pt": "Confirmando pagamento"
+    },
+    "Confirmar": {
+      "en": "Confirm",
+      "pt": "Confirmar"
+    },
+    "Confirmar Contraseña": {
+      "en": "Confirm Password",
+      "pt": "Confirmar senha"
+    },
+    "Confirming (SCF)": {
+      "en": "Confirming (SCF)",
+      "pt": "Confirming (SCF)"
+    },
+    "Consolidación — CTA": {
+      "en": "Consolidation — CTA",
+      "pt": "Consolidação — CTA"
+    },
+    "Consolidación — Cambios de participación": {
+      "en": "Consolidation — Ownership changes",
+      "pt": "Consolidação — Mudanças de participação"
+    },
+    "Consolidación — Eliminaciones": {
+      "en": "Consolidation — Eliminations",
+      "pt": "Consolidação — Eliminações"
+    },
+    "Consolidación — Estructura": {
+      "en": "Consolidation — Structure",
+      "pt": "Consolidação — Estrutura"
+    },
+    "Consolidación — Hiperinflación": {
+      "en": "Consolidation — Hyperinflation",
+      "pt": "Consolidação — Hiperinflação"
+    },
+    "Consolidación — Participaciones": {
+      "en": "Consolidation — Ownership",
+      "pt": "Consolidação — Participações"
+    },
+    "Consolidados": {
+      "en": "Consolidated",
+      "pt": "Consolidados"
+    },
+    "Construcción": {
+      "en": "Construction",
+      "pt": "Construção"
+    },
+    "Contabilidad": {
+      "en": "Accounting",
+      "pt": "Contabilidade"
+    },
+    "Contabilidad General": {
+      "en": "General Ledger",
+      "pt": "Contabilidade Geral"
+    },
+    "Contabilidad de coberturas": {
+      "en": "Hedge accounting",
+      "pt": "Contabilidade de hedge"
+    },
+    "Contacto": {
+      "en": "Contact",
+      "pt": "Contato"
+    },
+    "Contactos": {
+      "en": "Contacts",
+      "pt": "Contatos"
+    },
+    "Contador": {
+      "en": "Accountant",
+      "pt": "Contador"
+    },
+    "Conteos cíclicos": {
+      "en": "Cycle counts",
+      "pt": "Contagens cíclicas"
+    },
+    "Continuar": {
+      "en": "Continue",
+      "pt": "Continuar"
+    },
+    "Continuar con llave de acceso": {
+      "en": "Continue with Passkey",
+      "pt": "Continuar com chave de acesso"
+    },
+    "Continuar con tu proveedor": {
+      "en": "Continue with your provider",
+      "pt": "Continuar com seu provedor"
+    },
+    "Continuar con {{provider}}": {
+      "en": "Continue with {{provider}}",
+      "pt": "Continuar com {{provider}}"
+    },
+    "Contracargos": {
+      "en": "Chargebacks",
+      "pt": "Chargebacks"
+    },
+    "Contraer cuenta": {
+      "en": "Collapse account",
+      "pt": "Recolher conta"
+    },
+    "Contraseña": {
+      "en": "Password",
+      "pt": "Senha"
+    },
+    "Contraseña Actual": {
+      "en": "Current password",
+      "pt": "Senha atual"
+    },
+    "Contraseña actualizada exitosamente.": {
+      "en": "Password updated.",
+      "pt": "Senha atualizada."
+    },
+    "Contraseña actualizada. Te llevamos al inicio de sesión…": {
+      "en": "Password updated. Taking you to sign in…",
+      "pt": "Senha atualizada. Levando você ao login…"
+    },
+    "Contraseña configurada. Iniciando sesión...": {
+      "en": "Password set. Logging in...",
+      "pt": "Senha definida. Entrando..."
+    },
+    "Contratos": {
+      "en": "Contracts",
+      "pt": "Contratos"
+    },
+    "Controles": {
+      "en": "Controls",
+      "pt": "Controles"
+    },
+    "Copiado": {
+      "en": "Copied",
+      "pt": "Copiado"
+    },
+    "Copiado al portapapeles": {
+      "en": "Copied to clipboard",
+      "pt": "Copiado para a área de transferência"
+    },
+    "Copiar": {
+      "en": "Copy",
+      "pt": "Copiar"
+    },
+    "Copiar código": {
+      "en": "Copy code",
+      "pt": "Copiar código"
+    },
+    "Correo": {
+      "en": "Email",
+      "pt": "E-mail"
+    },
+    "Correo Electrónico": {
+      "en": "Email",
+      "pt": "E-mail"
+    },
+    "Costeo": {
+      "en": "Production Costing",
+      "pt": "Custeio"
+    },
+    "Costeo — Cierre": {
+      "en": "Costing — Close",
+      "pt": "Custeio — Fechamento"
+    },
+    "Costeo — Métodos": {
+      "en": "Costing — Methods",
+      "pt": "Custeio — Métodos"
+    },
+    "Costeo — Revaluaciones": {
+      "en": "Costing — Revaluations",
+      "pt": "Custeio — Reavaliações"
+    },
+    "Costo de Ventas": {
+      "en": "Cost of Goods Sold",
+      "pt": "Custo das Vendas"
+    },
+    "Costos — Landed": {
+      "en": "Costs — Landed",
+      "pt": "Custos — Landed"
+    },
+    "Cotizaciones": {
+      "en": "Quotes",
+      "pt": "Orçamentos"
+    },
+    "Crea una contraseña segura": {
+      "en": "Create a secure password",
+      "pt": "Crie uma senha forte"
+    },
+    "Crea, rastrea y gestiona todas tus órdenes de compra a proveedores.": {
+      "en": "Create, track, and manage all your purchase orders to suppliers.",
+      "pt": "Crie, acompanhe e gerencie todos os pedidos de compra aos fornecedores."
+    },
+    "Crear Cuenta": {
+      "en": "Create Account",
+      "pt": "Criar Conta"
+    },
+    "Crear Nuevo": {
+      "en": "Create New",
+      "pt": "Criar Novo"
+    },
+    "Crear cuenta": {
+      "en": "Create account",
+      "pt": "Criar conta"
+    },
+    "Credenciales": {
+      "en": "Credentials",
+      "pt": "Credenciais"
+    },
+    "Cuarentenas": {
+      "en": "Quarantines",
+      "pt": "Quarentenas"
+    },
+    "Cuenta": {
+      "en": "Account",
+      "pt": "Conta"
+    },
+    "Cuentas bancarias": {
+      "en": "Bank Accounts",
+      "pt": "Contas bancárias"
+    },
+    "Cuentas contables": {
+      "en": "Chart of accounts",
+      "pt": "Contas contábeis"
+    },
+    "Cuentas por Cobrar": {
+      "en": "Accounts Receivable",
+      "pt": "Contas a Receber"
+    },
+    "Cuentas por Pagar": {
+      "en": "Accounts Payable",
+      "pt": "Contas a Pagar"
+    },
+    "Cuéntanos sobre tu empresa": {
+      "en": "Tell us about your company",
+      "pt": "Conte-nos sobre sua empresa"
+    },
+    "Código": {
+      "en": "Code",
+      "pt": "Código"
+    },
+    "Código de Verificación": {
+      "en": "Verification Code",
+      "pt": "Código de Verificação"
+    },
+    "Código de verificación": {
+      "en": "Verification code",
+      "pt": "Código de verificação"
+    },
+    "Código de verificación enviado.": {
+      "en": "Verification code sent.",
+      "pt": "Código de verificação enviado."
+    },
+    "Código de verificación inválido.": {
+      "en": "Invalid verification code.",
+      "pt": "Código de verificação inválido."
+    },
+    "Código enviado a": {
+      "en": "Code sent to",
+      "pt": "Código enviado para"
+    },
+    "Código enviado.": {
+      "en": "Code sent.",
+      "pt": "Código enviado."
+    },
+    "Código incorrecto.": {
+      "en": "That code isn't right.",
+      "pt": "Código incorreto."
+    },
+    "Código incorrecto. Intenta de nuevo.": {
+      "en": "Invalid code. Please try again.",
+      "pt": "Código incorreto. Tente novamente."
+    },
+    "Código incorrecto. Inténtalo de nuevo.": {
+      "en": "That code isn't right. Please try again.",
+      "pt": "Código incorreto. Tente novamente."
+    },
+    "Códigos de Recuperación": {
+      "en": "Recovery codes",
+      "pt": "Códigos de recuperação"
+    },
+    "DSAR": {
+      "en": "DSAR",
+      "pt": "DSAR"
+    },
+    "Dashboard": {
+      "en": "Dashboard",
+      "pt": "Painel"
+    },
+    "Data warehouse": {
+      "en": "Data warehouse",
+      "pt": "Data warehouse"
+    },
+    "DataSheets": {
+      "en": "DataSheets",
+      "pt": "DataSheets"
+    },
+    "Datos": {
+      "en": "Data",
+      "pt": "Dados"
+    },
+    "Datos Maestros": {
+      "en": "Master Data",
+      "pt": "Dados Mestres"
+    },
+    "Datos de tu país y moneda": {
+      "en": "Country and currency details",
+      "pt": "Seu país e sua moeda"
+    },
+    "Debes aceptar los términos y condiciones.": {
+      "en": "You must accept the terms and conditions.",
+      "pt": "Você precisa aceitar os termos e condições."
+    },
+    "Debes verificar tu correo electrónico antes de continuar.": {
+      "en": "Verify your email address before continuing.",
+      "pt": "Você precisa verificar seu e-mail antes de continuar."
+    },
+    "Debes verificar tu número de celular antes de continuar.": {
+      "en": "Verify your mobile number before continuing.",
+      "pt": "Você precisa verificar seu celular antes de continuar."
+    },
+    "Declaraciones": {
+      "en": "Filings",
+      "pt": "Declarações"
+    },
+    "Demasiados intentos. Tu cuenta ha sido bloqueada temporalmente por seguridad.": {
+      "en": "Too many attempts. Your account has been temporarily locked for security.",
+      "pt": "Tentativas demais. Sua conta foi bloqueada temporariamente por segurança."
+    },
+    "Departamento": {
+      "en": "Department",
+      "pt": "Departamento"
+    },
+    "Depreciación": {
+      "en": "Depreciation Run",
+      "pt": "Depreciação"
+    },
+    "Derivados": {
+      "en": "Derivatives",
+      "pt": "Derivativos"
+    },
+    "Desactivada": {
+      "en": "Off",
+      "pt": "Desativada"
+    },
+    "Desactivar": {
+      "en": "Turn off",
+      "pt": "Desativar"
+    },
+    "Descargar": {
+      "en": "Download",
+      "pt": "Baixar"
+    },
+    "Descargar CSV": {
+      "en": "Download CSV",
+      "pt": "Baixar CSV"
+    },
+    "Descargar Excel": {
+      "en": "Download Excel",
+      "pt": "Baixar Excel"
+    },
+    "Descargar JPEG": {
+      "en": "Download JPEG",
+      "pt": "Baixar JPEG"
+    },
+    "Descargar PDF": {
+      "en": "Download PDF",
+      "pt": "Baixar PDF"
+    },
+    "Descargar PNG": {
+      "en": "Download PNG",
+      "pt": "Baixar PNG"
+    },
+    "Descargar SVG": {
+      "en": "Download SVG",
+      "pt": "Baixar SVG"
+    },
+    "Descuento dinámico": {
+      "en": "Dynamic discounting",
+      "pt": "Desconto dinâmico"
+    },
+    "Desempeño de proveedores": {
+      "en": "Supplier performance",
+      "pt": "Desempenho de fornecedores"
+    },
+    "Desglose de Gastos": {
+      "en": "Expense Breakdown",
+      "pt": "Composição das Despesas"
+    },
+    "Detalle": {
+      "en": "Detail",
+      "pt": "Detalhe"
+    },
+    "Detalle del conduce": {
+      "en": "Delivery note detail",
+      "pt": "Detalhe da nota de remessa"
+    },
+    "Deuda": {
+      "en": "Debt",
+      "pt": "Dívida"
+    },
+    "Devoluciones": {
+      "en": "Returns",
+      "pt": "Devoluções"
+    },
+    "Diferidos": {
+      "en": "Deferrals",
+      "pt": "Diferimentos"
+    },
+    "Dimensiones": {
+      "en": "Dimensions",
+      "pt": "Dimensões"
+    },
+    "Dirección fiscal": {
+      "en": "Tax address",
+      "pt": "Endereço fiscal"
+    },
+    "Dispositivos donde tu cuenta tiene la sesión abierta. Si no reconoces alguno, ciérralo.": {
+      "en": "Devices where your account is signed in. If you do not recognise one, sign it out.",
+      "pt": "Dispositivos onde sua conta está conectada. Se você não reconhecer algum, encerre a sessão."
+    },
+    "Disputas": {
+      "en": "Disputes",
+      "pt": "Disputas"
+    },
+    "Documentos": {
+      "en": "Documents",
+      "pt": "Documentos"
+    },
+    "Duplicados": {
+      "en": "Duplicates",
+      "pt": "Duplicados"
+    },
+    "Débil": {
+      "en": "Weak",
+      "pt": "Fraca"
+    },
+    "EBITDA": {
+      "en": "EBITDA",
+      "pt": "EBITDA"
+    },
+    "EDI": {
+      "en": "EDI",
+      "pt": "EDI"
+    },
+    "ESG": {
+      "en": "ESG",
+      "pt": "ESG"
+    },
+    "ETL": {
+      "en": "ETL",
+      "pt": "ETL"
+    },
+    "Editar Layout": {
+      "en": "Edit Layout",
+      "pt": "Editar Layout"
+    },
+    "Ej. +1 809-555-5555": {
+      "en": "e.g. +1 809-555-5555",
+      "pt": "Ex.: +55 11 95555-5555"
+    },
+    "Ej. Acme Corp": {
+      "en": "e.g. Acme Corp",
+      "pt": "Ex.: Acme Ltda."
+    },
+    "Ej. Gerente General": {
+      "en": "e.g. General Manager",
+      "pt": "Ex.: Diretor-Geral"
+    },
+    "Ej. Juan": {
+      "en": "e.g. John",
+      "pt": "Ex.: João"
+    },
+    "Ej. Pérez": {
+      "en": "e.g. Doe",
+      "pt": "Ex.: Silva"
+    },
+    "Ejecución de presupuesto": {
+      "en": "Budget execution",
+      "pt": "Execução orçamentária"
+    },
+    "El archivo es demasiado grande (Máx 2MB).": {
+      "en": "That file is too large (2 MB max).",
+      "pt": "O arquivo é grande demais (máximo 2 MB)."
+    },
+    "El correo electrónico es obligatorio.": {
+      "en": "Email address is required.",
+      "pt": "O e-mail é obrigatório."
+    },
+    "El enlace de confirmación ha expirado o no es válido. Ingresa el código manualmente.": {
+      "en": "That confirmation link has expired or isn't valid. Enter the code by hand instead.",
+      "pt": "O link de confirmação expirou ou é inválido. Digite o código manualmente."
+    },
+    "El formato del correo electrónico no es válido.": {
+      "en": "That email address is not valid.",
+      "pt": "O formato do e-mail não é válido."
+    },
+    "El formato no es válido.": {
+      "en": "That format is not valid.",
+      "pt": "O formato não é válido."
+    },
+    "Elegir plan": {
+      "en": "Choose plan",
+      "pt": "Escolher plano"
+    },
+    "Elige tu Plan": {
+      "en": "Choose your Plan",
+      "pt": "Escolha seu Plano"
+    },
+    "Eliminar Widget": {
+      "en": "Remove Widget",
+      "pt": "Remover Widget"
+    },
+    "Email": {
+      "en": "Email",
+      "pt": "E-mail"
+    },
+    "Empleados": {
+      "en": "Employees",
+      "pt": "Funcionários"
+    },
+    "Empresa": {
+      "en": "Company",
+      "pt": "Empresa"
+    },
+    "Empresa / persona jurídica": {
+      "en": "Company / legal entity",
+      "pt": "Empresa / pessoa jurídica"
+    },
+    "Endeudamiento (D/E)": {
+      "en": "Leverage (D/E)",
+      "pt": "Endividamento (D/E)"
+    },
+    "Entrar": {
+      "en": "Sign In",
+      "pt": "Entrar"
+    },
+    "Enviando...": {
+      "en": "Sending...",
+      "pt": "Enviando..."
+    },
+    "Enviar Código": {
+      "en": "Send code",
+      "pt": "Enviar código"
+    },
+    "Enviar Instrucciones": {
+      "en": "Send Instructions",
+      "pt": "Enviar Instruções"
+    },
+    "Enviar confirmación": {
+      "en": "Send confirmation",
+      "pt": "Enviar confirmação"
+    },
+    "Envíos": {
+      "en": "Shipments",
+      "pt": "Remessas"
+    },
+    "Error": {
+      "en": "Error",
+      "pt": "Erro"
+    },
+    "Error al actualizar el perfil.": {
+      "en": "We couldn't update your profile.",
+      "pt": "Não foi possível atualizar o perfil."
+    },
+    "Error al cambiar la contraseña.": {
+      "en": "We couldn't change your password.",
+      "pt": "Não foi possível alterar a senha."
+    },
+    "Error al cargar sesiones.": {
+      "en": "We couldn't load your sessions.",
+      "pt": "Não foi possível carregar as sessões."
+    },
+    "Error al cerrar sesión.": {
+      "en": "We couldn't sign that session out.",
+      "pt": "Não foi possível encerrar essa sessão."
+    },
+    "Error al desactivar 2FA.": {
+      "en": "We couldn't turn 2FA off.",
+      "pt": "Não foi possível desativar o 2FA."
+    },
+    "Error al enviar código.": {
+      "en": "We couldn't send the code.",
+      "pt": "Não foi possível enviar o código."
+    },
+    "Error al enviar el código.": {
+      "en": "We couldn't send the code.",
+      "pt": "Não foi possível enviar o código."
+    },
+    "Error al generar códigos.": {
+      "en": "We couldn't generate the codes.",
+      "pt": "Não foi possível gerar os códigos."
+    },
+    "Error al iniciar configuración 2FA.": {
+      "en": "We couldn't start 2FA setup.",
+      "pt": "Não foi possível iniciar a configuração do 2FA."
+    },
+    "Error al iniciar sesión con llave de acceso. Intente nuevamente o use su contraseña.": {
+      "en": "Error signing in with passkey. Please try again or use your password.",
+      "pt": "Falha ao entrar com a chave de acesso. Tente novamente ou use sua senha."
+    },
+    "Error al registrarse. Intente nuevamente.": {
+      "en": "Error registering. Please try again.",
+      "pt": "Erro ao cadastrar. Tente novamente."
+    },
+    "Error al subir la imagen.": {
+      "en": "We couldn't upload the image.",
+      "pt": "Não foi possível enviar a imagem."
+    },
+    "Error de red. Por favor, comprueba tu conexión e inténtalo de nuevo.": {
+      "en": "Network error. Please check your connection and try again.",
+      "pt": "Erro de rede. Verifique sua conexão e tente novamente."
+    },
+    "Escanea el código QR": {
+      "en": "Scan the QR code",
+      "pt": "Escaneie o código QR"
+    },
+    "Escanea el código QR o ingresa la clave secreta manualmente.": {
+      "en": "Scan the QR code, or enter the secret key by hand.",
+      "pt": "Escaneie o código QR ou digite a chave secreta manualmente."
+    },
+    "Escanea el código con tu aplicación de autenticación y escribe el código de seis dígitos que muestre.": {
+      "en": "Scan the code with your authenticator app and enter the six-digit code it shows.",
+      "pt": "Escaneie o código com seu aplicativo autenticador e digite o código de seis dígitos exibido."
+    },
+    "Escribe un correo electrónico válido.": {
+      "en": "Enter a valid email address.",
+      "pt": "Digite um e-mail válido."
+    },
+    "Escribe un número en formato internacional, por ejemplo +18095551234.": {
+      "en": "Enter a number in international format, for example +18095551234.",
+      "pt": "Digite um número no formato internacional, por exemplo +18095551234."
+    },
+    "Ese método de inicio de sesión no está disponible por ahora. Prueba con otro.": {
+      "en": "That sign-in method is currently unavailable. Please try another.",
+      "pt": "Esse método de login não está disponível no momento. Tente outro."
+    },
+    "Ese ya es tu correo actual.": {
+      "en": "That is already your current address.",
+      "pt": "Esse já é o seu e-mail atual."
+    },
+    "Espacio de Trabajo": {
+      "en": "Workspace",
+      "pt": "Área de Trabalho"
+    },
+    "Esta acción requiere verificación en dos pasos. Actívala en tu configuración de seguridad para continuar.": {
+      "en": "This action requires two-factor authentication. Enable it in your security settings to continue.",
+      "pt": "Esta ação exige verificação em duas etapas. Ative-a nas configurações de segurança para continuar."
+    },
+    "Esta cuenta se verifica con tu proveedor de identidad. Te llevaremos allí para confirmar que eres tú y volverás a esta misma página.": {
+      "en": "This account verifies with your identity provider. We'll take you there to confirm it's you, and bring you back to this page.",
+      "pt": "Esta conta é verificada pelo seu provedor de identidade. Levaremos você até lá para confirmar sua identidade e você voltará a esta mesma página."
+    },
+    "Esta cuenta se verifica con {{provider}}. Te llevaremos allí para confirmar que eres tú y volverás a esta misma página.": {
+      "en": "This account verifies with {{provider}}. We'll take you there to confirm it's you, and bring you back to this page.",
+      "pt": "Esta conta é verificada com {{provider}}. Levaremos você até lá para confirmar sua identidade e você voltará a esta mesma página."
+    },
+    "Establece una contraseña para tu cuenta": {
+      "en": "Set a password for your account",
+      "pt": "Defina uma senha para sua conta"
+    },
+    "Estado": {
+      "en": "Status",
+      "pt": "Situação"
+    },
+    "Estado de Facturas": {
+      "en": "Invoice Status",
+      "pt": "Situação das Faturas"
+    },
+    "Estado del servicio": {
+      "en": "Service status",
+      "pt": "Status do serviço"
+    },
+    "Estados de cuenta": {
+      "en": "Customer Statements",
+      "pt": "Extratos"
+    },
+    "Estados financieros": {
+      "en": "Financial statements",
+      "pt": "Demonstrações financeiras"
+    },
+    "Estamos activando tu cuenta. Esto solo tomará unos segundos.": {
+      "en": "We're activating your account. This will only take a few seconds.",
+      "pt": "Estamos ativando sua conta. Isso levará apenas alguns segundos."
+    },
+    "Este campo es obligatorio.": {
+      "en": "This field is required.",
+      "pt": "Este campo é obrigatório."
+    },
+    "Este correo ya está registrado.": {
+      "en": "That email is already registered.",
+      "pt": "Este e-mail já está cadastrado."
+    },
+    "Este dispositivo": {
+      "en": "This device",
+      "pt": "Este dispositivo"
+    },
+    "Este enlace ya no es válido. Solicita uno nuevo.": {
+      "en": "This link is no longer valid. Request a new one.",
+      "pt": "Este link não é mais válido. Solicite um novo."
+    },
+    "Estos son los datos del administrador principal.": {
+      "en": "These are the details of the primary administrator.",
+      "pt": "Estes são os dados do administrador principal."
+    },
+    "Estás intentando realizar una acción sensible. Por favor, confirma tu contraseña para continuar.": {
+      "en": "You are attempting to perform a sensitive action. Please confirm your password to continue.",
+      "pt": "Você está prestes a realizar uma ação sensível. Confirme sua senha para continuar."
+    },
+    "Expandir cuenta": {
+      "en": "Expand account",
+      "pt": "Expandir conta"
+    },
+    "Exportaciones": {
+      "en": "Exports",
+      "pt": "Exportações"
+    },
+    "Exportaciones de Datos": {
+      "en": "Data Exports",
+      "pt": "Exportações de Dados"
+    },
+    "Exportar": {
+      "en": "Export",
+      "pt": "Exportar"
+    },
+    "Exposiciones": {
+      "en": "Exposures",
+      "pt": "Exposições"
+    },
+    "Factoring": {
+      "en": "Factoring",
+      "pt": "Factoring"
+    },
+    "Facturación": {
+      "en": "Billing",
+      "pt": "Faturamento"
+    },
+    "Facturación electrónica": {
+      "en": "E-invoicing",
+      "pt": "Emissão eletrônica"
+    },
+    "Facturación electrónica por país": {
+      "en": "E-invoicing by country",
+      "pt": "Emissão eletrônica por país"
+    },
+    "Facturas": {
+      "en": "Supplier Invoices",
+      "pt": "Faturas"
+    },
+    "Facturas Pendientes": {
+      "en": "Pending Invoices",
+      "pt": "Faturas em Aberto"
+    },
+    "Facturas — Listado": {
+      "en": "Invoices — List",
+      "pt": "Faturas — Listagem"
+    },
+    "Facturas — Nueva": {
+      "en": "Invoices — New",
+      "pt": "Faturas — Nova"
+    },
+    "Feature flags": {
+      "en": "Feature flags",
+      "pt": "Feature flags"
+    },
+    "Filtros": {
+      "en": "Filters",
+      "pt": "Filtros"
+    },
+    "Filtros Avanzados": {
+      "en": "Advanced Filters",
+      "pt": "Filtros Avançados"
+    },
+    "Finalizar Edición": {
+      "en": "Done Editing",
+      "pt": "Concluir Edição"
+    },
+    "Financiación": {
+      "en": "Financing",
+      "pt": "Financiamento"
+    },
+    "Financieros": {
+      "en": "Financial Statements",
+      "pt": "Financeiros"
+    },
+    "Finanzas": {
+      "en": "Finance",
+      "pt": "Finanças"
+    },
+    "Finiquitos": {
+      "en": "Final settlements",
+      "pt": "Rescisões"
+    },
+    "Firmas digitales": {
+      "en": "Digital signatures",
+      "pt": "Assinaturas digitais"
+    },
+    "Fiscal": {
+      "en": "Tax",
+      "pt": "Fiscal"
+    },
+    "Flujo de Caja Libre": {
+      "en": "Free Cash Flow",
+      "pt": "Fluxo de Caixa Livre"
+    },
+    "Flujo de Efectivo": {
+      "en": "Cash Flow",
+      "pt": "Fluxo de Caixa"
+    },
+    "Flujo de Efectivo (Waterfall)": {
+      "en": "Cash Flow (Waterfall)",
+      "pt": "Fluxo de Caixa (Waterfall)"
+    },
+    "Flujo de Efectivo Consolidado": {
+      "en": "Consolidated Cash Flow",
+      "pt": "Fluxo de Caixa Consolidado"
+    },
+    "Flujo de Efectivo del Período": {
+      "en": "Period Cash Flow",
+      "pt": "Fluxo de Caixa do Período"
+    },
+    "Flujo de efectivo": {
+      "en": "Cash Flow Forecast",
+      "pt": "Fluxo de caixa"
+    },
+    "Flujo de efectivo — Proyectado": {
+      "en": "Cash flow — Forecast",
+      "pt": "Fluxo de caixa — Projetado"
+    },
+    "Flujo de efectivo — Real": {
+      "en": "Cash flow — Actual",
+      "pt": "Fluxo de caixa — Real"
+    },
+    "Forecast continuo": {
+      "en": "Rolling forecast",
+      "pt": "Forecast contínuo"
+    },
+    "Formas de pago": {
+      "en": "Payment methods",
+      "pt": "Formas de pagamento"
+    },
+    "Formato de Celda": {
+      "en": "Cell Format",
+      "pt": "Formato da Célula"
+    },
+    "Formato de imagen no válido.": {
+      "en": "That image format isn't supported.",
+      "pt": "Formato de imagem inválido."
+    },
+    "Formato esperado: {{example}}": {
+      "en": "Expected format: {{example}}",
+      "pt": "Formato esperado: {{example}}"
+    },
+    "GRC": {
+      "en": "GRC",
+      "pt": "GRC"
+    },
+    "Garantías": {
+      "en": "Guarantees",
+      "pt": "Garantias"
+    },
+    "Gastos": {
+      "en": "Expenses",
+      "pt": "Despesas"
+    },
+    "Gastos Operativos": {
+      "en": "Operating Expenses",
+      "pt": "Despesas Operacionais"
+    },
+    "Gastos y Tarjetas": {
+      "en": "Expenses & Cards",
+      "pt": "Despesas e Cartões"
+    },
+    "Generar Nuevos": {
+      "en": "Generate new",
+      "pt": "Gerar novos"
+    },
+    "Gerente": {
+      "en": "Manager",
+      "pt": "Gerente"
+    },
+    "Gestiona los dispositivos donde has iniciado sesión.": {
+      "en": "Manage the devices you're signed in on.",
+      "pt": "Gerencie os dispositivos onde você iniciou sessão."
+    },
+    "Gestión": {
+      "en": "Management",
+      "pt": "Gestão"
+    },
+    "Gestión de Transporte (TMS)": {
+      "en": "Transportation Management (TMS)",
+      "pt": "Gestão de Transporte (TMS)"
+    },
+    "Global": {
+      "en": "General",
+      "pt": "Global"
+    },
+    "Gobernanza de datos": {
+      "en": "Data governance",
+      "pt": "Governança de dados"
+    },
+    "Gobierno de Datos": {
+      "en": "Data Governance",
+      "pt": "Governança de Dados"
+    },
+    "Gráfico de Ingresos": {
+      "en": "Revenue Chart",
+      "pt": "Gráfico de Receita"
+    },
+    "Gráficos": {
+      "en": "Charts",
+      "pt": "Gráficos"
+    },
+    "Guarda estos códigos de recuperación en un lugar seguro. Cada uno sirve una sola vez y son la única forma de entrar si pierdes tu dispositivo.": {
+      "en": "Keep these recovery codes somewhere safe. Each one works once, and they are the only way back in if you lose your device.",
+      "pt": "Guarde estes códigos de recuperação em um lugar seguro. Cada um funciona uma única vez e são a única forma de entrar se você perder seu dispositivo."
+    },
+    "Guarda estos códigos en un lugar seguro.": {
+      "en": "Store these codes somewhere safe.",
+      "pt": "Guarde estes códigos em um lugar seguro."
+    },
+    "Guarda tus códigos de respaldo seguros": {
+      "en": "Keep your backup codes safe",
+      "pt": "Guarde seus códigos de backup em segurança"
+    },
+    "Guardando...": {
+      "en": "Saving...",
+      "pt": "Salvando..."
+    },
+    "Guardar Cambios": {
+      "en": "Save changes",
+      "pt": "Salvar alterações"
+    },
+    "Guardar Contraseña": {
+      "en": "Save Password",
+      "pt": "Salvar Senha"
+    },
+    "Has añadido exitosamente la verificación de 2 pasos a tu cuenta.": {
+      "en": "You've added two-step verification to your account.",
+      "pt": "A verificação em duas etapas foi adicionada à sua conta."
+    },
+    "Has superado el número de intentos. Tu cuenta ha sido bloqueada.": {
+      "en": "You have exceeded the number of attempts. Your account has been locked.",
+      "pt": "Você excedeu o número de tentativas. Sua conta foi bloqueada."
+    },
+    "He guardado mis códigos de respaldo": {
+      "en": "I've saved my backup codes",
+      "pt": "Salvei meus códigos de backup"
+    },
+    "Hemos enviado un código de verificación a: {{email}}": {
+      "en": "We sent a verification code to: {{email}}",
+      "pt": "Enviamos um código de verificação para {{email}}"
+    },
+    "Herramientas": {
+      "en": "Tools",
+      "pt": "Ferramentas"
+    },
+    "Hitos y WIP": {
+      "en": "Milestones & WIP",
+      "pt": "Marcos e WIP"
+    },
+    "Identidad verificada. Vuelve a pulsar la acción que querías realizar.": {
+      "en": "Identity verified. Click the action you wanted to perform again.",
+      "pt": "Identidade verificada. Tente novamente a ação que você queria realizar."
+    },
+    "Identificación Fiscal": {
+      "en": "Tax ID",
+      "pt": "Identificação Fiscal"
+    },
+    "Imagen actualizada exitosamente.": {
+      "en": "Picture updated.",
+      "pt": "Imagem atualizada."
+    },
+    "Importaciones": {
+      "en": "Imports",
+      "pt": "Importações"
+    },
+    "Importaciones de Datos": {
+      "en": "Data Imports",
+      "pt": "Importações de Dados"
+    },
+    "Importar": {
+      "en": "Import",
+      "pt": "Importar"
+    },
+    "Importar ERP": {
+      "en": "Import ERP",
+      "pt": "Importar do ERP"
+    },
+    "Imprimir": {
+      "en": "Print",
+      "pt": "Imprimir"
+    },
+    "Impuestos": {
+      "en": "Taxes",
+      "pt": "Impostos"
+    },
+    "Impuestos diferidos": {
+      "en": "Deferred tax",
+      "pt": "Tributos diferidos"
+    },
+    "Impuestos y Cumplimiento": {
+      "en": "Tax & Compliance",
+      "pt": "Tributos e Conformidade"
+    },
+    "Incidencias": {
+      "en": "Payroll inputs",
+      "pt": "Ocorrências"
+    },
+    "Industria": {
+      "en": "Industry",
+      "pt": "Setor"
+    },
+    "Información": {
+      "en": "Information",
+      "pt": "Informação"
+    },
+    "Información Personal": {
+      "en": "Personal information",
+      "pt": "Informações pessoais"
+    },
+    "Información de la Cuenta": {
+      "en": "Account Information",
+      "pt": "Informações da Conta"
+    },
+    "Ingresa el código": {
+      "en": "Enter the code",
+      "pt": "Digite o código"
+    },
+    "Ingresa el código de 6 dígitos enviado a tu dispositivo.": {
+      "en": "Enter the 6-digit code sent to your device.",
+      "pt": "Digite o código de 6 dígitos enviado ao seu dispositivo."
+    },
+    "Ingresa el código de 6 dígitos que ves en tu app autenticadora.": {
+      "en": "Enter the 6-digit code shown in your authenticator app.",
+      "pt": "Digite o código de seis dígitos exibido no seu aplicativo autenticador."
+    },
+    "Ingresa este secreto en su lugar:": {
+      "en": "Enter this secret instead:",
+      "pt": "Digite esta chave secreta:"
+    },
+    "Ingresa tu contraseña actual": {
+      "en": "Enter your current password",
+      "pt": "Digite sua senha atual"
+    },
+    "Ingresa tu correo corporativo para continuar con el inicio de sesión único de tu empresa.": {
+      "en": "Enter your work email to continue with your company's single sign-on.",
+      "pt": "Informe seu e-mail corporativo para continuar com o login único da sua empresa."
+    },
+    "Ingresa tu email para recibir instrucciones": {
+      "en": "Enter your email to receive instructions",
+      "pt": "Informe seu e-mail para receber as instruções"
+    },
+    "Ingresa tu nueva contraseña": {
+      "en": "Enter your new password",
+      "pt": "Digite sua nova senha"
+    },
+    "Ingresa tus datos personales": {
+      "en": "Enter your personal details",
+      "pt": "Informe seus dados pessoais"
+    },
+    "Ingresos Operativos": {
+      "en": "Operating Income",
+      "pt": "Receita Operacional"
+    },
+    "Inicia sesión": {
+      "en": "Sign in",
+      "pt": "Entrar"
+    },
+    "Iniciando sesión": {
+      "en": "Logging in",
+      "pt": "Entrando"
+    },
+    "Iniciar con Llave de Acceso (Passkey)": {
+      "en": "Sign in with Passkey",
+      "pt": "Entrar com chave de acesso (passkey)"
+    },
+    "Iniciar sesión": {
+      "en": "Sign in",
+      "pt": "Entrar"
+    },
+    "Inicio": {
+      "en": "Home",
+      "pt": "Início"
+    },
+    "Insertar Gráfico": {
+      "en": "Insert Chart",
+      "pt": "Inserir Gráfico"
+    },
+    "Instalar App": {
+      "en": "Install App",
+      "pt": "Instalar App"
+    },
+    "Integraciones": {
+      "en": "Integrations & API",
+      "pt": "Integrações"
+    },
+    "Integraciones (Configuración)": {
+      "en": "Integrations (Settings)",
+      "pt": "Integrações (Configuração)"
+    },
+    "Integración con Compras": {
+      "en": "Purchasing integration",
+      "pt": "Integração com Compras"
+    },
+    "Inteligencia de Negocio": {
+      "en": "Business Intelligence",
+      "pt": "Inteligência de Negócios"
+    },
+    "Inteligencia y Planificación": {
+      "en": "Intelligence & Planning",
+      "pt": "Inteligência e Planejamento"
+    },
+    "Intentos restantes: {{count}}": {
+      "en": "Remaining attempts: {{count}}",
+      "pt": "Tentativas restantes: {{count}}"
+    },
+    "Intercompany — Conciliación": {
+      "en": "Intercompany — Reconciliation",
+      "pt": "Intercompany — Conciliação"
+    },
+    "Intercompany — Facturación": {
+      "en": "Intercompany — Billing",
+      "pt": "Intercompany — Faturamento"
+    },
+    "Intercompany — Netting": {
+      "en": "Intercompany — Netting",
+      "pt": "Intercompany — Netting"
+    },
+    "Intercompany — Transacciones": {
+      "en": "Intercompany — Transactions",
+      "pt": "Intercompany — Transações"
+    },
+    "Introduce el código de tu aplicación de autenticación para confirmar esta acción.": {
+      "en": "Enter the code from your authenticator app to confirm this action.",
+      "pt": "Digite o código do seu aplicativo autenticador para confirmar esta ação."
+    },
+    "Inventario": {
+      "en": "Inventory",
+      "pt": "Estoque"
+    },
+    "Inventario y WMS Ligero": {
+      "en": "Inventory & WMS",
+      "pt": "Estoque e WMS Leve"
+    },
+    "Inversiones": {
+      "en": "Investments",
+      "pt": "Investimentos"
+    },
+    "Ir a iniciar sesión": {
+      "en": "Go to sign in",
+      "pt": "Ir para o login"
+    },
+    "Jobs": {
+      "en": "Jobs",
+      "pt": "Jobs"
+    },
+    "KPI: Apalancamiento": {
+      "en": "KPI: Leverage",
+      "pt": "KPI: Alavancagem"
+    },
+    "KPI: Capital de Trabajo": {
+      "en": "KPI: Working Capital",
+      "pt": "KPI: Capital de Giro"
+    },
+    "KPI: EBITDA": {
+      "en": "KPI: EBITDA",
+      "pt": "KPI: EBITDA"
+    },
+    "KPI: Endeudamiento": {
+      "en": "KPI: Leverage",
+      "pt": "KPI: Endividamento"
+    },
+    "KPI: Flujo de Caja Libre": {
+      "en": "KPI: Free Cash Flow",
+      "pt": "KPI: Fluxo de Caixa Livre"
+    },
+    "KPI: Liquidez Corriente": {
+      "en": "KPI: Current Ratio",
+      "pt": "KPI: Liquidez Corrente"
+    },
+    "KPI: Margen Neto": {
+      "en": "KPI: Net Margin",
+      "pt": "KPI: Margem Líquida"
+    },
+    "KPI: Prueba Ácida": {
+      "en": "KPI: Quick Ratio",
+      "pt": "KPI: Liquidez Seca"
+    },
+    "KPI: ROA": {
+      "en": "KPI: ROA",
+      "pt": "KPI: ROA"
+    },
+    "KPI: ROE": {
+      "en": "KPI: ROE",
+      "pt": "KPI: ROE"
+    },
+    "KPIs": {
+      "en": "KPIs",
+      "pt": "KPIs"
+    },
+    "KPIs: Ratios Financieros": {
+      "en": "KPIs: Financial Ratios",
+      "pt": "KPIs: Índices Financeiros"
+    },
+    "Kits y BOM": {
+      "en": "Kits & BOM",
+      "pt": "Kits e BOM"
+    },
+    "La contraseña debe incluir una mayúscula, una minúscula y un número o símbolo.": {
+      "en": "The password needs an uppercase letter, a lowercase letter and a number or symbol.",
+      "pt": "A senha deve incluir uma letra maiúscula, uma minúscula e um número ou símbolo."
+    },
+    "La contraseña debe tener al menos 12 caracteres.": {
+      "en": "The password must be at least 12 characters long.",
+      "pt": "A senha deve ter pelo menos 12 caracteres."
+    },
+    "La contraseña es incorrecta.": {
+      "en": "The password is incorrect.",
+      "pt": "A senha está incorreta."
+    },
+    "La contraseña es obligatoria.": {
+      "en": "Password is required.",
+      "pt": "A senha é obrigatória."
+    },
+    "La sesión ha expirado. Por favor, inicia sesión de nuevo.": {
+      "en": "Session expired. Please log in again.",
+      "pt": "Sua sessão expirou. Entre novamente."
+    },
+    "Las contraseñas no coinciden": {
+      "en": "Those passwords don't match",
+      "pt": "As senhas não coincidem"
+    },
+    "Las contraseñas no coinciden.": {
+      "en": "Passwords do not match.",
+      "pt": "As senhas não coincidem."
+    },
+    "Las credenciales no son correctas. Por favor, verifica tu correo y contraseña.": {
+      "en": "The credentials are not correct. Please check your email and password.",
+      "pt": "As credenciais não estão corretas. Verifique seu e-mail e sua senha."
+    },
+    "Librería de Widgets": {
+      "en": "Widget Library",
+      "pt": "Biblioteca de Widgets"
+    },
+    "Libro Diario": {
+      "en": "General Journal",
+      "pt": "Livro Diário"
+    },
+    "Libro Mayor": {
+      "en": "General Ledger",
+      "pt": "Livro Razão"
+    },
+    "Libro: Auxiliares": {
+      "en": "Book: Subledgers",
+      "pt": "Livro: Auxiliares"
+    },
+    "Libro: Diario": {
+      "en": "Book: Journal",
+      "pt": "Livro: Diário"
+    },
+    "Libro: Mayor": {
+      "en": "Book: General ledger",
+      "pt": "Livro: Razão"
+    },
+    "Linaje de datos": {
+      "en": "Data lineage",
+      "pt": "Linhagem de dados"
+    },
+    "Liquidez Corriente": {
+      "en": "Current Ratio",
+      "pt": "Liquidez Corrente"
+    },
+    "Listado": {
+      "en": "Asset Master",
+      "pt": "Listagem"
+    },
+    "Listas de Precios": {
+      "en": "Price Lists",
+      "pt": "Tabelas de Preços"
+    },
+    "Listas de precios": {
+      "en": "Price lists",
+      "pt": "Tabelas de preços"
+    },
+    "Listo": {
+      "en": "Done",
+      "pt": "Pronto"
+    },
+    "Localizaciones": {
+      "en": "Localizations",
+      "pt": "Localizações fiscais"
+    },
+    "Localización — País": {
+      "en": "Localization — Country",
+      "pt": "Localização — País"
+    },
+    "Logo de la empresa": {
+      "en": "Company Logo",
+      "pt": "Logotipo da empresa"
+    },
+    "Logs": {
+      "en": "Logs",
+      "pt": "Logs"
+    },
+    "Logística": {
+      "en": "Logistics",
+      "pt": "Logística"
+    },
+    "Lotes y series": {
+      "en": "Lots & serials",
+      "pt": "Lotes e séries"
+    },
+    "Límites de tasa": {
+      "en": "Rate limits",
+      "pt": "Limites de taxa"
+    },
+    "Línea": {
+      "en": "Line",
+      "pt": "Linha"
+    },
+    "MRP": {
+      "en": "MRP Planning",
+      "pt": "MRP"
+    },
+    "Maestros": {
+      "en": "Master data",
+      "pt": "Dados Mestres"
+    },
+    "Mandatos": {
+      "en": "Mandates",
+      "pt": "Mandatos"
+    },
+    "Mantener la sesión iniciada": {
+      "en": "Keep me logged in",
+      "pt": "Manter conectado"
+    },
+    "Manufactura": {
+      "en": "Manufacturing",
+      "pt": "Manufatura"
+    },
+    "Marcar todo como leído": {
+      "en": "Mark all as read",
+      "pt": "Marcar tudo como lido"
+    },
+    "Margen Neto": {
+      "en": "Net Margin",
+      "pt": "Margem Líquida"
+    },
+    "Marketplace — Conectores": {
+      "en": "Marketplace — Connectors",
+      "pt": "Marketplace — Conectores"
+    },
+    "Mensual": {
+      "en": "Monthly",
+      "pt": "Mensal"
+    },
+    "Menú": {
+      "en": "Menu",
+      "pt": "Menu"
+    },
+    "Mi Perfil": {
+      "en": "My Profile",
+      "pt": "Meu Perfil"
+    },
+    "Mi Trabajo": {
+      "en": "My Work",
+      "pt": "Meu Trabalho"
+    },
+    "Mi trabajo": {
+      "en": "My Work",
+      "pt": "Meu trabalho"
+    },
+    "Miembro": {
+      "en": "Member",
+      "pt": "Membro"
+    },
+    "Mis Documentos": {
+      "en": "My Documents",
+      "pt": "Meus Documentos"
+    },
+    "Modelos de presupuesto": {
+      "en": "Budget models",
+      "pt": "Modelos de orçamento"
+    },
+    "Moneda": {
+      "en": "Currency",
+      "pt": "Moeda"
+    },
+    "Monedas": {
+      "en": "Currencies",
+      "pt": "Moedas"
+    },
+    "Monitoreo": {
+      "en": "Monitoring",
+      "pt": "Monitoramento"
+    },
+    "Monto ({{currency}})": {
+      "en": "Amount ({{currency}})",
+      "pt": "Valor ({{currency}})"
+    },
+    "Mostrando": {
+      "en": "Showing",
+      "pt": "Exibindo"
+    },
+    "Motor de determinación": {
+      "en": "Determination engine",
+      "pt": "Motor de determinação"
+    },
+    "Motor de reglas": {
+      "en": "Rules engine",
+      "pt": "Motor de regras"
+    },
+    "Movimientos": {
+      "en": "Movements History",
+      "pt": "Movimentações"
+    },
+    "Multilibros": {
+      "en": "Multi-ledger",
+      "pt": "Multilivros"
+    },
+    "Multi‑GAAP": {
+      "en": "Multi-GAAP",
+      "pt": "Multi-GAAP"
+    },
+    "Más acciones": {
+      "en": "More actions",
+      "pt": "Mais ações"
+    },
+    "Máscara sandbox": {
+      "en": "Sandbox masking",
+      "pt": "Máscara de sandbox"
+    },
+    "Móvil / PWA": {
+      "en": "Mobile / PWA",
+      "pt": "Móvel / PWA"
+    },
+    "Móvil — Almacén": {
+      "en": "Mobile — Warehouse",
+      "pt": "Móvel — Depósito"
+    },
+    "No encontramos la sesión de pago.": {
+      "en": "We couldn't find your payment session.",
+      "pt": "Não encontramos a sessão de pagamento."
+    },
+    "No hay eventos próximos.": {
+      "en": "No upcoming events.",
+      "pt": "Não há eventos próximos."
+    },
+    "No hay inicio de sesión único configurado para ese dominio de correo. Usa otro método.": {
+      "en": "No single sign-on is configured for that email domain. Please use another method.",
+      "pt": "Não há login único configurado para esse domínio de e-mail. Use outro método."
+    },
+    "No hay notificaciones": {
+      "en": "No notifications",
+      "pt": "Sem notificações"
+    },
+    "No hay novedades por ahora.": {
+      "en": "No news right now.",
+      "pt": "Nenhuma novidade por enquanto."
+    },
+    "No pudimos completar el inicio de sesión con ese proveedor. Intenta de nuevo.": {
+      "en": "We couldn't complete sign-in with that provider. Please try again.",
+      "pt": "Não conseguimos concluir o login com esse provedor. Tente novamente."
+    },
+    "No pudimos confirmar tu pago automáticamente. Si el cargo se realizó, inicia sesión en unos minutos.": {
+      "en": "We couldn't confirm your payment automatically. If you were charged, sign in in a few minutes.",
+      "pt": "Não conseguimos confirmar seu pagamento automaticamente. Se a cobrança foi feita, entre novamente em alguns minutos."
+    },
+    "No pudimos validar la seguridad del formulario. Inténtalo de nuevo.": {
+      "en": "We couldn't verify the form's security check. Please try again.",
+      "pt": "Não conseguimos validar a verificação de segurança do formulário. Tente novamente."
+    },
+    "No pudimos verificar tu identidad con el proveedor. Inténtalo de nuevo.": {
+      "en": "We couldn't verify your identity with the provider. Please try again.",
+      "pt": "Não conseguimos verificar sua identidade com o provedor. Tente novamente."
+    },
+    "No se pudieron cargar los datos.": {
+      "en": "The data could not be loaded.",
+      "pt": "Não foi possível carregar os dados."
+    },
+    "No se pudieron cargar los planes.": {
+      "en": "We couldn't load the plans.",
+      "pt": "Não foi possível carregar os planos."
+    },
+    "No se pudo cargar la configuración fiscal de ese país. Recarga la página o elige otro país.": {
+      "en": "We couldn't load the tax settings for that country. Reload the page or pick another country.",
+      "pt": "Não foi possível carregar a configuração fiscal desse país. Recarregue a página ou escolha outro país."
+    },
+    "No se pudo cargar la información.": {
+      "en": "We couldn't load this information.",
+      "pt": "Não foi possível carregar as informações."
+    },
+    "No se pudo cargar la lista de países. Recarga la página para continuar con el registro.": {
+      "en": "We couldn't load the country list. Reload the page to continue signing up.",
+      "pt": "Não foi possível carregar a lista de países. Recarregue a página para continuar o cadastro."
+    },
+    "No se pudo cerrar esa sesión.": {
+      "en": "That session could not be signed out.",
+      "pt": "Não foi possível encerrar essa sessão."
+    },
+    "No se pudo completar el registro. Inténtalo de nuevo.": {
+      "en": "We couldn't complete your registration. Please try again.",
+      "pt": "Não foi possível concluir o cadastro. Tente novamente."
+    },
+    "No se pudo desactivar la verificación en dos pasos.": {
+      "en": "Two-step verification could not be turned off.",
+      "pt": "Não foi possível desativar a verificação em duas etapas."
+    },
+    "No se pudo enviar el código. Inténtalo de nuevo.": {
+      "en": "We couldn't send the code. Please try again.",
+      "pt": "Não foi possível enviar o código. Tente novamente."
+    },
+    "No se pudo iniciar el cambio de correo.": {
+      "en": "The email change could not be started.",
+      "pt": "Não foi possível iniciar a alteração de e-mail."
+    },
+    "No se pudo iniciar la configuración. Inténtalo de nuevo.": {
+      "en": "Setup could not be started. Please try again.",
+      "pt": "Não foi possível iniciar a configuração. Tente novamente."
+    },
+    "No se pudo verificar la contraseña. Inténtalo de nuevo.": {
+      "en": "Could not verify password. Please try again.",
+      "pt": "Não foi possível verificar a senha. Tente novamente."
+    },
+    "No tienes conexión": {
+      "en": "You are offline",
+      "pt": "Você está sem conexão"
+    },
+    "Nombre": {
+      "en": "Name",
+      "pt": "Nome"
+    },
+    "Nombre de la Cuenta": {
+      "en": "Account Name",
+      "pt": "Nome da Conta"
+    },
+    "Nombre de la Empresa": {
+      "en": "Company Name",
+      "pt": "Nome da Empresa"
+    },
+    "Notas de crédito": {
+      "en": "Credit notes",
+      "pt": "Notas de crédito"
+    },
+    "Notas de débito": {
+      "en": "Debit notes",
+      "pt": "Notas de débito"
+    },
+    "Notificaciones": {
+      "en": "Notifications",
+      "pt": "Notificações"
+    },
+    "Novedades de Virtex": {
+      "en": "Virtex news",
+      "pt": "Novidades do Virtex"
+    },
+    "Nueva Contraseña": {
+      "en": "New password",
+      "pt": "Nova senha"
+    },
+    "Nueva Cuenta": {
+      "en": "New Account",
+      "pt": "Nova Conta"
+    },
+    "Nueva Orden": {
+      "en": "New Order",
+      "pt": "Novo Pedido"
+    },
+    "Nueva Requisición": {
+      "en": "New Requisition",
+      "pt": "Nova Requisição"
+    },
+    "Nueva cotización": {
+      "en": "New quote",
+      "pt": "Novo orçamento"
+    },
+    "Nueva factura": {
+      "en": "New invoice",
+      "pt": "Nova fatura"
+    },
+    "Nuevo": {
+      "en": "New",
+      "pt": "Novo"
+    },
+    "Nuevo Libro": {
+      "en": "New Book",
+      "pt": "Nova Pasta de Trabalho"
+    },
+    "Nuevo cliente": {
+      "en": "New customer",
+      "pt": "Novo cliente"
+    },
+    "Nuevo conduce": {
+      "en": "New delivery note",
+      "pt": "Nova nota de remessa"
+    },
+    "Nuevo producto": {
+      "en": "New product",
+      "pt": "Novo produto"
+    },
+    "Nuevos códigos generados.": {
+      "en": "New codes generated.",
+      "pt": "Novos códigos gerados."
+    },
+    "Número de empleados": {
+      "en": "Number of employees",
+      "pt": "Número de funcionários"
+    },
+    "Número de teléfono": {
+      "en": "Phone number",
+      "pt": "Número de telefone"
+    },
+    "O ingresa esta clave manualmente": {
+      "en": "Or enter this key by hand",
+      "pt": "Ou digite esta chave manualmente"
+    },
+    "O usa tu correo electrónico": {
+      "en": "Or use your email",
+      "pt": "Ou use seu e-mail"
+    },
+    "OCR": {
+      "en": "OCR",
+      "pt": "OCR"
+    },
+    "Obligaciones de desempeño": {
+      "en": "Performance obligations",
+      "pt": "Obrigações de desempenho"
+    },
+    "Obtener código de verificación": {
+      "en": "Get verification code",
+      "pt": "Obter código de verificação"
+    },
+    "Ocurrió un error en el servidor. Por favor, inténtalo más tarde o contacta a soporte.": {
+      "en": "A server error occurred. Please try again later or contact support.",
+      "pt": "Ocorreu um erro no servidor. Tente mais tarde ou entre em contato com o suporte."
+    },
+    "Onboarding de proveedores": {
+      "en": "Supplier onboarding",
+      "pt": "Onboarding de fornecedores"
+    },
+    "Operaciones": {
+      "en": "Operations",
+      "pt": "Operações"
+    },
+    "Organización": {
+      "en": "Organization",
+      "pt": "Organização"
+    },
+    "Otro": {
+      "en": "Other",
+      "pt": "Outro"
+    },
+    "Pagos": {
+      "en": "Payments",
+      "pt": "Pagamentos"
+    },
+    "Pagos en línea": {
+      "en": "Online payments",
+      "pt": "Pagamentos on-line"
+    },
+    "Pagos masivos": {
+      "en": "Bulk payments",
+      "pt": "Pagamentos em massa"
+    },
+    "Pagos programados": {
+      "en": "Scheduled payments",
+      "pt": "Pagamentos agendados"
+    },
+    "Panel de Alertas": {
+      "en": "Alerts Panel",
+      "pt": "Painel de Alertas"
+    },
+    "Papelera": {
+      "en": "Trash",
+      "pt": "Lixeira"
+    },
+    "Para asegurar tu cuenta, necesitamos verificar tu número de teléfono.": {
+      "en": "To secure your account, we need to verify your phone number.",
+      "pt": "Para proteger sua conta, precisamos verificar seu número de telefone."
+    },
+    "Paso {{current}} de {{total}}": {
+      "en": "Step {{current}} of {{total}}",
+      "pt": "Etapa {{current}} de {{total}}"
+    },
+    "País": {
+      "en": "Country",
+      "pt": "País"
+    },
+    "Pendiente": {
+      "en": "Pending",
+      "pt": "Pendente"
+    },
+    "Perfil actualizado exitosamente.": {
+      "en": "Profile updated.",
+      "pt": "Perfil atualizado."
+    },
+    "Perfil de Negocio": {
+      "en": "Business Profile",
+      "pt": "Perfil do Negócio"
+    },
+    "Periodo de facturación": {
+      "en": "Billing period",
+      "pt": "Período de cobrança"
+    },
+    "Periodos contables": {
+      "en": "Period Management",
+      "pt": "Períodos contábeis"
+    },
+    "Periodos de subledger": {
+      "en": "Subledger periods",
+      "pt": "Períodos de subledger"
+    },
+    "Permisos": {
+      "en": "Permissions",
+      "pt": "Permissões"
+    },
+    "Permisos de usuario": {
+      "en": "User permissions",
+      "pt": "Permissões de usuário"
+    },
+    "Persona física": {
+      "en": "Individual",
+      "pt": "Pessoa física"
+    },
+    "Personalización Avanzada": {
+      "en": "Advanced Customization",
+      "pt": "Personalização avançada"
+    },
+    "Picking y packing": {
+      "en": "Picking & packing",
+      "pt": "Separação e embalagem"
+    },
+    "Plan": {
+      "en": "Plan",
+      "pt": "Plano"
+    },
+    "Plan de Cuentas": {
+      "en": "Chart of Accounts",
+      "pt": "Plano de Contas"
+    },
+    "Plan de cuentas": {
+      "en": "Chart of Accounts",
+      "pt": "Plano de contas"
+    },
+    "Plan seleccionado": {
+      "en": "Plan selected",
+      "pt": "Plano selecionado"
+    },
+    "Planeación": {
+      "en": "Planning",
+      "pt": "Planejamento"
+    },
+    "Planeación de capacidad": {
+      "en": "Capacity planning",
+      "pt": "Planejamento de capacidade"
+    },
+    "Planes de mantenimiento": {
+      "en": "Maintenance plans",
+      "pt": "Planos de manutenção"
+    },
+    "Planes de pago": {
+      "en": "Payment plans",
+      "pt": "Planos de pagamento"
+    },
+    "Plantillas": {
+      "en": "Templates",
+      "pt": "Modelos"
+    },
+    "Plantillas de email": {
+      "en": "Email templates",
+      "pt": "Modelos de e-mail"
+    },
+    "Plataforma e Integraciones": {
+      "en": "Platform & Integrations",
+      "pt": "Plataforma e Integrações"
+    },
+    "Política de Privacidad": {
+      "en": "Privacy Policy",
+      "pt": "Política de Privacidade"
+    },
+    "Políticas": {
+      "en": "Policies",
+      "pt": "Políticas"
+    },
+    "Por favor confirma que has guardado los códigos.": {
+      "en": "Please confirm you've saved the codes.",
+      "pt": "Confirme que você salvou os códigos."
+    },
+    "Por favor, introduce un correo electrónico válido.": {
+      "en": "Please enter a valid email address.",
+      "pt": "Informe um e-mail válido."
+    },
+    "Por motivos de seguridad, necesitamos verificar que eres tú antes de configurar el método de verificación en dos pasos.": {
+      "en": "For your security, we need to confirm it's you before setting up two-step verification.",
+      "pt": "Por motivos de segurança, precisamos confirmar que é você antes de configurar a verificação em duas etapas."
+    },
+    "Portal de clientes": {
+      "en": "Customer portal",
+      "pt": "Portal do cliente"
+    },
+    "Portal de empleados": {
+      "en": "Employee portal",
+      "pt": "Portal do funcionário"
+    },
+    "Portal de proveedores": {
+      "en": "Supplier portal",
+      "pt": "Portal do fornecedor"
+    },
+    "Portales": {
+      "en": "Portals",
+      "pt": "Portais"
+    },
+    "Positive Pay": {
+      "en": "Positive Pay",
+      "pt": "Positive Pay"
+    },
+    "Precios de transferencia": {
+      "en": "Transfer pricing",
+      "pt": "Preços de transferência"
+    },
+    "Presupuesto": {
+      "en": "Budgeting",
+      "pt": "Orçamento"
+    },
+    "Privacidad": {
+      "en": "Privacy",
+      "pt": "Privacidade"
+    },
+    "Procesar nómina": {
+      "en": "Run payroll",
+      "pt": "Processar folha"
+    },
+    "Process mining": {
+      "en": "Process mining"
+    },
+    "Productos": {
+      "en": "Products & Services",
+      "pt": "Produtos"
+    },
+    "Productos Más Vendidos": {
+      "en": "Top-Selling Products",
+      "pt": "Produtos Mais Vendidos"
+    },
+    "Productos con Bajo Stock": {
+      "en": "Low Stock Items",
+      "pt": "Produtos com Estoque Baixo"
+    },
+    "Programaciones": {
+      "en": "Schedules",
+      "pt": "Cronogramas"
+    },
+    "Pronóstico": {
+      "en": "Forecasting",
+      "pt": "Previsão"
+    },
+    "Propiedades": {
+      "en": "Properties",
+      "pt": "Propriedades"
+    },
+    "Propietario": {
+      "en": "Owner",
+      "pt": "Proprietário"
+    },
+    "Prorrateos": {
+      "en": "Allocations",
+      "pt": "Rateios"
+    },
+    "Protege tu cuenta con una capa extra de seguridad.": {
+      "en": "Protect your account with an extra layer of security.",
+      "pt": "Proteja sua conta com uma camada extra de segurança."
+    },
+    "Protegido por reCAPTCHA.": {
+      "en": "Protected by reCAPTCHA.",
+      "pt": "Protegido por reCAPTCHA."
+    },
+    "Proveedores": {
+      "en": "Suppliers",
+      "pt": "Fornecedores"
+    },
+    "Proveedores de pago (PSP)": {
+      "en": "Payment providers (PSP)",
+      "pt": "Provedores de pagamento (PSP)"
+    },
+    "Proyectos": {
+      "en": "Projects",
+      "pt": "Projetos"
+    },
+    "Proyectos y Costeo": {
+      "en": "Projects & Costing",
+      "pt": "Projetos e Custeio"
+    },
+    "Prueba Gratuita de 30 Días": {
+      "en": "30-Day Free Trial",
+      "pt": "Teste Gratuito de 30 Dias"
+    },
+    "Prueba Ácida": {
+      "en": "Quick Ratio",
+      "pt": "Liquidez Seca"
+    },
+    "Préstamos": {
+      "en": "Loans",
+      "pt": "Empréstimos"
+    },
+    "Próximos eventos": {
+      "en": "Upcoming events",
+      "pt": "Próximos eventos"
+    },
+    "Puedes seleccionar varias manteniendo Ctrl (o Cmd) al hacer clic.": {
+      "en": "Select several by holding Ctrl (or Cmd) while clicking.",
+      "pt": "Você pode selecionar várias segurando Ctrl (ou Cmd) ao clicar."
+    },
+    "RFQ": {
+      "en": "RFQ",
+      "pt": "RFQ"
+    },
+    "ROA (Retorno sobre Activos)": {
+      "en": "ROA (Return on Assets)",
+      "pt": "ROA (Retorno sobre os Ativos)"
+    },
+    "ROE (Retorno sobre Patrimonio)": {
+      "en": "ROE (Return on Equity)",
+      "pt": "ROE (Retorno sobre o Patrimônio)"
+    },
+    "RR.HH. y Nómina": {
+      "en": "HR & Payroll",
+      "pt": "RH e Folha de Pagamento"
+    },
+    "Real vs Presupuesto": {
+      "en": "Actual vs Budget",
+      "pt": "Real vs Orçado"
+    },
+    "Recepciones": {
+      "en": "Receipts",
+      "pt": "Recebimentos"
+    },
+    "Recibos": {
+      "en": "Receipts & Collections",
+      "pt": "Recibos"
+    },
+    "Recientes": {
+      "en": "Recent",
+      "pt": "Recentes"
+    },
+    "Recomendado": {
+      "en": "Recommended",
+      "pt": "Recomendado"
+    },
+    "Reconocimiento de Ingresos": {
+      "en": "Revenue Recognition",
+      "pt": "Reconhecimento de Receita"
+    },
+    "Recuperar Contraseña": {
+      "en": "Recover Password",
+      "pt": "Recuperar Senha"
+    },
+    "Recuperar contraseña": {
+      "en": "Recover password",
+      "pt": "Recuperar senha"
+    },
+    "Recursos": {
+      "en": "Resources",
+      "pt": "Recursos"
+    },
+    "Recursos Humanos": {
+      "en": "Human Resources",
+      "pt": "Recursos Humanos"
+    },
+    "Reenviar": {
+      "en": "Resend",
+      "pt": "Reenviar"
+    },
+    "Reenviar código": {
+      "en": "Resend code",
+      "pt": "Reenviar código"
+    },
+    "Refresh token inválido o expirado.": {
+      "en": "Refresh token invalid or expired.",
+      "pt": "O refresh token é inválido ou expirou."
+    },
+    "Refresh token reutilizado. Sesión invalidada.": {
+      "en": "Refresh token reused. Session invalidated.",
+      "pt": "O refresh token foi reutilizado. A sessão foi invalidada."
+    },
+    "Registrando...": {
+      "en": "Registering...",
+      "pt": "Cadastrando..."
+    },
+    "Registrarse": {
+      "en": "Sign Up",
+      "pt": "Cadastrar"
+    },
+    "Región Fiscal": {
+      "en": "Fiscal Region",
+      "pt": "Região Fiscal"
+    },
+    "Regístrate": {
+      "en": "Sign up",
+      "pt": "Cadastre-se"
+    },
+    "Reintentar": {
+      "en": "Try again",
+      "pt": "Tentar novamente"
+    },
+    "Remisiones / Entregas": {
+      "en": "Delivery notes",
+      "pt": "Remessas / Entregas"
+    },
+    "Rentabilidad": {
+      "en": "Profitability",
+      "pt": "Rentabilidade"
+    },
+    "Repite tu contraseña": {
+      "en": "Repeat your password",
+      "pt": "Repita sua senha"
+    },
+    "Reportes": {
+      "en": "Reports",
+      "pt": "Relatórios"
+    },
+    "Reportes Financieros": {
+      "en": "Reporting",
+      "pt": "Relatórios Financeiros"
+    },
+    "Reportes de gastos": {
+      "en": "Expense reports",
+      "pt": "Relatórios de despesas"
+    },
+    "Reportes fiscales": {
+      "en": "Tax reports",
+      "pt": "Relatórios fiscais"
+    },
+    "Reprocesos": {
+      "en": "Reprocessing",
+      "pt": "Reprocessamentos"
+    },
+    "Requisiciones": {
+      "en": "Requisitions",
+      "pt": "Requisições"
+    },
+    "Requisiciones de Compra": {
+      "en": "Purchase Requisitions",
+      "pt": "Requisições de Compra"
+    },
+    "Reservas": {
+      "en": "Reservations",
+      "pt": "Reservas"
+    },
+    "Restablecer Contraseña": {
+      "en": "Reset Password",
+      "pt": "Redefinir Senha"
+    },
+    "Restablecer contraseña": {
+      "en": "Reset password",
+      "pt": "Redefinir senha"
+    },
+    "Restaurar": {
+      "en": "Reset",
+      "pt": "Restaurar"
+    },
+    "Resumen": {
+      "en": "Summary",
+      "pt": "Resumo"
+    },
+    "Retenciones": {
+      "en": "Withholdings",
+      "pt": "Retenções"
+    },
+    "Revaluaciones": {
+      "en": "Revaluations",
+      "pt": "Reavaliações"
+    },
+    "Revaluación de subledger": {
+      "en": "Subledger revaluation",
+      "pt": "Reavaliação de subledger"
+    },
+    "Revaluación monetaria": {
+      "en": "Monetary revaluation",
+      "pt": "Reavaliação monetária"
+    },
+    "Revisa tu conexión de red y vuelve aquí. Virtex se cargará tan pronto como vuelvas a estar en línea.": {
+      "en": "Check your network connection and come back here. Virtex will load as soon as you're back online.",
+      "pt": "Verifique sua conexão de rede e volte aqui. O Virtex carregará assim que você estiver on-line novamente."
+    },
+    "Revisa tu correo": {
+      "en": "Check your inbox",
+      "pt": "Verifique seu e-mail"
+    },
+    "Revisa, aprueba y da seguimiento a todas las solicitudes de compra internas.": {
+      "en": "Review, approve, and track all internal purchase requests.",
+      "pt": "Revise, aprove e acompanhe todas as solicitações internas de compra."
+    },
+    "Riesgos": {
+      "en": "Risks",
+      "pt": "Riscos"
+    },
+    "Rol": {
+      "en": "Role",
+      "pt": "Perfil"
+    },
+    "SAF‑T": {
+      "en": "SAF-T",
+      "pt": "SAF-T"
+    },
+    "SSO": {
+      "en": "SSO",
+      "pt": "SSO"
+    },
+    "SSO y MFA": {
+      "en": "SSO & MFA",
+      "pt": "SSO e MFA"
+    },
+    "Saldo": {
+      "en": "Balance",
+      "pt": "Saldo"
+    },
+    "Saldo Final": {
+      "en": "Ending Balance",
+      "pt": "Saldo Final"
+    },
+    "Saldo Inicial": {
+      "en": "Opening Balance",
+      "pt": "Saldo Inicial"
+    },
+    "Salud": {
+      "en": "Healthcare",
+      "pt": "Saúde"
+    },
+    "Screening de terceros": {
+      "en": "Third-party screening",
+      "pt": "Triagem de terceiros"
+    },
+    "Segregación de funciones": {
+      "en": "Segregation of duties",
+      "pt": "Segregação de funções"
+    },
+    "Seguridad": {
+      "en": "Security",
+      "pt": "Segurança"
+    },
+    "Selecciona el número de empleados": {
+      "en": "Select the number of employees",
+      "pt": "Selecione o número de funcionários"
+    },
+    "Selecciona el plan que mejor se adapte a ti": {
+      "en": "Select the plan that best fits you",
+      "pt": "Escolha o plano que melhor se adapta a você"
+    },
+    "Selecciona tu industria": {
+      "en": "Select your industry",
+      "pt": "Selecione seu setor"
+    },
+    "Selecciona un cargo": {
+      "en": "Select a job title",
+      "pt": "Selecione um cargo"
+    },
+    "Selecciona una opción": {
+      "en": "Select an option",
+      "pt": "Selecione uma opção"
+    },
+    "Seleccionar idioma": {
+      "en": "Select language",
+      "pt": "Selecionar idioma"
+    },
+    "Seleccionar plan": {
+      "en": "Choose plan",
+      "pt": "Escolher plano"
+    },
+    "Servicios profesionales": {
+      "en": "Professional services",
+      "pt": "Serviços profissionais"
+    },
+    "Sesiones Activas": {
+      "en": "Active sessions",
+      "pt": "Sessões ativas"
+    },
+    "Sesiones activas": {
+      "en": "Active sessions",
+      "pt": "Sessões ativas"
+    },
+    "Sesión cerrada.": {
+      "en": "Session signed out.",
+      "pt": "Sessão encerrada."
+    },
+    "Shop floor": {
+      "en": "Shop floor",
+      "pt": "Chão de fábrica"
+    },
+    "Si existe una cuenta con este correo, recibirás instrucciones en breve.": {
+      "en": "If an account exists with this email, you will receive instructions shortly.",
+      "pt": "Se existir uma conta com este e-mail, você receberá as instruções em breve."
+    },
+    "Si los datos son correctos, enviamos un enlace de confirmación al nuevo correo.": {
+      "en": "If the details are correct, we sent a confirmation link to the new address.",
+      "pt": "Se os dados estiverem corretos, enviamos um link de confirmação para o novo e-mail."
+    },
+    "Siguiente": {
+      "en": "Next",
+      "pt": "Avançar"
+    },
+    "Simulador": {
+      "en": "Simulator",
+      "pt": "Simulador"
+    },
+    "Sin Rol Asignado": {
+      "en": "No Role Assigned",
+      "pt": "Sem Perfil Atribuído"
+    },
+    "Sin contraseña, en un solo paso.": {
+      "en": "Passwordless, in just one step.",
+      "pt": "Sem senha, em uma única etapa."
+    },
+    "Sin departamento": {
+      "en": "No department",
+      "pt": "Sem departamento"
+    },
+    "Sin tarjeta de crédito requerida": {
+      "en": "No credit card required",
+      "pt": "Sem necessidade de cartão de crédito"
+    },
+    "Sistema": {
+      "en": "System Settings",
+      "pt": "Sistema"
+    },
+    "Sitio Web": {
+      "en": "Website",
+      "pt": "Site"
+    },
+    "Soporte": {
+      "en": "Support",
+      "pt": "Suporte"
+    },
+    "Soporte prioritario incluido": {
+      "en": "Priority support included",
+      "pt": "Suporte prioritário incluído"
+    },
+    "Soporte y Ayuda": {
+      "en": "Support & Help",
+      "pt": "Suporte e Ajuda"
+    },
+    "Stock": {
+      "en": "Stock Levels",
+      "pt": "Estoque"
+    },
+    "Subir foto": {
+      "en": "Upload photo",
+      "pt": "Enviar foto"
+    },
+    "Subir logo": {
+      "en": "Upload logo",
+      "pt": "Enviar logotipo"
+    },
+    "Sucursales": {
+      "en": "Branches",
+      "pt": "Filiais"
+    },
+    "Suscripciones": {
+      "en": "Subscriptions",
+      "pt": "Assinaturas"
+    },
+    "Suscripciones — Rating": {
+      "en": "Subscriptions — Rating",
+      "pt": "Assinaturas — Rating"
+    },
+    "Suscripciones — Uso": {
+      "en": "Subscriptions — Usage",
+      "pt": "Assinaturas — Uso"
+    },
+    "TI": {
+      "en": "IT",
+      "pt": "TI"
+    },
+    "Tabla de Bajo Stock": {
+      "en": "Low Stock Table",
+      "pt": "Tabela de Estoque Baixo"
+    },
+    "Tablero": {
+      "en": "Dashboard",
+      "pt": "Painel"
+    },
+    "Tablero de nómina": {
+      "en": "Payroll dashboard",
+      "pt": "Painel da folha"
+    },
+    "Tableros": {
+      "en": "BI Dashboards",
+      "pt": "Painéis"
+    },
+    "Tamaño de la empresa": {
+      "en": "Company size",
+      "pt": "Porte da empresa"
+    },
+    "También puedes usar uno de tus códigos de recuperación.": {
+      "en": "You can also use one of your recovery codes.",
+      "pt": "Você também pode usar um dos seus códigos de recuperação."
+    },
+    "Tarjetas": {
+      "en": "Cards",
+      "pt": "Cartões"
+    },
+    "Te enviaremos un enlace de confirmación al nuevo correo. El cambio se aplica cuando lo abras, y avisamos al correo anterior.": {
+      "en": "We will send a confirmation link to the new address. The change takes effect when you open it, and we notify the previous address.",
+      "pt": "Enviaremos um link de confirmação para o novo e-mail. A alteração é aplicada quando você o abrir, e avisamos o endereço anterior."
+    },
+    "Tecnología": {
+      "en": "Technology",
+      "pt": "Tecnologia"
+    },
+    "Teléfono": {
+      "en": "Phone",
+      "pt": "Telefone"
+    },
+    "Teléfono verificado exitosamente.": {
+      "en": "Phone verified.",
+      "pt": "Telefone verificado."
+    },
+    "Tesorería": {
+      "en": "Treasury",
+      "pt": "Tesouraria"
+    },
+    "Tesorería y Bancos": {
+      "en": "Treasury & Banks",
+      "pt": "Tesouraria e Bancos"
+    },
+    "Timesheets": {
+      "en": "Timesheets",
+      "pt": "Apontamento de horas"
+    },
+    "Tipo": {
+      "en": "Type",
+      "pt": "Tipo"
+    },
+    "Tipo de Gráfico": {
+      "en": "Chart Type",
+      "pt": "Tipo de Gráfico"
+    },
+    "Tipo de contribuyente": {
+      "en": "Taxpayer type",
+      "pt": "Tipo de contribuinte"
+    },
+    "Tipos de cambio": {
+      "en": "Exchange rates",
+      "pt": "Taxas de câmbio"
+    },
+    "Todos": {
+      "en": "All",
+      "pt": "Todos"
+    },
+    "Todos los documentos": {
+      "en": "All documents",
+      "pt": "Todos os documentos"
+    },
+    "Transferencias": {
+      "en": "Transfers",
+      "pt": "Transferências"
+    },
+    "Transportes": {
+      "en": "Transports",
+      "pt": "Transportes"
+    },
+    "Tu contraseña ha sido actualizada correctamente.": {
+      "en": "Your password has been successfully updated.",
+      "pt": "Sua senha foi atualizada."
+    },
+    "Tu cuenta está bloqueada temporalmente. Intenta de nuevo en unos minutos.": {
+      "en": "Your account is temporarily locked. Please try again in a few minutes.",
+      "pt": "Sua conta está temporariamente bloqueada. Tente novamente em alguns minutos."
+    },
+    "Tu cuenta está protegida.": {
+      "en": "Your account is protected.",
+      "pt": "Sua conta está protegida."
+    },
+    "Tu cuenta no está protegida.": {
+      "en": "Your account is not protected.",
+      "pt": "Sua conta não está protegida."
+    },
+    "Tu cuenta será menos segura. ¿Estás seguro?": {
+      "en": "Your account will be less secure. Are you sure?",
+      "pt": "Sua conta ficará menos segura. Tem certeza?"
+    },
+    "Tu proveedor no ha verificado tu correo, así que no podemos iniciar tu sesión.": {
+      "en": "Your provider hasn't verified your email, so we can't sign you in.",
+      "pt": "Seu provedor não verificou seu e-mail, então não podemos entrar."
+    },
+    "Términos": {
+      "en": "Terms",
+      "pt": "Termos"
+    },
+    "Términos de Servicio": {
+      "en": "Terms of Service",
+      "pt": "Termos de Serviço"
+    },
+    "Ubicaciones": {
+      "en": "Locations",
+      "pt": "Localizações"
+    },
+    "Un resumen de la actividad de tu negocio. Arrastra y ajusta los widgets a tu gusto.": {
+      "en": "A snapshot of your business activity. Drag and arrange widgets as you like.",
+      "pt": "Um resumo da atividade do seu negócio. Arraste e ajuste os widgets como preferir."
+    },
+    "Unidades": {
+      "en": "Units",
+      "pt": "Unidades"
+    },
+    "Unidades Vendidas": {
+      "en": "Units Sold",
+      "pt": "Unidades Vendidas"
+    },
+    "Unidades de medida": {
+      "en": "Units of measure",
+      "pt": "Unidades de medida"
+    },
+    "Usuario Estándar": {
+      "en": "Standard User",
+      "pt": "Usuário Padrão"
+    },
+    "Usuario bloqueado. Contacte a soporte.": {
+      "en": "User blocked. Contact support.",
+      "pt": "Usuário bloqueado. Entre em contato com o suporte."
+    },
+    "Usuario inactivo o pendiente, por favor contacte al administrador.": {
+      "en": "User inactive or pending, please contact administrator.",
+      "pt": "Usuário inativo ou pendente; entre em contato com o administrador."
+    },
+    "Usuario no encontrado.": {
+      "en": "User not found.",
+      "pt": "Usuário não encontrado."
+    },
+    "Usuarios": {
+      "en": "Users",
+      "pt": "Usuários"
+    },
+    "Usuarios y Seguridad": {
+      "en": "Users & Security",
+      "pt": "Usuários e Segurança"
+    },
+    "Validaciones bancarias": {
+      "en": "Bank validations",
+      "pt": "Validações bancárias"
+    },
+    "Vendedor": {
+      "en": "Seller",
+      "pt": "Vendedor"
+    },
+    "Ventas": {
+      "en": "Sales Reports",
+      "pt": "Vendas"
+    },
+    "Ventas de Hoy": {
+      "en": "Today's Sales",
+      "pt": "Vendas de Hoje"
+    },
+    "Ventas y Facturación": {
+      "en": "Sales (O2C)",
+      "pt": "Vendas e Faturamento"
+    },
+    "Ver dashboard financiero": {
+      "en": "Open financial dashboard",
+      "pt": "Abrir o painel financeiro"
+    },
+    "Ver en Pantalla Completa": {
+      "en": "View Fullscreen",
+      "pt": "Ver em Tela Cheia"
+    },
+    "Ver facturas": {
+      "en": "View invoices",
+      "pt": "Ver faturas"
+    },
+    "Ver todas": {
+      "en": "View all",
+      "pt": "Ver todas"
+    },
+    "Verificación de 2 Pasos": {
+      "en": "2-Step Verification",
+      "pt": "Verificação em Duas Etapas"
+    },
+    "Verificación de 2 Pasos Activada": {
+      "en": "Two-step verification is on",
+      "pt": "Verificação em duas etapas ativada"
+    },
+    "Verificación de Seguridad": {
+      "en": "Security Verification",
+      "pt": "Verificação de Segurança"
+    },
+    "Verificación de Teléfono": {
+      "en": "Phone verification",
+      "pt": "Verificação de telefone"
+    },
+    "Verificación de identidad": {
+      "en": "Identity verification",
+      "pt": "Verificação de identidade"
+    },
+    "Verificación en dos pasos": {
+      "en": "Two-step verification",
+      "pt": "Verificação em duas etapas"
+    },
+    "Verificamos el dígito verificador ante {{authority}}.": {
+      "en": "We check the verification digit against {{authority}}.",
+      "pt": "Verificamos o dígito verificador junto à {{authority}}."
+    },
+    "Verificando...": {
+      "en": "Verifying...",
+      "pt": "Verificando..."
+    },
+    "Verificar": {
+      "en": "Verify",
+      "pt": "Verificar"
+    },
+    "Verificar Código": {
+      "en": "Verify code",
+      "pt": "Verificar código"
+    },
+    "Virtex": {
+      "en": "Virtex",
+      "pt": "Virtex"
+    },
+    "Virtex CRM": {
+      "en": "Virtex CRM",
+      "pt": "Virtex CRM"
+    },
+    "Virtex HR": {
+      "en": "Virtex HR",
+      "pt": "Virtex HR"
+    },
+    "Virtex Lunch": {
+      "en": "Virtex Lunch",
+      "pt": "Virtex Lunch"
+    },
+    "Virtex POS": {
+      "en": "Virtex POS",
+      "pt": "Virtex POS"
+    },
+    "Virtex Shopfloor": {
+      "en": "Virtex Shopfloor",
+      "pt": "Virtex Shopfloor"
+    },
+    "Virtex Store": {
+      "en": "Virtex Store",
+      "pt": "Virtex Store"
+    },
+    "Virtex WMS": {
+      "en": "Virtex WMS",
+      "pt": "Virtex WMS"
+    },
+    "Volver al inicio de sesión": {
+      "en": "Back to login",
+      "pt": "Voltar ao login"
+    },
+    "Volver al login": {
+      "en": "Back to login",
+      "pt": "Voltar ao login"
+    },
+    "WBS": {
+      "en": "WBS",
+      "pt": "EAP"
+    },
+    "WIP": {
+      "en": "WIP",
+      "pt": "WIP"
+    },
+    "Webhooks": {
+      "en": "Webhooks",
+      "pt": "Webhooks"
+    },
+    "What‑if": {
+      "en": "What-if",
+      "pt": "What-if"
+    },
+    "Workflows": {
+      "en": "Workflows",
+      "pt": "Workflows"
+    },
+    "XBRL": {
+      "en": "XBRL",
+      "pt": "XBRL"
+    },
+    "Ya existe una cuenta con este correo. Inicia sesión con tu método original y vincula el proveedor desde tu perfil.": {
+      "en": "An account already exists for this email. Sign in with your original method, then link the provider from your profile.",
+      "pt": "Já existe uma conta com este e-mail. Entre pelo método original e vincule o provedor no seu perfil."
+    },
+    "asientos contables": {
+      "en": "journal entries",
+      "pt": "lançamentos contábeis"
+    },
+    "clientes": {
+      "en": "customers",
+      "pt": "clientes"
+    },
+    "de": {
+      "en": "of",
+      "pt": "de"
+    },
+    "facturas": {
+      "en": "invoices",
+      "pt": "faturas"
+    },
+    "https://www.ejemplo.com": {
+      "en": "https://www.example.com",
+      "pt": "https://www.exemplo.com"
+    },
+    "nombre@empresa.com": {
+      "en": "name@company.com",
+      "pt": "nome@empresa.com"
+    },
+    "o": {
+      "en": "or",
+      "pt": "ou"
+    },
+    "o usa tu correo electrónico": {
+      "en": "or use your email",
+      "pt": "ou use seu e-mail"
+    },
+    "proveedores": {
+      "en": "suppliers",
+      "pt": "fornecedores"
+    },
+    "subsidiarias": {
+      "en": "subsidiaries",
+      "pt": "subsidiárias"
+    },
+    "usuarios": {
+      "en": "users",
+      "pt": "usuários"
+    },
+    "vs Año Anterior": {
+      "en": "vs Prior Year",
+      "pt": "vs Ano Anterior"
+    },
+    "vs Mes Anterior": {
+      "en": "vs Prior Month",
+      "pt": "vs Mês Anterior"
+    },
+    "vs Presupuesto": {
+      "en": "vs Budget",
+      "pt": "vs Orçamento"
+    },
+    "vs Q2": {
+      "en": "vs Q2",
+      "pt": "vs 2.º trim."
+    },
+    "vs Trimestre Anterior": {
+      "en": "vs Prior Quarter",
+      "pt": "vs Trimestre Anterior"
+    },
+    "y la": {
+      "en": "and",
+      "pt": "e a"
+    },
+    "{{count}} {{resource}} al mes": {
+      "en": "{{count}} {{resource}} a month",
+      "pt": "{{count}} {{resource}} por mês"
+    },
+    "{{count}} {{resource}} en total": {
+      "en": "{{count}} {{resource}} in total",
+      "pt": "{{count}} {{resource}} no total"
+    },
+    "{{limit}} {{resource}}": {
+      "en": "{{limit}} {{resource}}",
+      "pt": "{{limit}} {{resource}}"
+    },
+    "{{limit}} {{resource}} al mes": {
+      "en": "{{limit}} {{resource}} per month",
+      "pt": "{{limit}} {{resource}} por mês"
+    },
+    "{{resource}} ilimitados": {
+      "en": "Unlimited {{resource}}",
+      "pt": "{{resource}} ilimitados"
+    },
+    "{{resource}} sin límite": {
+      "en": "Unlimited {{resource}}",
+      "pt": "{{resource}} sem limite"
+    },
+    "¡Correo verificado!": {
+      "en": "Email verified.",
+      "pt": "E-mail verificado."
+    },
+    "¡Hola! Comencemos por ti": {
+      "en": "Hi! Let's start with you",
+      "pt": "Olá! Vamos começar por você"
+    },
+    "¡Número verificado!": {
+      "en": "Number verified.",
+      "pt": "Número verificado."
+    },
+    "¡Pago confirmado!": {
+      "en": "Payment confirmed.",
+      "pt": "Pagamento confirmado."
+    },
+    "¡Todos los widgets ya están en tu dashboard!": {
+      "en": "All widgets are already on your dashboard!",
+      "pt": "Todos os widgets já estão no seu painel."
+    },
+    "© {{year}} Virtex. Todos los derechos reservados.": {
+      "en": "© {{year}} Virtex. All rights reserved.",
+      "pt": "© {{year}} Virtex. Todos os direitos reservados."
+    },
+    "¿Desactivar 2FA?": {
+      "en": "Turn off 2FA?",
+      "pt": "Desativar 2FA?"
+    },
+    "¿No puedes escanear el código QR?": {
+      "en": "Can't scan the QR code?",
+      "pt": "Não consegue escanear o código QR?"
+    },
+    "¿No tienes una cuenta?": {
+      "en": "Don't have an account?",
+      "pt": "Ainda não tem uma conta?"
+    },
+    "¿Número equivocado?": {
+      "en": "Wrong number?",
+      "pt": "Número errado?"
+    },
+    "¿Olvidaste tu contraseña?": {
+      "en": "Forgot your password?",
+      "pt": "Esqueceu sua senha?"
+    },
+    "¿Prefieres no escribir el código? Busca el botón «Confirmar correo electrónico» en el mensaje que te enviamos.": {
+      "en": "Would rather not type the code? Look for the “Confirm email address” button in the message we sent you.",
+      "pt": "Prefere não digitar o código? Procure o botão «Confirmar e-mail» na mensagem que enviamos."
+    },
+    "¿Seguro que quieres continuar?": {
+      "en": "Are you sure you want to continue?",
+      "pt": "Tem certeza de que deseja continuar?"
+    },
+    "¿Ya tienes una cuenta?": {
+      "en": "Already have an account?",
+      "pt": "Já tem uma conta?"
+    },
+    "Éxito": {
+      "en": "Success",
+      "pt": "Sucesso"
+    },
+    "Órdenes de Compra": {
+      "en": "Purchase Orders",
+      "pt": "Pedidos de Compra"
+    },
+    "Órdenes de compra": {
+      "en": "Purchase Orders",
+      "pt": "Pedidos de compra"
+    },
+    "Órdenes de mantenimiento": {
+      "en": "Maintenance orders",
+      "pt": "Ordens de manutenção"
+    },
+    "Órdenes de producción": {
+      "en": "Production Orders",
+      "pt": "Ordens de produção"
+    },
+    "Órdenes de venta": {
+      "en": "Sales Orders",
+      "pt": "Pedidos de venda"
+    },
+    "Última Modificación": {
+      "en": "Last Modified",
+      "pt": "Última Modificação"
+    },
+    "Úsalos si pierdes acceso a tu dispositivo.": {
+      "en": "Use these if you lose access to your device.",
+      "pt": "Use-os se perder o acesso ao seu dispositivo."
+    },
+    "Preferencias de Idioma": {
+      "en": "Language preferences",
+      "pt": "Preferências de idioma"
+    },
+    "Logo y Colores": {
+      "en": "Logo and colours",
+      "pt": "Logotipo e cores"
+    },
+    "Logo de la Empresa": {
+      "en": "Company logo",
+      "pt": "Logotipo da empresa"
+    },
+    "Color de Acento": {
+      "en": "Accent colour",
+      "pt": "Cor de destaque"
+    },
+    "Apariencia y Layout": {
+      "en": "Appearance and layout",
+      "pt": "Aparência e layout"
+    },
+    "Tipografía": {
+      "en": "Typeface",
+      "pt": "Tipografia"
+    },
+    "Diseño de la Aplicación": {
+      "en": "Application layout",
+      "pt": "Layout do aplicativo"
+    },
+    "Superior": {
+      "en": "Top",
+      "pt": "Superior"
+    },
+    "Lateral": {
+      "en": "Side",
+      "pt": "Lateral"
+    },
+    "Densidad": {
+      "en": "Density",
+      "pt": "Densidade"
+    },
+    "Compacta": {
+      "en": "Compact",
+      "pt": "Compacta"
+    },
+    "Cómoda": {
+      "en": "Comfortable",
+      "pt": "Confortável"
+    },
+    "Ancho de Contenido": {
+      "en": "Content width",
+      "pt": "Largura do conteúdo"
+    },
+    "Normal": {
+      "en": "Normal",
+      "pt": "Normal"
+    },
+    "Ancho": {
+      "en": "Wide",
+      "pt": "Largo"
+    },
+    "Tema": {
+      "en": "Theme",
+      "pt": "Tema"
+    },
+    "Claro": {
+      "en": "Light",
+      "pt": "Claro"
+    },
+    "Oscuro": {
+      "en": "Dark",
+      "pt": "Escuro"
+    },
+    "Alto contraste": {
+      "en": "High contrast",
+      "pt": "Alto contraste"
+    },
+    "Refuerza bordes y texto secundario. Compatible con el tema claro y el oscuro.": {
+      "en": "Strengthens borders and secondary text. Works with both the light and dark themes.",
+      "pt": "Reforça bordas e texto secundário. Compatível com os temas claro e escuro."
+    },
+    "Vista Previa en Vivo": {
+      "en": "Live preview",
+      "pt": "Visualização ao vivo"
+    },
+    "Vista previa del logo": {
+      "en": "Logo preview",
+      "pt": "Visualização do logotipo"
+    },
+    "Radio de bordes ({{value}} px)": {
+      "en": "Corner radius ({{value}} px)",
+      "pt": "Raio das bordas ({{value}} px)"
+    },
+    "Perfil actualizado correctamente": {
+      "en": "Profile updated successfully",
+      "pt": "Perfil atualizado com sucesso"
+    },
+    "Error cargando el perfil de la empresa": {
+      "en": "Error loading the company profile",
+      "pt": "Erro ao carregar o perfil da empresa"
+    },
+    "Error actualizando el perfil": {
+      "en": "Error updating the profile",
+      "pt": "Erro ao atualizar o perfil"
+    },
+    "Perfil de la Empresa": {
+      "en": "Company Profile",
+      "pt": "Perfil da Empresa"
+    },
+    "Gestiona la información legal y de contacto de tu organización.": {
+      "en": "Manage your organization's legal and contact information.",
+      "pt": "Gerencie as informações legais e de contato da sua organização."
+    },
+    "Información General": {
+      "en": "General Information",
+      "pt": "Informações Gerais"
+    },
+    "Datos legales y de identificación de la empresa.": {
+      "en": "The company's legal and identification details.",
+      "pt": "Dados legais e de identificação da empresa."
+    },
+    "Nombre Legal": {
+      "en": "Legal Name",
+      "pt": "Razão Social"
+    },
+    "El nombre legal es requerido.": {
+      "en": "The legal name is required.",
+      "pt": "A razão social é obrigatória."
+    },
+    "ID Fiscal (RNC / Tax ID)": {
+      "en": "Tax ID",
+      "pt": "Identificação fiscal (CNPJ / Tax ID)"
+    },
+    "El ID Fiscal es requerido.": {
+      "en": "The Tax ID is required.",
+      "pt": "A identificação fiscal é obrigatória."
+    },
+    "Dirección y Contacto": {
+      "en": "Address and Contact",
+      "pt": "Endereço e Contato"
+    },
+    "Información de ubicación y comunicación principal.": {
+      "en": "Primary location and contact details.",
+      "pt": "Informações de localização e contato principal."
+    },
+    "Dirección": {
+      "en": "Address",
+      "pt": "Endereço"
+    },
+    "El país es requerido.": {
+      "en": "The country is required.",
+      "pt": "O país é obrigatório."
+    },
+    "El teléfono es requerido.": {
+      "en": "The phone number is required.",
+      "pt": "O telefone é obrigatório."
+    },
+    "Ej. Virteex Corp S.A.": {
+      "en": "e.g. Virteex Corp Inc.",
+      "pt": "Ex.: Virteex Corp Ltda."
+    },
+    "Ej. Tecnología, Retail, Manufactura…": {
+      "en": "e.g. Technology, Retail, Manufacturing…",
+      "pt": "Ex.: Tecnologia, Varejo, Indústria…"
+    },
+    "https://ejemplo.com": {
+      "en": "https://example.com",
+      "pt": "https://exemplo.com"
+    },
+    "Calle Principal #123, Sector": {
+      "en": "123 Main Street, District",
+      "pt": "Rua Principal, 123 – Bairro"
+    },
+    "Ej. Santo Domingo": {
+      "en": "e.g. Santo Domingo",
+      "pt": "Ex.: Santo Domingo"
+    },
+    "Ej. República Dominicana": {
+      "en": "e.g. Dominican Republic",
+      "pt": "Ex.: República Dominicana"
+    },
+    "Certificado cargado y validado correctamente.": {
+      "en": "Certificate uploaded and validated successfully.",
+      "pt": "Certificado enviado e validado com sucesso."
+    },
+    "Rango de e-NCF registrado.": {
+      "en": "e-NCF range registered.",
+      "pt": "Faixa de e-NCF registrada."
+    },
+    "No se pudieron cargar los certificados.": {
+      "en": "The certificates could not be loaded.",
+      "pt": "Não foi possível carregar os certificados."
+    },
+    "No se pudieron cargar las secuencias NCF.": {
+      "en": "The NCF sequences could not be loaded.",
+      "pt": "Não foi possível carregar as sequências NCF."
+    },
+    "Seleccione el archivo del certificado (.p12 / .pfx).": {
+      "en": "Select the certificate file (.p12 / .pfx).",
+      "pt": "Selecione o arquivo do certificado (.p12 / .pfx)."
+    },
+    "No se pudo desactivar el certificado.": {
+      "en": "The certificate could not be deactivated.",
+      "pt": "Não foi possível desativar o certificado."
+    },
+    "El número final no puede ser menor que el inicial.": {
+      "en": "The ending number cannot be lower than the starting one.",
+      "pt": "O número final não pode ser menor que o inicial."
+    },
+    "Certificado desactivado.": {
+      "en": "Certificate deactivated.",
+      "pt": "Certificado desativado."
+    },
+    "Facturación electrónica (RD · DGII)": {
+      "en": "Electronic invoicing (DR · DGII)",
+      "pt": "Faturamento eletrônico (RD · DGII)"
+    },
+    "Configura el certificado de firma, los rangos de e-NCF autorizados y descarga los reportes 606/607.": {
+      "en": "Configure the signing certificate and the authorized e-NCF ranges, and download the 606/607 reports.",
+      "pt": "Configure o certificado de assinatura, as faixas de e-NCF autorizadas e baixe os relatórios 606/607."
+    },
+    "Certificado digital": {
+      "en": "Digital certificate",
+      "pt": "Certificado digital"
+    },
+    "Sube tu certificado (.p12 / .pfx) emitido por una entidad autorizada por la DGII. Se cifra en\n      reposo y solo se usa para firmar e-CF.": {
+      "en": "Upload your certificate (.p12 / .pfx) issued by a DGII-authorized entity. It is encrypted at\n      rest and used only to sign e-CF documents.",
+      "pt": "Envie seu certificado (.p12 / .pfx) emitido por uma entidade autorizada pela DGII. Ele é\n      criptografado em repouso e usado apenas para assinar e-CF."
+    },
+    "Alias": {
+      "en": "Alias",
+      "pt": "Apelido"
+    },
+    "Contraseña del certificado": {
+      "en": "Certificate password",
+      "pt": "Senha do certificado"
+    },
+    "Archivo (.p12 / .pfx)": {
+      "en": "File (.p12 / .pfx)",
+      "pt": "Arquivo (.p12 / .pfx)"
+    },
+    "Titular": {
+      "en": "Holder",
+      "pt": "Titular"
+    },
+    "Vence": {
+      "en": "Expires",
+      "pt": "Vence"
+    },
+    "Aún no has cargado un certificado.": {
+      "en": "You have not uploaded a certificate yet.",
+      "pt": "Você ainda não enviou um certificado."
+    },
+    "Rangos de e-NCF autorizados": {
+      "en": "Authorized e-NCF ranges",
+      "pt": "Faixas de e-NCF autorizadas"
+    },
+    "Registra los rangos que la DGII te autorizó. Sin un rango activo del tipo correspondiente no se\n      puede emitir el comprobante.": {
+      "en": "Register the ranges the DGII authorized for you. Without an active range of the matching type the\n      document cannot be issued.",
+      "pt": "Registre as faixas autorizadas pela DGII. Sem uma faixa ativa do tipo correspondente o\n      comprovante não pode ser emitido."
+    },
+    "Prefijo": {
+      "en": "Prefix",
+      "pt": "Prefixo"
+    },
+    "Desde": {
+      "en": "From",
+      "pt": "De"
+    },
+    "Hasta": {
+      "en": "To",
+      "pt": "Até"
+    },
+    "Aún no has registrado rangos de e-NCF.": {
+      "en": "You have not registered any e-NCF ranges yet.",
+      "pt": "Você ainda não registrou faixas de e-NCF."
+    },
+    "Reportes DGII (606 / 607)": {
+      "en": "DGII reports (606 / 607)",
+      "pt": "Relatórios DGII (606 / 607)"
+    },
+    "Genera los formatos de envío de compras (606) y ventas (607) para un período.": {
+      "en": "Generate the purchase (606) and sales (607) filing formats for a period.",
+      "pt": "Gere os formatos de envio de compras (606) e vendas (607) para um período."
+    },
+    "Reporte": {
+      "en": "Report",
+      "pt": "Relatório"
+    },
+    "607 · Ventas": {
+      "en": "607 · Sales",
+      "pt": "607 · Vendas"
+    },
+    "606 · Compras": {
+      "en": "606 · Purchases",
+      "pt": "606 · Compras"
+    },
+    "Año": {
+      "en": "Year",
+      "pt": "Ano"
+    },
+    "Mes": {
+      "en": "Month",
+      "pt": "Mês"
+    },
+    "Certificado DGII 2025": {
+      "en": "DGII certificate 2025",
+      "pt": "Certificado DGII 2025"
+    },
+    "Sesión revocada correctamente.": {
+      "en": "Session revoked successfully.",
+      "pt": "Sessão revogada com sucesso."
+    },
+    "No se pudieron cargar las sesiones.": {
+      "en": "The sessions could not be loaded.",
+      "pt": "Não foi possível carregar as sessões."
+    },
+    "No se pudo revocar la sesión.": {
+      "en": "The session could not be revoked.",
+      "pt": "Não foi possível revogar a sessão."
+    },
+    "Revisa y administra los dispositivos con acceso activo a tu cuenta.": {
+      "en": "Review and manage the devices with active access to your account.",
+      "pt": "Revise e gerencie os dispositivos com acesso ativo à sua conta."
+    },
+    "Cargando sesiones…": {
+      "en": "Loading sessions…",
+      "pt": "Carregando sessões…"
+    },
+    "No hay sesiones activas registradas.": {
+      "en": "There are no active sessions on record.",
+      "pt": "Não há sessões ativas registradas."
+    },
+    "Sesión actual": {
+      "en": "Current session",
+      "pt": "Sessão atual"
+    },
+    "Revocar sesión": {
+      "en": "Revoke session",
+      "pt": "Revogar sessão"
+    },
+    "Rol \"{{name}}\" clonado exitosamente.": {
+      "en": "Role \"{{name}}\" cloned successfully.",
+      "pt": "Perfil \"{{name}}\" clonado com sucesso."
+    },
+    "Rol eliminado exitosamente.": {
+      "en": "Role deleted successfully.",
+      "pt": "Perfil excluído com sucesso."
+    },
+    "Rol actualizado exitosamente.": {
+      "en": "Role updated successfully.",
+      "pt": "Perfil atualizado com sucesso."
+    },
+    "Rol creado exitosamente.": {
+      "en": "Role created successfully.",
+      "pt": "Perfil criado com sucesso."
+    },
+    "Roles y Permisos": {
+      "en": "Roles and Permissions",
+      "pt": "Perfis e Permissões"
+    },
+    "Crear Rol": {
+      "en": "Create Role",
+      "pt": "Criar Perfil"
+    },
+    "Nombre del Rol": {
+      "en": "Role Name",
+      "pt": "Nome do Perfil"
+    },
+    "Descripción": {
+      "en": "Description",
+      "pt": "Descrição"
+    },
+    "Guardar": {
+      "en": "Save",
+      "pt": "Salvar"
+    },
+    "Clonar Rol": {
+      "en": "Clone Role",
+      "pt": "Clonar Perfil"
+    },
+    "Editar Rol": {
+      "en": "Edit Role",
+      "pt": "Editar Perfil"
+    },
+    "Eliminar Rol": {
+      "en": "Delete Role",
+      "pt": "Excluir Perfil"
+    },
+    "Usuario actualizado con éxito.": {
+      "en": "User updated successfully.",
+      "pt": "Usuário atualizado com sucesso."
+    },
+    "Usuario invitado con éxito.": {
+      "en": "User invited successfully.",
+      "pt": "Usuário convidado com sucesso."
+    },
+    "Usuario eliminado con éxito.": {
+      "en": "User deleted successfully.",
+      "pt": "Usuário excluído com sucesso."
+    },
+    "La sesión del usuario ha sido cerrada.": {
+      "en": "The user's session has been closed.",
+      "pt": "A sessão do usuário foi encerrada."
+    },
+    "El usuario ha sido bloqueado y su sesión cerrada.": {
+      "en": "The user has been blocked and their session closed.",
+      "pt": "O usuário foi bloqueado e sua sessão encerrada."
+    },
+    "No se pudieron cargar los usuarios.": {
+      "en": "The users could not be loaded.",
+      "pt": "Não foi possível carregar os usuários."
+    },
+    "Gestión de Usuarios": {
+      "en": "User Management",
+      "pt": "Gestão de Usuários"
+    },
+    "Administración": {
+      "en": "Administration",
+      "pt": "Administração"
+    },
+    "Invitar Usuario": {
+      "en": "Invite User",
+      "pt": "Convidar Usuário"
+    },
+    "No se encontraron usuarios.": {
+      "en": "No users were found.",
+      "pt": "Nenhum usuário encontrado."
+    },
+    "&times;": {
+      "en": "&times;",
+      "pt": "&times;"
+    },
+    "Apellido": {
+      "en": "Last name",
+      "pt": "Sobrenome"
+    },
+    "Seleccionar rol": {
+      "en": "Select a role",
+      "pt": "Selecionar perfil"
+    },
+    "Mensaje de invitación (opcional)": {
+      "en": "Invitation message (optional)",
+      "pt": "Mensagem do convite (opcional)"
+    },
+    "Eliminar Usuario": {
+      "en": "Delete User",
+      "pt": "Excluir Usuário"
+    },
+    "¿Está seguro que desea eliminar permanentemente al usuario": {
+      "en": "Are you sure you want to permanently delete the user",
+      "pt": "Tem certeza de que deseja excluir permanentemente o usuário"
+    },
+    "Esta acción no se puede deshacer.": {
+      "en": "This action cannot be undone.",
+      "pt": "Esta ação não pode ser desfeita."
+    },
+    "Eliminar Permanentemente": {
+      "en": "Delete Permanently",
+      "pt": "Excluir Permanentemente"
+    },
+    "Editar Usuario": {
+      "en": "Edit User",
+      "pt": "Editar Usuário"
+    },
+    "Resetear Contraseña": {
+      "en": "Reset Password",
+      "pt": "Redefinir Senha"
+    },
+    "Suplantar Usuario": {
+      "en": "Impersonate User",
+      "pt": "Personificar Usuário"
+    },
+    "Forzar Cierre de Sesión": {
+      "en": "Force Sign Out",
+      "pt": "Forçar Encerramento de Sessão"
+    },
+    "Bloquear y Cerrar Sesión": {
+      "en": "Block and Sign Out",
+      "pt": "Bloquear e Encerrar Sessão"
+    },
+    "Eliminar Cuenta": {
+      "en": "Delete Account",
+      "pt": "Excluir Conta"
+    },
+    "usuario@empresa.com": {
+      "en": "user@company.com",
+      "pt": "usuario@empresa.com"
+    },
+    "Mensaje personalizado para el usuario...": {
+      "en": "Custom message for the user...",
+      "pt": "Mensagem personalizada para o usuário..."
+    },
+    "Facturación y Plan": {
+      "en": "Billing and Plan",
+      "pt": "Faturamento e Plano"
+    },
+    "Selecciona el plan que mejor se adapte a tu organización y gestiona tu suscripción.": {
+      "en": "Choose the plan that best fits your organization and manage your subscription.",
+      "pt": "Escolha o plano que melhor se adapta à sua organização e gerencie sua assinatura."
+    },
+    "Plan Actual": {
+      "en": "Current Plan",
+      "pt": "Plano Atual"
+    },
+    "Sin suscripción activa": {
+      "en": "No active subscription",
+      "pt": "Sem assinatura ativa"
+    },
+    "Sin plan": {
+      "en": "No plan",
+      "pt": "Sem plano"
+    },
+    "Aún no tienes un plan contratado. Elige uno más abajo para comenzar.": {
+      "en": "You do not have a plan yet. Choose one below to get started.",
+      "pt": "Você ainda não contratou um plano. Escolha um abaixo para começar."
+    },
+    "Método de Pago": {
+      "en": "Payment Method",
+      "pt": "Forma de Pagamento"
+    },
+    "Expira {{expMonth}}/{{expYear}}": {
+      "en": "Expires {{expMonth}}/{{expYear}}",
+      "pt": "Expira em {{expMonth}}/{{expYear}}"
+    },
+    "No hay un método de pago registrado.": {
+      "en": "There is no payment method on file.",
+      "pt": "Não há forma de pagamento cadastrada."
+    },
+    "Uso de Recursos": {
+      "en": "Resource Usage",
+      "pt": "Uso de Recursos"
+    },
+    "Selecciona el plan que mejor se adapte a tu organización.": {
+      "en": "Choose the plan that best fits your organization.",
+      "pt": "Escolha o plano que melhor se adapta à sua organização."
+    },
+    "Cargando planes...": {
+      "en": "Loading plans...",
+      "pt": "Carregando planos..."
+    },
+    "No se pudieron cargar los planes. Verifica tu conexión e intenta de nuevo.": {
+      "en": "The plans could not be loaded. Check your connection and try again.",
+      "pt": "Não foi possível carregar os planos. Verifique sua conexão e tente novamente."
+    },
+    "No hay planes disponibles en este momento.": {
+      "en": "There are no plans available at the moment.",
+      "pt": "Não há planos disponíveis no momento."
+    },
+    "Plan actual": {
+      "en": "Current plan",
+      "pt": "Plano atual"
+    },
+    "Para cambiar al plan": {
+      "en": "To switch to the plan",
+      "pt": "Para mudar para o plano"
+    },
+    "serás redirigido al portal seguro de Stripe.": {
+      "en": "you will be redirected to Stripe's secure portal.",
+      "pt": "você será redirecionado ao portal seguro da Stripe."
+    },
+    "Plan seleccionado:": {
+      "en": "Selected plan:",
+      "pt": "Plano selecionado:"
+    },
+    ". Serás redirigido a Stripe para completar el pago de forma segura.": {
+      "en": ". You will be redirected to Stripe to complete the payment securely.",
+      "pt": ". Você será redirecionado à Stripe para concluir o pagamento com segurança."
+    },
+    "Redirigiendo...": {
+      "en": "Redirecting...",
+      "pt": "Redirecionando..."
+    },
+    "Historial de Facturación": {
+      "en": "Billing History",
+      "pt": "Histórico de Faturamento"
+    },
+    "Fecha": {
+      "en": "Date",
+      "pt": "Data"
+    },
+    "Monto": {
+      "en": "Amount",
+      "pt": "Valor"
+    },
+    "Pagada": {
+      "en": "Paid",
+      "pt": "Paga"
+    },
+    "Descargar factura": {
+      "en": "Download invoice",
+      "pt": "Baixar fatura"
+    },
+    "Revoke session": {
+      "en": "Revoke session",
+      "pt": "Revogar sessão"
+    },
+    "Mi Cuenta": {
+      "en": "My Account",
+      "pt": "Minha Conta"
+    },
+    "Estructura Empresarial": {
+      "en": "Company Structure",
+      "pt": "Estrutura Empresarial"
+    },
+    "Personalización": {
+      "en": "Personalization",
+      "pt": "Personalização"
+    },
+    "Multimoneda": {
+      "en": "Multi-currency",
+      "pt": "Multimoeda"
+    },
+    "Cierre Fiscal": {
+      "en": "Fiscal Close",
+      "pt": "Fechamento Fiscal"
+    },
+    "Intercompany": {
+      "en": "Intercompany",
+      "pt": "Intercompany"
+    },
+    "Secuencias": {
+      "en": "Sequences",
+      "pt": "Sequências"
+    },
+    "Seguridad y Auditoría": {
+      "en": "Security and Audit",
+      "pt": "Segurança e Auditoria"
+    },
+    "Servidor de Correo": {
+      "en": "Mail Server",
+      "pt": "Servidor de E-mail"
+    },
+    "Facturación Electrónica": {
+      "en": "Electronic Invoicing",
+      "pt": "Faturamento Eletrônico"
+    },
+    "Cargando...": {
+      "en": "Loading...",
+      "pt": "Carregando..."
+    },
+    "Cerrar configuración": {
+      "en": "Close settings",
+      "pt": "Fechar configurações"
+    },
+    "Idioma Preferido": {
+      "en": "Preferred Language",
+      "pt": "Idioma Preferido"
+    },
+    "Español": {
+      "en": "Español",
+      "pt": "Español"
+    },
+    "English": {
+      "en": "English",
+      "pt": "English"
+    },
+    "Avatar": {
+      "en": "Avatar",
+      "pt": "Avatar"
+    },
+    "Juan": {
+      "en": "Jane",
+      "pt": "João"
+    },
+    "Pérez": {
+      "en": "Doe",
+      "pt": "Silva"
+    },
+    "nuevo@correo.com": {
+      "en": "new@email.com",
+      "pt": "novo@email.com"
+    },
+    "Gestiona las subsidiarias y sucursales de tu organización.": {
+      "en": "Manage your organization's subsidiaries and branches.",
+      "pt": "Gerencie as subsidiárias e filiais da sua organização."
+    },
+    "Nueva Subsidiaria": {
+      "en": "New Subsidiary",
+      "pt": "Nova Subsidiária"
+    },
+    "Cargando subsidiarias...": {
+      "en": "Loading subsidiaries...",
+      "pt": "Carregando subsidiárias..."
+    },
+    "No hay subsidiarias registradas": {
+      "en": "There are no subsidiaries on record",
+      "pt": "Não há subsidiárias registradas"
+    },
+    "Comienza agregando una nueva subsidiaria o sucursal para expandir tu estructura.": {
+      "en": "Start by adding a subsidiary or branch to expand your structure.",
+      "pt": "Comece adicionando uma subsidiária ou filial para expandir sua estrutura."
+    },
+    "Crear primera subsidiaria": {
+      "en": "Create the first subsidiary",
+      "pt": "Criar a primeira subsidiária"
+    },
+    "ID Fiscal:": {
+      "en": "Tax ID:",
+      "pt": "Identificação fiscal:"
+    },
+    "País:": {
+      "en": "Country:",
+      "pt": "País:"
+    },
+    "{{ownership}}% Propiedad": {
+      "en": "{{ownership}}% Ownership",
+      "pt": "{{ownership}}% de participação"
+    },
+    "ID Fiscal (RNC/Tax ID)": {
+      "en": "Tax ID",
+      "pt": "Identificação fiscal (CNPJ / Tax ID)"
+    },
+    "Porcentaje de Propiedad (%)": {
+      "en": "Ownership Percentage (%)",
+      "pt": "Percentual de Participação (%)"
+    },
+    "Ej. Virteex Latam S.A.": {
+      "en": "e.g. Virteex Latam Inc.",
+      "pt": "Ex.: Virteex Latam Ltda."
+    },
+    "Inicio de Sesión Único (SSO)": {
+      "en": "Single Sign-On (SSO)",
+      "pt": "Login Único (SSO)"
+    },
+    "Conecta el proveedor de identidad de tu organización (Okta, Microsoft Entra, Google\n      Workspace, Ping, Auth0…). Los usuarios de dominios verificados serán redirigidos\n      automáticamente a tu SSO al iniciar sesión.": {
+      "en": "Connect your organization's identity provider (Okta, Microsoft Entra, Google\n      Workspace, Ping, Auth0…). Users from verified domains are redirected\n      automatically to your SSO when they sign in.",
+      "pt": "Conecte o provedor de identidade da sua organização (Okta, Microsoft Entra, Google\n      Workspace, Ping, Auth0…). Os usuários de domínios verificados serão redirecionados\n      automaticamente ao seu SSO ao entrar."
+    },
+    "Dominios Verificados": {
+      "en": "Verified Domains",
+      "pt": "Domínios Verificados"
+    },
+    "Solo los usuarios de un dominio verificado serán enrutados a tu SSO.": {
+      "en": "Only users from a verified domain are routed to your SSO.",
+      "pt": "Apenas usuários de um domínio verificado são encaminhados ao seu SSO."
+    },
+    "Agregar dominio": {
+      "en": "Add domain",
+      "pt": "Adicionar domínio"
+    },
+    "Dominio": {
+      "en": "Domain",
+      "pt": "Domínio"
+    },
+    "Registro DNS (TXT)": {
+      "en": "DNS record (TXT)",
+      "pt": "Registro DNS (TXT)"
+    },
+    "Host:": {
+      "en": "Host:",
+      "pt": "Host:"
+    },
+    "Tipo:": {
+      "en": "Type:",
+      "pt": "Tipo:"
+    },
+    "Valor:": {
+      "en": "Value:",
+      "pt": "Valor:"
+    },
+    "copiar": {
+      "en": "copy",
+      "pt": "copiar"
+    },
+    "Eliminar": {
+      "en": "Delete",
+      "pt": "Excluir"
+    },
+    "Aún no has agregado dominios.": {
+      "en": "You have not added any domains yet.",
+      "pt": "Você ainda não adicionou domínios."
+    },
+    "Proveedores de Identidad (OIDC)": {
+      "en": "Identity Providers (OIDC)",
+      "pt": "Provedores de Identidade (OIDC)"
+    },
+    "Configura tu proveedor OIDC. Requiere al menos un dominio verificado para activarlo.": {
+      "en": "Configure your OIDC provider. At least one verified domain is required to enable it.",
+      "pt": "Configure seu provedor OIDC. É necessário ao menos um domínio verificado para ativá-lo."
+    },
+    "Añadir proveedor": {
+      "en": "Add provider",
+      "pt": "Adicionar provedor"
+    },
+    "Debes verificar al menos un dominio antes de poder activar un proveedor.": {
+      "en": "You must verify at least one domain before enabling a provider.",
+      "pt": "Você precisa verificar ao menos um domínio antes de ativar um provedor."
+    },
+    "Issuer URL (discovery)": {
+      "en": "Issuer URL (discovery)",
+      "pt": "Issuer URL (discovery)"
+    },
+    "Client ID": {
+      "en": "Client ID",
+      "pt": "Client ID"
+    },
+    "Client Secret": {
+      "en": "Client Secret",
+      "pt": "Client Secret"
+    },
+    "(en blanco = sin cambios)": {
+      "en": "(blank = unchanged)",
+      "pt": "(em branco = sem alterações)"
+    },
+    "Scopes": {
+      "en": "Scopes",
+      "pt": "Scopes"
+    },
+    "Rol por defecto": {
+      "en": "Default role",
+      "pt": "Perfil padrão"
+    },
+    "(UUID, opcional)": {
+      "en": "(UUID, optional)",
+      "pt": "(UUID, opcional)"
+    },
+    "Issuer": {
+      "en": "Issuer",
+      "pt": "Issuer"
+    },
+    "Redirect URI": {
+      "en": "Redirect URI",
+      "pt": "Redirect URI"
+    },
+    "Editar": {
+      "en": "Edit",
+      "pt": "Editar"
+    },
+    "No hay proveedores configurados.": {
+      "en": "No providers are configured.",
+      "pt": "Nenhum provedor configurado."
+    },
+    "acme.com": {
+      "en": "acme.com",
+      "pt": "acme.com"
+    },
+    "Acme Okta": {
+      "en": "Acme Okta",
+      "pt": "Acme Okta"
+    },
+    "https://acme.okta.com/oauth2/default": {
+      "en": "https://acme.okta.com/oauth2/default",
+      "pt": "https://acme.okta.com/oauth2/default"
+    },
+    "openid email profile": {
+      "en": "openid email profile",
+      "pt": "openid email profile"
+    },
+    "Idioma": {
+      "en": "Language",
+      "pt": "Idioma"
+    },
+    "El idioma de la interfaz. Los documentos fiscales conservan el idioma que exige la ley del país de la empresa.": {
+      "en": "The interface language. Statutory documents keep the language the law of the company's country requires.",
+      "pt": "O idioma da interface. Os documentos fiscais mantêm o idioma exigido pela lei do país da empresa."
+    },
+    "Elegir idioma": {
+      "en": "Choose a language",
+      "pt": "Escolher idioma"
+    },
+    "Catálogo de Cuentas": {
+      "en": "Chart of Accounts",
+      "pt": "Plano de Contas"
+    },
+    "Catálogo": {
+      "en": "Chart",
+      "pt": "Plano"
+    },
+    "Todos los Estados": {
+      "en": "All Statuses",
+      "pt": "Todas as Situações"
+    },
+    "Activa": {
+      "en": "Active",
+      "pt": "Ativa"
+    },
+    "Inactiva": {
+      "en": "Inactive",
+      "pt": "Inativa"
+    },
+    "Todos los Tipos": {
+      "en": "All Types",
+      "pt": "Todos os Tipos"
+    },
+    "Error al Cargar Cuentas": {
+      "en": "Error Loading Accounts",
+      "pt": "Erro ao Carregar Contas"
+    },
+    "No se encontraron cuentas": {
+      "en": "No accounts were found",
+      "pt": "Nenhuma conta encontrada"
+    },
+    "Añade una nueva cuenta para empezar a gestionar tu\n                      catálogo.": {
+      "en": "Add an account to start managing your\n                      chart.",
+      "pt": "Adicione uma conta para começar a gerenciar seu\n                      plano."
+    },
+    "cuentas": {
+      "en": "accounts",
+      "pt": "contas"
+    },
+    "Buscar por código o nombre...": {
+      "en": "Search by code or name...",
+      "pt": "Buscar por código ou nome..."
+    },
+    "No se ha especificado una cuenta.": {
+      "en": "No account has been specified.",
+      "pt": "Nenhuma conta foi especificada."
+    },
+    "Cuenta: {{code}} - {{name}}": {
+      "en": "Account: {{code}} - {{name}}",
+      "pt": "Conta: {{code}} - {{name}}"
+    },
+    "Cargando información de la cuenta...": {
+      "en": "Loading account details...",
+      "pt": "Carregando os dados da conta..."
+    },
+    "Filtrar": {
+      "en": "Filter",
+      "pt": "Filtrar"
+    },
+    "Desde:": {
+      "en": "From:",
+      "pt": "De:"
+    },
+    "Hasta:": {
+      "en": "To:",
+      "pt": "Até:"
+    },
+    "Cargando datos del libro mayor...": {
+      "en": "Loading the general ledger...",
+      "pt": "Carregando o livro razão..."
+    },
+    "Total Débitos": {
+      "en": "Total Debits",
+      "pt": "Total de Débitos"
+    },
+    "Total Créditos": {
+      "en": "Total Credits",
+      "pt": "Total de Créditos"
+    },
+    "Referencia": {
+      "en": "Reference",
+      "pt": "Referência"
+    },
+    "Débito": {
+      "en": "Debit",
+      "pt": "Débito"
+    },
+    "Crédito": {
+      "en": "Credit",
+      "pt": "Crédito"
+    },
+    "Balance": {
+      "en": "Balance",
+      "pt": "Saldo"
+    },
+    "Por favor, seleccione una cuenta para ver el libro mayor.": {
+      "en": "Select an account to see its ledger.",
+      "pt": "Selecione uma conta para ver o livro razão."
+    },
+    "No se encontraron movimientos para esta cuenta en el período seleccionado.": {
+      "en": "No movements were found for this account in the selected period.",
+      "pt": "Nenhum lançamento encontrado para esta conta no período selecionado."
+    },
+    "Asientos Contables": {
+      "en": "Journal Entries",
+      "pt": "Lançamentos Contábeis"
+    },
+    "N.º de Asiento": {
+      "en": "Entry no.",
+      "pt": "N.º do Lançamento"
+    },
+    "Contabilizado": {
+      "en": "Posted",
+      "pt": "Contabilizado"
+    },
+    "Borrador": {
+      "en": "Draft",
+      "pt": "Rascunho"
+    },
+    "Anulado": {
+      "en": "Voided",
+      "pt": "Cancelado"
+    },
+    "Cargando los asientos contables…": {
+      "en": "Loading journal entries…",
+      "pt": "Carregando os lançamentos contábeis…"
+    },
+    "No se pudieron cargar los asientos contables.": {
+      "en": "The journal entries could not be loaded.",
+      "pt": "Não foi possível carregar os lançamentos contábeis."
+    },
+    "No se encontraron asientos contables.": {
+      "en": "No journal entries were found.",
+      "pt": "Nenhum lançamento contábil encontrado."
+    },
+    "Pendiente de aprobación": {
+      "en": "Pending approval",
+      "pt": "Aguardando aprovação"
+    },
+    "Modificado": {
+      "en": "Modified",
+      "pt": "Modificado"
+    },
+    "Rechazado": {
+      "en": "Rejected",
+      "pt": "Rejeitado"
+    },
+    "Nuevo Asiento": {
+      "en": "New Entry",
+      "pt": "Novo Lançamento"
+    },
+    "Libros Auxiliares": {
+      "en": "Subsidiary Ledgers",
+      "pt": "Livros Auxiliares"
+    },
+    "Período": {
+      "en": "Period",
+      "pt": "Período"
+    },
+    "Cuenta de Control": {
+      "en": "Control Account",
+      "pt": "Conta de Controle"
+    },
+    "Auxiliar (Tercero)": {
+      "en": "Auxiliary (Third Party)",
+      "pt": "Auxiliar (Terceiro)"
+    },
+    "Auxiliar:": {
+      "en": "Auxiliary:",
+      "pt": "Auxiliar:"
+    },
+    "N.º de Referencia": {
+      "en": "Reference no.",
+      "pt": "N.º de Referência"
+    },
+    "Selecciona una cuenta de control": {
+      "en": "Select a control account",
+      "pt": "Selecione uma conta de controle"
+    },
+    "Selecciona un auxiliar": {
+      "en": "Select an auxiliary",
+      "pt": "Selecione um auxiliar"
+    },
+    "Saldo de apertura": {
+      "en": "Opening balance",
+      "pt": "Saldo de abertura"
+    },
+    "Cargando el libro auxiliar…": {
+      "en": "Loading the subsidiary ledger…",
+      "pt": "Carregando o livro auxiliar…"
+    },
+    "No se pudo cargar el libro auxiliar.": {
+      "en": "The subsidiary ledger could not be loaded.",
+      "pt": "Não foi possível carregar o livro auxiliar."
+    },
+    "No se encontraron movimientos para este auxiliar en el período seleccionado.": {
+      "en": "No movements were found for this auxiliary in the selected period.",
+      "pt": "Nenhum lançamento encontrado para este auxiliar no período selecionado."
+    },
+    "Análisis de Variaciones (Real vs. Presupuesto)": {
+      "en": "Variance Analysis (Actual vs. Budget)",
+      "pt": "Análise de Variações (Real vs. Orçado)"
+    },
+    "Real": {
+      "en": "Actual",
+      "pt": "Real"
+    },
+    "Variación": {
+      "en": "Variance",
+      "pt": "Variação"
+    },
+    "Variación (%)": {
+      "en": "Variance (%)",
+      "pt": "Variação (%)"
+    },
+    "Cargando el análisis de variaciones…": {
+      "en": "Loading the variance analysis…",
+      "pt": "Carregando a análise de variações…"
+    },
+    "No se pudo cargar el análisis de variaciones.": {
+      "en": "The variance analysis could not be loaded.",
+      "pt": "Não foi possível carregar a análise de variações."
+    },
+    "No hay datos disponibles para el análisis de variaciones.": {
+      "en": "There is no data available for the variance analysis.",
+      "pt": "Não há dados disponíveis para a análise de variações."
+    },
+    "Períodos Contables": {
+      "en": "Accounting Periods",
+      "pt": "Períodos Contábeis"
+    },
+    "Fecha de Inicio": {
+      "en": "Start Date",
+      "pt": "Data de Início"
+    },
+    "Fecha de Cierre": {
+      "en": "End Date",
+      "pt": "Data de Encerramento"
+    },
+    "Acción": {
+      "en": "Action",
+      "pt": "Ação"
+    },
+    "Cerrar Período": {
+      "en": "Close Period",
+      "pt": "Encerrar Período"
+    },
+    "Reabrir": {
+      "en": "Reopen",
+      "pt": "Reabrir"
+    },
+    "Abierto": {
+      "en": "Open",
+      "pt": "Aberto"
+    },
+    "Cerrado": {
+      "en": "Closed",
+      "pt": "Encerrado"
+    },
+    "Cargando los períodos contables…": {
+      "en": "Loading accounting periods…",
+      "pt": "Carregando os períodos contábeis…"
+    },
+    "No se pudieron cargar los períodos contables.": {
+      "en": "The accounting periods could not be loaded.",
+      "pt": "Não foi possível carregar os períodos contábeis."
+    },
+    "Todavía no hay períodos contables definidos.": {
+      "en": "No accounting periods have been defined yet.",
+      "pt": "Ainda não há períodos contábeis definidos."
+    },
+    "Indica la razón por la que se reabre este período contable (mínimo 10 caracteres).": {
+      "en": "State why this accounting period is being reopened (at least 10 characters).",
+      "pt": "Informe o motivo da reabertura deste período contábil (mínimo de 10 caracteres)."
+    },
+    "La razón debe tener al menos 10 caracteres.": {
+      "en": "The reason must be at least 10 characters long.",
+      "pt": "O motivo deve ter pelo menos 10 caracteres."
+    },
+    "Error al cargar la configuración de segmentos.": {
+      "en": "Error loading the segment configuration.",
+      "pt": "Erro ao carregar a configuração de segmentos."
+    },
+    "Error al cargar los datos de la cuenta.": {
+      "en": "Error loading the account details.",
+      "pt": "Erro ao carregar os dados da conta."
+    },
+    "No se puede guardar la cuenta sin una estructura de segmentos configurada.": {
+      "en": "The account cannot be saved without a configured segment structure.",
+      "pt": "A conta não pode ser salva sem uma estrutura de segmentos configurada."
+    },
+    "Por favor, complete todos los campos requeridos.": {
+      "en": "Please fill in every required field.",
+      "pt": "Preencha todos os campos obrigatórios."
+    },
+    "El código de cuenta debe tener al menos un segmento válido.": {
+      "en": "The account code must have at least one valid segment.",
+      "pt": "O código da conta deve ter ao menos um segmento válido."
+    },
+    "Cuenta actualizada con éxito.": {
+      "en": "Account updated successfully.",
+      "pt": "Conta atualizada com sucesso."
+    },
+    "Cuenta creada con éxito.": {
+      "en": "Account created successfully.",
+      "pt": "Conta criada com sucesso."
+    },
+    "Completa la información detallada de la cuenta.": {
+      "en": "Fill in the account's details.",
+      "pt": "Preencha as informações detalhadas da conta."
+    },
+    "Guardar Cuenta": {
+      "en": "Save Account",
+      "pt": "Salvar Conta"
+    },
+    "Cargando datos de la cuenta...": {
+      "en": "Loading account data...",
+      "pt": "Carregando os dados da conta..."
+    },
+    "Estructura de segmentos no configurada": {
+      "en": "Segment structure not configured",
+      "pt": "Estrutura de segmentos não configurada"
+    },
+    "Para crear cuentas contables, primero debes definir la estructura de niveles (segmentos) de tu organización.": {
+      "en": "To create accounts you must first define your organization's level (segment) structure.",
+      "pt": "Para criar contas contábeis, primeiro defina a estrutura de níveis (segmentos) da sua organização."
+    },
+    "Configurar Segmentos": {
+      "en": "Configure Segments",
+      "pt": "Configurar Segmentos"
+    },
+    "General": {
+      "en": "General",
+      "pt": "Geral"
+    },
+    "Mapeos": {
+      "en": "Mappings",
+      "pt": "Mapeamentos"
+    },
+    "Reglas": {
+      "en": "Rules",
+      "pt": "Regras"
+    },
+    "Avanzado": {
+      "en": "Advanced",
+      "pt": "Avançado"
+    },
+    "Código de Cuenta*": {
+      "en": "Account Code*",
+      "pt": "Código da Conta*"
+    },
+    "Nombre de la Cuenta*": {
+      "en": "Account Name*",
+      "pt": "Nome da Conta*"
+    },
+    "Cuenta Padre (Agrupadora)": {
+      "en": "Parent Account (Grouping)",
+      "pt": "Conta Superior (Agrupadora)"
+    },
+    "-- Ninguna (Cuenta Raíz) --": {
+      "en": "-- None (Root Account) --",
+      "pt": "-- Nenhuma (Conta Raiz) --"
+    },
+    "Tipo de Cuenta*": {
+      "en": "Account Type*",
+      "pt": "Tipo de Conta*"
+    },
+    "Seleccionar tipo...": {
+      "en": "Select a type...",
+      "pt": "Selecionar tipo..."
+    },
+    "Naturaleza (Automático)": {
+      "en": "Nature (Automatic)",
+      "pt": "Natureza (Automática)"
+    },
+    "Categoría*": {
+      "en": "Category*",
+      "pt": "Categoria*"
+    },
+    "Seleccionar categoría...": {
+      "en": "Select a category...",
+      "pt": "Selecionar categoria..."
+    },
+    "Es una cuenta imputable (permite transacciones)": {
+      "en": "Postable account (accepts transactions)",
+      "pt": "Conta analítica (aceita lançamentos)"
+    },
+    "Cuenta activa": {
+      "en": "Active account",
+      "pt": "Conta ativa"
+    },
+    "Mapeo de Estados Financieros": {
+      "en": "Financial Statement Mapping",
+      "pt": "Mapeamento das Demonstrações Financeiras"
+    },
+    "Define cómo se representa esta cuenta en los reportes financieros clave.": {
+      "en": "Define how this account appears in the key financial reports.",
+      "pt": "Defina como esta conta aparece nos principais relatórios financeiros."
+    },
+    "Categoría de Balance General": {
+      "en": "Balance Sheet Category",
+      "pt": "Categoria do Balanço Patrimonial"
+    },
+    "Categoría de Estado de Resultados": {
+      "en": "Income Statement Category",
+      "pt": "Categoria da Demonstração de Resultados"
+    },
+    "Categoría de Flujo de Efectivo": {
+      "en": "Cash Flow Category",
+      "pt": "Categoria do Fluxo de Caixa"
+    },
+    "Reglas de Contabilización": {
+      "en": "Posting Rules",
+      "pt": "Regras de Contabilização"
+    },
+    "Establece restricciones y comportamientos específicos para esta cuenta.": {
+      "en": "Set restrictions and specific behaviour for this account.",
+      "pt": "Defina restrições e comportamentos específicos para esta conta."
+    },
+    "Requiere Reconciliación": {
+      "en": "Requires Reconciliation",
+      "pt": "Exige Conciliação"
+    },
+    "Es Cuenta de Caja o Banco": {
+      "en": "Cash or Bank Account",
+      "pt": "Conta de Caixa ou Banco"
+    },
+    "Permite Transacciones Intercompañía": {
+      "en": "Allows Intercompany Transactions",
+      "pt": "Permite Transações Intercompany"
+    },
+    "Aplica Revaluación por Tipo de Cambio": {
+      "en": "Subject to Exchange-Rate Revaluation",
+      "pt": "Sujeita a Reavaliação Cambial"
+    },
+    "Dimensiones Requeridas": {
+      "en": "Required Dimensions",
+      "pt": "Dimensões Obrigatórias"
+    },
+    "Configuración Avanzada": {
+      "en": "Advanced Settings",
+      "pt": "Configurações Avançadas"
+    },
+    "Parámetros de control y auditoría para la cuenta.": {
+      "en": "Control and audit parameters for the account.",
+      "pt": "Parâmetros de controle e auditoria da conta."
+    },
+    "Versión del Catálogo": {
+      "en": "Chart Version",
+      "pt": "Versão do Plano"
+    },
+    "Tipo de Jerarquía": {
+      "en": "Hierarchy Type",
+      "pt": "Tipo de Hierarquia"
+    },
+    "Vigente Desde": {
+      "en": "Effective From",
+      "pt": "Vigente Desde"
+    },
+    "Vigente Hasta": {
+      "en": "Effective Until",
+      "pt": "Vigente Até"
+    },
+    "Ej: Activos Circulantes": {
+      "en": "e.g. Current Assets",
+      "pt": "Ex.: Ativo Circulante"
+    },
+    "Ej: Ingresos Operativos": {
+      "en": "e.g. Operating Revenue",
+      "pt": "Ex.: Receita Operacional"
+    },
+    "Estructura de segmentos guardada correctamente.": {
+      "en": "Segment structure saved successfully.",
+      "pt": "Estrutura de segmentos salva com sucesso."
+    },
+    "Estructura por defecto inicializada.": {
+      "en": "Default structure initialized.",
+      "pt": "Estrutura padrão inicializada."
+    },
+    "Por favor, corrija los errores en el formulario.": {
+      "en": "Please correct the errors on the form.",
+      "pt": "Corrija os erros do formulário."
+    },
+    "Debe definir al menos un segmento.": {
+      "en": "You must define at least one segment.",
+      "pt": "É necessário definir ao menos um segmento."
+    },
+    "Configuración de Segmentos": {
+      "en": "Segment Configuration",
+      "pt": "Configuração de Segmentos"
+    },
+    "Define la estructura y longitud de los niveles para tus cuentas contables.": {
+      "en": "Define the structure and length of the levels for your accounts.",
+      "pt": "Defina a estrutura e o comprimento dos níveis das suas contas contábeis."
+    },
+    "Cargar Plantilla": {
+      "en": "Load Template",
+      "pt": "Carregar Modelo"
+    },
+    "Guardar Estructura": {
+      "en": "Save Structure",
+      "pt": "Salvar Estrutura"
+    },
+    "Cargando configuración...": {
+      "en": "Loading configuration...",
+      "pt": "Carregando configuração..."
+    },
+    "Nota importante:": {
+      "en": "Important:",
+      "pt": "Importante:"
+    },
+    "Una vez que comiences a crear cuentas contables, no podrás modificar esta estructura. Asegúrate de que la longitud y cantidad de niveles sean las correctas para tu organización.": {
+      "en": "Once you start creating accounts you will not be able to change this structure. Make sure the length and number of levels are right for your organization.",
+      "pt": "Depois que você começar a criar contas, não será possível alterar esta estrutura. Verifique se o comprimento e a quantidade de níveis são os corretos para sua organização."
+    },
+    "Orden": {
+      "en": "Order",
+      "pt": "Ordem"
+    },
+    "Nombre del Nivel": {
+      "en": "Level Name",
+      "pt": "Nome do Nível"
+    },
+    "Longitud (caracteres)": {
+      "en": "Length (characters)",
+      "pt": "Comprimento (caracteres)"
+    },
+    "Requerido": {
+      "en": "Required",
+      "pt": "Obrigatório"
+    },
+    "No hay niveles definidos. Agrega uno o carga la plantilla por defecto.": {
+      "en": "No levels are defined. Add one or load the default template.",
+      "pt": "Nenhum nível definido. Adicione um ou carregue o modelo padrão."
+    },
+    "Agregar Nivel": {
+      "en": "Add Level",
+      "pt": "Adicionar Nível"
+    },
+    "Ej: Mayor, Sub-cuenta...": {
+      "en": "e.g. Ledger, Sub-account...",
+      "pt": "Ex.: Razão, Subconta..."
+    },
+    "Eliminar Nivel": {
+      "en": "Remove Level",
+      "pt": "Remover Nível"
+    },
+    "Asientos contables importados con éxito.": {
+      "en": "Journal entries imported successfully.",
+      "pt": "Lançamentos contábeis importados com sucesso."
+    },
+    "Por favor, selecciona un fichero para importar.": {
+      "en": "Select a file to import.",
+      "pt": "Selecione um arquivo para importar."
+    },
+    "No hay una importación para confirmar.": {
+      "en": "There is no import to confirm.",
+      "pt": "Não há importação para confirmar."
+    },
+    "Importar Asientos Contables": {
+      "en": "Import Journal Entries",
+      "pt": "Importar Lançamentos Contábeis"
+    },
+    "Paso 1: Seleccionar Fichero": {
+      "en": "Step 1: Select a file",
+      "pt": "Etapa 1: Selecionar arquivo"
+    },
+    "Haz clic aquí para seleccionar un fichero (CSV, Excel)": {
+      "en": "Click here to choose a file (CSV, Excel)",
+      "pt": "Clique aqui para escolher um arquivo (CSV, Excel)"
+    },
+    "Fichero seleccionado:": {
+      "en": "Selected file:",
+      "pt": "Arquivo selecionado:"
+    },
+    "Analizando el fichero...": {
+      "en": "Analysing the file...",
+      "pt": "Analisando o arquivo..."
+    },
+    "Paso 2: Previsualización y Confirmación": {
+      "en": "Step 2: Preview and confirm",
+      "pt": "Etapa 2: Prévia e confirmação"
+    },
+    "Previsualización de los datos a importar:": {
+      "en": "Preview of the data to import:",
+      "pt": "Prévia dos dados a importar:"
+    },
+    "Confirmar e Importar": {
+      "en": "Confirm and Import",
+      "pt": "Confirmar e Importar"
+    },
+    "Asiento contable creado con éxito!": {
+      "en": "Journal entry created.",
+      "pt": "Lançamento contábil criado."
+    },
+    "Error al cargar las cuentas contables.": {
+      "en": "Error loading the accounts.",
+      "pt": "Erro ao carregar as contas contábeis."
+    },
+    "Error al cargar los libros mayores.": {
+      "en": "Error loading the ledgers.",
+      "pt": "Erro ao carregar os livros razão."
+    },
+    "Error al cargar los diarios.": {
+      "en": "Error loading the journals.",
+      "pt": "Erro ao carregar os diários."
+    },
+    "No se pudo cargar el libro mayor.": {
+      "en": "The ledger could not be loaded.",
+      "pt": "Não foi possível carregar o livro razão."
+    },
+    "Por favor, completa los campos requeridos.": {
+      "en": "Please fill in the required fields.",
+      "pt": "Preencha os campos obrigatórios."
+    },
+    "Libro Mayor actualizado exitosamente.": {
+      "en": "Ledger updated successfully.",
+      "pt": "Livro razão atualizado com sucesso."
+    },
+    "Libro Mayor creado exitosamente.": {
+      "en": "Ledger created successfully.",
+      "pt": "Livro razão criado com sucesso."
+    },
+    "Error al actualizar el Libro Mayor.": {
+      "en": "Error updating the ledger.",
+      "pt": "Erro ao atualizar o livro razão."
+    },
+    "Error al crear el Libro Mayor.": {
+      "en": "Error creating the ledger.",
+      "pt": "Erro ao criar o livro razão."
+    },
+    "Define un nuevo libro para registrar transacciones contables.": {
+      "en": "Define a new ledger to record accounting transactions.",
+      "pt": "Defina um novo livro para registrar transações contábeis."
+    },
+    "Nombre del Libro*": {
+      "en": "Ledger Name*",
+      "pt": "Nome do Livro*"
+    },
+    "Establecer como libro por defecto": {
+      "en": "Set as the default ledger",
+      "pt": "Definir como livro padrão"
+    },
+    "Ej: Libro Principal IFRS": {
+      "en": "e.g. Main IFRS Ledger",
+      "pt": "Ex.: Livro Principal IFRS"
+    },
+    "Ej: Utilizado para reportes financieros bajo NIIF.": {
+      "en": "e.g. Used for IFRS financial reporting.",
+      "pt": "Ex.: Usado para relatórios financeiros em IFRS."
+    },
+    "Editar libro mayor": {
+      "en": "Edit ledger",
+      "pt": "Editar livro razão"
+    },
+    "Nuevo libro mayor": {
+      "en": "New ledger",
+      "pt": "Novo livro razão"
+    },
+    "Operaciones Masivas": {
+      "en": "Bulk Operations",
+      "pt": "Operações em Massa"
+    },
+    "Volver al Plan de Cuentas": {
+      "en": "Back to the Chart of Accounts",
+      "pt": "Voltar ao Plano de Contas"
+    },
+    "Importar Plan de Cuentas": {
+      "en": "Import Chart of Accounts",
+      "pt": "Importar Plano de Contas"
+    },
+    "Sube un archivo en formato CSV o XLSX para crear o actualizar cuentas de forma masiva.\n                    Asegúrate de que el archivo siga la estructura requerida.": {
+      "en": "Upload a CSV or XLSX file to create or update accounts in bulk.\n                    Make sure the file follows the required structure.",
+      "pt": "Envie um arquivo CSV ou XLSX para criar ou atualizar contas em massa.\n                    Verifique se o arquivo segue a estrutura exigida."
+    },
+    "Descargar plantilla de ejemplo (CSV)": {
+      "en": "Download the sample template (CSV)",
+      "pt": "Baixar o modelo de exemplo (CSV)"
+    },
+    "Procesar Archivo": {
+      "en": "Process File",
+      "pt": "Processar Arquivo"
+    },
+    "Procesando...": {
+      "en": "Processing...",
+      "pt": "Processando..."
+    },
+    "Resultados de la Importación": {
+      "en": "Import Results",
+      "pt": "Resultados da Importação"
+    },
+    "Cuentas Creadas/Actualizadas": {
+      "en": "Accounts Created/Updated",
+      "pt": "Contas Criadas/Atualizadas"
+    },
+    "Registros con Errores": {
+      "en": "Records with Errors",
+      "pt": "Registros com Erros"
+    },
+    "Detalle de Errores:": {
+      "en": "Error details:",
+      "pt": "Detalhes dos erros:"
+    },
+    "Fila": {
+      "en": "Row",
+      "pt": "Linha"
+    },
+    "Código de Cuenta": {
+      "en": "Account Code",
+      "pt": "Código da Conta"
+    },
+    "Mensaje de Error": {
+      "en": "Error Message",
+      "pt": "Mensagem de Erro"
+    },
+    "Exportar Plan de Cuentas": {
+      "en": "Export Chart of Accounts",
+      "pt": "Exportar Plano de Contas"
+    },
+    "Cierre anual": {
+      "en": "Year-End Close",
+      "pt": "Encerramento Anual"
+    },
+    "Ir a la tarea": {
+      "en": "Go to the task",
+      "pt": "Ir para a tarefa"
+    },
+    "El checklist de cierre anual todavía no está disponible.": {
+      "en": "The year-end closing checklist is not available yet.",
+      "pt": "A lista de verificação do encerramento anual ainda não está disponível."
+    },
+    "Listas de verificación del cierre": {
+      "en": "Closing Checklists",
+      "pt": "Listas de Verificação do Fechamento"
+    },
+    "Nueva lista": {
+      "en": "New checklist",
+      "pt": "Nova lista"
+    },
+    "Nombre de la lista": {
+      "en": "Checklist name",
+      "pt": "Nome da lista"
+    },
+    "Tareas": {
+      "en": "Tasks",
+      "pt": "Tarefas"
+    },
+    "Asignado a": {
+      "en": "Assigned to",
+      "pt": "Atribuído a"
+    },
+    "Todavía no se ha creado ninguna lista de verificación.": {
+      "en": "No checklist has been created yet.",
+      "pt": "Nenhuma lista de verificação foi criada ainda."
+    },
+    "Este es un paso manual: asegúrate de haberlo ejecutado antes de cerrar.": {
+      "en": "This is a manual step: make sure you have run it before closing.",
+      "pt": "Esta é uma etapa manual: confirme que a executou antes de encerrar."
+    },
+    "Verificar y procesar todos los asientos contables en borrador o pendientes de aprobación.": {
+      "en": "Review and post every journal entry that is still a draft or awaiting approval.",
+      "pt": "Revise e contabilize todos os lançamentos em rascunho ou aguardando aprovação."
+    },
+    "Queda 1 asiento contable en borrador o pendiente de aprobación.": {
+      "en": "1 journal entry is still a draft or awaiting approval.",
+      "pt": "Resta 1 lançamento contábil em rascunho ou aguardando aprovação."
+    },
+    "Quedan {{count}} asientos contables en borrador o pendientes de aprobación.": {
+      "en": "{{count}} journal entries are still drafts or awaiting approval.",
+      "pt": "Restam {{count}} lançamentos contábeis em rascunho ou aguardando aprovação."
+    },
+    "Verificar y procesar todas las facturas de proveedor en borrador o pendientes de aprobación.": {
+      "en": "Review and post every vendor bill that is still a draft or awaiting approval.",
+      "pt": "Revise e contabilize todas as faturas de fornecedor em rascunho ou aguardando aprovação."
+    },
+    "Queda 1 factura de proveedor en borrador o pendiente de aprobación.": {
+      "en": "1 vendor bill is still a draft or awaiting approval.",
+      "pt": "Resta 1 fatura de fornecedor em rascunho ou aguardando aprovação."
+    },
+    "Quedan {{count}} facturas de proveedor en borrador o pendientes de aprobación.": {
+      "en": "{{count}} vendor bills are still drafts or awaiting approval.",
+      "pt": "Restam {{count}} faturas de fornecedor em rascunho ou aguardando aprovação."
+    },
+    "Conciliar todas las transacciones bancarias del período.": {
+      "en": "Reconcile every bank transaction in the period.",
+      "pt": "Concilie todas as transações bancárias do período."
+    },
+    "Queda 1 transacción bancaria sin conciliar.": {
+      "en": "1 bank transaction is still unreconciled.",
+      "pt": "Resta 1 transação bancária sem conciliar."
+    },
+    "Quedan {{count}} transacciones bancarias sin conciliar.": {
+      "en": "{{count}} bank transactions are still unreconciled.",
+      "pt": "Restam {{count}} transações bancárias sem conciliar."
+    },
+    "Ejecutar la revaluación de moneda extranjera para el cierre del período.": {
+      "en": "Run the foreign-currency revaluation for the period close.",
+      "pt": "Execute a reavaliação cambial para o fechamento do período."
+    },
+    "Ejecutar la depreciación de activos fijos del período.": {
+      "en": "Run the fixed-asset depreciation for the period.",
+      "pt": "Execute a depreciação do ativo imobilizado do período."
+    },
+    "Revisar y procesar todas las solicitudes de aprobación pendientes.": {
+      "en": "Review and resolve every pending approval request.",
+      "pt": "Revise e resolva todas as solicitações de aprovação pendentes."
+    },
+    "Queda 1 solicitud de aprobación pendiente.": {
+      "en": "1 approval request is still pending.",
+      "pt": "Resta 1 solicitação de aprovação pendente."
+    },
+    "Quedan {{count}} solicitudes de aprobación pendientes.": {
+      "en": "{{count}} approval requests are still pending.",
+      "pt": "Restam {{count}} solicitações de aprovação pendentes."
+    },
+    "Cierre mensual": {
+      "en": "Month-End Close",
+      "pt": "Fechamento Mensal"
+    },
+    "Listas de verificación": {
+      "en": "Checklists",
+      "pt": "Listas de verificação"
+    },
+    "Cierre mensual — {{period}}": {
+      "en": "Month-End Close — {{period}}",
+      "pt": "Fechamento Mensal — {{period}}"
+    },
+    "{{percent}} completado": {
+      "en": "{{percent}} complete",
+      "pt": "{{percent}} concluído"
+    },
+    "Cargando el checklist de cierre…": {
+      "en": "Loading the closing checklist…",
+      "pt": "Carregando a lista de verificação do fechamento…"
+    },
+    "No se pudo cargar el checklist de cierre.": {
+      "en": "The closing checklist could not be loaded.",
+      "pt": "Não foi possível carregar a lista de verificação do fechamento."
+    },
+    "No hay ningún período contable abierto.": {
+      "en": "There is no open accounting period.",
+      "pt": "Não há nenhum período contábil aberto."
+    },
+    "No queda nada pendiente para cerrar este período.": {
+      "en": "Nothing is left before this period can be closed.",
+      "pt": "Não resta nada pendente para encerrar este período."
+    },
+    "Tareas del cierre": {
+      "en": "Closing Tasks",
+      "pt": "Tarefas do Fechamento"
+    },
+    "Nueva tarea": {
+      "en": "New task",
+      "pt": "Nova tarefa"
+    },
+    "Nombre de la tarea": {
+      "en": "Task name",
+      "pt": "Nome da tarefa"
+    },
+    "Lista de verificación": {
+      "en": "Checklist",
+      "pt": "Lista de verificação"
+    },
+    "Fecha límite": {
+      "en": "Due date",
+      "pt": "Prazo"
+    },
+    "No se encontraron tareas.": {
+      "en": "No tasks were found.",
+      "pt": "Nenhuma tarefa encontrada."
+    },
+    "No se encontraron asientos contables en este período.": {
+      "en": "No journal entries were found in this period.",
+      "pt": "Nenhum lançamento contábil encontrado neste período."
+    },
+    "Cargando el libro diario…": {
+      "en": "Loading the journal…",
+      "pt": "Carregando o livro diário…"
+    },
+    "No se pudo cargar el libro diario.": {
+      "en": "The journal could not be loaded.",
+      "pt": "Não foi possível carregar o livro diário."
+    },
+    "Caja": {
+      "en": "Cash",
+      "pt": "Caixa"
+    },
+    "Banco": {
+      "en": "Bank",
+      "pt": "Banco"
+    },
+    "Editar diario": {
+      "en": "Edit journal",
+      "pt": "Editar diário"
+    },
+    "Nuevo diario": {
+      "en": "New journal",
+      "pt": "Novo diário"
+    },
+    "Diarios": {
+      "en": "Journals",
+      "pt": "Diários"
+    },
+    "Crear diario": {
+      "en": "Create journal",
+      "pt": "Criar diário"
+    },
+    "Libros Contables": {
+      "en": "Ledgers",
+      "pt": "Livros Contábeis"
+    },
+    "Crear Nuevo Libro": {
+      "en": "Create Ledger",
+      "pt": "Criar Livro"
+    },
+    "Por Defecto": {
+      "en": "Default",
+      "pt": "Padrão"
+    },
+    "No se han encontrado libros contables.": {
+      "en": "No ledgers were found.",
+      "pt": "Nenhum livro contábil encontrado."
+    },
+    "Herramienta de Fusión de Cuentas": {
+      "en": "Account Merge Tool",
+      "pt": "Ferramenta de Fusão de Contas"
+    },
+    "Paso 1: Seleccionar Cuentas": {
+      "en": "Step 1: Select the accounts",
+      "pt": "Etapa 1: Selecionar as contas"
+    },
+    "Elige una <strong>cuenta origen</strong> (la que será fusionada) y una <strong>cuenta destino</strong> (la que conservará los movimientos y el saldo).": {
+      "en": "Choose a <strong>source account</strong> (the one being merged) and a <strong>destination account</strong> (the one that keeps the movements and the balance).",
+      "pt": "Escolha uma <strong>conta de origem</strong> (a que será fundida) e uma <strong>conta de destino</strong> (a que manterá os lançamentos e o saldo)."
+    },
+    "Confirma que deseas fusionar la cuenta {{source}} en {{target}}.": {
+      "en": "Confirm that you want to merge account {{source}} into {{target}}.",
+      "pt": "Confirme que deseja fundir a conta {{source}} em {{target}}."
+    },
+    "La cuenta {{source}} fue fusionada en {{target}}.": {
+      "en": "Account {{source}} was merged into {{target}}.",
+      "pt": "A conta {{source}} foi fundida em {{target}}."
+    },
+    "Cuenta Origen (a fusionar)": {
+      "en": "Source Account (to merge)",
+      "pt": "Conta de Origem (a fundir)"
+    },
+    "Cuenta Seleccionada:": {
+      "en": "Selected account:",
+      "pt": "Conta selecionada:"
+    },
+    "Tipo: {{type}}": {
+      "en": "Type: {{type}}",
+      "pt": "Tipo: {{type}}"
+    },
+    "Cuenta Destino (recibe la fusión)": {
+      "en": "Destination Account (receives the merge)",
+      "pt": "Conta de Destino (recebe a fusão)"
+    },
+    "Analizar": {
+      "en": "Analyse",
+      "pt": "Analisar"
+    },
+    "Limpiar": {
+      "en": "Clear",
+      "pt": "Limpar"
+    },
+    "Paso 2: Análisis de Impacto": {
+      "en": "Step 2: Impact analysis",
+      "pt": "Etapa 2: Análise de impacto"
+    },
+    "Se muestra un resumen del *dry-run* antes de ejecutar la fusión.": {
+      "en": "A dry-run summary is shown before the merge is executed.",
+      "pt": "Um resumo do dry-run é exibido antes de executar a fusão."
+    },
+    "Origen:": {
+      "en": "Source:",
+      "pt": "Origem:"
+    },
+    "Destino:": {
+      "en": "Destination:",
+      "pt": "Destino:"
+    },
+    "Transacciones a mover:": {
+      "en": "Transactions to move:",
+      "pt": "Transações a mover:"
+    },
+    "Saldo en origen:": {
+      "en": "Source balance:",
+      "pt": "Saldo na origem:"
+    },
+    "Saldo en destino:": {
+      "en": "Destination balance:",
+      "pt": "Saldo no destino:"
+    },
+    "Advertencias:": {
+      "en": "Warnings:",
+      "pt": "Avisos:"
+    },
+    "El análisis reportó problemas. Corrige la selección.": {
+      "en": "The analysis reported problems. Correct your selection.",
+      "pt": "A análise reportou problemas. Corrija a seleção."
+    },
+    "Volver": {
+      "en": "Back",
+      "pt": "Voltar"
+    },
+    "Paso 3: Confirmación": {
+      "en": "Step 3: Confirmation",
+      "pt": "Etapa 3: Confirmação"
+    },
+    "Confirmar Fusión": {
+      "en": "Confirm Merge",
+      "pt": "Confirmar Fusão"
+    },
+    "Resultado": {
+      "en": "Result",
+      "pt": "Resultado"
+    },
+    "¡Fusión completada!": {
+      "en": "Merge complete.",
+      "pt": "Fusão concluída."
+    },
+    "La fusión no se completó.": {
+      "en": "The merge did not complete.",
+      "pt": "A fusão não foi concluída."
+    },
+    "Realizar otra fusión": {
+      "en": "Merge another pair",
+      "pt": "Realizar outra fusão"
+    },
+    "Error:": {
+      "en": "Error:",
+      "pt": "Erro:"
+    },
+    "Conciliación de cuentas": {
+      "en": "Account Reconciliation",
+      "pt": "Conciliação de Contas"
+    },
+    "Saldo actual": {
+      "en": "Current balance",
+      "pt": "Saldo atual"
+    },
+    "Conciliado por": {
+      "en": "Reconciled by",
+      "pt": "Conciliado por"
+    },
+    "Fecha de conciliación": {
+      "en": "Reconciliation date",
+      "pt": "Data da conciliação"
+    },
+    "Ninguna cuenta requiere conciliación en este período.": {
+      "en": "No account requires reconciliation in this period.",
+      "pt": "Nenhuma conta requer conciliação neste período."
+    },
+    "Conciliada": {
+      "en": "Reconciled",
+      "pt": "Conciliada"
+    },
+    "Con diferencias": {
+      "en": "With differences",
+      "pt": "Com diferenças"
+    },
+    "Análisis de Variaciones": {
+      "en": "Variance Analysis",
+      "pt": "Análise de Variações"
+    },
+    "Períodos": {
+      "en": "Periods",
+      "pt": "Períodos"
+    },
+    "Inactivo": {
+      "en": "Inactive",
+      "pt": "Inativo"
+    },
+    "Confirmando tu pago…": {
+      "en": "Confirming your payment…",
+      "pt": "Confirmando seu pagamento…"
+    },
+    "Tu cuenta ha sido creada. Te estamos llevando a tu panel…": {
+      "en": "Your account has been created. Taking you to your dashboard…",
+      "pt": "Sua conta foi criada. Levando você ao seu painel…"
+    },
+    "No pudimos confirmar el pago": {
+      "en": "We could not confirm the payment",
+      "pt": "Não conseguimos confirmar o pagamento"
+    },
+    "Virtex ERP": {
+      "en": "Virtex ERP",
+      "pt": "Virtex ERP"
+    },
+    "Fax": {
+      "en": "Fax",
+      "pt": "Fax"
+    },
+    "Verificamos el dígito verificador ante {{fiscalAuthority}}.": {
+      "en": "We verify the check digit against {{fiscalAuthority}}.",
+      "pt": "Verificamos o dígito verificador junto à {{fiscalAuthority}}."
+    },
+    "{{name}} exige facturación electrónica ({{regime}}). Estos datos forman parte\n      del comprobante, por eso los pedimos ahora.": {
+      "en": "{{name}} requires electronic invoicing ({{regime}}). These details go on the\n      document itself, which is why we ask for them now.",
+      "pt": "{{name}} exige emissão eletrônica ({{regime}}). Estes dados fazem parte\n      do documento, por isso os pedimos agora."
+    },
+    "Enviamos un código y un enlace de confirmación a": {
+      "en": "We sent a code and a confirmation link to",
+      "pt": "Enviamos um código e um link de confirmação para"
+    },
+    "Enviando código a {{email}}…": {
+      "en": "Sending a code to {{email}}…",
+      "pt": "Enviando o código para {{email}}…"
+    },
+    "¿Prefieres no escribir el código? Busca el botón": {
+      "en": "Would you rather not type the code? Look for the button",
+      "pt": "Prefere não digitar o código? Procure o botão"
+    },
+    "\"Confirmar correo electrónico\"": {
+      "en": "\"Confirm email address\"",
+      "pt": "\"Confirmar e-mail\""
+    },
+    "en el correo que enviamos.": {
+      "en": "in the email we sent.",
+      "pt": "no e-mail que enviamos."
+    },
+    "Enviamos un SMS con el código a": {
+      "en": "We sent an SMS with the code to",
+      "pt": "Enviamos um SMS com o código para"
+    },
+    "Enviando SMS a {{phone}}…": {
+      "en": "Sending an SMS to {{phone}}…",
+      "pt": "Enviando um SMS para {{phone}}…"
+    },
+    "Código de verificación SMS": {
+      "en": "SMS verification code",
+      "pt": "Código de verificação por SMS"
+    },
+    "© {{year}} {{app}}. Todos los derechos reservados.": {
+      "en": "© {{year}} {{app}}. All rights reserved.",
+      "pt": "© {{year}} {{app}}. Todos os direitos reservados."
+    },
+    "Enlaces legales": {
+      "en": "Legal links",
+      "pt": "Links legais"
+    },
+    "Mantente al día con las últimas actualizaciones y alertas de tu cuenta.": {
+      "en": "Keep up with the latest updates and alerts on your account.",
+      "pt": "Acompanhe as últimas atualizações e alertas da sua conta."
+    },
+    "Marcar todas como leídas": {
+      "en": "Mark all as read",
+      "pt": "Marcar todas como lidas"
+    },
+    "Todo está al día": {
+      "en": "You are all caught up",
+      "pt": "Está tudo em dia"
+    },
+    "No tienes notificaciones nuevas en este momento.": {
+      "en": "You have no new notifications right now.",
+      "pt": "Você não tem notificações novas no momento."
+    },
+    "No leído": {
+      "en": "Unread",
+      "pt": "Não lido"
+    },
+    "N.º de orden": {
+      "en": "Order no.",
+      "pt": "N.º do pedido"
+    },
+    "Proveedor": {
+      "en": "Supplier",
+      "pt": "Fornecedor"
+    },
+    "Total": {
+      "en": "Total",
+      "pt": "Total"
+    },
+    "No se encontraron órdenes de compra.": {
+      "en": "No purchase orders were found.",
+      "pt": "Nenhum pedido de compra encontrado."
+    },
+    "N.º de requisición": {
+      "en": "Requisition no.",
+      "pt": "N.º da requisição"
+    },
+    "Solicitante": {
+      "en": "Requester",
+      "pt": "Solicitante"
+    },
+    "No se encontraron requisiciones de compra.": {
+      "en": "No purchase requisitions were found.",
+      "pt": "Nenhuma requisição de compra encontrada."
+    },
+    "Cash pooling (centralización de tesorería)": {
+      "en": "Cash pooling",
+      "pt": "Cash pooling (centralização de tesouraria)"
+    },
+    "Minería de procesos": {
+      "en": "Process mining",
+      "pt": "Mineração de processos"
+    },
+    "Fecha de la orden": {
+      "en": "Order date",
+      "pt": "Data do pedido"
+    },
+    "Administra las requisiciones, las órdenes de compra y las recepciones de mercancía.": {
+      "en": "Manage requisitions, purchase orders and goods receipts.",
+      "pt": "Gerencie as requisições, os pedidos de compra e os recebimentos de mercadoria."
+    },
+    "La facturación electrónica todavía no está disponible en {{country}}.": {
+      "en": "Electronic invoicing is not available in {{country}} yet.",
+      "pt": "A emissão eletrônica ainda não está disponível em {{country}}."
+    },
+    "Todo el ERP —contabilidad, inventario, compras, nómina e informes— funciona con normalidad, y guardamos estos datos fiscales para poder emitir comprobantes ({{regime}}) en cuanto habilitemos el país. Si necesitas timbrar hoy, escríbenos antes de contratar.": {
+      "en": "The whole ERP — accounting, inventory, purchasing, payroll and reporting — works normally, and we store these tax details so we can issue documents ({{regime}}) as soon as we enable the country. If you need to stamp documents today, write to us before subscribing.",
+      "pt": "Todo o ERP — contabilidade, estoque, compras, folha e relatórios — funciona normalmente, e guardamos estes dados fiscais para poder emitir documentos ({{regime}}) assim que habilitarmos o país. Se você precisa emitir hoje, fale conosco antes de contratar."
+    },
+    "Llave de acceso registrada correctamente": {
+      "en": "Passkey registered",
+      "pt": "Chave de acesso registrada"
+    },
+    "Error al registrar la llave de acceso": {
+      "en": "The passkey could not be registered",
+      "pt": "Não foi possível registrar a chave de acesso"
+    },
+    "Error al iniciar sesión con llave de acceso": {
+      "en": "Signing in with the passkey failed",
+      "pt": "Falha ao entrar com a chave de acesso"
+    },
+    "No se pudo cerrar la sesión en el servidor. Cierra el navegador o intenta de nuevo.": {
+      "en": "The session could not be closed on the server. Close your browser or try again.",
+      "pt": "Não foi possível encerrar a sessão no servidor. Feche o navegador ou tente novamente."
+    },
+    "Guarda los cambios desde la propia vista antes de cerrar.": {
+      "en": "Save your changes from the view itself before closing it.",
+      "pt": "Salve as alterações na própria tela antes de fechar."
+    },
+    "No tienes permiso para abrir este módulo.": {
+      "en": "You do not have permission to open this module.",
+      "pt": "Você não tem permissão para abrir este módulo."
+    },
+    "Has alcanzado el máximo de {{maxTabs}} pestañas. Cierra alguna para continuar.": {
+      "en": "You have reached the maximum of {{maxTabs}} tabs. Close one to continue.",
+      "pt": "Você atingiu o máximo de {{maxTabs}} abas. Feche alguma para continuar."
+    },
+    "Factura anulada con éxito.": {
+      "en": "Invoice voided.",
+      "pt": "Fatura cancelada."
+    },
+    "Factura no encontrada.": {
+      "en": "Invoice not found.",
+      "pt": "Fatura não encontrada."
+    },
+    "Cargando detalle de la factura...": {
+      "en": "Loading the invoice details...",
+      "pt": "Carregando os detalhes da fatura..."
+    },
+    "Volver al Listado": {
+      "en": "Back to the list",
+      "pt": "Voltar à listagem"
+    },
+    "Factura de Proveedor #{{billNumber}}": {
+      "en": "Vendor Bill #{{billNumber}}",
+      "pt": "Fatura de Fornecedor n.º {{billNumber}}"
+    },
+    "Proveedor: {{vendorName}}": {
+      "en": "Supplier: {{vendorName}}",
+      "pt": "Fornecedor: {{vendorName}}"
+    },
+    "Anular": {
+      "en": "Void",
+      "pt": "Cancelar"
+    },
+    "Fecha de Emisión": {
+      "en": "Issue Date",
+      "pt": "Data de Emissão"
+    },
+    "Fecha de Vencimiento": {
+      "en": "Due Date",
+      "pt": "Data de Vencimento"
+    },
+    "Saldo pendiente": {
+      "en": "Outstanding balance",
+      "pt": "Saldo em aberto"
+    },
+    "Líneas de la Factura": {
+      "en": "Invoice Lines",
+      "pt": "Linhas da Fatura"
+    },
+    "La sección de líneas de la factura se implementará aquí.": {
+      "en": "The invoice lines section will be implemented here.",
+      "pt": "A seção de linhas da fatura será implementada aqui."
+    },
+    "Por favor, completa todos los campos requeridos.": {
+      "en": "Fill in every required field.",
+      "pt": "Preencha todos os campos obrigatórios."
+    },
+    "Continuar con Google": {
+      "en": "Continue with Google",
+      "pt": "Continuar com o Google"
+    },
+    "Continuar con Microsoft": {
+      "en": "Continue with Microsoft",
+      "pt": "Continuar com a Microsoft"
+    },
+    "Cuenta eliminada correctamente.": {
+      "en": "Account deleted.",
+      "pt": "Conta excluída."
+    },
+    "No se pudo eliminar la cuenta.": {
+      "en": "The account could not be deleted.",
+      "pt": "Não foi possível excluir a conta."
+    },
+    "Error al guardar la factura.": {
+      "en": "Error saving the invoice.",
+      "pt": "Erro ao salvar a fatura."
+    },
+    "Factura actualizada con éxito.": {
+      "en": "Invoice updated.",
+      "pt": "Fatura atualizada."
+    },
+    "Factura creada con éxito.": {
+      "en": "Invoice created.",
+      "pt": "Fatura criada."
+    },
+    "Número de Factura": {
+      "en": "Invoice Number",
+      "pt": "Número da Fatura"
+    },
+    "Detalles de la Factura": {
+      "en": "Invoice Details",
+      "pt": "Detalhes da Fatura"
+    },
+    "Añadir Línea": {
+      "en": "Add Line",
+      "pt": "Adicionar Linha"
+    },
+    "Notas": {
+      "en": "Notes",
+      "pt": "Observações"
+    },
+    "Seleccionar proveedor": {
+      "en": "Select a supplier",
+      "pt": "Selecionar fornecedor"
+    },
+    "Cant.": {
+      "en": "Qty",
+      "pt": "Qtd."
+    },
+    "Precio": {
+      "en": "Price",
+      "pt": "Preço"
+    },
+    "Cuenta de Gasto": {
+      "en": "Expense Account",
+      "pt": "Conta de Despesa"
+    },
+    "Editar factura de proveedor": {
+      "en": "Edit vendor bill",
+      "pt": "Editar fatura de fornecedor"
+    },
+    "Nueva factura de proveedor": {
+      "en": "New vendor bill",
+      "pt": "Nova fatura de fornecedor"
+    },
+    "Facturas de Proveedor": {
+      "en": "Vendor Bills",
+      "pt": "Faturas de Fornecedor"
+    },
+    "Nueva Factura": {
+      "en": "New Invoice",
+      "pt": "Nova Fatura"
+    },
+    "Cargando facturas...": {
+      "en": "Loading invoices...",
+      "pt": "Carregando faturas..."
+    },
+    "No hay facturas de proveedor": {
+      "en": "There are no vendor bills",
+      "pt": "Não há faturas de fornecedor"
+    },
+    "Crea tu primera factura de proveedor para empezar.": {
+      "en": "Create your first vendor bill to get started.",
+      "pt": "Crie sua primeira fatura de fornecedor para começar."
+    },
+    "Crear Factura": {
+      "en": "Create Invoice",
+      "pt": "Criar Fatura"
+    },
+    "Número": {
+      "en": "Number",
+      "pt": "Número"
+    },
+    "Vencimiento": {
+      "en": "Due",
+      "pt": "Vencimento"
+    },
+    "No se pudo cargar el cliente.": {
+      "en": "The customer could not be loaded.",
+      "pt": "Não foi possível carregar o cliente."
+    },
+    "Cliente actualizado exitosamente.": {
+      "en": "Customer updated.",
+      "pt": "Cliente atualizado."
+    },
+    "Cliente creado exitosamente.": {
+      "en": "Customer created.",
+      "pt": "Cliente criado."
+    },
+    "Error al actualizar el cliente.": {
+      "en": "Error updating the customer.",
+      "pt": "Erro ao atualizar o cliente."
+    },
+    "Error al crear el cliente.": {
+      "en": "Error creating the customer.",
+      "pt": "Erro ao criar o cliente."
+    },
+    "Completa la información detallada de tu cliente.": {
+      "en": "Fill in your customer's details.",
+      "pt": "Preencha os dados do seu cliente."
+    },
+    "Información Principal": {
+      "en": "Main Information",
+      "pt": "Informações Principais"
+    },
+    "Nombre de la Empresa*": {
+      "en": "Company Name*",
+      "pt": "Nome da Empresa*"
+    },
+    "Persona de Contacto*": {
+      "en": "Contact Person*",
+      "pt": "Pessoa de Contato*"
+    },
+    "ID Fiscal (RNC, etc.)": {
+      "en": "Tax ID",
+      "pt": "Identificação fiscal (CNPJ, etc.)"
+    },
+    "Datos de Contacto": {
+      "en": "Contact Details",
+      "pt": "Dados de Contato"
+    },
+    "Correo Electrónico*": {
+      "en": "Email*",
+      "pt": "E-mail*"
+    },
+    "Teléfono*": {
+      "en": "Phone*",
+      "pt": "Telefone*"
+    },
+    "Línea de Dirección": {
+      "en": "Address Line",
+      "pt": "Logradouro"
+    },
+    "Estado/Provincia": {
+      "en": "State/Province",
+      "pt": "Estado/Província"
+    },
+    "Código Postal": {
+      "en": "Postal Code",
+      "pt": "CEP"
+    },
+    "País*": {
+      "en": "Country*",
+      "pt": "País*"
+    },
+    "República Dominicana": {
+      "en": "Dominican Republic",
+      "pt": "República Dominicana"
+    },
+    "Estados Unidos": {
+      "en": "United States",
+      "pt": "Estados Unidos"
+    },
+    "Cliente eliminado exitosamente.": {
+      "en": "Customer deleted.",
+      "pt": "Cliente excluído."
+    },
+    "No se pudieron cargar los clientes.": {
+      "en": "The customers could not be loaded.",
+      "pt": "Não foi possível carregar os clientes."
+    },
+    "No se pudo eliminar el cliente.": {
+      "en": "The customer could not be deleted.",
+      "pt": "Não foi possível excluir o cliente."
+    },
+    "Administra tu base de datos de clientes y su historial.": {
+      "en": "Manage your customer database and its history.",
+      "pt": "Gerencie sua base de clientes e o histórico deles."
+    },
+    "Añadir Cliente": {
+      "en": "Add Customer",
+      "pt": "Adicionar Cliente"
+    },
+    "Persona de Contacto": {
+      "en": "Contact Person",
+      "pt": "Pessoa de Contato"
+    },
+    "Cargando clientes...": {
+      "en": "Loading customers...",
+      "pt": "Carregando clientes..."
+    },
+    "No hay clientes registrados.": {
+      "en": "There are no customers on record.",
+      "pt": "Não há clientes cadastrados."
+    },
+    "Proveedor eliminado exitosamente.": {
+      "en": "Supplier deleted.",
+      "pt": "Fornecedor excluído."
+    },
+    "No se pudieron cargar los proveedores.": {
+      "en": "The suppliers could not be loaded.",
+      "pt": "Não foi possível carregar os fornecedores."
+    },
+    "No se pudo eliminar el proveedor.": {
+      "en": "The supplier could not be deleted.",
+      "pt": "Não foi possível excluir o fornecedor."
+    },
+    "Administra la información de tus proveedores.": {
+      "en": "Manage your suppliers' information.",
+      "pt": "Gerencie as informações dos seus fornecedores."
+    },
+    "Nuevo Proveedor": {
+      "en": "New Supplier",
+      "pt": "Novo Fornecedor"
+    },
+    "Cargando proveedores...": {
+      "en": "Loading suppliers...",
+      "pt": "Carregando fornecedores..."
+    },
+    "No hay proveedores registrados.": {
+      "en": "There are no suppliers on record.",
+      "pt": "Não há fornecedores cadastrados."
+    },
+    "Nuevo Recibo de Cliente": {
+      "en": "New Customer Receipt",
+      "pt": "Novo Recibo de Cliente"
+    },
+    "Información del Pago": {
+      "en": "Payment Information",
+      "pt": "Informações do Pagamento"
+    },
+    "Cliente": {
+      "en": "Customer",
+      "pt": "Cliente"
+    },
+    "Fecha de Pago": {
+      "en": "Payment Date",
+      "pt": "Data do Pagamento"
+    },
+    "Monto Recibido": {
+      "en": "Amount Received",
+      "pt": "Valor Recebido"
+    },
+    "Aplicar a Facturas": {
+      "en": "Apply to Invoices",
+      "pt": "Aplicar às Faturas"
+    },
+    "Aquí se mostrará una lista de facturas pendientes del cliente seleccionado para aplicar el pago.": {
+      "en": "The selected customer's outstanding invoices will be listed here so the payment can be applied.",
+      "pt": "As faturas em aberto do cliente selecionado serão listadas aqui para aplicar o pagamento."
+    },
+    "Seleccionar cliente": {
+      "en": "Select a customer",
+      "pt": "Selecionar cliente"
+    },
+    "No se pudieron cargar los recibos de clientes.": {
+      "en": "The customer receipts could not be loaded.",
+      "pt": "Não foi possível carregar os recibos de clientes."
+    },
+    "Recibos de Cliente": {
+      "en": "Customer Receipts",
+      "pt": "Recibos de Cliente"
+    },
+    "Nuevo Recibo": {
+      "en": "New Receipt",
+      "pt": "Novo Recibo"
+    },
+    "Cargando recibos...": {
+      "en": "Loading receipts...",
+      "pt": "Carregando recibos..."
+    },
+    "No hay recibos de cliente": {
+      "en": "There are no customer receipts",
+      "pt": "Não há recibos de cliente"
+    },
+    "Crea tu primer recibo para registrar un pago.": {
+      "en": "Create your first receipt to record a payment.",
+      "pt": "Crie seu primeiro recibo para registrar um pagamento."
+    },
+    "No se pudo cargar el producto.": {
+      "en": "The product could not be loaded.",
+      "pt": "Não foi possível carregar o produto."
+    },
+    "Producto actualizado exitosamente.": {
+      "en": "Product updated.",
+      "pt": "Produto atualizado."
+    },
+    "Producto creado exitosamente.": {
+      "en": "Product created.",
+      "pt": "Produto criado."
+    },
+    "Error al actualizar el producto.": {
+      "en": "Error updating the product.",
+      "pt": "Erro ao atualizar o produto."
+    },
+    "Error al crear el producto.": {
+      "en": "Error creating the product.",
+      "pt": "Erro ao criar o produto."
+    },
+    "Completa la información detallada de tu producto o servicio.": {
+      "en": "Fill in the details of your product or service.",
+      "pt": "Preencha os dados do seu produto ou serviço."
+    },
+    "Información Básica": {
+      "en": "Basic Information",
+      "pt": "Informações Básicas"
+    },
+    "Nombre del Producto*": {
+      "en": "Product Name*",
+      "pt": "Nome do Produto*"
+    },
+    "SKU (Código de Producto)": {
+      "en": "SKU (Product Code)",
+      "pt": "SKU (Código do Produto)"
+    },
+    "Imagen del Producto": {
+      "en": "Product Image",
+      "pt": "Imagem do Produto"
+    },
+    "Subir imagen": {
+      "en": "Upload an image",
+      "pt": "Enviar imagem"
+    },
+    "Precios y Stock": {
+      "en": "Pricing and Stock",
+      "pt": "Preços e Estoque"
+    },
+    "Precio de Venta*": {
+      "en": "Sale Price*",
+      "pt": "Preço de Venda*"
+    },
+    "Cantidad en Stock*": {
+      "en": "Quantity in Stock*",
+      "pt": "Quantidade em Estoque*"
+    },
+    "Nivel de Reorden": {
+      "en": "Reorder Level",
+      "pt": "Ponto de Reposição"
+    },
+    "Seleccionar...": {
+      "en": "Select...",
+      "pt": "Selecionar..."
+    },
+    "Electrónica": {
+      "en": "Electronics",
+      "pt": "Eletrônicos"
+    },
+    "Accesorios": {
+      "en": "Accessories",
+      "pt": "Acessórios"
+    },
+    "Monitores": {
+      "en": "Monitors",
+      "pt": "Monitores"
+    },
+    "Estado*": {
+      "en": "Status*",
+      "pt": "Situação*"
+    },
+    "Vista previa": {
+      "en": "Preview",
+      "pt": "Prévia"
+    },
+    "Producto eliminado exitosamente.": {
+      "en": "Product deleted.",
+      "pt": "Produto excluído."
+    },
+    "Error al eliminar el producto.": {
+      "en": "Error deleting the product.",
+      "pt": "Erro ao excluir o produto."
+    },
+    "Inventario de Productos": {
+      "en": "Product Inventory",
+      "pt": "Estoque de Produtos"
+    },
+    "Gestiona todos los productos y servicios de tu empresa.": {
+      "en": "Manage every product and service your company offers.",
+      "pt": "Gerencie todos os produtos e serviços da sua empresa."
+    },
+    "Nuevo Producto": {
+      "en": "New Product",
+      "pt": "Novo Produto"
+    },
+    "Cargando productos...": {
+      "en": "Loading products...",
+      "pt": "Carregando produtos..."
+    },
+    "Producto": {
+      "en": "Product",
+      "pt": "Produto"
+    },
+    "Categoría": {
+      "en": "Category",
+      "pt": "Categoria"
+    },
+    "Costo": {
+      "en": "Cost",
+      "pt": "Custo"
+    },
+    "No se encontraron productos.": {
+      "en": "No products were found.",
+      "pt": "Nenhum produto encontrado."
+    },
+    "Intenta ajustar tu búsqueda o crea un nuevo producto.": {
+      "en": "Try adjusting your search, or create a new product.",
+      "pt": "Tente ajustar sua busca ou crie um novo produto."
+    },
+    "Buscar por nombre, SKU o categoría...": {
+      "en": "Search by name, SKU or category...",
+      "pt": "Buscar por nome, SKU ou categoria..."
+    },
+    "En existencia": {
+      "en": "In stock",
+      "pt": "Em estoque"
+    },
+    "Agotado": {
+      "en": "Out of stock",
+      "pt": "Esgotado"
+    },
+    "Categorías": {
+      "en": "Categories",
+      "pt": "Categorias"
+    },
+    "Organiza tus productos en diferentes categorías.": {
+      "en": "Organize your products into categories.",
+      "pt": "Organize seus produtos em categorias."
+    },
+    "Nueva\n                    Categoría": {
+      "en": "New\n                    Category",
+      "pt": "Nova\n                    Categoria"
+    },
+    "Aquí se mostrará la lista y gestión de categorías.": {
+      "en": "The category list and its management will appear here.",
+      "pt": "A lista e a gestão de categorias aparecerão aqui."
+    },
+    "e-CF reenviado a la DGII.": {
+      "en": "e-CF resubmitted to the DGII.",
+      "pt": "e-CF reenviado à DGII."
+    },
+    "Documento Word generado con éxito.": {
+      "en": "Word document generated.",
+      "pt": "Documento Word gerado."
+    },
+    "Factura anulada y nota de crédito creada.": {
+      "en": "Invoice voided and a credit note created.",
+      "pt": "Fatura cancelada e nota de crédito criada."
+    },
+    "No se pudo cargar la factura.": {
+      "en": "The invoice could not be loaded.",
+      "pt": "Não foi possível carregar a fatura."
+    },
+    "No hay XML firmado disponible.": {
+      "en": "There is no signed XML available.",
+      "pt": "Não há XML assinado disponível."
+    },
+    "No se pudo descargar el PDF de la factura.": {
+      "en": "The invoice PDF could not be downloaded.",
+      "pt": "Não foi possível baixar o PDF da fatura."
+    },
+    "Exportación a {{toUpperCase}} estará disponible próximamente.": {
+      "en": "Export to {{toUpperCase}} will be available soon.",
+      "pt": "A exportação para {{toUpperCase}} estará disponível em breve."
+    },
+    "Función \"Copiar de\" abierta. Seleccione un documento base.": {
+      "en": "\"Copy from\" is open. Choose a source document.",
+      "pt": "\"Copiar de\" aberto. Escolha um documento de origem."
+    },
+    "Copiando documento actual a nuevo borrador...": {
+      "en": "Copying the current document into a new draft...",
+      "pt": "Copiando o documento atual para um novo rascunho..."
+    },
+    "Contenido": {
+      "en": "Content",
+      "pt": "Conteúdo"
+    },
+    "Identificación fiscal: {{taxId}}": {
+      "en": "Tax ID: {{taxId}}",
+      "pt": "Identificação fiscal: {{taxId}}"
+    },
+    "FACTURADO A:": {
+      "en": "BILL TO:",
+      "pt": "FATURADO PARA:"
+    },
+    "Notas:": {
+      "en": "Notes:",
+      "pt": "Observações:"
+    },
+    "Subtotal:": {
+      "en": "Subtotal:",
+      "pt": "Subtotal:"
+    },
+    "Impuestos:": {
+      "en": "Taxes:",
+      "pt": "Impostos:"
+    },
+    "TOTAL:": {
+      "en": "TOTAL:",
+      "pt": "TOTAL:"
+    },
+    "Saldo pendiente:": {
+      "en": "Outstanding balance:",
+      "pt": "Saldo em aberto:"
+    },
+    "Logística y Entrega": {
+      "en": "Logistics and Delivery",
+      "pt": "Logística e Entrega"
+    },
+    "Dirección de Envío:": {
+      "en": "Shipping address:",
+      "pt": "Endereço de entrega:"
+    },
+    "Método de Envío:": {
+      "en": "Shipping method:",
+      "pt": "Método de envio:"
+    },
+    "Persona de Contacto:": {
+      "en": "Contact person:",
+      "pt": "Pessoa de contato:"
+    },
+    "Información Financiera": {
+      "en": "Financial Information",
+      "pt": "Informações Financeiras"
+    },
+    "Condición de Pago:": {
+      "en": "Payment terms:",
+      "pt": "Condição de pagamento:"
+    },
+    "Indicador de Impuestos:": {
+      "en": "Tax indicator:",
+      "pt": "Indicador de impostos:"
+    },
+    "{{rate}} sobre el monto gravado": {
+      "en": "{{rate}} on the taxed amount",
+      "pt": "{{rate}} sobre o valor tributado"
+    },
+    "Estado de Cobro:": {
+      "en": "Collection status:",
+      "pt": "Situação da cobrança:"
+    },
+    "Sin registrar": {
+      "en": "Not recorded",
+      "pt": "Sem registro"
+    },
+    "Comprobante Fiscal Electrónico (e-CF)": {
+      "en": "Electronic Fiscal Document (e-CF)",
+      "pt": "Comprovante Fiscal Eletrônico (e-CF)"
+    },
+    "e-NCF:": {
+      "en": "e-NCF:",
+      "pt": "e-NCF:"
+    },
+    "Estado DGII:": {
+      "en": "DGII status:",
+      "pt": "Status na DGII:"
+    },
+    "TrackID:": {
+      "en": "TrackID:",
+      "pt": "TrackID:"
+    },
+    "Código de seguridad:": {
+      "en": "Security code:",
+      "pt": "Código de segurança:"
+    },
+    "Mensajes de la DGII:": {
+      "en": "Messages from the DGII:",
+      "pt": "Mensagens da DGII:"
+    },
+    "Representación impresa (QR):": {
+      "en": "Printed representation (QR):",
+      "pt": "Representação impressa (QR):"
+    },
+    "Verificar en la DGII": {
+      "en": "Verify with the DGII",
+      "pt": "Verificar na DGII"
+    },
+    "Descargar XML firmado": {
+      "en": "Download the signed XML",
+      "pt": "Baixar o XML assinado"
+    },
+    "Cargando datos de la factura o la factura no fue encontrada...": {
+      "en": "Loading the invoice, or the invoice was not found...",
+      "pt": "Carregando a fatura, ou a fatura não foi encontrada..."
+    },
+    "Buscar en líneas...": {
+      "en": "Search within the lines...",
+      "pt": "Buscar nas linhas..."
+    },
+    "Borrador eliminado.": {
+      "en": "Draft deleted.",
+      "pt": "Rascunho excluído."
+    },
+    "Este documento es un borrador.": {
+      "en": "This document is a draft.",
+      "pt": "Este documento é um rascunho."
+    },
+    "No tiene comprobante fiscal asignado y no tiene valor ante la autoridad tributaria.": {
+      "en": "It has no fiscal document number and carries no weight with the tax authority.",
+      "pt": "Não tem comprovante fiscal atribuído e não tem valor perante a autoridade tributária."
+    },
+    "Eliminar borrador": {
+      "en": "Delete draft",
+      "pt": "Excluir rascunho"
+    },
+    "Verificación DGII": {
+      "en": "DGII verification",
+      "pt": "Verificação DGII"
+    },
+    "Abrir la consulta del timbre": {
+      "en": "Open the stamp lookup",
+      "pt": "Abrir a consulta do selo"
+    },
+    "Exportación a Excel completada.": {
+      "en": "Export to Excel finished.",
+      "pt": "Exportação para Excel concluída."
+    },
+    "Gestión completa de facturación y seguimiento de documentos.": {
+      "en": "Full invoicing management and document tracking.",
+      "pt": "Gestão completa de faturamento e acompanhamento de documentos."
+    },
+    "Exportar Excel": {
+      "en": "Export to Excel",
+      "pt": "Exportar para Excel"
+    },
+    "Nueva factura de venta": {
+      "en": "New sales invoice",
+      "pt": "Nova fatura de venda"
+    },
+    "Estado:": {
+      "en": "Status:",
+      "pt": "Situação:"
+    },
+    "Cobrada": {
+      "en": "Paid",
+      "pt": "Paga"
+    },
+    "Parcial": {
+      "en": "Partial",
+      "pt": "Parcial"
+    },
+    "Anulada": {
+      "en": "Voided",
+      "pt": "Cancelada"
+    },
+    "No se encontraron facturas que coincidan con la búsqueda.": {
+      "en": "No invoices matched the search.",
+      "pt": "Nenhuma fatura corresponde à busca."
+    },
+    "Buscar por cliente o número de factura...": {
+      "en": "Search by customer or invoice number...",
+      "pt": "Buscar por cliente ou número da fatura..."
+    },
+    "Factura #": {
+      "en": "Invoice #",
+      "pt": "Fatura n.º"
+    },
+    "Creación": {
+      "en": "Created",
+      "pt": "Criação"
+    },
+    "Anterior": {
+      "en": "Previous",
+      "pt": "Anterior"
+    },
+    "Página {{page}} de {{pages}}": {
+      "en": "Page {{page}} of {{pages}}",
+      "pt": "Página {{page}} de {{pages}}"
+    },
+    "Paginación de facturas": {
+      "en": "Invoice pagination",
+      "pt": "Paginação de faturas"
+    },
+    "No se pudo exportar el listado.": {
+      "en": "The list could not be exported.",
+      "pt": "Não foi possível exportar a listagem."
+    },
+    "Datos cargados desde la factura {{invoiceNumber}}": {
+      "en": "Data loaded from invoice {{invoiceNumber}}",
+      "pt": "Dados carregados da fatura {{invoiceNumber}}"
+    },
+    "Factura creada exitosamente.": {
+      "en": "Invoice created.",
+      "pt": "Fatura criada."
+    },
+    "Error al crear la factura: {{errorMessage}}": {
+      "en": "Error creating the invoice: {{errorMessage}}",
+      "pt": "Erro ao criar a fatura: {{errorMessage}}"
+    },
+    "Crear Nueva Factura de Venta": {
+      "en": "Create a New Sales Invoice",
+      "pt": "Criar Nova Fatura de Venda"
+    },
+    "Fecha de emisión": {
+      "en": "Issue date",
+      "pt": "Data de emissão"
+    },
+    "Fecha de vencimiento": {
+      "en": "Due date",
+      "pt": "Data de vencimento"
+    },
+    "Conceptos de Factura": {
+      "en": "Invoice Lines",
+      "pt": "Itens da Fatura"
+    },
+    "Producto / Servicio": {
+      "en": "Product / Service",
+      "pt": "Produto / Serviço"
+    },
+    "Precio Unit.": {
+      "en": "Unit price",
+      "pt": "Preço unit."
+    },
+    "Imp. (%)": {
+      "en": "Tax (%)",
+      "pt": "Imp. (%)"
+    },
+    "Seleccionar": {
+      "en": "Select",
+      "pt": "Selecionar"
+    },
+    "Stock insuficiente": {
+      "en": "Not enough stock",
+      "pt": "Estoque insuficiente"
+    },
+    "Agregar línea": {
+      "en": "Add line",
+      "pt": "Adicionar linha"
+    },
+    "Subtotal": {
+      "en": "Subtotal",
+      "pt": "Subtotal"
+    },
+    "Notas Adicionales": {
+      "en": "Additional Notes",
+      "pt": "Observações Adicionais"
+    },
+    "Dirección de Envío": {
+      "en": "Shipping Address",
+      "pt": "Endereço de Entrega"
+    },
+    "Método de Envío": {
+      "en": "Shipping Method",
+      "pt": "Método de Envio"
+    },
+    "Transporte Propio": {
+      "en": "Own transport",
+      "pt": "Transporte próprio"
+    },
+    "Courier Externo": {
+      "en": "External courier",
+      "pt": "Transportadora externa"
+    },
+    "Retiro en Almacén": {
+      "en": "Warehouse pickup",
+      "pt": "Retirada no depósito"
+    },
+    "Condiciones de Pago": {
+      "en": "Payment Terms",
+      "pt": "Condições de Pagamento"
+    },
+    "Contado": {
+      "en": "Cash",
+      "pt": "À vista"
+    },
+    "15 Días": {
+      "en": "15 days",
+      "pt": "15 dias"
+    },
+    "60 Días": {
+      "en": "60 days",
+      "pt": "60 dias"
+    },
+    "Lista de Precios": {
+      "en": "Price List",
+      "pt": "Tabela de Preços"
+    },
+    "Precio Base": {
+      "en": "Base price",
+      "pt": "Preço base"
+    },
+    "Mayorista": {
+      "en": "Wholesale",
+      "pt": "Atacado"
+    },
+    "Distribuidor": {
+      "en": "Distributor",
+      "pt": "Distribuidor"
+    },
+    "Términos, condiciones, instrucciones de pago...": {
+      "en": "Terms, conditions, payment instructions...",
+      "pt": "Termos, condições, instruções de pagamento..."
+    },
+    "Dirección completa del cliente...": {
+      "en": "The customer's full address...",
+      "pt": "Endereço completo do cliente..."
+    },
+    "Crear factura de venta": {
+      "en": "Create the sales invoice",
+      "pt": "Criar a fatura de venda"
+    },
+    "Guardar borrador": {
+      "en": "Save as draft",
+      "pt": "Salvar rascunho"
+    },
+    "Todavía no puedes emitir comprobantes.": {
+      "en": "You cannot issue fiscal documents yet.",
+      "pt": "Você ainda não pode emitir documentos fiscais."
+    },
+    "Ir a la configuración fiscal": {
+      "en": "Go to the tax settings",
+      "pt": "Ir para as configurações fiscais"
+    },
+    "Fiscal y cobro": {
+      "en": "Tax and collection",
+      "pt": "Fiscal e cobrança"
+    },
+    "Artículo": {
+      "en": "Item",
+      "pt": "Item"
+    },
+    "Cantidad": {
+      "en": "Quantity",
+      "pt": "Quantidade"
+    },
+    "Desc. %": {
+      "en": "Disc. %",
+      "pt": "Desc. %"
+    },
+    "Tratamiento": {
+      "en": "Treatment",
+      "pt": "Tratamento"
+    },
+    "— Concepto libre —": {
+      "en": "— Free-text line —",
+      "pt": "— Item livre —"
+    },
+    "Gravado": {
+      "en": "Taxed",
+      "pt": "Tributado"
+    },
+    "Tasa cero": {
+      "en": "Zero-rated",
+      "pt": "Alíquota zero"
+    },
+    "Exento": {
+      "en": "Exempt",
+      "pt": "Isento"
+    },
+    "+ Añadir línea": {
+      "en": "+ Add line",
+      "pt": "+ Adicionar linha"
+    },
+    "Eliminar línea": {
+      "en": "Remove line",
+      "pt": "Remover linha"
+    },
+    "Faltan {{units}} unidades en existencia": {
+      "en": "{{units}} units short of the stock on hand",
+      "pt": "Faltam {{units}} unidades em estoque"
+    },
+    "No se pudo cargar la configuración de facturación.": {
+      "en": "The invoicing configuration could not be loaded.",
+      "pt": "Não foi possível carregar a configuração de faturamento."
+    },
+    "Revisa los campos marcados antes de continuar.": {
+      "en": "Check the highlighted fields before continuing.",
+      "pt": "Revise os campos destacados antes de continuar."
+    },
+    "Una o más líneas superan las existencias disponibles. Ajusta las cantidades o repone el inventario.": {
+      "en": "One or more lines exceed the stock on hand. Adjust the quantities or replenish the inventory.",
+      "pt": "Uma ou mais linhas excedem o estoque disponível. Ajuste as quantidades ou reponha o estoque."
+    },
+    "Datos cargados desde {{invoiceNumber}}.": {
+      "en": "Data loaded from {{invoiceNumber}}.",
+      "pt": "Dados carregados de {{invoiceNumber}}."
+    },
+    "Seleccionar Documento Base (Copiar de...)": {
+      "en": "Select a Source Document (Copy from...)",
+      "pt": "Selecionar Documento de Origem (Copiar de...)"
+    },
+    "Cargando documentos...": {
+      "en": "Loading documents...",
+      "pt": "Carregando documentos..."
+    },
+    "No se encontraron facturas.": {
+      "en": "No invoices were found.",
+      "pt": "Nenhuma fatura encontrada."
+    },
+    "Buscar por número o cliente...": {
+      "en": "Search by number or customer...",
+      "pt": "Buscar por número ou cliente..."
+    },
+    "Copiar de": {
+      "en": "Copy from",
+      "pt": "Copiar de"
+    },
+    "Copiar a": {
+      "en": "Copy to",
+      "pt": "Copiar para"
+    },
+    "Primero": {
+      "en": "First",
+      "pt": "Primeiro"
+    },
+    "Último": {
+      "en": "Last",
+      "pt": "Último"
+    },
+    "Avanzar": {
+      "en": "Next",
+      "pt": "Avançar"
+    },
+    "Enviar por correo": {
+      "en": "Send by email",
+      "pt": "Enviar por e-mail"
+    },
+    "Búsqueda sobre documento": {
+      "en": "Search within the document",
+      "pt": "Buscar no documento"
+    },
+    "Exportar a PDF": {
+      "en": "Export to PDF",
+      "pt": "Exportar para PDF"
+    },
+    "Cobrada parcialmente": {
+      "en": "Partially paid",
+      "pt": "Paga parcialmente"
+    },
+    "Nota de crédito": {
+      "en": "Credit note",
+      "pt": "Nota de crédito"
+    },
+    "Cheque": {
+      "en": "Cheque",
+      "pt": "Cheque"
+    },
+    "Tarjeta de crédito": {
+      "en": "Credit card",
+      "pt": "Cartão de crédito"
+    },
+    "Tarjeta de débito": {
+      "en": "Debit card",
+      "pt": "Cartão de débito"
+    },
+    "Transferencia bancaria": {
+      "en": "Bank transfer",
+      "pt": "Transferência bancária"
+    },
+    "Tarjeta de regalo": {
+      "en": "Gift card",
+      "pt": "Vale-presente"
+    },
+    "Permuta": {
+      "en": "Barter",
+      "pt": "Permuta"
+    },
+    "Otro medio": {
+      "en": "Other method",
+      "pt": "Outro meio"
+    }
+  }
+}

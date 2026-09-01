@@ -3,6 +3,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
+import { ForbiddenError } from '../../i18n/localized.exception';
 
 /**
  * Fraud controls for outbound SMS.
@@ -181,9 +182,7 @@ export class SmsAbuseGuardService {
       '[SECURITY] Outbound verification SMS refused',
     );
     // Deliberately uniform: a caller probing the controls learns only that it did not go through.
-    throw new ForbiddenException(
-      'No se pudo enviar el código de verificación a ese número. Verifica el número o usa la verificación por correo.',
-    );
+    throw new ForbiddenError('AUTH.NO_PUDO_ENVIAR_CODIGO_VERIFICACION_ESE_NUMERO');
   }
 
   /** Destination numbers are personal data; count them without storing them. */

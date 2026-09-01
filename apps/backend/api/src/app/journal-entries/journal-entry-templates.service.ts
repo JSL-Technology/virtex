@@ -1,5 +1,5 @@
 
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { JournalEntryTemplate } from './entities/journal-entry-template.entity';
@@ -8,6 +8,7 @@ import { JournalEntriesService } from './journal-entries.service';
 import { JournalEntry } from './entities/journal-entry.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { CreateJournalEntryDto } from './dto/create-journal-entry.dto';
+import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class JournalEntryTemplatesService {
@@ -30,7 +31,7 @@ export class JournalEntryTemplatesService {
   async findOne(id: string, organizationId: string): Promise<JournalEntryTemplate> {
     const template = await this.templateRepository.findOne({ where: { id, organizationId } });
     if (!template) {
-      throw new NotFoundException(`Plantilla de asiento con ID "${id}" no encontrada.`);
+      throw new NotFoundError('JOURNAL_ENTRIES.PLANTILLA_ASIENTO_ID_NO_ENCONTRADA', { id });
     }
     return template;
   }
@@ -44,7 +45,7 @@ export class JournalEntryTemplatesService {
   async remove(id: string, organizationId: string): Promise<void> {
     const result = await this.templateRepository.delete({ id, organizationId });
     if (result.affected === 0) {
-      throw new NotFoundException(`Plantilla de asiento con ID "${id}" no encontrada.`);
+      throw new NotFoundError('JOURNAL_ENTRIES.PLANTILLA_ASIENTO_ID_NO_ENCONTRADA', { id });
     }
   }
 
@@ -52,12 +53,12 @@ export class JournalEntryTemplatesService {
     const template = await this.findOne(templateId, organizationId);
     
     if (createEntryDto.amount <= 0) {
-      throw new BadRequestException('El monto debe ser un número positivo.');
+      throw new BadRequestError('JOURNAL_ENTRIES.MONTO_DEBE_SER_NUMERO_POSITIVO');
     }
     
     const defaultLedger = await this.dataSource.getRepository(Ledger).findOneBy({ organizationId, isDefault: true });
     if (!defaultLedger) {
-        throw new BadRequestException('No se ha configurado un libro contable por defecto para la organización.');
+        throw new BadRequestError('JOURNAL_ENTRIES.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION');
     }
 
     const lines = template.lines.map(line => {

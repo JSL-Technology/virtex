@@ -2,7 +2,7 @@
   El contenedor lleva `role="radiogroup"`: comunica al lector de pantalla que
   las tres opciones son excluyentes entre sí y cuál está seleccionada.
 -->
-<div class="theme-toggle" role="radiogroup" aria-label="Apariencia">
+<div class="theme-toggle" role="radiogroup" [attr.aria-label]="'SHARED.THEME_TOGGLE.APARIENCIA' | translate">
   @for (option of options; track option.mode) {
     <button
       type="button"

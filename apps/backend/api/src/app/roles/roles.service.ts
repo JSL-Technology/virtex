@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { Role } from './entities/role.entity';
@@ -10,23 +10,42 @@ import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interfa
 import { hasPermission } from '@virteex/shared/util-auth';
 import { UserSecurity } from '../users/entities/user-security.entity';
 import type { Permission } from '../shared/permissions';
+import { ConflictError, ForbiddenError, NotFoundError } from '../i18n/localized.exception';
+import { I18nService } from '../i18n/i18n.service';
+import { currentLanguage } from '../i18n/request-locale';
 
 @Injectable()
 export class RolesService {
     constructor(
         @InjectRepository(Role)
         private readonly roleRepository: Repository<Role>,
-        private readonly userCacheService: UserCacheService
+        private readonly userCacheService: UserCacheService,
+        private readonly i18n: I18nService,
     ) { }
 
-    findAllByOrg(organizationId: string) {
-        return this.roleRepository.find({ where: { organizationId } });
+    /**
+     * The tenant's roles, with the four system ones described in the reader's language.
+     *
+     * A system role's `description` column holds a catalogue key, written there when the
+     * organisation was provisioned. The roles screen rendered it raw, so customers read
+     * `USER.ROLE.ADMINISTRATOR_DESC` in a table. Resolving it here keeps the client from having
+     * to know which descriptions are keys and which are text a user typed.
+     */
+    async findAllByOrg(organizationId: string): Promise<Role[]> {
+        const roles = await this.roleRepository.find({ where: { organizationId } });
+        const language = currentLanguage();
+
+        return roles.map((role) => {
+            if (!role.description || !this.i18n.has(role.description)) return role;
+            role.description = this.i18n.translate(role.description, language);
+            return role;
+        });
     }
 
     async findOne(id: string, organizationId: string): Promise<Role> {
         const role = await this.roleRepository.findOne({ where: { id, organizationId } });
         if (!role) {
-            throw new NotFoundException(`Rol con ID "${id}" no encontrado.`);
+            throw new NotFoundError('ROLES.ROL_ID_NO_ENCONTRADO', { id });
         }
         return role;
     }
@@ -46,16 +65,14 @@ export class RolesService {
         // The global wildcard is never delegated into a role: a role carrying '*' would be a
         // second, unaudited super-admin grant.
         if (permissions.includes('*')) {
-            throw new ForbiddenException('El permiso total (*) no puede delegarse a un rol.');
+            throw new ForbiddenError('ROLES.PERMISO_TOTAL_NO_PUEDE_DELEGARSE_ROL');
         }
 
         if (actorPermissions.includes('*')) return;
 
         for (const permission of permissions) {
             if (!hasPermission(actorPermissions, [permission])) {
-                throw new ForbiddenException(
-                    `No puedes asignar el permiso "${permission}" porque tú no lo posees.`,
-                );
+                throw new ForbiddenError('ROLES.NO_PUEDES_ASIGNAR_PERMISO_PORQUE_TU_NO', { permission });
             }
         }
     }
@@ -75,7 +92,7 @@ export class RolesService {
             select: ['id'],
         });
         if (existing && existing.id !== ignoreId) {
-            throw new ConflictException(`Ya existe un rol llamado "${name}" en tu organización.`);
+            throw new ConflictError('ROLES.YA_EXISTE_ROL_LLAMADO_TU_ORGANIZACION', { name });
         }
     }
 
@@ -92,9 +109,7 @@ export class RolesService {
         // Assigning a role that grants the full wildcard requires the actor to be a super-admin.
         if (rolePermissions.includes('*')) {
             if (!actorIsWildcard) {
-                throw new ForbiddenException(
-                    'No puedes asignar un rol con privilegios totales (*).',
-                );
+                throw new ForbiddenError('ROLES.NO_PUEDES_ASIGNAR_ROL_PRIVILEGIOS_TOTALES');
             }
             return;
         }
@@ -109,9 +124,7 @@ export class RolesService {
         // with PermissionsGuard and the shared frontend util.
         for (const permission of rolePermissions) {
             if (!hasPermission(actorPermissions, [permission])) {
-                throw new ForbiddenException(
-                    `No puedes asignar un rol que incluye el permiso "${permission}" que tú no posees.`,
-                );
+                throw new ForbiddenError('ROLES.NO_PUEDES_ASIGNAR_ROL_INCLUYE_PERMISO_TU', { permission });
             }
         }
     }
@@ -142,7 +155,7 @@ export class RolesService {
         const roleToClone = await this.findOne(id, organizationId);
 
         if (roleToClone.isSystemRole) {
-            throw new ForbiddenException('Los roles del sistema no se pueden clonar.');
+            throw new ForbiddenError('ROLES.ROLES_SISTEMA_NO_PUEDEN_CLONAR');
         }
 
         const newRoleDto: CreateRoleDto = {
@@ -158,7 +171,7 @@ export class RolesService {
     async update(id: string, updateRoleDto: UpdateRoleDto, organizationId: string, actor: AuthenticatedUser): Promise<Role> {
         const role = await this.findOne(id, organizationId);
         if (role.isSystemRole) {
-            throw new ForbiddenException('Los roles del sistema no pueden ser modificados.');
+            throw new ForbiddenError('ROLES.ROLES_SISTEMA_NO_PUEDEN_SER_MODIFICADOS');
         }
 
         // Privilege-escalation guard. `actor` is mandatory for the same fail-closed reason as in
@@ -212,7 +225,7 @@ export class RolesService {
     async remove(id: string, organizationId: string): Promise<void> {
         const role = await this.findOne(id, organizationId);
         if (role.isSystemRole) {
-            throw new ForbiddenException('Los roles del sistema no pueden ser eliminados.');
+            throw new ForbiddenError('ROLES.ROLES_SISTEMA_NO_PUEDEN_SER_ELIMINADOS');
         }
 
         // H2 FIX: Deleting a role is an authorization-graph mutation. Previously `remove` only
@@ -229,9 +242,7 @@ export class RolesService {
                 .getCount();
 
             if (assignedCount > 0) {
-                throw new ForbiddenException(
-                    `No se puede eliminar un rol asignado a ${assignedCount} usuario(s). Reasigna esos usuarios a otro rol antes de eliminarlo.`,
-                );
+                throw new ForbiddenError('ROLES.NO_PUEDE_ELIMINAR_ROL_ASIGNADO_USUARIO_REASIGNA', { assignedCount });
             }
 
             await manager.getRepository(Role).remove(role);

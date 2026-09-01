@@ -28,8 +28,8 @@ export class IsE164PhoneNumberConstraint implements ValidatorConstraintInterface
     }
   }
 
-  defaultMessage(args: ValidationArguments) {
-    return 'Phone number must be in E.164 format (e.g. +1234567890) and valid.';
+  defaultMessage() {
+    return 'VALIDATION.CONSTRAINTS.IS_E164_PHONE_NUMBER';
   }
 }
 

@@ -2,7 +2,11 @@
 import {
   Controller,
   Post,
+  Get,
+  Param,
+  ParseUUIDPipe,
   Body,
+  Query,
   UseGuards,
   HttpCode,
   HttpStatus,
@@ -19,13 +23,48 @@ import { ModulePeriodDto } from './dto/module-period.dto';
 import { LockAccountInPeriodDto } from './dto/lock-account-period.dto';
 import { ReopenPeriodDto } from './dto/reopen-period.dto';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { ListPeriodsQueryDto } from './dto/list-periods-query.dto';
+import { ClosingChecklistService } from './closing-checklist.service';
 
 @ApiTags('Accounting')
 @ApiBearerAuth()
 @Controller('accounting')
 @UseGuards(JwtAuthGuard)
 export class AccountingController {
-  constructor(private readonly periodClosingService: PeriodClosingService) {}
+  constructor(
+    private readonly periodClosingService: PeriodClosingService,
+    private readonly closingChecklistService: ClosingChecklistService,
+  ) {}
+
+  @Get('periods')
+  @HasPermission(PERMISSIONS.ACCOUNTING_VIEW)
+  @ApiOperation({ summary: 'Lista los períodos contables de la organización.' })
+  @ApiResponse({ status: 200, description: 'Períodos contables de la organización.' })
+  listPeriods(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: ListPeriodsQueryDto,
+  ) {
+    return this.periodClosingService.listPeriods(user.organizationId, { year: query.year });
+  }
+
+  /**
+   * What still stands between the tenant and closing this period.
+   *
+   * `ClosingChecklistService` computes every item from the tenant's own data — unposted entries,
+   * unreconciled bank lines, pending approvals — and had no controller, so nothing could reach it.
+   * The screen that should have shown it displayed seven hardcoded English task names instead.
+   */
+  @Get('periods/:periodId/closing-checklist')
+  @HasPermission(PERMISSIONS.ACCOUNTING_VIEW)
+  @ApiOperation({ summary: 'Checklist de cierre calculado para un período contable.' })
+  @ApiResponse({ status: 200, description: 'Puntos pendientes para cerrar el período.' })
+  @ApiResponse({ status: 404, description: 'Período no encontrado.' })
+  closingChecklist(
+    @Param('periodId', ParseUUIDPipe) periodId: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.closingChecklistService.getChecklist(periodId, user.organizationId);
+  }
 
   @Post('close-period')
   @HttpCode(HttpStatus.OK)
@@ -44,7 +83,8 @@ export class AccountingController {
       user.organizationId,
     );
     return {
-      message: `El período contable "${closedPeriod.name}" ha sido cerrado exitosamente.`,
+      messageKey: 'ACCOUNTING.PERIOD_CLOSED',
+      messageParams: { name: closedPeriod.name },
       period: closedPeriod,
     };
   }
@@ -67,7 +107,8 @@ export class AccountingController {
       user.id,
     );
     return {
-      message: `El período contable "${reopenedPeriod.name}" ha sido reabierto exitosamente.`,
+      messageKey: 'ACCOUNTING.PERIOD_REOPENED',
+      messageParams: { name: reopenedPeriod.name },
       period: reopenedPeriod,
     };
   }
@@ -87,7 +128,8 @@ export class AccountingController {
       user.organizationId,
     );
     return {
-      message: `El módulo ${dto.module} para el período "${period.name}" ha sido cerrado.`,
+      messageKey: 'ACCOUNTING.MODULE_PERIOD_CLOSED',
+      messageParams: { module: dto.module, name: period.name },
       period,
     };
   }
@@ -107,7 +149,8 @@ export class AccountingController {
       user.organizationId,
     );
     return {
-      message: `El módulo ${dto.module} para el período "${period.name}" ha sido reabierto.`,
+      messageKey: 'ACCOUNTING.MODULE_PERIOD_REOPENED',
+      messageParams: { module: dto.module, name: period.name },
       period,
     };
   }

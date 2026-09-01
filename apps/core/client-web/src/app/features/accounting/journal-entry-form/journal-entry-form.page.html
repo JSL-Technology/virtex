@@ -87,8 +87,8 @@
                 {{ t().addLine }}
               </button>
             </td>
-            <td class="text-right"><strong>{{ t().totals }}: {{ totalDebit() | number:'1.2-2' }}</strong></td>
-            <td class="text-right"><strong>{{ totalCredit() | number:'1.2-2' }}</strong></td>
+            <td class="text-right"><strong>{{ t().totals }}: {{ totalDebit() | vxNumber:'1.2-2' }}</strong></td>
+            <td class="text-right"><strong>{{ totalCredit() | vxNumber:'1.2-2' }}</strong></td>
             <td></td>
           </tr>
         </tfoot>

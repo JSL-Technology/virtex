@@ -6,6 +6,7 @@ import { Role } from './entities/role.entity';
 import { User } from '../users/entities/user.entity/user.entity';
 import { UserCacheService } from '../auth/modules/user-cache.service';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { I18nService } from '../i18n/i18n.service';
 
 /**
  * Fase 2.4: authorization tests for the role authority graph. These cover the privilege-escalation
@@ -61,6 +62,7 @@ describe('RolesService — authorization', () => {
         RolesService,
         { provide: getRepositoryToken(Role), useValue: roleRepositoryMock },
         { provide: UserCacheService, useValue: userCacheServiceMock },
+        I18nService,
       ],
     }).compile();
 

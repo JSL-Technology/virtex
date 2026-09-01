@@ -9,10 +9,10 @@ export class SetPasswordFromInvitationDto {
 
     @IsString()
     @IsNotEmpty()
-    @MinLength(8, { message: 'La contraseña debe tener al menos 8 caracteres.' })
-    @MaxLength(128, { message: 'La contraseña no puede superar los 128 caracteres.' })
+    @MinLength(8, { message: 'VALIDATION.SET_PASSWORD_FROM_INVITATION.CONTRASENA_DEBE_TENER_AL_MENOS_8_CARACTERES' })
+    @MaxLength(128, { message: 'VALIDATION.SET_PASSWORD_FROM_INVITATION.CONTRASENA_NO_PUEDE_SUPERAR_128_CARACTERES' })
     @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-        message: 'La contraseña debe contener mayúscula, minúscula y un número o símbolo.',
+        message: 'VALIDATION.SET_PASSWORD_FROM_INVITATION.CONTRASENA_DEBE_CONTENER_MAYUSCULA_MINUSCULA_NUMERO_SIMBOLO',
     })
     password: string;
 }

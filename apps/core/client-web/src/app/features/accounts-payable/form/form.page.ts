@@ -7,11 +7,12 @@ import { AccountsPayableService, CreateVendorBillDto, UpdateVendorBillDto } from
 import { NotificationService } from '../../../core/services/notification';
 import { of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-vendor-bill-form-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideAngularModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideAngularModule, TranslateModule],
   templateUrl: './form.page.html',
   styleUrls: ['./form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -91,7 +92,7 @@ export class VendorBillFormPage implements OnInit {
 
   save(): void {
     if (this.form.invalid) {
-      this.notificationService.showError('Por favor, completa todos los campos requeridos.');
+      this.notificationService.showError('ACCOUNTS_PAYABLE.FORM.FAVOR_COMPLETA_TODOS_CAMPOS_REQUERIDOS');
       return;
     }
 
@@ -104,11 +105,11 @@ export class VendorBillFormPage implements OnInit {
 
     operation.subscribe({
       next: () => {
-        this.notificationService.showSuccess(`Factura ${this.isEditMode() ? 'actualizada' : 'creada'} con éxito.`);
+        this.notificationService.showSuccess(this.isEditMode() ? 'ACCOUNTS_PAYABLE.FORM.FACTURA_ACTUALIZADA_EXITO' : 'ACCOUNTS_PAYABLE.FORM.FACTURA_CREADA_EXITO');
         this.router.navigate(['/accounts-payable']);
       },
       error: (err) => {
-        this.notificationService.showError('Error al guardar la factura.');
+        this.notificationService.showError('ACCOUNTS_PAYABLE.FORM.ERROR_GUARDAR_FACTURA');
         this.isLoading.set(false);
       },
       complete: () => {

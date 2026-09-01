@@ -2,6 +2,8 @@ import { Expose, Type, Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import type {
   AuthUserContract,
+  LanguageCode,
+  LocaleContextContract,
   OrganizationContract,
   RoleContract,
   UserStatusValue,
@@ -31,6 +33,32 @@ export class OrganizationResponseDto implements OrganizationContract {
   @ApiPropertyOptional()
   @Expose()
   gracePeriodEnd: string | null;
+
+  /**
+   * Where the tenant is, and therefore how its numbers read.
+   *
+   * Exposed because the browser cannot infer any of it. It knows the reader's timezone and the
+   * reader's locale, and an ERP needs the tenant's: an entry posted on the first of the month in
+   * Santo Domingo renders as the last day of the previous month for somebody reading from
+   * Los Angeles, which inside a closed period is a reconciliation error rather than a cosmetic
+   * one. `booksLanguage` travels for the same reason — the ledger is in the statutory language
+   * of the country, whoever is reading it.
+   */
+  @ApiPropertyOptional()
+  @Expose()
+  countryCode: string | null;
+
+  @ApiPropertyOptional()
+  @Expose()
+  currency: string | null;
+
+  @ApiPropertyOptional()
+  @Expose()
+  timezone: string | null;
+
+  @ApiPropertyOptional()
+  @Expose()
+  booksLanguage: LanguageCode | null;
 
   // NOT exposed, deliberately: stripeCustomerId / stripeSubscriptionId. The client has no use
   // for them and they are valuable to an attacker enumerating billing accounts.
@@ -147,7 +175,18 @@ export class UserResponseDto implements AuthUserContract {
 
   @ApiPropertyOptional()
   @Expose()
-  preferredLanguage: string | null;
+  preferredLanguage: LanguageCode | null;
+
+  /**
+   * Country, currency, timezone and formatting locale for this session.
+   *
+   * Filled by `LocaleInterceptor` rather than by the twenty-odd `plainToInstance` call sites, so
+   * there is no call site that can forget it. `@Expose()` without a source property because the
+   * value is computed at the edge, not read off the entity.
+   */
+  @ApiPropertyOptional()
+  @Expose()
+  localeContext: LocaleContextContract | null;
 
   // ---- Account state ----
   @ApiProperty()

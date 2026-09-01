@@ -1,5 +1,5 @@
 
-import { Injectable, Inject, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import * as cacheManager_1 from 'cache-manager';
 import { ChartOfAccountsService } from '../chart-of-accounts/chart-of-accounts.service';
@@ -21,6 +21,7 @@ import { Organization } from '../organizations/entities/organization.entity';
 import { FinancialReportingService } from '../financial-reporting/financial-reporting.service';
 import { CashFlowWaterfallDto } from './dto/cash-flow-waterfall.dto';
 import { startOfYear, endOfDay } from 'date-fns';
+import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class DashboardService {
@@ -37,7 +38,7 @@ export class DashboardService {
   private async getFinancialMetrics(organizationId: string) {
     const defaultLedger = await this.dataSource.getRepository(Ledger).findOneBy({ organizationId, isDefault: true });
     if (!defaultLedger) {
-        throw new BadRequestException('No se ha configurado un libro contable por defecto para la organización.');
+        throw new BadRequestError('DASHBOARD.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION');
     }
 
     const allAccounts = await this.chartOfAccountsService.findAllForOrg(organizationId);
@@ -303,7 +304,7 @@ export class DashboardService {
     });
 
     if (!parentOrg) {
-        throw new NotFoundException('Organización matriz no encontrada.');
+        throw new NotFoundError('DASHBOARD.ORGANIZACION_MATRIZ_NO_ENCONTRADA');
     }
 
     const organizationIds = [parentOrganizationId, ...parentOrg.subsidiaries.map(s => s.subsidiary.id)];

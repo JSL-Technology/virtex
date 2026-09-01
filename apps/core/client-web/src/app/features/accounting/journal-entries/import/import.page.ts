@@ -4,11 +4,12 @@ import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, UploadCloud, ChevronLeft } from 'lucide-angular';
 import { JournalEntries } from '../../../../core/services/journal-entries';
 import { NotificationService } from '../../../../core/services/notification';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-journal-entry-import-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule],
+  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule],
   templateUrl: './import.page.html',
   styleUrls: ['./import.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,7 +40,7 @@ export class JournalEntryImportPage {
   previewImport(): void {
     const file = this.selectedFile();
     if (!file) {
-      this.notificationService.showError('Por favor, selecciona un fichero para importar.');
+      this.notificationService.showError('ACCOUNTING.IMPORT.FAVOR_SELECCIONA_FICHERO_IMPORTAR');
       return;
     }
 
@@ -63,14 +64,14 @@ export class JournalEntryImportPage {
   confirmImport(): void {
     const batch = this.batchId();
     if (!batch) {
-      this.notificationService.showError('No hay una importación para confirmar.');
+      this.notificationService.showError('ACCOUNTING.IMPORT.HAY_IMPORTACION_CONFIRMAR');
       return;
     }
 
     this.isLoading.set(true);
     this.journalEntriesService.confirmImport(batch).subscribe({
       next: () => {
-        this.notificationService.showSuccess('Asientos contables importados con éxito.');
+        this.notificationService.showSuccess('ACCOUNTING.IMPORT.ASIENTOS_CONTABLES_IMPORTADOS_EXITO');
         this.router.navigate(['/accounting/journal-entries']);
       },
       error: (err) => {

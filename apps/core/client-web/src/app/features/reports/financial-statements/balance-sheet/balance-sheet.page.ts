@@ -1,6 +1,8 @@
 import { Component, ChangeDetectionStrategy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Filter, FileDown, Calendar } from 'lucide-angular';
+import { TranslateModule } from '@ngx-translate/core';
+import { FORMAT_PIPES } from '../../../../core/i18n/pipes/format.pipes';
 
 interface ReportLine {
   accountName: string;
@@ -17,7 +19,7 @@ interface ReportSubSection {
 @Component({
   selector: 'app-balance-sheet-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './balance-sheet.page.html',
   styleUrls: ['./balance-sheet.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,13 +1,13 @@
 <div class="view-container">
   <div class="view-header">
     <div class="header-content">
-      <h1>Inventario de Productos</h1>
-      <p>Gestiona todos los productos y servicios de tu empresa.</p>
+      <h1>{{ 'INVENTORY.PRODUCTS.INVENTARIO_PRODUCTOS' | translate }}</h1>
+      <p>{{ 'INVENTORY.PRODUCTS.GESTIONA_TODOS_PRODUCTOS_SERVICIOS_TU_EMPRESA' | translate }}</p>
     </div>
     <div class="header-actions">
       <a routerLink="/inventory/products/new" class="primary-button" *appHasPermission="'products:create'">
         <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
-        <span>Nuevo Producto</span>
+        <span>{{ 'INVENTORY.PRODUCTS.NUEVO_PRODUCTO' | translate }}</span>
       </a>
     </div>
   </div>
@@ -15,25 +15,25 @@
   <div class="toolbar card">
     <div class="search-bar">
       <lucide-icon [img]="SearchIcon" size="18"></lucide-icon>
-      <input type="text" placeholder="Buscar por nombre, SKU o categoría..." (input)="onSearch($event)">
+      <input type="text" [placeholder]="'INVENTORY.PRODUCTS.BUSCAR_NOMBRE_SKU_CATEGORIA' | translate" (input)="onSearch($event)">
     </div>
   </div>
 
   <div class="table-container card">
     @if (isLoading()) {
-      <p class="loading-state">Cargando productos...</p>
+      <p class="loading-state">{{ 'INVENTORY.PRODUCTS.CARGANDO_PRODUCTOS' | translate }}</p>
     } @else if (error()) {
       <p class="empty-state">{{ error() }}</p>
     } @else {
       <table class="data-table">
         <thead>
           <tr>
-            <th>Producto</th>
-            <th>Categoría</th>
-            <th class="text-right">Precio</th>
-            <th class="text-right">Costo</th>
-            <th class="text-right">Stock</th>
-            <th>Estado</th>
+            <th>{{ 'INVENTORY.PRODUCTS.PRODUCTO' | translate }}</th>
+            <th>{{ 'INVENTORY.PRODUCTS.CATEGORIA' | translate }}</th>
+            <th class="text-right">{{ 'INVENTORY.PRODUCTS.PRECIO' | translate }}</th>
+            <th class="text-right">{{ 'INVENTORY.PRODUCTS.COSTO' | translate }}</th>
+            <th class="text-right">{{ 'INVENTORY.PRODUCTS.STOCK' | translate }}</th>
+            <th>{{ 'INVENTORY.PRODUCTS.ESTADO' | translate }}</th>
             <th class="actions-column"></th>
           </tr>
         </thead>
@@ -47,12 +47,14 @@
                 <span class="product-sku">{{ product.sku }}</span>
               </td>
               <td>{{ product.category }}</td>
-              <td class="text-right">{{ product.price | number:'1.2-2' }}</td>
-              <td class="text-right">{{ product.cost | number:'1.2-2' }}</td>
+              <td class="text-right">{{ product.price | vxNumber:'1.2-2' }}</td>
+              <td class="text-right">{{ product.cost | vxNumber:'1.2-2' }}</td>
               <td class="text-right">{{ product.stock }}</td>
               <td>
                 <span class="status-badge" [ngClass]="getStockStatusClass(product)">
-                  {{ product.status === 'Active' ? (product.stock > 0 ? 'En Stock' : 'Agotado') : 'Inactivo' }}
+                  {{ (product.status === 'Active'
+                        ? (product.stock > 0 ? 'INVENTORY.PRODUCTS.STOCK_IN' : 'INVENTORY.PRODUCTS.STOCK_OUT')
+                        : 'INVENTORY.PRODUCTS.STATUS_INACTIVE') | translate }}
                 </span>
               </td>
               <td class="actions-column">
@@ -61,8 +63,8 @@
                     <lucide-icon [img]="MoreHorizontalIcon" size="18"></lucide-icon>
                   </button>
                   <div class="dropdown-menu">
-                    <button type="button" (click)="navigateToEdit(product.id)" *appHasPermission="'products:edit'">Editar</button>
-                    <button type="button" (click)="deleteProduct(product)" class="danger" *appHasPermission="'products:delete'">Eliminar</button>
+                    <button type="button" (click)="navigateToEdit(product.id)" *appHasPermission="'products:edit'">{{ 'INVENTORY.PRODUCTS.EDITAR' | translate }}</button>
+                    <button type="button" (click)="deleteProduct(product)" class="danger" *appHasPermission="'products:delete'">{{ 'INVENTORY.PRODUCTS.ELIMINAR' | translate }}</button>
                   </div>
                 </div>
               </td>
@@ -71,8 +73,8 @@
             <tr>
               <td colspan="7" class="empty-state">
                 <lucide-icon [img]="AlertCircleIcon" size="24"></lucide-icon>
-                <span>No se encontraron productos.</span>
-                <p>Intenta ajustar tu búsqueda o crea un nuevo producto.</p>
+                <span>{{ 'INVENTORY.PRODUCTS.NO_ENCONTRARON_PRODUCTOS' | translate }}</span>
+                <p>{{ 'INVENTORY.PRODUCTS.INTENTA_AJUSTAR_TU_BUSQUEDA_CREA_NUEVO' | translate }}</p>
               </td>
             </tr>
           }

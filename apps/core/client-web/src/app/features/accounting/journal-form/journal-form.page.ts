@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { JournalsService } from '../../../core/api/journals.service';
 import { NotificationService } from '../../../core/services/notification';
 import { Journal } from '../../../core/models/journal.model';
+import { TranslateModule } from '@ngx-translate/core';
 // import { JournalsService } from '@app/core/api/journals.service';
 // import { Journal } from '@app/core/models/journal.model';
 // import { NotificationService } from '@app/core/services/notification';
@@ -11,7 +12,7 @@ import { Journal } from '../../../core/models/journal.model';
 @Component({
   selector: 'app-journal-form',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TranslateModule],
   templateUrl: './journal-form.page.html',
   styleUrls: ['./journal-form.page.scss']
 })

@@ -1,11 +1,5 @@
 
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-  InternalServerErrorException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
@@ -17,6 +11,7 @@ import { IntercompanyTransaction, IntercompanyTransactionStatus } from './entiti
 import { ExchangeRate } from '../currencies/entities/exchange-rate.entity';
 import { CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
 import { Journal } from '../journal-entries/entities/journal.entity';
+import { BadRequestError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
 
 
 export interface DestinationEntryJobData {
@@ -42,7 +37,7 @@ export class IntercompanyService {
     const { toOrganizationId, date, amount, currency, description, fromAccountId, toAccountId } = dto;
 
     if (fromOrganizationId === toOrganizationId) {
-      throw new BadRequestException('Las transacciones intercompañía deben ser entre organizaciones diferentes.');
+      throw new BadRequestError('INTERCOMPANY.TRANSACCIONES_INTERCOMPANIA_DEBEN_SER_ENTRE_ORGANIZACIONES_DIFERENTES');
     }
     
 
@@ -51,23 +46,23 @@ export class IntercompanyService {
       const fromOrg = await manager.findOneBy(Organization, { id: fromOrganizationId });
       const toOrg = await manager.findOneBy(Organization, { id: toOrganizationId });
       if (!fromOrg || !toOrg) {
-        throw new NotFoundException('Una de las organizaciones no fue encontrada.');
+        throw new NotFoundError('INTERCOMPANY.ORGANIZACIONES_NO_FUE_ENCONTRADA');
       }
 
       const fromSettings = await manager.findOneBy(OrganizationSettings, { organizationId: fromOrganizationId });
       const toSettings = await manager.findOneBy(OrganizationSettings, { organizationId: toOrganizationId });
       if (!fromSettings?.defaultIntercompanyReceivableAccountId || !toSettings?.defaultIntercompanyPayableAccountId) {
-        throw new BadRequestException('Las cuentas intercompañía por defecto no están configuradas en una o ambas organizaciones.');
+        throw new BadRequestError('INTERCOMPANY.CUENTAS_INTERCOMPANIA_DEFECTO_NO_ESTAN_CONFIGURADAS_AMBAS');
       }
       
       const generalJournal = await manager.findOneBy(Journal, { organizationId: fromOrganizationId, type: 'GENERAL' });
       if (!generalJournal) {
-        throw new BadRequestException(`La organización de origen no tiene un diario de tipo 'GENERAL' configurado.`);
+        throw new BadRequestError('INTERCOMPANY.ORGANIZACION_ORIGEN_NO_TIENE_DIARIO_TIPO_GENERAL');
       }
 
       const toGeneralJournal = await manager.findOneBy(Journal, { organizationId: toOrganizationId, type: 'GENERAL' });
       if (!toGeneralJournal) {
-        throw new BadRequestException(`La organización de destino no tiene un diario de tipo 'GENERAL' configurado.`);
+        throw new BadRequestError('INTERCOMPANY.ORGANIZACION_DESTINO_NO_TIENE_DIARIO_TIPO_GENERAL');
       }
 
 
@@ -78,7 +73,7 @@ export class IntercompanyService {
             order: { date: 'DESC' }
         });
         if (!rate) {
-          throw new BadRequestException(`No se encontró tasa de cambio de ${fromSettings.baseCurrency} a ${toSettings.baseCurrency}.`);
+          throw new BadRequestError('INTERCOMPANY.NO_ENCONTRO_TASA_CAMBIO', { baseCurrency: fromSettings.baseCurrency, baseCurrency2: toSettings.baseCurrency });
         }
         toAmount = amount * rate.rate;
       }
@@ -106,7 +101,7 @@ export class IntercompanyService {
       };
 
       if (!manager.queryRunner) {
-        throw new InternalServerErrorException('No se pudo obtener el Query Runner para el asiento de origen.');
+        throw new InternalServerError('INTERCOMPANY.NO_PUDO_OBTENER_QUERY_RUNNER_ASIENTO_ORIGEN');
       }
 
       const fromJournalEntry = await this.journalEntriesService.createWithQueryRunner(manager.queryRunner, fromEntryDto, fromOrganizationId);
@@ -137,11 +132,11 @@ export class IntercompanyService {
     if (!toSettings || !toGeneralJournal || !fromOrg) {
         this.logger.error(`Error crítico de consistencia de datos para la transacción intercompañía ${intercompanyTx.id}. Faltan datos de destino.`);
 
-        throw new InternalServerErrorException('Error de consistencia de datos al preparar el asiento de destino.');
+        throw new InternalServerError('INTERCOMPANY.ERROR_CONSISTENCIA_DATOS_PREPARAR_ASIENTO_DESTINO');
     }
     
     if (!toSettings.defaultIntercompanyPayableAccountId) {
-        throw new InternalServerErrorException(`La cuenta por pagar intercompañía por defecto no está configurada en la organización de destino ${toOrganizationId}.`);
+        throw new InternalServerError('INTERCOMPANY.CUENTA_PAGAR_INTERCOMPANIA_DEFECTO_NO_ESTA_CONFIGURADA', { toOrganizationId });
     }
 
 

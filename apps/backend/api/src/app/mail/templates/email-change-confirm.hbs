@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="es" dir="ltr">
+<html lang="{{language}}" dir="{{dir}}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width">
   <meta name="x-apple-disable-message-reformatting">
   <meta name="color-scheme" content="light dark">
   <meta name="supported-color-schemes" content="light dark">
-  <title>Confirma tu nuevo correo | {{appName}}</title>
+  <title>{{t 'MAIL.EMAIL_CHANGE_CONFIRM.CONFIRMA_TU_NUEVO_CORREO_APPNAME' appName=appName}}</title>
   <style>
     html, body { margin:0 !important; padding:0 !important; height:100% !important; width:100% !important; }
     * { -ms-text-size-adjust:100%; -webkit-text-size-adjust:100%; }
@@ -33,7 +33,7 @@
 </head>
 <body class="bg-body" style="background:#f2f4f7; margin:0; padding:0;">
   <div style="display:none !important; visibility:hidden; opacity:0; color:transparent; height:0; width:0; max-height:0; max-width:0; overflow:hidden; mso-hide:all;">
-    Confirma el cambio de tu correo electrónico en {{appName}}. El enlace vence en {{expiresMinutes}} minutos.
+    {{t 'MAIL.EMAIL_CHANGE_CONFIRM.CONFIRMA_CAMBIO_TU_CORREO_ELECTRONICO_APPNAME' appName=appName expiresMinutes=expiresMinutes}}
   </div>
 
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f2f4f7;">
@@ -60,22 +60,22 @@
           <tr>
             <td class="content bg-card" style="padding:36px 40px;">
               <h1 style="margin:0 0 16px; font:600 24px/1.25 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#0f172a; letter-spacing:-0.3px;">
-                Confirma tu nuevo correo electrónico
+                {{t 'MAIL.EMAIL_CHANGE_CONFIRM.CONFIRMA_TU_NUEVO_CORREO_ELECTRONICO'}}
               </h1>
               <p class="text" style="margin:0 0 16px; font:400 16px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#334155;">
-                Hola {{name}},
+                {{t 'MAIL.COMMON.GREETING' name=name}}
               </p>
               <p class="text" style="margin:0 0 16px; font:400 16px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#334155;">
-                Hemos recibido una solicitud para cambiar el correo electrónico de tu cuenta en <strong style="font-weight:600; color:#0f172a;">{{appName}}</strong>. Para confirmar el cambio, haz clic en el botón a continuación.
+                {{t 'MAIL.EMAIL_CHANGE_CONFIRM.HEMOS_RECIBIDO_SOLICITUD_CAMBIAR_CORREO_ELECTRONICO'}} <strong style="font-weight:600; color:#0f172a;">{{appName}}</strong>{{t 'MAIL.EMAIL_CHANGE_CONFIRM.CONFIRMAR_CAMBIO_HAZ_CLIC_BOTON_CONTINUACION'}}
               </p>
 
               <table role="presentation" align="center" class="btn" cellpadding="0" cellspacing="0" style="margin:28px auto;">
                 <tr>
                   <td align="center">
                     <!--[if !mso]><!-- -->
-                    <a href="{{confirmUrl}}" aria-label="Confirmar correo electrónico"
+                    <a href="{{confirmUrl}}" aria-label="{{t 'MAIL.EMAIL_CHANGE_CONFIRM.CONFIRMAR_CORREO_ELECTRONICO'}}"
                        style="background:#0A66FF; color:#ffffff; font:700 16px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; padding:16px 28px; border-radius:10px; display:inline-block;">
-                      Confirmar correo electrónico
+                      {{t 'MAIL.EMAIL_CHANGE_CONFIRM.CONFIRMAR_CORREO_ELECTRONICO'}}
                     </a>
                     <!--<![endif]-->
                   </td>
@@ -83,11 +83,11 @@
               </table>
 
               <p class="text-secondary" style="margin:0 0 16px; font:400 14px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#475569; text-align:center;">
-                Este enlace es válido por <strong style="color:#0f172a;">{{expiresMinutes}} minutos</strong>.
+                {{t 'MAIL.EMAIL_CHANGE_CONFIRM.ESTE_ENLACE_ES_VALIDO'}} <strong style="color:#0f172a;">{{t 'TIME.MINUTES' count=expiresMinutes}}</strong>.
               </p>
 
               <p class="muted" style="margin:20px 0 0; font:400 14px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#64748b;">
-                Si el botón no funciona, copia y pega esta URL en tu navegador:
+                {{t 'MAIL.EMAIL_CHANGE_CONFIRM.SI_BOTON_NO_FUNCIONA_COPIA_PEGA'}}
               </p>
               <p class="muted" style="margin:12px 0 0; font:400 13px/1.6 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace; color:#475569; word-break:break-all; background:#f6f8fc; border:1px solid #e5e7eb; border-radius:8px; padding:14px;">
                 <a class="link" href="{{confirmUrl}}" style="color:#0A66FF;">{{confirmUrl}}</a>
@@ -97,7 +97,7 @@
                 <tr>
                   <td class="bg-card" style="background:#f8fafc; border:1px solid #e5e7eb; border-radius:8px; padding:16px 16px;">
                     <p class="text" style="margin:0; font:400 14px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#475569;">
-                      ¿No solicitaste este cambio? Puedes ignorar este correo con seguridad. Tu correo actual permanecerá sin cambios.
+                      {{t 'MAIL.EMAIL_CHANGE_CONFIRM.NO_SOLICITASTE_ESTE_CAMBIO_PUEDES_IGNORAR'}}
                     </p>
                   </td>
                 </tr>
@@ -108,10 +108,10 @@
           <tr>
             <td class="footer" align="center" style="padding:24px 32px; background:#f6f7fb; border-top:1px solid #eceff3;">
               <p class="muted" style="margin:8px 0 0; font:400 12px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#98a2b3;">
-                © {{currentYear}} {{appName}}. Todos los derechos reservados.
+                {{t 'MAIL.COMMON.COPYRIGHT' currentYear=currentYear appName=appName}}
               </p>
               <p class="muted" style="margin:4px 0 0; font:400 12px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#98a2b3;">
-                Este es un correo transaccional automático; no respondas a este mensaje.
+                {{t 'MAIL.EMAIL_CHANGE_CONFIRM.ESTE_ES_CORREO_TRANSACCIONAL_AUTOMATICO_NO'}}
               </p>
             </td>
           </tr>

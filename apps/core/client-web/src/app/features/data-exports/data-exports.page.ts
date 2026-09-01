@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { LucideAngularModule, DownloadCloud, File, CheckCircle, AlertCircle, Loader } from 'lucide-angular';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { inject } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 // Tipos de datos para la página
 type ExportStatus = 'Completed' | 'Generating' | 'Failed';
@@ -23,7 +24,7 @@ interface DataType {
 @Component({
   selector: 'app-data-exports-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule],
   templateUrl: './data-exports.page.html',
   styleUrls: ['./data-exports.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

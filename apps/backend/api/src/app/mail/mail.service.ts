@@ -2,7 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { ConfigService } from '@nestjs/config';
 import { Queue } from 'bullmq';
+import { DEFAULT_LANGUAGE, LanguageCode, matchLanguage } from '@virteex/shared/types';
 import { User } from '../users/entities/user.entity/user.entity';
+import { currentLanguage } from '../i18n/request-locale';
 import { FrontendUrlService } from './frontend-url.service';
 import { MAIL_JOB_OPTIONS, MAIL_QUEUE, MailJob } from './mail.queue';
 
@@ -16,6 +18,21 @@ import { MAIL_JOB_OPTIONS, MAIL_QUEUE, MailJob } from './mail.queue';
  *
  * The public surface is unchanged; what changed is that the promise now resolves when the job is
  * durably queued, and `MailProcessor` does the delivery with retries and backoff.
+ *
+ * ## Language
+ *
+ * Every subject was a Spanish literal written here, and every template declared `<html lang="es">`
+ * — while the LINK inside the body was built from `user.preferredLanguage`, so an English-speaking
+ * customer received a Spanish email pointing at an English page. `sendPasswordResetEmail` did both
+ * of those things four lines apart.
+ *
+ * Now the subject travels as a key and the language travels with the job, resolved from the
+ * RECIPIENT and not from whoever triggered the send: an administrator inviting a colleague sends
+ * the invitation in the colleague's language.
+ *
+ * A recipient with no stored preference falls back to the language of the request that caused the
+ * email — which, for a signup or a password reset, is the language the person was actually
+ * reading a moment ago, and is a far better guess than a global default.
  */
 @Injectable()
 export class MailService {
@@ -40,58 +57,84 @@ export class MailService {
     await this.mailQueue.add(job.template, job, MAIL_JOB_OPTIONS);
   }
 
-  async sendPasswordResetEmail(user: User, token: string, expiration: string) {
-    const resetLink = this.links.passwordReset(token, user.preferredLanguage);
+  /**
+   * The language one email is written in.
+   *
+   * The recipient's stored preference when they have one; otherwise the language of the request
+   * that triggered the send, which is what the person was reading a moment ago. Falls back to the
+   * default only outside a request — a scheduled job, a webhook.
+   */
+  private languageFor(recipient?: { preferredLanguage?: string | null } | null): LanguageCode {
+    return matchLanguage(recipient?.preferredLanguage) ?? currentLanguage() ?? DEFAULT_LANGUAGE;
+  }
 
-    const expirationText = this.formatExpirationTime(expiration);
+  /** The product name, from configuration, so it is one value rather than a literal per email. */
+  private get appName(): string {
+    return this.configService.get<string>('APP_NAME', 'Virtex');
+  }
+
+  /** Common context every template needs. */
+  private baseContext(): Record<string, unknown> {
+    return { appName: this.appName, currentYear: new Date().getFullYear() };
+  }
+
+  async sendPasswordResetEmail(user: User, token: string, expiration: string) {
+    const language = this.languageFor(user);
 
     await this.enqueue({
       to: user.email,
-      subject: 'Restablecimiento de Contraseña',
-      template: './password-reset',
+      subjectKey: 'MAIL.PASSWORD_RESET.SUBJECT',
+      language,
+      template: 'password-reset',
       context: {
+        ...this.baseContext(),
         name: user.firstName,
-        resetLink: resetLink,
-        expirationTimeText: expirationText,
-        appName: this.configService.get<string>('APP_NAME', 'Mi App Contable'),
-
-        currentYear: new Date().getFullYear(),
+        resetLink: this.links.passwordReset(token, language),
+        // The duration travels as a count and a unit key, so the template pluralises through
+        // CLDR. It used to be built here as `${value} minuto${value > 1 ? 's' : ''}` — Spanish
+        // grammar written into TypeScript, and wrong for 1.5 in any language.
+        expiration: this.parseDuration(expiration),
       },
     });
   }
 
-  private formatExpirationTime(time: string): string {
-    if (typeof time !== 'string' || time.length < 2) return time;
+  /**
+   * `'15m'` → `{ count: 15, unitKey: 'TIME.MINUTES' }`, which the template pluralises through
+   * CLDR in the reader's language.
+   *
+   * Always returns both fields. The mail templates run with Handlebars `strict: true`, which
+   * throws on a missing property rather than rendering an empty string, so an unparseable value
+   * must still produce something renderable — `TIME.UNSPECIFIED` says "a limited time", which is
+   * true, rather than inventing a number that is not.
+   */
+  private parseDuration(time: string): { count: number; unitKey: string } {
+    const unitKey =
+      typeof time === 'string' && time.length >= 2
+        ? { m: 'TIME.MINUTES', h: 'TIME.HOURS', d: 'TIME.DAYS' }[time.slice(-1).toLowerCase()]
+        : undefined;
+    const count = Number.parseInt(String(time).slice(0, -1), 10);
 
-    const value = parseInt(time.slice(0, -1));
-    const unit = time.slice(-1).toLowerCase();
-
-    if (isNaN(value)) return time;
-
-    switch (unit) {
-      case 'm':
-        return `${value} minuto${value > 1 ? 's' : ''}`;
-      case 'h':
-        return `${value} hora${value > 1 ? 's' : ''}`;
-      case 'd':
-        return `${value} día${value > 1 ? 's' : ''}`;
-      default:
-        return time;
+    if (!unitKey || Number.isNaN(count)) {
+      this.logger.warn(`Unparseable link expiry "${time}"; the email will not name a duration.`);
+      return { count: 0, unitKey: 'TIME.UNSPECIFIED' };
     }
+    return { count, unitKey };
   }
 
   async sendUserInvitation(user: User, token: string) {
-
-    // Was `?token=` while the page reads only `#token=`, so the invitation arrived without one.
-    const setPasswordUrl = this.links.setPasswordFromInvitation(token, user.preferredLanguage);
+    const language = this.languageFor(user);
 
     await this.enqueue({
       to: user.email,
-      subject: '¡Has sido invitado a unirte a nuestra plataforma!',
+      subjectKey: 'MAIL.INVITATION.SUBJECT',
+      subjectParams: { appName: this.appName },
+      language,
       template: 'user-invitation',
       context: {
+        ...this.baseContext(),
         name: user.firstName,
-        url: setPasswordUrl,
+        // Was `?token=` while the page reads only `#token=`, so the invitation arrived without one.
+        url: this.links.setPasswordFromInvitation(token, language),
       },
     });
   }
@@ -105,33 +148,44 @@ export class MailService {
    * organization added them.
    */
   async sendAddedToOrganizationEmail(user: User, organizationName: string) {
+    const language = this.languageFor(user);
+
     await this.enqueue({
       to: user.email,
-      subject: `Ahora tienes acceso a ${organizationName}`,
+      subjectKey: 'MAIL.ORGANIZATION_ADDED.SUBJECT',
+      subjectParams: { organization: organizationName },
+      language,
       template: 'organization-added',
       context: {
+        ...this.baseContext(),
         name: user.firstName,
         organizationName,
-        appName: this.configService.get<string>('APP_NAME', 'Virteex ERP'),
-        url: this.links.login(undefined, user.preferredLanguage),
+        url: this.links.login(undefined, language),
       },
     });
   }
 
+  /**
+   * Somebody tried to sign up with an address that already has an account.
+   *
+   * The account exists, so its owner's preference is knowable — but this method is reached from
+   * the public signup form, which deliberately does not load the user (telling the caller whether
+   * an address exists is the enumeration leak this email exists to avoid). The request language is
+   * the right answer here: it is the language the person filling in the form was reading.
+   */
   async sendDuplicateRegistrationEmail(email: string, name: string) {
-    const loginUrl = this.links.login();
-    const resetPasswordUrl = this.links.forgotPassword();
+    const language = this.languageFor(null);
 
     await this.enqueue({
       to: email,
-      subject: 'Intento de registro detectado',
-      template: './duplicate-registration',
+      subjectKey: 'MAIL.DUPLICATE_REGISTRATION.SUBJECT',
+      language,
+      template: 'duplicate-registration',
       context: {
-        name: name || 'Usuario',
-        appName: this.configService.get<string>('APP_NAME', 'Virteex ERP'),
-        loginUrl,
-        resetPasswordUrl,
-        currentYear: new Date().getFullYear(),
+        ...this.baseContext(),
+        name,
+        loginUrl: this.links.login(undefined, language),
+        resetPasswordUrl: this.links.forgotPassword(language),
       },
     });
   }
@@ -145,16 +199,18 @@ export class MailService {
    * minutes" to an account that does not exist, with no reference to quote to support.
    */
   async sendRegistrationFailedEmail(email: string, name: string, reference: string) {
+    const language = this.languageFor(null);
+
     await this.enqueue({
       to: email,
-      subject: 'No pudimos crear tu cuenta — tu pago fue reembolsado',
-      template: './registration-failed',
+      subjectKey: 'MAIL.REGISTRATION_FAILED.SUBJECT',
+      language,
+      template: 'registration-failed',
       context: {
-        name: name || 'Usuario',
-        appName: this.configService.get<string>('APP_NAME', 'Virteex ERP'),
-        registerUrl: this.links.register(),
+        ...this.baseContext(),
+        name,
+        registerUrl: this.links.register(language),
         reference,
-        currentYear: new Date().getFullYear(),
       },
     });
   }
@@ -162,32 +218,26 @@ export class MailService {
   async sendVerificationCodeEmail(email: string, code: string, name: string) {
     await this.enqueue({
       to: email,
-      subject: 'Código de verificación 2FA',
-      template: './verification-code',
-      context: {
-        name: name || 'Usuario',
-        code,
-        appName: this.configService.get<string>('APP_NAME', 'Virteex ERP'),
-        currentYear: new Date().getFullYear(),
-      },
+      subjectKey: 'MAIL.VERIFICATION_CODE.SUBJECT',
+      language: this.languageFor(null),
+      template: 'verification-code',
+      context: { ...this.baseContext(), name, code },
     });
   }
 
   // H-01 FIX: Sends a confirmation link to the *new* address before the change is applied.
   // The token is a 32-byte hex nonce — SHA-256 hash is stored in DB, raw value in link.
   async sendEmailChangeConfirmation(newEmail: string, rawToken: string, firstName: string) {
-    const confirmUrl = this.links.confirmEmailChange(rawToken);
-
     await this.enqueue({
       to: newEmail,
-      subject: 'Confirma tu nuevo correo electrónico',
-      template: './email-change-confirm',
+      subjectKey: 'MAIL.EMAIL_CHANGE.SUBJECT',
+      language: this.languageFor(null),
+      template: 'email-change-confirm',
       context: {
-        name: firstName || 'Usuario',
-        confirmUrl,
+        ...this.baseContext(),
+        name: firstName,
+        confirmUrl: this.links.confirmEmailChange(rawToken),
         expiresMinutes: 15,
-        appName: this.configService.get<string>('APP_NAME', 'Virteex ERP'),
-        currentYear: new Date().getFullYear(),
       },
     });
   }
@@ -203,14 +253,10 @@ export class MailService {
   async sendEmailChangedNotice(previousEmail: string, firstName: string, newEmail: string) {
     await this.enqueue({
       to: previousEmail,
-      subject: 'El correo de tu cuenta ha cambiado',
-      template: './email-changed-notice',
-      context: {
-        name: firstName || 'Usuario',
-        newEmail,
-        appName: this.configService.get<string>('APP_NAME', 'Virteex ERP'),
-        currentYear: new Date().getFullYear(),
-      },
+      subjectKey: 'MAIL.EMAIL_CHANGED_NOTICE.SUBJECT',
+      language: this.languageFor(null),
+      template: 'email-changed-notice',
+      context: { ...this.baseContext(), name: firstName, newEmail },
     });
   }
 
@@ -218,22 +264,29 @@ export class MailService {
    * A billing or quota notice, to everybody in the tenant who can act on it.
    *
    * One job per recipient rather than one job with many addresses: a bounce for one person must
-   * not stop the others being told, and BullMQ retries per job.
+   * not stop the others being told, BullMQ retries per job — and each of them reads in their own
+   * language, which a single multi-recipient job could not do.
    */
-  async sendBillingNotice(recipients: string[], title: string, body: string): Promise<void> {
+  async sendBillingNotice(
+    recipients: readonly { email: string; firstName?: string; preferredLanguage?: string | null }[],
+    notice: { titleKey: string; bodyKey: string; params?: Record<string, unknown> },
+  ): Promise<void> {
     const billingUrl = this.links.billing();
 
-    for (const to of recipients) {
+    for (const recipient of recipients) {
       await this.enqueue({
-        to,
-        subject: title,
-        template: './billing-notice',
+        to: recipient.email,
+        subjectKey: notice.titleKey,
+        subjectParams: notice.params,
+        language: this.languageFor(recipient),
+        template: 'billing-notice',
         context: {
-          title,
-          body,
+          ...this.baseContext(),
+          name: recipient.firstName,
+          titleKey: notice.titleKey,
+          bodyKey: notice.bodyKey,
+          params: notice.params ?? {},
           billingUrl,
-          appName: this.configService.get<string>('APP_NAME', 'Virteex ERP'),
-          currentYear: new Date().getFullYear(),
         },
       });
     }
@@ -248,16 +301,10 @@ export class MailService {
   ) {
     await this.enqueue({
       to: email,
-      subject: 'Confirma tu correo electrónico',
-      template: './registration-email-verify',
-      context: {
-        name: name || 'Usuario',
-        code,
-        magicLinkUrl,
-        expiresMinutes,
-        appName: this.configService.get<string>('APP_NAME', 'Virteex ERP'),
-        currentYear: new Date().getFullYear(),
-      },
+      subjectKey: 'MAIL.REGISTRATION_VERIFY.SUBJECT',
+      language: this.languageFor(null),
+      template: 'registration-email-verify',
+      context: { ...this.baseContext(), name, code, magicLinkUrl, expiresMinutes },
     });
   }
 }

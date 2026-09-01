@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, UploadCloud, Download, File, CheckCircle, AlertCircle, Loader } from 'lucide-angular';
+import { TranslateModule } from '@ngx-translate/core';
 
 // Tipos de datos para la página
 type ImportStatus = 'Completed' | 'Processing' | 'Failed';
@@ -23,7 +24,7 @@ interface DataType {
 @Component({
   selector: 'app-data-imports-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   templateUrl: './data-imports.page.html',
   styleUrls: ['./data-imports.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

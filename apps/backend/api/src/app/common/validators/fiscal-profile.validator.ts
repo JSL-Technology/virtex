@@ -30,6 +30,20 @@ import {
  * because a query returned nothing is not a validation rule.
  */
 
+/**
+ * A validation message, as a key and its parameters.
+ *
+ * `defaultMessage` has to return a string, and these messages are country-specific: they name the
+ * local identifier ("RNC", "RFC", "CNPJ") and the local word for a first-level division
+ * ("Provincia", "Estado", "Departamento"). Those terms follow the COUNTRY and stay as the
+ * authority writes them — a Portuguese-speaking accountant registering a Dominican company is
+ * still filling in an RNC for a Provincia. The sentence around them follows the READER, so it
+ * travels as a key and is resolved by the validation exception factory.
+ */
+function message(key: string, params: Record<string, unknown> = {}): string {
+  return Object.keys(params).length === 0 ? key : `${key}|${JSON.stringify(params)}`;
+}
+
 /** Reads the country code off the object being validated, whatever it is nested under. */
 function countryOf(args: ValidationArguments): string {
   return (args.object as { countryCode?: string }).countryCode ?? '';
@@ -50,7 +64,7 @@ export class SupportedCountryConstraint implements ValidatorConstraintInterface 
   }
 
   defaultMessage(): string {
-    return 'Ese país todavía no está disponible para registro.';
+    return message('VALIDATION.FISCAL.COUNTRY_NOT_AVAILABLE');
   }
 }
 
@@ -84,12 +98,24 @@ export class TaxIdForCountryConstraint implements ValidatorConstraintInterface {
   defaultMessage(args: ValidationArguments): string {
     const country = countryOf(args);
     const profile = findCountryProfile(country);
-    if (!profile) return 'El identificador fiscal no es válido.';
-    const kindNote =
-      taxpayerKindAffectsValidation(country) && kindOf(args)
-        ? ` Verifica también que corresponda a ${kindOf(args) === TaxpayerKind.COMPANY ? 'una empresa' : 'una persona física'}.`
-        : '';
-    return `El ${profile.taxId.label} no es válido. Verifica el dígito verificador (ejemplo: ${profile.taxId.example}).${kindNote}`;
+    if (!profile) return message('VALIDATION.FISCAL.TAX_ID_INVALID');
+
+    // The kind note is a separate key rather than a suffix on this one: where the country's
+    // algorithm distinguishes a company identifier from an individual's, telling the reader
+    // which one was expected is the whole content of the message.
+    if (taxpayerKindAffectsValidation(country) && kindOf(args)) {
+      return message(
+        kindOf(args) === TaxpayerKind.COMPANY
+          ? 'VALIDATION.FISCAL.TAX_ID_INVALID_FOR_COMPANY'
+          : 'VALIDATION.FISCAL.TAX_ID_INVALID_FOR_INDIVIDUAL',
+        { label: profile.taxId.label, example: profile.taxId.example },
+      );
+    }
+
+    return message('VALIDATION.FISCAL.TAX_ID_INVALID_FOR_COUNTRY', {
+      label: profile.taxId.label,
+      example: profile.taxId.example,
+    });
   }
 }
 
@@ -123,7 +149,11 @@ export class StateForCountryConstraint implements ValidatorConstraintInterface {
 
   defaultMessage(args: ValidationArguments): string {
     const profile = findCountryProfile(countryOf(args));
-    return `Selecciona ${profile ? `un valor válido para ${profile.address.divisionLabel}` : 'una división administrativa válida'}.`;
+    return profile
+      ? message('VALIDATION.FISCAL.DIVISION_INVALID_FOR_COUNTRY', {
+          label: profile.address.divisionLabel,
+        })
+      : message('VALIDATION.FISCAL.DIVISION_INVALID');
   }
 }
 
@@ -161,8 +191,11 @@ export class PostalCodeForCountryConstraint implements ValidatorConstraintInterf
 
   defaultMessage(args: ValidationArguments): string {
     const profile = findCountryProfile(countryOf(args));
-    if (!profile) return 'El código postal no es válido.';
-    return `El ${profile.address.postalCodeLabel} no es válido para ${profile.name}.`;
+    if (!profile) return message('VALIDATION.FISCAL.POSTAL_CODE_INVALID');
+    return message('VALIDATION.FISCAL.POSTAL_CODE_INVALID_FOR_COUNTRY', {
+      label: profile.address.postalCodeLabel,
+      country: profile.name,
+    });
   }
 }
 
@@ -210,22 +243,22 @@ export class FiscalProfileForCountryConstraint implements ValidatorConstraintInt
     const values =
       raw && typeof raw === 'object' && !Array.isArray(raw) ? (raw as Record<string, unknown>) : {};
     const errors = validateFiscalFields(country, kind, values);
-    if (errors.length === 0) return 'Los datos fiscales no son válidos.';
+    if (errors.length === 0) return message('VALIDATION.FISCAL.PROFILE_INVALID');
 
-    const describe = (error: (typeof errors)[number]) => {
-      switch (error.reason) {
-        case 'required':
-          return `${error.label} es obligatorio`;
-        case 'unknown_option':
-          return `${error.label} no es una opción válida`;
-        case 'bad_format':
-          return `${error.label} no tiene el formato esperado`;
-        default:
-          return `${error.label} no corresponde a este país`;
-      }
+    // Each problem is its own key with its own field label; the factory translates them and joins
+    // them with `Intl.ListFormat`, so the separator is the reader's, not a hardcoded semicolon.
+    const reasons: Record<string, string> = {
+      required: 'VALIDATION.FISCAL.FIELD_REQUIRED',
+      unknown_option: 'VALIDATION.FISCAL.FIELD_UNKNOWN_OPTION',
+      bad_format: 'VALIDATION.FISCAL.FIELD_BAD_FORMAT',
     };
 
-    return `Datos fiscales incompletos: ${errors.map(describe).join('; ')}.`;
+    return message('VALIDATION.FISCAL.PROFILE_INCOMPLETE', {
+      details: errors.map((error) => ({
+        key: reasons[error.reason] ?? 'VALIDATION.FISCAL.FIELD_NOT_FOR_COUNTRY',
+        params: { label: error.label },
+      })),
+    });
   }
 }
 

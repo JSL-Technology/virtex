@@ -1,5 +1,5 @@
 <div class="widget-header">
-    <h3>Ingresos: Real vs. Presupuesto (YTD)</h3>
+    <h3>{{ 'DASHBOARD.COMPARISON_CHART.INGRESOS_REAL_VS_PRESUPUESTO_YTD' | translate }}</h3>
 
     @if (isEditMode) {
     <div class="widget-edit-menu">
@@ -8,12 +8,12 @@
         </button>
         @if (isSettingsOpen()) {
         <div class="edit-dropdown" (mousedown)="$event.stopPropagation()">
-            <span class="dropdown-title">Tipo de Gráfico</span>
+            <span class="dropdown-title">{{ 'DASHBOARD.COMPARISON_CHART.TIPO_GRAFICO' | translate }}</span>
             <button (mousedown)="changeChartType('column', $event)" [class.active]="widget.chartType === 'column'">
-                <lucide-icon [img]="ColumnIcon" size="14"></lucide-icon> Columnas
+                <lucide-icon [img]="ColumnIcon" size="14"></lucide-icon> {{ 'DASHBOARD.COMPARISON_CHART.COLUMNAS' | translate }}
             </button>
             <button (mousedown)="changeChartType('area', $event)" [class.active]="widget.chartType === 'area'">
-                <lucide-icon [img]="AreaIcon" size="14"></lucide-icon> Área
+                <lucide-icon [img]="AreaIcon" size="14"></lucide-icon> {{ 'DASHBOARD.COMPARISON_CHART.AREA' | translate }}
             </button>
         </div>
         }

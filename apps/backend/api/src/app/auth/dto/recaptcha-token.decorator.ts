@@ -35,5 +35,5 @@ export const IsRecaptchaToken = () =>
     }),
     ValidateIf(() => !recaptchaDisabled()),
     IsString(),
-    IsNotEmpty({ message: 'El token de reCAPTCHA es obligatorio.' }),
+    IsNotEmpty({ message: 'VALIDATION.CONSTRAINTS.IS_RECAPTCHA_TOKEN' }),
   );

@@ -7,10 +7,11 @@ import { InventoryService } from '../../../../core/api/inventory.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { Product } from '../../../../core/models/product.model';
 import { PriceListItem, PriceListStatus } from '../../../../core/models/price-list.model';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-price-list-form-page',
-  imports: [RouterLink, ReactiveFormsModule, LucideAngularModule],
+  imports: [RouterLink, ReactiveFormsModule, LucideAngularModule, TranslateModule],
   templateUrl: './price-list-form.page.html',
   styleUrls: ['./price-list-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -71,7 +72,7 @@ export class PriceListFormPage implements OnInit {
   loadProducts(): void {
     this.inventoryService.getProducts().subscribe({
       next: (products) => this.products.set(products),
-      error: () => this.notificationService.showError('No se pudieron cargar los productos.'),
+      error: () => this.notificationService.showError('MASTERS.PRICE_LISTS_FORM.PUDIERON_CARGAR_PRODUCTOS'),
     });
   }
 
@@ -93,7 +94,7 @@ export class PriceListFormPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.notificationService.showError('No se pudo cargar la lista de precios.');
+        this.notificationService.showError('MASTERS.PRICE_LISTS_FORM.PUDO_CARGAR_LISTA_PRECIOS');
         this.router.navigate(['/masters/price-lists']);
       },
     });
@@ -123,7 +124,7 @@ export class PriceListFormPage implements OnInit {
   savePriceList(): void {
     if (this.priceListForm.invalid) {
       this.priceListForm.markAllAsTouched();
-      this.notificationService.showError('Por favor, completa los campos requeridos.');
+      this.notificationService.showError('MASTERS.PRICE_LISTS_FORM.FAVOR_COMPLETA_CAMPOS_REQUERIDOS');
       return;
     }
 
@@ -139,11 +140,11 @@ export class PriceListFormPage implements OnInit {
 
     operation.subscribe({
       next: () => {
-        this.notificationService.showSuccess(`Lista de precios ${this.isEditMode() ? 'actualizada' : 'creada'} exitosamente.`);
+        this.notificationService.showSuccess(this.isEditMode() ? 'MASTERS.PRICE_LISTS_FORM.LISTA_PRECIOS_ACTUALIZADA_EXITOSAMENTE' : 'MASTERS.PRICE_LISTS_FORM.LISTA_PRECIOS_CREADA_EXITOSAMENTE');
         this.router.navigate(['/masters/price-lists']);
       },
       error: (err) => {
-        this.notificationService.showError(`Error al ${this.isEditMode() ? 'actualizar' : 'crear'} la lista de precios.`);
+        this.notificationService.showError(this.isEditMode() ? 'MASTERS.PRICE_LISTS_FORM.ERROR_ACTUALIZAR_LISTA_PRECIOS' : 'MASTERS.PRICE_LISTS_FORM.ERROR_CREAR_LISTA_PRECIOS');
         this.isSaving.set(false);
       },
       complete: () => {

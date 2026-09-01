@@ -7,12 +7,13 @@ import { LucideAngularModule, Settings, BarChart, AreaChart, PieChart } from 'lu
 
 // Importar y activar el módulo de exportación de Highcharts para habilitar el menú contextual (imprimir, descargar, etc.)
 import Exporting from 'highcharts/modules/exporting';
+import { TranslateModule } from '@ngx-translate/core';
 // Exporting(Highcharts);
 
 @Component({
   selector: 'app-comparison-chart',
   standalone: true,
-  imports: [CommonModule, HighchartsChartComponent, LucideAngularModule],
+  imports: [CommonModule, HighchartsChartComponent, LucideAngularModule, TranslateModule],
   templateUrl: './comparison-chart.html',
   styleUrls: ['../widget-styles.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

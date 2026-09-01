@@ -1,5 +1,5 @@
 
-import { Injectable, Inject, forwardRef, NotFoundException, BadRequestException, ForbiddenException, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Inject, forwardRef, ForbiddenException, Logger, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { User } from './entities/user.entity/user.entity';
@@ -25,6 +25,8 @@ import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interfa
 import { hasPermission } from '@virteex/shared/util-auth';
 import { SessionService } from '../auth/services/session.service';
 import { AuditTrailService } from '../audit/audit.service';
+import { BadRequestError, ForbiddenError, NotFoundError, UnauthorizedError } from '../i18n/localized.exception';
+import { LocalizedMessage } from '../i18n/localized-message';
 
 /** One row of a user's activity, as the administration screen renders it. */
 export interface UserActivityEntry {
@@ -208,7 +210,7 @@ export class UsersService {
     if (roleId) {
       const role = await this.rolesService.findOne(roleId, organizationId);
       if (!role) {
-        throw new NotFoundException(`Rol con ID ${roleId} no encontrado.`);
+        throw new NotFoundError('USERS.ROL_ID_NO_ENCONTRADO', { roleId });
       }
       // H-01 FIX: Validate the actor is actually allowed to grant this role. Without this,
       // a non-admin holding only `users:edit` could assign the ADMINISTRATOR role ('*') to
@@ -315,16 +317,12 @@ export class UsersService {
     const user = await this.findMemberWithSecurity(id, organizationId);
 
     if (actorId && actorId === id) {
-      throw new ForbiddenException(
-        'No puedes eliminar tu propia cuenta desde la administración de usuarios.',
-      );
+      throw new ForbiddenError('USERS.NO_PUEDES_ELIMINAR_TU_PROPIA_CUENTA_DESDE');
     }
 
     const isSystemUser = (user.roles ?? []).some((role) => role.isSystemRole);
     if (isSystemUser) {
-      throw new ForbiddenException(
-        'No se puede eliminar un usuario con un rol de sistema.',
-      );
+      throw new ForbiddenError('USERS.NO_PUEDE_ELIMINAR_USUARIO_ROL_SISTEMA');
     }
 
     if (UsersService.isAdministrator(user)) {
@@ -404,7 +402,7 @@ export class UsersService {
       .getOne();
 
     if (!user) {
-      throw new NotFoundException(`Usuario con id ${id} no encontrado`);
+      throw new NotFoundError('USERS.USUARIO_ID_NO_ENCONTRADO', { id });
     }
 
     // The organization shown is the one the request is acting in, not the user's home tenant.
@@ -445,7 +443,7 @@ export class UsersService {
       .getOne();
 
     if (!user) {
-      throw new NotFoundException(`Usuario con id ${id} no encontrado en tu organización`);
+      throw new NotFoundError('USERS.USUARIO_ID_NO_ENCONTRADO_TU_ORGANIZACION', { id });
     }
     user.permissions = [...new Set((user.roles ?? []).flatMap((role) => role.permissions ?? []))];
     return user;
@@ -472,7 +470,7 @@ export class UsersService {
       .getOne();
 
     if (!user) {
-      throw new NotFoundException(`Usuario con ID ${id} no encontrado en tu organización.`);
+      throw new NotFoundError('USERS.USUARIO_ID_NO_ENCONTRADO_TU_ORGANIZACION_2', { id });
     }
     return user;
   }
@@ -494,7 +492,7 @@ export class UsersService {
     const user = await this.findMemberWithSecurity(id, organizationId);
 
     if (actorId && actorId === id && status !== UserStatus.ACTIVE) {
-      throw new ForbiddenException('No puedes desactivar o bloquear tu propia cuenta.');
+      throw new ForbiddenError('USERS.NO_PUEDES_DESACTIVAR_BLOQUEAR_TU_PROPIA_CUENTA');
     }
 
     // Losing ACTIVE means losing administrative standing.
@@ -582,13 +580,13 @@ export class UsersService {
     if (!alreadyReauthenticated) {
         if (!user.security.passwordHash) throw new UnauthorizedException();
         const passwordValid = await this.passwordService.verify(user.security.passwordHash, dto.currentPassword);
-        if (!passwordValid) throw new UnauthorizedException('Credenciales incorrectas.');
+        if (!passwordValid) throw new UnauthorizedError('USERS.CREDENCIALES_INCORRECTAS');
     }
 
     const conflict = await this.userRepository.findOne({ where: { email: dto.newEmail } });
     if (conflict) {
       // Return generic message to avoid leaking email enumeration
-      throw new BadRequestException('No se pudo completar el cambio de correo electrónico.');
+      throw new BadRequestError('USERS.NO_PUDO_COMPLETAR_CAMBIO_CORREO_ELECTRONICO');
     }
 
     const raw = crypto.randomBytes(32).toString('hex');
@@ -611,18 +609,18 @@ export class UsersService {
       !user.security.emailChangeTarget ||
       !user.security.emailChangeExpires
     ) {
-      throw new BadRequestException('No hay ningún cambio de correo pendiente.');
+      throw new BadRequestError('USERS.NO_HAY_NINGUN_CAMBIO_CORREO_PENDIENTE');
     }
 
     if (user.security.emailChangeExpires < new Date()) {
-      throw new BadRequestException('El enlace de confirmación ha expirado. Solicita uno nuevo.');
+      throw new BadRequestError('USERS.ENLACE_CONFIRMACION_HA_EXPIRADO_SOLICITA_UNO_NUEVO');
     }
 
     const tokenHash = crypto.createHash('sha256').update(dto.token).digest('hex');
     const stored = Buffer.from(user.security.emailChangeToken);
     const supplied = Buffer.from(tokenHash);
     if (stored.length !== supplied.length || !crypto.timingSafeEqual(stored, supplied)) {
-      throw new BadRequestException('Token de confirmación inválido.');
+      throw new BadRequestError('USERS.TOKEN_CONFIRMACION_INVALIDO');
     }
 
     const previousEmail = user.email;
@@ -708,7 +706,7 @@ export class UsersService {
     const role = await this.rolesService.findOne(roleId, organizationId);
     if (!role) {
       this.logger.warn(`Invite role not found: org=${organizationId} roleId=${roleId}`);
-      throw new BadRequestException('No se pudo enviar la invitación con los datos proporcionados.');
+      throw new BadRequestError('USERS.NO_PUDO_ENVIAR_INVITACION_DATOS_PROPORCIONADOS');
     }
 
     // An invitation grants a role, so it is a privilege delegation and carries the same limit
@@ -848,14 +846,14 @@ export class UsersService {
   async adminChangeEmail(userId: string, newEmail: string, organizationId: string): Promise<void> {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!newEmail || !emailRegex.test(newEmail)) {
-      throw new BadRequestException('Formato de email inválido.');
+      throw new BadRequestError('USERS.FORMATO_EMAIL_INVALIDO');
     }
 
     const user = await this.findMemberWithSecurity(userId, organizationId);
 
     const existing = await this.userRepository.findOne({ where: { email: newEmail } });
     if (existing && existing.id !== userId) {
-      throw new BadRequestException('El email ya está en uso por otro usuario.');
+      throw new BadRequestError('USERS.EMAIL_YA_ESTA_USO_OTRO_USUARIO');
     }
 
     const oldEmail = user.email;
@@ -873,7 +871,7 @@ export class UsersService {
   }
 
   // H-11: org is required so force-logout is always tenant-scoped (no IDOR).
-  async forceLogout(userId: string, organizationId: string): Promise<{ message: string }> {
+  async forceLogout(userId: string, organizationId: string): Promise<LocalizedMessage> {
     const user = await this.findMemberWithSecurity(userId, organizationId);
 
     if (user.security) {
@@ -887,10 +885,10 @@ export class UsersService {
       reason: 'Su sesión ha sido cerrada por un administrador.',
     });
 
-    return { message: 'Se ha cerrado la sesión del usuario.' };
+    return { messageKey: 'USERS.CERRADO_SESION_USUARIO' };
   }
 
-  async blockAndLogout(userId: string, organizationId: string): Promise<{ message: string }> {
+  async blockAndLogout(userId: string, organizationId: string): Promise<LocalizedMessage> {
     const user = await this.findMemberWithSecurity(userId, organizationId);
 
     user.status = UserStatus.BLOCKED;
@@ -906,13 +904,13 @@ export class UsersService {
         'Su cuenta ha sido bloqueada y su sesión ha sido cerrada por un administrador.',
     });
 
-    return { message: 'Se ha bloqueado y cerrado la sesión del usuario.' };
+    return { messageKey: 'USERS.BLOQUEADO_CERRADO_SESION_USUARIO' };
   }
   
   async setOnlineStatus(userId: string, isOnline: boolean): Promise<User> {
     const user = await this.userRepository.findOneBy({ id: userId });
     if (!user) {
-      throw new NotFoundException('Usuario no encontrado');
+      throw new NotFoundError('USERS.USUARIO_NO_ENCONTRADO');
     }
     user.isOnline = isOnline;
     const updatedUser = await this.userRepository.save(user);

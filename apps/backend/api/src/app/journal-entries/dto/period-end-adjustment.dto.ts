@@ -23,7 +23,7 @@ export enum AdjustmentType {
 export class CreatePeriodEndAdjustmentDto {
   @IsUUID()
   @IsNotEmpty({
-    message: 'El ID del libro contable (ledgerId) es obligatorio.',
+    message: 'VALIDATION.PERIOD_END_ADJUSTMENT.ID_LIBRO_CONTABLE_LEDGERID_OBLIGATORIO',
   })
   ledgerId: string;
 

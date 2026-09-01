@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  Logger,
-  UnauthorizedException,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository, InjectDataSource } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
@@ -22,6 +16,7 @@ import { TokenService } from './token.service';
 import { UsersService } from '../../users/users.service';
 import { AuditTrailService } from '../../audit/audit.service';
 import { ActionType } from '../../audit/entities/audit-log.entity';
+import { BadRequestError, NotFoundError, UnauthorizedError } from '../../i18n/localized.exception';
 
 /**
  * Enterprise SSO (Phase 2): vendor-neutral, per-tenant OIDC. The flow mirrors the social
@@ -90,7 +85,7 @@ export class EnterpriseSsoService {
   async getEnabledIdpOrThrow(idpId: string): Promise<IdentityProvider> {
     const idp = await this.idpRepository.findOne({ where: { id: idpId, enabled: true } });
     if (!idp) {
-      throw new NotFoundException('SSO connection not found or disabled.');
+      throw new NotFoundError('AUTH.SSO_CONNECTION_NOT_FOUND_OR_DISABLED');
     }
     return idp;
   }
@@ -122,7 +117,7 @@ export class EnterpriseSsoService {
   ): Promise<{ user: User; tokens: any }> {
     // The IdP must assert a verified email; otherwise account takeover is possible.
     if (!socialUser.emailVerified) {
-      throw new UnauthorizedException('The identity provider did not verify the email address.');
+      throw new UnauthorizedError('AUTH.IDENTITY_PROVIDER_DID_NOT_VERIFY_EMAIL_ADDRESS');
     }
 
     // Defense in depth: the email domain must be a verified domain of the IdP's organization.
@@ -133,7 +128,7 @@ export class EnterpriseSsoService {
         })
       : null;
     if (!orgDomain) {
-      throw new UnauthorizedException('Email domain is not authorized for this SSO connection.');
+      throw new UnauthorizedError('AUTH.EMAIL_DOMAIN_NOT_AUTHORIZED_FOR_THIS_SSO');
     }
 
     let user = await this.usersService.findUserForAuth(socialUser.email);
@@ -141,10 +136,10 @@ export class EnterpriseSsoService {
     if (user) {
       // Never let an SSO login cross tenant boundaries.
       if (user.organizationId !== idp.organizationId) {
-        throw new UnauthorizedException('This account belongs to a different organization.');
+        throw new UnauthorizedError('AUTH.THIS_ACCOUNT_BELONGS_DIFFERENT_ORGANIZATION');
       }
       if (user.status !== UserStatus.ACTIVE) {
-        throw new UnauthorizedException('User is inactive or blocked.');
+        throw new UnauthorizedError('AUTH.USER_INACTIVE_OR_BLOCKED');
       }
     } else {
       user = await this.provisionUser(idp, socialUser);
@@ -202,7 +197,7 @@ export class EnterpriseSsoService {
       // Reload through the auth path so org/roles/security relations are populated for token issuance.
       const fullUser = await this.usersService.findUserForAuth(socialUser.email);
       if (!fullUser) {
-        throw new BadRequestException('Failed to load the newly provisioned user.');
+        throw new BadRequestError('AUTH.FAILED_LOAD_NEWLY_PROVISIONED_USER');
       }
       this.logger.log(`JIT-provisioned SSO user ${this.hashPii(socialUser.email)} in org ${idp.organizationId}`);
       return fullUser;
@@ -225,7 +220,7 @@ export class EnterpriseSsoService {
     // Fall back to a non-admin role in the org, preferring the least-privileged one.
     const roles = await this.roleRepository.find({ where: { organizationId: idp.organizationId } });
     if (!roles.length) {
-      throw new BadRequestException('Organization has no roles to assign to SSO users.');
+      throw new BadRequestError('AUTH.ORGANIZATION_HAS_NO_ROLES_ASSIGN_SSO_USERS');
     }
     const nonAdmin = roles.find((r) => !/admin/i.test(r.name));
     return nonAdmin ?? roles[0];

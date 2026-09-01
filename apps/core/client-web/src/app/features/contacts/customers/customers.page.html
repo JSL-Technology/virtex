@@ -1,17 +1,17 @@
 <div class="view-container">
     <div class="view-header">
         <div class="header-content">
-            <h1>Clientes</h1>
-            <p>Administra tu base de datos de clientes y su historial.</p>
+            <h1>{{ 'CONTACTS.CUSTOMERS.CLIENTES' | translate }}</h1>
+            <p>{{ 'CONTACTS.CUSTOMERS.ADMINISTRA_TU_BASE_DATOS_CLIENTES_HISTORIAL' | translate }}</p>
         </div>
         <div class="header-actions">
             <button class="secondary-button" [disabled]="isLoading()">
                 <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
-                <span>Filtros</span>
+                <span>{{ 'CONTACTS.CUSTOMERS.FILTROS' | translate }}</span>
             </button>
             <a routerLink="/contacts/customers/new" class="primary-button">
                 <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
-                <span>Añadir Cliente</span>
+                <span>{{ 'CONTACTS.CUSTOMERS.ANADIR_CLIENTE' | translate }}</span>
             </a>
         </div>
     </div>
@@ -21,17 +21,17 @@
             <thead>
                 <tr>
                     <th style="width: 1%;"><input type="checkbox"></th>
-                    <th>Nombre de la Empresa</th>
-                    <th>Persona de Contacto</th>
-                    <th>Email</th>
-                    <th>Teléfono</th>
-                    <th class="actions-column">Acciones</th>
+                    <th>{{ 'CONTACTS.CUSTOMERS.NOMBRE_EMPRESA' | translate }}</th>
+                    <th>{{ 'CONTACTS.CUSTOMERS.PERSONA_CONTACTO' | translate }}</th>
+                    <th>{{ 'CONTACTS.CUSTOMERS.EMAIL' | translate }}</th>
+                    <th>{{ 'CONTACTS.CUSTOMERS.TELEFONO' | translate }}</th>
+                    <th class="actions-column">{{ 'CONTACTS.CUSTOMERS.ACCIONES' | translate }}</th>
                 </tr>
             </thead>
             <tbody>
                 @if (isLoading()) {
                     <tr>
-                        <td colspan="6" class="loading-state">Cargando clientes...</td>
+                        <td colspan="6" class="loading-state">{{ 'CONTACTS.CUSTOMERS.CARGANDO_CLIENTES' | translate }}</td>
                     </tr>
                 } @else {
                     @for (customer of customers(); track customer.id) {
@@ -47,10 +47,10 @@
                             <td>{{ customer.phone }}</td>
                             <td class="actions-column">
                                 <div class="action-buttons">
-                                    <a [routerLink]="['/contacts/customers', customer.id, 'edit']" class="icon-button" title="Editar">
+                                    <a [routerLink]="['/contacts/customers', customer.id, 'edit']" class="icon-button" [title]="'CONTACTS.CUSTOMERS.EDITAR' | translate">
                                         <lucide-icon [img]="EditIcon" size="18"></lucide-icon>
                                     </a>
-                                    <button class="icon-button delete" (click)="deleteCustomer(customer.id)" title="Eliminar">
+                                    <button class="icon-button delete" (click)="deleteCustomer(customer.id)" [title]="'CONTACTS.CUSTOMERS.ELIMINAR' | translate">
                                         <lucide-icon [img]="TrashIcon" size="18"></lucide-icon>
                                     </button>
                                 </div>
@@ -58,7 +58,7 @@
                         </tr>
                     } @empty {
                         <tr>
-                            <td colspan="6" class="empty-state">No hay clientes registrados.</td>
+                            <td colspan="6" class="empty-state">{{ 'CONTACTS.CUSTOMERS.NO_HAY_CLIENTES_REGISTRADOS' | translate }}</td>
                         </tr>
                     }
                 }

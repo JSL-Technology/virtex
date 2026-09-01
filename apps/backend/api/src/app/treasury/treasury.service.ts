@@ -1,5 +1,5 @@
 
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { JournalEntriesService } from '../journal-entries/journal-entries.service';
 import { BankTransfer } from './entities/bank-transfer.entity';
@@ -7,6 +7,7 @@ import { CreateBankTransferDto } from './dto/create-bank-transfer.dto';
 import { Journal } from '../journal-entries/entities/journal.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
+import { BadRequestError } from '../i18n/localized.exception';
 
 @Injectable()
 export class TreasuryService {
@@ -22,17 +23,17 @@ export class TreasuryService {
 
     try {
       if (dto.fromAccountId === dto.toAccountId) {
-        throw new BadRequestException('Las cuentas de origen y destino no pueden ser la misma.');
+        throw new BadRequestError('TREASURY.CUENTAS_ORIGEN_DESTINO_NO_PUEDEN_SER_MISMA');
       }
       
       const defaultLedger = await queryRunner.manager.findOneBy(Ledger, { organizationId, isDefault: true });
       if (!defaultLedger) {
-        throw new BadRequestException('No se ha configurado un libro contable por defecto para la organización.');
+        throw new BadRequestError('TREASURY.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION');
       }
 
       const bankJournal = await queryRunner.manager.findOneBy(Journal, { organizationId, code: 'BANCOS' });
       if (!bankJournal) {
-          throw new BadRequestException('Diario de Bancos (BANCOS) no encontrado.');
+          throw new BadRequestError('TREASURY.DIARIO_BANCOS_BANCOS_NO_ENCONTRADO');
       }
 
       const transfer = queryRunner.manager.create(BankTransfer, {

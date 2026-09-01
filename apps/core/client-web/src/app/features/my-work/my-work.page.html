@@ -1,8 +1,8 @@
 <div class="view-container">
     <div class="view-header">
         <div class="header-content">
-            <h1>My Work</h1>
-            <p>Your centralized inbox for tasks, approvals, and notifications.</p>
+            <h1>{{ 'MY_WORK.MY_WORK' | translate }}</h1>
+            <p>{{ 'MY_WORK.YOUR_CENTRALIZED_INBOX_FOR_TASKS_APPROVALS' | translate }}</p>
         </div>
     </div>
 
@@ -11,19 +11,19 @@
             <div class="tabs-container">
                 <button class="tab-button" [class.active]="activeTab() === 'tasks'" (click)="setActiveTab('tasks')">
                     <lucide-icon [img]="TaskIcon" size="18"></lucide-icon>
-                    <span>Tasks</span>
+                    <span>{{ 'MY_WORK.TASKS' | translate }}</span>
                     <span class="count-badge">{{ tasks().length }}</span>
                 </button>
                 <button class="tab-button" [class.active]="activeTab() === 'approvals'"
                     (click)="setActiveTab('approvals')">
                     <lucide-icon [img]="ApprovalIcon" size="18"></lucide-icon>
-                    <span>Approvals</span>
+                    <span>{{ 'MY_WORK.APPROVALS' | translate }}</span>
                     <span class="count-badge">{{ approvals().length }}</span>
                 </button>
                 <button class="tab-button" [class.active]="activeTab() === 'notifications'"
                     (click)="setActiveTab('notifications')">
                     <lucide-icon [img]="NotificationIcon" size="18"></lucide-icon>
-                    <span>Notifications</span>
+                    <span>{{ 'MY_WORK.NOTIFICATIONS' | translate }}</span>
                     <span class="count-badge">{{ notifications().length }}</span>
                 </button>
       <button
@@ -31,7 +31,7 @@
         [class.active]="activeTab() === 'security'"
         (click)="setActiveTab('security')">
         <lucide-icon [img]="SecurityIcon" size="18"></lucide-icon>
-        Security
+        {{ 'MY_WORK.SECURITY' | translate }}
       </button>
             </div>
         </div>
@@ -48,11 +48,11 @@
                             <p class="item-description">{{ item.description }}</p>
                         </div>
                         <div class="item-meta">
-                            <span class="due-date">Due: {{ item.dueDate }}</span>
+                            <span class="due-date">{{ 'MY_WORK.DUE_DUEDATE' | translate: { dueDate: item.dueDate } }}</span>
                             <span class="status-badge" [ngClass]="getStatusClass(item.status)">{{ item.status }}</span>
                         </div>
                     </li>
-                    } @empty { <p class="empty-state">No pending tasks. Great job!</p> }
+                    } @empty { <p class="empty-state">{{ 'MY_WORK.NO_PENDING_TASKS_GREAT_JOB' | translate }}</p> }
                 </ul>
                 }
                 @case ('approvals') {
@@ -64,11 +64,11 @@
                             <p class="item-description">{{ item.description }}</p>
                         </div>
                         <div class="item-meta">
-                            <span class="due-date">Requested: {{ item.dueDate }}</span>
+                            <span class="due-date">{{ 'MY_WORK.REQUESTED_DUEDATE' | translate: { dueDate: item.dueDate } }}</span>
                             <span class="status-badge" [ngClass]="getStatusClass(item.status)">{{ item.status }}</span>
                         </div>
                     </li>
-                    } @empty { <p class="empty-state">No pending approval requests.</p> }
+                    } @empty { <p class="empty-state">{{ 'MY_WORK.NO_PENDING_APPROVAL_REQUESTS' | translate }}</p> }
                 </ul>
                 }
                 @case ('notifications') {
@@ -80,10 +80,10 @@
                             <p class="item-description">{{ item.description }}</p>
                         </div>
                         <div class="item-meta">
-                            <span class="due-date">Date: {{ item.dueDate }}</span>
+                            <span class="due-date">{{ 'MY_WORK.DATE_DUEDATE' | translate: { dueDate: item.dueDate } }}</span>
                         </div>
                     </li>
-                    } @empty { <p class="empty-state">No new notifications.</p> }
+                    } @empty { <p class="empty-state">{{ 'MY_WORK.NO_NEW_NOTIFICATIONS' | translate }}</p> }
                 </ul>
                 }
                 }

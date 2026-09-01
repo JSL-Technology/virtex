@@ -36,7 +36,6 @@
               class="stepper-node"
               [class.is-active]="currentStep() === step"
               [class.is-done]="currentStep() > step"
-              [disabled]="!(step < currentStep() && stepsCompleted()[step - 1])"
               [attr.aria-current]="currentStep() === step ? 'step' : null"
               (click)="navigateToStep(step)">
               @if (currentStep() > step) {
@@ -52,7 +51,7 @@
     </nav>
 
     <p class="stepper-counter" aria-hidden="true">
-      {{ 'REGISTER.STEP_OF' | translate:{ current: currentStep(), total: steps.length } }}
+      {{ 'REGISTER.STEP_OF' | translate: { current: currentStep(), total: steps.length } }}
     </p>
 
     <!-- ── Contenido del paso ──────────────────────────────────────────── -->

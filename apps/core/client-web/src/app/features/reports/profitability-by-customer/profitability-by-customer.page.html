@@ -1,18 +1,18 @@
 <div class="subview-container">
     <div class="subview-header">
-        <h3>Profitability by Customer</h3>
+        <h3>{{ 'REPORTS.PROFITABILITY_BY_CUSTOMER.PROFITABILITY_BY_CUSTOMER' | translate }}</h3>
         <div class="header-actions">
             <button class="secondary-button">
                 <lucide-icon [img]="CalendarIcon" size="16"></lucide-icon>
-                <span>Last 90 Days</span>
+                <span>{{ 'REPORTS.PROFITABILITY_BY_CUSTOMER.LAST_90_DAYS' | translate }}</span>
             </button>
             <button class="secondary-button">
                 <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
-                <span>Filters</span>
+                <span>{{ 'REPORTS.PROFITABILITY_BY_CUSTOMER.FILTERS' | translate }}</span>
             </button>
             <button class="primary-button">
                 <lucide-icon [img]="ExportIcon" size="16"></lucide-icon>
-                <span>Export</span>
+                <span>{{ 'REPORTS.PROFITABILITY_BY_CUSTOMER.EXPORT' | translate }}</span>
             </button>
         </div>
     </div>
@@ -20,25 +20,25 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Customer Name</th>
-                    <th class="text-right">Total Revenue</th>
-                    <th class="text-right">Total Cost</th>
-                    <th class="text-right">Gross Profit</th>
-                    <th class="text-right">Gross Margin (%)</th>
+                    <th>{{ 'REPORTS.PROFITABILITY_BY_CUSTOMER.CUSTOMER_NAME' | translate }}</th>
+                    <th class="text-right">{{ 'REPORTS.PROFITABILITY_BY_CUSTOMER.TOTAL_REVENUE' | translate }}</th>
+                    <th class="text-right">{{ 'REPORTS.PROFITABILITY_BY_CUSTOMER.TOTAL_COST' | translate }}</th>
+                    <th class="text-right">{{ 'REPORTS.PROFITABILITY_BY_CUSTOMER.GROSS_PROFIT' | translate }}</th>
+                    <th class="text-right">{{ 'REPORTS.PROFITABILITY_BY_CUSTOMER.GROSS_MARGIN' | translate }}</th>
                 </tr>
             </thead>
             <tbody>
                 @for(item of reportData(); track item.id) {
                 <tr>
                     <td><a href="#" class="table-link">{{ item.name }}</a></td>
-                    <td class="text-right">{{ item.totalRevenue | number:'1.2-2' }}</td>
-                    <td class="text-right">{{ item.totalCost | number:'1.2-2' }}</td>
-                    <td class="text-right font-semibold">{{ item.grossProfit | number:'1.2-2' }}</td>
-                    <td class="text-right font-semibold">{{ item.grossMargin | number:'1.1-1' }}%</td>
+                    <td class="text-right">{{ item.totalRevenue | vxNumber:'1.2-2' }}</td>
+                    <td class="text-right">{{ item.totalCost | vxNumber:'1.2-2' }}</td>
+                    <td class="text-right font-semibold">{{ item.grossProfit | vxNumber:'1.2-2' }}</td>
+                    <td class="text-right font-semibold">{{ item.grossMargin | vxNumber:'1.1-1' }}%</td>
                 </tr>
                 } @empty {
                 <tr>
-                    <td colspan="5" class="empty-state">No profitability data available for the selected period.</td>
+                    <td colspan="5" class="empty-state">{{ 'REPORTS.PROFITABILITY_BY_CUSTOMER.NO_PROFITABILITY_DATA_AVAILABLE_FOR_SELECTED' | translate }}</td>
                 </tr>
                 }
             </tbody>

@@ -21,9 +21,9 @@
 
   <!-- Document Tabs -->
   <div class="sap-tabs">
-    <button [class.active]="activeTab() === 'content'" (click)="activeTab.set('content')">Contenido</button>
-    <button [class.active]="activeTab() === 'logistics'" (click)="activeTab.set('logistics')">Logística</button>
-    <button [class.active]="activeTab() === 'finance'" (click)="activeTab.set('finance')">Finanzas</button>
+    <button [class.active]="activeTab() === 'content'" (click)="activeTab.set('content')">{{ 'INVOICES.DETAIL.CONTENIDO' | translate }}</button>
+    <button [class.active]="activeTab() === 'logistics'" (click)="activeTab.set('logistics')">{{ 'INVOICES.DETAIL.LOGISTICA' | translate }}</button>
+    <button [class.active]="activeTab() === 'finance'" (click)="activeTab.set('finance')">{{ 'INVOICES.DETAIL.FINANZAS' | translate }}</button>
   </div>
 
   <div class="invoice-document card" [class.hidden]="activeTab() !== 'content'">
@@ -31,20 +31,21 @@
       <!-- Invoice Header -->
       <div class="invoice-header">
         <div class="company-info">
-          <h2>VIRTEEX ERP</h2>
-          <p>Calle Principal #123<br />
-             Santo Domingo, República Dominicana<br />
-             RNC: 1-31-12345-6<br />
-             Tel: (809) 555-0123</p>
+          @if (issuer(); as org) {
+            <h2>{{ org.legalName }}</h2>
+            @if (org.taxId) {
+              <p>{{ 'INVOICES.DETAIL.ISSUER_TAX_ID' | translate: { taxId: org.taxId } }}</p>
+            }
+          }
         </div>
         <div class="invoice-meta">
           <div class="meta-item">
             <span>FECHA</span>
-            <strong>{{ inv.issueDate | date: 'dd/MM/yyyy' }}</strong>
+            <strong>{{ inv.issueDate | vxDate: 'date' }}</strong>
           </div>
           <div class="meta-item">
             <span>VENCIMIENTO</span>
-            <strong>{{ inv.dueDate | date: 'dd/MM/yyyy' }}</strong>
+            <strong>{{ inv.dueDate | vxDate: 'date' }}</strong>
           </div>
           <div class="meta-item">
             <span>NCF</span>
@@ -59,7 +60,7 @@
 
       <!-- Customer Section -->
       <div class="customer-info">
-        <h3>FACTURADO A:</h3>
+        <h3>{{ 'INVOICES.DETAIL.FACTURADO' | translate }}</h3>
         <p>
           <strong>{{ inv.customerName }}</strong><br />
           {{ inv.customerAddress }}
@@ -68,16 +69,16 @@
 
       <!-- Line Items Table -->
       <div class="line-items-toolbar">
-          <input type="text" placeholder="Buscar en líneas..." [ngModel]="lineItemSearch()" (ngModelChange)="lineItemSearch.set($event)">
+          <input type="text" [placeholder]="'INVOICES.DETAIL.BUSCAR_LINEAS' | translate" [ngModel]="lineItemSearch()" (ngModelChange)="lineItemSearch.set($event)">
       </div>
       <table class="line-items-table">
         <thead>
           <tr>
-            <th class="text-left">Descripción</th>
-            <th class="text-center">Cant.</th>
-            <th class="text-right">Precio</th>
+            <th class="text-left">{{ 'INVOICES.DETAIL.DESCRIPCION' | translate }}</th>
+            <th class="text-center">{{ 'INVOICES.DETAIL.CANT' | translate }}</th>
+            <th class="text-right">{{ 'INVOICES.DETAIL.PRECIO' | translate }}</th>
             <th class="text-right">ITBIS</th>
-            <th class="text-right">Total</th>
+            <th class="text-right">{{ 'INVOICES.DETAIL.TOTAL' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -85,10 +86,10 @@
           <tr>
             <td class="text-left">{{ item.description }}</td>
             <td class="text-center">{{ item.quantity }}</td>
-            <td class="text-right">{{ item.price | number: '1.2-2' }}</td>
-            <td class="text-right">{{ item.taxAmount || 0 | number: '1.2-2' }}</td>
+            <td class="text-right">{{ item.price | vxNumber: '1.2-2' }}</td>
+            <td class="text-right">{{ item.taxAmount || 0 | vxNumber: '1.2-2' }}</td>
             <td class="text-right">
-              {{ (item.quantity * item.price) + (item.taxAmount || 0) | number: '1.2-2' }}
+              {{ (item.quantity * item.price) + (item.taxAmount || 0) | vxNumber: '1.2-2' }}
             </td>
           </tr>
           }
@@ -99,27 +100,27 @@
       <div class="invoice-summary">
         <div class="summary-notes">
           @if (inv.notes) {
-          <h4>Notas:</h4>
+          <h4>{{ 'INVOICES.DETAIL.NOTAS' | translate }}</h4>
           <p>{{ inv.notes }}</p>
           }
         </div>
         <div class="summary-totals">
           <div class="summary-row">
-            <span>Subtotal:</span>
-            <span>{{ inv.subtotal | number: '1.2-2' }}</span>
+            <span>{{ 'INVOICES.DETAIL.SUBTOTAL' | translate }}</span>
+            <span>{{ inv.subtotal | vxNumber: '1.2-2' }}</span>
           </div>
           <div class="summary-row">
-            <span>Impuestos:</span>
-            <span>{{ inv.tax | number: '1.2-2' }}</span>
+            <span>{{ 'INVOICES.DETAIL.IMPUESTOS' | translate }}</span>
+            <span>{{ inv.tax | vxNumber: '1.2-2' }}</span>
           </div>
           <div class="summary-total">
-            <span>TOTAL:</span>
-            <span>{{ inv.currencyCode }} {{ inv.total | number: '1.2-2' }}</span>
+            <span>{{ 'INVOICES.DETAIL.TOTAL_2' | translate }}</span>
+            <span>{{ inv.currencyCode }} {{ inv.total | vxNumber: '1.2-2' }}</span>
           </div>
           @if (inv.balance > 0 && inv.balance < inv.total) {
           <div class="summary-row balance-row">
-            <span>Balance Pendiente:</span>
-            <strong>{{ inv.currencyCode }} {{ inv.balance | number: '1.2-2' }}</strong>
+            <span>{{ 'INVOICES.DETAIL.BALANCE_PENDIENTE' | translate }}</span>
+            <strong>{{ inv.currencyCode }} {{ inv.balance | vxNumber: '1.2-2' }}</strong>
           </div>
           }
         </div>
@@ -129,18 +130,18 @@
 
   <div class="invoice-document card" *ngIf="activeTab() === 'logistics'">
     <div class="card-body">
-        <h3>Logística y Entrega</h3>
+        <h3>{{ 'INVOICES.DETAIL.LOGISTICA_ENTREGA' | translate }}</h3>
         <div class="detail-grid">
             <div class="detail-item">
-                <span class="detail-label">Dirección de Envío:</span>
+                <span class="detail-label">{{ 'INVOICES.DETAIL.DIRECCION_ENVIO' | translate }}</span>
                 <p>{{ inv.customerAddress }}</p>
             </div>
             <div class="detail-item">
-                <span class="detail-label">Método de Envío:</span>
-                <p>Transporte Terrestre</p>
+                <span class="detail-label">{{ 'INVOICES.DETAIL.METODO_ENVIO' | translate }}</span>
+                <p>{{ 'COMMON.NOT_RECORDED' | translate }}</p>
             </div>
             <div class="detail-item">
-                <span class="detail-label">Persona de Contacto:</span>
+                <span class="detail-label">{{ 'INVOICES.DETAIL.PERSONA_CONTACTO' | translate }}</span>
                 <p>{{ inv.customerName }}</p>
             </div>
         </div>
@@ -149,24 +150,20 @@
 
   <div class="invoice-document card" *ngIf="activeTab() === 'finance'">
     <div class="card-body">
-        <h3>Información Financiera</h3>
+        <h3>{{ 'INVOICES.DETAIL.INFORMACION_FINANCIERA' | translate }}</h3>
         <div class="detail-grid">
             <div class="detail-item">
-                <span class="detail-label">Condición de Pago:</span>
-                <p>30 Días</p>
+                <span class="detail-label">{{ 'INVOICES.DETAIL.CONDICION_PAGO' | translate }}</span>
+                <p>{{ paymentMethodKey(inv.paymentMethod) | translate }}</p>
             </div>
             <div class="detail-item">
-                <span class="detail-label">Proyecto:</span>
-                <p>General</p>
+                <span class="detail-label">{{ 'INVOICES.DETAIL.INDICADOR_IMPUESTOS' | translate }}</span>
+                <p>{{ 'INVOICES.DETAIL.TAX_RATE_APPLIED' | translate: { rate: effectiveTaxRate(inv) | vxPercent } }}</p>
             </div>
             <div class="detail-item">
-                <span class="detail-label">Indicador de Impuestos:</span>
-                <p>ITBIS (18%)</p>
-            </div>
-            <div class="detail-item">
-                <span class="detail-label">Estado de Cobro:</span>
-                <span class="status-badge" [ngClass]="inv.status.toLowerCase().replace(' ', '-')">
-                    {{ inv.status }}
+                <span class="detail-label">{{ 'INVOICES.DETAIL.ESTADO_COBRO' | translate }}</span>
+                <span class="status-badge" [ngClass]="statusClass(inv.status)">
+                    {{ statusKey(inv.status) | translate }}
                 </span>
             </div>
         </div>
@@ -176,15 +173,15 @@
   @if (inv.status === 'Draft') {
     <div class="alert alert-info draft-banner" role="status">
       <div>
-        <strong>Este documento es un borrador.</strong>
-        No tiene comprobante fiscal asignado, no está contabilizado y no ha sido transmitido.
+        <strong>{{ 'INVOICES.DETAIL.ESTE_DOCUMENTO_ES_BORRADOR' | translate }}</strong>
+        {{ 'INVOICES.DETAIL.NO_TIENE_COMPROBANTE_FISCAL_ASIGNADO_NO' | translate }}
       </div>
       <div class="draft-actions">
         <button type="button" class="btn btn-primary" [disabled]="ecfBusy()" (click)="issue()">
           {{ ecfBusy() ? 'Emitiendo…' : 'Emitir comprobante' }}
         </button>
         <button type="button" class="btn btn-secondary" (click)="discardDraft()">
-          Eliminar borrador
+          {{ 'INVOICES.DETAIL.ELIMINAR_BORRADOR' | translate }}
         </button>
       </div>
     </div>
@@ -193,42 +190,42 @@
   <!-- Facturación electrónica (e-CF / DGII) -->
   <div class="invoice-document card" *ngIf="ecf() as e">
     <div class="card-body">
-      <h3>Comprobante Fiscal Electrónico (e-CF)</h3>
+      <h3>{{ 'INVOICES.DETAIL.COMPROBANTE_FISCAL_ELECTRONICO_CF' | translate }}</h3>
       <div class="detail-grid">
         <div class="detail-item">
-          <span class="detail-label">e-NCF:</span>
+          <span class="detail-label">{{ 'INVOICES.DETAIL.NCF' | translate }}</span>
           <p><strong>{{ e.ncf }}</strong></p>
         </div>
         <div class="detail-item">
-          <span class="detail-label">Estado DGII:</span>
+          <span class="detail-label">{{ 'INVOICES.DETAIL.ESTADO_DGII' | translate }}</span>
           <span class="status-badge" [ngClass]="e.status.toLowerCase()">{{ ecfStatusLabel(e.status) }}</span>
         </div>
         <div class="detail-item" *ngIf="e.trackId">
-          <span class="detail-label">TrackID:</span>
+          <span class="detail-label">{{ 'INVOICES.DETAIL.TRACKID' | translate }}</span>
           <p>{{ e.trackId }}</p>
         </div>
         <div class="detail-item" *ngIf="e.securityCode">
-          <span class="detail-label">Código de seguridad:</span>
+          <span class="detail-label">{{ 'INVOICES.DETAIL.CODIGO_SEGURIDAD' | translate }}</span>
           <p>{{ e.securityCode }}</p>
         </div>
       </div>
 
       <div class="ecf-messages" *ngIf="e.messages?.length">
-        <span class="detail-label">Mensajes de la DGII:</span>
+        <span class="detail-label">{{ 'INVOICES.DETAIL.MENSAJES_DGII' | translate }}</span>
         <ul>
           <li *ngFor="let m of e.messages">{{ m }}</li>
         </ul>
       </div>
 
       <div class="ecf-qr" *ngIf="e.qrUrl">
-        <span class="detail-label">Verificación DGII</span>
+        <span class="detail-label">{{ 'INVOICES.DETAIL.VERIFICACION_DGII' | translate }}</span>
         <!-- The actual QR, not a link to it: it is what a customer scans off the printed document. -->
         <qrcode [qrdata]="e.qrUrl" [width]="180" [errorCorrectionLevel]="'M'" [margin]="0"></qrcode>
-        <a [href]="e.qrUrl" target="_blank" rel="noopener">Abrir la consulta de timbre</a>
+        <a [href]="e.qrUrl" target="_blank" rel="noopener">{{ 'INVOICES.DETAIL.ABRIR_CONSULTA_TIMBRE' | translate }}</a>
       </div>
 
       <div class="ecf-actions">
-        <button type="button" (click)="downloadEcfXml()">Descargar XML firmado</button>
+        <button type="button" (click)="downloadEcfXml()">{{ 'INVOICES.DETAIL.DESCARGAR_XML_FIRMADO' | translate }}</button>
         <button type="button" [disabled]="ecfBusy()" (click)="resubmitEcf()">
           {{ ecfBusy() ? 'Reenviando…' : 'Reenviar a la DGII' }}
         </button>
@@ -238,7 +235,7 @@
   } @else {
   <div class="card">
     <p class="placeholder">
-      Cargando datos de la factura o la factura no fue encontrada...
+      {{ 'INVOICES.DETAIL.CARGANDO_DATOS_FACTURA_FACTURA_NO_FUE' | translate }}
     </p>
   </div>
   }

@@ -9,6 +9,7 @@ import { getQueueToken } from '@nestjs/bullmq';
 import { AuditTrailService } from '../audit/audit.service';
 import { AccountSegmentDefinition } from './entities/account-segment-definition.entity';
 import { BadRequestException } from '@nestjs/common';
+import { expectLocalizedError } from '../i18n/testing/expect-localized-error';
 
 describe('ChartOfAccountsService - Segment Mismatch', () => {
   let service: ChartOfAccountsService;
@@ -64,7 +65,13 @@ describe('ChartOfAccountsService - Segment Mismatch', () => {
     await expect(service.createInTransaction(createDto, orgId, manager))
       .rejects.toThrow(BadRequestException);
 
-    await expect(service.createInTransaction(createDto, orgId, manager))
-      .rejects.toThrow(/El número de segmentos proporcionados \(3\) no coincide con la definición de la organización \(2\)/);
+    // The counts are what this test is about, and they now travel as parameters rather than
+    // being baked into a Spanish sentence — so the assertion survives translation and still
+    // proves the message would say "3" and "2".
+    await expectLocalizedError(
+      service.createInTransaction(createDto, orgId, manager),
+      'CHART_OF_ACCOUNTS.NUMERO_SEGMENTOS_PROPORCIONADOS_NO_COINCIDE_DEFINICION_ORGANIZACION',
+      { length: 3, length2: 2 },
+    );
   });
 });

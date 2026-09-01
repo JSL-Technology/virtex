@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Info } from 'lucide-angular';
+import { TranslateModule } from '@ngx-translate/core';
 
 interface FinancialRatio {
   name: string;
@@ -12,7 +13,7 @@ interface FinancialRatio {
 @Component({
   selector: 'app-financial-ratios',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   templateUrl: './financial-ratios.html',
   styleUrls: ['./financial-ratios.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

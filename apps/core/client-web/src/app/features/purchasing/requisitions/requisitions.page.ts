@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
+import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 
 interface Requisition {
   id: string;
@@ -17,7 +18,7 @@ interface Requisition {
 @Component({
   selector: 'app-requisitions-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule],
+  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './requisitions.page.html',
   styleUrls: ['./requisitions.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,11 +1,12 @@
 
-import { Injectable, BadRequestException, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, EntityManager } from 'typeorm';
 import { AccountSegmentDefinition } from './entities/account-segment-definition.entity';
 import { ConfigureAccountSegmentsDto } from './dto/account-segment-definition.dto';
 import { Account } from './entities/account.entity';
 import { coaSegmentsFor } from '../localization/fiscal/coa-builder';
+import { BadRequestError } from '../i18n/localized.exception';
 
 @Injectable()
 export class AccountSegmentsService {
@@ -40,9 +41,7 @@ export class AccountSegmentsService {
       });
 
       if (accountCount > 0) {
-        throw new BadRequestException(
-          'No se puede modificar la estructura de segmentos porque ya existen cuentas contables creadas para esta organización.',
-        );
+        throw new BadRequestError('CHART_OF_ACCOUNTS.NO_PUEDE_MODIFICAR_ESTRUCTURA_SEGMENTOS_PORQUE_YA');
       }
 
       // 2. Limpiar definiciones anteriores
