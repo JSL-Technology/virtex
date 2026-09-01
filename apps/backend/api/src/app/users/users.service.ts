@@ -26,6 +26,7 @@ import { hasPermission } from '@virteex/shared/util-auth';
 import { SessionService } from '../auth/services/session.service';
 import { AuditTrailService } from '../audit/audit.service';
 import { BadRequestError, ForbiddenError, NotFoundError, UnauthorizedError } from '../i18n/localized.exception';
+import { LocalizedMessage } from '../i18n/localized-message';
 
 /** One row of a user's activity, as the administration screen renders it. */
 export interface UserActivityEntry {
@@ -870,7 +871,7 @@ export class UsersService {
   }
 
   // H-11: org is required so force-logout is always tenant-scoped (no IDOR).
-  async forceLogout(userId: string, organizationId: string): Promise<{ message: string }> {
+  async forceLogout(userId: string, organizationId: string): Promise<LocalizedMessage> {
     const user = await this.findMemberWithSecurity(userId, organizationId);
 
     if (user.security) {
@@ -884,10 +885,10 @@ export class UsersService {
       reason: 'Su sesión ha sido cerrada por un administrador.',
     });
 
-    return { message: 'Se ha cerrado la sesión del usuario.' };
+    return { messageKey: 'USERS.CERRADO_SESION_USUARIO' };
   }
 
-  async blockAndLogout(userId: string, organizationId: string): Promise<{ message: string }> {
+  async blockAndLogout(userId: string, organizationId: string): Promise<LocalizedMessage> {
     const user = await this.findMemberWithSecurity(userId, organizationId);
 
     user.status = UserStatus.BLOCKED;
@@ -903,7 +904,7 @@ export class UsersService {
         'Su cuenta ha sido bloqueada y su sesión ha sido cerrada por un administrador.',
     });
 
-    return { message: 'Se ha bloqueado y cerrado la sesión del usuario.' };
+    return { messageKey: 'USERS.BLOQUEADO_CERRADO_SESION_USUARIO' };
   }
   
   async setOnlineStatus(userId: string, isOnline: boolean): Promise<User> {

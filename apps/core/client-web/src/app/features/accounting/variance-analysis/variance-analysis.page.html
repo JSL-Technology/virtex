@@ -2,11 +2,11 @@
     <div class="subview-header">
         <h3>{{ 'ACCOUNTING.VARIANCE_ANALYSIS.VARIANCE_ANALYSIS_ACTUAL_VS_BUDGET' | translate }}</h3>
         <div class="header-actions">
-            <button class="secondary-button">
+            <button class="secondary-button" type="button" disabled>
                 <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
-                <span>{{ 'ACCOUNTING.VARIANCE_ANALYSIS.PERIOD_JULY_2025' | translate }}</span>
+                <span>{{ 'ACCOUNTING.VARIANCE_ANALYSIS.PERIOD' | translate }}</span>
             </button>
-            <button class="primary-button">
+            <button class="primary-button" type="button" [disabled]="isEmpty()">
                 <lucide-icon [img]="ExportIcon" size="16"></lucide-icon>
                 <span>{{ 'ACCOUNTING.VARIANCE_ANALYSIS.EXPORT' | translate }}</span>
             </button>
@@ -19,19 +19,19 @@
                     <th>{{ 'ACCOUNTING.VARIANCE_ANALYSIS.ACCOUNT' | translate }}</th>
                     <th class="text-right">{{ 'ACCOUNTING.VARIANCE_ANALYSIS.ACTUAL' | translate }}</th>
                     <th class="text-right">{{ 'ACCOUNTING.VARIANCE_ANALYSIS.BUDGET' | translate }}</th>
-                    <th class="text-right">{{ 'ACCOUNTING.VARIANCE_ANALYSIS.VARIANCE' | translate }}</th>
-                    <th class="text-right">{{ 'ACCOUNTING.VARIANCE_ANALYSIS.VARIANCE_2' | translate }}</th>
+                    <th class="text-right">{{ 'ACCOUNTING.VARIANCE_ANALYSIS.VARIANCE_AMOUNT' | translate }}</th>
+                    <th class="text-right">{{ 'ACCOUNTING.VARIANCE_ANALYSIS.VARIANCE_PERCENT' | translate }}</th>
                 </tr>
             </thead>
             <tbody>
-                @for(item of variances(); track item.accountCode) {
+                @for (item of variances(); track item.accountCode) {
                 <tr>
                     <td>{{ item.accountCode }} - {{ item.accountName }}</td>
-                    <td class="text-right">{{ item.actual | vxNumber:'1.2-2' }}</td>
-                    <td class="text-right">{{ item.budget | vxNumber:'1.2-2' }}</td>
+                    <td class="text-right">{{ item.actual | vxMoney: item.currencyCode }}</td>
+                    <td class="text-right">{{ item.budget | vxMoney: item.currencyCode }}</td>
                     <td class="text-right" [class.positive]="isVariancePositive(item)"
                         [class.negative]="!isVariancePositive(item)">
-                        {{ item.varianceAmount | vxNumber:'1.2-2' }}
+                        {{ item.varianceAmount | vxMoney: item.currencyCode }}
                     </td>
                     <td class="text-right variance-percent-cell" [class.positive]="isVariancePositive(item)"
                         [class.negative]="!isVariancePositive(item)">
@@ -40,7 +40,7 @@
                             <lucide-icon [img]="isVariancePositive(item) ? PositiveIcon : NegativeIcon"
                                 size="14"></lucide-icon>
                             }
-                            <span>{{ item.variancePercent | vxNumber:'1.1-1' }}%</span>
+                            <span>{{ item.variancePercent / 100 | vxPercent: '1.1-1' }}</span>
                         </div>
                     </td>
                 </tr>

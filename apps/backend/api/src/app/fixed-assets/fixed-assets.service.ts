@@ -11,6 +11,7 @@ import { Journal } from '../journal-entries/entities/journal.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
 import { BadRequestError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
+import { LocalizedMessage } from '../i18n/localized-message';
 
 @Injectable()
 export class FixedAssetsService {
@@ -56,7 +57,7 @@ export class FixedAssetsService {
     id: string,
     disposeDto: DisposeAssetDto,
     organizationId: string,
-  ): Promise<{ message: string }> {
+  ): Promise<LocalizedMessage> {
     return this.dataSource.transaction(async (manager) => {
 
       const asset = await manager.findOneBy(FixedAsset, { id, organizationId });
@@ -138,7 +139,7 @@ export class FixedAssetsService {
       asset.status = FixedAssetStatus.DISPOSED;
       await manager.save(asset);
       
-      return { message: 'El activo ha sido dado de baja exitosamente.' };
+      return { messageKey: 'FIXED_ASSETS.ACTIVO_DADO_BAJA_EXITOSAMENTE' };
     });
   }
 }

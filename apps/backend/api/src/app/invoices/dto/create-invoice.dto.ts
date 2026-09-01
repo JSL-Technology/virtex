@@ -33,7 +33,7 @@ export class InvoiceLineDto {
 
   @IsString()
   @IsOptional()
-  @MaxLength(500)
+  @MaxLength(500, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":500}' })
   description?: string;
 
   /** Fractional quantities are the ordinary case: hours, kilos, litres, partial packs. */
@@ -43,13 +43,13 @@ export class InvoiceLineDto {
 
   /** Overrides the catalogue price. Absent, the item's own price is used. */
   @IsNumber({ maxDecimalPlaces: 6 })
-  @Min(0)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   @IsOptional()
   unitPrice?: number;
 
   /** Line discount as a fraction: 0.10 is 10 %. */
   @IsNumber({ maxDecimalPlaces: 6 })
-  @Min(0)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   @Max(0.999999)
   @IsOptional()
   discountRate?: number;
@@ -68,14 +68,14 @@ export class InvoiceLineDto {
    * (United States, Brazil). Where a national rate exists it is still validated against it.
    */
   @IsNumber({ maxDecimalPlaces: 6 })
-  @Min(0)
-  @Max(1)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Max(1, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":1}' })
   @IsOptional()
   taxRate?: number;
 
   @IsString()
   @IsOptional()
-  @MaxLength(16)
+  @MaxLength(16, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":16}' })
   unitOfMeasure?: string;
 
   /** Overrides the catalogue's goods/service classification for this line. */
@@ -95,46 +95,46 @@ export class CreateInvoiceDto {
   dueDate: string;
 
   @IsArray()
-  @ArrayMinSize(1)
+  @ArrayMinSize(1, { message: 'VALIDATION.CONSTRAINTS.ARRAY_MIN_SIZE|{"min":1}' })
   @ValidateNested({ each: true })
   @Type(() => InvoiceLineDto)
   lineItems: InvoiceLineDto[];
 
   @IsString()
   @IsOptional()
-  @MaxLength(2000)
+  @MaxLength(2000, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":2000}' })
   notes?: string;
 
   @IsString()
   @IsOptional()
-  @Length(3, 3)
+  @Length(3, 3, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":3,"max":3}' })
   currencyCode?: string;
 
   /** Discount on the whole document, as a fraction of the post-line-discount subtotal. */
   @IsNumber({ maxDecimalPlaces: 6 })
-  @Min(0)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   @Max(0.999999)
   @IsOptional()
   documentDiscountRate?: number;
 
   /** Legally mandated service charge (propina legal), as a fraction. 0.10 in the DR. */
   @IsNumber({ maxDecimalPlaces: 6 })
-  @Min(0)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   @Max(0.5)
   @IsOptional()
   serviceChargeRate?: number;
 
   /** Share of the output tax the buyer withholds at source (ITBIS retenido). */
   @IsNumber({ maxDecimalPlaces: 6 })
-  @Min(0)
-  @Max(1)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Max(1, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":1}' })
   @IsOptional()
   taxWithholdingRate?: number;
 
   /** Income tax the buyer withholds at source (ISR retenido), as a fraction of the base. */
   @IsNumber({ maxDecimalPlaces: 6 })
-  @Min(0)
-  @Max(1)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Max(1, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":1}' })
   @IsOptional()
   incomeTaxWithholdingRate?: number;
 

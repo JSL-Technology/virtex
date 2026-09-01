@@ -62,9 +62,9 @@ export class VerificationTargetConstraint implements ValidatorConstraintInterfac
   defaultMessage(args: ValidationArguments): string {
     const type = String((args.object as { type?: unknown }).type ?? '').toUpperCase();
     if (type.includes('PHONE')) {
-      return 'El número debe estar en formato internacional E.164 (por ejemplo, +18095551234).';
+      return 'VALIDATION.CONSTRAINTS.IS_E164_PHONE_NUMBER';
     }
-    return 'El destino no es un correo electrónico ni un número de teléfono válido.';
+    return 'VALIDATION.CONSTRAINTS.IS_VERIFICATION_TARGET';
   }
 }
 

@@ -34,7 +34,16 @@
     "EXISTEN_ASIENTOS_BORRADOR_PENDIENTES_APROBACION_DEBEN_SER": "Existen {{draftEntries}} asientos en borrador o pendientes de aprobación. Deben ser contabilizados o eliminados.",
     "DIARIO_CIERRE_ANUAL_CIERRE_ANUAL_NO_ENCONTRADO": "Diario de Cierre Anual (CIERRE-ANUAL) no encontrado.",
     "ANO_FISCAL_NO_ENCONTRADO": "Año fiscal no encontrado.",
-    "NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION_ASIENTO": "No se pudo obtener el Query Runner de la transacción para el asiento de apertura."
+    "NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION_ASIENTO": "No se pudo obtener el Query Runner de la transacción para el asiento de apertura.",
+    "PERIOD_CLOSED": "El período contable \"{{name}}\" ha sido cerrado exitosamente.",
+    "PERIOD_REOPENED": "El período contable \"{{name}}\" ha sido reabierto exitosamente.",
+    "MODULE_PERIOD_CLOSED": "El módulo {{module}} para el período \"{{name}}\" ha sido cerrado.",
+    "MODULE_PERIOD_REOPENED": "El módulo {{module}} para el período \"{{name}}\" ha sido reabierto.",
+    "ACCOUNT_PERIOD_LOCK_REMOVED": "El bloqueo de la cuenta para el período ha sido removido.",
+    "PROCESO_AJUSTE_POR_INFLACION_EJECUTADO_EXITOSAMENTE": "Proceso de ajuste por inflación ejecutado exitosamente.",
+    "ESTE_PASO_MANUAL_ASEGURESE_HABER_CORRIDO_PROCESO_ANTES": "Este es un paso manual. Asegúrese de haber corrido el proceso antes de cerrar.",
+    "TODAS_REGLAS_EXISTENTES_FUERON_ELIMINADAS": "Todas las reglas existentes fueron eliminadas.",
+    "LEDGER_MAP_UPDATED": "Mapeo entre el libro \"{{source}}\" y \"{{target}}\" actualizado."
   },
   "ACCOUNTS_PAYABLE": {
     "NO_ENCONTRO_TASA_CAMBIO_VALIDA_FECHA_ESPECIFICADA": "No se encontró una tasa de cambio válida para {{currencyCode}} en la fecha especificada.",
@@ -67,7 +76,10 @@
     "NO_PUDO_SINCRONIZAR_VISTA_ANALITICA": "No se pudo sincronizar la vista analítica: {{p1}}",
     "VALOR_OPERADOR_IN_DEBE_SER_ARRAY": "El valor para el operador 'in' debe ser un array.",
     "OPERADOR_FILTRO_NO_SOPORTADO": "Operador de filtro no soportado: {{operator}}",
-    "NOMBRE_DIMENSION_CAMPO_CONTIENE_CARACTERES_NO_VALIDOS": "El nombre de dimensión o campo contiene caracteres no válidos: {{name}}"
+    "NOMBRE_DIMENSION_CAMPO_CONTIENE_CARACTERES_NO_VALIDOS": "El nombre de dimensión o campo contiene caracteres no válidos: {{name}}",
+    "VISTA_MATERIALIZADA_SINCRONIZADA_RECREADA_CON_DIMENSIONES_ACTUALES": "Vista materializada sincronizada y recreada con las dimensiones actuales.",
+    "REFRESCO_VISTA_MATERIALIZADA_INICIADO": "El refresco de la vista materializada ha sido iniciado.",
+    "SINCRONIZACION_VISTA_ANALITICA_INICIADA": "La sincronización de la vista analítica ha sido iniciada."
   },
   "AUDIT": {
     "PROPUESTA_AJUSTE_ID_NO_ENCONTRADA": "Propuesta de ajuste con ID \"{{adjustmentId}}\" no encontrada.",
@@ -86,8 +98,8 @@
     "ESTA_CUENTA_NO_ESTA_VINCULADA_PROVEEDOR_IDENTIDAD": "Esta cuenta no está vinculada a un proveedor de identidad.",
     "FLUJO_VERIFICACION_NO_VALIDO": "Flujo de verificación no válido.",
     "FALTA_CODIGO_AUTORIZACION": "Falta el código de autorización.",
-    "CANNOT_SEND_OTP_PHONE_NUMBER_NOT_ASSOCIATED": "Cannot send OTP to a phone number not associated with your account",
-    "PLAN_NOT_FOUND": "Plan not found",
+    "CANNOT_SEND_OTP_PHONE_NUMBER_NOT_ASSOCIATED": "No se puede enviar el código a un número que no está asociado a tu cuenta.",
+    "PLAN_NOT_FOUND": "No se encontró el plan.",
     "ESTE_PLAN_NO_ADMITE_ESE_PERIODO_FACTURACION": "Este plan no admite ese periodo de facturación.",
     "NO_ENCONTRAMOS_TU_SESION_REGISTRO_ESTE_NAVEGADOR": "No encontramos tu sesión de registro en este navegador. Inicia sesión con el correo y la contraseña que registraste.",
     "ESTA_SESION_PAGO_NO_CORRESPONDE_ESTE_NAVEGADOR": "Esta sesión de pago no corresponde a este navegador. Inicia sesión con tus credenciales.",
@@ -99,29 +111,29 @@
     "REQUIERE_TU_CONTRASENA_CONFIRMAR_ESTA_ACCION": "Se requiere tu contraseña para confirmar esta acción.",
     "ESTA_CUENTA_AUTENTICA_TU_PROVEEDOR_IDENTIDAD_CONFIRMA": "Esta cuenta se autentica con tu proveedor de identidad. Confirma la acción volviendo a iniciar sesión con él.",
     "DEMASIADOS_INTENTOS_VERIFICACION_ESPERA_MINUTOS_INTENTALO_NUEVO": "Demasiados intentos de verificación. Espera 5 minutos e inténtalo de nuevo.",
-    "INVALID_OR_EXPIRED_2FA_SESSION": "Invalid or expired 2FA session",
+    "INVALID_OR_EXPIRED_2FA_SESSION": "La sesión de verificación en dos pasos no es válida o ha expirado.",
     "TOO_MANY_2FA_ATTEMPTS_PLEASE_LOG_IN": "Too many 2FA attempts — please log in again",
     "SESSION_CONTEXT_CHANGED_PLEASE_LOG_IN_AGAIN": "Session context changed — please log in again",
-    "USER_NOT_FOUND": "User not found",
+    "USER_NOT_FOUND": "No se encontró el usuario.",
     "SESSION_INVALIDATED_PLEASE_LOG_IN_AGAIN": "Session invalidated — please log in again",
-    "INVALID_CREDENTIALS": "Invalid credentials",
-    "INVALID_CSRF_TOKEN": "Invalid CSRF Token",
+    "INVALID_CREDENTIALS": "Las credenciales no son válidas.",
+    "INVALID_CSRF_TOKEN": "El token CSRF no es válido.",
     "NO_TIENES_PERMISOS_REALIZAR_ESTA_ACCION": "No tienes permisos para realizar esta acción.",
-    "CONFIGURATION_ERROR_POLICY_NOT_FOUND": "Configuration Error: Policy not found.",
+    "CONFIGURATION_ERROR_POLICY_NOT_FOUND": "Error de configuración: no se encontró la política.",
     "NO_CUMPLES_POLITICA_ACCESO_REQUERIDA": "No cumples con la política de acceso requerida.",
     "ERROR_VALIDANDO_POLITICA_SEGURIDAD": "Error validando política de seguridad.",
-    "STEP_UP_AUTHENTICATION_REQUIRED": "Step-up authentication required",
-    "INVALID_OR_EXPIRED_STEP_UP_TOKEN": "Invalid or expired step-up token",
-    "INVALID_STEP_UP_TOKEN_SCOPE": "Invalid step-up token scope",
+    "STEP_UP_AUTHENTICATION_REQUIRED": "Esta acción requiere que vuelvas a verificar tu identidad.",
+    "INVALID_OR_EXPIRED_STEP_UP_TOKEN": "La verificación adicional no es válida o ha expirado.",
+    "INVALID_STEP_UP_TOKEN_SCOPE": "La verificación adicional no autoriza esta acción.",
     "STEP_UP_TOKEN_MISMATCH": "Step-up token mismatch",
     "MALFORMED_STEP_UP_TOKEN": "Malformed step-up token",
     "STEP_UP_TOKEN_ALREADY_USED": "Step-up token already used",
-    "FAILED_LOAD_NEWLY_PROVISIONED_USER": "Failed to load the newly provisioned user.",
-    "ORGANIZATION_HAS_NO_ROLES_ASSIGN_SSO_USERS": "Organization has no roles to assign to SSO users.",
-    "SSO_CONNECTION_NOT_FOUND_OR_DISABLED": "SSO connection not found or disabled.",
-    "IDENTITY_PROVIDER_DID_NOT_VERIFY_EMAIL_ADDRESS": "The identity provider did not verify the email address.",
-    "EMAIL_DOMAIN_NOT_AUTHORIZED_FOR_THIS_SSO": "Email domain is not authorized for this SSO connection.",
-    "THIS_ACCOUNT_BELONGS_DIFFERENT_ORGANIZATION": "This account belongs to a different organization.",
+    "FAILED_LOAD_NEWLY_PROVISIONED_USER": "No se pudo cargar el usuario recién creado.",
+    "ORGANIZATION_HAS_NO_ROLES_ASSIGN_SSO_USERS": "La organización no tiene roles que asignar a los usuarios de SSO.",
+    "SSO_CONNECTION_NOT_FOUND_OR_DISABLED": "La conexión de SSO no existe o está desactivada.",
+    "IDENTITY_PROVIDER_DID_NOT_VERIFY_EMAIL_ADDRESS": "El proveedor de identidad no verificó el correo electrónico.",
+    "EMAIL_DOMAIN_NOT_AUTHORIZED_FOR_THIS_SSO": "El dominio de ese correo no está autorizado para esta conexión de SSO.",
+    "THIS_ACCOUNT_BELONGS_DIFFERENT_ORGANIZATION": "Esta cuenta pertenece a otra organización.",
     "USER_INACTIVE_OR_BLOCKED": "User is inactive or blocked.",
     "NO_PUEDES_SUPLANTARTE_TI_MISMO": "No puedes suplantarte a ti mismo.",
     "NO_ENCONTRO_SESION_SUPLANTACION_ACTIVA_DETENER": "No se encontró una sesión de suplantación activa para detener.",
@@ -133,11 +145,11 @@
     "NO_TIENES_PERMISOS_SUPLANTAR_USUARIOS": "No tienes permisos para suplantar usuarios.",
     "NO_PUEDES_SUPLANTAR_USUARIO_NO_ESTA_ACTIVO": "No puedes suplantar a un usuario que no está activo.",
     "CUENTA_ADMINISTRADOR_ORIGINAL_YA_NO_ESTA_ACTIVA": "La cuenta del administrador original ya no está activa.",
-    "NO_VERIFICATION_CODE_FOUND_OR_EXPIRED": "No verification code found or expired.",
+    "NO_VERIFICATION_CODE_FOUND_OR_EXPIRED": "No hay un código de verificación vigente.",
     "VERIFICATION_CODE_EXPIRED": "Verification code expired.",
     "TOO_MANY_ATTEMPTS_PLEASE_REQUEST_NEW_CODE": "Too many attempts. Please request a new code.",
-    "INVALID_VERIFICATION_CODE": "Invalid verification code.",
-    "INVALID_PHONE_NUMBER_FOR_THIS_VERIFICATION_CODE": "Invalid phone number for this verification code.",
+    "INVALID_VERIFICATION_CODE": "El código de verificación no es válido.",
+    "INVALID_PHONE_NUMBER_FOR_THIS_VERIFICATION_CODE": "El número no corresponde a este código de verificación.",
     "ENLACE_VERIFICACION_HA_EXPIRADO_NO_ES_VALIDO": "El enlace de verificación ha expirado o no es válido.",
     "TIPO_TOKEN_INVALIDO": "Tipo de token inválido.",
     "ENLACE_VERIFICACION_YA_FUE_USADO_HA_EXPIRADO": "El enlace de verificación ya fue usado o ha expirado.",
@@ -147,23 +159,23 @@
     "CODIGO_2FA_RECUPERACION_INVALIDO": "Código 2FA o de recuperación inválido",
     "NO_PUDO_ENVIAR_CORREO_VERIFICACION_FAVOR_VERIFICA": "No se pudo enviar el correo de verificación. Por favor verifica tu correo e intenta de nuevo.",
     "NO_PUDO_ENVIAR_SMS_VERIFICACION_FAVOR_INTENTA": "No se pudo enviar el SMS de verificación. Por favor intenta de nuevo.",
-    "INVALID_OAUTH_STATE": "Invalid OAuth state.",
-    "INVALID_OR_TAMPERED_OAUTH_STATE": "Invalid or tampered OAuth state.",
-    "MISSING_OAUTH_STATE_PLEASE_RESTART_SIGN_IN": "Missing OAuth state — please restart the sign-in.",
-    "OAUTH_STATE_EXPIRED_PLEASE_RESTART_SIGN_IN": "OAuth state expired — please restart the sign-in.",
+    "INVALID_OAUTH_STATE": "El estado de OAuth no es válido.",
+    "INVALID_OR_TAMPERED_OAUTH_STATE": "El estado de OAuth no es válido o fue alterado.",
+    "MISSING_OAUTH_STATE_PLEASE_RESTART_SIGN_IN": "Falta el estado de OAuth. Vuelve a iniciar el proceso.",
+    "OAUTH_STATE_EXPIRED_PLEASE_RESTART_SIGN_IN": "El estado de OAuth expiró. Vuelve a iniciar el proceso.",
     "MISSING_OAUTH_STATE_PARAMETER": "Missing OAuth state parameter.",
     "OAUTH_STATE_MISMATCH_POSSIBLE_CSRF": "OAuth state mismatch — possible CSRF.",
     "UNSUPPORTED_SOCIAL_PROVIDER": "Unsupported social provider: {{provider}}",
-    "PROVIDER_NOT_CONFIGURED_MISSING": "Provider not configured: missing {{key}}",
+    "PROVIDER_NOT_CONFIGURED_MISSING": "El proveedor no está configurado: falta {{key}}.",
     "IDENTITY_PROVIDER_TEMPORARILY_UNAVAILABLE": "Identity provider is temporarily unavailable.",
     "IDENTITY_PROVIDER_HAS_NO_AUTHORIZATION_ENDPOINT": "Identity provider has no authorization endpoint.",
     "IDENTITY_PROVIDER_METADATA_INCOMPLETE": "Identity provider metadata is incomplete.",
-    "FAILED_COMPLETE_SIGN_IN_WITH_IDENTITY_PROVIDER": "Failed to complete sign-in with the identity provider.",
-    "IDENTITY_PROVIDER_DID_NOT_RETURN_ID_TOKEN": "Identity provider did not return an id_token.",
+    "FAILED_COMPLETE_SIGN_IN_WITH_IDENTITY_PROVIDER": "No se pudo completar el inicio de sesión con el proveedor de identidad.",
+    "IDENTITY_PROVIDER_DID_NOT_RETURN_ID_TOKEN": "El proveedor de identidad no devolvió un id_token.",
     "IDENTITY_TOKEN_VALIDATION_FAILED": "Identity token validation failed.",
     "UNTRUSTED_TOKEN_ISSUER": "Untrusted token issuer.",
     "IDENTITY_TOKEN_NONCE_MISMATCH": "Identity token nonce mismatch.",
-    "IDENTITY_PROVIDER_DID_NOT_RETURN_EMAIL_ADDRESS": "Identity provider did not return an email address.",
+    "IDENTITY_PROVIDER_DID_NOT_RETURN_EMAIL_ADDRESS": "El proveedor de identidad no devolvió un correo electrónico.",
     "NO_ENCONTRO_CONTRASENA_PREVIA_ESTE_USUARIO": "No se encontró una contraseña previa para este usuario.",
     "NUEVA_CONTRASENA_NO_PUEDE_SER_IGUAL_ANTERIOR": "La nueva contraseña no puede ser igual a la anterior",
     "TOKEN_INVALIDO_EXPIRADO": "Token inválido o expirado.",
@@ -181,7 +193,7 @@
     "NO_PUDO_ENCONTRAR_ROL_ADMINISTRADOR_PREDETERMINADO": "No se pudo encontrar el rol de administrador predeterminado.",
     "NO_PUDO_ACTIVAR_TU_PLAN_TU_PAGO": "No se pudo activar tu plan. Tu pago está registrado y lo estamos revirtiendo automáticamente. Referencia: {{pendingId}}.",
     "MALFORMED_ENCRYPTED_SECRET": "Malformed encrypted secret.",
-    "FAILED_DECRYPT_STORED_SECRET": "Failed to decrypt stored secret.",
+    "FAILED_DECRYPT_STORED_SECRET": "No se pudo descifrar el secreto almacenado.",
     "SESION_NO_ENCONTRADA_NO_PERTENECE_USUARIO": "Sesión no encontrada o no pertenece al usuario.",
     "NO_PUDO_ENVIAR_CODIGO_VERIFICACION_ESE_NUMERO": "No se pudo enviar el código de verificación a ese número. Verifica el número o usa la verificación por correo.",
     "NUMERO_DEBE_ESTAR_FORMATO_INTERNACIONAL_164_INCLUYENDO": "El número debe estar en formato internacional E.164, incluyendo el código de país (por ejemplo, +528112345678).",
@@ -191,37 +203,58 @@
     "TOKEN_INVALIDO_REGISTRO": "Token inválido para registro.",
     "TOKEN_REGISTRO_INVALIDO_EXPIRADO": "Token de registro inválido o expirado.",
     "VERIFY_AT_LEAST_ONE_DOMAIN_BEFORE_ENABLING": "Verify at least one domain before enabling SSO.",
-    "NO_TXT_RECORD_FOUND_AT_ADD_IT": "No TXT record found at {{host}}. Add it and allow time for DNS propagation.",
-    "TXT_RECORD_FOUND_BUT_VALUE_DOES_NOT": "TXT record found but the value does not match. Check the record.",
-    "IDENTITY_PROVIDER_NOT_FOUND": "Identity provider not found.",
-    "DOMAIN_NOT_FOUND": "Domain not found.",
+    "NO_TXT_RECORD_FOUND_AT_ADD_IT": "No se encontró el registro TXT en {{host}}. Agrégalo y espera a que se propague el DNS.",
+    "TXT_RECORD_FOUND_BUT_VALUE_DOES_NOT": "El registro TXT existe pero su valor no coincide. Revísalo.",
+    "IDENTITY_PROVIDER_NOT_FOUND": "No se encontró el proveedor de identidad.",
+    "DOMAIN_NOT_FOUND": "No se encontró el dominio.",
     "THIS_DOMAIN_ALREADY_REGISTERED": "This domain is already registered.",
     "VERIFICACION_DOS_PASOS_YA_ESTA_ACTIVA_DESACTIVALA": "La verificación en dos pasos ya está activa. Desactívala antes de registrar un nuevo dispositivo.",
-    "2FA_CONFIGURATION_NOT_INITIATED_PLEASE_GENERATE_SECRET": "2FA configuration not initiated. Please generate secret first.",
-    "CANNOT_GENERATE_BACKUP_CODES_IF_2FA_NOT": "Cannot generate backup codes if 2FA is not enabled.",
-    "INVALID_2FA_TOKEN": "Invalid 2FA token",
-    "CHALLENGE_EXPIRED_OR_NOT_FOUND": "Challenge expired or not found",
+    "2FA_CONFIGURATION_NOT_INITIATED_PLEASE_GENERATE_SECRET": "La configuración de la verificación en dos pasos no se ha iniciado. Genera primero el secreto.",
+    "CANNOT_GENERATE_BACKUP_CODES_IF_2FA_NOT": "No se pueden generar códigos de respaldo si la verificación en dos pasos no está activada.",
+    "INVALID_2FA_TOKEN": "El código de verificación en dos pasos no es válido.",
+    "CHALLENGE_EXPIRED_OR_NOT_FOUND": "El desafío expiró o no existe.",
     "WEBAUTHN_REGISTRATION_FAILED": "WebAuthn registration failed",
     "VERIFICATION_FAILED": "Verification failed",
-    "CHALLENGE_EXPIRED_OR_INVALID": "Challenge expired or invalid",
+    "CHALLENGE_EXPIRED_OR_INVALID": "El desafío expiró o no es válido.",
     "WEBAUTHN_VERIFICATION_FAILED": "WebAuthn verification failed",
-    "PASSKEY_NOT_FOUND": "Passkey not found",
-    "INVALID_USER_FOR_THIS_PASSKEY": "Invalid user for this passkey",
-    "USER_NOT_ASSOCIATED_WITH_ORGANIZATION": "User is not associated with an organization.",
+    "PASSKEY_NOT_FOUND": "No se encontró la llave de acceso.",
+    "INVALID_USER_FOR_THIS_PASSKEY": "Esa llave de acceso no corresponde a este usuario.",
+    "USER_NOT_ASSOCIATED_WITH_ORGANIZATION": "El usuario no está asociado a ninguna organización.",
     "MALFORMED_JWT": "Malformed JWT",
     "UNKNOWN_KEY_ID": "Unknown key ID",
     "JWT_KEY_RESOLUTION_FAILED": "JWT key resolution failed",
     "PAIS_TODAVIA_NO_ESTA_DISPONIBLE_REGISTRO": "El país \"{{countryCode}}\" todavía no está disponible para registro.",
     "ES_OBLIGATORIO": "El {{label}} es obligatorio para {{name}}.",
     "NO_ES_VALIDO": "El {{label}} no es válido para {{name}}.",
-    "ES_OBLIGATORIO_2": "El {{postalCodeLabel}} es obligatorio para {{name}}."
+    "ES_OBLIGATORIO_2": "El {{postalCodeLabel}} es obligatorio para {{name}}.",
+    "TOKEN_RECAPTCHA_OBLIGATORIO": "El token de reCAPTCHA es obligatorio.",
+    "SESION_REVOCADA_EXITOSAMENTE": "Sesión revocada exitosamente.",
+    "EMAIL_VERIFIED_SUCCESSFULLY": "Correo electrónico verificado.",
+    "PHONE_NUMBER_VERIFIED_SUCCESSFULLY": "Número de teléfono verificado.",
+    "VERIFIED_SUCCESSFULLY": "Verificación completada.",
+    "2FA_ENABLED_SUCCESSFULLY": "Verificación en dos pasos activada.",
+    "2FA_DISABLED_SUCCESSFULLY": "Verificación en dos pasos desactivada.",
+    "2FA_VERIFICATION_REQUIRED": "Se requiere la verificación en dos pasos.",
+    "LOGOUT_EXITOSO": "Logout exitoso",
+    "TODAS_SESIONES_HAN_CERRADAS": "Todas las sesiones han sido cerradas.",
+    "SI_EXISTE_CUENTA_CON_ESE_CORREO_ENVIADO_ENLACE": "Si existe una cuenta con ese correo, se ha enviado un enlace para restablecer la contraseña.",
+    "PASSWORD_UPDATED_SUCCESSFULLY": "Contraseña actualizada.",
+    "VERIFICATION_CODE_SENT_EMAIL": "Enviamos un código de verificación a tu correo.",
+    "OTP_SENT_SUCCESSFULLY": "Código de verificación enviado.",
+    "SI_DATOS_SON_CORRECTOS_ENVIADO_CODIGO_VERIFICACION": "Si los datos son correctos, se ha enviado un código de verificación.",
+    "HAN_CERRADO_DEMAS_SESIONES": "Se han cerrado las demás sesiones.",
+    "TWO_FACTOR_REQUIRED": "Se requiere la verificación en dos pasos."
   },
   "BATCH_PROCESSES": {
     "NO_ENCONTRARON_LIBROS_CONTABLES_PROCESAR_ORGANIZACION": "No se encontraron libros contables para procesar en la organización {{organizationId}}.",
     "DIARIO_GENERAL_GENERAL_NO_ENCONTRADO_ORGANIZACION": "Diario General (GENERAL) no encontrado para la organización {{organizationId}}."
   },
   "BUDGETS": {
-    "PRESUPUESTO_ID_NO_ENCONTRADO": "Presupuesto con ID \"{{id}}\" no encontrado."
+    "PRESUPUESTO_ID_NO_ENCONTRADO": "Presupuesto con ID \"{{id}}\" no encontrado.",
+    "NO_ENCONTRO_PRESUPUESTO_ACTIVO_PARA_PERIODO_ACTUAL": "No se encontró un presupuesto activo para el período actual.",
+    "CUENTA_SUS_DIMENSIONES_NO_ESTAN_PRESUPUESTADAS": "La cuenta y/o sus dimensiones no están presupuestadas.",
+    "DENTRO_PRESUPUESTO": "Dentro del presupuesto.",
+    "AMOUNT_EXCEEDS_BUDGET": "El monto propuesto de {{amount}} excede el presupuesto de {{budgeted}} para la cuenta {{account}}. Gasto actual: {{actual}}."
   },
   "CHART_OF_ACCOUNTS": {
     "NO_PUEDE_MODIFICAR_ESTRUCTURA_SEGMENTOS_PORQUE_YA": "No se puede modificar la estructura de segmentos porque ya existen cuentas contables creadas para esta organización.",
@@ -246,12 +279,19 @@
     "CUENTAS_SISTEMA_NO_PUEDEN_SER_FUSIONADAS": "Las cuentas de sistema no pueden ser fusionadas.",
     "FILE_EMPTY": "File is empty.",
     "ERROR_CONSISTENCIA_CUENTA_PADRE_CUENTA_NO_FUE": "Error de consistencia: La cuenta padre '{{parentCode}}' para la cuenta '{{p2}}' no fue encontrada. La transacción será revertida.",
-    "IMPORT_BATCH_NOT_FOUND_OR_EXPIRED": "Import batch not found or expired.",
-    "IMPORTACION_FALLO_FUE_REVERTIDA": "La importación falló y fue revertida: {{p1}}"
+    "IMPORT_BATCH_NOT_FOUND_OR_EXPIRED": "El lote de importación no existe o ha expirado.",
+    "IMPORTACION_FALLO_FUE_REVERTIDA": "La importación falló y fue revertida: {{p1}}",
+    "JOB_DESCONOCIDO_IGNORADO": "Job desconocido ignorado.",
+    "INICIANDO_FUSION_CUENTAS": "Iniciando la fusión de cuentas...",
+    "REASIGNANDO_CUENTAS_HIJAS": "Reasignando cuentas hijas...",
+    "REASIGNANDO_TRANSACCIONES_ESTO_PUEDE_TARDAR": "Reasignando transacciones (esto puede tardar)...",
+    "DESACTIVANDO_CUENTA_ORIGEN_RECALCULANDO_SALDOS": "Desactivando cuenta de origen y recalculando saldos...",
+    "MERGE_COMPLETED": "Fusión completada: la cuenta {{source}} ha sido fusionada en {{destination}}.",
+    "MERGE_FAILED": "La fusión de cuentas no pudo completarse."
   },
   "COMMON": {
     "SINGLE_FILE_EXPECTED": "Single file expected",
-    "FILE_TYPE_NOT_ALLOWED": "File type not allowed",
+    "FILE_TYPE_NOT_ALLOWED": "Ese tipo de archivo no está permitido.",
     "FILE_TOO_LARGE": "File too large",
     "TOO_MANY_FILES": "Too many files",
     "FILE_TOO_LARGE_2": "File {{filename}} too large",
@@ -283,7 +323,9 @@
   },
   "CURRENCIES": {
     "DIARIO_GENERAL_GENERAL_NO_ENCONTRADO": "Diario General (GENERAL) no encontrado.",
-    "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "No se ha configurado un libro contable por defecto para la organización."
+    "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "No se ha configurado un libro contable por defecto para la organización.",
+    "NO_HAY_DIVISAS_PARA_ACTUALIZAR": "No hay divisas para actualizar.",
+    "TASAS_CAMBIO_ACTUALIZADAS_EXITOSAMENTE": "Tasas de cambio actualizadas exitosamente."
   },
   "CUSTOMER_SERVICE": {
     "ARTICULO_NO_ENCONTRADO_NO_ESTA_PUBLICADO": "Artículo no encontrado o no está publicado.",
@@ -310,8 +352,8 @@
     "INTENTO_ELIMINAR_ENTIDAD_NO_PERTENECE_ORGANIZACION": "Intento de eliminar una entidad que no pertenece a la organización."
   },
   "DATASHEETS": {
-    "DATASHEET_WITH_ID_NOT_FOUND": "Datasheet with ID {{id}} not found",
-    "ONLY_OWNER_CAN_DELETE_THIS_DOCUMENT": "Only the owner can delete this document"
+    "DATASHEET_WITH_ID_NOT_FOUND": "No se encontró la hoja de datos {{id}}.",
+    "ONLY_OWNER_CAN_DELETE_THIS_DOCUMENT": "Solo el propietario puede eliminar este documento."
   },
   "DIMENSIONS": {
     "DIMENSION_ID_NO_ENCONTRADA": "Dimensión con ID \"{{id}}\" no encontrada.",
@@ -347,7 +389,39 @@
     "ORGANIZACION_NO_TIENE_RNC_CONFIGURADO_COMPLETALO_AJUSTES": "La organización no tiene RNC configurado. Complétalo en Ajustes → Empresa.",
     "NO_HAY_CERTIFICADO_DIGITAL_ACTIVO_FIRMAR_CARGALO": "No hay un certificado digital activo para firmar. Cárgalo en Ajustes → Facturación Electrónica.",
     "NO_HAY_SECUENCIA_ACTIVA_ESTA_ORGANIZACION": "No hay una secuencia activa de {{type}} para esta organización.",
-    "COMPROBANTE_YA_FUE_RESPONDIDO_COMERCIALMENTE": "El comprobante {{ncf}} de {{issuerRnc}} ya fue respondido comercialmente."
+    "COMPROBANTE_YA_FUE_RESPONDIDO_COMERCIALMENTE": "El comprobante {{ncf}} de {{issuerRnc}} ya fue respondido comercialmente.",
+    "TIPO_COMPROBANTE_DEBE_DOS_DIGITOS": "el tipo de comprobante debe ser de dos dígitos",
+    "AUTORIZACION_RANGO_NO_TIENE_FECHA_VENCIMIENTO_REGISTRADA_ANADELA": "la autorización del rango no tiene fecha de vencimiento registrada; añádela en Ajustes → Facturación Electrónica",
+    "FECHA_DEBE_TENER_FORMATO_DD_MM_AAAA": "la fecha debe tener el formato DD-MM-AAAA",
+    "DEBE_TENER_FORMATO_DD_MM_AAAA_HH_MM": "debe tener el formato DD-MM-AAAA HH:MM:SS",
+    "RNC_EMISOR_DEBE_TENER_9_U_11_DIGITOS": "el RNC del emisor debe tener 9 u 11 dígitos; revísalo en los datos de la empresa",
+    "RAZON_SOCIAL_EMISOR_OBLIGATORIA": "la razón social del emisor es obligatoria",
+    "DIRECCION_FISCAL_EMISOR_OBLIGATORIA_COMPLETALA_AJUSTES_EMPRESA": "la dirección fiscal del emisor es obligatoria; complétala en Ajustes → Empresa",
+    "PROVINCIA_DEBE_DECLARARSE_CON_CODIGO_DOS_DIGITOS_DGII": "la provincia debe declararse con el código de dos dígitos de la DGII",
+    "MUNICIPIO_DEBE_DECLARARSE_CON_CODIGO_CUATRO_DIGITOS_DGII": "el municipio debe declararse con el código de cuatro dígitos de la DGII",
+    "RNC_CEDULA_COMPRADOR_DEBE_TENER_9_U_11": "el RNC o cédula del comprador debe tener 9 u 11 dígitos",
+    "COMPROBANTE_EXPORTACION_REQUIERE_IDENTIFICAR_COMPRADOR_EXTRANJERO": "un comprobante de exportación requiere identificar al comprador extranjero",
+    "TIPO_PAGO_DEBE_1_CONTADO_2_CREDITO": "el tipo de pago debe ser 1 (contado) o 2 (crédito)",
+    "VENTA_CONTADO_DEBE_DECLARAR_MENOS_FORMA_PAGO": "una venta al contado debe declarar al menos una forma de pago",
+    "COMPROBANTE_DEBE_TENER_MENOS_LINEA": "el comprobante debe tener al menos una línea",
+    "NOTA_CREDITO_DEBITO_DEBE_REFERENCIAR_COMPROBANTE_MODIFICA": "una nota de crédito o débito debe referenciar el comprobante que modifica",
+    "CODIGO_MODIFICACION_DEBE_ESTAR_ENTRE_1_5": "el código de modificación debe estar entre 1 y 5",
+    "CODIGO_MONEDA_DEBE_ISO_4217": "el código de moneda debe ser ISO 4217",
+    "TASA_CAMBIO_DEBE_MAYOR_CERO": "la tasa de cambio debe ser mayor que cero",
+    "TOTAL_COMPROBANTE_DEBE_MAYOR_CERO": "el total del comprobante debe ser mayor que cero",
+    "ENCF_BAD_FORMAT": "\"{{value}}\" no tiene el formato de un e-NCF (E + 12 dígitos)",
+    "ENCF_TYPE_MISMATCH": "el tipo declarado ({{declared}}) no coincide con el del e-NCF ({{encoded}})",
+    "BUYER_TAX_ID_REQUIRED_FOR_TYPE": "un comprobante tipo {{type}} requiere el RNC o cédula del comprador",
+    "BUYER_LEGAL_NAME_REQUIRED_FOR_TYPE": "un comprobante tipo {{type}} requiere la razón social del comprador",
+    "CONSUMO_ABOVE_THRESHOLD_REQUIRES_BUYER": "una factura de consumo por {{amount}} supera el umbral de {{threshold}} y requiere identificar al comprador",
+    "PAYMENTS_DO_NOT_MATCH_TOTAL": "las formas de pago suman {{declared}} y el total del comprobante es {{total}}",
+    "PAYMENT_METHOD_CODE_UNKNOWN": "\"{{value}}\" no es un código de forma de pago de la DGII",
+    "ITEM_NAME_REQUIRED": "línea {{line}}: falta la descripción del artículo",
+    "ITEM_QUANTITY_MUST_BE_POSITIVE": "línea {{line}}: la cantidad debe ser mayor que cero",
+    "ITEM_PRICE_MUST_NOT_BE_NEGATIVE": "línea {{line}}: el precio unitario no puede ser negativo",
+    "ITEM_MUST_DECLARE_GOOD_OR_SERVICE": "línea {{line}}: debe declararse como bien (1) o servicio (2)",
+    "ITEM_TAX_RATE_NOT_IN_FORCE": "línea {{line}}: la tasa {{rate}} no es una tasa de ITBIS vigente",
+    "MODIFIED_NCF_BAD_FORMAT": "\"{{value}}\" no tiene el formato de un NCF"
   },
   "FINANCIAL_REPORTING": {
     "NO_HA_ESPECIFICADO_LIBRO_CONTABLE_NO_HAY": "No se ha especificado un libro contable y no hay uno configurado por defecto para la organización.",
@@ -361,7 +435,8 @@
     "DIARIO_ACTIVOS_FIJOS_ACT_FIJOS_NO_ENCONTRADO": "Diario de Activos Fijos (ACT-FIJOS) no encontrado.",
     "ACTIVO_FIJO_ID_NO_ENCONTRADO": "Activo fijo con ID \"{{id}}\" no encontrado.",
     "ACTIVO_NO_ENCONTRADO_YA_HA_SIDO_DADO": "Activo no encontrado o ya ha sido dado de baja.",
-    "NO_PUDO_OBTENER_QUERYRUNNER_TRANSACCION": "No se pudo obtener el QueryRunner de la transacción."
+    "NO_PUDO_OBTENER_QUERYRUNNER_TRANSACCION": "No se pudo obtener el QueryRunner de la transacción.",
+    "ACTIVO_DADO_BAJA_EXITOSAMENTE": "El activo ha sido dado de baja exitosamente."
   },
   "INTERCOMPANY": {
     "TRANSACCIONES_INTERCOMPANIA_DEBEN_SER_ENTRE_ORGANIZACIONES_DIFERENTES": "Las transacciones intercompañía deben ser entre organizaciones diferentes.",
@@ -462,7 +537,9 @@
     "TIPO_ARCHIVO_NO_SOPORTADO": "Tipo de archivo no soportado: {{mimetype}}",
     "NO_ENCONTRO_LIBRO_CONTABLE_ORG": "No se encontró libro contable para la Org {{organizationId}}",
     "PLANTILLA_RECURRENTE_NO_ENCONTRADA": "Plantilla recurrente {{recurringEntryId}} no encontrada.",
-    "PLANTILLA_ASIENTO_RECURRENTE_ID_NO_ENCONTRADA": "Plantilla de asiento recurrente con ID \"{{id}}\" no encontrada."
+    "PLANTILLA_ASIENTO_RECURRENTE_ID_NO_ENCONTRADA": "Plantilla de asiento recurrente con ID \"{{id}}\" no encontrada.",
+    "IMPORTACION_CONFIRMADA_PROCESADA_EXITOSAMENTE": "Importación confirmada y procesada exitosamente.",
+    "ADJUNTO_ELIMINADO_EXITOSAMENTE": "Adjunto eliminado exitosamente."
   },
   "LOCALIZATION": {
     "PAIS_NO_ESTA_DISPONIBLE_REGISTRO_TODAVIA": "El país \"{{countryCode}}\" no está disponible para registro todavía.",
@@ -475,25 +552,25 @@
     "NO_TIENES_ACCESO_ESA_ORGANIZACION": "No tienes acceso a esa organización.",
     "PAIS_TODAVIA_NO_ESTA_DISPONIBLE": "El país \"{{country}}\" todavía no está disponible.",
     "NO_ES_VALIDO": "El {{label}} no es válido para {{name}}.",
-    "ORGANIZATION_WITH_ID_NOT_FOUND": "Organization with ID {{id}} not found",
+    "ORGANIZATION_WITH_ID_NOT_FOUND": "No se encontró la organización {{id}}.",
     "ORGANIZACION_MATRIZ_NO_ENCONTRADA": "Organización matriz no encontrada.",
     "YA_EXISTE_ORGANIZACION_REGISTRADA_ESE": "Ya existe una organización registrada con ese {{label}}.",
     "CONFIGURACION_FISCAL_ESE_PAIS_NO_ESTA_DISPONIBLE": "La configuración fiscal de ese país no está disponible en este momento."
   },
   "PAYMENT": {
     "NO_ESPECIFICO_PLAN_VALIDO_PRICEID_FALTANTE": "No se especificó un plan válido (priceId faltante).",
-    "ORGANIZATION_NOT_FOUND": "Organization not found",
-    "FAILED_CREATE_STRIPE_SESSION_URL": "Failed to create Stripe session URL",
+    "ORGANIZATION_NOT_FOUND": "No se encontró la organización.",
+    "FAILED_CREATE_STRIPE_SESSION_URL": "No se pudo crear la sesión de pago.",
     "SESION_PAGO_NO_CORRESPONDE_ESTA_ORGANIZACION": "La sesión de pago no corresponde a esta organización.",
     "NO_EXISTE_SUSCRIPCION_ACTIVA_GESTIONAR": "No existe una suscripción activa para gestionar.",
     "WEBHOOK_SIGNATURE_VERIFICATION_FAILED": "Webhook signature verification failed",
-    "USER_DOES_NOT_BELONG_ORGANIZATION": "User does not belong to an organization",
+    "USER_DOES_NOT_BELONG_ORGANIZATION": "El usuario no pertenece a ninguna organización.",
     "PLAN_NO_ENCONTRADO": "Plan no encontrado.",
     "MISSING_STRIPE_SIGNATURE_HEADER": "Missing stripe-signature header.",
-    "RAW_REQUEST_BODY_UNAVAILABLE_WEBHOOK_SIGNATURE_CANNOT": "Raw request body unavailable — the webhook signature cannot be verified."
+    "RAW_REQUEST_BODY_UNAVAILABLE_WEBHOOK_SIGNATURE_CANNOT": "No se pudo verificar la firma del webhook porque el cuerpo original de la solicitud no está disponible."
   },
   "PRICE_LISTS": {
-    "PRICE_LIST_WITH_ID_NOT_FOUND": "Price list with ID \"{{id}}\" not found."
+    "PRICE_LIST_WITH_ID_NOT_FOUND": "No se encontró la lista de precios \"{{id}}\"."
   },
   "RECONCILIATION": {
     "CUENTA_BANCARIA_ESPECIFICADA_NO_ES_VALIDA": "La cuenta bancaria especificada no es válida.",
@@ -506,7 +583,8 @@
   "REPORTS": {
     "NO_PUDO_DETERMINAR_LIBRO_CONTABLE_REPORTE_NO": "No se pudo determinar el libro contable para el reporte. No se especificó uno y no hay uno por defecto.",
     "CUENTA_CUENTAS_COBRAR_DEFECTO_NO_ESTA_CONFIGURADA": "La cuenta de Cuentas por Cobrar por defecto no está configurada.",
-    "LIBRO_CONTABLE_ID_NO_ENCONTRADO": "Libro contable con ID \"{{ledgerId}}\" no encontrado."
+    "LIBRO_CONTABLE_ID_NO_ENCONTRADO": "Libro contable con ID \"{{ledgerId}}\" no encontrado.",
+    "NO_HAY_FACTURAS_PENDIENTES_PAGO_PARA_GENERAR_REPORTE": "No hay facturas pendientes de pago para generar el reporte."
   },
   "ROLES": {
     "ROL_ID_NO_ENCONTRADO": "Rol con ID \"{{id}}\" no encontrado.",
@@ -592,7 +670,7 @@
   },
   "USERS": {
     "ONLY_IMAGE_FILES_ARE_ALLOWED": "Only image files are allowed!",
-    "FILE_REQUIRED": "File is required",
+    "FILE_REQUIRED": "El archivo es obligatorio.",
     "NO_PUEDES_BLOQUEAR_TU_PROPIA_CUENTA": "No puedes bloquear tu propia cuenta.",
     "NO_PUDO_COMPLETAR_CAMBIO_CORREO_ELECTRONICO": "No se pudo completar el cambio de correo electrónico.",
     "NO_HAY_NINGUN_CAMBIO_CORREO_PENDIENTE": "No hay ningún cambio de correo pendiente.",
@@ -609,7 +687,13 @@
     "NO_PUEDES_ELIMINAR_TU_PROPIA_CUENTA_DESDE": "No puedes eliminar tu propia cuenta desde la administración de usuarios.",
     "NO_PUEDE_ELIMINAR_USUARIO_ROL_SISTEMA": "No se puede eliminar un usuario con un rol de sistema.",
     "NO_PUEDES_DESACTIVAR_BLOQUEAR_TU_PROPIA_CUENTA": "No puedes desactivar o bloquear tu propia cuenta.",
-    "CREDENCIALES_INCORRECTAS": "Credenciales incorrectas."
+    "CREDENCIALES_INCORRECTAS": "Credenciales incorrectas.",
+    "CERRADO_SESION_USUARIO": "Se ha cerrado la sesión del usuario.",
+    "BLOQUEADO_CERRADO_SESION_USUARIO": "Se ha bloqueado y cerrado la sesión del usuario.",
+    "SI_DATOS_SON_CORRECTOS_ENVIADO_ENLACE_CONFIRMACION_NUEVO": "Si los datos son correctos, se ha enviado un enlace de confirmación al nuevo correo.",
+    "CORREO_ELECTRONICO_ACTUALIZADO_TU_SESION_INVALIDADO_POR_SEGURIDAD": "Correo electrónico actualizado. Tu sesión se ha invalidado por seguridad.",
+    "PASSWORD_RESET_EMAIL_SENT": "Enviamos un enlace para restablecer la contraseña.",
+    "EMAIL_ACTUALIZADO_SESION_USUARIO_INVALIDADA": "Email actualizado. La sesión del usuario ha sido invalidada."
   },
   "WORKFLOWS": {
     "SOLICITUD_YA_HA_SIDO_PROCESADA": "La solicitud ya ha sido procesada.",
@@ -940,6 +1024,267 @@
       "SESSIONS_REVOKE": "Revocar sesiones",
       "EDIT_COMPANY": "Editar los datos de la empresa",
       "EDIT_BRANDING": "Editar la personalización"
+    }
+  },
+  "VALIDATION": {
+    "YEAR_MUST_BE_INTEGER": "El año debe ser un número entero.",
+    "YEAR_OUT_OF_RANGE": "El año está fuera del rango permitido.",
+    "BATCH_OPERATIONS": {
+      "CADA_ID_CUENTA_DEBE_UUID_VALIDO": "Cada ID de cuenta debe ser un UUID válido.",
+      "LISTA_IDS_CUENTA_NO_PUEDE_ESTAR_VACIA": "La lista de IDs de cuenta no puede estar vacía."
+    },
+    "UPDATE_ACCOUNT": {
+      "REQUIERE_RAZON_PARA_MODIFICACION": "Se requiere una razón para la modificación."
+    },
+    "MERGE_ACCOUNTS": {
+      "REQUIERE_RAZON_PARA_FUSION": "Se requiere una razón para la fusión."
+    },
+    "UPDATE_PROFILE": {
+      "PHONE_NUMBER_MUST_BE_IN_E_164_FORMAT": "El número debe estar en formato internacional E.164 (por ejemplo, +18095551234).",
+      "AVATARURL_MUST_BE_VALID_HTTPS_URL": "La URL del avatar debe ser una dirección HTTPS válida."
+    },
+    "LIST_USERS_QUERY": {
+      "PAGINA_DEBE_NUMERO_ENTERO": "La página debe ser un número entero.",
+      "PAGINA_DEBE_1_MAYOR": "La página debe ser 1 o mayor.",
+      "TAMANO_PAGINA_DEBE_NUMERO_ENTERO": "El tamaño de página debe ser un número entero.",
+      "TAMANO_PAGINA_DEBE_1_MAYOR": "El tamaño de página debe ser 1 o mayor.",
+      "TAMANO_PAGINA_NO_PUEDE_MAYOR_100": "El tamaño de página no puede ser mayor que 100.",
+      "BUSQUEDA_NO_PUEDE_TENER_MAS_120_CARACTERES": "La búsqueda no puede tener más de 120 caracteres.",
+      "ESTADO_NO_VALIDO": "El estado no es válido.",
+      "NO_PUEDE_ORDENAR_POR_ESA_COLUMNA": "No se puede ordenar por esa columna.",
+      "DIRECCION_ORDEN_NO_VALIDA": "La dirección de orden no es válida."
+    },
+    "EMAIL_CHANGE": {
+      "FORMATO_CORREO_ELECTRONICO_NO_VALIDO": "El formato del correo electrónico no es válido.",
+      "CORREO_ELECTRONICO_NO_PUEDE_ESTAR_VACIO": "El correo electrónico no puede estar vacío.",
+      "EMAIL_NO_PUEDE_TENER_MAS_254_CARACTERES_RFC": "El email no puede tener más de 254 caracteres (RFC 5321)."
+    },
+    "JOURNAL_ENTRY_ACTIONS": {
+      "REQUIERE_RAZON_PARA_MODIFICACION": "Se requiere una razón para la modificación.",
+      "FECHA_REVERSION_DEBE_FECHA_VALIDA": "La fecha de reversión debe ser una fecha válida.",
+      "FECHA_REVERSION_OBLIGATORIA": "La fecha de reversión es obligatoria.",
+      "REQUIERE_RAZON_PARA_REVERSION": "Se requiere una razón para la reversión."
+    },
+    "JOURNAL_REPORT": {
+      "FECHA_INICIO_OBLIGATORIA": "La fecha de inicio es obligatoria.",
+      "FECHA_FIN_OBLIGATORIA": "La fecha de fin es obligatoria.",
+      "CADA_ID_DIARIO_DEBE_UUID_VALIDO": "Cada ID de diario debe ser un UUID válido."
+    },
+    "CREATE_JOURNAL_ENTRY": {
+      "ID_LIBRO_CONTABLE_LEDGERID_DEBE_UUID_VALIDO": "El ID del libro contable (ledgerId) debe ser un UUID válido.",
+      "ID_LIBRO_CONTABLE_LEDGERID_OBLIGATORIO_CADA_VALORACION": "El ID del libro contable (ledgerId) es obligatorio en cada valoración.",
+      "DEBITO_DEBE_NUMERO_VALIDO": "El débito debe ser un número válido.",
+      "CAMPO_DEBITO_OBLIGATORIO": "El campo de débito es obligatorio.",
+      "DEBITO_NO_PUEDE_NEGATIVO": "El débito no puede ser negativo.",
+      "CREDITO_DEBE_NUMERO_VALIDO": "El crédito debe ser un número válido.",
+      "CAMPO_CREDITO_OBLIGATORIO": "El campo de crédito es obligatorio.",
+      "CREDITO_NO_PUEDE_NEGATIVO": "El crédito no puede ser negativo.",
+      "ID_CUENTA_ACCOUNTID_DEBE_UUID_VALIDO": "El ID de la cuenta (accountId) debe ser un UUID válido.",
+      "ID_CUENTA_ACCOUNTID_OBLIGATORIO": "El ID de la cuenta (accountId) es obligatorio.",
+      "DEBITO_MONEDA_TRANSACCION_DEBE_NUMERO": "El débito en moneda de transacción debe ser un número.",
+      "CREDITO_MONEDA_TRANSACCION_DEBE_NUMERO": "El crédito en moneda de transacción debe ser un número.",
+      "DESCRIPCION_LINEA_DEBE_TEXTO": "La descripción de la línea debe ser un texto.",
+      "DIMENSIONES_DEBEN_OBJETO": "Las dimensiones deben ser un objeto.",
+      "VALORACIONES_DEBEN_ARREGLO": "Las valoraciones deben ser un arreglo.",
+      "FECHA_DEBE_TENER_FORMATO_FECHA_ISO_8601_VALIDO": "La fecha debe tener un formato de fecha ISO 8601 válido.",
+      "FECHA_ASIENTO_OBLIGATORIA": "La fecha del asiento es obligatoria.",
+      "DESCRIPCION_DEBE_TEXTO": "La descripción debe ser un texto.",
+      "DESCRIPCION_ASIENTO_OBLIGATORIA": "La descripción del asiento es obligatoria.",
+      "CODIGO_MONEDA_DEBE_TENER_EXACTAMENTE_3_CARACTERES": "El código de moneda debe tener exactamente 3 caracteres.",
+      "TASA_CAMBIO_DEBE_NUMERO": "La tasa de cambio debe ser un número.",
+      "TASA_CAMBIO_NO_PUEDE_NEGATIVA": "La tasa de cambio no puede ser negativa.",
+      "LINEAS_ASIENTO_DEBEN_ARREGLO": "Las líneas del asiento deben ser un arreglo.",
+      "ID_DIARIO_JOURNALID_DEBE_UUID_VALIDO": "El ID del diario (journalId) debe ser un UUID válido.",
+      "ID_DIARIO_JOURNALID_OBLIGATORIO": "El ID del diario (journalId) es obligatorio.",
+      "TIPO_ASIENTO_ENTRYTYPE_NO_VALIDO": "El tipo de asiento (entryType) no es válido."
+    },
+    "RECLASSIFICATION_ENTRY": {
+      "ID_LIBRO_CONTABLE_LEDGERID_OBLIGATORIO": "El ID del libro contable (ledgerId) es obligatorio."
+    },
+    "PERIOD_END_ADJUSTMENT": {
+      "ID_LIBRO_CONTABLE_LEDGERID_OBLIGATORIO": "El ID del libro contable (ledgerId) es obligatorio."
+    },
+    "GENERAL_LEDGER_REPORT": {
+      "ID_LIBRO_CONTABLE_OBLIGATORIO": "El ID del libro contable es obligatorio.",
+      "FECHA_INICIO_OBLIGATORIA": "La fecha de inicio es obligatoria.",
+      "FECHA_FIN_OBLIGATORIA": "La fecha de fin es obligatoria.",
+      "CADA_ID_CUENTA_DEBE_UUID_VALIDO": "Cada ID de cuenta debe ser un UUID válido."
+    },
+    "REGISTER_CHECKOUT": {
+      "PLAN_SELECCIONADO_NO_VALIDO": "El plan seleccionado no es válido.",
+      "DEBES_SELECCIONAR_PLAN": "Debes seleccionar un plan.",
+      "PERIODO_FACTURACION_NO_VALIDO": "El periodo de facturación no es válido."
+    },
+    "LOGIN_USER": {
+      "FORMATO_CORREO_ELECTRONICO_NO_VALIDO": "El formato del correo electrónico no es válido.",
+      "CORREO_ELECTRONICO_NO_PUEDE_ESTAR_VACIO": "El correo electrónico no puede estar vacío.",
+      "EMAIL_NO_PUEDE_TENER_MAS_254_CARACTERES_RFC": "El email no puede tener más de 254 caracteres (RFC 5321).",
+      "CONTRASENA_DEBE_TEXTO": "La contraseña debe ser un texto.",
+      "CONTRASENA_NO_PUEDE_ESTAR_VACIA": "La contraseña no puede estar vacía."
+    },
+    "SECURITY_AUDIT": {
+      "PERIODO_FACTURACION_NO_VALIDO": "El periodo de facturación no es válido."
+    },
+    "SSO_ADMIN": {
+      "DOMAIN_MUST_BE_VALID_BARE_DOMAIN_NAME_E": "El dominio debe ser un nombre de dominio simple, por ejemplo acme.com."
+    },
+    "FORGOT_PASSWORD": {
+      "FORMATO_CORREO_ELECTRONICO_NO_VALIDO": "El formato del correo electrónico no es válido.",
+      "CORREO_ELECTRONICO_NO_PUEDE_ESTAR_VACIO": "El correo electrónico no puede estar vacío."
+    },
+    "SET_PASSWORD_FROM_INVITATION": {
+      "CONTRASENA_DEBE_TENER_AL_MENOS_8_CARACTERES": "La contraseña debe tener al menos 8 caracteres.",
+      "CONTRASENA_NO_PUEDE_SUPERAR_128_CARACTERES": "La contraseña no puede superar los 128 caracteres.",
+      "CONTRASENA_DEBE_CONTENER_MAYUSCULA_MINUSCULA_NUMERO_SIMBOLO": "La contraseña debe contener mayúscula, minúscula y un número o símbolo."
+    },
+    "CHANGE_PASSWORD": {
+      "CONTRASENA_ACTUAL_NO_PUEDE_ESTAR_VACIA": "La contraseña actual no puede estar vacía.",
+      "NUEVA_CONTRASENA_NO_PUEDE_ESTAR_VACIA": "La nueva contraseña no puede estar vacía."
+    },
+    "REGISTER_CONFIRM": {
+      "SESION_NO_VALIDA": "La sesión no es válida.",
+      "SESION_OBLIGATORIA": "La sesión es obligatoria."
+    },
+    "REGISTER_USER": {
+      "NOMBRE_ORGANIZACION_NO_PUEDE_ESTAR_VACIO": "El nombre de la organización no puede estar vacío.",
+      "NOMBRE_ORGANIZACION_DEBE_TEXTO": "El nombre de la organización debe ser un texto.",
+      "NOMBRE_ORGANIZACION_DEBE_TENER_AL_MENOS_2_CARACTERES": "El nombre de la organización debe tener al menos 2 caracteres.",
+      "PAIS_OBLIGATORIO": "El país es obligatorio.",
+      "INDICA_SI_CONTRIBUYENTE_EMPRESA_PERSONA_FISICA": "Indica si el contribuyente es una empresa o una persona física.",
+      "ID_FISCAL_OBLIGATORIO": "El ID Fiscal es obligatorio.",
+      "ID_FISCAL_DEBE_TEXTO": "El ID Fiscal debe ser un texto.",
+      "ID_REGION_FISCAL_NO_VALIDO": "El ID de la región fiscal no es válido.",
+      "NOMBRE_NO_PUEDE_ESTAR_VACIO": "El nombre no puede estar vacío.",
+      "NOMBRE_DEBE_TEXTO": "El nombre debe ser un texto.",
+      "APELLIDO_NO_PUEDE_ESTAR_VACIO": "El apellido no puede estar vacío.",
+      "APELLIDO_DEBE_TEXTO": "El apellido debe ser un texto.",
+      "FORMATO_CORREO_ELECTRONICO_NO_VALIDO": "El formato del correo electrónico no es válido.",
+      "CORREO_ELECTRONICO_NO_PUEDE_ESTAR_VACIO": "El correo electrónico no puede estar vacío.",
+      "EMAIL_NO_PUEDE_TENER_MAS_254_CARACTERES_RFC": "El email no puede tener más de 254 caracteres (RFC 5321).",
+      "CONTRASENA_NO_PUEDE_ESTAR_VACIA": "La contraseña no puede estar vacía.",
+      "CONTRASENA_DEBE_TEXTO": "La contraseña debe ser un texto.",
+      "DIRECCION_FISCAL_OBLIGATORIA": "La dirección fiscal es obligatoria.",
+      "DIRECCION_DEBE_TEXTO": "La dirección debe ser un texto.",
+      "DIRECCION_NO_PUEDE_TENER_MAS_200_CARACTERES": "La dirección no puede tener más de 200 caracteres.",
+      "CIUDAD_OBLIGATORIA": "La ciudad es obligatoria.",
+      "CIUDAD_DEBE_TEXTO": "La ciudad debe ser un texto.",
+      "CIUDAD_NO_PUEDE_TENER_MAS_120_CARACTERES": "La ciudad no puede tener más de 120 caracteres.",
+      "TELEFONO_DEBE_ESTAR_FORMATO_INTERNACIONAL_E_164_POR": "El teléfono debe estar en formato internacional E.164 (por ejemplo, +18095551234)."
+    },
+    "STEP_UP": {
+      "AMBITO_VERIFICACION_NO_VALIDO": "Ámbito de verificación no válido.",
+      "CODIGO_VERIFICACION_NO_VALIDO": "El código de verificación no es válido."
+    },
+    "PROVISION_NCF_SEQUENCE": {
+      "PREFIJO_DEBE_TENER_FORMATO_SERIE_DGII_P_EJ": "El prefijo debe tener el formato de serie DGII, p. ej. B01 o E31."
+    },
+    "UPLOAD_STATEMENT": {
+      "ID_CUENTA_NO_PUEDE_ESTAR_VACIO": "El ID de la cuenta no puede estar vacío.",
+      "FECHA_INICIO_DEBE_FECHA_VALIDA": "La fecha de inicio debe ser una fecha válida.",
+      "FECHA_INICIO_NO_PUEDE_ESTAR_VACIA": "La fecha de inicio no puede estar vacía.",
+      "FECHA_FIN_DEBE_FECHA_VALIDA": "La fecha de fin debe ser una fecha válida.",
+      "FECHA_FIN_NO_PUEDE_ESTAR_VACIA": "La fecha de fin no puede estar vacía.",
+      "SALDO_INICIAL_DEBE_NUMERO": "El saldo inicial debe ser un número.",
+      "SALDO_INICIAL_NO_PUEDE_ESTAR_VACIO": "El saldo inicial no puede estar vacío.",
+      "SALDO_FINAL_DEBE_NUMERO": "El saldo final debe ser un número.",
+      "SALDO_FINAL_NO_PUEDE_ESTAR_VACIO": "El saldo final no puede estar vacío."
+    },
+    "VOID_SEQUENCE_RANGE": {
+      "TIPO_COMPROBANTE_DESCONOCIDO": "Tipo de comprobante desconocido."
+    },
+    "COMMERCIAL_APPROVAL": {
+      "RNC_EMISOR_NO_TIENE_FORMATO_VALIDO": "El RNC del emisor no tiene un formato válido.",
+      "E_NCF_DEBE_TENER_FORMATO_E_12_DIGITOS": "El e-NCF debe tener el formato E + 12 dígitos (por ejemplo E310000000001).",
+      "FECHA_EMISION_DEBE_FECHA_ISO_YYYY_MM_DD": "La fecha de emisión debe ser una fecha ISO (YYYY-MM-DD).",
+      "ESTADO_DEBE_1_APROBADO_2_RECHAZADO": "El estado debe ser 1 (aprobado) o 2 (rechazado)."
+    },
+    "PROPOSED_ADJUSTMENT": {
+      "ID_CUENTA_DEBE_UUID_VALIDO": "El ID de la cuenta debe ser un UUID válido.",
+      "ID_CUENTA_OBLIGATORIO_CADA_LINEA": "El ID de la cuenta es obligatorio en cada línea.",
+      "DEBITO_DEBE_NUMERO_VALIDO": "El débito debe ser un número válido.",
+      "CAMPO_DEBITO_OBLIGATORIO": "El campo de débito es obligatorio.",
+      "DEBITO_NO_PUEDE_NEGATIVO": "El débito no puede ser negativo.",
+      "CREDITO_DEBE_NUMERO_VALIDO": "El crédito debe ser un número válido.",
+      "CAMPO_CREDITO_OBLIGATORIO": "El campo de crédito es obligatorio.",
+      "CREDITO_NO_PUEDE_NEGATIVO": "El crédito no puede ser negativo.",
+      "DESCRIPCION_LINEA_NO_PUEDE_ESTAR_VACIA": "La descripción de la línea no puede estar vacía.",
+      "ID_ANO_FISCAL_DEBE_UUID_VALIDO": "El ID del año fiscal debe ser un UUID válido.",
+      "ID_ANO_FISCAL_OBLIGATORIO": "El ID del año fiscal es obligatorio.",
+      "FECHA_DEBE_TENER_FORMATO_ISO_8601_VALIDO": "La fecha debe tener un formato ISO 8601 válido.",
+      "FECHA_AJUSTE_OBLIGATORIA": "La fecha del ajuste es obligatoria.",
+      "DESCRIPCION_PRINCIPAL_AJUSTE_NO_PUEDE_ESTAR_VACIA": "La descripción principal del ajuste no puede estar vacía.",
+      "ID_DIARIO_DEBE_UUID_VALIDO": "El ID del diario debe ser un UUID válido.",
+      "ID_DIARIO_OBLIGATORIO": "El ID del diario es obligatorio."
+    },
+    "PAYMENT": {
+      "PLAN_SELECCIONADO_NO_VALIDO": "El plan seleccionado no es válido.",
+      "DEBES_SELECCIONAR_PLAN": "Debes seleccionar un plan.",
+      "PERIODO_FACTURACION_NO_VALIDO": "El periodo de facturación no es válido.",
+      "SESION_PAGO_NO_VALIDA": "La sesión de pago no es válida."
+    },
+    "YEAR_END_CLOSE": {
+      "ID_ANO_FISCAL_OBLIGATORIO": "El ID del año fiscal es obligatorio.",
+      "CUENTA_GANANCIAS_RETENIDAS_OBLIGATORIA": "La cuenta de Ganancias Retenidas es obligatoria."
+    },
+    "CLOSE_PERIOD": {
+      "ID_PERIODO_CONTABLE_OBLIGATORIO": "El ID del período contable es obligatorio."
+    },
+    "RUN_CONSOLIDATION": {
+      "FECHA_CORTE_PARA_CONSOLIDACION_OBLIGATORIA": "La fecha de corte para la consolidación es obligatoria."
+    },
+    "SWITCH_ORGANIZATION": {
+      "IDENTIFICADOR_ORGANIZACION_NO_VALIDO": "El identificador de la organización no es válido."
+    },
+    "CONSTRAINTS": {
+      "IS_NOT_EMPTY": "{{property}} es obligatorio.",
+      "IS_DEFINED": "{{property}} es obligatorio.",
+      "ARRAY_NOT_EMPTY": "{{property}} no puede estar vacío.",
+      "IS_STRING": "{{property}} debe ser texto.",
+      "IS_NUMBER": "{{property}} debe ser un número.",
+      "IS_NUMBER_STRING": "{{property}} debe ser un número.",
+      "IS_INT": "{{property}} debe ser un número entero.",
+      "IS_POSITIVE": "{{property}} debe ser mayor que cero.",
+      "IS_BOOLEAN": "{{property}} debe ser verdadero o falso.",
+      "IS_ARRAY": "{{property}} debe ser una lista.",
+      "IS_OBJECT": "{{property}} no tiene el formato esperado.",
+      "IS_UUID": "{{property}} no es un identificador válido.",
+      "IS_EMAIL": "{{property}} no es un correo electrónico válido.",
+      "IS_URL": "{{property}} no es una dirección web válida.",
+      "IS_DATE": "{{property}} no es una fecha válida.",
+      "IS_DATE_STRING": "{{property}} no es una fecha válida.",
+      "IS_ISO8601": "{{property}} no es una fecha válida.",
+      "IS_ENUM": "{{property}} no admite ese valor.",
+      "IS_IN": "{{property}} no admite ese valor.",
+      "MATCHES": "{{property}} no tiene el formato esperado.",
+      "MIN": "{{property}} no puede ser menor que {{min}}.",
+      "MAX": "{{property}} no puede ser mayor que {{max}}.",
+      "MIN_LENGTH": "{{property}} debe tener al menos {{min}} caracteres.",
+      "MAX_LENGTH": "{{property}} no puede tener más de {{max}} caracteres.",
+      "LENGTH": "{{property}} debe tener entre {{min}} y {{max}} caracteres.",
+      "ARRAY_MIN_SIZE": "{{property}} debe tener al menos {{min}} elementos.",
+      "ARRAY_MAX_SIZE": "{{property}} no puede tener más de {{max}} elementos.",
+      "WHITELIST_VALIDATION": "{{property}} no es un campo permitido.",
+      "NESTED_VALIDATION": "{{property}} contiene datos que no son válidos.",
+      "IS_E164_PHONE_NUMBER": "El número debe estar en formato internacional E.164 (por ejemplo, +18095551234).",
+      "IS_VERIFICATION_TARGET": "El destino no es un correo electrónico ni un número de teléfono válido.",
+      "IS_RECAPTCHA_TOKEN": "No se pudo verificar que la solicitud viene de una persona. Vuelve a intentarlo."
+    },
+    "FISCAL": {
+      "COUNTRY_NOT_AVAILABLE": "Ese país todavía no está disponible para registro.",
+      "TAX_ID_INVALID": "El identificador fiscal no es válido.",
+      "TAX_ID_INVALID_FOR_COUNTRY": "El {{label}} no es válido. Verifica el dígito verificador (ejemplo: {{example}}).",
+      "TAX_ID_INVALID_FOR_COMPANY": "El {{label}} no es válido para una empresa. Verifica el dígito verificador (ejemplo: {{example}}).",
+      "TAX_ID_INVALID_FOR_INDIVIDUAL": "El {{label}} no es válido para una persona física. Verifica el dígito verificador (ejemplo: {{example}}).",
+      "DIVISION_INVALID": "Selecciona una división administrativa válida.",
+      "DIVISION_INVALID_FOR_COUNTRY": "Selecciona un valor válido para {{label}}.",
+      "POSTAL_CODE_INVALID": "El código postal no es válido.",
+      "POSTAL_CODE_INVALID_FOR_COUNTRY": "El {{label}} no es válido para {{country}}.",
+      "PROFILE_INVALID": "Los datos fiscales no son válidos.",
+      "PROFILE_INCOMPLETE": "Datos fiscales incompletos: {{details}}.",
+      "FIELD_REQUIRED": "{{label}} es obligatorio",
+      "FIELD_UNKNOWN_OPTION": "{{label}} no es una opción válida",
+      "FIELD_BAD_FORMAT": "{{label}} no tiene el formato esperado",
+      "FIELD_NOT_FOR_COUNTRY": "{{label}} no corresponde a este país"
     }
   }
 }

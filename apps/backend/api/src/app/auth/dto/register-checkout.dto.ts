@@ -9,8 +9,8 @@ import { BILLING_PERIODS, type BillingPeriod } from '../../saas/enums/billing-pe
  */
 export class RegisterCheckoutDto extends RegisterUserDto {
   @ApiProperty({ example: 'pro', description: 'Selected plan slug or id' })
-  @IsString({ message: 'El plan seleccionado no es válido.' })
-  @IsNotEmpty({ message: 'Debes seleccionar un plan.' })
+  @IsString({ message: 'VALIDATION.REGISTER_CHECKOUT.PLAN_SELECCIONADO_NO_VALIDO' })
+  @IsNotEmpty({ message: 'VALIDATION.REGISTER_CHECKOUT.DEBES_SELECCIONAR_PLAN' })
   planId: string;
 
   /**
@@ -19,6 +19,6 @@ export class RegisterCheckoutDto extends RegisterUserDto {
    */
   @ApiProperty({ enum: BILLING_PERIODS, required: false, default: 'monthly' })
   @IsOptional()
-  @IsIn(BILLING_PERIODS, { message: 'El periodo de facturación no es válido.' })
+  @IsIn(BILLING_PERIODS, { message: 'VALIDATION.REGISTER_CHECKOUT.PERIODO_FACTURACION_NO_VALIDO' })
   billingPeriod?: BillingPeriod;
 }

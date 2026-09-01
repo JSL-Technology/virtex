@@ -8,6 +8,7 @@ import { ExchangeRate } from './entities/exchange-rate.entity';
 import { Currency } from './entities/currency.entity';
 import { firstValueFrom } from 'rxjs';
 import type { AxiosError } from 'axios';
+import { LocalizedResult } from '../i18n/localized-message';
 
 @Injectable()
 export class ExchangeRatesService {
@@ -29,7 +30,7 @@ export class ExchangeRatesService {
     await this.updateRates();
   }
 
-  async updateRates(): Promise<{ message: string; rates_updated: number }> {
+  async updateRates(): Promise<LocalizedResult<{ rates_updated: number }>> {
     const apiKey = this.configService.get<string>('XE_API_KEY');
     const apiId = this.configService.get<string>('XE_API_ID');
 
@@ -44,7 +45,7 @@ export class ExchangeRatesService {
 
     if (currencyCodes.length === 0) {
       this.logger.warn('No hay divisas configuradas para actualizar.');
-      return { message: 'No hay divisas para actualizar.', rates_updated: 0 };
+      return { messageKey: 'CURRENCIES.NO_HAY_DIVISAS_PARA_ACTUALIZAR', rates_updated: 0 };
     }
 
     const auth = 'Basic ' + Buffer.from(`${apiId}:${apiKey}`).toString('base64');
@@ -78,7 +79,7 @@ export class ExchangeRatesService {
       }
 
       this.logger.log(`Se actualizaron ${updatedCount} tasas de cambio desde Xe.`);
-      return { message: 'Tasas de cambio actualizadas exitosamente.', rates_updated: updatedCount };
+      return { messageKey: 'CURRENCIES.TASAS_CAMBIO_ACTUALIZADAS_EXITOSAMENTE', rates_updated: updatedCount };
 
     } catch (error) {
       this.logger.error('Error al obtener las tasas de cambio de Xe:', (error as AxiosError).response?.data ?? (error as Error).message);

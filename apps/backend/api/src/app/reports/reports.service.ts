@@ -58,7 +58,7 @@ export class ReportsService {
     });
 
     if (openInvoices.length === 0) {
-        return { message: "No hay facturas pendientes de pago para generar el reporte." };
+        return { messageKey: 'REPORTS.NO_HAY_FACTURAS_PENDIENTES_PAGO_PARA_GENERAR_REPORTE' };
     }
 
     const paymentLines = await this.dataSource.getRepository(CustomerPaymentLine)

@@ -28,10 +28,10 @@ export class RegisterUserDto {
     // Presence is declared BEFORE shape on every field in this DTO. With `stopAtFirstError` the
     // first failing constraint is the one the customer sees, and "está vacío" explains an empty
     // field where "debe ser un texto" does not.
-    @IsNotEmpty({ message: 'El nombre de la organización no puede estar vacío.' })
-    @IsString({ message: 'El nombre de la organización debe ser un texto.' })
+    @IsNotEmpty({ message: 'VALIDATION.REGISTER_USER.NOMBRE_ORGANIZACION_NO_PUEDE_ESTAR_VACIO' })
+    @IsString({ message: 'VALIDATION.REGISTER_USER.NOMBRE_ORGANIZACION_DEBE_TEXTO' })
     @MinLength(2, {
-        message: 'El nombre de la organización debe tener al menos 2 caracteres.',
+        message: 'VALIDATION.REGISTER_USER.NOMBRE_ORGANIZACION_DEBE_TENER_AL_MENOS_2_CARACTERES',
     })
     organizationName: string;
 
@@ -44,8 +44,8 @@ export class RegisterUserDto {
      * being present. Omitting it produced a tenant with no fiscal identity and a success message.
      */
     @ApiProperty({ example: 'DO', description: 'ISO 3166-1 alpha-2 country code' })
-    @IsString({ message: 'El país es obligatorio.' })
-    @IsNotEmpty({ message: 'El país es obligatorio.' })
+    @IsString({ message: 'VALIDATION.REGISTER_USER.PAIS_OBLIGATORIO' })
+    @IsNotEmpty({ message: 'VALIDATION.REGISTER_USER.PAIS_OBLIGATORIO' })
     @IsSupportedCountry()
     countryCode: string;
 
@@ -62,7 +62,7 @@ export class RegisterUserDto {
      * the SAT catalogue offers, so it has to be answered before the fiscal profile can be.
      */
     @ApiProperty({ enum: TaxpayerKind, example: TaxpayerKind.COMPANY, description: 'Legal entity or natural person' })
-    @IsEnum(TaxpayerKind, { message: 'Indica si el contribuyente es una empresa o una persona física.' })
+    @IsEnum(TaxpayerKind, { message: 'VALIDATION.REGISTER_USER.INDICA_SI_CONTRIBUYENTE_EMPRESA_PERSONA_FISICA' })
     taxpayerKind: TaxpayerKind;
 
     /**
@@ -72,8 +72,8 @@ export class RegisterUserDto {
      * these markets.
      */
     @ApiProperty({ example: '131-12345-7', description: 'Tax ID (RNC, RFC, EIN, NIT, RUT…)' })
-    @IsNotEmpty({ message: 'El ID Fiscal es obligatorio.' })
-    @IsString({ message: 'El ID Fiscal debe ser un texto.' })
+    @IsNotEmpty({ message: 'VALIDATION.REGISTER_USER.ID_FISCAL_OBLIGATORIO' })
+    @IsString({ message: 'VALIDATION.REGISTER_USER.ID_FISCAL_DEBE_TEXTO' })
     @IsTaxIdValidForCountry()
     taxId: string;
 
@@ -104,29 +104,29 @@ export class RegisterUserDto {
      * validated against.
      */
     @ApiProperty({ example: 'uuid-of-region', description: 'Deprecated: derived from countryCode', required: false })
-    @IsUUID('4', { message: 'El ID de la región fiscal no es válido.' })
+    @IsUUID('4', { message: 'VALIDATION.REGISTER_USER.ID_REGION_FISCAL_NO_VALIDO' })
     @IsOptional()
     fiscalRegionId?: string;
 
     @ApiProperty({ example: 'John', description: 'User First Name' })
-    @IsNotEmpty({ message: 'El nombre no puede estar vacío.' })
-    @IsString({ message: 'El nombre debe ser un texto.' })
+    @IsNotEmpty({ message: 'VALIDATION.REGISTER_USER.NOMBRE_NO_PUEDE_ESTAR_VACIO' })
+    @IsString({ message: 'VALIDATION.REGISTER_USER.NOMBRE_DEBE_TEXTO' })
     firstName: string;
 
     @ApiProperty({ example: 'Doe', description: 'User Last Name' })
-    @IsNotEmpty({ message: 'El apellido no puede estar vacío.' })
-    @IsString({ message: 'El apellido debe ser un texto.' })
+    @IsNotEmpty({ message: 'VALIDATION.REGISTER_USER.APELLIDO_NO_PUEDE_ESTAR_VACIO' })
+    @IsString({ message: 'VALIDATION.REGISTER_USER.APELLIDO_DEBE_TEXTO' })
     lastName: string;
 
     @ApiProperty({ example: 'john.doe@example.com', description: 'User Email' })
-    @IsEmail({}, { message: 'El formato del correo electrónico no es válido.' })
-    @IsNotEmpty({ message: 'El correo electrónico no puede estar vacío.' })
-    @MaxLength(254, { message: 'El email no puede tener más de 254 caracteres (RFC 5321).' })
+    @IsEmail({}, { message: 'VALIDATION.REGISTER_USER.FORMATO_CORREO_ELECTRONICO_NO_VALIDO' })
+    @IsNotEmpty({ message: 'VALIDATION.REGISTER_USER.CORREO_ELECTRONICO_NO_PUEDE_ESTAR_VACIO' })
+    @MaxLength(254, { message: 'VALIDATION.REGISTER_USER.EMAIL_NO_PUEDE_TENER_MAS_254_CARACTERES_RFC' })
     email: string;
 
     @ApiProperty({ example: 'StrongP@ssw0rd', description: 'User Password' })
-    @IsNotEmpty({ message: 'La contraseña no puede estar vacía.' })
-    @IsString({ message: 'La contraseña debe ser un texto.' })
+    @IsNotEmpty({ message: 'VALIDATION.REGISTER_USER.CONTRASENA_NO_PUEDE_ESTAR_VACIA' })
+    @IsString({ message: 'VALIDATION.REGISTER_USER.CONTRASENA_DEBE_TEXTO' })
     @MinLength(PASSWORD_MIN_LENGTH, { message: `La contraseña debe tener al menos ${PASSWORD_MIN_LENGTH} caracteres.` })
     @MaxLength(PASSWORD_MAX_LENGTH, { message: `La contraseña no puede tener más de ${PASSWORD_MAX_LENGTH} caracteres.` })
     @Matches(PASSWORD_POLICY_REGEX, { message: PASSWORD_POLICY_MESSAGE })
@@ -155,15 +155,15 @@ export class RegisterUserDto {
      * state and ZIP. Collecting one line means re-collecting all of it before invoicing can work.
      */
     @ApiProperty({ example: 'Av. Winston Churchill 1099', description: 'Fiscal street address' })
-    @IsNotEmpty({ message: 'La dirección fiscal es obligatoria.' })
-    @IsString({ message: 'La dirección debe ser un texto.' })
-    @MaxLength(200, { message: 'La dirección no puede tener más de 200 caracteres.' })
+    @IsNotEmpty({ message: 'VALIDATION.REGISTER_USER.DIRECCION_FISCAL_OBLIGATORIA' })
+    @IsString({ message: 'VALIDATION.REGISTER_USER.DIRECCION_DEBE_TEXTO' })
+    @MaxLength(200, { message: 'VALIDATION.REGISTER_USER.DIRECCION_NO_PUEDE_TENER_MAS_200_CARACTERES' })
     address: string;
 
     @ApiProperty({ example: 'Santo Domingo', description: 'City / municipality' })
-    @IsNotEmpty({ message: 'La ciudad es obligatoria.' })
-    @IsString({ message: 'La ciudad debe ser un texto.' })
-    @MaxLength(120, { message: 'La ciudad no puede tener más de 120 caracteres.' })
+    @IsNotEmpty({ message: 'VALIDATION.REGISTER_USER.CIUDAD_OBLIGATORIA' })
+    @IsString({ message: 'VALIDATION.REGISTER_USER.CIUDAD_DEBE_TEXTO' })
+    @MaxLength(120, { message: 'VALIDATION.REGISTER_USER.CIUDAD_NO_PUEDE_TENER_MAS_120_CARACTERES' })
     city: string;
 
     @ApiProperty({ example: '32', description: 'First-level administrative division code or name' })
@@ -193,7 +193,7 @@ export class RegisterUserDto {
     @ApiProperty({ example: '+18090000000', description: 'User phone in E.164 format', required: false })
     @IsOptional()
     @IsString()
-    @IsE164PhoneNumber({ message: 'El teléfono debe estar en formato internacional E.164 (por ejemplo, +18095551234).' })
+    @IsE164PhoneNumber({ message: 'VALIDATION.REGISTER_USER.TELEFONO_DEBE_ESTAR_FORMATO_INTERNACIONAL_E_164_POR' })
     phone?: string;
 
     @ApiProperty({ example: '123456', description: 'Email Verification Code', required: false })

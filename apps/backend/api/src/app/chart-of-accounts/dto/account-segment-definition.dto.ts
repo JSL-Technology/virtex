@@ -8,7 +8,7 @@ export class CreateAccountSegmentDefinitionDto {
   name: string;
 
   @IsInt()
-  @Min(1)
+  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
   length: number;
 
   @IsBoolean()

@@ -3,10 +3,10 @@ import { IsNotEmpty, IsUUID } from 'class-validator';
 
 export class YearEndCloseDto {
   @IsUUID()
-  @IsNotEmpty({ message: 'El ID del año fiscal es obligatorio.' })
+  @IsNotEmpty({ message: 'VALIDATION.YEAR_END_CLOSE.ID_ANO_FISCAL_OBLIGATORIO' })
   fiscalYearId: string;
 
   @IsUUID()
-  @IsNotEmpty({ message: 'La cuenta de Ganancias Retenidas es obligatoria.' })
+  @IsNotEmpty({ message: 'VALIDATION.YEAR_END_CLOSE.CUENTA_GANANCIAS_RETENIDAS_OBLIGATORIA' })
   retainedEarningsAccountId: string;
 }

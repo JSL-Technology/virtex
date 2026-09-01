@@ -5,6 +5,6 @@ import { IsString, IsNotEmpty } from 'class-validator';
 
 export class UpdateAccountDto extends PartialType(CreateAccountDto) {
   @IsString()
-  @IsNotEmpty({ message: 'Se requiere una razón para la modificación.' })
+  @IsNotEmpty({ message: 'VALIDATION.UPDATE_ACCOUNT.REQUIERE_RAZON_PARA_MODIFICACION' })
   reasonForChange: string;
 }

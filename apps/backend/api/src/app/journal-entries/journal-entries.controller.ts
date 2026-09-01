@@ -191,6 +191,6 @@ export class JournalEntriesController {
       attachmentId,
       user.organizationId,
     );
-    return { message: 'Adjunto eliminado exitosamente.' };
+    return { messageKey: 'JOURNAL_ENTRIES.ADJUNTO_ELIMINADO_EXITOSAMENTE' };
   }
 }

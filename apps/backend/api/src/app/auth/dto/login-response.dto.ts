@@ -39,8 +39,15 @@ export class TwoFactorRequiredResponseDto {
     @ApiProperty({ example: true })
     require2fa: boolean;
 
-    @ApiProperty({ example: '2FA verification required' })
-    message: string;
+    /**
+     * A catalogue key, resolved into `message` by `LocaleInterceptor` on the way out.
+     *
+     * It used to be the literal string "2FA verification required" — English, in a product whose
+     * interface is Spanish, on the one screen a reader reaches before they have signed in and
+     * therefore before the server knows anything about them except what they asked for.
+     */
+    @ApiProperty({ example: 'AUTH.TWO_FACTOR_REQUIRED' })
+    messageKey: string;
 
     /** Internal only. Set as an httpOnly cookie by the controller; never sent in the body. */
     pendingId?: string;

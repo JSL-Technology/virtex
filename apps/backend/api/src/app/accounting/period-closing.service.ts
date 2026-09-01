@@ -29,6 +29,7 @@ import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
 import { ClosingAutomationService } from './closing-automation.service';
 import { BadRequestError, ForbiddenError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
+import { LocalizedMessage } from '../i18n/localized-message';
 
 @Injectable()
 export class PeriodClosingService {
@@ -46,6 +47,32 @@ export class PeriodClosingService {
     private readonly auditTrailService: AuditTrailService,
     private readonly closingAutomationService: ClosingAutomationService,
   ) {}
+
+  /**
+   * The tenant's accounting periods, oldest first.
+   *
+   * The calendar is data, not presentation: the reader's own language decides how
+   * "2026-03-01" is spelled, so this returns the dates and the per-module statuses and lets the
+   * client render them. `name` is whatever the tenant called the period and is therefore in
+   * whatever language they wrote it in — it travels as a secondary label, never as the identity
+   * of the row.
+   */
+  async listPeriods(
+    organizationId: string,
+    filters: { year?: number } = {},
+  ): Promise<AccountingPeriod[]> {
+    const where: Record<string, unknown> = { organizationId };
+    if (filters.year !== undefined) {
+      where['startDate'] = Between(
+        `${filters.year}-01-01` as unknown as Date,
+        `${filters.year}-12-31` as unknown as Date,
+      );
+    }
+    return this.periodRepository.find({
+      where,
+      order: { startDate: 'ASC' },
+    });
+  }
 
   async closePeriod(
     periodId: string,
@@ -380,7 +407,7 @@ export class PeriodClosingService {
     return this.accountLockRepository.save(lock);
   }
 
-  async unlockAccountInPeriod(dto: LockAccountInPeriodDto, organizationId: string): Promise<{ message: string }> {
+  async unlockAccountInPeriod(dto: LockAccountInPeriodDto, organizationId: string): Promise<LocalizedMessage> {
     const result = await this.accountLockRepository.delete({
       ...dto,
       organizationId,
@@ -388,6 +415,6 @@ export class PeriodClosingService {
     if (result.affected === 0) {
       throw new NotFoundError('ACCOUNTING.NO_ENCONTRO_BLOQUEO_CUENTA_PERIODO_ESPECIFICADOS');
     }
-    return { message: 'El bloqueo de la cuenta para el período ha sido removido.' };
+    return { messageKey: 'ACCOUNTING.ACCOUNT_PERIOD_LOCK_REMOVED' };
   }
 }

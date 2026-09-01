@@ -6,12 +6,12 @@ import type { JournalType } from '../entities/journal.entity';
 export class CreateJournalDto {
   @IsString()
   @IsNotEmpty()
-  @MaxLength(10)
+  @MaxLength(10, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":10}' })
   code: string;
 
   @IsString()
   @IsNotEmpty()
-  @MaxLength(100)
+  @MaxLength(100, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":100}' })
   name: string;
 
   @IsEnum(['SALES', 'PURCHASES', 'CASH', 'BANK', 'GENERAL'])

@@ -240,7 +240,7 @@ export class TwoFactorAuthService {
     await this.userSecurityRepository.save(freshUser.security);
     await this.userCacheService.clearUserSession(user.id);
 
-    return { message: '2FA enabled successfully', backupCodes: codes };
+    return { messageKey: 'AUTH.2FA_ENABLED_SUCCESSFULLY', backupCodes: codes };
   }
 
   async disableTwoFactor(user: UserIdentity) {
@@ -266,7 +266,7 @@ export class TwoFactorAuthService {
       }
 
       await this.userCacheService.clearUserSession(user.id);
-      return { message: '2FA disabled successfully' };
+      return { messageKey: 'AUTH.2FA_DISABLED_SUCCESSFULLY' };
   }
 
   // 10/10 SECURITY: Backup Codes Management

@@ -2,7 +2,9 @@
 import {
   Controller,
   Post,
+  Get,
   Body,
+  Query,
   UseGuards,
   HttpCode,
   HttpStatus,
@@ -19,6 +21,7 @@ import { ModulePeriodDto } from './dto/module-period.dto';
 import { LockAccountInPeriodDto } from './dto/lock-account-period.dto';
 import { ReopenPeriodDto } from './dto/reopen-period.dto';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { ListPeriodsQueryDto } from './dto/list-periods-query.dto';
 
 @ApiTags('Accounting')
 @ApiBearerAuth()
@@ -26,6 +29,17 @@ import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interfa
 @UseGuards(JwtAuthGuard)
 export class AccountingController {
   constructor(private readonly periodClosingService: PeriodClosingService) {}
+
+  @Get('periods')
+  @HasPermission(PERMISSIONS.ACCOUNTING_VIEW)
+  @ApiOperation({ summary: 'Lista los períodos contables de la organización.' })
+  @ApiResponse({ status: 200, description: 'Períodos contables de la organización.' })
+  listPeriods(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: ListPeriodsQueryDto,
+  ) {
+    return this.periodClosingService.listPeriods(user.organizationId, { year: query.year });
+  }
 
   @Post('close-period')
   @HttpCode(HttpStatus.OK)
@@ -44,7 +58,8 @@ export class AccountingController {
       user.organizationId,
     );
     return {
-      message: `El período contable "${closedPeriod.name}" ha sido cerrado exitosamente.`,
+      messageKey: 'ACCOUNTING.PERIOD_CLOSED',
+      messageParams: { name: closedPeriod.name },
       period: closedPeriod,
     };
   }
@@ -67,7 +82,8 @@ export class AccountingController {
       user.id,
     );
     return {
-      message: `El período contable "${reopenedPeriod.name}" ha sido reabierto exitosamente.`,
+      messageKey: 'ACCOUNTING.PERIOD_REOPENED',
+      messageParams: { name: reopenedPeriod.name },
       period: reopenedPeriod,
     };
   }
@@ -87,7 +103,8 @@ export class AccountingController {
       user.organizationId,
     );
     return {
-      message: `El módulo ${dto.module} para el período "${period.name}" ha sido cerrado.`,
+      messageKey: 'ACCOUNTING.MODULE_PERIOD_CLOSED',
+      messageParams: { module: dto.module, name: period.name },
       period,
     };
   }
@@ -107,7 +124,8 @@ export class AccountingController {
       user.organizationId,
     );
     return {
-      message: `El módulo ${dto.module} para el período "${period.name}" ha sido reabierto.`,
+      messageKey: 'ACCOUNTING.MODULE_PERIOD_REOPENED',
+      messageParams: { module: dto.module, name: period.name },
       period,
     };
   }

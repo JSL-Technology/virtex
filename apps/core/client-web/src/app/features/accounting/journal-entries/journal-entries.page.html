@@ -2,13 +2,10 @@
   <div class="subview-header">
     <h3>{{ 'ACCOUNTING.JOURNAL_ENTRIES.JOURNAL_ENTRIES' | translate }}</h3>
     <div class="header-actions">
-      <button class="secondary-button"><lucide-icon [img]="FilterIcon"
-          size="16"></lucide-icon><span>{{ 'ACCOUNTING.JOURNAL_ENTRIES.FILTERS' | translate }}</span></button>
       <a [routerLink]="['./new']" class="primary-button">
         <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
-        <span>{{ 'accounting.journal_entries.new_entry' | translate }}</span>
+        <span>{{ 'ACCOUNTING.JOURNAL_ENTRIES.NEW_ENTRY' | translate }}</span>
       </a>
-      <!-- <button class="primary-button"><lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon><span>New Entry</span></button> -->
     </div>
   </div>
   <div class="table-container card">
@@ -25,22 +22,46 @@
         </tr>
       </thead>
       <tbody>
-        @for(entry of entries(); track entry.id) {
-        <tr>
-          <td>{{ entry.date }}</td>
-          <td><a href="#" class="table-link">{{ entry.id }}</a></td>
-          <td>{{ entry.description }}</td>
-          <td class="text-right">{{ entry.debit | vxNumber:'1.2-2' }}</td>
-          <td class="text-right">{{ entry.credit | vxNumber:'1.2-2' }}</td>
-          <td class="text-center"><span class="status-badge" [ngClass]="getStatusClass(entry.status)">{{ entry.status
-              }}</span></td>
-          <td class="actions-column"><button class="icon-button"><lucide-icon [img]="MoreHorizontalIcon"
-                size="18"></lucide-icon></button></td>
-        </tr>
-        } @empty {
-        <tr>
-          <td colspan="7" class="empty-state">{{ 'ACCOUNTING.JOURNAL_ENTRIES.NO_JOURNAL_ENTRIES_FOUND' | translate }}</td>
-        </tr>
+        @if (loading()) {
+          <tr>
+            <td colspan="7" class="empty-state">{{ 'ACCOUNTING.JOURNAL_ENTRIES.LOADING' | translate }}</td>
+          </tr>
+        } @else if (failed()) {
+          <tr>
+            <td colspan="7" class="empty-state">{{ 'ACCOUNTING.JOURNAL_ENTRIES.LOAD_FAILED' | translate }}</td>
+          </tr>
+        } @else if (isEmpty()) {
+          <tr>
+            <td colspan="7" class="empty-state">
+              {{ 'ACCOUNTING.JOURNAL_ENTRIES.NO_JOURNAL_ENTRIES_FOUND' | translate }}
+            </td>
+          </tr>
+        } @else {
+          @for (entry of entries(); track entry.id) {
+            <tr>
+              <td>{{ entry.date | vxDate: 'date' : true }}</td>
+              <td>
+                <a [routerLink]="['./', entry.id, 'edit']" class="table-link">{{ entry.id }}</a>
+              </td>
+              <td>{{ entry.description }}</td>
+              <td class="text-right">{{ debitTotal(entry) | vxMoney: entry.currencyCode }}</td>
+              <td class="text-right">{{ creditTotal(entry) | vxMoney: entry.currencyCode }}</td>
+              <td class="text-center">
+                <span class="status-badge" [ngClass]="statusClass(entry.status)">
+                  {{ statusKey(entry.status) | translate }}
+                </span>
+              </td>
+              <td class="actions-column">
+                <a
+                  class="icon-button"
+                  [routerLink]="['./', entry.id, 'edit']"
+                  [attr.aria-label]="'ACCOUNTING.JOURNAL_ENTRIES.ROW_ACTIONS' | translate"
+                >
+                  <lucide-icon [img]="MoreHorizontalIcon" size="18"></lucide-icon>
+                </a>
+              </td>
+            </tr>
+          }
         }
       </tbody>
     </table>

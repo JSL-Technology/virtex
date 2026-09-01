@@ -6,6 +6,7 @@ import { Ledger } from './entities/ledger.entity';
 import { LedgerMappingRule } from './entities/ledger-mapping-rule.entity';
 import { CreateOrUpdateLedgerMapDto } from './dto/ledger-mapping.dto';
 import { NotFoundError } from '../i18n/localized.exception';
+import { LocalizedResult } from '../i18n/localized-message';
 
 @Injectable()
 export class LedgerMappingService {
@@ -31,7 +32,7 @@ export class LedgerMappingService {
   async createOrUpdateMap(
     dto: CreateOrUpdateLedgerMapDto,
     organizationId: string,
-  ): Promise<{ message: string; created: number }> {
+  ): Promise<LocalizedResult<{ created: number }>> {
     const { sourceLedgerId, targetLedgerId, mappings } = dto;
 
     return this.dataSource.transaction(async (manager) => {
@@ -52,7 +53,7 @@ export class LedgerMappingService {
       });
 
       if (mappings.length === 0) {
-        return { message: 'Todas las reglas existentes fueron eliminadas.', created: 0 };
+        return { messageKey: 'ACCOUNTING.TODAS_REGLAS_EXISTENTES_FUERON_ELIMINADAS', created: 0 };
       }
 
 
@@ -71,7 +72,8 @@ export class LedgerMappingService {
       await manager.save(newRules);
 
       return {
-        message: `Mapeo entre el libro '${sourceLedger.name}' y '${targetLedger.name}' actualizado.`,
+        messageKey: 'ACCOUNTING.LEDGER_MAP_UPDATED',
+        messageParams: { source: sourceLedger.name, target: targetLedger.name },
         created: newRules.length,
       };
     });

@@ -67,6 +67,9 @@ export const DEFAULT_ROLES: DefaultRole[] = [
         PERMISSIONS.JOURNAL_ENTRIES_VIEW,
         PERMISSIONS.CHART_OF_ACCOUNTS_VIEW,
         PERMISSIONS.CHART_OF_ACCOUNTS_EDIT,
+        // Reading the period calendar is what tells an accountant which month they may still post
+        // into. Closing and reopening it stay separate permissions.
+        PERMISSIONS.ACCOUNTING_VIEW,
       ],
       isSystemRole: true,
     },

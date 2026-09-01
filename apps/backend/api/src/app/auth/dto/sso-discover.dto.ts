@@ -8,6 +8,6 @@ import { ApiProperty } from '@nestjs/swagger';
 export class SsoDiscoverDto {
   @ApiProperty({ example: 'jane@acme.com' })
   @IsEmail()
-  @MaxLength(254)
+  @MaxLength(254, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":254}' })
   email: string;
 }

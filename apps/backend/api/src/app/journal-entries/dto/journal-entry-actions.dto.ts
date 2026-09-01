@@ -3,16 +3,16 @@ import { CreateJournalEntryDto } from './create-journal-entry.dto';
 
 export class UpdateJournalEntryDto extends CreateJournalEntryDto {
   @IsString()
-  @IsNotEmpty({ message: 'Se requiere una razón para la modificación.' })
+  @IsNotEmpty({ message: 'VALIDATION.JOURNAL_ENTRY_ACTIONS.REQUIERE_RAZON_PARA_MODIFICACION' })
   modificationReason: string;
 }
 
 export class ReverseJournalEntryDto {
-  @IsDateString({}, { message: 'La fecha de reversión debe ser una fecha válida.'})
-  @IsNotEmpty({ message: 'La fecha de reversión es obligatoria.'})
+  @IsDateString({}, { message: 'VALIDATION.JOURNAL_ENTRY_ACTIONS.FECHA_REVERSION_DEBE_FECHA_VALIDA'})
+  @IsNotEmpty({ message: 'VALIDATION.JOURNAL_ENTRY_ACTIONS.FECHA_REVERSION_OBLIGATORIA'})
   reversalDate: string;
 
   @IsString()
-  @IsNotEmpty({ message: 'Se requiere una razón para la reversión.' })
+  @IsNotEmpty({ message: 'VALIDATION.JOURNAL_ENTRY_ACTIONS.REQUIERE_RAZON_PARA_REVERSION' })
   reason: string;
 }

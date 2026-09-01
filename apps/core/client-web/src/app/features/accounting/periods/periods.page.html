@@ -2,8 +2,13 @@
   <div class="subview-header">
     <h3>{{ 'ACCOUNTING.PERIODS.ACCOUNTING_PERIODS' | translate }}</h3>
     <div class="header-actions">
-      </div>
+      <button class="secondary-button" type="button" (click)="load()" [disabled]="loading()">
+        <lucide-icon [img]="RefreshIcon" size="16"></lucide-icon>
+        <span>{{ 'COMMON.REFRESH' | translate }}</span>
+      </button>
+    </div>
   </div>
+
   <div class="table-container card">
     <table class="data-table">
       <thead>
@@ -16,30 +21,59 @@
         </tr>
       </thead>
       <tbody>
-        @for(period of periods(); track period.month) {
+        @if (loading()) {
           <tr>
-            <td><strong>{{ period.month }} {{ period.year }}</strong></td>
-            <td>{{ period.startDate }}</td>
-            <td>{{ period.endDate }}</td>
-            <td class="text-center">
-              <span class="status-badge" [ngClass]="getStatusClass(period.status)">
-                {{ period.status }}
-              </span>
-            </td>
-            <td class="actions-column">
-              @if (period.status !== 'Future') {
-                <button class="action-button" (click)="togglePeriodStatus(period)">
-                  @if (period.status === 'Open') {
+            <td colspan="5" class="empty-state">{{ 'ACCOUNTING.PERIODS.LOADING' | translate }}</td>
+          </tr>
+        } @else if (failed()) {
+          <tr>
+            <td colspan="5" class="empty-state">{{ 'ACCOUNTING.PERIODS.LOAD_FAILED' | translate }}</td>
+          </tr>
+        } @else if (isEmpty()) {
+          <tr>
+            <td colspan="5" class="empty-state">{{ 'ACCOUNTING.PERIODS.EMPTY' | translate }}</td>
+          </tr>
+        } @else {
+          @for (period of periods(); track period.id) {
+            <tr>
+              <td>
+                <strong>{{ period.startDate | vxDate: 'monthYear' : true }}</strong>
+                @if (period.name) {
+                  <span class="period-name">{{ period.name }}</span>
+                }
+              </td>
+              <td>{{ period.startDate | vxDate: 'date' : true }}</td>
+              <td>{{ period.endDate | vxDate: 'date' : true }}</td>
+              <td class="text-center">
+                <span class="status-badge" [ngClass]="statusClass(period.status)">
+                  {{ statusKey(period.status) | translate }}
+                </span>
+              </td>
+              <td class="actions-column">
+                @if (period.status === 'OPEN') {
+                  <button
+                    class="action-button"
+                    type="button"
+                    [disabled]="pending() === period.id"
+                    (click)="close(period)"
+                  >
                     <lucide-icon [img]="LockIcon" size="16"></lucide-icon>
                     <span>{{ 'ACCOUNTING.PERIODS.CLOSE_PERIOD' | translate }}</span>
-                  } @else {
+                  </button>
+                } @else {
+                  <button
+                    class="action-button"
+                    type="button"
+                    [disabled]="pending() === period.id"
+                    (click)="reopen(period)"
+                  >
                     <lucide-icon [img]="UnlockIcon" size="16"></lucide-icon>
                     <span>{{ 'ACCOUNTING.PERIODS.RE_OPEN' | translate }}</span>
-                  }
-                </button>
-              }
-            </td>
-          </tr>
+                  </button>
+                }
+              </td>
+            </tr>
+          }
         }
       </tbody>
     </table>

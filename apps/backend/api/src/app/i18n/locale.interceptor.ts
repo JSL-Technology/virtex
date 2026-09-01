@@ -3,9 +3,10 @@ import { Observable, map } from 'rxjs';
 import { LanguageCode } from '@virteex/shared/types';
 import { UserResponseDto } from '../auth/dto/user-response.dto';
 import { buildLocaleContext, currentLanguage, preferenceLanguage, setRequestLocale } from './request-locale';
+import { I18nService } from './i18n.service';
 
 /**
- * Two jobs, both of which have to happen between the guards and the response.
+ * Three jobs, all of which have to happen between the guards and the response.
  *
  * **1. Upgrade the request's language once the user is known.** The middleware resolves the
  * language from `Accept-Language` before the guards run, because a failed sign-in must still be
@@ -19,11 +20,20 @@ import { buildLocaleContext, currentLanguage, preferenceLanguage, setRequestLoca
  * heuristic: `excludeExtraneousValues` produces real instances, so nothing else can be mistaken
  * for one.
  *
+ * **3. Resolve `messageKey` into `message`.** The error path was translated by the exception
+ * filter; the success path was not, so "El período contable ... ha sido cerrado exitosamente."
+ * reached a Portuguese reader verbatim. A service returns the key and the parameters, the edge
+ * turns them into prose — the same division of labour as the filter, and the reason no service
+ * has to inject `I18nService` or thread a language argument through its signature just to say
+ * "saved".
+ *
  * The context has to be computed server-side because the browser cannot: it knows its own
  * timezone and locale, and an ERP needs the tenant's.
  */
 @Injectable()
 export class LocaleInterceptor implements NestInterceptor {
+  constructor(private readonly i18n: I18nService) {}
+
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     if (context.getType() !== 'http') return next.handle();
 
@@ -35,7 +45,7 @@ export class LocaleInterceptor implements NestInterceptor {
     if (preferred) setRequestLocale({ language: preferred });
 
     const language = currentLanguage();
-    return next.handle().pipe(map((body) => this.stamp(body, language)));
+    return next.handle().pipe(map((body) => this.stamp(this.localize(body, language), language)));
   }
 
   /**
@@ -65,6 +75,41 @@ export class LocaleInterceptor implements NestInterceptor {
       }
     }
     return body;
+  }
+
+  /**
+   * Replace `{ messageKey, messageParams }` with `{ message }`, in place, one level deep.
+   *
+   * One level matches where the field is actually written: the top of a command response
+   * (`{ messageKey, period }`) and inside a single nested envelope (`{ data: { messageKey } }`).
+   * `messageKey` is left alone when it does not name a real key, so an unknown key surfaces as
+   * itself in the response rather than being silently deleted.
+   */
+  private localize(body: unknown, language: LanguageCode): unknown {
+    if (body === null || typeof body !== 'object' || Array.isArray(body)) return body;
+
+    const record = body as Record<string, unknown>;
+    this.resolveMessage(record, language);
+    for (const value of Object.values(record)) {
+      if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+        this.resolveMessage(value as Record<string, unknown>, language);
+      }
+    }
+    return body;
+  }
+
+  private resolveMessage(record: Record<string, unknown>, language: LanguageCode): void {
+    const key = record['messageKey'];
+    if (typeof key !== 'string' || !this.i18n.has(key)) return;
+
+    const params = record['messageParams'];
+    record['message'] = this.i18n.translate(
+      key,
+      language,
+      params !== null && typeof params === 'object' ? (params as Record<string, unknown>) : {},
+    );
+    delete record['messageKey'];
+    delete record['messageParams'];
   }
 
   private withContext(user: UserResponseDto, language: LanguageCode): UserResponseDto {

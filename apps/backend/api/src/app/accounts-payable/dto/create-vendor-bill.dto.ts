@@ -23,11 +23,11 @@ class CreateVendorBillLineDto {
   quantity: number;
 
   @IsNumber()
-  @Min(0)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   unitPrice: number;
 
   @IsNumber()
-  @Min(0)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   total: number;
 
   @IsUUID()
@@ -56,12 +56,12 @@ export class CreateVendorBillDto {
   lines: CreateVendorBillLineDto[];
 
   @IsNumber()
-  @Min(0)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   total: number;
 
 
   @IsString()
   @IsOptional()
-  @Length(3, 3)
+  @Length(3, 3, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":3,"max":3}' })
   currencyCode?: string;
 }

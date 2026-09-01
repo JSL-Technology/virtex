@@ -107,7 +107,7 @@ export class MfaOrchestratorService {
 
     await this.verificationCodeRepository.delete(record.id);
 
-    return { message: 'Email verified successfully.' };
+    return { messageKey: 'AUTH.EMAIL_VERIFIED_SUCCESSFULLY' };
   }
 
   async sendPhoneOtp(userId: string, phoneNumber: string) {
@@ -172,7 +172,7 @@ export class MfaOrchestratorService {
 
     await this.verificationCodeRepository.delete(record.id);
 
-    return { message: 'Phone number verified successfully.' };
+    return { messageKey: 'AUTH.PHONE_NUMBER_VERIFIED_SUCCESSFULLY' };
   }
 
   async sendLoginOtp(user: User) {
@@ -291,7 +291,7 @@ export class MfaOrchestratorService {
       { secret: AuthConfig.JWT_PREVERIFY_SECRET, expiresIn: '30m' },
     );
 
-    return { message: 'Verified successfully.', preVerifiedToken };
+    return { messageKey: 'AUTH.VERIFIED_SUCCESSFULLY', preVerifiedToken };
   }
 
   async confirmEmailMagicLink(token: string): Promise<{ preVerifiedToken: string }> {

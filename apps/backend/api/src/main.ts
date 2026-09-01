@@ -8,6 +8,8 @@ import fastifyHelmet from '@fastify/helmet';
 import fastifyMultipart from '@fastify/multipart';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
+import { I18nService } from './app/i18n/i18n.service';
+import { localizedValidationExceptionFactory } from './app/i18n/validation-messages';
 
 import {
   FastifyAdapter,
@@ -135,6 +137,14 @@ async function bootstrap() {
        * shape, so the first error is the one that actually explains the problem.
        */
       stopAtFirstError: true,
+      /**
+       * Validation failures are answered in the reader's language.
+       *
+       * The factory needs the catalogue, and the catalogue is a provider, so the pipe is built
+       * here from the running application rather than declared as `APP_PIPE`: `useGlobalPipes`
+       * with an instance is the only form that can take a dependency resolved from the injector.
+       */
+      exceptionFactory: localizedValidationExceptionFactory(app.get(I18nService)),
     }),
   );
 

@@ -2,7 +2,7 @@ import { IsEmail, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
 export class RequestEmailChangeDto {
   @IsEmail()
-  @MaxLength(254)
+  @MaxLength(254, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":254}' })
   newEmail!: string;
 
   @IsString()
@@ -27,8 +27,8 @@ export class ConfirmEmailChangeDto {
  * this shape once, for the user-status endpoint; this one was left behind.
  */
 export class AdminChangeEmailDto {
-  @IsEmail({}, { message: 'El formato del correo electrónico no es válido.' })
-  @IsNotEmpty({ message: 'El correo electrónico no puede estar vacío.' })
-  @MaxLength(254, { message: 'El email no puede tener más de 254 caracteres (RFC 5321).' })
+  @IsEmail({}, { message: 'VALIDATION.EMAIL_CHANGE.FORMATO_CORREO_ELECTRONICO_NO_VALIDO' })
+  @IsNotEmpty({ message: 'VALIDATION.EMAIL_CHANGE.CORREO_ELECTRONICO_NO_PUEDE_ESTAR_VACIO' })
+  @MaxLength(254, { message: 'VALIDATION.EMAIL_CHANGE.EMAIL_NO_PUEDE_TENER_MAS_254_CARACTERES_RFC' })
   email!: string;
 }

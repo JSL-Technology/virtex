@@ -141,7 +141,7 @@ export class UsersController {
       // password field, which is a backdoor for any caller that reaches the service without a guard.
       await this.usersService.requestEmailChange(user.id, dto, true);
       await this.auditTrailService.record(user.id, 'User', user.id, ActionType.UPDATE, { action: 'request-email-change', newEmail: dto.newEmail }, undefined, ip, user.organizationId);
-      return { message: 'Si los datos son correctos, se ha enviado un enlace de confirmación al nuevo correo.' };
+      return { messageKey: 'USERS.SI_DATOS_SON_CORRECTOS_ENVIADO_ENLACE_CONFIRMACION_NUEVO' };
     } catch (e) {
       await this.auditTrailService.record(user.id, 'User', user.id, ActionType.UPDATE, { action: 'request-email-change', newEmail: dto.newEmail, error: (e as Error).message }, undefined, ip, user.organizationId);
       throw e;
@@ -157,7 +157,7 @@ export class UsersController {
     @Body() dto: ConfirmEmailChangeDto,
   ) {
     await this.usersService.confirmEmailChange(user.id, dto);
-    return { message: 'Correo electrónico actualizado. Tu sesión se ha invalidado por seguridad.' };
+    return { messageKey: 'USERS.CORREO_ELECTRONICO_ACTUALIZADO_TU_SESION_INVALIDADO_POR_SEGURIDAD' };
   }
 
   @Post('profile/avatar')
@@ -274,7 +274,7 @@ export class UsersController {
       @CurrentUser() user: AuthenticatedUser
   ) {
       await this.usersService.resetPassword(id, user.organizationId);
-      return { message: 'Password reset email sent.' };
+      return { messageKey: 'USERS.PASSWORD_RESET_EMAIL_SENT' };
   }
 
   // H5 FIX: Validate target user belongs to the requester's organization before returning
@@ -319,7 +319,7 @@ export class UsersController {
       user.id, 'User', id, ActionType.UPDATE,
       { action: 'admin-change-email' }, undefined, ip, user.organizationId,
     );
-    return { message: 'Email actualizado. La sesión del usuario ha sido invalidada.' };
+    return { messageKey: 'USERS.EMAIL_ACTUALIZADO_SESION_USUARIO_INVALIDADA' };
   }
 
   @Post(':id/block-and-logout')

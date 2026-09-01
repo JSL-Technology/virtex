@@ -12,7 +12,8 @@
       "en": "/year"
     },
     "/mes": {
-      "en": "/mo"
+      "en": "/mo",
+      "pt": "/mês"
     },
     "2FA Activado exitosamente.": {
       "en": "2FA is on.",
@@ -57,7 +58,8 @@
       "en": "Quick actions"
     },
     "Acciones": {
-      "en": "Actions"
+      "en": "Actions",
+      "pt": "Ações"
     },
     "Acción protegida": {
       "en": "Protected action"
@@ -97,7 +99,8 @@
       "pt": "Atual"
     },
     "Actualizar": {
-      "en": "Refresh"
+      "en": "Refresh",
+      "pt": "Atualizar"
     },
     "Actualizar Contraseña": {
       "en": "Update password",
@@ -169,7 +172,8 @@
       "en": "Virtex Apps"
     },
     "Aprobaciones": {
-      "en": "Approvals"
+      "en": "Approvals",
+      "pt": "Aprovações"
     },
     "Aquí tienes un resumen de tu día.": {
       "en": "Here's a snapshot of your day."
@@ -297,10 +301,12 @@
       "en": "Change Password"
     },
     "Cambiar correo": {
-      "en": "Change email"
+      "en": "Change email",
+      "pt": "Alterar e-mail"
     },
     "Cambiar foto": {
-      "en": "Change photo"
+      "en": "Change photo",
+      "pt": "Alterar foto"
     },
     "Cambio de dispositivo detectado. Por favor inicie sesión nuevamente.": {
       "en": "Device change detected. Please log in again."
@@ -309,7 +315,8 @@
       "en": "Cancel anytime"
     },
     "Cancelar": {
-      "en": "Cancel"
+      "en": "Cancel",
+      "pt": "Cancelar"
     },
     "Capa semántica": {
       "en": "Semantic layer"
@@ -352,7 +359,8 @@
       "en": "Cost centers"
     },
     "Cerrar": {
-      "en": "Close"
+      "en": "Close",
+      "pt": "Fechar"
     },
     "Cerrar Sesión": {
       "en": "Sign Out"
@@ -389,7 +397,8 @@
       "en": "Closing — Tasks"
     },
     "Ciudad": {
-      "en": "City"
+      "en": "City",
+      "pt": "Cidade"
     },
     "Clientes": {
       "en": "Customers"
@@ -532,7 +541,8 @@
       "en": "Construction"
     },
     "Contabilidad": {
-      "en": "Accounting"
+      "en": "Accounting",
+      "pt": "Contabilidade"
     },
     "Contabilidad General": {
       "en": "General Ledger"
@@ -920,7 +930,8 @@
       "en": "Send Instructions"
     },
     "Enviar confirmación": {
-      "en": "Send confirmation"
+      "en": "Send confirmation",
+      "pt": "Enviar confirmação"
     },
     "Envíos": {
       "en": "Shipments"
@@ -1018,7 +1029,8 @@
       "en": "Set a password for your account"
     },
     "Estado": {
-      "en": "Status"
+      "en": "Status",
+      "pt": "Situação"
     },
     "Estado de Facturas": {
       "en": "Invoice Status"
@@ -1112,7 +1124,8 @@
       "en": "Financial Statements"
     },
     "Finanzas": {
-      "en": "Finance"
+      "en": "Finance",
+      "pt": "Finanças"
     },
     "Finiquitos": {
       "en": "Final settlements"
@@ -1279,7 +1292,8 @@
       "en": "Print"
     },
     "Impuestos": {
-      "en": "Taxes"
+      "en": "Taxes",
+      "pt": "Impostos"
     },
     "Impuestos diferidos": {
       "en": "Deferred tax"
@@ -1291,7 +1305,8 @@
       "en": "Payroll inputs"
     },
     "Industria": {
-      "en": "Industry"
+      "en": "Industry",
+      "pt": "Setor"
     },
     "Información": {
       "en": "Information"
@@ -1358,7 +1373,8 @@
       "en": "Install App"
     },
     "Integraciones": {
-      "en": "Integrations & API"
+      "en": "Integrations & API",
+      "pt": "Integrações"
     },
     "Integraciones (Configuración)": {
       "en": "Integrations (Settings)"
@@ -1391,7 +1407,8 @@
       "en": "Enter the code from your authenticator app to confirm this action."
     },
     "Inventario": {
-      "en": "Inventory"
+      "en": "Inventory",
+      "pt": "Estoque"
     },
     "Inventario y WMS Ligero": {
       "en": "Inventory & WMS"
@@ -1560,7 +1577,8 @@
       "en": "Menu"
     },
     "Mi Perfil": {
-      "en": "My Profile"
+      "en": "My Profile",
+      "pt": "Meu Perfil"
     },
     "Mi Trabajo": {
       "en": "My Work"
@@ -1590,7 +1608,8 @@
       "en": "Amount ({{currency}})"
     },
     "Mostrando": {
-      "en": "Showing"
+      "en": "Showing",
+      "pt": "Exibindo"
     },
     "Motor de determinación": {
       "en": "Determination engine"
@@ -1753,7 +1772,8 @@
       "en": "Number of employees"
     },
     "Número de teléfono": {
-      "en": "Phone number"
+      "en": "Phone number",
+      "pt": "Número de telefone"
     },
     "O ingresa esta clave manualmente": {
       "en": "Or enter this key by hand",
@@ -1779,10 +1799,12 @@
       "en": "Supplier onboarding"
     },
     "Operaciones": {
-      "en": "Operations"
+      "en": "Operations",
+      "pt": "Operações"
     },
     "Organización": {
-      "en": "Organization"
+      "en": "Organization",
+      "pt": "Organização"
     },
     "Otro": {
       "en": "Other"
@@ -1813,7 +1835,8 @@
       "en": "Step {{current}} of {{total}}"
     },
     "País": {
-      "en": "Country"
+      "en": "Country",
+      "pt": "País"
     },
     "Pendiente": {
       "en": "Pending"
@@ -1835,7 +1858,8 @@
       "en": "Subledger periods"
     },
     "Permisos": {
-      "en": "Permissions"
+      "en": "Permissions",
+      "pt": "Permissões"
     },
     "Permisos de usuario": {
       "en": "User permissions"
@@ -2057,7 +2081,8 @@
       "en": "Sign up"
     },
     "Reintentar": {
-      "en": "Try again"
+      "en": "Try again",
+      "pt": "Tentar novamente"
     },
     "Remisiones / Entregas": {
       "en": "Delivery notes"
@@ -2130,7 +2155,8 @@
       "en": "Risks"
     },
     "Rol": {
-      "en": "Role"
+      "en": "Role",
+      "pt": "Perfil"
     },
     "SAF‑T": {
       "en": "SAF-T"
@@ -2207,7 +2233,8 @@
       "en": "If an account exists with this email, you will receive instructions shortly."
     },
     "Si los datos son correctos, enviamos un enlace de confirmación al nuevo correo.": {
-      "en": "If the details are correct, we sent a confirmation link to the new address."
+      "en": "If the details are correct, we sent a confirmation link to the new address.",
+      "pt": "Se os dados estiverem corretos, enviamos um link de confirmação para o novo e-mail."
     },
     "Siguiente": {
       "en": "Next"
@@ -2232,7 +2259,8 @@
       "pt": "Sistema"
     },
     "Sitio Web": {
-      "en": "Website"
+      "en": "Website",
+      "pt": "Site"
     },
     "Soporte": {
       "en": "Support"
@@ -2290,7 +2318,8 @@
       "en": "Cards"
     },
     "Te enviaremos un enlace de confirmación al nuevo correo. El cambio se aplica cuando lo abras, y avisamos al correo anterior.": {
-      "en": "We will send a confirmation link to the new address. The change takes effect when you open it, and we notify the previous address."
+      "en": "We will send a confirmation link to the new address. The change takes effect when you open it, and we notify the previous address.",
+      "pt": "Enviaremos um link de confirmação para o novo e-mail. A alteração é aplicada quando você o abrir, e avisamos o endereço anterior."
     },
     "Tecnología": {
       "en": "Technology"
@@ -2313,7 +2342,8 @@
       "en": "Timesheets"
     },
     "Tipo": {
-      "en": "Type"
+      "en": "Type",
+      "pt": "Tipo"
     },
     "Tipo de Gráfico": {
       "en": "Chart Type"
@@ -2391,7 +2421,8 @@
       "en": "User not found."
     },
     "Usuarios": {
-      "en": "Users"
+      "en": "Users",
+      "pt": "Usuários"
     },
     "Usuarios y Seguridad": {
       "en": "Users & Security"
@@ -2541,7 +2572,8 @@
       "en": "subsidiaries"
     },
     "usuarios": {
-      "en": "users"
+      "en": "users",
+      "pt": "usuários"
     },
     "vs Año Anterior": {
       "en": "vs Prior Year"
@@ -2740,6 +2772,674 @@
     "Radio de bordes ({{value}} px)": {
       "en": "Corner radius ({{value}} px)",
       "pt": "Raio das bordas ({{value}} px)"
+    },
+    "Perfil actualizado correctamente": {
+      "en": "Profile updated successfully",
+      "pt": "Perfil atualizado com sucesso"
+    },
+    "Error cargando el perfil de la empresa": {
+      "en": "Error loading the company profile",
+      "pt": "Erro ao carregar o perfil da empresa"
+    },
+    "Error actualizando el perfil": {
+      "en": "Error updating the profile",
+      "pt": "Erro ao atualizar o perfil"
+    },
+    "Perfil de la Empresa": {
+      "en": "Company Profile",
+      "pt": "Perfil da Empresa"
+    },
+    "Gestiona la información legal y de contacto de tu organización.": {
+      "en": "Manage your organization's legal and contact information.",
+      "pt": "Gerencie as informações legais e de contato da sua organização."
+    },
+    "Información General": {
+      "en": "General Information",
+      "pt": "Informações Gerais"
+    },
+    "Datos legales y de identificación de la empresa.": {
+      "en": "The company's legal and identification details.",
+      "pt": "Dados legais e de identificação da empresa."
+    },
+    "Nombre Legal": {
+      "en": "Legal Name",
+      "pt": "Razão Social"
+    },
+    "El nombre legal es requerido.": {
+      "en": "The legal name is required.",
+      "pt": "A razão social é obrigatória."
+    },
+    "ID Fiscal (RNC / Tax ID)": {
+      "en": "Tax ID",
+      "pt": "Identificação fiscal (CNPJ / Tax ID)"
+    },
+    "El ID Fiscal es requerido.": {
+      "en": "The Tax ID is required.",
+      "pt": "A identificação fiscal é obrigatória."
+    },
+    "Dirección y Contacto": {
+      "en": "Address and Contact",
+      "pt": "Endereço e Contato"
+    },
+    "Información de ubicación y comunicación principal.": {
+      "en": "Primary location and contact details.",
+      "pt": "Informações de localização e contato principal."
+    },
+    "Dirección": {
+      "en": "Address",
+      "pt": "Endereço"
+    },
+    "El país es requerido.": {
+      "en": "The country is required.",
+      "pt": "O país é obrigatório."
+    },
+    "El teléfono es requerido.": {
+      "en": "The phone number is required.",
+      "pt": "O telefone é obrigatório."
+    },
+    "Ej. Virteex Corp S.A.": {
+      "en": "e.g. Virteex Corp Inc.",
+      "pt": "Ex.: Virteex Corp Ltda."
+    },
+    "Ej. Tecnología, Retail, Manufactura…": {
+      "en": "e.g. Technology, Retail, Manufacturing…",
+      "pt": "Ex.: Tecnologia, Varejo, Indústria…"
+    },
+    "https://ejemplo.com": {
+      "en": "https://example.com",
+      "pt": "https://exemplo.com"
+    },
+    "Calle Principal #123, Sector": {
+      "en": "123 Main Street, District",
+      "pt": "Rua Principal, 123 – Bairro"
+    },
+    "Ej. Santo Domingo": {
+      "en": "e.g. Santo Domingo",
+      "pt": "Ex.: Santo Domingo"
+    },
+    "Ej. República Dominicana": {
+      "en": "e.g. Dominican Republic",
+      "pt": "Ex.: República Dominicana"
+    },
+    "Certificado cargado y validado correctamente.": {
+      "en": "Certificate uploaded and validated successfully.",
+      "pt": "Certificado enviado e validado com sucesso."
+    },
+    "Rango de e-NCF registrado.": {
+      "en": "e-NCF range registered.",
+      "pt": "Faixa de e-NCF registrada."
+    },
+    "No se pudieron cargar los certificados.": {
+      "en": "The certificates could not be loaded.",
+      "pt": "Não foi possível carregar os certificados."
+    },
+    "No se pudieron cargar las secuencias NCF.": {
+      "en": "The NCF sequences could not be loaded.",
+      "pt": "Não foi possível carregar as sequências NCF."
+    },
+    "Seleccione el archivo del certificado (.p12 / .pfx).": {
+      "en": "Select the certificate file (.p12 / .pfx).",
+      "pt": "Selecione o arquivo do certificado (.p12 / .pfx)."
+    },
+    "No se pudo desactivar el certificado.": {
+      "en": "The certificate could not be deactivated.",
+      "pt": "Não foi possível desativar o certificado."
+    },
+    "El número final no puede ser menor que el inicial.": {
+      "en": "The ending number cannot be lower than the starting one.",
+      "pt": "O número final não pode ser menor que o inicial."
+    },
+    "Certificado desactivado.": {
+      "en": "Certificate deactivated.",
+      "pt": "Certificado desativado."
+    },
+    "Facturación electrónica (RD · DGII)": {
+      "en": "Electronic invoicing (DR · DGII)",
+      "pt": "Faturamento eletrônico (RD · DGII)"
+    },
+    "Configura el certificado de firma, los rangos de e-NCF autorizados y descarga los reportes 606/607.": {
+      "en": "Configure the signing certificate and the authorized e-NCF ranges, and download the 606/607 reports.",
+      "pt": "Configure o certificado de assinatura, as faixas de e-NCF autorizadas e baixe os relatórios 606/607."
+    },
+    "Certificado digital": {
+      "en": "Digital certificate",
+      "pt": "Certificado digital"
+    },
+    "Sube tu certificado (.p12 / .pfx) emitido por una entidad autorizada por la DGII. Se cifra en\n      reposo y solo se usa para firmar e-CF.": {
+      "en": "Upload your certificate (.p12 / .pfx) issued by a DGII-authorized entity. It is encrypted at\n      rest and used only to sign e-CF documents.",
+      "pt": "Envie seu certificado (.p12 / .pfx) emitido por uma entidade autorizada pela DGII. Ele é\n      criptografado em repouso e usado apenas para assinar e-CF."
+    },
+    "Alias": {
+      "en": "Alias",
+      "pt": "Apelido"
+    },
+    "Contraseña del certificado": {
+      "en": "Certificate password",
+      "pt": "Senha do certificado"
+    },
+    "Archivo (.p12 / .pfx)": {
+      "en": "File (.p12 / .pfx)",
+      "pt": "Arquivo (.p12 / .pfx)"
+    },
+    "Titular": {
+      "en": "Holder",
+      "pt": "Titular"
+    },
+    "Vence": {
+      "en": "Expires",
+      "pt": "Vence"
+    },
+    "Aún no has cargado un certificado.": {
+      "en": "You have not uploaded a certificate yet.",
+      "pt": "Você ainda não enviou um certificado."
+    },
+    "Rangos de e-NCF autorizados": {
+      "en": "Authorized e-NCF ranges",
+      "pt": "Faixas de e-NCF autorizadas"
+    },
+    "Registra los rangos que la DGII te autorizó. Sin un rango activo del tipo correspondiente no se\n      puede emitir el comprobante.": {
+      "en": "Register the ranges the DGII authorized for you. Without an active range of the matching type the\n      document cannot be issued.",
+      "pt": "Registre as faixas autorizadas pela DGII. Sem uma faixa ativa do tipo correspondente o\n      comprovante não pode ser emitido."
+    },
+    "Prefijo": {
+      "en": "Prefix",
+      "pt": "Prefixo"
+    },
+    "Desde": {
+      "en": "From",
+      "pt": "De"
+    },
+    "Hasta": {
+      "en": "To",
+      "pt": "Até"
+    },
+    "Aún no has registrado rangos de e-NCF.": {
+      "en": "You have not registered any e-NCF ranges yet.",
+      "pt": "Você ainda não registrou faixas de e-NCF."
+    },
+    "Reportes DGII (606 / 607)": {
+      "en": "DGII reports (606 / 607)",
+      "pt": "Relatórios DGII (606 / 607)"
+    },
+    "Genera los formatos de envío de compras (606) y ventas (607) para un período.": {
+      "en": "Generate the purchase (606) and sales (607) filing formats for a period.",
+      "pt": "Gere os formatos de envio de compras (606) e vendas (607) para um período."
+    },
+    "Reporte": {
+      "en": "Report",
+      "pt": "Relatório"
+    },
+    "607 · Ventas": {
+      "en": "607 · Sales",
+      "pt": "607 · Vendas"
+    },
+    "606 · Compras": {
+      "en": "606 · Purchases",
+      "pt": "606 · Compras"
+    },
+    "Año": {
+      "en": "Year",
+      "pt": "Ano"
+    },
+    "Mes": {
+      "en": "Month",
+      "pt": "Mês"
+    },
+    "Certificado DGII 2025": {
+      "en": "DGII certificate 2025",
+      "pt": "Certificado DGII 2025"
+    },
+    "Sesión revocada correctamente.": {
+      "en": "Session revoked successfully.",
+      "pt": "Sessão revogada com sucesso."
+    },
+    "No se pudieron cargar las sesiones.": {
+      "en": "The sessions could not be loaded.",
+      "pt": "Não foi possível carregar as sessões."
+    },
+    "No se pudo revocar la sesión.": {
+      "en": "The session could not be revoked.",
+      "pt": "Não foi possível revogar a sessão."
+    },
+    "Revisa y administra los dispositivos con acceso activo a tu cuenta.": {
+      "en": "Review and manage the devices with active access to your account.",
+      "pt": "Revise e gerencie os dispositivos com acesso ativo à sua conta."
+    },
+    "Cargando sesiones…": {
+      "en": "Loading sessions…",
+      "pt": "Carregando sessões…"
+    },
+    "No hay sesiones activas registradas.": {
+      "en": "There are no active sessions on record.",
+      "pt": "Não há sessões ativas registradas."
+    },
+    "Sesión actual": {
+      "en": "Current session",
+      "pt": "Sessão atual"
+    },
+    "Revocar sesión": {
+      "en": "Revoke session",
+      "pt": "Revogar sessão"
+    },
+    "Rol \"{{name}}\" clonado exitosamente.": {
+      "en": "Role \"{{name}}\" cloned successfully.",
+      "pt": "Perfil \"{{name}}\" clonado com sucesso."
+    },
+    "Rol eliminado exitosamente.": {
+      "en": "Role deleted successfully.",
+      "pt": "Perfil excluído com sucesso."
+    },
+    "Rol actualizado exitosamente.": {
+      "en": "Role updated successfully.",
+      "pt": "Perfil atualizado com sucesso."
+    },
+    "Rol creado exitosamente.": {
+      "en": "Role created successfully.",
+      "pt": "Perfil criado com sucesso."
+    },
+    "Roles y Permisos": {
+      "en": "Roles and Permissions",
+      "pt": "Perfis e Permissões"
+    },
+    "Crear Rol": {
+      "en": "Create Role",
+      "pt": "Criar Perfil"
+    },
+    "Nombre del Rol": {
+      "en": "Role Name",
+      "pt": "Nome do Perfil"
+    },
+    "Descripción": {
+      "en": "Description",
+      "pt": "Descrição"
+    },
+    "Guardar": {
+      "en": "Save",
+      "pt": "Salvar"
+    },
+    "Clonar Rol": {
+      "en": "Clone Role",
+      "pt": "Clonar Perfil"
+    },
+    "Editar Rol": {
+      "en": "Edit Role",
+      "pt": "Editar Perfil"
+    },
+    "Eliminar Rol": {
+      "en": "Delete Role",
+      "pt": "Excluir Perfil"
+    },
+    "Usuario actualizado con éxito.": {
+      "en": "User updated successfully.",
+      "pt": "Usuário atualizado com sucesso."
+    },
+    "Usuario invitado con éxito.": {
+      "en": "User invited successfully.",
+      "pt": "Usuário convidado com sucesso."
+    },
+    "Usuario eliminado con éxito.": {
+      "en": "User deleted successfully.",
+      "pt": "Usuário excluído com sucesso."
+    },
+    "La sesión del usuario ha sido cerrada.": {
+      "en": "The user's session has been closed.",
+      "pt": "A sessão do usuário foi encerrada."
+    },
+    "El usuario ha sido bloqueado y su sesión cerrada.": {
+      "en": "The user has been blocked and their session closed.",
+      "pt": "O usuário foi bloqueado e sua sessão encerrada."
+    },
+    "No se pudieron cargar los usuarios.": {
+      "en": "The users could not be loaded.",
+      "pt": "Não foi possível carregar os usuários."
+    },
+    "Gestión de Usuarios": {
+      "en": "User Management",
+      "pt": "Gestão de Usuários"
+    },
+    "Administración": {
+      "en": "Administration",
+      "pt": "Administração"
+    },
+    "Invitar Usuario": {
+      "en": "Invite User",
+      "pt": "Convidar Usuário"
+    },
+    "No se encontraron usuarios.": {
+      "en": "No users were found.",
+      "pt": "Nenhum usuário encontrado."
+    },
+    "&times;": {
+      "en": "&times;",
+      "pt": "&times;"
+    },
+    "Apellido": {
+      "en": "Last name",
+      "pt": "Sobrenome"
+    },
+    "Seleccionar rol": {
+      "en": "Select a role",
+      "pt": "Selecionar perfil"
+    },
+    "Mensaje de invitación (opcional)": {
+      "en": "Invitation message (optional)",
+      "pt": "Mensagem do convite (opcional)"
+    },
+    "Eliminar Usuario": {
+      "en": "Delete User",
+      "pt": "Excluir Usuário"
+    },
+    "¿Está seguro que desea eliminar permanentemente al usuario": {
+      "en": "Are you sure you want to permanently delete the user",
+      "pt": "Tem certeza de que deseja excluir permanentemente o usuário"
+    },
+    "Esta acción no se puede deshacer.": {
+      "en": "This action cannot be undone.",
+      "pt": "Esta ação não pode ser desfeita."
+    },
+    "Eliminar Permanentemente": {
+      "en": "Delete Permanently",
+      "pt": "Excluir Permanentemente"
+    },
+    "Editar Usuario": {
+      "en": "Edit User",
+      "pt": "Editar Usuário"
+    },
+    "Resetear Contraseña": {
+      "en": "Reset Password",
+      "pt": "Redefinir Senha"
+    },
+    "Suplantar Usuario": {
+      "en": "Impersonate User",
+      "pt": "Personificar Usuário"
+    },
+    "Forzar Cierre de Sesión": {
+      "en": "Force Sign Out",
+      "pt": "Forçar Encerramento de Sessão"
+    },
+    "Bloquear y Cerrar Sesión": {
+      "en": "Block and Sign Out",
+      "pt": "Bloquear e Encerrar Sessão"
+    },
+    "Eliminar Cuenta": {
+      "en": "Delete Account",
+      "pt": "Excluir Conta"
+    },
+    "usuario@empresa.com": {
+      "en": "user@company.com",
+      "pt": "usuario@empresa.com"
+    },
+    "Mensaje personalizado para el usuario...": {
+      "en": "Custom message for the user...",
+      "pt": "Mensagem personalizada para o usuário..."
+    },
+    "Facturación y Plan": {
+      "en": "Billing and Plan",
+      "pt": "Faturamento e Plano"
+    },
+    "Selecciona el plan que mejor se adapte a tu organización y gestiona tu suscripción.": {
+      "en": "Choose the plan that best fits your organization and manage your subscription.",
+      "pt": "Escolha o plano que melhor se adapta à sua organização e gerencie sua assinatura."
+    },
+    "Plan Actual": {
+      "en": "Current Plan",
+      "pt": "Plano Atual"
+    },
+    "Sin suscripción activa": {
+      "en": "No active subscription",
+      "pt": "Sem assinatura ativa"
+    },
+    "Sin plan": {
+      "en": "No plan",
+      "pt": "Sem plano"
+    },
+    "Aún no tienes un plan contratado. Elige uno más abajo para comenzar.": {
+      "en": "You do not have a plan yet. Choose one below to get started.",
+      "pt": "Você ainda não contratou um plano. Escolha um abaixo para começar."
+    },
+    "Método de Pago": {
+      "en": "Payment Method",
+      "pt": "Forma de Pagamento"
+    },
+    "Expira {{expMonth}}/{{expYear}}": {
+      "en": "Expires {{expMonth}}/{{expYear}}",
+      "pt": "Expira em {{expMonth}}/{{expYear}}"
+    },
+    "No hay un método de pago registrado.": {
+      "en": "There is no payment method on file.",
+      "pt": "Não há forma de pagamento cadastrada."
+    },
+    "Uso de Recursos": {
+      "en": "Resource Usage",
+      "pt": "Uso de Recursos"
+    },
+    "Selecciona el plan que mejor se adapte a tu organización.": {
+      "en": "Choose the plan that best fits your organization.",
+      "pt": "Escolha o plano que melhor se adapta à sua organização."
+    },
+    "Cargando planes...": {
+      "en": "Loading plans...",
+      "pt": "Carregando planos..."
+    },
+    "No se pudieron cargar los planes. Verifica tu conexión e intenta de nuevo.": {
+      "en": "The plans could not be loaded. Check your connection and try again.",
+      "pt": "Não foi possível carregar os planos. Verifique sua conexão e tente novamente."
+    },
+    "No hay planes disponibles en este momento.": {
+      "en": "There are no plans available at the moment.",
+      "pt": "Não há planos disponíveis no momento."
+    },
+    "Plan actual": {
+      "en": "Current plan",
+      "pt": "Plano atual"
+    },
+    "Para cambiar al plan": {
+      "en": "To switch to the plan",
+      "pt": "Para mudar para o plano"
+    },
+    "serás redirigido al portal seguro de Stripe.": {
+      "en": "you will be redirected to Stripe's secure portal.",
+      "pt": "você será redirecionado ao portal seguro da Stripe."
+    },
+    "Plan seleccionado:": {
+      "en": "Selected plan:",
+      "pt": "Plano selecionado:"
+    },
+    ". Serás redirigido a Stripe para completar el pago de forma segura.": {
+      "en": ". You will be redirected to Stripe to complete the payment securely.",
+      "pt": ". Você será redirecionado à Stripe para concluir o pagamento com segurança."
+    },
+    "Redirigiendo...": {
+      "en": "Redirecting...",
+      "pt": "Redirecionando..."
+    },
+    "Historial de Facturación": {
+      "en": "Billing History",
+      "pt": "Histórico de Faturamento"
+    },
+    "Fecha": {
+      "en": "Date",
+      "pt": "Data"
+    },
+    "Monto": {
+      "en": "Amount",
+      "pt": "Valor"
+    },
+    "Pagada": {
+      "en": "Paid",
+      "pt": "Paga"
+    },
+    "Descargar factura": {
+      "en": "Download invoice",
+      "pt": "Baixar fatura"
+    },
+    "Revoke session": {
+      "en": "Revoke session",
+      "pt": "Revogar sessão"
+    },
+    "Mi Cuenta": {
+      "en": "My Account",
+      "pt": "Minha Conta"
+    },
+    "Estructura Empresarial": {
+      "en": "Company Structure",
+      "pt": "Estrutura Empresarial"
+    },
+    "Personalización": {
+      "en": "Personalization",
+      "pt": "Personalização"
+    },
+    "Multimoneda": {
+      "en": "Multi-currency",
+      "pt": "Multimoeda"
+    },
+    "Cierre Fiscal": {
+      "en": "Fiscal Close",
+      "pt": "Fechamento Fiscal"
+    },
+    "Intercompany": {
+      "en": "Intercompany",
+      "pt": "Intercompany"
+    },
+    "Secuencias": {
+      "en": "Sequences",
+      "pt": "Sequências"
+    },
+    "Seguridad y Auditoría": {
+      "en": "Security and Audit",
+      "pt": "Segurança e Auditoria"
+    },
+    "Servidor de Correo": {
+      "en": "Mail Server",
+      "pt": "Servidor de E-mail"
+    },
+    "Facturación Electrónica": {
+      "en": "Electronic Invoicing",
+      "pt": "Faturamento Eletrônico"
+    },
+    "Cargando...": {
+      "en": "Loading...",
+      "pt": "Carregando..."
+    },
+    "Cerrar configuración": {
+      "en": "Close settings",
+      "pt": "Fechar configurações"
+    },
+    "Idioma Preferido": {
+      "en": "Preferred Language",
+      "pt": "Idioma Preferido"
+    },
+    "Español": {
+      "en": "Español",
+      "pt": "Español"
+    },
+    "English": {
+      "en": "English",
+      "pt": "English"
+    },
+    "Avatar": {
+      "en": "Avatar",
+      "pt": "Avatar"
+    },
+    "Juan": {
+      "en": "Jane",
+      "pt": "João"
+    },
+    "Pérez": {
+      "en": "Doe",
+      "pt": "Silva"
+    },
+    "nuevo@correo.com": {
+      "en": "new@email.com",
+      "pt": "novo@email.com"
+    },
+    "Gestiona las subsidiarias y sucursales de tu organización.": {
+      "en": "Manage your organization's subsidiaries and branches.",
+      "pt": "Gerencie as subsidiárias e filiais da sua organização."
+    },
+    "Nueva Subsidiaria": {
+      "en": "New Subsidiary",
+      "pt": "Nova Subsidiária"
+    },
+    "Cargando subsidiarias...": {
+      "en": "Loading subsidiaries...",
+      "pt": "Carregando subsidiárias..."
+    },
+    "No hay subsidiarias registradas": {
+      "en": "There are no subsidiaries on record",
+      "pt": "Não há subsidiárias registradas"
+    },
+    "Comienza agregando una nueva subsidiaria o sucursal para expandir tu estructura.": {
+      "en": "Start by adding a subsidiary or branch to expand your structure.",
+      "pt": "Comece adicionando uma subsidiária ou filial para expandir sua estrutura."
+    },
+    "Crear primera subsidiaria": {
+      "en": "Create the first subsidiary",
+      "pt": "Criar a primeira subsidiária"
+    },
+    "ID Fiscal:": {
+      "en": "Tax ID:",
+      "pt": "Identificação fiscal:"
+    },
+    "País:": {
+      "en": "Country:",
+      "pt": "País:"
+    },
+    "{{ownership}}% Propiedad": {
+      "en": "{{ownership}}% Ownership",
+      "pt": "{{ownership}}% de participação"
+    },
+    "ID Fiscal (RNC/Tax ID)": {
+      "en": "Tax ID",
+      "pt": "Identificação fiscal (CNPJ / Tax ID)"
+    },
+    "Porcentaje de Propiedad (%)": {
+      "en": "Ownership Percentage (%)",
+      "pt": "Percentual de Participação (%)"
+    },
+    "Ej. Virteex Latam S.A.": {
+      "en": "e.g. Virteex Latam Inc.",
+      "pt": "Ex.: Virteex Latam Ltda."
+    },
+    "Inicio de Sesión Único (SSO)": {
+      "en": "Single Sign-On (SSO)",
+      "pt": "Login Único (SSO)"
+    },
+    "Conecta el proveedor de identidad de tu organización (Okta, Microsoft Entra, Google\n      Workspace, Ping, Auth0…). Los usuarios de dominios verificados serán redirigidos\n      automáticamente a tu SSO al iniciar sesión.": {
+      "en": "Connect your organization's identity provider (Okta, Microsoft Entra, Google\n      Workspace, Ping, Auth0…). Users from verified domains are redirected\n      automatically to your SSO when they sign in.",
+      "pt": "Conecte o provedor de identidade da sua organização (Okta, Microsoft Entra, Google\n      Workspace, Ping, Auth0…). Os usuários de domínios verificados serão redirecionados\n      automaticamente ao seu SSO ao entrar."
+    },
+    "Dominios Verificados": {
+      "en": "Verified Domains",
+      "pt": "Domínios Verificados"
+    },
+    "Solo los usuarios de un dominio verificado serán enrutados a tu SSO.": {
+      "en": "Only users from a verified domain are routed to your SSO.",
+      "pt": "Apenas usuários de um domínio verificado são encaminhados ao seu SSO."
+    },
+    "Agregar dominio": {
+      "en": "Add domain",
+      "pt": "Adicionar domínio"
+    },
+    "Dominio": {
+      "en": "Domain",
+      "pt": "Domínio"
+    },
+    "Registro DNS (TXT)": {
+      "en": "DNS record (TXT)",
+      "pt": "Registro DNS (TXT)"
+    },
+    "Host:": {
+      "en": "Host:",
+      "pt": "Host:"
+    },
+    "Tipo:": {
+      "en": "Type:",
+      "pt": "Tipo:"
+    },
+    "Valor:": {
+      "en": "Value:",
+      "pt": "Valor:"
     }
   }
 }

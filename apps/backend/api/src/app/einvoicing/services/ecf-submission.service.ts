@@ -29,6 +29,7 @@ import {
 } from '../config/dgii-catalogues';
 import { dgiiTimestamp, organizationTimeZone } from '../../shared/fiscal-clock';
 import { BadRequestError, NotFoundError } from '../../i18n/localized.exception';
+import { I18nService } from '../../i18n/i18n.service';
 
 /**
  * Orchestrates the full e-CF lifecycle for one document: build → validate → sign → transmit → track.
@@ -71,6 +72,7 @@ export class EcfSubmissionService {
     private readonly signer: EcfSignerService,
     private readonly builder: EcfXmlBuilderService,
     private readonly validator: EcfValidatorService,
+    private readonly i18n: I18nService,
     private readonly auth: DgiiAuthService,
     private readonly transport: DgiiTransportService,
     private readonly dgiiConfig: DgiiConfigService,
@@ -191,7 +193,14 @@ export class EcfSubmissionService {
       // A document that does not satisfy the format will not satisfy it on a retry either. It is an
       // error the tenant has to fix, so it is stored with the field-by-field detail.
       submission.status = EcfStatus.ERROR;
-      submission.messages = error.issues.map((issue) => `${issue.field}: ${issue.message}`);
+      // Resolved here rather than stored as keys, because this column also holds the DGII's own
+      // text and a mixed array of prose and identifiers is unreadable. The language is the one the
+      // request is being made in: whoever pressed "issue" is who has to fix the document. The
+      // DGII's element name is not translated — `RNCComprador` is what its documentation calls it.
+      submission.messages = error.issues.map(
+        (issue) =>
+          `${issue.field}: ${this.i18n.t(issue.messageKey, issue.params ?? {})}`,
+      );
       this.logger.error(`e-CF ${submission.ncf} inválido: ${error.message}`);
     } else {
       submission.status = EcfStatus.ERROR;

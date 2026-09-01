@@ -457,7 +457,7 @@ export class SessionService {
     await this.sessionRegistry.revoke(sessionId);
     await this.userCacheService.clearUserSession(userId);
 
-    return { message: 'Sesión revocada exitosamente.' };
+    return { messageKey: 'AUTH.SESION_REVOCADA_EXITOSAMENTE' };
   }
 
   /** Revoke every session except the caller's own — "cerrar las demás sesiones". */

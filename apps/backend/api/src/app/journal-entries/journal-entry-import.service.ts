@@ -18,6 +18,7 @@ import { Journal } from './entities/journal.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { FastifyFile } from '../common/interfaces/fastify-file.interface';
 import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
+import { LocalizedResult } from '../i18n/localized-message';
 
 interface ImportBatch {
   id: string;
@@ -158,7 +159,7 @@ export class JournalEntryImportService {
     confirmDto: ConfirmImportDto,
     organizationId: string,
     userId: string,
-  ): Promise<{ message: string; createdEntriesCount: number }> {
+  ): Promise<LocalizedResult<{ createdEntriesCount: number }>> {
     const batch = importBatchCache.get(confirmDto.batchId);
     if (!batch || batch.organizationId !== organizationId || batch.status !== 'PENDING') {
       throw new NotFoundError('JOURNAL_ENTRIES.LOTE_IMPORTACION_NO_ENCONTRADO_EXPIRADO_YA_PROCESADO');
@@ -194,7 +195,7 @@ export class JournalEntryImportService {
     });
 
     return {
-      message: 'Importación confirmada y procesada exitosamente.',
+      messageKey: 'JOURNAL_ENTRIES.IMPORTACION_CONFIRMADA_PROCESADA_EXITOSAMENTE',
       createdEntriesCount: totalEntries,
     };
   }

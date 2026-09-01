@@ -3,6 +3,6 @@ import { IsNotEmpty, IsUUID } from 'class-validator';
 
 export class ClosePeriodDto {
   @IsUUID()
-  @IsNotEmpty({ message: 'El ID del período contable es obligatorio.' })
+  @IsNotEmpty({ message: 'VALIDATION.CLOSE_PERIOD.ID_PERIODO_CONTABLE_OBLIGATORIO' })
   periodId: string;
 }

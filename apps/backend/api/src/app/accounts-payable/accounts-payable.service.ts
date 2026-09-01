@@ -98,7 +98,13 @@ export class AccountsPayableService {
             const budgetCheck = await this.budgetControlService.checkBudget(organizationId, line.expenseAccountId, line.total, bill.date);
 
             if (budgetCheck.isExceeded) {
-                throw new ForbiddenError('ACCOUNTS_PAYABLE.CONTROL_PRESUPUESTARIO_FALLIDO', { message: budgetCheck.message });
+                // The budget check's own explanation is a key with its own parameters, so it is
+                // carried through rather than flattened into a sentence here: the exception filter
+                // resolves both in the reader's language.
+                throw new ForbiddenError('ACCOUNTS_PAYABLE.CONTROL_PRESUPUESTARIO_FALLIDO', {
+                  detail: budgetCheck.messageKey,
+                  ...(budgetCheck.messageParams ?? {}),
+                });
             }
         }
     }

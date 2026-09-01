@@ -115,8 +115,7 @@ export class ClosingChecklistService {
         'Ejecutar el proceso de revaluación de moneda extranjera para el cierre del período.',
       isCompleted: false,
       details: {
-        message:
-          'Este es un paso manual. Asegúrese de haber corrido el proceso antes de cerrar.',
+        messageKey: 'ACCOUNTING.ESTE_PASO_MANUAL_ASEGURESE_HABER_CORRIDO_PROCESO_ANTES',
       },
       resolutionLink: `/accounting/currency-revaluation`,
     });
@@ -127,8 +126,7 @@ export class ClosingChecklistService {
         'Ejecutar el proceso de depreciación de activos fijos para el mes.',
       isCompleted: false,
       details: {
-        message:
-          'Este es un paso manual. Asegúrese de haber corrido el proceso antes de cerrar.',
+        messageKey: 'ACCOUNTING.ESTE_PASO_MANUAL_ASEGURESE_HABER_CORRIDO_PROCESO_ANTES',
       },
       resolutionLink: `/fixed-assets/depreciation`,
     });

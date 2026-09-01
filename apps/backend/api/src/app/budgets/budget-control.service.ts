@@ -6,10 +6,10 @@ import { Budget } from './entities/budget.entity';
 import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line.entity';
 import { BudgetLine } from './entities/budget-line.entity';
 import { startOfMonth, endOfMonth } from 'date-fns';
+import { LocalizedMessage } from '../i18n/localized-message';
 
-interface BudgetCheckResult {
+interface BudgetCheckResult extends LocalizedMessage {
   isExceeded: boolean;
-  message: string;
   budgetName?: string;
   budgetedAmount?: number;
   actualAmount?: number;
@@ -41,7 +41,7 @@ export class BudgetControlService {
       relations: ['lines', 'lines.account'],
     });
 
-    if (!budget) return { isExceeded: false, message: 'No se encontró un presupuesto activo para el período actual.' };
+    if (!budget) return { isExceeded: false, messageKey: 'BUDGETS.NO_ENCONTRO_PRESUPUESTO_ACTIVO_PARA_PERIODO_ACTUAL' };
     
 
     let budgetLine = this.findMatchingBudgetLine(budget.lines, accountId, dimensions);
@@ -51,7 +51,7 @@ export class BudgetControlService {
         budgetLine = this.findMatchingBudgetLine(budget.lines, accountId);
     }
 
-    if (!budgetLine) return { isExceeded: false, message: 'La cuenta y/o sus dimensiones no están presupuestadas.' };
+    if (!budgetLine) return { isExceeded: false, messageKey: 'BUDGETS.CUENTA_SUS_DIMENSIONES_NO_ESTAN_PRESUPUESTADAS' };
 
     const startDate = startOfMonth(transactionDate);
     const endDate = endOfMonth(transactionDate);
@@ -86,9 +86,16 @@ export class BudgetControlService {
     if ((currentActual + amount) > budgetedAmount) {
       return {
         isExceeded: true,
-
-        message: `El monto propuesto de ${amount.toFixed(2)} excede el presupuesto de ${budgetedAmount.toFixed(2)} para la cuenta ${budgetLine.account?.code || budgetLine.accountId}. Gasto actual: ${currentActual.toFixed(2)}.`,
-
+        messageKey: 'BUDGETS.AMOUNT_EXCEEDS_BUDGET',
+        // The amounts stay numbers: the catalogue formats them in the reader's locale and in the
+        // books' currency. `toFixed(2)` produced "1234.50" for a reader whose decimal separator
+        // is a comma and whose thousands separator is a dot.
+        messageParams: {
+          amount,
+          budgeted: budgetedAmount,
+          account: budgetLine.account?.code || budgetLine.accountId,
+          actual: currentActual,
+        },
         budgetName: budget.name,
         budgetedAmount,
         actualAmount: currentActual,
@@ -96,7 +103,7 @@ export class BudgetControlService {
       };
     }
 
-    return { isExceeded: false, message: 'Dentro del presupuesto.' };
+    return { isExceeded: false, messageKey: 'BUDGETS.DENTRO_PRESUPUESTO' };
   }
 
   private findMatchingBudgetLine(lines: BudgetLine[], accountId: string, dimensions?: Record<string, string>): BudgetLine | undefined {

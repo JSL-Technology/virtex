@@ -2,15 +2,15 @@
     <div class="subview-header">
         <h3>{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.SUBSIDIARY_LEDGERS' | translate }}</h3>
         <div class="header-actions">
-            <button class="secondary-button">
+            <button class="secondary-button" type="button" disabled>
                 <lucide-icon [img]="CalendarIcon" size="16"></lucide-icon>
-                <span>{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.JUL_2025' | translate }}</span>
+                <span>{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.PERIOD' | translate }}</span>
             </button>
-            <button class="secondary-button">
+            <button class="secondary-button" type="button" disabled>
                 <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
                 <span>{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.FILTERS' | translate }}</span>
             </button>
-            <button class="primary-button">
+            <button class="primary-button" type="button" [disabled]="isEmpty()">
                 <lucide-icon [img]="ExportIcon" size="16"></lucide-icon>
                 <span>{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.EXPORT' | translate }}</span>
             </button>
@@ -20,33 +20,42 @@
     <div class="filter-bar card">
         <div class="form-field">
             <label for="controlAccount">{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.CONTROL_ACCOUNT' | translate }}</label>
-            <select id="controlAccount">
-                <option selected>{{ selectedControlAccount().code }} - {{ selectedControlAccount().name }}</option>
-                <option>{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.2100_ACCOUNTS_PAYABLE' | translate }}</option>
+            <select id="controlAccount" [disabled]="controlAccounts().length === 0">
+                <option value="">{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.SELECT_ACCOUNT' | translate }}</option>
+                @for (account of controlAccounts(); track account.id) {
+                    <option [value]="account.id">{{ account.code }} - {{ account.name }}</option>
+                }
             </select>
         </div>
         <div class="form-field">
             <label for="auxiliary">{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.AUXILIARY_THIRD_PARTY' | translate }}</label>
-            <select id="auxiliary">
-                <option selected>{{ selectedAuxiliary().name }}</option>
-                <option>{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.CLIENTE_EJEMPLO' | translate }}</option>
+            <select id="auxiliary" [disabled]="auxiliaries().length === 0">
+                <option value="">{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.SELECT_AUXILIARY' | translate }}</option>
+                @for (auxiliary of auxiliaries(); track auxiliary.id) {
+                    <option [value]="auxiliary.id">{{ auxiliary.name }}</option>
+                }
             </select>
         </div>
     </div>
 
-    <div class="ledger-header card">
-        <h4>{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.AUXILIARY' | translate }} <span class="account-name">{{ selectedAuxiliary().name }}</span></h4>
-        <div class="balance-summary">
-            <div class="balance-item">
-                <span>{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.INITIAL_BALANCE' | translate }}</span>
-                <strong>{{ initialBalance() | vxNumber:'1.2-2' }}</strong>
-            </div>
-            <div class="balance-item">
-                <span>{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.FINAL_BALANCE' | translate }}</span>
-                <strong>{{ finalBalance() | vxNumber:'1.2-2' }}</strong>
+    @if (selectedAuxiliary(); as auxiliary) {
+        <div class="ledger-header card">
+            <h4>
+                {{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.AUXILIARY' | translate }}
+                <span class="account-name">{{ auxiliary.name }}</span>
+            </h4>
+            <div class="balance-summary">
+                <div class="balance-item">
+                    <span>{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.INITIAL_BALANCE' | translate }}</span>
+                    <strong>{{ initialBalance() | vxMoney: currencyCode() }}</strong>
+                </div>
+                <div class="balance-item">
+                    <span>{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.FINAL_BALANCE' | translate }}</span>
+                    <strong>{{ finalBalance() | vxMoney: currencyCode() }}</strong>
+                </div>
             </div>
         </div>
-    </div>
+    }
 
     <div class="table-container card">
         <table class="data-table ledger-table">
@@ -63,22 +72,27 @@
             <tbody>
                 @for (line of ledgerLines(); track $index) {
                 <tr>
-                    <td>{{ line.date }}</td>
+                    <td>{{ line.date | vxDate: 'date' : true }}</td>
                     <td>
-                        @if(line.entryNumber !== 'OPEN') {
-                        <a href="#" class="table-link">{{ line.entryNumber }}</a>
+                        @if (line.reference === null) {
+                            <span>{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.OPENING_BALANCE' | translate }}</span>
+                        } @else if (line.entryId) {
+                            <a [routerLink]="['/accounting/journal-entries', line.entryId, 'edit']" class="table-link">
+                                {{ line.reference }}
+                            </a>
                         } @else {
-                        <span>{{ line.entryNumber }}</span>
+                            <span>{{ line.reference }}</span>
                         }
                     </td>
                     <td>{{ line.description }}</td>
-                    <td class="text-right amount-cell">{{ line.debit | vxNumber:'1.2-2' }}</td>
-                    <td class="text-right amount-cell">{{ line.credit | vxNumber:'1.2-2' }}</td>
-                    <td class="text-right balance-cell">{{ line.balance | vxNumber:'1.2-2' }}</td>
+                    <td class="text-right amount-cell">{{ line.debit | vxMoney: currencyCode() }}</td>
+                    <td class="text-right amount-cell">{{ line.credit | vxMoney: currencyCode() }}</td>
+                    <td class="text-right balance-cell">{{ line.balance | vxMoney: currencyCode() }}</td>
                 </tr>
                 } @empty {
                 <tr>
-                    <td colspan="6" class="empty-state">{{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.NO_MOVEMENTS_FOUND_FOR_THIS_AUXILIARY' | translate }}
+                    <td colspan="6" class="empty-state">
+                        {{ 'ACCOUNTING.SUBSIDIARY_LEDGERS.NO_MOVEMENTS_FOUND_FOR_THIS_AUXILIARY' | translate }}
                     </td>
                 </tr>
                 }

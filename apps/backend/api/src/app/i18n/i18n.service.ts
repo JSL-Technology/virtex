@@ -8,6 +8,8 @@ import {
   isLanguageCode,
 } from '@virteex/shared/types';
 
+import { currentLanguage, currentLocaleContext } from './request-locale';
+
 import es from './messages/es.json';
 import en from './messages/en.json';
 import pt from './messages/pt.json';
@@ -141,6 +143,25 @@ export class I18nService {
       out[name] = value;
     }
     return out;
+  }
+
+  /**
+   * Translate one key in the CURRENT REQUEST's language.
+   *
+   * `translate` takes the language explicitly because a background job — a dunning e-mail, a
+   * scheduled report — has no request and must name the recipient's language itself. Inside a
+   * request that argument is always the same value, and threading it through every service
+   * signature to say so is how a codebase ends up with `language` on two hundred methods and one
+   * of them forgetting it.
+   *
+   * The middleware has already resolved the language into `AsyncLocalStorage`, so this reads it
+   * from there. Outside a request it degrades to {@link DEFAULT_LANGUAGE} rather than throwing:
+   * a message in the wrong language is a defect, a crash in a worker is an outage.
+   */
+  t(key: string, params: Record<string, unknown> = {}): string {
+    return this.translate(key, currentLanguage(), params, {
+      locale: currentLocaleContext()?.locale,
+    });
   }
 
   /** True when the key exists in any catalogue — used by the exception filter to tell a key from a sentence. */

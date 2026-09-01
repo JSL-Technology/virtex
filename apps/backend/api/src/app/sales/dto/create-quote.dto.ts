@@ -9,11 +9,11 @@ class CreateQuoteLineDto {
   description: string;
 
   @IsNumber()
-  @Min(1)
+  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
   quantity: number;
 
   @IsNumber()
-  @Min(0)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   unitPrice: number;
 }
 
@@ -34,7 +34,7 @@ export class CreateQuoteDto {
 
   @IsString()
   @IsOptional()
-  @Length(3, 3)
+  @Length(3, 3, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":3,"max":3}' })
   currencyCode?: string;
 
 

@@ -43,7 +43,7 @@ export class CreateCustomerDto {
   country: string;
 
   @IsNumber()
-  @Min(0)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   @IsOptional()
   totalBilled?: number;
 }

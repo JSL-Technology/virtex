@@ -19,4 +19,11 @@
         color: var(--text-secondary);
         border: 1px solid var(--border-color);
     }
+
+    // Voided and rejected entries stay in the journal — the ledger is append-only — so they need
+    // a badge that reads as "this one does not count" rather than as a neutral draft.
+    &.status-void {
+        background-color: rgba(var(--error-rgb), 0.15);
+        color: var(--error-text);
+    }
 }

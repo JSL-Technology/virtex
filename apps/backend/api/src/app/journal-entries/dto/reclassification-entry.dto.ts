@@ -11,7 +11,7 @@ import {
 export class CreateReclassificationEntryDto {
   @IsUUID()
   @IsNotEmpty({
-    message: 'El ID del libro contable (ledgerId) es obligatorio.',
+    message: 'VALIDATION.RECLASSIFICATION_ENTRY.ID_LIBRO_CONTABLE_LEDGERID_OBLIGATORIO',
   })
   ledgerId: string;
 

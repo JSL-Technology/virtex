@@ -159,7 +159,7 @@ export class AuthService {
          return {
             require2fa: true,
             pendingId,
-            message: '2FA verification required'
+            messageKey: 'AUTH.2FA_VERIFICATION_REQUIRED'
          };
       }
 

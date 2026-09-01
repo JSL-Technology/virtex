@@ -15,18 +15,18 @@ import { CommercialApprovalVerdict } from '../entities/ecf-lifecycle-message.ent
 export class CommercialApprovalDto {
   /** RNC of the supplier. Accepted with or without separators; stored as digits. */
   @IsString()
-  @Matches(/^[\d-]{9,13}$/, { message: 'El RNC del emisor no tiene un formato válido.' })
+  @Matches(/^[\d-]{9,13}$/, { message: 'VALIDATION.COMMERCIAL_APPROVAL.RNC_EMISOR_NO_TIENE_FORMATO_VALIDO' })
   issuerRnc: string;
 
   /** The supplier's e-NCF: `E` + two type digits + ten sequence digits. */
   @IsString()
   @Matches(/^E\d{12}$/, {
-    message: 'El e-NCF debe tener el formato E + 12 dígitos (por ejemplo E310000000001).',
+    message: 'VALIDATION.COMMERCIAL_APPROVAL.E_NCF_DEBE_TENER_FORMATO_E_12_DIGITOS',
   })
   ncf: string;
 
   /** Issue date the supplier stated, `YYYY-MM-DD`. */
-  @IsISO8601({ strict: true }, { message: 'La fecha de emisión debe ser una fecha ISO (YYYY-MM-DD).' })
+  @IsISO8601({ strict: true }, { message: 'VALIDATION.COMMERCIAL_APPROVAL.FECHA_EMISION_DEBE_FECHA_ISO_YYYY_MM_DD' })
   documentDate: string;
 
   /**
@@ -39,13 +39,13 @@ export class CommercialApprovalDto {
   @IsPositive()
   documentTotal: number;
 
-  @IsEnum(CommercialApprovalVerdict, { message: 'El estado debe ser 1 (aprobado) o 2 (rechazado).' })
+  @IsEnum(CommercialApprovalVerdict, { message: 'VALIDATION.COMMERCIAL_APPROVAL.ESTADO_DEBE_1_APROBADO_2_RECHAZADO' })
   verdict: CommercialApprovalVerdict;
 
   /** Required on a rejection; the service refuses one without it. */
   @ValidateIf((dto: CommercialApprovalDto) => dto.verdict === CommercialApprovalVerdict.REJECTED)
   @IsString()
-  @MaxLength(250)
+  @MaxLength(250, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":250}' })
   @IsOptional()
   rejectionReason?: string;
 }

@@ -1,1 +1,3173 @@
-{}
+{
+  "ACCOUNTING": {
+    "ACCOUNT_FORM": {
+      "APLICA_REVALUACION_TIPO_CAMBIO": "Aplica Revaluación por Tipo de Cambio",
+      "AVANZADO": "Avanzado",
+      "CANCELAR": "Cancelar",
+      "CARGANDO_DATOS_CUENTA": "Cargando datos de la cuenta...",
+      "CATEGORIA": "Categoría*",
+      "CATEGORIA_BALANCE_GENERAL": "Categoría de Balance General",
+      "CATEGORIA_ESTADO_RESULTADOS": "Categoría de Estado de Resultados",
+      "CATEGORIA_FLUJO_EFECTIVO": "Categoría de Flujo de Efectivo",
+      "CODIGO_CUENTA": "Código de Cuenta*",
+      "CODIGO_CUENTA_DEBE_TENER_MENOS_SEGMENTO": "El código de cuenta debe tener al menos un segmento válido.",
+      "COMPLETA_INFORMACION_DETALLADA_CUENTA": "Completa la información detallada de la cuenta.",
+      "CONFIGURACION_AVANZADA": "Configuración Avanzada",
+      "CONFIGURAR_SEGMENTOS": "Configurar Segmentos",
+      "CREAR_CUENTAS_CONTABLES_PRIMERO_DEBES_DEFINIR": "Para crear cuentas contables, primero debes definir la estructura de niveles (segmentos) de tu organización.",
+      "CUENTA_ACTIVA": "Cuenta activa",
+      "CUENTA_ACTUALIZADA_EXITO": "Cuenta actualizada con éxito.",
+      "CUENTA_CREADA_EXITO": "Cuenta creada con éxito.",
+      "CUENTA_PADRE_AGRUPADORA": "Cuenta Padre (Agrupadora)",
+      "DEFINE_COMO_REPRESENTA_ESTA_CUENTA_REPORTES": "Define cómo se representa esta cuenta en los reportes financieros clave.",
+      "DESCRIPCION": "Descrição",
+      "DIMENSIONES_REQUERIDAS": "Dimensiones Requeridas",
+      "EJ_ACTIVOS_CIRCULANTES": "Ej: Activos Circulantes",
+      "EJ_INGRESOS_OPERATIVOS": "Ej: Ingresos Operativos",
+      "ERROR_CARGAR_CONFIGURACION_SEGMENTOS": "Error al cargar la configuración de segmentos.",
+      "ERROR_CARGAR_DATOS_CUENTA": "Error al cargar los datos de la cuenta.",
+      "ES_CUENTA_CAJA_BANCO": "Es Cuenta de Caja o Banco",
+      "ES_CUENTA_IMPUTABLE_PERMITE_TRANSACCIONES": "Es una cuenta imputable (permite transacciones)",
+      "ESTABLECE_RESTRICCIONES_COMPORTAMIENTOS_ESPECIFICOS_ESTA_CUENTA": "Establece restricciones y comportamientos específicos para esta cuenta.",
+      "ESTRUCTURA_SEGMENTOS_NO_CONFIGURADA": "Estructura de segmentos no configurada",
+      "FAVOR_COMPLETE_TODOS_CAMPOS_REQUERIDOS": "Por favor, complete todos los campos requeridos.",
+      "GENERAL": "General",
+      "GUARDANDO": "Guardando...",
+      "GUARDAR_CUENTA": "Guardar Cuenta",
+      "MAPEO_ESTADOS_FINANCIEROS": "Mapeo de Estados Financieros",
+      "MAPEOS": "Mapeos",
+      "NATURALEZA_AUTOMATICO": "Naturaleza (Automático)",
+      "NINGUNA_CUENTA_RAIZ": "-- Ninguna (Cuenta Raíz) --",
+      "NOMBRE_CUENTA": "Nombre de la Cuenta*",
+      "PARAMETROS_CONTROL_AUDITORIA_CUENTA": "Parámetros de control y auditoría para la cuenta.",
+      "PERMITE_TRANSACCIONES_INTERCOMPANIA": "Permite Transacciones Intercompañía",
+      "PUEDE_GUARDAR_CUENTA_SIN_ESTRUCTURA_SEGMENTOS": "No se puede guardar la cuenta sin una estructura de segmentos configurada.",
+      "REGLAS": "Reglas",
+      "REGLAS_CONTABILIZACION": "Reglas de Contabilización",
+      "REQUIERE_RECONCILIACION": "Requiere Reconciliación",
+      "SELECCIONAR_CATEGORIA": "Seleccionar categoría...",
+      "SELECCIONAR_TIPO": "Seleccionar tipo...",
+      "TIPO_CUENTA": "Tipo de Cuenta*",
+      "TIPO_JERARQUIA": "Tipo de Jerarquía",
+      "VERSION_CATALOGO": "Versión del Catálogo",
+      "VIGENTE_DESDE": "Vigente Desde",
+      "VIGENTE_HASTA": "Vigente Hasta"
+    },
+    "ACCOUNT_RECONCILIATION": {
+      "ACCOUNT": "Account",
+      "ACCOUNT_RECONCILIATION": "Account Reconciliation",
+      "CURRENT_BALANCE": "Current Balance",
+      "FILTER_BY_PERIOD_JULY_2025": "Filter by Period: July 2025",
+      "LAST_RECONCILED_BY": "Last Reconciled By",
+      "LAST_RECONCILED_DATE": "Last Reconciled Date",
+      "NO_ACCOUNTS_REQUIRE_RECONCILIATION_FOR_THIS": "No accounts require reconciliation for this period.",
+      "STATUS": "Status"
+    },
+    "ANNUAL_CLOSE": {
+      "ANNUAL_CLOSING_PROCESS_FISCAL_YEAR_2025": "Annual Closing Process - Fiscal Year 2025",
+      "GO_TASK": "Go to Task",
+      "RESPONSIBLE_RESPONSIBLE": "Responsible: {{responsible}}"
+    },
+    "APPROVALS": {
+      "APPROVALS_WORKS": "approvals works!"
+    },
+    "BULK_OPERATIONS": {
+      "CODIGO_CUENTA": "Código de Cuenta",
+      "CUENTAS_CREADAS_ACTUALIZADAS": "Cuentas Creadas/Actualizadas",
+      "DESCARGAR_PLANTILLA_EJEMPLO_CSV": "Descargar plantilla de ejemplo (CSV)",
+      "DETALLE_ERRORES": "Detalle de Errores:",
+      "EXPORTAR_PLAN_CUENTAS": "Exportar Plan de Cuentas",
+      "FILA": "Fila",
+      "IMPORTAR_PLAN_CUENTAS": "Importar Plan de Cuentas",
+      "MENSAJE_ERROR": "Mensaje de Error",
+      "OPERACIONES_MASIVAS": "Operaciones Masivas",
+      "PROCESANDO": "Procesando...",
+      "PROCESAR_ARCHIVO": "Procesar Archivo",
+      "REGISTROS_ERRORES": "Registros con Errores",
+      "RESULTADOS_IMPORTACION": "Resultados de la Importación",
+      "SUBE_ARCHIVO_FORMATO_CSV_XLSX_CREAR": "Sube un archivo en formato CSV o XLSX para crear o actualizar cuentas de forma masiva.\n                    Asegúrate de que el archivo siga la estructura requerida.",
+      "VOLVER_PLAN_CUENTAS": "Volver al Plan de Cuentas"
+    },
+    "CHART_OF_ACCOUNTS": {
+      "ACTIVA": "Activa",
+      "ANADE_NUEVA_CUENTA_EMPEZAR_GESTIONAR_TU": "Añade una nueva cuenta para empezar a gestionar tu\n                      catálogo.",
+      "BUSCAR_CODIGO_NOMBRE": "Buscar por código o nombre...",
+      "CATALOGO": "Catálogo",
+      "CATALOGO_CUENTAS": "Catálogo de Cuentas",
+      "CONTABILIDAD": "Contabilidade",
+      "CUENTAS": "cuentas",
+      "EDITAR": "Editar",
+      "ELIMINAR": "Eliminar",
+      "ERROR_CARGAR_CUENTAS": "Error al Cargar Cuentas",
+      "EXPORTAR": "Exportar",
+      "INACTIVA": "Inactiva",
+      "MOSTRANDO": "Exibindo",
+      "NO_ENCONTRARON_CUENTAS": "No se encontraron cuentas",
+      "NUEVA_CUENTA": "Nueva Cuenta",
+      "TODOS_ESTADOS": "Todos los Estados",
+      "TODOS_TIPOS": "Todos los Tipos"
+    },
+    "CHECKLIST": {
+      "ASSIGNED": "Assigned To",
+      "CHECKLIST_NAME": "Checklist Name",
+      "CLOSING_PROCESS_CHECKLISTS": "Closing Process Checklists",
+      "FILTERS": "Filters",
+      "NEW_CHECKLIST": "New Checklist",
+      "NO_CHECKLISTS_HAVE_BEEN_CREATED_YET": "No checklists have been created yet.",
+      "TASK_COUNT": "Task Count",
+      "TYPE": "Type"
+    },
+    "COA": {
+      "ACTIONS": {
+        "FILTERS": "Filtros",
+        "NEW_ACCOUNT": "Nueva Cuenta"
+      },
+      "ARIA": {
+        "COLLAPSE_ROW": "Contraer cuenta",
+        "EXPAND_ROW": "Expandir cuenta",
+        "MORE_ACTIONS": "Más acciones"
+      },
+      "TABLE": {
+        "HEADERS": {
+          "ACCOUNT_NAME": "Nombre de la Cuenta",
+          "ACTIONS": "Ações",
+          "BALANCE": "Saldo",
+          "CODE": "Código",
+          "TYPE": "Tipo"
+        }
+      },
+      "TITLE": "Plan de Cuentas"
+    },
+    "DAILY_JOURNAL": {
+      "ACCOUNT": "Account",
+      "CREDIT": "Credit",
+      "DAILY_JOURNAL": "Daily Journal",
+      "DATE": "Date",
+      "DEBIT": "Debit",
+      "DESCRIPTION": "Description",
+      "ENTRY": "Entry #",
+      "EXPORT": "Export",
+      "FILTERS": "Filters",
+      "JUL_2025": "Jul 2025",
+      "NO_JOURNAL_ENTRIES_FOUND_FOR_THIS": "No journal entries found for this period."
+    },
+    "GENERAL_LEDGER": {
+      "BALANCE": "Balance",
+      "CARGANDO_DATOS_LIBRO_MAYOR": "Cargando datos del libro mayor...",
+      "CARGANDO_INFORMACION_CUENTA": "Cargando información de la cuenta...",
+      "CREDITO": "Crédito",
+      "CUENTA_CODE_NAME": "Cuenta: {{code}} - {{name}}",
+      "DEBITO": "Débito",
+      "DESCRIPCION": "Descrição",
+      "DESDE": "Desde:",
+      "EXPORTAR": "Exportar",
+      "FAVOR_SELECCIONE_CUENTA_VER_LIBRO_MAYOR": "Por favor, seleccione una cuenta para ver el libro mayor.",
+      "FECHA": "Data",
+      "FILTRAR": "Filtrar",
+      "HA_ESPECIFICADO_CUENTA": "No se ha especificado una cuenta.",
+      "HASTA": "Hasta:",
+      "LIBRO_MAYOR": "Libro Mayor",
+      "NO_ENCONTRARON_MOVIMIENTOS_ESTA_CUENTA_PERIODO": "No se encontraron movimientos para esta cuenta en el período seleccionado.",
+      "REFERENCIA": "Referencia",
+      "SALDO_FINAL": "Saldo Final",
+      "SALDO_INICIAL": "Saldo Inicial",
+      "TOTAL_CREDITOS": "Total Créditos",
+      "TOTAL_DEBITOS": "Total Débitos"
+    },
+    "IMPORT": {
+      "ANALIZANDO_FICHERO": "Analizando el fichero...",
+      "ASIENTOS_CONTABLES_IMPORTADOS_EXITO": "Asientos contables importados con éxito.",
+      "CONFIRMAR_IMPORTAR": "Confirmar e Importar",
+      "FAVOR_SELECCIONA_FICHERO_IMPORTAR": "Por favor, selecciona un fichero para importar.",
+      "FICHERO_SELECCIONADO": "Fichero seleccionado:",
+      "HAY_IMPORTACION_CONFIRMAR": "No hay una importación para confirmar.",
+      "HAZ_CLIC_AQUI_SELECCIONAR_FICHERO_CSV": "Haz clic aquí para seleccionar un fichero (CSV, Excel)",
+      "IMPORTAR_ASIENTOS_CONTABLES": "Importar Asientos Contables",
+      "PASO_PREVISUALIZACION_CONFIRMACION": "Paso 2: Previsualización y Confirmación",
+      "PASO_SELECCIONAR_FICHERO": "Paso 1: Seleccionar Fichero",
+      "PREVISUALIZACION_DATOS_IMPORTAR": "Previsualización de los datos a importar:"
+    },
+    "JOURNAL_ENTRIES": {
+      "CREDIT": "Crédito",
+      "DATE": "Data",
+      "DEBIT": "Débito",
+      "DESCRIPTION": "Descrição",
+      "ENTRY": "N.º de Asiento",
+      "FILTERS": "Filtros",
+      "JOURNAL_ENTRIES": "Asientos Contables",
+      "LOAD_FAILED": "No se pudieron cargar los asientos contables.",
+      "LOADING": "Cargando los asientos contables…",
+      "NEW_ENTRY": "Nuevo Asiento",
+      "NO_JOURNAL_ENTRIES_FOUND": "No se encontraron asientos contables.",
+      "ROW_ACTIONS": "Más acciones",
+      "STATUS": "Situação",
+      "STATUS_DRAFT": "Borrador",
+      "STATUS_MODIFIED": "Modificado",
+      "STATUS_PENDING_APPROVAL": "Pendiente de aprobación",
+      "STATUS_POSTED": "Contabilizado",
+      "STATUS_REJECTED": "Rechazado",
+      "STATUS_VOID": "Anulado"
+    },
+    "JOURNAL_ENTRY_FORM": {
+      "ASIENTO_CONTABLE_CREADO_EXITO": "Asiento contable creado con éxito!",
+      "ERROR_CARGAR_CUENTAS_CONTABLES": "Error al cargar las cuentas contables.",
+      "ERROR_CARGAR_DIARIOS": "Error al cargar los diarios.",
+      "ERROR_CARGAR_LIBROS_MAYORES": "Error al cargar los libros mayores."
+    },
+    "JOURNAL_FORM": {
+      "BANK": "Bank",
+      "CANCEL": "Cancel",
+      "CASH": "Cash",
+      "CODE": "Code",
+      "GENERAL": "General",
+      "NAME": "Name",
+      "PURCHASES": "Purchases",
+      "SALES": "Sales",
+      "SAVE": "Save",
+      "TITLE_CREATE": "Nuevo diario",
+      "TITLE_EDIT": "Editar diario",
+      "TYPE": "Type"
+    },
+    "JOURNAL_LIST": {
+      "ACTIONS": "Actions",
+      "CODE": "Code",
+      "CREATE_JOURNAL": "Create Journal",
+      "EDIT": "Edit",
+      "JOURNALS": "Journals",
+      "NAME": "Name",
+      "TYPE": "Type"
+    },
+    "LAYOUT": {
+      "ANNUAL": "Annual",
+      "CHECKLISTS": "Checklists",
+      "MONTH_END": "Month-End",
+      "TASKS": "Tasks"
+    },
+    "LEDGER_FORM": {
+      "CANCELAR": "Cancelar",
+      "DEFINE_NUEVO_LIBRO_REGISTRAR_TRANSACCIONES_CONTABLES": "Define un nuevo libro para registrar transacciones contables.",
+      "DESCRIPCION": "Descrição",
+      "EJ_LIBRO_PRINCIPAL_IFRS": "Ej: Libro Principal IFRS",
+      "EJ_UTILIZADO_REPORTES_FINANCIEROS_BAJO_NIIF": "Ej: Utilizado para reportes financieros bajo NIIF.",
+      "ERROR_ACTUALIZAR_LIBRO_MAYOR": "Error al actualizar el Libro Mayor.",
+      "ERROR_CREAR_LIBRO_MAYOR": "Error al crear el Libro Mayor.",
+      "ESTABLECER_COMO_LIBRO_DEFECTO": "Establecer como libro por defecto",
+      "FAVOR_COMPLETA_CAMPOS_REQUERIDOS": "Por favor, completa los campos requeridos.",
+      "LIBRO_MAYOR_ACTUALIZADO_EXITOSAMENTE": "Libro Mayor actualizado exitosamente.",
+      "LIBRO_MAYOR_CREADO_EXITOSAMENTE": "Libro Mayor creado exitosamente.",
+      "NOMBRE_LIBRO": "Nombre del Libro*",
+      "PUDO_CARGAR_LIBRO_MAYOR": "No se pudo cargar el libro mayor.",
+      "TITLE_CREATE": "Nuevo libro mayor",
+      "TITLE_EDIT": "Editar libro mayor"
+    },
+    "LEDGER_LIST": {
+      "CREAR_NUEVO_LIBRO": "Crear Nuevo Libro",
+      "DEFECTO": "Por Defecto",
+      "DESCRIPCION": "Descrição",
+      "EDITAR": "Editar",
+      "LIBROS_CONTABLES": "Libros Contables",
+      "NO_HAN_ENCONTRADO_LIBROS_CONTABLES": "No se han encontrado libros contables.",
+      "NOMBRE": "Nome"
+    },
+    "LEDGER": {
+      "DESCRIPTION": "Administra tu plan de cuentas, asientos contables y períodos contables.",
+      "TITLE": "Libro Mayor"
+    },
+    "MERGE_TOOL": {
+      "ADVERTENCIAS": "Advertencias:",
+      "ANALISIS_REPORTO_PROBLEMAS_CORRIGE_SELECCION": "El análisis reportó problemas. Corrige la selección.",
+      "ANALIZAR": "Analizar",
+      "BUSCAR_CODIGO_NOMBRE": "Buscar por código o nombre...",
+      "CONFIRMA_DESEAS_FUSIONAR_CUENTA": "Confirma que deseas fusionar la cuenta",
+      "CONFIRMAR_FUSION": "Confirmar Fusión",
+      "CONSERVARA_MOVIMIENTOS_SALDO": "(la que conservará los movimientos y saldo).",
+      "CONTINUAR": "Continuar",
+      "CUENTA": "La cuenta",
+      "CUENTA_DESTINO": "cuenta destino",
+      "CUENTA_DESTINO_RECIBE_FUSION": "Cuenta Destino (recibe la fusión)",
+      "CUENTA_ORIGEN": "cuenta origen",
+      "CUENTA_ORIGEN_FUSIONAR": "Cuenta Origen (a fusionar)",
+      "CUENTA_SELECCIONADA": "Cuenta Seleccionada:",
+      "DESTINO": "Destino:",
+      "ELIGE": "Elige una",
+      "ERROR": "Error:",
+      "FUE_FUSIONADA": "fue fusionada en",
+      "FUSION_COMPLETADA": "¡Fusión completada!",
+      "FUSION_NO_COMPLETO": "La fusión no se completó.",
+      "HERRAMIENTA_FUSION_CUENTAS": "Herramienta de Fusión de Cuentas",
+      "LIMPIAR": "Limpiar",
+      "MUESTRA_RESUMEN_DRY_RUN_ANTES_EJECUTAR": "Se muestra un resumen del *dry-run* antes de ejecutar la fusión.",
+      "ORIGEN": "Origen:",
+      "PASO_ANALISIS_IMPACTO": "Paso 2: Análisis de Impacto",
+      "PASO_CONFIRMACION": "Paso 3: Confirmación",
+      "PASO_SELECCIONAR_CUENTAS": "Paso 1: Seleccionar Cuentas",
+      "REALIZAR_OTRA_FUSION": "Realizar otra fusión",
+      "RESULTADO": "Resultado",
+      "SALDO_DESTINO": "Saldo en destino:",
+      "SALDO_ORIGEN": "Saldo en origen:",
+      "SERA_FUSIONADA": "(la que será fusionada) y una",
+      "TIPO_TYPE": "Tipo: {{type}}",
+      "TRANSACCIONES_MOVER": "Transacciones a mover:",
+      "VOLVER": "Volver",
+      "VOLVER_PLAN_CUENTAS": "Volver al Plan de Cuentas"
+    },
+    "MONTH_END_CLOSE": {
+      "GO_TASK": "Go to Task",
+      "MONTH_END_CLOSING_PROCESS_JULY_2025": "Month-End Closing Process - July 2025",
+      "RESPONSIBLE_RESPONSIBLE": "Responsible: {{responsible}}"
+    },
+    "NAV": {
+      "CHART_OF_ACCOUNTS": "Catálogo de Cuentas",
+      "GENERAL_JOURNAL": "Libro Diario",
+      "GENERAL_LEDGER": "Libro Mayor",
+      "JOURNAL_ENTRIES": "Asientos Contables",
+      "PERIOD_CLOSE": "Cierre Contable",
+      "PERIODS": "Períodos",
+      "RECONCILIATION": "Conciliación",
+      "SUBSIDIARY_LEDGERS": "Libros Auxiliares",
+      "VARIANCE_ANALYSIS": "Análisis de Variaciones"
+    },
+    "PERIODS": {
+      "ACCOUNTING_PERIODS": "Períodos Contables",
+      "ACTION": "Acción",
+      "CLOSE_PERIOD": "Cerrar Período",
+      "EMPTY": "Todavía no hay períodos contables definidos.",
+      "END_DATE": "Fecha de Cierre",
+      "LOAD_FAILED": "No se pudieron cargar los períodos contables.",
+      "LOADING": "Cargando los períodos contables…",
+      "PERIOD": "Período",
+      "RE_OPEN": "Reabrir",
+      "REASON_TOO_SHORT": "La razón debe tener al menos 10 caracteres.",
+      "REOPEN_REASON_PROMPT": "Indica la razón por la que se reabre este período contable (mínimo 10 caracteres).",
+      "START_DATE": "Fecha de Inicio",
+      "STATUS": "Situação",
+      "STATUS_CLOSED": "Cerrado",
+      "STATUS_OPEN": "Abierto"
+    },
+    "SEGMENT_CONFIGURATION": {
+      "AGREGAR_NIVEL": "Agregar Nivel",
+      "CANCELAR": "Cancelar",
+      "CARGANDO_CONFIGURACION": "Cargando configuración...",
+      "CARGAR_PLANTILLA": "Cargar Plantilla",
+      "CATALOGO_CUENTAS": "Catálogo de Cuentas",
+      "CONFIGURACION_SEGMENTOS": "Configuración de Segmentos",
+      "DEBE_DEFINIR_MENOS_SEGMENTO": "Debe definir al menos un segmento.",
+      "DEFINE_ESTRUCTURA_LONGITUD_NIVELES_TUS_CUENTAS": "Define la estructura y longitud de los niveles para tus cuentas contables.",
+      "EJ_MAYOR_SUB_CUENTA": "Ej: Mayor, Sub-cuenta...",
+      "ELIMINAR_NIVEL": "Eliminar Nivel",
+      "ERROR_CARGAR_CONFIGURACION_SEGMENTOS": "Error al cargar la configuración de segmentos.",
+      "ESTRUCTURA_DEFECTO_INICIALIZADA": "Estructura por defecto inicializada.",
+      "ESTRUCTURA_SEGMENTOS_GUARDADA_CORRECTAMENTE": "Estructura de segmentos guardada correctamente.",
+      "FAVOR_CORRIJA_ERRORES_FORMULARIO": "Por favor, corrija los errores en el formulario.",
+      "GUARDANDO": "Guardando...",
+      "GUARDAR_ESTRUCTURA": "Guardar Estructura",
+      "LONGITUD_CARACTERES": "Longitud (caracteres)",
+      "NO_HAY_NIVELES_DEFINIDOS_AGREGA_UNO": "No hay niveles definidos. Agrega uno o carga la plantilla por defecto.",
+      "NOMBRE_NIVEL": "Nombre del Nivel",
+      "NOTA_IMPORTANTE": "Nota importante:",
+      "ORDEN": "Orden",
+      "REQUERIDO": "Requerido",
+      "VEZ_COMIENCES_CREAR_CUENTAS_CONTABLES_NO": "Una vez que comiences a crear cuentas contables, no podrás modificar esta estructura. Asegúrate de que la longitud y cantidad de niveles sean las correctas para tu organización."
+    },
+    "SUBSIDIARY_LEDGERS": {
+      "AUXILIARY": "Auxiliar:",
+      "AUXILIARY_THIRD_PARTY": "Auxiliar (Tercero)",
+      "BALANCE": "Saldo",
+      "CONTROL_ACCOUNT": "Cuenta de Control",
+      "CREDIT": "Crédito",
+      "DATE": "Data",
+      "DEBIT": "Débito",
+      "DESCRIPTION": "Descrição",
+      "EXPORT": "Exportar",
+      "FILTERS": "Filtros",
+      "FINAL_BALANCE": "Saldo Final",
+      "INITIAL_BALANCE": "Saldo Inicial",
+      "LOAD_FAILED": "No se pudo cargar el libro auxiliar.",
+      "LOADING": "Cargando el libro auxiliar…",
+      "NO_MOVEMENTS_FOUND_FOR_THIS_AUXILIARY": "No se encontraron movimientos para este auxiliar en el período seleccionado.",
+      "OPENING_BALANCE": "Saldo de apertura",
+      "PERIOD": "Período",
+      "REFERENCE": "N.º de Referencia",
+      "SELECT_ACCOUNT": "Selecciona una cuenta de control",
+      "SELECT_AUXILIARY": "Selecciona un auxiliar",
+      "SUBSIDIARY_LEDGERS": "Libros Auxiliares"
+    },
+    "TASKS": {
+      "ASSIGNED": "Assigned To",
+      "CHECKLIST": "Checklist",
+      "CLOSING_PROCESS_TASKS": "Closing Process Tasks",
+      "DUE_DATE": "Due Date",
+      "FILTERS": "Filters",
+      "NEW_TASK": "New Task",
+      "NO_TASKS_FOUND": "No tasks found.",
+      "STATUS": "Status",
+      "TASK_NAME": "Task Name"
+    },
+    "VARIANCE_ANALYSIS": {
+      "ACCOUNT": "Cuenta",
+      "ACTUAL": "Real",
+      "BUDGET": "Presupuesto",
+      "EXPORT": "Exportar",
+      "LOAD_FAILED": "No se pudo cargar el análisis de variaciones.",
+      "LOADING": "Cargando el análisis de variaciones…",
+      "NO_DATA_AVAILABLE_FOR_VARIANCE_ANALYSIS": "No hay datos disponibles para el análisis de variaciones.",
+      "PERIOD": "Período",
+      "VARIANCE_AMOUNT": "Variación",
+      "VARIANCE_ANALYSIS_ACTUAL_VS_BUDGET": "Análisis de Variaciones (Real vs. Presupuesto)",
+      "VARIANCE_PERCENT": "Variación (%)"
+    }
+  },
+  "ACCOUNTS_PAYABLE": {
+    "DETAIL": {
+      "ANULAR": "Anular",
+      "BALANCE_PENDIENTE": "Balance Pendiente",
+      "CARGANDO_DETALLE_FACTURA": "Cargando detalle de la factura...",
+      "EDITAR": "Editar",
+      "ESTADO": "Situação",
+      "FACTURA_ANULADA_EXITO": "Factura anulada con éxito.",
+      "FACTURA_ENCONTRADA": "Factura no encontrada.",
+      "FACTURA_PROVEEDOR_BILLNUMBER": "Factura de Proveedor #{{billNumber}}",
+      "FECHA_EMISION": "Fecha de Emisión",
+      "FECHA_VENCIMIENTO": "Fecha de Vencimiento",
+      "INFORMACION_GENERAL": "Informações Gerais",
+      "LINEAS_FACTURA": "Líneas de la Factura",
+      "PROVEEDOR_VENDORNAME": "Proveedor: {{vendorName}}",
+      "SECCION_LINEAS_FACTURA_IMPLEMENTARA_AQUI": "La sección de líneas de la factura se implementará aquí.",
+      "TOTAL": "Total",
+      "VOLVER_LISTADO": "Volver al Listado"
+    },
+    "FORM": {
+      "ANADIR_LINEA": "Añadir Línea",
+      "CANCELAR": "Cancelar",
+      "CANT": "Cant.",
+      "CUENTA_GASTO": "Cuenta de Gasto",
+      "DESCRIPCION": "Descrição",
+      "DETALLES_FACTURA": "Detalles de la Factura",
+      "ERROR_GUARDAR_FACTURA": "Error al guardar la factura.",
+      "FACTURA_ACTUALIZADA_EXITO": "Factura actualizada con éxito.",
+      "FACTURA_CREADA_EXITO": "Factura creada con éxito.",
+      "FAVOR_COMPLETA_TODOS_CAMPOS_REQUERIDOS": "Por favor, completa todos los campos requeridos.",
+      "FECHA_EMISION": "Fecha de Emisión",
+      "FECHA_VENCIMIENTO": "Fecha de Vencimiento",
+      "INFORMACION_GENERAL": "Informações Gerais",
+      "NOTAS": "Notas",
+      "NUMERO_FACTURA": "Número de Factura",
+      "PRECIO": "Precio",
+      "PROVEEDOR": "Proveedor",
+      "SELECCIONAR_PROVEEDOR": "Seleccionar proveedor",
+      "TIMES": "&times;",
+      "TITLE_CREATE": "Nueva factura de proveedor",
+      "TITLE_EDIT": "Editar factura de proveedor"
+    },
+    "LIST": {
+      "BALANCE": "Balance",
+      "CARGANDO_FACTURAS": "Cargando facturas...",
+      "CREA_TU_PRIMERA_FACTURA_PROVEEDOR_EMPEZAR": "Crea tu primera factura de proveedor para empezar.",
+      "CREAR_FACTURA": "Crear Factura",
+      "ESTADO": "Situação",
+      "FACTURAS_PROVEEDOR": "Facturas de Proveedor",
+      "FECHA": "Data",
+      "FILTRAR": "Filtrar",
+      "NO_HAY_FACTURAS_PROVEEDOR": "No hay facturas de proveedor",
+      "NUEVA_FACTURA": "Nueva Factura",
+      "NUMERO": "Número",
+      "PROVEEDOR": "Proveedor",
+      "REINTENTAR": "Tentar novamente",
+      "TOTAL": "Total",
+      "VENCIMIENTO": "Vencimiento"
+    }
+  },
+  "ACTIONS": {
+    "CREATE_NEW": "Crear Nuevo",
+    "NEW_CUSTOMER": "Nuevo cliente",
+    "NEW_INVOICE": "Nueva factura",
+    "NEW_PRODUCT": "Nuevo producto",
+    "NEW_QUOTE": "Nueva cotización"
+  },
+  "ALT": {
+    "COMPANY_LOGO": "Logo de la empresa"
+  },
+  "APP_TITLE": "Virtex",
+  "APPROVALS": {
+    "APROBAR": "Aprobar",
+    "CENTRO_APROBACIONES": "Centro de Aprobaciones",
+    "FACTURAS_PROVEEDORES": "Facturas de Proveedores",
+    "NO_HAY_FACTURAS_PENDIENTES_APROBACION": "No hay facturas pendientes de aprobación.",
+    "NO_HAY_ORDENES_COMPRA_PENDIENTES_APROBACION": "No hay órdenes de compra pendientes de aprobación.",
+    "NO_HAY_REPORTES_GASTOS_PENDIENTES_APROBACION": "No hay reportes de gastos pendientes de aprobación.",
+    "ORDENES_COMPRA": "Órdenes de Compra",
+    "RECHAZAR": "Rechazar",
+    "REPORTES_GASTOS": "Reportes de Gastos",
+    "REVISA_APRUEBA_RECHAZA_TODAS_SOLICITUDES_PENDIENTES": "Revisa, aprueba o rechaza todas las solicitudes pendientes de la empresa.",
+    "SOLICITADO": "Solicitado por"
+  },
+  "APPS": {
+    "CRM": "Virtex CRM",
+    "HR": "Virtex HR",
+    "LUNCH": "Virtex Lunch",
+    "POS": "Virtex POS",
+    "SHOPFLOOR": "Virtex Shopfloor",
+    "STORE": "Virtex Store",
+    "TITLE": "Apps de Virtex",
+    "WMS": "Virtex WMS"
+  },
+  "AUTH": {
+    "AUTH_FOOTER": {
+      "AMP": "&amp;"
+    },
+    "AUTH_LAYOUT": {
+      "VIRTEX_ERP": "Virtex ERP"
+    },
+    "CHECKOUT_COMPLETE": {
+      "CONFIRMANDO_TU_PAGO": "Confirmando tu pago…",
+      "ESTAMOS_ACTIVANDO_TU_CUENTA_ESTO_SOLO": "Estamos activando tu cuenta. Esto solo tomará unos segundos.",
+      "IR_INICIAR_SESION": "Ir a iniciar sesión",
+      "NO_PUDIMOS_CONFIRMAR_PAGO": "No pudimos confirmar el pago",
+      "PAGO_CONFIRMADO": "¡Pago confirmado!",
+      "REINTENTAR": "Tentar novamente",
+      "TU_CUENTA_HA_SIDO_CREADA_TE": "Tu cuenta ha sido creada. Te estamos llevando a tu panel…"
+    },
+    "CONTACT": "Contacto",
+    "COPYRIGHT": "© {{year}} {{app}}. Todos los derechos reservados.",
+    "ERRORS": {
+      "INVALID_PHONE": "Escribe un número en formato internacional, por ejemplo +18095551234."
+    },
+    "LEGAL_LINKS": "Enlaces legales",
+    "PRIVACY": "Privacidad",
+    "RECAPTCHA_PROTECTED": "Protegido por reCAPTCHA.",
+    "REGISTER": {
+      "REGISTER_STEP_TRANSLATE_CURRENT_CURRENTSTEP_TOTAL": "{{ 'REGISTER.STEP_OF' | translate:{ current: currentStep(), total: steps.length } }}"
+    },
+    "SECURITY": "Segurança",
+    "SIGN_OUT": "Cerrar Sesión",
+    "SOCIAL_AUTH_BUTTONS": {
+      "SIGN_IN_WITH_GOOGLE": "Sign in with Google",
+      "SIGN_IN_WITH_MICROSOFT": "Sign in with Microsoft"
+    },
+    "STEP_BUSINESS": {
+      "FAX": "Fax"
+    },
+    "STEP_CONFIGURATION": {
+      "CALLE_NUMERO": "Calle y número",
+      "CIUDAD": "Cidade",
+      "DIRECCION_FISCAL": "Dirección fiscal",
+      "EMPRESA_PERSONA_JURIDICA": "Empresa / persona jurídica",
+      "NAME_EXIGE_FACTURACION_ELECTRONICA_REGIME_ESTOS": "{{name}} exige facturación electrónica ({{regime}}). Estos datos forman parte\n      del comprobante, por eso los pedimos ahora.",
+      "NO_PUDO_CARGAR_CONFIGURACION_FISCAL_ESE": "No se pudo cargar la configuración fiscal de ese país. Recarga la página o elige otro país.",
+      "NO_PUDO_CARGAR_LISTA_PAISES_RECARGA": "No se pudo cargar la lista de países. Recarga la página para continuar con el registro.",
+      "PERSONA_FISICA": "Persona física",
+      "TIPO_CONTRIBUYENTE": "Tipo de contribuyente",
+      "VERIFICAMOS_DIGITO_VERIFICADOR_ANTE_FISCALAUTHORITY": "Verificamos el dígito verificador ante {{fiscalAuthority}}."
+    },
+    "STEP_EMAIL_VERIFY": {
+      "CODIGO_VERIFICACION": "Código de verificación",
+      "CONFIRMA_TU_CORREO_ELECTRONICO": "Confirma tu correo electrónico",
+      "CONFIRMAR_CORREO_ELECTRONICO": "\"Confirmar correo electrónico\"",
+      "CORREO_ENVIAMOS": "en el correo que enviamos.",
+      "ENVIAMOS_CODIGO_ENLACE_CONFIRMACION": "Enviamos un código y un enlace de confirmación a",
+      "ENVIANDO_CODIGO_EMAIL": "Enviando código a {{email}}…",
+      "PREFIERES_NO_ESCRIBIR_CODIGO_BUSCA_BOTON": "¿Prefieres no escribir el código? Busca el botón",
+      "REINTENTAR": "Tentar novamente"
+    },
+    "STEP_PHONE_VERIFY": {
+      "CODIGO_VERIFICACION_SMS": "Código de verificación SMS",
+      "CONFIRMA_TU_NUMERO_CELULAR": "Confirma tu número de celular",
+      "ENVIAMOS_SMS_CODIGO": "Enviamos un SMS con el código a",
+      "ENVIANDO_SMS_PHONE": "Enviando SMS a {{phone}}…",
+      "REINTENTAR": "Tentar novamente"
+    },
+    "STEP_PLAN": {
+      "REGISTER_STEPS_PLAN_SAVE_PERCENT_TRANSLATE": "{{ 'REGISTER.STEPS.PLAN.SAVE_PERCENT' | translate: { percent: plan.annualSaving } }}"
+    },
+    "STEP_UP": {
+      "CONTINUE_WITH_IDP": "Continuar con tu proveedor",
+      "DESCRIPTION": "Estás intentando realizar una acción sensible. Por favor, confirma tu contraseña para continuar.",
+      "DESCRIPTION_OTP": "Introduce el código de tu aplicación de autenticación para confirmar esta acción.",
+      "DESCRIPTION_SSO": "Esta cuenta se verifica con tu proveedor de identidad. Te llevaremos allí para confirmar que eres tú y volverás a esta misma página.",
+      "DESCRIPTION_SSO_NAMED": "Esta cuenta se verifica con {{provider}}. Te llevaremos allí para confirmar que eres tú y volverás a esta misma página.",
+      "ENROLMENT_REQUIRED": "Esta acción requiere verificación en dos pasos. Actívala en tu configuración de seguridad para continuar.",
+      "ERRORS": {
+        "INVALID_CODE": "Código de verificación inválido.",
+        "INVALID_PASSWORD": "La contraseña es incorrecta.",
+        "TOO_MANY_ATTEMPTS": "Demasiados intentos. Tu cuenta ha sido bloqueada temporalmente por seguridad.",
+        "VERIFICATION_FAILED": "No se pudo verificar la contraseña. Inténtalo de nuevo."
+      },
+      "FEDERATED_FAILED": "No pudimos verificar tu identidad con el proveedor. Inténtalo de nuevo.",
+      "FEDERATED_OK": "Identidad verificada. Vuelve a pulsar la acción que querías realizar.",
+      "OTP_HINT": "También puedes usar uno de tus códigos de recuperación.",
+      "OTP_LABEL": "Código de verificación",
+      "OTP_PLACEHOLDER": "123456",
+      "PASSWORD_LABEL": "Contraseña",
+      "PASSWORD_PLACEHOLDER": "Ingresa tu contraseña actual",
+      "REMAINING_ATTEMPTS": "Intentos restantes: {{count}}",
+      "SUBTITLE": "Acción protegida",
+      "TITLE": "Verificación de Seguridad"
+    },
+    "TERMS": "Términos",
+    "TITLES": {
+      "CHECKOUT": "Confirmando pago",
+      "FORGOT_PASSWORD": "Recuperar contraseña",
+      "LOGIN": "Iniciar sesión",
+      "PLAN": "Seleccionar plan",
+      "REGISTER": "Crear cuenta",
+      "RESET_PASSWORD": "Restablecer contraseña",
+      "SET_PASSWORD": "Configurar contraseña"
+    }
+  },
+  "BILLING": {
+    "UNLIMITED_RESOURCE": "{{resource}}: sin límite"
+  },
+  "CHARTS": {
+    "CASHFLOW": {
+      "CONSOLIDATED_TITLE": "Flujo de Efectivo Consolidado",
+      "SERIES_NAME": "Flujo de Efectivo",
+      "TITLE": "Flujo de Efectivo del Período",
+      "X": {
+        "COST_OF_GOODS_SOLD": "Costo de Ventas",
+        "ENDING_BALANCE": "Saldo Final",
+        "FINANCING": "Financiación",
+        "INVESTMENTS": "Inversiones",
+        "OPENING_BALANCE": "Saldo Inicial",
+        "OPERATING_EXPENSES": "Gastos Operativos",
+        "OPERATING_INCOME": "Ingresos Operativos"
+      },
+      "Y_AXIS_TITLE": "Monto ({{currency}})"
+    },
+    "COMMON": {
+      "CHART_TYPE": "Tipo de Gráfico"
+    },
+    "MENU": {
+      "CSV": "Descargar CSV",
+      "DOWNLOAD": "Descargar",
+      "FULL_SCREEN": "Ver en Pantalla Completa",
+      "JPEG": "Descargar JPEG",
+      "PDF": "Descargar PDF",
+      "PNG": "Descargar PNG",
+      "PRINT": "Imprimir",
+      "SVG": "Descargar SVG",
+      "TITLE": "Exportar",
+      "XLS": "Descargar Excel"
+    },
+    "TOP_PRODUCTS": {
+      "SERIES_NAME": "Unidades",
+      "Y_AXIS_TITLE": "Unidades Vendidas"
+    },
+    "TYPE": {
+      "BAR": "Barras",
+      "LINE": "Línea"
+    }
+  },
+  "CHECKOUT": {
+    "ACTIVATING": "Estamos activando tu cuenta. Esto solo tomará unos segundos.",
+    "CONFIRMED": "¡Pago confirmado!",
+    "GO_TO_LOGIN": "Ir a iniciar sesión",
+    "NO_SESSION": "No encontramos la sesión de pago.",
+    "UNCONFIRMED": "No pudimos confirmar tu pago automáticamente. Si el cargo se realizó, inicia sesión en unos minutos."
+  },
+  "COMMON": {
+    "ARE_YOU_SURE": "¿Seguro que quieres continuar?",
+    "BACK": "Atrás",
+    "CANCEL": "Cancelar",
+    "CLOSE": "Fechar",
+    "CONFIRM": "Confirmar",
+    "CONFIRMATION": "Confirmación",
+    "CONTINUE": "Continuar",
+    "COPIED": "Copiado",
+    "COPY": "Copiar",
+    "DONE": "Listo",
+    "DOWNLOAD": "Descargar",
+    "LOADING": "Cargando",
+    "NEXT": "Siguiente",
+    "REFRESH": "Atualizar",
+    "RETRY": "Tentar novamente",
+    "SENDING": "Enviando...",
+    "SUCCESS": "Listo",
+    "TOAST": {
+      "ERROR": "Error",
+      "INFO": "Información",
+      "SUCCESS": "Éxito",
+      "WARNING": "Advertencia"
+    },
+    "VERIFY": "Verificar"
+  },
+  "CONTACTS": {
+    "CUSTOMER_FORM": {
+      "CANCELAR": "Cancelar",
+      "CIUDAD": "Cidade",
+      "CLIENTE_ACTUALIZADO_EXITOSAMENTE": "Cliente actualizado exitosamente.",
+      "CLIENTE_CREADO_EXITOSAMENTE": "Cliente creado exitosamente.",
+      "CODIGO_POSTAL": "Código Postal",
+      "COMPLETA_INFORMACION_DETALLADA_TU_CLIENTE": "Completa la información detallada de tu cliente.",
+      "CORREO_ELECTRONICO": "Correo Electrónico*",
+      "DATOS_CONTACTO": "Datos de Contacto",
+      "DIRECCION": "Endereço",
+      "ERROR_ACTUALIZAR_CLIENTE": "Error al actualizar el cliente.",
+      "ERROR_CREAR_CLIENTE": "Error al crear el cliente.",
+      "ESTADO_PROVINCIA": "Estado/Provincia",
+      "ESTADOS_UNIDOS": "Estados Unidos",
+      "FAVOR_COMPLETA_CAMPOS_REQUERIDOS": "Por favor, completa los campos requeridos.",
+      "ID_FISCAL_RNC_ETC": "ID Fiscal (RNC, etc.)",
+      "INFORMACION_PRINCIPAL": "Información Principal",
+      "LINEA_DIRECCION": "Línea de Dirección",
+      "NOMBRE_EMPRESA": "Nombre de la Empresa*",
+      "PAIS": "País*",
+      "PERSONA_CONTACTO": "Persona de Contacto*",
+      "PUDO_CARGAR_CLIENTE": "No se pudo cargar el cliente.",
+      "REPUBLICA_DOMINICANA": "República Dominicana",
+      "TELEFONO": "Teléfono*"
+    },
+    "CUSTOMERS": {
+      "ACCIONES": "Ações",
+      "ADMINISTRA_TU_BASE_DATOS_CLIENTES_HISTORIAL": "Administra tu base de datos de clientes y su historial.",
+      "ANADIR_CLIENTE": "Añadir Cliente",
+      "CARGANDO_CLIENTES": "Cargando clientes...",
+      "CLIENTE_ELIMINADO_EXITOSAMENTE": "Cliente eliminado exitosamente.",
+      "CLIENTES": "Clientes",
+      "EDITAR": "Editar",
+      "ELIMINAR": "Eliminar",
+      "EMAIL": "Email",
+      "FILTROS": "Filtros",
+      "NO_HAY_CLIENTES_REGISTRADOS": "No hay clientes registrados.",
+      "NOMBRE_EMPRESA": "Nombre de la Empresa",
+      "PERSONA_CONTACTO": "Persona de Contacto",
+      "PUDIERON_CARGAR_CLIENTES": "No se pudieron cargar los clientes.",
+      "PUDO_ELIMINAR_CLIENTE": "No se pudo eliminar el cliente.",
+      "TELEFONO": "Telefone"
+    },
+    "SUPPLIERS": {
+      "ACCIONES": "Ações",
+      "ADMINISTRA_INFORMACION_TUS_PROVEEDORES": "Administra la información de tus proveedores.",
+      "CARGANDO_PROVEEDORES": "Cargando proveedores...",
+      "EDITAR": "Editar",
+      "ELIMINAR": "Eliminar",
+      "EMAIL": "Email",
+      "FILTROS": "Filtros",
+      "NO_HAY_PROVEEDORES_REGISTRADOS": "No hay proveedores registrados.",
+      "NOMBRE_EMPRESA": "Nombre de la Empresa",
+      "NUEVO_PROVEEDOR": "Nuevo Proveedor",
+      "PERSONA_CONTACTO": "Persona de Contacto",
+      "PROVEEDOR_ELIMINADO_EXITOSAMENTE": "Proveedor eliminado exitosamente.",
+      "PROVEEDORES": "Proveedores",
+      "PUDIERON_CARGAR_PROVEEDORES": "No se pudieron cargar los proveedores.",
+      "PUDO_ELIMINAR_PROVEEDOR": "No se pudo eliminar el proveedor.",
+      "TELEFONO": "Telefone"
+    }
+  },
+  "CORE": {
+    "SERVICES": {
+      "ERROR_INICIAR_SESION_LLAVE_ACCESO": "Error al iniciar sesión con llave de acceso",
+      "ERROR_REGISTRAR_LLAVE_ACCESO": "Error al registrar la llave de acceso",
+      "LLAVE_ACCESO_REGISTRADA_CORRECTAMENTE": "Llave de acceso registrada correctamente",
+      "PUDO_CERRAR_SESION_SERVIDOR_CIERRA_NAVEGADOR": "No se pudo cerrar la sesión en el servidor. Cierra el navegador o intenta de nuevo."
+    },
+    "STATE": {
+      "ACCOUNT_DELETED_SUCCESSFULLY": "Account deleted successfully.",
+      "FAILED_DELETE_ACCOUNT": "Failed to delete account."
+    },
+    "TABS": {
+      "GUARDA_CAMBIOS_DESDE_PROPIA_VISTA_ANTES": "Guarda los cambios desde la propia vista antes de cerrar.",
+      "HAS_ALCANZADO_MAXIMO_PESTANAS_CIERRA_ALGUNA": "Has alcanzado el máximo de {{maxTabs}} pestañas. Cierra alguna para continuar.",
+      "TIENES_PERMISO_ABRIR_ESTE_MODULO": "No tienes permiso para abrir este módulo."
+    }
+  },
+  "CUSTOMER_RECEIPTS": {
+    "FORM": {
+      "APLICAR_FACTURAS": "Aplicar a Facturas",
+      "AQUI_MOSTRARA_LISTA_FACTURAS_PENDIENTES_CLIENTE": "Aquí se mostrará una lista de facturas pendientes del cliente seleccionado para aplicar el pago.",
+      "CANCELAR": "Cancelar",
+      "CLIENTE": "Cliente",
+      "FAVOR_COMPLETA_TODOS_CAMPOS_REQUERIDOS": "Por favor, completa todos los campos requeridos.",
+      "FECHA_PAGO": "Fecha de Pago",
+      "INFORMACION_PAGO": "Información del Pago",
+      "MONTO_RECIBIDO": "Monto Recibido",
+      "NUEVO_RECIBO_CLIENTE": "Nuevo Recibo de Cliente",
+      "SELECCIONAR_CLIENTE": "Seleccionar cliente"
+    },
+    "LIST": {
+      "CARGANDO_RECIBOS": "Cargando recibos...",
+      "CLIENTE": "Cliente",
+      "COULD_NOT_LOAD_CUSTOMER_RECEIPTS": "Could not load customer receipts.",
+      "CREA_TU_PRIMER_RECIBO_REGISTRAR_PAGO": "Crea tu primer recibo para registrar un pago.",
+      "FECHA": "Data",
+      "MONTO": "Valor",
+      "NO_HAY_RECIBOS_CLIENTE": "No hay recibos de cliente",
+      "NUEVO_RECIBO": "Nuevo Recibo",
+      "NUMERO": "Número",
+      "RECIBOS_CLIENTE": "Recibos de Cliente"
+    }
+  },
+  "DASH": {
+    "ACTIONS": {
+      "REMOVE_WIDGET": "Eliminar Widget"
+    },
+    "ADD_PANEL": {
+      "ADD": "Añadir",
+      "DESCRIPTION": "Añade nuevos widgets a tu dashboard.",
+      "EMPTY": "¡Todos los widgets ya están en tu dashboard!",
+      "TITLE": "Librería de Widgets"
+    },
+    "HEADER": {
+      "ADD_WIDGET": "Añadir Widget",
+      "EDIT_DONE": "Finalizar Edición",
+      "EDIT_LAYOUT": "Editar Layout",
+      "RESTORE": "Restaurar",
+      "SUBTITLE": "Un resumen de la actividad de tu negocio. Arrastra y ajusta los widgets a tu gusto."
+    },
+    "WIDGET": {
+      "ACTIVE_CLIENTS": {
+        "NAME": "Clientes Activos",
+        "TITLE": "Clientes Activos"
+      },
+      "ALERTS": {
+        "NAME": "Panel de Alertas"
+      },
+      "AR_AGING_BAR": {
+        "NAME": "Antigüedad de Cuentas por Cobrar"
+      },
+      "CASH_FLOW_KPI": {
+        "COMP_PERIOD": "vs Presupuesto",
+        "NAME": "KPI: Flujo de Caja Libre",
+        "TITLE": "Flujo de Caja Libre"
+      },
+      "CASHFLOW_WATERFALL": {
+        "NAME": "Flujo de Efectivo (Waterfall)"
+      },
+      "DEBT_EQUITY": {
+        "COMP_PERIOD": "vs Q2",
+        "NAME": "KPI: Endeudamiento",
+        "TITLE": "Endeudamiento (D/E)"
+      },
+      "EBITDA": {
+        "COMP_PERIOD": "vs Presupuesto",
+        "NAME": "KPI: EBITDA",
+        "TITLE": "EBITDA"
+      },
+      "EXPENSES_PIE": {
+        "NAME": "Desglose de Gastos"
+      },
+      "FINANCIAL_RATIOS": {
+        "NAME": "KPIs: Ratios Financieros"
+      },
+      "INVOICE_STATUS": {
+        "NAME": "Estado de Facturas"
+      },
+      "KPI_CURRENT_RATIO": {
+        "COMP_PERIOD": "vs Mes Anterior",
+        "NAME": "KPI: Liquidez Corriente",
+        "TITLE": "Liquidez Corriente"
+      },
+      "KPI_EBITDA": {
+        "COMP_PERIOD": "vs Presupuesto",
+        "NAME": "KPI: EBITDA",
+        "TITLE": "EBITDA"
+      },
+      "KPI_FCF": {
+        "COMP_PERIOD": "vs Presupuesto",
+        "NAME": "KPI: Flujo de Caja Libre",
+        "TITLE": "Flujo de Caja Libre"
+      },
+      "KPI_LEVERAGE": {
+        "COMP_PERIOD": "vs Trimestre Anterior",
+        "NAME": "KPI: Apalancamiento",
+        "TITLE": "Apalancamiento (D/E)"
+      },
+      "KPI_NET_MARGIN": {
+        "COMP_PERIOD": "vs Año Anterior",
+        "NAME": "KPI: Margen Neto",
+        "TITLE": "Margen Neto"
+      },
+      "KPI_QUICK_RATIO": {
+        "COMP_PERIOD": "vs Mes Anterior",
+        "NAME": "KPI: Prueba Ácida",
+        "TITLE": "Prueba Ácida"
+      },
+      "KPI_ROA": {
+        "COMP_PERIOD": "vs Año Anterior",
+        "NAME": "KPI: ROA",
+        "TITLE": "ROA (Retorno sobre Activos)"
+      },
+      "KPI_ROE": {
+        "COMP_PERIOD": "vs Año Anterior",
+        "NAME": "KPI: ROE",
+        "TITLE": "ROE (Retorno sobre Patrimonio)"
+      },
+      "KPI_WORKING_CAPITAL": {
+        "COMP_PERIOD": "Atual",
+        "NAME": "KPI: Capital de Trabajo",
+        "TITLE": "Capital de Trabajo"
+      },
+      "LOW_STOCK_ITEMS": {
+        "NAME": "Productos con Bajo Stock",
+        "TITLE": "Productos con Bajo Stock"
+      },
+      "LOW_STOCK_TABLE": {
+        "NAME": "Tabla de Bajo Stock"
+      },
+      "NET_MARGIN": {
+        "COMP_PERIOD": "vs Año Anterior",
+        "NAME": "KPI: Margen Neto",
+        "TITLE": "Margen Neto"
+      },
+      "PENDING_INVOICES": {
+        "NAME": "Facturas Pendientes",
+        "TITLE": "Facturas Pendientes"
+      },
+      "REAL_VS_BUDGET": {
+        "NAME": "Real vs Presupuesto"
+      },
+      "RECENT_ACTIVITY": {
+        "NAME": "Actividad Reciente"
+      },
+      "SALES_CHART": {
+        "NAME": "Gráfico de Ingresos"
+      },
+      "SALES_TODAY": {
+        "NAME": "Ventas de Hoy",
+        "TITLE": "Ventas de Hoy"
+      },
+      "TOP_PRODUCTS": {
+        "NAME": "Productos Más Vendidos"
+      }
+    }
+  },
+  "DASHBOARD": {
+    "ACCOUNTS_PAYABLE": {
+      "ACCOUNTS_PAYABLE_WORKS": "accounts-payable works!"
+    },
+    "ACCOUNTS_RECEIVABLE": {
+      "ACCOUNTS_RECEIVABLE_WORKS": "accounts-receivable works!"
+    },
+    "ALERTS_PANEL": {
+      "ALERTAS_TEMPRANAS": "Alertas Tempranas"
+    },
+    "AR_AGING_CHART": {
+      "BARRAS": "Barras",
+      "CONFIGURAR": "Configurar",
+      "ENVEJECIMIENTO_CUENTAS_COBRAR": "Envejecimiento de Cuentas por Cobrar",
+      "EXPORTAR": "Exportar",
+      "PASTEL": "Pastel",
+      "TIPO_GRAFICO": "Tipo de Gráfico"
+    },
+    "ARRASTRA_WIDGETS_REORGANIZARLOS_USA_ESQUINAS_REDIMENSIONAR": "Arrastra los widgets para reorganizarlos. Usa las esquinas para redimensionar.",
+    "ARRASTRAR": "Arrastrar",
+    "BEST_CLIENTS": {
+      "BEST_CLIENTS_WORKS": "best-clients works!"
+    },
+    "CLIENTS_WITH_SALES": {
+      "CLIENTS_WITH_SALES_WORKS": "clients-with-sales works!"
+    },
+    "COMPARISON_CHART": {
+      "AREA": "Área",
+      "COLUMNAS": "Columnas",
+      "INGRESOS_REAL_VS_PRESUPUESTO_YTD": "Ingresos: Real vs. Presupuesto (YTD)",
+      "TIPO_GRAFICO": "Tipo de Gráfico"
+    },
+    "CUSTOMER_RETURNS": {
+      "CUSTOMER_RETURNS_WORKS": "customer-returns works!"
+    },
+    "EXPENSES_CHART": {
+      "COLUMNAS": "Columnas",
+      "CONFIGURAR_WIDGET": "Configurar widget",
+      "DATOS_CSV": "Datos\n                    CSV",
+      "DESCARGAR": "Descargar",
+      "DESGLOSE_GASTOS_OPERATIVOS": "Desglose de Gastos Operativos",
+      "DOCUMENTO_PDF": "Documento PDF",
+      "EXPORTAR": "Exportar",
+      "HOJA_CALCULO_XLS": "Hoja de cálculo XLS",
+      "IMAGEN_JPEG": "Imagen JPEG",
+      "IMAGEN_PNG": "Imagen\n                    PNG",
+      "IMPRIMIR_GRAFICO": "Imprimir gráfico",
+      "PANTALLA_COMPLETA": "Pantalla completa",
+      "PASTEL": "Pastel",
+      "PERSONALIZAR_COLORES": "Personalizar Colores",
+      "TIPO_GRAFICO": "Tipo de Gráfico",
+      "VECTOR_SVG": "Vector SVG"
+    },
+    "EXPENSES_DISTRIBUTION": {
+      "EXPENSES_DISTRIBUTION_WORKS": "expenses-distribution works!"
+    },
+    "FINANCIAL_RATIOS": {
+      "INDICADORES_FINANCIEROS_CLAVE": "Indicadores Financieros Clave"
+    },
+    "INVOICE_STATUS": {
+      "COLUMNAS": "Columnas",
+      "CONFIGURAR_WIDGET": "Configurar widget",
+      "DATOS_CSV": "Datos\n                    CSV",
+      "DESCARGAR": "Descargar",
+      "DOCUMENTO_PDF": "Documento PDF",
+      "ESTADO_FACTURAS": "Estado de Facturas",
+      "EXPORTAR": "Exportar",
+      "HOJA_CALCULO_XLS": "Hoja de cálculo XLS",
+      "IMAGEN_JPEG": "Imagen JPEG",
+      "IMAGEN_PNG": "Imagen\n                    PNG",
+      "IMPRIMIR_GRAFICO": "Imprimir gráfico",
+      "PANTALLA_COMPLETA": "Pantalla completa",
+      "PASTEL": "Pastel",
+      "PERSONALIZAR_COLORES": "Personalizar Colores",
+      "TIPO_GRAFICO": "Tipo de Gráfico",
+      "VECTOR_SVG": "Vector SVG"
+    },
+    "LOW_STOCK_PRODUCTS": {
+      "EXCELENTE": "¡Excelente!",
+      "NO_HAY_PRODUCTOS_BAJO_INVENTARIO_ESTE": "No hay productos con bajo inventario en este momento.",
+      "PRODUCTOS_BAJO_STOCK": "Productos con Bajo Stock",
+      "STOCK_UNIDADES": "{{stock}} unidades"
+    },
+    "RECENT_ACTIVITY": {
+      "ACTIVIDAD_RECIENTE": "Actividad Reciente",
+      "NO_HAY_ACTIVIDAD_RECIENTE_MOSTRAR": "No hay actividad reciente para mostrar."
+    },
+    "SALES_CHART": {
+      "AREA": "Área",
+      "INGRESOS_MENSUALES": "Ingresos Mensuales",
+      "LINEA": "Línea",
+      "TIPO_GRAFICO": "Tipo de Gráfico"
+    },
+    "SALES_TAX": {
+      "SALES_TAX_WORKS": "sales-tax works!"
+    },
+    "SOLD_PRODUCTS": {
+      "SOLD_PRODUCTS_WORKS": "sold-products works!"
+    },
+    "TOP_PRODUCTS_CHART": {
+      "CONFIGURAR_WIDGET": "Configurar widget",
+      "DATOS_CSV": "Datos\n                    CSV",
+      "DESCARGAR": "Descargar",
+      "DOCUMENTO_PDF": "Documento PDF",
+      "ELIMINAR_WIDGET": "Eliminar widget",
+      "EXPORTAR": "Exportar",
+      "HOJA_CALCULO_XLS": "Hoja de cálculo XLS",
+      "IMAGEN_JPEG": "Imagen JPEG",
+      "IMAGEN_PNG": "Imagen\n                    PNG",
+      "IMPRIMIR_GRAFICO": "Imprimir gráfico",
+      "PANTALLA_COMPLETA": "Pantalla completa",
+      "PERSONALIZAR_COLORES": "Personalizar Colores",
+      "VECTOR_SVG": "Vector SVG"
+    },
+    "TOTAL_EXPENSES": {
+      "TOTAL_EXPENSES_WORKS": "total-expenses works!"
+    },
+    "TOTAL_INCOME": {
+      "TOTAL_INCOME_WORKS": "total-income works!"
+    },
+    "TOTAL_SALES": {
+      "TOTAL_SALES_WORKS": "total-sales works!"
+    },
+    "TRANSACTION_FLOW": {
+      "TRANSACTION_FLOW_WORKS": "transaction-flow works!"
+    }
+  },
+  "DATA_EXPORTS": {
+    "ACTION": "Action",
+    "DATA_EXPORT": "Data to Export*",
+    "DATA_EXPORTS": "Data Exports",
+    "DATA_TYPE": "Data Type",
+    "DATE": "Date",
+    "DOWNLOAD": "Download",
+    "EXCEL_XLSX": "Excel (XLSX)",
+    "FORMAT": "Format*",
+    "FORMAT_2": "Format",
+    "GENERATE_AND_DOWNLOAD_YOUR_MASTER_OR": "Generate and download your master or transactional data in different formats.",
+    "GENERATE_FILE": "Generate File",
+    "GENERATING": "Generating...",
+    "NEW_EXPORT": "New Export",
+    "RECENT_EXPORTS": "Recent Exports",
+    "SELECT_DATA_TYPE": "Select a data type...",
+    "STATUS": "Status",
+    "USER": "User"
+  },
+  "DATA_IMPORTS": {
+    "CHOOSE_TYPE_DATA_YOU_WANT_IMPORT": "Choose the type of data you want to import to ensure correct mapping.",
+    "CLICK_BROWSE_OR_DRAG_DROP": "Click to browse or drag & drop",
+    "DATA_IMPORTS_ETL": "Data Imports (ETL)",
+    "DATA_TYPE": "Data Type",
+    "DATE": "Date",
+    "DOWNLOAD_NAME_TEMPLATE": "Download {{name}} Template",
+    "FAILED": "Failed",
+    "FILE_NAME": "File Name",
+    "IMPORT_DATA": "Import Data",
+    "ONCE_YOUR_FILE_SELECTED_BEGIN_IMPORT": "Once your file is selected, begin the import process.",
+    "PROCESSED": "Processed",
+    "PROCESSING": "Processing...",
+    "RECENT_IMPORTS": "Recent Imports",
+    "SELECT_CSV_OR_EXCEL_FILE_FROM": "Select the CSV or Excel file from your computer.",
+    "SELECT_DATA_TYPE": "Select Data Type",
+    "SELECT_DATA_TYPE_2": "Select a data type...",
+    "START_IMPORT": "Start Import",
+    "STATUS": "Status",
+    "UPLOAD_FILE": "Upload File",
+    "UPLOAD_MASTER_OR_TRANSACTIONAL_DATA_IN": "Upload master or transactional data in bulk using CSV or Excel files.",
+    "USER": "User"
+  },
+  "datasheets": {
+    "cell_format": "Formato de Celda",
+    "chart_config": "Configuración de Gráfico",
+    "charts": "Gráficos",
+    "import": "Importar",
+    "import_erp": "Importar ERP",
+    "import_wizard": "Asistente de Importación",
+    "insert_chart": "Insertar Gráfico",
+    "last_modified": "Última Modificación",
+    "my_documents": "Mis Documentos",
+    "name": "Nome",
+    "new_document": "Nuevo Libro",
+    "owner": "Propietario",
+    "properties": "Propiedades",
+    "recent": "Recientes",
+    "share": "Compartir",
+    "shared": "Compartidos",
+    "subtitle": "Análisis y hojas de cálculo conectadas al ERP en tiempo real.",
+    "templates": "Plantillas",
+    "title": "DataSheets",
+    "trash": "Papelera"
+  },
+  "DOCS": {
+    "DOCUMENTS": "Documentos"
+  },
+  "DOCUMENTS": {
+    "DOCUMENTS": "Documents",
+    "FILE_SIZE": "File Size",
+    "LAST_MODIFIED": "Last Modified",
+    "LAYOUT": {
+      "DOCUMENT_CENTER": "Document Center",
+      "MANAGE_YOUR_COMPANY_FILES_ATTACHMENTS_AND": "Manage your company's files, attachments, and document templates.",
+      "REPOSITORY": "Repository",
+      "TEMPLATES": "Templates"
+    },
+    "MANAGE_AND_ORGANIZE_ALL_YOUR_BUSINESS": "Manage and organize all your business files and attachments.",
+    "NAME": "Name",
+    "NEW_FOLDER": "New Folder",
+    "REPOSITORY": {
+      "FILE_REPOSITORY": "File Repository",
+      "FILE_SIZE": "File Size",
+      "HOME": "Home",
+      "LAST_MODIFIED": "Last Modified",
+      "NAME": "Name",
+      "NEW_FOLDER": "New Folder",
+      "SEARCH_IN_THIS_FOLDER": "Search in this folder...",
+      "THIS_FOLDER_EMPTY": "This folder is empty.",
+      "UPLOAD_FILE": "Upload File"
+    },
+    "SEARCH_IN_THIS_FOLDER": "Search in this folder...",
+    "TEMPLATES": {
+      "CREATE_NEW_TEMPLATE": "Create New Template",
+      "DOCUMENT_TEMPLATES": "Document Templates",
+      "NEW_TEMPLATE": "New Template",
+      "TYPE_LAST_MODIFIED_LASTMODIFIED": "{{type}} • Last Modified: {{lastModified}}"
+    },
+    "THIS_FOLDER_EMPTY": "This folder is empty.",
+    "UPLOAD_FILE": "Upload File"
+  },
+  "ERRORS": {
+    "FOREIGN_KEY_VIOLATION": "La operación hace referencia a un registro que no existe.",
+    "HTTP_400": "La solicitud no es válida. Revisa los datos e inténtalo de nuevo.",
+    "HTTP_401": "Tu sesión no es válida o ha expirado. Inicia sesión de nuevo.",
+    "HTTP_403": "No tienes permiso para realizar esta acción.",
+    "HTTP_404": "No encontramos lo que buscabas.",
+    "HTTP_409": "La operación entra en conflicto con el estado actual del registro.",
+    "HTTP_413": "El archivo o la solicitud supera el tamaño permitido.",
+    "HTTP_415": "El formato del archivo no es compatible.",
+    "HTTP_422": "Los datos son válidos en forma pero no se pueden procesar. Revisa el detalle.",
+    "HTTP_429": "Demasiados intentos. Espera un momento antes de volver a intentarlo.",
+    "HTTP_500": "Ocurrió un problema en el servidor. El equipo ya fue notificado; vuelve a intentarlo en unos minutos.",
+    "HTTP_503": "El servicio no está disponible temporalmente. Vuelve a intentarlo en unos minutos.",
+    "INTERNAL": "Ocurrió un problema en el servidor. El equipo ya fue notificado; vuelve a intentarlo en unos minutos.",
+    "NETWORK": "No hay conexión con el servidor. Revisa tu conexión a internet y vuelve a intentarlo.",
+    "UNEXPECTED": "No pudimos completar la operación. Vuelve a intentarlo.",
+    "UNIQUE_VIOLATION": "Ya existe un registro con esos datos."
+  },
+  "FORGOT_PASSWORD": {
+    "BACK_TO_LOGIN": "Volver al inicio de sesión",
+    "EMAIL_SENT_TITLE": "Verifique seu e-mail",
+    "SENDING": "Enviando...",
+    "SUBMIT_BUTTON": "Enviar Instrucciones",
+    "SUBTITLE": "Ingresa tu email para recibir instrucciones",
+    "SUCCESS": "Si existe una cuenta con este correo, recibirás instrucciones en breve.",
+    "TITLE": "Recuperar Contraseña"
+  },
+  "GEO_MISMATCH": {
+    "STAY_IN": "Continuar en {{country}}",
+    "SWITCH_TO": "Cambiar a {{country}}"
+  },
+  "GLOBAL_SEARCH": {
+    "BUSCANDO": "Buscando...",
+    "BUSCAR_TODO_SISTEMA": "Buscar en todo el sistema...",
+    "ENCONTRARON": "Se encontraron",
+    "INTENTA_BUSCAR_NUMERO_FACTURA_NOMBRE_CLIENTE": "Intenta buscar por número de factura, nombre de cliente, SKU de producto, etc.",
+    "NO_ENCONTRARON_RESULTADOS": "No se encontraron resultados para \"",
+    "PRUEBA_OTROS_TERMINOS_BUSQUEDA": "Prueba con otros términos de búsqueda",
+    "RESULTADOS": "resultados para \""
+  },
+  "INVENTORY": {
+    "CATEGORIES": {
+      "AQUI_MOSTRARA_LISTA_GESTION_CATEGORIAS": "Aquí se mostrará la lista y gestión de categorías.",
+      "CATEGORIAS": "Categorías",
+      "NUEVA_CATEGORIA": "Nueva\n                    Categoría",
+      "ORGANIZA_TUS_PRODUCTOS_DIFERENTES_CATEGORIAS": "Organiza tus productos en diferentes categorías."
+    },
+    "PRODUCT_FORM": {
+      "ACCESORIOS": "Accesorios",
+      "ACTIVO": "Activo",
+      "CANCELAR": "Cancelar",
+      "CANTIDAD_STOCK": "Cantidad en Stock*",
+      "CATEGORIA": "Categoría*",
+      "COMPLETA_INFORMACION_DETALLADA_TU_PRODUCTO_SERVICIO": "Completa la información detallada de tu producto o servicio.",
+      "DESCRIPCION": "Descrição",
+      "ELECTRONICA": "Electrónica",
+      "ERROR_ACTUALIZAR_PRODUCTO": "Error al actualizar el producto.",
+      "ERROR_CREAR_PRODUCTO": "Error al crear el producto.",
+      "ESTADO": "Estado*",
+      "FAVOR_COMPLETA_CAMPOS_REQUERIDOS": "Por favor, completa los campos requeridos.",
+      "IMAGEN_PRODUCTO": "Imagen del Producto",
+      "INACTIVO": "Inactivo",
+      "INFORMACION_BASICA": "Información Básica",
+      "MONITORES": "Monitores",
+      "NIVEL_REORDEN": "Nivel de Reorden",
+      "NOMBRE_PRODUCTO": "Nombre del Producto*",
+      "ORGANIZACION": "Organização",
+      "PRECIO_VENTA": "Precio de Venta*",
+      "PRECIOS_STOCK": "Precios y Stock",
+      "PRODUCTO_ACTUALIZADO_EXITOSAMENTE": "Producto actualizado exitosamente.",
+      "PRODUCTO_CREADO_EXITOSAMENTE": "Producto creado exitosamente.",
+      "PUDO_CARGAR_PRODUCTO": "No se pudo cargar el producto.",
+      "SELECCIONAR": "Seleccionar...",
+      "SKU_CODIGO_PRODUCTO": "SKU (Código de Producto)",
+      "SUBIR_IMAGEN": "Subir imagen",
+      "VISTA_PREVIA": "Vista previa"
+    },
+    "PRODUCTS": {
+      "BUSCAR_NOMBRE_SKU_CATEGORIA": "Buscar por nombre, SKU o categoría...",
+      "CARGANDO_PRODUCTOS": "Cargando productos...",
+      "CATEGORIA": "Categoría",
+      "COSTO": "Costo",
+      "EDITAR": "Editar",
+      "ELIMINAR": "Eliminar",
+      "ERROR_ELIMINAR_PRODUCTO": "Error al eliminar el producto.",
+      "ESTADO": "Situação",
+      "GESTIONA_TODOS_PRODUCTOS_SERVICIOS_TU_EMPRESA": "Gestiona todos los productos y servicios de tu empresa.",
+      "INTENTA_AJUSTAR_TU_BUSQUEDA_CREA_NUEVO": "Intenta ajustar tu búsqueda o crea un nuevo producto.",
+      "INVENTARIO_PRODUCTOS": "Inventario de Productos",
+      "NO_ENCONTRARON_PRODUCTOS": "No se encontraron productos.",
+      "NUEVO_PRODUCTO": "Nuevo Producto",
+      "PRECIO": "Precio",
+      "PRODUCTO": "Producto",
+      "PRODUCTO_ELIMINADO_EXITOSAMENTE": "Producto eliminado exitosamente.",
+      "STATUS_INACTIVE": "Inactivo",
+      "STOCK": "Stock",
+      "STOCK_IN": "En existencia",
+      "STOCK_OUT": "Agotado"
+    }
+  },
+  "INVOICES": {
+    "DETAIL": {
+      "30_DIAS": "30 Días",
+      "ABRIR_CONSULTA_TIMBRE": "Abrir la consulta del timbre",
+      "BALANCE_PENDIENTE": "Balance Pendiente:",
+      "BORRADOR_ELIMINADO": "Borrador eliminado.",
+      "BUSCAR_LINEAS": "Buscar en líneas...",
+      "CALLE_PRINCIPAL_123": "Calle Principal #123",
+      "CANT": "Cant.",
+      "CARGANDO_DATOS_FACTURA_FACTURA_NO_FUE": "Cargando datos de la factura o la factura no fue encontrada...",
+      "CF_REENVIADO_DGII": "e-CF reenviado a la DGII.",
+      "CODIGO_SEGURIDAD": "Código de seguridad:",
+      "COMPROBANTE_FISCAL_ELECTRONICO_CF": "Comprobante Fiscal Electrónico (e-CF)",
+      "CONDICION_PAGO": "Condición de Pago:",
+      "CONTENIDO": "Contenido",
+      "COPIANDO_DOCUMENTO_ACTUAL_NUEVO_BORRADOR": "Copiando documento actual a nuevo borrador...",
+      "DESCARGAR_XML_FIRMADO": "Descargar XML firmado",
+      "DESCRIPCION": "Descrição",
+      "DIRECCION_ENVIO": "Dirección de Envío:",
+      "DOCUMENTO_WORD_GENERADO_EXITO": "Documento Word generado con éxito.",
+      "ELIMINAR_BORRADOR": "Eliminar borrador",
+      "ESTADO_COBRO": "Estado de Cobro:",
+      "ESTADO_DGII": "Estado DGII:",
+      "ESTE_DOCUMENTO_ES_BORRADOR": "Este documento es un borrador.",
+      "EXPORTACION_ESTARA_DISPONIBLE_PROXIMAMENTE": "Exportación a {{toUpperCase}} estará disponible próximamente.",
+      "FACTURA_ANULADA_NOTA_CREDITO_CREADA": "Factura anulada y nota de crédito creada.",
+      "FACTURADO": "FACTURADO A:",
+      "FINANZAS": "Finanças",
+      "FUNCION_COPIAR_ABIERTA_SELECCIONE_DOCUMENTO_BASE": "Función \"Copiar de\" abierta. Seleccione un documento base.",
+      "GENERAL": "General",
+      "HAY_XML_FIRMADO_DISPONIBLE": "No hay XML firmado disponible.",
+      "IMPUESTOS": "Impuestos:",
+      "INDICADOR_IMPUESTOS": "Indicador de Impuestos:",
+      "INFORMACION_FINANCIERA": "Información Financiera",
+      "ITBIS_18": "ITBIS (18%)",
+      "LOGISTICA": "Logística",
+      "LOGISTICA_ENTREGA": "Logística y Entrega",
+      "MENSAJES_DGII": "Mensajes de la DGII:",
+      "METODO_ENVIO": "Método de Envío:",
+      "NCF": "e-NCF:",
+      "NO_TIENE_COMPROBANTE_FISCAL_ASIGNADO_NO": "No tiene comprobante fiscal asignado y no tiene valor ante la autoridad tributaria.",
+      "NOTAS": "Notas:",
+      "PERSONA_CONTACTO": "Persona de Contacto:",
+      "PRECIO": "Precio",
+      "PROYECTO": "Proyecto:",
+      "PUDO_CARGAR_FACTURA": "No se pudo cargar la factura.",
+      "PUDO_DESCARGAR_PDF_FACTURA": "No se pudo descargar el PDF de la factura.",
+      "REPRESENTACION_IMPRESA_QR": "Representación impresa (QR):",
+      "RNC_31_12345": "RNC: 1-31-12345-6",
+      "SANTO_DOMINGO_REPUBLICA_DOMINICANA": "Santo Domingo, República Dominicana",
+      "SUBTOTAL": "Subtotal:",
+      "TEL_809_555_0123": "Tel: (809) 555-0123",
+      "TOTAL": "Total",
+      "TOTAL_2": "TOTAL:",
+      "TRACKID": "TrackID:",
+      "TRANSPORTE_TERRESTRE": "Transporte Terrestre",
+      "VERIFICACION_DGII": "Verificación DGII",
+      "VERIFICAR_DGII": "Verificar en la DGII",
+      "VIRTEEX_ERP": "VIRTEEX ERP"
+    },
+    "INVOICE_SELECTION_DIALOG": {
+      "BUSCAR_NUMERO_CLIENTE": "Buscar por número o cliente...",
+      "CANCELAR": "Cancelar",
+      "CARGANDO_DOCUMENTOS": "Cargando documentos...",
+      "CLIENTE": "Cliente",
+      "FACTURA": "Factura #",
+      "FECHA": "Data",
+      "NO_ENCONTRARON_FACTURAS": "No se encontraron facturas.",
+      "SELECCIONAR_DOCUMENTO_BASE_COPIAR": "Seleccionar Documento Base (Copiar de...)",
+      "TOTAL": "Total"
+    },
+    "INVOICE_TOOLBAR": {
+      "ANTERIOR": "Anterior",
+      "AVANZAR": "Avanzar",
+      "AYUDA": "Ayuda",
+      "BUSQUEDA_SOBRE_DOCUMENTO": "Búsqueda sobre documento",
+      "COPIAR": "Copiar de",
+      "COPIAR_2": "Copiar a",
+      "COPIAR_3": "Copiar de...",
+      "COPIAR_4": "Copiar a...",
+      "ENVIAR_CORREO": "Enviar por correo",
+      "EXPORTAR_EXCEL": "Exportar a Excel",
+      "EXPORTAR_PDF": "Exportar a PDF",
+      "EXPORTAR_WORD": "Exportar a Word",
+      "IMPRIMIR": "Imprimir",
+      "PARAMETRIZACIONES_FORMULARIO": "Parametrizaciones de formulario",
+      "PRIMERO": "Primero",
+      "SIGUIENTE": "Siguiente",
+      "ULTIMO": "Último",
+      "VOLVER": "Volver"
+    },
+    "LIST": {
+      "ANTERIOR": "Anterior",
+      "ANULADA": "Anulada",
+      "BUSCAR_CLIENTE_NUMERO_FACTURA": "Buscar por cliente o número de factura...",
+      "CARGANDO_FACTURAS": "Cargando facturas...",
+      "CLIENTE": "Cliente",
+      "COBRADA": "Cobrada",
+      "CREACION": "Creación",
+      "ESTADO": "Estado:",
+      "ESTADO_2": "Situação",
+      "EXPORTACION_EXCEL_COMPLETADA": "Exportación a Excel completada.",
+      "EXPORTAR_EXCEL": "Exportar Excel",
+      "FACTURA": "Factura #",
+      "FACTURAS": "Facturas",
+      "GESTION_COMPLETA_FACTURACION_SEGUIMIENTO_DOCUMENTOS": "Gestión completa de facturación y seguimiento de documentos.",
+      "NO_ENCONTRARON_FACTURAS_COINCIDAN_BUSQUEDA": "No se encontraron facturas que coincidan con la búsqueda.",
+      "NUEVA_FACTURA_VENTA": "Nueva factura de venta",
+      "PAGINA_PAGE_PAGES": "Página {{page}} de {{pages}}",
+      "PAGINACION_FACTURAS": "Paginación de facturas",
+      "PARCIAL": "Parcial",
+      "PENDIENTE": "Pendiente",
+      "PUDO_EXPORTAR_LISTADO": "No se pudo exportar el listado.",
+      "SIGUIENTE": "Siguiente",
+      "TODOS": "Todos",
+      "TOTAL": "Total",
+      "VENCIMIENTO": "Vencimiento"
+    },
+    "NEW": {
+      "15_DIAS": "15 Días",
+      "30_DIAS": "30 Días",
+      "60_DIAS": "60 Días",
+      "AGREGAR_LINEA": "Agregar línea",
+      "ANADIR_LINEA": "+ Añadir línea",
+      "ARTICULO": "Artículo",
+      "CANCELAR": "Cancelar",
+      "CANT": "Cant.",
+      "CANTIDAD": "Cantidad",
+      "CLIENTE": "Cliente",
+      "CONCEPTO_LIBRE": "— Concepto libre —",
+      "CONCEPTOS_FACTURA": "Conceptos de Factura",
+      "CONDICIONES_PAGO": "Condiciones de Pago",
+      "CONTADO": "Contado",
+      "CONTENIDO": "Contenido",
+      "COURIER_EXTERNO": "Courier Externo",
+      "CREAR_FACTURA_VENTA": "Crear factura de venta",
+      "CREAR_NUEVA_FACTURA_VENTA": "Crear Nueva Factura de Venta",
+      "DATOS_CARGADOS_DESDE": "Datos cargados desde {{invoiceNumber}}.",
+      "DATOS_CARGADOS_DESDE_FACTURA": "Datos cargados desde la factura {{invoiceNumber}}",
+      "DESC": "Desc. %",
+      "DESCRIPCION": "Descrição",
+      "DIRECCION_COMPLETA_CLIENTE": "Dirección completa del cliente...",
+      "DIRECCION_ENVIO": "Dirección de Envío",
+      "DISTRIBUIDOR": "Distribuidor",
+      "ELIMINAR": "Eliminar",
+      "ELIMINAR_LINEA": "Eliminar línea",
+      "ERROR_CREAR_FACTURA": "Error al crear la factura: {{errorMessage}}",
+      "EXENTO": "Exento",
+      "FACTURA_CREADA_EXITOSAMENTE": "Factura creada exitosamente.",
+      "FACTURAS": "Facturas",
+      "FAVOR_COMPLETA_TODOS_CAMPOS_REQUERIDOS": "Por favor, completa todos los campos requeridos.",
+      "FECHA_EMISION": "Fecha de emisión",
+      "FECHA_VENCIMIENTO": "Fecha de vencimiento",
+      "FINANZAS": "Finanças",
+      "FISCAL_COBRO": "Fiscal y cobro",
+      "GRAVADO": "Gravado",
+      "GUARDAR_BORRADOR": "Guardar borrador",
+      "IMP": "Imp. (%)",
+      "IMPUESTOS": "Impostos",
+      "INFORMACION_FINANCIERA": "Información Financiera",
+      "IR_CONFIGURACION_FISCAL": "Ir a la configuración fiscal",
+      "LISTA_PRECIOS": "Lista de Precios",
+      "LOGISTICA": "Logística",
+      "LOGISTICA_ENTREGA": "Logística y Entrega",
+      "MAS_LINEAS_SUPERAN_EXISTENCIAS_DISPONIBLES_AJUSTA": "Una o más líneas superan las existencias disponibles. Ajusta las cantidades o repone el inventario.",
+      "MAYORISTA": "Mayorista",
+      "METODO_ENVIO": "Método de Envío",
+      "MONEDA": "Moneda",
+      "NOTAS": "Notas",
+      "NOTAS_ADICIONALES": "Notas Adicionales",
+      "NUEVA_FACTURA": "Nueva factura",
+      "PRECIO": "Precio",
+      "PRECIO_BASE": "Precio Base",
+      "PRECIO_UNIT": "Precio Unit.",
+      "PRODUCTO_SERVICIO": "Producto / Servicio",
+      "PUDO_CARGAR_CONFIGURACION_FACTURACION": "No se pudo cargar la configuración de facturación.",
+      "RESUMEN": "Resumen",
+      "RETIRO_ALMACEN": "Retiro en Almacén",
+      "REVISA_CAMPOS_MARCADOS_ANTES_CONTINUAR": "Revisa los campos marcados antes de continuar.",
+      "SELECCIONAR": "Seleccionar",
+      "SELECCIONAR_CLIENTE": "Seleccionar cliente",
+      "STOCK_INSUFICIENTE": "Stock insuficiente",
+      "STOCK_SHORTFALL": "Faltan {{units}} unidades en existencia",
+      "SUBTOTAL": "Subtotal",
+      "TASA_CERO": "Tasa cero",
+      "TERMINOS_CONDICIONES_INSTRUCCIONES_PAGO": "Términos, condiciones, instrucciones de pago...",
+      "TODAVIA_NO_PUEDES_EMITIR_COMPROBANTES": "Todavía no puedes emitir comprobantes.",
+      "TOTAL": "Total",
+      "TRANSPORTE_PROPIO": "Transporte Propio",
+      "TRATAMIENTO": "Tratamiento"
+    }
+  },
+  "LOGIN": {
+    "2FA": {
+      "BACK_TO_LOGIN": "Volver al login",
+      "CODE_LABEL": "Código de Verificación",
+      "CODE_PLACEHOLDER": "123456",
+      "SUBTITLE": "Ingresa el código de 6 dígitos enviado a tu dispositivo.",
+      "TITLE": "Verificación de 2 Pasos",
+      "VERIFY_BUTTON": "Verificar",
+      "VERIFYING": "Verificando..."
+    },
+    "CONTINUE_WITH": "Continuar con {{provider}}",
+    "EMAIL_LABEL": "E-mail",
+    "EMAIL_PLACEHOLDER": "nombre@empresa.com",
+    "ERRORS": {
+      "ACCOUNT_LOCKED": "Tu cuenta está bloqueada temporalmente. Intenta de nuevo en unos minutos.",
+      "AUTH_DEVICE_MISMATCH": "Cambio de dispositivo detectado. Por favor inicie sesión nuevamente.",
+      "AUTH_INVALID_CREDENTIALS": "Las credenciales no son correctas. Por favor, verifica tu correo y contraseña.",
+      "AUTH_REFRESH_TOKEN_INVALID": "Refresh token inválido o expirado.",
+      "AUTH_REFRESH_TOKEN_REVOKED": "Refresh token reutilizado. Sesión invalidada.",
+      "AUTH_SESSION_EXPIRED": "La sesión ha expirado. Por favor, inicia sesión de nuevo.",
+      "AUTH_USER_BLOCKED": "Usuario bloqueado. Contacte a soporte.",
+      "AUTH_USER_INACTIVE": "Usuario inactivo o pendiente, por favor contacte al administrador.",
+      "AUTH_USER_NOT_FOUND": "Usuario no encontrado.",
+      "EMAIL_INVALID": "Por favor, introduce un correo electrónico válido.",
+      "EMAIL_REQUIRED": "El correo electrónico es obligatorio.",
+      "INVALID_CODE": "Código incorrecto. Intenta de nuevo.",
+      "NETWORK_ERROR": "Error de red. Por favor, comprueba tu conexión e inténtalo de nuevo.",
+      "PASSKEY_ERROR": "Error al iniciar sesión con llave de acceso. Intente nuevamente o use su contraseña.",
+      "PASSWORD_REQUIRED": "La contraseña es obligatoria.",
+      "SERVER_ERROR": "Ocurrió un error en el servidor. Por favor, inténtalo más tarde o contacta a soporte.",
+      "SOCIAL_ACCOUNT_EXISTS": "Ya existe una cuenta con este correo. Inicia sesión con tu método original y vincula el proveedor desde tu perfil.",
+      "SOCIAL_EMAIL_NOT_VERIFIED": "Tu proveedor no ha verificado tu correo, así que no podemos iniciar tu sesión.",
+      "SOCIAL_FAILED": "No pudimos completar el inicio de sesión con ese proveedor. Intenta de nuevo.",
+      "SOCIAL_UNAVAILABLE": "Ese método de inicio de sesión no está disponible por ahora. Prueba con otro.",
+      "TOO_MANY_ATTEMPTS": "Has superado el número de intentos. Tu cuenta ha sido bloqueada."
+    },
+    "FOOTER": {
+      "COPYRIGHT": "© {{year}} Virtex. Todos los derechos reservados.",
+      "LANGUAGE_SELECTOR_LABEL": "Seleccionar idioma",
+      "PRIVACY": "Privacidad",
+      "SECURITY": "Segurança",
+      "TERMS": "Términos"
+    },
+    "FORGOT_PASSWORD": "¿Olvidaste tu contraseña?",
+    "LOGGING_IN": "Iniciando sesión",
+    "NO_ACCOUNT": "¿No tienes una cuenta?",
+    "OR": "o",
+    "OR_WITH_EMAIL": "o usa tu correo electrónico",
+    "PASSKEY_BUTTON": "Iniciar con Llave de Acceso (Passkey)",
+    "PASSKEY_BUTTON_SHORT": "Continuar con llave de acceso",
+    "PASSKEY_SUBTITLE": "Sin contraseña, en un solo paso.",
+    "PASSWORD_LABEL": "Contraseña",
+    "REGISTER_LINK": "Regístrate",
+    "REMEMBER_ME": "Mantener la sesión iniciada",
+    "SSO_BUTTON": "SSO",
+    "SSO": {
+      "CANCEL": "Volver al inicio de sesión",
+      "CONTINUE": "Continuar",
+      "NOT_FOUND": "No hay inicio de sesión único configurado para ese dominio de correo. Usa otro método.",
+      "PROMPT": "Ingresa tu correo corporativo para continuar con el inicio de sesión único de tu empresa.",
+      "TITLE": "Acceso corporativo"
+    },
+    "SUBMIT_BUTTON": "Entrar",
+    "SUBTITLE": "Accede a tu espacio de trabajo para continuar.",
+    "TITLE": "Iniciar sesión"
+  },
+  "MAIN": {
+    "ALT_SHIFT": "Alt + Shift + I",
+    "ALT_SHIFT_2": "Alt + Shift + Q",
+    "ALT_SHIFT_3": "Alt + Shift + C",
+    "ALT_SHIFT_4": "Alt + Shift + P",
+    "ATENCION": "¡Atención!",
+    "COMPANY_SWITCHER": {
+      "CAMBIANDO_EMPRESA": "Cambiando de empresa…",
+      "CREAR_NUEVA_EMPRESA": "Crear nueva empresa",
+      "EMPRESA_ACTUAL": "Empresa actual",
+      "EMPRESAS": "Empresas",
+      "GESTIONAR_ORGANIZACIONES": "Gestionar organizaciones",
+      "NO_ENCONTRARON_EMPRESAS": "No se encontraron empresas"
+    },
+    "ESTAS_VIENDO_SISTEMA_COMO": "Estás viendo el sistema como:",
+    "GRACE_PERIOD_BANNER": "Tu pago está pendiente. Tienes acceso temporal hasta el {{date}}.",
+    "INTENTA_OTRA_PALABRA_CLAVE_REVISA_ORTOGRAFIA": "Intenta con otra palabra clave o revisa la ortografía.",
+    "NO_ENCONTRARON_RESULTADOS": "No se encontraron resultados",
+    "RESOLVER_AHORA": "Resolver Ahora",
+    "RESULTADOS_BUSQUEDA": "Resultados de la Búsqueda",
+    "VER_TODOS_RESULTADOS": "Ver todos los resultados",
+    "VIRTEX_ERP": "Virtex ERP",
+    "VOLVER_MI_CUENTA": "Volver a mi cuenta"
+  },
+  "MASTERS": {
+    "BANKS": {
+      "BANK_NAME": "Bank Name",
+      "BANKS": "Banks",
+      "COUNTRY": "Country",
+      "FILTERS": "Filters",
+      "NEW_BANK": "New Bank",
+      "NO_BANKS_CONFIGURED": "No banks configured.",
+      "SWIFT_CODE": "SWIFT Code"
+    },
+    "BRANCHES": {
+      "ADDRESS": "Address",
+      "BRANCHES_LOCATIONS": "Branches & Locations",
+      "CITY": "City",
+      "FILTERS": "Filters",
+      "NAME": "Name",
+      "NEW_BRANCH": "New Branch",
+      "NO_BRANCHES_CONFIGURED": "No branches configured.",
+      "PHONE": "Phone"
+    },
+    "CURRENCIES": {
+      "BASE_CURRENCY": "Base Currency",
+      "CODE": "Code",
+      "CURRENCIES": "Currencies",
+      "CURRENCY_NAME": "Currency Name",
+      "FILTERS": "Filters",
+      "NEW_CURRENCY": "New Currency",
+      "NO_CURRENCIES_CONFIGURED": "No currencies configured.",
+      "SYMBOL": "Symbol",
+      "YES": "Yes"
+    },
+    "CUSTOMER_FORM": {
+      "CANCELAR": "Cancelar",
+      "CIUDAD": "Cidade",
+      "CLIENTE_ACTUALIZADO_EXITOSAMENTE": "Cliente actualizado exitosamente.",
+      "CLIENTE_CREADO_EXITOSAMENTE": "Cliente creado exitosamente.",
+      "CODIGO_POSTAL": "Código Postal",
+      "COMPLETA_INFORMACION_CLIENTE_FACTURACION_CONTACTO": "Completa la información del cliente para facturación y contacto.",
+      "CORREO": "Correo*",
+      "DIRECCION": "Endereço",
+      "ERROR_ACTUALIZAR_CLIENTE": "Error al actualizar el cliente.",
+      "ERROR_CREAR_CLIENTE": "Error al crear el cliente.",
+      "FAVOR_COMPLETA_CAMPOS_REQUERIDOS": "Por favor, completa los campos requeridos.",
+      "GUARDAR_CLIENTE": "Guardar Cliente",
+      "INFORMACION_GENERAL": "Informações Gerais",
+      "NOMBRE_EMPRESA": "Nombre de empresa*",
+      "PAIS": "País*",
+      "PERSONA_CONTACTO": "Persona de contacto",
+      "PROVINCIA_ESTADO": "Provincia/Estado",
+      "PUDO_CARGAR_CLIENTE": "No se pudo cargar el cliente.",
+      "RNC_NIF": "RNC / NIF",
+      "TELEFONO": "Teléfono*"
+    },
+    "CUSTOMER_LIST": {
+      "COMPANY_NAME": "Company Name",
+      "CUSTOMERS": "Customers",
+      "EMAIL": "Email",
+      "FILTERS": "Filters",
+      "LOCATION": "Location",
+      "NEW_CUSTOMER": "New Customer",
+      "NO_CUSTOMERS_FOUND_START_BY_ADDING": "No customers found. Start by adding a new one.",
+      "PHONE": "Phone",
+      "TAX_ID": "Tax ID"
+    },
+    "LAYOUT": {
+      "BANKS": "Banks",
+      "BRANCHES": "Branches",
+      "CURRENCIES": "Currencies",
+      "CUSTOMERS": "Customers",
+      "MANAGE_CORE_REFERENCE_DATA_FOR_YOUR": "Manage the core reference data for your organization.",
+      "MASTER_DATA": "Master Data",
+      "PAYMENT_METHODS": "Payment Methods",
+      "PAYMENT_TERMS": "Payment Terms",
+      "PRICE_LISTS": "Price Lists",
+      "PRODUCTS": "Products",
+      "SUPPLIERS": "Suppliers",
+      "TAXES": "Taxes",
+      "UNITS": "Units",
+      "WAREHOUSES": "Warehouses"
+    },
+    "PAYMENT_METHODS": {
+      "DEFAULT_METHOD": "Default Method",
+      "NAME": "Name",
+      "NEW_METHOD": "New Method",
+      "PAYMENT_METHODS": "Payment Methods",
+      "TYPE": "Type",
+      "YES": "Yes"
+    },
+    "PAYMENT_TERMS": {
+      "NAME": "Name",
+      "NET_DAYS": "Net Days",
+      "NEW_TERM": "New Term",
+      "PAYMENT_TERMS": "Payment Terms"
+    },
+    "PRICE_LISTS_FORM": {
+      "ACCIONES": "Ações",
+      "ANADIR_LINEA": "Añadir Línea",
+      "CANCELAR": "Cancelar",
+      "DEFINE_PRECIOS_CONJUNTO_ESPECIFICO_PRODUCTOS": "Define precios para un conjunto específico de productos.",
+      "DOP_PESO_DOMINICANO": "DOP - Peso Dominicano",
+      "ERROR_ACTUALIZAR_LISTA_PRECIOS": "Error al actualizar la lista de precios.",
+      "ERROR_CREAR_LISTA_PRECIOS": "Error al crear la lista de precios.",
+      "ESTADO": "Estado*",
+      "EUR_EURO": "EUR - Euro",
+      "FAVOR_COMPLETA_CAMPOS_REQUERIDOS": "Por favor, completa los campos requeridos.",
+      "ITEMS_LISTA_PRECIOS": "Ítems de la Lista de Precios",
+      "LISTA_PRECIOS_ACTUALIZADA_EXITOSAMENTE": "Lista de precios actualizada exitosamente.",
+      "LISTA_PRECIOS_CREADA_EXITOSAMENTE": "Lista de precios creada exitosamente.",
+      "MONEDA": "Moneda*",
+      "NOMBRE_LISTA": "Nombre de la Lista*",
+      "PRECIO": "Precio*",
+      "PRODUCTO": "Producto*",
+      "PUDIERON_CARGAR_PRODUCTOS": "No se pudieron cargar los productos.",
+      "PUDO_CARGAR_LISTA_PRECIOS": "No se pudo cargar la lista de precios.",
+      "SELECCIONA_PRODUCTO": "Selecciona un producto...",
+      "USD_DOLAR_ESTADOUNIDENSE": "USD - Dólar Estadounidense",
+      "VALIDO_DESDE": "Válido Desde*",
+      "VALIDO_HASTA": "Válido Hasta*"
+    },
+    "PRICE_LISTS": {
+      "ACCIONES": "Ações",
+      "CARGANDO_LISTAS_PRECIOS": "Cargando listas de precios...",
+      "EDITAR": "Editar",
+      "ELIMINAR": "Eliminar",
+      "ESTADO": "Situação",
+      "FILTROS": "Filtros",
+      "ITEMS": "Ítems",
+      "LISTA_PRECIOS_ELIMINADA_EXITOSAMENTE": "Lista de precios eliminada exitosamente.",
+      "LISTAS_PRECIOS": "Listas de Precios",
+      "MONEDA": "Moneda",
+      "NO_ENCONTRARON_LISTAS_PRECIOS": "No se encontraron listas de precios.",
+      "NOMBRE": "Nome",
+      "NUEVA_LISTA": "Nueva Lista",
+      "PUDIERON_CARGAR_LISTAS_PRECIOS": "No se pudieron cargar las listas de precios.",
+      "PUDO_ELIMINAR_LISTA_PRECIOS": "No se pudo eliminar la lista de precios.",
+      "VALIDO_DESDE": "Válido Desde",
+      "VALIDO_HASTA": "Válido Hasta"
+    },
+    "SUPPLIER_FORM": {
+      "CANCELAR": "Cancelar",
+      "COMPLETA_INFORMACION_DETALLADA_TU_PROVEEDOR": "Completa la información detallada de tu proveedor.",
+      "CORREO_ELECTRONICO": "E-mail",
+      "DIRECCION": "Endereço",
+      "ERROR_ACTUALIZAR_PROVEEDOR": "Error al actualizar el proveedor.",
+      "ERROR_CREAR_PROVEEDOR": "Error al crear el proveedor.",
+      "FAVOR_COMPLETA_CAMPOS_REQUERIDOS": "Por favor, completa los campos requeridos.",
+      "GUARDAR_PROVEEDOR": "Guardar Proveedor",
+      "ID_FISCAL_RNC_ETC": "ID Fiscal (RNC, etc.)",
+      "INFORMACION_PROVEEDOR": "Información del Proveedor",
+      "NOMBRE_PROVEEDOR": "Nombre del Proveedor*",
+      "PERSONA_CONTACTO": "Persona de Contacto",
+      "PROVEEDOR_ACTUALIZADO_EXITOSAMENTE": "Proveedor actualizado exitosamente.",
+      "PROVEEDOR_CREADO_EXITOSAMENTE": "Proveedor creado exitosamente.",
+      "PUDO_CARGAR_PROVEEDOR": "No se pudo cargar el proveedor.",
+      "TELEFONO": "Telefone"
+    },
+    "SUPPLIER_LIST": {
+      "COMPANY_NAME": "Company Name",
+      "EMAIL": "Email",
+      "FILTERS": "Filters",
+      "NEW_SUPPLIER": "New Supplier",
+      "NO_SUPPLIERS_FOUND": "No suppliers found.",
+      "PHONE": "Phone",
+      "PUDIERON_CARGAR_PROVEEDORES": "No se pudieron cargar los proveedores.",
+      "SUPPLIERS": "Suppliers",
+      "TAX_ID": "Tax ID"
+    },
+    "TAX_FORM": {
+      "CANCELAR": "Cancelar",
+      "CODIGO_PAIS_OPCIONAL": "Código de País (Opcional)",
+      "CONFIGURA_NUEVA_TASA_IMPUESTO_TUS_TRANSACCIONES": "Configura una nueva tasa de impuesto para tus transacciones.",
+      "EJ_ITBIS_18": "Ej: ITBIS (18%)",
+      "ERROR_ACTUALIZAR_IMPUESTO": "Error al actualizar el impuesto.",
+      "ERROR_CREAR_IMPUESTO": "Error al crear el impuesto.",
+      "FAVOR_COMPLETE_CAMPOS_REQUERIDOS": "Por favor, complete los campos requeridos.",
+      "GUARDAR_IMPUESTO": "Guardar Impuesto",
+      "IMPUESTO_ACTUALIZADO_EXITOSAMENTE": "Impuesto actualizado exitosamente.",
+      "IMPUESTO_CREADO_EXITOSAMENTE": "Impuesto creado exitosamente.",
+      "NOMBRE_IMPUESTO": "Nombre del Impuesto*",
+      "PUDO_CARGAR_IMPUESTO": "No se pudo cargar el impuesto.",
+      "TASA": "Tasa*",
+      "TIPO": "Tipo*"
+    },
+    "TAXES": {
+      "COUNTRY": "Country",
+      "ERROR_ELIMINAR_IMPUESTO": "Error al eliminar el impuesto.",
+      "FILTERS": "Filters",
+      "IMPUESTO_ELIMINADO_EXITOSAMENTE": "Impuesto eliminado exitosamente.",
+      "NAME": "Name",
+      "NEW_TAX": "New\n                    Tax",
+      "NO_TAXES_CONFIGURED": "No taxes configured.",
+      "PUDIERON_CARGAR_IMPUESTOS": "No se pudieron cargar los impuestos.",
+      "RATE": "Rate (%)",
+      "TAX_RATES": "Tax Rates",
+      "TYPE": "Type"
+    },
+    "UNITS_OF_MEASURE": {
+      "FILTERS": "Filters",
+      "NAME": "Name",
+      "NEW_UNIT": "New Unit",
+      "NO_UNITS_MEASURE_CONFIGURED": "No units of measure configured.",
+      "SYMBOL": "Symbol",
+      "TYPE": "Type",
+      "UNITS_MEASURE": "Units of Measure"
+    },
+    "WAREHOUSES": {
+      "FILTERS": "Filters",
+      "LOCATION": "Location",
+      "MANAGER": "Manager",
+      "NAME": "Name",
+      "NEW_WAREHOUSE": "New\n                    Warehouse",
+      "NO_WAREHOUSES_CONFIGURED": "No warehouses configured.",
+      "STATUS": "Status",
+      "WAREHOUSES": "Warehouses"
+    }
+  },
+  "MY_WORK": {
+    "APPROVALS": "Approvals",
+    "DATE_DUEDATE": "Date: {{dueDate}}",
+    "DUE_DUEDATE": "Due: {{dueDate}}",
+    "MY_WORK": "My Work",
+    "NO_NEW_NOTIFICATIONS": "No new notifications.",
+    "NO_PENDING_APPROVAL_REQUESTS": "No pending approval requests.",
+    "NO_PENDING_TASKS_GREAT_JOB": "No pending tasks. Great job!",
+    "NOTIFICATIONS": "Notifications",
+    "REQUESTED_DUEDATE": "Requested: {{dueDate}}",
+    "SECURITY": "Security",
+    "TASKS": "Tasks",
+    "YOUR_CENTRALIZED_INBOX_FOR_TASKS_APPROVALS": "Your centralized inbox for tasks, approvals, and notifications."
+  },
+  "NAV": {
+    "APPROVALS": "Aprovações",
+    "CONTACTS": "Contactos",
+    "CUSTOMERS": "Clientes",
+    "DASHBOARD": "Dashboard",
+    "INVENTORY": "Estoque",
+    "INVOICES": "Facturas",
+    "MENU": "Menú",
+    "MY_WORK": "Mi Trabajo",
+    "NOTIFICATIONS": "Notificaciones",
+    "PRICE_LISTS": "Listas de Precios",
+    "PRODUCTS": "Productos",
+    "PURCHASING": "Compras",
+    "REPORTS": "Reportes",
+    "SALES": "Ventas",
+    "SETTINGS": "Configurações"
+  },
+  "NOTIFICATIONS": {
+    "MANTENTE_DIA_ULTIMAS_ACTUALIZACIONES_ALERTAS_TU": "Mantente al día con las últimas actualizaciones y alertas de tu cuenta.",
+    "MARCAR_TODAS_COMO_LEIDAS": "Marcar todas como leídas",
+    "MARK_ALL_AS_READ": "Marcar todo como leído",
+    "NO_LEIDO": "No leído",
+    "NO_NOTIFICATIONS": "No hay notificaciones",
+    "NO_TIENES_NOTIFICACIONES_NUEVAS_ESTE_MOMENTO": "No tienes notificaciones nuevas en este momento.",
+    "NOTIFICACIONES": "Notificaciones",
+    "TODO_ESTA_DIA": "Todo está al día",
+    "VIEW_ALL": "Ver todas"
+  },
+  "OVERVIEW": {
+    "ACTIVITY": {
+      "EMPTY": "Aún no hay actividad reciente.",
+      "TITLE": "Actividad reciente"
+    },
+    "EVENTS": {
+      "EMPTY": "No hay eventos próximos.",
+      "TITLE": "Próximos eventos"
+    },
+    "GREETING": {
+      "AFTERNOON": "Buenas tardes",
+      "EVENING": "Buenas noches",
+      "MORNING": "Buenos días"
+    },
+    "HERO": {
+      "NEW_INVOICE": "Nueva factura",
+      "OPEN_DASHBOARD": "Ver dashboard financiero",
+      "SUBTITLE": "Aquí tienes un resumen de tu día."
+    },
+    "NEWS": {
+      "EMPTY": "No hay novedades por ahora.",
+      "TITLE": "Novedades de Virtex"
+    },
+    "QUICK": {
+      "INVOICES": "Ver facturas",
+      "NEW_CUSTOMER": "Nuevo cliente",
+      "NEW_INVOICE": "Nueva factura",
+      "NEW_PRODUCT": "Nuevo producto",
+      "NEW_QUOTE": "Nueva cotización",
+      "REPORTS": "Reportes",
+      "TITLE": "Accesos rápidos"
+    },
+    "REFRESH": "Atualizar",
+    "STATE": {
+      "ERROR": "No se pudo cargar la información.",
+      "RETRY": "Tentar novamente"
+    }
+  },
+  "PASSWORD_STRENGTH": {
+    "WEAK": "Débil"
+  },
+  "PURCHASING": {
+    "LAYOUT": {
+      "MANAGE_REQUISITIONS_PURCHASE_ORDERS_AND_GOODS": "Manage requisitions, purchase orders, and goods receipts.",
+      "PURCHASE_ORDERS": "Purchase Orders",
+      "RECEIPTS": "Receipts",
+      "REQUISITIONS": "Requisitions"
+    },
+    "ORDERS": {
+      "DESCRIPTION": "Crea, rastrea y gestiona todas tus órdenes de compra a proveedores.",
+      "FILTERS": "Filters",
+      "NEW_ORDER": "Nueva Orden",
+      "NO_PURCHASE_ORDERS_FOUND": "No purchase orders found.",
+      "ORDER": "Order #",
+      "ORDER_DATE": "Order Date",
+      "STATUS": "Status",
+      "SUPPLIER": "Supplier",
+      "TITLE": "Órdenes de Compra",
+      "TOTAL": "Total"
+    },
+    "REQUISITIONS": {
+      "DATE": "Date",
+      "DEPARTMENT": "Department",
+      "DESCRIPTION": "Revisa, aprueba y da seguimiento a todas las solicitudes de compra internas.",
+      "FILTERS": "Filters",
+      "NEW_REQUISITION": "Nueva Requisición",
+      "NO_PURCHASE_REQUISITIONS_FOUND": "No purchase requisitions found.",
+      "REQUESTER": "Requester",
+      "REQUISITION": "Requisition #",
+      "STATUS": "Status",
+      "TITLE": "Requisiciones de Compra",
+      "TOTAL": "Total"
+    }
+  },
+  "PWA": {
+    "INSTALL": "Instalar App",
+    "OFFLINE_MESSAGE": "Revisa tu conexión de red y vuelve aquí. Virtex se cargará tan pronto como vuelvas a estar en línea.",
+    "OFFLINE_TITLE": "No tienes conexión"
+  },
+  "REGISTER": {
+    "ACCESS": {
+      "OR_EMAIL": "O usa tu correo electrónico",
+      "PASSWORD_MISMATCH": "Las contraseñas no coinciden"
+    },
+    "ADDRESS": {
+      "CITY": "Cidade",
+      "STREET": "Dirección fiscal",
+      "STREET_PLACEHOLDER": "Calle y número"
+    },
+    "AND": "y la",
+    "COMPANY_NAME": "Nombre de la Empresa",
+    "COMPANY_NAME_PLACEHOLDER": "Ej. Acme Corp",
+    "COMPANY_SIZE": "Tamaño de la empresa",
+    "COMPANY_SIZE_PLACEHOLDER": "Selecciona el número de empleados",
+    "CONFIGURATION": {
+      "EINVOICING_PREVIEW_DETAIL": "Todo el ERP —contabilidad, inventario, compras, nómina e informes— funciona con normalidad, y guardamos estos datos fiscales para poder emitir comprobantes ({{regime}}) en cuanto habilitemos el país. Si necesitas timbrar hoy, escríbenos antes de contratar.",
+      "EINVOICING_UNAVAILABLE": "La facturación electrónica todavía no está disponible en {{country}}."
+    },
+    "CONFIRM_PASSWORD": "Confirmar senha",
+    "CONFIRM_PASSWORD_PLACEHOLDER": "Repite tu contraseña",
+    "COUNTRY": "País",
+    "CURRENCY": "Moneda",
+    "EMAIL": "E-mail",
+    "EMAIL_PLACEHOLDER": "nombre@empresa.com",
+    "EMPLOYEES": "Empleados",
+    "EMPLOYEES_PLACEHOLDER": "Número de empleados",
+    "ERRORS": {
+      "CODE_INVALID": "Código incorrecto. Inténtalo de nuevo.",
+      "CODE_SEND": "No se pudo enviar el código. Inténtalo de nuevo.",
+      "COUNTRY_CONFIG": "No se pudo cargar la configuración fiscal de ese país. Recarga la página o elige otro país.",
+      "COUNTRY_LIST": "No se pudo cargar la lista de países. Recarga la página para continuar con el registro.",
+      "EMAIL_INVALID": "Escribe un correo electrónico válido.",
+      "EMAIL_TAKEN": "Este correo ya está registrado.",
+      "EMAIL_VERIFY_REQUIRED": "Debes verificar tu correo electrónico antes de continuar.",
+      "INVALID_FORMAT": "El formato no es válido.",
+      "MAGIC_LINK_EXPIRED": "El enlace de confirmación ha expirado o no es válido. Ingresa el código manualmente.",
+      "PASSWORD_LENGTH": "La contraseña debe tener al menos 12 caracteres.",
+      "PASSWORD_MISMATCH": "As senhas não coincidem.",
+      "PASSWORD_WEAK": "La contraseña debe incluir una mayúscula, una minúscula y un número o símbolo.",
+      "PHONE_VERIFY_REQUIRED": "Debes verificar tu número de celular antes de continuar.",
+      "RECAPTCHA": "No pudimos validar la seguridad del formulario. Inténtalo de nuevo.",
+      "REQUIRED": "Este campo es obligatorio.",
+      "REQUIRED_FIELDS": "Completa los campos requeridos correctamente.",
+      "SERVER_ERROR": "Error al registrarse. Intente nuevamente.",
+      "TERMS_REQUIRED": "Debes aceptar los términos y condiciones.",
+      "UNKNOWN": "No se pudo completar el registro. Inténtalo de nuevo."
+    },
+    "FIRST_NAME": "Nome",
+    "FIRST_NAME_PLACEHOLDER": "Ej. Juan",
+    "FISCAL_REGION": "Región Fiscal",
+    "HAS_ACCOUNT": "¿Ya tienes una cuenta?",
+    "INDUSTRIES": {
+      "CONSTRUCTION": "Construcción",
+      "HEALTHCARE": "Salud",
+      "MANUFACTURING": "Manufactura",
+      "OTHER": "Otro",
+      "RETAIL": "Comercio y retail",
+      "SERVICES": "Servicios profesionales",
+      "TECHNOLOGY": "Tecnología"
+    },
+    "INDUSTRY": "Setor",
+    "INDUSTRY_PLACEHOLDER": "Selecciona tu industria",
+    "JOB_TITLE": "Cargo",
+    "JOB_TITLE_PLACEHOLDER": "Ej. Gerente General",
+    "LAST_NAME": "Sobrenome",
+    "LAST_NAME_PLACEHOLDER": "Ej. Pérez",
+    "LOGIN_LINK": "Inicia sesión",
+    "MULTI_SELECT_HINT": "Puedes seleccionar varias manteniendo Ctrl (o Cmd) al hacer clic.",
+    "PASSWORD": "Contraseña",
+    "PASSWORD_PLACEHOLDER": "Crea una contraseña segura",
+    "PHONE": "Telefone",
+    "PHONE_PLACEHOLDER": "Ej. +1 809-555-5555",
+    "PLAN_SUMMARY": {
+      "FEATURE_1": "Sin tarjeta de crédito requerida",
+      "FEATURE_2": "Cancela en cualquier momento",
+      "FEATURE_3": "Soporte prioritario incluido",
+      "SUBTITLE": "Acceso completo a todas las funciones Premium.",
+      "TITLE": "Prueba Gratuita de 30 Días"
+    },
+    "PLAN": {
+      "CHOOSE": "Elegir plan",
+      "LOAD_FAILED": "No se pudieron cargar los planes.",
+      "LOADING": "Cargando planes…",
+      "QUOTA_LIFETIME": "{{limit}} {{resource}}",
+      "QUOTA_MONTHLY": "{{limit}} {{resource}} al mes",
+      "RECOMMENDED": "Recomendado",
+      "RETRY": "Tentar novamente",
+      "SELECTED": "Plan seleccionado",
+      "UNLIMITED": "{{resource}} ilimitados"
+    },
+    "PRIVACY": "Política de Privacidad",
+    "PROGRESS": {
+      "ACCOUNT": "Cuenta",
+      "BUSINESS": "Empresa",
+      "EMAIL": "Correo",
+      "FISCAL": "Fiscal",
+      "PHONE": "Telefone",
+      "PLAN": "Plan"
+    },
+    "REGISTERING": "Registrando...",
+    "SELECT": "Selecciona una opción",
+    "STEP_OF": "Paso {{current}} de {{total}}",
+    "STEPS": {
+      "ACCOUNT": {
+        "SUBTITLE": "Ingresa tus datos personales",
+        "SUBTITLE_INTERNAL": "Estos son los datos del administrador principal.",
+        "TITLE": "Información de la Cuenta",
+        "TITLE_INTERNAL": "¡Hola! Comencemos por ti"
+      },
+      "BUSINESS": {
+        "SUBTITLE": "Cuéntanos sobre tu empresa",
+        "TITLE": "Perfil de Negocio"
+      },
+      "CONFIGURATION": {
+        "SUBTITLE": "Datos de tu país y moneda",
+        "TITLE": "Configuración Fiscal"
+      },
+      "PLAN": {
+        "ANNUAL": "Anual",
+        "BILLING_PERIOD": "Periodo de facturación",
+        "CHOOSE": "Elegir plan",
+        "LOAD_FAILED": "No se pudieron cargar los planes.",
+        "LOADING": "Cargando planes…",
+        "MONTHLY": "Mensual",
+        "PER_MONTH": "/mês",
+        "PER_PERIOD_MONTH": "{{count}} {{resource}} al mes",
+        "PER_YEAR": "/año",
+        "RECOMMENDED": "Recomendado",
+        "RESOURCES": {
+          "CUSTOMERS": "clientes",
+          "INVOICES": "facturas",
+          "JOURNAL_ENTRIES": "asientos contables",
+          "SUBSIDIARIES": "subsidiarias",
+          "SUPPLIERS": "proveedores",
+          "USERS": "usuários"
+        },
+        "SAVE_PERCENT": "Ahorras {{percent}}% al año",
+        "SELECTED": "Plan seleccionado",
+        "SUBTITLE": "Selecciona el plan que mejor se adapte a ti",
+        "TITLE": "Elige tu Plan",
+        "TOTAL": "{{count}} {{resource}} en total",
+        "UNLIMITED": "{{resource}} sin límite"
+      }
+    },
+    "SUBMIT_BUTTON": "Registrarse",
+    "SUBTITLE": "Comienza tu prueba gratuita de 30 días",
+    "TAX_ID": "Identificación Fiscal",
+    "TAXID_FORMAT": "Formato esperado: {{example}}",
+    "TAXID_HINT": "Verificamos el dígito verificador ante {{authority}}.",
+    "TAXPAYER": {
+      "COMPANY": "Empresa / persona jurídica",
+      "INDIVIDUAL": "Persona física",
+      "LABEL": "Tipo de contribuyente"
+    },
+    "TERMS": "Términos de Servicio",
+    "TERMS_AGREEMENT_1": "Acepto los",
+    "TITLE": "Crear Cuenta",
+    "UPLOAD_LOGO": "Enviar logotipo",
+    "UPLOAD_PHOTO": "Subir foto",
+    "VERIFY": {
+      "EMAIL_OK": "¡Correo verificado!",
+      "EMAIL_TITLE": "Confirma tu correo electrónico",
+      "PHONE_OK": "¡Número verificado!",
+      "PHONE_TITLE": "Confirma tu número de celular",
+      "PREFER_LINK": "¿Prefieres no escribir el código? Busca el botón «Confirmar correo electrónico» en el mensaje que te enviamos."
+    },
+    "WEBSITE": "Site",
+    "WEBSITE_PLACEHOLDER": "https://www.ejemplo.com"
+  },
+  "REPORTS": {
+    "BALANCE_SHEET": {
+      "ACTIVOS": "Activos",
+      "BALANCE_GENERAL": "Balance General",
+      "EXPORTAR_PDF": "Exportar PDF",
+      "PASIVOS_PATRIMONIO": "Pasivos y Patrimonio",
+      "TOTAL_ACTIVOS": "Total Activos",
+      "TOTAL_PASIVOS_PATRIMONIO": "Total Pasivos y Patrimonio",
+      "TOTAL_TITLE": "Total {{title}}"
+    },
+    "LAYOUT": {
+      "ANALYZE_YOUR_BUSINESS_PERFORMANCE_WITH_DETAILED": "Analyze your business performance with detailed financial and operational reports.",
+      "COMPARATIVE_ANALYSIS": "Comparative Analysis",
+      "FINANCIAL_STATEMENTS": "Financial Statements",
+      "PROFITABILITY_BY_CUSTOMER": "Profitability by Customer",
+      "PROFITABILITY_BY_PRODUCT": "Profitability by Product",
+      "REPORTS_ANALYTICS": "Reports & Analytics"
+    },
+    "PROFITABILITY_BY_CUSTOMER": {
+      "CUSTOMER_NAME": "Customer Name",
+      "EXPORT": "Export",
+      "FILTERS": "Filters",
+      "GROSS_MARGIN": "Gross Margin (%)",
+      "GROSS_PROFIT": "Gross Profit",
+      "LAST_90_DAYS": "Last 90 Days",
+      "NO_PROFITABILITY_DATA_AVAILABLE_FOR_SELECTED": "No profitability data available for the selected period.",
+      "PROFITABILITY_BY_CUSTOMER": "Profitability by Customer",
+      "TOTAL_COST": "Total Cost",
+      "TOTAL_REVENUE": "Total Revenue"
+    },
+    "PROFITABILITY_BY_PRODUCT": {
+      "EXPORT": "Export",
+      "FILTERS": "Filters",
+      "GROSS_MARGIN": "Gross Margin (%)",
+      "GROSS_PROFIT": "Gross Profit",
+      "LAST_90_DAYS": "Last 90 Days",
+      "NO_PROFITABILITY_DATA_AVAILABLE_FOR_SELECTED": "No profitability data available for the selected period.",
+      "PRODUCT": "Product",
+      "PROFITABILITY_BY_PRODUCT": "Profitability by Product",
+      "TOTAL_COST": "Total Cost",
+      "TOTAL_REVENUE": "Total Revenue",
+      "UNITS_SOLD": "Units Sold"
+    },
+    "SALES_SUMMARY": {
+      "SALES_SUMMARY_WORKS": "sales-summary works!"
+    }
+  },
+  "RESET_PASSWORD": {
+    "CHANGING": "Cambiando...",
+    "ERRORS": {
+      "INVALID_TOKEN": "Este enlace ya no es válido. Solicita uno nuevo."
+    },
+    "SUBMIT_BUTTON": "Cambiar Contraseña",
+    "SUBTITLE": "Ingresa tu nueva contraseña",
+    "SUCCESS": "Tu contraseña ha sido actualizada correctamente.",
+    "SUCCESS_REDIRECT": "Contraseña actualizada. Te llevamos al inicio de sesión…",
+    "TITLE": "Restablecer Contraseña"
+  },
+  "SALES": {
+    "HISTORY": {
+      "CLIENTE": "Cliente",
+      "CONSULTA_FILTRA_GESTIONA_TODAS_TRANSACCIONES_REGISTRADAS": "Consulta, filtra y gestiona todas las transacciones registradas.",
+      "ESTADO": "Situação",
+      "EXPORTAR": "Exportar",
+      "FECHA": "Data",
+      "HISTORIAL_VENTAS": "Historial de Ventas",
+      "ID_VENTA": "ID Venta",
+      "METODO_PAGO": "Forma de Pagamento",
+      "NO_ENCONTRARON_VENTAS": "No se encontraron ventas.",
+      "NUEVA_VENTA": "Nueva Venta",
+      "TOTAL": "Total"
+    },
+    "POS": {
+      "AGOTADO": "Agotado",
+      "ANADE_PRODUCTOS_COMENZAR_VENTA": "Añade productos para comenzar una venta.",
+      "BUSCAR_PRODUCTOS_NOMBRE_SKU": "Buscar productos por nombre o SKU...",
+      "CLIENTE": "Cliente:",
+      "COBRAR": "Cobrar",
+      "IMPUESTOS_18": "Impuestos (18%)",
+      "ORDEN_ACTUAL": "Orden Actual",
+      "SUBTOTAL": "Subtotal",
+      "TOTAL_PAGAR": "Total a Pagar"
+    }
+  },
+  "SEARCH": {
+    "ARIA_GLOBAL": "Búsqueda global",
+    "MAIN_PLACEHOLDER": "Buscar facturas, clientes, productos…",
+    "ORGANIZATIONS": "Buscar organizaciones"
+  },
+  "SECTIONS": {
+    "ACCOUNTING": "Contabilidade",
+    "MANAGEMENT": "Gestión",
+    "MASTER_DATA": "Datos Maestros",
+    "OPERATIONS": "Operações",
+    "REPORTS": "Reportes",
+    "TOOLS": "Herramientas",
+    "WORKSPACE": "Espacio de Trabajo"
+  },
+  "SET_PASSWORD": {
+    "SAVING": "Guardando...",
+    "SUBMIT_BUTTON": "Guardar Contraseña",
+    "SUBTITLE": "Establece una contraseña para tu cuenta",
+    "SUCCESS": "Contraseña configurada. Iniciando sesión...",
+    "TITLE": "Configurar contraseña"
+  },
+  "SETTINGS": {
+    "BILLING": {
+      "AUN_NO_TIENES_PLAN_CONTRATADO_ELIGE": "Você ainda não contratou um plano. Escolha um abaixo para começar.",
+      "CAMBIAR_PLAN": "Para mudar para o plano",
+      "CARGANDO_PLANES": "Carregando planos...",
+      "DESCARGAR_FACTURA": "Baixar fatura",
+      "DESCRIPCION": "Descrição",
+      "ESTADO": "Situação",
+      "EXPIRA_EXPMONTH_EXPYEAR": "Expira em {{expMonth}}/{{expYear}}",
+      "FACTURACION_PLAN": "Faturamento e Plano",
+      "FECHA": "Data",
+      "HISTORIAL_FACTURACION": "Histórico de Faturamento",
+      "MES": "/mês",
+      "METODO_PAGO": "Forma de Pagamento",
+      "MONTO": "Valor",
+      "NO_HAY_METODO_PAGO_REGISTRADO": "Não há forma de pagamento cadastrada.",
+      "NO_HAY_PLANES_DISPONIBLES_ESTE_MOMENTO": "Não há planos disponíveis no momento.",
+      "NO_PUDIERON_CARGAR_PLANES_VERIFICA_TU": "Não foi possível carregar os planos. Verifique sua conexão e tente novamente.",
+      "PAGADA": "Paga",
+      "PLAN_ACTUAL": "Plano Atual",
+      "PLAN_ACTUAL_2": "Plano atual",
+      "PLAN_SELECCIONADO": "Plano selecionado:",
+      "REDIRIGIENDO": "Redirecionando...",
+      "REINTENTAR": "Tentar novamente",
+      "SELECCIONA_PLAN_MEJOR_ADAPTE_TU_ORGANIZACION": "Escolha o plano que melhor se adapta à sua organização e gerencie sua assinatura.",
+      "SELECCIONA_PLAN_MEJOR_ADAPTE_TU_ORGANIZACION_2": "Escolha o plano que melhor se adapta à sua organização.",
+      "SERAS_REDIRIGIDO_PORTAL_SEGURO_STRIPE": "você será redirecionado ao portal seguro da Stripe.",
+      "SERAS_REDIRIGIDO_STRIPE_COMPLETAR_PAGO_FORMA": ". Você será redirecionado à Stripe para concluir o pagamento com segurança.",
+      "SIN_PLAN": "Sem plano",
+      "SIN_SUSCRIPCION_ACTIVA": "Sem assinatura ativa",
+      "USO_RECURSOS": "Uso de Recursos"
+    },
+    "BRANDING": {
+      "ALTO_CONTRASTE": "Alto contraste",
+      "ANCHO": "Largo",
+      "ANCHO_CONTENIDO": "Largura do conteúdo",
+      "APARIENCIA_LAYOUT": "Aparência e layout",
+      "BORDER_RADIUS": "Raio das bordas ({{value}} px)",
+      "CLARO": "Claro",
+      "COLOR_ACENTO": "Cor de destaque",
+      "COMODA": "Confortável",
+      "COMPACTA": "Compacta",
+      "DENSIDAD": "Densidade",
+      "DESCRIPTION": "Preencha as informações para personalizar a aparência do seu aplicativo.",
+      "DISENO_APLICACION": "Layout do aplicativo",
+      "GUARDAR_CAMBIOS": "Salvar alterações",
+      "LATERAL": "Lateral",
+      "LOGO_COLORES": "Logotipo e cores",
+      "LOGO_EMPRESA": "Logotipo da empresa",
+      "NORMAL": "Normal",
+      "OSCURO": "Escuro",
+      "PREFERENCIAS_IDIOMA": "Preferências de idioma",
+      "REFUERZA_BORDES_TEXTO_SECUNDARIO_COMPATIBLE_TEMA": "Reforça bordas e texto secundário. Compatível com os temas claro e escuro.",
+      "SAVE_BUTTON": "Salvar alterações",
+      "SISTEMA": "Sistema",
+      "SUBIR_LOGO": "Enviar logotipo",
+      "SUPERIOR": "Superior",
+      "TEMA": "Tema",
+      "TIPOGRAFIA": "Tipografia",
+      "TITLE": "Personalização avançada",
+      "VISTA_PREVIA_LOGO": "Visualização do logotipo",
+      "VISTA_PREVIA_VIVO": "Visualização ao vivo"
+    },
+    "COMPANY_PROFILE": {
+      "CALLE_PRINCIPAL_123_SECTOR": "Rua Principal, 123 – Bairro",
+      "CIUDAD": "Cidade",
+      "DATOS_LEGALES_IDENTIFICACION_EMPRESA": "Dados legais e de identificação da empresa.",
+      "DIRECCION": "Endereço",
+      "DIRECCION_CONTACTO": "Endereço e Contato",
+      "EJ_REPUBLICA_DOMINICANA": "Ex.: República Dominicana",
+      "EJ_SANTO_DOMINGO": "Ex.: Santo Domingo",
+      "EJ_TECNOLOGIA_RETAIL_MANUFACTURA": "Ex.: Tecnologia, Varejo, Indústria…",
+      "EJ_VIRTEEX_CORP": "Ex.: Virteex Corp Ltda.",
+      "ERROR_ACTUALIZANDO_PERFIL": "Erro ao atualizar o perfil",
+      "ERROR_CARGANDO_PERFIL_EMPRESA": "Erro ao carregar o perfil da empresa",
+      "GESTIONA_INFORMACION_LEGAL_CONTACTO_TU_ORGANIZACION": "Gerencie as informações legais e de contato da sua organização.",
+      "HTTPS_EJEMPLO_COM": "https://exemplo.com",
+      "ID_FISCAL_ES_REQUERIDO": "A identificação fiscal é obrigatória.",
+      "ID_FISCAL_RNC_TAX_ID": "Identificação fiscal (CNPJ / Tax ID)",
+      "INDUSTRIA": "Setor",
+      "INFORMACION_GENERAL": "Informações Gerais",
+      "INFORMACION_UBICACION_COMUNICACION_PRINCIPAL": "Informações de localização e contato principal.",
+      "NOMBRE_LEGAL": "Razão Social",
+      "NOMBRE_LEGAL_ES_REQUERIDO": "A razão social é obrigatória.",
+      "PAIS": "País",
+      "PAIS_ES_REQUERIDO": "O país é obrigatório.",
+      "PERFIL_ACTUALIZADO_CORRECTAMENTE": "Perfil atualizado com sucesso",
+      "PERFIL_EMPRESA": "Perfil da Empresa",
+      "SITIO_WEB": "Site",
+      "TELEFONO": "Telefone",
+      "TELEFONO_ES_REQUERIDO": "O telefone é obrigatório."
+    },
+    "DESCRIPTION": "Gerencie os detalhes da sua conta, empresa e usuários.",
+    "FISCAL": {
+      "606_COMPRAS": "606 · Compras",
+      "607_VENTAS": "607 · Vendas",
+      "ACTUAL": "Atual",
+      "ALIAS": "Apelido",
+      "ANO": "Ano",
+      "ARCHIVO_P12_PFX": "Arquivo (.p12 / .pfx)",
+      "AUN_NO_HAS_CARGADO_CERTIFICADO": "Você ainda não enviou um certificado.",
+      "AUN_NO_HAS_REGISTRADO_RANGOS_NCF": "Você ainda não registrou faixas de e-NCF.",
+      "CERTIFICADO_CARGADO_VALIDADO_CORRECTAMENTE": "Certificado enviado e validado com sucesso.",
+      "CERTIFICADO_DESACTIVADO": "Certificado desativado.",
+      "CERTIFICADO_DGII_2025": "Certificado DGII 2025",
+      "CERTIFICADO_DIGITAL": "Certificado digital",
+      "CONFIGURA_CERTIFICADO_FIRMA_RANGOS_NCF_AUTORIZADOS": "Configure o certificado de assinatura, as faixas de e-NCF autorizadas e baixe os relatórios 606/607.",
+      "CONTRASENA_CERTIFICADO": "Senha do certificado",
+      "DESACTIVAR": "Desativar",
+      "DESDE": "De",
+      "ESTADO": "Situação",
+      "FACTURACION_ELECTRONICA_RD_DGII": "Faturamento eletrônico (RD · DGII)",
+      "GENERA_FORMATOS_ENVIO_COMPRAS_606_VENTAS": "Gere os formatos de envio de compras (606) e vendas (607) para um período.",
+      "HASTA": "Até",
+      "MES": "Mês",
+      "NUMERO_FINAL_PUEDE_SER_MENOR_INICIAL": "O número final não pode ser menor que o inicial.",
+      "PREFIJO": "Prefixo",
+      "PUDIERON_CARGAR_CERTIFICADOS": "Não foi possível carregar os certificados.",
+      "PUDIERON_CARGAR_SECUENCIAS_NCF": "Não foi possível carregar as sequências NCF.",
+      "PUDO_DESACTIVAR_CERTIFICADO": "Não foi possível desativar o certificado.",
+      "RANGO_NCF_REGISTRADO": "Faixa de e-NCF registrada.",
+      "RANGOS_NCF_AUTORIZADOS": "Faixas de e-NCF autorizadas",
+      "REGISTRA_RANGOS_DGII_TE_AUTORIZO_SIN": "Registre as faixas autorizadas pela DGII. Sem uma faixa ativa do tipo correspondente o\n      comprovante não pode ser emitido.",
+      "REPORTE": "Relatório",
+      "REPORTES_DGII_606_607": "Relatórios DGII (606 / 607)",
+      "SELECCIONE_ARCHIVO_CERTIFICADO_P12_PFX": "Selecione o arquivo do certificado (.p12 / .pfx).",
+      "SUBE_TU_CERTIFICADO_P12_PFX_EMITIDO": "Envie seu certificado (.p12 / .pfx) emitido por uma entidade autorizada pela DGII. Ele é\n      criptografado em repouso e usado apenas para assinar e-CF.",
+      "TIPO": "Tipo",
+      "TITULAR": "Titular",
+      "VENCE": "Vence"
+    },
+    "LANGUAGE": {
+      "CHOOSE": "Elegir idioma",
+      "DESCRIPTION": "El idioma de la interfaz. Los documentos fiscales conservan el idioma que exige la ley del país de la empresa.",
+      "LABEL": "Idioma"
+    },
+    "LAYOUT": {
+      "APROBACIONES": "Aprovações",
+      "CIERRE_FISCAL": "Fechamento Fiscal",
+      "CONFIGURACION": "Configurações",
+      "CONTABILIDAD": "Contabilidade",
+      "ESTRUCTURA_EMPRESARIAL": "Estrutura Empresarial",
+      "FACTURACION_ELECTRONICA": "Faturamento Eletrônico",
+      "FACTURACION_PLAN": "Faturamento e Plano",
+      "FINANZAS": "Finanças",
+      "IMPUESTOS": "Impostos",
+      "INTEGRACIONES": "Integrações",
+      "INTERCOMPANY": "Intercompany",
+      "INVENTARIO": "Estoque",
+      "MI_CUENTA": "Minha Conta",
+      "MI_PERFIL": "Meu Perfil",
+      "MULTIMONEDA": "Multimoeda",
+      "OPERACIONES": "Operações",
+      "ORGANIZACION": "Organização",
+      "PERFIL_EMPRESA": "Perfil da Empresa",
+      "PERSONALIZACION": "Personalização",
+      "ROLES_PERMISOS": "Perfis e Permissões",
+      "SECUENCIAS": "Sequências",
+      "SEGURIDAD_AUDITORIA": "Segurança e Auditoria",
+      "SERVIDOR_CORREO": "Servidor de E-mail",
+      "SISTEMA": "Sistema",
+      "USUARIOS": "Usuários"
+    },
+    "MODAL": {
+      "APROBACIONES": "Aprovações",
+      "CARGANDO": "Carregando...",
+      "CERRAR_CONFIGURACION": "Fechar configurações",
+      "CIERRE_FISCAL": "Fechamento Fiscal",
+      "CONFIGURACION": "Configurações",
+      "CONTABILIDAD": "Contabilidade",
+      "ESTRUCTURA_EMPRESARIAL": "Estrutura Empresarial",
+      "FACTURACION_ELECTRONICA": "Faturamento Eletrônico",
+      "FACTURACION_PLAN": "Faturamento e Plano",
+      "FINANZAS": "Finanças",
+      "IMPUESTOS": "Impostos",
+      "INTEGRACIONES": "Integrações",
+      "INTERCOMPANY": "Intercompany",
+      "INVENTARIO": "Estoque",
+      "MI_CUENTA": "Minha Conta",
+      "MI_PERFIL": "Meu Perfil",
+      "MULTIMONEDA": "Multimoeda",
+      "OPERACIONES": "Operações",
+      "ORGANIZACION": "Organização",
+      "PERFIL_EMPRESA": "Perfil da Empresa",
+      "PERSONALIZACION": "Personalização",
+      "ROLES_PERMISOS": "Perfis e Permissões",
+      "SECUENCIAS": "Sequências",
+      "SEGURIDAD_AUDITORIA": "Segurança e Auditoria",
+      "SERVIDOR_CORREO": "Servidor de E-mail",
+      "SISTEMA": "Sistema",
+      "USUARIOS": "Usuários"
+    },
+    "MY_PROFILE": {
+      "AVATAR": "Avatar",
+      "ENGLISH": "English",
+      "ESPANOL": "Español",
+      "IDIOMA_PREFERIDO": "Idioma Preferido",
+      "JUAN": "João",
+      "NUEVO_CORREO_COM": "novo@email.com",
+      "PEREZ": "Silva"
+    },
+    "PROFILE": {
+      "AVATAR_UPDATED": "Imagem atualizada.",
+      "CHANGE_AVATAR": "Alterar foto",
+      "CHANGE_EMAIL": "Alterar e-mail",
+      "CONFIRM_PASSWORD": "Confirmar senha",
+      "CURRENT_PASSWORD": "Senha atual",
+      "EMAIL": "E-mail",
+      "EMAIL_CHANGE_HINT": "Enviaremos um link de confirmação para o novo e-mail. A alteração é aplicada quando você o abrir, e avisamos o endereço anterior.",
+      "EMAIL_CHANGE_REQUESTED": "Se os dados estiverem corretos, enviamos um link de confirmação para o novo e-mail.",
+      "ERRORS": {
+        "AVATAR_UPLOAD": "Não foi possível enviar a imagem.",
+        "EMAIL_CHANGE_FAILED": "Não foi possível iniciar a alteração de e-mail.",
+        "EMAIL_UNCHANGED": "Esse já é o seu e-mail atual.",
+        "FILE_TOO_LARGE": "O arquivo é grande demais (máximo 2 MB).",
+        "INVALID_EMAIL": "O formato do e-mail não é válido.",
+        "INVALID_FORMAT": "Formato de imagem inválido.",
+        "OTP_INVALID": "Código incorreto.",
+        "OTP_SEND": "Não foi possível enviar o código.",
+        "PASSWORD_CHANGE_FAILED": "Não foi possível alterar a senha.",
+        "PASSWORDS_DO_NOT_MATCH": "As senhas não coincidem.",
+        "UPDATE_FAILED": "Não foi possível atualizar o perfil."
+      },
+      "FIRST_NAME": "Nome",
+      "JOB_TITLE": "Cargo",
+      "LAST_NAME": "Sobrenome",
+      "NEW_PASSWORD": "Nova senha",
+      "OTP_SENT": "Código enviado.",
+      "PASSWORD_CHANGED": "Senha atualizada.",
+      "PERSONAL_INFO": "Informações pessoais",
+      "PHONE": "Telefone",
+      "PHONE_NUMBER": "Número de telefone",
+      "PHONE_VERIFICATION": {
+        "DESCRIPTION": "Para proteger sua conta, precisamos verificar seu número de telefone.",
+        "ENTER_CODE": "Digite o código",
+        "OTP_SENT_TO": "Código enviado para",
+        "RESEND": "Reenviar",
+        "SEND_CODE": "Enviar código",
+        "TITLE": "Verificação de telefone",
+        "VERIFY": "Verificar código",
+        "WRONG_NUMBER": "Número errado?"
+      },
+      "PHONE_VERIFIED": "Telefone verificado.",
+      "SAVE_CHANGES": "Salvar alterações",
+      "SECURITY": "Segurança",
+      "SELECT_JOB_TITLE": "Selecione um cargo",
+      "SEND_CONFIRMATION": "Enviar confirmação",
+      "UPDATE_PASSWORD": "Atualizar senha",
+      "UPDATED": "Perfil atualizado.",
+      "VERIFY": "Verificar"
+    },
+    "ROLES": {
+      "ACCIONES": "Ações",
+      "CANCELAR": "Cancelar",
+      "CLONAR_ROL": "Clonar Perfil",
+      "CREAR_ROL": "Criar Perfil",
+      "DESCRIPCION": "Descrição",
+      "EDITAR_ROL": "Editar Perfil",
+      "ELIMINAR_ROL": "Excluir Perfil",
+      "GUARDAR": "Salvar",
+      "NOMBRE_ROL": "Nome do Perfil",
+      "PERMISOS": "Permissões",
+      "ROL_ACTUALIZADO_EXITOSAMENTE": "Perfil atualizado com sucesso.",
+      "ROL_CLONADO_EXITOSAMENTE": "Perfil \"{{name}}\" clonado com sucesso.",
+      "ROL_CREADO_EXITOSAMENTE": "Perfil criado com sucesso.",
+      "ROL_ELIMINADO_EXITOSAMENTE": "Perfil excluído com sucesso.",
+      "ROLES_PERMISOS": "Perfis e Permissões",
+      "TIPO": "Tipo"
+    },
+    "SECURITY_SETTINGS": {
+      "CERRAR": "Fechar",
+      "REVOKE_SESSION": "Revogar sessão",
+      "SETTINGS_SECURITY_DISABLE_2FA_TITLE": "SETTINGS.SECURITY.DISABLE_2FA_TITLE"
+    },
+    "SECURITY": {
+      "2FA_ACTIVATED": "2FA ativado.",
+      "2FA_DEACTIVATED": "2FA desativado.",
+      "2FA_DESC": "Proteja sua conta com uma camada extra de segurança.",
+      "2FA_DESCRIPTION": "Adicione um segundo fator ao seu login. Pediremos um código além da sua senha.",
+      "2FA_DISABLED": "2FA foi desativado.",
+      "2FA_ENABLED": "2FA ativado.",
+      "2FA_TITLE": "Autenticação de dois fatores (2FA)",
+      "ACCOUNT_NOT_PROTECTED": "Sua conta não está protegida.",
+      "ACCOUNT_PROTECTED": "Sua conta está protegida.",
+      "ACTIVATE_2FA": "Ativar 2FA",
+      "ACTIVE_SESSIONS": "Sessões ativas",
+      "BACKUP_CODES": "Códigos de recuperação",
+      "BACKUP_CODES_DESC": "Use-os se perder o acesso ao seu dispositivo.",
+      "BACKUP_CODES_SUCCESS_DESC": "A verificação em duas etapas foi adicionada à sua conta.",
+      "BACKUP_CODES_TITLE": "Verificação em duas etapas ativada",
+      "BACKUP_CODES_WARNING": "Guarde seus códigos de backup em segurança",
+      "BEFORE_CONFIG_2FA": "Por motivos de segurança, precisamos confirmar que é você antes de configurar a verificação em duas etapas.",
+      "CANT_SCAN": "Não consegue escanear o código QR?",
+      "CHECK_EMAIL": "Verifique seu e-mail",
+      "CONFIRM_BACKUP_CODES": "Confirme que você salvou os códigos.",
+      "COPIED": "Copiado para a área de transferência",
+      "COPY_CODE": "Copiar código",
+      "CURRENT": "Atual",
+      "CURRENT_SESSION": "Este dispositivo",
+      "DEACTIVATE": "Desativar",
+      "DISABLE": "Desativar",
+      "DISABLE_2FA_MESSAGE": "Sua conta ficará menos segura. Tem certeza?",
+      "DISABLE_2FA_TITLE": "Desativar 2FA?",
+      "DISABLED": "Desativada",
+      "EMAIL_CODE_SENT": "Código de verificação enviado.",
+      "EMAIL_SENT_TO": "Enviamos um código de verificação para {{email}}",
+      "ENABLE": "Ativar",
+      "ENABLED": "Ativada",
+      "ENTER_6_DIGIT": "Digite o código de seis dígitos exibido no seu aplicativo autenticador.",
+      "ENTER_CODE": "Digite o código",
+      "ENTER_MANUALLY": "Ou digite esta chave manualmente",
+      "ENTER_SECRET": "Digite esta chave secreta:",
+      "ENTER_VERIFICATION_CODE": "Obter código de verificação",
+      "ERRORS": {
+        "DISABLE_2FA": "Não foi possível desativar o 2FA.",
+        "DISABLE_FAILED": "Não foi possível desativar a verificação em duas etapas.",
+        "GENERATE_CODES": "Não foi possível gerar os códigos.",
+        "INIT_2FA": "Não foi possível iniciar a configuração do 2FA.",
+        "INVALID_CODE": "Código incorreto.",
+        "LOAD_SESSIONS": "Não foi possível carregar as sessões.",
+        "REVOKE_FAILED": "Não foi possível encerrar essa sessão.",
+        "REVOKE_SESSION": "Não foi possível encerrar essa sessão.",
+        "SEND_FAILED": "Não foi possível enviar o código.",
+        "SETUP_FAILED": "Não foi possível iniciar a configuração. Tente novamente."
+      },
+      "GENERATE_NEW": "Gerar novos",
+      "I_HAVE_SAVED_CODES": "Salvei meus códigos de backup",
+      "LOGOUT_SESSION": "Encerrar sessão",
+      "NEW_CODES_GENERATED": "Novos códigos gerados.",
+      "OPEN_AUTH_APP": "(Abra seu aplicativo autenticador)",
+      "RESEND": "Reenviar código",
+      "SAVE_BACKUP_CODES": "Guarde estes códigos de recuperação em um lugar seguro. Cada um funciona uma única vez e são a única forma de entrar se você perder seu dispositivo.",
+      "SAVE_CODES_WARNING": "Guarde estes códigos em um lugar seguro.",
+      "SCAN_QR": "Escaneie o código QR",
+      "SESSION_REVOKED": "Sessão encerrada.",
+      "SESSIONS_DESC": "Gerencie os dispositivos onde você iniciou sessão.",
+      "SESSIONS_DESCRIPTION": "Dispositivos onde sua conta está conectada. Se você não reconhecer algum, encerre a sessão.",
+      "SESSIONS_TITLE": "Sessões ativas",
+      "SETUP_2FA": "Configurar 2FA",
+      "SETUP_2FA_DESC": "Escaneie o código com seu aplicativo autenticador e digite o código de seis dígitos exibido.",
+      "SETUP_2FA_TITLE": "Verificação em duas etapas",
+      "SETUP_AUTHENTICATOR": "Configurar aplicativo autenticador",
+      "SETUP_AUTHENTICATOR_DESC": "Escaneie o código QR ou digite a chave secreta manualmente.",
+      "TWO_STEP_VERIF": "Verificação em duas etapas",
+      "VERIFY_IDENTITY_DESC": "Verificação de identidade"
+    },
+    "SESSIONS": {
+      "ACTUALIZAR": "Atualizar",
+      "CARGANDO_SESIONES": "Carregando sessões…",
+      "NO_HAY_SESIONES_ACTIVAS_REGISTRADAS": "Não há sessões ativas registradas.",
+      "PUDIERON_CARGAR_SESIONES": "Não foi possível carregar as sessões.",
+      "PUDO_REVOCAR_SESION": "Não foi possível revogar a sessão.",
+      "REVISA_ADMINISTRA_DISPOSITIVOS_ACCESO_ACTIVO_TU": "Revise e gerencie os dispositivos com acesso ativo à sua conta.",
+      "REVOCAR_SESION": "Revogar sessão",
+      "SESION_ACTUAL": "Sessão atual",
+      "SESION_REVOCADA_CORRECTAMENTE": "Sessão revogada com sucesso.",
+      "SESIONES_ACTIVAS": "Sessões ativas"
+    },
+    "SSO": {
+      "ACME_COM": "acme.com",
+      "ACME_OKTA": "Acme Okta",
+      "AGREGAR_DOMINIO": "Adicionar domínio",
+      "ANADIR_PROVEEDOR": "Añadir proveedor",
+      "AUN_NO_HAS_AGREGADO_DOMINIOS": "Aún no has agregado dominios.",
+      "BLANCO_SIN_CAMBIOS": "(en blanco = sin cambios)",
+      "CANCELAR": "Cancelar",
+      "CLIENT_ID": "Client ID",
+      "CLIENT_SECRET": "Client Secret",
+      "CONECTA_PROVEEDOR_IDENTIDAD_TU_ORGANIZACION_OKTA": "Conecte o provedor de identidade da sua organização (Okta, Microsoft Entra, Google\n      Workspace, Ping, Auth0…). Os usuários de domínios verificados serão redirecionados\n      automaticamente ao seu SSO ao entrar.",
+      "CONFIGURA_TU_PROVEEDOR_OIDC_REQUIERE_MENOS": "Configura tu proveedor OIDC. Requiere al menos un dominio verificado para activarlo.",
+      "COPIAR": "copiar",
+      "DEBES_VERIFICAR_MENOS_DOMINIO_ANTES_PODER": "Debes verificar al menos un dominio antes de poder activar un proveedor.",
+      "DOMINIO": "Domínio",
+      "DOMINIOS_VERIFICADOS": "Domínios Verificados",
+      "EDITAR": "Editar",
+      "ELIMINAR": "Eliminar",
+      "ESTADO": "Situação",
+      "GUARDAR": "Salvar",
+      "HOST": "Host:",
+      "HTTPS_ACME_OKTA_COM_OAUTH2_DEFAULT": "https://acme.okta.com/oauth2/default",
+      "INICIO_SESION_UNICO_SSO": "Login Único (SSO)",
+      "ISSUER": "Issuer",
+      "ISSUER_URL_DISCOVERY": "Issuer URL (discovery)",
+      "NO_HAY_PROVEEDORES_CONFIGURADOS": "No hay proveedores configurados.",
+      "NOMBRE": "Nome",
+      "OPENID_EMAIL_PROFILE": "openid email profile",
+      "PROVEEDORES_IDENTIDAD_OIDC": "Proveedores de Identidad (OIDC)",
+      "REDIRECT_URI": "Redirect URI",
+      "REGISTRO_DNS_TXT": "Registro DNS (TXT)",
+      "ROL_DEFECTO": "Rol por defecto",
+      "SCOPES": "Scopes",
+      "SOLO_USUARIOS_DOMINIO_VERIFICADO_SERAN_ENRUTADOS": "Apenas usuários de um domínio verificado são encaminhados ao seu SSO.",
+      "TIPO": "Tipo:",
+      "UUID_OPCIONAL": "(UUID, opcional)",
+      "VALOR": "Valor:",
+      "VERIFICAR": "Verificar"
+    },
+    "SUBSIDIARIES": {
+      "CANCELAR": "Cancelar",
+      "CARGANDO_SUBSIDIARIAS": "Carregando subsidiárias...",
+      "COMIENZA_AGREGANDO_NUEVA_SUBSIDIARIA_SUCURSAL_EXPANDIR": "Comece adicionando uma subsidiária ou filial para expandir sua estrutura.",
+      "CREAR_PRIMERA_SUBSIDIARIA": "Criar a primeira subsidiária",
+      "EJ_REPUBLICA_DOMINICANA": "Ex.: República Dominicana",
+      "EJ_VIRTEEX_LATAM": "Ex.: Virteex Latam Ltda.",
+      "ESTRUCTURA_EMPRESARIAL": "Estrutura Empresarial",
+      "GESTIONA_SUBSIDIARIAS_SUCURSALES_TU_ORGANIZACION": "Gerencie as subsidiárias e filiais da sua organização.",
+      "ID_FISCAL": "Identificação fiscal:",
+      "ID_FISCAL_RNC_TAX_ID": "Identificação fiscal (CNPJ / Tax ID)",
+      "NO_HAY_SUBSIDIARIAS_REGISTRADAS": "Não há subsidiárias registradas",
+      "NOMBRE_LEGAL": "Razão Social",
+      "NUEVA_SUBSIDIARIA": "Nova Subsidiária",
+      "OWNERSHIP_PROPIEDAD": "{{ownership}}% de participação",
+      "PAIS": "País:",
+      "PAIS_2": "País",
+      "PORCENTAJE_PROPIEDAD": "Percentual de Participação (%)"
+    },
+    "TITLE": "Configurações",
+    "USER_MANAGEMENT": {
+      "ADMINISTRACION": "Administração",
+      "APELLIDO": "Sobrenome",
+      "BLOQUEAR_CERRAR_SESION": "Bloquear e Encerrar Sessão",
+      "CANCELAR": "Cancelar",
+      "CORREO_ELECTRONICO": "E-mail",
+      "EDITAR_USUARIO": "Editar Usuário",
+      "ELIMINAR_CUENTA": "Excluir Conta",
+      "ELIMINAR_PERMANENTEMENTE": "Excluir Permanentemente",
+      "ELIMINAR_USUARIO": "Excluir Usuário",
+      "ESTA_ACCION_NO_PUEDE_DESHACER": "Esta ação não pode ser desfeita.",
+      "ESTA_SEGURO_DESEA_ELIMINAR_PERMANENTEMENTE_USUARIO": "Tem certeza de que deseja excluir permanentemente o usuário",
+      "FORZAR_CIERRE_SESION": "Forçar Encerramento de Sessão",
+      "GESTION_USUARIOS": "Gestão de Usuários",
+      "INVITAR_USUARIO": "Convidar Usuário",
+      "MENSAJE_INVITACION_OPCIONAL": "Mensagem do convite (opcional)",
+      "MENSAJE_PERSONALIZADO_USUARIO": "Mensagem personalizada para o usuário...",
+      "MOSTRANDO": "Exibindo",
+      "NO_ENCONTRARON_USUARIOS": "Nenhum usuário encontrado.",
+      "NOMBRE": "Nome",
+      "PUDIERON_CARGAR_USUARIOS": "Não foi possível carregar os usuários.",
+      "RESETEAR_CONTRASENA": "Redefinir Senha",
+      "ROL": "Perfil",
+      "SELECCIONAR_ROL": "Selecionar perfil",
+      "SESION_USUARIO_HA_SIDO_CERRADA": "A sessão do usuário foi encerrada.",
+      "SUPLANTAR_USUARIO": "Personificar Usuário",
+      "TIMES": "&times;",
+      "USUARIO_ACTUALIZADO_EXITO": "Usuário atualizado com sucesso.",
+      "USUARIO_ELIMINADO_EXITO": "Usuário excluído com sucesso.",
+      "USUARIO_EMPRESA_COM": "usuario@empresa.com",
+      "USUARIO_HA_SIDO_BLOQUEADO_SESION_CERRADA": "O usuário foi bloqueado e sua sessão encerrada.",
+      "USUARIO_INVITADO_EXITO": "Usuário convidado com sucesso.",
+      "USUARIOS": "Usuários",
+      "USUARIOS_2": "usuários"
+    }
+  },
+  "SHARED": {
+    "AUDIT_TRAIL": {
+      "AUDIT_TRAIL_WORKS": "audit-trail works!"
+    },
+    "GEO_MISMATCH_MODAL": {
+      "HEMOS_DETECTADO_ESTAS": "Hemos detectado que estás en",
+      "PERO_ESTAS_INTENTANDO_ACCEDER_VERSION": ",\n        pero estás intentando acceder a la versión de",
+      "RECOMENDAMOS_CAMBIAR_TU_REGION_LOCAL_ASEGURAR": "Recomendamos cambiar a tu región local para asegurar la configuración fiscal correcta.",
+      "UBICACION_DETECTADA": "Ubicación Detectada"
+    },
+    "IMPACT_ANALYSIS_MODAL": {
+      "IMPACT_ANALYSIS_MODAL_WORKS": "impact-analysis-modal works!"
+    },
+    "LIVE_PREVIEW": {
+      "ACEPTAR": "Aceptar",
+      "CAMPO_EJEMPLO": "Campo de ejemplo",
+      "CANCELAR": "Cancelar",
+      "DASHBOARD": "Dashboard",
+      "EJEMPLO_TARJETA": "Ejemplo de Tarjeta",
+      "ESCRIBE_AQUI": "Escribe aquí...",
+      "ESTE_ES_TEXTO_EJEMPLO_VER_TIPOGRAFIA": "Este es un texto de ejemplo para ver la tipografía.",
+      "TU_LOGO": "Tu Logo"
+    },
+    "MODAL": {
+      "CLOSE": "Close"
+    },
+    "OTP": {
+      "CODIGO_OTP": "Código OTP",
+      "LIMPIAR": "Limpiar",
+      "NUNCA_COMPARTA_ESTE_CODIGO_NUESTRO_EQUIPO": "Nunca comparta este código. Nuestro equipo jamás se lo pedirá.",
+      "OPT_DIGITOS": "{{opt}} dígitos",
+      "REENVIAR_CODIGO": "Reenviar código",
+      "REENVIAR_COOLDOWN": "Reenviar ({{cooldown}}s)",
+      "VERIFICAR": "Verificar"
+    },
+    "PASSWORD_CONFIRM_MODAL": {
+      "AUTH_STEP_UP_REMAINING_ATTEMPTS_TRANSLATE": "{{ 'AUTH.STEP_UP.REMAINING_ATTEMPTS' | translate:{ count: remainingAttempts } }}",
+      "IDPNAME_AUTH_STEP_UP_DESCRIPTION_SSO": "{{ (idpName\n                  ? ('AUTH.STEP_UP.DESCRIPTION_SSO_NAMED' | translate:{ provider: idpName })\n                  : ('AUTH.STEP_UP.DESCRIPTION_SSO' | translate)) }}"
+    },
+    "THEME_TOGGLE": {
+      "APARIENCIA": "Apariencia"
+    },
+    "TOAST": {
+      "CLOSE": "Close"
+    }
+  },
+  "sidebar": {
+    "configuration": {
+      "accounting_accounts": "Cuentas contables",
+      "alerts": "Alertas",
+      "digital_signatures": "Firmas digitales",
+      "email_templates": "Plantillas de email",
+      "integrations": "Integrações",
+      "permissions": "Permissões",
+      "security": "Segurança",
+      "system": "Sistema"
+    },
+    "data": {
+      "catalog": "Catálogo de datos",
+      "lineage": "Linaje de datos",
+      "masking_sandbox": "Máscara sandbox"
+    },
+    "esg": {
+      "audit": "Auditoría",
+      "data": "Datos",
+      "reports": "Reportes"
+    },
+    "expenses": {
+      "approvals": "Aprovações",
+      "cards": "Tarjetas",
+      "reports": "Reportes de gastos"
+    },
+    "finance": {
+      "ap": "Cuentas por Pagar",
+      "ap_sub": {
+        "advances": "Anticipos",
+        "approvals": "Aprovações",
+        "credit_notes": "Notas de crédito",
+        "dashboard": "Tablero",
+        "dynamic_discounting": "Descuento dinámico",
+        "invoices": "Facturas",
+        "ocr": "OCR",
+        "payments": "Pagos",
+        "scf_confirming": "Confirming (SCF)",
+        "suppliers": "Proveedores",
+        "withholdings": "Retenciones"
+      },
+      "ar": "Cuentas por Cobrar",
+      "ar_sub": {
+        "cash_application": "Aplicación de cobros",
+        "chargebacks": "Contracargos",
+        "credit_notes": "Notas de crédito",
+        "dashboard": "Tablero",
+        "debit_notes": "Notas de débito",
+        "disputes": "Disputas",
+        "dunning": "Cobranza (dunning)",
+        "factoring": "Factoring",
+        "invoices": "Facturas",
+        "online_payments": "Pagos en línea",
+        "payment_plans": "Planes de pago",
+        "psp": "Proveedores de pago (PSP)",
+        "psp_reconciliation": "Conciliación PSP",
+        "receipts": "Recibos",
+        "settings": "Configurações",
+        "statements": "Estados de cuenta"
+      },
+      "fa_sub": {
+        "afe": "AFE",
+        "ap_integration": "Integración con Compras",
+        "cip": "CIP",
+        "components": "Componentes",
+        "depreciation": "Depreciación",
+        "detail": "Detalle",
+        "disposals": "Bajas",
+        "leases": "Arrendamientos",
+        "list": "Listado",
+        "maintenance_orders": "Órdenes de mantenimiento",
+        "maintenance_plans": "Planes de mantenimiento",
+        "new": "Nuevo",
+        "revaluations": "Revaluaciones"
+      },
+      "fixed_assets": "Activos Fijos",
+      "gl": "Contabilidad General",
+      "gl_sub": {
+        "allocations": "Prorrateos",
+        "audit": "Auditoría",
+        "book_gl": "Libro: Mayor",
+        "book_journal": "Libro: Diario",
+        "book_subledgers": "Libro: Auxiliares",
+        "closing": "Cierre",
+        "closing_annual": "Cierre — Anual",
+        "closing_checklist": "Cierre — Checklist",
+        "closing_monthly": "Cierre — Mensual",
+        "closing_tasks": "Cierre — Tareas",
+        "coa": "Plan de cuentas",
+        "cons_cta": "Consolidación — CTA",
+        "cons_eliminations": "Consolidación — Eliminaciones",
+        "cons_hyperinflation": "Consolidación — Hiperinflación",
+        "cons_ownership": "Consolidación — Participaciones",
+        "cons_ownership_changes": "Consolidación — Cambios de participación",
+        "cons_structure": "Consolidación — Estructura",
+        "ic_billing": "Intercompany — Facturación",
+        "ic_netting": "Intercompany — Netting",
+        "ic_reconciliation": "Intercompany — Conciliación",
+        "ic_transactions": "Intercompany — Transacciones",
+        "journal": "Asientos",
+        "monetary_revaluation": "Revaluación monetaria",
+        "multi_gaap": "Multi‑GAAP",
+        "multi_ledger": "Multilibros",
+        "periods": "Periodos contables",
+        "periods_subledger": "Periodos de subledger",
+        "reconciliation": "Conciliación",
+        "reconciliation_accounts": "Conciliaciones de cuentas",
+        "reconciliation_subledger_gl": "Conciliación — Subledger↔GL",
+        "revaluation_subledger": "Revaluación de subledger",
+        "rules_engine": "Motor de reglas",
+        "simulator": "Simulador",
+        "variance_analysis": "Análisis de variaciones"
+      },
+      "treasury": "Tesorería y Bancos",
+      "treasury_sub": {
+        "accounts": "Cuentas bancarias",
+        "bank_files": "Archivos bancarios",
+        "bank_validations": "Validaciones bancarias",
+        "cash_flow": "Flujo de efectivo",
+        "cash_flow_actual": "Flujo de efectivo — Real",
+        "cash_flow_forecast": "Flujo de efectivo — Proyectado",
+        "cash_pooling": "Cash pooling",
+        "checkbooks": "Chequeras",
+        "dashboard": "Tablero",
+        "debt": "Deuda",
+        "derivatives": "Derivados",
+        "exchange_rates": "Tipos de cambio",
+        "exposures": "Exposiciones",
+        "file_adapters": "Adaptadores de archivos",
+        "forecasting": "Pronóstico",
+        "fx_hedging": "Coberturas FX",
+        "guarantees": "Garantías",
+        "hedge_accounting": "Contabilidad de coberturas",
+        "in_house_bank": "Banco in‑house",
+        "investments": "Inversiones",
+        "mandates": "Mandatos",
+        "mass_payments": "Pagos masivos",
+        "payments": "Pagos",
+        "positive_pay": "Positive Pay",
+        "reconciliation": "Conciliación",
+        "reconciliation_auto": "Conciliación — Automática",
+        "reconciliation_manual": "Conciliación — Manual",
+        "scheduled_payments": "Pagos programados"
+      }
+    },
+    "general": {
+      "approvals": "Aprovações",
+      "dashboard": "Tablero",
+      "documents": "Documentos",
+      "documents_sub": {
+        "all": "Todos los documentos",
+        "templates": "Plantillas"
+      },
+      "etl": "ETL",
+      "etl_sub": {
+        "export": "Exportaciones",
+        "import": "Importaciones"
+      },
+      "my_work": "Mi trabajo",
+      "notifications": "Notificaciones",
+      "overview": "Inicio",
+      "search": "Búsqueda global"
+    },
+    "grc": {
+      "certifications": "Certificaciones",
+      "controls": "Controles",
+      "risks": "Riesgos"
+    },
+    "groups": {
+      "configuration": "Configurações",
+      "data": "Gobierno de Datos",
+      "esg": "ESG",
+      "expenses": "Gastos y Tarjetas",
+      "finance": "Finanças",
+      "general": "Global",
+      "grc": "GRC",
+      "hr": "RR.HH. y Nómina",
+      "intelligence": "Inteligencia y Planificación",
+      "logistics": "Logística",
+      "master_data": "Maestros",
+      "mobile": "Móvil / PWA",
+      "operations": "Operações",
+      "organization": "Organização",
+      "platform": "Plataforma e Integraciones",
+      "portals": "Portales",
+      "psa": "Proyectos y Costeo",
+      "reports": "Reportes",
+      "revenue": "Reconocimiento de Ingresos",
+      "security": "Usuarios y Seguridad",
+      "support": "Soporte y Ayuda",
+      "tax": "Impuestos y Cumplimiento"
+    },
+    "hr": {
+      "absences": "Ausencias",
+      "dashboard": "Tablero de nómina",
+      "employees": "Empleados",
+      "incidents": "Incidencias",
+      "loans": "Préstamos",
+      "process": "Procesar nómina",
+      "reports": "Reportes",
+      "self_service": "Autoservicio",
+      "severance": "Finiquitos"
+    },
+    "intelligence": {
+      "analytics": "Inteligencia y Planificación",
+      "sub": {
+        "budget_execution": "Ejecución de presupuesto",
+        "budget_models": "Modelos de presupuesto",
+        "dashboard": "Tablero",
+        "kpis": "KPIs",
+        "process_mining": "Process mining",
+        "rolling_forecast": "Forecast continuo",
+        "semantic": "Capa semántica",
+        "what_if": "What‑if"
+      }
+    },
+    "logistics": {
+      "3pl": "3PL",
+      "tms": "Gestión de Transporte (TMS)"
+    },
+    "master_data": {
+      "banks": "Bancos",
+      "branches": "Sucursales",
+      "currencies": "Monedas",
+      "customers": "Clientes",
+      "data_governance": "Gobernanza de datos",
+      "data_quality": "Calidad de datos",
+      "dimensions": "Dimensiones",
+      "duplicates": "Duplicados",
+      "payment_methods": "Formas de pago",
+      "payment_terms": "Condiciones de pago",
+      "price_lists": "Listas de precios",
+      "products": "Productos",
+      "suppliers": "Proveedores",
+      "taxes": "Impostos",
+      "uom": "Unidades de medida",
+      "warehouses": "Almacenes"
+    },
+    "mobile": {
+      "approvals": "Aprovações",
+      "expenses": "Gastos"
+    },
+    "operations": {
+      "deliveries": "Remisiones / Entregas",
+      "deliveries_sub": {
+        "detail": "Detalle del conduce",
+        "list": "Conduces",
+        "new": "Nuevo conduce"
+      },
+      "inventory": "Inventario y WMS Ligero",
+      "inventory_sub": {
+        "adjustments": "Ajustes",
+        "costs_close": "Costeo — Cierre",
+        "costs_landed": "Costos — Landed",
+        "costs_methods": "Costeo — Métodos",
+        "costs_revaluations": "Costeo — Revaluaciones",
+        "cycle_counts": "Conteos cíclicos",
+        "dashboard": "Tablero",
+        "kits_bom": "Kits y BOM",
+        "locations": "Ubicaciones",
+        "lots_serials": "Lotes y series",
+        "mobile_warehouse": "Móvil — Almacén",
+        "movements": "Movimientos",
+        "picking_packing": "Picking y packing",
+        "planning": "Planeación",
+        "quality": "Calidad",
+        "quarantines": "Cuarentenas",
+        "reservations": "Reservas",
+        "shipments": "Envíos",
+        "stock": "Stock",
+        "transfers": "Transferencias"
+      },
+      "manufacturing": "Manufactura",
+      "manufacturing_sub": {
+        "costing": "Costeo",
+        "master_data": "Maestros",
+        "mrp": "MRP",
+        "orders": "Órdenes de producción",
+        "shop_floor": "Shop floor",
+        "wip": "WIP"
+      },
+      "purchasing": "Compras",
+      "purchasing_sub": {
+        "analytics": "Análisis",
+        "approvals": "Aprovações",
+        "catalogs": "Catálogos",
+        "contracts": "Contratos",
+        "invoice_matching": "Conciliación de facturas",
+        "match_3way": "3‑Way Match",
+        "match_4way": "4‑Way Match",
+        "matching": "Conciliación",
+        "orders": "Órdenes de compra",
+        "receipts": "Recepciones",
+        "requisitions": "Requisiciones",
+        "returns": "Devoluciones",
+        "rfq": "RFQ",
+        "supplier_onboarding": "Onboarding de proveedores",
+        "supplier_performance": "Desempeño de proveedores"
+      },
+      "sales": "Ventas y Facturación",
+      "sales_sub": {
+        "commissions": "Comisiones",
+        "contracts": "Contratos",
+        "cpq": "CPQ",
+        "credit_notes": "Notas de crédito",
+        "invoices_list": "Facturas — Listado",
+        "invoices_new": "Facturas — Nueva",
+        "orders": "Órdenes de venta",
+        "pricing_lists": "Listas de precios",
+        "quotes": "Cotizaciones",
+        "returns": "Devoluciones",
+        "subscriptions": "Suscripciones",
+        "subscriptions_rating": "Suscripciones — Rating",
+        "subscriptions_usage": "Suscripciones — Uso"
+      }
+    },
+    "organization": {
+      "companies": "Compañías"
+    },
+    "platform": {
+      "api": "API",
+      "api_sub": {
+        "audit": "Auditoría de API",
+        "credentials": "Credenciales",
+        "rate_limits": "Límites de tasa",
+        "webhooks": "Webhooks"
+      },
+      "automation": "Automatización",
+      "automation_sub": {
+        "ocr": "OCR",
+        "workflows": "Workflows"
+      },
+      "data_warehouse": "Data warehouse",
+      "integrations": "Integraciones (Configuración)",
+      "integrations_area": "Integrações",
+      "integrations_sub": {
+        "edi": "EDI",
+        "monitoring": "Monitoreo",
+        "reprocessing": "Reprocesos"
+      },
+      "marketplace_connectors": "Marketplace — Conectores",
+      "operations": "Operações",
+      "operations_sub": {
+        "apm": "APM",
+        "archive": "Archivado",
+        "capacity": "Planeación de capacidad",
+        "environments": "Ambientes",
+        "feature_flags": "Feature flags",
+        "jobs": "Jobs",
+        "logs": "Logs",
+        "transports": "Transportes"
+      }
+    },
+    "portals": {
+      "customers": "Portal de clientes",
+      "employees": "Portal de empleados",
+      "suppliers": "Portal de proveedores"
+    },
+    "psa": {
+      "cost_allocation": "Asignación de costos",
+      "cost_centers": "Centros de costo",
+      "projects": "Proyectos",
+      "projects_sub": {
+        "billing": "Facturación",
+        "budgeting": "Presupuesto",
+        "capitalization": "Capitalización",
+        "list": "Proyectos",
+        "milestones_wip": "Hitos y WIP",
+        "resources": "Recursos",
+        "timesheets": "Timesheets",
+        "wbs": "WBS"
+      }
+    },
+    "reports": {
+      "bi": "Inteligencia de Negocio",
+      "bi_sub": {
+        "dashboards": "Tableros",
+        "kpis": "KPIs"
+      },
+      "reporting": "Reportes Financieros",
+      "reporting_sub": {
+        "ap_aging": "Cartera AP",
+        "ar_aging": "Cartera AR",
+        "assets": "Activos",
+        "audit": "Auditoría",
+        "closing": "Cierre",
+        "comparatives": "Comparativos",
+        "consolidated": "Consolidados",
+        "costs_analytics": "Analítica de costos",
+        "datasheets": "DataSheets",
+        "financial": "Financieros",
+        "financial_statements": "Estados financieros",
+        "inventory": "Estoque",
+        "profitability": "Rentabilidad",
+        "sales": "Ventas",
+        "tax": "Reportes fiscales",
+        "treasury": "Tesorería",
+        "xbrl": "XBRL"
+      }
+    },
+    "revenue": {
+      "contracts": "Contratos",
+      "deferrals": "Diferidos",
+      "performance_obligations": "Obligaciones de desempeño",
+      "reports": "Reportes",
+      "schedules": "Programaciones"
+    },
+    "security": {
+      "audit": "Auditoría",
+      "dsar": "DSAR",
+      "policies": "Políticas",
+      "sod": "Segregación de funciones",
+      "sso_mfa": "SSO y MFA",
+      "third_party_screening": "Screening de terceros",
+      "user_permissions": "Permisos de usuario",
+      "users": "Usuários"
+    },
+    "support": {
+      "help": "Ayuda",
+      "status": "Estado del servicio",
+      "support": "Soporte"
+    },
+    "tax": {
+      "sub": {
+        "calendar": "Calendario",
+        "cbcr": "CBCR",
+        "certificates": "Certificados",
+        "deferred": "Impuestos diferidos",
+        "determination_engine": "Motor de determinación",
+        "e_invoicing": "Facturación electrónica",
+        "e_invoicing_country": "Facturación electrónica por país",
+        "filings": "Declaraciones",
+        "localizations": "Localizaciones",
+        "localizations_country": "Localización — País",
+        "reconciliation": "Conciliación",
+        "saft": "SAF‑T",
+        "summary": "Resumen",
+        "transfer_pricing": "Precios de transferencia",
+        "withholdings": "Retenciones"
+      },
+      "tax": "Impuestos y Cumplimiento"
+    }
+  },
+  "TOOLS": {
+    "DATA_EXPORTS": "Exportaciones de Datos",
+    "DATA_IMPORTS": "Importaciones de Datos"
+  },
+  "UNAUTHORIZED": {
+    "403_FORBIDDEN": "403 Forbidden",
+    "ACCESO_DENEGADO": "Acceso Denegado",
+    "CONSULTA_NUESTRA_GUIA_PERMISOS": "Consulta nuestra guía de permisos",
+    "ERROR": "Error:",
+    "NO_SABES_PERMISOS_NECESITAS": "¿No sabes qué permisos necesitas?",
+    "NO_TIENES_PERMISOS_NECESARIOS_ACCEDER_ESTE": "No tienes los permisos necesarios para acceder a este recurso.",
+    "RUTA_SOLICITADA": "Ruta solicitada:",
+    "SI_CREES_ESTO_ES_ERROR_CONTACTA": "Si crees que esto es un error, contacta al administrador del sistema o solicita los permisos necesarios.",
+    "SOLICITAR_PERMISO": "Solicitar Permiso",
+    "VOLVER_DASHBOARD": "Volver al Dashboard"
+  },
+  "USER": {
+    "MY_PROFILE": "Meu Perfil",
+    "ROLE": {
+      "ACCOUNTANT": "Contador",
+      "ADMINISTRATOR": "Administrador",
+      "MEMBER": "Miembro",
+      "NO_ROLE": "Sin Rol Asignado",
+      "SELLER": "Vendedor"
+    },
+    "STATUS": {
+      "ACTIVE": "Activo",
+      "ARCHIVED": "Archivado",
+      "BLOCKED": "Bloqueado",
+      "INACTIVE": "Inactivo",
+      "PENDING": "Pendiente"
+    }
+  },
+  "USERS": {
+    "DEPARTMENTS": {
+      "ALL": "Todos",
+      "FINANCE": "Finanças",
+      "HR": "Recursos Humanos",
+      "IT": "TI",
+      "SALES": "Ventas"
+    },
+    "FILTERS": {
+      "ADVANCED": "Filtros Avanzados",
+      "DEPARTMENT": "Departamento",
+      "ROLE": "Perfil"
+    },
+    "NO_DEPARTMENT": "Sin departamento",
+    "PAGINATION": {
+      "OF": "de",
+      "SHOWING": "Exibindo",
+      "USERS": "usuários"
+    },
+    "ROLES": {
+      "ALL": "Todos",
+      "MANAGER": "Gerente",
+      "STANDARD_USER": "Usuario Estándar"
+    },
+    "SEARCH_PLACEHOLDER": "Buscar usuarios...",
+    "TABLE": {
+      "ACTIONS": "Ações",
+      "DEPARTMENT": "Departamento",
+      "EMAIL": "Email",
+      "NAME": "Nome",
+      "ROLE": "Perfil",
+      "STATUS": "Situação"
+    },
+    "VIEWS": {
+      "ALL": "Todos"
+    }
+  },
+  "WIDGETS": {
+    "ERRORS": {
+      "UNABLE_TO_LOAD": "No se pudieron cargar los datos."
+    },
+    "LOADING": "Cargando…"
+  }
+}

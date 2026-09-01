@@ -5,22 +5,22 @@ import { LanguageCode, SUPPORTED_LANGUAGES } from '@virteex/shared/types';
 export class UpdateProfileDto {
   @IsOptional()
   @IsString()
-  @MaxLength(100)
+  @MaxLength(100, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":100}' })
   firstName?: string;
 
   @IsOptional()
   @IsString()
-  @MaxLength(100)
+  @MaxLength(100, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":100}' })
   lastName?: string;
 
   @IsOptional()
   @IsString()
-  @IsE164PhoneNumber({ message: 'Phone number must be in E.164 format (e.g. +18095551234)' })
+  @IsE164PhoneNumber({ message: 'VALIDATION.UPDATE_PROFILE.PHONE_NUMBER_MUST_BE_IN_E_164_FORMAT' })
   phone?: string;
 
   @IsOptional()
   @IsString()
-  @MaxLength(150)
+  @MaxLength(150, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":150}' })
   jobTitle?: string;
 
   // H-01 FIX: Email cannot be changed through the generic profile update.
@@ -49,7 +49,7 @@ export class UpdateProfileDto {
   preferredLanguage?: LanguageCode;
 
   @IsOptional()
-  @IsUrl({ protocols: ['https'], require_protocol: true }, { message: 'avatarUrl must be a valid HTTPS URL' })
-  @MaxLength(2048)
+  @IsUrl({ protocols: ['https'], require_protocol: true }, { message: 'VALIDATION.UPDATE_PROFILE.AVATARURL_MUST_BE_VALID_HTTPS_URL' })
+  @MaxLength(2048, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":2048}' })
   avatarUrl?: string;
 }

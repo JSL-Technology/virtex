@@ -445,6 +445,11 @@
       "ACME_OKTA": "Acme Okta",
       "HTTPS_ACME_OKTA_COM_OAUTH2_DEFAULT": "https://acme.okta.com/oauth2/default",
       "OPENID_EMAIL_PROFILE": "openid email profile"
+    },
+    "LANGUAGE": {
+      "LABEL": "Idioma",
+      "DESCRIPTION": "El idioma de la interfaz. Los documentos fiscales conservan el idioma que exige la ley del país de la empresa.",
+      "CHOOSE": "Elegir idioma"
     }
   },
   "SECTIONS": {
@@ -543,60 +548,79 @@
       "NO_ENCONTRARON_MOVIMIENTOS_ESTA_CUENTA_PERIODO": "No se encontraron movimientos para esta cuenta en el período seleccionado."
     },
     "JOURNAL_ENTRIES": {
-      "JOURNAL_ENTRIES": "Journal Entries",
-      "FILTERS": "Filters",
-      "DATE": "Date",
-      "ENTRY": "Entry #",
-      "DESCRIPTION": "Description",
-      "DEBIT": "Debit",
-      "CREDIT": "Credit",
-      "STATUS": "Status",
-      "NO_JOURNAL_ENTRIES_FOUND": "No journal entries found."
+      "JOURNAL_ENTRIES": "Asientos Contables",
+      "FILTERS": "Filtros",
+      "DATE": "Fecha",
+      "ENTRY": "N.º de Asiento",
+      "DESCRIPTION": "Descripción",
+      "DEBIT": "Débito",
+      "CREDIT": "Crédito",
+      "STATUS": "Estado",
+      "STATUS_POSTED": "Contabilizado",
+      "STATUS_DRAFT": "Borrador",
+      "STATUS_VOID": "Anulado",
+      "LOADING": "Cargando los asientos contables…",
+      "LOAD_FAILED": "No se pudieron cargar los asientos contables.",
+      "NO_JOURNAL_ENTRIES_FOUND": "No se encontraron asientos contables.",
+      "ROW_ACTIONS": "Más acciones",
+      "STATUS_PENDING_APPROVAL": "Pendiente de aprobación",
+      "STATUS_MODIFIED": "Modificado",
+      "STATUS_REJECTED": "Rechazado",
+      "NEW_ENTRY": "Nuevo Asiento"
     },
-    "GENERAL_JOURNAL": "Libro Diario",
     "SUBSIDIARY_LEDGERS": {
-      "SUBSIDIARY_LEDGERS": "Subsidiary Ledgers",
-      "JUL_2025": "Jul 2025",
-      "FILTERS": "Filters",
-      "EXPORT": "Export",
-      "CONTROL_ACCOUNT": "Control Account",
-      "2100_ACCOUNTS_PAYABLE": "2100 - Accounts Payable",
-      "AUXILIARY_THIRD_PARTY": "Auxiliary (Third-Party)",
-      "CLIENTE_EJEMPLO": "Cliente Ejemplo S.R.L.",
-      "AUXILIARY": "Auxiliary:",
-      "INITIAL_BALANCE": "Initial Balance",
-      "FINAL_BALANCE": "Final Balance",
-      "DATE": "Date",
-      "REFERENCE": "Reference #",
-      "DESCRIPTION": "Description",
-      "DEBIT": "Debit",
-      "CREDIT": "Credit",
-      "BALANCE": "Balance",
-      "NO_MOVEMENTS_FOUND_FOR_THIS_AUXILIARY": "No movements found for this auxiliary in the selected period."
+      "SUBSIDIARY_LEDGERS": "Libros Auxiliares",
+      "PERIOD": "Período",
+      "FILTERS": "Filtros",
+      "EXPORT": "Exportar",
+      "CONTROL_ACCOUNT": "Cuenta de Control",
+      "AUXILIARY_THIRD_PARTY": "Auxiliar (Tercero)",
+      "AUXILIARY": "Auxiliar:",
+      "INITIAL_BALANCE": "Saldo Inicial",
+      "FINAL_BALANCE": "Saldo Final",
+      "DATE": "Fecha",
+      "REFERENCE": "N.º de Referencia",
+      "DESCRIPTION": "Descripción",
+      "DEBIT": "Débito",
+      "CREDIT": "Crédito",
+      "BALANCE": "Saldo",
+      "SELECT_ACCOUNT": "Selecciona una cuenta de control",
+      "SELECT_AUXILIARY": "Selecciona un auxiliar",
+      "OPENING_BALANCE": "Saldo de apertura",
+      "LOADING": "Cargando el libro auxiliar…",
+      "LOAD_FAILED": "No se pudo cargar el libro auxiliar.",
+      "NO_MOVEMENTS_FOUND_FOR_THIS_AUXILIARY": "No se encontraron movimientos para este auxiliar en el período seleccionado."
     },
     "VARIANCE_ANALYSIS": {
-      "VARIANCE_ANALYSIS_ACTUAL_VS_BUDGET": "Variance Analysis (Actual vs. Budget)",
-      "PERIOD_JULY_2025": "Period: July 2025",
-      "EXPORT": "Export",
-      "ACCOUNT": "Account",
-      "ACTUAL": "Actual",
-      "BUDGET": "Budget",
-      "VARIANCE": "Variance ($)",
-      "VARIANCE_2": "Variance (%)",
-      "NO_DATA_AVAILABLE_FOR_VARIANCE_ANALYSIS": "No data available for variance analysis."
+      "VARIANCE_ANALYSIS_ACTUAL_VS_BUDGET": "Análisis de Variaciones (Real vs. Presupuesto)",
+      "PERIOD": "Período",
+      "EXPORT": "Exportar",
+      "ACCOUNT": "Cuenta",
+      "ACTUAL": "Real",
+      "BUDGET": "Presupuesto",
+      "VARIANCE_AMOUNT": "Variación",
+      "VARIANCE_PERCENT": "Variación (%)",
+      "LOADING": "Cargando el análisis de variaciones…",
+      "LOAD_FAILED": "No se pudo cargar el análisis de variaciones.",
+      "NO_DATA_AVAILABLE_FOR_VARIANCE_ANALYSIS": "No hay datos disponibles para el análisis de variaciones."
     },
     "PERIODS": {
-      "ACCOUNTING_PERIODS": "Accounting Periods",
-      "PERIOD": "Period",
-      "START_DATE": "Start Date",
-      "END_DATE": "End Date",
-      "STATUS": "Status",
-      "ACTION": "Action",
-      "CLOSE_PERIOD": "Close Period",
-      "RE_OPEN": "Re-Open"
+      "ACCOUNTING_PERIODS": "Períodos Contables",
+      "PERIOD": "Período",
+      "START_DATE": "Fecha de Inicio",
+      "END_DATE": "Fecha de Cierre",
+      "STATUS": "Estado",
+      "ACTION": "Acción",
+      "CLOSE_PERIOD": "Cerrar Período",
+      "RE_OPEN": "Reabrir",
+      "STATUS_OPEN": "Abierto",
+      "STATUS_CLOSED": "Cerrado",
+      "LOADING": "Cargando los períodos contables…",
+      "LOAD_FAILED": "No se pudieron cargar los períodos contables.",
+      "EMPTY": "Todavía no hay períodos contables definidos.",
+      "REOPEN_REASON_PROMPT": "Indica la razón por la que se reabre este período contable (mínimo 10 caracteres).",
+      "REASON_TOO_SHORT": "La razón debe tener al menos 10 caracteres."
     },
-    "PERIOD_CLOSE": "Cierre Contable",
-    "RECONCILIATION": "Conciliación",
     "COA": {
       "TITLE": "Plan de Cuentas",
       "ACTIONS": {
@@ -881,6 +905,17 @@
       "LAST_RECONCILED_DATE": "Last Reconciled Date",
       "STATUS": "Status",
       "NO_ACCOUNTS_REQUIRE_RECONCILIATION_FOR_THIS": "No accounts require reconciliation for this period."
+    },
+    "NAV": {
+      "CHART_OF_ACCOUNTS": "Catálogo de Cuentas",
+      "JOURNAL_ENTRIES": "Asientos Contables",
+      "GENERAL_JOURNAL": "Libro Diario",
+      "GENERAL_LEDGER": "Libro Mayor",
+      "SUBSIDIARY_LEDGERS": "Libros Auxiliares",
+      "VARIANCE_ANALYSIS": "Análisis de Variaciones",
+      "PERIODS": "Períodos",
+      "PERIOD_CLOSE": "Cierre Contable",
+      "RECONCILIATION": "Conciliación"
     }
   },
   "USER": {
@@ -896,7 +931,8 @@
       "ACTIVE": "Activo",
       "PENDING": "Pendiente",
       "BLOCKED": "Bloqueado",
-      "ARCHIVED": "Archivado"
+      "ARCHIVED": "Archivado",
+      "INACTIVE": "Inactivo"
     }
   },
   "USERS": {
@@ -1036,7 +1072,8 @@
     "STEP_PLAN": {
       "REGISTER_STEPS_PLAN_SAVE_PERCENT_TRANSLATE": "{{ 'REGISTER.STEPS.PLAN.SAVE_PERCENT' | translate: { percent: plan.annualSaving } }}"
     },
-    "COPYRIGHT": "© {{year}} {{app}}. Todos los derechos reservados."
+    "COPYRIGHT": "© {{year}} {{app}}. Todos los derechos reservados.",
+    "LEGAL_LINKS": "Enlaces legales"
   },
   "ACTIONS": {
     "CREATE_NEW": "Crear Nuevo",
@@ -1079,7 +1116,8 @@
     "ARE_YOU_SURE": "¿Seguro que quieres continuar?",
     "CONFIRMATION": "Confirmación",
     "SUCCESS": "Listo",
-    "RETRY": "Reintentar"
+    "RETRY": "Reintentar",
+    "REFRESH": "Actualizar"
   },
   "ALT": {
     "COMPANY_LOGO": "Logo de la empresa"
@@ -2358,7 +2396,12 @@
       "DESCARGAR_XML_FIRMADO": "Descargar XML firmado",
       "CARGANDO_DATOS_FACTURA_FACTURA_NO_FUE": "Cargando datos de la factura o la factura no fue encontrada...",
       "BUSCAR_LINEAS": "Buscar en líneas...",
-      "BORRADOR_ELIMINADO": "Borrador eliminado."
+      "BORRADOR_ELIMINADO": "Borrador eliminado.",
+      "ESTE_DOCUMENTO_ES_BORRADOR": "Este documento es un borrador.",
+      "NO_TIENE_COMPROBANTE_FISCAL_ASIGNADO_NO": "No tiene comprobante fiscal asignado y no tiene valor ante la autoridad tributaria.",
+      "ELIMINAR_BORRADOR": "Eliminar borrador",
+      "VERIFICACION_DGII": "Verificación DGII",
+      "ABRIR_CONSULTA_TIMBRE": "Abrir la consulta del timbre"
     },
     "LIST": {
       "EXPORTACION_EXCEL_COMPLETADA": "Exportación a Excel completada.",

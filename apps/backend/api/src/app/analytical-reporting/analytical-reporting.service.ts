@@ -4,6 +4,7 @@ import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { AnalyticalQueryDto, PaginationOptionsDto } from './dto/analytical-query.dto';
 import { Dimension } from '../dimensions/entities/dimension.entity';
 import { BadRequestError } from '../i18n/localized.exception';
+import { LocalizedMessage } from '../i18n/localized-message';
 
 @Injectable()
 export class AnalyticalReportingService {
@@ -12,7 +13,7 @@ export class AnalyticalReportingService {
 
   constructor(private readonly dataSource: DataSource) {}
 
-  async synchronizeView(organizationId: string): Promise<{ message: string }> {
+  async synchronizeView(organizationId: string): Promise<LocalizedMessage> {
     const dimensions = await this.dataSource.manager.find(Dimension, { where: { organizationId } });
     const viewName = this.VIEW_NAME;
 
@@ -75,7 +76,7 @@ export class AnalyticalReportingService {
 
       await queryRunner.commitTransaction();
       this.logger.log(`Vista materializada "${viewName}" sincronizada exitosamente.`);
-      return { message: 'Vista materializada sincronizada y recreada con las dimensiones actuales.' };
+      return { messageKey: 'ANALYTICAL_REPORTING.VISTA_MATERIALIZADA_SINCRONIZADA_RECREADA_CON_DIMENSIONES_ACTUALES' };
     } catch (error) {
       await queryRunner.rollbackTransaction();
       this.logger.error('Fallo la sincronización de la vista materializada.', (error as Error).stack);

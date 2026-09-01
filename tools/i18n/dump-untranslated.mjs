@@ -28,5 +28,8 @@ for (const dir of DIRS) {
 const pending = [...seen.entries()].filter(([value]) => glossary.terms[value]?.[language] === undefined);
 console.log(`# ${language}: ${pending.length} pending, showing ${offset}..${offset + limit}`);
 for (const [value, key] of pending.slice(offset, offset + limit)) {
-  console.log(`${JSON.stringify(value)}   |${key}`);
+  // Which languages this string still needs, so a batch does not re-send a translation that is
+  // already reviewed and would be kept anyway.
+  const need = ['en', 'pt'].filter((l) => glossary.terms[value]?.[l] === undefined).join('+');
+  console.log(`${JSON.stringify(value)}   |${need}| ${key}`);
 }

@@ -19,46 +19,46 @@ import {
 import { JournalEntryType } from '../entities/journal-entry.entity';
 
 class LineValuationDto {
-  @IsUUID('4', { message: 'El ID del libro contable (ledgerId) debe ser un UUID válido.' })
-  @IsNotEmpty({ message: 'El ID del libro contable (ledgerId) es obligatorio en cada valoración.' })
+  @IsUUID('4', { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.ID_LIBRO_CONTABLE_LEDGERID_DEBE_UUID_VALIDO' })
+  @IsNotEmpty({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.ID_LIBRO_CONTABLE_LEDGERID_OBLIGATORIO_CADA_VALORACION' })
   ledgerId: string;
 
-  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'El débito debe ser un número válido.' })
-  @IsDefined({ message: 'El campo de débito es obligatorio.' })
-  @Min(0, { message: 'El débito no puede ser negativo.' })
+  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.DEBITO_DEBE_NUMERO_VALIDO' })
+  @IsDefined({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.CAMPO_DEBITO_OBLIGATORIO' })
+  @Min(0, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.DEBITO_NO_PUEDE_NEGATIVO' })
   debit: number;
 
-  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'El crédito debe ser un número válido.' })
-  @IsDefined({ message: 'El campo de crédito es obligatorio.' })
-  @Min(0, { message: 'El crédito no puede ser negativo.' })
+  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.CREDITO_DEBE_NUMERO_VALIDO' })
+  @IsDefined({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.CAMPO_CREDITO_OBLIGATORIO' })
+  @Min(0, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.CREDITO_NO_PUEDE_NEGATIVO' })
   credit: number;
 }
 
 
 export class CreateJournalEntryLineDto {
-  @IsUUID('4', { message: 'El ID de la cuenta (accountId) debe ser un UUID válido.' })
-  @IsNotEmpty({ message: 'El ID de la cuenta (accountId) es obligatorio.' })
+  @IsUUID('4', { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.ID_CUENTA_ACCOUNTID_DEBE_UUID_VALIDO' })
+  @IsNotEmpty({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.ID_CUENTA_ACCOUNTID_OBLIGATORIO' })
   accountId: string;
 
-  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'El débito en moneda de transacción debe ser un número.' })
-  @IsDefined({ message: 'El campo de débito es obligatorio.' })
-  @Min(0, { message: 'El débito no puede ser negativo.' })
+  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.DEBITO_MONEDA_TRANSACCION_DEBE_NUMERO' })
+  @IsDefined({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.CAMPO_DEBITO_OBLIGATORIO' })
+  @Min(0, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.DEBITO_NO_PUEDE_NEGATIVO' })
   debit: number;
 
-  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'El crédito en moneda de transacción debe ser un número.' })
-  @IsDefined({ message: 'El campo de crédito es obligatorio.' })
-  @Min(0, { message: 'El crédito no puede ser negativo.' })
+  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.CREDITO_MONEDA_TRANSACCION_DEBE_NUMERO' })
+  @IsDefined({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.CAMPO_CREDITO_OBLIGATORIO' })
+  @Min(0, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.CREDITO_NO_PUEDE_NEGATIVO' })
   credit: number;
 
-  @IsString({ message: 'La descripción de la línea debe ser un texto.' })
+  @IsString({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.DESCRIPCION_LINEA_DEBE_TEXTO' })
   @IsOptional()
   description?: string;
   
-  @IsObject({ message: 'Las dimensiones deben ser un objeto.' })
+  @IsObject({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.DIMENSIONES_DEBEN_OBJETO' })
   @IsOptional()
   dimensions?: Record<string, string>;
 
-  @IsArray({ message: 'Las valoraciones deben ser un arreglo.' })
+  @IsArray({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.VALORACIONES_DEBEN_ARREGLO' })
   @ValidateNested({ each: true })
   @Type(() => LineValuationDto)
   @IsOptional()
@@ -66,34 +66,34 @@ export class CreateJournalEntryLineDto {
 }
 
 export class CreateJournalEntryDto {
-  @IsDateString({}, { message: 'La fecha debe tener un formato de fecha ISO 8601 válido.' })
-  @IsNotEmpty({ message: 'La fecha del asiento es obligatoria.' })
+  @IsDateString({}, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.FECHA_DEBE_TENER_FORMATO_FECHA_ISO_8601_VALIDO' })
+  @IsNotEmpty({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.FECHA_ASIENTO_OBLIGATORIA' })
   date: string;
 
-  @IsString({ message: 'La descripción debe ser un texto.' })
-  @IsNotEmpty({ message: 'La descripción del asiento es obligatoria.' })
+  @IsString({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.DESCRIPCION_DEBE_TEXTO' })
+  @IsNotEmpty({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.DESCRIPCION_ASIENTO_OBLIGATORIA' })
   description: string;
   
   @IsString()
   @IsOptional()
-  @Length(3, 3, { message: 'El código de moneda debe tener exactamente 3 caracteres.' })
+  @Length(3, 3, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.CODIGO_MONEDA_DEBE_TENER_EXACTAMENTE_3_CARACTERES' })
   currencyCode?: string;
 
-  @IsNumber({}, { message: 'La tasa de cambio debe ser un número.'})
+  @IsNumber({}, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.TASA_CAMBIO_DEBE_NUMERO'})
   @IsOptional()
-  @Min(0, { message: 'La tasa de cambio no puede ser negativa.'})
+  @Min(0, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.TASA_CAMBIO_NO_PUEDE_NEGATIVA'})
   exchangeRate?: number;
 
-  @IsArray({ message: 'Las líneas del asiento deben ser un arreglo.' })
+  @IsArray({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.LINEAS_ASIENTO_DEBEN_ARREGLO' })
   @ValidateNested({ each: true })
   @Type(() => CreateJournalEntryLineDto)
   lines: CreateJournalEntryLineDto[];
 
-  @IsUUID('4', { message: 'El ID del diario (journalId) debe ser un UUID válido.' })
-  @IsNotEmpty({ message: 'El ID del diario (journalId) es obligatorio.' })
+  @IsUUID('4', { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.ID_DIARIO_JOURNALID_DEBE_UUID_VALIDO' })
+  @IsNotEmpty({ message: 'VALIDATION.CREATE_JOURNAL_ENTRY.ID_DIARIO_JOURNALID_OBLIGATORIO' })
   journalId: string;
 
-  @IsEnum(JournalEntryType, { message: 'El tipo de asiento (entryType) no es válido.'})
+  @IsEnum(JournalEntryType, { message: 'VALIDATION.CREATE_JOURNAL_ENTRY.TIPO_ASIENTO_ENTRYTYPE_NO_VALIDO'})
   @IsOptional()
   entryType?: JournalEntryType;
 }

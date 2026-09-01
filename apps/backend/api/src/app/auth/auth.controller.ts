@@ -617,7 +617,7 @@ export class AuthController {
     const sessionId = (user as unknown as AuthenticatedUser).sessionId;
     await this.authService.logoutCurrentSession(user.id, sessionId);
     this.cookieService.clearAuthCookies(res);
-    return { message: 'Logout exitoso' };
+    return { messageKey: 'AUTH.LOGOUT_EXITOSO' };
   }
 
   @Post('logout-all')
@@ -629,7 +629,7 @@ export class AuthController {
   ) {
     await this.authService.logoutAll(user.id);
     this.cookieService.clearAuthCookies(res);
-    return { message: 'Todas las sesiones han sido cerradas.' };
+    return { messageKey: 'AUTH.TODAS_SESIONES_HAN_CERRADAS' };
   }
 
   /**
@@ -1010,8 +1010,7 @@ export class AuthController {
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     await this.passwordRecoveryService.sendPasswordResetLink(forgotPasswordDto);
     return {
-      message:
-        'Si existe una cuenta con ese correo, se ha enviado un enlace para restablecer la contraseña.',
+      messageKey: 'AUTH.SI_EXISTE_CUENTA_CON_ESE_CORREO_ENVIADO_ENLACE',
     };
   }
 
@@ -1045,7 +1044,7 @@ export class AuthController {
       try {
           await this.authService.changePassword(user.id, changePasswordDto.currentPassword, changePasswordDto.newPassword);
           await this.auditTrailService.record(user.id, 'User', user.id, ActionType.UPDATE, { action: 'change-password' }, undefined, ip, user.organizationId);
-          return { message: 'Password updated successfully' };
+          return { messageKey: 'AUTH.PASSWORD_UPDATED_SUCCESSFULLY' };
       } catch (e) {
           await this.auditTrailService.record(user.id, 'User', user.id, ActionType.UPDATE, { action: 'change-password', error: (e as Error).message }, undefined, ip, user.organizationId);
           throw e;
@@ -1162,7 +1161,7 @@ export class AuthController {
   @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
   async sendEmailVerification(@CurrentUser() user: AuthenticatedUser) {
     await this.mfaOrchestratorService.sendEmailOtp(user.id, user.email);
-    return { message: 'Verification code sent to email' };
+    return { messageKey: 'AUTH.VERIFICATION_CODE_SENT_EMAIL' };
   }
 
   @Post('2fa/verify-email-verification')
@@ -1188,7 +1187,7 @@ export class AuthController {
       }
 
       await this.mfaOrchestratorService.sendPhoneOtp(user.id, phoneNumber);
-      return { message: 'OTP sent successfully' };
+      return { messageKey: 'AUTH.OTP_SENT_SUCCESSFULLY' };
   }
 
   @Post('verify-phone')
@@ -1208,7 +1207,7 @@ export class AuthController {
     @Body() dto: SendPublicVerificationDto
   ) {
     await this.mfaOrchestratorService.sendPublicVerification(dto.target, dto.type);
-    return { message: 'Si los datos son correctos, se ha enviado un código de verificación.' };
+    return { messageKey: 'AUTH.SI_DATOS_SON_CORRECTOS_ENVIADO_CODIGO_VERIFICACION' };
   }
 
   @Post('verify-public-code')
@@ -1353,7 +1352,7 @@ export class AuthController {
       // H-03 FIX: Same cookie-based pending session as the password login flow.
       const pendingId = await this.authService.create2faPendingSession(user, undefined, undefined);
       this.cookieService.set2faPendingCookie(res, pendingId);
-      return { require2fa: true, message: '2FA verification required' };
+      return { require2fa: true, messageKey: 'AUTH.2FA_VERIFICATION_REQUIRED' };
     }
 
     const { accessToken, refreshToken } = await this.authFacade.generateTokens(user);
@@ -1395,7 +1394,7 @@ export class AuthController {
       user.id, 'Session', user.id, ActionType.DELETE,
       { action: 'revoke-other-sessions' }, undefined, ip, user.organizationId,
     );
-    return { message: 'Se han cerrado las demás sesiones.' };
+    return { messageKey: 'AUTH.HAN_CERRADO_DEMAS_SESIONES' };
   }
 
   @Post('sessions/:id/revoke') // Using POST or DELETE is fine, usually DELETE for resource removal
