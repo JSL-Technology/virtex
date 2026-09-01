@@ -3,6 +3,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HttpModule } from '@nestjs/axios';
 import { CurrenciesService } from './currencies.service';
+import { CurrencySeederService } from './currency-seeder.service';
 import { CurrenciesController } from './currencies.controller';
 import { Currency } from './entities/currency.entity';
 import { ExchangeRate } from './entities/exchange-rate.entity';
@@ -33,9 +34,10 @@ import { AccountBalance } from '../chart-of-accounts/entities/account-balance.en
   controllers: [CurrenciesController, ExchangeRatesController],
   providers: [
     CurrenciesService,
+    CurrencySeederService,
     ExchangeRatesService,
     CurrencyRevaluationService,
   ],
-  exports: [CurrencyRevaluationService],
+  exports: [CurrencyRevaluationService, CurrencySeederService],
 })
 export class CurrenciesModule {}

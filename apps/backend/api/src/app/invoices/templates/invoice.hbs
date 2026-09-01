@@ -1,99 +1,195 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Factura - {{organization.legalName}}</title>
-    <style>
-        /* Estilos optimizados para la plantilla */
-        body { font-family: 'Helvetica Neue', 'Helvetica', Arial, sans-serif; color: #333; }
-        .invoice-box { max-width: 800px; margin: auto; padding: 30px; border: 1px solid #eee; box-shadow: 0 0 10px rgba(0, 0, 0, .15); font-size: 16px; line-height: 24px; }
-        .invoice-box table { width: 100%; line-height: inherit; text-align: left; border-collapse: collapse; }
-        .invoice-box table td { padding: 5px; vertical-align: top; }
-        .invoice-box .top-section table td { padding-bottom: 20px; }
-        .invoice-box .top-section .title { font-size: 45px; line-height: 45px; color: #333; }
-        .invoice-box .info-section table td { padding-bottom: 40px; }
-        .invoice-box .heading td { background: #eee; border-bottom: 1px solid #ddd; font-weight: bold; }
-        .invoice-box .details td { padding-bottom: 20px; }
-        .invoice-box .item td { border-bottom: 1px solid #eee; }
-        .invoice-box .item.last td { border-bottom: none; }
-        .invoice-box .total td:nth-child(2) { border-top: 2px solid #eee; font-weight: bold; }
-        .text-right { text-align: right; }
-        .logo-img { max-width: 150px; max-height: 75px; }
-    </style>
+<meta charset="UTF-8">
+<title>{{title}} {{invoice.invoiceNumber}}</title>
+<style>
+  /* Printed representation: ink on paper, deliberately independent of the app's theme. */
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: #111;
+    background: #fff;
+    font-size: 11px;
+    line-height: 1.45;
+    margin: 0;
+  }
+  .sheet { max-width: 190mm; margin: 0 auto; }
+
+  header { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+  .issuer h1 { font-size: 15px; margin: 0 0 4px; }
+  .issuer p { margin: 0; font-size: 10.5px; }
+  .logo { max-width: 150px; max-height: 64px; }
+
+  .fiscal-box {
+    border: 1.5px solid #111;
+    padding: 8px 12px;
+    min-width: 62mm;
+    text-align: center;
+  }
+  .fiscal-box .doc-title { font-size: 12px; font-weight: 700; letter-spacing: .04em; }
+  .fiscal-box .ncf { font-size: 15px; font-weight: 700; font-family: 'Courier New', monospace; margin: 4px 0; }
+  .fiscal-box .meta { font-size: 9.5px; }
+  .draft-banner {
+    border: 1.5px dashed #a11; color: #a11; font-weight: 700;
+    padding: 6px 12px; text-align: center; letter-spacing: .1em;
+  }
+
+  .parties { display: flex; gap: 16px; margin-top: 14px; }
+  .party { flex: 1; border: 1px solid #ccc; padding: 8px 10px; }
+  .party h2 { font-size: 9px; text-transform: uppercase; letter-spacing: .1em; margin: 0 0 4px; color: #555; }
+  .party p { margin: 0; }
+
+  table.lines { width: 100%; border-collapse: collapse; margin-top: 14px; }
+  table.lines th {
+    background: #eee; border-bottom: 1.5px solid #111; padding: 5px 6px;
+    font-size: 9px; text-transform: uppercase; letter-spacing: .06em; text-align: left;
+  }
+  table.lines td { border-bottom: 1px solid #e3e3e3; padding: 5px 6px; vertical-align: top; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .center { text-align: center; }
+
+  .footer-grid { display: flex; gap: 16px; margin-top: 14px; align-items: flex-start; }
+  .verification { flex: 1; border: 1px solid #ccc; padding: 10px; text-align: center; }
+  .verification img { width: 34mm; height: 34mm; }
+  .verification .code { font-family: 'Courier New', monospace; font-size: 13px; font-weight: 700; letter-spacing: .12em; }
+  .verification .label { font-size: 8.5px; text-transform: uppercase; letter-spacing: .08em; color: #555; }
+  .verification .url { font-size: 7.5px; word-break: break-all; color: #444; }
+
+  table.totals { min-width: 68mm; border-collapse: collapse; }
+  table.totals td { padding: 3px 6px; }
+  table.totals td.label { text-align: right; color: #333; }
+  table.totals tr.grand td { border-top: 1.5px solid #111; font-weight: 700; font-size: 13px; padding-top: 6px; }
+
+  .notes { margin-top: 12px; border-top: 1px solid #ddd; padding-top: 8px; font-size: 10px; }
+  .legal { margin-top: 14px; font-size: 8.5px; color: #555; text-align: center; }
+</style>
 </head>
 <body>
-    <div class="invoice-box">
-        <table>
-            <tr class="top-section">
-                <td colspan="4">
-                    <table>
-                        <tr>
-                            <td class="title">
-                                {{#if organization.logoUrl}}
-                                    <img src="{{organization.logoUrl}}" alt="{{organization.legalName}} Logo" class="logo-img">
-                                {{else}}
-                                    <h2>{{organization.legalName}}</h2>
-                                {{/if}}
-                            </td>
-                            <td>
-                                <strong>Factura #:</strong> {{invoiceNumber}}<br>
-                                <strong>Fecha de Emisión:</strong> {{issueDate}}<br>
-                                <strong>Fecha de Vencimiento:</strong> {{dueDate}}
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            <tr class="info-section">
-                <td colspan="4">
-                    <table>
-                        <tr>
-                            <td>
-                                {{organization.legalName}}<br>
-                                {{organization.address}}<br>
-                                RNC: {{organization.taxId}}
-                            </td>
-                            <td>
-                                {{customerName}}<br>
-                                {{customerAddress}}
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            <tr class="heading">
-                <td>Descripción</td>
-                <td class="text-right">Cantidad</td>
-                <td class="text-right">Precio Unit.</td>
-                <td class="text-right">Total</td>
-            </tr>
-            {{#each lineItems}}
-            <tr class="item">
-                <td>{{this.description}}</td>
-                <td class="text-right">{{this.quantity}}</td>
-                <td class="text-right">${{formatNumber this.price}}</td>
-                <td class="text-right">${{formatNumber (multiply this.quantity this.price)}}</td>
-            </tr>
-            {{/each}}
-            <tr class="total">
-                <td colspan="3" class="text-right">Subtotal</td>
-                <td class="text-right">${{formatNumber subtotal}}</td>
-            </tr>
-            <tr class="total">
-                <td colspan="3" class="text-right">Impuestos</td>
-                <td class="text-right">${{formatNumber tax}}</td>
-            </tr>
-            <tr class="total">
-                <td colspan="3" class="text-right"><strong>Total</strong></td>
-                <td class="text-right"><strong>${{formatNumber total}}</strong></td>
-            </tr>
-        </table>
-        {{#if notes}}
-        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
-            <strong>Notas:</strong><br>
-            {{notes}}
-        </div>
-        {{/if}}
+<div class="sheet">
+
+  <header>
+    <div class="issuer">
+      {{#if organization.logoUrl}}
+        <img class="logo" src="{{organization.logoUrl}}" alt="{{organization.legalName}}">
+      {{/if}}
+      <h1>{{organization.legalName}}</h1>
+      {{#if organization.commercialName}}<p>{{organization.commercialName}}</p>{{/if}}
+      <p>RNC: <strong>{{organization.taxId}}</strong></p>
+      {{#if organization.address}}<p>{{organization.address}}</p>{{/if}}
+      <p>
+        {{#if organization.city}}{{organization.city}}{{/if}}{{#if organization.state}}, {{organization.state}}{{/if}}
+      </p>
+      {{#if organization.phone}}<p>Tel.: {{organization.phone}}</p>{{/if}}
+      {{#if organization.email}}<p>{{organization.email}}</p>{{/if}}
     </div>
+
+    {{#if fiscal.isDraft}}
+      <div class="draft-banner">
+        BORRADOR<br>
+        <span style="font-weight:400;letter-spacing:0">Sin valor fiscal</span>
+      </div>
+    {{else}}
+      <div class="fiscal-box">
+        <div class="doc-title">{{title}} ELECTRÓNICA</div>
+        <div class="ncf">{{fiscal.ncf}}</div>
+        <div class="meta">
+          {{#if fiscal.validUntil}}Válido hasta: {{fiscal.validUntil}}<br>{{/if}}
+          Documento interno: {{invoice.invoiceNumber}}
+        </div>
+      </div>
+    {{/if}}
+  </header>
+
+  <div class="parties">
+    <div class="party">
+      <h2>Comprador</h2>
+      <p><strong>{{invoice.customerName}}</strong></p>
+      {{#if invoice.customerTaxId}}<p>RNC / Cédula: {{invoice.customerTaxId}}</p>{{/if}}
+      {{#if invoice.customerAddress}}<p>{{invoice.customerAddress}}</p>{{/if}}
+    </div>
+    <div class="party">
+      <h2>Documento</h2>
+      <p>Fecha de emisión: <strong>{{issueDate}}</strong></p>
+      <p>Fecha de vencimiento: {{dueDate}}</p>
+      <p>Moneda: {{currencyCode}}</p>
+      {{#if fiscal.signedAt}}<p>Fecha y hora de firma: {{fiscal.signedAt}}</p>{{/if}}
+    </div>
+  </div>
+
+  <table class="lines">
+    <thead>
+      <tr>
+        <th style="width:6%">#</th>
+        <th>Descripción</th>
+        <th style="width:10%" class="num">Cant.</th>
+        <th style="width:8%" class="center">U/M</th>
+        <th style="width:14%" class="num">Precio</th>
+        <th style="width:10%" class="num">Desc.</th>
+        <th style="width:8%" class="center">ITBIS</th>
+        <th style="width:16%" class="num">Importe</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each lines}}
+      <tr>
+        <td class="center">{{this.number}}</td>
+        <td>{{this.description}}</td>
+        <td class="num">{{this.quantity}}</td>
+        <td class="center">{{this.unitOfMeasure}}</td>
+        <td class="num">{{this.price}}</td>
+        <td class="num">{{#if this.discount}}{{this.discount}}{{else}}—{{/if}}</td>
+        <td class="center">{{this.taxRate}}</td>
+        <td class="num">{{this.amount}}</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+
+  <div class="footer-grid">
+    {{#unless fiscal.isDraft}}
+    <div class="verification">
+      <div class="label">Verificación DGII</div>
+      {{#if fiscal.qrDataUri}}
+        <img src="{{fiscal.qrDataUri}}" alt="Código QR de verificación del comprobante">
+      {{/if}}
+      {{#if fiscal.securityCode}}
+        <div class="label" style="margin-top:4px">Código de seguridad</div>
+        <div class="code">{{fiscal.securityCode}}</div>
+      {{/if}}
+      {{#if fiscal.qrUrl}}<div class="url">{{fiscal.qrUrl}}</div>{{/if}}
+    </div>
+    {{/unless}}
+
+    <div style="margin-left:auto">
+      <table class="totals">
+        <tr><td class="label">Subtotal</td><td class="num">{{totals.subtotal}}</td></tr>
+        {{#if totals.discount}}<tr><td class="label">Descuento</td><td class="num">−{{totals.discount}}</td></tr>{{/if}}
+        {{#if totals.exempt}}<tr><td class="label">Monto exento</td><td class="num">{{totals.exempt}}</td></tr>{{/if}}
+        <tr><td class="label">Monto gravado</td><td class="num">{{totals.taxed}}</td></tr>
+        <tr><td class="label">ITBIS</td><td class="num">{{totals.tax}}</td></tr>
+        {{#if totals.serviceCharge}}<tr><td class="label">Propina legal (10%)</td><td class="num">{{totals.serviceCharge}}</td></tr>{{/if}}
+        <tr class="grand"><td class="label">Total {{currencyCode}}</td><td class="num">{{totals.total}}</td></tr>
+        {{#if totals.taxWithheld}}<tr><td class="label">ITBIS retenido</td><td class="num">−{{totals.taxWithheld}}</td></tr>{{/if}}
+        {{#if totals.incomeTaxWithheld}}<tr><td class="label">ISR retenido</td><td class="num">−{{totals.incomeTaxWithheld}}</td></tr>{{/if}}
+        {{#if totals.netReceivable}}<tr><td class="label">Neto a pagar</td><td class="num"><strong>{{totals.netReceivable}}</strong></td></tr>{{/if}}
+      </table>
+    </div>
+  </div>
+
+  {{#if invoice.notes}}
+  <div class="notes"><strong>Notas:</strong> {{invoice.notes}}</div>
+  {{/if}}
+
+  <div class="legal">
+    {{#unless fiscal.isDraft}}
+      Representación impresa de un Comprobante Fiscal Electrónico (e-CF). Verifique su validez en el
+      portal de la DGII con el código QR o el código de seguridad mostrados arriba.
+    {{else}}
+      Este documento es un borrador interno, no ampara crédito fiscal y no ha sido transmitido a la DGII.
+    {{/unless}}
+  </div>
+
+</div>
 </body>
 </html>

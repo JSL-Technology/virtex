@@ -7,12 +7,16 @@ import { NcfSequence } from './entities/ncf-sequence.entity';
 
 import { VendorBill } from '../accounts-payable/entities/vendor-bill.entity';
 import { Invoice } from '../invoices/entities/invoice.entity';
+import { Organization } from '../organizations/entities/organization.entity';
 import { AuthModule } from '../auth/auth.module';
 
 
 @Module({
 
-  imports: [TypeOrmModule.forFeature([NcfSequence, VendorBill, Invoice]), AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([NcfSequence, VendorBill, Invoice, Organization]),
+    AuthModule,
+  ],
 
   controllers: [ComplianceController],
   providers: [ComplianceService],

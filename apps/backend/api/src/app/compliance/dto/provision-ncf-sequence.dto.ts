@@ -1,4 +1,4 @@
-import { IsEnum, IsInt, IsString, Matches, Min } from 'class-validator';
+import { IsEnum, IsInt, IsISO8601, IsOptional, IsString, Matches, MaxLength, Min } from 'class-validator';
 import { NcfType } from '../entities/ncf-sequence.entity';
 
 /**
@@ -20,4 +20,21 @@ export class ProvisionNcfSequenceDto {
   @IsInt()
   @Min(1)
   endsAt: number;
+
+  /**
+   * Expiry of the DGII authorization, `YYYY-MM-DD`.
+   *
+   * This is `FechaVencimientoSecuencia`, a mandatory element of every e-CF. The column existed and
+   * the issuance path validated it, but nothing could ever set it — so the check never fired and
+   * the transmitted XML omitted the element the DGII requires.
+   */
+  @IsISO8601({ strict: true })
+  @IsOptional()
+  expiresAt?: string;
+
+  /** Authorization reference the DGII issued for the range, kept for audit and support. */
+  @IsString()
+  @IsOptional()
+  @MaxLength(64)
+  authorizationCode?: string;
 }

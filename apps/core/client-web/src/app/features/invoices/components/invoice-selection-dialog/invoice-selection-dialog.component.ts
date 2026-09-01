@@ -41,12 +41,14 @@ export class InvoiceSelectionDialogComponent implements OnInit {
   }
 
   loadInvoices(): void {
-    this.invoicesService.getInvoices().subscribe({
-      next: (data) => {
-        this.invoices.set(data);
+    // One page, ordered newest first. The dialog used to hold every invoice of the tenant in
+    // memory just to let the user pick one.
+    this.invoicesService.getInvoices({ limit: 50 }).subscribe({
+      next: (result) => {
+        this.invoices.set(result.items);
         this.isLoading.set(false);
       },
-      error: () => this.isLoading.set(false)
+      error: () => this.isLoading.set(false),
     });
   }
 

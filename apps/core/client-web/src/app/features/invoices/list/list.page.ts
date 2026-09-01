@@ -2,11 +2,39 @@ import { Component, ChangeDetectionStrategy, signal, inject, OnInit, computed } 
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal, Search, Download, FileSpreadsheet, ArrowUp, ArrowDown } from 'lucide-angular';
-import { InvoicesService, Invoice } from '../../../core/services/invoices';
+import {
+  LucideAngularModule,
+  PlusCircle,
+  Filter,
+  MoreHorizontal,
+  Search,
+  Download,
+  FileSpreadsheet,
+  ArrowUp,
+  ArrowDown,
+} from 'lucide-angular';
+import {
+  InvoicesService,
+  Invoice,
+  InvoiceStatus,
+  InvoiceQuery,
+} from '../../../core/services/invoices';
 import { NotificationService } from '../../../core/services/notification';
 import * as XLSX from 'xlsx';
 
+/**
+ * The invoice list.
+ *
+ * ## What changed
+ *
+ * It used to request EVERY invoice of the tenant on every visit and then search, filter and sort the
+ * result in memory — over a table whose only index was its primary key, so each visit was a
+ * sequential scan of every tenant's invoices. Filtering and pagination now happen in the database,
+ * and the page requests one page at a time.
+ *
+ * Sorting is deliberately server-ordered (newest first) rather than re-sorted client-side: sorting a
+ * page of fifty rows by a column reorders that page only, which is worse than not offering it.
+ */
 @Component({
   selector: 'app-invoices-list-page',
   standalone: true,
@@ -33,44 +61,23 @@ export class InvoicesListPage implements OnInit {
   error = signal<string | null>(null);
   today = new Date().toISOString().split('T')[0];
 
-  // Search and Filter State
   searchTerm = signal('');
-  statusFilter = signal<string>('All');
-  sortBy = signal<keyof Invoice | 'customerName'>('issueDate');
-  sortDirection = signal<'asc' | 'desc'>('desc');
+  statusFilter = signal<InvoiceStatus | 'All'>('All');
+  page = signal(1);
+  limit = signal(50);
+  total = signal(0);
+  pages = signal(1);
 
-  filteredInvoices = computed(() => {
-    let result = [...this.invoices()];
+  /** The rows currently on screen; the server has already filtered and ordered them. */
+  filteredInvoices = computed(() => this.invoices());
 
-    // Search
-    const search = this.searchTerm().toLowerCase();
-    if (search) {
-      result = result.filter(inv =>
-        inv.invoiceNumber.toLowerCase().includes(search) ||
-        inv.customerName.toLowerCase().includes(search)
-      );
-    }
-
-    // Filter
-    const status = this.statusFilter();
-    if (status !== 'All') {
-      result = result.filter(inv => inv.status === status);
-    }
-
-    // Sort
-    const field = this.sortBy();
-    const direction = this.sortDirection() === 'asc' ? 1 : -1;
-
-    result.sort((a, b) => {
-      const aVal = a[field as keyof Invoice] ?? '';
-      const bVal = b[field as keyof Invoice] ?? '';
-
-      if (aVal < bVal) return -1 * direction;
-      if (aVal > bVal) return 1 * direction;
-      return 0;
-    });
-
-    return result;
+  hasPrevious = computed(() => this.page() > 1);
+  hasNext = computed(() => this.page() < this.pages());
+  rangeLabel = computed(() => {
+    if (this.total() === 0) return 'Sin facturas';
+    const from = (this.page() - 1) * this.limit() + 1;
+    const to = Math.min(this.total(), from + this.invoices().length - 1);
+    return `${from}–${to} de ${this.total()}`;
   });
 
   ngOnInit(): void {
@@ -80,55 +87,105 @@ export class InvoicesListPage implements OnInit {
   loadInvoices(): void {
     this.isLoading.set(true);
     this.error.set(null);
-    this.invoicesService.getInvoices().subscribe({
-      next: (data) => {
-        this.invoices.set(data);
+
+    const query: InvoiceQuery = {
+      page: this.page(),
+      limit: this.limit(),
+      search: this.searchTerm() || undefined,
+      status: this.statusFilter() === 'All' ? undefined : (this.statusFilter() as InvoiceStatus),
+    };
+
+    this.invoicesService.getInvoices(query).subscribe({
+      next: (result) => {
+        this.invoices.set(result.items);
+        this.total.set(result.total);
+        this.pages.set(result.pages);
         this.isLoading.set(false);
       },
-      error: (err) => {
-        this.error.set('Could not load invoices. Please try again later.');
+      error: () => {
+        this.error.set('No se pudieron cargar las facturas. Inténtalo de nuevo.');
         this.notificationService.showError(this.error()!);
         this.isLoading.set(false);
       },
     });
   }
 
+  /** Any change to a filter returns to the first page: page 3 of a different result set is noise. */
+  applyFilters(): void {
+    this.page.set(1);
+    this.loadInvoices();
+  }
+
+  goToPage(delta: number): void {
+    const next = this.page() + delta;
+    if (next < 1 || next > this.pages()) return;
+    this.page.set(next);
+    this.loadInvoices();
+  }
+
   getStatusClass(status: Invoice['status']): string {
     switch (status) {
-      case 'Paid': return 'status-paid';
-      case 'Pending': return 'status-pending';
-      case 'Partially Paid': return 'status-partial';
-      case 'Void': return 'status-overdue';
-      case 'Credit Note': return 'status-draft';
-      default: return 'status-pending';
+      case 'Paid':
+        return 'status-paid';
+      case 'Pending':
+        return 'status-pending';
+      case 'Partially Paid':
+        return 'status-partial';
+      case 'Void':
+        return 'status-overdue';
+      case 'Credit Note':
+        return 'status-draft';
+      case 'Draft':
+        return 'status-draft';
+      default:
+        return 'status-pending';
     }
   }
 
-  toggleSort(field: keyof Invoice | 'customerName'): void {
-    if (this.sortBy() === field) {
-      this.sortDirection.update(d => d === 'asc' ? 'desc' : 'asc');
-    } else {
-      this.sortBy.set(field);
-      this.sortDirection.set('asc');
-    }
-  }
-
+  /**
+   * Export what the current filter selects, not just the page on screen.
+   *
+   * The previous version exported the rows it happened to be holding, which silently produced a
+   * partial file whenever the list was paginated.
+   */
   exportToExcel(): void {
-    const data = this.filteredInvoices().map(inv => ({
-      'Factura #': inv.invoiceNumber,
-      'NCF': inv.ncfNumber || '',
-      'Cliente': inv.customerName,
-      'Fecha Emisión': inv.issueDate,
-      'Fecha Vencimiento': inv.dueDate,
-      'Total': inv.total,
-      'Moneda': inv.currencyCode,
-      'Estado': inv.status
-    }));
+    this.invoicesService
+      .getInvoices({
+        limit: 200,
+        search: this.searchTerm() || undefined,
+        status: this.statusFilter() === 'All' ? undefined : (this.statusFilter() as InvoiceStatus),
+      })
+      .subscribe({
+        next: (result) => {
+          const rows = result.items.map((inv) => ({
+            'Documento': inv.invoiceNumber,
+            'NCF': inv.ncfNumber ?? '',
+            'Tipo': inv.fiscalDocumentType ?? '',
+            'Cliente': inv.customerName,
+            'RNC/Cédula': inv.customerTaxId ?? '',
+            'Fecha emisión': inv.issueDate,
+            'Fecha vencimiento': inv.dueDate,
+            'Gravado': inv.taxedTotal,
+            'Exento': inv.exemptTotal,
+            'ITBIS': inv.tax,
+            'Total': inv.total,
+            'Saldo': inv.balance,
+            'Moneda': inv.currencyCode,
+            'Estado': inv.status,
+          }));
 
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Facturas');
-    XLSX.writeFile(workbook, `Facturas_${new Date().toISOString().split('T')[0]}.xlsx`);
-    this.notificationService.showSuccess('Exportación a Excel completada.');
+          const worksheet = XLSX.utils.json_to_sheet(rows);
+          const workbook = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(workbook, worksheet, 'Facturas');
+          XLSX.writeFile(workbook, `Facturas_${this.today}.xlsx`);
+
+          this.notificationService.showSuccess(
+            result.total > rows.length
+              ? `Exportadas ${rows.length} de ${result.total} facturas. Afina el filtro para incluir el resto.`
+              : 'Exportación completada.',
+          );
+        },
+        error: () => this.notificationService.showError('No se pudo exportar el listado.'),
+      });
   }
 }

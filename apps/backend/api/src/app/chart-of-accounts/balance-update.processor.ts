@@ -32,49 +32,26 @@ export class BalanceUpdateProcessor extends WorkerHost {
     await queryRunner.connect();
 
     try {
-
-      if (attempt === 0) {
-        const insertResult = await queryRunner.manager.getRepository(AccountBalance)
-          .createQueryBuilder()
-          .insert()
-          .into(AccountBalance)
-          .values({ accountId, ledgerId, balance: netChange, version: 1 })
-          .onConflict(`("accountId", "ledgerId") DO NOTHING`)
-          .execute();
-        
-        if (insertResult.raw.affectedRows > 0 || insertResult.identifiers.length > 0) {
-          this.logger.log(`Job ${job.id}: Inserted initial balance for account ${accountId}.`);
-          return;
-        }
-      }
-
-
-      const balanceRepo = queryRunner.manager.getRepository(AccountBalance);
-      const currentBalance = await balanceRepo.findOne({ where: { accountId, ledgerId }, select: ['version'] });
-
-      if (!currentBalance) {
-        this.logger.error(`Job ${job.id}: Race condition detected. AccountBalance for ${accountId} disappeared after failed insert.`);
-        throw new Error('Optimistic lock failed: balance record not found after insert attempt.');
-      }
-
-      const result: UpdateResult = await balanceRepo.createQueryBuilder()
-        .update()
-        .set({ 
-          balance: () => `balance + ${netChange}`,
-          version: () => 'version + 1',
-          lastUpdatedAt: new Date(),
-        })
-        .where("accountId = :accountId AND ledgerId = :ledgerId AND version = :version", {
-          accountId,
-          ledgerId,
-          version: currentBalance.version,
-        })
-        .execute();
-
-      if (result.affected === 0) {
-        this.logger.warn(`Job ${job.id}: Optimistic lock failed for account ${accountId}. Version mismatch. Retrying...`);
-        throw new Error('Optimistic lock failed: version mismatch');
-      }
+      // A single atomic upsert.
+      //
+      // The previous shape was "INSERT … ON CONFLICT DO NOTHING, then read the version, then
+      // UPDATE … WHERE version = :version". Two things made it unusable: `account_balances` has a
+      // COMPOSITE primary key, so a successful insert returns no identifiers and the code could not
+      // tell an insert from a conflict; and the follow-up read ran in a different statement, so the
+      // "optimistic lock" it implemented raced with itself and threw
+      // `balance record not found after insert attempt` on the very first posting of every account.
+      //
+      // `ON CONFLICT … DO UPDATE` needs no version at all: PostgreSQL applies the row lock, and
+      // `balance + EXCLUDED.balance` is correct under any interleaving.
+      await queryRunner.query(
+        `INSERT INTO "account_balances" ("account_id", "ledger_id", "balance", "version", "last_updated_at")
+         VALUES ($1, $2, $3, 1, now())
+         ON CONFLICT ("account_id", "ledger_id") DO UPDATE
+         SET "balance" = "account_balances"."balance" + EXCLUDED."balance",
+             "version" = "account_balances"."version" + 1,
+             "last_updated_at" = now()`,
+        [accountId, ledgerId, netChange],
+      );
 
       this.logger.log(`Job ${job.id}: Balance for account ${accountId} updated successfully.`);
     } catch (error) {

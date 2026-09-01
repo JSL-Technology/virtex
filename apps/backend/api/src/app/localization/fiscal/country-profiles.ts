@@ -83,6 +83,19 @@ export interface CountryFiscalProfile {
   currency: string;
   /** BCP 47, for number and date formatting. */
   locale: string;
+  /**
+   * IANA time zone of the country's fiscal day.
+   *
+   * A comprobante's `FechaHoraFirma`, its emission date and the cut-off of a monthly return are all
+   * statements about local time in the issuer's country, and the server that produces them runs in
+   * UTC. Stamping server time meant a Dominican sale made at 20:30 was signed as 00:30 the
+   * following day — a signature dated after the emission date, which the DGII rejects, and a sale
+   * booked into the wrong month at every month end.
+   *
+   * Countries spanning several zones carry their commercial centre's; a tenant that sits in another
+   * one overrides it on `organizations.timezone`.
+   */
+  timeZone: string;
   /** E.164 calling code, without the leading '+'. */
   callingCode: string;
 
@@ -692,7 +705,7 @@ const NICARAGUAN_DEPARTMENTS: AdministrativeDivision[] = [
  */
 export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
   {
-    countryCode: 'DO', name: 'República Dominicana', currency: 'DOP', locale: 'es-DO',
+    countryCode: 'DO', name: 'República Dominicana', currency: 'DOP', locale: 'es-DO', timeZone: 'America/Santo_Domingo',
     callingCode: '1', fiscalAuthority: 'DGII',
     taxId: { label: 'RNC / Cédula', example: '131-12345-7', pattern: '^\\d{3}-?\\d{5}-?\\d$|^\\d{11}$', hasCheckDigit: true },
     individualDocument: { code: 'CEDULA', label: 'Cédula', pattern: '^\\d{11}$' },
@@ -717,7 +730,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     dateFormat: 'dd/MM/yyyy', thousandSeparator: ',', decimalSeparator: '.',
   },
   {
-    countryCode: 'US', name: 'United States', currency: 'USD', locale: 'en-US',
+    countryCode: 'US', name: 'United States', currency: 'USD', locale: 'en-US', timeZone: 'America/New_York',
     callingCode: '1', fiscalAuthority: 'IRS',
     taxId: { label: 'EIN', example: '12-3456789', pattern: '^\\d{2}-?\\d{7}$', hasCheckDigit: false },
     // Sales tax is destination-based: without state and ZIP+4 no rate can be determined.
@@ -728,7 +741,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     dateFormat: 'MM/dd/yyyy', thousandSeparator: ',', decimalSeparator: '.',
   },
   {
-    countryCode: 'MX', name: 'México', currency: 'MXN', locale: 'es-MX',
+    countryCode: 'MX', name: 'México', currency: 'MXN', locale: 'es-MX', timeZone: 'America/Mexico_City',
     callingCode: '52', fiscalAuthority: 'SAT',
     taxId: { label: 'RFC', example: 'DEM010203AB5', pattern: '^[A-ZÑ&]{3,4}\\d{6}[A-Z\\d]{3}$', hasCheckDigit: true },
     address: { divisionLabel: 'Estado', divisions: MEXICAN_STATES, postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{5}$', postalCodeRequired: true },
@@ -745,7 +758,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     dateFormat: 'dd/MM/yyyy', thousandSeparator: ',', decimalSeparator: '.',
   },
   {
-    countryCode: 'CO', name: 'Colombia', currency: 'COP', locale: 'es-CO',
+    countryCode: 'CO', name: 'Colombia', currency: 'COP', locale: 'es-CO', timeZone: 'America/Bogota',
     callingCode: '57', fiscalAuthority: 'DIAN',
     taxId: { label: 'NIT', example: '900123456-8', pattern: '^\\d{9,10}-?\\d$', hasCheckDigit: true },
     address: { divisionLabel: 'Departamento', divisions: COLOMBIAN_DEPARTMENTS, postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{6}$', postalCodeRequired: false },
@@ -762,7 +775,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     dateFormat: 'dd/MM/yyyy', thousandSeparator: '.', decimalSeparator: ',',
   },
   {
-    countryCode: 'CL', name: 'Chile', currency: 'CLP', locale: 'es-CL',
+    countryCode: 'CL', name: 'Chile', currency: 'CLP', locale: 'es-CL', timeZone: 'America/Santiago',
     callingCode: '56', fiscalAuthority: 'SII',
     taxId: { label: 'RUT', example: '76.086.428-5', pattern: '^\\d{1,2}\\.?\\d{3}\\.?\\d{3}-?[0-9Kk]$', hasCheckDigit: true },
     address: { divisionLabel: 'Región', divisions: CHILEAN_REGIONS, postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{7}$', postalCodeRequired: false },
@@ -782,7 +795,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     dateFormat: 'dd-MM-yyyy', thousandSeparator: '.', decimalSeparator: ',',
   },
   {
-    countryCode: 'PE', name: 'Perú', currency: 'PEN', locale: 'es-PE',
+    countryCode: 'PE', name: 'Perú', currency: 'PEN', locale: 'es-PE', timeZone: 'America/Lima',
     callingCode: '51', fiscalAuthority: 'SUNAT',
     taxId: { label: 'RUC', example: '20123456786', pattern: '^(10|15|17|20)\\d{9}$', hasCheckDigit: true },
     address: { divisionLabel: 'Departamento', divisions: PERUVIAN_DEPARTMENTS, postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{5}$', postalCodeRequired: false },
@@ -798,7 +811,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     dateFormat: 'dd/MM/yyyy', thousandSeparator: ',', decimalSeparator: '.',
   },
   {
-    countryCode: 'AR', name: 'Argentina', currency: 'ARS', locale: 'es-AR',
+    countryCode: 'AR', name: 'Argentina', currency: 'ARS', locale: 'es-AR', timeZone: 'America/Argentina/Buenos_Aires',
     callingCode: '54', fiscalAuthority: 'AFIP',
     taxId: { label: 'CUIT', example: '30-71234567-1', pattern: '^\\d{2}-?\\d{8}-?\\d$', hasCheckDigit: true },
     address: { divisionLabel: 'Provincia', divisions: ARGENTINE_PROVINCES, postalCodeLabel: 'Código postal', postalCodePattern: '^[A-Z]?\\d{4}[A-Z]{0,3}$', postalCodeRequired: true },
@@ -819,7 +832,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     dateFormat: 'dd/MM/yyyy', thousandSeparator: '.', decimalSeparator: ',',
   },
   {
-    countryCode: 'BR', name: 'Brasil', currency: 'BRL', locale: 'pt-BR',
+    countryCode: 'BR', name: 'Brasil', currency: 'BRL', locale: 'pt-BR', timeZone: 'America/Sao_Paulo',
     callingCode: '55', fiscalAuthority: 'Receita Federal',
     taxId: { label: 'CNPJ', example: '11.222.333/0001-81', pattern: '^\\d{2}\\.?\\d{3}\\.?\\d{3}/?\\d{4}-?\\d{2}$', hasCheckDigit: true },
     address: { divisionLabel: 'Estado', divisions: BRAZILIAN_STATES, postalCodeLabel: 'CEP', postalCodePattern: '^\\d{5}-?\\d{3}$', postalCodeRequired: true },
@@ -844,7 +857,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     dateFormat: 'dd/MM/yyyy', thousandSeparator: '.', decimalSeparator: ',',
   },
   {
-    countryCode: 'EC', name: 'Ecuador', currency: 'USD', locale: 'es-EC',
+    countryCode: 'EC', name: 'Ecuador', currency: 'USD', locale: 'es-EC', timeZone: 'America/Guayaquil',
     callingCode: '593', fiscalAuthority: 'SRI',
     taxId: { label: 'RUC', example: '1790123456001', pattern: '^\\d{13}$', hasCheckDigit: true },
     address: { divisionLabel: 'Provincia', divisions: ECUADORIAN_PROVINCES, postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{6}$', postalCodeRequired: false },
@@ -864,7 +877,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     dateFormat: 'dd/MM/yyyy', thousandSeparator: ',', decimalSeparator: '.',
   },
   {
-    countryCode: 'UY', name: 'Uruguay', currency: 'UYU', locale: 'es-UY',
+    countryCode: 'UY', name: 'Uruguay', currency: 'UYU', locale: 'es-UY', timeZone: 'America/Montevideo',
     callingCode: '598', fiscalAuthority: 'DGI',
     taxId: { label: 'RUT', example: '211003420017', pattern: '^\\d{12}$', hasCheckDigit: true },
     address: { divisionLabel: 'Departamento', divisions: URUGUAYAN_DEPARTMENTS, postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{5}$', postalCodeRequired: false },
@@ -873,7 +886,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     dateFormat: 'dd/MM/yyyy', thousandSeparator: '.', decimalSeparator: ',',
   },
   {
-    countryCode: 'PY', name: 'Paraguay', currency: 'PYG', locale: 'es-PY',
+    countryCode: 'PY', name: 'Paraguay', currency: 'PYG', locale: 'es-PY', timeZone: 'America/Asuncion',
     callingCode: '595', fiscalAuthority: 'SET',
     taxId: { label: 'RUC', example: '80012345-0', pattern: '^\\d{5,8}-?\\d$', hasCheckDigit: true },
     address: { divisionLabel: 'Departamento', divisions: PARAGUAYAN_DEPARTMENTS, postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{4}$', postalCodeRequired: false },
@@ -882,7 +895,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     dateFormat: 'dd/MM/yyyy', thousandSeparator: '.', decimalSeparator: ',',
   },
   {
-    countryCode: 'BO', name: 'Bolivia', currency: 'BOB', locale: 'es-BO',
+    countryCode: 'BO', name: 'Bolivia', currency: 'BOB', locale: 'es-BO', timeZone: 'America/La_Paz',
     callingCode: '591', fiscalAuthority: 'SIN',
     taxId: { label: 'NIT', example: '1234567890', pattern: '^\\d{7,12}$', hasCheckDigit: false },
     address: { divisionLabel: 'Departamento', divisions: BOLIVIAN_DEPARTMENTS, postalCodeLabel: 'Código postal', postalCodeRequired: false },
@@ -891,7 +904,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     dateFormat: 'dd/MM/yyyy', thousandSeparator: '.', decimalSeparator: ',',
   },
   {
-    countryCode: 'VE', name: 'Venezuela', currency: 'VES', locale: 'es-VE',
+    countryCode: 'VE', name: 'Venezuela', currency: 'VES', locale: 'es-VE', timeZone: 'America/Caracas',
     callingCode: '58', fiscalAuthority: 'SENIAT',
     taxId: { label: 'RIF', example: 'J-30599168-5', pattern: '^[VEJPGvejpg]-?\\d{8}-?\\d$', hasCheckDigit: true },
     address: { divisionLabel: 'Estado', divisions: VENEZUELAN_STATES, postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{4}$', postalCodeRequired: false },
@@ -900,7 +913,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     dateFormat: 'dd/MM/yyyy', thousandSeparator: '.', decimalSeparator: ',',
   },
   {
-    countryCode: 'PA', name: 'Panamá', currency: 'PAB', locale: 'es-PA',
+    countryCode: 'PA', name: 'Panamá', currency: 'PAB', locale: 'es-PA', timeZone: 'America/Panama',
     callingCode: '507', fiscalAuthority: 'DGI',
     taxId: { label: 'RUC', example: '15512345-2-2018', pattern: '^[\\dA-Za-z]+(-[\\dA-Za-z]+){1,4}$', hasCheckDigit: false },
     address: { divisionLabel: 'Provincia', divisions: PANAMANIAN_PROVINCES, postalCodeLabel: 'Código postal', postalCodeRequired: false },
@@ -909,7 +922,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     dateFormat: 'dd/MM/yyyy', thousandSeparator: ',', decimalSeparator: '.',
   },
   {
-    countryCode: 'CR', name: 'Costa Rica', currency: 'CRC', locale: 'es-CR',
+    countryCode: 'CR', name: 'Costa Rica', currency: 'CRC', locale: 'es-CR', timeZone: 'America/Costa_Rica',
     callingCode: '506', fiscalAuthority: 'Ministerio de Hacienda',
     taxId: { label: 'Cédula jurídica', example: '3101123456', pattern: '^\\d{9,12}$', hasCheckDigit: false },
     address: { divisionLabel: 'Provincia', divisions: COSTA_RICAN_PROVINCES, postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{5}$', postalCodeRequired: false },
@@ -918,7 +931,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     dateFormat: 'dd/MM/yyyy', thousandSeparator: '.', decimalSeparator: ',',
   },
   {
-    countryCode: 'GT', name: 'Guatemala', currency: 'GTQ', locale: 'es-GT',
+    countryCode: 'GT', name: 'Guatemala', currency: 'GTQ', locale: 'es-GT', timeZone: 'America/Guatemala',
     callingCode: '502', fiscalAuthority: 'SAT',
     taxId: { label: 'NIT', example: '1234567-9', pattern: '^\\d{2,12}-?[0-9Kk]$', hasCheckDigit: true },
     address: { divisionLabel: 'Departamento', divisions: GUATEMALAN_DEPARTMENTS, postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{5}$', postalCodeRequired: false },
@@ -927,7 +940,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     dateFormat: 'dd/MM/yyyy', thousandSeparator: ',', decimalSeparator: '.',
   },
   {
-    countryCode: 'SV', name: 'El Salvador', currency: 'USD', locale: 'es-SV',
+    countryCode: 'SV', name: 'El Salvador', currency: 'USD', locale: 'es-SV', timeZone: 'America/El_Salvador',
     callingCode: '503', fiscalAuthority: 'Ministerio de Hacienda',
     taxId: { label: 'NIT', example: '0614-123456-001-2', pattern: '^\\d{4}-?\\d{6}-?\\d{3}-?\\d$', hasCheckDigit: false },
     address: { divisionLabel: 'Departamento', divisions: SALVADORAN_DEPARTMENTS, postalCodeLabel: 'Código postal', postalCodeRequired: false },
@@ -936,7 +949,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     dateFormat: 'dd/MM/yyyy', thousandSeparator: ',', decimalSeparator: '.',
   },
   {
-    countryCode: 'HN', name: 'Honduras', currency: 'HNL', locale: 'es-HN',
+    countryCode: 'HN', name: 'Honduras', currency: 'HNL', locale: 'es-HN', timeZone: 'America/Tegucigalpa',
     callingCode: '504', fiscalAuthority: 'SAR',
     taxId: { label: 'RTN', example: '08019012345678', pattern: '^\\d{14}$', hasCheckDigit: false },
     address: { divisionLabel: 'Departamento', divisions: HONDURAN_DEPARTMENTS, postalCodeLabel: 'Código postal', postalCodeRequired: false },
@@ -945,7 +958,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     dateFormat: 'dd/MM/yyyy', thousandSeparator: ',', decimalSeparator: '.',
   },
   {
-    countryCode: 'NI', name: 'Nicaragua', currency: 'NIO', locale: 'es-NI',
+    countryCode: 'NI', name: 'Nicaragua', currency: 'NIO', locale: 'es-NI', timeZone: 'America/Managua',
     callingCode: '505', fiscalAuthority: 'DGI',
     taxId: { label: 'RUC', example: 'J0310000012345', pattern: '^[A-Za-z0-9]{14}$', hasCheckDigit: false },
     address: { divisionLabel: 'Departamento', divisions: NICARAGUAN_DEPARTMENTS, postalCodeLabel: 'Código postal', postalCodeRequired: false },

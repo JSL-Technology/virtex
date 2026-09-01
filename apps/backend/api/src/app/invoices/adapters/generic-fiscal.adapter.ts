@@ -1,31 +1,33 @@
 import { Injectable } from '@nestjs/common';
-import { EntityManager } from 'typeorm';
-import { FiscalAdapter } from '../interfaces/fiscal-adapter.interface';
+import {
+  FiscalAdapter,
+  FiscalAssignmentContext,
+  FiscalNumberAssignment,
+} from '../interfaces/fiscal-adapter.interface';
 import { Invoice } from '../entities/invoice.entity';
-import { CreateInvoiceDto } from '../dto/create-invoice.dto';
+import { NcfType } from '../../compliance/entities/ncf-sequence.entity';
 
+/**
+ * Markets whose electronic-invoicing regime this product does not yet implement.
+ *
+ * It assigns no fiscal number, which is the honest outcome: the internal document number from
+ * `document_sequences` still identifies the document, the ledger entry is still posted, and nothing
+ * pretends to have been stamped by an authority. `country-profiles.ts` marks these markets
+ * `preview` for exactly this reason, and the signup discloses it before payment.
+ */
 @Injectable()
 export class GenericFiscalAdapter implements FiscalAdapter {
-  async processInvoice(
-    invoice: Invoice,
-    dto: CreateInvoiceDto,
-    organizationId: string,
-    manager: EntityManager
-  ): Promise<void> {
-    // Generic implementation: No special fiscal number generation like NCF
-    // Could generate a simple sequential invoice number if not already handled,
-    // but InvoicesService already handles internal sequence.
-
-    // Generic regimes issue no NCF; the field is optional, so absent is the correct value.
-    invoice.ncfNumber = undefined;
+  availableSalesTypes(): readonly NcfType[] {
+    return [];
   }
 
-  async processCreditNote(
-    creditNote: Invoice,
-    originalInvoice: Invoice,
-    organizationId: string,
-    manager: EntityManager
-  ): Promise<void> {
-    creditNote.ncfNumber = undefined;
+  async assignSalesNumber(_context: FiscalAssignmentContext): Promise<FiscalNumberAssignment> {
+    return { ncf: null, documentType: null, expiresAt: null };
+  }
+
+  async assignCreditNoteNumber(
+    _context: FiscalAssignmentContext & { originalInvoice: Invoice },
+  ): Promise<FiscalNumberAssignment> {
+    return { ncf: null, documentType: null, expiresAt: null };
   }
 }

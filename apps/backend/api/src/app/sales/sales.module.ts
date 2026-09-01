@@ -16,6 +16,10 @@ import { QuotesController } from './controllers/quotes.controller';
 import { QuotesService } from './services/quotes.service';
 import { SharedModule } from '../shared/shared.module';
 import { InvoicesModule } from '../invoices/invoices.module';
+import { AuthModule } from '../auth/auth.module';
+import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
+import { ExchangeRate } from '../currencies/entities/exchange-rate.entity';
+import { Customer } from '../customers/entities/customer.entity';
 
 @Module({
   imports: [
@@ -25,7 +29,13 @@ import { InvoicesModule } from '../invoices/invoices.module';
       Quote,
       QuoteLine,
       Activity,
+      OrganizationSettings,
+      ExchangeRate,
+      // `LeadsService` injects the customer repository directly. The module never declared it,
+      // which nothing noticed because the module itself was never loaded by the application.
+      Customer,
     ]),
+    AuthModule,
     CustomersModule,
     SharedModule,
     InvoicesModule,
@@ -36,9 +46,10 @@ import { InvoicesModule } from '../invoices/invoices.module';
     QuotesController,
   ],
   providers: [
-    LeadsService, 
+    LeadsService,
     OpportunitiesService,
     QuotesService,
   ],
+  exports: [QuotesService],
 })
 export class SalesModule {}

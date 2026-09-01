@@ -184,7 +184,12 @@ export class AccountsPayableService {
 
         for (const line of bill.lines) {
             if (line.productId) {
-                await this.inventoryService.increaseStock(line.productId, line.quantity, manager);
+                await this.inventoryService.increaseStock(
+                    line.productId,
+                    line.quantity,
+                    manager,
+                    bill.organizationId,
+                );
             }
         }
 

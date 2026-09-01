@@ -8,13 +8,24 @@ import { Invoice, InvoicesService } from '../../../core/services/invoices';
 import { EinvoicingService, EcfSubmissionView } from '../../../core/services/einvoicing';
 import { NotificationService } from '../../../core/services/notification';
 import { InvoiceToolbarComponent } from '../components/invoice-toolbar/invoice-toolbar.component';
+import { QRCodeComponent } from 'angularx-qrcode';
 import { asBlob } from 'html-docx-js-typescript';
 import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'app-invoice-detail-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, DecimalPipe, DatePipe, InvoiceToolbarComponent, FormsModule],
+  imports: [
+    CommonModule,
+    LucideAngularModule,
+    DecimalPipe,
+    DatePipe,
+    InvoiceToolbarComponent,
+    FormsModule,
+    // The QR is the element the norm requires on the printed representation; the page used to show
+    // a text link instead, while `angularx-qrcode` was already a dependency of the project.
+    QRCodeComponent,
+  ],
   templateUrl: './detail.page.html',
   styleUrls: ['./detail.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -139,9 +150,27 @@ export class InvoiceDetailPage implements OnInit {
     return labels[status] || status;
   }
 
+  /**
+   * Previous / next across the tenant's documents.
+   *
+   * It used to download EVERY invoice of the tenant, sort them client-side and read the neighbours
+   * out of the array — a full-table request on each document opened. One page of fifty, ordered by
+   * the server, gives the same navigation for a fraction of the cost.
+   */
   loadNavigation(): void {
-    this.invoicesService.getInvoiceNavigation(this.id()).subscribe(nav => {
-        this.navigationIds.set(nav);
+    this.invoicesService.getInvoices({ limit: 50 }).subscribe((result) => {
+      const ids = result.items.map((invoice) => invoice.id);
+      const index = ids.indexOf(this.id());
+      if (index < 0) {
+        this.navigationIds.set(null);
+        return;
+      }
+      this.navigationIds.set({
+        first: ids[0],
+        prev: ids[index - 1] ?? ids[0],
+        next: ids[index + 1] ?? ids[ids.length - 1],
+        last: ids[ids.length - 1],
+      });
     });
   }
 
@@ -231,15 +260,59 @@ export class InvoiceDetailPage implements OnInit {
     this.location.forward();
   }
 
+  /** Issue a draft: assigns the e-NCF, posts the ledger entry and transmits the comprobante. */
+  issue(): void {
+    const invoice = this.invoice();
+    if (!invoice) return;
+    this.ecfBusy.set(true);
+    this.invoicesService.issue(invoice.id).subscribe({
+      next: (issued) => {
+        this.ecfBusy.set(false);
+        this.notificationService.showSuccess(
+          `Documento emitido con el comprobante ${issued.ncfNumber ?? issued.invoiceNumber}.`,
+        );
+        this.loadInvoice();
+      },
+      error: (err) => {
+        this.ecfBusy.set(false);
+        this.notificationService.showError(err?.error?.message || 'No se pudo emitir el documento.');
+      },
+    });
+  }
+
+  /** Discard a draft. It consumed no fiscal numbering, so nothing has to be declared. */
+  discardDraft(): void {
+    const invoice = this.invoice();
+    if (!invoice) return;
+    if (!confirm(`¿Eliminar el borrador ${invoice.invoiceNumber}? No se puede deshacer.`)) return;
+
+    this.invoicesService.discardDraft(invoice.id).subscribe({
+      next: () => {
+        this.notificationService.showSuccess('Borrador eliminado.');
+        this.router.navigate(['/invoices']);
+      },
+      error: (err) =>
+        this.notificationService.showError(err?.error?.message || 'No se pudo eliminar el borrador.'),
+    });
+  }
+
   createCreditNote(invoiceId: string): void {
-      if(confirm('¿Estás seguro de que quieres anular esta factura con una nota de crédito? Esta acción no se puede deshacer.')) {
-          this.invoicesService.createCreditNote(invoiceId).subscribe({
-              next: () => {
-                  this.notificationService.showSuccess('Factura anulada y nota de crédito creada.');
-                  this.loadInvoice();
-              },
-              error: (err) => this.notificationService.showError(err.message)
-          });
-      }
+      const reason = prompt(
+        'Motivo de la nota de crédito (se imprime en el comprobante y determina el código de modificación):',
+      );
+      if (reason === null) return;
+
+      this.invoicesService.createCreditNote(invoiceId, { reason: reason || undefined }).subscribe({
+        next: (note) => {
+          this.notificationService.showSuccess(
+            `Nota de crédito ${note.ncfNumber ?? note.invoiceNumber} emitida.`,
+          );
+          this.loadInvoice();
+        },
+        error: (err) =>
+          this.notificationService.showError(
+            err?.error?.message || 'No se pudo emitir la nota de crédito.',
+          ),
+      });
   }
 }
