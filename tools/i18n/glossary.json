@@ -6514,6 +6514,1818 @@
     "Otro medio": {
       "en": "Other method",
       "pt": "Outro meio"
+    },
+    "30 Días": {
+      "en": "30 days",
+      "pt": "30 dias"
+    },
+    "Exportar a Excel": {
+      "en": "Export to Excel",
+      "pt": "Exportar para Excel"
+    },
+    "Exportar a Word": {
+      "en": "Export to Word",
+      "pt": "Exportar para Word"
+    },
+    "Copiar de...": {
+      "en": "Copy from...",
+      "pt": "Copiar de..."
+    },
+    "Copiar a...": {
+      "en": "Copy to...",
+      "pt": "Copiar para..."
+    },
+    "Parametrizaciones de formulario": {
+      "en": "Form settings",
+      "pt": "Parametrizações do formulário"
+    },
+    "Completa la información del cliente para facturación y contacto.": {
+      "en": "Fill in the customer's billing and contact details.",
+      "pt": "Preencha os dados de faturamento e contato do cliente."
+    },
+    "Guardar Cliente": {
+      "en": "Save Customer",
+      "pt": "Salvar Cliente"
+    },
+    "Nombre de empresa*": {
+      "en": "Company name*",
+      "pt": "Nome da empresa*"
+    },
+    "RNC / NIF": {
+      "en": "Tax ID",
+      "pt": "CNPJ / CPF"
+    },
+    "Persona de contacto": {
+      "en": "Contact person",
+      "pt": "Pessoa de contato"
+    },
+    "Correo*": {
+      "en": "Email*",
+      "pt": "E-mail*"
+    },
+    "Provincia/Estado": {
+      "en": "Province/State",
+      "pt": "Estado/Província"
+    },
+    "No se pudieron cargar los productos.": {
+      "en": "The products could not be loaded.",
+      "pt": "Não foi possível carregar os produtos."
+    },
+    "No se pudo cargar la lista de precios.": {
+      "en": "The price list could not be loaded.",
+      "pt": "Não foi possível carregar a tabela de preços."
+    },
+    "Lista de precios actualizada exitosamente.": {
+      "en": "Price list updated.",
+      "pt": "Tabela de preços atualizada."
+    },
+    "Lista de precios creada exitosamente.": {
+      "en": "Price list created.",
+      "pt": "Tabela de preços criada."
+    },
+    "Error al actualizar la lista de precios.": {
+      "en": "Error updating the price list.",
+      "pt": "Erro ao atualizar a tabela de preços."
+    },
+    "Error al crear la lista de precios.": {
+      "en": "Error creating the price list.",
+      "pt": "Erro ao criar a tabela de preços."
+    },
+    "Define precios para un conjunto específico de productos.": {
+      "en": "Define prices for a specific set of products.",
+      "pt": "Defina preços para um conjunto específico de produtos."
+    },
+    "Nombre de la Lista*": {
+      "en": "List Name*",
+      "pt": "Nome da Tabela*"
+    },
+    "Moneda*": {
+      "en": "Currency*",
+      "pt": "Moeda*"
+    },
+    "USD - Dólar Estadounidense": {
+      "en": "USD - United States Dollar",
+      "pt": "USD - Dólar Americano"
+    },
+    "DOP - Peso Dominicano": {
+      "en": "DOP - Dominican Peso",
+      "pt": "DOP - Peso Dominicano"
+    },
+    "EUR - Euro": {
+      "en": "EUR - Euro",
+      "pt": "EUR - Euro"
+    },
+    "Válido Desde*": {
+      "en": "Valid From*",
+      "pt": "Válido De*"
+    },
+    "Válido Hasta*": {
+      "en": "Valid Until*",
+      "pt": "Válido Até*"
+    },
+    "Ítems de la Lista de Precios": {
+      "en": "Price List Items",
+      "pt": "Itens da Tabela de Preços"
+    },
+    "Producto*": {
+      "en": "Product*",
+      "pt": "Produto*"
+    },
+    "Precio*": {
+      "en": "Price*",
+      "pt": "Preço*"
+    },
+    "Selecciona un producto...": {
+      "en": "Select a product...",
+      "pt": "Selecione um produto..."
+    },
+    "Lista de precios eliminada exitosamente.": {
+      "en": "Price list deleted.",
+      "pt": "Tabela de preços excluída."
+    },
+    "No se pudieron cargar las listas de precios.": {
+      "en": "The price lists could not be loaded.",
+      "pt": "Não foi possível carregar as tabelas de preços."
+    },
+    "No se pudo eliminar la lista de precios.": {
+      "en": "The price list could not be deleted.",
+      "pt": "Não foi possível excluir a tabela de preços."
+    },
+    "Nueva Lista": {
+      "en": "New List",
+      "pt": "Nova Tabela"
+    },
+    "Válido Desde": {
+      "en": "Valid From",
+      "pt": "Válido De"
+    },
+    "Válido Hasta": {
+      "en": "Valid Until",
+      "pt": "Válido Até"
+    },
+    "Ítems": {
+      "en": "Items",
+      "pt": "Itens"
+    },
+    "Cargando listas de precios...": {
+      "en": "Loading price lists...",
+      "pt": "Carregando tabelas de preços..."
+    },
+    "No se encontraron listas de precios.": {
+      "en": "No price lists were found.",
+      "pt": "Nenhuma tabela de preços encontrada."
+    },
+    "No se pudo cargar el proveedor.": {
+      "en": "The supplier could not be loaded.",
+      "pt": "Não foi possível carregar o fornecedor."
+    },
+    "Proveedor actualizado exitosamente.": {
+      "en": "Supplier updated.",
+      "pt": "Fornecedor atualizado."
+    },
+    "Proveedor creado exitosamente.": {
+      "en": "Supplier created.",
+      "pt": "Fornecedor criado."
+    },
+    "Error al actualizar el proveedor.": {
+      "en": "Error updating the supplier.",
+      "pt": "Erro ao atualizar o fornecedor."
+    },
+    "Error al crear el proveedor.": {
+      "en": "Error creating the supplier.",
+      "pt": "Erro ao criar o fornecedor."
+    },
+    "Completa la información detallada de tu proveedor.": {
+      "en": "Fill in your supplier's details.",
+      "pt": "Preencha os dados do seu fornecedor."
+    },
+    "Guardar Proveedor": {
+      "en": "Save Supplier",
+      "pt": "Salvar Fornecedor"
+    },
+    "Información del Proveedor": {
+      "en": "Supplier Information",
+      "pt": "Informações do Fornecedor"
+    },
+    "Nombre del Proveedor*": {
+      "en": "Supplier Name*",
+      "pt": "Nome do Fornecedor*"
+    },
+    "Nuevo proveedor": {
+      "en": "New supplier",
+      "pt": "Novo fornecedor"
+    },
+    "Razón social": {
+      "en": "Legal name",
+      "pt": "Razão social"
+    },
+    "Identificación fiscal": {
+      "en": "Tax ID",
+      "pt": "Identificação fiscal"
+    },
+    "No se encontraron proveedores.": {
+      "en": "No suppliers were found.",
+      "pt": "Nenhum fornecedor encontrado."
+    },
+    "No se pudo cargar el impuesto.": {
+      "en": "The tax could not be loaded.",
+      "pt": "Não foi possível carregar o imposto."
+    },
+    "Por favor, complete los campos requeridos.": {
+      "en": "Fill in the required fields.",
+      "pt": "Preencha os campos obrigatórios."
+    },
+    "Impuesto actualizado exitosamente.": {
+      "en": "Tax updated.",
+      "pt": "Imposto atualizado."
+    },
+    "Impuesto creado exitosamente.": {
+      "en": "Tax created.",
+      "pt": "Imposto criado."
+    },
+    "Error al actualizar el impuesto.": {
+      "en": "Error updating the tax.",
+      "pt": "Erro ao atualizar o imposto."
+    },
+    "Error al crear el impuesto.": {
+      "en": "Error creating the tax.",
+      "pt": "Erro ao criar o imposto."
+    },
+    "Configura una nueva tasa de impuesto para tus transacciones.": {
+      "en": "Configure a new tax rate for your transactions.",
+      "pt": "Configure uma nova alíquota para suas transações."
+    },
+    "Guardar Impuesto": {
+      "en": "Save Tax",
+      "pt": "Salvar Imposto"
+    },
+    "Nombre del Impuesto*": {
+      "en": "Tax Name*",
+      "pt": "Nome do Imposto*"
+    },
+    "Tasa*": {
+      "en": "Rate*",
+      "pt": "Alíquota*"
+    },
+    "Tipo*": {
+      "en": "Type*",
+      "pt": "Tipo*"
+    },
+    "Código de País (Opcional)": {
+      "en": "Country Code (optional)",
+      "pt": "Código do País (opcional)"
+    },
+    "Ej: IVA general": {
+      "en": "e.g. Standard VAT",
+      "pt": "Ex.: ICMS padrão"
+    },
+    "Impuesto eliminado exitosamente.": {
+      "en": "Tax deleted.",
+      "pt": "Imposto excluído."
+    },
+    "No se pudieron cargar los impuestos.": {
+      "en": "The taxes could not be loaded.",
+      "pt": "Não foi possível carregar os impostos."
+    },
+    "Error al eliminar el impuesto.": {
+      "en": "Error deleting the tax.",
+      "pt": "Erro ao excluir o imposto."
+    },
+    "Tasas de impuesto": {
+      "en": "Tax rates",
+      "pt": "Alíquotas"
+    },
+    "Nuevo impuesto": {
+      "en": "New tax",
+      "pt": "Novo imposto"
+    },
+    "Tasa (%)": {
+      "en": "Rate (%)",
+      "pt": "Alíquota (%)"
+    },
+    "No hay impuestos configurados.": {
+      "en": "No taxes are configured.",
+      "pt": "Nenhum imposto configurado."
+    },
+    "Nuevo banco": {
+      "en": "New bank",
+      "pt": "Novo banco"
+    },
+    "Nombre del banco": {
+      "en": "Bank name",
+      "pt": "Nome do banco"
+    },
+    "Código SWIFT": {
+      "en": "SWIFT code",
+      "pt": "Código SWIFT"
+    },
+    "No hay bancos configurados.": {
+      "en": "No banks are configured.",
+      "pt": "Nenhum banco configurado."
+    },
+    "Sucursales y ubicaciones": {
+      "en": "Branches and locations",
+      "pt": "Filiais e localizações"
+    },
+    "Nueva sucursal": {
+      "en": "New branch",
+      "pt": "Nova filial"
+    },
+    "No hay sucursales configuradas.": {
+      "en": "No branches are configured.",
+      "pt": "Nenhuma filial configurada."
+    },
+    "Nueva moneda": {
+      "en": "New currency",
+      "pt": "Nova moeda"
+    },
+    "Nombre de la moneda": {
+      "en": "Currency name",
+      "pt": "Nome da moeda"
+    },
+    "Símbolo": {
+      "en": "Symbol",
+      "pt": "Símbolo"
+    },
+    "Moneda base": {
+      "en": "Base currency",
+      "pt": "Moeda base"
+    },
+    "Sí": {
+      "en": "Yes",
+      "pt": "Sim"
+    },
+    "No hay monedas configuradas.": {
+      "en": "No currencies are configured.",
+      "pt": "Nenhuma moeda configurada."
+    },
+    "Ubicación": {
+      "en": "Location",
+      "pt": "Localização"
+    },
+    "No se encontraron clientes. Empieza agregando uno.": {
+      "en": "No customers were found. Start by adding one.",
+      "pt": "Nenhum cliente encontrado. Comece adicionando um."
+    },
+    "Datos maestros": {
+      "en": "Master data",
+      "pt": "Dados mestres"
+    },
+    "Nuevo método": {
+      "en": "New method",
+      "pt": "Nova forma"
+    },
+    "Forma predeterminada": {
+      "en": "Default method",
+      "pt": "Forma padrão"
+    },
+    "Nueva condición": {
+      "en": "New term",
+      "pt": "Nova condição"
+    },
+    "Días netos": {
+      "en": "Net days",
+      "pt": "Dias líquidos"
+    },
+    "Nueva unidad": {
+      "en": "New unit",
+      "pt": "Nova unidade"
+    },
+    "No hay unidades de medida configuradas.": {
+      "en": "No units of measure are configured.",
+      "pt": "Nenhuma unidade de medida configurada."
+    },
+    "Nuevo almacén": {
+      "en": "New warehouse",
+      "pt": "Novo depósito"
+    },
+    "Encargado": {
+      "en": "Manager",
+      "pt": "Responsável"
+    },
+    "No hay almacenes configurados.": {
+      "en": "No warehouses are configured.",
+      "pt": "Nenhum depósito configurado."
+    },
+    "Centro de Aprobaciones": {
+      "en": "Approvals Centre",
+      "pt": "Central de Aprovações"
+    },
+    "Revisa, aprueba o rechaza todas las solicitudes pendientes de la empresa.": {
+      "en": "Review, approve or reject every pending request in the company.",
+      "pt": "Revise, aprove ou rejeite todas as solicitações pendentes da empresa."
+    },
+    "Facturas de Proveedores": {
+      "en": "Vendor Bills",
+      "pt": "Faturas de Fornecedores"
+    },
+    "Reportes de Gastos": {
+      "en": "Expense Reports",
+      "pt": "Relatórios de Despesas"
+    },
+    "Solicitado por": {
+      "en": "Requested by",
+      "pt": "Solicitado por"
+    },
+    "Rechazar": {
+      "en": "Reject",
+      "pt": "Rejeitar"
+    },
+    "Aprobar": {
+      "en": "Approve",
+      "pt": "Aprovar"
+    },
+    "No hay facturas pendientes de aprobación.": {
+      "en": "No invoices are awaiting approval.",
+      "pt": "Nenhuma fatura aguardando aprovação."
+    },
+    "No hay reportes de gastos pendientes de aprobación.": {
+      "en": "No expense reports are awaiting approval.",
+      "pt": "Nenhum relatório de despesas aguardando aprovação."
+    },
+    "No hay órdenes de compra pendientes de aprobación.": {
+      "en": "No purchase orders are awaiting approval.",
+      "pt": "Nenhum pedido de compra aguardando aprovação."
+    },
+    "Arrastra los widgets para reorganizarlos. Usa las esquinas para redimensionar.": {
+      "en": "Drag the widgets to rearrange them. Use the corners to resize.",
+      "pt": "Arraste os widgets para reorganizá-los. Use os cantos para redimensionar."
+    },
+    "Arrastrar": {
+      "en": "Drag",
+      "pt": "Arrastar"
+    },
+    "Alertas Tempranas": {
+      "en": "Early Warnings",
+      "pt": "Alertas Antecipados"
+    },
+    "Envejecimiento de Cuentas por Cobrar": {
+      "en": "Accounts Receivable Ageing",
+      "pt": "Aging de Contas a Receber"
+    },
+    "Pastel": {
+      "en": "Pie",
+      "pt": "Pizza"
+    },
+    "Configurar": {
+      "en": "Configure",
+      "pt": "Configurar"
+    },
+    "Ingresos: Real vs. Presupuesto (YTD)": {
+      "en": "Revenue: Actual vs. Budget (YTD)",
+      "pt": "Receita: Real vs. Orçado (YTD)"
+    },
+    "Columnas": {
+      "en": "Columns",
+      "pt": "Colunas"
+    },
+    "Área": {
+      "en": "Area",
+      "pt": "Área"
+    },
+    "Desglose de Gastos Operativos": {
+      "en": "Operating Expense Breakdown",
+      "pt": "Composição das Despesas Operacionais"
+    },
+    "Pantalla completa": {
+      "en": "Full screen",
+      "pt": "Tela cheia"
+    },
+    "Imprimir gráfico": {
+      "en": "Print the chart",
+      "pt": "Imprimir o gráfico"
+    },
+    "Imagen\n                    PNG": {
+      "en": "PNG\n                    image",
+      "pt": "Imagem\n                    PNG"
+    },
+    "Imagen JPEG": {
+      "en": "JPEG image",
+      "pt": "Imagem JPEG"
+    },
+    "Documento PDF": {
+      "en": "PDF document",
+      "pt": "Documento PDF"
+    },
+    "Vector SVG": {
+      "en": "SVG vector",
+      "pt": "Vetor SVG"
+    },
+    "Datos\n                    CSV": {
+      "en": "CSV\n                    data",
+      "pt": "Dados\n                    CSV"
+    },
+    "Hoja de cálculo XLS": {
+      "en": "XLS spreadsheet",
+      "pt": "Planilha XLS"
+    },
+    "Personalizar Colores": {
+      "en": "Customize Colours",
+      "pt": "Personalizar Cores"
+    },
+    "Configurar widget": {
+      "en": "Configure the widget",
+      "pt": "Configurar o widget"
+    },
+    "Indicadores Financieros Clave": {
+      "en": "Key Financial Indicators",
+      "pt": "Indicadores Financeiros Principais"
+    },
+    "{{stock}} unidades": {
+      "en": "{{stock}} units",
+      "pt": "{{stock}} unidades"
+    },
+    "¡Excelente!": {
+      "en": "All good.",
+      "pt": "Tudo certo."
+    },
+    "No hay productos con bajo inventario en este momento.": {
+      "en": "No products are low on stock right now.",
+      "pt": "Nenhum produto com estoque baixo no momento."
+    },
+    "No hay actividad reciente para mostrar.": {
+      "en": "There is no recent activity to show.",
+      "pt": "Não há atividade recente para exibir."
+    },
+    "Ingresos Mensuales": {
+      "en": "Monthly Revenue",
+      "pt": "Receita Mensal"
+    },
+    "Eliminar widget": {
+      "en": "Remove the widget",
+      "pt": "Remover o widget"
+    },
+    "Exportaciones de datos": {
+      "en": "Data exports",
+      "pt": "Exportações de dados"
+    },
+    "Nueva exportación": {
+      "en": "New export",
+      "pt": "Nova exportação"
+    },
+    "Datos a exportar*": {
+      "en": "Data to export*",
+      "pt": "Dados a exportar*"
+    },
+    "Selecciona un tipo de dato...": {
+      "en": "Select a data type...",
+      "pt": "Selecione um tipo de dado..."
+    },
+    "Formato*": {
+      "en": "Format*",
+      "pt": "Formato*"
+    },
+    "Excel (XLSX)": {
+      "en": "Excel (XLSX)",
+      "pt": "Excel (XLSX)"
+    },
+    "Generando...": {
+      "en": "Generating...",
+      "pt": "Gerando..."
+    },
+    "Generar archivo": {
+      "en": "Generate the file",
+      "pt": "Gerar o arquivo"
+    },
+    "Exportaciones recientes": {
+      "en": "Recent exports",
+      "pt": "Exportações recentes"
+    },
+    "Tipo de dato": {
+      "en": "Data type",
+      "pt": "Tipo de dado"
+    },
+    "Formato": {
+      "en": "Format",
+      "pt": "Formato"
+    },
+    "Usuario": {
+      "en": "User",
+      "pt": "Usuário"
+    },
+    "Importaciones de datos (ETL)": {
+      "en": "Data imports (ETL)",
+      "pt": "Importações de dados (ETL)"
+    },
+    "Carga datos maestros o transaccionales de forma masiva con archivos CSV o Excel.": {
+      "en": "Upload master or transactional data in bulk using CSV or Excel files.",
+      "pt": "Carregue dados mestres ou transacionais em massa com arquivos CSV ou Excel."
+    },
+    "Subir archivo": {
+      "en": "Upload a file",
+      "pt": "Enviar arquivo"
+    },
+    "Comenzar la importación": {
+      "en": "Start the import",
+      "pt": "Iniciar a importação"
+    },
+    "Importar datos": {
+      "en": "Import data",
+      "pt": "Importar dados"
+    },
+    "Importaciones recientes": {
+      "en": "Recent imports",
+      "pt": "Importações recentes"
+    },
+    "Nombre del archivo": {
+      "en": "File name",
+      "pt": "Nome do arquivo"
+    },
+    "Procesados": {
+      "en": "Processed",
+      "pt": "Processados"
+    },
+    "Fallidos": {
+      "en": "Failed",
+      "pt": "Com falha"
+    },
+    "Tamaño": {
+      "en": "Size",
+      "pt": "Tamanho"
+    },
+    "Esta carpeta está vacía.": {
+      "en": "This folder is empty.",
+      "pt": "Esta pasta está vazia."
+    },
+    "Buscar en esta carpeta...": {
+      "en": "Search in this folder...",
+      "pt": "Buscar nesta pasta..."
+    },
+    "Centro de documentos": {
+      "en": "Document centre",
+      "pt": "Central de documentos"
+    },
+    "Repositorio": {
+      "en": "Repository",
+      "pt": "Repositório"
+    },
+    "Repositorio de archivos": {
+      "en": "File repository",
+      "pt": "Repositório de arquivos"
+    },
+    "Plantillas de documentos": {
+      "en": "Document templates",
+      "pt": "Modelos de documentos"
+    },
+    "Buscando...": {
+      "en": "Searching...",
+      "pt": "Buscando..."
+    },
+    "Se encontraron {{count}} resultados para «{{query}}»": {
+      "en": "{{count}} results found for “{{query}}”",
+      "pt": "{{count}} resultados encontrados para “{{query}}”"
+    },
+    "Se encontró 1 resultado para «{{query}}»": {
+      "en": "1 result found for “{{query}}”",
+      "pt": "1 resultado encontrado para “{{query}}”"
+    },
+    "No se encontraron resultados para «{{query}}»": {
+      "en": "No results found for “{{query}}”",
+      "pt": "Nenhum resultado encontrado para “{{query}}”"
+    },
+    "Prueba con otros términos de búsqueda": {
+      "en": "Try different search terms",
+      "pt": "Tente outros termos de busca"
+    },
+    "Intenta buscar por número de factura, nombre de cliente, SKU de producto, etc.": {
+      "en": "Try searching by invoice number, customer name, product SKU, and so on.",
+      "pt": "Tente buscar por número da fatura, nome do cliente, SKU do produto e assim por diante."
+    },
+    "Buscar en todo el sistema...": {
+      "en": "Search everywhere...",
+      "pt": "Buscar em todo o sistema..."
+    },
+    "No hay tareas pendientes.": {
+      "en": "There are no pending tasks.",
+      "pt": "Não há tarefas pendentes."
+    },
+    "Solicitado: {{dueDate}}": {
+      "en": "Requested: {{dueDate}}",
+      "pt": "Solicitado: {{dueDate}}"
+    },
+    "No hay solicitudes de aprobación pendientes.": {
+      "en": "There are no pending approval requests.",
+      "pt": "Não há solicitações de aprovação pendentes."
+    },
+    "No hay notificaciones nuevas.": {
+      "en": "There are no new notifications.",
+      "pt": "Não há notificações novas."
+    },
+    "Balance General": {
+      "en": "Balance Sheet",
+      "pt": "Balanço Patrimonial"
+    },
+    "Exportar PDF": {
+      "en": "Export to PDF",
+      "pt": "Exportar para PDF"
+    },
+    "Total {{title}}": {
+      "en": "Total {{title}}",
+      "pt": "Total {{title}}"
+    },
+    "Total Activos": {
+      "en": "Total Assets",
+      "pt": "Total do Ativo"
+    },
+    "Pasivos y Patrimonio": {
+      "en": "Liabilities and Equity",
+      "pt": "Passivo e Patrimônio Líquido"
+    },
+    "Total Pasivos y Patrimonio": {
+      "en": "Total Liabilities and Equity",
+      "pt": "Total do Passivo e Patrimônio Líquido"
+    },
+    "Reportes y análisis": {
+      "en": "Reports and analytics",
+      "pt": "Relatórios e análises"
+    },
+    "Rentabilidad por producto": {
+      "en": "Profitability by product",
+      "pt": "Rentabilidade por produto"
+    },
+    "Rentabilidad por cliente": {
+      "en": "Profitability by customer",
+      "pt": "Rentabilidade por cliente"
+    },
+    "Análisis comparativo": {
+      "en": "Comparative analysis",
+      "pt": "Análise comparativa"
+    },
+    "Ingreso total": {
+      "en": "Total revenue",
+      "pt": "Receita total"
+    },
+    "Costo total": {
+      "en": "Total cost",
+      "pt": "Custo total"
+    },
+    "Utilidad bruta": {
+      "en": "Gross profit",
+      "pt": "Lucro bruto"
+    },
+    "Margen bruto (%)": {
+      "en": "Gross margin (%)",
+      "pt": "Margem bruta (%)"
+    },
+    "No hay datos de rentabilidad para el período seleccionado.": {
+      "en": "There is no profitability data for the selected period.",
+      "pt": "Não há dados de rentabilidade para o período selecionado."
+    },
+    "Unidades vendidas": {
+      "en": "Units sold",
+      "pt": "Unidades vendidas"
+    },
+    "Historial de Ventas": {
+      "en": "Sales History",
+      "pt": "Histórico de Vendas"
+    },
+    "Consulta, filtra y gestiona todas las transacciones registradas.": {
+      "en": "Review, filter and manage every recorded transaction.",
+      "pt": "Consulte, filtre e gerencie todas as transações registradas."
+    },
+    "Nueva Venta": {
+      "en": "New Sale",
+      "pt": "Nova Venda"
+    },
+    "ID Venta": {
+      "en": "Sale ID",
+      "pt": "ID da Venda"
+    },
+    "No se encontraron ventas.": {
+      "en": "No sales were found.",
+      "pt": "Nenhuma venda encontrada."
+    },
+    "Orden Actual": {
+      "en": "Current Order",
+      "pt": "Pedido Atual"
+    },
+    "Cliente:": {
+      "en": "Customer:",
+      "pt": "Cliente:"
+    },
+    "Añade productos para comenzar una venta.": {
+      "en": "Add products to start a sale.",
+      "pt": "Adicione produtos para iniciar uma venda."
+    },
+    "Total a Pagar": {
+      "en": "Amount Due",
+      "pt": "Total a Pagar"
+    },
+    "Cobrar": {
+      "en": "Charge",
+      "pt": "Cobrar"
+    },
+    "Buscar productos por nombre o SKU...": {
+      "en": "Search products by name or SKU...",
+      "pt": "Buscar produtos por nome ou SKU..."
+    },
+    "Impuestos ({{rate}})": {
+      "en": "Tax ({{rate}})",
+      "pt": "Impostos ({{rate}})"
+    },
+    "Este país calcula el impuesto por estado o municipio. Configúralo en Ajustes → Impuestos antes de cobrar.": {
+      "en": "This country levies tax by state or municipality. Configure it under Settings → Taxes before charging.",
+      "pt": "Este país calcula o imposto por estado ou município. Configure-o em Configurações → Impostos antes de cobrar."
+    },
+    "Acceso Denegado": {
+      "en": "Access Denied",
+      "pt": "Acesso Negado"
+    },
+    "No tienes los permisos necesarios para acceder a este recurso.": {
+      "en": "You do not have the permissions needed to reach this resource.",
+      "pt": "Você não tem as permissões necessárias para acessar este recurso."
+    },
+    "Ruta solicitada:": {
+      "en": "Requested path:",
+      "pt": "Caminho solicitado:"
+    },
+    "403 Forbidden": {
+      "en": "403 Forbidden",
+      "pt": "403 Forbidden"
+    },
+    "Si crees que esto es un error, contacta al administrador del sistema o solicita los permisos necesarios.": {
+      "en": "If you believe this is a mistake, contact your system administrator or request the permissions you need.",
+      "pt": "Se você acha que isso é um erro, fale com o administrador do sistema ou solicite as permissões necessárias."
+    },
+    "Solicitar Permiso": {
+      "en": "Request Permission",
+      "pt": "Solicitar Permissão"
+    },
+    "Volver al Dashboard": {
+      "en": "Back to the Dashboard",
+      "pt": "Voltar ao Painel"
+    },
+    "¿No sabes qué permisos necesitas?": {
+      "en": "Not sure which permissions you need?",
+      "pt": "Não sabe de quais permissões precisa?"
+    },
+    "Consulta nuestra guía de permisos": {
+      "en": "See our permissions guide",
+      "pt": "Consulte nosso guia de permissões"
+    },
+    "Empresa actual": {
+      "en": "Current company",
+      "pt": "Empresa atual"
+    },
+    "Empresas": {
+      "en": "Companies",
+      "pt": "Empresas"
+    },
+    "No se encontraron empresas": {
+      "en": "No companies were found",
+      "pt": "Nenhuma empresa encontrada"
+    },
+    "Administra los datos maestros de tu organización.": {
+      "en": "Manage your organization's master data.",
+      "pt": "Gerencie os dados mestres da sua organização."
+    },
+    "Genera y descarga tus datos maestros o transaccionales en distintos formatos.": {
+      "en": "Generate and download your master or transactional data in different formats.",
+      "pt": "Gere e baixe seus dados mestres ou transacionais em diferentes formatos."
+    },
+    "Selecciona el tipo de dato": {
+      "en": "Select the data type",
+      "pt": "Selecione o tipo de dado"
+    },
+    "Elige el tipo de dato que quieres importar para que el mapeo sea el correcto.": {
+      "en": "Choose the type of data you want to import so the mapping is correct.",
+      "pt": "Escolha o tipo de dado que deseja importar para que o mapeamento fique correto."
+    },
+    "Descargar la plantilla de {{name}}": {
+      "en": "Download the {{name}} template",
+      "pt": "Baixar o modelo de {{name}}"
+    },
+    "Selecciona el archivo CSV o Excel desde tu computadora.": {
+      "en": "Select the CSV or Excel file from your computer.",
+      "pt": "Selecione o arquivo CSV ou Excel no seu computador."
+    },
+    "Haz clic para buscar o arrastra el archivo aquí": {
+      "en": "Click to browse, or drag the file here",
+      "pt": "Clique para procurar ou arraste o arquivo aqui"
+    },
+    "Cuando el archivo esté seleccionado, comienza la importación.": {
+      "en": "Once the file is selected, start the import.",
+      "pt": "Com o arquivo selecionado, inicie a importação."
+    },
+    "Administra y organiza los archivos y adjuntos de tu empresa.": {
+      "en": "Manage and organize your company's files and attachments.",
+      "pt": "Gerencie e organize os arquivos e anexos da sua empresa."
+    },
+    "Nueva carpeta": {
+      "en": "New folder",
+      "pt": "Nova pasta"
+    },
+    "Última modificación": {
+      "en": "Last modified",
+      "pt": "Última modificação"
+    },
+    "Administra los archivos, adjuntos y plantillas de documentos de tu empresa.": {
+      "en": "Manage your company's files, attachments and document templates.",
+      "pt": "Gerencie os arquivos, anexos e modelos de documentos da sua empresa."
+    },
+    "Nueva plantilla": {
+      "en": "New template",
+      "pt": "Novo modelo"
+    },
+    "{{type}} • Última modificación: {{lastModified}}": {
+      "en": "{{type}} • Last modified: {{lastModified}}",
+      "pt": "{{type}} • Última modificação: {{lastModified}}"
+    },
+    "Crear una plantilla": {
+      "en": "Create a template",
+      "pt": "Criar um modelo"
+    },
+    "Tu bandeja centralizada de tareas, aprobaciones y notificaciones.": {
+      "en": "Your central inbox for tasks, approvals and notifications.",
+      "pt": "Sua caixa de entrada central de tarefas, aprovações e notificações."
+    },
+    "Vence: {{dueDate}}": {
+      "en": "Due: {{dueDate}}",
+      "pt": "Vence em: {{dueDate}}"
+    },
+    "Fecha: {{dueDate}}": {
+      "en": "Date: {{dueDate}}",
+      "pt": "Data: {{dueDate}}"
+    },
+    "Analiza el desempeño de tu negocio con reportes financieros y operativos detallados.": {
+      "en": "Analyse your business performance with detailed financial and operational reports.",
+      "pt": "Analise o desempenho do seu negócio com relatórios financeiros e operacionais detalhados."
+    },
+    "Últimos 90 días": {
+      "en": "Last 90 days",
+      "pt": "Últimos 90 dias"
+    },
+    "Cambiando de empresa…": {
+      "en": "Switching company…",
+      "pt": "Trocando de empresa…"
+    },
+    "Crear nueva empresa": {
+      "en": "Create a new company",
+      "pt": "Criar nova empresa"
+    },
+    "Gestionar organizaciones": {
+      "en": "Manage organizations",
+      "pt": "Gerenciar organizações"
+    },
+    "Estás viendo el sistema como:": {
+      "en": "You are viewing the system as:",
+      "pt": "Você está vendo o sistema como:"
+    },
+    "Volver a mi cuenta": {
+      "en": "Back to my account",
+      "pt": "Voltar à minha conta"
+    },
+    "¡Atención!": {
+      "en": "Attention",
+      "pt": "Atenção"
+    },
+    "Resolver Ahora": {
+      "en": "Resolve Now",
+      "pt": "Resolver Agora"
+    },
+    "Resultados de la Búsqueda": {
+      "en": "Search Results",
+      "pt": "Resultados da Busca"
+    },
+    "No se encontraron resultados": {
+      "en": "No results were found",
+      "pt": "Nenhum resultado encontrado"
+    },
+    "Intenta con otra palabra clave o revisa la ortografía.": {
+      "en": "Try another keyword, or check the spelling.",
+      "pt": "Tente outra palavra-chave ou verifique a grafia."
+    },
+    "Ver todos los resultados": {
+      "en": "See all results",
+      "pt": "Ver todos os resultados"
+    },
+    "Alt + Shift + I": {
+      "en": "Alt + Shift + I",
+      "pt": "Alt + Shift + I"
+    },
+    "Alt + Shift + Q": {
+      "en": "Alt + Shift + Q",
+      "pt": "Alt + Shift + Q"
+    },
+    "Alt + Shift + C": {
+      "en": "Alt + Shift + C",
+      "pt": "Alt + Shift + C"
+    },
+    "Alt + Shift + P": {
+      "en": "Alt + Shift + P",
+      "pt": "Alt + Shift + P"
+    },
+    "Tu pago está pendiente. Tienes acceso temporal hasta el {{date}}.": {
+      "en": "Your payment is pending. You have temporary access until {{date}}.",
+      "pt": "Seu pagamento está pendente. Você tem acesso temporário até {{date}}."
+    },
+    "Ubicación Detectada": {
+      "en": "Location Detected",
+      "pt": "Localização Detectada"
+    },
+    "Hemos detectado que estás en": {
+      "en": "We detected that you are in",
+      "pt": "Detectamos que você está em"
+    },
+    ",\n        pero estás intentando acceder a la versión de": {
+      "en": ",\n        but you are trying to reach the version for",
+      "pt": ",\n        mas você está tentando acessar a versão de"
+    },
+    "Recomendamos cambiar a tu región local para asegurar la configuración fiscal correcta.": {
+      "en": "We recommend switching to your local region so the tax configuration is correct.",
+      "pt": "Recomendamos mudar para sua região local para garantir a configuração fiscal correta."
+    },
+    "Tu Logo": {
+      "en": "Your Logo",
+      "pt": "Seu Logotipo"
+    },
+    "Ejemplo de Tarjeta": {
+      "en": "Sample Card",
+      "pt": "Cartão de Exemplo"
+    },
+    "Este es un texto de ejemplo para ver la tipografía.": {
+      "en": "This is sample text so you can see the typography.",
+      "pt": "Este é um texto de exemplo para ver a tipografia."
+    },
+    "Aceptar": {
+      "en": "OK",
+      "pt": "OK"
+    },
+    "Campo de ejemplo": {
+      "en": "Sample field",
+      "pt": "Campo de exemplo"
+    },
+    "Escribe aquí...": {
+      "en": "Type here...",
+      "pt": "Digite aqui..."
+    },
+    "{{opt}} dígitos": {
+      "en": "{{opt}} digits",
+      "pt": "{{opt}} dígitos"
+    },
+    "Reenviar ({{cooldown}}s)": {
+      "en": "Resend ({{cooldown}}s)",
+      "pt": "Reenviar ({{cooldown}}s)"
+    },
+    "Nunca comparta este código. Nuestro equipo jamás se lo pedirá.": {
+      "en": "Never share this code. Our team will never ask you for it.",
+      "pt": "Nunca compartilhe este código. Nossa equipe jamais o pedirá."
+    },
+    "Código OTP": {
+      "en": "OTP code",
+      "pt": "Código OTP"
+    },
+    "Apariencia": {
+      "en": "Appearance",
+      "pt": "Aparência"
+    },
+    "{{resource}}: sin límite": {
+      "en": "{{resource}}: unlimited",
+      "pt": "{{resource}}: sem limite"
+    },
+    "Cambiar a {{country}}": {
+      "en": "Switch to {{country}}",
+      "pt": "Mudar para {{country}}"
+    },
+    "Continuar en {{country}}": {
+      "en": "Stay in {{country}}",
+      "pt": "Continuar em {{country}}"
+    },
+    "No pudimos completar la operación. Vuelve a intentarlo.": {
+      "en": "We could not complete the operation. Try again.",
+      "pt": "Não conseguimos concluir a operação. Tente novamente."
+    },
+    "No hay conexión con el servidor. Revisa tu conexión a internet y vuelve a intentarlo.": {
+      "en": "There is no connection to the server. Check your internet connection and try again.",
+      "pt": "Sem conexão com o servidor. Verifique sua conexão com a internet e tente novamente."
+    },
+    "Ocurrió un problema en el servidor. El equipo ya fue notificado; vuelve a intentarlo en unos minutos.": {
+      "en": "Something went wrong on the server. The team has been notified; try again in a few minutes.",
+      "pt": "Ocorreu um problema no servidor. A equipe já foi notificada; tente novamente em alguns minutos."
+    },
+    "La solicitud no es válida. Revisa los datos e inténtalo de nuevo.": {
+      "en": "The request is not valid. Check the data and try again.",
+      "pt": "A solicitação não é válida. Verifique os dados e tente novamente."
+    },
+    "Tu sesión no es válida o ha expirado. Inicia sesión de nuevo.": {
+      "en": "Your session is invalid or has expired. Sign in again.",
+      "pt": "Sua sessão é inválida ou expirou. Entre novamente."
+    },
+    "No tienes permiso para realizar esta acción.": {
+      "en": "You do not have permission to perform this action.",
+      "pt": "Você não tem permissão para realizar esta ação."
+    },
+    "No encontramos lo que buscabas.": {
+      "en": "We could not find what you were looking for.",
+      "pt": "Não encontramos o que você procurava."
+    },
+    "La operación entra en conflicto con el estado actual del registro.": {
+      "en": "The operation conflicts with the record's current state.",
+      "pt": "A operação conflita com o estado atual do registro."
+    },
+    "El archivo o la solicitud supera el tamaño permitido.": {
+      "en": "The file or request exceeds the allowed size.",
+      "pt": "O arquivo ou a solicitação excede o tamanho permitido."
+    },
+    "El formato del archivo no es compatible.": {
+      "en": "That file format is not supported.",
+      "pt": "O formato do arquivo não é compatível."
+    },
+    "Los datos son válidos en forma pero no se pueden procesar. Revisa el detalle.": {
+      "en": "The data is well-formed but cannot be processed. Check the details.",
+      "pt": "Os dados estão bem formados, mas não podem ser processados. Verifique os detalhes."
+    },
+    "Demasiados intentos. Espera un momento antes de volver a intentarlo.": {
+      "en": "Too many attempts. Wait a moment before trying again.",
+      "pt": "Tentativas demais. Aguarde um momento antes de tentar novamente."
+    },
+    "El servicio no está disponible temporalmente. Vuelve a intentarlo en unos minutos.": {
+      "en": "The service is temporarily unavailable. Try again in a few minutes.",
+      "pt": "O serviço está temporariamente indisponível. Tente novamente em alguns minutos."
+    },
+    "Ya existe un registro con esos datos.": {
+      "en": "A record with that data already exists.",
+      "pt": "Já existe um registro com esses dados."
+    },
+    "La operación hace referencia a un registro que no existe.": {
+      "en": "The operation references a record that does not exist.",
+      "pt": "A operação faz referência a um registro que não existe."
+    },
+    "Período contable con ID \"{{periodId}}\" no encontrado.": {
+      "en": "Accounting period \"{{periodId}}\" was not found.",
+      "pt": "Período contábil \"{{periodId}}\" não encontrado."
+    },
+    "La fecha de la transacción {{p1}} no pertenece a ningún período contable definido.": {
+      "en": "The transaction date {{p1}} does not fall in any defined accounting period.",
+      "pt": "A data da transação {{p1}} não pertence a nenhum período contábil definido."
+    },
+    "La fecha de la transacción está dentro de un período contable ({{name}}) que ya ha sido cerrado.": {
+      "en": "The transaction date falls in an accounting period ({{name}}) that is already closed.",
+      "pt": "A data da transação está em um período contábil ({{name}}) que já foi encerrado."
+    },
+    "La cuenta #{{code}} está bloqueada para transacciones en el período {{name}}.": {
+      "en": "Account #{{code}} is locked for transactions in period {{name}}.",
+      "pt": "A conta n.º {{code}} está bloqueada para lançamentos no período {{name}}."
+    },
+    "La cuenta para el ajuste por inflación no está configurada.": {
+      "en": "The inflation-adjustment account is not configured.",
+      "pt": "A conta de ajuste inflacionário não está configurada."
+    },
+    "No se ha configurado un libro contable por defecto para la organización.": {
+      "en": "No default ledger has been configured for the organization.",
+      "pt": "Nenhum livro contábil padrão foi configurado para a organização."
+    },
+    "Diario de Ajuste por Inflación (AJU-INF) no encontrado.": {
+      "en": "The Inflation Adjustment journal (AJU-INF) was not found.",
+      "pt": "O diário de Ajuste Inflacionário (AJU-INF) não foi encontrado."
+    },
+    "Índice de inflación para {{year}}-{{month}} no encontrado.": {
+      "en": "No inflation index was found for {{year}}-{{month}}.",
+      "pt": "Índice de inflação para {{year}}-{{month}} não encontrado."
+    },
+    "La cuenta de ajuste por inflación desapareció a mitad de la transacción.": {
+      "en": "The inflation-adjustment account disappeared mid-transaction.",
+      "pt": "A conta de ajuste inflacionário desapareceu no meio da transação."
+    },
+    "No se pudo obtener el Query Runner de la transacción.": {
+      "en": "The transaction's query runner could not be obtained.",
+      "pt": "Não foi possível obter o query runner da transação."
+    },
+    "Uno o ambos libros contables no fueron encontrados.": {
+      "en": "One or both ledgers were not found.",
+      "pt": "Um ou ambos os livros contábeis não foram encontrados."
+    },
+    "Cuenta con ID \"{{accountId}}\" no encontrada.": {
+      "en": "Account \"{{accountId}}\" was not found.",
+      "pt": "Conta \"{{accountId}}\" não encontrada."
+    },
+    "Libro contable con ID \"{{id}}\" no encontrado.": {
+      "en": "Ledger \"{{id}}\" was not found.",
+      "pt": "Livro contábil \"{{id}}\" não encontrado."
+    },
+    "El período ya se encuentra cerrado.": {
+      "en": "The period is already closed.",
+      "pt": "O período já está encerrado."
+    },
+    "No se puede cerrar el período. Existen {{draftEntriesCount}} asientos contables en borrador o pendientes de aprobación.": {
+      "en": "The period cannot be closed. There are {{draftEntriesCount}} journal entries still in draft or awaiting approval.",
+      "pt": "O período não pode ser encerrado. Há {{draftEntriesCount}} lançamentos em rascunho ou aguardando aprovação."
+    },
+    "La cuenta de Resultados del Ejercicio (Ganancias Retenidas) no está configurada para la organización.": {
+      "en": "The Retained Earnings account is not configured for the organization.",
+      "pt": "A conta de Lucros Acumulados não está configurada para a organização."
+    },
+    "Diario de Cierre (CIERRE) no encontrado. Por favor, cree un diario con este código.": {
+      "en": "The Closing journal (CIERRE) was not found. Create a journal with that code.",
+      "pt": "O diário de Encerramento (CIERRE) não foi encontrado. Crie um diário com esse código."
+    },
+    "Diario de Apertura (APERTURA) no encontrado.": {
+      "en": "The Opening journal (APERTURA) was not found.",
+      "pt": "O diário de Abertura (APERTURA) não foi encontrado."
+    },
+    "El período no está cerrado.": {
+      "en": "The period is not closed.",
+      "pt": "O período não está encerrado."
+    },
+    "Diario de Reapertura (REAPERTURA) no encontrado.": {
+      "en": "The Reopening journal (REAPERTURA) was not found.",
+      "pt": "O diário de Reabertura (REAPERTURA) não foi encontrado."
+    },
+    "Módulo desconocido: {{module}}": {
+      "en": "Unknown module: {{module}}",
+      "pt": "Módulo desconhecido: {{module}}"
+    },
+    "No se puede reabrir un módulo si el período contable general está cerrado.": {
+      "en": "A module cannot be reopened while the general accounting period is closed.",
+      "pt": "Um módulo não pode ser reaberto enquanto o período contábil geral estiver encerrado."
+    },
+    "El período contable especificado no fue encontrado.": {
+      "en": "The specified accounting period was not found.",
+      "pt": "O período contábil especificado não foi encontrado."
+    },
+    "Período a reabrir no encontrado.": {
+      "en": "The period to reopen was not found.",
+      "pt": "O período a reabrir não foi encontrado."
+    },
+    "Período no encontrado.": {
+      "en": "Period not found.",
+      "pt": "Período não encontrado."
+    },
+    "No se encontró un bloqueo para la cuenta y período especificados.": {
+      "en": "No lock was found for the given account and period.",
+      "pt": "Nenhum bloqueio encontrado para a conta e o período informados."
+    },
+    "No se puede reabrir este período porque el período siguiente ya está cerrado.": {
+      "en": "This period cannot be reopened because the following period is already closed.",
+      "pt": "Este período não pode ser reaberto porque o período seguinte já está encerrado."
+    },
+    "No se pudo obtener el Query Runner de la transacción para crear el asiento de cierre.": {
+      "en": "The transaction's query runner could not be obtained to create the closing entry.",
+      "pt": "Não foi possível obter o query runner da transação para criar o lançamento de encerramento."
+    },
+    "No se pudo obtener QueryRunner para el asiento de apertura.": {
+      "en": "The query runner could not be obtained for the opening entry.",
+      "pt": "Não foi possível obter o query runner para o lançamento de abertura."
+    },
+    "El año fiscal no está abierto.": {
+      "en": "The fiscal year is not open.",
+      "pt": "O exercício fiscal não está aberto."
+    },
+    "No se puede cerrar el año fiscal. Los siguientes períodos aún están abiertos: {{p1}}": {
+      "en": "The fiscal year cannot be closed. These periods are still open: {{p1}}",
+      "pt": "O exercício não pode ser encerrado. Estes períodos ainda estão abertos: {{p1}}"
+    },
+    "Existen {{draftEntries}} asientos en borrador o pendientes de aprobación. Deben ser contabilizados o eliminados.": {
+      "en": "There are {{draftEntries}} entries in draft or awaiting approval. They must be posted or deleted.",
+      "pt": "Há {{draftEntries}} lançamentos em rascunho ou aguardando aprovação. Eles devem ser contabilizados ou excluídos."
+    },
+    "Diario de Cierre Anual (CIERRE-ANUAL) no encontrado.": {
+      "en": "The Year-End Closing journal (CIERRE-ANUAL) was not found.",
+      "pt": "O diário de Encerramento Anual (CIERRE-ANUAL) não foi encontrado."
+    },
+    "Año fiscal no encontrado.": {
+      "en": "Fiscal year not found.",
+      "pt": "Exercício fiscal não encontrado."
+    },
+    "No se pudo obtener el Query Runner de la transacción para el asiento de apertura.": {
+      "en": "The transaction's query runner could not be obtained for the opening entry.",
+      "pt": "Não foi possível obter o query runner da transação para o lançamento de abertura."
+    },
+    "El período contable \"{{name}}\" ha sido cerrado exitosamente.": {
+      "en": "Accounting period \"{{name}}\" has been closed.",
+      "pt": "O período contábil \"{{name}}\" foi encerrado."
+    },
+    "El período contable \"{{name}}\" ha sido reabierto exitosamente.": {
+      "en": "Accounting period \"{{name}}\" has been reopened.",
+      "pt": "O período contábil \"{{name}}\" foi reaberto."
+    },
+    "El módulo {{module}} para el período \"{{name}}\" ha sido cerrado.": {
+      "en": "Module {{module}} for period \"{{name}}\" has been closed.",
+      "pt": "O módulo {{module}} do período \"{{name}}\" foi encerrado."
+    },
+    "El módulo {{module}} para el período \"{{name}}\" ha sido reabierto.": {
+      "en": "Module {{module}} for period \"{{name}}\" has been reopened.",
+      "pt": "O módulo {{module}} do período \"{{name}}\" foi reaberto."
+    },
+    "El bloqueo de la cuenta para el período ha sido removido.": {
+      "en": "The account's lock for the period has been removed.",
+      "pt": "O bloqueio da conta para o período foi removido."
+    },
+    "Proceso de ajuste por inflación ejecutado exitosamente.": {
+      "en": "The inflation-adjustment process ran successfully.",
+      "pt": "O processo de ajuste inflacionário foi executado com sucesso."
+    },
+    "Este es un paso manual. Asegúrese de haber corrido el proceso antes de cerrar.": {
+      "en": "This is a manual step. Make sure you have run the process before closing.",
+      "pt": "Esta é uma etapa manual. Confirme que executou o processo antes de encerrar."
+    },
+    "Todas las reglas existentes fueron eliminadas.": {
+      "en": "All existing rules were deleted.",
+      "pt": "Todas as regras existentes foram excluídas."
+    },
+    "Mapeo entre el libro \"{{source}}\" y \"{{target}}\" actualizado.": {
+      "en": "The mapping between ledger \"{{source}}\" and \"{{target}}\" has been updated.",
+      "pt": "O mapeamento entre o livro \"{{source}}\" e \"{{target}}\" foi atualizado."
+    },
+    "No se encontró una tasa de cambio válida para {{currencyCode}} en la fecha especificada.": {
+      "en": "No valid exchange rate was found for {{currencyCode}} on the given date.",
+      "pt": "Nenhuma taxa de câmbio válida foi encontrada para {{currencyCode}} na data informada."
+    },
+    "Solo las facturas en estado borrador pueden ser enviadas para aprobación.": {
+      "en": "Only draft invoices can be submitted for approval.",
+      "pt": "Somente faturas em rascunho podem ser enviadas para aprovação."
+    },
+    "La modificación de las líneas de una factura existente debe hacerse a través de notas de crédito/débito.": {
+      "en": "The lines of an existing invoice must be changed through credit or debit notes.",
+      "pt": "As linhas de uma fatura existente devem ser alteradas por notas de crédito ou débito."
+    },
+    "La factura ya ha sido anulada.": {
+      "en": "The invoice has already been voided.",
+      "pt": "A fatura já foi cancelada."
+    },
+    "No se puede anular una factura pagada. Primero anule el pago.": {
+      "en": "A paid invoice cannot be voided. Void the payment first.",
+      "pt": "Uma fatura paga não pode ser cancelada. Cancele o pagamento primeiro."
+    },
+    "La cuenta de Cuentas por Pagar no está configurada.": {
+      "en": "The Accounts Payable account is not configured.",
+      "pt": "A conta de Contas a Pagar não está configurada."
+    },
+    "Ninguna de las facturas seleccionadas es válida para el pago.": {
+      "en": "None of the selected invoices is eligible for payment.",
+      "pt": "Nenhuma das faturas selecionadas é elegível para pagamento."
+    },
+    "Diario de Pagos (PAGOS) no encontrado.": {
+      "en": "The Payments journal (PAGOS) was not found.",
+      "pt": "O diário de Pagamentos (PAGOS) não foi encontrado."
+    },
+    "La cuenta por pagar por defecto no está configurada.": {
+      "en": "The default payable account is not configured.",
+      "pt": "A conta a pagar padrão não está configurada."
+    },
+    "Diario de Compras (COMPRAS) no encontrado.": {
+      "en": "The Purchases journal (COMPRAS) was not found.",
+      "pt": "O diário de Compras (COMPRAS) não foi encontrado."
+    },
+    "La cuenta de inventario por defecto no está configurada.": {
+      "en": "The default inventory account is not configured.",
+      "pt": "A conta de estoque padrão não está configurada."
+    },
+    "La línea \"{{product}}\" no es de inventario y requiere una cuenta de gasto.": {
+      "en": "Line \"{{product}}\" is not an inventory item and requires an expense account.",
+      "pt": "A linha \"{{product}}\" não é de estoque e exige uma conta de despesa."
+    },
+    "La factura de proveedor con ID \"{{id}}\" no fue encontrada.": {
+      "en": "Vendor bill \"{{id}}\" was not found.",
+      "pt": "A fatura de fornecedor \"{{id}}\" não foi encontrada."
+    },
+    "Factura a anular con ID \"{{id}}\" no encontrada.": {
+      "en": "The invoice to void, \"{{id}}\", was not found.",
+      "pt": "A fatura a cancelar, \"{{id}}\", não foi encontrada."
+    },
+    "Control presupuestario fallido: {{message}}": {
+      "en": "Budget control failed: {{message}}",
+      "pt": "Controle orçamentário falhou: {{message}}"
+    },
+    "Solo se pueden editar facturas en estado 'Borrador'.": {
+      "en": "Only invoices in draft can be edited.",
+      "pt": "Somente faturas em rascunho podem ser editadas."
+    },
+    "La eliminación de facturas no está permitida. Use la función de \"Anular\".": {
+      "en": "Deleting invoices is not allowed. Use \"Void\" instead.",
+      "pt": "Excluir faturas não é permitido. Use \"Cancelar\"."
+    },
+    "Solo se pueden aplicar notas de débito a facturas abiertas o parcialmente pagadas.": {
+      "en": "Debit notes can only be applied to open or partially paid invoices.",
+      "pt": "Notas de débito só podem ser aplicadas a faturas abertas ou parcialmente pagas."
+    },
+    "El monto de la nota de débito no puede ser mayor al saldo de la factura.": {
+      "en": "The debit note cannot be larger than the invoice balance.",
+      "pt": "O valor da nota de débito não pode ser maior que o saldo da fatura."
+    },
+    "Diario de Compras (COMPRAS) no encontrado para registrar la nota de débito.": {
+      "en": "The Purchases journal (COMPRAS) was not found to record the debit note.",
+      "pt": "O diário de Compras (COMPRAS) não foi encontrado para registrar a nota de débito."
+    },
+    "La funcionalidad de anulación de notas de débito aún no está implementada.": {
+      "en": "Voiding debit notes is not implemented yet.",
+      "pt": "O cancelamento de notas de débito ainda não está implementado."
+    },
+    "La factura del proveedor no fue encontrada.": {
+      "en": "The vendor bill was not found.",
+      "pt": "A fatura do fornecedor não foi encontrada."
+    },
+    "Nota de débito con ID \"{{id}}\" no encontrada.": {
+      "en": "Debit note \"{{id}}\" was not found.",
+      "pt": "Nota de débito \"{{id}}\" não encontrada."
+    },
+    "No se pudo sincronizar la vista analítica: {{p1}}": {
+      "en": "The analytical view could not be synchronized: {{p1}}",
+      "pt": "Não foi possível sincronizar a visão analítica: {{p1}}"
+    },
+    "El valor para el operador 'in' debe ser un array.": {
+      "en": "The value for the 'in' operator must be an array.",
+      "pt": "O valor do operador 'in' deve ser um array."
+    },
+    "Operador de filtro no soportado: {{operator}}": {
+      "en": "Unsupported filter operator: {{operator}}",
+      "pt": "Operador de filtro não suportado: {{operator}}"
+    },
+    "El nombre de dimensión o campo contiene caracteres no válidos: {{name}}": {
+      "en": "The dimension or field name contains invalid characters: {{name}}",
+      "pt": "O nome da dimensão ou do campo contém caracteres inválidos: {{name}}"
+    },
+    "Vista materializada sincronizada y recreada con las dimensiones actuales.": {
+      "en": "The materialized view has been synchronized and rebuilt with the current dimensions.",
+      "pt": "A visão materializada foi sincronizada e recriada com as dimensões atuais."
+    },
+    "El refresco de la vista materializada ha sido iniciado.": {
+      "en": "The materialized view refresh has started.",
+      "pt": "A atualização da visão materializada foi iniciada."
+    },
+    "La sincronización de la vista analítica ha sido iniciada.": {
+      "en": "The analytical view synchronization has started.",
+      "pt": "A sincronização da visão analítica foi iniciada."
+    },
+    "Propuesta de ajuste con ID \"{{adjustmentId}}\" no encontrada.": {
+      "en": "Adjustment proposal \"{{adjustmentId}}\" was not found.",
+      "pt": "Proposta de ajuste \"{{adjustmentId}}\" não encontrada."
+    },
+    "Solo se puede añadir evidencia a propuestas pendientes de aprobación.": {
+      "en": "Evidence can only be added to proposals awaiting approval.",
+      "pt": "Evidências só podem ser adicionadas a propostas aguardando aprovação."
+    },
+    "Fallo al procesar el ajuste aprobado: {{p1}}": {
+      "en": "The approved adjustment could not be processed: {{p1}}",
+      "pt": "Falha ao processar o ajuste aprovado: {{p1}}"
+    },
+    "OAuth flow mismatch.": {
+      "en": "OAuth flow mismatch.",
+      "pt": "Fluxo OAuth não corresponde."
+    },
+    "Missing authorization code.": {
+      "en": "Missing authorization code.",
+      "pt": "Falta o código de autorização."
+    },
+    "SSO flow mismatch.": {
+      "en": "SSO flow mismatch.",
+      "pt": "Fluxo de SSO não corresponde."
+    },
+    "Token de registro no encontrado (cookie requerida)": {
+      "en": "Registration token not found (a cookie is required)",
+      "pt": "Token de cadastro não encontrado (é necessário um cookie)"
+    },
+    "Plan no encontrado.": {
+      "en": "Plan not found.",
+      "pt": "Plano não encontrado."
+    },
+    "El pago aún no se ha completado.": {
+      "en": "The payment has not completed yet.",
+      "pt": "O pagamento ainda não foi concluído."
+    },
+    "Sesión de registro no válida.": {
+      "en": "Invalid registration session.",
+      "pt": "Sessão de cadastro inválida."
+    },
+    "Alcance de verificación no válido.": {
+      "en": "Invalid verification scope.",
+      "pt": "Escopo de verificação inválido."
+    },
+    "Esta cuenta no está vinculada a un proveedor de identidad.": {
+      "en": "This account is not linked to an identity provider.",
+      "pt": "Esta conta não está vinculada a um provedor de identidade."
+    },
+    "Flujo de verificación no válido.": {
+      "en": "Invalid verification flow.",
+      "pt": "Fluxo de verificação inválido."
+    },
+    "Falta el código de autorización.": {
+      "en": "The authorization code is missing.",
+      "pt": "Falta o código de autorização."
+    },
+    "Este plan no admite ese periodo de facturación.": {
+      "en": "This plan does not support that billing period.",
+      "pt": "Este plano não aceita esse período de cobrança."
+    },
+    "No encontramos tu sesión de registro en este navegador. Inicia sesión con el correo y la contraseña que registraste.": {
+      "en": "We could not find your registration session in this browser. Sign in with the email and password you registered.",
+      "pt": "Não encontramos sua sessão de cadastro neste navegador. Entre com o e-mail e a senha que você cadastrou."
+    },
+    "Esta sesión de pago no corresponde a este navegador. Inicia sesión con tus credenciales.": {
+      "en": "This payment session does not belong to this browser. Sign in with your credentials.",
+      "pt": "Esta sessão de pagamento não pertence a este navegador. Entre com suas credenciais."
+    },
+    "No hay sesión que renovar.": {
+      "en": "There is no session to refresh.",
+      "pt": "Não há sessão para renovar."
+    },
+    "El proveedor de identidad no coincide.": {
+      "en": "The identity provider does not match.",
+      "pt": "O provedor de identidade não corresponde."
+    },
+    "La identidad verificada no coincide con tu sesión.": {
+      "en": "The verified identity does not match your session.",
+      "pt": "A identidade verificada não corresponde à sua sessão."
+    },
+    "No active 2FA session — please log in again": {
+      "en": "No active two-step session — sign in again.",
+      "pt": "Nenhuma sessão de verificação em duas etapas ativa — entre novamente."
+    },
+    "Se requiere un código de verificación para confirmar esta acción.": {
+      "en": "A verification code is required to confirm this action.",
+      "pt": "É necessário um código de verificação para confirmar esta ação."
+    },
+    "Se requiere tu contraseña para confirmar esta acción.": {
+      "en": "Your password is required to confirm this action.",
+      "pt": "Sua senha é necessária para confirmar esta ação."
+    },
+    "Esta cuenta se autentica con tu proveedor de identidad. Confirma la acción volviendo a iniciar sesión con él.": {
+      "en": "This account authenticates with your identity provider. Confirm the action by signing in with it again.",
+      "pt": "Esta conta autentica com seu provedor de identidade. Confirme a ação entrando novamente por ele."
+    },
+    "Demasiados intentos de verificación. Espera 5 minutos e inténtalo de nuevo.": {
+      "en": "Too many verification attempts. Wait 5 minutes and try again.",
+      "pt": "Tentativas de verificação demais. Aguarde 5 minutos e tente novamente."
+    },
+    "Too many 2FA attempts — please log in again": {
+      "en": "Too many two-step attempts — sign in again.",
+      "pt": "Tentativas demais na verificação em duas etapas — entre novamente."
+    },
+    "Session context changed — please log in again": {
+      "en": "The session context changed — sign in again.",
+      "pt": "O contexto da sessão mudou — entre novamente."
+    },
+    "Session invalidated — please log in again": {
+      "en": "The session was invalidated — sign in again.",
+      "pt": "A sessão foi invalidada — entre novamente."
+    },
+    "No tienes permisos para realizar esta acción.": {
+      "en": "You do not have permission to perform this action.",
+      "pt": "Você não tem permissão para realizar esta ação."
+    },
+    "No cumples con la política de acceso requerida.": {
+      "en": "You do not meet the required access policy.",
+      "pt": "Você não atende à política de acesso exigida."
+    },
+    "Error validando política de seguridad.": {
+      "en": "The security policy could not be validated.",
+      "pt": "Não foi possível validar a política de segurança."
+    },
+    "Step-up token mismatch": {
+      "en": "Step-up token mismatch.",
+      "pt": "O token de verificação adicional não corresponde."
+    },
+    "Malformed step-up token": {
+      "en": "Malformed step-up token.",
+      "pt": "Token de verificação adicional malformado."
+    },
+    "Step-up token already used": {
+      "en": "That step-up token has already been used.",
+      "pt": "Esse token de verificação adicional já foi usado."
+    },
+    "User is inactive or blocked.": {
+      "en": "The user is inactive or blocked.",
+      "pt": "O usuário está inativo ou bloqueado."
+    },
+    "No puedes suplantarte a ti mismo.": {
+      "en": "You cannot impersonate yourself.",
+      "pt": "Você não pode personificar a si mesmo."
+    },
+    "No se encontró una sesión de suplantación activa para detener.": {
+      "en": "No active impersonation session was found to stop.",
+      "pt": "Nenhuma sessão de personificação ativa foi encontrada para encerrar."
+    },
+    "El usuario a suplantar no fue encontrado.": {
+      "en": "The user to impersonate was not found.",
+      "pt": "O usuário a personificar não foi encontrado."
+    },
+    "La cuenta del administrador original no fue encontrada.": {
+      "en": "The original administrator's account was not found.",
+      "pt": "A conta do administrador original não foi encontrada."
+    },
+    "No puedes suplantar a un usuario con privilegios totales (*).": {
+      "en": "You cannot impersonate a user with full privileges (*).",
+      "pt": "Você não pode personificar um usuário com privilégios totais (*)."
+    },
+    "No puedes suplantar a un usuario con permisos que tú no posees.": {
+      "en": "You cannot impersonate a user who holds permissions you do not.",
+      "pt": "Você não pode personificar um usuário com permissões que você não possui."
+    },
+    "Ya estás suplantando a otro usuario. Finaliza la sesión actual antes de iniciar otra.": {
+      "en": "You are already impersonating another user. End the current session before starting another.",
+      "pt": "Você já está personificando outro usuário. Encerre a sessão atual antes de iniciar outra."
+    },
+    "No tienes permisos para suplantar usuarios.": {
+      "en": "You do not have permission to impersonate users.",
+      "pt": "Você não tem permissão para personificar usuários."
+    },
+    "No puedes suplantar a un usuario que no está activo.": {
+      "en": "You cannot impersonate a user who is not active.",
+      "pt": "Você não pode personificar um usuário que não está ativo."
+    },
+    "La cuenta del administrador original ya no está activa.": {
+      "en": "The original administrator's account is no longer active.",
+      "pt": "A conta do administrador original não está mais ativa."
+    },
+    "Verification code expired.": {
+      "en": "The verification code has expired.",
+      "pt": "O código de verificação expirou."
+    },
+    "Too many attempts. Please request a new code.": {
+      "en": "Too many attempts. Request a new code.",
+      "pt": "Tentativas demais. Solicite um novo código."
+    },
+    "El enlace de verificación ha expirado o no es válido.": {
+      "en": "The verification link has expired or is invalid.",
+      "pt": "O link de verificação expirou ou é inválido."
+    },
+    "Tipo de token inválido.": {
+      "en": "Invalid token type.",
+      "pt": "Tipo de token inválido."
+    },
+    "El enlace de verificación ya fue usado o ha expirado.": {
+      "en": "The verification link has already been used or has expired.",
+      "pt": "O link de verificação já foi usado ou expirou."
+    },
+    "El enlace de verificación ha expirado.": {
+      "en": "The verification link has expired.",
+      "pt": "O link de verificação expirou."
+    },
+    "El enlace de verificación no es válido.": {
+      "en": "The verification link is not valid.",
+      "pt": "O link de verificação não é válido."
+    },
+    "Cuenta bloqueada temporalmente por demasiados intentos. Inténtalo más tarde.": {
+      "en": "The account is temporarily locked after too many attempts. Try again later.",
+      "pt": "A conta está temporariamente bloqueada após tentativas demais. Tente mais tarde."
+    },
+    "Código 2FA o de recuperación inválido": {
+      "en": "Invalid two-step or recovery code.",
+      "pt": "Código de verificação em duas etapas ou de recuperação inválido."
+    },
+    "No se pudo enviar el correo de verificación. Por favor verifica tu correo e intenta de nuevo.": {
+      "en": "The verification email could not be sent. Check your address and try again.",
+      "pt": "Não foi possível enviar o e-mail de verificação. Verifique seu endereço e tente novamente."
+    },
+    "No se pudo enviar el SMS de verificación. Por favor intenta de nuevo.": {
+      "en": "The verification SMS could not be sent. Try again.",
+      "pt": "Não foi possível enviar o SMS de verificação. Tente novamente."
+    },
+    "Missing OAuth state parameter.": {
+      "en": "Missing OAuth state parameter.",
+      "pt": "Falta o parâmetro de estado do OAuth."
+    },
+    "OAuth state mismatch — possible CSRF.": {
+      "en": "OAuth state mismatch — possible CSRF.",
+      "pt": "Estado do OAuth não corresponde — possível CSRF."
+    },
+    "Unsupported social provider: {{provider}}": {
+      "en": "Unsupported social provider: {{provider}}",
+      "pt": "Provedor social não suportado: {{provider}}"
+    },
+    "Identity provider is temporarily unavailable.": {
+      "en": "The identity provider is temporarily unavailable.",
+      "pt": "O provedor de identidade está temporariamente indisponível."
+    },
+    "Identity provider has no authorization endpoint.": {
+      "en": "The identity provider has no authorization endpoint.",
+      "pt": "O provedor de identidade não tem endpoint de autorização."
+    },
+    "Identity provider metadata is incomplete.": {
+      "en": "The identity provider's metadata is incomplete.",
+      "pt": "Os metadados do provedor de identidade estão incompletos."
+    },
+    "Identity token validation failed.": {
+      "en": "The identity token could not be validated.",
+      "pt": "Não foi possível validar o token de identidade."
+    },
+    "Untrusted token issuer.": {
+      "en": "Untrusted token issuer.",
+      "pt": "Emissor do token não confiável."
+    },
+    "Identity token nonce mismatch.": {
+      "en": "Identity token nonce mismatch.",
+      "pt": "O nonce do token de identidade não corresponde."
+    },
+    "No se encontró una contraseña previa para este usuario.": {
+      "en": "No previous password was found for this user.",
+      "pt": "Nenhuma senha anterior foi encontrada para este usuário."
+    },
+    "La nueva contraseña no puede ser igual a la anterior": {
+      "en": "The new password cannot be the same as the previous one.",
+      "pt": "A nova senha não pode ser igual à anterior."
+    },
+    "Token inválido o expirado.": {
+      "en": "The token is invalid or has expired.",
+      "pt": "O token é inválido ou expirou."
+    },
+    "Token inválido o expirado": {
+      "en": "The token is invalid or has expired",
+      "pt": "O token é inválido ou expirou"
+    },
+    "El token de invitación es inválido o ha expirado.": {
+      "en": "The invitation token is invalid or has expired.",
+      "pt": "O token de convite é inválido ou expirou."
+    },
+    "Esta contraseña aparece en filtraciones de datos conocidas. Elige una diferente.": {
+      "en": "This password appears in known data breaches. Choose a different one.",
+      "pt": "Esta senha aparece em vazamentos de dados conhecidos. Escolha outra."
+    },
+    "El código de verificación de correo es obligatorio.": {
+      "en": "The email verification code is required.",
+      "pt": "O código de verificação do e-mail é obrigatório."
+    },
+    "El código de verificación de celular es obligatorio.": {
+      "en": "The mobile verification code is required.",
+      "pt": "O código de verificação do celular é obrigatório."
+    },
+    "Registro pendiente no encontrado o expirado.": {
+      "en": "The pending registration was not found or has expired.",
+      "pt": "Cadastro pendente não encontrado ou expirado."
+    },
+    "El código de verificación ha expirado o no es válido.": {
+      "en": "The verification code has expired or is invalid.",
+      "pt": "O código de verificação expirou ou é inválido."
+    },
+    "El código de verificación no coincide.": {
+      "en": "The verification code does not match.",
+      "pt": "O código de verificação não corresponde."
+    },
+    "No se pudo completar el registro. Verifique que los datos sean correctos o contacte soporte.": {
+      "en": "The registration could not be completed. Check that the details are correct, or contact support.",
+      "pt": "Não foi possível concluir o cadastro. Verifique se os dados estão corretos ou contate o suporte."
+    },
+    "Error de validación de seguridad (reCAPTCHA).": {
+      "en": "Security validation failed (reCAPTCHA).",
+      "pt": "Falha na validação de segurança (reCAPTCHA)."
+    },
+    "La configuración fiscal de ese país no está disponible en este momento.": {
+      "en": "The tax configuration for that country is not available right now.",
+      "pt": "A configuração fiscal desse país não está disponível no momento."
+    },
+    "No se pudo encontrar el rol de administrador predeterminado.": {
+      "en": "The default administrator role could not be found.",
+      "pt": "Não foi possível encontrar o perfil de administrador padrão."
+    },
+    "No se pudo activar tu plan. Tu pago está registrado y lo estamos revirtiendo automáticamente. Referencia: {{pendingId}}.": {
+      "en": "Your plan could not be activated. Your payment is recorded and we are reversing it automatically. Reference: {{pendingId}}.",
+      "pt": "Não foi possível ativar seu plano. Seu pagamento está registrado e o estamos estornando automaticamente. Referência: {{pendingId}}."
+    },
+    "Malformed encrypted secret.": {
+      "en": "Malformed encrypted secret.",
+      "pt": "Segredo criptografado malformado."
+    },
+    "Sesión no encontrada o no pertenece al usuario.": {
+      "en": "The session was not found, or does not belong to the user.",
+      "pt": "Sessão não encontrada ou não pertence ao usuário."
+    },
+    "No se pudo enviar el código de verificación a ese número. Verifica el número o usa la verificación por correo.": {
+      "en": "The verification code could not be sent to that number. Check the number, or verify by email instead.",
+      "pt": "Não foi possível enviar o código de verificação para esse número. Verifique o número ou use a verificação por e-mail."
+    },
+    "El número debe estar en formato internacional E.164, incluyendo el código de país (por ejemplo, +528112345678).": {
+      "en": "The number must be in international E.164 format, including the country code (for example, +528112345678).",
+      "pt": "O número deve estar no formato internacional E.164, incluindo o código do país (por exemplo, +528112345678)."
+    },
+    "El proveedor no ha verificado tu correo. No es posible vincular la cuenta.": {
+      "en": "The provider has not verified your email. The account cannot be linked.",
+      "pt": "O provedor não verificou seu e-mail. Não é possível vincular a conta."
+    },
+    "Usuario inactivo o bloqueado.": {
+      "en": "The user is inactive or blocked.",
+      "pt": "Usuário inativo ou bloqueado."
+    },
+    "Token inválido para registro.": {
+      "en": "Invalid registration token.",
+      "pt": "Token inválido para cadastro."
+    },
+    "Token de registro inválido o expirado.": {
+      "en": "The registration token is invalid or has expired.",
+      "pt": "O token de cadastro é inválido ou expirou."
+    },
+    "Verify at least one domain before enabling SSO.": {
+      "en": "Verify at least one domain before enabling SSO.",
+      "pt": "Verifique ao menos um domínio antes de ativar o SSO."
+    },
+    "This domain is already registered.": {
+      "en": "This domain is already registered.",
+      "pt": "Este domínio já está cadastrado."
+    },
+    "La verificación en dos pasos ya está activa. Desactívala antes de registrar un nuevo dispositivo.": {
+      "en": "Two-step verification is already on. Turn it off before registering a new device.",
+      "pt": "A verificação em duas etapas já está ativa. Desative-a antes de registrar um novo dispositivo."
+    },
+    "Phone": {
+      "en": "Phone",
+      "pt": "Telefone"
+    },
+    "Upload File": {
+      "en": "Upload a file",
+      "pt": "Enviar arquivo"
+    },
+    "Close": {
+      "en": "Close",
+      "pt": "Fechar"
     }
   }
 }

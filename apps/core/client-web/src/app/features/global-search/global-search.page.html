@@ -16,10 +16,14 @@
         } @else {
         <div class="results-summary">
             @if (totalResults() > 0) {
-            <p>{{ 'GLOBAL_SEARCH.ENCONTRARON' | translate }} <strong>{{ totalResults() }}</strong> {{ 'GLOBAL_SEARCH.RESULTADOS' | translate }}<strong>{{ searchQuery()
-                    }}</strong>"</p>
+            <p>
+              {{
+                'GLOBAL_SEARCH.RESULTS_FOUND'
+                  | translate: { count: totalResults(), query: searchQuery() }
+              }}
+            </p>
             } @else {
-            <p>{{ 'GLOBAL_SEARCH.NO_ENCONTRARON_RESULTADOS' | translate }}<strong>{{ searchQuery() }}</strong>"</p>
+            <p>{{ 'GLOBAL_SEARCH.NO_RESULTS' | translate: { query: searchQuery() } }}</p>
             }
         </div>
 

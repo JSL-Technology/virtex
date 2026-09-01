@@ -2565,7 +2565,7 @@
       "TASA": "Tasa*",
       "TIPO": "Tipo*",
       "CODIGO_PAIS_OPCIONAL": "Código de País (Opcional)",
-      "EJ_ITBIS_18": "Ej: ITBIS (18%)"
+      "EJ_ITBIS_18": "Ej: IVA general"
     },
     "TAXES": {
       "IMPUESTO_ELIMINADO_EXITOSAMENTE": "Impuesto eliminado exitosamente.",
@@ -2586,7 +2586,7 @@
       "NEW_BANK": "Nuevo banco",
       "BANK_NAME": "Nombre del banco",
       "SWIFT_CODE": "Código SWIFT",
-      "COUNTRY": "Country",
+      "COUNTRY": "País",
       "NO_BANKS_CONFIGURED": "No hay bancos configurados."
     },
     "BRANCHES": {
@@ -2596,7 +2596,7 @@
       "NAME": "Nombre",
       "ADDRESS": "Dirección",
       "CITY": "Ciudad",
-      "PHONE": "Phone",
+      "PHONE": "Teléfono",
       "NO_BRANCHES_CONFIGURED": "No hay sucursales configuradas."
     },
     "CURRENCIES": {
@@ -2615,7 +2615,7 @@
       "FILTERS": "Filtros",
       "NEW_CUSTOMER": "Nuevo cliente",
       "COMPANY_NAME": "Razón social",
-      "TAX_ID": "Tax ID",
+      "TAX_ID": "Identificación fiscal",
       "EMAIL": "Email",
       "PHONE": "Phone",
       "LOCATION": "Ubicación",
@@ -2624,29 +2624,29 @@
     "LAYOUT": {
       "MASTER_DATA": "Datos maestros",
       "MANAGE_CORE_REFERENCE_DATA_FOR_YOUR": "Administra los datos maestros de tu organización.",
-      "CUSTOMERS": "Customers",
-      "SUPPLIERS": "Suppliers",
+      "CUSTOMERS": "Clientes",
+      "SUPPLIERS": "Proveedores",
       "PRODUCTS": "Productos",
       "PRICE_LISTS": "Listas de precios",
       "TAXES": "Impuestos",
       "WAREHOUSES": "Almacenes",
       "UNITS": "Unidades",
-      "CURRENCIES": "Currencies",
-      "BANKS": "Banks",
+      "CURRENCIES": "Monedas",
+      "BANKS": "Bancos",
       "BRANCHES": "Sucursales",
       "PAYMENT_METHODS": "Formas de pago",
       "PAYMENT_TERMS": "Condiciones de pago"
     },
     "PAYMENT_METHODS": {
-      "PAYMENT_METHODS": "Payment Methods",
+      "PAYMENT_METHODS": "Formas de pago",
       "NEW_METHOD": "Nuevo método",
       "NAME": "Nombre",
       "TYPE": "Tipo",
       "DEFAULT_METHOD": "Forma predeterminada",
-      "YES": "Yes"
+      "YES": "Sí"
     },
     "PAYMENT_TERMS": {
-      "PAYMENT_TERMS": "Payment Terms",
+      "PAYMENT_TERMS": "Condiciones de pago",
       "NEW_TERM": "Nueva condición",
       "NAME": "Nombre",
       "NET_DAYS": "Días netos"
@@ -2656,16 +2656,16 @@
       "FILTERS": "Filtros",
       "NEW_UNIT": "Nueva unidad",
       "NAME": "Nombre",
-      "SYMBOL": "Symbol",
+      "SYMBOL": "Símbolo",
       "TYPE": "Tipo",
       "NO_UNITS_MEASURE_CONFIGURED": "No hay unidades de medida configuradas."
     },
     "WAREHOUSES": {
-      "WAREHOUSES": "Warehouses",
+      "WAREHOUSES": "Almacenes",
       "FILTERS": "Filtros",
       "NEW_WAREHOUSE": "Nuevo almacén",
       "NAME": "Nombre",
-      "LOCATION": "Location",
+      "LOCATION": "Ubicación",
       "MANAGER": "Encargado",
       "STATUS": "Estado",
       "NO_WAREHOUSES_CONFIGURED": "No hay almacenes configurados."
@@ -2812,7 +2812,7 @@
     "DATA_TYPE": "Tipo de dato",
     "FILE_NAME": "Nombre del archivo",
     "DATE": "Fecha",
-    "USER": "User",
+    "USER": "Usuario",
     "STATUS": "Estado",
     "PROCESSED": "Procesados",
     "FAILED": "Fallidos"
@@ -2821,7 +2821,7 @@
     "DOCUMENTS": "Documentos",
     "MANAGE_AND_ORGANIZE_ALL_YOUR_BUSINESS": "Administra y organiza los archivos y adjuntos de tu empresa.",
     "NEW_FOLDER": "Nueva carpeta",
-    "UPLOAD_FILE": "Upload File",
+    "UPLOAD_FILE": "Subir archivo",
     "NAME": "Nombre",
     "LAST_MODIFIED": "Última modificación",
     "FILE_SIZE": "Tamaño",
@@ -2840,9 +2840,9 @@
       "HOME": "Inicio",
       "NAME": "Nombre",
       "LAST_MODIFIED": "Última modificación",
-      "FILE_SIZE": "File Size",
-      "THIS_FOLDER_EMPTY": "This folder is empty.",
-      "SEARCH_IN_THIS_FOLDER": "Search in this folder..."
+      "FILE_SIZE": "Tamaño",
+      "THIS_FOLDER_EMPTY": "Esta carpeta está vacía.",
+      "SEARCH_IN_THIS_FOLDER": "Buscar en esta carpeta..."
     },
     "TEMPLATES": {
       "DOCUMENT_TEMPLATES": "Plantillas de documentos",
@@ -2853,12 +2853,13 @@
   },
   "GLOBAL_SEARCH": {
     "BUSCANDO": "Buscando...",
-    "ENCONTRARON": "Se encontraron",
-    "RESULTADOS": "resultados para \"",
-    "NO_ENCONTRARON_RESULTADOS": "No se encontraron resultados para \"",
     "PRUEBA_OTROS_TERMINOS_BUSQUEDA": "Prueba con otros términos de búsqueda",
     "INTENTA_BUSCAR_NUMERO_FACTURA_NOMBRE_CLIENTE": "Intenta buscar por número de factura, nombre de cliente, SKU de producto, etc.",
-    "BUSCAR_TODO_SISTEMA": "Buscar en todo el sistema..."
+    "BUSCAR_TODO_SISTEMA": "Buscar en todo el sistema...",
+    "RESULTS_FOUND": "Se encontraron {{count}} resultados para «{{query}}»",
+    "RESULTS_FOUND_one": "Se encontró 1 resultado para «{{query}}»",
+    "RESULTS_FOUND_other": "Se encontraron {{count}} resultados para «{{query}}»",
+    "NO_RESULTS": "No se encontraron resultados para «{{query}}»"
   },
   "MY_WORK": {
     "MY_WORK": "Mi trabajo",
@@ -2893,7 +2894,7 @@
       "COMPARATIVE_ANALYSIS": "Análisis comparativo"
     },
     "PROFITABILITY_BY_CUSTOMER": {
-      "PROFITABILITY_BY_CUSTOMER": "Profitability by Customer",
+      "PROFITABILITY_BY_CUSTOMER": "Rentabilidad por cliente",
       "LAST_90_DAYS": "Últimos 90 días",
       "FILTERS": "Filtros",
       "EXPORT": "Exportar",
@@ -2905,17 +2906,17 @@
       "NO_PROFITABILITY_DATA_AVAILABLE_FOR_SELECTED": "No hay datos de rentabilidad para el período seleccionado."
     },
     "PROFITABILITY_BY_PRODUCT": {
-      "PROFITABILITY_BY_PRODUCT": "Profitability by Product",
+      "PROFITABILITY_BY_PRODUCT": "Rentabilidad por producto",
       "LAST_90_DAYS": "Últimos 90 días",
       "FILTERS": "Filtros",
       "EXPORT": "Exportar",
       "PRODUCT": "Producto",
       "UNITS_SOLD": "Unidades vendidas",
-      "TOTAL_REVENUE": "Total Revenue",
-      "TOTAL_COST": "Total Cost",
-      "GROSS_PROFIT": "Gross Profit",
-      "GROSS_MARGIN": "Gross Margin (%)",
-      "NO_PROFITABILITY_DATA_AVAILABLE_FOR_SELECTED": "No profitability data available for the selected period."
+      "TOTAL_REVENUE": "Ingreso total",
+      "TOTAL_COST": "Costo total",
+      "GROSS_PROFIT": "Utilidad bruta",
+      "GROSS_MARGIN": "Margen bruto (%)",
+      "NO_PROFITABILITY_DATA_AVAILABLE_FOR_SELECTED": "No hay datos de rentabilidad para el período seleccionado."
     }
   },
   "SALES": {
