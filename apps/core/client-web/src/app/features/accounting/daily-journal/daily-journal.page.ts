@@ -1,54 +1,86 @@
-import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Filter, FileDown, Calendar } from 'lucide-angular';
+import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { JournalEntriesApiService, JournalEntry } from '../../../core/api/journal-entries.service';
+import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.service';
 
-interface JournalLine {
-  accountCode: string;
-  accountName: string;
-  debit: number | null;
-  credit: number | null;
-}
-
-interface JournalEntryView {
-  id: string;
-  date: string;
-  description: string;
-  lines: JournalLine[];
-}
-
+/**
+ * The journal, entry by entry, with every line shown.
+ *
+ * ## What this page used to be
+ *
+ * Two hardcoded entries dated "Jul 28, 2025" against accounts named in English ("Accounts
+ * Receivable - Local", "Sales Revenue - Products"), and a period button that said "Jul 2025"
+ * whatever the date. The endpoint it needed is the one the journal-entries list already uses:
+ * `GET /journal-entries` returns each entry with its lines eagerly loaded.
+ *
+ * ## Why the account name is resolved here
+ *
+ * A line carries `accountId`, not a name. The chart of accounts is fetched once and indexed, so
+ * the grid renders `1200-01 — Cuentas por cobrar` without a request per row, and the name is the
+ * tenant's own — the one they typed into their chart, in the language of their books.
+ */
 @Component({
   selector: 'app-daily-journal-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [CommonModule, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './daily-journal.page.html',
   styleUrls: ['./daily-journal.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DailyJournalPage {
+  private readonly entriesApi = inject(JournalEntriesApiService);
+  private readonly accountsApi = inject(ChartOfAccountsApiService);
+
   protected readonly FilterIcon = Filter;
   protected readonly ExportIcon = FileDown;
   protected readonly CalendarIcon = Calendar;
 
-  journalEntries = signal<JournalEntryView[]>([
-    {
-      id: 'JE-2025-001',
-      date: 'Jul 28, 2025',
-      description: 'Registro de Venta #V-2025-001',
-      lines: [
-        { accountCode: '1200-01', accountName: 'Accounts Receivable - Local', debit: 350.00, credit: null },
-        { accountCode: '4100-01', accountName: 'Sales Revenue - Products', debit: null, credit: 350.00 }
-      ]
-    },
-    {
-      id: 'JE-2025-002',
-      date: 'Jul 28, 2025',
-      description: 'Pago de Nómina - Quincena 1 Julio',
-      lines: [
-        { accountCode: '6100-01', accountName: 'Salaries Expense', debit: 15200.00, credit: null },
-        { accountCode: '1010-01', accountName: 'Main Bank Account', debit: null, credit: 15200.00 }
-      ]
-    },
-  ]);
+  readonly journalEntries = signal<JournalEntry[]>([]);
+  readonly loading = signal(true);
+  readonly failed = signal(false);
+
+  /** `accountId` → `code — name`, so a line renders without another request. */
+  private readonly accountLabels = signal<Map<string, string>>(new Map());
+
+  readonly isEmpty = computed(
+    () => !this.loading() && !this.failed() && this.journalEntries().length === 0,
+  );
+
+  constructor() {
+    this.load();
+  }
+
+  load(): void {
+    this.loading.set(true);
+    this.failed.set(false);
+
+    this.accountsApi.getAccounts().subscribe({
+      next: (accounts) => {
+        this.accountLabels.set(
+          new Map(accounts.map((account) => [account.id, `${account.code} — ${account.name}`])),
+        );
+      },
+      // A missing chart is not a reason to hide the journal: the code falls back to the id.
+      error: () => this.accountLabels.set(new Map()),
+    });
+
+    this.entriesApi.list().subscribe({
+      next: (entries) => {
+        this.journalEntries.set(entries);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.failed.set(true);
+        this.loading.set(false);
+      },
+    });
+  }
+
+  accountLabel(accountId: string): string {
+    return this.accountLabels().get(accountId) ?? accountId;
+  }
 }

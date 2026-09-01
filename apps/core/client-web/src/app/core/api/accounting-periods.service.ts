@@ -30,6 +30,22 @@ export interface PeriodCommandResult {
   period: AccountingPeriod;
 }
 
+/**
+ * One item of the period's closing checklist.
+ *
+ * Every field the reader sees is a key: the server computes the checks from the tenant's data and
+ * says which check failed, never what sentence to print.
+ */
+export interface ClosingChecklistItem {
+  id: string;
+  descriptionKey: string;
+  params?: Record<string, unknown>;
+  isCompleted: boolean;
+  noteKey?: string;
+  details?: Record<string, number>;
+  resolutionLink?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AccountingPeriodsService {
   private readonly http = inject(HttpClient);
@@ -38,6 +54,12 @@ export class AccountingPeriodsService {
   list(year?: number): Observable<AccountingPeriod[]> {
     const params = year === undefined ? {} : { params: { year: String(year) } };
     return this.http.get<AccountingPeriod[]>(`${this.apiUrl}/periods`, params);
+  }
+
+  closingChecklist(periodId: string): Observable<ClosingChecklistItem[]> {
+    return this.http.get<ClosingChecklistItem[]>(
+      `${this.apiUrl}/periods/${periodId}/closing-checklist`,
+    );
   }
 
   close(periodId: string): Observable<PeriodCommandResult> {

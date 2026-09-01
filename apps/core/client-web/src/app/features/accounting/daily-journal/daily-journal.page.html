@@ -2,15 +2,15 @@
   <div class="subview-header">
     <h3>{{ 'ACCOUNTING.DAILY_JOURNAL.DAILY_JOURNAL' | translate }}</h3>
     <div class="header-actions">
-      <button class="secondary-button">
+      <button class="secondary-button" type="button" disabled>
         <lucide-icon [img]="CalendarIcon" size="16"></lucide-icon>
-        <span>{{ 'ACCOUNTING.DAILY_JOURNAL.JUL_2025' | translate }}</span>
+        <span>{{ 'ACCOUNTING.DAILY_JOURNAL.PERIOD' | translate }}</span>
       </button>
-      <button class="secondary-button">
+      <button class="secondary-button" type="button" disabled>
         <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
         <span>{{ 'ACCOUNTING.DAILY_JOURNAL.FILTERS' | translate }}</span>
       </button>
-      <button class="primary-button">
+      <button class="primary-button" type="button" [disabled]="isEmpty()">
         <lucide-icon [img]="ExportIcon" size="16"></lucide-icon>
         <span>{{ 'ACCOUNTING.DAILY_JOURNAL.EXPORT' | translate }}</span>
       </button>
@@ -29,26 +29,40 @@
         </tr>
       </thead>
       <tbody>
-        @for (entry of journalEntries(); track entry.id) {
-          @for (line of entry.lines; track $index; let isFirst = $first) {
-            <tr class="journal-row">
-              @if (isFirst) {
-                <td [attr.rowspan]="entry.lines.length">{{ entry.date }}</td>
-                <td [attr.rowspan]="entry.lines.length"><a href="#" class="table-link">{{ entry.id }}</a></td>
-              }
-              <td class="account-cell">{{ line.accountCode }} - {{ line.accountName }}</td>
-              @if (isFirst) {
-                <td [attr.rowspan]="entry.lines.length">{{ entry.description }}</td>
-              }
-              <td class="text-right amount-cell">{{ line.debit | vxNumber:'1.2-2' }}</td>
-              <td class="text-right amount-cell">{{ line.credit | vxNumber:'1.2-2' }}</td>
+        @if (loading()) {
+          <tr><td colspan="6" class="empty-state">{{ 'ACCOUNTING.DAILY_JOURNAL.LOADING' | translate }}</td></tr>
+        } @else if (failed()) {
+          <tr><td colspan="6" class="empty-state">{{ 'ACCOUNTING.DAILY_JOURNAL.LOAD_FAILED' | translate }}</td></tr>
+        } @else if (isEmpty()) {
+          <tr>
+            <td colspan="6" class="empty-state">
+              {{ 'ACCOUNTING.DAILY_JOURNAL.NO_JOURNAL_ENTRIES_FOUND_FOR_THIS' | translate }}
+            </td>
+          </tr>
+        } @else {
+          @for (entry of journalEntries(); track entry.id) {
+            @for (line of entry.lines; track line.id; let isFirst = $first) {
+              <tr class="journal-row">
+                @if (isFirst) {
+                  <td [attr.rowspan]="entry.lines.length">{{ entry.date | vxDate: 'date' : true }}</td>
+                  <td [attr.rowspan]="entry.lines.length">
+                    <a [routerLink]="['/accounting/journal-entries', entry.id, 'edit']" class="table-link">
+                      {{ entry.id }}
+                    </a>
+                  </td>
+                }
+                <td class="account-cell">{{ accountLabel(line.accountId) }}</td>
+                @if (isFirst) {
+                  <td [attr.rowspan]="entry.lines.length">{{ entry.description }}</td>
+                }
+                <td class="text-right amount-cell">{{ line.debit | vxMoney: entry.currencyCode }}</td>
+                <td class="text-right amount-cell">{{ line.credit | vxMoney: entry.currencyCode }}</td>
+              </tr>
+            }
+            <tr class="separator-row">
+              <td colspan="6"></td>
             </tr>
           }
-          <tr class="separator-row">
-            <td colspan="6"></td>
-          </tr>
-        } @empty {
-          <tr><td colspan="6" class="empty-state">{{ 'ACCOUNTING.DAILY_JOURNAL.NO_JOURNAL_ENTRIES_FOUND_FOR_THIS' | translate }}</td></tr>
         }
       </tbody>
     </table>

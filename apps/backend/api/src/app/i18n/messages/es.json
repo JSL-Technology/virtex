@@ -43,7 +43,26 @@
     "PROCESO_AJUSTE_POR_INFLACION_EJECUTADO_EXITOSAMENTE": "Proceso de ajuste por inflación ejecutado exitosamente.",
     "ESTE_PASO_MANUAL_ASEGURESE_HABER_CORRIDO_PROCESO_ANTES": "Este es un paso manual. Asegúrese de haber corrido el proceso antes de cerrar.",
     "TODAS_REGLAS_EXISTENTES_FUERON_ELIMINADAS": "Todas las reglas existentes fueron eliminadas.",
-    "LEDGER_MAP_UPDATED": "Mapeo entre el libro \"{{source}}\" y \"{{target}}\" actualizado."
+    "LEDGER_MAP_UPDATED": "Mapeo entre el libro \"{{source}}\" y \"{{target}}\" actualizado.",
+    "CHECKLIST": {
+      "MANUAL_STEP": "Este es un paso manual: asegúrate de haberlo ejecutado antes de cerrar.",
+      "ITEMS": {
+        "UNPOSTED_JOURNAL_ENTRIES": "Verificar y procesar todos los asientos contables en borrador o pendientes de aprobación.",
+        "UNPOSTED_JOURNAL_ENTRIES_one": "Queda 1 asiento contable en borrador o pendiente de aprobación.",
+        "UNPOSTED_JOURNAL_ENTRIES_other": "Quedan {{count}} asientos contables en borrador o pendientes de aprobación.",
+        "UNAPPROVED_VENDOR_BILLS": "Verificar y procesar todas las facturas de proveedor en borrador o pendientes de aprobación.",
+        "UNAPPROVED_VENDOR_BILLS_one": "Queda 1 factura de proveedor en borrador o pendiente de aprobación.",
+        "UNAPPROVED_VENDOR_BILLS_other": "Quedan {{count}} facturas de proveedor en borrador o pendientes de aprobación.",
+        "UNRECONCILED_BANK_TRANSACTIONS": "Conciliar todas las transacciones bancarias del período.",
+        "UNRECONCILED_BANK_TRANSACTIONS_one": "Queda 1 transacción bancaria sin conciliar.",
+        "UNRECONCILED_BANK_TRANSACTIONS_other": "Quedan {{count}} transacciones bancarias sin conciliar.",
+        "CURRENCY_REVALUATION": "Ejecutar la revaluación de moneda extranjera para el cierre del período.",
+        "FIXED_ASSETS_DEPRECIATION": "Ejecutar la depreciación de activos fijos del período.",
+        "PENDING_APPROVALS": "Revisar y procesar todas las solicitudes de aprobación pendientes.",
+        "PENDING_APPROVALS_one": "Queda 1 solicitud de aprobación pendiente.",
+        "PENDING_APPROVALS_other": "Quedan {{count}} solicitudes de aprobación pendientes."
+      }
+    }
   },
   "ACCOUNTS_PAYABLE": {
     "NO_ENCONTRO_TASA_CAMBIO_VALIDA_FECHA_ESPECIFICADA": "No se encontró una tasa de cambio válida para {{currencyCode}} en la fecha especificada.",

@@ -20,10 +20,26 @@ import {
 import { NotFoundError } from '../i18n/localized.exception';
 
 export interface ChecklistItem {
+  /** Stable identifier for the check. Never rendered. */
   id: string;
-  description: string;
+  /**
+   * A catalogue key, not a sentence.
+   *
+   * The closing checklist is read by whoever is closing the month, and in a group with
+   * subsidiaries that is rarely the same person twice. The descriptions were Spanish literals
+   * composed in the service.
+   */
+  descriptionKey: string;
+  /** Interpolation values for `descriptionKey` — counts, never prose. */
+  params?: Record<string, unknown>;
   isCompleted: boolean;
-  details?: any;
+  /**
+   * Why the item cannot be decided automatically, where that is the case. A key, like everything
+   * else the reader sees.
+   */
+  noteKey?: string;
+  /** Counts backing the check, for the client to render alongside the description. */
+  details?: Record<string, number>;
   resolutionLink?: string;
 }
 
@@ -64,8 +80,8 @@ export class ClosingChecklistService {
       });
     checklist.push({
       id: 'unposted-journal-entries',
-      description:
-        'Verificar y procesar todos los asientos contables en borrador o pendientes de aprobación.',
+      descriptionKey: 'ACCOUNTING.CHECKLIST.ITEMS.UNPOSTED_JOURNAL_ENTRIES',
+      params: { count: unpostedEntriesCount },
       isCompleted: unpostedEntriesCount === 0,
       details: { pendingCount: unpostedEntriesCount },
       resolutionLink: `/journal-entries?periodId=${periodId}&status=draft,pending_approval`,
@@ -85,8 +101,8 @@ export class ClosingChecklistService {
       });
     checklist.push({
       id: 'unapproved-vendor-bills',
-      description:
-        'Verificar y procesar todas las facturas de proveedor en borrador o pendientes de aprobación.',
+      descriptionKey: 'ACCOUNTING.CHECKLIST.ITEMS.UNAPPROVED_VENDOR_BILLS',
+      params: { count: unapprovedBillsCount },
       isCompleted: unapprovedBillsCount === 0,
       details: { pendingCount: unapprovedBillsCount },
       resolutionLink: `/accounts-payable/bills?periodId=${periodId}&status=draft,pending_approval`,
@@ -103,7 +119,8 @@ export class ClosingChecklistService {
       });
     checklist.push({
       id: 'unreconciled-bank-transactions',
-      description: 'Conciliar todas las transacciones bancarias del período.',
+      descriptionKey: 'ACCOUNTING.CHECKLIST.ITEMS.UNRECONCILED_BANK_TRANSACTIONS',
+      params: { count: unreconciledTxCount },
       isCompleted: unreconciledTxCount === 0,
       details: { unreconciledCount: unreconciledTxCount },
       resolutionLink: `/reconciliation?periodId=${periodId}`,
@@ -111,23 +128,17 @@ export class ClosingChecklistService {
 
     checklist.push({
       id: 'currency-revaluation',
-      description:
-        'Ejecutar el proceso de revaluación de moneda extranjera para el cierre del período.',
+      descriptionKey: 'ACCOUNTING.CHECKLIST.ITEMS.CURRENCY_REVALUATION',
       isCompleted: false,
-      details: {
-        messageKey: 'ACCOUNTING.ESTE_PASO_MANUAL_ASEGURESE_HABER_CORRIDO_PROCESO_ANTES',
-      },
+      noteKey: 'ACCOUNTING.CHECKLIST.MANUAL_STEP',
       resolutionLink: `/accounting/currency-revaluation`,
     });
 
     checklist.push({
       id: 'fixed-assets-depreciation',
-      description:
-        'Ejecutar el proceso de depreciación de activos fijos para el mes.',
+      descriptionKey: 'ACCOUNTING.CHECKLIST.ITEMS.FIXED_ASSETS_DEPRECIATION',
       isCompleted: false,
-      details: {
-        messageKey: 'ACCOUNTING.ESTE_PASO_MANUAL_ASEGURESE_HABER_CORRIDO_PROCESO_ANTES',
-      },
+      noteKey: 'ACCOUNTING.CHECKLIST.MANUAL_STEP',
       resolutionLink: `/fixed-assets/depreciation`,
     });
 
@@ -141,8 +152,8 @@ export class ClosingChecklistService {
       });
     checklist.push({
       id: 'pending-general-approvals',
-      description:
-        'Revisar y procesar todas las solicitudes de aprobación pendientes en el sistema.',
+      descriptionKey: 'ACCOUNTING.CHECKLIST.ITEMS.PENDING_APPROVALS',
+      params: { count: pendingApprovalsCount },
       isCompleted: pendingApprovalsCount === 0,
       details: { pendingCount: pendingApprovalsCount },
       resolutionLink: `/my-work/approvals`,

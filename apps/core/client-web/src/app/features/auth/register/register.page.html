@@ -51,7 +51,7 @@
     </nav>
 
     <p class="stepper-counter" aria-hidden="true">
-      {{ 'AUTH.REGISTER.REGISTER_STEP_TRANSLATE_CURRENT_CURRENTSTEP_TOTAL' | translate }}
+      {{ 'REGISTER.STEP_OF' | translate: { current: currentStep(), total: steps.length } }}
     </p>
 
     <!-- ── Contenido del paso ──────────────────────────────────────────── -->

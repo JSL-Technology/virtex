@@ -2,9 +2,9 @@
     <div class="subview-header">
         <h3>{{ 'ACCOUNTING.ACCOUNT_RECONCILIATION.ACCOUNT_RECONCILIATION' | translate }}</h3>
         <div class="header-actions">
-            <button class="secondary-button">
+            <button class="secondary-button" type="button" disabled>
                 <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
-                <span>{{ 'ACCOUNTING.ACCOUNT_RECONCILIATION.FILTER_BY_PERIOD_JULY_2025' | translate }}</span>
+                <span>{{ 'ACCOUNTING.ACCOUNT_RECONCILIATION.PERIOD' | translate }}</span>
             </button>
         </div>
     </div>
@@ -29,13 +29,13 @@
                             <a href="#" class="table-link">{{ account.accountName }}</a>
                         </div>
                     </td>
-                    <td class="text-right">{{ account.balance | vxNumber:'1.2-2' }}</td>
-                    <td>{{ account.lastReconciledBy }}</td>
-                    <td>{{ account.lastReconciledDate }}</td>
+                    <td class="text-right">{{ account.balance | vxMoney: account.currencyCode }}</td>
+                    <td>{{ account.lastReconciledBy ?? '—' }}</td>
+                    <td>{{ account.lastReconciledDate ? (account.lastReconciledDate | vxDate: 'date' : true) : '—' }}</td>
                     <td class="text-center">
                         <span class="status-badge" [ngClass]="getStatusClass(account.status)">
                             <lucide-icon [img]="getIconForStatus(account.status)" size="14"></lucide-icon>
-                            {{ account.status }}
+                            {{ statusKey(account.status) | translate }}
                         </span>
                     </td>
                     <td class="actions-column">

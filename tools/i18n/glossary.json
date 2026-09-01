@@ -114,7 +114,8 @@
       "pt": "Gerencie os detalhes da sua conta, empresa e usuários."
     },
     "Administra tu plan de cuentas, asientos contables y períodos contables.": {
-      "en": "Manage your chart of accounts, journal entries, and accounting periods."
+      "en": "Manage your chart of accounts, journal entries, and accounting periods.",
+      "pt": "Gerencie seu plano de contas, lançamentos contábeis e períodos contábeis."
     },
     "Administrador": {
       "en": "Administrator"
@@ -169,7 +170,8 @@
       "en": "Cash application"
     },
     "Apps de Virtex": {
-      "en": "Virtex Apps"
+      "en": "Virtex Apps",
+      "pt": "Apps do Virtex"
     },
     "Aprobaciones": {
       "en": "Approvals",
@@ -401,7 +403,8 @@
       "pt": "Cidade"
     },
     "Clientes": {
-      "en": "Customers"
+      "en": "Customers",
+      "pt": "Clientes"
     },
     "Clientes Activos": {
       "en": "Active Customers"
@@ -444,7 +447,8 @@
       "en": "Components"
     },
     "Compras": {
-      "en": "Purchasing (P2P)"
+      "en": "Purchasing (P2P)",
+      "pt": "Compras"
     },
     "Conciliaciones de cuentas": {
       "en": "Account reconciliations"
@@ -554,7 +558,8 @@
       "en": "Contact"
     },
     "Contactos": {
-      "en": "Contacts"
+      "en": "Contacts",
+      "pt": "Contatos"
     },
     "Contador": {
       "en": "Accountant"
@@ -578,7 +583,8 @@
       "en": "Chargebacks"
     },
     "Contraer cuenta": {
-      "en": "Collapse account"
+      "en": "Collapse account",
+      "pt": "Recolher conta"
     },
     "Contraseña": {
       "en": "Password"
@@ -667,7 +673,8 @@
       "en": "Quarantines"
     },
     "Cuenta": {
-      "en": "Account"
+      "en": "Account",
+      "pt": "Conta"
     },
     "Cuentas bancarias": {
       "en": "Bank Accounts"
@@ -685,7 +692,8 @@
       "en": "Tell us about your company"
     },
     "Código": {
-      "en": "Code"
+      "en": "Code",
+      "pt": "Código"
     },
     "Código de Verificación": {
       "en": "Verification Code"
@@ -726,7 +734,8 @@
       "en": "DSAR"
     },
     "Dashboard": {
-      "en": "Dashboard"
+      "en": "Dashboard",
+      "pt": "Painel"
     },
     "Data warehouse": {
       "en": "Data warehouse"
@@ -738,7 +747,8 @@
       "en": "Data"
     },
     "Datos Maestros": {
-      "en": "Master Data"
+      "en": "Master Data",
+      "pt": "Dados Mestres"
     },
     "Datos de tu país y moneda": {
       "en": "Country and currency details"
@@ -834,7 +844,8 @@
       "en": "Disputes"
     },
     "Documentos": {
-      "en": "Documents"
+      "en": "Documents",
+      "pt": "Documentos"
     },
     "Duplicados": {
       "en": "Duplicates"
@@ -1014,7 +1025,8 @@
       "pt": "Esse já é o seu e-mail atual."
     },
     "Espacio de Trabajo": {
-      "en": "Workspace"
+      "en": "Workspace",
+      "pt": "Área de Trabalho"
     },
     "Esta acción requiere verificación en dos pasos. Actívala en tu configuración de seguridad para continuar.": {
       "en": "This action requires two-factor authentication. Enable it in your security settings to continue."
@@ -1067,16 +1079,19 @@
       "en": "You are attempting to perform a sensitive action. Please confirm your password to continue."
     },
     "Expandir cuenta": {
-      "en": "Expand account"
+      "en": "Expand account",
+      "pt": "Expandir conta"
     },
     "Exportaciones": {
       "en": "Exports"
     },
     "Exportaciones de Datos": {
-      "en": "Data Exports"
+      "en": "Data Exports",
+      "pt": "Exportações de Dados"
     },
     "Exportar": {
-      "en": "Export"
+      "en": "Export",
+      "pt": "Exportar"
     },
     "Exposiciones": {
       "en": "Exposures"
@@ -1094,7 +1109,8 @@
       "en": "E-invoicing by country"
     },
     "Facturas": {
-      "en": "Supplier Invoices"
+      "en": "Supplier Invoices",
+      "pt": "Faturas"
     },
     "Facturas Pendientes": {
       "en": "Pending Invoices"
@@ -1109,7 +1125,8 @@
       "en": "Feature flags"
     },
     "Filtros": {
-      "en": "Filters"
+      "en": "Filters",
+      "pt": "Filtros"
     },
     "Filtros Avanzados": {
       "en": "Advanced Filters"
@@ -1203,7 +1220,8 @@
       "pt": "Gerencie os dispositivos onde você iniciou sessão."
     },
     "Gestión": {
-      "en": "Management"
+      "en": "Management",
+      "pt": "Gestão"
     },
     "Gestión de Transporte (TMS)": {
       "en": "Transportation Management (TMS)"
@@ -1236,7 +1254,8 @@
       "pt": "Guarde seus códigos de backup em segurança"
     },
     "Guardando...": {
-      "en": "Saving..."
+      "en": "Saving...",
+      "pt": "Salvando..."
     },
     "Guardar Cambios": {
       "en": "Save changes",
@@ -1261,7 +1280,8 @@
       "pt": "Enviamos um código de verificação para {{email}}"
     },
     "Herramientas": {
-      "en": "Tools"
+      "en": "Tools",
+      "pt": "Ferramentas"
     },
     "Hitos y WIP": {
       "en": "Milestones & WIP"
@@ -1280,7 +1300,8 @@
       "en": "Imports"
     },
     "Importaciones de Datos": {
-      "en": "Data Imports"
+      "en": "Data Imports",
+      "pt": "Importações de Dados"
     },
     "Importar": {
       "en": "Import"
@@ -1370,7 +1391,8 @@
       "en": "Insert Chart"
     },
     "Instalar App": {
-      "en": "Install App"
+      "en": "Install App",
+      "pt": "Instalar App"
     },
     "Integraciones": {
       "en": "Integrations & API",
@@ -1493,7 +1515,8 @@
       "en": "General Journal"
     },
     "Libro Mayor": {
-      "en": "General Ledger"
+      "en": "General Ledger",
+      "pt": "Livro Razão"
     },
     "Libro: Auxiliares": {
       "en": "Book: Subledgers"
@@ -1514,7 +1537,8 @@
       "en": "Asset Master"
     },
     "Listas de Precios": {
-      "en": "Price Lists"
+      "en": "Price Lists",
+      "pt": "Tabelas de Preços"
     },
     "Listas de precios": {
       "en": "Price lists"
@@ -1574,14 +1598,16 @@
       "en": "Monthly"
     },
     "Menú": {
-      "en": "Menu"
+      "en": "Menu",
+      "pt": "Menu"
     },
     "Mi Perfil": {
       "en": "My Profile",
       "pt": "Meu Perfil"
     },
     "Mi Trabajo": {
-      "en": "My Work"
+      "en": "My Work",
+      "pt": "Meu Trabalho"
     },
     "Mi trabajo": {
       "en": "My Work"
@@ -1627,7 +1653,8 @@
       "en": "Multi-GAAP"
     },
     "Más acciones": {
-      "en": "More actions"
+      "en": "More actions",
+      "pt": "Mais ações"
     },
     "Máscara sandbox": {
       "en": "Sandbox masking"
@@ -1706,14 +1733,16 @@
       "en": "Could not verify password. Please try again."
     },
     "No tienes conexión": {
-      "en": "You are offline"
+      "en": "You are offline",
+      "pt": "Você está sem conexão"
     },
     "Nombre": {
       "en": "Name",
       "pt": "Nome"
     },
     "Nombre de la Cuenta": {
-      "en": "Account Name"
+      "en": "Account Name",
+      "pt": "Nome da Conta"
     },
     "Nombre de la Empresa": {
       "en": "Company Name"
@@ -1725,7 +1754,8 @@
       "en": "Debit notes"
     },
     "Notificaciones": {
-      "en": "Notifications"
+      "en": "Notifications",
+      "pt": "Notificações"
     },
     "Novedades de Virtex": {
       "en": "Virtex news"
@@ -1735,7 +1765,8 @@
       "pt": "Nova senha"
     },
     "Nueva Cuenta": {
-      "en": "New Account"
+      "en": "New Account",
+      "pt": "Nova Conta"
     },
     "Nueva Orden": {
       "en": "New Order"
@@ -1878,7 +1909,8 @@
       "en": "Plan"
     },
     "Plan de Cuentas": {
-      "en": "Chart of Accounts"
+      "en": "Chart of Accounts",
+      "pt": "Plano de Contas"
     },
     "Plan de cuentas": {
       "en": "Chart of Accounts"
@@ -1943,7 +1975,8 @@
       "en": "Transfer pricing"
     },
     "Presupuesto": {
-      "en": "Budgeting"
+      "en": "Budgeting",
+      "pt": "Orçamento"
     },
     "Privacidad": {
       "en": "Privacy"
@@ -1955,7 +1988,8 @@
       "en": "Process mining"
     },
     "Productos": {
-      "en": "Products & Services"
+      "en": "Products & Services",
+      "pt": "Produtos"
     },
     "Productos Más Vendidos": {
       "en": "Top-Selling Products"
@@ -2094,7 +2128,8 @@
       "en": "Repeat your password"
     },
     "Reportes": {
-      "en": "Reports"
+      "en": "Reports",
+      "pt": "Relatórios"
     },
     "Reportes Financieros": {
       "en": "Reporting"
@@ -2142,7 +2177,8 @@
       "en": "Monetary revaluation"
     },
     "Revisa tu conexión de red y vuelve aquí. Virtex se cargará tan pronto como vuelvas a estar en línea.": {
-      "en": "Check your network connection and come back here. Virtex will load as soon as you're back online."
+      "en": "Check your network connection and come back here. Virtex will load as soon as you're back online.",
+      "pt": "Verifique sua conexão de rede e volte aqui. O Virtex carregará assim que você estiver on-line novamente."
     },
     "Revisa tu correo": {
       "en": "Check your inbox",
@@ -2168,13 +2204,16 @@
       "en": "SSO & MFA"
     },
     "Saldo": {
-      "en": "Balance"
+      "en": "Balance",
+      "pt": "Saldo"
     },
     "Saldo Final": {
-      "en": "Ending Balance"
+      "en": "Ending Balance",
+      "pt": "Saldo Final"
     },
     "Saldo Inicial": {
-      "en": "Opening Balance"
+      "en": "Opening Balance",
+      "pt": "Saldo Inicial"
     },
     "Salud": {
       "en": "Healthcare"
@@ -2434,7 +2473,8 @@
       "en": "Seller"
     },
     "Ventas": {
-      "en": "Sales Reports"
+      "en": "Sales Reports",
+      "pt": "Vendas"
     },
     "Ventas de Hoy": {
       "en": "Today's Sales"
@@ -2494,25 +2534,32 @@
       "en": "Virtex"
     },
     "Virtex CRM": {
-      "en": "Virtex CRM"
+      "en": "Virtex CRM",
+      "pt": "Virtex CRM"
     },
     "Virtex HR": {
-      "en": "Virtex HR"
+      "en": "Virtex HR",
+      "pt": "Virtex HR"
     },
     "Virtex Lunch": {
-      "en": "Virtex Lunch"
+      "en": "Virtex Lunch",
+      "pt": "Virtex Lunch"
     },
     "Virtex POS": {
-      "en": "Virtex POS"
+      "en": "Virtex POS",
+      "pt": "Virtex POS"
     },
     "Virtex Shopfloor": {
-      "en": "Virtex Shopfloor"
+      "en": "Virtex Shopfloor",
+      "pt": "Virtex Shopfloor"
     },
     "Virtex Store": {
-      "en": "Virtex Store"
+      "en": "Virtex Store",
+      "pt": "Virtex Store"
     },
     "Virtex WMS": {
-      "en": "Virtex WMS"
+      "en": "Virtex WMS",
+      "pt": "Virtex WMS"
     },
     "Volver al inicio de sesión": {
       "en": "Back to login"
@@ -3440,6 +3487,614 @@
     "Valor:": {
       "en": "Value:",
       "pt": "Valor:"
+    },
+    "copiar": {
+      "en": "copy",
+      "pt": "copiar"
+    },
+    "Eliminar": {
+      "en": "Delete",
+      "pt": "Excluir"
+    },
+    "Aún no has agregado dominios.": {
+      "en": "You have not added any domains yet.",
+      "pt": "Você ainda não adicionou domínios."
+    },
+    "Proveedores de Identidad (OIDC)": {
+      "en": "Identity Providers (OIDC)",
+      "pt": "Provedores de Identidade (OIDC)"
+    },
+    "Configura tu proveedor OIDC. Requiere al menos un dominio verificado para activarlo.": {
+      "en": "Configure your OIDC provider. At least one verified domain is required to enable it.",
+      "pt": "Configure seu provedor OIDC. É necessário ao menos um domínio verificado para ativá-lo."
+    },
+    "Añadir proveedor": {
+      "en": "Add provider",
+      "pt": "Adicionar provedor"
+    },
+    "Debes verificar al menos un dominio antes de poder activar un proveedor.": {
+      "en": "You must verify at least one domain before enabling a provider.",
+      "pt": "Você precisa verificar ao menos um domínio antes de ativar um provedor."
+    },
+    "Issuer URL (discovery)": {
+      "en": "Issuer URL (discovery)",
+      "pt": "Issuer URL (discovery)"
+    },
+    "Client ID": {
+      "en": "Client ID",
+      "pt": "Client ID"
+    },
+    "Client Secret": {
+      "en": "Client Secret",
+      "pt": "Client Secret"
+    },
+    "(en blanco = sin cambios)": {
+      "en": "(blank = unchanged)",
+      "pt": "(em branco = sem alterações)"
+    },
+    "Scopes": {
+      "en": "Scopes",
+      "pt": "Scopes"
+    },
+    "Rol por defecto": {
+      "en": "Default role",
+      "pt": "Perfil padrão"
+    },
+    "(UUID, opcional)": {
+      "en": "(UUID, optional)",
+      "pt": "(UUID, opcional)"
+    },
+    "Issuer": {
+      "en": "Issuer",
+      "pt": "Issuer"
+    },
+    "Redirect URI": {
+      "en": "Redirect URI",
+      "pt": "Redirect URI"
+    },
+    "Editar": {
+      "en": "Edit",
+      "pt": "Editar"
+    },
+    "No hay proveedores configurados.": {
+      "en": "No providers are configured.",
+      "pt": "Nenhum provedor configurado."
+    },
+    "acme.com": {
+      "en": "acme.com",
+      "pt": "acme.com"
+    },
+    "Acme Okta": {
+      "en": "Acme Okta",
+      "pt": "Acme Okta"
+    },
+    "https://acme.okta.com/oauth2/default": {
+      "en": "https://acme.okta.com/oauth2/default",
+      "pt": "https://acme.okta.com/oauth2/default"
+    },
+    "openid email profile": {
+      "en": "openid email profile",
+      "pt": "openid email profile"
+    },
+    "Idioma": {
+      "en": "Language",
+      "pt": "Idioma"
+    },
+    "El idioma de la interfaz. Los documentos fiscales conservan el idioma que exige la ley del país de la empresa.": {
+      "en": "The interface language. Statutory documents keep the language the law of the company's country requires.",
+      "pt": "O idioma da interface. Os documentos fiscais mantêm o idioma exigido pela lei do país da empresa."
+    },
+    "Elegir idioma": {
+      "en": "Choose a language",
+      "pt": "Escolher idioma"
+    },
+    "Catálogo de Cuentas": {
+      "en": "Chart of Accounts",
+      "pt": "Plano de Contas"
+    },
+    "Catálogo": {
+      "en": "Chart",
+      "pt": "Plano"
+    },
+    "Todos los Estados": {
+      "en": "All Statuses",
+      "pt": "Todas as Situações"
+    },
+    "Activa": {
+      "en": "Active",
+      "pt": "Ativa"
+    },
+    "Inactiva": {
+      "en": "Inactive",
+      "pt": "Inativa"
+    },
+    "Todos los Tipos": {
+      "en": "All Types",
+      "pt": "Todos os Tipos"
+    },
+    "Error al Cargar Cuentas": {
+      "en": "Error Loading Accounts",
+      "pt": "Erro ao Carregar Contas"
+    },
+    "No se encontraron cuentas": {
+      "en": "No accounts were found",
+      "pt": "Nenhuma conta encontrada"
+    },
+    "Añade una nueva cuenta para empezar a gestionar tu\n                      catálogo.": {
+      "en": "Add an account to start managing your\n                      chart.",
+      "pt": "Adicione uma conta para começar a gerenciar seu\n                      plano."
+    },
+    "cuentas": {
+      "en": "accounts",
+      "pt": "contas"
+    },
+    "Buscar por código o nombre...": {
+      "en": "Search by code or name...",
+      "pt": "Buscar por código ou nome..."
+    },
+    "No se ha especificado una cuenta.": {
+      "en": "No account has been specified.",
+      "pt": "Nenhuma conta foi especificada."
+    },
+    "Cuenta: {{code}} - {{name}}": {
+      "en": "Account: {{code}} - {{name}}",
+      "pt": "Conta: {{code}} - {{name}}"
+    },
+    "Cargando información de la cuenta...": {
+      "en": "Loading account details...",
+      "pt": "Carregando os dados da conta..."
+    },
+    "Filtrar": {
+      "en": "Filter",
+      "pt": "Filtrar"
+    },
+    "Desde:": {
+      "en": "From:",
+      "pt": "De:"
+    },
+    "Hasta:": {
+      "en": "To:",
+      "pt": "Até:"
+    },
+    "Cargando datos del libro mayor...": {
+      "en": "Loading the general ledger...",
+      "pt": "Carregando o livro razão..."
+    },
+    "Total Débitos": {
+      "en": "Total Debits",
+      "pt": "Total de Débitos"
+    },
+    "Total Créditos": {
+      "en": "Total Credits",
+      "pt": "Total de Créditos"
+    },
+    "Referencia": {
+      "en": "Reference",
+      "pt": "Referência"
+    },
+    "Débito": {
+      "en": "Debit",
+      "pt": "Débito"
+    },
+    "Crédito": {
+      "en": "Credit",
+      "pt": "Crédito"
+    },
+    "Balance": {
+      "en": "Balance",
+      "pt": "Saldo"
+    },
+    "Por favor, seleccione una cuenta para ver el libro mayor.": {
+      "en": "Select an account to see its ledger.",
+      "pt": "Selecione uma conta para ver o livro razão."
+    },
+    "No se encontraron movimientos para esta cuenta en el período seleccionado.": {
+      "en": "No movements were found for this account in the selected period.",
+      "pt": "Nenhum lançamento encontrado para esta conta no período selecionado."
+    },
+    "Asientos Contables": {
+      "en": "Journal Entries",
+      "pt": "Lançamentos Contábeis"
+    },
+    "N.º de Asiento": {
+      "en": "Entry no.",
+      "pt": "N.º do Lançamento"
+    },
+    "Contabilizado": {
+      "en": "Posted",
+      "pt": "Contabilizado"
+    },
+    "Borrador": {
+      "en": "Draft",
+      "pt": "Rascunho"
+    },
+    "Anulado": {
+      "en": "Voided",
+      "pt": "Cancelado"
+    },
+    "Cargando los asientos contables…": {
+      "en": "Loading journal entries…",
+      "pt": "Carregando os lançamentos contábeis…"
+    },
+    "No se pudieron cargar los asientos contables.": {
+      "en": "The journal entries could not be loaded.",
+      "pt": "Não foi possível carregar os lançamentos contábeis."
+    },
+    "No se encontraron asientos contables.": {
+      "en": "No journal entries were found.",
+      "pt": "Nenhum lançamento contábil encontrado."
+    },
+    "Pendiente de aprobación": {
+      "en": "Pending approval",
+      "pt": "Aguardando aprovação"
+    },
+    "Modificado": {
+      "en": "Modified",
+      "pt": "Modificado"
+    },
+    "Rechazado": {
+      "en": "Rejected",
+      "pt": "Rejeitado"
+    },
+    "Nuevo Asiento": {
+      "en": "New Entry",
+      "pt": "Novo Lançamento"
+    },
+    "Libros Auxiliares": {
+      "en": "Subsidiary Ledgers",
+      "pt": "Livros Auxiliares"
+    },
+    "Período": {
+      "en": "Period",
+      "pt": "Período"
+    },
+    "Cuenta de Control": {
+      "en": "Control Account",
+      "pt": "Conta de Controle"
+    },
+    "Auxiliar (Tercero)": {
+      "en": "Auxiliary (Third Party)",
+      "pt": "Auxiliar (Terceiro)"
+    },
+    "Auxiliar:": {
+      "en": "Auxiliary:",
+      "pt": "Auxiliar:"
+    },
+    "N.º de Referencia": {
+      "en": "Reference no.",
+      "pt": "N.º de Referência"
+    },
+    "Selecciona una cuenta de control": {
+      "en": "Select a control account",
+      "pt": "Selecione uma conta de controle"
+    },
+    "Selecciona un auxiliar": {
+      "en": "Select an auxiliary",
+      "pt": "Selecione um auxiliar"
+    },
+    "Saldo de apertura": {
+      "en": "Opening balance",
+      "pt": "Saldo de abertura"
+    },
+    "Cargando el libro auxiliar…": {
+      "en": "Loading the subsidiary ledger…",
+      "pt": "Carregando o livro auxiliar…"
+    },
+    "No se pudo cargar el libro auxiliar.": {
+      "en": "The subsidiary ledger could not be loaded.",
+      "pt": "Não foi possível carregar o livro auxiliar."
+    },
+    "No se encontraron movimientos para este auxiliar en el período seleccionado.": {
+      "en": "No movements were found for this auxiliary in the selected period.",
+      "pt": "Nenhum lançamento encontrado para este auxiliar no período selecionado."
+    },
+    "Análisis de Variaciones (Real vs. Presupuesto)": {
+      "en": "Variance Analysis (Actual vs. Budget)",
+      "pt": "Análise de Variações (Real vs. Orçado)"
+    },
+    "Real": {
+      "en": "Actual",
+      "pt": "Real"
+    },
+    "Variación": {
+      "en": "Variance",
+      "pt": "Variação"
+    },
+    "Variación (%)": {
+      "en": "Variance (%)",
+      "pt": "Variação (%)"
+    },
+    "Cargando el análisis de variaciones…": {
+      "en": "Loading the variance analysis…",
+      "pt": "Carregando a análise de variações…"
+    },
+    "No se pudo cargar el análisis de variaciones.": {
+      "en": "The variance analysis could not be loaded.",
+      "pt": "Não foi possível carregar a análise de variações."
+    },
+    "No hay datos disponibles para el análisis de variaciones.": {
+      "en": "There is no data available for the variance analysis.",
+      "pt": "Não há dados disponíveis para a análise de variações."
+    },
+    "Períodos Contables": {
+      "en": "Accounting Periods",
+      "pt": "Períodos Contábeis"
+    },
+    "Fecha de Inicio": {
+      "en": "Start Date",
+      "pt": "Data de Início"
+    },
+    "Fecha de Cierre": {
+      "en": "End Date",
+      "pt": "Data de Encerramento"
+    },
+    "Acción": {
+      "en": "Action",
+      "pt": "Ação"
+    },
+    "Cerrar Período": {
+      "en": "Close Period",
+      "pt": "Encerrar Período"
+    },
+    "Reabrir": {
+      "en": "Reopen",
+      "pt": "Reabrir"
+    },
+    "Abierto": {
+      "en": "Open",
+      "pt": "Aberto"
+    },
+    "Cerrado": {
+      "en": "Closed",
+      "pt": "Encerrado"
+    },
+    "Cargando los períodos contables…": {
+      "en": "Loading accounting periods…",
+      "pt": "Carregando os períodos contábeis…"
+    },
+    "No se pudieron cargar los períodos contables.": {
+      "en": "The accounting periods could not be loaded.",
+      "pt": "Não foi possível carregar os períodos contábeis."
+    },
+    "Todavía no hay períodos contables definidos.": {
+      "en": "No accounting periods have been defined yet.",
+      "pt": "Ainda não há períodos contábeis definidos."
+    },
+    "Indica la razón por la que se reabre este período contable (mínimo 10 caracteres).": {
+      "en": "State why this accounting period is being reopened (at least 10 characters).",
+      "pt": "Informe o motivo da reabertura deste período contábil (mínimo de 10 caracteres)."
+    },
+    "La razón debe tener al menos 10 caracteres.": {
+      "en": "The reason must be at least 10 characters long.",
+      "pt": "O motivo deve ter pelo menos 10 caracteres."
+    },
+    "Error al cargar la configuración de segmentos.": {
+      "en": "Error loading the segment configuration.",
+      "pt": "Erro ao carregar a configuração de segmentos."
+    },
+    "Error al cargar los datos de la cuenta.": {
+      "en": "Error loading the account details.",
+      "pt": "Erro ao carregar os dados da conta."
+    },
+    "No se puede guardar la cuenta sin una estructura de segmentos configurada.": {
+      "en": "The account cannot be saved without a configured segment structure.",
+      "pt": "A conta não pode ser salva sem uma estrutura de segmentos configurada."
+    },
+    "Por favor, complete todos los campos requeridos.": {
+      "en": "Please fill in every required field.",
+      "pt": "Preencha todos os campos obrigatórios."
+    },
+    "El código de cuenta debe tener al menos un segmento válido.": {
+      "en": "The account code must have at least one valid segment.",
+      "pt": "O código da conta deve ter ao menos um segmento válido."
+    },
+    "Cuenta actualizada con éxito.": {
+      "en": "Account updated successfully.",
+      "pt": "Conta atualizada com sucesso."
+    },
+    "Cuenta creada con éxito.": {
+      "en": "Account created successfully.",
+      "pt": "Conta criada com sucesso."
+    },
+    "Completa la información detallada de la cuenta.": {
+      "en": "Fill in the account's details.",
+      "pt": "Preencha as informações detalhadas da conta."
+    },
+    "Guardar Cuenta": {
+      "en": "Save Account",
+      "pt": "Salvar Conta"
+    },
+    "Cargando datos de la cuenta...": {
+      "en": "Loading account data...",
+      "pt": "Carregando os dados da conta..."
+    },
+    "Estructura de segmentos no configurada": {
+      "en": "Segment structure not configured",
+      "pt": "Estrutura de segmentos não configurada"
+    },
+    "Para crear cuentas contables, primero debes definir la estructura de niveles (segmentos) de tu organización.": {
+      "en": "To create accounts you must first define your organization's level (segment) structure.",
+      "pt": "Para criar contas contábeis, primeiro defina a estrutura de níveis (segmentos) da sua organização."
+    },
+    "Configurar Segmentos": {
+      "en": "Configure Segments",
+      "pt": "Configurar Segmentos"
+    },
+    "General": {
+      "en": "General",
+      "pt": "Geral"
+    },
+    "Mapeos": {
+      "en": "Mappings",
+      "pt": "Mapeamentos"
+    },
+    "Reglas": {
+      "en": "Rules",
+      "pt": "Regras"
+    },
+    "Avanzado": {
+      "en": "Advanced",
+      "pt": "Avançado"
+    },
+    "Código de Cuenta*": {
+      "en": "Account Code*",
+      "pt": "Código da Conta*"
+    },
+    "Nombre de la Cuenta*": {
+      "en": "Account Name*",
+      "pt": "Nome da Conta*"
+    },
+    "Cuenta Padre (Agrupadora)": {
+      "en": "Parent Account (Grouping)",
+      "pt": "Conta Superior (Agrupadora)"
+    },
+    "-- Ninguna (Cuenta Raíz) --": {
+      "en": "-- None (Root Account) --",
+      "pt": "-- Nenhuma (Conta Raiz) --"
+    },
+    "Tipo de Cuenta*": {
+      "en": "Account Type*",
+      "pt": "Tipo de Conta*"
+    },
+    "Seleccionar tipo...": {
+      "en": "Select a type...",
+      "pt": "Selecionar tipo..."
+    },
+    "Naturaleza (Automático)": {
+      "en": "Nature (Automatic)",
+      "pt": "Natureza (Automática)"
+    },
+    "Categoría*": {
+      "en": "Category*",
+      "pt": "Categoria*"
+    },
+    "Seleccionar categoría...": {
+      "en": "Select a category...",
+      "pt": "Selecionar categoria..."
+    },
+    "Es una cuenta imputable (permite transacciones)": {
+      "en": "Postable account (accepts transactions)",
+      "pt": "Conta analítica (aceita lançamentos)"
+    },
+    "Cuenta activa": {
+      "en": "Active account",
+      "pt": "Conta ativa"
+    },
+    "Mapeo de Estados Financieros": {
+      "en": "Financial Statement Mapping",
+      "pt": "Mapeamento das Demonstrações Financeiras"
+    },
+    "Define cómo se representa esta cuenta en los reportes financieros clave.": {
+      "en": "Define how this account appears in the key financial reports.",
+      "pt": "Defina como esta conta aparece nos principais relatórios financeiros."
+    },
+    "Categoría de Balance General": {
+      "en": "Balance Sheet Category",
+      "pt": "Categoria do Balanço Patrimonial"
+    },
+    "Categoría de Estado de Resultados": {
+      "en": "Income Statement Category",
+      "pt": "Categoria da Demonstração de Resultados"
+    },
+    "Categoría de Flujo de Efectivo": {
+      "en": "Cash Flow Category",
+      "pt": "Categoria do Fluxo de Caixa"
+    },
+    "Reglas de Contabilización": {
+      "en": "Posting Rules",
+      "pt": "Regras de Contabilização"
+    },
+    "Establece restricciones y comportamientos específicos para esta cuenta.": {
+      "en": "Set restrictions and specific behaviour for this account.",
+      "pt": "Defina restrições e comportamentos específicos para esta conta."
+    },
+    "Requiere Reconciliación": {
+      "en": "Requires Reconciliation",
+      "pt": "Exige Conciliação"
+    },
+    "Es Cuenta de Caja o Banco": {
+      "en": "Cash or Bank Account",
+      "pt": "Conta de Caixa ou Banco"
+    },
+    "Permite Transacciones Intercompañía": {
+      "en": "Allows Intercompany Transactions",
+      "pt": "Permite Transações Intercompany"
+    },
+    "Aplica Revaluación por Tipo de Cambio": {
+      "en": "Subject to Exchange-Rate Revaluation",
+      "pt": "Sujeita a Reavaliação Cambial"
+    },
+    "Dimensiones Requeridas": {
+      "en": "Required Dimensions",
+      "pt": "Dimensões Obrigatórias"
+    },
+    "Configuración Avanzada": {
+      "en": "Advanced Settings",
+      "pt": "Configurações Avançadas"
+    },
+    "Parámetros de control y auditoría para la cuenta.": {
+      "en": "Control and audit parameters for the account.",
+      "pt": "Parâmetros de controle e auditoria da conta."
+    },
+    "Versión del Catálogo": {
+      "en": "Chart Version",
+      "pt": "Versão do Plano"
+    },
+    "Tipo de Jerarquía": {
+      "en": "Hierarchy Type",
+      "pt": "Tipo de Hierarquia"
+    },
+    "Vigente Desde": {
+      "en": "Effective From",
+      "pt": "Vigente Desde"
+    },
+    "Vigente Hasta": {
+      "en": "Effective Until",
+      "pt": "Vigente Até"
+    },
+    "Ej: Activos Circulantes": {
+      "en": "e.g. Current Assets",
+      "pt": "Ex.: Ativo Circulante"
+    },
+    "Ej: Ingresos Operativos": {
+      "en": "e.g. Operating Revenue",
+      "pt": "Ex.: Receita Operacional"
+    },
+    "Estructura de segmentos guardada correctamente.": {
+      "en": "Segment structure saved successfully.",
+      "pt": "Estrutura de segmentos salva com sucesso."
+    },
+    "Estructura por defecto inicializada.": {
+      "en": "Default structure initialized.",
+      "pt": "Estrutura padrão inicializada."
+    },
+    "Por favor, corrija los errores en el formulario.": {
+      "en": "Please correct the errors on the form.",
+      "pt": "Corrija os erros do formulário."
+    },
+    "Debe definir al menos un segmento.": {
+      "en": "You must define at least one segment.",
+      "pt": "É necessário definir ao menos um segmento."
+    },
+    "Configuración de Segmentos": {
+      "en": "Segment Configuration",
+      "pt": "Configuração de Segmentos"
+    },
+    "Define la estructura y longitud de los niveles para tus cuentas contables.": {
+      "en": "Define the structure and length of the levels for your accounts.",
+      "pt": "Defina a estrutura e o comprimento dos níveis das suas contas contábeis."
+    },
+    "Cargar Plantilla": {
+      "en": "Load Template",
+      "pt": "Carregar Modelo"
+    },
+    "Guardar Estructura": {
+      "en": "Save Structure",
+      "pt": "Salvar Estrutura"
+    },
+    "Cargando configuración...": {
+      "en": "Loading configuration...",
+      "pt": "Carregando configuração..."
     }
   }
 }

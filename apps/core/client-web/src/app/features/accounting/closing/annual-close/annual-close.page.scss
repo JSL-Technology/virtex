@@ -1,3 +1,8 @@
 // Reutiliza los mismos estilos que la vista de Cierre Mensual,
 // ya que la estructura es idéntica.
 @use '../month-end-close/month-end-close.page.scss';           
+.task-note {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}

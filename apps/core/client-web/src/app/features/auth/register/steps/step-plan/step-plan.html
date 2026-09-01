@@ -51,7 +51,7 @@
       </div>
       @if (billingPeriod() === 'annual' && plan.annualSaving) {
         <div class="plan-saving">
-          {{ 'AUTH.STEP_PLAN.REGISTER_STEPS_PLAN_SAVE_PERCENT_TRANSLATE' | translate }}
+          {{ 'REGISTER.STEPS.PLAN.SAVE_PERCENT' | translate: { percent: plan.annualSaving } }}
         </div>
       }
 
