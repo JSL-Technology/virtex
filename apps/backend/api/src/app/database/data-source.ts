@@ -54,5 +54,14 @@ export const AppDataSource = new DataSource({
     __dirname + '/../../../../../../libs/**/*.entity.{js,ts}',
   ],
   migrations: [__dirname + '/migrations/*.{js,ts}'],
+  // One transaction PER migration, not one for the whole run (TypeORM's default is `'all'`).
+  //
+  // PostgreSQL refuses to use an enum value inside the transaction that added it —
+  // `unsafe use of new value ...: New enum values must be committed before they can be used`. With
+  // a single run-wide transaction, `InvoicingEnumValues1788490000000` adding `'QUOTE'` and
+  // `InvoicingOverhaul1788500000000` inserting a quote sequence are the same transaction, and the
+  // run aborts. Per-migration transactions also mean a failure leaves the migrations that already
+  // succeeded recorded, instead of silently rolling back a run that reported partial progress.
+  migrationsTransactionMode: 'each',
   ssl: sslConfig(),
 } as DataSourceOptions);

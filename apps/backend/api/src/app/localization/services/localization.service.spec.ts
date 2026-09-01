@@ -30,6 +30,7 @@ describe('LocalizationService — public country configuration', () => {
       (overrides.doStrategy as never) ?? ({ getTaxIdDetails: jest.fn() } as never),
       { getTaxIdDetails: jest.fn() } as never,
       { getTaxIdDetails: jest.fn() } as never,
+      {} as never, // TenantBookkeepingProvisioner — only reached when a tenant is provisioned
     );
   }
 

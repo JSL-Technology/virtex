@@ -18,6 +18,7 @@ import {
   AccountType,
   AccountCategory,
   AccountNature,
+  AccountRole,
   CashFlowCategory,
   RequiredDimension,
   HierarchyType,
@@ -57,6 +58,9 @@ export class CreateAccountDto {
   /** Declares that `nature` is deliberately the opposite of the type's normal balance. */
   @IsBoolean() @IsOptional() isContraAccount?: boolean = false;
 
+
+  /** Operational role, used by the automatic postings to find this account. */
+  @IsEnum(AccountRole) @IsOptional() systemRole?: AccountRole;
 
   @IsBoolean() @IsOptional() isSystemAccount?: boolean = false;
   @IsBoolean() @IsOptional() isMultiCurrency?: boolean = false;

@@ -101,6 +101,10 @@ jobs:
       # answered 403 by the reCAPTCHA guard and nothing underneath is ever reached.
       RECAPTCHA_DISABLED: 'true'
 
+      # The e-CF vault refuses to start without it, and the invoicing verifier exercises the
+      # certificate round-trip.
+      ECF_CERT_ENCRYPTION_KEY: ci-ecf-cert-key-ci-ecf-cert-key
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -163,6 +167,22 @@ jobs:
       # enumeration parity between a wrong password and an unknown mailbox, and a revoked session
       # dying immediately. This is what the Nx e2e placeholders were standing in for.
       - run: npm run verify:auth-contract
+
+      # Proves that a comprobante fiscal electrónico is BUILT, VALIDATED and SIGNED the way the DGII
+      # requires, with real certificate material and a real signature verification. The builder used
+      # to emit eleven elements and omit everything else the schema marks mandatory, and nothing
+      # validated a document before spending an e-NCF on it — so the first sign of a defect was a
+      # rejection with the number already consumed. This needs no network.
+      - run: npm run verify:ecf
+
+      # Proves the whole sales cycle against a real database: that a freshly provisioned tenant can
+      # issue at all, that a draft consumes no fiscal numbering, that issuing assigns the e-NCF and
+      # POSTS THE LEDGER ENTRY, that the ledger balances, that a credit note reduces the invoice and
+      # cannot credit the same goods twice, and that no fiscal number is ever duplicated.
+      #
+      # Every one of those was broken and every one passed the previous suite, because no test drove
+      # an invoice end to end. `POST /invoices` failed for every customer on their first attempt.
+      - run: npm run verify:invoicing
 
       - run: npx nx fix-ci
         if: always()

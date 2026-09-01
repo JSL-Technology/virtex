@@ -15,16 +15,14 @@ export class SearchService {
     const lowerCaseQuery = query.toLowerCase();
 
     const [allInvoices, allProducts, allCustomers] = await Promise.all([
-      this.invoicesService.findAll(organizationId),
+      // Search delegates the filter to the database instead of downloading every invoice of the
+      // tenant and filtering in memory — which is what `findAll` used to return.
+      this.invoicesService.findAll(organizationId, { search: query, limit: 20 }),
       this.inventoryService.findAll(organizationId),
       this.customersService.findAll(organizationId),
     ]);
 
-    const invoices = allInvoices.filter(
-      (i) =>
-        i.invoiceNumber.toLowerCase().includes(lowerCaseQuery) ||
-        i.customerName.toLowerCase().includes(lowerCaseQuery),
-    );
+    const invoices = allInvoices.items;
 
     const products = allProducts.filter(
       (p) =>

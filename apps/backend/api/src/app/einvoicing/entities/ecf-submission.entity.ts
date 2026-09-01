@@ -1,12 +1,6 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  Index,
-  VersionColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index, VersionColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Organization } from '../../organizations/entities/organization.entity';
+import { Invoice } from '../../invoices/entities/invoice.entity';
 
 /**
  * Lifecycle of a single e-CF as it moves from generation to a final DGII verdict.
@@ -41,11 +35,32 @@ export class EcfSubmission {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'organization_id' })
+  /**
+   * `uuid`, matching `organizations.id`, with a foreign key.
+   *
+   * Twenty tables held the tenant reference as `character varying` while the column it points at
+   * is a uuid. A join between them was a type error PostgreSQL refused outright, and a row whose
+   * organization had been deleted was perfectly storable.
+   */
+  @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
+
+  @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'organization_id' })
+  organization: Organization;
 
   @Column({ name: 'invoice_id', type: 'uuid' })
   invoiceId: string;
+
+  /**
+   * The document this submission belongs to.
+   *
+   * There was no foreign key: a submission could reference an invoice that did not exist, and
+   * discarding a draft left its e-CF row orphaned.
+   */
+  @ManyToOne(() => Invoice, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'invoice_id' })
+  invoice: Invoice;
 
   /** The e-NCF assigned to this document (e.g. `E310000000001`). */
   @Column({ name: 'ncf' })
@@ -94,12 +109,16 @@ export class EcfSubmission {
   @Column({ name: 'responded_at', type: 'timestamptz', nullable: true })
   respondedAt?: Date;
 
-  @CreateDateColumn({ name: 'created_at' })
+  // `timestamptz`, matching the migration. The entity declared `timestamp` without a zone while the
+  // migration created `timestamptz`, which is what `check:schema-drift` — a CI gate — reported on
+  // every build. For an auditable fiscal record in a product sold from Mexico to Argentina, a
+  // timestamp without a zone is a defect in itself, not only a drift.
+  @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
   updatedAt: Date;
 
-  @VersionColumn()
+  @VersionColumn({ default: 1 })
   version: number;
 }

@@ -173,6 +173,23 @@
     </div>
   </div>
 
+  @if (inv.status === 'Draft') {
+    <div class="alert alert-info draft-banner" role="status">
+      <div>
+        <strong>Este documento es un borrador.</strong>
+        No tiene comprobante fiscal asignado, no está contabilizado y no ha sido transmitido.
+      </div>
+      <div class="draft-actions">
+        <button type="button" class="btn btn-primary" [disabled]="ecfBusy()" (click)="issue()">
+          {{ ecfBusy() ? 'Emitiendo…' : 'Emitir comprobante' }}
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="discardDraft()">
+          Eliminar borrador
+        </button>
+      </div>
+    </div>
+  }
+
   <!-- Facturación electrónica (e-CF / DGII) -->
   <div class="invoice-document card" *ngIf="ecf() as e">
     <div class="card-body">
@@ -204,8 +221,10 @@
       </div>
 
       <div class="ecf-qr" *ngIf="e.qrUrl">
-        <span class="detail-label">Representación impresa (QR):</span>
-        <a [href]="e.qrUrl" target="_blank" rel="noopener">Verificar en la DGII</a>
+        <span class="detail-label">Verificación DGII</span>
+        <!-- The actual QR, not a link to it: it is what a customer scans off the printed document. -->
+        <qrcode [qrdata]="e.qrUrl" [width]="180" [errorCorrectionLevel]="'M'" [margin]="0"></qrcode>
+        <a [href]="e.qrUrl" target="_blank" rel="noopener">Abrir la consulta de timbre</a>
       </div>
 
       <div class="ecf-actions">

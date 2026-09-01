@@ -60,7 +60,18 @@ const vat = (name: string, rate: number): CountryTax => ({
 });
 
 export const COUNTRY_TAX_SCHEMES: Readonly<Record<string, CountryTaxScheme>> = {
-  DO: { configurationRequired: false, taxes: [vat('ITBIS 18%', 18), vat('ITBIS Exento 0%', 0)] },
+  // The reduced 16 % rate is the one the DGII's own ITBIS2 bucket exists for (Ley 253-12 art. 23:
+  // yoghurt, butter, coffee, edible fats, sugars, cocoa and chocolate). Listing only 18 % and 0 %
+  // meant the server rejected a line the e-CF builder already knew how to transmit — the tax
+  // validator and the comprobante generator disagreed about the same regime.
+  DO: {
+    configurationRequired: false,
+    taxes: [
+      vat('ITBIS 18%', 18),
+      vat('ITBIS Tasa Reducida 16%', 16),
+      vat('ITBIS Exento 0%', 0),
+    ],
+  },
 
   US: {
     configurationRequired: true,

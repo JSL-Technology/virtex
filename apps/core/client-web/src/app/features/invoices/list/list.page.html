@@ -22,12 +22,14 @@
             <input type="text"
                    [ngModel]="searchTerm()"
                    (ngModelChange)="searchTerm.set($event)"
+                   (keydown.enter)="applyFilters()"
+                   (blur)="applyFilters()"
                    placeholder="Buscar por cliente o número de factura...">
         </div>
         <div class="filters">
             <div class="filter-group">
                 <label for="estado">Estado:</label>
-                <select id="estado" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+                <select id="estado" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event); applyFilters()">
                     <option value="All">Todos</option>
                     <option value="Paid">Cobrada</option>
                     <option value="Pending">Pendiente</option>
@@ -42,35 +44,20 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th class="sortable" (click)="toggleSort('invoiceNumber')" tabindex="0" (keydown.enter)="toggleSort('invoiceNumber')" (keydown.space)="$event.preventDefault(); toggleSort('invoiceNumber')">
+                    <th class="">
                         Factura #
-                        @if (sortBy() === 'invoiceNumber') {
-                            <lucide-icon [img]="sortDirection() === 'asc' ? ArrowUpIcon : ArrowDownIcon" size="12"></lucide-icon>
-                        }
                     </th>
-                    <th class="sortable" (click)="toggleSort('customerName')" tabindex="0" (keydown.enter)="toggleSort('customerName')" (keydown.space)="$event.preventDefault(); toggleSort('customerName')">
+                    <th class="">
                         Cliente
-                        @if (sortBy() === 'customerName') {
-                            <lucide-icon [img]="sortDirection() === 'asc' ? ArrowUpIcon : ArrowDownIcon" size="12"></lucide-icon>
-                        }
                     </th>
-                    <th class="sortable" (click)="toggleSort('issueDate')" tabindex="0" (keydown.enter)="toggleSort('issueDate')" (keydown.space)="$event.preventDefault(); toggleSort('issueDate')">
+                    <th class="">
                         Creación
-                        @if (sortBy() === 'issueDate') {
-                            <lucide-icon [img]="sortDirection() === 'asc' ? ArrowUpIcon : ArrowDownIcon" size="12"></lucide-icon>
-                        }
                     </th>
-                    <th class="sortable" (click)="toggleSort('dueDate')" tabindex="0" (keydown.enter)="toggleSort('dueDate')" (keydown.space)="$event.preventDefault(); toggleSort('dueDate')">
+                    <th class="">
                         Vencimiento
-                        @if (sortBy() === 'dueDate') {
-                            <lucide-icon [img]="sortDirection() === 'asc' ? ArrowUpIcon : ArrowDownIcon" size="12"></lucide-icon>
-                        }
                     </th>
-                    <th class="text-right sortable" (click)="toggleSort('total')" tabindex="0" (keydown.enter)="toggleSort('total')" (keydown.space)="$event.preventDefault(); toggleSort('total')">
+                    <th class="text-right ">
                         Total
-                        @if (sortBy() === 'total') {
-                            <lucide-icon [img]="sortDirection() === 'asc' ? ArrowUpIcon : ArrowDownIcon" size="12"></lucide-icon>
-                        }
                     </th>
                     <th>Estado</th>
                     <th class="actions-column"></th>
@@ -124,5 +111,24 @@
                 }
             </tbody>
         </table>
+
+        <!--
+            Server-side pagination. The list used to download every invoice of the tenant on each
+            visit; on any real dataset that is a sequential scan of the whole table per request.
+        -->
+        <nav class="table-pagination" aria-label="Paginación de facturas">
+            <span class="range">{{ rangeLabel() }}</span>
+            <div class="pager">
+                <button type="button" class="btn btn-secondary"
+                        [disabled]="!hasPrevious() || isLoading()" (click)="goToPage(-1)">
+                    Anterior
+                </button>
+                <span class="page-indicator">Página {{ page() }} de {{ pages() }}</span>
+                <button type="button" class="btn btn-secondary"
+                        [disabled]="!hasNext() || isLoading()" (click)="goToPage(1)">
+                    Siguiente
+                </button>
+            </div>
+        </nav>
     </div>
 </div>

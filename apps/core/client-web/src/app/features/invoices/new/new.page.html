@@ -4,276 +4,290 @@
       <div class="breadcrumb">
         <a [routerLink]="['/invoices']">Facturas</a>
         <span class="divider">/</span>
-        <span>Nueva Factura</span>
+        <span>Nueva factura</span>
       </div>
-      <h1>Crear Nueva Factura de Venta</h1>
+      <h1>Crear factura de venta</h1>
     </div>
     <div class="page-header-actions">
-      <button class="btn btn-secondary" [routerLink]="['/invoices']">
-        Cancelar
+      <button class="btn btn-secondary" [routerLink]="['/invoices']">Cancelar</button>
+      <!--
+        Two distinct actions, because they are two distinct things. Saving a draft consumes no
+        fiscal numbering and posts nothing; issuing assigns the e-NCF, posts the ledger entry and
+        transmits the comprobante. Previously every document was issued the moment it was created,
+        so preparing one burned a number the DGII then expected to receive.
+      -->
+      <button class="btn btn-secondary" (click)="saveDraft()" [disabled]="isSaving()">
+        Guardar borrador
       </button>
       <button
         class="btn btn-primary"
-        (click)="onSubmit()"
-        [disabled]="isSaving()"
+        (click)="issue()"
+        [disabled]="isSaving() || !(context()?.ready ?? false)"
       >
-        @if(isSaving()){
-        <span class="spinner-small"></span> Guardando... } @else { Guardar Factura
+        @if (isSaving()) {
+          <span class="spinner-small"></span> Guardando…
+        } @else {
+          Emitir factura
         }
       </button>
     </div>
   </div>
 
+  @if (blockers().length > 0) {
+    <div class="alert alert-warning" role="alert">
+      <strong>Todavía no puedes emitir comprobantes.</strong>
+      <ul>
+        @for (item of blockers(); track item) {
+          <li>{{ item }}</li>
+        }
+      </ul>
+      <a routerLink="/settings/fiscal">Ir a la configuración fiscal</a>
+    </div>
+  }
+
   <app-invoice-toolbar
     [canNavigate]="false"
     [isNew]="true"
-    (copyFrom)="handleCopyFrom()"
     (back)="router.navigate(['/invoices'])"
   ></app-invoice-toolbar>
 
-  <!-- Document Tabs -->
   <div class="sap-tabs">
     <button [class.active]="activeTab() === 'content'" (click)="activeTab.set('content')">Contenido</button>
-    <button [class.active]="activeTab() === 'logistics'" (click)="activeTab.set('logistics')">Logística</button>
-    <button [class.active]="activeTab() === 'finance'" (click)="activeTab.set('finance')">Finanzas</button>
+    <button [class.active]="activeTab() === 'finance'" (click)="activeTab.set('finance')">Fiscal y cobro</button>
   </div>
 
   <form [formGroup]="invoiceForm">
+    <!-- ── Contenido ─────────────────────────────────────────────────────── -->
     <div class="grid-layout" [class.hidden]="activeTab() !== 'content'">
-      <!-- Main Invoice Content -->
       <div class="main-content">
         <div class="card invoice-card">
           <div class="card-body">
-            <!-- Customer & Basic Info -->
             <div class="invoice-header-section">
               <div class="form-group customer-select">
-                <label class="form-label" for="customerid">Cliente</label>
-                <select id="customerid" formControlName="customerId" class="form-control">
+                <label class="form-label" for="customerId">Cliente</label>
+                <select id="customerId" formControlName="customerId" class="form-control">
                   <option value="" disabled>Seleccionar cliente</option>
                   @for (client of customers(); track client.id) {
-                  <option [value]="client.id">
-                    {{ client.companyName }}
-                  </option>
+                    <option [value]="client.id">{{ client.companyName }}</option>
                   }
                 </select>
               </div>
 
-              <div class="invoice-meta-grid">
-                <div class="form-group">
-                  <label class="form-label" for="fecha-de-emisi-n">Fecha de Emisión</label>
-                  <input id="fecha-de-emisi-n"
-                    type="date"
-                    formControlName="issueDate"
-                    class="form-control"
-                  />
-                </div>
-                <div class="form-group">
-                  <label class="form-label" for="fecha-de-vencimiento">Fecha de Vencimiento</label>
-                  <input id="fecha-de-vencimiento"
-                    type="date"
-                    formControlName="dueDate"
-                    class="form-control"
-                  />
-                </div>
-                <div class="form-group">
-                  <label class="form-label" for="currencycode">Moneda</label>
-                  <select id="currencycode" formControlName="currencyCode" class="form-control">
-                    @for (currency of currencies(); track currency.code) {
-                    <option [value]="currency.code">
-                      {{ currency.code }} - {{ currency.name }}
-                    </option>
-                    }
-                  </select>
-                </div>
+              <div class="form-group">
+                <label class="form-label" for="issueDate">Fecha de emisión</label>
+                <input id="issueDate" type="date" formControlName="issueDate" class="form-control" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="dueDate">Fecha de vencimiento</label>
+                <input id="dueDate" type="date" formControlName="dueDate" class="form-control" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="currencyCode">Moneda</label>
+                <select id="currencyCode" formControlName="currencyCode" class="form-control">
+                  @for (currency of currencies(); track currency.code) {
+                    <option [value]="currency.code">{{ currency.code }} · {{ currency.name }}</option>
+                  }
+                </select>
               </div>
             </div>
 
-            <!-- Line Items -->
-            <div class="line-items-section">
-              <h3 class="section-title">Conceptos de Factura</h3>
-              <div class="table-container">
-                <table class="line-items-table">
-                  <thead>
-                    <tr>
-                      <th class="col-product">Producto / Servicio</th>
-                      <th class="col-qty">Cant.</th>
-                      <th class="col-price">Precio Unit.</th>
-                      <th class="col-tax">Imp. (%)</th>
-                      <th class="col-total">Total</th>
-                      <th class="col-actions"></th>
-                    </tr>
-                  </thead>
-                  <tbody formArrayName="lineItems">
-                    @for (item of lineItems.controls; track $index; let i =
-                    $index) {
-                    <tr [formGroupName]="i">
-                      <td>
-                        <select
-                          formControlName="productId"
-                          (change)="onProductSelect(i)"
-                          class="form-control"
-                        >
-                          <option value="" disabled>Seleccionar</option>
-                          @for (product of products(); track product.id) {
-                          <option [value]="product.id">
-                            {{ product.name }}
-                          </option>
+            <table class="line-items-table">
+              <thead>
+                <tr>
+                  <th style="width: 24%">Artículo</th>
+                  <th>Descripción</th>
+                  <th style="width: 10%" class="text-right">Cantidad</th>
+                  <th style="width: 13%" class="text-right">Precio</th>
+                  <th style="width: 9%" class="text-right">Desc. %</th>
+                  <th style="width: 13%">Tratamiento</th>
+                  <th style="width: 10%">ITBIS</th>
+                  <th style="width: 4%"></th>
+                </tr>
+              </thead>
+              <tbody formArrayName="lineItems">
+                @for (line of lineItems.controls; track $index; let i = $index) {
+                  <tr [formGroupName]="i">
+                    <td>
+                      <select formControlName="productId" class="form-control" (change)="onProductSelect(i)">
+                        <option value="">— Concepto libre —</option>
+                        @for (product of products(); track product.id) {
+                          <option [value]="product.id">{{ product.name }}</option>
+                        }
+                      </select>
+                    </td>
+                    <td><input type="text" formControlName="description" class="form-control" /></td>
+                    <td>
+                      <input type="number" step="0.000001" min="0.000001" formControlName="quantity"
+                             class="form-control text-right" />
+                      @if (stockShortfall(i) > 0) {
+                        <small class="field-error">
+                          Faltan {{ stockShortfall(i) | number: '1.0-6' }} unidades en existencia
+                        </small>
+                      }
+                    </td>
+                    <td>
+                      <input type="number" step="0.000001" min="0" formControlName="unitPrice"
+                             class="form-control text-right" />
+                    </td>
+                    <td>
+                      <input type="number" step="0.01" min="0" max="0.99" formControlName="discountRate"
+                             class="form-control text-right" />
+                    </td>
+                    <td>
+                      <select formControlName="taxTreatment" class="form-control">
+                        <option value="TAXED">Gravado</option>
+                        <option value="ZERO_RATED">Tasa cero</option>
+                        <option value="EXEMPT">Exento</option>
+                      </select>
+                    </td>
+                    <td>
+                      @if (taxRates().length > 0) {
+                        <select formControlName="taxRate" class="form-control">
+                          @for (rate of taxRates(); track rate) {
+                            <option [value]="rate">{{ rate * 100 | number: '1.0-2' }}%</option>
                           }
                         </select>
-                        @if (!validateStock(i)) {
-                        <div class="stock-error">Stock insuficiente</div>
-                        }
-                      </td>
-                      <td>
-                        <input
-                          type="number"
-                          formControlName="quantity"
-                          class="form-control text-center"
-                          min="1"
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="number"
-                          formControlName="price"
-                          class="form-control text-right"
-                          step="0.01"
-                        />
-                      </td>
-                      <td>
-                        <div class="tax-input-wrapper">
-                          <input
-                            type="number"
-                            formControlName="taxRate"
-                            class="form-control text-center"
-                            step="0.01"
-                          />
-                        </div>
-                      </td>
-                      <td class="text-right font-semibold">
-                        {{
-                          (item.get('quantity')?.value * item.get('price')?.value) * (1 + item.get('taxRate')?.value)
-                            | number : '1.2-2'
-                        }}
-                      </td>
-                      <td>
-                        <button
-                          type="button"
-                          class="btn-icon btn-danger-soft"
-                          (click)="removeLineItem(i)"
-                          title="Eliminar"
-                        >
-                          <span class="icon-trash">×</span>
-                        </button>
-                      </td>
-                    </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-              <button
-                type="button"
-                class="btn btn-add-line"
-                (click)="addLineItem()"
-              >
-                <span class="icon-plus">+</span> Agregar línea
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+                      } @else {
+                        <input type="number" step="0.0001" min="0" max="1" formControlName="taxRate"
+                               class="form-control text-right" />
+                      }
+                    </td>
+                    <td>
+                      <button type="button" class="btn-icon" (click)="removeLineItem(i)"
+                              [disabled]="lineItems.length === 1" aria-label="Eliminar línea">×</button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
 
-      <!-- Sidebar / Summary -->
-      <div class="sidebar-content">
-        <div class="card summary-card">
-          <div class="card-body">
-            <h3 class="section-title">Resumen</h3>
-            <div class="totals-list">
-              <div class="total-row">
-                <span class="label">Subtotal</span>
-                <span class="value">{{
-                  totals.subtotal | number : '1.2-2'
-                }}</span>
-              </div>
-              <div class="total-row">
-                <span class="label">Impuestos</span>
-                <span class="value">{{ totals.tax | number : '1.2-2' }}</span>
-              </div>
-              <div class="total-divider"></div>
-              <div class="total-row total-grand">
-                <span class="label">Total</span>
-                <span class="value"
-                  >{{ invoiceForm.get('currencyCode')?.value }}
-                  {{ totals.total | number : '1.2-2' }}</span
-                >
-              </div>
-            </div>
-          </div>
-        </div>
+            <button type="button" class="btn btn-link" (click)="addLineItem()">+ Añadir línea</button>
 
-        <div class="card notes-card">
-          <div class="card-body">
             <div class="form-group">
-              <label class="form-label" for="notas-adicionales">Notas Adicionales</label>
-              <textarea id="notas-adicionales"
-                formControlName="notes"
-                class="form-control"
-                rows="4"
-                placeholder="Términos, condiciones, instrucciones de pago..."
-              ></textarea>
+              <label class="form-label" for="notes">Notas</label>
+              <textarea id="notes" formControlName="notes" class="form-control" rows="2"></textarea>
             </div>
           </div>
         </div>
       </div>
+
+      <aside class="summary-panel">
+        <div class="card">
+          <div class="card-body">
+            <h3>Resumen</h3>
+            <!-- An estimate: the figures that reach the comprobante are the server's. -->
+            <p class="hint">Cálculo estimado. El servidor recalcula y sella los importes definitivos.</p>
+            <dl class="summary-totals">
+              <dt>Subtotal</dt><dd>{{ totals.subtotal | number: '1.2-2' }}</dd>
+              @if (totals.discount > 0) {
+                <dt>Descuento</dt><dd>−{{ totals.discount | number: '1.2-2' }}</dd>
+              }
+              <dt>ITBIS</dt><dd>{{ totals.tax | number: '1.2-2' }}</dd>
+              @if (totals.serviceCharge > 0) {
+                <dt>Propina legal</dt><dd>{{ totals.serviceCharge | number: '1.2-2' }}</dd>
+              }
+              <dt class="grand">Total</dt>
+              <dd class="grand">{{ totals.total | number: '1.2-2' }} {{ invoiceForm.get('currencyCode')?.value }}</dd>
+              @if (totals.withheld > 0) {
+                <dt>Retenciones</dt><dd>−{{ totals.withheld | number: '1.2-2' }}</dd>
+                <dt>Neto a cobrar</dt><dd>{{ totals.net | number: '1.2-2' }}</dd>
+              }
+            </dl>
+          </div>
+        </div>
+      </aside>
     </div>
 
-    <!-- Logistics Tab Content -->
-    <div class="invoice-document card" *ngIf="activeTab() === 'logistics'">
-        <div class="card-body">
-            <h3 class="section-title">Logística y Entrega</h3>
-            <div class="grid-2-col">
-                <div class="form-group">
-                    <label class="form-label" for="direcci-n-de-env-o">Dirección de Envío</label>
-                    <textarea id="direcci-n-de-env-o" class="form-control" rows="3" placeholder="Dirección completa del cliente..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="m-todo-de-env-o">Método de Envío</label>
-                    <select id="m-todo-de-env-o" class="form-control">
-                        <option>Transporte Propio</option>
-                        <option>Courier Externo</option>
-                        <option>Retiro en Almacén</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- ── Fiscal y cobro ────────────────────────────────────────────────── -->
+    <div class="grid-layout" [class.hidden]="activeTab() !== 'finance'">
+      <div class="main-content">
+        <div class="card">
+          <div class="card-body">
+            <h3>Comprobante fiscal</h3>
 
-    <!-- Finance Tab Content -->
-    <div class="invoice-document card" *ngIf="activeTab() === 'finance'">
-        <div class="card-body">
-            <h3 class="section-title">Información Financiera</h3>
-            <div class="grid-2-col">
-                <div class="form-group">
-                    <label class="form-label" for="condiciones-de-pago">Condiciones de Pago</label>
-                    <select id="condiciones-de-pago" class="form-control">
-                        <option>Contado</option>
-                        <option>15 Días</option>
-                        <option selected>30 Días</option>
-                        <option>60 Días</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="lista-de-precios">Lista de Precios</label>
-                    <select id="lista-de-precios" class="form-control">
-                        <option>Precio Base</option>
-                        <option>Mayorista</option>
-                        <option>Distribuidor</option>
-                    </select>
-                </div>
+            @if (fiscalTypes().length > 0) {
+              <div class="form-group">
+                <label class="form-label" for="fiscalDocumentType">Tipo de comprobante</label>
+                <select id="fiscalDocumentType" formControlName="fiscalDocumentType" class="form-control">
+                  <!--
+                    Selectable at last. The type used to be inferred from the LENGTH of the buyer's
+                    tax id, so exports, government sales and special regimes could not be issued at
+                    all. Left empty, the market's adapter still chooses.
+                  -->
+                  <option value="">Automático según el comprador</option>
+                  @for (type of fiscalTypes(); track type.code) {
+                    <option [value]="type.code">{{ type.label }}</option>
+                  }
+                </select>
+              </div>
+            } @else {
+              <p class="hint">
+                Este mercado todavía no tiene régimen de comprobantes electrónicos implementado. El
+                documento se numera internamente y se contabiliza, pero no se sella ante ninguna
+                autoridad.
+              </p>
+            }
+
+            <div class="form-group">
+              <label class="form-label" for="paymentMethod">Forma de pago</label>
+              <select id="paymentMethod" formControlName="paymentMethod" class="form-control">
+                <option value="CASH">Efectivo</option>
+                <option value="CHECK">Cheque</option>
+                <option value="BANK_TRANSFER">Transferencia</option>
+                <option value="CREDIT_CARD">Tarjeta de crédito</option>
+                <option value="DEBIT_CARD">Tarjeta de débito</option>
+                <option value="CREDIT">Venta a crédito</option>
+                <option value="GIFT_CARD">Bono o certificado de regalo</option>
+                <option value="SWAP">Permuta</option>
+                <option value="OTHER">Otra</option>
+              </select>
             </div>
+          </div>
         </div>
+
+        <div class="card">
+          <div class="card-body">
+            <h3>Descuentos y cargos</h3>
+            <div class="form-group">
+              <label class="form-label" for="documentDiscountRate">Descuento del documento (fracción)</label>
+              <input id="documentDiscountRate" type="number" step="0.01" min="0" max="0.99"
+                     formControlName="documentDiscountRate" class="form-control" />
+            </div>
+            @if ((context()?.serviceChargeRate ?? 0) > 0) {
+              <div class="form-group">
+                <label class="form-label" for="serviceChargeRate">
+                  Propina legal (fracción; en este mercado es
+                  {{ (context()?.serviceChargeRate ?? 0) * 100 | number: '1.0-0' }}%)
+                </label>
+                <input id="serviceChargeRate" type="number" step="0.01" min="0" max="0.5"
+                       formControlName="serviceChargeRate" class="form-control" />
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <h3>Retenciones en la fuente</h3>
+            <p class="hint">
+              Lo que el comprador retiene y remite por cuenta del vendedor. Reduce el importe a
+              cobrar, no el valor del comprobante.
+            </p>
+            <div class="form-group">
+              <label class="form-label" for="taxWithholdingRate">ITBIS retenido (fracción del impuesto)</label>
+              <input id="taxWithholdingRate" type="number" step="0.01" min="0" max="1"
+                     formControlName="taxWithholdingRate" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="incomeTaxWithholdingRate">ISR retenido (fracción de la base)</label>
+              <input id="incomeTaxWithholdingRate" type="number" step="0.01" min="0" max="1"
+                     formControlName="incomeTaxWithholdingRate" class="form-control" />
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </form>
-
-  <app-invoice-selection-dialog #selectionDialog></app-invoice-selection-dialog>
 </div>

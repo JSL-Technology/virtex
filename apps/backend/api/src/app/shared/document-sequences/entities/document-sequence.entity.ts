@@ -3,6 +3,8 @@ import { Entity, PrimaryGeneratedColumn, Column, Index, ManyToOne, JoinColumn } 
 
 export enum DocumentType {
   CUSTOMER_INVOICE = 'CUSTOMER_INVOICE',
+  /** Commercial quotes carry their own numbering; they are not fiscal documents. */
+  QUOTE = 'QUOTE',
   CREDIT_NOTE = 'CREDIT_NOTE',
   VENDOR_BILL = 'VENDOR_BILL',
   JOURNAL_ENTRY = 'JOURNAL_ENTRY',

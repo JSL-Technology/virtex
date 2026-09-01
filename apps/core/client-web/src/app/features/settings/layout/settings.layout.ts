@@ -1,27 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit, OnDestroy } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
-import {
-  LucideAngularModule,
-  Building,
-  Users,
-  Palette,
-  UserCircle,
-  Briefcase,
-  Shield,
-  Server,
-  FileText,
-  Lock,
-  Workflow,
-  Globe,
-  Mail,
-  Database,
-  Calculator,
-  Percent,
-  CalendarClock,
-  ArrowRightLeft,
-  Bell,
-  CreditCard,
-} from 'lucide-angular';
+import { LucideAngularModule, Building, Users, Palette, UserCircle, Briefcase, Shield, Server, FileText, Lock, Workflow, Globe, Mail, Database, Calculator, Percent, CalendarClock, ArrowRightLeft, Bell, CreditCard, ReceiptText } from 'lucide-angular';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { CommonModule } from '@angular/common';
 import { LoaderService } from '../../../shared/service/loader.service';
@@ -64,6 +43,7 @@ export class SettingsLayout implements OnInit, OnDestroy {
   protected readonly TaxesIcon = Percent;
   protected readonly ClosingIcon = CalendarClock;
   protected readonly IntercompanyIcon = Globe;
+  protected readonly EInvoicingIcon = ReceiptText;
 
   // Categoría: Operaciones
   protected readonly SequencesIcon = FileText;

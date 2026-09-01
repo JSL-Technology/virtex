@@ -77,6 +77,17 @@ export class Organization {
   @Column({ type: 'varchar', name: 'company_size', nullable: true })
   companySize: string | null;
 
+  /**
+   * Trade name, when it differs from the legal one. `NombreComercial` is an element of the e-CF and
+   * of the printed representation; without it a customer sees a legal name they do not recognise.
+   */
+  @Column({ type: 'varchar', name: 'commercial_name', nullable: true })
+  commercialName: string | null;
+
+  /** Billing contact address. `CorreoEmisor` on the comprobante, and where the copy is sent. */
+  @Column({ type: 'varchar', nullable: true })
+  email: string | null;
+
   @Column({ type: 'varchar', nullable: true })
   phone: string | null;
 

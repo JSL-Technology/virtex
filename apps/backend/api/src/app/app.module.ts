@@ -33,6 +33,8 @@ import { SharedModule } from './shared/shared.module';
 import { ChartOfAccountsModule } from './chart-of-accounts/chart-of-accounts.module';
 import { RolesModule } from './roles/roles.module';
 import { InvoicesModule } from './invoices/invoices.module';
+import { SalesModule } from './sales/sales.module';
+import { ReportsModule } from './reports/reports.module';
 import { EinvoicingModule } from './einvoicing/einvoicing.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { CustomersModule } from './customers/customers.module';
@@ -225,6 +227,11 @@ import { redisConnectionOptions } from './cache/redis.config';
     RolesModule,
     InvoicesModule,
     EinvoicingModule,
+    // `SalesModule` and `ReportsModule` were never imported by AppModule or by any other module, so
+    // their controllers were never registered: quote-to-invoice conversion and the accounts-
+    // receivable aging report did not exist in the deployed application at all.
+    SalesModule,
+    ReportsModule,
     InventoryModule,
     CustomersModule,
     SuppliersModule,

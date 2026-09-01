@@ -1,28 +1,58 @@
-import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  FormArray,
-  Validators,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
-import { InvoicesService, CreateInvoiceDto } from '../../../core/services/invoices';
+import { CommonModule, DecimalPipe } from '@angular/common';
+import {
+  InvoicesService,
+  CreateInvoiceDto,
+  CreateInvoiceLine,
+  FiscalDocumentType,
+  InvoicingContext,
+  TaxTreatment,
+} from '../../../core/services/invoices';
 import { CustomersService } from '../../../core/api/customers.service';
 import { InventoryService } from '../../../core/api/inventory.service';
 import { CurrenciesService, Currency } from '../../../core/api/currencies.service';
 import { Customer } from '../../../core/models/customer.model';
 import { Product } from '../../../core/models/product.model';
 import { NotificationService } from '../../../core/services/notification';
-import { CommonModule, DecimalPipe } from '@angular/common';
 import { InvoiceToolbarComponent } from '../components/invoice-toolbar/invoice-toolbar.component';
-import { InvoiceSelectionDialogComponent } from '../components/invoice-selection-dialog/invoice-selection-dialog.component';
-import { ViewChild } from '@angular/core';
 
+/** How the tenant's fiscal document types are presented, in the market's own vocabulary. */
+const FISCAL_TYPE_LABELS: Record<string, string> = {
+  E31: 'E31 · Crédito Fiscal',
+  E32: 'E32 · Consumo',
+  E33: 'E33 · Nota de Débito',
+  E34: 'E34 · Nota de Crédito',
+  E44: 'E44 · Régimen Especial',
+  E45: 'E45 · Gubernamental',
+  E46: 'E46 · Exportación',
+  B01: 'B01 · Crédito Fiscal (preimpreso)',
+  B02: 'B02 · Consumo (preimpreso)',
+  B04: 'B04 · Nota de Crédito (preimpreso)',
+  B11: 'B11 · Proveedor Informal',
+  B15: 'B15 · Gubernamental (preimpreso)',
+};
+
+/**
+ * Issuing a sales document.
+ *
+ * ## What changed and why
+ *
+ * The form used to open with `USD` and an 18 % rate on every line, for every market — so a Mexican
+ * tenant saw the Dominican rate and a Dominican one invoiced in dollars by default. Neither is
+ * something a client can know, so both now come from `GET /invoices/context`, together with the
+ * fiscal document types the tenant may actually issue and whether its market's tax base needs
+ * configuring at all.
+ *
+ * The totals shown here are an ESTIMATE, computed only so the operator sees the shape of the
+ * document as they type. The figures that end up on the comprobante are the server's: the request
+ * carries quantities, prices and intent, never amounts.
+ */
 @Component({
   selector: 'app-new-invoice-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, DecimalPipe, InvoiceToolbarComponent, InvoiceSelectionDialogComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, DecimalPipe, InvoiceToolbarComponent],
   templateUrl: './new.page.html',
   styleUrls: ['./new.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -41,59 +71,107 @@ export class NewInvoicePage implements OnInit {
   customers = signal<Customer[]>([]);
   products = signal<Product[]>([]);
   currencies = signal<Currency[]>([]);
+  context = signal<InvoicingContext | null>(null);
   isSaving = signal(false);
   activeTab = signal<'content' | 'logistics' | 'finance'>('content');
 
-  @ViewChild('selectionDialog') selectionDialog!: InvoiceSelectionDialogComponent;
+  /** Document types the tenant may issue, labelled. Empty in a market with no stamping regime. */
+  fiscalTypes = computed(() =>
+    (this.context()?.fiscalDocumentTypes ?? []).map((code) => ({
+      code,
+      label: FISCAL_TYPE_LABELS[code] ?? code,
+    })),
+  );
+
+  /** Tax rates the market levies, for the per-line selector. */
+  taxRates = computed(() => this.context()?.taxRates ?? []);
+
+  /** Whether the tenant can issue at all, and what is missing when it cannot. */
+  blockers = computed(() => this.context()?.missing ?? []);
 
   constructor() {
     this.invoiceForm = this.fb.group({
       customerId: ['', Validators.required],
-      issueDate: [new Date().toISOString().split('T')[0], Validators.required],
-      dueDate: ['', Validators.required],
-      currencyCode: ['USD', Validators.required],
+      issueDate: [today(), Validators.required],
+      dueDate: [today(), Validators.required],
+      // Filled from the tenant's context once it loads; never assumed.
+      currencyCode: ['', Validators.required],
+      fiscalDocumentType: [''],
+      paymentMethod: ['CASH'],
+      documentDiscountRate: [0, [Validators.min(0), Validators.max(0.99)]],
+      serviceChargeRate: [0, [Validators.min(0), Validators.max(0.5)]],
+      taxWithholdingRate: [0, [Validators.min(0), Validators.max(1)]],
+      incomeTaxWithholdingRate: [0, [Validators.min(0), Validators.max(1)]],
       notes: [''],
       lineItems: this.fb.array([this.createLineItem()]),
     });
   }
 
   ngOnInit(): void {
-    this.loadInitialData();
+    this.loadContext();
+    this.customersService.getCustomers().subscribe((data) => this.customers.set(data));
+    this.inventoryService.getProducts().subscribe((data) => this.products.set(data));
+    this.currenciesService.getCurrencies().subscribe((data) => this.currencies.set(data));
     this.checkCopyFrom();
+  }
+
+  private loadContext(): void {
+    this.invoicesService.context().subscribe({
+      next: (context) => {
+        this.context.set(context);
+        this.invoiceForm.patchValue(
+          {
+            currencyCode: context.baseCurrency,
+            fiscalDocumentType: '',
+            // The legal service charge is opt-in per document; it defaults to off, and the market's
+            // rate is offered rather than a number the client invented.
+            serviceChargeRate: 0,
+          },
+          { emitEvent: false },
+        );
+        // Line defaults follow the market's standard rate.
+        this.lineItems.controls.forEach((control) =>
+          control.patchValue({ taxRate: context.taxRates[0] ?? 0 }, { emitEvent: false }),
+        );
+        if (!context.ready) {
+          this.notificationService.showError(
+            `Todavía no puedes facturar. Falta: ${context.missing.join('; ')}.`,
+          );
+        }
+      },
+      error: () =>
+        this.notificationService.showError('No se pudo cargar la configuración de facturación.'),
+    });
   }
 
   private checkCopyFrom(): void {
     const copyFromId = this.route.snapshot.queryParamMap.get('copyFrom');
-    if (copyFromId) {
-      this.invoicesService.getInvoiceById(copyFromId).subscribe(invoice => {
-        this.invoiceForm.patchValue({
-          customerId: (invoice as any).customerId || (invoice as any).customer?.id,
-          currencyCode: invoice.currencyCode,
-          notes: `Copiado de la factura ${invoice.invoiceNumber}. ${invoice.notes || ''}`
-        });
+    if (!copyFromId) return;
 
-        this.lineItems.clear();
-        invoice.lineItems.forEach(item => {
-          const group = this.createLineItem();
-          group.patchValue({
-            productId: item.productId,
-            description: item.description,
-            quantity: item.quantity,
-            price: item.price,
-            taxRate: item.taxRate
-          });
-          this.lineItems.push(group);
-        });
-
-        this.notificationService.showInfo(`Datos cargados desde la factura ${invoice.invoiceNumber}`);
+    this.invoicesService.getInvoiceById(copyFromId).subscribe((invoice) => {
+      this.invoiceForm.patchValue({
+        customerId: invoice.customerId,
+        currencyCode: invoice.currencyCode,
+        paymentMethod: invoice.paymentMethod,
+        notes: `Copiada de ${invoice.invoiceNumber}. ${invoice.notes ?? ''}`.trim(),
       });
-    }
-  }
 
-  loadInitialData(): void {
-    this.customersService.getCustomers().subscribe((data) => this.customers.set(data));
-    this.inventoryService.getProducts().subscribe((data) => this.products.set(data));
-    this.currenciesService.getCurrencies().subscribe((data) => this.currencies.set(data));
+      this.lineItems.clear();
+      for (const item of invoice.lineItems) {
+        const group = this.createLineItem();
+        group.patchValue({
+          productId: item.productId ?? '',
+          description: item.description,
+          quantity: item.quantity,
+          unitPrice: item.price,
+          discountRate: item.discountRate,
+          taxTreatment: item.taxTreatment,
+          taxRate: item.taxRate,
+        });
+        this.lineItems.push(group);
+      }
+      this.notificationService.showInfo(`Datos cargados desde ${invoice.invoiceNumber}.`);
+    });
   }
 
   get lineItems(): FormArray {
@@ -102,11 +180,14 @@ export class NewInvoicePage implements OnInit {
 
   createLineItem(): FormGroup {
     return this.fb.group({
-      productId: ['', Validators.required],
+      productId: [''],
       description: [''],
-      quantity: [1, [Validators.required, Validators.min(1)]],
-      price: [0, [Validators.required, Validators.min(0)]],
-      taxRate: [0.18, [Validators.required, Validators.min(0), Validators.max(1)]],
+      // Fractional quantities: hours, kilos, litres, partial packs.
+      quantity: [1, [Validators.required, Validators.min(0.000001)]],
+      unitPrice: [0, [Validators.required, Validators.min(0)]],
+      discountRate: [0, [Validators.min(0), Validators.max(0.99)]],
+      taxTreatment: ['TAXED' as TaxTreatment],
+      taxRate: [this.context()?.taxRates[0] ?? 0, [Validators.min(0), Validators.max(1)]],
     });
   }
 
@@ -115,121 +196,159 @@ export class NewInvoicePage implements OnInit {
   }
 
   removeLineItem(index: number): void {
-    if (this.lineItems.length > 1) {
-      this.lineItems.removeAt(index);
-    }
+    if (this.lineItems.length > 1) this.lineItems.removeAt(index);
   }
 
+  /** Selecting a catalogue item fills the line from the catalogue, including its tax treatment. */
   onProductSelect(index: number): void {
-    const productId = this.lineItems.at(index).get('productId')?.value;
-    const selectedProduct = this.products().find((p) => p.id === productId);
-    if (selectedProduct) {
-      this.lineItems.at(index).patchValue({
-        description: selectedProduct.name,
-        price: selectedProduct.price,
-      });
-    }
+    const control = this.lineItems.at(index);
+    const product = this.products().find((p) => p.id === control.get('productId')?.value);
+    if (!product) return;
+
+    control.patchValue({
+      description: product.name,
+      unitPrice: product.price,
+      taxTreatment: (product as { taxTreatment?: TaxTreatment }).taxTreatment ?? 'TAXED',
+      taxRate: (product as { taxRate?: number }).taxRate ?? this.taxRates()[0] ?? 0,
+    });
   }
 
-  get totals() {
+  /** A line billing a stocked good beyond what is on hand. Shown, never silently accepted. */
+  stockShortfall(index: number): number {
+    const control = this.lineItems.at(index);
+    const product = this.products().find((p) => p.id === control.get('productId')?.value);
+    if (!product) return 0;
+    const quantity = Number(control.get('quantity')?.value) || 0;
+    const available = Number((product as { stock?: number }).stock ?? 0);
+    return quantity > available ? quantity - available : 0;
+  }
+
+  hasStockShortfall(): boolean {
+    return this.lineItems.controls.some((_, index) => this.stockShortfall(index) > 0);
+  }
+
+  /**
+   * A live preview of the document, using the same rules the server applies.
+   *
+   * It is deliberately labelled an estimate in the template: the authoritative figures are the ones
+   * the server returns, and the request never carries an amount.
+   */
+  get totals(): {
+    subtotal: number;
+    discount: number;
+    tax: number;
+    serviceCharge: number;
+    total: number;
+    withheld: number;
+    net: number;
+  } {
     let subtotal = 0;
     let tax = 0;
 
-    this.lineItems.controls.forEach((control) => {
-      const qty = control.get('quantity')?.value || 0;
-      const price = control.get('price')?.value || 0;
-      const taxRate = control.get('taxRate')?.value || 0;
+    for (const control of this.lineItems.controls) {
+      const quantity = Number(control.get('quantity')?.value) || 0;
+      const price = Number(control.get('unitPrice')?.value) || 0;
+      const discountRate = Number(control.get('discountRate')?.value) || 0;
+      const treatment = control.get('taxTreatment')?.value as TaxTreatment;
+      const rate = treatment === 'TAXED' ? Number(control.get('taxRate')?.value) || 0 : 0;
 
-      const lineTotal = qty * price;
-      subtotal += lineTotal;
-      tax += lineTotal * taxRate;
-    });
-
-    return {
-      subtotal,
-      tax,
-      total: subtotal + tax
-    };
-  }
-
-  validateStock(index: number): boolean {
-    const control = this.lineItems.at(index);
-    const productId = control.get('productId')?.value;
-    const qty = control.get('quantity')?.value;
-
-    if (!productId || !qty) return true;
-
-    const product = this.products().find(p => p.id === productId);
-    if (product && qty > product.stock) {
-      return false;
+      const gross = round2(quantity * price);
+      const lineSubtotal = round2(gross - round2(gross * discountRate));
+      subtotal = round2(subtotal + lineSubtotal);
+      tax = round2(tax + round2(lineSubtotal * rate));
     }
-    return true;
+
+    const value = this.invoiceForm.getRawValue();
+    const discount = round2(subtotal * (Number(value.documentDiscountRate) || 0));
+    const serviceCharge = round2((subtotal - discount) * (Number(value.serviceChargeRate) || 0));
+    const total = round2(subtotal - discount + tax + serviceCharge);
+    const withheld = round2(
+      tax * (Number(value.taxWithholdingRate) || 0) +
+        (subtotal - discount) * (Number(value.incomeTaxWithholdingRate) || 0),
+    );
+
+    return { subtotal, discount, tax, serviceCharge, total, withheld, net: round2(total - withheld) };
   }
 
-  handleCopyFrom(): void {
-    this.selectionDialog.open((invoice) => {
-      this.populateFromInvoice(invoice);
-    });
+  /** Save without issuing: no fiscal number is consumed and nothing is posted. */
+  saveDraft(): void {
+    this.submit(false);
   }
 
-  private populateFromInvoice(invoice: any): void {
-    this.invoiceForm.patchValue({
-      customerId: invoice.customerId || (invoice as any).customerId || (invoice as any).customer?.id,
-      currencyCode: invoice.currencyCode,
-      notes: `Copiado de la factura ${invoice.invoiceNumber}. ${invoice.notes || ''}`
-    });
-
-    this.lineItems.clear();
-    invoice.lineItems.forEach((item: any) => {
-      const group = this.createLineItem();
-      group.patchValue({
-        productId: item.productId,
-        description: item.description,
-        quantity: item.quantity,
-        price: item.price,
-        taxRate: item.taxRate
-      });
-      this.lineItems.push(group);
-    });
-
-    this.notificationService.showSuccess(`Datos cargados desde la factura ${invoice.invoiceNumber}`);
+  /** Issue: assigns the fiscal number, posts the ledger entry and transmits the e-CF. */
+  issue(): void {
+    this.submit(true);
   }
 
-  onSubmit(): void {
+  private submit(issue: boolean): void {
     if (this.invoiceForm.invalid) {
       this.invoiceForm.markAllAsTouched();
-      this.notificationService.showError('Por favor, completa todos los campos requeridos.');
+      this.notificationService.showError('Revisa los campos marcados antes de continuar.');
+      return;
+    }
+    if (issue && this.hasStockShortfall()) {
+      this.notificationService.showError(
+        'Una o más líneas superan las existencias disponibles. Ajusta las cantidades o repone el inventario.',
+      );
       return;
     }
 
-    this.isSaving.set(true);
-    const formValue = this.invoiceForm.getRawValue();
+    const value = this.invoiceForm.getRawValue();
     const payload: CreateInvoiceDto = {
-      customerId: formValue.customerId,
-      issueDate: formValue.issueDate,
-      dueDate: formValue.dueDate,
-      currencyCode: formValue.currencyCode,
-      notes: formValue.notes,
-      lineItems: formValue.lineItems.map((item: any) => ({
-        productId: item.productId,
-        quantity: item.quantity,
-        price: item.price,
-        description: item.description,
-        taxRate: item.taxRate
-      }))
+      customerId: value.customerId,
+      issueDate: value.issueDate,
+      dueDate: value.dueDate,
+      currencyCode: value.currencyCode,
+      notes: value.notes || undefined,
+      paymentMethod: value.paymentMethod || undefined,
+      fiscalDocumentType: (value.fiscalDocumentType || undefined) as FiscalDocumentType | undefined,
+      documentDiscountRate: numberOrUndefined(value.documentDiscountRate),
+      serviceChargeRate: numberOrUndefined(value.serviceChargeRate),
+      taxWithholdingRate: numberOrUndefined(value.taxWithholdingRate),
+      incomeTaxWithholdingRate: numberOrUndefined(value.incomeTaxWithholdingRate),
+      issue,
+      lineItems: (value.lineItems as Array<Record<string, unknown>>).map(
+        (line): CreateInvoiceLine => ({
+          productId: (line['productId'] as string) || undefined,
+          description: (line['description'] as string) || undefined,
+          quantity: Number(line['quantity']),
+          unitPrice: numberOrUndefined(line['unitPrice']),
+          discountRate: numberOrUndefined(line['discountRate']),
+          taxTreatment: line['taxTreatment'] as TaxTreatment,
+          taxRate: numberOrUndefined(line['taxRate']),
+        }),
+      ),
     };
 
+    this.isSaving.set(true);
     this.invoicesService.createInvoice(payload).subscribe({
-      next: () => {
-        this.notificationService.showSuccess('Factura creada exitosamente.');
-        this.router.navigate(['/invoices']);
+      next: (invoice) => {
+        this.notificationService.showSuccess(
+          issue
+            ? `Factura ${invoice.ncfNumber ?? invoice.invoiceNumber} emitida.`
+            : `Borrador ${invoice.invoiceNumber} guardado.`,
+        );
+        this.router.navigate(['/invoices', invoice.id]);
       },
       error: (err) => {
-        console.error('Error body:', err.error);
-        const errorMessage = err.error?.message || err.message || 'Error desconocido al crear la factura.';
-        this.notificationService.showError(`Error al crear la factura: ${errorMessage}`);
+        this.notificationService.showError(
+          err?.error?.message || 'No se pudo guardar el documento.',
+        );
         this.isSaving.set(false);
       },
     });
   }
+}
+
+function today(): string {
+  return new Date().toISOString().split('T')[0];
+}
+
+function round2(value: number): number {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+function numberOrUndefined(value: unknown): number | undefined {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed !== 0 ? parsed : undefined;
 }

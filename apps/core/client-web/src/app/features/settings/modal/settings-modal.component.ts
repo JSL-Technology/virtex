@@ -13,27 +13,7 @@ import { Router } from '@angular/router';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { switchMap } from 'rxjs/operators';
 import { from, of } from 'rxjs';
-import {
-  LucideAngularModule,
-  Building,
-  Users,
-  Palette,
-  UserCircle,
-  Briefcase,
-  Shield,
-  Server,
-  FileText,
-  Lock,
-  Workflow,
-  Globe,
-  Mail,
-  Database,
-  Calculator,
-  Percent,
-  CalendarClock,
-  ArrowRightLeft,
-  CreditCard,
-} from 'lucide-angular';
+import { LucideAngularModule, Building, Users, Palette, UserCircle, Briefcase, Shield, Server, FileText, Lock, Workflow, Globe, Mail, Database, Calculator, Percent, CalendarClock, ArrowRightLeft, CreditCard, ReceiptText } from 'lucide-angular';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 
 @Component({
@@ -76,6 +56,8 @@ export class SettingsModalComponent {
       import('../finance/closing-rules/closing-rules.page').then((m) => m.ClosingRulesPage),
     'intercompany': () =>
       import('../finance/intercompany/intercompany.page').then((m) => m.IntercompanyPage),
+    'fiscal': () =>
+      import('../fiscal/fiscal.page').then((m) => m.FiscalSettingsPage),
     'sequences': () =>
       import('../operations/sequences/sequences.page').then((m) => m.SequenceSettingsPage),
     'approvals': () =>
@@ -144,6 +126,7 @@ export class SettingsModalComponent {
   protected readonly TaxesIcon = Percent;
   protected readonly ClosingIcon = CalendarClock;
   protected readonly IntercompanyIcon = Globe;
+  protected readonly EInvoicingIcon = ReceiptText;
 
   // Icons — Operaciones
   protected readonly SequencesIcon = FileText;
