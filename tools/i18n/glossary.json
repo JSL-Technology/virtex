@@ -8326,6 +8326,1166 @@
     "Close": {
       "en": "Close",
       "pt": "Fechar"
+    },
+    "No se puede enviar el código a un número que no está asociado a tu cuenta.": {
+      "en": "The code cannot be sent to a number that is not linked to your account.",
+      "pt": "O código não pode ser enviado a um número que não está vinculado à sua conta."
+    },
+    "No se encontró el plan.": {
+      "en": "The plan was not found.",
+      "pt": "O plano não foi encontrado."
+    },
+    "La sesión de verificación en dos pasos no es válida o ha expirado.": {
+      "en": "The two-step verification session is invalid or has expired.",
+      "pt": "A sessão de verificação em duas etapas é inválida ou expirou."
+    },
+    "No se encontró el usuario.": {
+      "en": "The user was not found.",
+      "pt": "O usuário não foi encontrado."
+    },
+    "Las credenciales no son válidas.": {
+      "en": "Those credentials are not valid.",
+      "pt": "As credenciais não são válidas."
+    },
+    "El token CSRF no es válido.": {
+      "en": "The CSRF token is not valid.",
+      "pt": "O token CSRF não é válido."
+    },
+    "Error de configuración: no se encontró la política.": {
+      "en": "Configuration error: the policy was not found.",
+      "pt": "Erro de configuração: a política não foi encontrada."
+    },
+    "Esta acción requiere que vuelvas a verificar tu identidad.": {
+      "en": "This action requires you to verify your identity again.",
+      "pt": "Esta ação exige que você verifique sua identidade novamente."
+    },
+    "La verificación adicional no es válida o ha expirado.": {
+      "en": "The step-up verification is invalid or has expired.",
+      "pt": "A verificação adicional é inválida ou expirou."
+    },
+    "La verificación adicional no autoriza esta acción.": {
+      "en": "The step-up verification does not authorize this action.",
+      "pt": "A verificação adicional não autoriza esta ação."
+    },
+    "No se pudo cargar el usuario recién creado.": {
+      "en": "The newly created user could not be loaded.",
+      "pt": "Não foi possível carregar o usuário recém-criado."
+    },
+    "La organización no tiene roles que asignar a los usuarios de SSO.": {
+      "en": "The organization has no roles to assign to SSO users.",
+      "pt": "A organização não tem perfis para atribuir aos usuários de SSO."
+    },
+    "La conexión de SSO no existe o está desactivada.": {
+      "en": "The SSO connection does not exist or is disabled.",
+      "pt": "A conexão de SSO não existe ou está desativada."
+    },
+    "El proveedor de identidad no verificó el correo electrónico.": {
+      "en": "The identity provider did not verify the email address.",
+      "pt": "O provedor de identidade não verificou o e-mail."
+    },
+    "El dominio de ese correo no está autorizado para esta conexión de SSO.": {
+      "en": "That email's domain is not authorized for this SSO connection.",
+      "pt": "O domínio desse e-mail não está autorizado para esta conexão de SSO."
+    },
+    "Esta cuenta pertenece a otra organización.": {
+      "en": "This account belongs to another organization.",
+      "pt": "Esta conta pertence a outra organização."
+    },
+    "No hay un código de verificación vigente.": {
+      "en": "There is no verification code in force.",
+      "pt": "Não há um código de verificação vigente."
+    },
+    "El código de verificación no es válido.": {
+      "en": "The verification code is not valid.",
+      "pt": "O código de verificação não é válido."
+    },
+    "El número no corresponde a este código de verificación.": {
+      "en": "The number does not match this verification code.",
+      "pt": "O número não corresponde a este código de verificação."
+    },
+    "El estado de OAuth no es válido.": {
+      "en": "The OAuth state is not valid.",
+      "pt": "O estado do OAuth não é válido."
+    },
+    "El estado de OAuth no es válido o fue alterado.": {
+      "en": "The OAuth state is invalid or was tampered with.",
+      "pt": "O estado do OAuth é inválido ou foi alterado."
+    },
+    "Falta el estado de OAuth. Vuelve a iniciar el proceso.": {
+      "en": "The OAuth state is missing. Start the process again.",
+      "pt": "Falta o estado do OAuth. Reinicie o processo."
+    },
+    "El estado de OAuth expiró. Vuelve a iniciar el proceso.": {
+      "en": "The OAuth state expired. Start the process again.",
+      "pt": "O estado do OAuth expirou. Reinicie o processo."
+    },
+    "El proveedor no está configurado: falta {{key}}.": {
+      "en": "The provider is not configured: {{key}} is missing.",
+      "pt": "O provedor não está configurado: falta {{key}}."
+    },
+    "No se pudo completar el inicio de sesión con el proveedor de identidad.": {
+      "en": "The sign-in with the identity provider could not be completed.",
+      "pt": "Não foi possível concluir o login com o provedor de identidade."
+    },
+    "El proveedor de identidad no devolvió un id_token.": {
+      "en": "The identity provider did not return an id_token.",
+      "pt": "O provedor de identidade não retornou um id_token."
+    },
+    "El proveedor de identidad no devolvió un correo electrónico.": {
+      "en": "The identity provider did not return an email address.",
+      "pt": "O provedor de identidade não retornou um e-mail."
+    },
+    "No se pudo descifrar el secreto almacenado.": {
+      "en": "The stored secret could not be decrypted.",
+      "pt": "Não foi possível descriptografar o segredo armazenado."
+    },
+    "No se encontró el registro TXT en {{host}}. Agrégalo y espera a que se propague el DNS.": {
+      "en": "No TXT record was found at {{host}}. Add it and wait for DNS to propagate.",
+      "pt": "Nenhum registro TXT encontrado em {{host}}. Adicione-o e aguarde a propagação do DNS."
+    },
+    "El registro TXT existe pero su valor no coincide. Revísalo.": {
+      "en": "The TXT record exists but its value does not match. Check it.",
+      "pt": "O registro TXT existe, mas o valor não confere. Verifique-o."
+    },
+    "No se encontró el proveedor de identidad.": {
+      "en": "The identity provider was not found.",
+      "pt": "O provedor de identidade não foi encontrado."
+    },
+    "No se encontró el dominio.": {
+      "en": "The domain was not found.",
+      "pt": "O domínio não foi encontrado."
+    },
+    "La configuración de la verificación en dos pasos no se ha iniciado. Genera primero el secreto.": {
+      "en": "Two-step verification setup has not started. Generate the secret first.",
+      "pt": "A configuração da verificação em duas etapas não foi iniciada. Gere o segredo primeiro."
+    },
+    "No se pueden generar códigos de respaldo si la verificación en dos pasos no está activada.": {
+      "en": "Backup codes cannot be generated while two-step verification is off.",
+      "pt": "Não é possível gerar códigos de backup enquanto a verificação em duas etapas estiver desativada."
+    },
+    "El código de verificación en dos pasos no es válido.": {
+      "en": "The two-step verification code is not valid.",
+      "pt": "O código de verificação em duas etapas não é válido."
+    },
+    "El desafío expiró o no existe.": {
+      "en": "The challenge expired or does not exist.",
+      "pt": "O desafio expirou ou não existe."
+    },
+    "WebAuthn registration failed": {
+      "en": "The passkey registration failed.",
+      "pt": "O registro da chave de acesso falhou."
+    },
+    "Verification failed": {
+      "en": "Verification failed.",
+      "pt": "A verificação falhou."
+    },
+    "El desafío expiró o no es válido.": {
+      "en": "The challenge expired or is not valid.",
+      "pt": "O desafio expirou ou não é válido."
+    },
+    "WebAuthn verification failed": {
+      "en": "The passkey verification failed.",
+      "pt": "A verificação da chave de acesso falhou."
+    },
+    "No se encontró la llave de acceso.": {
+      "en": "The passkey was not found.",
+      "pt": "A chave de acesso não foi encontrada."
+    },
+    "Esa llave de acceso no corresponde a este usuario.": {
+      "en": "That passkey does not belong to this user.",
+      "pt": "Essa chave de acesso não pertence a este usuário."
+    },
+    "El usuario no está asociado a ninguna organización.": {
+      "en": "The user is not linked to any organization.",
+      "pt": "O usuário não está vinculado a nenhuma organização."
+    },
+    "Malformed JWT": {
+      "en": "Malformed token.",
+      "pt": "Token malformado."
+    },
+    "Unknown key ID": {
+      "en": "Unknown key ID.",
+      "pt": "ID de chave desconhecido."
+    },
+    "JWT key resolution failed": {
+      "en": "The token's signing key could not be resolved.",
+      "pt": "Não foi possível resolver a chave de assinatura do token."
+    },
+    "El país \"{{countryCode}}\" todavía no está disponible para registro.": {
+      "en": "The country \"{{countryCode}}\" is not available for registration yet.",
+      "pt": "O país \"{{countryCode}}\" ainda não está disponível para cadastro."
+    },
+    "El {{label}} es obligatorio para {{name}}.": {
+      "en": "The {{label}} is required for {{name}}.",
+      "pt": "O {{label}} é obrigatório para {{name}}."
+    },
+    "El {{label}} no es válido para {{name}}.": {
+      "en": "The {{label}} is not valid for {{name}}.",
+      "pt": "O {{label}} não é válido para {{name}}."
+    },
+    "El {{postalCodeLabel}} es obligatorio para {{name}}.": {
+      "en": "The {{postalCodeLabel}} is required for {{name}}.",
+      "pt": "O {{postalCodeLabel}} é obrigatório para {{name}}."
+    },
+    "El token de reCAPTCHA es obligatorio.": {
+      "en": "The reCAPTCHA token is required.",
+      "pt": "O token do reCAPTCHA é obrigatório."
+    },
+    "Sesión revocada exitosamente.": {
+      "en": "Session revoked.",
+      "pt": "Sessão revogada."
+    },
+    "Correo electrónico verificado.": {
+      "en": "Email address verified.",
+      "pt": "E-mail verificado."
+    },
+    "Número de teléfono verificado.": {
+      "en": "Phone number verified.",
+      "pt": "Número de telefone verificado."
+    },
+    "Verificación completada.": {
+      "en": "Verification complete.",
+      "pt": "Verificação concluída."
+    },
+    "Verificación en dos pasos activada.": {
+      "en": "Two-step verification enabled.",
+      "pt": "Verificação em duas etapas ativada."
+    },
+    "Verificación en dos pasos desactivada.": {
+      "en": "Two-step verification disabled.",
+      "pt": "Verificação em duas etapas desativada."
+    },
+    "Se requiere la verificación en dos pasos.": {
+      "en": "Two-step verification is required.",
+      "pt": "É necessária a verificação em duas etapas."
+    },
+    "Logout exitoso": {
+      "en": "Signed out.",
+      "pt": "Sessão encerrada."
+    },
+    "Todas las sesiones han sido cerradas.": {
+      "en": "Every session has been closed.",
+      "pt": "Todas as sessões foram encerradas."
+    },
+    "Si existe una cuenta con ese correo, se ha enviado un enlace para restablecer la contraseña.": {
+      "en": "If an account exists for that email, a password reset link has been sent.",
+      "pt": "Se existir uma conta com esse e-mail, um link de redefinição de senha foi enviado."
+    },
+    "Contraseña actualizada.": {
+      "en": "Password updated.",
+      "pt": "Senha atualizada."
+    },
+    "Enviamos un código de verificación a tu correo.": {
+      "en": "We sent a verification code to your email.",
+      "pt": "Enviamos um código de verificação para seu e-mail."
+    },
+    "Si los datos son correctos, se ha enviado un código de verificación.": {
+      "en": "If the details are correct, a verification code has been sent.",
+      "pt": "Se os dados estiverem corretos, um código de verificação foi enviado."
+    },
+    "Se han cerrado las demás sesiones.": {
+      "en": "The other sessions have been closed.",
+      "pt": "As demais sessões foram encerradas."
+    },
+    "No se encontraron libros contables para procesar en la organización {{organizationId}}.": {
+      "en": "No ledgers were found to process in organization {{organizationId}}.",
+      "pt": "Nenhum livro contábil encontrado para processar na organização {{organizationId}}."
+    },
+    "Diario General (GENERAL) no encontrado para la organización {{organizationId}}.": {
+      "en": "The General journal (GENERAL) was not found for organization {{organizationId}}.",
+      "pt": "O diário Geral (GENERAL) não foi encontrado para a organização {{organizationId}}."
+    },
+    "Presupuesto con ID \"{{id}}\" no encontrado.": {
+      "en": "Budget \"{{id}}\" was not found.",
+      "pt": "Orçamento \"{{id}}\" não encontrado."
+    },
+    "No se encontró un presupuesto activo para el período actual.": {
+      "en": "No active budget was found for the current period.",
+      "pt": "Nenhum orçamento ativo foi encontrado para o período atual."
+    },
+    "La cuenta y/o sus dimensiones no están presupuestadas.": {
+      "en": "The account and/or its dimensions are not budgeted.",
+      "pt": "A conta e/ou suas dimensões não estão orçadas."
+    },
+    "Dentro del presupuesto.": {
+      "en": "Within budget.",
+      "pt": "Dentro do orçamento."
+    },
+    "El monto propuesto de {{amount}} excede el presupuesto de {{budgeted}} para la cuenta {{account}}. Gasto actual: {{actual}}.": {
+      "en": "The proposed amount of {{amount}} exceeds the {{budgeted}} budget for account {{account}}. Spent so far: {{actual}}.",
+      "pt": "O valor proposto de {{amount}} excede o orçamento de {{budgeted}} da conta {{account}}. Gasto atual: {{actual}}."
+    },
+    "No se puede modificar la estructura de segmentos porque ya existen cuentas contables creadas para esta organización.": {
+      "en": "The segment structure cannot be changed because accounts already exist for this organization.",
+      "pt": "A estrutura de segmentos não pode ser alterada porque já existem contas criadas para esta organização."
+    },
+    "La estructura de segmentos de cuenta no ha sido configurada para esta organización.": {
+      "en": "The account segment structure has not been configured for this organization.",
+      "pt": "A estrutura de segmentos das contas não foi configurada para esta organização."
+    },
+    "El número de segmentos proporcionados ({{length}}) no coincide con la definición de la organización ({{length2}}).": {
+      "en": "The number of segments supplied ({{length}}) does not match the organization's definition ({{length2}}).",
+      "pt": "O número de segmentos informados ({{length}}) não corresponde à definição da organização ({{length2}})."
+    },
+    "El código de cuenta '{{fullCode}}' ya existe.": {
+      "en": "The account code '{{fullCode}}' already exists.",
+      "pt": "O código de conta '{{fullCode}}' já existe."
+    },
+    "El segmento '{{name}}' (valor: {{value}}) debe tener una longitud de {{length}} caracteres.": {
+      "en": "Segment '{{name}}' (value: {{value}}) must be {{length}} characters long.",
+      "pt": "O segmento '{{name}}' (valor: {{value}}) deve ter {{length}} caracteres."
+    },
+    "El código de la cuenta (segmentos) no puede ser modificado.": {
+      "en": "The account code (its segments) cannot be changed.",
+      "pt": "O código da conta (seus segmentos) não pode ser alterado."
+    },
+    "El tipo de cuenta no puede ser modificado.": {
+      "en": "The account type cannot be changed.",
+      "pt": "O tipo de conta não pode ser alterado."
+    },
+    "No se puede cambiar la jerarquía de la cuenta \"{{p1}}\" porque tiene transacciones. Considere la fusión de cuentas.": {
+      "en": "The hierarchy of account \"{{p1}}\" cannot be changed because it has transactions. Consider merging accounts instead.",
+      "pt": "A hierarquia da conta \"{{p1}}\" não pode ser alterada porque ela tem lançamentos. Considere fundir as contas."
+    },
+    "Tipo de cuenta inválido: {{type}}": {
+      "en": "Invalid account type: {{type}}",
+      "pt": "Tipo de conta inválido: {{type}}"
+    },
+    "La cuenta de origen y destino no pueden ser la misma.": {
+      "en": "The source and destination accounts cannot be the same.",
+      "pt": "As contas de origem e destino não podem ser a mesma."
+    },
+    "Ambas cuentas deben permitir contabilización para poder ser fusionadas.": {
+      "en": "Both accounts must be postable to be merged.",
+      "pt": "Ambas as contas devem ser analíticas para poderem ser fundidas."
+    },
+    "La cuenta ya está bloqueada.": {
+      "en": "The account is already locked.",
+      "pt": "A conta já está bloqueada."
+    },
+    "La cuenta no está bloqueada.": {
+      "en": "The account is not locked.",
+      "pt": "A conta não está bloqueada."
+    },
+    "Las cuentas del sistema no pueden ser desactivadas.": {
+      "en": "System accounts cannot be deactivated.",
+      "pt": "Contas do sistema não podem ser desativadas."
+    },
+    "La cuenta no puede ser desactivada porque tiene cuentas hijas.": {
+      "en": "The account cannot be deactivated because it has child accounts.",
+      "pt": "A conta não pode ser desativada porque tem contas filhas."
+    },
+    "La cuenta no puede ser desactivada porque tiene transacciones asociadas.": {
+      "en": "The account cannot be deactivated because it has transactions.",
+      "pt": "A conta não pode ser desativada porque tem lançamentos associados."
+    },
+    "Una o más de las cuentas especificadas no fueron encontradas.": {
+      "en": "One or more of the specified accounts were not found.",
+      "pt": "Uma ou mais das contas informadas não foram encontradas."
+    },
+    "Cuenta contable con ID \"{{id}}\" no encontrada.": {
+      "en": "Account \"{{id}}\" was not found.",
+      "pt": "Conta contábil \"{{id}}\" não encontrada."
+    },
+    "Una o ambas cuentas no fueron encontradas.": {
+      "en": "One or both accounts were not found.",
+      "pt": "Uma ou ambas as contas não foram encontradas."
+    },
+    "Las cuentas de sistema no pueden ser fusionadas.": {
+      "en": "System accounts cannot be merged.",
+      "pt": "Contas do sistema não podem ser fundidas."
+    },
+    "File is empty.": {
+      "en": "The file is empty.",
+      "pt": "O arquivo está vazio."
+    },
+    "Error de consistencia: La cuenta padre '{{parentCode}}' para la cuenta '{{p2}}' no fue encontrada. La transacción será revertida.": {
+      "en": "Consistency error: the parent account '{{parentCode}}' for account '{{p2}}' was not found. The transaction will be rolled back.",
+      "pt": "Erro de consistência: a conta superior '{{parentCode}}' da conta '{{p2}}' não foi encontrada. A transação será revertida."
+    },
+    "El lote de importación no existe o ha expirado.": {
+      "en": "The import batch does not exist or has expired.",
+      "pt": "O lote de importação não existe ou expirou."
+    },
+    "La importación falló y fue revertida: {{p1}}": {
+      "en": "The import failed and was rolled back: {{p1}}",
+      "pt": "A importação falhou e foi revertida: {{p1}}"
+    },
+    "Job desconocido ignorado.": {
+      "en": "Unknown job ignored.",
+      "pt": "Job desconhecido ignorado."
+    },
+    "Iniciando la fusión de cuentas...": {
+      "en": "Starting the account merge...",
+      "pt": "Iniciando a fusão de contas..."
+    },
+    "Reasignando cuentas hijas...": {
+      "en": "Reassigning child accounts...",
+      "pt": "Reatribuindo contas filhas..."
+    },
+    "Reasignando transacciones (esto puede tardar)...": {
+      "en": "Reassigning transactions (this may take a while)...",
+      "pt": "Reatribuindo lançamentos (isso pode demorar)..."
+    },
+    "Desactivando cuenta de origen y recalculando saldos...": {
+      "en": "Deactivating the source account and recalculating balances...",
+      "pt": "Desativando a conta de origem e recalculando os saldos..."
+    },
+    "Fusión completada: la cuenta {{source}} ha sido fusionada en {{destination}}.": {
+      "en": "Merge complete: account {{source}} has been merged into {{destination}}.",
+      "pt": "Fusão concluída: a conta {{source}} foi fundida em {{destination}}."
+    },
+    "La fusión de cuentas no pudo completarse.": {
+      "en": "The account merge could not be completed.",
+      "pt": "A fusão de contas não pôde ser concluída."
+    },
+    "Single file expected": {
+      "en": "A single file is expected.",
+      "pt": "É esperado um único arquivo."
+    },
+    "Ese tipo de archivo no está permitido.": {
+      "en": "That file type is not allowed.",
+      "pt": "Esse tipo de arquivo não é permitido."
+    },
+    "File too large": {
+      "en": "The file is too large.",
+      "pt": "O arquivo é muito grande."
+    },
+    "Too many files": {
+      "en": "Too many files.",
+      "pt": "Arquivos demais."
+    },
+    "File {{filename}} too large": {
+      "en": "The file {{filename}} is too large.",
+      "pt": "O arquivo {{filename}} é muito grande."
+    },
+    "Tipo de archivo no permitido ({{mimetype}}).": {
+      "en": "File type not allowed ({{mimetype}}).",
+      "pt": "Tipo de arquivo não permitido ({{mimetype}})."
+    },
+    "endsAt no puede ser menor que startsAt.": {
+      "en": "endsAt cannot be lower than startsAt.",
+      "pt": "endsAt não pode ser menor que startsAt."
+    },
+    "El mes debe estar entre 1 y 12.": {
+      "en": "The month must be between 1 and 12.",
+      "pt": "O mês deve estar entre 1 e 12."
+    },
+    "El año no es válido.": {
+      "en": "The year is not valid.",
+      "pt": "O ano não é válido."
+    },
+    "No se encontró una secuencia de NCF activa para el tipo {{type}}": {
+      "en": "No active NCF sequence was found for type {{type}}",
+      "pt": "Nenhuma sequência NCF ativa encontrada para o tipo {{type}}"
+    },
+    "La secuencia de NCF para el tipo {{type}} tiene límites no numéricos.": {
+      "en": "The NCF sequence for type {{type}} has non-numeric bounds.",
+      "pt": "A sequência NCF do tipo {{type}} tem limites não numéricos."
+    },
+    "La secuencia de NCF para el tipo {{type}} se ha agotado.": {
+      "en": "The NCF sequence for type {{type}} is exhausted.",
+      "pt": "A sequência NCF do tipo {{type}} se esgotou."
+    },
+    "La autorización de la secuencia de NCF para el tipo {{type}} venció el {{expiresAt}}.": {
+      "en": "The authorization for the NCF sequence of type {{type}} expired on {{expiresAt}}.",
+      "pt": "A autorização da sequência NCF do tipo {{type}} venceu em {{expiresAt}}."
+    },
+    "El rango de la secuencia NCF es inválido (startsAt/endsAt).": {
+      "en": "The NCF sequence range is invalid (startsAt/endsAt).",
+      "pt": "A faixa da sequência NCF é inválida (startsAt/endsAt)."
+    },
+    "Formato \"{{kind}}\" no reconocido. Los formatos disponibles son 606, 607, 608 y 609.": {
+      "en": "Format \"{{kind}}\" is not recognised. The available formats are 606, 607, 608 and 609.",
+      "pt": "Formato \"{{kind}}\" não reconhecido. Os formatos disponíveis são 606, 607, 608 e 609."
+    },
+    "El rango de la secuencia NCF es inválido: el número final debe ser mayor o igual que el inicial.": {
+      "en": "The NCF sequence range is invalid: the ending number must be greater than or equal to the starting one.",
+      "pt": "A faixa da sequência NCF é inválida: o número final deve ser maior ou igual ao inicial."
+    },
+    "El prefijo \"{{prefix}}\" no corresponde al tipo de comprobante {{type}}.": {
+      "en": "The prefix \"{{prefix}}\" does not match document type {{type}}.",
+      "pt": "O prefixo \"{{prefix}}\" não corresponde ao tipo de documento {{type}}."
+    },
+    "La fecha de vencimiento de la autorización ya pasó; el rango no podría usarse.": {
+      "en": "The authorization's expiry date has passed; the range could not be used.",
+      "pt": "A data de vencimento da autorização já passou; a faixa não poderia ser usada."
+    },
+    "Secuencia NCF no encontrada.": {
+      "en": "NCF sequence not found.",
+      "pt": "Sequência NCF não encontrada."
+    },
+    "Organización no encontrada.": {
+      "en": "Organization not found.",
+      "pt": "Organização não encontrada."
+    },
+    "Ya existen {{alreadyIssued}} comprobante(s) emitidos con números dentro del rango {{first}}–{{last}}.": {
+      "en": "{{alreadyIssued}} document(s) have already been issued with numbers inside the range {{first}}–{{last}}.",
+      "pt": "Já existem {{alreadyIssued}} documento(s) emitidos com números dentro da faixa {{first}}–{{last}}."
+    },
+    "La organización no tiene subsidiarias configuradas para consolidar.": {
+      "en": "The organization has no subsidiaries configured to consolidate.",
+      "pt": "A organização não tem subsidiárias configuradas para consolidar."
+    },
+    "Organización matriz no encontrada.": {
+      "en": "The parent organization was not found.",
+      "pt": "Organização controladora não encontrada."
+    },
+    "Configuraciones para la organización matriz {{parentOrganizationId}} no encontradas.": {
+      "en": "Settings for the parent organization {{parentOrganizationId}} were not found.",
+      "pt": "Configurações da organização controladora {{parentOrganizationId}} não encontradas."
+    },
+    "Diario General (GENERAL) no encontrado.": {
+      "en": "The General journal (GENERAL) was not found.",
+      "pt": "O diário Geral (GENERAL) não foi encontrado."
+    },
+    "No hay divisas para actualizar.": {
+      "en": "There are no currencies to update.",
+      "pt": "Não há moedas para atualizar."
+    },
+    "Tasas de cambio actualizadas exitosamente.": {
+      "en": "Exchange rates updated.",
+      "pt": "Taxas de câmbio atualizadas."
+    },
+    "Artículo no encontrado o no está publicado.": {
+      "en": "The article was not found, or is not published.",
+      "pt": "O artigo não foi encontrado ou não está publicado."
+    },
+    "Artículo no encontrado.": {
+      "en": "The article was not found.",
+      "pt": "O artigo não foi encontrado."
+    },
+    "Grupo de clientes con ID \"{{id}}\" no encontrado.": {
+      "en": "Customer group \"{{id}}\" was not found.",
+      "pt": "Grupo de clientes \"{{id}}\" não encontrado."
+    },
+    "Una o más facturas no son válidas o no pertenecen al cliente especificado.": {
+      "en": "One or more invoices are invalid, or do not belong to the given customer.",
+      "pt": "Uma ou mais faturas são inválidas ou não pertencem ao cliente informado."
+    },
+    "El monto del pago para la factura {{invoiceNumber}} ({{amount}}) excede su saldo pendiente ({{balance}}).": {
+      "en": "The payment for invoice {{invoiceNumber}} ({{amount}}) exceeds its outstanding balance ({{balance}}).",
+      "pt": "O pagamento da fatura {{invoiceNumber}} ({{amount}}) excede seu saldo em aberto ({{balance}})."
+    },
+    "La cuenta por cobrar por defecto no está configurada para la organización.": {
+      "en": "The default receivable account is not configured for the organization.",
+      "pt": "A conta a receber padrão não está configurada para a organização."
+    },
+    "Diario de Cobros (COBROS) no encontrado. Por favor, cree un diario con este código.": {
+      "en": "The Collections journal (COBROS) was not found. Create a journal with that code.",
+      "pt": "O diário de Recebimentos (COBROS) não foi encontrado. Crie um diário com esse código."
+    },
+    "Cliente no encontrado.": {
+      "en": "Customer not found.",
+      "pt": "Cliente não encontrado."
+    },
+    "Factura con ID {{invoiceId}} no encontrada en el lote.": {
+      "en": "Invoice {{invoiceId}} was not found in the batch.",
+      "pt": "Fatura {{invoiceId}} não encontrada no lote."
+    },
+    "Cliente con ID \"{{id}}\" no encontrado.": {
+      "en": "Customer \"{{id}}\" was not found.",
+      "pt": "Cliente \"{{id}}\" não encontrado."
+    },
+    "No se pudo determinar la organización para esta operación. Acceso denegado.": {
+      "en": "The organization for this operation could not be determined. Access denied.",
+      "pt": "Não foi possível determinar a organização desta operação. Acesso negado."
+    },
+    "Intento de eliminar una entidad que no pertenece a la organización.": {
+      "en": "An attempt was made to delete a record that does not belong to the organization.",
+      "pt": "Tentativa de excluir um registro que não pertence à organização."
+    },
+    "No se encontró la hoja de datos {{id}}.": {
+      "en": "Datasheet {{id}} was not found.",
+      "pt": "A planilha {{id}} não foi encontrada."
+    },
+    "Solo el propietario puede eliminar este documento.": {
+      "en": "Only the owner can delete this document.",
+      "pt": "Somente o proprietário pode excluir este documento."
+    },
+    "Dimensión con ID \"{{id}}\" no encontrada.": {
+      "en": "Dimension \"{{id}}\" was not found.",
+      "pt": "Dimensão \"{{id}}\" não encontrada."
+    },
+    "Cuenta con ID \"{{accountId}}\" no encontrada en su organización.": {
+      "en": "Account \"{{accountId}}\" was not found in your organization.",
+      "pt": "Conta \"{{accountId}}\" não encontrada na sua organização."
+    },
+    "Dimensión con ID \"{{dimensionId}}\" no encontrada en su organización.": {
+      "en": "Dimension \"{{dimensionId}}\" was not found in your organization.",
+      "pt": "Dimensão \"{{dimensionId}}\" não encontrada na sua organização."
+    },
+    "La regla de dimensión especificada no fue encontrada.": {
+      "en": "The specified dimension rule was not found.",
+      "pt": "A regra de dimensão informada não foi encontrada."
+    },
+    "Debe adjuntar el archivo del certificado (.p12/.pfx).": {
+      "en": "You must attach the certificate file (.p12/.pfx).",
+      "pt": "É necessário anexar o arquivo do certificado (.p12/.pfx)."
+    },
+    "La contraseña del certificado es obligatoria.": {
+      "en": "The certificate password is required.",
+      "pt": "A senha do certificado é obrigatória."
+    },
+    "Esta factura no tiene un e-CF asociado.": {
+      "en": "This invoice has no e-CF associated with it.",
+      "pt": "Esta fatura não tem um e-CF associado."
+    },
+    "No hay un e-CF firmado para esta factura.": {
+      "en": "There is no signed e-CF for this invoice.",
+      "pt": "Não há um e-CF assinado para esta fatura."
+    },
+    "No se pudo abrir el certificado: archivo inválido o contraseña incorrecta.": {
+      "en": "The certificate could not be opened: invalid file, or wrong password.",
+      "pt": "Não foi possível abrir o certificado: arquivo inválido ou senha incorreta."
+    },
+    "El certificado no contiene una clave privada y un certificado X.509 válidos.": {
+      "en": "The certificate does not contain a valid private key and X.509 certificate.",
+      "pt": "O certificado não contém uma chave privada e um certificado X.509 válidos."
+    },
+    "ECF_CERT_ENCRYPTION_KEY no está configurada (mínimo 16 caracteres). Es obligatoria para cifrar los certificados e-CF.": {
+      "en": "ECF_CERT_ENCRYPTION_KEY is not configured (16 characters minimum). It is required to encrypt e-CF certificates.",
+      "pt": "ECF_CERT_ENCRYPTION_KEY não está configurada (mínimo de 16 caracteres). Ela é obrigatória para criptografar os certificados e-CF."
+    },
+    "Formato de dato cifrado de certificado inválido.": {
+      "en": "The certificate's encrypted data format is invalid.",
+      "pt": "Formato inválido dos dados criptografados do certificado."
+    },
+    "El archivo del certificado está vacío.": {
+      "en": "The certificate file is empty.",
+      "pt": "O arquivo do certificado está vazio."
+    },
+    "No se pudo firmar el documento e-CF: {{p1}}": {
+      "en": "The e-CF document could not be signed: {{p1}}",
+      "pt": "Não foi possível assinar o documento e-CF: {{p1}}"
+    },
+    "El documento firmado no contiene un SignatureValue.": {
+      "en": "The signed document contains no SignatureValue.",
+      "pt": "O documento assinado não contém um SignatureValue."
+    },
+    "La factura no tiene un e-NCF electrónico asignado.": {
+      "en": "The invoice has no electronic e-NCF assigned.",
+      "pt": "A fatura não tem um e-NCF eletrônico atribuído."
+    },
+    "La organización no tiene RNC configurado.": {
+      "en": "The organization has no RNC configured.",
+      "pt": "A organização não tem RNC configurado."
+    },
+    "No hay un certificado digital activo para firmar e-CF. Cárgalo en Ajustes → Facturación Electrónica.": {
+      "en": "There is no active digital certificate to sign e-CF documents. Upload one under Settings → Electronic Invoicing.",
+      "pt": "Não há certificado digital ativo para assinar e-CF. Envie um em Configurações → Faturamento Eletrônico."
+    },
+    "El certificado digital venció el {{p1}}.": {
+      "en": "The digital certificate expired on {{p1}}.",
+      "pt": "O certificado digital venceu em {{p1}}."
+    },
+    "Factura {{invoiceId}} no encontrada.": {
+      "en": "Invoice {{invoiceId}} was not found.",
+      "pt": "Fatura {{invoiceId}} não encontrada."
+    },
+    "Tipo de mensaje desconocido: {{kind}}. Usa COMMERCIAL_APPROVAL o SEQUENCE_VOID.": {
+      "en": "Unknown message type: {{kind}}. Use COMMERCIAL_APPROVAL or SEQUENCE_VOID.",
+      "pt": "Tipo de mensagem desconhecido: {{kind}}. Use COMMERCIAL_APPROVAL ou SEQUENCE_VOID."
+    },
+    "Un rechazo comercial debe indicar el motivo: la DGII lo exige y el emisor lo necesita para corregir.": {
+      "en": "A commercial rejection must state its reason: the DGII requires it, and the issuer needs it to correct the document.",
+      "pt": "Uma rejeição comercial deve informar o motivo: a DGII o exige e o emissor precisa dele para corrigir."
+    },
+    "El RNC del emisor del comprobante es obligatorio.": {
+      "en": "The issuer's RNC is required on the document.",
+      "pt": "O RNC do emissor do documento é obrigatório."
+    },
+    "{{type}} no es un tipo electrónico; la anulación de rangos aplica solo a e-NCF.": {
+      "en": "{{type}} is not an electronic type; voiding ranges applies only to e-NCF.",
+      "pt": "{{type}} não é um tipo eletrônico; o cancelamento de faixas aplica-se apenas a e-NCF."
+    },
+    "El final del rango no puede ser menor que su inicio.": {
+      "en": "The end of the range cannot be lower than its start.",
+      "pt": "O fim da faixa não pode ser menor que o início."
+    },
+    "El rango autorizado termina en {{endsAt}}; no puedes anular más allá de su límite.": {
+      "en": "The authorized range ends at {{endsAt}}; you cannot void beyond its limit.",
+      "pt": "A faixa autorizada termina em {{endsAt}}; você não pode cancelar além desse limite."
+    },
+    "La organización no tiene RNC configurado. Complétalo en Ajustes → Empresa.": {
+      "en": "The organization has no RNC configured. Fill it in under Settings → Company.",
+      "pt": "A organização não tem RNC configurado. Preencha-o em Configurações → Empresa."
+    },
+    "No hay un certificado digital activo para firmar. Cárgalo en Ajustes → Facturación Electrónica.": {
+      "en": "There is no active digital certificate to sign with. Upload one under Settings → Electronic Invoicing.",
+      "pt": "Não há certificado digital ativo para assinar. Envie um em Configurações → Faturamento Eletrônico."
+    },
+    "No hay una secuencia activa de {{type}} para esta organización.": {
+      "en": "There is no active {{type}} sequence for this organization.",
+      "pt": "Não há sequência ativa de {{type}} para esta organização."
+    },
+    "El comprobante {{ncf}} de {{issuerRnc}} ya fue respondido comercialmente.": {
+      "en": "Document {{ncf}} from {{issuerRnc}} has already been answered commercially.",
+      "pt": "O documento {{ncf}} de {{issuerRnc}} já recebeu resposta comercial."
+    },
+    "el tipo de comprobante debe ser de dos dígitos": {
+      "en": "the document type must be two digits",
+      "pt": "o tipo de documento deve ter dois dígitos"
+    },
+    "la autorización del rango no tiene fecha de vencimiento registrada; añádela en Ajustes → Facturación Electrónica": {
+      "en": "the range's authorization has no expiry date on record; add it under Settings → Electronic Invoicing",
+      "pt": "a autorização da faixa não tem data de vencimento registrada; adicione-a em Configurações → Faturamento Eletrônico"
+    },
+    "la fecha debe tener el formato DD-MM-AAAA": {
+      "en": "the date must be in DD-MM-YYYY format",
+      "pt": "a data deve estar no formato DD-MM-AAAA"
+    },
+    "debe tener el formato DD-MM-AAAA HH:MM:SS": {
+      "en": "it must be in DD-MM-YYYY HH:MM:SS format",
+      "pt": "deve estar no formato DD-MM-AAAA HH:MM:SS"
+    },
+    "el RNC del emisor debe tener 9 u 11 dígitos; revísalo en los datos de la empresa": {
+      "en": "the issuer's RNC must have 9 or 11 digits; check it in the company details",
+      "pt": "o RNC do emissor deve ter 9 ou 11 dígitos; verifique-o nos dados da empresa"
+    },
+    "la razón social del emisor es obligatoria": {
+      "en": "the issuer's legal name is required",
+      "pt": "a razão social do emissor é obrigatória"
+    },
+    "la dirección fiscal del emisor es obligatoria; complétala en Ajustes → Empresa": {
+      "en": "the issuer's registered address is required; fill it in under Settings → Company",
+      "pt": "o endereço fiscal do emissor é obrigatório; preencha-o em Configurações → Empresa"
+    },
+    "la provincia debe declararse con el código de dos dígitos de la DGII": {
+      "en": "the province must be declared with the DGII's two-digit code",
+      "pt": "a província deve ser declarada com o código de dois dígitos da DGII"
+    },
+    "el municipio debe declararse con el código de cuatro dígitos de la DGII": {
+      "en": "the municipality must be declared with the DGII's four-digit code",
+      "pt": "o município deve ser declarado com o código de quatro dígitos da DGII"
+    },
+    "el RNC o cédula del comprador debe tener 9 u 11 dígitos": {
+      "en": "the buyer's RNC or national ID must have 9 or 11 digits",
+      "pt": "o RNC ou documento do comprador deve ter 9 ou 11 dígitos"
+    },
+    "un comprobante de exportación requiere identificar al comprador extranjero": {
+      "en": "an export document requires the foreign buyer to be identified",
+      "pt": "um documento de exportação exige a identificação do comprador estrangeiro"
+    },
+    "el tipo de pago debe ser 1 (contado) o 2 (crédito)": {
+      "en": "the payment type must be 1 (cash) or 2 (credit)",
+      "pt": "o tipo de pagamento deve ser 1 (à vista) ou 2 (a prazo)"
+    },
+    "una venta al contado debe declarar al menos una forma de pago": {
+      "en": "a cash sale must declare at least one payment method",
+      "pt": "uma venda à vista deve declarar ao menos uma forma de pagamento"
+    },
+    "el comprobante debe tener al menos una línea": {
+      "en": "the document must have at least one line",
+      "pt": "o documento deve ter ao menos uma linha"
+    },
+    "una nota de crédito o débito debe referenciar el comprobante que modifica": {
+      "en": "a credit or debit note must reference the document it modifies",
+      "pt": "uma nota de crédito ou débito deve referenciar o documento que modifica"
+    },
+    "el código de modificación debe estar entre 1 y 5": {
+      "en": "the modification code must be between 1 and 5",
+      "pt": "o código de modificação deve estar entre 1 e 5"
+    },
+    "el código de moneda debe ser ISO 4217": {
+      "en": "the currency code must be ISO 4217",
+      "pt": "o código da moeda deve ser ISO 4217"
+    },
+    "la tasa de cambio debe ser mayor que cero": {
+      "en": "the exchange rate must be greater than zero",
+      "pt": "a taxa de câmbio deve ser maior que zero"
+    },
+    "el total del comprobante debe ser mayor que cero": {
+      "en": "the document total must be greater than zero",
+      "pt": "o total do documento deve ser maior que zero"
+    },
+    "\"{{value}}\" no tiene el formato de un e-NCF (E + 12 dígitos)": {
+      "en": "\"{{value}}\" is not in e-NCF format (E + 12 digits)",
+      "pt": "\"{{value}}\" não está no formato de e-NCF (E + 12 dígitos)"
+    },
+    "el tipo declarado ({{declared}}) no coincide con el del e-NCF ({{encoded}})": {
+      "en": "the declared type ({{declared}}) does not match the one in the e-NCF ({{encoded}})",
+      "pt": "o tipo declarado ({{declared}}) não coincide com o do e-NCF ({{encoded}})"
+    },
+    "un comprobante tipo {{type}} requiere el RNC o cédula del comprador": {
+      "en": "a type {{type}} document requires the buyer's RNC or national ID",
+      "pt": "um documento do tipo {{type}} exige o RNC ou documento do comprador"
+    },
+    "un comprobante tipo {{type}} requiere la razón social del comprador": {
+      "en": "a type {{type}} document requires the buyer's legal name",
+      "pt": "um documento do tipo {{type}} exige a razão social do comprador"
+    },
+    "una factura de consumo por {{amount}} supera el umbral de {{threshold}} y requiere identificar al comprador": {
+      "en": "a consumer invoice for {{amount}} exceeds the {{threshold}} threshold and requires the buyer to be identified",
+      "pt": "uma fatura de consumo de {{amount}} supera o limite de {{threshold}} e exige a identificação do comprador"
+    },
+    "las formas de pago suman {{declared}} y el total del comprobante es {{total}}": {
+      "en": "the payment methods add up to {{declared}} while the document total is {{total}}",
+      "pt": "as formas de pagamento somam {{declared}} e o total do documento é {{total}}"
+    },
+    "\"{{value}}\" no es un código de forma de pago de la DGII": {
+      "en": "\"{{value}}\" is not a DGII payment-method code",
+      "pt": "\"{{value}}\" não é um código de forma de pagamento da DGII"
+    },
+    "línea {{line}}: falta la descripción del artículo": {
+      "en": "line {{line}}: the item description is missing",
+      "pt": "linha {{line}}: falta a descrição do item"
+    },
+    "línea {{line}}: la cantidad debe ser mayor que cero": {
+      "en": "line {{line}}: the quantity must be greater than zero",
+      "pt": "linha {{line}}: a quantidade deve ser maior que zero"
+    },
+    "línea {{line}}: el precio unitario no puede ser negativo": {
+      "en": "line {{line}}: the unit price cannot be negative",
+      "pt": "linha {{line}}: o preço unitário não pode ser negativo"
+    },
+    "línea {{line}}: debe declararse como bien (1) o servicio (2)": {
+      "en": "line {{line}}: it must be declared as a good (1) or a service (2)",
+      "pt": "linha {{line}}: deve ser declarada como bem (1) ou serviço (2)"
+    },
+    "línea {{line}}: la tasa {{rate}} no es una tasa de ITBIS vigente": {
+      "en": "line {{line}}: the rate {{rate}} is not an ITBIS rate in force",
+      "pt": "linha {{line}}: a alíquota {{rate}} não é uma alíquota de ITBIS vigente"
+    },
+    "\"{{value}}\" no tiene el formato de un NCF": {
+      "en": "\"{{value}}\" is not in NCF format",
+      "pt": "\"{{value}}\" não está no formato de um NCF"
+    },
+    "No se ha especificado un libro contable y no hay uno configurado por defecto para la organización.": {
+      "en": "No ledger was specified and the organization has no default one configured.",
+      "pt": "Nenhum livro contábil foi informado e a organização não tem um padrão configurado."
+    },
+    "El libro contable con ID \"{{ledgerId}}\" no fue encontrado o no pertenece a su organización.": {
+      "en": "Ledger \"{{ledgerId}}\" was not found, or does not belong to your organization.",
+      "pt": "O livro contábil \"{{ledgerId}}\" não foi encontrado ou não pertence à sua organização."
+    },
+    "La cuenta {{code}} no es válida hasta {{effectiveFrom}}.": {
+      "en": "Account {{code}} is not valid until {{effectiveFrom}}.",
+      "pt": "A conta {{code}} não é válida até {{effectiveFrom}}."
+    },
+    "La cuenta {{code}} expiró el {{effectiveTo}}.": {
+      "en": "Account {{code}} expired on {{effectiveTo}}.",
+      "pt": "A conta {{code}} expirou em {{effectiveTo}}."
+    },
+    "Diario de Depreciación (DEPREC) no encontrado. Por favor, cree un diario con este código para continuar.": {
+      "en": "The Depreciation journal (DEPREC) was not found. Create a journal with that code to continue.",
+      "pt": "O diário de Depreciação (DEPREC) não foi encontrado. Crie um diário com esse código para continuar."
+    },
+    "Diario de Activos Fijos (ACT-FIJOS) no encontrado.": {
+      "en": "The Fixed Assets journal (ACT-FIJOS) was not found.",
+      "pt": "O diário de Ativo Imobilizado (ACT-FIJOS) não foi encontrado."
+    },
+    "Activo fijo con ID \"{{id}}\" no encontrado.": {
+      "en": "Fixed asset \"{{id}}\" was not found.",
+      "pt": "Ativo imobilizado \"{{id}}\" não encontrado."
+    },
+    "Activo no encontrado o ya ha sido dado de baja.": {
+      "en": "The asset was not found, or has already been disposed of.",
+      "pt": "O ativo não foi encontrado ou já foi baixado."
+    },
+    "No se pudo obtener el QueryRunner de la transacción.": {
+      "en": "The transaction's query runner could not be obtained.",
+      "pt": "Não foi possível obter o query runner da transação."
+    },
+    "El activo ha sido dado de baja exitosamente.": {
+      "en": "The asset has been disposed of.",
+      "pt": "O ativo foi baixado."
+    },
+    "Las transacciones intercompañía deben ser entre organizaciones diferentes.": {
+      "en": "Intercompany transactions must be between different organizations.",
+      "pt": "Transações intercompany devem ser entre organizações diferentes."
+    },
+    "Las cuentas intercompañía por defecto no están configuradas en una o ambas organizaciones.": {
+      "en": "The default intercompany accounts are not configured in one or both organizations.",
+      "pt": "As contas intercompany padrão não estão configuradas em uma ou ambas as organizações."
+    },
+    "La organización de origen no tiene un diario de tipo 'GENERAL' configurado.": {
+      "en": "The source organization has no journal of type 'GENERAL' configured.",
+      "pt": "A organização de origem não tem um diário do tipo 'GENERAL' configurado."
+    },
+    "La organización de destino no tiene un diario de tipo 'GENERAL' configurado.": {
+      "en": "The destination organization has no journal of type 'GENERAL' configured.",
+      "pt": "A organização de destino não tem um diário do tipo 'GENERAL' configurado."
+    },
+    "No se encontró tasa de cambio de {{baseCurrency}} a {{baseCurrency2}}.": {
+      "en": "No exchange rate was found from {{baseCurrency}} to {{baseCurrency2}}.",
+      "pt": "Nenhuma taxa de câmbio encontrada de {{baseCurrency}} para {{baseCurrency2}}."
+    },
+    "Una de las organizaciones no fue encontrada.": {
+      "en": "One of the organizations was not found.",
+      "pt": "Uma das organizações não foi encontrada."
+    },
+    "No se pudo obtener el Query Runner para el asiento de origen.": {
+      "en": "The query runner could not be obtained for the source entry.",
+      "pt": "Não foi possível obter o query runner para o lançamento de origem."
+    },
+    "Error de consistencia de datos al preparar el asiento de destino.": {
+      "en": "Data consistency error while preparing the destination entry.",
+      "pt": "Erro de consistência de dados ao preparar o lançamento de destino."
+    },
+    "La cuenta por pagar intercompañía por defecto no está configurada en la organización de destino {{toOrganizationId}}.": {
+      "en": "The default intercompany payable account is not configured in the destination organization {{toOrganizationId}}.",
+      "pt": "A conta a pagar intercompany padrão não está configurada na organização de destino {{toOrganizationId}}."
+    },
+    "Stock insuficiente para el producto \"{{name}}\".": {
+      "en": "Not enough stock for the product \"{{name}}\".",
+      "pt": "Estoque insuficiente para o produto \"{{name}}\"."
+    },
+    "Producto con ID \"{{id}}\" no encontrado.": {
+      "en": "Product \"{{id}}\" was not found.",
+      "pt": "Produto \"{{id}}\" não encontrado."
+    },
+    "Producto con ID \"{{productId}}\" no encontrado en la transacción.": {
+      "en": "Product \"{{productId}}\" was not found in the transaction.",
+      "pt": "Produto \"{{productId}}\" não encontrado na transação."
+    },
+    "Stock insuficiente para \"{{name}}\": disponibles {{available}}, solicitadas {{quantity}}.": {
+      "en": "Not enough stock for \"{{name}}\": {{available}} available, {{quantity}} requested.",
+      "pt": "Estoque insuficiente para \"{{name}}\": {{available}} disponíveis, {{quantity}} solicitadas."
+    },
+    "Producto con ID \"{{productId}}\" no encontrado en esta organización.": {
+      "en": "Product \"{{productId}}\" was not found in this organization.",
+      "pt": "Produto \"{{productId}}\" não encontrado nesta organização."
+    },
+    "Producto con ID \"{{productId}}\" no encontrado.": {
+      "en": "Product \"{{productId}}\" was not found.",
+      "pt": "Produto \"{{productId}}\" não encontrado."
+    },
+    "La tasa de cambio configurada para {{currencyCode}} no es válida.": {
+      "en": "The exchange rate configured for {{currencyCode}} is not valid.",
+      "pt": "A taxa de câmbio configurada para {{currencyCode}} não é válida."
+    },
+    "El producto con ID {{productId}} no pertenece a la factura original.": {
+      "en": "Product {{productId}} does not belong to the original invoice.",
+      "pt": "O produto {{productId}} não pertence à fatura original."
+    },
+    "La cantidad a devolver ({{quantity}}) excede la cantidad original ({{quantity2}}) para el producto {{name}}.": {
+      "en": "The quantity to return ({{quantity}}) exceeds the original quantity ({{quantity2}}) for product {{name}}.",
+      "pt": "A quantidade a devolver ({{quantity}}) excede a quantidade original ({{quantity2}}) do produto {{name}}."
+    },
+    "Este endpoint está obsoleto. La creación de pagos ahora se gestiona a través del endpoint de Recibos de Cliente (/customer-payments) para permitir pagos de múltiples facturas a la vez.": {
+      "en": "This endpoint is deprecated. Payments are now created through the Customer Receipts endpoint (/customer-payments), which allows one payment to settle several invoices.",
+      "pt": "Este endpoint está obsoleto. Os pagamentos agora são criados pelo endpoint de Recibos de Cliente (/customer-payments), que permite quitar várias faturas de uma vez."
+    },
+    "La configuración de cuentas automáticas para esta organización es incompleta. Faltan cuentas de Cuentas por Cobrar, Ingresos por Ventas o Impuestos sobre Ventas.": {
+      "en": "The automatic account configuration for this organization is incomplete. The Accounts Receivable, Sales Revenue or Sales Tax accounts are missing.",
+      "pt": "A configuração de contas automáticas desta organização está incompleta. Faltam as contas de Contas a Receber, Receita de Vendas ou Impostos sobre Vendas."
+    },
+    "Factura con ID \"{{invoiceId}}\" no encontrada.": {
+      "en": "Invoice \"{{invoiceId}}\" was not found.",
+      "pt": "Fatura \"{{invoiceId}}\" não encontrada."
+    },
+    "No se encontró la información de la organización.": {
+      "en": "The organization's information was not found.",
+      "pt": "As informações da organização não foram encontradas."
+    },
+    "Factura original con ID \"{{invoiceId}}\" no encontrada.": {
+      "en": "The original invoice \"{{invoiceId}}\" was not found.",
+      "pt": "A fatura original \"{{invoiceId}}\" não foi encontrada."
+    },
+    "La plantilla para generar PDF no está disponible.": {
+      "en": "The PDF template is not available.",
+      "pt": "O modelo para gerar o PDF não está disponível."
+    },
+    "La tasa de impuesto {{p1}}% no es válida para {{countryCode}}. Tasas permitidas: {{list}}.": {
+      "en": "The tax rate {{p1}}% is not valid for {{countryCode}}. Allowed rates: {{list}}.",
+      "pt": "A alíquota {{p1}}% não é válida para {{countryCode}}. Alíquotas permitidas: {{list}}."
+    },
+    "El tipo de comprobante {{type}} no corresponde a un documento de venta.": {
+      "en": "Document type {{type}} is not a sales document.",
+      "pt": "O tipo de documento {{type}} não corresponde a um documento de venda."
+    },
+    "El tipo {{type}} no es un comprobante de nota de crédito válido.": {
+      "en": "Type {{type}} is not a valid credit-note document.",
+      "pt": "O tipo {{type}} não é um documento de nota de crédito válido."
+    },
+    "La fecha de vencimiento no puede ser anterior a la fecha de emisión.": {
+      "en": "The due date cannot be earlier than the issue date.",
+      "pt": "A data de vencimento não pode ser anterior à data de emissão."
+    },
+    "Producto{{p1}} no encontrado{{p2}} en el catálogo: {{p3}}.": {
+      "en": "Product{{p1}} not found{{p2}} in the catalogue: {{p3}}.",
+      "pt": "Produto{{p1}} não encontrado{{p2}} no catálogo: {{p3}}."
+    },
+    "La línea {{p1}} necesita una descripción o un producto del catálogo.": {
+      "en": "Line {{p1}} needs a description or a product from the catalogue.",
+      "pt": "A linha {{p1}} precisa de uma descrição ou de um produto do catálogo."
+    },
+    "La línea {{p1}} no tiene precio: indícalo o selecciona un producto del catálogo.": {
+      "en": "Line {{p1}} has no price: enter one, or select a product from the catalogue.",
+      "pt": "A linha {{p1}} não tem preço: informe um ou selecione um produto do catálogo."
+    },
+    "Un borrador no se acredita: elimínalo o modifícalo directamente.": {
+      "en": "A draft is not credited: delete it or edit it directly.",
+      "pt": "Um rascunho não recebe nota de crédito: exclua-o ou edite-o diretamente."
+    },
+    "Solo una factura puede ser acreditada.": {
+      "en": "Only an invoice can be credited.",
+      "pt": "Somente uma fatura pode receber nota de crédito."
+    },
+    "La factura original no tiene líneas que acreditar.": {
+      "en": "The original invoice has no lines to credit.",
+      "pt": "A fatura original não tem linhas a creditar."
+    },
+    "La línea {{lineId}} aparece dos veces en la solicitud.": {
+      "en": "Line {{lineId}} appears twice in the request.",
+      "pt": "A linha {{lineId}} aparece duas vezes na solicitação."
+    },
+    "La línea {{lineId}} no pertenece a la factura {{invoiceNumber}}.": {
+      "en": "Line {{lineId}} does not belong to invoice {{invoiceNumber}}.",
+      "pt": "A linha {{lineId}} não pertence à fatura {{invoiceNumber}}."
+    },
+    "Una nota de crédito debe referenciar la factura que modifica.": {
+      "en": "A credit note must reference the invoice it modifies.",
+      "pt": "Uma nota de crédito deve referenciar a fatura que modifica."
+    },
+    "La factura referenciada por la nota de crédito no existe.": {
+      "en": "The invoice referenced by the credit note does not exist.",
+      "pt": "A fatura referenciada pela nota de crédito não existe."
+    },
+    "Factura con ID \"{{id}}\" no encontrada.": {
+      "en": "Invoice \"{{id}}\" was not found.",
+      "pt": "Fatura \"{{id}}\" não encontrada."
+    },
+    "El documento {{invoiceNumber}} ya fue emitido; no puede emitirse de nuevo.": {
+      "en": "Document {{invoiceNumber}} has already been issued; it cannot be issued again.",
+      "pt": "O documento {{invoiceNumber}} já foi emitido; não pode ser emitido novamente."
+    },
+    "Solo se puede modificar un borrador. Un comprobante emitido se corrige con una nota de crédito.": {
+      "en": "Only a draft can be edited. An issued document is corrected with a credit note.",
+      "pt": "Somente um rascunho pode ser editado. Um documento emitido é corrigido com uma nota de crédito."
+    },
+    "Un comprobante emitido no se elimina: anúlalo con una nota de crédito.": {
+      "en": "An issued document is not deleted: void it with a credit note.",
+      "pt": "Um documento emitido não é excluído: cancele-o com uma nota de crédito."
+    },
+    "La factura ya fue anulada en su totalidad.": {
+      "en": "The invoice has already been voided in full.",
+      "pt": "A fatura já foi cancelada integralmente."
+    },
+    "La factura ya fue acreditada en su totalidad.": {
+      "en": "The invoice has already been credited in full.",
+      "pt": "A fatura já foi creditada integralmente."
+    },
+    "El descuento de línea debe estar entre 0 % y 100 % (exclusivo).": {
+      "en": "The line discount must be between 0 % and 100 % (exclusive).",
+      "pt": "O desconto da linha deve estar entre 0 % e 100 % (exclusivo)."
+    },
+    "La tasa de impuesto debe expresarse como fracción entre 0 y 1.": {
+      "en": "The tax rate must be expressed as a fraction between 0 and 1.",
+      "pt": "A alíquota deve ser expressa como uma fração entre 0 e 1."
+    },
+    "El descuento del documento debe estar entre 0 % y 100 % (exclusivo).": {
+      "en": "The document discount must be between 0 % and 100 % (exclusive).",
+      "pt": "O desconto do documento deve estar entre 0 % e 100 % (exclusivo)."
+    },
+    "La propina legal debe estar entre 0 % y 50 %.": {
+      "en": "The statutory service charge must be between 0 % and 50 %.",
+      "pt": "A taxa de serviço legal deve estar entre 0 % e 50 %."
+    },
+    "{{label}} debe ser un número mayor que cero.": {
+      "en": "{{label}} must be a number greater than zero.",
+      "pt": "{{label}} deve ser um número maior que zero."
+    },
+    "{{label}} debe ser un número mayor o igual que cero.": {
+      "en": "{{label}} must be a number greater than or equal to zero.",
+      "pt": "{{label}} deve ser um número maior ou igual a zero."
+    },
+    "{{label}} debe expresarse como fracción entre 0 y 1.": {
+      "en": "{{label}} must be expressed as a fraction between 0 and 1.",
+      "pt": "{{label}} deve ser expresso como uma fração entre 0 e 1."
+    },
+    "La organización no tiene un libro contable por defecto. Créalo en Ajustes → Contabilidad.": {
+      "en": "The organization has no default ledger. Create one under Settings → Accounting.",
+      "pt": "A organização não tem um livro contábil padrão. Crie um em Configurações → Contabilidade."
+    },
+    "No existe el diario \"{{code}}\" para esta organización. Créalo en Ajustes → Contabilidad.": {
+      "en": "There is no journal \"{{code}}\" for this organization. Create it under Settings → Accounting.",
+      "pt": "Não existe o diário \"{{code}}\" para esta organização. Crie-o em Configurações → Contabilidade."
+    },
+    "No se encontró la plantilla de impresión de facturas ({{resolved}}): {{p2}}": {
+      "en": "The invoice print template was not found ({{resolved}}): {{p2}}",
+      "pt": "O modelo de impressão da fatura não foi encontrado ({{resolved}}): {{p2}}"
+    },
+    "Los ajustes de auditoría solo pueden aplicarse a años fiscales cerrados.": {
+      "en": "Audit adjustments can only be applied to closed fiscal years.",
+      "pt": "Ajustes de auditoria só podem ser aplicados a exercícios encerrados."
+    },
+    "El año fiscal está archivado y no se puede modificar.": {
+      "en": "The fiscal year is archived and cannot be changed.",
+      "pt": "O exercício está arquivado e não pode ser alterado."
+    },
+    "Solo los asientos en borrador pueden ser enviados a aprobación.": {
+      "en": "Only draft entries can be submitted for approval.",
+      "pt": "Somente lançamentos em rascunho podem ser enviados para aprovação."
+    },
+    "Este asiento no está marcado para reversión automática.": {
+      "en": "This entry is not marked for automatic reversal.",
+      "pt": "Este lançamento não está marcado para estorno automático."
+    },
+    "Un asiento contable debe tener al menos dos líneas.": {
+      "en": "A journal entry must have at least two lines.",
+      "pt": "Um lançamento contábil deve ter ao menos duas linhas."
+    },
+    "Libro contable por defecto no encontrado.": {
+      "en": "The default ledger was not found.",
+      "pt": "O livro contábil padrão não foi encontrado."
+    },
+    "El asiento contable no está balanceado.": {
+      "en": "The journal entry does not balance.",
+      "pt": "O lançamento contábil não está balanceado."
+    },
+    "Una o más cuentas contables no fueron encontradas, están inactivas o no pertenecen a la organización.": {
+      "en": "One or more accounts were not found, are inactive, or do not belong to the organization.",
+      "pt": "Uma ou mais contas não foram encontradas, estão inativas ou não pertencem à organização."
+    },
+    "La cuenta '{{code}} - {{p2}}' no permite contabilización.": {
+      "en": "Account '{{code}} - {{p2}}' does not accept postings.",
+      "pt": "A conta '{{code}} - {{p2}}' não aceita lançamentos."
+    },
+    "Se requiere una tasa de cambio (exchangeRate) positiva para transacciones en moneda extranjera.": {
+      "en": "A positive exchange rate is required for foreign-currency transactions.",
+      "pt": "É necessária uma taxa de câmbio positiva para transações em moeda estrangeira."
+    },
+    "Solo se pueden modificar asientos contabilizados.": {
+      "en": "Only posted entries can be modified.",
+      "pt": "Somente lançamentos contabilizados podem ser modificados."
+    },
+    "Este asiento ya ha sido reversado.": {
+      "en": "This entry has already been reversed.",
+      "pt": "Este lançamento já foi estornado."
+    },
+    "La cuenta contable '{{code}} - {{p2}}' requiere la dimensión obligatoria '{{dimensionKey}}'.": {
+      "en": "Account '{{code}} - {{p2}}' requires the mandatory dimension '{{dimensionKey}}'.",
+      "pt": "A conta '{{code}} - {{p2}}' exige a dimensão obrigatória '{{dimensionKey}}'."
+    },
+    "Asiento no encontrado.": {
+      "en": "Entry not found.",
+      "pt": "Lançamento não encontrado."
+    },
+    "Asiento contable con ID \"{{id}}\" no encontrado.": {
+      "en": "Journal entry \"{{id}}\" was not found.",
+      "pt": "Lançamento contábil \"{{id}}\" não encontrado."
+    },
+    "Asiento original no encontrado.": {
+      "en": "The original entry was not found.",
+      "pt": "O lançamento original não foi encontrado."
+    },
+    "Asiento a reversar no encontrado.": {
+      "en": "The entry to reverse was not found.",
+      "pt": "O lançamento a estornar não foi encontrado."
+    },
+    "Adjunto no encontrado.": {
+      "en": "Attachment not found.",
+      "pt": "Anexo não encontrado."
+    },
+    "La fecha del asiento corresponde a un período contable cerrado o no definido.": {
+      "en": "The entry's date falls in an accounting period that is closed or not defined.",
+      "pt": "A data do lançamento cai em um período contábil encerrado ou não definido."
+    },
+    "La cuenta '{{code}} - {{p2}}' está bloqueada para nuevas transacciones.": {
+      "en": "Account '{{code}} - {{p2}}' is locked for new transactions.",
+      "pt": "A conta '{{code}} - {{p2}}' está bloqueada para novos lançamentos."
     }
   }
 }
