@@ -170,8 +170,7 @@ describeWithDb('treasury', () => {
   afterEach(async () => {
     await dataSource
       .getRepository(Organization)
-      .delete({ id: organizationId })
-      .catch(() => undefined);
+      .delete({ id: organizationId });
     await dataSource.query('DELETE FROM "exchange_rate"');
   });
 

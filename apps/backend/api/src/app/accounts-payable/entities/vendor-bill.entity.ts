@@ -68,7 +68,7 @@ export class VendorBill {
   @JoinColumn({ name: 'organization_id' })
   organization: Organization;
 
-  @ManyToOne(() => Supplier, { eager: true })
+  @ManyToOne(() => Supplier, { eager: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'vendor_id' })
   vendor: Supplier;
 

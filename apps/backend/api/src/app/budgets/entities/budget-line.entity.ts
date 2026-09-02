@@ -22,7 +22,7 @@ export class BudgetLine {
   accountId: string;
 
 
-  @ManyToOne(() => Account, { eager: true })
+  @ManyToOne(() => Account, { eager: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'account_id' })
   account: Account;
 

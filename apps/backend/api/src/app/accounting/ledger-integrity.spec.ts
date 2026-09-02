@@ -120,8 +120,7 @@ describeWithDb('the accounting core', () => {
     if (organizationId) {
       await dataSource
         .getRepository(Organization)
-        .delete({ id: organizationId })
-        .catch(() => undefined);
+        .delete({ id: organizationId });
     }
     await dataSource?.destroy();
   });
@@ -212,8 +211,7 @@ describeWithDb('the accounting core', () => {
   afterEach(async () => {
     await dataSource
       .getRepository(Organization)
-      .delete({ id: organizationId })
-      .catch(() => undefined);
+      .delete({ id: organizationId });
   });
 
   const post = (

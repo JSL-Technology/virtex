@@ -54,7 +54,7 @@ export class JournalEntry {
   @Column({ name: 'organization_id' })
   organizationId: string;
   
-  @ManyToOne(() => Ledger, { nullable: false, eager: true })
+  @ManyToOne(() => Ledger, { nullable: false, eager: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'ledger_id' })
   ledger: Ledger;
 
@@ -129,7 +129,7 @@ export class JournalEntry {
   @Column({ name: 'reverses_entry_id', type: 'uuid', nullable: true })
   reversesEntryId: string | null;
 
-  @OneToOne(() => JournalEntry)
+  @OneToOne(() => JournalEntry, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'reverses_entry_id' })
   reversesEntry?: JournalEntry;
 
@@ -139,14 +139,14 @@ export class JournalEntry {
   @Column({ name: 'modified_to_entry_id', type: 'uuid', nullable: true })
   modifiedToEntryId: string | null;
 
-  @OneToOne(() => JournalEntry, { nullable: true })
+  @OneToOne(() => JournalEntry, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'modified_to_entry_id' })
   modifiedToEntry?: JournalEntry;
   
   @Column({ name: 'modified_from_entry_id', type: 'uuid', nullable: true })
   modifiedFromEntryId: string | null;
 
-  @OneToOne(() => JournalEntry, { nullable: true })
+  @OneToOne(() => JournalEntry, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'modified_from_entry_id' })
   modifiedFromEntry?: JournalEntry;
 
@@ -168,7 +168,7 @@ export class JournalEntry {
   @Column({ default: false, name: 'is_reversed' })
   isReversed: boolean;
 
-  @ManyToOne(() => Journal, { nullable: false, eager: true })
+  @ManyToOne(() => Journal, { nullable: false, eager: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'journal_id' })
   journal: Journal;
 

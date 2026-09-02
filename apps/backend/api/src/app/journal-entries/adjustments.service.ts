@@ -86,7 +86,8 @@ export class AdjustmentsService {
   async createAuditAdjustment(
     dto: CreateAuditAdjustmentDto,
     organizationId: string,
-    actorUserId: string,
+    /** Null when the proposer's account has since been deleted; the entry is then unattributed. */
+    actorUserId: string | null,
   ): Promise<JournalEntry> {
     const { fiscalYearId, ...entryData } = dto;
     

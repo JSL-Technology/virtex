@@ -7,7 +7,7 @@ export class VendorBillLine {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne('VendorBill', 'lines')
+  @ManyToOne('VendorBill', 'lines', { onDelete: 'CASCADE' })
   vendorBill: VendorBill;
 
   @Column()

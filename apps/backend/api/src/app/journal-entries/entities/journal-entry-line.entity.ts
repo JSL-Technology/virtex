@@ -23,7 +23,7 @@ export class JournalEntryLine {
   @JoinColumn({ name: 'journal_entry_id' })
   journalEntry: JournalEntry;
 
-  @ManyToOne(() => Account, { nullable: false, eager: true })
+  @ManyToOne(() => Account, { nullable: false, eager: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'account_id' })
   account: Account;
 
@@ -63,4 +63,14 @@ export class JournalEntryLine {
 
   @Column({ name: 'is_reconciled', default: false, comment: 'Indicates if the line has been reconciled against a bank statement.' })
   isReconciled: boolean;
+
+  /**
+   * When it was cleared, and against what.
+   *
+   * `isReconciled` alone was a boolean nothing could explain: it said a line had been reconciled at
+   * some point, by nobody, against nothing, and no operation ever cleared it again. The match id is
+   * the audit trail — and the thing that lets a match be undone without leaving the flag stranded.
+   */
+  @Column({ name: 'reconciled_at', type: 'timestamptz', nullable: true })
+  reconciledAt: Date | null;
 }

@@ -65,7 +65,7 @@ export class ProposedAdjustment {
   @Column({ type: 'uuid' })
   journalId: string;
 
-  @ManyToOne(() => Journal)
+  @ManyToOne(() => Journal, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'journal_id' })
   journal: Journal;
 
@@ -75,12 +75,13 @@ export class ProposedAdjustment {
   @Column({ type: 'enum', enum: AdjustmentStatus, default: AdjustmentStatus.PENDING_APPROVAL })
   status: AdjustmentStatus;
 
-  @Column({ name: 'proposer_id' })
-  proposerId: string;
+  /** Null once the proposer's account is deleted; the proposal is a record and stays. */
+  @Column({ name: 'proposer_id', type: 'uuid', nullable: true })
+  proposerId: string | null;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'proposer_id' })
-  proposer: User;
+  proposer: User | null;
 
   @Column({ name: 'approval_request_id', type: 'uuid', nullable: true })
   approvalRequestId?: string;

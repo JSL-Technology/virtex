@@ -46,10 +46,11 @@ export class JournalEntryAttachment {
   uploadedAt: Date;
 
 
-  @ManyToOne(() => User, { nullable: false })
+  @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'uploaded_by_user_id' })
-  uploadedBy: User;
+  uploadedBy: User | null;
 
-  @Column({ name: 'uploaded_by_user_id' })
-  uploadedByUserId: string;
+  /** Null once the uploader's account is deleted; the attachment itself is evidence and stays. */
+  @Column({ name: 'uploaded_by_user_id', type: 'uuid', nullable: true })
+  uploadedByUserId: string | null;
 }

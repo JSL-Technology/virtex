@@ -197,8 +197,7 @@ describeWithDb('accounts payable', () => {
   afterEach(async () => {
     await dataSource
       .getRepository(Organization)
-      .delete({ id: organizationId })
-      .catch(() => undefined);
+      .delete({ id: organizationId });
     // Rates are deliberately not tenant-scoped — what a currency was worth on a day is a fact
     // about the market — so they outlive the tenant and have to be cleared between tests.
     // Raw DELETE, not `repository.delete({})`: TypeORM rejects empty criteria outright, and a
