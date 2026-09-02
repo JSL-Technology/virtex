@@ -1,20 +1,21 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, Calculator } from 'lucide-angular';
 import { SettingsEmptyStateComponent } from '../../shared/settings-empty-state.component';
 
 @Component({
   selector: 'app-accounting-settings-page',
   standalone: true,
-  imports: [LucideAngularModule, SettingsEmptyStateComponent],
+  imports: [TranslateModule, LucideAngularModule, SettingsEmptyStateComponent],
   template: `
     <div class="s-page">
       <div class="s-header">
-        <h1 class="s-header__title">Preferencias Contables</h1>
-        <p class="s-header__subtitle">Define las cuentas contables predeterminadas y las reglas de registro para tu organización.</p>
+        <h1 class="s-header__title">{{ 'SETTINGS.PAGES.ACCOUNTING.TITLE' | translate }}</h1>
+        <p class="s-header__subtitle">{{ 'SETTINGS.PAGES.ACCOUNTING.SUBTITLE' | translate }}</p>
       </div>
-      <app-settings-empty-state title="Preferencias Contables"
-        description="Configura las cuentas del plan de cuentas que se usarán automáticamente en cada transacción, eliminando errores de asignación manual."
-        [features]="['Cuenta por cobrar predeterminada','Cuenta por pagar predeterminada','Cuenta de ingresos por ventas','Cuenta de ganancias y pérdidas en diferencial cambiario','Cuenta de depreciación acumulada','Cuenta de impuestos por ventas y compras']">
+      <app-settings-empty-state [title]="'SETTINGS.PAGES.ACCOUNTING.EMPTY_TITLE'"
+        [description]="'SETTINGS.PAGES.ACCOUNTING.EMPTY_DESCRIPTION'"
+        [features]="['SETTINGS.PAGES.ACCOUNTING.FEATURES.F1','SETTINGS.PAGES.ACCOUNTING.FEATURES.F2','SETTINGS.PAGES.ACCOUNTING.FEATURES.F3','SETTINGS.PAGES.ACCOUNTING.FEATURES.F4','SETTINGS.PAGES.ACCOUNTING.FEATURES.F5','SETTINGS.PAGES.ACCOUNTING.FEATURES.F6']">
         <lucide-icon slot="icon" [img]="icon" size="28"></lucide-icon>
       </app-settings-empty-state>
     </div>`,

@@ -1,5 +1,6 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient, HttpContext } from '@angular/common/http';
+import { TranslateService } from '@ngx-translate/core';
 import { Observable, of, throwError } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
 import { Plan } from '../models/plan.model';
@@ -49,6 +50,7 @@ export type PlansLoadState = 'loading' | 'loaded' | 'error';
 
 @Injectable({ providedIn: 'root' })
 export class BillingService {
+  private readonly translate = inject(TranslateService);
   private http = inject(HttpClient);
   private apiUrl = environment.apiUrl;
 
@@ -153,7 +155,7 @@ export class BillingService {
       }),
       catchError(err => {
         console.error('Checkout failed', err);
-        const message = err?.error?.message || 'No se pudo iniciar el pago. Intenta de nuevo.';
+        const message = err?.error?.message || this.translate.instant('ERRORS.START_PAYMENT');
         return throwError(() => new Error(message));
       })
     );
@@ -175,7 +177,7 @@ export class BillingService {
       }),
       catchError(err => {
         console.error('Portal session failed', err);
-        const message = err?.error?.message || 'No se pudo abrir el portal de facturación. Intenta de nuevo.';
+        const message = err?.error?.message || this.translate.instant('ERRORS.OPEN_BILLING_PORTAL');
         return throwError(() => new Error(message));
       })
     );

@@ -1,8 +1,8 @@
 @if (variant() === 'settings') {
   <div class="language-selector language-selector--settings">
-    <label id="language-selector-label" class="selector-label">
+    <span id="language-selector-label" class="selector-label">
       {{ 'SETTINGS.LANGUAGE.LABEL' | translate }}
-    </label>
+    </span>
 
     <div class="button-group" role="radiogroup" aria-labelledby="language-selector-label">
       @for (language of languages; track language.code) {
@@ -21,7 +21,7 @@
     <p class="description">{{ 'SETTINGS.LANGUAGE.DESCRIPTION' | translate }}</p>
   </div>
 } @else {
-  <div class="language-selector language-selector--compact" (keydown.escape)="close()">
+  <div class="language-selector language-selector--compact">
     <button
       type="button"
       class="selector-trigger"

@@ -69,6 +69,8 @@ const CONFIG = HBS
   : {
       roots: ['apps/core/client-web/src/app'],
       extension: '.html',
+      // Also read `template:` bodies inside components — reported, never rewritten. See scanUnits.
+      inlineTemplates: true,
       catalogue: 'apps/core/client-web/src/assets/i18n/es.json',
       namespace: namespaceForAngular,
       wrap: (key) => `{{ '${key}' | translate }}`,
@@ -117,8 +119,34 @@ function files(dir) {
   return readdirSync(dir).flatMap((entry) => {
     const full = join(dir, entry);
     if (statSync(full).isDirectory()) return files(full);
-    return full.endsWith(CONFIG.extension) ? [full] : [];
+    if (full.endsWith(CONFIG.extension)) return [full];
+    // Inline templates are read too. A `template:` string in a component is markup a reader sees,
+    // but it is not an `.html` file, so for a long time it was the one place literal text could
+    // hide from this scanner — and 25 components used it, including eleven whole settings pages
+    // whose headings, descriptions and feature lists were Spanish prose nobody could translate.
+    return CONFIG.inlineTemplates && full.endsWith('.ts') && !full.endsWith('.spec.ts')
+      ? [full]
+      : [];
   });
+}
+
+/**
+ * What the scanner actually reads: a whole `.html` file, or just the template region of a `.ts`.
+ *
+ * An inline template is reported but never rewritten. Editing markup inside a TypeScript string
+ * literal means getting escaping, indentation and backticks right in a file the compiler also
+ * reads, and a codemod that gets that wrong breaks the build. Reporting is enough: the spec
+ * demands zero, so a literal there fails the build and a person fixes it in place.
+ */
+function scanUnits() {
+  return CONFIG.roots.flatMap((root) =>
+    files(root).flatMap((file) => {
+      const source = readFileSync(file, 'utf8');
+      if (file.endsWith(CONFIG.extension)) return [{ file, source, writable: true }];
+      const match = source.match(/\n  template: `([\s\S]*?)`,\n/);
+      return match ? [{ file, source: match[1], writable: false }] : [];
+    }),
+  );
 }
 
 /**
@@ -247,7 +275,22 @@ function isProse(text) {
   // A single all-caps token is usually an acronym or a code (NCF, RNC, ITBIS, SKU) that reads the
   // same in every language. Two or more words is prose.
   if (/^[A-Z0-9/&.\-]+$/.test(prose.trim()) && !prose.trim().includes(' ')) return false;
+  // A translation key is the opposite of prose: it is already the externalised form. Components
+  // that resolve their own inputs take one as a plain attribute (`title="SETTINGS.X.TITLE"`), and
+  // reading that as text would have produced `'SETTINGS.X.SETTINGS_X_TITLE' | translate` — a key
+  // wrapping a key, resolving to nothing. The codemod must be a no-op on work it already did.
+  if (isTranslationKey(prose.trim())) return false;
   return true;
+}
+
+/**
+ * `SECTION.SUBSECTION.KEY` — dotted SCREAMING_SNAKE, two or more segments.
+ *
+ * Two segments is the minimum on purpose: a lone `TOTAL` is a word a reader sees, and the acronym
+ * rule above already covers it.
+ */
+function isTranslationKey(text) {
+  return /^[A-Z][A-Z0-9_]*(\.[A-Z0-9_]+)+$/.test(text);
 }
 
 
@@ -432,7 +475,7 @@ function textNodes(source, masked) {
 }
 
 const catalogue = {};
-const report = { rewritten: 0, attributes: 0, mixed: [], skipped: [] };
+const report = { rewritten: 0, attributes: 0, mixed: [], skipped: [], textSites: [], attributeSites: [] };
 
 function setKey(tree, key, value) {
   const parts = key.split('.');
@@ -468,8 +511,8 @@ function keyFor(namespace, text) {
   }
 }
 
-for (const file of CONFIG.roots.flatMap((root) => files(root))) {
-  const original = readFileSync(file, 'utf8');
+for (const unit of scanUnits()) {
+  const { file, source: original } = unit;
 
   // An explicit opt-out, for the one thing in the product that must NOT be translated: the
   // wordmark. A brand is a name, not a word, and `no-hardcoded-strings.spec.ts` honours the same
@@ -520,6 +563,7 @@ for (const file of CONFIG.roots.flatMap((root) => files(root))) {
         text: converted.leading + CONFIG.wrapWithParams(key, converted.params) + converted.trailing,
       });
       report.rewritten++;
+      report.textSites.push({ file, text: trimmed.slice(0, 80) });
       continue;
     }
 
@@ -530,6 +574,7 @@ for (const file of CONFIG.roots.flatMap((root) => files(root))) {
     const trailing = rawText.slice(rawText.lastIndexOf(trimmed.at(-1)) + 1);
     edits.push({ start, end: start + rawText.length, text: leading + CONFIG.wrap(key) + trailing });
     report.rewritten++;
+    report.textSites.push({ file, text: trimmed.slice(0, 80) });
   }
 
   // ---- Human-readable attributes -------------------------------------------
@@ -561,6 +606,7 @@ for (const file of CONFIG.roots.flatMap((root) => files(root))) {
       text: HBS ? hbsReplacement : replacement,
     });
     report.attributes++;
+    report.attributeSites.push({ file, text: `${name}="${trimmed.slice(0, 80)}"` });
   }
 
   if (!edits.length) continue;
@@ -571,7 +617,7 @@ for (const file of CONFIG.roots.flatMap((root) => files(root))) {
     source = source.slice(0, edit.start) + edit.text + source.slice(edit.end);
   }
 
-  if (!DRY) writeFileSync(file, source);
+  if (!DRY && unit.writable) writeFileSync(file, source);
 }
 
 // ---------------------------------------------------------------------------
@@ -600,8 +646,19 @@ function countLeaves(tree) {
   );
 }
 
+// In report mode the counts are an assertion the build makes; a bare number tells nobody which
+// template broke it, so every offender is named. Listing them is what turns a red suite into a
+// fix.
+function listSites(label, sites) {
+  for (const item of sites.slice(0, 60)) {
+    console.log(`  ${label} ${relative(CONFIG.roots[0], item.file)}: ${item.text}`);
+  }
+}
+
 console.log(`text nodes externalised   ${report.rewritten}`);
+if (DRY) listSites('text', report.textSites);
 console.log(`attributes externalised   ${report.attributes}`);
+if (DRY) listSites('attribute', report.attributeSites);
 console.log(`catalogue keys added      ${countLeaves(catalogue)}`);
 console.log(`mixed blocks for a human  ${report.mixed.length}`);
 for (const item of report.mixed.slice(0, 60)) {

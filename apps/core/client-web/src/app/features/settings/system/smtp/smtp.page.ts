@@ -1,20 +1,21 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, Mail } from 'lucide-angular';
 import { SettingsEmptyStateComponent } from '../../shared/settings-empty-state.component';
 
 @Component({
   selector: 'app-smtp-settings-page',
   standalone: true,
-  imports: [LucideAngularModule, SettingsEmptyStateComponent],
+  imports: [TranslateModule, LucideAngularModule, SettingsEmptyStateComponent],
   template: `
     <div class="s-page">
       <div class="s-header">
-        <h1 class="s-header__title">Servidor de Correo (SMTP)</h1>
-        <p class="s-header__subtitle">Configura el servidor de correo saliente para notificaciones y comunicaciones del sistema.</p>
+        <h1 class="s-header__title">{{ 'SETTINGS.PAGES.SMTP.TITLE' | translate }}</h1>
+        <p class="s-header__subtitle">{{ 'SETTINGS.PAGES.SMTP.SUBTITLE' | translate }}</p>
       </div>
-      <app-settings-empty-state title="Configuración de Correo"
-        description="Define el servidor SMTP de tu organización para que todas las notificaciones del sistema (facturas, alertas, invitaciones) se envíen desde tu dominio corporativo."
-        [features]="['Configuración SMTP con soporte TLS/SSL','Verificación de conexión con servidor de prueba','Remitente personalizado (nombre y dirección)','Plantillas de correo personalizables por evento','Historial de envíos y registro de errores']">
+      <app-settings-empty-state [title]="'SETTINGS.PAGES.SMTP.EMPTY_TITLE'"
+        [description]="'SETTINGS.PAGES.SMTP.EMPTY_DESCRIPTION'"
+        [features]="['SETTINGS.PAGES.SMTP.FEATURES.F1','SETTINGS.PAGES.SMTP.FEATURES.F2','SETTINGS.PAGES.SMTP.FEATURES.F3','SETTINGS.PAGES.SMTP.FEATURES.F4','SETTINGS.PAGES.SMTP.FEATURES.F5']">
         <lucide-icon slot="icon" [img]="icon" size="28"></lucide-icon>
       </app-settings-empty-state>
     </div>`,

@@ -116,7 +116,7 @@ export class FiscalSettingsPage implements OnInit {
         this.loadCertificates();
       },
       error: (err) => {
-        this.notifications.showError(err?.error?.message || 'No se pudo cargar el certificado.');
+        this.notifications.showError(err?.error?.message || 'ERRORS.LOAD_CERTIFICATE');
         this.uploading.set(false);
       },
     });
@@ -157,7 +157,7 @@ export class FiscalSettingsPage implements OnInit {
           this.loadSequences();
         },
         error: (err) => {
-          this.notifications.showError(err?.error?.message || 'No se pudo registrar el rango.');
+          this.notifications.showError(err?.error?.message || 'ERRORS.REGISTER_RANGE');
           this.provisioning.set(false);
         },
       });
@@ -176,7 +176,7 @@ export class FiscalSettingsPage implements OnInit {
         this.downloading.set(false);
       },
       error: (err) => {
-        this.notifications.showError(err?.error?.message || 'No se pudo generar el reporte.');
+        this.notifications.showError(err?.error?.message || 'ERRORS.GENERATE_REPORT');
         this.downloading.set(false);
       },
     });

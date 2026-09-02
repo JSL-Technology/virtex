@@ -8,12 +8,12 @@ export const PURCHASING_ROUTES: Routes = [
         children: [
             {
                 path: 'orders',
-                title: 'Purchase Orders',
+                title: 'PAGE_TITLES.PURCHASE_ORDERS',
                 loadComponent: () => import('./orders/orders.page').then(m => m.OrdersPage)
             },
             {
                 path: 'requisitions',
-                title: 'Purchase Requisitions',
+                title: 'PAGE_TITLES.PURCHASE_REQUISITIONS',
                 loadComponent: () => import('./requisitions/requisitions.page').then(m => m.RequisitionsPage)
             },
             // Aquí irían las rutas para /requisitions, /receipts, etc.

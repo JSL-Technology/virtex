@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateService } from '@ngx-translate/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ChartOfAccountsApiService, CreateAccountDto, UpdateAccountDto } from '../../../core/api/chart-of-accounts.service';
@@ -19,6 +20,7 @@ import { TranslateModule } from '@ngx-translate/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccountFormPage implements OnInit {
+  private readonly translate = inject(TranslateService);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -252,7 +254,7 @@ export class AccountFormPage implements OnInit {
       return JSON.stringify(rawMessage);
     }
 
-    return rawMessage || 'Error al guardar la cuenta.';
+    return rawMessage || this.translate.instant('ERRORS.SAVE_ACCOUNT');
   }
 
   private getNatureFromType(type: AccountType): AccountNature {

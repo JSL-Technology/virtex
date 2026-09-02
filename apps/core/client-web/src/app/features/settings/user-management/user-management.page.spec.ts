@@ -15,6 +15,7 @@ import { User as ApiUser } from '../../../shared/interfaces/user.interface';
 import { UserStatus } from '../../../shared/enums/user-status.enum';
 import { authServiceMock } from '../../../../testing/service-mocks';
 import { StepUpService, StepUpScope } from '../../../core/services/step-up.service';
+import { DialogService } from '../../../core/services/dialog.service';
 
 const mockUsers: any[] = [
   { id: '1', firstName: 'John', lastName: 'Doe', email: 'john@doe.com', status: UserStatus.ACTIVE, roles: [{id: '1', name: 'Admin'}], organizationId: '1', isOnline: true, createdAt: new Date() },
@@ -71,6 +72,12 @@ describe('UserManagementPage', () => {
    * `requireStepUp` is asserted on separately, so a mutation that stopped requiring it would
    * still be caught.
    */
+  // The page asks through DialogService, not `window.confirm`; a stub that always confirms keeps
+  // these tests about step-up, which is what they are for.
+  const mockDialogService = {
+    confirm: jest.fn().mockResolvedValue(true),
+  };
+
   const mockStepUpService = {
     requireStepUp: jest.fn((_scope: unknown, _vcr: unknown, action: () => unknown) => action()),
   };
@@ -99,6 +106,7 @@ describe('UserManagementPage', () => {
         { provide: WebSocketService, useValue: mockWebSocketService },
         { provide: AuthService, useValue: mockAuthService },
         { provide: StepUpService, useValue: mockStepUpService },
+        { provide: DialogService, useValue: mockDialogService },
       ],
     }).compileComponents();
 
@@ -216,19 +224,15 @@ describe('UserManagementPage', () => {
         component.confirmDelete();
       }],
       ['block', StepUpScope.MANAGE_USER_STATUS, () => {
-        jest.spyOn(window, 'confirm').mockReturnValue(true);
         component.blockAndLogout(mockUsers[0]);
       }],
       ['force logout', StepUpScope.MANAGE_USER_CREDENTIALS, () => {
-        jest.spyOn(window, 'confirm').mockReturnValue(true);
         component.forceLogout(mockUsers[0]);
       }],
       ['password reset', StepUpScope.MANAGE_USER_CREDENTIALS, () => {
-        jest.spyOn(window, 'confirm').mockReturnValue(true);
         component.resetPassword(mockUsers[0]);
       }],
       ['impersonate', StepUpScope.IMPERSONATE, () => {
-        jest.spyOn(window, 'confirm').mockReturnValue(true);
         component.impersonateUser(mockUsers[0]);
       }],
     ])('requires step-up before %s', fakeAsync((_label: string, scope: StepUpScope, act: () => void) => {

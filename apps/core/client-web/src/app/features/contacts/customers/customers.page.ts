@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, signal, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { DialogService } from '../../../core/services/dialog.service';
 import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal, Edit, Trash2 } from 'lucide-angular';
 import { Customer } from '../../../core/models/customer.model';
 import { CustomersService } from '../../../core/api/customers.service';
@@ -14,6 +15,7 @@ import { TranslateModule } from '@ngx-translate/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomersPage implements OnInit {
+  private readonly dialog = inject(DialogService);
   protected readonly PlusCircleIcon = PlusCircle;
   protected readonly FilterIcon = Filter;
   protected readonly MoreHorizontalIcon = MoreHorizontal;
@@ -44,8 +46,14 @@ export class CustomersPage implements OnInit {
     });
   }
 
-  deleteCustomer(id: string): void {
-    if (confirm('¿Estás seguro de que deseas eliminar este cliente?')) {
+  async deleteCustomer(id: string): Promise<void> {
+    const confirmed = await this.dialog.confirm({
+      title: 'DIALOG.DELETE_CUSTOMER.TITLE',
+      message: 'DIALOG.DELETE_CUSTOMER.MESSAGE',
+      confirmText: 'COMMON.DELETE',
+      variant: 'danger',
+    });
+    if (confirmed) {
       this.customersService.deleteCustomer(id).subscribe({
         next: () => {
           this.notificationService.showSuccess('CONTACTS.CUSTOMERS.CLIENTE_ELIMINADO_EXITOSAMENTE');

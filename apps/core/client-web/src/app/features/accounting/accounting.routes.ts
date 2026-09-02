@@ -8,7 +8,7 @@ export const ACCOUNTING_ROUTES: Routes = [
     children: [
       {
         path: 'chart-of-accounts',
-        title: 'Chart of Accounts',
+        title: 'PAGE_TITLES.CHART_OF_ACCOUNTS',
         loadComponent: () =>
           import('./chart-of-accounts/chart-of-accounts.page').then(
             (m) => m.ChartOfAccountsPage
@@ -16,7 +16,7 @@ export const ACCOUNTING_ROUTES: Routes = [
       },
       {
         path: 'chart-of-accounts/segments-configuration',
-        title: 'Configuración de Segmentos',
+        title: 'PAGE_TITLES.SEGMENT_CONFIG',
         loadComponent: () =>
           import('./chart-of-accounts/segment-configuration/segment-configuration.page').then(
             (m) => m.SegmentConfigurationPage
@@ -28,11 +28,11 @@ export const ACCOUNTING_ROUTES: Routes = [
           import('./ledger-list/ledger-list.page').then(
             (m) => m.LedgerListPage
           ),
-        title: 'Libros Contables',
+        title: 'PAGE_TITLES.LEDGERS',
       },
       {
         path: 'journals', // <- NUEVA RUTA
-        title: 'Journals',
+        title: 'PAGE_TITLES.JOURNALS',
         loadComponent: () =>
           import('./journal-list/journal-list.page').then(
             (m) => m.JournalListPage
@@ -40,7 +40,7 @@ export const ACCOUNTING_ROUTES: Routes = [
       },
       {
         path: 'journals/new', // <- NUEVA RUTA
-        title: 'New Journal',
+        title: 'PAGE_TITLES.JOURNAL_NEW',
         loadComponent: () =>
           import('./journal-form/journal-form.page').then(
             (m) => m.JournalFormPage
@@ -48,7 +48,7 @@ export const ACCOUNTING_ROUTES: Routes = [
       },
       {
         path: 'general-ledger/new', // Nueva ruta
-        title: 'New General Ledger',
+        title: 'PAGE_TITLES.LEDGER_NEW',
         loadComponent: () =>
           import('./ledger-form/app-ledger-form-page').then(
             (m) => m.LedgerFormPage
@@ -56,7 +56,7 @@ export const ACCOUNTING_ROUTES: Routes = [
       },
       {
         path: 'journal-entries',
-        title: 'Journal Entries',
+        title: 'PAGE_TITLES.JOURNAL_ENTRIES',
         loadComponent: () =>
           import('./journal-entries/journal-entries.page').then(
             (m) => m.JournalEntriesPage
@@ -64,7 +64,7 @@ export const ACCOUNTING_ROUTES: Routes = [
       },
       {
         path: 'daily-journal',
-        title: 'Daily Journal',
+        title: 'PAGE_TITLES.DAILY_JOURNAL',
         loadComponent: () =>
           import('./daily-journal/daily-journal.page').then(
             (m) => m.DailyJournalPage
@@ -72,7 +72,7 @@ export const ACCOUNTING_ROUTES: Routes = [
       },
       {
         path: 'general-ledger',
-        title: 'General Ledger',
+        title: 'PAGE_TITLES.GENERAL_LEDGER',
         loadComponent: () =>
           import('./general-ledger/general-ledger.page').then(
             (m) => m.GeneralLedgerPage
@@ -80,7 +80,7 @@ export const ACCOUNTING_ROUTES: Routes = [
       },
       {
         path: 'periods',
-        title: 'Accounting Periods',
+        title: 'PAGE_TITLES.ACCOUNTING_PERIODS',
         loadComponent: () =>
           import('./periods/periods.page').then((m) => m.PeriodsPage),
       },
@@ -91,7 +91,7 @@ export const ACCOUNTING_ROUTES: Routes = [
       },
       {
         path: 'reconciliation',
-        title: 'Account Reconciliation',
+        title: 'PAGE_TITLES.ACCOUNT_RECONCILIATION',
         loadComponent: () =>
           import(
             './reconciliation/account-reconciliation/account-reconciliation.page'
@@ -99,7 +99,7 @@ export const ACCOUNTING_ROUTES: Routes = [
       },
       {
         path: 'subsidiary-ledgers',
-        title: 'Subsidiary Ledgers',
+        title: 'PAGE_TITLES.SUBSIDIARY_LEDGERS',
         loadComponent: () =>
           import('./subsidiary-ledgers/subsidiary-ledgers.page').then(
             (m) => m.SubsidiaryLedgersPage
@@ -107,7 +107,7 @@ export const ACCOUNTING_ROUTES: Routes = [
       },
       {
         path: 'variance-analysis',
-        title: 'Variance Analysis',
+        title: 'PAGE_TITLES.VARIANCE_ANALYSIS',
         loadComponent: () =>
           import('./variance-analysis/variance-analysis.page').then(
             (m) => m.VarianceAnalysisPage
@@ -115,7 +115,7 @@ export const ACCOUNTING_ROUTES: Routes = [
       },
       {
         path: 'chart-of-accounts/new',
-        title: 'New Account',
+        title: 'PAGE_TITLES.ACCOUNT_NEW',
         loadComponent: () =>
           import('./account-form/account-form.page').then(
             (m) => m.AccountFormPage
@@ -123,7 +123,7 @@ export const ACCOUNTING_ROUTES: Routes = [
       },
       {
         path: 'chart-of-accounts/:id/edit',
-        title: 'Edit Account',
+        title: 'PAGE_TITLES.ACCOUNT_EDIT',
         loadComponent: () =>
           import('./account-form/account-form.page').then(
             (m) => m.AccountFormPage
@@ -131,7 +131,7 @@ export const ACCOUNTING_ROUTES: Routes = [
       },
       {
         path: 'journal-entries/new', // <- NUEVA RUTA
-        title: 'New Journal Entry',
+        title: 'PAGE_TITLES.JOURNAL_ENTRY_NEW',
         loadComponent: () =>
           import('./journal-entry-form/journal-entry-form.page').then(
             (m) => m.JournalEntryFormPage
@@ -139,7 +139,7 @@ export const ACCOUNTING_ROUTES: Routes = [
       },
       {
         path: 'journal-entries/import',
-        title: 'Import Journal Entries',
+        title: 'PAGE_TITLES.JOURNAL_ENTRY_IMPORT',
         loadComponent: () =>
           import('./journal-entries/import/import.page').then(
             (m) => m.JournalEntryImportPage
@@ -147,7 +147,7 @@ export const ACCOUNTING_ROUTES: Routes = [
       },
       {
         path: 'journal-entries/:id/edit', // <- NUEVA RUTA
-        title: 'Edit Journal Entry',
+        title: 'PAGE_TITLES.JOURNAL_ENTRY_EDIT',
         loadComponent: () =>
           import('./journal-entry-form/journal-entry-form.page').then(
             (m) => m.JournalEntryFormPage

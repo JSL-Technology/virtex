@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, signal, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { DialogService } from '../../../core/services/dialog.service';
 import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal, Edit, Trash2 } from 'lucide-angular';
 import { PriceList } from '../../../core/models/price-list.model';
 import { PriceListsService } from '../../../core/api/price-lists.service';
@@ -16,6 +17,7 @@ import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PriceListsPage implements OnInit {
+  private readonly dialog = inject(DialogService);
   protected readonly PlusCircleIcon = PlusCircle;
   protected readonly FilterIcon = Filter;
   protected readonly MoreHorizontalIcon = MoreHorizontal;
@@ -46,8 +48,14 @@ export class PriceListsPage implements OnInit {
     });
   }
 
-  deletePriceList(id: string): void {
-    if (confirm('¿Estás seguro de que deseas eliminar esta lista de precios?')) {
+  async deletePriceList(id: string): Promise<void> {
+    const confirmed = await this.dialog.confirm({
+      title: 'DIALOG.DELETE_PRICE_LIST.TITLE',
+      message: 'DIALOG.DELETE_PRICE_LIST.MESSAGE',
+      confirmText: 'COMMON.DELETE',
+      variant: 'danger',
+    });
+    if (confirmed) {
       this.priceListsService.deletePriceList(id).subscribe({
         next: () => {
           this.notificationService.showSuccess('MASTERS.PRICE_LISTS.LISTA_PRECIOS_ELIMINADA_EXITOSAMENTE');

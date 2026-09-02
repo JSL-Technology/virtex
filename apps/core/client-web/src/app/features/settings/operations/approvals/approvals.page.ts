@@ -1,20 +1,21 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, Workflow } from 'lucide-angular';
 import { SettingsEmptyStateComponent } from '../../shared/settings-empty-state.component';
 
 @Component({
   selector: 'app-approval-policies-page',
   standalone: true,
-  imports: [LucideAngularModule, SettingsEmptyStateComponent],
+  imports: [TranslateModule, LucideAngularModule, SettingsEmptyStateComponent],
   template: `
     <div class="s-page">
       <div class="s-header">
-        <h1 class="s-header__title">Flujos de Aprobación</h1>
-        <p class="s-header__subtitle">Define quién aprueba qué, en qué orden y bajo qué condiciones en tu organización.</p>
+        <h1 class="s-header__title">{{ 'SETTINGS.PAGES.APPROVALS.TITLE' | translate }}</h1>
+        <p class="s-header__subtitle">{{ 'SETTINGS.PAGES.APPROVALS.SUBTITLE' | translate }}</p>
       </div>
-      <app-settings-empty-state title="Políticas de Aprobación"
-        description="Diseña flujos de aprobación basados en reglas (monto, tipo de documento, departamento) con aprobadores secuenciales o paralelos y escalamiento automático."
-        [features]="['Flujos multi-nivel con aprobadores secuenciales o paralelos','Reglas por monto, tipo de documento y departamento','Escalamiento automático por inactividad','Aprobación por correo sin necesidad de iniciar sesión','Historial completo de decisiones con comentarios']">
+      <app-settings-empty-state [title]="'SETTINGS.PAGES.APPROVALS.EMPTY_TITLE'"
+        [description]="'SETTINGS.PAGES.APPROVALS.EMPTY_DESCRIPTION'"
+        [features]="['SETTINGS.PAGES.APPROVALS.FEATURES.F1','SETTINGS.PAGES.APPROVALS.FEATURES.F2','SETTINGS.PAGES.APPROVALS.FEATURES.F3','SETTINGS.PAGES.APPROVALS.FEATURES.F4','SETTINGS.PAGES.APPROVALS.FEATURES.F5']">
         <lucide-icon slot="icon" [img]="icon" size="28"></lucide-icon>
       </app-settings-empty-state>
     </div>`,

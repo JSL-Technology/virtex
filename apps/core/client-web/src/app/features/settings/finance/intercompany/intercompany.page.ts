@@ -1,19 +1,20 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, Globe } from 'lucide-angular';
 import { SettingsEmptyStateComponent } from '../../shared/settings-empty-state.component';
 
 @Component({
   selector: 'app-intercompany-page',
   standalone: true,
-  imports: [LucideAngularModule, SettingsEmptyStateComponent],
+  imports: [TranslateModule, LucideAngularModule, SettingsEmptyStateComponent],
   template: `
     <div class="s-page">
       <div class="s-header">
-        <h1 class="s-header__title">Reglas Intercompany</h1>
-        <p class="s-header__subtitle">Automatiza y controla las transacciones entre empresas de tu grupo corporativo.</p>
+        <h1 class="s-header__title">{{ 'SETTINGS.PAGES.INTERCOMPANY.TITLE' | translate }}</h1>
+        <p class="s-header__subtitle">{{ 'SETTINGS.PAGES.INTERCOMPANY.SUBTITLE' | translate }}</p>
       </div>
-      <app-settings-empty-state title="Gestión Intercompany"
-        description="Configura las reglas para eliminar transacciones intragrupo en la consolidación, generar asientos espejo automáticos y gestionar saldos entre subsidiarias."
+      <app-settings-empty-state [title]="'SETTINGS.PAGES.INTERCOMPANY.EMPTY_TITLE'"
+        [description]="'SETTINGS.PAGES.INTERCOMPANY.EMPTY_DESCRIPTION'"
         [features]="features">
         <lucide-icon slot="icon" [img]="icon" size="28"></lucide-icon>
       </app-settings-empty-state>

@@ -22,6 +22,10 @@
     "src/**/*.test.ts",
     "src/**/*.spec.ts",
     "src/**/*.d.ts",
+    // `I18nService` imports the catalogues, so this project must list them too -- exactly as
+    // tsconfig.app.json does. Without them `tsc --build` stops at TS6307 on the import line and
+    // never type-checks a single spec.
+    "src/app/i18n/messages/*.json",
     // Specs import from the shared library through its path alias, and it must be in the file
     // list or `tsc --build` refuses it with TS6307 before checking anything.
     "../../../libs/shared/util-auth/src/**/*.ts",

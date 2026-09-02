@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DialogService } from '../../../core/services/dialog.service';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal, Trash2 } from 'lucide-angular';
 import { Tax } from '../../../core/models/tax.model';
@@ -18,6 +19,7 @@ import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaxesPage implements OnInit {
+  private readonly dialog = inject(DialogService);
   protected readonly PlusCircleIcon = PlusCircle;
   protected readonly FilterIcon = Filter;
   protected readonly MoreHorizontalIcon = MoreHorizontal;
@@ -47,8 +49,15 @@ export class TaxesPage implements OnInit {
     });
   }
 
-  deleteTax(tax: Tax): void {
-    if (confirm(`¿Está seguro de que desea eliminar el impuesto "${tax.name}"?`)) {
+  async deleteTax(tax: Tax): Promise<void> {
+    const confirmed = await this.dialog.confirm({
+      title: 'DIALOG.DELETE_TAX.TITLE',
+      message: 'DIALOG.DELETE_TAX.MESSAGE',
+      messageParams: { name: tax.name },
+      confirmText: 'COMMON.DELETE',
+      variant: 'danger',
+    });
+    if (confirmed) {
       this.taxesService.deleteTax(tax.id).subscribe({
         next: () => {
           this.notificationService.showSuccess('MASTERS.TAXES.IMPUESTO_ELIMINADO_EXITOSAMENTE');

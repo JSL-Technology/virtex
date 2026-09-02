@@ -1,20 +1,21 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, Briefcase } from 'lucide-angular';
 import { SettingsEmptyStateComponent } from '../../shared/settings-empty-state.component';
 
 @Component({
   selector: 'app-inventory-policies-page',
   standalone: true,
-  imports: [LucideAngularModule, SettingsEmptyStateComponent],
+  imports: [TranslateModule, LucideAngularModule, SettingsEmptyStateComponent],
   template: `
     <div class="s-page">
       <div class="s-header">
-        <h1 class="s-header__title">Políticas de Inventario</h1>
-        <p class="s-header__subtitle">Define las reglas de valuación, reposición y control de existencias para tu inventario.</p>
+        <h1 class="s-header__title">{{ 'SETTINGS.PAGES.INVENTORY_POLICIES.TITLE' | translate }}</h1>
+        <p class="s-header__subtitle">{{ 'SETTINGS.PAGES.INVENTORY_POLICIES.SUBTITLE' | translate }}</p>
       </div>
-      <app-settings-empty-state title="Políticas de Inventario"
-        description="Configura el método de valuación de inventario, los umbrales de reposición automática y las reglas de conteo cíclico para mantener existencias precisas."
-        [features]="['Método de valuación: PEPS, UEPS, Costo Promedio','Puntos de reorden y cantidades mínimas de stock','Conteo cíclico automatizado por categoría','Ajustes de inventario con aprobación requerida','Alertas de stock bajo y productos vencidos']">
+      <app-settings-empty-state [title]="'SETTINGS.PAGES.INVENTORY_POLICIES.EMPTY_TITLE'"
+        [description]="'SETTINGS.PAGES.INVENTORY_POLICIES.EMPTY_DESCRIPTION'"
+        [features]="['SETTINGS.PAGES.INVENTORY_POLICIES.FEATURES.F1','SETTINGS.PAGES.INVENTORY_POLICIES.FEATURES.F2','SETTINGS.PAGES.INVENTORY_POLICIES.FEATURES.F3','SETTINGS.PAGES.INVENTORY_POLICIES.FEATURES.F4','SETTINGS.PAGES.INVENTORY_POLICIES.FEATURES.F5']">
         <lucide-icon slot="icon" [img]="icon" size="28"></lucide-icon>
       </app-settings-empty-state>
     </div>`,

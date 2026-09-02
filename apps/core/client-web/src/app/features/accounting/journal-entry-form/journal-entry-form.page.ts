@@ -1,9 +1,9 @@
-import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit, signal, Input } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { LucideAngularModule, Save, Plus, Trash2 } from 'lucide-angular';
-import { LanguageService } from '../../../core/services/language';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { JournalEntries } from '../../../core/services/journal-entries';
 import { NotificationService } from '../../../core/services/notification';
 import { AccountingService } from '../../../core/api/accounting.service';
@@ -48,62 +48,10 @@ export const journalEntryValidator = (control: AbstractControl): ValidationError
 };
 
 
-const translations = {
-  en: {
-    title: 'New Journal Entry',
-    editTitle: 'Edit Journal Entry',
-    dateLabel: 'Date',
-    ledgerLabel: 'Ledger',
-    journalLabel: 'Journal',
-    descriptionLabel: 'Description',
-    descriptionPlaceholder: 'Enter a description for the entry',
-    accountColumn: 'Account',
-    descriptionColumn: 'Description',
-    debitColumn: 'Debit',
-    creditColumn: 'Credit',
-    accountPlaceholder: 'Select an account',
-    ledgerPlaceholder: 'Select a ledger',
-    journalPlaceholder: 'Select a journal',
-    addLine: 'Add Line',
-    cancel: 'Cancel',
-    save: 'Save Entry',
-    saving: 'Saving...',
-    totals: 'Totals',
-    unbalancedError: 'Debits and credits must be balanced.',
-    zeroAmountError: 'The total amount cannot be zero.',
-    requiredFieldsError: 'Please fill in all required fields.'
-  },
-  es: {
-    title: 'Nuevo Asiento Contable',
-    editTitle: 'Editar Asiento Contable',
-    dateLabel: 'Fecha',
-    ledgerLabel: 'Libro Mayor',
-    journalLabel: 'Diario',
-    descriptionLabel: 'Descripción',
-    descriptionPlaceholder: 'Introduce una descripción para el asiento',
-    accountColumn: 'Cuenta',
-    descriptionColumn: 'Descripción',
-    debitColumn: 'Débito',
-    creditColumn: 'Crédito',
-    accountPlaceholder: 'Selecciona una cuenta',
-    ledgerPlaceholder: 'Selecciona un libro mayor',
-    journalPlaceholder: 'Selecciona un diario',
-    addLine: 'Añadir Línea',
-    cancel: 'Cancelar',
-    save: 'Guardar Asiento',
-    saving: 'Guardando...',
-    totals: 'Totales',
-    unbalancedError: 'Los débitos y créditos deben estar balanceados.',
-    zeroAmountError: 'El monto total no puede ser cero.',
-    requiredFieldsError: 'Por favor, completa todos los campos requeridos.'
-  }
-};
-
-
 @Component({
   selector: 'app-journal-entry-form-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, LucideAngularModule, DecimalPipe, ...FORMAT_PIPES],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, LucideAngularModule, DecimalPipe, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './journal-entry-form.page.html',
   styleUrls: ['./journal-entry-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -113,15 +61,15 @@ export class JournalEntryFormPage implements OnInit {
 
   private fb = inject(FormBuilder);
   private router = inject(Router);
-  private languageService = inject(LanguageService);
   private journalEntriesService = inject(JournalEntries);
   private notificationService = inject(NotificationService);
+  // A toast is raised from an event handler, where a pipe cannot run, so this one message is
+  // resolved imperatively. Everything the reader sees in the template goes through the pipe.
+  private translate = inject(TranslateService);
   private accountingService = inject(AccountingService);
   private ledgersService = inject(LedgersService);
   private journalsService = inject(JournalsService);
 
-  language = this.languageService.currentLang;
-  t = computed(() => translations[this.language() as keyof typeof translations]);
 
   protected readonly SaveIcon = Save;
   protected readonly PlusIcon = Plus;
@@ -211,7 +159,9 @@ export class JournalEntryFormPage implements OnInit {
     this.entryForm.markAllAsTouched();
     
     if (this.entryForm.invalid) {
-      this.notificationService.showError(this.t().requiredFieldsError);
+      this.notificationService.showError(
+        this.translate.instant('ACCOUNTING.JOURNAL_ENTRY_FORM.REQUIRED_FIELDS_ERROR'),
+      );
       return;
     }
 
@@ -226,7 +176,7 @@ export class JournalEntryFormPage implements OnInit {
         this.router.navigate(['/accounting/journal-entries']);
       },
       error: (err) => {
-        this.notificationService.showError(err.error?.message || 'Error al crear el asiento contable.');
+        this.notificationService.showError(err.error?.message || 'ERRORS.CREATE_JOURNAL_ENTRY');
         this.isSaving.set(false);
       },
       complete: () => {

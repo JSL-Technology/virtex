@@ -1,20 +1,21 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, Percent } from 'lucide-angular';
 import { SettingsEmptyStateComponent } from '../../shared/settings-empty-state.component';
 
 @Component({
   selector: 'app-tax-rules-page',
   standalone: true,
-  imports: [LucideAngularModule, SettingsEmptyStateComponent],
+  imports: [TranslateModule, LucideAngularModule, SettingsEmptyStateComponent],
   template: `
     <div class="s-page">
       <div class="s-header">
-        <h1 class="s-header__title">Reglas de Impuestos</h1>
-        <p class="s-header__subtitle">Configura las tasas impositivas aplicables a ventas, compras y retenciones por jurisdicción.</p>
+        <h1 class="s-header__title">{{ 'SETTINGS.PAGES.TAXES.TITLE' | translate }}</h1>
+        <p class="s-header__subtitle">{{ 'SETTINGS.PAGES.TAXES.SUBTITLE' | translate }}</p>
       </div>
-      <app-settings-empty-state title="Motor de Impuestos"
-        description="Define las reglas fiscales de tu organización para que los impuestos se calculen y contabilicen automáticamente en cada transacción según la jurisdicción."
-        [features]="['Tasas de ITBIS/IVA por tipo de producto o servicio','Retenciones en la fuente (ISR, ITBIS)','Impuestos por jurisdicción y subsidiaria','Exenciones fiscales por cliente o categoría','Reportes de declaración de impuestos']">
+      <app-settings-empty-state [title]="'SETTINGS.PAGES.TAXES.EMPTY_TITLE'"
+        [description]="'SETTINGS.PAGES.TAXES.EMPTY_DESCRIPTION'"
+        [features]="['SETTINGS.PAGES.TAXES.FEATURES.F1','SETTINGS.PAGES.TAXES.FEATURES.F2','SETTINGS.PAGES.TAXES.FEATURES.F3','SETTINGS.PAGES.TAXES.FEATURES.F4','SETTINGS.PAGES.TAXES.FEATURES.F5']">
         <lucide-icon slot="icon" [img]="icon" size="28"></lucide-icon>
       </app-settings-empty-state>
     </div>`,

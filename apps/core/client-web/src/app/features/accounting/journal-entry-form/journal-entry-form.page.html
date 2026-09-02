@@ -1,11 +1,11 @@
 <div class="page-container">
   <div class="page-header">
-    <h1>{{ isEditMode() ? t().editTitle : t().title }}</h1>
+    <h1>{{ (isEditMode() ? 'ACCOUNTING.JOURNAL_ENTRY_FORM.EDIT_TITLE' : 'ACCOUNTING.JOURNAL_ENTRY_FORM.TITLE') | translate }}</h1>
     <div class="header-actions">
-      <a routerLink="/accounting/journal-entries" class="btn btn-secondary">{{ t().cancel }}</a>
+      <a routerLink="/accounting/journal-entries" class="btn btn-secondary">{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.CANCEL' | translate }}</a>
       <button (click)="saveEntry()" class="btn btn-primary" [disabled]="isSaving()">
         <lucide-icon [name]="SaveIcon" [size]="16" class="mr-2"></lucide-icon>
-        {{ isSaving() ? t().saving : t().save }}
+        {{ (isSaving() ? 'ACCOUNTING.JOURNAL_ENTRY_FORM.SAVING' : 'ACCOUNTING.JOURNAL_ENTRY_FORM.SAVE') | translate }}
       </button>
     </div>
   </div>
@@ -13,30 +13,30 @@
   <form [formGroup]="entryForm" class="entry-form">
     <div class="form-grid">
       <div class="form-field">
-        <label for="date">{{ t().dateLabel }}</label>
+        <label for="date">{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.DATE_LABEL' | translate }}</label>
         <input type="date" id="date" formControlName="date" class="form-input">
       </div>
       <div class="form-field">
-        <label for="ledgerId">{{ t().ledgerLabel }}</label>
+        <label for="ledgerId">{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.LEDGER_LABEL' | translate }}</label>
         <select id="ledgerId" formControlName="ledgerId" class="form-input">
-          <option value="" disabled>{{ t().ledgerPlaceholder }}</option>
+          <option value="" disabled>{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.LEDGER_PLACEHOLDER' | translate }}</option>
           @for (ledger of ledgers(); track ledger.id) {
             <option [value]="ledger.id">{{ ledger.name }}</option>
           }
         </select>
       </div>
       <div class="form-field">
-        <label for="journalId">{{ t().journalLabel }}</label>
+        <label for="journalId">{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.JOURNAL_LABEL' | translate }}</label>
         <select id="journalId" formControlName="journalId" class="form-input">
-          <option value="" disabled>{{ t().journalPlaceholder }}</option>
+          <option value="" disabled>{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.JOURNAL_PLACEHOLDER' | translate }}</option>
           @for (journal of journals(); track journal.id) {
             <option [value]="journal.id">{{ journal.name }}</option>
           }
         </select>
       </div>
       <div class="form-field description-field">
-        <label for="description">{{ t().descriptionLabel }}</label>
-        <input type="text" id="description" formControlName="description" [placeholder]="t().descriptionPlaceholder" class="form-input">
+        <label for="description">{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.DESCRIPTION_LABEL' | translate }}</label>
+        <input type="text" id="description" formControlName="description" [placeholder]="'ACCOUNTING.JOURNAL_ENTRY_FORM.DESCRIPTION_PLACEHOLDER' | translate" class="form-input">
       </div>
     </div>
 
@@ -44,10 +44,10 @@
       <table>
         <thead>
           <tr>
-            <th>{{ t().accountColumn }}</th>
-            <th>{{ t().descriptionColumn }}</th>
-            <th class="text-right">{{ t().debitColumn }}</th>
-            <th class="text-right">{{ t().creditColumn }}</th>
+            <th>{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.ACCOUNT_COLUMN' | translate }}</th>
+            <th>{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.DESCRIPTION_COLUMN' | translate }}</th>
+            <th class="text-right">{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.DEBIT_COLUMN' | translate }}</th>
+            <th class="text-right">{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.CREDIT_COLUMN' | translate }}</th>
             <th></th>
           </tr>
         </thead>
@@ -56,7 +56,7 @@
             <tr [formGroupName]="$index">
               <td>
                 <select formControlName="accountId" class="form-input">
-                  <option value="" disabled>{{ t().accountPlaceholder }}</option>
+                  <option value="" disabled>{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.ACCOUNT_PLACEHOLDER' | translate }}</option>
                   @for (account of accounts(); track account.id) {
                     <option [value]="account.id">{{ account.name }}</option>
                   }
@@ -84,10 +84,10 @@
             <td colspan="2">
               <button (click)="addLine()" class="btn btn-secondary">
                 <lucide-icon [name]="PlusIcon" [size]="16" class="mr-2"></lucide-icon>
-                {{ t().addLine }}
+                {{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.ADD_LINE' | translate }}
               </button>
             </td>
-            <td class="text-right"><strong>{{ t().totals }}: {{ totalDebit() | vxNumber:'1.2-2' }}</strong></td>
+            <td class="text-right"><strong>{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.TOTALS' | translate }}: {{ totalDebit() | vxNumber:'1.2-2' }}</strong></td>
             <td class="text-right"><strong>{{ totalCredit() | vxNumber:'1.2-2' }}</strong></td>
             <td></td>
           </tr>
@@ -96,10 +96,10 @@
     </div>
 
     @if (entryForm.hasError('unbalanced') && entryForm.touched) {
-      <div class="alert alert-danger">{{ t().unbalancedError }}</div>
+      <div class="alert alert-danger">{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.UNBALANCED_ERROR' | translate }}</div>
     }
     @if (entryForm.hasError('zeroAmount') && entryForm.touched) {
-      <div class="alert alert-danger">{{ t().zeroAmountError }}</div>
+      <div class="alert alert-danger">{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.ZERO_AMOUNT_ERROR' | translate }}</div>
     }
   </form>
 </div>

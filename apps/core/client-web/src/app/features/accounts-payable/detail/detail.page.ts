@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DialogService } from '../../../core/services/dialog.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, ChevronLeft, Edit, MoreVertical, Trash2 } from 'lucide-angular';
 import { AccountsPayableService, VendorBill } from '../../../core/services/accounts-payable';
@@ -18,6 +19,7 @@ import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VendorBillDetailPage implements OnInit {
+  private readonly dialog = inject(DialogService);
   protected readonly BackIcon = ChevronLeft;
   protected readonly EditIcon = Edit;
   protected readonly MoreIcon = MoreVertical;
@@ -52,12 +54,18 @@ export class VendorBillDetailPage implements OnInit {
     });
   }
 
-  voidBill(): void {
+  async voidBill(): Promise<void> {
     const billId = this.bill()?.id;
     if (!billId) return;
 
-    // A real implementation should use a confirmation dialog.
-    const reason = prompt('Por favor, introduce un motivo para la anulación:');
+    const reason = await this.dialog.prompt({
+      title: 'DIALOG.VOID_BILL.TITLE',
+      message: 'DIALOG.VOID_BILL.MESSAGE',
+      placeholder: 'DIALOG.VOID_BILL.PLACEHOLDER',
+      minLength: 10,
+      tooShort: 'DIALOG.VOID_BILL.TOO_SHORT',
+      variant: 'danger',
+    });
     if (!reason) return;
 
     this.isLoading.set(true);
