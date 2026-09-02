@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DialogService } from '../../../core/services/dialog.service';
 import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle, MoreHorizontal, AlertCircle, Search } from 'lucide-angular';
 // import { Product } from '../../../core/models/product.model';
@@ -19,6 +20,7 @@ import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductsPage implements OnInit {
+  private readonly dialog = inject(DialogService);
   private inventoryService = inject(InventoryService);
   private notificationService = inject(NotificationService);
   private router = inject(Router);
@@ -80,8 +82,15 @@ export class ProductsPage implements OnInit {
     return 'status-active';
   }
 
-  deleteProduct(product: Product): void {
-    if (confirm(`¿Estás seguro de que quieres eliminar el producto "${product.name}"?`)) {
+  async deleteProduct(product: Product): Promise<void> {
+    const confirmed = await this.dialog.confirm({
+      title: 'DIALOG.DELETE_PRODUCT.TITLE',
+      message: 'DIALOG.DELETE_PRODUCT.MESSAGE',
+      messageParams: { name: product.name },
+      confirmText: 'COMMON.DELETE',
+      variant: 'danger',
+    });
+    if (confirmed) {
       this.inventoryService.deleteProduct(product.id).subscribe({
         next: () => {
           this.notificationService.showSuccess('INVENTORY.PRODUCTS.PRODUCTO_ELIMINADO_EXITOSAMENTE');

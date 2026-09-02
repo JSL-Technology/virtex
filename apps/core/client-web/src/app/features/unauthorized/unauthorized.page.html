@@ -34,7 +34,9 @@
     </div>
 
     <div class="permission-hint">
-      <p>{{ 'UNAUTHORIZED.NO_SABES_PERMISOS_NECESITAS' | translate }} <a href="#">{{ 'UNAUTHORIZED.CONSULTA_NUESTRA_GUIA_PERMISOS' | translate }}</a></p>
+      <!-- The second half used to be `<a href="#">`, a link that reloads the page it is on. There
+           is no permissions guide to point at, so it reads as the sentence it always was. -->
+      <p>{{ 'UNAUTHORIZED.NO_SABES_PERMISOS_NECESITAS' | translate }}</p>
     </div>
   </div>
 </div>

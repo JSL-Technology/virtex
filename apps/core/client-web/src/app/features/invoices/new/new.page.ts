@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
+import { TranslateService } from '@ngx-translate/core';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import {
@@ -60,6 +61,7 @@ const FISCAL_TYPE_LABELS: Record<string, string> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NewInvoicePage implements OnInit {
+  private readonly translate = inject(TranslateService);
   private fb = inject(FormBuilder);
   protected router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -332,7 +334,7 @@ export class NewInvoicePage implements OnInit {
       },
       error: (err) => {
         this.notificationService.showError(
-          err?.error?.message || 'No se pudo guardar el documento.',
+          err?.error?.message || this.translate.instant('ERRORS.SAVE_DOCUMENT'),
         );
         this.isSaving.set(false);
       },

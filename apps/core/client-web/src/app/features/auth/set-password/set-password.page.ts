@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth';
@@ -46,6 +47,7 @@ const passwordMatchValidator: ValidatorFn = (group: AbstractControl): Validation
   styleUrls: ['./set-password.page.scss']
 })
 export class SetPasswordPage implements OnInit {
+  private readonly translate = inject(TranslateService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -112,7 +114,7 @@ export class SetPasswordPage implements OnInit {
                 },
                 error: (err: any) => {
                     this.isLoading = false;
-                    this.errorMessage = err.message || 'Error setting password';
+                    this.errorMessage = err.message || this.translate.instant('ERRORS.SET_PASSWORD');
                 }
             });
         },

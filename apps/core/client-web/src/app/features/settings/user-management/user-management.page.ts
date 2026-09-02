@@ -14,6 +14,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { TranslateService } from '@ngx-translate/core';
+import { DialogService } from '../../../core/services/dialog.service';
 import {
   LucideAngularModule,
   UserPlus,
@@ -80,6 +82,8 @@ import { StepUpService, StepUpScope } from '../../../core/services/step-up.servi
   styleUrls: ['./user-management.page.scss'],
 })
 export class UserManagementPage implements OnInit, OnDestroy {
+  private readonly translate = inject(TranslateService);
+  private readonly dialog = inject(DialogService);
   // Servicios
   private fb = inject(FormBuilder);
   private usersService = inject(UsersService);
@@ -302,7 +306,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
           },
           error: (err) => {
             this.notificationService.showError(
-              err?.error?.message || 'Error al actualizar el usuario.',
+              err?.error?.message || this.translate.instant('ERRORS.UPDATE_USER'),
             );
             this.loading.set(false);
           },
@@ -327,7 +331,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
           },
           error: (err) => {
             this.notificationService.showError(
-              err?.error?.message || 'Error al invitar al usuario.',
+              err?.error?.message || this.translate.instant('ERRORS.INVITE_USER'),
             );
             this.loading.set(false);
           },
@@ -351,7 +355,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
           this.loadUsers();
         },
         error: (err) => {
-          this.notificationService.showError(err.error?.message || 'Error al eliminar el usuario.');
+          this.notificationService.showError(err.error?.message || 'ERRORS.DELETE_USER');
           this.loading.set(false);
           this.closeDeleteModal();
         },
@@ -384,8 +388,24 @@ export class UserManagementPage implements OnInit, OnDestroy {
     }
   }
 
-  resetPassword(user: ApiUser): void {
-    if (confirm(`¿Enviar un correo para resetear la contraseña de ${user.firstName}?`)) {
+  /**
+   * Ask before an action that affects somebody else's account.
+   *
+   * These four were `window.confirm` with the sentence written in Spanish in the call, so an
+   * English-speaking administrator was asked, in Spanish, whether to block a user. The dialog is
+   * the product's own, and the sentence names the person it concerns.
+   */
+  private ask(section: string, user: ApiUser, variant: 'primary' | 'warning' | 'danger'): Promise<boolean> {
+    return this.dialog.confirm({
+      title: `DIALOG.${section}.TITLE`,
+      message: `DIALOG.${section}.MESSAGE`,
+      messageParams: { name: `${user.firstName} ${user.lastName ?? ''}`.trim() },
+      variant,
+    });
+  }
+
+  async resetPassword(user: ApiUser): Promise<void> {
+    if (await this.ask('RESET_PASSWORD', user, 'primary')) {
       this.stepUp
         .requireStepUp(StepUpScope.MANAGE_USER_CREDENTIALS, this.viewContainerRef, () =>
           this.usersService.sendPasswordReset(user.id),
@@ -393,13 +413,13 @@ export class UserManagementPage implements OnInit, OnDestroy {
         .subscribe({
           next: (res) => this.notificationService.showSuccess(res.message),
           error: (err) =>
-            this.notificationService.showError(err.error?.message || 'Error al enviar el correo.'),
+            this.notificationService.showError(err.error?.message || 'ERRORS.SEND_MAIL'),
         });
     }
   }
 
-  forceLogout(user: ApiUser): void {
-    if (confirm(`¿Estás seguro que quieres cerrar la sesión de ${user.firstName}?`)) {
+  async forceLogout(user: ApiUser): Promise<void> {
+    if (await this.ask('REVOKE_SESSION', user, 'warning')) {
       this.stepUp
         .requireStepUp(StepUpScope.MANAGE_USER_CREDENTIALS, this.viewContainerRef, () =>
           this.usersService.forceLogout(user.id),
@@ -408,14 +428,14 @@ export class UserManagementPage implements OnInit, OnDestroy {
           next: () => this.notificationService.showSuccess('SETTINGS.USER_MANAGEMENT.SESION_USUARIO_HA_SIDO_CERRADA'),
           error: (err) =>
             this.notificationService.showError(
-              err?.error?.message || 'Error al cerrar la sesión.',
+              err?.error?.message || this.translate.instant('ERRORS.REVOKE_SESSION'),
             ),
         });
     }
   }
 
-  blockAndLogout(user: ApiUser): void {
-    if (confirm(`¿Estás seguro que quieres BLOQUEAR y cerrar la sesión de ${user.firstName}?`)) {
+  async blockAndLogout(user: ApiUser): Promise<void> {
+    if (await this.ask('BLOCK_USER', user, 'danger')) {
       this.stepUp
         .requireStepUp(StepUpScope.MANAGE_USER_STATUS, this.viewContainerRef, () =>
           this.usersService.blockAndLogout(user.id),
@@ -427,14 +447,14 @@ export class UserManagementPage implements OnInit, OnDestroy {
           },
           error: (err) =>
             this.notificationService.showError(
-              err?.error?.message || 'Error al bloquear al usuario.',
+              err?.error?.message || this.translate.instant('ERRORS.BLOCK_USER'),
             ),
         });
     }
   }
 
-  impersonateUser(user: ApiUser): void {
-    if (confirm(`¿Estás seguro que quieres suplantar a ${user.firstName}?`)) {
+  async impersonateUser(user: ApiUser): Promise<void> {
+    if (await this.ask('IMPERSONATE_USER', user, 'warning')) {
       this.stepUp
         .requireStepUp(StepUpScope.IMPERSONATE, this.viewContainerRef, () =>
           this.authService.impersonate(user.id),
@@ -442,7 +462,7 @@ export class UserManagementPage implements OnInit, OnDestroy {
         .subscribe({
           error: (err) =>
             this.notificationService.showError(
-              err?.error?.message || 'No se pudo iniciar la suplantación.',
+              err?.error?.message || this.translate.instant('ERRORS.IMPERSONATE'),
             ),
         });
     }

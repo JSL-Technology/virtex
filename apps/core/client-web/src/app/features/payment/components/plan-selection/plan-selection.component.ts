@@ -1,5 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NotificationService } from '../../../../core/services/notification';
 import { PaymentService } from '../../services/payment.service';
 import { Router } from '@angular/router';
 
@@ -98,6 +99,7 @@ import { Router } from '@angular/router';
   `
 })
 export class PlanSelectionComponent implements OnInit {
+  private readonly notificationService = inject(NotificationService);
   private paymentService = inject(PaymentService);
   isLoading = signal(false);
   prices = signal<{ starter: string; pro: string; enterprise: string } | null>(null);
@@ -114,7 +116,7 @@ export class PlanSelectionComponent implements OnInit {
   selectPlan(planType: 'starter' | 'pro' | 'enterprise') {
     const currentPrices = this.prices();
     if (!currentPrices) {
-        alert('Configuración de precios no cargada. Intente de nuevo más tarde.');
+        this.notificationService.showError('DIALOG.NOTIFY.PRICING_NOT_LOADED');
         return;
     }
     const priceId = currentPrices[planType];
@@ -124,7 +126,7 @@ export class PlanSelectionComponent implements OnInit {
          console.warn(`No price ID found for ${planType}, checking env vars or using placeholder`);
          // proceed or return depending on strictness.
          // For now, blocking to force proper setup.
-         alert(`El precio para ${planType} no está configurado en el sistema.`);
+         this.notificationService.showError('DIALOG.NOTIFY.PLAN_PRICE_MISSING', { plan: planType });
          return;
     }
 
@@ -136,7 +138,7 @@ export class PlanSelectionComponent implements OnInit {
       error: (err) => {
         console.error('Error creating checkout session', err);
         this.isLoading.set(false);
-        alert('Hubo un error al iniciar el pago. Por favor intenta de nuevo.');
+        this.notificationService.showError('DIALOG.NOTIFY.PAYMENT_START_FAILED');
       }
     });
   }

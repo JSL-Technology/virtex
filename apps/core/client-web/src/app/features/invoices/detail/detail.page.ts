@@ -1,5 +1,7 @@
 import { Component, ChangeDetectionStrategy, Input, signal, inject, OnInit, effect, computed } from '@angular/core';
 import { CommonModule, DecimalPipe, DatePipe, Location } from '@angular/common';
+import { TranslateService } from '@ngx-translate/core';
+import { DialogService } from '../../../core/services/dialog.service';
 import { FormsModule } from '@angular/forms';
 // Se importa ActivatedRoute para acceder a los parámetros de la URL.
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
@@ -26,6 +28,8 @@ import { AuthService } from '../../../core/services/auth';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InvoiceDetailPage implements OnInit {
+  private readonly translate = inject(TranslateService);
+  private readonly dialog = inject(DialogService);
   private invoicesService = inject(InvoicesService);
   private einvoicingService = inject(EinvoicingService);
   private notificationService = inject(NotificationService);
@@ -166,7 +170,7 @@ export class InvoiceDetailPage implements OnInit {
         },
         error: (err) => {
             this.ecfBusy.set(false);
-            this.notificationService.showError(err?.error?.message || 'No se pudo reenviar el e-CF.');
+            this.notificationService.showError(err?.error?.message || 'ERRORS.RESEND_ECF');
         }
     });
   }
@@ -324,16 +328,23 @@ export class InvoiceDetailPage implements OnInit {
       },
       error: (err) => {
         this.ecfBusy.set(false);
-        this.notificationService.showError(err?.error?.message || 'No se pudo emitir el documento.');
+        this.notificationService.showError(err?.error?.message || 'ERRORS.ISSUE_DOCUMENT');
       },
     });
   }
 
   /** Discard a draft. It consumed no fiscal numbering, so nothing has to be declared. */
-  discardDraft(): void {
+  async discardDraft(): Promise<void> {
     const invoice = this.invoice();
     if (!invoice) return;
-    if (!confirm(`¿Eliminar el borrador ${invoice.invoiceNumber}? No se puede deshacer.`)) return;
+    const confirmed = await this.dialog.confirm({
+      title: 'DIALOG.DELETE_INVOICE_DRAFT.TITLE',
+      message: 'DIALOG.DELETE_INVOICE_DRAFT.MESSAGE',
+      messageParams: { number: invoice.invoiceNumber },
+      confirmText: 'COMMON.DELETE',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
 
     this.invoicesService.discardDraft(invoice.id).subscribe({
       next: () => {
@@ -341,7 +352,7 @@ export class InvoiceDetailPage implements OnInit {
         this.router.navigate(['/invoices']);
       },
       error: (err) =>
-        this.notificationService.showError(err?.error?.message || 'No se pudo eliminar el borrador.'),
+        this.notificationService.showError(err?.error?.message || 'ERRORS.DELETE_DRAFT'),
     });
   }
 
@@ -360,7 +371,7 @@ export class InvoiceDetailPage implements OnInit {
         },
         error: (err) =>
           this.notificationService.showError(
-            err?.error?.message || 'No se pudo emitir la nota de crédito.',
+            err?.error?.message || this.translate.instant('ERRORS.ISSUE_CREDIT_NOTE'),
           ),
       });
   }

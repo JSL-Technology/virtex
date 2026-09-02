@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DialogService } from '../../../core/services/dialog.service';
 import { LucideAngularModule, Lock, Unlock, RefreshCw } from 'lucide-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
@@ -40,6 +41,7 @@ import { NotificationService } from '../../../core/services/notification';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PeriodsPage {
+  private readonly dialog = inject(DialogService);
   private readonly periodsApi = inject(AccountingPeriodsService);
   private readonly notifications = inject(NotificationService);
   private readonly translate = inject(TranslateService);
@@ -94,19 +96,21 @@ export class PeriodsPage {
   /**
    * Reopening asks for the justification the server requires.
    *
-   * `prompt` is the browser's own dialog and therefore already in the reader's language, chrome
-   * and all; its question is not. It is translated here rather than in the template because a
-   * pipe cannot run inside an event binding, and passing a raw key would put
-   * `ACCOUNTING.PERIODS.REOPEN_REASON_PROMPT` in front of the reader.
+   * This used `window.prompt`, whose chrome is in the reader's language but whose question was
+   * not, and which several browsers refuse to show at all — in which case it returns null and the
+   * reopening silently never happens. The product's own dialog asks, and enforces the ten
+   * characters the server demands before the request is sent rather than after.
    */
-  reopen(period: AccountingPeriod): void {
-    const question = this.translate.instant('ACCOUNTING.PERIODS.REOPEN_REASON_PROMPT');
-    const reason = window.prompt(question)?.trim();
+  async reopen(period: AccountingPeriod): Promise<void> {
+    const reason = await this.dialog.prompt({
+      title: 'DIALOG.REOPEN_PERIOD.TITLE',
+      message: 'ACCOUNTING.PERIODS.REOPEN_REASON_PROMPT',
+      placeholder: 'DIALOG.REOPEN_PERIOD.PLACEHOLDER',
+      minLength: 10,
+      tooShort: 'ACCOUNTING.PERIODS.REASON_TOO_SHORT',
+      variant: 'warning',
+    });
     if (!reason) return;
-    if (reason.length < 10) {
-      this.notifications.showError('ACCOUNTING.PERIODS.REASON_TOO_SHORT');
-      return;
-    }
 
     this.pending.set(period.id);
     this.periodsApi.reopen(period.id, reason).subscribe({

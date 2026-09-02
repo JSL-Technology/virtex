@@ -111,7 +111,7 @@ export class BillingPage implements OnInit {
         // On success the browser is redirected away — no need to reset state.
       },
       error: (err) => {
-        this.checkoutError.set(err?.message || 'Ocurrió un error. Intenta de nuevo.');
+        this.checkoutError.set(err?.message || this.translate.instant('ERRORS.UNEXPECTED'));
         this.isRedirecting.set(false);
       }
     });
@@ -126,12 +126,12 @@ export class BillingPage implements OnInit {
     }).subscribe({
       next: (ok) => {
         if (!ok) {
-          this.checkoutError.set('No se pudo abrir el portal de facturación. Intenta de nuevo.');
+          this.checkoutError.set(this.translate.instant('ERRORS.OPEN_BILLING_PORTAL'));
           this.isOpeningPortal.set(false);
         }
       },
       error: (err) => {
-        this.checkoutError.set(err?.message || 'Ocurrió un error. Intenta de nuevo.');
+        this.checkoutError.set(err?.message || this.translate.instant('ERRORS.UNEXPECTED'));
         this.isOpeningPortal.set(false);
       }
     });

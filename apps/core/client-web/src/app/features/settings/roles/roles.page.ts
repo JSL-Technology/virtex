@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
+import { DialogService } from '../../../core/services/dialog.service';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 // ✅ CORREGIDO: Se importa el ícono 'X' que se usará como CloseIcon.
@@ -32,6 +33,7 @@ import { HasPermissionDirective } from '../../../shared/directives/has-permissio
   styleUrls: ['./roles.page.scss'],
 })
 export class RolesManagementPage implements OnInit {
+  private readonly dialog = inject(DialogService);
   private readonly fb = inject(FormBuilder);
   private readonly rolesService = inject(RolesService);
   private readonly notificationService = inject(NotificationService);
@@ -114,7 +116,7 @@ export class RolesManagementPage implements OnInit {
       },
       error: (err: unknown) =>
         this.notificationService.showError(
-          (err as any)?.error?.message || 'Error al clonar el rol.',
+          (err as any)?.error?.message || this.translate.instant('ERRORS.CLONE_ROLE'),
         ),
     });
   }
@@ -165,14 +167,21 @@ export class RolesManagementPage implements OnInit {
       },
       error: (err: unknown) =>
         this.notificationService.showError(
-          (err as any)?.error?.message || 'Error al guardar el rol.',
+          (err as any)?.error?.message || this.translate.instant('ERRORS.SAVE_ROLE'),
         ),
     });
   }
 
   /** Eliminar un rol */
-  deleteRole(role: Role): void {
-    if (!confirm(`¿Seguro que quieres eliminar el rol "${role.name}"?`)) return;
+  async deleteRole(role: Role): Promise<void> {
+    const confirmed = await this.dialog.confirm({
+      title: 'DIALOG.DELETE_ROLE.TITLE',
+      message: 'DIALOG.DELETE_ROLE.MESSAGE',
+      messageParams: { name: role.name },
+      confirmText: 'COMMON.DELETE',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
 
     this.rolesService.deleteRole(role.id).subscribe({
       next: () => {
@@ -181,7 +190,7 @@ export class RolesManagementPage implements OnInit {
       },
       error: (err: unknown) =>
         this.notificationService.showError(
-          (err as any)?.error?.message || 'Error al eliminar el rol.',
+          (err as any)?.error?.message || this.translate.instant('ERRORS.DELETE_ROLE'),
         ),
     });
   }

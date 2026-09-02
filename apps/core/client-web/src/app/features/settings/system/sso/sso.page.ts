@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateService } from '@ngx-translate/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   SsoAdminService,
@@ -21,6 +22,7 @@ import { TranslateModule } from '@ngx-translate/core';
   styleUrls: ['./sso.page.scss'],
 })
 export class SsoSettingsPage implements OnInit {
+  private readonly translate = inject(TranslateService);
   private readonly api = inject(SsoAdminService);
   private readonly fb = inject(FormBuilder);
 
@@ -80,7 +82,7 @@ export class SsoSettingsPage implements OnInit {
         this.notice.set('Dominio agregado. Publica el registro DNS TXT y verifícalo.');
         this.refresh();
       },
-      error: (e) => this.error.set(e?.error?.message || 'No se pudo agregar el dominio.'),
+      error: (e) => this.error.set(e?.error?.message || this.translate.instant('ERRORS.ADD_DOMAIN')),
     });
   }
 
@@ -91,7 +93,7 @@ export class SsoSettingsPage implements OnInit {
         this.notice.set(`Dominio ${d.domain} verificado.`);
         this.refresh();
       },
-      error: (e) => this.error.set(e?.error?.message || 'No se pudo verificar el dominio aún.'),
+      error: (e) => this.error.set(e?.error?.message || this.translate.instant('ERRORS.VERIFY_DOMAIN')),
     });
   }
 
@@ -166,7 +168,7 @@ export class SsoSettingsPage implements OnInit {
           this.notice.set('Proveedor creado. Verifica un dominio y actívalo.');
           this.refresh();
         },
-        error: (e) => this.error.set(e?.error?.message || 'No se pudo crear el proveedor.'),
+        error: (e) => this.error.set(e?.error?.message || this.translate.instant('ERRORS.CREATE_SSO_PROVIDER')),
       });
     } else {
       this.api.updateProvider(editing, base).subscribe({
@@ -175,7 +177,7 @@ export class SsoSettingsPage implements OnInit {
           this.notice.set('Proveedor actualizado.');
           this.refresh();
         },
-        error: (e) => this.error.set(e?.error?.message || 'No se pudo actualizar el proveedor.'),
+        error: (e) => this.error.set(e?.error?.message || this.translate.instant('ERRORS.UPDATE_SSO_PROVIDER')),
       });
     }
   }
@@ -184,7 +186,7 @@ export class SsoSettingsPage implements OnInit {
     this.clearMessages();
     this.api.updateProvider(p.id, { enabled: !p.enabled }).subscribe({
       next: () => this.refresh(),
-      error: (e) => this.error.set(e?.error?.message || 'No se pudo cambiar el estado.'),
+      error: (e) => this.error.set(e?.error?.message || this.translate.instant('ERRORS.CHANGE_STATUS')),
     });
   }
 

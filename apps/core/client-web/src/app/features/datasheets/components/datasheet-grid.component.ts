@@ -8,6 +8,7 @@ import {
   ViewChild,
   ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NotificationService } from '../../../core/services/notification';
 import { HotTableComponent } from '@handsontable/angular-wrapper';
 import { registerAllModules } from 'handsontable/registry';
 import Handsontable from 'handsontable';
@@ -32,6 +33,7 @@ registerAllModules();
   encapsulation: ViewEncapsulation.None
 })
 export class DatasheetGridComponent implements OnInit, OnDestroy {
+  private readonly notificationService = inject(NotificationService);
   @Input() id = 'hot-editor';
 
   private hfInstance: any;
@@ -67,7 +69,7 @@ export class DatasheetGridComponent implements OnInit, OnDestroy {
        if (typeof value === 'string' && value.startsWith('=')) {
           // Check if it's an ERP variable
           if (this.isERPVariableFormula(value)) {
-             alert('Este valor proviene del ERP y no puede editarse aquí.');
+             this.notificationService.showWarning('DIALOG.NOTIFY.ERP_VALUE_READONLY');
              return false;
           }
        }

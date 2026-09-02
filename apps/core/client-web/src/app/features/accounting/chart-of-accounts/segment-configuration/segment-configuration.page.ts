@@ -1,5 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateService } from '@ngx-translate/core';
+import { DialogService } from '../../../../core/services/dialog.service';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ChartOfAccountsApiService, AccountSegmentDefinition } from '../../../../core/api/chart-of-accounts.service';
@@ -16,6 +18,8 @@ import { TranslateModule } from '@ngx-translate/core';
   styleUrls: ['./segment-configuration.page.scss'],
 })
 export class SegmentConfigurationPage implements OnInit {
+  private readonly translate = inject(TranslateService);
+  private readonly dialog = inject(DialogService);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly apiService = inject(ChartOfAccountsApiService);
@@ -107,15 +111,20 @@ export class SegmentConfigurationPage implements OnInit {
         this.router.navigate(['/accounting/chart-of-accounts']);
       },
       error: (err) => {
-        const message = err?.error?.message || 'Error al guardar la configuración.';
+        const message = err?.error?.message || this.translate.instant('ERRORS.SAVE_CONFIGURATION');
         this.notificationService.showError(message);
         this.isSaving.set(false);
       }
     });
   }
 
-  public onInitializeDefaults(): void {
-    if (confirm('¿Está seguro de que desea inicializar la estructura por defecto? Esto reemplazará cualquier configuración actual que no haya sido guardada.')) {
+  public async onInitializeDefaults(): Promise<void> {
+    const confirmed = await this.dialog.confirm({
+      title: 'DIALOG.RESET_SEGMENTS.TITLE',
+      message: 'DIALOG.RESET_SEGMENTS.MESSAGE',
+      variant: 'warning',
+    });
+    if (confirmed) {
         this.isSaving.set(true);
         this.apiService.initializeDefaultSegments().pipe(take(1)).subscribe({
             next: (defs) => {
@@ -127,7 +136,7 @@ export class SegmentConfigurationPage implements OnInit {
                 this.isSaving.set(false);
             },
             error: (err) => {
-                const message = err?.error?.message || 'Error al inicializar valores por defecto.';
+                const message = err?.error?.message || this.translate.instant('ERRORS.INITIALIZE_DEFAULTS');
                 this.notificationService.showError(message);
                 this.isSaving.set(false);
             }

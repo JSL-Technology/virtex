@@ -50,6 +50,12 @@ export const RUNTIME_COMPOSED_KEYS: ReadonlyArray<readonly [string, readonly str
 
   // Built from the toast's `type` in `toast.component.ts`.
   ['COMMON.TOAST', ['SUCCESS', 'ERROR', 'WARNING', 'INFO']],
+  // `UserManagementPage.ask()` builds `DIALOG.<SECTION>.TITLE` and `.MESSAGE` from the action it
+  // was handed, so these four sections are named nowhere a text search can find them.
+  ['DIALOG.RESET_PASSWORD', ['TITLE', 'MESSAGE']],
+  ['DIALOG.REVOKE_SESSION', ['TITLE', 'MESSAGE']],
+  ['DIALOG.BLOCK_USER', ['TITLE', 'MESSAGE']],
+  ['DIALOG.IMPERSONATE_USER', ['TITLE', 'MESSAGE']],
 
   // Quota names interpolated into the plan card from the plan's own `resource` field.
   [

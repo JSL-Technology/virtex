@@ -693,7 +693,11 @@
       "SUCCESS": "Success",
       "WARNING": "Warning"
     },
-    "VERIFY": "Verify"
+    "VERIFY": "Verify",
+    "ACCEPT": "Accept",
+    "SAVE": "Save",
+    "DISCARD": "Discard",
+    "DELETE": "Delete"
   },
   "CONTACTS": {
     "CUSTOMER_FORM": {
@@ -1125,22 +1129,37 @@
     "UPLOAD_FILE": "Upload a file"
   },
   "ERRORS": {
-    "FOREIGN_KEY_VIOLATION": "The operation references a record that does not exist.",
-    "HTTP_400": "The request is not valid. Check the data and try again.",
-    "HTTP_401": "Your session is invalid or has expired. Sign in again.",
-    "HTTP_403": "You do not have permission to perform this action.",
-    "HTTP_404": "We could not find what you were looking for.",
-    "HTTP_409": "The operation conflicts with the record's current state.",
-    "HTTP_413": "The file or request exceeds the allowed size.",
-    "HTTP_415": "That file format is not supported.",
-    "HTTP_422": "The data is well-formed but cannot be processed. Check the details.",
-    "HTTP_429": "Too many attempts. Wait a moment before trying again.",
-    "HTTP_500": "Something went wrong on the server. The team has been notified; try again in a few minutes.",
-    "HTTP_503": "The service is temporarily unavailable. Try again in a few minutes.",
-    "INTERNAL": "Something went wrong on the server. The team has been notified; try again in a few minutes.",
-    "NETWORK": "There is no connection to the server. Check your internet connection and try again.",
-    "UNEXPECTED": "We could not complete the operation. Try again.",
-    "UNIQUE_VIOLATION": "A record with that data already exists."
+    "ADD_DOMAIN": "The domain could not be added.",
+    "BLOCK_USER": "The user could not be blocked.",
+    "CHANGE_STATUS": "The status could not be changed.",
+    "CLONE_ROLE": "The role could not be cloned.",
+    "CREATE_JOURNAL_ENTRY": "The journal entry could not be created.",
+    "CREATE_SSO_PROVIDER": "The provider could not be created.",
+    "DELETE_DRAFT": "The draft could not be deleted.",
+    "DELETE_ROLE": "The role could not be deleted.",
+    "DELETE_USER": "The user could not be deleted.",
+    "GENERATE_REPORT": "The report could not be generated.",
+    "IMPERSONATE": "Impersonation could not be started.",
+    "INITIALIZE_DEFAULTS": "The default values could not be initialised.",
+    "INVITE_USER": "The user could not be invited.",
+    "ISSUE_CREDIT_NOTE": "The credit note could not be issued.",
+    "ISSUE_DOCUMENT": "The document could not be issued.",
+    "LOAD_CERTIFICATE": "The certificate could not be loaded.",
+    "OPEN_BILLING_PORTAL": "The billing portal could not be opened. Please try again.",
+    "REGISTER_RANGE": "The range could not be registered.",
+    "RESEND_ECF": "The e-CF could not be resent.",
+    "REVOKE_SESSION": "The session could not be ended.",
+    "SAVE_ACCOUNT": "The account could not be saved.",
+    "SAVE_CONFIGURATION": "The configuration could not be saved.",
+    "SAVE_DOCUMENT": "The document could not be saved.",
+    "SAVE_ROLE": "The role could not be saved.",
+    "SEND_MAIL": "The e-mail could not be sent.",
+    "SET_PASSWORD": "The password could not be set.",
+    "START_PAYMENT": "The payment could not be started. Please try again.",
+    "UNEXPECTED": "Something went wrong. Please try again.",
+    "UPDATE_SSO_PROVIDER": "The provider could not be updated.",
+    "UPDATE_USER": "The user could not be updated.",
+    "VERIFY_DOMAIN": "The domain could not be verified yet."
   },
   "FORGOT_PASSWORD": {
     "BACK_TO_LOGIN": "Back to login",
@@ -3161,7 +3180,10 @@
     "RUTA_SOLICITADA": "Requested path:",
     "SI_CREES_ESTO_ES_ERROR_CONTACTA": "If you believe this is a mistake, contact your system administrator or request the permissions you need.",
     "SOLICITAR_PERMISO": "Request Permission",
-    "VOLVER_DASHBOARD": "Back to the Dashboard"
+    "VOLVER_DASHBOARD": "Back to the Dashboard",
+    "REQUEST_SUBJECT": "Permission request for: {{route}}",
+    "REQUEST_BODY": "Hello,\n\nI am {{name}} ({{email}}).\n\nI would like to request access to this route, which I am not currently permitted to use:\n{{url}}\n\nThank you.",
+    "PROTECTED_ROUTE": "a protected route"
   },
   "USER": {
     "MY_PROFILE": "My Profile",
@@ -3313,5 +3335,81 @@
     "SPLIT_RIGHT": "Split right",
     "CLOSE_TAB": "Close tab",
     "UNDER_CONSTRUCTION": "This module is under construction. The route is registered and the tab works; the detailed view is coming soon."
+  },
+  "DIALOG": {
+    "UNSAVED_CHANGES": {
+      "TITLE": "Unsaved changes",
+      "MESSAGE": "You have unsaved changes. What would you like to do before closing?",
+      "MESSAGE_IN_TAB": "You have unsaved changes in \"{{tab}}\". What would you like to do?"
+    },
+    "DELETE_CUSTOMER": {
+      "TITLE": "Delete customer",
+      "MESSAGE": "Delete this customer? This cannot be undone."
+    },
+    "DELETE_SUPPLIER": {
+      "TITLE": "Delete supplier",
+      "MESSAGE": "Delete this supplier? This cannot be undone."
+    },
+    "DELETE_ROLE": {
+      "TITLE": "Delete role",
+      "MESSAGE": "Delete the role \"{{name}}\"? This cannot be undone."
+    },
+    "DELETE_PRODUCT": {
+      "TITLE": "Delete product",
+      "MESSAGE": "Delete the product \"{{name}}\"? This cannot be undone."
+    },
+    "DELETE_TAX": {
+      "TITLE": "Delete tax",
+      "MESSAGE": "Delete the tax \"{{name}}\"? This cannot be undone."
+    },
+    "DELETE_PRICE_LIST": {
+      "TITLE": "Delete price list",
+      "MESSAGE": "Delete this price list? This cannot be undone."
+    },
+    "DELETE_ACCOUNT": {
+      "TITLE": "Delete account",
+      "MESSAGE": "Delete the account \"{{name}}\"? This cannot be undone."
+    },
+    "DELETE_INVOICE_DRAFT": {
+      "TITLE": "Delete draft",
+      "MESSAGE": "Delete draft {{number}}? This cannot be undone."
+    },
+    "RESET_SEGMENTS": {
+      "TITLE": "Reset the structure",
+      "MESSAGE": "This will replace the current unsaved configuration. Continue?"
+    },
+    "RESET_PASSWORD": {
+      "TITLE": "Reset the password",
+      "MESSAGE": "Send {{name}} an e-mail to reset their password?"
+    },
+    "REVOKE_SESSION": {
+      "TITLE": "Sign the user out",
+      "MESSAGE": "Sign {{name}} out of all their sessions?"
+    },
+    "BLOCK_USER": {
+      "TITLE": "Block the user",
+      "MESSAGE": "This will block {{name}} and end all their sessions. Continue?"
+    },
+    "IMPERSONATE_USER": {
+      "TITLE": "Impersonate the user",
+      "MESSAGE": "You will use the system as {{name}}. Everything you do is recorded. Continue?"
+    },
+    "NOTIFY": {
+      "PRICING_NOT_LOADED": "The pricing configuration could not be loaded. Please try again later.",
+      "PLAN_PRICE_MISSING": "The price for the {{plan}} plan is not configured.",
+      "PAYMENT_START_FAILED": "The payment could not be started. Please try again.",
+      "ERP_VALUE_READONLY": "This value comes from the ERP and cannot be edited here.",
+      "WORKBOOK_SAVED": "Workbook saved."
+    },
+    "VOID_BILL": {
+      "TITLE": "Void the bill",
+      "MESSAGE": "Give the reason for voiding it. It is recorded and visible in the audit trail.",
+      "PLACEHOLDER": "Reason for voiding",
+      "TOO_SHORT": "Give a reason of at least 10 characters."
+    },
+    "REOPEN_PERIOD": {
+      "TITLE": "Reopen the period",
+      "PLACEHOLDER": "Reason for reopening"
+    }
   }
 }

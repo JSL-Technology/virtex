@@ -1226,7 +1226,11 @@
     "SUCCESS": "Listo",
     "RETRY": "Reintentar",
     "REFRESH": "Actualizar",
-    "NOT_RECORDED": "Sin registrar"
+    "NOT_RECORDED": "Sin registrar",
+    "ACCEPT": "Aceptar",
+    "SAVE": "Guardar",
+    "DISCARD": "Descartar",
+    "DELETE": "Eliminar"
   },
   "SEARCH": {
     "MAIN_PLACEHOLDER": "Buscar facturas, clientes, productos…",
@@ -3114,7 +3118,10 @@
     "SOLICITAR_PERMISO": "Solicitar Permiso",
     "VOLVER_DASHBOARD": "Volver al Dashboard",
     "NO_SABES_PERMISOS_NECESITAS": "¿No sabes qué permisos necesitas?",
-    "CONSULTA_NUESTRA_GUIA_PERMISOS": "Consulta nuestra guía de permisos"
+    "CONSULTA_NUESTRA_GUIA_PERMISOS": "Consulta nuestra guía de permisos",
+    "REQUEST_SUBJECT": "Solicitud de permiso para: {{route}}",
+    "REQUEST_BODY": "Hola:\n\nSoy {{name}} ({{email}}).\n\nQuisiera solicitar acceso a esta ruta, para la que ahora mismo no tengo permiso:\n{{url}}\n\nGracias.",
+    "PROTECTED_ROUTE": "una ruta protegida"
   },
   "MAIN": {
     "COMPANY_SWITCHER": {
@@ -3184,22 +3191,37 @@
     "STAY_IN": "Continuar en {{country}}"
   },
   "ERRORS": {
-    "UNEXPECTED": "No pudimos completar la operación. Vuelve a intentarlo.",
-    "NETWORK": "No hay conexión con el servidor. Revisa tu conexión a internet y vuelve a intentarlo.",
-    "INTERNAL": "Ocurrió un problema en el servidor. El equipo ya fue notificado; vuelve a intentarlo en unos minutos.",
-    "HTTP_400": "La solicitud no es válida. Revisa los datos e inténtalo de nuevo.",
-    "HTTP_401": "Tu sesión no es válida o ha expirado. Inicia sesión de nuevo.",
-    "HTTP_403": "No tienes permiso para realizar esta acción.",
-    "HTTP_404": "No encontramos lo que buscabas.",
-    "HTTP_409": "La operación entra en conflicto con el estado actual del registro.",
-    "HTTP_413": "El archivo o la solicitud supera el tamaño permitido.",
-    "HTTP_415": "El formato del archivo no es compatible.",
-    "HTTP_422": "Los datos son válidos en forma pero no se pueden procesar. Revisa el detalle.",
-    "HTTP_429": "Demasiados intentos. Espera un momento antes de volver a intentarlo.",
-    "HTTP_500": "Ocurrió un problema en el servidor. El equipo ya fue notificado; vuelve a intentarlo en unos minutos.",
-    "HTTP_503": "El servicio no está disponible temporalmente. Vuelve a intentarlo en unos minutos.",
-    "UNIQUE_VIOLATION": "Ya existe un registro con esos datos.",
-    "FOREIGN_KEY_VIOLATION": "La operación hace referencia a un registro que no existe."
+    "ADD_DOMAIN": "No se pudo añadir el dominio.",
+    "BLOCK_USER": "No se pudo bloquear al usuario.",
+    "CHANGE_STATUS": "No se pudo cambiar el estado.",
+    "CLONE_ROLE": "No se pudo clonar el rol.",
+    "CREATE_JOURNAL_ENTRY": "No se pudo crear el asiento contable.",
+    "CREATE_SSO_PROVIDER": "No se pudo crear el proveedor.",
+    "DELETE_DRAFT": "No se pudo eliminar el borrador.",
+    "DELETE_ROLE": "No se pudo eliminar el rol.",
+    "DELETE_USER": "No se pudo eliminar el usuario.",
+    "GENERATE_REPORT": "No se pudo generar el reporte.",
+    "IMPERSONATE": "No se pudo iniciar la suplantación.",
+    "INITIALIZE_DEFAULTS": "No se pudieron inicializar los valores por defecto.",
+    "INVITE_USER": "No se pudo invitar al usuario.",
+    "ISSUE_CREDIT_NOTE": "No se pudo emitir la nota de crédito.",
+    "ISSUE_DOCUMENT": "No se pudo emitir el documento.",
+    "LOAD_CERTIFICATE": "No se pudo cargar el certificado.",
+    "OPEN_BILLING_PORTAL": "No se pudo abrir el portal de facturación. Inténtalo de nuevo.",
+    "REGISTER_RANGE": "No se pudo registrar el rango.",
+    "RESEND_ECF": "No se pudo reenviar el e-CF.",
+    "REVOKE_SESSION": "No se pudo cerrar la sesión.",
+    "SAVE_ACCOUNT": "No se pudo guardar la cuenta.",
+    "SAVE_CONFIGURATION": "No se pudo guardar la configuración.",
+    "SAVE_DOCUMENT": "No se pudo guardar el documento.",
+    "SAVE_ROLE": "No se pudo guardar el rol.",
+    "SEND_MAIL": "No se pudo enviar el correo.",
+    "SET_PASSWORD": "No se pudo establecer la contraseña.",
+    "START_PAYMENT": "No se pudo iniciar el pago. Inténtalo de nuevo.",
+    "UNEXPECTED": "Ocurrió un error. Inténtalo de nuevo.",
+    "UPDATE_SSO_PROVIDER": "No se pudo actualizar el proveedor.",
+    "UPDATE_USER": "No se pudo actualizar el usuario.",
+    "VERIFY_DOMAIN": "Todavía no se pudo verificar el dominio."
   },
   "PAGE_TITLES": {
     "ACCESS_DENIED": "Acceso denegado",
@@ -3313,5 +3335,81 @@
     "SPLIT_RIGHT": "Dividir a la derecha",
     "CLOSE_TAB": "Cerrar pestaña",
     "UNDER_CONSTRUCTION": "Este módulo está en construcción. La ruta ya está registrada y la pestaña funciona; la vista detallada estará disponible pronto."
+  },
+  "DIALOG": {
+    "UNSAVED_CHANGES": {
+      "TITLE": "Cambios sin guardar",
+      "MESSAGE": "Tienes cambios sin guardar. ¿Qué quieres hacer antes de cerrar?",
+      "MESSAGE_IN_TAB": "Tienes cambios sin guardar en «{{tab}}». ¿Qué quieres hacer?"
+    },
+    "DELETE_CUSTOMER": {
+      "TITLE": "Eliminar cliente",
+      "MESSAGE": "¿Seguro que quieres eliminar este cliente? No se puede deshacer."
+    },
+    "DELETE_SUPPLIER": {
+      "TITLE": "Eliminar proveedor",
+      "MESSAGE": "¿Seguro que quieres eliminar este proveedor? No se puede deshacer."
+    },
+    "DELETE_ROLE": {
+      "TITLE": "Eliminar rol",
+      "MESSAGE": "¿Seguro que quieres eliminar el rol «{{name}}»? No se puede deshacer."
+    },
+    "DELETE_PRODUCT": {
+      "TITLE": "Eliminar producto",
+      "MESSAGE": "¿Seguro que quieres eliminar el producto «{{name}}»? No se puede deshacer."
+    },
+    "DELETE_TAX": {
+      "TITLE": "Eliminar impuesto",
+      "MESSAGE": "¿Seguro que quieres eliminar el impuesto «{{name}}»? No se puede deshacer."
+    },
+    "DELETE_PRICE_LIST": {
+      "TITLE": "Eliminar lista de precios",
+      "MESSAGE": "¿Seguro que quieres eliminar esta lista de precios? No se puede deshacer."
+    },
+    "DELETE_ACCOUNT": {
+      "TITLE": "Eliminar cuenta",
+      "MESSAGE": "¿Seguro que quieres eliminar la cuenta «{{name}}»? No se puede deshacer."
+    },
+    "DELETE_INVOICE_DRAFT": {
+      "TITLE": "Eliminar borrador",
+      "MESSAGE": "¿Seguro que quieres eliminar el borrador {{number}}? No se puede deshacer."
+    },
+    "RESET_SEGMENTS": {
+      "TITLE": "Restablecer la estructura",
+      "MESSAGE": "Esto reemplazará la configuración actual que no hayas guardado. ¿Quieres continuar?"
+    },
+    "RESET_PASSWORD": {
+      "TITLE": "Restablecer la contraseña",
+      "MESSAGE": "¿Enviar a {{name}} un correo para restablecer su contraseña?"
+    },
+    "REVOKE_SESSION": {
+      "TITLE": "Cerrar la sesión",
+      "MESSAGE": "¿Seguro que quieres cerrar la sesión de {{name}}?"
+    },
+    "BLOCK_USER": {
+      "TITLE": "Bloquear al usuario",
+      "MESSAGE": "Esto bloqueará a {{name}} y cerrará todas sus sesiones. ¿Quieres continuar?"
+    },
+    "IMPERSONATE_USER": {
+      "TITLE": "Suplantar al usuario",
+      "MESSAGE": "Vas a usar el sistema como {{name}}. Todo lo que hagas quedará registrado. ¿Quieres continuar?"
+    },
+    "NOTIFY": {
+      "PRICING_NOT_LOADED": "No se pudo cargar la configuración de precios. Inténtalo de nuevo más tarde.",
+      "PLAN_PRICE_MISSING": "El precio del plan {{plan}} no está configurado en el sistema.",
+      "PAYMENT_START_FAILED": "No se pudo iniciar el pago. Inténtalo de nuevo.",
+      "ERP_VALUE_READONLY": "Este valor viene del ERP y no puede editarse aquí.",
+      "WORKBOOK_SAVED": "Libro guardado correctamente."
+    },
+    "VOID_BILL": {
+      "TITLE": "Anular la factura",
+      "MESSAGE": "Indica el motivo de la anulación. Queda registrado y es visible en la auditoría.",
+      "PLACEHOLDER": "Motivo de la anulación",
+      "TOO_SHORT": "Explica el motivo con al menos 10 caracteres."
+    },
+    "REOPEN_PERIOD": {
+      "TITLE": "Reabrir el periodo",
+      "PLACEHOLDER": "Motivo de la reapertura"
+    }
   }
 }

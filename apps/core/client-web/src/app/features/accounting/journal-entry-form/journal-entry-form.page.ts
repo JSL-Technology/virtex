@@ -176,7 +176,7 @@ export class JournalEntryFormPage implements OnInit {
         this.router.navigate(['/accounting/journal-entries']);
       },
       error: (err) => {
-        this.notificationService.showError(err.error?.message || 'Error al crear el asiento contable.');
+        this.notificationService.showError(err.error?.message || 'ERRORS.CREATE_JOURNAL_ENTRY');
         this.isSaving.set(false);
       },
       complete: () => {

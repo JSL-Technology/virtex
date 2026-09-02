@@ -1,5 +1,6 @@
 // app/features/accounting/chart-of-accounts/chart-of-accounts.page.ts
 import { Component, inject, ChangeDetectionStrategy, OnInit } from '@angular/core';
+import { DialogService } from '../../../core/services/dialog.service';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -19,6 +20,7 @@ import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChartOfAccountsPage implements OnInit {
+  private readonly dialog = inject(DialogService);
   public readonly state = inject(ChartOfAccountsStateService);
   private readonly router = inject(Router);
 
@@ -71,9 +73,14 @@ export class ChartOfAccountsPage implements OnInit {
     this.router.navigate(route);
   }
   
-  deleteAccount(account: FlattenedAccount): void {
-      if (confirm(`Are you sure you want to delete account "${account.name}"? This action cannot be undone.`)) {
-          this.state.deleteAccount(account.id);
-      }
+  async deleteAccount(account: FlattenedAccount): Promise<void> {
+    const confirmed = await this.dialog.confirm({
+      title: 'DIALOG.DELETE_ACCOUNT.TITLE',
+      message: 'DIALOG.DELETE_ACCOUNT.MESSAGE',
+      messageParams: { name: account.name },
+      confirmText: 'COMMON.DELETE',
+      variant: 'danger',
+    });
+    if (confirmed) this.state.deleteAccount(account.id);
   }
 }

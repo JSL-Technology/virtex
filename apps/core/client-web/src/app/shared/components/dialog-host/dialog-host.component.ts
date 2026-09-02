@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, HostListener, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, HostListener, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import {
@@ -38,6 +38,25 @@ import { DialogService } from '../../../core/services/dialog.service';
           <h3 class="dialog-title">{{ d.title }}</h3>
           <p class="dialog-message">{{ d.message }}</p>
 
+          @if (d.kind === 'prompt') {
+            <label class="dialog-field">
+              <span class="sr-only">{{ d.message }}</span>
+              <input
+                #promptInput
+                class="dialog-input"
+                type="text"
+                autocomplete="off"
+                [attr.placeholder]="d.placeholder || null"
+                [value]="draft()"
+                (input)="draft.set(promptInput.value)"
+                (keydown.enter)="submitPrompt()"
+              />
+            </label>
+            @if (promptError()) {
+              <p class="dialog-error" role="alert">{{ d.tooShort }}</p>
+            }
+          }
+
           <div class="dialog-actions">
             @if (d.kind === 'close') {
               <button class="btn btn-ghost" type="button" (click)="resolve('cancel')">
@@ -52,16 +71,15 @@ import { DialogService } from '../../../core/services/dialog.service';
                 {{ d.saveText }}
               </button>
             } @else {
-              <button class="btn btn-ghost" type="button" (click)="resolve(false)">
+              <button class="btn btn-ghost" type="button" (click)="cancel()">
                 {{ d.cancelText }}
               </button>
               <button
                 class="btn"
                 type="button"
-               
                 [class.btn-primary]="d.variant === 'primary'"
                 [class.btn-danger]="d.variant === 'danger' || d.variant === 'warning'"
-                (click)="resolve(true)"
+                (click)="d.kind === 'prompt' ? submitPrompt() : resolve(true)"
               >
                 {{ d.confirmText }}
               </button>
@@ -77,6 +95,37 @@ export class DialogHostComponent {
   private dialogService = inject(DialogService);
   readonly dialog = this.dialogService.active;
 
+  /** What the reader has typed into a `prompt` dialog. */
+  protected readonly draft = signal('');
+  protected readonly promptError = signal(false);
+
+  constructor() {
+    // A dialog that opened carrying the previous one's text would offer the last reason as the
+    // answer to this question.
+    effect(() => {
+      this.dialog();
+      this.draft.set('');
+      this.promptError.set(false);
+    });
+  }
+
+  /**
+   * Accept the typed text, or refuse it for being too short.
+   *
+   * The minimum matters: the server rejects a one-word justification for reopening a closed
+   * fiscal period, and finding that out after the dialog has closed loses what was typed.
+   */
+  protected submitPrompt(): void {
+    const dialog = this.dialog();
+    if (!dialog) return;
+    const value = this.draft().trim();
+    if (value.length < Math.max(1, dialog.minLength)) {
+      this.promptError.set(true);
+      return;
+    }
+    this.resolve(value);
+  }
+
   protected readonly AlertTriangleIcon = AlertTriangle;
   protected readonly InfoIcon = Info;
   protected readonly ShieldAlertIcon = ShieldAlert;
@@ -90,14 +139,14 @@ export class DialogHostComponent {
     return this.InfoIcon;
   }
 
-  resolve(value: boolean | 'save' | 'discard' | 'cancel'): void {
+  resolve(value: boolean | 'save' | 'discard' | 'cancel' | string | null): void {
     this.dialogService.resolveActive(value);
   }
 
   cancel(): void {
     const d = this.dialog();
     if (!d) return;
-    this.resolve(d.kind === 'close' ? 'cancel' : false);
+    this.resolve(d.kind === 'close' ? 'cancel' : d.kind === 'prompt' ? null : false);
   }
 
   onBackdrop(): void {

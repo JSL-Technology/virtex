@@ -1,5 +1,6 @@
 
 import { Component, OnInit, ViewChild, signal, inject } from '@angular/core';
+import { NotificationService } from '../../../../core/services/notification';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -121,6 +122,7 @@ import { firstValueFrom } from 'rxjs';
   `
 })
 export class DatasheetEditorPage implements OnInit {
+  private readonly notificationService = inject(NotificationService);
   @ViewChild(DatasheetGridComponent) grid!: DatasheetGridComponent;
 
   SaveIcon = Save;
@@ -188,7 +190,7 @@ async ngOnInit(): Promise<void> {
        mode: 'live',
        sheets: [{ name: 'Sheet1', cells: data }]
     }));
-    alert('Libro guardado correctamente');
+    this.notificationService.showSuccess('DIALOG.NOTIFY.WORKBOOK_SAVED');
   }
 
   onImportRequested(formula: string) {
