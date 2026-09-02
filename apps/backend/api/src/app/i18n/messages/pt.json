@@ -70,14 +70,21 @@
   },
   "ACCOUNTS_PAYABLE": {
     "CONTROL_PRESUPUESTARIO_FALLIDO": "Controle orçamentário falhou: {{message}}",
+    "CUENTA_BANCARIA_NO_VALIDA": "A conta bancária indicada não existe nesta organização.",
     "CUENTA_CUENTAS_PAGAR_NO_ESTA_CONFIGURADA": "A conta de Contas a Pagar não está configurada.",
+    "CUENTA_DESCUENTOS_NO_CONFIGURADA": "Não há conta de descontos configurada; o desconto por pagamento antecipado não pode ser registado.",
+    "CUENTA_DIFERENCIA_CAMBIARIA_NO_CONFIGURADA": "Não há conta de variação cambial configurada e este pagamento gera uma.",
+    "CUENTA_IMPUESTO_COMPRAS_NO_CONFIGURADA": "Não há conta de imposto sobre compras configurada e a fatura tem imposto dedutível.",
     "CUENTA_INVENTARIO_DEFECTO_NO_ESTA_CONFIGURADA": "A conta de estoque padrão não está configurada.",
     "CUENTA_PAGAR_DEFECTO_NO_ESTA_CONFIGURADA": "A conta a pagar padrão não está configurada.",
+    "CUENTA_RETENCIONES_NO_CONFIGURADA": "Não há conta de retenções a pagar configurada e o documento tem retenções.",
     "DIARIO_COMPRAS_COMPRAS_NO_ENCONTRADO": "O diário de Compras (COMPRAS) não foi encontrado.",
     "DIARIO_COMPRAS_COMPRAS_NO_ENCONTRADO_REGISTRAR_NOTA": "O diário de Compras (COMPRAS) não foi encontrado para registrar a nota de débito.",
     "DIARIO_PAGOS_PAGOS_NO_ENCONTRADO": "O diário de Pagamentos (PAGOS) não foi encontrado.",
     "ELIMINACION_FACTURAS_NO_ESTA_PERMITIDA_USE_FUNCION": "Excluir faturas não é permitido. Use \"Cancelar\".",
     "FACTURA_ANULAR_ID_NO_ENCONTRADA": "A fatura a cancelar, \"{{id}}\", não foi encontrada.",
+    "FACTURA_NO_ENCONTRADA_EN_LOTE": "A fatura {{id}} não existe nesta organização.",
+    "FACTURA_NO_ESTA_ABIERTA": "A fatura {{id}} está em {{status}} e não admite pagamentos.",
     "FACTURA_PROVEEDOR_ID_NO_FUE_ENCONTRADA": "A fatura de fornecedor \"{{id}}\" não foi encontrada.",
     "FACTURA_PROVEEDOR_NO_FUE_ENCONTRADA": "A fatura do fornecedor não foi encontrada.",
     "FACTURA_YA_HA_SIDO_ANULADA": "A fatura já foi cancelada.",
@@ -86,14 +93,17 @@
     "MODIFICACION_LINEAS_FACTURA_EXISTENTE_DEBE_HACERSE_TRAVES": "As linhas de uma fatura existente devem ser alteradas por notas de crédito ou débito.",
     "MONTO_NOTA_DEBITO_NO_PUEDE_SER_MAYOR": "O valor da nota de débito não pode ser maior que o saldo da fatura.",
     "NINGUNA_FACTURAS_SELECCIONADAS_ES_VALIDA_PAGO": "Nenhuma das faturas selecionadas é elegível para pagamento.",
+    "NOTA_DEBITO_ID_NO_ENCONTRADA": "Nota de débito \"{{id}}\" não encontrada.",
     "NO_ENCONTRO_TASA_CAMBIO_VALIDA_FECHA_ESPECIFICADA": "Nenhuma taxa de câmbio válida foi encontrada para {{currencyCode}} na data informada.",
     "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "Nenhum livro contábil padrão foi configurado para a organização.",
     "NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION": "Não foi possível obter o query runner da transação.",
+    "NO_PUEDE_ANULAR_FACTURA_CON_PAGOS": "Não é possível anular uma fatura com pagamentos aplicados. Anule primeiro os pagamentos.",
     "NO_PUEDE_ANULAR_FACTURA_PAGADA_PRIMERO_ANULE": "Uma fatura paga não pode ser cancelada. Cancele o pagamento primeiro.",
-    "NOTA_DEBITO_ID_NO_ENCONTRADA": "Nota de débito \"{{id}}\" não encontrada.",
+    "PAGO_EXCEDE_SALDO": "A liquidação de {{settled}} excede o saldo de {{balance}} da fatura {{id}}.",
     "SOLO_FACTURAS_ESTADO_BORRADOR_PUEDEN_SER_ENVIADAS": "Somente faturas em rascunho podem ser enviadas para aprovação.",
     "SOLO_PUEDEN_APLICAR_NOTAS_DEBITO_FACTURAS_ABIERTAS": "Notas de débito só podem ser aplicadas a faturas abertas ou parcialmente pagas.",
-    "SOLO_PUEDEN_EDITAR_FACTURAS_ESTADO_BORRADOR": "Somente faturas em rascunho podem ser editadas."
+    "SOLO_PUEDEN_EDITAR_FACTURAS_ESTADO_BORRADOR": "Somente faturas em rascunho podem ser editadas.",
+    "TOTAL_NO_COINCIDE_CON_LINEAS": "O total enviado ({{received}}) não corresponde ao calculado a partir das linhas e impostos ({{expected}})."
   },
   "ANALYTICAL_REPORTING": {
     "NO_PUDO_SINCRONIZAR_VISTA_ANALITICA": "Não foi possível sincronizar a visão analítica: {{p1}}",
@@ -346,8 +356,9 @@
   },
   "CURRENCIES": {
     "DIARIO_GENERAL_GENERAL_NO_ENCONTRADO": "O diário Geral (GENERAL) não foi encontrado.",
-    "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "Nenhum livro contábil padrão foi configurado para a organização.",
+    "NO_ENCONTRO_TASA_CAMBIO_VALIDA_FECHA_ESPECIFICADA": "Não foi encontrada uma taxa de câmbio de {{from}} para {{to}} vigente em {{date}}.",
     "NO_HAY_DIVISAS_PARA_ACTUALIZAR": "Não há moedas para atualizar.",
+    "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "Nenhum livro contábil padrão foi configurado para a organização.",
     "TASAS_CAMBIO_ACTUALIZADAS_EXITOSAMENTE": "Taxas de câmbio atualizadas."
   },
   "CUSTOMER_SERVICE": {

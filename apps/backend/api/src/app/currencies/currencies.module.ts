@@ -15,6 +15,7 @@ import { OrganizationSettings } from '../organizations/entities/organization-set
 import { Journal } from '../journal-entries/entities/journal.entity';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
+import { ExchangeRateResolver } from './exchange-rate-resolver.service';
 
 
 
@@ -33,11 +34,12 @@ import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.mo
   ],
   controllers: [CurrenciesController, ExchangeRatesController],
   providers: [
+    ExchangeRateResolver,
     CurrenciesService,
     CurrencySeederService,
     ExchangeRatesService,
     CurrencyRevaluationService,
   ],
-  exports: [CurrencyRevaluationService, CurrencySeederService],
+  exports: [ExchangeRateResolver, CurrencyRevaluationService, CurrencySeederService],
 })
 export class CurrenciesModule {}
