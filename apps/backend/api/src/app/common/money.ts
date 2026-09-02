@@ -33,6 +33,11 @@ export class MoneyError extends Error {}
  * silently compares false against every threshold.
  */
 export function requireFiniteAmount(value: unknown, field: string): number {
+  // `Number(null)` and `Number('')` are both 0, which is finite — so a missing amount would pass a
+  // finiteness check and be booked as zero. An absent figure is not a zero figure.
+  if (value === null || value === undefined || value === '') {
+    throw new MoneyError(`${field} is required`);
+  }
   const parsed = typeof value === 'number' ? value : Number(value);
   if (!Number.isFinite(parsed)) {
     throw new MoneyError(
@@ -55,9 +60,16 @@ export function toCents(amount: number, scale = 2): number {
   return Math.sign(scaled) * Math.round(Math.abs(scaled));
 }
 
-/** Back to a unit amount with exactly `scale` decimals. */
+/**
+ * Back to a unit amount with exactly `scale` decimals.
+ *
+ * Normalises negative zero. IEEE-754 keeps the sign through `-0 / 100`, and `Object.is(-0, 0)` is
+ * false, so a zero balance produced by a subtraction compares unequal to a zero produced by a
+ * literal — which reads as a difference in a report that is asserting there is none.
+ */
 export function fromCents(cents: number, scale = 2): number {
-  return cents / 10 ** scale;
+  const amount = cents / 10 ** scale;
+  return amount === 0 ? 0 : amount;
 }
 
 /** An amount snapped to the currency's minor unit, so no unrounded product reaches a column. */
