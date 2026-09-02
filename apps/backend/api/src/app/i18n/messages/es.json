@@ -366,16 +366,24 @@
     "ARTICULO_NO_ENCONTRADO": "Artículo no encontrado."
   },
   "CUSTOMERS": {
+    "APLICACION_EXCEDE_MONTO_RECIBIDO": "Lo aplicado a facturas ({{applied}}) excede el monto recibido ({{received}}).",
+    "CLIENTE_ID_NO_ENCONTRADO": "Cliente con ID \"{{id}}\" no encontrado.",
+    "CLIENTE_NO_ENCONTRADO": "Cliente no encontrado.",
+    "COBRO_NO_ENCONTRADO": "El cobro no fue encontrado.",
+    "COBRO_YA_ANULADO": "Este cobro ya fue anulado.",
+    "CUENTA_BANCARIA_NO_VALIDA": "La cuenta bancaria indicada no existe en esta organización.",
+    "CUENTA_COBRAR_DEFECTO_NO_ESTA_CONFIGURADA_ORGANIZACION": "La cuenta por cobrar por defecto no está configurada para la organización.",
+    "CUENTA_DESCUENTOS_NO_CONFIGURADA": "No hay cuenta de descuentos configurada y el cobro concede uno.",
+    "CUENTA_DIFERENCIA_CAMBIARIA_NO_CONFIGURADA": "No hay cuenta de diferencia cambiaria configurada y este cobro genera una.",
+    "CUENTA_RETENCIONES_RECIBIDAS_NO_CONFIGURADA": "No hay cuenta de retenciones recibidas configurada y el cliente practicó retención.",
+    "DIARIO_COBROS_COBROS_NO_ENCONTRADO_FAVOR_CREE": "Diario de Cobros (COBROS) no encontrado. Por favor, cree un diario con este código.",
+    "FACTURA_ID_NO_ENCONTRADA_LOTE": "Factura con ID {{invoiceId}} no encontrada en el lote.",
+    "FACTURA_NO_ADMITE_COBRO": "La factura {{invoiceNumber}} está en estado {{status}} y no admite cobros.",
     "GRUPO_CLIENTES_ID_NO_ENCONTRADO": "Grupo de clientes con ID \"{{id}}\" no encontrado.",
-    "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "No se ha configurado un libro contable por defecto para la organización.",
     "MAS_FACTURAS_NO_SON_VALIDAS_NO_PERTENECEN": "Una o más facturas no son válidas o no pertenecen al cliente especificado.",
     "MONTO_PAGO_FACTURA_EXCEDE_SALDO_PENDIENTE": "El monto del pago para la factura {{invoiceNumber}} ({{amount}}) excede su saldo pendiente ({{balance}}).",
-    "CUENTA_COBRAR_DEFECTO_NO_ESTA_CONFIGURADA_ORGANIZACION": "La cuenta por cobrar por defecto no está configurada para la organización.",
-    "DIARIO_COBROS_COBROS_NO_ENCONTRADO_FAVOR_CREE": "Diario de Cobros (COBROS) no encontrado. Por favor, cree un diario con este código.",
-    "CLIENTE_NO_ENCONTRADO": "Cliente no encontrado.",
-    "FACTURA_ID_NO_ENCONTRADA_LOTE": "Factura con ID {{invoiceId}} no encontrada en el lote.",
-    "NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION": "No se pudo obtener el Query Runner de la transacción.",
-    "CLIENTE_ID_NO_ENCONTRADO": "Cliente con ID \"{{id}}\" no encontrado."
+    "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "No se ha configurado un libro contable por defecto para la organización.",
+    "NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION": "No se pudo obtener el Query Runner de la transacción."
   },
   "DASHBOARD": {
     "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "No se ha configurado un libro contable por defecto para la organización.",

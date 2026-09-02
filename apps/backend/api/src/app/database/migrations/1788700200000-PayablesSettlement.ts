@@ -50,11 +50,15 @@ export class PayablesSettlement1788700200000 implements MigrationInterface {
     // a type error PostgreSQL refuses, and a row referencing a deleted bill was perfectly storable.
     await queryRunner.query(`
       DELETE FROM "vendor_payment" p
-      WHERE NOT EXISTS (SELECT 1 FROM "vendor_bills" b WHERE b."id"::text = p."vendor_bill_id")
+      WHERE NOT EXISTS (SELECT 1 FROM "vendor_bills" b WHERE b."id"::text = p."vendor_bill_id"::text)
     `);
+    // Cast only if it is not already a uuid: the migration has to survive a re-run against a
+    // database where an earlier attempt got this far.
     await queryRunner.query(`
-      ALTER TABLE "vendor_payment"
-        ALTER COLUMN "vendor_bill_id" TYPE uuid USING "vendor_bill_id"::uuid
+      DO $$ BEGIN
+        ALTER TABLE "vendor_payment"
+          ALTER COLUMN "vendor_bill_id" TYPE uuid USING "vendor_bill_id"::uuid;
+      EXCEPTION WHEN others THEN NULL; END $$;
     `);
     await queryRunner.query(`
       DO $$ BEGIN

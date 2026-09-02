@@ -23,8 +23,33 @@ export class JournalEntryNumberingService {
     journal: Journal,
     entryDate: Date,
   ): Promise<string> {
-    const year = entryDate.getUTCFullYear();
+    return this.allocateForScope(
+      manager,
+      organizationId,
+      journal.id,
+      journal.code,
+      entryDate.getUTCFullYear(),
+    );
+  }
 
+  /**
+   * The same guarantee for any other document that needs a consecutive series.
+   *
+   * `journal_entry_sequences` is keyed by an opaque scope id rather than a foreign key to
+   * `journals`, so a customer receipt — which a customer keeps and quotes back, and which was
+   * previously identified only by eight characters of a UUID — can share the mechanism instead of
+   * reimplementing the same `INSERT … ON CONFLICT … RETURNING` beside it.
+   *
+   * @param scopeId what the series belongs to: a journal, or one of the reserved ids below.
+   * @param prefix the human-facing prefix, e.g. `GENERAL` or `REC`.
+   */
+  async allocateForScope(
+    manager: EntityManager,
+    organizationId: string,
+    scopeId: string,
+    prefix: string,
+    year: number,
+  ): Promise<string> {
     const [row] = await manager.query<{ last_number: number }[]>(
       `INSERT INTO "journal_entry_sequences"
          ("organization_id", "journal_id", "year", "last_number")
@@ -32,10 +57,20 @@ export class JournalEntryNumberingService {
        ON CONFLICT ("organization_id", "journal_id", "year") DO UPDATE
          SET "last_number" = "journal_entry_sequences"."last_number" + 1
        RETURNING "last_number"`,
-      [organizationId, journal.id, year],
+      [organizationId, scopeId, year],
     );
 
-    const ordinal = String(row.last_number).padStart(6, '0');
-    return `${journal.code}-${year}-${ordinal}`;
+    return `${prefix}-${year}-${String(row.last_number).padStart(6, '0')}`;
   }
 }
+
+/**
+ * Reserved scope ids for series that do not belong to a journal.
+ *
+ * Fixed UUIDs rather than magic strings so they cannot collide with a real journal id, and so the
+ * column keeps its uuid type.
+ */
+export const SEQUENCE_SCOPE = {
+  /** Customer receipts: `REC-2026-000042`. */
+  CUSTOMER_RECEIPT: '00000000-0000-4000-8000-000000000001',
+} as const;
