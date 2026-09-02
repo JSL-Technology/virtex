@@ -8,12 +8,12 @@ export const DOCUMENTS_ROUTES: Routes = [
         children: [
             {
                 path: 'repository',
-                title: 'Document Repository',
+                title: 'PAGE_TITLES.DOCUMENT_REPOSITORY',
                 loadComponent: () => import('./repository/repository.page').then(m => m.RepositoryPage)
             },
             {
                 path: 'templates',
-                title: 'Document Templates',
+                title: 'PAGE_TITLES.DOCUMENT_TEMPLATES',
                 loadComponent: () => import('./templates/templates.page').then(m => m.TemplatesPage)
             },
             {

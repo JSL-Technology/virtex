@@ -8,17 +8,17 @@ export const REPORTS_ROUTES: Routes = [
     children: [
       {
         path: 'profitability-by-product',
-        title: 'Profitability by Product',
+        title: 'PAGE_TITLES.PROFITABILITY_PRODUCT',
         loadComponent: () => import('./profitability-by-product/profitability-by-product.page').then(m => m.ProfitabilityByProductPage)
       },
       {
         path: 'profitability-by-customer',
-        title: 'Profitability by Customer',
+        title: 'PAGE_TITLES.PROFITABILITY_CUSTOMER',
         loadComponent: () => import('./profitability-by-customer/profitability-by-customer.page').then(m => m.ProfitabilityByCustomerPage)
       },
       {
         path: 'financial-statements/balance-sheet', // Ruta específica para el Balance General
-        title: 'Balance Sheet',
+        title: 'PAGE_TITLES.BALANCE_SHEET',
         loadComponent: () => import('./financial-statements/balance-sheet/balance-sheet.page').then(m => m.BalanceSheetPage)
       },
       // Redirección para la sección de estados financieros

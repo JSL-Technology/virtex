@@ -170,7 +170,7 @@ export const APP_ROUTES: Routes = [
     children: [
       {
         path: 'overview',
-        title: 'Inicio',
+        title: 'PAGE_TITLES.HOME',
         loadComponent: () =>
           import('./features/overview/overview.page').then(
             (m) => m.OverviewPage
@@ -178,7 +178,7 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'dashboard',
-        title: 'Dashboard',
+        title: 'PAGE_TITLES.DASHBOARD',
         loadComponent: () =>
           import('./features/dashboard/dashboard.page').then(
             (m) => m.DashboardPage
@@ -187,13 +187,13 @@ export const APP_ROUTES: Routes = [
       // ... other authenticated routes (copied from original file to maintain completeness)
       {
         path: 'my-work',
-        title: 'My Work',
+        title: 'PAGE_TITLES.MY_WORK',
         loadComponent: () =>
           import('./features/my-work/my-work.page').then((m) => m.MyWorkPage),
       },
       {
         path: 'approvals',
-        title: 'Approvals',
+        title: 'PAGE_TITLES.APPROVALS',
         loadComponent: () =>
           import('./features/approvals/approvals.page').then(
             (m) => m.ApprovalsPage
@@ -201,7 +201,7 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'notifications',
-        title: 'Notifications',
+        title: 'PAGE_TITLES.NOTIFICATIONS',
         loadComponent: () =>
           import('./features/notifications/notifications.page').then(
             (m) => m.NotificationsPage
@@ -209,7 +209,7 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'global-search',
-        title: 'Búsqueda',
+        title: 'PAGE_TITLES.SEARCH',
         loadComponent: () =>
           import('./features/global-search/global-search.page').then(
             (m) => m.GlobalSearchPage
@@ -217,7 +217,7 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'data-imports',
-        title: 'Data Imports',
+        title: 'PAGE_TITLES.DATA_IMPORTS',
         loadComponent: () =>
           import('./features/data-imports/data-imports.page').then(
             (m) => m.DataImportsPage
@@ -225,7 +225,7 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'data-exports',
-        title: 'Data Exports',
+        title: 'PAGE_TITLES.DATA_EXPORTS',
         loadComponent: () =>
           import('./features/data-exports/data-exports.page').then(
             (m) => m.DataExportsPage
@@ -233,7 +233,7 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'masters',
-        title: 'Master Data',
+        title: 'PAGE_TITLES.MASTER_DATA',
         loadChildren: () =>
           import('./features/masters/masters.routes').then(
             (m) => m.MASTERS_ROUTES
@@ -241,7 +241,7 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'documents',
-        title: 'Documents',
+        title: 'PAGE_TITLES.DOCUMENTS',
         loadComponent: () =>
           import('./features/documents/layout/documents.layout').then(
             (m) => m.DocumentsLayout
@@ -253,7 +253,7 @@ export const APP_ROUTES: Routes = [
       // (OWASP ASVS 4.1.1; OWASP Top 10 A01 Broken Access Control).
       {
         path: 'sales',
-        title: 'Ventas',
+        title: 'PAGE_TITLES.SALES',
         canActivate: [permissionsGuard],
         data: { permissions: ['sales:view'] },
         loadChildren: () =>
@@ -261,7 +261,7 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'invoices',
-        title: 'Facturas',
+        title: 'PAGE_TITLES.INVOICES',
         canActivate: [permissionsGuard],
         data: { permissions: ['invoices:view'] },
         loadChildren: () =>
@@ -271,7 +271,7 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'inventory',
-        title: 'Inventario',
+        title: 'PAGE_TITLES.INVENTORY',
         canActivate: [permissionsGuard],
         data: { permissions: ['inventory:view'] },
         loadChildren: () =>
@@ -281,7 +281,7 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'manufacturing',
-        title: 'Manufacturing (MRP)',
+        title: 'PAGE_TITLES.MANUFACTURING',
         canActivate: [permissionsGuard],
         data: { permissions: ['manufacturing:view'] },
         loadChildren: () =>
@@ -291,7 +291,7 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'wms',
-        title: 'Warehouse Management (WMS)',
+        title: 'PAGE_TITLES.WAREHOUSE_MANAGEMENT',
         canActivate: [permissionsGuard],
         data: { permissions: ['wms:view'] },
         loadChildren: () =>
@@ -301,7 +301,7 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'projects',
-        title: 'Projects (PSA)',
+        title: 'PAGE_TITLES.PROJECTS',
         canActivate: [permissionsGuard],
         data: { permissions: ['projects:view'] },
         loadChildren: () =>
@@ -311,7 +311,7 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'hcm',
-        title: 'Human Resources (HCM)',
+        title: 'PAGE_TITLES.HUMAN_RESOURCES',
         canActivate: [permissionsGuard],
         data: { permissions: ['hcm:view'] },
         loadChildren: () =>
@@ -321,7 +321,7 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'procurement',
-        title: 'Procurement & Suppliers',
+        title: 'PAGE_TITLES.PROCUREMENT',
         canActivate: [permissionsGuard],
         data: { permissions: ['procurement:view'] },
         loadChildren: () =>
@@ -340,7 +340,7 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'contacts',
-        title: 'Contactos',
+        title: 'PAGE_TITLES.CONTACTS',
         canActivate: [permissionsGuard],
         data: { permissions: ['contacts:view'] },
         loadChildren: () =>
@@ -350,7 +350,7 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'accounting',
-        title: 'Accounting',
+        title: 'PAGE_TITLES.ACCOUNTING',
         canActivate: [permissionsGuard],
         data: { permissions: ['accounting:view'] },
         loadChildren: () =>
@@ -367,7 +367,7 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'reports',
-        title: 'Reports',
+        title: 'PAGE_TITLES.REPORTS',
         canActivate: [permissionsGuard],
         data: { permissions: ['reports:view'] },
         loadChildren: () =>
@@ -377,7 +377,7 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'datasheets',
-        title: 'DataSheets',
+        title: 'PAGE_TITLES.DATASHEETS',
         canActivate: [permissionsGuard],
         data: { permissions: ['reports:view'] },
         loadChildren: () =>
@@ -387,7 +387,7 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'purchasing',
-        title: 'Purchasing',
+        title: 'PAGE_TITLES.PURCHASING',
         canActivate: [permissionsGuard],
         data: { permissions: ['purchasing:view'] },
         loadChildren: () =>
@@ -397,7 +397,7 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'accounts-payable',
-        title: 'Cuentas por Pagar',
+        title: 'PAGE_TITLES.ACCOUNTS_PAYABLE',
         canActivate: [permissionsGuard],
         data: { permissions: ['accounting:view'] },
         loadChildren: () =>
@@ -407,7 +407,7 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'customer-receipts',
-        title: 'Recibos de Cliente',
+        title: 'PAGE_TITLES.CUSTOMER_RECEIPTS',
         canActivate: [permissionsGuard],
         data: { permissions: ['sales:view'] },
         loadChildren: () =>
@@ -417,7 +417,7 @@ export const APP_ROUTES: Routes = [
       },
       {
         path: 'unauthorized',
-        title: 'Acceso Denegado',
+        title: 'PAGE_TITLES.ACCESS_DENIED',
         loadComponent: () =>
           import('./features/unauthorized/unauthorized.page').then(
             (m) => m.UnauthorizedPage

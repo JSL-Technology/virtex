@@ -8,22 +8,22 @@ export const CLOSING_ROUTES: Routes = [
         children: [
             {
                 path: 'month-end',
-                title: 'Month-End Close',
+                title: 'PAGE_TITLES.CLOSE_MONTH',
                 loadComponent: () => import('./month-end-close/month-end-close.page').then(m => m.MonthEndClosePage)
             },
             {
                 path: 'annual-close',
-                title: 'Annual Close',
+                title: 'PAGE_TITLES.CLOSE_YEAR',
                 loadComponent: () => import('./annual-close/annual-close.page').then(m => m.AnnualClosePage)
             },
             {
                 path: 'checklist',
-                title: 'Closing Checklists',
+                title: 'PAGE_TITLES.CLOSING_CHECKLISTS',
                 loadComponent: () => import('./checklist/checklist.page').then(m => m.ChecklistPage)
             },
             {
                 path: 'tasks',
-                title: 'Closing Tasks',
+                title: 'PAGE_TITLES.CLOSING_TASKS',
                 loadComponent: () => import('./tasks/tasks.page').then(m => m.TasksPage)
             },
             // Aquí irían las rutas para /annual-close, /checklist, etc.
