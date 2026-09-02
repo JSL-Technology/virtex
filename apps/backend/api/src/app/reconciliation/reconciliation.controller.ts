@@ -7,12 +7,15 @@ import { UploadStatementDto } from './dto/upload-statement.dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
+import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { PERMISSIONS } from '../shared/permissions';
 
 @Controller('reconciliation')
 @UseGuards(JwtAuthGuard)
 export class ReconciliationController {
   constructor(private readonly reconciliationService: ReconciliationService) {}
 
+  @HasPermission(PERMISSIONS.RECONCILIATION_IMPORT)
   @Post('upload')
   @UseInterceptors(FastifyFileInterceptor('file'))
   uploadStatement(
@@ -35,6 +38,7 @@ export class ReconciliationController {
     );
   }
 
+  @HasPermission(PERMISSIONS.RECONCILIATION_VIEW)
   @Get('statements/:accountId')
   getStatementsForAccount(
     @Param('accountId') accountId: string,
@@ -43,6 +47,7 @@ export class ReconciliationController {
     return this.reconciliationService.getStatements(accountId, user.organizationId);
   }
 
+  @HasPermission(PERMISSIONS.RECONCILIATION_VIEW)
   @Get('view/:statementId')
   getReconciliationView(
     @Param('statementId') statementId: string,

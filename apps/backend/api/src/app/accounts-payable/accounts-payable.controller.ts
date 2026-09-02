@@ -20,6 +20,8 @@ import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { PERMISSIONS } from '../shared/permissions';
 
 @Controller('accounts-payable')
 @UseGuards(JwtAuthGuard)
@@ -28,6 +30,7 @@ export class AccountsPayableController {
     private readonly accountsPayableService: AccountsPayableService,
   ) {}
 
+  @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_CREATE)
   @Post()
   create(
     @Body() createVendorBillDto: CreateVendorBillDto,
@@ -39,16 +42,19 @@ export class AccountsPayableController {
     );
   }
 
+  @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_VIEW)
   @Get()
   findAll(@CurrentUser() user: AuthenticatedUser) {
     return this.accountsPayableService.findAll(user.organizationId);
   }
 
+  @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_VIEW)
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.accountsPayableService.findOne(id, user.organizationId);
   }
 
+  @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_EDIT)
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -62,6 +68,7 @@ export class AccountsPayableController {
     );
   }
 
+  @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_VOID)
   @Post(':id/void')
   @HttpCode(HttpStatus.OK)
   voidBill(
@@ -76,12 +83,14 @@ export class AccountsPayableController {
     );
   }
 
+  @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_VOID)
   @Delete(':id')
   remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
 
     return this.accountsPayableService.remove(id, user.organizationId);
   }
 
+  @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_APPROVE)
   @Post(':id/submit-for-approval')
   @HttpCode(HttpStatus.OK)
   submitForApproval(

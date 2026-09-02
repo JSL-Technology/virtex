@@ -6,12 +6,15 @@ import { User } from '../users/entities/user.entity/user.entity';
 import { YearEndCloseService } from './year-end-close.service';
 import { YearEndCloseDto } from './dto/year-end-close.dto';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { PERMISSIONS } from '../shared/permissions';
 
 @Controller('accounting/year-end-close')
 @UseGuards(JwtAuthGuard)
 export class YearEndCloseController {
   constructor(private readonly yearEndCloseService: YearEndCloseService) {}
 
+  @HasPermission(PERMISSIONS.ACCOUNTING_CLOSE_YEAR)
   @Post()
   @HttpCode(HttpStatus.OK)
   async closePeriod(

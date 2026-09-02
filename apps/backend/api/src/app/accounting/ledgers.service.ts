@@ -7,7 +7,8 @@ import { Account } from '../chart-of-accounts/entities/account.entity';
 import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line.entity';
 import { GeneralLedger } from '../core/models/general-ledger.model';
 import { AccountNature } from '../chart-of-accounts/enums/account-enums';
-import { NotFoundError } from '../i18n/localized.exception';
+import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
+import { CreateLedgerDto, UpdateLedgerDto } from './dto/ledger.dto';
 
 @Injectable()
 export class LedgersService {
@@ -113,20 +114,52 @@ export class LedgersService {
     return ledger;
   }
 
-  async create(createDto: Partial<Ledger>, organizationId: string): Promise<Ledger> {
+  async create(createDto: CreateLedgerDto, organizationId: string): Promise<Ledger> {
     if (createDto.isDefault) {
       await this.ensureNoOtherDefault(organizationId);
     }
-    const ledger = this.ledgerRepository.create({ ...createDto, organizationId });
+    const ledger = this.ledgerRepository.create({
+      // Field by field. `{ ...createDto, organizationId }` was safe only because the tenant came
+      // last; one reordering away from letting the body choose its own tenant.
+      name: createDto.name,
+      description: createDto.description,
+      currency: createDto.currency.toUpperCase(),
+      isDefault: createDto.isDefault ?? false,
+      isActive: createDto.isActive ?? true,
+      organizationId,
+    });
     return this.ledgerRepository.save(ledger);
   }
 
-  async update(id: string, updateDto: Partial<Ledger>, organizationId: string): Promise<Ledger> {
+  /**
+   * Update the fields a ledger may have changed.
+   *
+   * Assignment is explicit. `Object.assign(ledger, updateDto)` over a body the ValidationPipe never
+   * inspected — because `Partial<Ledger>` leaves `Object` as the runtime metatype — let a request
+   * carrying `organizationId` move the ledger, and the accounting hanging off it, to another
+   * tenant. Neither the tenant nor the id is assignable here, whatever the body says.
+   */
+  async update(
+    id: string,
+    updateDto: UpdateLedgerDto,
+    organizationId: string,
+  ): Promise<Ledger> {
     const ledger = await this.findOne(id, organizationId);
+
     if (updateDto.isDefault && !ledger.isDefault) {
       await this.ensureNoOtherDefault(organizationId);
     }
-    Object.assign(ledger, updateDto);
+    if (updateDto.isDefault === false && ledger.isDefault) {
+      // A tenant with no default ledger cannot post at all: every posting path resolves the
+      // default to value its lines against.
+      throw new BadRequestError('ACCOUNTING.LIBRO_DEFECTO_NO_PUEDE_QUEDAR_SIN_ASIGNAR');
+    }
+
+    if (updateDto.name !== undefined) ledger.name = updateDto.name;
+    if (updateDto.description !== undefined) ledger.description = updateDto.description;
+    if (updateDto.isDefault !== undefined) ledger.isDefault = updateDto.isDefault;
+    if (updateDto.isActive !== undefined) ledger.isActive = updateDto.isActive;
+
     return this.ledgerRepository.save(ledger);
   }
 
