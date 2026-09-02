@@ -97,17 +97,19 @@
 
 <body>
   <!--
-    Primer elemento enfocable de la página: permite a quien navega con teclado
-    saltarse la navegación lateral, que de otro modo hay que recorrer entera en
-    cada cambio de página. Solo es visible cuando recibe el foco.
+    The skip link lives in `app.html`, not here: its text has to be translated, and it only has
+    somewhere to skip to once the layout has rendered. It stays the first focusable element.
   -->
-  <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
-
   <app-root></app-root>
 
+  <!--
+    Shown exactly when no script can run, so nothing here can pick a language: it carries all
+    three. This is the one place in the product where repeating the sentence is correct.
+  -->
   <noscript>
-    Esta aplicación necesita JavaScript para funcionar. Actívalo en tu navegador
-    para continuar.
+    <p lang="es">Esta aplicación necesita JavaScript. Actívalo en tu navegador para continuar.</p>
+    <p lang="en">This application needs JavaScript. Enable it in your browser to continue.</p>
+    <p lang="pt">Este aplicativo precisa de JavaScript. Ative-o no seu navegador para continuar.</p>
   </noscript>
 </body>
 

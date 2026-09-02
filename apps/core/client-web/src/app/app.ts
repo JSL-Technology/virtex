@@ -1,5 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Router, RouterOutlet, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { ThemeService } from './core/services/theme';
 import { LanguageService } from './core/services/language';
 import { AuthService } from './core/services/auth';
@@ -17,7 +18,7 @@ import { OfflineBannerComponent } from './shared/components/offline-banner/offli
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ModalComponent, CommonModule, GeoMismatchModalComponent, ToastContainerComponent, OfflineBannerComponent],
+  imports: [TranslateModule, RouterOutlet, ModalComponent, CommonModule, GeoMismatchModalComponent, ToastContainerComponent, OfflineBannerComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

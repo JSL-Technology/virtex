@@ -1230,7 +1230,8 @@
     "ACCEPT": "Aceptar",
     "SAVE": "Guardar",
     "DISCARD": "Descartar",
-    "DELETE": "Eliminar"
+    "DELETE": "Eliminar",
+    "SKIP_TO_CONTENT": "Saltar al contenido principal"
   },
   "SEARCH": {
     "MAIN_PLACEHOLDER": "Buscar facturas, clientes, productos…",

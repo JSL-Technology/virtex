@@ -8,6 +8,12 @@ indicados al final.
 
 **Calificación: 3 / 10**
 
+> **Nota de estado (este documento es el diagnóstico, no el resultado).**
+> Las secciones 1 a 9 describen el código **tal como estaba en el commit `f94d04c`** y se
+> conservan sin retocar: son la lista de defectos contra la que se trabajó, y borrarlas
+> convertiría una auditoría en un folleto. Lo que se entregó después, con sus cifras
+> reproducibles y la nota revisada, está en la **§10**.
+
 ---
 
 ## 1. Resumen ejecutivo
@@ -550,3 +556,108 @@ plantillas con texto literal    134
 El algoritmo es deliberadamente conservador —descarta por construcción toda interpolación, y por
 tanto todo `{{ 'X' | translate }}`— para no inflar la cifra. Un muestreo determinista de 31
 resultados sobre este repositorio no arrojó falsos positivos.
+
+---
+
+## 10. Estado entregado
+
+Esta sección no reescribe la auditoría: la cierra. Cada cifra se reproduce con los comandos de
+la §9 o con los que se indican aquí.
+
+### 10.1 Los cinco hechos que fijaban la nota
+
+| # | Hecho auditado | Estado |
+|---|---|---|
+| 1 | 126 de 167 plantillas no usaban `translate` | **140 de las 149 plantillas de componente lo usan** (`grep -rl '\| translate' …/src/app --include=*.html`). Las 9 restantes no contienen texto: son envoltorios que reciben el suyo por `@Input` (`stat-card`, `kpi-card`, `modal`, `auth-input`, `auth-button`, `password-strength`), contenedores sin prosa (`toast-container`, `auth-shell`) y el logotipo, que es marca y no palabra. `index.html` es la excepción declarada: su `<noscript>` lleva las tres lenguas a la vez, porque se muestra justo cuando ningún script puede elegir una |
+| 2 | 1.228 nodos de texto y 113 atributos literales | **0 y 0**, y ahora medido también dentro de las plantillas en línea de los componentes, que el escáner original no leía |
+| 3 | Backend con 0 ficheros de i18n y ≥197 excepciones en español fijo | Catálogo propio de **1.075 claves × 3 idiomas**, negociación por `Accept-Language`, idioma por petición en `AsyncLocalStorage`, filtro de excepciones e interceptor de respuestas |
+| 4 | El conmutador público de idioma estaba roto | Un solo componente, un solo camino de escritura; `<html lang>`, `localStorage` y la señal se mueven juntos |
+| 5 | 2 idiomas frente a 19 mercados, `pt-BR` sin catálogo | **3 catálogos completos** (es/en/pt), sin claves pendientes en ninguno |
+
+### 10.2 Cifras
+
+```bash
+# Catálogos: mismas claves, sin huecos, en los dos productos
+python3 - <<'EOF'
+import json
+def n(d): return sum(n(v) if isinstance(v,dict) else 1 for v in d.values())
+for d in ('apps/core/client-web/src/assets/i18n',
+          'apps/backend/api/src/app/i18n/messages'):
+    print(d, {l: n(json.load(open(f'{d}/{l}.json'))) for l in ('es','en','pt')})
+EOF
+# → cliente 2.769 × 3   ·   servidor 1.075 × 3
+
+node tools/i18n/externalize-template-text.mjs --dry        # 0 / 0 / 0 / 0
+node tools/i18n/externalize-template-text.mjs --dry --hbs  # 0 / 0 / 0 / 0
+node tools/i18n/find-orphan-keys.mjs                       # 0 claves huérfanas
+node tools/i18n/apply-glossary.mjs                         # 0 pendientes en en y pt
+```
+
+El glosario —la memoria es→en/pt que hace reproducible la traducción— tiene **3.067 términos**.
+
+### 10.3 Lo que se rehízo, no se completó
+
+La auditoría sostenía que lo que faltaba no eran «pendientes de traducir» sino decisiones
+arquitectónicas ausentes. Se tomaron:
+
+- **Tres ejes de idioma explícitos** (`LanguageAxis`, `libs/shared/types/src/lib/i18n/locale.contract.ts:220`):
+  `Interface` sigue a quien lee, `Books` a la lengua estatutaria del inquilino, `Document` al
+  destinatario. Es exactamente la decisión de producto que la §8 exigía tomar antes de escribir
+  código, y resuelve el caso que la motivaba: **un usuario que no habla español dentro de una
+  empresa dominicana** ve la interfaz en su idioma, los nombres de cuenta en español —porque son
+  los libros legales, y el auditor pide los nombres con los que se abrieron— y emite una factura
+  en el idioma de su cliente.
+- **Formato regional por `Intl`**, no por `LOCALE_ID`: `NumberFormat`, `DateTimeFormat`,
+  `PluralRules` y `ListFormat`, en el cliente (`core/i18n/format.service.ts`) y en el servidor
+  (factura, correo, reportes, reloj fiscal). El idioma se puede cambiar sin recargar.
+- **Una sola fuente de idiomas y locales** en `libs/shared/types`, consumida por ambos lados.
+- **Validación localizada por un solo sitio**: una `exceptionFactory` traduce ~1.100 reglas de
+  `class-validator` sin tocar 1.100 decoradores, y compone varias con `Intl.ListFormat` —que
+  aplica sola la regla del español por la que «y» se vuelve «e» ante palabra que empieza por
+  sonido i-.
+- **Respuestas de éxito por clave** (`messageKey` + `messageParams`), simétricas al filtro de
+  errores, con un tipo que hace que el compilador rechace prosa en una respuesta.
+
+### 10.4 Las barreras
+
+Ocho specs, todas en CI. Importan porque **ninguno de estos defectos era un error de tipos, de
+ejecución ni de render**: todos eran cadenas, y sólo los detecta una prueba escrita a propósito.
+
+| Spec | Qué impide |
+|---|---|
+| `translation-parity` / `messages.parity` | Que un catálogo tenga una clave que otro no, o placeholders distintos |
+| `translation-coverage` | Que una plantilla use una clave inexistente |
+| `no-hardcoded-strings` | Texto literal en plantillas, **incluidas las que viven dentro de un componente** |
+| `route-titles` | Un `title:` de ruta que sea prosa, o que no resuelva en los tres idiomas |
+| `no-native-dialogs` | `window.confirm`, `alert` o `prompt`, cuyo texto no se puede traducir |
+| `validation-messages` | Que un decorador de validación lleve prosa |
+| `i18n.service` | Negociación, respaldo y parámetros del catálogo del servidor |
+
+A ellas se añade el paso de idempotencia: la cadena completa de codemods ejecutada dos veces no
+cambia un byte. Sin él, `apply-glossary.mjs` —que regenera en/pt desde el español y el glosario—
+revierte silenciosamente cualquier traducción escrita a mano en un catálogo.
+
+### 10.5 Nota revisada
+
+**8 / 10.**
+
+**Sube desde 3 porque** la superficie está cubierta de extremo a extremo y verificada por
+construcción: cero literales, cero claves huérfanas, cero pendientes, paridad y cobertura en CI,
+los tres ejes de idioma separados, formato regional real y el backend traduciendo errores,
+validaciones, respuestas, correo, PDF y reportes en el idioma que corresponde a cada uno.
+
+**No llega a 10 porque** quedan tres cosas que este módulo no puede resolver solo:
+
+1. **Sólo tres idiomas para 19 mercados aprovisionables.** Ninguno de los 19 queda sin un idioma
+   que se lea, pero el francés (Haití) y el neerlandés (Curazao, Aruba) no existen. Añadirlos ya
+   es traducir, no rediseñar — el mecanismo los admite sin cambios.
+2. **Las traducciones a inglés y portugués no las ha revisado un hablante nativo del dominio
+   contable de cada país.** El glosario las hace consistentes y reproducibles; no las hace
+   revisadas. Antes de vender en Brasil, un contador brasileño debe leer el catálogo `pt`.
+3. **No hay SSR ni prerenderizado por idioma para las rutas públicas**, ni `hreflang`. No afecta
+   al producto en uso, sí al posicionamiento por mercado. Es trabajo de infraestructura y build,
+   no de traducción (§8).
+
+Ninguna de las tres es un defecto del código entregado; las tres son decisiones de negocio con
+coste conocido. Cuando el catálogo `pt` lo firme un contador brasileño y los dos idiomas que
+faltan estén, este módulo es un 10.

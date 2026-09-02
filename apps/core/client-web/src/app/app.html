@@ -1,3 +1,9 @@
+<!--
+  First focusable element on the page: it lets a keyboard reader skip the side navigation, which
+  otherwise has to be walked in full on every page change. Visible only while focused.
+-->
+<a class="skip-link" href="#main-content">{{ 'COMMON.SKIP_TO_CONTENT' | translate }}</a>
+
 <app-offline-banner></app-offline-banner>
 <router-outlet />
 
