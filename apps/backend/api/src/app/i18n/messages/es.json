@@ -70,6 +70,7 @@
   },
   "ACCOUNTS_PAYABLE": {
     "CONTROL_PRESUPUESTARIO_FALLIDO": "Control presupuestario fallido: {{message}}",
+    "CUENTA_BANCARIA_INACTIVA": "La cuenta bancaria «{name}» está inactiva y no admite movimientos.",
     "CUENTA_BANCARIA_NO_VALIDA": "La cuenta bancaria indicada no existe en esta organización.",
     "CUENTA_CUENTAS_PAGAR_NO_ESTA_CONFIGURADA": "La cuenta de Cuentas por Pagar no está configurada.",
     "CUENTA_DESCUENTOS_NO_CONFIGURADA": "No hay cuenta de descuentos configurada; no se puede registrar el descuento por pronto pago.",
@@ -91,6 +92,7 @@
     "FUNCIONALIDAD_ANULACION_NOTAS_DEBITO_AUN_NO_ESTA": "La funcionalidad de anulación de notas de débito aún no está implementada.",
     "LINEA_NO_ES_INVENTARIO_REQUIERE_CUENTA_GASTO": "La línea \"{{product}}\" no es de inventario y requiere una cuenta de gasto.",
     "MODIFICACION_LINEAS_FACTURA_EXISTENTE_DEBE_HACERSE_TRAVES": "La modificación de las líneas de una factura existente debe hacerse a través de notas de crédito/débito.",
+    "MONEDA_PAGO_NO_COINCIDE_CUENTA_BANCARIA": "No se puede pagar una factura en {bill} desde una cuenta en {account}; use una cuenta en {bill} o en la moneda de los libros.",
     "MONTO_NOTA_DEBITO_NO_PUEDE_SER_MAYOR": "El monto de la nota de débito no puede ser mayor al saldo de la factura.",
     "NINGUNA_FACTURAS_SELECCIONADAS_ES_VALIDA_PAGO": "Ninguna de las facturas seleccionadas es válida para el pago.",
     "NOTA_DEBITO_ID_NO_ENCONTRADA": "Nota de débito con ID \"{{id}}\" no encontrada.",
@@ -371,6 +373,7 @@
     "CLIENTE_NO_ENCONTRADO": "Cliente no encontrado.",
     "COBRO_NO_ENCONTRADO": "El cobro no fue encontrado.",
     "COBRO_YA_ANULADO": "Este cobro ya fue anulado.",
+    "CUENTA_BANCARIA_INACTIVA": "La cuenta bancaria «{name}» está inactiva y no admite movimientos.",
     "CUENTA_BANCARIA_NO_VALIDA": "La cuenta bancaria indicada no existe en esta organización.",
     "CUENTA_COBRAR_DEFECTO_NO_ESTA_CONFIGURADA_ORGANIZACION": "La cuenta por cobrar por defecto no está configurada para la organización.",
     "CUENTA_DESCUENTOS_NO_CONFIGURADA": "No hay cuenta de descuentos configurada y el cobro concede uno.",
@@ -381,6 +384,7 @@
     "FACTURA_NO_ADMITE_COBRO": "La factura {{invoiceNumber}} está en estado {{status}} y no admite cobros.",
     "GRUPO_CLIENTES_ID_NO_ENCONTRADO": "Grupo de clientes con ID \"{{id}}\" no encontrado.",
     "MAS_FACTURAS_NO_SON_VALIDAS_NO_PERTENECEN": "Una o más facturas no son válidas o no pertenecen al cliente especificado.",
+    "MONEDA_COBRO_NO_COINCIDE_CUENTA_BANCARIA": "No se puede recibir un cobro en {receipt} en una cuenta en {account}; use una cuenta en {receipt} o en la moneda de los libros.",
     "MONTO_PAGO_FACTURA_EXCEDE_SALDO_PENDIENTE": "El monto del pago para la factura {{invoiceNumber}} ({{amount}}) excede su saldo pendiente ({{balance}}).",
     "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "No se ha configurado un libro contable por defecto para la organización.",
     "NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION": "No se pudo obtener el Query Runner de la transacción."
@@ -714,8 +718,15 @@
   },
   "TREASURY": {
     "CUENTAS_ORIGEN_DESTINO_NO_PUEDEN_SER_MISMA": "Las cuentas de origen y destino no pueden ser la misma.",
+    "CUENTA_BANCARIA_INACTIVA": "La cuenta bancaria «{name}» está inactiva y no admite movimientos.",
+    "CUENTA_BANCARIA_NO_ENCONTRADA": "La cuenta bancaria no existe o no pertenece a esta organización.",
+    "CUENTA_COMISIONES_NO_CONFIGURADA": "No se ha configurado la cuenta de comisiones bancarias de la organización.",
+    "CUENTA_CONTABLE_NO_ADMITE_MOVIMIENTOS": "La cuenta contable indicada es de agrupación y no admite movimientos.",
+    "CUENTA_CONTABLE_NO_VALIDA": "La cuenta contable indicada no existe en esta organización.",
+    "CUENTA_DIFERENCIA_CAMBIARIA_NO_CONFIGURADA": "No se ha configurado la cuenta de diferencia cambiaria de la organización.",
+    "DIARIO_BANCOS_BANCOS_NO_ENCONTRADO": "Diario de Bancos (BANCOS) no encontrado.",
     "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "No se ha configurado un libro contable por defecto para la organización.",
-    "DIARIO_BANCOS_BANCOS_NO_ENCONTRADO": "Diario de Bancos (BANCOS) no encontrado."
+    "TRANSFERENCIA_MULTIMONEDA_REQUIERE_MONTO_RECIBIDO": "Una transferencia entre cuentas de distinta moneda requiere indicar el monto recibido."
   },
   "USERS": {
     "ONLY_IMAGE_FILES_ARE_ALLOWED": "Only image files are allowed!",

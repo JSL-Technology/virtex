@@ -15,6 +15,7 @@ import {
   numericTransformer,
   numericTransformerNotNull,
 } from '../../common/database/numeric.transformer';
+import { BankAccount } from '../../treasury/entities/bank-account.entity';
 
 export enum CustomerPaymentStatus {
   POSTED = 'POSTED',
@@ -71,8 +72,13 @@ export class CustomerPayment {
   @Column({ name: 'payment_date', type: 'date' })
   paymentDate: Date;
 
+  /** The account the funds landed in. A bank account, not a chart-of-accounts row. */
   @Column({ name: 'bank_account_id', type: 'uuid' })
   bankAccountId: string;
+
+  @ManyToOne(() => BankAccount, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'bank_account_id' })
+  bankAccount: BankAccount;
 
   @Column({ type: 'varchar', length: 120, nullable: true })
   reference: string | null;

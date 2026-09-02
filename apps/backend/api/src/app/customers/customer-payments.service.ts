@@ -21,6 +21,7 @@ import { OrganizationSettings } from '../organizations/entities/organization-set
 import { Journal } from '../journal-entries/entities/journal.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { Account } from '../chart-of-accounts/entities/account.entity';
+import { BankAccount } from '../treasury/entities/bank-account.entity';
 import { AccountRole } from '../chart-of-accounts/enums/account-enums';
 import { ModuleSlug } from '../accounting/entities/accounting-period.entity';
 import {
@@ -116,11 +117,32 @@ export class CustomerPaymentsService {
         throw new BadRequestError('CUSTOMERS.DIARIO_COBROS_COBROS_NO_ENCONTRADO_FAVOR_CREE');
       }
 
-      const bankAccount = await manager.findOneBy(Account, {
+      // A real bank account, not a chart-of-accounts row. Which account the funds landed in is
+      // what lets a bank statement be reconciled against this receipt later; a control account
+      // shared by four bank accounts cannot answer that.
+      const bankAccount = await manager.findOneBy(BankAccount, {
         id: dto.bankAccountId,
         organizationId,
       });
       if (!bankAccount) throw new BadRequestError('CUSTOMERS.CUENTA_BANCARIA_NO_VALIDA');
+      if (!bankAccount.isActive) {
+        throw new BadRequestError('CUSTOMERS.CUENTA_BANCARIA_INACTIVA', {
+          name: bankAccount.name,
+        });
+      }
+      // Either the funds arrive in the account's own currency, or the account keeps the books'
+      // currency and the bank converted on the way in — that second case is the one the ledger
+      // can still measure, at the day's rate. Anything else (a USD receipt into a EUR account)
+      // needs a rate nobody has stated, and guessing one would misstate cash.
+      if (
+        bankAccount.currencyCode !== currencyCode &&
+        bankAccount.currencyCode !== baseCurrency
+      ) {
+        throw new BadRequestError('CUSTOMERS.MONEDA_COBRO_NO_COINCIDE_CUENTA_BANCARIA', {
+          receipt: currencyCode,
+          account: bankAccount.currencyCode,
+        });
+      }
 
       const receiptRate = await this.exchangeRates.rateFor(
         currencyCode,
@@ -271,7 +293,7 @@ export class CustomerPaymentsService {
         });
       };
 
-      push(dto.bankAccountId, cashInBase, 0, 'Ingreso a banco por cobro a cliente');
+      push(bankAccount.glAccountId, cashInBase, 0, 'Ingreso a banco por cobro a cliente');
       push(
         settings.defaultAccountsReceivableId,
         0,

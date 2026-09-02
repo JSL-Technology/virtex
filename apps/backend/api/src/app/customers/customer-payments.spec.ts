@@ -31,6 +31,10 @@ import {
   CustomerPaymentStatus,
 } from './entities/customer-payment.entity';
 import { Invoice, InvoiceStatus } from '../invoices/entities/invoice.entity';
+import {
+  BankAccount,
+  BankAccountType,
+} from '../treasury/entities/bank-account.entity';
 
 /**
  * Collections from customers.
@@ -52,6 +56,7 @@ describeWithDb('customer collections', () => {
   let ledgerId: string;
   let customerId: string;
   const account: Record<string, string> = {};
+  let bankAccountId: string;
 
   const ACTOR = '33333333-3333-4333-8333-333333333333';
 
@@ -175,6 +180,21 @@ describeWithDb('customer collections', () => {
       }),
     );
     customerId = customer.id;
+
+    // Payments leave (or land in) a real bank account now, not a control account: two
+    // accounts sharing one control account produced indistinguishable payments, and a bank
+    // statement could never be matched back to either.
+    const bankAccount = await dataSource.getRepository(BankAccount).save(
+      dataSource.getRepository(BankAccount).create({
+        organizationId,
+        name: 'Cuenta de cobros',
+        accountNumber: `AR-${Date.now()}`,
+        accountType: BankAccountType.CHECKING,
+        currencyCode: 'DOP',
+        glAccountId: account['bank'],
+      }),
+    );
+    bankAccountId = bankAccount.id;
   });
 
   afterEach(async () => {
@@ -225,7 +245,7 @@ describeWithDb('customer collections', () => {
       {
         customerId,
         paymentDate: '2026-05-15',
-        bankAccountId: account['bank'],
+        bankAccountId,
         amountReceived: 10_000,
         lines: [{ invoiceId: invoice.id, amount: 10_000 }],
       },
@@ -250,7 +270,7 @@ describeWithDb('customer collections', () => {
       {
         customerId,
         paymentDate: '2026-05-20',
-        bankAccountId: account['bank'],
+        bankAccountId,
         amountReceived: 9_000,
         lines: [
           { invoiceId: invoice.id, amount: 9_000, incomeTaxWithheld: 1_000 },
@@ -278,7 +298,7 @@ describeWithDb('customer collections', () => {
       {
         customerId,
         paymentDate: '2026-05-20',
-        bankAccountId: account['bank'],
+        bankAccountId,
         amountReceived: 8_000,
         lines: [{ invoiceId: invoice.id, amount: 5_000 }],
       },
@@ -297,7 +317,7 @@ describeWithDb('customer collections', () => {
       {
         customerId,
         paymentDate: '2026-05-10',
-        bankAccountId: account['bank'],
+        bankAccountId,
         amountReceived: 4_000,
         lines: [],
       },
@@ -325,7 +345,7 @@ describeWithDb('customer collections', () => {
       {
         customerId,
         paymentDate: '2026-05-20',
-        bankAccountId: account['bank'],
+        bankAccountId,
         amountReceived: 1_000,
         currencyCode: 'USD',
         lines: [{ invoiceId: invoice.id, amount: 1_000 }],
@@ -346,7 +366,7 @@ describeWithDb('customer collections', () => {
       {
         customerId,
         paymentDate: '2026-05-15',
-        bankAccountId: account['bank'],
+        bankAccountId,
         amountReceived: 10_000,
         lines: [{ invoiceId: invoice.id, amount: 10_000 }],
       },
@@ -380,7 +400,7 @@ describeWithDb('customer collections', () => {
         {
           customerId,
           paymentDate: '2026-05-15',
-          bankAccountId: account['bank'],
+          bankAccountId,
           amountReceived: 5_000,
           lines: [{ invoiceId: invoice.id, amount: 5_000 }],
         },

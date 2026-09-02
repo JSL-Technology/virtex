@@ -70,6 +70,7 @@
   },
   "ACCOUNTS_PAYABLE": {
     "CONTROL_PRESUPUESTARIO_FALLIDO": "Controle orçamentário falhou: {{message}}",
+    "CUENTA_BANCARIA_INACTIVA": "A conta bancária «{name}» está inativa e não admite movimentos.",
     "CUENTA_BANCARIA_NO_VALIDA": "A conta bancária indicada não existe nesta organização.",
     "CUENTA_CUENTAS_PAGAR_NO_ESTA_CONFIGURADA": "A conta de Contas a Pagar não está configurada.",
     "CUENTA_DESCUENTOS_NO_CONFIGURADA": "Não há conta de descontos configurada; o desconto por pagamento antecipado não pode ser registado.",
@@ -91,6 +92,7 @@
     "FUNCIONALIDAD_ANULACION_NOTAS_DEBITO_AUN_NO_ESTA": "O cancelamento de notas de débito ainda não está implementado.",
     "LINEA_NO_ES_INVENTARIO_REQUIERE_CUENTA_GASTO": "A linha \"{{product}}\" não é de estoque e exige uma conta de despesa.",
     "MODIFICACION_LINEAS_FACTURA_EXISTENTE_DEBE_HACERSE_TRAVES": "As linhas de uma fatura existente devem ser alteradas por notas de crédito ou débito.",
+    "MONEDA_PAGO_NO_COINCIDE_CUENTA_BANCARIA": "Não é possível pagar uma fatura em {bill} a partir de uma conta em {account}; use uma conta em {bill} ou na moeda dos livros.",
     "MONTO_NOTA_DEBITO_NO_PUEDE_SER_MAYOR": "O valor da nota de débito não pode ser maior que o saldo da fatura.",
     "NINGUNA_FACTURAS_SELECCIONADAS_ES_VALIDA_PAGO": "Nenhuma das faturas selecionadas é elegível para pagamento.",
     "NOTA_DEBITO_ID_NO_ENCONTRADA": "Nota de débito \"{{id}}\" não encontrada.",
@@ -371,6 +373,7 @@
     "CLIENTE_NO_ENCONTRADO": "Cliente não encontrado.",
     "COBRO_NO_ENCONTRADO": "O recebimento não foi encontrado.",
     "COBRO_YA_ANULADO": "Este recebimento já foi anulado.",
+    "CUENTA_BANCARIA_INACTIVA": "A conta bancária «{name}» está inativa e não admite movimentos.",
     "CUENTA_BANCARIA_NO_VALIDA": "A conta bancária indicada não existe nesta organização.",
     "CUENTA_COBRAR_DEFECTO_NO_ESTA_CONFIGURADA_ORGANIZACION": "A conta a receber padrão não está configurada para a organização.",
     "CUENTA_DESCUENTOS_NO_CONFIGURADA": "Não há conta de descontos configurada e este recebimento concede um.",
@@ -381,6 +384,7 @@
     "FACTURA_NO_ADMITE_COBRO": "A fatura {{invoiceNumber}} está em {{status}} e não admite recebimentos.",
     "GRUPO_CLIENTES_ID_NO_ENCONTRADO": "Grupo de clientes \"{{id}}\" não encontrado.",
     "MAS_FACTURAS_NO_SON_VALIDAS_NO_PERTENECEN": "Uma ou mais faturas são inválidas ou não pertencem ao cliente informado.",
+    "MONEDA_COBRO_NO_COINCIDE_CUENTA_BANCARIA": "Não é possível receber uma cobrança em {receipt} numa conta em {account}; use uma conta em {receipt} ou na moeda dos livros.",
     "MONTO_PAGO_FACTURA_EXCEDE_SALDO_PENDIENTE": "O pagamento da fatura {{invoiceNumber}} ({{amount}}) excede seu saldo em aberto ({{balance}}).",
     "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "Nenhum livro contábil padrão foi configurado para a organização.",
     "NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION": "Não foi possível obter o query runner da transação."
@@ -1049,8 +1053,15 @@
   },
   "TREASURY": {
     "CUENTAS_ORIGEN_DESTINO_NO_PUEDEN_SER_MISMA": "As contas de origem e destino não podem ser a mesma.",
+    "CUENTA_BANCARIA_INACTIVA": "A conta bancária «{name}» está inativa e não admite movimentos.",
+    "CUENTA_BANCARIA_NO_ENCONTRADA": "A conta bancária não existe ou não pertence a esta organização.",
+    "CUENTA_COMISIONES_NO_CONFIGURADA": "Não foi configurada a conta de tarifas bancárias da organização.",
+    "CUENTA_CONTABLE_NO_ADMITE_MOVIMIENTOS": "A conta contábil indicada é de agrupamento e não admite movimentos.",
+    "CUENTA_CONTABLE_NO_VALIDA": "A conta contábil indicada não existe nesta organização.",
+    "CUENTA_DIFERENCIA_CAMBIARIA_NO_CONFIGURADA": "Não foi configurada a conta de diferença cambial da organização.",
     "DIARIO_BANCOS_BANCOS_NO_ENCONTRADO": "O diário de Bancos (BANCOS) não foi encontrado.",
-    "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "Nenhum livro contábil padrão foi configurado para a organização."
+    "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "Nenhum livro contábil padrão foi configurado para a organização.",
+    "TRANSFERENCIA_MULTIMONEDA_REQUIERE_MONTO_RECIBIDO": "Uma transferência entre contas de moedas diferentes exige informar o valor recebido."
   },
   "USERS": {
     "BLOQUEADO_CERRADO_SESION_USUARIO": "O usuário foi bloqueado e sua sessão encerrada.",

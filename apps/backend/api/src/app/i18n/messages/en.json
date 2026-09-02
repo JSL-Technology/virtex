@@ -70,6 +70,7 @@
   },
   "ACCOUNTS_PAYABLE": {
     "CONTROL_PRESUPUESTARIO_FALLIDO": "Budget control failed: {{message}}",
+    "CUENTA_BANCARIA_INACTIVA": "Bank account “{name}” is inactive and cannot take movements.",
     "CUENTA_BANCARIA_NO_VALIDA": "The specified bank account does not exist in this organization.",
     "CUENTA_CUENTAS_PAGAR_NO_ESTA_CONFIGURADA": "The Accounts Payable account is not configured.",
     "CUENTA_DESCUENTOS_NO_CONFIGURADA": "No discount account is configured, so the early-payment discount cannot be recorded.",
@@ -91,6 +92,7 @@
     "FUNCIONALIDAD_ANULACION_NOTAS_DEBITO_AUN_NO_ESTA": "Voiding debit notes is not implemented yet.",
     "LINEA_NO_ES_INVENTARIO_REQUIERE_CUENTA_GASTO": "Line \"{{product}}\" is not an inventory item and requires an expense account.",
     "MODIFICACION_LINEAS_FACTURA_EXISTENTE_DEBE_HACERSE_TRAVES": "The lines of an existing invoice must be changed through credit or debit notes.",
+    "MONEDA_PAGO_NO_COINCIDE_CUENTA_BANCARIA": "A bill in {bill} cannot be paid from an account in {account}; use an account in {bill} or in the books’ currency.",
     "MONTO_NOTA_DEBITO_NO_PUEDE_SER_MAYOR": "The debit note cannot be larger than the invoice balance.",
     "NINGUNA_FACTURAS_SELECCIONADAS_ES_VALIDA_PAGO": "None of the selected invoices is eligible for payment.",
     "NOTA_DEBITO_ID_NO_ENCONTRADA": "Debit note \"{{id}}\" was not found.",
@@ -371,6 +373,7 @@
     "CLIENTE_NO_ENCONTRADO": "Customer not found.",
     "COBRO_NO_ENCONTRADO": "The receipt was not found.",
     "COBRO_YA_ANULADO": "This receipt has already been voided.",
+    "CUENTA_BANCARIA_INACTIVA": "Bank account “{name}” is inactive and cannot take movements.",
     "CUENTA_BANCARIA_NO_VALIDA": "The specified bank account does not exist in this organization.",
     "CUENTA_COBRAR_DEFECTO_NO_ESTA_CONFIGURADA_ORGANIZACION": "The default receivable account is not configured for the organization.",
     "CUENTA_DESCUENTOS_NO_CONFIGURADA": "No discount account is configured and this receipt grants one.",
@@ -381,6 +384,7 @@
     "FACTURA_NO_ADMITE_COBRO": "Invoice {{invoiceNumber}} is {{status}} and cannot take a collection.",
     "GRUPO_CLIENTES_ID_NO_ENCONTRADO": "Customer group \"{{id}}\" was not found.",
     "MAS_FACTURAS_NO_SON_VALIDAS_NO_PERTENECEN": "One or more invoices are invalid, or do not belong to the given customer.",
+    "MONEDA_COBRO_NO_COINCIDE_CUENTA_BANCARIA": "A receipt in {receipt} cannot land in an account in {account}; use an account in {receipt} or in the books’ currency.",
     "MONTO_PAGO_FACTURA_EXCEDE_SALDO_PENDIENTE": "The payment for invoice {{invoiceNumber}} ({{amount}}) exceeds its outstanding balance ({{balance}}).",
     "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "No default ledger has been configured for the organization.",
     "NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION": "The transaction's query runner could not be obtained."
@@ -1049,8 +1053,15 @@
   },
   "TREASURY": {
     "CUENTAS_ORIGEN_DESTINO_NO_PUEDEN_SER_MISMA": "The source and destination accounts cannot be the same.",
+    "CUENTA_BANCARIA_INACTIVA": "Bank account “{name}” is inactive and cannot take movements.",
+    "CUENTA_BANCARIA_NO_ENCONTRADA": "The bank account does not exist or does not belong to this organization.",
+    "CUENTA_COMISIONES_NO_CONFIGURADA": "No bank fees account has been configured for this organization.",
+    "CUENTA_CONTABLE_NO_ADMITE_MOVIMIENTOS": "The ledger account given is a summary account and cannot take movements.",
+    "CUENTA_CONTABLE_NO_VALIDA": "The ledger account given does not exist in this organization.",
+    "CUENTA_DIFERENCIA_CAMBIARIA_NO_CONFIGURADA": "No exchange difference account has been configured for this organization.",
     "DIARIO_BANCOS_BANCOS_NO_ENCONTRADO": "The Banks journal (BANCOS) was not found.",
-    "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "No default ledger has been configured for the organization."
+    "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "No default ledger has been configured for the organization.",
+    "TRANSFERENCIA_MULTIMONEDA_REQUIERE_MONTO_RECIBIDO": "A transfer between accounts in different currencies must state the amount received."
   },
   "USERS": {
     "BLOQUEADO_CERRADO_SESION_USUARIO": "The user has been blocked and their session closed.",

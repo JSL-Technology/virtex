@@ -21,6 +21,7 @@ import { BudgetControlService } from '../budgets/budget-control.service';
 import { Journal } from '../journal-entries/entities/journal.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { Account } from '../chart-of-accounts/entities/account.entity';
+import { BankAccount } from '../treasury/entities/bank-account.entity';
 import { AccountRole } from '../chart-of-accounts/enums/account-enums';
 import { ModuleSlug } from '../accounting/entities/accounting-period.entity';
 import {
@@ -539,11 +540,18 @@ export class AccountsPayableService {
         throw new BadRequestError('ACCOUNTS_PAYABLE.DIARIO_PAGOS_PAGOS_NO_ENCONTRADO');
       }
 
-      const bankAccount = await manager.findOne(Account, {
+      // A real bank account, not a chart-of-accounts row: a payment that cannot say which account
+      // the funds left cannot be reconciled against the statement that shows them leaving.
+      const bankAccount = await manager.findOne(BankAccount, {
         where: { id: dto.bankAccountId, organizationId },
       });
       if (!bankAccount) {
         throw new BadRequestError('ACCOUNTS_PAYABLE.CUENTA_BANCARIA_NO_VALIDA');
+      }
+      if (!bankAccount.isActive) {
+        throw new BadRequestError('ACCOUNTS_PAYABLE.CUENTA_BANCARIA_INACTIVA', {
+          name: bankAccount.name,
+        });
       }
 
       const billIds = dto.lines.map((line) => line.vendorBillId);
@@ -612,6 +620,20 @@ export class AccountsPayableService {
         );
         const bookedRate = Number(bill.exchangeRate) || 1;
 
+        // The funds leave a real account with a currency of its own. Paying a USD bill out of a
+        // EUR account is a conversion at a rate the caller has not stated, and inventing one
+        // would misstate cash; paying it out of a base-currency account is measurable at the
+        // day's rate, and out of a USD account it is no conversion at all.
+        if (
+          bankAccount.currencyCode !== bill.currencyCode &&
+          bankAccount.currencyCode !== baseCurrency
+        ) {
+          throw new BadRequestError('ACCOUNTS_PAYABLE.MONEDA_PAGO_NO_COINCIDE_CUENTA_BANCARIA', {
+            bill: bill.currencyCode,
+            account: bankAccount.currencyCode,
+          });
+        }
+
         const cashBase = convert(line.amount, paymentRate);
         const relievedAtBookedRate = convert(settled, bookedRate);
         const withheldAtPaymentRate = convert(withheld, paymentRate);
@@ -667,7 +689,7 @@ export class AccountsPayableService {
       };
 
       push(settings.defaultAccountsPayableId, payableDebitBase, 0, 'Cancelación de deuda con proveedores');
-      push(dto.bankAccountId, 0, cashOutBase, 'Salida de banco por pago a proveedores');
+      push(bankAccount.glAccountId, 0, cashOutBase, 'Salida de banco por pago a proveedores');
 
       if (toCents(withheldBase) !== 0) {
         const withholdingPayableId = await this.resolveAccount(

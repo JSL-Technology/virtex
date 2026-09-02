@@ -28,6 +28,10 @@ import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.servi
 import { AccountsPayableService } from './accounts-payable.service';
 import { VendorBill, VendorBillStatus } from './entities/vendor-bill.entity';
 import { CreateVendorBillDto } from './dto/create-vendor-bill.dto';
+import {
+  BankAccount,
+  BankAccountType,
+} from '../treasury/entities/bank-account.entity';
 
 /**
  * Supplier invoices, from recording to settlement.
@@ -50,6 +54,7 @@ describeWithDb('accounts payable', () => {
   let ledgerId: string;
   let vendorId: string;
   const account: Record<string, string> = {};
+  let bankAccountId: string;
 
   const ACTOR = '22222222-2222-4222-8222-222222222222';
 
@@ -172,6 +177,21 @@ describeWithDb('accounts payable', () => {
       dataSource.getRepository(Supplier).create({ organizationId, name: 'Suplidora del Caribe' }),
     );
     vendorId = vendor.id;
+
+    // Payments leave (or land in) a real bank account now, not a control account: two
+    // accounts sharing one control account produced indistinguishable payments, and a bank
+    // statement could never be matched back to either.
+    const bankAccount = await dataSource.getRepository(BankAccount).save(
+      dataSource.getRepository(BankAccount).create({
+        organizationId,
+        name: 'Cuenta de pagos',
+        accountNumber: `AP-${Date.now()}`,
+        accountType: BankAccountType.CHECKING,
+        currencyCode: 'DOP',
+        glAccountId: account['bank'],
+      }),
+    );
+    bankAccountId = bankAccount.id;
   });
 
   afterEach(async () => {
@@ -297,7 +317,7 @@ describeWithDb('accounts payable', () => {
       await payables.payBills(
         {
           paymentDate: '2026-03-20',
-          bankAccountId: account['bank'],
+          bankAccountId,
           lines: [{ vendorBillId: bill.id, amount: 8_000 }],
         },
         organizationId,
@@ -328,7 +348,7 @@ describeWithDb('accounts payable', () => {
       await payables.payBills(
         {
           paymentDate: '2026-03-25',
-          bankAccountId: account['bank'],
+          bankAccountId,
           lines: [
             { vendorBillId: bill.id, amount: 9_000, incomeTaxWithheld: 1_000 },
           ],
@@ -381,7 +401,7 @@ describeWithDb('accounts payable', () => {
       await payables.payBills(
         {
           paymentDate: '2026-04-15',
-          bankAccountId: account['bank'],
+          bankAccountId,
           lines: [{ vendorBillId: bill.id, amount: 1_000 }],
         },
         organizationId,
@@ -413,7 +433,7 @@ describeWithDb('accounts payable', () => {
         payables.payBills(
           {
             paymentDate: '2026-03-20',
-            bankAccountId: account['bank'],
+            bankAccountId,
             lines: [{ vendorBillId: bill.id, amount: 5_000 }],
           },
           organizationId,
