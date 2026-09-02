@@ -88,7 +88,7 @@ export class DatasheetGridComponent implements OnInit, OnDestroy {
 
     const sourceValue = instance.getSourceDataAtCell(row, col);
     if (typeof sourceValue === 'string' && this.isERPVariableFormula(sourceValue)) {
-      td.style.color = '#2563eb'; // Blue-600
+      td.style.color = 'var(--accent-text)';
       td.style.fontWeight = '500';
     }
 

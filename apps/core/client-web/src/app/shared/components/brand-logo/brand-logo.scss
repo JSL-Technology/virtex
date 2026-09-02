@@ -2,18 +2,28 @@
 //  LOGOTIPO DE VIRTEX
 // =============================================================================
 //  Todas las medidas derivan de `--brand-mark-size`, que fija el componente
-//  desde su entrada `size`. Un solo número gobierna símbolo, texto y bajada, de
-//  modo que la marca nunca se descuadra al cambiar de tamaño — que es lo que
+//  desde su entrada `size`. Un solo número gobierna símbolo, palabra y bajada,
+//  de modo que la marca nunca se descuadra al cambiar de tamaño — que es lo que
 //  ocurre cuando el logotipo se compone a mano en cada pantalla.
+//
+//  Las constantes de abajo no son gusto: son las proporciones con las que se
+//  dibujaron los `.svg` sueltos de `assets/logos/`. Si divergen, el logotipo de
+//  la aplicación y el del correo dejan de ser el mismo logotipo.
 // =============================================================================
 @use '../../../../assets/styles/design-system' as ds;
+
+//  Separación símbolo ↔ palabra, medida sobre la caja del símbolo.
+$gap-ratio: 0.25;
+//  Alto de la caja del wordmark. Incluye el relleno óptico inferior, por eso no
+//  coincide con el alto de la tinta (0.619).
+$word-ratio: 0.7205;
 
 :host {
   --brand-mark-size: 32px;
 
   display: inline-flex;
   align-items: center;
-  gap: calc(var(--brand-mark-size) * 0.3);
+  gap: calc(var(--brand-mark-size) * #{$gap-ratio});
   line-height: var(--leading-none);
   color: var(--content-primary);
   user-select: none;
@@ -22,54 +32,49 @@
 
 :host(.brand-logo--stacked) {
   flex-direction: column;
-  gap: calc(var(--brand-mark-size) * 0.28);
+  gap: calc(var(--brand-mark-size) * 0.3);
 }
 
 // ── Símbolo ──────────────────────────────────────────────────────────────────
 .brand-logo__mark {
   display: block;
   flex-shrink: 0;
+  //  La caja del SVG es cuadrada; el bloque ocupa el 90 % centrado, de modo que
+  //  el 5 % de margen hace de área de respeto mínima incorporada.
+  width: var(--brand-mark-size);
   height: var(--brand-mark-size);
-  //  La caja del SVG es 104×100; el ancho se deriva para que el trazo nunca se
-  //  deforme, ni siquiera dentro de un contenedor flex que reparta sobrantes.
-  width: calc(var(--brand-mark-size) * 1.04);
 
   svg {
     display: block;
     width: 100%;
     height: 100%;
-    overflow: visible;
   }
 }
 
-.brand-logo__stroke-accent {
-  fill: var(--accent-solid);
-}
-
-.brand-logo__stroke-ink {
+.brand-logo__plane {
   fill: var(--content-primary);
 }
 
-//  Sobre una superficie de acento las dos astas se funden en una sola tinta.
-.brand-logo__mark.is-mono {
-  .brand-logo__stroke-accent,
-  .brand-logo__stroke-ink {
-    fill: currentColor;
-  }
+.brand-logo__vertex {
+  fill: var(--accent-solid);
+}
 
-  .brand-logo__stroke-accent {
-    //  Se conserva una diferencia mínima entre astas: sin ella la «V»
-    //  monocroma pierde el corte diagonal y se lee como un triángulo.
-    opacity: 0.72;
+//  Sobre una superficie de acento el vértice se perdería contra el fondo: toda
+//  la marca pasa a la tinta en curso. Los canales entre planos siguen ahí, así
+//  que la figura no se convierte en una mancha.
+.brand-logo__mark.is-mono {
+  .brand-logo__plane,
+  .brand-logo__vertex {
+    fill: currentColor;
   }
 }
 
-// ── Tipografía de marca ──────────────────────────────────────────────────────
+// ── Wordmark ─────────────────────────────────────────────────────────────────
 .brand-logo__type {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: calc(var(--brand-mark-size) * 0.06);
+  gap: calc(var(--brand-mark-size) * 0.08);
 }
 
 :host(.brand-logo--stacked) .brand-logo__type {
@@ -77,30 +82,35 @@
 }
 
 .brand-logo__word {
-  font-size: calc(var(--brand-mark-size) * 0.78);
-  font-weight: var(--font-medium);
-  //  El interletrado abierto es lo que da al logotipo su aire de marca. En
-  //  cuerpo pequeño se cierra un poco —abajo— porque a 16 px la palabra se
-  //  desmembraría en seis letras sueltas.
-  letter-spacing: calc(var(--brand-mark-size) * 0.052);
-  line-height: 0.95;
-  color: var(--content-primary);
-  //  Sangría óptica: el interletrado añade un hueco DETRÁS de la última letra
-  //  que descentra el bloque respecto al símbolo. Se compensa restándolo.
-  margin-right: calc(var(--brand-mark-size) * -0.052);
-}
+  display: block;
+  height: calc(var(--brand-mark-size) * #{$word-ratio});
 
-.brand-logo__tagline {
-  font-size: calc(var(--brand-mark-size) * 0.28);
-  font-weight: var(--font-semibold);
-  letter-spacing: calc(var(--brand-mark-size) * 0.14);
-  text-transform: uppercase;
-  color: var(--accent-text);
-  margin-right: calc(var(--brand-mark-size) * -0.14);
+  svg {
+    display: block;
+    height: 100%;
+    width: auto;
+    fill: currentColor;
+  }
 }
 
 :host(.brand-logo--stacked) .brand-logo__word {
-  font-size: calc(var(--brand-mark-size) * 0.62);
+  height: calc(var(--brand-mark-size) * #{$word-ratio} * 0.82);
+}
+
+// ── Bajada descriptiva ───────────────────────────────────────────────────────
+//  «ERP» NO forma parte del nombre: Virtex se llama Virtex. Es una bajada que
+//  explica la categoría, y por eso se compone como tal —pequeña, en tinta
+//  terciaria, separada por interletrado— y no como una segunda línea de marca
+//  en color de acento, que es lo que la hacía parecer parte del logotipo.
+.brand-logo__descriptor {
+  font-size: calc(var(--brand-mark-size) * 0.22);
+  font-weight: var(--font-semibold);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--content-tertiary);
+  //  Sangría óptica: el interletrado añade un hueco DETRÁS de la última letra
+  //  que descentra el bloque respecto a la palabra. Se compensa restándolo.
+  margin-right: -0.18em;
 }
 
 // ── Movimiento ───────────────────────────────────────────────────────────────
@@ -118,6 +128,6 @@
   }
 
   &:hover .brand-logo__mark {
-    transform: translateY(-1px) rotate(-2deg);
+    transform: translateY(-1px);
   }
 }

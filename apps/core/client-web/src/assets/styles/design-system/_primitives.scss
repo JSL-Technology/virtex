@@ -53,7 +53,43 @@ $neutral: (
 );
 
 // -----------------------------------------------------------------------------
-//  AZUL — Acento de marca
+//  IRIS — Acento de marca
+// -----------------------------------------------------------------------------
+//  El acento de Virtex era `$blue-600` (#2563eb): el azul por defecto de medio
+//  ecosistema de producto. Funcionaba, pero no identificaba nada — cualquier
+//  captura de la aplicación podía ser la de otro fabricante.
+//
+//  El iris resuelve dos cosas a la vez. Distingue la marca, y —lo que importa
+//  más en una aplicación con tantos estados— no colisiona con NINGÚN color
+//  semántico del sistema: el verde de éxito, el rojo de error, el ámbar de
+//  aviso y el cian informativo quedan todos lejos en matiz. Ese era el motivo
+//  real para descartar las otras dos candidatas serias: el petróleo se
+//  confundía con `--info-solid` y la esmeralda con `--success-solid`, y en una
+//  rejilla llena de insignias de estado esa confusión se paga cara.
+//
+//  Los tramos 550 y 600 existen porque relleno y texto tienen restricciones
+//  opuestas (ver la nota del acento en `_theme.scss`).
+// -----------------------------------------------------------------------------
+$iris: (
+  50: #f4f1ff,
+  100: #eae4ff,
+  200: #d6cbff,
+  300: #c2b3ff,
+  400: #a58fff,
+  500: #7d5cf6,
+  550: #6a47e8,
+  600: #5b37d9,
+  700: #4a2ab5,
+  800: #3b2192,
+  900: #2a1770,
+);
+
+// -----------------------------------------------------------------------------
+//  AZUL — Serie de datos
+// -----------------------------------------------------------------------------
+//  Al dejar de ser el acento, el azul queda libre para la visualización de
+//  datos, donde una familia más se agradece: la serie categórica gana un matiz
+//  que antes no podía usar sin confundirse con la marca.
 // -----------------------------------------------------------------------------
 $blue: (
   50: #eff5ff,
@@ -187,6 +223,7 @@ $teal: (
 }
 
 @function neutral($step) { @return _get($neutral, 'neutral', $step); }
+@function iris($step)    { @return _get($iris, 'iris', $step); }
 @function blue($step)    { @return _get($blue, 'blue', $step); }
 @function green($step)   { @return _get($green, 'green', $step); }
 @function red($step)     { @return _get($red, 'red', $step); }

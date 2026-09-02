@@ -50,7 +50,7 @@
   --surface-sunken: #{p.neutral(100)};     // Campos, pozos, zonas hundidas
   --surface-hover: #{p.neutral(75)};
   --surface-active: #{p.neutral(150)};
-  --surface-selected: #{p.blue(50)};
+  --surface-selected: #{p.iris(50)};
   --surface-disabled: #{p.neutral(100)};
   --surface-inverse: #{p.neutral(940)};    // Tooltips, toasts de alto contraste
 
@@ -60,7 +60,7 @@
   --content-tertiary: #626980;
   --content-disabled: #{p.neutral(500)};
   --content-inverse: #{p.neutral(25)};
-  --content-link: #{p.blue(700)};
+  --content-link: #{p.iris(700)};
 
   // ── Bordes ─────────────────────────────────────────────────────────────────
   //  `subtle`   separadores decorativos (sin requisito de contraste)
@@ -69,18 +69,18 @@
   --border-subtle: #{p.neutral(150)};
   --border-default: #{p.neutral(300)};
   --border-strong: #7f8794;
-  --border-focus: #{p.blue(600)};
+  --border-focus: #{p.iris(600)};
 
   // ── Acento ─────────────────────────────────────────────────────────────────
-  --accent-solid: #{p.blue(600)};
-  --accent-solid-hover: #{p.blue(700)};
-  --accent-solid-active: #{p.blue(800)};
+  --accent-solid: #{p.iris(600)};
+  --accent-solid-hover: #{p.iris(700)};
+  --accent-solid-active: #{p.iris(800)};
   --accent-on-solid: #{p.neutral(0)};
-  --accent-text: #{p.blue(700)};
-  --accent-surface: #{p.blue(50)};
-  --accent-surface-hover: #{p.blue(100)};
-  --accent-border: #{p.blue(200)};
-  --accent-solid-rgb: #{p.rgb-triplet(p.blue(600))};
+  --accent-text: #{p.iris(700)};
+  --accent-surface: #{p.iris(50)};
+  --accent-surface-hover: #{p.iris(100)};
+  --accent-border: #{p.iris(200)};
+  --accent-solid-rgb: #{p.rgb-triplet(p.iris(600))};
 
   // ── Estados semánticos ─────────────────────────────────────────────────────
   --success-solid: #{p.green(700)};
@@ -141,9 +141,9 @@
   // ── Visualización de datos ─────────────────────────────────────────────────
   //  Serie categórica ordenada por separación de matiz para que siga siendo
   //  distinguible en deuteranopía, la deficiencia cromática más frecuente.
-  --viz-1: #{p.blue(600)};
+  --viz-1: #{p.iris(600)};
   --viz-2: #{p.teal(600)};
-  --viz-3: #{p.violet(600)};
+  --viz-3: #{p.blue(600)};
   --viz-4: #{p.amber(500)};
   --viz-5: #{p.pink(600)};
   --viz-6: #{p.cyan(600)};
@@ -154,9 +154,9 @@
 
   //  Ternas RGB de las series, para rellenos translúcidos (áreas apiladas,
   //  bandas de confianza, resaltados al pasar el cursor).
-  --viz-1-rgb: #{p.rgb-triplet(p.blue(600))};
+  --viz-1-rgb: #{p.rgb-triplet(p.iris(600))};
   --viz-2-rgb: #{p.rgb-triplet(p.teal(600))};
-  --viz-3-rgb: #{p.rgb-triplet(p.violet(600))};
+  --viz-3-rgb: #{p.rgb-triplet(p.blue(600))};
   --viz-4-rgb: #{p.rgb-triplet(p.amber(500))};
   --viz-5-rgb: #{p.rgb-triplet(p.pink(600))};
   --viz-6-rgb: #{p.rgb-triplet(p.cyan(600))};
@@ -209,7 +209,7 @@
     0 8px 24px #{rgba(p.neutral(960), 0.06)},
     0 24px 64px #{rgba(p.neutral(960), 0.1)};
   --glass-shadow-soft: 0 8px 30px #{rgba(p.neutral(960), 0.07)};
-  --glass-glow: 0 0 0 1px #{rgba(p.blue(600), 0.1)}, 0 12px 40px #{rgba(p.blue(600), 0.14)};
+  --glass-glow: 0 0 0 1px #{rgba(p.iris(600), 0.1)}, 0 12px 40px #{rgba(p.iris(600), 0.14)};
 
   // ── Aurora — lienzo animado de las pantallas de acceso ─────────────────────
   //  Cuatro velos de color que se desplazan lentamente bajo el cristal. Son
@@ -217,13 +217,13 @@
   //  recuperación de contraseña y confirmación de pago: si divergen, cada
   //  puerta de entrada al producto parece de un producto distinto.
   --aurora-canvas: #{p.neutral(50)};
-  --aurora-1: #{rgba(p.blue(500), 0.5)};
-  --aurora-2: #{rgba(p.violet(500), 0.38)};
+  --aurora-1: #{rgba(p.iris(500), 0.5)};
+  --aurora-2: #{rgba(p.violet(500), 0.34)};
   --aurora-3: #{rgba(p.cyan(400), 0.34)};
   --aurora-4: #{rgba(p.pink(400), 0.2)};
   --aurora-veil: #{rgba(p.neutral(0), 0.38)};
   --aurora-grid: #{rgba(p.neutral(700), 0.06)};
-  --aurora-silk: #{rgba(p.blue(600), 0.16)};
+  --aurora-silk: #{rgba(p.iris(600), 0.16)};
 }
 
 // -----------------------------------------------------------------------------
@@ -249,7 +249,7 @@
   --surface-sunken: #{p.neutral(1000)};
   --surface-hover: #{p.neutral(900)};
   --surface-active: #{p.neutral(875)};
-  --surface-selected: #{rgba(p.blue(400), 0.14)};
+  --surface-selected: #{rgba(p.iris(400), 0.14)};
   --surface-disabled: #{p.neutral(920)};
   --surface-inverse: #{p.neutral(100)};
 
@@ -259,13 +259,13 @@
   --content-tertiary: #939db4;
   --content-disabled: #646e85;
   --content-inverse: #{p.neutral(960)};
-  --content-link: #{p.blue(400)};
+  --content-link: #{p.iris(400)};
 
   // ── Bordes ─────────────────────────────────────────────────────────────────
   --border-subtle: #242938;
   --border-default: #{p.neutral(850)};
   --border-strong: #747b8b;
-  --border-focus: #{p.blue(400)};
+  --border-focus: #{p.iris(400)};
 
   // ── Acento ─────────────────────────────────────────────────────────────────
   //  Distinción crítica que la paleta anterior no hacía:
@@ -276,15 +276,15 @@
   //  Usar un único color para ambos roles es imposible: son restricciones
   //  opuestas. El tema anterior usaba #4f8cff para los dos, dejando el texto
   //  blanco de todos los botones primarios en 3.22:1 — un incumplimiento real.
-  --accent-solid: #{p.blue(550)};
-  --accent-solid-hover: #4d83f0;
-  --accent-solid-active: #{p.blue(600)};
+  --accent-solid: #{p.iris(550)};
+  --accent-solid-hover: #7554f0;
+  --accent-solid-active: #{p.iris(600)};
   --accent-on-solid: #{p.neutral(0)};
-  --accent-text: #{p.blue(400)};
-  --accent-surface: #{rgba(p.blue(400), 0.13)};
-  --accent-surface-hover: #{rgba(p.blue(400), 0.2)};
-  --accent-border: #{rgba(p.blue(400), 0.32)};
-  --accent-solid-rgb: #{p.rgb-triplet(p.blue(550))};
+  --accent-text: #{p.iris(400)};
+  --accent-surface: #{rgba(p.iris(400), 0.13)};
+  --accent-surface-hover: #{rgba(p.iris(400), 0.2)};
+  --accent-border: #{rgba(p.iris(400), 0.32)};
+  --accent-solid-rgb: #{p.rgb-triplet(p.iris(550))};
 
   // ── Estados semánticos ─────────────────────────────────────────────────────
   --success-solid: #{p.green(600)};
@@ -334,9 +334,9 @@
 
   // ── Visualización de datos ─────────────────────────────────────────────────
   //  Tramos más claros: sobre fondo oscuro los tonos 600 se hunden.
-  --viz-1: #{p.blue(400)};
+  --viz-1: #{p.iris(400)};
   --viz-2: #{p.teal(400)};
-  --viz-3: #{p.violet(400)};
+  --viz-3: #{p.blue(400)};
   --viz-4: #{p.amber(300)};
   --viz-5: #{p.pink(400)};
   --viz-6: #{p.cyan(300)};
@@ -345,9 +345,9 @@
   --viz-grid: #{p.neutral(875)};
   --viz-axis: #{p.neutral(500)};
 
-  --viz-1-rgb: #{p.rgb-triplet(p.blue(400))};
+  --viz-1-rgb: #{p.rgb-triplet(p.iris(400))};
   --viz-2-rgb: #{p.rgb-triplet(p.teal(400))};
-  --viz-3-rgb: #{p.rgb-triplet(p.violet(400))};
+  --viz-3-rgb: #{p.rgb-triplet(p.blue(400))};
   --viz-4-rgb: #{p.rgb-triplet(p.amber(300))};
   --viz-5-rgb: #{p.rgb-triplet(p.pink(400))};
   --viz-6-rgb: #{p.rgb-triplet(p.cyan(300))};
@@ -384,19 +384,19 @@
     0 12px 32px #{rgba(#000000, 0.45)},
     0 32px 80px #{rgba(#000000, 0.55)};
   --glass-shadow-soft: 0 10px 34px #{rgba(#000000, 0.45)};
-  --glass-glow: 0 0 0 1px #{rgba(p.blue(400), 0.18)}, 0 16px 48px #{rgba(p.blue(500), 0.22)};
+  --glass-glow: 0 0 0 1px #{rgba(p.iris(400), 0.18)}, 0 16px 48px #{rgba(p.iris(500), 0.22)};
 
   // ── Aurora ─────────────────────────────────────────────────────────────────
   //  Los velos son más saturados y el lienzo casi negro: es la lectura oscura
   //  de la misma composición, no una paleta distinta.
   --aurora-canvas: #05070d;
-  --aurora-1: #{rgba(p.blue(500), 0.55)};
-  --aurora-2: #{rgba(p.violet(500), 0.42)};
+  --aurora-1: #{rgba(p.iris(500), 0.55)};
+  --aurora-2: #{rgba(p.violet(500), 0.38)};
   --aurora-3: #{rgba(p.cyan(400), 0.34)};
   --aurora-4: #{rgba(p.pink(500), 0.2)};
   --aurora-veil: #{rgba(#000000, 0.45)};
   --aurora-grid: #{rgba(p.neutral(0), 0.035)};
-  --aurora-silk: #{rgba(p.blue(300), 0.22)};
+  --aurora-silk: #{rgba(p.iris(300), 0.22)};
 }
 
 // -----------------------------------------------------------------------------

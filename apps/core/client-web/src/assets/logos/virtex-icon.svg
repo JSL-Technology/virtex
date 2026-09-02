@@ -2,13 +2,13 @@
   <title>Virtex</title>
   <defs>
     <linearGradient id="vx-tile" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#1a2032"/>
+      <stop offset="0" stop-color="#1a1f2e"/>
       <stop offset="1" stop-color="#0b0e17"/>
     </linearGradient>
   </defs>
   <rect width="128" height="128" rx="28" fill="url(#vx-tile)"/>
-  <g transform="translate(19.4 21.5) scale(0.85)">
-    <path d="M18 6 L33 6 L66.9 86.6 Q70 94 62 94 L47 94 L13.1 13.4 Q10 6 18 6 Z" fill="#2563eb"/>
-    <path d="M72 6 L95 6 L64.4 80.7 L52.8 53 Z" fill="#f3f5f9"/>
+  <g transform="translate(19.2 19.2) scale(0.896)">
+    <path fill="#f3f5f9" d="M5 20.749Q5 5 20.749 5L34.41 5Q37.81 5 40.214 7.404L92.596 59.786Q95 62.19 95 65.59L95 79.251Q95 95 79.251 95L65.59 95Q62.19 95 59.786 92.596L7.404 40.214Q5 37.81 5 34.41Z M51.866 92.596Q54.271 95 50.871 95L27 95Q5 95 5 73L5 49.129Q5 45.729 7.404 48.134Z"/>
+    <path fill="#7d5cf6" d="M48.134 7.404Q45.729 5 49.129 5L95 5L95 50.871Q95 54.271 92.596 51.866Z"/>
   </g>
 </svg>
