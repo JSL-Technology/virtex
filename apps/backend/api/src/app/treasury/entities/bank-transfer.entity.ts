@@ -1,6 +1,7 @@
 import { Account } from '../../chart-of-accounts/entities/account.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
+import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 
 @Entity({ name: 'bank_transfers' })
 export class BankTransfer {
@@ -17,7 +18,7 @@ export class BankTransfer {
   @Column({ type: 'date' })
   date: Date;
 
-  @Column({ type: 'decimal', precision: 18, scale: 2 })
+  @Column({ type: 'decimal', precision: 18, scale: 2, transformer: numericTransformerNotNull })
   amount: number;
 
   @ManyToOne(() => Account)

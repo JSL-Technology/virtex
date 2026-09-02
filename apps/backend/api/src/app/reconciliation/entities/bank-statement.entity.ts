@@ -11,6 +11,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { BankTransaction } from './bank-transaction.entity';
+import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 
 export enum StatementStatus {
   PROCESSING = 'processing',
@@ -46,10 +47,10 @@ export class BankStatement {
   @Column({ type: 'date', name: 'end_date' })
   endDate: Date;
   
-  @Column({ type: 'decimal', precision: 18, scale: 2, name: 'starting_balance' })
+  @Column({ type: 'decimal', precision: 18, scale: 2, name: 'starting_balance', transformer: numericTransformerNotNull })
   startingBalance: number;
 
-  @Column({ type: 'decimal', precision: 18, scale: 2, name: 'ending_balance' })
+  @Column({ type: 'decimal', precision: 18, scale: 2, name: 'ending_balance', transformer: numericTransformerNotNull })
   endingBalance: number;
 
   @Column({ type: 'enum', enum: StatementStatus, default: StatementStatus.PROCESSING })

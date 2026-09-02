@@ -29,7 +29,6 @@ import { AccountSegmentDefinition } from './entities/account-segment-definition.
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { JournalEntryLineValuation } from '../journal-entries/entities/journal-entry-line-valuation.entity';
 import { MergeAccountsDto } from './dto/merge-accounts.dto';
-import { AccountBalance } from './entities/account-balance.entity';
 
 import { AccountHierarchyVersion } from './entities/account-hierarchy-version.entity';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../i18n/localized.exception';
@@ -170,7 +169,7 @@ export class ChartOfAccountsService {
   async findAllForOrg(organizationId: string): Promise<Account[]> {
     const accounts = await this.accountRepository.find({
       where: { organizationId },
-      relations: ['parent', 'balances', 'segments'],
+      relations: ['parent', 'segments'],
     });
 
     accounts.forEach((acc) => {

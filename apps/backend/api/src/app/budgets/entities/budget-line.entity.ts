@@ -8,6 +8,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import type { Budget } from './budget.entity';
+import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 
 @Entity({ name: 'budget_lines' })
 export class BudgetLine {
@@ -26,7 +27,7 @@ export class BudgetLine {
   account: Account;
 
 
-  @Column('decimal', { precision: 18, scale: 2 })
+  @Column('decimal', { precision: 18, scale: 2, transformer: numericTransformerNotNull })
   amount: number;
   
   @Column({ type: 'jsonb', nullable: true })

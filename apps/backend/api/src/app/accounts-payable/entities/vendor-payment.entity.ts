@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import type { PaymentBatch } from './payment-batch.entity';
+import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 
 @Entity()
 export class VendorPayment {
@@ -17,6 +18,6 @@ export class VendorPayment {
   @Column()
   date: Date;
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('decimal', { precision: 10, scale: 2, transformer: numericTransformerNotNull })
   amount: number;
 }

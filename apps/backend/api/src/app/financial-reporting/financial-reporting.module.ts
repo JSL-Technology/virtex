@@ -8,17 +8,17 @@ import { Account } from '../chart-of-accounts/entities/account.entity';
 import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { Invoice } from '../invoices/entities/invoice.entity';
-import { MonthlyAccountBalance } from '../reporting/entities/monthly-account-balance.entity';
+import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
 
 @Module({
   imports: [
+    ChartOfAccountsModule,
 
     TypeOrmModule.forFeature([
       Account,
       JournalEntryLine,
       OrganizationSettings,
       Invoice,
-      MonthlyAccountBalance,
     ]),
   ],
   controllers: [FinancialReportingController],

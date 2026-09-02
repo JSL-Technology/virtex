@@ -5,13 +5,11 @@ import { Logger } from '@nestjs/common';
 import { DataSource, EntityManager, In } from 'typeorm';
 import { Account } from './entities/account.entity';
 import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line.entity';
-import { BalanceUpdateService } from './balance-update.service';
 import { EventsGateway } from '../websockets/events.gateway';
 import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
 import { MergeAccountsDto } from './dto/merge-accounts.dto';
 import { Ledger } from '../accounting/entities/ledger.entity';
-import { AccountBalance } from './entities/account-balance.entity';
 import { LocalizedMessage } from '../i18n/localized-message';
 
 
@@ -29,7 +27,6 @@ export class AccountJobsProcessor extends WorkerHost {
 
   constructor(
     private readonly dataSource: DataSource,
-    private readonly balanceUpdateService: BalanceUpdateService,
     private readonly eventsGateway: EventsGateway,
     private readonly auditTrailService: AuditTrailService,
   ) {
@@ -100,14 +97,12 @@ export class AccountJobsProcessor extends WorkerHost {
         await this.eventsGateway.sendToUser(userId, 'job-status', { jobId: job.id, progress: 90, messageKey: 'CHART_OF_ACCOUNTS.DESACTIVANDO_CUENTA_ORIGEN_RECALCULANDO_SALDOS' });
         
 
-        const ledgers = await manager.find(Ledger, { where: { organizationId } });
-        for (const ledger of ledgers) {
-            const sourceBalance = await this.recalculateBalanceForAccount(manager, sourceAccountId, ledger.id);
-            const destBalance = await this.recalculateBalanceForAccount(manager, destinationAccountId, ledger.id);
-
-            await manager.update(AccountBalance, { accountId: sourceAccountId, ledgerId: ledger.id }, { balance: sourceBalance.balance });
-            await manager.update(AccountBalance, { accountId: destinationAccountId, ledgerId: ledger.id }, { balance: destBalance.balance });
-        }
+        // No balances to fix up. Reassigning the lines above IS the balance change: a balance is a
+        // SUM over these rows, so the source account reads zero and the destination reads the
+        // combined figure the moment this transaction commits. The old code recomputed both
+        // balances and wrote them to `account_balances` — with a status filter of `'POSTED'`
+        // against an enum whose value is `'Posted'`, so the recomputation matched no rows at all
+        // and quietly zeroed both accounts.
 
         sourceAccount.isActive = false;
 
@@ -150,18 +145,6 @@ export class AccountJobsProcessor extends WorkerHost {
     }
   }
   
-  private async recalculateBalanceForAccount(manager: EntityManager, accountId: string, ledgerId: string): Promise<{ balance: number }> {
-      const result = await manager.getRepository(JournalEntryLine)
-          .createQueryBuilder('line')
-          .innerJoin('line.valuations', 'valuation')
-          .innerJoin('line.journalEntry', 'entry')
-          .where('line.accountId = :accountId', { accountId })
-          .andWhere('valuation.ledgerId = :ledgerId', { ledgerId })
-          .andWhere("entry.status = 'POSTED'")
-          .select('SUM(valuation.debit - valuation.credit)', 'balance')
-          .getRawOne();
-      return { balance: parseFloat(result.balance) || 0 };
-  }
 
 
   async onActive(job: Job) { this.logger.log(`Procesando job ${job.id}`); }

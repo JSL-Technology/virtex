@@ -61,6 +61,7 @@ export class JournalEntryTemplatesController {
     @Body() createEntryDto: CreateJournalEntryFromTemplateDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.templatesService.createEntryFromTemplate(id, createEntryDto, user.organizationId);
+    return this.templatesService.createEntryFromTemplate(id, createEntryDto, user.organizationId,
+      user.id,);
   }
 }

@@ -1,6 +1,7 @@
 
 import { Organization } from '../../organizations/entities/organization.entity';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { numericTransformer, numericTransformerNotNull } from '../../common/database/numeric.transformer';
 
 
 export enum FixedAssetStatus {
@@ -27,7 +28,7 @@ export class FixedAsset {
   @Column()
   description: string;
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('decimal', { precision: 10, scale: 2, transformer: numericTransformerNotNull })
   cost: number;
 
   @Column()
@@ -36,7 +37,7 @@ export class FixedAsset {
   @Column()
   usefulLife: number;
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('decimal', { precision: 10, scale: 2, transformer: numericTransformerNotNull })
   residualValue: number;
 
   @Column()
@@ -47,6 +48,7 @@ export class FixedAsset {
     precision: 10,
     scale: 2,
     nullable: true,
+    transformer: numericTransformer,
   })
   bookValue: number;
 
@@ -55,6 +57,7 @@ export class FixedAsset {
     precision: 10,
     scale: 2,
     default: 0,
+    transformer: numericTransformerNotNull,
   })
   accumulatedDepreciation: number;
 

@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import type { BankStatement } from './bank-statement.entity';
 import { JournalEntryLine } from '../../journal-entries/entities/journal-entry-line.entity';
+import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 
 export enum TransactionStatus {
   UNRECONCILED = 'unreconciled',
@@ -32,10 +33,10 @@ export class BankTransaction {
   @Column()
   description: string;
 
-  @Column({ type: 'decimal', precision: 18, scale: 2, default: 0 })
+  @Column({ type: 'decimal', precision: 18, scale: 2, default: 0, transformer: numericTransformerNotNull })
   debit: number;
 
-  @Column({ type: 'decimal', precision: 18, scale: 2, default: 0 })
+  @Column({ type: 'decimal', precision: 18, scale: 2, default: 0, transformer: numericTransformerNotNull })
   credit: number;
 
   @Column({ type: 'enum', enum: TransactionStatus, default: TransactionStatus.UNRECONCILED })

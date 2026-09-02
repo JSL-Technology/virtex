@@ -6,6 +6,7 @@ import {
   CreateDateColumn,
 } from 'typeorm';
 import { CustomerPaymentLine } from './customer-payment-line.entity';
+import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 
 @Entity({ name: 'customer_payments' })
 export class CustomerPayment {
@@ -27,7 +28,7 @@ export class CustomerPayment {
   @Column()
   reference: string;
 
-  @Column('decimal', { precision: 12, scale: 2 })
+  @Column('decimal', { precision: 12, scale: 2, transformer: numericTransformerNotNull })
   totalAmount: number;
 
   @OneToMany(() => CustomerPaymentLine, (line) => line.payment, {

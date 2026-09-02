@@ -21,6 +21,7 @@ export class YearEndCloseController {
     const closedYear = await this.yearEndCloseService.closeFiscalYear(
       closeDto,
       user.organizationId,
+      user.id,
     );
     return {
       message: `El año fiscal que termina en ${closedYear.endDate.toISOString().split('T')[0]} ha sido cerrado exitosamente.`,

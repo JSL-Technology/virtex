@@ -1,5 +1,6 @@
 
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 
 @Entity()
 export class VendorDebitNote {
@@ -16,7 +17,7 @@ export class VendorDebitNote {
   @Column()
   reason: string;
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('decimal', { precision: 10, scale: 2, transformer: numericTransformerNotNull })
   amount: number;
 
 

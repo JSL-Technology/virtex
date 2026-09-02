@@ -219,7 +219,7 @@ export class VendorBill {
   @Column('decimal', { precision: 12, scale: 2, transformer: numericTransformerNotNull })
   total: number;
 
-  @Column('decimal', { precision: 12, scale: 2, default: 0.0 })
+  @Column('decimal', { precision: 12, scale: 2, default: 0.0, transformer: numericTransformerNotNull })
   balance: number;
 
   @Column({
@@ -240,10 +240,10 @@ export class VendorBill {
   @JoinColumn({ name: 'currency_code', referencedColumnName: 'code' })
   currency: Currency;
 
-  @Column('decimal', { precision: 18, scale: 6, default: 1.0, name: 'exchange_rate' })
+  @Column('decimal', { precision: 18, scale: 6, default: 1.0, name: 'exchange_rate', transformer: numericTransformerNotNull })
   exchangeRate: number;
 
-  @Column('decimal', { precision: 18, scale: 2, name: 'total_in_base_currency' })
+  @Column('decimal', { precision: 18, scale: 2, name: 'total_in_base_currency', transformer: numericTransformerNotNull })
   totalInBaseCurrency: number;
 
   @CreateDateColumn({ name: 'created_at' })

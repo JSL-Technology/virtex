@@ -1,15 +1,28 @@
 
 import { Injectable } from '@nestjs/common';
-import { FinancialReportingService, DimensionFilters } from './financial-reporting.service';
-import { Account, AccountType } from '../chart-of-accounts/entities/account.entity';
+import {
+  FinancialReportingService,
+  DimensionFilters,
+  ReportAccountLine,
+  balanceSheetAccounts,
+  flattenSections,
+} from './financial-reporting.service';
+import { AccountType } from '../chart-of-accounts/entities/account.entity';
 
 interface ComparativeBalance {
     [ledgerId: string]: number;
 }
 
-interface ComparativeAccount extends Omit<Account, 'balances'> {
+/**
+ * One account, with its balance in each ledger being compared.
+ *
+ * Built on the report's own account line rather than on the `Account` entity: a comparative report
+ * carries what the statements carry — code, name, type, category — and not the entity's twenty-odd
+ * operational columns, which were being serialised into the response for every account.
+ */
+type ComparativeAccount = Omit<ReportAccountLine, 'amount'> & {
     balances: ComparativeBalance;
-}
+};
 
 @Injectable()
 export class ComparativeReportingService {
@@ -28,18 +41,17 @@ export class ComparativeReportingService {
     const consolidatedAccounts = new Map<string, ComparativeAccount>();
 
     for (const report of reports) {
-        const allAccounts = [...report.assets, ...report.liabilities, ...report.equity];
+        const allAccounts = balanceSheetAccounts(report);
         for (const account of allAccounts) {
-            if (!consolidatedAccounts.has(account.id)) {
-                const { balances, balance, ...accountData } = account;
-                consolidatedAccounts.set(account.id, {
+            if (!consolidatedAccounts.has(account.accountId)) {
+                const { amount, ...accountData } = account;
+                consolidatedAccounts.set(account.accountId, {
                     ...accountData,
-                    code: account.code,
                     balances: {},
                 });
             }
-            const consolidatedAccount = consolidatedAccounts.get(account.id)!;
-            consolidatedAccount.balances[report.ledger.id] = account.balance;
+            const consolidatedAccount = consolidatedAccounts.get(account.accountId)!;
+            consolidatedAccount.balances[report.ledger.id] = account.amount;
         }
     }
     
@@ -69,19 +81,24 @@ export class ComparativeReportingService {
     const consolidatedExpenses = new Map<string, ComparativeAccount>();
 
     for (const report of reports) {
-      for (const account of report.revenue.accounts) {
-        if (!consolidatedRevenue.has(account.id)) {
-          const { balance, ...accountData } = account;
-          consolidatedRevenue.set(account.id, { ...accountData, balances: {} });
+      for (const account of flattenSections(report.revenue.sections)) {
+        if (!consolidatedRevenue.has(account.accountId)) {
+          const { amount, ...accountData } = account;
+          consolidatedRevenue.set(account.accountId, { ...accountData, balances: {} });
         }
-        consolidatedRevenue.get(account.id)!.balances[report.ledger.id] = account.balance;
+        consolidatedRevenue.get(account.accountId)!.balances[report.ledger.id] = account.amount;
       }
-      for (const account of report.expenses.accounts) {
-        if (!consolidatedExpenses.has(account.id)) {
-          const { balance, ...accountData } = account;
-          consolidatedExpenses.set(account.id, { ...accountData, balances: {} });
+      const expenseLines = [
+        ...report.costOfSales.accounts,
+        ...report.operatingExpenses.accounts,
+        ...report.nonOperating.accounts,
+      ];
+      for (const account of expenseLines) {
+        if (!consolidatedExpenses.has(account.accountId)) {
+          const { amount, ...accountData } = account;
+          consolidatedExpenses.set(account.accountId, { ...accountData, balances: {} });
         }
-        consolidatedExpenses.get(account.id)!.balances[report.ledger.id] = account.balance;
+        consolidatedExpenses.get(account.accountId)!.balances[report.ledger.id] = account.amount;
       }
     }
 

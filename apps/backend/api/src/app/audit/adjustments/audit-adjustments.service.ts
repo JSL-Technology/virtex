@@ -132,6 +132,10 @@ export class AuditAdjustmentsService {
             })),
           },
           organizationId,
+          // The auditor who proposed the adjustment is its author. The approval granted it; it did
+          // not author it, and an entry attributed to whoever happened to click approve would be a
+          // worse record than one attributed to nobody.
+          adjustment.proposerId,
         );
 
         adjustment.status = AdjustmentStatus.POSTED;

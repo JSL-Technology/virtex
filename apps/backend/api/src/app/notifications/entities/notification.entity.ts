@@ -21,7 +21,11 @@ export class Notification {
   id: string;
 
   /** Rendering made when the notification was created. Read only when `titleKey` is null. */
-  @Column()
+  // The comment is declared, not just written in the docstring: a migration set it on the column
+  // and the entity did not, which the schema-drift gate reported on every run.
+  @Column({
+    comment: 'Rendering made when the notification was created. Read only when title_key is null.',
+  })
   title: string;
 
   @Column()

@@ -1,24 +1,31 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+/**
+ * A cash waterfall: where the money started, what moved it, where it ended.
+ *
+ * ## Why the shape changed
+ *
+ * It used to carry `operatingIncome`, `costOfGoodsSold` and `operatingExpenses` — profit and loss
+ * figures, presented as if they were cash movements — with an opening balance taken from the sum of
+ * **every current asset**, receivables and inventory included, labelled as cash. The bars did not
+ * add up to a movement in cash because they were never measuring one.
+ *
+ * These are the three activities of a cash flow statement, and they are taken from the statement
+ * itself, so `openingBalance + operating + investing + financing = endingBalance` exactly.
+ */
 export class CashFlowWaterfallDto {
-  @ApiProperty({ description: 'Saldo de efectivo al inicio del período.' })
+  @ApiProperty({ description: 'Efectivo y equivalentes al inicio del período.' })
   openingBalance: number;
 
-  @ApiProperty({ description: 'Ingresos que generan entradas de efectivo.' })
-  operatingIncome: number;
+  @ApiProperty({ description: 'Efectivo neto generado por actividades de operación.' })
+  operating: number;
 
-  @ApiProperty({ description: 'Costo de la mercancía vendida, como salida de efectivo.' })
-  costOfGoodsSold: number;
+  @ApiProperty({ description: 'Efectivo neto usado en actividades de inversión.' })
+  investing: number;
 
-  @ApiProperty({ description: 'Gastos operativos que resultan en salidas de efectivo.' })
-  operatingExpenses: number;
-
-  @ApiProperty({ description: 'Flujo de efectivo neto de actividades de inversión (ej. compra/venta de activos).' })
-  investments: number;
-
-  @ApiProperty({ description: 'Flujo de efectivo neto de actividades de financiación (ej. préstamos, capital).' })
+  @ApiProperty({ description: 'Efectivo neto por actividades de financiación.' })
   financing: number;
 
-  @ApiProperty({ description: 'Saldo de efectivo al final del período, calculado como la suma de todos los componentes.' })
+  @ApiProperty({ description: 'Efectivo y equivalentes al cierre del período.' })
   endingBalance: number;
 }

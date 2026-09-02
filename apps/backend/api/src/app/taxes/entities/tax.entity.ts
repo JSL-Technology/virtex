@@ -9,6 +9,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 
 export enum TaxType {
   PERCENTAGE = 'Porcentaje',
@@ -23,7 +24,7 @@ export class Tax {
   @Column()
   name: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 4 })
+  @Column({ type: 'decimal', precision: 10, scale: 4, transformer: numericTransformerNotNull })
   rate: number;
 
   @Column({
