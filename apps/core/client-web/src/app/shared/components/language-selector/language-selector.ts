@@ -68,4 +68,17 @@ export class LanguageSelector {
     if (!this.isOpen) return;
     if (!this.host.nativeElement.contains(event.target as Node)) this.isOpen = false;
   }
+
+  /**
+   * Escape closes the dropdown.
+   *
+   * It lives on the host rather than on the wrapper `<div>` because that `<div>` can never receive
+   * focus, so a key handler on it only ever fired for events that had already bubbled up from the
+   * trigger — never from a dropdown item, which is exactly where a keyboard reader is when they
+   * want out. On the host it catches both, and the widget stays a single tab stop.
+   */
+  @HostListener('keydown.escape')
+  onEscapeKey(): void {
+    this.close();
+  }
 }

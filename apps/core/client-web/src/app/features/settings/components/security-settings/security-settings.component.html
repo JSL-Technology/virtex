@@ -274,7 +274,7 @@
   message="SETTINGS.SECURITY.DISABLE_2FA_MESSAGE"
   confirmText="SETTINGS.SECURITY.DISABLE"
   cancelText="COMMON.CANCEL"
-  type="danger"
-  (confirm)="onDisableConfirmed()"
-  (cancel)="showDisableConfirmation.set(false)"
+  variant="danger"
+  (confirmed)="onDisableConfirmed()"
+  (cancelled)="showDisableConfirmation.set(false)"
 ></app-confirmation-modal>

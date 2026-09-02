@@ -1,0 +1,105 @@
+// The previous template was written in Tailwind utilities (`fixed inset-0 z-[60] bg-black/50`…).
+// Tailwind is not a dependency of this workspace, so every one of those classes resolved to
+// nothing: the dialog rendered as static, unpositioned markup in the middle of the page instead of
+// an overlay. These are the same design-system tokens the sibling modals use.
+
+.cm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background-color: rgba(var(--shadow-color-rgb), 0.5);
+  backdrop-filter: blur(4px);
+  animation: cm-fade 0.2s ease;
+}
+
+@keyframes cm-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.cm-box {
+  width: 100%;
+  max-width: 26rem;
+  overflow: hidden;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 48px rgba(var(--shadow-color-rgb), 0.2);
+  animation: cm-slide 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes cm-slide {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.cm-body {
+  padding: var(--space-6);
+  text-align: center;
+}
+
+.cm-title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+}
+
+.cm-message {
+  margin: 0 0 var(--space-6);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  // A confirmation question can be long in one language and short in another; it wraps rather
+  // than stretching the dialog.
+  overflow-wrap: anywhere;
+}
+
+.cm-actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: center;
+  // Two long button labels — `Cancelar` / `Desativar` is short, but a translated pair need not be
+  // — wrap onto two rows instead of overflowing the dialog.
+  flex-wrap: wrap;
+}
+
+.cm-button {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+
+  &:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  &--cancel {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+
+    &:hover { background-color: var(--bg-tertiary); }
+  }
+
+  &--confirm {
+    background-color: var(--primary);
+    color: #fff;
+
+    &:hover { background-color: var(--primary-hover); }
+  }
+
+  &--danger {
+    background-color: var(--danger);
+    color: #fff;
+
+    &:hover { filter: brightness(0.92); }
+  }
+}

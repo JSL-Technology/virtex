@@ -9486,6 +9486,1842 @@
     "La cuenta '{{code}} - {{p2}}' está bloqueada para nuevas transacciones.": {
       "en": "Account '{{code}} - {{p2}}' is locked for new transactions.",
       "pt": "A conta '{{code}} - {{p2}}' está bloqueada para novos lançamentos."
+    },
+    "No se puede modificar un asiento que contiene líneas conciliadas.": {
+      "en": "An entry containing reconciled lines cannot be modified.",
+      "pt": "Um lançamento com linhas conciliadas não pode ser modificado."
+    },
+    "No se puede reversar un asiento que contiene líneas conciliadas.": {
+      "en": "An entry containing reconciled lines cannot be reversed.",
+      "pt": "Um lançamento com linhas conciliadas não pode ser estornado."
+    },
+    "El archivo no contiene datos.": {
+      "en": "The file contains no data.",
+      "pt": "O arquivo não contém dados."
+    },
+    "Diario General (GENERAL) no encontrado, necesario para la importación.": {
+      "en": "The General journal (GENERAL) was not found, and the import needs it.",
+      "pt": "O diário Geral (GENERAL) não foi encontrado, e a importação precisa dele."
+    },
+    "Lote de importación no encontrado, expirado o ya procesado.": {
+      "en": "The import batch was not found, has expired, or has already been processed.",
+      "pt": "O lote de importação não foi encontrado, expirou ou já foi processado."
+    },
+    "El monto debe ser un número positivo.": {
+      "en": "The amount must be a positive number.",
+      "pt": "O valor deve ser um número positivo."
+    },
+    "Plantilla de asiento con ID \"{{id}}\" no encontrada.": {
+      "en": "Journal entry template \"{{id}}\" was not found.",
+      "pt": "Modelo de lançamento \"{{id}}\" não encontrado."
+    },
+    "El archivo subido está vacío o no se pudo leer.": {
+      "en": "The uploaded file is empty, or could not be read.",
+      "pt": "O arquivo enviado está vazio ou não pôde ser lido."
+    },
+    "Tipo de archivo no soportado: {{mimetype}}": {
+      "en": "Unsupported file type: {{mimetype}}",
+      "pt": "Tipo de arquivo não suportado: {{mimetype}}"
+    },
+    "No se encontró libro contable para la Org {{organizationId}}": {
+      "en": "No ledger was found for organization {{organizationId}}",
+      "pt": "Nenhum livro contábil encontrado para a organização {{organizationId}}"
+    },
+    "Plantilla recurrente {{recurringEntryId}} no encontrada.": {
+      "en": "Recurring template {{recurringEntryId}} was not found.",
+      "pt": "Modelo recorrente {{recurringEntryId}} não encontrado."
+    },
+    "Plantilla de asiento recurrente con ID \"{{id}}\" no encontrada.": {
+      "en": "Recurring journal entry template \"{{id}}\" was not found.",
+      "pt": "Modelo de lançamento recorrente \"{{id}}\" não encontrado."
+    },
+    "Importación confirmada y procesada exitosamente.": {
+      "en": "The import was confirmed and processed.",
+      "pt": "A importação foi confirmada e processada."
+    },
+    "Adjunto eliminado exitosamente.": {
+      "en": "Attachment deleted.",
+      "pt": "Anexo excluído."
+    },
+    "El país \"{{countryCode}}\" no está disponible para registro todavía.": {
+      "en": "The country \"{{countryCode}}\" is not available for registration yet.",
+      "pt": "O país \"{{countryCode}}\" ainda não está disponível para cadastro."
+    },
+    "La configuración fiscal de \"{{countryCode}}\" no está disponible.": {
+      "en": "The tax configuration for \"{{countryCode}}\" is not available.",
+      "pt": "A configuração fiscal de \"{{countryCode}}\" não está disponível."
+    },
+    "Región fiscal con ID \"{{fiscalRegionId}}\" no encontrada.": {
+      "en": "Tax region \"{{fiscalRegionId}}\" was not found.",
+      "pt": "Região fiscal \"{{fiscalRegionId}}\" não encontrada."
+    },
+    "La organización {{id}} no tiene región fiscal; no se puede aplicar el paquete fiscal.": {
+      "en": "Organization {{id}} has no tax region; the tax package cannot be applied.",
+      "pt": "A organização {{id}} não tem região fiscal; o pacote fiscal não pode ser aplicado."
+    },
+    "No hay esquema de impuestos definido para {{countryCode}}.": {
+      "en": "No tax scheme is defined for {{countryCode}}.",
+      "pt": "Nenhum esquema tributário definido para {{countryCode}}."
+    },
+    "No tienes acceso a esa organización.": {
+      "en": "You do not have access to that organization.",
+      "pt": "Você não tem acesso a essa organização."
+    },
+    "El país \"{{country}}\" todavía no está disponible.": {
+      "en": "The country \"{{country}}\" is not available yet.",
+      "pt": "O país \"{{country}}\" ainda não está disponível."
+    },
+    "No se encontró la organización {{id}}.": {
+      "en": "Organization {{id}} was not found.",
+      "pt": "A organização {{id}} não foi encontrada."
+    },
+    "Ya existe una organización registrada con ese {{label}}.": {
+      "en": "An organization is already registered with that {{label}}.",
+      "pt": "Já existe uma organização cadastrada com esse {{label}}."
+    },
+    "No se especificó un plan válido (priceId faltante).": {
+      "en": "No valid plan was specified (priceId is missing).",
+      "pt": "Nenhum plano válido foi informado (priceId ausente)."
+    },
+    "No se encontró la organización.": {
+      "en": "The organization was not found.",
+      "pt": "A organização não foi encontrada."
+    },
+    "No se pudo crear la sesión de pago.": {
+      "en": "The payment session could not be created.",
+      "pt": "Não foi possível criar a sessão de pagamento."
+    },
+    "La sesión de pago no corresponde a esta organización.": {
+      "en": "The payment session does not belong to this organization.",
+      "pt": "A sessão de pagamento não pertence a esta organização."
+    },
+    "No existe una suscripción activa para gestionar.": {
+      "en": "There is no active subscription to manage.",
+      "pt": "Não há assinatura ativa para gerenciar."
+    },
+    "Webhook signature verification failed": {
+      "en": "The webhook signature could not be verified.",
+      "pt": "Não foi possível verificar a assinatura do webhook."
+    },
+    "El usuario no pertenece a ninguna organización.": {
+      "en": "The user does not belong to any organization.",
+      "pt": "O usuário não pertence a nenhuma organização."
+    },
+    "Missing stripe-signature header.": {
+      "en": "The stripe-signature header is missing.",
+      "pt": "Falta o cabeçalho stripe-signature."
+    },
+    "No se pudo verificar la firma del webhook porque el cuerpo original de la solicitud no está disponible.": {
+      "en": "The webhook signature could not be verified because the raw request body is unavailable.",
+      "pt": "Não foi possível verificar a assinatura do webhook porque o corpo original da requisição não está disponível."
+    },
+    "No se encontró la lista de precios \"{{id}}\".": {
+      "en": "Price list \"{{id}}\" was not found.",
+      "pt": "A tabela de preços \"{{id}}\" não foi encontrada."
+    },
+    "La cuenta bancaria especificada no es válida.": {
+      "en": "The specified bank account is not valid.",
+      "pt": "A conta bancária informada não é válida."
+    },
+    "El formato del archivo CSV no es válido, está corrupto, o el mapeo de columnas es incorrecto.": {
+      "en": "The CSV file is malformed or corrupt, or the column mapping is wrong.",
+      "pt": "O arquivo CSV está malformado ou corrompido, ou o mapeamento de colunas está incorreto."
+    },
+    "Diario de Conciliación (CONCIL) no encontrado.": {
+      "en": "The Reconciliation journal (CONCIL) was not found.",
+      "pt": "O diário de Conciliação (CONCIL) não foi encontrado."
+    },
+    "La transacción bancaria o el asiento contable especificado no es válido (ID Tx: {{bankTransactionId}}, ID Asiento: {{journalEntryLineId}})": {
+      "en": "The bank transaction or the journal entry given is not valid (Tx ID: {{bankTransactionId}}, entry ID: {{journalEntryLineId}})",
+      "pt": "A transação bancária ou o lançamento informado não é válido (ID Tx: {{bankTransactionId}}, ID do lançamento: {{journalEntryLineId}})"
+    },
+    "Estado de cuenta no encontrado.": {
+      "en": "The statement was not found.",
+      "pt": "O extrato não foi encontrado."
+    },
+    "No se pudo determinar el libro contable para el reporte. No se especificó uno y no hay uno por defecto.": {
+      "en": "The ledger for the report could not be determined: none was specified and there is no default.",
+      "pt": "Não foi possível determinar o livro contábil do relatório: nenhum foi informado e não há um padrão."
+    },
+    "La cuenta de Cuentas por Cobrar por defecto no está configurada.": {
+      "en": "The default Accounts Receivable account is not configured.",
+      "pt": "A conta padrão de Contas a Receber não está configurada."
+    },
+    "Libro contable con ID \"{{ledgerId}}\" no encontrado.": {
+      "en": "Ledger \"{{ledgerId}}\" was not found.",
+      "pt": "Livro contábil \"{{ledgerId}}\" não encontrado."
+    },
+    "No hay facturas pendientes de pago para generar el reporte.": {
+      "en": "There are no outstanding invoices to build the report from.",
+      "pt": "Não há faturas em aberto para gerar o relatório."
+    },
+    "Rol con ID \"{{id}}\" no encontrado.": {
+      "en": "Role \"{{id}}\" was not found.",
+      "pt": "Perfil \"{{id}}\" não encontrado."
+    },
+    "Ya existe un rol llamado \"{{name}}\" en tu organización.": {
+      "en": "A role named \"{{name}}\" already exists in your organization.",
+      "pt": "Já existe um perfil chamado \"{{name}}\" na sua organização."
+    },
+    "El permiso total (*) no puede delegarse a un rol.": {
+      "en": "The full permission (*) cannot be delegated to a role.",
+      "pt": "A permissão total (*) não pode ser delegada a um perfil."
+    },
+    "No puedes asignar el permiso \"{{permission}}\" porque tú no lo posees.": {
+      "en": "You cannot assign the permission \"{{permission}}\" because you do not hold it.",
+      "pt": "Você não pode atribuir a permissão \"{{permission}}\" porque não a possui."
+    },
+    "No puedes asignar un rol con privilegios totales (*).": {
+      "en": "You cannot assign a role with full privileges (*).",
+      "pt": "Você não pode atribuir um perfil com privilégios totais (*)."
+    },
+    "No puedes asignar un rol que incluye el permiso \"{{permission}}\" que tú no posees.": {
+      "en": "You cannot assign a role that includes the permission \"{{permission}}\", which you do not hold.",
+      "pt": "Você não pode atribuir um perfil que inclui a permissão \"{{permission}}\", que você não possui."
+    },
+    "Los roles del sistema no se pueden clonar.": {
+      "en": "System roles cannot be cloned.",
+      "pt": "Perfis do sistema não podem ser clonados."
+    },
+    "Los roles del sistema no pueden ser modificados.": {
+      "en": "System roles cannot be modified.",
+      "pt": "Perfis do sistema não podem ser modificados."
+    },
+    "Los roles del sistema no pueden ser eliminados.": {
+      "en": "System roles cannot be deleted.",
+      "pt": "Perfis do sistema não podem ser excluídos."
+    },
+    "No se puede eliminar un rol asignado a {{assignedCount}} usuario(s). Reasigna esos usuarios a otro rol antes de eliminarlo.": {
+      "en": "A role assigned to {{assignedCount}} user(s) cannot be deleted. Move those users to another role first.",
+      "pt": "Um perfil atribuído a {{assignedCount}} usuário(s) não pode ser excluído. Mova esses usuários para outro perfil antes."
+    },
+    "Acceso completo a todos los módulos y a la configuración de la organización.": {
+      "en": "Full access to every module and to the organization's settings.",
+      "pt": "Acesso completo a todos os módulos e às configurações da organização."
+    },
+    "Acceso de solo lectura a facturas y productos.": {
+      "en": "Read-only access to invoices and products.",
+      "pt": "Acesso somente leitura a faturas e produtos."
+    },
+    "Gestiona clientes y emite facturas de venta.": {
+      "en": "Manages customers and issues sales invoices.",
+      "pt": "Gerencia clientes e emite faturas de venda."
+    },
+    "Lleva la contabilidad: asientos, plan de cuentas y reportes financieros.": {
+      "en": "Keeps the books: journal entries, chart of accounts and financial reports.",
+      "pt": "Cuida da contabilidade: lançamentos, plano de contas e relatórios financeiros."
+    },
+    "No pudimos cobrar tu suscripción": {
+      "en": "We could not charge your subscription",
+      "pt": "Não conseguimos cobrar sua assinatura"
+    },
+    "El cobro de {{amount}} no se pudo completar. Actualiza tu método de pago en Configuración → Facturación.": {
+      "en": "The {{amount}} charge could not be completed. Update your payment method under Settings → Billing.",
+      "pt": "A cobrança de {{amount}} não pôde ser concluída. Atualize sua forma de pagamento em Configurações → Faturamento."
+    },
+    "El cobro de {{amount}} no se pudo completar. Lo reintentaremos el {{nextAttempt}}. Actualiza tu método de pago en Configuración → Facturación.": {
+      "en": "The {{amount}} charge could not be completed. We will retry on {{nextAttempt}}. Update your payment method under Settings → Billing.",
+      "pt": "A cobrança de {{amount}} não pôde ser concluída. Tentaremos novamente em {{nextAttempt}}. Atualize sua forma de pagamento em Configurações → Faturamento."
+    },
+    "El cobro de {{amount}} no se pudo completar. Tu acceso continúa hasta el {{gracePeriodEnd}}. Actualiza tu método de pago en Configuración → Facturación.": {
+      "en": "The {{amount}} charge could not be completed. Your access continues until {{gracePeriodEnd}}. Update your payment method under Settings → Billing.",
+      "pt": "A cobrança de {{amount}} não pôde ser concluída. Seu acesso continua até {{gracePeriodEnd}}. Atualize sua forma de pagamento em Configurações → Faturamento."
+    },
+    "El cobro de {{amount}} no se pudo completar. Lo reintentaremos el {{nextAttempt}} y tu acceso continúa hasta el {{gracePeriodEnd}}. Actualiza tu método de pago en Configuración → Facturación.": {
+      "en": "The {{amount}} charge could not be completed. We will retry on {{nextAttempt}}, and your access continues until {{gracePeriodEnd}}. Update your payment method under Settings → Billing.",
+      "pt": "A cobrança de {{amount}} não pôde ser concluída. Tentaremos novamente em {{nextAttempt}} e seu acesso continua até {{gracePeriodEnd}}. Atualize sua forma de pagamento em Configurações → Faturamento."
+    },
+    "Tu suscripción está al día": {
+      "en": "Your subscription is up to date",
+      "pt": "Sua assinatura está em dia"
+    },
+    "Recibimos el pago de {{amount}}. Gracias.": {
+      "en": "We received your {{amount}} payment. Thank you.",
+      "pt": "Recebemos seu pagamento de {{amount}}. Obrigado."
+    },
+    "Te acercas al límite de {{resource}}": {
+      "en": "You are approaching your {{resource}} limit",
+      "pt": "Você está chegando ao limite de {{resource}}"
+    },
+    "Has usado {{used}} de {{limit}} {{resource}} de tu plan. Puedes ampliarlo en Configuración → Facturación antes de alcanzarlo.": {
+      "en": "You have used {{used}} of your plan's {{limit}} {{resource}}. You can upgrade under Settings → Billing before you reach it.",
+      "pt": "Você usou {{used}} de {{limit}} {{resource}} do seu plano. Você pode ampliá-lo em Configurações → Faturamento antes de atingi-lo."
+    },
+    "Alcanzaste el límite de {{resource}}": {
+      "en": "You have reached your {{resource}} limit",
+      "pt": "Você atingiu o limite de {{resource}}"
+    },
+    "Tu plan permite {{limit}} {{resource}}. Amplía el plan en Configuración → Facturación para seguir trabajando.": {
+      "en": "Your plan allows {{limit}} {{resource}}. Upgrade under Settings → Billing to carry on.",
+      "pt": "Seu plano permite {{limit}} {{resource}}. Amplie o plano em Configurações → Faturamento para continuar."
+    },
+    "Lead no encontrado.": {
+      "en": "The lead was not found.",
+      "pt": "O lead não foi encontrado."
+    },
+    "Solo se pueden facturar cotizaciones aceptadas.": {
+      "en": "Only accepted quotes can be invoiced.",
+      "pt": "Somente orçamentos aceitos podem ser faturados."
+    },
+    "Cotización no encontrada.": {
+      "en": "The quote was not found.",
+      "pt": "O orçamento não foi encontrado."
+    },
+    "La cotización no tiene líneas que facturar.": {
+      "en": "The quote has no lines to invoice.",
+      "pt": "O orçamento não tem linhas a faturar."
+    },
+    "La cotización {{quoteNumber}} ya fue facturada.": {
+      "en": "Quote {{quoteNumber}} has already been invoiced.",
+      "pt": "O orçamento {{quoteNumber}} já foi faturado."
+    },
+    "No se encontró una secuencia de documento activa para el tipo {{type}}. Por favor, configure las secuencias.": {
+      "en": "No active document sequence was found for type {{type}}. Configure the sequences.",
+      "pt": "Nenhuma sequência de documento ativa encontrada para o tipo {{type}}. Configure as sequências."
+    },
+    "La organización no está lista para facturar. Falta: {{p1}}.": {
+      "en": "The organization is not ready to invoice. Missing: {{p1}}.",
+      "pt": "A organização não está pronta para faturar. Falta: {{p1}}."
+    },
+    "El archivo no está disponible.": {
+      "en": "The file is not available.",
+      "pt": "O arquivo não está disponível."
+    },
+    "Proveedor con ID \"{{id}}\" no encontrado.": {
+      "en": "Supplier \"{{id}}\" was not found.",
+      "pt": "Fornecedor \"{{id}}\" não encontrado."
+    },
+    "Impuesto con ID \"{{id}}\" no encontrado.": {
+      "en": "Tax \"{{id}}\" was not found.",
+      "pt": "Imposto \"{{id}}\" não encontrado."
+    },
+    "Las cuentas de origen y destino no pueden ser la misma.": {
+      "en": "The source and destination accounts cannot be the same.",
+      "pt": "As contas de origem e destino não podem ser a mesma."
+    },
+    "Diario de Bancos (BANCOS) no encontrado.": {
+      "en": "The Banks journal (BANCOS) was not found.",
+      "pt": "O diário de Bancos (BANCOS) não foi encontrado."
+    },
+    "Only image files are allowed!": {
+      "en": "Only image files are allowed.",
+      "pt": "Somente arquivos de imagem são permitidos."
+    },
+    "El archivo es obligatorio.": {
+      "en": "The file is required.",
+      "pt": "O arquivo é obrigatório."
+    },
+    "No puedes bloquear tu propia cuenta.": {
+      "en": "You cannot block your own account.",
+      "pt": "Você não pode bloquear a própria conta."
+    },
+    "No se pudo completar el cambio de correo electrónico.": {
+      "en": "The email change could not be completed.",
+      "pt": "Não foi possível concluir a alteração de e-mail."
+    },
+    "No hay ningún cambio de correo pendiente.": {
+      "en": "There is no pending email change.",
+      "pt": "Não há alteração de e-mail pendente."
+    },
+    "El enlace de confirmación ha expirado. Solicita uno nuevo.": {
+      "en": "The confirmation link has expired. Request a new one.",
+      "pt": "O link de confirmação expirou. Solicite um novo."
+    },
+    "Token de confirmación inválido.": {
+      "en": "Invalid confirmation token.",
+      "pt": "Token de confirmação inválido."
+    },
+    "No se pudo enviar la invitación con los datos proporcionados.": {
+      "en": "The invitation could not be sent with the details provided.",
+      "pt": "Não foi possível enviar o convite com os dados informados."
+    },
+    "Formato de email inválido.": {
+      "en": "Invalid email format.",
+      "pt": "Formato de e-mail inválido."
+    },
+    "El email ya está en uso por otro usuario.": {
+      "en": "That email is already in use by another user.",
+      "pt": "Esse e-mail já está em uso por outro usuário."
+    },
+    "Rol con ID {{roleId}} no encontrado.": {
+      "en": "Role {{roleId}} was not found.",
+      "pt": "Perfil {{roleId}} não encontrado."
+    },
+    "Usuario con id {{id}} no encontrado": {
+      "en": "User {{id}} was not found",
+      "pt": "Usuário {{id}} não encontrado"
+    },
+    "Usuario con id {{id}} no encontrado en tu organización": {
+      "en": "User {{id}} was not found in your organization",
+      "pt": "Usuário {{id}} não encontrado na sua organização"
+    },
+    "Usuario con ID {{id}} no encontrado en tu organización.": {
+      "en": "User {{id}} was not found in your organization.",
+      "pt": "Usuário {{id}} não encontrado na sua organização."
+    },
+    "Usuario no encontrado": {
+      "en": "User not found",
+      "pt": "Usuário não encontrado"
+    },
+    "No puedes eliminar tu propia cuenta desde la administración de usuarios.": {
+      "en": "You cannot delete your own account from user management.",
+      "pt": "Você não pode excluir sua própria conta pela gestão de usuários."
+    },
+    "No se puede eliminar un usuario con un rol de sistema.": {
+      "en": "A user holding a system role cannot be deleted.",
+      "pt": "Um usuário com perfil de sistema não pode ser excluído."
+    },
+    "No puedes desactivar o bloquear tu propia cuenta.": {
+      "en": "You cannot deactivate or block your own account.",
+      "pt": "Você não pode desativar ou bloquear a própria conta."
+    },
+    "Credenciales incorrectas.": {
+      "en": "Incorrect credentials.",
+      "pt": "Credenciais incorretas."
+    },
+    "Se ha cerrado la sesión del usuario.": {
+      "en": "The user's session has been closed.",
+      "pt": "A sessão do usuário foi encerrada."
+    },
+    "Se ha bloqueado y cerrado la sesión del usuario.": {
+      "en": "The user has been blocked and their session closed.",
+      "pt": "O usuário foi bloqueado e sua sessão encerrada."
+    },
+    "Si los datos son correctos, se ha enviado un enlace de confirmación al nuevo correo.": {
+      "en": "If the details are correct, a confirmation link has been sent to the new address.",
+      "pt": "Se os dados estiverem corretos, um link de confirmação foi enviado ao novo endereço."
+    },
+    "Correo electrónico actualizado. Tu sesión se ha invalidado por seguridad.": {
+      "en": "Email updated. Your session has been invalidated for security.",
+      "pt": "E-mail atualizado. Sua sessão foi invalidada por segurança."
+    },
+    "Enviamos un enlace para restablecer la contraseña.": {
+      "en": "We sent a password reset link.",
+      "pt": "Enviamos um link para redefinir a senha."
+    },
+    "Email actualizado. La sesión del usuario ha sido invalidada.": {
+      "en": "Email updated. The user's session has been invalidated.",
+      "pt": "E-mail atualizado. A sessão do usuário foi invalidada."
+    },
+    "La solicitud ya ha sido procesada.": {
+      "en": "The request has already been processed.",
+      "pt": "A solicitação já foi processada."
+    },
+    "Política de aprobación no encontrada.": {
+      "en": "The approval policy was not found.",
+      "pt": "A política de aprovação não foi encontrada."
+    },
+    "Solicitud de aprobación no encontrada.": {
+      "en": "The approval request was not found.",
+      "pt": "A solicitação de aprovação não foi encontrada."
+    },
+    "Solicitud no encontrada.": {
+      "en": "The request was not found.",
+      "pt": "A solicitação não foi encontrada."
+    },
+    "No tienes permisos para aprobar este paso.": {
+      "en": "You do not have permission to approve this step.",
+      "pt": "Você não tem permissão para aprovar esta etapa."
+    },
+    "No se encontró la política de aprobación con ID \"{{policyId}}\" asociada a esta solicitud.": {
+      "en": "The approval policy \"{{policyId}}\" linked to this request was not found.",
+      "pt": "A política de aprovação \"{{policyId}}\" vinculada a esta solicitação não foi encontrada."
+    },
+    "Esa operación no está permitida sobre este recurso.": {
+      "en": "That operation is not allowed on this resource.",
+      "pt": "Essa operação não é permitida neste recurso."
+    },
+    "Correo o contraseña incorrectos.": {
+      "en": "Incorrect email or password.",
+      "pt": "E-mail ou senha incorretos."
+    },
+    "Tu cuenta está inactiva. Contacta al administrador de tu organización.": {
+      "en": "Your account is inactive. Contact your organization's administrator.",
+      "pt": "Sua conta está inativa. Fale com o administrador da sua organização."
+    },
+    "Tu cuenta está bloqueada. Contacta al administrador de tu organización.": {
+      "en": "Your account is blocked. Contact your organization's administrator.",
+      "pt": "Sua conta está bloqueada. Fale com o administrador da sua organização."
+    },
+    "El enlace o el código no es válido.": {
+      "en": "The link or code is not valid.",
+      "pt": "O link ou o código não é válido."
+    },
+    "Tu sesión expiró. Inicia sesión de nuevo.": {
+      "en": "Your session expired. Sign in again.",
+      "pt": "Sua sessão expirou. Entre novamente."
+    },
+    "Tu sesión fue cerrada desde otro dispositivo. Inicia sesión de nuevo.": {
+      "en": "Your session was closed from another device. Sign in again.",
+      "pt": "Sua sessão foi encerrada em outro dispositivo. Entre novamente."
+    },
+    "Tu sesión ya no es válida. Inicia sesión de nuevo.": {
+      "en": "Your session is no longer valid. Sign in again.",
+      "pt": "Sua sessão não é mais válida. Entre novamente."
+    },
+    "Detectamos un cambio de dispositivo. Por seguridad, inicia sesión de nuevo.": {
+      "en": "We detected a device change. For your security, sign in again.",
+      "pt": "Detectamos uma troca de dispositivo. Por segurança, entre novamente."
+    },
+    "Introduce el código de verificación en dos pasos.": {
+      "en": "Enter your two-step verification code.",
+      "pt": "Digite seu código de verificação em duas etapas."
+    },
+    "El código de verificación no es correcto.": {
+      "en": "The verification code is not correct.",
+      "pt": "O código de verificação não está correto."
+    },
+    "El número de teléfono no coincide con el registrado.": {
+      "en": "The phone number does not match the one on record.",
+      "pt": "O número de telefone não corresponde ao cadastrado."
+    },
+    "El código de verificación expiró. Solicita uno nuevo.": {
+      "en": "The verification code expired. Request a new one.",
+      "pt": "O código de verificação expirou. Solicite um novo."
+    },
+    "No hay un código de verificación pendiente. Solicita uno nuevo.": {
+      "en": "There is no pending verification code. Request a new one.",
+      "pt": "Não há código de verificação pendente. Solicite um novo."
+    },
+    "{{count}} minuto": {
+      "en": "{{count}} minute",
+      "pt": "{{count}} minuto"
+    },
+    "{{count}} minutos": {
+      "en": "{{count}} minutes",
+      "pt": "{{count}} minutos"
+    },
+    "{{count}} hora": {
+      "en": "{{count}} hour",
+      "pt": "{{count}} hora"
+    },
+    "{{count}} horas": {
+      "en": "{{count}} hours",
+      "pt": "{{count}} horas"
+    },
+    "{{count}} día": {
+      "en": "{{count}} day",
+      "pt": "{{count}} dia"
+    },
+    "{{count}} días": {
+      "en": "{{count}} days",
+      "pt": "{{count}} dias"
+    },
+    "un tiempo limitado": {
+      "en": "a limited time",
+      "pt": "um tempo limitado"
+    },
+    "Ir a Facturación": {
+      "en": "Go to Billing",
+      "pt": "Ir para Faturamento"
+    },
+    "Intento de Registro": {
+      "en": "Registration Attempt",
+      "pt": "Tentativa de Cadastro"
+    },
+    "Recibimos una solicitud para registrar una nueva cuenta en": {
+      "en": "We received a request to register a new account on",
+      "pt": "Recebemos uma solicitação para cadastrar uma nova conta em"
+    },
+    "utilizando esta dirección de correo electrónico.": {
+      "en": "using this email address.",
+      "pt": "usando este endereço de e-mail."
+    },
+    "Sin embargo, ya existe una cuenta asociada a este correo.": {
+      "en": "However, an account already exists for this address.",
+      "pt": "No entanto, já existe uma conta associada a este e-mail."
+    },
+    "Si fuiste tú quien intentó registrarse, puedes iniciar sesión directamente aquí:": {
+      "en": "If it was you who tried to sign up, you can sign in directly here:",
+      "pt": "Se foi você quem tentou se cadastrar, pode entrar diretamente aqui:"
+    },
+    "Iniciar Sesión": {
+      "en": "Sign In",
+      "pt": "Entrar"
+    },
+    "Si olvidaste tu contraseña, puedes restablecerla aquí:": {
+      "en": "If you have forgotten your password, you can reset it here:",
+      "pt": "Se você esqueceu sua senha, pode redefini-la aqui:"
+    },
+    "Si no fuiste tú, puedes ignorar este correo de forma segura.": {
+      "en": "If it was not you, you can safely ignore this email.",
+      "pt": "Se não foi você, pode ignorar este e-mail com segurança."
+    },
+    "Intento de registro con tu correo": {
+      "en": "Someone tried to sign up with your email",
+      "pt": "Alguém tentou se cadastrar com seu e-mail"
+    },
+    "Confirma tu nuevo correo | {{appName}}": {
+      "en": "Confirm your new email | {{appName}}",
+      "pt": "Confirme seu novo e-mail | {{appName}}"
+    },
+    "Confirma el cambio de tu correo electrónico en {{appName}}. El enlace vence en {{expiresMinutes}} minutos.": {
+      "en": "Confirm the change of your email address on {{appName}}. The link expires in {{expiresMinutes}} minutes.",
+      "pt": "Confirme a alteração do seu e-mail no {{appName}}. O link expira em {{expiresMinutes}} minutos."
+    },
+    "Confirma tu nuevo correo electrónico": {
+      "en": "Confirm your new email address",
+      "pt": "Confirme seu novo e-mail"
+    },
+    "Hemos recibido una solicitud para cambiar el correo electrónico de tu cuenta en": {
+      "en": "We received a request to change the email address on your account at",
+      "pt": "Recebemos uma solicitação para alterar o e-mail da sua conta em"
+    },
+    ". Para confirmar el cambio, haz clic en el botón a continuación.": {
+      "en": ". To confirm the change, click the button below.",
+      "pt": ". Para confirmar a alteração, clique no botão abaixo."
+    },
+    "Confirmar correo electrónico": {
+      "en": "Confirm email address",
+      "pt": "Confirmar e-mail"
+    },
+    "Este enlace es válido por": {
+      "en": "This link is valid for",
+      "pt": "Este link é válido por"
+    },
+    "Si el botón no funciona, copia y pega esta URL en tu navegador:": {
+      "en": "If the button does not work, copy and paste this URL into your browser:",
+      "pt": "Se o botão não funcionar, copie e cole esta URL no seu navegador:"
+    },
+    "¿No solicitaste este cambio? Puedes ignorar este correo con seguridad. Tu correo actual permanecerá sin cambios.": {
+      "en": "Did you not request this change? You can safely ignore this email. Your current address will stay as it is.",
+      "pt": "Não solicitou esta alteração? Você pode ignorar este e-mail com segurança. Seu endereço atual permanecerá o mesmo."
+    },
+    "Este es un correo transaccional automático; no respondas a este mensaje.": {
+      "en": "This is an automatic transactional email; please do not reply to it.",
+      "pt": "Este é um e-mail transacional automático; não responda a esta mensagem."
+    },
+    "El correo de tu cuenta ha cambiado | {{appName}}": {
+      "en": "Your account's email has changed | {{appName}}",
+      "pt": "O e-mail da sua conta mudou | {{appName}}"
+    },
+    "El correo de tu cuenta en {{appName}} se cambió a {{newEmail}}. Si no fuiste tú, contacta a soporte.": {
+      "en": "Your {{appName}} account email was changed to {{newEmail}}. If this was not you, contact support.",
+      "pt": "O e-mail da sua conta no {{appName}} foi alterado para {{newEmail}}. Se não foi você, fale com o suporte."
+    },
+    "El correo de tu cuenta ha cambiado": {
+      "en": "Your account's email has changed",
+      "pt": "O e-mail da sua conta mudou"
+    },
+    "El correo electrónico de tu cuenta en": {
+      "en": "The email address on your account at",
+      "pt": "O e-mail da sua conta em"
+    },
+    "se cambió a": {
+      "en": "was changed to",
+      "pt": "foi alterado para"
+    },
+    ". A partir de ahora, los avisos y la recuperación de contraseña irán a esa dirección.": {
+      "en": ". From now on, notices and password recovery will go to that address.",
+      "pt": ". A partir de agora, os avisos e a recuperação de senha irão para esse endereço."
+    },
+    "Todas las sesiones abiertas se cerraron como medida de seguridad.": {
+      "en": "Every open session was closed as a security measure.",
+      "pt": "Todas as sessões abertas foram encerradas como medida de segurança."
+    },
+    "¿No fuiste tú?": {
+      "en": "Was this not you?",
+      "pt": "Não foi você?"
+    },
+    "Contacta a soporte de inmediato desde esta misma dirección. Este mensaje se envía a tu correo anterior precisamente para que puedas reaccionar si el cambio no lo hiciste tú.": {
+      "en": "Contact support immediately from this same address. This message goes to your previous address precisely so you can react if the change was not yours.",
+      "pt": "Fale com o suporte imediatamente a partir deste mesmo endereço. Esta mensagem vai para seu endereço anterior justamente para que você possa reagir caso a alteração não tenha sido feita por você."
+    },
+    "Acceso a una nueva organización": {
+      "en": "Access to a new organization",
+      "pt": "Acesso a uma nova organização"
+    },
+    "te ha dado acceso a su cuenta en {{appName}}.": {
+      "en": "has given you access to their {{appName}} account.",
+      "pt": "concedeu a você acesso à conta dela no {{appName}}."
+    },
+    "Usa tu contraseña de siempre: es la misma cuenta que ya tienes. Al iniciar sesión podrás\n        cambiar entre las organizaciones a las que perteneces desde el selector de organización.": {
+      "en": "Use your usual password: it is the same account you already have. Once signed in you can\n        switch between the organizations you belong to from the organization selector.",
+      "pt": "Use sua senha de sempre: é a mesma conta que você já tem. Ao entrar, você poderá\n        alternar entre as organizações às quais pertence pelo seletor de organização."
+    },
+    "Si no esperabas este acceso, contacta a tu administrador o a soporte.": {
+      "en": "If you were not expecting this access, contact your administrator or support.",
+      "pt": "Se você não esperava este acesso, fale com seu administrador ou com o suporte."
+    },
+    "Ahora tienes acceso a {{organization}}": {
+      "en": "You now have access to {{organization}}",
+      "pt": "Agora você tem acesso a {{organization}}"
+    },
+    "Restablecimiento de contraseña | {{appName}}": {
+      "en": "Password reset | {{appName}}",
+      "pt": "Redefinição de senha | {{appName}}"
+    },
+    "Usa el siguiente enlace para restablecer tu contraseña de {{appName}}. El enlace vence en {{expiration}}.": {
+      "en": "Use the link below to reset your {{appName}} password. It expires in {{expiration}}.",
+      "pt": "Use o link abaixo para redefinir sua senha do {{appName}}. Ele expira em {{expiration}}."
+    },
+    "Restablecimiento de contraseña": {
+      "en": "Password reset",
+      "pt": "Redefinição de senha"
+    },
+    "Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en": {
+      "en": "We received a request to reset the password on your account at",
+      "pt": "Recebemos uma solicitação para redefinir a senha da sua conta em"
+    },
+    ". Para continuar, utiliza el botón seguro a continuación.": {
+      "en": ". To continue, use the secure button below.",
+      "pt": ". Para continuar, use o botão seguro abaixo."
+    },
+    "¿No solicitaste este cambio? Puedes ignorar este correo con seguridad. Tu contraseña no se modificará.": {
+      "en": "Did you not request this change? You can safely ignore this email. Your password will not change.",
+      "pt": "Não solicitou esta alteração? Você pode ignorar este e-mail com segurança. Sua senha não será alterada."
+    },
+    "Si necesitas ayuda, visita": {
+      "en": "If you need help, visit",
+      "pt": "Se precisar de ajuda, acesse"
+    },
+    "o escríbenos a": {
+      "en": "or write to us at",
+      "pt": "ou escreva para"
+    },
+    "¿Problemas para ver este correo?": {
+      "en": "Trouble viewing this email?",
+      "pt": "Problemas para ver este e-mail?"
+    },
+    "Ábrelo en el navegador": {
+      "en": "Open it in your browser",
+      "pt": "Abra no navegador"
+    },
+    "Has recibido este mensaje porque existe una cuenta de {{appName}} asociada a esta dirección de correo.": {
+      "en": "You received this message because there is a {{appName}} account associated with this email address.",
+      "pt": "Você recebeu esta mensagem porque existe uma conta do {{appName}} associada a este endereço de e-mail."
+    },
+    "Este enlace es válido durante {{expiration}}.": {
+      "en": "This link is valid for {{expiration}}.",
+      "pt": "Este link é válido por {{expiration}}."
+    },
+    "Restablece tu contraseña": {
+      "en": "Reset your password",
+      "pt": "Redefina sua senha"
+    },
+    "Hola,": {
+      "en": "Hello,",
+      "pt": "Olá,"
+    },
+    "Para completar tu registro, debes confirmar tu correo electrónico. Puedes hacerlo de dos maneras:": {
+      "en": "To finish signing up you need to confirm your email address. There are two ways to do it:",
+      "pt": "Para concluir seu cadastro, confirme seu e-mail. Há duas formas de fazer isso:"
+    },
+    "Opción 1 — Un clic": {
+      "en": "Option 1 — One click",
+      "pt": "Opção 1 — Um clique"
+    },
+    "Haz clic en el botón de abajo para confirmar tu correo y retomar el proceso de registro donde lo dejaste.": {
+      "en": "Click the button below to confirm your address and pick up the sign-up where you left off.",
+      "pt": "Clique no botão abaixo para confirmar seu e-mail e retomar o cadastro de onde parou."
+    },
+    "Opción 2 — Código de verificación": {
+      "en": "Option 2 — Verification code",
+      "pt": "Opção 2 — Código de verificação"
+    },
+    "Ingresa este código en el formulario de registro:": {
+      "en": "Enter this code on the sign-up form:",
+      "pt": "Digite este código no formulário de cadastro:"
+    },
+    "⏱ Este código y el enlace expiran en": {
+      "en": "⏱ This code and the link expire in",
+      "pt": "⏱ Este código e o link expiram em"
+    },
+    "Si no solicitaste esto, puedes ignorar este correo de forma segura.": {
+      "en": "If you did not request this, you can safely ignore this email.",
+      "pt": "Se você não solicitou isso, pode ignorar este e-mail com segurança."
+    },
+    "No compartas este código con nadie. Nuestro equipo nunca te lo pedirá.": {
+      "en": "Do not share this code with anyone. Our team will never ask you for it.",
+      "pt": "Não compartilhe este código com ninguém. Nossa equipe nunca o pedirá."
+    },
+    "No pudimos crear tu cuenta": {
+      "en": "We could not create your account",
+      "pt": "Não conseguimos criar sua conta"
+    },
+    "Tu pago se procesó correctamente, pero no pudimos crear tu cuenta en": {
+      "en": "Your payment went through, but we could not create your account at",
+      "pt": "Seu pagamento foi processado, mas não conseguimos criar sua conta em"
+    },
+    ". Lamentamos el inconveniente.": {
+      "en": ". We are sorry for the inconvenience.",
+      "pt": ". Lamentamos o transtorno."
+    },
+    "Ya cancelamos la suscripción y solicitamos la devolución del cargo.": {
+      "en": "We have already cancelled the subscription and requested a refund of the charge.",
+      "pt": "Já cancelamos a assinatura e solicitamos o estorno da cobrança."
+    },
+    "Según tu banco, el reembolso puede tardar entre 5 y 10 días hábiles en aparecer en tu estado de cuenta.": {
+      "en": "Depending on your bank, the refund can take 5 to 10 business days to appear on your statement.",
+      "pt": "Dependendo do seu banco, o estorno pode levar de 5 a 10 dias úteis para aparecer no seu extrato."
+    },
+    "No hace falta que hagas nada. Si prefieres volver a intentarlo, puedes registrarte de nuevo cuando quieras:": {
+      "en": "There is nothing you need to do. If you would rather try again, you can sign up whenever you like:",
+      "pt": "Você não precisa fazer nada. Se preferir tentar de novo, pode se cadastrar quando quiser:"
+    },
+    "Crear mi cuenta": {
+      "en": "Create my account",
+      "pt": "Criar minha conta"
+    },
+    "Si tienes cualquier duda sobre el cargo, escríbenos citando esta referencia y lo resolvemos:": {
+      "en": "If you have any question about the charge, write to us quoting this reference and we will sort it out:",
+      "pt": "Se tiver qualquer dúvida sobre a cobrança, escreva-nos citando esta referência e resolveremos:"
+    },
+    "No pudimos crear tu cuenta — tu pago fue reembolsado": {
+      "en": "We could not create your account — your payment was refunded",
+      "pt": "Não conseguimos criar sua conta — seu pagamento foi estornado"
+    },
+    "Invitación a la Plataforma": {
+      "en": "Invitation to the Platform",
+      "pt": "Convite para a Plataforma"
+    },
+    "Has sido invitado a unirte a nuestra plataforma. Por favor, haz clic en el siguiente enlace para configurar tu cuenta y establecer tu contraseña.": {
+      "en": "You have been invited to join our platform. Click the link below to set up your account and choose a password.",
+      "pt": "Você foi convidado a entrar na nossa plataforma. Clique no link abaixo para configurar sua conta e definir sua senha."
+    },
+    "Configurar mi cuenta": {
+      "en": "Set up my account",
+      "pt": "Configurar minha conta"
+    },
+    "Si no has solicitado esta invitación, por favor ignora este correo.": {
+      "en": "If you did not request this invitation, please ignore this email.",
+      "pt": "Se você não solicitou este convite, ignore este e-mail."
+    },
+    "Este enlace expirará en 7 días.": {
+      "en": "This link expires in 7 days.",
+      "pt": "Este link expira em 7 dias."
+    },
+    "Has solicitado habilitar la autenticación de dos pasos (2FA) en tu cuenta.": {
+      "en": "You asked to turn on two-step verification on your account.",
+      "pt": "Você solicitou ativar a verificação em duas etapas na sua conta."
+    },
+    "Para continuar, por favor ingresa el siguiente código de verificación:": {
+      "en": "To continue, enter the verification code below:",
+      "pt": "Para continuar, digite o código de verificação abaixo:"
+    },
+    "Este código expirará en 10 minutos.": {
+      "en": "This code expires in 10 minutes.",
+      "pt": "Este código expira em 10 minutos."
+    },
+    "Si no solicitaste este cambio, por favor ignora este correo o contacta a soporte.": {
+      "en": "If you did not request this change, ignore this email or contact support.",
+      "pt": "Se você não solicitou esta alteração, ignore este e-mail ou fale com o suporte."
+    },
+    "Saludos,": {
+      "en": "Best regards,",
+      "pt": "Atenciosamente,"
+    },
+    "Tu código de verificación": {
+      "en": "Your verification code",
+      "pt": "Seu código de verificação"
+    },
+    "El equipo de {{appName}}": {
+      "en": "The {{appName}} team",
+      "pt": "A equipe do {{appName}}"
+    },
+    "¡Hola, {{name}}!": {
+      "en": "Hello, {{name}}.",
+      "pt": "Olá, {{name}}."
+    },
+    "© {{currentYear}} {{appName}}. Todos los derechos reservados.": {
+      "en": "© {{currentYear}} {{appName}}. All rights reserved.",
+      "pt": "© {{currentYear}} {{appName}}. Todos os direitos reservados."
+    },
+    "Te invitaron a unirte a {{appName}}": {
+      "en": "You have been invited to join {{appName}}",
+      "pt": "Você foi convidado a entrar no {{appName}}"
+    },
+    "Factura {{number}}": {
+      "en": "Invoice {{number}}",
+      "pt": "Fatura {{number}}"
+    },
+    "Factura n.º:": {
+      "en": "Invoice no.:",
+      "pt": "Fatura n.º:"
+    },
+    "Fecha de emisión:": {
+      "en": "Issue date:",
+      "pt": "Data de emissão:"
+    },
+    "Fecha de vencimiento:": {
+      "en": "Due date:",
+      "pt": "Data de vencimento:"
+    },
+    "Precio unitario": {
+      "en": "Unit price",
+      "pt": "Preço unitário"
+    },
+    "Tel.: {{phone}}": {
+      "en": "Tel.: {{phone}}",
+      "pt": "Tel.: {{phone}}"
+    },
+    "Sin valor fiscal": {
+      "en": "No fiscal value",
+      "pt": "Sem valor fiscal"
+    },
+    "{{title}} ELECTRÓNICA": {
+      "en": "ELECTRONIC {{title}}",
+      "pt": "{{title}} ELETRÔNICA"
+    },
+    "Comprador": {
+      "en": "Buyer",
+      "pt": "Comprador"
+    },
+    "Documento": {
+      "en": "Document",
+      "pt": "Documento"
+    },
+    "Fecha de vencimiento: {{dueDate}}": {
+      "en": "Due date: {{dueDate}}",
+      "pt": "Data de vencimento: {{dueDate}}"
+    },
+    "Moneda: {{currencyCode}}": {
+      "en": "Currency: {{currencyCode}}",
+      "pt": "Moeda: {{currencyCode}}"
+    },
+    "Fecha y hora de firma: {{signedAt}}": {
+      "en": "Signed at: {{signedAt}}",
+      "pt": "Data e hora da assinatura: {{signedAt}}"
+    },
+    "Desc.": {
+      "en": "Disc.",
+      "pt": "Desc."
+    },
+    "Importe": {
+      "en": "Amount",
+      "pt": "Valor"
+    },
+    "Código de seguridad": {
+      "en": "Security code",
+      "pt": "Código de segurança"
+    },
+    "Descuento": {
+      "en": "Discount",
+      "pt": "Desconto"
+    },
+    "Monto exento": {
+      "en": "Exempt amount",
+      "pt": "Valor isento"
+    },
+    "Monto gravado": {
+      "en": "Taxed amount",
+      "pt": "Valor tributado"
+    },
+    "Propina legal (10%)": {
+      "en": "Statutory service charge (10%)",
+      "pt": "Taxa de serviço legal (10%)"
+    },
+    "Total {{currencyCode}}": {
+      "en": "Total {{currencyCode}}",
+      "pt": "Total {{currencyCode}}"
+    },
+    "ITBIS retenido": {
+      "en": "ITBIS withheld",
+      "pt": "ITBIS retido"
+    },
+    "ISR retenido": {
+      "en": "Income tax withheld",
+      "pt": "Imposto de renda retido"
+    },
+    "Neto a pagar": {
+      "en": "Net payable",
+      "pt": "Líquido a pagar"
+    },
+    "Código QR de verificación del comprobante": {
+      "en": "QR code to verify the document",
+      "pt": "QR code de verificação do documento"
+    },
+    "Válido hasta: {{date}}": {
+      "en": "Valid until: {{date}}",
+      "pt": "Válido até: {{date}}"
+    },
+    "Documento interno: {{number}}": {
+      "en": "Internal document: {{number}}",
+      "pt": "Documento interno: {{number}}"
+    },
+    "Representación impresa de un Comprobante Fiscal Electrónico (e-CF). Verifique su validez en el portal de la DGII con el código QR o el código de seguridad mostrados arriba.": {
+      "en": "Printed representation of an Electronic Fiscal Document (e-CF). Verify its validity on the DGII portal using the QR code or the security code shown above.",
+      "pt": "Representação impressa de um Comprovante Fiscal Eletrônico (e-CF). Verifique sua validade no portal da DGII com o QR code ou o código de segurança exibidos acima."
+    },
+    "Este documento es un borrador interno, no ampara crédito fiscal y no ha sido transmitido a la DGII.": {
+      "en": "This document is an internal draft. It supports no tax credit and has not been transmitted to the DGII.",
+      "pt": "Este documento é um rascunho interno. Não gera crédito fiscal e não foi transmitido à DGII."
+    },
+    "FACTURA": {
+      "en": "INVOICE",
+      "pt": "FATURA"
+    },
+    "NOTA DE CRÉDITO": {
+      "en": "CREDIT NOTE",
+      "pt": "NOTA DE CRÉDITO"
+    },
+    "NOTA DE DÉBITO": {
+      "en": "DEBIT NOTE",
+      "pt": "NOTA DE DÉBITO"
+    },
+    "Provincia": {
+      "en": "Province",
+      "pt": "Província"
+    },
+    "Región": {
+      "en": "Region",
+      "pt": "Região"
+    },
+    "Código postal": {
+      "en": "Postal code",
+      "pt": "CEP"
+    },
+    "Tipo de ingreso": {
+      "en": "Income type",
+      "pt": "Tipo de receita"
+    },
+    "Régimen fiscal": {
+      "en": "Tax regime",
+      "pt": "Regime tributário"
+    },
+    "Responsabilidades fiscales": {
+      "en": "Tax responsibilities",
+      "pt": "Responsabilidades fiscais"
+    },
+    "Giro comercial": {
+      "en": "Line of business",
+      "pt": "Ramo de atividade"
+    },
+    "Código de actividad económica": {
+      "en": "Economic activity code",
+      "pt": "Código de atividade econômica"
+    },
+    "Condición frente al IVA": {
+      "en": "VAT condition",
+      "pt": "Condição perante o IVA"
+    },
+    "Punto de venta": {
+      "en": "Point of sale",
+      "pt": "Ponto de venda"
+    },
+    "Obligado a llevar contabilidad": {
+      "en": "Required to keep books",
+      "pt": "Obrigado a manter escrituração"
+    },
+    "N.º de resolución de contribuyente especial": {
+      "en": "Special taxpayer resolution no.",
+      "pt": "N.º da resolução de contribuinte especial"
+    },
+    "Ingresos por operaciones (no financieros)": {
+      "en": "Operating income (non-financial)",
+      "pt": "Receitas operacionais (não financeiras)"
+    },
+    "Ingresos financieros": {
+      "en": "Financial income",
+      "pt": "Receitas financeiras"
+    },
+    "Ingresos extraordinarios": {
+      "en": "Extraordinary income",
+      "pt": "Receitas extraordinárias"
+    },
+    "Ingresos por arrendamientos": {
+      "en": "Leasing income",
+      "pt": "Receitas de aluguel"
+    },
+    "Ingresos por venta de activo depreciable": {
+      "en": "Income from the sale of depreciable assets",
+      "pt": "Receitas da venda de ativo depreciável"
+    },
+    "Otros ingresos": {
+      "en": "Other income",
+      "pt": "Outras receitas"
+    },
+    "La DGII lo requiere en el e-CF y en el reporte 607.": {
+      "en": "The DGII requires it on the e-CF and in the 607 report.",
+      "pt": "A DGII o exige no e-CF e no relatório 607."
+    },
+    "El SAT lo exige en cada CFDI 4.0. Aparece en tu Constancia de Situación Fiscal.": {
+      "en": "The SAT requires it on every CFDI 4.0. It appears on your Constancia de Situación Fiscal.",
+      "pt": "O SAT o exige em cada CFDI 4.0. Ele aparece na sua Constancia de Situación Fiscal."
+    },
+    "Selecciona todas las que figuren en tu RUT. Viajan como lista en el XML de la factura electrónica.": {
+      "en": "Select every one listed on your RUT. They travel as a list in the electronic invoice's XML.",
+      "pt": "Selecione todas as que constam no seu RUT. Elas seguem como lista no XML da nota eletrônica."
+    },
+    "El SII lo imprime en cada documento tributario electrónico.": {
+      "en": "The SII prints it on every electronic tax document.",
+      "pt": "O SII o imprime em cada documento tributário eletrônico."
+    },
+    "Código de distrito del INEI. SUNAT lo exige en el comprobante electrónico.": {
+      "en": "INEI district code. SUNAT requires it on the electronic document.",
+      "pt": "Código de distrito do INEI. A SUNAT o exige no comprovante eletrônico."
+    },
+    "Determina qué clase de comprobante (A, B, C) podés emitir.": {
+      "en": "It determines which class of document (A, B, C) you may issue.",
+      "pt": "Determina qual classe de documento (A, B, C) você pode emitir."
+    },
+    "El punto de venta habilitado en AFIP para facturación electrónica.": {
+      "en": "The point of sale enabled with AFIP for electronic invoicing.",
+      "pt": "O ponto de venda habilitado na AFIP para emissão eletrônica."
+    },
+    "El SRI lo exige como campo del comprobante electrónico.": {
+      "en": "The SRI requires it as a field on the electronic document.",
+      "pt": "O SRI o exige como campo do comprovante eletrônico."
+    },
+    "Obligatorio en toda NF-e.": {
+      "en": "Required on every NF-e.",
+      "pt": "Obrigatório em toda NF-e."
+    },
+    "Indica ISENTO si no eres contribuyente de ICMS.": {
+      "en": "Enter ISENTO if you are not an ICMS taxpayer.",
+      "pt": "Informe ISENTO se não for contribuinte de ICMS."
+    },
+    "Facturación del plan": {
+      "en": "Plan billing",
+      "pt": "Faturamento do plano"
+    },
+    "Facturas de compra": {
+      "en": "Vendor bills",
+      "pt": "Faturas de compra"
+    },
+    "Contabilidad de costos": {
+      "en": "Cost accounting",
+      "pt": "Contabilidade de custos"
+    },
+    "Facturas de venta": {
+      "en": "Sales invoices",
+      "pt": "Faturas de venda"
+    },
+    "Roles": {
+      "en": "Roles",
+      "pt": "Perfis"
+    },
+    "Flujos de trabajo": {
+      "en": "Workflows",
+      "pt": "Fluxos de trabalho"
+    },
+    "Ver": {
+      "en": "View",
+      "pt": "Ver"
+    },
+    "Crear": {
+      "en": "Create",
+      "pt": "Criar"
+    },
+    "Ajustar": {
+      "en": "Adjust",
+      "pt": "Ajustar"
+    },
+    "Fusionar": {
+      "en": "Merge",
+      "pt": "Fundir"
+    },
+    "Administrar": {
+      "en": "Manage",
+      "pt": "Administrar"
+    },
+    "Reversar": {
+      "en": "Reverse",
+      "pt": "Estornar"
+    },
+    "Transferir": {
+      "en": "Transfer",
+      "pt": "Transferir"
+    },
+    "Consolidar": {
+      "en": "Consolidate",
+      "pt": "Consolidar"
+    },
+    "Cerrar período": {
+      "en": "Close period",
+      "pt": "Encerrar período"
+    },
+    "Reabrir período": {
+      "en": "Reopen period",
+      "pt": "Reabrir período"
+    },
+    "Ejecutar ajuste por inflación": {
+      "en": "Run inflation adjustment",
+      "pt": "Executar ajuste inflacionário"
+    },
+    "Proponer ajuste": {
+      "en": "Propose adjustment",
+      "pt": "Propor ajuste"
+    },
+    "Aprobar ajuste": {
+      "en": "Approve adjustment",
+      "pt": "Aprovar ajuste"
+    },
+    "Ver pista de auditoría": {
+      "en": "View audit trail",
+      "pt": "Ver trilha de auditoria"
+    },
+    "Ver reportes financieros": {
+      "en": "View financial reports",
+      "pt": "Ver relatórios financeiros"
+    },
+    "Ver reportes de ventas": {
+      "en": "View sales reports",
+      "pt": "Ver relatórios de vendas"
+    },
+    "Ver existencias": {
+      "en": "View stock",
+      "pt": "Ver estoque"
+    },
+    "Administrar el constructor": {
+      "en": "Manage the builder",
+      "pt": "Administrar o construtor"
+    },
+    "Cambiar el estado": {
+      "en": "Change status",
+      "pt": "Alterar a situação"
+    },
+    "Administrar vistas": {
+      "en": "Manage views",
+      "pt": "Administrar visões"
+    },
+    "Suplantar identidad": {
+      "en": "Impersonate",
+      "pt": "Personificar"
+    },
+    "Forzar cierre de sesión": {
+      "en": "Force sign out",
+      "pt": "Forçar encerramento de sessão"
+    },
+    "Revocar sesiones": {
+      "en": "Revoke sessions",
+      "pt": "Revogar sessões"
+    },
+    "Editar los datos de la empresa": {
+      "en": "Edit company details",
+      "pt": "Editar os dados da empresa"
+    },
+    "Editar la personalización": {
+      "en": "Edit branding",
+      "pt": "Editar a personalização"
+    },
+    "El año debe ser un número entero.": {
+      "en": "The year must be a whole number.",
+      "pt": "O ano deve ser um número inteiro."
+    },
+    "El año está fuera del rango permitido.": {
+      "en": "The year is outside the allowed range.",
+      "pt": "O ano está fora do intervalo permitido."
+    },
+    "Cada ID de cuenta debe ser un UUID válido.": {
+      "en": "Each account ID must be a valid UUID.",
+      "pt": "Cada ID de conta deve ser um UUID válido."
+    },
+    "La lista de IDs de cuenta no puede estar vacía.": {
+      "en": "The list of account IDs cannot be empty.",
+      "pt": "A lista de IDs de conta não pode estar vazia."
+    },
+    "Se requiere una razón para la modificación.": {
+      "en": "A reason for the change is required.",
+      "pt": "É necessário informar o motivo da alteração."
+    },
+    "Se requiere una razón para la fusión.": {
+      "en": "A reason for the merge is required.",
+      "pt": "É necessário informar o motivo da fusão."
+    },
+    "El número debe estar en formato internacional E.164 (por ejemplo, +18095551234).": {
+      "en": "The number must be in international E.164 format (for example, +18095551234).",
+      "pt": "O número deve estar no formato internacional E.164 (por exemplo, +18095551234)."
+    },
+    "La URL del avatar debe ser una dirección HTTPS válida.": {
+      "en": "The avatar URL must be a valid HTTPS address.",
+      "pt": "A URL do avatar deve ser um endereço HTTPS válido."
+    },
+    "La página debe ser un número entero.": {
+      "en": "The page must be a whole number.",
+      "pt": "A página deve ser um número inteiro."
+    },
+    "La página debe ser 1 o mayor.": {
+      "en": "The page must be 1 or greater.",
+      "pt": "A página deve ser 1 ou maior."
+    },
+    "El tamaño de página debe ser un número entero.": {
+      "en": "The page size must be a whole number.",
+      "pt": "O tamanho da página deve ser um número inteiro."
+    },
+    "El tamaño de página debe ser 1 o mayor.": {
+      "en": "The page size must be 1 or greater.",
+      "pt": "O tamanho da página deve ser 1 ou maior."
+    },
+    "El tamaño de página no puede ser mayor que 100.": {
+      "en": "The page size cannot be greater than 100.",
+      "pt": "O tamanho da página não pode ser maior que 100."
+    },
+    "La búsqueda no puede tener más de 120 caracteres.": {
+      "en": "The search cannot be longer than 120 characters.",
+      "pt": "A busca não pode ter mais de 120 caracteres."
+    },
+    "El estado no es válido.": {
+      "en": "That status is not valid.",
+      "pt": "Essa situação não é válida."
+    },
+    "No se puede ordenar por esa columna.": {
+      "en": "That column cannot be sorted on.",
+      "pt": "Não é possível ordenar por essa coluna."
+    },
+    "La dirección de orden no es válida.": {
+      "en": "The sort direction is not valid.",
+      "pt": "A direção de ordenação não é válida."
+    },
+    "Asientos contables": {
+      "en": "Journal entries",
+      "pt": "Lançamentos contábeis"
+    },
+    "El correo electrónico no puede estar vacío.": {
+      "en": "The email address cannot be empty.",
+      "pt": "O e-mail não pode ficar vazio."
+    },
+    "El email no puede tener más de 254 caracteres (RFC 5321).": {
+      "en": "The email cannot be longer than 254 characters (RFC 5321).",
+      "pt": "O e-mail não pode ter mais de 254 caracteres (RFC 5321)."
+    },
+    "La fecha de reversión debe ser una fecha válida.": {
+      "en": "The reversal date must be a valid date.",
+      "pt": "A data do estorno deve ser uma data válida."
+    },
+    "La fecha de reversión es obligatoria.": {
+      "en": "The reversal date is required.",
+      "pt": "A data do estorno é obrigatória."
+    },
+    "Se requiere una razón para la reversión.": {
+      "en": "A reason for the reversal is required.",
+      "pt": "É necessário informar o motivo do estorno."
+    },
+    "La fecha de inicio es obligatoria.": {
+      "en": "The start date is required.",
+      "pt": "A data inicial é obrigatória."
+    },
+    "La fecha de fin es obligatoria.": {
+      "en": "The end date is required.",
+      "pt": "A data final é obrigatória."
+    },
+    "Cada ID de diario debe ser un UUID válido.": {
+      "en": "Each journal ID must be a valid UUID.",
+      "pt": "Cada ID de diário deve ser um UUID válido."
+    },
+    "El ID del libro contable (ledgerId) debe ser un UUID válido.": {
+      "en": "The ledger ID (ledgerId) must be a valid UUID.",
+      "pt": "O ID do livro contábil (ledgerId) deve ser um UUID válido."
+    },
+    "El ID del libro contable (ledgerId) es obligatorio en cada valoración.": {
+      "en": "The ledger ID (ledgerId) is required on every valuation.",
+      "pt": "O ID do livro contábil (ledgerId) é obrigatório em cada valoração."
+    },
+    "El débito debe ser un número válido.": {
+      "en": "The debit must be a valid number.",
+      "pt": "O débito deve ser um número válido."
+    },
+    "El campo de débito es obligatorio.": {
+      "en": "The debit field is required.",
+      "pt": "O campo de débito é obrigatório."
+    },
+    "El débito no puede ser negativo.": {
+      "en": "The debit cannot be negative.",
+      "pt": "O débito não pode ser negativo."
+    },
+    "El crédito debe ser un número válido.": {
+      "en": "The credit must be a valid number.",
+      "pt": "O crédito deve ser um número válido."
+    },
+    "El campo de crédito es obligatorio.": {
+      "en": "The credit field is required.",
+      "pt": "O campo de crédito é obrigatório."
+    },
+    "El crédito no puede ser negativo.": {
+      "en": "The credit cannot be negative.",
+      "pt": "O crédito não pode ser negativo."
+    },
+    "El ID de la cuenta (accountId) debe ser un UUID válido.": {
+      "en": "The account ID (accountId) must be a valid UUID.",
+      "pt": "O ID da conta (accountId) deve ser um UUID válido."
+    },
+    "El ID de la cuenta (accountId) es obligatorio.": {
+      "en": "The account ID (accountId) is required.",
+      "pt": "O ID da conta (accountId) é obrigatório."
+    },
+    "El débito en moneda de transacción debe ser un número.": {
+      "en": "The debit in transaction currency must be a number.",
+      "pt": "O débito na moeda da transação deve ser um número."
+    },
+    "El crédito en moneda de transacción debe ser un número.": {
+      "en": "The credit in transaction currency must be a number.",
+      "pt": "O crédito na moeda da transação deve ser um número."
+    },
+    "La descripción de la línea debe ser un texto.": {
+      "en": "The line description must be text.",
+      "pt": "A descrição da linha deve ser texto."
+    },
+    "Las dimensiones deben ser un objeto.": {
+      "en": "The dimensions must be an object.",
+      "pt": "As dimensões devem ser um objeto."
+    },
+    "Las valoraciones deben ser un arreglo.": {
+      "en": "The valuations must be an array.",
+      "pt": "As valorações devem ser um array."
+    },
+    "La fecha debe tener un formato de fecha ISO 8601 válido.": {
+      "en": "The date must be in valid ISO 8601 format.",
+      "pt": "A data deve estar em formato ISO 8601 válido."
+    },
+    "La fecha del asiento es obligatoria.": {
+      "en": "The entry date is required.",
+      "pt": "A data do lançamento é obrigatória."
+    },
+    "La descripción debe ser un texto.": {
+      "en": "The description must be text.",
+      "pt": "A descrição deve ser texto."
+    },
+    "La descripción del asiento es obligatoria.": {
+      "en": "The entry description is required.",
+      "pt": "A descrição do lançamento é obrigatória."
+    },
+    "El código de moneda debe tener exactamente 3 caracteres.": {
+      "en": "The currency code must be exactly 3 characters.",
+      "pt": "O código da moeda deve ter exatamente 3 caracteres."
+    },
+    "La tasa de cambio debe ser un número.": {
+      "en": "The exchange rate must be a number.",
+      "pt": "A taxa de câmbio deve ser um número."
+    },
+    "La tasa de cambio no puede ser negativa.": {
+      "en": "The exchange rate cannot be negative.",
+      "pt": "A taxa de câmbio não pode ser negativa."
+    },
+    "Las líneas del asiento deben ser un arreglo.": {
+      "en": "The entry lines must be an array.",
+      "pt": "As linhas do lançamento devem ser um array."
+    },
+    "El ID del diario (journalId) debe ser un UUID válido.": {
+      "en": "The journal ID (journalId) must be a valid UUID.",
+      "pt": "O ID do diário (journalId) deve ser um UUID válido."
+    },
+    "El ID del diario (journalId) es obligatorio.": {
+      "en": "The journal ID (journalId) is required.",
+      "pt": "O ID do diário (journalId) é obrigatório."
+    },
+    "El tipo de asiento (entryType) no es válido.": {
+      "en": "The entry type (entryType) is not valid.",
+      "pt": "O tipo de lançamento (entryType) não é válido."
+    },
+    "El ID del libro contable (ledgerId) es obligatorio.": {
+      "en": "The ledger ID (ledgerId) is required.",
+      "pt": "O ID do livro contábil (ledgerId) é obrigatório."
+    },
+    "El ID del libro contable es obligatorio.": {
+      "en": "The ledger ID is required.",
+      "pt": "O ID do livro contábil é obrigatório."
+    },
+    "El plan seleccionado no es válido.": {
+      "en": "The selected plan is not valid.",
+      "pt": "O plano selecionado não é válido."
+    },
+    "Debes seleccionar un plan.": {
+      "en": "You must select a plan.",
+      "pt": "Você precisa selecionar um plano."
+    },
+    "El periodo de facturación no es válido.": {
+      "en": "The billing period is not valid.",
+      "pt": "O período de cobrança não é válido."
+    },
+    "La contraseña debe ser un texto.": {
+      "en": "The password must be text.",
+      "pt": "A senha deve ser texto."
+    },
+    "La contraseña no puede estar vacía.": {
+      "en": "The password cannot be empty.",
+      "pt": "A senha não pode ficar vazia."
+    },
+    "El dominio debe ser un nombre de dominio simple, por ejemplo acme.com.": {
+      "en": "The domain must be a bare domain name, for example acme.com.",
+      "pt": "O domínio deve ser um nome de domínio simples, por exemplo acme.com."
+    },
+    "La contraseña debe tener al menos 8 caracteres.": {
+      "en": "The password must be at least 8 characters long.",
+      "pt": "A senha deve ter pelo menos 8 caracteres."
+    },
+    "La contraseña no puede superar los 128 caracteres.": {
+      "en": "The password cannot exceed 128 characters.",
+      "pt": "A senha não pode ultrapassar 128 caracteres."
+    },
+    "La contraseña debe contener mayúscula, minúscula y un número o símbolo.": {
+      "en": "The password must contain an uppercase letter, a lowercase letter and a number or symbol.",
+      "pt": "A senha deve conter letra maiúscula, minúscula e um número ou símbolo."
+    },
+    "La contraseña actual no puede estar vacía.": {
+      "en": "The current password cannot be empty.",
+      "pt": "A senha atual não pode ficar vazia."
+    },
+    "La nueva contraseña no puede estar vacía.": {
+      "en": "The new password cannot be empty.",
+      "pt": "A nova senha não pode ficar vazia."
+    },
+    "La sesión no es válida.": {
+      "en": "The session is not valid.",
+      "pt": "A sessão não é válida."
+    },
+    "La sesión es obligatoria.": {
+      "en": "The session is required.",
+      "pt": "A sessão é obrigatória."
+    },
+    "El nombre de la organización no puede estar vacío.": {
+      "en": "The organization name cannot be empty.",
+      "pt": "O nome da organização não pode ficar vazio."
+    },
+    "El nombre de la organización debe ser un texto.": {
+      "en": "The organization name must be text.",
+      "pt": "O nome da organização deve ser texto."
+    },
+    "El nombre de la organización debe tener al menos 2 caracteres.": {
+      "en": "The organization name must be at least 2 characters long.",
+      "pt": "O nome da organização deve ter pelo menos 2 caracteres."
+    },
+    "El país es obligatorio.": {
+      "en": "The country is required.",
+      "pt": "O país é obrigatório."
+    },
+    "Indica si el contribuyente es una empresa o una persona física.": {
+      "en": "State whether the taxpayer is a company or an individual.",
+      "pt": "Informe se o contribuinte é uma empresa ou uma pessoa física."
+    },
+    "El ID Fiscal es obligatorio.": {
+      "en": "The Tax ID is required.",
+      "pt": "A identificação fiscal é obrigatória."
+    },
+    "El ID Fiscal debe ser un texto.": {
+      "en": "The Tax ID must be text.",
+      "pt": "A identificação fiscal deve ser texto."
+    },
+    "El ID de la región fiscal no es válido.": {
+      "en": "The tax region ID is not valid.",
+      "pt": "O ID da região fiscal não é válido."
+    },
+    "El nombre no puede estar vacío.": {
+      "en": "The first name cannot be empty.",
+      "pt": "O nome não pode ficar vazio."
+    },
+    "El nombre debe ser un texto.": {
+      "en": "The first name must be text.",
+      "pt": "O nome deve ser texto."
+    },
+    "El apellido no puede estar vacío.": {
+      "en": "The last name cannot be empty.",
+      "pt": "O sobrenome não pode ficar vazio."
+    },
+    "El apellido debe ser un texto.": {
+      "en": "The last name must be text.",
+      "pt": "O sobrenome deve ser texto."
+    },
+    "La dirección fiscal es obligatoria.": {
+      "en": "The registered address is required.",
+      "pt": "O endereço fiscal é obrigatório."
+    },
+    "La dirección debe ser un texto.": {
+      "en": "The address must be text.",
+      "pt": "O endereço deve ser texto."
+    },
+    "La dirección no puede tener más de 200 caracteres.": {
+      "en": "The address cannot be longer than 200 characters.",
+      "pt": "O endereço não pode ter mais de 200 caracteres."
+    },
+    "La ciudad es obligatoria.": {
+      "en": "The city is required.",
+      "pt": "A cidade é obrigatória."
+    },
+    "La ciudad debe ser un texto.": {
+      "en": "The city must be text.",
+      "pt": "A cidade deve ser texto."
+    },
+    "La ciudad no puede tener más de 120 caracteres.": {
+      "en": "The city cannot be longer than 120 characters.",
+      "pt": "A cidade não pode ter mais de 120 caracteres."
+    },
+    "El teléfono debe estar en formato internacional E.164 (por ejemplo, +18095551234).": {
+      "en": "The phone must be in international E.164 format (for example, +18095551234).",
+      "pt": "O telefone deve estar no formato internacional E.164 (por exemplo, +18095551234)."
+    },
+    "Ámbito de verificación no válido.": {
+      "en": "Invalid verification scope.",
+      "pt": "Escopo de verificação inválido."
+    },
+    "El prefijo debe tener el formato de serie DGII, p. ej. B01 o E31.": {
+      "en": "The prefix must follow the DGII series format, e.g. B01 or E31.",
+      "pt": "O prefixo deve seguir o formato de série da DGII, por exemplo B01 ou E31."
+    },
+    "El ID de la cuenta no puede estar vacío.": {
+      "en": "The account ID cannot be empty.",
+      "pt": "O ID da conta não pode ficar vazio."
+    },
+    "La fecha de inicio debe ser una fecha válida.": {
+      "en": "The start date must be a valid date.",
+      "pt": "A data inicial deve ser uma data válida."
+    },
+    "La fecha de inicio no puede estar vacía.": {
+      "en": "The start date cannot be empty.",
+      "pt": "A data inicial não pode ficar vazia."
+    },
+    "La fecha de fin debe ser una fecha válida.": {
+      "en": "The end date must be a valid date.",
+      "pt": "A data final deve ser uma data válida."
+    },
+    "La fecha de fin no puede estar vacía.": {
+      "en": "The end date cannot be empty.",
+      "pt": "A data final não pode ficar vazia."
+    },
+    "El saldo inicial debe ser un número.": {
+      "en": "The opening balance must be a number.",
+      "pt": "O saldo inicial deve ser um número."
+    },
+    "El saldo inicial no puede estar vacío.": {
+      "en": "The opening balance cannot be empty.",
+      "pt": "O saldo inicial não pode ficar vazio."
+    },
+    "El saldo final debe ser un número.": {
+      "en": "The closing balance must be a number.",
+      "pt": "O saldo final deve ser um número."
+    },
+    "El saldo final no puede estar vacío.": {
+      "en": "The closing balance cannot be empty.",
+      "pt": "O saldo final não pode ficar vazio."
+    },
+    "Tipo de comprobante desconocido.": {
+      "en": "Unknown document type.",
+      "pt": "Tipo de documento desconhecido."
+    },
+    "El RNC del emisor no tiene un formato válido.": {
+      "en": "The issuer's RNC is not in a valid format.",
+      "pt": "O RNC do emissor não está em um formato válido."
+    },
+    "El e-NCF debe tener el formato E + 12 dígitos (por ejemplo E310000000001).": {
+      "en": "The e-NCF must be E followed by 12 digits (for example E310000000001).",
+      "pt": "O e-NCF deve ser E seguido de 12 dígitos (por exemplo E310000000001)."
+    },
+    "La fecha de emisión debe ser una fecha ISO (YYYY-MM-DD).": {
+      "en": "The issue date must be an ISO date (YYYY-MM-DD).",
+      "pt": "A data de emissão deve ser uma data ISO (AAAA-MM-DD)."
+    },
+    "El estado debe ser 1 (aprobado) o 2 (rechazado).": {
+      "en": "The status must be 1 (approved) or 2 (rejected).",
+      "pt": "A situação deve ser 1 (aprovado) ou 2 (rejeitado)."
+    },
+    "El ID de la cuenta debe ser un UUID válido.": {
+      "en": "The account ID must be a valid UUID.",
+      "pt": "O ID da conta deve ser um UUID válido."
+    },
+    "El ID de la cuenta es obligatorio en cada línea.": {
+      "en": "The account ID is required on every line.",
+      "pt": "O ID da conta é obrigatório em cada linha."
+    },
+    "La descripción de la línea no puede estar vacía.": {
+      "en": "The line description cannot be empty.",
+      "pt": "A descrição da linha não pode ficar vazia."
+    },
+    "El ID del año fiscal debe ser un UUID válido.": {
+      "en": "The fiscal year ID must be a valid UUID.",
+      "pt": "O ID do exercício fiscal deve ser um UUID válido."
+    },
+    "El ID del año fiscal es obligatorio.": {
+      "en": "The fiscal year ID is required.",
+      "pt": "O ID do exercício fiscal é obrigatório."
+    },
+    "La fecha debe tener un formato ISO 8601 válido.": {
+      "en": "The date must be in valid ISO 8601 format.",
+      "pt": "A data deve estar em formato ISO 8601 válido."
+    },
+    "La fecha del ajuste es obligatoria.": {
+      "en": "The adjustment date is required.",
+      "pt": "A data do ajuste é obrigatória."
+    },
+    "La descripción principal del ajuste no puede estar vacía.": {
+      "en": "The adjustment's main description cannot be empty.",
+      "pt": "A descrição principal do ajuste não pode ficar vazia."
+    },
+    "El ID del diario debe ser un UUID válido.": {
+      "en": "The journal ID must be a valid UUID.",
+      "pt": "O ID do diário deve ser um UUID válido."
+    },
+    "El ID del diario es obligatorio.": {
+      "en": "The journal ID is required.",
+      "pt": "O ID do diário é obrigatório."
+    },
+    "La sesión de pago no es válida.": {
+      "en": "The payment session is not valid.",
+      "pt": "A sessão de pagamento não é válida."
+    },
+    "La cuenta de Ganancias Retenidas es obligatoria.": {
+      "en": "The Retained Earnings account is required.",
+      "pt": "A conta de Lucros Acumulados é obrigatória."
+    },
+    "El ID del período contable es obligatorio.": {
+      "en": "The accounting period ID is required.",
+      "pt": "O ID do período contábil é obrigatório."
+    },
+    "La fecha de corte para la consolidación es obligatoria.": {
+      "en": "The consolidation cut-off date is required.",
+      "pt": "A data de corte da consolidação é obrigatória."
+    },
+    "El identificador de la organización no es válido.": {
+      "en": "The organization identifier is not valid.",
+      "pt": "O identificador da organização não é válido."
+    },
+    "{{property}} es obligatorio.": {
+      "en": "{{property}} is required.",
+      "pt": "{{property}} é obrigatório."
+    },
+    "{{property}} no puede estar vacío.": {
+      "en": "{{property}} cannot be empty.",
+      "pt": "{{property}} não pode ficar vazio."
+    },
+    "{{property}} debe ser texto.": {
+      "en": "{{property}} must be text.",
+      "pt": "{{property}} deve ser texto."
+    },
+    "{{property}} debe ser un número.": {
+      "en": "{{property}} must be a number.",
+      "pt": "{{property}} deve ser um número."
+    },
+    "{{property}} debe ser un número entero.": {
+      "en": "{{property}} must be a whole number.",
+      "pt": "{{property}} deve ser um número inteiro."
+    },
+    "{{property}} debe ser mayor que cero.": {
+      "en": "{{property}} must be greater than zero.",
+      "pt": "{{property}} deve ser maior que zero."
+    },
+    "{{property}} debe ser verdadero o falso.": {
+      "en": "{{property}} must be true or false.",
+      "pt": "{{property}} deve ser verdadeiro ou falso."
+    },
+    "{{property}} debe ser una lista.": {
+      "en": "{{property}} must be a list.",
+      "pt": "{{property}} deve ser uma lista."
+    },
+    "{{property}} no tiene el formato esperado.": {
+      "en": "{{property}} is not in the expected format.",
+      "pt": "{{property}} não está no formato esperado."
+    },
+    "{{property}} no es un identificador válido.": {
+      "en": "{{property}} is not a valid identifier.",
+      "pt": "{{property}} não é um identificador válido."
+    },
+    "{{property}} no es un correo electrónico válido.": {
+      "en": "{{property}} is not a valid email address.",
+      "pt": "{{property}} não é um e-mail válido."
+    },
+    "{{property}} no es una dirección web válida.": {
+      "en": "{{property}} is not a valid web address.",
+      "pt": "{{property}} não é um endereço web válido."
+    },
+    "{{property}} no es una fecha válida.": {
+      "en": "{{property}} is not a valid date.",
+      "pt": "{{property}} não é uma data válida."
+    },
+    "{{property}} no admite ese valor.": {
+      "en": "{{property}} does not accept that value.",
+      "pt": "{{property}} não aceita esse valor."
+    },
+    "{{property}} no puede ser menor que {{min}}.": {
+      "en": "{{property}} cannot be lower than {{min}}.",
+      "pt": "{{property}} não pode ser menor que {{min}}."
+    },
+    "{{property}} no puede ser mayor que {{max}}.": {
+      "en": "{{property}} cannot be greater than {{max}}.",
+      "pt": "{{property}} não pode ser maior que {{max}}."
+    },
+    "{{property}} debe tener al menos {{min}} caracteres.": {
+      "en": "{{property}} must be at least {{min}} characters long.",
+      "pt": "{{property}} deve ter pelo menos {{min}} caracteres."
+    },
+    "{{property}} no puede tener más de {{max}} caracteres.": {
+      "en": "{{property}} cannot be longer than {{max}} characters.",
+      "pt": "{{property}} não pode ter mais de {{max}} caracteres."
+    },
+    "{{property}} debe tener entre {{min}} y {{max}} caracteres.": {
+      "en": "{{property}} must be between {{min}} and {{max}} characters long.",
+      "pt": "{{property}} deve ter entre {{min}} e {{max}} caracteres."
+    },
+    "{{property}} debe tener al menos {{min}} elementos.": {
+      "en": "{{property}} must have at least {{min}} items.",
+      "pt": "{{property}} deve ter pelo menos {{min}} itens."
+    },
+    "{{property}} no puede tener más de {{max}} elementos.": {
+      "en": "{{property}} cannot have more than {{max}} items.",
+      "pt": "{{property}} não pode ter mais de {{max}} itens."
+    },
+    "{{property}} no es un campo permitido.": {
+      "en": "{{property}} is not an allowed field.",
+      "pt": "{{property}} não é um campo permitido."
+    },
+    "{{property}} contiene datos que no son válidos.": {
+      "en": "{{property}} contains data that is not valid.",
+      "pt": "{{property}} contém dados que não são válidos."
+    },
+    "El destino no es un correo electrónico ni un número de teléfono válido.": {
+      "en": "The target is neither a valid email address nor a valid phone number.",
+      "pt": "O destino não é um e-mail nem um número de telefone válido."
+    },
+    "No se pudo verificar que la solicitud viene de una persona. Vuelve a intentarlo.": {
+      "en": "We could not verify that this request came from a person. Try again.",
+      "pt": "Não conseguimos verificar que esta solicitação veio de uma pessoa. Tente novamente."
+    },
+    "Ese país todavía no está disponible para registro.": {
+      "en": "That country is not available for registration yet.",
+      "pt": "Esse país ainda não está disponível para cadastro."
+    },
+    "El identificador fiscal no es válido.": {
+      "en": "The tax identifier is not valid.",
+      "pt": "A identificação fiscal não é válida."
+    },
+    "El {{label}} no es válido. Verifica el dígito verificador (ejemplo: {{example}}).": {
+      "en": "The {{label}} is not valid. Check the check digit (example: {{example}}).",
+      "pt": "O {{label}} não é válido. Verifique o dígito verificador (exemplo: {{example}})."
+    },
+    "El {{label}} no es válido para una empresa. Verifica el dígito verificador (ejemplo: {{example}}).": {
+      "en": "The {{label}} is not valid for a company. Check the check digit (example: {{example}}).",
+      "pt": "O {{label}} não é válido para uma empresa. Verifique o dígito verificador (exemplo: {{example}})."
+    },
+    "El {{label}} no es válido para una persona física. Verifica el dígito verificador (ejemplo: {{example}}).": {
+      "en": "The {{label}} is not valid for an individual. Check the check digit (example: {{example}}).",
+      "pt": "O {{label}} não é válido para uma pessoa física. Verifique o dígito verificador (exemplo: {{example}})."
+    },
+    "Selecciona una división administrativa válida.": {
+      "en": "Select a valid administrative division.",
+      "pt": "Selecione uma divisão administrativa válida."
+    },
+    "Selecciona un valor válido para {{label}}.": {
+      "en": "Select a valid value for {{label}}.",
+      "pt": "Selecione um valor válido para {{label}}."
+    },
+    "El código postal no es válido.": {
+      "en": "The postal code is not valid.",
+      "pt": "O CEP não é válido."
+    },
+    "El {{label}} no es válido para {{country}}.": {
+      "en": "The {{label}} is not valid for {{country}}.",
+      "pt": "O {{label}} não é válido para {{country}}."
+    },
+    "Los datos fiscales no son válidos.": {
+      "en": "The tax details are not valid.",
+      "pt": "Os dados fiscais não são válidos."
+    },
+    "Datos fiscales incompletos: {{details}}.": {
+      "en": "Incomplete tax details: {{details}}.",
+      "pt": "Dados fiscais incompletos: {{details}}."
+    },
+    "{{label}} es obligatorio": {
+      "en": "{{label}} is required",
+      "pt": "{{label}} é obrigatório"
+    },
+    "{{label}} no es una opción válida": {
+      "en": "{{label}} is not a valid option",
+      "pt": "{{label}} não é uma opção válida"
+    },
+    "{{label}} no tiene el formato esperado": {
+      "en": "{{label}} is not in the expected format",
+      "pt": "{{label}} não está no formato esperado"
+    },
+    "{{label}} no corresponde a este país": {
+      "en": "{{label}} does not apply to this country",
+      "pt": "{{label}} não se aplica a este país"
     }
   }
 }

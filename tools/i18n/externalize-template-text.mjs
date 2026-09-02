@@ -247,7 +247,22 @@ function isProse(text) {
   // A single all-caps token is usually an acronym or a code (NCF, RNC, ITBIS, SKU) that reads the
   // same in every language. Two or more words is prose.
   if (/^[A-Z0-9/&.\-]+$/.test(prose.trim()) && !prose.trim().includes(' ')) return false;
+  // A translation key is the opposite of prose: it is already the externalised form. Components
+  // that resolve their own inputs take one as a plain attribute (`title="SETTINGS.X.TITLE"`), and
+  // reading that as text would have produced `'SETTINGS.X.SETTINGS_X_TITLE' | translate` — a key
+  // wrapping a key, resolving to nothing. The codemod must be a no-op on work it already did.
+  if (isTranslationKey(prose.trim())) return false;
   return true;
+}
+
+/**
+ * `SECTION.SUBSECTION.KEY` — dotted SCREAMING_SNAKE, two or more segments.
+ *
+ * Two segments is the minimum on purpose: a lone `TOTAL` is a word a reader sees, and the acronym
+ * rule above already covers it.
+ */
+function isTranslationKey(text) {
+  return /^[A-Z][A-Z0-9_]*(\.[A-Z0-9_]+)+$/.test(text);
 }
 
 
@@ -432,7 +447,7 @@ function textNodes(source, masked) {
 }
 
 const catalogue = {};
-const report = { rewritten: 0, attributes: 0, mixed: [], skipped: [] };
+const report = { rewritten: 0, attributes: 0, mixed: [], skipped: [], textSites: [], attributeSites: [] };
 
 function setKey(tree, key, value) {
   const parts = key.split('.');
@@ -520,6 +535,7 @@ for (const file of CONFIG.roots.flatMap((root) => files(root))) {
         text: converted.leading + CONFIG.wrapWithParams(key, converted.params) + converted.trailing,
       });
       report.rewritten++;
+      report.textSites.push({ file, text: trimmed.slice(0, 80) });
       continue;
     }
 
@@ -530,6 +546,7 @@ for (const file of CONFIG.roots.flatMap((root) => files(root))) {
     const trailing = rawText.slice(rawText.lastIndexOf(trimmed.at(-1)) + 1);
     edits.push({ start, end: start + rawText.length, text: leading + CONFIG.wrap(key) + trailing });
     report.rewritten++;
+    report.textSites.push({ file, text: trimmed.slice(0, 80) });
   }
 
   // ---- Human-readable attributes -------------------------------------------
@@ -561,6 +578,7 @@ for (const file of CONFIG.roots.flatMap((root) => files(root))) {
       text: HBS ? hbsReplacement : replacement,
     });
     report.attributes++;
+    report.attributeSites.push({ file, text: `${name}="${trimmed.slice(0, 80)}"` });
   }
 
   if (!edits.length) continue;
@@ -600,8 +618,19 @@ function countLeaves(tree) {
   );
 }
 
+// In report mode the counts are an assertion the build makes; a bare number tells nobody which
+// template broke it, so every offender is named. Listing them is what turns a red suite into a
+// fix.
+function listSites(label, sites) {
+  for (const item of sites.slice(0, 60)) {
+    console.log(`  ${label} ${relative(CONFIG.roots[0], item.file)}: ${item.text}`);
+  }
+}
+
 console.log(`text nodes externalised   ${report.rewritten}`);
+if (DRY) listSites('text', report.textSites);
 console.log(`attributes externalised   ${report.attributes}`);
+if (DRY) listSites('attribute', report.attributeSites);
 console.log(`catalogue keys added      ${countLeaves(catalogue)}`);
 console.log(`mixed blocks for a human  ${report.mixed.length}`);
 for (const item of report.mixed.slice(0, 60)) {

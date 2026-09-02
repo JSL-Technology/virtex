@@ -984,8 +984,8 @@
       "AR_VAT_CONDITION": "Determina qué clase de comprobante (A, B, C) podés emitir.",
       "AR_POINT_OF_SALE": "El punto de venta habilitado en AFIP para facturación electrónica.",
       "EC_ACCOUNTING": "El SRI lo exige como campo del comprobante electrónico.",
-      "BR_TAX_REGIME": "Obrigatório em toda NF-e.",
-      "BR_STATE_REGISTRATION": "Informe ISENTO se não for contribuinte de ICMS."
+      "BR_TAX_REGIME": "Obligatorio en toda NF-e.",
+      "BR_STATE_REGISTRATION": "Indica ISENTO si no eres contribuyente de ICMS."
     }
   },
   "PERMISSIONS": {
