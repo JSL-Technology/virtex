@@ -1,27 +1,28 @@
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-settings-empty-state',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule],
   template: `
     <div class="ses">
       <div class="ses__icon-wrap">
         <ng-content select="[slot=icon]"></ng-content>
       </div>
 
-      <div class="ses__badge">En desarrollo</div>
+      <div class="ses__badge">{{ 'SETTINGS.PAGES.IN_DEVELOPMENT' | translate }}</div>
 
-      <h2 class="ses__title">{{ title }}</h2>
-      <p class="ses__desc">{{ description }}</p>
+      <h2 class="ses__title">{{ title | translate }}</h2>
+      <p class="ses__desc">{{ description | translate: descriptionParams }}</p>
 
       @if (features.length > 0) {
         <ul class="ses__features">
           @for (f of features; track f) {
             <li class="ses__feature-item">
               <span class="ses__feature-dot"></span>
-              {{ f }}
+              {{ f | translate }}
             </li>
           }
         </ul>
@@ -124,7 +125,21 @@ import { CommonModule } from '@angular/common';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingsEmptyStateComponent {
+  private readonly translate = inject(TranslateService);
+
+  /** Translation keys, resolved here — callers pass keys, never prose. */
   @Input() title = '';
   @Input() description = '';
   @Input() features: string[] = [];
+
+  /**
+   * The product name, for descriptions that mention it.
+   *
+   * One of these pages said "Conecta Virteex con tus herramientas" — a third spelling of a product
+   * that calls itself Virtex in the catalogues. A name repeated as a literal is a name that
+   * eventually disagrees with itself, so it comes from `APP_TITLE` like every other mention.
+   */
+  protected get descriptionParams(): Record<string, string> {
+    return { app: this.translate.instant('APP_TITLE') };
+  }
 }

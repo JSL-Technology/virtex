@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, X } from 'lucide-angular';
 import { TabStateService } from '../tab-state.service';
 import { resolveTabIcon } from './tab-icon';
@@ -14,7 +15,7 @@ import { resolveTabIcon } from './tab-icon';
 @Component({
   selector: 'app-tab-header',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (tab(); as t) {
@@ -43,7 +44,7 @@ import { resolveTabIcon } from './tab-icon';
           <button
             class="tab-close"
             type="button"
-            aria-label="Cerrar pestaña"
+            [attr.aria-label]="'TABS.CLOSE_TAB' | translate"
             (pointerdown)="$event.stopPropagation()"
             (click)="close($event)"
           >

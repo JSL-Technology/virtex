@@ -1,20 +1,21 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, ArrowRightLeft } from 'lucide-angular';
 import { SettingsEmptyStateComponent } from '../../shared/settings-empty-state.component';
 
 @Component({
   selector: 'app-currencies-settings-page',
   standalone: true,
-  imports: [LucideAngularModule, SettingsEmptyStateComponent],
+  imports: [TranslateModule, LucideAngularModule, SettingsEmptyStateComponent],
   template: `
     <div class="s-page">
       <div class="s-header">
-        <h1 class="s-header__title">Multimoneda y Tasas de Cambio</h1>
-        <p class="s-header__subtitle">Gestiona las monedas activas y las tasas de cambio para transacciones internacionales.</p>
+        <h1 class="s-header__title">{{ 'SETTINGS.PAGES.CURRENCIES.TITLE' | translate }}</h1>
+        <p class="s-header__subtitle">{{ 'SETTINGS.PAGES.CURRENCIES.SUBTITLE' | translate }}</p>
       </div>
-      <app-settings-empty-state title="Multimoneda"
-        description="Activa múltiples monedas para tus transacciones, define la moneda funcional de cada subsidiaria y configura la actualización automática de tasas de cambio."
-        [features]="['Moneda base y monedas secundarias activas','Actualización automática de tasas de cambio (Banco Central, ECB)','Revaluación periódica de saldos en moneda extranjera','Diferencial cambiario reconocido automáticamente','Reportes de ganancia/pérdida por tipo de cambio']">
+      <app-settings-empty-state [title]="'SETTINGS.PAGES.CURRENCIES.EMPTY_TITLE'"
+        [description]="'SETTINGS.PAGES.CURRENCIES.EMPTY_DESCRIPTION'"
+        [features]="['SETTINGS.PAGES.CURRENCIES.FEATURES.F1','SETTINGS.PAGES.CURRENCIES.FEATURES.F2','SETTINGS.PAGES.CURRENCIES.FEATURES.F3','SETTINGS.PAGES.CURRENCIES.FEATURES.F4','SETTINGS.PAGES.CURRENCIES.FEATURES.F5']">
         <lucide-icon slot="icon" [img]="icon" size="28"></lucide-icon>
       </app-settings-empty-state>
     </div>`,

@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import {
   LucideAngularModule, SplitSquareHorizontal, Maximize2, Minimize2,
 } from 'lucide-angular';
@@ -17,15 +18,15 @@ import type { DockviewApi, DockviewGroupPanel, IDockviewPanel } from 'dockview-a
 @Component({
   selector: 'app-group-controls',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="group-controls">
       <button
         type="button"
         class="gc-btn"
-        title="Dividir a la derecha"
-        aria-label="Dividir a la derecha"
+        [title]="'TABS.SPLIT_RIGHT' | translate"
+        [attr.aria-label]="'TABS.SPLIT_RIGHT' | translate"
         (click)="splitRight()"
       >
         <lucide-icon [img]="SplitIcon" size="15"></lucide-icon>

@@ -1,20 +1,21 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, FileText } from 'lucide-angular';
 import { SettingsEmptyStateComponent } from '../../shared/settings-empty-state.component';
 
 @Component({
   selector: 'app-sequence-settings-page',
   standalone: true,
-  imports: [LucideAngularModule, SettingsEmptyStateComponent],
+  imports: [TranslateModule, LucideAngularModule, SettingsEmptyStateComponent],
   template: `
     <div class="s-page">
       <div class="s-header">
-        <h1 class="s-header__title">Secuencias Fiscales</h1>
-        <p class="s-header__subtitle">Configura la numeración automática de facturas, recibos y demás documentos fiscales.</p>
+        <h1 class="s-header__title">{{ 'SETTINGS.PAGES.SEQUENCES.TITLE' | translate }}</h1>
+        <p class="s-header__subtitle">{{ 'SETTINGS.PAGES.SEQUENCES.SUBTITLE' | translate }}</p>
       </div>
-      <app-settings-empty-state title="Secuencias de Documentos"
-        description="Define los prefijos, sufijos y rangos numéricos para cada tipo de documento fiscal, garantizando la correlatividad y el cumplimiento ante la autoridad tributaria."
-        [features]="['Secuencias independientes por tipo de documento','Prefijos y sufijos personalizados por subsidiaria','Reinicio automático por año fiscal','Reserva de rangos para contingencia','Alertas de secuencia próxima a agotarse']">
+      <app-settings-empty-state [title]="'SETTINGS.PAGES.SEQUENCES.EMPTY_TITLE'"
+        [description]="'SETTINGS.PAGES.SEQUENCES.EMPTY_DESCRIPTION'"
+        [features]="['SETTINGS.PAGES.SEQUENCES.FEATURES.F1','SETTINGS.PAGES.SEQUENCES.FEATURES.F2','SETTINGS.PAGES.SEQUENCES.FEATURES.F3','SETTINGS.PAGES.SEQUENCES.FEATURES.F4','SETTINGS.PAGES.SEQUENCES.FEATURES.F5']">
         <lucide-icon slot="icon" [img]="icon" size="28"></lucide-icon>
       </app-settings-empty-state>
     </div>`,

@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, HostListener, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import {
   LucideAngularModule, AlertTriangle, Info, ShieldAlert, Save, Trash2, X,
 } from 'lucide-angular';
@@ -8,7 +9,7 @@ import { DialogService } from '../../../core/services/dialog.service';
 @Component({
   selector: 'app-dialog-host',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (dialog(); as d) {
@@ -26,7 +27,7 @@ import { DialogService } from '../../../core/services/dialog.service';
           [attr.aria-label]="d.title"
 
         >
-          <button class="dialog-close" type="button" aria-label="Cerrar" (click)="cancel()">
+          <button class="dialog-close" type="button" [attr.aria-label]="'COMMON.CLOSE' | translate" (click)="cancel()">
             <lucide-icon [img]="XIcon" size="18"></lucide-icon>
           </button>
 

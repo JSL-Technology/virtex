@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, Construction } from 'lucide-angular';
 import { TAB_CONTEXT } from '../tab-context';
 
@@ -12,7 +13,7 @@ import { TAB_CONTEXT } from '../tab-context';
 @Component({
   selector: 'app-generic-module-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [TranslateModule, CommonModule, LucideAngularModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="generic-page">
@@ -21,10 +22,7 @@ import { TAB_CONTEXT } from '../tab-context';
           <lucide-icon [img]="ConstructionIcon" size="34"></lucide-icon>
         </div>
         <h1 class="generic-title">{{ title() }}</h1>
-        <p class="generic-subtitle">
-          Este módulo está en construcción. La ruta se ha registrado y la pestaña
-          funciona correctamente; la vista detallada estará disponible pronto.
-        </p>
+        <p class="generic-subtitle">{{ 'TABS.UNDER_CONSTRUCTION' | translate }}</p>
         <code class="generic-route">{{ route() }}</code>
       </div>
     </section>

@@ -69,6 +69,8 @@ const CONFIG = HBS
   : {
       roots: ['apps/core/client-web/src/app'],
       extension: '.html',
+      // Also read `template:` bodies inside components — reported, never rewritten. See scanUnits.
+      inlineTemplates: true,
       catalogue: 'apps/core/client-web/src/assets/i18n/es.json',
       namespace: namespaceForAngular,
       wrap: (key) => `{{ '${key}' | translate }}`,
@@ -117,8 +119,34 @@ function files(dir) {
   return readdirSync(dir).flatMap((entry) => {
     const full = join(dir, entry);
     if (statSync(full).isDirectory()) return files(full);
-    return full.endsWith(CONFIG.extension) ? [full] : [];
+    if (full.endsWith(CONFIG.extension)) return [full];
+    // Inline templates are read too. A `template:` string in a component is markup a reader sees,
+    // but it is not an `.html` file, so for a long time it was the one place literal text could
+    // hide from this scanner — and 25 components used it, including eleven whole settings pages
+    // whose headings, descriptions and feature lists were Spanish prose nobody could translate.
+    return CONFIG.inlineTemplates && full.endsWith('.ts') && !full.endsWith('.spec.ts')
+      ? [full]
+      : [];
   });
+}
+
+/**
+ * What the scanner actually reads: a whole `.html` file, or just the template region of a `.ts`.
+ *
+ * An inline template is reported but never rewritten. Editing markup inside a TypeScript string
+ * literal means getting escaping, indentation and backticks right in a file the compiler also
+ * reads, and a codemod that gets that wrong breaks the build. Reporting is enough: the spec
+ * demands zero, so a literal there fails the build and a person fixes it in place.
+ */
+function scanUnits() {
+  return CONFIG.roots.flatMap((root) =>
+    files(root).flatMap((file) => {
+      const source = readFileSync(file, 'utf8');
+      if (file.endsWith(CONFIG.extension)) return [{ file, source, writable: true }];
+      const match = source.match(/\n  template: `([\s\S]*?)`,\n/);
+      return match ? [{ file, source: match[1], writable: false }] : [];
+    }),
+  );
 }
 
 /**
@@ -483,8 +511,8 @@ function keyFor(namespace, text) {
   }
 }
 
-for (const file of CONFIG.roots.flatMap((root) => files(root))) {
-  const original = readFileSync(file, 'utf8');
+for (const unit of scanUnits()) {
+  const { file, source: original } = unit;
 
   // An explicit opt-out, for the one thing in the product that must NOT be translated: the
   // wordmark. A brand is a name, not a word, and `no-hardcoded-strings.spec.ts` honours the same
@@ -589,7 +617,7 @@ for (const file of CONFIG.roots.flatMap((root) => files(root))) {
     source = source.slice(0, edit.start) + edit.text + source.slice(edit.end);
   }
 
-  if (!DRY) writeFileSync(file, source);
+  if (!DRY && unit.writable) writeFileSync(file, source);
 }
 
 // ---------------------------------------------------------------------------

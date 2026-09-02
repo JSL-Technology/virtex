@@ -2530,6 +2530,146 @@
       "USUARIO_INVITADO_EXITO": "Usuário convidado com sucesso.",
       "USUARIOS": "Usuários",
       "USUARIOS_2": "usuários"
+    },
+    "PAGES": {
+      "ACCOUNTING": {
+        "TITLE": "Preferências contábeis",
+        "SUBTITLE": "Defina as contas contábeis padrão e as regras de lançamento da sua organização.",
+        "EMPTY_TITLE": "Preferências contábeis",
+        "EMPTY_DESCRIPTION": "Configure as contas do plano que serão usadas automaticamente em cada transação, eliminando erros de atribuição manual.",
+        "FEATURES": {
+          "F1": "Conta a receber padrão",
+          "F2": "Conta a pagar padrão",
+          "F3": "Conta de receita de vendas",
+          "F4": "Conta de ganhos e perdas cambiais",
+          "F5": "Conta de depreciação acumulada",
+          "F6": "Conta de impostos sobre vendas e compras"
+        }
+      },
+      "CLOSING_RULES": {
+        "TITLE": "Períodos e fechamento fiscal",
+        "SUBTITLE": "Gerencie os períodos contábeis e as regras de bloqueio do fechamento fiscal.",
+        "EMPTY_TITLE": "Fechamento de períodos contábeis",
+        "EMPTY_DESCRIPTION": "Defina e controle os períodos contábeis da sua organização, bloqueie os períodos fechados contra alterações e programe o fechamento.",
+        "FEATURES": {
+          "F1": "Criação e gestão de períodos contábeis",
+          "F2": "Bloqueio automático de períodos fechados",
+          "F3": "Fechamento mensal, trimestral e anual",
+          "F4": "Permissões específicas para reabrir períodos",
+          "F5": "Processo guiado de fechamento com checklist"
+        }
+      },
+      "CURRENCIES": {
+        "TITLE": "Multimoeda e taxas de câmbio",
+        "SUBTITLE": "Gerencie as moedas ativas e as taxas de câmbio para transações internacionais.",
+        "EMPTY_TITLE": "Multimoeda",
+        "EMPTY_DESCRIPTION": "Ative várias moedas para suas transações, defina a moeda funcional de cada subsidiária e configure a atualização automática das taxas de câmbio.",
+        "FEATURES": {
+          "F1": "Moeda base e moedas secundárias ativas",
+          "F2": "Atualização automática de taxas de câmbio (banco central, BCE)",
+          "F3": "Reavaliação periódica de saldos em moeda estrangeira",
+          "F4": "Diferenças cambiais reconhecidas automaticamente",
+          "F5": "Relatórios de ganhos e perdas cambiais"
+        }
+      },
+      "INTERCOMPANY": {
+        "TITLE": "Regras intercompanhia",
+        "SUBTITLE": "Automatize e controle as transações entre as empresas do seu grupo.",
+        "EMPTY_TITLE": "Gestão intercompanhia",
+        "EMPTY_DESCRIPTION": "Configure as regras para eliminar transações intragrupo na consolidação, gerar lançamentos espelho automáticos e gerenciar os saldos entre subsidiárias."
+      },
+      "TAXES": {
+        "TITLE": "Regras de impostos",
+        "SUBTITLE": "Configure as alíquotas aplicáveis a vendas, compras e retenções, por jurisdição.",
+        "EMPTY_TITLE": "Motor de impostos",
+        "EMPTY_DESCRIPTION": "Defina as regras fiscais da sua organização para que os impostos sejam calculados e contabilizados automaticamente em cada transação, conforme a jurisdição.",
+        "FEATURES": {
+          "F1": "Alíquotas de IVA por tipo de produto ou serviço",
+          "F2": "Retenções na fonte (imposto de renda, IVA)",
+          "F3": "Impostos por jurisdição e subsidiária",
+          "F4": "Isenções por cliente ou categoria",
+          "F5": "Relatórios de declaração de impostos"
+        }
+      },
+      "APPROVALS": {
+        "TITLE": "Fluxos de aprovação",
+        "SUBTITLE": "Defina quem aprova o quê, em que ordem e sob quais condições.",
+        "EMPTY_TITLE": "Políticas de aprovação",
+        "EMPTY_DESCRIPTION": "Desenhe fluxos de aprovação baseados em regras (valor, tipo de documento, departamento) com aprovadores sequenciais ou paralelos e escalonamento automático.",
+        "FEATURES": {
+          "F1": "Fluxos de vários níveis com aprovadores sequenciais ou paralelos",
+          "F2": "Regras por valor, tipo de documento e departamento",
+          "F3": "Escalonamento automático por inatividade",
+          "F4": "Aprovação por e-mail sem precisar entrar no sistema",
+          "F5": "Histórico completo de decisões, com comentários"
+        }
+      },
+      "INVENTORY_POLICIES": {
+        "TITLE": "Políticas de estoque",
+        "SUBTITLE": "Defina as regras de valoração, reposição e controle de estoque.",
+        "EMPTY_TITLE": "Políticas de estoque",
+        "EMPTY_DESCRIPTION": "Configure o método de valoração de estoque, os limites de reposição automática e as regras de contagem cíclica que mantêm o estoque preciso.",
+        "FEATURES": {
+          "F1": "Método de valoração: PEPS, UEPS ou custo médio",
+          "F2": "Pontos de ressuprimento e quantidades mínimas de estoque",
+          "F3": "Contagem cíclica automatizada por categoria",
+          "F4": "Ajustes de estoque que exigem aprovação",
+          "F5": "Alertas de estoque baixo e produtos vencidos"
+        }
+      },
+      "SEQUENCES": {
+        "TITLE": "Sequências fiscais",
+        "SUBTITLE": "Configure a numeração automática de faturas, recibos e demais documentos fiscais.",
+        "EMPTY_TITLE": "Sequências de documentos",
+        "EMPTY_DESCRIPTION": "Defina os prefixos, sufixos e faixas numéricas de cada tipo de documento fiscal, garantindo a sequência ininterrupta e a conformidade fiscal.",
+        "FEATURES": {
+          "F1": "Sequências independentes por tipo de documento",
+          "F2": "Prefixos e sufixos personalizados por subsidiária",
+          "F3": "Reinício automático a cada ano fiscal",
+          "F4": "Reserva de faixas para contingência",
+          "F5": "Alertas quando uma sequência está prestes a se esgotar"
+        }
+      },
+      "INTEGRATIONS": {
+        "TITLE": "Integrações e API",
+        "SUBTITLE": "Gerencie chaves de API, webhooks e conexões com serviços externos.",
+        "EMPTY_TITLE": "Central de integrações",
+        "EMPTY_DESCRIPTION": "Conecte o {{app}} às suas ferramentas empresariais, crie chaves de API para desenvolvedores e configure webhooks para eventos em tempo real.",
+        "FEATURES": {
+          "F1": "Chaves de API com permissões granulares e expiração configurável",
+          "F2": "Webhooks para notificações de eventos em tempo real",
+          "F3": "Integrações com ERP, CRM e ferramentas de produtividade",
+          "F4": "Documentação interativa da API REST",
+          "F5": "Registro de chamadas e monitoramento da saúde das integrações"
+        }
+      },
+      "SECURITY": {
+        "TITLE": "Segurança e auditoria",
+        "SUBTITLE": "Políticas de senhas, registros de auditoria e controles de acesso da organização.",
+        "EMPTY_TITLE": "Central de segurança da organização",
+        "EMPTY_DESCRIPTION": "Configure as políticas de segurança da sua organização, revise os registros de auditoria e gerencie controles de acesso avançados.",
+        "FEATURES": {
+          "F1": "Políticas de senha: comprimento, complexidade e expiração",
+          "F2": "Registros de auditoria filtrados por usuário, ação e data",
+          "F3": "Detecção e alertas de acessos suspeitos",
+          "F4": "Lista de endereços IP permitidos",
+          "F5": "Notificações de segurança automáticas"
+        }
+      },
+      "SMTP": {
+        "TITLE": "Servidor de e-mail (SMTP)",
+        "SUBTITLE": "Configure o servidor de e-mail de saída usado nas notificações e comunicações do sistema.",
+        "EMPTY_TITLE": "Configuração de e-mail",
+        "EMPTY_DESCRIPTION": "Defina o servidor SMTP da sua organização para que todas as notificações do sistema — faturas, alertas, convites — saiam do seu domínio corporativo.",
+        "FEATURES": {
+          "F1": "Configuração SMTP com suporte a TLS/SSL",
+          "F2": "Verificação da conexão com um envio de teste",
+          "F3": "Remetente personalizado: nome e endereço",
+          "F4": "Modelos de e-mail personalizáveis por evento",
+          "F5": "Histórico de envios e registro de erros"
+        }
+      },
+      "IN_DEVELOPMENT": "Em desenvolvimento"
     }
   },
   "SHARED": {
@@ -3168,5 +3308,10 @@
     "VENDOR_BILL_NEW": "Nova fatura de fornecedor",
     "WAREHOUSES": "Armazéns",
     "WAREHOUSE_MANAGEMENT": "Gestão de armazéns (WMS)"
+  },
+  "TABS": {
+    "SPLIT_RIGHT": "Dividir à direita",
+    "CLOSE_TAB": "Fechar aba",
+    "UNDER_CONSTRUCTION": "Este módulo está em construção. A rota já está registrada e a aba funciona; a visão detalhada estará disponível em breve."
   }
 }

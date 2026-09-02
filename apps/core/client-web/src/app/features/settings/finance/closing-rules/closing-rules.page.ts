@@ -1,20 +1,21 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, CalendarClock } from 'lucide-angular';
 import { SettingsEmptyStateComponent } from '../../shared/settings-empty-state.component';
 
 @Component({
   selector: 'app-closing-rules-page',
   standalone: true,
-  imports: [LucideAngularModule, SettingsEmptyStateComponent],
+  imports: [TranslateModule, LucideAngularModule, SettingsEmptyStateComponent],
   template: `
     <div class="s-page">
       <div class="s-header">
-        <h1 class="s-header__title">Periodos y Cierre Fiscal</h1>
-        <p class="s-header__subtitle">Gestiona los períodos contables y las reglas de bloqueo para el cierre fiscal.</p>
+        <h1 class="s-header__title">{{ 'SETTINGS.PAGES.CLOSING_RULES.TITLE' | translate }}</h1>
+        <p class="s-header__subtitle">{{ 'SETTINGS.PAGES.CLOSING_RULES.SUBTITLE' | translate }}</p>
       </div>
-      <app-settings-empty-state title="Cierre de Períodos Contables"
-        description="Define y controla los períodos contables de tu organización, bloquea períodos cerrados para evitar modificaciones y programa el cierre automático."
-        [features]="['Creación y gestión de períodos contables','Bloqueo automático de períodos cerrados','Cierre mensual, trimestral y anual','Permisos diferenciados para re-apertura de períodos','Proceso guiado de cierre con lista de verificación']">
+      <app-settings-empty-state [title]="'SETTINGS.PAGES.CLOSING_RULES.EMPTY_TITLE'"
+        [description]="'SETTINGS.PAGES.CLOSING_RULES.EMPTY_DESCRIPTION'"
+        [features]="['SETTINGS.PAGES.CLOSING_RULES.FEATURES.F1','SETTINGS.PAGES.CLOSING_RULES.FEATURES.F2','SETTINGS.PAGES.CLOSING_RULES.FEATURES.F3','SETTINGS.PAGES.CLOSING_RULES.FEATURES.F4','SETTINGS.PAGES.CLOSING_RULES.FEATURES.F5']">
         <lucide-icon slot="icon" [img]="icon" size="28"></lucide-icon>
       </app-settings-empty-state>
     </div>`,
