@@ -207,28 +207,28 @@
       "STATUS_VOID": "Cancelado"
     },
     "JOURNAL_ENTRY_FORM": {
-      "TITLE": "Novo Lançamento Contábil",
-      "EDIT_TITLE": "Editar Lançamento Contábil",
-      "DATE_LABEL": "Data",
-      "LEDGER_LABEL": "Livro Razão",
-      "JOURNAL_LABEL": "Diário",
-      "DESCRIPTION_LABEL": "Descrição",
-      "DESCRIPTION_PLACEHOLDER": "Informe uma descrição para o lançamento",
       "ACCOUNT_COLUMN": "Conta",
-      "DESCRIPTION_COLUMN": "Descrição",
-      "DEBIT_COLUMN": "Débito",
-      "CREDIT_COLUMN": "Crédito",
       "ACCOUNT_PLACEHOLDER": "Selecione uma conta",
-      "LEDGER_PLACEHOLDER": "Selecione um livro razão",
-      "JOURNAL_PLACEHOLDER": "Selecione um diário",
       "ADD_LINE": "Adicionar linha",
       "CANCEL": "Cancelar",
+      "CREDIT_COLUMN": "Crédito",
+      "DATE_LABEL": "Data",
+      "DEBIT_COLUMN": "Débito",
+      "DESCRIPTION_COLUMN": "Descrição",
+      "DESCRIPTION_LABEL": "Descrição",
+      "DESCRIPTION_PLACEHOLDER": "Informe uma descrição para o lançamento",
+      "EDIT_TITLE": "Editar Lançamento Contábil",
+      "JOURNAL_LABEL": "Diário",
+      "JOURNAL_PLACEHOLDER": "Selecione um diário",
+      "LEDGER_LABEL": "Livro Razão",
+      "LEDGER_PLACEHOLDER": "Selecione um livro razão",
+      "REQUIRED_FIELDS_ERROR": "Preencha todos os campos obrigatórios.",
       "SAVE": "Salvar lançamento",
       "SAVING": "Salvando…",
+      "TITLE": "Novo Lançamento Contábil",
       "TOTALS": "Totais",
       "UNBALANCED_ERROR": "Os débitos e os créditos devem estar balanceados.",
-      "ZERO_AMOUNT_ERROR": "O valor total não pode ser zero.",
-      "REQUIRED_FIELDS_ERROR": "Preencha todos os campos obrigatórios."
+      "ZERO_AMOUNT_ERROR": "O valor total não pode ser zero."
     },
     "JOURNAL_FORM": {
       "BANK": "Banco",
@@ -669,6 +669,7 @@
     "UNCONFIRMED": "Não conseguimos confirmar seu pagamento automaticamente. Se a cobrança foi feita, entre novamente em alguns minutos."
   },
   "COMMON": {
+    "ACCEPT": "OK",
     "ARE_YOU_SURE": "Tem certeza de que deseja continuar?",
     "BACK": "Voltar",
     "CANCEL": "Cancelar",
@@ -678,6 +679,8 @@
     "CONTINUE": "Continuar",
     "COPIED": "Copiado",
     "COPY": "Copiar",
+    "DELETE": "Excluir",
+    "DISCARD": "Descartar",
     "DONE": "Pronto",
     "DOWNLOAD": "Baixar",
     "LOADING": "Carregando",
@@ -685,6 +688,7 @@
     "NOT_RECORDED": "Sem registro",
     "REFRESH": "Atualizar",
     "RETRY": "Tentar novamente",
+    "SAVE": "Salvar",
     "SENDING": "Enviando...",
     "SUCCESS": "Pronto",
     "TOAST": {
@@ -693,11 +697,7 @@
       "SUCCESS": "Sucesso",
       "WARNING": "Aviso"
     },
-    "VERIFY": "Verificar",
-    "ACCEPT": "Aceitar",
-    "SAVE": "Salvar",
-    "DISCARD": "Descartar",
-    "DELETE": "Excluir"
+    "VERIFY": "Verificar"
   },
   "CONTACTS": {
     "CUSTOMER_FORM": {
@@ -1093,6 +1093,82 @@
     "templates": "Modelos",
     "title": "DataSheets",
     "trash": "Lixeira"
+  },
+  "DIALOG": {
+    "BLOCK_USER": {
+      "MESSAGE": "Isto bloqueará {{name}} e encerrará todas as suas sessões. Deseja continuar?",
+      "TITLE": "Bloquear o usuário"
+    },
+    "DELETE_ACCOUNT": {
+      "MESSAGE": "Excluir a conta \"{{name}}\"? Não é possível desfazer.",
+      "TITLE": "Excluir conta"
+    },
+    "DELETE_CUSTOMER": {
+      "MESSAGE": "Excluir este cliente? Não é possível desfazer.",
+      "TITLE": "Excluir cliente"
+    },
+    "DELETE_INVOICE_DRAFT": {
+      "MESSAGE": "Excluir o rascunho {{number}}? Não é possível desfazer.",
+      "TITLE": "Excluir rascunho"
+    },
+    "DELETE_PRICE_LIST": {
+      "MESSAGE": "Excluir esta tabela de preços? Não é possível desfazer.",
+      "TITLE": "Excluir tabela de preços"
+    },
+    "DELETE_PRODUCT": {
+      "MESSAGE": "Excluir o produto \"{{name}}\"? Não é possível desfazer.",
+      "TITLE": "Excluir produto"
+    },
+    "DELETE_ROLE": {
+      "MESSAGE": "Excluir o perfil \"{{name}}\"? Não é possível desfazer.",
+      "TITLE": "Excluir perfil"
+    },
+    "DELETE_SUPPLIER": {
+      "MESSAGE": "Excluir este fornecedor? Não é possível desfazer.",
+      "TITLE": "Excluir fornecedor"
+    },
+    "DELETE_TAX": {
+      "MESSAGE": "Excluir o imposto \"{{name}}\"? Não é possível desfazer.",
+      "TITLE": "Excluir imposto"
+    },
+    "IMPERSONATE_USER": {
+      "MESSAGE": "Você usará o sistema como {{name}}. Tudo o que fizer será registrado. Deseja continuar?",
+      "TITLE": "Personificar o usuário"
+    },
+    "NOTIFY": {
+      "ERP_VALUE_READONLY": "Este valor vem do ERP e não pode ser editado aqui.",
+      "PAYMENT_START_FAILED": "Não foi possível iniciar o pagamento. Tente novamente.",
+      "PLAN_PRICE_MISSING": "O preço do plano {{plan}} não está configurado no sistema.",
+      "PRICING_NOT_LOADED": "Não foi possível carregar a configuração de preços. Tente novamente mais tarde.",
+      "WORKBOOK_SAVED": "Pasta de trabalho salva."
+    },
+    "REOPEN_PERIOD": {
+      "PLACEHOLDER": "Motivo da reabertura",
+      "TITLE": "Reabrir o período"
+    },
+    "RESET_PASSWORD": {
+      "MESSAGE": "Enviar a {{name}} um e-mail para redefinir a senha?",
+      "TITLE": "Redefinir a senha"
+    },
+    "RESET_SEGMENTS": {
+      "MESSAGE": "Isto substituirá a configuração atual não salva. Deseja continuar?",
+      "TITLE": "Redefinir a estrutura"
+    },
+    "REVOKE_SESSION": {
+      "MESSAGE": "Encerrar todas as sessões de {{name}}?",
+      "TITLE": "Encerrar a sessão"
+    },
+    "UNSAVED_CHANGES": {
+      "MESSAGE": "Você tem alterações não salvas. O que deseja fazer antes de fechar?",
+      "MESSAGE_IN_TAB": "Você tem alterações não salvas em \"{{tab}}\". O que deseja fazer?",
+      "TITLE": "Alterações não salvas"
+    },
+    "VOID_BILL": {
+      "MESSAGE": "Informe o motivo do cancelamento. Ele fica registrado e visível na auditoria.",
+      "PLACEHOLDER": "Motivo do cancelamento",
+      "TITLE": "Cancelar a fatura",
+      "TOO_SHORT": "Informe um motivo com pelo menos 10 caracteres."
+    }
   },
   "DOCUMENTS": {
     "DOCUMENTS": "Documentos",
@@ -1826,6 +1902,114 @@
       "RETRY": "Tentar novamente"
     }
   },
+  "PAGE_TITLES": {
+    "ACCESS_DENIED": "Acesso negado",
+    "ACCOUNT_EDIT": "Editar conta",
+    "ACCOUNT_NEW": "Nova conta",
+    "ACCOUNT_RECONCILIATION": "Conciliação de Contas",
+    "ACCOUNTING": "Contabilidade",
+    "ACCOUNTING_PERIODS": "Períodos contábeis",
+    "ACCOUNTING_PREFERENCES": "Preferências contábeis",
+    "ACCOUNTS_PAYABLE": "Contas a pagar",
+    "ACTIVE_SESSIONS": "Sessões ativas",
+    "APPROVAL_WORKFLOWS": "Fluxos de aprovação",
+    "APPROVALS": "Aprovações",
+    "BALANCE_SHEET": "Balanço patrimonial",
+    "BANKS": "Bancos",
+    "BILLING_PLAN": "Faturamento e plano",
+    "BRANCHES": "Filiais",
+    "CATEGORIES": "Categorias",
+    "CHART_OF_ACCOUNTS": "Plano de contas",
+    "CLOSE_MONTH": "Fechamento Mensal",
+    "CLOSE_YEAR": "Encerramento Anual",
+    "CLOSING_CHECKLISTS": "Checklists de fechamento",
+    "CLOSING_TASKS": "Tarefas de fechamento",
+    "COMPANY_PROFILE": "Perfil da empresa",
+    "COMPANY_STRUCTURE": "Estrutura empresarial",
+    "CONTACTS": "Contatos",
+    "CURRENCIES": "Moedas",
+    "CUSTOMER_EDIT": "Editar cliente",
+    "CUSTOMER_NEW": "Novo cliente",
+    "CUSTOMER_RECEIPT_NEW": "Novo recibo de cliente",
+    "CUSTOMER_RECEIPTS": "Recibos de cliente",
+    "CUSTOMERS": "Clientes",
+    "DAILY_JOURNAL": "Livro diário",
+    "DASHBOARD": "Painel",
+    "DATA_EXPORTS": "Exportações de dados",
+    "DATA_IMPORTS": "Importações de dados",
+    "DATASHEETS": "Planilhas",
+    "DOCUMENT_REPOSITORY": "Repositório de documentos",
+    "DOCUMENT_TEMPLATES": "Modelos de documento",
+    "DOCUMENTS": "Documentos",
+    "EINVOICING": "Faturamento eletrônico (RD)",
+    "FISCAL_PERIODS": "Períodos e fechamento fiscal",
+    "FISCAL_SEQUENCES": "Sequências fiscais",
+    "GENERAL_LEDGER": "Livro razão",
+    "HOME": "Início",
+    "HUMAN_RESOURCES": "Recursos humanos (HCM)",
+    "INTEGRATIONS": "Integrações (API)",
+    "INTERCOMPANY_RULES": "Regras intercompanhia",
+    "INVENTORY": "Estoque",
+    "INVENTORY_POLICIES": "Políticas de estoque",
+    "INVOICE_DETAIL": "Detalhe da fatura",
+    "INVOICE_NEW": "Nova fatura",
+    "INVOICES": "Faturas",
+    "JOURNAL_ENTRIES": "Lançamentos contábeis",
+    "JOURNAL_ENTRY_EDIT": "Editar lançamento contábil",
+    "JOURNAL_ENTRY_IMPORT": "Importar lançamentos contábeis",
+    "JOURNAL_ENTRY_NEW": "Novo lançamento contábil",
+    "JOURNAL_NEW": "Novo diário",
+    "JOURNALS": "Diários",
+    "LEDGER_NEW": "Novo livro contábil",
+    "LEDGERS": "Livros contábeis",
+    "MAIL_SERVER": "Servidor de e-mail",
+    "MANUFACTURING": "Manufatura (MRP)",
+    "MASTER_DATA": "Dados mestres",
+    "MULTICURRENCY": "Multimoeda e taxas",
+    "MY_PROFILE": "Meu perfil",
+    "MY_WORK": "Meu trabalho",
+    "NOTIFICATIONS": "Notificações",
+    "PAYMENT_METHODS": "Formas de pagamento",
+    "PAYMENT_TERMS": "Condições de pagamento",
+    "PERSONALIZATION": "Personalização",
+    "POINT_OF_SALE": "Ponto de venda",
+    "PRICE_LIST_EDIT": "Editar tabela de preços",
+    "PRICE_LIST_NEW": "Nova tabela de preços",
+    "PRICE_LISTS": "Tabelas de preços",
+    "PROCUREMENT": "Suprimentos e fornecedores",
+    "PRODUCT_EDIT": "Editar produto",
+    "PRODUCT_NEW": "Novo produto",
+    "PRODUCTS": "Produtos",
+    "PROFITABILITY_CUSTOMER": "Rentabilidade por cliente",
+    "PROFITABILITY_PRODUCT": "Rentabilidade por produto",
+    "PROJECTS": "Projetos (PSA)",
+    "PURCHASE_ORDERS": "Pedidos de compra",
+    "PURCHASE_REQUISITIONS": "Requisições de compra",
+    "PURCHASING": "Compras",
+    "REPORTS": "Relatórios",
+    "ROLES_PERMISSIONS": "Perfis e permissões",
+    "SALES": "Vendas",
+    "SALES_HISTORY": "Histórico de vendas",
+    "SEARCH": "Busca",
+    "SECURITY_AUDIT": "Segurança e auditoria",
+    "SEGMENT_CONFIG": "Configuração de segmentos",
+    "SSO": "Login único (SSO)",
+    "SUBSIDIARY_LEDGERS": "Livros auxiliares",
+    "SUPPLIER_EDIT": "Editar fornecedor",
+    "SUPPLIERS": "Fornecedores",
+    "TAX_NEW": "Novo imposto",
+    "TAX_RULES": "Regras de impostos",
+    "TAXES": "Impostos",
+    "UNITS_OF_MEASURE": "Unidades de medida",
+    "USER_MANAGEMENT": "Gestão de usuários",
+    "VARIANCE_ANALYSIS": "Análise de variações",
+    "VENDOR_BILL_DETAIL": "Detalhe da fatura de fornecedor",
+    "VENDOR_BILL_EDIT": "Editar fatura de fornecedor",
+    "VENDOR_BILL_NEW": "Nova fatura de fornecedor",
+    "VENDOR_BILLS": "Faturas de fornecedor",
+    "WAREHOUSE_MANAGEMENT": "Gestão de armazéns (WMS)",
+    "WAREHOUSES": "Depósitos"
+  },
   "PASSWORD_STRENGTH": {
     "WEAK": "Fraca"
   },
@@ -2300,6 +2484,146 @@
       "NUEVO_CORREO_COM": "novo@email.com",
       "PEREZ": "Silva"
     },
+    "PAGES": {
+      "ACCOUNTING": {
+        "EMPTY_DESCRIPTION": "Configure as contas do plano que serão usadas automaticamente em cada transação, eliminando erros de atribuição manual.",
+        "EMPTY_TITLE": "Preferências contábeis",
+        "FEATURES": {
+          "F1": "Conta a receber padrão",
+          "F2": "Conta a pagar padrão",
+          "F3": "Conta de receita de vendas",
+          "F4": "Conta de ganhos e perdas cambiais",
+          "F5": "Conta de depreciação acumulada",
+          "F6": "Conta de impostos sobre vendas e compras"
+        },
+        "SUBTITLE": "Defina as contas contábeis padrão e as regras de lançamento da sua organização.",
+        "TITLE": "Preferências contábeis"
+      },
+      "APPROVALS": {
+        "EMPTY_DESCRIPTION": "Desenhe fluxos de aprovação baseados em regras (valor, tipo de documento, departamento) com aprovadores sequenciais ou paralelos e escalonamento automático.",
+        "EMPTY_TITLE": "Políticas de aprovação",
+        "FEATURES": {
+          "F1": "Fluxos de vários níveis com aprovadores sequenciais ou paralelos",
+          "F2": "Regras por valor, tipo de documento e departamento",
+          "F3": "Escalonamento automático por inatividade",
+          "F4": "Aprovação por e-mail sem precisar entrar no sistema",
+          "F5": "Histórico completo de decisões, com comentários"
+        },
+        "SUBTITLE": "Defina quem aprova o quê, em que ordem e sob quais condições.",
+        "TITLE": "Fluxos de aprovação"
+      },
+      "CLOSING_RULES": {
+        "EMPTY_DESCRIPTION": "Defina e controle os períodos contábeis da sua organização, bloqueie os períodos fechados contra alterações e programe o fechamento.",
+        "EMPTY_TITLE": "Fechamento de períodos contábeis",
+        "FEATURES": {
+          "F1": "Criação e gestão de períodos contábeis",
+          "F2": "Bloqueio automático de períodos fechados",
+          "F3": "Fechamento mensal, trimestral e anual",
+          "F4": "Permissões específicas para reabrir períodos",
+          "F5": "Processo guiado de fechamento com checklist"
+        },
+        "SUBTITLE": "Gerencie os períodos contábeis e as regras de bloqueio do fechamento fiscal.",
+        "TITLE": "Períodos e fechamento fiscal"
+      },
+      "CURRENCIES": {
+        "EMPTY_DESCRIPTION": "Ative várias moedas para suas transações, defina a moeda funcional de cada subsidiária e configure a atualização automática das taxas de câmbio.",
+        "EMPTY_TITLE": "Multimoeda",
+        "FEATURES": {
+          "F1": "Moeda base e moedas secundárias ativas",
+          "F2": "Atualização automática de taxas de câmbio (banco central, BCE)",
+          "F3": "Reavaliação periódica de saldos em moeda estrangeira",
+          "F4": "Diferenças cambiais reconhecidas automaticamente",
+          "F5": "Relatórios de ganhos e perdas cambiais"
+        },
+        "SUBTITLE": "Gerencie as moedas ativas e as taxas de câmbio para transações internacionais.",
+        "TITLE": "Multimoeda e taxas de câmbio"
+      },
+      "IN_DEVELOPMENT": "Em desenvolvimento",
+      "INTEGRATIONS": {
+        "EMPTY_DESCRIPTION": "Conecte o {{app}} às suas ferramentas empresariais, crie chaves de API para desenvolvedores e configure webhooks para eventos em tempo real.",
+        "EMPTY_TITLE": "Central de integrações",
+        "FEATURES": {
+          "F1": "Chaves de API com permissões granulares e expiração configurável",
+          "F2": "Webhooks para notificações de eventos em tempo real",
+          "F3": "Integrações com ERP, CRM e ferramentas de produtividade",
+          "F4": "Documentação interativa da API REST",
+          "F5": "Registro de chamadas e monitoramento da saúde das integrações"
+        },
+        "SUBTITLE": "Gerencie chaves de API, webhooks e conexões com serviços externos.",
+        "TITLE": "Integrações e API"
+      },
+      "INTERCOMPANY": {
+        "EMPTY_DESCRIPTION": "Configure as regras para eliminar transações intragrupo na consolidação, gerar lançamentos espelho automáticos e gerenciar os saldos entre subsidiárias.",
+        "EMPTY_TITLE": "Gestão intercompanhia",
+        "SUBTITLE": "Automatize e controle as transações entre as empresas do seu grupo.",
+        "TITLE": "Regras intercompanhia"
+      },
+      "INVENTORY_POLICIES": {
+        "EMPTY_DESCRIPTION": "Configure o método de valoração de estoque, os limites de reposição automática e as regras de contagem cíclica que mantêm o estoque preciso.",
+        "EMPTY_TITLE": "Políticas de estoque",
+        "FEATURES": {
+          "F1": "Método de valoração: PEPS, UEPS ou custo médio",
+          "F2": "Pontos de ressuprimento e quantidades mínimas de estoque",
+          "F3": "Contagem cíclica automatizada por categoria",
+          "F4": "Ajustes de estoque que exigem aprovação",
+          "F5": "Alertas de estoque baixo e produtos vencidos"
+        },
+        "SUBTITLE": "Defina as regras de valoração, reposição e controle de estoque.",
+        "TITLE": "Políticas de estoque"
+      },
+      "SECURITY": {
+        "EMPTY_DESCRIPTION": "Configure as políticas de segurança da sua organização, revise os registros de auditoria e gerencie controles de acesso avançados.",
+        "EMPTY_TITLE": "Central de segurança da organização",
+        "FEATURES": {
+          "F1": "Políticas de senha: comprimento, complexidade e expiração",
+          "F2": "Registros de auditoria filtrados por usuário, ação e data",
+          "F3": "Detecção e alertas de acessos suspeitos",
+          "F4": "Lista de endereços IP permitidos",
+          "F5": "Notificações de segurança automáticas"
+        },
+        "SUBTITLE": "Políticas de senhas, registros de auditoria e controles de acesso da organização.",
+        "TITLE": "Segurança e auditoria"
+      },
+      "SEQUENCES": {
+        "EMPTY_DESCRIPTION": "Defina os prefixos, sufixos e faixas numéricas de cada tipo de documento fiscal, garantindo a sequência ininterrupta e a conformidade fiscal.",
+        "EMPTY_TITLE": "Sequências de documentos",
+        "FEATURES": {
+          "F1": "Sequências independentes por tipo de documento",
+          "F2": "Prefixos e sufixos personalizados por subsidiária",
+          "F3": "Reinício automático a cada ano fiscal",
+          "F4": "Reserva de faixas para contingência",
+          "F5": "Alertas quando uma sequência está prestes a se esgotar"
+        },
+        "SUBTITLE": "Configure a numeração automática de faturas, recibos e demais documentos fiscais.",
+        "TITLE": "Sequências fiscais"
+      },
+      "SMTP": {
+        "EMPTY_DESCRIPTION": "Defina o servidor SMTP da sua organização para que todas as notificações do sistema — faturas, alertas, convites — saiam do seu domínio corporativo.",
+        "EMPTY_TITLE": "Configuração de e-mail",
+        "FEATURES": {
+          "F1": "Configuração SMTP com suporte a TLS/SSL",
+          "F2": "Verificação da conexão com um envio de teste",
+          "F3": "Remetente personalizado: nome e endereço",
+          "F4": "Modelos de e-mail personalizáveis por evento",
+          "F5": "Histórico de envios e registro de erros"
+        },
+        "SUBTITLE": "Configure o servidor de e-mail de saída usado nas notificações e comunicações do sistema.",
+        "TITLE": "Servidor de e-mail (SMTP)"
+      },
+      "TAXES": {
+        "EMPTY_DESCRIPTION": "Defina as regras fiscais da sua organização para que os impostos sejam calculados e contabilizados automaticamente em cada transação, conforme a jurisdição.",
+        "EMPTY_TITLE": "Motor de impostos",
+        "FEATURES": {
+          "F1": "Alíquotas de IVA por tipo de produto ou serviço",
+          "F2": "Retenções na fonte (imposto de renda, IVA)",
+          "F3": "Impostos por jurisdição e subsidiária",
+          "F4": "Isenções por cliente ou categoria",
+          "F5": "Relatórios de declaração de impostos"
+        },
+        "SUBTITLE": "Configure as alíquotas aplicáveis a vendas, compras e retenções, por jurisdição.",
+        "TITLE": "Regras de impostos"
+      }
+    },
     "PROFILE": {
       "AVATAR_UPDATED": "Imagem atualizada.",
       "CHANGE_AVATAR": "Alterar foto",
@@ -2549,146 +2873,6 @@
       "USUARIO_INVITADO_EXITO": "Usuário convidado com sucesso.",
       "USUARIOS": "Usuários",
       "USUARIOS_2": "usuários"
-    },
-    "PAGES": {
-      "ACCOUNTING": {
-        "TITLE": "Preferências contábeis",
-        "SUBTITLE": "Defina as contas contábeis padrão e as regras de lançamento da sua organização.",
-        "EMPTY_TITLE": "Preferências contábeis",
-        "EMPTY_DESCRIPTION": "Configure as contas do plano que serão usadas automaticamente em cada transação, eliminando erros de atribuição manual.",
-        "FEATURES": {
-          "F1": "Conta a receber padrão",
-          "F2": "Conta a pagar padrão",
-          "F3": "Conta de receita de vendas",
-          "F4": "Conta de ganhos e perdas cambiais",
-          "F5": "Conta de depreciação acumulada",
-          "F6": "Conta de impostos sobre vendas e compras"
-        }
-      },
-      "CLOSING_RULES": {
-        "TITLE": "Períodos e fechamento fiscal",
-        "SUBTITLE": "Gerencie os períodos contábeis e as regras de bloqueio do fechamento fiscal.",
-        "EMPTY_TITLE": "Fechamento de períodos contábeis",
-        "EMPTY_DESCRIPTION": "Defina e controle os períodos contábeis da sua organização, bloqueie os períodos fechados contra alterações e programe o fechamento.",
-        "FEATURES": {
-          "F1": "Criação e gestão de períodos contábeis",
-          "F2": "Bloqueio automático de períodos fechados",
-          "F3": "Fechamento mensal, trimestral e anual",
-          "F4": "Permissões específicas para reabrir períodos",
-          "F5": "Processo guiado de fechamento com checklist"
-        }
-      },
-      "CURRENCIES": {
-        "TITLE": "Multimoeda e taxas de câmbio",
-        "SUBTITLE": "Gerencie as moedas ativas e as taxas de câmbio para transações internacionais.",
-        "EMPTY_TITLE": "Multimoeda",
-        "EMPTY_DESCRIPTION": "Ative várias moedas para suas transações, defina a moeda funcional de cada subsidiária e configure a atualização automática das taxas de câmbio.",
-        "FEATURES": {
-          "F1": "Moeda base e moedas secundárias ativas",
-          "F2": "Atualização automática de taxas de câmbio (banco central, BCE)",
-          "F3": "Reavaliação periódica de saldos em moeda estrangeira",
-          "F4": "Diferenças cambiais reconhecidas automaticamente",
-          "F5": "Relatórios de ganhos e perdas cambiais"
-        }
-      },
-      "INTERCOMPANY": {
-        "TITLE": "Regras intercompanhia",
-        "SUBTITLE": "Automatize e controle as transações entre as empresas do seu grupo.",
-        "EMPTY_TITLE": "Gestão intercompanhia",
-        "EMPTY_DESCRIPTION": "Configure as regras para eliminar transações intragrupo na consolidação, gerar lançamentos espelho automáticos e gerenciar os saldos entre subsidiárias."
-      },
-      "TAXES": {
-        "TITLE": "Regras de impostos",
-        "SUBTITLE": "Configure as alíquotas aplicáveis a vendas, compras e retenções, por jurisdição.",
-        "EMPTY_TITLE": "Motor de impostos",
-        "EMPTY_DESCRIPTION": "Defina as regras fiscais da sua organização para que os impostos sejam calculados e contabilizados automaticamente em cada transação, conforme a jurisdição.",
-        "FEATURES": {
-          "F1": "Alíquotas de IVA por tipo de produto ou serviço",
-          "F2": "Retenções na fonte (imposto de renda, IVA)",
-          "F3": "Impostos por jurisdição e subsidiária",
-          "F4": "Isenções por cliente ou categoria",
-          "F5": "Relatórios de declaração de impostos"
-        }
-      },
-      "APPROVALS": {
-        "TITLE": "Fluxos de aprovação",
-        "SUBTITLE": "Defina quem aprova o quê, em que ordem e sob quais condições.",
-        "EMPTY_TITLE": "Políticas de aprovação",
-        "EMPTY_DESCRIPTION": "Desenhe fluxos de aprovação baseados em regras (valor, tipo de documento, departamento) com aprovadores sequenciais ou paralelos e escalonamento automático.",
-        "FEATURES": {
-          "F1": "Fluxos de vários níveis com aprovadores sequenciais ou paralelos",
-          "F2": "Regras por valor, tipo de documento e departamento",
-          "F3": "Escalonamento automático por inatividade",
-          "F4": "Aprovação por e-mail sem precisar entrar no sistema",
-          "F5": "Histórico completo de decisões, com comentários"
-        }
-      },
-      "INVENTORY_POLICIES": {
-        "TITLE": "Políticas de estoque",
-        "SUBTITLE": "Defina as regras de valoração, reposição e controle de estoque.",
-        "EMPTY_TITLE": "Políticas de estoque",
-        "EMPTY_DESCRIPTION": "Configure o método de valoração de estoque, os limites de reposição automática e as regras de contagem cíclica que mantêm o estoque preciso.",
-        "FEATURES": {
-          "F1": "Método de valoração: PEPS, UEPS ou custo médio",
-          "F2": "Pontos de ressuprimento e quantidades mínimas de estoque",
-          "F3": "Contagem cíclica automatizada por categoria",
-          "F4": "Ajustes de estoque que exigem aprovação",
-          "F5": "Alertas de estoque baixo e produtos vencidos"
-        }
-      },
-      "SEQUENCES": {
-        "TITLE": "Sequências fiscais",
-        "SUBTITLE": "Configure a numeração automática de faturas, recibos e demais documentos fiscais.",
-        "EMPTY_TITLE": "Sequências de documentos",
-        "EMPTY_DESCRIPTION": "Defina os prefixos, sufixos e faixas numéricas de cada tipo de documento fiscal, garantindo a sequência ininterrupta e a conformidade fiscal.",
-        "FEATURES": {
-          "F1": "Sequências independentes por tipo de documento",
-          "F2": "Prefixos e sufixos personalizados por subsidiária",
-          "F3": "Reinício automático a cada ano fiscal",
-          "F4": "Reserva de faixas para contingência",
-          "F5": "Alertas quando uma sequência está prestes a se esgotar"
-        }
-      },
-      "INTEGRATIONS": {
-        "TITLE": "Integrações e API",
-        "SUBTITLE": "Gerencie chaves de API, webhooks e conexões com serviços externos.",
-        "EMPTY_TITLE": "Central de integrações",
-        "EMPTY_DESCRIPTION": "Conecte o {{app}} às suas ferramentas empresariais, crie chaves de API para desenvolvedores e configure webhooks para eventos em tempo real.",
-        "FEATURES": {
-          "F1": "Chaves de API com permissões granulares e expiração configurável",
-          "F2": "Webhooks para notificações de eventos em tempo real",
-          "F3": "Integrações com ERP, CRM e ferramentas de produtividade",
-          "F4": "Documentação interativa da API REST",
-          "F5": "Registro de chamadas e monitoramento da saúde das integrações"
-        }
-      },
-      "SECURITY": {
-        "TITLE": "Segurança e auditoria",
-        "SUBTITLE": "Políticas de senhas, registros de auditoria e controles de acesso da organização.",
-        "EMPTY_TITLE": "Central de segurança da organização",
-        "EMPTY_DESCRIPTION": "Configure as políticas de segurança da sua organização, revise os registros de auditoria e gerencie controles de acesso avançados.",
-        "FEATURES": {
-          "F1": "Políticas de senha: comprimento, complexidade e expiração",
-          "F2": "Registros de auditoria filtrados por usuário, ação e data",
-          "F3": "Detecção e alertas de acessos suspeitos",
-          "F4": "Lista de endereços IP permitidos",
-          "F5": "Notificações de segurança automáticas"
-        }
-      },
-      "SMTP": {
-        "TITLE": "Servidor de e-mail (SMTP)",
-        "SUBTITLE": "Configure o servidor de e-mail de saída usado nas notificações e comunicações do sistema.",
-        "EMPTY_TITLE": "Configuração de e-mail",
-        "EMPTY_DESCRIPTION": "Defina o servidor SMTP da sua organização para que todas as notificações do sistema — faturas, alertas, convites — saiam do seu domínio corporativo.",
-        "FEATURES": {
-          "F1": "Configuração SMTP com suporte a TLS/SSL",
-          "F2": "Verificação da conexão com um envio de teste",
-          "F3": "Remetente personalizado: nome e endereço",
-          "F4": "Modelos de e-mail personalizáveis por evento",
-          "F5": "Histórico de envios e registro de erros"
-        }
-      },
-      "IN_DEVELOPMENT": "Em desenvolvimento"
     }
   },
   "SHARED": {
@@ -2761,7 +2945,7 @@
         "credit_notes": "Notas de crédito",
         "dashboard": "Painel",
         "dynamic_discounting": "Desconto dinâmico",
-        "invoices": "Faturas",
+        "invoices": "Faturas de Fornecedor",
         "ocr": "OCR",
         "payments": "Pagamentos",
         "scf_confirming": "Confirming (SCF)",
@@ -3170,6 +3354,11 @@
       "tax": "Tributos e Conformidade"
     }
   },
+  "TABS": {
+    "CLOSE_TAB": "Fechar aba",
+    "SPLIT_RIGHT": "Dividir à direita",
+    "UNDER_CONSTRUCTION": "Este módulo está em construção. A rota já está registrada e a aba funciona; a visão detalhada estará disponível em breve."
+  },
   "UNAUTHORIZED": {
     "403_FORBIDDEN": "403 Forbidden",
     "ACCESO_DENEGADO": "Acesso Negado",
@@ -3177,13 +3366,13 @@
     "ERROR": "Erro:",
     "NO_SABES_PERMISOS_NECESITAS": "Não sabe de quais permissões precisa?",
     "NO_TIENES_PERMISOS_NECESARIOS_ACCEDER_ESTE": "Você não tem as permissões necessárias para acessar este recurso.",
+    "PROTECTED_ROUTE": "uma rota protegida",
+    "REQUEST_BODY": "Olá,\n\nSou {{name}} ({{email}}).\n\nGostaria de solicitar acesso a esta rota, para a qual atualmente não tenho permissão:\n{{url}}\n\nObrigado.",
+    "REQUEST_SUBJECT": "Solicitação de permissão para: {{route}}",
     "RUTA_SOLICITADA": "Caminho solicitado:",
     "SI_CREES_ESTO_ES_ERROR_CONTACTA": "Se você acha que isso é um erro, fale com o administrador do sistema ou solicite as permissões necessárias.",
     "SOLICITAR_PERMISO": "Solicitar Permissão",
-    "VOLVER_DASHBOARD": "Voltar ao Painel",
-    "REQUEST_SUBJECT": "Solicitação de permissão para: {{route}}",
-    "REQUEST_BODY": "Olá,\n\nSou {{name}} ({{email}}).\n\nGostaria de solicitar acesso a esta rota, para a qual atualmente não tenho permissão:\n{{url}}\n\nObrigado.",
-    "PROTECTED_ROUTE": "uma rota protegida"
+    "VOLVER_DASHBOARD": "Voltar ao Painel"
   },
   "USER": {
     "MY_PROFILE": "Meu Perfil",
@@ -3222,194 +3411,5 @@
       "UNABLE_TO_LOAD": "Não foi possível carregar os dados."
     },
     "LOADING": "Carregando…"
-  },
-  "PAGE_TITLES": {
-    "ACCESS_DENIED": "Acesso negado",
-    "ACCOUNTING": "Contabilidade",
-    "ACCOUNTING_PERIODS": "Períodos contábeis",
-    "ACCOUNTING_PREFERENCES": "Preferências contábeis",
-    "ACCOUNTS_PAYABLE": "Contas a pagar",
-    "ACCOUNT_EDIT": "Editar conta",
-    "ACCOUNT_NEW": "Nova conta",
-    "ACCOUNT_RECONCILIATION": "Conciliação de contas",
-    "ACTIVE_SESSIONS": "Sessões ativas",
-    "APPROVALS": "Aprovações",
-    "APPROVAL_WORKFLOWS": "Fluxos de aprovação",
-    "BALANCE_SHEET": "Balanço patrimonial",
-    "BANKS": "Bancos",
-    "BILLING_PLAN": "Faturamento e plano",
-    "BRANCHES": "Filiais",
-    "CATEGORIES": "Categorias",
-    "CHART_OF_ACCOUNTS": "Plano de contas",
-    "CLOSE_MONTH": "Fechamento mensal",
-    "CLOSE_YEAR": "Fechamento anual",
-    "CLOSING_CHECKLISTS": "Checklists de fechamento",
-    "CLOSING_TASKS": "Tarefas de fechamento",
-    "COMPANY_PROFILE": "Perfil da empresa",
-    "COMPANY_STRUCTURE": "Estrutura empresarial",
-    "CONTACTS": "Contatos",
-    "CURRENCIES": "Moedas",
-    "CUSTOMERS": "Clientes",
-    "CUSTOMER_EDIT": "Editar cliente",
-    "CUSTOMER_NEW": "Novo cliente",
-    "CUSTOMER_RECEIPTS": "Recibos de cliente",
-    "CUSTOMER_RECEIPT_NEW": "Novo recibo de cliente",
-    "DAILY_JOURNAL": "Livro diário",
-    "DASHBOARD": "Painel",
-    "DATASHEETS": "Planilhas",
-    "DATA_EXPORTS": "Exportações de dados",
-    "DATA_IMPORTS": "Importações de dados",
-    "DOCUMENTS": "Documentos",
-    "DOCUMENT_REPOSITORY": "Repositório de documentos",
-    "DOCUMENT_TEMPLATES": "Modelos de documento",
-    "EINVOICING": "Faturamento eletrônico (RD)",
-    "FISCAL_PERIODS": "Períodos e fechamento fiscal",
-    "FISCAL_SEQUENCES": "Sequências fiscais",
-    "GENERAL_LEDGER": "Livro razão",
-    "HOME": "Início",
-    "HUMAN_RESOURCES": "Recursos humanos (HCM)",
-    "INTEGRATIONS": "Integrações (API)",
-    "INTERCOMPANY_RULES": "Regras intercompanhia",
-    "INVENTORY": "Estoque",
-    "INVENTORY_POLICIES": "Políticas de estoque",
-    "INVOICES": "Faturas",
-    "INVOICE_DETAIL": "Detalhe da fatura",
-    "INVOICE_NEW": "Nova fatura",
-    "JOURNALS": "Diários",
-    "JOURNAL_ENTRIES": "Lançamentos contábeis",
-    "JOURNAL_ENTRY_EDIT": "Editar lançamento contábil",
-    "JOURNAL_ENTRY_IMPORT": "Importar lançamentos contábeis",
-    "JOURNAL_ENTRY_NEW": "Novo lançamento contábil",
-    "JOURNAL_NEW": "Novo diário",
-    "LEDGERS": "Livros contábeis",
-    "LEDGER_NEW": "Novo livro contábil",
-    "MAIL_SERVER": "Servidor de e-mail",
-    "MANUFACTURING": "Manufatura (MRP)",
-    "MASTER_DATA": "Dados mestres",
-    "MULTICURRENCY": "Multimoeda e taxas",
-    "MY_PROFILE": "Meu perfil",
-    "MY_WORK": "Meu trabalho",
-    "NOTIFICATIONS": "Notificações",
-    "PAYMENT_METHODS": "Formas de pagamento",
-    "PAYMENT_TERMS": "Condições de pagamento",
-    "PERSONALIZATION": "Personalização",
-    "POINT_OF_SALE": "Ponto de venda",
-    "PRICE_LISTS": "Tabelas de preços",
-    "PRICE_LIST_EDIT": "Editar tabela de preços",
-    "PRICE_LIST_NEW": "Nova tabela de preços",
-    "PROCUREMENT": "Suprimentos e fornecedores",
-    "PRODUCTS": "Produtos",
-    "PRODUCT_EDIT": "Editar produto",
-    "PRODUCT_NEW": "Novo produto",
-    "PROFITABILITY_CUSTOMER": "Rentabilidade por cliente",
-    "PROFITABILITY_PRODUCT": "Rentabilidade por produto",
-    "PROJECTS": "Projetos (PSA)",
-    "PURCHASE_ORDERS": "Pedidos de compra",
-    "PURCHASE_REQUISITIONS": "Requisições de compra",
-    "PURCHASING": "Compras",
-    "REPORTS": "Relatórios",
-    "ROLES_PERMISSIONS": "Perfis e permissões",
-    "SALES": "Vendas",
-    "SALES_HISTORY": "Histórico de vendas",
-    "SEARCH": "Busca",
-    "SECURITY_AUDIT": "Segurança e auditoria",
-    "SEGMENT_CONFIG": "Configuração de segmentos",
-    "SSO": "Login único (SSO)",
-    "SUBSIDIARY_LEDGERS": "Livros auxiliares",
-    "SUPPLIERS": "Fornecedores",
-    "SUPPLIER_EDIT": "Editar fornecedor",
-    "TAXES": "Impostos",
-    "TAX_NEW": "Novo imposto",
-    "TAX_RULES": "Regras de impostos",
-    "UNITS_OF_MEASURE": "Unidades de medida",
-    "USER_MANAGEMENT": "Gestão de usuários",
-    "VARIANCE_ANALYSIS": "Análise de variações",
-    "VENDOR_BILLS": "Faturas de fornecedor",
-    "VENDOR_BILL_DETAIL": "Detalhe da fatura de fornecedor",
-    "VENDOR_BILL_EDIT": "Editar fatura de fornecedor",
-    "VENDOR_BILL_NEW": "Nova fatura de fornecedor",
-    "WAREHOUSES": "Armazéns",
-    "WAREHOUSE_MANAGEMENT": "Gestão de armazéns (WMS)"
-  },
-  "TABS": {
-    "SPLIT_RIGHT": "Dividir à direita",
-    "CLOSE_TAB": "Fechar aba",
-    "UNDER_CONSTRUCTION": "Este módulo está em construção. A rota já está registrada e a aba funciona; a visão detalhada estará disponível em breve."
-  },
-  "DIALOG": {
-    "UNSAVED_CHANGES": {
-      "TITLE": "Alterações não salvas",
-      "MESSAGE": "Você tem alterações não salvas. O que deseja fazer antes de fechar?",
-      "MESSAGE_IN_TAB": "Você tem alterações não salvas em \"{{tab}}\". O que deseja fazer?"
-    },
-    "DELETE_CUSTOMER": {
-      "TITLE": "Excluir cliente",
-      "MESSAGE": "Excluir este cliente? Não é possível desfazer."
-    },
-    "DELETE_SUPPLIER": {
-      "TITLE": "Excluir fornecedor",
-      "MESSAGE": "Excluir este fornecedor? Não é possível desfazer."
-    },
-    "DELETE_ROLE": {
-      "TITLE": "Excluir perfil",
-      "MESSAGE": "Excluir o perfil \"{{name}}\"? Não é possível desfazer."
-    },
-    "DELETE_PRODUCT": {
-      "TITLE": "Excluir produto",
-      "MESSAGE": "Excluir o produto \"{{name}}\"? Não é possível desfazer."
-    },
-    "DELETE_TAX": {
-      "TITLE": "Excluir imposto",
-      "MESSAGE": "Excluir o imposto \"{{name}}\"? Não é possível desfazer."
-    },
-    "DELETE_PRICE_LIST": {
-      "TITLE": "Excluir tabela de preços",
-      "MESSAGE": "Excluir esta tabela de preços? Não é possível desfazer."
-    },
-    "DELETE_ACCOUNT": {
-      "TITLE": "Excluir conta",
-      "MESSAGE": "Excluir a conta \"{{name}}\"? Não é possível desfazer."
-    },
-    "DELETE_INVOICE_DRAFT": {
-      "TITLE": "Excluir rascunho",
-      "MESSAGE": "Excluir o rascunho {{number}}? Não é possível desfazer."
-    },
-    "RESET_SEGMENTS": {
-      "TITLE": "Redefinir a estrutura",
-      "MESSAGE": "Isto substituirá a configuração atual não salva. Deseja continuar?"
-    },
-    "RESET_PASSWORD": {
-      "TITLE": "Redefinir a senha",
-      "MESSAGE": "Enviar a {{name}} um e-mail para redefinir a senha?"
-    },
-    "REVOKE_SESSION": {
-      "TITLE": "Encerrar a sessão",
-      "MESSAGE": "Encerrar todas as sessões de {{name}}?"
-    },
-    "BLOCK_USER": {
-      "TITLE": "Bloquear o usuário",
-      "MESSAGE": "Isto bloqueará {{name}} e encerrará todas as suas sessões. Deseja continuar?"
-    },
-    "IMPERSONATE_USER": {
-      "TITLE": "Personificar o usuário",
-      "MESSAGE": "Você usará o sistema como {{name}}. Tudo o que fizer será registrado. Deseja continuar?"
-    },
-    "NOTIFY": {
-      "PRICING_NOT_LOADED": "Não foi possível carregar a configuração de preços. Tente novamente mais tarde.",
-      "PLAN_PRICE_MISSING": "O preço do plano {{plan}} não está configurado no sistema.",
-      "PAYMENT_START_FAILED": "Não foi possível iniciar o pagamento. Tente novamente.",
-      "ERP_VALUE_READONLY": "Este valor vem do ERP e não pode ser editado aqui.",
-      "WORKBOOK_SAVED": "Pasta de trabalho salva."
-    },
-    "VOID_BILL": {
-      "TITLE": "Cancelar a fatura",
-      "MESSAGE": "Informe o motivo do cancelamento. Ele fica registrado e visível na auditoria.",
-      "PLACEHOLDER": "Motivo do cancelamento",
-      "TOO_SHORT": "Informe um motivo com pelo menos 10 caracteres."
-    },
-    "REOPEN_PERIOD": {
-      "TITLE": "Reabrir o período",
-      "PLACEHOLDER": "Motivo da reabertura"
-    }
   }
 }

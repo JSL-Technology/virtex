@@ -207,28 +207,28 @@
       "STATUS_VOID": "Voided"
     },
     "JOURNAL_ENTRY_FORM": {
-      "TITLE": "New Journal Entry",
-      "EDIT_TITLE": "Edit Journal Entry",
-      "DATE_LABEL": "Date",
-      "LEDGER_LABEL": "Ledger",
-      "JOURNAL_LABEL": "Journal",
-      "DESCRIPTION_LABEL": "Description",
-      "DESCRIPTION_PLACEHOLDER": "Enter a description for the entry",
       "ACCOUNT_COLUMN": "Account",
-      "DESCRIPTION_COLUMN": "Description",
-      "DEBIT_COLUMN": "Debit",
-      "CREDIT_COLUMN": "Credit",
       "ACCOUNT_PLACEHOLDER": "Select an account",
-      "LEDGER_PLACEHOLDER": "Select a ledger",
-      "JOURNAL_PLACEHOLDER": "Select a journal",
       "ADD_LINE": "Add line",
       "CANCEL": "Cancel",
+      "CREDIT_COLUMN": "Credit",
+      "DATE_LABEL": "Date",
+      "DEBIT_COLUMN": "Debit",
+      "DESCRIPTION_COLUMN": "Description",
+      "DESCRIPTION_LABEL": "Description",
+      "DESCRIPTION_PLACEHOLDER": "Enter a description for the entry",
+      "EDIT_TITLE": "Edit Journal Entry",
+      "JOURNAL_LABEL": "Journal",
+      "JOURNAL_PLACEHOLDER": "Select a journal",
+      "LEDGER_LABEL": "General Ledger",
+      "LEDGER_PLACEHOLDER": "Select a ledger",
+      "REQUIRED_FIELDS_ERROR": "Fill in all the required fields.",
       "SAVE": "Save entry",
       "SAVING": "Saving…",
+      "TITLE": "New Journal Entry",
       "TOTALS": "Totals",
       "UNBALANCED_ERROR": "Debits and credits must be balanced.",
-      "ZERO_AMOUNT_ERROR": "The total amount cannot be zero.",
-      "REQUIRED_FIELDS_ERROR": "Fill in all the required fields."
+      "ZERO_AMOUNT_ERROR": "The total amount cannot be zero."
     },
     "JOURNAL_FORM": {
       "BANK": "Bank",
@@ -669,6 +669,7 @@
     "UNCONFIRMED": "We couldn't confirm your payment automatically. If you were charged, sign in in a few minutes."
   },
   "COMMON": {
+    "ACCEPT": "OK",
     "ARE_YOU_SURE": "Are you sure you want to continue?",
     "BACK": "Back",
     "CANCEL": "Cancel",
@@ -678,6 +679,8 @@
     "CONTINUE": "Continue",
     "COPIED": "Copied",
     "COPY": "Copy",
+    "DELETE": "Delete",
+    "DISCARD": "Discard",
     "DONE": "Done",
     "DOWNLOAD": "Download",
     "LOADING": "Loading",
@@ -685,6 +688,7 @@
     "NOT_RECORDED": "Not recorded",
     "REFRESH": "Refresh",
     "RETRY": "Try again",
+    "SAVE": "Save",
     "SENDING": "Sending...",
     "SUCCESS": "Done",
     "TOAST": {
@@ -693,11 +697,7 @@
       "SUCCESS": "Success",
       "WARNING": "Warning"
     },
-    "VERIFY": "Verify",
-    "ACCEPT": "Accept",
-    "SAVE": "Save",
-    "DISCARD": "Discard",
-    "DELETE": "Delete"
+    "VERIFY": "Verify"
   },
   "CONTACTS": {
     "CUSTOMER_FORM": {
@@ -1094,6 +1094,82 @@
     "title": "DataSheets",
     "trash": "Trash"
   },
+  "DIALOG": {
+    "BLOCK_USER": {
+      "MESSAGE": "This will block {{name}} and end all their sessions. Continue?",
+      "TITLE": "Block the user"
+    },
+    "DELETE_ACCOUNT": {
+      "MESSAGE": "Delete the account \"{{name}}\"? This cannot be undone.",
+      "TITLE": "Delete account"
+    },
+    "DELETE_CUSTOMER": {
+      "MESSAGE": "Delete this customer? This cannot be undone.",
+      "TITLE": "Delete customer"
+    },
+    "DELETE_INVOICE_DRAFT": {
+      "MESSAGE": "Delete draft {{number}}? This cannot be undone.",
+      "TITLE": "Delete draft"
+    },
+    "DELETE_PRICE_LIST": {
+      "MESSAGE": "Delete this price list? This cannot be undone.",
+      "TITLE": "Delete price list"
+    },
+    "DELETE_PRODUCT": {
+      "MESSAGE": "Delete the product \"{{name}}\"? This cannot be undone.",
+      "TITLE": "Delete product"
+    },
+    "DELETE_ROLE": {
+      "MESSAGE": "Delete the role \"{{name}}\"? This cannot be undone.",
+      "TITLE": "Delete role"
+    },
+    "DELETE_SUPPLIER": {
+      "MESSAGE": "Delete this supplier? This cannot be undone.",
+      "TITLE": "Delete supplier"
+    },
+    "DELETE_TAX": {
+      "MESSAGE": "Delete the tax \"{{name}}\"? This cannot be undone.",
+      "TITLE": "Delete tax"
+    },
+    "IMPERSONATE_USER": {
+      "MESSAGE": "You will use the system as {{name}}. Everything you do is recorded. Continue?",
+      "TITLE": "Impersonate the user"
+    },
+    "NOTIFY": {
+      "ERP_VALUE_READONLY": "This value comes from the ERP and cannot be edited here.",
+      "PAYMENT_START_FAILED": "The payment could not be started. Please try again.",
+      "PLAN_PRICE_MISSING": "The price for the {{plan}} plan is not configured.",
+      "PRICING_NOT_LOADED": "The pricing configuration could not be loaded. Please try again later.",
+      "WORKBOOK_SAVED": "Workbook saved."
+    },
+    "REOPEN_PERIOD": {
+      "PLACEHOLDER": "Reason for reopening",
+      "TITLE": "Reopen the period"
+    },
+    "RESET_PASSWORD": {
+      "MESSAGE": "Send {{name}} an e-mail to reset their password?",
+      "TITLE": "Reset the password"
+    },
+    "RESET_SEGMENTS": {
+      "MESSAGE": "This will replace the current unsaved configuration. Continue?",
+      "TITLE": "Reset the structure"
+    },
+    "REVOKE_SESSION": {
+      "MESSAGE": "Sign {{name}} out of all their sessions?",
+      "TITLE": "Sign the user out"
+    },
+    "UNSAVED_CHANGES": {
+      "MESSAGE": "You have unsaved changes. What would you like to do before closing?",
+      "MESSAGE_IN_TAB": "You have unsaved changes in \"{{tab}}\". What would you like to do?",
+      "TITLE": "Unsaved changes"
+    },
+    "VOID_BILL": {
+      "MESSAGE": "Give the reason for voiding it. It is recorded and visible in the audit trail.",
+      "PLACEHOLDER": "Reason for voiding",
+      "TITLE": "Void the bill",
+      "TOO_SHORT": "Give a reason of at least 10 characters."
+    }
+  },
   "DOCUMENTS": {
     "DOCUMENTS": "Documents",
     "FILE_SIZE": "Size",
@@ -1340,7 +1416,7 @@
       "EXPORTACION_EXCEL_COMPLETADA": "Export to Excel finished.",
       "EXPORTAR_EXCEL": "Export to Excel",
       "FACTURA": "Invoice #",
-      "FACTURAS": "Supplier Invoices",
+      "FACTURAS": "Invoices",
       "GESTION_COMPLETA_FACTURACION_SEGUIMIENTO_DOCUMENTOS": "Full invoicing management and document tracking.",
       "NO_ENCONTRARON_FACTURAS_COINCIDAN_BUSQUEDA": "No invoices matched the search.",
       "NUEVA_FACTURA_VENTA": "New sales invoice",
@@ -1385,7 +1461,7 @@
       "ERROR_CREAR_FACTURA": "Error creating the invoice: {{errorMessage}}",
       "EXENTO": "Exempt",
       "FACTURA_CREADA_EXITOSAMENTE": "Invoice created.",
-      "FACTURAS": "Supplier Invoices",
+      "FACTURAS": "Invoices",
       "FAVOR_COMPLETA_TODOS_CAMPOS_REQUERIDOS": "Fill in every required field.",
       "FECHA_EMISION": "Issue date",
       "FECHA_VENCIMIENTO": "Due date",
@@ -1766,7 +1842,7 @@
     "CUSTOMERS": "Customers",
     "DASHBOARD": "Dashboard",
     "INVENTORY": "Inventory",
-    "INVOICES": "Supplier Invoices",
+    "INVOICES": "Invoices",
     "MENU": "Menu",
     "MY_WORK": "My Work",
     "NOTIFICATIONS": "Notifications",
@@ -1825,6 +1901,114 @@
       "ERROR": "We couldn't load this information.",
       "RETRY": "Try again"
     }
+  },
+  "PAGE_TITLES": {
+    "ACCESS_DENIED": "Access denied",
+    "ACCOUNT_EDIT": "Edit account",
+    "ACCOUNT_NEW": "New account",
+    "ACCOUNT_RECONCILIATION": "Account Reconciliation",
+    "ACCOUNTING": "Accounting",
+    "ACCOUNTING_PERIODS": "Period Management",
+    "ACCOUNTING_PREFERENCES": "Accounting preferences",
+    "ACCOUNTS_PAYABLE": "Accounts payable",
+    "ACTIVE_SESSIONS": "Active sessions",
+    "APPROVAL_WORKFLOWS": "Approval workflows",
+    "APPROVALS": "Approvals",
+    "BALANCE_SHEET": "Balance sheet",
+    "BANKS": "Banks",
+    "BILLING_PLAN": "Billing and plan",
+    "BRANCHES": "Branches",
+    "CATEGORIES": "Categories",
+    "CHART_OF_ACCOUNTS": "Chart of accounts",
+    "CLOSE_MONTH": "Month-End Close",
+    "CLOSE_YEAR": "Year-End Close",
+    "CLOSING_CHECKLISTS": "Closing checklists",
+    "CLOSING_TASKS": "Closing tasks",
+    "COMPANY_PROFILE": "Company profile",
+    "COMPANY_STRUCTURE": "Company structure",
+    "CONTACTS": "Contacts",
+    "CURRENCIES": "Currencies",
+    "CUSTOMER_EDIT": "Edit customer",
+    "CUSTOMER_NEW": "New customer",
+    "CUSTOMER_RECEIPT_NEW": "New customer receipt",
+    "CUSTOMER_RECEIPTS": "Customer receipts",
+    "CUSTOMERS": "Customers",
+    "DAILY_JOURNAL": "Daily journal",
+    "DASHBOARD": "Dashboard",
+    "DATA_EXPORTS": "Data exports",
+    "DATA_IMPORTS": "Data imports",
+    "DATASHEETS": "DataSheets",
+    "DOCUMENT_REPOSITORY": "Document repository",
+    "DOCUMENT_TEMPLATES": "Document templates",
+    "DOCUMENTS": "Documents",
+    "EINVOICING": "Electronic invoicing (DR)",
+    "FISCAL_PERIODS": "Fiscal periods and closing",
+    "FISCAL_SEQUENCES": "Fiscal sequences",
+    "GENERAL_LEDGER": "General ledger",
+    "HOME": "Home",
+    "HUMAN_RESOURCES": "Human resources (HCM)",
+    "INTEGRATIONS": "Integrations (API)",
+    "INTERCOMPANY_RULES": "Intercompany rules",
+    "INVENTORY": "Inventory",
+    "INVENTORY_POLICIES": "Inventory policies",
+    "INVOICE_DETAIL": "Invoice detail",
+    "INVOICE_NEW": "New invoice",
+    "INVOICES": "Invoices",
+    "JOURNAL_ENTRIES": "Journal entries",
+    "JOURNAL_ENTRY_EDIT": "Edit journal entry",
+    "JOURNAL_ENTRY_IMPORT": "Import journal entries",
+    "JOURNAL_ENTRY_NEW": "New journal entry",
+    "JOURNAL_NEW": "New journal",
+    "JOURNALS": "Journals",
+    "LEDGER_NEW": "New ledger",
+    "LEDGERS": "Ledgers",
+    "MAIL_SERVER": "Mail server",
+    "MANUFACTURING": "Manufacturing (MRP)",
+    "MASTER_DATA": "Master data",
+    "MULTICURRENCY": "Multicurrency and rates",
+    "MY_PROFILE": "My profile",
+    "MY_WORK": "My Work",
+    "NOTIFICATIONS": "Notifications",
+    "PAYMENT_METHODS": "Payment methods",
+    "PAYMENT_TERMS": "Payment terms",
+    "PERSONALIZATION": "Personalization",
+    "POINT_OF_SALE": "Point of sale",
+    "PRICE_LIST_EDIT": "Edit price list",
+    "PRICE_LIST_NEW": "New price list",
+    "PRICE_LISTS": "Price lists",
+    "PROCUREMENT": "Procurement and suppliers",
+    "PRODUCT_EDIT": "Edit product",
+    "PRODUCT_NEW": "New product",
+    "PRODUCTS": "Products & Services",
+    "PROFITABILITY_CUSTOMER": "Profitability by customer",
+    "PROFITABILITY_PRODUCT": "Profitability by product",
+    "PROJECTS": "Projects (PSA)",
+    "PURCHASE_ORDERS": "Purchase Orders",
+    "PURCHASE_REQUISITIONS": "Purchase requisitions",
+    "PURCHASING": "Purchasing (P2P)",
+    "REPORTS": "Reports",
+    "ROLES_PERMISSIONS": "Roles and permissions",
+    "SALES": "Sales Reports",
+    "SALES_HISTORY": "Sales history",
+    "SEARCH": "Search",
+    "SECURITY_AUDIT": "Security and audit",
+    "SEGMENT_CONFIG": "Segment configuration",
+    "SSO": "Single sign-on (SSO)",
+    "SUBSIDIARY_LEDGERS": "Subsidiary ledgers",
+    "SUPPLIER_EDIT": "Edit supplier",
+    "SUPPLIERS": "Suppliers",
+    "TAX_NEW": "New tax",
+    "TAX_RULES": "Tax rules",
+    "TAXES": "Taxes",
+    "UNITS_OF_MEASURE": "Units of measure",
+    "USER_MANAGEMENT": "User management",
+    "VARIANCE_ANALYSIS": "Variance analysis",
+    "VENDOR_BILL_DETAIL": "Vendor bill detail",
+    "VENDOR_BILL_EDIT": "Edit vendor bill",
+    "VENDOR_BILL_NEW": "New vendor bill",
+    "VENDOR_BILLS": "Vendor bills",
+    "WAREHOUSE_MANAGEMENT": "Warehouse management (WMS)",
+    "WAREHOUSES": "Warehouses"
   },
   "PASSWORD_STRENGTH": {
     "WEAK": "Weak"
@@ -2300,6 +2484,146 @@
       "NUEVO_CORREO_COM": "new@email.com",
       "PEREZ": "Doe"
     },
+    "PAGES": {
+      "ACCOUNTING": {
+        "EMPTY_DESCRIPTION": "Choose the chart-of-accounts entries used automatically on every transaction, so nothing depends on picking the right account by hand.",
+        "EMPTY_TITLE": "Accounting preferences",
+        "FEATURES": {
+          "F1": "Default receivables account",
+          "F2": "Default payables account",
+          "F3": "Sales revenue account",
+          "F4": "Foreign-exchange gain and loss account",
+          "F5": "Accumulated depreciation account",
+          "F6": "Sales and purchase tax account"
+        },
+        "SUBTITLE": "Set the default accounts and posting rules for your organisation.",
+        "TITLE": "Accounting preferences"
+      },
+      "APPROVALS": {
+        "EMPTY_DESCRIPTION": "Design rule-based approval flows (amount, document type, department) with sequential or parallel approvers and automatic escalation.",
+        "EMPTY_TITLE": "Approval policies",
+        "FEATURES": {
+          "F1": "Multi-level flows with sequential or parallel approvers",
+          "F2": "Rules by amount, document type and department",
+          "F3": "Automatic escalation when nobody responds",
+          "F4": "Approval by e-mail without signing in",
+          "F5": "A full history of decisions, with comments"
+        },
+        "SUBTITLE": "Define who approves what, in what order, and under which conditions.",
+        "TITLE": "Approval workflows"
+      },
+      "CLOSING_RULES": {
+        "EMPTY_DESCRIPTION": "Define and control your accounting periods, lock closed periods against changes, and schedule the close.",
+        "EMPTY_TITLE": "Accounting period close",
+        "FEATURES": {
+          "F1": "Creating and managing accounting periods",
+          "F2": "Automatic locking of closed periods",
+          "F3": "Monthly, quarterly and annual close",
+          "F4": "Separate permissions for reopening a period",
+          "F5": "A guided close with a checklist"
+        },
+        "SUBTITLE": "Manage accounting periods and the locking rules that govern the fiscal close.",
+        "TITLE": "Fiscal periods and closing"
+      },
+      "CURRENCIES": {
+        "EMPTY_DESCRIPTION": "Enable several currencies for your transactions, set each subsidiary functional currency, and keep exchange rates updated automatically.",
+        "EMPTY_TITLE": "Multi-currency",
+        "FEATURES": {
+          "F1": "Base currency and active secondary currencies",
+          "F2": "Automatic exchange-rate updates (central bank, ECB)",
+          "F3": "Periodic revaluation of foreign-currency balances",
+          "F4": "Exchange differences recognised automatically",
+          "F5": "Foreign-exchange gain and loss reports"
+        },
+        "SUBTITLE": "Manage active currencies and the exchange rates used for international transactions.",
+        "TITLE": "Multicurrency and exchange rates"
+      },
+      "IN_DEVELOPMENT": "In development",
+      "INTEGRATIONS": {
+        "EMPTY_DESCRIPTION": "Connect {{app}} to your business tools, create API keys for developers, and configure webhooks for real-time events.",
+        "EMPTY_TITLE": "Integration centre",
+        "FEATURES": {
+          "F1": "API keys with granular permissions and a configurable expiry",
+          "F2": "Webhooks for real-time event notifications",
+          "F3": "Integrations with ERP, CRM and productivity tools",
+          "F4": "Interactive REST API documentation",
+          "F5": "Call logs and integration health monitoring"
+        },
+        "SUBTITLE": "Manage API keys, webhooks and connections to external services.",
+        "TITLE": "Integrations and API"
+      },
+      "INTERCOMPANY": {
+        "EMPTY_DESCRIPTION": "Set the rules that eliminate intragroup transactions on consolidation, generate mirror entries automatically, and manage balances between subsidiaries.",
+        "EMPTY_TITLE": "Intercompany management",
+        "SUBTITLE": "Automate and control transactions between the companies in your group.",
+        "TITLE": "Intercompany rules"
+      },
+      "INVENTORY_POLICIES": {
+        "EMPTY_DESCRIPTION": "Set the inventory valuation method, the automatic replenishment thresholds and the cycle-count rules that keep stock figures accurate.",
+        "EMPTY_TITLE": "Inventory policies",
+        "FEATURES": {
+          "F1": "Valuation method: FIFO, LIFO or average cost",
+          "F2": "Reorder points and minimum stock levels",
+          "F3": "Automated cycle counting by category",
+          "F4": "Inventory adjustments that require approval",
+          "F5": "Low-stock and expired-product alerts"
+        },
+        "SUBTITLE": "Define the valuation, replenishment and stock-control rules for your inventory.",
+        "TITLE": "Inventory policies"
+      },
+      "SECURITY": {
+        "EMPTY_DESCRIPTION": "Configure your security policies, review the audit logs, and manage advanced access controls.",
+        "EMPTY_TITLE": "Organisation security centre",
+        "FEATURES": {
+          "F1": "Password policies: length, complexity and expiry",
+          "F2": "Audit logs filtered by user, action and date",
+          "F3": "Detection of and alerts for suspicious access",
+          "F4": "An allowlist of permitted IP addresses",
+          "F5": "Automatic security notifications"
+        },
+        "SUBTITLE": "Password policies, audit logs and organisation-wide access controls.",
+        "TITLE": "Security and audit"
+      },
+      "SEQUENCES": {
+        "EMPTY_DESCRIPTION": "Define the prefixes, suffixes and number ranges for each type of fiscal document, keeping the sequence unbroken and the tax authority satisfied.",
+        "EMPTY_TITLE": "Document sequences",
+        "FEATURES": {
+          "F1": "Independent sequences per document type",
+          "F2": "Custom prefixes and suffixes per subsidiary",
+          "F3": "Automatic reset each fiscal year",
+          "F4": "Reserved ranges for contingency",
+          "F5": "Alerts when a sequence is about to run out"
+        },
+        "SUBTITLE": "Configure the automatic numbering of invoices, receipts and other fiscal documents.",
+        "TITLE": "Fiscal sequences"
+      },
+      "SMTP": {
+        "EMPTY_DESCRIPTION": "Point the system at your own SMTP server, so every notification it sends — invoices, alerts, invitations — leaves from your corporate domain.",
+        "EMPTY_TITLE": "Mail configuration",
+        "FEATURES": {
+          "F1": "SMTP configuration with TLS/SSL support",
+          "F2": "Connection check with a test message",
+          "F3": "Custom sender: name and address",
+          "F4": "Mail templates you can customise per event",
+          "F5": "A history of what was sent, and a log of what failed"
+        },
+        "SUBTITLE": "Configure the outgoing mail server used for system notifications and messages.",
+        "TITLE": "Mail server (SMTP)"
+      },
+      "TAXES": {
+        "EMPTY_DESCRIPTION": "Define your tax rules so that tax is calculated and posted automatically on every transaction, according to the jurisdiction.",
+        "EMPTY_TITLE": "Tax engine",
+        "FEATURES": {
+          "F1": "VAT rates by product or service type",
+          "F2": "Withholding at source (income tax, VAT)",
+          "F3": "Tax by jurisdiction and subsidiary",
+          "F4": "Exemptions by customer or category",
+          "F5": "Tax return reports"
+        },
+        "SUBTITLE": "Configure the rates that apply to sales, purchases and withholding, by jurisdiction.",
+        "TITLE": "Tax rules"
+      }
+    },
     "PROFILE": {
       "AVATAR_UPDATED": "Picture updated.",
       "CHANGE_AVATAR": "Change photo",
@@ -2549,146 +2873,6 @@
       "USUARIO_INVITADO_EXITO": "User invited successfully.",
       "USUARIOS": "Users",
       "USUARIOS_2": "users"
-    },
-    "PAGES": {
-      "ACCOUNTING": {
-        "TITLE": "Accounting preferences",
-        "SUBTITLE": "Set the default accounts and posting rules for your organisation.",
-        "EMPTY_TITLE": "Accounting preferences",
-        "EMPTY_DESCRIPTION": "Choose the chart-of-accounts entries used automatically on every transaction, so nothing depends on picking the right account by hand.",
-        "FEATURES": {
-          "F1": "Default receivables account",
-          "F2": "Default payables account",
-          "F3": "Sales revenue account",
-          "F4": "Foreign-exchange gain and loss account",
-          "F5": "Accumulated depreciation account",
-          "F6": "Sales and purchase tax account"
-        }
-      },
-      "CLOSING_RULES": {
-        "TITLE": "Fiscal periods and closing",
-        "SUBTITLE": "Manage accounting periods and the locking rules that govern the fiscal close.",
-        "EMPTY_TITLE": "Accounting period close",
-        "EMPTY_DESCRIPTION": "Define and control your accounting periods, lock closed periods against changes, and schedule the close.",
-        "FEATURES": {
-          "F1": "Creating and managing accounting periods",
-          "F2": "Automatic locking of closed periods",
-          "F3": "Monthly, quarterly and annual close",
-          "F4": "Separate permissions for reopening a period",
-          "F5": "A guided close with a checklist"
-        }
-      },
-      "CURRENCIES": {
-        "TITLE": "Multicurrency and exchange rates",
-        "SUBTITLE": "Manage active currencies and the exchange rates used for international transactions.",
-        "EMPTY_TITLE": "Multicurrency",
-        "EMPTY_DESCRIPTION": "Enable several currencies for your transactions, set each subsidiary functional currency, and keep exchange rates updated automatically.",
-        "FEATURES": {
-          "F1": "Base currency and active secondary currencies",
-          "F2": "Automatic exchange-rate updates (central bank, ECB)",
-          "F3": "Periodic revaluation of foreign-currency balances",
-          "F4": "Exchange differences recognised automatically",
-          "F5": "Foreign-exchange gain and loss reports"
-        }
-      },
-      "INTERCOMPANY": {
-        "TITLE": "Intercompany rules",
-        "SUBTITLE": "Automate and control transactions between the companies in your group.",
-        "EMPTY_TITLE": "Intercompany management",
-        "EMPTY_DESCRIPTION": "Set the rules that eliminate intragroup transactions on consolidation, generate mirror entries automatically, and manage balances between subsidiaries."
-      },
-      "TAXES": {
-        "TITLE": "Tax rules",
-        "SUBTITLE": "Configure the rates that apply to sales, purchases and withholding, by jurisdiction.",
-        "EMPTY_TITLE": "Tax engine",
-        "EMPTY_DESCRIPTION": "Define your tax rules so that tax is calculated and posted automatically on every transaction, according to the jurisdiction.",
-        "FEATURES": {
-          "F1": "VAT rates by product or service type",
-          "F2": "Withholding at source (income tax, VAT)",
-          "F3": "Tax by jurisdiction and subsidiary",
-          "F4": "Exemptions by customer or category",
-          "F5": "Tax return reports"
-        }
-      },
-      "APPROVALS": {
-        "TITLE": "Approval workflows",
-        "SUBTITLE": "Define who approves what, in what order, and under which conditions.",
-        "EMPTY_TITLE": "Approval policies",
-        "EMPTY_DESCRIPTION": "Design rule-based approval flows (amount, document type, department) with sequential or parallel approvers and automatic escalation.",
-        "FEATURES": {
-          "F1": "Multi-level flows with sequential or parallel approvers",
-          "F2": "Rules by amount, document type and department",
-          "F3": "Automatic escalation when nobody responds",
-          "F4": "Approval by e-mail without signing in",
-          "F5": "A full history of decisions, with comments"
-        }
-      },
-      "INVENTORY_POLICIES": {
-        "TITLE": "Inventory policies",
-        "SUBTITLE": "Define the valuation, replenishment and stock-control rules for your inventory.",
-        "EMPTY_TITLE": "Inventory policies",
-        "EMPTY_DESCRIPTION": "Set the inventory valuation method, the automatic replenishment thresholds and the cycle-count rules that keep stock figures accurate.",
-        "FEATURES": {
-          "F1": "Valuation method: FIFO, LIFO or average cost",
-          "F2": "Reorder points and minimum stock levels",
-          "F3": "Automated cycle counting by category",
-          "F4": "Inventory adjustments that require approval",
-          "F5": "Low-stock and expired-product alerts"
-        }
-      },
-      "SEQUENCES": {
-        "TITLE": "Fiscal sequences",
-        "SUBTITLE": "Configure the automatic numbering of invoices, receipts and other fiscal documents.",
-        "EMPTY_TITLE": "Document sequences",
-        "EMPTY_DESCRIPTION": "Define the prefixes, suffixes and number ranges for each type of fiscal document, keeping the sequence unbroken and the tax authority satisfied.",
-        "FEATURES": {
-          "F1": "Independent sequences per document type",
-          "F2": "Custom prefixes and suffixes per subsidiary",
-          "F3": "Automatic reset each fiscal year",
-          "F4": "Reserved ranges for contingency",
-          "F5": "Alerts when a sequence is about to run out"
-        }
-      },
-      "INTEGRATIONS": {
-        "TITLE": "Integrations and API",
-        "SUBTITLE": "Manage API keys, webhooks and connections to external services.",
-        "EMPTY_TITLE": "Integration centre",
-        "EMPTY_DESCRIPTION": "Connect {{app}} to your business tools, create API keys for developers, and configure webhooks for real-time events.",
-        "FEATURES": {
-          "F1": "API keys with granular permissions and a configurable expiry",
-          "F2": "Webhooks for real-time event notifications",
-          "F3": "Integrations with ERP, CRM and productivity tools",
-          "F4": "Interactive REST API documentation",
-          "F5": "Call logs and integration health monitoring"
-        }
-      },
-      "SECURITY": {
-        "TITLE": "Security and audit",
-        "SUBTITLE": "Password policies, audit logs and organisation-wide access controls.",
-        "EMPTY_TITLE": "Organisation security centre",
-        "EMPTY_DESCRIPTION": "Configure your security policies, review the audit logs, and manage advanced access controls.",
-        "FEATURES": {
-          "F1": "Password policies: length, complexity and expiry",
-          "F2": "Audit logs filtered by user, action and date",
-          "F3": "Detection of and alerts for suspicious access",
-          "F4": "An allowlist of permitted IP addresses",
-          "F5": "Automatic security notifications"
-        }
-      },
-      "SMTP": {
-        "TITLE": "Mail server (SMTP)",
-        "SUBTITLE": "Configure the outgoing mail server used for system notifications and messages.",
-        "EMPTY_TITLE": "Mail configuration",
-        "EMPTY_DESCRIPTION": "Point the system at your own SMTP server, so every notification it sends — invoices, alerts, invitations — leaves from your corporate domain.",
-        "FEATURES": {
-          "F1": "SMTP configuration with TLS/SSL support",
-          "F2": "Connection check with a test message",
-          "F3": "Custom sender: name and address",
-          "F4": "Mail templates you can customise per event",
-          "F5": "A history of what was sent, and a log of what failed"
-        }
-      },
-      "IN_DEVELOPMENT": "In development"
     }
   },
   "SHARED": {
@@ -2778,7 +2962,7 @@
         "disputes": "Disputes",
         "dunning": "Dunning",
         "factoring": "Factoring",
-        "invoices": "Supplier Invoices",
+        "invoices": "Invoices",
         "online_payments": "Online payments",
         "payment_plans": "Payment plans",
         "psp": "Payment providers (PSP)",
@@ -3170,6 +3354,11 @@
       "tax": "Tax & Compliance"
     }
   },
+  "TABS": {
+    "CLOSE_TAB": "Close tab",
+    "SPLIT_RIGHT": "Split right",
+    "UNDER_CONSTRUCTION": "This module is under construction. The route is registered and the tab works; the detailed view is coming soon."
+  },
   "UNAUTHORIZED": {
     "403_FORBIDDEN": "403 Forbidden",
     "ACCESO_DENEGADO": "Access Denied",
@@ -3177,13 +3366,13 @@
     "ERROR": "Error:",
     "NO_SABES_PERMISOS_NECESITAS": "Not sure which permissions you need?",
     "NO_TIENES_PERMISOS_NECESARIOS_ACCEDER_ESTE": "You do not have the permissions needed to reach this resource.",
+    "PROTECTED_ROUTE": "a protected route",
+    "REQUEST_BODY": "Hello,\n\nI am {{name}} ({{email}}).\n\nI would like to request access to this route, which I am not currently permitted to use:\n{{url}}\n\nThank you.",
+    "REQUEST_SUBJECT": "Permission request for: {{route}}",
     "RUTA_SOLICITADA": "Requested path:",
     "SI_CREES_ESTO_ES_ERROR_CONTACTA": "If you believe this is a mistake, contact your system administrator or request the permissions you need.",
     "SOLICITAR_PERMISO": "Request Permission",
-    "VOLVER_DASHBOARD": "Back to the Dashboard",
-    "REQUEST_SUBJECT": "Permission request for: {{route}}",
-    "REQUEST_BODY": "Hello,\n\nI am {{name}} ({{email}}).\n\nI would like to request access to this route, which I am not currently permitted to use:\n{{url}}\n\nThank you.",
-    "PROTECTED_ROUTE": "a protected route"
+    "VOLVER_DASHBOARD": "Back to the Dashboard"
   },
   "USER": {
     "MY_PROFILE": "My Profile",
@@ -3222,194 +3411,5 @@
       "UNABLE_TO_LOAD": "The data could not be loaded."
     },
     "LOADING": "Loading…"
-  },
-  "PAGE_TITLES": {
-    "ACCESS_DENIED": "Access denied",
-    "ACCOUNTING": "Accounting",
-    "ACCOUNTING_PERIODS": "Accounting periods",
-    "ACCOUNTING_PREFERENCES": "Accounting preferences",
-    "ACCOUNTS_PAYABLE": "Accounts payable",
-    "ACCOUNT_EDIT": "Edit account",
-    "ACCOUNT_NEW": "New account",
-    "ACCOUNT_RECONCILIATION": "Account reconciliation",
-    "ACTIVE_SESSIONS": "Active sessions",
-    "APPROVALS": "Approvals",
-    "APPROVAL_WORKFLOWS": "Approval workflows",
-    "BALANCE_SHEET": "Balance sheet",
-    "BANKS": "Banks",
-    "BILLING_PLAN": "Billing and plan",
-    "BRANCHES": "Branches",
-    "CATEGORIES": "Categories",
-    "CHART_OF_ACCOUNTS": "Chart of accounts",
-    "CLOSE_MONTH": "Month-end close",
-    "CLOSE_YEAR": "Annual close",
-    "CLOSING_CHECKLISTS": "Closing checklists",
-    "CLOSING_TASKS": "Closing tasks",
-    "COMPANY_PROFILE": "Company profile",
-    "COMPANY_STRUCTURE": "Company structure",
-    "CONTACTS": "Contacts",
-    "CURRENCIES": "Currencies",
-    "CUSTOMERS": "Customers",
-    "CUSTOMER_EDIT": "Edit customer",
-    "CUSTOMER_NEW": "New customer",
-    "CUSTOMER_RECEIPTS": "Customer receipts",
-    "CUSTOMER_RECEIPT_NEW": "New customer receipt",
-    "DAILY_JOURNAL": "Daily journal",
-    "DASHBOARD": "Dashboard",
-    "DATASHEETS": "DataSheets",
-    "DATA_EXPORTS": "Data exports",
-    "DATA_IMPORTS": "Data imports",
-    "DOCUMENTS": "Documents",
-    "DOCUMENT_REPOSITORY": "Document repository",
-    "DOCUMENT_TEMPLATES": "Document templates",
-    "EINVOICING": "Electronic invoicing (DR)",
-    "FISCAL_PERIODS": "Fiscal periods and closing",
-    "FISCAL_SEQUENCES": "Fiscal sequences",
-    "GENERAL_LEDGER": "General ledger",
-    "HOME": "Home",
-    "HUMAN_RESOURCES": "Human resources (HCM)",
-    "INTEGRATIONS": "Integrations (API)",
-    "INTERCOMPANY_RULES": "Intercompany rules",
-    "INVENTORY": "Inventory",
-    "INVENTORY_POLICIES": "Inventory policies",
-    "INVOICES": "Invoices",
-    "INVOICE_DETAIL": "Invoice detail",
-    "INVOICE_NEW": "New invoice",
-    "JOURNALS": "Journals",
-    "JOURNAL_ENTRIES": "Journal entries",
-    "JOURNAL_ENTRY_EDIT": "Edit journal entry",
-    "JOURNAL_ENTRY_IMPORT": "Import journal entries",
-    "JOURNAL_ENTRY_NEW": "New journal entry",
-    "JOURNAL_NEW": "New journal",
-    "LEDGERS": "Ledgers",
-    "LEDGER_NEW": "New ledger",
-    "MAIL_SERVER": "Mail server",
-    "MANUFACTURING": "Manufacturing (MRP)",
-    "MASTER_DATA": "Master data",
-    "MULTICURRENCY": "Multicurrency and rates",
-    "MY_PROFILE": "My profile",
-    "MY_WORK": "My work",
-    "NOTIFICATIONS": "Notifications",
-    "PAYMENT_METHODS": "Payment methods",
-    "PAYMENT_TERMS": "Payment terms",
-    "PERSONALIZATION": "Personalization",
-    "POINT_OF_SALE": "Point of sale",
-    "PRICE_LISTS": "Price lists",
-    "PRICE_LIST_EDIT": "Edit price list",
-    "PRICE_LIST_NEW": "New price list",
-    "PROCUREMENT": "Procurement and suppliers",
-    "PRODUCTS": "Products",
-    "PRODUCT_EDIT": "Edit product",
-    "PRODUCT_NEW": "New product",
-    "PROFITABILITY_CUSTOMER": "Profitability by customer",
-    "PROFITABILITY_PRODUCT": "Profitability by product",
-    "PROJECTS": "Projects (PSA)",
-    "PURCHASE_ORDERS": "Purchase orders",
-    "PURCHASE_REQUISITIONS": "Purchase requisitions",
-    "PURCHASING": "Purchasing",
-    "REPORTS": "Reports",
-    "ROLES_PERMISSIONS": "Roles and permissions",
-    "SALES": "Sales",
-    "SALES_HISTORY": "Sales history",
-    "SEARCH": "Search",
-    "SECURITY_AUDIT": "Security and audit",
-    "SEGMENT_CONFIG": "Segment configuration",
-    "SSO": "Single sign-on (SSO)",
-    "SUBSIDIARY_LEDGERS": "Subsidiary ledgers",
-    "SUPPLIERS": "Suppliers",
-    "SUPPLIER_EDIT": "Edit supplier",
-    "TAXES": "Taxes",
-    "TAX_NEW": "New tax",
-    "TAX_RULES": "Tax rules",
-    "UNITS_OF_MEASURE": "Units of measure",
-    "USER_MANAGEMENT": "User management",
-    "VARIANCE_ANALYSIS": "Variance analysis",
-    "VENDOR_BILLS": "Vendor bills",
-    "VENDOR_BILL_DETAIL": "Vendor bill detail",
-    "VENDOR_BILL_EDIT": "Edit vendor bill",
-    "VENDOR_BILL_NEW": "New vendor bill",
-    "WAREHOUSES": "Warehouses",
-    "WAREHOUSE_MANAGEMENT": "Warehouse management (WMS)"
-  },
-  "TABS": {
-    "SPLIT_RIGHT": "Split right",
-    "CLOSE_TAB": "Close tab",
-    "UNDER_CONSTRUCTION": "This module is under construction. The route is registered and the tab works; the detailed view is coming soon."
-  },
-  "DIALOG": {
-    "UNSAVED_CHANGES": {
-      "TITLE": "Unsaved changes",
-      "MESSAGE": "You have unsaved changes. What would you like to do before closing?",
-      "MESSAGE_IN_TAB": "You have unsaved changes in \"{{tab}}\". What would you like to do?"
-    },
-    "DELETE_CUSTOMER": {
-      "TITLE": "Delete customer",
-      "MESSAGE": "Delete this customer? This cannot be undone."
-    },
-    "DELETE_SUPPLIER": {
-      "TITLE": "Delete supplier",
-      "MESSAGE": "Delete this supplier? This cannot be undone."
-    },
-    "DELETE_ROLE": {
-      "TITLE": "Delete role",
-      "MESSAGE": "Delete the role \"{{name}}\"? This cannot be undone."
-    },
-    "DELETE_PRODUCT": {
-      "TITLE": "Delete product",
-      "MESSAGE": "Delete the product \"{{name}}\"? This cannot be undone."
-    },
-    "DELETE_TAX": {
-      "TITLE": "Delete tax",
-      "MESSAGE": "Delete the tax \"{{name}}\"? This cannot be undone."
-    },
-    "DELETE_PRICE_LIST": {
-      "TITLE": "Delete price list",
-      "MESSAGE": "Delete this price list? This cannot be undone."
-    },
-    "DELETE_ACCOUNT": {
-      "TITLE": "Delete account",
-      "MESSAGE": "Delete the account \"{{name}}\"? This cannot be undone."
-    },
-    "DELETE_INVOICE_DRAFT": {
-      "TITLE": "Delete draft",
-      "MESSAGE": "Delete draft {{number}}? This cannot be undone."
-    },
-    "RESET_SEGMENTS": {
-      "TITLE": "Reset the structure",
-      "MESSAGE": "This will replace the current unsaved configuration. Continue?"
-    },
-    "RESET_PASSWORD": {
-      "TITLE": "Reset the password",
-      "MESSAGE": "Send {{name}} an e-mail to reset their password?"
-    },
-    "REVOKE_SESSION": {
-      "TITLE": "Sign the user out",
-      "MESSAGE": "Sign {{name}} out of all their sessions?"
-    },
-    "BLOCK_USER": {
-      "TITLE": "Block the user",
-      "MESSAGE": "This will block {{name}} and end all their sessions. Continue?"
-    },
-    "IMPERSONATE_USER": {
-      "TITLE": "Impersonate the user",
-      "MESSAGE": "You will use the system as {{name}}. Everything you do is recorded. Continue?"
-    },
-    "NOTIFY": {
-      "PRICING_NOT_LOADED": "The pricing configuration could not be loaded. Please try again later.",
-      "PLAN_PRICE_MISSING": "The price for the {{plan}} plan is not configured.",
-      "PAYMENT_START_FAILED": "The payment could not be started. Please try again.",
-      "ERP_VALUE_READONLY": "This value comes from the ERP and cannot be edited here.",
-      "WORKBOOK_SAVED": "Workbook saved."
-    },
-    "VOID_BILL": {
-      "TITLE": "Void the bill",
-      "MESSAGE": "Give the reason for voiding it. It is recorded and visible in the audit trail.",
-      "PLACEHOLDER": "Reason for voiding",
-      "TOO_SHORT": "Give a reason of at least 10 characters."
-    },
-    "REOPEN_PERIOD": {
-      "TITLE": "Reopen the period",
-      "PLACEHOLDER": "Reason for reopening"
-    }
   }
 }
