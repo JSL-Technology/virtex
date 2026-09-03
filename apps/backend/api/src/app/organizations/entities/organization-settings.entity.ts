@@ -108,6 +108,16 @@ export class OrganizationSettings {
   @Column({ name: 'default_forex_gain_loss_account_id', type: 'uuid', nullable: true })
   defaultForexGainLossAccountId: string | null = null;
 
+  /**
+   * Where bank charges land.
+   *
+   * Distinct from the exchange-difference account on purpose. A wire fee is a cost of banking; if
+   * it is netted into the forex account an accountant reading that line sees currency movement
+   * where there was a charge, and the two never reconcile against the bank statement separately.
+   */
+  @Column({ name: 'default_bank_fees_account_id', type: 'uuid', nullable: true })
+  defaultBankFeesAccountId: string | null = null;
+
   @Column({ name: 'default_depreciation_expense_account_id', type: 'uuid', nullable: true })
   defaultDepreciationExpenseAccountId: string | null = null;
 

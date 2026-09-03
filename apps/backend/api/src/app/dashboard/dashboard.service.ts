@@ -1,5 +1,5 @@
 
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import * as cacheManager_1 from 'cache-manager';
 import { ChartOfAccountsService } from '../chart-of-accounts/chart-of-accounts.service';
@@ -18,6 +18,11 @@ import { Ledger } from '../accounting/entities/ledger.entity';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Organization } from '../organizations/entities/organization.entity';
+import {
+  AccountBalancesService,
+  toNaturalAmount,
+} from '../chart-of-accounts/account-balances.service';
+import { roundAmount } from '../common/money';
 import { FinancialReportingService } from '../financial-reporting/financial-reporting.service';
 import { CashFlowWaterfallDto } from './dto/cash-flow-waterfall.dto';
 import { startOfYear, endOfDay } from 'date-fns';
@@ -25,6 +30,8 @@ import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 
 @Injectable()
 export class DashboardService {
+  private readonly logger = new Logger(DashboardService.name);
+
   constructor(
     private readonly chartOfAccountsService: ChartOfAccountsService,
     private readonly inventoryService: InventoryService,
@@ -33,6 +40,7 @@ export class DashboardService {
     @InjectRepository(Organization)
     private readonly organizationRepository: Repository<Organization>,
     private readonly financialReportingService: FinancialReportingService,
+    private readonly accountBalances: AccountBalancesService,
   ) {}
 
   private async getFinancialMetrics(organizationId: string) {
@@ -41,7 +49,18 @@ export class DashboardService {
         throw new BadRequestError('DASHBOARD.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION');
     }
 
-    const allAccounts = await this.chartOfAccountsService.findAllForOrg(organizationId);
+    // Signed balances, `debit − credit`, straight from the journal. The previous version summed
+    // `account.balances`, a stored per-ledger figure maintained asynchronously, and added revenue
+    // to a running total without negating it — so `revenue` came out negative and `netIncome`
+    // computed as `revenue − expenses` was `−(revenue + expenses)`. Every KPI built on it (ROE,
+    // margins, free cash flow) carried that error.
+    const accounts = await this.chartOfAccountsService.findAllForOrg(organizationId);
+    const asOf = new Date();
+    const balances = await this.accountBalances.balancesAsOf({
+      organizationId,
+      ledgerId: defaultLedger.id,
+      asOf,
+    });
 
     let totalAssets = 0;
     let currentAssets = 0;
@@ -51,45 +70,44 @@ export class DashboardService {
     let revenue = 0;
     let expenses = 0;
 
-    for (const account of allAccounts) {
-      const balanceRecord = account.balances.find(b => b.ledgerId === defaultLedger.id);
-      const balance = balanceRecord ? Number(balanceRecord.balance) : 0;
+    for (const account of accounts) {
+      const signed = balances.get(account.id) ?? 0;
+      if (signed === 0) continue;
+      const natural = toNaturalAmount(account.type, signed);
 
       switch (account.type) {
         case AccountType.ASSET:
-          totalAssets += balance;
-          if (account.category === AccountCategory.CURRENT_ASSET) {
-            currentAssets += balance;
-          }
+          totalAssets += natural;
+          if (account.category === AccountCategory.CURRENT_ASSET) currentAssets += natural;
           break;
         case AccountType.LIABILITY:
-          totalLiabilities += balance;
+          totalLiabilities += natural;
           if (account.category === AccountCategory.CURRENT_LIABILITY) {
-            currentLiabilities += balance;
+            currentLiabilities += natural;
           }
           break;
         case AccountType.EQUITY:
-          totalEquity += balance;
+          totalEquity += natural;
           break;
         case AccountType.REVENUE:
-          revenue += balance;
+          revenue += natural;
           break;
         case AccountType.EXPENSE:
-          expenses += balance;
+          expenses += natural;
           break;
       }
     }
 
-    const netIncome = revenue - expenses;
-    const workingCapital = currentAssets - currentLiabilities;
+    const netIncome = roundAmount(revenue - expenses);
+    const workingCapital = roundAmount(currentAssets - currentLiabilities);
 
     return {
-      totalAssets,
-      currentAssets,
-      totalLiabilities,
-      currentLiabilities,
-      totalEquity,
-      revenue,
+      totalAssets: roundAmount(totalAssets),
+      currentAssets: roundAmount(currentAssets),
+      totalLiabilities: roundAmount(totalLiabilities),
+      currentLiabilities: roundAmount(currentLiabilities),
+      totalEquity: roundAmount(totalEquity),
+      revenue: roundAmount(revenue),
       netIncome,
       workingCapital
     };
@@ -312,56 +330,47 @@ export class DashboardService {
     const startDate = startOfYear(today);
     const endDate = endOfDay(today);
 
-    const consolidatedData: Omit<CashFlowWaterfallDto, 'endingBalance'> = {
-        openingBalance: 0,
-        operatingIncome: 0,
-        costOfGoodsSold: 0,
-        operatingExpenses: 0,
-        investments: 0,
-        financing: 0,
+    const consolidated = {
+      openingBalance: 0,
+      operating: 0,
+      investing: 0,
+      financing: 0,
+      endingBalance: 0,
     };
 
     for (const orgId of organizationIds) {
+      const defaultLedger = await this.dataSource
+        .getRepository(Ledger)
+        .findOneBy({ organizationId: orgId, isDefault: true });
+      if (!defaultLedger) {
+        this.logger.warn(
+          `Se omite la organización ${orgId} de la consolidación: no tiene libro contable por defecto.`,
+        );
+        continue;
+      }
 
-        const defaultLedger = await this.dataSource.getRepository(Ledger).findOneBy({ organizationId: orgId, isDefault: true });
-        if (!defaultLedger) {
-            console.warn(`Omitiendo organización ${orgId} de la consolidación: no tiene un libro contable por defecto.`);
-            continue;
-        }
+      // The statement itself, not a re-derivation of it. Every subsidiary's own cash flow ties, so
+      // the sum of them ties too.
+      const statement = await this.financialReportingService.getCashFlowStatement(
+        orgId,
+        startDate,
+        endDate,
+        defaultLedger.id,
+      );
 
-        
-        const openingBalanceSheet = await this.financialReportingService.getBalanceSheet(orgId, startDate, {}, defaultLedger.id);
-        const cashAccounts = openingBalanceSheet.assets.filter(a => a.category === AccountCategory.CURRENT_ASSET);
-        consolidatedData.openingBalance += cashAccounts.reduce((sum, acc) => sum + acc.balance, 0);
-
-        const incomeStatement = await this.financialReportingService.getIncomeStatement(orgId, startDate, endDate, {}, defaultLedger.id);
-        consolidatedData.operatingIncome += incomeStatement.revenue.total;
-
-        const cogsAccounts = incomeStatement.expenses.accounts.filter(a => a.category === AccountCategory.COST_OF_GOODS_SOLD);
-        const otherExpensesAccounts = incomeStatement.expenses.accounts.filter(a => a.category !== AccountCategory.COST_OF_GOODS_SOLD);
-
-        consolidatedData.costOfGoodsSold += cogsAccounts.reduce((sum, acc) => sum + acc.balance, 0);
-        consolidatedData.operatingExpenses += otherExpensesAccounts.reduce((sum, acc) => sum + acc.balance, 0);
-
-
-        consolidatedData.investments += await this.financialReportingService.getInvestingActivities(orgId, startDate, endDate, defaultLedger.id);
-        consolidatedData.financing += await this.financialReportingService.getFinancingActivities(orgId, startDate, endDate, defaultLedger.id);
-
+      consolidated.openingBalance += statement.openingCash;
+      consolidated.operating += statement.operating.total;
+      consolidated.investing += statement.investing.total;
+      consolidated.financing += statement.financing.total;
+      consolidated.endingBalance += statement.closingCash;
     }
 
-    const endingBalance =
-        consolidatedData.openingBalance +
-        consolidatedData.operatingIncome -
-        consolidatedData.costOfGoodsSold -
-        consolidatedData.operatingExpenses +
-        consolidatedData.investments +
-        consolidatedData.financing;
-
     return {
-        ...consolidatedData,
-        costOfGoodsSold: -consolidatedData.costOfGoodsSold,
-        operatingExpenses: -consolidatedData.operatingExpenses,
-        endingBalance,
+      openingBalance: roundAmount(consolidated.openingBalance),
+      operating: roundAmount(consolidated.operating),
+      investing: roundAmount(consolidated.investing),
+      financing: roundAmount(consolidated.financing),
+      endingBalance: roundAmount(consolidated.endingBalance),
     };
   }
 }

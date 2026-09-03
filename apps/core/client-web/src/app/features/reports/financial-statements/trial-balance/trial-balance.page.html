@@ -1,0 +1,98 @@
+<div class="subview-container">
+  <div class="subview-header">
+    <h3>{{ 'REPORTS.TRIAL_BALANCE.TITULO' | translate }}</h3>
+    <div class="header-actions">
+      <label class="date-picker">
+        <lucide-icon [img]="CalendarIcon" size="16"></lucide-icon>
+        <span class="date-picker__label">{{ 'REPORTS.COMMON.DESDE' | translate }}</span>
+        <input type="date" [value]="startDate()" (change)="onStartDateChange($any($event.target).value)" />
+      </label>
+      <label class="date-picker">
+        <span class="date-picker__label">{{ 'REPORTS.COMMON.HASTA' | translate }}</span>
+        <input type="date" [value]="endDate()" (change)="onEndDateChange($any($event.target).value)" />
+      </label>
+      <button class="primary-button" type="button" (click)="load()">
+        <lucide-icon [img]="RefreshIcon" size="16"></lucide-icon>
+        <span>{{ 'REPORTS.COMMON.ACTUALIZAR' | translate }}</span>
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <p class="report-state">{{ 'REPORTS.COMMON.CARGANDO' | translate }}</p>
+  } @else if (failed()) {
+    <p class="report-state report-state--error">
+      {{ 'REPORTS.COMMON.NO_SE_PUDO_CARGAR' | translate }}
+      <button class="secondary-button" type="button" (click)="load()">
+        {{ 'REPORTS.COMMON.REINTENTAR' | translate }}
+      </button>
+    </p>
+  } @else if (report(); as data) {
+    <!--
+      Whether the six columns agree in pairs. It is the entire purpose of the report, so it is
+      stated at the top rather than left for the reader to add up.
+    -->
+    @if (data.isBalanced) {
+      <p class="balance-check balance-check--ok">
+        <lucide-icon [img]="OkIcon" size="16"></lucide-icon>
+        {{ 'REPORTS.TRIAL_BALANCE.CUADRA' | translate }}
+      </p>
+    } @else {
+      <p class="balance-check balance-check--error" role="alert">
+        <lucide-icon [img]="WarningIcon" size="16"></lucide-icon>
+        {{ 'REPORTS.TRIAL_BALANCE.NO_CUADRA' | translate }}
+      </p>
+    }
+
+    @if (data.rows.length === 0) {
+      <p class="report-state">{{ 'REPORTS.COMMON.SIN_MOVIMIENTOS' | translate }}</p>
+    } @else {
+      <div class="table-wrapper card">
+        <table class="trial-balance">
+          <thead>
+            <tr>
+              <th rowspan="2" class="account-column">{{ 'REPORTS.COMMON.CUENTA' | translate }}</th>
+              <th colspan="2">{{ 'REPORTS.TRIAL_BALANCE.SALDO_INICIAL' | translate }}</th>
+              <th colspan="2">{{ 'REPORTS.TRIAL_BALANCE.MOVIMIENTOS' | translate }}</th>
+              <th colspan="2">{{ 'REPORTS.TRIAL_BALANCE.SALDO_FINAL' | translate }}</th>
+            </tr>
+            <tr>
+              <th class="numeric">{{ 'REPORTS.TRIAL_BALANCE.DEBE' | translate }}</th>
+              <th class="numeric">{{ 'REPORTS.TRIAL_BALANCE.HABER' | translate }}</th>
+              <th class="numeric">{{ 'REPORTS.TRIAL_BALANCE.DEBE' | translate }}</th>
+              <th class="numeric">{{ 'REPORTS.TRIAL_BALANCE.HABER' | translate }}</th>
+              <th class="numeric">{{ 'REPORTS.TRIAL_BALANCE.DEBE' | translate }}</th>
+              <th class="numeric">{{ 'REPORTS.TRIAL_BALANCE.HABER' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of data.rows; track row.accountId) {
+              <tr>
+                <td class="account-column">
+                  <span class="account-code">{{ row.code }}</span> {{ row.name | vxName }}
+                </td>
+                <td class="numeric">{{ row.openingDebit | vxNumber: '1.2-2' }}</td>
+                <td class="numeric">{{ row.openingCredit | vxNumber: '1.2-2' }}</td>
+                <td class="numeric">{{ row.periodDebit | vxNumber: '1.2-2' }}</td>
+                <td class="numeric">{{ row.periodCredit | vxNumber: '1.2-2' }}</td>
+                <td class="numeric">{{ row.closingDebit | vxNumber: '1.2-2' }}</td>
+                <td class="numeric">{{ row.closingCredit | vxNumber: '1.2-2' }}</td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <td class="account-column">{{ 'REPORTS.COMMON.TOTAL' | translate }}</td>
+              <td class="numeric">{{ data.totals.openingDebit | vxNumber: '1.2-2' }}</td>
+              <td class="numeric">{{ data.totals.openingCredit | vxNumber: '1.2-2' }}</td>
+              <td class="numeric">{{ data.totals.periodDebit | vxNumber: '1.2-2' }}</td>
+              <td class="numeric">{{ data.totals.periodCredit | vxNumber: '1.2-2' }}</td>
+              <td class="numeric">{{ data.totals.closingDebit | vxNumber: '1.2-2' }}</td>
+              <td class="numeric">{{ data.totals.closingCredit | vxNumber: '1.2-2' }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    }
+  }
+</div>

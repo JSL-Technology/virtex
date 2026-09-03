@@ -1,6 +1,7 @@
 import { Pipe, PipeTransform, inject } from '@angular/core';
 import { FormatService, DatePreset } from '../format.service';
 import { LocaleStore } from '../locale.store';
+import { VxLocalizedNamePipe } from './localized-name.pipe';
 
 /**
  * The formatting pipes the templates use.
@@ -153,4 +154,5 @@ export const FORMAT_PIPES = [
   VxDatePipe,
   VxRelativeTimePipe,
   VxListPipe,
+  VxLocalizedNamePipe,
 ] as const;

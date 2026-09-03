@@ -17,7 +17,11 @@ export class AdjustmentsService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async createReclassification(dto: CreateReclassificationEntryDto, organizationId: string): Promise<JournalEntry> {
+  async createReclassification(
+    dto: CreateReclassificationEntryDto,
+    organizationId: string,
+    actorUserId: string,
+  ): Promise<JournalEntry> {
     if (dto.fromAccountId === dto.toAccountId) {
       throw new BadRequestError('JOURNAL_ENTRIES.CUENTA_ORIGEN_DESTINO_NO_PUEDEN_SER_MISMA');
     }
@@ -45,7 +49,9 @@ export class AdjustmentsService {
       ],
     };
 
-    return this.journalEntriesService.create(entryDto, organizationId);
+    return this.journalEntriesService.create(entryDto, organizationId, {
+      actorUserId,
+    });
   }
 
   async createPeriodEndAdjustment(dto: CreatePeriodEndAdjustmentDto, organizationId: string): Promise<{ adjustment: JournalEntry }> {
@@ -77,7 +83,12 @@ export class AdjustmentsService {
     });
   }
 
-  async createAuditAdjustment(dto: CreateAuditAdjustmentDto, organizationId: string): Promise<JournalEntry> {
+  async createAuditAdjustment(
+    dto: CreateAuditAdjustmentDto,
+    organizationId: string,
+    /** Null when the proposer's account has since been deleted; the entry is then unattributed. */
+    actorUserId: string | null,
+  ): Promise<JournalEntry> {
     const { fiscalYearId, ...entryData } = dto;
     
     const fiscalYearRepo = this.dataSource.getRepository(FiscalYear);
@@ -105,6 +116,8 @@ export class AdjustmentsService {
 
 
 
-    return this.journalEntriesService.create(entryDto, organizationId);
+    return this.journalEntriesService.create(entryDto, organizationId, {
+      actorUserId,
+    });
   }
 }

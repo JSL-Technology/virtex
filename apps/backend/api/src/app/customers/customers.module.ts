@@ -9,6 +9,10 @@ import { CustomerPayment } from './entities/customer-payment.entity';
 import { CustomerPaymentLine } from './entities/customer-payment-line.entity';
 import { CustomerPaymentsController } from './customer-payments.controller';
 import { CustomerPaymentsService } from './customer-payments.service';
+import { AccountingPeriod } from '../accounting/entities/accounting-period.entity';
+import { AccountPeriodLock } from '../accounting/entities/account-period-lock.entity';
+import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
+import { CurrenciesModule } from '../currencies/currencies.module';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { Invoice } from '../invoices/entities/invoice.entity';
@@ -22,10 +26,13 @@ import { CustomerGroupsService } from './customer-groups.service';
 
 @Module({
   imports: [
+    CurrenciesModule,
     TypeOrmModule.forFeature([
       Customer,
       CustomerPayment,
       CustomerPaymentLine,
+      AccountingPeriod,
+      AccountPeriodLock,
       Invoice,
       OrganizationSettings,
       CustomerContact,
@@ -43,6 +50,7 @@ import { CustomerGroupsService } from './customer-groups.service';
   providers: [
     CustomersService,
     CustomerPaymentsService,
+    PeriodLockGuard,
     CustomerGroupsService,
   ],
   exports: [CustomersService],

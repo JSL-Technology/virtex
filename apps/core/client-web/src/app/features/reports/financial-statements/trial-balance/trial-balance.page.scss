@@ -1,0 +1,59 @@
+@use "../../../../../assets/styles/view-styles" as views;
+@use "../balance-sheet/balance-sheet.page.scss";
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.trial-balance {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+
+  th,
+  td {
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+  }
+
+  thead th {
+    text-align: center;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: var(--surface-sunken);
+  }
+
+  .account-column {
+    text-align: left;
+    white-space: normal;
+    min-width: 16rem;
+  }
+
+  .numeric {
+    text-align: right;
+  }
+
+  tfoot td {
+    font-weight: 700;
+    border-top: 2px solid var(--text-primary);
+  }
+}
+
+.balance-check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid currentColor;
+
+  &--ok {
+    color: var(--success-text);
+  }
+
+  &--error {
+    color: var(--error-text);
+  }
+}

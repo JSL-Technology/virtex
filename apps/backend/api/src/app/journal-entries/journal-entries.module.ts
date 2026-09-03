@@ -32,6 +32,9 @@ import { JournalEntryLineValuation } from './entities/journal-entry-line-valuati
 import { DimensionRule } from '../dimensions/entities/dimension-rule.entity';
 import { BullModule } from '@nestjs/bullmq';
 import { RecurringEntriesProcessor } from './recurring-entries.processor';
+import { JournalEntrySequence } from './entities/journal-entry-sequence.entity';
+import { JournalEntryNumberingService } from './journal-entry-numbering.service';
+import { AuditModule } from '../audit/audit.module';
 
 @Module({
   imports: [
@@ -48,6 +51,7 @@ import { RecurringEntriesProcessor } from './recurring-entries.processor';
       Ledger,
       AccountPeriodLock,
       DimensionRule,
+      JournalEntrySequence,
     ]),
 
     BullModule.registerQueue({
@@ -58,9 +62,11 @@ import { RecurringEntriesProcessor } from './recurring-entries.processor';
     WebsocketsModule,
     forwardRef(() => AccountingModule),
     forwardRef(() => WorkflowsModule),
+    forwardRef(() => AuditModule),
   ],
   providers: [
     JournalEntriesService,
+    JournalEntryNumberingService,
     RecurringJournalEntriesService,
     JournalEntryTemplatesService,
     JournalEntryImportService,
@@ -76,6 +82,6 @@ import { RecurringEntriesProcessor } from './recurring-entries.processor';
     JournalsController,
     AdjustmentsController,
   ],
-  exports: [JournalEntriesService],
+  exports: [JournalEntriesService, JournalEntryNumberingService],
 })
 export class JournalEntriesModule {}

@@ -18,6 +18,7 @@ import {
   ApprovalStatus,
 } from '../workflows/entities/approval-request.entity';
 import { NotFoundError } from '../i18n/localized.exception';
+import { toIsoDate } from '../chart-of-accounts/account-balances.service';
 
 export interface ChecklistItem {
   /** Stable identifier for the check. Never rendered. */
@@ -113,8 +114,8 @@ export class ClosingChecklistService {
       .count({
         where: {
           statement: { organizationId },
-          status: TransactionStatus.UNRECONCILED,
-          date: Between(period.startDate, period.endDate),
+          status: TransactionStatus.UNMATCHED,
+          date: Between(toIsoDate(period.startDate), toIsoDate(period.endDate)),
         },
       });
     checklist.push({

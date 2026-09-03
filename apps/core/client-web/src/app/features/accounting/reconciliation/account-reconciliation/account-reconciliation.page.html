@@ -1,55 +1,267 @@
 <div class="subview-container">
-    <div class="subview-header">
-        <h3>{{ 'ACCOUNTING.ACCOUNT_RECONCILIATION.ACCOUNT_RECONCILIATION' | translate }}</h3>
-        <div class="header-actions">
-            <button class="secondary-button" type="button" disabled>
-                <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
-                <span>{{ 'ACCOUNTING.ACCOUNT_RECONCILIATION.PERIOD' | translate }}</span>
-            </button>
+  <div class="subview-header">
+    <h3>{{ 'ACCOUNTING.RECONCILIATION.TITULO' | translate }}</h3>
+    <div class="header-actions">
+      <a class="primary-button" routerLink="../reconciliation/import">
+        <lucide-icon [img]="ImportIcon" size="16"></lucide-icon>
+        <span>{{ 'ACCOUNTING.RECONCILIATION.IMPORTAR' | translate }}</span>
+      </a>
+      @if (selectedStatementId()) {
+        <button class="secondary-button" type="button" (click)="applyRules()" [disabled]="working()">
+          <lucide-icon [img]="RulesIcon" size="16"></lucide-icon>
+          <span>{{ 'ACCOUNTING.RECONCILIATION.APLICAR_REGLAS' | translate }}</span>
+        </button>
+        @if (statement()?.status === 'RECONCILED') {
+          <button class="secondary-button" type="button" (click)="reopen()" [disabled]="working()">
+            <lucide-icon [img]="UndoIcon" size="16"></lucide-icon>
+            <span>{{ 'ACCOUNTING.RECONCILIATION.REABRIR' | translate }}</span>
+          </button>
+        } @else {
+          <button class="primary-button" type="button" (click)="close()" [disabled]="!canClose() || working()">
+            <lucide-icon [img]="ReconciledIcon" size="16"></lucide-icon>
+            <span>{{ 'ACCOUNTING.RECONCILIATION.CERRAR' | translate }}</span>
+          </button>
+        }
+      }
+    </div>
+  </div>
+
+  @if (errorMessage(); as message) {
+    <p class="reconciliation-error" role="alert">{{ message }}</p>
+  }
+
+  @if (loading()) {
+    <p class="report-state">{{ 'REPORTS.COMMON.CARGANDO' | translate }}</p>
+  } @else if (failed()) {
+    <p class="report-state report-state--error">
+      {{ 'ACCOUNTING.RECONCILIATION.NO_SE_PUDO' | translate }}
+      <button class="secondary-button" type="button" (click)="loadBankAccounts()">
+        {{ 'REPORTS.COMMON.REINTENTAR' | translate }}
+      </button>
+    </p>
+  } @else if (bankAccounts().length === 0) {
+    <p class="report-state">{{ 'TREASURY.SIN_CUENTAS' | translate }}</p>
+  } @else {
+    <div class="reconciliation-toolbar">
+      <label class="field">
+        <span>{{ 'ACCOUNTING.RECONCILIATION.SELECCIONE_CUENTA' | translate }}</span>
+        <select
+          [value]="selectedBankAccountId()"
+          (change)="selectBankAccount($any($event.target).value)"
+        >
+          @for (account of bankAccounts(); track account.id) {
+            <option [value]="account.id">{{ account.name }} ({{ account.currencyCode }})</option>
+          }
+        </select>
+      </label>
+
+      @if (statements().length > 0) {
+        <label class="field">
+          <span>{{ 'ACCOUNTING.RECONCILIATION.ESTADOS_DE_CUENTA' | translate }}</span>
+          <select
+            [value]="selectedStatementId()"
+            (change)="selectStatement($any($event.target).value)"
+          >
+            @for (item of statements(); track item.id) {
+              <option [value]="item.id">
+                {{ item.startDate | vxDate: 'date' : true }} — {{ item.endDate | vxDate: 'date' : true }}
+              </option>
+            }
+          </select>
+        </label>
+      }
+    </div>
+
+    @if (statements().length === 0) {
+      <p class="report-state">{{ 'ACCOUNTING.RECONCILIATION.SIN_ESTADOS' | translate }}</p>
+    }
+
+    <!--
+      The proof. Two adjusted balances that must meet, and the difference between them. This is the
+      whole point of a reconciliation, and the page it replaces had no concept of it.
+    -->
+    @if (summary(); as proof) {
+      <div class="proof card">
+        <div class="proof__header">
+          <h4>{{ 'ACCOUNTING.RECONCILIATION.CUADRE' | translate }}</h4>
+          @if (statement(); as current) {
+            <span class="status-badge" [ngClass]="statusClass(current.status)">
+              <lucide-icon [img]="statusIcon(current.status)" size="14"></lucide-icon>
+              {{ statusKey(current.status) | translate }}
+            </span>
+          }
         </div>
-    </div>
-    <div class="table-container card">
+
+        @if (!proof.statementIsInternallyConsistent) {
+          <p class="proof__alert" role="alert">
+            {{ 'ACCOUNTING.RECONCILIATION.ESTADO_NO_CUADRA_CONSIGO' | translate: { amount: (proof.statementInternalDifference | vxMoney: currency()) } }}
+          </p>
+        }
+
+        <div class="proof__columns">
+          <div class="proof__column">
+            <div class="proof__line">
+              <span>{{ 'ACCOUNTING.RECONCILIATION.SALDO_SEGUN_LIBROS' | translate }}</span>
+              <span class="amount">{{ proof.bookBalance | vxNumber: '1.2-2' }}</span>
+            </div>
+            <div class="proof__line">
+              <span>
+                {{ 'ACCOUNTING.RECONCILIATION.PARTIDAS_NO_REGISTRADAS' | translate }}
+                ({{ proof.unrecordedStatementCount }})
+              </span>
+              <span class="amount">{{ proof.unrecordedStatementAmount | vxNumber: '1.2-2' }}</span>
+            </div>
+            <div class="proof__line proof__line--total">
+              <span>{{ 'ACCOUNTING.RECONCILIATION.SALDO_AJUSTADO_LIBROS' | translate }}</span>
+              <span class="amount">{{ proof.adjustedBookBalance | vxNumber: '1.2-2' }}</span>
+            </div>
+          </div>
+
+          <div class="proof__column">
+            <div class="proof__line">
+              <span>{{ 'ACCOUNTING.RECONCILIATION.SALDO_SEGUN_BANCO' | translate }}</span>
+              <span class="amount">{{ proof.statementEndingBalance | vxNumber: '1.2-2' }}</span>
+            </div>
+            <div class="proof__line">
+              <span>
+                {{ 'ACCOUNTING.RECONCILIATION.PARTIDAS_EN_TRANSITO' | translate }}
+                ({{ proof.outstandingLedgerCount }})
+              </span>
+              <span class="amount">{{ proof.outstandingLedgerAmount | vxNumber: '1.2-2' }}</span>
+            </div>
+            <div class="proof__line proof__line--total">
+              <span>{{ 'ACCOUNTING.RECONCILIATION.SALDO_AJUSTADO_BANCO' | translate }}</span>
+              <span class="amount">{{ proof.adjustedBankBalance | vxNumber: '1.2-2' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <p class="proof__difference" [class.proof__difference--ok]="proof.isReconciled">
+          <lucide-icon
+            [img]="proof.isReconciled ? ReconciledIcon : DifferencesIcon"
+            size="16"
+          ></lucide-icon>
+          {{ (proof.isReconciled ? 'ACCOUNTING.RECONCILIATION.CUADRA' : 'ACCOUNTING.RECONCILIATION.NO_CUADRA') | translate }}
+          <strong>{{ 'ACCOUNTING.RECONCILIATION.DIFERENCIA' | translate }}: {{ proof.difference | vxMoney: currency() }}</strong>
+        </p>
+      </div>
+    }
+
+    <!-- The statement's own movements, and what the ledger offers for each. -->
+    @if (statement(); as current) {
+      <div class="table-container card">
         <table class="data-table">
-            <thead>
-                <tr>
-                    <th>{{ 'ACCOUNTING.ACCOUNT_RECONCILIATION.ACCOUNT' | translate }}</th>
-                    <th class="text-right">{{ 'ACCOUNTING.ACCOUNT_RECONCILIATION.CURRENT_BALANCE' | translate }}</th>
-                    <th>{{ 'ACCOUNTING.ACCOUNT_RECONCILIATION.LAST_RECONCILED_BY' | translate }}</th>
-                    <th>{{ 'ACCOUNTING.ACCOUNT_RECONCILIATION.LAST_RECONCILED_DATE' | translate }}</th>
-                    <th class="text-center">{{ 'ACCOUNTING.ACCOUNT_RECONCILIATION.STATUS' | translate }}</th>
-                    <th class="actions-column"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @for(account of accountsToReconcile(); track account.accountCode) {
-                <tr>
-                    <td>
-                        <div class="account-cell">
-                            <span class="account-code">{{ account.accountCode }}</span>
-                            <a href="#" class="table-link">{{ account.accountName }}</a>
+          <thead>
+            <tr>
+              <th>{{ 'ACCOUNTING.RECONCILIATION.FECHA' | translate }}</th>
+              <th>{{ 'ACCOUNTING.RECONCILIATION.CONCEPTO' | translate }}</th>
+              <th>{{ 'ACCOUNTING.RECONCILIATION.REFERENCIA' | translate }}</th>
+              <th class="text-right">{{ 'ACCOUNTING.RECONCILIATION.MONTO' | translate }}</th>
+              <th class="text-center">{{ 'ACCOUNTING.RECONCILIATION.ESTADO' | translate }}</th>
+              <th class="actions-column"></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (movement of current.transactions ?? []; track movement.id) {
+              <tr [class.row--matched]="movement.status === 'MATCHED'">
+                <td>{{ movement.date | vxDate: 'date' : true }}</td>
+                <td>{{ movement.description }}</td>
+                <td>{{ movement.reference ?? '—' }}</td>
+                <td class="text-right">{{ signedAmount(movement) | vxNumber: '1.2-2' }}</td>
+                <td class="text-center">
+                  <span class="status-badge" [ngClass]="movement.status === 'MATCHED' ? 'status-reconciled' : movement.status === 'EXCLUDED' ? 'status-differences' : 'status-pending'">
+                    {{ 'ACCOUNTING.RECONCILIATION.ESTATUS.' + (movement.status === 'MATCHED' ? 'RECONCILED' : 'IMPORTED') | translate }}
+                  </span>
+                </td>
+                <td class="actions-column">
+                  @if (movement.status === 'UNMATCHED' && current.status !== 'RECONCILED') {
+                    <button class="secondary-button" type="button" (click)="openTransaction(movement.id)">
+                      <lucide-icon [img]="MatchIcon" size="14"></lucide-icon>
+                      <span>{{ 'ACCOUNTING.RECONCILIATION.CONCILIAR' | translate }}</span>
+                    </button>
+                  } @else if (movement.status === 'MATCHED' && movement.matchId && current.status !== 'RECONCILED') {
+                    <button class="secondary-button" type="button" (click)="unmatch(movement.matchId!)">
+                      <lucide-icon [img]="UndoIcon" size="14"></lucide-icon>
+                      <span>{{ 'ACCOUNTING.RECONCILIATION.DESHACER' | translate }}</span>
+                    </button>
+                  }
+                </td>
+              </tr>
+
+              @if (openTransactionId() === movement.id) {
+                @for (suggestion of suggestions(); track suggestion.bankTransactionId) {
+                  @if (suggestion.bankTransactionId === movement.id) {
+                    <tr class="candidates-row">
+                      <td colspan="6">
+                        <div class="candidates">
+                          <h5>{{ 'ACCOUNTING.RECONCILIATION.CANDIDATOS' | translate }}</h5>
+
+                          @if (suggestion.candidates.length === 0 && suggestion.candidateGroups.length === 0) {
+                            <p class="candidates__empty">
+                              {{ 'ACCOUNTING.RECONCILIATION.SIN_CANDIDATOS' | translate }}
+                            </p>
+                          }
+
+                          @for (candidate of suggestion.candidates; track candidate.journalEntryLineId) {
+                            <label class="candidate">
+                              <input
+                                type="checkbox"
+                                [checked]="isLineSelected(candidate.journalEntryLineId)"
+                                (change)="toggleLine(candidate.journalEntryLineId)"
+                              />
+                              <span class="candidate__entry">{{ candidate.entryNumber ?? '—' }}</span>
+                              <span class="candidate__date">{{ candidate.date | vxDate: 'date' : true }}</span>
+                              <span class="candidate__description">{{ candidate.description ?? '—' }}</span>
+                              <span class="candidate__amount">{{ candidate.amount | vxNumber: '1.2-2' }}</span>
+                            </label>
+                          }
+
+                          @if (suggestion.candidateGroups.length > 0) {
+                            <h5>{{ 'ACCOUNTING.RECONCILIATION.GRUPOS_SUGERIDOS' | translate }}</h5>
+                            @for (group of suggestion.candidateGroups; track group.journalEntryLineIds.join('|')) {
+                              <button class="candidate candidate--group" type="button" (click)="selectGroup(group)">
+                                <span class="candidate__description">
+                                  {{ group.journalEntryLineIds.length }} × {{ 'REPORTS.COMMON.CUENTA' | translate }}
+                                </span>
+                                <span class="candidate__amount">{{ group.amount | vxNumber: '1.2-2' }}</span>
+                              </button>
+                            }
+                          }
+
+                          <div class="candidates__actions">
+                            <button
+                              class="primary-button"
+                              type="button"
+                              [disabled]="!canConfirm(suggestion) || working()"
+                              (click)="confirmMatch(suggestion)"
+                            >
+                              {{ 'ACCOUNTING.RECONCILIATION.CONCILIAR' | translate }}
+                            </button>
+
+                            <label class="field field--inline">
+                              <span>{{ 'ACCOUNTING.RECONCILIATION.MOTIVO' | translate }}</span>
+                              <input type="text" #reason maxlength="500" />
+                            </label>
+                            <button
+                              class="secondary-button"
+                              type="button"
+                              [disabled]="working()"
+                              (click)="exclude(movement.id, reason.value)"
+                            >
+                              <lucide-icon [img]="ExcludeIcon" size="14"></lucide-icon>
+                              <span>{{ 'ACCOUNTING.RECONCILIATION.APARTAR' | translate }}</span>
+                            </button>
+                          </div>
                         </div>
-                    </td>
-                    <td class="text-right">{{ account.balance | vxMoney: account.currencyCode }}</td>
-                    <td>{{ account.lastReconciledBy ?? '—' }}</td>
-                    <td>{{ account.lastReconciledDate ? (account.lastReconciledDate | vxDate: 'date' : true) : '—' }}</td>
-                    <td class="text-center">
-                        <span class="status-badge" [ngClass]="getStatusClass(account.status)">
-                            <lucide-icon [img]="getIconForStatus(account.status)" size="14"></lucide-icon>
-                            {{ statusKey(account.status) | translate }}
-                        </span>
-                    </td>
-                    <td class="actions-column">
-                        <button class="icon-button">
-                            <lucide-icon [img]="MoreHorizontalIcon" size="18"></lucide-icon>
-                        </button>
-                    </td>
-                </tr>
-                } @empty {
-                <tr>
-                    <td colspan="6" class="empty-state">{{ 'ACCOUNTING.ACCOUNT_RECONCILIATION.NO_ACCOUNTS_REQUIRE_RECONCILIATION_FOR_THIS' | translate }}</td>
-                </tr>
+                      </td>
+                    </tr>
+                  }
                 }
-            </tbody>
+              }
+            }
+          </tbody>
         </table>
-    </div>
+      </div>
+    }
+  }
 </div>

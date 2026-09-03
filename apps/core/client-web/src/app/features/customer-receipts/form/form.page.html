@@ -1,48 +1,142 @@
-<div class="view-container">
-  <div class="view-header">
-    <a routerLink="/customer-receipts" class="btn-icon">
-      <lucide-icon [name]="BackIcon" [size]="24"></lucide-icon>
+<div class="form-container">
+  <div class="form-header">
+    <a class="back-link" routerLink="..">
+      <lucide-icon [img]="BackIcon" size="18"></lucide-icon>
+      <span>{{ 'CUSTOMER_RECEIPTS.LIST.RECIBOS_CLIENTE' | translate }}</span>
     </a>
-    <h1>{{ 'CUSTOMER_RECEIPTS.FORM.NUEVO_RECIBO_CLIENTE' | translate }}</h1>
+    <h3>{{ 'CUSTOMER_RECEIPTS.LIST.NUEVO_RECIBO' | translate }}</h3>
   </div>
 
-  <div class="view-content" [formGroup]="form">
-    <div class="card">
-      <div class="card-header">
-        <h2>{{ 'CUSTOMER_RECEIPTS.FORM.INFORMACION_PAGO' | translate }}</h2>
+  <form [formGroup]="form" (ngSubmit)="save()" class="card">
+    <div class="form-grid">
+      <label class="field">
+        <span>{{ 'CUSTOMER_RECEIPTS.LIST.CLIENTE' | translate }} *</span>
+        <select formControlName="customerId" (change)="onCustomerChange($any($event.target).value)">
+          <option value=""></option>
+          @for (customer of customers(); track customer.id) {
+            <option [value]="customer.id">{{ customer.companyName }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span>{{ 'CUSTOMER_RECEIPTS.LIST.FECHA' | translate }} *</span>
+        <input type="date" formControlName="paymentDate" />
+      </label>
+
+      <label class="field">
+        <span>{{ 'CUSTOMER_RECEIPTS.FORM.CUENTA_BANCARIA' | translate }} *</span>
+        <select
+          formControlName="bankAccountId"
+          (change)="onBankAccountChange($any($event.target).value)"
+        >
+          @for (account of activeBankAccounts(); track account.id) {
+            <option [value]="account.id">{{ account.name }} ({{ account.currencyCode }})</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span>{{ 'CUSTOMER_RECEIPTS.FORM.MONTO_RECIBIDO' | translate }} *</span>
+        <input type="number" step="0.01" min="0.01" formControlName="amountReceived" />
+      </label>
+
+      <label class="field">
+        <span>{{ 'TREASURY.MONEDA' | translate }}</span>
+        <input type="text" formControlName="currencyCode" readonly />
+        <small class="field__note">{{ 'CUSTOMER_RECEIPTS.FORM.MONEDA_DE_LA_CUENTA' | translate }}</small>
+      </label>
+
+      <label class="field">
+        <span>{{ 'CUSTOMER_RECEIPTS.FORM.FORMA_DE_PAGO' | translate }}</span>
+        <select formControlName="paymentMethod">
+          <option value="BANK_TRANSFER">{{ 'CUSTOMER_RECEIPTS.METHOD.BANK_TRANSFER' | translate }}</option>
+          <option value="CASH">{{ 'CUSTOMER_RECEIPTS.METHOD.CASH' | translate }}</option>
+          <option value="CHEQUE">{{ 'CUSTOMER_RECEIPTS.METHOD.CHEQUE' | translate }}</option>
+          <option value="CARD">{{ 'CUSTOMER_RECEIPTS.METHOD.CARD' | translate }}</option>
+          <option value="OTHER">{{ 'CUSTOMER_RECEIPTS.METHOD.OTHER' | translate }}</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>{{ 'ACCOUNTING.RECONCILIATION.REFERENCIA' | translate }}</span>
+        <input type="text" formControlName="reference" maxlength="120" />
+      </label>
+    </div>
+
+    <h4 class="section-heading">{{ 'CUSTOMER_RECEIPTS.FORM.FACTURAS_A_APLICAR' | translate }}</h4>
+
+    @if (openInvoices().length === 0) {
+      <p class="section-note">{{ 'CUSTOMER_RECEIPTS.FORM.SIN_FACTURAS_ABIERTAS' | translate }}</p>
+    } @else {
+      <div class="invoice-picker">
+        @for (invoice of openInvoices(); track invoice.id) {
+          <button class="chip" type="button" (click)="addInvoice(invoice)">
+            {{ invoice.invoiceNumber }} · {{ invoice.balance | vxMoney: invoice.currencyCode }}
+          </button>
+        }
       </div>
-      <div class="card-body grid-form">
-        <div class="form-field">
-          <label for="customerId">{{ 'CUSTOMER_RECEIPTS.FORM.CLIENTE' | translate }}</label>
-          <input type="text" id="customerId" formControlName="customerId" [placeholder]="'CUSTOMER_RECEIPTS.FORM.SELECCIONAR_CLIENTE' | translate">
-        </div>
-        <div class="form-field">
-          <label for="paymentDate">{{ 'CUSTOMER_RECEIPTS.FORM.FECHA_PAGO' | translate }}</label>
-          <input type="date" id="paymentDate" formControlName="paymentDate">
-        </div>
-        <div class="form-field">
-          <label for="amount">{{ 'CUSTOMER_RECEIPTS.FORM.MONTO_RECIBIDO' | translate }}</label>
-          <input type="number" id="amount" formControlName="amount">
-        </div>
+    }
+
+    @if (lines.length > 0) {
+      <div class="table-wrapper">
+        <table class="lines-table" formArrayName="lines">
+          <thead>
+            <tr>
+              <th>{{ 'CUSTOMER_RECEIPTS.FORM.FACTURA' | translate }}</th>
+              <th class="numeric">{{ 'CUSTOMER_RECEIPTS.FORM.SALDO' | translate }}</th>
+              <th class="numeric">{{ 'CUSTOMER_RECEIPTS.FORM.EFECTIVO' | translate }}</th>
+              <th class="numeric">{{ 'CUSTOMER_RECEIPTS.FORM.ITBIS_RETENIDO' | translate }}</th>
+              <th class="numeric">{{ 'CUSTOMER_RECEIPTS.FORM.ISR_RETENIDO' | translate }}</th>
+              <th class="numeric">{{ 'CUSTOMER_RECEIPTS.FORM.DESCUENTO' | translate }}</th>
+              <th class="numeric">{{ 'CUSTOMER_RECEIPTS.FORM.SALDA' | translate }}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (line of lines.controls; track $index; let i = $index) {
+              <tr [formGroupName]="i">
+                <td>{{ line.value.invoiceNumber }}</td>
+                <td class="numeric">{{ line.value.balance | vxNumber: '1.2-2' }}</td>
+                <td class="numeric"><input type="number" step="0.01" formControlName="amount" /></td>
+                <td class="numeric"><input type="number" step="0.01" formControlName="taxWithheld" /></td>
+                <td class="numeric"><input type="number" step="0.01" formControlName="incomeTaxWithheld" /></td>
+                <td class="numeric"><input type="number" step="0.01" formControlName="discount" /></td>
+                <!--
+                  What the line actually settles: cash plus what the customer withheld and paid to
+                  the authority on our behalf, plus any discount granted. Withholding relieves the
+                  invoice without cash arriving, which is the case the old model could not express.
+                -->
+                <td class="numeric settled" [class.over]="settledBy(line.value) > line.value.balance">
+                  {{ settledBy(line.value) | vxNumber: '1.2-2' }}
+                </td>
+                <td>
+                  <button class="icon-button" type="button" (click)="removeLine(i)">×</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <div class="totals">
+      <div class="totals__line">
+        <span>{{ 'CUSTOMER_RECEIPTS.FORM.APLICADO' | translate }}</span>
+        <span class="amount">{{ totals().applied | vxNumber: '1.2-2' }}</span>
+      </div>
+      <!-- What the receipt will carry as a customer credit. Worth seeing before it is posted. -->
+      <div class="totals__line" [class.totals__line--warn]="totals().unapplied !== 0">
+        <span>{{ 'CUSTOMER_RECEIPTS.FORM.NO_APLICADO' | translate }}</span>
+        <span class="amount">{{ totals().unapplied | vxNumber: '1.2-2' }}</span>
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-header">
-        <h2>{{ 'CUSTOMER_RECEIPTS.FORM.APLICAR_FACTURAS' | translate }}</h2>
-      </div>
-      <div class="card-body">
-        <p>{{ 'CUSTOMER_RECEIPTS.FORM.AQUI_MOSTRARA_LISTA_FACTURAS_PENDIENTES_CLIENTE' | translate }}</p>
-        <!-- Implementation for applying payment to invoices would go here -->
-      </div>
-    </div>
-    
     <div class="form-actions">
-        <a routerLink="/customer-receipts" class="btn-secondary">{{ 'CUSTOMER_RECEIPTS.FORM.CANCELAR' | translate }}</a>
-        <button (click)="save()" class="btn-primary" [disabled]="form.invalid || isLoading()">
-            {{ isLoading() ? 'Guardando...' : 'Guardar Recibo' }}
-        </button>
+      <a class="secondary-button" routerLink="..">{{ 'COMMON.CANCEL' | translate }}</a>
+      <button class="primary-button" type="submit" [disabled]="saving()">
+        {{ 'COMMON.SAVE' | translate }}
+      </button>
     </div>
-
-  </div>
+  </form>
 </div>

@@ -6,12 +6,15 @@ import { User } from '../users/entities/user.entity/user.entity';
 import { LedgerMappingService } from './ledger-mapping.service';
 import { CreateOrUpdateLedgerMapDto } from './dto/ledger-mapping.dto';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { PERMISSIONS } from '../shared/permissions';
 
 @Controller('accounting/ledger-mappings')
 @UseGuards(JwtAuthGuard)
 export class LedgerMappingController {
   constructor(private readonly mappingService: LedgerMappingService) {}
 
+  @HasPermission(PERMISSIONS.ACCOUNTING_MANAGE_LEDGERS)
   @Get(':sourceLedgerId/:targetLedgerId')
   getMap(
     @Param('sourceLedgerId', ParseUUIDPipe) sourceLedgerId: string,
@@ -25,6 +28,7 @@ export class LedgerMappingController {
     );
   }
 
+  @HasPermission(PERMISSIONS.ACCOUNTING_MANAGE_LEDGERS)
   @Post()
   createOrUpdateMap(
     @Body() dto: CreateOrUpdateLedgerMapDto,

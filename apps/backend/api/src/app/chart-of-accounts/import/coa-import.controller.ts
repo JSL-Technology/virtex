@@ -9,16 +9,21 @@ import { JwtAuthGuard } from '../../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { User } from '../../users/entities/user.entity/user.entity';
 import { AuthenticatedUser } from '../../auth/interfaces/authenticated-user.interface';
+import { HasPermission } from '../../auth/decorators/permissions.decorator';
+import { PERMISSIONS } from '../../shared/permissions';
 
 @Controller('chart-of-accounts/import')
 @UseGuards(JwtAuthGuard)
 export class CoaImportController {
   constructor(private readonly coaImportService: CoaImportService) {}
 
+  @HasPermission(PERMISSIONS.CHART_OF_ACCOUNTS_IMPORT)
   @Get('template')
   getTemplate() {
     return this.coaImportService.getImportTemplate();
   }
+  
+  @HasPermission(PERMISSIONS.CHART_OF_ACCOUNTS_IMPORT)
   
   @Post('preview')
   @UseInterceptors(FastifyFileInterceptor('file'))
@@ -37,6 +42,7 @@ export class CoaImportController {
     return this.coaImportService.preview(file, dto.columnMapping, user.organizationId, user.id);
   }
 
+  @HasPermission(PERMISSIONS.CHART_OF_ACCOUNTS_IMPORT)
   @Post('confirm')
   confirmImport(
     @Body() dto: ConfirmCoaImportDto,

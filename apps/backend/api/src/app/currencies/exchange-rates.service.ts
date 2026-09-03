@@ -61,22 +61,26 @@ export class ExchangeRatesService {
         throw new Error('La respuesta de la API de Xe no contiene tasas de cambio.');
       }
       
-      const today = new Date();
-      let updatedCount = 0;
+      const today = new Date().toISOString().slice(0, 10);
+      const rows = Object.entries(ratesData).map(([currencyCode, rateValue]) => ({
+        fromCurrency: baseCurrency.toUpperCase(),
+        toCurrency: currencyCode.toUpperCase(),
+        rate: Number(rateValue),
+        date: today as unknown as Date,
+      }));
 
-      for (const currencyCode in ratesData) {
-          const rateValue = ratesData[currencyCode];
-          
-          const newRate = this.exchangeRateRepository.create({
-              fromCurrency: baseCurrency,
-              toCurrency: currencyCode,
-              rate: rateValue,
-              date: today,
-          });
-
-          await this.exchangeRateRepository.save(newRate);
-          updatedCount++;
+      // Upsert on the pair and the day. `save` appended a new row on every run, so a table with no
+      // uniqueness constraint accumulated one duplicate per currency per refresh — and the lookups,
+      // which order by date and take the first row, then picked among same-day duplicates
+      // arbitrarily. The same invoice could convert two different ways.
+      if (rows.length > 0) {
+        await this.exchangeRateRepository.upsert(rows, [
+          'fromCurrency',
+          'toCurrency',
+          'date',
+        ]);
       }
+      const updatedCount = rows.length;
 
       this.logger.log(`Se actualizaron ${updatedCount} tasas de cambio desde Xe.`);
       return { messageKey: 'CURRENCIES.TASAS_CAMBIO_ACTUALIZADAS_EXITOSAMENTE', rates_updated: updatedCount };

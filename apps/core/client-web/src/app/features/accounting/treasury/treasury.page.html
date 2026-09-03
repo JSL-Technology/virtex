@@ -1,0 +1,119 @@
+<div class="subview-container">
+  <div class="subview-header">
+    <h3>{{ 'TREASURY.POSICION_DE_EFECTIVO' | translate }}</h3>
+    <div class="header-actions">
+      <label class="date-picker">
+        <lucide-icon [img]="CalendarIcon" size="16"></lucide-icon>
+        <input
+          type="date"
+          [value]="asOfDate()"
+          (change)="onDateChange($any($event.target).value)"
+          [attr.aria-label]="'TREASURY.AL_CORTE' | translate"
+        />
+      </label>
+      <button class="secondary-button" type="button" (click)="load()">
+        <lucide-icon [img]="RefreshIcon" size="16"></lucide-icon>
+        <span>{{ 'REPORTS.COMMON.ACTUALIZAR' | translate }}</span>
+      </button>
+      <a class="primary-button" routerLink="bank-accounts/new">
+        <lucide-icon [img]="BankIcon" size="16"></lucide-icon>
+        <span>{{ 'TREASURY.FORM.NUEVA_CUENTA' | translate }}</span>
+      </a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <p class="report-state">{{ 'REPORTS.COMMON.CARGANDO' | translate }}</p>
+  } @else if (failed()) {
+    <p class="report-state report-state--error">
+      {{ 'REPORTS.COMMON.NO_SE_PUDO_CARGAR' | translate }}
+      <button class="secondary-button" type="button" (click)="load()">
+        {{ 'REPORTS.COMMON.REINTENTAR' | translate }}
+      </button>
+    </p>
+  } @else if (position(); as cash) {
+    @if (cash.accounts.length === 0) {
+      <p class="report-state">{{ 'TREASURY.SIN_CUENTAS' | translate }}</p>
+    } @else {
+      <div class="table-wrapper card">
+        <table class="cash-table">
+          <thead>
+            <tr>
+              <th>{{ 'TREASURY.CUENTAS_BANCARIAS' | translate }}</th>
+              <th>{{ 'TREASURY.BANCO' | translate }}</th>
+              <th>{{ 'TREASURY.NUMERO' | translate }}</th>
+              <th>{{ 'TREASURY.MONEDA' | translate }}</th>
+              <th class="numeric">{{ 'TREASURY.SALDO' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of cash.accounts; track row.bankAccountId) {
+              <tr>
+                <td>
+                  <a class="account-name table-link" [routerLink]="['bank-accounts', row.bankAccountId, 'edit']">
+                    <lucide-icon [img]="BankIcon" size="14"></lucide-icon>
+                    {{ row.name }}
+                  </a>
+                </td>
+                <td>{{ row.bankName ?? '—' }}</td>
+                <td class="masked">{{ row.accountNumberMasked ?? '—' }}</td>
+                <td>{{ row.currencyCode }}</td>
+                <td class="numeric" [class.negative]="row.balanceInBaseCurrency < 0">
+                  {{ row.balanceInBaseCurrency | vxNumber: '1.2-2' }}
+                </td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4">{{ 'TREASURY.TOTAL_DISPONIBLE' | translate }}</td>
+              <td class="numeric">{{ cash.total | vxMoney: cash.baseCurrency }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      @if (hasSharedControlAccount()) {
+        <p class="note">{{ 'TREASURY.CUENTA_COMPARTIDA' | translate }}</p>
+      }
+    }
+
+    <h4 class="section-heading">{{ 'TREASURY.TRANSFERENCIAS' | translate }}</h4>
+    @if (transfers().length === 0) {
+      <p class="report-state">{{ 'TREASURY.SIN_TRANSFERENCIAS' | translate }}</p>
+    } @else {
+      <div class="table-wrapper card">
+        <table class="cash-table">
+          <thead>
+            <tr>
+              <th>{{ 'ACCOUNTING.RECONCILIATION.FECHA' | translate }}</th>
+              <th>{{ 'TREASURY.ORIGEN' | translate }}</th>
+              <th>{{ 'TREASURY.DESTINO' | translate }}</th>
+              <th>{{ 'ACCOUNTING.RECONCILIATION.CONCEPTO' | translate }}</th>
+              <th class="numeric">{{ 'TREASURY.ENVIADO' | translate }}</th>
+              <th class="numeric">{{ 'TREASURY.RECIBIDO' | translate }}</th>
+              <th class="numeric">{{ 'TREASURY.COMISION' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (transfer of transfers(); track transfer.id) {
+              <tr>
+                <td>{{ transfer.date | vxDate: 'date' : true }}</td>
+                <td>{{ accountName(transfer.fromBankAccountId) }}</td>
+                <td>{{ accountName(transfer.toBankAccountId) }}</td>
+                <td>{{ transfer.description }}</td>
+                <td class="numeric">
+                  {{ transfer.amount | vxMoney: accountCurrency(transfer.fromBankAccountId) }}
+                </td>
+                <td class="numeric">
+                  {{ transfer.amountReceived | vxMoney: accountCurrency(transfer.toBankAccountId) }}
+                </td>
+                <td class="numeric">{{ transfer.fee | vxNumber: '1.2-2' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</div>

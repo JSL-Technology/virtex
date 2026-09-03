@@ -74,9 +74,11 @@ import { ProcurementModule } from './procurement/procurement.module';
 import { DatasheetsModule } from './datasheets/datasheets.module';
 import { envValidation } from './config/env.validation';
 import { redisConnectionOptions } from './cache/redis.config';
+import { SchedulerModule } from './shared/scheduler/scheduler.module';
 
 @Module({
   imports: [
+    SchedulerModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],

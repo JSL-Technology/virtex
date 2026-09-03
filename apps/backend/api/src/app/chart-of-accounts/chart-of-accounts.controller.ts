@@ -24,6 +24,8 @@ import { User } from '../users/entities/user.entity/user.entity';
 import { BatchDeactivateAccountsDto } from './dto/batch-operations.dto';
 import { MergeAccountsDto } from './dto/merge-accounts.dto';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { PERMISSIONS } from '../shared/permissions';
 
 @Controller('chart-of-accounts')
 @UseGuards(JwtAuthGuard)
@@ -32,6 +34,7 @@ export class ChartOfAccountsController {
     private readonly chartOfAccountsService: ChartOfAccountsService,
   ) {}
 
+  @HasPermission(PERMISSIONS.CHART_OF_ACCOUNTS_CREATE)
   @Post()
   create(
     @Body() createAccountDto: CreateAccountDto,
@@ -43,11 +46,13 @@ export class ChartOfAccountsController {
     );
   }
 
+  @HasPermission(PERMISSIONS.CHART_OF_ACCOUNTS_VIEW)
   @Get()
   findAll(@CurrentUser() user: AuthenticatedUser) {
     return this.chartOfAccountsService.findAllForOrg(user.organizationId);
   }
 
+  @HasPermission(PERMISSIONS.CHART_OF_ACCOUNTS_VIEW)
   @Get('tree/roots')
   findTreeRoots(
     @CurrentUser() user: AuthenticatedUser,
@@ -60,6 +65,7 @@ export class ChartOfAccountsController {
     });
   }
 
+  @HasPermission(PERMISSIONS.CHART_OF_ACCOUNTS_VIEW)
   @Get('tree/children/:parentId')
   findTreeChildren(
     @Param('parentId', ParseUUIDPipe) parentId: string,
@@ -71,11 +77,13 @@ export class ChartOfAccountsController {
     );
   }
 
+  @HasPermission(PERMISSIONS.CHART_OF_ACCOUNTS_VIEW)
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.chartOfAccountsService.findOne(id, user.organizationId);
   }
 
+  @HasPermission(PERMISSIONS.CHART_OF_ACCOUNTS_EDIT)
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -92,6 +100,7 @@ export class ChartOfAccountsController {
     );
   }
 
+  @HasPermission(PERMISSIONS.CHART_OF_ACCOUNTS_EDIT)
   @Patch(':id/deactivate')
   @HttpCode(HttpStatus.OK)
   deactivate(
@@ -101,6 +110,7 @@ export class ChartOfAccountsController {
     return this.chartOfAccountsService.deactivate(id, user.organizationId);
   }
 
+  @HasPermission(PERMISSIONS.CHART_OF_ACCOUNTS_EDIT)
   @Patch(':id/block')
   @HttpCode(HttpStatus.OK)
   block(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
@@ -111,6 +121,7 @@ export class ChartOfAccountsController {
     );
   }
 
+  @HasPermission(PERMISSIONS.CHART_OF_ACCOUNTS_EDIT)
   @Patch(':id/unblock')
   @HttpCode(HttpStatus.OK)
   unblock(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
@@ -121,6 +132,7 @@ export class ChartOfAccountsController {
     );
   }
 
+  @HasPermission(PERMISSIONS.CHART_OF_ACCOUNTS_EDIT)
   @Post('batch/deactivate')
   @HttpCode(HttpStatus.OK)
   batchDeactivate(
@@ -133,6 +145,7 @@ export class ChartOfAccountsController {
     );
   }
 
+  @HasPermission(PERMISSIONS.CHART_OF_ACCOUNTS_MERGE)
   @Post('merge')
   @HttpCode(HttpStatus.OK)
   mergeAccounts(@Body() mergeDto: MergeAccountsDto, @CurrentUser() user: AuthenticatedUser) {

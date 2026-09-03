@@ -11,6 +11,13 @@ export const ACCOUNTS_PAYABLE_ROUTES: Routes = [
         title: 'PAGE_TITLES.VENDOR_BILL_NEW',
         loadComponent: () => import('./form/form.page').then(m => m.VendorBillFormPage)
     },
+    // Declared before `:id` so `payments` is never captured as a bill id. Nothing could pay a
+    // supplier invoice: the service method existed, no controller exposed it, no page reached it.
+    {
+        path: 'payments',
+        title: 'PAGE_TITLES.VENDOR_PAYMENT',
+        loadComponent: () => import('./payment/payment.page').then(m => m.VendorPaymentPage)
+    },
     {
         path: ':id/edit',
         title: 'PAGE_TITLES.VENDOR_BILL_EDIT',

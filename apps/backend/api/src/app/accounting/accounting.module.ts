@@ -33,10 +33,12 @@ import { LedgerMappingController } from './ledger-mapping.controller';
 
 import { LedgerMappingRuleCondition } from './entities/ledger-mapping-rule-condition.entity';
 import { ClosingChecklistService } from './closing-checklist.service';
+import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
 
 
 @Module({
   imports: [
+    forwardRef(() => ChartOfAccountsModule),
     TypeOrmModule.forFeature([
       AccountingPeriod,
       Account,

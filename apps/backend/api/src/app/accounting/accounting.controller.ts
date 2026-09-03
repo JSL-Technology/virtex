@@ -81,6 +81,7 @@ export class AccountingController {
     const closedPeriod = await this.periodClosingService.closePeriod(
       closePeriodDto.periodId,
       user.organizationId,
+      user.id,
     );
     return {
       messageKey: 'ACCOUNTING.PERIOD_CLOSED',
@@ -126,6 +127,7 @@ export class AccountingController {
       dto.periodId,
       dto.module,
       user.organizationId,
+      user.id,
     );
     return {
       messageKey: 'ACCOUNTING.MODULE_PERIOD_CLOSED',
@@ -147,6 +149,7 @@ export class AccountingController {
       dto.periodId,
       dto.module,
       user.organizationId,
+      user.id,
     );
     return {
       messageKey: 'ACCOUNTING.MODULE_PERIOD_REOPENED',

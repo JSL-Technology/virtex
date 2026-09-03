@@ -9,6 +9,7 @@ import { addDays, addMonths, addYears, isSameDay, isLastDayOfMonth } from 'date-
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { NotFoundError } from '../i18n/localized.exception';
+import { SchedulerLockService } from '../shared/scheduler/scheduler-lock.service';
 
 export interface RecurringJobData {
     recurringEntryId: string;
@@ -20,6 +21,7 @@ export class RecurringJournalEntriesService {
   private readonly logger = new Logger(RecurringJournalEntriesService.name);
 
   constructor(
+    private readonly schedulerLock: SchedulerLockService,
     @InjectRepository(RecurringJournalEntry)
     private recurringRepository: Repository<RecurringJournalEntry>,
 
@@ -68,6 +70,8 @@ export class RecurringJournalEntriesService {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    // Scoped per tenant below via the claim key. The query itself spans tenants because the
+    // scheduler is a single process acting for all of them.
     const recurringEntries = await this.recurringRepository.find({ where: { isActive: true } });
     this.logger.log(`Se encontraron ${recurringEntries.length} plantillas activas para evaluar.`);
 
@@ -76,20 +80,28 @@ export class RecurringJournalEntriesService {
         if (this.shouldCreateJournalEntryToday(entry, today)) {
 
 
-            const jobId = `recurring-${entry.id}-${today.toISOString().split('T')[0]}`;
-            
-            await this.recurringQueue.add('generate-recurring-entry', {
-                recurringEntryId: entry.id,
-                dateToPost: today.toISOString(),
-            }, {
-                jobId,
-                attempts: 3,
-                backoff: {
-                    type: 'exponential',
-                    delay: 60000,
-                }
-            });
-            this.logger.log(`Trabajo encolado con ID ${jobId} para la plantilla ${entry.id}`);
+            const day = today.toISOString().slice(0, 10);
+            // The durable claim, not just BullMQ's `jobId`. A completed job is removed from the
+            // queue, which frees its id — so with two replicas firing the same minute the dedup
+            // window is whatever the queue happens to be retaining.
+            const claimed = await this.schedulerLock.runOnce(
+              'queue-recurring-journal-entries',
+              `${entry.organizationId}:${entry.id}:${day}`,
+              async () => {
+                await this.recurringQueue.add(
+                  'generate-recurring-entry',
+                  { recurringEntryId: entry.id, dateToPost: today.toISOString() },
+                  {
+                    jobId: `recurring-${entry.id}-${day}`,
+                    attempts: 3,
+                    backoff: { type: 'exponential', delay: 60000 },
+                  },
+                );
+              },
+            );
+            if (claimed) {
+              this.logger.log(`Asiento recurrente ${entry.id} encolado para ${day}.`);
+            }
         }
     }
      this.logger.log('Job de encolado de asientos recurrentes finalizado.');

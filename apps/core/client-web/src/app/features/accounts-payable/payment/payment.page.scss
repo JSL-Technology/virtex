@@ -1,0 +1,183 @@
+@use "../../../../assets/styles/view-styles" as views;
+
+.form-container {
+  padding: var(--space-6);
+}
+
+.form-header {
+  margin-bottom: var(--space-6);
+
+  h3 {
+    margin: var(--space-2) 0 0;
+  }
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.card {
+  padding: var(--space-6);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--space-4);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+
+  input,
+  select,
+  textarea {
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--surface-raised);
+    color: var(--text-primary);
+    font: inherit;
+  }
+
+  input:disabled,
+  select:disabled {
+    background: var(--surface-disabled);
+    color: var(--text-secondary);
+  }
+
+  &__note {
+    color: var(--text-tertiary);
+  }
+
+  &--wide {
+    grid-column: 1 / -1;
+  }
+
+  &--checkbox {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-2);
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.section-heading {
+  margin: var(--space-6) 0 var(--space-2);
+}
+
+.section-note {
+  margin: 0 0 var(--space-4);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.invoice-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.chip {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full, 999px);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  font: inherit;
+  cursor: pointer;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.lines-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+
+  th,
+  td {
+    padding: var(--space-2);
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+  }
+
+  thead th {
+    text-align: right;
+    color: var(--text-secondary);
+    font-weight: 600;
+
+    &:first-child {
+      text-align: left;
+    }
+  }
+
+  .numeric {
+    text-align: right;
+  }
+
+  input {
+    width: 8rem;
+    text-align: right;
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--surface-raised);
+    color: var(--text-primary);
+    font: inherit;
+  }
+
+  /* Settling more than the invoice owes is refused by the server; flag it before the round trip. */
+  .settled.over {
+    color: var(--error-text);
+    font-weight: 600;
+  }
+}
+
+.totals {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  align-items: flex-end;
+  margin-top: var(--space-4);
+
+  &__line {
+    display: flex;
+    gap: var(--space-6);
+    min-width: 18rem;
+    justify-content: space-between;
+
+    &--warn {
+      color: var(--warning-text);
+      font-weight: 600;
+    }
+  }
+}
+
+.totals__line--total {
+  font-weight: 700;
+  border-top: 2px solid var(--text-primary);
+  padding-top: var(--space-1);
+}
+
+.lines-table td small {
+  display: block;
+  color: var(--text-secondary);
+}

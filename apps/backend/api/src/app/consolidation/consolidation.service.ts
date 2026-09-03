@@ -5,6 +5,8 @@ import { Repository, DataSource, LessThanOrEqual } from 'typeorm';
 import { Organization } from '../organizations/entities/organization.entity';
 import { Account, AccountType } from '../chart-of-accounts/entities/account.entity';
 import { FinancialReportingService } from '../financial-reporting/financial-reporting.service';
+import { flattenSections, ReportAccountLine } from '../financial-reporting/financial-reporting.service';
+import { roundAmount } from '../common/money';
 import { ConsolidationMap } from './entities/consolidation-map.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { ExchangeRate } from '../currencies/entities/exchange-rate.entity';
@@ -53,20 +55,23 @@ export class ConsolidationService {
     const parentBaseCurrency = parentSettings.baseCurrency;
 
 
-    const consolidatedBalances = new Map<string, { account: Account; balance: number }>();
+    const consolidatedBalances = new Map<
+      string,
+      { account: ReportAccountLine; balance: number }
+    >();
 
 
     this.logger.log(`Cargando balance para la compañía matriz: ${parentOrg.legalName}`);
     const parentBalanceSheet = await this.financialReportingService.getBalanceSheet(parentOrganizationId, asOfDate);
     
     const allParentAccounts = [
-        ...parentBalanceSheet.assets, 
-        ...parentBalanceSheet.liabilities, 
-        ...parentBalanceSheet.equity
+        ...flattenSections(parentBalanceSheet.assets.sections),
+        ...flattenSections(parentBalanceSheet.liabilities.sections),
+        ...flattenSections(parentBalanceSheet.equity.sections),
     ];
 
     for (const account of allParentAccounts) {
-      consolidatedBalances.set(account.code, { account, balance: account.balance });
+      consolidatedBalances.set(account.code, { account, balance: account.amount });
     }
     
 
@@ -106,25 +111,39 @@ export class ConsolidationService {
 
 
         const subsidiaryBalanceSheet = await this.financialReportingService.getBalanceSheet(subsidiary.id, asOfDate);
-        const allSubsidiaryAccounts = [...subsidiaryBalanceSheet.assets, ...subsidiaryBalanceSheet.liabilities, ...subsidiaryBalanceSheet.equity];
+        const allSubsidiaryAccounts = [
+            ...flattenSections(subsidiaryBalanceSheet.assets.sections),
+            ...flattenSections(subsidiaryBalanceSheet.liabilities.sections),
+            ...flattenSections(subsidiaryBalanceSheet.equity.sections),
+        ];
 
 
         for (const subAccount of allSubsidiaryAccounts) {
-            const parentAccount = consolidationMap.get(subAccount.id);
+            const parentAccount = consolidationMap.get(subAccount.accountId);
 
             if (!parentAccount) {
                 this.logger.warn(`La cuenta ${subAccount.code} (${subAccount.name}) de la subsidiaria ${subsidiary.legalName} no tiene mapeo y será ignorada.`);
                 continue;
             }
             
-            const convertedBalance = subAccount.balance * exchangeRate;
+            const convertedBalance = roundAmount(subAccount.amount * exchangeRate);
             
             if (consolidatedBalances.has(parentAccount.code)) {
                 const existing = consolidatedBalances.get(parentAccount.code)!;
                 existing.balance += convertedBalance;
             } else {
 
-                consolidatedBalances.set(parentAccount.code, { account: parentAccount, balance: convertedBalance });
+                consolidatedBalances.set(parentAccount.code, {
+                    account: {
+                        accountId: parentAccount.id,
+                        code: parentAccount.code,
+                        name: parentAccount.name,
+                        type: parentAccount.type,
+                        category: parentAccount.category,
+                        amount: convertedBalance,
+                    },
+                    balance: convertedBalance,
+                });
             }
         }
     }

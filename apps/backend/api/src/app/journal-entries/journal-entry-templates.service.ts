@@ -49,7 +49,12 @@ export class JournalEntryTemplatesService {
     }
   }
 
-  async createEntryFromTemplate(templateId: string, createEntryDto: CreateJournalEntryFromTemplateDto, organizationId: string): Promise<JournalEntry> {
+  async createEntryFromTemplate(
+    templateId: string,
+    createEntryDto: CreateJournalEntryFromTemplateDto,
+    organizationId: string,
+    actorUserId: string,
+  ): Promise<JournalEntry> {
     const template = await this.findOne(templateId, organizationId);
     
     if (createEntryDto.amount <= 0) {
@@ -84,6 +89,8 @@ export class JournalEntryTemplatesService {
       lines: lines,
     };
 
-    return this.journalEntriesService.create(entryDto, organizationId);
+    return this.journalEntriesService.create(entryDto, organizationId, {
+      actorUserId,
+    });
   }
 }

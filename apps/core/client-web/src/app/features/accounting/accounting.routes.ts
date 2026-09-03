@@ -90,6 +90,38 @@ export const ACCOUNTING_ROUTES: Routes = [
           import('./closing/closing.routes').then((m) => m.CLOSING_ROUTES),
       },
       {
+        path: 'treasury',
+        title: 'PAGE_TITLES.TREASURY',
+        loadComponent: () =>
+          import('./treasury/treasury.page').then((m) => m.TreasuryPage),
+      },
+      // Nothing could create a bank account, and every settlement route now needs one: a payment
+      // leaves one, a receipt lands in one, a statement belongs to one.
+      {
+        path: 'treasury/bank-accounts/new',
+        title: 'PAGE_TITLES.BANK_ACCOUNT',
+        loadComponent: () =>
+          import('./treasury/bank-account-form/bank-account-form.page').then(
+            (m) => m.BankAccountFormPage,
+          ),
+      },
+      {
+        path: 'treasury/bank-accounts/:id/edit',
+        title: 'PAGE_TITLES.BANK_ACCOUNT',
+        loadComponent: () =>
+          import('./treasury/bank-account-form/bank-account-form.page').then(
+            (m) => m.BankAccountFormPage,
+          ),
+      },
+      {
+        path: 'reconciliation/import',
+        title: 'PAGE_TITLES.STATEMENT_IMPORT',
+        loadComponent: () =>
+          import('./reconciliation/statement-import/statement-import.page').then(
+            (m) => m.StatementImportPage,
+          ),
+      },
+      {
         path: 'reconciliation',
         title: 'PAGE_TITLES.ACCOUNT_RECONCILIATION',
         loadComponent: () =>

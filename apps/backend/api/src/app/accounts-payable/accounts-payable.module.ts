@@ -17,6 +17,9 @@ import { CurrenciesModule } from '../currencies/currencies.module';
 import { BudgetsModule } from '../budgets/budgets.module';
 import { VendorDebitNotesController } from './vendor-debit-notes.controller';
 import { VendorDebitNotesService } from './vendor-debit-notes.service';
+import { AccountingPeriod } from '../accounting/entities/accounting-period.entity';
+import { AccountPeriodLock } from '../accounting/entities/account-period-lock.entity';
+import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
 
 @Module({
   imports: [
@@ -28,6 +31,8 @@ import { VendorDebitNotesService } from './vendor-debit-notes.service';
       PaymentBatch,
       OrganizationSettings,
       ExchangeRate,
+      AccountingPeriod,
+      AccountPeriodLock,
     ]),
     JournalEntriesModule,
     InventoryModule,
@@ -36,6 +41,6 @@ import { VendorDebitNotesService } from './vendor-debit-notes.service';
     BudgetsModule,
   ],
   controllers: [AccountsPayableController, VendorDebitNotesController],
-  providers: [AccountsPayableService, VendorDebitNotesService],
+  providers: [AccountsPayableService, VendorDebitNotesService, PeriodLockGuard],
 })
 export class AccountsPayableModule {}

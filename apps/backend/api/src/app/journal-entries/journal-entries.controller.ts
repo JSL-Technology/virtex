@@ -57,6 +57,7 @@ export class JournalEntriesController {
     return this.journalEntriesService.create(
       createJournalEntryDto,
       user.organizationId,
+      { actorUserId: user.id },
     );
   }
 
@@ -80,7 +81,9 @@ export class JournalEntriesController {
     @Body() updateDto: UpdateJournalEntryDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.journalEntriesService.update(id, user.organizationId, updateDto);
+    return this.journalEntriesService.update(id, user.organizationId, updateDto, {
+      actorUserId: user.id,
+    });
   }
 
   @Post(':id/reverse')
@@ -91,18 +94,18 @@ export class JournalEntriesController {
     @Body() reverseDto: ReverseJournalEntryDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.journalEntriesService.reverse(
-      id,
-      user.organizationId,
-      reverseDto,
-    );
+    return this.journalEntriesService.reverse(id, user.organizationId, reverseDto, {
+      actorUserId: user.id,
+    });
   }
   
   @Post(':id/create-reversal')
   @HttpCode(HttpStatus.CREATED)
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_CREATE)
   createReversal(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
-      return this.journalEntriesService.createReversalEntry(id, user.organizationId);
+      return this.journalEntriesService.createReversalEntry(id, user.organizationId, {
+        actorUserId: user.id,
+      });
   }
 
 

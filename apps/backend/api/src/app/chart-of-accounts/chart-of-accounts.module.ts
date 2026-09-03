@@ -6,9 +6,6 @@ import { Account } from './entities/account.entity';
 import { ChartOfAccountsService } from './chart-of-accounts.service';
 import { ChartOfAccountsController } from './chart-of-accounts.controller';
 import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line.entity';
-import { BalanceUpdateService } from './balance-update.service';
-import { BalanceUpdateProcessor } from './balance-update.processor';
-import { AccountBalance } from './entities/account-balance.entity';
 import { AccountSegment } from './entities/account-segment.entity';
 import { AuditModule } from '../audit/audit.module';
 import { AccountHistory } from './entities/account-history.entity';
@@ -19,6 +16,7 @@ import { AccountJobsProcessor } from './account-jobs.processor';
 import { WebsocketsModule } from '../websockets/websockets.module';
 
 import { AccountHierarchyVersion } from './entities/account-hierarchy-version.entity';
+import { AccountBalancesService } from './account-balances.service';
 
 
 @Module({
@@ -26,16 +24,12 @@ import { AccountHierarchyVersion } from './entities/account-hierarchy-version.en
     TypeOrmModule.forFeature([
       Account,
       JournalEntryLine,
-      AccountBalance,
       AccountSegment,
       AccountHistory,
       AccountSegmentDefinition,
       AccountHierarchyVersion,
     ]),
-    BullModule.registerQueue(
-      { name: 'balance-updates-v2' },
-      { name: 'account-jobs' },
-    ),
+    BullModule.registerQueue({ name: 'account-jobs' }),
     forwardRef(() => AuditModule),
     WebsocketsModule,
   ],
@@ -45,11 +39,10 @@ import { AccountHierarchyVersion } from './entities/account-hierarchy-version.en
   ],
   providers: [
     ChartOfAccountsService,
-    BalanceUpdateService,
-    BalanceUpdateProcessor,
+    AccountBalancesService,
     AccountSegmentsService,
     AccountJobsProcessor,
   ],
-  exports: [ChartOfAccountsService, BalanceUpdateService, AccountSegmentsService],
+  exports: [ChartOfAccountsService, AccountBalancesService, AccountSegmentsService],
 })
 export class ChartOfAccountsModule {}

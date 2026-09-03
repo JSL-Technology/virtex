@@ -22,7 +22,6 @@ import {
   AccountNature,
   AccountRole,
 } from '../enums/account-enums';
-import { AccountBalance } from './account-balance.entity';
 import { AccountSegment } from './account-segment.entity';
 
 import { AccountHierarchyVersion } from './account-hierarchy-version.entity';
@@ -123,8 +122,13 @@ export class Account {
   segments: AccountSegment[];
 
 
-  @OneToMany(() => AccountBalance, (balance) => balance.account, { cascade: true })
-  balances: AccountBalance[];
+  /**
+   * There is deliberately no `balances` relation.
+   *
+   * A balance is a `SUM` over the journal, served by `AccountBalancesService`. Hanging it off the
+   * account as a stored relation is what allowed the close to read a figure that did not include
+   * the entries the close had just posted.
+   */
 
   @OneToMany(() => AccountHierarchyVersion, (version) => version.account, { cascade: true })
   history: AccountHierarchyVersion[];

@@ -86,6 +86,37 @@ export class FinancialReportingController {
     );
   }
 
+  /**
+   * The balanza de comprobación.
+   *
+   * `getTrialBalance` existed on the service and had no route, so the one report an accountant
+   * opens before anything else — opening balance, movement and closing balance per account, with
+   * the debit and credit columns that must agree — could not be reached at all.
+   */
+  @Get('trial-balance')
+  @HasPermission(PERMISSIONS.REPORTS_VIEW_FINANCIAL)
+  @ApiOperation({ summary: 'Genera la balanza de comprobación.' })
+  @ApiQuery({ name: 'startDate', required: false, type: String })
+  @ApiQuery({ name: 'endDate', required: false, type: String })
+  @ApiQuery({ name: 'ledgerId', required: false, type: String })
+  getTrialBalance(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query('startDate') startDateStr: string,
+    @Query('endDate') endDateStr: string,
+    @Query('ledgerId') ledgerId?: string,
+  ) {
+    const startDate = startDateStr
+      ? new Date(startDateStr)
+      : new Date(new Date().getFullYear(), 0, 1);
+    const endDate = endDateStr ? new Date(endDateStr) : new Date();
+    return this.financialReportingService.getTrialBalance(
+      user.organizationId,
+      startDate,
+      endDate,
+      ledgerId,
+    );
+  }
+
   @Get('cash-flow-statement')
   @HasPermission(PERMISSIONS.REPORTS_VIEW_FINANCIAL)
   @ApiOperation({ summary: 'Genera el Estado de Flujo de Efectivo.' })

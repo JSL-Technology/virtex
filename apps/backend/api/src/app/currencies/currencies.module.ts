@@ -14,30 +14,32 @@ import { Account } from '../chart-of-accounts/entities/account.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { Journal } from '../journal-entries/entities/journal.entity';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
+import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
+import { ExchangeRateResolver } from './exchange-rate-resolver.service';
 
-import { AccountBalance } from '../chart-of-accounts/entities/account-balance.entity';
 
 
 @Module({
   imports: [
+    ChartOfAccountsModule,
     TypeOrmModule.forFeature([
       Currency,
       ExchangeRate,
       Account,
       OrganizationSettings,
       Journal,
-      AccountBalance,
     ]),
     HttpModule,
     forwardRef(() => JournalEntriesModule),
   ],
   controllers: [CurrenciesController, ExchangeRatesController],
   providers: [
+    ExchangeRateResolver,
     CurrenciesService,
     CurrencySeederService,
     ExchangeRatesService,
     CurrencyRevaluationService,
   ],
-  exports: [CurrencyRevaluationService, CurrencySeederService],
+  exports: [ExchangeRateResolver, CurrencyRevaluationService, CurrencySeederService],
 })
 export class CurrenciesModule {}

@@ -1,0 +1,76 @@
+<div class="subview-container">
+  <div class="subview-header">
+    <h3>{{ titleKey | translate }}</h3>
+    <div class="header-actions">
+      <label class="date-picker">
+        <lucide-icon [img]="CalendarIcon" size="16"></lucide-icon>
+        <input
+          type="date"
+          [value]="asOfDate()"
+          (change)="onDateChange($any($event.target).value)"
+          [attr.aria-label]="'REPORTS.COMMON.HASTA' | translate"
+        />
+      </label>
+      <button class="primary-button" type="button" (click)="load()">
+        <lucide-icon [img]="RefreshIcon" size="16"></lucide-icon>
+        <span>{{ 'REPORTS.COMMON.ACTUALIZAR' | translate }}</span>
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <p class="report-state">{{ 'REPORTS.COMMON.CARGANDO' | translate }}</p>
+  } @else if (failed()) {
+    <p class="report-state report-state--error">
+      {{ 'REPORTS.COMMON.NO_SE_PUDO_CARGAR' | translate }}
+      <button class="secondary-button" type="button" (click)="load()">
+        {{ 'REPORTS.COMMON.REINTENTAR' | translate }}
+      </button>
+    </p>
+  } @else if (report(); as data) {
+    @if (data.rows.length === 0) {
+      <p class="report-state">{{ 'REPORTS.AGING.SIN_SALDOS' | translate }}</p>
+    } @else {
+      <div class="table-wrapper card">
+        <table class="aging-table">
+          <thead>
+            <tr>
+              <th class="party-column">{{ partyKey | translate }}</th>
+              <th class="numeric">{{ 'REPORTS.AGING.CORRIENTE' | translate }}</th>
+              @for (bucket of bucketKeys(); track bucket.label) {
+                <th class="numeric">{{ bucket.key | translate }}</th>
+              }
+              <th class="numeric">{{ 'REPORTS.AGING.TOTAL' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of data.rows; track row.partyId) {
+              <tr>
+                <td class="party-column">{{ row.partyName }}</td>
+                <td class="numeric">{{ row.current | vxNumber: '1.2-2' }}</td>
+                @for (bucket of bucketKeys(); track bucket.label) {
+                  <td class="numeric" [class.overdue]="bucketAmount(row.buckets, bucket.label) > 0">
+                    {{ bucketAmount(row.buckets, bucket.label) | vxNumber: '1.2-2' }}
+                  </td>
+                }
+                <td class="numeric total">{{ row.total | vxNumber: '1.2-2' }}</td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <td class="party-column">{{ 'REPORTS.AGING.TOTAL' | translate }}</td>
+              <td class="numeric">{{ data.totals.current | vxNumber: '1.2-2' }}</td>
+              @for (bucket of bucketKeys(); track bucket.label) {
+                <td class="numeric">
+                  {{ bucketAmount(data.totals.buckets, bucket.label) | vxNumber: '1.2-2' }}
+                </td>
+              }
+              <td class="numeric total">{{ data.totals.total | vxNumber: '1.2-2' }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    }
+  }
+</div>

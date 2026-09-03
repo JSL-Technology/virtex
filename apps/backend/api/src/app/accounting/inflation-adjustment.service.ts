@@ -10,6 +10,8 @@ import { Journal } from '../journal-entries/entities/journal.entity';
 import { CreateJournalEntryLineDto, CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
 import { Ledger } from './entities/ledger.entity';
 import { BadRequestError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
+import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
+import { roundAmount, toCents } from '../common/money';
 
 @Injectable()
 export class InflationAdjustmentService {
@@ -23,10 +25,16 @@ export class InflationAdjustmentService {
     @InjectRepository(OrganizationSettings)
     private readonly orgSettingsRepository: Repository<OrganizationSettings>,
     private readonly journalEntriesService: JournalEntriesService,
+    private readonly accountBalances: AccountBalancesService,
     private readonly dataSource: DataSource,
   ) {}
 
-  async runAdjustment(year: number, month: number, organizationId: string): Promise<void> {
+  async runAdjustment(
+    year: number,
+    month: number,
+    organizationId: string,
+    actorUserId: string,
+  ): Promise<void> {
     this.logger.log(`Iniciando ajuste por inflación para ${year}-${month}, Org: ${organizationId}`);
 
     const inflationIndex = await this.inflationIndexRepository.findOneBy({ year, month, organizationId });
@@ -46,7 +54,6 @@ export class InflationAdjustmentService {
     
     const accountsToAdjust = await this.accountRepository.find({
         where: { organizationId, isInflationAdjustable: true },
-        relations: ['balances'],
     });
 
     if (accountsToAdjust.length === 0) {
@@ -60,17 +67,31 @@ export class InflationAdjustmentService {
             throw new BadRequestError('ACCOUNTING.DIARIO_AJUSTE_INFLACION_AJU_INF_NO_ENCONTRADO');
         }
 
-        let totalAdjustment = 0;
+        // The last day of the month being adjusted, in UTC. `new Date(year, month, 0)` builds a
+        // *local* date, so on any server west of Greenwich the cut-off slipped into the previous
+        // month and the adjustment was computed over the wrong balances.
+        const periodEnd = new Date(Date.UTC(year, month, 0)).toISOString().slice(0, 10);
+
+        const balances = await this.accountBalances.balancesAsOf(
+            {
+                organizationId,
+                ledgerId: defaultLedger.id,
+                accountIds: accountsToAdjust.map((account) => account.id),
+                asOf: periodEnd,
+            },
+            manager,
+        );
+
+        let totalAdjustmentCents = 0;
         const lines: CreateJournalEntryLineDto[] = [];
 
         for (const account of accountsToAdjust) {
-            const balanceRecord = account.balances.find(b => b.ledgerId === defaultLedger.id);
-            const currentBalance = balanceRecord ? Number(balanceRecord.balance) : 0;
+            const currentBalance = balances.get(account.id) ?? 0;
+            if (toCents(currentBalance) === 0) continue;
 
-            if (Math.abs(currentBalance) === 0) continue;
-
-            const adjustmentAmount = currentBalance * Number(inflationIndex.rate);
-            totalAdjustment += adjustmentAmount;
+            const adjustmentAmount = roundAmount(currentBalance * Number(inflationIndex.rate));
+            if (toCents(adjustmentAmount) === 0) continue;
+            totalAdjustmentCents += toCents(adjustmentAmount);
 
             const debit = adjustmentAmount > 0 ? adjustmentAmount : 0;
             const credit = adjustmentAmount < 0 ? Math.abs(adjustmentAmount) : 0;
@@ -94,6 +115,7 @@ export class InflationAdjustmentService {
         }
 
         if (settings.defaultInflationAdjustmentAccountId) {
+          const totalAdjustment = roundAmount(totalAdjustmentCents / 100);
           const contraDebit = totalAdjustment < 0 ? Math.abs(totalAdjustment) : 0;
           const contraCredit = totalAdjustment > 0 ? totalAdjustment : 0;
 
@@ -112,19 +134,17 @@ export class InflationAdjustmentService {
             throw new InternalServerError('ACCOUNTING.CUENTA_AJUSTE_INFLACION_DESAPARECIO_MITAD_TRANSACCION');
         }
 
-        if (!manager.queryRunner) {
-          throw new InternalServerError('ACCOUNTING.NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION');
-        }
-
-
         const entryDto: CreateJournalEntryDto = {
-            date: new Date(year, month, 0).toISOString(),
-            description: `Asiento de Ajuste por Inflación para ${year}-${month}`,
+            date: periodEnd,
+            description: `Asiento de ajuste por inflación ${year}-${month}`,
             lines,
             journalId: adjustmentJournal.id,
         };
 
-        await this.journalEntriesService.createWithQueryRunner(manager.queryRunner, entryDto, organizationId);
+        await this.journalEntriesService.createWithManager(manager, entryDto, organizationId, {
+            actorUserId,
+            systemReason: 'inflation-adjustment',
+        });
 
         this.logger.log(`Ajuste por inflación completado. Se generó un asiento con ${lines.length} líneas.`);
     });

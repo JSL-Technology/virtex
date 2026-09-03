@@ -19,6 +19,8 @@ import {
   UpdateRecurringJournalEntryDto,
 } from './dto/recurring-and-templates.dto';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { PERMISSIONS } from '../shared/permissions';
 
 @Controller('recurring-journal-entries')
 @UseGuards(JwtAuthGuard)
@@ -27,6 +29,7 @@ export class RecurringJournalEntriesController {
     private readonly recurringService: RecurringJournalEntriesService,
   ) {}
 
+  @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_CREATE)
   @Post()
   create(
     @Body() createDto: CreateRecurringJournalEntryDto,
@@ -35,16 +38,19 @@ export class RecurringJournalEntriesController {
     return this.recurringService.create(createDto, user.organizationId);
   }
 
+  @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_VIEW)
   @Get()
   findAll(@CurrentUser() user: AuthenticatedUser) {
     return this.recurringService.findAll(user.organizationId);
   }
 
+  @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_VIEW)
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.recurringService.findOne(id, user.organizationId);
   }
 
+  @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_EDIT)
   @Patch(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -54,6 +60,7 @@ export class RecurringJournalEntriesController {
     return this.recurringService.update(id, updateDto, user.organizationId);
   }
 
+  @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_EDIT)
   @Delete(':id')
   remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.recurringService.remove(id, user.organizationId);

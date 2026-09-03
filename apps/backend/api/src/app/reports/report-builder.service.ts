@@ -7,7 +7,11 @@ import {
   ReportRowType,
   ReportColumnDefinition,
 } from './dto/report-builder.dto';
-import { FinancialReportingService } from '../financial-reporting/financial-reporting.service';
+import {
+  FinancialReportingService,
+  balanceSheetAccounts,
+  incomeStatementAccounts,
+} from '../financial-reporting/financial-reporting.service';
 import { Account } from '../chart-of-accounts/entities/account.entity';
 
 
@@ -107,10 +111,10 @@ export class ReportBuilderService {
       const balances = new Map<string, number>();
 
 
-      [...bs.assets, ...bs.liabilities, ...bs.equity].forEach(acc => balances.set(acc.id, acc.balance));
+      balanceSheetAccounts(bs).forEach((acc) => balances.set(acc.accountId, acc.amount));
       
 
-      [...is.revenue.accounts, ...is.expenses.accounts].forEach(acc => balances.set(acc.id, acc.balance));
+      incomeStatementAccounts(is).forEach((acc) => balances.set(acc.accountId, acc.amount));
 
 
       const allAccounts = await accountRepo.find({ where: { organizationId }, relations: ['children'] });

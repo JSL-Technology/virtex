@@ -16,6 +16,7 @@ import { CustomerContact } from './customer-contact.entity';
 import type { CustomerGroup } from './customer-group.entity';
 import { User } from '../../users/entities/user.entity/user.entity';
 import type { LanguageCode } from '@virteex/shared/types';
+import { numericTransformer, numericTransformerNotNull } from '../../common/database/numeric.transformer';
 
 export enum CustomerStatus {
   LEAD = 'LEAD',
@@ -96,7 +97,7 @@ export class Customer {
 
 
 
-  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0.0 })
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0.0, transformer: numericTransformerNotNull })
   totalBilled: number;
 
   @CreateDateColumn({ name: 'created_at' })
@@ -147,7 +148,7 @@ export class Customer {
   @Column({ nullable: true })
   paymentTerms?: string;
 
-  @Column({ type: 'decimal', precision: 12, scale: 2, nullable: true })
+  @Column({ type: 'decimal', precision: 12, scale: 2, nullable: true, transformer: numericTransformer })
   creditLimit?: number;
 
   @Column({ name: 'default_sales_account_id', type: 'uuid', nullable: true })

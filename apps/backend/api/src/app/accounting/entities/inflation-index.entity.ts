@@ -1,5 +1,6 @@
 
 import { Entity, PrimaryGeneratedColumn, Column, Index } from 'typeorm';
+import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 
 @Entity({ name: 'inflation_indices' })
 @Index(['organizationId', 'year', 'month'], { unique: true })
@@ -16,7 +17,7 @@ export class InflationIndex {
   @Column()
   month: number;
 
-  @Column('decimal', { precision: 10, scale: 6 })
+  @Column('decimal', { precision: 10, scale: 6, transformer: numericTransformerNotNull })
   rate: number;
 
   @Column({ type: 'text', nullable: true })

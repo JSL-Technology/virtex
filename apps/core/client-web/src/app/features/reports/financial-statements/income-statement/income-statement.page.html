@@ -1,0 +1,123 @@
+<div class="subview-container">
+  <div class="subview-header">
+    <h3>{{ 'REPORTS.INCOME_STATEMENT.TITULO' | translate }}</h3>
+    <div class="header-actions">
+      <label class="date-picker">
+        <lucide-icon [img]="CalendarIcon" size="16"></lucide-icon>
+        <span class="date-picker__label">{{ 'REPORTS.COMMON.DESDE' | translate }}</span>
+        <input type="date" [value]="startDate()" (change)="onStartDateChange($any($event.target).value)" />
+      </label>
+      <label class="date-picker">
+        <span class="date-picker__label">{{ 'REPORTS.COMMON.HASTA' | translate }}</span>
+        <input type="date" [value]="endDate()" (change)="onEndDateChange($any($event.target).value)" />
+      </label>
+      <button class="primary-button" type="button" (click)="load()">
+        <lucide-icon [img]="RefreshIcon" size="16"></lucide-icon>
+        <span>{{ 'REPORTS.COMMON.ACTUALIZAR' | translate }}</span>
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <p class="report-state">{{ 'REPORTS.COMMON.CARGANDO' | translate }}</p>
+  } @else if (failed()) {
+    <p class="report-state report-state--error">
+      {{ 'REPORTS.COMMON.NO_SE_PUDO_CARGAR' | translate }}
+      <button class="secondary-button" type="button" (click)="load()">
+        {{ 'REPORTS.COMMON.REINTENTAR' | translate }}
+      </button>
+    </p>
+  } @else if (report(); as data) {
+    <div class="report-container card">
+      <div class="report-header">
+        <h2>{{ 'REPORTS.INCOME_STATEMENT.TITULO' | translate }}</h2>
+        <p>
+          {{ data.period.startDate | vxDate: 'long' }} — {{ data.period.endDate | vxDate: 'long' }}
+          · {{ data.ledger.name }} ({{ data.ledger.currency }})
+        </p>
+      </div>
+
+      <div class="report-body">
+        <div class="report-section">
+          <div class="section-title"><span>{{ 'REPORTS.INCOME_STATEMENT.INGRESOS' | translate }}</span></div>
+          @for (section of data.revenue.sections; track section.category) {
+            @for (line of section.accounts; track line.accountId) {
+              <div class="report-line">
+                <span><span class="account-code">{{ line.code }}</span> {{ line.name | vxName }}</span>
+                <span class="amount">{{ line.amount | vxNumber: '1.2-2' }}</span>
+              </div>
+            }
+          }
+          <div class="report-line subtotal-line">
+            <span>{{ 'REPORTS.INCOME_STATEMENT.TOTAL_INGRESOS' | translate }}</span>
+            <span class="amount">{{ data.revenue.total | vxNumber: '1.2-2' }}</span>
+          </div>
+        </div>
+
+        <div class="report-section">
+          <div class="section-title"><span>{{ 'REPORTS.INCOME_STATEMENT.COSTO_DE_VENTAS' | translate }}</span></div>
+          @for (line of data.costOfSales.accounts; track line.accountId) {
+            <div class="report-line">
+              <span><span class="account-code">{{ line.code }}</span> {{ line.name | vxName }}</span>
+              <span class="amount">{{ line.amount | vxNumber: '1.2-2' }}</span>
+            </div>
+          }
+          <div class="report-line subtotal-line">
+            <span>{{ 'REPORTS.INCOME_STATEMENT.COSTO_DE_VENTAS' | translate }}</span>
+            <span class="amount">{{ data.costOfSales.total | vxNumber: '1.2-2' }}</span>
+          </div>
+          <div class="report-line total-line">
+            <span>
+              {{ 'REPORTS.INCOME_STATEMENT.UTILIDAD_BRUTA' | translate }}
+              @if (grossMargin() !== null) {
+                <span class="margin-hint">
+                  · {{ 'REPORTS.INCOME_STATEMENT.MARGEN_BRUTO' | translate }} {{ grossMargin()! | vxPercent: '1.1-1' }}
+                </span>
+              }
+            </span>
+            <span class="amount">{{ data.grossProfit | vxNumber: '1.2-2' }}</span>
+          </div>
+        </div>
+
+        <div class="report-section">
+          <div class="section-title"><span>{{ 'REPORTS.INCOME_STATEMENT.GASTOS_OPERACIONALES' | translate }}</span></div>
+          @for (line of data.operatingExpenses.accounts; track line.accountId) {
+            <div class="report-line">
+              <span><span class="account-code">{{ line.code }}</span> {{ line.name | vxName }}</span>
+              <span class="amount">{{ line.amount | vxNumber: '1.2-2' }}</span>
+            </div>
+          }
+          <div class="report-line subtotal-line">
+            <span>{{ 'REPORTS.INCOME_STATEMENT.GASTOS_OPERACIONALES' | translate }}</span>
+            <span class="amount">{{ data.operatingExpenses.total | vxNumber: '1.2-2' }}</span>
+          </div>
+          <div class="report-line total-line">
+            <span>{{ 'REPORTS.INCOME_STATEMENT.UTILIDAD_OPERACIONAL' | translate }}</span>
+            <span class="amount">{{ data.operatingIncome | vxNumber: '1.2-2' }}</span>
+          </div>
+        </div>
+
+        @if (data.nonOperating.accounts.length > 0) {
+          <div class="report-section">
+            <div class="section-title"><span>{{ 'REPORTS.INCOME_STATEMENT.OTROS_INGRESOS_GASTOS' | translate }}</span></div>
+            @for (line of data.nonOperating.accounts; track line.accountId) {
+              <div class="report-line">
+                <span><span class="account-code">{{ line.code }}</span> {{ line.name | vxName }}</span>
+                <span class="amount">{{ line.amount | vxNumber: '1.2-2' }}</span>
+              </div>
+            }
+            <div class="report-line subtotal-line">
+              <span>{{ 'REPORTS.INCOME_STATEMENT.OTROS_INGRESOS_GASTOS' | translate }}</span>
+              <span class="amount">{{ data.nonOperating.total | vxNumber: '1.2-2' }}</span>
+            </div>
+          </div>
+        }
+
+        <div class="report-line total-line grand-total">
+          <span>{{ 'REPORTS.INCOME_STATEMENT.RESULTADO_NETO' | translate }}</span>
+          <span class="amount">{{ data.netIncome | vxMoney: data.ledger.currency }}</span>
+        </div>
+      </div>
+    </div>
+  }
+</div>

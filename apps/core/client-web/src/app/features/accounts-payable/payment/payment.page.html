@@ -1,0 +1,126 @@
+<div class="form-container">
+  <div class="form-header">
+    <a class="back-link" routerLink="..">
+      <lucide-icon [img]="BackIcon" size="18"></lucide-icon>
+      <span>{{ 'ACCOUNTS_PAYABLE.LIST.FACTURAS_PROVEEDOR' | translate }}</span>
+    </a>
+    <h3>{{ 'ACCOUNTS_PAYABLE.PAYMENT.TITULO' | translate }}</h3>
+  </div>
+
+  @if (activeBankAccounts().length === 0) {
+    <p class="section-note">{{ 'TREASURY.SIN_CUENTAS' | translate }}</p>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="save()" class="card">
+      <div class="form-grid">
+        <label class="field">
+          <span>{{ 'ACCOUNTS_PAYABLE.PAYMENT.FECHA' | translate }} *</span>
+          <input type="date" formControlName="paymentDate" />
+        </label>
+
+        <label class="field">
+          <span>{{ 'ACCOUNTS_PAYABLE.PAYMENT.CUENTA_BANCARIA' | translate }} *</span>
+          <select
+            formControlName="bankAccountId"
+            (change)="onBankAccountChange($any($event.target).value)"
+          >
+            @for (account of activeBankAccounts(); track account.id) {
+              <option [value]="account.id">{{ account.name }} ({{ account.currencyCode }})</option>
+            }
+          </select>
+        </label>
+
+        <label class="field">
+          <span>{{ 'ACCOUNTING.RECONCILIATION.REFERENCIA' | translate }}</span>
+          <input type="text" formControlName="reference" maxlength="80" />
+        </label>
+      </div>
+
+      <h4 class="section-heading">{{ 'ACCOUNTS_PAYABLE.PAYMENT.FACTURAS_A_PAGAR' | translate }}</h4>
+
+      @if (payableBills().length === 0) {
+        <!--
+          Either nothing is owed, or nothing this account can settle: the server accepts a bill in
+          the account's own currency, or any bill from an account in the books' currency.
+        -->
+        <p class="section-note">{{ 'ACCOUNTS_PAYABLE.PAYMENT.SIN_FACTURAS' | translate }}</p>
+      } @else {
+        <div class="invoice-picker">
+          @for (bill of payableBills(); track bill.id) {
+            <button class="chip" type="button" (click)="addBill(bill)">
+              {{ bill.billNumber }} · {{ bill.vendorName }} ·
+              {{ bill.balance | vxMoney: bill.currencyCode }}
+            </button>
+          }
+        </div>
+      }
+
+      @if (lines.length > 0) {
+        <div class="table-wrapper">
+          <table class="lines-table" formArrayName="lines">
+            <thead>
+              <tr>
+                <th>{{ 'ACCOUNTS_PAYABLE.PAYMENT.FACTURA' | translate }}</th>
+                <th class="numeric">{{ 'ACCOUNTS_PAYABLE.PAYMENT.SALDO' | translate }}</th>
+                <th class="numeric">{{ 'ACCOUNTS_PAYABLE.PAYMENT.EFECTIVO' | translate }}</th>
+                <th class="numeric">{{ 'ACCOUNTS_PAYABLE.PAYMENT.ITBIS_RETENIDO' | translate }}</th>
+                <th class="numeric">{{ 'ACCOUNTS_PAYABLE.PAYMENT.ISR_RETENIDO' | translate }}</th>
+                <th class="numeric">{{ 'ACCOUNTS_PAYABLE.PAYMENT.DESCUENTO' | translate }}</th>
+                <th class="numeric">{{ 'ACCOUNTS_PAYABLE.PAYMENT.SALDA' | translate }}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (line of lines.controls; track $index; let i = $index) {
+                <tr [formGroupName]="i">
+                  <td>
+                    {{ line.value.billNumber }}
+                    <small>{{ line.value.vendorName }}</small>
+                  </td>
+                  <td class="numeric">
+                    {{ line.value.balance | vxMoney: line.value.currencyCode }}
+                  </td>
+                  <td class="numeric"><input type="number" step="0.01" formControlName="amount" /></td>
+                  <td class="numeric"><input type="number" step="0.01" formControlName="taxWithheld" /></td>
+                  <td class="numeric"><input type="number" step="0.01" formControlName="incomeTaxWithheld" /></td>
+                  <td class="numeric"><input type="number" step="0.01" formControlName="discount" /></td>
+                  <td class="numeric settled" [class.over]="exceedsBalance(line.value)">
+                    {{ settledBy(line.value) | vxNumber: '1.2-2' }}
+                  </td>
+                  <td>
+                    <button class="icon-button" type="button" (click)="removeLine(i)">×</button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="totals">
+          <div class="totals__line">
+            <span>{{ 'ACCOUNTS_PAYABLE.PAYMENT.EFECTIVO' | translate }}</span>
+            <span class="amount">{{ totals().cash | vxNumber: '1.2-2' }}</span>
+          </div>
+          <div class="totals__line">
+            <span>{{ 'ACCOUNTS_PAYABLE.PAYMENT.RETENCIONES' | translate }}</span>
+            <span class="amount">{{ totals().withheld | vxNumber: '1.2-2' }}</span>
+          </div>
+          <div class="totals__line">
+            <span>{{ 'ACCOUNTS_PAYABLE.PAYMENT.DESCUENTO' | translate }}</span>
+            <span class="amount">{{ totals().discount | vxNumber: '1.2-2' }}</span>
+          </div>
+          <div class="totals__line totals__line--total">
+            <span>{{ 'ACCOUNTS_PAYABLE.PAYMENT.SALDA' | translate }}</span>
+            <span class="amount">{{ totals().settled | vxNumber: '1.2-2' }}</span>
+          </div>
+        </div>
+      }
+
+      <div class="form-actions">
+        <a class="secondary-button" routerLink="..">{{ 'COMMON.CANCEL' | translate }}</a>
+        <button class="primary-button" type="submit" [disabled]="saving() || lines.length === 0">
+          {{ 'ACCOUNTS_PAYABLE.PAYMENT.PAGAR' | translate }}
+        </button>
+      </div>
+    </form>
+  }
+</div>

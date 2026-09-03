@@ -1,0 +1,79 @@
+@use "../../../../assets/styles/view-styles" as views;
+
+.date-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+
+  input {
+    border: none;
+    background: transparent;
+    color: var(--text-primary);
+    font: inherit;
+    padding: var(--space-2) 0;
+  }
+}
+
+.report-state {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  justify-content: center;
+  padding: var(--space-10);
+  color: var(--text-secondary);
+
+  &--error {
+    color: var(--error-text);
+  }
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.aging-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+
+  th,
+  td {
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+  }
+
+  thead th {
+    text-align: right;
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+
+  .party-column {
+    text-align: left;
+    white-space: normal;
+    min-width: 16rem;
+  }
+
+  .numeric {
+    text-align: right;
+  }
+
+  /* Anything past due reads differently from what is merely outstanding. */
+  .overdue {
+    color: var(--error-text);
+  }
+
+  .total {
+    font-weight: 600;
+  }
+
+  tfoot td {
+    font-weight: 700;
+    border-top: 2px solid var(--text-primary);
+  }
+}

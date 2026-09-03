@@ -4,6 +4,7 @@ import { Organization } from '../../organizations/entities/organization.entity';
 import { Ledger } from './ledger.entity';
 import { Account } from '../../chart-of-accounts/entities/account.entity';
 import { LedgerMappingRuleCondition } from './ledger-mapping-rule-condition.entity';
+import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 
 @Entity({ name: 'ledger_mapping_rules' })
 @Index(['sourceLedgerId', 'targetLedgerId', 'sourceAccountId'], { unique: true })
@@ -53,7 +54,7 @@ export class LedgerMappingRule {
   @JoinColumn({ name: 'target_account_id' })
   targetAccount: Account;
 
-  @Column('decimal', { precision: 18, scale: 6, default: 1.0 })
+  @Column('decimal', { precision: 18, scale: 6, default: 1.0, transformer: numericTransformerNotNull })
   multiplier: number;
 
 
