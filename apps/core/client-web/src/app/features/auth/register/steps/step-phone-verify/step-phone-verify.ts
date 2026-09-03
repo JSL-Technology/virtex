@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, Phone, AlertCircle, Loader } from 'lucide-angular';
 import { ReCaptchaV3Service, RecaptchaV3Module } from 'ng-recaptcha-19';
-import { switchMap } from 'rxjs/operators';
+import { switchMap, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { OtpComponent } from '../../../../../shared/components/otp/otp.component';
 import { AuthService } from '../../../../../core/services/auth';
@@ -42,17 +42,29 @@ export class StepPhoneVerify implements OnInit {
   sendError = signal<string | null>(null);
   isVerifying = signal(false);
 
+  /** The phone is optional. With no number there is nothing to verify, so the step becomes a skip. */
+  get hasPhone(): boolean {
+    return !!this.phone?.trim();
+  }
+
   ngOnInit() {
-    this.sendCode();
+    // Don't fire an SMS — or surface an error — for a step the user legitimately left blank.
+    if (this.hasPhone) {
+      this.sendCode();
+    }
   }
 
   sendCode() {
-    if (this.isSending()) return;
+    if (this.isSending() || !this.hasPhone) return;
     this.isSending.set(true);
     this.sendError.set(null);
 
+    // reCAPTCHA is best-effort: an invalid site key, an ad-blocker or a domain mismatch must not be
+    // able to block phone verification. The server decides whether a token is required (it honours
+    // RECAPTCHA_DISABLED via the guard's skipIf), so a failure here degrades to "no token" instead
+    // of tearing down the whole flow with a script error the user can do nothing about.
     const token$ = this.recaptchaV3Service
-      ? this.recaptchaV3Service.execute('phone_verify_send')
+      ? this.recaptchaV3Service.execute('phone_verify_send').pipe(catchError(() => of(undefined)))
       : of(undefined);
 
     token$.pipe(
@@ -76,7 +88,7 @@ export class StepPhoneVerify implements OnInit {
     this.isVerifying.set(true);
 
     const token$ = this.recaptchaV3Service
-      ? this.recaptchaV3Service.execute('phone_verify_check')
+      ? this.recaptchaV3Service.execute('phone_verify_check').pipe(catchError(() => of(undefined)))
       : of(undefined);
 
     token$.pipe(

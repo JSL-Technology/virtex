@@ -1,0 +1,78 @@
+// =============================================================================
+//  CAMPO DE TELÉFONO INTERNACIONAL
+// =============================================================================
+//  Selector de país + número nacional que produce E.164. El selector y el
+//  prefijo comparten el mismo cristal que el resto de los campos de acceso, de
+//  modo que el conjunto se lee como un único control y no como tres piezas
+//  sueltas.
+// =============================================================================
+@use '../../../../assets/styles/design-system' as ds;
+
+.intl-phone {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.intl-phone__label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--content-secondary);
+  letter-spacing: var(--tracking-wide);
+}
+
+.intl-phone__req {
+  margin-left: var(--space-1);
+  color: var(--accent-text);
+}
+
+.intl-phone__field {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-2);
+}
+
+.intl-phone__country {
+  @include ds.glass-field;
+  flex: 0 0 auto;
+  max-width: 11rem;
+  padding-right: var(--space-2);
+  cursor: pointer;
+}
+
+.intl-phone__dial {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-3);
+  font-variant-numeric: tabular-nums;
+  color: var(--content-secondary);
+  background-color: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+}
+
+.intl-phone__number {
+  @include ds.glass-field;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+// ── Error ────────────────────────────────────────────────────────────────────
+.intl-phone__error {
+  @include ds.field-error;
+  animation: vx-rise var(--duration-fast) var(--ease-decelerate) both;
+}
+
+.intl-phone--error {
+  .intl-phone__label { color: var(--error-text); }
+
+  .intl-phone__number,
+  .intl-phone__dial {
+    border-color: var(--error-border, var(--error-text));
+  }
+}
+
+@media (max-width: 30rem) {
+  .intl-phone__field { flex-wrap: wrap; }
+  .intl-phone__country { max-width: none; flex: 1 1 100%; }
+}

@@ -577,6 +577,7 @@
     "STEP_PHONE_VERIFY": {
       "CODIGO_VERIFICACION_SMS": "SMS verification code",
       "CONFIRMA_TU_NUMERO_CELULAR": "Confirm your mobile number",
+      "OPTIONAL_SKIP": "You didn't add a phone number. This step is optional: you can continue, or go back to add one.",
       "ENVIAMOS_SMS_CODIGO": "We sent an SMS with the code to",
       "ENVIANDO_SMS_PHONE": "Sending an SMS to {{phone}}…",
       "REINTENTAR": "Try again"
@@ -2080,6 +2081,7 @@
       "PASSWORD_LENGTH": "The password must be at least 12 characters long.",
       "PASSWORD_MISMATCH": "Passwords do not match.",
       "PASSWORD_WEAK": "The password needs an uppercase letter, a lowercase letter and a number or symbol.",
+      "PHONE_INVALID": "Enter a valid phone number for the selected country.",
       "PHONE_VERIFY_REQUIRED": "Verify your mobile number before continuing.",
       "RECAPTCHA": "We couldn't verify the form's security check. Please try again.",
       "REQUIRED": "This field is required.",
@@ -2112,7 +2114,8 @@
     "PASSWORD": "Password",
     "PASSWORD_PLACEHOLDER": "Create a secure password",
     "PHONE": "Phone",
-    "PHONE_PLACEHOLDER": "e.g. +1 809-555-5555",
+    "PHONE_PLACEHOLDER": "e.g. 809 555 5555",
+    "PHONE_COUNTRY": "Phone country",
     "PRIVACY": "Privacy Policy",
     "PROGRESS": {
       "ACCOUNT": "Account",

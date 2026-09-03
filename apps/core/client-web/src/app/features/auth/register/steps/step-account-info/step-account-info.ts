@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthInputComponent } from '../../../components/auth-input/auth-input.component';
+import { IntlPhoneInputComponent } from '../../../../../shared/components/intl-phone-input/intl-phone-input.component';
 import { PasswordStrengthComponent } from '../../../../../shared/components/password-strength/password-strength.component';
 import { HttpClient } from '@angular/common/http';
 import { AsyncValidators } from '../../../../../shared/validators/async.validators';
@@ -16,6 +17,7 @@ import { LucideAngularModule, User, Mail, Lock, Phone, AlertCircle } from 'lucid
     ReactiveFormsModule,
     TranslateModule,
     AuthInputComponent,
+    IntlPhoneInputComponent,
     PasswordStrengthComponent,
     LucideAngularModule,
   ],
