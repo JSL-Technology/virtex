@@ -57,6 +57,24 @@ export interface BankTransfer {
   journalEntryId: string | null;
 }
 
+export interface CreateBankAccount {
+  name: string;
+  bankName?: string | null;
+  accountNumber?: string | null;
+  iban?: string | null;
+  swiftBic?: string | null;
+  accountType: BankAccountType;
+  currencyCode: string;
+  glAccountId: string;
+  openingBalance?: number;
+  openingDate?: string | null;
+  notes?: string | null;
+}
+
+export type UpdateBankAccount = Partial<
+  Omit<CreateBankAccount, 'currencyCode' | 'glAccountId'>
+> & { isActive?: boolean };
+
 export interface CreateBankTransfer {
   date: string;
   amount: number;
@@ -75,6 +93,24 @@ export class TreasuryService {
 
   listBankAccounts(): Observable<BankAccount[]> {
     return this.http.get<BankAccount[]>(`${this.apiUrl}/bank-accounts`);
+  }
+
+  findBankAccount(id: string): Observable<BankAccount> {
+    return this.http.get<BankAccount>(`${this.apiUrl}/bank-accounts/${id}`);
+  }
+
+  createBankAccount(body: CreateBankAccount): Observable<BankAccount> {
+    return this.http.post<BankAccount>(`${this.apiUrl}/bank-accounts`, body);
+  }
+
+  /**
+   * The currency and the control account are deliberately absent from the update body.
+   *
+   * The server refuses them whatever is sent, because movements already posted were measured
+   * against both; sending them anyway would just make the form appear to accept an edit it cannot.
+   */
+  updateBankAccount(id: string, body: UpdateBankAccount): Observable<BankAccount> {
+    return this.http.patch<BankAccount>(`${this.apiUrl}/bank-accounts/${id}`, body);
   }
 
   cashPosition(asOfDate?: string): Observable<CashPosition> {

@@ -1,0 +1,135 @@
+<div class="form-container">
+  <div class="form-header">
+    <a class="back-link" routerLink="..">
+      <lucide-icon [img]="BackIcon" size="18"></lucide-icon>
+      <span>{{ 'ACCOUNTING.RECONCILIATION.TITULO' | translate }}</span>
+    </a>
+    <h3>{{ 'ACCOUNTING.RECONCILIATION.IMPORTAR' | translate }}</h3>
+  </div>
+
+  @if (bankAccounts().length === 0) {
+    <p class="import-state">{{ 'TREASURY.SIN_CUENTAS' | translate }}</p>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="submit()" class="card">
+      <div class="form-grid">
+        <label class="field">
+          <span>{{ 'ACCOUNTING.RECONCILIATION.SELECCIONE_CUENTA' | translate }} *</span>
+          <select formControlName="bankAccountId">
+            @for (account of bankAccounts(); track account.id) {
+              <option [value]="account.id">{{ account.name }} ({{ account.currencyCode }})</option>
+            }
+          </select>
+        </label>
+
+        <label class="field">
+          <span>{{ 'ACCOUNTING.RECONCILIATION.IMPORT.ARCHIVO' | translate }} *</span>
+          <input type="file" accept=".csv,text/csv" (change)="onFileSelected($event)" />
+        </label>
+
+        <label class="field">
+          <span>{{ 'REPORTS.COMMON.DESDE' | translate }} *</span>
+          <input type="date" formControlName="startDate" />
+        </label>
+
+        <label class="field">
+          <span>{{ 'REPORTS.COMMON.HASTA' | translate }} *</span>
+          <input type="date" formControlName="endDate" />
+        </label>
+
+        <label class="field">
+          <span>{{ 'ACCOUNTING.RECONCILIATION.SALDO_INICIAL' | translate }} *</span>
+          <input type="number" step="0.01" formControlName="startingBalance" />
+        </label>
+
+        <label class="field">
+          <span>{{ 'ACCOUNTING.RECONCILIATION.SALDO_FINAL' | translate }} *</span>
+          <input type="number" step="0.01" formControlName="endingBalance" />
+        </label>
+      </div>
+
+      <h4 class="section-heading">{{ 'ACCOUNTING.RECONCILIATION.IMPORT.MAPEO' | translate }}</h4>
+      <p class="section-note">{{ 'ACCOUNTING.RECONCILIATION.IMPORT.MAPEO_AYUDA' | translate }}</p>
+
+      <div class="form-grid">
+        <label class="field">
+          <span>{{ 'ACCOUNTING.RECONCILIATION.IMPORT.COLUMNA_FECHA' | translate }} *</span>
+          <input type="text" formControlName="dateColumn" />
+        </label>
+
+        <label class="field">
+          <span>{{ 'ACCOUNTING.RECONCILIATION.IMPORT.COLUMNA_CONCEPTO' | translate }} *</span>
+          <input type="text" formControlName="descriptionColumn" />
+        </label>
+
+        <label class="field">
+          <span>{{ 'ACCOUNTING.RECONCILIATION.IMPORT.COLUMNA_REFERENCIA' | translate }}</span>
+          <input type="text" formControlName="referenceColumn" />
+        </label>
+
+        <label class="field">
+          <span>{{ 'ACCOUNTING.RECONCILIATION.IMPORT.COLUMNA_ENTRADA' | translate }}</span>
+          <input type="text" formControlName="debitColumn" />
+        </label>
+
+        <label class="field">
+          <span>{{ 'ACCOUNTING.RECONCILIATION.IMPORT.COLUMNA_SALIDA' | translate }}</span>
+          <input type="text" formControlName="creditColumn" />
+        </label>
+
+        <label class="field">
+          <span>{{ 'ACCOUNTING.RECONCILIATION.IMPORT.COLUMNA_MONTO' | translate }}</span>
+          <input type="text" formControlName="amountColumn" />
+        </label>
+      </div>
+
+      @if (!hasAmountMapping()) {
+        <p class="field__error">{{ 'ACCOUNTING.RECONCILIATION.IMPORT.FALTA_MONTO' | translate }}</p>
+      }
+
+      <div class="form-grid">
+        <!--
+          Neither of these has a safe default. The same eight characters are two different dates in
+          the two markets this product sells into, and the same digits are two amounts three orders
+          of magnitude apart.
+        -->
+        <label class="field">
+          <span>{{ 'ACCOUNTING.RECONCILIATION.IMPORT.FORMATO_FECHA' | translate }} *</span>
+          <select formControlName="dateFormat">
+            @for (format of dateFormats; track format) {
+              <option [value]="format">{{ format }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="field">
+          <span>{{ 'ACCOUNTING.RECONCILIATION.IMPORT.SEPARADOR_DECIMAL' | translate }}</span>
+          <select formControlName="decimalSeparator">
+            @for (format of numberFormats; track format.separator) {
+              <option [value]="format.separator">{{ format.sample }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="field field--checkbox">
+          <input type="checkbox" formControlName="positiveAmountIsMoneyIn" />
+          <span>{{ 'ACCOUNTING.RECONCILIATION.IMPORT.POSITIVO_ES_ENTRADA' | translate }}</span>
+        </label>
+      </div>
+
+      @if (importError(); as detail) {
+        <p class="import-error" role="alert">
+          {{ 'ACCOUNTING.RECONCILIATION.IMPORT.FALLO' | translate }}
+          <code>{{ detail }}</code>
+        </p>
+      }
+
+      <div class="form-actions">
+        <a class="secondary-button" routerLink="..">{{ 'COMMON.CANCEL' | translate }}</a>
+        <button class="primary-button" type="submit" [disabled]="uploading()">
+          <lucide-icon [img]="UploadIcon" size="16"></lucide-icon>
+          <span>{{ 'ACCOUNTING.RECONCILIATION.IMPORTAR' | translate }}</span>
+        </button>
+      </div>
+    </form>
+  }
+</div>

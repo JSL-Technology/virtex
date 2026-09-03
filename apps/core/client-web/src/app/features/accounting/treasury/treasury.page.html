@@ -11,10 +11,14 @@
           [attr.aria-label]="'TREASURY.AL_CORTE' | translate"
         />
       </label>
-      <button class="primary-button" type="button" (click)="load()">
+      <button class="secondary-button" type="button" (click)="load()">
         <lucide-icon [img]="RefreshIcon" size="16"></lucide-icon>
         <span>{{ 'REPORTS.COMMON.ACTUALIZAR' | translate }}</span>
       </button>
+      <a class="primary-button" routerLink="bank-accounts/new">
+        <lucide-icon [img]="BankIcon" size="16"></lucide-icon>
+        <span>{{ 'TREASURY.FORM.NUEVA_CUENTA' | translate }}</span>
+      </a>
     </div>
   </div>
 
@@ -46,10 +50,10 @@
             @for (row of cash.accounts; track row.bankAccountId) {
               <tr>
                 <td>
-                  <span class="account-name">
+                  <a class="account-name table-link" [routerLink]="['bank-accounts', row.bankAccountId, 'edit']">
                     <lucide-icon [img]="BankIcon" size="14"></lucide-icon>
                     {{ row.name }}
-                  </span>
+                  </a>
                 </td>
                 <td>{{ row.bankName ?? '—' }}</td>
                 <td class="masked">{{ row.accountNumberMasked ?? '—' }}</td>

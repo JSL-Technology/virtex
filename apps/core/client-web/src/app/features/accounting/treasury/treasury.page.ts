@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { LucideAngularModule, Calendar, Landmark, RefreshCw } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
@@ -25,7 +26,7 @@ import { toIsoDate } from '../../reports/financial-statements/report-period';
 @Component({
   selector: 'app-treasury-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './treasury.page.html',
   styleUrls: ['./treasury.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

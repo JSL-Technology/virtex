@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import {
   LucideAngularModule,
   AlertCircle,
@@ -8,6 +9,7 @@ import {
   Clock,
   Link2,
   Undo2,
+  Upload,
   Wand2,
   XCircle,
 } from 'lucide-angular';
@@ -43,7 +45,14 @@ import {
 @Component({
   selector: 'app-account-reconciliation-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    LucideAngularModule,
+    TranslateModule,
+    ...FORMAT_PIPES,
+  ],
   templateUrl: './account-reconciliation.page.html',
   styleUrls: ['./account-reconciliation.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -59,6 +68,7 @@ export class AccountReconciliationPage {
   protected readonly UndoIcon = Undo2;
   protected readonly RulesIcon = Wand2;
   protected readonly ExcludeIcon = XCircle;
+  protected readonly ImportIcon = Upload;
 
   readonly bankAccounts = signal<BankAccount[]>([]);
   readonly selectedBankAccountId = signal<string | null>(null);

@@ -35,6 +35,24 @@ export interface BankStatement {
   transactions?: BankTransaction[];
 }
 
+export interface ImportStatementOptions {
+  bankAccountId: string;
+  startDate: string;
+  endDate: string;
+  startingBalance: number;
+  endingBalance: number;
+  dateColumn: string;
+  descriptionColumn: string;
+  referenceColumn?: string;
+  debitColumn?: string;
+  creditColumn?: string;
+  amountColumn?: string;
+  /** `date-fns` tokens: `dd/MM/yyyy`, `MM/dd/yyyy`, `yyyy-MM-dd`. */
+  dateFormat: string;
+  decimalSeparator?: '.' | ',';
+  positiveAmountIsMoneyIn?: boolean;
+}
+
 export interface MatchCandidate {
   journalEntryLineId: string;
   journalEntryId: string;
@@ -101,6 +119,25 @@ export interface ReconciliationMatch {
 export class ReconciliationApiService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/reconciliation`;
+
+  /**
+   * Import a statement.
+   *
+   * Sent as multipart because the CSV travels with its column mapping: which column holds the
+   * date, how that bank writes one, and whether `1.234,56` means a thousand or one and a bit. The
+   * importer refuses a file it cannot read rather than guessing, so every one of these is required
+   * to be right.
+   */
+  importStatement(file: File, options: ImportStatementOptions): Observable<BankStatement> {
+    const body = new FormData();
+    body.append('file', file, file.name);
+    for (const [key, value] of Object.entries(options)) {
+      if (value !== undefined && value !== null && value !== '') {
+        body.append(key, String(value));
+      }
+    }
+    return this.http.post<BankStatement>(`${this.apiUrl}/statements`, body);
+  }
 
   listStatements(bankAccountId?: string): Observable<BankStatement[]> {
     const params = bankAccountId

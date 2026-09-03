@@ -1,0 +1,112 @@
+<div class="form-container">
+  <div class="form-header">
+    <a class="back-link" routerLink="../..">
+      <lucide-icon [img]="BackIcon" size="18"></lucide-icon>
+      <span>{{ 'TREASURY.CUENTAS_BANCARIAS' | translate }}</span>
+    </a>
+    <h3>
+      {{ (isEditMode() ? 'TREASURY.FORM.EDITAR_CUENTA' : 'TREASURY.FORM.NUEVA_CUENTA') | translate }}
+    </h3>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="save()" class="card">
+    <div class="form-grid">
+      <label class="field">
+        <span>{{ 'TREASURY.FORM.NOMBRE' | translate }} *</span>
+        <input type="text" formControlName="name" maxlength="120" />
+      </label>
+
+      <label class="field">
+        <span>{{ 'TREASURY.BANCO' | translate }}</span>
+        <input type="text" formControlName="bankName" maxlength="120" />
+      </label>
+
+      <label class="field">
+        <span>{{ 'TREASURY.NUMERO' | translate }}</span>
+        <input type="text" formControlName="accountNumber" maxlength="60" />
+      </label>
+
+      <label class="field">
+        <span>{{ 'TREASURY.FORM.TIPO' | translate }} *</span>
+        <select formControlName="accountType">
+          <option value="CHECKING">{{ 'TREASURY.FORM.TIPOS.CHECKING' | translate }}</option>
+          <option value="SAVINGS">{{ 'TREASURY.FORM.TIPOS.SAVINGS' | translate }}</option>
+          <option value="CASH">{{ 'TREASURY.FORM.TIPOS.CASH' | translate }}</option>
+          <option value="CREDIT_CARD">{{ 'TREASURY.FORM.TIPOS.CREDIT_CARD' | translate }}</option>
+        </select>
+      </label>
+
+      <!--
+        Neither of the next two can change once movements exist: both were used to measure every
+        entry already posted. The server refuses them on an update, so the form disables them
+        rather than appearing to accept an edit that will not happen.
+      -->
+      <label class="field">
+        <span>{{ 'TREASURY.MONEDA' | translate }} *</span>
+        <select formControlName="currencyCode">
+          <option value=""></option>
+          @for (code of currencyCodes(); track code) {
+            <option [value]="code">{{ code }}</option>
+          }
+        </select>
+        @if (isEditMode()) {
+          <small class="field__note">{{ 'TREASURY.FORM.NO_MODIFICABLE' | translate }}</small>
+        }
+      </label>
+
+      <label class="field">
+        <span>{{ 'TREASURY.FORM.CUENTA_CONTABLE' | translate }} *</span>
+        <select formControlName="glAccountId">
+          <option value=""></option>
+          @for (account of postableAccounts(); track account.id) {
+            <option [value]="account.id">{{ account.code }} — {{ account.name | vxName }}</option>
+          }
+        </select>
+        @if (isEditMode()) {
+          <small class="field__note">{{ 'TREASURY.FORM.NO_MODIFICABLE' | translate }}</small>
+        }
+      </label>
+
+      @if (!isEditMode()) {
+        <label class="field">
+          <span>{{ 'TREASURY.FORM.SALDO_INICIAL' | translate }}</span>
+          <input type="number" step="0.01" formControlName="openingBalance" />
+        </label>
+
+        <label class="field">
+          <span>{{ 'TREASURY.FORM.FECHA_APERTURA' | translate }}</span>
+          <input type="date" formControlName="openingDate" />
+        </label>
+      }
+
+      <label class="field">
+        <span>{{ 'TREASURY.FORM.IBAN' | translate }}</span>
+        <input type="text" formControlName="iban" maxlength="34" />
+      </label>
+
+      <label class="field">
+        <span>{{ 'TREASURY.FORM.SWIFT_BIC' | translate }}</span>
+        <input type="text" formControlName="swiftBic" maxlength="11" />
+      </label>
+
+      <label class="field field--wide">
+        <span>{{ 'TREASURY.FORM.NOTAS' | translate }}</span>
+        <textarea formControlName="notes" rows="3"></textarea>
+      </label>
+
+      @if (isEditMode()) {
+        <label class="field field--checkbox">
+          <input type="checkbox" formControlName="isActive" />
+          <span>{{ 'TREASURY.FORM.ACTIVA' | translate }}</span>
+        </label>
+      }
+    </div>
+
+    <div class="form-actions">
+      <a class="secondary-button" routerLink="../..">{{ 'COMMON.CANCEL' | translate }}</a>
+      <button class="primary-button" type="submit" [disabled]="saving()">
+        {{ 'COMMON.SAVE' | translate }}
+      </button>
+    </div>
+  </form>
+</div>

@@ -2,6 +2,10 @@
   <div class="subview-header">
     <h3>{{ 'ACCOUNTING.RECONCILIATION.TITULO' | translate }}</h3>
     <div class="header-actions">
+      <a class="primary-button" routerLink="../reconciliation/import">
+        <lucide-icon [img]="ImportIcon" size="16"></lucide-icon>
+        <span>{{ 'ACCOUNTING.RECONCILIATION.IMPORTAR' | translate }}</span>
+      </a>
       @if (selectedStatementId()) {
         <button class="secondary-button" type="button" (click)="applyRules()" [disabled]="working()">
           <lucide-icon [img]="RulesIcon" size="16"></lucide-icon>
