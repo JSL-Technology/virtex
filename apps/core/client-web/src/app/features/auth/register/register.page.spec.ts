@@ -138,7 +138,9 @@ describe('RegisterPage', () => {
       lastName: 'Doe',
       email: 'test@example.com',
       emailCode: '123456',
-      phone: '+18090000000',
+      // A real, valid E.164 number: the phone field now validates with libphonenumber (via
+      // IntlPhoneInputComponent), so a placeholder like +18090000000 would be correctly rejected.
+      phone: '+18092345678',
       phoneCode: '123456',
       passwordGroup: { password: 'Password123!Strong', confirmPassword: 'Password123!Strong' },
     });

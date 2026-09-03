@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, Mail, CheckCircle, AlertCircle, Loader } from 'lucide-angular';
 import { ReCaptchaV3Service, RecaptchaV3Module } from 'ng-recaptcha-19';
-import { switchMap } from 'rxjs/operators';
+import { switchMap, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { OtpComponent } from '../../../../../shared/components/otp/otp.component';
 import { AuthService } from '../../../../../core/services/auth';
@@ -52,8 +52,11 @@ export class StepEmailVerify implements OnInit {
     this.isSending.set(true);
     this.sendError.set(null);
 
+    // reCAPTCHA is best-effort: a script/domain/key problem must not block email verification. The
+    // server governs whether a token is required (RECAPTCHA_DISABLED via the guard's skipIf), so a
+    // failure here degrades to "no token" rather than tearing the flow down.
     const token$ = this.recaptchaV3Service
-      ? this.recaptchaV3Service.execute('email_verify_send')
+      ? this.recaptchaV3Service.execute('email_verify_send').pipe(catchError(() => of(undefined)))
       : of(undefined);
 
     token$.pipe(
@@ -77,7 +80,7 @@ export class StepEmailVerify implements OnInit {
     this.isVerifying.set(true);
 
     const token$ = this.recaptchaV3Service
-      ? this.recaptchaV3Service.execute('email_verify_check')
+      ? this.recaptchaV3Service.execute('email_verify_check').pipe(catchError(() => of(undefined)))
       : of(undefined);
 
     token$.pipe(

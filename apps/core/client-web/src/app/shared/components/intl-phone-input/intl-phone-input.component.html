@@ -1,0 +1,39 @@
+<div class="intl-phone" [class.intl-phone--error]="showError()">
+  @if (label) {
+    <label class="intl-phone__label" [attr.for]="inputId">
+      {{ label }}@if (required) {<span class="intl-phone__req" aria-hidden="true">*</span>}
+    </label>
+  }
+
+  <div class="intl-phone__field">
+    <select
+      class="intl-phone__country"
+      [value]="region()"
+      (change)="onRegionChange($any($event.target).value)"
+      (blur)="markTouched()"
+      [disabled]="disabled()"
+      [attr.aria-label]="'REGISTER.PHONE_COUNTRY' | translate">
+      @for (c of countries(); track c.countryCode) {
+        <option [value]="c.countryCode">{{ c.name }} (+{{ c.callingCode }})</option>
+      }
+    </select>
+
+    <span class="intl-phone__dial" aria-hidden="true">+{{ dialCode() }}</span>
+
+    <input
+      [id]="inputId"
+      class="intl-phone__number"
+      type="tel"
+      inputmode="tel"
+      autocomplete="tel-national"
+      [value]="national()"
+      (input)="onNationalInput($any($event.target).value)"
+      (blur)="markTouched()"
+      [disabled]="disabled()"
+      [placeholder]="placeholder" />
+  </div>
+
+  @if (showError()) {
+    <p class="intl-phone__error">{{ 'REGISTER.ERRORS.PHONE_INVALID' | translate }}</p>
+  }
+</div>
