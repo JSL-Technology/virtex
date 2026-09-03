@@ -5,9 +5,6 @@ import { JournalsService } from '../../../core/api/journals.service';
 import { NotificationService } from '../../../core/services/notification';
 import { Journal } from '../../../core/models/journal.model';
 import { TranslateModule } from '@ngx-translate/core';
-// import { JournalsService } from '@app/core/api/journals.service';
-// import { Journal } from '@app/core/models/journal.model';
-// import { NotificationService } from '@app/core/services/notification';
 
 @Component({
   selector: 'app-journal-form',
@@ -52,16 +49,31 @@ export class JournalFormPage implements OnInit {
 
     const journalData: Journal = this.journalForm.value;
 
-    if (this.isEditMode && this.journalId) {
-      this.journalsService.update(this.journalId, journalData).subscribe(() => {
-        console.log('Journal updated successfully');
+    // Success went to `console.log` and failure went nowhere at all: a rejected save left the
+    // user on an unchanged form with no navigation and no message, indistinguishable from a
+    // click that had not registered.
+    const request =
+      this.isEditMode && this.journalId
+        ? this.journalsService.update(this.journalId, journalData)
+        : this.journalsService.create(journalData);
+
+    request.subscribe({
+      next: () => {
+        this.notification.showSuccess(
+          this.isEditMode
+            ? 'ACCOUNTING.JOURNAL_FORM.DIARIO_ACTUALIZADO'
+            : 'ACCOUNTING.JOURNAL_FORM.DIARIO_CREADO',
+        );
         this.router.navigate(['/accounting/journals']);
-      });
-    } else {
-      this.journalsService.create(journalData).subscribe(() => {
-        console.log('Journal created successfully');
-        this.router.navigate(['/accounting/journals']);
-      });
-    }
+      },
+      error: (error: { error?: { message?: string } }) => {
+        const message = error?.error?.message;
+        this.notification.showError(
+          typeof message === 'string'
+            ? message
+            : 'ACCOUNTING.JOURNAL_FORM.NO_SE_PUDO_GUARDAR',
+        );
+      },
+    });
   }
 }

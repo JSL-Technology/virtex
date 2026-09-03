@@ -852,18 +852,21 @@
       "REQUIRED_FIELDS_ERROR": "Completa todos los campos obligatorios."
     },
     "JOURNAL_FORM": {
-      "NAME": "Nombre",
-      "CODE": "Código",
-      "TYPE": "Tipo",
-      "SALES": "Ventas",
-      "PURCHASES": "Compras",
-      "CASH": "Caja",
       "BANK": "Banco",
-      "GENERAL": "General",
-      "SAVE": "Guardar",
       "CANCEL": "Cancelar",
+      "CASH": "Caja",
+      "CODE": "Código",
+      "DIARIO_ACTUALIZADO": "Diario actualizado.",
+      "DIARIO_CREADO": "Diario creado.",
+      "GENERAL": "General",
+      "NAME": "Nombre",
+      "NO_SE_PUDO_GUARDAR": "No se pudo guardar el diario.",
+      "PURCHASES": "Compras",
+      "SALES": "Ventas",
+      "SAVE": "Guardar",
+      "TITLE_CREATE": "Nuevo diario",
       "TITLE_EDIT": "Editar diario",
-      "TITLE_CREATE": "Nuevo diario"
+      "TYPE": "Tipo"
     },
     "JOURNAL_LIST": {
       "JOURNALS": "Diarios",
