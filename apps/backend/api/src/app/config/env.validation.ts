@@ -204,7 +204,7 @@ export const envValidation = Joi.object({
     then: Joi.string().email().default('no-reply@virteex.local'),
     otherwise: Joi.string().email().required(),
   }),
-  MAIL_FROM_NAME: devDefault('Virteex'),
+  MAIL_FROM_NAME: devDefault('Virtex'),
   /** Implicit TLS (port 465). Port 587 upgrades with STARTTLS and must leave this false. */
   MAIL_SECURE: Joi.boolean().default(false),
 

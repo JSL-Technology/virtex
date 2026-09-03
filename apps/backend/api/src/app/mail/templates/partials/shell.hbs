@@ -1,0 +1,123 @@
+{{!--
+  El envoltorio de TODOS los correos: documento, estilos, modo oscuro, cabecera
+  con el logotipo y pie. Un mensaje se limita a su contenido:
+
+      {{#> shell title=(t 'MAIL.X.SUBJECT') preheader=(t 'MAIL.X.PREHEADER')}}
+        ...
+      {{/shell}}
+
+  `title` y `preheader` son OBLIGATORIOS. Handlebars corre en modo estricto, así
+  que una plantilla que olvide uno falla al compilar y no en la bandeja de
+  entrada de alguien.
+--}}
+<!DOCTYPE html>
+<html lang="{{language}}" dir="{{dir}}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="x-apple-disable-message-reformatting">
+  <meta name="color-scheme" content="light dark">
+  <meta name="supported-color-schemes" content="light dark">
+  <title>{{title}}</title>
+  <style>
+    html, body { margin:0 !important; padding:0 !important; width:100% !important; }
+    * { -ms-text-size-adjust:100%; -webkit-text-size-adjust:100%; }
+    table, td { mso-table-lspace:0pt; mso-table-rspace:0pt; border-collapse:collapse !important; }
+    img { -ms-interpolation-mode:bicubic; border:0; outline:none; text-decoration:none; }
+    a { text-decoration:none; }
+    .hover-underline:hover { text-decoration:underline !important; }
+
+    @media screen and (max-width: 600px) {
+      .container { width:100% !important; }
+      .content { padding:28px 24px !important; }
+      .header, .footer { padding:22px 24px !important; }
+      h1 { font-size:22px !important; line-height:28px !important; }
+      .btn a { display:block !important; }
+    }
+
+    {{!--
+      Modo oscuro. Los neutros son los mismos de Teams que usa la aplicación,
+      para que un correo abierto de noche siga siendo el mismo producto.
+    --}}
+    @media (prefers-color-scheme: dark) {
+      .bg-body { background:{{brand 'darkGround'}} !important; }
+      .bg-card { background:{{brand 'darkCard'}} !important; }
+      .bg-sunken { background:{{brand 'darkSunken'}} !important; }
+      .ink { color:{{brand 'darkInk'}} !important; }
+      .ink2 { color:{{brand 'darkInk2'}} !important; }
+      .ink3 { color:{{brand 'darkInk3'}} !important; }
+      .link { color:{{brand 'darkLink'}} !important; }
+      .btn a { background:{{brand 'darkAccent'}} !important; }
+    }
+  </style>
+  <!--[if mso]>
+    <style>
+      body, table, td, a { font-family: 'Segoe UI', Arial, sans-serif !important; }
+    </style>
+  <![endif]-->
+</head>
+<body class="bg-body" style="margin:0; padding:0; background:{{brand 'ground'}};">
+  {{!-- Preheader: lo que se lee en la lista de la bandeja, antes de abrir. --}}
+  <div style="display:none !important; visibility:hidden; opacity:0; color:transparent; height:0; width:0; max-height:0; max-width:0; overflow:hidden; mso-hide:all;">{{preheader}}</div>
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="bg-body" style="background:{{brand 'ground'}};">
+    <tr>
+      {{!--
+        Esta celda se pinta EXPLÍCITAMENTE, aunque su tabla ya lleve el mismo
+        fondo. Es la que se ve por detrás de las esquinas redondeadas de la
+        tarjeta, y un cliente que hereda mal —o que invierte los colores por su
+        cuenta, como Gmail en Android— deja ahí una muesca clara. Pintarla es
+        más barato que descubrirlo en la bandeja de alguien.
+      --}}
+      <td align="center" class="bg-body" style="background:{{brand 'ground'}}; padding:32px 16px;">
+        <table role="presentation" class="container" width="600" cellpadding="0" cellspacing="0" style="width:600px;">
+
+          {{!-- Cabecera. El azulejo va como imagen y la palabra como texto: si
+                el cliente bloquea imágenes, la marca se sigue leyendo. --}}
+          <tr>
+            <td class="header bg-body" align="{{#if (rtl)}}right{{else}}left{{/if}}" style="background:{{brand 'ground'}}; padding:0 4px 18px;">
+              <a href="{{appUrl}}" style="text-decoration:none;">
+                <img src="{{logoUrl}}" width="34" height="34" alt="" style="vertical-align:middle; border-radius:8px;">
+                <span style="font:600 21px/1 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}}; vertical-align:middle; padding-{{#if (rtl)}}right{{else}}left{{/if}}:10px;" class="ink">{{appName}}</span>
+              </a>
+            </td>
+          </tr>
+
+          {{!-- Tarjeta --}}
+          <tr>
+            {{!--
+              Fondo y radio, SIN borde. Un `border` de 1 px junto a un
+              `border-radius` es lo que produce el fleco en la esquina: el
+              cliente dibuja el marco cuadrado y el relleno redondeado, y entre
+              los dos asoma el lienzo. La tarjeta se separa por luminosidad, que
+              es lo que hace la aplicación.
+            --}}
+            <td class="bg-card" style="background:{{brand 'card'}}; border-radius:12px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td class="content" style="padding:36px 40px;">
+                    {{> @partial-block}}
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          {{!-- Pie --}}
+          <tr>
+            <td class="footer bg-body" align="center" style="background:{{brand 'ground'}}; padding:22px 24px 0;">
+              <p class="ink3" style="margin:0; font:400 12px/1.7 {{brand 'font'}}; color:{{brand 'ink3'}};">
+                {{t 'MAIL.COMMON.COPYRIGHT' currentYear=currentYear appName=appName}}
+              </p>
+              <p class="ink3" style="margin:4px 0 0; font:400 12px/1.7 {{brand 'font'}}; color:{{brand 'ink3'}};">
+                {{t 'MAIL.COMMON.TRANSACTIONAL_NOTICE'}}
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

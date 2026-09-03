@@ -110,7 +110,7 @@ export class PasswordService {
         signal: controller.signal,
         headers: {
           'Add-Padding': 'true', // pads the response so its size reveals nothing
-          'User-Agent': 'Virteex-Auth',
+          'User-Agent': 'Virtex-Auth',
         },
       });
       if (!response.ok) return;

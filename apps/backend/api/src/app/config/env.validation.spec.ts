@@ -45,7 +45,7 @@ const productionEnv = (): Record<string, string> => ({
   MAIL_USER: 'postmaster',
   MAIL_PASSWORD: 'hunter2',
   MAIL_FROM_ADDRESS: 'no-reply@virteex.com',
-  MAIL_FROM_NAME: 'Virteex',
+  MAIL_FROM_NAME: 'Virtex',
 });
 
 describe('environment validation', () => {

@@ -55,7 +55,7 @@ export class TwoFactorAuthService {
     }
 
     const secret = authenticator.generateSecret();
-    const appName = this.configService.get<string>('APP_NAME') || 'Virteex ERP';
+    const appName = this.configService.get<string>('APP_NAME') || 'Virtex';
     const otpauthUrl = authenticator.keyuri(user.email, appName, secret);
 
     security.pendingTwoFactorSecret = this.cryptoUtil.encrypt(secret);

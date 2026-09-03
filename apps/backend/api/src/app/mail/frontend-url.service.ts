@@ -162,4 +162,21 @@ export class FrontendUrlService {
   registerCancelled(language?: string | null, country?: string | null): string {
     return `${this.origin}/${this.language(language)}/${this.country(country)}/auth/register`;
   }
+
+  /** The product's own front door, for the logotype in an email header. */
+  home(): string {
+    return this.origin;
+  }
+
+  /**
+   * The brand tile, for the logotype in an email header.
+   *
+   * A remote image and not an inline one: `data:` URIs are stripped by Gmail and by Outlook on
+   * the web, so an embedded logo is a broken image in the two clients that matter most. The
+   * header pairs it with the product name as live text, which is what the recipient reads when
+   * their client blocks remote images — the brand survives either way.
+   */
+  brandTile(): string {
+    return `${this.origin}/icons/icon-192x192.png`;
+  }
 }

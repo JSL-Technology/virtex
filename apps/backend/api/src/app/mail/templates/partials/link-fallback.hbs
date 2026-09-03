@@ -1,0 +1,8 @@
+{{!--
+  La URL a la vista, para cuando el botón no sobrevive al cliente de correo.
+  `{{> link-fallback href=url label=(t 'CLAVE')}}`
+--}}
+<p class="ink3" style="margin:22px 0 0; font:400 14px/1.65 {{brand 'font'}}; color:{{brand 'ink3'}};">{{label}}</p>
+<p class="bg-sunken" style="margin:10px 0 0; font:400 13px/1.6 {{brand 'mono'}}; word-break:break-all; background:{{brand 'sunken'}}; border-radius:10px; padding:14px 16px;">
+  <a class="link hover-underline" href="{{href}}" style="color:{{brand 'accentText'}};">{{href}}</a>
+</p>

@@ -53,7 +53,124 @@ $neutral: (
 );
 
 // -----------------------------------------------------------------------------
-//  AZUL — Acento de marca
+//  GRAFITO — Neutros del tema oscuro (Microsoft Teams)
+// -----------------------------------------------------------------------------
+//  El tema oscuro adopta la rampa neutra de Teams. Los valores NO están
+//  transcritos de memoria: se extrajeron del paquete `@fluentui/tokens`
+//  (`teamsDarkTheme`), de modo que cada tramo corresponde a un token real y no
+//  a una aproximación.
+//
+//  Es una rampa de gris PURO, sin el tinte frío de `$neutral`. Ese es
+//  justamente el motivo de traerla: un fondo sin croma no compite con el
+//  violeta de marca, así que el acento se percibe más saturado sobre ella que
+//  sobre un gris azulado. El tema claro conserva `$neutral`, que sí lleva
+//  tinte: sobre blanco el problema es el contrario.
+//
+//  Correspondencia con los tokens de Fluent:
+//    1000 → NeutralBackground5      950 → NeutralBackground4
+//     920 → NeutralBackground3      900 → NeutralBackground2
+//     875 → NeutralBackground1      850 → SubtleBackgroundPressed
+//     800 → NeutralBackground6      760 → SubtleBackgroundHover
+//     750 → NeutralStroke3          700 → NeutralStroke2
+//     600 → NeutralStroke1          550 → NeutralForegroundDisabled
+//     500 → NeutralForeground4      400 → NeutralForeground3 / StrokeAccessible
+//     300 → NeutralForeground2      100 → superficie inversa
+// -----------------------------------------------------------------------------
+$graphite: (
+  0: #ffffff,
+  100: #f5f5f5,
+  200: #e0e0e0,
+  300: #d6d6d6,
+  400: #adadad,
+  500: #999999,
+  550: #5c5c5c,
+  600: #666666,
+  700: #525252,
+  750: #3d3d3d,
+  760: #383838,
+  800: #333333,
+  850: #2e2e2e,
+  875: #292929,
+  900: #242424,
+  920: #1f1f1f,
+  950: #141414,
+  1000: #0a0a0a,
+);
+
+// -----------------------------------------------------------------------------
+//  MARCA — Colores fijos del logotipo
+// -----------------------------------------------------------------------------
+//  ESTOS COLORES NO SON TOKENS DE INTERFAZ Y NO SE TEMATIZAN.
+//
+//  El logotipo antes se pintaba con `--content-primary` y `--accent-solid`. Eso
+//  tenía dos consecuencias que la marca no puede permitirse: el símbolo era
+//  casi todo tinta —negro sobre claro, blanco sobre oscuro—, de modo que no
+//  aportaba reconocimiento por color; y cuando una organización personalizaba
+//  su acento, el logotipo de Virtex cambiaba de color con él.
+//
+//  Ahora el símbolo lleva color propio, idéntico en los dos temas, y vive fuera
+//  del alcance de `BrandingService`, que solo escribe tokens `--accent-*`,
+//  `--content-link` y `--border-focus`. El cliente personaliza SU interfaz; la
+//  marca de Virtex mantiene su presencia.
+//
+//  La marca es de UN SOLO color. El símbolo se rellena con un degradado corto
+//  del mismo violeta que recorre toda la figura en diagonal ascendente: el
+//  plano de la contrapartida recibe el extremo hundido y el del vértice el
+//  extremo claro. Así el vértice se destaca por la luz del propio degradado y
+//  no por un segundo tono, que es lo que cargaba la marca.
+//
+//  Las dos paradas se eligieron para que el símbolo funcione SIN variante de
+//  tema: ambas se mantienen en la franja de luminancia que contrasta a la vez
+//  con un lienzo claro y con uno casi negro (≥3:1 contra los dos). Por eso el
+//  degradado es corto: no es un efecto, es el recorrido más largo que admite
+//  esa restricción.
+// -----------------------------------------------------------------------------
+$brand: (
+  //  Extremo hundido del degradado: esquina inferior izquierda.
+  'from': #6a47e8,
+  //  Extremo claro: el vértice. No hace falta un segundo color para
+  //  destacarlo — basta con que el degradado termine ahí.
+  'to': #8f77ff,
+);
+
+// -----------------------------------------------------------------------------
+//  IRIS — Acento de marca
+// -----------------------------------------------------------------------------
+//  El acento de Virtex era `$blue-600` (#2563eb): el azul por defecto de medio
+//  ecosistema de producto. Funcionaba, pero no identificaba nada — cualquier
+//  captura de la aplicación podía ser la de otro fabricante.
+//
+//  El iris resuelve dos cosas a la vez. Distingue la marca, y —lo que importa
+//  más en una aplicación con tantos estados— no colisiona con NINGÚN color
+//  semántico del sistema: el verde de éxito, el rojo de error, el ámbar de
+//  aviso y el cian informativo quedan todos lejos en matiz. Ese era el motivo
+//  real para descartar las otras dos candidatas serias: el petróleo se
+//  confundía con `--info-solid` y la esmeralda con `--success-solid`, y en una
+//  rejilla llena de insignias de estado esa confusión se paga cara.
+//
+//  Los tramos 550 y 600 existen porque relleno y texto tienen restricciones
+//  opuestas (ver la nota del acento en `_theme.scss`).
+// -----------------------------------------------------------------------------
+$iris: (
+  50: #f4f1ff,
+  100: #eae4ff,
+  200: #d6cbff,
+  300: #c2b3ff,
+  400: #a58fff,
+  500: #7d5cf6,
+  550: #6a47e8,
+  600: #5b37d9,
+  700: #4a2ab5,
+  800: #3b2192,
+  900: #2a1770,
+);
+
+// -----------------------------------------------------------------------------
+//  AZUL — Serie de datos
+// -----------------------------------------------------------------------------
+//  Al dejar de ser el acento, el azul queda libre para la visualización de
+//  datos, donde una familia más se agradece: la serie categórica gana un matiz
+//  que antes no podía usar sin confundirse con la marca.
 // -----------------------------------------------------------------------------
 $blue: (
   50: #eff5ff,
@@ -186,7 +303,10 @@ $teal: (
   @return map.get($palette, $step);
 }
 
-@function neutral($step) { @return _get($neutral, 'neutral', $step); }
+@function neutral($step)  { @return _get($neutral, 'neutral', $step); }
+@function graphite($step) { @return _get($graphite, 'graphite', $step); }
+@function iris($step)    { @return _get($iris, 'iris', $step); }
+@function brand($key)    { @return _get($brand, 'brand', $key); }
 @function blue($step)    { @return _get($blue, 'blue', $step); }
 @function green($step)   { @return _get($green, 'green', $step); }
 @function red($step)     { @return _get($red, 'red', $step); }

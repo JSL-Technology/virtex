@@ -332,7 +332,7 @@ export class RegistrationService {
     // needs in order to function may depend on a listener existing.
     await this.eventEmitter.emitAsync(
       'user.registered',
-      new UserRegisteredEvent(user, organization, manager)
+      new UserRegisteredEvent(user, organization, manager, !existingUser)
     );
 
     // The caller signs the person into the tenant they just paid for, so the principal it gets

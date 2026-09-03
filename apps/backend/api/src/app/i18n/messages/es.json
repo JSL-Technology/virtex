@@ -841,42 +841,50 @@
     "BILLING_NOTICE": {
       "IR_FACTURACION": "Ir a Facturación"
     },
+    "COMMON": {
+      "COPYRIGHT": "© {{currentYear}} {{appName}}. Todos los derechos reservados.",
+      "GREETING": "¡Hola, {{name}}!",
+      "LINK_FALLBACK": "Si el botón no funciona, copia y pega esta URL en tu navegador:",
+      "SIGNATURE": "El equipo de {{appName}}",
+      "TRANSACTIONAL_NOTICE": "Este es un correo transaccional automático; no respondas a este mensaje."
+    },
     "DUPLICATE_REGISTRATION": {
+      "INICIAR_SESION": "Iniciar Sesión",
       "INTENTO_REGISTRO": "Intento de Registro",
-      "RECIBIMOS_SOLICITUD_REGISTRAR_NUEVA_CUENTA": "Recibimos una solicitud para registrar una nueva cuenta en",
-      "UTILIZANDO_ESTA_DIRECCION_CORREO_ELECTRONICO": "utilizando esta dirección de correo electrónico.",
+      "REQUEST_INTRO": "Recibimos una solicitud para registrar una nueva cuenta en {{appName}} utilizando esta dirección de correo electrónico.",
+      "RESTABLECER_CONTRASENA": "Restablecer Contraseña",
       "SIN_EMBARGO_YA_EXISTE_CUENTA_ASOCIADA": "Sin embargo, ya existe una cuenta asociada a este correo.",
       "SI_FUISTE_TU_QUIEN_INTENTO_REGISTRARSE": "Si fuiste tú quien intentó registrarse, puedes iniciar sesión directamente aquí:",
-      "INICIAR_SESION": "Iniciar Sesión",
-      "SI_OLVIDASTE_TU_CONTRASENA_PUEDES_RESTABLECERLA": "Si olvidaste tu contraseña, puedes restablecerla aquí:",
-      "RESTABLECER_CONTRASENA": "Restablecer Contraseña",
       "SI_NO_FUISTE_TU_PUEDES_IGNORAR": "Si no fuiste tú, puedes ignorar este correo de forma segura.",
+      "SI_OLVIDASTE_TU_CONTRASENA_PUEDES_RESTABLECERLA": "Si olvidaste tu contraseña, puedes restablecerla aquí:",
       "SUBJECT": "Intento de registro con tu correo"
     },
-    "EMAIL_CHANGE_CONFIRM": {
-      "CONFIRMA_TU_NUEVO_CORREO_APPNAME": "Confirma tu nuevo correo | {{appName}}",
-      "CONFIRMA_CAMBIO_TU_CORREO_ELECTRONICO_APPNAME": "Confirma el cambio de tu correo electrónico en {{appName}}. El enlace vence en {{expiresMinutes}} minutos.",
-      "CONFIRMA_TU_NUEVO_CORREO_ELECTRONICO": "Confirma tu nuevo correo electrónico",
-      "HEMOS_RECIBIDO_SOLICITUD_CAMBIAR_CORREO_ELECTRONICO": "Hemos recibido una solicitud para cambiar el correo electrónico de tu cuenta en",
-      "CONFIRMAR_CAMBIO_HAZ_CLIC_BOTON_CONTINUACION": ". Para confirmar el cambio, haz clic en el botón a continuación.",
-      "CONFIRMAR_CORREO_ELECTRONICO": "Confirmar correo electrónico",
-      "ESTE_ENLACE_ES_VALIDO": "Este enlace es válido por",
-      "SI_BOTON_NO_FUNCIONA_COPIA_PEGA": "Si el botón no funciona, copia y pega esta URL en tu navegador:",
-      "NO_SOLICITASTE_ESTE_CAMBIO_PUEDES_IGNORAR": "¿No solicitaste este cambio? Puedes ignorar este correo con seguridad. Tu correo actual permanecerá sin cambios.",
-      "ESTE_ES_CORREO_TRANSACCIONAL_AUTOMATICO_NO": "Este es un correo transaccional automático; no respondas a este mensaje."
+    "EMAIL_CHANGE": {
+      "SUBJECT": "Confirma tu nuevo correo electrónico"
     },
     "EMAIL_CHANGED_NOTICE": {
-      "CORREO_TU_CUENTA_HA_CAMBIADO_APPNAME": "El correo de tu cuenta ha cambiado | {{appName}}",
+      "ADDRESS_CHANGED": "El correo electrónico de tu cuenta en {{appName}} se cambió a {{newEmail}}.",
+      "CONTACTA_SOPORTE_INMEDIATO_DESDE_ESTA_MISMA": "Contacta a soporte de inmediato desde esta misma dirección. Este mensaje se envía a tu correo anterior precisamente para que puedas reaccionar si el cambio no lo hiciste tú.",
       "CORREO_TU_CUENTA_APPNAME_CAMBIO_NEWEMAIL": "El correo de tu cuenta en {{appName}} se cambió a {{newEmail}}. Si no fuiste tú, contacta a soporte.",
       "CORREO_TU_CUENTA_HA_CAMBIADO": "El correo de tu cuenta ha cambiado",
-      "CORREO_ELECTRONICO_TU_CUENTA": "El correo electrónico de tu cuenta en",
-      "CAMBIO": "se cambió a",
-      "PARTIR_AHORA_AVISOS_RECUPERACION_CONTRASENA_IRAN": ". A partir de ahora, los avisos y la recuperación de contraseña irán a esa dirección.",
-      "TODAS_SESIONES_ABIERTAS_CERRARON_COMO_MEDIDA": "Todas las sesiones abiertas se cerraron como medida de seguridad.",
+      "CORREO_TU_CUENTA_HA_CAMBIADO_APPNAME": "El correo de tu cuenta ha cambiado | {{appName}}",
       "NO_FUISTE_TU": "¿No fuiste tú?",
-      "CONTACTA_SOPORTE_INMEDIATO_DESDE_ESTA_MISMA": "Contacta a soporte de inmediato desde esta misma dirección. Este mensaje se envía a tu correo anterior precisamente para que puedas reaccionar si el cambio no lo hiciste tú.",
-      "ESTE_ES_CORREO_TRANSACCIONAL_AUTOMATICO_NO": "Este es un correo transaccional automático; no respondas a este mensaje.",
-      "SUBJECT": "El correo de tu cuenta ha cambiado"
+      "PARTIR_AHORA_AVISOS_RECUPERACION_CONTRASENA_IRAN": ". A partir de ahora, los avisos y la recuperación de contraseña irán a esa dirección.",
+      "SUBJECT": "El correo de tu cuenta ha cambiado",
+      "TODAS_SESIONES_ABIERTAS_CERRARON_COMO_MEDIDA": "Todas las sesiones abiertas se cerraron como medida de seguridad."
+    },
+    "EMAIL_CHANGE_CONFIRM": {
+      "CONFIRMAR_CORREO_ELECTRONICO": "Confirmar correo electrónico",
+      "CONFIRMA_CAMBIO_TU_CORREO_ELECTRONICO_APPNAME": "Confirma el cambio de tu correo electrónico en {{appName}}. El enlace vence en {{expiresMinutes}} minutos.",
+      "CONFIRMA_TU_NUEVO_CORREO_APPNAME": "Confirma tu nuevo correo | {{appName}}",
+      "CONFIRMA_TU_NUEVO_CORREO_ELECTRONICO": "Confirma tu nuevo correo electrónico",
+      "ESTE_ENLACE_ES_VALIDO": "Este enlace es válido por",
+      "NO_SOLICITASTE_ESTE_CAMBIO_PUEDES_IGNORAR": "¿No solicitaste este cambio? Puedes ignorar este correo con seguridad. Tu correo actual permanecerá sin cambios.",
+      "REQUEST_INTRO": "Hemos recibido una solicitud para cambiar el correo electrónico de tu cuenta en {{appName}}. Para confirmar el cambio, haz clic en el botón a continuación.",
+      "SI_BOTON_NO_FUNCIONA_COPIA_PEGA": "Si el botón no funciona, copia y pega esta URL en tu navegador:"
+    },
+    "INVITATION": {
+      "SUBJECT": "Te invitaron a unirte a {{appName}}"
     },
     "ORGANIZATION_ADDED": {
       "ACCESO_NUEVA_ORGANIZACION": "Acceso a una nueva organización",
@@ -887,25 +895,23 @@
       "SUBJECT": "Ahora tienes acceso a {{organization}}"
     },
     "PASSWORD_RESET": {
-      "RESTABLECIMIENTO_CONTRASENA_APPNAME": "Restablecimiento de contraseña | {{appName}}",
-      "USA_SIGUIENTE_ENLACE_RESTABLECER_TU_CONTRASENA": "Usa el siguiente enlace para restablecer tu contraseña de {{appName}}. El enlace vence en {{expiration}}.",
-      "RESTABLECIMIENTO_CONTRASENA": "Restablecimiento de contraseña",
-      "HEMOS_RECIBIDO_SOLICITUD_RESTABLECER_CONTRASENA_TU": "Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en",
-      "CONTINUAR_UTILIZA_BOTON_SEGURO_CONTINUACION": ". Para continuar, utiliza el botón seguro a continuación.",
-      "RESTABLECER_CONTRASENA": "Restablecer contraseña",
-      "SI_BOTON_NO_FUNCIONA_COPIA_PEGA": "Si el botón no funciona, copia y pega esta URL en tu navegador:",
-      "NO_SOLICITASTE_ESTE_CAMBIO_PUEDES_IGNORAR": "¿No solicitaste este cambio? Puedes ignorar este correo con seguridad. Tu contraseña no se modificará.",
-      "SI_NECESITAS_AYUDA_VISITA": "Si necesitas ayuda, visita",
-      "SOPORTE": "Soporte",
-      "ESCRIBENOS": "o escríbenos a",
-      "PROBLEMAS_VER_ESTE_CORREO": "¿Problemas para ver este correo?",
       "ABRELO_NAVEGADOR": "Ábrelo en el navegador",
-      "PRIVACIDAD": "Privacidad",
-      "TERMINOS": "Términos",
-      "ESTE_ES_CORREO_TRANSACCIONAL_AUTOMATICO_NO": "Este es un correo transaccional automático; no respondas a este mensaje.",
+      "ESCRIBENOS": "o escríbenos a",
       "HAS_RECIBIDO_ESTE_MENSAJE_PORQUE_EXISTE": "Has recibido este mensaje porque existe una cuenta de {{appName}} asociada a esta dirección de correo.",
       "LINK_VALID_FOR": "Este enlace es válido durante {{expiration}}.",
-      "SUBJECT": "Restablece tu contraseña"
+      "NO_SOLICITASTE_ESTE_CAMBIO_PUEDES_IGNORAR": "¿No solicitaste este cambio? Puedes ignorar este correo con seguridad. Tu contraseña no se modificará.",
+      "PRIVACIDAD": "Privacidad",
+      "PROBLEMAS_VER_ESTE_CORREO": "¿Problemas para ver este correo?",
+      "REQUEST_INTRO": "Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en {{appName}}. Para continuar, utiliza el botón seguro a continuación.",
+      "RESTABLECER_CONTRASENA": "Restablecer contraseña",
+      "RESTABLECIMIENTO_CONTRASENA": "Restablecimiento de contraseña",
+      "RESTABLECIMIENTO_CONTRASENA_APPNAME": "Restablecimiento de contraseña | {{appName}}",
+      "SI_BOTON_NO_FUNCIONA_COPIA_PEGA": "Si el botón no funciona, copia y pega esta URL en tu navegador:",
+      "SI_NECESITAS_AYUDA_VISITA": "Si necesitas ayuda, visita",
+      "SOPORTE": "Soporte",
+      "SUBJECT": "Restablece tu contraseña",
+      "TERMINOS": "Términos",
+      "USA_SIGUIENTE_ENLACE_RESTABLECER_TU_CONTRASENA": "Usa el siguiente enlace para restablecer tu contraseña de {{appName}}. El enlace vence en {{expiration}}."
     },
     "REGISTRATION_EMAIL_VERIFY": {
       "CONFIRMA_TU_CORREO_ELECTRONICO": "Confirma tu correo electrónico",
@@ -921,15 +927,17 @@
       "NO_COMPARTAS_ESTE_CODIGO_NADIE_NUESTRO": "No compartas este código con nadie. Nuestro equipo nunca te lo pedirá."
     },
     "REGISTRATION_FAILED": {
-      "NO_PUDIMOS_CREAR_TU_CUENTA": "No pudimos crear tu cuenta",
-      "TU_PAGO_PROCESO_CORRECTAMENTE_PERO_NO": "Tu pago se procesó correctamente, pero no pudimos crear tu cuenta en",
-      "LAMENTAMOS_INCONVENIENTE": ". Lamentamos el inconveniente.",
-      "YA_CANCELAMOS_SUSCRIPCION_SOLICITAMOS_DEVOLUCION_CARGO": "Ya cancelamos la suscripción y solicitamos la devolución del cargo.",
-      "SEGUN_TU_BANCO_REEMBOLSO_PUEDE_TARDAR": "Según tu banco, el reembolso puede tardar entre 5 y 10 días hábiles en aparecer en tu estado de cuenta.",
-      "NO_HACE_FALTA_HAGAS_NADA_SI": "No hace falta que hagas nada. Si prefieres volver a intentarlo, puedes registrarte de nuevo cuando quieras:",
       "CREAR_MI_CUENTA": "Crear mi cuenta",
+      "NO_HACE_FALTA_HAGAS_NADA_SI": "No hace falta que hagas nada. Si prefieres volver a intentarlo, puedes registrarte de nuevo cuando quieras:",
+      "NO_PUDIMOS_CREAR_TU_CUENTA": "No pudimos crear tu cuenta",
+      "PAYMENT_OK_ACCOUNT_NOT_CREATED": "Tu pago se procesó correctamente, pero no pudimos crear tu cuenta en {{appName}}. Lamentamos el inconveniente.",
+      "SEGUN_TU_BANCO_REEMBOLSO_PUEDE_TARDAR": "Según tu banco, el reembolso puede tardar entre 5 y 10 días hábiles en aparecer en tu estado de cuenta.",
       "SI_TIENES_CUALQUIER_DUDA_SOBRE_CARGO": "Si tienes cualquier duda sobre el cargo, escríbenos citando esta referencia y lo resolvemos:",
-      "SUBJECT": "No pudimos crear tu cuenta — tu pago fue reembolsado"
+      "SUBJECT": "No pudimos crear tu cuenta — tu pago fue reembolsado",
+      "YA_CANCELAMOS_SUSCRIPCION_SOLICITAMOS_DEVOLUCION_CARGO": "Ya cancelamos la suscripción y solicitamos la devolución del cargo."
+    },
+    "REGISTRATION_VERIFY": {
+      "SUBJECT": "Confirma tu correo electrónico"
     },
     "USER_INVITATION": {
       "INVITACION_PLATAFORMA": "Invitación a la Plataforma",
@@ -947,19 +955,20 @@
       "SALUDOS": "Saludos,",
       "SUBJECT": "Tu código de verificación"
     },
-    "COMMON": {
-      "SIGNATURE": "El equipo de {{appName}}",
-      "GREETING": "¡Hola, {{name}}!",
-      "COPYRIGHT": "© {{currentYear}} {{appName}}. Todos los derechos reservados."
-    },
-    "INVITATION": {
-      "SUBJECT": "Te invitaron a unirte a {{appName}}"
-    },
-    "EMAIL_CHANGE": {
-      "SUBJECT": "Confirma tu nuevo correo electrónico"
-    },
-    "REGISTRATION_VERIFY": {
-      "SUBJECT": "Confirma tu correo electrónico"
+    "WELCOME": {
+      "CLOSING": "No hace falta hacerlo todo hoy: lo que dejes a medias se guarda y puedes retomarlo cuando quieras.",
+      "CTA": "Entrar a {{appName}}",
+      "INTRO": "{{organizationName}} ya está creada en {{appName}}. Puedes entrar cuando quieras; abajo te dejamos las tres cosas que conviene resolver el primer día.",
+      "PREHEADER": "Tu cuenta ya está lista. Estas son las tres cosas que conviene dejar resueltas el primer día.",
+      "STEPS_TITLE": "Para empezar",
+      "STEP_DATA_BODY": "Es lo que alimenta ventas, inventario y contabilidad.",
+      "STEP_DATA_TITLE": "Carga tu catálogo y tu plan de cuentas",
+      "STEP_FISCAL_BODY": "Sin ellos no se pueden emitir comprobantes válidos.",
+      "STEP_FISCAL_TITLE": "Completa los datos fiscales",
+      "STEP_TEAM_BODY": "Cada persona entra con sus propios permisos, por área.",
+      "STEP_TEAM_TITLE": "Invita a tu equipo",
+      "SUBJECT": "Te damos la bienvenida a {{appName}}",
+      "TITLE": "Tu cuenta ya está lista"
     }
   },
   "INVOICE": {

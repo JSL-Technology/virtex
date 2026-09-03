@@ -571,9 +571,7 @@
     "WMS": "Virtex WMS"
   },
   "AUTH": {
-    "AUTH_LAYOUT": {
-      "VIRTEX_ERP": "Virtex ERP"
-    },
+    "AUTH_LAYOUT": {},
     "CHECKOUT_COMPLETE": {
       "CONFIRMANDO_TU_PAGO": "Confirming your payment…",
       "ESTAMOS_ACTIVANDO_TU_CUENTA_ESTO_SOLO": "We're activating your account. This will only take a few seconds.",
@@ -625,6 +623,7 @@
     "STEP_PHONE_VERIFY": {
       "CODIGO_VERIFICACION_SMS": "SMS verification code",
       "CONFIRMA_TU_NUMERO_CELULAR": "Confirm your mobile number",
+      "OPTIONAL_SKIP": "You didn't add a phone number. This step is optional: you can continue, or go back to add one.",
       "ENVIAMOS_SMS_CODIGO": "We sent an SMS with the code to",
       "ENVIANDO_SMS_PHONE": "Sending an SMS to {{phone}}…",
       "REINTENTAR": "Try again"
@@ -1650,7 +1649,6 @@
     "RESOLVER_AHORA": "Resolve Now",
     "RESULTADOS_BUSQUEDA": "Search Results",
     "VER_TODOS_RESULTADOS": "See all results",
-    "VIRTEX_ERP": "Virtex ERP",
     "VOLVER_MI_CUENTA": "Back to my account"
   },
   "MASTERS": {
@@ -2136,6 +2134,7 @@
       "PASSWORD_LENGTH": "The password must be at least 12 characters long.",
       "PASSWORD_MISMATCH": "Passwords do not match.",
       "PASSWORD_WEAK": "The password needs an uppercase letter, a lowercase letter and a number or symbol.",
+      "PHONE_INVALID": "Enter a valid phone number for the selected country.",
       "PHONE_VERIFY_REQUIRED": "Verify your mobile number before continuing.",
       "RECAPTCHA": "We couldn't verify the form's security check. Please try again.",
       "REQUIRED": "This field is required.",
@@ -2168,7 +2167,8 @@
     "PASSWORD": "Password",
     "PASSWORD_PLACEHOLDER": "Create a secure password",
     "PHONE": "Phone",
-    "PHONE_PLACEHOLDER": "e.g. +1 809-555-5555",
+    "PHONE_PLACEHOLDER": "e.g. 809 555 5555",
+    "PHONE_COUNTRY": "Phone country",
     "PRIVACY": "Privacy Policy",
     "PROGRESS": {
       "ACCOUNT": "Account",
@@ -2474,7 +2474,7 @@
       "EJ_REPUBLICA_DOMINICANA": "e.g. Dominican Republic",
       "EJ_SANTO_DOMINGO": "e.g. Santo Domingo",
       "EJ_TECNOLOGIA_RETAIL_MANUFACTURA": "e.g. Technology, Retail, Manufacturing…",
-      "EJ_VIRTEEX_CORP": "e.g. Virteex Corp Inc.",
+      "EJ_VIRTEEX_CORP": "e.g. Virtex Corp Inc.",
       "ERROR_ACTUALIZANDO_PERFIL": "Error updating the profile",
       "ERROR_CARGANDO_PERFIL_EMPRESA": "Error loading the company profile",
       "GESTIONA_INFORMACION_LEGAL_CONTACTO_TU_ORGANIZACION": "Manage your organization's legal and contact information.",
@@ -2944,7 +2944,7 @@
       "COMIENZA_AGREGANDO_NUEVA_SUBSIDIARIA_SUCURSAL_EXPANDIR": "Start by adding a subsidiary or branch to expand your structure.",
       "CREAR_PRIMERA_SUBSIDIARIA": "Create the first subsidiary",
       "EJ_REPUBLICA_DOMINICANA": "e.g. Dominican Republic",
-      "EJ_VIRTEEX_LATAM": "e.g. Virteex Latam Inc.",
+      "EJ_VIRTEEX_LATAM": "e.g. Virtex Latam Inc.",
       "ESTRUCTURA_EMPRESARIAL": "Company Structure",
       "GESTIONA_SUBSIDIARIAS_SUCURSALES_TU_ORGANIZACION": "Manage your organization's subsidiaries and branches.",
       "ID_FISCAL": "Tax ID:",

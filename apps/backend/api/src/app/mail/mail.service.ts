@@ -73,9 +73,20 @@ export class MailService {
     return this.configService.get<string>('APP_NAME', 'Virtex');
   }
 
-  /** Common context every template needs. */
+  /**
+   * Common context every template needs.
+   *
+   * `logoUrl` and `appUrl` are here rather than in each template because the header lives in the
+   * shared `shell` partial: leaving them to the caller is how the old templates ended up shipping
+   * `<img src="">` and `<a href="">` — a broken image and a link to nowhere, in production.
+   */
   private baseContext(): Record<string, unknown> {
-    return { appName: this.appName, currentYear: new Date().getFullYear() };
+    return {
+      appName: this.appName,
+      currentYear: new Date().getFullYear(),
+      appUrl: this.links.home(),
+      logoUrl: this.links.brandTile(),
+    };
   }
 
   async sendPasswordResetEmail(user: User, token: string, expiration: string) {
@@ -290,6 +301,33 @@ export class MailService {
         },
       });
     }
+  }
+
+  /**
+   * The welcome, sent once an account actually exists.
+   *
+   * Fired from `WelcomeEmailListener`, which holds it until the registration transaction commits:
+   * a greeting for an account that rolled back is worse than no greeting at all.
+   *
+   * The organization's name travels with it because a customer can own several tenants, and
+   * "your account is ready" without saying WHICH account is a question, not an answer.
+   */
+  async sendWelcomeEmail(user: User, organizationName: string) {
+    const language = this.languageFor(user);
+
+    await this.enqueue({
+      to: user.email,
+      subjectKey: 'MAIL.WELCOME.SUBJECT',
+      subjectParams: { appName: this.appName },
+      language,
+      template: 'welcome',
+      context: {
+        ...this.baseContext(),
+        name: user.firstName,
+        organizationName,
+        dashboardUrl: this.links.dashboard(),
+      },
+    });
   }
 
   async sendRegistrationEmailVerification(

@@ -1,6 +1,6 @@
 <!-- A backdrop dismiss is a mouse convenience. Its keyboard equivalent is Escape, handled at the document level in the component, plus the dialog's own Close button. Giving the backdrop tabindex/role to satisfy the rule would put a phantom tab stop in front of the dialog. -->
 <!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus -->
-<div class="pvm-overlay" *ngIf="isOpen()" (click)="$event.target === $event.currentTarget &amp;&amp; (close.emit())" (keydown.escape)="close.emit()">
+<div class="pvm-overlay" *ngIf="isOpen()" (click)="$event.target === $event.currentTarget &amp;&amp; (closed.emit())" (keydown.escape)="closed.emit()">
   <div class="pvm-box" tabindex="0">
 
     <!-- Header -->
@@ -9,7 +9,7 @@
         <lucide-icon [img]="PhoneIcon" size="18"></lucide-icon>
         {{ 'SETTINGS.PROFILE.PHONE_VERIFICATION.TITLE' | translate }}
       </div>
-      <button class="pvm-header__close" (click)="close.emit()">
+      <button class="pvm-header__close" (click)="closed.emit()">
         <lucide-icon [img]="XIcon" size="18"></lucide-icon>
       </button>
     </div>
@@ -23,13 +23,12 @@
           <p class="pvm-info">{{ 'SETTINGS.PROFILE.PHONE_VERIFICATION.DESCRIPTION' | translate }}</p>
 
           <div class="pvm-field">
-            <label class="pvm-label" for="field">{{ 'SETTINGS.PROFILE.PHONE_NUMBER' | translate }}</label>
-            <input id="field" type="tel"
-                   [formControl]="phoneControl"
-                   placeholder="+1 (809) 555-0000">
-            @if (phoneControl.invalid && phoneControl.touched) {
-              <p class="pvm-error">{{ 'AUTH.ERRORS.INVALID_PHONE' | translate }}</p>
-            }
+            <app-intl-phone-input
+              [formControl]="phoneControl"
+              [required]="true"
+              [label]="'SETTINGS.PROFILE.PHONE_NUMBER' | translate"
+              placeholder="809 555 0000">
+            </app-intl-phone-input>
           </div>
 
           <button class="pvm-btn-primary"

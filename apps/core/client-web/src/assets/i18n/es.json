@@ -177,7 +177,7 @@
       "PAIS_ES_REQUERIDO": "El país es requerido.",
       "TELEFONO": "Teléfono",
       "TELEFONO_ES_REQUERIDO": "El teléfono es requerido.",
-      "EJ_VIRTEEX_CORP": "Ej. Virteex Corp S.A.",
+      "EJ_VIRTEEX_CORP": "Ej. Virtex Corp S.A.",
       "EJ_TECNOLOGIA_RETAIL_MANUFACTURA": "Ej. Tecnología, Retail, Manufactura…",
       "HTTPS_EJEMPLO_COM": "https://ejemplo.com",
       "CALLE_PRINCIPAL_123_SECTOR": "Calle Principal #123, Sector",
@@ -403,7 +403,7 @@
       "PAIS_2": "País",
       "PORCENTAJE_PROPIEDAD": "Porcentaje de Propiedad (%)",
       "CANCELAR": "Cancelar",
-      "EJ_VIRTEEX_LATAM": "Ej. Virteex Latam S.A.",
+      "EJ_VIRTEEX_LATAM": "Ej. Virtex Latam S.A.",
       "EJ_REPUBLICA_DOMINICANA": "Ej. República Dominicana"
     },
     "SSO": {
@@ -1187,9 +1187,7 @@
       "REINTENTAR": "Reintentar",
       "IR_INICIAR_SESION": "Ir a iniciar sesión"
     },
-    "AUTH_LAYOUT": {
-      "VIRTEX_ERP": "Virtex ERP"
-    },
+    "AUTH_LAYOUT": {},
     "SOCIAL_AUTH_BUTTONS": {
       "SIGN_IN_WITH_GOOGLE": "Continuar con Google",
       "SIGN_IN_WITH_MICROSOFT": "Continuar con Microsoft"
@@ -1221,6 +1219,7 @@
     },
     "STEP_PHONE_VERIFY": {
       "CONFIRMA_TU_NUMERO_CELULAR": "Confirma tu número de celular",
+      "OPTIONAL_SKIP": "No agregaste un número de teléfono. Este paso es opcional: puedes continuar, o volver atrás para añadir uno.",
       "ENVIAMOS_SMS_CODIGO": "Enviamos un SMS con el código a",
       "ENVIANDO_SMS_PHONE": "Enviando SMS a {{phone}}…",
       "REINTENTAR": "Reintentar",
@@ -2089,7 +2088,8 @@
     "JOB_TITLE": "Cargo",
     "JOB_TITLE_PLACEHOLDER": "Ej. Gerente General",
     "PHONE": "Teléfono",
-    "PHONE_PLACEHOLDER": "Ej. +1 809-555-5555",
+    "PHONE_PLACEHOLDER": "Ej. 809 555 5555",
+    "PHONE_COUNTRY": "País del teléfono",
     "EMAIL": "Correo Electrónico",
     "EMAIL_PLACEHOLDER": "nombre@empresa.com",
     "PASSWORD": "Contraseña",
@@ -2130,6 +2130,7 @@
       "CODE_SEND": "No se pudo enviar el código. Inténtalo de nuevo.",
       "REQUIRED_FIELDS": "Completa los campos requeridos correctamente.",
       "EMAIL_INVALID": "Escribe un correo electrónico válido.",
+      "PHONE_INVALID": "Escribe un número de teléfono válido para el país seleccionado.",
       "INVALID_FORMAT": "El formato no es válido.",
       "PASSWORD_LENGTH": "La contraseña debe tener al menos 12 caracteres.",
       "PASSWORD_WEAK": "La contraseña debe incluir una mayúscula, una minúscula y un número o símbolo."
@@ -3256,7 +3257,6 @@
     "ALT_SHIFT_2": "Alt + Shift + Q",
     "ALT_SHIFT_3": "Alt + Shift + C",
     "ALT_SHIFT_4": "Alt + Shift + P",
-    "VIRTEX_ERP": "Virtex ERP",
     "GRACE_PERIOD_BANNER": "Tu pago está pendiente. Tienes acceso temporal hasta el {{date}}."
   },
   "SHARED": {

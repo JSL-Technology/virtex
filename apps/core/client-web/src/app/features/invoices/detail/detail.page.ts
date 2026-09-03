@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, Input, signal, inject, OnInit, effect, computed } from '@angular/core';
-import { CommonModule, DecimalPipe, DatePipe, Location } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { DialogService } from '../../../core/services/dialog.service';
 import { FormsModule } from '@angular/forms';
@@ -20,7 +20,7 @@ import { AuthService } from '../../../core/services/auth';
 @Component({
   selector: 'app-invoice-detail-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, DecimalPipe, DatePipe, InvoiceToolbarComponent, FormsModule, // The QR is the element the norm requires on the printed representation; the page used to show
+  imports: [CommonModule, LucideAngularModule, InvoiceToolbarComponent, FormsModule, // The QR is the element the norm requires on the printed representation; the page used to show
     // a text link instead, while `angularx-qrcode` was already a dependency of the project.
     QRCodeComponent, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './detail.page.html',

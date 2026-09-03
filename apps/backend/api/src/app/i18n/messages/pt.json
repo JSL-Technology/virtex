@@ -740,47 +740,44 @@
     "COMMON": {
       "COPYRIGHT": "© {{currentYear}} {{appName}}. Todos os direitos reservados.",
       "GREETING": "Olá, {{name}}.",
-      "SIGNATURE": "A equipe do {{appName}}"
+      "LINK_FALLBACK": "Se o botão não funcionar, copie e cole esta URL no seu navegador:",
+      "SIGNATURE": "A equipe do {{appName}}",
+      "TRANSACTIONAL_NOTICE": "Este é um e-mail transacional automático; não responda a esta mensagem."
     },
     "DUPLICATE_REGISTRATION": {
       "INICIAR_SESION": "Entrar",
       "INTENTO_REGISTRO": "Tentativa de Cadastro",
-      "RECIBIMOS_SOLICITUD_REGISTRAR_NUEVA_CUENTA": "Recebemos uma solicitação para cadastrar uma nova conta em",
+      "REQUEST_INTRO": "Recebemos uma solicitação para cadastrar uma nova conta em {{appName}} usando este endereço de e-mail.",
       "RESTABLECER_CONTRASENA": "Redefinir Senha",
+      "SIN_EMBARGO_YA_EXISTE_CUENTA_ASOCIADA": "No entanto, já existe uma conta associada a este e-mail.",
       "SI_FUISTE_TU_QUIEN_INTENTO_REGISTRARSE": "Se foi você quem tentou se cadastrar, pode entrar diretamente aqui:",
       "SI_NO_FUISTE_TU_PUEDES_IGNORAR": "Se não foi você, pode ignorar este e-mail com segurança.",
       "SI_OLVIDASTE_TU_CONTRASENA_PUEDES_RESTABLECERLA": "Se você esqueceu sua senha, pode redefini-la aqui:",
-      "SIN_EMBARGO_YA_EXISTE_CUENTA_ASOCIADA": "No entanto, já existe uma conta associada a este e-mail.",
-      "SUBJECT": "Alguém tentou se cadastrar com seu e-mail",
-      "UTILIZANDO_ESTA_DIRECCION_CORREO_ELECTRONICO": "usando este endereço de e-mail."
-    },
-    "EMAIL_CHANGE_CONFIRM": {
-      "CONFIRMA_CAMBIO_TU_CORREO_ELECTRONICO_APPNAME": "Confirme a alteração do seu e-mail no {{appName}}. O link expira em {{expiresMinutes}} minutos.",
-      "CONFIRMA_TU_NUEVO_CORREO_APPNAME": "Confirme seu novo e-mail | {{appName}}",
-      "CONFIRMA_TU_NUEVO_CORREO_ELECTRONICO": "Confirme seu novo e-mail",
-      "CONFIRMAR_CAMBIO_HAZ_CLIC_BOTON_CONTINUACION": ". Para confirmar a alteração, clique no botão abaixo.",
-      "CONFIRMAR_CORREO_ELECTRONICO": "Confirmar e-mail",
-      "ESTE_ENLACE_ES_VALIDO": "Este link é válido por",
-      "ESTE_ES_CORREO_TRANSACCIONAL_AUTOMATICO_NO": "Este é um e-mail transacional automático; não responda a esta mensagem.",
-      "HEMOS_RECIBIDO_SOLICITUD_CAMBIAR_CORREO_ELECTRONICO": "Recebemos uma solicitação para alterar o e-mail da sua conta em",
-      "NO_SOLICITASTE_ESTE_CAMBIO_PUEDES_IGNORAR": "Não solicitou esta alteração? Você pode ignorar este e-mail com segurança. Seu endereço atual permanecerá o mesmo.",
-      "SI_BOTON_NO_FUNCIONA_COPIA_PEGA": "Se o botão não funcionar, copie e cole esta URL no seu navegador:"
+      "SUBJECT": "Alguém tentou se cadastrar com seu e-mail"
     },
     "EMAIL_CHANGE": {
       "SUBJECT": "Confirme seu novo e-mail"
     },
     "EMAIL_CHANGED_NOTICE": {
-      "CAMBIO": "foi alterado para",
+      "ADDRESS_CHANGED": "O e-mail da sua conta em {{appName}} foi alterado para {{newEmail}}.",
       "CONTACTA_SOPORTE_INMEDIATO_DESDE_ESTA_MISMA": "Fale com o suporte imediatamente a partir deste mesmo endereço. Esta mensagem vai para seu endereço anterior justamente para que você possa reagir caso a alteração não tenha sido feita por você.",
-      "CORREO_ELECTRONICO_TU_CUENTA": "O e-mail da sua conta em",
       "CORREO_TU_CUENTA_APPNAME_CAMBIO_NEWEMAIL": "O e-mail da sua conta no {{appName}} foi alterado para {{newEmail}}. Se não foi você, fale com o suporte.",
       "CORREO_TU_CUENTA_HA_CAMBIADO": "O e-mail da sua conta mudou",
       "CORREO_TU_CUENTA_HA_CAMBIADO_APPNAME": "O e-mail da sua conta mudou | {{appName}}",
-      "ESTE_ES_CORREO_TRANSACCIONAL_AUTOMATICO_NO": "Este é um e-mail transacional automático; não responda a esta mensagem.",
       "NO_FUISTE_TU": "Não foi você?",
       "PARTIR_AHORA_AVISOS_RECUPERACION_CONTRASENA_IRAN": ". A partir de agora, os avisos e a recuperação de senha irão para esse endereço.",
       "SUBJECT": "O e-mail da sua conta mudou",
       "TODAS_SESIONES_ABIERTAS_CERRARON_COMO_MEDIDA": "Todas as sessões abertas foram encerradas como medida de segurança."
+    },
+    "EMAIL_CHANGE_CONFIRM": {
+      "CONFIRMAR_CORREO_ELECTRONICO": "Confirmar e-mail",
+      "CONFIRMA_CAMBIO_TU_CORREO_ELECTRONICO_APPNAME": "Confirme a alteração do seu e-mail no {{appName}}. O link expira em {{expiresMinutes}} minutos.",
+      "CONFIRMA_TU_NUEVO_CORREO_APPNAME": "Confirme seu novo e-mail | {{appName}}",
+      "CONFIRMA_TU_NUEVO_CORREO_ELECTRONICO": "Confirme seu novo e-mail",
+      "ESTE_ENLACE_ES_VALIDO": "Este link é válido por",
+      "NO_SOLICITASTE_ESTE_CAMBIO_PUEDES_IGNORAR": "Não solicitou esta alteração? Você pode ignorar este e-mail com segurança. Seu endereço atual permanecerá o mesmo.",
+      "REQUEST_INTRO": "Recebemos uma solicitação para alterar o e-mail da sua conta em {{appName}}. Para confirmar a alteração, clique no botão abaixo.",
+      "SI_BOTON_NO_FUNCIONA_COPIA_PEGA": "Se o botão não funcionar, copie e cole esta URL no seu navegador:"
     },
     "INVITATION": {
       "SUBJECT": "Você foi convidado a entrar no {{appName}}"
@@ -795,15 +792,13 @@
     },
     "PASSWORD_RESET": {
       "ABRELO_NAVEGADOR": "Abra no navegador",
-      "CONTINUAR_UTILIZA_BOTON_SEGURO_CONTINUACION": ". Para continuar, use o botão seguro abaixo.",
       "ESCRIBENOS": "ou escreva para",
-      "ESTE_ES_CORREO_TRANSACCIONAL_AUTOMATICO_NO": "Este é um e-mail transacional automático; não responda a esta mensagem.",
       "HAS_RECIBIDO_ESTE_MENSAJE_PORQUE_EXISTE": "Você recebeu esta mensagem porque existe uma conta do {{appName}} associada a este endereço de e-mail.",
-      "HEMOS_RECIBIDO_SOLICITUD_RESTABLECER_CONTRASENA_TU": "Recebemos uma solicitação para redefinir a senha da sua conta em",
       "LINK_VALID_FOR": "Este link é válido por {{expiration}}.",
       "NO_SOLICITASTE_ESTE_CAMBIO_PUEDES_IGNORAR": "Não solicitou esta alteração? Você pode ignorar este e-mail com segurança. Sua senha não será alterada.",
       "PRIVACIDAD": "Privacidade",
       "PROBLEMAS_VER_ESTE_CORREO": "Problemas para ver este e-mail?",
+      "REQUEST_INTRO": "Recebemos uma solicitação para redefinir a senha da sua conta em {{appName}}. Para continuar, use o botão seguro abaixo.",
       "RESTABLECER_CONTRASENA": "Redefinir senha",
       "RESTABLECIMIENTO_CONTRASENA": "Redefinição de senha",
       "RESTABLECIMIENTO_CONTRASENA_APPNAME": "Redefinição de senha | {{appName}}",
@@ -829,13 +824,12 @@
     },
     "REGISTRATION_FAILED": {
       "CREAR_MI_CUENTA": "Criar minha conta",
-      "LAMENTAMOS_INCONVENIENTE": ". Lamentamos o transtorno.",
       "NO_HACE_FALTA_HAGAS_NADA_SI": "Você não precisa fazer nada. Se preferir tentar de novo, pode se cadastrar quando quiser:",
       "NO_PUDIMOS_CREAR_TU_CUENTA": "Não conseguimos criar sua conta",
+      "PAYMENT_OK_ACCOUNT_NOT_CREATED": "Seu pagamento foi processado, mas não conseguimos criar sua conta em {{appName}}. Lamentamos o transtorno.",
       "SEGUN_TU_BANCO_REEMBOLSO_PUEDE_TARDAR": "Dependendo do seu banco, o estorno pode levar de 5 a 10 dias úteis para aparecer no seu extrato.",
       "SI_TIENES_CUALQUIER_DUDA_SOBRE_CARGO": "Se tiver qualquer dúvida sobre a cobrança, escreva-nos citando esta referência e resolveremos:",
       "SUBJECT": "Não conseguimos criar sua conta — seu pagamento foi estornado",
-      "TU_PAGO_PROCESO_CORRECTAMENTE_PERO_NO": "Seu pagamento foi processado, mas não conseguimos criar sua conta em",
       "YA_CANCELAMOS_SUSCRIPCION_SOLICITAMOS_DEVOLUCION_CARGO": "Já cancelamos a assinatura e solicitamos o estorno da cobrança."
     },
     "REGISTRATION_VERIFY": {
@@ -856,6 +850,21 @@
       "SALUDOS": "Atenciosamente,",
       "SI_NO_SOLICITASTE_ESTE_CAMBIO_FAVOR": "Se você não solicitou esta alteração, ignore este e-mail ou fale com o suporte.",
       "SUBJECT": "Seu código de verificação"
+    },
+    "WELCOME": {
+      "CLOSING": "Não precisa fazer tudo hoje: o que ficar pela metade é salvo e você retoma quando quiser.",
+      "CTA": "Entrar no {{appName}}",
+      "INTRO": "{{organizationName}} já está criada no {{appName}}. Entre quando quiser; abaixo estão as três coisas que vale resolver no primeiro dia.",
+      "PREHEADER": "Sua conta está pronta. Estas são as três coisas que vale resolver no primeiro dia.",
+      "STEPS_TITLE": "Por onde começar",
+      "STEP_DATA_BODY": "É o que alimenta vendas, estoque e contabilidade.",
+      "STEP_DATA_TITLE": "Carregue seu catálogo e seu plano de contas",
+      "STEP_FISCAL_BODY": "Sem eles não é possível emitir documentos válidos.",
+      "STEP_FISCAL_TITLE": "Complete os dados fiscais",
+      "STEP_TEAM_BODY": "Cada pessoa entra com as próprias permissões, por área.",
+      "STEP_TEAM_TITLE": "Convide sua equipe",
+      "SUBJECT": "Boas-vindas ao {{appName}}",
+      "TITLE": "Sua conta está pronta"
     }
   },
   "ORGANIZATIONS": {

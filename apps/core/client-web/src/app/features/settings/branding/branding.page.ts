@@ -31,7 +31,7 @@ export class BrandingPage implements OnInit {
   //  Preselección de acentos. Cada uno alcanza al menos 4.5:1 con texto blanco,
   //  de modo que elegir cualquiera de ellos produce botones legibles sin
   //  depender del ajuste automático de contraste.
-  colorPresets = ['#2563eb', '#0d7d6c', '#7c3aed', '#b4530a', '#be2a5c', '#3f4a5c'];
+  colorPresets = ['#5b37d9', '#0d7d6c', '#1d4ed8', '#b4530a', '#be2a5c', '#3f4a5c'];
   // fonts: { id: UiFont, name: string }[] = [
   //   { id: 'Inter', name: 'Inter (Sans-serif)' },
   //   { id: 'Roboto Slab', name: 'Roboto Slab (Serif)' },

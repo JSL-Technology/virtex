@@ -6,11 +6,12 @@ import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, Phone, X, Check } from 'lucide-angular';
 import { AuthService } from '../../../../core/services/auth';
 import { NotificationService } from '../../../../core/services/notification';
+import { IntlPhoneInputComponent } from '../../../../shared/components/intl-phone-input/intl-phone-input.component';
 
 @Component({
   selector: 'app-phone-verification-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, LucideAngularModule],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, LucideAngularModule, IntlPhoneInputComponent],
   templateUrl: './phone-verification-modal.component.html',
   styleUrls: ['./phone-verification-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,7 +28,10 @@ export class PhoneVerificationModalComponent {
   protected readonly XIcon = X;
   protected readonly CheckIcon = Check;
 
-  phoneControl = new FormControl('', [Validators.required]); // E.164 validation ideally
+  // Holds an E.164 number. The IntlPhoneInputComponent bound to this control does the normalization
+  // and validation with libphonenumber, so `sendPhoneOtp`/`verifyPhoneOtp` receive exactly the shape
+  // the API's IsE164PhoneNumber validator requires.
+  phoneControl = new FormControl('', [Validators.required]);
   otpControl = new FormControl('', [Validators.required, Validators.minLength(6)]);
 
   isLoading = signal(false);

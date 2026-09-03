@@ -1,31 +1,11 @@
-<!DOCTYPE html>
-<html lang="{{language}}" dir="{{dir}}">
-<head>
-    <meta charset="UTF-8">
-    <title>{{t 'MAIL.REGISTRATION_FAILED.NO_PUDIMOS_CREAR_TU_CUENTA'}}</title>
-</head>
-<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h2 style="color: #2c3e50;">{{t 'MAIL.COMMON.GREETING' name=name}}</h2>
+{{#> shell title=(t 'MAIL.REGISTRATION_FAILED.NO_PUDIMOS_CREAR_TU_CUENTA') preheader=(t 'MAIL.REGISTRATION_FAILED.YA_CANCELAMOS_SUSCRIPCION_SOLICITAMOS_DEVOLUCION_CARGO')}}
+<h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'MAIL.REGISTRATION_FAILED.NO_PUDIMOS_CREAR_TU_CUENTA'}}</h1>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.COMMON.GREETING' name=name}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.REGISTRATION_FAILED.PAYMENT_OK_ACCOUNT_NOT_CREATED' appName=appName}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.REGISTRATION_FAILED.YA_CANCELAMOS_SUSCRIPCION_SOLICITAMOS_DEVOLUCION_CARGO'}} {{t 'MAIL.REGISTRATION_FAILED.SEGUN_TU_BANCO_REEMBOLSO_PUEDE_TARDAR'}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.REGISTRATION_FAILED.NO_HACE_FALTA_HAGAS_NADA_SI'}}</p>
 
-        <p>{{t 'MAIL.REGISTRATION_FAILED.TU_PAGO_PROCESO_CORRECTAMENTE_PERO_NO'}} <strong>{{appName}}</strong>{{t 'MAIL.REGISTRATION_FAILED.LAMENTAMOS_INCONVENIENTE'}}</p>
+{{> button href=registerUrl label=(t 'MAIL.REGISTRATION_FAILED.CREAR_MI_CUENTA')}}
 
-        <p><strong>{{t 'MAIL.REGISTRATION_FAILED.YA_CANCELAMOS_SUSCRIPCION_SOLICITAMOS_DEVOLUCION_CARGO'}}</strong> {{t 'MAIL.REGISTRATION_FAILED.SEGUN_TU_BANCO_REEMBOLSO_PUEDE_TARDAR'}}</p>
-
-        <p>{{t 'MAIL.REGISTRATION_FAILED.NO_HACE_FALTA_HAGAS_NADA_SI'}}</p>
-
-        <p style="text-align: center;">
-            <a href="{{registerUrl}}" style="background-color: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">{{t 'MAIL.REGISTRATION_FAILED.CREAR_MI_CUENTA'}}</a>
-        </p>
-
-        <p>{{t 'MAIL.REGISTRATION_FAILED.SI_TIENES_CUALQUIER_DUDA_SOBRE_CARGO'}}</p>
-
-        <p style="text-align: center; font-family: monospace; font-size: 16px; background: #f4f6f5; padding: 12px; border-radius: 4px;">
-            {{reference}}
-        </p>
-
-        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-        <p style="font-size: 12px; color: #999;">{{t 'MAIL.COMMON.COPYRIGHT' currentYear=currentYear appName=appName}}</p>
-    </div>
-</body>
-</html>
+{{#> note}}{{t 'MAIL.REGISTRATION_FAILED.SI_TIENES_CUALQUIER_DUDA_SOBRE_CARGO'}} <strong class="ink" style="font-weight:600; color:{{brand 'ink'}};">{{reference}}</strong>{{/note}}
+{{/shell}}

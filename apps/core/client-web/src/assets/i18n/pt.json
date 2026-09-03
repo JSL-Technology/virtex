@@ -571,9 +571,7 @@
     "WMS": "Virtex WMS"
   },
   "AUTH": {
-    "AUTH_LAYOUT": {
-      "VIRTEX_ERP": "Virtex ERP"
-    },
+    "AUTH_LAYOUT": {},
     "CHECKOUT_COMPLETE": {
       "CONFIRMANDO_TU_PAGO": "Confirmando seu pagamento…",
       "ESTAMOS_ACTIVANDO_TU_CUENTA_ESTO_SOLO": "Estamos ativando sua conta. Isso levará apenas alguns segundos.",
@@ -625,6 +623,7 @@
     "STEP_PHONE_VERIFY": {
       "CODIGO_VERIFICACION_SMS": "Código de verificação por SMS",
       "CONFIRMA_TU_NUMERO_CELULAR": "Confirme seu número de celular",
+      "OPTIONAL_SKIP": "Você não adicionou um número de telefone. Esta etapa é opcional: você pode continuar ou voltar para adicionar um.",
       "ENVIAMOS_SMS_CODIGO": "Enviamos um SMS com o código para",
       "ENVIANDO_SMS_PHONE": "Enviando um SMS para {{phone}}…",
       "REINTENTAR": "Tentar novamente"
@@ -1650,7 +1649,6 @@
     "RESOLVER_AHORA": "Resolver Agora",
     "RESULTADOS_BUSQUEDA": "Resultados da Busca",
     "VER_TODOS_RESULTADOS": "Ver todos os resultados",
-    "VIRTEX_ERP": "Virtex ERP",
     "VOLVER_MI_CUENTA": "Voltar à minha conta"
   },
   "MASTERS": {
@@ -2136,6 +2134,7 @@
       "PASSWORD_LENGTH": "A senha deve ter pelo menos 12 caracteres.",
       "PASSWORD_MISMATCH": "As senhas não coincidem.",
       "PASSWORD_WEAK": "A senha deve incluir uma letra maiúscula, uma minúscula e um número ou símbolo.",
+      "PHONE_INVALID": "Digite um número de telefone válido para o país selecionado.",
       "PHONE_VERIFY_REQUIRED": "Você precisa verificar seu celular antes de continuar.",
       "RECAPTCHA": "Não conseguimos validar a verificação de segurança do formulário. Tente novamente.",
       "REQUIRED": "Este campo é obrigatório.",
@@ -2168,7 +2167,8 @@
     "PASSWORD": "Senha",
     "PASSWORD_PLACEHOLDER": "Crie uma senha forte",
     "PHONE": "Telefone",
-    "PHONE_PLACEHOLDER": "Ex.: +55 11 95555-5555",
+    "PHONE_PLACEHOLDER": "Ex.: 11 95555-5555",
+    "PHONE_COUNTRY": "País do telefone",
     "PRIVACY": "Política de Privacidade",
     "PROGRESS": {
       "ACCOUNT": "Conta",
@@ -2474,7 +2474,7 @@
       "EJ_REPUBLICA_DOMINICANA": "Ex.: República Dominicana",
       "EJ_SANTO_DOMINGO": "Ex.: Santo Domingo",
       "EJ_TECNOLOGIA_RETAIL_MANUFACTURA": "Ex.: Tecnologia, Varejo, Indústria…",
-      "EJ_VIRTEEX_CORP": "Ex.: Virteex Corp Ltda.",
+      "EJ_VIRTEEX_CORP": "Ex.: Virtex Corp Ltda.",
       "ERROR_ACTUALIZANDO_PERFIL": "Erro ao atualizar o perfil",
       "ERROR_CARGANDO_PERFIL_EMPRESA": "Erro ao carregar o perfil da empresa",
       "GESTIONA_INFORMACION_LEGAL_CONTACTO_TU_ORGANIZACION": "Gerencie as informações legais e de contato da sua organização.",
@@ -2944,7 +2944,7 @@
       "COMIENZA_AGREGANDO_NUEVA_SUBSIDIARIA_SUCURSAL_EXPANDIR": "Comece adicionando uma subsidiária ou filial para expandir sua estrutura.",
       "CREAR_PRIMERA_SUBSIDIARIA": "Criar a primeira subsidiária",
       "EJ_REPUBLICA_DOMINICANA": "Ex.: República Dominicana",
-      "EJ_VIRTEEX_LATAM": "Ex.: Virteex Latam Ltda.",
+      "EJ_VIRTEEX_LATAM": "Ex.: Virtex Latam Ltda.",
       "ESTRUCTURA_EMPRESARIAL": "Estrutura Empresarial",
       "GESTIONA_SUBSIDIARIAS_SUCURSALES_TU_ORGANIZACION": "Gerencie as subsidiárias e filiais da sua organização.",
       "ID_FISCAL": "Identificação fiscal:",

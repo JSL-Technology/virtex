@@ -70,7 +70,7 @@ const DENSITY_KEY = 'vx-density';
 const STYLE_TAG_ID = 'vx-branding-tokens';
 
 const DEFAULTS: BrandingSettings = {
-  accentColor: '#2563eb',
+  accentColor: '#5b37d9',   // iris-600, el acento de Virtex
   fontFamily: 'Inter',
   borderRadius: 6,
   density: 'comfy',

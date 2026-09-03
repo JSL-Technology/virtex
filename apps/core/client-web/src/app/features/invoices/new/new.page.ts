@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } 
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import {
   InvoicesService,
   CreateInvoiceDto,
@@ -55,7 +55,7 @@ const FISCAL_TYPE_LABELS: Record<string, string> = {
 @Component({
   selector: 'app-new-invoice-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, DecimalPipe, InvoiceToolbarComponent, TranslateModule, ...FORMAT_PIPES],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, InvoiceToolbarComponent, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './new.page.html',
   styleUrls: ['./new.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

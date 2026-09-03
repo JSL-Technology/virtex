@@ -63,6 +63,7 @@ import { AuthSubscriber } from './events/auth.events';
 import { RegistrationStrategyFactory } from './strategies/registration/registration-strategy.factory';
 import { ProfileRegistrationStrategy } from './strategies/registration/profile-registration.strategy';
 import { AuthAuditListener } from './listeners/auth-audit.listener';
+import { WelcomeEmailListener } from './listeners/welcome-email.listener';
 import { CsrfGuard } from './guards/csrf.guard';
 import { StepUpGuard } from './guards/step-up.guard';
 import { IsOrganizationOwnerPolicy } from './policies/is-organization-owner.policy';
@@ -185,6 +186,7 @@ import { KeyManagementModule } from './services/key-management.module';
     RegistrationStrategyFactory,
     ProfileRegistrationStrategy,
     AuthAuditListener,
+    WelcomeEmailListener,
     CsrfGuard,
     StepUpGuard,
     // M-05 FIX: register the ABAC policy so PermissionsGuard can resolve it via DI

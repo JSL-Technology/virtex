@@ -90,15 +90,15 @@
   }
 
   &--confirm {
-    background-color: var(--primary);
-    color: #fff;
+    background-color: var(--accent-solid);
+    color: var(--accent-on-solid);
 
     &:hover { background-color: var(--primary-hover); }
   }
 
   &--danger {
-    background-color: var(--danger);
-    color: #fff;
+    background-color: var(--error-solid);
+    color: var(--error-on-solid);
 
     &:hover { filter: brightness(0.92); }
   }

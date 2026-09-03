@@ -1,3 +1,4 @@
+import * as Handlebars from 'handlebars';
 import type { HelperDeclareSpec, HelperOptions } from 'handlebars';
 import {
   DEFAULT_LANGUAGE,
@@ -7,6 +8,7 @@ import {
   resolveLocale,
 } from '@virteex/shared/types';
 import { I18nService } from '../i18n/i18n.service';
+import { MAIL_BRAND, MailBrandKey } from './mail-brand';
 
 /**
  * Handlebars helpers that make one template serve every language.
@@ -104,6 +106,34 @@ export function mailTemplateHelpers(i18n: I18nService): HelperDeclareSpec {
     /** The reader's writing direction, for the `<html dir>` attribute. */
     dir(options: HelperOptions): string {
       return LANGUAGE_DIRECTION[languageOf(options)];
+    },
+
+    /**
+     * Whether the reader writes right to left, for the handful of places a layout has to flip.
+     *
+     * Used as a subexpression — `{{#if (rtl)}}` — because a bare `{{#if rtl}}` reads as a context
+     * lookup, and the context has no such property.
+     */
+    rtl(options: HelperOptions): boolean {
+      return LANGUAGE_DIRECTION[languageOf(options)] === 'rtl';
+    },
+
+    /**
+     * A brand colour or type stack, by name: `{{brand 'accent'}}`.
+     *
+     * A helper rather than a context value on purpose. Handlebars runs in strict mode here, so
+     * anything read from the context has to be present in every send; a helper always resolves,
+     * which means a template can use the palette without `MailService` having to remember to pass
+     * it. It also keeps the values in one TypeScript file instead of eleven templates — see
+     * `mail-brand.ts` for why an email cannot simply read the design system.
+     *
+     * Returned unescaped because the type stacks contain single quotes — `'Segoe UI'` — and
+     * Handlebars would turn them into `&#x27;` inside a `style` attribute. The values are
+     * compile-time constants from this repository, never user input.
+     */
+    brand(key: unknown): Handlebars.SafeString {
+      const value = typeof key === 'string' && key in MAIL_BRAND ? MAIL_BRAND[key as MailBrandKey] : '';
+      return new Handlebars.SafeString(value);
     },
   };
 }

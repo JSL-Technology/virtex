@@ -50,7 +50,7 @@
   --surface-sunken: #{p.neutral(100)};     // Campos, pozos, zonas hundidas
   --surface-hover: #{p.neutral(75)};
   --surface-active: #{p.neutral(150)};
-  --surface-selected: #{p.blue(50)};
+  --surface-selected: #{p.iris(50)};
   --surface-disabled: #{p.neutral(100)};
   --surface-inverse: #{p.neutral(940)};    // Tooltips, toasts de alto contraste
 
@@ -60,7 +60,7 @@
   --content-tertiary: #626980;
   --content-disabled: #{p.neutral(500)};
   --content-inverse: #{p.neutral(25)};
-  --content-link: #{p.blue(700)};
+  --content-link: #{p.iris(700)};
 
   // ── Bordes ─────────────────────────────────────────────────────────────────
   //  `subtle`   separadores decorativos (sin requisito de contraste)
@@ -69,18 +69,18 @@
   --border-subtle: #{p.neutral(150)};
   --border-default: #{p.neutral(300)};
   --border-strong: #7f8794;
-  --border-focus: #{p.blue(600)};
+  --border-focus: #{p.iris(600)};
 
   // ── Acento ─────────────────────────────────────────────────────────────────
-  --accent-solid: #{p.blue(600)};
-  --accent-solid-hover: #{p.blue(700)};
-  --accent-solid-active: #{p.blue(800)};
+  --accent-solid: #{p.iris(600)};
+  --accent-solid-hover: #{p.iris(700)};
+  --accent-solid-active: #{p.iris(800)};
   --accent-on-solid: #{p.neutral(0)};
-  --accent-text: #{p.blue(700)};
-  --accent-surface: #{p.blue(50)};
-  --accent-surface-hover: #{p.blue(100)};
-  --accent-border: #{p.blue(200)};
-  --accent-solid-rgb: #{p.rgb-triplet(p.blue(600))};
+  --accent-text: #{p.iris(700)};
+  --accent-surface: #{p.iris(50)};
+  --accent-surface-hover: #{p.iris(100)};
+  --accent-border: #{p.iris(200)};
+  --accent-solid-rgb: #{p.rgb-triplet(p.iris(600))};
 
   // ── Estados semánticos ─────────────────────────────────────────────────────
   --success-solid: #{p.green(700)};
@@ -141,9 +141,9 @@
   // ── Visualización de datos ─────────────────────────────────────────────────
   //  Serie categórica ordenada por separación de matiz para que siga siendo
   //  distinguible en deuteranopía, la deficiencia cromática más frecuente.
-  --viz-1: #{p.blue(600)};
+  --viz-1: #{p.iris(600)};
   --viz-2: #{p.teal(600)};
-  --viz-3: #{p.violet(600)};
+  --viz-3: #{p.blue(600)};
   --viz-4: #{p.amber(500)};
   --viz-5: #{p.pink(600)};
   --viz-6: #{p.cyan(600)};
@@ -154,9 +154,9 @@
 
   //  Ternas RGB de las series, para rellenos translúcidos (áreas apiladas,
   //  bandas de confianza, resaltados al pasar el cursor).
-  --viz-1-rgb: #{p.rgb-triplet(p.blue(600))};
+  --viz-1-rgb: #{p.rgb-triplet(p.iris(600))};
   --viz-2-rgb: #{p.rgb-triplet(p.teal(600))};
-  --viz-3-rgb: #{p.rgb-triplet(p.violet(600))};
+  --viz-3-rgb: #{p.rgb-triplet(p.blue(600))};
   --viz-4-rgb: #{p.rgb-triplet(p.amber(500))};
   --viz-5-rgb: #{p.rgb-triplet(p.pink(600))};
   --viz-6-rgb: #{p.rgb-triplet(p.cyan(600))};
@@ -209,7 +209,7 @@
     0 8px 24px #{rgba(p.neutral(960), 0.06)},
     0 24px 64px #{rgba(p.neutral(960), 0.1)};
   --glass-shadow-soft: 0 8px 30px #{rgba(p.neutral(960), 0.07)};
-  --glass-glow: 0 0 0 1px #{rgba(p.blue(600), 0.1)}, 0 12px 40px #{rgba(p.blue(600), 0.14)};
+  --glass-glow: 0 0 0 1px #{rgba(p.iris(600), 0.1)}, 0 12px 40px #{rgba(p.iris(600), 0.14)};
 
   // ── Aurora — lienzo animado de las pantallas de acceso ─────────────────────
   //  Cuatro velos de color que se desplazan lentamente bajo el cristal. Son
@@ -217,13 +217,13 @@
   //  recuperación de contraseña y confirmación de pago: si divergen, cada
   //  puerta de entrada al producto parece de un producto distinto.
   --aurora-canvas: #{p.neutral(50)};
-  --aurora-1: #{rgba(p.blue(500), 0.5)};
-  --aurora-2: #{rgba(p.violet(500), 0.38)};
+  --aurora-1: #{rgba(p.iris(500), 0.5)};
+  --aurora-2: #{rgba(p.violet(500), 0.34)};
   --aurora-3: #{rgba(p.cyan(400), 0.34)};
   --aurora-4: #{rgba(p.pink(400), 0.2)};
   --aurora-veil: #{rgba(p.neutral(0), 0.38)};
   --aurora-grid: #{rgba(p.neutral(700), 0.06)};
-  --aurora-silk: #{rgba(p.blue(600), 0.16)};
+  --aurora-silk: #{rgba(p.iris(600), 0.16)};
 }
 
 // -----------------------------------------------------------------------------
@@ -242,30 +242,38 @@
   color-scheme: dark;
 
   // ── Superficies ────────────────────────────────────────────────────────────
-  --surface-canvas: #{p.neutral(980)};
-  --surface-base: #{p.neutral(960)};
-  --surface-raised: #{p.neutral(940)};
-  --surface-overlay: #{p.neutral(920)};
-  --surface-sunken: #{p.neutral(1000)};
-  --surface-hover: #{p.neutral(900)};
-  --surface-active: #{p.neutral(875)};
-  --surface-selected: #{rgba(p.blue(400), 0.14)};
-  --surface-disabled: #{p.neutral(920)};
-  --surface-inverse: #{p.neutral(100)};
+  //  Rampa de Teams (`$graphite`). Gris puro, sin tinte: el fondo deja de
+  //  competir en matiz con el violeta de marca y el acento se percibe más
+  //  saturado sobre él.
+  --surface-canvas: #{p.graphite(950)};
+  --surface-base: #{p.graphite(920)};
+  --surface-raised: #{p.graphite(900)};
+  --surface-overlay: #{p.graphite(875)};
+  --surface-sunken: #{p.graphite(1000)};
+  --surface-hover: #{p.graphite(850)};
+  --surface-active: #{p.graphite(800)};
+  --surface-selected: #{rgba(p.iris(400), 0.16)};
+  --surface-disabled: #{p.graphite(900)};
+  --surface-inverse: #{p.graphite(100)};
 
   // ── Contenido ──────────────────────────────────────────────────────────────
-  --content-primary: #f3f5f9;
-  --content-secondary: #b7c0d3;
-  --content-tertiary: #939db4;
-  --content-disabled: #646e85;
-  --content-inverse: #{p.neutral(960)};
-  --content-link: #{p.blue(400)};
+  --content-primary: #{p.graphite(0)};
+  --content-secondary: #{p.graphite(300)};
+  --content-tertiary: #{p.graphite(400)};
+  --content-disabled: #{p.graphite(550)};
+  --content-inverse: #{p.graphite(900)};
+  --content-link: #{p.iris(400)};
 
   // ── Bordes ─────────────────────────────────────────────────────────────────
-  --border-subtle: #242938;
-  --border-default: #{p.neutral(850)};
-  --border-strong: #747b8b;
-  --border-focus: #{p.blue(400)};
+  //  `strong` usa el tramo 400 —`NeutralStrokeAccessible` en Teams— porque es
+  //  el único que alcanza 3:1 contra TODAS las superficies del tema, incluida
+  //  la más elevada. El tramo 600 (`NeutralStroke1`) se queda en 2.5:1 sobre
+  //  `--surface-overlay` y dejaría sin contorno visible los controles de un
+  //  modal.
+  --border-subtle: #{p.graphite(800)};
+  --border-default: #{p.graphite(750)};
+  --border-strong: #{p.graphite(400)};
+  --border-focus: #{p.iris(400)};
 
   // ── Acento ─────────────────────────────────────────────────────────────────
   //  Distinción crítica que la paleta anterior no hacía:
@@ -276,15 +284,15 @@
   //  Usar un único color para ambos roles es imposible: son restricciones
   //  opuestas. El tema anterior usaba #4f8cff para los dos, dejando el texto
   //  blanco de todos los botones primarios en 3.22:1 — un incumplimiento real.
-  --accent-solid: #{p.blue(550)};
-  --accent-solid-hover: #4d83f0;
-  --accent-solid-active: #{p.blue(600)};
-  --accent-on-solid: #{p.neutral(0)};
-  --accent-text: #{p.blue(400)};
-  --accent-surface: #{rgba(p.blue(400), 0.13)};
-  --accent-surface-hover: #{rgba(p.blue(400), 0.2)};
-  --accent-border: #{rgba(p.blue(400), 0.32)};
-  --accent-solid-rgb: #{p.rgb-triplet(p.blue(550))};
+  --accent-solid: #{p.iris(550)};
+  --accent-solid-hover: #7554f0;
+  --accent-solid-active: #{p.iris(600)};
+  --accent-on-solid: #{p.graphite(0)};
+  --accent-text: #{p.iris(400)};
+  --accent-surface: #{rgba(p.iris(400), 0.13)};
+  --accent-surface-hover: #{rgba(p.iris(400), 0.2)};
+  --accent-border: #{rgba(p.iris(400), 0.32)};
+  --accent-solid-rgb: #{p.rgb-triplet(p.iris(550))};
 
   // ── Estados semánticos ─────────────────────────────────────────────────────
   --success-solid: #{p.green(600)};
@@ -317,8 +325,8 @@
 
   // ── Velos y superposiciones ────────────────────────────────────────────────
   --scrim: #{rgba(#000000, 0.65)};
-  --skeleton-base: #{p.neutral(900)};
-  --skeleton-shine: #{p.neutral(875)};
+  --skeleton-base: #{p.graphite(900)};
+  --skeleton-shine: #{p.graphite(850)};
 
   --shadow-color-rgb: 0, 0, 0;
   --elevation-tint-rgb: 255, 255, 255;
@@ -334,20 +342,20 @@
 
   // ── Visualización de datos ─────────────────────────────────────────────────
   //  Tramos más claros: sobre fondo oscuro los tonos 600 se hunden.
-  --viz-1: #{p.blue(400)};
+  --viz-1: #{p.iris(400)};
   --viz-2: #{p.teal(400)};
-  --viz-3: #{p.violet(400)};
+  --viz-3: #{p.blue(400)};
   --viz-4: #{p.amber(300)};
   --viz-5: #{p.pink(400)};
   --viz-6: #{p.cyan(300)};
   --viz-7: #{p.green(400)};
   --viz-8: #{p.red(400)};
-  --viz-grid: #{p.neutral(875)};
-  --viz-axis: #{p.neutral(500)};
+  --viz-grid: #{p.graphite(800)};
+  --viz-axis: #{p.graphite(500)};
 
-  --viz-1-rgb: #{p.rgb-triplet(p.blue(400))};
+  --viz-1-rgb: #{p.rgb-triplet(p.iris(400))};
   --viz-2-rgb: #{p.rgb-triplet(p.teal(400))};
-  --viz-3-rgb: #{p.rgb-triplet(p.violet(400))};
+  --viz-3-rgb: #{p.rgb-triplet(p.blue(400))};
   --viz-4-rgb: #{p.rgb-triplet(p.amber(300))};
   --viz-5-rgb: #{p.rgb-triplet(p.pink(400))};
   --viz-6-rgb: #{p.rgb-triplet(p.cyan(300))};
@@ -361,19 +369,19 @@
   //  sensación de vidrio aquí es el borde luminoso y el desenfoque, no el
   //  relleno.
   --glass-tint-rgb: 255, 255, 255;
-  --glass-bg: #{rgba(p.neutral(940), 0.62)};
-  --glass-bg-strong: #{rgba(p.neutral(940), 0.84)};
-  --glass-bg-subtle: #{rgba(p.neutral(940), 0.4)};
-  --glass-bg-hover: #{rgba(p.neutral(920), 0.86)};
+  --glass-bg: #{rgba(p.graphite(900), 0.62)};
+  --glass-bg-strong: #{rgba(p.graphite(900), 0.84)};
+  --glass-bg-subtle: #{rgba(p.graphite(900), 0.4)};
+  --glass-bg-hover: #{rgba(p.graphite(875), 0.86)};
 
-  --glass-border: #{rgba(p.neutral(0), 0.12)};
-  --glass-border-soft: #{rgba(p.neutral(0), 0.07)};
-  --glass-highlight: #{rgba(p.neutral(0), 0.22)};
-  --glass-divider: #{rgba(p.neutral(0), 0.1)};
+  --glass-border: #{rgba(p.graphite(0), 0.12)};
+  --glass-border-soft: #{rgba(p.graphite(0), 0.07)};
+  --glass-highlight: #{rgba(p.graphite(0), 0.22)};
+  --glass-divider: #{rgba(p.graphite(0), 0.1)};
 
-  --glass-field-bg: #{rgba(p.neutral(0), 0.05)};
-  --glass-field-bg-focus: #{rgba(p.neutral(0), 0.09)};
-  --glass-field-border: #{rgba(p.neutral(0), 0.14)};
+  --glass-field-bg: #{rgba(p.graphite(0), 0.05)};
+  --glass-field-bg-focus: #{rgba(p.graphite(0), 0.09)};
+  --glass-field-border: #{rgba(p.graphite(0), 0.14)};
 
   --glass-blur: 20px;
   --glass-blur-strong: 34px;
@@ -384,19 +392,19 @@
     0 12px 32px #{rgba(#000000, 0.45)},
     0 32px 80px #{rgba(#000000, 0.55)};
   --glass-shadow-soft: 0 10px 34px #{rgba(#000000, 0.45)};
-  --glass-glow: 0 0 0 1px #{rgba(p.blue(400), 0.18)}, 0 16px 48px #{rgba(p.blue(500), 0.22)};
+  --glass-glow: 0 0 0 1px #{rgba(p.iris(400), 0.18)}, 0 16px 48px #{rgba(p.iris(500), 0.22)};
 
   // ── Aurora ─────────────────────────────────────────────────────────────────
   //  Los velos son más saturados y el lienzo casi negro: es la lectura oscura
   //  de la misma composición, no una paleta distinta.
-  --aurora-canvas: #05070d;
-  --aurora-1: #{rgba(p.blue(500), 0.55)};
-  --aurora-2: #{rgba(p.violet(500), 0.42)};
+  --aurora-canvas: #{p.graphite(1000)};
+  --aurora-1: #{rgba(p.iris(500), 0.55)};
+  --aurora-2: #{rgba(p.violet(500), 0.38)};
   --aurora-3: #{rgba(p.cyan(400), 0.34)};
   --aurora-4: #{rgba(p.pink(500), 0.2)};
   --aurora-veil: #{rgba(#000000, 0.45)};
-  --aurora-grid: #{rgba(p.neutral(0), 0.035)};
-  --aurora-silk: #{rgba(p.blue(300), 0.22)};
+  --aurora-grid: #{rgba(p.graphite(0), 0.035)};
+  --aurora-silk: #{rgba(p.iris(300), 0.22)};
 }
 
 // -----------------------------------------------------------------------------
@@ -464,6 +472,27 @@
 //  Que la regla 3 sea CSS puro es lo que permite pintar el tema correcto en el
 //  primer frame, antes de que Angular exista.
 // =============================================================================
+
+// -----------------------------------------------------------------------------
+//  MARCA
+// -----------------------------------------------------------------------------
+//  Se publican FUERA de los mixins de tema porque no se tematizan: el logotipo
+//  de Virtex es el mismo color sobre lienzo claro y sobre lienzo oscuro. Ese es
+//  el punto — una marca que cambia de color con el tema no se recuerda por su
+//  color.
+//
+//  Tampoco los toca `BrandingService`, que solo escribe `--accent-*`,
+//  `--content-link` y `--border-focus`. Una organización personaliza SU
+//  interfaz; la marca de Virtex conserva su presencia dentro de ella.
+// -----------------------------------------------------------------------------
+:root {
+  --brand-from: #{p.brand('from')};
+  --brand-to: #{p.brand('to')};
+  //  Tinta de la versión en negativo. Es blanco fijo y no `--content-primary`:
+  //  el negativo existe precisamente para los soportes donde el tema no manda
+  //  —una fotografía, una superficie de acento, un folleto impreso a color.
+  --brand-negative: #{p.graphite(0)};
+}
 
 :root {
   @include light;

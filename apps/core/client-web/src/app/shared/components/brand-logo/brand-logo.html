@@ -1,35 +1,76 @@
 <!--
-  i18n-ignore-file
-
-  El wordmark NO se traduce: es la marca, no una palabra. Esta es la unica plantilla del
-  producto con texto literal, y la exencion queda declarada aqui — tanto la herramienta de
-  extraccion como `no-hardcoded-strings.spec.ts` respetan el marcador.
+  El wordmark es un TRAZADO, no texto: se dibuja con las curvas de Inter 600 ya
+  convertidas, de modo que el logotipo es idéntico en la aplicación, en un
+  correo y en un PDF, y no cambia de forma si la webfont tarda o no llega. Por
+  eso este archivo ya no necesita la exención `i18n-ignore-file` que llevaba.
+  El nombre accesible lo aporta `label`.
 -->
-<span class="brand-logo__mark" [class.is-mono]="monochrome" aria-hidden="true">
-  <svg viewBox="0 0 104 100" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg">
+<span class="brand-logo__mark" aria-hidden="true">
+  <svg
+    viewBox="0 0 100 100"
+    role="presentation"
+    focusable="false"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <defs>
+      <!--
+        UN degradado para TODA la figura, en espacio de usuario y no relativo a
+        cada trazado: así los tres planos comparten la misma rampa y el vértice
+        —que está al final del eje ascendente— recibe el extremo claro sin
+        necesidad de un segundo color. El identificador es único por instancia
+        porque dos logotipos en un mismo documento tendrían dos veces el mismo
+        `id`, que es HTML inválido.
+      -->
+      <linearGradient
+        [attr.id]="gradientId"
+        gradientUnits="userSpaceOnUse"
+        x1="8"
+        y1="92"
+        x2="92"
+        y2="8"
+      >
+        <stop class="brand-logo__stop--from" offset="0" />
+        <stop class="brand-logo__stop--to" offset="1" />
+      </linearGradient>
+    </defs>
+
     <!--
-      Asta izquierda. Las dos `Q` son las esquinas redondeadas: el punto de
-      control coincide con el vértice teórico, así el radio se mantiene igual
-      aunque cambie la inclinación.
+      Los tres planos van en un solo trazado: comparten relleno, así que
+      separarlos en tres elementos solo añadiría nodos. El orden de los
+      subtrazados es cuerpo · contrapartida · vértice.
     -->
     <path
-      class="brand-logo__stroke-accent"
-      d="M18 6 L33 6 L66.9 86.6 Q70 94 62 94 L47 94 L13.1 13.4 Q10 6 18 6 Z" />
-
-    <!-- Asta derecha, biselada contra el canto interior de la anterior. -->
-    <path
-      class="brand-logo__stroke-ink"
-      d="M72 6 L95 6 L64.4 80.7 L52.8 53 Z" />
+      class="brand-logo__symbol"
+      [attr.fill]="symbolFill"
+      d="M5 20.749Q5 5 20.749 5L34.41 5Q37.81 5 40.214 7.404L92.596 59.786Q95 62.19 95 65.59L95 79.251Q95 95 79.251 95L65.59 95Q62.19 95 59.786 92.596L7.404 40.214Q5 37.81 5 34.41Z M51.866 92.596Q54.271 95 50.871 95L27 95Q5 95 5 73L5 49.129Q5 45.729 7.404 48.134Z M48.134 7.404Q45.729 5 49.129 5L95 5L95 50.871Q95 54.271 92.596 51.866Z"
+    />
   </svg>
 </span>
 
 @if (variant !== 'mark') {
-  <span class="brand-logo__type">
-    <span class="brand-logo__word">Virtex</span>
-    @if (showTagline) {
-      <span class="brand-logo__tagline">ERP</span>
-    }
+<span class="brand-logo__type">
+  <span class="brand-logo__word" aria-hidden="true">
+    <svg
+      viewBox="0 0 260.534 90.059"
+      role="presentation"
+      focusable="false"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <!--
+          El alto de la caja excede al de la tinta por abajo a propósito: así el
+          centrado vertical del contenedor coloca la palabra en su sitio óptico
+          sin que ningún consumidor tenga que corregirla a mano.
+        -->
+      <path
+        transform="translate(-1.904 76.221)"
+        d="M22.22 0 1.9 -54.59H15.48L25.44 -24.9Q27.2 -19.68 28.47 -14.4Q29.74 -9.13 31.05 -3.71H27.88Q29.25 -9.13 30.49 -14.4Q31.74 -19.68 33.45 -24.9L43.36 -54.59H56.84L36.43 0ZM63.23 0V-54.59H75.92V0ZM69.58 -62.3Q66.55 -62.3 64.38 -64.36Q62.2 -66.41 62.2 -69.24Q62.2 -72.17 64.38 -74.19Q66.55 -76.22 69.58 -76.22Q72.65 -76.22 74.83 -74.19Q77 -72.17 77 -69.29Q77 -66.41 74.83 -64.36Q72.65 -62.3 69.58 -62.3ZM87.2 0V-54.59H99.51V-45.46H100.09Q101.56 -50.2 105.22 -52.76Q108.88 -55.32 113.57 -55.32Q114.64 -55.32 115.96 -55.22Q117.28 -55.13 118.21 -54.98V-43.31Q117.43 -43.55 115.67 -43.75Q113.91 -43.95 112.2 -43.95Q108.69 -43.95 105.88 -42.43Q103.07 -40.92 101.48 -38.26Q99.9 -35.6 99.9 -32.13V0ZM149.94 -54.59V-44.63H118.94V-54.59ZM126.7 -67.58H139.4V-15.38Q139.4 -12.4 140.67 -11.01Q141.94 -9.62 144.82 -9.62Q145.69 -9.62 147.14 -9.84Q148.58 -10.06 149.45 -10.25L151.46 -0.44Q149.36 0.2 147.16 0.46Q144.96 0.73 142.96 0.73Q135.1 0.73 130.9 -3.17Q126.7 -7.08 126.7 -14.31ZM181.92 1.12Q173.67 1.12 167.74 -2.34Q161.81 -5.81 158.61 -12.11Q155.41 -18.41 155.41 -26.95Q155.41 -35.4 158.56 -41.75Q161.71 -48.1 167.49 -51.68Q173.28 -55.27 181.09 -55.27Q186.07 -55.27 190.59 -53.66Q195.11 -52.05 198.6 -48.68Q202.09 -45.31 204.07 -40.11Q206.04 -34.91 206.04 -27.73V-23.73H161.41V-32.37H199.74L193.79 -29.83Q193.79 -34.42 192.37 -37.92Q190.96 -41.41 188.15 -43.36Q185.34 -45.31 181.14 -45.31Q176.94 -45.31 174.01 -43.33Q171.08 -41.36 169.54 -38.06Q168.01 -34.77 168.01 -30.71V-24.76Q168.01 -19.58 169.76 -16.02Q171.52 -12.45 174.7 -10.64Q177.87 -8.84 182.07 -8.84Q184.85 -8.84 187.12 -9.64Q189.39 -10.45 191.05 -12.04Q192.71 -13.62 193.54 -15.92L205.21 -13.53Q203.9 -9.13 200.72 -5.83Q197.55 -2.54 192.79 -0.71Q188.03 1.12 181.92 1.12ZM210.44 0 231.68 -32.96 231.63 -23.1 211.51 -54.59H225.47L231.04 -45.31Q233.48 -41.16 235.39 -37.21Q237.29 -33.25 239.24 -29.54H233.97Q236.02 -33.2 237.85 -37.18Q239.68 -41.16 242.17 -45.31L247.94 -54.59H261.61L241.2 -22.9V-32.52L262.44 0H248.57L241.83 -10.94Q239.39 -15.09 237.46 -18.99Q235.53 -22.9 233.58 -26.46H238.85Q236.9 -22.9 235.12 -18.99Q233.34 -15.09 230.89 -10.94L224.16 0Z"
+      />
+    </svg>
   </span>
+  @if (showDescriptor) {
+  <span class="brand-logo__descriptor">{{ descriptor }}</span>
+  }
+</span>
 }
 
 <span class="sr-only">{{ label }}</span>

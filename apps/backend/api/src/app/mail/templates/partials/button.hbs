@@ -1,0 +1,21 @@
+{{!--
+  La llamada a la acción. `{{> button href=url label=(t 'CLAVE')}}`
+
+  Lleva el bloque VML porque Outlook para Windows ignora `border-radius` y
+  `padding` en un enlace: sin él, el botón se ve como texto azul subrayado.
+--}}
+<table role="presentation" align="center" class="btn" cellpadding="0" cellspacing="0" style="margin:28px auto;">
+  <tr>
+    <td align="center">
+      <!--[if mso]>
+        <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" href="{{href}}" style="height:48px; v-text-anchor:middle; width:300px;" arcsize="20%" stroke="f" fillcolor="{{brand 'accent'}}">
+          <w:anchorlock/>
+          <center style="color:{{brand 'onAccent'}}; font-family:'Segoe UI', Arial, sans-serif; font-size:16px; font-weight:600;">{{label}}</center>
+        </v:roundrect>
+      <![endif]-->
+      <!--[if !mso]><!-- -->
+      <a href="{{href}}" style="background:{{brand 'accent'}}; color:{{brand 'onAccent'}}; font:600 16px/1 {{brand 'font'}}; padding:16px 30px; border-radius:10px; display:inline-block;">{{label}}</a>
+      <!--<![endif]-->
+    </td>
+  </tr>
+</table>

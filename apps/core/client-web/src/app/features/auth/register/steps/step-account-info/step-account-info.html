@@ -39,16 +39,14 @@
     </div>
 
     <div class="full-width">
-      <app-auth-input
+      <!-- The number is collected as (country + national) and stored as E.164, which is what every
+           verification and OTP endpoint requires. A free-text `type="tel"` field here sent national
+           numbers straight to the API, which rejected them, so phone verification could never pass. -->
+      <app-intl-phone-input
         formControlName="phone"
-        type="tel"
         [label]="'REGISTER.PHONE' | translate"
-        [placeholder]="'REGISTER.PHONE_PLACEHOLDER' | translate"
-        [required]="true"
-        [hasIcon]="true"
-        [errorMessage]="getErrorMessage('phone')">
-        <lucide-icon icon [img]="PhoneIcon" size="18"></lucide-icon>
-      </app-auth-input>
+        [placeholder]="'REGISTER.PHONE_PLACEHOLDER' | translate">
+      </app-intl-phone-input>
     </div>
 
     <div class="full-width" formGroupName="passwordGroup">

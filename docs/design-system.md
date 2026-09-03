@@ -126,6 +126,9 @@ juego de roles:
 | `-border` | Borde a juego con `-surface` |
 | `-rgb` | Terna para componer opacidades |
 
+El acento de Virtex es **iris** (`#5b37d9` en claro, `#6a47e8` en oscuro), no un
+azul. El porqué —y el resto de la identidad— está en [`brand.md`](./brand.md).
+
 **`-solid` y `-text` no son intercambiables.** Resuelven restricciones
 opuestas: `-solid` debe contrastar con el texto que lleva encima, `-text` debe
 contrastar con la superficie sobre la que se apoya. Usar uno por otro es el
