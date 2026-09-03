@@ -5,13 +5,12 @@ import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal, Edit, Trash2 }
 import { PriceList } from '../../../core/models/price-list.model';
 import { PriceListsService } from '../../../core/api/price-lists.service';
 import { NotificationService } from '../../../core/services/notification';
-import { DatePipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 
 @Component({
   selector: 'app-price-lists-page',
-  imports: [RouterLink, LucideAngularModule, DatePipe, TranslateModule, ...FORMAT_PIPES],
+  imports: [RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './price-lists.page.html',
   styleUrls: ['./price-lists.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

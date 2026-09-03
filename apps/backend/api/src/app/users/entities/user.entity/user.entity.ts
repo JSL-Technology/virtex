@@ -127,7 +127,7 @@ export class User {
    * The column stays `length: 5` to leave room for a future regional preference (`pt-BR`)
    * without a migration; the values written today are the two-letter catalogue codes.
    */
-  @Column({ name: 'preferred_language', length: 5, nullable: true })
+  @Column({ name: 'preferred_language', type: 'varchar', length: 5, nullable: true })
   preferredLanguage?: LanguageCode | null;
 
   /**

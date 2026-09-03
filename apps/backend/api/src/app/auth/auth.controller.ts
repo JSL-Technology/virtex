@@ -27,7 +27,7 @@ import {
   Verify2faDto,
   SendPublicVerificationDto,
   VerifyPublicCodeDto,
-  CreateCheckoutSessionDto,
+  AuthCreateCheckoutSessionDto,
   VerifyWebAuthnRegistrationDto,
   InvitationDetailsDto,
 } from './dto/security-audit.dto';
@@ -1235,7 +1235,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard, CsrfGuard)
   async createCheckoutSession(
     @CurrentUser() user: AuthenticatedUser,
-    @Body() body: CreateCheckoutSessionDto
+    @Body() body: AuthCreateCheckoutSessionDto
   ) {
     const plans = await this.saasService.getPlans();
     const plan = plans.find(p => p.id === body.planId || p.slug === body.planId);

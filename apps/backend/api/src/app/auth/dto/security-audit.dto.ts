@@ -59,7 +59,7 @@ export class VerifyPublicCodeDto extends SendPublicVerificationDto {
 // successUrl/cancelUrl are built server-side from FRONTEND_URL so the backend
 // controls the redirect destination (OWASP Unvalidated Redirects and Forwards
 // Cheat Sheet; CWE-601 URL Redirection to Untrusted Site).
-export class CreateCheckoutSessionDto {
+export class AuthCreateCheckoutSessionDto {
   @ApiProperty()
   @IsString()
   @Length(1, 80, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":1,"max":80}' })

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { Router, RouterStateSnapshot, TitleStrategy } from '@angular/router';
+import { RouterStateSnapshot, TitleStrategy } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 
 /**
@@ -24,22 +24,29 @@ import { TranslateService } from '@ngx-translate/core';
  * the previous language's title until the reader happened to move to another page — the one part
  * of the interface that did not follow the switch. Re-rendering on `onLangChange` costs one
  * translation lookup and removes that inconsistency.
+ *
+ * The last snapshot the router handed us is cached rather than read back from an injected
+ * `Router`. Injecting `Router` here is a circular dependency — the router injects the
+ * `TitleStrategy` to update the title on navigation, so a `TitleStrategy` that injects the router
+ * closes the loop and Angular throws `NG0200` at bootstrap. The router already passes the snapshot
+ * to `updateTitle`; keeping the most recent one is all the language re-render needs.
  */
 @Injectable({ providedIn: 'root' })
 export class TranslatedTitleStrategy extends TitleStrategy {
   private readonly title = inject(Title);
   private readonly translate = inject(TranslateService);
-  private readonly router = inject(Router);
+  private lastSnapshot: RouterStateSnapshot | null = null;
 
   constructor() {
     super();
     this.translate.onLangChange.subscribe(() => {
-      const snapshot = this.router.routerState.snapshot;
-      if (snapshot) this.updateTitle(snapshot);
+      if (this.lastSnapshot) this.updateTitle(this.lastSnapshot);
     });
   }
 
   override updateTitle(snapshot: RouterStateSnapshot): void {
+    this.lastSnapshot = snapshot;
+
     const key = this.buildTitle(snapshot);
     const appName = this.translate.instant('APP_TITLE');
 

@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal, Input } from '@angular/core';
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { LucideAngularModule, Save, Plus, Trash2 } from 'lucide-angular';
@@ -51,7 +51,7 @@ export const journalEntryValidator = (control: AbstractControl): ValidationError
 @Component({
   selector: 'app-journal-entry-form-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, LucideAngularModule, DecimalPipe, TranslateModule, ...FORMAT_PIPES],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './journal-entry-form.page.html',
   styleUrls: ['./journal-entry-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
