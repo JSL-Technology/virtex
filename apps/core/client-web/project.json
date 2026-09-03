@@ -38,13 +38,28 @@
         "stylePreprocessorOptions": {
           "includePaths": [
             "apps/core/client-web/src"
-          ]
+          ],
+          "sass": {
+            "silenceDeprecations": ["mixed-decls"]
+          }
         },
         "allowedCommonJsDependencies": [
           "validator",
           "validator/lib/isBase58",
           "validator/lib/isTaxID",
-          "validator/lib/isISO4217"
+          "validator/lib/isISO4217",
+          "file-saver",
+          "html-docx-js-typescript",
+          "qrcode",
+          "highcharts",
+          "highcharts/modules/exporting",
+          "highcharts/modules/export-data",
+          "highcharts/modules/accessibility",
+          "highcharts/modules/full-screen",
+          "leaflet",
+          "moment",
+          "tiny-emitter",
+          "regexp-to-ast"
         ]
       },
       "configurations": {
@@ -58,7 +73,7 @@
           "budgets": [
             {
               "type": "initial",
-              "maximumWarning": "500kb",
+              "maximumWarning": "1.6mb",
               "maximumError": "4mb"
             },
             {
