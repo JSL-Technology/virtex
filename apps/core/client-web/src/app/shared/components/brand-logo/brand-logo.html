@@ -1,33 +1,48 @@
 <!--
-  Este archivo YA NO necesita la exención `i18n-ignore-file` que llevaba: el
-  wordmark dejó de ser texto literal y pasó a ser un TRAZADO. Se dibuja con las
-  curvas de Inter 600 ya convertidas, de modo que el logotipo es idéntico en la
-  aplicación, en un correo y en un PDF, y no cambia de forma si la webfont tarda
-  o no llega. El nombre accesible lo aporta `label`.
+  El wordmark es un TRAZADO, no texto: se dibuja con las curvas de Inter 600 ya
+  convertidas, de modo que el logotipo es idéntico en la aplicación, en un
+  correo y en un PDF, y no cambia de forma si la webfont tarda o no llega. Por
+  eso este archivo ya no necesita la exención `i18n-ignore-file` que llevaba.
+  El nombre accesible lo aporta `label`.
 -->
-<span class="brand-logo__mark" [class.is-mono]="monochrome" aria-hidden="true">
+<span class="brand-logo__mark" aria-hidden="true">
   <svg
     viewBox="0 0 100 100"
     role="presentation"
     focusable="false"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <!--
-      Cuerpo del bloque y su contrapartida en la esquina opuesta: los dos planos
-      que sostienen la marca. Van en un solo trazado porque comparten tinta.
-    -->
-    <path
-      class="brand-logo__plane"
-      d="M5 20.749Q5 5 20.749 5L34.41 5Q37.81 5 40.214 7.404L92.596 59.786Q95 62.19 95 65.59L95 79.251Q95 95 79.251 95L65.59 95Q62.19 95 59.786 92.596L7.404 40.214Q5 37.81 5 34.41Z M51.866 92.596Q54.271 95 50.871 95L27 95Q5 95 5 73L5 49.129Q5 45.729 7.404 48.134Z"
-    />
+    <defs>
+      <!--
+        UN degradado para TODA la figura, en espacio de usuario y no relativo a
+        cada trazado: así los tres planos comparten la misma rampa y el vértice
+        —que está al final del eje ascendente— recibe el extremo claro sin
+        necesidad de un segundo color. El identificador es único por instancia
+        porque dos logotipos en un mismo documento tendrían dos veces el mismo
+        `id`, que es HTML inválido.
+      -->
+      <linearGradient
+        [attr.id]="gradientId"
+        gradientUnits="userSpaceOnUse"
+        x1="8"
+        y1="92"
+        x2="92"
+        y2="8"
+      >
+        <stop class="brand-logo__stop--from" offset="0" />
+        <stop class="brand-logo__stop--to" offset="1" />
+      </linearGradient>
+    </defs>
 
     <!--
-      El vértice: la única esquina viva de la figura y la única pieza en color
-      de marca. Es lo que da nombre al producto, así que es lo que se destaca.
+      Los tres planos van en un solo trazado: comparten relleno, así que
+      separarlos en tres elementos solo añadiría nodos. El orden de los
+      subtrazados es cuerpo · contrapartida · vértice.
     -->
     <path
-      class="brand-logo__vertex"
-      d="M48.134 7.404Q45.729 5 49.129 5L95 5L95 50.871Q95 54.271 92.596 51.866Z"
+      class="brand-logo__symbol"
+      [attr.fill]="symbolFill"
+      d="M5 20.749Q5 5 20.749 5L34.41 5Q37.81 5 40.214 7.404L92.596 59.786Q95 62.19 95 65.59L95 79.251Q95 95 79.251 95L65.59 95Q62.19 95 59.786 92.596L7.404 40.214Q5 37.81 5 34.41Z M51.866 92.596Q54.271 95 50.871 95L27 95Q5 95 5 73L5 49.129Q5 45.729 7.404 48.134Z M48.134 7.404Q45.729 5 49.129 5L95 5L95 50.871Q95 54.271 92.596 51.866Z"
     />
   </svg>
 </span>

@@ -51,22 +51,41 @@ $word-ratio: 0.7205;
   }
 }
 
-.brand-logo__plane {
-  fill: var(--content-primary);
+// ── Versión principal: color de marca ────────────────────────────────────────
+//  Un solo violeta, en degradado corto. Estos colores NO se tematizan y NO los
+//  toca `BrandingService`: el logotipo es el mismo en claro y en oscuro, y no
+//  se tiñe del acento del cliente.
+.brand-logo__stop--from {
+  stop-color: var(--brand-from);
 }
 
-.brand-logo__vertex {
-  fill: var(--accent-solid);
+.brand-logo__stop--to {
+  stop-color: var(--brand-to);
 }
 
-//  Sobre una superficie de acento el vértice se perdería contra el fondo: toda
-//  la marca pasa a la tinta en curso. Los canales entre planos siguen ahí, así
-//  que la figura no se convierte en una mancha.
-.brand-logo__mark.is-mono {
-  .brand-logo__plane,
-  .brand-logo__vertex {
-    fill: currentColor;
+// ── Versión a un solo tono ───────────────────────────────────────────────────
+//  Sin degradado, para reproducciones que no lo admiten: bordado, serigrafía,
+//  sellos. Los canales entre planos siguen separando la figura, así que el
+//  símbolo no se convierte en una mancha.
+:host(.brand-logo--mono) .brand-logo__symbol {
+  fill: var(--brand-to);
+}
+
+// ── Versión en negativo ──────────────────────────────────────────────────────
+//  Para fotografías y superficies de acento, donde el violeta no contrasta.
+:host(.brand-logo--negative) {
+  color: #ffffff;
+
+  .brand-logo__symbol {
+    fill: #ffffff;
   }
+}
+
+// ── Versión a una tinta ──────────────────────────────────────────────────────
+//  Impresión en negro, fax, grabado. Toma la tinta en curso, de modo que hereda
+//  el color del texto que la rodea.
+:host(.brand-logo--positive) .brand-logo__symbol {
+  fill: currentColor;
 }
 
 // ── Wordmark ─────────────────────────────────────────────────────────────────
@@ -111,6 +130,12 @@ $word-ratio: 0.7205;
   //  Sangría óptica: el interletrado añade un hueco DETRÁS de la última letra
   //  que descentra el bloque respecto a la palabra. Se compensa restándolo.
   margin-right: -0.18em;
+}
+
+:host(.brand-logo--negative) .brand-logo__descriptor {
+  //  Sobre fondo con imagen no hay jerarquía de tinta que respetar: el blanco
+  //  al 70 % conserva la subordinación sin perder legibilidad.
+  color: rgb(255 255 255 / 0.72);
 }
 
 // ── Movimiento ───────────────────────────────────────────────────────────────

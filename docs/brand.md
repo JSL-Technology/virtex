@@ -17,7 +17,9 @@ debajo. Tres problemas, ninguno de gusto:
    palabra no diera ya, y encima la daba peor.
 2. **El azul no identificaba nada.** `#2563eb` es el azul por defecto de medio
    ecosistema de producto. Cualquier captura de la aplicación podía ser la de
-   otro fabricante.
+   otro fabricante. Una primera versión resolvió el matiz pero dejó el símbolo
+   casi todo en tinta: cambiaba de negro a blanco con el tema y, siendo
+   correcto, seguía sin aportar reconocimiento por color.
 3. **«ERP» no es el nombre.** El producto se llama Virtex y es un ERP, igual que
    Figma se llama Figma y es un editor de diseño. Componer la categoría dentro
    del logotipo la convertía en apellido.
@@ -29,9 +31,10 @@ debajo. Tres problemas, ninguno de gusto:
 Un bloque de esquinas blandas con **un solo vértice vivo**, cortado por dos
 canales paralelos en tres planos que ascienden hacia esa esquina.
 
-- El **vértice** —la única esquina sin redondear y la única pieza en color de
-  marca— es el punto donde se encuentran los planos. Un ERP es exactamente eso
-  para una empresa: el punto donde convergen finanzas, operaciones e inventario.
+- El **vértice** —la única esquina sin redondear, y la que recibe el extremo
+  claro del degradado— es el punto donde se encuentran los planos. Un ERP es
+  exactamente eso para una empresa: el punto donde convergen finanzas,
+  operaciones e inventario.
 - El **cuerpo** es el sistema.
 - La **contrapartida**, el plano pequeño de la esquina opuesta, es el otro lado
   del asiento. La partida doble, dibujada.
@@ -100,23 +103,87 @@ divergen, el logotipo de la aplicación deja de ser el del correo.
 
 ## Color
 
-El acento de marca es **iris**, no un azul.
+La marca es de **un solo color**: un violeta con un degradado corto.
 
-| Tramo      | Valor     | Uso                                           |
-| ---------- | --------- | --------------------------------------------- |
-| `iris-600` | `#5b37d9` | Acento en tema claro · vértice del símbolo    |
-| `iris-550` | `#6a47e8` | Acento en tema oscuro                         |
-| `iris-500` | `#7d5cf6` | Vértice sobre el azulejo casi negro del icono |
-| `iris-400` | `#a58fff` | Texto de acento y enlaces en tema oscuro      |
+| Token          | Valor     | Papel                                       |
+| -------------- | --------- | ------------------------------------------- |
+| `--brand-from` | `#6a47e8` | Extremo hundido, esquina inferior izquierda |
+| `--brand-to`   | `#8f77ff` | Extremo claro, el vértice                   |
 
-El iris se eligió por descarte razonado, no por gusto: **no colisiona con ningún
-color semántico del sistema**. El petróleo, la otra candidata seria, se
-confundía con `--info-solid`; la esmeralda, con `--success-solid`. En una
-rejilla llena de insignias de estado esa confusión se paga cara.
+### Por qué un degradado y no un plano
 
-Los tramos y los tokens que los consumen están en `_primitives.scss` y
-`_theme.scss`. `npm run lint:contrast` verifica las 150 parejas
-texto/superficie: ningún color de esta tabla se cambia sin volver a ejecutarlo.
+El degradado recorre **toda la figura** en la diagonal ascendente, en espacio de
+usuario y no relativo a cada trazado. Eso hace que los tres planos compartan una
+sola rampa y que el vértice —que está al final del eje— reciba el extremo claro.
+
+Es la razón de que la marca no necesite un segundo color para destacar su
+vértice. Una versión intermedia lo llevaba en arcilla y se veía cargada: dos
+familias de color y cuatro valores para una figura de tres planos.
+
+### Por qué NO cambia con el tema
+
+`--brand-from` y `--brand-to` se publican **fuera** de los mixins de tema. El
+logotipo es el mismo color sobre lienzo claro y sobre lienzo oscuro, y ese es
+justamente el punto: una marca que cambia de color con el tema no se recuerda
+por su color.
+
+Que eso sea posible no es casualidad. Las dos paradas se eligieron dentro de la
+franja de luminancia que alcanza **≥3:1 contra los dos lienzos** a la vez:
+
+| Parada    | Sobre `#f4f6fa` | Sobre `#141414` |
+| --------- | --------------- | --------------- |
+| `#6a47e8` | 5.28:1          | 3.23:1          |
+| `#8f77ff` | 3.11:1          | 5.48:1          |
+
+Un violeta más profundo (`#5b37d9`, el acento de la interfaz) se queda en 2.63:1
+sobre el lienzo oscuro y obligaría a mantener dos logotipos. Por eso el
+degradado es corto: no es un efecto, es el recorrido más largo que admite esa
+restricción.
+
+### Por qué el branding del cliente no lo toca
+
+`BrandingService` solo escribe `--accent-*`, `--content-link` y
+`--border-focus`. El logotipo consume `--brand-*`, que ese servicio no conoce.
+Una organización personaliza **su** interfaz; la marca de Virtex mantiene su
+presencia dentro de ella.
+
+Durante una versión el símbolo se pintó con `--content-primary` y
+`--accent-solid`. Se veía correcto y era un error de marca por partida doble: el
+símbolo era casi todo tinta —negro sobre claro, blanco sobre oscuro—, así que no
+aportaba ningún reconocimiento por color; y al personalizar su acento, el
+cliente teñía el logotipo de Virtex.
+
+---
+
+## Versiones
+
+Cada una existe para un soporte concreto. No son gustos intercambiables.
+
+| Versión       | `tone`     | Cuándo                                                                                  |
+| ------------- | ---------- | --------------------------------------------------------------------------------------- |
+| **Principal** | `brand`    | Siempre que el soporte admita color, sobre fondo claro u oscuro indistintamente         |
+| **Un tono**   | `mono`     | Reproducción a una tinta que sí admite color: bordado, serigrafía, sello                |
+| **Negativo**  | `negative` | Fotografías, superficies de acento y cualquier fondo con el que el violeta no contraste |
+| **Positivo**  | `positive` | Impresión a una tinta negra, fax, documento oficial, grabado                            |
+
+En la aplicación se conmutan con la entrada `tone` del componente, sin cambiar
+de archivo. Fuera del navegador, cada una tiene su `.svg` en el inventario.
+
+---
+
+## Tema oscuro
+
+Los neutros del tema oscuro son los de **Microsoft Teams**. Los valores no están
+transcritos de memoria: se extrajeron del paquete `@fluentui/tokens`
+(`teamsDarkTheme`), de modo que cada tramo de `$graphite` corresponde a un token
+real de Fluent y no a una aproximación.
+
+Es una rampa de gris **puro**, sin el tinte frío de `$neutral`. Ese es el motivo
+de traerla: un fondo sin croma no compite en matiz con el violeta, así que la
+marca se percibe más saturada sobre ella. El tema claro conserva `$neutral`,
+que sí lleva tinte — sobre blanco el problema es el contrario.
+
+El color primario NO viene de Teams: sigue siendo el iris de Virtex.
 
 ---
 
@@ -133,8 +200,10 @@ suma ruido en cada pantalla.
 ## Qué no se hace
 
 - No se redondea el vértice. Es el tema de la marca.
-- No se recolorea el símbolo fuera de los tokens: sobre una superficie de acento
-  se usa `monochrome`, que lo lleva todo a la tinta en curso.
+- No se recolorea el símbolo fuera de los tokens. Sobre una superficie de acento
+  o una fotografía se usa `tone="negative"`; nunca un violeta a ojo.
+- No se le añade un segundo color. La marca es de un solo tono, y el vértice se
+  destaca por el degradado.
 - No se recompone el logotipo a mano con un `<img>` y un `<span>`. Para eso está
   el componente, que es lo que garantiza las proporciones.
 - No se rehace el wordmark con `<text>`. Vuelve a introducir la dependencia de
@@ -145,17 +214,25 @@ suma ruido en cada pantalla.
 
 ## Inventario
 
-| Archivo                                | Para qué                                        |
-| -------------------------------------- | ----------------------------------------------- |
-| `shared/components/brand-logo/`        | **La fuente.** Todo uso dentro de la aplicación |
-| `assets/logos/virtex-mark.svg`         | Símbolo, fondo claro                            |
-| `assets/logos/virtex-mark-inverse.svg` | Símbolo, fondo oscuro                           |
-| `assets/logos/virtex-logo.svg`         | Logotipo completo, fondo claro                  |
-| `assets/logos/virtex-logo-inverse.svg` | Logotipo completo, fondo oscuro                 |
-| `assets/logos/virtex-icon.svg`         | Azulejo de aplicación                           |
-| `public/favicon.svg` · `favicon.ico`   | Pestaña del navegador                           |
-| `public/icons/icon-*.png`              | Manifiesto PWA (72 → 512)                       |
+| Archivo                                 | Para qué                                        |
+| --------------------------------------- | ----------------------------------------------- |
+| `shared/components/brand-logo/`         | **La fuente.** Todo uso dentro de la aplicación |
+| `assets/logos/virtex-mark.svg`          | Símbolo, color                                  |
+| `assets/logos/virtex-mark-mono.svg`     | Símbolo, un tono                                |
+| `assets/logos/virtex-mark-negative.svg` | Símbolo, blanco                                 |
+| `assets/logos/virtex-mark-positive.svg` | Símbolo, una tinta                              |
+| `assets/logos/virtex-logo.svg`          | Logotipo, color · palabra en tinta              |
+| `assets/logos/virtex-logo-inverse.svg`  | Logotipo, color · palabra en blanco             |
+| `assets/logos/virtex-logo-negative.svg` | Logotipo, todo blanco                           |
+| `assets/logos/virtex-logo-positive.svg` | Logotipo, todo a una tinta                      |
+| `assets/logos/virtex-icon.svg`          | Azulejo de aplicación                           |
+| `public/favicon.svg` · `favicon.ico`    | Pestaña del navegador                           |
+| `public/icons/icon-*.png`               | Manifiesto PWA (72 → 512)                       |
 
-Dentro del navegador se usa **siempre el componente**: es el único que responde
-al tema y al acento personalizado de la organización. Los `.svg` sueltos son
-para lo que sale del navegador.
+El azulejo es **violeta**, no casi negro: en una rejilla de iconos lo que
+identifica a una marca a 24 px es su color, no su silueta. Dentro, el símbolo va
+en blanco, porque sobre violeta profundo el violeta no contrastaría.
+
+Dentro del navegador se usa **siempre el componente**: es el único que conmuta
+las cuatro versiones sin cambiar de archivo. Los `.svg` sueltos son para lo que
+sale del navegador.

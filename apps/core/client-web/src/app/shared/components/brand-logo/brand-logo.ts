@@ -4,12 +4,29 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 export type BrandLogoVariant = 'mark' | 'horizontal' | 'stacked';
 
 /**
+ * Versión cromática. Cada una existe para un soporte concreto; no son gustos
+ * intercambiables.
+ *
+ * · `brand`    Versión principal a todo color. Se usa siempre que el soporte
+ *              admita color, sobre fondo claro u oscuro indistintamente.
+ * · `mono`     Un solo violeta de marca, sin degradado. Para reproducciones a
+ *              una tinta que sí admiten color: bordados, serigrafía, sellos.
+ * · `negative` Todo en blanco. Para fotografías, superficies de acento y
+ *              cualquier fondo con el que el violeta no contraste.
+ * · `positive` Todo en la tinta en curso. Para impresión a una tinta negra,
+ *              fax, documentos oficiales y grabados.
+ */
+export type BrandLogoTone = 'brand' | 'mono' | 'negative' | 'positive';
+
+/**  Contador de instancias: cada degradado necesita un `id` propio. */
+let instanceCounter = 0;
+
+/**
  * Logotipo de Virtex.
  *
  * ── El símbolo ──────────────────────────────────────────────────────────────
  * Un bloque de esquinas blandas con UN SOLO vértice vivo, cortado por dos
- * canales paralelos en tres planos que ascienden hacia esa esquina. El plano
- * del vértice es la única pieza en color de marca.
+ * canales paralelos en tres planos que ascienden hacia esa esquina.
  *
  * El símbolo anterior era una «V» junto a la palabra «virtex»: el logotipo
  * decía dos veces lo mismo, y la primera vez peor. Aquí el símbolo no repite
@@ -18,21 +35,36 @@ export type BrandLogoVariant = 'mark' | 'horizontal' | 'stacked';
  * áreas de una empresa; el plano pequeño de la esquina opuesta es su
  * contrapartida, el otro lado del asiento.
  *
- * ── Por qué un componente y no un `<img>` ───────────────────────────────────
- * La marca aparece sobre lienzos de luminosidad opuesta: la aurora casi negra
- * de las pantallas de acceso y la superficie clara de la aplicación. Un PNG o
- * un `<img src="logo.svg">` no puede resolver eso — el navegador no aplica las
- * custom properties del documento al contenido de un SVG cargado como imagen —
- * y obliga a mantener dos archivos y a acertar cuál toca en cada sitio.
+ * ── Por qué el color es fijo y no un token de tema ──────────────────────────
+ * Durante una versión el símbolo se pintó con `--content-primary` y
+ * `--accent-solid`. Se veía correcto y era un error de marca por partida doble:
  *
- * Con el SVG en línea los planos son `var(--content-primary)`, de modo que la
- * marca se vuelve casi blanca en tema oscuro y casi negra en claro sin una sola
- * línea de lógica. El vértice es `var(--accent-solid)`, el mismo token que
- * sobrescribe el servicio de marca: una organización con color propio ve el
- * logotipo en SU color, algo imposible con un archivo estático.
+ *   · Era casi todo tinta —negro sobre claro, blanco sobre oscuro—, así que no
+ *     aportaba NINGÚN reconocimiento por color. Una marca que cambia de color
+ *     con el tema no se recuerda por su color.
+ *   · `--accent-solid` lo sobrescribe `BrandingService` cuando una organización
+ *     elige su acento. El logotipo de Virtex se teñía del color del cliente.
+ *
+ * Ahora el símbolo usa `--brand-*`: valores fijos, idénticos en los dos temas,
+ * que ese servicio no escribe. El cliente personaliza SU interfaz; la marca de
+ * Virtex mantiene su presencia dentro de ella.
+ *
+ * La marca es de UN SOLO color. Un degradado corto del mismo violeta recorre
+ * toda la figura en diagonal ascendente, de modo que el vértice se destaca por
+ * la luz del propio degradado y no por un segundo tono. Las dos paradas se
+ * mantienen dentro de la franja de luminancia que contrasta a la vez con un
+ * lienzo claro y con uno casi negro: ese es el recorrido más largo posible sin
+ * necesitar una variante por tema, y es lo que permite que exista UN solo
+ * logotipo en color.
+ *
+ * ── Por qué un componente y no un `<img>` ───────────────────────────────────
+ * Un `<img src="logo.svg">` obliga a mantener un archivo por versión y a
+ * acertar cuál toca en cada sitio. Con el SVG en línea, `tone` conmuta entre
+ * las cuatro versiones cromáticas sin cambiar de archivo, y el símbolo hereda
+ * el tamaño del componente sin descuadrarse.
  *
  * Quedan además los `.svg` de `assets/logos/` para lo que sale del navegador
- * —favicon, plantillas de correo, PDF—, donde no hay tema al que responder.
+ * —favicon, plantillas de correo, PDF—, donde no hay CSS que aplicar.
  *
  * ── El wordmark ─────────────────────────────────────────────────────────────
  * Va en curvas, no en texto. Antes se componía con `<text font-family="Inter">`
@@ -46,7 +78,7 @@ export type BrandLogoVariant = 'mark' | 'horizontal' | 'stacked';
   templateUrl: './brand-logo.html',
   styleUrls: ['./brand-logo.scss'],
   host: {
-    '[class]': '"brand-logo brand-logo--" + variant',
+    '[class]': '"brand-logo brand-logo--" + variant + " brand-logo--" + tone',
     '[style.--brand-mark-size.px]': 'size',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -54,6 +86,9 @@ export type BrandLogoVariant = 'mark' | 'horizontal' | 'stacked';
 export class BrandLogo {
   /** `mark` solo el símbolo · `horizontal` símbolo + palabra · `stacked` palabra debajo. */
   @Input() variant: BrandLogoVariant = 'horizontal';
+
+  /** Versión cromática. Ver `BrandLogoTone`. */
+  @Input() tone: BrandLogoTone = 'brand';
 
   /** Lado del símbolo en píxeles. La palabra se dimensiona en proporción. */
   @Input() size = 32;
@@ -73,15 +108,20 @@ export class BrandLogo {
   @Input() descriptor = 'ERP';
 
   /**
-   * Fuerza toda la marca al color del texto en curso. Necesario cuando el
-   * logotipo va dentro de una superficie de acento —un botón de color, una
-   * insignia— donde el vértice se perdería contra el fondo.
-   */
-  @Input() monochrome = false;
-
-  /**
    * Texto que anuncia un lector de pantalla. El SVG es decorativo: quien lee la
    * página oye este nombre una sola vez, no «gráfico» seguido de dos trazados.
    */
   @Input() label = 'Virtex';
+
+  /** `id` del degradado, único por instancia. */
+  protected readonly gradientId = `vx-brand-${(instanceCounter += 1)}`;
+
+  /**
+   * Relleno del símbolo. Va como atributo de presentación y no en la hoja de
+   * estilos porque el `id` del degradado solo se conoce en tiempo de ejecución;
+   * las versiones que no lo usan lo anulan desde CSS, que gana a un atributo.
+   */
+  protected get symbolFill(): string {
+    return `url(#${this.gradientId})`;
+  }
 }
