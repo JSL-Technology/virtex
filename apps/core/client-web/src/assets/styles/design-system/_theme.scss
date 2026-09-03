@@ -488,6 +488,10 @@
 :root {
   --brand-from: #{p.brand('from')};
   --brand-to: #{p.brand('to')};
+  //  Tinta de la versión en negativo. Es blanco fijo y no `--content-primary`:
+  //  el negativo existe precisamente para los soportes donde el tema no manda
+  //  —una fotografía, una superficie de acento, un folleto impreso a color.
+  --brand-negative: #{p.graphite(0)};
 }
 
 :root {

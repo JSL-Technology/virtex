@@ -153,7 +153,7 @@ async function bootstrap() {
 
   if (process.env.NODE_ENV !== 'production') {
     const config = new DocumentBuilder()
-      .setTitle('Virteex ERP API')
+      .setTitle('Virtex API')
       .setDescription('Enterprise Resource Planning API')
       .setVersion('1.0')
       .addTag('Auth')

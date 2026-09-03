@@ -7,17 +7,17 @@
 
 .page-header {
   h1 { margin: 0 0 0.25rem; font-size: 1.4rem; }
-  p { margin: 0; color: var(--text-secondary, #6b7280); }
+  p { margin: 0; color: var(--content-secondary); }
 }
 
 .card {
-  background: var(--surface, #fff);
-  border: 1px solid var(--border-color, #e5e7eb);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-default);
   border-radius: 12px;
   padding: 1.25rem 1.5rem;
 
   h2 { margin: 0 0 0.5rem; font-size: 1.1rem; }
-  .hint { margin: 0 0 1rem; color: var(--text-secondary, #6b7280); font-size: 0.9rem; }
+  .hint { margin: 0 0 1rem; color: var(--content-secondary); font-size: 0.9rem; }
 }
 
 .form-grid {
@@ -34,13 +34,13 @@
     font-size: 0.85rem;
     min-width: 160px;
 
-    span { color: var(--text-secondary, #6b7280); }
+    span { color: var(--content-secondary); }
 
     input, select {
       padding: 0.5rem 0.6rem;
-      border: 1px solid var(--border-color, #d1d5db);
+      border: 1px solid var(--border-default);
       border-radius: 8px;
-      background: var(--input-bg, #fff);
+      background: var(--surface-base);
       color: inherit;
     }
   }
@@ -49,8 +49,8 @@
     padding: 0.55rem 1.1rem;
     border: none;
     border-radius: 8px;
-    background: var(--primary, #2563eb);
-    color: #fff;
+    background: var(--accent-solid);
+    color: var(--accent-on-solid);
     cursor: pointer;
     &:disabled { opacity: 0.6; cursor: default; }
   }
@@ -64,30 +64,30 @@
   th, td {
     text-align: left;
     padding: 0.5rem 0.6rem;
-    border-bottom: 1px solid var(--border-color, #eef0f3);
+    border-bottom: 1px solid var(--border-subtle);
   }
-  th { color: var(--text-secondary, #6b7280); font-weight: 600; }
+  th { color: var(--content-secondary); font-weight: 600; }
 
-  td.expired { color: #dc2626; }
+  td.expired { color: var(--error-text); }
 }
 
 .badge {
   padding: 0.15rem 0.55rem;
   border-radius: 999px;
   font-size: 0.75rem;
-  &.active { background: rgba(34, 197, 94, 0.15); color: #16a34a; }
-  &.inactive { background: rgba(148, 163, 184, 0.2); color: #64748b; }
+  &.active { background: var(--success-surface); color: var(--success-text); }
+  &.inactive { background: var(--surface-active); color: var(--content-tertiary); }
 }
 
 .link-danger {
   background: none;
   border: none;
-  color: #dc2626;
+  color: var(--error-text);
   cursor: pointer;
   padding: 0;
 }
 
 .empty {
-  color: var(--text-secondary, #6b7280);
+  color: var(--content-secondary);
   font-style: italic;
 }

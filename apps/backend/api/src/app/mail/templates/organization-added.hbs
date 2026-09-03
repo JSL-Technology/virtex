@@ -1,15 +1,12 @@
-<!DOCTYPE html>
-<html lang="{{language}}" dir="{{dir}}">
-<head>
-    <title>{{t 'MAIL.ORGANIZATION_ADDED.ACCESO_NUEVA_ORGANIZACION'}}</title>
-</head>
-<body>
-    <h1>{{t 'MAIL.COMMON.GREETING' name=name}}</h1>
-    <p><strong>{{organizationName}}</strong> {{t 'MAIL.ORGANIZATION_ADDED.TE_HA_DADO_ACCESO_CUENTA_APPNAME' appName=appName}}</p>
-    <p>
-        {{t 'MAIL.ORGANIZATION_ADDED.USA_TU_CONTRASENA_SIEMPRE_ES_MISMA'}}
-    </p>
-    <a href="{{url}}">{{t 'MAIL.ORGANIZATION_ADDED.INICIAR_SESION'}}</a>
-    <p>{{t 'MAIL.ORGANIZATION_ADDED.SI_NO_ESPERABAS_ESTE_ACCESO_CONTACTA'}}</p>
-</body>
-</html>
+{{#> shell title=(t 'MAIL.ORGANIZATION_ADDED.ACCESO_NUEVA_ORGANIZACION') preheader=(t 'MAIL.ORGANIZATION_ADDED.TE_HA_DADO_ACCESO_CUENTA_APPNAME' appName=appName)}}
+<h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'MAIL.ORGANIZATION_ADDED.ACCESO_NUEVA_ORGANIZACION'}}</h1>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.COMMON.GREETING' name=name}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};"><strong class="ink" style="font-weight:600; color:{{brand 'ink'}};">{{organizationName}}</strong> {{t 'MAIL.ORGANIZATION_ADDED.TE_HA_DADO_ACCESO_CUENTA_APPNAME' appName=appName}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.ORGANIZATION_ADDED.USA_TU_CONTRASENA_SIEMPRE_ES_MISMA'}}</p>
+
+{{> button href=url label=(t 'MAIL.ORGANIZATION_ADDED.INICIAR_SESION')}}
+
+{{> link-fallback href=url label=(t 'MAIL.COMMON.LINK_FALLBACK')}}
+
+{{#> note}}{{t 'MAIL.ORGANIZATION_ADDED.SI_NO_ESPERABAS_ESTE_ACCESO_CONTACTA'}}{{/note}}
+{{/shell}}

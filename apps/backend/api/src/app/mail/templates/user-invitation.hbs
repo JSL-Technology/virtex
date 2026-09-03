@@ -1,13 +1,13 @@
-<!DOCTYPE html>
-<html lang="{{language}}" dir="{{dir}}">
-<head>
-    <title>{{t 'MAIL.USER_INVITATION.INVITACION_PLATAFORMA'}}</title>
-</head>
-<body>
-    <h1>{{t 'MAIL.COMMON.GREETING' name=name}}</h1>
-    <p>{{t 'MAIL.USER_INVITATION.HAS_SIDO_INVITADO_UNIRTE_NUESTRA_PLATAFORMA'}}</p>
-    <a href="{{url}}">{{t 'MAIL.USER_INVITATION.CONFIGURAR_MI_CUENTA'}}</a>
-    <p>{{t 'MAIL.USER_INVITATION.SI_NO_HAS_SOLICITADO_ESTA_INVITACION'}}</p>
-    <p>{{t 'MAIL.USER_INVITATION.ESTE_ENLACE_EXPIRARA_DIAS'}}</p>
-</body>
-</html>
+{{#> shell title=(t 'MAIL.USER_INVITATION.INVITACION_PLATAFORMA') preheader=(t 'MAIL.USER_INVITATION.HAS_SIDO_INVITADO_UNIRTE_NUESTRA_PLATAFORMA')}}
+<h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'MAIL.USER_INVITATION.INVITACION_PLATAFORMA'}}</h1>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.COMMON.GREETING' name=name}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.USER_INVITATION.HAS_SIDO_INVITADO_UNIRTE_NUESTRA_PLATAFORMA'}}</p>
+
+{{> button href=url label=(t 'MAIL.USER_INVITATION.CONFIGURAR_MI_CUENTA')}}
+
+<p class="ink3" style="margin:0; font:400 14px/1.65 {{brand 'font'}}; color:{{brand 'ink3'}}; text-align:center;">{{t 'MAIL.USER_INVITATION.ESTE_ENLACE_EXPIRARA_DIAS'}}</p>
+
+{{> link-fallback href=url label=(t 'MAIL.COMMON.LINK_FALLBACK')}}
+
+{{#> note}}{{t 'MAIL.USER_INVITATION.SI_NO_HAS_SOLICITADO_ESTA_INVITACION'}}{{/note}}
+{{/shell}}

@@ -5,6 +5,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { ConfigService } from '@nestjs/config';
 import { I18nService } from '../i18n/i18n.service';
 import { mailTemplateHelpers } from './mail-template.helpers';
+import { registerMailPartials } from './mail-brand';
 import { MailService } from './mail.service';
 import { MailProcessor } from './mail.processor';
 import { FrontendUrlService } from './frontend-url.service';
@@ -14,7 +15,14 @@ import { MAIL_QUEUE } from './mail.queue';
   imports: [
     BullModule.registerQueue({ name: MAIL_QUEUE }),
     MailerModule.forRootAsync({
-      useFactory: async (config: ConfigService, i18n: I18nService) => ({
+      useFactory: async (config: ConfigService, i18n: I18nService) => {
+        // The header, the footer and the shared blocks live in `templates/partials` and are
+        // registered on the global Handlebars instance: it is the one the adapter compiles with,
+        // and the adapter exposes no hook of its own for partials.
+        const templatesDir = __dirname + '/templates';
+        registerMailPartials(templatesDir);
+
+        return {
         transport: {
           host: config.get<string>('MAIL_HOST'),
           // Read as a number. Nodemailer treats a string port as a hostname-ish value and the
@@ -31,12 +39,12 @@ import { MAIL_QUEUE } from './mail.queue';
             : undefined,
         },
         defaults: {
-          from: `"${config.get<string>('MAIL_FROM_NAME', 'Virteex')}" <${config.get<string>(
+          from: `"${config.get<string>('MAIL_FROM_NAME', 'Virtex')}" <${config.get<string>(
             'MAIL_FROM_ADDRESS',
           )}>`,
         },
         template: {
-          dir: __dirname + '/templates',
+          dir: templatesDir,
           // One template per email, in every language: the copy lives in the catalogue and the
           // template carries `{{t 'KEY'}}` holes. See `mail-template.helpers.ts` for why this
           // beats thirty files that drift apart.
@@ -45,7 +53,8 @@ import { MAIL_QUEUE } from './mail.queue';
             strict: true,
           },
         },
-      }),
+        };
+      },
       inject: [ConfigService, I18nService],
     }),
   ],

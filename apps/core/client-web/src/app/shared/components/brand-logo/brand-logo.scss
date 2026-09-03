@@ -74,10 +74,10 @@ $word-ratio: 0.7205;
 // ── Versión en negativo ──────────────────────────────────────────────────────
 //  Para fotografías y superficies de acento, donde el violeta no contrasta.
 :host(.brand-logo--negative) {
-  color: #ffffff;
+  color: var(--brand-negative);
 
   .brand-logo__symbol {
-    fill: #ffffff;
+    fill: var(--brand-negative);
   }
 }
 
@@ -133,9 +133,10 @@ $word-ratio: 0.7205;
 }
 
 :host(.brand-logo--negative) .brand-logo__descriptor {
-  //  Sobre fondo con imagen no hay jerarquía de tinta que respetar: el blanco
-  //  al 70 % conserva la subordinación sin perder legibilidad.
-  color: rgb(255 255 255 / 0.72);
+  //  Sobre fondo con imagen no hay jerarquía de tinta que respetar: bajar la
+  //  opacidad conserva la subordinación sin perder legibilidad.
+  color: var(--brand-negative);
+  opacity: 0.72;
 }
 
 // ── Movimiento ───────────────────────────────────────────────────────────────
