@@ -1,23 +1,12 @@
-<!DOCTYPE html>
-<html lang="{{language}}" dir="{{dir}}">
-<head>
-    <meta charset="utf-8">
-    <title>{{t 'MAIL.VERIFICATION_CODE.CODIGO_VERIFICACION'}}</title>
-</head>
-<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h2>{{t 'MAIL.COMMON.GREETING' name=name}}</h2>
-        <p>{{t 'MAIL.VERIFICATION_CODE.HAS_SOLICITADO_HABILITAR_AUTENTICACION_DOS_PASOS'}}</p>
-        <p>{{t 'MAIL.VERIFICATION_CODE.CONTINUAR_FAVOR_INGRESA_SIGUIENTE_CODIGO_VERIFICACION'}}</p>
+{{#> shell title=(t 'MAIL.VERIFICATION_CODE.CODIGO_VERIFICACION') preheader=(t 'MAIL.VERIFICATION_CODE.CONTINUAR_FAVOR_INGRESA_SIGUIENTE_CODIGO_VERIFICACION')}}
+<h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'MAIL.VERIFICATION_CODE.CODIGO_VERIFICACION'}}</h1>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.COMMON.GREETING' name=name}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.VERIFICATION_CODE.HAS_SOLICITADO_HABILITAR_AUTENTICACION_DOS_PASOS'}}</p>
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.VERIFICATION_CODE.CONTINUAR_FAVOR_INGRESA_SIGUIENTE_CODIGO_VERIFICACION'}}</p>
 
-        <div style="background-color: #f4f4f4; padding: 15px; border-radius: 5px; text-align: center; font-size: 24px; letter-spacing: 5px; font-weight: bold; margin: 20px 0;">
-            {{code}}
-        </div>
+{{> code value=code}}
 
-        <p>{{t 'MAIL.VERIFICATION_CODE.ESTE_CODIGO_EXPIRARA_10_MINUTOS'}}</p>
-        <p>{{t 'MAIL.VERIFICATION_CODE.SI_NO_SOLICITASTE_ESTE_CAMBIO_FAVOR'}}</p>
+<p class="ink2" style="margin:0; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.VERIFICATION_CODE.ESTE_CODIGO_EXPIRARA_10_MINUTOS'}}</p>
 
-        <p>{{t 'MAIL.VERIFICATION_CODE.SALUDOS'}}<br>{{t 'MAIL.COMMON.SIGNATURE' appName=appName}}</p>
-    </div>
-</body>
-</html>
+{{#> note}}{{t 'MAIL.VERIFICATION_CODE.SI_NO_SOLICITASTE_ESTE_CAMBIO_FAVOR'}}{{/note}}
+{{/shell}}

@@ -37,7 +37,7 @@ export class WebAuthnService {
   ) {
     this.rpID = this.configService.get<string>('WEBAUTHN_RP_ID') || 'localhost';
     this.origin = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:4200';
-    this.rpName = this.configService.get<string>('APP_NAME') || 'Virteex';
+    this.rpName = this.configService.get<string>('APP_NAME') || 'Virtex';
   }
 
   async generateRegistrationOptions(user: UserIdentity) {

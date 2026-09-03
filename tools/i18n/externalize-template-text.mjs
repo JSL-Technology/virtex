@@ -178,6 +178,39 @@ function maskedRanges(source) {
 
   for (const range of attributeValueRanges(source)) ranges.push(range);
   for (const range of controlFlowHeaderRanges(source)) ranges.push(range);
+  if (HBS) for (const range of mustacheRanges(source)) ranges.push(range);
+  return ranges;
+}
+
+/**
+ * Handlebars expressions, in HBS mode.
+ *
+ * A block partial opens with `{{#> shell title=(t 'KEY')}}` — and that `>` sits in TEXT position,
+ * so a scan for `>…<` reads it as a tag boundary and reports the rest of the line as literal
+ * prose. It did exactly that to all ten mail templates the moment they started sharing a layout:
+ * fourteen "untranslated text nodes" that were nothing but partial syntax.
+ *
+ * Comments (`{{!-- … --}}`) are inside these ranges too, which is the other thing that matters:
+ * a comment explaining a partial is documentation, not copy.
+ */
+function mustacheRanges(source) {
+  const ranges = [];
+  for (let index = 0; index < source.length - 1; index++) {
+    if (source[index] !== '{' || source[index + 1] !== '{') continue;
+    let depth = 0;
+    let cursor = index;
+    while (cursor < source.length) {
+      if (source[cursor] === '{') depth++;
+      else if (source[cursor] === '}') {
+        depth--;
+        if (depth === 0) break;
+      }
+      cursor++;
+    }
+    if (depth !== 0) break; // Unbalanced: leave the rest of the file alone.
+    ranges.push([index, cursor + 1]);
+    index = cursor;
+  }
   return ranges;
 }
 

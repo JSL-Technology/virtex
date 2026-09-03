@@ -1,0 +1,18 @@
+{{!--
+  Un paso numerado. `{{> step number='1' title=(t 'CLAVE') body=(t 'CLAVE')}}`
+
+  Va como tabla y no como `<ol>`: Outlook ignora `list-style` y varios clientes
+  recortan la sangría, de modo que una lista ordenada pierde justo lo único que
+  aporta —el número—. Aquí el número es una celda.
+--}}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 14px;">
+  <tr>
+    <td width="30" valign="top" style="width:30px;">
+      <span style="display:inline-block; width:24px; height:24px; border-radius:12px; background:{{brand 'accent'}}; color:{{brand 'onAccent'}}; font:600 13px/24px {{brand 'font'}}; text-align:center;">{{number}}</span>
+    </td>
+    <td valign="top" style="padding-left:12px;">
+      <p class="ink" style="margin:0 0 2px; font:600 15px/1.5 {{brand 'font'}}; color:{{brand 'ink'}};">{{title}}</p>
+      <p class="ink2" style="margin:0; font:400 14px/1.6 {{brand 'font'}}; color:{{brand 'ink2'}};">{{body}}</p>
+    </td>
+  </tr>
+</table>

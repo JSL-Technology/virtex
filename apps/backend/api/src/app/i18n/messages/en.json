@@ -706,47 +706,44 @@
     "COMMON": {
       "COPYRIGHT": "© {{currentYear}} {{appName}}. All rights reserved.",
       "GREETING": "Hello, {{name}}.",
-      "SIGNATURE": "The {{appName}} team"
+      "LINK_FALLBACK": "If the button does not work, copy and paste this URL into your browser:",
+      "SIGNATURE": "The {{appName}} team",
+      "TRANSACTIONAL_NOTICE": "This is an automatic transactional email; please do not reply to it."
     },
     "DUPLICATE_REGISTRATION": {
       "INICIAR_SESION": "Sign In",
       "INTENTO_REGISTRO": "Registration Attempt",
-      "RECIBIMOS_SOLICITUD_REGISTRAR_NUEVA_CUENTA": "We received a request to register a new account on",
+      "REQUEST_INTRO": "We received a request to register a new account on {{appName}} using this email address.",
       "RESTABLECER_CONTRASENA": "Reset Password",
+      "SIN_EMBARGO_YA_EXISTE_CUENTA_ASOCIADA": "However, an account already exists for this address.",
       "SI_FUISTE_TU_QUIEN_INTENTO_REGISTRARSE": "If it was you who tried to sign up, you can sign in directly here:",
       "SI_NO_FUISTE_TU_PUEDES_IGNORAR": "If it was not you, you can safely ignore this email.",
       "SI_OLVIDASTE_TU_CONTRASENA_PUEDES_RESTABLECERLA": "If you have forgotten your password, you can reset it here:",
-      "SIN_EMBARGO_YA_EXISTE_CUENTA_ASOCIADA": "However, an account already exists for this address.",
-      "SUBJECT": "Someone tried to sign up with your email",
-      "UTILIZANDO_ESTA_DIRECCION_CORREO_ELECTRONICO": "using this email address."
-    },
-    "EMAIL_CHANGE_CONFIRM": {
-      "CONFIRMA_CAMBIO_TU_CORREO_ELECTRONICO_APPNAME": "Confirm the change of your email address on {{appName}}. The link expires in {{expiresMinutes}} minutes.",
-      "CONFIRMA_TU_NUEVO_CORREO_APPNAME": "Confirm your new email | {{appName}}",
-      "CONFIRMA_TU_NUEVO_CORREO_ELECTRONICO": "Confirm your new email address",
-      "CONFIRMAR_CAMBIO_HAZ_CLIC_BOTON_CONTINUACION": ". To confirm the change, click the button below.",
-      "CONFIRMAR_CORREO_ELECTRONICO": "Confirm email address",
-      "ESTE_ENLACE_ES_VALIDO": "This link is valid for",
-      "ESTE_ES_CORREO_TRANSACCIONAL_AUTOMATICO_NO": "This is an automatic transactional email; please do not reply to it.",
-      "HEMOS_RECIBIDO_SOLICITUD_CAMBIAR_CORREO_ELECTRONICO": "We received a request to change the email address on your account at",
-      "NO_SOLICITASTE_ESTE_CAMBIO_PUEDES_IGNORAR": "Did you not request this change? You can safely ignore this email. Your current address will stay as it is.",
-      "SI_BOTON_NO_FUNCIONA_COPIA_PEGA": "If the button does not work, copy and paste this URL into your browser:"
+      "SUBJECT": "Someone tried to sign up with your email"
     },
     "EMAIL_CHANGE": {
       "SUBJECT": "Confirm your new email address"
     },
     "EMAIL_CHANGED_NOTICE": {
-      "CAMBIO": "was changed to",
+      "ADDRESS_CHANGED": "The email address on your account at {{appName}} was changed to {{newEmail}}.",
       "CONTACTA_SOPORTE_INMEDIATO_DESDE_ESTA_MISMA": "Contact support immediately from this same address. This message goes to your previous address precisely so you can react if the change was not yours.",
-      "CORREO_ELECTRONICO_TU_CUENTA": "The email address on your account at",
       "CORREO_TU_CUENTA_APPNAME_CAMBIO_NEWEMAIL": "Your {{appName}} account email was changed to {{newEmail}}. If this was not you, contact support.",
       "CORREO_TU_CUENTA_HA_CAMBIADO": "Your account's email has changed",
       "CORREO_TU_CUENTA_HA_CAMBIADO_APPNAME": "Your account's email has changed | {{appName}}",
-      "ESTE_ES_CORREO_TRANSACCIONAL_AUTOMATICO_NO": "This is an automatic transactional email; please do not reply to it.",
       "NO_FUISTE_TU": "Was this not you?",
       "PARTIR_AHORA_AVISOS_RECUPERACION_CONTRASENA_IRAN": ". From now on, notices and password recovery will go to that address.",
       "SUBJECT": "Your account's email has changed",
       "TODAS_SESIONES_ABIERTAS_CERRARON_COMO_MEDIDA": "Every open session was closed as a security measure."
+    },
+    "EMAIL_CHANGE_CONFIRM": {
+      "CONFIRMAR_CORREO_ELECTRONICO": "Confirm email address",
+      "CONFIRMA_CAMBIO_TU_CORREO_ELECTRONICO_APPNAME": "Confirm the change of your email address on {{appName}}. The link expires in {{expiresMinutes}} minutes.",
+      "CONFIRMA_TU_NUEVO_CORREO_APPNAME": "Confirm your new email | {{appName}}",
+      "CONFIRMA_TU_NUEVO_CORREO_ELECTRONICO": "Confirm your new email address",
+      "ESTE_ENLACE_ES_VALIDO": "This link is valid for",
+      "NO_SOLICITASTE_ESTE_CAMBIO_PUEDES_IGNORAR": "Did you not request this change? You can safely ignore this email. Your current address will stay as it is.",
+      "REQUEST_INTRO": "We received a request to change the email address on your account at {{appName}}. To confirm the change, click the button below.",
+      "SI_BOTON_NO_FUNCIONA_COPIA_PEGA": "If the button does not work, copy and paste this URL into your browser:"
     },
     "INVITATION": {
       "SUBJECT": "You have been invited to join {{appName}}"
@@ -761,15 +758,13 @@
     },
     "PASSWORD_RESET": {
       "ABRELO_NAVEGADOR": "Open it in your browser",
-      "CONTINUAR_UTILIZA_BOTON_SEGURO_CONTINUACION": ". To continue, use the secure button below.",
       "ESCRIBENOS": "or write to us at",
-      "ESTE_ES_CORREO_TRANSACCIONAL_AUTOMATICO_NO": "This is an automatic transactional email; please do not reply to it.",
       "HAS_RECIBIDO_ESTE_MENSAJE_PORQUE_EXISTE": "You received this message because there is a {{appName}} account associated with this email address.",
-      "HEMOS_RECIBIDO_SOLICITUD_RESTABLECER_CONTRASENA_TU": "We received a request to reset the password on your account at",
       "LINK_VALID_FOR": "This link is valid for {{expiration}}.",
       "NO_SOLICITASTE_ESTE_CAMBIO_PUEDES_IGNORAR": "Did you not request this change? You can safely ignore this email. Your password will not change.",
       "PRIVACIDAD": "Privacy",
       "PROBLEMAS_VER_ESTE_CORREO": "Trouble viewing this email?",
+      "REQUEST_INTRO": "We received a request to reset the password on your account at {{appName}}. To continue, use the secure button below.",
       "RESTABLECER_CONTRASENA": "Reset password",
       "RESTABLECIMIENTO_CONTRASENA": "Password reset",
       "RESTABLECIMIENTO_CONTRASENA_APPNAME": "Password reset | {{appName}}",
@@ -795,13 +790,12 @@
     },
     "REGISTRATION_FAILED": {
       "CREAR_MI_CUENTA": "Create my account",
-      "LAMENTAMOS_INCONVENIENTE": ". We are sorry for the inconvenience.",
       "NO_HACE_FALTA_HAGAS_NADA_SI": "There is nothing you need to do. If you would rather try again, you can sign up whenever you like:",
       "NO_PUDIMOS_CREAR_TU_CUENTA": "We could not create your account",
+      "PAYMENT_OK_ACCOUNT_NOT_CREATED": "Your payment went through, but we could not create your account at {{appName}}. We are sorry for the inconvenience.",
       "SEGUN_TU_BANCO_REEMBOLSO_PUEDE_TARDAR": "Depending on your bank, the refund can take 5 to 10 business days to appear on your statement.",
       "SI_TIENES_CUALQUIER_DUDA_SOBRE_CARGO": "If you have any question about the charge, write to us quoting this reference and we will sort it out:",
       "SUBJECT": "We could not create your account — your payment was refunded",
-      "TU_PAGO_PROCESO_CORRECTAMENTE_PERO_NO": "Your payment went through, but we could not create your account at",
       "YA_CANCELAMOS_SUSCRIPCION_SOLICITAMOS_DEVOLUCION_CARGO": "We have already cancelled the subscription and requested a refund of the charge."
     },
     "REGISTRATION_VERIFY": {
@@ -822,6 +816,21 @@
       "SALUDOS": "Best regards,",
       "SI_NO_SOLICITASTE_ESTE_CAMBIO_FAVOR": "If you did not request this change, ignore this email or contact support.",
       "SUBJECT": "Your verification code"
+    },
+    "WELCOME": {
+      "CLOSING": "None of it has to happen today: anything you leave half-done is saved, and you can pick it up whenever you like.",
+      "CTA": "Open {{appName}}",
+      "INTRO": "{{organizationName}} is now set up on {{appName}}. Sign in whenever you like; below are the three things worth settling on day one.",
+      "PREHEADER": "Your account is ready. Here are the three things worth settling on day one.",
+      "STEPS_TITLE": "Where to start",
+      "STEP_DATA_BODY": "They are what feed sales, inventory and accounting.",
+      "STEP_DATA_TITLE": "Load your catalogue and chart of accounts",
+      "STEP_FISCAL_BODY": "Without them, valid invoices cannot be issued.",
+      "STEP_FISCAL_TITLE": "Complete your tax details",
+      "STEP_TEAM_BODY": "Everyone signs in with their own permissions, by area.",
+      "STEP_TEAM_TITLE": "Invite your team",
+      "SUBJECT": "Welcome to {{appName}}",
+      "TITLE": "Your account is ready"
     }
   },
   "ORGANIZATIONS": {

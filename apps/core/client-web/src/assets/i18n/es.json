@@ -177,7 +177,7 @@
       "PAIS_ES_REQUERIDO": "El país es requerido.",
       "TELEFONO": "Teléfono",
       "TELEFONO_ES_REQUERIDO": "El teléfono es requerido.",
-      "EJ_VIRTEEX_CORP": "Ej. Virteex Corp S.A.",
+      "EJ_VIRTEEX_CORP": "Ej. Virtex Corp S.A.",
       "EJ_TECNOLOGIA_RETAIL_MANUFACTURA": "Ej. Tecnología, Retail, Manufactura…",
       "HTTPS_EJEMPLO_COM": "https://ejemplo.com",
       "CALLE_PRINCIPAL_123_SECTOR": "Calle Principal #123, Sector",
@@ -403,7 +403,7 @@
       "PAIS_2": "País",
       "PORCENTAJE_PROPIEDAD": "Porcentaje de Propiedad (%)",
       "CANCELAR": "Cancelar",
-      "EJ_VIRTEEX_LATAM": "Ej. Virteex Latam S.A.",
+      "EJ_VIRTEEX_LATAM": "Ej. Virtex Latam S.A.",
       "EJ_REPUBLICA_DOMINICANA": "Ej. República Dominicana"
     },
     "SSO": {
@@ -1141,9 +1141,7 @@
       "REINTENTAR": "Reintentar",
       "IR_INICIAR_SESION": "Ir a iniciar sesión"
     },
-    "AUTH_LAYOUT": {
-      "VIRTEX_ERP": "Virtex ERP"
-    },
+    "AUTH_LAYOUT": {},
     "SOCIAL_AUTH_BUTTONS": {
       "SIGN_IN_WITH_GOOGLE": "Continuar con Google",
       "SIGN_IN_WITH_MICROSOFT": "Continuar con Microsoft"
@@ -3145,7 +3143,6 @@
     "ALT_SHIFT_2": "Alt + Shift + Q",
     "ALT_SHIFT_3": "Alt + Shift + C",
     "ALT_SHIFT_4": "Alt + Shift + P",
-    "VIRTEX_ERP": "Virtex ERP",
     "GRACE_PERIOD_BANNER": "Tu pago está pendiente. Tienes acceso temporal hasta el {{date}}."
   },
   "SHARED": {
