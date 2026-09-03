@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal } from 'lucide-angular';
+import { LucideAngularModule, PlusCircle, MoreHorizontal } from 'lucide-angular';
 import { AccountsPayableService, VendorBill } from '../../../core/services/accounts-payable';
 import { NotificationService } from '../../../core/services/notification';
 import { TranslateModule } from '@ngx-translate/core';
@@ -17,7 +17,6 @@ import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 })
 export class VendorBillsListPage implements OnInit {
   protected readonly PlusCircleIcon = PlusCircle;
-  protected readonly FilterIcon = Filter;
   protected readonly MoreHorizontalIcon = MoreHorizontal;
 
   private accountsPayableService = inject(AccountsPayableService);
@@ -47,12 +46,25 @@ export class VendorBillsListPage implements OnInit {
     });
   }
 
+  /**
+   * The stored status becomes a catalogue key.
+   *
+   * The switch below compared against `'Paid'`, `'Approved'`, `'Submitted'` and `'Void'` — five
+   * title-case words the server has never sent, since the enum is uppercase. Every bill therefore
+   * fell through to `status-draft`, and the badge printed the raw enum member next to it.
+   */
+  statusKey(status: VendorBill['status']): string {
+    return `ACCOUNTS_PAYABLE.STATUS.${status}`;
+  }
+
   getStatusClass(status: VendorBill['status']): string {
     switch (status) {
-      case 'Paid': return 'status-paid';
-      case 'Approved': return 'status-approved';
-      case 'Submitted': return 'status-pending';
-      case 'Void': return 'status-overdue';
+      case 'PAID': return 'status-paid';
+      case 'PARTIALLY_PAID': return 'status-approved';
+      case 'OPEN': return 'status-approved';
+      case 'PENDING_APPROVAL': return 'status-pending';
+      case 'VOID':
+      case 'REJECTED': return 'status-overdue';
       default: return 'status-draft';
     }
   }

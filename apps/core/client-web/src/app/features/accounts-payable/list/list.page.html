@@ -2,10 +2,9 @@
   <div class="view-header">
     <h1>{{ 'ACCOUNTS_PAYABLE.LIST.FACTURAS_PROVEEDOR' | translate }}</h1>
     <div class="header-actions">
-      <button class="btn-secondary">
-        <lucide-icon [name]="FilterIcon" [size]="16"></lucide-icon>
-        <span>{{ 'ACCOUNTS_PAYABLE.LIST.FILTRAR' | translate }}</span>
-      </button>
+      <a routerLink="../payments" class="btn-secondary">
+        <span>{{ 'ACCOUNTS_PAYABLE.PAYMENT.PAGAR' | translate }}</span>
+      </a>
       <a routerLink="../new" class="btn-primary">
         <lucide-icon [name]="PlusCircleIcon" [size]="16"></lucide-icon>
         <span>{{ 'ACCOUNTS_PAYABLE.LIST.NUEVA_FACTURA' | translate }}</span>
@@ -58,7 +57,7 @@
             <td class="text-right">{{ bill.balance | vxNumber:'1.2-2' }}</td>
             <td class="text-center">
               <span class="status-badge" [ngClass]="getStatusClass(bill.status)">
-                {{ bill.status }}
+                {{ statusKey(bill.status) | translate }}
               </span>
             </td>
             <td class="text-center">

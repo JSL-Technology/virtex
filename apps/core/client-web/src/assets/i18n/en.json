@@ -533,7 +533,6 @@
       "ESTADO": "Status",
       "FACTURAS_PROVEEDOR": "Vendor Bills",
       "FECHA": "Date",
-      "FILTRAR": "Filter",
       "NO_HAY_FACTURAS_PROVEEDOR": "There are no vendor bills",
       "NUEVA_FACTURA": "New Invoice",
       "NUMERO": "Number",
@@ -541,6 +540,35 @@
       "REINTENTAR": "Try again",
       "TOTAL": "Total",
       "VENCIMIENTO": "Due"
+    },
+    "PAYMENT": {
+      "CUENTA_BANCARIA": "Bank account",
+      "DESCUENTO": "Discount",
+      "EFECTIVO": "Cash",
+      "EXCEDE_SALDO": "A line settles more than the invoice owes.",
+      "FACTURA": "Invoice",
+      "FACTURAS_A_PAGAR": "Invoices to pay",
+      "FECHA": "Payment date",
+      "ISR_RETENIDO": "Income tax withheld",
+      "ITBIS_RETENIDO": "VAT withheld",
+      "NO_SE_PUDO_PAGAR": "The payment could not be recorded.",
+      "PAGAR": "Record payment",
+      "PAGO_REGISTRADO": "Payment recorded.",
+      "RETENCIONES": "Withholdings",
+      "SALDA": "Settles",
+      "SALDO": "Balance",
+      "SELECCIONE_FACTURAS": "Choose at least one invoice and complete the payment details.",
+      "SIN_FACTURAS": "There are no invoices this account can pay.",
+      "TITULO": "Pay supplier invoices"
+    },
+    "STATUS": {
+      "DRAFT": "Draft",
+      "OPEN": "Open",
+      "PAID": "Paid",
+      "PARTIALLY_PAID": "Partially paid",
+      "PENDING_APPROVAL": "Pending approval",
+      "REJECTED": "Rejected",
+      "VOID": "Voided"
     }
   },
   "ACTIONS": {
@@ -831,28 +859,58 @@
   },
   "CUSTOMER_RECEIPTS": {
     "FORM": {
+      "APLICADO": "Applied to invoices",
+      "APLICADO_EXCEDE_RECIBIDO": "What is applied to invoices exceeds the amount received.",
       "APLICAR_FACTURAS": "Apply to Invoices",
       "AQUI_MOSTRARA_LISTA_FACTURAS_PENDIENTES_CLIENTE": "The selected customer's outstanding invoices will be listed here so the payment can be applied.",
       "CANCELAR": "Cancel",
       "CLIENTE": "Customer",
+      "CUENTA_BANCARIA": "Bank account",
+      "DESCUENTO": "Discount",
+      "EFECTIVO": "Cash",
+      "FACTURA": "Invoice",
+      "FACTURAS_A_APLICAR": "Invoices to apply",
       "FAVOR_COMPLETA_TODOS_CAMPOS_REQUERIDOS": "Fill in every required field.",
       "FECHA_PAGO": "Payment Date",
+      "FORMA_DE_PAGO": "Payment method",
       "INFORMACION_PAGO": "Payment Information",
-      "MONTO_RECIBIDO": "Amount Received",
+      "ISR_RETENIDO": "Income tax withheld",
+      "ITBIS_RETENIDO": "VAT withheld",
+      "MONEDA_DE_LA_CUENTA": "The bank account decides the currency.",
+      "MONTO_RECIBIDO": "Amount received",
+      "NO_APLICADO": "Unapplied (advance or overpayment)",
+      "NO_SE_PUDO_GUARDAR": "The collection could not be recorded.",
       "NUEVO_RECIBO_CLIENTE": "New Customer Receipt",
-      "SELECCIONAR_CLIENTE": "Select a customer"
+      "RECIBO_REGISTRADO": "Collection recorded.",
+      "SALDA": "Settles",
+      "SALDO": "Balance",
+      "SELECCIONAR_CLIENTE": "Select a customer",
+      "SIN_FACTURAS_ABIERTAS": "This customer has no invoices with an outstanding balance."
     },
     "LIST": {
       "CARGANDO_RECIBOS": "Loading receipts...",
       "CLIENTE": "Customer",
       "COULD_NOT_LOAD_CUSTOMER_RECEIPTS": "The customer receipts could not be loaded.",
       "CREA_TU_PRIMER_RECIBO_REGISTRAR_PAGO": "Create your first receipt to record a payment.",
+      "ESTADO": "Status",
       "FECHA": "Date",
       "MONTO": "Amount",
+      "NO_APLICADO": "Unapplied",
       "NO_HAY_RECIBOS_CLIENTE": "There are no customer receipts",
       "NUEVO_RECIBO": "New Receipt",
       "NUMERO": "Number",
       "RECIBOS_CLIENTE": "Customer Receipts"
+    },
+    "METHOD": {
+      "BANK_TRANSFER": "Transfer",
+      "CARD": "Card",
+      "CASH": "Cash",
+      "CHEQUE": "Cheque",
+      "OTHER": "Other"
+    },
+    "STATUS": {
+      "POSTED": "Posted",
+      "VOID": "Voided"
     }
   },
   "DASH": {
@@ -2064,6 +2122,7 @@
     "VENDOR_BILL_DETAIL": "Vendor bill detail",
     "VENDOR_BILL_EDIT": "Edit vendor bill",
     "VENDOR_BILL_NEW": "New vendor bill",
+    "VENDOR_PAYMENT": "Supplier Payment",
     "WAREHOUSES": "Warehouses",
     "WAREHOUSE_MANAGEMENT": "Warehouse management (WMS)"
   },

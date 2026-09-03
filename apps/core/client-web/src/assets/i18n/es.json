@@ -2296,7 +2296,6 @@
     },
     "LIST": {
       "FACTURAS_PROVEEDOR": "Facturas de Proveedor",
-      "FILTRAR": "Filtrar",
       "NUEVA_FACTURA": "Nueva Factura",
       "CARGANDO_FACTURAS": "Cargando facturas...",
       "REINTENTAR": "Reintentar",
@@ -2310,6 +2309,35 @@
       "TOTAL": "Total",
       "BALANCE": "Saldo",
       "ESTADO": "Estado"
+    },
+    "PAYMENT": {
+      "CUENTA_BANCARIA": "Cuenta bancaria",
+      "DESCUENTO": "Descuento",
+      "EFECTIVO": "Efectivo",
+      "EXCEDE_SALDO": "Alguna línea salda más de lo que la factura debe.",
+      "FACTURA": "Factura",
+      "FACTURAS_A_PAGAR": "Facturas a pagar",
+      "FECHA": "Fecha de pago",
+      "ISR_RETENIDO": "ISR retenido",
+      "ITBIS_RETENIDO": "ITBIS retenido",
+      "NO_SE_PUDO_PAGAR": "No se pudo registrar el pago.",
+      "PAGAR": "Registrar pago",
+      "PAGO_REGISTRADO": "Pago registrado.",
+      "RETENCIONES": "Retenciones",
+      "SALDA": "Salda",
+      "SALDO": "Saldo",
+      "SELECCIONE_FACTURAS": "Seleccione al menos una factura y complete los datos del pago.",
+      "SIN_FACTURAS": "No hay facturas que esta cuenta pueda pagar.",
+      "TITULO": "Pagar facturas de proveedor"
+    },
+    "STATUS": {
+      "DRAFT": "Borrador",
+      "OPEN": "Abierta",
+      "PAID": "Pagada",
+      "PARTIALLY_PAID": "Pagada parcialmente",
+      "PENDING_APPROVAL": "Pendiente de aprobación",
+      "REJECTED": "Rechazada",
+      "VOID": "Anulada"
     }
   },
   "CONTACTS": {
@@ -2377,28 +2405,58 @@
   },
   "CUSTOMER_RECEIPTS": {
     "FORM": {
-      "FAVOR_COMPLETA_TODOS_CAMPOS_REQUERIDOS": "Por favor, completa todos los campos requeridos.",
-      "NUEVO_RECIBO_CLIENTE": "Nuevo Recibo de Cliente",
-      "INFORMACION_PAGO": "Información del Pago",
-      "CLIENTE": "Cliente",
-      "FECHA_PAGO": "Fecha de Pago",
-      "MONTO_RECIBIDO": "Monto Recibido",
+      "APLICADO": "Aplicado a facturas",
+      "APLICADO_EXCEDE_RECIBIDO": "Lo aplicado a facturas excede el monto recibido.",
       "APLICAR_FACTURAS": "Aplicar a Facturas",
       "AQUI_MOSTRARA_LISTA_FACTURAS_PENDIENTES_CLIENTE": "Aquí se mostrará una lista de facturas pendientes del cliente seleccionado para aplicar el pago.",
       "CANCELAR": "Cancelar",
-      "SELECCIONAR_CLIENTE": "Seleccionar cliente"
+      "CLIENTE": "Cliente",
+      "CUENTA_BANCARIA": "Cuenta bancaria",
+      "DESCUENTO": "Descuento",
+      "EFECTIVO": "Efectivo",
+      "FACTURA": "Factura",
+      "FACTURAS_A_APLICAR": "Facturas a aplicar",
+      "FAVOR_COMPLETA_TODOS_CAMPOS_REQUERIDOS": "Por favor, completa todos los campos requeridos.",
+      "FECHA_PAGO": "Fecha de Pago",
+      "FORMA_DE_PAGO": "Forma de pago",
+      "INFORMACION_PAGO": "Información del Pago",
+      "ISR_RETENIDO": "ISR retenido",
+      "ITBIS_RETENIDO": "ITBIS retenido",
+      "MONEDA_DE_LA_CUENTA": "La moneda la determina la cuenta bancaria.",
+      "MONTO_RECIBIDO": "Monto recibido",
+      "NO_APLICADO": "No aplicado (anticipo o excedente)",
+      "NO_SE_PUDO_GUARDAR": "No se pudo registrar el cobro.",
+      "NUEVO_RECIBO_CLIENTE": "Nuevo Recibo de Cliente",
+      "RECIBO_REGISTRADO": "Cobro registrado.",
+      "SALDA": "Salda",
+      "SALDO": "Saldo",
+      "SELECCIONAR_CLIENTE": "Seleccionar cliente",
+      "SIN_FACTURAS_ABIERTAS": "Este cliente no tiene facturas con saldo pendiente."
     },
     "LIST": {
-      "COULD_NOT_LOAD_CUSTOMER_RECEIPTS": "No se pudieron cargar los recibos de clientes.",
-      "RECIBOS_CLIENTE": "Recibos de Cliente",
-      "NUEVO_RECIBO": "Nuevo Recibo",
       "CARGANDO_RECIBOS": "Cargando recibos...",
-      "NO_HAY_RECIBOS_CLIENTE": "No hay recibos de cliente",
-      "CREA_TU_PRIMER_RECIBO_REGISTRAR_PAGO": "Crea tu primer recibo para registrar un pago.",
       "CLIENTE": "Cliente",
-      "NUMERO": "Número",
+      "COULD_NOT_LOAD_CUSTOMER_RECEIPTS": "No se pudieron cargar los recibos de clientes.",
+      "CREA_TU_PRIMER_RECIBO_REGISTRAR_PAGO": "Crea tu primer recibo para registrar un pago.",
+      "ESTADO": "Estado",
       "FECHA": "Fecha",
-      "MONTO": "Monto"
+      "MONTO": "Monto",
+      "NO_APLICADO": "No aplicado",
+      "NO_HAY_RECIBOS_CLIENTE": "No hay recibos de cliente",
+      "NUEVO_RECIBO": "Nuevo Recibo",
+      "NUMERO": "Número",
+      "RECIBOS_CLIENTE": "Recibos de Cliente"
+    },
+    "METHOD": {
+      "BANK_TRANSFER": "Transferencia",
+      "CARD": "Tarjeta",
+      "CASH": "Efectivo",
+      "CHEQUE": "Cheque",
+      "OTHER": "Otro"
+    },
+    "STATUS": {
+      "POSTED": "Contabilizado",
+      "VOID": "Anulado"
     }
   },
   "INVENTORY": {
@@ -3447,6 +3505,7 @@
     "VENDOR_BILL_DETAIL": "Detalle de factura de proveedor",
     "VENDOR_BILL_EDIT": "Editar factura de proveedor",
     "VENDOR_BILL_NEW": "Nueva factura de proveedor",
+    "VENDOR_PAYMENT": "Pago a Proveedores",
     "WAREHOUSES": "Almacenes",
     "WAREHOUSE_MANAGEMENT": "Gestión de almacenes (WMS)"
   },

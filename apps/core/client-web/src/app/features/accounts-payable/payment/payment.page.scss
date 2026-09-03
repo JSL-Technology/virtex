@@ -170,3 +170,14 @@
     }
   }
 }
+
+.totals__line--total {
+  font-weight: 700;
+  border-top: 2px solid var(--text-primary);
+  padding-top: var(--space-1);
+}
+
+.lines-table td small {
+  display: block;
+  color: var(--text-secondary);
+}

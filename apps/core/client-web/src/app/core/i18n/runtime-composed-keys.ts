@@ -29,6 +29,12 @@ export const RUNTIME_COMPOSED_KEYS: ReadonlyArray<readonly [string, readonly str
     ['STATUS_DRAFT', 'STATUS_PENDING_APPROVAL', 'STATUS_POSTED', 'STATUS_MODIFIED', 'STATUS_VOID', 'STATUS_REJECTED'],
   ],
   ['ACCOUNTING.PERIODS', ['STATUS_OPEN', 'STATUS_CLOSED']],
+  ['CUSTOMER_RECEIPTS.STATUS', ['POSTED', 'VOID']],
+  [
+    'ACCOUNTS_PAYABLE.STATUS',
+    ['DRAFT', 'PENDING_APPROVAL', 'OPEN', 'PARTIALLY_PAID', 'PAID', 'VOID', 'REJECTED'],
+  ],
+  ['CUSTOMER_RECEIPTS.METHOD', ['CASH', 'BANK_TRANSFER', 'CHEQUE', 'CARD', 'OTHER']],
   // The bank statement's own lifecycle, composed from `StatementStatus` in the reconciliation
   // workbench. It replaces `ACCOUNTING.ACCOUNT_RECONCILIATION.STATUS_*`, which described the
   // three states of a table that listed accounts from a signal nothing ever populated.

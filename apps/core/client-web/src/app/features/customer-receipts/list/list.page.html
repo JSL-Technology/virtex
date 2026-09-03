@@ -10,40 +10,54 @@
   </div>
 
   <div class="view-content">
-    <div *ngIf="isLoading()" class="loading-shade">
-      <p>{{ 'CUSTOMER_RECEIPTS.LIST.CARGANDO_RECIBOS' | translate }}</p>
-    </div>
-
-    <div *ngIf="!isLoading() && receipts().length === 0" class="empty-state">
-      <h2>{{ 'CUSTOMER_RECEIPTS.LIST.NO_HAY_RECIBOS_CLIENTE' | translate }}</h2>
-      <p>{{ 'CUSTOMER_RECEIPTS.LIST.CREA_TU_PRIMER_RECIBO_REGISTRAR_PAGO' | translate }}</p>
-    </div>
-
-    <div *ngIf="!isLoading() && receipts().length > 0" class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>{{ 'CUSTOMER_RECEIPTS.LIST.CLIENTE' | translate }}</th>
-            <th>{{ 'CUSTOMER_RECEIPTS.LIST.NUMERO' | translate }}</th>
-            <th>{{ 'CUSTOMER_RECEIPTS.LIST.FECHA' | translate }}</th>
-            <th class="text-right">{{ 'CUSTOMER_RECEIPTS.LIST.MONTO' | translate }}</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let receipt of receipts()">
-            <td>{{ receipt.customerName }}</td>
-            <td>
-              <a [routerLink]="[receipt.id]">{{ receipt.receiptNumber }}</a>
-            </td>
-            <td>{{ receipt.paymentDate | vxDate: 'date' }}</td>
-            <td class="text-right">{{ receipt.amount | vxNumber:'1.2-2' }}</td>
-            <td class="text-center">
-              <!-- Action buttons can go here -->
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    @if (isLoading()) {
+      <div class="loading-shade">
+        <p>{{ 'CUSTOMER_RECEIPTS.LIST.CARGANDO_RECIBOS' | translate }}</p>
+      </div>
+    } @else if (items().length === 0) {
+      <div class="empty-state">
+        <h2>{{ 'CUSTOMER_RECEIPTS.LIST.NO_HAY_RECIBOS_CLIENTE' | translate }}</h2>
+        <p>{{ 'CUSTOMER_RECEIPTS.LIST.CREA_TU_PRIMER_RECIBO_REGISTRAR_PAGO' | translate }}</p>
+      </div>
+    } @else {
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>{{ 'CUSTOMER_RECEIPTS.LIST.NUMERO' | translate }}</th>
+              <th>{{ 'CUSTOMER_RECEIPTS.LIST.CLIENTE' | translate }}</th>
+              <th>{{ 'CUSTOMER_RECEIPTS.LIST.FECHA' | translate }}</th>
+              <th class="text-right">{{ 'CUSTOMER_RECEIPTS.LIST.MONTO' | translate }}</th>
+              <th class="text-right">{{ 'CUSTOMER_RECEIPTS.LIST.NO_APLICADO' | translate }}</th>
+              <th class="text-center">{{ 'CUSTOMER_RECEIPTS.LIST.ESTADO' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (receipt of items(); track receipt.id) {
+              <tr [class.voided]="receipt.status === 'VOID'">
+                <td>{{ receipt.receiptNumber ?? '—' }}</td>
+                <td>{{ customerName(receipt.customerId) }}</td>
+                <td>{{ receipt.paymentDate | vxDate: 'date' : true }}</td>
+                <td class="text-right">
+                  {{ receipt.totalAmount | vxMoney: receipt.currencyCode }}
+                </td>
+                <!-- An advance or an overpayment. Previously unrecordable, so never shown. -->
+                <td class="text-right">
+                  {{ receipt.unappliedAmount | vxNumber: '1.2-2' }}
+                </td>
+                <td class="text-center">
+                  <span
+                    class="status-badge"
+                    [ngClass]="receipt.status === 'VOID' ? 'status-void' : 'status-posted'"
+                  >
+                    {{ 'CUSTOMER_RECEIPTS.STATUS.' + receipt.status | translate }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
   </div>
 </div>

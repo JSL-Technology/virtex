@@ -533,7 +533,6 @@
       "ESTADO": "Situação",
       "FACTURAS_PROVEEDOR": "Faturas de Fornecedor",
       "FECHA": "Data",
-      "FILTRAR": "Filtrar",
       "NO_HAY_FACTURAS_PROVEEDOR": "Não há faturas de fornecedor",
       "NUEVA_FACTURA": "Nova Fatura",
       "NUMERO": "Número",
@@ -541,6 +540,35 @@
       "REINTENTAR": "Tentar novamente",
       "TOTAL": "Total",
       "VENCIMIENTO": "Vencimento"
+    },
+    "PAYMENT": {
+      "CUENTA_BANCARIA": "Conta bancária",
+      "DESCUENTO": "Desconto",
+      "EFECTIVO": "Dinheiro",
+      "EXCEDE_SALDO": "Alguma linha liquida mais do que a fatura deve.",
+      "FACTURA": "Fatura",
+      "FACTURAS_A_PAGAR": "Faturas a pagar",
+      "FECHA": "Data do pagamento",
+      "ISR_RETENIDO": "IR retido",
+      "ITBIS_RETENIDO": "Imposto retido",
+      "NO_SE_PUDO_PAGAR": "Não foi possível registrar o pagamento.",
+      "PAGAR": "Registrar pagamento",
+      "PAGO_REGISTRADO": "Pagamento registrado.",
+      "RETENCIONES": "Retenções",
+      "SALDA": "Liquida",
+      "SALDO": "Saldo",
+      "SELECCIONE_FACTURAS": "Escolha ao menos uma fatura e preencha os dados do pagamento.",
+      "SIN_FACTURAS": "Não há faturas que esta conta possa pagar.",
+      "TITULO": "Pagar faturas de fornecedor"
+    },
+    "STATUS": {
+      "DRAFT": "Rascunho",
+      "OPEN": "Aberta",
+      "PAID": "Paga",
+      "PARTIALLY_PAID": "Parcialmente paga",
+      "PENDING_APPROVAL": "Aguardando aprovação",
+      "REJECTED": "Rejeitada",
+      "VOID": "Anulada"
     }
   },
   "ACTIONS": {
@@ -831,28 +859,58 @@
   },
   "CUSTOMER_RECEIPTS": {
     "FORM": {
+      "APLICADO": "Aplicado a faturas",
+      "APLICADO_EXCEDE_RECIBIDO": "O aplicado às faturas excede o valor recebido.",
       "APLICAR_FACTURAS": "Aplicar às Faturas",
       "AQUI_MOSTRARA_LISTA_FACTURAS_PENDIENTES_CLIENTE": "As faturas em aberto do cliente selecionado serão listadas aqui para aplicar o pagamento.",
       "CANCELAR": "Cancelar",
       "CLIENTE": "Cliente",
+      "CUENTA_BANCARIA": "Conta bancária",
+      "DESCUENTO": "Desconto",
+      "EFECTIVO": "Dinheiro",
+      "FACTURA": "Fatura",
+      "FACTURAS_A_APLICAR": "Faturas a aplicar",
       "FAVOR_COMPLETA_TODOS_CAMPOS_REQUERIDOS": "Preencha todos os campos obrigatórios.",
       "FECHA_PAGO": "Data do Pagamento",
+      "FORMA_DE_PAGO": "Forma de pagamento",
       "INFORMACION_PAGO": "Informações do Pagamento",
-      "MONTO_RECIBIDO": "Valor Recebido",
+      "ISR_RETENIDO": "IR retido",
+      "ITBIS_RETENIDO": "Imposto retido",
+      "MONEDA_DE_LA_CUENTA": "A moeda é a da conta bancária.",
+      "MONTO_RECIBIDO": "Valor recebido",
+      "NO_APLICADO": "Não aplicado (adiantamento ou excedente)",
+      "NO_SE_PUDO_GUARDAR": "Não foi possível registrar a cobrança.",
       "NUEVO_RECIBO_CLIENTE": "Novo Recibo de Cliente",
-      "SELECCIONAR_CLIENTE": "Selecionar cliente"
+      "RECIBO_REGISTRADO": "Cobrança registrada.",
+      "SALDA": "Liquida",
+      "SALDO": "Saldo",
+      "SELECCIONAR_CLIENTE": "Selecionar cliente",
+      "SIN_FACTURAS_ABIERTAS": "Este cliente não tem faturas com saldo em aberto."
     },
     "LIST": {
       "CARGANDO_RECIBOS": "Carregando recibos...",
       "CLIENTE": "Cliente",
       "COULD_NOT_LOAD_CUSTOMER_RECEIPTS": "Não foi possível carregar os recibos de clientes.",
       "CREA_TU_PRIMER_RECIBO_REGISTRAR_PAGO": "Crie seu primeiro recibo para registrar um pagamento.",
+      "ESTADO": "Situação",
       "FECHA": "Data",
       "MONTO": "Valor",
+      "NO_APLICADO": "Não aplicado",
       "NO_HAY_RECIBOS_CLIENTE": "Não há recibos de cliente",
       "NUEVO_RECIBO": "Novo Recibo",
       "NUMERO": "Número",
       "RECIBOS_CLIENTE": "Recibos de Cliente"
+    },
+    "METHOD": {
+      "BANK_TRANSFER": "Transferência",
+      "CARD": "Cartão",
+      "CASH": "Dinheiro",
+      "CHEQUE": "Cheque",
+      "OTHER": "Outro"
+    },
+    "STATUS": {
+      "POSTED": "Lançado",
+      "VOID": "Anulado"
     }
   },
   "DASH": {
@@ -2064,6 +2122,7 @@
     "VENDOR_BILL_DETAIL": "Detalhe da fatura de fornecedor",
     "VENDOR_BILL_EDIT": "Editar fatura de fornecedor",
     "VENDOR_BILL_NEW": "Nova fatura de fornecedor",
+    "VENDOR_PAYMENT": "Pagamento a Fornecedores",
     "WAREHOUSES": "Depósitos",
     "WAREHOUSE_MANAGEMENT": "Gestão de armazéns (WMS)"
   },
