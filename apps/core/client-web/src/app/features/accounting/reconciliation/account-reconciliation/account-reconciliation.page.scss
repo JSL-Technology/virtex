@@ -56,7 +56,7 @@
     padding: var(--space-2) var(--space-3);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
-    background: var(--surface-color);
+    background: var(--surface-raised);
     color: var(--text-primary);
     font: inherit;
   }
@@ -77,16 +77,16 @@
   color: var(--text-secondary);
 
   &--error {
-    color: var(--danger-color, #b42318);
+    color: var(--error-text);
   }
 }
 
 .reconciliation-error {
   padding: var(--space-3) var(--space-4);
   margin-bottom: var(--space-4);
-  border: 1px solid var(--danger-color, #b42318);
+  border: 1px solid var(--error-text);
   border-radius: var(--radius-md);
-  color: var(--danger-color, #b42318);
+  color: var(--error-text);
 }
 
 .proof {
@@ -107,9 +107,9 @@
   &__alert {
     padding: var(--space-2) var(--space-3);
     margin-bottom: var(--space-4);
-    border: 1px solid var(--danger-color, #b42318);
+    border: 1px solid var(--error-text);
     border-radius: var(--radius-md);
-    color: var(--danger-color, #b42318);
+    color: var(--error-text);
   }
 
   &__columns {
@@ -145,10 +145,10 @@
     padding: var(--space-3) var(--space-4);
     border-radius: var(--radius-md);
     border: 1px solid currentColor;
-    color: var(--danger-color, #b42318);
+    color: var(--error-text);
 
     &--ok {
-      color: var(--success-color, #067647);
+      color: var(--success-text);
     }
   }
 }
@@ -190,7 +190,7 @@
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   margin-bottom: var(--space-2);
-  background: var(--surface-color);
+  background: var(--surface-raised);
   text-align: left;
   font: inherit;
   color: inherit;
