@@ -1,0 +1,90 @@
+@use "../../../../assets/styles/view-styles" as views;
+
+.date-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--surface-color);
+
+  input {
+    border: none;
+    background: transparent;
+    color: var(--text-primary);
+    font: inherit;
+    padding: var(--space-2) 0;
+  }
+}
+
+.report-state {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  justify-content: center;
+  padding: var(--space-10);
+  color: var(--text-secondary);
+
+  &--error {
+    color: var(--danger-color, #b42318);
+  }
+}
+
+.section-heading {
+  margin: var(--space-8) 0 var(--space-3);
+}
+
+.note {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  margin: var(--space-3) 0 0;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.cash-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+
+  th,
+  td {
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+  }
+
+  thead th {
+    text-align: left;
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+
+  .numeric {
+    text-align: right;
+  }
+
+  .negative {
+    color: var(--danger-color, #b42318);
+  }
+
+  /* Only the last four digits ever reach the browser. */
+  .masked {
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+  }
+
+  .account-name {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  tfoot td {
+    font-weight: 700;
+    border-top: 2px solid var(--text-primary);
+  }
+}

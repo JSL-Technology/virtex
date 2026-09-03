@@ -29,9 +29,29 @@ export const RUNTIME_COMPOSED_KEYS: ReadonlyArray<readonly [string, readonly str
     ['STATUS_DRAFT', 'STATUS_PENDING_APPROVAL', 'STATUS_POSTED', 'STATUS_MODIFIED', 'STATUS_VOID', 'STATUS_REJECTED'],
   ],
   ['ACCOUNTING.PERIODS', ['STATUS_OPEN', 'STATUS_CLOSED']],
+  // The bank statement's own lifecycle, composed from `StatementStatus` in the reconciliation
+  // workbench. It replaces `ACCOUNTING.ACCOUNT_RECONCILIATION.STATUS_*`, which described the
+  // three states of a table that listed accounts from a signal nothing ever populated.
   [
-    'ACCOUNTING.ACCOUNT_RECONCILIATION',
-    ['STATUS_RECONCILED', 'STATUS_PENDING', 'STATUS_WITH_DIFFERENCES'],
+    'ACCOUNTING.RECONCILIATION.ESTATUS',
+    ['IMPORTING', 'IMPORTED', 'FAILED', 'RECONCILED'],
+  ],
+  [
+    'ACCOUNTING.CATEGORIES',
+    [
+      'CURRENT_ASSET',
+      'NON_CURRENT_ASSET',
+      'CURRENT_LIABILITY',
+      'NON_CURRENT_LIABILITY',
+      'OWNERS_EQUITY',
+      'RETAINED_EARNINGS',
+      'OPERATING_REVENUE',
+      'NON_OPERATING_REVENUE',
+      'OPERATING_EXPENSE',
+      'NON_OPERATING_EXPENSE',
+      'COST_OF_GOODS_SOLD',
+      'CASH',
+    ],
   ],
 
   // Sent BY THE SERVER as `descriptionKey`, so no client file mentions them at all. The server's

@@ -1,82 +1,92 @@
-import { Component, ChangeDetectionStrategy, signal, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, Filter, FileDown, Calendar } from 'lucide-angular';
+import { FormsModule } from '@angular/forms';
+import { LucideAngularModule, AlertTriangle, Calendar, FileDown } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '../../../../core/i18n/pipes/format.pipes';
+import {
+  BalanceSheetReport,
+  FinancialReportingService,
+} from '../../../../core/api/financial-reporting.service';
 
-interface ReportLine {
-  accountName: string;
-  amount: number;
-}
-
-// Interfaz para una sub-sección (Ej. Activos Corrientes)
-interface ReportSubSection {
-  title: string;
-  lines: ReportLine[];
-  subtotal: number;
-}
-
+/**
+ * The balance sheet.
+ *
+ * ## What this page was
+ *
+ * Nine invented account names with invented figures — cash 75,000, receivables 70,000, inventory
+ * 30,000 — written into the component as signals, dated "Julio 31, 2025" whatever day it was
+ * opened, and wrapped in a `div` whose class was `asdfsdfarsgassadfargpokqrpeot`. It made no
+ * request. A tenant looking at it saw someone else's imaginary company and had no way to know.
+ *
+ * `FinancialReportingService.getBalanceSheet` had computed the real statement on the server the
+ * whole time.
+ *
+ * Nothing is recomputed here. The subtotals, the totals and the balance check are the server's,
+ * because a page that adds up its own columns is a second implementation of the ledger and will
+ * eventually disagree with it.
+ */
 @Component({
   selector: 'app-balance-sheet-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [CommonModule, FormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './balance-sheet.page.html',
   styleUrls: ['./balance-sheet.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BalanceSheetPage {
-  protected readonly FilterIcon = Filter;
+  private readonly reports = inject(FinancialReportingService);
+
   protected readonly ExportIcon = FileDown;
   protected readonly CalendarIcon = Calendar;
+  protected readonly WarningIcon = AlertTriangle;
 
-  reportDate = signal('Julio 31, 2025');
+  readonly asOfDate = signal(todayIso());
+  readonly report = signal<BalanceSheetReport | null>(null);
+  readonly loading = signal(true);
+  readonly failed = signal(false);
 
-  // ACTIVOS - Ahora clasificados
-  assets = signal({
-    current: {
-      title: 'Activos Corrientes',
-      lines: [
-        { accountName: 'Efectivo y Equivalentes', amount: 75000 },
-        { accountName: 'Cuentas por Cobrar', amount: 70000 },
-        { accountName: 'Inventario', amount: 30000 },
-      ],
-      subtotal: 175000,
-    },
-    nonCurrent: {
-      title: 'Activos No Corrientes',
-      lines: [{ accountName: 'Propiedades, Planta y Equipo', amount: 250000 }],
-      subtotal: 250000,
-    },
+  readonly isEmpty = computed(() => {
+    const report = this.report();
+    if (!report) return false;
+    return (
+      report.assets.sections.length === 0 &&
+      report.liabilities.sections.length === 0 &&
+      report.equity.sections.length === 0
+    );
   });
-  totalAssets = computed(() => this.assets().current.subtotal + this.assets().nonCurrent.subtotal);
 
+  constructor() {
+    this.load();
+  }
 
-  // PASIVOS Y PATRIMONIO - Ahora clasificados
-  liabilities = signal({
-      current: {
-          title: 'Pasivos Corrientes',
-          lines: [
-              { accountName: 'Cuentas por Pagar', amount: 55000 },
-              { accountName: 'Préstamos a Corto Plazo', amount: 20000 },
-          ],
-          subtotal: 75000,
+  load(): void {
+    this.loading.set(true);
+    this.failed.set(false);
+    this.reports.balanceSheet(this.asOfDate()).subscribe({
+      next: (report) => {
+        this.report.set(report);
+        this.loading.set(false);
       },
-      nonCurrent: {
-          title: 'Pasivos No Corrientes',
-          lines: [{ accountName: 'Deuda a Largo Plazo', amount: 150000 }],
-          subtotal: 150000,
+      error: () => {
+        this.report.set(null);
+        this.failed.set(true);
+        this.loading.set(false);
       },
-  });
-  totalLiabilities = computed(() => this.liabilities().current.subtotal + this.liabilities().nonCurrent.subtotal);
-  
-  equity = signal({
-      title: 'Patrimonio',
-      lines: [
-          { accountName: 'Capital Social', amount: 120000 },
-          { accountName: 'Ganancias Retenidas', amount: 80000 },
-      ],
-      total: 200000,
-  });
+    });
+  }
 
-  totalLiabilitiesAndEquity = computed(() => this.totalLiabilities() + this.equity().total);
+  onDateChange(value: string): void {
+    if (!value) return;
+    this.asOfDate.set(value);
+    this.load();
+  }
+}
+
+/** Today as `YYYY-MM-DD`, in the reader's own day rather than UTC's. */
+function todayIso(): string {
+  const now = new Date();
+  const month = `${now.getMonth() + 1}`.padStart(2, '0');
+  const day = `${now.getDate()}`.padStart(2, '0');
+  return `${now.getFullYear()}-${month}-${day}`;
 }

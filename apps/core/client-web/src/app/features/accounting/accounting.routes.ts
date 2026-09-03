@@ -90,6 +90,12 @@ export const ACCOUNTING_ROUTES: Routes = [
           import('./closing/closing.routes').then((m) => m.CLOSING_ROUTES),
       },
       {
+        path: 'treasury',
+        title: 'PAGE_TITLES.TREASURY',
+        loadComponent: () =>
+          import('./treasury/treasury.page').then((m) => m.TreasuryPage),
+      },
+      {
         path: 'reconciliation',
         title: 'PAGE_TITLES.ACCOUNT_RECONCILIATION',
         loadComponent: () =>
