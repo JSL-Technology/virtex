@@ -109,10 +109,8 @@
       "TODOS_TIPOS": "Todos os Tipos"
     },
     "CHECKLIST": {
-      "ASSIGNED": "Atribuído a",
       "CHECKLIST_NAME": "Nome da lista",
       "CLOSING_PROCESS_CHECKLISTS": "Listas de Verificação do Fechamento",
-      "FILTERS": "Filtros",
       "ITEMS": {
         "CURRENCY_REVALUATION": "Execute a reavaliação cambial para o fechamento do período.",
         "FIXED_ASSETS_DEPRECIATION": "Execute a depreciação do ativo imobilizado do período.",
@@ -130,10 +128,8 @@
         "UNRECONCILED_BANK_TRANSACTIONS_other": "Restam {{count}} transações bancárias sem conciliar."
       },
       "MANUAL_STEP": "Esta é uma etapa manual: confirme que a executou antes de encerrar.",
-      "NEW_CHECKLIST": "Nova lista",
       "NO_CHECKLISTS_HAVE_BEEN_CREATED_YET": "Nenhuma lista de verificação foi criada ainda.",
-      "TASK_COUNT": "Tarefas",
-      "TYPE": "Tipo"
+      "RESOLVE": "Resolver"
     },
     "DAILY_JOURNAL": {
       "ACCOUNT": "Conta",
@@ -453,17 +449,6 @@
       "SELECT_ACCOUNT": "Selecione uma conta de controle",
       "SELECT_AUXILIARY": "Selecione um auxiliar",
       "SUBSIDIARY_LEDGERS": "Livros Auxiliares"
-    },
-    "TASKS": {
-      "ASSIGNED": "Atribuído a",
-      "CHECKLIST": "Lista de verificação",
-      "CLOSING_PROCESS_TASKS": "Tarefas do Fechamento",
-      "DUE_DATE": "Prazo",
-      "FILTERS": "Filtros",
-      "NEW_TASK": "Nova tarefa",
-      "NO_TASKS_FOUND": "Nenhuma tarefa encontrada.",
-      "STATUS": "Situação",
-      "TASK_NAME": "Nome da tarefa"
     },
     "VARIANCE_ANALYSIS": {
       "ACCOUNT": "Conta",
@@ -1972,7 +1957,6 @@
     "CLOSE_MONTH": "Fechamento Mensal",
     "CLOSE_YEAR": "Encerramento Anual",
     "CLOSING_CHECKLISTS": "Checklists de fechamento",
-    "CLOSING_TASKS": "Tarefas de fechamento",
     "COMPANY_PROFILE": "Perfil da empresa",
     "COMPANY_STRUCTURE": "Estrutura empresarial",
     "CONTACTS": "Contatos",
@@ -3060,6 +3044,7 @@
       "ap": "Contas a Pagar",
       "ap_sub": {
         "advances": "Adiantamentos",
+        "aging": "Idade dos saldos",
         "approvals": "Aprovações",
         "credit_notes": "Notas de crédito",
         "dashboard": "Painel",
@@ -3073,6 +3058,7 @@
       },
       "ar": "Contas a Receber",
       "ar_sub": {
+        "aging": "Idade dos saldos",
         "cash_application": "Baixa de recebimentos",
         "chargebacks": "Chargebacks",
         "credit_notes": "Notas de crédito",
@@ -3090,22 +3076,7 @@
         "settings": "Configurações",
         "statements": "Extratos"
       },
-      "fa_sub": {
-        "afe": "AFE",
-        "ap_integration": "Integração com Compras",
-        "cip": "CIP",
-        "components": "Componentes",
-        "depreciation": "Depreciação",
-        "detail": "Detalhe",
-        "disposals": "Baixas",
-        "leases": "Arrendamentos",
-        "list": "Listagem",
-        "maintenance_orders": "Ordens de manutenção",
-        "maintenance_plans": "Planos de manutenção",
-        "new": "Novo",
-        "revaluations": "Reavaliações"
-      },
-      "fixed_assets": "Ativo Imobilizado",
+      "closing": "Fechamento contábil",
       "gl": "Contabilidade Geral",
       "gl_sub": {
         "allocations": "Rateios",
@@ -3130,6 +3101,7 @@
         "ic_reconciliation": "Intercompany — Conciliação",
         "ic_transactions": "Intercompany — Transações",
         "journal": "Lançamentos",
+        "journals": "Diários",
         "monetary_revaluation": "Reavaliação monetária",
         "multi_gaap": "Multi-GAAP",
         "multi_ledger": "Multilivros",
@@ -3142,6 +3114,13 @@
         "rules_engine": "Motor de regras",
         "simulator": "Simulador",
         "variance_analysis": "Análise de variações"
+      },
+      "statements": "Demonstrações financeiras",
+      "statements_sub": {
+        "balance_sheet": "Balanço Patrimonial",
+        "cash_flow": "Fluxo de Caixa",
+        "income_statement": "Demonstração do Resultado",
+        "trial_balance": "Balancete de Verificação"
       },
       "treasury": "Tesouraria e Bancos",
       "treasury_sub": {

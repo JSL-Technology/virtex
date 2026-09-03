@@ -21,12 +21,12 @@ export const CLOSING_ROUTES: Routes = [
                 title: 'PAGE_TITLES.CLOSING_CHECKLISTS',
                 loadComponent: () => import('./checklist/checklist.page').then(m => m.ChecklistPage)
             },
-            {
-                path: 'tasks',
-                title: 'PAGE_TITLES.CLOSING_TASKS',
-                loadComponent: () => import('./tasks/tasks.page').then(m => m.TasksPage)
-            },
-            // Aquí irían las rutas para /annual-close, /checklist, etc.
+            // `tasks` used to live here: four hardcoded tasks assigned to invented people
+            // ("Carlos López", "Ana Pérez"), with due dates in July 2025. Nothing in the product
+            // models a closing task, its owner or its due date — there is no table, no endpoint
+            // and no concept — so the page could only ever have shown those four rows to every
+            // tenant. The real checks a period must pass are computed by `ClosingChecklistService`
+            // and shown by `month-end` and `checklist`.
             {
                 path: '',
                 redirectTo: 'month-end',

@@ -38,3 +38,60 @@
         color: var(--success-text);
     }
 }
+/* The states a real request can be in, and the progress of the period's checks. */
+.field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+
+  select {
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--surface-raised);
+    color: var(--text-primary);
+    font: inherit;
+  }
+}
+
+.checklist-state {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  justify-content: center;
+  padding: var(--space-10);
+  color: var(--text-secondary);
+
+  &--error {
+    color: var(--error-text);
+  }
+}
+
+.checklist-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-4);
+
+  &__bar {
+    flex: 1;
+    height: 0.5rem;
+    border-radius: var(--radius-full, 999px);
+    background: var(--surface-sunken);
+    overflow: hidden;
+  }
+
+  &__fill {
+    display: block;
+    height: 100%;
+    background: var(--success-solid);
+  }
+}
+
+.item-note {
+  margin: var(--space-1) 0 0 var(--space-6);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}

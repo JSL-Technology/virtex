@@ -109,10 +109,8 @@
       "TODOS_TIPOS": "All Types"
     },
     "CHECKLIST": {
-      "ASSIGNED": "Assigned to",
       "CHECKLIST_NAME": "Checklist name",
       "CLOSING_PROCESS_CHECKLISTS": "Closing Checklists",
-      "FILTERS": "Filters",
       "ITEMS": {
         "CURRENCY_REVALUATION": "Run the foreign-currency revaluation for the period close.",
         "FIXED_ASSETS_DEPRECIATION": "Run the fixed-asset depreciation for the period.",
@@ -130,10 +128,8 @@
         "UNRECONCILED_BANK_TRANSACTIONS_other": "{{count}} bank transactions are still unreconciled."
       },
       "MANUAL_STEP": "This is a manual step: make sure you have run it before closing.",
-      "NEW_CHECKLIST": "New checklist",
       "NO_CHECKLISTS_HAVE_BEEN_CREATED_YET": "No checklist has been created yet.",
-      "TASK_COUNT": "Tasks",
-      "TYPE": "Type"
+      "RESOLVE": "Resolve"
     },
     "DAILY_JOURNAL": {
       "ACCOUNT": "Account",
@@ -453,17 +449,6 @@
       "SELECT_ACCOUNT": "Select a control account",
       "SELECT_AUXILIARY": "Select an auxiliary",
       "SUBSIDIARY_LEDGERS": "Subsidiary Ledgers"
-    },
-    "TASKS": {
-      "ASSIGNED": "Assigned to",
-      "CHECKLIST": "Checklist",
-      "CLOSING_PROCESS_TASKS": "Closing Tasks",
-      "DUE_DATE": "Due date",
-      "FILTERS": "Filters",
-      "NEW_TASK": "New task",
-      "NO_TASKS_FOUND": "No tasks were found.",
-      "STATUS": "Status",
-      "TASK_NAME": "Task name"
     },
     "VARIANCE_ANALYSIS": {
       "ACCOUNT": "Account",
@@ -1972,7 +1957,6 @@
     "CLOSE_MONTH": "Month-End Close",
     "CLOSE_YEAR": "Year-End Close",
     "CLOSING_CHECKLISTS": "Closing checklists",
-    "CLOSING_TASKS": "Closing tasks",
     "COMPANY_PROFILE": "Company profile",
     "COMPANY_STRUCTURE": "Company structure",
     "CONTACTS": "Contacts",
@@ -3060,6 +3044,7 @@
       "ap": "Accounts Payable",
       "ap_sub": {
         "advances": "Advances",
+        "aging": "Ageing",
         "approvals": "Approvals",
         "credit_notes": "Credit notes",
         "dashboard": "Dashboard",
@@ -3073,6 +3058,7 @@
       },
       "ar": "Accounts Receivable",
       "ar_sub": {
+        "aging": "Ageing",
         "cash_application": "Cash application",
         "chargebacks": "Chargebacks",
         "credit_notes": "Credit notes",
@@ -3090,22 +3076,7 @@
         "settings": "Settings",
         "statements": "Customer Statements"
       },
-      "fa_sub": {
-        "afe": "AFE",
-        "ap_integration": "Purchasing integration",
-        "cip": "CIP",
-        "components": "Components",
-        "depreciation": "Depreciation Run",
-        "detail": "Detail",
-        "disposals": "Disposals",
-        "leases": "Leases",
-        "list": "Asset Master",
-        "maintenance_orders": "Maintenance orders",
-        "maintenance_plans": "Maintenance plans",
-        "new": "New",
-        "revaluations": "Revaluations"
-      },
-      "fixed_assets": "Fixed Assets",
+      "closing": "Period close",
       "gl": "General Ledger",
       "gl_sub": {
         "allocations": "Allocations",
@@ -3130,6 +3101,7 @@
         "ic_reconciliation": "Intercompany — Reconciliation",
         "ic_transactions": "Intercompany — Transactions",
         "journal": "Journal Entries",
+        "journals": "Journals",
         "monetary_revaluation": "Monetary revaluation",
         "multi_gaap": "Multi-GAAP",
         "multi_ledger": "Multi-ledger",
@@ -3142,6 +3114,13 @@
         "rules_engine": "Rules engine",
         "simulator": "Simulator",
         "variance_analysis": "Variance analysis"
+      },
+      "statements": "Financial statements",
+      "statements_sub": {
+        "balance_sheet": "Balance Sheet",
+        "cash_flow": "Cash Flow",
+        "income_statement": "Income Statement",
+        "trial_balance": "Trial Balance"
       },
       "treasury": "Treasury & Banks",
       "treasury_sub": {
