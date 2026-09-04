@@ -27,6 +27,7 @@ import { AdjustmentsService } from './adjustments.service';
 import { AdjustmentsController } from './adjustments.controller';
 import { AccountingModule } from '../accounting/accounting.module';
 import { AccountPeriodLock } from '../accounting/entities/account-period-lock.entity';
+import { BudgetsModule } from '../budgets/budgets.module';
 import { WorkflowsModule } from '../workflows/workflows.module';
 import { JournalEntryLineValuation } from './entities/journal-entry-line-valuation.entity';
 import { DimensionRule } from '../dimensions/entities/dimension-rule.entity';
@@ -38,6 +39,9 @@ import { AuditModule } from '../audit/audit.module';
 
 @Module({
   imports: [
+    // The budget stops an expense typed into the journal exactly as it stops the same expense
+    // arriving as a supplier bill. Without it the control was one screen away from being bypassed.
+    BudgetsModule,
     TypeOrmModule.forFeature([
       JournalEntry,
       JournalEntryLine,

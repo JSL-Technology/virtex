@@ -295,7 +295,8 @@
     "CUENTA_SUS_DIMENSIONES_NO_ESTAN_PRESUPUESTADAS": "La cuenta y/o sus dimensiones no están presupuestadas.",
     "DENTRO_PRESUPUESTO": "Dentro del presupuesto.",
     "NO_ENCONTRO_PRESUPUESTO_ACTIVO_PARA_PERIODO_ACTUAL": "No se encontró un presupuesto activo para el período actual.",
-    "PRESUPUESTO_ID_NO_ENCONTRADO": "Presupuesto con ID \"{{id}}\" no encontrado."
+    "PRESUPUESTO_ID_NO_ENCONTRADO": "Presupuesto con ID \"{{id}}\" no encontrado.",
+    "RANGO_FECHAS_INVALIDO": "El rango de fechas es inválido: {{startDate}} es posterior a {{endDate}}."
   },
   "CHART_OF_ACCOUNTS": {
     "AMBAS_CUENTAS_DEBEN_PERMITIR_CONTABILIZACION_PODER_SER": "Ambas cuentas deben permitir contabilización para poder ser fusionadas.",
@@ -721,6 +722,7 @@
     "ASIENTO_NO_ENCONTRADO": "Asiento no encontrado.",
     "ASIENTO_ORIGINAL_NO_ENCONTRADO": "Asiento original no encontrado.",
     "ASIENTO_REVERSAR_NO_ENCONTRADO": "Asiento a reversar no encontrado.",
+    "CONTROL_PRESUPUESTARIO_FALLIDO": "El asiento excede el presupuesto: {{detail}}",
     "CUENTA_CONTABLE_REQUIERE_DIMENSION_OBLIGATORIA": "La cuenta contable '{{code}} - {{p2}}' requiere la dimensión obligatoria '{{dimensionKey}}'.",
     "CUENTA_ESTA_BLOQUEADA_NUEVAS_TRANSACCIONES": "La cuenta '{{code}} - {{p2}}' está bloqueada para nuevas transacciones.",
     "CUENTA_NO_PERMITE_CONTABILIZACION": "La cuenta '{{code}} - {{p2}}' no permite contabilización.",

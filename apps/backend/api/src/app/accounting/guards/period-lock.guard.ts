@@ -51,13 +51,22 @@ export class PeriodLockGuard implements CanActivate {
 
     const organizationId: string = user.organizationId;
 
-    // Throws when the date belongs to no period, to a closed one, or to one whose subledger window
-    // is shut. Shared with the posting path so the two cannot drift apart.
+    // Always the general ledger, never `body.accountingModule`.
+    //
+    // Guards run BEFORE the `ValidationPipe`, so `whitelist: true` has not stripped anything yet
+    // and the body is entirely caller-controlled. Reading the subledger from it let a request
+    // choose which period window it would be judged against: with accounts payable closed for
+    // March, `{"accountingModule": "GL"}` on a March supplier invoice passed the guard. Which
+    // subledger a posting belongs to is a server-side fact, decided by the service that posts it
+    // and carried in `PostingContext.module`; the service enforces it inside the transaction.
+    //
+    // Every posting reaches the general ledger, so checking GL here is a real early rejection and
+    // not a weaker one — it simply is not the whole check, and was never meant to be.
     const period = await resolvePostingPeriod(
       this.periodRepo.manager,
       organizationId,
       transactionDate,
-      (body?.accountingModule as ModuleSlug) ?? ModuleSlug.GL,
+      ModuleSlug.GL,
     );
 
     const accountIds = ((body?.lines ?? []) as Array<{ accountId?: string }>)

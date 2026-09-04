@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, In, Repository, DataSource, QueryRunner } from 'typeorm';
 import {
@@ -6,11 +6,12 @@ import {
   JournalEntryStatus,
 } from './entities/journal-entry.entity';
 import { JournalEntryLine } from './entities/journal-entry-line.entity';
+import { JournalEntryType } from './entities/journal-entry.entity';
 import {
   CreateJournalEntryDto,
   CreateJournalEntryLineDto,
 } from './dto/create-journal-entry.dto';
-import { Account } from '../chart-of-accounts/entities/account.entity';
+import { Account, AccountType } from '../chart-of-accounts/entities/account.entity';
 import {
   UpdateJournalEntryDto,
   ReverseJournalEntryDto,
@@ -19,6 +20,9 @@ import { StorageService } from '../storage/storage.service';
 import { JournalEntryAttachment } from './entities/journal-entry-attachment.entity';
 import { ModuleSlug } from '../accounting/entities/accounting-period.entity';
 import { resolvePostingPeriod } from '../accounting/period-status';
+import { BudgetControlService } from '../budgets/budget-control.service';
+import { toIsoDate } from '../common/dates';
+import { AccountPeriodLock } from '../accounting/entities/account-period-lock.entity';
 import { Journal } from './entities/journal.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { WorkflowsService } from '../workflows/workflows.service';
@@ -84,6 +88,13 @@ export class JournalEntriesService {
     private readonly saasService: SaasService,
     private readonly numbering: JournalEntryNumberingService,
     private readonly auditTrail: AuditTrailService,
+    /**
+     * Optional so the cycle stays broken and so a caller constructing this service directly — the
+     * integration suites do — is not forced to supply a control it is not exercising. When it is
+     * absent the budget is simply not consulted, which is the behaviour every path had before.
+     */
+    @Optional()
+    private readonly budgetControl?: BudgetControlService,
   ) {}
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -264,7 +275,7 @@ export class JournalEntriesService {
     }
 
     // ── Period ────────────────────────────────────────────────────────────────
-    await resolvePostingPeriod(
+    const period = await resolvePostingPeriod(
       manager,
       organizationId,
       entryDate,
@@ -304,7 +315,40 @@ export class JournalEntriesService {
       }
     }
 
+    // ── Account locks for this period ────────────────────────────────────────
+    //
+    // Inside the transaction, on the accounts the entry actually resolved to.
+    //
+    // This was enforced only by `PeriodLockGuard`, which reads `body.lines[].accountId`. Two
+    // consequences: every internal posting path — an invoice, a supplier bill, a collection,
+    // depreciation, revaluation, the close, an intercompany transfer — bypassed it entirely,
+    // because none of them arrives through an HTTP body with lines; and a document whose accounts
+    // are derived server-side has no `lines[].accountId` in its body at all, so the guard found
+    // nothing to check and returned true. An accountant who locked the cash account for March to
+    // stop it moving during a reconciliation could still have it moved by every automatic posting
+    // in the product.
+    const locked = await manager
+      .createQueryBuilder(AccountPeriodLock, 'lock')
+      .innerJoinAndSelect('lock.account', 'account')
+      .where('lock.organizationId = :organizationId', { organizationId })
+      .andWhere('lock.periodId = :periodId', { periodId: period.id })
+      .andWhere('lock.accountId IN (:...accountIds)', { accountIds })
+      .andWhere('lock.isLocked = true')
+      .getOne();
+
+    if (locked) {
+      throw new ForbiddenError('ACCOUNTING.CUENTA_ESTA_BLOQUEADA_TRANSACCIONES_PERIODO', {
+        code: locked.account?.code ?? locked.accountId,
+        name: period.name,
+      });
+    }
+
     await this.validateDimensionRules(manager, normalizedLines, accountMap);
+
+    await this.enforceBudget(manager, organizationId, toIsoDate(entryDate), normalizedLines, accountMap, {
+      ...context,
+      entryType: entryData.entryType,
+    });
 
     // ── Currency ──────────────────────────────────────────────────────────────
     const settings = await manager.findOneBy(OrganizationSettings, { organizationId });
@@ -569,6 +613,69 @@ export class JournalEntriesService {
     }
 
     return [...byLedger.values()];
+  }
+
+
+  /**
+   * Refuse a manual entry that would push a budgeted account past its line.
+   *
+   * ## Why the journal needs this and not only accounts payable
+   *
+   * `BudgetControlService.checkBudget` had exactly one caller: submitting a supplier bill for
+   * approval. So the control stopped an expense that arrived as a supplier invoice and waved
+   * through the identical expense typed straight into the journal — which is one screen away, and
+   * is precisely what someone does when the first route refuses them. A control that any user can
+   * step around is not a control; it is a speed bump for the honest.
+   *
+   * ## What it deliberately does not stop
+   *
+   * Only entries a person composed. A reversal *releases* budget rather than consuming it; a
+   * closing entry, an opening balance and every system posting — depreciation, revaluation, the
+   * result transfer, an intercompany leg — are consequences of transactions already approved, and
+   * blocking one leaves the books half-written with no way forward. The budget is a control on
+   * commitment, not on bookkeeping.
+   */
+  private async enforceBudget(
+    manager: EntityManager,
+    organizationId: string,
+    entryDate: string,
+    lines: { accountId: string; debit: number; credit: number; dimensions?: Record<string, string> }[],
+    accountMap: Map<string, Account>,
+    context: PostingContext & { entryType?: JournalEntryType },
+  ): Promise<void> {
+    if (!this.budgetControl) return;
+    if (context.systemReason) return;
+    if (context.entryType && context.entryType !== JournalEntryType.MANUAL) return;
+
+    for (const line of lines) {
+      const account = accountMap.get(line.accountId);
+      if (!account) continue;
+
+      // The movement in the account's natural sense. A credit to an expense account gives budget
+      // back; only the consuming direction is checked.
+      const creditNatured =
+        account.type === AccountType.REVENUE ||
+        account.type === AccountType.LIABILITY ||
+        account.type === AccountType.EQUITY;
+      const consumed = creditNatured ? line.credit - line.debit : line.debit - line.credit;
+      if (consumed <= 0) continue;
+
+      const check = await this.budgetControl.checkBudget(
+        organizationId,
+        line.accountId,
+        consumed,
+        entryDate,
+        line.dimensions,
+        manager,
+      );
+
+      if (check.isExceeded) {
+        throw new ForbiddenError('JOURNAL_ENTRIES.CONTROL_PRESUPUESTARIO_FALLIDO', {
+          detail: check.messageKey,
+          ...(check.messageParams ?? {}),
+        });
+      }
+    }
   }
 
   private async validateDimensionRules(

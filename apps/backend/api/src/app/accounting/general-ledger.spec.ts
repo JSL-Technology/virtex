@@ -11,6 +11,7 @@ import {
   AccountType,
 } from '../chart-of-accounts/enums/account-enums';
 import { AccountingPeriod, PeriodStatus } from '../accounting/entities/accounting-period.entity';
+import { AccountPeriodLock } from './entities/account-period-lock.entity';
 import { JournalEntry } from '../journal-entries/entities/journal-entry.entity';
 import { JournalEntryAttachment } from '../journal-entries/entities/journal-entry-attachment.entity';
 import { JournalEntriesService } from '../journal-entries/journal-entries.service';
@@ -472,5 +473,76 @@ describeWithDb('general ledger and daybook', () => {
 
   it('refuses a daybook range that runs backwards', async () => {
     await expect(daybook({ startDate: '2026-12-31', endDate: '2026-01-01' })).rejects.toThrow();
+  });
+
+  // ── Account locks ──────────────────────────────────────────────────────────
+
+  /**
+   * A locked account stops a posting inside the transaction, not only at the HTTP boundary.
+   *
+   * `PeriodLockGuard` reads `body.lines[].accountId`, so it never saw a posting that did not
+   * arrive as an HTTP body with lines — which is every automatic posting in the product: an
+   * invoice, a supplier bill, a collection, depreciation, revaluation, the close, an intercompany
+   * transfer. An accountant who locked the cash account for March to hold it still during a
+   * reconciliation could watch it move anyway.
+   */
+  it('refuses to post to an account locked for the period, on the service path', async () => {
+    const period = await dataSource.getRepository(AccountingPeriod).findOneByOrFail({
+      organizationId,
+    });
+    await dataSource.getRepository(AccountPeriodLock).save({
+      organizationId,
+      accountId: account['cash'],
+      periodId: period.id,
+      isLocked: true,
+    });
+
+    await expect(sale('2026-03-10', 1_000)).rejects.toThrow();
+  });
+
+  it('allows the posting once the lock is released', async () => {
+    const period = await dataSource.getRepository(AccountingPeriod).findOneByOrFail({
+      organizationId,
+    });
+    const lock = dataSource.getRepository(AccountPeriodLock);
+    await lock.save({
+      organizationId,
+      accountId: account['cash'],
+      periodId: period.id,
+      isLocked: true,
+    });
+    await lock.update(
+      { organizationId, accountId: account['cash'], periodId: period.id },
+      { isLocked: false },
+    );
+
+    await expect(sale('2026-03-10', 1_000)).resolves.toBeDefined();
+  });
+
+  /** A lock on a different account, or a different period, must not block the entry. */
+  it('does not block an entry that touches no locked account', async () => {
+    const period = await dataSource.getRepository(AccountingPeriod).findOneByOrFail({
+      organizationId,
+    });
+    const other = await dataSource.getRepository(Account).save(
+      dataSource.getRepository(Account).create({
+        organizationId,
+        code: '1102',
+        name: { es: 'Banco' },
+        type: AccountType.ASSET,
+        category: AccountCategory.CURRENT_ASSET,
+        nature: AccountNature.DEBIT,
+        isPostable: true,
+        isActive: true,
+      }),
+    );
+    await dataSource.getRepository(AccountPeriodLock).save({
+      organizationId,
+      accountId: other.id,
+      periodId: period.id,
+      isLocked: true,
+    });
+
+    await expect(sale('2026-03-10', 1_000)).resolves.toBeDefined();
   });
 });

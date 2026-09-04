@@ -295,7 +295,8 @@
     "CUENTA_SUS_DIMENSIONES_NO_ESTAN_PRESUPUESTADAS": "A conta e/ou suas dimensões não estão orçadas.",
     "DENTRO_PRESUPUESTO": "Dentro do orçamento.",
     "NO_ENCONTRO_PRESUPUESTO_ACTIVO_PARA_PERIODO_ACTUAL": "Nenhum orçamento ativo foi encontrado para o período atual.",
-    "PRESUPUESTO_ID_NO_ENCONTRADO": "Orçamento \"{{id}}\" não encontrado."
+    "PRESUPUESTO_ID_NO_ENCONTRADO": "Orçamento \"{{id}}\" não encontrado.",
+    "RANGO_FECHAS_INVALIDO": "Intervalo de datas inválido: {{startDate}} é posterior a {{endDate}}."
   },
   "CHART_OF_ACCOUNTS": {
     "AMBAS_CUENTAS_DEBEN_PERMITIR_CONTABILIZACION_PODER_SER": "Ambas as contas devem ser analíticas para poderem ser fundidas.",
@@ -721,6 +722,7 @@
     "ASIENTO_NO_ENCONTRADO": "Lançamento não encontrado.",
     "ASIENTO_ORIGINAL_NO_ENCONTRADO": "O lançamento original não foi encontrado.",
     "ASIENTO_REVERSAR_NO_ENCONTRADO": "O lançamento a estornar não foi encontrado.",
+    "CONTROL_PRESUPUESTARIO_FALLIDO": "O lançamento excede o orçamento: {{detail}}",
     "CUENTA_CONTABLE_REQUIERE_DIMENSION_OBLIGATORIA": "A conta '{{code}} - {{p2}}' exige a dimensão obrigatória '{{dimensionKey}}'.",
     "CUENTA_ESTA_BLOQUEADA_NUEVAS_TRANSACCIONES": "A conta '{{code}} - {{p2}}' está bloqueada para novos lançamentos.",
     "CUENTA_NO_PERMITE_CONTABILIZACION": "A conta '{{code}} - {{p2}}' não aceita lançamentos.",

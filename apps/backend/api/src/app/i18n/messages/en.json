@@ -295,7 +295,8 @@
     "CUENTA_SUS_DIMENSIONES_NO_ESTAN_PRESUPUESTADAS": "The account and/or its dimensions are not budgeted.",
     "DENTRO_PRESUPUESTO": "Within budget.",
     "NO_ENCONTRO_PRESUPUESTO_ACTIVO_PARA_PERIODO_ACTUAL": "No active budget was found for the current period.",
-    "PRESUPUESTO_ID_NO_ENCONTRADO": "Budget \"{{id}}\" was not found."
+    "PRESUPUESTO_ID_NO_ENCONTRADO": "Budget \"{{id}}\" was not found.",
+    "RANGO_FECHAS_INVALIDO": "Invalid date range: {{startDate}} is later than {{endDate}}."
   },
   "CHART_OF_ACCOUNTS": {
     "AMBAS_CUENTAS_DEBEN_PERMITIR_CONTABILIZACION_PODER_SER": "Both accounts must be postable to be merged.",
@@ -721,6 +722,7 @@
     "ASIENTO_NO_ENCONTRADO": "Entry not found.",
     "ASIENTO_ORIGINAL_NO_ENCONTRADO": "The original entry was not found.",
     "ASIENTO_REVERSAR_NO_ENCONTRADO": "The entry to reverse was not found.",
+    "CONTROL_PRESUPUESTARIO_FALLIDO": "The entry exceeds the budget: {{detail}}",
     "CUENTA_CONTABLE_REQUIERE_DIMENSION_OBLIGATORIA": "Account '{{code}} - {{p2}}' requires the mandatory dimension '{{dimensionKey}}'.",
     "CUENTA_ESTA_BLOQUEADA_NUEVAS_TRANSACCIONES": "Account '{{code}} - {{p2}}' is locked for new transactions.",
     "CUENTA_NO_PERMITE_CONTABILIZACION": "Account '{{code}} - {{p2}}' does not accept postings.",
