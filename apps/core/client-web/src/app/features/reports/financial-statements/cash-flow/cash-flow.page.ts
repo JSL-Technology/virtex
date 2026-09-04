@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, AlertTriangle, Calendar, RefreshCw } from 'lucide-angular';
+import { LucideAngularModule, AlertTriangle, Calendar, FileDown, RefreshCw } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '../../../../core/i18n/pipes/format.pipes';
+import { StatementExportService } from '../../../../core/export/statement-export.service';
 import {
   CashFlowStatementReport,
   FinancialReportingService,
@@ -28,8 +29,10 @@ import { defaultPeriod } from '../report-period';
 })
 export class CashFlowPage {
   private readonly reports = inject(FinancialReportingService);
+  private readonly exporter = inject(StatementExportService);
 
   protected readonly CalendarIcon = Calendar;
+  protected readonly ExportIcon = FileDown;
   protected readonly RefreshIcon = RefreshCw;
   protected readonly WarningIcon = AlertTriangle;
 
@@ -69,5 +72,16 @@ export class CashFlowPage {
     if (!value) return;
     this.endDate.set(value);
     this.load();
+  }
+  /**
+   * The statement on screen, as a file.
+   *
+   * Disabled until there is one, because exporting an empty report produces a file that looks like
+   * a company with no balances rather than a report that never loaded.
+   */
+  exportCsv(): void {
+    const data = this.report();
+    if (!data) return;
+    this.exporter.exportCashFlow(data);
   }
 }
