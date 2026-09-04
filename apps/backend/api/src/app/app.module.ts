@@ -28,6 +28,11 @@ import { UsersModule } from './users/users.module';
 import { JournalEntriesModule } from './journal-entries/journal-entries.module';
 import { AccountingModule } from './accounting/accounting.module';
 import { ConsolidationModule } from './consolidation/consolidation.module';
+import { AnalyticalReportingModule } from './analytical-reporting/analytical-reporting.module';
+import { CoaImportModule } from './chart-of-accounts/import/coa-import.module';
+import { CustomerServiceModule } from './customer-service/customer-service.module';
+import { TreasuryModule } from './treasury/treasury.module';
+import { IntercompanyModule } from './intercompany/intercompany.module';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { SharedModule } from './shared/shared.module';
 import { I18nModule } from './i18n/i18n.module';
@@ -238,8 +243,21 @@ import { SchedulerModule } from './shared/scheduler/scheduler.module';
     // `SalesModule` and `ReportsModule` were never imported by AppModule or by any other module, so
     // their controllers were never registered: quote-to-invoice conversion and the accounts-
     // receivable aging report did not exist in the deployed application at all.
+    //
+    // `TreasuryModule` and `IntercompanyModule` were in exactly the same state, and the note above
+    // did not save them. Every bank-account, cash-position and transfer route was absent from the
+    // running application — and since a bank account could be created nowhere else, supplier
+    // payments, customer collections and bank-statement import were all unreachable too, each
+    // failing on a `bankAccountId` that could not exist. `module-graph.spec.ts` now asserts that
+    // every module with a controller is reachable from here, so the class of bug is closed rather
+    // than the three instances of it.
     SalesModule,
     ReportsModule,
+    TreasuryModule,
+    IntercompanyModule,
+    AnalyticalReportingModule,
+    CoaImportModule,
+    CustomerServiceModule,
     InventoryModule,
     CustomersModule,
     SuppliersModule,

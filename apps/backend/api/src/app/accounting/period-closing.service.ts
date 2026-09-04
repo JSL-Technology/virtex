@@ -1,6 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In, DataSource, Between, EntityManager, MoreThan } from 'typeorm';
+import {
+  Repository,
+  In,
+  DataSource,
+  Between,
+  EntityManager,
+  LessThanOrEqual,
+  MoreThan,
+  MoreThanOrEqual,
+} from 'typeorm';
 import {
   AccountingPeriod,
   ModuleSlug,
@@ -26,28 +35,33 @@ import { ReopenPeriodDto } from './dto/reopen-period.dto';
 import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
 import { ClosingAutomationService } from './closing-automation.service';
+import { FiscalYear, FiscalYearStatus } from './entities/fiscal-year.entity';
 import {
   BadRequestError,
   ForbiddenError,
   NotFoundError,
 } from '../i18n/localized.exception';
 import { LocalizedMessage } from '../i18n/localized-message';
-import {
-  AccountBalancesService,
-  closingSideFor,
-  previousDay,
-  toIsoDate,
-} from '../chart-of-accounts/account-balances.service';
+import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
 import { moduleStatusColumn } from './period-status';
-import { roundAmount, toCents } from '../common/money';
+import { previousDay, toIsoDate } from '../common/dates';
 
 /**
  * Closing and reopening accounting periods.
  *
  * ## What a close does, and what it does not
  *
- * Closing a period does two things: it moves the period's result to retained earnings, and it
- * locks the period against further posting. That is all.
+ * Closing a period does two things: it runs the adjustments that belong to the period —
+ * depreciation and foreign-currency revaluation — and it locks the period against further posting.
+ * That is all.
+ *
+ * It does **not** move the result to retained earnings. It used to, on every monthly close, and
+ * that single line made the income statement of a closed month read `revenue 0 · expenses 0 ·
+ * result 0`: the closing entry debits every revenue account and credits every expense account by
+ * its own balance, and the income statement sums the movement of exactly those accounts. The
+ * balance sheet still balanced, so nothing looked wrong until someone opened the report the whole
+ * module exists to produce. The transfer is an annual act and lives in `ResultTransferService`,
+ * called once by `YearEndCloseService`.
  *
  * It emphatically does **not** carry balance-sheet balances forward with an opening entry. Balances
  * carry forward because the entries that created them are still in the book and every balance is a
@@ -166,17 +180,23 @@ export class PeriodClosingService {
         );
       }
 
-      // Depreciation and FX revaluation post into the period being closed. They run *before* the
-      // result is computed and, because balances are read from the journal through the same
-      // transaction, the closing entry now includes them. Under the old queue-based balances it
-      // could not: the figures it read were written by a worker that had not run yet.
+      // The fiscal year has to still be open. Otherwise a period could be closed after its year
+      // was settled, and its movements would sit outside the annual closing entry that was
+      // supposed to include them.
+      await this.requireOpenFiscalYear(manager, organizationId, period);
+
+      // Depreciation and FX revaluation post into the period being closed, before it is locked.
+      // Because balances are read from the journal through this same transaction, everything they
+      // post is visible to the year-end result transfer later.
       await this.closingAutomationService.runPreClosingTasks(
         period,
         organizationId,
         manager,
       );
 
-      await this.postClosingEntry(manager, period, organizationId, actorUserId);
+      // Deliberately no closing entry. See `ResultTransferService`: moving the result to retained
+      // earnings every month is what made the income statement of a closed month read zero. The
+      // transfer happens once, at the fiscal year close.
 
       period.status = PeriodStatus.CLOSED;
       period.generalLedgerStatus = PeriodStatus.CLOSED;
@@ -201,120 +221,32 @@ export class PeriodClosingService {
   }
 
   /**
-   * The entry that zeroes the period's profit and loss accounts into retained earnings.
+   * The fiscal year a period belongs to must be open before the period can be closed.
    *
-   * Every revenue and expense account with a non-zero balance for the period gets the line that
-   * cancels it — whichever side that turns out to be, so contra-revenue and expense refunds are
-   * handled by the same code as ordinary balances. The retained-earnings line is the arithmetic
-   * remainder, computed in cents, so the entry balances by construction rather than by a formula
-   * that has to agree with the lines independently.
+   * Without this a period could be closed after its year had been settled, and its movements would
+   * sit outside the annual result transfer that was supposed to include them — a permanent gap
+   * between the income statement and retained earnings, with nothing to reveal it.
    */
-  private async postClosingEntry(
+  private async requireOpenFiscalYear(
     manager: EntityManager,
-    period: AccountingPeriod,
     organizationId: string,
-    actorUserId: string,
-  ): Promise<JournalEntry | null> {
-    const settings = await manager.findOneBy(OrganizationSettings, { organizationId });
-    if (!settings?.defaultRetainedEarningsAccountId) {
-      throw new BadRequestError(
-        'ACCOUNTING.CUENTA_RESULTADOS_EJERCICIO_GANANCIAS_RETENIDAS_NO_ESTA',
-      );
-    }
-
-    const closingJournal = await manager.findOneBy(Journal, {
-      organizationId,
-      code: 'CIERRE',
-    });
-    if (!closingJournal) {
-      throw new BadRequestError('ACCOUNTING.DIARIO_CIERRE_CIERRE_NO_ENCONTRADO_FAVOR_CREE');
-    }
-
-    const ledgers = await manager.find(Ledger, { where: { organizationId } });
-    const defaultLedger = ledgers.find((ledger) => ledger.isDefault);
-    if (!defaultLedger) {
-      throw new BadRequestError(
-        'ACCOUNTING.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION',
-      );
-    }
-
-    const resultAccounts = await manager.find(Account, {
+    period: AccountingPeriod,
+  ): Promise<void> {
+    const year = await manager.findOne(FiscalYear, {
       where: {
         organizationId,
-        type: In([AccountType.REVENUE, AccountType.EXPENSE]),
+        startDate: LessThanOrEqual(toIsoDate(period.startDate) as unknown as Date),
+        endDate: MoreThanOrEqual(toIsoDate(period.endDate) as unknown as Date),
       },
     });
-    if (resultAccounts.length === 0) return null;
-
-    // The period's own movement, not the account's cumulative balance. Closing the cumulative
-    // figure only happens to be right for the very first period ever closed.
-    const movements = await this.balances.movements(
-      {
-        organizationId,
-        ledgerId: defaultLedger.id,
-        accountIds: resultAccounts.map((account) => account.id),
-        from: period.startDate,
-        to: period.endDate,
-      },
-      manager,
-    );
-
-    const lines: CreateJournalEntryLineDto[] = [];
-    let resultCents = 0;
-
-    for (const movement of movements) {
-      const signedBalance = roundAmount(movement.debit - movement.credit);
-      if (toCents(signedBalance) === 0) continue;
-
-      const { debit, credit } = closingSideFor(signedBalance);
-      lines.push({
-        accountId: movement.accountId,
-        debit,
-        credit,
-        description: `Cierre del período ${period.name}`,
-        valuations: [{ ledgerId: defaultLedger.id, debit, credit }],
+    // No fiscal year on record is not an error: a tenant may run periods without declaring years,
+    // and the annual close is what creates the requirement, not the other way round.
+    if (year && year.status !== FiscalYearStatus.OPEN) {
+      throw new ForbiddenError('ACCOUNTING.ANO_FISCAL_CERRADO_NO_ADMITE_CAMBIOS', {
+        from: toIsoDate(year.startDate),
+        to: toIsoDate(year.endDate),
       });
-      resultCents += toCents(signedBalance);
     }
-
-    if (lines.length === 0) {
-      this.logger.log(`Período ${period.name}: sin resultados que cerrar.`);
-      return null;
-    }
-
-    // `resultCents` is the sum of the signed P&L balances. Revenue is negative and expense
-    // positive, so a profit is a negative sum; the retained-earnings line takes the opposite side
-    // of the lines above, which is exactly what `closingSideFor` on the negated total gives.
-    const retained = closingSideFor(-roundAmount(resultCents / 100));
-    lines.push({
-      accountId: settings.defaultRetainedEarningsAccountId,
-      debit: retained.debit,
-      credit: retained.credit,
-      description: `Traspaso de resultado del período ${period.name}`,
-      valuations: [
-        { ledgerId: defaultLedger.id, debit: retained.debit, credit: retained.credit },
-      ],
-    });
-
-    const netIncome = roundAmount(-resultCents / 100);
-    this.logger.log(
-      `Cierre de ${period.name}: ${lines.length - 1} cuentas de resultado, resultado neto ${netIncome}.`,
-    );
-
-    const entryDto: CreateJournalEntryDto = {
-      date: toIsoDate(period.endDate),
-      description: `Asiento de cierre — período ${period.name}`,
-      lines,
-      journalId: closingJournal.id,
-      entryType: JournalEntryType.CLOSING_ENTRY,
-    };
-
-    return this.journalEntriesService.createWithManager(
-      manager,
-      entryDto,
-      organizationId,
-      { actorUserId, systemReason: 'period-close' },
-    );
   }
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -322,7 +254,7 @@ export class PeriodClosingService {
   // ───────────────────────────────────────────────────────────────────────────
 
   /**
-   * Reopen a closed period and reverse the closing entry that shut it.
+   * Reopen a closed period, reversing any closing entry dated inside it.
    *
    * ## Why this could never work before
    *
@@ -331,6 +263,13 @@ export class PeriodClosingService {
    * whole reopen rolled back — every time, for any period that had a closing entry, which is every
    * period anyone would want to reopen. The status change now comes first, inside the same
    * transaction, so either both happen or neither does.
+   *
+   * ## The reversal loop is now the exception, not the rule
+   *
+   * Monthly closes post nothing, so reopening an ordinary month reverses nothing. Only the year's
+   * last period carries a closing entry, and that one cannot be reopened from here at all: its
+   * fiscal year has to be reopened first, which is what reverses the transfer. The loop stays for
+   * periods closed under the old monthly-transfer behaviour, whose entries are still in the book.
    */
   async reopenPeriod(
     dto: ReopenPeriodDto,
@@ -348,6 +287,11 @@ export class PeriodClosingService {
       if (period.status !== PeriodStatus.CLOSED) {
         throw new BadRequestError('ACCOUNTING.PERIODO_NO_ESTA_CERRADO');
       }
+
+      // A period inside a settled year is not reopenable on its own: the year's result transfer
+      // already consumed its movements. `YearEndCloseService.reopenFiscalYear` undoes that, and
+      // only then can the period be touched.
+      await this.requireOpenFiscalYear(manager, organizationId, period);
 
       const laterClosed = await manager.findOne(AccountingPeriod, {
         where: {

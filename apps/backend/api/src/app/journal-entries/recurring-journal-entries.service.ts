@@ -5,11 +5,18 @@ import { Repository, DataSource } from 'typeorm';
 import { RecurringJournalEntry, Frequency } from './entities/recurring-journal-entry.entity';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { CreateRecurringJournalEntryDto, UpdateRecurringJournalEntryDto } from './dto/recurring-and-templates.dto';
-import { addDays, addMonths, addYears, isSameDay, isLastDayOfMonth } from 'date-fns';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { NotFoundError } from '../i18n/localized.exception';
 import { SchedulerLockService } from '../shared/scheduler/scheduler-lock.service';
+import {
+  daysBetween,
+  endOfMonthIso,
+  toIsoDate,
+  todayIso,
+  toUtcDate,
+  type IsoDate,
+} from '../common/dates';
 
 export interface RecurringJobData {
     recurringEntryId: string;
@@ -66,9 +73,8 @@ export class RecurringJournalEntriesService {
   @Cron(CronExpression.EVERY_DAY_AT_1AM, { name: 'queue-recurring-journal-entries' })
   async handleCron() {
     this.logger.log('Iniciando job para encolar asientos recurrentes...');
-    
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+
+    const today = todayIso();
 
     // Scoped per tenant below via the claim key. The query itself spans tenants because the
     // scheduler is a single process acting for all of them.
@@ -76,86 +82,90 @@ export class RecurringJournalEntriesService {
     this.logger.log(`Se encontraron ${recurringEntries.length} plantillas activas para evaluar.`);
 
     for (const entry of recurringEntries) {
+      if (!this.isDue(entry, today)) continue;
 
-        if (this.shouldCreateJournalEntryToday(entry, today)) {
-
-
-            const day = today.toISOString().slice(0, 10);
-            // The durable claim, not just BullMQ's `jobId`. A completed job is removed from the
-            // queue, which frees its id — so with two replicas firing the same minute the dedup
-            // window is whatever the queue happens to be retaining.
-            const claimed = await this.schedulerLock.runOnce(
-              'queue-recurring-journal-entries',
-              `${entry.organizationId}:${entry.id}:${day}`,
-              async () => {
-                await this.recurringQueue.add(
-                  'generate-recurring-entry',
-                  { recurringEntryId: entry.id, dateToPost: today.toISOString() },
-                  {
-                    jobId: `recurring-${entry.id}-${day}`,
-                    attempts: 3,
-                    backoff: { type: 'exponential', delay: 60000 },
-                  },
-                );
-              },
-            );
-            if (claimed) {
-              this.logger.log(`Asiento recurrente ${entry.id} encolado para ${day}.`);
-            }
-        }
+      // The durable claim, not just BullMQ's `jobId`. A completed job is removed from the
+      // queue, which frees its id — so with two replicas firing the same minute the dedup
+      // window is whatever the queue happens to be retaining.
+      const claimed = await this.schedulerLock.runOnce(
+        'queue-recurring-journal-entries',
+        `${entry.organizationId}:${entry.id}:${today}`,
+        async () => {
+          await this.recurringQueue.add(
+            'generate-recurring-entry',
+            { recurringEntryId: entry.id, dateToPost: today },
+            {
+              jobId: `recurring-${entry.id}-${today}`,
+              attempts: 3,
+              backoff: { type: 'exponential', delay: 60000 },
+            },
+          );
+        },
+      );
+      if (claimed) {
+        this.logger.log(`Asiento recurrente ${entry.id} encolado para ${today}.`);
+      }
     }
-     this.logger.log('Job de encolado de asientos recurrentes finalizado.');
+    this.logger.log('Job de encolado de asientos recurrentes finalizado.');
   }
 
-  private shouldCreateJournalEntryToday(entry: RecurringJournalEntry, today: Date): boolean {
-    const startDate = new Date(entry.startDate);
-    startDate.setHours(0, 0, 0, 0);
-
-
-    if (startDate > today) {
-      return false;
-    }
-
-
-    if (entry.endDate && new Date(entry.endDate) < today) {
-      return false;
-    }
-    
-
-
-    if (entry.lastRunDate && isSameDay(new Date(entry.lastRunDate), today)) {
-      return false;
-    }
-
+  /**
+   * Whether a template falls due on `today`.
+   *
+   * Everything is compared as `YYYY-MM-DD` — lexicographic order on that format is chronological
+   * order, so no `Date` is constructed for the window checks and no timezone can move a day.
+   *
+   * The previous version did `new Date(entry.startDate)` and then `setHours(0,0,0,0)`: the first
+   * parses `'2026-01-15'` as UTC midnight, the second re-anchors it to *local* midnight. On any
+   * deployment west of Greenwich the template's own start date read as the day before, so
+   * `getDate()` returned 14 for a template that starts on the 15th — a monthly entry posted a day
+   * early, every month, and an annual one on a 1 January start was evaluated as 31 December and
+   * never fired.
+   *
+   * Exposed as `isDue` rather than the old `shouldCreateJournalEntryToday` because it is now a pure
+   * function of two values and is worth testing directly.
+   */
+  isDue(entry: RecurringJournalEntry, today: IsoDate): boolean {
+    const start = toIsoDate(entry.startDate);
+    if (start > today) return false;
+    if (entry.endDate && toIsoDate(entry.endDate) < today) return false;
+    // Already run today. Belt to the scheduler claim's braces: the claim stops two replicas, this
+    // stops a re-queue after a manual run.
+    if (entry.lastRunDate && toIsoDate(entry.lastRunDate) === today) return false;
 
     switch (entry.frequency) {
       case Frequency.DAILY:
         return true;
-      
+
       case Frequency.WEEKLY:
+        // Same weekday as the start date. `daysBetween` is exact on calendar days, so this needs
+        // no day-of-week lookup and cannot be shifted by a DST transition.
+        return daysBetween(start, today) % 7 === 0;
 
-        return today.getDay() === startDate.getDay();
-      
       case Frequency.MONTHLY: {
-        const startDayOfMonth = startDate.getDate();
-
-        if (startDayOfMonth > 28 && isLastDayOfMonth(today)) {
-          return true;
+        const startDay = Number(start.slice(8, 10));
+        const todayDay = Number(today.slice(8, 10));
+        // A template that starts on the 29th, 30th or 31st runs on the last day of any month that
+        // is shorter than that, rather than skipping the month entirely.
+        if (startDay > 28 && today === endOfMonthIso(today)) {
+          return todayDay <= startDay;
         }
-        return today.getDate() === startDayOfMonth;
+        return todayDay === startDay;
       }
-      
-      case Frequency.ANNUALLY: 
 
-        return today.getMonth() === startDate.getMonth() && today.getDate() === startDate.getDate();
-      
+      case Frequency.ANNUALLY: {
+        const startMonthDay = start.slice(5, 10);
+        if (startMonthDay === today.slice(5, 10)) return true;
+        // 29 February in a common year: run on the 28th rather than skipping the year.
+        return startMonthDay === '02-29' && today.slice(5, 10) === '02-28' && !isLeapYear(today);
+      }
+
       default:
-
         return false;
     }
   }
+}
 
-
-
-
+function isLeapYear(date: IsoDate): boolean {
+  return toUtcDate(`${date.slice(0, 4)}-02-29`).getUTCMonth() === 1;
 }

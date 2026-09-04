@@ -8,6 +8,7 @@ import { JournalEntriesService } from './journal-entries.service';
 import { CreateJournalEntryDto } from './dto/create-journal-entry.dto';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { BadRequestError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
+import { toIsoDate } from '../common/dates';
 
 interface RecurringJobData {
     recurringEntryId: string;
@@ -41,7 +42,7 @@ export class RecurringEntriesProcessor extends WorkerHost {
             }
             
             const dto: CreateJournalEntryDto = {
-                date: dateToPost,
+                date: toIsoDate(dateToPost),
                 description: `(Recurrente) ${entry.description}`,
                 journalId: entry.journalId,
                 lines: entry.lines.map(line => ({
@@ -62,7 +63,7 @@ export class RecurringEntriesProcessor extends WorkerHost {
 
             await this.journalEntriesService.createWithQueryRunner(manager.queryRunner, dto, entry.organizationId);
             
-            entry.lastRunDate = new Date(dateToPost);
+            entry.lastRunDate = toIsoDate(dateToPost);
             await manager.save(entry);
 
             this.logger.log(`Asiento para plantilla ${entry.id} creado exitosamente.`);

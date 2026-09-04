@@ -44,7 +44,7 @@ export class CurrencyRevaluationService {
   ) {}
 
   async run(
-    periodEndDate: Date,
+    periodEndDate: Date | string,
     organizationId: string,
     ledgerId?: string,
     manager?: EntityManager,
@@ -80,7 +80,7 @@ export class CurrencyRevaluationService {
   }
 
   private async runForLedger(
-    periodEndDate: Date,
+    periodEndDate: Date | string,
     organizationId: string,
     ledger: Ledger,
     manager: EntityManager,
@@ -140,7 +140,7 @@ export class CurrencyRevaluationService {
         where: {
           fromCurrency: account.currency,
           toCurrency: ledger.currency,
-          date: LessThanOrEqual(periodEndDate),
+          date: LessThanOrEqual(toIsoDate(periodEndDate) as unknown as Date),
         },
         order: { date: 'DESC' },
       });

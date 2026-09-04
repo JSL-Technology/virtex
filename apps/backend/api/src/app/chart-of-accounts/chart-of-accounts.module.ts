@@ -5,6 +5,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { Account } from './entities/account.entity';
 import { ChartOfAccountsService } from './chart-of-accounts.service';
 import { ChartOfAccountsController } from './chart-of-accounts.controller';
+import { AccountHistoryController } from './account-history.controller';
 import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line.entity';
 import { AccountSegment } from './entities/account-segment.entity';
 import { AuditModule } from '../audit/audit.module';
@@ -36,6 +37,10 @@ import { AccountBalancesService } from './account-balances.service';
   controllers: [
     ChartOfAccountsController,
     AccountSegmentsController,
+    // `GET /chart-of-accounts/:accountId/history` — the audit trail of an account's moves through
+    // the hierarchy. The controller existed, declared its permission and was in no module, so the
+    // route did not exist.
+    AccountHistoryController,
   ],
   providers: [
     ChartOfAccountsService,

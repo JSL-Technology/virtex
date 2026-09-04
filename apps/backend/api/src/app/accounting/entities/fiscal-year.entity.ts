@@ -37,8 +37,16 @@ export class FiscalYear {
   @Column({ type: 'enum', enum: FiscalYearStatus, default: FiscalYearStatus.OPEN })
   status: FiscalYearStatus;
 
+  /**
+   * The entry that moved this year's result to retained earnings.
+   *
+   * Null while the year is open, and null again after a reopen — the transfer is reversed, so the
+   * pointer would name an entry that no longer describes the year's state. `null` rather than
+   * `undefined` because clearing it is a real operation, and an optional property cannot express
+   * "explicitly cleared" to TypeORM.
+   */
   @Column({ name: 'closing_journal_entry_id', type: 'uuid', nullable: true })
-  closingJournalEntryId?: string;
+  closingJournalEntryId: string | null;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;

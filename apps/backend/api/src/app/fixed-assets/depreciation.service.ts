@@ -14,12 +14,13 @@ import {
 import { BadRequestError } from '../i18n/localized.exception';
 import { SchedulerLockService } from '../shared/scheduler/scheduler-lock.service';
 import { roundAmount, toCents } from '../common/money';
-import { toIsoDate } from '../chart-of-accounts/account-balances.service';
-
-/** `2026-03` — the period a depreciation run belongs to. */
-function periodKey(date: Date): string {
-  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`;
-}
+import {
+  endOfMonthIso,
+  monthsBetween,
+  toIsoDate,
+  toIsoMonth,
+  type IsoDate,
+} from '../common/dates';
 
 /**
  * Monthly depreciation.
@@ -41,6 +42,19 @@ function periodKey(date: Date): string {
  * And it posted one journal entry per asset. A tenant with four hundred assets got four hundred
  * entries a month, each with its own number in the consecutive series. One entry per run now, with
  * a line per asset, which is both the conventional presentation and a single document to reverse.
+ *
+ * ## A fourth: the date this ran on was never a `Date`
+ *
+ * Every method here took a `Date` and called `getUTCFullYear()` on it. The scheduler passes one, so
+ * the cron worked. The **period close** passes `period.endDate`, and a PostgreSQL `date` column
+ * arrives in JavaScript as the string `'2026-01-31'` whatever the entity's type annotation claims —
+ * so `runPreClosingTasks` threw `date.getUTCFullYear is not a function`, `ClosingAutomationService`
+ * re-threw it as "Fallo en la depreciación de activos fijos", and **the period close failed for
+ * every tenant, on every period, always**. The integration suite could not see it because it
+ * replaces `ClosingAutomationService` with a stub.
+ *
+ * Dates are `IsoDate` strings throughout this file now, normalised at every entry point through
+ * `toIsoDate`, which accepts both forms and rejects anything else loudly. See `common/dates`.
  */
 @Injectable()
 export class DepreciationService {
@@ -58,41 +72,44 @@ export class DepreciationService {
    */
   @Cron('0 2 1 * *', { name: 'monthly-depreciation' })
   async handleCron(): Promise<void> {
-    const today = new Date();
     // Depreciate the month that just ended, not the one that just started.
-    const target = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 0));
+    const today = new Date();
+    const target = endOfMonthIso(
+      toIsoDate(new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() - 1, 15))),
+    );
 
     const organizations = await this.dataSource.getRepository(Organization).find({
       select: { id: true },
     });
 
     for (const org of organizations) {
-      await this.schedulerLock
-        .runOnce('monthly-depreciation', `${org.id}:${periodKey(target)}`, () =>
-          this.dataSource.transaction((manager) =>
-            this.runMonthlyDepreciation(org.id, target, manager),
-          ),
-        )
-        .catch((error) => {
-          this.logger.error(
-            `Depreciación fallida para la organización ${org.id}: ${(error as Error).message}`,
-          );
-        });
+      await this.runMonthlyDepreciation(org.id, target).catch((error) => {
+        this.logger.error(
+          `Depreciación fallida para la organización ${org.id}: ${(error as Error).message}`,
+        );
+      });
     }
   }
 
   /**
    * Post one month of depreciation for every in-use asset.
    *
-   * Called by the scheduler and by the period close. Both go through
+   * Called by the scheduler and by the period close. **Both** go through
    * `SchedulerLockService.runOnce` on the same key, so the close cannot double up on a month the
-   * scheduler has already posted, and vice versa.
+   * scheduler has already posted, and vice versa. That was documented before and was not true: the
+   * claim lived in `handleCron`, so the close called straight through it, and the only thing
+   * standing between a period close and a duplicate month's charge was the per-asset
+   * `depreciatedThrough` guard. The claim is inside the method now, where every caller gets it.
+   *
+   * @param depreciationDate the month to charge, as any date inside it. Accepts an `IsoDate` — which
+   *   is what a `date` column actually hands back — as well as a `Date`.
    */
   async runMonthlyDepreciation(
     organizationId: string,
-    depreciationDate: Date = new Date(),
+    depreciationDateInput: Date | string = new Date(),
     manager?: EntityManager,
   ): Promise<void> {
+    const depreciationDate: IsoDate = toIsoDate(depreciationDateInput);
     const execute = async (em: EntityManager) => {
       const settings = await em.findOneBy(OrganizationSettings, { organizationId });
       if (
@@ -145,14 +162,14 @@ export class DepreciationService {
             accountId: settings.defaultDepreciationExpenseAccountId,
             debit: amount,
             credit: 0,
-            description: `Depreciación ${periodKey(depreciationDate)} — ${asset.name}`,
+            description: `Depreciación ${toIsoMonth(depreciationDate)} — ${asset.name}`,
             valuations: [{ ledgerId: defaultLedger.id, debit: amount, credit: 0 }],
           },
           {
             accountId: settings.defaultAccumulatedDepreciationAccountId,
             debit: 0,
             credit: amount,
-            description: `Depreciación acumulada ${periodKey(depreciationDate)} — ${asset.name}`,
+            description: `Depreciación acumulada ${toIsoMonth(depreciationDate)} — ${asset.name}`,
             valuations: [{ ledgerId: defaultLedger.id, debit: 0, credit: amount }],
           },
         );
@@ -160,7 +177,7 @@ export class DepreciationService {
 
       if (lines.length === 0) {
         this.logger.log(
-          `Sin depreciación que registrar en ${organizationId} para ${periodKey(depreciationDate)}.`,
+          `Sin depreciación que registrar en ${organizationId} para ${toIsoMonth(depreciationDate)}.`,
         );
         return;
       }
@@ -168,8 +185,8 @@ export class DepreciationService {
       await this.journalEntriesService.createWithManager(
         em,
         {
-          date: toIsoDate(depreciationDate),
-          description: `Depreciación mensual ${periodKey(depreciationDate)}`,
+          date: depreciationDate,
+          description: `Depreciación mensual ${toIsoMonth(depreciationDate)}`,
           journalId: depreciationJournal.id,
           lines,
         } as CreateJournalEntryDto,
@@ -178,12 +195,26 @@ export class DepreciationService {
       );
 
       this.logger.log(
-        `Depreciación ${periodKey(depreciationDate)} registrada en ${organizationId}: ${lines.length / 2} activos, ${roundAmount(totalCents / 100)}.`,
+        `Depreciación ${toIsoMonth(depreciationDate)} registrada en ${organizationId}: ${lines.length / 2} activos, ${roundAmount(totalCents / 100)}.`,
       );
     };
 
-    if (manager) await execute(manager);
-    else await this.dataSource.transaction(execute);
+    // The claim keys on the tenant and the month, so the scheduler and the close cannot both post
+    // it, and neither can two replicas. On the caller's manager when there is one, so a rolled-back
+    // close releases the month rather than marking it permanently done.
+    const runKey = `${organizationId}:${toIsoMonth(depreciationDate)}`;
+    if (manager) {
+      await this.schedulerLock.runOnce(
+        'monthly-depreciation',
+        runKey,
+        () => execute(manager),
+        manager,
+      );
+    } else {
+      await this.schedulerLock.runOnce('monthly-depreciation', runKey, () =>
+        this.dataSource.transaction(execute),
+      );
+    }
   }
 
   /**
@@ -193,8 +224,8 @@ export class DepreciationService {
    * of the idempotency: the run-level claim stops the job repeating, and this stops an asset being
    * charged twice if it is picked up by two different runs (the scheduler's and the close's).
    */
-  private monthlyChargeFor(asset: FixedAsset, depreciationDate: Date): number {
-    if (asset.depreciatedThrough && asset.depreciatedThrough >= toIsoDate(depreciationDate)) {
+  private monthlyChargeFor(asset: FixedAsset, depreciationDate: IsoDate): number {
+    if (asset.depreciatedThrough && toIsoDate(asset.depreciatedThrough) >= depreciationDate) {
       return 0;
     }
 
@@ -205,10 +236,7 @@ export class DepreciationService {
     const usefulLifeInMonths = asset.usefulLife;
     if (!usefulLifeInMonths || usefulLifeInMonths <= 0) return 0;
 
-    const purchaseDate = new Date(`${toIsoDate(asset.purchaseDate)}T00:00:00.000Z`);
-    const ageInMonths =
-      (depreciationDate.getUTCFullYear() - purchaseDate.getUTCFullYear()) * 12 +
-      (depreciationDate.getUTCMonth() - purchaseDate.getUTCMonth());
+    const ageInMonths = monthsBetween(asset.purchaseDate, depreciationDate);
     if (ageInMonths < 0) return 0;
 
     let charge = 0;

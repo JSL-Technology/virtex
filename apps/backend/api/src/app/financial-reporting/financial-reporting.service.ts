@@ -398,6 +398,10 @@ export class FinancialReportingService {
       ledgerId: ledger.id,
       accountIds: resultAccountIds,
       dimensions: filters,
+      // Without this, the statement of a closed year reads zero. The annual closing entry debits
+      // every revenue account and credits every expense account by its own balance, so summing the
+      // movement of those accounts over a range that contains it cancels the year out exactly.
+      excludeClosingEntries: true,
       from,
       to,
     });
@@ -592,7 +596,11 @@ export class FinancialReportingService {
         { ...scope, accountIds: [...cashIds], asOf: previousDay(from) },
       ),
       this.balances.balancesAsOf({ ...scope, accountIds: [...cashIds], asOf: to }),
-      this.balances.movements({ ...scope, from, to }),
+      // The annual closing entry touches no cash account and its own movements sum to zero, so
+      // excluding it leaves `netChangeInCash` exactly where it was — but keeps the presentation
+      // honest: without this, a closed year reports a net income of zero and shows the whole
+      // result as a financing movement into retained earnings.
+      this.balances.movements({ ...scope, excludeClosingEntries: true, from, to }),
     ]);
 
     const sumOf = (balances: Map<string, number>) =>

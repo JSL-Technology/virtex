@@ -1,9 +1,14 @@
 {
   "ACCOUNTING": {
     "ACCOUNT_PERIOD_LOCK_REMOVED": "O bloqueio da conta para o período foi removido.",
+    "ANO_FISCAL_ARCHIVADO_NO_SE_PUEDE_REABRIR": "O exercício fiscal está arquivado e não pode ser reaberto.",
+    "ANO_FISCAL_CERRADO_EXITOSAMENTE": "O exercício fiscal encerrado em {{to}} foi fechado.",
+    "ANO_FISCAL_CERRADO_NO_ADMITE_CAMBIOS": "O exercício fiscal {{from}} – {{to}} está encerrado. Reabra-o antes de alterar os seus períodos.",
     "ANO_FISCAL_NO_ENCONTRADO": "Exercício fiscal não encontrado.",
     "ANO_FISCAL_NO_ESTA_ABIERTO": "O exercício fiscal não está aberto.",
+    "ANO_FISCAL_REABIERTO_EXITOSAMENTE": "O exercício fiscal encerrado em {{to}} foi reaberto e o seu lançamento de encerramento revertido.",
     "ANO_FISCAL_SIN_PERIODOS": "O ano fiscal não tem períodos contábeis definidos. Crie o calendário antes de encerrá-lo.",
+    "ANO_FISCAL_YA_ESTA_ABIERTO": "O exercício fiscal já está aberto.",
     "CHECKLIST": {
       "ITEMS": {
         "CURRENCY_REVALUATION": "Execute a reavaliação cambial para o fechamento do período.",
@@ -53,6 +58,7 @@
     "NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION_CREAR": "Não foi possível obter o query runner da transação para criar o lançamento de encerramento.",
     "NO_PUEDE_CERRAR_ANO_FISCAL_SIGUIENTES_PERIODOS": "O exercício não pode ser encerrado. Estes períodos ainda estão abertos: {{p1}}",
     "NO_PUEDE_CERRAR_PERIODO_EXISTEN_ASIENTOS_CONTABLES": "O período não pode ser encerrado. Há {{draftEntriesCount}} lançamentos em rascunho ou aguardando aprovação.",
+    "NO_PUEDE_REABRIR_ANO_FISCAL_POSTERIOR_CERRADO": "Este exercício fiscal não pode ser reaberto porque o exercício que começa em {{from}} já está encerrado. Reabra-o primeiro.",
     "NO_PUEDE_REABRIR_ESTE_PERIODO_PORQUE_PERIODO": "Este período não pode ser reaberto porque o período seguinte já está encerrado.",
     "NO_PUEDE_REABRIR_MODULO_SI_PERIODO_CONTABLE": "Um módulo não pode ser reaberto enquanto o período contábil geral estiver encerrado.",
     "PERIODO_ANTERIOR_SIGUE_ABIERTO": "Não é possível encerrar este período porque {{name}} continua aberto. Os períodos encerram em ordem.",
@@ -108,8 +114,8 @@
     "TOTAL_NO_COINCIDE_CON_LINEAS": "O total enviado ({{received}}) não corresponde ao calculado a partir das linhas e impostos ({{expected}})."
   },
   "ANALYTICAL_REPORTING": {
-    "NO_PUDO_SINCRONIZAR_VISTA_ANALITICA": "Não foi possível sincronizar a visão analítica: {{p1}}",
     "NOMBRE_DIMENSION_CAMPO_CONTIENE_CARACTERES_NO_VALIDOS": "O nome da dimensão ou do campo contém caracteres inválidos: {{name}}",
+    "NO_PUDO_SINCRONIZAR_VISTA_ANALITICA": "Não foi possível sincronizar a visão analítica: {{p1}}",
     "OPERADOR_FILTRO_NO_SOPORTADO": "Operador de filtro não suportado: {{operator}}",
     "REFRESCO_VISTA_MATERIALIZADA_INICIADO": "A atualização da visão materializada foi iniciada.",
     "SINCRONIZACION_VISTA_ANALITICA_INICIADA": "A sincronização da visão analítica foi iniciada.",
@@ -151,13 +157,13 @@
     "ENLACE_VERIFICACION_YA_FUE_USADO_HA_EXPIRADO": "O link de verificação já foi usado ou expirou.",
     "ERROR_VALIDACION_SEGURIDAD_RECAPTCHA": "Falha na validação de segurança (reCAPTCHA).",
     "ERROR_VALIDANDO_POLITICA_SEGURIDAD": "Não foi possível validar a política de segurança.",
-    "ES_OBLIGATORIO": "O {{label}} é obrigatório para {{name}}.",
-    "ES_OBLIGATORIO_2": "O {{postalCodeLabel}} é obrigatório para {{name}}.",
     "ESTA_CONTRASENA_APARECE_FILTRACIONES_DATOS_CONOCIDAS_ELIGE": "Esta senha aparece em vazamentos de dados conhecidos. Escolha outra.",
     "ESTA_CUENTA_AUTENTICA_TU_PROVEEDOR_IDENTIDAD_CONFIRMA": "Esta conta autentica com seu provedor de identidade. Confirme a ação entrando novamente por ele.",
     "ESTA_CUENTA_NO_ESTA_VINCULADA_PROVEEDOR_IDENTIDAD": "Esta conta não está vinculada a um provedor de identidade.",
     "ESTA_SESION_PAGO_NO_CORRESPONDE_ESTE_NAVEGADOR": "Esta sessão de pagamento não pertence a este navegador. Entre com suas credenciais.",
     "ESTE_PLAN_NO_ADMITE_ESE_PERIODO_FACTURACION": "Este plano não aceita esse período de cobrança.",
+    "ES_OBLIGATORIO": "O {{label}} é obrigatório para {{name}}.",
+    "ES_OBLIGATORIO_2": "O {{postalCodeLabel}} é obrigatório para {{name}}.",
     "FAILED_COMPLETE_SIGN_IN_WITH_IDENTITY_PROVIDER": "Não foi possível concluir o login com o provedor de identidade.",
     "FAILED_DECRYPT_STORED_SECRET": "Não foi possível descriptografar o segredo armazenado.",
     "FAILED_LOAD_NEWLY_PROVISIONED_USER": "Não foi possível carregar o usuário recém-criado.",
@@ -206,10 +212,10 @@
     "NO_PUDO_ENVIAR_CODIGO_VERIFICACION_ESE_NUMERO": "Não foi possível enviar o código de verificação para esse número. Verifique o número ou use a verificação por e-mail.",
     "NO_PUDO_ENVIAR_CORREO_VERIFICACION_FAVOR_VERIFICA": "Não foi possível enviar o e-mail de verificação. Verifique seu endereço e tente novamente.",
     "NO_PUDO_ENVIAR_SMS_VERIFICACION_FAVOR_INTENTA": "Não foi possível enviar o SMS de verificação. Tente novamente.",
+    "NO_PUEDES_SUPLANTARTE_TI_MISMO": "Você não pode personificar a si mesmo.",
     "NO_PUEDES_SUPLANTAR_USUARIO_NO_ESTA_ACTIVO": "Você não pode personificar um usuário que não está ativo.",
     "NO_PUEDES_SUPLANTAR_USUARIO_PERMISOS_TU_NO": "Você não pode personificar um usuário com permissões que você não possui.",
     "NO_PUEDES_SUPLANTAR_USUARIO_PRIVILEGIOS_TOTALES": "Você não pode personificar um usuário com privilégios totais (*).",
-    "NO_PUEDES_SUPLANTARTE_TI_MISMO": "Você não pode personificar a si mesmo.",
     "NO_TIENES_PERMISOS_REALIZAR_ESTA_ACCION": "Você não tem permissão para realizar esta ação.",
     "NO_TIENES_PERMISOS_SUPLANTAR_USUARIOS": "Você não tem permissão para personificar usuários.",
     "NO_TXT_RECORD_FOUND_AT_ADD_IT": "Nenhum registro TXT encontrado em {{host}}. Adicione-o e aguarde a propagação do DNS.",
@@ -226,8 +232,8 @@
     "PASSKEY_NOT_FOUND": "A chave de acesso não foi encontrada.",
     "PASSWORD_UPDATED_SUCCESSFULLY": "Senha atualizada.",
     "PHONE_NUMBER_VERIFIED_SUCCESSFULLY": "Número de telefone verificado.",
-    "PLAN_NO_ENCONTRADO": "Plano não encontrado.",
     "PLAN_NOT_FOUND": "O plano não foi encontrado.",
+    "PLAN_NO_ENCONTRADO": "Plano não encontrado.",
     "PROVEEDOR_IDENTIDAD_NO_COINCIDE": "O provedor de identidade não corresponde.",
     "PROVEEDOR_NO_HA_VERIFICADO_TU_CORREO_NO": "O provedor não verificou seu e-mail. Não é possível vincular a conta.",
     "PROVIDER_NOT_CONFIGURED_MISSING": "O provedor não está configurado: falta {{key}}.",
@@ -296,20 +302,20 @@
     "AMBAS_CUENTAS_NO_FUERON_ENCONTRADAS": "Uma ou ambas as contas não foram encontradas.",
     "CODIGO_CUENTA_SEGMENTOS_NO_PUEDE_SER_MODIFICADO": "O código da conta (seus segmentos) não pode ser alterado.",
     "CODIGO_CUENTA_YA_EXISTE": "O código de conta '{{fullCode}}' já existe.",
+    "CUENTAS_SISTEMA_NO_PUEDEN_SER_DESACTIVADAS": "Contas do sistema não podem ser desativadas.",
+    "CUENTAS_SISTEMA_NO_PUEDEN_SER_FUSIONADAS": "Contas do sistema não podem ser fundidas.",
     "CUENTA_CONTABLE_ID_NO_ENCONTRADA": "Conta contábil \"{{id}}\" não encontrada.",
     "CUENTA_NO_ESTA_BLOQUEADA": "A conta não está bloqueada.",
     "CUENTA_NO_PUEDE_SER_DESACTIVADA_PORQUE_TIENE": "A conta não pode ser desativada porque tem contas filhas.",
     "CUENTA_NO_PUEDE_SER_DESACTIVADA_PORQUE_TIENE_2": "A conta não pode ser desativada porque tem lançamentos associados.",
     "CUENTA_ORIGEN_DESTINO_NO_PUEDEN_SER_MISMA": "As contas de origem e destino não podem ser a mesma.",
     "CUENTA_YA_ESTA_BLOQUEADA": "A conta já está bloqueada.",
-    "CUENTAS_SISTEMA_NO_PUEDEN_SER_DESACTIVADAS": "Contas do sistema não podem ser desativadas.",
-    "CUENTAS_SISTEMA_NO_PUEDEN_SER_FUSIONADAS": "Contas do sistema não podem ser fundidas.",
     "DESACTIVANDO_CUENTA_ORIGEN_RECALCULANDO_SALDOS": "Desativando a conta de origem e recalculando os saldos...",
     "ERROR_CONSISTENCIA_CUENTA_PADRE_CUENTA_NO_FUE": "Erro de consistência: a conta superior '{{parentCode}}' da conta '{{p2}}' não foi encontrada. A transação será revertida.",
     "ESTRUCTURA_SEGMENTOS_CUENTA_NO_HA_SIDO_CONFIGURADA": "A estrutura de segmentos das contas não foi configurada para esta organização.",
     "FILE_EMPTY": "O arquivo está vazio.",
-    "IMPORT_BATCH_NOT_FOUND_OR_EXPIRED": "O lote de importação não existe ou expirou.",
     "IMPORTACION_FALLO_FUE_REVERTIDA": "A importação falhou e foi revertida: {{p1}}",
+    "IMPORT_BATCH_NOT_FOUND_OR_EXPIRED": "O lote de importação não existe ou expirou.",
     "INICIANDO_FUSION_CUENTAS": "Iniciando a fusão de contas...",
     "JOB_DESCONOCIDO_IGNORADO": "Job desconhecido ignorado.",
     "MAS_CUENTAS_ESPECIFICADAS_NO_FUERON_ENCONTRADAS": "Uma ou mais das contas informadas não foram encontradas.",
@@ -363,10 +369,6 @@
     "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "Nenhum livro contábil padrão foi configurado para a organização.",
     "TASAS_CAMBIO_ACTUALIZADAS_EXITOSAMENTE": "Taxas de câmbio atualizadas."
   },
-  "CUSTOMER_SERVICE": {
-    "ARTICULO_NO_ENCONTRADO": "O artigo não foi encontrado.",
-    "ARTICULO_NO_ENCONTRADO_NO_ESTA_PUBLICADO": "O artigo não foi encontrado ou não está publicado."
-  },
   "CUSTOMERS": {
     "APLICACION_EXCEDE_MONTO_RECIBIDO": "O valor aplicado às faturas ({{applied}}) excede o valor recebido ({{received}}).",
     "CLIENTE_ID_NO_ENCONTRADO": "Cliente \"{{id}}\" não encontrado.",
@@ -388,6 +390,10 @@
     "MONTO_PAGO_FACTURA_EXCEDE_SALDO_PENDIENTE": "O pagamento da fatura {{invoiceNumber}} ({{amount}}) excede seu saldo em aberto ({{balance}}).",
     "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "Nenhum livro contábil padrão foi configurado para a organização.",
     "NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION": "Não foi possível obter o query runner da transação."
+  },
+  "CUSTOMER_SERVICE": {
+    "ARTICULO_NO_ENCONTRADO": "O artigo não foi encontrado.",
+    "ARTICULO_NO_ENCONTRADO_NO_ESTA_PUBLICADO": "O artigo não foi encontrado ou não está publicado."
   },
   "DASHBOARD": {
     "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "Nenhum livro contábil padrão foi configurado para a organização.",
@@ -442,6 +448,7 @@
     "ITEM_TAX_RATE_NOT_IN_FORCE": "linha {{line}}: a alíquota {{rate}} não é uma alíquota de ITBIS vigente",
     "MODIFIED_NCF_BAD_FORMAT": "\"{{value}}\" não está no formato de um NCF",
     "MUNICIPIO_DEBE_DECLARARSE_CON_CODIGO_CUATRO_DIGITOS_DGII": "o município deve ser declarado com o código de quatro dígitos da DGII",
+    "NOTA_CREDITO_DEBITO_DEBE_REFERENCIAR_COMPROBANTE_MODIFICA": "uma nota de crédito ou débito deve referenciar o documento que modifica",
     "NO_ES_TIPO_ELECTRONICO_ANULACION_RANGOS_APLICA": "{{type}} não é um tipo eletrônico; o cancelamento de faixas aplica-se apenas a e-NCF.",
     "NO_HAY_CERTIFICADO_DIGITAL_ACTIVO_FIRMAR_CARGALO": "Não há certificado digital ativo para assinar. Envie um em Configurações → Faturamento Eletrônico.",
     "NO_HAY_CERTIFICADO_DIGITAL_ACTIVO_FIRMAR_CF": "Não há certificado digital ativo para assinar e-CF. Envie um em Configurações → Faturamento Eletrônico.",
@@ -449,12 +456,11 @@
     "NO_HAY_SECUENCIA_ACTIVA_ESTA_ORGANIZACION": "Não há sequência ativa de {{type}} para esta organização.",
     "NO_PUDO_ABRIR_CERTIFICADO_ARCHIVO_INVALIDO_CONTRASENA": "Não foi possível abrir o certificado: arquivo inválido ou senha incorreta.",
     "NO_PUDO_FIRMAR_DOCUMENTO_CF": "Não foi possível assinar o documento e-CF: {{p1}}",
-    "NOTA_CREDITO_DEBITO_DEBE_REFERENCIAR_COMPROBANTE_MODIFICA": "uma nota de crédito ou débito deve referenciar o documento que modifica",
     "ORGANIZACION_NO_ENCONTRADA": "Organização não encontrada.",
     "ORGANIZACION_NO_TIENE_RNC_CONFIGURADO": "A organização não tem RNC configurado.",
     "ORGANIZACION_NO_TIENE_RNC_CONFIGURADO_COMPLETALO_AJUSTES": "A organização não tem RNC configurado. Preencha-o em Configurações → Empresa.",
-    "PAYMENT_METHOD_CODE_UNKNOWN": "\"{{value}}\" não é um código de forma de pagamento da DGII",
     "PAYMENTS_DO_NOT_MATCH_TOTAL": "as formas de pagamento somam {{declared}} e o total do documento é {{total}}",
+    "PAYMENT_METHOD_CODE_UNKNOWN": "\"{{value}}\" não é um código de forma de pagamento da DGII",
     "PROVINCIA_DEBE_DECLARARSE_CON_CODIGO_DOS_DIGITOS_DGII": "a província deve ser declarada com o código de dois dígitos da DGII",
     "RANGO_AUTORIZADO_TERMINA_NO_PUEDES_ANULAR_MAS": "A faixa autorizada termina em {{endsAt}}; você não pode cancelar além desse limite.",
     "RAZON_SOCIAL_EMISOR_OBLIGATORIA": "a razão social do emissor é obrigatória",
@@ -568,14 +574,14 @@
     "NO_PUDO_OBTENER_QUERYRUNNER_TRANSACCION": "Não foi possível obter o query runner da transação."
   },
   "INTERCOMPANY": {
-    "CUENTA_PAGAR_INTERCOMPANIA_DEFECTO_NO_ESTA_CONFIGURADA": "A conta a pagar intercompany padrão não está configurada na organização de destino {{toOrganizationId}}.",
     "CUENTAS_INTERCOMPANIA_DEFECTO_NO_ESTAN_CONFIGURADAS_AMBAS": "As contas intercompany padrão não estão configuradas em uma ou ambas as organizações.",
+    "CUENTA_PAGAR_INTERCOMPANIA_DEFECTO_NO_ESTA_CONFIGURADA": "A conta a pagar intercompany padrão não está configurada na organização de destino {{toOrganizationId}}.",
     "ERROR_CONSISTENCIA_DATOS_PREPARAR_ASIENTO_DESTINO": "Erro de consistência de dados ao preparar o lançamento de destino.",
     "NO_ENCONTRO_TASA_CAMBIO": "Nenhuma taxa de câmbio encontrada de {{baseCurrency}} para {{baseCurrency2}}.",
     "NO_PUDO_OBTENER_QUERY_RUNNER_ASIENTO_ORIGEN": "Não foi possível obter o query runner para o lançamento de origem.",
+    "ORGANIZACIONES_NO_FUE_ENCONTRADA": "Uma das organizações não foi encontrada.",
     "ORGANIZACION_DESTINO_NO_TIENE_DIARIO_TIPO_GENERAL": "A organização de destino não tem um diário do tipo 'GENERAL' configurado.",
     "ORGANIZACION_ORIGEN_NO_TIENE_DIARIO_TIPO_GENERAL": "A organização de origem não tem um diário do tipo 'GENERAL' configurado.",
-    "ORGANIZACIONES_NO_FUE_ENCONTRADA": "Uma das organizações não foi encontrada.",
     "TRANSACCIONES_INTERCOMPANIA_DEBEN_SER_ENTRE_ORGANIZACIONES_DIFERENTES": "Transações intercompany devem ser entre organizações diferentes."
   },
   "INVENTORY": {
@@ -660,11 +666,11 @@
     "LINEA_NECESITA_DESCRIPCION_PRODUCTO_CATALOGO": "A linha {{p1}} precisa de uma descrição ou de um produto do catálogo.",
     "LINEA_NO_PERTENECE_FACTURA": "A linha {{lineId}} não pertence à fatura {{invoiceNumber}}.",
     "LINEA_NO_TIENE_PRECIO_INDICALO_SELECCIONA_PRODUCTO": "A linha {{p1}} não tem preço: informe um ou selecione um produto do catálogo.",
+    "NOTA_CREDITO_DEBE_REFERENCIAR_FACTURA_MODIFICA": "Uma nota de crédito deve referenciar a fatura que modifica.",
     "NO_ENCONTRO_INFORMACION_ORGANIZACION": "As informações da organização não foram encontradas.",
     "NO_ENCONTRO_PLANTILLA_IMPRESION_FACTURAS": "O modelo de impressão da fatura não foi encontrado ({{resolved}}): {{p2}}",
     "NO_ENCONTRO_TASA_CAMBIO_VALIDA_FECHA_ESPECIFICADA": "Nenhuma taxa de câmbio válida foi encontrada para {{currencyCode}} na data informada.",
     "NO_EXISTE_DIARIO_ESTA_ORGANIZACION_CREALO_AJUSTES": "Não existe o diário \"{{code}}\" para esta organização. Crie-o em Configurações → Contabilidade.",
-    "NOTA_CREDITO_DEBE_REFERENCIAR_FACTURA_MODIFICA": "Uma nota de crédito deve referenciar a fatura que modifica.",
     "ORGANIZACION_NO_ENCONTRADA": "Organização não encontrada.",
     "ORGANIZACION_NO_TIENE_LIBRO_CONTABLE_DEFECTO_CREALO": "A organização não tem um livro contábil padrão. Crie um em Configurações → Contabilidade.",
     "PLANTILLA_GENERAR_PDF_NO_ESTA_DISPONIBLE": "O modelo para gerar o PDF não está disponível.",
@@ -811,8 +817,8 @@
     },
     "REGISTRATION_EMAIL_VERIFY": {
       "COMPLETAR_TU_REGISTRO_DEBES_CONFIRMAR_TU": "Para concluir seu cadastro, confirme seu e-mail. Há duas formas de fazer isso:",
-      "CONFIRMA_TU_CORREO_ELECTRONICO": "Confirme seu e-mail",
       "CONFIRMAR_CORREO_ELECTRONICO": "Confirmar e-mail",
+      "CONFIRMA_TU_CORREO_ELECTRONICO": "Confirme seu e-mail",
       "ESTE_CODIGO_ENLACE_EXPIRAN": "⏱ Este código e o link expiram em",
       "HAZ_CLIC_BOTON_ABAJO_CONFIRMAR_TU": "Clique no botão abaixo para confirmar seu e-mail e retomar o cadastro de onde parou.",
       "HOLA": "Olá,",
@@ -918,6 +924,7 @@
       "PAY": "Pagar",
       "PROPOSE_ADJUSTMENT": "Propor ajuste",
       "REOPEN_PERIOD": "Reabrir período",
+      "REOPEN_YEAR": "Reabrir exercício fiscal",
       "REVERSE": "Estornar",
       "RUN_INFLATION_ADJUSTMENT": "Executar ajuste inflacionário",
       "SESSIONS_REVOKE": "Revogar sessões",
@@ -998,15 +1005,15 @@
     "NO_PUDO_DETERMINAR_LIBRO_CONTABLE_REPORTE_NO": "Não foi possível determinar o livro contábil do relatório: nenhum foi informado e não há um padrão."
   },
   "ROLES": {
-    "NO_PUEDE_ELIMINAR_ROL_ASIGNADO_USUARIO_REASIGNA": "Um perfil atribuído a {{assignedCount}} usuário(s) não pode ser excluído. Mova esses usuários para outro perfil antes.",
     "NO_PUEDES_ASIGNAR_PERMISO_PORQUE_TU_NO": "Você não pode atribuir a permissão \"{{permission}}\" porque não a possui.",
     "NO_PUEDES_ASIGNAR_ROL_INCLUYE_PERMISO_TU": "Você não pode atribuir um perfil que inclui a permissão \"{{permission}}\", que você não possui.",
     "NO_PUEDES_ASIGNAR_ROL_PRIVILEGIOS_TOTALES": "Você não pode atribuir um perfil com privilégios totais (*).",
+    "NO_PUEDE_ELIMINAR_ROL_ASIGNADO_USUARIO_REASIGNA": "Um perfil atribuído a {{assignedCount}} usuário(s) não pode ser excluído. Mova esses usuários para outro perfil antes.",
     "PERMISO_TOTAL_NO_PUEDE_DELEGARSE_ROL": "A permissão total (*) não pode ser delegada a um perfil.",
-    "ROL_ID_NO_ENCONTRADO": "Perfil \"{{id}}\" não encontrado.",
     "ROLES_SISTEMA_NO_PUEDEN_CLONAR": "Perfis do sistema não podem ser clonados.",
     "ROLES_SISTEMA_NO_PUEDEN_SER_ELIMINADOS": "Perfis do sistema não podem ser excluídos.",
     "ROLES_SISTEMA_NO_PUEDEN_SER_MODIFICADOS": "Perfis do sistema não podem ser modificados.",
+    "ROL_ID_NO_ENCONTRADO": "Perfil \"{{id}}\" não encontrado.",
     "SYSTEM": {
       "ACCOUNTANT": {
         "DESCRIPTION": "Cuida da contabilidade: lançamentos, plano de contas e relatórios financeiros."
@@ -1108,10 +1115,10 @@
     "NO_HAY_NINGUN_CAMBIO_CORREO_PENDIENTE": "Não há alteração de e-mail pendente.",
     "NO_PUDO_COMPLETAR_CAMBIO_CORREO_ELECTRONICO": "Não foi possível concluir a alteração de e-mail.",
     "NO_PUDO_ENVIAR_INVITACION_DATOS_PROPORCIONADOS": "Não foi possível enviar o convite com os dados informados.",
-    "NO_PUEDE_ELIMINAR_USUARIO_ROL_SISTEMA": "Um usuário com perfil de sistema não pode ser excluído.",
     "NO_PUEDES_BLOQUEAR_TU_PROPIA_CUENTA": "Você não pode bloquear a própria conta.",
     "NO_PUEDES_DESACTIVAR_BLOQUEAR_TU_PROPIA_CUENTA": "Você não pode desativar ou bloquear a própria conta.",
     "NO_PUEDES_ELIMINAR_TU_PROPIA_CUENTA_DESDE": "Você não pode excluir sua própria conta pela gestão de usuários.",
+    "NO_PUEDE_ELIMINAR_USUARIO_ROL_SISTEMA": "Um usuário com perfil de sistema não pode ser excluído.",
     "ONLY_IMAGE_FILES_ARE_ALLOWED": "Somente arquivos de imagem são permitidos.",
     "PASSWORD_RESET_EMAIL_SENT": "Enviamos um link para redefinir a senha.",
     "ROL_ID_NO_ENCONTRADO": "Perfil {{roleId}} não encontrado.",
@@ -1135,8 +1142,8 @@
       "ID_PERIODO_CONTABLE_OBLIGATORIO": "O ID do período contábil é obrigatório."
     },
     "COMMERCIAL_APPROVAL": {
-      "E_NCF_DEBE_TENER_FORMATO_E_12_DIGITOS": "O e-NCF deve ser E seguido de 12 dígitos (por exemplo E310000000001).",
       "ESTADO_DEBE_1_APROBADO_2_RECHAZADO": "A situação deve ser 1 (aprovado) ou 2 (rejeitado).",
+      "E_NCF_DEBE_TENER_FORMATO_E_12_DIGITOS": "O e-NCF deve ser E seguido de 12 dígitos (por exemplo E310000000001).",
       "FECHA_EMISION_DEBE_FECHA_ISO_YYYY_MM_DD": "A data de emissão deve ser uma data ISO (AAAA-MM-DD).",
       "RNC_EMISOR_NO_TIENE_FORMATO_VALIDO": "O RNC do emissor não está em um formato válido."
     },

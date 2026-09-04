@@ -42,6 +42,7 @@ export const PERMISSIONS = {
   ACCOUNTING_MANAGE_LEDGERS: 'accounting:manage_ledgers',
   /** Close a fiscal year. */
   ACCOUNTING_CLOSE_YEAR: 'accounting:close_year',
+  ACCOUNTING_REOPEN_YEAR: 'accounting:reopen_year',
 
   /**
    * Accounts payable and receivable, treasury and bank reconciliation.

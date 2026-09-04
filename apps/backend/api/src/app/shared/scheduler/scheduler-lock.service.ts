@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { DataSource, EntityManager } from 'typeorm';
 
 /**
  * Runs a unit of scheduled work exactly once, whichever replica's scheduler fires first.
@@ -31,13 +31,24 @@ export class SchedulerLockService {
    *
    * A failure releases the claim, so the next scheduled firing retries. A success leaves the row,
    * so it never runs again for that key.
+   *
+   * @param manager when the caller already holds a transaction — the period close does — the claim
+   *   is written on it and therefore shares its fate. Without this, the claim commits on its own
+   *   connection while the work it guards rolls back with the caller's, and the job is permanently
+   *   marked as done for a month whose entries do not exist. That is worse than running twice: a
+   *   duplicate is visible in the ledger, a silently skipped month is not.
    */
   async runOnce(
     jobName: string,
     runKey: string,
     work: () => Promise<void>,
+    manager?: EntityManager,
   ): Promise<boolean> {
-    const claimed = await this.dataSource.query<{ run_key: string }[]>(
+    const query = manager
+      ? manager.query.bind(manager)
+      : this.dataSource.query.bind(this.dataSource);
+
+    const claimed = await query<{ run_key: string }[]>(
       `INSERT INTO "scheduled_job_runs" ("job_name", "run_key", "started_at")
        VALUES ($1, $2, now())
        ON CONFLICT ("job_name", "run_key") DO NOTHING
@@ -52,7 +63,7 @@ export class SchedulerLockService {
 
     try {
       await work();
-      await this.dataSource.query(
+      await query(
         `UPDATE "scheduled_job_runs" SET "finished_at" = now()
          WHERE "job_name" = $1 AND "run_key" = $2`,
         [jobName, runKey],
@@ -60,11 +71,14 @@ export class SchedulerLockService {
       return true;
     } catch (error) {
       // Release the claim so the next firing retries, rather than recording a permanent success
-      // for work that did not happen.
-      await this.dataSource.query(
-        `DELETE FROM "scheduled_job_runs" WHERE "job_name" = $1 AND "run_key" = $2`,
-        [jobName, runKey],
-      );
+      // for work that did not happen. Inside a caller's transaction the rollback does this for us,
+      // and issuing further statements on an aborted transaction would itself throw.
+      if (!manager) {
+        await this.dataSource.query(
+          `DELETE FROM "scheduled_job_runs" WHERE "job_name" = $1 AND "run_key" = $2`,
+          [jobName, runKey],
+        );
+      }
       this.logger.error(
         `${jobName}[${runKey}] falló y fue liberado para reintento: ${(error as Error).message}`,
         (error as Error).stack,

@@ -432,7 +432,7 @@ describeWithDb('the accounting core', () => {
       ]);
     });
 
-    it('closes revenue — the account the old close silently dropped', async () => {
+    it('leaves the profit-and-loss accounts alone: a monthly close is not a settlement', async () => {
       await closing.closePeriod(januaryId, organizationId, ACTOR);
 
       const after = await balances.balancesAsOf({
@@ -440,12 +440,16 @@ describeWithDb('the accounting core', () => {
         ledgerId,
         asOf: '2026-01-31',
       });
-      expect(after.get(account['revenue']) ?? 0).toBe(0);
-      expect(after.get(account['returns']) ?? 0).toBe(0);
-      expect(after.get(account['expense']) ?? 0).toBe(0);
+      // These three assertions used to expect zero, because the monthly close transferred the
+      // result. That is what made the income statement of a closed month read zero, and it is why
+      // the transfer moved to the fiscal-year close. `period-close.spec.ts` covers the annual
+      // transfer, including that these accounts *do* end at zero once the year is settled.
+      expect(after.get(account['revenue'])).toBe(-5000);
+      expect(after.get(account['returns'])).toBe(200);
+      expect(after.get(account['expense'])).toBe(3000);
     });
 
-    it('moves the real result to retained earnings', async () => {
+    it('does not touch retained earnings on a monthly close', async () => {
       await closing.closePeriod(januaryId, organizationId, ACTOR);
 
       const after = await balances.balancesAsOf({
@@ -453,8 +457,7 @@ describeWithDb('the accounting core', () => {
         ledgerId,
         asOf: '2026-01-31',
       });
-      // Revenue 5,000 − returns 200 − expenses 3,000 = profit of 1,800, credited to equity.
-      expect(after.get(account['retained'])).toBe(-1800);
+      expect(after.get(account['retained']) ?? 0).toBe(0);
     });
 
     it('does not re-post balance-sheet balances into the next period', async () => {
@@ -565,8 +568,11 @@ describeWithDb('the accounting core', () => {
       const sheet = await reporting.getBalanceSheet(organizationId, '2026-01-31');
 
       expect(sheet.isBalanced).toBe(true);
-      // The result has moved to retained earnings, so there is nothing unclosed left.
-      expect(sheet.equity.unclosedResult).toBe(0);
+      // A monthly close does not settle the year, so the result is still carried as the unclosed
+      // portion of equity — which is exactly what `unclosedResult` is for, and is what keeps the
+      // sheet balanced without a transfer having happened. It reaches zero at the annual close;
+      // `period-close.spec.ts` asserts that.
+      expect(sheet.equity.unclosedResult).toBe(13_000);
       expect(sheet.assets.total).toBe(163_000);
     });
 
