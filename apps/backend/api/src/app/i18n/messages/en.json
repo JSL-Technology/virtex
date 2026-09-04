@@ -1029,9 +1029,11 @@
   },
   "REPORTS": {
     "CUENTA_CUENTAS_COBRAR_DEFECTO_NO_ESTA_CONFIGURADA": "The default Accounts Receivable account is not configured.",
+    "DEMASIADAS_CUENTAS": "{{count}} accounts were requested and the maximum per report is {{max}}.",
     "LIBRO_CONTABLE_ID_NO_ENCONTRADO": "Ledger \"{{ledgerId}}\" was not found.",
     "NO_HAY_FACTURAS_PENDIENTES_PAGO_PARA_GENERAR_REPORTE": "There are no outstanding invoices to build the report from.",
-    "NO_PUDO_DETERMINAR_LIBRO_CONTABLE_REPORTE_NO": "The ledger for the report could not be determined: none was specified and there is no default."
+    "NO_PUDO_DETERMINAR_LIBRO_CONTABLE_REPORTE_NO": "The ledger for the report could not be determined: none was specified and there is no default.",
+    "RANGO_FECHAS_EXCEDE_LIMITE": "The requested range spans {{days}} days and the maximum per report is {{max}}."
   },
   "ROLES": {
     "NO_PUEDES_ASIGNAR_PERMISO_PORQUE_TU_NO": "You cannot assign the permission \"{{permission}}\" because you do not hold it.",
@@ -1265,10 +1267,16 @@
       "FORMATO_CORREO_ELECTRONICO_NO_VALIDO": "That email address is not valid."
     },
     "GENERAL_LEDGER_REPORT": {
+      "AL_MENOS_UNA_CUENTA": "At least one account is required.",
       "CADA_ID_CUENTA_DEBE_UUID_VALIDO": "Each account ID must be a valid UUID.",
+      "DEMASIADAS_CUENTAS": "Too many accounts were requested for a single report.",
       "FECHA_FIN_OBLIGATORIA": "The end date is required.",
       "FECHA_INICIO_OBLIGATORIA": "The start date is required.",
       "ID_LIBRO_CONTABLE_OBLIGATORIO": "The ledger ID is required."
+    },
+    "GENERATE_REPORT": {
+      "FORMATO_NO_SOPORTADO": "The output format is not supported.",
+      "TIPO_REPORTE_NO_SOPORTADO": "The report type is not supported."
     },
     "JOURNAL_ENTRY_ACTIONS": {
       "FECHA_REVERSION_DEBE_FECHA_VALIDA": "The reversal date must be a valid date.",

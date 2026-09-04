@@ -1029,9 +1029,11 @@
   },
   "REPORTS": {
     "CUENTA_CUENTAS_COBRAR_DEFECTO_NO_ESTA_CONFIGURADA": "A conta padrão de Contas a Receber não está configurada.",
+    "DEMASIADAS_CUENTAS": "Foram solicitadas {{count}} contas e o máximo por relatório é {{max}}.",
     "LIBRO_CONTABLE_ID_NO_ENCONTRADO": "Livro contábil \"{{ledgerId}}\" não encontrado.",
     "NO_HAY_FACTURAS_PENDIENTES_PAGO_PARA_GENERAR_REPORTE": "Não há faturas em aberto para gerar o relatório.",
-    "NO_PUDO_DETERMINAR_LIBRO_CONTABLE_REPORTE_NO": "Não foi possível determinar o livro contábil do relatório: nenhum foi informado e não há um padrão."
+    "NO_PUDO_DETERMINAR_LIBRO_CONTABLE_REPORTE_NO": "Não foi possível determinar o livro contábil do relatório: nenhum foi informado e não há um padrão.",
+    "RANGO_FECHAS_EXCEDE_LIMITE": "O intervalo solicitado abrange {{days}} dias e o máximo por relatório é {{max}}."
   },
   "ROLES": {
     "NO_PUEDES_ASIGNAR_PERMISO_PORQUE_TU_NO": "Você não pode atribuir a permissão \"{{permission}}\" porque não a possui.",
@@ -1265,10 +1267,16 @@
       "FORMATO_CORREO_ELECTRONICO_NO_VALIDO": "O formato do e-mail não é válido."
     },
     "GENERAL_LEDGER_REPORT": {
+      "AL_MENOS_UNA_CUENTA": "É necessário indicar pelo menos uma conta.",
       "CADA_ID_CUENTA_DEBE_UUID_VALIDO": "Cada ID de conta deve ser um UUID válido.",
+      "DEMASIADAS_CUENTAS": "Foram solicitadas demasiadas contas para um único relatório.",
       "FECHA_FIN_OBLIGATORIA": "A data final é obrigatória.",
       "FECHA_INICIO_OBLIGATORIA": "A data inicial é obrigatória.",
       "ID_LIBRO_CONTABLE_OBLIGATORIO": "O ID do livro contábil é obrigatório."
+    },
+    "GENERATE_REPORT": {
+      "FORMATO_NO_SOPORTADO": "O formato de saída não é suportado.",
+      "TIPO_REPORTE_NO_SOPORTADO": "O tipo de relatório não é suportado."
     },
     "JOURNAL_ENTRY_ACTIONS": {
       "FECHA_REVERSION_DEBE_FECHA_VALIDA": "A data do estorno deve ser uma data válida.",

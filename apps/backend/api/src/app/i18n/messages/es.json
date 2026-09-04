@@ -1029,9 +1029,11 @@
   },
   "REPORTS": {
     "CUENTA_CUENTAS_COBRAR_DEFECTO_NO_ESTA_CONFIGURADA": "La cuenta de Cuentas por Cobrar por defecto no está configurada.",
+    "DEMASIADAS_CUENTAS": "Se solicitaron {{count}} cuentas y el máximo por informe es {{max}}.",
     "LIBRO_CONTABLE_ID_NO_ENCONTRADO": "Libro contable con ID \"{{ledgerId}}\" no encontrado.",
     "NO_HAY_FACTURAS_PENDIENTES_PAGO_PARA_GENERAR_REPORTE": "No hay facturas pendientes de pago para generar el reporte.",
-    "NO_PUDO_DETERMINAR_LIBRO_CONTABLE_REPORTE_NO": "No se pudo determinar el libro contable para el reporte. No se especificó uno y no hay uno por defecto."
+    "NO_PUDO_DETERMINAR_LIBRO_CONTABLE_REPORTE_NO": "No se pudo determinar el libro contable para el reporte. No se especificó uno y no hay uno por defecto.",
+    "RANGO_FECHAS_EXCEDE_LIMITE": "El rango solicitado abarca {{days}} días y el máximo por informe es {{max}}."
   },
   "ROLES": {
     "NO_PUEDES_ASIGNAR_PERMISO_PORQUE_TU_NO": "No puedes asignar el permiso \"{{permission}}\" porque tú no lo posees.",
@@ -1265,10 +1267,16 @@
       "FORMATO_CORREO_ELECTRONICO_NO_VALIDO": "El formato del correo electrónico no es válido."
     },
     "GENERAL_LEDGER_REPORT": {
+      "AL_MENOS_UNA_CUENTA": "Debe indicar al menos una cuenta.",
       "CADA_ID_CUENTA_DEBE_UUID_VALIDO": "Cada ID de cuenta debe ser un UUID válido.",
+      "DEMASIADAS_CUENTAS": "Se solicitaron demasiadas cuentas para un solo informe.",
       "FECHA_FIN_OBLIGATORIA": "La fecha de fin es obligatoria.",
       "FECHA_INICIO_OBLIGATORIA": "La fecha de inicio es obligatoria.",
       "ID_LIBRO_CONTABLE_OBLIGATORIO": "El ID del libro contable es obligatorio."
+    },
+    "GENERATE_REPORT": {
+      "FORMATO_NO_SOPORTADO": "El formato de salida no está soportado.",
+      "TIPO_REPORTE_NO_SOPORTADO": "El tipo de informe no está soportado."
     },
     "JOURNAL_ENTRY_ACTIONS": {
       "FECHA_REVERSION_DEBE_FECHA_VALIDA": "La fecha de reversión debe ser una fecha válida.",

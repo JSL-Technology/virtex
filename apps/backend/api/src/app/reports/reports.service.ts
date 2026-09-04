@@ -5,7 +5,11 @@ import { In, Repository, Between, DataSource } from 'typeorm';
 import { Invoice, InvoiceStatus } from '../invoices/entities/invoice.entity';
 import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line.entity';
 import { Account } from '../chart-of-accounts/entities/account.entity';
-import { GeneralLedgerReportDto } from '../journal-entries/dto/general-ledger-report.dto';
+import {
+  GeneralLedgerReportDto,
+  MAX_LEDGER_REPORT_ACCOUNTS,
+  MAX_LEDGER_REPORT_DAYS,
+} from '../journal-entries/dto/general-ledger-report.dto';
 import { JournalReportDto } from '../journal-entries/dto/journal-report.dto';
 import { JournalEntryStatus } from '../journal-entries/entities/journal-entry.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
@@ -14,7 +18,7 @@ import { OrganizationSettings } from '../organizations/entities/organization-set
 import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 import { JournalEntry } from '../journal-entries/entities/journal-entry.entity';
 import { LedgersService } from '../accounting/ledgers.service';
-import { toIsoDate, type IsoDate } from '../common/dates';
+import { daysBetween, toIsoDate, type IsoDate } from '../common/dates';
 import { roundAmount } from '../common/money';
 
 export interface JournalReportLine {
@@ -182,6 +186,25 @@ export class ReportsService {
     if (accountIds.length === 0) {
       throw new BadRequestError('REPORTS.LIBRO_MAYOR_REQUIERE_AL_MENOS_UNA_CUENTA');
     }
+    if (accountIds.length > MAX_LEDGER_REPORT_ACCOUNTS) {
+      throw new BadRequestError('REPORTS.DEMASIADAS_CUENTAS', {
+        count: accountIds.length,
+        max: MAX_LEDGER_REPORT_ACCOUNTS,
+      });
+    }
+
+    // A bound on the window as well as on the account count. Each account is three queries against
+    // the journal; a request spanning a century over fifty accounts is a denial of service anyone
+    // with a token could perform by accident.
+    const from = toIsoDate(options.startDate);
+    const to = toIsoDate(options.endDate);
+    if (from > to) throw new BadRequestError('REPORTS.RANGO_FECHAS_INVALIDO');
+    if (daysBetween(from, to) > MAX_LEDGER_REPORT_DAYS) {
+      throw new BadRequestError('REPORTS.RANGO_FECHAS_EXCEDE_LIMITE', {
+        days: daysBetween(from, to),
+        max: MAX_LEDGER_REPORT_DAYS,
+      });
+    }
 
     // One ledger card per account, which is how the book is read and printed. The previous version
     // returned a flat list of lines across every account with no opening balance and no running
@@ -193,7 +216,7 @@ export class ReportsService {
           startDate: options.startDate,
           endDate: options.endDate,
           ledgerId: options.ledgerId,
-          includeUnposted: options.includeDrafts,
+          includeUnposted: options.includeUnposted,
           pageSize: 500,
         }),
       ),

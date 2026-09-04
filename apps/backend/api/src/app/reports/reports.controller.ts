@@ -4,7 +4,6 @@ import { ReportsService } from './reports.service';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { User } from '../users/entities/user.entity/user.entity';
 import { GenerateReportDto } from './dto/generate-report.dto';
 import { BadRequestError } from '../i18n/localized.exception';
 import { GeneralLedgerReportDto } from '../journal-entries/dto/general-ledger-report.dto';
@@ -59,7 +58,10 @@ export class ReportsController {
           generateReportDto.options as JournalReportDto,
         );
       case 'aging-report':
-        return this.reportsService.getAgingReport(user.organizationId);
+        return this.reportsService.getAgingReport(
+          user.organizationId,
+          (generateReportDto.options as AgingReportDto).ledgerId,
+        );
       default:
         // A localized 400, not a bare `Error` — which the exception filter reports as a 500 and an
         // untranslated English sentence.
