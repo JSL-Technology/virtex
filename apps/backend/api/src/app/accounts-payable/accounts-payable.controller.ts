@@ -143,12 +143,7 @@ export class AccountsPayableController {
     @Body() dto: VoidVendorBillDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.accountsPayableService.voidBill(
-      id,
-      user.organizationId,
-      dto.reason,
-      user.id,
-    );
+    return this.accountsPayableService.voidBill(id, user.organizationId, dto, user.id);
   }
 
   @Delete(':id')

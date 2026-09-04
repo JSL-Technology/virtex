@@ -121,7 +121,7 @@
                       class="expand-placeholder"
                     ></span>
                     <div class="account-info">
-                      <span>{{ account.name }}</span>
+                      <span>{{ account.name | vxName }}</span>
                       <small>{{ account.code }}</small>
                       <a
                         [routerLink]="[

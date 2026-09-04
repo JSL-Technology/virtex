@@ -14,6 +14,7 @@ import { VendorBillLine } from './vendor-bill-line.entity';
 import { Supplier } from '../../suppliers/entities/supplier.entity';
 import { Currency } from '../../currencies/entities/currency.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
+import { JournalEntry } from '../../journal-entries/entities/journal-entry.entity';
 import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 
 /**
@@ -231,6 +232,48 @@ export class VendorBill {
 
   @Column({ type: 'uuid', name: 'approval_request_id', nullable: true })
   approvalRequestId?: string;
+
+  /**
+   * The entry that put this bill in the ledger, and the one that took it out.
+   *
+   * Neither was recorded, which is why annulling a bill could not reverse it: `voidBill` marked the
+   * document VOID, zeroed its balance and emitted `vendor.bill.voided` — an event with no listener
+   * anywhere in the repository — leaving the payable and the expense in the general ledger for
+   * good. The subledger said the bill was annulled and the books said it was owed, permanently, and
+   * no report compared the two. The credit note side of sales has always reversed properly; this
+   * is the same treatment.
+   */
+  @Column({ type: 'uuid', name: 'journal_entry_id', nullable: true })
+  journalEntryId: string | null;
+
+  // Declared as relations, not bare uuid columns, so the foreign keys are part of the entity's
+  // description of itself and `check:schema-drift` can see them. `SET NULL`, never `CASCADE`:
+  // removing a journal entry must not remove the commercial document that produced it.
+  @ManyToOne(() => JournalEntry, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({
+    name: 'journal_entry_id',
+    foreignKeyConstraintName: 'FK_vendor_bills_journal_entry',
+  })
+  journalEntry?: JournalEntry | null;
+
+  @Column({ type: 'uuid', name: 'reversal_journal_entry_id', nullable: true })
+  reversalJournalEntryId: string | null;
+
+  @ManyToOne(() => JournalEntry, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({
+    name: 'reversal_journal_entry_id',
+    foreignKeyConstraintName: 'FK_vendor_bills_reversal_entry',
+  })
+  reversalJournalEntry?: JournalEntry | null;
+
+  @Column({ type: 'text', name: 'void_reason', nullable: true })
+  voidReason: string | null;
+
+  @Column({ type: 'timestamptz', name: 'voided_at', nullable: true })
+  voidedAt: Date | null;
+
+  @Column({ type: 'uuid', name: 'voided_by_user_id', nullable: true })
+  voidedByUserId: string | null;
 
 
   @Column({ length: 3, default: 'USD', name: 'currency_code' })

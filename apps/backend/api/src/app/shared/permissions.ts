@@ -138,6 +138,9 @@ export const PERMISSIONS = {
 
   COST_ACCOUNTING_MANAGE: 'cost_accounting:manage',
 
+  INTERCOMPANY_VIEW: 'intercompany:view',
+  INTERCOMPANY_TRANSACT: 'intercompany:transact',
+
 
   SETTINGS_EDIT_COMPANY: 'settings:edit_company',
   SETTINGS_EDIT_BRANDING: 'settings:edit_branding',

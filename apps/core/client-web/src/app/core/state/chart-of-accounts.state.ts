@@ -9,6 +9,7 @@ import { ChartOfAccountsApiService } from '../api/chart-of-accounts.service';
 import { NotificationService } from '../services/notification';
 
 import { AccountType } from '../models/account.model';
+import { accountNameFor } from '../i18n/localized-name';
 type Sort = { field: keyof FlattenedAccount; direction: 'asc' | 'desc' };
 type Filters = { status: 'ALL' | 'ACTIVE' | 'INACTIVE'; type: 'ALL' | AccountType; };
 
@@ -64,7 +65,9 @@ export class ChartOfAccountsStateService {
     }
 
     // Con búsqueda, mostrar una lista plana que coincida
-    return filteredAccounts.filter(acc => acc.name.toLowerCase().includes(term) || acc.code.toLowerCase().includes(term));
+    return filteredAccounts.filter(
+      (acc) => accountNameFor(acc.name).includes(term) || acc.code.toLowerCase().includes(term),
+    );
   });
 
   // Opciones para el selector de "Cuenta Padre" en el formulario

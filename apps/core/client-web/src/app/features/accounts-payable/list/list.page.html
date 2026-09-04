@@ -47,11 +47,13 @@
         </thead>
         <tbody>
           <tr *ngFor="let bill of vendorBills()">
-            <td>{{ bill.vendorName }}</td>
+            <td>{{ bill.vendor?.name ?? '—' }}</td>
             <td>
-              <a [routerLink]="['../', bill.id]">{{ bill.billNumber }}</a>
+              <!-- `ncf` is the document's fiscal number; not every jurisdiction issues one, so the
+                   id is the fallback rather than an empty cell with nothing to click. -->
+              <a [routerLink]="['../', bill.id]">{{ bill.ncf || ('ACCOUNTS_PAYABLE.LIST.SIN_NCF' | translate) }}</a>
             </td>
-            <td>{{ bill.issueDate | vxDate: 'date' }}</td>
+            <td>{{ bill.date | vxDate: 'date' }}</td>
             <td>{{ bill.dueDate | vxDate: 'date' }}</td>
             <td class="text-right">{{ bill.total | vxNumber:'1.2-2' }}</td>
             <td class="text-right">{{ bill.balance | vxNumber:'1.2-2' }}</td>

@@ -21,35 +21,137 @@ export type VendorBillStatus =
   | 'VOID'
   | 'REJECTED';
 
+/**
+ * A supplier bill as the server actually returns it.
+ *
+ * ## What this replaced
+ *
+ * `billNumber`, `issueDate` and `vendorName` — three fields the API has never sent. The entity
+ * carries `ncf`, `date` and a `vendor` relation. The list template printed all three, so the
+ * supplier column and the date columns were blank and the link into the detail page had no text to
+ * click on. The create DTO was worse: `supplierId`, `billNumber`, `issueDate` and
+ * `lineItems[{description, quantity, price}]` against a server expecting `vendorId`, `date`,
+ * `dueDate` and `lines[{product, quantity, unitPrice, total}]`. Not one field name matched, and
+ * with `whitelist` and `forbidNonWhitelisted` both on, every POST was rejected: the "new supplier
+ * bill" screen could not create a bill, ever, and the component reported a generic save error.
+ */
+export interface VendorBillLine {
+  id?: string;
+  /** The item or service, as it reads on the supplier's document. */
+  product: string;
+  quantity: number;
+  unitPrice: number;
+  total: number;
+  productId?: string | null;
+  expenseAccountId?: string | null;
+}
+
 export interface VendorBill {
   id: string;
   vendorId: string;
-  vendorName: string;
-  billNumber: string;
-  issueDate: string;
+  vendor?: { id: string; name: string; taxId?: string | null };
+  /** Comprobante fiscal number. Optional: not every jurisdiction has one. */
+  ncf?: string | null;
+  ncfModified?: string | null;
+  date: string;
   dueDate: string;
+  paidAt?: string | null;
   currencyCode: string;
+  exchangeRate: number;
   total: number;
+  totalInBaseCurrency: number;
   balance: number;
   status: VendorBillStatus;
+  lines?: VendorBillLine[];
+
+  // Fiscal breakdown. The server models all of it for the DGII 606 and the ledger entry posts from
+  // it; the client had no way to capture any of it, so every field was stored at zero.
+  goodsAmount: number;
+  servicesAmount: number;
+  taxAmount: number;
+  taxWithheld: number;
+  incomeTaxWithheld: number;
+  taxToCost: number;
+  taxProportional: number;
+  exciseAmount: number;
+  otherTaxes: number;
+  serviceCharge: number;
+  purchaseCategory?: string;
+  isrRetentionType?: string | null;
+  paymentForm?: string;
+
+  journalEntryId?: string | null;
+  reversalJournalEntryId?: string | null;
+  voidReason?: string | null;
+  voidedAt?: string | null;
+}
+
+export interface CreateVendorBillLineDto {
+  product: string;
+  quantity: number;
+  unitPrice: number;
+  /** Recomputed server-side from quantity × unitPrice; sent so the server can check the client. */
+  total: number;
+  productId?: string;
+  expenseAccountId?: string;
 }
 
 export interface CreateVendorBillDto {
-  supplierId: string;
-  billNumber: string;
-  issueDate: string;
+  vendorId: string;
+  date: string;
   dueDate: string;
-  lineItems: {
-    description: string;
-    quantity: number;
-    price: number;
-    costCenterId?: string;
-    expenseAccountId: string;
-  }[];
-  notes?: string;
+  lines: CreateVendorBillLineDto[];
+  /** Checked against the lines and the tax breakdown, not stored as given. */
+  total?: number;
+  currencyCode?: string;
+  ncf?: string;
+  ncfModified?: string;
+
+  taxAmount?: number;
+  taxWithheld?: number;
+  incomeTaxWithheld?: number;
+  taxToCost?: number;
+  taxProportional?: number;
+  exciseAmount?: number;
+  otherTaxes?: number;
+  serviceCharge?: number;
+  goodsAmount?: number;
+  servicesAmount?: number;
+
+  purchaseCategory?: string;
+  isrRetentionType?: string;
+  paymentForm?: string;
 }
 
-export type UpdateVendorBillDto = Partial<CreateVendorBillDto>
+/** `lines` cannot be patched: the server refuses it and says to raise a note instead. */
+export type UpdateVendorBillDto = Partial<Omit<CreateVendorBillDto, 'lines'>>;
+
+/** DGII 606 "Tipo de Bienes y Servicios Comprados". */
+export const PURCHASE_CATEGORIES = [
+  { code: '01', labelKey: 'ACCOUNTS_PAYABLE.PURCHASE_CATEGORY.PERSONNEL_EXPENSES' },
+  { code: '02', labelKey: 'ACCOUNTS_PAYABLE.PURCHASE_CATEGORY.WORK_GOODS_SERVICES' },
+  { code: '03', labelKey: 'ACCOUNTS_PAYABLE.PURCHASE_CATEGORY.LEASING' },
+  { code: '04', labelKey: 'ACCOUNTS_PAYABLE.PURCHASE_CATEGORY.FIXED_ASSET_LEASING' },
+  { code: '05', labelKey: 'ACCOUNTS_PAYABLE.PURCHASE_CATEGORY.IMPROVEMENT_EXPENSES' },
+  { code: '06', labelKey: 'ACCOUNTS_PAYABLE.PURCHASE_CATEGORY.MERCHANDISE_PURCHASES' },
+  { code: '07', labelKey: 'ACCOUNTS_PAYABLE.PURCHASE_CATEGORY.RELATED_SERVICES' },
+  { code: '08', labelKey: 'ACCOUNTS_PAYABLE.PURCHASE_CATEGORY.FINANCIAL_EXPENSES' },
+  { code: '09', labelKey: 'ACCOUNTS_PAYABLE.PURCHASE_CATEGORY.EXTRAORDINARY_EXPENSES' },
+  { code: '10', labelKey: 'ACCOUNTS_PAYABLE.PURCHASE_CATEGORY.COST_OF_SALES' },
+  { code: '11', labelKey: 'ACCOUNTS_PAYABLE.PURCHASE_CATEGORY.ASSET_ACQUISITIONS' },
+  { code: '12', labelKey: 'ACCOUNTS_PAYABLE.PURCHASE_CATEGORY.INSURANCE_EXPENSES' },
+] as const;
+
+/** DGII "Forma de Pago". */
+export const PAYMENT_FORMS = [
+  { code: '01', labelKey: 'ACCOUNTS_PAYABLE.PAYMENT_FORM.CASH' },
+  { code: '02', labelKey: 'ACCOUNTS_PAYABLE.PAYMENT_FORM.CHECK_TRANSFER' },
+  { code: '03', labelKey: 'ACCOUNTS_PAYABLE.PAYMENT_FORM.CARD' },
+  { code: '04', labelKey: 'ACCOUNTS_PAYABLE.PAYMENT_FORM.CREDIT' },
+  { code: '05', labelKey: 'ACCOUNTS_PAYABLE.PAYMENT_FORM.SWAP' },
+  { code: '06', labelKey: 'ACCOUNTS_PAYABLE.PAYMENT_FORM.CREDIT_NOTE' },
+  { code: '07', labelKey: 'ACCOUNTS_PAYABLE.PAYMENT_FORM.MIXED' },
+] as const;
 
 export interface VendorBillPaymentLine {
   vendorBillId: string;
@@ -129,11 +231,17 @@ export class AccountsPayableService {
     return this.http.get<VendorPayment[]>(`${this.apiUrl}/${billId}/payments`);
   }
 
-  voidBill(id: string, reason: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/${id}/void`, { reason });
+  voidBill(id: string, reason: string, reversalDate?: string): Observable<VendorBill> {
+    return this.http.post<VendorBill>(`${this.apiUrl}/${id}/void`, { reason, reversalDate });
   }
 
-  submitForApproval(id: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/${id}/submit-for-approval`, {});
+  submitForApproval(id: string): Observable<VendorBill> {
+    return this.http.post<VendorBill>(`${this.apiUrl}/${id}/submit-for-approval`, {});
+  }
+
+  aging(asOfDate?: string): Observable<unknown> {
+    return this.http.get(`${this.apiUrl}/aging`, {
+      params: asOfDate ? { asOfDate } : {},
+    });
   }
 }
