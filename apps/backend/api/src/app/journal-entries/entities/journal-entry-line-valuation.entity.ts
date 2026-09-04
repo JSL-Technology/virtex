@@ -24,7 +24,11 @@ export class JournalEntryLineValuation {
   @JoinColumn({ name: 'journal_entry_line_id' })
   journalEntryLine: JournalEntryLine;
 
-  @ManyToOne(() => Ledger, { eager: true, onDelete: 'CASCADE' })
+  /**
+   * Not eager. Every query that reads a valuation filters on `ledgerId` and never touches the
+   * ledger row; loading it fetched one extra row per valuation per line of every entry read.
+   */
+  @ManyToOne(() => Ledger, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'ledger_id' })
   ledger: Ledger;
 

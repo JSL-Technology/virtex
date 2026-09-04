@@ -6,6 +6,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 import { JournalEntriesApiService, JournalEntry } from '../../../core/api/journal-entries.service';
 import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.service';
+import { accountNameOf } from '../../../core/i18n/localized-name';
 
 /**
  * The journal, entry by entry, with every line shown.
@@ -23,6 +24,9 @@ import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.s
  * the grid renders `1200-01 — Cuentas por cobrar` without a request per row, and the name is the
  * tenant's own — the one they typed into their chart, in the language of their books.
  */
+/** Entries per page. The daybook is read a day at a time; fifty rows covers a busy day. */
+const PAGE_SIZE = 50;
+
 @Component({
   selector: 'app-daily-journal-page',
   standalone: true,
@@ -50,7 +54,24 @@ export class DailyJournalPage {
     () => !this.loading() && !this.failed() && this.journalEntries().length === 0,
   );
 
+  /** The window the list is showing. The route is bounded now, so the page has to be able to move. */
+  readonly page = signal(1);
+  readonly total = signal(0);
+  readonly hasMore = signal(false);
+
   constructor() {
+    this.load();
+  }
+
+  nextPage(): void {
+    if (!this.hasMore()) return;
+    this.page.update((current) => current + 1);
+    this.load();
+  }
+
+  previousPage(): void {
+    if (this.page() <= 1) return;
+    this.page.update((current) => current - 1);
     this.load();
   }
 
@@ -61,16 +82,25 @@ export class DailyJournalPage {
     this.accountsApi.getAccounts().subscribe({
       next: (accounts) => {
         this.accountLabels.set(
-          new Map(accounts.map((account) => [account.id, `${account.code} — ${account.name}`])),
+          // `accountNameOf`, not `account.name`. The server sends the name as a translation map,
+          // so interpolating it directly rendered `1101 — [object Object]`.
+          new Map(
+            accounts.map((account) => [
+              account.id,
+              `${account.code} — ${accountNameOf(account.name)}`,
+            ]),
+          ),
         );
       },
       // A missing chart is not a reason to hide the journal: the code falls back to the id.
       error: () => this.accountLabels.set(new Map()),
     });
 
-    this.entriesApi.list().subscribe({
-      next: (entries) => {
-        this.journalEntries.set(entries);
+    this.entriesApi.list({ page: this.page(), pageSize: PAGE_SIZE }).subscribe({
+      next: (page) => {
+        this.journalEntries.set(page.rows);
+        this.total.set(page.total);
+        this.hasMore.set(page.hasMore);
         this.loading.set(false);
       },
       error: () => {

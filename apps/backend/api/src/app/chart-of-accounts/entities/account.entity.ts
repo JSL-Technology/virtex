@@ -127,7 +127,15 @@ export class Account {
   @TreeChildren()
   children: Account[];
 
-  @OneToMany(() => AccountSegment, (segment) => segment.account, { cascade: true, eager: true })
+  /**
+   * Not eager.
+   *
+   * It was, because `code` used to be computed from these rows on read — so every query for an
+   * account anywhere in the product also fetched its segments, and a report over a thousand
+   * accounts issued a thousand-row join it never looked at. `code` is a column now, and the
+   * segments are needed only by the chart-of-accounts screens that edit them, which ask for them.
+   */
+  @OneToMany(() => AccountSegment, (segment) => segment.account, { cascade: true })
   segments: AccountSegment[];
 
 

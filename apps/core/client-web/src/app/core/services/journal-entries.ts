@@ -1,9 +1,10 @@
 // app/core/services/journal-entries.ts
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { JournalEntry } from '../models/journal-entry.model';
+import { Page } from '../api/journal-entries.service';
 
 // Usaremos un DTO (Data Transfer Object) para la creación,
 // ya que no necesitamos enviar todos los campos de JournalEntry.
@@ -17,8 +18,12 @@ export class JournalEntries {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/journal-entries`;
 
-  getAll(): Observable<JournalEntry[]> {
-    return this.http.get<JournalEntry[]>(this.apiUrl);
+  /** A page of entries. The route is bounded; see `JournalEntriesApiService.list`. */
+  getAll(query: { page?: number; pageSize?: number } = {}): Observable<Page<JournalEntry>> {
+    let params = new HttpParams();
+    if (query.page) params = params.set('page', String(query.page));
+    if (query.pageSize) params = params.set('pageSize', String(query.pageSize));
+    return this.http.get<Page<JournalEntry>>(this.apiUrl, { params });
   }
 
   getById(id: string): Observable<JournalEntry> {

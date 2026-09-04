@@ -66,4 +66,27 @@
       </tbody>
     </table>
   </div>
+
+  <!--
+    The list is bounded now. Without controls the page would silently show the first fifty entries
+    and give no sign that the rest exist, which is worse than the unbounded query it replaces.
+  -->
+  @if (total() > 0) {
+    <nav class="pager" [attr.aria-label]="'COMMON.PAGINATION' | translate">
+      <button
+        type="button"
+        class="pager-button"
+        [disabled]="page() <= 1"
+        (click)="previousPage()"
+      >
+        {{ 'COMMON.PREVIOUS' | translate }}
+      </button>
+      <span class="pager-status">
+        {{ 'COMMON.PAGE_OF_TOTAL' | translate: { page: page(), total: total() } }}
+      </span>
+      <button type="button" class="pager-button" [disabled]="!hasMore()" (click)="nextPage()">
+        {{ 'COMMON.NEXT' | translate }}
+      </button>
+    </nav>
+  }
 </div>

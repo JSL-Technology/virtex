@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   ParseUUIDPipe,
+  Query,
 } from '@nestjs/common';
 import { FixedAssetsService } from './fixed-assets.service';
 import { CreateFixedAssetDto } from './dto/create-fixed-asset.dto';
@@ -18,6 +19,7 @@ import { User } from '../users/entities/user.entity/user.entity';
 import { DisposeAssetDto } from './dto/dispose-asset.dto';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Controller('fixed-assets')
@@ -41,9 +43,8 @@ export class FixedAssetsController {
 
   @Get()
   @HasPermission(PERMISSIONS.FIXED_ASSETS_VIEW)
-  findAll(@CurrentUser() user: AuthenticatedUser) {
-
-    return this.fixedAssetsService.findAll(user.organizationId);
+  findAll(@CurrentUser() user: AuthenticatedUser, @Query() query: PaginationQueryDto) {
+    return this.fixedAssetsService.findAll(user.organizationId, query);
   }
 
   @Get(':id')

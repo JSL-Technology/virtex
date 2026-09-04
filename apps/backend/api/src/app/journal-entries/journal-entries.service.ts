@@ -22,6 +22,7 @@ import { ModuleSlug } from '../accounting/entities/accounting-period.entity';
 import { resolvePostingPeriod } from '../accounting/period-status';
 import { BudgetControlService } from '../budgets/budget-control.service';
 import { toIsoDate } from '../common/dates';
+import { Page, resolvePaging, toPage } from '../common/pagination';
 import { AccountPeriodLock } from '../accounting/entities/account-period-lock.entity';
 import { Journal } from './entities/journal.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
@@ -1052,11 +1053,26 @@ export class JournalEntriesService {
   // Reads
   // ───────────────────────────────────────────────────────────────────────────
 
-  findAll(organizationId: string): Promise<JournalEntry[]> {
-    return this.journalEntryRepository.find({
+  /**
+   * A page of entries, newest first.
+   *
+   * It returned every entry the tenant had ever posted — with `lines`, `journal` and `ledger` all
+   * eagerly attached, so an established tenant's whole general ledger arrived in one response on an
+   * ordinary screen load. The lines still come with each entry, because the list shows each
+   * entry's debit and credit totals; what changed is that the number of entries is bounded.
+   */
+  async findAll(
+    organizationId: string,
+    query: { page?: number; pageSize?: number } = {},
+  ): Promise<Page<JournalEntry>> {
+    const paging = resolvePaging(query.page, query.pageSize);
+    const [rows, total] = await this.journalEntryRepository.findAndCount({
       where: { organizationId },
       order: { date: 'DESC', entryNumber: 'DESC', createdAt: 'DESC' },
+      skip: paging.skip,
+      take: paging.take,
     });
+    return toPage(rows, total, paging);
   }
 
   async findOne(id: string, organizationId: string): Promise<JournalEntry> {
