@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource, EntityManager, LessThanOrEqual, In } from 'typeorm';
+import { Repository, DataSource, EntityManager, In } from 'typeorm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
   Invoice,
@@ -17,7 +17,7 @@ import { InventoryService } from '../inventory/inventory.service';
 import { Product, ProductKind } from '../inventory/entities/product.entity';
 import { Organization } from '../organizations/entities/organization.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
-import { ExchangeRate } from '../currencies/entities/exchange-rate.entity';
+import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
 import { FiscalAdapterFactory } from './adapters/fiscal-adapter.factory';
 import { DocumentSequencesService } from '../shared/document-sequences/document-sequences.service';
 import { DocumentType } from '../shared/document-sequences/entities/document-sequence.entity';
@@ -95,8 +95,7 @@ export class InvoicesService {
     private readonly organizationRepository: Repository<Organization>,
     @InjectRepository(OrganizationSettings)
     private readonly orgSettingsRepository: Repository<OrganizationSettings>,
-    @InjectRepository(ExchangeRate)
-    private readonly exchangeRateRepository: Repository<ExchangeRate>,
+    private readonly exchangeRateResolver: ExchangeRateResolver,
     private readonly customersService: CustomersService,
     private readonly inventoryService: InventoryService,
     private readonly dataSource: DataSource,
@@ -436,26 +435,25 @@ export class InvoicesService {
 
     if (currencyCode === baseCurrency) return { currencyCode, exchangeRate: 1 };
 
-    const rate = await this.exchangeRateRepository.findOne({
-      where: {
-        fromCurrency: baseCurrency,
-        toCurrency: currencyCode,
-        date: LessThanOrEqual(new Date(issueDate)),
-      },
-      order: { date: 'DESC' },
-    });
-    if (!rate) {
-      throw new BadRequestException(
-        `No hay una tasa de cambio de ${baseCurrency} a ${currencyCode} vigente al ${issueDate}. ` +
-          `Regístrala en Ajustes → Monedas.`,
-      );
-    }
+    // Through the resolver, not a direct row lookup. The lookup asked only for a
+    // `base → transaction` row and inverted it, so a tenant holding the pair the other way round —
+    // the common case, since providers quote against the dollar — got "no rate found" for a
+    // currency it had rates for, and a tenant with neither leg on file (COP books, EUR invoice)
+    // could never be served at all. The resolver tries direct, inverse and a cross through the
+    // dollar, and returns the rate in the direction asked for.
+    const rateType = await this.exchangeRateResolver.rateTypeFor(organizationId);
+    const exchangeRate = await this.exchangeRateResolver.rateFor(
+      currencyCode,
+      baseCurrency,
+      issueDate,
+      undefined,
+      rateType,
+    );
 
-    const baseToTransaction = Number(rate.rate);
-    if (!Number.isFinite(baseToTransaction) || baseToTransaction <= 0) {
+    if (!Number.isFinite(exchangeRate) || exchangeRate <= 0) {
       throw new BadRequestError('INVOICES.TASA_CAMBIO_CONFIGURADA_NO_ES_VALIDA', { currencyCode });
     }
-    return { currencyCode, exchangeRate: 1 / baseToTransaction };
+    return { currencyCode, exchangeRate };
   }
 
   // ── Stock ──────────────────────────────────────────────────────────────────

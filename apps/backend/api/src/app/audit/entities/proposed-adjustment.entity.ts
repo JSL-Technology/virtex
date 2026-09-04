@@ -62,7 +62,15 @@ export class ProposedAdjustment {
   @Column({ type: 'text' })
   description: string;
 
-  @Column({ type: 'uuid' })
+  /**
+   * Named, because it was not.
+   *
+   * Without `name` TypeORM created a second column, `journalId`, beside the `journal_id` the
+   * `@JoinColumn` below declares. Writes went to `journalId`; the foreign key sat on `journal_id`,
+   * which was therefore always null. A proposed adjustment could name a journal that no longer
+   * existed, and `relations: ['journal']` came back null every time.
+   */
+  @Column({ name: 'journal_id', type: 'uuid' })
   journalId: string;
 
   @ManyToOne(() => Journal, { onDelete: 'CASCADE' })

@@ -87,16 +87,14 @@ export class ChartOfAccountsService {
     }
 
     const fullCode = segmentValues.join('-');
-    const existingAccount = await manager
-      .createQueryBuilder(Account, 'account')
-      .innerJoin('account.segments', 'segment')
-      .where('account.organizationId = :organizationId', { organizationId })
-      .groupBy('account.id')
-      .having(
-        "STRING_AGG(segment.value, '-' ORDER BY segment.order) = :fullCode",
-        { fullCode },
-      )
-      .getOne();
+    // An indexed equality on a stored column, not a `STRING_AGG ... GROUP BY ... HAVING` aggregate
+    // over every account of the organization. The unique index on (organization_id, code) is what
+    // actually enforces this — the check is here to produce a readable error rather than a
+    // constraint violation, and it is no longer the only thing standing between two concurrent
+    // requests and two accounts numbered 1101.
+    const existingAccount = await manager.findOne(Account, {
+      where: { organizationId, code: fullCode },
+    });
 
     if (existingAccount) {
       throw new BadRequestError('CHART_OF_ACCOUNTS.CODIGO_CUENTA_YA_EXISTE', { fullCode });
@@ -130,6 +128,7 @@ export class ChartOfAccountsService {
       ...restOfDto,
       organizationId,
       parentId: parentId || null,
+      code: fullCode,
       name: typeof name === 'string' ? { es: name } : name,
     };
     if (description) {

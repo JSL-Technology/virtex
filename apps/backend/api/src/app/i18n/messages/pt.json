@@ -360,14 +360,26 @@
     "CONFIGURACIONES_ORGANIZACION_MATRIZ_NO_ENCONTRADAS": "Configurações da organização controladora {{parentOrganizationId}} não encontradas.",
     "ORGANIZACION_MATRIZ_NO_ENCONTRADA": "Organização controladora não encontrada.",
     "ORGANIZACION_NO_ENCONTRADA": "Organização não encontrada.",
-    "ORGANIZACION_NO_TIENE_SUBSIDIARIAS_CONFIGURADAS_CONSOLIDAR": "A organização não tem subsidiárias configuradas para consolidar."
+    "ORGANIZACION_NO_TIENE_SUBSIDIARIAS_CONFIGURADAS_CONSOLIDAR": "A organização não tem subsidiárias configuradas para consolidar.",
+    "RANGO_FECHAS_INVALIDO": "O início do período ({{startDate}}) é posterior à data de corte ({{asOfDate}})."
   },
   "CURRENCIES": {
     "DIARIO_GENERAL_GENERAL_NO_ENCONTRADO": "O diário Geral (GENERAL) não foi encontrado.",
+    "DIVISA_DESCONOCIDA": "Moeda não configurada: {{codes}}.",
     "NO_ENCONTRO_TASA_CAMBIO_VALIDA_FECHA_ESPECIFICADA": "Não foi encontrada uma taxa de câmbio de {{from}} para {{to}} vigente em {{date}}.",
     "NO_HAY_DIVISAS_PARA_ACTUALIZAR": "Não há moedas para atualizar.",
     "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "Nenhum livro contábil padrão foi configurado para a organização.",
-    "TASAS_CAMBIO_ACTUALIZADAS_EXITOSAMENTE": "Taxas de câmbio atualizadas."
+    "NO_SE_PUDIERON_OBTENER_TASAS": "Não foi possível obter as taxas de câmbio de {{date}}.",
+    "PAR_IDENTICO": "Um par de moedas não pode ter a mesma moeda dos dois lados ({{currency}}).",
+    "PROVEEDOR_TASAS_NO_CONFIGURADO": "Não há um provedor de taxas de câmbio configurado. Registre as taxas manualmente ou configure as credenciais do provedor.",
+    "RANGO_FECHAS_EXCEDE_LIMITE": "O intervalo solicitado abrange {{days}} dias e o máximo permitido é {{limit}}.",
+    "RANGO_FECHAS_FUTURO": "Não é possível consultar taxas futuras: {{endDate}} é posterior a hoje ({{today}}).",
+    "RANGO_FECHAS_INVALIDO": "Intervalo de datas inválido: {{startDate}} é posterior a {{endDate}}.",
+    "RELLENO_HISTORICO_COMPLETADO": "Preenchimento histórico concluído: {{days}} dias processados, {{updated}} taxas armazenadas, {{failed}} dias sem dados.",
+    "RESPUESTA_PROVEEDOR_SIN_TASAS": "A resposta do provedor não contém taxas para {{date}}.",
+    "TASAS_CAMBIO_ACTUALIZADAS_EXITOSAMENTE": "Taxas de câmbio atualizadas.",
+    "TASA_DEBE_SER_POSITIVA": "A taxa de câmbio deve ser maior que zero; recebeu-se {{rate}}.",
+    "TASA_REGISTRADA": "Taxa de câmbio registrada com sucesso."
   },
   "CUSTOMERS": {
     "APLICACION_EXCEDE_MONTO_RECIBIDO": "O valor aplicado às faturas ({{applied}}) excede o valor recebido ({{received}}).",
@@ -915,6 +927,7 @@
       "CONSOLIDATE": "Consolidar",
       "CREATE": "Criar",
       "DELETE": "Excluir",
+      "DISPOSE": "Dar baixa",
       "EDIT": "Editar",
       "EDIT_BRANDING": "Editar a personalização",
       "EDIT_COMPANY": "Editar os dados da empresa",
@@ -956,8 +969,11 @@
       "BUDGETS": "Orçamentos",
       "COA": "Plano de contas",
       "COST_ACCOUNTING": "Contabilidade de custos",
+      "CURRENCIES": "Moedas",
       "CUSTOMERS": "Clientes",
+      "EXCHANGE_RATES": "Taxas de câmbio",
       "FINANCIALS": "Demonstrações financeiras",
+      "FIXED_ASSETS": "Ativos fixos",
       "INTERCOMPANY": "Intercompanhias",
       "INVENTORY": "Estoque",
       "INVOICES": "Faturas de venda",

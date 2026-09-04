@@ -360,14 +360,26 @@
     "CONFIGURACIONES_ORGANIZACION_MATRIZ_NO_ENCONTRADAS": "Settings for the parent organization {{parentOrganizationId}} were not found.",
     "ORGANIZACION_MATRIZ_NO_ENCONTRADA": "The parent organization was not found.",
     "ORGANIZACION_NO_ENCONTRADA": "Organization not found.",
-    "ORGANIZACION_NO_TIENE_SUBSIDIARIAS_CONFIGURADAS_CONSOLIDAR": "The organization has no subsidiaries configured to consolidate."
+    "ORGANIZACION_NO_TIENE_SUBSIDIARIAS_CONFIGURADAS_CONSOLIDAR": "The organization has no subsidiaries configured to consolidate.",
+    "RANGO_FECHAS_INVALIDO": "The period start ({{startDate}}) is later than the reporting date ({{asOfDate}})."
   },
   "CURRENCIES": {
     "DIARIO_GENERAL_GENERAL_NO_ENCONTRADO": "The General journal (GENERAL) was not found.",
+    "DIVISA_DESCONOCIDA": "Currency not configured: {{codes}}.",
     "NO_ENCONTRO_TASA_CAMBIO_VALIDA_FECHA_ESPECIFICADA": "No exchange rate from {{from}} to {{to}} was in force on {{date}}.",
     "NO_HAY_DIVISAS_PARA_ACTUALIZAR": "There are no currencies to update.",
     "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "No default ledger has been configured for the organization.",
-    "TASAS_CAMBIO_ACTUALIZADAS_EXITOSAMENTE": "Exchange rates updated."
+    "NO_SE_PUDIERON_OBTENER_TASAS": "Exchange rates for {{date}} could not be retrieved.",
+    "PAR_IDENTICO": "A currency pair cannot have the same currency on both sides ({{currency}}).",
+    "PROVEEDOR_TASAS_NO_CONFIGURADO": "No exchange rate provider is configured. Record rates manually or configure the provider credentials.",
+    "RANGO_FECHAS_EXCEDE_LIMITE": "The requested range spans {{days}} days and the maximum allowed is {{limit}}.",
+    "RANGO_FECHAS_FUTURO": "Future rates cannot be requested: {{endDate}} is later than today ({{today}}).",
+    "RANGO_FECHAS_INVALIDO": "Invalid date range: {{startDate}} is later than {{endDate}}.",
+    "RELLENO_HISTORICO_COMPLETADO": "Historical backfill complete: {{days}} days processed, {{updated}} rates stored, {{failed}} days without data.",
+    "RESPUESTA_PROVEEDOR_SIN_TASAS": "The provider response contains no rates for {{date}}.",
+    "TASAS_CAMBIO_ACTUALIZADAS_EXITOSAMENTE": "Exchange rates updated.",
+    "TASA_DEBE_SER_POSITIVA": "The exchange rate must be greater than zero; received {{rate}}.",
+    "TASA_REGISTRADA": "Exchange rate recorded successfully."
   },
   "CUSTOMERS": {
     "APLICACION_EXCEDE_MONTO_RECIBIDO": "The amount applied to invoices ({{applied}}) exceeds the amount received ({{received}}).",
@@ -915,6 +927,7 @@
       "CONSOLIDATE": "Consolidate",
       "CREATE": "Create",
       "DELETE": "Delete",
+      "DISPOSE": "Dispose",
       "EDIT": "Edit",
       "EDIT_BRANDING": "Edit branding",
       "EDIT_COMPANY": "Edit company details",
@@ -956,8 +969,11 @@
       "BUDGETS": "Budgets",
       "COA": "Chart of Accounts",
       "COST_ACCOUNTING": "Cost accounting",
+      "CURRENCIES": "Currencies",
       "CUSTOMERS": "Customers",
+      "EXCHANGE_RATES": "Exchange rates",
       "FINANCIALS": "Financial statements",
+      "FIXED_ASSETS": "Fixed assets",
       "INTERCOMPANY": "Intercompany",
       "INVENTORY": "Inventory",
       "INVOICES": "Sales invoices",

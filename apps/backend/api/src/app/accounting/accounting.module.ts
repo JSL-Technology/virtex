@@ -82,6 +82,9 @@ import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.mo
   exports: [
     PeriodLockGuard,
     LedgerMappingService,
+    // The one implementation of the general ledger. `ReportsService` delegates to it rather than
+    // keeping a second one with different semantics.
+    LedgersService,
   ],
 })
 export class AccountingModule {}

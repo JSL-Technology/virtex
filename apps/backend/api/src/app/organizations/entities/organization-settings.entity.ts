@@ -9,6 +9,7 @@ import {
   RelationId,
 } from 'typeorm';
 import { Organization } from './organization.entity';
+import { ExchangeRateType } from '../../currencies/entities/exchange-rate.entity';
 
 const DEFAULT_BASE_CURRENCY = 'USD' as const;
 
@@ -39,6 +40,23 @@ export class OrganizationSettings {
 
   @Column({ name: 'base_currency', length: 3, default: DEFAULT_BASE_CURRENCY })
   baseCurrency!: string;
+
+  /**
+   * Which published rate this tenant keeps its books at.
+   *
+   * A currency pair does not have *a* rate on a day. Colombia's TRM, Mexico's DOF FIX and the
+   * Dominican Republic's DGII rate are each the mandatory accounting rate in their jurisdiction,
+   * and each differs from the interbank mid a market data provider quotes. Every rate the product
+   * stored was a market mid, used as though it were the official one; a tenant obliged to book at
+   * the authority's rate had no way to say so.
+   */
+  @Column({
+    name: 'exchange_rate_type',
+    type: 'enum',
+    enum: ExchangeRateType,
+    default: ExchangeRateType.OFFICIAL,
+  })
+  exchangeRateType!: ExchangeRateType;
 
 
 

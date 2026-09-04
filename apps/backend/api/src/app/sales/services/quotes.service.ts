@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource, LessThanOrEqual } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { Quote, QuoteStatus } from '../entities/quote.entity';
 import { CreateQuoteDto } from '../dto/create-quote.dto';
 import { CustomersService } from '../../customers/customers.service';
@@ -9,7 +9,7 @@ import { DocumentType } from '../../shared/document-sequences/entities/document-
 import { InvoicesService } from '../../invoices/invoices.service';
 import { Invoice } from '../../invoices/entities/invoice.entity';
 import { OrganizationSettings } from '../../organizations/entities/organization-settings.entity';
-import { ExchangeRate } from '../../currencies/entities/exchange-rate.entity';
+import { ExchangeRateResolver } from '../../currencies/exchange-rate-resolver.service';
 import { BadRequestError, ConflictError, NotFoundError } from '../../i18n/localized.exception';
 
 @Injectable()
@@ -20,8 +20,7 @@ export class QuotesService {
 
     @InjectRepository(OrganizationSettings)
     private readonly orgSettingsRepository: Repository<OrganizationSettings>,
-    @InjectRepository(ExchangeRate)
-    private readonly exchangeRateRepository: Repository<ExchangeRate>,
+    private readonly exchangeRateResolver: ExchangeRateResolver,
     private readonly dataSource: DataSource,
 
     private readonly customersService: CustomersService,
@@ -40,19 +39,22 @@ export class QuotesService {
         let exchangeRate = 1.0;
 
         if (currencyCode !== baseCurrency) {
-            const rate = await this.exchangeRateRepository.findOne({
-                where: { fromCurrency: baseCurrency, toCurrency: currencyCode, date: LessThanOrEqual(new Date(dto.issueDate)) },
-                order: { date: 'DESC' }
-            });
-            if (!rate) {
-              throw new BadRequestError('SALES.NO_ENCONTRO_TASA_CAMBIO_VALIDA_FECHA_ESPECIFICADA', { currencyCode });
-            }
-            // Stored as units of `toCurrency` per 1 `fromCurrency`; the document needs the inverse.
-            const baseToTransaction = Number(rate.rate);
-            if (!Number.isFinite(baseToTransaction) || baseToTransaction <= 0) {
+            // Through the resolver: it tries the pair direct, inverted, and as a cross through the
+            // dollar, and returns the rate in the direction the document stores — units of base
+            // currency per one unit of transaction currency. The direct row lookup this replaces
+            // failed outright whenever the tenant held the pair the other way round, which is the
+            // normal case since every provider quotes against the dollar.
+            const rateType = await this.exchangeRateResolver.rateTypeFor(organizationId, manager);
+            exchangeRate = await this.exchangeRateResolver.rateFor(
+              currencyCode,
+              baseCurrency,
+              dto.issueDate,
+              manager,
+              rateType,
+            );
+            if (!Number.isFinite(exchangeRate) || exchangeRate <= 0) {
               throw new BadRequestError('SALES.TASA_CAMBIO_CONFIGURADA_NO_ES_VALIDA', { currencyCode });
             }
-            exchangeRate = 1 / baseToTransaction;
         }
 
 

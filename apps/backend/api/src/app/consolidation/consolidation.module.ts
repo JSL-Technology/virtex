@@ -11,7 +11,8 @@ import { ConsolidationMap } from './entities/consolidation-map.entity';
 
 
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
-import { ExchangeRate } from '../currencies/entities/exchange-rate.entity';
+import { CurrenciesModule } from '../currencies/currencies.module';
+import { IntercompanyTransaction } from '../intercompany/entities/intercompany-transaction.entity';
 import { ConsolidationMappingController } from './consolidation-mapping.controller';
 import { ConsolidationMappingService } from './consolidation-mapping.service';
 
@@ -25,10 +26,11 @@ import { ConsolidationMappingService } from './consolidation-mapping.service';
 
 
       OrganizationSettings,
-      ExchangeRate,
+      IntercompanyTransaction,
 
     ]),
     FinancialReportingModule,
+    CurrenciesModule,
     AuthModule,
   ],
 

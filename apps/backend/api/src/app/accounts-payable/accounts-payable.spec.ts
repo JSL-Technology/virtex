@@ -223,7 +223,14 @@ describeWithDb('accounts payable', () => {
     // about the market — so they outlive the tenant and have to be cleared between tests.
     // Raw DELETE, not `repository.delete({})`: TypeORM rejects empty criteria outright, and a
     // swallowed rejection here leaves a stale rate that quietly changes the next test's arithmetic.
-    await dataSource.query('DELETE FROM "exchange_rate"');
+    // Scoped to the pair this suite publishes. `DELETE FROM "exchange_rate"` with no predicate
+    // deletes every other suite's rates as well, and Jest runs suites in parallel workers against
+    // one database — so an unscoped delete here made the consolidation and exchange-rate suites
+    // fail intermittently with "no rate found" for pairs they had just inserted.
+    await dataSource.query(
+      'DELETE FROM "exchange_rate" WHERE "fromCurrency" = $1 AND "toCurrency" = $2',
+      ['USD', 'DOP'],
+    );
   });
 
   const signedBalance = async (key: string, asOf = '2026-04-30') =>
