@@ -27,12 +27,19 @@ const APP_ROOT = join(__dirname, '..');
 const FINANCE_MODULES = [
   'accounting',
   'accounts-payable',
+  'audit',
+  'batch-processes',
   'budgets',
   'chart-of-accounts',
   'consolidation',
+  'cost-accounting',
+  'currencies',
   'financial-reporting',
+  'fixed-assets',
+  'intercompany',
   'journal-entries',
   'reconciliation',
+  'reports',
   'taxes',
   'treasury',
 ];
@@ -40,6 +47,8 @@ const FINANCE_MODULES = [
 /** Controllers outside those directories that are nonetheless part of the money surface. */
 const EXTRA_CONTROLLERS = [
   'customers/customer-payments.controller.ts',
+  'customers/customers.controller.ts',
+  'customers/customer-groups.controller.ts',
   'invoices/invoices.controller.ts',
 ];
 
@@ -113,7 +122,7 @@ describe('finance route authorization', () => {
   it('finds the finance controllers', () => {
     // Guards the guard: a renamed directory would otherwise make this suite pass by checking
     // nothing at all.
-    expect(files.length).toBeGreaterThanOrEqual(15);
+    expect(files.length).toBeGreaterThanOrEqual(25);
   });
 
   it('declares a permission on every finance route', () => {

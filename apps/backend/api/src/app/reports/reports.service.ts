@@ -256,7 +256,11 @@ export class ReportsService {
 
     const entries = await entryQuery
       .orderBy('entry.date', 'ASC')
-      .addOrderBy('entry.entry_number', 'ASC')
+      // The property path, not the column name. With `skip`/`take` TypeORM builds a distinct-id
+      // subquery and resolves each ordering term against the entity metadata; `entry.entry_number`
+      // is not a property, so it resolved to `undefined` and every paged daybook request threw
+      // `Cannot read properties of undefined (reading 'databaseName')` before returning a row.
+      .addOrderBy('entry.entryNumber', 'ASC')
       .skip((page - 1) * pageSize)
       .take(pageSize)
       .getMany();

@@ -100,17 +100,38 @@ export class AuditTrailService {
     });
   }
 
-  async find(entity?: string, entityId?: string, organizationId?: string): Promise<AuditLog[]> {
-    return this.auditLogRepository.find({
-        where: {
-            ...(entity && { entity }),
-            ...(entityId && { entityId }),
-            ...(organizationId && { organizationId }),
-        },
-        order: {
-            timestamp: 'DESC'
-        }
+  /**
+   * The tenant's audit trail, newest first.
+   *
+   * ## Two things this signature now makes impossible
+   *
+   * `organizationId` was the **last** parameter and optional, spread into the where clause as
+   * `...(organizationId && { organizationId })`. A caller that omitted it — or passed a value that
+   * happened to be falsy — got every organization's audit trail on the platform. Nothing in the
+   * type system objected, because the parameter was optional by declaration.
+   *
+   * There was also no limit. An established tenant's trail is one row per business action for the
+   * life of the account; the route loaded all of it into memory and serialised it.
+   */
+  async find(
+    organizationId: string,
+    filters: { entity?: string; entityId?: string; page?: number; pageSize?: number } = {},
+  ): Promise<{ rows: AuditLog[]; page: number; pageSize: number; total: number; hasMore: boolean }> {
+    const page = Math.max(1, Math.floor(filters.page ?? 1));
+    const pageSize = Math.min(200, Math.max(1, Math.floor(filters.pageSize ?? 50)));
+
+    const [rows, total] = await this.auditLogRepository.findAndCount({
+      where: {
+        organizationId,
+        ...(filters.entity && { entity: filters.entity }),
+        ...(filters.entityId && { entityId: filters.entityId }),
+      },
+      order: { timestamp: 'DESC' },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
     });
+
+    return { rows, page, pageSize, total, hasMore: page * pageSize < total };
   }
 
   

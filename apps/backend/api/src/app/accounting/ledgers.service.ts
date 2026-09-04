@@ -126,7 +126,12 @@ export class LedgersService {
 
     const totalLines = await base.clone().getCount();
 
+    // `.clone()`, because the chain below sets `offset` and `limit` on whatever it is called on.
+    // Without it those survive on `base`, and `movementBefore` — which clones `base` to sum the
+    // earlier pages — inherits the current page's window and sums the wrong rows. Page 3 of a
+    // five-line account opened at 200 instead of 500.
     const rows = await base
+      .clone()
       .select([
         'line.id AS id',
         'entry.id AS "journalEntryId"',
@@ -222,21 +227,34 @@ export class LedgersService {
     };
   }
 
-  /** Signed movement on the pages before this one, so a paged running balance stays continuous. */
+  /**
+   * Signed movement on the pages before this one, so a paged running balance stays continuous.
+   *
+   * The sum has to be taken over the rows the earlier pages actually contain, which means ordering
+   * and limiting first and aggregating second. Putting `SUM(...)` and `ORDER BY entry.date` in one
+   * statement is not a smaller version of that — PostgreSQL rejects it outright ("column
+   * entry.date must appear in the GROUP BY clause"), and even where a database accepts it, `LIMIT`
+   * applies to the aggregated result rather than to the rows being aggregated, so it would sum the
+   * whole account.
+   */
   private async movementBefore(
     base: SelectQueryBuilder<JournalEntryLine>,
     page: number,
     pageSize: number,
   ): Promise<number> {
-    const rows = await base
+    const inner = base
       .clone()
-      .select('COALESCE(SUM(valuation.debit - valuation.credit), 0)', 'movement')
+      .select(['valuation.debit AS debit', 'valuation.credit AS credit'])
       .orderBy('entry.date', 'ASC')
       .addOrderBy('entry.entry_number', 'ASC')
       .addOrderBy('line.id', 'ASC')
-      .limit((page - 1) * pageSize)
-      .getRawOne<{ movement: string }>();
-    return Number(rows?.movement ?? 0);
+      .limit((page - 1) * pageSize);
+
+    const [sql, parameters] = inner.getQueryAndParameters();
+    const rows = await this.journalEntryLineRepository.manager.query<
+      { movement: string }[]
+    >(`SELECT COALESCE(SUM(m.debit - m.credit), 0) AS movement FROM (${sql}) m`, parameters);
+    return Number(rows[0]?.movement ?? 0);
   }
 
   findAll(organizationId: string): Promise<Ledger[]> {
