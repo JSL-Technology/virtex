@@ -59,7 +59,9 @@ describe('TreasuryPage', () => {
       .expectOne((c) => c.url === `${environment.apiUrl}/treasury/cash-position`)
       .flush(body);
     httpMock.expectOne((c) => c.url === `${environment.apiUrl}/treasury/bank-accounts`).flush([]);
-    httpMock.expectOne((c) => c.url === `${environment.apiUrl}/treasury/bank-transfers`).flush([]);
+    httpMock
+      .expectOne((c) => c.url === `${environment.apiUrl}/treasury/bank-transfers`)
+      .flush({ rows: [], page: 1, pageSize: 25, total: 0, hasMore: false });
     fixture.detectChanges();
   };
 
@@ -107,7 +109,9 @@ describe('TreasuryPage', () => {
     expect(request.request.params.get('asOfDate')).toBe('2026-02-28');
     request.flush(position);
     httpMock.expectOne((c) => c.url === `${environment.apiUrl}/treasury/bank-accounts`).flush([]);
-    httpMock.expectOne((c) => c.url === `${environment.apiUrl}/treasury/bank-transfers`).flush([]);
+    httpMock
+      .expectOne((c) => c.url === `${environment.apiUrl}/treasury/bank-transfers`)
+      .flush({ rows: [], page: 1, pageSize: 25, total: 0, hasMore: false });
     httpMock.verify();
   });
 });

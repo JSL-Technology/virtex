@@ -633,5 +633,24 @@ describeWithDb('the accounting core', () => {
       expect(february.closingCash).toBe(121_000);
       expect(february.unexplainedDifference).toBe(0);
     });
+
+    /**
+     * A period that runs backwards is a mistake, not a request for an empty report.
+     *
+     * `startDate=2026-12-31&endDate=2026-01-01` used to be accepted by all three period reports.
+     * Every `BETWEEN` matched nothing, so the statement came back full of zeroes — which a reader
+     * takes for "the company did nothing that period", not "you asked for something impossible".
+     */
+    it.each([
+      ['income statement', (from: string, to: string) => reporting.getIncomeStatement(organizationId, from, to)],
+      ['trial balance', (from: string, to: string) => reporting.getTrialBalance(organizationId, from, to)],
+      ['cash flow statement', (from: string, to: string) => reporting.getCashFlowStatement(organizationId, from, to)],
+    ])('refuses an inverted period on the %s', async (_name, run) => {
+      await expect(run('2026-01-31', '2026-01-01')).rejects.toMatchObject({
+        messageKey: 'VALIDATION.CONSTRAINTS.PERIOD_START_AFTER_END',
+      });
+      // A single day is a period, not an inversion.
+      await expect(run('2026-01-31', '2026-01-31')).resolves.toBeDefined();
+    });
   });
 });

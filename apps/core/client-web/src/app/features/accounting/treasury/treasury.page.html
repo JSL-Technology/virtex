@@ -114,6 +114,15 @@
           </tbody>
         </table>
       </div>
+      <!--
+        The panel shows a page, not the history. Saying how many are not shown keeps a reader from
+        taking the last visible row for the tenant's oldest transfer.
+      -->
+      @if (moreTransfers() > 0) {
+        <p class="note">
+          {{ 'TREASURY.TRANSFERENCIAS_RESTANTES' | translate: { count: moreTransfers() } }}
+        </p>
+      }
     }
   }
 </div>

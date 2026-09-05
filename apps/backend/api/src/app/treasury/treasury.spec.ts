@@ -24,6 +24,8 @@ import { AuditTrailService } from '../audit/audit.service';
 import { AuditLog } from '../audit/entities/audit-log.entity';
 import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
+import { FiscalCalendarService } from '../shared/fiscal-calendar.service';
+import { FiscalYear } from '../accounting/entities/fiscal-year.entity';
 import { TreasuryService } from './treasury.service';
 import { BankAccount, BankAccountType } from './entities/bank-account.entity';
 import { CreateBankTransferDto } from './dto/create-bank-transfer.dto';
@@ -87,6 +89,10 @@ describeWithDb('treasury', () => {
       entries,
       balances,
       new ExchangeRateResolver(dataSource),
+      new FiscalCalendarService(
+        dataSource.getRepository(Organization),
+        dataSource.getRepository(FiscalYear),
+      ),
       dataSource,
     );
   });
@@ -554,10 +560,64 @@ describeWithDb('treasury', () => {
         }),
       );
 
-      expect(await treasury.findAllTransfers(organizationId)).toHaveLength(1);
-      expect(await treasury.findAllTransfers(other.id)).toHaveLength(0);
+      const mine = await treasury.findAllTransfers(organizationId);
+      expect(mine.rows).toHaveLength(1);
+      expect(mine.total).toBe(1);
+
+      const theirs = await treasury.findAllTransfers(other.id);
+      expect(theirs.rows).toHaveLength(0);
+      expect(theirs.total).toBe(0);
 
       await dataSource.getRepository(Organization).delete({ id: other.id });
+    });
+
+    /**
+     * The route returned every transfer the tenant had ever made, in one array.
+     *
+     * A treasury that moves funds daily crosses ten thousand rows in a few years, and the response
+     * — and the memory to assemble it — grew without limit.
+     */
+    it('returns a page, and says how many rows there are behind it', async () => {
+      const from = await openAccount();
+      const to = await treasury.createBankAccount(
+        {
+          name: `Destino ${Date.now()}`,
+          accountType: BankAccountType.CASH,
+          currencyCode: 'DOP',
+          glAccountId: account['cash'],
+        } as never,
+        organizationId,
+      );
+
+      for (let index = 0; index < 3; index += 1) {
+        await treasury.createBankTransfer(
+          {
+            date: `2026-03-2${index + 1}`,
+            amount: 100 + index,
+            fromBankAccountId: from.id,
+            toBankAccountId: to.id,
+            description: `Traspaso ${index}`,
+          } as CreateBankTransferDto,
+          organizationId,
+          ACTOR,
+        );
+      }
+
+      const firstPage = await treasury.findAllTransfers(organizationId, { pageSize: 2 });
+      expect(firstPage.rows).toHaveLength(2);
+      expect(firstPage.total).toBeGreaterThanOrEqual(3);
+      expect(firstPage.hasMore).toBe(true);
+      // Newest first, so the page opens on the latest transfer.
+      expect(firstPage.rows[0].date).toBe('2026-03-23');
+
+      const secondPage = await treasury.findAllTransfers(organizationId, {
+        page: 2,
+        pageSize: 2,
+      });
+      expect(secondPage.page).toBe(2);
+      expect(secondPage.rows.map((row) => row.id)).not.toEqual(
+        firstPage.rows.map((row) => row.id),
+      );
     });
   });
 });

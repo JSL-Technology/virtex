@@ -282,6 +282,22 @@ export class FinancialReportingService {
     };
   }
 
+  /**
+   * Both ends of a period, in order.
+   *
+   * An inverted range used to be accepted silently: `startDate=2026-12-31&endDate=2026-01-01`
+   * produced a statement of zeroes, which a reader takes for "no activity" rather than "you asked
+   * for a period that runs backwards".
+   */
+  private periodOf(startDate: Date | string, endDate: Date | string): { from: string; to: string } {
+    const from = toIsoDate(startDate);
+    const to = toIsoDate(endDate);
+    if (from > to) {
+      throw new BadRequestError('VALIDATION.CONSTRAINTS.PERIOD_START_AFTER_END');
+    }
+    return { from, to };
+  }
+
   // ───────────────────────────────────────────────────────────────────────────
   // Balance sheet
   // ───────────────────────────────────────────────────────────────────────────
@@ -382,8 +398,7 @@ export class FinancialReportingService {
     ledgerId?: string,
   ): Promise<IncomeStatementReport> {
     const ledger = await this.resolveLedger(organizationId, ledgerId);
-    const from = toIsoDate(startDate);
-    const to = toIsoDate(endDate);
+    const { from, to } = this.periodOf(startDate, endDate);
     const accounts = await this.accountsOf(organizationId);
 
     const resultAccountIds = [...accounts.values()]
@@ -487,8 +502,7 @@ export class FinancialReportingService {
     ledgerId?: string,
   ): Promise<TrialBalanceReport> {
     const ledger = await this.resolveLedger(organizationId, ledgerId);
-    const from = toIsoDate(startDate);
-    const to = toIsoDate(endDate);
+    const { from, to } = this.periodOf(startDate, endDate);
     const accounts = await this.accountsOf(organizationId);
 
     const rows = await this.balances.trialBalance({
@@ -584,8 +598,7 @@ export class FinancialReportingService {
     ledgerId?: string,
   ): Promise<CashFlowStatementReport> {
     const ledger = await this.resolveLedger(organizationId, ledgerId);
-    const from = toIsoDate(startDate);
-    const to = toIsoDate(endDate);
+    const { from, to } = this.periodOf(startDate, endDate);
     const accounts = await this.accountsOf(organizationId);
 
     const cashIds = new Set(this.cashAccountIds(accounts));

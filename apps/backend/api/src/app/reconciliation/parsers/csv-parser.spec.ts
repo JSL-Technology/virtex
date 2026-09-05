@@ -154,4 +154,45 @@ describe('CsvParserService', () => {
       parser.parse(csv('Fecha,Concepto,Debito,Credito\n'), baseOptions),
     ).rejects.toMatchObject({ reason: 'NO_ROWS' });
   });
+
+  /**
+   * The date the bank wrote is the date that is stored, wherever the server happens to run.
+   *
+   * This is a pin, not a fix. `date-fns` builds a **local** `Date` and `toIsoDate` reads it back
+   * with the **local** getters, so the two halves agree in every zone — as the cases below show
+   * from UTC+14 to UTC−9. It is pinned because the obvious tidy-up is to route the date through
+   * `common/dates.ts`, whose `toIsoDate` is deliberately UTC: doing that here would shift every
+   * imported transaction by a day for any deployment east of Greenwich, and a reconciliation that
+   * is off by a day balances to nothing. If a change makes this fail, the change is wrong.
+   */
+  describe.each([
+    'UTC',
+    'Pacific/Kiritimati',
+    'America/Anchorage',
+    'America/Santo_Domingo',
+    'Asia/Tokyo',
+  ])('under TZ=%s', (timeZone) => {
+    const originalTimeZone = process.env['TZ'];
+    beforeAll(() => {
+      process.env['TZ'] = timeZone;
+    });
+    afterAll(() => {
+      process.env['TZ'] = originalTimeZone;
+    });
+
+    it('stores the day the file states, unshifted', async () => {
+      const rows = await parser.parse(
+        csv(
+          [
+            'Fecha,Concepto,Debito,Credito',
+            '01/01/2026,Primer dia del ano,,"100,00"',
+            '31/12/2026,Ultimo dia del ano,"100,00",',
+          ].join('\n'),
+        ),
+        baseOptions,
+      );
+
+      expect(rows.map((row) => row.date)).toEqual(['2026-01-01', '2026-12-31']);
+    });
+  });
 });

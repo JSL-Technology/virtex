@@ -2,13 +2,25 @@
 import { Controller, Get, UseGuards, Query } from '@nestjs/common';
 import { FinancialReportingService, DimensionFilters } from './financial-reporting.service';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { User } from '../users/entities/user.entity/user.entity';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { PERMISSIONS } from '../shared/permissions';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { FiscalCalendarService } from '../shared/fiscal-calendar.service';
+import {
+  BalanceSheetQueryDto,
+  DimensionalPeriodQueryDto,
+  PeriodQueryDto,
+} from './dto/financial-report-query.dto';
 
+/**
+ * The four statements.
+ *
+ * Every default here is resolved from the **tenant's** calendar, not the server's. The routes used
+ * to build their own with `new Date()` and `new Date(new Date().getFullYear(), 0, 1)`; see
+ * `FiscalCalendarService` for what that cost.
+ */
 @ApiTags('Financial Reporting')
 @ApiBearerAuth()
 @Controller('financial-reporting')
@@ -16,6 +28,7 @@ import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interfa
 export class FinancialReportingController {
   constructor(
     private readonly financialReportingService: FinancialReportingService,
+    private readonly calendar: FiscalCalendarService,
   ) {}
 
   @Get('balance-sheet')
@@ -24,28 +37,17 @@ export class FinancialReportingController {
   @ApiResponse({ status: 200, description: 'Balance General generado exitosamente.' })
   @ApiResponse({ status: 400, description: 'Parámetros de solicitud inválidos.' })
   @ApiResponse({ status: 403, description: 'Permisos insuficientes.' })
-  @ApiQuery({ name: 'asOfDate', required: false, type: String, description: 'Fecha de corte para el reporte (formato YYYY-MM-DD). Por defecto, es la fecha actual.' })
-  @ApiQuery({ name: 'ledgerId', required: false, type: String, description: 'ID del libro contable a utilizar. Por defecto, se usa el libro principal.' })
-  @ApiQuery({ name: 'costCenterId', required: false, type: String, description: 'Filtrar por ID de la dimensión Centro de Costo.' })
-  @ApiQuery({ name: 'projectId', required: false, type: String, description: 'Filtrar por ID de la dimensión Proyecto.' })
-  getBalanceSheet(
+  async getBalanceSheet(
     @CurrentUser() user: AuthenticatedUser,
-    @Query('asOfDate') asOfDate: string,
-    @Query('ledgerId') ledgerId?: string,
-    @Query('costCenterId') costCenterId?: string,
-    @Query('projectId') projectId?: string,
+    @Query() query: BalanceSheetQueryDto,
   ) {
-    const date = asOfDate ? new Date(asOfDate) : new Date();
-    
-    const filters: DimensionFilters = {};
-    if (costCenterId) filters['costCenterId'] = costCenterId;
-    if (projectId) filters['projectId'] = projectId;
+    const asOfDate = query.asOfDate ?? (await this.calendar.today(user.organizationId));
 
     return this.financialReportingService.getBalanceSheet(
       user.organizationId,
-      date,
-      filters,
-      ledgerId,
+      asOfDate,
+      this.dimensionsOf(query),
+      query.ledgerId,
     );
   }
 
@@ -55,34 +57,18 @@ export class FinancialReportingController {
   @ApiResponse({ status: 200, description: 'Estado de Resultados generado exitosamente.' })
   @ApiResponse({ status: 400, description: 'Parámetros de solicitud inválidos.' })
   @ApiResponse({ status: 403, description: 'Permisos insuficientes.' })
-  @ApiQuery({ name: 'startDate', required: false, type: String, description: 'Fecha de inicio del período (formato YYYY-MM-DD). Por defecto, es el inicio del año actual.' })
-  @ApiQuery({ name: 'endDate', required: false, type: String, description: 'Fecha de fin del período (formato YYYY-MM-DD). Por defecto, es la fecha actual.' })
-  @ApiQuery({ name: 'ledgerId', required: false, type: String, description: 'ID del libro contable a utilizar. Por defecto, se usa el libro principal.' })
-  @ApiQuery({ name: 'costCenterId', required: false, type: String, description: 'Filtrar por ID de la dimensión Centro de Costo.' })
-  @ApiQuery({ name: 'projectId', required: false, type: String, description: 'Filtrar por ID de la dimensión Proyecto.' })
-  getIncomeStatement(
+  async getIncomeStatement(
     @CurrentUser() user: AuthenticatedUser,
-    @Query('startDate') startDateStr: string,
-    @Query('endDate') endDateStr: string,
-    @Query('ledgerId') ledgerId?: string,
-    @Query('costCenterId') costCenterId?: string,
-    @Query('projectId') projectId?: string,
+    @Query() query: DimensionalPeriodQueryDto,
   ) {
-    const startDate = startDateStr
-      ? new Date(startDateStr)
-      : new Date(new Date().getFullYear(), 0, 1);
-    const endDate = endDateStr ? new Date(endDateStr) : new Date();
-
-    const filters: DimensionFilters = {};
-    if (costCenterId) filters['costCenterId'] = costCenterId;
-    if (projectId) filters['projectId'] = projectId;
+    const period = await this.calendar.resolvePeriod(user.organizationId, query);
 
     return this.financialReportingService.getIncomeStatement(
       user.organizationId,
-      startDate,
-      endDate,
-      filters,
-      ledgerId,
+      period.startDate,
+      period.endDate,
+      this.dimensionsOf(query),
+      query.ledgerId,
     );
   }
 
@@ -96,24 +82,17 @@ export class FinancialReportingController {
   @Get('trial-balance')
   @HasPermission(PERMISSIONS.REPORTS_VIEW_FINANCIAL)
   @ApiOperation({ summary: 'Genera la balanza de comprobación.' })
-  @ApiQuery({ name: 'startDate', required: false, type: String })
-  @ApiQuery({ name: 'endDate', required: false, type: String })
-  @ApiQuery({ name: 'ledgerId', required: false, type: String })
-  getTrialBalance(
+  async getTrialBalance(
     @CurrentUser() user: AuthenticatedUser,
-    @Query('startDate') startDateStr: string,
-    @Query('endDate') endDateStr: string,
-    @Query('ledgerId') ledgerId?: string,
+    @Query() query: PeriodQueryDto,
   ) {
-    const startDate = startDateStr
-      ? new Date(startDateStr)
-      : new Date(new Date().getFullYear(), 0, 1);
-    const endDate = endDateStr ? new Date(endDateStr) : new Date();
+    const period = await this.calendar.resolvePeriod(user.organizationId, query);
+
     return this.financialReportingService.getTrialBalance(
       user.organizationId,
-      startDate,
-      endDate,
-      ledgerId,
+      period.startDate,
+      period.endDate,
+      query.ledgerId,
     );
   }
 
@@ -123,24 +102,25 @@ export class FinancialReportingController {
   @ApiResponse({ status: 200, description: 'Estado de Flujo de Efectivo generado exitosamente.' })
   @ApiResponse({ status: 400, description: 'Parámetros de solicitud inválidos.' })
   @ApiResponse({ status: 403, description: 'Permisos insuficientes.' })
-  @ApiQuery({ name: 'startDate', required: false, type: String, description: 'Fecha de inicio del período (formato YYYY-MM-DD). Por defecto, es el inicio del año actual.' })
-  @ApiQuery({ name: 'endDate', required: false, type: String, description: 'Fecha de fin del período (formato YYYY-MM-DD). Por defecto, es la fecha actual.' })
-  @ApiQuery({ name: 'ledgerId', required: false, type: String, description: 'ID del libro contable a utilizar. Por defecto, se usa el libro principal.' })
-  getCashFlowStatement(
+  async getCashFlowStatement(
     @CurrentUser() user: AuthenticatedUser,
-    @Query('startDate') startDateStr: string,
-    @Query('endDate') endDateStr: string,
-    @Query('ledgerId') ledgerId?: string,
+    @Query() query: PeriodQueryDto,
   ) {
-    const startDate = startDateStr
-      ? new Date(startDateStr)
-      : new Date(new Date().getFullYear(), 0, 1);
-    const endDate = endDateStr ? new Date(endDateStr) : new Date();
+    const period = await this.calendar.resolvePeriod(user.organizationId, query);
+
     return this.financialReportingService.getCashFlowStatement(
       user.organizationId,
-      startDate,
-      endDate,
-      ledgerId,
+      period.startDate,
+      period.endDate,
+      query.ledgerId,
     );
+  }
+
+  /** Only the dimensions the caller actually named; an absent filter is not a filter on `undefined`. */
+  private dimensionsOf(query: { costCenterId?: string; projectId?: string }): DimensionFilters {
+    const filters: DimensionFilters = {};
+    if (query.costCenterId) filters['costCenterId'] = query.costCenterId;
+    if (query.projectId) filters['projectId'] = query.projectId;
+    return filters;
   }
 }

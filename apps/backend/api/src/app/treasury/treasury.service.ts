@@ -28,6 +28,8 @@ import {
 } from '../chart-of-accounts/account-balances.service';
 import { convert, roundAmount, sumAmounts, toCents } from '../common/money';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
+import { FiscalCalendarService } from '../shared/fiscal-calendar.service';
+import { Page, resolvePaging, toPage } from '../common/pagination';
 
 export interface CashPositionRow {
   bankAccountId: string;
@@ -81,6 +83,7 @@ export class TreasuryService {
     private readonly journalEntriesService: JournalEntriesService,
     private readonly balances: AccountBalancesService,
     private readonly exchangeRates: ExchangeRateResolver,
+    private readonly calendar: FiscalCalendarService,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -173,9 +176,13 @@ export class TreasuryService {
    */
   async cashPosition(
     organizationId: string,
-    asOf: Date | string = new Date(),
+    asOf?: Date | string,
   ): Promise<CashPosition> {
-    const asOfDate = toIsoDate(asOf);
+    // `new Date()` was the default, read back in UTC. The containers run in UTC and every market
+    // this product sells into is behind it, so after 20:00 in Santo Domingo the treasurer's "cash
+    // today" was dated **tomorrow** — and on the last evening of a month, it belonged to the next
+    // period.
+    const asOfDate = asOf ? toIsoDate(asOf) : await this.calendar.today(organizationId);
 
     const [accounts, settings, ledger] = await Promise.all([
       this.bankAccountRepository.find({
@@ -367,11 +374,25 @@ export class TreasuryService {
     });
   }
 
-  findAllTransfers(organizationId: string): Promise<BankTransfer[]> {
-    return this.dataSource.getRepository(BankTransfer).find({
+  /**
+   * Transfers, newest first, a page at a time.
+   *
+   * This returned every transfer the tenant had ever made, in one array, with the whole entity
+   * graph behind it. A treasury that moves funds daily crosses ten thousand rows in a few years,
+   * and the response — and the memory to build it — grows without limit.
+   */
+  async findAllTransfers(
+    organizationId: string,
+    paging: { page?: number; pageSize?: number } = {},
+  ): Promise<Page<BankTransfer>> {
+    const window = resolvePaging(paging.page, paging.pageSize);
+    const [items, total] = await this.dataSource.getRepository(BankTransfer).findAndCount({
       where: { organizationId },
       order: { date: 'DESC', createdAt: 'DESC' },
+      skip: window.skip,
+      take: window.take,
     });
+    return toPage(items, total, window);
   }
 
   // ───────────────────────────────────────────────────────────────────────────

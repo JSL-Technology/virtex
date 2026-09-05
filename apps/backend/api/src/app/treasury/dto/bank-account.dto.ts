@@ -12,7 +12,9 @@ import {
   Min,
   MinLength,
 } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { BankAccountType } from '../entities/bank-account.entity';
+import { IsIsoDate } from '../../common/validators/is-iso-date.validator';
 
 export class CreateBankAccountDto {
   @IsString()
@@ -115,4 +117,18 @@ export class UpdateBankAccountDto {
   @IsOptional()
   @MaxLength(2000)
   notes?: string;
+}
+
+/**
+ * The cut-off of a cash position.
+ *
+ * Optional, and deliberately left unresolved here: the default is *today in the tenant's own time
+ * zone*, which only the server can work out. The route used to substitute `new Date()`, read back
+ * in UTC, so a treasurer in Santo Domingo asking for today's cash after 20:00 got tomorrow's date.
+ */
+export class CashPositionQueryDto {
+  @ApiPropertyOptional({ description: 'Fecha de corte (AAAA-MM-DD). Por defecto, hoy en la zona horaria del inquilino.' })
+  @IsIsoDate()
+  @IsOptional()
+  asOfDate?: string;
 }

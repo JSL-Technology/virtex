@@ -3263,7 +3263,8 @@
     "SIN_TRANSFERENCIAS": "No hay transferencias registradas.",
     "TITULO": "Tesorería",
     "TOTAL_DISPONIBLE": "Total disponible",
-    "TRANSFERENCIAS": "Transferencias entre cuentas"
+    "TRANSFERENCIAS": "Transferencias entre cuentas",
+    "TRANSFERENCIAS_RESTANTES": "Se muestran las más recientes; quedan {{count}} transferencias más."
   },
   "UNAUTHORIZED": {
     "403_FORBIDDEN": "403 Forbidden",

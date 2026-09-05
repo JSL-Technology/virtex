@@ -1193,6 +1193,7 @@
       "IS_IN": "{{property}} does not accept that value.",
       "IS_INT": "{{property}} must be a whole number.",
       "IS_ISO8601": "{{property}} is not a valid date.",
+      "IS_ISO_DATE": "{{property}} must be a calendar date in YYYY-MM-DD format.",
       "IS_NOT_EMPTY": "{{property}} is required.",
       "IS_NUMBER": "{{property}} must be a number.",
       "IS_NUMBER_STRING": "{{property}} must be a number.",
@@ -1210,6 +1211,7 @@
       "MIN": "{{property}} cannot be lower than {{min}}.",
       "MIN_LENGTH": "{{property}} must be at least {{min}} characters long.",
       "NESTED_VALIDATION": "{{property}} contains data that is not valid.",
+      "PERIOD_START_AFTER_END": "The start date cannot be later than the end date.",
       "WHITELIST_VALIDATION": "{{property}} is not an allowed field."
     },
     "CREATE_JOURNAL_ENTRY": {

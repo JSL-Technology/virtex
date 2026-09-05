@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import type { Page } from './page';
 
 /** Mirrors `BankAccountType` on the server. */
 export type BankAccountType = 'CHECKING' | 'SAVINGS' | 'CASH' | 'CREDIT_CARD';
@@ -118,8 +119,17 @@ export class TreasuryService {
     return this.http.get<CashPosition>(`${this.apiUrl}/cash-position`, { params });
   }
 
-  listTransfers(): Observable<BankTransfer[]> {
-    return this.http.get<BankTransfer[]>(`${this.apiUrl}/bank-transfers`);
+  /**
+   * A page of transfers, newest first.
+   *
+   * The route returned every transfer the tenant had ever made. A treasury that moves funds daily
+   * crosses ten thousand rows in a few years, and the browser was asked to hold all of them.
+   */
+  listTransfers(query: { page?: number; pageSize?: number } = {}): Observable<Page<BankTransfer>> {
+    let params = new HttpParams();
+    if (query.page) params = params.set('page', query.page);
+    if (query.pageSize) params = params.set('pageSize', query.pageSize);
+    return this.http.get<Page<BankTransfer>>(`${this.apiUrl}/bank-transfers`, { params });
   }
 
   createTransfer(body: CreateBankTransfer): Observable<BankTransfer> {

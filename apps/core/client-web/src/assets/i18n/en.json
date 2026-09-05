@@ -3263,7 +3263,8 @@
     "SIN_TRANSFERENCIAS": "No transfers have been recorded.",
     "TITULO": "Treasury",
     "TOTAL_DISPONIBLE": "Total available",
-    "TRANSFERENCIAS": "Transfers between accounts"
+    "TRANSFERENCIAS": "Transfers between accounts",
+    "TRANSFERENCIAS_RESTANTES": "Showing the most recent; {{count}} more transfers exist."
   },
   "UNAUTHORIZED": {
     "403_FORBIDDEN": "403 Forbidden",
