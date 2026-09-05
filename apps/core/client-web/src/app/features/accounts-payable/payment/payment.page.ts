@@ -136,8 +136,10 @@ export class VendorPaymentPage implements OnInit {
     this.lines.push(
       this.fb.group({
         vendorBillId: [bill.id],
-        billNumber: [bill.billNumber],
-        vendorName: [bill.vendorName],
+        // `ncf` and the vendor relation, not `billNumber`/`vendorName` — neither of which the
+        // API returns. Both columns rendered blank in the payment picker.
+        billNumber: [bill.ncf ?? bill.id.slice(0, 8)],
+        vendorName: [bill.vendor?.name ?? bill.vendorId],
         currencyCode: [bill.currencyCode],
         balance: [bill.balance],
         amount: [bill.balance, [Validators.min(0)]],

@@ -18,7 +18,7 @@ import { SharedModule } from '../shared/shared.module';
 import { InvoicesModule } from '../invoices/invoices.module';
 import { AuthModule } from '../auth/auth.module';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
-import { ExchangeRate } from '../currencies/entities/exchange-rate.entity';
+import { CurrenciesModule } from '../currencies/currencies.module';
 import { Customer } from '../customers/entities/customer.entity';
 
 @Module({
@@ -30,7 +30,6 @@ import { Customer } from '../customers/entities/customer.entity';
       QuoteLine,
       Activity,
       OrganizationSettings,
-      ExchangeRate,
       // `LeadsService` injects the customer repository directly. The module never declared it,
       // which nothing noticed because the module itself was never loaded by the application.
       Customer,
@@ -39,6 +38,7 @@ import { Customer } from '../customers/entities/customer.entity';
     CustomersModule,
     SharedModule,
     InvoicesModule,
+    CurrenciesModule,
   ],
   controllers: [
     LeadsController, 

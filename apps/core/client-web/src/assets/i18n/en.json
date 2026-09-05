@@ -26,16 +26,16 @@
       "EJ_INGRESOS_OPERATIVOS": "e.g. Operating Revenue",
       "ERROR_CARGAR_CONFIGURACION_SEGMENTOS": "Error loading the segment configuration.",
       "ERROR_CARGAR_DATOS_CUENTA": "Error loading the account details.",
-      "ES_CUENTA_CAJA_BANCO": "Cash or Bank Account",
-      "ES_CUENTA_IMPUTABLE_PERMITE_TRANSACCIONES": "Postable account (accepts transactions)",
       "ESTABLECE_RESTRICCIONES_COMPORTAMIENTOS_ESPECIFICOS_ESTA_CUENTA": "Set restrictions and specific behaviour for this account.",
       "ESTRUCTURA_SEGMENTOS_NO_CONFIGURADA": "Segment structure not configured",
+      "ES_CUENTA_CAJA_BANCO": "Cash or Bank Account",
+      "ES_CUENTA_IMPUTABLE_PERMITE_TRANSACCIONES": "Postable account (accepts transactions)",
       "FAVOR_COMPLETE_TODOS_CAMPOS_REQUERIDOS": "Please fill in every required field.",
       "GENERAL": "General",
       "GUARDANDO": "Saving...",
       "GUARDAR_CUENTA": "Save Account",
-      "MAPEO_ESTADOS_FINANCIEROS": "Financial Statement Mapping",
       "MAPEOS": "Mappings",
+      "MAPEO_ESTADOS_FINANCIEROS": "Financial Statement Mapping",
       "NATURALEZA_AUTOMATICO": "Nature (Automatic)",
       "NINGUNA_CUENTA_RAIZ": "-- None (Root Account) --",
       "NOMBRE_CUENTA": "Account Name*",
@@ -141,8 +141,8 @@
       "ENTRY": "Entry no.",
       "EXPORT": "Export",
       "FILTERS": "Filters",
-      "LOAD_FAILED": "The journal could not be loaded.",
       "LOADING": "Loading the journal…",
+      "LOAD_FAILED": "The journal could not be loaded.",
       "NO_JOURNAL_ENTRIES_FOUND_FOR_THIS": "No journal entries were found in this period.",
       "PERIOD": "Period"
     },
@@ -159,8 +159,8 @@
       "FAVOR_SELECCIONE_CUENTA_VER_LIBRO_MAYOR": "Select an account to see its ledger.",
       "FECHA": "Date",
       "FILTRAR": "Filter",
-      "HA_ESPECIFICADO_CUENTA": "No account has been specified.",
       "HASTA": "To:",
+      "HA_ESPECIFICADO_CUENTA": "No account has been specified.",
       "LIBRO_MAYOR": "General Ledger",
       "NO_ENCONTRARON_MOVIMIENTOS_ESTA_CUENTA_PERIODO": "No movements were found for this account in the selected period.",
       "REFERENCIA": "Reference",
@@ -190,8 +190,8 @@
       "ENTRY": "Entry no.",
       "FILTERS": "Filters",
       "JOURNAL_ENTRIES": "Journal Entries",
-      "LOAD_FAILED": "The journal entries could not be loaded.",
       "LOADING": "Loading journal entries…",
+      "LOAD_FAILED": "The journal entries could not be loaded.",
       "NEW_ENTRY": "New Entry",
       "NO_JOURNAL_ENTRIES_FOUND": "No journal entries were found.",
       "ROW_ACTIONS": "More actions",
@@ -286,16 +286,16 @@
       "DESCRIPCION": "Description",
       "EDITAR": "Edit",
       "LIBROS_CONTABLES": "Ledgers",
-      "NO_HAN_ENCONTRADO_LIBROS_CONTABLES": "No ledgers were found.",
-      "NOMBRE": "Name"
+      "NOMBRE": "Name",
+      "NO_HAN_ENCONTRADO_LIBROS_CONTABLES": "No ledgers were found."
     },
     "MERGE_TOOL": {
       "ADVERTENCIAS": "Warnings:",
       "ANALISIS_REPORTO_PROBLEMAS_CORRIGE_SELECCION": "The analysis reported problems. Correct your selection.",
       "ANALIZAR": "Analyse",
       "BUSCAR_CODIGO_NOMBRE": "Search by code or name...",
-      "CONFIRM_QUESTION": "Confirm that you want to merge account {{source}} into {{target}}.",
       "CONFIRMAR_FUSION": "Confirm Merge",
+      "CONFIRM_QUESTION": "Confirm that you want to merge account {{source}} into {{target}}.",
       "CONTINUAR": "Continue",
       "CUENTA_DESTINO_RECIBE_FUSION": "Destination Account (receives the merge)",
       "CUENTA_ORIGEN_FUSIONAR": "Source Account (to merge)",
@@ -325,8 +325,8 @@
     "MONTH_END_CLOSE": {
       "EMPTY": "Nothing is left before this period can be closed.",
       "GO_TASK": "Go to the task",
-      "LOAD_FAILED": "The closing checklist could not be loaded.",
       "LOADING": "Loading the closing checklist…",
+      "LOAD_FAILED": "The closing checklist could not be loaded.",
       "NO_OPEN_PERIOD": "There is no open accounting period.",
       "PROGRESS": "{{percent}} complete",
       "TITLE": "Month-End Close — {{period}}",
@@ -337,8 +337,8 @@
       "GENERAL_JOURNAL": "General Journal",
       "GENERAL_LEDGER": "General Ledger",
       "JOURNAL_ENTRIES": "Journal Entries",
-      "PERIOD_CLOSE": "Period Close",
       "PERIODS": "Periods",
+      "PERIOD_CLOSE": "Period Close",
       "RECONCILIATION": "Reconciliation",
       "SUBSIDIARY_LEDGERS": "Subsidiary Ledgers",
       "VARIANCE_ANALYSIS": "Variance Analysis"
@@ -349,12 +349,12 @@
       "CLOSE_PERIOD": "Close Period",
       "EMPTY": "No accounting periods have been defined yet.",
       "END_DATE": "End Date",
-      "LOAD_FAILED": "The accounting periods could not be loaded.",
       "LOADING": "Loading accounting periods…",
+      "LOAD_FAILED": "The accounting periods could not be loaded.",
       "PERIOD": "Period",
-      "RE_OPEN": "Reopen",
       "REASON_TOO_SHORT": "The reason must be at least 10 characters long.",
       "REOPEN_REASON_PROMPT": "State why this accounting period is being reopened (at least 10 characters).",
+      "RE_OPEN": "Reopen",
       "START_DATE": "Start Date",
       "STATUS": "Status",
       "STATUS_CLOSED": "Closed",
@@ -442,9 +442,9 @@
       "GUARDANDO": "Saving...",
       "GUARDAR_ESTRUCTURA": "Save Structure",
       "LONGITUD_CARACTERES": "Length (characters)",
-      "NO_HAY_NIVELES_DEFINIDOS_AGREGA_UNO": "No levels are defined. Add one or load the default template.",
       "NOMBRE_NIVEL": "Level Name",
       "NOTA_IMPORTANTE": "Important:",
+      "NO_HAY_NIVELES_DEFINIDOS_AGREGA_UNO": "No levels are defined. Add one or load the default template.",
       "ORDEN": "Order",
       "REQUERIDO": "Required",
       "VEZ_COMIENCES_CREAR_CUENTAS_CONTABLES_NO": "Once you start creating accounts you will not be able to change this structure. Make sure the length and number of levels are right for your organization."
@@ -462,8 +462,8 @@
       "FILTERS": "Filters",
       "FINAL_BALANCE": "Ending Balance",
       "INITIAL_BALANCE": "Opening Balance",
-      "LOAD_FAILED": "The subsidiary ledger could not be loaded.",
       "LOADING": "Loading the subsidiary ledger…",
+      "LOAD_FAILED": "The subsidiary ledger could not be loaded.",
       "NO_MOVEMENTS_FOUND_FOR_THIS_AUXILIARY": "No movements were found for this auxiliary in the selected period.",
       "OPENING_BALANCE": "Opening balance",
       "PERIOD": "Period",
@@ -477,8 +477,8 @@
       "ACTUAL": "Actual",
       "BUDGET": "Budgeting",
       "EXPORT": "Export",
-      "LOAD_FAILED": "The variance analysis could not be loaded.",
       "LOADING": "Loading the variance analysis…",
+      "LOAD_FAILED": "The variance analysis could not be loaded.",
       "NO_DATA_AVAILABLE_FOR_VARIANCE_ANALYSIS": "There is no data available for the variance analysis.",
       "PERIOD": "Period",
       "VARIANCE_AMOUNT": "Variance",
@@ -489,19 +489,40 @@
   "ACCOUNTS_PAYABLE": {
     "DETAIL": {
       "ANULAR": "Void",
+      "APLICADO": "Applied",
+      "ASIENTO_REVERSION_REGISTRADO": "The reversing entry was posted to the general ledger.",
       "BALANCE_PENDIENTE": "Outstanding balance",
+      "CANTIDAD": "Quantity",
       "CARGANDO_DETALLE_FACTURA": "Loading the invoice details...",
+      "CONCEPTO": "Item",
+      "DESCUENTO": "Discount",
+      "DESGLOSE_FISCAL": "Tax breakdown",
       "EDITAR": "Edit",
+      "EFECTIVO": "Cash",
+      "ENVIAR_APROBACION": "Submit for approval",
+      "ERROR_ANULAR_FACTURA": "The bill could not be annulled.",
+      "ERROR_CARGAR_FACTURA": "The supplier bill could not be loaded.",
+      "ERROR_ENVIAR_APROBACION": "The bill could not be submitted for approval.",
       "ESTADO": "Status",
+      "FACTURA_ANULADA": "Bill annulled",
       "FACTURA_ANULADA_EXITO": "Invoice voided.",
       "FACTURA_ENCONTRADA": "Invoice not found.",
+      "FACTURA_ENVIADA_APROBACION": "The bill was submitted for approval.",
+      "FACTURA_NO_ENCONTRADA": "The bill was not found.",
+      "FACTURA_PROVEEDOR": "Supplier bill",
       "FACTURA_PROVEEDOR_BILLNUMBER": "Vendor Bill #{{billNumber}}",
+      "FECHA": "Date",
       "FECHA_EMISION": "Issue Date",
       "FECHA_VENCIMIENTO": "Due Date",
       "INFORMACION_GENERAL": "General Information",
       "LINEAS_FACTURA": "Invoice Lines",
+      "MONEDA": "Currency",
+      "PAGOS_APLICADOS": "Payments applied",
+      "PRECIO_UNITARIO": "Unit price",
       "PROVEEDOR_VENDORNAME": "Supplier: {{vendorName}}",
       "SECCION_LINEAS_FACTURA_IMPLEMENTARA_AQUI": "The invoice lines section will be implemented here.",
+      "SIN_LINEAS": "This bill has no lines.",
+      "SIN_PAGOS": "Nothing has been paid against this bill yet.",
       "TOTAL": "Total",
       "VOLVER_LISTADO": "Back to the list"
     },
@@ -511,28 +532,57 @@
       "CANT": "Qty",
       "CUENTA_GASTO": "Expense Account",
       "DESCRIPCION": "Description",
+      "DESGLOSE_FISCAL": "Tax breakdown",
       "DETALLES_FACTURA": "Invoice Details",
+      "ELIMINAR_LINEA": "Remove line",
+      "ERROR_CARGAR_FACTURA": "The bill could not be loaded.",
       "ERROR_GUARDAR_FACTURA": "Error saving the invoice.",
       "FACTURA_ACTUALIZADA_EXITO": "Invoice updated.",
       "FACTURA_CREADA_EXITO": "Invoice created.",
       "FAVOR_COMPLETA_TODOS_CAMPOS_REQUERIDOS": "Fill in every required field.",
       "FECHA_EMISION": "Issue Date",
       "FECHA_VENCIMIENTO": "Due Date",
+      "FORMA_PAGO": "Payment form",
+      "GUARDANDO": "Saving…",
+      "GUARDAR_FACTURA": "Save bill",
+      "IMPUESTOS": "Taxes",
+      "IMPUESTO_AL_COSTO": "Tax carried to cost",
+      "IMPUESTO_FACTURADO": "Tax charged",
+      "IMPUESTO_PROPORCIONAL": "Proportional tax",
+      "IMPUESTO_RETENIDO": "Tax withheld",
+      "IMPUESTO_SELECTIVO": "Excise tax",
       "INFORMACION_GENERAL": "General Information",
+      "ISR_RETENIDO": "Income tax withheld",
+      "LINEAS_NO_EDITABLES": "The lines of a recorded bill cannot be changed. Raise a debit or credit note instead.",
+      "MONEDA": "Currency",
+      "MONEDA_POR_DEFECTO": "Organization currency",
+      "MOSTRAR": "Show",
+      "NCF": "Fiscal number (NCF)",
+      "NETO_A_PAGAR": "Net payable",
       "NOTAS": "Notes",
       "NUMERO_FACTURA": "Invoice Number",
+      "OCULTAR": "Hide",
+      "OTROS_IMPUESTOS": "Other taxes",
       "PRECIO": "Price",
+      "PROPINA_LEGAL": "Legal service charge",
       "PROVEEDOR": "Supplier",
+      "PROVEEDOR_REQUERIDO": "Select a supplier.",
+      "RETENCIONES": "Withholdings",
+      "SELECCIONAR_CUENTA": "Select an account",
       "SELECCIONAR_PROVEEDOR": "Select a supplier",
+      "SUBTOTAL": "Subtotal",
       "TIMES": "&times;",
+      "TIPO_BIENES_SERVICIOS": "Type of goods and services",
       "TITLE_CREATE": "New vendor bill",
-      "TITLE_EDIT": "Edit vendor bill"
+      "TITLE_EDIT": "Edit vendor bill",
+      "TOTAL_DOCUMENTO": "Document total",
+      "TOTAL_LINEA": "Total"
     },
     "LIST": {
       "BALANCE": "Balance",
       "CARGANDO_FACTURAS": "Loading invoices...",
-      "CREA_TU_PRIMERA_FACTURA_PROVEEDOR_EMPEZAR": "Create your first vendor bill to get started.",
       "CREAR_FACTURA": "Create Invoice",
+      "CREA_TU_PRIMERA_FACTURA_PROVEEDOR_EMPEZAR": "Create your first vendor bill to get started.",
       "ESTADO": "Status",
       "FACTURAS_PROVEEDOR": "Vendor Bills",
       "FECHA": "Date",
@@ -541,6 +591,7 @@
       "NUMERO": "Number",
       "PROVEEDOR": "Supplier",
       "REINTENTAR": "Try again",
+      "SIN_NCF": "No fiscal number",
       "TOTAL": "Total",
       "VENCIMIENTO": "Due"
     },
@@ -564,6 +615,29 @@
       "SIN_FACTURAS": "There are no invoices this account can pay.",
       "TITULO": "Pay supplier invoices"
     },
+    "PAYMENT_FORM": {
+      "CARD": "Card",
+      "CASH": "Cash",
+      "CHECK_TRANSFER": "Cheque or transfer",
+      "CREDIT": "Credit",
+      "CREDIT_NOTE": "Credit note",
+      "MIXED": "Mixed",
+      "SWAP": "Swap"
+    },
+    "PURCHASE_CATEGORY": {
+      "ASSET_ACQUISITIONS": "Asset acquisitions",
+      "COST_OF_SALES": "Cost of sales",
+      "EXTRAORDINARY_EXPENSES": "Extraordinary expenses",
+      "FINANCIAL_EXPENSES": "Financial expenses",
+      "FIXED_ASSET_LEASING": "Fixed asset leasing",
+      "IMPROVEMENT_EXPENSES": "Improvement expenses",
+      "INSURANCE_EXPENSES": "Insurance expenses",
+      "LEASING": "Leasing",
+      "MERCHANDISE_PURCHASES": "Merchandise purchases",
+      "PERSONNEL_EXPENSES": "Personnel expenses",
+      "RELATED_SERVICES": "Related services",
+      "WORK_GOODS_SERVICES": "Goods and services for the work"
+    },
     "STATUS": {
       "DRAFT": "Draft",
       "OPEN": "Open",
@@ -581,7 +655,6 @@
     "NEW_PRODUCT": "New product",
     "NEW_QUOTE": "New quote"
   },
-  "APP_TITLE": "Virtex",
   "APPROVALS": {
     "APROBAR": "Approve",
     "CENTRO_APROBACIONES": "Approvals Centre",
@@ -605,6 +678,7 @@
     "TITLE": "Virtex Apps",
     "WMS": "Virtex WMS"
   },
+  "APP_TITLE": "Virtex",
   "AUTH": {
     "AUTH_LAYOUT": {},
     "CHECKOUT_COMPLETE": {
@@ -647,8 +721,8 @@
     },
     "STEP_EMAIL_VERIFY": {
       "CODIGO_VERIFICACION": "Verification code",
-      "CONFIRMA_TU_CORREO_ELECTRONICO": "Confirm your email address",
       "CONFIRMAR_CORREO_ELECTRONICO": "\"Confirm email address\"",
+      "CONFIRMA_TU_CORREO_ELECTRONICO": "Confirm your email address",
       "CORREO_ENVIAMOS": "in the email we sent.",
       "ENVIAMOS_CODIGO_ENLACE_CONFIRMACION": "We sent a code and a confirmation link to",
       "ENVIANDO_CODIGO_EMAIL": "Sending a code to {{email}}…",
@@ -658,9 +732,9 @@
     "STEP_PHONE_VERIFY": {
       "CODIGO_VERIFICACION_SMS": "SMS verification code",
       "CONFIRMA_TU_NUMERO_CELULAR": "Confirm your mobile number",
-      "OPTIONAL_SKIP": "You didn't add a phone number. This step is optional: you can continue, or go back to add one.",
       "ENVIAMOS_SMS_CODIGO": "We sent an SMS with the code to",
       "ENVIANDO_SMS_PHONE": "Sending an SMS to {{phone}}…",
+      "OPTIONAL_SKIP": "You didn't add a phone number. This step is optional: you can continue, or go back to add one.",
       "REINTENTAR": "Try again"
     },
     "STEP_UP": {
@@ -766,6 +840,9 @@
     "LOADING": "Loading",
     "NEXT": "Next",
     "NOT_RECORDED": "Not recorded",
+    "PAGE_OF_TOTAL": "Page {{page}} · {{total}} records",
+    "PAGINATION": "Pagination",
+    "PREVIOUS": "Previous",
     "REFRESH": "Refresh",
     "RETRY": "Try again",
     "SAVE": "Save",
@@ -781,6 +858,24 @@
     "VERIFY": "Verify"
   },
   "CONTACTS": {
+    "CUSTOMERS": {
+      "ACCIONES": "Actions",
+      "ADMINISTRA_TU_BASE_DATOS_CLIENTES_HISTORIAL": "Manage your customer database and its history.",
+      "ANADIR_CLIENTE": "Add Customer",
+      "CARGANDO_CLIENTES": "Loading customers...",
+      "CLIENTES": "Customers",
+      "CLIENTE_ELIMINADO_EXITOSAMENTE": "Customer deleted.",
+      "EDITAR": "Edit",
+      "ELIMINAR": "Delete",
+      "EMAIL": "Email",
+      "FILTROS": "Filters",
+      "NOMBRE_EMPRESA": "Company Name",
+      "NO_HAY_CLIENTES_REGISTRADOS": "There are no customers on record.",
+      "PERSONA_CONTACTO": "Contact Person",
+      "PUDIERON_CARGAR_CLIENTES": "The customers could not be loaded.",
+      "PUDO_ELIMINAR_CLIENTE": "The customer could not be deleted.",
+      "TELEFONO": "Phone"
+    },
     "CUSTOMER_FORM": {
       "CANCELAR": "Cancel",
       "CIUDAD": "City",
@@ -793,8 +888,8 @@
       "DIRECCION": "Address",
       "ERROR_ACTUALIZAR_CLIENTE": "Error updating the customer.",
       "ERROR_CREAR_CLIENTE": "Error creating the customer.",
-      "ESTADO_PROVINCIA": "State/Province",
       "ESTADOS_UNIDOS": "United States",
+      "ESTADO_PROVINCIA": "State/Province",
       "FAVOR_COMPLETA_CAMPOS_REQUERIDOS": "Please fill in the required fields.",
       "ID_FISCAL_RNC_ETC": "Tax ID",
       "INFORMACION_PRINCIPAL": "Main Information",
@@ -806,24 +901,6 @@
       "REPUBLICA_DOMINICANA": "Dominican Republic",
       "TELEFONO": "Phone*"
     },
-    "CUSTOMERS": {
-      "ACCIONES": "Actions",
-      "ADMINISTRA_TU_BASE_DATOS_CLIENTES_HISTORIAL": "Manage your customer database and its history.",
-      "ANADIR_CLIENTE": "Add Customer",
-      "CARGANDO_CLIENTES": "Loading customers...",
-      "CLIENTE_ELIMINADO_EXITOSAMENTE": "Customer deleted.",
-      "CLIENTES": "Customers",
-      "EDITAR": "Edit",
-      "ELIMINAR": "Delete",
-      "EMAIL": "Email",
-      "FILTROS": "Filters",
-      "NO_HAY_CLIENTES_REGISTRADOS": "There are no customers on record.",
-      "NOMBRE_EMPRESA": "Company Name",
-      "PERSONA_CONTACTO": "Contact Person",
-      "PUDIERON_CARGAR_CLIENTES": "The customers could not be loaded.",
-      "PUDO_ELIMINAR_CLIENTE": "The customer could not be deleted.",
-      "TELEFONO": "Phone"
-    },
     "SUPPLIERS": {
       "ACCIONES": "Actions",
       "ADMINISTRA_INFORMACION_TUS_PROVEEDORES": "Manage your suppliers' information.",
@@ -832,12 +909,12 @@
       "ELIMINAR": "Delete",
       "EMAIL": "Email",
       "FILTROS": "Filters",
-      "NO_HAY_PROVEEDORES_REGISTRADOS": "There are no suppliers on record.",
       "NOMBRE_EMPRESA": "Company Name",
+      "NO_HAY_PROVEEDORES_REGISTRADOS": "There are no suppliers on record.",
       "NUEVO_PROVEEDOR": "New Supplier",
       "PERSONA_CONTACTO": "Contact Person",
-      "PROVEEDOR_ELIMINADO_EXITOSAMENTE": "Supplier deleted.",
       "PROVEEDORES": "Suppliers",
+      "PROVEEDOR_ELIMINADO_EXITOSAMENTE": "Supplier deleted.",
       "PUDIERON_CARGAR_PROVEEDORES": "The suppliers could not be loaded.",
       "PUDO_ELIMINAR_PROVEEDOR": "The supplier could not be deleted.",
       "TELEFONO": "Phone"
@@ -944,13 +1021,13 @@
       "AR_AGING_BAR": {
         "NAME": "Accounts Receivable Aging"
       },
+      "CASHFLOW_WATERFALL": {
+        "NAME": "Cash Flow (Waterfall)"
+      },
       "CASH_FLOW_KPI": {
         "COMP_PERIOD": "vs Budget",
         "NAME": "KPI: Free Cash Flow",
         "TITLE": "Free Cash Flow"
-      },
-      "CASHFLOW_WATERFALL": {
-        "NAME": "Cash Flow (Waterfall)"
       },
       "DEBT_EQUITY": {
         "COMP_PERIOD": "vs Q2",
@@ -1054,6 +1131,8 @@
     "ALERTS_PANEL": {
       "ALERTAS_TEMPRANAS": "Early Warnings"
     },
+    "ARRASTRAR": "Drag",
+    "ARRASTRA_WIDGETS_REORGANIZARLOS_USA_ESQUINAS_REDIMENSIONAR": "Drag the widgets to rearrange them. Use the corners to resize.",
     "AR_AGING_CHART": {
       "BARRAS": "Bar",
       "CONFIGURAR": "Configure",
@@ -1062,8 +1141,6 @@
       "PASTEL": "Pie",
       "TIPO_GRAFICO": "Chart Type"
     },
-    "ARRASTRA_WIDGETS_REORGANIZARLOS_USA_ESQUINAS_REDIMENSIONAR": "Drag the widgets to rearrange them. Use the corners to resize.",
-    "ARRASTRAR": "Drag",
     "COMPARISON_CHART": {
       "AREA": "Area",
       "COLUMNAS": "Columns",
@@ -1183,28 +1260,6 @@
     "UPLOAD_MASTER_OR_TRANSACTIONAL_DATA_IN": "Upload master or transactional data in bulk using CSV or Excel files.",
     "USER": "User"
   },
-  "datasheets": {
-    "cell_format": "Cell Format",
-    "chart_config": "Chart Configuration",
-    "charts": "Charts",
-    "import": "Import",
-    "import_erp": "Import ERP",
-    "import_wizard": "Import Wizard",
-    "insert_chart": "Insert Chart",
-    "last_modified": "Last Modified",
-    "my_documents": "My Documents",
-    "name": "Name",
-    "new_document": "New Book",
-    "owner": "Owner",
-    "properties": "Properties",
-    "recent": "Recent",
-    "share": "Share",
-    "shared": "Shared",
-    "subtitle": "Analysis and spreadsheets connected to the ERP in real-time.",
-    "templates": "Templates",
-    "title": "DataSheets",
-    "trash": "Trash"
-  },
   "DIALOG": {
     "BLOCK_USER": {
       "MESSAGE": "This will block {{name}} and end all their sessions. Continue?",
@@ -1268,6 +1323,10 @@
     "REVOKE_SESSION": {
       "MESSAGE": "Sign {{name}} out of all their sessions?",
       "TITLE": "Sign the user out"
+    },
+    "SUBMIT_BILL": {
+      "MESSAGE": "The bill goes to approval and, if no policy holds it, is posted immediately.",
+      "TITLE": "Submit for approval"
     },
     "UNSAVED_CHANGES": {
       "MESSAGE": "You have unsaved changes. What would you like to do before closing?",
@@ -1378,36 +1437,6 @@
       "NUEVA_CATEGORIA": "New\n                    Category",
       "ORGANIZA_TUS_PRODUCTOS_DIFERENTES_CATEGORIAS": "Organize your products into categories."
     },
-    "PRODUCT_FORM": {
-      "ACCESORIOS": "Accessories",
-      "ACTIVO": "Active",
-      "CANCELAR": "Cancel",
-      "CANTIDAD_STOCK": "Quantity in Stock*",
-      "CATEGORIA": "Category*",
-      "COMPLETA_INFORMACION_DETALLADA_TU_PRODUCTO_SERVICIO": "Fill in the details of your product or service.",
-      "DESCRIPCION": "Description",
-      "ELECTRONICA": "Electronics",
-      "ERROR_ACTUALIZAR_PRODUCTO": "Error updating the product.",
-      "ERROR_CREAR_PRODUCTO": "Error creating the product.",
-      "ESTADO": "Status*",
-      "FAVOR_COMPLETA_CAMPOS_REQUERIDOS": "Please fill in the required fields.",
-      "IMAGEN_PRODUCTO": "Product Image",
-      "INACTIVO": "Inactive",
-      "INFORMACION_BASICA": "Basic Information",
-      "MONITORES": "Monitors",
-      "NIVEL_REORDEN": "Reorder Level",
-      "NOMBRE_PRODUCTO": "Product Name*",
-      "ORGANIZACION": "Organization",
-      "PRECIO_VENTA": "Sale Price*",
-      "PRECIOS_STOCK": "Pricing and Stock",
-      "PRODUCTO_ACTUALIZADO_EXITOSAMENTE": "Product updated.",
-      "PRODUCTO_CREADO_EXITOSAMENTE": "Product created.",
-      "PUDO_CARGAR_PRODUCTO": "The product could not be loaded.",
-      "SELECCIONAR": "Select...",
-      "SKU_CODIGO_PRODUCTO": "SKU (Product Code)",
-      "SUBIR_IMAGEN": "Upload an image",
-      "VISTA_PREVIA": "Preview"
-    },
     "PRODUCTS": {
       "BUSCAR_NOMBRE_SKU_CATEGORIA": "Search by name, SKU or category...",
       "CARGANDO_PRODUCTOS": "Loading products...",
@@ -1429,6 +1458,36 @@
       "STOCK": "Stock Levels",
       "STOCK_IN": "In stock",
       "STOCK_OUT": "Out of stock"
+    },
+    "PRODUCT_FORM": {
+      "ACCESORIOS": "Accessories",
+      "ACTIVO": "Active",
+      "CANCELAR": "Cancel",
+      "CANTIDAD_STOCK": "Quantity in Stock*",
+      "CATEGORIA": "Category*",
+      "COMPLETA_INFORMACION_DETALLADA_TU_PRODUCTO_SERVICIO": "Fill in the details of your product or service.",
+      "DESCRIPCION": "Description",
+      "ELECTRONICA": "Electronics",
+      "ERROR_ACTUALIZAR_PRODUCTO": "Error updating the product.",
+      "ERROR_CREAR_PRODUCTO": "Error creating the product.",
+      "ESTADO": "Status*",
+      "FAVOR_COMPLETA_CAMPOS_REQUERIDOS": "Please fill in the required fields.",
+      "IMAGEN_PRODUCTO": "Product Image",
+      "INACTIVO": "Inactive",
+      "INFORMACION_BASICA": "Basic Information",
+      "MONITORES": "Monitors",
+      "NIVEL_REORDEN": "Reorder Level",
+      "NOMBRE_PRODUCTO": "Product Name*",
+      "ORGANIZACION": "Organization",
+      "PRECIOS_STOCK": "Pricing and Stock",
+      "PRECIO_VENTA": "Sale Price*",
+      "PRODUCTO_ACTUALIZADO_EXITOSAMENTE": "Product updated.",
+      "PRODUCTO_CREADO_EXITOSAMENTE": "Product created.",
+      "PUDO_CARGAR_PRODUCTO": "The product could not be loaded.",
+      "SELECCIONAR": "Select...",
+      "SKU_CODIGO_PRODUCTO": "SKU (Product Code)",
+      "SUBIR_IMAGEN": "Upload an image",
+      "VISTA_PREVIA": "Preview"
     }
   },
   "INVOICES": {
@@ -1454,8 +1513,8 @@
       "ESTADO_DGII": "DGII status:",
       "ESTE_DOCUMENTO_ES_BORRADOR": "This document is a draft.",
       "EXPORTACION_ESTARA_DISPONIBLE_PROXIMAMENTE": "Export to {{toUpperCase}} will be available soon.",
-      "FACTURA_ANULADA_NOTA_CREDITO_CREADA": "Invoice voided and a credit note created.",
       "FACTURADO": "BILL TO:",
+      "FACTURA_ANULADA_NOTA_CREDITO_CREADA": "Invoice voided and a credit note created.",
       "FINANZAS": "Finance",
       "FUNCION_COPIAR_ABIERTA_SELECCIONE_DOCUMENTO_BASE": "\"Copy from\" is open. Choose a source document.",
       "HAY_XML_FIRMADO_DISPONIBLE": "There is no signed XML available.",
@@ -1468,8 +1527,8 @@
       "MENSAJES_DGII": "Messages from the DGII:",
       "METODO_ENVIO": "Shipping method:",
       "NCF": "e-NCF:",
-      "NO_TIENE_COMPROBANTE_FISCAL_ASIGNADO_NO": "It has no fiscal document number and carries no weight with the tax authority.",
       "NOTAS": "Notes:",
+      "NO_TIENE_COMPROBANTE_FISCAL_ASIGNADO_NO": "It has no fiscal document number and carries no weight with the tax authority.",
       "PERSONA_CONTACTO": "Contact person:",
       "PRECIO": "Price",
       "PUDO_CARGAR_FACTURA": "The invoice could not be loaded.",
@@ -1531,8 +1590,8 @@
       "GESTION_COMPLETA_FACTURACION_SEGUIMIENTO_DOCUMENTOS": "Full invoicing management and document tracking.",
       "NO_ENCONTRARON_FACTURAS_COINCIDAN_BUSQUEDA": "No invoices matched the search.",
       "NUEVA_FACTURA_VENTA": "New sales invoice",
-      "PAGINA_PAGE_PAGES": "Page {{page}} of {{pages}}",
       "PAGINACION_FACTURAS": "Invoice pagination",
+      "PAGINA_PAGE_PAGES": "Page {{page}} of {{pages}}",
       "PARCIAL": "Partial",
       "PENDIENTE": "Pending",
       "PUDO_EXPORTAR_LISTADO": "The list could not be exported.",
@@ -1552,8 +1611,8 @@
       "CANT": "Qty",
       "CANTIDAD": "Quantity",
       "CLIENTE": "Customer",
-      "CONCEPTO_LIBRE": "— Free-text line —",
       "CONCEPTOS_FACTURA": "Invoice Lines",
+      "CONCEPTO_LIBRE": "— Free-text line —",
       "CONDICIONES_PAGO": "Payment Terms",
       "CONTADO": "Cash",
       "CONTENIDO": "Content",
@@ -1571,8 +1630,8 @@
       "ELIMINAR_LINEA": "Remove line",
       "ERROR_CREAR_FACTURA": "Error creating the invoice: {{errorMessage}}",
       "EXENTO": "Exempt",
-      "FACTURA_CREADA_EXITOSAMENTE": "Invoice created.",
       "FACTURAS": "Invoices",
+      "FACTURA_CREADA_EXITOSAMENTE": "Invoice created.",
       "FAVOR_COMPLETA_TODOS_CAMPOS_REQUERIDOS": "Fill in every required field.",
       "FECHA_EMISION": "Issue date",
       "FECHA_VENCIMIENTO": "Due date",
@@ -1641,8 +1700,8 @@
       "CODE_PLACEHOLDER": "123456",
       "SUBTITLE": "Enter the 6-digit code sent to your device.",
       "TITLE": "2-Step Verification",
-      "VERIFY_BUTTON": "Verify",
-      "VERIFYING": "Verifying..."
+      "VERIFYING": "Verifying...",
+      "VERIFY_BUTTON": "Verify"
     },
     "CONTINUE_WITH": "Continue with {{provider}}",
     "EMAIL_LABEL": "Email",
@@ -1681,7 +1740,6 @@
     "PASSWORD_LABEL": "Password",
     "REGISTER_LINK": "Sign up",
     "REMEMBER_ME": "Keep me logged in",
-    "SSO_BUTTON": "SSO",
     "SSO": {
       "CANCEL": "Back to login",
       "CONTINUE": "Continue",
@@ -1689,6 +1747,7 @@
       "PROMPT": "Enter your work email to continue with your company's single sign-on.",
       "TITLE": "Company sign-in"
     },
+    "SSO_BUTTON": "SSO",
     "SUBMIT_BUTTON": "Sign In",
     "SUBTITLE": "Access your workspace to continue.",
     "TITLE": "Sign in"
@@ -1702,8 +1761,8 @@
     "COMPANY_SWITCHER": {
       "CAMBIANDO_EMPRESA": "Switching company…",
       "CREAR_NUEVA_EMPRESA": "Create a new company",
-      "EMPRESA_ACTUAL": "Current company",
       "EMPRESAS": "Companies",
+      "EMPRESA_ACTUAL": "Current company",
       "GESTIONAR_ORGANIZACIONES": "Manage organizations",
       "NO_ENCONTRARON_EMPRESAS": "No companies were found"
     },
@@ -1718,8 +1777,8 @@
   },
   "MASTERS": {
     "BANKS": {
-      "BANK_NAME": "Bank name",
       "BANKS": "Banks",
+      "BANK_NAME": "Bank name",
       "COUNTRY": "Country",
       "FILTERS": "Filters",
       "NEW_BANK": "New bank",
@@ -1810,6 +1869,25 @@
       "NEW_TERM": "New term",
       "PAYMENT_TERMS": "Payment terms"
     },
+    "PRICE_LISTS": {
+      "ACCIONES": "Actions",
+      "CARGANDO_LISTAS_PRECIOS": "Loading price lists...",
+      "EDITAR": "Edit",
+      "ELIMINAR": "Delete",
+      "ESTADO": "Status",
+      "FILTROS": "Filters",
+      "ITEMS": "Items",
+      "LISTAS_PRECIOS": "Price Lists",
+      "LISTA_PRECIOS_ELIMINADA_EXITOSAMENTE": "Price list deleted.",
+      "MONEDA": "Currency",
+      "NOMBRE": "Name",
+      "NO_ENCONTRARON_LISTAS_PRECIOS": "No price lists were found.",
+      "NUEVA_LISTA": "New List",
+      "PUDIERON_CARGAR_LISTAS_PRECIOS": "The price lists could not be loaded.",
+      "PUDO_ELIMINAR_LISTA_PRECIOS": "The price list could not be deleted.",
+      "VALIDO_DESDE": "Valid From",
+      "VALIDO_HASTA": "Valid Until"
+    },
     "PRICE_LISTS_FORM": {
       "ACCIONES": "Actions",
       "ANADIR_LINEA": "Add Line",
@@ -1834,25 +1912,6 @@
       "USD_DOLAR_ESTADOUNIDENSE": "USD - United States Dollar",
       "VALIDO_DESDE": "Valid From*",
       "VALIDO_HASTA": "Valid Until*"
-    },
-    "PRICE_LISTS": {
-      "ACCIONES": "Actions",
-      "CARGANDO_LISTAS_PRECIOS": "Loading price lists...",
-      "EDITAR": "Edit",
-      "ELIMINAR": "Delete",
-      "ESTADO": "Status",
-      "FILTROS": "Filters",
-      "ITEMS": "Items",
-      "LISTA_PRECIOS_ELIMINADA_EXITOSAMENTE": "Price list deleted.",
-      "LISTAS_PRECIOS": "Price Lists",
-      "MONEDA": "Currency",
-      "NO_ENCONTRARON_LISTAS_PRECIOS": "No price lists were found.",
-      "NOMBRE": "Name",
-      "NUEVA_LISTA": "New List",
-      "PUDIERON_CARGAR_LISTAS_PRECIOS": "The price lists could not be loaded.",
-      "PUDO_ELIMINAR_LISTA_PRECIOS": "The price list could not be deleted.",
-      "VALIDO_DESDE": "Valid From",
-      "VALIDO_HASTA": "Valid Until"
     },
     "SUPPLIER_FORM": {
       "CANCELAR": "Cancel",
@@ -1883,6 +1942,19 @@
       "SUPPLIERS": "Suppliers",
       "TAX_ID": "Tax ID"
     },
+    "TAXES": {
+      "COUNTRY": "Country",
+      "ERROR_ELIMINAR_IMPUESTO": "Error deleting the tax.",
+      "FILTERS": "Filters",
+      "IMPUESTO_ELIMINADO_EXITOSAMENTE": "Tax deleted.",
+      "NAME": "Name",
+      "NEW_TAX": "New tax",
+      "NO_TAXES_CONFIGURED": "No taxes are configured.",
+      "PUDIERON_CARGAR_IMPUESTOS": "The taxes could not be loaded.",
+      "RATE": "Rate (%)",
+      "TAX_RATES": "Tax rates",
+      "TYPE": "Type"
+    },
     "TAX_FORM": {
       "CANCELAR": "Cancel",
       "CODIGO_PAIS_OPCIONAL": "Country Code (optional)",
@@ -1898,19 +1970,6 @@
       "PUDO_CARGAR_IMPUESTO": "The tax could not be loaded.",
       "TASA": "Rate*",
       "TIPO": "Type*"
-    },
-    "TAXES": {
-      "COUNTRY": "Country",
-      "ERROR_ELIMINAR_IMPUESTO": "Error deleting the tax.",
-      "FILTERS": "Filters",
-      "IMPUESTO_ELIMINADO_EXITOSAMENTE": "Tax deleted.",
-      "NAME": "Name",
-      "NEW_TAX": "New tax",
-      "NO_TAXES_CONFIGURED": "No taxes are configured.",
-      "PUDIERON_CARGAR_IMPUESTOS": "The taxes could not be loaded.",
-      "RATE": "Rate (%)",
-      "TAX_RATES": "Tax rates",
-      "TYPE": "Type"
     },
     "UNITS_OF_MEASURE": {
       "FILTERS": "Filters",
@@ -1937,10 +1996,10 @@
     "DATE_DUEDATE": "Date: {{dueDate}}",
     "DUE_DUEDATE": "Due: {{dueDate}}",
     "MY_WORK": "My Work",
+    "NOTIFICATIONS": "Notifications",
     "NO_NEW_NOTIFICATIONS": "There are no new notifications.",
     "NO_PENDING_APPROVAL_REQUESTS": "There are no pending approval requests.",
     "NO_PENDING_TASKS_GREAT_JOB": "There are no pending tasks.",
-    "NOTIFICATIONS": "Notifications",
     "REQUESTED_DUEDATE": "Requested: {{dueDate}}",
     "SECURITY": "Security",
     "TASKS": "Tasks",
@@ -1967,10 +2026,10 @@
     "MANTENTE_DIA_ULTIMAS_ACTUALIZACIONES_ALERTAS_TU": "Keep up with the latest updates and alerts on your account.",
     "MARCAR_TODAS_COMO_LEIDAS": "Mark all as read",
     "MARK_ALL_AS_READ": "Mark all as read",
+    "NOTIFICACIONES": "Notifications",
     "NO_LEIDO": "Unread",
     "NO_NOTIFICATIONS": "No notifications",
     "NO_TIENES_NOTIFICACIONES_NUEVAS_ESTE_MOMENTO": "You have no new notifications right now.",
-    "NOTIFICACIONES": "Notifications",
     "TODO_ESTA_DIA": "You are all caught up",
     "VIEW_ALL": "View all"
   },
@@ -2234,8 +2293,8 @@
     "PASSWORD": "Password",
     "PASSWORD_PLACEHOLDER": "Create a secure password",
     "PHONE": "Phone",
-    "PHONE_PLACEHOLDER": "e.g. 809 555 5555",
     "PHONE_COUNTRY": "Phone country",
+    "PHONE_PLACEHOLDER": "e.g. 809 555 5555",
     "PRIVACY": "Privacy Policy",
     "PROGRESS": {
       "ACCOUNT": "Account",
@@ -2247,7 +2306,6 @@
     },
     "REGISTERING": "Registering...",
     "SELECT": "Select an option",
-    "STEP_OF": "Step {{current}} of {{total}}",
     "STEPS": {
       "ACCOUNT": {
         "SUBTITLE": "Enter your personal details",
@@ -2267,8 +2325,8 @@
         "ANNUAL": "Yearly",
         "BILLING_PERIOD": "Billing period",
         "CHOOSE": "Choose plan",
-        "LOAD_FAILED": "We couldn't load the plans.",
         "LOADING": "Loading plans…",
+        "LOAD_FAILED": "We couldn't load the plans.",
         "MONTHLY": "Monthly",
         "PER_MONTH": "/mo",
         "PER_PERIOD_MONTH": "{{count}} {{resource}} a month",
@@ -2290,11 +2348,12 @@
         "UNLIMITED": "Unlimited {{resource}}"
       }
     },
+    "STEP_OF": "Step {{current}} of {{total}}",
     "SUBMIT_BUTTON": "Sign Up",
     "SUBTITLE": "Start your 30-day free trial",
-    "TAX_ID": "Tax ID",
     "TAXID_FORMAT": "Expected format: {{example}}",
     "TAXID_HINT": "We check the verification digit against {{authority}}.",
+    "TAX_ID": "Tax ID",
     "TERMS": "Terms of Service",
     "TERMS_AGREEMENT_1": "I agree to the",
     "TITLE": "Create Account",
@@ -2311,6 +2370,19 @@
     "WEBSITE_PLACEHOLDER": "https://www.example.com"
   },
   "REPORTS": {
+    "AGING": {
+      "CLIENTE": "Customer",
+      "CORRIENTE": "Current",
+      "DIAS_1_30": "1–30 days",
+      "DIAS_31_60": "31–60 days",
+      "DIAS_61_90": "61–90 days",
+      "MAS_90": "Over 90 days",
+      "PROVEEDOR": "Supplier",
+      "SIN_SALDOS": "Nothing outstanding at this date.",
+      "TITULO_CXC": "Accounts receivable ageing",
+      "TITULO_CXP": "Accounts payable ageing",
+      "TOTAL": "Total"
+    },
     "BALANCE_SHEET": {
       "ACTIVOS": "Assets",
       "AL_CORTE": "As of",
@@ -2324,6 +2396,94 @@
       "TOTAL_PASIVOS_PATRIMONIO": "Total Liabilities and Equity",
       "TOTAL_PATRIMONIO": "Total equity",
       "TOTAL_TITLE": "Total {{title}}"
+    },
+    "CASH_FLOW": {
+      "CAPITAL_DE_TRABAJO": "Changes in working capital",
+      "DIFERENCIA_NO_EXPLICADA": "Unexplained difference",
+      "EFECTIVO_FINAL": "Cash at the end",
+      "EFECTIVO_INICIAL": "Cash at the beginning",
+      "FINANCIAMIENTO": "Financing activities",
+      "INVERSION": "Investing activities",
+      "OPERACION": "Operating activities",
+      "PARTIDAS_NO_MONETARIAS": "Items that did not move cash",
+      "RESULTADO_NETO": "Net income",
+      "TITULO": "Statement of Cash Flows",
+      "TOTAL_OPERACION": "Cash from operations",
+      "VARIACION_NETA": "Net change in cash"
+    },
+    "COMMON": {
+      "ACTUALIZAR": "Refresh",
+      "CARGANDO": "Loading…",
+      "CUENTA": "Account",
+      "DESDE": "From",
+      "EXPORTAR": "Export",
+      "HASTA": "To",
+      "NO_SE_PUDO_CARGAR": "The report could not be loaded.",
+      "REINTENTAR": "Try again",
+      "SIN_MOVIMIENTOS": "No posted movements in this range.",
+      "TOTAL": "Total"
+    },
+    "EXPORT": {
+      "ACCOUNT": "Account",
+      "AMOUNT": "Amount",
+      "ASSETS": "Assets",
+      "CATEGORY": "Category",
+      "CLOSING_CASH": "Closing cash",
+      "CLOSING_CREDIT": "Closing credit",
+      "CLOSING_DEBIT": "Closing debit",
+      "CODE": "Code",
+      "CONCEPT": "Concept",
+      "COST_OF_SALES": "Cost of sales",
+      "CURRENCY": "Currency",
+      "EQUITY": "Equity",
+      "FINANCING": "Financing activities",
+      "GENERATED_AT": "Generated at",
+      "GROSS_PROFIT": "Gross profit",
+      "INVESTING": "Investing activities",
+      "IS_BALANCED": "Balanced?",
+      "LEDGER": "Ledger",
+      "LIABILITIES": "Liabilities",
+      "NET_CHANGE_IN_CASH": "Net change in cash",
+      "NET_INCOME": "Net income",
+      "NON_OPERATING": "Non-operating",
+      "OPENING_CASH": "Opening cash",
+      "OPENING_CREDIT": "Opening credit",
+      "OPENING_DEBIT": "Opening debit",
+      "OPERATING": "Operating activities",
+      "OPERATING_EXPENSES": "Operating expenses",
+      "OPERATING_INCOME": "Operating income",
+      "OUT_OF_BALANCE_BY": "Out of balance by",
+      "PERIOD": "Period",
+      "PERIOD_CREDIT": "Period credit",
+      "PERIOD_DEBIT": "Period debit",
+      "REVENUE": "Revenue",
+      "SUBTOTAL": "Subtotal",
+      "TOTALS": "Totals",
+      "TOTAL_ASSETS": "Total assets",
+      "TOTAL_COST_OF_SALES": "Total cost of sales",
+      "TOTAL_EQUITY": "Total equity",
+      "TOTAL_FINANCING": "Total financing",
+      "TOTAL_INVESTING": "Total investing",
+      "TOTAL_LIABILITIES": "Total liabilities",
+      "TOTAL_LIABILITIES_AND_EQUITY": "Total liabilities and equity",
+      "TOTAL_NON_OPERATING": "Total non-operating",
+      "TOTAL_OPERATING": "Total operating",
+      "TOTAL_OPERATING_EXPENSES": "Total operating expenses",
+      "TOTAL_REVENUE": "Total revenue",
+      "UNCLOSED_RESULT": "Result for the year not yet closed",
+      "UNEXPLAINED_DIFFERENCE": "Unexplained difference"
+    },
+    "INCOME_STATEMENT": {
+      "COSTO_DE_VENTAS": "Cost of sales",
+      "GASTOS_OPERACIONALES": "Operating expenses",
+      "INGRESOS": "Revenue",
+      "MARGEN_BRUTO": "Gross margin",
+      "OTROS_INGRESOS_GASTOS": "Other income and expenses",
+      "RESULTADO_NETO": "Net income",
+      "TITULO": "Income Statement",
+      "TOTAL_INGRESOS": "Total revenue",
+      "UTILIDAD_BRUTA": "Gross profit",
+      "UTILIDAD_OPERACIONAL": "Operating income"
     },
     "LAYOUT": {
       "ANALYZE_YOUR_BUSINESS_PERFORMANCE_WITH_DETAILED": "Analyse your business performance with detailed financial and operational reports.",
@@ -2358,29 +2518,6 @@
       "TOTAL_REVENUE": "Total revenue",
       "UNITS_SOLD": "Units sold"
     },
-    "COMMON": {
-      "ACTUALIZAR": "Refresh",
-      "CARGANDO": "Loading…",
-      "CUENTA": "Account",
-      "DESDE": "From",
-      "HASTA": "To",
-      "NO_SE_PUDO_CARGAR": "The report could not be loaded.",
-      "REINTENTAR": "Try again",
-      "SIN_MOVIMIENTOS": "No posted movements in this range.",
-      "TOTAL": "Total"
-    },
-    "INCOME_STATEMENT": {
-      "COSTO_DE_VENTAS": "Cost of sales",
-      "GASTOS_OPERACIONALES": "Operating expenses",
-      "INGRESOS": "Revenue",
-      "MARGEN_BRUTO": "Gross margin",
-      "OTROS_INGRESOS_GASTOS": "Other income and expenses",
-      "RESULTADO_NETO": "Net income",
-      "TITULO": "Income Statement",
-      "TOTAL_INGRESOS": "Total revenue",
-      "UTILIDAD_BRUTA": "Gross profit",
-      "UTILIDAD_OPERACIONAL": "Operating income"
-    },
     "TRIAL_BALANCE": {
       "CUADRA": "The trial balance agrees: debits and credits match in every column.",
       "DEBE": "Debit",
@@ -2390,33 +2527,6 @@
       "SALDO_FINAL": "Closing balance",
       "SALDO_INICIAL": "Opening balance",
       "TITULO": "Trial Balance"
-    },
-    "CASH_FLOW": {
-      "CAPITAL_DE_TRABAJO": "Changes in working capital",
-      "DIFERENCIA_NO_EXPLICADA": "Unexplained difference",
-      "EFECTIVO_FINAL": "Cash at the end",
-      "EFECTIVO_INICIAL": "Cash at the beginning",
-      "FINANCIAMIENTO": "Financing activities",
-      "INVERSION": "Investing activities",
-      "OPERACION": "Operating activities",
-      "PARTIDAS_NO_MONETARIAS": "Items that did not move cash",
-      "RESULTADO_NETO": "Net income",
-      "TITULO": "Statement of Cash Flows",
-      "TOTAL_OPERACION": "Cash from operations",
-      "VARIACION_NETA": "Net change in cash"
-    },
-    "AGING": {
-      "CLIENTE": "Customer",
-      "CORRIENTE": "Current",
-      "DIAS_1_30": "1–30 days",
-      "DIAS_31_60": "31–60 days",
-      "DIAS_61_90": "61–90 days",
-      "MAS_90": "Over 90 days",
-      "PROVEEDOR": "Supplier",
-      "SIN_SALDOS": "Nothing outstanding at this date.",
-      "TITULO_CXC": "Accounts receivable ageing",
-      "TITULO_CXP": "Accounts payable ageing",
-      "TOTAL": "Total"
     }
   },
   "RESET_PASSWORD": {
@@ -2461,13 +2571,6 @@
     "ARIA_GLOBAL": "Global Search",
     "MAIN_PLACEHOLDER": "Search invoices, customers, products…",
     "ORGANIZATIONS": "Search organizations"
-  },
-  "SET_PASSWORD": {
-    "SAVING": "Saving...",
-    "SUBMIT_BUTTON": "Save Password",
-    "SUBTITLE": "Set a password for your account",
-    "SUCCESS": "Password set. Logging in...",
-    "TITLE": "Set password"
   },
   "SETTINGS": {
     "BILLING": {
@@ -2589,8 +2692,8 @@
       "PUDIERON_CARGAR_CERTIFICADOS": "The certificates could not be loaded.",
       "PUDIERON_CARGAR_SECUENCIAS_NCF": "The NCF sequences could not be loaded.",
       "PUDO_DESACTIVAR_CERTIFICADO": "The certificate could not be deactivated.",
-      "RANGO_NCF_REGISTRADO": "e-NCF range registered.",
       "RANGOS_NCF_AUTORIZADOS": "Authorized e-NCF ranges",
+      "RANGO_NCF_REGISTRADO": "e-NCF range registered.",
       "REGISTRA_RANGOS_DGII_TE_AUTORIZO_SIN": "Register the ranges the DGII authorized for you. Without an active range of the matching type the\n      document cannot be issued.",
       "REPORTE": "Report",
       "REPORTES_DGII_606_607": "DGII reports (606 / 607)",
@@ -2724,7 +2827,6 @@
         "SUBTITLE": "Manage active currencies and the exchange rates used for international transactions.",
         "TITLE": "Multicurrency and exchange rates"
       },
-      "IN_DEVELOPMENT": "In development",
       "INTEGRATIONS": {
         "EMPTY_DESCRIPTION": "Connect {{app}} to your business tools, create API keys for developers, and configure webhooks for real-time events.",
         "EMPTY_TITLE": "Integration centre",
@@ -2757,6 +2859,7 @@
         "SUBTITLE": "Define the valuation, replenishment and stock-control rules for your inventory.",
         "TITLE": "Inventory policies"
       },
+      "IN_DEVELOPMENT": "In development",
       "SECURITY": {
         "EMPTY_DESCRIPTION": "Configure your security policies, review the audit logs, and manage advanced access controls.",
         "EMPTY_TITLE": "Organisation security centre",
@@ -2828,8 +2931,8 @@
         "INVALID_FORMAT": "That image format isn't supported.",
         "OTP_INVALID": "That code isn't right.",
         "OTP_SEND": "We couldn't send the code.",
-        "PASSWORD_CHANGE_FAILED": "We couldn't change your password.",
         "PASSWORDS_DO_NOT_MATCH": "Passwords do not match.",
+        "PASSWORD_CHANGE_FAILED": "We couldn't change your password.",
         "UPDATE_FAILED": "We couldn't update your profile."
       },
       "FIRST_NAME": "Name",
@@ -2856,8 +2959,8 @@
       "SECURITY": "Security",
       "SELECT_JOB_TITLE": "Select a job title",
       "SEND_CONFIRMATION": "Send confirmation",
-      "UPDATE_PASSWORD": "Update password",
       "UPDATED": "Profile updated.",
+      "UPDATE_PASSWORD": "Update password",
       "VERIFY": "Verify"
     },
     "ROLES": {
@@ -2871,16 +2974,12 @@
       "GUARDAR": "Save",
       "NOMBRE_ROL": "Role Name",
       "PERMISOS": "Permissions",
+      "ROLES_PERMISOS": "Roles and Permissions",
       "ROL_ACTUALIZADO_EXITOSAMENTE": "Role updated successfully.",
       "ROL_CLONADO_EXITOSAMENTE": "Role \"{{name}}\" cloned successfully.",
       "ROL_CREADO_EXITOSAMENTE": "Role created successfully.",
       "ROL_ELIMINADO_EXITOSAMENTE": "Role deleted successfully.",
-      "ROLES_PERMISOS": "Roles and Permissions",
       "TIPO": "Type"
-    },
-    "SECURITY_SETTINGS": {
-      "CERRAR": "Close",
-      "REVOKE_SESSION": "Revoke session"
     },
     "SECURITY": {
       "2FA_ACTIVATED": "2FA is on.",
@@ -2909,9 +3008,9 @@
       "CURRENT_SESSION": "This device",
       "DEACTIVATE": "Turn off",
       "DISABLE": "Turn off",
+      "DISABLED": "Off",
       "DISABLE_2FA_MESSAGE": "Your account will be less secure. Are you sure?",
       "DISABLE_2FA_TITLE": "Turn off 2FA?",
-      "DISABLED": "Off",
       "EMAIL_CODE_SENT": "Verification code sent.",
       "EMAIL_SENT_TO": "We sent a verification code to: {{email}}",
       "ENABLE": "Turn on",
@@ -2942,10 +3041,10 @@
       "SAVE_BACKUP_CODES": "Keep these recovery codes somewhere safe. Each one works once, and they are the only way back in if you lose your device.",
       "SAVE_CODES_WARNING": "Store these codes somewhere safe.",
       "SCAN_QR": "Scan the QR code",
-      "SESSION_REVOKED": "Session signed out.",
       "SESSIONS_DESC": "Manage the devices you're signed in on.",
       "SESSIONS_DESCRIPTION": "Devices where your account is signed in. If you do not recognise one, sign it out.",
       "SESSIONS_TITLE": "Active sessions",
+      "SESSION_REVOKED": "Session signed out.",
       "SETUP_2FA": "Set up 2FA",
       "SETUP_2FA_DESC": "Scan the code with your authenticator app and enter the six-digit code it shows.",
       "SETUP_2FA_TITLE": "Two-step verification",
@@ -2953,6 +3052,10 @@
       "SETUP_AUTHENTICATOR_DESC": "Scan the QR code, or enter the secret key by hand.",
       "TWO_STEP_VERIF": "Two-step verification",
       "VERIFY_IDENTITY_DESC": "Identity verification"
+    },
+    "SECURITY_SETTINGS": {
+      "CERRAR": "Close",
+      "REVOKE_SESSION": "Revoke session"
     },
     "SESSIONS": {
       "ACTUALIZAR": "Refresh",
@@ -2962,9 +3065,9 @@
       "PUDO_REVOCAR_SESION": "The session could not be revoked.",
       "REVISA_ADMINISTRA_DISPOSITIVOS_ACCESO_ACTIVO_TU": "Review and manage the devices with active access to your account.",
       "REVOCAR_SESION": "Revoke session",
+      "SESIONES_ACTIVAS": "Active sessions",
       "SESION_ACTUAL": "Current session",
-      "SESION_REVOCADA_CORRECTAMENTE": "Session revoked successfully.",
-      "SESIONES_ACTIVAS": "Active sessions"
+      "SESION_REVOCADA_CORRECTAMENTE": "Session revoked successfully."
     },
     "SSO": {
       "ACME_COM": "acme.com",
@@ -2991,8 +3094,8 @@
       "INICIO_SESION_UNICO_SSO": "Single Sign-On (SSO)",
       "ISSUER": "Issuer",
       "ISSUER_URL_DISCOVERY": "Issuer URL (discovery)",
-      "NO_HAY_PROVEEDORES_CONFIGURADOS": "No providers are configured.",
       "NOMBRE": "Name",
+      "NO_HAY_PROVEEDORES_CONFIGURADOS": "No providers are configured.",
       "OPENID_EMAIL_PROFILE": "openid email profile",
       "PROVEEDORES_IDENTIDAD_OIDC": "Identity Providers (OIDC)",
       "REDIRECT_URI": "Redirect URI",
@@ -3016,8 +3119,8 @@
       "GESTIONA_SUBSIDIARIAS_SUCURSALES_TU_ORGANIZACION": "Manage your organization's subsidiaries and branches.",
       "ID_FISCAL": "Tax ID:",
       "ID_FISCAL_RNC_TAX_ID": "Tax ID",
-      "NO_HAY_SUBSIDIARIAS_REGISTRADAS": "There are no subsidiaries on record",
       "NOMBRE_LEGAL": "Legal Name",
+      "NO_HAY_SUBSIDIARIAS_REGISTRADAS": "There are no subsidiaries on record",
       "NUEVA_SUBSIDIARIA": "New Subsidiary",
       "OWNERSHIP_PROPIEDAD": "{{ownership}}% Ownership",
       "PAIS": "Country:",
@@ -3043,8 +3146,8 @@
       "MENSAJE_INVITACION_OPCIONAL": "Invitation message (optional)",
       "MENSAJE_PERSONALIZADO_USUARIO": "Custom message for the user...",
       "MOSTRANDO": "Showing",
-      "NO_ENCONTRARON_USUARIOS": "No users were found.",
       "NOMBRE": "Name",
+      "NO_ENCONTRARON_USUARIOS": "No users were found.",
       "PUDIERON_CARGAR_USUARIOS": "The users could not be loaded.",
       "RESETEAR_CONTRASENA": "Reset Password",
       "ROL": "Role",
@@ -3052,14 +3155,21 @@
       "SESION_USUARIO_HA_SIDO_CERRADA": "The user's session has been closed.",
       "SUPLANTAR_USUARIO": "Impersonate User",
       "TIMES": "&times;",
+      "USUARIOS": "Users",
+      "USUARIOS_2": "users",
       "USUARIO_ACTUALIZADO_EXITO": "User updated successfully.",
       "USUARIO_ELIMINADO_EXITO": "User deleted successfully.",
       "USUARIO_EMPRESA_COM": "user@company.com",
       "USUARIO_HA_SIDO_BLOQUEADO_SESION_CERRADA": "The user has been blocked and their session closed.",
-      "USUARIO_INVITADO_EXITO": "User invited successfully.",
-      "USUARIOS": "Users",
-      "USUARIOS_2": "users"
+      "USUARIO_INVITADO_EXITO": "User invited successfully."
     }
+  },
+  "SET_PASSWORD": {
+    "SAVING": "Saving...",
+    "SUBMIT_BUTTON": "Save Password",
+    "SUBTITLE": "Set a password for your account",
+    "SUCCESS": "Password set. Logging in...",
+    "TITLE": "Set password"
   },
   "SHARED": {
     "GEO_MISMATCH_MODAL": {
@@ -3096,6 +3206,131 @@
     "TOAST": {
       "CLOSE": "Close"
     }
+  },
+  "TABS": {
+    "CLOSE_TAB": "Close tab",
+    "SPLIT_RIGHT": "Split right",
+    "UNDER_CONSTRUCTION": "This module is under construction. The route is registered and the tab works; the detailed view is coming soon."
+  },
+  "TREASURY": {
+    "AL_CORTE": "As of",
+    "BANCO": "Bank",
+    "COMISION": "Fee",
+    "CUENTAS_BANCARIAS": "Bank accounts",
+    "CUENTA_COMPARTIDA": "Several bank accounts share this ledger account; the total counts it once.",
+    "DESTINO": "To",
+    "ENVIADO": "Sent",
+    "FORM": {
+      "ACTIVA": "Active account",
+      "COMPLETE_LOS_CAMPOS_REQUERIDOS": "Fill in the required fields.",
+      "CUENTA_ACTUALIZADA": "Bank account updated.",
+      "CUENTA_CONTABLE": "Ledger account",
+      "CUENTA_CREADA": "Bank account created.",
+      "EDITAR_CUENTA": "Edit bank account",
+      "FECHA_APERTURA": "Opening date",
+      "IBAN": "IBAN",
+      "NOMBRE": "Name",
+      "NOTAS": "Notes",
+      "NO_MODIFICABLE": "Cannot be changed: movements already posted were measured against this value.",
+      "NO_SE_PUDO_CARGAR": "The bank account could not be loaded.",
+      "NO_SE_PUDO_GUARDAR": "The bank account could not be saved.",
+      "NUEVA_CUENTA": "New bank account",
+      "SALDO_INICIAL": "Opening balance",
+      "SWIFT_BIC": "SWIFT / BIC",
+      "TIPO": "Account type",
+      "TIPOS": {
+        "CASH": "Cash / petty cash",
+        "CHECKING": "Checking",
+        "CREDIT_CARD": "Credit card",
+        "SAVINGS": "Savings"
+      }
+    },
+    "MONEDA": "Currency",
+    "NUMERO": "Number",
+    "ORIGEN": "From",
+    "POSICION_DE_EFECTIVO": "Cash position",
+    "RECIBIDO": "Received",
+    "SALDO": "Balance",
+    "SIN_CUENTAS": "No bank accounts have been registered.",
+    "SIN_TRANSFERENCIAS": "No transfers have been recorded.",
+    "TITULO": "Treasury",
+    "TOTAL_DISPONIBLE": "Total available",
+    "TRANSFERENCIAS": "Transfers between accounts"
+  },
+  "UNAUTHORIZED": {
+    "403_FORBIDDEN": "403 Forbidden",
+    "ACCESO_DENEGADO": "Access Denied",
+    "CONSULTA_NUESTRA_GUIA_PERMISOS": "See our permissions guide",
+    "ERROR": "Error:",
+    "NO_SABES_PERMISOS_NECESITAS": "Not sure which permissions you need?",
+    "NO_TIENES_PERMISOS_NECESARIOS_ACCEDER_ESTE": "You do not have the permissions needed to reach this resource.",
+    "PROTECTED_ROUTE": "a protected route",
+    "REQUEST_BODY": "Hello,\n\nI am {{name}} ({{email}}).\n\nI would like to request access to this route, which I am not currently permitted to use:\n{{url}}\n\nThank you.",
+    "REQUEST_SUBJECT": "Permission request for: {{route}}",
+    "RUTA_SOLICITADA": "Requested path:",
+    "SI_CREES_ESTO_ES_ERROR_CONTACTA": "If you believe this is a mistake, contact your system administrator or request the permissions you need.",
+    "SOLICITAR_PERMISO": "Request Permission",
+    "VOLVER_DASHBOARD": "Back to the Dashboard"
+  },
+  "USER": {
+    "MY_PROFILE": "My Profile",
+    "ROLE": {
+      "ACCOUNTANT": "Accountant",
+      "ADMINISTRATOR": "Administrator",
+      "MEMBER": "Member",
+      "NO_ROLE": "No Role Assigned",
+      "SELLER": "Seller"
+    },
+    "STATUS": {
+      "ACTIVE": "Active",
+      "ARCHIVED": "Archiving",
+      "BLOCKED": "Blocked",
+      "INACTIVE": "Inactive",
+      "PENDING": "Pending"
+    }
+  },
+  "USERS": {
+    "NO_DEPARTMENT": "No department",
+    "SEARCH_PLACEHOLDER": "Search users...",
+    "TABLE": {
+      "ACTIONS": "Actions",
+      "DEPARTMENT": "Department",
+      "EMAIL": "Email",
+      "NAME": "Name",
+      "ROLE": "Role",
+      "STATUS": "Status"
+    },
+    "VIEWS": {
+      "ALL": "All"
+    }
+  },
+  "WIDGETS": {
+    "ERRORS": {
+      "UNABLE_TO_LOAD": "The data could not be loaded."
+    },
+    "LOADING": "Loading…"
+  },
+  "datasheets": {
+    "cell_format": "Cell Format",
+    "chart_config": "Chart Configuration",
+    "charts": "Charts",
+    "import": "Import",
+    "import_erp": "Import ERP",
+    "import_wizard": "Import Wizard",
+    "insert_chart": "Insert Chart",
+    "last_modified": "Last Modified",
+    "my_documents": "My Documents",
+    "name": "Name",
+    "new_document": "New Book",
+    "owner": "Owner",
+    "properties": "Properties",
+    "recent": "Recent",
+    "share": "Share",
+    "shared": "Shared",
+    "subtitle": "Analysis and spreadsheets connected to the ERP in real-time.",
+    "templates": "Templates",
+    "title": "DataSheets",
+    "trash": "Trash"
   },
   "sidebar": {
     "configuration": {
@@ -3534,108 +3769,5 @@
       },
       "tax": "Tax & Compliance"
     }
-  },
-  "TABS": {
-    "CLOSE_TAB": "Close tab",
-    "SPLIT_RIGHT": "Split right",
-    "UNDER_CONSTRUCTION": "This module is under construction. The route is registered and the tab works; the detailed view is coming soon."
-  },
-  "UNAUTHORIZED": {
-    "403_FORBIDDEN": "403 Forbidden",
-    "ACCESO_DENEGADO": "Access Denied",
-    "CONSULTA_NUESTRA_GUIA_PERMISOS": "See our permissions guide",
-    "ERROR": "Error:",
-    "NO_SABES_PERMISOS_NECESITAS": "Not sure which permissions you need?",
-    "NO_TIENES_PERMISOS_NECESARIOS_ACCEDER_ESTE": "You do not have the permissions needed to reach this resource.",
-    "PROTECTED_ROUTE": "a protected route",
-    "REQUEST_BODY": "Hello,\n\nI am {{name}} ({{email}}).\n\nI would like to request access to this route, which I am not currently permitted to use:\n{{url}}\n\nThank you.",
-    "REQUEST_SUBJECT": "Permission request for: {{route}}",
-    "RUTA_SOLICITADA": "Requested path:",
-    "SI_CREES_ESTO_ES_ERROR_CONTACTA": "If you believe this is a mistake, contact your system administrator or request the permissions you need.",
-    "SOLICITAR_PERMISO": "Request Permission",
-    "VOLVER_DASHBOARD": "Back to the Dashboard"
-  },
-  "USER": {
-    "MY_PROFILE": "My Profile",
-    "ROLE": {
-      "ACCOUNTANT": "Accountant",
-      "ADMINISTRATOR": "Administrator",
-      "MEMBER": "Member",
-      "NO_ROLE": "No Role Assigned",
-      "SELLER": "Seller"
-    },
-    "STATUS": {
-      "ACTIVE": "Active",
-      "ARCHIVED": "Archiving",
-      "BLOCKED": "Blocked",
-      "INACTIVE": "Inactive",
-      "PENDING": "Pending"
-    }
-  },
-  "USERS": {
-    "NO_DEPARTMENT": "No department",
-    "SEARCH_PLACEHOLDER": "Search users...",
-    "TABLE": {
-      "ACTIONS": "Actions",
-      "DEPARTMENT": "Department",
-      "EMAIL": "Email",
-      "NAME": "Name",
-      "ROLE": "Role",
-      "STATUS": "Status"
-    },
-    "VIEWS": {
-      "ALL": "All"
-    }
-  },
-  "WIDGETS": {
-    "ERRORS": {
-      "UNABLE_TO_LOAD": "The data could not be loaded."
-    },
-    "LOADING": "Loading…"
-  },
-  "TREASURY": {
-    "AL_CORTE": "As of",
-    "BANCO": "Bank",
-    "COMISION": "Fee",
-    "CUENTAS_BANCARIAS": "Bank accounts",
-    "CUENTA_COMPARTIDA": "Several bank accounts share this ledger account; the total counts it once.",
-    "DESTINO": "To",
-    "ENVIADO": "Sent",
-    "FORM": {
-      "ACTIVA": "Active account",
-      "COMPLETE_LOS_CAMPOS_REQUERIDOS": "Fill in the required fields.",
-      "CUENTA_ACTUALIZADA": "Bank account updated.",
-      "CUENTA_CONTABLE": "Ledger account",
-      "CUENTA_CREADA": "Bank account created.",
-      "EDITAR_CUENTA": "Edit bank account",
-      "FECHA_APERTURA": "Opening date",
-      "IBAN": "IBAN",
-      "NOMBRE": "Name",
-      "NOTAS": "Notes",
-      "NO_MODIFICABLE": "Cannot be changed: movements already posted were measured against this value.",
-      "NO_SE_PUDO_CARGAR": "The bank account could not be loaded.",
-      "NO_SE_PUDO_GUARDAR": "The bank account could not be saved.",
-      "NUEVA_CUENTA": "New bank account",
-      "SALDO_INICIAL": "Opening balance",
-      "SWIFT_BIC": "SWIFT / BIC",
-      "TIPO": "Account type",
-      "TIPOS": {
-        "CASH": "Cash / petty cash",
-        "CHECKING": "Checking",
-        "CREDIT_CARD": "Credit card",
-        "SAVINGS": "Savings"
-      }
-    },
-    "MONEDA": "Currency",
-    "NUMERO": "Number",
-    "ORIGEN": "From",
-    "POSICION_DE_EFECTIVO": "Cash position",
-    "RECIBIDO": "Received",
-    "SALDO": "Balance",
-    "SIN_CUENTAS": "No bank accounts have been registered.",
-    "SIN_TRANSFERENCIAS": "No transfers have been recorded.",
-    "TITULO": "Treasury",
-    "TOTAL_DISPONIBLE": "Total available",
-    "TRANSFERENCIAS": "Transfers between accounts"
   }
 }

@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, EntityManager } from 'typeorm';
 import { FixedAsset, FixedAssetStatus } from './entities/fixed-asset.entity';
+import { Page, resolvePaging, toPage } from '../common/pagination';
 import { CreateFixedAssetDto } from './dto/create-fixed-asset.dto';
 import { UpdateFixedAssetDto } from './dto/update-fixed-asset.dto';
 import { DisposeAssetDto } from './dto/dispose-asset.dto';
@@ -28,8 +29,24 @@ export class FixedAssetsService {
     return this.fixedAssetRepository.save(newAsset);
   }
 
-  findAll(organizationId: string): Promise<FixedAsset[]> {
-    return this.fixedAssetRepository.find({ where: { organizationId } });
+  /**
+   * A page of assets, newest first.
+   *
+   * It returned every asset the tenant owned. A manufacturer or a hotel group carries tens of
+   * thousands, and the list screen asked for all of them at once.
+   */
+  async findAll(
+    organizationId: string,
+    query: { page?: number; pageSize?: number } = {},
+  ): Promise<Page<FixedAsset>> {
+    const paging = resolvePaging(query.page, query.pageSize);
+    const [rows, total] = await this.fixedAssetRepository.findAndCount({
+      where: { organizationId },
+      order: { purchaseDate: 'DESC', id: 'DESC' },
+      skip: paging.skip,
+      take: paging.take,
+    });
+    return toPage(rows, total, paging);
   }
 
   async findOne(id: string, organizationId: string): Promise<FixedAsset> {

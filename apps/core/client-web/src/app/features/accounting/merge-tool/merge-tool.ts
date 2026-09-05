@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { accountNameFor } from '../../../core/i18n/localized-name';
 
 /**
  * Herramienta de Fusión de Cuentas (Standalone Component)
@@ -78,7 +79,7 @@ export class MergeToolComponent {
   readonly sourceAccountOptions = computed(() => {
     const q = this.sourceAccountQuery().trim().toLowerCase();
     return this.postableAccounts().filter(a =>
-      a.name.toLowerCase().includes(q) || a.code.toLowerCase().includes(q)
+      accountNameFor(a.name).includes(q) || a.code.toLowerCase().includes(q)
     );
   });
 
@@ -87,7 +88,7 @@ export class MergeToolComponent {
     const excludeId = this.sourceAccountId();
     return this.postableAccounts().filter(a =>
       a.id !== excludeId &&
-      (a.name.toLowerCase().includes(q) || a.code.toLowerCase().includes(q))
+      (accountNameFor(a.name).includes(q) || a.code.toLowerCase().includes(q))
     );
   });
 

@@ -13,17 +13,40 @@ import { Account } from '../../chart-of-accounts/entities/account.entity';
 import { JournalEntryLineValuation } from './journal-entry-line-valuation.entity';
 import { numericTransformer, numericTransformerNotNull } from '../../common/database/numeric.transformer';
 
+@Index('IDX_journal_entry_lines_entry', ['journalEntryId'])
 @Entity({ name: 'journal_entry_lines' })
 @Index('IDX_journal_entry_lines_account', ['accountId'])
 export class JournalEntryLine {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne('JournalEntry', { onDelete: 'CASCADE' })
+  /**
+   * `nullable: false`, and indexed.
+   *
+   * The column was nullable and carried no index. Both mattered: every balance, every report and
+   * every ledger card joins a line to its entry to read the entry's status, its date and its
+   * tenant, and without an index that join is a sequential scan of every line in the database. And
+   * a nullable foreign key means an orphan line is storable — a line belonging to no entry, which
+   * no status filter can exclude because it has no status to filter on, sitting in the account's
+   * balance forever.
+   */
+  @ManyToOne('JournalEntry', { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'journal_entry_id' })
   journalEntry: JournalEntry;
 
-  @ManyToOne(() => Account, { nullable: false, eager: true, onDelete: 'CASCADE' })
+  @Column({ name: 'journal_entry_id', type: 'uuid' })
+  journalEntryId: string;
+
+  /**
+   * Not eager.
+   *
+   * `JournalEntry.lines` is eager, so reading one entry loaded every line, and every line loaded a
+   * full account — which in turn loaded that account's segments, also eager. Reading a hundred
+   * entries fetched several thousand rows to render figures that come from the line itself. The
+   * two readers that genuinely need the account (`ReportsService`, the general ledger) join it
+   * explicitly.
+   */
+  @ManyToOne(() => Account, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'account_id' })
   account: Account;
 

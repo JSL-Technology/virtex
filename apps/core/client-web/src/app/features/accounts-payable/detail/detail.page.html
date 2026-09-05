@@ -1,37 +1,69 @@
 <div class="view-container">
-  <div *ngIf="isLoading()" class="loading-shade">
-    <p>{{ 'ACCOUNTS_PAYABLE.DETAIL.CARGANDO_DETALLE_FACTURA' | translate }}</p>
-  </div>
+  @if (isLoading()) {
+    <div class="loading-shade">
+      <p>{{ 'ACCOUNTS_PAYABLE.DETAIL.CARGANDO_DETALLE_FACTURA' | translate }}</p>
+    </div>
+  }
 
-  <div *ngIf="error()" class="error-message">
-    <p>{{ error() }}</p>
-    <a routerLink="/accounts-payable" class="btn-primary">{{ 'ACCOUNTS_PAYABLE.DETAIL.VOLVER_LISTADO' | translate }}</a>
-  </div>
+  @if (errorKey(); as key) {
+    <div class="error-message">
+      <p>{{ key | translate }}</p>
+      <a routerLink="/accounts-payable" class="btn-primary">
+        {{ 'ACCOUNTS_PAYABLE.DETAIL.VOLVER_LISTADO' | translate }}
+      </a>
+    </div>
+  }
 
-  <ng-container *ngIf="bill() as billData">
+  @if (bill(); as billData) {
     <div class="view-header">
       <div class="header-main">
-        <a routerLink="/accounts-payable" class="btn-icon">
+        <a routerLink="/accounts-payable" class="btn-icon"
+           [attr.aria-label]="'ACCOUNTS_PAYABLE.DETAIL.VOLVER_LISTADO' | translate">
           <lucide-icon [name]="BackIcon" [size]="24"></lucide-icon>
         </a>
         <div>
-          <h1>{{ 'ACCOUNTS_PAYABLE.DETAIL.FACTURA_PROVEEDOR_BILLNUMBER' | translate: { billNumber: billData.billNumber } }}</h1>
-          <p class="text-muted">{{ 'ACCOUNTS_PAYABLE.DETAIL.PROVEEDOR_VENDORNAME' | translate: { vendorName: billData.vendorName } }}</p>
+          <h1>
+            {{ 'ACCOUNTS_PAYABLE.DETAIL.FACTURA_PROVEEDOR' | translate }}
+            {{ billData.ncf || ('ACCOUNTS_PAYABLE.LIST.SIN_NCF' | translate) }}
+          </h1>
+          <p class="text-muted">{{ billData.vendor?.name ?? billData.vendorId }}</p>
         </div>
       </div>
       <div class="header-actions">
-        <a [routerLink]="['../', billData.id, 'edit']" class="btn-secondary">
-          <lucide-icon [name]="EditIcon" [size]="16"></lucide-icon>
-          <span>{{ 'ACCOUNTS_PAYABLE.DETAIL.EDITAR' | translate }}</span>
-        </a>
-        <button (click)="voidBill()" class="btn-danger">
-          <lucide-icon [name]="VoidIcon" [size]="16"></lucide-icon>
-          <span>{{ 'ACCOUNTS_PAYABLE.DETAIL.ANULAR' | translate }}</span>
-        </button>
+        @if (canEdit()) {
+          <a [routerLink]="['/accounts-payable', billData.id, 'edit']" class="btn-secondary">
+            <lucide-icon [name]="EditIcon" [size]="16"></lucide-icon>
+            <span>{{ 'ACCOUNTS_PAYABLE.DETAIL.EDITAR' | translate }}</span>
+          </a>
+        }
+        @if (canSubmit()) {
+          <button type="button" (click)="submitForApproval()" class="btn-primary">
+            <lucide-icon [name]="SubmitIcon" [size]="16"></lucide-icon>
+            <span>{{ 'ACCOUNTS_PAYABLE.DETAIL.ENVIAR_APROBACION' | translate }}</span>
+          </button>
+        }
+        @if (canVoid()) {
+          <button type="button" (click)="voidBill()" class="btn-danger">
+            <lucide-icon [name]="VoidIcon" [size]="16"></lucide-icon>
+            <span>{{ 'ACCOUNTS_PAYABLE.DETAIL.ANULAR' | translate }}</span>
+          </button>
+        }
       </div>
     </div>
 
     <div class="view-content">
+      @if (billData.status === 'VOID') {
+        <div class="banner banner--danger">
+          <strong>{{ 'ACCOUNTS_PAYABLE.DETAIL.FACTURA_ANULADA' | translate }}</strong>
+          @if (billData.voidReason) {
+            <span>{{ billData.voidReason }}</span>
+          }
+          @if (billData.reversalJournalEntryId) {
+            <span>{{ 'ACCOUNTS_PAYABLE.DETAIL.ASIENTO_REVERSION_REGISTRADO' | translate }}</span>
+          }
+        </div>
+      }
+
       <div class="card">
         <div class="card-header">
           <h2>{{ 'ACCOUNTS_PAYABLE.DETAIL.INFORMACION_GENERAL' | translate }}</h2>
@@ -39,15 +71,21 @@
         <div class="card-body grid-details">
           <div>
             <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.DETAIL.ESTADO' | translate }}</span>
-            <span class="status-badge">{{ 'ACCOUNTS_PAYABLE.STATUS.' + billData.status | translate }}</span>
+            <span class="status-badge" [ngClass]="statusClass(billData.status)">
+              {{ statusKey(billData.status) | translate }}
+            </span>
           </div>
           <div>
             <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.DETAIL.FECHA_EMISION' | translate }}</span>
-            <span>{{ billData.issueDate | vxDate: 'date' }}</span>
+            <span>{{ billData.date | vxDate: 'date' }}</span>
           </div>
           <div>
             <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.DETAIL.FECHA_VENCIMIENTO' | translate }}</span>
             <span>{{ billData.dueDate | vxDate: 'date' }}</span>
+          </div>
+          <div>
+            <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.DETAIL.MONEDA' | translate }}</span>
+            <span>{{ billData.currencyCode }}</span>
           </div>
           <div>
             <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.DETAIL.TOTAL' | translate }}</span>
@@ -60,15 +98,119 @@
         </div>
       </div>
 
-      <!-- A real implementation would list line items here -->
       <div class="card">
         <div class="card-header">
           <h2>{{ 'ACCOUNTS_PAYABLE.DETAIL.LINEAS_FACTURA' | translate }}</h2>
         </div>
         <div class="card-body">
-          <p>{{ 'ACCOUNTS_PAYABLE.DETAIL.SECCION_LINEAS_FACTURA_IMPLEMENTARA_AQUI' | translate }}</p>
+          @if ((billData.lines ?? []).length === 0) {
+            <p class="text-muted">{{ 'ACCOUNTS_PAYABLE.DETAIL.SIN_LINEAS' | translate }}</p>
+          } @else {
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>{{ 'ACCOUNTS_PAYABLE.DETAIL.CONCEPTO' | translate }}</th>
+                    <th class="text-right">{{ 'ACCOUNTS_PAYABLE.DETAIL.CANTIDAD' | translate }}</th>
+                    <th class="text-right">{{ 'ACCOUNTS_PAYABLE.DETAIL.PRECIO_UNITARIO' | translate }}</th>
+                    <th class="text-right">{{ 'ACCOUNTS_PAYABLE.DETAIL.TOTAL' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (line of billData.lines ?? []; track line.id ?? $index) {
+                    <tr>
+                      <td>{{ line.product }}</td>
+                      <td class="text-right">{{ line.quantity | vxNumber:'1.0-4' }}</td>
+                      <td class="text-right">{{ line.unitPrice | vxNumber:'1.2-2' }}</td>
+                      <td class="text-right">{{ line.total | vxNumber:'1.2-2' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      </div>
+
+      @if (hasFiscalDetail()) {
+        <div class="card">
+          <div class="card-header">
+            <h2>{{ 'ACCOUNTS_PAYABLE.DETAIL.DESGLOSE_FISCAL' | translate }}</h2>
+          </div>
+          <div class="card-body grid-details">
+            <div>
+              <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.FORM.IMPUESTO_FACTURADO' | translate }}</span>
+              <span>{{ billData.taxAmount | vxNumber:'1.2-2' }}</span>
+            </div>
+            <div>
+              <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.FORM.IMPUESTO_RETENIDO' | translate }}</span>
+              <span>{{ billData.taxWithheld | vxNumber:'1.2-2' }}</span>
+            </div>
+            <div>
+              <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.FORM.ISR_RETENIDO' | translate }}</span>
+              <span>{{ billData.incomeTaxWithheld | vxNumber:'1.2-2' }}</span>
+            </div>
+            <div>
+              <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.FORM.IMPUESTO_AL_COSTO' | translate }}</span>
+              <span>{{ billData.taxToCost | vxNumber:'1.2-2' }}</span>
+            </div>
+            <div>
+              <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.FORM.IMPUESTO_PROPORCIONAL' | translate }}</span>
+              <span>{{ billData.taxProportional | vxNumber:'1.2-2' }}</span>
+            </div>
+            <div>
+              <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.FORM.IMPUESTO_SELECTIVO' | translate }}</span>
+              <span>{{ billData.exciseAmount | vxNumber:'1.2-2' }}</span>
+            </div>
+            <div>
+              <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.FORM.PROPINA_LEGAL' | translate }}</span>
+              <span>{{ billData.serviceCharge | vxNumber:'1.2-2' }}</span>
+            </div>
+            <div>
+              <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.FORM.RETENCIONES' | translate }}</span>
+              <span class="text-bold">{{ withheldTotal() | vxNumber:'1.2-2' }}</span>
+            </div>
+          </div>
+        </div>
+      }
+
+      <div class="card">
+        <div class="card-header">
+          <h2>{{ 'ACCOUNTS_PAYABLE.DETAIL.PAGOS_APLICADOS' | translate }}</h2>
+        </div>
+        <div class="card-body">
+          @if (payments().length === 0) {
+            <p class="text-muted">{{ 'ACCOUNTS_PAYABLE.DETAIL.SIN_PAGOS' | translate }}</p>
+          } @else {
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>{{ 'ACCOUNTS_PAYABLE.DETAIL.FECHA' | translate }}</th>
+                    <th class="text-right">{{ 'ACCOUNTS_PAYABLE.DETAIL.EFECTIVO' | translate }}</th>
+                    <th class="text-right">{{ 'ACCOUNTS_PAYABLE.FORM.RETENCIONES' | translate }}</th>
+                    <th class="text-right">{{ 'ACCOUNTS_PAYABLE.DETAIL.DESCUENTO' | translate }}</th>
+                    <th class="text-right">{{ 'ACCOUNTS_PAYABLE.DETAIL.APLICADO' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (payment of payments(); track payment.id) {
+                    <tr>
+                      <td>{{ payment.date | vxDate: 'date' }}</td>
+                      <td class="text-right">{{ payment.amountPaid | vxNumber:'1.2-2' }}</td>
+                      <td class="text-right">
+                        {{ payment.taxWithheld + payment.incomeTaxWithheld | vxNumber:'1.2-2' }}
+                      </td>
+                      <td class="text-right">{{ payment.discount | vxNumber:'1.2-2' }}</td>
+                      <td class="text-right text-bold">{{ payment.amount | vxNumber:'1.2-2' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
         </div>
       </div>
     </div>
-  </ng-container>
+  }
 </div>

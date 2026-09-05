@@ -42,6 +42,7 @@ export const PERMISSIONS = {
   ACCOUNTING_MANAGE_LEDGERS: 'accounting:manage_ledgers',
   /** Close a fiscal year. */
   ACCOUNTING_CLOSE_YEAR: 'accounting:close_year',
+  ACCOUNTING_REOPEN_YEAR: 'accounting:reopen_year',
 
   /**
    * Accounts payable and receivable, treasury and bank reconciliation.
@@ -136,6 +137,23 @@ export const PERMISSIONS = {
 
 
   COST_ACCOUNTING_MANAGE: 'cost_accounting:manage',
+
+  INTERCOMPANY_VIEW: 'intercompany:view',
+  INTERCOMPANY_TRANSACT: 'intercompany:transact',
+
+  // The fixed-asset register: what the company owns, what it cost, and what has been written off
+  // it. `FixedAssetsController` declared no permission at all, so acquiring, revaluing and
+  // disposing of assets — each of which posts to the ledger — were open to any authenticated user.
+  FIXED_ASSETS_VIEW: 'fixed_assets:view',
+  FIXED_ASSETS_MANAGE: 'fixed_assets:manage',
+  FIXED_ASSETS_DISPOSE: 'fixed_assets:dispose',
+
+  // Currencies and their rates. Rates are deliberately shared across tenants — what a currency was
+  // worth on a day is a fact about the market — which is exactly why writing one cannot be open:
+  // `POST /exchange-rates/update` had no permission and rewrote the table every tenant reads.
+  CURRENCIES_VIEW: 'currencies:view',
+  CURRENCIES_MANAGE: 'currencies:manage',
+  EXCHANGE_RATES_MANAGE: 'exchange_rates:manage',
 
 
   SETTINGS_EDIT_COMPANY: 'settings:edit_company',

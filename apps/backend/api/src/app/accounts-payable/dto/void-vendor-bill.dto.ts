@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsDateString, IsNotEmpty, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 
 /**
  * The reason a bill is being annulled.
@@ -14,4 +14,16 @@ export class VoidVendorBillDto {
   @MinLength(3)
   @MaxLength(500)
   reason: string;
+
+  /**
+   * The date the reversal is booked on. Today when omitted.
+   *
+   * A bill annulled in April that was booked in March reverses in April, not in March — the March
+   * period is closed and rewriting it would change a reported month. But an annulment discovered
+   * during the close, before the month is locked, belongs in the month it corrects, so the date is
+   * the caller's to state.
+   */
+  @IsDateString()
+  @IsOptional()
+  reversalDate?: string;
 }

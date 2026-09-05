@@ -46,8 +46,13 @@ export type GaapStandard = 'IFRS' | 'LOCAL_GAAP' | 'US_GAAP';
 export interface Account {
   id: string;
   code: string;
-  name: string;
-  description?: string;
+  /**
+   * The server stores the name as a translation map — `{ es: 'Efectivo', en: 'Cash' }` — and sends
+   * it that way. Typed as a plain string here, every account picker that interpolated it printed
+   * `[object Object]`.
+   */
+  name: string | Record<string, string>;
+  description?: string | Record<string, string>;
   type: AccountType;
   category: AccountCategory;
   nature: AccountNature;
@@ -55,6 +60,10 @@ export interface Account {
   isActive: boolean;
   isSystemAccount: boolean;
   isPostable: boolean;
+  /** Blocked accounts are refused by the posting service; a picker should not offer them. */
+  isBlockedForPosting?: boolean;
+  isContraAccount?: boolean;
+  systemRole?: string | null;
   createdAt: Date;
   updatedAt: Date;
   organizationId: string;

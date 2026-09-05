@@ -4,8 +4,10 @@ import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line
 import {
   JournalEntry,
   JournalEntryStatus,
+  JournalEntryType,
 } from '../journal-entries/entities/journal-entry.entity';
 import { Account, AccountType } from './entities/account.entity';
+import { previousDay, toIsoDate } from '../common/dates';
 
 /**
  * Account balances, derived from the journal.
@@ -72,6 +74,21 @@ export interface BalanceScope {
   accountIds?: string[];
   /** Analytical dimension filters, as `{ dimensionKey: valueId }`. */
   dimensions?: Record<string, string>;
+  /**
+   * Leave the annual closing entry out.
+   *
+   * The entry that moves the year's result to retained earnings debits every revenue account and
+   * credits every expense account by its own balance. Any report that sums the movement of those
+   * accounts over a range containing it therefore reads **zero** — which is what the income
+   * statement of a closed year did.
+   *
+   * Set by the income statement, by `netIncome`, and by the result transfer itself (so re-closing
+   * after a reopen closes what is left rather than the original result again). Deliberately not set
+   * by the balance sheet — where the closing entry is exactly what keeps a closed year out of
+   * `unclosedResult` — nor by the trial balance or the general ledger, which are books of record
+   * and must show every posting.
+   */
+  excludeClosingEntries?: boolean;
 }
 
 export interface TrialBalanceRow {
@@ -82,25 +99,17 @@ export interface TrialBalanceRow {
   closingBalance: number;
 }
 
-/** `YYYY-MM-DD`. Dates cross the boundary as strings so no timezone can shift a posting a day. */
-export type IsoDate = string;
-
-export function toIsoDate(value: Date | string): IsoDate {
-  if (typeof value === 'string') {
-    // Already `YYYY-MM-DD`, or an ISO timestamp whose date part is what we want.
-    return value.slice(0, 10);
-  }
-  // Deliberately UTC: a `date` column has no timezone, and using the server's local
-  // calendar here is how an entry dated the 1st gets filed under the previous month.
-  return value.toISOString().slice(0, 10);
-}
-
-/** The day before `date`, as `YYYY-MM-DD`. */
-export function previousDay(date: Date | string): IsoDate {
-  const d = new Date(`${toIsoDate(date)}T00:00:00.000Z`);
-  d.setUTCDate(d.getUTCDate() - 1);
-  return d.toISOString().slice(0, 10);
-}
+/**
+ * Dates cross every boundary in this module as `YYYY-MM-DD` strings, so no timezone can shift a
+ * posting by a day.
+ *
+ * The implementation moved to `common/dates`, where the rest of the product can reach it without
+ * importing the balances service to get at a date helper — and where it validates its input rather
+ * than slicing whatever it is handed. Re-exported here because half the codebase imports these two
+ * names from this file.
+ */
+export { toIsoDate, previousDay } from '../common/dates';
+export type { IsoDate } from '../common/dates';
 
 @Injectable()
 export class AccountBalancesService {
@@ -131,6 +140,12 @@ export class AccountBalancesService {
         postedStatus: JournalEntryStatus.POSTED,
       })
       .andWhere('valuation.ledgerId = :ledgerId', { ledgerId: scope.ledgerId });
+
+    if (scope.excludeClosingEntries) {
+      qb.andWhere('entry.entryType != :closingType', {
+        closingType: JournalEntryType.CLOSING_ENTRY,
+      });
+    }
 
     if (scope.accountIds) {
       if (scope.accountIds.length === 0) {
@@ -320,7 +335,10 @@ export class AccountBalancesService {
 
     if (accountIds.length === 0) return 0;
 
-    const movements = await this.movements({ ...scope, accountIds }, em);
+    const movements = await this.movements(
+      { ...scope, accountIds, excludeClosingEntries: true },
+      em,
+    );
     // Revenue and expense are both signed `debit − credit`, so revenue is negative and expense
     // positive; the profit is the negation of their sum. Writing it this way means the formula
     // does not need to know which account is which.

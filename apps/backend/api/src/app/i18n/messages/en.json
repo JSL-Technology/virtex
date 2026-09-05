@@ -1,9 +1,14 @@
 {
   "ACCOUNTING": {
     "ACCOUNT_PERIOD_LOCK_REMOVED": "The account's lock for the period has been removed.",
+    "ANO_FISCAL_ARCHIVADO_NO_SE_PUEDE_REABRIR": "The fiscal year is archived and cannot be reopened.",
+    "ANO_FISCAL_CERRADO_EXITOSAMENTE": "The fiscal year ending {{to}} has been closed.",
+    "ANO_FISCAL_CERRADO_NO_ADMITE_CAMBIOS": "The fiscal year {{from}} – {{to}} is closed. Reopen it before changing its periods.",
     "ANO_FISCAL_NO_ENCONTRADO": "Fiscal year not found.",
     "ANO_FISCAL_NO_ESTA_ABIERTO": "The fiscal year is not open.",
+    "ANO_FISCAL_REABIERTO_EXITOSAMENTE": "The fiscal year ending {{to}} has been reopened and its closing entry reversed.",
     "ANO_FISCAL_SIN_PERIODOS": "The fiscal year has no accounting periods. Create the calendar before closing it.",
+    "ANO_FISCAL_YA_ESTA_ABIERTO": "The fiscal year is already open.",
     "CHECKLIST": {
       "ITEMS": {
         "CURRENCY_REVALUATION": "Run the foreign-currency revaluation for the period close.",
@@ -53,6 +58,7 @@
     "NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION_CREAR": "The transaction's query runner could not be obtained to create the closing entry.",
     "NO_PUEDE_CERRAR_ANO_FISCAL_SIGUIENTES_PERIODOS": "The fiscal year cannot be closed. These periods are still open: {{p1}}",
     "NO_PUEDE_CERRAR_PERIODO_EXISTEN_ASIENTOS_CONTABLES": "The period cannot be closed. There are {{draftEntriesCount}} journal entries still in draft or awaiting approval.",
+    "NO_PUEDE_REABRIR_ANO_FISCAL_POSTERIOR_CERRADO": "This fiscal year cannot be reopened because the year starting {{from}} is already closed. Reopen that one first.",
     "NO_PUEDE_REABRIR_ESTE_PERIODO_PORQUE_PERIODO": "This period cannot be reopened because the following period is already closed.",
     "NO_PUEDE_REABRIR_MODULO_SI_PERIODO_CONTABLE": "A module cannot be reopened while the general accounting period is closed.",
     "PERIODO_ANTERIOR_SIGUE_ABIERTO": "This period cannot be closed while {{name}} is still open. Periods close in order.",
@@ -108,8 +114,8 @@
     "TOTAL_NO_COINCIDE_CON_LINEAS": "The submitted total ({{received}}) does not match the one computed from the lines and taxes ({{expected}})."
   },
   "ANALYTICAL_REPORTING": {
-    "NO_PUDO_SINCRONIZAR_VISTA_ANALITICA": "The analytical view could not be synchronized: {{p1}}",
     "NOMBRE_DIMENSION_CAMPO_CONTIENE_CARACTERES_NO_VALIDOS": "The dimension or field name contains invalid characters: {{name}}",
+    "NO_PUDO_SINCRONIZAR_VISTA_ANALITICA": "The analytical view could not be synchronized: {{p1}}",
     "OPERADOR_FILTRO_NO_SOPORTADO": "Unsupported filter operator: {{operator}}",
     "REFRESCO_VISTA_MATERIALIZADA_INICIADO": "The materialized view refresh has started.",
     "SINCRONIZACION_VISTA_ANALITICA_INICIADA": "The analytical view synchronization has started.",
@@ -151,13 +157,13 @@
     "ENLACE_VERIFICACION_YA_FUE_USADO_HA_EXPIRADO": "The verification link has already been used or has expired.",
     "ERROR_VALIDACION_SEGURIDAD_RECAPTCHA": "Security validation failed (reCAPTCHA).",
     "ERROR_VALIDANDO_POLITICA_SEGURIDAD": "The security policy could not be validated.",
-    "ES_OBLIGATORIO": "The {{label}} is required for {{name}}.",
-    "ES_OBLIGATORIO_2": "The {{postalCodeLabel}} is required for {{name}}.",
     "ESTA_CONTRASENA_APARECE_FILTRACIONES_DATOS_CONOCIDAS_ELIGE": "This password appears in known data breaches. Choose a different one.",
     "ESTA_CUENTA_AUTENTICA_TU_PROVEEDOR_IDENTIDAD_CONFIRMA": "This account authenticates with your identity provider. Confirm the action by signing in with it again.",
     "ESTA_CUENTA_NO_ESTA_VINCULADA_PROVEEDOR_IDENTIDAD": "This account is not linked to an identity provider.",
     "ESTA_SESION_PAGO_NO_CORRESPONDE_ESTE_NAVEGADOR": "This payment session does not belong to this browser. Sign in with your credentials.",
     "ESTE_PLAN_NO_ADMITE_ESE_PERIODO_FACTURACION": "This plan does not support that billing period.",
+    "ES_OBLIGATORIO": "The {{label}} is required for {{name}}.",
+    "ES_OBLIGATORIO_2": "The {{postalCodeLabel}} is required for {{name}}.",
     "FAILED_COMPLETE_SIGN_IN_WITH_IDENTITY_PROVIDER": "The sign-in with the identity provider could not be completed.",
     "FAILED_DECRYPT_STORED_SECRET": "The stored secret could not be decrypted.",
     "FAILED_LOAD_NEWLY_PROVISIONED_USER": "The newly created user could not be loaded.",
@@ -206,10 +212,10 @@
     "NO_PUDO_ENVIAR_CODIGO_VERIFICACION_ESE_NUMERO": "The verification code could not be sent to that number. Check the number, or verify by email instead.",
     "NO_PUDO_ENVIAR_CORREO_VERIFICACION_FAVOR_VERIFICA": "The verification email could not be sent. Check your address and try again.",
     "NO_PUDO_ENVIAR_SMS_VERIFICACION_FAVOR_INTENTA": "The verification SMS could not be sent. Try again.",
+    "NO_PUEDES_SUPLANTARTE_TI_MISMO": "You cannot impersonate yourself.",
     "NO_PUEDES_SUPLANTAR_USUARIO_NO_ESTA_ACTIVO": "You cannot impersonate a user who is not active.",
     "NO_PUEDES_SUPLANTAR_USUARIO_PERMISOS_TU_NO": "You cannot impersonate a user who holds permissions you do not.",
     "NO_PUEDES_SUPLANTAR_USUARIO_PRIVILEGIOS_TOTALES": "You cannot impersonate a user with full privileges (*).",
-    "NO_PUEDES_SUPLANTARTE_TI_MISMO": "You cannot impersonate yourself.",
     "NO_TIENES_PERMISOS_REALIZAR_ESTA_ACCION": "You do not have permission to perform this action.",
     "NO_TIENES_PERMISOS_SUPLANTAR_USUARIOS": "You do not have permission to impersonate users.",
     "NO_TXT_RECORD_FOUND_AT_ADD_IT": "No TXT record was found at {{host}}. Add it and wait for DNS to propagate.",
@@ -226,8 +232,8 @@
     "PASSKEY_NOT_FOUND": "The passkey was not found.",
     "PASSWORD_UPDATED_SUCCESSFULLY": "Password updated.",
     "PHONE_NUMBER_VERIFIED_SUCCESSFULLY": "Phone number verified.",
-    "PLAN_NO_ENCONTRADO": "Plan not found.",
     "PLAN_NOT_FOUND": "The plan was not found.",
+    "PLAN_NO_ENCONTRADO": "Plan not found.",
     "PROVEEDOR_IDENTIDAD_NO_COINCIDE": "The identity provider does not match.",
     "PROVEEDOR_NO_HA_VERIFICADO_TU_CORREO_NO": "The provider has not verified your email. The account cannot be linked.",
     "PROVIDER_NOT_CONFIGURED_MISSING": "The provider is not configured: {{key}} is missing.",
@@ -289,27 +295,28 @@
     "CUENTA_SUS_DIMENSIONES_NO_ESTAN_PRESUPUESTADAS": "The account and/or its dimensions are not budgeted.",
     "DENTRO_PRESUPUESTO": "Within budget.",
     "NO_ENCONTRO_PRESUPUESTO_ACTIVO_PARA_PERIODO_ACTUAL": "No active budget was found for the current period.",
-    "PRESUPUESTO_ID_NO_ENCONTRADO": "Budget \"{{id}}\" was not found."
+    "PRESUPUESTO_ID_NO_ENCONTRADO": "Budget \"{{id}}\" was not found.",
+    "RANGO_FECHAS_INVALIDO": "Invalid date range: {{startDate}} is later than {{endDate}}."
   },
   "CHART_OF_ACCOUNTS": {
     "AMBAS_CUENTAS_DEBEN_PERMITIR_CONTABILIZACION_PODER_SER": "Both accounts must be postable to be merged.",
     "AMBAS_CUENTAS_NO_FUERON_ENCONTRADAS": "One or both accounts were not found.",
     "CODIGO_CUENTA_SEGMENTOS_NO_PUEDE_SER_MODIFICADO": "The account code (its segments) cannot be changed.",
     "CODIGO_CUENTA_YA_EXISTE": "The account code '{{fullCode}}' already exists.",
+    "CUENTAS_SISTEMA_NO_PUEDEN_SER_DESACTIVADAS": "System accounts cannot be deactivated.",
+    "CUENTAS_SISTEMA_NO_PUEDEN_SER_FUSIONADAS": "System accounts cannot be merged.",
     "CUENTA_CONTABLE_ID_NO_ENCONTRADA": "Account \"{{id}}\" was not found.",
     "CUENTA_NO_ESTA_BLOQUEADA": "The account is not locked.",
     "CUENTA_NO_PUEDE_SER_DESACTIVADA_PORQUE_TIENE": "The account cannot be deactivated because it has child accounts.",
     "CUENTA_NO_PUEDE_SER_DESACTIVADA_PORQUE_TIENE_2": "The account cannot be deactivated because it has transactions.",
     "CUENTA_ORIGEN_DESTINO_NO_PUEDEN_SER_MISMA": "The source and destination accounts cannot be the same.",
     "CUENTA_YA_ESTA_BLOQUEADA": "The account is already locked.",
-    "CUENTAS_SISTEMA_NO_PUEDEN_SER_DESACTIVADAS": "System accounts cannot be deactivated.",
-    "CUENTAS_SISTEMA_NO_PUEDEN_SER_FUSIONADAS": "System accounts cannot be merged.",
     "DESACTIVANDO_CUENTA_ORIGEN_RECALCULANDO_SALDOS": "Deactivating the source account and recalculating balances...",
     "ERROR_CONSISTENCIA_CUENTA_PADRE_CUENTA_NO_FUE": "Consistency error: the parent account '{{parentCode}}' for account '{{p2}}' was not found. The transaction will be rolled back.",
     "ESTRUCTURA_SEGMENTOS_CUENTA_NO_HA_SIDO_CONFIGURADA": "The account segment structure has not been configured for this organization.",
     "FILE_EMPTY": "The file is empty.",
-    "IMPORT_BATCH_NOT_FOUND_OR_EXPIRED": "The import batch does not exist or has expired.",
     "IMPORTACION_FALLO_FUE_REVERTIDA": "The import failed and was rolled back: {{p1}}",
+    "IMPORT_BATCH_NOT_FOUND_OR_EXPIRED": "The import batch does not exist or has expired.",
     "INICIANDO_FUSION_CUENTAS": "Starting the account merge...",
     "JOB_DESCONOCIDO_IGNORADO": "Unknown job ignored.",
     "MAS_CUENTAS_ESPECIFICADAS_NO_FUERON_ENCONTRADAS": "One or more of the specified accounts were not found.",
@@ -354,18 +361,26 @@
     "CONFIGURACIONES_ORGANIZACION_MATRIZ_NO_ENCONTRADAS": "Settings for the parent organization {{parentOrganizationId}} were not found.",
     "ORGANIZACION_MATRIZ_NO_ENCONTRADA": "The parent organization was not found.",
     "ORGANIZACION_NO_ENCONTRADA": "Organization not found.",
-    "ORGANIZACION_NO_TIENE_SUBSIDIARIAS_CONFIGURADAS_CONSOLIDAR": "The organization has no subsidiaries configured to consolidate."
+    "ORGANIZACION_NO_TIENE_SUBSIDIARIAS_CONFIGURADAS_CONSOLIDAR": "The organization has no subsidiaries configured to consolidate.",
+    "RANGO_FECHAS_INVALIDO": "The period start ({{startDate}}) is later than the reporting date ({{asOfDate}})."
   },
   "CURRENCIES": {
     "DIARIO_GENERAL_GENERAL_NO_ENCONTRADO": "The General journal (GENERAL) was not found.",
+    "DIVISA_DESCONOCIDA": "Currency not configured: {{codes}}.",
     "NO_ENCONTRO_TASA_CAMBIO_VALIDA_FECHA_ESPECIFICADA": "No exchange rate from {{from}} to {{to}} was in force on {{date}}.",
     "NO_HAY_DIVISAS_PARA_ACTUALIZAR": "There are no currencies to update.",
     "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "No default ledger has been configured for the organization.",
-    "TASAS_CAMBIO_ACTUALIZADAS_EXITOSAMENTE": "Exchange rates updated."
-  },
-  "CUSTOMER_SERVICE": {
-    "ARTICULO_NO_ENCONTRADO": "The article was not found.",
-    "ARTICULO_NO_ENCONTRADO_NO_ESTA_PUBLICADO": "The article was not found, or is not published."
+    "NO_SE_PUDIERON_OBTENER_TASAS": "Exchange rates for {{date}} could not be retrieved.",
+    "PAR_IDENTICO": "A currency pair cannot have the same currency on both sides ({{currency}}).",
+    "PROVEEDOR_TASAS_NO_CONFIGURADO": "No exchange rate provider is configured. Record rates manually or configure the provider credentials.",
+    "RANGO_FECHAS_EXCEDE_LIMITE": "The requested range spans {{days}} days and the maximum allowed is {{limit}}.",
+    "RANGO_FECHAS_FUTURO": "Future rates cannot be requested: {{endDate}} is later than today ({{today}}).",
+    "RANGO_FECHAS_INVALIDO": "Invalid date range: {{startDate}} is later than {{endDate}}.",
+    "RELLENO_HISTORICO_COMPLETADO": "Historical backfill complete: {{days}} days processed, {{updated}} rates stored, {{failed}} days without data.",
+    "RESPUESTA_PROVEEDOR_SIN_TASAS": "The provider response contains no rates for {{date}}.",
+    "TASAS_CAMBIO_ACTUALIZADAS_EXITOSAMENTE": "Exchange rates updated.",
+    "TASA_DEBE_SER_POSITIVA": "The exchange rate must be greater than zero; received {{rate}}.",
+    "TASA_REGISTRADA": "Exchange rate recorded successfully."
   },
   "CUSTOMERS": {
     "APLICACION_EXCEDE_MONTO_RECIBIDO": "The amount applied to invoices ({{applied}}) exceeds the amount received ({{received}}).",
@@ -388,6 +403,10 @@
     "MONTO_PAGO_FACTURA_EXCEDE_SALDO_PENDIENTE": "The payment for invoice {{invoiceNumber}} ({{amount}}) exceeds its outstanding balance ({{balance}}).",
     "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "No default ledger has been configured for the organization.",
     "NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION": "The transaction's query runner could not be obtained."
+  },
+  "CUSTOMER_SERVICE": {
+    "ARTICULO_NO_ENCONTRADO": "The article was not found.",
+    "ARTICULO_NO_ENCONTRADO_NO_ESTA_PUBLICADO": "The article was not found, or is not published."
   },
   "DASHBOARD": {
     "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "No default ledger has been configured for the organization.",
@@ -442,6 +461,7 @@
     "ITEM_TAX_RATE_NOT_IN_FORCE": "line {{line}}: the rate {{rate}} is not an ITBIS rate in force",
     "MODIFIED_NCF_BAD_FORMAT": "\"{{value}}\" is not in NCF format",
     "MUNICIPIO_DEBE_DECLARARSE_CON_CODIGO_CUATRO_DIGITOS_DGII": "the municipality must be declared with the DGII's four-digit code",
+    "NOTA_CREDITO_DEBITO_DEBE_REFERENCIAR_COMPROBANTE_MODIFICA": "a credit or debit note must reference the document it modifies",
     "NO_ES_TIPO_ELECTRONICO_ANULACION_RANGOS_APLICA": "{{type}} is not an electronic type; voiding ranges applies only to e-NCF.",
     "NO_HAY_CERTIFICADO_DIGITAL_ACTIVO_FIRMAR_CARGALO": "There is no active digital certificate to sign with. Upload one under Settings → Electronic Invoicing.",
     "NO_HAY_CERTIFICADO_DIGITAL_ACTIVO_FIRMAR_CF": "There is no active digital certificate to sign e-CF documents. Upload one under Settings → Electronic Invoicing.",
@@ -449,12 +469,11 @@
     "NO_HAY_SECUENCIA_ACTIVA_ESTA_ORGANIZACION": "There is no active {{type}} sequence for this organization.",
     "NO_PUDO_ABRIR_CERTIFICADO_ARCHIVO_INVALIDO_CONTRASENA": "The certificate could not be opened: invalid file, or wrong password.",
     "NO_PUDO_FIRMAR_DOCUMENTO_CF": "The e-CF document could not be signed: {{p1}}",
-    "NOTA_CREDITO_DEBITO_DEBE_REFERENCIAR_COMPROBANTE_MODIFICA": "a credit or debit note must reference the document it modifies",
     "ORGANIZACION_NO_ENCONTRADA": "Organization not found.",
     "ORGANIZACION_NO_TIENE_RNC_CONFIGURADO": "The organization has no RNC configured.",
     "ORGANIZACION_NO_TIENE_RNC_CONFIGURADO_COMPLETALO_AJUSTES": "The organization has no RNC configured. Fill it in under Settings → Company.",
-    "PAYMENT_METHOD_CODE_UNKNOWN": "\"{{value}}\" is not a DGII payment-method code",
     "PAYMENTS_DO_NOT_MATCH_TOTAL": "the payment methods add up to {{declared}} while the document total is {{total}}",
+    "PAYMENT_METHOD_CODE_UNKNOWN": "\"{{value}}\" is not a DGII payment-method code",
     "PROVINCIA_DEBE_DECLARARSE_CON_CODIGO_DOS_DIGITOS_DGII": "the province must be declared with the DGII's two-digit code",
     "RANGO_AUTORIZADO_TERMINA_NO_PUEDES_ANULAR_MAS": "The authorized range ends at {{endsAt}}; you cannot void beyond its limit.",
     "RAZON_SOCIAL_EMISOR_OBLIGATORIA": "the issuer's legal name is required",
@@ -568,15 +587,24 @@
     "NO_PUDO_OBTENER_QUERYRUNNER_TRANSACCION": "The transaction's query runner could not be obtained."
   },
   "INTERCOMPANY": {
-    "CUENTA_PAGAR_INTERCOMPANIA_DEFECTO_NO_ESTA_CONFIGURADA": "The default intercompany payable account is not configured in the destination organization {{toOrganizationId}}.",
     "CUENTAS_INTERCOMPANIA_DEFECTO_NO_ESTAN_CONFIGURADAS_AMBAS": "The default intercompany accounts are not configured in one or both organizations.",
+    "CUENTA_NO_ADMITE_MOVIMIENTOS": "Account {{accountId}} does not accept postings.",
+    "CUENTA_NO_PERTENECE_A_LA_ORGANIZACION": "Account {{accountId}} does not belong to the organization given.",
+    "CUENTA_PAGAR_INTERCOMPANIA_DEFECTO_NO_ESTA_CONFIGURADA": "The default intercompany payable account is not configured in the destination organization {{toOrganizationId}}.",
     "ERROR_CONSISTENCIA_DATOS_PREPARAR_ASIENTO_DESTINO": "Data consistency error while preparing the destination entry.",
     "NO_ENCONTRO_TASA_CAMBIO": "No exchange rate was found from {{baseCurrency}} to {{baseCurrency2}}.",
     "NO_PUDO_OBTENER_QUERY_RUNNER_ASIENTO_ORIGEN": "The query runner could not be obtained for the source entry.",
-    "ORGANIZACION_DESTINO_NO_TIENE_DIARIO_TIPO_GENERAL": "The destination organization has no journal of type 'GENERAL' configured.",
-    "ORGANIZACION_ORIGEN_NO_TIENE_DIARIO_TIPO_GENERAL": "The source organization has no journal of type 'GENERAL' configured.",
     "ORGANIZACIONES_NO_FUE_ENCONTRADA": "One of the organizations was not found.",
-    "TRANSACCIONES_INTERCOMPANIA_DEBEN_SER_ENTRE_ORGANIZACIONES_DIFERENTES": "Intercompany transactions must be between different organizations."
+    "ORGANIZACIONES_NO_PERTENECEN_AL_MISMO_GRUPO": "The organizations are not in the same group. Record the relationship before transacting between them.",
+    "ORGANIZACION_DESTINO_NO_TIENE_DIARIO_TIPO_GENERAL": "The destination organization has no journal of type 'GENERAL' configured.",
+    "ORGANIZACION_DESTINO_SIN_LIBRO_CONTABLE": "The receiving organization has no default ledger.",
+    "ORGANIZACION_NO_TIENE_DIARIO_TIPO_GENERAL": "Organization {{organizationId}} has no general journal.",
+    "ORGANIZACION_ORIGEN_NO_TIENE_DIARIO_TIPO_GENERAL": "The source organization has no journal of type 'GENERAL' configured.",
+    "ORGANIZACION_ORIGEN_SIN_LIBRO_CONTABLE": "The sending organization has no default ledger.",
+    "TRANSACCIONES_INTERCOMPANIA_DEBEN_SER_ENTRE_ORGANIZACIONES_DIFERENTES": "Intercompany transactions must be between different organizations.",
+    "TRANSACCION_NO_ENCONTRADA": "Intercompany transaction {{id}} was not found.",
+    "TRANSACCION_SIN_DATOS_DE_DESTINO": "The transaction has no destination account or amount; the other side cannot be posted.",
+    "TRANSACCION_YA_COMPLETADA": "The transaction already has its destination entry."
   },
   "INVENTORY": {
     "PRODUCTO_ID_NO_ENCONTRADO": "Product \"{{id}}\" was not found.",
@@ -660,11 +688,11 @@
     "LINEA_NECESITA_DESCRIPCION_PRODUCTO_CATALOGO": "Line {{p1}} needs a description or a product from the catalogue.",
     "LINEA_NO_PERTENECE_FACTURA": "Line {{lineId}} does not belong to invoice {{invoiceNumber}}.",
     "LINEA_NO_TIENE_PRECIO_INDICALO_SELECCIONA_PRODUCTO": "Line {{p1}} has no price: enter one, or select a product from the catalogue.",
+    "NOTA_CREDITO_DEBE_REFERENCIAR_FACTURA_MODIFICA": "A credit note must reference the invoice it modifies.",
     "NO_ENCONTRO_INFORMACION_ORGANIZACION": "The organization's information was not found.",
     "NO_ENCONTRO_PLANTILLA_IMPRESION_FACTURAS": "The invoice print template was not found ({{resolved}}): {{p2}}",
     "NO_ENCONTRO_TASA_CAMBIO_VALIDA_FECHA_ESPECIFICADA": "No valid exchange rate was found for {{currencyCode}} on the given date.",
     "NO_EXISTE_DIARIO_ESTA_ORGANIZACION_CREALO_AJUSTES": "There is no journal \"{{code}}\" for this organization. Create it under Settings → Accounting.",
-    "NOTA_CREDITO_DEBE_REFERENCIAR_FACTURA_MODIFICA": "A credit note must reference the invoice it modifies.",
     "ORGANIZACION_NO_ENCONTRADA": "Organization not found.",
     "ORGANIZACION_NO_TIENE_LIBRO_CONTABLE_DEFECTO_CREALO": "The organization has no default ledger. Create one under Settings → Accounting.",
     "PLANTILLA_GENERAR_PDF_NO_ESTA_DISPONIBLE": "The PDF template is not available.",
@@ -694,6 +722,7 @@
     "ASIENTO_NO_ENCONTRADO": "Entry not found.",
     "ASIENTO_ORIGINAL_NO_ENCONTRADO": "The original entry was not found.",
     "ASIENTO_REVERSAR_NO_ENCONTRADO": "The entry to reverse was not found.",
+    "CONTROL_PRESUPUESTARIO_FALLIDO": "The entry exceeds the budget: {{detail}}",
     "CUENTA_CONTABLE_REQUIERE_DIMENSION_OBLIGATORIA": "Account '{{code}} - {{p2}}' requires the mandatory dimension '{{dimensionKey}}'.",
     "CUENTA_ESTA_BLOQUEADA_NUEVAS_TRANSACCIONES": "Account '{{code}} - {{p2}}' is locked for new transactions.",
     "CUENTA_NO_PERMITE_CONTABILIZACION": "Account '{{code}} - {{p2}}' does not accept postings.",
@@ -811,8 +840,8 @@
     },
     "REGISTRATION_EMAIL_VERIFY": {
       "COMPLETAR_TU_REGISTRO_DEBES_CONFIRMAR_TU": "To finish signing up you need to confirm your email address. There are two ways to do it:",
-      "CONFIRMA_TU_CORREO_ELECTRONICO": "Confirm your email address",
       "CONFIRMAR_CORREO_ELECTRONICO": "Confirm email address",
+      "CONFIRMA_TU_CORREO_ELECTRONICO": "Confirm your email address",
       "ESTE_CODIGO_ENLACE_EXPIRAN": "⏱ This code and the link expire in",
       "HAZ_CLIC_BOTON_ABAJO_CONFIRMAR_TU": "Click the button below to confirm your address and pick up the sign-up where you left off.",
       "HOLA": "Hello,",
@@ -900,6 +929,7 @@
       "CONSOLIDATE": "Consolidate",
       "CREATE": "Create",
       "DELETE": "Delete",
+      "DISPOSE": "Dispose",
       "EDIT": "Edit",
       "EDIT_BRANDING": "Edit branding",
       "EDIT_COMPANY": "Edit company details",
@@ -918,9 +948,11 @@
       "PAY": "Pay",
       "PROPOSE_ADJUSTMENT": "Propose adjustment",
       "REOPEN_PERIOD": "Reopen period",
+      "REOPEN_YEAR": "Reopen fiscal year",
       "REVERSE": "Reverse",
       "RUN_INFLATION_ADJUSTMENT": "Run inflation adjustment",
       "SESSIONS_REVOKE": "Revoke sessions",
+      "TRANSACT": "Record movements",
       "TRANSFER": "Transfer",
       "VIEW": "View",
       "VIEW_FINANCIAL": "View financial reports",
@@ -939,8 +971,12 @@
       "BUDGETS": "Budgets",
       "COA": "Chart of Accounts",
       "COST_ACCOUNTING": "Cost accounting",
+      "CURRENCIES": "Currencies",
       "CUSTOMERS": "Customers",
+      "EXCHANGE_RATES": "Exchange rates",
       "FINANCIALS": "Financial statements",
+      "FIXED_ASSETS": "Fixed assets",
+      "INTERCOMPANY": "Intercompany",
       "INVENTORY": "Inventory",
       "INVOICES": "Sales invoices",
       "JOURNAL_ENTRIES": "Journal entries",
@@ -993,20 +1029,22 @@
   },
   "REPORTS": {
     "CUENTA_CUENTAS_COBRAR_DEFECTO_NO_ESTA_CONFIGURADA": "The default Accounts Receivable account is not configured.",
+    "DEMASIADAS_CUENTAS": "{{count}} accounts were requested and the maximum per report is {{max}}.",
     "LIBRO_CONTABLE_ID_NO_ENCONTRADO": "Ledger \"{{ledgerId}}\" was not found.",
     "NO_HAY_FACTURAS_PENDIENTES_PAGO_PARA_GENERAR_REPORTE": "There are no outstanding invoices to build the report from.",
-    "NO_PUDO_DETERMINAR_LIBRO_CONTABLE_REPORTE_NO": "The ledger for the report could not be determined: none was specified and there is no default."
+    "NO_PUDO_DETERMINAR_LIBRO_CONTABLE_REPORTE_NO": "The ledger for the report could not be determined: none was specified and there is no default.",
+    "RANGO_FECHAS_EXCEDE_LIMITE": "The requested range spans {{days}} days and the maximum per report is {{max}}."
   },
   "ROLES": {
-    "NO_PUEDE_ELIMINAR_ROL_ASIGNADO_USUARIO_REASIGNA": "A role assigned to {{assignedCount}} user(s) cannot be deleted. Move those users to another role first.",
     "NO_PUEDES_ASIGNAR_PERMISO_PORQUE_TU_NO": "You cannot assign the permission \"{{permission}}\" because you do not hold it.",
     "NO_PUEDES_ASIGNAR_ROL_INCLUYE_PERMISO_TU": "You cannot assign a role that includes the permission \"{{permission}}\", which you do not hold.",
     "NO_PUEDES_ASIGNAR_ROL_PRIVILEGIOS_TOTALES": "You cannot assign a role with full privileges (*).",
+    "NO_PUEDE_ELIMINAR_ROL_ASIGNADO_USUARIO_REASIGNA": "A role assigned to {{assignedCount}} user(s) cannot be deleted. Move those users to another role first.",
     "PERMISO_TOTAL_NO_PUEDE_DELEGARSE_ROL": "The full permission (*) cannot be delegated to a role.",
-    "ROL_ID_NO_ENCONTRADO": "Role \"{{id}}\" was not found.",
     "ROLES_SISTEMA_NO_PUEDEN_CLONAR": "System roles cannot be cloned.",
     "ROLES_SISTEMA_NO_PUEDEN_SER_ELIMINADOS": "System roles cannot be deleted.",
     "ROLES_SISTEMA_NO_PUEDEN_SER_MODIFICADOS": "System roles cannot be modified.",
+    "ROL_ID_NO_ENCONTRADO": "Role \"{{id}}\" was not found.",
     "SYSTEM": {
       "ACCOUNTANT": {
         "DESCRIPTION": "Keeps the books: journal entries, chart of accounts and financial reports."
@@ -1108,10 +1146,10 @@
     "NO_HAY_NINGUN_CAMBIO_CORREO_PENDIENTE": "There is no pending email change.",
     "NO_PUDO_COMPLETAR_CAMBIO_CORREO_ELECTRONICO": "The email change could not be completed.",
     "NO_PUDO_ENVIAR_INVITACION_DATOS_PROPORCIONADOS": "The invitation could not be sent with the details provided.",
-    "NO_PUEDE_ELIMINAR_USUARIO_ROL_SISTEMA": "A user holding a system role cannot be deleted.",
     "NO_PUEDES_BLOQUEAR_TU_PROPIA_CUENTA": "You cannot block your own account.",
     "NO_PUEDES_DESACTIVAR_BLOQUEAR_TU_PROPIA_CUENTA": "You cannot deactivate or block your own account.",
     "NO_PUEDES_ELIMINAR_TU_PROPIA_CUENTA_DESDE": "You cannot delete your own account from user management.",
+    "NO_PUEDE_ELIMINAR_USUARIO_ROL_SISTEMA": "A user holding a system role cannot be deleted.",
     "ONLY_IMAGE_FILES_ARE_ALLOWED": "Only image files are allowed.",
     "PASSWORD_RESET_EMAIL_SENT": "We sent a password reset link.",
     "ROL_ID_NO_ENCONTRADO": "Role {{roleId}} was not found.",
@@ -1135,8 +1173,8 @@
       "ID_PERIODO_CONTABLE_OBLIGATORIO": "The accounting period ID is required."
     },
     "COMMERCIAL_APPROVAL": {
-      "E_NCF_DEBE_TENER_FORMATO_E_12_DIGITOS": "The e-NCF must be E followed by 12 digits (for example E310000000001).",
       "ESTADO_DEBE_1_APROBADO_2_RECHAZADO": "The status must be 1 (approved) or 2 (rejected).",
+      "E_NCF_DEBE_TENER_FORMATO_E_12_DIGITOS": "The e-NCF must be E followed by 12 digits (for example E310000000001).",
       "FECHA_EMISION_DEBE_FECHA_ISO_YYYY_MM_DD": "The issue date must be an ISO date (YYYY-MM-DD).",
       "RNC_EMISOR_NO_TIENE_FORMATO_VALIDO": "The issuer's RNC is not in a valid format."
     },
@@ -1229,10 +1267,16 @@
       "FORMATO_CORREO_ELECTRONICO_NO_VALIDO": "That email address is not valid."
     },
     "GENERAL_LEDGER_REPORT": {
+      "AL_MENOS_UNA_CUENTA": "At least one account is required.",
       "CADA_ID_CUENTA_DEBE_UUID_VALIDO": "Each account ID must be a valid UUID.",
+      "DEMASIADAS_CUENTAS": "Too many accounts were requested for a single report.",
       "FECHA_FIN_OBLIGATORIA": "The end date is required.",
       "FECHA_INICIO_OBLIGATORIA": "The start date is required.",
       "ID_LIBRO_CONTABLE_OBLIGATORIO": "The ledger ID is required."
+    },
+    "GENERATE_REPORT": {
+      "FORMATO_NO_SOPORTADO": "The output format is not supported.",
+      "TIPO_REPORTE_NO_SOPORTADO": "The report type is not supported."
     },
     "JOURNAL_ENTRY_ACTIONS": {
       "FECHA_REVERSION_DEBE_FECHA_VALIDA": "The reversal date must be a valid date.",

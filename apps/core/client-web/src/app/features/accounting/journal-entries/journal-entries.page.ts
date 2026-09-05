@@ -25,6 +25,9 @@ import {
  * a second copy of a number the ledger already holds, and the copy is the one that goes stale.
  * `Number()` guards the decimal columns, which TypeORM hands back as strings.
  */
+/** Entries per page. */
+const PAGE_SIZE = 50;
+
 @Component({
   selector: 'app-journal-entries-page',
   standalone: true,
@@ -46,16 +49,35 @@ export class JournalEntriesPage {
 
   readonly isEmpty = computed(() => !this.loading() && !this.failed() && this.entries().length === 0);
 
+  /** The window the list is showing. The route is bounded now, so the page has to be able to move. */
+  readonly page = signal(1);
+  readonly total = signal(0);
+  readonly hasMore = signal(false);
+
   constructor() {
+    this.load();
+  }
+
+  nextPage(): void {
+    if (!this.hasMore()) return;
+    this.page.update((current) => current + 1);
+    this.load();
+  }
+
+  previousPage(): void {
+    if (this.page() <= 1) return;
+    this.page.update((current) => current - 1);
     this.load();
   }
 
   load(): void {
     this.loading.set(true);
     this.failed.set(false);
-    this.entriesApi.list().subscribe({
-      next: (entries) => {
-        this.entries.set(entries);
+    this.entriesApi.list({ page: this.page(), pageSize: PAGE_SIZE }).subscribe({
+      next: (page) => {
+        this.entries.set(page.rows);
+        this.total.set(page.total);
+        this.hasMore.set(page.hasMore);
         this.loading.set(false);
       },
       error: () => {

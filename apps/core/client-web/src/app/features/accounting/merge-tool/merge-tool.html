@@ -33,14 +33,14 @@
             size="8"
             (change)="sourceAccountId.set($any($event.target)?.value)">
             <option *ngFor="let acc of sourceAccountOptions()" [value]="acc.id">
-              {{ acc.code }} - {{ acc.name }}
+              {{ acc.code }} - {{ acc.name | vxName }}
             </option>
           </select>
 
           <div *ngIf="selectedSourceAccount()" class="selection-details">
             <h4>{{ 'ACCOUNTING.MERGE_TOOL.CUENTA_SELECCIONADA' | translate }}</h4>
             <p>
-              <strong>{{ selectedSourceAccount()?.code }} - {{ selectedSourceAccount()?.name }}</strong>
+              <strong>{{ selectedSourceAccount()?.code }} - {{ selectedSourceAccount()?.name | vxName }}</strong>
             </p>
             <p>{{ 'ACCOUNTING.MERGE_TOOL.TIPO_TYPE' | translate: { type: selectedSourceAccount()?.type } }}</p>
           </div>
@@ -62,14 +62,14 @@
             size="8"
             (change)="targetAccountId.set($any($event.target)?.value)">
             <option *ngFor="let acc of targetAccountOptions()" [value]="acc.id">
-              {{ acc.code }} - {{ acc.name }}
+              {{ acc.code }} - {{ acc.name | vxName }}
             </option>
           </select>
 
           <div *ngIf="selectedTargetAccount()" class="selection-details">
             <h4>{{ 'ACCOUNTING.MERGE_TOOL.CUENTA_SELECCIONADA' | translate }}</h4>
             <p>
-              <strong>{{ selectedTargetAccount()?.code }} - {{ selectedTargetAccount()?.name }}</strong>
+              <strong>{{ selectedTargetAccount()?.code }} - {{ selectedTargetAccount()?.name | vxName }}</strong>
             </p>
             <p>{{ 'ACCOUNTING.MERGE_TOOL.TIPO_TYPE' | translate: { type: selectedTargetAccount()?.type } }}</p>
           </div>
@@ -90,8 +90,8 @@
       </div>
 
       <div class="analysis-box" *ngIf="analysis() as a">
-        <p><strong>{{ 'ACCOUNTING.MERGE_TOOL.ORIGEN' | translate }}</strong> {{ selectedSourceAccount()?.code }} - {{ selectedSourceAccount()?.name }}</p>
-        <p><strong>{{ 'ACCOUNTING.MERGE_TOOL.DESTINO' | translate }}</strong> {{ selectedTargetAccount()?.code }} - {{ selectedTargetAccount()?.name }}</p>
+        <p><strong>{{ 'ACCOUNTING.MERGE_TOOL.ORIGEN' | translate }}</strong> {{ selectedSourceAccount()?.code }} - {{ selectedSourceAccount()?.name | vxName }}</p>
+        <p><strong>{{ 'ACCOUNTING.MERGE_TOOL.DESTINO' | translate }}</strong> {{ selectedTargetAccount()?.code }} - {{ selectedTargetAccount()?.name | vxName }}</p>
         <ul class="facts">
           <li>{{ 'ACCOUNTING.MERGE_TOOL.TRANSACCIONES_MOVER' | translate }} <strong>{{ a.transactionsToMove }}</strong></li>
           <li>{{ 'ACCOUNTING.MERGE_TOOL.SALDO_ORIGEN' | translate }} <strong>{{ a.sourceBalance | vxNumber:'1.2-2' }}</strong></li>

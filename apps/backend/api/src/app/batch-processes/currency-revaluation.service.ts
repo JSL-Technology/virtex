@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { LessThanOrEqual, DataSource, EntityManager } from 'typeorm';
+import { DataSource, EntityManager } from 'typeorm';
 import { Account } from '../chart-of-accounts/entities/account.entity';
-import { ExchangeRate } from '../currencies/entities/exchange-rate.entity';
+import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
 import { JournalEntriesService } from '../journal-entries/journal-entries.service';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import {
@@ -40,11 +40,12 @@ export class CurrencyRevaluationService {
   constructor(
     private readonly journalEntriesService: JournalEntriesService,
     private readonly balances: AccountBalancesService,
+    private readonly exchangeRateResolver: ExchangeRateResolver,
     private readonly dataSource: DataSource,
   ) {}
 
   async run(
-    periodEndDate: Date,
+    periodEndDate: Date | string,
     organizationId: string,
     ledgerId?: string,
     manager?: EntityManager,
@@ -80,12 +81,18 @@ export class CurrencyRevaluationService {
   }
 
   private async runForLedger(
-    periodEndDate: Date,
+    periodEndDate: Date | string,
     organizationId: string,
     ledger: Ledger,
     manager: EntityManager,
   ): Promise<void> {
     this.logger.log(`Procesando revaluación para el libro: ${ledger.name}.`);
+
+    // Resolved once for the whole ledger. A closing rate is a fact about the day, and looking it
+    // up per account would let two accounts in the same currency be restated at different rates
+    // if a row landed mid-run.
+    const periodEndIso = toIsoDate(periodEndDate);
+    const rateType = await this.exchangeRateResolver.rateTypeFor(organizationId, manager);
 
     const settings = await manager.findOneBy(OrganizationSettings, { organizationId });
     if (!settings?.defaultForexGainLossAccountId) {
@@ -136,22 +143,28 @@ export class CurrencyRevaluationService {
         continue;
       }
 
-      const closingRate = await manager.findOne(ExchangeRate, {
-        where: {
-          fromCurrency: account.currency,
-          toCurrency: ledger.currency,
-          date: LessThanOrEqual(periodEndDate),
-        },
-        order: { date: 'DESC' },
-      });
-      if (!closingRate) {
+      // Through the resolver rather than a direct row lookup: it tries the pair direct, inverted,
+      // and as a cross through the dollar. The lookup this replaces required a row stored in
+      // exactly this direction, so an account held in EUR on COP books — neither leg quoted
+      // directly — was skipped every close, and the warning below was the only trace. An account
+      // silently excluded from revaluation carries a stale historical rate forever.
+      let closingRate: number;
+      try {
+        closingRate = await this.exchangeRateResolver.rateFor(
+          account.currency,
+          ledger.currency,
+          periodEndIso,
+          manager,
+          rateType,
+        );
+      } catch {
         this.logger.warn(
-          `Sin tasa de cierre de ${account.currency} a ${ledger.currency} al ${toIsoDate(periodEndDate)}; se omite la cuenta ${account.code}.`,
+          `Sin tasa de cierre de ${account.currency} a ${ledger.currency} al ${periodEndIso}; se omite la cuenta ${account.code}.`,
         );
         continue;
       }
 
-      const revalued = convert(documentBalance, Number(closingRate.rate));
+      const revalued = convert(documentBalance, closingRate);
       const differenceCents = toCents(revalued) - toCents(carryingAmount);
       if (differenceCents === 0) continue;
 

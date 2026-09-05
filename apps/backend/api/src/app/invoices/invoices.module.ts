@@ -19,7 +19,7 @@ import { AccountingPeriod } from '../accounting/entities/accounting-period.entit
 import { AccountPeriodLock } from '../accounting/entities/account-period-lock.entity';
 import { Organization } from '../organizations/entities/organization.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
-import { ExchangeRate } from '../currencies/entities/exchange-rate.entity';
+import { CurrenciesModule } from '../currencies/currencies.module';
 import { SharedModule } from '../shared/shared.module';
 import { EinvoicingModule } from '../einvoicing/einvoicing.module';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
@@ -33,7 +33,6 @@ import { JournalEntriesModule } from '../journal-entries/journal-entries.module'
       AccountPeriodLock,
       Organization,
       OrganizationSettings,
-      ExchangeRate,
     ]),
     AuthModule,
     CustomersModule,
@@ -41,6 +40,7 @@ import { JournalEntriesModule } from '../journal-entries/journal-entries.module'
     TaxesModule,
     ComplianceModule,
     AccountingModule,
+    CurrenciesModule,
     // A sale posts to the ledger in the same transaction that creates it. Without this import the
     // invoice module could not reach the posting service at all, which is how issuing an invoice
     // came to record nothing in the books.

@@ -414,8 +414,27 @@ export class AccountsPayableService {
       { actorUserId, module: ModuleSlug.AP, systemReason: 'vendor-bill-approved' },
     );
 
+    // Goods received. The ledger debited the inventory account above; the subledger has to move
+    // with it or the two describe different warehouses. Nothing did this before — approval only
+    // touched the ledger — while `voidBill` *increased* stock on annulment, so annulling a purchase
+    // created inventory that had never arrived and the two sides drifted in opposite directions.
+    //
+    // The right long-term home for this is a goods receipt in Procurement, matched three ways
+    // against the purchase order and the invoice. Until that exists, the movement belongs to the
+    // document that recognises the purchase, and it is symmetric with the void below.
+    for (const line of bill.lines) {
+      if (!line.productId) continue;
+      await this.inventoryService.increaseStock(
+        line.productId,
+        line.quantity,
+        manager,
+        organizationId,
+      );
+    }
+
     bill.status = VendorBillStatus.OPEN;
     bill.balance = payable;
+    bill.journalEntryId = entry.id;
     const saved = await manager.save(bill);
 
     this.logger.log(
@@ -863,12 +882,32 @@ export class AccountsPayableService {
   // Voiding
   // ───────────────────────────────────────────────────────────────────────────
 
+  /**
+   * Annul a bill: reverse it in the ledger, take the goods back out of stock, and say who and why.
+   *
+   * ## What this used to do
+   *
+   * It marked the document VOID, set its balance to zero, **increased** inventory for every product
+   * line, and emitted `vendor.bill.voided` — an event with no listener anywhere in the repository.
+   * Two independent corruptions followed from that.
+   *
+   * The journal entry stayed. The payable and the expense remained in the general ledger for good
+   * while the subledger reported the bill annulled: a permanent divergence between the two, with no
+   * report that would ever surface it. The receipts side has always done this correctly
+   * (`CustomerPaymentsService.voidPayment` reverses), so the asymmetry was the whole of the bug.
+   *
+   * And the stock movement ran the wrong way. Approving a purchase never increased stock, so
+   * annulling one *added* goods that had never arrived — the longer a tenant used the void, the
+   * more phantom inventory it accumulated. Approval now receives the goods and this returns them,
+   * which is the only pairing that nets to zero.
+   */
   async voidBill(
     id: string,
     organizationId: string,
-    reason: string,
+    dto: { reason: string; reversalDate?: string },
     actorUserId: string,
   ): Promise<VendorBill> {
+    const { reason } = dto;
     return this.dataSource.transaction(async (manager) => {
       const bill = await manager.findOne(VendorBill, {
         where: { id, organizationId },
@@ -889,9 +928,16 @@ export class AccountsPayableService {
         throw new BadRequestError('ACCOUNTS_PAYABLE.NO_PUEDE_ANULAR_FACTURA_CON_PAGOS');
       }
 
-      for (const line of bill.lines) {
-        if (line.productId) {
-          await this.inventoryService.increaseStock(
+      // Only a bill that reached the ledger has anything to reverse or to return. A draft or a
+      // rejected bill never posted and never received goods.
+      const wasPosted =
+        bill.status === VendorBillStatus.OPEN ||
+        bill.status === VendorBillStatus.PARTIALLY_PAID;
+
+      if (wasPosted) {
+        for (const line of bill.lines) {
+          if (!line.productId) continue;
+          await this.inventoryService.decreaseStock(
             line.productId,
             line.quantity,
             manager,
@@ -900,8 +946,25 @@ export class AccountsPayableService {
         }
       }
 
+      if (bill.journalEntryId) {
+        const reversal = await this.journalEntriesService.createSystemReversal(
+          bill.journalEntryId,
+          organizationId,
+          {
+            reversalDate: toIsoDate(dto.reversalDate ?? new Date()),
+            reason: `Anulación de factura: ${reason}`,
+          },
+          manager,
+          { actorUserId, module: ModuleSlug.AP, systemReason: 'vendor-bill-void' },
+        );
+        bill.reversalJournalEntryId = reversal.id;
+      }
+
       bill.status = VendorBillStatus.VOID;
       bill.balance = 0;
+      bill.voidReason = reason;
+      bill.voidedAt = new Date();
+      bill.voidedByUserId = actorUserId;
       const voided = await manager.save(bill);
 
       this.eventEmitter.emit('vendor.bill.voided', {
@@ -909,8 +972,11 @@ export class AccountsPayableService {
         organizationId,
         reason,
         actorUserId,
+        reversalJournalEntryId: bill.reversalJournalEntryId,
       });
-      this.logger.log(`Factura ${id} anulada. Razón: ${reason}`);
+      this.logger.log(
+        `Factura ${id} anulada por ${actorUserId}. Razón: ${reason}. Reversión: ${bill.reversalJournalEntryId ?? 'sin asiento previo'}.`,
+      );
       return voided;
     });
   }

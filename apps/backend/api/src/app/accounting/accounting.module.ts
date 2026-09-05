@@ -25,6 +25,7 @@ import { AccountPeriodLock } from './entities/account-period-lock.entity';
 import { PeriodLockGuard } from './guards/period-lock.guard';
 import { AuditModule } from '../audit/audit.module';
 import { ClosingAutomationService } from './closing-automation.service';
+import { ResultTransferService } from './result-transfer.service';
 import { FixedAssetsModule } from '../fixed-assets/fixed-assets.module';
 import { CurrenciesModule } from '../currencies/currencies.module';
 import { LedgerMappingRule } from './entities/ledger-mapping-rule.entity';
@@ -67,6 +68,7 @@ import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.mo
     YearEndCloseService,
     PeriodLockGuard,
     ClosingAutomationService,
+    ResultTransferService,
     ClosingChecklistService,
     LedgerMappingService,
   ],
@@ -80,6 +82,9 @@ import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.mo
   exports: [
     PeriodLockGuard,
     LedgerMappingService,
+    // The one implementation of the general ledger. `ReportsService` delegates to it rather than
+    // keeping a second one with different semantics.
+    LedgersService,
   ],
 })
 export class AccountingModule {}

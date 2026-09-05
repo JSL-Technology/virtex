@@ -53,10 +53,12 @@ describeWithDb('accounts payable', () => {
   let organizationId: string;
   let ledgerId: string;
   let vendorId: string;
+  let inventory: { increaseStock: jest.Mock; decreaseStock: jest.Mock };
   const account: Record<string, string> = {};
   let bankAccountId: string;
 
   const ACTOR = '22222222-2222-4222-8222-222222222222';
+  const PRODUCT_ID = '33333333-3333-4333-8333-333333333333';
 
   beforeAll(async () => {
     dataSource = new DataSource({
@@ -73,6 +75,13 @@ describeWithDb('accounts payable', () => {
     await dataSource.initialize();
 
     const audit = new AuditTrailService(dataSource.getRepository(AuditLog));
+    // A recording stub rather than a no-op: the direction of the stock movement is the defect
+    // under test. Approving a purchase never increased stock and annulling one increased it, so
+    // every annulment added goods that had never arrived.
+    inventory = {
+      increaseStock: jest.fn().mockResolvedValue(undefined),
+      decreaseStock: jest.fn().mockResolvedValue(undefined),
+    };
     balances = new AccountBalancesService(dataSource);
     const entries = new JournalEntriesService(
       dataSource.getRepository(JournalEntry),
@@ -90,7 +99,7 @@ describeWithDb('accounts payable', () => {
       dataSource.getRepository(VendorBill),
       dataSource.getRepository(OrganizationSettings),
       entries,
-      { increaseStock: jest.fn().mockResolvedValue(undefined) } as never,
+      inventory as never,
       dataSource,
       new EventEmitter2(),
       { startApprovalProcess: jest.fn().mockResolvedValue(null) } as never,
@@ -157,6 +166,7 @@ describeWithDb('accounts payable', () => {
     await make('payable', '2101', AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, AccountNature.CREDIT, AccountRole.ACCOUNTS_PAYABLE);
     await make('withholding', '2140', AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, AccountNature.CREDIT, AccountRole.WITHHOLDING_PAYABLE);
     await make('expense', '5101', AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, AccountNature.DEBIT);
+    await make('inventory', '1140', AccountType.ASSET, AccountCategory.CURRENT_ASSET, AccountNature.DEBIT, AccountRole.INVENTORY);
     await make('forex', '5901', AccountType.EXPENSE, AccountCategory.NON_OPERATING_EXPENSE, AccountNature.DEBIT, AccountRole.FOREX_GAIN_LOSS);
 
     await dataSource.getRepository(OrganizationSettings).save(
@@ -165,12 +175,23 @@ describeWithDb('accounts payable', () => {
         baseCurrency: 'DOP',
         defaultAccountsPayableId: account['payable'],
         defaultForexGainLossAccountId: account['forex'],
+        defaultInventoryId: account['inventory'],
       }),
     );
 
     await dataSource.getRepository(AccountingPeriod).save([
       { organizationId, name: 'Marzo 2026', startDate: '2026-03-01' as unknown as Date, endDate: '2026-03-31' as unknown as Date, status: PeriodStatus.OPEN },
       { organizationId, name: 'Abril 2026', startDate: '2026-04-01' as unknown as Date, endDate: '2026-04-30' as unknown as Date, status: PeriodStatus.OPEN },
+      // An annulment with no stated date books today, and a posting into a date that belongs to no
+      // period is refused — correctly. The tenant therefore needs a period covering now, which is
+      // also true of any real deployment: a calendar that stops in the past stops the product.
+      {
+        organizationId,
+        name: 'Período actual',
+        startDate: `${new Date().getUTCFullYear()}-01-01` as unknown as Date,
+        endDate: `${new Date().getUTCFullYear()}-12-31` as unknown as Date,
+        status: PeriodStatus.OPEN,
+      },
     ]);
 
     const vendor = await dataSource.getRepository(Supplier).save(
@@ -202,7 +223,14 @@ describeWithDb('accounts payable', () => {
     // about the market — so they outlive the tenant and have to be cleared between tests.
     // Raw DELETE, not `repository.delete({})`: TypeORM rejects empty criteria outright, and a
     // swallowed rejection here leaves a stale rate that quietly changes the next test's arithmetic.
-    await dataSource.query('DELETE FROM "exchange_rate"');
+    // Scoped to the pair this suite publishes. `DELETE FROM "exchange_rate"` with no predicate
+    // deletes every other suite's rates as well, and Jest runs suites in parallel workers against
+    // one database — so an unscoped delete here made the consolidation and exchange-rate suites
+    // fail intermittently with "no rate found" for pairs they had just inserted.
+    await dataSource.query(
+      'DELETE FROM "exchange_rate" WHERE "fromCurrency" = $1 AND "toCurrency" = $2',
+      ['USD', 'DOP'],
+    );
   });
 
   const signedBalance = async (key: string, asOf = '2026-04-30') =>
@@ -470,6 +498,136 @@ describeWithDb('accounts payable', () => {
       expect(row?.buckets.find((bucket) => bucket.label === '1-30')?.amount).toBe(2_000);
       expect(row?.buckets.find((bucket) => bucket.label === '61-90')?.amount).toBe(3_000);
       expect(aging.totals.total).toBe(6_000);
+    });
+  });
+
+  describe('annulment', () => {
+    const openBill = async (options: { withProduct?: boolean } = {}) => {
+      const bill = await payables.create(
+        {
+          vendorId,
+          date: '2026-03-05' as unknown as Date,
+          dueDate: '2026-04-04' as unknown as Date,
+          lines: [
+            {
+              product: 'Mercancía',
+              quantity: 4,
+              unitPrice: 2_500,
+              total: 10_000,
+              ...(options.withProduct
+                ? { productId: PRODUCT_ID }
+                : { expenseAccountId: account['expense'] }),
+            },
+          ],
+          taxAmount: 1_800,
+        } as CreateVendorBillDto,
+        organizationId,
+      );
+      return payables.submitForApproval(bill.id, organizationId, ACTOR);
+    };
+
+    it('reverses the journal entry instead of leaving the debt in the ledger', async () => {
+      const bill = await openBill();
+      expect(await signedBalance('payable')).toBe(-11_800);
+
+      // Dated inside April so the assertion's cut-off sees both the bill and its reversal. An
+      // annulment with no date books today, which is what the other cases exercise.
+      await payables.voidBill(
+        bill.id,
+        organizationId,
+        { reason: 'Duplicada', reversalDate: '2026-04-20' },
+        ACTOR,
+      );
+
+      // The payable and the expense are both back to zero. Before, they stayed for good: the
+      // subledger said VOID and the general ledger said owed, permanently, and no report compared
+      // the two.
+      expect(await signedBalance('payable')).toBe(0);
+      expect(await signedBalance('expense')).toBe(0);
+      expect(await signedBalance('taxReceivable')).toBe(0);
+    });
+
+    it('records the reversal, the reason, the time and the author on the document', async () => {
+      const bill = await openBill();
+      const voided = await payables.voidBill(
+        bill.id,
+        organizationId,
+        { reason: 'Recibida por duplicado' },
+        ACTOR,
+      );
+
+      expect(voided.status).toBe(VendorBillStatus.VOID);
+      expect(voided.balance).toBe(0);
+      expect(voided.voidReason).toBe('Recibida por duplicado');
+      expect(voided.voidedByUserId).toBe(ACTOR);
+      expect(voided.voidedAt).toBeInstanceOf(Date);
+      expect(voided.reversalJournalEntryId).toEqual(expect.any(String));
+    });
+
+    it('receives goods on approval and returns them on annulment', async () => {
+      inventory.increaseStock.mockClear();
+      inventory.decreaseStock.mockClear();
+
+      const bill = await openBill({ withProduct: true });
+      // Approving a purchase receives the goods. Nothing did this: the ledger debited inventory
+      // and the subledger never moved.
+      expect(inventory.increaseStock).toHaveBeenCalledWith(
+        PRODUCT_ID,
+        4,
+        expect.anything(),
+        organizationId,
+      );
+
+      await payables.voidBill(bill.id, organizationId, { reason: 'Devuelta al proveedor' }, ACTOR);
+
+      // And annulling returns them. It used to *increase* stock here, so every annulment added
+      // goods that had never arrived.
+      expect(inventory.decreaseStock).toHaveBeenCalledWith(
+        PRODUCT_ID,
+        4,
+        expect.anything(),
+        organizationId,
+      );
+    });
+
+    it('refuses to annul a bill that has been paid against', async () => {
+      const bill = await openBill();
+      await payables.payBills(
+        {
+          paymentDate: '2026-04-10',
+          bankAccountId,
+          lines: [{ vendorBillId: bill.id, amount: 5_000 }],
+        } as never,
+        organizationId,
+        ACTOR,
+      );
+
+      await expect(
+        payables.voidBill(bill.id, organizationId, { reason: 'Ya no aplica' }, ACTOR),
+      ).rejects.toThrow();
+    });
+
+    it('refuses to annul the same bill twice', async () => {
+      const bill = await openBill();
+      await payables.voidBill(bill.id, organizationId, { reason: 'Duplicada' }, ACTOR);
+      await expect(
+        payables.voidBill(bill.id, organizationId, { reason: 'Duplicada otra vez' }, ACTOR),
+      ).rejects.toThrow();
+    });
+
+    it('books the reversal on the date the caller states', async () => {
+      const bill = await openBill();
+      const voided = await payables.voidBill(
+        bill.id,
+        organizationId,
+        { reason: 'Corrección de cierre', reversalDate: '2026-03-31' },
+        ACTOR,
+      );
+
+      const reversal = await dataSource
+        .getRepository(JournalEntry)
+        .findOneByOrFail({ id: voided.reversalJournalEntryId as string });
+      expect(String(reversal.date).slice(0, 10)).toBe('2026-03-31');
     });
   });
 });

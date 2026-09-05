@@ -171,7 +171,14 @@ describeWithDb('treasury', () => {
     await dataSource
       .getRepository(Organization)
       .delete({ id: organizationId });
-    await dataSource.query('DELETE FROM "exchange_rate"');
+    // Scoped to the pair this suite publishes. `DELETE FROM "exchange_rate"` with no predicate
+    // deletes every other suite's rates as well, and Jest runs suites in parallel workers against
+    // one database — so an unscoped delete here made the consolidation and exchange-rate suites
+    // fail intermittently with "no rate found" for pairs they had just inserted.
+    await dataSource.query(
+      'DELETE FROM "exchange_rate" WHERE "fromCurrency" = $1 AND "toCurrency" = $2',
+      ['USD', 'DOP'],
+    );
   });
 
   const openAccount = (overrides: Partial<Parameters<TreasuryService['createBankAccount']>[0]> = {}) =>

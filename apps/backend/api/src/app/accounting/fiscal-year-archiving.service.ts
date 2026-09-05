@@ -7,6 +7,7 @@ import { FiscalYear, FiscalYearStatus } from './entities/fiscal-year.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { Organization } from '../organizations/entities/organization.entity';
 import { SchedulerLockService } from '../shared/scheduler/scheduler-lock.service';
+import { addMonthsIso, toIsoMonth, todayIso } from '../common/dates';
 
 @Injectable()
 export class FiscalYearArchivingService {
@@ -30,7 +31,7 @@ export class FiscalYearArchivingService {
     this.logger.log('Iniciando job de archivado de años fiscales...');
     const organizations = await this.orgRepository.find();
     
-    const month = `${new Date().getUTCFullYear()}-${String(new Date().getUTCMonth() + 1).padStart(2, '0')}`;
+    const month = toIsoMonth(new Date());
     for (const org of organizations) {
       // Archiving marks years as archived, so a second replica running the same month would find
       // nothing to do — but the claim keeps the log honest and the work single-writer.
@@ -51,14 +52,15 @@ export class FiscalYearArchivingService {
     if (!settings) return;
 
     const archiveYears = settings.fiscalArchiveAfterYears;
-    const cutoffDate = new Date();
-    cutoffDate.setFullYear(cutoffDate.getFullYear() - archiveYears);
+    // A calendar cut-off on a `date` column, in UTC. `new Date()` plus `setFullYear` reads the
+    // server's local calendar, which moves the boundary by a day either side of midnight.
+    const cutoffDate = addMonthsIso(todayIso(), -12 * archiveYears);
 
     const yearsToArchive = await this.fiscalYearRepository.find({
       where: {
         organizationId,
         status: FiscalYearStatus.CLOSED,
-        endDate: LessThan(cutoffDate),
+        endDate: LessThan(cutoffDate as unknown as Date),
       },
     });
 

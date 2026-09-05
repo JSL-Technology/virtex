@@ -11,8 +11,17 @@
           [attr.aria-label]="'REPORTS.BALANCE_SHEET.AL_CORTE' | translate"
         />
       </label>
-      <button class="primary-button" type="button" (click)="load()">
+      <!--
+        A real export.
+        The balance sheet carried the download icon on a button whose handler is `load()`, so the
+        one affordance in the whole reports section that looked like a download refreshed the page.
+      -->
+      <button class="secondary-button" type="button" [disabled]="!report()" (click)="exportCsv()">
         <lucide-icon [img]="ExportIcon" size="16"></lucide-icon>
+        <span>{{ 'REPORTS.COMMON.EXPORTAR' | translate }}</span>
+      </button>
+      <button class="primary-button" type="button" (click)="load()">
+        <lucide-icon [img]="RefreshIcon" size="16"></lucide-icon>
         <span>{{ 'REPORTS.COMMON.ACTUALIZAR' | translate }}</span>
       </button>
     </div>

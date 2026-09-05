@@ -1,9 +1,11 @@
 <div class="view-container">
   <div class="view-header">
-    <a routerLink="/accounts-payable" class="btn-icon">
+    <a routerLink="/accounts-payable" class="btn-icon" [attr.aria-label]="'ACCOUNTS_PAYABLE.FORM.CANCELAR' | translate">
       <lucide-icon [name]="BackIcon" [size]="24"></lucide-icon>
     </a>
-    <h1>{{ (isEditMode() ? 'ACCOUNTS_PAYABLE.FORM.TITLE_EDIT' : 'ACCOUNTS_PAYABLE.FORM.TITLE_CREATE') | translate }}</h1>
+    <h1>
+      {{ (isEditMode() ? 'ACCOUNTS_PAYABLE.FORM.TITLE_EDIT' : 'ACCOUNTS_PAYABLE.FORM.TITLE_CREATE') | translate }}
+    </h1>
   </div>
 
   <div class="view-content" [formGroup]="form">
@@ -13,55 +15,195 @@
       </div>
       <div class="card-body grid-form">
         <div class="form-field">
-          <label for="supplierId">{{ 'ACCOUNTS_PAYABLE.FORM.PROVEEDOR' | translate }}</label>
-          <input type="text" id="supplierId" formControlName="supplierId" [placeholder]="'ACCOUNTS_PAYABLE.FORM.SELECCIONAR_PROVEEDOR' | translate">
+          <label for="vendorId">{{ 'ACCOUNTS_PAYABLE.FORM.PROVEEDOR' | translate }}</label>
+          <select id="vendorId" formControlName="vendorId">
+            <option value="">{{ 'ACCOUNTS_PAYABLE.FORM.SELECCIONAR_PROVEEDOR' | translate }}</option>
+            @for (supplier of supplierOptions(); track supplier.id) {
+              <option [value]="supplier.id">{{ supplier.name }}</option>
+            }
+          </select>
+          @if (form.controls['vendorId'].touched && form.controls['vendorId'].invalid) {
+            <p class="field-error">{{ 'ACCOUNTS_PAYABLE.FORM.PROVEEDOR_REQUERIDO' | translate }}</p>
+          }
         </div>
+
         <div class="form-field">
-          <label for="billNumber">{{ 'ACCOUNTS_PAYABLE.FORM.NUMERO_FACTURA' | translate }}</label>
-          <input type="text" id="billNumber" formControlName="billNumber">
+          <label for="ncf">{{ 'ACCOUNTS_PAYABLE.FORM.NCF' | translate }}</label>
+          <input type="text" id="ncf" formControlName="ncf" autocomplete="off">
         </div>
+
         <div class="form-field">
-          <label for="issueDate">{{ 'ACCOUNTS_PAYABLE.FORM.FECHA_EMISION' | translate }}</label>
-          <input type="date" id="issueDate" formControlName="issueDate">
+          <label for="date">{{ 'ACCOUNTS_PAYABLE.FORM.FECHA_EMISION' | translate }}</label>
+          <input type="date" id="date" formControlName="date">
         </div>
+
         <div class="form-field">
           <label for="dueDate">{{ 'ACCOUNTS_PAYABLE.FORM.FECHA_VENCIMIENTO' | translate }}</label>
           <input type="date" id="dueDate" formControlName="dueDate">
         </div>
+
+        <div class="form-field">
+          <label for="currencyCode">{{ 'ACCOUNTS_PAYABLE.FORM.MONEDA' | translate }}</label>
+          <input
+            type="text"
+            id="currencyCode"
+            formControlName="currencyCode"
+            maxlength="3"
+            [placeholder]="'ACCOUNTS_PAYABLE.FORM.MONEDA_POR_DEFECTO' | translate">
+        </div>
+
+        <div class="form-field">
+          <label for="paymentForm">{{ 'ACCOUNTS_PAYABLE.FORM.FORMA_PAGO' | translate }}</label>
+          <select id="paymentForm" formControlName="paymentForm">
+            @for (form of paymentForms; track form.code) {
+              <option [value]="form.code">{{ form.code }} — {{ form.labelKey | translate }}</option>
+            }
+          </select>
+        </div>
       </div>
     </div>
 
-    <div class="card" formArrayName="lineItems">
+    <div class="card" formArrayName="lines">
       <div class="card-header">
         <h2>{{ 'ACCOUNTS_PAYABLE.FORM.DETALLES_FACTURA' | translate }}</h2>
       </div>
       <div class="card-body">
-        <div *ngFor="let line of lineItems.controls; let i=index" [formGroupName]="i" class="line-item">
-          <input type="text" formControlName="description" [placeholder]="'ACCOUNTS_PAYABLE.FORM.DESCRIPCION' | translate" class="line-description">
-          <input type="number" formControlName="quantity" [placeholder]="'ACCOUNTS_PAYABLE.FORM.CANT' | translate">
-          <input type="number" formControlName="price" [placeholder]="'ACCOUNTS_PAYABLE.FORM.PRECIO' | translate">
-          <input type="text" formControlName="expenseAccountId" [placeholder]="'ACCOUNTS_PAYABLE.FORM.CUENTA_GASTO' | translate">
-          <button (click)="removeLineItem(i)" class="btn-danger-outline btn-icon">{{ 'ACCOUNTS_PAYABLE.FORM.TIMES' | translate }}</button>
+        <div class="line-grid line-grid--head" aria-hidden="true">
+          <span>{{ 'ACCOUNTS_PAYABLE.FORM.DESCRIPCION' | translate }}</span>
+          <span>{{ 'ACCOUNTS_PAYABLE.FORM.CANT' | translate }}</span>
+          <span>{{ 'ACCOUNTS_PAYABLE.FORM.PRECIO' | translate }}</span>
+          <span>{{ 'ACCOUNTS_PAYABLE.FORM.CUENTA_GASTO' | translate }}</span>
+          <span class="text-right">{{ 'ACCOUNTS_PAYABLE.FORM.TOTAL_LINEA' | translate }}</span>
+          <span></span>
         </div>
-        <button (click)="addLineItem()" class="btn-secondary mt-2">{{ 'ACCOUNTS_PAYABLE.FORM.ANADIR_LINEA' | translate }}</button>
+
+        @for (line of lines.controls; track $index; let i = $index) {
+          <div class="line-grid" [formGroupName]="i">
+            <input
+              type="text"
+              formControlName="product"
+              [placeholder]="'ACCOUNTS_PAYABLE.FORM.DESCRIPCION' | translate"
+              [attr.aria-label]="'ACCOUNTS_PAYABLE.FORM.DESCRIPCION' | translate">
+            <input
+              type="number"
+              formControlName="quantity"
+              step="0.0001"
+              min="0.0001"
+              [attr.aria-label]="'ACCOUNTS_PAYABLE.FORM.CANT' | translate">
+            <input
+              type="number"
+              formControlName="unitPrice"
+              step="0.01"
+              min="0"
+              [attr.aria-label]="'ACCOUNTS_PAYABLE.FORM.PRECIO' | translate">
+            <select
+              formControlName="expenseAccountId"
+              [attr.aria-label]="'ACCOUNTS_PAYABLE.FORM.CUENTA_GASTO' | translate">
+              <option value="">{{ 'ACCOUNTS_PAYABLE.FORM.SELECCIONAR_CUENTA' | translate }}</option>
+              @for (account of expenseAccounts(); track account.id) {
+                <option [value]="account.id">{{ account.code }} — {{ account.name }}</option>
+              }
+            </select>
+            <span class="text-right line-total">{{ lineTotal(i) | vxNumber:'1.2-2' }}</span>
+            <button
+              type="button"
+              (click)="removeLine(i)"
+              class="btn-danger-outline btn-icon"
+              [disabled]="lines.length === 1 || lines.disabled"
+              [attr.aria-label]="'ACCOUNTS_PAYABLE.FORM.ELIMINAR_LINEA' | translate">
+              <lucide-icon [name]="RemoveIcon" [size]="16"></lucide-icon>
+            </button>
+          </div>
+        }
+
+        @if (lines.disabled) {
+          <p class="hint">{{ 'ACCOUNTS_PAYABLE.FORM.LINEAS_NO_EDITABLES' | translate }}</p>
+        } @else {
+          <button type="button" (click)="addLine()" class="btn-secondary mt-2">
+            <lucide-icon [name]="AddIcon" [size]="16"></lucide-icon>
+            <span>{{ 'ACCOUNTS_PAYABLE.FORM.ANADIR_LINEA' | translate }}</span>
+          </button>
+        }
       </div>
     </div>
 
     <div class="card">
-        <div class="card-body">
-            <div class="form-field">
-                <label for="notes">{{ 'ACCOUNTS_PAYABLE.FORM.NOTAS' | translate }}</label>
-                <textarea id="notes" formControlName="notes" rows="3"></textarea>
-            </div>
+      <div class="card-header card-header--toggle">
+        <h2>{{ 'ACCOUNTS_PAYABLE.FORM.DESGLOSE_FISCAL' | translate }}</h2>
+        <button type="button" class="btn-secondary" (click)="toggleFiscalDetail()">
+          {{ (showFiscalDetail() ? 'ACCOUNTS_PAYABLE.FORM.OCULTAR' : 'ACCOUNTS_PAYABLE.FORM.MOSTRAR') | translate }}
+        </button>
+      </div>
+      @if (showFiscalDetail()) {
+        <div class="card-body grid-form">
+          <div class="form-field">
+            <label for="purchaseCategory">{{ 'ACCOUNTS_PAYABLE.FORM.TIPO_BIENES_SERVICIOS' | translate }}</label>
+            <select id="purchaseCategory" formControlName="purchaseCategory">
+              @for (category of purchaseCategories; track category.code) {
+                <option [value]="category.code">{{ category.code }} — {{ category.labelKey | translate }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="taxAmount">{{ 'ACCOUNTS_PAYABLE.FORM.IMPUESTO_FACTURADO' | translate }}</label>
+            <input type="number" id="taxAmount" formControlName="taxAmount" step="0.01" min="0">
+          </div>
+          <div class="form-field">
+            <label for="taxWithheld">{{ 'ACCOUNTS_PAYABLE.FORM.IMPUESTO_RETENIDO' | translate }}</label>
+            <input type="number" id="taxWithheld" formControlName="taxWithheld" step="0.01" min="0">
+          </div>
+          <div class="form-field">
+            <label for="incomeTaxWithheld">{{ 'ACCOUNTS_PAYABLE.FORM.ISR_RETENIDO' | translate }}</label>
+            <input type="number" id="incomeTaxWithheld" formControlName="incomeTaxWithheld" step="0.01" min="0">
+          </div>
+          <div class="form-field">
+            <label for="taxToCost">{{ 'ACCOUNTS_PAYABLE.FORM.IMPUESTO_AL_COSTO' | translate }}</label>
+            <input type="number" id="taxToCost" formControlName="taxToCost" step="0.01" min="0">
+          </div>
+          <div class="form-field">
+            <label for="taxProportional">{{ 'ACCOUNTS_PAYABLE.FORM.IMPUESTO_PROPORCIONAL' | translate }}</label>
+            <input type="number" id="taxProportional" formControlName="taxProportional" step="0.01" min="0">
+          </div>
+          <div class="form-field">
+            <label for="exciseAmount">{{ 'ACCOUNTS_PAYABLE.FORM.IMPUESTO_SELECTIVO' | translate }}</label>
+            <input type="number" id="exciseAmount" formControlName="exciseAmount" step="0.01" min="0">
+          </div>
+          <div class="form-field">
+            <label for="otherTaxes">{{ 'ACCOUNTS_PAYABLE.FORM.OTROS_IMPUESTOS' | translate }}</label>
+            <input type="number" id="otherTaxes" formControlName="otherTaxes" step="0.01" min="0">
+          </div>
+          <div class="form-field">
+            <label for="serviceCharge">{{ 'ACCOUNTS_PAYABLE.FORM.PROPINA_LEGAL' | translate }}</label>
+            <input type="number" id="serviceCharge" formControlName="serviceCharge" step="0.01" min="0">
+          </div>
         </div>
+      }
+    </div>
+
+    <div class="card totals-card">
+      <div class="card-body">
+        <dl class="totals">
+          <dt>{{ 'ACCOUNTS_PAYABLE.FORM.SUBTOTAL' | translate }}</dt>
+          <dd>{{ totals().subtotal | vxNumber:'1.2-2' }}</dd>
+          <dt>{{ 'ACCOUNTS_PAYABLE.FORM.IMPUESTOS' | translate }}</dt>
+          <dd>{{ totals().taxAmount | vxNumber:'1.2-2' }}</dd>
+          <dt class="strong">{{ 'ACCOUNTS_PAYABLE.FORM.TOTAL_DOCUMENTO' | translate }}</dt>
+          <dd class="strong">{{ totals().total | vxNumber:'1.2-2' }}</dd>
+          <dt>{{ 'ACCOUNTS_PAYABLE.FORM.RETENCIONES' | translate }}</dt>
+          <dd>−{{ totals().withheld | vxNumber:'1.2-2' }}</dd>
+          <dt class="strong">{{ 'ACCOUNTS_PAYABLE.FORM.NETO_A_PAGAR' | translate }}</dt>
+          <dd class="strong">{{ totals().payable | vxNumber:'1.2-2' }}</dd>
+        </dl>
+      </div>
     </div>
 
     <div class="form-actions">
-        <a routerLink="/accounts-payable" class="btn-secondary">{{ 'ACCOUNTS_PAYABLE.FORM.CANCELAR' | translate }}</a>
-        <button (click)="save()" class="btn-primary" [disabled]="form.invalid || isLoading()">
-            {{ isLoading() ? 'Guardando...' : 'Guardar Factura' }}
-        </button>
+      <a routerLink="/accounts-payable" class="btn-secondary">
+        {{ 'ACCOUNTS_PAYABLE.FORM.CANCELAR' | translate }}
+      </a>
+      <button type="button" (click)="save()" class="btn-primary" [disabled]="!canSave()">
+        {{ (isLoading() ? 'ACCOUNTS_PAYABLE.FORM.GUARDANDO' : 'ACCOUNTS_PAYABLE.FORM.GUARDAR_FACTURA') | translate }}
+      </button>
     </div>
-
   </div>
 </div>

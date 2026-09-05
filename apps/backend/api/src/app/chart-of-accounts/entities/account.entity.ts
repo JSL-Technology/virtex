@@ -34,6 +34,15 @@ export * from '../enums/account-enums';
 @Index(['organizationId'])
 // One account per operational role per tenant: the automatic postings resolve a role to exactly one
 // account, and two candidates would make the choice arbitrary.
+/**
+ * One code per tenant, enforced by the database rather than by a query.
+ *
+ * The duplicate check was a `STRING_AGG ... HAVING` aggregate over every account of the
+ * organization, run before the insert. Two concurrent requests both passed it and both inserted
+ * code `1101`, after which every report showed the same code twice and no automatic posting could
+ * say which of them it meant.
+ */
+@Index('UQ_accounts_org_code', ['organizationId', 'code'], { unique: true })
 @Index('UQ_accounts_org_system_role', ['organizationId', 'systemRole'], {
   unique: true,
   where: '"system_role" IS NOT NULL',
@@ -118,7 +127,15 @@ export class Account {
   @TreeChildren()
   children: Account[];
 
-  @OneToMany(() => AccountSegment, (segment) => segment.account, { cascade: true, eager: true })
+  /**
+   * Not eager.
+   *
+   * It was, because `code` used to be computed from these rows on read — so every query for an
+   * account anywhere in the product also fetched its segments, and a report over a thousand
+   * accounts issued a thousand-row join it never looked at. `code` is a column now, and the
+   * segments are needed only by the chart-of-accounts screens that edit them, which ask for them.
+   */
+  @OneToMany(() => AccountSegment, (segment) => segment.account, { cascade: true })
   segments: AccountSegment[];
 
 
@@ -193,14 +210,44 @@ export class Account {
   @VersionColumn({ comment: 'Versión para bloqueo optimista y prevención de condiciones de carrera.' })
   version: number;
 
-  get code(): string {
-    if (!this.segments || this.segments.length === 0) {
-      return '';
-    }
+  /**
+   * The account code — `1101`, `1101-01-002` — as a stored column.
+   *
+   * ## Why it could not stay a getter
+   *
+   * It used to be computed on read from the `segments` relation. Four consequences:
+   *
+   * 1. **It silently returned the empty string** for any `Account` whose segments were not loaded —
+   *    a partial `select`, a `manager.create`, an entity built by hand. Nothing threw; the reports
+   *    simply rendered accounts with no code, and consolidation grouped every account of every
+   *    company under the same blank key, collapsing four balances into one line.
+   * 2. **It could not be constrained.** Uniqueness within a tenant was checked with a
+   *    `STRING_AGG(...) GROUP BY ... HAVING` query over every account of the organization — an
+   *    aggregate scan on the hot path of account creation, and a check-then-act race with nothing
+   *    behind it, so two concurrent requests both passed and both inserted code `1101`.
+   * 3. **It could not be sorted or filtered in SQL.** A chart of accounts, a trial balance and a
+   *    general ledger are all ordered by code, so each had to load every account into memory to
+   *    sort it.
+   * 4. **The getter mutated the entity it read.** `this.segments.sort(...)` sorts in place, so
+   *    reading `account.code` reordered the caller's array as a side effect.
+   *
+   * The segments remain the structured form — they are what a tenant configures and validates
+   * against — and this column is their canonical rendering, written whenever they are.
+   */
+  @Column({ name: 'code', type: 'varchar', length: 200 })
+  code: string;
+}
 
-    return this.segments
-      .sort((a, b) => a.order - b.order)
-      .map(s => s.value)
-      .join('-');
-  }
+/**
+ * The code a set of segments spells, in segment order.
+ *
+ * The single place the rendering lives, so the stored column and anything that re-derives it
+ * cannot drift apart. Copies the array before sorting: the previous implementation sorted the
+ * caller's own array in place.
+ */
+export function codeFromSegments(segments: Pick<AccountSegment, 'order' | 'value'>[]): string {
+  return [...(segments ?? [])]
+    .sort((a, b) => a.order - b.order)
+    .map((segment) => segment.value)
+    .join('-');
 }

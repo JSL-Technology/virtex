@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
@@ -36,13 +36,37 @@ export interface JournalEntry {
   lines: JournalEntryLine[];
 }
 
+/**
+ * The envelope every paged list route returns.
+ *
+ * The list routes used to hand back a bare array of everything the tenant owned. Typing the page
+ * explicitly is what stops a caller quietly treating `{rows: […]}` as an array and rendering
+ * nothing.
+ */
+export interface Page<T> {
+  rows: T[];
+  page: number;
+  pageSize: number;
+  total: number;
+  hasMore: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class JournalEntriesApiService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/journal-entries`;
 
-  list(): Observable<JournalEntry[]> {
-    return this.http.get<JournalEntry[]>(this.apiUrl);
+  /**
+   * A page of entries, newest first.
+   *
+   * The route used to return every entry the tenant had ever posted. It is bounded now, so the
+   * caller has to say which page it wants and what came back has to say whether there is more.
+   */
+  list(query: { page?: number; pageSize?: number } = {}): Observable<Page<JournalEntry>> {
+    let params = new HttpParams();
+    if (query.page) params = params.set('page', String(query.page));
+    if (query.pageSize) params = params.set('pageSize', String(query.pageSize));
+    return this.http.get<Page<JournalEntry>>(this.apiUrl, { params });
   }
 
   getById(id: string): Observable<JournalEntry> {

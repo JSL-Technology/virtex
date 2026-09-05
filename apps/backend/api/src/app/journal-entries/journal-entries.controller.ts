@@ -7,6 +7,7 @@ import {
   Param,
   UseGuards,
   ParseUUIDPipe,
+  Query,
   UseInterceptors,
   UploadedFile,
   UploadedFiles,
@@ -29,6 +30,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
 import {
   UpdateJournalEntryDto,
@@ -63,8 +65,8 @@ export class JournalEntriesController {
 
   @Get()
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_VIEW)
-  findAll(@CurrentUser() user: AuthenticatedUser) {
-    return this.journalEntriesService.findAll(user.organizationId);
+  findAll(@CurrentUser() user: AuthenticatedUser, @Query() query: PaginationQueryDto) {
+    return this.journalEntriesService.findAll(user.organizationId, query);
   }
 
   @Get(':id')
