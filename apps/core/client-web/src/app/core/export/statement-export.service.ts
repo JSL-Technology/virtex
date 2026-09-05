@@ -8,6 +8,7 @@ import {
   ReportSection,
   TrialBalanceReport,
 } from '../api/financial-reporting.service';
+import { ProfitabilityReport } from '../api/profitability.service';
 import { accountNameOf } from '../i18n/localized-name';
 import { CsvValue, downloadCsv, reportFilename, toCsv } from './csv-export';
 
@@ -251,4 +252,76 @@ export class StatementExportService {
       }),
     );
   }
+
+  /**
+   * Gross margin by product or by customer.
+   *
+   * The `linesWithoutCost` count is written into the file, not just the screen: a product sold
+   * before its cost was recorded shows a 100 % margin, and a reader opening the export next month
+   * has no other way to know which rows to distrust.
+   */
+  exportProfitability(report: ProfitabilityReport, dimension: 'product' | 'customer'): void {
+    const subjectKey =
+      dimension === 'product' ? 'REPORTS.EXPORT.PRODUCT' : 'REPORTS.EXPORT.CUSTOMER';
+
+    const rows: CsvValue[][] = [
+      [
+        this.t('REPORTS.EXPORT.CODE'),
+        this.t(subjectKey),
+        this.t('REPORTS.EXPORT.UNITS_SOLD'),
+        this.t('REPORTS.EXPORT.TOTAL_REVENUE'),
+        this.t('REPORTS.EXPORT.TOTAL_COST'),
+        this.t('REPORTS.EXPORT.GROSS_PROFIT'),
+        this.t('REPORTS.EXPORT.GROSS_MARGIN'),
+      ],
+      ...report.rows.map((row) => [
+        row.code,
+        row.name,
+        row.unitsSold,
+        row.totalRevenue,
+        row.totalCost,
+        row.grossProfit,
+        row.grossMargin,
+      ]),
+      [
+        '',
+        this.t('REPORTS.EXPORT.TOTALS'),
+        report.totals.unitsSold,
+        report.totals.totalRevenue,
+        report.totals.totalCost,
+        report.totals.grossProfit,
+        report.totals.grossMargin,
+      ],
+      [],
+      ['', this.t('REPORTS.EXPORT.LINES_WITHOUT_COST'), report.linesWithoutCost],
+    ];
+
+    downloadCsv(
+      reportFilename(
+        dimension === 'product' ? 'rentabilidad-por-producto' : 'rentabilidad-por-cliente',
+        report.period.startDate,
+        report.period.endDate,
+      ),
+      toCsv(rows, {
+        locale: this.locale,
+        preamble: [
+          [
+            this.t(
+              dimension === 'product'
+                ? 'REPORTS.PROFITABILITY_BY_PRODUCT.PROFITABILITY_BY_PRODUCT'
+                : 'REPORTS.PROFITABILITY_BY_CUSTOMER.PROFITABILITY_BY_CUSTOMER',
+            ),
+          ],
+          [this.t('REPORTS.EXPORT.CURRENCY'), report.currency],
+          [
+            this.t('REPORTS.EXPORT.PERIOD'),
+            `${report.period.startDate} – ${report.period.endDate}`,
+          ],
+          [this.t('REPORTS.EXPORT.GENERATED_AT'), new Date().toISOString()],
+          [],
+        ],
+      }),
+    );
+  }
+
 }

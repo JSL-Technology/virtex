@@ -2,10 +2,12 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ReportsController } from './reports.controller';
 import { ReportsService } from './reports.service';
+import { ProfitabilityService } from './profitability.service';
 import { InvoicesModule } from '../invoices/invoices.module';
 import { AccountingModule } from '../accounting/accounting.module';
 import { AuthModule } from '../auth/auth.module';
 import { Invoice } from '../invoices/entities/invoice.entity';
+import { InvoiceLineItem } from '../invoices/entities/invoice-line-item.entity';
 import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line.entity';
 import { JournalEntry } from '../journal-entries/entities/journal-entry.entity';
 import { Account } from '../chart-of-accounts/entities/account.entity';
@@ -25,9 +27,17 @@ import { Report } from './entities/report.entity';
     InvoicesModule,
     AccountingModule,
     AuthModule,
-    TypeOrmModule.forFeature([Invoice, JournalEntryLine, JournalEntry, Account, Ledger, Report]),
+    TypeOrmModule.forFeature([
+      Invoice,
+      InvoiceLineItem,
+      JournalEntryLine,
+      JournalEntry,
+      Account,
+      Ledger,
+      Report,
+    ]),
   ],
   controllers: [ReportsController],
-  providers: [ReportsService],
+  providers: [ReportsService, ProfitabilityService],
 })
 export class ReportsModule {}

@@ -2418,6 +2418,7 @@
       "DESDE": "Desde",
       "EXPORTAR": "Exportar",
       "HASTA": "Hasta",
+      "LINEAS_SIN_COSTO": "{{count}} línea(s) generaron ingreso sin costo registrado; su margen está sobrestimado.",
       "NO_SE_PUDO_CARGAR": "No se pudo cargar el reporte.",
       "REINTENTAR": "Reintentar",
       "SIN_MOVIMIENTOS": "No hay movimientos contabilizados en este rango.",
@@ -2435,14 +2436,17 @@
       "CONCEPT": "Concepto",
       "COST_OF_SALES": "Costo de ventas",
       "CURRENCY": "Moneda",
+      "CUSTOMER": "Cliente",
       "EQUITY": "Patrimonio",
       "FINANCING": "Actividades de financiamiento",
       "GENERATED_AT": "Generado el",
+      "GROSS_MARGIN": "Margen bruto %",
       "GROSS_PROFIT": "Utilidad bruta",
       "INVESTING": "Actividades de inversión",
       "IS_BALANCED": "¿Cuadra?",
       "LEDGER": "Libro contable",
       "LIABILITIES": "Pasivo",
+      "LINES_WITHOUT_COST": "Líneas con ingreso y sin costo registrado",
       "NET_CHANGE_IN_CASH": "Variación neta del efectivo",
       "NET_INCOME": "Resultado neto",
       "NON_OPERATING": "No operativo",
@@ -2456,10 +2460,12 @@
       "PERIOD": "Período",
       "PERIOD_CREDIT": "Crédito del período",
       "PERIOD_DEBIT": "Débito del período",
+      "PRODUCT": "Producto",
       "REVENUE": "Ingresos",
       "SUBTOTAL": "Subtotal",
       "TOTALS": "Totales",
       "TOTAL_ASSETS": "Total activo",
+      "TOTAL_COST": "Costo total",
       "TOTAL_COST_OF_SALES": "Total costo de ventas",
       "TOTAL_EQUITY": "Total patrimonio",
       "TOTAL_FINANCING": "Total financiamiento",
@@ -2471,7 +2477,8 @@
       "TOTAL_OPERATING_EXPENSES": "Total gastos operativos",
       "TOTAL_REVENUE": "Total ingresos",
       "UNCLOSED_RESULT": "Resultado del ejercicio no cerrado",
-      "UNEXPLAINED_DIFFERENCE": "Diferencia sin explicar"
+      "UNEXPLAINED_DIFFERENCE": "Diferencia sin explicar",
+      "UNITS_SOLD": "Unidades"
     },
     "INCOME_STATEMENT": {
       "COSTO_DE_VENTAS": "Costo de ventas",
@@ -2503,7 +2510,8 @@
       "NO_PROFITABILITY_DATA_AVAILABLE_FOR_SELECTED": "No hay datos de rentabilidad para el período seleccionado.",
       "PROFITABILITY_BY_CUSTOMER": "Rentabilidad por cliente",
       "TOTAL_COST": "Costo total",
-      "TOTAL_REVENUE": "Ingreso total"
+      "TOTAL_REVENUE": "Ingreso total",
+      "UNITS_SOLD": "Unidades"
     },
     "PROFITABILITY_BY_PRODUCT": {
       "EXPORT": "Exportar",

@@ -123,7 +123,15 @@ export class Invoice {
    * `customer_id uuid` (from the relation's join column): two columns holding the same fact, only
    * one of them constrained, free to diverge.
    */
-  @ManyToOne(() => Customer, { onDelete: 'RESTRICT' })
+  /**
+   * `CASCADE`, not `RESTRICT`.
+   *
+   * `RESTRICT` made the tenant undeletable: `organizations` cascades to the parent and PostgreSQL
+   * does not promise to clear this child first, so `DELETE FROM organizations` aborted on any
+   * tenant that had ever used the feature. Refusing to delete a parent still in use belongs in the
+   * owning service, which can say why.
+   */
+  @ManyToOne(() => Customer, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'customer_id' })
   customer: Customer;
 
@@ -322,7 +330,13 @@ export class Invoice {
   @Column({ name: 'original_invoice_id', type: 'uuid', nullable: true })
   originalInvoiceId?: string | null;
 
-  @ManyToOne(() => Invoice, { nullable: true, onDelete: 'RESTRICT' })
+  /**
+   * `SET NULL`, not `RESTRICT`.
+   *
+   * Deleting an invoice must never delete the credit note that corrects it — between the two, the
+   * correction is the record that matters more. And as `RESTRICT` it blocked tenant deletion.
+   */
+  @ManyToOne(() => Invoice, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'original_invoice_id' })
   originalInvoice?: Invoice | null;
 

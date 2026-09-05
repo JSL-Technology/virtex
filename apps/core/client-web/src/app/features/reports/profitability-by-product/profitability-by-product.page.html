@@ -1,49 +1,135 @@
 <div class="subview-container">
-    <div class="subview-header">
-        <h3>{{ 'REPORTS.PROFITABILITY_BY_PRODUCT.PROFITABILITY_BY_PRODUCT' | translate }}</h3>
-        <div class="header-actions">
-            <button class="secondary-button">
-                <lucide-icon [img]="CalendarIcon" size="16"></lucide-icon>
-                <span>{{ 'REPORTS.PROFITABILITY_BY_PRODUCT.LAST_90_DAYS' | translate }}</span>
-            </button>
-            <button class="secondary-button">
-                <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
-                <span>{{ 'REPORTS.PROFITABILITY_BY_PRODUCT.FILTERS' | translate }}</span>
-            </button>
-            <button class="primary-button">
-                <lucide-icon [img]="ExportIcon" size="16"></lucide-icon>
-                <span>{{ 'REPORTS.PROFITABILITY_BY_PRODUCT.EXPORT' | translate }}</span>
-            </button>
-        </div>
+  <div class="subview-header">
+    <h3>{{ 'REPORTS.PROFITABILITY_BY_PRODUCT.PROFITABILITY_BY_PRODUCT' | translate }}</h3>
+    <div class="header-actions">
+      <!--
+        A real date range. The two buttons here were a "Last 90 days" label and a "Filters" label,
+        neither of which had a handler: the page showed three invented rows whatever was clicked.
+      -->
+      <label class="date-picker">
+        <lucide-icon [img]="CalendarIcon" size="16"></lucide-icon>
+        <span class="date-picker__label">{{ 'REPORTS.COMMON.DESDE' | translate }}</span>
+        <input
+          type="date"
+          [value]="startDate()"
+          (change)="onStartDateChange($any($event.target).value)"
+        />
+      </label>
+      <label class="date-picker">
+        <span class="date-picker__label">{{ 'REPORTS.COMMON.HASTA' | translate }}</span>
+        <input
+          type="date"
+          [value]="endDate()"
+          (change)="onEndDateChange($any($event.target).value)"
+        />
+      </label>
+      <button class="secondary-button" type="button" [disabled]="!report()" (click)="exportCsv()">
+        <lucide-icon [img]="ExportIcon" size="16"></lucide-icon>
+        <span>{{ 'REPORTS.COMMON.EXPORTAR' | translate }}</span>
+      </button>
+      <button class="primary-button" type="button" (click)="load()">
+        <lucide-icon [img]="RefreshIcon" size="16"></lucide-icon>
+        <span>{{ 'REPORTS.COMMON.ACTUALIZAR' | translate }}</span>
+      </button>
     </div>
+  </div>
+
+  @if (loading()) {
+    <p class="report-state">{{ 'REPORTS.COMMON.CARGANDO' | translate }}</p>
+  } @else if (failed()) {
+    <p class="report-state report-state--error">
+      {{ 'REPORTS.COMMON.NO_SE_PUDO_CARGAR' | translate }}
+      <button class="secondary-button" type="button" (click)="load()">
+        {{ 'REPORTS.COMMON.REINTENTAR' | translate }}
+      </button>
+    </p>
+  } @else if (report(); as data) {
+    <!--
+      Shown, not hidden. A line sold before its cost was recorded reads as a 100 % margin, and a
+      reader who is not told will act on it.
+    -->
+    @if (data.linesWithoutCost > 0) {
+      <p class="report-state report-state--warning">
+        <lucide-icon [img]="WarningIcon" size="16"></lucide-icon>
+        {{
+          'REPORTS.COMMON.LINEAS_SIN_COSTO'
+            | translate: { count: data.linesWithoutCost }
+        }}
+      </p>
+    }
+
     <div class="table-container card">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>{{ 'REPORTS.PROFITABILITY_BY_PRODUCT.PRODUCT' | translate }}</th>
-                    <th class="text-center">{{ 'REPORTS.PROFITABILITY_BY_PRODUCT.UNITS_SOLD' | translate }}</th>
-                    <th class="text-right">{{ 'REPORTS.PROFITABILITY_BY_PRODUCT.TOTAL_REVENUE' | translate }}</th>
-                    <th class="text-right">{{ 'REPORTS.PROFITABILITY_BY_PRODUCT.TOTAL_COST' | translate }}</th>
-                    <th class="text-right">{{ 'REPORTS.PROFITABILITY_BY_PRODUCT.GROSS_PROFIT' | translate }}</th>
-                    <th class="text-right">{{ 'REPORTS.PROFITABILITY_BY_PRODUCT.GROSS_MARGIN' | translate }}</th>
-                </tr>
-            </thead>
-            <tbody>
-                @for(item of reportData(); track item.id) {
-                <tr>
-                    <td>{{ item.sku }} - {{ item.name }}</td>
-                    <td class="text-center">{{ item.unitsSold }}</td>
-                    <td class="text-right">{{ item.totalRevenue | vxNumber:'1.2-2' }}</td>
-                    <td class="text-right">{{ item.totalCost | vxNumber:'1.2-2' }}</td>
-                    <td class="text-right font-semibold">{{ item.grossProfit | vxNumber:'1.2-2' }}</td>
-                    <td class="text-right font-semibold">{{ item.grossMargin | vxNumber:'1.1-1' }}%</td>
-                </tr>
-                } @empty {
-                <tr>
-                    <td colspan="6" class="empty-state">{{ 'REPORTS.PROFITABILITY_BY_PRODUCT.NO_PROFITABILITY_DATA_AVAILABLE_FOR_SELECTED' | translate }}</td>
-                </tr>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ 'REPORTS.PROFITABILITY_BY_PRODUCT.PRODUCT' | translate }}</th>
+            <th class="text-center">
+              {{ 'REPORTS.PROFITABILITY_BY_PRODUCT.UNITS_SOLD' | translate }}
+            </th>
+            <th class="text-right">
+              {{ 'REPORTS.PROFITABILITY_BY_PRODUCT.TOTAL_REVENUE' | translate }}
+            </th>
+            <th class="text-right">
+              {{ 'REPORTS.PROFITABILITY_BY_PRODUCT.TOTAL_COST' | translate }}
+            </th>
+            <th class="text-right">
+              {{ 'REPORTS.PROFITABILITY_BY_PRODUCT.GROSS_PROFIT' | translate }}
+            </th>
+            <th class="text-right">
+              {{ 'REPORTS.PROFITABILITY_BY_PRODUCT.GROSS_MARGIN' | translate }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of data.rows; track item.id) {
+            <tr>
+              <td>{{ item.code ? item.code + ' — ' + item.name : item.name }}</td>
+              <td class="text-center">{{ item.unitsSold | vxNumber: '1.0-2' }}</td>
+              <td class="text-right">{{ item.totalRevenue | vxMoney: data.currency }}</td>
+              <td class="text-right">{{ item.totalCost | vxMoney: data.currency }}</td>
+              <td class="text-right font-semibold">
+                {{ item.grossProfit | vxMoney: data.currency }}
+              </td>
+              <td class="text-right font-semibold">
+                @if (item.grossMargin === null) {
+                  —
+                } @else {
+                  {{ item.grossMargin | vxNumber: '1.1-1' }}%
                 }
-            </tbody>
-        </table>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="empty-state">
+                {{
+                  'REPORTS.PROFITABILITY_BY_PRODUCT.NO_PROFITABILITY_DATA_AVAILABLE_FOR_SELECTED'
+                    | translate
+                }}
+              </td>
+            </tr>
+          }
+        </tbody>
+        @if (!isEmpty()) {
+          <tfoot>
+            <tr class="totals-row">
+              <td>{{ 'REPORTS.EXPORT.TOTALS' | translate }}</td>
+              <td class="text-center">{{ data.totals.unitsSold | vxNumber: '1.0-2' }}</td>
+              <td class="text-right">{{ data.totals.totalRevenue | vxMoney: data.currency }}</td>
+              <td class="text-right">{{ data.totals.totalCost | vxMoney: data.currency }}</td>
+              <td class="text-right font-semibold">
+                {{ data.totals.grossProfit | vxMoney: data.currency }}
+              </td>
+              <td class="text-right font-semibold">
+                @if (data.totals.grossMargin === null) {
+                  —
+                } @else {
+                  {{ data.totals.grossMargin | vxNumber: '1.1-1' }}%
+                }
+              </td>
+            </tr>
+          </tfoot>
+        }
+      </table>
     </div>
+  }
 </div>

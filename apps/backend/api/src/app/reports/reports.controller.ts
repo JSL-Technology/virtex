@@ -9,6 +9,8 @@ import { BadRequestError } from '../i18n/localized.exception';
 import { GeneralLedgerReportDto } from '../journal-entries/dto/general-ledger-report.dto';
 import { JournalReportDto } from '../journal-entries/dto/journal-report.dto';
 import { AgingReportDto } from './dto/aging-report.dto';
+import { ProfitabilityQueryDto } from './dto/profitability.dto';
+import { ProfitabilityService } from './profitability.service';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
@@ -25,7 +27,10 @@ import { PERMISSIONS } from '../shared/permissions';
 @Controller('reports')
 @UseGuards(JwtAuthGuard)
 export class ReportsController {
-  constructor(private readonly reportsService: ReportsService) {}
+  constructor(
+    private readonly reportsService: ReportsService,
+    private readonly profitabilityService: ProfitabilityService,
+  ) {}
 
   @Get('aging')
   @HasPermission(PERMISSIONS.REPORTS_VIEW_FINANCIAL)
@@ -37,6 +42,33 @@ export class ReportsController {
       user.organizationId,
       query.ledgerId,
     );
+  }
+
+  /**
+   * Gross margin by product.
+   *
+   * The screen that shows this had three invented rows written into the Angular component — a
+   * laptop, a mouse, a monitor — and made no request at all. There was no server-side counterpart
+   * to make one to.
+   */
+  @Get('profitability/by-product')
+  @HasPermission(PERMISSIONS.REPORTS_VIEW_FINANCIAL)
+  @ApiOperation({ summary: 'Margen bruto por producto, de los documentos emitidos.' })
+  profitabilityByProduct(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: ProfitabilityQueryDto,
+  ) {
+    return this.profitabilityService.byProduct(user.organizationId, query);
+  }
+
+  @Get('profitability/by-customer')
+  @HasPermission(PERMISSIONS.REPORTS_VIEW_FINANCIAL)
+  @ApiOperation({ summary: 'Margen bruto por cliente, de los documentos emitidos.' })
+  profitabilityByCustomer(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: ProfitabilityQueryDto,
+  ) {
+    return this.profitabilityService.byCustomer(user.organizationId, query);
   }
 
   @Post('generate')

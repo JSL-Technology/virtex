@@ -76,7 +76,16 @@ export class CustomerPayment {
   @Column({ name: 'bank_account_id', type: 'uuid' })
   bankAccountId: string;
 
-  @ManyToOne(() => BankAccount, { onDelete: 'RESTRICT' })
+  /**
+   * `CASCADE`, not `RESTRICT`.
+   *
+   * `RESTRICT` here made the tenant undeletable: `organizations` cascades to the parent, and
+   * PostgreSQL does not promise to clear this child first, so the delete aborted. Refusing to
+   * delete a parent that is still in use is a rule the owning service states — with a message the
+   * user can act on — rather than a constraint whose other effect is that offboarding a customer
+   * is impossible.
+   */
+  @ManyToOne(() => BankAccount, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'bank_account_id' })
   bankAccount: BankAccount;
 

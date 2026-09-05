@@ -40,7 +40,15 @@ export class PaymentBatch {
   @Column({ name: 'bank_account_id', type: 'uuid' })
   bankAccountId: string;
 
-  @ManyToOne(() => BankAccount, { onDelete: 'RESTRICT' })
+  /**
+   * `CASCADE`, not `RESTRICT`.
+   *
+   * `RESTRICT` made the tenant undeletable: `organizations` cascades to the parent and PostgreSQL
+   * does not promise to clear this child first, so `DELETE FROM organizations` aborted on any
+   * tenant that had ever used the feature. Refusing to delete a parent still in use belongs in the
+   * owning service, which can say why.
+   */
+  @ManyToOne(() => BankAccount, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'bank_account_id' })
   bankAccount: BankAccount;
 

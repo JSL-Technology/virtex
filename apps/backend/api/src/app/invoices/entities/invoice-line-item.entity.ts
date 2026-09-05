@@ -37,7 +37,17 @@ export class InvoiceLineItem {
    * is not an inventory item. Requiring a `productId` made it impossible to invoice anything that
    * is not stocked, which rules out every services business the product is sold to.
    */
-  @ManyToOne(() => Product, { nullable: true, onDelete: 'RESTRICT' })
+  /**
+   * `SET NULL`, not `RESTRICT`.
+   *
+   * A line is part of a fiscal document and has to outlive the catalogue: it carries its own
+   * description, price, quantity, unit of measure and unit cost, so it stays completely readable
+   * once the product is gone. `RESTRICT` was standing in for a business rule — "you may not delete
+   * a product you have sold" — that belongs in the product service, where it can explain itself,
+   * rather than in a constraint whose other effect was that a tenant which had issued one invoice
+   * for one stocked product could never be deleted.
+   */
+  @ManyToOne(() => Product, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'productId' })
   product?: Product | null;
 
