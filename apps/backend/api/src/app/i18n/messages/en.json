@@ -1122,15 +1122,19 @@
     "UNSPECIFIED": "a limited time"
   },
   "TREASURY": {
+    "CONTRAPARTIDA_NO_PUEDE_SER_MISMA_CUENTA": "The opening balance's counterpart cannot be the bank's own control account.",
     "CUENTAS_ORIGEN_DESTINO_NO_PUEDEN_SER_MISMA": "The source and destination accounts cannot be the same.",
     "CUENTA_BANCARIA_INACTIVA": "Bank account “{name}” is inactive and cannot take movements.",
     "CUENTA_BANCARIA_NO_ENCONTRADA": "The bank account does not exist or does not belong to this organization.",
     "CUENTA_COMISIONES_NO_CONFIGURADA": "No bank fees account has been configured for this organization.",
     "CUENTA_CONTABLE_NO_ADMITE_MOVIMIENTOS": "The ledger account given is a summary account and cannot take movements.",
     "CUENTA_CONTABLE_NO_VALIDA": "The ledger account given does not exist in this organization.",
+    "CUENTA_CONTRAPARTIDA_NO_VALIDA": "The counterpart account does not exist in this organisation's chart of accounts.",
     "CUENTA_DIFERENCIA_CAMBIARIA_NO_CONFIGURADA": "No exchange difference account has been configured for this organization.",
     "DIARIO_BANCOS_BANCOS_NO_ENCONTRADO": "The Banks journal (BANCOS) was not found.",
     "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "No default ledger has been configured for the organization.",
+    "SALDO_APERTURA_REQUIERE_CONTRAPARTIDA": "An opening balance must name its counterpart account — normally opening balance equity. It is posted as a journal entry, not stored on the side.",
+    "SALDO_APERTURA_REQUIERE_FECHA": "An opening balance must state the date on which the account held it.",
     "TRANSFERENCIA_MULTIMONEDA_REQUIERE_MONTO_RECIBIDO": "A transfer between accounts in different currencies must state the amount received."
   },
   "USERS": {

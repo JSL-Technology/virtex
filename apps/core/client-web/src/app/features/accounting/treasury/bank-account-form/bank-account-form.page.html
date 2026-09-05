@@ -71,12 +71,31 @@
         <label class="field">
           <span>{{ 'TREASURY.FORM.SALDO_INICIAL' | translate }}</span>
           <input type="number" step="0.01" formControlName="openingBalance" />
+          <!--
+            An opening balance is now a journal entry, not a field stored beside the account. It
+            used to be written and read by nothing, so a treasurer who typed a figure here saw a
+            cash position of zero and had nothing to tell them why.
+          -->
+          <small class="field__note">{{ 'TREASURY.FORM.SALDO_INICIAL_NOTA' | translate }}</small>
         </label>
 
-        <label class="field">
-          <span>{{ 'TREASURY.FORM.FECHA_APERTURA' | translate }}</span>
-          <input type="date" formControlName="openingDate" />
-        </label>
+        @if (declaresOpeningBalance()) {
+          <label class="field">
+            <span>{{ 'TREASURY.FORM.FECHA_APERTURA' | translate }}</span>
+            <input type="date" formControlName="openingDate" required />
+          </label>
+
+          <label class="field">
+            <span>{{ 'TREASURY.FORM.CUENTA_CONTRAPARTIDA' | translate }}</span>
+            <select formControlName="openingBalanceAccountId" required>
+              <option value="">{{ 'TREASURY.FORM.SELECCIONE' | translate }}</option>
+              @for (account of equityAccounts(); track account.id) {
+                <option [value]="account.id">{{ account.code }} — {{ account.name | vxName }}</option>
+              }
+            </select>
+            <small class="field__note">{{ 'TREASURY.FORM.CUENTA_CONTRAPARTIDA_NOTA' | translate }}</small>
+          </label>
+        }
       }
 
       <label class="field">

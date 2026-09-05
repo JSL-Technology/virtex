@@ -57,6 +57,12 @@ export class BankAccountFormPage implements OnInit {
   readonly saving = signal(false);
   readonly postableAccounts = signal<Account[]>([]);
   readonly currencyCodes = signal<string[]>([]);
+  /** What the opening balance's counterpart can be: equity, normally opening-balance equity. */
+  readonly equityAccounts = computed(() =>
+    this.postableAccounts().filter((account) => account.type === 'EQUITY'),
+  );
+  /** Whether the form is declaring a balance at all — the extra fields only matter then. */
+  readonly declaresOpeningBalance = signal(false);
 
   ngOnInit(): void {
     this.form = this.fb.group({
@@ -70,8 +76,28 @@ export class BankAccountFormPage implements OnInit {
       glAccountId: ['', [Validators.required]],
       openingBalance: [0],
       openingDate: [''],
+      // Required whenever a balance is declared, and deliberately not defaulted: posting an
+      // opening balance to retained earnings because nobody chose an account misstates retained
+      // earnings, and which account it belongs in is the accountant's decision.
+      openingBalanceAccountId: [''],
       notes: [''],
       isActive: [true],
+    });
+
+    this.form.get('openingBalance')?.valueChanges.subscribe((value) => {
+      const declares = Math.abs(Number(value) || 0) > 0;
+      this.declaresOpeningBalance.set(declares);
+      const date = this.form.get('openingDate');
+      const counterpart = this.form.get('openingBalanceAccountId');
+      for (const control of [date, counterpart]) {
+        if (!control) continue;
+        if (declares) control.addValidators(Validators.required);
+        else {
+          control.removeValidators(Validators.required);
+          control.setValue('', { emitEvent: false });
+        }
+        control.updateValueAndValidity({ emitEvent: false });
+      }
     });
 
     this.accounts.getAccounts().subscribe({
@@ -153,6 +179,7 @@ export class BankAccountFormPage implements OnInit {
         glAccountId: raw.glAccountId,
         openingBalance: Number(raw.openingBalance) || 0,
         openingDate: raw.openingDate || null,
+        openingBalanceAccountId: raw.openingBalanceAccountId || null,
         notes: raw.notes || null,
       })
       .subscribe(done);

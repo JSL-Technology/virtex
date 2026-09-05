@@ -1122,15 +1122,19 @@
     "UNSPECIFIED": "um tempo limitado"
   },
   "TREASURY": {
+    "CONTRAPARTIDA_NO_PUEDE_SER_MISMA_CUENTA": "A contrapartida do saldo de abertura não pode ser a própria conta de controle do banco.",
     "CUENTAS_ORIGEN_DESTINO_NO_PUEDEN_SER_MISMA": "As contas de origem e destino não podem ser a mesma.",
     "CUENTA_BANCARIA_INACTIVA": "A conta bancária «{name}» está inativa e não admite movimentos.",
     "CUENTA_BANCARIA_NO_ENCONTRADA": "A conta bancária não existe ou não pertence a esta organização.",
     "CUENTA_COMISIONES_NO_CONFIGURADA": "Não foi configurada a conta de tarifas bancárias da organização.",
     "CUENTA_CONTABLE_NO_ADMITE_MOVIMIENTOS": "A conta contábil indicada é de agrupamento e não admite movimentos.",
     "CUENTA_CONTABLE_NO_VALIDA": "A conta contábil indicada não existe nesta organização.",
+    "CUENTA_CONTRAPARTIDA_NO_VALIDA": "A conta de contrapartida não existe no plano de contas desta organização.",
     "CUENTA_DIFERENCIA_CAMBIARIA_NO_CONFIGURADA": "Não foi configurada a conta de diferença cambial da organização.",
     "DIARIO_BANCOS_BANCOS_NO_ENCONTRADO": "O diário de Bancos (BANCOS) não foi encontrado.",
     "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "Nenhum livro contábil padrão foi configurado para a organização.",
+    "SALDO_APERTURA_REQUIERE_CONTRAPARTIDA": "Um saldo de abertura deve indicar a conta de contrapartida (normalmente patrimônio de abertura). É lançado como um lançamento contábil, não guardado à parte.",
+    "SALDO_APERTURA_REQUIERE_FECHA": "Um saldo de abertura deve indicar a data em que a conta o possuía.",
     "TRANSFERENCIA_MULTIMONEDA_REQUIERE_MONTO_RECIBIDO": "Uma transferência entre contas de moedas diferentes exige informar o valor recebido."
   },
   "USERS": {

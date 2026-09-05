@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { Account } from '../../chart-of-accounts/entities/account.entity';
+import { JournalEntry } from '../../journal-entries/entities/journal-entry.entity';
 import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 
 export enum BankAccountType {
@@ -112,7 +113,15 @@ export class BankAccount {
   @JoinColumn({ name: 'gl_account_id' })
   glAccount: Account;
 
-  /** Balance the account was opened with in this system, in `currencyCode`. */
+  /**
+   * Balance the account was opened with in this system, in `currencyCode`.
+   *
+   * A record of what was declared, not a figure any report reads. The cash position, the balance
+   * sheet and every other number come from the general ledger, so this only means anything because
+   * `openingJournalEntryId` names the entry that put it there. Both columns were write-only until
+   * that entry existed: a treasurer who typed 250,000 here saw a cash position of zero, and the
+   * balance sheet agreed with the cash position, so nothing revealed the discrepancy.
+   */
   @Column('decimal', {
     name: 'opening_balance',
     precision: 18,
@@ -124,6 +133,25 @@ export class BankAccount {
 
   @Column({ name: 'opening_date', type: 'date', nullable: true })
   openingDate: string | null;
+
+  /**
+   * The entry that posted `openingBalance` into the ledger.
+   *
+   * `SET NULL` rather than `CASCADE`: reversing or deleting the opening entry must not delete the
+   * bank account with it. Null means no opening balance was declared, or that its entry is gone —
+   * either way the ledger, not this column, is what the reports read.
+   */
+  @Column({ name: 'opening_journal_entry_id', type: 'uuid', nullable: true })
+  openingJournalEntryId: string | null;
+
+  // Declared as a relation, not a bare uuid, so the foreign key is part of the entity's own
+  // description and `check:schema-drift` can see it.
+  @ManyToOne(() => JournalEntry, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({
+    name: 'opening_journal_entry_id',
+    foreignKeyConstraintName: 'FK_bank_accounts_opening_journal_entry',
+  })
+  openingJournalEntry?: JournalEntry | null;
 
   @Column({ name: 'is_active', default: true })
   isActive: boolean;

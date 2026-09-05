@@ -43,7 +43,12 @@ export class PeriodLockGuard implements CanActivate {
 
     if (!user?.organizationId) return true;
 
-    const transactionDateStr = body?.date ?? body?.issueDate ?? body?.paymentDate;
+    // `openingDate` is here because opening a bank account with a declared balance posts a real
+    // journal entry on that date. Without it the guard silently passed every such request through
+    // to the service, which does enforce the lock inside the transaction — a correct rejection,
+    // but one that arrives after the account row has been built.
+    const transactionDateStr =
+      body?.date ?? body?.issueDate ?? body?.paymentDate ?? body?.openingDate;
     if (!transactionDateStr) return true;
 
     const transactionDate = new Date(`${String(transactionDateStr).slice(0, 10)}T00:00:00.000Z`);

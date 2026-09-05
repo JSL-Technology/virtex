@@ -43,14 +43,21 @@ export class TreasuryController {
 
   // ── Bank accounts ──────────────────────────────────────────────────────────
 
+  /**
+   * Registers the account, and posts its opening balance if it declares one.
+   *
+   * `PeriodLockGuard` because that opening balance is a real journal entry, dated whenever the
+   * caller says the account was opened: it must not land in a period that has been closed.
+   */
   @Post('bank-accounts')
+  @UseGuards(PeriodLockGuard)
   @HasPermission(PERMISSIONS.TREASURY_MANAGE_ACCOUNTS)
   @ApiOperation({ summary: 'Registra una cuenta bancaria de la organización.' })
   createBankAccount(
     @Body() dto: CreateBankAccountDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.treasuryService.createBankAccount(dto, user.organizationId);
+    return this.treasuryService.createBankAccount(dto, user.organizationId, user.id);
   }
 
   @Get('bank-accounts')

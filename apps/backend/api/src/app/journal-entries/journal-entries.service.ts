@@ -407,6 +407,20 @@ export class JournalEntriesService {
         line.credit = convert(lineDto.credit, rate);
         line.exchangeRate = rate;
         line.currencyCode = currencyCode;
+      } else if (lineDto.currencyCode) {
+        // A line that states its own currency. `debit`/`credit` are already the ledger amounts —
+        // the caller converted them, because only it knows at which of several rates — and these
+        // record what the document said.
+        //
+        // An entry-level currency converts every line at ONE rate, which cannot describe a
+        // transfer out of a dollar account into a peso one: its two sides are in different
+        // currencies by construction. Those entries used to store no document amount at all, so
+        // `foreignCurrencyBalancesAsOf` — what the period-end revaluation restates — never saw a
+        // single bank transfer.
+        line.currencyCode = lineDto.currencyCode.toUpperCase();
+        line.foreignCurrencyDebit = lineDto.foreignCurrencyDebit ?? 0;
+        line.foreignCurrencyCredit = lineDto.foreignCurrencyCredit ?? 0;
+        line.exchangeRate = lineDto.exchangeRate;
       }
 
       convertedDebitCents += toCents(line.debit);

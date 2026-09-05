@@ -35,7 +35,17 @@ export interface CashPositionRow {
   accountNumberMasked: string | null;
   currencyCode: string;
   glAccountId: string;
+  /** Balance of the control account, in the books' currency. */
   balanceInBaseCurrency: number;
+  /**
+   * The same balance in `currencyCode` — how many dollars are in the dollar account.
+   *
+   * `null` when the ledger holds no document-currency amount to derive it from: entries posted
+   * before per-line currency existed are in that state permanently, and dividing by today's rate
+   * would give a different answer every day. `currencyBalanceUnavailable` says which case it is.
+   */
+  balanceInAccountCurrency: number | null;
+  currencyBalanceUnavailable: 'NOT_RECORDED' | null;
 }
 
 export interface CashPosition {
@@ -68,6 +78,14 @@ export interface CreateBankAccount {
   currencyCode: string;
   glAccountId: string;
   openingBalance?: number;
+  /**
+   * The equity or suspense account the opening balance is posted against.
+   *
+   * Required by the server whenever `openingBalance` is not zero. The balance is a journal entry
+   * now, not a column read by nothing: the cash position and every statement come from the ledger,
+   * so a figure that never reached the ledger was invisible in all of them.
+   */
+  openingBalanceAccountId?: string | null;
   openingDate?: string | null;
   notes?: string | null;
 }
