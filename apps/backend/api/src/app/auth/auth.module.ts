@@ -10,6 +10,12 @@ import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
 import { GoogleRecaptchaModule, GoogleRecaptchaGuard } from '@nestlab/google-recaptcha';
 
 import { AuthController } from './auth.controller';
+import { AuthRegistrationController } from './auth-registration.controller';
+import { AuthSocialController } from './auth-social.controller';
+import { AuthStepUpController } from './auth-step-up.controller';
+import { AuthMfaController } from './auth-mfa.controller';
+import { AuthWebAuthnController } from './auth-webauthn.controller';
+import { AuthSessionController } from './auth-session.controller';
 import { AuthService } from './auth.service';
 import { AuthFacade } from './auth.facade';
 import { RegistrationService } from './services/registration.service';
@@ -150,7 +156,18 @@ import { KeyManagementModule } from './services/key-management.module';
     LocalizationModule,
     forwardRef(() => PaymentModule),
   ],
-  controllers: [AuthController, SsoAdminController],
+  controllers: [
+    // The authentication surface is split across cohesive controllers, each mounted on
+    // `@Controller('auth')`. See the docblock on AuthController for the rationale.
+    AuthController,
+    AuthRegistrationController,
+    AuthSocialController,
+    AuthStepUpController,
+    AuthMfaController,
+    AuthWebAuthnController,
+    AuthSessionController,
+    SsoAdminController,
+  ],
   providers: [
     AuthService,
     AuthFacade,

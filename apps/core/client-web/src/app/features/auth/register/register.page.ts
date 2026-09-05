@@ -501,13 +501,18 @@ export class RegisterPage implements OnInit {
       return;
     }
 
-    // Every country needs a fiscal region, not just four of them.
+    // The country is the authoritative fiscal field, not the fiscal region.
     //
-    // This used to check `['DO', 'PA', 'US', 'CO']`, so choosing any other country — including the
-    // four others the form offered — passed the gate with no region and produced a tenant with no
-    // chart of accounts and no taxes. The region is now required for whatever country is selected,
-    // which is the only version of this check that means anything.
-    if (this.currentStep() === 4 && !this.registerForm.get('configuration.fiscalRegionId')?.value) {
+    // The server derives the region, chart of accounts and taxes from `countryCode` and
+    // deliberately IGNORES any `fiscalRegionId` the client sends (it is accepted only for
+    // backwards compatibility). Gating on `fiscalRegionId` therefore checked a value the backend
+    // no longer reads — and one that is null whenever the country catalogue does not carry it —
+    // so a user could fill in a fully valid, supported country and still be blocked here. The gate
+    // now verifies what actually matters: a country is chosen and its configuration has loaded.
+    if (
+      this.currentStep() === 4 &&
+      (!this.registerForm.get('configuration.country')?.value || !this.currentCountryConfig())
+    ) {
       this.errorMessage.set('REGISTER.ERRORS.COUNTRY_CONFIG');
       return;
     }

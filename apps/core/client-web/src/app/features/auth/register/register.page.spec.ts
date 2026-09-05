@@ -207,11 +207,25 @@ describe('RegisterPage', () => {
       );
     });
 
-    it('refuses to advance past the fiscal step with no fiscal region, for ANY country', () => {
-      // The old check listed four countries by hand, so the other four the form offered advanced
-      // with no region and produced a tenant with no chart of accounts.
+    it('advances past the fiscal step with a supported country even when no fiscalRegionId is present', () => {
+      // The country is the authoritative fiscal field: the server derives the region, chart of
+      // accounts and taxes from `countryCode` and ignores any `fiscalRegionId` the client sends.
+      // Gating on `fiscalRegionId` blocked fully-valid, supported countries whenever the catalogue
+      // did not carry the id — so a null region must NOT stop the wizard.
       component.configuration.get('fiscalRegionId')?.setValue(null);
       fillConfiguration();
+      component.currentStep.set(4);
+      component.nextStep();
+
+      expect(component.currentStep()).toBe(5);
+      expect(component.errorMessage()).toBeNull();
+    });
+
+    it('refuses to advance past the fiscal step until the country configuration has loaded', () => {
+      // The meaningful failure is a country whose configuration is not available — without it there
+      // is nothing to validate the fiscal fields against. This is what the gate now checks.
+      fillConfiguration();
+      countryService.setConfig(null);
       component.currentStep.set(4);
       component.nextStep();
 

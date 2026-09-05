@@ -20,6 +20,7 @@ import {
     IsUUID,
 } from 'class-validator';
 import { PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH, PASSWORD_POLICY_REGEX, PASSWORD_POLICY_MESSAGE } from './password-policy';
+import { NormalizeEmail } from '../../common/transformers/normalize-email.transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterUserDto {
@@ -119,6 +120,9 @@ export class RegisterUserDto {
     lastName: string;
 
     @ApiProperty({ example: 'john.doe@example.com', description: 'User Email' })
+    // Canonicalised (trim + lowercase) so the address stored here is the same one login,
+    // recovery and the "already a customer, add a company" reuse path look up — see NormalizeEmail.
+    @NormalizeEmail()
     @IsEmail({}, { message: 'VALIDATION.REGISTER_USER.FORMATO_CORREO_ELECTRONICO_NO_VALIDO' })
     @IsNotEmpty({ message: 'VALIDATION.REGISTER_USER.CORREO_ELECTRONICO_NO_PUEDE_ESTAR_VACIO' })
     @MaxLength(254, { message: 'VALIDATION.REGISTER_USER.EMAIL_NO_PUEDE_TENER_MAS_254_CARACTERES_RFC' })

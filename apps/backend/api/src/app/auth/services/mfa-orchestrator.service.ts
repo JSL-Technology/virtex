@@ -29,6 +29,18 @@ function hashTarget(target: string): string {
   return crypto.createHash('sha256').update(target.toLowerCase().trim()).digest('hex').slice(0, 12);
 }
 
+/**
+ * Canonicalise a verification destination to the case it is stored and looked up under.
+ *
+ * The HTTP DTOs already do this, but the code stored against a `target` and the pre-verification
+ * token's `sub` are security-relevant bindings, so the invariant is re-asserted here rather than
+ * trusted to every present and future caller. Trimming and lower-casing leave an E.164 phone
+ * number untouched (it carries no letters) and bring an email into one canonical form.
+ */
+function normalizeTarget(target: string): string {
+  return typeof target === 'string' ? target.trim().toLowerCase() : target;
+}
+
 @Injectable()
 export class MfaOrchestratorService {
   private readonly logger = new Logger(MfaOrchestratorService.name);
@@ -193,7 +205,8 @@ export class MfaOrchestratorService {
       }
   }
 
-  async sendPublicVerification(target: string, type: VerificationType) {
+  async sendPublicVerification(rawTarget: string, type: VerificationType) {
+    const target = normalizeTarget(rawTarget);
     const code = randomInt(100000, 999999).toString();
     const hash = await argon2.hash(code);
 
@@ -255,7 +268,8 @@ export class MfaOrchestratorService {
     }
   }
 
-  async verifyPublicCode(target: string, type: VerificationType, code: string) {
+  async verifyPublicCode(rawTarget: string, type: VerificationType, code: string) {
+    const target = normalizeTarget(rawTarget);
     const record = await this.verificationCodeRepository.findOne({
       where: { target, type },
     });
@@ -309,8 +323,12 @@ export class MfaOrchestratorService {
       throw new BadRequestError('AUTH.TIPO_TOKEN_INVALIDO');
     }
 
+    // The token was minted from an already-canonical target, but the lookup and the
+    // pre-verification `sub` are re-normalised so a token signed before this change still resolves.
+    const email = normalizeTarget(payload.email);
+
     const record = await this.verificationCodeRepository.findOne({
-      where: { target: payload.email, type: VerificationType.EMAIL_VERIFY },
+      where: { target: email, type: VerificationType.EMAIL_VERIFY },
     });
 
     if (!record) {
@@ -330,7 +348,7 @@ export class MfaOrchestratorService {
 
     // Key separation: pre-verification tokens use their own secret (NIST SP 800-57 §5.2, CWE-321)
     const preVerifiedToken = this.jwtService.sign(
-      { sub: payload.email, verType: VerificationType.EMAIL_VERIFY, type: 'VERIFICATION_PRE_VERIFIED' },
+      { sub: email, verType: VerificationType.EMAIL_VERIFY, type: 'VERIFICATION_PRE_VERIFIED' },
       { secret: AuthConfig.JWT_PREVERIFY_SECRET, expiresIn: '30m' },
     );
 

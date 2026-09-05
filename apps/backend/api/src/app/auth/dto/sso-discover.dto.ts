@@ -1,4 +1,5 @@
 import { IsEmail, MaxLength } from 'class-validator';
+import { NormalizeEmail } from '../../common/transformers/normalize-email.transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
 /**
@@ -7,6 +8,7 @@ import { ApiProperty } from '@nestjs/swagger';
  */
 export class SsoDiscoverDto {
   @ApiProperty({ example: 'jane@acme.com' })
+  @NormalizeEmail()
   @IsEmail()
   @MaxLength(254, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":254}' })
   email: string;

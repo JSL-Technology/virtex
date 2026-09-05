@@ -381,6 +381,31 @@ export class RegistrationService {
       where: { taxId: canonicalTaxId, fiscalRegionId },
     });
     if (duplicateOrg) {
+      // Why telling the caller "this tax id is already registered" is NOT an enumeration oracle
+      // here: `validateRegistration` above has already verified an emailed code against
+      // `dto.email`, so the only party that ever sees this message is one that has PROVEN control
+      // of the mailbox it registered with — not an anonymous scraper mapping which companies use
+      // the platform. That gate, plus reCAPTCHA, the honeypot, the per-IP throttle and the
+      // constant-time `simulateDelay`, is what makes the helpful message safe to return. The
+      // message is genuinely needed: a fiscal identifier is one company, so a real employee whose
+      // company is already on the platform must be told to ask for an invitation rather than being
+      // left to pay for a duplicate tenant that materialisation would then reject.
+      //
+      // Repeated hits are still worth seeing — a verified email probing many tax ids is the abuse
+      // shape the gate cannot prevent — so the attempt is logged (address hashed; it is PII).
+      const emailHash = createHash('sha256')
+        .update(dto.email.toLowerCase().trim())
+        .digest('hex')
+        .slice(0, 12);
+      this.logger.warn(
+        {
+          event: 'duplicate_taxid_registration_attempt',
+          emailHash,
+          countryCode: dto.countryCode,
+          fiscalRegionId,
+        },
+        '[SECURITY] Registration attempted with an already-registered fiscal identifier',
+      );
       await this.simulateDelay();
       throw new ConflictException(
         'Ya existe una organización registrada con ese identificador fiscal. ' +

@@ -23,6 +23,15 @@ import { ForbiddenError } from '../../i18n/localized.exception';
  * a signature — and, when the request carries an authenticated principal, checks that the token
  * was minted for that same principal, so a token obtained from the attacker's own account cannot
  * be replayed against a victim's session.
+ *
+ * On top of the signed double-submit there is an independent Fetch Metadata layer. Modern browsers
+ * stamp `Sec-Fetch-Site` on every request, and a genuine cookie-authenticated call is always
+ * same-origin or same-site (a `SameSite=Lax` cookie is not even sent cross-site). So a
+ * state-changing request that announces itself as `cross-site` cannot be a legitimate one, and is
+ * refused before the token is examined — including on `POST /auth/refresh`, whose stateless
+ * bootstrap deliberately accepts an `anon`-bound token (the browser that just had its access token
+ * expire has no principal to bind to yet). Absent header ⇒ allowed, so a non-browser caller or an
+ * older client that omits it still works; the token check remains the primary control.
  */
 @Injectable()
 export class CsrfGuard implements CanActivate {
@@ -56,6 +65,22 @@ export class CsrfGuard implements CanActivate {
     ]);
     if (exempt) {
       return true;
+    }
+
+    // Fetch Metadata (defence in depth, independent of the token). A cookie-authenticated request
+    // is inherently same-site — `SameSite=Lax` cookies are not sent cross-site — so a
+    // state-changing request that declares `Sec-Fetch-Site: cross-site` is never a legitimate one.
+    // Reject it outright; this covers the whole app, including the `anon`-token refresh path the
+    // signed double-submit deliberately keeps open for the stateless bootstrap. Only an explicit
+    // `cross-site` is rejected: an absent header (non-browser client, older browser) falls through
+    // to the token check, which stays the primary control.
+    const fetchSite = request.headers['sec-fetch-site'] as string | undefined;
+    if (fetchSite === 'cross-site') {
+      this.logger.warn(
+        { event: 'csrf_cross_site_blocked', method, url: request.url },
+        '[SECURITY] Blocked a cross-site state-changing request (Sec-Fetch-Site)',
+      );
+      throw new ForbiddenError('AUTH.INVALID_CSRF_TOKEN');
     }
 
     // CSRF is an attack on AMBIENT authority: the browser attaches a credential the user did not

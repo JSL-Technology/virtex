@@ -2,6 +2,7 @@ import { IsString, Length, IsEnum, IsObject, IsOptional, IsIn } from 'class-vali
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { VerificationType } from '../entities/verification-code.entity';
 import { IsVerificationTarget } from '../../common/validators/is-verification-target.validator';
+import { NormalizeContactTarget } from '../../common/transformers/normalize-email.transformer';
 import { BILLING_PERIODS, type BillingPeriod } from '../../saas/enums/billing-period.enum';
 
 // H-03 FIX: tempToken removed — pending session is tracked via httpOnly cookie only.
@@ -33,6 +34,10 @@ export class SendPublicVerificationDto {
    * of defence is refusing input that is not a phone number at all.
    */
   @ApiProperty({ description: 'Email address or E.164 phone number' })
+  // Canonicalised so the code stored against this target on send is found on verify, and the
+  // pre-verification token's `sub` matches the (equally canonical) email the checkout submits.
+  // Lower-casing an E.164 number is a no-op, so a phone target is unaffected.
+  @NormalizeContactTarget()
   @IsString()
   @Length(3, 320, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":3,"max":320}' })
   @IsVerificationTarget()

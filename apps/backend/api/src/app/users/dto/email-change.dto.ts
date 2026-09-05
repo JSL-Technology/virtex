@@ -1,6 +1,10 @@
 import { IsEmail, IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { NormalizeEmail } from '../../common/transformers/normalize-email.transformer';
 
 export class RequestEmailChangeDto {
+  // Canonicalised so the new address collides with an existing one under the same rule the
+  // unique LOWER(email) index enforces — `Nuevo@x.com` cannot slip past a stored `nuevo@x.com`.
+  @NormalizeEmail()
   @IsEmail()
   @MaxLength(254, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":254}' })
   newEmail!: string;
@@ -27,6 +31,7 @@ export class ConfirmEmailChangeDto {
  * this shape once, for the user-status endpoint; this one was left behind.
  */
 export class AdminChangeEmailDto {
+  @NormalizeEmail()
   @IsEmail({}, { message: 'VALIDATION.EMAIL_CHANGE.FORMATO_CORREO_ELECTRONICO_NO_VALIDO' })
   @IsNotEmpty({ message: 'VALIDATION.EMAIL_CHANGE.CORREO_ELECTRONICO_NO_PUEDE_ESTAR_VACIO' })
   @MaxLength(254, { message: 'VALIDATION.EMAIL_CHANGE.EMAIL_NO_PUEDE_TENER_MAS_254_CARACTERES_RFC' })

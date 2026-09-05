@@ -1,5 +1,6 @@
 import { IsString, IsNotEmpty, IsUUID, Length, MaxLength, Matches, IsEmail, IsOptional } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { NormalizeEmail } from '../../common/transformers/normalize-email.transformer';
 
 // Fase 2.3: explicit DTOs for endpoints that previously used `@Body('field')` primitives or
 // inline-typed `@Body() body: { ... }`. Plain TS types carry no validation metadata, so the
@@ -56,6 +57,7 @@ export class ConfirmEmailMagicLinkDto {
 export class WebAuthnLoginOptionsDto {
   @ApiPropertyOptional({ description: 'Optional email to scope passkey discovery' })
   @IsOptional()
+  @NormalizeEmail()
   @IsEmail()
   @MaxLength(320, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":320}' })
   email?: string;

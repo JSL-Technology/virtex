@@ -214,7 +214,15 @@ export class CookieService {
    * signature blocks a forged value, but an attacker does not need to forge one — they can obtain
    * a validly signed `anon` token simply by calling `POST /auth/login`, then plant it and send the
    * matching header. On authenticated routes the user binding still rejects it; on `POST
-   * /auth/refresh`, which has no authenticated principal, an `anon` token is accepted by design.
+   * /auth/refresh`, which has no authenticated principal, an `anon` token is accepted by design —
+   * the stateless bootstrap issues exactly that token to a browser whose access token has just
+   * expired, so refresh cannot demand a user-bound one without breaking the normal renewal path.
+   *
+   * That residual is closed from the other side, independently of the token: `CsrfGuard` rejects
+   * any state-changing request that declares `Sec-Fetch-Site: cross-site`, and a cookie-carrying
+   * request is inherently same-site (a `SameSite=Lax` cookie is not sent cross-site), so a planted
+   * `anon` token can never ride a cross-site request to reach the refresh endpoint in the first
+   * place.
    */
   private csrfCookieNames(): string[] {
     return ['__Host-XSRF-TOKEN', 'XSRF-TOKEN'];
