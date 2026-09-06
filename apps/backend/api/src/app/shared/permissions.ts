@@ -128,6 +128,9 @@ export const PERMISSIONS = {
   REPORTS_BUILDER_MANAGE: 'reports:builder_manage',
 
 
+  /** Read the employee register. The HCM module existed with no permission gating it at all. */
+  HCM_VIEW: 'hcm:view',
+
   WORKFLOWS_MANAGE: 'workflows:manage',
   /**
    * Deciding an approval request.

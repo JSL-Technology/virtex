@@ -430,8 +430,21 @@
     "NO_PUDO_DETERMINAR_ORGANIZACION_ESTA_OPERACION_ACCESO": "No se pudo determinar la organización para esta operación. Acceso denegado."
   },
   "DATASHEETS": {
+    "COLUMNAS_NO_VALIDAS": "Ninguna de las columnas solicitadas existe. Disponibles: {available}.",
+    "CONJUNTO_DATOS_NO_DISPONIBLE": "El conjunto «{requested}» no existe. Disponibles: {available}.",
     "DATASHEET_WITH_ID_NOT_FOUND": "No se encontró la hoja de datos {{id}}.",
-    "ONLY_OWNER_CAN_DELETE_THIS_DOCUMENT": "Solo el propietario puede eliminar este documento."
+    "HORIZONTE_PROYECCION_NO_VALIDO": "El horizonte de proyección ({days}) debe estar entre 0 y 365 días.",
+    "ONLY_OWNER_CAN_DELETE_THIS_DOCUMENT": "Solo el propietario puede eliminar este documento.",
+    "PAIS_SIN_TASA_NACIONAL_UNICA": "El país {country} no tiene una tasa nacional única; el impuesto se determina por jurisdicción.",
+    "PARAMETRO_REQUERIDO": "Falta el parámetro «{param}».",
+    "PRODUCTO_NO_ENCONTRADO": "No hay ningún producto con el SKU «{sku}».",
+    "SIN_PERMISO_EDICION": "No tienes permiso para editar este libro.",
+    "SIN_PERMISO_PARA_CONJUNTO": "No tienes permiso para importar «{dataset}». Requiere {permission}.",
+    "SIN_PERMISO_PARA_VARIABLE": "No tienes permiso para consultar «{variable}». Requiere {permission}.",
+    "SIN_PRESUPUESTO_DE_INGRESOS": "No hay presupuesto de ingresos para {period}; no hay meta contra la cual medir.",
+    "SIN_VENTAS_EN_EL_PERIODO": "No hay ventas facturadas en el período.",
+    "VARIABLE_NO_EXISTE": "No existe una variable llamada «{name}».",
+    "VARIABLE_SIN_IMPLEMENTACION": "La variable «{name}» está en el catálogo pero no tiene implementación."
   },
   "DIMENSIONS": {
     "CUENTA_ID_NO_ENCONTRADA": "Cuenta con ID \"{{accountId}}\" no encontrada.",
@@ -1014,6 +1027,7 @@
       "EXCHANGE_RATES": "Tasas de cambio",
       "FINANCIALS": "Estados financieros",
       "FIXED_ASSETS": "Activos fijos",
+      "HCM": "Personal",
       "INTERCOMPANY": "Intercompañía",
       "INVENTORY": "Inventario",
       "INVOICES": "Facturas de venta",

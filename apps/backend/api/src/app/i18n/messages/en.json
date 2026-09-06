@@ -430,8 +430,21 @@
     "NO_PUDO_DETERMINAR_ORGANIZACION_ESTA_OPERACION_ACCESO": "The organization for this operation could not be determined. Access denied."
   },
   "DATASHEETS": {
+    "COLUMNAS_NO_VALIDAS": "None of the requested columns exist. Available: {available}.",
+    "CONJUNTO_DATOS_NO_DISPONIBLE": "Dataset “{requested}” does not exist. Available: {available}.",
     "DATASHEET_WITH_ID_NOT_FOUND": "Datasheet {{id}} was not found.",
-    "ONLY_OWNER_CAN_DELETE_THIS_DOCUMENT": "Only the owner can delete this document."
+    "HORIZONTE_PROYECCION_NO_VALIDO": "The projection horizon ({days}) must be between 0 and 365 days.",
+    "ONLY_OWNER_CAN_DELETE_THIS_DOCUMENT": "Only the owner can delete this document.",
+    "PAIS_SIN_TASA_NACIONAL_UNICA": "Country {country} has no single national rate; tax is determined per jurisdiction.",
+    "PARAMETRO_REQUERIDO": "The “{param}” parameter is required.",
+    "PRODUCTO_NO_ENCONTRADO": "No product has SKU “{sku}”.",
+    "SIN_PERMISO_EDICION": "You do not have permission to edit this book.",
+    "SIN_PERMISO_PARA_CONJUNTO": "You do not have permission to import “{dataset}”. It requires {permission}.",
+    "SIN_PERMISO_PARA_VARIABLE": "You do not have permission to read “{variable}”. It requires {permission}.",
+    "SIN_PRESUPUESTO_DE_INGRESOS": "There is no revenue budget for {period}; there is no goal to measure against.",
+    "SIN_VENTAS_EN_EL_PERIODO": "There are no invoiced sales in the period.",
+    "VARIABLE_NO_EXISTE": "There is no variable called “{name}”.",
+    "VARIABLE_SIN_IMPLEMENTACION": "Variable “{name}” is catalogued but has no implementation."
   },
   "DIMENSIONS": {
     "CUENTA_ID_NO_ENCONTRADA": "Account \"{{accountId}}\" was not found.",
@@ -1014,6 +1027,7 @@
       "EXCHANGE_RATES": "Exchange rates",
       "FINANCIALS": "Financial statements",
       "FIXED_ASSETS": "Fixed assets",
+      "HCM": "People",
       "INTERCOMPANY": "Intercompany",
       "INVENTORY": "Inventory",
       "INVOICES": "Sales invoices",

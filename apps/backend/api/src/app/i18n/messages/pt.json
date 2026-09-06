@@ -430,8 +430,21 @@
     "NO_PUDO_DETERMINAR_ORGANIZACION_ESTA_OPERACION_ACCESO": "Não foi possível determinar a organização desta operação. Acesso negado."
   },
   "DATASHEETS": {
+    "COLUMNAS_NO_VALIDAS": "Nenhuma das colunas solicitadas existe. Disponíveis: {available}.",
+    "CONJUNTO_DATOS_NO_DISPONIBLE": "O conjunto “{requested}” não existe. Disponíveis: {available}.",
     "DATASHEET_WITH_ID_NOT_FOUND": "A planilha {{id}} não foi encontrada.",
-    "ONLY_OWNER_CAN_DELETE_THIS_DOCUMENT": "Somente o proprietário pode excluir este documento."
+    "HORIZONTE_PROYECCION_NO_VALIDO": "O horizonte de projeção ({days}) deve estar entre 0 e 365 dias.",
+    "ONLY_OWNER_CAN_DELETE_THIS_DOCUMENT": "Somente o proprietário pode excluir este documento.",
+    "PAIS_SIN_TASA_NACIONAL_UNICA": "O país {country} não tem uma alíquota nacional única; o imposto é determinado por jurisdição.",
+    "PARAMETRO_REQUERIDO": "Falta o parâmetro “{param}”.",
+    "PRODUCTO_NO_ENCONTRADO": "Não há produto com o SKU “{sku}”.",
+    "SIN_PERMISO_EDICION": "Você não tem permissão para editar esta pasta.",
+    "SIN_PERMISO_PARA_CONJUNTO": "Você não tem permissão para importar “{dataset}”. Requer {permission}.",
+    "SIN_PERMISO_PARA_VARIABLE": "Você não tem permissão para consultar “{variable}”. Requer {permission}.",
+    "SIN_PRESUPUESTO_DE_INGRESOS": "Não há orçamento de receitas para {period}; não há meta para comparar.",
+    "SIN_VENTAS_EN_EL_PERIODO": "Não há vendas faturadas no período.",
+    "VARIABLE_NO_EXISTE": "Não existe uma variável chamada “{name}”.",
+    "VARIABLE_SIN_IMPLEMENTACION": "A variável “{name}” está no catálogo mas não tem implementação."
   },
   "DIMENSIONS": {
     "CUENTA_ID_NO_ENCONTRADA": "Conta \"{{accountId}}\" não encontrada.",
@@ -1014,6 +1027,7 @@
       "EXCHANGE_RATES": "Taxas de câmbio",
       "FINANCIALS": "Demonstrações financeiras",
       "FIXED_ASSETS": "Ativos fixos",
+      "HCM": "Pessoal",
       "INTERCOMPANY": "Intercompanhias",
       "INVENTORY": "Estoque",
       "INVOICES": "Faturas de venda",
