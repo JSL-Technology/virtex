@@ -231,7 +231,33 @@ describe('sales-tax engine', () => {
     });
 
     it('rejects a rate the regime does not levy', () => {
-      expect(() => assertAllowedTaxRate('DO', 0.21)).toThrow(BadRequestException);
+      // A localized refusal, not a Spanish sentence built in the service and thrown as a bare
+      // `BadRequestException`: a reader in another language got Spanish, and the i18n coverage
+      // check could not see the string at all.
+      expect(() => assertAllowedTaxRate('DO', 0.21)).toThrow(
+        expect.objectContaining({ messageKey: 'INVOICES.TASA_IMPUESTO_NO_VALIDA_PARA_PAIS' }),
+      );
+    });
+
+    it("accepts a rate from the tenant's own catalogue", () => {
+      // The catalogue is seeded from the country's table and editable afterwards — it is how a
+      // tenant states a reduced rate for a specific good, or absorbs a rate decreed between
+      // releases. Nothing in the calculation path read it, so a rate the tenant had deliberately
+      // configured was refused as one its country does not levy: two sources of truth for the
+      // same fact, and the maintained one was the dead one.
+      expect(() => assertAllowedTaxRate('DO', 0.12, [0.12])).not.toThrow();
+      // And it does not open the gate: a rate in neither place is still refused.
+      expect(() => assertAllowedTaxRate('DO', 0.21, [0.12])).toThrow();
+      // The country's own rates keep working beside it.
+      expect(() => assertAllowedTaxRate('DO', 0.18, [0.12])).not.toThrow();
+    });
+
+    it("constrains a sub-national market once the tenant states its own rates", () => {
+      // Nothing to constrain by default, because no national rate exists. Once the tenant has
+      // configured what it charges, a rate outside that is a mistake worth catching.
+      expect(() => assertAllowedTaxRate('US', 0.0825, [])).not.toThrow();
+      expect(() => assertAllowedTaxRate('US', 0.0825, [0.0825, 0.06])).not.toThrow();
+      expect(() => assertAllowedTaxRate('US', 0.5, [0.0825, 0.06])).toThrow();
     });
 
     it('does not constrain a market whose base is sub-national', () => {

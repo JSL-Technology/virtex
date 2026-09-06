@@ -1,4 +1,3 @@
-import { BadRequestException } from '@nestjs/common';
 import { COUNTRY_TAX_SCHEMES } from '../localization/fiscal/country-tax-schemes';
 import { TaxTreatment } from './entities/invoice-line-item.entity';
 import { allocate, roundToCurrency, sumInCurrency } from '../common/money';
@@ -54,6 +53,16 @@ export interface DocumentTaxInput {
   countryCode: string | null | undefined;
   /** ISO 4217 code of the document, which fixes the rounding precision. */
   currencyCode: string;
+  /**
+   * The rates in the tenant's own tax catalogue, as fractions.
+   *
+   * Accepted alongside the country's table, not instead of it. The catalogue is seeded from that
+   * table at provisioning and editable afterwards — it is how a tenant states a reduced rate for a
+   * specific good, or a rate decreed between releases — and nothing in the calculation path read
+   * it, so a rate the tenant had deliberately configured was rejected as one its country does not
+   * levy.
+   */
+  tenantTaxRates?: readonly number[];
   lines: readonly TaxableLineInput[];
   /**
    * Commercial discount on the whole document, as a fraction of the post-line-discount subtotal.
@@ -130,34 +139,60 @@ const EPSILON = 1e-6;
 /**
  * Rates the country's regime levies, as fractions, or null when the market's base is sub-national
  * and cannot be constrained (United States, Brazil).
+ *
+ * `tenantRates` are the rows of the tenant's own tax catalogue, which is seeded from this table at
+ * provisioning and editable afterwards. Both are consulted: the catalogue was the tenant's only
+ * way to express a rate — a reduced rate for a specific good, a rate decreed between releases —
+ * and nothing in the calculation path read it, so a rate a tenant had deliberately configured was
+ * rejected as one its country does not levy. Two sources of truth for the same fact, and the one
+ * the tenant maintained was the dead one.
  */
-export function allowedTaxFractions(countryCode: string | null | undefined): number[] | null {
-  if (!countryCode) return null;
-  const scheme = COUNTRY_TAX_SCHEMES[countryCode.toUpperCase()];
-  if (!scheme || scheme.configurationRequired || scheme.taxes.length === 0) return null;
-  return scheme.taxes.map((t) => t.rate / 100);
+export function allowedTaxFractions(
+  countryCode: string | null | undefined,
+  tenantRates: readonly number[] = [],
+): number[] | null {
+  const scheme = countryCode ? COUNTRY_TAX_SCHEMES[countryCode.toUpperCase()] : undefined;
+  const fromScheme =
+    scheme && !scheme.configurationRequired && scheme.taxes.length > 0
+      ? scheme.taxes.map((t) => t.rate / 100)
+      : null;
+
+  // A market whose base is sub-national constrains nothing on its own; if the tenant has stated
+  // its own rates, those are the constraint.
+  if (!fromScheme) return tenantRates.length > 0 ? [...tenantRates] : null;
+
+  const combined = [...fromScheme];
+  for (const rate of tenantRates) {
+    if (!combined.some((known) => Math.abs(known - rate) < EPSILON)) combined.push(rate);
+  }
+  return combined;
 }
 
 /**
- * Reject a rate the regime does not levy.
+ * Reject a rate neither the regime nor the tenant's catalogue carries.
  *
- * Still worth doing even though the rate now comes from the catalogue: a catalogue entry can be
+ * Still worth doing even though the rate comes from the catalogue: a catalogue entry can be
  * edited, and an item carrying 17 % ITBIS would be transmitted to the DGII and rejected there
  * instead of here.
  */
 export function assertAllowedTaxRate(
   countryCode: string | null | undefined,
   requestedFraction: number,
+  tenantRates: readonly number[] = [],
 ): void {
-  const allowed = allowedTaxFractions(countryCode);
+  const allowed = allowedTaxFractions(countryCode, tenantRates);
   if (!allowed) return;
   if (allowed.some((rate) => Math.abs(rate - requestedFraction) < EPSILON)) return;
 
   const list = allowed.map((rate) => `${(rate * 100).toFixed(2).replace(/\.00$/, '')}%`).join(', ');
-  throw new BadRequestException(
-    `La tasa de impuesto ${(requestedFraction * 100).toFixed(2)}% no es válida para ${countryCode}. ` +
-      `Tasas permitidas: ${list}.`,
-  );
+  // A key, like every other refusal in this module. This one was a Spanish sentence built in the
+  // service and thrown as a bare `BadRequestException`, so a reader in another language got
+  // Spanish and the i18n coverage check could not see it.
+  throw new BadRequestError('INVOICES.TASA_IMPUESTO_NO_VALIDA_PARA_PAIS', {
+    rate: `${(requestedFraction * 100).toFixed(2)}%`,
+    countryCode: countryCode ?? '—',
+    allowed: list,
+  });
 }
 
 /**
@@ -193,7 +228,7 @@ export function computeDocument(input: DocumentTaxInput): ComputedDocument {
     if (effectiveRate < 0 || effectiveRate > 1) {
       throw new BadRequestError('INVOICES.TASA_IMPUESTO_DEBE_EXPRESARSE_COMO_FRACCION_ENTRE');
     }
-    assertAllowedTaxRate(input.countryCode, effectiveRate);
+    assertAllowedTaxRate(input.countryCode, effectiveRate, input.tenantTaxRates);
 
     const exciseRate = line.exciseRate ?? 0;
     if (exciseRate < 0 || exciseRate > 1) {

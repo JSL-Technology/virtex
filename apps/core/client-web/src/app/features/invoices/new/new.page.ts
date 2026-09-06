@@ -1,4 +1,14 @@
-import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  OnInit,
+  inject,
+  signal,
+  computed,
+  ChangeDetectionStrategy,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subject, debounceTime, switchMap } from 'rxjs';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
@@ -8,6 +18,7 @@ import {
   CreateInvoiceDto,
   CreateInvoiceLine,
   FiscalDocumentType,
+  InvoicePreview,
   InvoicingContext,
   TaxTreatment,
 } from '../../../core/services/invoices';
@@ -62,6 +73,7 @@ const FISCAL_TYPE_LABELS: Record<string, string> = {
 })
 export class NewInvoicePage implements OnInit {
   private readonly translate = inject(TranslateService);
+  private readonly destroyRef = inject(DestroyRef);
   private fb = inject(FormBuilder);
   protected router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -72,6 +84,9 @@ export class NewInvoicePage implements OnInit {
   private notificationService = inject(NotificationService);
 
   invoiceForm: FormGroup;
+
+  /** Debounces the preview requests; see `requestPreview`. */
+  private readonly previewRequests = new Subject<CreateInvoiceDto>();
   customers = signal<Customer[]>([]);
   products = signal<Product[]>([]);
   currencies = signal<Currency[]>([]);
@@ -117,6 +132,33 @@ export class NewInvoicePage implements OnInit {
     this.inventoryService.getProducts().subscribe((data) => this.products.set(data));
     this.currenciesService.getCurrencies().subscribe((data) => this.currencies.set(data));
     this.checkCopyFrom();
+
+    // `switchMap` drops the answer to a superseded question: a slow response to an older form
+    // state must never overwrite the figures for a newer one.
+    this.previewRequests
+      .pipe(
+        debounceTime(300),
+        switchMap((payload) => this.invoicesService.preview(payload)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (preview) => {
+          this.totals.set(preview);
+          this.totalsPending.set(false);
+        },
+        error: () => {
+          // A form the server will not price — an unknown product, a rate the market does not
+          // levy — shows no figures rather than stale ones. The refusal itself surfaces on save,
+          // with its own message.
+          this.totals.set(EMPTY_TOTALS);
+          this.totalsPending.set(false);
+        },
+      });
+
+    this.invoiceForm.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.requestPreview());
+    this.requestPreview();
   }
 
   private loadContext(): void {
@@ -237,41 +279,55 @@ export class NewInvoicePage implements OnInit {
    * It is deliberately labelled an estimate in the template: the authoritative figures are the ones
    * the server returns, and the request never carries an amount.
    */
-  get totals(): {
-    subtotal: number;
-    discount: number;
-    tax: number;
-    serviceCharge: number;
-    total: number;
-    withheld: number;
-    net: number;
-  } {
-    let subtotal = 0;
-    let tax = 0;
+  /**
+   * What the server says the document comes to.
+   *
+   * ## Why this is no longer computed here
+   *
+   * It was, and it had already diverged. The page charged tax on each line's subtotal *before* the
+   * document discount, which is the defect the server spent a release fixing; it knew nothing of
+   * excise; and it applied whatever withholding rate the form carried, where the server resolves
+   * it from the buyer's fiscal regime. So the operator watched one figure while composing and was
+   * issued another — and the page was a second implementation of arithmetic that has one correct
+   * home.
+   *
+   * The form now asks. `POST /invoices/preview` runs the same code that will issue the document
+   * and writes nothing, so what is on screen is what will be on the comprobante.
+   */
+  readonly totals = signal<InvoicePreview>(EMPTY_TOTALS);
 
-    for (const control of this.lineItems.controls) {
-      const quantity = Number(control.get('quantity')?.value) || 0;
-      const price = Number(control.get('unitPrice')?.value) || 0;
-      const discountRate = Number(control.get('discountRate')?.value) || 0;
-      const treatment = control.get('taxTreatment')?.value as TaxTreatment;
-      const rate = treatment === 'TAXED' ? Number(control.get('taxRate')?.value) || 0 : 0;
+  /** True while a preview is in flight, so the panel can say the figures are being recomputed. */
+  readonly totalsPending = signal(false);
 
-      const gross = round2(quantity * price);
-      const lineSubtotal = round2(gross - round2(gross * discountRate));
-      subtotal = round2(subtotal + lineSubtotal);
-      tax = round2(tax + round2(lineSubtotal * rate));
-    }
-
+  /**
+   * The form is enough to price.
+   *
+   * A preview needs a customer (whose regime decides the withholding) and at least one line with a
+   * quantity. Below that there is nothing to ask for, and asking would answer 400 on every
+   * keystroke of an empty form.
+   */
+  private canPreview(): boolean {
     const value = this.invoiceForm.getRawValue();
-    const discount = round2(subtotal * (Number(value.documentDiscountRate) || 0));
-    const serviceCharge = round2((subtotal - discount) * (Number(value.serviceChargeRate) || 0));
-    const total = round2(subtotal - discount + tax + serviceCharge);
-    const withheld = round2(
-      tax * (Number(value.taxWithholdingRate) || 0) +
-        (subtotal - discount) * (Number(value.incomeTaxWithholdingRate) || 0),
-    );
+    if (!value.customerId || !value.issueDate || !value.dueDate) return false;
+    const lines = value.lineItems as Array<Record<string, unknown>>;
+    return lines.length > 0 && lines.every((line) => Number(line['quantity']) > 0);
+  }
 
-    return { subtotal, discount, tax, serviceCharge, total, withheld, net: round2(total - withheld) };
+  /**
+   * Ask the server to price the document as it stands.
+   *
+   * Debounced through a subject rather than called per keystroke: the figures are worth a request,
+   * a request per character is not. `switchMap` drops the answer to a superseded question, so a
+   * slow response cannot overwrite a newer one.
+   */
+  private requestPreview(): void {
+    if (!this.canPreview()) {
+      this.totals.set(EMPTY_TOTALS);
+      this.totalsPending.set(false);
+      return;
+    }
+    this.totalsPending.set(true);
+    this.previewRequests.next(this.buildPayload(false));
   }
 
   /** Save without issuing: no fiscal number is consumed and nothing is posted. */
@@ -284,19 +340,15 @@ export class NewInvoicePage implements OnInit {
     this.submit(true);
   }
 
-  private submit(issue: boolean): void {
-    if (this.invoiceForm.invalid) {
-      this.invoiceForm.markAllAsTouched();
-      this.notificationService.showError('INVOICES.NEW.REVISA_CAMPOS_MARCADOS_ANTES_CONTINUAR');
-      return;
-    }
-    if (issue && this.hasStockShortfall()) {
-      this.notificationService.showError('INVOICES.NEW.MAS_LINEAS_SUPERAN_EXISTENCIAS_DISPONIBLES_AJUSTA');
-      return;
-    }
-
+  /**
+   * The request body, built once and used both to preview and to save.
+   *
+   * It carries quantities, prices and intent — never amounts. The totals come back from the
+   * server, which is the only place the document arithmetic exists.
+   */
+  private buildPayload(issue: boolean): CreateInvoiceDto {
     const value = this.invoiceForm.getRawValue();
-    const payload: CreateInvoiceDto = {
+    return {
       customerId: value.customerId,
       issueDate: value.issueDate,
       dueDate: value.dueDate,
@@ -321,6 +373,20 @@ export class NewInvoicePage implements OnInit {
         }),
       ),
     };
+  }
+
+  private submit(issue: boolean): void {
+    if (this.invoiceForm.invalid) {
+      this.invoiceForm.markAllAsTouched();
+      this.notificationService.showError('INVOICES.NEW.REVISA_CAMPOS_MARCADOS_ANTES_CONTINUAR');
+      return;
+    }
+    if (issue && this.hasStockShortfall()) {
+      this.notificationService.showError('INVOICES.NEW.MAS_LINEAS_SUPERAN_EXISTENCIAS_DISPONIBLES_AJUSTA');
+      return;
+    }
+
+    const payload = this.buildPayload(issue);
 
     this.isSaving.set(true);
     this.invoicesService.createInvoice(payload).subscribe({
@@ -346,11 +412,30 @@ function today(): string {
   return new Date().toISOString().split('T')[0];
 }
 
-function round2(value: number): number {
-  return Math.round((value + Number.EPSILON) * 100) / 100;
-}
-
 function numberOrUndefined(value: unknown): number | undefined {
   const parsed = Number(value);
   return Number.isFinite(parsed) && parsed !== 0 ? parsed : undefined;
 }
+
+/**
+ * A document with nothing in it yet, or one the server declined to price.
+ *
+ * Zeroes rather than the last good figures: a total that lags the form is worse than no total,
+ * because the operator cannot tell which one it belongs to.
+ */
+const EMPTY_TOTALS: InvoicePreview = {
+  subtotal: 0,
+  discountTotal: 0,
+  taxedTotal: 0,
+  exemptTotal: 0,
+  goodsTotal: 0,
+  servicesTotal: 0,
+  tax: 0,
+  excise: 0,
+  serviceCharge: 0,
+  taxWithheld: 0,
+  incomeTaxWithheld: 0,
+  total: 0,
+  netReceivable: 0,
+  lines: [],
+};

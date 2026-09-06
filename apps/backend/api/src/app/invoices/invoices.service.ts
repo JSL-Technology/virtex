@@ -25,7 +25,7 @@ import { SaasService } from '../saas/saas.service';
 import { SaasResource } from '../saas/enums/saas-resource.enum';
 import { EcfSubmissionService } from '../einvoicing/services/ecf-submission.service';
 import { InvoicePostingService } from './services/invoice-posting.service';
-import { computeDocument, TaxableLineInput } from './sales-tax.engine';
+import { ComputedDocument, computeDocument, TaxableLineInput } from './sales-tax.engine';
 import { roundAmount, roundToCurrency, toMinorUnits } from '../common/money';
 import { NcfType } from '../compliance/entities/ncf-sequence.entity';
 import { WithholdingResolverService } from './services/withholding-resolver.service';
@@ -35,6 +35,7 @@ import { EcfSubmission } from '../einvoicing/entities/ecf-submission.entity';
 import { InvoiceRenderContext } from './services/invoice-renderer.service';
 import { fiscalDate, organizationTimeZone } from '../shared/fiscal-clock';
 import { BadRequestError, ConflictError, NotFoundError } from '../i18n/localized.exception';
+import { Tax } from '../taxes/entities/tax.entity';
 
 export interface InvoiceListQuery {
   page?: number;
@@ -206,6 +207,101 @@ export class InvoicesService {
   }
 
   /**
+   * The rates in the tenant's own tax catalogue, as fractions.
+   *
+   * The catalogue is seeded from `COUNTRY_TAX_SCHEMES` at provisioning and editable afterwards,
+   * and until now nothing in the calculation path read it: a tenant that added a reduced rate for
+   * a specific good, or absorbed a rate decreed between releases, had it refused as a rate its
+   * country does not levy. Two sources of truth for one fact, and the maintained one was dead.
+   */
+  private async tenantTaxRates(
+    organizationId: string,
+    manager: EntityManager,
+  ): Promise<number[]> {
+    const taxes = await manager.getRepository(Tax).find({
+      where: { organizationId },
+      select: { id: true, rate: true },
+    });
+    return taxes
+      .map((tax) => Number(tax.rate) / 100)
+      .filter((rate) => Number.isFinite(rate) && rate >= 0 && rate <= 1);
+  }
+
+  /**
+   * What the document would come to, computed by the server.
+   *
+   * ## Why this endpoint exists
+   *
+   * The invoice form computed its own subtotal, discount, tax, service charge and withholding to
+   * show the user a running total. The server has never accepted a total from the client, so the
+   * books were never at risk — but it was a second implementation of the document arithmetic, and
+   * it had already diverged: the client charged tax on the line subtotal *before* the document
+   * discount, which is the defect this product spent a release fixing on the server. A user
+   * therefore watched one figure while composing and was issued another.
+   *
+   * There is now one implementation. The form asks for the figures instead of deriving them, so
+   * the number on screen while composing is the number that will be issued, including the parts a
+   * client cannot know at all: the tax rate the catalogue carries for a product, the excise, and
+   * what the buyer's regime withholds.
+   *
+   * Reads only. No numbering, no stock, no posting, nothing written.
+   */
+  async preview(dto: CreateInvoiceDto, organizationId: string): Promise<ComputedDocument> {
+    const manager = this.dataSource.manager;
+
+    const organization = await manager.getRepository(Organization).findOne({
+      where: { id: organizationId },
+      select: ['id', 'country'],
+    });
+    const customer = await this.customersService.findOne(dto.customerId, organizationId);
+    const { currencyCode } = await this.resolveCurrency(
+      organizationId,
+      dto.currencyCode,
+      dto.issueDate,
+    );
+
+    const products = await this.loadProducts(dto.lineItems, organizationId, manager);
+    const taxInputs: TaxableLineInput[] = [];
+    const resolved: ResolvedLine[] = [];
+    for (const [index, lineDto] of dto.lineItems.entries()) {
+      const line = this.resolveLine(lineDto, products, index);
+      resolved.push(line);
+      taxInputs.push({
+        quantity: line.quantity,
+        unitPrice: line.unitPrice,
+        discountRate: line.discountRate,
+        taxTreatment: line.taxTreatment,
+        taxRate: line.taxRate,
+        exciseRate: line.exciseRate,
+        isService: line.isService,
+      });
+    }
+
+    const withholding = await this.withholdingResolver.resolve(
+      manager,
+      organizationId,
+      customer,
+      resolved.some((line) => line.isService) ? 'SERVICES' : 'GOODS',
+      {
+        taxWithholdingRate: dto.taxWithholdingRate,
+        incomeTaxWithholdingRate: dto.incomeTaxWithholdingRate,
+        withholdingOverrideReason: dto.withholdingOverrideReason,
+      },
+    );
+
+    return computeDocument({
+      countryCode: organization?.country ?? null,
+      currencyCode,
+      tenantTaxRates: await this.tenantTaxRates(organizationId, manager),
+      lines: taxInputs,
+      documentDiscountRate: dto.documentDiscountRate,
+      serviceChargeRate: dto.serviceChargeRate,
+      taxWithholdingRate: withholding.taxWithholdingRate,
+      incomeTaxWithholdingRate: withholding.incomeTaxWithholdingRate,
+    });
+  }
+
+  /**
    * Build the document from the catalogue and the market's rules. Pure of side effects beyond
    * reading: no numbering, no stock, no posting.
    */
@@ -281,6 +377,7 @@ export class InvoicesService {
     const computed = computeDocument({
       countryCode: organization?.country ?? null,
       currencyCode,
+      tenantTaxRates: await this.tenantTaxRates(organizationId, manager),
       lines: taxInputs,
       documentDiscountRate: dto.documentDiscountRate,
       serviceChargeRate: dto.serviceChargeRate,
@@ -641,6 +738,9 @@ export class InvoicesService {
             .findOne({ where: { id: organizationId }, select: ['id', 'country'] })
         )?.country,
         currencyCode: original.currencyCode,
+        // A credit note re-prices lines of a document that was already accepted, so the rates it
+        // carries must be the ones the tenant can levy, not only the ones the table lists.
+        tenantTaxRates: await this.tenantTaxRates(organizationId, manager),
         lines: selections.map((s) => ({
           quantity: s.quantity,
           unitPrice: s.line.price,

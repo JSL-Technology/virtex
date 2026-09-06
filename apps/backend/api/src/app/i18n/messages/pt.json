@@ -13,6 +13,7 @@
       "ITEMS": {
         "CURRENCY_REVALUATION": "Execute a reavaliação cambial para o fechamento do período.",
         "FIXED_ASSETS_DEPRECIATION": "Execute a depreciação do ativo imobilizado do período.",
+        "PENDING_ACCRUAL_REVERSALS": "Provisões de períodos anteriores ainda pendentes de reversão: {{count}}",
         "PENDING_APPROVALS": "Revise e resolva todas as solicitações de aprovação pendentes.",
         "PENDING_APPROVALS_one": "Resta 1 solicitação de aprovação pendente.",
         "PENDING_APPROVALS_other": "Restam {{count}} solicitações de aprovação pendentes.",
@@ -739,6 +740,7 @@
     "TASA_CAMBIO_CONFIGURADA_NO_ES_VALIDA": "A taxa de câmbio configurada para {{currencyCode}} não é válida.",
     "TASA_IMPUESTO_DEBE_EXPRESARSE_COMO_FRACCION_ENTRE": "A alíquota deve ser expressa como uma fração entre 0 e 1.",
     "TASA_IMPUESTO_NO_ES_VALIDA_TASAS_PERMITIDAS": "A alíquota {{p1}}% não é válida para {{countryCode}}. Alíquotas permitidas: {{list}}.",
+    "TASA_IMPUESTO_NO_VALIDA_PARA_PAIS": "A alíquota {{rate}} não é válida para {{countryCode}}. Alíquotas permitidas: {{allowed}}.",
     "TIPO_COMPROBANTE_NO_CORRESPONDE_DOCUMENTO_VENTA": "O tipo de documento {{type}} não corresponde a um documento de venda.",
     "TIPO_NO_ES_COMPROBANTE_NOTA_CREDITO_VALIDO": "O tipo {{type}} não é um documento de nota de crédito válido."
   },

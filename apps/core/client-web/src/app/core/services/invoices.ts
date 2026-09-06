@@ -95,6 +95,44 @@ export interface CreateInvoiceLine {
   isService?: boolean;
 }
 
+/** One line of a priced document, as the server computed it. */
+export interface InvoicePreviewLine {
+  gross: number;
+  discountAmount: number;
+  subtotal: number;
+  documentDiscountAmount: number;
+  taxableBase: number;
+  taxRate: number;
+  taxAmount: number;
+  exciseAmount: number;
+  isService: boolean;
+}
+
+/**
+ * What a document comes to, computed by the server without creating anything.
+ *
+ * The invoice form used to derive these figures itself. That was a second implementation of the
+ * document arithmetic and it had already diverged — it taxed the base before the document
+ * discount, knew nothing of excise, and applied whatever withholding the form carried rather than
+ * the buyer's regime. The operator watched one number and was issued another.
+ */
+export interface InvoicePreview {
+  subtotal: number;
+  discountTotal: number;
+  taxedTotal: number;
+  exemptTotal: number;
+  goodsTotal: number;
+  servicesTotal: number;
+  tax: number;
+  excise: number;
+  serviceCharge: number;
+  taxWithheld: number;
+  incomeTaxWithheld: number;
+  total: number;
+  netReceivable: number;
+  lines: InvoicePreviewLine[];
+}
+
 export interface CreateInvoiceDto {
   customerId: string;
   issueDate: string;
@@ -184,6 +222,17 @@ export class InvoicesService {
 
   createInvoice(invoice: CreateInvoiceDto): Observable<Invoice> {
     return this.http.post<Invoice>(this.apiUrl, invoice);
+  }
+
+  /**
+   * Price a document without creating it.
+   *
+   * Runs the same code that will issue it — catalogue tax rates, excise, the buyer's withholding
+   * regime — and writes nothing, so the figures the operator sees while composing are the ones
+   * that will be on the comprobante.
+   */
+  preview(invoice: CreateInvoiceDto): Observable<InvoicePreview> {
+    return this.http.post<InvoicePreview>(`${this.apiUrl}/preview`, invoice);
   }
 
   updateDraft(id: string, invoice: CreateInvoiceDto): Observable<Invoice> {
