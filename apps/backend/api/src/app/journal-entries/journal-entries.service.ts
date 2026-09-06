@@ -87,6 +87,20 @@ export interface PostingContext {
    * twice and nothing ever notices.
    */
   idempotencyKey?: string;
+  /**
+   * Let this posting into a period that has been closed.
+   *
+   * Never set from a request. It exists for the entries that complete an audit adjustment: the
+   * adjustment itself is admitted by its own `AUDIT_ADJUSTMENT` type, and the transfer of its
+   * effect to retained earnings has to reach the same closed period — it is typed
+   * `CLOSING_ENTRY`, because every report that excludes closing entries must exclude it too, and
+   * that type earns no exemption of its own.
+   *
+   * The caller granting it is `AdjustmentsService.createAuditAdjustment`, which has already
+   * established the right: an approved proposal against a fiscal year that is closed and not
+   * archived.
+   */
+  allowClosedPeriod?: boolean;
 }
 
 const SYSTEM: PostingContext = { actorUserId: null, systemReason: 'system' };
@@ -332,11 +346,19 @@ export class JournalEntriesService {
     }
 
     // ── Period ────────────────────────────────────────────────────────────────
+    //
+    // An audit adjustment is the one entry that may land in a closed period: correcting a year
+    // that has already been closed is what an external audit does. See `resolvePostingPeriod`.
     const period = await resolvePostingPeriod(
       manager,
       organizationId,
       entryDate,
       context.module ?? ModuleSlug.GL,
+      {
+        allowClosedPeriod:
+          entryData.entryType === JournalEntryType.AUDIT_ADJUSTMENT ||
+          context.allowClosedPeriod === true,
+      },
     );
 
     // ── Accounts ──────────────────────────────────────────────────────────────
@@ -616,6 +638,11 @@ export class JournalEntriesService {
       organizationId,
       entry.date,
       context.module ?? ModuleSlug.GL,
+      {
+        allowClosedPeriod:
+          entry.entryType === JournalEntryType.AUDIT_ADJUSTMENT ||
+          context.allowClosedPeriod === true,
+      },
     );
 
     const journal = await manager.findOneByOrFail(Journal, { id: entry.journalId });

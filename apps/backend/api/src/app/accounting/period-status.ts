@@ -30,6 +30,23 @@ export async function resolvePostingPeriod(
   organizationId: string,
   date: Date | string,
   module: ModuleSlug = ModuleSlug.GL,
+  options: {
+    /**
+     * Allow the entry into a period that has been closed.
+     *
+     * The single exception, and it exists for one entry type: an audit adjustment. An external
+     * audit's whole purpose is to correct a year that has already been closed, and the previous
+     * arrangement made that impossible — `createAuditAdjustment` required a fiscal year that was
+     * *not* open, and then posted through this function, which refuses every closed period. The
+     * two requirements could not both be met, so the feature could not run at all.
+     *
+     * Never granted for a locked (archived) fiscal year, which is checked by the caller, and never
+     * for an ordinary posting. The entry that uses it is typed `AUDIT_ADJUSTMENT`, carries its own
+     * `system_reason`, and reaches this point only through an approved proposal — so the exception
+     * is visible in the ledger rather than being a hole in the period control.
+     */
+    allowClosedPeriod?: boolean;
+  } = {},
 ): Promise<AccountingPeriod> {
   const isoDate = toIsoDate(date);
 
@@ -48,13 +65,16 @@ export async function resolvePostingPeriod(
     );
   }
 
-  if (period.status === PeriodStatus.CLOSED) {
+  if (period.status === PeriodStatus.CLOSED && !options.allowClosedPeriod) {
     throw new ForbiddenError(
       'ACCOUNTING.FECHA_TRANSACCION_ESTA_DENTRO_PERIODO_CONTABLE_YA',
       { name: period.name },
     );
   }
 
+  // The subledger windows are not waived by the exception above: an audit adjustment is a general
+  // ledger entry, and letting it into a closed payables month would put it in a subledger the
+  // taxpayer has already reported from.
   if (moduleStatusOf(period, module) === PeriodStatus.CLOSED) {
     throw new ForbiddenError('ACCOUNTING.MODULO_CERRADO_PARA_PERIODO', {
       name: period.name,
