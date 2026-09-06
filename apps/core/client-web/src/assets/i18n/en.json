@@ -2429,6 +2429,12 @@
   "REPORTS": {
     "AGING": {
       "CLIENTE": "Customer",
+      "CONTROL_CUADRA": "The subledger agrees with its control account.",
+      "CONTROL_DIFERENCIA": "Difference",
+      "CONTROL_MAYOR": "General ledger balance",
+      "CONTROL_NO_CUADRA": "The subledger does not agree with its control account. The difference must be investigated before this report is used as support.",
+      "CONTROL_SUBMAYOR": "Subledger total",
+      "CONTROL_TITULO": "Reconciliation to the control account",
       "CORRIENTE": "Current",
       "DIAS_1_30": "1–30 days",
       "DIAS_31_60": "31–60 days",
@@ -2436,6 +2442,7 @@
       "MAS_90": "Over 90 days",
       "PROVEEDOR": "Supplier",
       "SIN_SALDOS": "Nothing outstanding at this date.",
+      "SIN_TASA": "{{count}} document(s) with no exchange rate on this date: they are shown at the rate they were booked at, not at the closing rate.",
       "TITULO_CXC": "Accounts receivable ageing",
       "TITULO_CXP": "Accounts payable ageing",
       "TOTAL": "Total"

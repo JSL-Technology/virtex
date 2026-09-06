@@ -31,13 +31,20 @@ import {
 import { BankAccount } from '../treasury/entities/bank-account.entity';
 import { Account } from '../chart-of-accounts/entities/account.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
+import { JournalEntryLineValuation } from '../journal-entries/entities/journal-entry-line-valuation.entity';
 import { Journal } from '../journal-entries/entities/journal.entity';
 import { JournalEntry, JournalEntryStatus } from '../journal-entries/entities/journal-entry.entity';
 import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line.entity';
 import { JournalEntriesService } from '../journal-entries/journal-entries.service';
 import { CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
 import { AccountBalancesService, toIsoDate } from '../chart-of-accounts/account-balances.service';
-import { roundAmount, sumAmounts, toCents } from '../common/money';
+import {
+  roundAmount,
+  sumAmounts,
+  sumInCurrency,
+  toCents,
+  toMinorUnits,
+} from '../common/money';
 import { FastifyFile } from '../common/interfaces/fastify-file.interface';
 import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 
@@ -94,9 +101,22 @@ export interface ReconciliationSummary {
   /** What the books say, from posted entries only, on the control account. */
   bookBalance: number;
 
+  /** The currency every figure in this proof is stated in: the bank account's own. */
+  currencyCode: string;
+  /** The books' currency, when it differs — the two are reconciled separately. */
+  baseCurrency: string;
+
   /** In the books, not yet on the statement: deposits in transit, uncashed cheques. */
   outstandingLedgerAmount: number;
   outstandingLedgerCount: number;
+  /**
+   * Ledger lines on this account whose amount in the account's currency is not recorded.
+   *
+   * They cannot be matched and they are not silently dropped: a reconciliation that quietly omits
+   * what it could not read is not a proof. Correcting them means restating the posting with its
+   * document-currency amount.
+   */
+  unreadableLedgerCount: number;
   /** On the statement, not yet in the books: charges, interest, direct debits. */
   unrecordedStatementAmount: number;
   unrecordedStatementCount: number;
@@ -110,6 +130,24 @@ export interface ReconciliationSummary {
   /** The statement's own arithmetic: opening + movements should be its closing balance. */
   statementIsInternallyConsistent: boolean;
   statementInternalDifference: number;
+}
+
+/** A ledger line still to be cleared, stated in both currencies that matter. */
+export interface OutstandingLedgerLine {
+  id: string;
+  journalEntryId: string;
+  entryNumber: string | null;
+  date: string;
+  description: string | null;
+  /** In the bank account's currency — what the statement is measured in. */
+  amount: number;
+  /** The same movement in the books' currency. */
+  amountInBaseCurrency: number;
+  /**
+   * True when the posting recorded no document-currency amount, so the account-currency figure
+   * cannot be stated. Such a line cannot be matched and says so, rather than being dropped.
+   */
+  amountUnavailable: boolean;
 }
 
 const CANDIDATE_WINDOW_DAYS = 45;
@@ -208,6 +246,9 @@ export class ReconciliationService {
       this.statements.create({
         organizationId,
         bankAccountId: bankAccount.id,
+        // The account's currency, stamped on the statement: its figures are in it, and an account
+        // re-declared later must not retroactively change what a past statement said.
+        currencyCode: bankAccount.currencyCode,
         fileName: file.originalname,
         fileHash,
         startDate: dto.startDate,
@@ -328,13 +369,25 @@ export class ReconciliationService {
     );
     if (unmatched.length === 0) return [];
 
-    const candidates = await this.availableLedgerLines(
-      this.dataSource.manager,
+    const ledger = await this.dataSource.manager.findOneByOrFail(Ledger, {
       organizationId,
-      bankAccount.glAccountId,
-      statement.startDate,
-      statement.endDate,
-    );
+      isDefault: true,
+    });
+    const candidates = (
+      await this.availableLedgerLines(
+        this.dataSource.manager,
+        organizationId,
+        bankAccount.glAccountId,
+        statement.startDate,
+        statement.endDate,
+        {
+          // In the account's currency: a dollar statement line has to be scored against the dollar
+          // amount of the ledger line, not against its peso valuation.
+          accountCurrency: statement.currencyCode || bankAccount.currencyCode,
+          baseCurrency: ledger.currency,
+        },
+      )
+    ).filter((line) => !line.amountUnavailable);
     const rules = await this.activeRules(this.dataSource.manager, organizationId);
 
     return unmatched.map((transaction) => {
@@ -391,11 +444,28 @@ export class ReconciliationService {
       throw new BadRequestError('RECONCILIATION.NO_HAY_LIBRO_CONTABLE_POR_DEFECTO');
     }
 
-    const bookBalance = await this.balances.balanceOf(bankAccount.glAccountId, {
-      organizationId,
-      ledgerId: ledger.id,
-      asOf: statement.endDate,
-    });
+    // Everything in this proof is in the ACCOUNT's currency, because that is what the statement is
+    // in. The book balance therefore comes from the document-currency column for a foreign account
+    // — `balanceOf` returns the books' currency, and subtracting a peso balance from a dollar
+    // statement is what made a foreign account impossible to reconcile.
+    const accountCurrency = statement.currencyCode || bankAccount.currencyCode;
+    const isForeign = accountCurrency !== ledger.currency;
+
+    const bookBalance = isForeign
+      ? (
+          await this.balances.foreignCurrencyBalancesAsOf({
+            organizationId,
+            ledgerId: ledger.id,
+            accountIds: [bankAccount.glAccountId],
+            asOf: statement.endDate,
+            currencyCode: accountCurrency,
+          })
+        ).get(bankAccount.glAccountId) ?? 0
+      : await this.balances.balanceOf(bankAccount.glAccountId, {
+          organizationId,
+          ledgerId: ledger.id,
+          asOf: statement.endDate,
+        });
 
     // In the books but not on the statement, up to the statement's closing date.
     const outstanding = await this.availableLedgerLines(
@@ -404,9 +474,14 @@ export class ReconciliationService {
       bankAccount.glAccountId,
       statement.startDate,
       statement.endDate,
-      { onlyUpToEndDate: true },
+      {
+        onlyUpToEndDate: true,
+        accountCurrency,
+        baseCurrency: ledger.currency,
+      },
     );
-    const outstandingLedgerAmount = sumAmounts(outstanding.map((line) => line.amount));
+    const readable = outstanding.filter((line) => !line.amountUnavailable);
+    const outstandingLedgerAmount = sumAmounts(readable.map((line) => line.amount));
 
     // On the statement but not in the books.
     const unrecorded = statement.transactions.filter(
@@ -433,10 +508,13 @@ export class ReconciliationService {
       startDate: statement.startDate,
       endDate: statement.endDate,
       status: statement.status,
+      currencyCode: accountCurrency,
+      baseCurrency: ledger.currency,
       statementEndingBalance: statement.endingBalance,
-      bookBalance,
+      bookBalance: roundAmount(bookBalance),
       outstandingLedgerAmount,
-      outstandingLedgerCount: outstanding.length,
+      outstandingLedgerCount: readable.length,
+      unreadableLedgerCount: outstanding.length - readable.length,
       unrecordedStatementAmount,
       unrecordedStatementCount: unrecorded.length,
       adjustedBankBalance,
@@ -870,12 +948,64 @@ export class ReconciliationService {
       });
     }
 
-    const bankSide = sumAmounts(transactions.map(signedAmount));
-    const ledgerSide = sumAmounts(lines.map((line) => roundAmount(line.debit - line.credit)));
-    if (toCents(bankSide) !== toCents(ledgerSide)) {
+    // ── The two sides, in the same currency ─────────────────────────────────
+    //
+    // Both in the BANK ACCOUNT's currency. This compared `signedAmount(transaction)` — the
+    // statement, in the account's currency — against `line.debit − line.credit`, which is the
+    // LEDGER's. On a domestic account the two coincide and nothing was visibly wrong; on a foreign
+    // one no match could ever balance, so `closeStatement` was unreachable and the account could
+    // not be reconciled at all.
+    const ledger = await manager.findOneByOrFail(Ledger, { organizationId, isDefault: true });
+    const accountCurrency = statement.currencyCode || bankAccount.currencyCode;
+    const isForeign = accountCurrency !== ledger.currency;
+
+    const valuations = await manager
+      .createQueryBuilder(JournalEntryLineValuation, 'valuation')
+      .where('valuation.journalEntryLineId IN (:...ids)', { ids: journalEntryLineIds })
+      .andWhere('valuation.ledgerId = :ledgerId', { ledgerId: ledger.id })
+      .getMany();
+    const baseByLine = new Map(
+      valuations.map((valuation) => [
+        valuation.journalEntryLineId,
+        roundAmount(valuation.debit - valuation.credit),
+      ]),
+    );
+
+    const ledgerAmounts = lines.map((line) => {
+      const base = baseByLine.get(line.id) ?? 0;
+      if (!isForeign) return { line, inAccountCurrency: base, inBaseCurrency: base };
+
+      if (
+        line.currencyCode !== accountCurrency ||
+        (line.foreignCurrencyDebit === null && line.foreignCurrencyCredit === null)
+      ) {
+        // Refused, not guessed. The posting did not record what the movement was in the account's
+        // own currency, and deriving it from today's rate would produce a different answer every
+        // day — which is not a reconciliation, it is a coincidence.
+        throw new BadRequestError('RECONCILIATION.LINEA_SIN_IMPORTE_EN_MONEDA_DE_LA_CUENTA', {
+          id: line.id,
+          currency: accountCurrency,
+        });
+      }
+      return {
+        line,
+        inAccountCurrency: roundAmount(
+          (line.foreignCurrencyDebit ?? 0) - (line.foreignCurrencyCredit ?? 0),
+        ),
+        inBaseCurrency: base,
+      };
+    });
+
+    const bankSide = sumInCurrency(transactions.map(signedAmount), accountCurrency);
+    const ledgerSide = sumInCurrency(
+      ledgerAmounts.map((entry) => entry.inAccountCurrency),
+      accountCurrency,
+    );
+    if (toMinorUnits(bankSide, accountCurrency) !== toMinorUnits(ledgerSide, accountCurrency)) {
       throw new BadRequestError('RECONCILIATION.CONCILIACION_NO_BALANCEA', {
         bank: bankSide,
         ledger: ledgerSide,
+        currency: accountCurrency,
       });
     }
 
@@ -916,23 +1046,36 @@ export class ReconciliationService {
   }
 
   /** Ledger lines on the account that no match has claimed. */
+  /**
+   * Ledger lines on the bank's control account that are still outstanding.
+   *
+   * ## Two currencies, stated explicitly
+   *
+   * `amount` is in the **bank account's** currency, because that is what the statement is in and
+   * what a match has to agree with. `amountInBaseCurrency` is the same movement in the books'
+   * currency, which is what a realised exchange difference is measured against.
+   *
+   * For a domestic account the two are the same number. For a foreign one they are not, and the
+   * previous implementation returned only the base-currency figure and compared it directly with
+   * the statement: no match on a dollar account in a peso-based tenant could ever balance, so
+   * `closeStatement` was unreachable for every such account.
+   *
+   * ## And one source, not two
+   *
+   * The base amount comes from the line's **valuation**, not from `line.debit`/`line.credit`.
+   * `summary` gets `bookBalance` from `AccountBalancesService`, which sums valuations; this method
+   * used to sum the line columns. They are the same number today only because nothing writes them
+   * differently — and a multi-GAAP mapping rule does exactly that. Two sources for one figure is
+   * how a reconciliation difference becomes impossible to close.
+   */
   private async availableLedgerLines(
     manager: EntityManager,
     organizationId: string,
     glAccountId: string,
     startDate: string,
     endDate: string,
-    options: { onlyUpToEndDate?: boolean } = {},
-  ): Promise<
-    {
-      id: string;
-      journalEntryId: string;
-      entryNumber: string | null;
-      date: string;
-      description: string | null;
-      amount: number;
-    }[]
-  > {
+    options: { onlyUpToEndDate?: boolean; accountCurrency?: string; baseCurrency?: string } = {},
+  ): Promise<OutstandingLedgerLine[]> {
     const from = options.onlyUpToEndDate
       ? null
       : toIsoDate(subDays(new Date(`${startDate}T00:00:00Z`), CANDIDATE_WINDOW_DAYS));
@@ -940,17 +1083,31 @@ export class ReconciliationService {
       ? endDate
       : toIsoDate(addDays(new Date(`${endDate}T00:00:00Z`), CANDIDATE_WINDOW_DAYS));
 
+    const ledger = await manager.findOneByOrFail(Ledger, { organizationId, isDefault: true });
+    const baseCurrency = options.baseCurrency ?? ledger.currency;
+    const accountCurrency = options.accountCurrency ?? baseCurrency;
+    const isForeign = accountCurrency !== baseCurrency;
+
     const query = manager
       .createQueryBuilder(JournalEntryLine, 'line')
       .innerJoin(JournalEntry, 'entry', 'entry.id = line.journal_entry_id')
+      .innerJoin(
+        'journal_entry_line_valuations',
+        'valuation',
+        'valuation.journal_entry_line_id = line.id AND valuation.ledger_id = :ledgerId',
+        { ledgerId: ledger.id },
+      )
       .select([
         'line.id AS id',
         'entry.id AS "journalEntryId"',
         'entry.entry_number AS "entryNumber"',
         'entry.date AS date',
         'line.description AS description',
-        'line.debit AS debit',
-        'line.credit AS credit',
+        'valuation.debit AS "baseDebit"',
+        'valuation.credit AS "baseCredit"',
+        'line.currency_code AS "lineCurrency"',
+        'line.foreign_currency_debit AS "foreignDebit"',
+        'line.foreign_currency_credit AS "foreignCredit"',
       ])
       .where('entry.organization_id = :organizationId', { organizationId })
       .andWhere('entry.status = :status', { status: JournalEntryStatus.POSTED })
@@ -967,18 +1124,51 @@ export class ReconciliationService {
       entryNumber: string | null;
       date: Date | string;
       description: string | null;
-      debit: string;
-      credit: string;
+      baseDebit: string;
+      baseCredit: string;
+      lineCurrency: string | null;
+      foreignDebit: string | null;
+      foreignCredit: string | null;
     }>();
 
-    return rows.map((row) => ({
-      id: row.id,
-      journalEntryId: row.journalEntryId,
-      entryNumber: row.entryNumber,
-      date: toIsoDate(row.date),
-      description: row.description,
-      amount: roundAmount(Number(row.debit) - Number(row.credit)),
-    }));
+    return rows.map((row) => {
+      const amountInBaseCurrency = roundAmount(Number(row.baseDebit) - Number(row.baseCredit));
+
+      if (!isForeign) {
+        return {
+          id: row.id,
+          journalEntryId: row.journalEntryId,
+          entryNumber: row.entryNumber,
+          date: toIsoDate(row.date),
+          description: row.description,
+          amount: amountInBaseCurrency,
+          amountInBaseCurrency,
+          amountUnavailable: false,
+        };
+      }
+
+      // A foreign account's movement is only knowable in its own currency if the posting recorded
+      // it. Entries made before per-line currency existed did not, and there is nothing to derive
+      // it from — dividing the base amount by today's rate would invent a different number every
+      // day. Such a line is surfaced as unavailable rather than guessed at, which is what lets the
+      // operator see WHY it cannot be matched instead of wondering where it went.
+      const hasDocumentAmount =
+        row.lineCurrency === accountCurrency &&
+        (row.foreignDebit !== null || row.foreignCredit !== null);
+
+      return {
+        id: row.id,
+        journalEntryId: row.journalEntryId,
+        entryNumber: row.entryNumber,
+        date: toIsoDate(row.date),
+        description: row.description,
+        amount: hasDocumentAmount
+          ? roundAmount(Number(row.foreignDebit ?? 0) - Number(row.foreignCredit ?? 0))
+          : 0,
+        amountInBaseCurrency,
+        amountUnavailable: !hasDocumentAmount,
+      };
+    });
   }
 
   private activeRules(
@@ -1083,29 +1273,33 @@ export class ReconciliationService {
         date: transaction.date,
         description: `Conciliación bancaria — ${transaction.description}`,
         journalId: journal.id,
+        // The account's own currency when it is not the books': the entry converts at the day's
+        // rate and keeps the document amount, so the line can be matched against the statement and
+        // revalued at the close. Posting a dollar bank charge as though it were pesos is how a
+        // foreign cash account drifts.
+        currencyCode: statement.currencyCode || bankAccount.currencyCode,
         lines: [
           {
             accountId: bankAccount.glAccountId,
             debit: transaction.debit,
             credit: transaction.credit,
             description: transaction.description,
-            valuations: [
-              { ledgerId: ledger.id, debit: transaction.debit, credit: transaction.credit },
-            ],
           },
           {
             accountId: rule.targetAccountId as string,
             debit: transaction.credit,
             credit: transaction.debit,
             description: `Regla: ${rule.name}`,
-            valuations: [
-              { ledgerId: ledger.id, debit: transaction.credit, credit: transaction.debit },
-            ],
           },
         ],
       } as CreateJournalEntryDto,
       organizationId,
-      { actorUserId, systemReason: `bank-reconciliation:${statement.id}` },
+      {
+        actorUserId,
+        systemReason: `bank-reconciliation:${statement.id}`,
+        // One rule-created entry per statement line, however many times the rules are re-run.
+        idempotencyKey: `bank-rule:${transaction.id}`,
+      },
     );
 
     const line = entry.lines.find((candidate) => candidate.accountId === bankAccount.glAccountId);

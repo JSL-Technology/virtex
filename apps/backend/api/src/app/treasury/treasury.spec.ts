@@ -43,6 +43,18 @@ import { CreateBankTransferDto } from './dto/create-bank-transfer.dto';
 const DB_AVAILABLE = Boolean(process.env['DB_HOST'] && process.env['DB_NAME']);
 const describeWithDb = DB_AVAILABLE ? describe : describe.skip;
 
+/**
+ * The foreign currency this suite publishes rates for.
+ *
+ * Rates are not tenant-scoped — what a currency was worth on a day is a fact about the market —
+ * so the `exchange_rate` table is shared by every suite Jest runs in parallel. Each suite that
+ * publishes rates therefore owns a pair of its own: payables EUR→DOP, receipts GBP→DOP, treasury
+ * USD→DOP. Two suites writing the same pair for the same day either collide on
+ * `UQ_exchange_rate_pair_date_type` or, worse, overwrite one another's rate and change the other's
+ * expected figures — which is exactly what made these three fail intermittently.
+ */
+const FOREIGN = 'USD';
+
 describeWithDb('treasury', () => {
   jest.setTimeout(120_000);
 
@@ -186,7 +198,7 @@ describeWithDb('treasury', () => {
     // fail intermittently with "no rate found" for pairs they had just inserted.
     await dataSource.query(
       'DELETE FROM "exchange_rate" WHERE "fromCurrency" = $1 AND "toCurrency" = $2',
-      ['USD', 'DOP'],
+      [FOREIGN, 'DOP'],
     );
   });
 

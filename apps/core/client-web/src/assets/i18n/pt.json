@@ -2429,6 +2429,12 @@
   "REPORTS": {
     "AGING": {
       "CLIENTE": "Cliente",
+      "CONTROL_CUADRA": "O razão auxiliar confere com a conta de controle.",
+      "CONTROL_DIFERENCIA": "Diferença",
+      "CONTROL_MAYOR": "Saldo no razão geral",
+      "CONTROL_NO_CUADRA": "O razão auxiliar não confere com a conta de controle. A diferença precisa ser investigada antes de este relatório ser usado como suporte.",
+      "CONTROL_SUBMAYOR": "Total do razão auxiliar",
+      "CONTROL_TITULO": "Conciliação com a conta de controle",
       "CORRIENTE": "A vencer",
       "DIAS_1_30": "1–30 dias",
       "DIAS_31_60": "31–60 dias",
@@ -2436,6 +2442,7 @@
       "MAS_90": "Mais de 90 dias",
       "PROVEEDOR": "Fornecedor",
       "SIN_SALDOS": "Não há saldos em aberto nesta data.",
+      "SIN_TASA": "{{count}} documento(s) sem taxa de câmbio nesta data: são exibidos pela taxa de registro, não pela taxa de fechamento.",
       "TITULO_CXC": "Idade das contas a receber",
       "TITULO_CXP": "Idade das contas a pagar",
       "TOTAL": "Total"

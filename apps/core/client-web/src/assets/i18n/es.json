@@ -2429,6 +2429,12 @@
   "REPORTS": {
     "AGING": {
       "CLIENTE": "Cliente",
+      "CONTROL_CUADRA": "El submayor cuadra con la cuenta de control.",
+      "CONTROL_DIFERENCIA": "Diferencia",
+      "CONTROL_MAYOR": "Saldo en el mayor",
+      "CONTROL_NO_CUADRA": "El submayor no cuadra con la cuenta de control. Hay que investigar la diferencia antes de usar este reporte como sustento.",
+      "CONTROL_SUBMAYOR": "Total del submayor",
+      "CONTROL_TITULO": "Conciliación con la cuenta de control",
       "CORRIENTE": "Corriente",
       "DIAS_1_30": "1–30 días",
       "DIAS_31_60": "31–60 días",
@@ -2436,6 +2442,7 @@
       "MAS_90": "Más de 90 días",
       "PROVEEDOR": "Proveedor",
       "SIN_SALDOS": "No hay saldos pendientes a esta fecha.",
+      "SIN_TASA": "{{count}} documento(s) sin tasa de cambio a esta fecha: se muestran a la tasa con que se registraron, no a la de cierre.",
       "TITULO_CXC": "Antigüedad de cuentas por cobrar",
       "TITULO_CXP": "Antigüedad de cuentas por pagar",
       "TOTAL": "Total"

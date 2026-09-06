@@ -100,6 +100,22 @@ export class BankStatement {
   })
   endingBalance: number;
 
+  /**
+   * The currency the statement's figures are in — the bank account's own.
+   *
+   * Stored on the statement rather than read from the account at query time, because an account's
+   * currency is a present fact and a statement is a historical document: a statement imported for a
+   * dollar account has to keep reading in dollars if that account is ever re-declared.
+   *
+   * Its absence is why reconciliation could not work for a foreign-currency account at all.
+   * `writeMatch` compared the statement's figures — in the account's currency — against
+   * `line.debit − line.credit`, which is the LEDGER's currency, and refused every match whose two
+   * sides did not coincidentally agree. `summary` subtracted the same two currencies from each
+   * other to produce the difference the whole proof turns on.
+   */
+  @Column({ name: 'currency_code', type: 'char', length: 3 })
+  currencyCode: string;
+
   @Column({ type: 'enum', enum: StatementStatus, default: StatementStatus.IMPORTING })
   status: StatementStatus;
 
