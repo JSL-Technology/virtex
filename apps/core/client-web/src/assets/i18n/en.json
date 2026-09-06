@@ -1566,6 +1566,25 @@
       "VERIFICACION_DGII": "DGII verification",
       "VERIFICAR_DGII": "Verify with the DGII"
     },
+    "EXPORT": {
+      "CLIENTE": "Customer",
+      "COMPLETADA": "Export complete.",
+      "COMPROBANTE_FISCAL": "Fiscal document number",
+      "DOCUMENTO": "Document",
+      "ESTADO": "Status",
+      "EXENTO": "Exempt",
+      "FECHA_EMISION": "Issue date",
+      "FECHA_VENCIMIENTO": "Due date",
+      "GRAVADO": "Taxed",
+      "IDENTIFICACION_FISCAL": "Tax identification",
+      "IMPUESTO": "Tax",
+      "MONEDA": "Currency",
+      "NOMBRE_ARCHIVO": "invoices",
+      "PARCIAL": "Exported {{exported}} of {{total}} invoices. Narrow the filter to include the rest.",
+      "SALDO": "Balance",
+      "TIPO_DOCUMENTO": "Document type",
+      "TOTAL": "Total"
+    },
     "INVOICE_SELECTION_DIALOG": {
       "BUSCAR_NUMERO_CLIENTE": "Search by number or customer...",
       "CANCELAR": "Cancel",

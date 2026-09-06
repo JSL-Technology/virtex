@@ -20,9 +20,14 @@ import {
   InvoiceQuery,
 } from '../../../core/services/invoices';
 import { NotificationService } from '../../../core/services/notification';
-import * as XLSX from 'xlsx';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import {
+  CsvValue,
+  downloadCsv,
+  reportFilename,
+  toCsv,
+} from '../../../core/export/csv-export';
 
 /**
  * The invoice list.
@@ -57,6 +62,7 @@ export class InvoicesListPage implements OnInit {
 
   private invoicesService = inject(InvoicesService);
   private notificationService = inject(NotificationService);
+  private readonly translate = inject(TranslateService);
 
   invoices = signal<Invoice[]>([]);
   isLoading = signal(true);
@@ -150,7 +156,19 @@ export class InvoicesListPage implements OnInit {
    * The previous version exported the rows it happened to be holding, which silently produced a
    * partial file whenever the list was paginated.
    */
-  exportToExcel(): void {
+  /**
+   * ## Why this is a CSV and not a workbook
+   *
+   * It used to build one with `xlsx@0.18.5`, which `npm audit` reports with two HIGH advisories —
+   * prototype pollution (GHSA-4r6h-8v6p-xvw6) and a regular-expression denial of service
+   * (GHSA-5pgg-2g8v-p4x9). The registry copy is frozen at that version, so there was nothing to
+   * upgrade to, and it was being shipped in the browser bundle for one export.
+   *
+   * Every other export in the product already goes through `csv-export`, which writes the `sep=`
+   * line and the byte-order mark Excel needs, and picks the delimiter from the reader's locale —
+   * so the file opens in Excel with its columns split, which is what the button was for.
+   */
+  exportToCsv(): void {
     this.invoicesService
       .getInvoices({
         limit: 200,
@@ -159,32 +177,60 @@ export class InvoicesListPage implements OnInit {
       })
       .subscribe({
         next: (result) => {
-          const rows = result.items.map((inv) => ({
-            'Documento': inv.invoiceNumber,
-            'NCF': inv.ncfNumber ?? '',
-            'Tipo': inv.fiscalDocumentType ?? '',
-            'Cliente': inv.customerName,
-            'RNC/Cédula': inv.customerTaxId ?? '',
-            'Fecha emisión': inv.issueDate,
-            'Fecha vencimiento': inv.dueDate,
-            'Gravado': inv.taxedTotal,
-            'Exento': inv.exemptTotal,
-            'ITBIS': inv.tax,
-            'Total': inv.total,
-            'Saldo': inv.balance,
-            'Moneda': inv.currencyCode,
-            'Estado': inv.status,
-          }));
+          // Translated, and named for what they are. The headers were hardcoded Spanish, and
+          // `NCF` and `RNC/Cédula` are Dominican terms on a product sold across the region and the
+          // United States: a reader in São Paulo or Miami got a column heading meaning nothing.
+          const header = [
+            'INVOICES.EXPORT.DOCUMENTO',
+            'INVOICES.EXPORT.COMPROBANTE_FISCAL',
+            'INVOICES.EXPORT.TIPO_DOCUMENTO',
+            'INVOICES.EXPORT.CLIENTE',
+            'INVOICES.EXPORT.IDENTIFICACION_FISCAL',
+            'INVOICES.EXPORT.FECHA_EMISION',
+            'INVOICES.EXPORT.FECHA_VENCIMIENTO',
+            'INVOICES.EXPORT.GRAVADO',
+            'INVOICES.EXPORT.EXENTO',
+            'INVOICES.EXPORT.IMPUESTO',
+            'INVOICES.EXPORT.TOTAL',
+            'INVOICES.EXPORT.SALDO',
+            'INVOICES.EXPORT.MONEDA',
+            'INVOICES.EXPORT.ESTADO',
+          ].map((key) => this.translate.instant(key) as string);
 
-          const worksheet = XLSX.utils.json_to_sheet(rows);
-          const workbook = XLSX.utils.book_new();
-          XLSX.utils.book_append_sheet(workbook, worksheet, 'Facturas');
-          XLSX.writeFile(workbook, `Facturas_${this.today}.xlsx`);
+          const rows: CsvValue[][] = [
+            header,
+            ...result.items.map((invoice) => [
+              invoice.invoiceNumber,
+              invoice.ncfNumber ?? '',
+              invoice.fiscalDocumentType ?? '',
+              invoice.customerName,
+              invoice.customerTaxId ?? '',
+              invoice.issueDate,
+              invoice.dueDate,
+              // Raw numbers, never locale-formatted: a formatted amount is text, and text does
+              // not add up in the spreadsheet the reader opens it in.
+              invoice.taxedTotal,
+              invoice.exemptTotal,
+              invoice.tax,
+              invoice.total,
+              invoice.balance,
+              invoice.currencyCode,
+              invoice.status,
+            ]),
+          ];
+
+          downloadCsv(
+            reportFilename(this.translate.instant('INVOICES.EXPORT.NOMBRE_ARCHIVO'), this.today),
+            toCsv(rows, { locale: this.translate.currentLang }),
+          );
 
           this.notificationService.showSuccess(
-            result.total > rows.length
-              ? `Exportadas ${rows.length} de ${result.total} facturas. Afina el filtro para incluir el resto.`
-              : 'Exportación completada.',
+            result.total > result.items.length
+              ? this.translate.instant('INVOICES.EXPORT.PARCIAL', {
+                  exported: result.items.length,
+                  total: result.total,
+                })
+              : this.translate.instant('INVOICES.EXPORT.COMPLETADA'),
           );
         },
         error: () => this.notificationService.showError('INVOICES.LIST.PUDO_EXPORTAR_LISTADO'),

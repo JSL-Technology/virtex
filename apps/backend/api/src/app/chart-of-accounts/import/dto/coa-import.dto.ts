@@ -35,11 +35,23 @@ export class ColumnMappingDto {
     parentCode: string;
 }
 
+/**
+ * Why one row of the file cannot be imported.
+ *
+ * A message key with its parameters, not a sentence. The importer answered in hardcoded English —
+ * `'Code is required.'`, `'Invalid Account Type.'` — for a product sold across Latin America, and
+ * those strings reached the screen exactly as written.
+ */
+export class ImportRowErrorDto {
+    messageKey: string;
+    params?: Record<string, string | number>;
+}
+
 export class ValidatedRow {
     lineNumber: number;
-    data: any;
+    data: Record<string, string>;
     isValid: boolean;
-    errors: string[];
+    errors: ImportRowErrorDto[];
 }
 
 

@@ -1566,6 +1566,25 @@
       "VERIFICACION_DGII": "Verificação DGII",
       "VERIFICAR_DGII": "Verificar na DGII"
     },
+    "EXPORT": {
+      "CLIENTE": "Cliente",
+      "COMPLETADA": "Exportação concluída.",
+      "COMPROBANTE_FISCAL": "Documento fiscal",
+      "DOCUMENTO": "Documento",
+      "ESTADO": "Estado",
+      "EXENTO": "Isento",
+      "FECHA_EMISION": "Data de emissão",
+      "FECHA_VENCIMIENTO": "Data de vencimento",
+      "GRAVADO": "Tributado",
+      "IDENTIFICACION_FISCAL": "Identificação fiscal",
+      "IMPUESTO": "Imposto",
+      "MONEDA": "Moeda",
+      "NOMBRE_ARCHIVO": "faturas",
+      "PARCIAL": "Exportadas {{exported}} de {{total}} faturas. Refine o filtro para incluir o restante.",
+      "SALDO": "Saldo",
+      "TIPO_DOCUMENTO": "Tipo de documento",
+      "TOTAL": "Total"
+    },
     "INVOICE_SELECTION_DIALOG": {
       "BUSCAR_NUMERO_CLIENTE": "Buscar por número ou cliente...",
       "CANCELAR": "Cancelar",

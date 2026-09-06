@@ -5,9 +5,9 @@
             <p>{{ 'INVOICES.LIST.GESTION_COMPLETA_FACTURACION_SEGUIMIENTO_DOCUMENTOS' | translate }}</p>
         </div>
         <div class="header-actions">
-            <button class="secondary-button" (click)="exportToExcel()">
+            <button class="secondary-button" (click)="exportToCsv()">
                 <lucide-icon [img]="SpreadsheetIcon" size="16"></lucide-icon>
-                <span>{{ 'INVOICES.LIST.EXPORTAR_EXCEL' | translate }}</span>
+                <span>{{ 'REPORTS.COMMON.EXPORTAR' | translate }}</span>
             </button>
             <a routerLink="/invoices/new" class="primary-button">
                 <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
