@@ -474,6 +474,9 @@ export class InvoicesService {
         taxTreatment: c.taxTreatment,
         isService: c.isService,
         exciseAmount: c.exciseAmount,
+        // Snapshotted from the product, like the rate beside it: a document is a record of what
+        // was declared, not a view over the catalogue as it stands today.
+        fiscalCodes: line.fiscalCodes,
         unitCost: line.unitCost,
         creditedQuantity: 0,
       });
@@ -621,12 +624,28 @@ export class InvoicesService {
       taxTreatment: treatment,
       taxRate,
       exciseRate: Number(product?.exciseRate ?? 0),
+      fiscalCodes: this.fiscalCodesOf(product),
       isService,
       unitOfMeasure: dto.unitOfMeasure ?? product?.unitOfMeasure ?? 'UND',
       unitCost: Number(product?.cost ?? 0),
       // Only a stocked good moves inventory. A service, or a free-text concept, does not.
       movesStock: Boolean(product) && !isService && product?.kind === ProductKind.GOOD,
     };
+  }
+
+  /**
+   * The catalogue values a document line must carry in the tenant's market.
+   *
+   * `fiscalItemCode` predates this and is the Mexican `ClaveProdServ` under an older name; it is
+   * folded in so a product configured before the map existed keeps working.
+   */
+  private fiscalCodesOf(product: Product | undefined): Record<string, string> | null {
+    if (!product) return null;
+    const codes = { ...(product.fiscalCodes ?? {}) };
+    if (product.fiscalItemCode && !codes['claveProdServ']) {
+      codes['claveProdServ'] = product.fiscalItemCode;
+    }
+    return Object.keys(codes).length > 0 ? codes : null;
   }
 
   /** The seller's own address, for the states that source an intrastate sale to it. */
@@ -1247,6 +1266,8 @@ interface ResolvedLine {
   taxTreatment: TaxTreatment;
   taxRate: number;
   exciseRate: number;
+  /** The catalogue values the market's regime needs on this line, from the product. */
+  fiscalCodes: Record<string, string> | null;
   isService: boolean;
   unitOfMeasure: string;
   unitCost: number;

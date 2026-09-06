@@ -187,6 +187,16 @@ export class InvoiceLineItem {
   })
   exciseAmount: number;
 
+  /**
+   * The catalogue values the line was issued with, copied from the product at that moment.
+   *
+   * A snapshot, like `taxRate` beside it and for the same reason: a document is a record of what
+   * was declared, and re-reading the product's current codes to rebuild a document issued two
+   * years ago would reconstruct a different declaration from the one filed.
+   */
+  @Column({ name: 'fiscal_codes', type: 'jsonb', nullable: true })
+  fiscalCodes?: Record<string, string> | null;
+
   /** Unit cost at the moment of sale, used to post cost of goods sold. */
   @Column('decimal', {
     name: 'unit_cost',

@@ -9,6 +9,8 @@ import { Organization } from '../../organizations/entities/organization.entity';
  * hold ciphertext, never the private key in the clear. `CertificateVaultService` is the only place
  * that decrypts them, and only in memory, at signing time.
  */
+// The lookup is always "the active certificate of this regime for this tenant".
+@Index('IDX_ecf_certificates_org_regime_active', ['organizationId', 'regime', 'isActive'])
 @Entity({ name: 'ecf_certificates' })
 @Index('IDX_ecf_certificates_org_active', ['organizationId', 'isActive'])
 export class EcfCertificate {
@@ -22,6 +24,20 @@ export class EcfCertificate {
    * is a uuid. A join between them was a type error PostgreSQL refused outright, and a row whose
    * organization had been deleted was perfectly storable.
    */
+  /**
+   * Which regime this certificate signs for.
+   *
+   * A taxpayer operating in more than one market holds more than one certificate — a DGII one for
+   * the Dominican Republic, a CSD for Mexico, a certificado de firma digital for Colombia — and
+   * they are not interchangeable: each is issued by that country's authority for that country's
+   * documents. Without a discriminator the table held one certificate per tenant and the second
+   * market silently signed with the first market's key.
+   *
+   * `DGII` for every existing row, which is what they all are.
+   */
+  @Column({ name: 'regime', type: 'varchar', length: 16, default: 'DGII' })
+  regime: string;
+
   @Column({ name: 'organization_id', type: 'uuid' })
   organizationId: string;
 
