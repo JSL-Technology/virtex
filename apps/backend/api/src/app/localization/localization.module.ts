@@ -24,6 +24,12 @@ import { TaxDeterminationService } from './fiscal/tax-determination/tax-determin
 import { TenantJurisdictionProvider } from './fiscal/tax-determination/tenant-jurisdiction.provider';
 import { TaxJurisdictionsController } from './controllers/tax-jurisdictions.controller';
 import { TaxJurisdictionsService } from './services/tax-jurisdictions.service';
+import { TenantWithholdingRegime } from './fiscal/entities/tenant-withholding-regime.entity';
+import { WithholdingRegimesService } from './services/withholding-regimes.service';
+import { WithholdingRegimesController } from './controllers/withholding-regimes.controller';
+import { RegimeTransportService } from '../einvoicing/regimes/regime-transport.service';
+import { XmlSignatureService } from '../einvoicing/regimes/xml-signature.service';
+import { OrganizationsModule } from '../organizations/organizations.module';
 
 @Module({
   imports: [
@@ -38,6 +44,7 @@ import { TaxJurisdictionsService } from './services/tax-jurisdictions.service';
       FiscalDocumentTypeDefinition,
       EInvoiceProviderConfig,
       TaxJurisdiction,
+      TenantWithholdingRegime,
     ]),
     // The 'localization' queue and its consumer are gone. Nothing ever enqueued a job onto it,
     // and the consumer's handler looped over the chart-of-accounts and tax templates with empty
@@ -47,6 +54,8 @@ import { TaxJurisdictionsService } from './services/tax-jurisdictions.service';
     TaxesModule,
     SharedModule,
     HttpModule,
+    // The coverage endpoint reads the tenant's country.
+    forwardRef(() => OrganizationsModule),
   ],
   providers: [
     LocalizationService,
@@ -57,8 +66,17 @@ import { TaxJurisdictionsService } from './services/tax-jurisdictions.service';
     TenantJurisdictionProvider,
     TaxDeterminationService,
     TaxJurisdictionsService,
+    WithholdingRegimesService,
+    // Shared by every e-invoicing regime: one signature suite and one transport, configured per
+    // market rather than reimplemented per market.
+    XmlSignatureService,
+    RegimeTransportService,
   ],
-  controllers: [LocalizationController, TaxJurisdictionsController],
-  exports: [LocalizationService, TaxDeterminationService],
+  controllers: [
+    LocalizationController,
+    TaxJurisdictionsController,
+    WithholdingRegimesController,
+  ],
+  exports: [LocalizationService, TaxDeterminationService, XmlSignatureService, RegimeTransportService],
 })
 export class LocalizationModule {}

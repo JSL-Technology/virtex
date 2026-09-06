@@ -1,0 +1,86 @@
+.s-page { padding: 2rem; max-width: 1100px; }
+
+.s-header {
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 1.25rem;
+
+  &__title { font-size: 1.375rem; font-weight: 700; color: var(--text-primary); margin-bottom: .25rem; }
+  &__subtitle { font-size: .875rem; color: var(--text-secondary); }
+}
+
+.s-state { padding: 2rem 0; color: var(--text-secondary); }
+
+/* What the product covers here, per capability. Colour carries the level, text always states it. */
+.w-coverage {
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+
+  h2 { font-size: .9375rem; font-weight: 600; margin-bottom: .75rem; color: var(--text-primary); }
+  ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
+}
+
+.w-level {
+  display: grid;
+  grid-template-columns: minmax(10rem, auto) minmax(8rem, auto) 1fr;
+  gap: .5rem 1rem;
+  padding: .5rem .75rem;
+  border-left: 3px solid var(--border-color);
+  font-size: .8125rem;
+  color: var(--text-secondary);
+
+  &--implemented { border-left-color: var(--success-text, var(--text-primary)); }
+  &--needs-credentials { border-left-color: var(--warning-text, var(--text-secondary)); }
+  &--not-implemented { border-left-color: var(--error-text); }
+}
+
+.w-capability { font-weight: 600; color: var(--text-primary); }
+.w-status { font-weight: 600; }
+.w-detail, .w-requires { grid-column: 1 / -1; }
+.w-requires { font-style: italic; }
+
+.w-form { padding: 1.25rem; margin: 1rem 0 1.5rem; }
+
+.w-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  font-size: .8125rem;
+  color: var(--text-secondary);
+
+  input, select {
+    padding: .5rem .625rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--surface-raised);
+    color: var(--text-primary);
+    font: inherit;
+  }
+
+  &--wide { grid-column: 1 / -1; }
+}
+
+.field-hint { color: var(--text-secondary); font-size: .75rem; }
+
+.w-payers { display: flex; flex-wrap: wrap; gap: 1rem; }
+.w-payer { display: inline-flex; align-items: center; gap: .35rem; }
+
+.w-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+
+  th, td { padding: .5rem .625rem; border-bottom: 1px solid var(--border-color); text-align: left; }
+  th { color: var(--text-secondary); font-weight: 600; font-size: .8125rem; }
+  .numeric { text-align: right; }
+}
+
+.w-basis { font-size: .8125rem; color: var(--text-secondary); max-width: 22rem; }
+.w-row--inactive { opacity: .55; }

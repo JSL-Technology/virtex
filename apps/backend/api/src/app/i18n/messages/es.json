@@ -848,6 +848,8 @@
     "NO_SE_PUDO_DETERMINAR_IMPUESTO": "No se pudo determinar el impuesto de esta venta.",
     "ORGANIZACION_NO_TIENE_REGION_FISCAL_NO_PUEDE": "La organización {{id}} no tiene región fiscal; no se puede aplicar el paquete fiscal.",
     "PAIS_NO_ESTA_DISPONIBLE_REGISTRO_TODAVIA": "El país \"{{countryCode}}\" no está disponible para registro todavía.",
+    "REGIMEN_RETENCION_NO_ENCONTRADO": "El régimen de retención indicado no existe.",
+    "REGIMEN_RETENCION_SIN_PAGADOR": "Un régimen sin pagadores no aplica a nadie: indica al menos un tipo de contribuyente.",
     "REGION_FISCAL_ID_NO_ENCONTRADA": "Región fiscal con ID \"{{fiscalRegionId}}\" no encontrada.",
     "SIN_JURISDICCIONES_REGISTRADAS_PAIS": "No hay jurisdicciones registradas para {{countryCode}}, así que no se cobra impuesto. Regístralas en Ajustes → Impuestos si tienes obligación de recaudar.",
     "SIN_PROVEEDOR_DETERMINACION": "No hay proveedor de determinación de impuestos para {{countryCode}}.",
