@@ -55,6 +55,18 @@ export class DianBuilder {
   }
 
   /**
+   * The DIAN's document-type code.
+   *
+   * `01` factura de venta nacional, `91` nota crédito. Public because the numbering adapter draws
+   * the number from the range authorised for this type and has to reach the same answer the
+   * builder does — a note numbered from the invoice range is rejected on the resolution, not on
+   * the document.
+   */
+  documentType(invoice: Invoice): string {
+    return invoice.type === InvoiceType.CREDIT_NOTE ? '91' : '01';
+  }
+
+  /**
    * `SHA-384(NumFac + FecFac + HorFac + ValFac + CodImp1 + ValImp1 + CodImp2 + ValImp2 +
    * CodImp3 + ValImp3 + ValTot + NitOFE + NumAdq + ClTec + TipoAmb)`.
    *
@@ -130,7 +142,7 @@ export class DianBuilder {
     root.ele('cbc:IssueDate', {}, this.date(invoice.issueDate));
     root.ele('cbc:IssueTime', {}, this.time(invoice.issueDate));
     // `01` factura de venta nacional; `91` nota crédito.
-    root.ele('cbc:InvoiceTypeCode', {}, invoice.type === InvoiceType.CREDIT_NOTE ? '91' : '01');
+    root.ele('cbc:InvoiceTypeCode', {}, this.documentType(invoice));
     root.ele('cbc:DocumentCurrencyCode', {}, currency);
     root.ele('cbc:LineCountNumeric', {}, String((invoice.lineItems ?? []).length));
 

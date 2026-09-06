@@ -41,7 +41,15 @@ describe('NewInvoicePage', () => {
     baseCurrency: 'DOP',
     taxRates: [0.18, 0.16, 0],
     taxRequiresConfiguration: false,
-    fiscalDocumentTypes: ['E31', 'E32', 'E46'],
+    // The server describes each type it will accept, rather than sending bare codes the client
+    // has to know the vocabulary for. It used to send `['E31', 'E32', 'E46']` and the page looked
+    // the Spanish labels up in a hardcoded record of the twelve Dominican comprobantes — which is
+    // why no other market could present a document type even once its adapter existed.
+    fiscalDocumentTypes: [
+      { code: 'E31', labelKey: 'FISCAL.DO.E31', requiresBuyerTaxId: true },
+      { code: 'E32', labelKey: 'FISCAL.DO.E32', requiresBuyerTaxId: false },
+      { code: 'E46', labelKey: 'FISCAL.DO.E46', requiresBuyerTaxId: false },
+    ],
     serviceChargeRate: 0.1,
     ...overrides,
   });
@@ -117,6 +125,30 @@ describe('NewInvoicePage', () => {
 
   it('offers the fiscal document types the market allows', () => {
     expect(component.fiscalTypes().map((t) => t.code)).toEqual(['E31', 'E32', 'E46']);
+    // The label travels as a translation key, so a Chilean or Brazilian type is presentable
+    // without the client carrying any market's vocabulary of its own.
+    expect(component.fiscalTypes().map((t) => t.labelKey)).toEqual([
+      'FISCAL.DO.E31',
+      'FISCAL.DO.E32',
+      'FISCAL.DO.E46',
+    ]);
+  });
+
+  it('offers a market whose types are not Dominican at all', async () => {
+    await build(
+      context({
+        countryCode: 'CL',
+        baseCurrency: 'CLP',
+        fiscalDocumentTypes: [
+          { code: '33', labelKey: 'FISCAL.CL.33', requiresBuyerTaxId: true },
+          { code: '34', labelKey: 'FISCAL.CL.34', requiresBuyerTaxId: true },
+        ],
+      }),
+    );
+
+    // `33` and `34` are not values of `NcfType`, and before the interface widened neither the
+    // server's type nor the client's could express them.
+    expect(component.fiscalTypes().map((t) => t.code)).toEqual(['33', '34']);
   });
 
   it('offers no document type in a market with no stamping regime', async () => {

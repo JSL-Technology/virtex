@@ -152,7 +152,14 @@ export class SiiBuilder {
   }
 
   /** `33` factura afecta, `34` exenta, `61` nota de crédito. */
-  private documentType(invoice: Invoice): string {
+  /**
+   * The authority's document-type code for this invoice.
+   *
+   * Public because the numbering adapter has to draw the number from the range authorised for
+   * THIS type, and it must reach that answer the same way the builder does. Two copies of the
+   * rule is how a document ends up numbered from the exenta range and built as an afecta.
+   */
+  documentType(invoice: Invoice): string {
     if (invoice.type === InvoiceType.CREDIT_NOTE) return '61';
     return roundToCurrency(invoice.tax ?? 0, 'CLP') > 0 ? '33' : '34';
   }

@@ -27,12 +27,12 @@ import { EcfSubmissionService } from '../einvoicing/services/ecf-submission.serv
 import { InvoicePostingService } from './services/invoice-posting.service';
 import { ComputedDocument, computeDocument, TaxableLineInput } from './sales-tax.engine';
 import { roundAmount, roundToCurrency, toMinorUnits } from '../common/money';
-import { NcfType } from '../compliance/entities/ncf-sequence.entity';
 import { WithholdingResolverService } from './services/withholding-resolver.service';
 import { TenantBookkeepingProvisioner } from '../shared/provisioning/tenant-bookkeeping.provisioner';
 import { COUNTRY_TAX_SCHEMES } from '../localization/fiscal/country-tax-schemes';
 import { EcfSubmission } from '../einvoicing/entities/ecf-submission.entity';
 import { InvoiceRenderContext } from './services/invoice-renderer.service';
+import { FiscalDocumentTypeOption } from './interfaces/fiscal-adapter.interface';
 import { fiscalDate, organizationTimeZone } from '../shared/fiscal-clock';
 import { BadRequestError, ConflictError, NotFoundError } from '../i18n/localized.exception';
 import { Tax } from '../taxes/entities/tax.entity';
@@ -62,7 +62,7 @@ export interface InvoicingContext {
   baseCurrency: string;
   taxRates: number[];
   taxRequiresConfiguration: boolean;
-  fiscalDocumentTypes: NcfType[];
+  fiscalDocumentTypes: FiscalDocumentTypeOption[];
   serviceChargeRate: number;
 }
 
@@ -151,7 +151,7 @@ export class InvoicesService {
   }
 
   /** Turn an existing draft into an issued document. */
-  async issue(invoiceId: string, organizationId: string, type?: NcfType): Promise<Invoice> {
+  async issue(invoiceId: string, organizationId: string, type?: string): Promise<Invoice> {
     const issued = await this.dataSource.transaction(async (manager) => {
       const invoice = await manager.getRepository(Invoice).findOne({
         where: { id: invoiceId, organizationId },
@@ -175,7 +175,7 @@ export class InvoicesService {
    */
   private async issueWithin(
     invoice: Invoice,
-    requestedType: NcfType | null,
+    requestedType: string | null,
     organizationId: string,
     manager: EntityManager,
   ): Promise<Invoice> {

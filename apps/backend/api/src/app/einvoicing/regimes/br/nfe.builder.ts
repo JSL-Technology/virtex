@@ -59,6 +59,20 @@ export class NfeBuilder {
   /**
    * `cUF(2) AAMM(4) CNPJ(14) mod(2) serie(3) nNF(9) tpEmis(1) cNF(8) cDV(1)`.
    */
+  /**
+   * The NF-e model code.
+   *
+   * `55` is the NF-e proper. `65` is the NFC-e — the consumer note — which is a different document
+   * with its own authorisation, its own série and a QR code this builder does not produce, so it is
+   * not offered rather than being produced incorrectly.
+   *
+   * A Brazilian credit note is not a document type at all: it is an NF-e of `finNFe` 4 (devolução)
+   * or a separate nota de débito, both still model `55`.
+   */
+  documentType(): string {
+    return '55';
+  }
+
   accessKey(input: NfeBuildInput): string {
     const { invoice, organization } = input;
     const issueDate = this.iso(invoice.issueDate);

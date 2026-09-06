@@ -3,6 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { EcfSubmission } from './entities/ecf-submission.entity';
 import { EcfLifecycleMessage } from './entities/ecf-lifecycle-message.entity';
 import { EcfCertificate } from './entities/ecf-certificate.entity';
+import { FiscalDocumentRange } from './entities/fiscal-document-range.entity';
+import { FiscalRegimeSettings } from './entities/fiscal-regime-settings.entity';
 import { Invoice } from '../invoices/entities/invoice.entity';
 import { Organization } from '../organizations/entities/organization.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
@@ -21,6 +23,9 @@ import { EcfReconcilerService } from './services/ecf-reconciler.service';
 import { EcfLifecycleXmlBuilder } from './services/ecf-lifecycle-xml.builder';
 import { EcfLifecycleService } from './services/ecf-lifecycle.service';
 import { EinvoicingController } from './einvoicing.controller';
+import { FiscalRangeService } from './services/fiscal-range.service';
+import { XmlSignatureService } from './regimes/xml-signature.service';
+import { RegimeTransportService } from './regimes/regime-transport.service';
 
 /**
  * Electronic invoicing (e-CF) for the Dominican Republic: certificate vault, DGII authentication,
@@ -40,6 +45,8 @@ import { EinvoicingController } from './einvoicing.controller';
       Organization,
       OrganizationSettings,
       NcfSequence,
+      FiscalDocumentRange,
+      FiscalRegimeSettings,
     ]),
     AuthModule,
   ],
@@ -57,6 +64,12 @@ import { EinvoicingController } from './einvoicing.controller';
     EcfReconcilerService,
     EcfLifecycleXmlBuilder,
     EcfLifecycleService,
+    // The seven-regime backbone. `XmlSignatureService` and `RegimeTransportService` were written,
+    // tested and left unregistered, which is why every market but the Dominican Republic still
+    // resolved to the generic adapter: the code existed and the container had never heard of it.
+    FiscalRangeService,
+    XmlSignatureService,
+    RegimeTransportService,
   ],
   exports: [
     EcfSubmissionService,
@@ -64,6 +77,9 @@ import { EinvoicingController } from './einvoicing.controller';
     EcfXmlBuilderService,
     EcfValidatorService,
     EcfLifecycleService,
+    FiscalRangeService,
+    XmlSignatureService,
+    RegimeTransportService,
   ],
 })
 export class EinvoicingModule {}

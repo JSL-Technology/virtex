@@ -235,7 +235,7 @@
                   -->
                   <option value="">{{ 'INVOICES.NEW.AUTOMATICO_SEGUN_COMPRADOR' | translate }}</option>
                   @for (type of fiscalTypes(); track type.code) {
-                    <option [value]="type.code">{{ type.label }}</option>
+                    <option [value]="type.code">{{ type.labelKey | translate }}</option>
                   }
                 </select>
               </div>

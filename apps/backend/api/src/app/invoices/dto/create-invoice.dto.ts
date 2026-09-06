@@ -13,11 +13,11 @@ import {
   Length,
   ArrayMinSize,
   MaxLength,
+  Matches,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { TaxTreatment } from '../entities/invoice-line-item.entity';
 import { PaymentMethod } from '../entities/invoice.entity';
-import { NcfType } from '../../compliance/entities/ncf-sequence.entity';
 
 export class InvoiceLineDto {
   /**
@@ -166,17 +166,22 @@ export class CreateInvoiceDto {
   paymentMethod?: PaymentMethod;
 
   /**
-   * Fiscal document type to issue.
+   * Fiscal document type to issue, as the authority's own code.
    *
    * Absent, the market's adapter chooses — for the Dominican Republic, credit-fiscal or consumo
    * according to the buyer's verified identifier. Present, it must be a type the tenant holds an
    * authorized range for, which is what makes exports (E46), government (E45) and special regimes
    * (E44) issuable at all; previously the type was inferred from the length of a tax id and no
    * other type could ever be produced.
+   *
+   * A code, not an `NcfType`: six other markets have document types of their own, and the adapter
+   * that owns the market is the only thing that can say whether a code belongs to it.
    */
-  @IsEnum(NcfType)
+  @IsString()
+  @MaxLength(8)
+  @Matches(/^[A-Za-z0-9]+$/, { message: 'INVOICES.TIPO_COMPROBANTE_FORMATO_INVALIDO' })
   @IsOptional()
-  fiscalDocumentType?: NcfType;
+  fiscalDocumentType?: string;
 
   /**
    * Issue the document immediately (default), or leave it as a draft.

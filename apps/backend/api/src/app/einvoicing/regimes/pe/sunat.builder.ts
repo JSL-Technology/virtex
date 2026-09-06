@@ -172,7 +172,14 @@ export class SunatBuilder {
    * boleta before it reads the document, and the series is what the taxpayer's own numbering
    * carries.
    */
-  private documentType(input: SunatBuildInput): string {
+  /**
+   * The authority's document-type code for this invoice.
+   *
+   * Public because the numbering adapter has to draw the number from the range authorised for
+   * THIS type, and it must reach that answer the same way the builder does. Two copies of the
+   * rule is how a document ends up numbered from the exenta range and built as an afecta.
+   */
+  documentType(input: Pick<SunatBuildInput, 'invoice' | 'series'>): string {
     if (input.invoice.type === InvoiceType.CREDIT_NOTE) return '07';
     return input.series.toUpperCase().startsWith('B') ? '03' : '01';
   }

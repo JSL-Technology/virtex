@@ -17,7 +17,6 @@ import {
   InvoicesService,
   CreateInvoiceDto,
   CreateInvoiceLine,
-  FiscalDocumentType,
   InvoicePreview,
   InvoicingContext,
   TaxTreatment,
@@ -31,22 +30,6 @@ import { NotificationService } from '../../../core/services/notification';
 import { InvoiceToolbarComponent } from '../components/invoice-toolbar/invoice-toolbar.component';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 import { TranslateModule } from '@ngx-translate/core';
-
-/** How the tenant's fiscal document types are presented, in the market's own vocabulary. */
-const FISCAL_TYPE_LABELS: Record<string, string> = {
-  E31: 'E31 · Crédito Fiscal',
-  E32: 'E32 · Consumo',
-  E33: 'E33 · Nota de Débito',
-  E34: 'E34 · Nota de Crédito',
-  E44: 'E44 · Régimen Especial',
-  E45: 'E45 · Gubernamental',
-  E46: 'E46 · Exportación',
-  B01: 'B01 · Crédito Fiscal (preimpreso)',
-  B02: 'B02 · Consumo (preimpreso)',
-  B04: 'B04 · Nota de Crédito (preimpreso)',
-  B11: 'B11 · Proveedor Informal',
-  B15: 'B15 · Gubernamental (preimpreso)',
-};
 
 /**
  * Issuing a sales document.
@@ -94,13 +77,14 @@ export class NewInvoicePage implements OnInit {
   isSaving = signal(false);
   activeTab = signal<'content' | 'logistics' | 'finance'>('content');
 
-  /** Document types the tenant may issue, labelled. Empty in a market with no stamping regime. */
-  fiscalTypes = computed(() =>
-    (this.context()?.fiscalDocumentTypes ?? []).map((code) => ({
-      code,
-      label: FISCAL_TYPE_LABELS[code] ?? code,
-    })),
-  );
+  /**
+   * Document types the tenant may issue. Empty in a market with no stamping regime.
+   *
+   * The labels used to be a hardcoded record of the twelve Dominican comprobantes, in Spanish, in
+   * this file — which is why no other market could present a type even after its adapter existed.
+   * The server names each type with a translation key and the catalogue holds the wording.
+   */
+  fiscalTypes = computed(() => this.context()?.fiscalDocumentTypes ?? []);
 
   /** Tax rates the market levies, for the per-line selector. */
   taxRates = computed(() => this.context()?.taxRates ?? []);
@@ -355,7 +339,7 @@ export class NewInvoicePage implements OnInit {
       currencyCode: value.currencyCode,
       notes: value.notes || undefined,
       paymentMethod: value.paymentMethod || undefined,
-      fiscalDocumentType: (value.fiscalDocumentType || undefined) as FiscalDocumentType | undefined,
+      fiscalDocumentType: value.fiscalDocumentType || undefined,
       documentDiscountRate: numberOrUndefined(value.documentDiscountRate),
       serviceChargeRate: numberOrUndefined(value.serviceChargeRate),
       taxWithholdingRate: numberOrUndefined(value.taxWithholdingRate),

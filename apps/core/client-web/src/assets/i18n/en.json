@@ -1439,6 +1439,52 @@
     "UPDATE_USER": "The user could not be updated.",
     "VERIFY_DOMAIN": "The domain could not be verified yet."
   },
+  "FISCAL": {
+    "DO": {
+      "E31": "E31 · Factura de Crédito Fiscal Electrónica",
+      "E32": "E32 · Factura de Consumo Electrónica",
+      "E33": "E33 · Nota de Débito Electrónica",
+      "E34": "E34 · Nota de Crédito Electrónica",
+      "E44": "E44 · Régimen Especial Electrónico",
+      "E45": "E45 · Gubernamental Electrónico",
+      "E46": "E46 · Exportaciones Electrónico",
+      "B01": "B01 · Crédito Fiscal (preimpreso)",
+      "B02": "B02 · Consumo (preimpreso)",
+      "B04": "B04 · Nota de Crédito (preimpreso)",
+      "B11": "B11 · Proveedor Informal",
+      "B15": "B15 · Gubernamental (preimpreso)"
+    },
+    "MX": {
+      "I": "I · Ingreso (CFDI 4.0)",
+      "E": "E · Egreso — nota de crédito (CFDI 4.0)"
+    },
+    "CO": {
+      "01": "01 · Factura de Venta Nacional",
+      "91": "91 · Nota Crédito"
+    },
+    "PE": {
+      "01": "01 · Factura",
+      "03": "03 · Boleta de Venta",
+      "07": "07 · Nota de Crédito"
+    },
+    "EC": {
+      "01": "01 · Factura",
+      "04": "04 · Nota de Crédito"
+    },
+    "CL": {
+      "33": "33 · Factura Electrónica (afecta)",
+      "34": "34 · Factura No Afecta o Exenta Electrónica",
+      "61": "61 · Nota de Crédito Electrónica"
+    },
+    "BR": {
+      "55": "55 · Nota Fiscal Eletrônica (NF-e)"
+    },
+    "AR": {
+      "01": "01 · Factura A",
+      "06": "06 · Factura B",
+      "11": "11 · Factura C"
+    }
+  },
   "FORGOT_PASSWORD": {
     "BACK_TO_LOGIN": "Back to login",
     "EMAIL_SENT_TITLE": "Check your inbox",
