@@ -294,12 +294,23 @@ export class AccountBalancesService {
    * every multicurrency account as an exchange loss, on every period close.
    */
   async foreignCurrencyBalancesAsOf(
-    scope: BalanceScope & { asOf: Date | string },
+    scope: BalanceScope & { asOf: Date | string; currencyCode?: string },
     manager?: EntityManager,
   ): Promise<SignedBalances> {
-    const rows = await this.baseQuery(this.manager(manager), scope)
+    const query = this.baseQuery(this.manager(manager), scope)
       .andWhere('entry.date <= :asOf', { asOf: toIsoDate(scope.asOf) })
-      .andWhere('line.foreignCurrencyDebit IS NOT NULL OR line.foreignCurrencyCredit IS NOT NULL')
+      .andWhere('line.foreignCurrencyDebit IS NOT NULL OR line.foreignCurrencyCredit IS NOT NULL');
+
+    // Without this, a control account shared by a dollar and a euro bank account returns the two
+    // added together — a number in no currency at all. The revaluation does not pass it because a
+    // single account is revalued against a single currency there; the cash position does.
+    if (scope.currencyCode) {
+      query.andWhere('line.currencyCode = :lineCurrencyCode', {
+        lineCurrencyCode: scope.currencyCode,
+      });
+    }
+
+    const rows = await query
       .select('line.accountId', 'accountId')
       .addSelect(
         'COALESCE(SUM(COALESCE(line.foreignCurrencyDebit, 0) - COALESCE(line.foreignCurrencyCredit, 0)), 0)',

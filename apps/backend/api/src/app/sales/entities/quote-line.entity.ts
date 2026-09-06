@@ -11,7 +11,13 @@ export class QuoteLine {
   @JoinColumn({ name: 'quote_id' })
   quote: Quote;
 
-  @ManyToOne(() => Product)
+  /**
+   * `SET NULL`, explicitly.
+   *
+   * A quote line carries its own description and price, so it stays readable once the catalogue
+   * entry is gone — and the default `NO ACTION` blocked tenant deletion.
+   */
+  @ManyToOne(() => Product, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'product_id' })
   product: Product;
 

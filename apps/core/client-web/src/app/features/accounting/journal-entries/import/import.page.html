@@ -7,46 +7,207 @@
   </div>
 
   <div class="view-content">
+    <!-- Step 1: the file -->
     <div class="card">
       <div class="card-header">
         <h2>{{ 'ACCOUNTING.IMPORT.PASO_SELECCIONAR_FICHERO' | translate }}</h2>
       </div>
       <div class="card-body">
-        <div class="upload-box" (click)="fileInput.click()" tabindex="0" role="button" (keydown.enter)="fileInput.click()" (keydown.space)="$event.preventDefault(); fileInput.click()">
-          <input #fileInput type="file" (change)="onFileSelected($event)" hidden accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+        <div
+          class="upload-box"
+          (click)="fileInput.click()"
+          tabindex="0"
+          role="button"
+          (keydown.enter)="fileInput.click()"
+          (keydown.space)="$event.preventDefault(); fileInput.click()"
+        >
+          <input
+            #fileInput
+            type="file"
+            (change)="onFileSelected($event)"
+            hidden
+            accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+          />
           <lucide-icon [name]="UploadIcon" [size]="48"></lucide-icon>
-          <p *ngIf="!selectedFile()">{{ 'ACCOUNTING.IMPORT.HAZ_CLIC_AQUI_SELECCIONAR_FICHERO_CSV' | translate }}</p>
-          <p *ngIf="selectedFile()">{{ 'ACCOUNTING.IMPORT.FICHERO_SELECCIONADO' | translate }} <strong>{{ selectedFile()?.name }}</strong></p>
-        </div>
-        <div class="form-actions">
-          <button (click)="previewImport()" class="btn-primary" [disabled]="!selectedFile() || isLoading()">
-            {{ isLoading() ? 'Procesando...' : 'Previsualizar Importación' }}
-          </button>
+          @if (selectedFile(); as file) {
+            <p>{{ 'ACCOUNTING.IMPORT.FICHERO_SELECCIONADO' | translate }} <strong>{{ file.name }}</strong></p>
+          } @else {
+            <p>{{ 'ACCOUNTING.IMPORT.HAZ_CLIC_AQUI_SELECCIONAR_FICHERO_CSV' | translate }}</p>
+          }
         </div>
       </div>
     </div>
 
-    <div *ngIf="isLoading()" class="loading-shade">
-      <p>{{ 'ACCOUNTING.IMPORT.ANALIZANDO_FICHERO' | translate }}</p>
-    </div>
+    <!--
+      Step 2: the mapping.
 
-    <div *ngIf="error()" class="error-message">
-      <p>{{ error() }}</p>
-    </div>
+      This step did not exist. The client posted the file alone — "For now, we just send the file"
+      — and the server requires a column mapping, so every preview came back 400 and the screen
+      blamed the file's format.
+    -->
+    @if (headers().length > 0) {
+      <div class="card">
+        <div class="card-header">
+          <h2>{{ 'ACCOUNTING.IMPORT.PASO_MAPEAR_COLUMNAS' | translate }}</h2>
+        </div>
+        <div class="card-body">
+          <div class="mapping-grid">
+            @for (field of fields; track field.key) {
+              <label class="field">
+                <span>
+                  {{ field.label | translate }}
+                  @if (field.required) {
+                    <abbr class="required" title="{{ 'ACCOUNTING.IMPORT.OBLIGATORIO' | translate }}">*</abbr>
+                  }
+                </span>
+                <select
+                  [value]="mapping()[field.key] ?? ''"
+                  (change)="setMapping(field.key, $any($event.target).value)"
+                >
+                  <option value="">{{ 'ACCOUNTING.IMPORT.SIN_ASIGNAR' | translate }}</option>
+                  @for (header of headers(); track header) {
+                    <option [value]="header">{{ header }}</option>
+                  }
+                </select>
+              </label>
+            }
 
-    <div *ngIf="previewData()" class="card">
-      <div class="card-header">
-        <h2>{{ 'ACCOUNTING.IMPORT.PASO_PREVISUALIZACION_CONFIRMACION' | translate }}</h2>
-      </div>
-      <div class="card-body">
-        <!-- The preview data table would be rendered here -->
-        <p>{{ 'ACCOUNTING.IMPORT.PREVISUALIZACION_DATOS_IMPORTAR' | translate }}</p>
-        <pre>{{ previewData() | json }}</pre>
-        <div class="form-actions">
-          <button (click)="confirmImport()" class="btn-primary">{{ 'ACCOUNTING.IMPORT.CONFIRMAR_IMPORTAR' | translate }}</button>
+            <!--
+              No default is safe here. `03/04/2026` is 4 March in the United States and 3 April
+              almost everywhere else, and the file states which nowhere; the importer used to hand
+              the string to `new Date()` and take whatever it got.
+            -->
+            <label class="field">
+              <span>{{ 'ACCOUNTING.IMPORT.FORMATO_FECHA' | translate }}</span>
+              <select [value]="dateFormat()" (change)="dateFormat.set($any($event.target).value)">
+                @for (format of dateFormats; track format) {
+                  <option [value]="format">{{ format }}</option>
+                }
+              </select>
+            </label>
+
+            <label class="field">
+              <span>{{ 'ACCOUNTING.IMPORT.SEPARADOR_DECIMAL' | translate }}</span>
+              <select
+                [value]="decimalSeparator()"
+                (change)="decimalSeparator.set($any($event.target).value)"
+              >
+                <option value=",">{{ 'ACCOUNTING.IMPORT.SEPARADOR_COMA' | translate }}</option>
+                <option value=".">{{ 'ACCOUNTING.IMPORT.SEPARADOR_PUNTO' | translate }}</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="button"
+              class="btn-primary"
+              [disabled]="!isMappingComplete() || isLoading()"
+              (click)="previewImport()"
+            >
+              {{ 'ACCOUNTING.IMPORT.PREVISUALIZAR' | translate }}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    }
 
+    @if (isLoading()) {
+      <p class="report-state">{{ 'ACCOUNTING.IMPORT.ANALIZANDO_FICHERO' | translate }}</p>
+    }
+
+    @if (failed()) {
+      <p class="report-state report-state--error">
+        {{ 'ACCOUNTING.IMPORT.NO_SE_PUDO_PROCESAR' | translate }}
+      </p>
+    }
+
+    <!-- Step 3: what would actually be posted, and what would not -->
+    @if (preview(); as data) {
+      <div class="card">
+        <div class="card-header">
+          <h2>{{ 'ACCOUNTING.IMPORT.PASO_PREVISUALIZACION_CONFIRMACION' | translate }}</h2>
+        </div>
+        <div class="card-body">
+          <p class="import-summary">
+            {{
+              'ACCOUNTING.IMPORT.RESUMEN'
+                | translate
+                  : {
+                      total: data.totalEntries,
+                      valid: data.validEntriesCount,
+                      invalid: data.invalidEntriesCount
+                    }
+            }}
+          </p>
+
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>{{ 'ACCOUNTING.IMPORT.ASIENTO' | translate }}</th>
+                  <th class="text-right">{{ 'ACCOUNTING.IMPORT.DEBE' | translate }}</th>
+                  <th class="text-right">{{ 'ACCOUNTING.IMPORT.HABER' | translate }}</th>
+                  <th>{{ 'ACCOUNTING.IMPORT.ESTADO' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (entry of data.previews; track entry.entryId) {
+                  <tr [class.row--invalid]="entry.errors.length > 0">
+                    <td>{{ entry.entryId }}</td>
+                    <td class="text-right">{{ entry.totalDebit | vxNumber: '1.2-2' }}</td>
+                    <td class="text-right">{{ entry.totalCredit | vxNumber: '1.2-2' }}</td>
+                    <td>
+                      @if (entry.errors.length === 0 && entry.isBalanced) {
+                        <span class="status status--ok">
+                          <lucide-icon [img]="CheckIcon" size="14"></lucide-icon>
+                          {{ 'ACCOUNTING.IMPORT.SE_IMPORTARA' | translate }}
+                        </span>
+                      } @else {
+                        <span class="status status--error">
+                          <lucide-icon [img]="WarningIcon" size="14"></lucide-icon>
+                          {{ 'ACCOUNTING.IMPORT.NO_SE_IMPORTARA' | translate }}
+                        </span>
+                      }
+                    </td>
+                  </tr>
+
+                  <!--
+                    Every reason, on the row it belongs to. The previous screen printed the whole
+                    response as raw JSON and left the reader to find it.
+                  -->
+                  @for (error of entry.errors; track error.messageKey) {
+                    <tr class="row--detail">
+                      <td colspan="4">{{ error.messageKey | translate: error.params ?? {} }}</td>
+                    </tr>
+                  }
+                  @for (row of entry.rows; track row.lineNumber) {
+                    @if (row.error; as rowError) {
+                      <tr class="row--detail">
+                        <td colspan="4">
+                          {{ 'ACCOUNTING.IMPORT.LINEA' | translate: { line: row.lineNumber } }}
+                          — {{ rowError.messageKey | translate: rowError.params ?? {} }}
+                        </td>
+                      </tr>
+                    }
+                  }
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="button"
+              class="btn-primary"
+              [disabled]="!hasPostableEntries() || isLoading()"
+              (click)="confirmImport()"
+            >
+              {{ 'ACCOUNTING.IMPORT.CONFIRMAR_IMPORTAR' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }
   </div>
 </div>

@@ -52,7 +52,13 @@ export class ProposedAdjustment {
   @Column({ name: 'fiscal_year_id' })
   fiscalYearId: string;
 
-  @ManyToOne(() => FiscalYear)
+  /**
+   * `CASCADE`, explicitly.
+   *
+   * The default is `NO ACTION`, and a fiscal year cascades from the tenant — so a tenant that had
+   * ever proposed an audit adjustment could not be deleted.
+   */
+  @ManyToOne(() => FiscalYear, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'fiscal_year_id' })
   fiscalYear: FiscalYear;
 

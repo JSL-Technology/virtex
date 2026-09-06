@@ -37,7 +37,13 @@ export class Quote {
   @Column({ unique: true })
   quoteNumber: string;
 
-  @ManyToOne(() => Customer, { eager: true })
+  /**
+   * `CASCADE`, explicitly.
+   *
+   * The default is `NO ACTION`, which made the tenant undeletable: `organizations` cascades to
+   * `customers` and PostgreSQL does not promise to clear the quotes first.
+   */
+  @ManyToOne(() => Customer, { eager: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'customer_id' })
   customer: Customer;
 

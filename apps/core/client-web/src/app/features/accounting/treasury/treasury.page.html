@@ -43,7 +43,8 @@
               <th>{{ 'TREASURY.BANCO' | translate }}</th>
               <th>{{ 'TREASURY.NUMERO' | translate }}</th>
               <th>{{ 'TREASURY.MONEDA' | translate }}</th>
-              <th class="numeric">{{ 'TREASURY.SALDO' | translate }}</th>
+              <th class="numeric">{{ 'TREASURY.SALDO_EN_SU_MONEDA' | translate }}</th>
+              <th class="numeric">{{ 'TREASURY.SALDO_EN_MONEDA_LIBROS' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -58,6 +59,26 @@
                 <td>{{ row.bankName ?? '—' }}</td>
                 <td class="masked">{{ row.accountNumberMasked ?? '—' }}</td>
                 <td>{{ row.currencyCode }}</td>
+                <!--
+                  The account's own currency first: how many dollars are in the dollar account is
+                  what a treasurer checks against a bank statement. The column beside it used to be
+                  the only one, labelled with the account's currency and measured in the books'.
+                -->
+                <td
+                  class="numeric"
+                  [class.negative]="(row.balanceInAccountCurrency ?? 0) < 0"
+                  [title]="
+                    row.currencyBalanceUnavailable
+                      ? ('TREASURY.SALDO_MONEDA_NO_REGISTRADO' | translate)
+                      : ''
+                  "
+                >
+                  @if (row.balanceInAccountCurrency === null) {
+                    —
+                  } @else {
+                    {{ row.balanceInAccountCurrency | vxMoney: row.currencyCode }}
+                  }
+                </td>
                 <td class="numeric" [class.negative]="row.balanceInBaseCurrency < 0">
                   {{ row.balanceInBaseCurrency | vxNumber: '1.2-2' }}
                 </td>
@@ -66,7 +87,7 @@
           </tbody>
           <tfoot>
             <tr>
-              <td colspan="4">{{ 'TREASURY.TOTAL_DISPONIBLE' | translate }}</td>
+              <td colspan="5">{{ 'TREASURY.TOTAL_DISPONIBLE' | translate }}</td>
               <td class="numeric">{{ cash.total | vxMoney: cash.baseCurrency }}</td>
             </tr>
           </tfoot>
@@ -114,6 +135,15 @@
           </tbody>
         </table>
       </div>
+      <!--
+        The panel shows a page, not the history. Saying how many are not shown keeps a reader from
+        taking the last visible row for the tenant's oldest transfer.
+      -->
+      @if (moreTransfers() > 0) {
+        <p class="note">
+          {{ 'TREASURY.TRANSFERENCIAS_RESTANTES' | translate: { count: moreTransfers() } }}
+        </p>
+      }
     }
   }
 </div>

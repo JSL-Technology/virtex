@@ -12,10 +12,15 @@ import {
   PreviewCoaImportResponseDto,
   ValidatedRow,
 } from './dto/coa-import.dto';
-import { AccountNature, AccountType } from '../enums/account-enums';
+import { AccountCategory, AccountNature, AccountType } from '../enums/account-enums';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
 import { CreateAccountDto } from '../dto/create-account.dto';
+
+/** The values a file may name, listed once so an error can say what the valid ones are. */
+const ACCOUNT_TYPES = Object.values(AccountType);
+const ACCOUNT_CATEGORIES = Object.values(AccountCategory);
+const ACCOUNT_NATURES = Object.values(AccountNature);
 import { FastifyFile } from '../../common/interfaces/fastify-file.interface';
 import { BadRequestError, InternalServerError, NotFoundError } from '../../i18n/localized.exception';
 
@@ -68,15 +73,48 @@ export class CoaImportService {
       };
 
       const code = row[mapping.code];
-      if (!code) validatedRow.errors.push('Code is required.');
-      if (!row[mapping.name]) validatedRow.errors.push('Name is required.');
-      if (!Object.values(AccountType).includes(row[mapping.type]))
-        validatedRow.errors.push('Invalid Account Type.');
+      if (!code) {
+        validatedRow.errors.push({ messageKey: 'CHART_OF_ACCOUNTS.IMPORT.CODIGO_OBLIGATORIO' });
+      }
+      if (!row[mapping.name]) {
+        validatedRow.errors.push({ messageKey: 'CHART_OF_ACCOUNTS.IMPORT.NOMBRE_OBLIGATORIO' });
+      }
+
+      const declaredType = row[mapping.type];
+      // The file's cells are strings; `includes` on the enum's own values needs the narrowing to
+      // be stated rather than assumed.
+      if (!ACCOUNT_TYPES.includes(declaredType as AccountType)) {
+        validatedRow.errors.push({
+          messageKey: 'CHART_OF_ACCOUNTS.IMPORT.TIPO_NO_VALIDO',
+          params: { value: declaredType ?? '', allowed: ACCOUNT_TYPES.join(', ') },
+        });
+      }
+
+      // Neither of these was checked at all. `category` and `nature` were read as `any` and
+      // handed straight to the create DTO, so a file naming a category the enum does not have
+      // reached the database — where the column is an enum and the insert fails, at confirm time,
+      // after the preview told the user the row was fine.
+      const declaredCategory = row[mapping.category];
+      if (!ACCOUNT_CATEGORIES.includes(declaredCategory as AccountCategory)) {
+        validatedRow.errors.push({
+          messageKey: 'CHART_OF_ACCOUNTS.IMPORT.CATEGORIA_NO_VALIDA',
+          params: { value: declaredCategory ?? '', allowed: ACCOUNT_CATEGORIES.join(', ') },
+        });
+      }
+
+      const declaredNature = row[mapping.nature];
+      if (!ACCOUNT_NATURES.includes(declaredNature as AccountNature)) {
+        validatedRow.errors.push({
+          messageKey: 'CHART_OF_ACCOUNTS.IMPORT.NATURALEZA_NO_VALIDA',
+          params: { value: declaredNature ?? '', allowed: ACCOUNT_NATURES.join(', ') },
+        });
+      }
 
       if (existingCodeMap.has(code) || newCodeMap.has(code)) {
-        validatedRow.errors.push(
-          `Account code '${code}' already exists or is duplicated in the file.`,
-        );
+        validatedRow.errors.push({
+          messageKey: 'CHART_OF_ACCOUNTS.IMPORT.CODIGO_DUPLICADO',
+          params: { code },
+        });
       }
 
       if (validatedRow.errors.length > 0) {
@@ -94,9 +132,10 @@ export class CoaImportService {
         const parentCode = row.data[mapping.parentCode];
         if (!existingCodeMap.has(parentCode) && !newCodeMap.has(parentCode)) {
           row.isValid = false;
-          row.errors.push(
-            `Parent code '${parentCode}' not found in existing accounts or in the file.`,
-          );
+          row.errors.push({
+            messageKey: 'CHART_OF_ACCOUNTS.IMPORT.CUENTA_PADRE_NO_ENCONTRADA',
+            params: { code: parentCode },
+          });
           validCount--;
           invalidCount++;
         }
@@ -185,7 +224,7 @@ export class CoaImportService {
             segments: segments,
             name: rowData[batch.mapping.name],
             type: rowData[batch.mapping.type] as AccountType,
-            category: rowData[batch.mapping.category],
+            category: rowData[batch.mapping.category] as AccountCategory,
             nature: rowData[batch.mapping.nature] as AccountNature,
             isPostable: ['true', '1', 'yes'].includes(
               String(rowData[batch.mapping.isPostable])?.toLowerCase(),

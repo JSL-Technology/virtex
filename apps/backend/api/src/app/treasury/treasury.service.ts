@@ -24,10 +24,13 @@ import {
 } from '../i18n/localized.exception';
 import {
   AccountBalancesService,
+  SignedBalances,
   toIsoDate,
 } from '../chart-of-accounts/account-balances.service';
 import { convert, roundAmount, sumAmounts, toCents } from '../common/money';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
+import { FiscalCalendarService } from '../shared/fiscal-calendar.service';
+import { Page, resolvePaging, toPage } from '../common/pagination';
 
 export interface CashPositionRow {
   bankAccountId: string;
@@ -39,6 +42,27 @@ export interface CashPositionRow {
   glAccountId: string;
   /** Balance of the control account, in the books' currency. */
   balanceInBaseCurrency: number;
+  /**
+   * The same balance in `currencyCode` — how many dollars are in the dollar account.
+   *
+   * The row used to state the account's currency beside a figure measured in the **books'**
+   * currency, and offered nothing else: a screen rendering "currencyCode + balance", which is the
+   * obvious thing to render, showed `USD 3,540,000` for an account holding 60,000 dollars. It is
+   * also the only figure a treasurer can check against a bank statement.
+   *
+   * `null` when it cannot be stated honestly rather than a number that is not one — see
+   * `currencyBalanceUnavailable`.
+   */
+  balanceInAccountCurrency: number | null;
+  /**
+   * Why `balanceInAccountCurrency` is null, when it is.
+   *
+   * `NOT_RECORDED`: postings to this control account carry no document-currency amount. Entries
+   * made before per-line currency existed are in this state permanently — there is nothing in the
+   * ledger to derive the figure from, and inventing one by dividing by today's rate would be a
+   * different number every day.
+   */
+  currencyBalanceUnavailable: 'NOT_RECORDED' | null;
 }
 
 export interface CashPosition {
@@ -81,6 +105,7 @@ export class TreasuryService {
     private readonly journalEntriesService: JournalEntriesService,
     private readonly balances: AccountBalancesService,
     private readonly exchangeRates: ExchangeRateResolver,
+    private readonly calendar: FiscalCalendarService,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -88,37 +113,178 @@ export class TreasuryService {
   // Bank accounts
   // ───────────────────────────────────────────────────────────────────────────
 
+  /**
+   * Open a bank account, and post whatever it already held.
+   *
+   * The opening balance used to be stored and read by nothing: the cash position, the balance
+   * sheet and every other figure come from the general ledger, so a balance that never reached the
+   * ledger was invisible in all of them — and invisible consistently, since the reports agreed with
+   * each other. It is now an entry like any other, and the account records which one.
+   */
   async createBankAccount(
     dto: CreateBankAccountDto,
     organizationId: string,
+    actorUserId: string,
   ): Promise<BankAccount> {
-    const glAccount = await this.dataSource.manager.findOneBy(Account, {
-      id: dto.glAccountId,
-      organizationId,
+    return this.dataSource.transaction(async (manager) => {
+      const glAccount = await manager.findOneBy(Account, {
+        id: dto.glAccountId,
+        organizationId,
+      });
+      if (!glAccount) {
+        throw new BadRequestError('TREASURY.CUENTA_CONTABLE_NO_VALIDA');
+      }
+      if (!glAccount.isPostable) {
+        throw new BadRequestError('TREASURY.CUENTA_CONTABLE_NO_ADMITE_MOVIMIENTOS');
+      }
+
+      const openingBalance = roundAmount(dto.openingBalance ?? 0);
+      const opening = await this.validateOpeningBalance(
+        manager,
+        organizationId,
+        openingBalance,
+        dto,
+      );
+
+      const account = await manager.save(
+        manager.create(BankAccount, {
+          organizationId,
+          name: dto.name,
+          bankName: dto.bankName ?? null,
+          accountNumber: dto.accountNumber ?? null,
+          iban: dto.iban ?? null,
+          swiftBic: dto.swiftBic ?? null,
+          accountType: dto.accountType,
+          currencyCode: dto.currencyCode.toUpperCase(),
+          glAccountId: dto.glAccountId,
+          openingBalance,
+          openingDate: opening?.date ?? dto.openingDate ?? null,
+          openingJournalEntryId: null,
+          notes: dto.notes ?? null,
+          isActive: true,
+        }),
+      );
+
+      if (!opening) return account;
+
+      const entry = await this.postOpeningBalance(
+        manager,
+        organizationId,
+        account,
+        opening,
+        actorUserId,
+      );
+      account.openingJournalEntryId = entry.id;
+      return manager.save(account);
     });
-    if (!glAccount) {
-      throw new BadRequestError('TREASURY.CUENTA_CONTABLE_NO_VALIDA');
+  }
+
+  /**
+   * What an opening balance needs before it can be posted, or null when there is nothing to post.
+   *
+   * The counterpart account is required rather than defaulted. Posting an opening balance to
+   * retained earnings because nobody named an account misstates retained earnings, and which
+   * account it belongs in — opening-balance equity, a suspense account, the capital account — is
+   * the accountant's decision, not this service's.
+   */
+  private async validateOpeningBalance(
+    manager: EntityManager,
+    organizationId: string,
+    openingBalance: number,
+    dto: CreateBankAccountDto,
+  ): Promise<{ amount: number; date: string; counterpartAccountId: string } | null> {
+    if (toCents(openingBalance) === 0) return null;
+
+    if (!dto.openingBalanceAccountId) {
+      throw new BadRequestError('TREASURY.SALDO_APERTURA_REQUIERE_CONTRAPARTIDA');
     }
-    if (!glAccount.isPostable) {
-      throw new BadRequestError('TREASURY.CUENTA_CONTABLE_NO_ADMITE_MOVIMIENTOS');
+    if (!dto.openingDate) {
+      throw new BadRequestError('TREASURY.SALDO_APERTURA_REQUIERE_FECHA');
     }
 
-    return this.bankAccountRepository.save(
-      this.bankAccountRepository.create({
-        organizationId,
-        name: dto.name,
-        bankName: dto.bankName ?? null,
-        accountNumber: dto.accountNumber ?? null,
-        iban: dto.iban ?? null,
-        swiftBic: dto.swiftBic ?? null,
-        accountType: dto.accountType,
-        currencyCode: dto.currencyCode.toUpperCase(),
-        glAccountId: dto.glAccountId,
-        openingBalance: dto.openingBalance ?? 0,
-        openingDate: dto.openingDate ?? null,
-        notes: dto.notes ?? null,
-        isActive: true,
-      }),
+    const counterpart = await manager.findOneBy(Account, {
+      id: dto.openingBalanceAccountId,
+      organizationId,
+    });
+    if (!counterpart) {
+      throw new BadRequestError('TREASURY.CUENTA_CONTRAPARTIDA_NO_VALIDA');
+    }
+    if (!counterpart.isPostable) {
+      throw new BadRequestError('TREASURY.CUENTA_CONTABLE_NO_ADMITE_MOVIMIENTOS');
+    }
+    if (counterpart.id === dto.glAccountId) {
+      throw new BadRequestError('TREASURY.CONTRAPARTIDA_NO_PUEDE_SER_MISMA_CUENTA');
+    }
+
+    return {
+      amount: openingBalance,
+      date: toIsoDate(dto.openingDate),
+      counterpartAccountId: counterpart.id,
+    };
+  }
+
+  /** The opening entry: cash in, equity out, in the books' currency and in the account's own. */
+  private async postOpeningBalance(
+    manager: EntityManager,
+    organizationId: string,
+    account: BankAccount,
+    opening: { amount: number; date: string; counterpartAccountId: string },
+    actorUserId: string,
+  ) {
+    const ledger = await manager.findOneBy(Ledger, { organizationId, isDefault: true });
+    if (!ledger) {
+      throw new BadRequestError('TREASURY.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION');
+    }
+
+    const journal = await manager.findOneBy(Journal, { organizationId, code: 'BANCOS' });
+    if (!journal) {
+      throw new BadRequestError('TREASURY.DIARIO_BANCOS_BANCOS_NO_ENCONTRADO');
+    }
+
+    const rate = await this.exchangeRates.rateFor(
+      account.currencyCode,
+      ledger.currency,
+      opening.date,
+      manager,
+    );
+    const inLedgerCurrency = convert(opening.amount, rate);
+    const foreign =
+      account.currencyCode === ledger.currency
+        ? {}
+        : {
+            currencyCode: account.currencyCode,
+            exchangeRate: rate,
+          };
+
+    return this.journalEntriesService.createWithManager(
+      manager,
+      {
+        date: opening.date,
+        description: `Saldo de apertura — ${account.name}`,
+        journalId: journal.id,
+        lines: [
+          {
+            accountId: account.glAccountId,
+            debit: inLedgerCurrency,
+            credit: 0,
+            description: `Saldo de apertura — ${account.name}`,
+            valuations: [{ ledgerId: ledger.id, debit: inLedgerCurrency, credit: 0 }],
+            ...foreign,
+            ...(account.currencyCode === ledger.currency
+              ? {}
+              : { foreignCurrencyDebit: opening.amount, foreignCurrencyCredit: 0 }),
+          },
+          {
+            accountId: opening.counterpartAccountId,
+            debit: 0,
+            credit: inLedgerCurrency,
+            description: `Contrapartida del saldo de apertura — ${account.name}`,
+            valuations: [{ ledgerId: ledger.id, debit: 0, credit: inLedgerCurrency }],
+          },
+        ],
+      } as CreateJournalEntryDto,
+      organizationId,
+      { actorUserId, systemReason: 'bank-account-opening-balance' },
     );
   }
 
@@ -173,9 +339,13 @@ export class TreasuryService {
    */
   async cashPosition(
     organizationId: string,
-    asOf: Date | string = new Date(),
+    asOf?: Date | string,
   ): Promise<CashPosition> {
-    const asOfDate = toIsoDate(asOf);
+    // `new Date()` was the default, read back in UTC. The containers run in UTC and every market
+    // this product sells into is behind it, so after 20:00 in Santo Domingo the treasurer's "cash
+    // today" was dated **tomorrow** — and on the last evening of a month, it belonged to the next
+    // period.
+    const asOfDate = asOf ? toIsoDate(asOf) : await this.calendar.today(organizationId);
 
     const [accounts, settings, ledger] = await Promise.all([
       this.bankAccountRepository.find({
@@ -201,15 +371,65 @@ export class TreasuryService {
         })
       : new Map<string, number>();
 
-    const rows: CashPositionRow[] = accounts.map((account) => ({
-      bankAccountId: account.id,
-      name: account.name,
-      bankName: account.bankName,
-      accountNumberMasked: maskAccountNumber(account.accountNumber),
-      currencyCode: account.currencyCode,
-      glAccountId: account.glAccountId,
-      balanceInBaseCurrency: balances.get(account.glAccountId) ?? 0,
-    }));
+    const baseCurrency = settings?.baseCurrency ?? ledger.currency;
+
+    // One query per foreign currency in play, not one per bank account: several accounts in the
+    // same currency share a result, and an all-domestic tenant makes none at all.
+    const foreignCurrencies = [
+      ...new Set(
+        accounts
+          .map((account) => account.currencyCode)
+          .filter((currencyCode) => currencyCode !== baseCurrency),
+      ),
+    ];
+    const byCurrency = new Map<string, SignedBalances>();
+    await Promise.all(
+      foreignCurrencies.map(async (currencyCode) => {
+        byCurrency.set(
+          currencyCode,
+          await this.balances.foreignCurrencyBalancesAsOf({
+            organizationId,
+            ledgerId: ledger.id,
+            accountIds: [...new Set(accounts.map((account) => account.glAccountId))],
+            asOf: asOfDate,
+            currencyCode,
+          }),
+        );
+      }),
+    );
+
+    const rows: CashPositionRow[] = accounts.map((account) => {
+      const balanceInBaseCurrency = balances.get(account.glAccountId) ?? 0;
+
+      // An account kept in the books' own currency needs no conversion: the two figures are the
+      // same number, and saying so is more useful than leaving the column empty.
+      if (account.currencyCode === baseCurrency) {
+        return {
+          bankAccountId: account.id,
+          name: account.name,
+          bankName: account.bankName,
+          accountNumberMasked: maskAccountNumber(account.accountNumber),
+          currencyCode: account.currencyCode,
+          glAccountId: account.glAccountId,
+          balanceInBaseCurrency,
+          balanceInAccountCurrency: balanceInBaseCurrency,
+          currencyBalanceUnavailable: null,
+        };
+      }
+
+      const inCurrency = byCurrency.get(account.currencyCode)?.get(account.glAccountId);
+      return {
+        bankAccountId: account.id,
+        name: account.name,
+        bankName: account.bankName,
+        accountNumberMasked: maskAccountNumber(account.accountNumber),
+        currencyCode: account.currencyCode,
+        glAccountId: account.glAccountId,
+        balanceInBaseCurrency,
+        balanceInAccountCurrency: inCurrency ?? null,
+        currencyBalanceUnavailable: inCurrency === undefined ? 'NOT_RECORDED' : null,
+      };
+    });
 
     // Several bank accounts may share one control account, so the total counts each control
     // account's balance once rather than once per account pointing at it.
@@ -226,7 +446,7 @@ export class TreasuryService {
 
     return {
       asOfDate,
-      baseCurrency: settings?.baseCurrency ?? ledger.currency,
+      baseCurrency,
       accounts: rows,
       total,
     };
@@ -299,11 +519,22 @@ export class TreasuryService {
       );
 
       const lines: CreateJournalEntryLineDto[] = [];
+      /**
+       * One line, in ledger currency, optionally carrying what the document said.
+       *
+       * `inCurrency` is how a cross-currency transfer keeps both original amounts. The entry-level
+       * `currencyCode`/`exchangeRate` pair converts every line at ONE rate and so cannot express
+       * this entry at all: its two bank lines are in different currencies by construction. Without
+       * the per-line fields the dollar amount was simply lost, and
+       * `AccountBalancesService.foreignCurrencyBalancesAsOf` — which the period-end revaluation
+       * restates at the closing rate — never saw a transfer.
+       */
       const push = (
         accountId: string,
         debit: number,
         credit: number,
         description: string,
+        inCurrency?: { currencyCode: string; debit: number; credit: number; rate: number },
       ) => {
         if (toCents(debit) === 0 && toCents(credit) === 0) return;
         lines.push({
@@ -312,6 +543,14 @@ export class TreasuryService {
           credit,
           description,
           valuations: [{ ledgerId: ledger.id, debit, credit }],
+          ...(inCurrency && inCurrency.currencyCode !== ledger.currency
+            ? {
+                currencyCode: inCurrency.currencyCode,
+                foreignCurrencyDebit: inCurrency.debit,
+                foreignCurrencyCredit: inCurrency.credit,
+                exchangeRate: inCurrency.rate,
+              }
+            : {}),
         });
       };
 
@@ -326,8 +565,19 @@ export class TreasuryService {
       const arrivedDestination = convert(amountReceived ?? dto.amount, destinationRate);
       const feeBase = convert(fee, sourceRate);
 
-      push(to.glAccountId, arrivedDestination, 0, `Transferencia recibida — ${to.name}`);
-      push(from.glAccountId, 0, leftSource, `Transferencia enviada — ${from.name}`);
+      const received = roundAmount(amountReceived ?? dto.amount);
+      push(to.glAccountId, arrivedDestination, 0, `Transferencia recibida — ${to.name}`, {
+        currencyCode: to.currencyCode,
+        debit: received,
+        credit: 0,
+        rate: destinationRate,
+      });
+      push(from.glAccountId, 0, leftSource, `Transferencia enviada — ${from.name}`, {
+        currencyCode: from.currencyCode,
+        debit: 0,
+        credit: roundAmount(dto.amount),
+        rate: sourceRate,
+      });
 
       if (toCents(feeBase) !== 0) {
         const feeAccountId = await this.resolveFeeAccount(manager, organizationId);
@@ -367,11 +617,25 @@ export class TreasuryService {
     });
   }
 
-  findAllTransfers(organizationId: string): Promise<BankTransfer[]> {
-    return this.dataSource.getRepository(BankTransfer).find({
+  /**
+   * Transfers, newest first, a page at a time.
+   *
+   * This returned every transfer the tenant had ever made, in one array, with the whole entity
+   * graph behind it. A treasury that moves funds daily crosses ten thousand rows in a few years,
+   * and the response — and the memory to build it — grows without limit.
+   */
+  async findAllTransfers(
+    organizationId: string,
+    paging: { page?: number; pageSize?: number } = {},
+  ): Promise<Page<BankTransfer>> {
+    const window = resolvePaging(paging.page, paging.pageSize);
+    const [items, total] = await this.dataSource.getRepository(BankTransfer).findAndCount({
       where: { organizationId },
       order: { date: 'DESC', createdAt: 'DESC' },
+      skip: window.skip,
+      take: window.take,
     });
+    return toPage(items, total, window);
   }
 
   // ───────────────────────────────────────────────────────────────────────────

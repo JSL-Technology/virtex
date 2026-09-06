@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import type { Page } from './page';
 
 /** Mirrors `BankAccountType` on the server. */
 export type BankAccountType = 'CHECKING' | 'SAVINGS' | 'CASH' | 'CREDIT_CARD';
@@ -34,7 +35,17 @@ export interface CashPositionRow {
   accountNumberMasked: string | null;
   currencyCode: string;
   glAccountId: string;
+  /** Balance of the control account, in the books' currency. */
   balanceInBaseCurrency: number;
+  /**
+   * The same balance in `currencyCode` — how many dollars are in the dollar account.
+   *
+   * `null` when the ledger holds no document-currency amount to derive it from: entries posted
+   * before per-line currency existed are in that state permanently, and dividing by today's rate
+   * would give a different answer every day. `currencyBalanceUnavailable` says which case it is.
+   */
+  balanceInAccountCurrency: number | null;
+  currencyBalanceUnavailable: 'NOT_RECORDED' | null;
 }
 
 export interface CashPosition {
@@ -67,6 +78,14 @@ export interface CreateBankAccount {
   currencyCode: string;
   glAccountId: string;
   openingBalance?: number;
+  /**
+   * The equity or suspense account the opening balance is posted against.
+   *
+   * Required by the server whenever `openingBalance` is not zero. The balance is a journal entry
+   * now, not a column read by nothing: the cash position and every statement come from the ledger,
+   * so a figure that never reached the ledger was invisible in all of them.
+   */
+  openingBalanceAccountId?: string | null;
   openingDate?: string | null;
   notes?: string | null;
 }
@@ -118,8 +137,17 @@ export class TreasuryService {
     return this.http.get<CashPosition>(`${this.apiUrl}/cash-position`, { params });
   }
 
-  listTransfers(): Observable<BankTransfer[]> {
-    return this.http.get<BankTransfer[]>(`${this.apiUrl}/bank-transfers`);
+  /**
+   * A page of transfers, newest first.
+   *
+   * The route returned every transfer the tenant had ever made. A treasury that moves funds daily
+   * crosses ten thousand rows in a few years, and the browser was asked to hold all of them.
+   */
+  listTransfers(query: { page?: number; pageSize?: number } = {}): Observable<Page<BankTransfer>> {
+    let params = new HttpParams();
+    if (query.page) params = params.set('page', query.page);
+    if (query.pageSize) params = params.set('pageSize', query.pageSize);
+    return this.http.get<Page<BankTransfer>>(`${this.apiUrl}/bank-transfers`, { params });
   }
 
   createTransfer(body: CreateBankTransfer): Observable<BankTransfer> {

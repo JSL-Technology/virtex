@@ -13,6 +13,15 @@ import {
 import { toIsoDate } from '../../reports/financial-statements/report-period';
 
 /**
+ * How many transfers the panel shows.
+ *
+ * The screen is a cash position with a recent-movements panel beside it, not a transfer ledger:
+ * the full history belongs behind its own paged view. The count of what is not shown is displayed
+ * so nobody reads the panel as the complete list.
+ */
+const TRANSFERS_SHOWN = 25;
+
+/**
  * The cash position, and the movements between the tenant's own accounts.
  *
  * Neither existed. Treasury had one endpoint — a transfer between two chart-of-accounts ids — and
@@ -42,6 +51,8 @@ export class TreasuryPage {
   readonly position = signal<CashPosition | null>(null);
   readonly accounts = signal<BankAccount[]>([]);
   readonly transfers = signal<BankTransfer[]>([]);
+  /** Transfers the tenant has beyond the page shown, so the reader knows the list is not the whole. */
+  readonly moreTransfers = signal(0);
   readonly loading = signal(true);
   readonly failed = signal(false);
 
@@ -84,8 +95,11 @@ export class TreasuryPage {
       next: (accounts) => this.accounts.set(accounts),
       error: () => this.failed.set(true),
     });
-    this.api.listTransfers().subscribe({
-      next: (transfers) => this.transfers.set(transfers),
+    this.api.listTransfers({ pageSize: TRANSFERS_SHOWN }).subscribe({
+      next: (page) => {
+        this.transfers.set(page.rows);
+        this.moreTransfers.set(Math.max(page.total - page.rows.length, 0));
+      },
       error: () => this.failed.set(true),
     });
   }

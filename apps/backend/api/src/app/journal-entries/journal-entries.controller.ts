@@ -111,6 +111,31 @@ export class JournalEntriesController {
   }
 
 
+  /**
+   * The column names of an uploaded file, so the caller can map them.
+   *
+   * `getFileHeaders` existed on the service and had no route, so the mapping screen had nothing to
+   * offer the user and the client sent no mapping at all — which the preview route rejects, since
+   * `columnMapping` is required. The import was unreachable from the product.
+   */
+  @Post('import/headers')
+  @HttpCode(HttpStatus.OK)
+  @UseInterceptors(FastifyFileInterceptor('file'))
+  @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_CREATE)
+  readImportHeaders(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 2 * 1024 * 1024 }),
+          new FileTypeValidator({ fileType: /(text\/csv|spreadsheetml\.sheet)/ }),
+        ],
+      }),
+    )
+    file: FastifyFile,
+  ) {
+    return this.importService.getFileHeaders(file);
+  }
+
   @Post('import/preview')
   @UseInterceptors(FastifyFileInterceptor('file'))
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_CREATE)
@@ -127,7 +152,7 @@ export class JournalEntriesController {
     @Body() mapping: PreviewImportRequestDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.importService.preview(file, mapping, user.organizationId);
+    return this.importService.preview(file, mapping, user.organizationId, user.id);
   }
 
   @Post('import/confirm')

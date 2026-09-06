@@ -123,7 +123,13 @@ export class ReconciliationRule {
   @Column({ name: 'target_account_id', type: 'uuid', nullable: true })
   targetAccountId: string | null;
 
-  @ManyToOne(() => Account, { nullable: true, onDelete: 'RESTRICT' })
+  /**
+   * `SET NULL`, not `RESTRICT`.
+   *
+   * A rule that has lost its account is a rule to review, not a reason to keep the account — and
+   * `RESTRICT` here blocked tenant deletion outright.
+   */
+  @ManyToOne(() => Account, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'target_account_id' })
   targetAccount: Account | null;
 

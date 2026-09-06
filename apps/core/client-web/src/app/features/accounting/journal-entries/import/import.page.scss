@@ -24,3 +24,80 @@
   justify-content: flex-end;
   margin-top: var(--space-6);
 }
+
+/* ── Step 2: the column mapping ──────────────────────────────────────────────
+   This step did not exist. The client posted the file with no mapping at all, which the server
+   requires, so every preview came back 400 and the screen blamed the file's format. */
+
+.mapping-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-4);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+
+  > span {
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+  }
+
+  .required {
+    color: var(--error-text);
+    text-decoration: none;
+    margin-left: var(--space-1);
+  }
+}
+
+/* ── Step 3: what would be posted, and what would not ───────────────────────── */
+
+.report-state {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  justify-content: center;
+  padding: var(--space-8);
+  color: var(--text-secondary);
+
+  &--error {
+    color: var(--error-text);
+  }
+}
+
+.import-summary {
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-4);
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  &--ok {
+    color: var(--success-text);
+  }
+
+  &--error {
+    color: var(--error-text);
+  }
+}
+
+.row--invalid td {
+  background: var(--surface-sunken);
+}
+
+/* Reasons sit under the entry they belong to; the previous screen printed the whole response as
+   raw JSON and left the reader to find them. */
+.row--detail td {
+  color: var(--error-text);
+  font-size: var(--text-sm);
+  padding-left: var(--space-6);
+}

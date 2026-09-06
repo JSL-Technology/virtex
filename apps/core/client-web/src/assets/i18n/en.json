@@ -171,16 +171,40 @@
     },
     "IMPORT": {
       "ANALIZANDO_FICHERO": "Analysing the file...",
+      "ASIENTO": "Entry",
       "ASIENTOS_CONTABLES_IMPORTADOS_EXITO": "Journal entries imported successfully.",
+      "CAMPO_ACCOUNTCODE": "Account code",
+      "CAMPO_CREDIT": "Credit",
+      "CAMPO_DATE": "Date",
+      "CAMPO_DEBIT": "Debit",
+      "CAMPO_DESCRIPTION": "Description",
+      "CAMPO_ENTRYID": "Entry identifier",
+      "CAMPO_LINEDESCRIPTION": "Line detail",
       "CONFIRMAR_IMPORTAR": "Confirm and Import",
+      "DEBE": "Debit",
+      "ESTADO": "Status",
       "FAVOR_SELECCIONA_FICHERO_IMPORTAR": "Select a file to import.",
       "FICHERO_SELECCIONADO": "Selected file:",
+      "FORMATO_FECHA": "The file's date format",
+      "HABER": "Credit",
       "HAY_IMPORTACION_CONFIRMAR": "There is no import to confirm.",
       "HAZ_CLIC_AQUI_SELECCIONAR_FICHERO_CSV": "Click here to choose a file (CSV, Excel)",
       "IMPORTAR_ASIENTOS_CONTABLES": "Import Journal Entries",
+      "LINEA": "Line {{line}}",
+      "NO_SE_IMPORTARA": "Will not import",
+      "NO_SE_PUDO_PROCESAR": "The file could not be processed. Check its format and try again.",
+      "OBLIGATORIO": "Required",
+      "PASO_MAPEAR_COLUMNAS": "Step 2 · Say which column is which",
       "PASO_PREVISUALIZACION_CONFIRMACION": "Step 2: Preview and confirm",
       "PASO_SELECCIONAR_FICHERO": "Step 1: Select a file",
-      "PREVISUALIZACION_DATOS_IMPORTAR": "Preview of the data to import:"
+      "PREVISUALIZACION_DATOS_IMPORTAR": "Preview of the data to import:",
+      "PREVISUALIZAR": "Preview import",
+      "RESUMEN": "{{total}} entries read: {{valid}} will be imported, {{invalid}} will not.",
+      "SEPARADOR_COMA": "Comma — 1.234,56",
+      "SEPARADOR_DECIMAL": "The file's decimal separator",
+      "SEPARADOR_PUNTO": "Period — 1,234.56",
+      "SE_IMPORTARA": "Will import",
+      "SIN_ASIGNAR": "Not mapped"
     },
     "JOURNAL_ENTRIES": {
       "CREDIT": "Credit",
@@ -1542,6 +1566,25 @@
       "VERIFICACION_DGII": "DGII verification",
       "VERIFICAR_DGII": "Verify with the DGII"
     },
+    "EXPORT": {
+      "CLIENTE": "Customer",
+      "COMPLETADA": "Export complete.",
+      "COMPROBANTE_FISCAL": "Fiscal document number",
+      "DOCUMENTO": "Document",
+      "ESTADO": "Status",
+      "EXENTO": "Exempt",
+      "FECHA_EMISION": "Issue date",
+      "FECHA_VENCIMIENTO": "Due date",
+      "GRAVADO": "Taxed",
+      "IDENTIFICACION_FISCAL": "Tax identification",
+      "IMPUESTO": "Tax",
+      "MONEDA": "Currency",
+      "NOMBRE_ARCHIVO": "invoices",
+      "PARCIAL": "Exported {{exported}} of {{total}} invoices. Narrow the filter to include the rest.",
+      "SALDO": "Balance",
+      "TIPO_DOCUMENTO": "Document type",
+      "TOTAL": "Total"
+    },
     "INVOICE_SELECTION_DIALOG": {
       "BUSCAR_NUMERO_CLIENTE": "Search by number or customer...",
       "CANCELAR": "Cancel",
@@ -1691,6 +1734,20 @@
       "PARTIALLY_PAID": "Partially paid",
       "PENDING": "Pending",
       "VOID": "Voided"
+    }
+  },
+  "JOURNAL_ENTRIES": {
+    "IMPORT": {
+      "ASIENTO_NO_CUADRA": "The entry does not balance: debits {{debit}} against credits {{credit}}.",
+      "CUENTA_INACTIVA": "Account “{{code}}” is inactive.",
+      "CUENTA_NO_ADMITE_MOVIMIENTOS": "Account “{{code}}” is a grouping account and cannot take movements.",
+      "CUENTA_NO_EXISTE": "No account with code “{{code}}” exists in this organisation's chart of accounts.",
+      "FECHA_NO_LEGIBLE": "The date “{{value}}” does not match the “{{format}}” format you declared.",
+      "IMPORTE_NEGATIVO": "A debit or a credit cannot be negative; use the opposite side instead.",
+      "IMPORTE_NO_LEGIBLE": "The amount “{{value}}” cannot be read with the decimal separator “{{separator}}” you declared.",
+      "LINEA_CON_AMBOS_LADOS": "A line cannot carry both a debit and a credit.",
+      "LINEA_SIN_MOVIMIENTO": "The line has neither a debit nor a credit.",
+      "SIN_DESCRIPCION": "The entry has no description."
     }
   },
   "LOGIN": {
@@ -2418,6 +2475,7 @@
       "DESDE": "From",
       "EXPORTAR": "Export",
       "HASTA": "To",
+      "LINEAS_SIN_COSTO": "{{count}} line(s) earned revenue with no recorded cost; their margin is overstated.",
       "NO_SE_PUDO_CARGAR": "The report could not be loaded.",
       "REINTENTAR": "Try again",
       "SIN_MOVIMIENTOS": "No posted movements in this range.",
@@ -2435,14 +2493,17 @@
       "CONCEPT": "Concept",
       "COST_OF_SALES": "Cost of sales",
       "CURRENCY": "Currency",
+      "CUSTOMER": "Customer",
       "EQUITY": "Equity",
       "FINANCING": "Financing activities",
       "GENERATED_AT": "Generated at",
+      "GROSS_MARGIN": "Gross margin %",
       "GROSS_PROFIT": "Gross profit",
       "INVESTING": "Investing activities",
       "IS_BALANCED": "Balanced?",
       "LEDGER": "Ledger",
       "LIABILITIES": "Liabilities",
+      "LINES_WITHOUT_COST": "Lines with revenue and no recorded cost",
       "NET_CHANGE_IN_CASH": "Net change in cash",
       "NET_INCOME": "Net income",
       "NON_OPERATING": "Non-operating",
@@ -2456,10 +2517,12 @@
       "PERIOD": "Period",
       "PERIOD_CREDIT": "Period credit",
       "PERIOD_DEBIT": "Period debit",
+      "PRODUCT": "Product",
       "REVENUE": "Revenue",
       "SUBTOTAL": "Subtotal",
       "TOTALS": "Totals",
       "TOTAL_ASSETS": "Total assets",
+      "TOTAL_COST": "Total cost",
       "TOTAL_COST_OF_SALES": "Total cost of sales",
       "TOTAL_EQUITY": "Total equity",
       "TOTAL_FINANCING": "Total financing",
@@ -2471,7 +2534,8 @@
       "TOTAL_OPERATING_EXPENSES": "Total operating expenses",
       "TOTAL_REVENUE": "Total revenue",
       "UNCLOSED_RESULT": "Result for the year not yet closed",
-      "UNEXPLAINED_DIFFERENCE": "Unexplained difference"
+      "UNEXPLAINED_DIFFERENCE": "Unexplained difference",
+      "UNITS_SOLD": "Units sold"
     },
     "INCOME_STATEMENT": {
       "COSTO_DE_VENTAS": "Cost of sales",
@@ -2503,7 +2567,8 @@
       "NO_PROFITABILITY_DATA_AVAILABLE_FOR_SELECTED": "There is no profitability data for the selected period.",
       "PROFITABILITY_BY_CUSTOMER": "Profitability by customer",
       "TOTAL_COST": "Total cost",
-      "TOTAL_REVENUE": "Total revenue"
+      "TOTAL_REVENUE": "Total revenue",
+      "UNITS_SOLD": "Units"
     },
     "PROFITABILITY_BY_PRODUCT": {
       "EXPORT": "Export",
@@ -3225,6 +3290,8 @@
       "COMPLETE_LOS_CAMPOS_REQUERIDOS": "Fill in the required fields.",
       "CUENTA_ACTUALIZADA": "Bank account updated.",
       "CUENTA_CONTABLE": "Ledger account",
+      "CUENTA_CONTRAPARTIDA": "Counterpart account",
+      "CUENTA_CONTRAPARTIDA_NOTA": "Normally opening balance equity. Not chosen for you: doing so would misstate retained earnings.",
       "CUENTA_CREADA": "Bank account created.",
       "EDITAR_CUENTA": "Edit bank account",
       "FECHA_APERTURA": "Opening date",
@@ -3236,6 +3303,8 @@
       "NO_SE_PUDO_GUARDAR": "The bank account could not be saved.",
       "NUEVA_CUENTA": "New bank account",
       "SALDO_INICIAL": "Opening balance",
+      "SALDO_INICIAL_NOTA": "Posted as an opening journal entry against the account you name.",
+      "SELECCIONE": "Select…",
       "SWIFT_BIC": "SWIFT / BIC",
       "TIPO": "Account type",
       "TIPOS": {
@@ -3251,11 +3320,15 @@
     "POSICION_DE_EFECTIVO": "Cash position",
     "RECIBIDO": "Received",
     "SALDO": "Balance",
+    "SALDO_EN_MONEDA_LIBROS": "Balance in the books' currency",
+    "SALDO_EN_SU_MONEDA": "Balance in its currency",
+    "SALDO_MONEDA_NO_REGISTRADO": "This account's postings carry no amount in its own currency, so it cannot be stated.",
     "SIN_CUENTAS": "No bank accounts have been registered.",
     "SIN_TRANSFERENCIAS": "No transfers have been recorded.",
     "TITULO": "Treasury",
     "TOTAL_DISPONIBLE": "Total available",
-    "TRANSFERENCIAS": "Transfers between accounts"
+    "TRANSFERENCIAS": "Transfers between accounts",
+    "TRANSFERENCIAS_RESTANTES": "Showing the most recent; {{count}} more transfers exist."
   },
   "UNAUTHORIZED": {
     "403_FORBIDDEN": "403 Forbidden",

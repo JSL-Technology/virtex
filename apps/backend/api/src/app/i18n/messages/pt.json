@@ -315,6 +315,15 @@
     "ERROR_CONSISTENCIA_CUENTA_PADRE_CUENTA_NO_FUE": "Erro de consistência: a conta superior '{{parentCode}}' da conta '{{p2}}' não foi encontrada. A transação será revertida.",
     "ESTRUCTURA_SEGMENTOS_CUENTA_NO_HA_SIDO_CONFIGURADA": "A estrutura de segmentos das contas não foi configurada para esta organização.",
     "FILE_EMPTY": "O arquivo está vazio.",
+    "IMPORT": {
+      "CATEGORIA_NO_VALIDA": "«{{value}}» não é uma categoria de conta válida. As válidas são: {{allowed}}.",
+      "CODIGO_DUPLICADO": "O código «{{code}}» já existe no plano ou está repetido no arquivo.",
+      "CODIGO_OBLIGATORIO": "O código da conta é obrigatório.",
+      "CUENTA_PADRE_NO_ENCONTRADA": "A conta pai «{{code}}» não existe no plano nem no arquivo.",
+      "NATURALEZA_NO_VALIDA": "«{{value}}» não é uma natureza válida. As válidas são: {{allowed}}.",
+      "NOMBRE_OBLIGATORIO": "O nome da conta é obrigatório.",
+      "TIPO_NO_VALIDO": "«{{value}}» não é um tipo de conta válido. Os válidos são: {{allowed}}."
+    },
     "IMPORTACION_FALLO_FUE_REVERTIDA": "A importação falhou e foi revertida: {{p1}}",
     "IMPORT_BATCH_NOT_FOUND_OR_EXPIRED": "O lote de importação não existe ou expirou.",
     "INICIANDO_FUSION_CUENTAS": "Iniciando a fusão de contas...",
@@ -714,6 +723,8 @@
     "AJUSTES_AUDITORIA_SOLO_PUEDEN_APLICARSE_ANOS_FISCALES": "Ajustes de auditoria só podem ser aplicados a exercícios encerrados.",
     "ANO_FISCAL_ESTA_ARCHIVADO_NO_PUEDE_MODIFICAR": "O exercício está arquivado e não pode ser alterado.",
     "ANO_FISCAL_NO_ENCONTRADO": "Exercício fiscal não encontrado.",
+    "ARCHIVO_CSV_MAL_FORMADO": "O arquivo CSV não pode ser lido: {{detail}}",
+    "ARCHIVO_EXCEL_MAL_FORMADO": "O arquivo do Excel não pode ser lido: {{detail}}",
     "ARCHIVO_NO_CONTIENE_DATOS": "O arquivo não contém dados.",
     "ARCHIVO_SUBIDO_ESTA_VACIO_NO_PUDO_LEER": "O arquivo enviado está vazio ou não pôde ser lido.",
     "ASIENTO_CONTABLE_DEBE_TENER_MENOS_DOS_LINEAS": "Um lançamento contábil deve ter ao menos duas linhas.",
@@ -733,6 +744,20 @@
     "ESTE_ASIENTO_NO_ESTA_MARCADO_REVERSION_AUTOMATICA": "Este lançamento não está marcado para estorno automático.",
     "ESTE_ASIENTO_YA_HA_SIDO_REVERSADO": "Este lançamento já foi estornado.",
     "FECHA_ASIENTO_CORRESPONDE_PERIODO_CONTABLE_CERRADO_NO": "A data do lançamento cai em um período contábil encerrado ou não definido.",
+    "IMPORT": {
+      "ASIENTO_NO_CUADRA": "O lançamento não fecha: débitos {{debit}} contra créditos {{credit}}.",
+      "CUENTA_INACTIVA": "A conta «{{code}}» está inativa.",
+      "CUENTA_NO_ADMITE_MOVIMIENTOS": "A conta «{{code}}» é de agrupamento e não admite lançamentos.",
+      "CUENTA_NO_EXISTE": "A conta com código «{{code}}» não existe no plano de contas desta organização.",
+      "DEMASIADAS_FILAS": "O arquivo tem {{rows}} linhas e o máximo por importação é {{max}}. Divida-o em vários arquivos.",
+      "FECHA_NO_LEGIBLE": "A data «{{value}}» não corresponde ao formato «{{format}}» que indicou.",
+      "IMPORTE_NEGATIVO": "Um débito ou crédito não pode ser negativo; use o lado oposto.",
+      "IMPORTE_NO_LEGIBLE": "O valor «{{value}}» não pode ser lido com o separador decimal «{{separator}}» que indicou.",
+      "LINEA_CON_AMBOS_LADOS": "Uma linha não pode ter débito e crédito ao mesmo tempo.",
+      "LINEA_SIN_MOVIMIENTO": "A linha não tem débito nem crédito.",
+      "LOTE_DE_OTRO_USUARIO": "Esse lote de importação foi preparado por outro usuário.",
+      "SIN_DESCRIPCION": "O lançamento não tem descrição."
+    },
     "IMPORTACION_CONFIRMADA_PROCESADA_EXITOSAMENTE": "A importação foi confirmada e processada.",
     "IMPORTE_NO_VALIDO": "O valor de {{field}} não é um número válido.",
     "LIBRO_CONTABLE_DEFECTO_NO_ENCONTRADO": "O livro contábil padrão não foi encontrado.",
@@ -1122,15 +1147,19 @@
     "UNSPECIFIED": "um tempo limitado"
   },
   "TREASURY": {
+    "CONTRAPARTIDA_NO_PUEDE_SER_MISMA_CUENTA": "A contrapartida do saldo de abertura não pode ser a própria conta de controle do banco.",
     "CUENTAS_ORIGEN_DESTINO_NO_PUEDEN_SER_MISMA": "As contas de origem e destino não podem ser a mesma.",
     "CUENTA_BANCARIA_INACTIVA": "A conta bancária «{name}» está inativa e não admite movimentos.",
     "CUENTA_BANCARIA_NO_ENCONTRADA": "A conta bancária não existe ou não pertence a esta organização.",
     "CUENTA_COMISIONES_NO_CONFIGURADA": "Não foi configurada a conta de tarifas bancárias da organização.",
     "CUENTA_CONTABLE_NO_ADMITE_MOVIMIENTOS": "A conta contábil indicada é de agrupamento e não admite movimentos.",
     "CUENTA_CONTABLE_NO_VALIDA": "A conta contábil indicada não existe nesta organização.",
+    "CUENTA_CONTRAPARTIDA_NO_VALIDA": "A conta de contrapartida não existe no plano de contas desta organização.",
     "CUENTA_DIFERENCIA_CAMBIARIA_NO_CONFIGURADA": "Não foi configurada a conta de diferença cambial da organização.",
     "DIARIO_BANCOS_BANCOS_NO_ENCONTRADO": "O diário de Bancos (BANCOS) não foi encontrado.",
     "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "Nenhum livro contábil padrão foi configurado para a organização.",
+    "SALDO_APERTURA_REQUIERE_CONTRAPARTIDA": "Um saldo de abertura deve indicar a conta de contrapartida (normalmente patrimônio de abertura). É lançado como um lançamento contábil, não guardado à parte.",
+    "SALDO_APERTURA_REQUIERE_FECHA": "Um saldo de abertura deve indicar a data em que a conta o possuía.",
     "TRANSFERENCIA_MULTIMONEDA_REQUIERE_MONTO_RECIBIDO": "Uma transferência entre contas de moedas diferentes exige informar o valor recebido."
   },
   "USERS": {
@@ -1193,6 +1222,7 @@
       "IS_IN": "{{property}} não aceita esse valor.",
       "IS_INT": "{{property}} deve ser um número inteiro.",
       "IS_ISO8601": "{{property}} não é uma data válida.",
+      "IS_ISO_DATE": "{{property}} deve ser uma data do calendário no formato AAAA-MM-DD.",
       "IS_NOT_EMPTY": "{{property}} é obrigatório.",
       "IS_NUMBER": "{{property}} deve ser um número.",
       "IS_NUMBER_STRING": "{{property}} deve ser um número.",
@@ -1210,6 +1240,7 @@
       "MIN": "{{property}} não pode ser menor que {{min}}.",
       "MIN_LENGTH": "{{property}} deve ter pelo menos {{min}} caracteres.",
       "NESTED_VALIDATION": "{{property}} contém dados que não são válidos.",
+      "PERIOD_START_AFTER_END": "A data inicial não pode ser posterior à data final.",
       "WHITELIST_VALIDATION": "{{property}} não é um campo permitido."
     },
     "CREATE_JOURNAL_ENTRY": {

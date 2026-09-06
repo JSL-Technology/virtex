@@ -11,10 +11,15 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { TreasuryService } from './treasury.service';
 import { CreateBankTransferDto } from './dto/create-bank-transfer.dto';
-import { CreateBankAccountDto, UpdateBankAccountDto } from './dto/bank-account.dto';
+import {
+  CashPositionQueryDto,
+  CreateBankAccountDto,
+  UpdateBankAccountDto,
+} from './dto/bank-account.dto';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
@@ -38,14 +43,21 @@ export class TreasuryController {
 
   // ── Bank accounts ──────────────────────────────────────────────────────────
 
+  /**
+   * Registers the account, and posts its opening balance if it declares one.
+   *
+   * `PeriodLockGuard` because that opening balance is a real journal entry, dated whenever the
+   * caller says the account was opened: it must not land in a period that has been closed.
+   */
   @Post('bank-accounts')
+  @UseGuards(PeriodLockGuard)
   @HasPermission(PERMISSIONS.TREASURY_MANAGE_ACCOUNTS)
   @ApiOperation({ summary: 'Registra una cuenta bancaria de la organización.' })
   createBankAccount(
     @Body() dto: CreateBankAccountDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.treasuryService.createBankAccount(dto, user.organizationId);
+    return this.treasuryService.createBankAccount(dto, user.organizationId, user.id);
   }
 
   @Get('bank-accounts')
@@ -89,12 +101,13 @@ export class TreasuryController {
   @Get('cash-position')
   @HasPermission(PERMISSIONS.TREASURY_VIEW)
   @ApiOperation({ summary: 'Posición de efectivo por cuenta bancaria a una fecha.' })
-  @ApiQuery({ name: 'asOfDate', required: false, type: String })
   cashPosition(
     @CurrentUser() user: AuthenticatedUser,
-    @Query('asOfDate') asOfDate?: string,
+    @Query() query: CashPositionQueryDto,
   ) {
-    return this.treasuryService.cashPosition(user.organizationId, asOfDate ?? new Date());
+    // No `?? new Date()`: the default belongs to the tenant's calendar, and the service resolves
+    // it there. Building it here read the server's clock, which is UTC in every deployment.
+    return this.treasuryService.cashPosition(user.organizationId, query.asOfDate);
   }
 
   // ── Transfers ──────────────────────────────────────────────────────────────
@@ -116,8 +129,11 @@ export class TreasuryController {
 
   @Get('bank-transfers')
   @HasPermission(PERMISSIONS.TREASURY_VIEW)
-  @ApiOperation({ summary: 'Lista las transferencias entre cuentas propias.' })
-  findAllTransfers(@CurrentUser() user: AuthenticatedUser) {
-    return this.treasuryService.findAllTransfers(user.organizationId);
+  @ApiOperation({ summary: 'Lista las transferencias entre cuentas propias, paginadas.' })
+  findAllTransfers(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: PaginationQueryDto,
+  ) {
+    return this.treasuryService.findAllTransfers(user.organizationId, query);
   }
 }

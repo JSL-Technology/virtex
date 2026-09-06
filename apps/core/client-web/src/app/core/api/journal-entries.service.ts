@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import type { Page } from './page';
 
 /**
  * Mirrors `JournalEntryStatus` on the server.
@@ -36,20 +37,8 @@ export interface JournalEntry {
   lines: JournalEntryLine[];
 }
 
-/**
- * The envelope every paged list route returns.
- *
- * The list routes used to hand back a bare array of everything the tenant owned. Typing the page
- * explicitly is what stops a caller quietly treating `{rows: […]}` as an array and rendering
- * nothing.
- */
-export interface Page<T> {
-  rows: T[];
-  page: number;
-  pageSize: number;
-  total: number;
-  hasMore: boolean;
-}
+/** Re-exported so existing callers keep their import; the shape lives in `./page`. */
+export type { Page } from './page';
 
 @Injectable({ providedIn: 'root' })
 export class JournalEntriesApiService {

@@ -123,10 +123,16 @@ export function FastifyFileInterceptor(fieldName: string, options: Omit<FastifyF
         // Assign to req.file for decorators
         (req as any).file = fileObject;
 
-        // IMPORTANT: Clean up req.body so DTO validation doesn't fail on the file field?
-        // Usually we want the file field to be there if the DTO expects it, or removed if it doesn't.
-        // NestJS FileInterceptor removes it from body.
+        // The file field is removed, as Nest's own `FileInterceptor` does: the DTO describes the
+        // rest of the form, not the upload.
         delete body[fieldName];
+
+        // And the rest of the form is flattened. `attachFieldsToBody: true` gives every ordinary
+        // field as `{ type: 'field', fieldname, value, … }` rather than as its value, so a body
+        // reaching a DTO under `forbidNonWhitelisted` was rejected outright — which is why the
+        // journal-entry importer's `columnMapping` never once arrived and the screen answered 400
+        // to every file anyone chose.
+        flattenMultipartFields(body);
 
       } catch (err) {
         throw new BadRequestException('File upload failed: ' + (err as Error).message);
@@ -137,6 +143,39 @@ export function FastifyFileInterceptor(fieldName: string, options: Omit<FastifyF
   }
 
   return mixin(MixinInterceptor);
+}
+
+/**
+ * Multipart carries no types: every ordinary field is a string, wrapped by `@fastify/multipart` in
+ * a `{ type: 'field', value }` envelope. This unwraps them so a DTO sees the values it declares.
+ *
+ * A value that is a JSON object or array literal is parsed, because a form has no other way to
+ * carry structure and the alternative is every multipart endpoint hand-parsing its own. Only `{`
+ * and `[` are treated that way, and a value that fails to parse is left as the string it is.
+ */
+function flattenMultipartFields(body: Record<string, unknown>): void {
+  for (const [key, part] of Object.entries(body)) {
+    if (!part || typeof part !== 'object') continue;
+    const field = part as { type?: string; value?: unknown };
+    if (field.type !== 'field') continue;
+
+    const value = field.value;
+    if (typeof value !== 'string') {
+      body[key] = value;
+      continue;
+    }
+
+    const trimmed = value.trim();
+    if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+      try {
+        body[key] = JSON.parse(trimmed);
+        continue;
+      } catch {
+        // Not JSON after all; it is simply a string that begins with a brace.
+      }
+    }
+    body[key] = value;
+  }
 }
 
 /** Only a short, alphanumeric extension survives; anything else is dropped. */
