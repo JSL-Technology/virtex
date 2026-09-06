@@ -95,24 +95,6 @@ export const envValidation = Joi.object({
   }),
   XE_API_BASE_URL: Joi.string().uri().default('https://xecdapi.xe.com/v1'),
 
-  /**
-   * XE serves MOCK rates on the free trial. Storing them writes fabricated numbers into a book a
-   * tax authority reads, and there is no way to identify them afterwards — so production is not
-   * permitted to opt in at all, whatever is in its environment.
-   */
-  XE_ALLOW_MOCK_RATES: Joi.boolean()
-    .truthy('true')
-    .falsy('false')
-    .default(false)
-    .when('NODE_ENV', {
-      is: 'production',
-      then: Joi.valid(false).messages({
-        'any.only':
-          'XE_ALLOW_MOCK_RATES no puede activarse en producción: las tasas del plan de prueba de ' +
-          'XE son simuladas y quedarían registradas como reales en la contabilidad.',
-      }),
-    }),
-
   // H-01 FIX: All cryptographic secrets required at startup — fail fast before any module
   // initializes. Development gets a generated, deployment-unusable value; see `secret` above.
   JWT_SECRET: secret('JWT_SECRET'),

@@ -1,14 +1,27 @@
 
 import { Type } from 'class-transformer';
-import { IsArray, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Min, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+  MaxLength,
+  Min,
+  ValidateNested,
+} from 'class-validator';
 import { DocumentTypeForApproval } from '../entities/approval-policy.entity';
 
 class ApprovalPolicyStepDto {
-  @IsNumber()
+  /** Integer, because the chain is traversed in this order and a fraction has no successor. */
+  @IsInt()
   @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   order: number;
 
-  @IsNumber()
+  @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   minAmount: number;
 
@@ -43,4 +56,25 @@ export class UpdateApprovalPolicyDto {
     @Type(() => ApprovalPolicyStepDto)
     @IsOptional()
     steps?: ApprovalPolicyStepDto[];
+}
+
+/** Optional note attached to an approval, kept on the step's decision row. */
+export class DecideApprovalDto {
+  @IsString()
+  @IsOptional()
+  @MaxLength(2000)
+  comment?: string;
+}
+
+/**
+ * A rejection needs a reason.
+ *
+ * `reject` used to take `@Body('reason')` with no DTO and no validation, so a request could be
+ * refused with `undefined` and the document's author had nothing to act on.
+ */
+export class RejectApprovalDto {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(2000)
+  reason: string;
 }

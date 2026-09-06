@@ -1,21 +1,39 @@
-
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import type { ApprovalPolicy } from './approval-policy.entity';
+import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 
 @Entity({ name: 'approval_policy_steps' })
 export class ApprovalPolicyStep {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne('ApprovalPolicy', 'steps')
+  @ManyToOne('ApprovalPolicy', 'steps', { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'policyId' })
   policy: ApprovalPolicy;
 
-  @Column({ type: 'int' })
+  @Column({ name: 'policyId', type: 'uuid', nullable: true })
+  policyId: string | null;
+
+  /** Position in the chain. Steps are evaluated in this order, never in insertion order. */
+  @Column({ name: 'order', type: 'int' })
   order: number;
 
-  @Column('decimal', { precision: 12, scale: 2 })
+  /**
+   * The amount at or above which this step applies.
+   *
+   * Declared `decimal` and read without a transformer, so it arrived in JavaScript as the string
+   * `"500.00"` and every threshold comparison was an implicit coercion. It happened to work because
+   * `1000 >= "500.00"` coerces; it would stop working the moment a locale-formatted value reached
+   * the column, and a monetary threshold compared by coercion is not a threshold.
+   */
+  @Column('decimal', {
+    name: 'minAmount',
+    precision: 12,
+    scale: 2,
+    transformer: numericTransformerNotNull,
+  })
   minAmount: number;
 
-  @Column({ type: 'uuid' })
+  @Column({ name: 'roleId', type: 'uuid' })
   roleId: string;
 }

@@ -74,41 +74,33 @@ export class ExchangeRatesService {
   ) {}
 
   /**
-   * Refuse to store rates the provider itself says are made up.
+   * Refuse to store rates the provider itself says are made up. No exceptions, no environments.
    *
-   * XE serves **mock rates** on the free trial — its own credentials screen states it. A mock rate
-   * in `exchange_rates` is indistinguishable from a real one the moment it is written, and every
+   * XE serves **mock rates** on the free trial — its own credentials screen states it under "Free
+   * Trial Rates". A mock rate written to `exchange_rates` is indistinguishable from a real one the
+   * instant it lands: it carries the same source, the same date and the same type. Every
    * foreign-currency invoice, every period-end revaluation and every realised exchange difference
-   * computed from it is then a fabricated figure inside a book a tax authority reads. There is no
-   * way to find them afterwards and no way to unwind the entries they produced.
+   * computed from it is then a fabricated figure inside a book a tax authority reads, and there is
+   * no way to find them afterwards or to unwind the entries they produced.
    *
-   * So the refresh checks the plan before it stores anything. A non-production environment that
-   * genuinely wants trial data sets `XE_ALLOW_MOCK_RATES=true` and gets a warning on every run;
-   * production cannot, because `assertProductionNeverAllowsMockRates` refuses to boot with it set.
+   * There is deliberately no flag to turn this off. A development environment that needs rates has
+   * two honest ways to get them: a paid XE plan, or `POST /exchange-rates` — which is a real rate,
+   * entered by a person, attributed to them, and typed as official or market. Neither invents a
+   * number.
    */
   private async assertProviderServesRealRates(): Promise<void> {
     const account = await this.xe.accountInfo();
     if (!account.servesMockRates) return;
 
-    const allowed =
-      String(this.configService.get<string>('XE_ALLOW_MOCK_RATES') ?? '').toLowerCase() === 'true';
-
-    if (!allowed) {
-      this.logger.error(
-        `La cuenta de XE está en el plan "${account.package}", que devuelve tasas simuladas. ` +
-          'No se almacenará ninguna tasa: contrate un plan con datos reales, o introduzca las ' +
-          'tasas a mano con POST /exchange-rates.',
-      );
-      throw new BadRequestError('CURRENCIES.PROVEEDOR_TASAS_SIMULADAS', {
-        provider: PROVIDER,
-        plan: account.package,
-      });
-    }
-
-    this.logger.warn(
-      `XE_ALLOW_MOCK_RATES está activo y el plan "${account.package}" devuelve tasas simuladas. ` +
-        'Las tasas almacenadas NO son reales. Esto no debe usarse fuera de desarrollo.',
+    this.logger.error(
+      `La cuenta de XE está en el plan "${account.package}", que devuelve tasas simuladas. ` +
+        'No se almacenará ninguna tasa. Contrate un plan con datos reales, o registre las tasas ' +
+        'oficiales con POST /exchange-rates.',
     );
+    throw new BadRequestError('CURRENCIES.PROVEEDOR_TASAS_SIMULADAS', {
+      provider: PROVIDER,
+      plan: account.package,
+    });
   }
 
   /**

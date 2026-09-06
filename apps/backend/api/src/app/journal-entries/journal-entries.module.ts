@@ -38,6 +38,7 @@ import { JournalEntrySequence } from './entities/journal-entry-sequence.entity';
 import { JournalEntryNumberingService } from './journal-entry-numbering.service';
 import { AuditModule } from '../audit/audit.module';
 import { CurrenciesModule } from '../currencies/currencies.module';
+import { JournalEntryApprovalHandler } from './journal-entry-approval.handler';
 
 @Module({
   imports: [
@@ -85,6 +86,8 @@ import { CurrenciesModule } from '../currencies/currencies.module';
     JournalsService,
     AdjustmentsService,
     RecurringEntriesProcessor,
+    // Posts an entry when its approval is granted, inside the approving transaction.
+    JournalEntryApprovalHandler,
   ],
   controllers: [
     JournalEntriesController,

@@ -9,7 +9,7 @@ import { PaymentBatch, PaymentBatchStatus } from './entities/payment-batch.entit
 import { JournalEntriesService } from '../journal-entries/journal-entries.service';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { VendorPayment } from './entities/vendor-payment.entity';
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InventoryService } from '../inventory/inventory.service';
 import {
   CreateJournalEntryDto,
@@ -238,6 +238,9 @@ export class AccountsPayableService {
         bill.id,
         DocumentTypeForApproval.VENDOR_BILL,
         bill.totalInBaseCurrency,
+        // Who submitted it, so the same person cannot also approve it.
+        actorUserId,
+        manager,
       );
 
       if (approvalRequest) {
@@ -446,65 +449,6 @@ export class AccountsPayableService {
       journalEntryId: entry.id,
     });
     return saved;
-  }
-
-  /**
-   * Post a bill whose approval has just been granted.
-   *
-   * ## Why the failure is now visible
-   *
-   * The previous handler ran the posting inside `dataSource.transaction(...).catch(err => log)`.
-   * A closed period, a missing tax account, or an entry that did not balance therefore left the
-   * bill marked OPEN with **nothing in the ledger behind it**, and told nobody. The subledger and
-   * the general ledger diverged silently, and there was no report that would show it.
-   *
-   * A failure now puts the bill in REJECTED with the reason on it and emits an event, so the
-   * condition is on the document where an accountant will meet it.
-   */
-  @OnEvent('approval.request.approved', { async: true })
-  async handleBillApproved(payload: {
-    documentId: string;
-    documentType: string;
-    organizationId: string;
-    approvedByUserId?: string;
-  }): Promise<void> {
-    if (payload.documentType !== DocumentTypeForApproval.VENDOR_BILL) return;
-
-    try {
-      await this.dataSource.transaction(async (manager) => {
-        const bill = await manager.findOne(VendorBill, {
-          where: { id: payload.documentId, organizationId: payload.organizationId },
-          relations: ['lines', 'vendor'],
-        });
-        if (!bill || bill.status !== VendorBillStatus.PENDING_APPROVAL) {
-          this.logger.warn(
-            `Factura ${payload.documentId} no está pendiente de aprobación; se omite.`,
-          );
-          return;
-        }
-        await this.postApprovedBill(
-          manager,
-          bill,
-          payload.organizationId,
-          payload.approvedByUserId ?? null,
-        );
-      });
-    } catch (error) {
-      const reason = (error as Error).message;
-      this.logger.error(
-        `Factura aprobada ${payload.documentId} no pudo contabilizarse: ${reason}`,
-        (error as Error).stack,
-      );
-      await this.vendorBillRepository.update(
-        { id: payload.documentId, organizationId: payload.organizationId },
-        { status: VendorBillStatus.REJECTED },
-      );
-      this.eventEmitter.emit('vendor.bill.posting-failed', {
-        billId: payload.documentId,
-        organizationId: payload.organizationId,
-        reason,
-      });
-    }
   }
 
   /** An account by its operational role, falling back to the legacy settings column. */

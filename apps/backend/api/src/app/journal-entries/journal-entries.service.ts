@@ -28,7 +28,7 @@ import { Journal } from './entities/journal.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { WorkflowsService } from '../workflows/workflows.service';
 import { DocumentTypeForApproval } from '../workflows/entities/approval-policy.entity';
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Readable } from 'stream';
 import { DimensionRule } from '../dimensions/entities/dimension-rule.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
@@ -160,6 +160,10 @@ export class JournalEntriesService {
         prepared.entry.id,
         DocumentTypeForApproval.JOURNAL_ENTRY,
         prepared.totalDebit,
+        // Who raised it, so the approver cannot be the same person. Without this there is no
+        // segregation of duties at all: the request recorded no submitter, so nothing could compare.
+        context.actorUserId,
+        manager,
       );
 
       if (!approvalRequest) {
@@ -596,6 +600,20 @@ export class JournalEntriesService {
     organizationId: string,
     context: PostingContext,
   ): Promise<JournalEntry> {
+    // The period is checked again HERE, not only in `prepare`.
+    //
+    // An entry sent for approval is validated when it is composed and posted when somebody
+    // approves it, and those are different moments — days apart in a tenant with a real approval
+    // chain. If the period closed in between, `prepare`'s check is stale and the entry would land
+    // in a month the taxpayer has already declared. This is the only place every posting passes
+    // through, so it is where the check has to be for it to be unskippable.
+    await resolvePostingPeriod(
+      manager,
+      organizationId,
+      entry.date,
+      context.module ?? ModuleSlug.GL,
+    );
+
     const journal = await manager.findOneByOrFail(Journal, { id: entry.journalId });
 
     entry.entryNumber = await this.numbering.allocate(
@@ -907,6 +925,8 @@ export class JournalEntriesService {
         entry.id,
         DocumentTypeForApproval.JOURNAL_ENTRY,
         totalDebit,
+        context.actorUserId,
+        manager,
       );
 
       if (!approvalRequest) {
@@ -919,67 +939,37 @@ export class JournalEntriesService {
   }
 
   /**
-   * Post an entry whose approval has just been granted.
+   * Post an entry whose approval has just been granted, in the approving transaction.
    *
-   * ## Why this no longer swallows its errors
+   * ## Why this is a method and not an event listener
    *
-   * The previous handler ran `dataSource.transaction(...)` with no `catch` at all inside an
-   * `@OnEvent` handler, so a failure — a period closed between submission and approval, an account
-   * blocked in the meantime — was reported to nobody: the approval said yes, the entry stayed
-   * PENDING_APPROVAL forever, and no ledger row existed. An approved entry that cannot be posted is
-   * an operational event someone has to see, so the failure is recorded on the entry itself and
-   * announced, and the entry is left in a state that says what happened.
+   * It used to be `@OnEvent('approval.request.approved')`, bound to an event nothing emitted — so
+   * an approved entry was never posted at all. Restoring the emit would have made it work and left
+   * it fragile: an in-process listener runs after the approval commits, so a process that dies in
+   * between leaves the request approved and the entry unposted, which is the same failure by a
+   * different route, and a listener that throws reports to nobody.
+   *
+   * `WorkflowsService.approve` calls this inside its own transaction through
+   * `JournalEntryApprovalHandler`. The approval and the posting commit together or roll back
+   * together, and a posting that cannot happen — closed period, blocked account, exhausted budget —
+   * fails the approval visibly instead of silently.
    */
-  @OnEvent('approval.request.approved', { async: true })
-  async handleApproval(payload: {
-    documentId: string;
-    documentType: string;
-    organizationId: string;
-    approvedByUserId?: string;
-  }): Promise<void> {
-    if (payload.documentType !== DocumentTypeForApproval.JOURNAL_ENTRY) return;
+  async postApproved(
+    manager: EntityManager,
+    entry: JournalEntry,
+    organizationId: string,
+    approvedByUserId: string,
+  ): Promise<JournalEntry> {
+    const posted = await this.markPosted(manager, entry, organizationId, {
+      actorUserId: approvedByUserId,
+      systemReason: 'approval-granted',
+    });
 
-    try {
-      const posted = await this.dataSource.transaction(async (manager) => {
-        const entry = await manager.findOne(JournalEntry, {
-          where: { id: payload.documentId, organizationId: payload.organizationId },
-        });
-        if (!entry || entry.status !== JournalEntryStatus.PENDING_APPROVAL) {
-          this.logger.warn(
-            `Asiento ${payload.documentId} no está pendiente de aprobación; se omite.`,
-          );
-          return null;
-        }
-        return this.markPosted(manager, entry, payload.organizationId, {
-          actorUserId: payload.approvedByUserId ?? null,
-          systemReason: 'approval-granted',
-        });
-      });
-
-      if (posted) {
-        this.eventEmitter.emit('journal-entry.posted', {
-          entryId: posted.id,
-          organizationId: payload.organizationId,
-        });
-      }
-    } catch (error) {
-      this.logger.error(
-        `No se pudo contabilizar el asiento aprobado ${payload.documentId}: ${(error as Error).message}`,
-        (error as Error).stack,
-      );
-      await this.journalEntryRepository.update(
-        { id: payload.documentId, organizationId: payload.organizationId },
-        {
-          status: JournalEntryStatus.REJECTED,
-          modificationReason: `Aprobado pero no contabilizable: ${(error as Error).message}`,
-        },
-      );
-      this.eventEmitter.emit('journal-entry.posting-failed', {
-        entryId: payload.documentId,
-        organizationId: payload.organizationId,
-        reason: (error as Error).message,
-      });
-    }
+    this.eventEmitter.emit('journal-entry.posted', {
+      entryId: posted.id,
+      organizationId,
+    });
+    return posted;
   }
 
   // ───────────────────────────────────────────────────────────────────────────
