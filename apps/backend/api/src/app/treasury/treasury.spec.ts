@@ -82,6 +82,7 @@ describeWithDb('treasury', () => {
       { enforceLimit: jest.fn().mockResolvedValue(undefined) } as never,
       new JournalEntryNumberingService(),
       audit,
+      new ExchangeRateResolver(dataSource),
     );
 
     treasury = new TreasuryService(

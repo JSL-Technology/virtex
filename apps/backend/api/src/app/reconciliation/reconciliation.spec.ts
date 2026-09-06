@@ -1,4 +1,5 @@
 import { DataSource } from 'typeorm';
+import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Organization } from '../organizations/entities/organization.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
@@ -84,6 +85,7 @@ describeWithDb('bank reconciliation', () => {
       { enforceLimit: jest.fn().mockResolvedValue(undefined) } as never,
       new JournalEntryNumberingService(),
       audit,
+      new ExchangeRateResolver(dataSource),
     );
 
     reconciliation = new ReconciliationService(

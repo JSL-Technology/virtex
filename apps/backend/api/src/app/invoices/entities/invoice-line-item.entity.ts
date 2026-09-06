@@ -106,7 +106,7 @@ export class InvoiceLineItem {
   })
   discountAmount: number;
 
-  /** quantity × price − discount. The taxable (or exempt) base of the line. */
+  /** quantity × price − line discount. Not the tax base: the document discount comes off it. */
   @Column('decimal', {
     name: 'line_subtotal',
     precision: 18,
@@ -115,6 +115,33 @@ export class InvoiceLineItem {
     transformer: numericTransformerNotNull,
   })
   lineSubtotal: number;
+
+  /**
+   * This line's share of the document-level discount.
+   *
+   * Stored per line because the discount reduces the taxable base and the base has to be
+   * reconstructible line by line: the e-CF carries `MontoItem` net of it, the DGII recomputes the
+   * ITBIS from it, and a credit note against one line has to know how much discount that line
+   * carried. Allocated by largest remainder so the shares sum to the document discount exactly.
+   */
+  @Column('decimal', {
+    name: 'document_discount_amount',
+    precision: 18,
+    scale: 2,
+    default: 0,
+    transformer: numericTransformerNotNull,
+  })
+  documentDiscountAmount: number;
+
+  /** `lineSubtotal − documentDiscountAmount`: what tax and excise were actually charged on. */
+  @Column('decimal', {
+    name: 'taxable_base',
+    precision: 18,
+    scale: 2,
+    default: 0,
+    transformer: numericTransformerNotNull,
+  })
+  taxableBase: number;
 
   /** Consumption-tax rate as a fraction (0.18 = 18 %). Zero when exempt or zero-rated. */
   @Column('decimal', {

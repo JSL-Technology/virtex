@@ -55,6 +55,10 @@ import {
 import { JournalEntryNumberingService } from './journal-entry-numbering.service';
 import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
+import {
+  ExchangeRateResolver,
+  ResolvedRate,
+} from '../currencies/exchange-rate-resolver.service';
 
 /**
  * Context every posting carries.
@@ -69,6 +73,20 @@ export interface PostingContext {
   module?: ModuleSlug;
   /** Short machine reason, recorded on the audit row for system-generated entries. */
   systemReason?: string;
+  /**
+   * What business fact this entry records, as a stable string — `invoice:{id}:revenue`,
+   * `recurring:{templateId}:{date}`, `vendor-payment:{batchId}`.
+   *
+   * Supplying it makes the posting idempotent: a second attempt with the same key returns the entry
+   * the first one wrote instead of writing a second. A unique index enforces the same thing under
+   * concurrency, so two workers racing on a redelivered job cannot both win.
+   *
+   * Every automatic posting should carry one. A retried webhook, a BullMQ job redelivered after its
+   * worker died between the commit and the acknowledgement, a double-clicked button: all of them
+   * replay a business fact that has already been booked, and without a key the ledger books it
+   * twice and nothing ever notices.
+   */
+  idempotencyKey?: string;
 }
 
 const SYSTEM: PostingContext = { actorUserId: null, systemReason: 'system' };
@@ -89,6 +107,7 @@ export class JournalEntriesService {
     private readonly saasService: SaasService,
     private readonly numbering: JournalEntryNumberingService,
     private readonly auditTrail: AuditTrailService,
+    private readonly rates: ExchangeRateResolver,
     /**
      * Optional so the cycle stays broken and so a caller constructing this service directly — the
      * integration suites do — is not forced to supply a control it is not exercising. When it is
@@ -123,6 +142,9 @@ export class JournalEntriesService {
     context: PostingContext,
   ): Promise<JournalEntry> {
     return this.dataSource.transaction(async (manager) => {
+      const replayed = await this.findByIdempotencyKey(manager, organizationId, context);
+      if (replayed) return replayed;
+
       // Metered inside the transaction that writes the entry, so a rolled-back post does not
       // consume quota and concurrent posts cannot all read the same pre-increment total.
       await this.saasService.enforceLimit(
@@ -166,8 +188,38 @@ export class JournalEntriesService {
     organizationId: string,
     context: PostingContext = SYSTEM,
   ): Promise<JournalEntry> {
+    const replayed = await this.findByIdempotencyKey(manager, organizationId, context);
+    if (replayed) return replayed;
+
     const prepared = await this.prepare(manager, createDto, organizationId, context);
     return this.markPosted(manager, prepared.entry, organizationId, context);
+  }
+
+  /**
+   * The entry a previous attempt at this same business fact already wrote, if there is one.
+   *
+   * The lookup is the fast path; the unique index on `(organization_id, idempotency_key)` is what
+   * actually holds under concurrency, because two transactions can both read "not posted yet"
+   * before either commits. The loser gets a unique-violation, which is the correct outcome: its
+   * whole transaction rolls back and the fact stays booked exactly once.
+   */
+  private async findByIdempotencyKey(
+    manager: EntityManager,
+    organizationId: string,
+    context: PostingContext,
+  ): Promise<JournalEntry | null> {
+    if (!context.idempotencyKey) return null;
+    const existing = await manager.findOne(JournalEntry, {
+      where: { organizationId, idempotencyKey: context.idempotencyKey },
+      relations: ['lines'],
+    });
+    if (existing) {
+      this.logger.log(
+        `Asiento ${existing.entryNumber ?? existing.id} ya existía para ` +
+          `${context.idempotencyKey}; no se contabiliza de nuevo.`,
+      );
+    }
+    return existing;
   }
 
   /**
@@ -352,17 +404,28 @@ export class JournalEntriesService {
     });
 
     // ── Currency ──────────────────────────────────────────────────────────────
+    //
+    // The rate is resolved by the server from `exchange_rates`, not taken from the request. It
+    // used to be read straight off the DTO with `rate > 0` as the only check, so anyone who could
+    // post an entry could also choose the rate it was booked at and manufacture an exchange gain
+    // or loss at will — and in every jurisdiction that publishes an obligatory rate (DGII, DOF,
+    // TRM, BNA) that is also a filing defect. A caller-supplied rate is now only accepted inside a
+    // tolerance band around the resolved one, and what it was resolved from is recorded.
     const settings = await manager.findOneBy(OrganizationSettings, { organizationId });
     const baseCurrency = settings?.baseCurrency || defaultLedger.currency || 'USD';
     const isForeignCurrency = Boolean(currencyCode && currencyCode !== baseCurrency);
     let rate = 1;
+    let resolvedRate: ResolvedRate | null = null;
     if (isForeignCurrency) {
-      rate = this.amount(exchangeRate, 'exchangeRate');
-      if (rate <= 0) {
-        throw new BadRequestError(
-          'JOURNAL_ENTRIES.REQUIERE_TASA_CAMBIO_EXCHANGERATE_POSITIVA_TRANSACCIONES_MONEDA',
-        );
-      }
+      resolvedRate = await this.rates.resolveForPosting(
+        manager,
+        organizationId,
+        currencyCode as string,
+        baseCurrency,
+        toIsoDate(entryDate),
+        exchangeRate === undefined ? null : this.amount(exchangeRate, 'exchangeRate'),
+      );
+      rate = resolvedRate.rate;
     }
 
     const entry = manager.create(JournalEntry, {
@@ -372,6 +435,11 @@ export class JournalEntriesService {
       journalId,
       currencyCode,
       exchangeRate: isForeignCurrency ? rate : undefined,
+      exchangeRateType: resolvedRate?.rateType ?? null,
+      exchangeRateSource: resolvedRate?.source ?? null,
+      exchangeRateMethod: resolvedRate?.method ?? null,
+      exchangeRateQuotedOn: resolvedRate?.quotedOn ?? null,
+      idempotencyKey: context.idempotencyKey ?? null,
       ledgerId: defaultLedger.id,
       status: JournalEntryStatus.DRAFT,
       entryNumber: null,
@@ -431,7 +499,6 @@ export class JournalEntriesService {
         lineDto,
         line,
         defaultLedger.id,
-        isForeignCurrency ? rate : 1,
         mappingRules,
       );
       finalLines.push(line);
@@ -467,8 +534,56 @@ export class JournalEntriesService {
       finalLines.push(roundingLine);
     }
 
+    // ── The invariant, on the rows the balances are actually read from ────────
+    //
+    // Both checks above sum `line.debit`/`line.credit`. Every balance in the product is a SUM over
+    // `journal_entry_line_valuations` — so those two checks were validating a column nothing reads
+    // and leaving the one everything reads unvalidated. An entry whose lines balanced and whose
+    // valuations did not was storable, and the general ledger went permanently out of balance with
+    // only `BalanceSheetReport.isBalanced` to say so, and nothing to say where.
+    //
+    // Checked per ledger, because a multi-GAAP entry has to balance in every book it touches, not
+    // just in aggregate.
+    this.assertValuationsBalance(finalLines, defaultLedger.id);
+
     savedEntry.lines = await manager.save(finalLines);
     return { entry: savedEntry, totalDebit: roundAmount(totalDebitCents / 100) };
+  }
+
+  /**
+   * Every ledger touched by the entry balances to the cent, or nothing is written.
+   *
+   * The default ledger is checked even when no line names it, because an entry that reaches the
+   * journal without a primary valuation contributes to no balance at all — it is invisible to
+   * every report while still being a posted row in the book.
+   */
+  private assertValuationsBalance(
+    lines: readonly JournalEntryLine[],
+    defaultLedgerId: string,
+  ): void {
+    const byLedger = new Map<string, { debit: number; credit: number }>();
+    byLedger.set(defaultLedgerId, { debit: 0, credit: 0 });
+
+    for (const line of lines) {
+      for (const valuation of line.valuations ?? []) {
+        const bucket = byLedger.get(valuation.ledgerId) ?? { debit: 0, credit: 0 };
+        bucket.debit += toCents(valuation.debit);
+        bucket.credit += toCents(valuation.credit);
+        byLedger.set(valuation.ledgerId, bucket);
+      }
+    }
+
+    for (const [ledgerId, totals] of byLedger) {
+      if (totals.debit === totals.credit) continue;
+      // A secondary ledger out of balance is almost always an incomplete set of mapping rules:
+      // rules are keyed by (ledger, account), so a rule on some of the entry's accounts and not
+      // the rest derives a partial entry into the target book. Naming the ledger and the gap is
+      // what makes that diagnosable instead of mysterious.
+      throw new BadRequestError('JOURNAL_ENTRIES.VALORACIONES_LIBRO_NO_BALANCEAN', {
+        ledgerId,
+        difference: roundAmount((totals.debit - totals.credit) / 100),
+      });
+    }
   }
 
   /**
@@ -582,26 +697,57 @@ export class JournalEntriesService {
   /**
    * The per-ledger amounts for one line.
    *
-   * A line with no explicit valuations is valued in the default ledger at its ledger-currency
-   * amount. Mapping rules then derive the other ledgers — the multi-GAAP mechanism — and a target
-   * ledger that already has an explicit valuation is left alone rather than overwritten.
+   * ## The contract, stated once
+   *
+   * **A valuation is always expressed in the currency of the ledger it belongs to.** It is what
+   * that book records for this line; there is no other sensible reading of the field.
+   *
+   * From which follows the rule this method enforces: the **default ledger's valuation is derived,
+   * never supplied**. `line.debit`/`line.credit` are already the amount in the default ledger's
+   * currency — `prepare` converted them — so a caller has nothing to add and no way to be right
+   * that the line is not already right about. Any valuation a caller sends for the default ledger
+   * is discarded.
+   *
+   * That is what closes the defect this method used to have. The old code applied the entry's
+   * exchange rate to whatever valuations the caller sent, which made the contract "valuations in
+   * document currency" — and the two biggest callers disagreed about it. Accounts payable sent
+   * document amounts (correct under that reading); `InvoicePostingService` sent amounts it had
+   * already multiplied by the rate. The engine multiplied those a second time, so every
+   * foreign-currency sales invoice contributed `amount × rate²` to the general ledger. Line and
+   * valuation both balanced, so nothing caught it; only the currency of the ledger was wrong, by a
+   * factor of the exchange rate. With the default ledger derived, both callers are now correct and
+   * neither can express the mistake.
+   *
+   * Explicit valuations are for **other** ledgers — the multi-GAAP mechanism — where the amount
+   * genuinely differs from the primary book (a different depreciation basis, a different
+   * revaluation model) and only the caller knows it. Those are taken verbatim, in that ledger's own
+   * currency, and never converted here.
+   *
+   * Mapping rules then derive further ledgers from the ones present; a target that already carries
+   * an explicit valuation is left alone rather than overwritten.
    */
   private buildValuations(
     manager: EntityManager,
     lineDto: CreateJournalEntryLineDto,
     line: JournalEntryLine,
     defaultLedgerId: string,
-    rate: number,
     mappingRules: Map<string, LedgerMappingRule[]>,
   ): JournalEntryLineValuation[] {
-    const source =
-      lineDto.valuations && lineDto.valuations.length > 0
-        ? lineDto.valuations.map((valuation) => ({
-            ledgerId: valuation.ledgerId,
-            debit: convert(this.amount(valuation.debit, 'valuation.debit'), rate),
-            credit: convert(this.amount(valuation.credit, 'valuation.credit'), rate),
-          }))
-        : [{ ledgerId: defaultLedgerId, debit: line.debit, credit: line.credit }];
+    const source: { ledgerId: string; debit: number; credit: number }[] = [
+      { ledgerId: defaultLedgerId, debit: line.debit, credit: line.credit },
+    ];
+
+    for (const valuation of lineDto.valuations ?? []) {
+      // Silently, and deliberately: every subledger in the product sends one of these for the
+      // default ledger, and all of them are redundant rather than wrong. Rejecting would break
+      // every posting path to make a point the derivation already makes.
+      if (valuation.ledgerId === defaultLedgerId) continue;
+      source.push({
+        ledgerId: valuation.ledgerId,
+        debit: this.amount(valuation.debit, 'valuation.debit'),
+        credit: this.amount(valuation.credit, 'valuation.credit'),
+      });
+    }
 
     const byLedger = new Map<string, JournalEntryLineValuation>();
     for (const valuation of source) {

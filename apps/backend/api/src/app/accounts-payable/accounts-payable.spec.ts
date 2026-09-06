@@ -93,6 +93,7 @@ describeWithDb('accounts payable', () => {
       { enforceLimit: jest.fn().mockResolvedValue(undefined) } as never,
       new JournalEntryNumberingService(),
       audit,
+      new ExchangeRateResolver(dataSource),
     );
 
     payables = new AccountsPayableService(

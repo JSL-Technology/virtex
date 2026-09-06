@@ -149,6 +149,7 @@ const ES = {
   accrued: 'Gastos Acumulados por Pagar',
   payroll: 'Remuneraciones y Prestaciones por Pagar',
   serviceCharge: 'Propina Legal por Pagar',
+  exciseTax: 'Impuesto Selectivo al Consumo por Pagar',
   incomeTax: 'Impuesto sobre la Renta por Pagar',
   nonCurrentLiabilities: 'Pasivo No Corriente',
   longTermDebt: 'Deudas a Largo Plazo',
@@ -194,6 +195,7 @@ const PT: typeof ES = {
   accrued: 'Despesas a Pagar',
   payroll: 'Obrigações Trabalhistas',
   serviceCharge: 'Gorjeta a Pagar',
+  exciseTax: 'Impostos Seletivos a Recolher',
   incomeTax: 'IRPJ e CSLL a Recolher',
   nonCurrentLiabilities: 'Passivo Não Circulante',
   longTermDebt: 'Empréstimos de Longo Prazo',
@@ -239,6 +241,7 @@ const EN: typeof ES = {
   accrued: 'Accrued Expenses',
   payroll: 'Payroll Liabilities',
   serviceCharge: 'Service Charge Payable',
+  exciseTax: 'Excise Tax Payable',
   incomeTax: 'Income Tax Payable',
   nonCurrentLiabilities: 'Non-current Liabilities',
   longTermDebt: 'Long-term Debt',
@@ -380,6 +383,9 @@ export function buildCountryCoaTemplate(countryCode: string): AccountTemplateDto
         leaf(code, { code: '2140', name: t.payroll }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
         leaf(code, { code: '2150', name: t.incomeTax }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
         leaf(code, { code: '2160', name: t.serviceCharge, role: AccountRole.SERVICE_CHARGE_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
+        // Excise (ISC / IEPS / ICE) is a liability of its own, declared separately from the
+        // consumption tax. Netting it into 2130 makes the tax return unfileable.
+        leaf(code, { code: '2165', name: t.exciseTax, role: AccountRole.EXCISE_TAX_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
       ]),
       group(code, '2200', t.nonCurrentLiabilities, AccountType.LIABILITY, AccountCategory.NON_CURRENT_LIABILITY, C, [
         leaf(code, { code: '2210', name: t.longTermDebt }, AccountType.LIABILITY, AccountCategory.NON_CURRENT_LIABILITY, C),

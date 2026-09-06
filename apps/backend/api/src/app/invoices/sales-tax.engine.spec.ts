@@ -106,7 +106,16 @@ describe('sales-tax engine', () => {
       expect(doc.total).toBe(1062);
     });
 
-    it('applies a document discount without restating the tax base of the lines', () => {
+    /**
+     * This test used to assert the opposite, and the assertion was the bug.
+     *
+     * A commercial discount granted on the document reduces the taxable base — in the Dominican
+     * Republic, in Mexico, in Colombia, everywhere this product sells. Charging ITBIS on the
+     * undiscounted subtotal overcharges the customer, overstates the 607, and makes the e-CF
+     * unvalidatable: the DGII recomputes `ITBIS = MontoGravado × tasa`, and `MontoGravado` is the
+     * base. 1 000 less 5 % is 950; 18 % of 950 is 171; the document is 1 121, not 1 130.
+     */
+    it('applies a document discount to the tax base, not only to the total', () => {
       const doc = computeDocument({
         countryCode: 'DO',
         currencyCode: 'DOP',
@@ -114,7 +123,48 @@ describe('sales-tax engine', () => {
         documentDiscountRate: 0.05,
       });
       expect(doc.discountTotal).toBe(50);
-      expect(doc.total).toBe(1130);
+      expect(doc.taxedTotal).toBe(950);
+      expect(doc.tax).toBe(171);
+      expect(doc.total).toBe(1121);
+      expect(doc.lines[0].documentDiscountAmount).toBe(50);
+      expect(doc.lines[0].taxableBase).toBe(950);
+    });
+
+    /**
+     * The allocation has to be exact, not proportional-and-hope: three lines sharing a discount
+     * that does not divide by three must still sum to the discount, or the invoice total stops
+     * matching the sum of its lines and the document is internally inconsistent.
+     */
+    it('allocates the document discount across lines so the shares sum to it exactly', () => {
+      const doc = computeDocument({
+        countryCode: 'DO',
+        currencyCode: 'DOP',
+        lines: [
+          { ...taxedGood, unitPrice: 10, quantity: 1 },
+          { ...taxedGood, unitPrice: 10, quantity: 1 },
+          { ...taxedGood, unitPrice: 10, quantity: 1 },
+        ],
+        documentDiscountRate: 0.1,
+      });
+      expect(doc.discountTotal).toBe(3);
+      const shares = doc.lines.map((line) => line.documentDiscountAmount);
+      expect(shares.reduce((a, b) => a + b, 0)).toBe(3);
+      expect(doc.taxedTotal).toBe(27);
+      expect(doc.tax).toBe(4.86);
+    });
+
+    /** The exempt base is net of the discount too, or the 607 splits the wrong figures. */
+    it('reduces the exempt base by its share of the document discount', () => {
+      const doc = computeDocument({
+        countryCode: 'DO',
+        currencyCode: 'DOP',
+        lines: [taxedGood, { ...taxedGood, taxTreatment: TaxTreatment.EXEMPT, taxRate: 0 }],
+        documentDiscountRate: 0.1,
+      });
+      expect(doc.discountTotal).toBe(200);
+      expect(doc.taxedTotal).toBe(900);
+      expect(doc.exemptTotal).toBe(900);
+      expect(doc.tax).toBe(162);
     });
 
     it('refuses a discount of 100 % or more', () => {

@@ -1,4 +1,5 @@
 import { DataSource } from 'typeorm';
+import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Organization } from '../organizations/entities/organization.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
@@ -101,6 +102,7 @@ describeWithDb('the accounting core', () => {
       saas as never,
       new JournalEntryNumberingService(),
       audit,
+      new ExchangeRateResolver(dataSource),
     );
 
     closing = new PeriodClosingService(

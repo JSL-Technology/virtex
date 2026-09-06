@@ -18,6 +18,7 @@ import {
   numericTransformer,
   numericTransformerNotNull,
 } from '../../common/database/numeric.transformer';
+import { roundToCurrency } from '../../common/money';
 
 export enum InvoiceStatus {
   /** Prepared but not issued. Carries NO fiscal number and is not posted to the ledger. */
@@ -262,7 +263,22 @@ export class Invoice {
   })
   incomeTaxWithheld: number;
 
-  /** Face value of the document: subtotal − discount + tax + service charge. */
+  /**
+   * Excise duty (ISC / IEPS / ICE) charged on the document.
+   *
+   * Part of `total` and, until now, stored nowhere — so the ledger entry could not name the
+   * liability and the 607's `MontoISC` column had nothing to read.
+   */
+  @Column('decimal', {
+    name: 'excise',
+    precision: 18,
+    scale: 2,
+    default: 0,
+    transformer: numericTransformerNotNull,
+  })
+  excise: number;
+
+  /** Face value of the document: subtotal − discount + tax + excise + service charge. */
   @Column('decimal', {
     precision: 18,
     scale: 2,
@@ -418,12 +434,8 @@ export class Invoice {
 
   /** Amount still creditable by a credit note, in transaction currency. */
   get creditableRemaining(): number {
-    return round2(this.total - this.creditedTotal);
+    return roundToCurrency(this.total - this.creditedTotal, this.currencyCode);
   }
-}
-
-function round2(value: number): number {
-  return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
 /** Nullable numeric helper kept beside the entity so callers can reuse the same rounding rule. */

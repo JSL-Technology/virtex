@@ -87,6 +87,7 @@ describeWithDb('customer collections', () => {
       { enforceLimit: jest.fn().mockResolvedValue(undefined) } as never,
       numbering,
       audit,
+      new ExchangeRateResolver(dataSource),
     );
 
     receipts = new CustomerPaymentsService(

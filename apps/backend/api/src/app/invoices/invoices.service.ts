@@ -25,7 +25,8 @@ import { SaasService } from '../saas/saas.service';
 import { SaasResource } from '../saas/enums/saas-resource.enum';
 import { EcfSubmissionService } from '../einvoicing/services/ecf-submission.service';
 import { InvoicePostingService } from './services/invoice-posting.service';
-import { computeDocument, roundToCurrency, TaxableLineInput } from './sales-tax.engine';
+import { computeDocument, TaxableLineInput } from './sales-tax.engine';
+import { roundAmount, roundToCurrency, toMinorUnits } from '../common/money';
 import { NcfType } from '../compliance/entities/ncf-sequence.entity';
 import { TenantBookkeepingProvisioner } from '../shared/provisioning/tenant-bookkeeping.provisioner';
 import { COUNTRY_TAX_SCHEMES } from '../localization/fiscal/country-tax-schemes';
@@ -228,7 +229,7 @@ export class InvoicesService {
       throw new BadRequestError('INVOICES.FECHA_VENCIMIENTO_NO_PUEDE_SER_ANTERIOR_FECHA');
     }
 
-    const { currencyCode, exchangeRate } = await this.resolveCurrency(
+    const { currencyCode, exchangeRate, baseCurrency } = await this.resolveCurrency(
       organizationId,
       dto.currencyCode,
       dto.issueDate,
@@ -274,6 +275,8 @@ export class InvoicesService {
         discountRate: line.discountRate,
         discountAmount: c.discountAmount,
         lineSubtotal: c.subtotal,
+        documentDiscountAmount: c.documentDiscountAmount,
+        taxableBase: c.taxableBase,
         taxRate: c.taxRate,
         taxAmount: c.taxAmount,
         taxTreatment: c.taxTreatment,
@@ -316,6 +319,9 @@ export class InvoicesService {
       goodsTotal: computed.goodsTotal,
       servicesTotal: computed.servicesTotal,
       tax: computed.tax,
+      // Stored, not dropped. It is inside `total`, so an invoice carrying excise and recording it
+      // nowhere produced a ledger entry out of balance by exactly that amount.
+      excise: computed.excise,
       serviceCharge: computed.serviceCharge,
       taxWithheld: computed.taxWithheld,
       incomeTaxWithheld: computed.incomeTaxWithheld,
@@ -329,7 +335,10 @@ export class InvoicesService {
       notes: dto.notes,
       currencyCode,
       exchangeRate,
-      totalInBaseCurrency: roundToCurrency(computed.total * exchangeRate, currencyCode),
+      // Rounded to the BASE currency's minor unit, because that is the currency it is measured in.
+      // Rounding it to the document's scale gives a USD invoice into Chilean books two decimals
+      // CLP does not have, and a CLP invoice into dollar books a whole peso of lost precision.
+      totalInBaseCurrency: roundToCurrency(computed.total * exchangeRate, baseCurrency),
       costOfSale,
     });
   }
@@ -428,12 +437,14 @@ export class InvoicesService {
     organizationId: string,
     requested: string | undefined,
     issueDate: string,
-  ): Promise<{ currencyCode: string; exchangeRate: number }> {
+  ): Promise<{ currencyCode: string; exchangeRate: number; baseCurrency: string }> {
     const settings = await this.orgSettingsRepository.findOne({ where: { organizationId } });
     const baseCurrency = settings?.baseCurrency || 'USD';
     const currencyCode = (requested || baseCurrency).toUpperCase();
 
-    if (currencyCode === baseCurrency) return { currencyCode, exchangeRate: 1 };
+    if (currencyCode === baseCurrency) {
+      return { currencyCode, exchangeRate: 1, baseCurrency };
+    }
 
     // Through the resolver, not a direct row lookup. The lookup asked only for a
     // `base → transaction` row and inverted it, so a tenant holding the pair the other way round —
@@ -453,7 +464,7 @@ export class InvoicesService {
     if (!Number.isFinite(exchangeRate) || exchangeRate <= 0) {
       throw new BadRequestError('INVOICES.TASA_CAMBIO_CONFIGURADA_NO_ES_VALIDA', { currencyCode });
     }
-    return { currencyCode, exchangeRate };
+    return { currencyCode, exchangeRate, baseCurrency };
   }
 
   // ── Stock ──────────────────────────────────────────────────────────────────
@@ -508,6 +519,7 @@ export class InvoicesService {
         goodsTotal: rebuilt.goodsTotal,
         servicesTotal: rebuilt.servicesTotal,
         tax: rebuilt.tax,
+        excise: rebuilt.excise,
         serviceCharge: rebuilt.serviceCharge,
         taxWithheld: rebuilt.taxWithheld,
         incomeTaxWithheld: rebuilt.incomeTaxWithheld,
@@ -588,6 +600,9 @@ export class InvoicesService {
 
       const selections = this.resolveCreditSelections(original, dto);
       const isFullCredit = this.isFullCredit(original, selections);
+      const baseCurrency =
+        (await manager.getRepository(OrganizationSettings).findOne({ where: { organizationId } }))
+          ?.baseCurrency ?? 'USD';
 
       const computed = computeDocument({
         countryCode: (
@@ -602,6 +617,10 @@ export class InvoicesService {
           discountRate: s.line.discountRate,
           taxTreatment: s.line.taxTreatment,
           taxRate: s.line.taxRate,
+          // The excise the original line bore, as a rate, so the note credits it too. Omitting it
+          // credited the tax and the base and left the customer charged the excise for goods they
+          // returned.
+          exciseRate: proportion(s.line.exciseAmount, s.line.taxableBase || s.line.lineSubtotal),
           isService: s.line.isService,
         })),
         // The note inherits the invoice's document-level rates so the credit mirrors what was
@@ -618,11 +637,15 @@ export class InvoicesService {
         ),
       });
 
-      if (computed.total > original.creditableRemaining + 0.005) {
-        throw new BadRequestException(
-          `El importe a acreditar (${computed.total.toFixed(2)}) excede el saldo acreditable de la ` +
-            `factura ${original.invoiceNumber} (${original.creditableRemaining.toFixed(2)}).`,
-        );
+      if (
+        toMinorUnits(computed.total, original.currencyCode) >
+        toMinorUnits(original.creditableRemaining, original.currencyCode)
+      ) {
+        throw new BadRequestError('INVOICES.MONTO_ACREDITAR_EXCEDE_SALDO', {
+          amount: computed.total,
+          invoiceNumber: original.invoiceNumber,
+          remaining: original.creditableRemaining,
+        });
       }
 
       const creditNoteNumber = await this.documentSequencesService.getNextNumber(
@@ -648,10 +671,13 @@ export class InvoicesService {
           discountRate: s.line.discountRate,
           discountAmount: c.discountAmount,
           lineSubtotal: c.subtotal,
+          documentDiscountAmount: c.documentDiscountAmount,
+          taxableBase: c.taxableBase,
           taxRate: c.taxRate,
           taxAmount: c.taxAmount,
           taxTreatment: c.taxTreatment,
           isService: c.isService,
+          exciseAmount: c.exciseAmount,
           unitCost: s.line.unitCost,
           creditedQuantity: 0,
         });
@@ -694,6 +720,7 @@ export class InvoicesService {
         goodsTotal: computed.goodsTotal,
         servicesTotal: computed.servicesTotal,
         tax: computed.tax,
+        excise: computed.excise,
         serviceCharge: computed.serviceCharge,
         taxWithheld: computed.taxWithheld,
         incomeTaxWithheld: computed.incomeTaxWithheld,
@@ -703,7 +730,7 @@ export class InvoicesService {
         creditedTotal: 0,
         totalInBaseCurrency: roundToCurrency(
           computed.total * original.exchangeRate,
-          original.currencyCode,
+          baseCurrency,
         ),
         costOfSale,
         notes: dto.reason || `Nota de crédito de la factura ${original.invoiceNumber}`,
@@ -1009,5 +1036,5 @@ function proportion(part: number, whole: number): number {
 }
 
 function round6(value: number): number {
-  return Math.round((value + Number.EPSILON) * 1e6) / 1e6;
+  return roundAmount(value, 6);
 }

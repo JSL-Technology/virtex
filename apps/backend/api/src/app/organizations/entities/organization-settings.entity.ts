@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { Organization } from './organization.entity';
 import { ExchangeRateType } from '../../currencies/entities/exchange-rate.entity';
+import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 
 const DEFAULT_BASE_CURRENCY = 'USD' as const;
 
@@ -80,6 +81,16 @@ export class OrganizationSettings {
 
   @Column({ name: 'default_sales_tax_id', type: 'uuid', nullable: true })
   defaultSalesTaxId: string | null = null;
+
+  /**
+   * Excise duty charged on sales (ISC, IEPS, ICE) — a liability distinct from the consumption tax.
+   *
+   * `computeDocument` has always returned `excise`, and the invoice stored it nowhere: it was
+   * inside `total` and in no account, so the sales entry was out of balance by the excise on every
+   * document subject to one, and the posting was refused with a message about arithmetic.
+   */
+  @Column({ name: 'default_excise_tax_payable_id', type: 'uuid', nullable: true })
+  defaultExciseTaxPayableId: string | null = null;
 
   /** VAT/ITBIS borne on purchases — the recoverable side of the tax return. */
   @Column({ name: 'default_purchase_tax_id', type: 'uuid', nullable: true })
@@ -169,4 +180,40 @@ export class OrganizationSettings {
 
   @Column({ name: 'fiscal_archive_after_years', type: 'int', default: 5 })
   fiscalArchiveAfterYears!: number;
+
+  // ── Exchange-rate controls ────────────────────────────────────────────────
+  //
+  // A posting in foreign currency used to take whatever rate the request carried, checked only for
+  // being positive. Anyone who could post an entry could therefore choose the rate it was booked
+  // at, and an exchange gain or loss of any size could be manufactured by typing a different
+  // number. These two settings are what let a tenant say how far a stated rate may sit from the
+  // one on file, and how old a quote may be before it stops being usable.
+
+  /**
+   * How far a caller-supplied rate may deviate from the resolved one, as a fraction.
+   *
+   * A real bank fill differs from the published rate by a spread, so zero would be unusable in
+   * practice; 2 % covers an ordinary spread and refuses a fabricated number. Set it to 0 to accept
+   * only the rate on file.
+   */
+  @Column({
+    name: 'fx_rate_tolerance',
+    type: 'decimal',
+    precision: 9,
+    scale: 6,
+    default: 0.02,
+    transformer: numericTransformerNotNull,
+  })
+  fxRateTolerance!: number;
+
+  /**
+   * How stale a quote may be, in days, before a posting that would use it is refused.
+   *
+   * The lookup takes the newest quote at or before the posting date, which is right, and said
+   * nothing about how old that was: a rate six months out of date converted as confidently as this
+   * morning's. Ten days spans a long holiday weekend plus a missed refresh; beyond that the figure
+   * is a guess.
+   */
+  @Column({ name: 'fx_rate_max_age_days', type: 'int', default: 10 })
+  fxRateMaxAgeDays!: number;
 }
