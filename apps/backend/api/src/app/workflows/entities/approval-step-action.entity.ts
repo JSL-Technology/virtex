@@ -35,7 +35,12 @@ export class ApprovalStepAction {
   id: string;
 
   @ManyToOne(() => ApprovalRequest, { nullable: false, onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'request_id' })
+  // Named, because the migration names it. An unnamed relation gets TypeORM's hash-derived name,
+  // and the two disagreeing is drift the schema check reports on every run.
+  @JoinColumn({
+    name: 'request_id',
+    foreignKeyConstraintName: 'FK_approval_step_actions_request',
+  })
   request: ApprovalRequest;
 
   @Column({ name: 'request_id', type: 'uuid' })

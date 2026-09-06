@@ -7,6 +7,7 @@ import {
   JoinColumn,
   OneToMany,
   Index,
+  Check,
 } from 'typeorm';
 import type { JournalEntry } from './journal-entry.entity';
 import { Account } from '../../chart-of-accounts/entities/account.entity';
@@ -14,6 +15,21 @@ import { JournalEntryLineValuation } from './journal-entry-line-valuation.entity
 import { numericTransformer, numericTransformerNotNull } from '../../common/database/numeric.transformer';
 
 @Index('IDX_journal_entry_lines_entry', ['journalEntryId'])
+/**
+ * A line carries an amount, and on one side only.
+ *
+ * Declared here as well as in the migration so the schema-drift check can see it: a constraint
+ * TypeORM does not know about is one it proposes to drop on the next generated migration.
+ */
+@Check(
+  'CHK_journal_entry_lines_sign',
+  '"debit" >= 0 AND "credit" >= 0 AND NOT ("debit" > 0 AND "credit" > 0) AND ("debit" > 0 OR "credit" > 0)',
+)
+@Check(
+  'CHK_journal_entry_lines_foreign_sign',
+  'COALESCE("foreign_currency_debit", 0) >= 0 AND COALESCE("foreign_currency_credit", 0) >= 0 ' +
+    'AND NOT (COALESCE("foreign_currency_debit", 0) > 0 AND COALESCE("foreign_currency_credit", 0) > 0)',
+)
 @Entity({ name: 'journal_entry_lines' })
 @Index('IDX_journal_entry_lines_account', ['accountId'])
 export class JournalEntryLine {

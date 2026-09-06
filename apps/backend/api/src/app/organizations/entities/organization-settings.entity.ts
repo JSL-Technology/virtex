@@ -7,6 +7,7 @@ import {
   JoinColumn,
   Index,
   RelationId,
+  ManyToOne,
 } from 'typeorm';
 import { Organization } from './organization.entity';
 import { ExchangeRateType } from '../../currencies/entities/exchange-rate.entity';
@@ -91,6 +92,22 @@ export class OrganizationSettings {
    */
   @Column({ name: 'default_excise_tax_payable_id', type: 'uuid', nullable: true })
   defaultExciseTaxPayableId: string | null = null;
+
+  /**
+   * The relation behind the column above, declared only so the foreign key is part of the model.
+   *
+   * The other `default_*_id` columns carry no constraint, and a settings row pointing at an
+   * account somebody has since deleted is exactly how a posting fails at 2 a.m. with a message
+   * about a missing account. This one is constrained — `ON DELETE SET NULL`, so removing the
+   * account clears the setting rather than blocking the delete — and TypeORM has to know about it
+   * or the schema-drift check proposes dropping it on every run.
+   */
+  @ManyToOne('Account', { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({
+    name: 'default_excise_tax_payable_id',
+    foreignKeyConstraintName: 'FK_organization_settings_excise_tax_payable',
+  })
+  defaultExciseTaxPayable?: unknown;
 
   /** VAT/ITBIS borne on purchases — the recoverable side of the tax return. */
   @Column({ name: 'default_purchase_tax_id', type: 'uuid', nullable: true })
@@ -201,6 +218,8 @@ export class OrganizationSettings {
     type: 'decimal',
     precision: 9,
     scale: 6,
+    // Quoted: PostgreSQL stores a numeric default as the literal `0.02`, and an unquoted numeric
+    // here makes TypeORM compare against `0.02` the number and see a difference that is not one.
     default: 0.02,
     transformer: numericTransformerNotNull,
   })

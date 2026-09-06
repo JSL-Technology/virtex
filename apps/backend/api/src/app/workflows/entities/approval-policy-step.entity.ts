@@ -1,7 +1,21 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import type { ApprovalPolicy } from './approval-policy.entity';
 import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 
+// The steps of a policy are traversed in `order`; two steps sharing one makes the traversal depend
+// on row order, which is not a chain. Partial because a step with no policy is orphaned data the
+// constraint has nothing to say about.
+@Index('IDX_approval_policy_steps_policy_order', ['policyId', 'order'], {
+  unique: true,
+  where: '"policyId" IS NOT NULL',
+})
 @Entity({ name: 'approval_policy_steps' })
 export class ApprovalPolicyStep {
   @PrimaryGeneratedColumn('uuid')

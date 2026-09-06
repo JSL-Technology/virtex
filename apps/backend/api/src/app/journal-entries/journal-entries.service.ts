@@ -444,6 +444,10 @@ export class JournalEntriesService {
       exchangeRateMethod: resolvedRate?.method ?? null,
       exchangeRateQuotedOn: resolvedRate?.quotedOn ?? null,
       idempotencyKey: context.idempotencyKey ?? null,
+      // Recorded on the entry, not only on the audit row: a report that has to classify by what
+      // produced a posting — the cash flow statement's exchange-rate line, above all — can only
+      // read the ledger.
+      systemReason: context.systemReason ?? null,
       ledgerId: defaultLedger.id,
       status: JournalEntryStatus.DRAFT,
       entryNumber: null,
