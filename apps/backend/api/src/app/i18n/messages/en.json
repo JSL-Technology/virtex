@@ -733,6 +733,7 @@
     "PRODUCTO_ID_NO_PERTENECE_FACTURA_ORIGINAL": "Product {{productId}} does not belong to the original invoice.",
     "PRODUCTO_NO_ENCONTRADO_CATALOGO": "Product{{p1}} not found{{p2}} in the catalogue: {{p3}}.",
     "PROPINA_LEGAL_DEBE_ESTAR_ENTRE_50": "The statutory service charge must be between 0 % and 50 %.",
+    "RETENCION_NO_CORRESPONDE_AL_REGIMEN": "The withholding stated ({{stated}}) is not what the applicable regime produces ({{resolved}}, regimes: {{regimes}}). If the exception is correct, state why in `withholdingOverrideReason`.",
     "SOLO_FACTURA_PUEDE_SER_ACREDITADA": "Only an invoice can be credited.",
     "SOLO_PUEDE_MODIFICAR_BORRADOR_COMPROBANTE_EMITIDO_CORRIGE": "Only a draft can be edited. An issued document is corrected with a credit note.",
     "TASA_CAMBIO_CONFIGURADA_NO_ES_VALIDA": "The exchange rate configured for {{currencyCode}} is not valid.",

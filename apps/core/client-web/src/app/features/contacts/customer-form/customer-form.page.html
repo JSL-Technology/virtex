@@ -32,6 +32,22 @@
                             <label for="taxId">{{ 'CONTACTS.CUSTOMER_FORM.ID_FISCAL_RNC_ETC' | translate }}</label>
                             <input id="taxId" formControlName="taxId">
                         </div>
+                        <!--
+                          What this customer withholds at source follows from this classification,
+                          the tenant's own, and what is sold. It is assigned by the tax authority —
+                          a withholding agent is one because it appears on a published list — so it
+                          is asked for rather than guessed, and left blank nothing is withheld.
+                        -->
+                        <div class="form-field">
+                            <label for="taxpayerType">{{ 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE' | translate }}</label>
+                            <select id="taxpayerType" formControlName="taxpayerType">
+                                <option value="">{{ 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE_SIN_CLASIFICAR' | translate }}</option>
+                                @for (type of taxpayerTypes; track type.value) {
+                                    <option [value]="type.value">{{ type.labelKey | translate }}</option>
+                                }
+                            </select>
+                            <small class="field-hint">{{ 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE_AYUDA' | translate }}</small>
+                        </div>
                     </div>
                 </div>
                 <div class="card">

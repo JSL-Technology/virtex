@@ -733,6 +733,7 @@
     "PRODUCTO_ID_NO_PERTENECE_FACTURA_ORIGINAL": "O produto {{productId}} não pertence à fatura original.",
     "PRODUCTO_NO_ENCONTRADO_CATALOGO": "Produto{{p1}} não encontrado{{p2}} no catálogo: {{p3}}.",
     "PROPINA_LEGAL_DEBE_ESTAR_ENTRE_50": "A taxa de serviço legal deve estar entre 0 % e 50 %.",
+    "RETENCION_NO_CORRESPONDE_AL_REGIMEN": "A retenção informada ({{stated}}) não corresponde ao regime aplicável ({{resolved}}, regimes: {{regimes}}). Se a exceção estiver correta, informe o motivo em «withholdingOverrideReason».",
     "SOLO_FACTURA_PUEDE_SER_ACREDITADA": "Somente uma fatura pode receber nota de crédito.",
     "SOLO_PUEDE_MODIFICAR_BORRADOR_COMPROBANTE_EMITIDO_CORRIGE": "Somente um rascunho pode ser editado. Um documento emitido é corrigido com uma nota de crédito.",
     "TASA_CAMBIO_CONFIGURADA_NO_ES_VALIDA": "A taxa de câmbio configurada para {{currencyCode}} não é válida.",

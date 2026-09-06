@@ -124,19 +124,42 @@ export class CreateInvoiceDto {
   @IsOptional()
   serviceChargeRate?: number;
 
-  /** Share of the output tax the buyer withholds at source (ITBIS retenido). */
+  /**
+   * Share of the output tax the buyer withholds at source (ITBIS retenido).
+   *
+   * Normally omitted: the server resolves it from the buyer's fiscal classification, the tenant's
+   * country and what is being sold. Supplying a rate that the applicable regime does not produce
+   * is an exception, and is refused unless `withholdingOverrideReason` says why.
+   */
   @IsNumber({ maxDecimalPlaces: 6 })
   @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   @Max(1, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":1}' })
   @IsOptional()
   taxWithholdingRate?: number;
 
-  /** Income tax the buyer withholds at source (ISR retenido), as a fraction of the base. */
+  /**
+   * Income tax the buyer withholds at source (ISR retenido), as a fraction of the base.
+   *
+   * Resolved on the server like the one above, and subject to the same exception rule.
+   */
   @IsNumber({ maxDecimalPlaces: 6 })
   @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   @Max(1, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":1}' })
   @IsOptional()
   incomeTaxWithholdingRate?: number;
+
+  /**
+   * Why this document withholds something other than what its regime produces.
+   *
+   * Required whenever a stated rate differs from the resolved one, and recorded on the invoice.
+   * There are legitimate reasons — a market this product does not model, a designation that
+   * changed this week, a rate the tenant's advisor is certain of and the catalogue is not — and
+   * every one of them is a fact somebody should be able to read back off the document later.
+   */
+  @IsString()
+  @Length(5, 500, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":5,"max":500}' })
+  @IsOptional()
+  withholdingOverrideReason?: string;
 
   @IsEnum(PaymentMethod)
   @IsOptional()

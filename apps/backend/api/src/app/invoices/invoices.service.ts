@@ -28,6 +28,7 @@ import { InvoicePostingService } from './services/invoice-posting.service';
 import { computeDocument, TaxableLineInput } from './sales-tax.engine';
 import { roundAmount, roundToCurrency, toMinorUnits } from '../common/money';
 import { NcfType } from '../compliance/entities/ncf-sequence.entity';
+import { WithholdingResolverService } from './services/withholding-resolver.service';
 import { TenantBookkeepingProvisioner } from '../shared/provisioning/tenant-bookkeeping.provisioner';
 import { COUNTRY_TAX_SCHEMES } from '../localization/fiscal/country-tax-schemes';
 import { EcfSubmission } from '../einvoicing/entities/ecf-submission.entity';
@@ -107,6 +108,8 @@ export class InvoicesService {
     private readonly ecfSubmissionService: EcfSubmissionService,
     private readonly posting: InvoicePostingService,
     private readonly bookkeeping: TenantBookkeepingProvisioner,
+    /** Decides what the buyer withholds, from the parties and the sale, not from the request. */
+    private readonly withholdingResolver: WithholdingResolverService,
   ) {}
 
   // ── Creation ───────────────────────────────────────────────────────────────
@@ -253,14 +256,36 @@ export class InvoicesService {
       });
     }
 
+    // ── Withholding ──────────────────────────────────────────────────────────
+    //
+    // Resolved on the server from the buyer's fiscal classification, the tenant's country and
+    // what is being sold. It used to arrive on the request as any fraction between 0 and 1, with
+    // nothing to compare it against — so the amount the buyer remits to the authority on the
+    // seller's behalf, and which the seller then claims as a credit, was whatever the client sent.
+    // A rate that differs from the regime is still accepted, but only with a stated reason, and it
+    // is recorded on the document as an exception rather than passing as the rule.
+    const withholding = await this.withholdingResolver.resolve(
+      manager,
+      organizationId,
+      customer,
+      // Services when any line is one: every regime that distinguishes the two withholds on
+      // services, so treating a mixed document as goods under-withholds.
+      resolved.some((line) => line.isService) ? 'SERVICES' : 'GOODS',
+      {
+        taxWithholdingRate: dto.taxWithholdingRate,
+        incomeTaxWithholdingRate: dto.incomeTaxWithholdingRate,
+        withholdingOverrideReason: dto.withholdingOverrideReason,
+      },
+    );
+
     const computed = computeDocument({
       countryCode: organization?.country ?? null,
       currencyCode,
       lines: taxInputs,
       documentDiscountRate: dto.documentDiscountRate,
       serviceChargeRate: dto.serviceChargeRate,
-      taxWithholdingRate: dto.taxWithholdingRate,
-      incomeTaxWithholdingRate: dto.incomeTaxWithholdingRate,
+      taxWithholdingRate: withholding.taxWithholdingRate,
+      incomeTaxWithholdingRate: withholding.incomeTaxWithholdingRate,
     });
 
     const lineItems = resolved.map((line, index) => {
@@ -325,6 +350,11 @@ export class InvoicesService {
       serviceCharge: computed.serviceCharge,
       taxWithheld: computed.taxWithheld,
       incomeTaxWithheld: computed.incomeTaxWithheld,
+      // Which rule produced the withholding, so a filing can be traced back to it, and the reason
+      // when the tenant overrode the rule. Without these the figure is unreconstructable: nothing
+      // recorded which regime, if any, it was supposed to come from.
+      withholdingRegimeCodes: withholding.regimeCodes,
+      withholdingOverrideReason: withholding.override?.reason ?? null,
       total: computed.total,
       netReceivable: computed.netReceivable,
       balance: computed.netReceivable,

@@ -264,6 +264,29 @@ export class Invoice {
   incomeTaxWithheld: number;
 
   /**
+   * Which withholding regimes produced the two figures above.
+   *
+   * Recorded so a filing can be traced back to the rule that generated it. Nothing did: the rates
+   * arrived on the request and the document kept only their result, so a return that reported a
+   * withholding could not say on what authority it had been taken.
+   *
+   * Empty when nothing was withheld, and also when the tenant overrode the regime — in which case
+   * `withholdingOverrideReason` carries the justification instead.
+   */
+  @Column({ name: 'withholding_regime_codes', type: 'text', array: true, default: '{}' })
+  withholdingRegimeCodes: string[];
+
+  /**
+   * Why this document withheld something other than what its regime produces.
+   *
+   * Null on an ordinary document. Non-null is not an error — a market this product does not model,
+   * a designation that changed this week — but it is a decision somebody made, and it is on the
+   * document rather than in a log that rotates.
+   */
+  @Column({ name: 'withholding_override_reason', type: 'text', nullable: true })
+  withholdingOverrideReason: string | null;
+
+  /**
    * Excise duty (ISC / IEPS / ICE) charged on the document.
    *
    * Part of `total` and, until now, stored nowhere — so the ledger entry could not name the

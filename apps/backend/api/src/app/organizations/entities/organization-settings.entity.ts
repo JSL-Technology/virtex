@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { Organization } from './organization.entity';
 import { ExchangeRateType } from '../../currencies/entities/exchange-rate.entity';
+import { TaxpayerType } from '../../localization/fiscal/withholding-regimes';
 import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 
 const DEFAULT_BASE_CURRENCY = 'USD' as const;
@@ -92,6 +93,22 @@ export class OrganizationSettings {
    */
   @Column({ name: 'default_excise_tax_payable_id', type: 'uuid', nullable: true })
   defaultExciseTaxPayableId: string | null = null;
+
+  /**
+   * The tenant's own fiscal classification, as the seller.
+   *
+   * Withholding depends on both parties, and assuming the seller is a company is wrong for a large
+   * part of this product's market: a *negocio de único dueño* in the Dominican Republic, a
+   * *persona natural con RUC* in Peru or Ecuador, a *monotributista* in Argentina is a natural
+   * person for withholding purposes, and their corporate customers withhold from them at rates
+   * that do not apply between companies — in the Dominican case 100 % of the ITBIS rather than
+   * nothing. Assuming COMPANY would silently under-withhold on every one of their invoices.
+   *
+   * Null means unstated, and the resolver then treats the tenant as a company, which is the
+   * classification of every tenant that holds a fiscal document range in its own corporate name.
+   */
+  @Column({ name: 'taxpayer_type', type: 'varchar', length: 24, nullable: true })
+  taxpayerType?: TaxpayerType | null;
 
   /**
    * The relation behind the column above, declared only so the foreign key is part of the model.

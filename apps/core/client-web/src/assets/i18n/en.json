@@ -923,7 +923,15 @@
       "PERSONA_CONTACTO": "Contact Person*",
       "PUDO_CARGAR_CLIENTE": "The customer could not be loaded.",
       "REPUBLICA_DOMINICANA": "Dominican Republic",
-      "TELEFONO": "Phone*"
+      "TELEFONO": "Phone*",
+      "TIPO_CONTRIBUYENTE": "Taxpayer type",
+      "TIPO_CONTRIBUYENTE_AYUDA": "Decides what this customer withholds when paying you. The tax authority assigns it: if you do not know, leave it unclassified and nothing is withheld automatically.",
+      "TIPO_CONTRIBUYENTE_COMPANY": "Company",
+      "TIPO_CONTRIBUYENTE_FOREIGN": "Customer abroad",
+      "TIPO_CONTRIBUYENTE_GOVERNMENT": "Government body",
+      "TIPO_CONTRIBUYENTE_INDIVIDUAL": "Natural person",
+      "TIPO_CONTRIBUYENTE_SIN_CLASIFICAR": "Unclassified",
+      "TIPO_CONTRIBUYENTE_WITHHOLDING_AGENT": "Designated withholding agent"
     },
     "SUPPLIERS": {
       "ACCIONES": "Actions",

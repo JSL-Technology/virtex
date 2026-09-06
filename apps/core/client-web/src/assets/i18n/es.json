@@ -923,7 +923,15 @@
       "PERSONA_CONTACTO": "Persona de Contacto*",
       "PUDO_CARGAR_CLIENTE": "No se pudo cargar el cliente.",
       "REPUBLICA_DOMINICANA": "República Dominicana",
-      "TELEFONO": "Teléfono*"
+      "TELEFONO": "Teléfono*",
+      "TIPO_CONTRIBUYENTE": "Tipo de contribuyente",
+      "TIPO_CONTRIBUYENTE_AYUDA": "Determina qué retiene este cliente al pagarte. Lo asigna la administración tributaria: si no lo sabes, déjalo sin clasificar y no se retendrá nada automáticamente.",
+      "TIPO_CONTRIBUYENTE_COMPANY": "Persona jurídica",
+      "TIPO_CONTRIBUYENTE_FOREIGN": "Cliente del exterior",
+      "TIPO_CONTRIBUYENTE_GOVERNMENT": "Estado y sus dependencias",
+      "TIPO_CONTRIBUYENTE_INDIVIDUAL": "Persona física",
+      "TIPO_CONTRIBUYENTE_SIN_CLASIFICAR": "Sin clasificar",
+      "TIPO_CONTRIBUYENTE_WITHHOLDING_AGENT": "Agente de retención designado"
     },
     "SUPPLIERS": {
       "ACCIONES": "Acciones",

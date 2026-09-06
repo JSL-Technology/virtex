@@ -3,6 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { InvoicesService } from './invoices.service';
 import { InvoicesController } from './invoices.controller';
 import { InvoicePostingService } from './services/invoice-posting.service';
+import { WithholdingResolverService } from './services/withholding-resolver.service';
+import { TenantWithholdingRegime } from '../localization/fiscal/entities/tenant-withholding-regime.entity';
 import { InvoiceRendererService } from './services/invoice-renderer.service';
 import { GenericFiscalAdapter } from './adapters/generic-fiscal.adapter';
 import { DominicanRepublicFiscalAdapter } from './adapters/dominican-republic-fiscal.adapter';
@@ -33,6 +35,7 @@ import { JournalEntriesModule } from '../journal-entries/journal-entries.module'
       AccountPeriodLock,
       Organization,
       OrganizationSettings,
+      TenantWithholdingRegime,
     ]),
     AuthModule,
     CustomersModule,
@@ -52,6 +55,8 @@ import { JournalEntriesModule } from '../journal-entries/journal-entries.module'
   providers: [
     InvoicesService,
     InvoicePostingService,
+    // Withholding is resolved from the parties and the sale, never taken from the request.
+    WithholdingResolverService,
     InvoiceRendererService,
     GenericFiscalAdapter,
     DominicanRepublicFiscalAdapter,

@@ -733,6 +733,7 @@
     "PRODUCTO_ID_NO_PERTENECE_FACTURA_ORIGINAL": "El producto con ID {{productId}} no pertenece a la factura original.",
     "PRODUCTO_NO_ENCONTRADO_CATALOGO": "Producto{{p1}} no encontrado{{p2}} en el catálogo: {{p3}}.",
     "PROPINA_LEGAL_DEBE_ESTAR_ENTRE_50": "La propina legal debe estar entre 0 % y 50 %.",
+    "RETENCION_NO_CORRESPONDE_AL_REGIMEN": "La retención indicada ({{stated}}) no corresponde al régimen aplicable ({{resolved}}, regímenes: {{regimes}}). Si la excepción es correcta, indica el motivo en «withholdingOverrideReason».",
     "SOLO_FACTURA_PUEDE_SER_ACREDITADA": "Solo una factura puede ser acreditada.",
     "SOLO_PUEDE_MODIFICAR_BORRADOR_COMPROBANTE_EMITIDO_CORRIGE": "Solo se puede modificar un borrador. Un comprobante emitido se corrige con una nota de crédito.",
     "TASA_CAMBIO_CONFIGURADA_NO_ES_VALIDA": "La tasa de cambio configurada para {{currencyCode}} no es válida.",
