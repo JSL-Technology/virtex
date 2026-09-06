@@ -171,16 +171,40 @@
     },
     "IMPORT": {
       "ANALIZANDO_FICHERO": "Analizando el fichero...",
+      "ASIENTO": "Asiento",
       "ASIENTOS_CONTABLES_IMPORTADOS_EXITO": "Asientos contables importados con éxito.",
+      "CAMPO_ACCOUNTCODE": "Código de cuenta",
+      "CAMPO_CREDIT": "Haber",
+      "CAMPO_DATE": "Fecha",
+      "CAMPO_DEBIT": "Debe",
+      "CAMPO_DESCRIPTION": "Concepto",
+      "CAMPO_ENTRYID": "Identificador del asiento",
+      "CAMPO_LINEDESCRIPTION": "Detalle de la línea",
       "CONFIRMAR_IMPORTAR": "Confirmar e Importar",
+      "DEBE": "Debe",
+      "ESTADO": "Estado",
       "FAVOR_SELECCIONA_FICHERO_IMPORTAR": "Por favor, selecciona un fichero para importar.",
       "FICHERO_SELECCIONADO": "Fichero seleccionado:",
+      "FORMATO_FECHA": "Formato de fecha del archivo",
+      "HABER": "Haber",
       "HAY_IMPORTACION_CONFIRMAR": "No hay una importación para confirmar.",
       "HAZ_CLIC_AQUI_SELECCIONAR_FICHERO_CSV": "Haz clic aquí para seleccionar un fichero (CSV, Excel)",
       "IMPORTAR_ASIENTOS_CONTABLES": "Importar Asientos Contables",
+      "LINEA": "Línea {{line}}",
+      "NO_SE_IMPORTARA": "No se importará",
+      "NO_SE_PUDO_PROCESAR": "No se pudo procesar el archivo. Revise el formato y vuelva a intentarlo.",
+      "OBLIGATORIO": "Obligatorio",
+      "PASO_MAPEAR_COLUMNAS": "Paso 2 · Indique qué columna es cada cosa",
       "PASO_PREVISUALIZACION_CONFIRMACION": "Paso 2: Previsualización y Confirmación",
       "PASO_SELECCIONAR_FICHERO": "Paso 1: Seleccionar Fichero",
-      "PREVISUALIZACION_DATOS_IMPORTAR": "Previsualización de los datos a importar:"
+      "PREVISUALIZACION_DATOS_IMPORTAR": "Previsualización de los datos a importar:",
+      "PREVISUALIZAR": "Previsualizar importación",
+      "RESUMEN": "{{total}} asientos leídos: {{valid}} se importarán, {{invalid}} no.",
+      "SEPARADOR_COMA": "Coma — 1.234,56",
+      "SEPARADOR_DECIMAL": "Separador decimal del archivo",
+      "SEPARADOR_PUNTO": "Punto — 1,234.56",
+      "SE_IMPORTARA": "Se importará",
+      "SIN_ASIGNAR": "Sin asignar"
     },
     "JOURNAL_ENTRIES": {
       "CREDIT": "Crédito",
@@ -1691,6 +1715,20 @@
       "PARTIALLY_PAID": "Cobrada parcialmente",
       "PENDING": "Pendiente",
       "VOID": "Anulada"
+    }
+  },
+  "JOURNAL_ENTRIES": {
+    "IMPORT": {
+      "ASIENTO_NO_CUADRA": "El asiento no cuadra: débitos {{debit}} frente a créditos {{credit}}.",
+      "CUENTA_INACTIVA": "La cuenta «{{code}}» está inactiva.",
+      "CUENTA_NO_ADMITE_MOVIMIENTOS": "La cuenta «{{code}}» es de agrupación y no admite movimientos.",
+      "CUENTA_NO_EXISTE": "La cuenta con código «{{code}}» no existe en el catálogo de esta organización.",
+      "FECHA_NO_LEGIBLE": "La fecha «{{value}}» no corresponde al formato «{{format}}» que indicó.",
+      "IMPORTE_NEGATIVO": "Un débito o un crédito no puede ser negativo; use el lado contrario.",
+      "IMPORTE_NO_LEGIBLE": "El importe «{{value}}» no se puede leer con el separador decimal «{{separator}}» que indicó.",
+      "LINEA_CON_AMBOS_LADOS": "Una línea no puede llevar débito y crédito a la vez.",
+      "LINEA_SIN_MOVIMIENTO": "La línea no tiene ni débito ni crédito.",
+      "SIN_DESCRIPCION": "El asiento no tiene descripción."
     }
   },
   "LOGIN": {

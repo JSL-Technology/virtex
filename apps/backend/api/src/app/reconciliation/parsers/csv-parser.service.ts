@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as Papa from 'papaparse';
 import { parse as parseDate, isValid } from 'date-fns';
 import { roundAmount } from '../../common/money';
+import { parseDecimal } from '../../common/parse-decimal';
 
 export interface ParsedBankTransaction {
   /** `YYYY-MM-DD`. */
@@ -168,27 +169,16 @@ export class CsvParserService {
    *
    * Empty is zero — a bank writes one of its debit/credit pair blank on every row — but a value
    * that is present and unreadable is an error, where it used to become zero.
+   *
+   * The reading itself moved to `common/parse-decimal`, because the journal-entry importer needed
+   * exactly the same thing and had `parseFloat` instead: `1.234,56` imported there as 1.23.
    */
   private toNumber(raw: string | undefined, row: number, decimalSeparator: '.' | ','): number {
-    const value = (raw ?? '').trim();
-    if (value === '' || value === '-') return 0;
-
-    const negative = /^\(.*\)$/.test(value) || value.trimStart().startsWith('-');
-    let digits = value.replace(/[()]/g, '').replace(/[^\d.,-]/g, '');
-
-    if (decimalSeparator === ',') {
-      digits = digits.replace(/\./g, '').replace(',', '.');
-    } else {
-      digits = digits.replace(/,/g, '');
-    }
-    digits = digits.replace(/(?!^)-/g, '');
-
-    const parsed = Number(digits);
-    if (!Number.isFinite(parsed)) {
+    const parsed = parseDecimal(raw, decimalSeparator);
+    if (parsed === null) {
       throw new CsvParseError('INVALID_AMOUNT', { row, value: raw, reason: 'NOT_A_NUMBER' });
     }
-    const magnitude = Math.abs(parsed);
-    return negative ? -magnitude : magnitude;
+    return parsed;
   }
 
   private toIsoDate(date: Date): string {

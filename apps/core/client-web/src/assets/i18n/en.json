@@ -171,16 +171,40 @@
     },
     "IMPORT": {
       "ANALIZANDO_FICHERO": "Analysing the file...",
+      "ASIENTO": "Entry",
       "ASIENTOS_CONTABLES_IMPORTADOS_EXITO": "Journal entries imported successfully.",
+      "CAMPO_ACCOUNTCODE": "Account code",
+      "CAMPO_CREDIT": "Credit",
+      "CAMPO_DATE": "Date",
+      "CAMPO_DEBIT": "Debit",
+      "CAMPO_DESCRIPTION": "Description",
+      "CAMPO_ENTRYID": "Entry identifier",
+      "CAMPO_LINEDESCRIPTION": "Line detail",
       "CONFIRMAR_IMPORTAR": "Confirm and Import",
+      "DEBE": "Debit",
+      "ESTADO": "Status",
       "FAVOR_SELECCIONA_FICHERO_IMPORTAR": "Select a file to import.",
       "FICHERO_SELECCIONADO": "Selected file:",
+      "FORMATO_FECHA": "The file's date format",
+      "HABER": "Credit",
       "HAY_IMPORTACION_CONFIRMAR": "There is no import to confirm.",
       "HAZ_CLIC_AQUI_SELECCIONAR_FICHERO_CSV": "Click here to choose a file (CSV, Excel)",
       "IMPORTAR_ASIENTOS_CONTABLES": "Import Journal Entries",
+      "LINEA": "Line {{line}}",
+      "NO_SE_IMPORTARA": "Will not import",
+      "NO_SE_PUDO_PROCESAR": "The file could not be processed. Check its format and try again.",
+      "OBLIGATORIO": "Required",
+      "PASO_MAPEAR_COLUMNAS": "Step 2 · Say which column is which",
       "PASO_PREVISUALIZACION_CONFIRMACION": "Step 2: Preview and confirm",
       "PASO_SELECCIONAR_FICHERO": "Step 1: Select a file",
-      "PREVISUALIZACION_DATOS_IMPORTAR": "Preview of the data to import:"
+      "PREVISUALIZACION_DATOS_IMPORTAR": "Preview of the data to import:",
+      "PREVISUALIZAR": "Preview import",
+      "RESUMEN": "{{total}} entries read: {{valid}} will be imported, {{invalid}} will not.",
+      "SEPARADOR_COMA": "Comma — 1.234,56",
+      "SEPARADOR_DECIMAL": "The file's decimal separator",
+      "SEPARADOR_PUNTO": "Period — 1,234.56",
+      "SE_IMPORTARA": "Will import",
+      "SIN_ASIGNAR": "Not mapped"
     },
     "JOURNAL_ENTRIES": {
       "CREDIT": "Credit",
@@ -1691,6 +1715,20 @@
       "PARTIALLY_PAID": "Partially paid",
       "PENDING": "Pending",
       "VOID": "Voided"
+    }
+  },
+  "JOURNAL_ENTRIES": {
+    "IMPORT": {
+      "ASIENTO_NO_CUADRA": "The entry does not balance: debits {{debit}} against credits {{credit}}.",
+      "CUENTA_INACTIVA": "Account “{{code}}” is inactive.",
+      "CUENTA_NO_ADMITE_MOVIMIENTOS": "Account “{{code}}” is a grouping account and cannot take movements.",
+      "CUENTA_NO_EXISTE": "No account with code “{{code}}” exists in this organisation's chart of accounts.",
+      "FECHA_NO_LEGIBLE": "The date “{{value}}” does not match the “{{format}}” format you declared.",
+      "IMPORTE_NEGATIVO": "A debit or a credit cannot be negative; use the opposite side instead.",
+      "IMPORTE_NO_LEGIBLE": "The amount “{{value}}” cannot be read with the decimal separator “{{separator}}” you declared.",
+      "LINEA_CON_AMBOS_LADOS": "A line cannot carry both a debit and a credit.",
+      "LINEA_SIN_MOVIMIENTO": "The line has neither a debit nor a credit.",
+      "SIN_DESCRIPCION": "The entry has no description."
     }
   },
   "LOGIN": {

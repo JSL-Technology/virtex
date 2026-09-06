@@ -13,6 +13,7 @@ import { JournalEntriesService } from './journal-entries.service';
 import { RecurringJournalEntriesService } from './recurring-journal-entries.service';
 import { JournalEntryTemplatesService } from './journal-entry-templates.service';
 import { JournalEntryImportService } from './journal-entry-import.service';
+import { JournalEntryImportBatch } from './entities/journal-entry-import-batch.entity';
 import { FileParserService } from './parsers/file-parser.service';
 import { JournalsService } from './journals.service';
 import { JournalEntriesController } from './journal-entries.controller';
@@ -56,6 +57,7 @@ import { AuditModule } from '../audit/audit.module';
       AccountPeriodLock,
       DimensionRule,
       JournalEntrySequence,
+      JournalEntryImportBatch,
     ]),
 
     BullModule.registerQueue({

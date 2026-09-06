@@ -171,16 +171,40 @@
     },
     "IMPORT": {
       "ANALIZANDO_FICHERO": "Analisando o arquivo...",
+      "ASIENTO": "Lançamento",
       "ASIENTOS_CONTABLES_IMPORTADOS_EXITO": "Lançamentos contábeis importados com sucesso.",
+      "CAMPO_ACCOUNTCODE": "Código da conta",
+      "CAMPO_CREDIT": "Crédito",
+      "CAMPO_DATE": "Data",
+      "CAMPO_DEBIT": "Débito",
+      "CAMPO_DESCRIPTION": "Histórico",
+      "CAMPO_ENTRYID": "Identificador do lançamento",
+      "CAMPO_LINEDESCRIPTION": "Detalhe da linha",
       "CONFIRMAR_IMPORTAR": "Confirmar e Importar",
+      "DEBE": "Débito",
+      "ESTADO": "Estado",
       "FAVOR_SELECCIONA_FICHERO_IMPORTAR": "Selecione um arquivo para importar.",
       "FICHERO_SELECCIONADO": "Arquivo selecionado:",
+      "FORMATO_FECHA": "Formato de data do arquivo",
+      "HABER": "Crédito",
       "HAY_IMPORTACION_CONFIRMAR": "Não há importação para confirmar.",
       "HAZ_CLIC_AQUI_SELECCIONAR_FICHERO_CSV": "Clique aqui para escolher um arquivo (CSV, Excel)",
       "IMPORTAR_ASIENTOS_CONTABLES": "Importar Lançamentos Contábeis",
+      "LINEA": "Linha {{line}}",
+      "NO_SE_IMPORTARA": "Não será importado",
+      "NO_SE_PUDO_PROCESAR": "Não foi possível processar o arquivo. Verifique o formato e tente novamente.",
+      "OBLIGATORIO": "Obrigatório",
+      "PASO_MAPEAR_COLUMNAS": "Passo 2 · Indique qual coluna é cada coisa",
       "PASO_PREVISUALIZACION_CONFIRMACION": "Etapa 2: Prévia e confirmação",
       "PASO_SELECCIONAR_FICHERO": "Etapa 1: Selecionar arquivo",
-      "PREVISUALIZACION_DATOS_IMPORTAR": "Prévia dos dados a importar:"
+      "PREVISUALIZACION_DATOS_IMPORTAR": "Prévia dos dados a importar:",
+      "PREVISUALIZAR": "Pré-visualizar importação",
+      "RESUMEN": "{{total}} lançamentos lidos: {{valid}} serão importados, {{invalid}} não.",
+      "SEPARADOR_COMA": "Vírgula — 1.234,56",
+      "SEPARADOR_DECIMAL": "Separador decimal do arquivo",
+      "SEPARADOR_PUNTO": "Ponto — 1,234.56",
+      "SE_IMPORTARA": "Será importado",
+      "SIN_ASIGNAR": "Não atribuído"
     },
     "JOURNAL_ENTRIES": {
       "CREDIT": "Crédito",
@@ -1691,6 +1715,20 @@
       "PARTIALLY_PAID": "Paga parcialmente",
       "PENDING": "Pendente",
       "VOID": "Cancelada"
+    }
+  },
+  "JOURNAL_ENTRIES": {
+    "IMPORT": {
+      "ASIENTO_NO_CUADRA": "O lançamento não fecha: débitos {{debit}} contra créditos {{credit}}.",
+      "CUENTA_INACTIVA": "A conta «{{code}}» está inativa.",
+      "CUENTA_NO_ADMITE_MOVIMIENTOS": "A conta «{{code}}» é de agrupamento e não admite lançamentos.",
+      "CUENTA_NO_EXISTE": "A conta com código «{{code}}» não existe no plano de contas desta organização.",
+      "FECHA_NO_LEGIBLE": "A data «{{value}}» não corresponde ao formato «{{format}}» que indicou.",
+      "IMPORTE_NEGATIVO": "Um débito ou crédito não pode ser negativo; use o lado oposto.",
+      "IMPORTE_NO_LEGIBLE": "O valor «{{value}}» não pode ser lido com o separador decimal «{{separator}}» que indicou.",
+      "LINEA_CON_AMBOS_LADOS": "Uma linha não pode ter débito e crédito ao mesmo tempo.",
+      "LINEA_SIN_MOVIMIENTO": "A linha não tem débito nem crédito.",
+      "SIN_DESCRIPCION": "O lançamento não tem descrição."
     }
   },
   "LOGIN": {
