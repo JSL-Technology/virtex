@@ -352,6 +352,8 @@
   "COMPLIANCE": {
     "ANO_NO_ES_VALIDO": "The year is not valid.",
     "AUTORIZACION_SECUENCIA_NCF_TIPO_VENCIO": "The authorization for the NCF sequence of type {{type}} expired on {{expiresAt}}.",
+    "CUENTAS_SIN_CODIGO_AGRUPADOR_SAT": "{{count}} account(s) have no SAT grouping code (for example {{example}}). The catalogue cannot be generated without it: assign it in the chart of accounts.",
+    "DOCUMENTO_CONTABILIDAD_ELECTRONICA_NO_VALIDO": "“{{document}}” is not an electronic accounting document. Available: {{available}}.",
     "ENDSAT_NO_PUEDE_SER_MENOR_STARTSAT": "endsAt cannot be lower than startsAt.",
     "FECHA_VENCIMIENTO_AUTORIZACION_YA_PASO_RANGO_NO": "The authorization's expiry date has passed; the range could not be used.",
     "FORMATO_NO_RECONOCIDO_FORMATOS_DISPONIBLES_SON_606": "Format \"{{kind}}\" is not recognised. The available formats are 606, 607, 608 and 609.",
@@ -359,12 +361,14 @@
     "NO_ENCONTRO_SECUENCIA_NCF_ACTIVA_TIPO": "No active NCF sequence was found for type {{type}}",
     "NUMERO_FINAL_NO_PUEDE_SER_MENOR_INICIAL": "The ending number cannot be lower than the starting one.",
     "ORGANIZACION_NO_ENCONTRADA": "Organization not found.",
+    "ORGANIZACION_SIN_RFC": "The organization has no RFC on file; the SAT rejects a filing without one.",
     "PREFIJO_NO_CORRESPONDE_TIPO_COMPROBANTE": "The prefix \"{{prefix}}\" does not match document type {{type}}.",
     "RANGO_SECUENCIA_NCF_ES_INVALIDO_NUMERO_FINAL": "The NCF sequence range is invalid: the ending number must be greater than or equal to the starting one.",
     "RANGO_SECUENCIA_NCF_ES_INVALIDO_STARTSAT_ENDSAT": "The NCF sequence range is invalid (startsAt/endsAt).",
     "SECUENCIA_NCF_NO_ENCONTRADA": "NCF sequence not found.",
     "SECUENCIA_NCF_TIPO_HA_AGOTADO": "The NCF sequence for type {{type}} is exhausted.",
     "SECUENCIA_NCF_TIPO_TIENE_LIMITES_NO_NUMERICOS": "The NCF sequence for type {{type}} has non-numeric bounds.",
+    "SIN_LIBRO_CONTABLE_POR_DEFECTO": "The organization has no default ledger.",
     "YA_EXISTEN_COMPROBANTE_EMITIDOS_NUMEROS_DENTRO_RANGO": "{{alreadyIssued}} document(s) have already been issued with numbers inside the range {{first}}–{{last}}."
   },
   "CONSOLIDATION": {

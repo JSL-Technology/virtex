@@ -352,6 +352,8 @@
   "COMPLIANCE": {
     "ANO_NO_ES_VALIDO": "El año no es válido.",
     "AUTORIZACION_SECUENCIA_NCF_TIPO_VENCIO": "La autorización de la secuencia de NCF para el tipo {{type}} venció el {{expiresAt}}.",
+    "CUENTAS_SIN_CODIGO_AGRUPADOR_SAT": "{{count}} cuenta(s) no tienen código agrupador del SAT (por ejemplo {{example}}). El catálogo no se puede generar sin él: asígnalo en el catálogo de cuentas.",
+    "DOCUMENTO_CONTABILIDAD_ELECTRONICA_NO_VALIDO": "«{{document}}» no es un documento de contabilidad electrónica. Disponibles: {{available}}.",
     "ENDSAT_NO_PUEDE_SER_MENOR_STARTSAT": "endsAt no puede ser menor que startsAt.",
     "FECHA_VENCIMIENTO_AUTORIZACION_YA_PASO_RANGO_NO": "La fecha de vencimiento de la autorización ya pasó; el rango no podría usarse.",
     "FORMATO_NO_RECONOCIDO_FORMATOS_DISPONIBLES_SON_606": "Formato \"{{kind}}\" no reconocido. Los formatos disponibles son 606, 607, 608 y 609.",
@@ -359,12 +361,14 @@
     "NO_ENCONTRO_SECUENCIA_NCF_ACTIVA_TIPO": "No se encontró una secuencia de NCF activa para el tipo {{type}}",
     "NUMERO_FINAL_NO_PUEDE_SER_MENOR_INICIAL": "El número final no puede ser menor que el inicial.",
     "ORGANIZACION_NO_ENCONTRADA": "Organización no encontrada.",
+    "ORGANIZACION_SIN_RFC": "La organización no tiene RFC registrado; el SAT rechaza un archivo sin él.",
     "PREFIJO_NO_CORRESPONDE_TIPO_COMPROBANTE": "El prefijo \"{{prefix}}\" no corresponde al tipo de comprobante {{type}}.",
     "RANGO_SECUENCIA_NCF_ES_INVALIDO_NUMERO_FINAL": "El rango de la secuencia NCF es inválido: el número final debe ser mayor o igual que el inicial.",
     "RANGO_SECUENCIA_NCF_ES_INVALIDO_STARTSAT_ENDSAT": "El rango de la secuencia NCF es inválido (startsAt/endsAt).",
     "SECUENCIA_NCF_NO_ENCONTRADA": "Secuencia NCF no encontrada.",
     "SECUENCIA_NCF_TIPO_HA_AGOTADO": "La secuencia de NCF para el tipo {{type}} se ha agotado.",
     "SECUENCIA_NCF_TIPO_TIENE_LIMITES_NO_NUMERICOS": "La secuencia de NCF para el tipo {{type}} tiene límites no numéricos.",
+    "SIN_LIBRO_CONTABLE_POR_DEFECTO": "La organización no tiene libro contable por defecto.",
     "YA_EXISTEN_COMPROBANTE_EMITIDOS_NUMEROS_DENTRO_RANGO": "Ya existen {{alreadyIssued}} comprobante(s) emitidos con números dentro del rango {{first}}–{{last}}."
   },
   "CONSOLIDATION": {

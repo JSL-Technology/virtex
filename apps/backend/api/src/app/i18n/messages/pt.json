@@ -352,6 +352,8 @@
   "COMPLIANCE": {
     "ANO_NO_ES_VALIDO": "O ano não é válido.",
     "AUTORIZACION_SECUENCIA_NCF_TIPO_VENCIO": "A autorização da sequência NCF do tipo {{type}} venceu em {{expiresAt}}.",
+    "CUENTAS_SIN_CODIGO_AGRUPADOR_SAT": "{{count}} conta(s) não têm código agrupador do SAT (por exemplo {{example}}). O catálogo não pode ser gerado sem ele: atribua-o no plano de contas.",
+    "DOCUMENTO_CONTABILIDAD_ELECTRONICA_NO_VALIDO": "«{{document}}» não é um documento de contabilidade eletrônica. Disponíveis: {{available}}.",
     "ENDSAT_NO_PUEDE_SER_MENOR_STARTSAT": "endsAt não pode ser menor que startsAt.",
     "FECHA_VENCIMIENTO_AUTORIZACION_YA_PASO_RANGO_NO": "A data de vencimento da autorização já passou; a faixa não poderia ser usada.",
     "FORMATO_NO_RECONOCIDO_FORMATOS_DISPONIBLES_SON_606": "Formato \"{{kind}}\" não reconhecido. Os formatos disponíveis são 606, 607, 608 e 609.",
@@ -359,12 +361,14 @@
     "NO_ENCONTRO_SECUENCIA_NCF_ACTIVA_TIPO": "Nenhuma sequência NCF ativa encontrada para o tipo {{type}}",
     "NUMERO_FINAL_NO_PUEDE_SER_MENOR_INICIAL": "O número final não pode ser menor que o inicial.",
     "ORGANIZACION_NO_ENCONTRADA": "Organização não encontrada.",
+    "ORGANIZACION_SIN_RFC": "A organização não tem RFC cadastrado; o SAT rejeita um arquivo sem ele.",
     "PREFIJO_NO_CORRESPONDE_TIPO_COMPROBANTE": "O prefixo \"{{prefix}}\" não corresponde ao tipo de documento {{type}}.",
     "RANGO_SECUENCIA_NCF_ES_INVALIDO_NUMERO_FINAL": "A faixa da sequência NCF é inválida: o número final deve ser maior ou igual ao inicial.",
     "RANGO_SECUENCIA_NCF_ES_INVALIDO_STARTSAT_ENDSAT": "A faixa da sequência NCF é inválida (startsAt/endsAt).",
     "SECUENCIA_NCF_NO_ENCONTRADA": "Sequência NCF não encontrada.",
     "SECUENCIA_NCF_TIPO_HA_AGOTADO": "A sequência NCF do tipo {{type}} se esgotou.",
     "SECUENCIA_NCF_TIPO_TIENE_LIMITES_NO_NUMERICOS": "A sequência NCF do tipo {{type}} tem limites não numéricos.",
+    "SIN_LIBRO_CONTABLE_POR_DEFECTO": "A organização não tem razão contábil padrão.",
     "YA_EXISTEN_COMPROBANTE_EMITIDOS_NUMEROS_DENTRO_RANGO": "Já existem {{alreadyIssued}} documento(s) emitidos com números dentro da faixa {{first}}–{{last}}."
   },
   "CONSOLIDATION": {
