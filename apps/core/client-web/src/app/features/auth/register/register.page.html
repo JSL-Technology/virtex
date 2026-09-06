@@ -92,10 +92,15 @@
         }
       </div>
 
-      @if (errorMessage()) {
+      @if (serverErrorMessage() || errorMessage()) {
         <div class="error-alert" role="alert">
           <lucide-icon [img]="AlertCircleIcon" size="16"></lucide-icon>
-          <span>{{ errorMessage()! | translate }}</span>
+          @if (serverErrorMessage(); as serverError) {
+            <!-- Already localized by the server — shown verbatim, NOT through `translate`. -->
+            <span>{{ serverError }}</span>
+          } @else {
+            <span>{{ errorMessage()! | translate }}</span>
+          }
         </div>
       }
 

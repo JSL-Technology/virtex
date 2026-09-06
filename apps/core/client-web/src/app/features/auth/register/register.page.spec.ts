@@ -7,7 +7,7 @@ import { provideRouter } from '@angular/router';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { AuthService } from '../../../core/services/auth';
 import { ReCaptchaV3Service } from 'ng-recaptcha-19';
-import { of, Observable } from 'rxjs';
+import { of, throwError, Observable } from 'rxjs';
 import { CountryService } from '../../../core/services/country.service';
 import { MockCountryService, US_CONFIG } from '../../../../testing/country.service.mock';
 import { LanguageService } from '../../../core/services/language';
@@ -97,7 +97,17 @@ describe('RegisterPage', () => {
         { provide: GeoLocationService, useClass: MockGeoLocationService },
         { provide: ConfigService, useClass: MockConfigService }
       ]
-    }).compileComponents();
+    });
+
+    // `RegisterPage` declares its own `ReCaptchaV3Service` provider (component-level), which
+    // shadows the root mock and would otherwise load the real grecaptcha script. Adding the mock
+    // to the component's own providers makes it win (last provider for a token wins), so
+    // `execute()` resolves synchronously and `onSubmit` can be exercised.
+    TestBed.overrideComponent(RegisterPage, {
+      add: { providers: [{ provide: ReCaptchaV3Service, useClass: MockRecaptchaService }] },
+    });
+
+    await TestBed.compileComponents();
 
     fixture = TestBed.createComponent(RegisterPage);
     component = fixture.componentInstance;
@@ -233,6 +243,44 @@ describe('RegisterPage', () => {
       // The message is a translation key now: the wizard used to carry Spanish literals, which
       // a US customer would have read in Spanish regardless of the language they chose.
       expect(component.errorMessage()).toBe('REGISTER.ERRORS.COUNTRY_CONFIG');
+    });
+  });
+
+  describe('submit errors', () => {
+    it('shows the server message verbatim, never through translate', () => {
+      // The backend localizes its own validation messages (a rejected RNC/RFC/NIT arrives as a
+      // full sentence). Passing it through `translate` treated it as a missing key: `[[…]]` in dev
+      // and a BLANK box in production (the humaniser keeps only the segment after the last "."),
+      // so the customer was told nothing about why registration failed.
+      const rejection =
+        'El RNC / Cédula no es válido para una empresa. Verifica el dígito verificador (ejemplo: 131-12345-7).';
+      const authService = TestBed.inject(AuthService) as unknown as {
+        registerCheckout: jest.Mock;
+      };
+      authService.registerCheckout = jest
+        .fn()
+        .mockReturnValue(throwError(() => ({ error: { message: rejection } })));
+
+      component.onSubmit();
+
+      // Verbatim in the server-message signal; the key-based signal is left untouched, so the
+      // template shows the sentence directly instead of feeding it to `translate`.
+      expect(component.serverErrorMessage()).toBe(rejection);
+      expect(component.errorMessage()).toBeNull();
+    });
+
+    it('falls back to a translation key when the server sends no message', () => {
+      const authService = TestBed.inject(AuthService) as unknown as {
+        registerCheckout: jest.Mock;
+      };
+      authService.registerCheckout = jest
+        .fn()
+        .mockReturnValue(throwError(() => ({ status: 500 })));
+
+      component.onSubmit();
+
+      expect(component.errorMessage()).toBe('REGISTER.ERRORS.UNKNOWN');
+      expect(component.serverErrorMessage()).toBeNull();
     });
   });
 });
