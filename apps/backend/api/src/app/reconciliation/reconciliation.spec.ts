@@ -770,11 +770,34 @@ describeWithDb('bank reconciliation', () => {
       const matches = await reconciliation.listMatches(statement.id, organizationId);
       await expect(reconciliation.unmatch(matches[0].id, organizationId)).rejects.toThrow();
 
-      const reopened = await reconciliation.reopenStatement(statement.id, organizationId);
+      const reopened = await reconciliation.reopenStatement(
+        statement.id,
+        organizationId,
+        ACTOR,
+        'Se recibió una nota de débito posterior al cierre.',
+      );
       expect(reopened.status).toBe(StatementStatus.IMPORTED);
-      expect(reopened.reconciledAt).toBeNull();
+
+      // The record of the closing survives the reopening. It used to be nulled on the way through,
+      // which deleted the only evidence that the statement had ever been reconciled and by whom —
+      // undoing a control by erasing the proof that it was applied.
+      expect(reopened.reconciledAt).not.toBeNull();
+      expect(reopened.reconciledByUserId).toBe(ACTOR);
+      expect(reopened.reopenedAt).not.toBeNull();
+      expect(reopened.reopenedByUserId).toBe(ACTOR);
+      expect(reopened.reopenReason).toContain('nota de débito');
 
       await reconciliation.unmatch(matches[0].id, organizationId);
+    });
+
+    it('refuses to reopen without a stated reason', async () => {
+      await postToBank('2026-03-05', 10_000, 'Cobro cliente');
+      const statement = await importCsv(CSV_ONE_DEPOSIT, { endingBalance: 10_000 });
+      await reconciliation.closeStatement(statement.id, organizationId, ACTOR);
+
+      await expect(
+        reconciliation.reopenStatement(statement.id, organizationId, ACTOR, '   '),
+      ).rejects.toMatchObject({ messageKey: 'RECONCILIATION.REAPERTURA_REQUIERE_MOTIVO' });
     });
 
     it('lets the tenant be deleted once it has an accounting history', async () => {

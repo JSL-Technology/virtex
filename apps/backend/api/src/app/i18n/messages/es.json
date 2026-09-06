@@ -1074,6 +1074,7 @@
     "QUEDAN_TRANSACCIONES_SIN_CONCILIAR": "Quedan {count} movimientos del banco sin conciliar ni apartar.",
     "RANGO_FECHAS_INVALIDO": "La fecha de inicio del estado de cuenta es posterior a la de fin.",
     "RANGO_MONTOS_INVALIDO": "El monto mínimo de la regla es mayor que el máximo.",
+    "REAPERTURA_REQUIERE_MOTIVO": "Para reabrir una conciliación cerrada hay que indicar el motivo.",
     "REGLA_CREAR_ASIENTO_REQUIERE_CUENTA": "Una regla que genera asientos debe indicar la cuenta contable de destino.",
     "REGLA_NO_ENCONTRADA": "La regla de conciliación no existe o no pertenece a esta organización.",
     "TRANSACCION_BANCARIA_NO_ENCONTRADA": "El movimiento bancario no existe o no pertenece a este estado de cuenta.",

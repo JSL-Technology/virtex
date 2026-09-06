@@ -9,6 +9,26 @@ export enum ActionType {
   LOGIN_FAILED = 'LOGIN_FAILED',
   REFRESH = 'REFRESH',
   IMPERSONATE = 'IMPERSONATE',
+  /**
+   * Somebody looked at financial data.
+   *
+   * There was no way to express this, so there was no audit of access to financial information at
+   * all — only of changes to it. In an accounting product that is half the requirement: who read
+   * the payroll journal, who opened the ledger of a subsidiary they do not work on, who pulled the
+   * customer list the week before resigning. None of it left a trace.
+   *
+   * Recorded only where a decorator asks for it, never on every GET: an audit trail that logs
+   * every list refresh is one nobody can read.
+   */
+  READ = 'READ',
+  /**
+   * Financial data left the system — a CSV, a PDF, a fiscal return file.
+   *
+   * Distinguished from `READ` because it is a different event to an auditor and to a data
+   * protection officer: reading a report is looking at it on screen; exporting it is taking a copy
+   * away, and the copy outlives every access control this product has.
+   */
+  EXPORT = 'EXPORT',
 }
 
 @Entity({ name: 'audit_logs' })

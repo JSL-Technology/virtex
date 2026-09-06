@@ -678,7 +678,27 @@ export class ReconciliationService {
     return this.statements.save(statement);
   }
 
-  async reopenStatement(statementId: string, organizationId: string): Promise<BankStatement> {
+  /**
+   * Reopen a reconciled statement.
+   *
+   * ## What this used to erase
+   *
+   * It set `reconciledAt` and `reconciledByUserId` back to null. Those two columns were the entire
+   * record that the statement had ever been reconciled and who signed it off — and no audit row
+   * was written anywhere either, so reopening a closed reconciliation left no trace of the closing
+   * or of the reopening. Undoing a control by deleting the evidence that the control was ever
+   * applied is precisely the pattern an external auditor tests for.
+   *
+   * The closing details now stay. The reopening is recorded beside them, with its author, its time
+   * and its reason, and the reason is required: reversing a control without stating why is not a
+   * decision anybody can review later.
+   */
+  async reopenStatement(
+    statementId: string,
+    organizationId: string,
+    actorUserId: string,
+    reason: string,
+  ): Promise<BankStatement> {
     const statement = await this.statements.findOne({
       where: { id: statementId, organizationId },
     });
@@ -686,9 +706,14 @@ export class ReconciliationService {
     if (statement.status !== StatementStatus.RECONCILED) {
       throw new BadRequestError('RECONCILIATION.ESTADO_CUENTA_NO_ESTA_CERRADO');
     }
+    if (!reason?.trim()) {
+      throw new BadRequestError('RECONCILIATION.REAPERTURA_REQUIERE_MOTIVO');
+    }
+
     statement.status = StatementStatus.IMPORTED;
-    statement.reconciledAt = null;
-    statement.reconciledByUserId = null;
+    statement.reopenedAt = new Date();
+    statement.reopenedByUserId = actorUserId;
+    statement.reopenReason = reason.trim();
     return this.statements.save(statement);
   }
 

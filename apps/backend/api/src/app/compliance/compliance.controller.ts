@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards, ParseIntPipe, ParseUUIDPipe, Res } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards, UseInterceptors, ParseIntPipe, ParseUUIDPipe, Res } from '@nestjs/common';
 import { ComplianceService } from './compliance.service';
 import { ProvisionNcfSequenceDto } from './dto/provision-ncf-sequence.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
@@ -8,6 +8,9 @@ import { PERMISSIONS } from '../shared/permissions';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import type { HttpResponse as Response } from '../common/http/http.types';
 import { BadRequestError } from '../i18n/localized.exception';
+import { AuditAccessInterceptor } from '../audit/audit-access.interceptor';
+import { AuditAccess } from '../audit/audit-access.decorator';
+import { ActionType } from '../audit/entities/audit-log.entity';
 
 type ReportKind = '606' | '607' | '608' | '609';
 
@@ -16,6 +19,7 @@ type ReportKind = '606' | '607' | '608' | '609';
  */
 @Controller('compliance')
 @UseGuards(JwtAuthGuard)
+@UseInterceptors(AuditAccessInterceptor)
 export class ComplianceController {
   constructor(private readonly complianceService: ComplianceService) {}
 
@@ -56,6 +60,10 @@ export class ComplianceController {
    */
   @Get('reports/:kind')
   @HasPermission(PERMISSIONS.REPORTS_VIEW_FINANCIAL)
+  // A fiscal return is a file that leaves the product carrying every sale or purchase of a month,
+  // with counterparties and tax ids. Who took a copy, and of which period, is a question a tenant
+  // under audit will be asked and could not previously answer.
+  @AuditAccess({ entity: 'dgii_report', action: ActionType.EXPORT, identifiers: ['kind', 'year', 'month'] })
   async downloadReport(
     @Param('kind') kind: string,
     @Query('year', ParseIntPipe) year: number,

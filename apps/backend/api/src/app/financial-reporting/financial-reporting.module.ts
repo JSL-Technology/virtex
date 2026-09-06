@@ -9,9 +9,12 @@ import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { Invoice } from '../invoices/entities/invoice.entity';
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
+import { AuditModule } from '../audit/audit.module';
 
 @Module({
   imports: [
+    // Reading and exporting financial data is recorded; the interceptor lives in AuditModule.
+    AuditModule,
     ChartOfAccountsModule,
 
     TypeOrmModule.forFeature([

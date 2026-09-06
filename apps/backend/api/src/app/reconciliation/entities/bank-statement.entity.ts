@@ -129,6 +129,25 @@ export class BankStatement {
   @Column({ name: 'reconciled_by_user_id', type: 'uuid', nullable: true })
   reconciledByUserId: string | null;
 
+  /**
+   * When a reconciled statement was reopened, by whom, and why.
+   *
+   * Reopening used to null `reconciled_at` and `reconciled_by_user_id`, which destroyed the only
+   * record that the statement had ever been reconciled and who signed it off. Undoing a control by
+   * erasing the evidence that the control was applied is the shape of a defect an external auditor
+   * looks for specifically. The closing details now stay where they are, and the reopening is
+   * recorded beside them.
+   */
+  @Column({ name: 'reopened_at', type: 'timestamptz', nullable: true })
+  reopenedAt: Date | null;
+
+  @Column({ name: 'reopened_by_user_id', type: 'uuid', nullable: true })
+  reopenedByUserId: string | null;
+
+  /** Why it was reopened. Required to reopen: an unexplained reversal of a control is not one. */
+  @Column({ name: 'reopen_reason', type: 'text', nullable: true })
+  reopenReason: string | null;
+
   @Column({ name: 'created_by_user_id', type: 'uuid', nullable: true })
   createdByUserId: string | null;
 

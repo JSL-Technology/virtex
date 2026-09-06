@@ -1074,6 +1074,7 @@
     "QUEDAN_TRANSACCIONES_SIN_CONCILIAR": "{count} bank movements are still neither matched nor set aside.",
     "RANGO_FECHAS_INVALIDO": "The statement’s start date is after its end date.",
     "RANGO_MONTOS_INVALIDO": "The rule’s minimum amount is greater than its maximum.",
+    "REAPERTURA_REQUIERE_MOTIVO": "Reopening a closed reconciliation requires a stated reason.",
     "REGLA_CREAR_ASIENTO_REQUIERE_CUENTA": "A rule that creates entries must name the target ledger account.",
     "REGLA_NO_ENCONTRADA": "The reconciliation rule does not exist or does not belong to this organization.",
     "TRANSACCION_BANCARIA_NO_ENCONTRADA": "The bank movement does not exist or does not belong to this statement.",
