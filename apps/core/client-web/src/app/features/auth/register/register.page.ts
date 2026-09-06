@@ -135,7 +135,15 @@ export class RegisterPage implements OnInit {
 
   currentStep = signal(1);
   registerForm!: FormGroup;
+  /** A translation KEY for an error we raise ourselves (e.g. `REGISTER.ERRORS.REQUIRED_FIELDS`). */
   errorMessage = signal<string | null>(null);
+  /**
+   * A message the SERVER already localized (it honours Accept-Language). Shown verbatim, never
+   * through `translate`: a full sentence is not a known key, so the missing-translation handler
+   * would either wrap it in `[[…]]` (dev) or humanise it to its last dotted segment — an empty
+   * string for a sentence ending in "." — leaving the user staring at a blank error box.
+   */
+  serverErrorMessage = signal<string | null>(null);
   isRegistering = signal(false);
   stepsCompleted = signal<boolean[]>(new Array(TOTAL_STEPS).fill(false));
 
@@ -435,7 +443,7 @@ export class RegisterPage implements OnInit {
         });
 
         this.currentStep.set(3);
-        this.errorMessage.set(null);
+        this.clearError();
 
         this.router.navigate([], {
           relativeTo: this.activatedRoute,
@@ -478,8 +486,14 @@ export class RegisterPage implements OnInit {
     return key ? (this.registerForm.get(key) as FormGroup) : null;
   }
 
-  nextStep(): void {
+  /** Clear both the key-based error and any verbatim server message. */
+  private clearError(): void {
     this.errorMessage.set(null);
+    this.serverErrorMessage.set(null);
+  }
+
+  nextStep(): void {
+    this.clearError();
 
     // Verification gate for email step
     if (this.currentStep() === 2 && !this.emailVerified()) {
@@ -543,14 +557,14 @@ export class RegisterPage implements OnInit {
   prevStep(): void {
     if (this.currentStep() > 1) {
       this.currentStep.update((s) => s - 1);
-      this.errorMessage.set(null);
+      this.clearError();
     }
   }
 
   navigateToStep(stepIndex: number): void {
     if (stepIndex < this.currentStep() && this.stepsCompleted()[stepIndex - 1]) {
       this.currentStep.set(stepIndex);
-      this.errorMessage.set(null);
+      this.clearError();
     }
   }
 
@@ -578,7 +592,7 @@ export class RegisterPage implements OnInit {
     if (this.isRegistering()) return;
 
     this.isRegistering.set(true);
-    this.errorMessage.set(null);
+    this.clearError();
 
     const formValue = this.registerForm.getRawValue();
 
@@ -628,13 +642,17 @@ export class RegisterPage implements OnInit {
             }
           },
           error: (err) => {
-            let msg = 'REGISTER.ERRORS.UNKNOWN';
-            if (err.error?.message) {
-              msg = Array.isArray(err.error.message)
-                ? err.error.message.join(', ')
-                : err.error.message;
+            // The server's message is already localized, so it is shown verbatim (see
+            // `serverErrorMessage`) — this is what surfaces a rejected RNC/RFC/NIT etc. to the
+            // user. Only our own fallback is a translation key.
+            const serverMessage = err.error?.message;
+            if (serverMessage) {
+              this.serverErrorMessage.set(
+                Array.isArray(serverMessage) ? serverMessage.join(', ') : serverMessage,
+              );
+            } else {
+              this.errorMessage.set('REGISTER.ERRORS.UNKNOWN');
             }
-            this.errorMessage.set(msg);
             this.isRegistering.set(false);
           },
         });
