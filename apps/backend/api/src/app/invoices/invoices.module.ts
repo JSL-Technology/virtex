@@ -5,6 +5,9 @@ import { InvoicesController } from './invoices.controller';
 import { InvoicePostingService } from './services/invoice-posting.service';
 import { WithholdingResolverService } from './services/withholding-resolver.service';
 import { TenantWithholdingRegime } from '../localization/fiscal/entities/tenant-withholding-regime.entity';
+// Sales tax in the markets with no national rate: the rate follows the delivery address, not the
+// product, and it used to come off the request unchecked.
+import { LocalizationModule } from '../localization/localization.module';
 import { InvoiceRendererService } from './services/invoice-renderer.service';
 import { GenericFiscalAdapter } from './adapters/generic-fiscal.adapter';
 import { DominicanRepublicFiscalAdapter } from './adapters/dominican-republic-fiscal.adapter';
@@ -38,6 +41,7 @@ import { JournalEntriesModule } from '../journal-entries/journal-entries.module'
       TenantWithholdingRegime,
     ]),
     AuthModule,
+    LocalizationModule,
     CustomersModule,
     InventoryModule,
     TaxesModule,

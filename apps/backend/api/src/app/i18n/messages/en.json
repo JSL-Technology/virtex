@@ -810,10 +810,18 @@
   },
   "LOCALIZATION": {
     "CONFIGURACION_FISCAL_NO_ESTA_DISPONIBLE": "The tax configuration for \"{{countryCode}}\" is not available.",
+    "DETERMINACION_REQUIERE_DIVISION": "Determining tax in {{countryCode}} needs the destination state or province: this market has no national rate.",
+    "DETERMINACION_SIN_PAIS_DESTINO": "The tax cannot be determined: the destination country is missing.",
+    "JURISDICCION_NO_ENCONTRADA": "That jurisdiction does not exist.",
     "NO_HAY_ESQUEMA_IMPUESTOS_DEFINIDO": "No tax scheme is defined for {{countryCode}}.",
+    "NO_SE_PUDO_DETERMINAR_IMPUESTO": "The tax on this sale could not be determined.",
     "ORGANIZACION_NO_TIENE_REGION_FISCAL_NO_PUEDE": "Organization {{id}} has no tax region; the tax package cannot be applied.",
     "PAIS_NO_ESTA_DISPONIBLE_REGISTRO_TODAVIA": "The country \"{{countryCode}}\" is not available for registration yet.",
-    "REGION_FISCAL_ID_NO_ENCONTRADA": "Tax region \"{{fiscalRegionId}}\" was not found."
+    "REGION_FISCAL_ID_NO_ENCONTRADA": "Tax region \"{{fiscalRegionId}}\" was not found.",
+    "SIN_JURISDICCIONES_REGISTRADAS_PAIS": "No jurisdictions are registered for {{countryCode}}, so no tax is charged. Register them under Settings → Taxes if you are required to collect.",
+    "SIN_PROVEEDOR_DETERMINACION": "No tax determination provider is available for {{countryCode}}.",
+    "SIN_REGISTRO_EN_JURISDICCION": "You are not registered to collect in {{stateCode}} ({{countryCode}}), so no tax is charged on this sale.",
+    "VIGENCIA_FIN_ANTERIOR_INICIO": "The period ends ({{to}}) before it begins ({{from}})."
   },
   "MAIL": {
     "BILLING_NOTICE": {

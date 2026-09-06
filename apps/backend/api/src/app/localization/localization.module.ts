@@ -19,6 +19,11 @@ import { LocalizationController } from './controllers/localization.controller';
 import { DominicanRepublicStrategy } from './drivers/dominican-republic/dominican-republic.strategy';
 import { GenericFiscalStrategy } from './drivers/generic-fiscal.strategy';
 import { USStrategy } from './drivers/usa/usa.strategy';
+import { TaxJurisdiction } from './fiscal/entities/tax-jurisdiction.entity';
+import { TaxDeterminationService } from './fiscal/tax-determination/tax-determination.service';
+import { TenantJurisdictionProvider } from './fiscal/tax-determination/tenant-jurisdiction.provider';
+import { TaxJurisdictionsController } from './controllers/tax-jurisdictions.controller';
+import { TaxJurisdictionsService } from './services/tax-jurisdictions.service';
 
 @Module({
   imports: [
@@ -32,6 +37,7 @@ import { USStrategy } from './drivers/usa/usa.strategy';
       ReportDefinition,
       FiscalDocumentTypeDefinition,
       EInvoiceProviderConfig,
+      TaxJurisdiction,
     ]),
     // The 'localization' queue and its consumer are gone. Nothing ever enqueued a job onto it,
     // and the consumer's handler looped over the chart-of-accounts and tax templates with empty
@@ -40,15 +46,19 @@ import { USStrategy } from './drivers/usa/usa.strategy';
     forwardRef(() => ChartOfAccountsModule),
     TaxesModule,
     SharedModule,
-    HttpModule
+    HttpModule,
   ],
   providers: [
     LocalizationService,
     DominicanRepublicStrategy,
     USStrategy,
-    GenericFiscalStrategy
+    GenericFiscalStrategy,
+    // Sales tax in the markets with no national rate: the United States, Brazil.
+    TenantJurisdictionProvider,
+    TaxDeterminationService,
+    TaxJurisdictionsService,
   ],
-  controllers: [LocalizationController],
-  exports: [LocalizationService],
+  controllers: [LocalizationController, TaxJurisdictionsController],
+  exports: [LocalizationService, TaxDeterminationService],
 })
 export class LocalizationModule {}

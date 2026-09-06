@@ -287,6 +287,29 @@ export class Invoice {
   withholdingOverrideReason: string | null;
 
   /**
+   * How the tax rate was determined, in a market that has no national rate.
+   *
+   * The United States and Brazil levy sub-nationally: what a buyer pays is the sum of a state,
+   * county, city and special-district rate at the delivery address, and a seller collects nothing
+   * at all in a state it is not registered in. Until now the client sent a rate and nothing
+   * checked it.
+   *
+   * Recorded per document because a return is filed per jurisdiction: without it, "which of these
+   * sales was Dallas and which was Houston" is unanswerable, and `NO_NEXUS` — a sale correctly
+   * untaxed — is indistinguishable from a sale somebody forgot to tax.
+   *
+   * Null in every market whose rate comes from a table.
+   */
+  @Column({ name: 'tax_determination', type: 'jsonb', nullable: true })
+  taxDetermination: {
+    outcome: string;
+    rate: number;
+    source: string;
+    components?: { level: string; name: string; rate: number }[];
+    reasonKey?: string;
+  } | null;
+
+  /**
    * Excise duty (ISC / IEPS / ICE) charged on the document.
    *
    * Part of `total` and, until now, stored nowhere — so the ledger entry could not name the

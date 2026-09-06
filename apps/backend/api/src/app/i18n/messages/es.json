@@ -810,10 +810,18 @@
   },
   "LOCALIZATION": {
     "CONFIGURACION_FISCAL_NO_ESTA_DISPONIBLE": "La configuración fiscal de \"{{countryCode}}\" no está disponible.",
+    "DETERMINACION_REQUIERE_DIVISION": "Para determinar el impuesto en {{countryCode}} hace falta el estado o provincia de destino: en este mercado no existe una tasa nacional.",
+    "DETERMINACION_SIN_PAIS_DESTINO": "No se puede determinar el impuesto: falta el país de destino.",
+    "JURISDICCION_NO_ENCONTRADA": "La jurisdicción indicada no existe.",
     "NO_HAY_ESQUEMA_IMPUESTOS_DEFINIDO": "No hay esquema de impuestos definido para {{countryCode}}.",
+    "NO_SE_PUDO_DETERMINAR_IMPUESTO": "No se pudo determinar el impuesto de esta venta.",
     "ORGANIZACION_NO_TIENE_REGION_FISCAL_NO_PUEDE": "La organización {{id}} no tiene región fiscal; no se puede aplicar el paquete fiscal.",
     "PAIS_NO_ESTA_DISPONIBLE_REGISTRO_TODAVIA": "El país \"{{countryCode}}\" no está disponible para registro todavía.",
-    "REGION_FISCAL_ID_NO_ENCONTRADA": "Región fiscal con ID \"{{fiscalRegionId}}\" no encontrada."
+    "REGION_FISCAL_ID_NO_ENCONTRADA": "Región fiscal con ID \"{{fiscalRegionId}}\" no encontrada.",
+    "SIN_JURISDICCIONES_REGISTRADAS_PAIS": "No hay jurisdicciones registradas para {{countryCode}}, así que no se cobra impuesto. Regístralas en Ajustes → Impuestos si tienes obligación de recaudar.",
+    "SIN_PROVEEDOR_DETERMINACION": "No hay proveedor de determinación de impuestos para {{countryCode}}.",
+    "SIN_REGISTRO_EN_JURISDICCION": "No estás registrado para recaudar en {{stateCode}} ({{countryCode}}), así que no se cobra impuesto en esta venta.",
+    "VIGENCIA_FIN_ANTERIOR_INICIO": "La vigencia termina ({{to}}) antes de empezar ({{from}})."
   },
   "MAIL": {
     "BILLING_NOTICE": {

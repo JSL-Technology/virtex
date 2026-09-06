@@ -36,6 +36,13 @@ import { InvoiceRenderContext } from './services/invoice-renderer.service';
 import { fiscalDate, organizationTimeZone } from '../shared/fiscal-clock';
 import { BadRequestError, ConflictError, NotFoundError } from '../i18n/localized.exception';
 import { Tax } from '../taxes/entities/tax.entity';
+import { TaxDeterminationService } from '../localization/fiscal/tax-determination/tax-determination.service';
+import {
+  TaxDetermination,
+  TaxDeterminationAddress,
+} from '../localization/fiscal/tax-determination/tax-determination.types';
+import { Customer } from '../customers/entities/customer.entity';
+import { toIsoDate } from '../common/dates';
 
 export interface InvoiceListQuery {
   page?: number;
@@ -111,6 +118,8 @@ export class InvoicesService {
     private readonly bookkeeping: TenantBookkeepingProvisioner,
     /** Decides what the buyer withholds, from the parties and the sale, not from the request. */
     private readonly withholdingResolver: WithholdingResolverService,
+    /** Decides the rate where the market has no national one: the United States, Brazil. */
+    private readonly taxDetermination: TaxDeterminationService,
   ) {}
 
   // ── Creation ───────────────────────────────────────────────────────────────
@@ -207,6 +216,50 @@ export class InvoicesService {
   }
 
   /**
+   * The rate a sale bears in a market with no national rate — the United States, Brazil.
+   *
+   * Applied to every taxed line of the document, replacing whatever rate the request or the
+   * catalogue carried. In these markets the rate is a property of **where the goods go**, not of
+   * the product: the same item is 8.25 % in one Texas city and 6.25 % in another, and the seller
+   * collects nothing at all in a state it is not registered in. Until now
+   * `allowedTaxFractions` returned null for them and the client's number was stored verbatim.
+   *
+   * Returns null where the country's rate does come from a table, which is every other market.
+   */
+  private async determinedTaxRate(
+    organizationId: string,
+    countryCode: string | null,
+    customer: Customer,
+    organizationAddress: TaxDeterminationAddress | null,
+    asOf: string,
+  ): Promise<{ rate: number; determination: TaxDetermination } | null> {
+    if (!this.taxDetermination.requiresDetermination(countryCode)) return null;
+
+    const determination = await this.taxDetermination.determine({
+      organizationId,
+      destination: {
+        countryCode: (customer.country ?? countryCode ?? '').toUpperCase(),
+        stateCode: customer.stateOrProvince ?? null,
+        city: customer.city ?? null,
+        postalCode: customer.postalCode ?? null,
+      },
+      origin: organizationAddress,
+      asOf,
+    });
+
+    if (determination.outcome === 'NOT_DETERMINABLE') {
+      // Issuing here would be guessing the rate, which is what this replaces. The message names
+      // what is missing — usually the buyer's state — so it can be fixed in one edit.
+      throw new BadRequestError(
+        determination.reasonKey ?? 'LOCALIZATION.NO_SE_PUDO_DETERMINAR_IMPUESTO',
+        determination.reasonParams ?? {},
+      );
+    }
+
+    return { rate: determination.rate, determination };
+  }
+
+  /**
    * The rates in the tenant's own tax catalogue, as fractions.
    *
    * The catalogue is seeded from `COUNTRY_TAX_SCHEMES` at provisioning and editable afterwards,
@@ -251,7 +304,7 @@ export class InvoicesService {
 
     const organization = await manager.getRepository(Organization).findOne({
       where: { id: organizationId },
-      select: ['id', 'country'],
+      select: ['id', 'country', 'state', 'city', 'postalCode'],
     });
     const customer = await this.customersService.findOne(dto.customerId, organizationId);
     const { currencyCode } = await this.resolveCurrency(
@@ -261,10 +314,17 @@ export class InvoicesService {
     );
 
     const products = await this.loadProducts(dto.lineItems, organizationId, manager);
+    const determined = await this.determinedTaxRate(
+      organizationId,
+      organization?.country ?? null,
+      customer,
+      this.addressOf(organization),
+      toIsoDate(dto.issueDate),
+    );
     const taxInputs: TaxableLineInput[] = [];
     const resolved: ResolvedLine[] = [];
     for (const [index, lineDto] of dto.lineItems.entries()) {
-      const line = this.resolveLine(lineDto, products, index);
+      const line = this.resolveLine(lineDto, products, index, determined?.rate);
       resolved.push(line);
       taxInputs.push({
         quantity: line.quantity,
@@ -320,7 +380,9 @@ export class InvoicesService {
 
     const organization = await manager.getRepository(Organization).findOne({
       where: { id: organizationId },
-      select: ['id', 'country'],
+      // The seller's own address as well as its country: an origin-sourced state prices an
+      // intrastate sale at the seller's rate, not the buyer's.
+      select: ['id', 'country', 'state', 'city', 'postalCode'],
     });
     const customer = await this.customersService.findOne(dto.customerId, organizationId);
 
@@ -335,11 +397,19 @@ export class InvoicesService {
     );
 
     const products = await this.loadProducts(dto.lineItems, organizationId, manager);
+    const determined = await this.determinedTaxRate(
+      organizationId,
+      organization?.country ?? null,
+      customer,
+      this.addressOf(organization),
+      toIsoDate(dto.issueDate),
+    );
+
     const taxInputs: TaxableLineInput[] = [];
     const resolved: ResolvedLine[] = [];
 
     for (const [index, lineDto] of dto.lineItems.entries()) {
-      const line = this.resolveLine(lineDto, products, index);
+      const line = this.resolveLine(lineDto, products, index, determined?.rate);
       resolved.push(line);
       taxInputs.push({
         quantity: line.quantity,
@@ -452,6 +522,17 @@ export class InvoicesService {
       // recorded which regime, if any, it was supposed to come from.
       withholdingRegimeCodes: withholding.regimeCodes,
       withholdingOverrideReason: withholding.override?.reason ?? null,
+      // Which jurisdictions produced the rate, so a return can be filed per jurisdiction and a
+      // sale correctly left untaxed for want of nexus is distinguishable from one nobody taxed.
+      taxDetermination: determined
+        ? {
+            outcome: determined.determination.outcome,
+            rate: determined.determination.rate,
+            source: determined.determination.source,
+            components: determined.determination.components,
+            reasonKey: determined.determination.reasonKey,
+          }
+        : null,
       total: computed.total,
       netReceivable: computed.netReceivable,
       balance: computed.netReceivable,
@@ -503,6 +584,14 @@ export class InvoicesService {
     dto: InvoiceLineDto,
     products: Map<string, Product>,
     index: number,
+    /**
+     * The rate the destination's jurisdictions levy, in a market with no national rate.
+     *
+     * When present it replaces the product's and the request's: in the United States the rate is a
+     * property of where the goods go, not of the item, and the same product is 8.25 % in one Texas
+     * city and 6.25 % in another.
+     */
+    determinedRate?: number,
   ): ResolvedLine {
     const product = dto.productId ? products.get(dto.productId) : undefined;
 
@@ -520,7 +609,7 @@ export class InvoicesService {
     const treatment = dto.taxTreatment ?? this.treatmentOf(product);
     const taxRate =
       treatment === TaxTreatment.TAXED
-        ? (dto.taxRate ?? Number(product?.taxRate ?? 0))
+        ? (determinedRate ?? dto.taxRate ?? Number(product?.taxRate ?? 0))
         : 0;
 
     return {
@@ -537,6 +626,17 @@ export class InvoicesService {
       unitCost: Number(product?.cost ?? 0),
       // Only a stocked good moves inventory. A service, or a free-text concept, does not.
       movesStock: Boolean(product) && !isService && product?.kind === ProductKind.GOOD,
+    };
+  }
+
+  /** The seller's own address, for the states that source an intrastate sale to it. */
+  private addressOf(organization: Organization | null): TaxDeterminationAddress | null {
+    if (!organization?.country) return null;
+    return {
+      countryCode: organization.country.toUpperCase(),
+      stateCode: organization.state ?? null,
+      city: organization.city ?? null,
+      postalCode: organization.postalCode ?? null,
     };
   }
 

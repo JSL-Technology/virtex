@@ -810,10 +810,18 @@
   },
   "LOCALIZATION": {
     "CONFIGURACION_FISCAL_NO_ESTA_DISPONIBLE": "A configuração fiscal de \"{{countryCode}}\" não está disponível.",
+    "DETERMINACION_REQUIERE_DIVISION": "Para determinar o imposto em {{countryCode}} é preciso o estado de destino: este mercado não tem alíquota nacional.",
+    "DETERMINACION_SIN_PAIS_DESTINO": "Não é possível determinar o imposto: falta o país de destino.",
+    "JURISDICCION_NO_ENCONTRADA": "Essa jurisdição não existe.",
     "NO_HAY_ESQUEMA_IMPUESTOS_DEFINIDO": "Nenhum esquema tributário definido para {{countryCode}}.",
+    "NO_SE_PUDO_DETERMINAR_IMPUESTO": "Não foi possível determinar o imposto desta venda.",
     "ORGANIZACION_NO_TIENE_REGION_FISCAL_NO_PUEDE": "A organização {{id}} não tem região fiscal; o pacote fiscal não pode ser aplicado.",
     "PAIS_NO_ESTA_DISPONIBLE_REGISTRO_TODAVIA": "O país \"{{countryCode}}\" ainda não está disponível para cadastro.",
-    "REGION_FISCAL_ID_NO_ENCONTRADA": "Região fiscal \"{{fiscalRegionId}}\" não encontrada."
+    "REGION_FISCAL_ID_NO_ENCONTRADA": "Região fiscal \"{{fiscalRegionId}}\" não encontrada.",
+    "SIN_JURISDICCIONES_REGISTRADAS_PAIS": "Não há jurisdições registradas para {{countryCode}}, então nenhum imposto é cobrado. Cadastre-as em Configurações → Impostos se você tiver obrigação de recolher.",
+    "SIN_PROVEEDOR_DETERMINACION": "Não há provedor de determinação de imposto para {{countryCode}}.",
+    "SIN_REGISTRO_EN_JURISDICCION": "Você não está registrado para recolher em {{stateCode}} ({{countryCode}}), então nenhum imposto é cobrado nesta venda.",
+    "VIGENCIA_FIN_ANTERIOR_INICIO": "A vigência termina ({{to}}) antes de começar ({{from}})."
   },
   "MAIL": {
     "BILLING_NOTICE": {
