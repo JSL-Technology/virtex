@@ -24,6 +24,8 @@ import { EcfLifecycleXmlBuilder } from './services/ecf-lifecycle-xml.builder';
 import { EcfLifecycleService } from './services/ecf-lifecycle.service';
 import { EinvoicingController } from './einvoicing.controller';
 import { FiscalRangeService } from './services/fiscal-range.service';
+import { FiscalRegimeSettingsService } from './services/fiscal-regime-settings.service';
+import { FiscalRegimeSettingsController } from './fiscal-regime-settings.controller';
 import { XmlSignatureService } from './regimes/xml-signature.service';
 import { RegimeTransportService } from './regimes/regime-transport.service';
 import { FiscalRegimeRegistry } from './regimes/fiscal-regime.registry';
@@ -59,7 +61,7 @@ import { AfipRegimeAdapter } from './regimes/ar/afip.adapter';
     ]),
     AuthModule,
   ],
-  controllers: [EinvoicingController],
+  controllers: [EinvoicingController, FiscalRegimeSettingsController],
   providers: [
     CertificateVaultService,
     EcfSignerService,
@@ -77,6 +79,7 @@ import { AfipRegimeAdapter } from './regimes/ar/afip.adapter';
     // tested and left unregistered, which is why every market but the Dominican Republic still
     // resolved to the generic adapter: the code existed and the container had never heard of it.
     FiscalRangeService,
+    FiscalRegimeSettingsService,
     XmlSignatureService,
     RegimeTransportService,
     // The seven regimes themselves. Until they were registered here the container had never heard

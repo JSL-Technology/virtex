@@ -86,6 +86,13 @@ export const SETTINGS_ROUTES: Routes = [
                 loadComponent: () => import('./finance/withholding-regimes/withholding-regimes.page').then(m => m.WithholdingRegimesPage)
             },
             {
+                path: 'einvoicing-regime',
+                title: 'PAGE_TITLES.EINVOICING_REGIME',
+                canActivate: [permissionsGuard],
+                data: { permissions: ['settings:finance:view'] },
+                loadComponent: () => import('./finance/einvoicing-regime/einvoicing-regime.page').then(m => m.EinvoicingRegimePage)
+            },
+            {
                 path: 'closing-rules',
                 title: 'PAGE_TITLES.FISCAL_PERIODS',
                 canActivate: [permissionsGuard],

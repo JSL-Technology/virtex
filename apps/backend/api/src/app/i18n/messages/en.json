@@ -72,6 +72,7 @@
     "PERIOD_CLOSED": "Accounting period \"{{name}}\" has been closed.",
     "PERIOD_REOPENED": "Accounting period \"{{name}}\" has been reopened.",
     "PROCESO_AJUSTE_POR_INFLACION_EJECUTADO_EXITOSAMENTE": "The inflation-adjustment process ran successfully.",
+    "RANGO_FECHAS_INVALIDO": "The start date cannot be later than the end date.",
     "TODAS_REGLAS_EXISTENTES_FUERON_ELIMINADAS": "All existing rules were deleted.",
     "UNO_AMBOS_LIBROS_CONTABLES_NO_FUERON_ENCONTRADOS": "One or both ledgers were not found."
   },
@@ -476,6 +477,7 @@
     "CFDI_SIN_REGIMEN_FISCAL": "The issuer's tax regime is missing. Set it under Settings → Fiscal.",
     "CODIGO_MODIFICACION_DEBE_ESTAR_ENTRE_1_5": "the modification code must be between 1 and 5",
     "CODIGO_MONEDA_DEBE_ISO_4217": "the currency code must be ISO 4217",
+    "CODIGO_NUMERICO_OCHO_DIGITOS": "The numeric code must be exactly eight digits: it is part of the document key, and a seven-digit code padded to eight produces a different key from the one you believe you issued.",
     "COMPROBANTE_DEBE_TENER_MENOS_LINEA": "the document must have at least one line",
     "COMPROBANTE_EXPORTACION_REQUIERE_IDENTIFICAR_COMPRADOR_EXTRANJERO": "an export document requires the foreign buyer to be identified",
     "COMPROBANTE_YA_FUE_RESPONDIDO_COMERCIALMENTE": "Document {{ncf}} from {{issuerRnc}} has already been answered commercially.",
@@ -489,7 +491,9 @@
     "DIAN_SIN_RESOLUCION": "The DIAN invoicing resolution, with its prefix and authorised range, is missing.",
     "DIRECCION_FISCAL_EMISOR_OBLIGATORIA_COMPLETALA_AJUSTES_EMPRESA": "the issuer's registered address is required; fill it in under Settings → Company",
     "DOCUMENTO_FIRMADO_NO_CONTIENE_SIGNATUREVALUE": "The signed document contains no SignatureValue.",
+    "DOCUMENTO_SIN_NUMERO_FISCAL": "Document {document} has no fiscal number assigned. The internal numbering will not do: the authority recognises only the number from the range it authorised.",
     "ECF_CERT_ENCRYPTION_KEY_NO_ESTA_CONFIGURADA": "ECF_CERT_ENCRYPTION_KEY is not configured (16 characters minimum). It is required to encrypt e-CF certificates.",
+    "EMISOR_NO_ENCONTRADO": "The issuing organization was not found.",
     "ENCF_BAD_FORMAT": "\"{{value}}\" is not in e-NCF format (E + 12 digits)",
     "ENCF_TYPE_MISMATCH": "the declared type ({{declared}}) does not match the one in the e-NCF ({{encoded}})",
     "ESTA_FACTURA_NO_TIENE_CF_ASOCIADO": "This invoice has no e-CF associated with it.",
@@ -505,6 +509,8 @@
     "ITEM_TAX_RATE_NOT_IN_FORCE": "line {{line}}: the rate {{rate}} is not an ITBIS rate in force",
     "MODIFIED_NCF_BAD_FORMAT": "\"{{value}}\" is not in NCF format",
     "MUNICIPIO_DEBE_DECLARARSE_CON_CODIGO_CUATRO_DIGITOS_DGII": "the municipality must be declared with the DGII's four-digit code",
+    "NFE_CODIGO_ESTADO_DOS_DIGITOS": "The state IBGE code must be two digits.",
+    "NFE_CODIGO_MUNICIPIO_SIETE_DIGITOS": "The municipality IBGE code must be seven digits.",
     "NFE_EMISOR_SIN_CNPJ": "The organization has no valid CNPJ; an NF-e cannot be issued.",
     "NFE_LINEA_SIN_CLASIFICACION": "Line “{{line}}” has no {{key}}. Set it on the product: NCM classifies the merchandise and CFOP the operation, and neither can be inferred from a description.",
     "NFE_RECEPTOR_SIN_DOCUMENTO": "Customer “{{customer}}” has neither a CNPJ nor a CPF.",
@@ -521,6 +527,7 @@
     "ORGANIZACION_NO_ENCONTRADA": "Organization not found.",
     "ORGANIZACION_NO_TIENE_RNC_CONFIGURADO": "The organization has no RNC configured.",
     "ORGANIZACION_NO_TIENE_RNC_CONFIGURADO_COMPLETALO_AJUSTES": "The organization has no RNC configured. Fill it in under Settings → Company.",
+    "ORGANIZACION_SIN_PAIS": "The organization has no country set, and without one there is no fiscal regime to configure.",
     "PAYMENTS_DO_NOT_MATCH_TOTAL": "the payment methods add up to {{declared}} while the document total is {{total}}",
     "PAYMENT_METHOD_CODE_UNKNOWN": "\"{{value}}\" is not a DGII payment-method code",
     "PROVINCIA_DEBE_DECLARARSE_CON_CODIGO_DOS_DIGITOS_DGII": "the province must be declared with the DGII's two-digit code",
@@ -529,9 +536,13 @@
     "RANGO_FISCAL_LIMITES_INVALIDOS": "The range {from}–{to} is not valid: the final number cannot be lower than the first.",
     "RANGO_FISCAL_LIMITES_NO_NUMERICOS": "The authorized range for type {type} has non-numeric bounds. Correct it before issuing.",
     "RANGO_FISCAL_NO_CONFIGURADO": "There is no active authorized range for document type {type} in {country}. Register the range the authority granted you before issuing.",
+    "RANGO_FISCAL_NO_CONTIENE_NUMERO": "No authorized range of type {type} contains number {number}. The document was numbered outside every registered range.",
+    "RANGO_FISCAL_NO_ENCONTRADO": "The range was not found.",
+    "RANGO_FISCAL_SECRETO_SIN_TIPO": "You supplied secret material for the range but not which kind it is (CAF or technical key).",
     "RANGO_FISCAL_SIN_SECRETO": "The range for type {type} has no record of the material the authority issues with it (CAF or technical key). Upload it before issuing.",
     "RANGO_FISCAL_VENCIDO": "The authorization for the type {type} range expired on {date}. Register the new authorized range before issuing.",
     "RAZON_SOCIAL_EMISOR_OBLIGATORIA": "the issuer's legal name is required",
+    "RECEPTOR_NO_ENCONTRADO": "The receiving customer was not found.",
     "RECHAZO_COMERCIAL_DEBE_INDICAR_MOTIVO_DGII_EXIGE": "A commercial rejection must state its reason: the DGII requires it, and the issuer needs it to correct the document.",
     "RNC_CEDULA_COMPRADOR_DEBE_TENER_9_U_11": "the buyer's RNC or national ID must have 9 or 11 digits",
     "RNC_EMISOR_COMPROBANTE_ES_OBLIGATORIO": "The issuer's RNC is required on the document.",
@@ -542,7 +553,9 @@
     "SII_SIN_ACTIVIDAD": "The economic activity code the SII requires on the document is missing.",
     "SII_SIN_CAF": "The SII's CAF is missing: without its key the document cannot be stamped.",
     "SRI_EMISOR_SIN_RUC": "The organization has no RUC; the SRI does not accept a document without one.",
+    "SRI_ESTABLECIMIENTO_TRES_DIGITOS": "The SRI establishment must be three digits.",
     "SRI_FALTA_ESTABLECIMIENTO_PUNTO_EMISION": "The SRI establishment and emission point are missing. Set them in Settings → Fiscal before issuing.",
+    "SRI_PUNTO_EMISION_TRES_DIGITOS": "The SRI emission point must be three digits.",
     "SRI_SIN_ESTABLECIMIENTO": "The SRI establishment and point of issue are missing.",
     "SUNAT_EMISOR_SIN_RUC": "The organization has no RUC; SUNAT does not accept a document without one.",
     "SUNAT_SERIE_NO_CORRESPONDE_AL_TIPO": "Series {series} does not match document type {type}. An F series is a factura and a B series a boleta; SUNAT rejects the submission before reading the document.",
@@ -1124,6 +1137,7 @@
     "LINEA_CONTABLE_NO_VALIDA_PARA_ESTA_CUENTA": "A ledger line does not exist, is not posted, or does not belong to this statement’s account.",
     "LINEA_CONTABLE_YA_CONCILIADA": "Ledger line {id} is already reconciled.",
     "LINEA_REPETIDA_EN_CONCILIACION": "A ledger line appears twice in the same match.",
+    "LINEA_SIN_IMPORTE_EN_MONEDA_DE_LA_CUENTA": "The line has no amount in the account currency, and without one it cannot be reconciled against the statement.",
     "NO_HAY_LIBRO_CONTABLE_POR_DEFECTO": "No default ledger has been configured for this organization.",
     "QUEDAN_TRANSACCIONES_SIN_CONCILIAR": "{count} bank movements are still neither matched nor set aside.",
     "RANGO_FECHAS_INVALIDO": "The statement’s start date is after its end date.",
@@ -1139,9 +1153,13 @@
     "CUENTA_CUENTAS_COBRAR_DEFECTO_NO_ESTA_CONFIGURADA": "The default Accounts Receivable account is not configured.",
     "DEMASIADAS_CUENTAS": "{{count}} accounts were requested and the maximum per report is {{max}}.",
     "LIBRO_CONTABLE_ID_NO_ENCONTRADO": "Ledger \"{{ledgerId}}\" was not found.",
+    "LIBRO_MAYOR_REQUIERE_AL_MENOS_UNA_CUENTA": "The general ledger needs at least one account selected.",
     "NO_HAY_FACTURAS_PENDIENTES_PAGO_PARA_GENERAR_REPORTE": "There are no outstanding invoices to build the report from.",
+    "NO_HAY_LIBRO_CONTABLE_POR_DEFECTO": "No default ledger is configured. Set one in Settings → Accounting before generating the report.",
     "NO_PUDO_DETERMINAR_LIBRO_CONTABLE_REPORTE_NO": "The ledger for the report could not be determined: none was specified and there is no default.",
-    "RANGO_FECHAS_EXCEDE_LIMITE": "The requested range spans {{days}} days and the maximum per report is {{max}}."
+    "RANGO_FECHAS_EXCEDE_LIMITE": "The requested range spans {{days}} days and the maximum per report is {{max}}.",
+    "RANGO_FECHAS_INVALIDO": "The start date cannot be later than the end date.",
+    "TIPO_REPORTE_NO_SOPORTADO": "Report type {kind} does not exist."
   },
   "ROLES": {
     "NO_PUEDES_ASIGNAR_PERMISO_PORQUE_TU_NO": "You cannot assign the permission \"{{permission}}\" because you do not hold it.",
@@ -1170,6 +1188,7 @@
     "YA_EXISTE_ROL_LLAMADO_TU_ORGANIZACION": "A role named \"{{name}}\" already exists in your organization."
   },
   "SAAS": {
+    "FEATURE_DISABLED": "Feature {featureKey} is not included in your plan.",
     "LIMIT_REACHED": {
       "BODY": "Your plan allows {{limit}} {{resource}}. Upgrade under Settings → Billing to carry on.",
       "TITLE": "You have reached your {{resource}} limit"
@@ -1178,6 +1197,8 @@
       "BODY": "You have used {{used}} of your plan's {{limit}} {{resource}}. You can upgrade under Settings → Billing before you reach it.",
       "TITLE": "You are approaching your {{resource}} limit"
     },
+    "ORGANIZATION_CONTEXT_REQUIRED_FOR_FEATURE_CHECK": "The organization could not be determined to check access to this feature.",
+    "ORGANIZATION_CONTEXT_REQUIRED_FOR_LIMIT_CHECK": "The organization could not be determined to check plan limits.",
     "PAYMENT_FAILED": {
       "BODY": "The {{amount}} charge could not be completed. Update your payment method under Settings → Billing.",
       "BODY_GRACE": "The {{amount}} charge could not be completed. Your access continues until {{gracePeriodEnd}}. Update your payment method under Settings → Billing.",
@@ -1196,7 +1217,9 @@
       "SUBSIDIARIES": "subsidiaries",
       "SUPPLIERS": "suppliers",
       "USERS": "users"
-    }
+    },
+    "SUBSCRIPTION_REQUIRED": "This action requires an active subscription.",
+    "SUBSCRIPTION_SUSPENDED": "The subscription is {status} and does not allow this action. Settle the payment to continue."
   },
   "SALES": {
     "COTIZACION_NO_ENCONTRADA": "The quote was not found.",

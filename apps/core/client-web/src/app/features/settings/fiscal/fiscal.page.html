@@ -4,6 +4,44 @@
     <p>{{ 'SETTINGS.FISCAL.CONFIGURA_CERTIFICADO_FIRMA_RANGOS_NCF_AUTORIZADOS' | translate }}</p>
   </header>
 
+  <!--
+    What the product covers in the tenant's market, per capability.
+
+    This page configures the Dominican regime. A tenant in another market who reaches it needs to
+    be told that before reading a form that does not apply to them, and pointed at the page that
+    does — which is what the notice below does.
+  -->
+  @if (coverage(); as market) {
+    <section class="card coverage">
+      <h2>{{ 'SETTINGS.FISCAL.COVERAGE_TITLE' | translate: { country: market.countryCode } }}</h2>
+      @if (!isDominican()) {
+        <p class="hint coverage__elsewhere">
+          {{ 'SETTINGS.FISCAL.COVERAGE_OTHER_MARKET' | translate }}
+        </p>
+      }
+      <ul class="coverage__list">
+        @for (capability of market.capabilities; track capability.capability) {
+          <li [class]="'coverage__row coverage__row--' + capability.level">
+            <span class="coverage__capability">
+              {{ capabilityKey(capability.capability) | translate }}
+            </span>
+            <span class="coverage__level">
+              {{ levelKey(capability.level) | translate }}
+            </span>
+            @if (capability.detail) {
+              <span class="coverage__detail">{{ capability.detail }}</span>
+            }
+            @if (capability.requires) {
+              <span class="coverage__requires">
+                {{ 'SETTINGS.FISCAL.REQUIRES' | translate }}: {{ capability.requires }}
+              </span>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+  }
+
   <!-- Certificado digital -->
   <section class="card">
     <h2>{{ 'SETTINGS.FISCAL.CERTIFICADO_DIGITAL' | translate }}</h2>
@@ -65,7 +103,7 @@
       <label>
         <span>{{ 'SETTINGS.FISCAL.TIPO' | translate }}</span>
         <select formControlName="type">
-          <option *ngFor="let t of ncfTypes" [value]="t.value">{{ t.label }}</option>
+          <option *ngFor="let t of ncfTypes" [value]="t.value">{{ t.labelKey | translate }}</option>
         </select>
       </label>
       <label>

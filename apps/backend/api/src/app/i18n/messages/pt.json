@@ -72,6 +72,7 @@
     "PERIOD_CLOSED": "O período contábil \"{{name}}\" foi encerrado.",
     "PERIOD_REOPENED": "O período contábil \"{{name}}\" foi reaberto.",
     "PROCESO_AJUSTE_POR_INFLACION_EJECUTADO_EXITOSAMENTE": "O processo de ajuste inflacionário foi executado com sucesso.",
+    "RANGO_FECHAS_INVALIDO": "A data inicial não pode ser posterior à final.",
     "TODAS_REGLAS_EXISTENTES_FUERON_ELIMINADAS": "Todas as regras existentes foram excluídas.",
     "UNO_AMBOS_LIBROS_CONTABLES_NO_FUERON_ENCONTRADOS": "Um ou ambos os livros contábeis não foram encontrados."
   },
@@ -476,6 +477,7 @@
     "CFDI_SIN_REGIMEN_FISCAL": "Falta o regime fiscal do emissor. Configure em Configurações → Fiscal.",
     "CODIGO_MODIFICACION_DEBE_ESTAR_ENTRE_1_5": "o código de modificação deve estar entre 1 e 5",
     "CODIGO_MONEDA_DEBE_ISO_4217": "o código da moeda deve ser ISO 4217",
+    "CODIGO_NUMERICO_OCHO_DIGITOS": "O código numérico deve ter exatamente oito dígitos: faz parte da chave do documento, e um de sete preenchido até oito produz uma chave diferente da que você acredita ter emitido.",
     "COMPROBANTE_DEBE_TENER_MENOS_LINEA": "o documento deve ter ao menos uma linha",
     "COMPROBANTE_EXPORTACION_REQUIERE_IDENTIFICAR_COMPRADOR_EXTRANJERO": "um documento de exportação exige a identificação do comprador estrangeiro",
     "COMPROBANTE_YA_FUE_RESPONDIDO_COMERCIALMENTE": "O documento {{ncf}} de {{issuerRnc}} já recebeu resposta comercial.",
@@ -489,7 +491,9 @@
     "DIAN_SIN_RESOLUCION": "Falta a resolução de faturamento da DIAN com seu prefixo e faixa autorizada.",
     "DIRECCION_FISCAL_EMISOR_OBLIGATORIA_COMPLETALA_AJUSTES_EMPRESA": "o endereço fiscal do emissor é obrigatório; preencha-o em Configurações → Empresa",
     "DOCUMENTO_FIRMADO_NO_CONTIENE_SIGNATUREVALUE": "O documento assinado não contém um SignatureValue.",
+    "DOCUMENTO_SIN_NUMERO_FISCAL": "O documento {document} não tem número fiscal atribuído. A numeração interna não serve: a autoridade reconhece apenas o número da faixa que autorizou.",
     "ECF_CERT_ENCRYPTION_KEY_NO_ESTA_CONFIGURADA": "ECF_CERT_ENCRYPTION_KEY não está configurada (mínimo de 16 caracteres). Ela é obrigatória para criptografar os certificados e-CF.",
+    "EMISOR_NO_ENCONTRADO": "A organização emitente não foi encontrada.",
     "ENCF_BAD_FORMAT": "\"{{value}}\" não está no formato de e-NCF (E + 12 dígitos)",
     "ENCF_TYPE_MISMATCH": "o tipo declarado ({{declared}}) não coincide com o do e-NCF ({{encoded}})",
     "ESTA_FACTURA_NO_TIENE_CF_ASOCIADO": "Esta fatura não tem um e-CF associado.",
@@ -505,6 +509,8 @@
     "ITEM_TAX_RATE_NOT_IN_FORCE": "linha {{line}}: a alíquota {{rate}} não é uma alíquota de ITBIS vigente",
     "MODIFIED_NCF_BAD_FORMAT": "\"{{value}}\" não está no formato de um NCF",
     "MUNICIPIO_DEBE_DECLARARSE_CON_CODIGO_CUATRO_DIGITOS_DGII": "o município deve ser declarado com o código de quatro dígitos da DGII",
+    "NFE_CODIGO_ESTADO_DOS_DIGITOS": "O código IBGE do estado deve ter dois dígitos.",
+    "NFE_CODIGO_MUNICIPIO_SIETE_DIGITOS": "O código IBGE do município deve ter sete dígitos.",
     "NFE_EMISOR_SIN_CNPJ": "A organização não tem CNPJ válido; a NF-e não pode ser emitida.",
     "NFE_LINEA_SIN_CLASIFICACION": "A linha «{{line}}» não tem {{key}}. Defina-o no produto: NCM classifica a mercadoria e CFOP a operação, e nenhum dos dois se deduz da descrição.",
     "NFE_RECEPTOR_SIN_DOCUMENTO": "O cliente «{{customer}}» não tem CNPJ nem CPF.",
@@ -521,6 +527,7 @@
     "ORGANIZACION_NO_ENCONTRADA": "Organização não encontrada.",
     "ORGANIZACION_NO_TIENE_RNC_CONFIGURADO": "A organização não tem RNC configurado.",
     "ORGANIZACION_NO_TIENE_RNC_CONFIGURADO_COMPLETALO_AJUSTES": "A organização não tem RNC configurado. Preencha-o em Configurações → Empresa.",
+    "ORGANIZACION_SIN_PAIS": "A organização não tem país declarado e, sem ele, não há regime fiscal a configurar.",
     "PAYMENTS_DO_NOT_MATCH_TOTAL": "as formas de pagamento somam {{declared}} e o total do documento é {{total}}",
     "PAYMENT_METHOD_CODE_UNKNOWN": "\"{{value}}\" não é um código de forma de pagamento da DGII",
     "PROVINCIA_DEBE_DECLARARSE_CON_CODIGO_DOS_DIGITOS_DGII": "a província deve ser declarada com o código de dois dígitos da DGII",
@@ -529,9 +536,13 @@
     "RANGO_FISCAL_LIMITES_INVALIDOS": "A faixa {from}–{to} não é válida: o número final não pode ser menor que o inicial.",
     "RANGO_FISCAL_LIMITES_NO_NUMERICOS": "A faixa autorizada para o tipo {type} tem limites que não são numéricos. Corrija antes de emitir.",
     "RANGO_FISCAL_NO_CONFIGURADO": "Não há uma faixa autorizada ativa para o tipo de documento {type} em {country}. Registre a faixa que a autoridade concedeu antes de emitir.",
+    "RANGO_FISCAL_NO_CONTIENE_NUMERO": "Nenhuma faixa autorizada do tipo {type} contém o número {number}. O documento foi numerado fora de toda faixa registrada.",
+    "RANGO_FISCAL_NO_ENCONTRADO": "A faixa indicada não foi encontrada.",
+    "RANGO_FISCAL_SECRETO_SIN_TIPO": "Você indicou material secreto para a faixa, mas não de que tipo é (CAF ou chave técnica).",
     "RANGO_FISCAL_SIN_SECRETO": "A faixa do tipo {type} não tem registrado o material que a autoridade entrega com ela (CAF ou chave técnica). Carregue-o antes de emitir.",
     "RANGO_FISCAL_VENCIDO": "A autorização da faixa do tipo {type} venceu em {date}. Registre a nova faixa autorizada antes de emitir.",
     "RAZON_SOCIAL_EMISOR_OBLIGATORIA": "a razão social do emissor é obrigatória",
+    "RECEPTOR_NO_ENCONTRADO": "O cliente destinatário não foi encontrado.",
     "RECHAZO_COMERCIAL_DEBE_INDICAR_MOTIVO_DGII_EXIGE": "Uma rejeição comercial deve informar o motivo: a DGII o exige e o emissor precisa dele para corrigir.",
     "RNC_CEDULA_COMPRADOR_DEBE_TENER_9_U_11": "o RNC ou documento do comprador deve ter 9 ou 11 dígitos",
     "RNC_EMISOR_COMPROBANTE_ES_OBLIGATORIO": "O RNC do emissor do documento é obrigatório.",
@@ -542,7 +553,9 @@
     "SII_SIN_ACTIVIDAD": "Falta o código de atividade econômica exigido pelo SII no documento.",
     "SII_SIN_CAF": "Falta o CAF do SII: sem sua chave o documento não pode ser carimbado.",
     "SRI_EMISOR_SIN_RUC": "A organização não tem RUC; o SRI não aceita um comprovante sem ele.",
+    "SRI_ESTABLECIMIENTO_TRES_DIGITOS": "O estabelecimento do SRI deve ter três dígitos.",
     "SRI_FALTA_ESTABLECIMIENTO_PUNTO_EMISION": "Faltam o estabelecimento e o ponto de emissão do SRI. Configure-os em Configurações → Fiscal antes de emitir.",
+    "SRI_PUNTO_EMISION_TRES_DIGITOS": "O ponto de emissão do SRI deve ter três dígitos.",
     "SRI_SIN_ESTABLECIMIENTO": "Faltam o estabelecimento e o ponto de emissão do SRI.",
     "SUNAT_EMISOR_SIN_RUC": "A organização não tem RUC; a SUNAT não aceita um comprovante sem ele.",
     "SUNAT_SERIE_NO_CORRESPONDE_AL_TIPO": "A série {series} não corresponde ao tipo de comprovante {type}. Uma série F é fatura e uma série B é boleta; a SUNAT rejeita o envio antes de ler o documento.",
@@ -1124,6 +1137,7 @@
     "LINEA_CONTABLE_NO_VALIDA_PARA_ESTA_CUENTA": "Alguma linha contábil não existe, não está lançada ou não pertence à conta deste extrato.",
     "LINEA_CONTABLE_YA_CONCILIADA": "A linha contábil {id} já está conciliada.",
     "LINEA_REPETIDA_EN_CONCILIACION": "Uma linha contábil aparece duas vezes na mesma conciliação.",
+    "LINEA_SIN_IMPORTE_EN_MONEDA_DE_LA_CUENTA": "A linha não tem valor na moeda da conta e, sem ele, não é possível conciliar contra o extrato.",
     "NO_HAY_LIBRO_CONTABLE_POR_DEFECTO": "Não há livro contábil padrão configurado para a organização.",
     "QUEDAN_TRANSACCIONES_SIN_CONCILIAR": "Restam {count} movimentos do banco sem conciliar nem apartar.",
     "RANGO_FECHAS_INVALIDO": "A data inicial do extrato é posterior à final.",
@@ -1139,9 +1153,13 @@
     "CUENTA_CUENTAS_COBRAR_DEFECTO_NO_ESTA_CONFIGURADA": "A conta padrão de Contas a Receber não está configurada.",
     "DEMASIADAS_CUENTAS": "Foram solicitadas {{count}} contas e o máximo por relatório é {{max}}.",
     "LIBRO_CONTABLE_ID_NO_ENCONTRADO": "Livro contábil \"{{ledgerId}}\" não encontrado.",
+    "LIBRO_MAYOR_REQUIERE_AL_MENOS_UNA_CUENTA": "O razão precisa de pelo menos uma conta selecionada.",
     "NO_HAY_FACTURAS_PENDIENTES_PAGO_PARA_GENERAR_REPORTE": "Não há faturas em aberto para gerar o relatório.",
+    "NO_HAY_LIBRO_CONTABLE_POR_DEFECTO": "Não há um livro contábil padrão configurado. Defina-o em Configurações → Contabilidade antes de gerar o relatório.",
     "NO_PUDO_DETERMINAR_LIBRO_CONTABLE_REPORTE_NO": "Não foi possível determinar o livro contábil do relatório: nenhum foi informado e não há um padrão.",
-    "RANGO_FECHAS_EXCEDE_LIMITE": "O intervalo solicitado abrange {{days}} dias e o máximo por relatório é {{max}}."
+    "RANGO_FECHAS_EXCEDE_LIMITE": "O intervalo solicitado abrange {{days}} dias e o máximo por relatório é {{max}}.",
+    "RANGO_FECHAS_INVALIDO": "A data inicial não pode ser posterior à final.",
+    "TIPO_REPORTE_NO_SOPORTADO": "O tipo de relatório {kind} não existe."
   },
   "ROLES": {
     "NO_PUEDES_ASIGNAR_PERMISO_PORQUE_TU_NO": "Você não pode atribuir a permissão \"{{permission}}\" porque não a possui.",
@@ -1170,6 +1188,7 @@
     "YA_EXISTE_ROL_LLAMADO_TU_ORGANIZACION": "Já existe um perfil chamado \"{{name}}\" na sua organização."
   },
   "SAAS": {
+    "FEATURE_DISABLED": "A função {featureKey} não está incluída no seu plano.",
     "LIMIT_REACHED": {
       "BODY": "Seu plano permite {{limit}} {{resource}}. Amplie o plano em Configurações → Faturamento para continuar.",
       "TITLE": "Você atingiu o limite de {{resource}}"
@@ -1178,6 +1197,8 @@
       "BODY": "Você usou {{used}} de {{limit}} {{resource}} do seu plano. Você pode ampliá-lo em Configurações → Faturamento antes de atingi-lo.",
       "TITLE": "Você está chegando ao limite de {{resource}}"
     },
+    "ORGANIZATION_CONTEXT_REQUIRED_FOR_FEATURE_CHECK": "Não foi possível determinar a organização para verificar o acesso a esta função.",
+    "ORGANIZATION_CONTEXT_REQUIRED_FOR_LIMIT_CHECK": "Não foi possível determinar a organização para verificar os limites do plano.",
     "PAYMENT_FAILED": {
       "BODY": "A cobrança de {{amount}} não pôde ser concluída. Atualize sua forma de pagamento em Configurações → Faturamento.",
       "BODY_GRACE": "A cobrança de {{amount}} não pôde ser concluída. Seu acesso continua até {{gracePeriodEnd}}. Atualize sua forma de pagamento em Configurações → Faturamento.",
@@ -1196,7 +1217,9 @@
       "SUBSIDIARIES": "subsidiárias",
       "SUPPLIERS": "fornecedores",
       "USERS": "usuários"
-    }
+    },
+    "SUBSCRIPTION_REQUIRED": "Esta ação requer uma assinatura ativa.",
+    "SUBSCRIPTION_SUSPENDED": "A assinatura está em estado {status} e não permite esta ação. Regularize o pagamento para continuar."
   },
   "SALES": {
     "COTIZACION_NO_ENCONTRADA": "O orçamento não foi encontrado.",

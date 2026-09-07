@@ -52,6 +52,63 @@ export interface MarketCoverage {
   capabilities: CapabilityCoverage[];
 }
 
+/** Which of the authority's two worlds the tenant transmits to. */
+export type FiscalEnvironment = 'PRODUCTION' | 'CERTIFICATION';
+
+/**
+ * The tenant's operational configuration for their market's e-invoicing regime.
+ *
+ * Every field is optional because the seven regimes need different subsets — asking a Chilean
+ * tenant for an IBGE municipality code would be nonsense. Which ones THIS tenant needs is decided
+ * by their country, and the adapter names precisely what is missing when it cannot build.
+ */
+export interface FiscalRegimeSettings {
+  environment: FiscalEnvironment;
+  establishment?: string | null;
+  emissionPoint?: string | null;
+  numericCode?: string | null;
+  stateCode?: string | null;
+  municipalityCode?: string | null;
+  resolutionNumber?: string | null;
+  activityCode?: string | null;
+  originComuna?: string | null;
+  originCity?: string | null;
+}
+
+/**
+ * A range of document numbers the authority authorised.
+ *
+ * `hasSecret` and never the secret itself: the CAF holds the RSA key that seals the taxpayer's
+ * folios and Colombia's ClaveTécnica is what makes a CUFE theirs. Either one read back through an
+ * API lets whoever reads it issue fiscal documents in the taxpayer's name, so it goes in and never
+ * comes out — replacing it means uploading a new one.
+ */
+export interface FiscalRange {
+  id: string;
+  documentType: string;
+  series: string;
+  startsAt: number;
+  endsAt: number;
+  currentSequence: number;
+  remaining: number;
+  isActive: boolean;
+  validUntil: string | null;
+  authorizationCode: string | null;
+  hasSecret: boolean;
+  secretKind: string | null;
+}
+
+export interface RegisterFiscalRangeInput {
+  documentType: string;
+  series?: string;
+  startsAt: number;
+  endsAt: number;
+  validUntil?: string;
+  authorizationCode?: string;
+  secret?: string;
+  secretKind?: 'CAF_XML' | 'DIAN_TECHNICAL_KEY';
+}
+
 /**
  * The fiscal configuration a tenant maintains, and the coverage statement beside it.
  *
@@ -64,6 +121,7 @@ export interface MarketCoverage {
 export class FiscalSettingsService {
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiUrl}/localization`;
+  private readonly einvoicing = `${environment.apiUrl}/einvoicing/regime`;
 
   coverage(): Observable<MarketCoverage> {
     return this.http.get<MarketCoverage>(`${this.base}/fiscal-coverage`);
@@ -98,5 +156,33 @@ export class FiscalSettingsService {
 
   deleteWithholdingRegime(id: string): Observable<void> {
     return this.http.delete<void>(`${this.base}/withholding-regimes/${id}`);
+  }
+
+  // ── E-invoicing regime ────────────────────────────────────────────────────
+  //
+  // The regime settings and the authorised ranges are what make six markets issuable at all: a
+  // Chilean tenant cannot issue without a CAF, an Ecuadorean one without an emission point, a
+  // Brazilian one without their IBGE codes. Until this existed the only way to supply any of it
+  // was an INSERT, and the product refused to issue — correctly, with no way out.
+
+  regimeSettings(): Observable<FiscalRegimeSettings | null> {
+    return this.http.get<FiscalRegimeSettings | null>(`${this.einvoicing}/settings`);
+  }
+
+  saveRegimeSettings(input: Partial<FiscalRegimeSettings>): Observable<FiscalRegimeSettings> {
+    return this.http.put<FiscalRegimeSettings>(`${this.einvoicing}/settings`, input);
+  }
+
+  ranges(): Observable<FiscalRange[]> {
+    return this.http.get<FiscalRange[]>(`${this.einvoicing}/ranges`);
+  }
+
+  registerRange(input: RegisterFiscalRangeInput): Observable<FiscalRange> {
+    return this.http.post<FiscalRange>(`${this.einvoicing}/ranges`, input);
+  }
+
+  /** Retires the range; the row stays on file, because past documents were issued under it. */
+  deactivateRange(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.einvoicing}/ranges/${id}`);
   }
 }
