@@ -1,0 +1,72 @@
+.s-page { padding: 2rem; max-width: 1100px; }
+
+.s-header {
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 1.25rem;
+
+  &__title { font-size: 1.375rem; font-weight: 700; color: var(--text-primary); margin-bottom: .25rem; }
+  &__subtitle { font-size: .875rem; color: var(--text-secondary); }
+}
+
+/* The consequence of leaving this empty is not obvious from the form, so it is stated above it. */
+.s-note {
+  margin: 0 0 1.25rem;
+  padding: .75rem 1rem;
+  border-left: 3px solid var(--warning-text, var(--text-secondary));
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  font-size: .875rem;
+}
+
+.s-state { padding: 2rem 0; color: var(--text-secondary); }
+
+.j-form { padding: 1.25rem; margin: 1rem 0 1.5rem; }
+
+.j-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  font-size: .8125rem;
+  color: var(--text-secondary);
+
+  input, select {
+    padding: .5rem .625rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--surface-raised);
+    color: var(--text-primary);
+    font: inherit;
+  }
+
+  &--check { flex-direction: row; align-items: center; gap: .5rem; }
+}
+
+.field-hint { color: var(--text-secondary); font-size: .75rem; }
+
+.j-group {
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+
+  h2 { font-size: .9375rem; font-weight: 600; margin-bottom: .75rem; color: var(--text-primary); }
+}
+
+.j-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+
+  th, td { padding: .5rem .625rem; border-bottom: 1px solid var(--border-color); text-align: left; }
+  th { color: var(--text-secondary); font-weight: 600; font-size: .8125rem; }
+  .numeric { text-align: right; }
+}
+
+/* A rate the tenant is not registered for is never charged, so it reads as inactive. */
+.j-row--unregistered { opacity: .55; }

@@ -177,22 +177,39 @@
         <div class="card">
           <div class="card-body">
             <h3>{{ 'INVOICES.NEW.RESUMEN' | translate }}</h3>
-            <!-- An estimate: the figures that reach the comprobante are the server's. -->
-            <p class="hint">Cálculo estimado. El servidor recalcula y sella los importes definitivos.</p>
-            <dl class="summary-totals">
-              <dt>Subtotal</dt><dd>{{ totals.subtotal | vxNumber: '1.2-2' }}</dd>
-              @if (totals.discount > 0) {
-                <dt>Descuento</dt><dd>−{{ totals.discount | vxNumber: '1.2-2' }}</dd>
+            <!--
+              The server's own figures, from the same code that will issue the document. This panel
+              used to compute them here, and had already diverged: it taxed the base before the
+              document discount, knew nothing of excise, and applied whatever withholding rate the
+              form carried instead of the buyer's regime.
+            -->
+            @if (totalsPending()) {
+              <p class="hint">{{ 'INVOICES.NEW.CALCULANDO_IMPORTES' | translate }}</p>
+            }
+            <dl class="summary-totals" [class.summary-totals--stale]="totalsPending()">
+              <dt>{{ 'INVOICES.NEW.SUBTOTAL' | translate }}</dt>
+              <dd>{{ totals().subtotal | vxNumber: '1.2-2' }}</dd>
+              @if (totals().discountTotal > 0) {
+                <dt>{{ 'INVOICES.NEW.DESCUENTO' | translate }}</dt>
+                <dd>−{{ totals().discountTotal | vxNumber: '1.2-2' }}</dd>
               }
-              <dt>ITBIS</dt><dd>{{ totals.tax | vxNumber: '1.2-2' }}</dd>
-              @if (totals.serviceCharge > 0) {
-                <dt>Propina legal</dt><dd>{{ totals.serviceCharge | vxNumber: '1.2-2' }}</dd>
+              <dt>{{ 'INVOICES.NEW.IMPUESTO' | translate }}</dt>
+              <dd>{{ totals().tax | vxNumber: '1.2-2' }}</dd>
+              @if (totals().excise > 0) {
+                <dt>{{ 'INVOICES.NEW.IMPUESTO_SELECTIVO' | translate }}</dt>
+                <dd>{{ totals().excise | vxNumber: '1.2-2' }}</dd>
               }
-              <dt class="grand">Total</dt>
-              <dd class="grand">{{ totals.total | vxNumber: '1.2-2' }} {{ invoiceForm.get('currencyCode')?.value }}</dd>
-              @if (totals.withheld > 0) {
-                <dt>Retenciones</dt><dd>−{{ totals.withheld | vxNumber: '1.2-2' }}</dd>
-                <dt>Neto a cobrar</dt><dd>{{ totals.net | vxNumber: '1.2-2' }}</dd>
+              @if (totals().serviceCharge > 0) {
+                <dt>{{ 'INVOICES.NEW.PROPINA_LEGAL' | translate }}</dt>
+                <dd>{{ totals().serviceCharge | vxNumber: '1.2-2' }}</dd>
+              }
+              <dt class="grand">{{ 'INVOICES.NEW.TOTAL' | translate }}</dt>
+              <dd class="grand">{{ totals().total | vxNumber: '1.2-2' }} {{ invoiceForm.get('currencyCode')?.value }}</dd>
+              @if (totals().taxWithheld + totals().incomeTaxWithheld > 0) {
+                <dt>{{ 'INVOICES.NEW.RETENCIONES' | translate }}</dt>
+                <dd>−{{ totals().taxWithheld + totals().incomeTaxWithheld | vxNumber: '1.2-2' }}</dd>
+                <dt>{{ 'INVOICES.NEW.NETO_A_COBRAR' | translate }}</dt>
+                <dd>{{ totals().netReceivable | vxNumber: '1.2-2' }}</dd>
               }
             </dl>
           </div>
@@ -205,43 +222,41 @@
       <div class="main-content">
         <div class="card">
           <div class="card-body">
-            <h3>Comprobante fiscal</h3>
+            <h3>{{ 'INVOICES.NEW.COMPROBANTE_FISCAL' | translate }}</h3>
 
             @if (fiscalTypes().length > 0) {
               <div class="form-group">
-                <label class="form-label" for="fiscalDocumentType">Tipo de comprobante</label>
+                <label class="form-label" for="fiscalDocumentType">{{ 'INVOICES.NEW.TIPO_COMPROBANTE' | translate }}</label>
                 <select id="fiscalDocumentType" formControlName="fiscalDocumentType" class="form-control">
                   <!--
                     Selectable at last. The type used to be inferred from the LENGTH of the buyer's
                     tax id, so exports, government sales and special regimes could not be issued at
                     all. Left empty, the market's adapter still chooses.
                   -->
-                  <option value="">Automático según el comprador</option>
+                  <option value="">{{ 'INVOICES.NEW.AUTOMATICO_SEGUN_COMPRADOR' | translate }}</option>
                   @for (type of fiscalTypes(); track type.code) {
-                    <option [value]="type.code">{{ type.label }}</option>
+                    <option [value]="type.code">{{ type.labelKey | translate }}</option>
                   }
                 </select>
               </div>
             } @else {
               <p class="hint">
-                Este mercado todavía no tiene régimen de comprobantes electrónicos implementado. El
-                documento se numera internamente y se contabiliza, pero no se sella ante ninguna
-                autoridad.
+                {{ 'INVOICES.NEW.ESTE_MERCADO_TODAVIA_NO_TIENE_REGIMEN' | translate }}
               </p>
             }
 
             <div class="form-group">
-              <label class="form-label" for="paymentMethod">Forma de pago</label>
+              <label class="form-label" for="paymentMethod">{{ 'INVOICES.NEW.FORMA_PAGO' | translate }}</label>
               <select id="paymentMethod" formControlName="paymentMethod" class="form-control">
-                <option value="CASH">Efectivo</option>
-                <option value="CHECK">Cheque</option>
-                <option value="BANK_TRANSFER">Transferencia</option>
-                <option value="CREDIT_CARD">Tarjeta de crédito</option>
-                <option value="DEBIT_CARD">Tarjeta de débito</option>
-                <option value="CREDIT">Venta a crédito</option>
-                <option value="GIFT_CARD">Bono o certificado de regalo</option>
-                <option value="SWAP">Permuta</option>
-                <option value="OTHER">Otra</option>
+                <option value="CASH">{{ 'INVOICES.NEW.EFECTIVO' | translate }}</option>
+                <option value="CHECK">{{ 'INVOICES.NEW.CHEQUE' | translate }}</option>
+                <option value="BANK_TRANSFER">{{ 'INVOICES.NEW.TRANSFERENCIA' | translate }}</option>
+                <option value="CREDIT_CARD">{{ 'INVOICES.NEW.TARJETA_CREDITO' | translate }}</option>
+                <option value="DEBIT_CARD">{{ 'INVOICES.NEW.TARJETA_DEBITO' | translate }}</option>
+                <option value="CREDIT">{{ 'INVOICES.NEW.VENTA_CREDITO' | translate }}</option>
+                <option value="GIFT_CARD">{{ 'INVOICES.NEW.BONO_CERTIFICADO_REGALO' | translate }}</option>
+                <option value="SWAP">{{ 'INVOICES.NEW.PERMUTA' | translate }}</option>
+                <option value="OTHER">{{ 'INVOICES.NEW.OTRA' | translate }}</option>
               </select>
             </div>
           </div>
@@ -249,17 +264,23 @@
 
         <div class="card">
           <div class="card-body">
-            <h3>Descuentos y cargos</h3>
+            <h3>{{ 'INVOICES.NEW.DESCUENTOS_CARGOS' | translate }}</h3>
             <div class="form-group">
-              <label class="form-label" for="documentDiscountRate">Descuento del documento (fracción)</label>
+              <label class="form-label" for="documentDiscountRate">{{ 'INVOICES.NEW.DESCUENTO_DOCUMENTO_FRACCION' | translate }}</label>
               <input id="documentDiscountRate" type="number" step="0.01" min="0" max="0.99"
                      formControlName="documentDiscountRate" class="form-control" />
             </div>
             @if ((context()?.serviceChargeRate ?? 0) > 0) {
               <div class="form-group">
+                <!--
+                  One key with a parameter, not two fragments: the rate sits inside the sentence,
+                  and a language that puts it elsewhere cannot be served by concatenation.
+                -->
                 <label class="form-label" for="serviceChargeRate">
-                  Propina legal (fracción; en este mercado es
-                  {{ (context()?.serviceChargeRate ?? 0) * 100 | vxNumber: '1.0-0' }}%)
+                  {{
+                    'INVOICES.NEW.PROPINA_LEGAL_FRACCION'
+                      | translate: { rate: (context()?.serviceChargeRate ?? 0) * 100 }
+                  }}
                 </label>
                 <input id="serviceChargeRate" type="number" step="0.01" min="0" max="0.5"
                        formControlName="serviceChargeRate" class="form-control" />
@@ -270,18 +291,17 @@
 
         <div class="card">
           <div class="card-body">
-            <h3>Retenciones en la fuente</h3>
+            <h3>{{ 'INVOICES.NEW.RETENCIONES_FUENTE' | translate }}</h3>
             <p class="hint">
-              Lo que el comprador retiene y remite por cuenta del vendedor. Reduce el importe a
-              cobrar, no el valor del comprobante.
+              {{ 'INVOICES.NEW.COMPRADOR_RETIENE_REMITE_CUENTA_VENDEDOR_REDUCE' | translate }}
             </p>
             <div class="form-group">
-              <label class="form-label" for="taxWithholdingRate">ITBIS retenido (fracción del impuesto)</label>
+              <label class="form-label" for="taxWithholdingRate">{{ 'INVOICES.NEW.ITBIS_RETENIDO_FRACCION_IMPUESTO' | translate }}</label>
               <input id="taxWithholdingRate" type="number" step="0.01" min="0" max="1"
                      formControlName="taxWithholdingRate" class="form-control" />
             </div>
             <div class="form-group">
-              <label class="form-label" for="incomeTaxWithholdingRate">ISR retenido (fracción de la base)</label>
+              <label class="form-label" for="incomeTaxWithholdingRate">{{ 'INVOICES.NEW.ISR_RETENIDO_FRACCION_BASE' | translate }}</label>
               <input id="incomeTaxWithholdingRate" type="number" step="0.01" min="0" max="1"
                      formControlName="incomeTaxWithholdingRate" class="form-control" />
             </div>

@@ -18,6 +18,7 @@ import {
   numericTransformer,
   numericTransformerNotNull,
 } from '../../common/database/numeric.transformer';
+import { roundToCurrency } from '../../common/money';
 
 export enum InvoiceStatus {
   /** Prepared but not issued. Carries NO fiscal number and is not posted to the ledger. */
@@ -262,7 +263,68 @@ export class Invoice {
   })
   incomeTaxWithheld: number;
 
-  /** Face value of the document: subtotal − discount + tax + service charge. */
+  /**
+   * Which withholding regimes produced the two figures above.
+   *
+   * Recorded so a filing can be traced back to the rule that generated it. Nothing did: the rates
+   * arrived on the request and the document kept only their result, so a return that reported a
+   * withholding could not say on what authority it had been taken.
+   *
+   * Empty when nothing was withheld, and also when the tenant overrode the regime — in which case
+   * `withholdingOverrideReason` carries the justification instead.
+   */
+  @Column({ name: 'withholding_regime_codes', type: 'text', array: true, default: '{}' })
+  withholdingRegimeCodes: string[];
+
+  /**
+   * Why this document withheld something other than what its regime produces.
+   *
+   * Null on an ordinary document. Non-null is not an error — a market this product does not model,
+   * a designation that changed this week — but it is a decision somebody made, and it is on the
+   * document rather than in a log that rotates.
+   */
+  @Column({ name: 'withholding_override_reason', type: 'text', nullable: true })
+  withholdingOverrideReason: string | null;
+
+  /**
+   * How the tax rate was determined, in a market that has no national rate.
+   *
+   * The United States and Brazil levy sub-nationally: what a buyer pays is the sum of a state,
+   * county, city and special-district rate at the delivery address, and a seller collects nothing
+   * at all in a state it is not registered in. Until now the client sent a rate and nothing
+   * checked it.
+   *
+   * Recorded per document because a return is filed per jurisdiction: without it, "which of these
+   * sales was Dallas and which was Houston" is unanswerable, and `NO_NEXUS` — a sale correctly
+   * untaxed — is indistinguishable from a sale somebody forgot to tax.
+   *
+   * Null in every market whose rate comes from a table.
+   */
+  @Column({ name: 'tax_determination', type: 'jsonb', nullable: true })
+  taxDetermination: {
+    outcome: string;
+    rate: number;
+    source: string;
+    components?: { level: string; name: string; rate: number }[];
+    reasonKey?: string;
+  } | null;
+
+  /**
+   * Excise duty (ISC / IEPS / ICE) charged on the document.
+   *
+   * Part of `total` and, until now, stored nowhere — so the ledger entry could not name the
+   * liability and the 607's `MontoISC` column had nothing to read.
+   */
+  @Column('decimal', {
+    name: 'excise',
+    precision: 18,
+    scale: 2,
+    default: 0,
+    transformer: numericTransformerNotNull,
+  })
+  excise: number;
+
+  /** Face value of the document: subtotal − discount + tax + excise + service charge. */
   @Column('decimal', {
     precision: 18,
     scale: 2,
@@ -418,12 +480,8 @@ export class Invoice {
 
   /** Amount still creditable by a credit note, in transaction currency. */
   get creditableRemaining(): number {
-    return round2(this.total - this.creditedTotal);
+    return roundToCurrency(this.total - this.creditedTotal, this.currencyCode);
   }
-}
-
-function round2(value: number): number {
-  return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
 /** Nullable numeric helper kept beside the entity so callers can reuse the same rounding rule. */

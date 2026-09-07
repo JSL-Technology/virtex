@@ -148,6 +148,21 @@ export class Product {
   @Column({ name: 'fiscal_item_code', type: 'varchar', length: 32, nullable: true })
   fiscalItemCode?: string | null;
 
+  /**
+   * The rest of the catalogue values this product's market requires on a document line.
+   *
+   * `claveProdServ` and `claveUnidad` in Mexico, `codigoProducto` and the UNSPSC unit in Colombia,
+   * the `codigoTipoItem` in Peru, `NCM` and `CFOP` in Brazil. Every one of these is drawn from a
+   * catalogue the authority publishes and none of them can be inferred from the product's name: a
+   * value invented here produces a document that is accepted and misdescribes what was sold, which
+   * is worse than one that refuses to be built.
+   *
+   * A map rather than a column per market, because the set differs per country and a tenant sells
+   * in one of them: columns for all seven would be six empty columns on every product row.
+   */
+  @Column({ name: 'fiscal_codes', type: 'jsonb', nullable: true })
+  fiscalCodes?: Record<string, string> | null;
+
   @Column({
     name: 'reorder_level',
     type: 'decimal',

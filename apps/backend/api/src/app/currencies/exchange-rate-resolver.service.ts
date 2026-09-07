@@ -5,6 +5,7 @@ import { OrganizationSettings } from '../organizations/entities/organization-set
 import { BadRequestError } from '../i18n/localized.exception';
 import { convert, roundAmount } from '../common/money';
 import { toIsoDate } from '../common/dates';
+import { differenceInCalendarDays } from 'date-fns';
 
 /** How a rate was arrived at, so a posting can be substantiated rather than trusted. */
 export interface ResolvedRate {
@@ -31,6 +32,10 @@ export interface ResolvedRate {
  */
 const PIVOT = 'USD';
 
+/** Used when a tenant has no settings row yet — provisioning creates one, but a job can race it. */
+const DEFAULT_RATE_TOLERANCE = 0.02;
+const DEFAULT_MAX_QUOTE_AGE_DAYS = 10;
+
 /**
  * The rate that converts an amount from one currency into another on a given date.
  *
@@ -52,9 +57,17 @@ const PIVOT = 'USD';
  *    overwrote each other, and nothing recorded which one a posted document had used — in a
  *    region where the authority publishes the rate you are obliged to use.
  * 3. **Silent staleness.** The lookup takes the newest quote at or before the date, which is
- *    right, but said nothing about how old it was. A rate six months stale converts as
- *    confidently as this morning's. `resolve` reports `quotedOn`, and a caller that wants to
- *    refuse a stale rate can.
+ *    right, but said nothing about how old it was. A rate six months stale converted as
+ *    confidently as this morning's. `resolve` reports `quotedOn`; `resolveForPosting` refuses a
+ *    quote older than the tenant's `fxRateMaxAgeDays` outright, because a posting is not a place
+ *    to approximate.
+ *
+ * ## And one the callers closed
+ *
+ * Every business caller used `rateFor`, which returns the number and discards `rateType`, `source`,
+ * `method` and `quotedOn` — so nothing that this class computed to make a posting auditable was
+ * ever persisted. `resolveForPosting` returns the whole `ResolvedRate` and `JournalEntriesService`
+ * stores all four columns on the entry.
  */
 @Injectable()
 export class ExchangeRateResolver {
@@ -180,6 +193,92 @@ export class ExchangeRateResolver {
       'CURRENCIES.NO_ENCONTRO_TASA_CAMBIO_VALIDA_FECHA_ESPECIFICADA',
       { from, to, date },
     );
+  }
+
+  /**
+   * The rate a posting must use, with the caller's stated rate admitted only within a band.
+   *
+   * ## Why a posting cannot take the rate it is given
+   *
+   * `JournalEntriesService` read `exchangeRate` straight off the request and checked only that it
+   * was positive. Anyone who could post an entry could therefore choose the rate it was booked at:
+   * book a receivable at one rate, settle it at another you invented, and the difference lands in
+   * the exchange gain account as profit. It is also a filing defect wherever the authority
+   * publishes an obligatory accounting rate — the DGII's, Mexico's DOF FIX, Colombia's TRM,
+   * Argentina's BNA — because the return has to be built at that rate and nothing recorded which
+   * one was used.
+   *
+   * So the server resolves the rate, and a caller-supplied one is accepted only if it sits within
+   * `fxRateTolerance` of it. That band exists because a real bank fill legitimately differs from
+   * the published rate by a spread; it is narrow enough that a fabricated number cannot hide in it.
+   * The rate that ends up on the entry is always the caller's when accepted — that is what actually
+   * happened — and the resolved quote's identity travels with it so the two can be compared later.
+   *
+   * ## Staleness
+   *
+   * `lookup` takes the newest quote at or before the posting date, which is right, and used to say
+   * nothing about how old it was. A quote older than `fxRateMaxAgeDays` is refused rather than
+   * applied silently: in this region a rate a month stale is not an approximation, it is a
+   * different number.
+   */
+  async resolveForPosting(
+    manager: EntityManager,
+    organizationId: string,
+    fromCurrency: string,
+    toCurrency: string,
+    date: string,
+    requestedRate: number | null,
+  ): Promise<ResolvedRate> {
+    const settings = await manager.findOne(OrganizationSettings, {
+      where: { organizationId },
+    });
+    const resolved = await this.resolve(
+      fromCurrency,
+      toCurrency,
+      date,
+      manager,
+      settings?.exchangeRateType,
+    );
+
+    const maxAgeDays = settings?.fxRateMaxAgeDays ?? DEFAULT_MAX_QUOTE_AGE_DAYS;
+    const ageDays = differenceInCalendarDays(
+      new Date(`${date}T00:00:00.000Z`),
+      new Date(`${resolved.quotedOn}T00:00:00.000Z`),
+    );
+    if (ageDays > maxAgeDays) {
+      throw new BadRequestError('CURRENCIES.TASA_CAMBIO_DEMASIADO_ANTIGUA', {
+        from: resolved.from,
+        to: resolved.to,
+        date,
+        quotedOn: resolved.quotedOn,
+        ageDays,
+        maxAgeDays,
+      });
+    }
+
+    if (requestedRate === null || requestedRate === undefined) return resolved;
+
+    if (!Number.isFinite(requestedRate) || requestedRate <= 0) {
+      throw new BadRequestError(
+        'JOURNAL_ENTRIES.REQUIERE_TASA_CAMBIO_EXCHANGERATE_POSITIVA_TRANSACCIONES_MONEDA',
+      );
+    }
+
+    const tolerance = Math.max(0, settings?.fxRateTolerance ?? DEFAULT_RATE_TOLERANCE);
+    const deviation = Math.abs(requestedRate - resolved.rate) / resolved.rate;
+    if (deviation > tolerance) {
+      throw new BadRequestError('CURRENCIES.TASA_CAMBIO_FUERA_DE_RANGO', {
+        requested: roundAmount(requestedRate, 6),
+        resolved: roundAmount(resolved.rate, 6),
+        tolerance,
+        source: resolved.source,
+        quotedOn: resolved.quotedOn,
+      });
+    }
+
+    // The caller's rate, with the resolved quote's provenance: the entry has to record the rate the
+    // transaction actually settled at, and what that was checked against.
+    return { ...resolved, rate: requestedRate, method: resolved.method };
   }
 
   /** `amount` expressed in `toCurrency`, rounded to the minor unit. */

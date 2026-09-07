@@ -1,5 +1,5 @@
 
-import { Controller, Get, UseGuards, Query } from '@nestjs/common';
+import { Controller, Get, UseGuards, UseInterceptors, Query } from '@nestjs/common';
 import { FinancialReportingService, DimensionFilters } from './financial-reporting.service';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
@@ -13,6 +13,9 @@ import {
   DimensionalPeriodQueryDto,
   PeriodQueryDto,
 } from './dto/financial-report-query.dto';
+import { AuditAccessInterceptor } from '../audit/audit-access.interceptor';
+import { AuditAccess } from '../audit/audit-access.decorator';
+import { ActionType } from '../audit/entities/audit-log.entity';
 
 /**
  * The four statements.
@@ -25,6 +28,10 @@ import {
 @ApiBearerAuth()
 @Controller('financial-reporting')
 @UseGuards(JwtAuthGuard)
+// Reading a financial statement is an auditable event. There was no audit of access to financial
+// data at all — only of changes to it — which in a product sold to tenants under external audit
+// leaves half the control missing.
+@UseInterceptors(AuditAccessInterceptor)
 export class FinancialReportingController {
   constructor(
     private readonly financialReportingService: FinancialReportingService,
@@ -33,6 +40,7 @@ export class FinancialReportingController {
 
   @Get('balance-sheet')
   @HasPermission(PERMISSIONS.REPORTS_VIEW_FINANCIAL)
+  @AuditAccess({ entity: 'balance_sheet', action: ActionType.READ, identifiers: ['asOfDate', 'ledgerId'] })
   @ApiOperation({ summary: 'Genera el Balance General (Estado de Situación Financiera).' })
   @ApiResponse({ status: 200, description: 'Balance General generado exitosamente.' })
   @ApiResponse({ status: 400, description: 'Parámetros de solicitud inválidos.' })
@@ -53,6 +61,7 @@ export class FinancialReportingController {
 
   @Get('income-statement')
   @HasPermission(PERMISSIONS.REPORTS_VIEW_FINANCIAL)
+  @AuditAccess({ entity: 'income_statement', action: ActionType.READ, identifiers: ['startDate', 'endDate', 'ledgerId'] })
   @ApiOperation({ summary: 'Genera el Estado de Resultados (Estado de Ganancias y Pérdidas).' })
   @ApiResponse({ status: 200, description: 'Estado de Resultados generado exitosamente.' })
   @ApiResponse({ status: 400, description: 'Parámetros de solicitud inválidos.' })
@@ -81,6 +90,7 @@ export class FinancialReportingController {
    */
   @Get('trial-balance')
   @HasPermission(PERMISSIONS.REPORTS_VIEW_FINANCIAL)
+  @AuditAccess({ entity: 'trial_balance', action: ActionType.READ, identifiers: ['startDate', 'endDate', 'ledgerId'] })
   @ApiOperation({ summary: 'Genera la balanza de comprobación.' })
   async getTrialBalance(
     @CurrentUser() user: AuthenticatedUser,
@@ -98,6 +108,7 @@ export class FinancialReportingController {
 
   @Get('cash-flow-statement')
   @HasPermission(PERMISSIONS.REPORTS_VIEW_FINANCIAL)
+  @AuditAccess({ entity: 'cash_flow_statement', action: ActionType.READ, identifiers: ['startDate', 'endDate', 'ledgerId'] })
   @ApiOperation({ summary: 'Genera el Estado de Flujo de Efectivo.' })
   @ApiResponse({ status: 200, description: 'Estado de Flujo de Efectivo generado exitosamente.' })
   @ApiResponse({ status: 400, description: 'Parámetros de solicitud inválidos.' })

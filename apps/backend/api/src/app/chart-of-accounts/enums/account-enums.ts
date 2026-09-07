@@ -116,6 +116,14 @@ export enum AccountRole {
   ACCOUNTS_PAYABLE = 'ACCOUNTS_PAYABLE',
   /** VAT/ITBIS/IVA charged on sales — the debit side of the tax return. */
   TAX_PAYABLE = 'TAX_PAYABLE',
+  /**
+   * Excise duty charged on sales (ISC in the Dominican Republic, IEPS in Mexico, ICE in Ecuador).
+   *
+   * A separate liability from the consumption tax, and separately declarable: the tax engine
+   * computed it per line, the invoice dropped it on the floor, and the ledger entry was then out of
+   * balance by exactly the excise on any document that carried one.
+   */
+  EXCISE_TAX_PAYABLE = 'EXCISE_TAX_PAYABLE',
   /** Tax we withhold from third parties and must remit. */
   WITHHOLDING_PAYABLE = 'WITHHOLDING_PAYABLE',
   /** Legally mandated service charge (propina legal in DO/CR): collected for staff, never revenue. */

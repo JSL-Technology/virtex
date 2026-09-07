@@ -267,6 +267,21 @@ function attributeValueRanges(source) {
       index++;
       continue;
     }
+
+    // A comment is not a tag, and an apostrophe inside one is not an attribute quote.
+    //
+    // Without this the walker entered `<!--` as a tag, met the `'` in a comment like "the
+    // market's adapter", and scanned forward for a closing quote that never came — masking
+    // everything up to the next apostrophe anywhere in the file. Two thousand characters of one
+    // template went unscanned that way, and the twenty literal strings inside them passed the
+    // gate that exists to refuse them. A check that reports success while not looking is worse
+    // than no check, because it is trusted.
+    if (source.startsWith('<!--', index)) {
+      const end = source.indexOf('-->', index + 4);
+      index = end === -1 ? source.length : end + 3;
+      continue;
+    }
+
     // Not a tag: `a < b` in text. Only a name, a closing slash or a doctype starts one.
     if (!/[a-zA-Z@!/]/.test(source[index + 1] ?? '')) {
       index++;

@@ -83,6 +83,18 @@ export const envValidation = Joi.object({
     .valid('development', 'test', 'production')
     .default('development'),
 
+  // ── Exchange rates (XE Currency Data API) ─────────────────────────────────
+  //
+  // Both credentials or neither: a deployment with only one of them is a deployment whose daily
+  // refresh fails every night with an authentication error nobody reads, and whose books quietly
+  // have no rates.
+  XE_API_ID: Joi.string().allow('').optional(),
+  XE_API_KEY: Joi.string().allow('').optional().when('XE_API_ID', {
+    is: Joi.string().min(1).required(),
+    then: Joi.string().min(1).required(),
+  }),
+  XE_API_BASE_URL: Joi.string().uri().default('https://xecdapi.xe.com/v1'),
+
   // H-01 FIX: All cryptographic secrets required at startup — fail fast before any module
   // initializes. Development gets a generated, deployment-unusable value; see `secret` above.
   JWT_SECRET: secret('JWT_SECRET'),
@@ -254,4 +266,19 @@ export const envValidation = Joi.object({
   // local run works with billing disabled instead of not running at all.
   STRIPE_SECRET_KEY: optionalInDev(),
   STRIPE_WEBHOOK_SECRET: optionalInDev(),
+
+  // Stripe Tax. Computing tax needs the Stripe ACCOUNT to have a registered origin (head office)
+  // address and Stripe Tax activated — setup a local run does not have, so `automatic_tax` fails
+  // the whole checkout with "You must have a valid head office address…". Off by default in
+  // development, on everywhere else, exactly like RECAPTCHA_DISABLED: an external dependency that
+  // cannot be satisfied locally must not close the signup funnel for a developer, and must stay on
+  // where it matters. When on, the registration checkout enables `automatic_tax`,
+  // `tax_id_collection` and mandatory billing-address collection; when off they are omitted and the
+  // session is created without any tax treatment. Declared as a boolean so Joi coerces it (see the
+  // DB_SSL note above: a bare `'false'` string is truthy).
+  STRIPE_TAX_ENABLED: Joi.when('NODE_ENV', {
+    is: DEV_LIKE,
+    then: Joi.boolean().default(false),
+    otherwise: Joi.boolean().default(true),
+  }),
 });

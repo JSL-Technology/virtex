@@ -24,9 +24,23 @@ export type InvoiceStatus =
   | 'Void'
   | 'Credit Note';
 
-export type FiscalDocumentType =
-  | 'B01' | 'B02' | 'B04' | 'B11' | 'B15'
-  | 'E31' | 'E32' | 'E33' | 'E34' | 'E44' | 'E45' | 'E46';
+/**
+ * A fiscal document type the tenant's market lets them issue.
+ *
+ * This used to be a union of the twelve Dominican comprobante codes, which made every other
+ * market's document type unrepresentable in the client: a Chilean DTE 33, a Mexican `I` or a
+ * Brazilian `55` could not be typed, let alone offered. The server now describes the types its
+ * market's adapter owns, and the label travels as a translation key so the client carries no
+ * country's vocabulary of its own.
+ */
+export interface FiscalDocumentTypeOption {
+  /** The authority's own code, written verbatim into the document. */
+  code: string;
+  /** Translation key naming the type. */
+  labelKey: string;
+  /** Whether the buyer's tax identifier is mandatory for this type. */
+  requiresBuyerTaxId: boolean;
+}
 
 export interface InvoiceLineItem {
   id?: string;
@@ -95,6 +109,44 @@ export interface CreateInvoiceLine {
   isService?: boolean;
 }
 
+/** One line of a priced document, as the server computed it. */
+export interface InvoicePreviewLine {
+  gross: number;
+  discountAmount: number;
+  subtotal: number;
+  documentDiscountAmount: number;
+  taxableBase: number;
+  taxRate: number;
+  taxAmount: number;
+  exciseAmount: number;
+  isService: boolean;
+}
+
+/**
+ * What a document comes to, computed by the server without creating anything.
+ *
+ * The invoice form used to derive these figures itself. That was a second implementation of the
+ * document arithmetic and it had already diverged — it taxed the base before the document
+ * discount, knew nothing of excise, and applied whatever withholding the form carried rather than
+ * the buyer's regime. The operator watched one number and was issued another.
+ */
+export interface InvoicePreview {
+  subtotal: number;
+  discountTotal: number;
+  taxedTotal: number;
+  exemptTotal: number;
+  goodsTotal: number;
+  servicesTotal: number;
+  tax: number;
+  excise: number;
+  serviceCharge: number;
+  taxWithheld: number;
+  incomeTaxWithheld: number;
+  total: number;
+  netReceivable: number;
+  lines: InvoicePreviewLine[];
+}
+
 export interface CreateInvoiceDto {
   customerId: string;
   issueDate: string;
@@ -106,7 +158,7 @@ export interface CreateInvoiceDto {
   taxWithholdingRate?: number;
   incomeTaxWithholdingRate?: number;
   paymentMethod?: PaymentMethod;
-  fiscalDocumentType?: FiscalDocumentType;
+  fiscalDocumentType?: string;
   /** False leaves the document as a draft, consuming no fiscal numbering. */
   issue?: boolean;
   lineItems: CreateInvoiceLine[];
@@ -153,7 +205,7 @@ export interface InvoicingContext {
   taxRates: number[];
   /** True where the tax base is sub-national and the tenant must configure it (US, Brazil). */
   taxRequiresConfiguration: boolean;
-  fiscalDocumentTypes: FiscalDocumentType[];
+  fiscalDocumentTypes: FiscalDocumentTypeOption[];
   serviceChargeRate: number;
 }
 
@@ -186,6 +238,17 @@ export class InvoicesService {
     return this.http.post<Invoice>(this.apiUrl, invoice);
   }
 
+  /**
+   * Price a document without creating it.
+   *
+   * Runs the same code that will issue it — catalogue tax rates, excise, the buyer's withholding
+   * regime — and writes nothing, so the figures the operator sees while composing are the ones
+   * that will be on the comprobante.
+   */
+  preview(invoice: CreateInvoiceDto): Observable<InvoicePreview> {
+    return this.http.post<InvoicePreview>(`${this.apiUrl}/preview`, invoice);
+  }
+
   updateDraft(id: string, invoice: CreateInvoiceDto): Observable<Invoice> {
     return this.http.put<Invoice>(`${this.apiUrl}/${id}`, invoice);
   }
@@ -195,7 +258,7 @@ export class InvoicesService {
   }
 
   /** Assigns the fiscal number, posts the ledger entry and transmits the e-CF. */
-  issue(id: string, fiscalDocumentType?: FiscalDocumentType): Observable<Invoice> {
+  issue(id: string, fiscalDocumentType?: string): Observable<Invoice> {
     return this.http.post<Invoice>(
       `${this.apiUrl}/${id}/issue`,
       fiscalDocumentType ? { fiscalDocumentType } : {},

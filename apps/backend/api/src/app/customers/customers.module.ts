@@ -22,6 +22,8 @@ import { CustomerGroup } from './entities/customer-group.entity';
 
 import { CustomerGroupsController } from './customer-groups.controller';
 import { CustomerGroupsService } from './customer-groups.service';
+// The ageing report ties itself to the receivables control account in the general ledger.
+import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
 
 
 @Module({
@@ -41,6 +43,7 @@ import { CustomerGroupsService } from './customer-groups.service';
     ]),
     AuthModule,
     JournalEntriesModule,
+    ChartOfAccountsModule,
   ],
   controllers: [
     CustomersController,

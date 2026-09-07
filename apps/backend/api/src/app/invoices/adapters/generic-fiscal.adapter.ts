@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import {
   FiscalAdapter,
   FiscalAssignmentContext,
+  FiscalDocumentTypeOption,
   FiscalNumberAssignment,
 } from '../interfaces/fiscal-adapter.interface';
 import { Invoice } from '../entities/invoice.entity';
-import { NcfType } from '../../compliance/entities/ncf-sequence.entity';
 
 /**
  * Markets whose electronic-invoicing regime this product does not yet implement.
@@ -17,7 +17,7 @@ import { NcfType } from '../../compliance/entities/ncf-sequence.entity';
  */
 @Injectable()
 export class GenericFiscalAdapter implements FiscalAdapter {
-  availableSalesTypes(): readonly NcfType[] {
+  availableSalesTypes(): readonly FiscalDocumentTypeOption[] {
     return [];
   }
 

@@ -2,6 +2,7 @@ import { Repository, Between, Not, IsNull, In } from 'typeorm';
 import { Invoice, InvoiceStatus, InvoiceType, PaymentMethod } from '../../invoices/entities/invoice.entity';
 import { VendorBill, VendorBillStatus } from '../../accounts-payable/entities/vendor-bill.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
+import { roundAmount } from '../../common/money';
 
 /**
  * The Dominican Republic's "formatos de envío": 606 (purchases), 607 (sales), 608 (voided
@@ -331,9 +332,15 @@ function splitByPaymentMethod(invoice: Invoice): {
   }
 }
 
-/** Excise charged across the document's lines. */
+/**
+ * Excise charged on the document.
+ *
+ * The document-level figure, not a sum over `lineItems`: the relation is not loaded by the 607's
+ * query, so the reduction silently returned 0 for every sale and the `MontoISC` column was always
+ * blank. `invoices.excise` is stored by the tax engine and is the same number by construction.
+ */
 function lineExcise(invoice: Invoice): number {
-  return round2((invoice.lineItems ?? []).reduce((sum, line) => sum + (line.exciseAmount ?? 0), 0));
+  return round2(invoice.excise ?? 0);
 }
 
 /**
@@ -377,7 +384,7 @@ function money(value: number): string {
 }
 
 function round2(value: number): number {
-  return Math.round((Number(value ?? 0) + Number.EPSILON) * 100) / 100;
+  return roundAmount(Number(value ?? 0));
 }
 
 /**

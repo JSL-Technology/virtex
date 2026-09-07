@@ -1,0 +1,84 @@
+.s-page { padding: 2rem; max-width: 1100px; }
+
+.s-header {
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 1.25rem;
+
+  &__title { font-size: 1.375rem; font-weight: 700; color: var(--text-primary); margin-bottom: .25rem; }
+  &__subtitle { font-size: .875rem; color: var(--text-secondary); }
+}
+
+.e-settings, .e-ranges { padding: 1.25rem; margin-bottom: 1.5rem; }
+
+.e-settings h2, .e-ranges h2 {
+  font-size: .9375rem;
+  font-weight: 600;
+  margin-bottom: .75rem;
+  color: var(--text-primary);
+}
+
+.e-note {
+  font-size: .8125rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+.e-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.e-form { margin: 1rem 0 1.5rem; }
+
+/* The CAF or technical key. Full width because a CAF is an XML document, not a short code. */
+.e-secret {
+  display: block;
+  margin-bottom: 1rem;
+
+  textarea {
+    width: 100%;
+    font-family: var(--font-mono, monospace);
+    font-size: .75rem;
+  }
+}
+
+.e-empty { padding: 1.5rem 0; color: var(--text-secondary); font-size: .875rem; }
+
+/*
+  A retired range stays in the table: it is the authorisation past documents were issued under,
+  and an inspection asks which permission covered which document. Dimmed, never hidden.
+*/
+.e-inactive { opacity: .55; }
+.e-retired { font-size: .75rem; color: var(--text-secondary); }
+
+/*
+  Running out or expired. Colour alone never carries it — the cell also prints the word, because a
+  range that runs out mid-morning stops the tenant invoicing until an authority grants another.
+*/
+.e-warning { color: var(--error-text); font-weight: 600; }
+
+.e-flag {
+  display: inline-block;
+  margin-left: .5rem;
+  padding: .125rem .375rem;
+  border-radius: .25rem;
+  background: var(--error-bg, transparent);
+  font-size: .6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.e-badge {
+  display: inline-block;
+  margin-left: .5rem;
+  padding: .125rem .375rem;
+  border-radius: .25rem;
+  border: 1px solid var(--border-color);
+  font-size: .6875rem;
+  color: var(--text-secondary);
+}
+
+.table-wrapper { overflow-x: auto; }

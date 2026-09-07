@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import {
   FiscalAdapter,
   FiscalAssignmentContext,
+  FiscalDocumentTypeOption,
   FiscalNumberAssignment,
 } from '../interfaces/fiscal-adapter.interface';
 import { Invoice } from '../entities/invoice.entity';
@@ -41,13 +42,20 @@ import { BadRequestError } from '../../i18n/localized.exception';
 export class DominicanRepublicFiscalAdapter implements FiscalAdapter {
   constructor(private readonly complianceService: ComplianceService) {}
 
-  availableSalesTypes(): readonly NcfType[] {
-    return SALES_NCF_TYPES;
+  availableSalesTypes(): readonly FiscalDocumentTypeOption[] {
+    return SALES_NCF_TYPES.map((code) => ({
+      code,
+      labelKey: `FISCAL.DO.${code}`,
+      // Only the Factura de Crédito Fiscal entitles the buyer to the ITBIS credit, and it is the
+      // one type the DGII refuses without a valid RNC or cédula.
+      requiresBuyerTaxId: code === NcfType.E31,
+    }));
   }
 
   async assignSalesNumber(context: FiscalAssignmentContext): Promise<FiscalNumberAssignment> {
-    const { invoice, organizationId, manager, requestedType } = context;
+    const { invoice, organizationId, manager } = context;
 
+    const requestedType = this.asNcfType(context.requestedType);
     const type = requestedType ?? this.inferSalesType(invoice);
     if (!SALES_NCF_TYPES.includes(type)) {
       throw new BadRequestError('INVOICES.TIPO_COMPROBANTE_NO_CORRESPONDE_DOCUMENTO_VENTA', { type });
@@ -66,14 +74,14 @@ export class DominicanRepublicFiscalAdapter implements FiscalAdapter {
   async assignCreditNoteNumber(
     context: FiscalAssignmentContext & { originalInvoice: Invoice },
   ): Promise<FiscalNumberAssignment> {
-    const { organizationId, manager, requestedType, originalInvoice } = context;
+    const { organizationId, manager, originalInvoice } = context;
 
     // A note must be drawn from the series that matches the document it modifies: an electronic
     // invoice is credited electronically (E34), a pre-printed one on paper (B04).
     const inferred = originalInvoice.ncfNumber?.toUpperCase().startsWith('B')
       ? NcfType.B04
       : NcfType.E34;
-    const type = requestedType ?? inferred;
+    const type = this.asNcfType(context.requestedType) ?? inferred;
 
     if (!CREDIT_NOTE_NCF_TYPES.includes(type)) {
       throw new BadRequestError('INVOICES.TIPO_NO_ES_COMPROBANTE_NOTA_CREDITO_VALIDO', { type });
@@ -81,6 +89,26 @@ export class DominicanRepublicFiscalAdapter implements FiscalAdapter {
 
     const assigned = await this.complianceService.getNextNcf(organizationId, type, manager);
     return { ncf: assigned.ncf, documentType: assigned.type, expiresAt: assigned.expiresAt };
+  }
+
+  /**
+   * The requested code as an `NcfType`, or a refusal.
+   *
+   * The context now carries the authority's own code as a string, because six other markets have
+   * document types that are not Dominican. Narrowing it here rather than trusting the cast is what
+   * keeps a code from another regime — a Chilean `33`, say — from reaching `getNextNcf` and being
+   * looked up as a Dominican range that cannot exist.
+   */
+  private asNcfType(requested: string | null | undefined): NcfType | null {
+    if (!requested) return null;
+    const code = requested.toUpperCase();
+    const known = (Object.values(NcfType) as string[]).includes(code);
+    if (!known) {
+      throw new BadRequestError('INVOICES.TIPO_COMPROBANTE_NO_CORRESPONDE_DOCUMENTO_VENTA', {
+        type: requested,
+      });
+    }
+    return code as NcfType;
   }
 
   /** Crédito fiscal for a verified taxpayer, consumo otherwise. */

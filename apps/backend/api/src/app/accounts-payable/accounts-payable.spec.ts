@@ -43,6 +43,18 @@ import {
 const DB_AVAILABLE = Boolean(process.env['DB_HOST'] && process.env['DB_NAME']);
 const describeWithDb = DB_AVAILABLE ? describe : describe.skip;
 
+/**
+ * The foreign currency this suite publishes rates for.
+ *
+ * Rates are not tenant-scoped — what a currency was worth on a day is a fact about the market —
+ * so the `exchange_rate` table is shared by every suite Jest runs in parallel. Each suite that
+ * publishes rates therefore owns a pair of its own: payables EUR→DOP, receipts GBP→DOP, treasury
+ * USD→DOP. Two suites writing the same pair for the same day either collide on
+ * `UQ_exchange_rate_pair_date_type` or, worse, overwrite one another's rate and change the other's
+ * expected figures — which is exactly what made these three fail intermittently.
+ */
+const FOREIGN = 'EUR';
+
 describeWithDb('accounts payable', () => {
   jest.setTimeout(120_000);
 
@@ -93,6 +105,7 @@ describeWithDb('accounts payable', () => {
       { enforceLimit: jest.fn().mockResolvedValue(undefined) } as never,
       new JournalEntryNumberingService(),
       audit,
+      new ExchangeRateResolver(dataSource),
     );
 
     payables = new AccountsPayableService(
@@ -105,6 +118,7 @@ describeWithDb('accounts payable', () => {
       { startApprovalProcess: jest.fn().mockResolvedValue(null) } as never,
       { checkBudget: jest.fn().mockResolvedValue({ isExceeded: false }) } as never,
       new ExchangeRateResolver(dataSource),
+      balances,
     );
   });
 
@@ -221,15 +235,21 @@ describeWithDb('accounts payable', () => {
       .delete({ id: organizationId });
     // Rates are deliberately not tenant-scoped — what a currency was worth on a day is a fact
     // about the market — so they outlive the tenant and have to be cleared between tests.
+    //
+    // Jest runs suites in parallel workers against one database, and the rate table is the one
+    // piece of state they share. Two things follow, and both are enforced here. The pair this
+    // suite publishes is its own — payables uses EUR, receipts GBP, treasury USD — because a
+    // second suite writing EUR→DOP for the same day would either collide on
+    // `UQ_exchange_rate_pair_date_type` or, worse, overwrite this suite's rate and change its
+    // arithmetic. And the delete is scoped to that pair rather than clearing the table, which is
+    // what used to make the consolidation and exchange-rate suites fail with "no rate found" for
+    // pairs they had just inserted.
+    //
     // Raw DELETE, not `repository.delete({})`: TypeORM rejects empty criteria outright, and a
     // swallowed rejection here leaves a stale rate that quietly changes the next test's arithmetic.
-    // Scoped to the pair this suite publishes. `DELETE FROM "exchange_rate"` with no predicate
-    // deletes every other suite's rates as well, and Jest runs suites in parallel workers against
-    // one database — so an unscoped delete here made the consolidation and exchange-rate suites
-    // fail intermittently with "no rate found" for pairs they had just inserted.
     await dataSource.query(
       'DELETE FROM "exchange_rate" WHERE "fromCurrency" = $1 AND "toCurrency" = $2',
-      ['USD', 'DOP'],
+      [FOREIGN, 'DOP'],
     );
   });
 
@@ -256,7 +276,7 @@ describeWithDb('accounts payable', () => {
 
     it('converts a foreign-currency bill in the right direction', async () => {
       await dataSource.getRepository(ExchangeRate).save({
-        fromCurrency: 'USD',
+        fromCurrency: FOREIGN,
         toCurrency: 'DOP',
         rate: 58.75,
         date: new Date('2026-03-01T00:00:00.000Z'),
@@ -267,13 +287,13 @@ describeWithDb('accounts payable', () => {
           vendorId,
           date: '2026-03-05' as unknown as Date,
           dueDate: '2026-04-04' as unknown as Date,
-          currencyCode: 'USD',
+          currencyCode: FOREIGN,
           lines: [{ product: 'Licencias', quantity: 1, unitPrice: 100 }],
         } as CreateVendorBillDto,
         organizationId,
       );
 
-      // 100 USD at 58.75 DOP per USD is 5,875 DOP. The old code fetched a DOP→USD rate and
+      // 100 EUR at 58.75 DOP per EUR is 5,875 DOP. The old code fetched a DOP→EUR rate and
       // multiplied, recording roughly 1.70.
       expect(bill.total).toBe(100);
       expect(bill.totalInBaseCurrency).toBe(5875);
@@ -396,7 +416,7 @@ describeWithDb('accounts payable', () => {
     it('books the realised exchange difference when the rate has moved', async () => {
       const rates = dataSource.getRepository(ExchangeRate);
       await rates.save({
-        fromCurrency: 'USD',
+        fromCurrency: FOREIGN,
         toCurrency: 'DOP',
         rate: 58,
         date: new Date('2026-03-01T00:00:00.000Z'),
@@ -407,7 +427,7 @@ describeWithDb('accounts payable', () => {
           vendorId,
           date: '2026-03-10' as unknown as Date,
           dueDate: '2026-04-09' as unknown as Date,
-          currencyCode: 'USD',
+          currencyCode: FOREIGN,
           lines: [
             { product: 'Importación', quantity: 1, unitPrice: 1_000, expenseAccountId: account['expense'] },
           ],
@@ -419,7 +439,7 @@ describeWithDb('accounts payable', () => {
 
       // The peso weakens before the invoice is settled.
       await rates.save({
-        fromCurrency: 'USD',
+        fromCurrency: FOREIGN,
         toCurrency: 'DOP',
         rate: 60,
         date: new Date('2026-04-10T00:00:00.000Z'),
@@ -498,6 +518,94 @@ describeWithDb('accounts payable', () => {
       expect(row?.buckets.find((bucket) => bucket.label === '1-30')?.amount).toBe(2_000);
       expect(row?.buckets.find((bucket) => bucket.label === '61-90')?.amount).toBe(3_000);
       expect(aging.totals.total).toBe(6_000);
+    });
+
+    it('ties its total to the payables control account in the general ledger', async () => {
+      const bill = await payables.create(
+        {
+          vendorId,
+          date: '2026-03-01' as unknown as Date,
+          dueDate: '2026-04-10' as unknown as Date,
+          lines: [
+            { product: 'Insumos', quantity: 1, unitPrice: 4_000, expenseAccountId: account['expense'] },
+          ],
+        } as CreateVendorBillDto,
+        organizationId,
+      );
+      await payables.submitForApproval(bill.id, organizationId, ACTOR);
+
+      const aging = await payables.aging(organizationId, '2026-04-15');
+
+      // The ledger's figure is a credit balance; the report states what is owed, so the sign is
+      // flipped once. The two must agree, and the report says so on the page rather than leaving
+      // an auditor to export both and subtract.
+      expect(await signedBalance('payable', '2026-04-15')).toBe(-4_000);
+      expect(aging.controlAccountBalance).toBe(4_000);
+      expect(aging.totals.total).toBe(4_000);
+      expect(aging.controlAccountDifference).toBe(0);
+      expect(aging.currencyCode).toBe('DOP');
+      expect(aging.unconvertedDocuments).toBe(0);
+    });
+
+    it('ages a foreign-currency bill at the closing rate, not the rate it was booked at', async () => {
+      const rates = dataSource.getRepository(ExchangeRate);
+      await rates.save({
+        fromCurrency: FOREIGN,
+        toCurrency: 'DOP',
+        rate: 58,
+        date: new Date('2026-03-01T00:00:00.000Z'),
+      });
+
+      const bill = await payables.create(
+        {
+          vendorId,
+          date: '2026-03-05' as unknown as Date,
+          dueDate: '2026-04-10' as unknown as Date,
+          currencyCode: FOREIGN,
+          lines: [
+            { product: 'Importación', quantity: 1, unitPrice: 1_000, expenseAccountId: account['expense'] },
+          ],
+        } as CreateVendorBillDto,
+        organizationId,
+      );
+      await payables.submitForApproval(bill.id, organizationId, ACTOR);
+
+      // The peso weakens between the invoice and the reporting date.
+      await rates.save({
+        fromCurrency: FOREIGN,
+        toCurrency: 'DOP',
+        rate: 62,
+        date: new Date('2026-04-10T00:00:00.000Z'),
+      });
+
+      const aging = await payables.aging(organizationId, '2026-04-15');
+
+      // 1,000 at the closing rate of 62, not at the 58 it was booked at. The period-end
+      // revaluation restates the control account to the closing rate, so ageing at the booked
+      // rate drifted from it a little further after every close with nothing reporting the gap.
+      expect(aging.totals.total).toBe(62_000);
+      expect(aging.unconvertedDocuments).toBe(0);
+    });
+
+    it('counts the documents it could not restate instead of passing them off as converted', async () => {
+      // Written directly. `create` refuses a currency with no rate on file for the document's own
+      // date, and what is under test is the report's behaviour towards a bill already in the books
+      // whose currency has no quote on the REPORTING date — a weekend, a holiday, a feed that has
+      // not published yet. Every one of those is an ordinary Tuesday in production.
+      await dataSource.query(
+        `INSERT INTO "vendor_bills"
+           ("organization_id", "vendor_id", "date", "dueDate", "total", "balance", "status",
+            "currency_code", "exchange_rate", "total_in_base_currency", "version")
+         VALUES ($1, $2, '2026-03-05', '2026-04-10', 1000, 1000, 'OPEN', $3, 58, 58000, 1)`,
+        [organizationId, vendorId, FOREIGN],
+      );
+
+      const aging = await payables.aging(organizationId, '2026-04-15');
+
+      // Held at the rate it was booked at, and said so. Converting it at 1, or dropping it from
+      // the report, are both ways of stating a total nobody can substantiate.
+      expect(aging.totals.total).toBe(58_000);
+      expect(aging.unconvertedDocuments).toBe(1);
     });
   });
 

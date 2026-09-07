@@ -332,7 +332,15 @@ export class EcfSubmissionService {
         cantidad: Number(line.quantity),
         unidadMedida: unitOfMeasureCode(line.unitOfMeasure),
         precioUnitario: Number(line.price),
-        descuentoMonto: Number(line.discountAmount) || 0,
+        // Line discount PLUS this line's share of the document discount.
+        //
+        // The document discount reduces the taxable base, so the base the DGII recomputes the
+        // ITBIS from has to be net of it. Declaring it as a global `DescuentoOFacturaTotal` while
+        // leaving the item amounts gross makes `MontoGravadoTotal × tasa` disagree with
+        // `TotalITBIS`, and reception rejects the comprobante. Carrying it per item is what makes
+        // the transmitted document describe what was actually charged.
+        descuentoMonto:
+          (Number(line.discountAmount) || 0) + (Number(line.documentDiscountAmount) || 0),
         itbisTasa: Number(line.taxRate) || 0,
         exento: line.taxTreatment === TaxTreatment.EXEMPT,
         montoImpuestoSelectivo: Number(line.exciseAmount) || 0,
@@ -378,7 +386,9 @@ export class EcfSubmissionService {
         direccion: invoice.customerAddress || undefined,
       },
       items,
-      descuentoGlobal: Number(invoice.discountTotal) || 0,
+      // Zero on purpose: the document discount is already inside each item's `descuentoMonto`
+      // above, and declaring it here as well would subtract it from the total a second time.
+      descuentoGlobal: 0,
       montoPropinaLegal: Number(invoice.serviceCharge) || 0,
       itbisRetenido: Number(invoice.taxWithheld) || 0,
       isrRetenido: Number(invoice.incomeTaxWithheld) || 0,

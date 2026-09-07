@@ -1,5 +1,14 @@
 
-import { IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
+import { TaxpayerType } from '../../localization/fiscal/withholding-regimes';
 
 export class CreateCustomerDto {
   @IsString()
@@ -21,6 +30,17 @@ export class CreateCustomerDto {
   @IsString()
   @IsOptional()
   taxId?: string;
+
+  /**
+   * The buyer's fiscal classification, which decides what they withhold at source.
+   *
+   * Assigned by the tax authority — a withholding agent is one because it appears on a published
+   * list — so it is stated rather than inferred. Absent, nothing is withheld automatically and a
+   * document that withholds has to justify itself.
+   */
+  @IsEnum(TaxpayerType)
+  @IsOptional()
+  taxpayerType?: TaxpayerType;
 
   @IsString()
   @IsOptional()

@@ -143,10 +143,28 @@
             lleva como lista. Un desplegable de un solo valor obligaba a elegir una y dejaba la
             factura mal para las demás.
           -->
+          <!--
+            Single vs multiple are two SEPARATE <select> elements on purpose, and the multi-valued
+            one carries a STATIC `multiple` attribute rather than a `[multiple]` binding. Angular
+            picks the select's ControlValueAccessor by matching the template statically: a
+            `[multiple]` binding — even one bound to `false`/`undefined` — matches
+            `select[multiple]` and installs the MULTIPLE accessor, which stores the value as an
+            array. A single-value field like the DGII "Tipo de ingreso" then held `['01']` instead
+            of `'01'`: it satisfied `Validators.required` (a non-empty array), so the wizard let it
+            through, and the server — which expects a string for a single field — read the array as
+            empty and rejected the signup with "Tipo de ingreso es obligatorio". Keeping the two
+            controls apart is what guarantees each gets the right accessor.
+          -->
           <div class="custom-select-wrapper" [class.custom-select-wrapper--multi]="field.multiple">
-            <select [id]="'fiscal-' + field.key" [formControlName]="field.key" class="custom-select"
-                    [multiple]="field.multiple" [attr.size]="field.multiple ? 5 : null">
-              <option value="" *ngIf="!field.multiple">{{ 'REGISTER.SELECT' | translate }}</option>
+            <select *ngIf="!field.multiple" [id]="'fiscal-' + field.key"
+                    [formControlName]="field.key" class="custom-select">
+              <option value="">{{ 'REGISTER.SELECT' | translate }}</option>
+              <option *ngFor="let option of optionsFor(field)" [value]="option.code">
+                {{ option.code }} — {{ option.label }}
+              </option>
+            </select>
+            <select *ngIf="field.multiple" [id]="'fiscal-' + field.key"
+                    [formControlName]="field.key" class="custom-select" multiple [attr.size]="5">
               <option *ngFor="let option of optionsFor(field)" [value]="option.code">
                 {{ option.code }} — {{ option.label }}
               </option>

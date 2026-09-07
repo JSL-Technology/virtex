@@ -1,5 +1,5 @@
 
-import { Controller, Get, Post, Body, Patch, Param, UseGuards, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, UseGuards, UseInterceptors, ParseUUIDPipe, Query } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
@@ -11,11 +11,15 @@ import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { GeneralLedgerQueryDto } from './dto/general-ledger-query.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AuditAccessInterceptor } from '../audit/audit-access.interceptor';
+import { AuditAccess } from '../audit/audit-access.decorator';
+import { ActionType } from '../audit/entities/audit-log.entity';
 
 @ApiTags('Accounting — Ledgers')
 @ApiBearerAuth()
 @Controller('accounting/ledgers')
 @UseGuards(JwtAuthGuard)
+@UseInterceptors(AuditAccessInterceptor)
 export class LedgersController {
   constructor(private readonly ledgersService: LedgersService) {}
 
@@ -28,6 +32,13 @@ export class LedgersController {
    */
   @HasPermission(PERMISSIONS.ACCOUNTING_VIEW)
   @Get('general-ledger')
+  // Every movement of one account over a period, with counterparties. Who read which account's
+  // ledger, and for when, is exactly the question an access log exists to answer.
+  @AuditAccess({
+    entity: 'general_ledger',
+    action: ActionType.READ,
+    identifiers: ['accountId', 'startDate', 'endDate', 'ledgerId'],
+  })
   @ApiOperation({ summary: 'Libro mayor de una cuenta, con saldo inicial, movimientos y saldo.' })
   getGeneralLedger(
     @Query() query: GeneralLedgerQueryDto,

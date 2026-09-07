@@ -370,6 +370,58 @@
                 <span>{{ "PWA.INSTALL" | translate }}</span>
               </button>
             }
+
+            <div class="dropdown-divider" role="separator"></div>
+
+            <button class="dropdown-item" type="button" (click)="comingSoon()">
+              <lucide-icon [img]="HelpCircleIcon" size="16"></lucide-icon>
+              <span>{{ "USER.HELP" | translate }}</span>
+            </button>
+
+            <button class="dropdown-item" type="button" (click)="comingSoon()">
+              <lucide-icon [img]="KeyboardIcon" size="16"></lucide-icon>
+              <span>{{ "USER.SHORTCUTS" | translate }}</span>
+            </button>
+
+            <!--
+              Feedback es un submenú que se despliega AL LADO (a la izquierda, para
+              no salirse de pantalla, ya que el menú va pegado al borde derecho).
+              Se muestra al pasar el ratón o al enfocar con teclado; el clic lo
+              deja fijado (`.open`). El panel vive siempre en el DOM para que la
+              navegación por teclado funcione.
+            -->
+            <div class="feedback-group" [class.open]="isFeedbackOpen()">
+              <button
+                class="dropdown-item feedback-toggle"
+                type="button"
+                (click)="toggleFeedback()"
+                aria-haspopup="true"
+                [attr.aria-expanded]="isFeedbackOpen()"
+              >
+                <lucide-icon [img]="MessageSquareIcon" size="16"></lucide-icon>
+                <span>{{ "FEEDBACK.TITLE" | translate }}</span>
+                <lucide-icon
+                  [img]="ChevronLeftIcon"
+                  size="16"
+                  class="feedback-chevron"
+                ></lucide-icon>
+              </button>
+
+              <div class="feedback-submenu" role="menu">
+                <button class="dropdown-item dropdown-subitem" type="button" role="menuitem" (click)="comingSoon()">
+                  <lucide-icon [img]="BugIcon" size="16"></lucide-icon>
+                  <span>{{ "FEEDBACK.REPORT_BUG" | translate }}</span>
+                </button>
+                <button class="dropdown-item dropdown-subitem" type="button" role="menuitem" (click)="comingSoon()">
+                  <lucide-icon [img]="LightbulbIcon" size="16"></lucide-icon>
+                  <span>{{ "FEEDBACK.SUGGEST" | translate }}</span>
+                </button>
+                <button class="dropdown-item dropdown-subitem" type="button" role="menuitem" (click)="comingSoon()">
+                  <lucide-icon [img]="StarIcon" size="16"></lucide-icon>
+                  <span>{{ "FEEDBACK.PRAISE" | translate }}</span>
+                </button>
+              </div>
+            </div>
           </div>
 
           <div class="dropdown-footer">

@@ -67,6 +67,31 @@ export interface AccountMovement {
   credit: number;
 }
 
+/**
+ * Why a movement's originating entry matters to the cash flow statement.
+ *
+ * Under IAS 7 and ASC 230 three questions about a movement cannot be answered from the account it
+ * touched, only from the entry that produced it:
+ *
+ * - Did any cash change hands? An entry with no cash leg is a non-cash transaction (IAS 7.43): it
+ *   is disclosed, and it must not appear as an investing outflow and a financing inflow that
+ *   happen to cancel — which is precisely how "asset acquired under a finance lease" was being
+ *   presented.
+ * - Was it the period-end revaluation? The effect of exchange-rate changes on cash is a separate
+ *   reconciling line (IAS 7.28, ASC 230-10-45-25), and by account category an unrealised
+ *   revaluation of a dollar bank account is indistinguishable from a deposit into it.
+ * - Everything else is an ordinary transaction and classifies by the account, as before.
+ */
+export type CashFlowOrigin = 'CASH_TRANSACTION' | 'EXCHANGE_REVALUATION' | 'NON_CASH_TRANSACTION';
+
+/** A movement, split gross into debits and credits, and tagged with what produced it. */
+export interface ClassifiedMovement extends AccountMovement {
+  origin: CashFlowOrigin;
+}
+
+/** The `system_reason` the currency revaluation batch stamps on the entries it posts. */
+export const FX_REVALUATION_REASON = 'fx-revaluation';
+
 export interface BalanceScope {
   organizationId: string;
   ledgerId: string;
@@ -197,6 +222,77 @@ export class AccountBalancesService {
 
     return rows.map((row) => ({
       accountId: row.accountId,
+      debit: Number(row.debit),
+      credit: Number(row.credit),
+    }));
+  }
+
+  /**
+   * Movements over an interval, each tagged with what produced the entry behind it.
+   *
+   * The cash flow statement is the only caller, and it is the only report that cannot be built
+   * from account categories alone — see `CashFlowOrigin` for the three questions that need the
+   * entry rather than the account.
+   *
+   * Debits and credits stay separate rather than being netted here, because IAS 7.21 and
+   * ASC 230-10-45-7 require investing and financing activities to be presented gross: proceeds
+   * from selling a machine and the cost of buying another are two lines, not the difference
+   * between them.
+   *
+   * One aggregated query. The alternative — reading the period's lines and grouping in the
+   * application — moves a year of a busy tenant's journal through the process to produce a page
+   * of figures.
+   */
+  async classifiedMovements(
+    scope: BalanceScope & {
+      from: Date | string;
+      to: Date | string;
+      /** The accounts that count as cash. An entry touching one of them moved cash. */
+      cashAccountIds: string[];
+    },
+    manager?: EntityManager,
+  ): Promise<ClassifiedMovement[]> {
+    if (scope.cashAccountIds.length === 0) return [];
+
+    const qb = this.baseQuery(this.manager(manager), scope).andWhere(
+      'entry.date BETWEEN :from AND :to',
+      { from: toIsoDate(scope.from), to: toIsoDate(scope.to) },
+    );
+
+    // Does this entry have a cash leg? Asked of the entry's own lines, without the ledger and
+    // dimension filters the outer query carries: a line is part of the entry whether or not the
+    // report is looking at it, and an entry that moved cash does not stop having moved cash
+    // because the reader filtered to a cost centre.
+    const cashLeg = `EXISTS (
+      SELECT 1 FROM "journal_entry_lines" cash_line
+       WHERE cash_line."journal_entry_id" = entry."id"
+         AND cash_line."account_id" IN (:...cashFlowCashAccountIds)
+    )`;
+
+    const rows = await qb
+      .andWhere('1 = 1')
+      .setParameters({
+        cashFlowCashAccountIds: scope.cashAccountIds,
+        fxReason: FX_REVALUATION_REASON,
+      })
+      .select('line.accountId', 'accountId')
+      .addSelect(
+        `CASE
+           WHEN entry."system_reason" = :fxReason THEN 'EXCHANGE_REVALUATION'
+           WHEN ${cashLeg} THEN 'CASH_TRANSACTION'
+           ELSE 'NON_CASH_TRANSACTION'
+         END`,
+        'origin',
+      )
+      .addSelect('COALESCE(SUM(valuation.debit), 0)', 'debit')
+      .addSelect('COALESCE(SUM(valuation.credit), 0)', 'credit')
+      .groupBy('line.accountId')
+      .addGroupBy('origin')
+      .getRawMany<{ accountId: string; origin: CashFlowOrigin; debit: string; credit: string }>();
+
+    return rows.map((row) => ({
+      accountId: row.accountId,
+      origin: row.origin,
       debit: Number(row.debit),
       credit: Number(row.credit),
     }));

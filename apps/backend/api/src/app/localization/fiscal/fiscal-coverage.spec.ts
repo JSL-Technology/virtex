@@ -9,6 +9,7 @@ import { COUNTRY_TAX_SCHEMES, findTaxScheme, principalTaxName } from './country-
 import { STATUTORY_PLAN_REQUIRED, buildCountryCoaTemplate } from './coa-builder';
 import { AccountTemplateDto } from '../entities/coa-template.entity';
 import { AccountNature, AccountType } from '../../chart-of-accounts/enums/account-enums';
+import { FISCAL_COVERAGE, coverageFor } from './fiscal-coverage';
 
 /**
  * A market is either fully supported or it is not offered.
@@ -235,5 +236,61 @@ describe('Fiscal coverage', () => {
         }
       }
     });
+  });
+  /**
+   * `marketStatus: 'available'` is a claim, and this is what stops it becoming a wish.
+   *
+   * H18 was exactly this drift in the other direction: seven regimes were written, tested and left
+   * unregistered, so `FiscalAdapterFactory` sent every market but one to `GenericFiscalAdapter`
+   * while `country-profiles.ts` had no way to notice. The same gap in reverse — a market marked
+   * available whose regime nobody implemented — would sell a customer a stamped document that
+   * cannot be produced.
+   *
+   * So the flag is checked against the two things that make it true: an entry in the coverage
+   * table, and a regime that is either implemented or genuinely absent by law.
+   */
+  describe('a market is only available when something backs the claim', () => {
+    /**
+     * The markets whose e-invoicing regime is implemented and registered in the container.
+     *
+     * Named here rather than imported from the registry because the registry is a Nest provider
+     * and instantiating the DI graph to read a list would make this suite depend on the whole
+     * application. The list is asserted against the coverage table below, which is what the
+     * product shows a customer, so the two cannot drift apart silently.
+     */
+    const REGIMES_IMPLEMENTED = ['DO', 'MX', 'CO', 'PE', 'EC', 'CL', 'BR', 'AR'];
+
+    /** Markets where no sales document carries a fiscal stamp — a fact, not a gap. */
+    const NO_STAMPING_REGIME = ['US'];
+
+    it.each(COUNTRY_FISCAL_PROFILES.filter((p) => p.marketStatus === 'available').map((p) => p.countryCode))(
+      '%s claims availability and has a regime behind it',
+      (code) => {
+        expect([...REGIMES_IMPLEMENTED, ...NO_STAMPING_REGIME]).toContain(code);
+      },
+    );
+
+    it.each(REGIMES_IMPLEMENTED)('%s is offered as available, since its regime exists', (code) => {
+      // The reverse direction, which is the one that actually happened: an implemented regime
+      // that nobody flipped, leaving a market described as a preview of itself.
+      expect(findCountryProfile(code)?.marketStatus).toBe('available');
+    });
+
+    it.each([...REGIMES_IMPLEMENTED, ...NO_STAMPING_REGIME])(
+      '%s states its coverage per capability rather than only a status flag',
+      (code) => {
+        expect(FISCAL_COVERAGE[code]).toBeDefined();
+        const invoicing = coverageFor(code).capabilities.find(
+          (c) => c.capability === 'electronicInvoicing',
+        );
+        expect(invoicing).toBeDefined();
+        expect(invoicing?.level).not.toBe('not-implemented');
+        // `needs-credentials` must say WHAT the taxpayer has to supply, or it is just a nicer
+        // word for "does not work".
+        if (invoicing?.level === 'needs-credentials') {
+          expect(invoicing.requires?.trim()).toBeTruthy();
+        }
+      },
+    );
   });
 });
