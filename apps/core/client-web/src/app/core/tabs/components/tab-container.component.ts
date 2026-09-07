@@ -2,6 +2,7 @@ import {
   Component, inject, effect, ChangeDetectionStrategy, computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateService } from '@ngx-translate/core';
 import {
   DockviewAngularComponent, DockviewReadyEvent, IDockviewPanel,
   themeLight, themeDark,
@@ -17,6 +18,7 @@ import { TabWrapperComponent } from './tab-wrapper.component';
 import { TabHeaderComponent } from './tab-header.component';
 import { GroupControlsComponent } from './group-controls.component';
 import { ThemeService } from '../../services/theme';
+import { WindowModeService } from '../../windows/window-mode.service';
 
 /**
  * Hospeda Dockview y mapea el signal `tabs` ↔ paneles (TAB_ARCHITECTURE §11).
@@ -29,7 +31,12 @@ import { ThemeService } from '../../services/theme';
   imports: [CommonModule, DockviewAngularComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="dockview-container">
+    <!--
+      El modo se refleja en una clase del contenedor: en compacto la franja de pestañas desaparece
+      —ocupa una fila que en 600 px no sobra— y la ventana activa ocupa todo. En taller no se
+      esconde nada.
+    -->
+    <div class="dockview-container" [class]="'dockview-container--' + windowMode.mode()">
       <dv-dockview
         class="dockview-theme-virtex"
         [components]="components"
@@ -46,12 +53,21 @@ import { ThemeService } from '../../services/theme';
   styles: [`
     :host { display: block; height: 100%; width: 100%; }
     .dockview-container { height: 100%; width: 100%; }
+
+    /*
+      Modo compacto: sin franja de pestañas. Se navega con el riel y el panel, que en esta anchura
+      ya son un cajón deslizante; una fila de pestañas encima sería una tercera navegación en la
+      pantalla donde menos sitio hay.
+    */
+    .dockview-container--compact ::ng-deep .dv-tabs-and-actions-container { display: none; }
   `],
 })
 export class TabContainerComponent {
   private tabState = inject(TabStateService);
   private registry = inject(TabRegistryService);
   private themeService = inject(ThemeService);
+  protected readonly windowMode = inject(WindowModeService);
+  private translate = inject(TranslateService);
 
   private dockviewApi: any;
   private panels = new Map<string, IDockviewPanel>();
@@ -78,54 +94,85 @@ export class TabContainerComponent {
     const tab = this.tabState.tabs().find((t) => t.id === panel.id);
     const isPinnedType = tab?.type === TabType.PINNED;
     const maximized = api.hasMaximizedGroup();
+    const t = (key: string) => this.translate.instant(key);
+
+    //  Dividir, sacar a flotante y maximizar solo aparecen en el taller. En modo enfocado no es que
+    //  estén deshabilitados: es que no forman parte de esa manera de trabajar, y un menú que
+    //  ofrece la mitad de sus opciones en gris enseña a no leerlo.
+    const workshop: ContextMenuItem[] = this.windowMode.canTile()
+      ? [
+          'separator',
+          {
+            label: t('TABS.SPLIT_RIGHT'),
+            action: () => this.splitPanel(panel, 'right'),
+          },
+          {
+            label: t('TABS.SPLIT_BELOW'),
+            action: () => this.splitPanel(panel, 'below'),
+          },
+          {
+            label: t('TABS.FLOAT'),
+            action: () => this.floatPanel(panel),
+          },
+          {
+            label: maximized ? t('TABS.RESTORE') : t('TABS.MAXIMIZE'),
+            action: () => (maximized ? api.exitMaximizedGroup() : api.maximizeGroup(panel)),
+          },
+        ]
+      : [];
 
     return [
+      //  Los rótulos estaban escritos en español dentro del componente, así que el menú
+      //  contextual del área de trabajo salía en español en las tres lenguas del producto.
       {
-        label: 'Cerrar',
+        label: t('TABS.CLOSE'),
         disabled: tab?.isCloseable === false,
         action: () => void this.tabState.closeTab(panel.id),
       },
       {
-        label: 'Cerrar las demás',
+        label: t('TABS.CLOSE_OTHERS'),
         action: () => this.tabState.closeOthers(panel.id),
       },
       {
-        label: 'Cerrar las de la derecha',
+        label: t('TABS.CLOSE_RIGHT'),
         action: () => this.tabState.closeToRight(panel.id),
       },
       {
-        label: 'Cerrar todas',
+        label: t('TABS.CLOSE_ALL'),
         action: () => this.tabState.closeAll(),
       },
       'separator',
       {
-        label: 'Duplicar',
+        label: t('TABS.DUPLICATE'),
         action: () => this.tabState.duplicateTab(panel.id),
       },
       {
-        label: tab?.isPinned ? 'Desfijar' : 'Fijar',
+        label: tab?.isPinned ? t('TABS.UNPIN') : t('TABS.PIN'),
         disabled: isPinnedType,
         action: () =>
           tab?.isPinned
             ? this.tabState.unpinTab(panel.id)
             : this.tabState.pinTab(panel.id),
       },
-      'separator',
-      {
-        label: 'Dividir a la derecha',
-        action: () => this.splitPanel(panel, 'right'),
-      },
-      {
-        label: 'Dividir abajo',
-        action: () => this.splitPanel(panel, 'below'),
-      },
-      {
-        label: maximized ? 'Restaurar tamaño' : 'Maximizar',
-        action: () =>
-          maximized ? api.exitMaximizedGroup() : api.maximizeGroup(panel),
-      },
+      ...workshop,
     ];
   };
+
+  /**
+   * Sacar una ventana a flotante.
+   *
+   * Es lo que hace falta para leer un asiento mientras se corrige la factura que lo produjo: dos
+   * documentos a la vez sin que ninguno ceda la mitad del ancho. Dockview la mantiene dentro del
+   * área de trabajo, así que sigue siendo una ventana INTERNA — no una pestaña del navegador, que
+   * perdería la sesión de la empresa y el estado del área.
+   */
+  private floatPanel(panel: IDockviewPanel): void {
+    this.dockviewApi?.addFloatingGroup(panel, {
+      position: { top: 80, left: 120 },
+      width: 640,
+      height: 480,
+    });
+  }
 
   /** Aísla un panel en un grupo nuevo adyacente (ventanas lado a lado). */
   private splitPanel(panel: IDockviewPanel, direction: 'right' | 'below'): void {

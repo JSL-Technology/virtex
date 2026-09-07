@@ -4,6 +4,7 @@ import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } fr
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, ChevronLeft } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
+import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 import { AccountsPayableService, VendorBill } from '../../../core/services/accounts-payable';
 import { BankAccount, TreasuryService } from '../../../core/api/treasury.service';
@@ -33,13 +34,13 @@ import { NotificationService } from '../../../core/services/notification';
     LucideAngularModule,
     TranslateModule,
     ...FORMAT_PIPES,
+    DraftShellComponent,
   ],
   templateUrl: './payment.page.html',
   styleUrls: ['./payment.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VendorPaymentPage implements OnInit {
-  protected readonly BackIcon = ChevronLeft;
 
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
@@ -195,16 +196,34 @@ export class VendorPaymentPage implements OnInit {
     });
   }
 
+  readonly problems = signal<DraftProblem[]>([]);
+
+  cancel(): void {
+    void this.router.navigate(['..'], { relativeTo: this.route });
+  }
+
   save(): void {
     if (this.form.invalid || this.lines.length === 0) {
       this.form.markAllAsTouched();
-      this.notifications.showError('ACCOUNTS_PAYABLE.PAYMENT.SELECCIONE_FACTURAS');
+      const missing = draftProblems(this.form, {
+        paymentDate: 'ACCOUNTS_PAYABLE.PAYMENT.FECHA',
+        bankAccountId: 'CUSTOMER_RECEIPTS.FORM.CUENTA_BANCARIA',
+        reference: 'ACCOUNTING.RECONCILIATION.REFERENCIA',
+      });
+      //  Un pago sin ninguna factura elegida no es un campo mal: es que no hay nada que pagar.
+      this.problems.set(
+        this.lines.length === 0
+          ? [...missing, { message: 'ACCOUNTS_PAYABLE.PAYMENT.SELECCIONE_FACTURAS' }]
+          : missing,
+      );
       return;
     }
     if (this.lines.controls.some((line) => this.exceedsBalance(line.value))) {
-      this.notifications.showError('ACCOUNTS_PAYABLE.PAYMENT.EXCEDE_SALDO');
+      this.problems.set([{ message: 'ACCOUNTS_PAYABLE.PAYMENT.EXCEDE_SALDO' }]);
       return;
     }
+
+    this.problems.set([]);
 
     this.saving.set(true);
     const raw = this.form.getRawValue();

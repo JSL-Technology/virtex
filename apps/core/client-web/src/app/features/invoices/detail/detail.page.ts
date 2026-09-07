@@ -16,6 +16,7 @@ import { saveAs } from 'file-saver';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth';
+import { DocumentShellComponent, DocumentTone } from '../../../shared/components/gestures';
 import { TransitionPreviewComponent } from '../../../shared/components/transition-preview/transition-preview.component';
 import { TransitionPreview } from '../../../shared/components/transition-preview/transition-preview.model';
 
@@ -24,7 +25,7 @@ import { TransitionPreview } from '../../../shared/components/transition-preview
   standalone: true,
   imports: [TransitionPreviewComponent, CommonModule, LucideAngularModule, InvoiceToolbarComponent, FormsModule, // The QR is the element the norm requires on the printed representation; the page used to show
     // a text link instead, while `angularx-qrcode` was already a dependency of the project.
-    QRCodeComponent, TranslateModule, ...FORMAT_PIPES],
+    QRCodeComponent, TranslateModule, ...FORMAT_PIPES, DocumentShellComponent],
   templateUrl: './detail.page.html',
   styleUrls: ['./detail.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -78,6 +79,34 @@ export class InvoiceDetailPage implements OnInit {
 
   statusClass(status: InvoiceStatus): string {
     return status.toLowerCase().replace(/\s+/g, '-');
+  }
+
+  /**
+   * Cómo se pinta el estado en el encabezado del documento.
+   *
+   * Semántico, no decorativo: el tono dice si el documento todavía admite trabajo. Una factura
+   * emitida no se edita y una anulada no se cobra, y eso es lo primero que hay que saber al abrirla
+   * — hasta ahora estaba dentro de la pestaña «Finanzas», a dos clics de la pregunta.
+   */
+  statusTone(status: InvoiceStatus): DocumentTone {
+    const tones: Record<InvoiceStatus, DocumentTone> = {
+      Draft: 'draft',
+      Pending: 'warning',
+      Paid: 'ok',
+      'Partially Paid': 'warning',
+      Void: 'danger',
+      'Credit Note': 'neutral',
+    };
+    return tones[status] ?? 'neutral';
+  }
+
+  /** Nombre del documento, ya compuesto: es lo que el armazón pone junto al estado. */
+  documentTitle(invoice: Invoice): string {
+    const key =
+      invoice.type === 'CREDIT_NOTE'
+        ? 'INVOICES.DETAIL.TITULO_NOTA_CREDITO'
+        : 'INVOICES.DETAIL.TITULO_FACTURA';
+    return `${this.translate.instant(key)} #${invoice.invoiceNumber}`;
   }
 
   paymentMethodKey(method: PaymentMethod | null | undefined): string {

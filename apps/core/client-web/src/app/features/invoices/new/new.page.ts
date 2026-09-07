@@ -28,6 +28,7 @@ import { Customer } from '../../../core/models/customer.model';
 import { Product } from '../../../core/models/product.model';
 import { NotificationService } from '../../../core/services/notification';
 import { InvoiceToolbarComponent } from '../components/invoice-toolbar/invoice-toolbar.component';
+import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -49,7 +50,7 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-new-invoice-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, InvoiceToolbarComponent, TranslateModule, ...FORMAT_PIPES],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, InvoiceToolbarComponent, TranslateModule, ...FORMAT_PIPES, DraftShellComponent],
   templateUrl: './new.page.html',
   styleUrls: ['./new.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -315,6 +316,9 @@ export class NewInvoicePage implements OnInit {
   }
 
   /** Save without issuing: no fiscal number is consumed and nothing is posted. */
+  /** Qué falta antes de guardar o emitir. Entra en las líneas y nombra la que falla. */
+  readonly problems = signal<DraftProblem[]>([]);
+
   saveDraft(): void {
     this.submit(false);
   }
@@ -362,23 +366,31 @@ export class NewInvoicePage implements OnInit {
   private submit(issue: boolean): void {
     if (this.invoiceForm.invalid) {
       this.invoiceForm.markAllAsTouched();
-      this.notificationService.showError('INVOICES.NEW.REVISA_CAMPOS_MARCADOS_ANTES_CONTINUAR');
+      //  «Revisa los campos marcados» obliga a buscarlos: en una factura de veinte líneas el campo
+      //  marcado está fuera de la pantalla. El resumen nombra la línea concreta y lleva a ella.
+      this.problems.set(draftProblems(this.invoiceForm, INVOICE_FIELD_LABELS));
       return;
     }
     if (issue && this.hasStockShortfall()) {
-      this.notificationService.showError('INVOICES.NEW.MAS_LINEAS_SUPERAN_EXISTENCIAS_DISPONIBLES_AJUSTA');
+      //  No es un campo mal escrito: es que no hay existencias. Emitir lo rechazaría el servidor.
+      this.problems.set([{ message: 'INVOICES.NEW.STOCK_INSUFICIENTE' }]);
       return;
     }
+
+    this.problems.set([]);
 
     const payload = this.buildPayload(issue);
 
     this.isSaving.set(true);
     this.invoicesService.createInvoice(payload).subscribe({
       next: (invoice) => {
+        //  Estaban compuestos con literales en español dentro del componente, donde ninguna
+        //  revisión de plantillas los habría encontrado.
         this.notificationService.showSuccess(
-          issue
-            ? `Factura ${invoice.ncfNumber ?? invoice.invoiceNumber} emitida.`
-            : `Borrador ${invoice.invoiceNumber} guardado.`,
+          this.translate.instant(
+            issue ? 'INVOICES.NEW.FACTURA_EMITIDA' : 'INVOICES.NEW.BORRADOR_GUARDADO',
+            { number: issue ? (invoice.ncfNumber ?? invoice.invoiceNumber) : invoice.invoiceNumber },
+          ),
         );
         this.router.navigate(['/invoices', invoice.id]);
       },
@@ -422,4 +434,18 @@ const EMPTY_TOTALS: InvoicePreview = {
   total: 0,
   netReceivable: 0,
   lines: [],
+};
+
+/** Rótulo i18n de cada control, para el resumen de errores. El mismo que usa su `<label>`. */
+const INVOICE_FIELD_LABELS: Record<string, string> = {
+  customerId: 'INVOICES.LIST.CLIENTE',
+  issueDate: 'INVOICES.LIST.CREACION',
+  dueDate: 'INVOICES.LIST.VENCIMIENTO',
+  currencyCode: 'TREASURY.MONEDA',
+  fiscalDocumentTypeId: 'INVOICES.DETAIL.NCF',
+  description: 'INVOICES.DETAIL.DESCRIPCION',
+  quantity: 'INVOICES.DETAIL.CANT',
+  price: 'INVOICES.DETAIL.PRECIO',
+  taxWithholdingRate: 'INVOICES.NEW.ITBIS_RETENIDO_FRACCION_IMPUESTO',
+  incomeTaxWithholdingRate: 'INVOICES.NEW.ISR_RETENIDO_FRACCION_BASE',
 };

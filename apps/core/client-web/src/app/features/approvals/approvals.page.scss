@@ -1,81 +1,10 @@
-@use '../../../assets/styles/view-styles' as views;
-@use '../../../assets/styles/forms' as mixins;
-
-// Reutilizamos la mayoría de los estilos de la vista "My Work"
-@use '../my-work/my-work.page.scss';
-
-// Estilos específicos para la página de aprobaciones
-.approval-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+:host {
+  display: block;
+  height: 100%;
 }
 
-.approval-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 1.5rem;
-    gap: var(--space-4);
-
-    &:not(:last-child) {
-        border-bottom: 1px solid var(--border-color);
-    }
-}
-
-.item-main {
-    .item-title {
-        font-size: var(--text-base);
-        font-weight: var(--font-semibold);
-    }
-
-    .item-subtitle {
-        font-size: var(--text-md);
-        color: var(--text-secondary);
-        margin-top: var(--space-1);
-    }
-}
-
-.item-meta {
-    display: flex;
-    align-items: center;
-    gap: var(--space-6);
-    flex-shrink: 0;
-}
-
-.item-amount {
-    font-size: var(--text-lg);
-    font-weight: var(--font-semibold);
-    color: var(--text-primary);
-    min-width: 120px;
-    text-align: right;
-}
-
-.item-actions {
-    display: flex;
-    gap: var(--space-3);
-}
-
-.action-button {
-    @include mixins.submit-button;
-    padding: 0.5rem 1rem;
-    font-size: var(--text-md);
-
-    &.reject {
-        background-color: var(--bg-layer-1);
-        color: var(--error-text);
-        border: 1px solid var(--error-border);
-
-        &:hover {
-            background-color: rgba(var(--error-rgb), 0.1);
-        }
-    }
-
-    &.approve {
-        background-color: var(--success-solid);
-
-        &:hover {
-            background-color: var(--success-solid);
-        }
-    }
+//  Aprobar y rechazar juntos y del mismo tamaño: la decisión es simétrica y la
+//  destructiva no debe ser la fácil de pulsar sin mirar.
+.decide {
+  gap: var(--space-2);
 }

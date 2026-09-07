@@ -133,11 +133,20 @@ export class TabRegistryService {
   }
 }
 
-/** How each gesture presents itself as a tab. */
+/**
+ * How each gesture presents itself as a tab.
+ *
+ * `Record<WindowKind, TabType>` and not a partial map: adding `CANVAS` to the gestures stopped the
+ * build here until somebody decided what a canvas looks like as a tab. That is the whole point of
+ * the type — the alternative is a new kind that silently falls through to a default.
+ */
 const TAB_TYPE_BY_KIND: Record<WindowKind, TabType> = {
   [WindowKind.LIST]: TabType.MODULE_LIST,
   [WindowKind.DOCUMENT]: TabType.RECORD,
   [WindowKind.DRAFT]: TabType.WIZARD,
   [WindowKind.INBOX]: TabType.UTILITY,
   [WindowKind.OVERVIEW]: TabType.REPORT,
+  //  Una hoja de cálculo o un terminal de venta se abandonan y se retoman como un asistente: hay
+  //  trabajo a medias dentro, así que la pestaña tiene que decirlo igual que lo dice un borrador.
+  [WindowKind.CANVAS]: TabType.WIZARD,
 };

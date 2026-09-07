@@ -72,8 +72,12 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       load: () => import('../../../features/accounting/journal-entry-form/journal-entry-form.page').then((m) => m.JournalEntryFormPage),
     },
     {
+      //  Un asistente: subir el fichero, mapear las columnas, revisar la previsualización y
+      //  confirmar. No hay un borrador que guardar —no existe `FormGroup`, la pantalla es
+      //  dirigida por plantilla— y el armazón de borrador impondría un «Guardar» que aquí no
+      //  significa nada. Es la misma forma que la importación de datos del área de trabajo.
       path: 'journal-entries/import',
-      kind: WindowKind.DRAFT,
+      kind: WindowKind.CANVAS,
       permission: 'journal_entries:create',
       titleKey: 'PAGE_TITLES.JOURNAL_ENTRY_IMPORT',
       icon: 'Upload',
@@ -119,8 +123,11 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       load: () => import('../../../features/accounting/ledger-form/app-ledger-form-page').then((m) => m.LedgerFormPage),
     },
     {
+      //  El mayor de una cuenta es el conjunto de sus movimientos: se busca dentro de él, se
+      //  acota por fechas y se lee de arriba abajo. Es una lista con una cuenta por encima, no un
+      //  documento con estado — la cuenta no se emite ni se anula.
       path: 'general-ledger/:accountId',
-      kind: WindowKind.DOCUMENT,
+      kind: WindowKind.LIST,
       permission: 'accounting:view',
       icon: 'Library',
       titleFn: (p) => `Mayor · ${p['accountId']}`,

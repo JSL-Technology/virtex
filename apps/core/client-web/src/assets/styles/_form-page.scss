@@ -1,0 +1,132 @@
+@use 'design-system' as ds;
+
+// =============================================================================
+//  LO QUE UNA PÁGINA DE BORRADOR SIGUE APORTANDO
+// =============================================================================
+//  `vx-draft-shell` se queda con el marco —el título, el estado de guardado, las
+//  acciones fijas y el resumen de errores—. Lo que la página proyecta dentro son
+//  sus campos, y esto es su vocabulario común: la rejilla, la etiqueta, el
+//  control y la tarjeta que agrupa una sección del formulario.
+//
+//  Estaba repartido en diecinueve hojas, cada una con su propio `.form-field`,
+//  su propio alto de control y su propio color de etiqueta; algunas lo obtenían
+//  del mixin `forms`, otras de la hoja de otra página, y tres traían clases de
+//  Bootstrap —`mb-3`, `form-control`, `form-select`— de una biblioteca que la
+//  aplicación no carga, así que sus formularios salían sin estilo.
+// =============================================================================
+
+@mixin form-page {
+  //  Ancho de lectura. Un formulario a 1800 px pone la etiqueta y su control a
+  //  medio metro de distancia; el ojo pierde la fila.
+  .form-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    max-width: 60rem;
+  }
+
+  .form-section {
+    @include ds.surface-card;
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .form-section-title {
+    margin: 0;
+    font-size: var(--text-md);
+    font-weight: var(--font-semibold);
+    color: var(--content-primary);
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: var(--space-4);
+  }
+
+  //  Dos columnas de secciones para los formularios largos —cliente, producto,
+  //  factura—: agrupar por tema evita el rollo de treinta campos seguidos, y
+  //  por debajo del portátil vuelven a una sola porque dos columnas de campos
+  //  en 700 px no son dos columnas, son dos campos estrechos.
+  .form-columns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(24rem, 1fr));
+    gap: var(--space-5);
+    align-items: start;
+  }
+
+  .form-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    min-width: 0;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+
+    &.three-cols { grid-template-columns: repeat(3, 1fr); }
+
+    @include ds.bp-down('sm') { grid-template-columns: 1fr; }
+  }
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0;
+
+    label {
+      @include ds.field-label;
+      //  El mixin trae su propio margen inferior; aquí el espaciado lo pone el
+      //  `gap` del campo, y dos separaciones sumadas descuadran la rejilla.
+      margin-bottom: 0;
+    }
+
+    input:not([type='checkbox']):not([type='radio']),
+    select,
+    textarea {
+      @include ds.input-base;
+    }
+
+    textarea {
+      min-height: 6rem;
+      resize: vertical;
+    }
+
+    //  Un campo inválido se marca cuando el usuario ya ha pasado por él, no
+    //  mientras lo escribe: `ng-touched` es lo que separa «te has dejado esto»
+    //  de «todavía no has terminado de teclear».
+    .ng-invalid.ng-touched {
+      border-color: var(--error-text);
+    }
+
+    .field-error {
+      @include ds.field-error;
+    }
+
+    .field-hint {
+      @include ds.field-hint;
+    }
+  }
+
+  //  Casilla: el control y su rótulo en la misma línea, y el rótulo entero es
+  //  la zona pulsable —una diana de 12 px es una diana fallada.
+  .checkbox-field {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-2);
+
+    label {
+      margin: 0;
+      cursor: pointer;
+      font-weight: var(--font-regular);
+      text-transform: none;
+      letter-spacing: normal;
+    }
+  }
+}

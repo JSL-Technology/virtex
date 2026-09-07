@@ -51,7 +51,9 @@
       "TIPO_JERARQUIA": "Hierarchy Type",
       "VERSION_CATALOGO": "Chart Version",
       "VIGENTE_DESDE": "Effective From",
-      "VIGENTE_HASTA": "Effective Until"
+      "VIGENTE_HASTA": "Effective Until",
+      "TITLE_NEW": "New account",
+      "TITLE_EDIT": "Edit account"
     },
     "ANNUAL_CLOSE": {
       "EMPTY": "The year-end closing checklist is not available yet.",
@@ -311,7 +313,8 @@
       "NOMBRE_LIBRO": "Ledger Name*",
       "PUDO_CARGAR_LIBRO_MAYOR": "The ledger could not be loaded.",
       "TITLE_CREATE": "New ledger",
-      "TITLE_EDIT": "Edit ledger"
+      "TITLE_EDIT": "Edit ledger",
+      "GUARDAR_LIBRO": "Save ledger"
     },
     "LEDGER_LIST": {
       "CREAR_NUEVO_LIBRO": "Create Ledger",
@@ -701,7 +704,23 @@
     "RECHAZAR": "Reject",
     "REPORTES_GASTOS": "Expense Reports",
     "REVISA_APRUEBA_RECHAZA_TODAS_SOLICITUDES_PENDIENTES": "Review, approve or reject every pending request in the company.",
-    "SOLICITADO": "Requested by"
+    "SOLICITADO": "Requested by",
+    "PENDIENTES": "Waiting for your decision",
+    "LOAD_FAILED": "The approvals could not be loaded. Try again.",
+    "APROBADA": "Request approved.",
+    "RECHAZADA": "Request rejected.",
+    "ERROR_DECIDIR": "The decision could not be recorded.",
+    "MOTIVO_RECHAZO_TITULO": "Reason for rejection",
+    "MOTIVO_RECHAZO_MENSAJE": "A rejection with no reason is not a decision: whoever receives it will not know what to fix.",
+    "SOLICITADO_POR": "Requested by {{who}}",
+    "PASO": "Step {{step}}",
+    "DOCUMENT_TYPE": {
+      "VENDOR_BILL": "Vendor bills",
+      "PAYMENT_BATCH": "Payment batches",
+      "JOURNAL_ENTRY": "Journal entries",
+      "PERIOD_REOPENING": "Period reopening",
+      "AUDIT_ADJUSTMENT": "Audit adjustments"
+    }
   },
   "APPS": {
     "CRM": "Virtex CRM",
@@ -942,7 +961,10 @@
       "TIPO_CONTRIBUYENTE_GOVERNMENT": "Government body",
       "TIPO_CONTRIBUYENTE_INDIVIDUAL": "Natural person",
       "TIPO_CONTRIBUYENTE_SIN_CLASIFICAR": "Unclassified",
-      "TIPO_CONTRIBUYENTE_WITHHOLDING_AGENT": "Designated withholding agent"
+      "TIPO_CONTRIBUYENTE_WITHHOLDING_AGENT": "Designated withholding agent",
+      "TITLE_NEW": "New customer",
+      "TITLE_EDIT": "Edit customer",
+      "GUARDAR_CLIENTE": "Save customer"
     },
     "SUPPLIERS": {
       "ACCIONES": "Actions",
@@ -1584,7 +1606,10 @@
       "SELECCIONAR": "Select...",
       "SKU_CODIGO_PRODUCTO": "SKU (Product Code)",
       "SUBIR_IMAGEN": "Upload an image",
-      "VISTA_PREVIA": "Preview"
+      "VISTA_PREVIA": "Preview",
+      "TITLE_NEW": "New product",
+      "TITLE_EDIT": "Edit product",
+      "GUARDAR_PRODUCTO": "Save product"
     }
   },
   "INVOICES": {
@@ -1637,7 +1662,19 @@
       "TOTAL_2": "TOTAL:",
       "TRACKID": "TrackID:",
       "VERIFICACION_DGII": "DGII verification",
-      "VERIFICAR_DGII": "Verify with the DGII"
+      "VERIFICAR_DGII": "Verify with the DGII",
+      "TITULO_FACTURA": "Sales invoice",
+      "TITULO_NOTA_CREDITO": "Credit note",
+      "FECHA": "Date",
+      "VENCIMIENTO": "Due",
+      "MONEDA": "Currency",
+      "IMPUESTO": "Tax",
+      "EMITIR_COMPROBANTE": "Issue document",
+      "EMITIENDO": "Issuing…",
+      "REENVIAR_DGII": "Resend to the DGII",
+      "REENVIANDO": "Resending…",
+      "ENVIANDO_CORREO": "Sending the email…",
+      "SIN_NCF": "Not assigned"
     },
     "EXPORT": {
       "CLIENTE": "Customer",
@@ -1805,7 +1842,7 @@
       "REVISA_CAMPOS_MARCADOS_ANTES_CONTINUAR": "Check the highlighted fields before continuing.",
       "SELECCIONAR": "Select",
       "SELECCIONAR_CLIENTE": "Select a customer",
-      "STOCK_INSUFICIENTE": "Not enough stock",
+      "STOCK_INSUFICIENTE": "One or more lines exceed the stock on hand.",
       "STOCK_SHORTFALL": "{{units}} units short of the stock on hand",
       "SUBTOTAL": "Subtotal",
       "TARJETA_CREDITO": "Credit card",
@@ -1818,7 +1855,11 @@
       "TRANSFERENCIA": "Bank transfer",
       "TRANSPORTE_PROPIO": "Own transport",
       "TRATAMIENTO": "Treatment",
-      "VENTA_CREDITO": "Credit sale"
+      "VENTA_CREDITO": "Credit sale",
+      "EMITIR_FACTURA": "Issue invoice",
+      "GUARDANDO": "Saving…",
+      "FACTURA_EMITIDA": "Invoice {{number}} issued.",
+      "BORRADOR_GUARDADO": "Draft {{number}} saved."
     },
     "PAYMENT_METHOD": {
       "BANK_TRANSFER": "Bank transfer",
@@ -2080,7 +2121,10 @@
       "SELECCIONA_PRODUCTO": "Select a product...",
       "USD_DOLAR_ESTADOUNIDENSE": "USD - United States Dollar",
       "VALIDO_DESDE": "Valid From*",
-      "VALIDO_HASTA": "Valid Until*"
+      "VALIDO_HASTA": "Valid Until*",
+      "TITLE_NEW": "New price list",
+      "TITLE_EDIT": "Edit price list",
+      "GUARDAR_LISTA": "Save list"
     },
     "SUPPLIER_FORM": {
       "CANCELAR": "Cancel",
@@ -2098,7 +2142,9 @@
       "PROVEEDOR_ACTUALIZADO_EXITOSAMENTE": "Supplier updated.",
       "PROVEEDOR_CREADO_EXITOSAMENTE": "Supplier created.",
       "PUDO_CARGAR_PROVEEDOR": "The supplier could not be loaded.",
-      "TELEFONO": "Phone"
+      "TELEFONO": "Phone",
+      "TITLE_NEW": "New supplier",
+      "TITLE_EDIT": "Edit supplier"
     },
     "SUPPLIER_LIST": {
       "COMPANY_NAME": "Legal name",
@@ -2138,7 +2184,9 @@
       "NOMBRE_IMPUESTO": "Tax Name*",
       "PUDO_CARGAR_IMPUESTO": "The tax could not be loaded.",
       "TASA": "Rate*",
-      "TIPO": "Type*"
+      "TIPO": "Type*",
+      "TITLE_NEW": "New tax",
+      "TITLE_EDIT": "Edit tax"
     },
     "UNITS_OF_MEASURE": {
       "FILTERS": "Filters",
@@ -2174,7 +2222,8 @@
     "REQUESTED_DUEDATE": "Requested: {{dueDate}}",
     "SECURITY": "Security",
     "TASKS": "Tasks",
-    "YOUR_CENTRALIZED_INBOX_FOR_TASKS_APPROVALS": "Your central inbox for tasks, approvals and notifications."
+    "YOUR_CENTRALIZED_INBOX_FOR_TASKS_APPROVALS": "Your central inbox for tasks, approvals and notifications.",
+    "LOAD_FAILED": "Your inbox could not be loaded. Try again."
   },
   "NAV": {
     "APPROVALS": "Approvals",
@@ -3553,7 +3602,25 @@
   "TABS": {
     "CLOSE_TAB": "Close tab",
     "SPLIT_RIGHT": "Split right",
-    "UNDER_CONSTRUCTION": "This module is under construction. The route is registered and the tab works; the detailed view is coming soon."
+    "UNDER_CONSTRUCTION": "This module is under construction. The route is registered and the tab works; the detailed view is coming soon.",
+    "CLOSE": "Close",
+    "CLOSE_OTHERS": "Close others",
+    "CLOSE_RIGHT": "Close to the right",
+    "CLOSE_ALL": "Close all",
+    "DUPLICATE": "Duplicate",
+    "PIN": "Pin",
+    "UNPIN": "Unpin",
+    "SPLIT_BELOW": "Split below",
+    "MAXIMIZE": "Maximise",
+    "RESTORE": "Restore size",
+    "FLOAT": "Move to a floating window",
+    "MODE": "Window layout",
+    "MODE_FOCUSED": "Focused",
+    "MODE_WORKSHOP": "Workshop",
+    "MODE_COMPACT": "Compact",
+    "MODE_FOCUSED_HINT": "One window in view; the rest as tabs.",
+    "MODE_WORKSHOP_HINT": "Several windows at once: split, tile and float.",
+    "MODE_COMPACT_HINT": "Narrow screen: one window, no splitting."
   },
   "TREASURY": {
     "AL_CORTE": "As of",
@@ -4176,6 +4243,17 @@
     "NO_CHANGES": "No changes",
     "PROBLEMS": "Check {{count}} item(s) before saving",
     "TOGGLE_ASIDE": "Show or hide the side panel",
-    "ASIDE": "Document panel"
+    "ASIDE": "Document panel",
+    "PROBLEM_REQUIRED": "“{{field}}” is required",
+    "PROBLEM_EMAIL": "“{{field}}” is not a valid email address",
+    "PROBLEM_MIN": "“{{field}}” cannot be lower than {{min}}",
+    "PROBLEM_MAX": "“{{field}}” cannot be higher than {{max}}",
+    "PROBLEM_MINLENGTH": "“{{field}}” needs at least {{min}} characters",
+    "PROBLEM_MAXLENGTH": "“{{field}}” takes at most {{max}} characters",
+    "PROBLEM_PATTERN": "“{{field}}” is not in the expected format",
+    "PROBLEM_INVALID": "Check “{{field}}”",
+    "INBOX_ALL_CLEAR": "You have nothing pending.",
+    "INBOX_SECTION_CLEAR": "All clear.",
+    "INBOX_OVERDUE": "Overdue"
   }
 }

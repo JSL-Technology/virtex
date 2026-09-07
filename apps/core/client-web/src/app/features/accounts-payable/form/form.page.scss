@@ -1,30 +1,71 @@
-// Styles for the Vendor Bill Form Page
+@use '../../../../assets/styles/form-page' as form;
+@use '../../../../assets/styles/design-system' as ds;
 
-.grid-form {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: var(--space-4);
-}
+:host {
+  @include form.form-page;
 
-.line-item {
-  display: grid;
-  grid-template-columns: 3fr 1fr 1fr 2fr auto;
-  gap: var(--space-2);
-  align-items: center;
-  margin-bottom: var(--space-2);
+  .form-body { max-width: none; }
 
-  .line-description {
-    width: 100%;
+  //  Cada bloque del documento —general, líneas, desglose fiscal, totales— es
+  //  una sección. Antes eran `.card` sin estilo propio: la hoja de esta página
+  //  definía la rejilla y las líneas y daba por hecho que `.card` venía de otro
+  //  sitio, que no venía.
+  .card {
+    @include ds.surface-card;
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
   }
-}
 
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--space-4);
-  margin-top: var(--space-6);
-}
+  .form-section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
 
-.mt-2 {
-    margin-top: var(--space-4);
+    h2 {
+      margin: 0;
+      font-size: var(--text-md);
+      font-weight: var(--font-semibold);
+      color: var(--content-primary);
+    }
+  }
+
+  .grid-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: var(--space-4);
+  }
+
+  //  Una línea de factura: concepto, cantidad, precio, importe y quitar. En
+  //  rejilla y no en tabla porque cada celda lleva un control, y una tabla de
+  //  controles no se puede desplazar bien en pantalla estrecha.
+  .line-item {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr 2fr auto;
+    gap: var(--space-2);
+    align-items: center;
+
+    input,
+    select { @include ds.input-base; }
+
+    .line-description { width: 100%; }
+
+    @include ds.bp-down('md') { grid-template-columns: 1fr; }
+  }
+
+  //  Los totales, alineados a la derecha y en cifras tabulares: el neto a pagar
+  //  se compara con el total del documento de un vistazo.
+  .totals {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--space-2) var(--space-6);
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+
+    dt { color: var(--content-secondary); }
+    dd { margin: 0; text-align: right; color: var(--content-primary); }
+    .strong { font-weight: var(--font-semibold); }
+  }
 }

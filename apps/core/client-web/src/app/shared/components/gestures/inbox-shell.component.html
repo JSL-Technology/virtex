@@ -1,0 +1,108 @@
+<section class="ib">
+  <header class="ib__header">
+    <div class="ib__identity">
+      <h1 class="ib__title">
+        {{ titleKey() | translate }}
+        @if (state() === 'content') {
+          <span class="ib__count">{{ pending() }}</span>
+        }
+      </h1>
+      @if (subtitleKey()) {
+        <p class="ib__subtitle">{{ subtitleKey() | translate }}</p>
+      }
+    </div>
+
+    <div class="ib__actions">
+      <ng-content select="[inboxActions]"></ng-content>
+    </div>
+  </header>
+
+  <div class="ib__body">
+    @switch (state()) {
+      @case ('loading') {
+        <div class="ib__skeleton" role="status" [attr.aria-busy]="true">
+          <span class="sr-only">{{ 'COMMON.LOADING' | translate }}</span>
+          @for (row of SKELETON; track row) {
+            <div class="ib__skeleton-row" aria-hidden="true"></div>
+          }
+        </div>
+      }
+      @case ('error') {
+        <div class="ib__state ib__state--error" role="alert">
+          <lucide-icon [img]="OverdueIcon" size="28" aria-hidden="true"></lucide-icon>
+          <p class="ib__state-title">{{ error() | translate }}</p>
+          <button type="button" class="ib__retry" (click)="reload.emit()">
+            <lucide-icon [img]="ReloadIcon" size="15" aria-hidden="true"></lucide-icon>
+            <span>{{ 'COMMON.RETRY' | translate }}</span>
+          </button>
+        </div>
+      }
+      @case ('clear') {
+        <!-- La bandeja vacía es la respuesta buena, y se dice como tal. -->
+        <div class="ib__state ib__state--clear">
+          <lucide-icon [img]="ClearIcon" size="28" aria-hidden="true"></lucide-icon>
+          <p class="ib__state-title">{{ 'SHELL.INBOX_ALL_CLEAR' | translate }}</p>
+        </div>
+      }
+      @default {
+        @for (section of sections(); track section.labelKey) {
+          <section class="ib__section">
+            <h2 class="ib__section-title">
+              {{ section.labelKey | translate }}
+              @if (section.items.length) {
+                <span class="ib__section-count">{{ section.items.length }}</span>
+              }
+            </h2>
+
+            @if (section.items.length === 0) {
+              <!--
+                Un tramo vacío se encoge a una línea en vez de desaparecer: «no hay nada» también
+                es una respuesta, y esconderla obliga a comprobarlo por otro camino.
+              -->
+              <p class="ib__section-clear">{{ 'SHELL.INBOX_SECTION_CLEAR' | translate }}</p>
+            } @else {
+              <ul class="ib__list">
+                @for (item of section.items; track item.id) {
+                  <li class="ib__item" [class.ib__item--overdue]="item.overdue">
+                    <div class="ib__item-main">
+                      @if (item.link) {
+                        <a [routerLink]="item.link" class="ib__item-title">{{ item.title }}</a>
+                      } @else {
+                        <span class="ib__item-title">{{ item.title }}</span>
+                      }
+                      @if (item.detail) {
+                        <p class="ib__item-detail">{{ item.detail }}</p>
+                      }
+                    </div>
+
+                    <div class="ib__item-meta">
+                      @if (item.amount) {
+                        <span class="ib__item-amount">{{ item.amount }}</span>
+                      }
+                      @if (item.when) {
+                        <span class="ib__item-when">
+                          @if (item.overdue) {
+                            <lucide-icon [img]="OverdueIcon" size="14" aria-hidden="true"></lucide-icon>
+                            <span class="sr-only">{{ 'SHELL.INBOX_OVERDUE' | translate }}</span>
+                          }
+                          {{ item.when }}
+                        </span>
+                      }
+                      @if (itemActions(); as actions) {
+                        <div class="ib__item-actions">
+                          <ng-container
+                            *ngTemplateOutlet="actions; context: { $implicit: item }"
+                          ></ng-container>
+                        </div>
+                      }
+                    </div>
+                  </li>
+                }
+              </ul>
+            }
+          </section>
+        }
+      }
+    }
+  </div>
+</section>

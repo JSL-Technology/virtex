@@ -27,12 +27,25 @@ import { Type } from '@angular/core';
  */
 
 /**
- * The five gestures.
+ * The gestures.
  *
- * Every interaction in the ERP is one of these, and each has one canonical treatment in the shared
- * layer. The point is not taxonomy for its own sake: it is that a user who learns how a list
- * behaves in Sales has learned how it behaves in Purchasing, and a developer arriving in a year
- * cannot invent a sixth way to show a list because there is nowhere to put it.
+ * Every interaction in the ERP is one of these, and the first three have one canonical treatment in
+ * the shared layer — `vx-list-shell`, `vx-document-shell`, `vx-draft-shell`. The point is not
+ * taxonomy for its own sake: it is that a user who learns how a list behaves in Sales has learned
+ * how it behaves in Purchasing, and a developer arriving in a year cannot invent a second way to
+ * show a list, because `gesture-conformance.spec.ts` names the file that tried.
+ *
+ * ## Why two of them impose no shell
+ *
+ * `OVERVIEW` and `CANVAS` deliberately have none, and saying so is more honest than a shell nobody
+ * fits into. A balance sheet is a hierarchy of accounts and a cash-flow statement a time series;
+ * the common mould between them would be empty. A spreadsheet, a point-of-sale terminal and a
+ * three-step import wizard are surfaces the user composes on, where the shape belongs to the
+ * content.
+ *
+ * The distinction earns its keep the moment it is used to tell the truth rather than to escape:
+ * `data-imports` and the datasheet editor were both declared `LIST`, which is how a wizard and a
+ * spreadsheet ended up being measured against a list's anatomy.
  */
 export enum WindowKind {
   /** Find a set of records: saved views, configurable columns, virtualised rows. */
@@ -43,8 +56,16 @@ export enum WindowKind {
   DRAFT = 'DRAFT',
   /** A module's inbox: what needs attention here, ordered by what blocks. */
   INBOX = 'INBOX',
-  /** Cross-module aggregate, dashboard or report. */
+  /** Cross-module aggregate, dashboard or report. Its shape is its own; no shell is imposed. */
   OVERVIEW = 'OVERVIEW',
+  /**
+   * A surface the user composes on: a spreadsheet, a till, a multi-step wizard.
+   *
+   * Narrow on purpose. It is not the escape hatch for a screen that has not been thought about —
+   * a list that "feels different" is still a list. It is for the handful of screens whose whole
+   * value is a free surface, where a fixed header and a fixed body would be in the way.
+   */
+  CANVAS = 'CANVAS',
 }
 
 /** Where a route appears in the module panel. The order of the groups is fixed across modules. */

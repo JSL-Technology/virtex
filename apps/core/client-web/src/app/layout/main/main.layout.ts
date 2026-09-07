@@ -60,6 +60,7 @@ import { DialogHostComponent } from '../../shared/components/dialog-host/dialog-
 import { FORMAT_PIPES } from '../../core/i18n/pipes/format.pipes';
 import { StatusBarComponent } from '../status-bar/status-bar.component';
 import { ModuleRailComponent } from '../module-rail/module-rail.component';
+import { WindowModeToggleComponent } from '../window-mode-toggle/window-mode-toggle.component';
 import { ActiveModuleService, PanelSection } from '../../core/modules/active-module.service';
 import { ModuleMenuComponent } from '../module-menu/module-menu.component';
 import { ModuleManifest } from '../../core/modules/module-manifest';
@@ -67,7 +68,7 @@ import { ModuleManifest } from '../../core/modules/module-manifest';
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, ThemeToggle, AppLauncherComponent, LucideAngularModule, TranslateModule, Sidebar, ClickOutsideDirective, SettingsModalComponent, CompanySwitcherComponent, BrandLogo, TabContainerComponent, DialogHostComponent, StatusBarComponent, ModuleRailComponent, ModuleMenuComponent, ...FORMAT_PIPES], // ✅ Directiva añadida a los imports
+  imports: [CommonModule, RouterLink, RouterLinkActive, ThemeToggle, AppLauncherComponent, LucideAngularModule, TranslateModule, Sidebar, ClickOutsideDirective, SettingsModalComponent, CompanySwitcherComponent, BrandLogo, TabContainerComponent, DialogHostComponent, StatusBarComponent, ModuleRailComponent, ModuleMenuComponent, WindowModeToggleComponent, ...FORMAT_PIPES], // ✅ Directiva añadida a los imports
   templateUrl: './main.layout.html',
   styleUrls: ['./main.layout.scss'],
 })

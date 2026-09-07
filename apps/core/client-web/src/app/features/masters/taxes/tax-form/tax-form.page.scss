@@ -1,32 +1,5 @@
-@use '../../../../../assets/styles/view-styles' as views;
-@use '../../../../../assets/styles/forms' as mixins;
+@use '../../../../../assets/styles/form-page' as form;
 
 :host {
-  display: block;
-}
-
-.view-container {
-  @include views.view-container;
-}
-
-.view-header {
-  @include views.view-header;
-}
-
-.form-container {
-    @include views.card;
-    padding: var(--space-8);
-    max-width: 600px;
-    margin: 2rem auto;
-}
-
-.form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-6);
-    margin-bottom: var(--space-6);
-}
-
-.form-field {
-    @include mixins.form-field;
+  @include form.form-page;
 }

@@ -1,16 +1,16 @@
-<div class="form-container">
-  <div class="form-header">
-    <a class="back-link" routerLink="../..">
-      <lucide-icon [img]="BackIcon" size="18"></lucide-icon>
-      <span>{{ 'TREASURY.CUENTAS_BANCARIAS' | translate }}</span>
-    </a>
-    <h3>
-      {{ (isEditMode() ? 'TREASURY.FORM.EDITAR_CUENTA' : 'TREASURY.FORM.NUEVA_CUENTA') | translate }}
-    </h3>
-  </div>
-
-  <form [formGroup]="form" (ngSubmit)="save()" class="card">
-    <div class="form-grid">
+<vx-draft-shell
+  [title]="(isEditMode() ? 'TREASURY.FORM.EDITAR_CUENTA' : 'TREASURY.FORM.NUEVA_CUENTA') | translate"
+  [subtitle]="'TREASURY.CUENTAS_BANCARIAS' | translate"
+  [dirty]="form.dirty"
+  [saving]="saving()"
+  [invalid]="form.invalid"
+  [problems]="problems()"
+  (save)="save()"
+  (cancel)="cancel()"
+>
+  <div class="form-body" [formGroup]="form">
+    <section class="form-section">
+      <div class="form-grid">
       <label class="field">
         <span>{{ 'TREASURY.FORM.NOMBRE' | translate }} *</span>
         <input type="text" formControlName="name" maxlength="120" />
@@ -119,13 +119,7 @@
           <span>{{ 'TREASURY.FORM.ACTIVA' | translate }}</span>
         </label>
       }
-    </div>
-
-    <div class="form-actions">
-      <a class="secondary-button" routerLink="../..">{{ 'COMMON.CANCEL' | translate }}</a>
-      <button class="primary-button" type="submit" [disabled]="saving()">
-        {{ 'COMMON.SAVE' | translate }}
-      </button>
-    </div>
-  </form>
-</div>
+      </div>
+    </section>
+  </div>
+</vx-draft-shell>

@@ -1,17 +1,19 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { JournalsService } from '../../../core/api/journals.service';
 import { NotificationService } from '../../../core/services/notification';
 import { Journal } from '../../../core/models/journal.model';
 import { TranslateModule } from '@ngx-translate/core';
+import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 
 @Component({
   selector: 'app-journal-form',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, TranslateModule],
+  imports: [ReactiveFormsModule, TranslateModule, DraftShellComponent],
   templateUrl: './journal-form.page.html',
-  styleUrls: ['./journal-form.page.scss']
+  styleUrls: ['./journal-form.page.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class JournalFormPage implements OnInit {
   private fb = inject(FormBuilder);
@@ -19,6 +21,8 @@ export class JournalFormPage implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private notification = inject(NotificationService);
+
+  readonly problems = signal<DraftProblem[]>([]);
 
   journalForm: FormGroup;
   isEditMode = false;
@@ -42,10 +46,26 @@ export class JournalFormPage implements OnInit {
     }
   }
 
+  cancel(): void {
+    void this.router.navigate(['/accounting/journals']);
+  }
+
   onSubmit() {
     if (this.journalForm.invalid) {
+      //  Antes se salía en silencio: el botón estaba deshabilitado, así que el usuario se
+      //  quedaba mirando un formulario que no reaccionaba y sin nada que le dijera por qué.
+      this.journalForm.markAllAsTouched();
+      this.problems.set(
+        draftProblems(this.journalForm, {
+          name: 'ACCOUNTING.JOURNAL_FORM.NAME',
+          code: 'ACCOUNTING.JOURNAL_FORM.CODE',
+          type: 'ACCOUNTING.JOURNAL_FORM.TYPE',
+        }),
+      );
       return;
     }
+
+    this.problems.set([]);
 
     const journalData: Journal = this.journalForm.value;
 

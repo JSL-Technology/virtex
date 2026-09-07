@@ -10,11 +10,12 @@ import { AccountType, AccountCategory, AccountNature, CashFlowCategory, Required
 import { LucideAngularModule, Save, AlertTriangle, Settings } from 'lucide-angular';
 import { NotificationService } from '../../../core/services/notification';
 import { TranslateModule } from '@ngx-translate/core';
+import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 
 @Component({
   selector: 'app-account-form-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideAngularModule, TranslateModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideAngularModule, TranslateModule, DraftShellComponent],
   templateUrl: './account-form.page.html',
   styleUrls: ['./account-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -172,6 +173,9 @@ export class AccountFormPage implements OnInit {
     });
   }
 
+  /** Qué falta antes de guardar, con el rótulo de cada campo. */
+  readonly problems = signal<DraftProblem[]>([]);
+
   onSave(): void {
     if (this.isConfigMissing()) {
       this.notificationService.showError('ACCOUNTING.ACCOUNT_FORM.PUEDE_GUARDAR_CUENTA_SIN_ESTRUCTURA_SEGMENTOS');
@@ -180,11 +184,15 @@ export class AccountFormPage implements OnInit {
 
     if (this.accountForm.invalid) {
       this.accountForm.markAllAsTouched();
-      this.notificationService.showError('ACCOUNTING.ACCOUNT_FORM.FAVOR_COMPLETE_TODOS_CAMPOS_REQUERIDOS');
-      // Abrir el tab que contiene el primer error
+      //  Este formulario tiene cuatro pestañas, así que el campo que falta puede estar en una que
+      //  ni siquiera se ve. Abrir la pestaña culpable ya lo hacía; el resumen añade decir cuál es
+      //  el campo, que es lo que faltaba para poder arreglarlo sin buscarlo.
+      this.problems.set(draftProblems(this.accountForm, ACCOUNT_FIELD_LABELS));
       this.findAndFocusFirstInvalidTab();
       return;
     }
+
+    this.problems.set([]);
   
     this.isLoading.set(true);
     const formData = this.accountForm.getRawValue();
@@ -313,3 +321,23 @@ export class AccountFormPage implements OnInit {
     }
   }
 }
+
+/** Rótulo i18n de cada control, para el resumen de errores. El mismo que usa su `<label>`. */
+const ACCOUNT_FIELD_LABELS: Record<string, string> = {
+  code: 'ACCOUNTING.ACCOUNT_FORM.CODIGO_CUENTA',
+  name: 'ACCOUNTING.ACCOUNT_FORM.NOMBRE_CUENTA',
+  description: 'ACCOUNTING.ACCOUNT_FORM.DESCRIPCION',
+  parentId: 'ACCOUNTING.ACCOUNT_FORM.CUENTA_PADRE_AGRUPADORA',
+  type: 'ACCOUNTING.ACCOUNT_FORM.TIPO_CUENTA',
+  nature: 'ACCOUNTING.ACCOUNT_FORM.NATURALEZA_AUTOMATICO',
+  category: 'ACCOUNTING.ACCOUNT_FORM.CATEGORIA',
+  isPostable: 'ACCOUNTING.ACCOUNT_FORM.ES_CUENTA_IMPUTABLE_PERMITE_TRANSACCIONES',
+  isActive: 'ACCOUNTING.ACCOUNT_FORM.CUENTA_ACTIVA',
+  balanceSheetCategory: 'ACCOUNTING.ACCOUNT_FORM.CATEGORIA_BALANCE_GENERAL',
+  incomeStatementCategory: 'ACCOUNTING.ACCOUNT_FORM.CATEGORIA_ESTADO_RESULTADOS',
+  cashFlowCategory: 'ACCOUNTING.ACCOUNT_FORM.CATEGORIA_FLUJO_EFECTIVO',
+  version: 'ACCOUNTING.ACCOUNT_FORM.VERSION_CATALOGO',
+  hierarchyType: 'ACCOUNTING.ACCOUNT_FORM.TIPO_JERARQUIA',
+  effectiveFrom: 'ACCOUNTING.ACCOUNT_FORM.VIGENTE_DESDE',
+  effectiveTo: 'ACCOUNTING.ACCOUNT_FORM.VIGENTE_HASTA',
+};

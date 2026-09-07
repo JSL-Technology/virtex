@@ -1,14 +1,14 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal, input, effect } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { LucideAngularModule, Save } from 'lucide-angular';
 import { CustomersService, CreateCustomerDto, UpdateCustomerDto } from '../../../core/api/customers.service';
 import { NotificationService } from '../../../core/services/notification';
 import { TranslateModule } from '@ngx-translate/core';
+import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 
 @Component({
   selector: 'app-customer-form-page',
-  imports: [RouterLink, ReactiveFormsModule, LucideAngularModule, TranslateModule],
+  imports: [ReactiveFormsModule, TranslateModule, DraftShellComponent],
   templateUrl: './customer-form.page.html',
   styleUrls: ['./customer-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,7 +39,9 @@ export class CustomerFormPage implements OnInit {
   private customersService = inject(CustomersService);
   private notificationService = inject(NotificationService);
 
-  protected readonly SaveIcon = Save;
+
+  /** Qué falta antes de guardar. Se llena al pulsar, no mientras se teclea el primer campo. */
+  readonly problems = signal<DraftProblem[]>([]);
 
   customerForm!: FormGroup;
   isEditMode = signal(false);
@@ -91,12 +93,32 @@ export class CustomerFormPage implements OnInit {
     });
   }
 
+  cancel(): void {
+    void this.router.navigate(['/contacts/customers']);
+  }
+
   saveCustomer(): void {
     if (this.customerForm.invalid) {
       this.customerForm.markAllAsTouched();
-      this.notificationService.showError('CONTACTS.CUSTOMER_FORM.FAVOR_COMPLETA_CAMPOS_REQUERIDOS');
+      this.problems.set(
+        draftProblems(this.customerForm, {
+          companyName: 'CONTACTS.CUSTOMER_FORM.NOMBRE_EMPRESA',
+          contactPerson: 'CONTACTS.CUSTOMER_FORM.PERSONA_CONTACTO',
+          taxId: 'CONTACTS.CUSTOMER_FORM.ID_FISCAL_RNC_ETC',
+          taxpayerType: 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE',
+          email: 'CONTACTS.CUSTOMER_FORM.CORREO_ELECTRONICO',
+          phone: 'CONTACTS.CUSTOMER_FORM.TELEFONO',
+          address: 'CONTACTS.CUSTOMER_FORM.LINEA_DIRECCION',
+          city: 'CONTACTS.CUSTOMER_FORM.CIUDAD',
+          stateOrProvince: 'CONTACTS.CUSTOMER_FORM.ESTADO_PROVINCIA',
+          postalCode: 'CONTACTS.CUSTOMER_FORM.CODIGO_POSTAL',
+          country: 'CONTACTS.CUSTOMER_FORM.PAIS',
+        }),
+      );
       return;
     }
+
+    this.problems.set([]);
 
     this.isLoading.set(true);
     const formValue = this.customerForm.getRawValue();

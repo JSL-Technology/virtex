@@ -1,17 +1,21 @@
-<div class="view-container">
-  @if (invoice(); as inv) {
-  <div class="view-header">
-    <div class="header-content">
-      <h1>
-        {{ inv.type === 'CREDIT_NOTE' ? 'Nota de Crédito' : 'Factura de Venta' }} <span class="invoice-id">#{{ inv.invoiceNumber }}</span>
-      </h1>
-    </div>
-  </div>
-
+@if (invoice(); as inv) {
+<vx-document-shell
+  [title]="documentTitle(inv)"
+  [subtitle]="inv.customerName"
+  [statusKey]="statusKey(inv.status)"
+  [statusTone]="statusTone(inv.status)"
+>
+  <!--
+    La barra de acciones del documento, en el encabezado del armazón. El ESTADO va con ella y no
+    dentro de la pestaña «Finanzas», donde estaba: en un ERP el estado gobierna lo que todavía se
+    puede hacer con el documento —una factura emitida no se edita, una anulada no se cobra—, así
+    que enterarse a dos clics es enterarse tarde.
+  -->
   <app-invoice-toolbar
+    documentActions
     (navigate)="handleNavigate($event)"
     (print)="printInvoice()"
-    (email)="notificationService.showInfo('Enviando correo...')"
+    (email)="notificationService.showInfo('INVOICES.DETAIL.ENVIANDO_CORREO')"
     (export)="handleExport($event)"
     (copyFrom)="handleCopyFrom()"
     (copyTo)="handleCopyTo()"
@@ -40,19 +44,19 @@
         </div>
         <div class="invoice-meta">
           <div class="meta-item">
-            <span>FECHA</span>
+            <span>{{ 'INVOICES.DETAIL.FECHA' | translate }}</span>
             <strong>{{ inv.issueDate | vxDate: 'date' }}</strong>
           </div>
           <div class="meta-item">
-            <span>VENCIMIENTO</span>
+            <span>{{ 'INVOICES.DETAIL.VENCIMIENTO' | translate }}</span>
             <strong>{{ inv.dueDate | vxDate: 'date' }}</strong>
           </div>
           <div class="meta-item">
-            <span>NCF</span>
-            <strong>{{ inv.ncfNumber || 'N/A' }}</strong>
+            <span>{{ 'INVOICES.DETAIL.NCF' | translate }}</span>
+            <strong>{{ inv.ncfNumber || ('INVOICES.DETAIL.SIN_NCF' | translate) }}</strong>
           </div>
           <div class="meta-item">
-            <span>MONEDA</span>
+            <span>{{ 'INVOICES.DETAIL.MONEDA' | translate }}</span>
             <strong>{{ inv.currencyCode }}</strong>
           </div>
         </div>
@@ -77,7 +81,7 @@
             <th class="text-left">{{ 'INVOICES.DETAIL.DESCRIPCION' | translate }}</th>
             <th class="text-center">{{ 'INVOICES.DETAIL.CANT' | translate }}</th>
             <th class="text-right">{{ 'INVOICES.DETAIL.PRECIO' | translate }}</th>
-            <th class="text-right">ITBIS</th>
+            <th class="text-right">{{ 'INVOICES.DETAIL.IMPUESTO' | translate }}</th>
             <th class="text-right">{{ 'INVOICES.DETAIL.TOTAL' | translate }}</th>
           </tr>
         </thead>
@@ -160,12 +164,6 @@
                 <span class="detail-label">{{ 'INVOICES.DETAIL.INDICADOR_IMPUESTOS' | translate }}</span>
                 <p>{{ 'INVOICES.DETAIL.TAX_RATE_APPLIED' | translate: { rate: effectiveTaxRate(inv) | vxPercent } }}</p>
             </div>
-            <div class="detail-item">
-                <span class="detail-label">{{ 'INVOICES.DETAIL.ESTADO_COBRO' | translate }}</span>
-                <span class="status-badge" [ngClass]="statusClass(inv.status)">
-                    {{ statusKey(inv.status) | translate }}
-                </span>
-            </div>
         </div>
     </div>
   </div>
@@ -178,7 +176,10 @@
       </div>
       <div class="draft-actions">
         <button type="button" class="btn btn-primary" [disabled]="ecfBusy() || previewBusy()" (click)="previewIssue()">
-          {{ ecfBusy() ? 'Emitiendo…' : 'Emitir comprobante' }}
+          {{
+            (ecfBusy() ? 'INVOICES.DETAIL.EMITIENDO' : 'INVOICES.DETAIL.EMITIR_COMPROBANTE')
+              | translate
+          }}
         </button>
         <button type="button" class="btn btn-secondary" (click)="discardDraft()">
           {{ 'INVOICES.DETAIL.ELIMINAR_BORRADOR' | translate }}
@@ -227,19 +228,17 @@
       <div class="ecf-actions">
         <button type="button" (click)="downloadEcfXml()">{{ 'INVOICES.DETAIL.DESCARGAR_XML_FIRMADO' | translate }}</button>
         <button type="button" [disabled]="ecfBusy()" (click)="resubmitEcf()">
-          {{ ecfBusy() ? 'Reenviando…' : 'Reenviar a la DGII' }}
+          {{
+            (ecfBusy() ? 'INVOICES.DETAIL.REENVIANDO' : 'INVOICES.DETAIL.REENVIAR_DGII') | translate
+          }}
         </button>
       </div>
     </div>
   </div>
-  } @else {
-  <div class="card">
-    <p class="placeholder">
-      {{ 'INVOICES.DETAIL.CARGANDO_DATOS_FACTURA_FACTURA_NO_FUE' | translate }}
-    </p>
-  </div>
-  }
-</div>
+</vx-document-shell>
+} @else {
+<vx-document-shell [title]="'PAGE_TITLES.INVOICES' | translate" [loading]="true"></vx-document-shell>
+}
 
 <!--
   Issuing goes through the preview.

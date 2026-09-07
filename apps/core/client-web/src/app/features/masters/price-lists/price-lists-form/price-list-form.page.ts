@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal, input, effect } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideAngularModule, Save, Plus, Trash2 } from 'lucide-angular';
 import { PriceListsService, CreatePriceListDto, UpdatePriceListDto } from '../../../../core/api/price-lists.service';
@@ -8,10 +8,11 @@ import { NotificationService } from '../../../../core/services/notification';
 import { Product } from '../../../../core/models/product.model';
 import { PriceListItem, PriceListStatus } from '../../../../core/models/price-list.model';
 import { TranslateModule } from '@ngx-translate/core';
+import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
 
 @Component({
   selector: 'app-price-list-form-page',
-  imports: [RouterLink, ReactiveFormsModule, LucideAngularModule, TranslateModule],
+  imports: [ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent],
   templateUrl: './price-list-form.page.html',
   styleUrls: ['./price-list-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -26,9 +27,10 @@ export class PriceListFormPage implements OnInit {
   private inventoryService = inject(InventoryService);
   private notificationService = inject(NotificationService);
 
-  protected readonly SaveIcon = Save;
   protected readonly PlusIcon = Plus;
   protected readonly TrashIcon = Trash2;
+
+  readonly problems = signal<DraftProblem[]>([]);
 
   priceListForm!: FormGroup;
   isEditMode = signal(false);
@@ -121,12 +123,31 @@ export class PriceListFormPage implements OnInit {
     }
   }
 
+  cancel(): void {
+    void this.router.navigate(['/masters/price-lists']);
+  }
+
   savePriceList(): void {
     if (this.priceListForm.invalid) {
       this.priceListForm.markAllAsTouched();
-      this.notificationService.showError('MASTERS.PRICE_LISTS_FORM.FAVOR_COMPLETA_CAMPOS_REQUERIDOS');
+      //  Con veinte líneas de precio, la que falla puede estar fuera de la pantalla: el resumen
+      //  entra en el `FormArray` y nombra la línea concreta.
+      this.problems.set(
+        draftProblems(this.priceListForm, {
+          name: 'MASTERS.PRICE_LISTS_FORM.NOMBRE_LISTA',
+          status: 'MASTERS.PRICE_LISTS_FORM.ESTADO',
+          currency: 'MASTERS.PRICE_LISTS_FORM.MONEDA',
+          validFrom: 'MASTERS.PRICE_LISTS_FORM.VALIDO_DESDE',
+          validTo: 'MASTERS.PRICE_LISTS_FORM.VALIDO_HASTA',
+          items: 'MASTERS.PRICE_LISTS_FORM.ITEMS_LISTA_PRECIOS',
+          productId: 'MASTERS.PRICE_LISTS_FORM.PRODUCTO',
+          price: 'MASTERS.PRICE_LISTS_FORM.PRECIO',
+        }),
+      );
       return;
     }
+
+    this.problems.set([]);
 
     if (this.isSaving()) return;
     this.isSaving.set(true);

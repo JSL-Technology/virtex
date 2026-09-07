@@ -1,38 +1,35 @@
-<div class="page-container">
-  <div class="page-header">
-    <div class="header-title">
-      <div class="breadcrumb">
-        <a [routerLink]="['/invoices']">{{ 'INVOICES.NEW.FACTURAS' | translate }}</a>
-        <span class="divider">/</span>
-        <span>{{ 'INVOICES.NEW.NUEVA_FACTURA' | translate }}</span>
-      </div>
-      <h1>{{ 'INVOICES.NEW.CREAR_FACTURA_VENTA' | translate }}</h1>
-    </div>
-    <div class="page-header-actions">
-      <button class="btn btn-secondary" [routerLink]="['/invoices']">{{ 'INVOICES.NEW.CANCELAR' | translate }}</button>
-      <!--
-        Two distinct actions, because they are two distinct things. Saving a draft consumes no
-        fiscal numbering and posts nothing; issuing assigns the e-NCF, posts the ledger entry and
-        transmits the comprobante. Previously every document was issued the moment it was created,
-        so preparing one burned a number the DGII then expected to receive.
-      -->
-      <button class="btn btn-secondary" (click)="saveDraft()" [disabled]="isSaving()">
-        {{ 'INVOICES.NEW.GUARDAR_BORRADOR' | translate }}
-      </button>
-      <button
-        class="btn btn-primary"
-        (click)="issue()"
-        [disabled]="isSaving() || !(context()?.ready ?? false)"
-      >
-        @if (isSaving()) {
-          <span class="spinner-small"></span> Guardando…
-        } @else {
-          Emitir factura
-        }
-      </button>
-    </div>
-  </div>
+<vx-draft-shell
+  [title]="'INVOICES.NEW.CREAR_FACTURA_VENTA' | translate"
+  [subtitle]="'INVOICES.NEW.FACTURAS' | translate"
+  [dirty]="invoiceForm.dirty"
+  [saving]="isSaving()"
+  [invalid]="invoiceForm.invalid"
+  [problems]="problems()"
+  saveLabelKey="INVOICES.NEW.GUARDAR_BORRADOR"
+  cancelLabelKey="INVOICES.NEW.CANCELAR"
+  (save)="saveDraft()"
+  (cancel)="router.navigate(['/invoices'])"
+>
+  <!--
+    Two distinct actions, because they are two distinct things. Saving a draft consumes no fiscal
+    numbering and posts nothing; issuing assigns the e-NCF, posts the ledger entry and transmits
+    the comprobante. Previously every document was issued the moment it was created, so preparing
+    one burned a number the DGII then expected to receive.
 
+    Guardar el borrador es la acción por defecto del armazón —la que dispara Enter— y emitir es un
+    botón aparte: la irreversible no puede ser la que se pulsa sin querer.
+  -->
+  <button
+    draftActions
+    type="button"
+    class="primary-button"
+    [disabled]="isSaving() || !(context()?.ready ?? false)"
+    (click)="issue()"
+  >
+    {{ (isSaving() ? 'INVOICES.NEW.GUARDANDO' : 'INVOICES.NEW.EMITIR_FACTURA') | translate }}
+  </button>
+
+  <div class="form-body">
   @if (blockers().length > 0) {
     <div class="alert alert-warning" role="alert">
       <strong>{{ 'INVOICES.NEW.TODAVIA_NO_PUEDES_EMITIR_COMPROBANTES' | translate }}</strong>
@@ -56,7 +53,7 @@
     <button [class.active]="activeTab() === 'finance'" (click)="activeTab.set('finance')">{{ 'INVOICES.NEW.FISCAL_COBRO' | translate }}</button>
   </div>
 
-  <form [formGroup]="invoiceForm">
+  <div [formGroup]="invoiceForm">
     <!-- ── Contenido ─────────────────────────────────────────────────────── -->
     <div class="grid-layout" [class.hidden]="activeTab() !== 'content'">
       <div class="main-content">
@@ -309,5 +306,6 @@
         </div>
       </div>
     </div>
-  </form>
-</div>
+  </div>
+  </div>
+</vx-draft-shell>

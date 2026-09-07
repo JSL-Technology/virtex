@@ -9,11 +9,12 @@ import { LucideAngularModule, Save, Plus, Trash2, ArrowLeft, RotateCcw } from 'l
 import { NotificationService } from '../../../../core/services/notification';
 import { take } from 'rxjs/operators';
 import { TranslateModule } from '@ngx-translate/core';
+import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
 
 @Component({
   selector: 'app-segment-configuration',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideAngularModule, TranslateModule],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent],
   templateUrl: './segment-configuration.page.html',
   styleUrls: ['./segment-configuration.page.scss'],
 })
@@ -30,10 +31,8 @@ export class SegmentConfigurationPage implements OnInit {
   public isSaving = signal(false);
 
   // Icons
-  public readonly SaveIcon = Save;
   public readonly PlusIcon = Plus;
   public readonly TrashIcon = Trash2;
-  public readonly BackIcon = ArrowLeft;
   public readonly ResetIcon = RotateCcw;
 
   ngOnInit(): void {
@@ -87,17 +86,23 @@ export class SegmentConfigurationPage implements OnInit {
     this.segments.removeAt(index);
   }
 
+  /** Qué falta antes de guardar. Entra en los niveles y nombra el que falla. */
+  public readonly problems = signal<DraftProblem[]>([]);
+
   public onSave(): void {
     if (this.configForm.invalid) {
       this.configForm.markAllAsTouched();
-      this.notificationService.showError('ACCOUNTING.SEGMENT_CONFIGURATION.FAVOR_CORRIJA_ERRORES_FORMULARIO');
+      this.problems.set(draftProblems(this.configForm));
       return;
     }
 
     if (this.segments.length === 0) {
-      this.notificationService.showError('ACCOUNTING.SEGMENT_CONFIGURATION.DEBE_DEFINIR_MENOS_SEGMENTO');
+      //  Una estructura sin ningún nivel no es un campo mal escrito: es que no hay estructura.
+      this.problems.set([{ message: 'ACCOUNTING.SEGMENT_CONFIGURATION.DEBE_DEFINIR_MENOS_SEGMENTO' }]);
       return;
     }
+
+    this.problems.set([]);
 
     this.isSaving.set(true);
     const dto = {

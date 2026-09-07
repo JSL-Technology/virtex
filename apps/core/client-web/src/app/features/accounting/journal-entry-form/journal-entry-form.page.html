@@ -1,24 +1,29 @@
-<div class="page-container">
-  <div class="page-header">
-    <h1>{{ (isEditMode() ? 'ACCOUNTING.JOURNAL_ENTRY_FORM.EDIT_TITLE' : 'ACCOUNTING.JOURNAL_ENTRY_FORM.TITLE') | translate }}</h1>
-    <div class="header-actions">
-      <a routerLink="/accounting/journal-entries" class="btn btn-secondary">{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.CANCEL' | translate }}</a>
-      <button (click)="saveEntry()" class="btn btn-primary" [disabled]="isSaving()">
-        <lucide-icon [name]="SaveIcon" [size]="16" class="mr-2"></lucide-icon>
-        {{ (isSaving() ? 'ACCOUNTING.JOURNAL_ENTRY_FORM.SAVING' : 'ACCOUNTING.JOURNAL_ENTRY_FORM.SAVE') | translate }}
-      </button>
-    </div>
-  </div>
-
-  <form [formGroup]="entryForm" class="entry-form">
-    <div class="form-grid">
+<vx-draft-shell
+  [title]="
+    (isEditMode()
+      ? 'ACCOUNTING.JOURNAL_ENTRY_FORM.EDIT_TITLE'
+      : 'ACCOUNTING.JOURNAL_ENTRY_FORM.TITLE'
+    ) | translate
+  "
+  [dirty]="entryForm.dirty"
+  [saving]="isSaving()"
+  [invalid]="entryForm.invalid"
+  [problems]="problems()"
+  saveLabelKey="ACCOUNTING.JOURNAL_ENTRY_FORM.SAVE"
+  cancelLabelKey="ACCOUNTING.JOURNAL_ENTRY_FORM.CANCEL"
+  (save)="saveEntry()"
+  (cancel)="cancel()"
+>
+  <div class="form-body" [formGroup]="entryForm">
+    <section class="form-section">
+      <div class="form-grid">
       <div class="form-field">
         <label for="date">{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.DATE_LABEL' | translate }}</label>
-        <input type="date" id="date" formControlName="date" class="form-input">
+        <input type="date" id="date" formControlName="date">
       </div>
       <div class="form-field">
         <label for="ledgerId">{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.LEDGER_LABEL' | translate }}</label>
-        <select id="ledgerId" formControlName="ledgerId" class="form-input">
+        <select id="ledgerId" formControlName="ledgerId">
           <option value="" disabled>{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.LEDGER_PLACEHOLDER' | translate }}</option>
           @for (ledger of ledgers(); track ledger.id) {
             <option [value]="ledger.id">{{ ledger.name }}</option>
@@ -27,7 +32,7 @@
       </div>
       <div class="form-field">
         <label for="journalId">{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.JOURNAL_LABEL' | translate }}</label>
-        <select id="journalId" formControlName="journalId" class="form-input">
+        <select id="journalId" formControlName="journalId">
           <option value="" disabled>{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.JOURNAL_PLACEHOLDER' | translate }}</option>
           @for (journal of journals(); track journal.id) {
             <option [value]="journal.id">{{ journal.name }}</option>
@@ -36,12 +41,14 @@
       </div>
       <div class="form-field description-field">
         <label for="description">{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.DESCRIPTION_LABEL' | translate }}</label>
-        <input type="text" id="description" formControlName="description" [placeholder]="'ACCOUNTING.JOURNAL_ENTRY_FORM.DESCRIPTION_PLACEHOLDER' | translate" class="form-input">
+        <input type="text" id="description" formControlName="description" [placeholder]="'ACCOUNTING.JOURNAL_ENTRY_FORM.DESCRIPTION_PLACEHOLDER' | translate">
       </div>
     </div>
 
-    <div class="lines-container" formArrayName="lines">
-      <table>
+    </section>
+
+    <section class="form-section lines-container" formArrayName="lines">
+      <table class="data-table">
         <thead>
           <tr>
             <th>{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.ACCOUNT_COLUMN' | translate }}</th>
@@ -55,7 +62,7 @@
           @for (line of lines.controls; track $index) {
             <tr [formGroupName]="$index">
               <td>
-                <select formControlName="accountId" class="form-input">
+                <select formControlName="accountId">
                   <option value="" disabled>{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.ACCOUNT_PLACEHOLDER' | translate }}</option>
                   @for (account of accounts(); track account.id) {
                     <option [value]="account.id">{{ account.name }}</option>
@@ -63,17 +70,23 @@
                 </select>
               </td>
               <td>
-                <input type="text" formControlName="description" class="form-input">
+                <input type="text" formControlName="description">
               </td>
               <td>
-                <input type="number" formControlName="debit" class="form-input text-right">
+                <input type="number" formControlName="debit" class="text-right">
               </td>
               <td>
-                <input type="number" formControlName="credit" class="form-input text-right">
+                <input type="number" formControlName="credit" class="text-right">
               </td>
               <td>
-                <button (click)="removeLine($index)" class="btn-icon" [disabled]="lines.length <= 2">
-                  <lucide-icon [name]="TrashIcon" [size]="16"></lucide-icon>
+                <button
+                  type="button"
+                  class="icon-button"
+                  [disabled]="lines.length <= 2"
+                  [attr.aria-label]="'COMMON.DELETE' | translate"
+                  (click)="removeLine($index)"
+                >
+                  <lucide-icon [img]="TrashIcon" size="16" aria-hidden="true"></lucide-icon>
                 </button>
               </td>
             </tr>
@@ -82,8 +95,8 @@
         <tfoot>
           <tr>
             <td colspan="2">
-              <button (click)="addLine()" class="btn btn-secondary">
-                <lucide-icon [name]="PlusIcon" [size]="16" class="mr-2"></lucide-icon>
+              <button type="button" (click)="addLine()" class="secondary-button">
+                <lucide-icon [img]="PlusIcon" size="16" aria-hidden="true"></lucide-icon>
                 {{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.ADD_LINE' | translate }}
               </button>
             </td>
@@ -93,13 +106,22 @@
           </tr>
         </tfoot>
       </table>
-    </div>
 
-    @if (entryForm.hasError('unbalanced') && entryForm.touched) {
-      <div class="alert alert-danger">{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.UNBALANCED_ERROR' | translate }}</div>
-    }
-    @if (entryForm.hasError('zeroAmount') && entryForm.touched) {
-      <div class="alert alert-danger">{{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.ZERO_AMOUNT_ERROR' | translate }}</div>
-    }
-  </form>
-</div>
+      <!--
+        Un asiento descuadrado no es «un campo mal»: es la regla que define un asiento. Se dice
+        junto a los totales que la incumplen, no en el resumen general de arriba, porque el número
+        que hay que corregir está aquí.
+      -->
+      @if (entryForm.hasError('unbalanced') && entryForm.touched) {
+        <p class="entry-alert" role="alert">
+          {{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.UNBALANCED_ERROR' | translate }}
+        </p>
+      }
+      @if (entryForm.hasError('zeroAmount') && entryForm.touched) {
+        <p class="entry-alert" role="alert">
+          {{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.ZERO_AMOUNT_ERROR' | translate }}
+        </p>
+      }
+    </section>
+  </div>
+</vx-draft-shell>

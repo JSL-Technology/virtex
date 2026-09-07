@@ -1,0 +1,236 @@
+@use '../../../../assets/styles/design-system' as ds;
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.ib {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  height: 100%;
+  padding: var(--space-6);
+  background-color: var(--surface-canvas);
+
+  @include ds.bp-down('md') {
+    padding: var(--space-4);
+    gap: var(--space-4);
+  }
+}
+
+// ── Encabezado ────────────────────────────────────────────────────
+.ib__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.ib__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  @include ds.heading('2xl');
+}
+
+//  El total pendiente junto al título: es el número que responde «¿he
+//  terminado?», que es para lo que se abre una bandeja.
+.ib__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  height: 1.375rem;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-full);
+  background-color: var(--accent-surface);
+  color: var(--accent-solid);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.ib__subtitle {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-md);
+  color: var(--content-secondary);
+}
+
+.ib__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+// ── Cuerpo ────────────────────────────────────────────────────────
+.ib__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  overflow-y: auto;
+}
+
+.ib__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.ib__section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--text-2xs);
+  font-weight: var(--font-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  color: var(--content-tertiary);
+}
+
+.ib__section-count {
+  font-variant-numeric: tabular-nums;
+  color: var(--content-secondary);
+}
+
+.ib__section-clear {
+  margin: 0;
+  color: var(--content-tertiary);
+  font-size: var(--text-sm);
+}
+
+// ── Elementos ─────────────────────────────────────────────────────
+.ib__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  @include ds.surface-card;
+  overflow: hidden;
+}
+
+.ib__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  flex-wrap: wrap;
+
+  + .ib__item { border-top: 1px solid var(--border-subtle); }
+}
+
+//  Lo vencido lleva borde además de color, y su icono lleva texto para el
+//  lector de pantalla: el color por sí solo no es una señal.
+.ib__item--overdue {
+  border-left: 3px solid var(--error-text);
+
+  .ib__item-when { color: var(--error-text); font-weight: var(--font-semibold); }
+}
+
+.ib__item-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  flex: 1 1 20rem;
+}
+
+.ib__item-title {
+  color: var(--content-primary);
+  font-weight: var(--font-medium);
+  text-decoration: none;
+
+  &:hover { text-decoration: underline; }
+  @include ds.focus-ring(2px);
+}
+
+.ib__item-detail {
+  margin: 0;
+  color: var(--content-secondary);
+  font-size: var(--text-sm);
+}
+
+.ib__item-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.ib__item-amount {
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-semibold);
+  color: var(--content-primary);
+}
+
+.ib__item-when {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--content-tertiary);
+  font-size: var(--text-sm);
+}
+
+.ib__item-actions {
+  display: inline-flex;
+  gap: var(--space-2);
+}
+
+// ── Estados ───────────────────────────────────────────────────────
+.ib__skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.ib__skeleton-row {
+  height: 4rem;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    90deg,
+    var(--surface-sunken) 25%,
+    var(--surface-hover) 50%,
+    var(--surface-sunken) 75%
+  );
+  background-size: 200% 100%;
+  animation: ib-shimmer 1.4s ease-in-out infinite;
+
+  @include ds.bp-reduced-motion { animation: none; }
+}
+
+@keyframes ib-shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+.ib__state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+  color: var(--content-tertiary);
+}
+
+.ib__state--clear { color: var(--success-text); }
+.ib__state--error { color: var(--error-text); }
+
+.ib__state-title {
+  margin: 0;
+  font-size: var(--text-md);
+  color: inherit;
+}
+
+.ib__retry {
+  @include ds.button-secondary('md');
+  gap: var(--space-2);
+}

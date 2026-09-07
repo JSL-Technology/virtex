@@ -1,143 +1,103 @@
-@use '../../../assets/styles/view-styles' as views;
-@use '../../../assets/styles/forms' as mixins;
+@use '../../../assets/styles/list-page' as list;
+@use '../../../assets/styles/design-system' as ds;
 
 :host {
-    display: block;
-}
+  @include list.list-page;
 
-.view-container {
-    @include views.view-container;
-}
-
-.view-header {
-    @include views.view-header;
-}
-
-.card {
-    @include views.card;
-}
-
-.data-table {
-    @include views.data-table;
-}
-
-.export-form-container {
-    padding: var(--space-6);
-    margin-bottom: var(--space-12);
-
-    .form-title {
-        font-size: var(--text-xl);
-        font-weight: var(--font-semibold);
-        margin-bottom: var(--space-6);
-    }
-}
-
-.form-grid {
-    display: grid;
-    grid-template-columns: 2fr 2fr 1fr;
-    gap: var(--space-6);
-    align-items: flex-end;
-
-    @media (max-width: 992px) {
-        grid-template-columns: 1fr;
-        align-items: stretch;
-    }
-}
-
-.form-field {
-    @include mixins.form-field;
-}
-
-.action-field {
-    .primary-button {
-        @include mixins.submit-button;
-        width: 100%;
-    }
-}
-
-.button-group {
+  .export-form {
     display: flex;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-md);
+    align-items: flex-end;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    padding: var(--space-4);
+    @include ds.surface-card;
+  }
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+
+    label,
+    .input-label {
+      font-size: var(--text-xs);
+      color: var(--content-secondary);
+    }
+
+    select {
+      @include ds.input-base;
+      height: var(--control-height-md);
+      min-width: 14rem;
+    }
+  }
+
+  //  Elegir formato es una decisión entre dos, así que se ven las dos: un
+  //  desplegable escondería la mitad de la respuesta detrás de un clic.
+  .button-group {
+    display: inline-flex;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
     overflow: hidden;
 
     button {
-        flex-grow: 1;
-        padding: var(--space-input-y) var(--space-padding);
-        background-color: var(--bg-layer-1);
-        color: var(--text-secondary);
-        border: none;
-        cursor: pointer;
+      padding: 0 var(--space-4);
+      height: var(--control-height-md);
+      border: 0;
+      background: var(--surface-raised);
+      color: var(--content-secondary);
+      font: inherit;
+      cursor: pointer;
+      @include ds.transition(background-color, color);
+
+      + button { border-left: 1px solid var(--border-default); }
+
+      &.active {
+        background: var(--accent-surface);
+        color: var(--accent-solid);
         font-weight: var(--font-semibold);
-        transition: background-color 0.2s ease, color 0.2s ease;
+      }
 
-        &:not(:last-child) {
-            border-right: 1px solid var(--border-color);
-        }
-
-        &.active {
-            background-color: var(--accent-primary);
-            color: var(--accent-text);
-        }
+      @include ds.focus-ring-inset;
     }
-}
+  }
 
-.history-section {
-    .section-title {
-        font-size: var(--text-2xl);
-        font-weight: var(--font-semibold);
-        margin-bottom: var(--space-6);
-    }
+  .section-title {
+    margin: 0;
+    font-size: var(--text-md);
+    font-weight: var(--font-semibold);
+    color: var(--content-secondary);
+  }
 
-    .table-container {
-        padding: 0;
-    }
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
 
-    .status-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: var(--space-2);
-        padding: 4px 10px;
-        font-size: var(--text-xs);
-        font-weight: var(--font-semibold);
-        border-radius: var(--border-radius-full);
-
-        &.status-completed {
-            background-color: rgba(var(--success-rgb), 0.15);
-            color: var(--success-text);
-        }
-
-        &.status-processing {
-            background-color: rgba(var(--accent-solid-rgb), 0.15);
-            color: var(--accent-text);
-        }
-
-        &.status-failed {
-            background-color: rgba(var(--error-rgb), 0.15);
-            color: var(--error-text);
-        }
+    &.status-completed {
+      background-color: var(--success-surface);
+      border-color: var(--success-text);
+      color: var(--success-text);
     }
 
-    .download-btn {
-        @include mixins.submit-button;
-        padding: 0.4rem 0.8rem;
-        font-size: var(--text-sm);
-        background-color: var(--bg-layer-1);
-        color: var(--text-primary);
-        border: 1px solid var(--border-color);
-
-        &:hover {
-            background-color: var(--bg-hover);
-        }
+    &.status-failed {
+      background-color: var(--error-surface);
+      border-color: var(--error-text);
+      color: var(--error-text);
     }
-}
 
-.spinner {
-    animation: spin 1.5s linear infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
+    &.status-processing {
+      background-color: var(--warning-surface);
+      border-color: var(--warning-text);
+      color: var(--warning-text);
     }
+  }
+
+  .spinner {
+    animation: de-spin 0.9s linear infinite;
+    @include ds.bp-reduced-motion { animation: none; }
+  }
+
+  @keyframes de-spin { to { transform: rotate(360deg); } }
+
+  .download-btn { padding-inline: var(--space-3); }
 }

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, input, output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, ArrowLeft, AlertTriangle, Check, Loader } from 'lucide-angular';
 
@@ -6,6 +6,8 @@ import { LucideAngularModule, ArrowLeft, AlertTriangle, Check, Loader } from 'lu
 export interface DraftProblem {
   /** Clave i18n del mensaje, o un mensaje ya localizado que venga del servidor. */
   message: string;
+  /** Parámetros de interpolación del mensaje: el nombre del campo, un mínimo, una longitud. */
+  params?: Record<string, unknown>;
   /** `id` del control, para que el resumen lleve el foco al campo. Opcional. */
   fieldId?: string;
 }
@@ -64,8 +66,15 @@ export class DraftShellComponent {
 
   readonly save = output<void>();
   readonly cancel = output<void>();
-  /** El resumen pide el foco para un campo. La página sabe dónde está. */
+  /**
+   * El resumen pide el foco para un campo.
+   *
+   * El armazón ya intenta encontrarlo él mismo (ver `focusProblem`), así que la página solo escucha
+   * esto cuando necesita hacer algo más — abrir la pestaña que contiene el campo, por ejemplo.
+   */
   readonly focusField = output<string>();
+
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   protected readonly BackIcon = ArrowLeft;
   protected readonly AlertIcon = AlertTriangle;
@@ -93,6 +102,40 @@ export class DraftShellComponent {
    * segundo clic puede estropear de verdad.
    */
   protected readonly canSubmit = computed(() => !this.saving());
+
+  /**
+   * Llevar el foco al campo que el resumen nombra.
+   *
+   * Lo hace el armazón y no cada página porque es la misma búsqueda diecinueve veces, y porque una
+   * página que se olvidara de conectarlo dejaría un enlace que no hace nada — peor que no ofrecerlo.
+   *
+   * Dos formas de encontrarlo, en orden: por `id`, y si no, por `formControlName`. La segunda
+   * cubre los formularios escritos como `<label><span>…</span><input formControlName="x"></label>`,
+   * que no ponen `id` porque la asociación es implícita. Del identificador de un control anidado
+   * —`lines.1.price`— se usa el último segmento, que es como se llama el control dentro de su fila.
+   */
+  protected focusProblem(fieldId: string): void {
+    this.focusField.emit(fieldId);
+
+    const root = this.host.nativeElement;
+    const leaf = fieldId.split('.').pop() ?? fieldId;
+    //  Comparación por propiedad en vez de un selector construido con el identificador: un `id`
+    //  con un punto —`lines.1.price`— no es un selector válido, y `CSS.escape` no existe en todos
+    //  los entornos.
+    const byId = Array.from(root.querySelectorAll<HTMLElement>('[id]')).find(
+      (element) => element.id === fieldId,
+    );
+    const byControl = Array.from(
+      root.querySelectorAll<HTMLElement>('[formControlName]'),
+    ).find((element) => element.getAttribute('formControlName') === leaf);
+    const target = byId ?? byControl;
+
+    if (!target) return;
+    //  `scrollIntoView` no existe en todos los entornos —jsdom entre ellos— y una excepción aquí
+    //  se llevaría por delante el foco, que es lo único que de verdad importa de este método.
+    target.scrollIntoView?.({ block: 'center', behavior: 'auto' });
+    target.focus();
+  }
 
   protected onSubmit(event: Event): void {
     event.preventDefault();

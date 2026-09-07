@@ -1,16 +1,20 @@
-<div class="view-container">
-  <div class="view-header">
-    <a routerLink="/accounts-payable" class="btn-icon" [attr.aria-label]="'ACCOUNTS_PAYABLE.FORM.CANCELAR' | translate">
-      <lucide-icon [name]="BackIcon" [size]="24"></lucide-icon>
-    </a>
-    <h1>
-      {{ (isEditMode() ? 'ACCOUNTS_PAYABLE.FORM.TITLE_EDIT' : 'ACCOUNTS_PAYABLE.FORM.TITLE_CREATE') | translate }}
-    </h1>
-  </div>
-
-  <div class="view-content" [formGroup]="form">
+<vx-draft-shell
+  [title]="
+    (isEditMode() ? 'ACCOUNTS_PAYABLE.FORM.TITLE_EDIT' : 'ACCOUNTS_PAYABLE.FORM.TITLE_CREATE')
+      | translate
+  "
+  [dirty]="form.dirty"
+  [saving]="isLoading()"
+  [invalid]="form.invalid"
+  [problems]="problems()"
+  saveLabelKey="ACCOUNTS_PAYABLE.FORM.GUARDAR_FACTURA"
+  cancelLabelKey="ACCOUNTS_PAYABLE.FORM.CANCELAR"
+  (save)="save()"
+  (cancel)="cancel()"
+>
+  <div class="form-body" [formGroup]="form">
     <div class="card">
-      <div class="card-header">
+      <div class="form-section-head">
         <h2>{{ 'ACCOUNTS_PAYABLE.FORM.INFORMACION_GENERAL' | translate }}</h2>
       </div>
       <div class="card-body grid-form">
@@ -64,7 +68,7 @@
     </div>
 
     <div class="card" formArrayName="lines">
-      <div class="card-header">
+      <div class="form-section-head">
         <h2>{{ 'ACCOUNTS_PAYABLE.FORM.DETALLES_FACTURA' | translate }}</h2>
       </div>
       <div class="card-body">
@@ -197,13 +201,5 @@
       </div>
     </div>
 
-    <div class="form-actions">
-      <a routerLink="/accounts-payable" class="btn-secondary">
-        {{ 'ACCOUNTS_PAYABLE.FORM.CANCELAR' | translate }}
-      </a>
-      <button type="button" (click)="save()" class="btn-primary" [disabled]="!canSave()">
-        {{ (isLoading() ? 'ACCOUNTS_PAYABLE.FORM.GUARDANDO' : 'ACCOUNTS_PAYABLE.FORM.GUARDAR_FACTURA') | translate }}
-      </button>
-    </div>
   </div>
-</div>
+</vx-draft-shell>

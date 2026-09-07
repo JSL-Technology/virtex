@@ -51,7 +51,9 @@
       "TIPO_JERARQUIA": "Tipo de Jerarquía",
       "VERSION_CATALOGO": "Versión del Catálogo",
       "VIGENTE_DESDE": "Vigente Desde",
-      "VIGENTE_HASTA": "Vigente Hasta"
+      "VIGENTE_HASTA": "Vigente Hasta",
+      "TITLE_NEW": "Nueva cuenta contable",
+      "TITLE_EDIT": "Editar cuenta contable"
     },
     "ANNUAL_CLOSE": {
       "EMPTY": "El checklist de cierre anual todavía no está disponible.",
@@ -311,7 +313,8 @@
       "NOMBRE_LIBRO": "Nombre del Libro*",
       "PUDO_CARGAR_LIBRO_MAYOR": "No se pudo cargar el libro mayor.",
       "TITLE_CREATE": "Nuevo libro mayor",
-      "TITLE_EDIT": "Editar libro mayor"
+      "TITLE_EDIT": "Editar libro mayor",
+      "GUARDAR_LIBRO": "Guardar libro"
     },
     "LEDGER_LIST": {
       "CREAR_NUEVO_LIBRO": "Crear Nuevo Libro",
@@ -701,7 +704,23 @@
     "RECHAZAR": "Rechazar",
     "REPORTES_GASTOS": "Reportes de Gastos",
     "REVISA_APRUEBA_RECHAZA_TODAS_SOLICITUDES_PENDIENTES": "Revisa, aprueba o rechaza todas las solicitudes pendientes de la empresa.",
-    "SOLICITADO": "Solicitado por"
+    "SOLICITADO": "Solicitado por",
+    "PENDIENTES": "Pendientes de tu decisión",
+    "LOAD_FAILED": "No se pudieron cargar las aprobaciones. Inténtalo de nuevo.",
+    "APROBADA": "Solicitud aprobada.",
+    "RECHAZADA": "Solicitud rechazada.",
+    "ERROR_DECIDIR": "No se pudo registrar la decisión.",
+    "MOTIVO_RECHAZO_TITULO": "Motivo del rechazo",
+    "MOTIVO_RECHAZO_MENSAJE": "Un rechazo sin motivo no es una decisión: quien lo reciba no sabrá qué corregir.",
+    "SOLICITADO_POR": "Solicitado por {{who}}",
+    "PASO": "Paso {{step}}",
+    "DOCUMENT_TYPE": {
+      "VENDOR_BILL": "Facturas de proveedor",
+      "PAYMENT_BATCH": "Lotes de pago",
+      "JOURNAL_ENTRY": "Asientos contables",
+      "PERIOD_REOPENING": "Reapertura de periodo",
+      "AUDIT_ADJUSTMENT": "Ajustes de auditoría"
+    }
   },
   "APPS": {
     "CRM": "Virtex CRM",
@@ -942,7 +961,10 @@
       "TIPO_CONTRIBUYENTE_GOVERNMENT": "Estado y sus dependencias",
       "TIPO_CONTRIBUYENTE_INDIVIDUAL": "Persona física",
       "TIPO_CONTRIBUYENTE_SIN_CLASIFICAR": "Sin clasificar",
-      "TIPO_CONTRIBUYENTE_WITHHOLDING_AGENT": "Agente de retención designado"
+      "TIPO_CONTRIBUYENTE_WITHHOLDING_AGENT": "Agente de retención designado",
+      "TITLE_NEW": "Nuevo cliente",
+      "TITLE_EDIT": "Editar cliente",
+      "GUARDAR_CLIENTE": "Guardar cliente"
     },
     "SUPPLIERS": {
       "ACCIONES": "Acciones",
@@ -1584,7 +1606,10 @@
       "SELECCIONAR": "Seleccionar...",
       "SKU_CODIGO_PRODUCTO": "SKU (Código de Producto)",
       "SUBIR_IMAGEN": "Subir imagen",
-      "VISTA_PREVIA": "Vista previa"
+      "VISTA_PREVIA": "Vista previa",
+      "TITLE_NEW": "Nuevo producto",
+      "TITLE_EDIT": "Editar producto",
+      "GUARDAR_PRODUCTO": "Guardar producto"
     }
   },
   "INVOICES": {
@@ -1637,7 +1662,19 @@
       "TOTAL_2": "TOTAL:",
       "TRACKID": "TrackID:",
       "VERIFICACION_DGII": "Verificación DGII",
-      "VERIFICAR_DGII": "Verificar en la DGII"
+      "VERIFICAR_DGII": "Verificar en la DGII",
+      "TITULO_FACTURA": "Factura de venta",
+      "TITULO_NOTA_CREDITO": "Nota de crédito",
+      "FECHA": "Fecha",
+      "VENCIMIENTO": "Vencimiento",
+      "MONEDA": "Moneda",
+      "IMPUESTO": "Impuesto",
+      "EMITIR_COMPROBANTE": "Emitir comprobante",
+      "EMITIENDO": "Emitiendo…",
+      "REENVIAR_DGII": "Reenviar a la DGII",
+      "REENVIANDO": "Reenviando…",
+      "ENVIANDO_CORREO": "Enviando el correo…",
+      "SIN_NCF": "Sin asignar"
     },
     "EXPORT": {
       "CLIENTE": "Cliente",
@@ -1805,7 +1842,7 @@
       "REVISA_CAMPOS_MARCADOS_ANTES_CONTINUAR": "Revisa los campos marcados antes de continuar.",
       "SELECCIONAR": "Seleccionar",
       "SELECCIONAR_CLIENTE": "Seleccionar cliente",
-      "STOCK_INSUFICIENTE": "Stock insuficiente",
+      "STOCK_INSUFICIENTE": "Una o más líneas superan las existencias disponibles.",
       "STOCK_SHORTFALL": "Faltan {{units}} unidades en existencia",
       "SUBTOTAL": "Subtotal",
       "TARJETA_CREDITO": "Tarjeta de crédito",
@@ -1818,7 +1855,11 @@
       "TRANSFERENCIA": "Transferencia",
       "TRANSPORTE_PROPIO": "Transporte Propio",
       "TRATAMIENTO": "Tratamiento",
-      "VENTA_CREDITO": "Venta a crédito"
+      "VENTA_CREDITO": "Venta a crédito",
+      "EMITIR_FACTURA": "Emitir factura",
+      "GUARDANDO": "Guardando…",
+      "FACTURA_EMITIDA": "Factura {{number}} emitida.",
+      "BORRADOR_GUARDADO": "Borrador {{number}} guardado."
     },
     "PAYMENT_METHOD": {
       "BANK_TRANSFER": "Transferencia bancaria",
@@ -2080,7 +2121,10 @@
       "SELECCIONA_PRODUCTO": "Selecciona un producto...",
       "USD_DOLAR_ESTADOUNIDENSE": "USD - Dólar Estadounidense",
       "VALIDO_DESDE": "Válido Desde*",
-      "VALIDO_HASTA": "Válido Hasta*"
+      "VALIDO_HASTA": "Válido Hasta*",
+      "TITLE_NEW": "Nueva lista de precios",
+      "TITLE_EDIT": "Editar lista de precios",
+      "GUARDAR_LISTA": "Guardar lista"
     },
     "SUPPLIER_FORM": {
       "CANCELAR": "Cancelar",
@@ -2098,7 +2142,9 @@
       "PROVEEDOR_ACTUALIZADO_EXITOSAMENTE": "Proveedor actualizado exitosamente.",
       "PROVEEDOR_CREADO_EXITOSAMENTE": "Proveedor creado exitosamente.",
       "PUDO_CARGAR_PROVEEDOR": "No se pudo cargar el proveedor.",
-      "TELEFONO": "Teléfono"
+      "TELEFONO": "Teléfono",
+      "TITLE_NEW": "Nuevo proveedor",
+      "TITLE_EDIT": "Editar proveedor"
     },
     "SUPPLIER_LIST": {
       "COMPANY_NAME": "Razón social",
@@ -2138,7 +2184,9 @@
       "NOMBRE_IMPUESTO": "Nombre del Impuesto*",
       "PUDO_CARGAR_IMPUESTO": "No se pudo cargar el impuesto.",
       "TASA": "Tasa*",
-      "TIPO": "Tipo*"
+      "TIPO": "Tipo*",
+      "TITLE_NEW": "Nuevo impuesto",
+      "TITLE_EDIT": "Editar impuesto"
     },
     "UNITS_OF_MEASURE": {
       "FILTERS": "Filtros",
@@ -2174,7 +2222,8 @@
     "REQUESTED_DUEDATE": "Solicitado: {{dueDate}}",
     "SECURITY": "Seguridad",
     "TASKS": "Tareas",
-    "YOUR_CENTRALIZED_INBOX_FOR_TASKS_APPROVALS": "Tu bandeja centralizada de tareas, aprobaciones y notificaciones."
+    "YOUR_CENTRALIZED_INBOX_FOR_TASKS_APPROVALS": "Tu bandeja centralizada de tareas, aprobaciones y notificaciones.",
+    "LOAD_FAILED": "No se pudo cargar tu bandeja. Inténtalo de nuevo."
   },
   "NAV": {
     "APPROVALS": "Aprobaciones",
@@ -3553,7 +3602,25 @@
   "TABS": {
     "CLOSE_TAB": "Cerrar pestaña",
     "SPLIT_RIGHT": "Dividir a la derecha",
-    "UNDER_CONSTRUCTION": "Este módulo está en construcción. La ruta ya está registrada y la pestaña funciona; la vista detallada estará disponible pronto."
+    "UNDER_CONSTRUCTION": "Este módulo está en construcción. La ruta ya está registrada y la pestaña funciona; la vista detallada estará disponible pronto.",
+    "CLOSE": "Cerrar",
+    "CLOSE_OTHERS": "Cerrar las demás",
+    "CLOSE_RIGHT": "Cerrar las de la derecha",
+    "CLOSE_ALL": "Cerrar todas",
+    "DUPLICATE": "Duplicar",
+    "PIN": "Fijar",
+    "UNPIN": "Desfijar",
+    "SPLIT_BELOW": "Dividir abajo",
+    "MAXIMIZE": "Maximizar",
+    "RESTORE": "Restaurar tamaño",
+    "FLOAT": "Sacar a ventana flotante",
+    "MODE": "Disposición de ventanas",
+    "MODE_FOCUSED": "Enfocado",
+    "MODE_WORKSHOP": "Taller",
+    "MODE_COMPACT": "Compacto",
+    "MODE_FOCUSED_HINT": "Una ventana a la vista; las demás, en pestañas.",
+    "MODE_WORKSHOP_HINT": "Varias ventanas a la vez: dividir, mosaico y flotantes.",
+    "MODE_COMPACT_HINT": "Pantalla estrecha: una ventana, sin divisiones."
   },
   "TREASURY": {
     "AL_CORTE": "Al",
@@ -4176,6 +4243,17 @@
     "NO_CHANGES": "Sin cambios",
     "PROBLEMS": "Revisa {{count}} punto(s) antes de guardar",
     "TOGGLE_ASIDE": "Mostrar u ocultar el panel lateral",
-    "ASIDE": "Panel del documento"
+    "ASIDE": "Panel del documento",
+    "PROBLEM_REQUIRED": "«{{field}}» es obligatorio",
+    "PROBLEM_EMAIL": "«{{field}}» no es un correo válido",
+    "PROBLEM_MIN": "«{{field}}» no puede ser menor que {{min}}",
+    "PROBLEM_MAX": "«{{field}}» no puede ser mayor que {{max}}",
+    "PROBLEM_MINLENGTH": "«{{field}}» necesita al menos {{min}} caracteres",
+    "PROBLEM_MAXLENGTH": "«{{field}}» admite como mucho {{max}} caracteres",
+    "PROBLEM_PATTERN": "«{{field}}» no tiene el formato esperado",
+    "PROBLEM_INVALID": "Revisa «{{field}}»",
+    "INBOX_ALL_CLEAR": "No tienes nada pendiente.",
+    "INBOX_SECTION_CLEAR": "Al día.",
+    "INBOX_OVERDUE": "Vencido"
   }
 }
