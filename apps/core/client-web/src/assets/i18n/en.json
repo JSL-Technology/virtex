@@ -4093,5 +4093,17 @@
       },
       "tax": "Tax & Compliance"
     }
+  },
+  "MODULES": {
+    "WORKSPACE": "My work",
+    "SALES": "Sales",
+    "PURCHASING": "Purchasing",
+    "INVENTORY": "Inventory",
+    "TREASURY": "Treasury",
+    "ACCOUNTING": "Accounting",
+    "ANALYSIS": "Analysis",
+    "DATASHEETS": "Datasheets",
+    "ADMINISTRATION": "Administration",
+    "ROADMAP": "In preparation"
   }
 }

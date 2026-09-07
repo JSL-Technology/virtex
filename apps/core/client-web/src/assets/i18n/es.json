@@ -4093,5 +4093,17 @@
       },
       "tax": "Impuestos y Cumplimiento"
     }
+  },
+  "MODULES": {
+    "WORKSPACE": "Mi trabajo",
+    "SALES": "Ventas",
+    "PURCHASING": "Compras",
+    "INVENTORY": "Inventario",
+    "TREASURY": "Tesorería",
+    "ACCOUNTING": "Contabilidad",
+    "ANALYSIS": "Análisis",
+    "DATASHEETS": "Hojas de datos",
+    "ADMINISTRATION": "Administración",
+    "ROADMAP": "En preparación"
   }
 }

@@ -4093,5 +4093,17 @@
       },
       "tax": "Tributos e Conformidade"
     }
+  },
+  "MODULES": {
+    "WORKSPACE": "Meu trabalho",
+    "SALES": "Vendas",
+    "PURCHASING": "Compras",
+    "INVENTORY": "Inventário",
+    "TREASURY": "Tesouraria",
+    "ACCOUNTING": "Contabilidade",
+    "ANALYSIS": "Análise",
+    "DATASHEETS": "Folhas de dados",
+    "ADMINISTRATION": "Administração",
+    "ROADMAP": "Em preparação"
   }
 }
