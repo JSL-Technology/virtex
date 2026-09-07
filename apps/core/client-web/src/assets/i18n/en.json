@@ -106,7 +106,13 @@
       "NO_ENCONTRARON_CUENTAS": "No accounts were found",
       "NUEVA_CUENTA": "New Account",
       "TODOS_ESTADOS": "All Statuses",
-      "TODOS_TIPOS": "All Types"
+      "TODOS_TIPOS": "All Types",
+      "CUENTA": "Account",
+      "TIPO": "Type",
+      "BALANCE": "Balance",
+      "ESTADO": "Status",
+      "ACCIONES": "Actions",
+      "MOSTRANDO_N": "Showing {{count}} accounts"
     },
     "CHECKLIST": {
       "CHECKLIST_NAME": "Checklist name",
@@ -167,7 +173,9 @@
       "SALDO_FINAL": "Ending Balance",
       "SALDO_INICIAL": "Opening Balance",
       "TOTAL_CREDITOS": "Total Credits",
-      "TOTAL_DEBITOS": "Total Debits"
+      "TOTAL_DEBITOS": "Total Debits",
+      "CONSULTAR": "Run",
+      "LOAD_FAILED": "The general ledger could not be loaded. Try again."
     },
     "IMPORT": {
       "ANALIZANDO_FICHERO": "Analysing the file...",
@@ -275,7 +283,8 @@
       "EDIT": "Edit",
       "JOURNALS": "Journals",
       "NAME": "Name",
-      "TYPE": "Type"
+      "TYPE": "Type",
+      "LOAD_FAILED": "The journals could not be loaded. Try again."
     },
     "LAYOUT": {
       "ANNUAL": "Year-End Close",
@@ -311,7 +320,8 @@
       "EDITAR": "Edit",
       "LIBROS_CONTABLES": "Ledgers",
       "NOMBRE": "Name",
-      "NO_HAN_ENCONTRADO_LIBROS_CONTABLES": "No ledgers were found."
+      "NO_HAN_ENCONTRADO_LIBROS_CONTABLES": "No ledgers were found.",
+      "LOAD_FAILED": "The ledgers could not be loaded. Try again."
     },
     "MERGE_TOOL": {
       "ADVERTENCIAS": "Warnings:",
@@ -617,7 +627,8 @@
       "REINTENTAR": "Try again",
       "SIN_NCF": "No fiscal number",
       "TOTAL": "Total",
-      "VENCIMIENTO": "Due"
+      "VENCIMIENTO": "Due",
+      "LOAD_FAILED": "The vendor bills could not be loaded. Try again."
     },
     "PAYMENT": {
       "CUENTA_BANCARIA": "Bank account",
@@ -1542,7 +1553,8 @@
       "STATUS_INACTIVE": "Inactive",
       "STOCK": "Stock Levels",
       "STOCK_IN": "In stock",
-      "STOCK_OUT": "Out of stock"
+      "STOCK_OUT": "Out of stock",
+      "LOAD_FAILED": "The products could not be loaded. Try again."
     },
     "PRODUCT_FORM": {
       "ACCESORIOS": "Accessories",
@@ -1702,7 +1714,10 @@
       "SIGUIENTE": "Next",
       "TODOS": "All",
       "TOTAL": "Total",
-      "VENCIMIENTO": "Due"
+      "VENCIMIENTO": "Due",
+      "LOAD_FAILED": "The invoices could not be loaded. Try again.",
+      "RANGE": "{{from}}–{{to}} of {{total}}",
+      "RANGE_EMPTY": "No invoices"
     },
     "NEW": {
       "15_DIAS": "15 days",
@@ -2187,7 +2202,11 @@
     "NO_NOTIFICATIONS": "No notifications",
     "NO_TIENES_NOTIFICACIONES_NUEVAS_ESTE_MOMENTO": "You have no new notifications right now.",
     "TODO_ESTA_DIA": "You are all caught up",
-    "VIEW_ALL": "View all"
+    "VIEW_ALL": "View all",
+    "TODAY": "Today",
+    "YESTERDAY": "Yesterday",
+    "THIS_WEEK": "This week",
+    "EARLIER": "Earlier"
   },
   "OVERVIEW": {
     "ACTIVITY": {

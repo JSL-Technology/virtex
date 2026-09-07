@@ -1,0 +1,8 @@
+@use '../../../../assets/styles/list-page' as list;
+
+:host {
+  @include list.list-page;
+
+  .action-buttons { display: inline-flex; gap: var(--space-1); }
+  .placeholder { margin: 0; max-width: 32rem; }
+}

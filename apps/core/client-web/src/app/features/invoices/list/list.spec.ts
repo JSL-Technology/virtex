@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { provideRouter } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { InvoicesListPage } from './list.page';
 import { InvoicesService, PaginatedInvoices } from '../../../core/services/invoices';
 import { NotificationService } from '../../../core/services/notification';
@@ -31,13 +32,21 @@ describe('InvoicesListPage', () => {
     notifications = { showError: jest.fn(), showSuccess: jest.fn() };
 
     await TestBed.configureTestingModule({
-      imports: [InvoicesListPage],
+      imports: [InvoicesListPage, TranslateModule.forRoot()],
       providers: [
         { provide: InvoicesService, useValue: invoicesService },
         { provide: NotificationService, useValue: notifications },
         provideRouter([]),
       ],
     }).compileComponents();
+
+    // El rótulo del rango se traduce, así que la prueba necesita traducciones: antes afirmaba una
+    // cadena en español incrustada en el componente, que era justamente el defecto.
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('es', {
+      INVOICES: { LIST: { RANGE: '{{from}}–{{to}} de {{total}}', RANGE_EMPTY: 'Sin facturas' } },
+    });
+    translate.use('es');
 
     fixture = TestBed.createComponent(InvoicesListPage);
     component = fixture.componentInstance;
@@ -89,12 +98,25 @@ describe('InvoicesListPage', () => {
     expect(component.page()).toBe(1);
   });
 
-  it('describes the range on screen', () => {
+  it('describes the range on screen, in the reader\'s language', () => {
     invoicesService.getInvoices.mockReturnValue(
       of(page({ items: new Array(50).fill(null).map((_, i) => ({ id: String(i) })) as never, total: 120, pages: 3 })),
     );
     component.loadInvoices();
     expect(component.rangeLabel()).toBe('1–50 de 120');
+  });
+
+  it('says there are none rather than describing an empty range', () => {
+    component.loadInvoices();
+    expect(component.rangeLabel()).toBe('Sin facturas');
+  });
+
+  it('traduce el estado de la fila', () => {
+    // The badge printed 'Cobrada' / 'Por cobrar' as literals in the template, three lines under the
+    // very keys the status filter was already using.
+    expect(component.statusKey('Paid')).toBe('INVOICES.LIST.COBRADA');
+    expect(component.statusKey('Pending')).toBe('INVOICES.LIST.PENDIENTE');
+    expect(component.statusKey('Void')).toBe('INVOICES.LIST.ANULADA');
   });
 
   it('surfaces a load failure instead of showing an empty list', () => {

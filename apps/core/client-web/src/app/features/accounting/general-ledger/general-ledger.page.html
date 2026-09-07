@@ -1,106 +1,96 @@
-<div class="ledger-view">
-  <header class="view-header">
-    <div class="view-header__title">
-      <h1>{{ 'ACCOUNTING.GENERAL_LEDGER.LIBRO_MAYOR' | translate }}</h1>
-      @if (selectedAccount(); as account) {
-        <p>{{ 'ACCOUNTING.GENERAL_LEDGER.CUENTA_CODE_NAME' | translate: { code: account.code, name: account.name } }}</p>
-      } @else {
-        <p>{{ 'ACCOUNTING.GENERAL_LEDGER.CARGANDO_INFORMACION_CUENTA' | translate }}</p>
-      }
-    </div>
-    <div class="header-actions">
-      <button class="secondary-button" [disabled]="loading()">
-        <lucide-icon [name]="FilterIcon" class="w-5 h-5"></lucide-icon>
-        <span>{{ 'ACCOUNTING.GENERAL_LEDGER.FILTRAR' | translate }}</span>
-      </button>
-      <button class="primary-button" [disabled]="loading()">
-        <lucide-icon [name]="ExportIcon" class="w-5 h-5"></lucide-icon>
-        <span>{{ 'ACCOUNTING.GENERAL_LEDGER.EXPORTAR' | translate }}</span>
-      </button>
-    </div>
-  </header>
+<vx-list-shell
+  titleKey="ACCOUNTING.GENERAL_LEDGER.LIBRO_MAYOR"
+  [subtitleKey]="null"
+  [count]="ledgerLines().length"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="ledgerLines().length === 0"
+  (reload)="loadLedgerData()"
+>
+  <button listActions class="primary-button" type="button" [disabled]="loading()">
+    <lucide-icon [img]="ExportIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'ACCOUNTING.GENERAL_LEDGER.EXPORTAR' | translate }}</span>
+  </button>
 
-  <div class="view-content">
-    <div class="ledger-filters card">
-      <div class="filter-group">
-        <label for="startDate">{{ 'ACCOUNTING.GENERAL_LEDGER.DESDE' | translate }}</label>
-        <input type="date" id="startDate" [(ngModel)]="startDate" [disabled]="loading()" />
-      </div>
-      <div class="filter-group">
-        <label for="endDate">{{ 'ACCOUNTING.GENERAL_LEDGER.HASTA' | translate }}</label>
-        <input type="date" id="endDate" [(ngModel)]="endDate" [disabled]="loading()" />
-      </div>
-      <button class="primary-button" (click)="loadLedgerData()" [disabled]="loading()">
-        @if (loading()) {
-          <span class="loading loading-spinner"></span>
-        }
-        Consultar
-      </button>
+  <div listFilters class="ledger-filters">
+    <div class="filter-group">
+      <label for="startDate">{{ 'ACCOUNTING.GENERAL_LEDGER.DESDE' | translate }}</label>
+      <input type="date" id="startDate" [(ngModel)]="startDate" [disabled]="loading()" />
     </div>
+    <div class="filter-group">
+      <label for="endDate">{{ 'ACCOUNTING.GENERAL_LEDGER.HASTA' | translate }}</label>
+      <input type="date" id="endDate" [(ngModel)]="endDate" [disabled]="loading()" />
+    </div>
+    <button class="secondary-button" type="button" (click)="loadLedgerData()" [disabled]="loading()">
+      {{ 'ACCOUNTING.GENERAL_LEDGER.CONSULTAR' | translate }}
+    </button>
+  </div>
 
-    @if (loading()) {
-      <div class="loading-state">
-        <span class="loading loading-lg loading-dots"></span>
-        <p>{{ 'ACCOUNTING.GENERAL_LEDGER.CARGANDO_DATOS_LIBRO_MAYOR' | translate }}</p>
-      </div>
+  <div listEmpty class="empty-invite">
+    @if (!selectedAccount()) {
+      <p>{{ 'ACCOUNTING.GENERAL_LEDGER.FAVOR_SELECCIONE_CUENTA_VER_LIBRO_MAYOR' | translate }}</p>
     } @else {
-      <div class="ledger-summary">
-        <div class="summary-card">
-          <span>{{ 'ACCOUNTING.GENERAL_LEDGER.SALDO_INICIAL' | translate }}</span>
-          <strong>{{ initialBalance() | vxNumber:'1.2-2' }}</strong>
-        </div>
-        <div class="summary-card">
-          <span>{{ 'ACCOUNTING.GENERAL_LEDGER.TOTAL_DEBITOS' | translate }}</span>
-          <strong class="text-green">{{ 0 | vxNumber:'1.2-2' }}</strong>
-        </div>
-        <div class="summary-card">
-          <span>{{ 'ACCOUNTING.GENERAL_LEDGER.TOTAL_CREDITOS' | translate }}</span>
-          <strong class="text-red">{{ 0 | vxNumber:'1.2-2' }}</strong>
-        </div>
-        <div class="summary-card">
-          <span>{{ 'ACCOUNTING.GENERAL_LEDGER.SALDO_FINAL' | translate }}</span>
-          <strong>{{ finalBalance() | vxNumber:'1.2-2' }}</strong>
-        </div>
-      </div>
-
-      <div class="ledger-table card">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>{{ 'ACCOUNTING.GENERAL_LEDGER.FECHA' | translate }}</th>
-              <th>{{ 'ACCOUNTING.GENERAL_LEDGER.REFERENCIA' | translate }}</th>
-              <th>{{ 'ACCOUNTING.GENERAL_LEDGER.DESCRIPCION' | translate }}</th>
-              <th class="text-right">{{ 'ACCOUNTING.GENERAL_LEDGER.DEBITO' | translate }}</th>
-              <th class="text-right">{{ 'ACCOUNTING.GENERAL_LEDGER.CREDITO' | translate }}</th>
-              <th class="text-right">{{ 'ACCOUNTING.GENERAL_LEDGER.BALANCE' | translate }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (line of ledgerLines(); track line.id) {
-              <tr>
-                <td>{{ line.date | vxDate: 'date' }}</td>
-                <td><a href="#" class="table-link">{{ line.reference }}</a></td>
-                <td>{{ line.description }}</td>
-                <td class="text-right amount-cell">{{ line.debit | vxNumber:'1.2-2' }}</td>
-                <td class="text-right amount-cell">{{ line.credit | vxNumber:'1.2-2' }}</td>
-                <td class="text-right balance-cell">{{ line.balance | vxNumber:'1.2-2' }}</td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="6">
-                  <div class="empty-state">
-                    @if (!selectedAccount()) {
-                      <p>{{ 'ACCOUNTING.GENERAL_LEDGER.FAVOR_SELECCIONE_CUENTA_VER_LIBRO_MAYOR' | translate }}</p>
-                    } @else {
-                      <p>{{ 'ACCOUNTING.GENERAL_LEDGER.NO_ENCONTRARON_MOVIMIENTOS_ESTA_CUENTA_PERIODO' | translate }}</p>
-                    }
-                  </div>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+      <p>{{ 'ACCOUNTING.GENERAL_LEDGER.NO_ENCONTRARON_MOVIMIENTOS_ESTA_CUENTA_PERIODO' | translate }}</p>
     }
   </div>
-</div>
+
+  @if (selectedAccount(); as account) {
+    <p class="ledger-account">
+      {{
+        'ACCOUNTING.GENERAL_LEDGER.CUENTA_CODE_NAME'
+          | translate: { code: account.code, name: account.name }
+      }}
+    </p>
+  }
+
+  <!--
+    Los cuatro totales. «Total débitos» y «Total créditos» imprimían el literal `0` porque el
+    `computed` que los calculaba estaba comentado: el libro mayor afirmaba, en cada consulta, que no
+    había movimientos por ninguno de los dos lados mientras dibujaba las líneas justo debajo.
+  -->
+  <div class="ledger-summary">
+    <div class="summary-card">
+      <span>{{ 'ACCOUNTING.GENERAL_LEDGER.SALDO_INICIAL' | translate }}</span>
+      <strong>{{ initialBalance() | vxNumber: '1.2-2' }}</strong>
+    </div>
+    <div class="summary-card">
+      <span>{{ 'ACCOUNTING.GENERAL_LEDGER.TOTAL_DEBITOS' | translate }}</span>
+      <strong class="amount-debit">{{ totalDebits() | vxNumber: '1.2-2' }}</strong>
+    </div>
+    <div class="summary-card">
+      <span>{{ 'ACCOUNTING.GENERAL_LEDGER.TOTAL_CREDITOS' | translate }}</span>
+      <strong class="amount-credit">{{ totalCredits() | vxNumber: '1.2-2' }}</strong>
+    </div>
+    <div class="summary-card">
+      <span>{{ 'ACCOUNTING.GENERAL_LEDGER.SALDO_FINAL' | translate }}</span>
+      <strong>{{ finalBalance() | vxNumber: '1.2-2' }}</strong>
+    </div>
+  </div>
+
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'ACCOUNTING.GENERAL_LEDGER.FECHA' | translate }}</th>
+          <th>{{ 'ACCOUNTING.GENERAL_LEDGER.REFERENCIA' | translate }}</th>
+          <th>{{ 'ACCOUNTING.GENERAL_LEDGER.DESCRIPCION' | translate }}</th>
+          <th class="text-right">{{ 'ACCOUNTING.GENERAL_LEDGER.DEBITO' | translate }}</th>
+          <th class="text-right">{{ 'ACCOUNTING.GENERAL_LEDGER.CREDITO' | translate }}</th>
+          <th class="text-right">{{ 'ACCOUNTING.GENERAL_LEDGER.BALANCE' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (line of ledgerLines(); track line.id) {
+          <tr>
+            <td>{{ line.date | vxDate: 'date' }}</td>
+            <td>{{ line.reference }}</td>
+            <td>{{ line.description }}</td>
+            <td class="text-right amount-cell">{{ line.debit | vxNumber: '1.2-2' }}</td>
+            <td class="text-right amount-cell">{{ line.credit | vxNumber: '1.2-2' }}</td>
+            <td class="text-right balance-cell">{{ line.balance | vxNumber: '1.2-2' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</vx-list-shell>

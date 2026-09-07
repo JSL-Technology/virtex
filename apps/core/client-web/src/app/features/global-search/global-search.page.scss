@@ -1,135 +1,66 @@
-@use '../../../assets/styles/view-styles' as views;
+@use '../../../assets/styles/list-page' as list;
+@use '../../../assets/styles/design-system' as ds;
 
 :host {
-    display: block;
-}
+  @include list.list-page;
 
-.view-container {
-    @include views.view-container;
-}
+  .results-summary {
+    margin: 0;
+    color: var(--content-secondary);
+    font-size: var(--text-sm);
+  }
 
-.search-header {
-    padding: 2rem 0;
-    border-bottom: 1px solid var(--border-color);
-    margin-bottom: var(--space-8);
-}
-
-.search-bar {
-    position: relative;
-    max-width: 800px;
-    margin: auto;
-
-    lucide-icon {
-        position: absolute;
-        left: 1.25rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--text-tertiary);
-    }
-
-    input {
-        width: 100%;
-        padding: 1.25rem 1.5rem 1.25rem 4rem;
-        font-size: var(--text-2xl);
-        font-weight: var(--font-semibold);
-        border-radius: var(--border-radius-full);
-    }
-}
-
-.results-summary {
-    margin-bottom: var(--space-8);
-    font-size: var(--text-lg);
-    color: var(--text-secondary);
-}
-
-.results-list {
+  .results-list {
     display: flex;
     flex-direction: column;
-    gap: var(--space-6);
-}
+    gap: var(--space-4);
+  }
 
-.result-group {
-    @include views.card;
+  .result-group {
+    @include ds.surface-card;
     padding: 0;
+    overflow: hidden;
+  }
 
-    .group-header {
-        display: flex;
-        align-items: center;
-        gap: var(--space-3);
-        padding: 1rem 1.5rem;
-        border-bottom: 1px solid var(--border-color);
+  .group-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    padding: var(--space-3) var(--space-4);
+    background-color: var(--surface-sunken);
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: var(--content-secondary);
+  }
 
-        h3 {
-            font-size: var(--text-lg);
-            color: var(--text-primary);
-        }
+  ul { list-style: none; margin: 0; padding: 0; }
 
-        lucide-icon {
-            color: var(--accent-primary);
-        }
-    }
+  .result-item + .result-item { border-top: 1px solid var(--border-subtle); }
 
-    ul {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-    }
-}
+  .result-item a {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-3) var(--space-4);
+    text-decoration: none;
+    @include ds.transition(background-color);
 
-.result-item {
-    &:not(:last-child) {
-        border-bottom: 1px solid var(--border-color);
-    }
+    &:hover { background-color: var(--surface-hover); }
+    @include ds.focus-ring(-2px);
+  }
 
-    a {
-        display: block;
-        padding: 1rem 1.5rem;
-        text-decoration: none;
-        transition: background-color 0.2s ease;
+  .item-title { color: var(--content-primary); font-weight: var(--font-medium); }
+  .item-description { color: var(--content-tertiary); font-size: var(--text-sm); }
 
-        &:hover {
-            background-color: var(--bg-hover);
-        }
-    }
+  .empty-invite {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
 
-    .item-title {
-        display: block;
-        font-weight: var(--font-semibold);
-        color: var(--text-primary);
-    }
-
-    .item-description {
-        font-size: var(--text-md);
-        color: var(--text-secondary);
-    }
-}
-
-.loading-state,
-.empty-state {
-    @include views.empty-state;
-    padding: 4rem 0;
-
-    .spinner {
-        width: 32px;
-        height: 32px;
-        border: 3px solid var(--accent-surface);
-        border-top-color: var(--accent-primary);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
-
-    p {
-        margin-top: var(--space-4);
-    }
-
-    h4 {
-        font-size: var(--text-xl);
-        margin-bottom: var(--space-2);
-    }
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
+    h2 { margin: 0; font-size: var(--text-lg); color: var(--content-primary); }
+    p { margin: 0; max-width: 32rem; }
+  }
 }

@@ -1,68 +1,60 @@
-<div class="view-container">
-    <div class="view-header">
-        <div class="header-content">
-            <h1>{{ 'CONTACTS.SUPPLIERS.PROVEEDORES' | translate }}</h1>
-            <p>{{ 'CONTACTS.SUPPLIERS.ADMINISTRA_INFORMACION_TUS_PROVEEDORES' | translate }}</p>
-        </div>
-        <div class="header-actions">
-            <button class="secondary-button" [disabled]="isLoading()">
-                <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
-                <span>{{ 'CONTACTS.SUPPLIERS.FILTROS' | translate }}</span>
-            </button>
-            <a routerLink="/contacts/suppliers/new" class="primary-button">
-                <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
-                <span>{{ 'CONTACTS.SUPPLIERS.NUEVO_PROVEEDOR' | translate }}</span>
-            </a>
-        </div>
-    </div>
+<vx-list-shell
+  titleKey="CONTACTS.SUPPLIERS.PROVEEDORES"
+  subtitleKey="CONTACTS.SUPPLIERS.ADMINISTRA_INFORMACION_TUS_PROVEEDORES"
+  [count]="suppliers().length"
+  [loading]="isLoading()"
+  [empty]="suppliers().length === 0"
+  (reload)="loadSuppliers()"
+>
+  <a listActions routerLink="/contacts/suppliers/new" class="primary-button">
+    <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'CONTACTS.SUPPLIERS.NUEVO_PROVEEDOR' | translate }}</span>
+  </a>
 
-    <div class="table-container card">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th style="width: 1%;"><input type="checkbox"></th>
-                    <th>{{ 'CONTACTS.SUPPLIERS.NOMBRE_EMPRESA' | translate }}</th>
-                    <th>{{ 'CONTACTS.SUPPLIERS.PERSONA_CONTACTO' | translate }}</th>
-                    <th>{{ 'CONTACTS.SUPPLIERS.EMAIL' | translate }}</th>
-                    <th>{{ 'CONTACTS.SUPPLIERS.TELEFONO' | translate }}</th>
-                    <th class="actions-column">{{ 'CONTACTS.SUPPLIERS.ACCIONES' | translate }}</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (isLoading()) {
-                    <tr>
-                        <td colspan="6" class="loading-state">{{ 'CONTACTS.SUPPLIERS.CARGANDO_PROVEEDORES' | translate }}</td>
-                    </tr>
-                } @else {
-                    @for (supplier of suppliers(); track supplier.id) {
-                        <tr>
-                            <td><input type="checkbox"></td>
-                            <td>
-                                <a [routerLink]="['/contacts/suppliers', supplier.id, 'edit']" class="table-link">
-                                    {{ supplier.companyName }}
-                                </a>
-                            </td>
-                            <td>{{ supplier.contactPerson }}</td>
-                            <td>{{ supplier.email }}</td>
-                            <td>{{ supplier.phone }}</td>
-                            <td class="actions-column">
-                                <div class="action-buttons">
-                                    <a [routerLink]="['/contacts/suppliers', supplier.id, 'edit']" class="icon-button" [title]="'CONTACTS.SUPPLIERS.EDITAR' | translate">
-                                        <lucide-icon [img]="EditIcon" size="18"></lucide-icon>
-                                    </a>
-                                    <button class="icon-button delete" (click)="deleteSupplier(supplier.id)" [title]="'CONTACTS.SUPPLIERS.ELIMINAR' | translate">
-                                        <lucide-icon [img]="TrashIcon" size="18"></lucide-icon>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    } @empty {
-                        <tr>
-                            <td colspan="6" class="empty-state">{{ 'CONTACTS.SUPPLIERS.NO_HAY_PROVEEDORES_REGISTRADOS' | translate }}</td>
-                        </tr>
-                    }
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'CONTACTS.SUPPLIERS.NOMBRE_EMPRESA' | translate }}</th>
+          <th>{{ 'CONTACTS.SUPPLIERS.PERSONA_CONTACTO' | translate }}</th>
+          <th>{{ 'CONTACTS.SUPPLIERS.EMAIL' | translate }}</th>
+          <th>{{ 'CONTACTS.SUPPLIERS.TELEFONO' | translate }}</th>
+          <th class="actions-column">{{ 'CONTACTS.SUPPLIERS.ACCIONES' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (supplier of suppliers(); track supplier.id) {
+          <tr>
+            <td>
+              <a [routerLink]="['/contacts/suppliers', supplier.id, 'edit']" class="table-link">
+                {{ supplier.companyName }}
+              </a>
+            </td>
+            <td>{{ supplier.contactPerson }}</td>
+            <td>{{ supplier.email }}</td>
+            <td>{{ supplier.phone }}</td>
+            <td class="actions-column">
+              <div class="action-buttons">
+                <a
+                  [routerLink]="['/contacts/suppliers', supplier.id, 'edit']"
+                  class="icon-button"
+                  [attr.aria-label]="'CONTACTS.SUPPLIERS.EDITAR' | translate"
+                >
+                  <lucide-icon [img]="EditIcon" size="18" aria-hidden="true"></lucide-icon>
+                </a>
+                <button
+                  type="button"
+                  class="icon-button delete"
+                  [attr.aria-label]="'CONTACTS.SUPPLIERS.ELIMINAR' | translate"
+                  (click)="deleteSupplier(supplier.id)"
+                >
+                  <lucide-icon [img]="TrashIcon" size="18" aria-hidden="true"></lucide-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</vx-list-shell>

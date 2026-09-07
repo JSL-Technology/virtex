@@ -1,75 +1,66 @@
-<div class="view-container">
-  <div class="view-header">
-    <h1>{{ 'ACCOUNTS_PAYABLE.LIST.FACTURAS_PROVEEDOR' | translate }}</h1>
-    <div class="header-actions">
-      <a routerLink="../payments" class="btn-secondary">
-        <span>{{ 'ACCOUNTS_PAYABLE.PAYMENT.PAGAR' | translate }}</span>
-      </a>
-      <a routerLink="../new" class="btn-primary">
-        <lucide-icon [name]="PlusCircleIcon" [size]="16"></lucide-icon>
-        <span>{{ 'ACCOUNTS_PAYABLE.LIST.NUEVA_FACTURA' | translate }}</span>
-      </a>
-    </div>
+<vx-list-shell
+  titleKey="ACCOUNTS_PAYABLE.LIST.FACTURAS_PROVEEDOR"
+  [count]="vendorBills().length"
+  [loading]="isLoading()"
+  [error]="error()"
+  [empty]="vendorBills().length === 0"
+  (reload)="loadVendorBills()"
+>
+  <a listActions routerLink="../payments" class="secondary-button">
+    <span>{{ 'ACCOUNTS_PAYABLE.PAYMENT.PAGAR' | translate }}</span>
+  </a>
+  <a listActions routerLink="../new" class="primary-button">
+    <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'ACCOUNTS_PAYABLE.LIST.NUEVA_FACTURA' | translate }}</span>
+  </a>
+
+  <div listEmpty class="empty-invite">
+    <h2>{{ 'ACCOUNTS_PAYABLE.LIST.NO_HAY_FACTURAS_PROVEEDOR' | translate }}</h2>
+    <p>{{ 'ACCOUNTS_PAYABLE.LIST.CREA_TU_PRIMERA_FACTURA_PROVEEDOR_EMPEZAR' | translate }}</p>
+    <a routerLink="../new" class="primary-button">
+      <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
+      <span>{{ 'ACCOUNTS_PAYABLE.LIST.CREAR_FACTURA' | translate }}</span>
+    </a>
   </div>
 
-  <div class="view-content">
-    <div *ngIf="isLoading()" class="loading-shade">
-      <p>{{ 'ACCOUNTS_PAYABLE.LIST.CARGANDO_FACTURAS' | translate }}</p>
-    </div>
-
-    <div *ngIf="error()" class="error-message">
-      <p>{{ error() }}</p>
-      <button (click)="loadVendorBills()" class="btn-primary">{{ 'ACCOUNTS_PAYABLE.LIST.REINTENTAR' | translate }}</button>
-    </div>
-
-    <div *ngIf="!isLoading() && !error() && vendorBills().length === 0" class="empty-state">
-      <h2>{{ 'ACCOUNTS_PAYABLE.LIST.NO_HAY_FACTURAS_PROVEEDOR' | translate }}</h2>
-      <p>{{ 'ACCOUNTS_PAYABLE.LIST.CREA_TU_PRIMERA_FACTURA_PROVEEDOR_EMPEZAR' | translate }}</p>
-      <a routerLink="../new" class="btn-primary">
-        <lucide-icon [name]="PlusCircleIcon" [size]="16"></lucide-icon>
-        <span>{{ 'ACCOUNTS_PAYABLE.LIST.CREAR_FACTURA' | translate }}</span>
-      </a>
-    </div>
-
-    <div *ngIf="!isLoading() && vendorBills().length > 0" class="table-container">
-      <table>
-        <thead>
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'ACCOUNTS_PAYABLE.LIST.PROVEEDOR' | translate }}</th>
+          <th>{{ 'ACCOUNTS_PAYABLE.LIST.NUMERO' | translate }}</th>
+          <th>{{ 'ACCOUNTS_PAYABLE.LIST.FECHA' | translate }}</th>
+          <th>{{ 'ACCOUNTS_PAYABLE.LIST.VENCIMIENTO' | translate }}</th>
+          <th class="text-right">{{ 'ACCOUNTS_PAYABLE.LIST.TOTAL' | translate }}</th>
+          <th class="text-right">{{ 'ACCOUNTS_PAYABLE.LIST.BALANCE' | translate }}</th>
+          <th class="text-center">{{ 'ACCOUNTS_PAYABLE.LIST.ESTADO' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (bill of vendorBills(); track bill.id) {
           <tr>
-            <th>{{ 'ACCOUNTS_PAYABLE.LIST.PROVEEDOR' | translate }}</th>
-            <th>{{ 'ACCOUNTS_PAYABLE.LIST.NUMERO' | translate }}</th>
-            <th>{{ 'ACCOUNTS_PAYABLE.LIST.FECHA' | translate }}</th>
-            <th>{{ 'ACCOUNTS_PAYABLE.LIST.VENCIMIENTO' | translate }}</th>
-            <th class="text-right">{{ 'ACCOUNTS_PAYABLE.LIST.TOTAL' | translate }}</th>
-            <th class="text-right">{{ 'ACCOUNTS_PAYABLE.LIST.BALANCE' | translate }}</th>
-            <th class="text-center">{{ 'ACCOUNTS_PAYABLE.LIST.ESTADO' | translate }}</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let bill of vendorBills()">
             <td>{{ bill.vendor?.name ?? '—' }}</td>
             <td>
-              <!-- `ncf` is the document's fiscal number; not every jurisdiction issues one, so the
-                   id is the fallback rather than an empty cell with nothing to click. -->
-              <a [routerLink]="['../', bill.id]">{{ bill.ncf || ('ACCOUNTS_PAYABLE.LIST.SIN_NCF' | translate) }}</a>
+              <!--
+                `ncf` is the document's fiscal number; not every jurisdiction issues one, so the id
+                is the fallback rather than an empty cell with nothing to click.
+              -->
+              <a [routerLink]="['../', bill.id]" class="table-link">
+                {{ bill.ncf || ('ACCOUNTS_PAYABLE.LIST.SIN_NCF' | translate) }}
+              </a>
             </td>
             <td>{{ bill.date | vxDate: 'date' }}</td>
             <td>{{ bill.dueDate | vxDate: 'date' }}</td>
-            <td class="text-right">{{ bill.total | vxNumber:'1.2-2' }}</td>
-            <td class="text-right">{{ bill.balance | vxNumber:'1.2-2' }}</td>
+            <td class="text-right">{{ bill.total | vxNumber: '1.2-2' }}</td>
+            <td class="text-right">{{ bill.balance | vxNumber: '1.2-2' }}</td>
             <td class="text-center">
-              <span class="status-badge" [ngClass]="getStatusClass(bill.status)">
+              <span class="status-badge" [class]="getStatusClass(bill.status)">
                 {{ statusKey(bill.status) | translate }}
               </span>
             </td>
-            <td class="text-center">
-              <button class="btn-icon">
-                <lucide-icon [name]="MoreHorizontalIcon" [size]="16"></lucide-icon>
-              </button>
-            </td>
           </tr>
-        </tbody>
-      </table>
-    </div>
+        }
+      </tbody>
+    </table>
   </div>
-</div>
+</vx-list-shell>

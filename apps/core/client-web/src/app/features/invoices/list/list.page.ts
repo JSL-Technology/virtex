@@ -1,18 +1,7 @@
-import { Component, ChangeDetectionStrategy, signal, inject, OnInit, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectionStrategy, signal, inject, OnInit, computed, effect } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import {
-  LucideAngularModule,
-  PlusCircle,
-  Filter,
-  MoreHorizontal,
-  Search,
-  Download,
-  FileSpreadsheet,
-  ArrowUp,
-  ArrowDown,
-} from 'lucide-angular';
+import { LucideAngularModule, PlusCircle, FileSpreadsheet } from 'lucide-angular';
 import {
   InvoicesService,
   Invoice,
@@ -21,6 +10,7 @@ import {
 } from '../../../core/services/invoices';
 import { NotificationService } from '../../../core/services/notification';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { ListShellComponent } from '../../../shared/components/gestures';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   CsvValue,
@@ -45,20 +35,14 @@ import {
 @Component({
   selector: 'app-invoices-list-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [RouterLink, LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InvoicesListPage implements OnInit {
   protected readonly PlusCircleIcon = PlusCircle;
-  protected readonly FilterIcon = Filter;
-  protected readonly MoreHorizontalIcon = MoreHorizontal;
-  protected readonly SearchIcon = Search;
-  protected readonly DownloadIcon = Download;
   protected readonly SpreadsheetIcon = FileSpreadsheet;
-  protected readonly ArrowUpIcon = ArrowUp;
-  protected readonly ArrowDownIcon = ArrowDown;
 
   private invoicesService = inject(InvoicesService);
   private notificationService = inject(NotificationService);
@@ -82,11 +66,32 @@ export class InvoicesListPage implements OnInit {
   hasPrevious = computed(() => this.page() > 1);
   hasNext = computed(() => this.page() < this.pages());
   rangeLabel = computed(() => {
-    if (this.total() === 0) return 'Sin facturas';
+    // Estaba compuesto con literales en español —«Sin facturas», «… de …»— dentro de un `computed`,
+    // donde ninguna revisión de plantillas lo iba a encontrar.
+    if (this.total() === 0) return this.translate.instant('INVOICES.LIST.RANGE_EMPTY');
     const from = (this.page() - 1) * this.limit() + 1;
     const to = Math.min(this.total(), from + this.invoices().length - 1);
-    return `${from}–${to} de ${this.total()}`;
+    return this.translate.instant('INVOICES.LIST.RANGE', { from, to, total: this.total() });
   });
+
+  constructor() {
+    // La búsqueda vive en el armazón y se escribe letra a letra. Recargar en cada pulsación sería
+    // una petición por tecla; esperar al `blur`, como hacía antes, obliga a pulsar fuera para ver
+    // el resultado. Un retardo corto es lo que hace que buscar se sienta como buscar.
+    let handle: ReturnType<typeof setTimeout> | undefined;
+    effect((onCleanup) => {
+      const term = this.searchTerm();
+      if (term === this.appliedSearch) return;
+      handle = setTimeout(() => {
+        this.appliedSearch = term;
+        this.applyFilters();
+      }, 300);
+      onCleanup(() => clearTimeout(handle));
+    });
+  }
+
+  /** Último término ya enviado al servidor, para no repetir la consulta al restaurar la ventana. */
+  private appliedSearch = '';
 
   ngOnInit(): void {
     this.loadInvoices();
@@ -111,8 +116,8 @@ export class InvoicesListPage implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.error.set('No se pudieron cargar las facturas. Inténtalo de nuevo.');
-        this.notificationService.showError(this.error()!);
+        this.error.set('INVOICES.LIST.LOAD_FAILED');
+        this.notificationService.showError('INVOICES.LIST.LOAD_FAILED');
         this.isLoading.set(false);
       },
     });
@@ -129,6 +134,22 @@ export class InvoicesListPage implements OnInit {
     if (next < 1 || next > this.pages()) return;
     this.page.set(next);
     this.loadInvoices();
+  }
+
+  /** Clave i18n del estado. Mismo vocabulario que el filtro de arriba, que ya las usaba. */
+  statusKey(status: Invoice['status']): string {
+    switch (status) {
+      case 'Paid':
+        return 'INVOICES.LIST.COBRADA';
+      case 'Pending':
+        return 'INVOICES.LIST.PENDIENTE';
+      case 'Partially Paid':
+        return 'INVOICES.LIST.PARCIAL';
+      case 'Void':
+        return 'INVOICES.LIST.ANULADA';
+      default:
+        return 'INVOICES.LIST.ESTADO_2';
+    }
   }
 
   getStatusClass(status: Invoice['status']): string {

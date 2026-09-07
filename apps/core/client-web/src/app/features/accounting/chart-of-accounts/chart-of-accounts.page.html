@@ -1,194 +1,170 @@
-<div class="settings-page-container">
-  <div class="page-container">
-    <header class="page-header">
-      <div>
-        <h1>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.CATALOGO_CUENTAS' | translate }}</h1>
-        <div class="breadcrumb">
-          <a href="#">{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.CONTABILIDAD' | translate }}</a>
-          <span class="divider">/</span>
-          <span>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.CATALOGO' | translate }}</span>
-        </div>
-      </div>
-      <div class="page-header-actions">
-        <button class="btn">
-          <lucide-icon [name]="ExportIcon" size="16"></lucide-icon>
-          <span>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.EXPORTAR' | translate }}</span>
-        </button>
-        <button class="btn btn-primary" (click)="goToAccountForm()">
-          <lucide-icon [name]="PlusIcon" size="16"></lucide-icon>
-          <span>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.NUEVA_CUENTA' | translate }}</span>
-        </button>
-      </div>
-    </header>
+<vx-list-shell
+  titleKey="ACCOUNTING.CHART_OF_ACCOUNTS.CATALOGO_CUENTAS"
+  [count]="state.displayAccounts().length"
+  [loading]="state.isLoading()"
+  [error]="state.error()"
+  [empty]="state.displayAccounts().length === 0"
+  [searchable]="true"
+  [(search)]="search"
+  searchPlaceholderKey="ACCOUNTING.CHART_OF_ACCOUNTS.BUSCAR_CODIGO_NOMBRE"
+  (reload)="state.refreshAccounts()"
+>
+  <button listActions class="secondary-button" type="button">
+    <lucide-icon [img]="ExportIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.EXPORTAR' | translate }}</span>
+  </button>
+  <button listActions class="primary-button" type="button" (click)="goToAccountForm()">
+    <lucide-icon [img]="PlusIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.NUEVA_CUENTA' | translate }}</span>
+  </button>
 
-    <div class="card">
-      <div class="toolbar">
-        <div class="search-bar">
-          <lucide-icon [name]="search" class="search-icon" size="18"></lucide-icon>
-          <input
-            type="text"
-            [placeholder]="'ACCOUNTING.CHART_OF_ACCOUNTS.BUSCAR_CODIGO_NOMBRE' | translate"
-            [ngModel]="state.searchTerm()"
-            (ngModelChange)="onSearchTermChange($event)"
-          />
-        </div>
-        <div class="filters">
-          <!-- <select class="filter-select" [ngModel]="state.filters.status()" (ngModelChange)="onFilterChange('status', $event)"> -->
-          <select class="filter-select" [ngModel]="" (ngModelChange)="onFilterChange('status', $event)">
-            <option value="ALL">{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.TODOS_ESTADOS' | translate }}</option>
-            <option value="ACTIVE">{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.ACTIVA' | translate }}</option>
-            <option value="INACTIVE">{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.INACTIVA' | translate }}</option>
-          </select>
-          <select class="filter-select" [ngModel]="" (ngModelChange)="onFilterChange('type', $event)">
-            <option value="ALL">{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.TODOS_TIPOS' | translate }}</option>
-            @for(type of accountTypes; track type) {
-              <option [value]="type">{{ type | titlecase }}</option>
-            }
-          </select>
-        </div>
-        <button class="btn" (click)="state.refreshAccounts()">
-          <lucide-icon [name]="refreshCcw" size="16"></lucide-icon>
-        </button>
-      </div>
-
-      <div class="card-body">
-        <div class="table-container">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th class="col-name sortable" (click)="onSort('name')">
-                  <span>CUENTA</span>
-                  <lucide-icon [name]="getSortIcon('name')" size="14"></lucide-icon>
-                </th>
-                <th class="col-type sortable" (click)="onSort('type')">
-                  <span>TIPO</span>
-                  <lucide-icon [name]="getSortIcon('type')" size="14"></lucide-icon>
-                </th>
-                <th class="col-balance sortable" (click)="onSort('balance')">
-                  <span>BALANCE</span>
-                  <lucide-icon [name]="getSortIcon('balance')" size="14"></lucide-icon>
-                </th>
-                <th class="col-status sortable" (click)="onSort('isActive')">
-                  <span>ESTADO</span>
-                  <lucide-icon [name]="getSortIcon('isActive')" size="14"></lucide-icon>
-                </th>
-                <th class="col-actions">ACCIONES</th>
-              </tr>
-            </thead>
-            <tbody>
-              @if (state.isLoading()) { @for (item of [1, 2, 3, 4, 5, 6, 7]; track
-              item) {
-              <tr class="skeleton-row">
-                <td><div class="skeleton-bar"></div></td>
-                <td><div class="skeleton-bar"></div></td>
-                <td><div class="skeleton-bar"></div></td>
-                <td><div class="skeleton-bar"></div></td>
-                <td><div class="skeleton-bar"></div></td>
-              </tr>
-              } } @else if (state.error()) {
-              <tr>
-                <td colspan="5">
-                  <div class="empty-state">
-                    <h3>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.ERROR_CARGAR_CUENTAS' | translate }}</h3>
-                    <p>{{ state.error() }}</p>
-                  </div>
-                </td>
-              </tr>
-              } @else { @for (account of state.displayAccounts(); track
-              account.id) {
-              <tr [class.is-parent]="account.hasChildren">
-                <td>
-                  <div
-                    class="account-name-cell"
-                    [style.padding-left.px]="account.level * 24"
-                  >
-                    <button
-                      *ngIf="account.hasChildren"
-                      class="expand-btn"
-                      (click)="toggleExpand(account)"
-                    >
-                      <lucide-icon
-                        [name]="
-                          account.isExpanded
-                            ? ChevronDownIcon
-                            : ChevronRightIcon
-                        "
-                        size="16"
-                      ></lucide-icon>
-                    </button>
-                    <span
-                      *ngIf="!account.hasChildren"
-                      class="expand-placeholder"
-                    ></span>
-                    <div class="account-info">
-                      <span>{{ account.name | vxName }}</span>
-                      <small>{{ account.code }}</small>
-                      <a
-                        [routerLink]="[
-                          '/accounting/general-ledger',
-                          account.id
-                        ]"
-                        class="text-blue-500 hover:underline"
-                      >
-                        {{ account.code }}
-                      </a>
-                    </div>
-                  </div>
-                </td>
-                <td>{{ account.type }}</td>
-                <td class="balance-cell" [class.negative]="account.balance < 0">
-                  {{ account.balance | vxNumber : "1.2-2" }}
-                </td>
-                <td>
-                  <span
-                    class="badge"
-                    [class.status-active]="account.isActive"
-                    [class.status-inactive]="!account.isActive"
-                  >
-                    {{ account.isActive ? "Activa" : "Inactiva" }}
-                  </span>
-                </td>
-                <td>
-                  <button
-                    class="btn-icon"
-                    (click)="goToAccountForm(account.id)"
-                    [title]="'ACCOUNTING.CHART_OF_ACCOUNTS.EDITAR' | translate"
-                  >
-                    <lucide-icon [name]="EditIcon" size="16"></lucide-icon>
-                  </button>
-                  <button
-                    class="btn-icon danger"
-                    (click)="deleteAccount(account)"
-                    [title]="'ACCOUNTING.CHART_OF_ACCOUNTS.ELIMINAR' | translate"
-                    [disabled]="account.isSystemAccount"
-                  >
-                    <lucide-icon [name]="TrashIcon" size="16"></lucide-icon>
-                  </button>
-                </td>
-              </tr>
-              } @empty {
-              <tr>
-                <td colspan="5">
-                  <div class="empty-state">
-                    <h3>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.NO_ENCONTRARON_CUENTAS' | translate }}</h3>
-                    <p>
-                      {{ 'ACCOUNTING.CHART_OF_ACCOUNTS.ANADE_NUEVA_CUENTA_EMPEZAR_GESTIONAR_TU' | translate }}
-                    </p>
-                  </div>
-                </td>
-              </tr>
-              } }
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="card-footer">
-        <div class="pagination-info">
-          {{ 'ACCOUNTING.CHART_OF_ACCOUNTS.MOSTRANDO' | translate }} <strong>10</strong> de
-          <strong>{{ state.displayAccounts().length }}</strong> {{ 'ACCOUNTING.CHART_OF_ACCOUNTS.CUENTAS' | translate }}
-        </div>
-      </div>
-    </div>
+  <!--
+    Los dos filtros ahora MUESTRAN lo que filtran. Estaban escritos `[ngModel]=""` —con el enlace
+    real comentado justo encima—, así que cambiaban el estado y volvían siempre a «todos»: el
+    usuario elegía «solo activas», la tabla se filtraba y el desplegable seguía diciendo otra cosa.
+  -->
+  <div listFilters class="filters">
+    <select
+      class="filter-select"
+      [attr.aria-label]="'ACCOUNTING.CHART_OF_ACCOUNTS.ESTADO' | translate"
+      [ngModel]="state.filters().status"
+      (ngModelChange)="onFilterChange('status', $event)"
+    >
+      <option value="ALL">{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.TODOS_ESTADOS' | translate }}</option>
+      <option value="ACTIVE">{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.ACTIVA' | translate }}</option>
+      <option value="INACTIVE">{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.INACTIVA' | translate }}</option>
+    </select>
+    <select
+      class="filter-select"
+      [attr.aria-label]="'ACCOUNTING.CHART_OF_ACCOUNTS.TIPO' | translate"
+      [ngModel]="state.filters().type"
+      (ngModelChange)="onFilterChange('type', $event)"
+    >
+      <option value="ALL">{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.TODOS_TIPOS' | translate }}</option>
+      @for (type of accountTypes; track type) {
+        <option [value]="type">{{ type | titlecase }}</option>
+      }
+    </select>
   </div>
-</div>
+
+  <div listEmpty class="empty-invite">
+    <h2>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.NO_ENCONTRARON_CUENTAS' | translate }}</h2>
+    <p>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.ANADE_NUEVA_CUENTA_EMPEZAR_GESTIONAR_TU' | translate }}</p>
+  </div>
+
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th class="col-name">
+            <button type="button" class="sortable" (click)="onSort('name')">
+              <span>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.CUENTA' | translate }}</span>
+              <lucide-icon [img]="getSortIcon('name')" size="14" aria-hidden="true"></lucide-icon>
+            </button>
+          </th>
+          <th class="col-type">
+            <button type="button" class="sortable" (click)="onSort('type')">
+              <span>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.TIPO' | translate }}</span>
+              <lucide-icon [img]="getSortIcon('type')" size="14" aria-hidden="true"></lucide-icon>
+            </button>
+          </th>
+          <th class="col-balance text-right">
+            <button type="button" class="sortable" (click)="onSort('balance')">
+              <span>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.BALANCE' | translate }}</span>
+              <lucide-icon [img]="getSortIcon('balance')" size="14" aria-hidden="true"></lucide-icon>
+            </button>
+          </th>
+          <th class="col-status text-center">
+            <button type="button" class="sortable" (click)="onSort('isActive')">
+              <span>{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.ESTADO' | translate }}</span>
+              <lucide-icon [img]="getSortIcon('isActive')" size="14" aria-hidden="true"></lucide-icon>
+            </button>
+          </th>
+          <th class="actions-column">{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.ACCIONES' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (account of state.displayAccounts(); track account.id) {
+          <tr [class.is-parent]="account.hasChildren">
+            <td>
+              <div class="account-name-cell" [style.padding-left.px]="account.level * 24">
+                @if (account.hasChildren) {
+                  <button
+                    type="button"
+                    class="expand-btn"
+                    [attr.aria-expanded]="account.isExpanded"
+                    [attr.aria-label]="account.name | vxName"
+                    (click)="toggleExpand(account)"
+                  >
+                    <lucide-icon
+                      [img]="account.isExpanded ? ChevronDownIcon : ChevronRightIcon"
+                      size="16"
+                      aria-hidden="true"
+                    ></lucide-icon>
+                  </button>
+                } @else {
+                  <span class="expand-placeholder" aria-hidden="true"></span>
+                }
+                <div class="account-info">
+                  <!--
+                    El código aparecía dos veces: una como texto y otra como enlace justo debajo.
+                    Queda una sola vez, y es el enlace — que es lo que se pulsa para ver el mayor.
+                  -->
+                  <span class="account-title">{{ account.name | vxName }}</span>
+                  <a [routerLink]="['/accounting/general-ledger', account.id]" class="table-link">
+                    {{ account.code }}
+                  </a>
+                </div>
+              </div>
+            </td>
+            <td>{{ account.type | titlecase }}</td>
+            <td class="text-right balance-cell" [class.negative]="account.balance < 0">
+              {{ account.balance | vxNumber: '1.2-2' }}
+            </td>
+            <td class="text-center">
+              <span class="status-badge" [class.active]="account.isActive">
+                {{
+                  (account.isActive
+                    ? 'ACCOUNTING.CHART_OF_ACCOUNTS.ACTIVA'
+                    : 'ACCOUNTING.CHART_OF_ACCOUNTS.INACTIVA'
+                  ) | translate
+                }}
+              </span>
+            </td>
+            <td class="actions-column">
+              <div class="action-buttons">
+                <button
+                  type="button"
+                  class="icon-button"
+                  (click)="goToAccountForm(account.id)"
+                  [attr.aria-label]="'ACCOUNTING.CHART_OF_ACCOUNTS.EDITAR' | translate"
+                >
+                  <lucide-icon [img]="EditIcon" size="16" aria-hidden="true"></lucide-icon>
+                </button>
+                <button
+                  type="button"
+                  class="icon-button delete"
+                  (click)="deleteAccount(account)"
+                  [attr.aria-label]="'ACCOUNTING.CHART_OF_ACCOUNTS.ELIMINAR' | translate"
+                  [disabled]="account.isSystemAccount"
+                >
+                  <lucide-icon [img]="TrashIcon" size="16" aria-hidden="true"></lucide-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!--
+    Decía «Mostrando 10 de N cuentas» con el diez escrito a mano, en una tabla que no pagina.
+  -->
+  <p listFooter class="pagination-info">
+    {{
+      'ACCOUNTING.CHART_OF_ACCOUNTS.MOSTRANDO_N'
+        | translate: { count: state.displayAccounts().length }
+    }}
+  </p>
+</vx-list-shell>

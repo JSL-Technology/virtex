@@ -6,10 +6,11 @@ import { Customer } from '../../../core/models/customer.model';
 import { CustomersService } from '../../../core/api/customers.service';
 import { NotificationService } from '../../../core/services/notification';
 import { TranslateModule } from '@ngx-translate/core';
+import { ListShellComponent } from '../../../shared/components/gestures';
 
 @Component({
   selector: 'app-customers-page',
-  imports: [RouterLink, LucideAngularModule, TranslateModule],
+  imports: [RouterLink, LucideAngularModule, TranslateModule, ListShellComponent],
   templateUrl: './customers.page.html',
   styleUrls: ['./customers.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -17,8 +18,6 @@ import { TranslateModule } from '@ngx-translate/core';
 export class CustomersPage implements OnInit {
   private readonly dialog = inject(DialogService);
   protected readonly PlusCircleIcon = PlusCircle;
-  protected readonly FilterIcon = Filter;
-  protected readonly MoreHorizontalIcon = MoreHorizontal;
   protected readonly EditIcon = Edit;
   protected readonly TrashIcon = Trash2;
 

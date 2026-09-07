@@ -1,134 +1,113 @@
-<div class="view-container">
-    <div class="view-header">
-        <div class="header-content">
-            <h1>{{ 'INVOICES.LIST.FACTURAS' | translate }}</h1>
-            <p>{{ 'INVOICES.LIST.GESTION_COMPLETA_FACTURACION_SEGUIMIENTO_DOCUMENTOS' | translate }}</p>
-        </div>
-        <div class="header-actions">
-            <button class="secondary-button" (click)="exportToCsv()">
-                <lucide-icon [img]="SpreadsheetIcon" size="16"></lucide-icon>
-                <span>{{ 'REPORTS.COMMON.EXPORTAR' | translate }}</span>
-            </button>
-            <a routerLink="/invoices/new" class="primary-button">
-                <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
-                <span>{{ 'INVOICES.LIST.NUEVA_FACTURA_VENTA' | translate }}</span>
-            </a>
-        </div>
-    </div>
+<vx-list-shell
+  titleKey="INVOICES.LIST.FACTURAS"
+  subtitleKey="INVOICES.LIST.GESTION_COMPLETA_FACTURACION_SEGUIMIENTO_DOCUMENTOS"
+  [count]="total()"
+  [loading]="isLoading()"
+  [error]="error()"
+  [empty]="!isLoading() && invoices().length === 0"
+  [searchable]="true"
+  [(search)]="searchTerm"
+  searchPlaceholderKey="INVOICES.LIST.BUSCAR_CLIENTE_NUMERO_FACTURA"
+  (reload)="loadInvoices()"
+>
+  <button listActions class="secondary-button" type="button" (click)="exportToCsv()">
+    <lucide-icon [img]="SpreadsheetIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'REPORTS.COMMON.EXPORTAR' | translate }}</span>
+  </button>
+  <a listActions routerLink="/invoices/new" class="primary-button">
+    <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'INVOICES.LIST.NUEVA_FACTURA_VENTA' | translate }}</span>
+  </a>
 
-    <div class="toolbar card">
-        <div class="search-box">
-            <lucide-icon [img]="SearchIcon" size="18"></lucide-icon>
-            <input type="text"
-                   [ngModel]="searchTerm()"
-                   (ngModelChange)="searchTerm.set($event)"
-                   (keydown.enter)="applyFilters()"
-                   (blur)="applyFilters()"
-                   [placeholder]="'INVOICES.LIST.BUSCAR_CLIENTE_NUMERO_FACTURA' | translate">
-        </div>
-        <div class="filters">
-            <div class="filter-group">
-                <label for="estado">{{ 'INVOICES.LIST.ESTADO' | translate }}</label>
-                <select id="estado" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event); applyFilters()">
-                    <option value="All">{{ 'INVOICES.LIST.TODOS' | translate }}</option>
-                    <option value="Paid">{{ 'INVOICES.LIST.COBRADA' | translate }}</option>
-                    <option value="Pending">{{ 'INVOICES.LIST.PENDIENTE' | translate }}</option>
-                    <option value="Partially Paid">{{ 'INVOICES.LIST.PARCIAL' | translate }}</option>
-                    <option value="Void">{{ 'INVOICES.LIST.ANULADA' | translate }}</option>
-                </select>
-            </div>
-        </div>
-    </div>
+  <div listFilters class="filter-group">
+    <label for="estado">{{ 'INVOICES.LIST.ESTADO' | translate }}</label>
+    <select
+      id="estado"
+      [ngModel]="statusFilter()"
+      (ngModelChange)="statusFilter.set($event); applyFilters()"
+    >
+      <option value="All">{{ 'INVOICES.LIST.TODOS' | translate }}</option>
+      <option value="Paid">{{ 'INVOICES.LIST.COBRADA' | translate }}</option>
+      <option value="Pending">{{ 'INVOICES.LIST.PENDIENTE' | translate }}</option>
+      <option value="Partially Paid">{{ 'INVOICES.LIST.PARCIAL' | translate }}</option>
+      <option value="Void">{{ 'INVOICES.LIST.ANULADA' | translate }}</option>
+    </select>
+  </div>
 
-    <div class="table-container card">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th class="">
-                        {{ 'INVOICES.LIST.FACTURA' | translate }}
-                    </th>
-                    <th class="">
-                        {{ 'INVOICES.LIST.CLIENTE' | translate }}
-                    </th>
-                    <th class="">
-                        {{ 'INVOICES.LIST.CREACION' | translate }}
-                    </th>
-                    <th class="">
-                        {{ 'INVOICES.LIST.VENCIMIENTO' | translate }}
-                    </th>
-                    <th class="text-right ">
-                        {{ 'INVOICES.LIST.TOTAL' | translate }}
-                    </th>
-                    <th>{{ 'INVOICES.LIST.ESTADO_2' | translate }}</th>
-                    <th class="actions-column"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (isLoading()) {
-                    <tr>
-                        <td colspan="7" class="loading-state">
-                            <div class="spinner"></div>
-                            <span>{{ 'INVOICES.LIST.CARGANDO_FACTURAS' | translate }}</span>
-                        </td>
-                    </tr>
-                } @else {
-                    @for (invoice of filteredInvoices(); track invoice.id) {
-                    <tr>
-                        <td>
-                            <a [routerLink]="['/invoices', invoice.id]" class="table-link">
-                                {{ invoice.invoiceNumber }}
-                            </a>
-                        </td>
-                        <td>{{ invoice.customerName }}</td>
-                        <td>{{ invoice.issueDate | vxDate: 'date' }}</td>
-                        <td>
-                            <span [class.text-danger]="invoice.status === 'Pending' && invoice.dueDate < today">
-                                {{ invoice.dueDate | vxDate: 'date' }}
-                            </span>
-                        </td>
-                        <td class="text-right font-semibold">
-                            {{ invoice.currencyCode }} {{ invoice.total | vxNumber:'1.2-2' }}
-                        </td>
-                        <td>
-                            <span class="status-badge" [ngClass]="getStatusClass(invoice.status)">
-                                {{ invoice.status === 'Paid' ? 'Cobrada' :
-                                   invoice.status === 'Pending' ? 'Por cobrar' :
-                                   invoice.status === 'Partially Paid' ? 'Parcial' :
-                                   invoice.status === 'Void' ? 'Anulada' : invoice.status }}
-                            </span>
-                        </td>
-                        <td class="actions-column">
-                            <button class="icon-button">
-                                <lucide-icon [img]="MoreHorizontalIcon" size="18"></lucide-icon>
-                            </button>
-                        </td>
-                    </tr>
-                    } @empty {
-                    <tr>
-                        <td colspan="7" class="empty-state">{{ 'INVOICES.LIST.NO_ENCONTRARON_FACTURAS_COINCIDAN_BUSQUEDA' | translate }}</td>
-                    </tr>
-                    }
-                }
-            </tbody>
-        </table>
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'INVOICES.LIST.FACTURA' | translate }}</th>
+          <th>{{ 'INVOICES.LIST.CLIENTE' | translate }}</th>
+          <th>{{ 'INVOICES.LIST.CREACION' | translate }}</th>
+          <th>{{ 'INVOICES.LIST.VENCIMIENTO' | translate }}</th>
+          <th class="text-right">{{ 'INVOICES.LIST.TOTAL' | translate }}</th>
+          <th>{{ 'INVOICES.LIST.ESTADO_2' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (invoice of invoices(); track invoice.id) {
+          <tr>
+            <td>
+              <a [routerLink]="['/invoices', invoice.id]" class="table-link">
+                {{ invoice.invoiceNumber }}
+              </a>
+            </td>
+            <td>{{ invoice.customerName }}</td>
+            <td>{{ invoice.issueDate | vxDate: 'date' }}</td>
+            <td>
+              <span [class.text-danger]="invoice.status === 'Pending' && invoice.dueDate < today">
+                {{ invoice.dueDate | vxDate: 'date' }}
+              </span>
+            </td>
+            <td class="text-right font-semibold">
+              {{ invoice.total | vxMoney: invoice.currencyCode }}
+            </td>
+            <td>
+              <!--
+                El rótulo del estado se traduce. Estaba escrito en español dentro de la plantilla
+                —«Cobrada», «Por cobrar»— tres líneas debajo de las mismas claves usadas en el
+                filtro, así que una pantalla en inglés mostraba media tabla en español.
+              -->
+              <span class="status-badge" [class]="getStatusClass(invoice.status)">
+                {{ statusKey(invoice.status) | translate }}
+              </span>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
 
-        <!--
-            Server-side pagination. The list used to download every invoice of the tenant on each
-            visit; on any real dataset that is a sequential scan of the whole table per request.
-        -->
-        <nav class="table-pagination" [attr.aria-label]="'INVOICES.LIST.PAGINACION_FACTURAS' | translate">
-            <span class="range">{{ rangeLabel() }}</span>
-            <div class="pager">
-                <button type="button" class="btn btn-secondary"
-                        [disabled]="!hasPrevious() || isLoading()" (click)="goToPage(-1)">
-                    {{ 'INVOICES.LIST.ANTERIOR' | translate }}
-                </button>
-                <span class="page-indicator">{{ 'INVOICES.LIST.PAGINA_PAGE_PAGES' | translate: { page: page(), pages: pages() } }}</span>
-                <button type="button" class="btn btn-secondary"
-                        [disabled]="!hasNext() || isLoading()" (click)="goToPage(1)">
-                    {{ 'INVOICES.LIST.SIGUIENTE' | translate }}
-                </button>
-            </div>
-        </nav>
-    </div>
-</div>
+  <!--
+    Server-side pagination. The list used to download every invoice of the tenant on each visit;
+    on any real dataset that is a sequential scan of the whole table per request.
+  -->
+  <nav
+    listFooter
+    class="pager"
+    [attr.aria-label]="'INVOICES.LIST.PAGINACION_FACTURAS' | translate"
+  >
+    <span class="pager-range">{{ rangeLabel() }}</span>
+    <button
+      type="button"
+      class="pager-button"
+      [disabled]="!hasPrevious() || isLoading()"
+      (click)="goToPage(-1)"
+    >
+      {{ 'INVOICES.LIST.ANTERIOR' | translate }}
+    </button>
+    <span class="pager-status">
+      {{ 'INVOICES.LIST.PAGINA_PAGE_PAGES' | translate: { page: page(), pages: pages() } }}
+    </span>
+    <button
+      type="button"
+      class="pager-button"
+      [disabled]="!hasNext() || isLoading()"
+      (click)="goToPage(1)"
+    >
+      {{ 'INVOICES.LIST.SIGUIENTE' | translate }}
+    </button>
+  </nav>
+</vx-list-shell>

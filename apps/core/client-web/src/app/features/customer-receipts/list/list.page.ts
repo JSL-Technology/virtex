@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
@@ -11,6 +10,7 @@ import {
 import { CustomersService } from '../../../core/api/customers.service';
 import { Customer } from '../../../core/models/customer.model';
 import { NotificationService } from '../../../core/services/notification';
+import { ListShellComponent } from '../../../shared/components/gestures';
 
 /**
  * Collections received from customers.
@@ -24,7 +24,7 @@ import { NotificationService } from '../../../core/services/notification';
 @Component({
   selector: 'app-customer-receipts-list-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

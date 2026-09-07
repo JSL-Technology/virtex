@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Filter, FileDown, Calendar, Users } from 'lucide-angular';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { ListShellComponent } from '../../../shared/components/gestures';
 
 export interface SubsidiaryLedgerLine {
   /** `YYYY-MM-DD`. A posting date: a calendar date, with no time and no zone. */
@@ -38,16 +38,13 @@ export interface SubsidiaryLedgerLine {
 @Component({
   selector: 'app-subsidiary-ledgers-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES],
+  imports: [LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './subsidiary-ledgers.page.html',
   styleUrls: ['./subsidiary-ledgers.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SubsidiaryLedgersPage {
-  protected readonly FilterIcon = Filter;
   protected readonly ExportIcon = FileDown;
-  protected readonly CalendarIcon = Calendar;
-  protected readonly UsersIcon = Users;
 
   readonly controlAccounts = signal<{ id: string; code: string; name: string }[]>([]);
   readonly auxiliaries = signal<{ id: string; name: string }[]>([]);

@@ -1,9 +1,9 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle, MoreHorizontal, FileDown } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { ListShellComponent } from '../../../shared/components/gestures';
 
 export interface Sale {
   id: string;
@@ -17,14 +17,13 @@ export interface Sale {
 @Component({
   selector: 'app-history-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [LucideAngularModule, TranslateModule, ...FORMAT_PIPES, RouterLink, ListShellComponent],
   templateUrl: './history.page.html',
   styleUrls: ['./history.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HistoryPage {
   protected readonly PlusCircleIcon = PlusCircle;
-  protected readonly MoreHorizontalIcon = MoreHorizontal;
   protected readonly FileDownIcon = FileDown;
 
   sales = signal<Sale[]>([

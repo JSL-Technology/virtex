@@ -1,1 +1,55 @@
-// Styles for the Customer Receipts List Page
+@use '../../../../assets/styles/list-page' as list;
+
+:host {
+  @include list.list-page;
+
+  //  Invitación del estado vacío: la primera factura no se crea desde un cartel
+  //  que dice que no hay ninguna, sino desde el botón que está a su lado.
+  .empty-invite {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    text-align: center;
+
+    h2 {
+      margin: 0;
+      font-size: var(--text-lg);
+      font-weight: var(--font-semibold);
+      color: var(--content-primary);
+    }
+
+    p {
+      margin: 0;
+      color: var(--content-tertiary);
+      max-width: 28rem;
+    }
+  }
+
+  .status-badge {
+    &.status-posted,
+    &.status-paid {
+      background-color: var(--success-surface);
+      border-color: var(--success-text);
+      color: var(--success-text);
+    }
+
+    &.status-pending,
+    &.status-partial {
+      background-color: var(--warning-surface);
+      border-color: var(--warning-text);
+      color: var(--warning-text);
+    }
+
+    &.status-void {
+      background-color: var(--surface-sunken);
+      border-color: var(--border-default);
+      color: var(--content-tertiary);
+      text-decoration: line-through;
+    }
+  }
+
+  //  Un recibo anulado sigue en la lista —el registro es de solo añadir— y se
+  //  lee de un vistazo como «este no cuenta».
+  tr.voided td { opacity: 0.6; }
+}

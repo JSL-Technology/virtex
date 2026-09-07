@@ -1,23 +1,22 @@
 import { Component, ChangeDetectionStrategy, signal, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle, MoreHorizontal } from 'lucide-angular';
 import { AccountsPayableService, VendorBill } from '../../../core/services/accounts-payable';
 import { NotificationService } from '../../../core/services/notification';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { ListShellComponent } from '../../../shared/components/gestures';
 
 @Component({
   selector: 'app-vendor-bills-list-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VendorBillsListPage implements OnInit {
   protected readonly PlusCircleIcon = PlusCircle;
-  protected readonly MoreHorizontalIcon = MoreHorizontal;
 
   private accountsPayableService = inject(AccountsPayableService);
   private notificationService = inject(NotificationService);
@@ -39,8 +38,8 @@ export class VendorBillsListPage implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        this.error.set('Could not load vendor bills. Please try again later.');
-        this.notificationService.showError(this.error()!);
+        this.error.set('ACCOUNTS_PAYABLE.LIST.LOAD_FAILED');
+        this.notificationService.showError('ACCOUNTS_PAYABLE.LIST.LOAD_FAILED');
         this.isLoading.set(false);
       },
     });

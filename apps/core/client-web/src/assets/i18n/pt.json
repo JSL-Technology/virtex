@@ -106,7 +106,13 @@
       "NO_ENCONTRARON_CUENTAS": "Nenhuma conta encontrada",
       "NUEVA_CUENTA": "Nova Conta",
       "TODOS_ESTADOS": "Todas as Situações",
-      "TODOS_TIPOS": "Todos os Tipos"
+      "TODOS_TIPOS": "Todos os Tipos",
+      "CUENTA": "Conta",
+      "TIPO": "Tipo",
+      "BALANCE": "Saldo",
+      "ESTADO": "Estado",
+      "ACCIONES": "Ações",
+      "MOSTRANDO_N": "Mostrando {{count}} contas"
     },
     "CHECKLIST": {
       "CHECKLIST_NAME": "Nome da lista",
@@ -167,7 +173,9 @@
       "SALDO_FINAL": "Saldo Final",
       "SALDO_INICIAL": "Saldo Inicial",
       "TOTAL_CREDITOS": "Total de Créditos",
-      "TOTAL_DEBITOS": "Total de Débitos"
+      "TOTAL_DEBITOS": "Total de Débitos",
+      "CONSULTAR": "Consultar",
+      "LOAD_FAILED": "Não foi possível carregar o razão geral. Tente novamente."
     },
     "IMPORT": {
       "ANALIZANDO_FICHERO": "Analisando o arquivo...",
@@ -275,7 +283,8 @@
       "EDIT": "Editar",
       "JOURNALS": "Diários",
       "NAME": "Nome",
-      "TYPE": "Tipo"
+      "TYPE": "Tipo",
+      "LOAD_FAILED": "Não foi possível carregar os diários. Tente novamente."
     },
     "LAYOUT": {
       "ANNUAL": "Encerramento Anual",
@@ -311,7 +320,8 @@
       "EDITAR": "Editar",
       "LIBROS_CONTABLES": "Livros Contábeis",
       "NOMBRE": "Nome",
-      "NO_HAN_ENCONTRADO_LIBROS_CONTABLES": "Nenhum livro contábil encontrado."
+      "NO_HAN_ENCONTRADO_LIBROS_CONTABLES": "Nenhum livro contábil encontrado.",
+      "LOAD_FAILED": "Não foi possível carregar os livros contábeis. Tente novamente."
     },
     "MERGE_TOOL": {
       "ADVERTENCIAS": "Avisos:",
@@ -617,7 +627,8 @@
       "REINTENTAR": "Tentar novamente",
       "SIN_NCF": "Sem número fiscal",
       "TOTAL": "Total",
-      "VENCIMIENTO": "Vencimento"
+      "VENCIMIENTO": "Vencimento",
+      "LOAD_FAILED": "Não foi possível carregar as faturas de fornecedor. Tente novamente."
     },
     "PAYMENT": {
       "CUENTA_BANCARIA": "Conta bancária",
@@ -1542,7 +1553,8 @@
       "STATUS_INACTIVE": "Inativo",
       "STOCK": "Estoque",
       "STOCK_IN": "Em estoque",
-      "STOCK_OUT": "Esgotado"
+      "STOCK_OUT": "Esgotado",
+      "LOAD_FAILED": "Não foi possível carregar os produtos. Tente novamente."
     },
     "PRODUCT_FORM": {
       "ACCESORIOS": "Acessórios",
@@ -1702,7 +1714,10 @@
       "SIGUIENTE": "Avançar",
       "TODOS": "Todos",
       "TOTAL": "Total",
-      "VENCIMIENTO": "Vencimento"
+      "VENCIMIENTO": "Vencimento",
+      "LOAD_FAILED": "Não foi possível carregar as faturas. Tente novamente.",
+      "RANGE": "{{from}}–{{to}} de {{total}}",
+      "RANGE_EMPTY": "Sem faturas"
     },
     "NEW": {
       "15_DIAS": "15 dias",
@@ -2187,7 +2202,11 @@
     "NO_NOTIFICATIONS": "Sem notificações",
     "NO_TIENES_NOTIFICACIONES_NUEVAS_ESTE_MOMENTO": "Você não tem notificações novas no momento.",
     "TODO_ESTA_DIA": "Está tudo em dia",
-    "VIEW_ALL": "Ver todas"
+    "VIEW_ALL": "Ver todas",
+    "TODAY": "Hoje",
+    "YESTERDAY": "Ontem",
+    "THIS_WEEK": "Esta semana",
+    "EARLIER": "Anteriores"
   },
   "OVERVIEW": {
     "ACTIVITY": {

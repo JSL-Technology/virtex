@@ -6,10 +6,11 @@ import { Supplier } from '../../../core/models/supplier.model';
 import { SuppliersService } from '../../../core/api/suppliers.service';
 import { NotificationService } from '../../../core/services/notification';
 import { TranslateModule } from '@ngx-translate/core';
+import { ListShellComponent } from '../../../shared/components/gestures';
 
 @Component({
   selector: 'app-suppliers-page',
-  imports: [RouterLink, LucideAngularModule, TranslateModule],
+  imports: [RouterLink, LucideAngularModule, TranslateModule, ListShellComponent],
   templateUrl: './suppliers.page.html',
   styleUrls: ['./suppliers.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -17,8 +18,6 @@ import { TranslateModule } from '@ngx-translate/core';
 export class SuppliersPage implements OnInit {
   private readonly dialog = inject(DialogService);
   protected readonly PlusCircleIcon = PlusCircle;
-  protected readonly FilterIcon = Filter;
-  protected readonly MoreHorizontalIcon = MoreHorizontal;
   protected readonly EditIcon = Edit;
   protected readonly TrashIcon = Trash2;
 

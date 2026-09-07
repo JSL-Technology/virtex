@@ -1,2 +1,10 @@
-@use '../../../../assets/styles/forms' as mixins;
-@use '../../sales/history/history.page.scss';
+@use '../../../../assets/styles/list-page' as list;
+
+:host {
+  @include list.list-page;
+
+  .action-buttons {
+    display: inline-flex;
+    gap: var(--space-1);
+  }
+}
