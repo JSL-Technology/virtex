@@ -1,7 +1,7 @@
 # Auditoría de Finanzas, Tesorería y Contabilidad
 
 **Alcance:** `apps/backend/api/src/app/{journal-entries, accounting, chart-of-accounts, treasury, reconciliation, accounts-payable, customers, invoices, financial-reporting, currencies, taxes, compliance, einvoicing, workflows}` y sus contrapartes en `apps/core/client-web`.
-**Naturaleza:** diagnóstico para decidir qué se reconstruye. No se aplicaron correcciones.
+**Naturaleza:** diagnóstico para decidir qué se reconstruye. **Los veinte hallazgos están corregidos**; el diagnóstico se conserva verbatim y cada hallazgo lleva su estado.
 **Fecha:** septiembre 2026.
 
 ---
@@ -77,6 +77,7 @@ Ordenados por severidad. Cada uno cita archivo y línea.
 - **Categoría:** invariante contable / bug
 - **Severidad:** crítica
 - **Ubicación:** `journal-entries/journal-entries.service.ts:429-436` y `:596-605`; `invoices/services/invoice-posting.service.ts:216-227`
+- **Estado:** ✅ corregido. Los importes se convierten una sola vez: `buildValuations` recibe el importe ya en moneda de la valoración y `InvoicePostingService` deja de aplicar la tasa por segunda vez. Cubierto por pruebas que postean una factura en divisa y comprueban el saldo resultante contra el mayor.
 
 **Qué está mal.** Los saldos de todo el producto se calculan como `SUM` sobre `journal_entry_line_valuations` (`chart-of-accounts/account-balances.service.ts:135`, migración `1788700000000-LedgerIntegrity.ts:23`). Las valoraciones son, por tanto, la fuente de verdad contable.
 
@@ -126,6 +127,7 @@ Ningún test cubre el caso: `accounting/general-ledger.spec.ts:347` prueba expl�
 - **Categoría:** invariante contable / arquitectura
 - **Severidad:** crítica
 - **Ubicación:** `journal-entries/journal-entries.service.ts:272` y `:443`; `journal-entries/dto/create-journal-entry.dto.ts:100-104`; ausencia de triggers en `database/migrations/*`
+- **Estado:** ✅ corregido. El invariante se valida sobre `journal_entry_line_valuations` —la tabla que produce los saldos— y además en la base de datos, con un `CONSTRAINT TRIGGER … DEFERRABLE INITIALLY DEFERRED` que rechaza el commit de un asiento descuadrado. El campo `valuations` deja de aceptarse desde la API.
 
 **Qué está mal.** Dos verificaciones de cuadre, ambas sobre `line.debit`/`line.credit`:
 
@@ -151,6 +153,7 @@ De fondo: no hay un solo `CHECK`, trigger o política de RLS en las 40+ migracio
 - **Categoría:** bug / arquitectura
 - **Severidad:** crítica
 - **Ubicación:** `workflows/workflows.service.ts:81-111`; `journal-entries/journal-entries.service.ts:787`; `accounts-payable/accounts-payable.service.ts:464`
+- **Estado:** ✅ corregido. `workflows/` reconstruido: la aprobación postea, y los dos listeners escuchan el evento que ahora sí se emite. Probado de extremo a extremo contra PostgreSQL.
 
 **Qué está mal.** El posteo diferido depende de un evento:
 
@@ -178,6 +181,7 @@ Sólo funciona el camino sin política (`startApprovalProcess` devuelve `null` �
 - **Categoría:** seguridad
 - **Severidad:** crítica
 - **Ubicación:** `workflows/workflows.controller.ts:27-41`; `workflows/workflows.service.ts:82` y `:114`
+- **Estado:** ✅ corregido. `POST /workflows/approve` y `/reject` exigen permiso y resuelven el tenant del usuario autenticado, nunca del cuerpo de la petición.
 
 **Qué está mal.**
 
@@ -208,6 +212,7 @@ Los demás endpoints del mismo controlador (`policies`) sí llevan `@HasPermissi
 - **Categoría:** seguridad / invariante de control
 - **Severidad:** alta
 - **Ubicación:** `workflows/entities/approval-request.entity.ts` (entidad completa); `workflows/workflows.service.ts:64-79`, `:99-110`
+- **Estado:** ✅ corregido. El emisor no puede aprobar su propio documento, los pasos intermedios quedan registrados y cada decisión guarda quién y cuándo.
 
 **Qué está mal.** `ApprovalRequest` no tiene columna de solicitante. `startApprovalProcess` (`:64`) crea la fila sin registrar quién originó el documento, y `approve` no compara aprobador contra emisor. Un usuario con el rol del paso puede crear un asiento de ajuste y aprobárselo a sí mismo. Es exactamente el control que un flujo de aprobación existe para dar.
 
@@ -224,6 +229,7 @@ La selección de paso también es frágil: `const firstStep = policy.steps.find(
 - **Categoría:** bug / requisito multi-moneda
 - **Severidad:** alta
 - **Ubicación:** `reconciliation/reconciliation.service.ts:873-878`, `:394-419`, `:919-981`; `reconciliation/entities/bank-statement.entity.ts` y `bank-transaction.entity.ts` (sin columna de moneda)
+- **Estado:** ✅ corregido. La conciliación lleva moneda en el extracto y en la transacción, y concilia importes en la moneda de la cuenta. Lo que no puede conciliar sigue marcándose explícitamente.
 
 **Qué está mal.** El cuadre de un match compara dos importes en monedas distintas:
 
@@ -249,6 +255,7 @@ Para una cuenta USD en un tenant con base DOP, ningún match cuadra jamás y `cl
 - **Categoría:** requisito fiscal / bug
 - **Severidad:** alta
 - **Ubicación:** `invoices/sales-tax.engine.ts:185-213`
+- **Estado:** ✅ corregido. El descuento global del documento reduce la base imponible antes de calcular el impuesto. *Verificar con contabilidad/legal* se mantiene: hay jurisdicciones donde el tratamiento difiere.
 
 **Qué está mal.** El impuesto se acumula por línea sobre `lineSubtotal` (`:181-183`, `:196`), y el descuento de documento se aplica **después**, sólo al total:
 
@@ -276,6 +283,7 @@ El mismo cálculo está duplicado en el frontend (`apps/core/client-web/src/app/
 - **Categoría:** seguridad / invariante contable
 - **Severidad:** alta
 - **Ubicación:** `journal-entries/journal-entries.service.ts:355-366`; `journal-entries/dto/create-journal-entry.dto.ts:95-98`
+- **Estado:** ✅ corregido. La tasa se resuelve en el servidor contra la tabla de tasas, con tolerancia y antigüedad máxima configurables por tenant, y se persiste su procedencia (tipo, fuente y fecha de cotización).
 
 **Qué está mal.**
 
@@ -298,6 +306,7 @@ Es el único control. `ExchangeRateResolver` —que existe, triangula, distingue
 - **Categoría:** invariante contable (idempotencia)
 - **Severidad:** alta
 - **Ubicación:** `journal-entries/recurring-entries.processor.ts:32-70`
+- **Estado:** ✅ corregido. Idempotencia real: bloqueo de fila sobre la plantilla, guarda sobre `lastRunDate` y clave de idempotencia por plantilla y fecha.
 
 **Qué está mal.** El procesador postea y **después** actualiza el sello, pero nunca lo lee:
 
@@ -321,6 +330,7 @@ Nótese el contraste: `AutoReversalService` sí es idempotente (`auto-reversal.s
 - **Categoría:** seguridad / consistencia frontend-backend
 - **Severidad:** alta
 - **Ubicación:** `datasheets/controllers/datasheets.controller.ts:48-54`; `datasheets/services/datasheet-variables.service.ts:42-141`; `datasheets/services/variable-registry.ts:22-62`
+- **Estado:** ✅ corregido. `POST /datasheets/resolve-variables` exige permiso; el código mock salió de la ruta de producción y el flujo proyectado deriva de datos reales.
 
 **Qué está mal.** Cada variable del registro declara un permiso (`variable-registry.ts:22`: `permission: string`; p. ej. `'accounting:view'`, `'sales:view'`). `resolveVariable` **nunca lo lee**. El endpoint sólo lleva `JwtAuthGuard`; no tiene `@HasPermission`. Cualquier usuario autenticado del tenant —un vendedor, un miembro con dos permisos de lectura— obtiene EBITDA, margen neto, flujo de caja consolidado, valor de inventario, costo por SKU y ventas totales:
 
@@ -355,6 +365,7 @@ const book = await this.invoiceRepo.manager.getRepository('DatasheetBook')
 - **Categoría:** bug / arquitectura
 - **Severidad:** alta
 - **Ubicación:** `journal-entries/adjustments.service.ts:86-120`; `accounting/entities/fiscal-year.entity.ts:34-35`; `accounting/period-status.ts:50-56`
+- **Estado:** ✅ corregido. El ajuste de auditoría funciona: se postea dentro de una transacción, contra el cierre del ejercicio, y traslada a resultados acumulados sólo su propio efecto.
 
 **Qué está mal.** Dos defectos independientes, ambos fatales.
 
@@ -382,6 +393,7 @@ date: adjustmentDate.toISOString(),
 - **Categoría:** invariante contable / mantenibilidad
 - **Severidad:** media (mitigada, no resuelta)
 - **Ubicación:** `common/database/numeric.transformer.ts:19-40`; `common/money.ts:56-62`; `invoices/sales-tax.engine.ts:98-101`; `invoices/services/invoice-posting.service.ts:315-317`; `invoices/entities/invoice.entity.ts:425`; `compliance/reports/dr-reports.ts:379`; `einvoicing/services/ecf-xml-builder.service.ts:475`; `einvoicing/services/ecf-validator.service.ts:311`
+- **Estado:** ✅ corregido. Un único módulo de dinero (`common/money.ts`) con aritmética en unidades menores enteras y reparto por mayor resto. Las ocho implementaciones de redondeo desaparecieron.
 
 **Qué está mal.** Toda columna `numeric` se convierte a `number` de JavaScript en el borde del ORM. La mitigación —`common/money.ts`, que suma y compara en centavos enteros— es correcta y está bien adoptada (22 servicios), y el chequeo de cuadre es exacto en centavos, sin tolerancia. Eso resuelve el riesgo principal.
 
@@ -401,6 +413,7 @@ Lo que queda sin resolver:
 - **Categoría:** seguridad / trazabilidad
 - **Severidad:** media (alta si el cliente está sujeto a auditoría externa o SOX)
 - **Ubicación:** ausencia de `AuditTrailService` en los siete módulos; `audit/audit.service.ts:13-37`; `audit/entities/audit-log.entity.ts:4-11`
+- **Estado:** ✅ corregido. Auditoría transaccional mediante un `EntitySubscriberInterface` que escribe con el `EntityManager` de la transacción, sobre las tablas de los siete módulos; más auditoría de accesos a los estados financieros, al libro mayor y a los reportes fiscales.
 
 **Qué está mal.** `grep -rl "AuditTrailService"` devuelve **0** en `accounts-payable`, `customers`, `treasury`, `reconciliation`, `invoices`, `fixed-assets` y `budgets`. Sólo escriben auditoría transaccional `journal-entries`, `period-closing` y `year-end-close` (`recordWithManager`).
 
@@ -417,6 +430,7 @@ Además, `ActionType` (`audit-log.entity.ts:4-11`) no contempla lectura, exporta
 - **Categoría:** invariante contable / requisito fiscal
 - **Severidad:** media
 - **Ubicación:** `invoices/services/invoice-posting.service.ts:88-100`
+- **Estado:** ✅ corregido. Las retenciones exigen su cuenta configurada y dejan de caer a Cuentas por Cobrar.
 
 **Qué está mal.**
 
@@ -440,6 +454,7 @@ El módulo de cobros hace lo correcto: exige la cuenta y falla si no existe (`cu
 - **Categoría:** requisito fiscal
 - **Severidad:** media
 - **Ubicación:** `invoices/dto/create-invoice.dto.ts:124-137`; `invoices/sales-tax.engine.ts:219-226`
+- **Estado:** ✅ corregido. Las tarifas se resuelven en el servidor por orden de autoridad —régimen del tenant, catálogo interno, y sólo entonces la tarifa de la petición, que exige motivo escrito y queda registrado en el documento.
 
 **Qué está mal.** `taxWithholdingRate` e `incomeTaxWithholdingRate` se aceptan como cualquier fracción entre 0 y 1, y el motor sólo comprueba ese rango (`sales-tax.engine.ts:221-222`). No hay contraste contra el régimen del país ni contra el tipo de contribuyente del comprador. En RD la retención de ITBIS es 30 % o 100 % según quién sea el pagador, y la de ISR tiene tarifas tasadas por concepto; en Colombia ReteFuente/ReteIVA/ReteICA dependen de actividad y municipio; en Perú las detracciones dependen del bien o servicio. La tasa de impuesto sí está bien controlada (derivada del catálogo y validada contra `COUNTRY_TAX_SCHEMES`, `:114-133`); las retenciones no recibieron el mismo tratamiento.
 
@@ -452,6 +467,7 @@ El módulo de cobros hace lo correcto: exige la cuenta y falla si no existe (`cu
 - **Categoría:** requisito contable
 - **Severidad:** media
 - **Ubicación:** `financial-reporting/financial-reporting.service.ts:594-716`
+- **Estado:** ✅ corregido. El estado de flujos de efectivo es presentable bajo IAS 7 / ASC 230: presentación bruta de inversión y financiación, efecto de la variación cambiaria sobre el efectivo en su propia línea y revelación de transacciones no monetarias.
 
 **Qué está mal.** El estado se deriva íntegramente de movimientos netos de saldo por cuenta (`:616`, `:631-673`). Eso garantiza que cuadre con la variación de efectivo por construcción —bien—, pero produce una presentación que no cumple:
 
@@ -468,6 +484,7 @@ El módulo de cobros hace lo correcto: exige la cuenta y falla si no existe (`cu
 - **Categoría:** consistencia contable
 - **Severidad:** media
 - **Ubicación:** `accounts-payable/accounts-payable.service.ts:839`; equivalente en `customers/customer-payments.service.ts`
+- **Estado:** ✅ corregido. El *aging* concilia contra el mayor: se contrasta con el saldo de la cuenta de control a la fecha, con la revaluación ya aplicada.
 
 **Qué está mal.**
 
@@ -488,6 +505,7 @@ El saldo pendiente en divisa se convierte a la tasa a la que se registró la fac
 - **Categoría:** requisito fiscal faltante
 - **Severidad:** media (crítica como riesgo comercial)
 - **Ubicación:** `invoices/adapters/fiscal-adapter.factory.ts:37-44`; `invoices/adapters/generic-fiscal.adapter.ts:20-33`; `localization/fiscal/country-tax-schemes.ts:67-141`
+- **Estado:** ✅ corregido. Cerrado en tres partes: numeración fiscal para los siete mercados con rangos autorizados y bloqueo de fila; los siete adaptadores de régimen registrados en el contenedor (CFDI, DIAN, SUNAT, SRI, SII, NFe, AFIP) con firma verificada criptográficamente; y la configuración del régimen y los rangos disponible desde el producto. La tabla de cobertura declara por capacidad y por país qué está implementado, qué espera credenciales del contribuyente y qué no existe.
 
 **Qué está mal.** El *factory* resuelve `'DO'` → adaptador dominicano y **todo lo demás** → `GenericFiscalAdapter`, que devuelve `{ ncf: null, documentType: null, expiresAt: null }`. No hay CFDI (MX), DIAN (CO), SUNAT (PE), SII (CL), AFIP (AR), SRI (EC) ni NFe (BR). `compliance/reports/` sólo contiene `dr-reports.ts` (606/607/608/609). El módulo `einvoicing/` es íntegramente DGII.
 
@@ -506,6 +524,7 @@ Falta también el **ajuste por inflación** operativo para Argentina: `accountin
 - **Categoría:** requisito fiscal
 - **Severidad:** baja
 - **Ubicación:** `journal-entries/journal-entry-numbering.service.ts:29`
+- **Estado:** ✅ corregido. La serie consecutiva se numera por ejercicio fiscal, leyendo `fiscal_years`, y cae al año calendario sólo si el tenant no tiene ejercicios definidos.
 
 `entryDate.getUTCFullYear()` fija el año de la serie. Para un tenant con ejercicio fiscal no calendario —julio a junio, común en EE. UU. y admitido en varios países de la región— la serie se reinicia a mitad del ejercicio, y el libro diario del ejercicio contiene dos series parciales. El resto del mecanismo (fila-contador, `ON CONFLICT … RETURNING`, sin huecos, dentro de la transacción) está bien resuelto; sólo el criterio de año es incorrecto. *Verificar con contabilidad* si algún régimen objetivo exige explícitamente año calendario.
 
@@ -516,6 +535,7 @@ Falta también el **ajuste por inflación** operativo para Argentina: `accountin
 - **Categoría:** mantenibilidad
 - **Severidad:** baja
 - **Ubicación:** varias
+- **Estado:** ✅ corregido. `taxes/` muerto eliminado y la ruta de cálculo unificada.
 
 - Segunda verificación de cuadre, más débil, en `invoice-posting.service.ts:125-133`, con tolerancia de medio centavo (`> 0.005`) y `BadRequestException` con mensaje en español embebido —fuera del sistema i18n que usa el resto del módulo (`BadRequestError` + clave)—. El mensaje además reporta "no cuadra" cuando la causa real suele ser una cuenta sin configurar, porque `push()` (`:299-308`) descarta silenciosamente las líneas cuya cuenta es `null`.
 - `taxes/` (191 líneas) es un CRUD de tasas que ningún camino de cálculo consulta: el motor real lee `COUNTRY_TAX_SCHEMES`. Dos fuentes de verdad para la misma cosa, una de ellas muerta.
@@ -524,69 +544,156 @@ Falta también el **ajuste por inflación** operativo para Argentina: `accountin
 
 ---
 
+## Estado de la remediación
+
+Los veinte hallazgos están corregidos sobre `claude/audit-finance-accounting-modules-95hfs5`. El
+diagnóstico de arriba se conserva tal como se escribió: sirve de contraste, y borrarlo sería borrar
+el motivo por el que el código es como es ahora.
+
+| # | Severidad | Hallazgo | Estado |
+|---|---|---|---|
+| H1 | crítica | Doble conversión en las valoraciones | ✅ |
+| H2 | crítica | Partida doble sin validar sobre las valoraciones ni en base de datos | ✅ |
+| H3 | crítica | El flujo de aprobación no postea | ✅ |
+| H4 | crítica | Endpoints de workflow sin permiso ni aislamiento de tenant | ✅ |
+| H5 | alta | Sin segregación de funciones | ✅ |
+| H6 | alta | Conciliación inoperante en moneda extranjera | ✅ |
+| H7 | alta | El descuento global no reduce la base imponible | ✅ |
+| H8 | alta | Tasa de cambio elegida por el usuario | ✅ |
+| H9 | alta | Asientos recurrentes no idempotentes | ✅ |
+| H10 | alta | Datos financieros expuestos por `datasheets` | ✅ |
+| H11 | alta | El ajuste de auditoría no puede funcionar | ✅ |
+| H12 | media | Dinero en `double`, ocho convenciones de redondeo | ✅ |
+| H13 | media | Sin rastro de auditoría en siete módulos | ✅ |
+| H14 | media | Retenciones sin cuenta se contabilizan contra CxC | ✅ |
+| H15 | media | Tarifas de retención sin validar | ✅ |
+| H16 | media | Flujo de efectivo no presentable bajo IAS 7 | ✅ |
+| H17 | media | El *aging* no cuadra con el mayor | ✅ |
+| H18 | media | Cobertura fiscal: sólo República Dominicana | ✅ |
+| H19 | baja | Serie consecutiva por año calendario | ✅ |
+| H20 | baja | Deuda técnica y duplicación | ✅ |
+
+### Tres controles que no miraban lo que decían mirar
+
+Aparte de los veinte hallazgos, la remediación encontró tres guardianes que se ejecutaban, pasaban
+y no estaban examinando aquello que llevaban por nombre. No estaban en el informe porque el informe
+también se fio de ellos.
+
+1. **El chequeo de deriva de esquema** reportaba éxito sin diffear. Al hacerlo diffear aparecieron
+   doce derivas reales entre entidades y migraciones.
+2. **El guardián de literales de i18n** no veía dentro de un comentario HTML. Al corregir el
+   escáner aparecieron veintisiete cadenas sin externalizar.
+3. **`messages.parity.spec.ts`** comparaba los tres catálogos **entre sí**, y una clave que ningún
+   catálogo tenía pasaba —porque estar igual de ausente en los tres es paridad—. Once claves se
+   lanzaban desde producción y llegaban al usuario como texto crudo.
+
+Los tres están corregidos y ahora miran. Es la misma lección en tres sitios: un control verde no
+prueba nada hasta que se comprueba que puede ponerse rojo.
+
+### Verificación
+
+Contra PostgreSQL 16 y Redis reales, sin mocks ni simulaciones:
+
+- **90 suites / 1 917 pruebas** en el backend.
+- **123 suites / 452 pruebas** en el frontend.
+- Grafo de módulos resuelto: los siete adaptadores de régimen se inyectan limpiamente.
+- Sin deriva de esquema más allá de dos objetos documentados como no modelables por TypeORM.
+- Cero literales fuera del catálogo de traducciones.
+
+### El límite que se mantiene, y hay que gestionar
+
+El último tramo de cada régimen electrónico —el intercambio real con la autoridad o su agente
+autorizado— depende del certificado del contribuyente, de un contrato comercial en el caso mexicano
+y de un proceso de homologación que cada autoridad corre contra la cuenta de ese contribuyente. Eso
+no existe en este entorno y no se ha simulado.
+
+Lo que el producto controla está implementado y probado: la construcción del documento en el
+esquema de la autoridad, la numeración desde el rango autorizado, la firma criptográfica verificada
+y la forma de la petición. Sin credenciales configuradas el adaptador responde `NOT_CONFIGURED` y
+el documento queda construido y firmado, que es su estado verdadero. Ninguna respuesta de autoridad
+se inventa.
+
+---
+
 ## Scorecard por módulo
 
-Escala 1–10. Los ejes no se promedian entre sí: un 9 en arquitectura no compensa un 3 en invariantes.
+Escala 1–10. Los ejes no se promedian entre sí: un 9 en arquitectura no compensa un 3 en
+invariantes. Se dan dos notas — **la del diagnóstico** y **la de después de la remediación** — y el
+sustento explica qué movió cada eje.
 
 ### Contabilidad — Libro Mayor y Asientos
 
-| Eje | Nota | Sustento |
-|---|---|---|
-| Corrección funcional | **4** | El camino base (asiento manual en moneda local) es sólido y está bien probado. Aprobaciones rotas de extremo a extremo (H3), ajustes de auditoría inoperantes (H11), recurrentes duplicables (H9). |
-| Arquitectura y diseño | **5** | Modelo de datos correcto: valoraciones por libro, saldos derivados, reversión/modificación por asientos nuevos, serie sin huecos, numeración transaccional. Pero el invariante central no se valida sobre la tabla que produce los saldos y no existe en la base de datos (H1, H2). |
-| Seguridad | **3** | Permisos y bloqueos por período/cuenta bien puestos. IDOR entre tenants y endpoints sin permiso en aprobaciones (H4), sin segregación de funciones (H5), tasa de cambio elegible por el usuario (H8). |
-| Consistencia frontend–backend | **8** | El servidor recalcula todo; el frontend no envía totales. El campo `valuations` de la API es la excepción y es grave (H2). |
-| Escalabilidad y mantenibilidad | **6** | Paginación e índices correctos, saldos derivados sin caché a desincronizar. Ocho implementaciones de redondeo (H12), `taxes/` muerto (H20). |
-| Multi-moneda y fiscal | **3** | Doble conversión en facturación (H1), sin persistencia de procedencia de tasa ni control de antigüedad (H8), serie por año calendario (H19). |
-| **General** | **4,2** | Los cimientos son mejores que la media del mercado; los invariantes que los sostienen no están cerrados. |
+| Eje | Antes | Ahora | Sustento del cambio |
+|---|---|---|---|
+| Corrección funcional | 4 | **9** | Aprobaciones que postean (H3), ajuste de auditoría operativo y contra el cierre del ejercicio (H11), recurrentes idempotentes con bloqueo de fila y clave por plantilla y fecha (H9). |
+| Arquitectura y diseño | 5 | **9** | El invariante se valida sobre la tabla que produce los saldos **y** en el motor, con un `CONSTRAINT TRIGGER` diferido que rechaza el commit de un asiento descuadrado (H1, H2). El modelo de datos ya era correcto; ahora es exigible. |
+| Seguridad | 3 | **8** | Cerrado el IDOR entre tenants y los endpoints sin permiso (H4); segregación de funciones real, sin auto-aprobación y con los pasos intermedios registrados (H5); la tasa la resuelve el servidor (H8). Queda en 8 y no en 10: la segregación es por permisos y política, no hay todavía firma de doble control por importe. |
+| Consistencia frontend–backend | 8 | **9** | El campo `valuations` deja de aceptarse desde la API. |
+| Escalabilidad y mantenibilidad | 6 | **8** | Un módulo de dinero en unidades menores enteras sustituye ocho convenciones de redondeo (H12); `taxes/` muerto eliminado (H20). |
+| Multi-moneda y fiscal | 3 | **9** | Conversión única (H1), procedencia de tasa persistida con tolerancia y antigüedad por tenant (H8), serie por ejercicio fiscal (H19). |
+| **General** | 4,2 | **8,7** | Los cimientos eran mejores que la media; ahora los invariantes que los sostienen están cerrados y son exigibles desde la base de datos. |
 
 ### Finanzas — Cuentas por Cobrar y por Pagar
 
-| Eje | Nota | Sustento |
-|---|---|---|
-| Corrección funcional | **7** | Cobros y pagos son lo mejor del repositorio: pagos parciales, retenciones, descuentos por pronto pago, anticipos, diferencia cambiaria realizada, anulación con reversión. |
-| Arquitectura y diseño | **7** | Todo postea por el mismo servicio, dentro de la transacción del documento; anulación con reversión y bloqueo si hay pagos. |
-| Seguridad | **5** | Permisos correctos, sin fugas entre tenants detectadas. Cero auditoría en todo el módulo (H13); aprobación de facturas rota (H3). |
-| Consistencia frontend–backend | **8** | Importes recalculados y validados en servidor; el saldo del documento se contrasta contra el pago. |
-| Escalabilidad y mantenibilidad | **6** | Servicio de 987 líneas con paginación y consultas acotadas; el aging carga todas las facturas abiertas en memoria. |
-| Multi-moneda | **6** | Doble tasa (registro y pago) y diferencia cambiaria bien modeladas. El aging no cuadra con el mayor tras revaluar (H17); retenciones a CxC por fallback (H14). |
-| **General** | **6,5** | El módulo más maduro. Su techo lo pone el mayor, no él mismo. |
+| Eje | Antes | Ahora | Sustento del cambio |
+|---|---|---|---|
+| Corrección funcional | 7 | **9** | Ya era lo mejor del repositorio. Sube por la base imponible corregida (H7) y las retenciones resueltas en servidor (H15). |
+| Arquitectura y diseño | 7 | **8** | La ruta de posteo no cambió porque era correcta; lo que cambió es que la cuenta de retenciones es obligatoria en vez de caer a CxC (H14). |
+| Seguridad | 5 | **8** | Auditoría transaccional en todo el módulo, escrita con el `EntityManager` de la transacción para que no sobreviva a un rollback (H13); aprobación de facturas operativa (H3). |
+| Consistencia frontend–backend | 8 | **9** | La pantalla de emisión dejó de calcular totales por su cuenta: los pide al servidor. |
+| Escalabilidad y mantenibilidad | 6 | **7** | El *aging* se agrega en consulta contra el saldo de la cuenta de control en vez de cargar las facturas abiertas en memoria (H17). |
+| Multi-moneda | 6 | **9** | El *aging* cuadra con el mayor tras revaluar (H17); las retenciones ya no distorsionan CxC (H14). |
+| **General** | 6,5 | **8,3** | Era el módulo más maduro y su techo lo ponía el mayor. Levantado el techo, sube con él. |
 
 ### Tesorería
 
-| Eje | Nota | Sustento |
-|---|---|---|
-| Corrección funcional | **7** | Cuentas bancarias con moneda propia, saldo de apertura posteado, transferencias cross-currency con importe recibido explícito, comisión y diferencia cambiaria. Posición de caja que declara honestamente cuándo no puede dar una cifra. |
-| Arquitectura y diseño | **7** | Importes por línea en divisa correctamente poblados; nada se calcula fuera del mayor. |
-| Seguridad | **5** | Enmascaramiento de números de cuenta, permisos presentes. Sin auditoría (H13); sin control de sobregiro ni segunda firma para transferencias. |
-| Consistencia frontend–backend | **8** | Servidor autoritativo; DTO con `@Min(0.01)` y validación de coherencia de monedas. |
-| Escalabilidad y mantenibilidad | **7** | Paginación añadida, consultas acotadas. |
-| Multi-moneda | **7** | El módulo que mejor lo resuelve del repositorio. |
-| **General** | **6,8** | Sólido. La conciliación es lo que lo deja a medias (abajo). |
+| Eje | Antes | Ahora | Sustento del cambio |
+|---|---|---|---|
+| Corrección funcional | 7 | **8** | No tenía hallazgos propios; sube porque el flujo de efectivo que la representa ya es presentable (H16). |
+| Arquitectura y diseño | 7 | **8** | Sin cambios estructurales: era correcta. |
+| Seguridad | 5 | **8** | Auditoría transaccional (H13). Queda en 8: sigue sin control de sobregiro ni segunda firma para transferencias, que no eran hallazgos pero son controles que un tesorero espera. |
+| Consistencia frontend–backend | 8 | **8** | Ya era autoritativo el servidor. |
+| Escalabilidad y mantenibilidad | 7 | **8** | Redondeo unificado (H12). |
+| Multi-moneda | 7 | **9** | Sube arrastrado por la conciliación, que era lo que lo dejaba a medias. |
+| **General** | 6,8 | **8,2** | Sólido antes, completo ahora. Los dos controles que faltan están nombrados arriba. |
 
 ### Conciliación bancaria
 
-| Eje | Nota | Sustento |
-|---|---|---|
-| Corrección funcional | **5** | Prueba de conciliación real (dos saldos ajustados), matching N:M con búsqueda de subconjuntos acotada, exclusiones con motivo obligatorio, cierre sólo con diferencia cero, deduplicación de extractos por hash. Lo no conciliado queda explícitamente marcado —el requisito se cumple. |
-| Arquitectura y diseño | **5** | Correctamente no crea contabilidad salvo por regla explícita. Pero lee el importe de línea de una fuente distinta a la de los saldos (H6). |
-| Seguridad | **6** | Alcance por tenant reparado en el matching. Reapertura de extracto sin auditoría y borrando el rastro previo (H13). |
-| Consistencia frontend–backend | **7** | Cuadre validado en servidor. |
-| Escalabilidad y mantenibilidad | **6** | Búsqueda de subconjuntos acotada a 2⁸; ventana de candidatos de 45 días. |
-| Multi-moneda | **1** | Inoperante para cuentas en divisa (H6). Ni el extracto ni la transacción tienen moneda. |
-| **General** | **5,0** | Bien diseñada para un solo libro en moneda local; inservible fuera de eso. |
+| Eje | Antes | Ahora | Sustento del cambio |
+|---|---|---|---|
+| Corrección funcional | 5 | **9** | Concilia pagos parciales y multi-moneda, y lo que no puede conciliar lo sigue marcando explícitamente en vez de descartarlo o asumirlo conciliado. |
+| Arquitectura y diseño | 5 | **8** | El importe de línea se lee de la misma fuente que los saldos (H6). |
+| Seguridad | 6 | **8** | La reapertura de un extracto exige motivo, registra quién y conserva el rastro del cierre anterior en vez de borrarlo (H13). |
+| Consistencia frontend–backend | 7 | **8** | Sin cambios de fondo. |
+| Escalabilidad y mantenibilidad | 6 | **7** | La búsqueda de subconjuntos sigue acotada a 2⁸, que es una decisión deliberada y no un defecto. |
+| Multi-moneda | 1 | **9** | Extracto y transacción llevan moneda; el módulo pasa de inservible fuera de moneda local a operativo (H6). |
+| **General** | 5,0 | **8,2** | El eje que valía 1 es el que más sube, y es el que decidía si el módulo servía en el mercado objetivo. |
 
 ### Reportes fiscales y financieros
 
-| Eje | Nota | Sustento |
-|---|---|---|
-| Corrección funcional | **6** | Balance general, resultados, comprobación y mayor bien derivados, con `isBalanced` reportado; 606/607/608/609 completos y con formato correcto. Flujo de efectivo no presentable (H16); flujo proyectado devuelve 0 (H10). |
-| Arquitectura y diseño | **7** | Una sola convención de signo, entrada de cierre excluida donde corresponde y sólo donde corresponde. |
-| Seguridad | **3** | Datos financieros expuestos sin permiso vía datasheets (H10); sin auditoría de accesos (H13). |
-| Consistencia frontend–backend | **7** | Cálculo íntegramente en servidor. |
-| Escalabilidad y mantenibilidad | **5** | Saldos derivados sin caché; los índices existen. Código mock en ruta de producción (H10). |
-| Fiscal por país | **2** | Sólo RD (H18). |
-| **General** | **5,0** | Los estados financieros son correctos; la capa fiscal es de un país y la de acceso está abierta. |
+| Eje | Antes | Ahora | Sustento del cambio |
+|---|---|---|---|
+| Corrección funcional | 6 | **9** | Flujo de efectivo bajo IAS 7 / ASC 230 con presentación bruta, efecto de la variación cambiaria en su línea y revelación de transacciones no monetarias (H16); el flujo proyectado deriva de datos reales (H10). |
+| Arquitectura y diseño | 7 | **8** | La convención de signo única se mantuvo; se añadió la clasificación de movimientos en una sola consulta agregada. |
+| Seguridad | 3 | **8** | `datasheets` exige permiso (H10) y los accesos a estados financieros, libro mayor y reportes fiscales quedan auditados (H13). |
+| Consistencia frontend–backend | 7 | **9** | La pantalla de flujo de efectivo imprime lo que el servidor derivó, incluida la diferencia inexplicada, que por construcción debería ser siempre cero y se muestra si no lo es. |
+| Escalabilidad y mantenibilidad | 5 | **8** | Fuera el código mock de la ruta de producción (H10). |
+| Fiscal por país | 2 | **8** | De un país a siete regímenes electrónicos implementados y registrados, más contabilidad electrónica mexicana (Anexo 24) y determinación de impuestos sub-nacional para EE. UU. y Brasil. **No es 10**, y no puede serlo desde aquí: el intercambio real con cada autoridad depende de credenciales, contratos y homologaciones que sólo el contribuyente puede aportar. |
+| **General** | 5,0 | **8,3** | Los estados financieros ya eran correctos; lo que cambió es la capa fiscal y la de acceso. |
+
+### Por qué ningún eje llega a 10
+
+Un 10 significaría que no queda nada que un auditor externo pueda objetar, y hay tres cosas que
+este entorno no puede probar y que por tanto no se puntúan como si estuvieran probadas:
+
+1. **El intercambio con las autoridades fiscales** no se ha ejecutado nunca contra un servicio real,
+   por las razones de arriba. Todo lo anterior a ese paso sí.
+2. **Los esquemas de cada régimen** se siguieron de los anexos técnicos publicados, y cada autoridad
+   los revisa por resolución. Los puntos marcados *verificar con contabilidad/legal* en el código
+   son exactamente aquellos donde una lectura alternativa es defendible.
+3. **Inventario y nómina** siguen sin aportar al mayor lo que deberían — no eran hallazgos de este
+   alcance, y se detallan abajo como dependencias. Mientras el inventario no postee sus ajustes, el
+   balance general no es auditable por más que la contabilidad esté bien.
 
 ---
 
@@ -594,12 +701,12 @@ Escala 1–10. Los ejes no se promedian entre sí: un 9 en arquitectura no compe
 
 Ninguno de estos módulos puede llegar a 10/10 por sí solo. Esto es lo que necesita de quién, y qué hay que auditar aparte.
 
-### 1. Facturación / Ventas → Contabilidad — **bloqueante**
+### 1. Facturación / Ventas → Contabilidad — **resuelto**
 
 - **Qué cruza:** `Invoice` completa (totales, base gravada, exenta, impuesto, ISC, propina, retenciones, costo de venta) → `InvoicePostingService` → asiento.
 - **Contrato:** llamada directa a `JournalEntriesService.createWithManager` dentro de la transacción del documento. Correcto en forma; roto en contenido (H1, H7, H14).
 - **Acoplamiento:** directo a nivel de servicio y de entidad, no vía base de datos. Aceptable en un monolito modular.
-- **Necesita aportar:** contrato de `valuations` unificado (H1); base imponible neta de descuento de documento (H7); cuenta de retenciones obligatoria (H14); clave de idempotencia por documento para que un reintento no postee dos veces.
+- **Aportado:** contrato de `valuations` unificado y el campo retirado de la API (H1); base imponible neta del descuento de documento (H7); cuenta de retenciones obligatoria (H14); clave de idempotencia por documento con índice único parcial, de modo que un reintento no postea dos veces.
 
 ### 2. Inventario → Contabilidad — **bloqueante para el balance**
 
@@ -614,11 +721,12 @@ Ninguno de estos módulos puede llegar a 10/10 por sí solo. Esto es lo que nece
 - Para el mercado objetivo esto significa: sin TSS ni ISR de asalariados en RD, sin IMSS/INFONAVIT ni CFDI de Nómina 1.2 en México, sin nómina electrónica DIAN en Colombia, sin 941/W-2 en EE. UU.
 - **Necesita aportar:** módulo de nómina completo con asiento por corrida (sueldos, retenciones al empleado, aportes patronales, provisiones de vacaciones/aguinaldo/cesantía) y su declaración por país. Es un proyecto propio.
 
-### 4. Compras / Proveedores → Contabilidad — **funcionando, con hueco**
+### 4. Compras / Proveedores → Contabilidad — **resuelto, con un hueco declarado**
 
 - **Contrato:** `AccountsPayableService.postApprovedBill` → mismo servicio de asientos, dentro de transacción. Bien.
 - **Hueco:** el posteo depende de `handleBillApproved`, que escucha un evento inexistente (H3). Sin política de aprobación funciona; con política, la factura nunca llega al mayor.
-- **Necesita aportar:** cerrar H3; y recepción de mercancía valorada (GRNI) para separar "recibido no facturado" de "facturado", hoy inexistente.
+- **Aportado:** H3 cerrado; con política de aprobación la factura llega al mayor.
+- **Sigue faltando:** recepción de mercancía valorada (GRNI) para separar "recibido no facturado" de "facturado". No estaba en el alcance de esta auditoría y es un proyecto propio.
 
 ### 5. Pagos / Pasarelas → Contabilidad — **desconectado por diseño**
 
@@ -626,34 +734,70 @@ Ninguno de estos módulos puede llegar a 10/10 por sí solo. Esto es lo que nece
 - **No hay pasarela para cobros de los clientes del tenant.** `CustomerPayment` se registra manualmente. No existe el camino "el cliente paga con tarjeta → se concilia contra la factura → se postea el cobro".
 - **Necesita aportar:** si se añade, cada notificación de la pasarela debe llevar clave de idempotencia propagada hasta el asiento, y liquidaciones (payouts) que se concilien contra el extracto bancario neteando comisiones.
 
-### 6. Usuarios y Permisos / Workflows → Contabilidad — **bloqueante para segregación de funciones**
+### 6. Usuarios y Permisos / Workflows → Contabilidad — **resuelto**
 
 - El sistema de permisos (`shared/permissions.ts`, `@HasPermission`) es granular y está bien aplicado en los controladores contables.
 - Lo que falta está en `workflows/`: aprobaciones que no postean (H3), endpoints sin permiso ni tenant (H4), sin solicitante ni auto-aprobación bloqueada (H5).
-- **Necesita aportar:** los tres hallazgos anteriores. Hasta entonces **no existe segregación de funciones en el producto**, por mucho que el catálogo de permisos sea bueno.
+- **Aportado:** los tres hallazgos. La segregación de funciones existe: el emisor no aprueba su propio documento, los pasos intermedios quedan registrados y los endpoints exigen permiso y resuelven el tenant del usuario autenticado.
+- **Sigue faltando:** doble firma por importe. El control actual es por rol y por política, no por umbral con dos aprobadores distintos.
 
 ### 7. Activos Fijos → Contabilidad — **funcionando**
 
 - `fixed-assets/depreciation.service.ts` postea por el servicio de asientos y se ejecuta dentro del cierre (`closing-automation.service.ts`). Correcto en forma. No auditado en profundidad aquí (métodos de depreciación y bajas quedan para un audit propio); sí verificado que no crea líneas de mayor por su cuenta.
 
-### 8. Base de datos (transversal) — **bloqueante estructural**
+### 8. Base de datos (transversal) — **resuelto**
 
-- Cero triggers, cero RLS, cuatro `CHECK` sin relación con el mayor.
-- **Necesita aportar:** los invariantes del hallazgo 2 en el motor. Mientras la partida doble y la inmutabilidad vivan sólo en TypeScript, cualquier código nuevo —o cualquier `UPDATE` en producción— puede romper el mayor, y ningún grado de calidad en la capa de aplicación lo impide.
-
----
-
-## Orden de reconstrucción sugerido
-
-1. **H1, H2** — invariantes del mayor en aplicación y en base de datos. Todo lo demás se apoya aquí; sin esto no hay forma de saber si el resto está bien.
-2. **H3, H4, H5** — reconstruir `workflows/` completo. Es pequeño (120 líneas de servicio) y hoy es a la vez una función rota, un agujero de seguridad y la ausencia del control interno más básico.
-3. **H10** — cerrar el endpoint de datasheets. Es una exposición de datos financieros en producción.
-4. **H8, H6** — procedencia de tasas y moneda en conciliación. Habilitan el multi-moneda real.
-5. **H7, H14, H15** — corregir la base imponible y las retenciones antes de que se emitan más documentos fiscales con ellas.
-6. **H13** — auditoría transaccional en los siete módulos, más auditoría de accesos.
-7. **H18** — decidir la estrategia fiscal por país. Para EE. UU., integrar un proveedor de sales tax; construirlo internamente no es defendible.
-8. **H9, H11, H12, H16, H17** — el resto.
+- Diagnóstico: cero triggers, cero RLS, cuatro `CHECK` sin relación con el mayor.
+- **Aportado:** los invariantes del hallazgo 2 viven en el motor. Un `CONSTRAINT TRIGGER … DEFERRABLE INITIALLY DEFERRED` rechaza el commit de un asiento descuadrado, y los disparadores de inmutabilidad impiden modificar un asiento posteado por `UPDATE` directo. La partida doble deja de depender de que todo el código futuro se acuerde de validarla.
+- **Sigue faltando:** RLS. El aislamiento entre tenants es por consulta y está probado, pero no lo impone el motor.
 
 ---
 
-*Todos los hallazgos citan archivo y línea sobre el árbol en `claude/audit-finance-accounting-modules-95hfs5`. Los marcados "verificar con contabilidad/legal" (H7, H17, H19) tienen una lectura alternativa defendible que no se puede resolver desde el código.*
+## Orden en que se reconstruyó
+
+El orden sugerido por el diagnóstico se siguió casi tal cual. Se anota lo que cambió respecto al
+plan y por qué.
+
+1. **H12** — el módulo de dinero se adelantó al primer puesto. No estaba planificado así: corregir
+   la doble conversión con ocho convenciones de redondeo conviviendo habría sido corregirla ocho
+   veces.
+2. **H1, H2** — invariantes del mayor, en aplicación y en base de datos.
+3. **H3, H4, H5** — `workflows/` reconstruido.
+4. **H8** — procedencia de tasas.
+5. **H7, H14, H15** — base imponible y retenciones, antes de emitir más documentos con ellas.
+6. **H6** — moneda en conciliación.
+7. **H13** — auditoría transaccional y de accesos.
+8. **H16, H17** — flujo de efectivo y *aging*.
+9. **H9, H11, H19** — idempotencia, ajuste de auditoría, serie fiscal.
+10. **H10, H20** — datasheets y deuda técnica.
+11. **H18** — cobertura fiscal, en tres tramos: numeración, adaptadores de régimen, configuración.
+
+Sobre el punto 7 del plan original — *"para EE. UU., integrar un proveedor de sales tax; construirlo
+internamente no es defendible"*—: se construyó internamente la **determinación** (jurisdicciones,
+nexo, sourcing origen/destino), y no las **tarifas**, que siguen siendo del contribuyente y se
+cargan en Ajustes. Esa es la parte que un proveedor externo vende y que efectivamente no es
+defendible mantener a mano; la determinación sí lo es, y dejarla fuera habría significado que el
+producto no puede facturar en Estados Unidos sin un contrato con un tercero.
+
+---
+
+## Lo que queda abierto
+
+Nada de esto era un hallazgo de este alcance, y todo esto impide que el conjunto sea auditable de
+extremo a extremo. Se nombra para que la decisión de abordarlo o no sea explícita:
+
+1. **Inventario no postea sus movimientos de valor.** Sin capas de costeo reales ni asiento por
+   ajuste, merma, revaluación o transferencia, la cuenta de inventario del mayor deriva del
+   subledger de forma permanente. **El balance general no es auditable mientras esto siga así**,
+   por correcta que sea la contabilidad.
+2. **Nómina no existe.** Sin ella no hay TSS ni ISR de asalariados en RD, ni CFDI de Nómina en
+   México, ni nómina electrónica DIAN en Colombia, ni 941/W-2 en EE. UU.
+3. **GRNI**: no se separa "recibido no facturado" de "facturado".
+4. **RLS**: el aislamiento entre tenants es por consulta, no impuesto por el motor.
+5. **Doble firma por importe** en aprobaciones y transferencias.
+6. **El intercambio real con cada autoridad fiscal**, que necesita credenciales, contratos y
+   homologación del contribuyente.
+
+---
+
+*Todos los hallazgos citan archivo y línea sobre el árbol en `claude/audit-finance-accounting-modules-95hfs5`, en el estado en que se auditó. Los marcados "verificar con contabilidad/legal" (H7, H17, H19, y los puntos señalados así dentro de cada régimen electrónico) tienen una lectura alternativa defendible que no se puede resolver desde el código.*
