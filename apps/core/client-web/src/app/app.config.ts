@@ -25,6 +25,7 @@ import { AuthService } from './core/services/auth';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { provideServiceWorker } from '@angular/service-worker';
 import { API_URL } from './core/tokens/api-url.token';
+import { idempotencyInterceptor } from './core/http/idempotency.interceptor';
 
 const CORE_PROVIDERS = [
   // Resolve the session before the first route is evaluated, so the guards never see a "pending"
@@ -104,7 +105,7 @@ export const appConfig: ApplicationConfig = {
     ...CHARTS_PROVIDERS,
     ...I18N_PROVIDERS,
     ...RECAPTCHA_PROVIDERS,
-    provideHttpClient(withInterceptors([authInterceptor]), withFetch()),
+    provideHttpClient(withInterceptors([authInterceptor, idempotencyInterceptor]), withFetch()),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',

@@ -8,6 +8,7 @@ import { CreateLeadDto } from '../dto/create-lead.dto';
 import { AuthenticatedUser } from '../../auth/interfaces/authenticated-user.interface';
 import { HasPermission } from '../../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../../shared/permissions';
+import { Idempotent } from '../../shared/idempotency/idempotent.decorator';
 
 @Controller('sales/leads')
 @UseGuards(JwtAuthGuard)
@@ -27,6 +28,7 @@ export class LeadsController {
   }
   
   @Post(':id/convert')
+  @Idempotent()
   @HasPermission(PERMISSIONS.CRM_MANAGE)
   convertLead(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.leadsService.convertLeadToOpportunity(id, user.organizationId);

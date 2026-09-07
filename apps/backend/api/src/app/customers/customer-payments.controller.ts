@@ -22,6 +22,7 @@ import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interfa
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
+import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 
 /**
  * Customer receipts.
@@ -38,6 +39,7 @@ export class CustomerPaymentsController {
   constructor(private readonly customerPaymentsService: CustomerPaymentsService) {}
 
   @Post()
+  @Idempotent()
   @UseGuards(PeriodLockGuard)
   @HasPermission(PERMISSIONS.ACCOUNTS_RECEIVABLE_COLLECT)
   @ApiOperation({
@@ -83,6 +85,7 @@ export class CustomerPaymentsController {
   }
 
   @Post(':id/void')
+  @Idempotent()
   @HttpCode(HttpStatus.OK)
   @HasPermission(PERMISSIONS.ACCOUNTS_RECEIVABLE_VOID)
   @ApiOperation({

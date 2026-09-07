@@ -82,6 +82,7 @@ import { DatasheetsModule } from './datasheets/datasheets.module';
 import { envValidation } from './config/env.validation';
 import { redisConnectionOptions } from './cache/redis.config';
 import { SchedulerModule } from './shared/scheduler/scheduler.module';
+import { IdempotencyModule } from './shared/idempotency/idempotency.module';
 
 @Module({
   imports: [
@@ -301,7 +302,8 @@ import { SchedulerModule } from './shared/scheduler/scheduler.module';
     ProjectsModule,
     HcmModule,
     ProcurementModule,
-    DatasheetsModule
+    DatasheetsModule,
+    IdempotencyModule
   ],
   providers: [
     {

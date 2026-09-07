@@ -8,6 +8,7 @@ import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interfa
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { toIsoDate } from '../common/dates';
+import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 
 @ApiTags('Accounting — Year end')
 @ApiBearerAuth()
@@ -18,6 +19,7 @@ export class YearEndCloseController {
 
   @HasPermission(PERMISSIONS.ACCOUNTING_CLOSE_YEAR)
   @Post()
+  @Idempotent()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary:
@@ -49,6 +51,7 @@ export class YearEndCloseController {
    */
   @HasPermission(PERMISSIONS.ACCOUNTING_REOPEN_YEAR)
   @Post('reopen')
+  @Idempotent()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Reabre un año fiscal cerrado y revierte el asiento de traspaso de resultados.',

@@ -7,6 +7,7 @@ import { User } from '../../users/entities/user.entity/user.entity';
 import { QuotesService } from '../services/quotes.service';
 import { CreateQuoteDto } from '../dto/create-quote.dto';
 import { AuthenticatedUser } from '../../auth/interfaces/authenticated-user.interface';
+import { Idempotent } from '../../shared/idempotency/idempotent.decorator';
 
 @Controller('sales/quotes')
 @UseGuards(JwtAuthGuard)
@@ -26,6 +27,7 @@ export class QuotesController {
   }
 
   @Post(':id/convert-to-invoice')
+  @Idempotent()
   @HasPermission(PERMISSIONS.INVOICES_CREATE)
   convertToInvoice(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.quotesService.convertToInvoice(id, user.organizationId);

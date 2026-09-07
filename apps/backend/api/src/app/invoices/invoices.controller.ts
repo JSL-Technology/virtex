@@ -29,6 +29,7 @@ import { PlanLimitCheckGuard } from '../saas/guards/plan-limit-check.guard';
 import { SaasResource } from '../saas/enums/saas-resource.enum';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { InvoiceStatus } from './entities/invoice.entity';
+import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 
 /**
  * Sales documents.
@@ -77,6 +78,7 @@ export class InvoicesController {
 
   /** Issue a draft: assigns the fiscal number, posts the ledger entry and transmits the e-CF. */
   @Post(':id/issue')
+  @Idempotent()
   @UseGuards(PeriodLockGuard, PlanLimitCheckGuard)
   @HasPermission(PERMISSIONS.INVOICES_CREATE)
   @CheckPlanLimit(SaasResource.INVOICES, 1)
@@ -142,6 +144,7 @@ export class InvoicesController {
   }
 
   @Post(':id/credit-note')
+  @Idempotent()
   @UseGuards(PeriodLockGuard)
   @HasPermission(PERMISSIONS.INVOICES_VOID)
   @HttpCode(HttpStatus.CREATED)

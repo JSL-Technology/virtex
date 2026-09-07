@@ -24,6 +24,7 @@ import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interfa
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
+import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 
 @ApiTags('Accounts Payable')
 @ApiBearerAuth()
@@ -101,6 +102,7 @@ export class AccountsPayableController {
   }
 
   @Post(':id/submit-for-approval')
+  @Idempotent()
   @HttpCode(HttpStatus.OK)
   @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_APPROVE)
   @ApiOperation({
@@ -124,6 +126,7 @@ export class AccountsPayableController {
    * called by nothing, so there was no way to pay a supplier invoice through the API at all.
    */
   @Post('payments')
+  @Idempotent()
   @UseGuards(PeriodLockGuard)
   @HttpCode(HttpStatus.CREATED)
   @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_PAY)
@@ -136,6 +139,7 @@ export class AccountsPayableController {
   }
 
   @Post(':id/void')
+  @Idempotent()
   @HttpCode(HttpStatus.OK)
   @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_VOID)
   voidBill(

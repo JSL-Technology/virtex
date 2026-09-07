@@ -348,7 +348,11 @@
     "FILE_TYPE_NOT_ALLOWED": "Ese tipo de archivo no está permitido.",
     "SINGLE_FILE_EXPECTED": "Single file expected",
     "TIPO_ARCHIVO_NO_PERMITIDO": "Tipo de archivo no permitido ({{mimetype}}).",
-    "TOO_MANY_FILES": "Too many files"
+    "TOO_MANY_FILES": "Too many files",
+    "IDEMPOTENCY_KEY_REQUIRED": "Esta operación exige una cabecera Idempotency-Key para que reintentarla no la repita.",
+    "IDEMPOTENCY_KEY_IN_PROGRESS": "Ya hay una petición en curso con esa clave. Espera su respuesta antes de reintentar.",
+    "IDEMPOTENCY_KEY_REUSED": "Esa clave de idempotencia ya se usó para una petición distinta. Usa una clave nueva.",
+    "IDEMPOTENCY_REQUIRES_SESSION": "Esta operación necesita una sesión iniciada."
   },
   "COMPLIANCE": {
     "ANO_NO_ES_VALIDO": "El año no es válido.",
