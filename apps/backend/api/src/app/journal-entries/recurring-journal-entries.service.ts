@@ -21,6 +21,8 @@ import {
 export interface RecurringJobData {
     recurringEntryId: string;
     dateToPost: string;
+  /** The company the entry belongs to. See DestinationEntryJobData for why it is carried. */
+  organizationId: string;
 }
 
 @Injectable()
@@ -93,7 +95,7 @@ export class RecurringJournalEntriesService {
         async () => {
           await this.recurringQueue.add(
             'generate-recurring-entry',
-            { recurringEntryId: entry.id, dateToPost: today },
+            { recurringEntryId: entry.id, dateToPost: today, organizationId: entry.organizationId },
             {
               jobId: `recurring-${entry.id}-${today}`,
               attempts: 3,

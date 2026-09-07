@@ -9,10 +9,12 @@ import { CreateJournalEntryDto } from './dto/create-journal-entry.dto';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { BadRequestError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
 import { toIsoDate } from '../common/dates';
+import { runAsTenantJob } from '../shared/tenancy/tenant-job';
 
 interface RecurringJobData {
     recurringEntryId: string;
     dateToPost: string;
+    organizationId: string;
 }
 
 /**
@@ -52,6 +54,13 @@ export class RecurringEntriesProcessor extends WorkerHost {
     }
 
     async process(job: Job<RecurringJobData>): Promise<void> {
+    // The tenant travels in the payload, so the connection this job runs on carries it too.
+    // Without that, the row-level policies deny every row and the job "succeeds" having done
+    // nothing — a queue that quietly stops working is worse than one that fails.
+    return runAsTenantJob(this.dataSource, job.data.organizationId, () => this.runForTenant(job));
+  }
+
+  private async runForTenant(job: Job<RecurringJobData>): Promise<void> {
         const { recurringEntryId, dateToPost } = job.data;
         this.logger.log(`Procesando trabajo ${job.id} para la plantilla recurrente ${recurringEntryId}`);
 

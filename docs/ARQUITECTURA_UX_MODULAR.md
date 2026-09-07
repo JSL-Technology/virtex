@@ -621,10 +621,11 @@ Dos cosas que solo aparecieron al ejecutarlo, y que conviene saber:
    `invalid input syntax for type uuid`, y la petición fallaría con un error de base de datos en
    vez de simplemente no ver nada. Las políticas usan `NULLIF` por si acaso.
 
-**Lo que queda fuera del contexto por petición:** los trabajos en cola. Un procesador de BullMQ no
-tiene petición HTTP, así que no hay contexto y —como `virtex_app`— no vería nada. Hoy eso falla de
-forma visible y segura (cero filas) en vez de silenciosa, pero cada procesador tendrá que establecer
-su propio contexto con `runInTenantContext` antes de que el cambio de rol se dé por cerrado.
+**Los trabajos en cola también.** Un procesador de BullMQ no tiene petición HTTP, así que
+`runAsTenantJob` establece su contexto a partir del `organizationId` que ahora viaja en el payload
+—no se deduce leyendo, porque esa lectura es justo la que no tendría contexto todavía—. En
+intercompañía el tenant del trabajo es la empresa **destino**, que es en cuyos libros postea.
+`queue-tenancy.spec.ts` falla si un procesador nuevo lo olvida; `mail` está exento y dice por qué.
 
 ---
 

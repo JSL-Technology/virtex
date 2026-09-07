@@ -169,11 +169,14 @@ describeWithDb('recurring journal entries', () => {
       }),
     );
 
+  // `organizationId` travels in the payload because the processor establishes the tenant context
+  // from it before touching anything. Looking it up instead would be circular: under the row-level
+  // policies, reading the recurring entry is exactly what has no context yet.
   const run = (recurringEntryId: string, dateToPost: string) =>
     processor.process({
       id: `recurring:${recurringEntryId}:${dateToPost}`,
-      data: { recurringEntryId, dateToPost },
-    } as Job<{ recurringEntryId: string; dateToPost: string }>);
+      data: { recurringEntryId, dateToPost, organizationId },
+    } as Job<{ recurringEntryId: string; dateToPost: string; organizationId: string }>);
 
   const postedCount = () =>
     dataSource.getRepository(JournalEntry).count({ where: { organizationId } });

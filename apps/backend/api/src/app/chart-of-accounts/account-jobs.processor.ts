@@ -11,6 +11,7 @@ import { ActionType } from '../audit/entities/audit-log.entity';
 import { MergeAccountsDto } from './dto/merge-accounts.dto';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { LocalizedMessage } from '../i18n/localized-message';
+import { runAsTenantJob } from '../shared/tenancy/tenant-job';
 
 
 interface MergeAccountsJobData {
@@ -38,6 +39,13 @@ export class AccountJobsProcessor extends WorkerHost {
 
 
   async process(job: Job<MergeAccountsJobData>): Promise<LocalizedMessage> {
+    // The tenant travels in the payload, so the connection this job runs on carries it too.
+    // Without that, the row-level policies deny every row and the job "succeeds" having done
+    // nothing — a queue that quietly stops working is worse than one that fails.
+    return runAsTenantJob(this.dataSource, job.data.organizationId, () => this.runForTenant(job));
+  }
+
+  private async runForTenant(job: Job<MergeAccountsJobData>): Promise<LocalizedMessage> {
 
     if (job.name !== 'merge-accounts') {
         this.logger.warn(`Job con nombre desconocido recibido: ${job.name}`);

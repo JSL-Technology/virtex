@@ -28,6 +28,14 @@ export const INTERCOMPANY_QUEUE = 'intercompany-jobs';
 
 export interface DestinationEntryJobData {
   intercompanyTransactionId: string;
+  /**
+   * The company whose books the job will post to.
+   *
+   * Carried rather than looked up: under the row-level policies the processor has no tenant context
+   * until it establishes one, and establishing one by first reading the transaction is circular —
+   * that read is the one that would be denied.
+   */
+  organizationId: string;
 }
 
 /**
@@ -191,7 +199,10 @@ export class IntercompanyService {
 
     await this.intercompanyQueue.add(
       'create-destination-entry',
-      { intercompanyTransactionId: transaction.id },
+      // The destination company's books are the ones this job posts to, so that is the tenant
+      // its connection must carry. `intercompany_transactions` itself has no organization_id — it
+      // belongs to two companies by design — which is why the row can be read before context exists.
+      { intercompanyTransactionId: transaction.id, organizationId: transaction.toOrganizationId },
       {
         jobId: `intercompany-${transaction.id}`,
         attempts: 5,
@@ -360,7 +371,7 @@ export class IntercompanyService {
 
     await this.intercompanyQueue.add(
       'create-destination-entry',
-      { intercompanyTransactionId: id },
+      { intercompanyTransactionId: id, organizationId: transaction.toOrganizationId },
       { jobId: `intercompany-retry-${id}-${Date.now()}`, attempts: 5 },
     );
     return saved;
