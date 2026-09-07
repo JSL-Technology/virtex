@@ -27,6 +27,7 @@ import { DraftShellComponent, DraftProblem } from './draft-shell.component';
       (focusField)="focused = $event"
     >
       <input class="field" id="ncf" />
+      <input class="field" formControlName="iban" />
     </vx-draft-shell>
   `,
 })
@@ -105,6 +106,28 @@ describe('DraftShellComponent', () => {
 
     (el.querySelector('.dr__problem-link') as HTMLButtonElement).click();
     expect(host.focused).toBe('ncf');
+  });
+
+  it('el propio armazón pone el foco en el campo, sin que la página lo conecte', () => {
+    // Diecinueve formularios tendrían que escribir la misma búsqueda, y el que se olvidara dejaría
+    // un enlace que no hace nada — peor que no ofrecerlo.
+    host.problems.set([{ message: 'FALTA_NCF', fieldId: 'ncf' }]);
+    fixture.detectChanges();
+
+    (el.querySelector('.dr__problem-link') as HTMLButtonElement).click();
+
+    expect(document.activeElement).toBe(el.querySelector('#ncf'));
+  });
+
+  it('encuentra el campo por su control cuando no tiene id', () => {
+    // `<label><span>…</span><input formControlName="x"></label>` no pone `id` porque la asociación
+    // ya es implícita; el enlace del resumen tiene que funcionar igual.
+    host.problems.set([{ message: 'FALTA_IBAN', fieldId: 'iban' }]);
+    fixture.detectChanges();
+
+    (el.querySelector('.dr__problem-link') as HTMLButtonElement).click();
+
+    expect(document.activeElement).toBe(el.querySelector('[formControlName="iban"]'));
   });
 
   it('un problema sin campo no finge que se puede saltar a él', () => {

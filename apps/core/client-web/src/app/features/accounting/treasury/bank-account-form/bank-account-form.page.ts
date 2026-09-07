@@ -1,9 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { LucideAngularModule, ChevronLeft } from 'lucide-angular';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
 import { FORMAT_PIPES } from '../../../../core/i18n/pipes/format.pipes';
 import { TreasuryService } from '../../../../core/api/treasury.service';
 import { ChartOfAccountsApiService } from '../../../../core/api/chart-of-accounts.service';
@@ -29,19 +28,16 @@ import { Account } from '../../../../core/models/account.model';
   selector: 'app-bank-account-form-page',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
-    RouterLink,
-    LucideAngularModule,
     TranslateModule,
     ...FORMAT_PIPES,
+    DraftShellComponent,
   ],
   templateUrl: './bank-account-form.page.html',
   styleUrls: ['./bank-account-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BankAccountFormPage implements OnInit {
-  protected readonly BackIcon = ChevronLeft;
 
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
@@ -124,12 +120,37 @@ export class BankAccountFormPage implements OnInit {
     }
   }
 
+  /** Qué falta antes de guardar. Los campos no llevan `id`; el armazón los localiza por control. */
+  readonly problems = signal<DraftProblem[]>([]);
+
+  cancel(): void {
+    void this.router.navigate(['../..'], { relativeTo: this.route });
+  }
+
   save(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.notifications.showError('TREASURY.FORM.COMPLETE_LOS_CAMPOS_REQUERIDOS');
+      this.problems.set(
+        draftProblems(this.form, {
+          name: 'TREASURY.FORM.NOMBRE',
+          bankName: 'TREASURY.BANCO',
+          accountNumber: 'TREASURY.NUMERO',
+          accountType: 'TREASURY.FORM.TIPO',
+          currencyCode: 'TREASURY.MONEDA',
+          glAccountId: 'TREASURY.FORM.CUENTA_CONTABLE',
+          openingBalance: 'TREASURY.FORM.SALDO_INICIAL',
+          openingDate: 'TREASURY.FORM.FECHA_APERTURA',
+          openingBalanceAccountId: 'TREASURY.FORM.CUENTA_CONTRAPARTIDA',
+          iban: 'TREASURY.FORM.IBAN',
+          swiftBic: 'TREASURY.FORM.SWIFT_BIC',
+          notes: 'TREASURY.FORM.NOTAS',
+          isActive: 'TREASURY.FORM.ACTIVA',
+        }),
+      );
       return;
     }
+
+    this.problems.set([]);
 
     this.saving.set(true);
     const raw = this.form.getRawValue();

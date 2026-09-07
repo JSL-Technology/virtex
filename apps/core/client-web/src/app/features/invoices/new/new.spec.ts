@@ -222,8 +222,10 @@ describe('NewInvoicePage', () => {
 
     component.issue();
 
+    // El motivo va al resumen del armazón y no a un aviso que se desvanece: es una precondición
+    // que hay que corregir, y un mensaje que desaparece solo obliga a adivinar qué decía.
     expect(invoicesService.createInvoice).not.toHaveBeenCalled();
-    expect(notifications.showError).toHaveBeenCalled();
+    expect(component.problems()).toEqual([{ message: 'INVOICES.NEW.STOCK_INSUFICIENTE' }]);
   });
 
   it('saves a draft without issuing', () => {

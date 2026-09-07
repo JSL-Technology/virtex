@@ -1,183 +1,90 @@
-@use "../../../../assets/styles/view-styles" as views;
+@use '../../../../assets/styles/form-page' as form;
+@use '../../../../assets/styles/design-system' as ds;
 
-.form-container {
-  padding: var(--space-6);
-}
+:host {
+  @include form.form-page;
 
-.form-header {
-  margin-bottom: var(--space-6);
+  //  Rótulo y control envueltos en un `<label>`: válido y sin necesidad de `id`.
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0;
 
-  h3 {
-    margin: var(--space-2) 0 0;
-  }
-}
+    > span {
+      @include ds.field-label;
+      margin-bottom: 0;
+    }
 
-.back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--text-secondary);
-  text-decoration: none;
-}
-
-.card {
-  padding: var(--space-6);
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  gap: var(--space-4);
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-
-  input,
-  select,
-  textarea {
-    padding: var(--space-2) var(--space-3);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    background: var(--surface-raised);
-    color: var(--text-primary);
-    font: inherit;
+    input,
+    select { @include ds.input-base; }
   }
 
-  input:disabled,
-  select:disabled {
-    background: var(--surface-disabled);
-    color: var(--text-secondary);
+  .section-heading {
+    margin: 0;
+    font-size: var(--text-md);
+    font-weight: var(--font-semibold);
+    color: var(--content-primary);
   }
 
-  &__note {
-    color: var(--text-tertiary);
+  .section-note {
+    margin: 0;
+    color: var(--content-tertiary);
+    font-size: var(--text-sm);
   }
 
-  &--wide {
-    grid-column: 1 / -1;
-  }
-
-  &--checkbox {
-    flex-direction: row;
-    align-items: center;
+  //  Las facturas pendientes del proveedor, como fichas. Elegir cuáles se pagan
+  //  ES el gesto de esta pantalla, y un desplegable lo escondería.
+  .invoice-picker {
+    display: flex;
+    flex-wrap: wrap;
     gap: var(--space-2);
   }
-}
 
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--space-3);
-  margin-top: var(--space-6);
-}
-
-.section-heading {
-  margin: var(--space-6) 0 var(--space-2);
-}
-
-.section-note {
-  margin: 0 0 var(--space-4);
-  color: var(--text-secondary);
-  font-size: var(--text-sm);
-}
-
-.invoice-picker {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  margin-bottom: var(--space-4);
-}
-
-.chip {
-  padding: var(--space-1) var(--space-3);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-full, 999px);
-  background: var(--surface-raised);
-  color: var(--text-primary);
-  font: inherit;
-  cursor: pointer;
-}
-
-.table-wrapper {
-  overflow-x: auto;
-}
-
-.lines-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-variant-numeric: tabular-nums;
-
-  th,
-  td {
-    padding: var(--space-2);
-    border-bottom: 1px solid var(--border-color);
-    white-space: nowrap;
+  .chip {
+    @include ds.button-secondary('sm');
+    font-variant-numeric: tabular-nums;
   }
 
-  thead th {
-    text-align: right;
-    color: var(--text-secondary);
-    font-weight: 600;
+  .table-wrapper { overflow-x: auto; }
 
-    &:first-child {
-      text-align: left;
+  .lines-table {
+    @include ds.data-table;
+    font-variant-numeric: tabular-nums;
+
+    thead th { text-align: right; }
+    thead th:first-child { text-align: left; }
+
+    .numeric { text-align: right; }
+
+    input {
+      @include ds.input-base;
+      width: 8rem;
+      text-align: right;
+    }
+
+    td small {
+      display: block;
+      color: var(--content-tertiary);
+      font-size: var(--text-xs);
     }
   }
 
-  .numeric {
-    text-align: right;
-  }
-
-  input {
-    width: 8rem;
-    text-align: right;
-    padding: var(--space-1) var(--space-2);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    background: var(--surface-raised);
-    color: var(--text-primary);
-    font: inherit;
-  }
-
-  /* Settling more than the invoice owes is refused by the server; flag it before the round trip. */
-  .settled.over {
-    color: var(--error-text);
-    font-weight: 600;
-  }
-}
-
-.totals {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  align-items: flex-end;
-  margin-top: var(--space-4);
-
-  &__line {
+  .totals {
     display: flex;
-    gap: var(--space-6);
-    min-width: 18rem;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: var(--space-1);
+    align-items: flex-end;
 
-    &--warn {
-      color: var(--warning-text);
-      font-weight: 600;
+    &__line {
+      display: flex;
+      gap: var(--space-6);
+      min-width: 18rem;
+      justify-content: space-between;
+      font-variant-numeric: tabular-nums;
+
+      &--total { font-weight: var(--font-semibold); }
+      &--warn { color: var(--warning-text); font-weight: var(--font-semibold); }
     }
   }
-}
-
-.totals__line--total {
-  font-weight: 700;
-  border-top: 2px solid var(--text-primary);
-  padding-top: var(--space-1);
-}
-
-.lines-table td small {
-  display: block;
-  color: var(--text-secondary);
 }

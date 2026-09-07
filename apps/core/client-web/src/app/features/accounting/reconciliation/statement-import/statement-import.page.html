@@ -1,17 +1,23 @@
-<div class="form-container">
-  <div class="form-header">
-    <a class="back-link" routerLink="..">
-      <lucide-icon [img]="BackIcon" size="18"></lucide-icon>
-      <span>{{ 'ACCOUNTING.RECONCILIATION.TITULO' | translate }}</span>
-    </a>
-    <h3>{{ 'ACCOUNTING.RECONCILIATION.IMPORTAR' | translate }}</h3>
-  </div>
-
-  @if (bankAccounts().length === 0) {
-    <p class="import-state">{{ 'TREASURY.SIN_CUENTAS' | translate }}</p>
-  } @else {
-    <form [formGroup]="form" (ngSubmit)="submit()" class="card">
-      <div class="form-grid">
+<vx-draft-shell
+  [title]="'ACCOUNTING.RECONCILIATION.IMPORTAR' | translate"
+  [subtitle]="'ACCOUNTING.RECONCILIATION.TITULO' | translate"
+  [dirty]="form.dirty"
+  [saving]="uploading()"
+  [invalid]="form.invalid"
+  [problems]="problems()"
+  saveLabelKey="ACCOUNTING.RECONCILIATION.IMPORTAR"
+  (save)="submit()"
+  (cancel)="cancel()"
+>
+  <div class="form-body" [formGroup]="form">
+    @if (bankAccounts().length === 0) {
+      <!--
+        Sin cuenta bancaria no hay extracto que importar. Es una precondición, no un campo mal.
+      -->
+      <p class="import-state">{{ 'TREASURY.SIN_CUENTAS' | translate }}</p>
+    } @else {
+      <section class="form-section">
+        <div class="form-grid">
         <label class="field">
           <span>{{ 'ACCOUNTING.RECONCILIATION.SELECCIONE_CUENTA' | translate }} *</span>
           <select formControlName="bankAccountId">
@@ -123,13 +129,7 @@
         </p>
       }
 
-      <div class="form-actions">
-        <a class="secondary-button" routerLink="..">{{ 'COMMON.CANCEL' | translate }}</a>
-        <button class="primary-button" type="submit" [disabled]="uploading()">
-          <lucide-icon [img]="UploadIcon" size="16"></lucide-icon>
-          <span>{{ 'ACCOUNTING.RECONCILIATION.IMPORTAR' | translate }}</span>
-        </button>
-      </div>
-    </form>
-  }
-</div>
+      </section>
+    }
+  </div>
+</vx-draft-shell>

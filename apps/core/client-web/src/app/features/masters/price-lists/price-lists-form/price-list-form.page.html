@@ -1,20 +1,20 @@
-<div class="view-container">
-  <form [formGroup]="priceListForm" (ngSubmit)="savePriceList()">
-    <div class="view-header">
-      <div class="header-content">
-        <h1>@if(isEditMode()){ Editar } @else { Nueva } Lista de Precios</h1>
-        <p>{{ 'MASTERS.PRICE_LISTS_FORM.DEFINE_PRECIOS_CONJUNTO_ESPECIFICO_PRODUCTOS' | translate }}</p>
-      </div>
-      <div class="header-actions">
-        <a routerLink="/masters/price-lists" class="secondary-button">{{ 'MASTERS.PRICE_LISTS_FORM.CANCELAR' | translate }}</a>
-        <button type="submit" class="primary-button" [disabled]="isLoading() || isSaving()">
-          <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
-          <span>@if(isSaving()){ Guardando... } @else { Guardar Lista }</span>
-        </button>
-      </div>
-    </div>
-
-    <div class="form-container card">
+<vx-draft-shell
+  [title]="
+    (isEditMode() ? 'MASTERS.PRICE_LISTS_FORM.TITLE_EDIT' : 'MASTERS.PRICE_LISTS_FORM.TITLE_NEW')
+      | translate
+  "
+  [subtitle]="'MASTERS.PRICE_LISTS_FORM.DEFINE_PRECIOS_CONJUNTO_ESPECIFICO_PRODUCTOS' | translate"
+  [dirty]="priceListForm.dirty"
+  [saving]="isSaving()"
+  [invalid]="priceListForm.invalid"
+  [problems]="problems()"
+  saveLabelKey="MASTERS.PRICE_LISTS_FORM.GUARDAR_LISTA"
+  cancelLabelKey="MASTERS.PRICE_LISTS_FORM.CANCELAR"
+  (save)="savePriceList()"
+  (cancel)="cancel()"
+>
+  <div class="form-body" [formGroup]="priceListForm">
+    <section class="form-section">
         <div class="form-grid">
             <div class="form-field">
                 <label for="name">{{ 'MASTERS.PRICE_LISTS_FORM.NOMBRE_LISTA' | translate }}</label>
@@ -48,8 +48,12 @@
             </div>
         </div>
 
-        <div class="line-items-section">
-            <h3 class="section-title">{{ 'MASTERS.PRICE_LISTS_FORM.ITEMS_LISTA_PRECIOS' | translate }}</h3>
+    </section>
+
+    <section class="form-section line-items-section">
+      <h2 class="form-section-title">
+        {{ 'MASTERS.PRICE_LISTS_FORM.ITEMS_LISTA_PRECIOS' | translate }}
+      </h2>
             <div class="table-container">
                 <table class="data-table" formArrayName="items">
                     <thead>
@@ -85,12 +89,10 @@
                     </tbody>
                 </table>
             </div>
-            <button type="button" class="secondary-button add-line-btn" (click)="addLine()">
-                <lucide-icon [img]="PlusIcon" size="16"></lucide-icon>
-                <span>{{ 'MASTERS.PRICE_LISTS_FORM.ANADIR_LINEA' | translate }}</span>
-            </button>
-        </div>
-    </div>
-
-  </form>
-</div>
+      <button type="button" class="secondary-button add-line-btn" (click)="addLine()">
+        <lucide-icon [img]="PlusIcon" size="16" aria-hidden="true"></lucide-icon>
+        <span>{{ 'MASTERS.PRICE_LISTS_FORM.ANADIR_LINEA' | translate }}</span>
+      </button>
+    </section>
+  </div>
+</vx-draft-shell>

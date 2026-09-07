@@ -1,15 +1,16 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal, input, effect } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideAngularModule, Save, Image } from 'lucide-angular';
 import { InventoryService, CreateProductDto, UpdateProductDto } from '../../../core/api/inventory.service';
 import { NotificationService } from '../../../core/services/notification';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { TranslateModule } from '@ngx-translate/core';
+import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 
 @Component({
   selector: 'app-product-form-page',
-  imports: [RouterLink, ReactiveFormsModule, LucideAngularModule, TranslateModule],
+  imports: [ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent],
   templateUrl: './product-form.page.html',
   styleUrls: ['./product-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,8 +24,10 @@ export class ProductFormPage implements OnInit {
   private inventoryService = inject(InventoryService);
   private notificationService = inject(NotificationService);
 
-  protected readonly SaveIcon = Save;
   protected readonly ImageIcon = Image;
+
+  /** Qué falta antes de guardar. Se llena al pulsar, no mientras se teclea el primer campo. */
+  readonly problems = signal<DraftProblem[]>([]);
 
   productForm!: FormGroup;
   isEditMode = signal(false);
@@ -85,12 +88,29 @@ export class ProductFormPage implements OnInit {
     }
   }
 
+  cancel(): void {
+    void this.router.navigate(['/inventory/products']);
+  }
+
   saveProduct(): void {
     if (this.productForm.invalid) {
       this.productForm.markAllAsTouched();
-      this.notificationService.showError('INVENTORY.PRODUCT_FORM.FAVOR_COMPLETA_CAMPOS_REQUERIDOS');
+      this.problems.set(
+        draftProblems(this.productForm, {
+          name: 'INVENTORY.PRODUCT_FORM.NOMBRE_PRODUCTO',
+          sku: 'INVENTORY.PRODUCT_FORM.SKU_CODIGO_PRODUCTO',
+          description: 'INVENTORY.PRODUCT_FORM.DESCRIPCION',
+          price: 'INVENTORY.PRODUCT_FORM.PRECIO_VENTA',
+          stock: 'INVENTORY.PRODUCT_FORM.CANTIDAD_STOCK',
+          reorderLevel: 'INVENTORY.PRODUCT_FORM.NIVEL_REORDEN',
+          category: 'INVENTORY.PRODUCT_FORM.CATEGORIA',
+          status: 'INVENTORY.PRODUCT_FORM.ESTADO',
+        }),
+      );
       return;
     }
+
+    this.problems.set([]);
 
     this.isLoading.set(true);
     const formValue = this.productForm.getRawValue();

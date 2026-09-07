@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, ChevronLeft, Upload } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
+import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
 import { BankAccount, TreasuryService } from '../../../../core/api/treasury.service';
 import { ReconciliationApiService } from '../../../../core/api/reconciliation.service';
 import { NotificationService } from '../../../../core/services/notification';
@@ -26,14 +27,12 @@ import { NotificationService } from '../../../../core/services/notification';
 @Component({
   selector: 'app-statement-import-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideAngularModule, TranslateModule],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent],
   templateUrl: './statement-import.page.html',
   styleUrls: ['./statement-import.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StatementImportPage implements OnInit {
-  protected readonly BackIcon = ChevronLeft;
-  protected readonly UploadIcon = Upload;
 
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
@@ -103,17 +102,31 @@ export class StatementImportPage implements OnInit {
     return Boolean(amountColumn || debitColumn || creditColumn);
   }
 
+  /** Qué falta antes de importar. Un fichero que falta y un mapeo incompleto son dos cosas. */
+  readonly problems = signal<DraftProblem[]>([]);
+
+  cancel(): void {
+    void this.router.navigate(['..'], { relativeTo: this.route });
+  }
+
   submit(): void {
     const file = this.file();
     if (!file) {
-      this.notifications.showError('ACCOUNTING.RECONCILIATION.IMPORT.SELECCIONE_ARCHIVO');
+      this.problems.set([{ message: 'ACCOUNTING.RECONCILIATION.IMPORT.SELECCIONE_ARCHIVO' }]);
       return;
     }
     if (this.form.invalid || !this.hasAmountMapping()) {
       this.form.markAllAsTouched();
-      this.notifications.showError('ACCOUNTING.RECONCILIATION.IMPORT.COMPLETE_EL_MAPEO');
+      this.problems.set([
+        ...draftProblems(this.form),
+        ...(this.hasAmountMapping()
+          ? []
+          : [{ message: 'ACCOUNTING.RECONCILIATION.IMPORT.COMPLETE_EL_MAPEO' }]),
+      ]);
       return;
     }
+
+    this.problems.set([]);
 
     this.uploading.set(true);
     this.importError.set(null);

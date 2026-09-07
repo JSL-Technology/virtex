@@ -1,6 +1,5 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { LucideAngularModule, Save, Plus, Trash2 } from 'lucide-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -12,6 +11,7 @@ import { LedgersService } from '../../../core/api/ledgers.service';
 import { JournalsService } from '../../../core/api/journals.service';
 import { Ledger } from '../../../core/models/ledger.model';
 import { Journal } from '../../../core/models/journal.model';
+import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 
 // Validador personalizado para el asiento contable
@@ -51,7 +51,7 @@ export const journalEntryValidator = (control: AbstractControl): ValidationError
 @Component({
   selector: 'app-journal-entry-form-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [ReactiveFormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, DraftShellComponent],
   templateUrl: './journal-entry-form.page.html',
   styleUrls: ['./journal-entry-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -71,9 +71,11 @@ export class JournalEntryFormPage implements OnInit {
   private journalsService = inject(JournalsService);
 
 
-  protected readonly SaveIcon = Save;
   protected readonly PlusIcon = Plus;
   protected readonly TrashIcon = Trash2;
+
+  /** Qué falta antes de guardar. Entra en las líneas y nombra la que falla. */
+  readonly problems = signal<DraftProblem[]>([]);
 
   entryForm!: FormGroup;
   isEditMode = signal(false);
@@ -155,15 +157,31 @@ export class JournalEntryFormPage implements OnInit {
     this.totalCredit.set(credits);
   }
 
+  cancel(): void {
+    void this.router.navigate(['/accounting/journal-entries']);
+  }
+
   saveEntry(): void {
     this.entryForm.markAllAsTouched();
     
     if (this.entryForm.invalid) {
-      this.notificationService.showError(
-        this.translate.instant('ACCOUNTING.JOURNAL_ENTRY_FORM.REQUIRED_FIELDS_ERROR'),
+      //  El descuadre y el importe cero se dicen junto a los totales, donde está el número que hay
+      //  que corregir; aquí quedan los campos, incluidos los de cada línea.
+      this.problems.set(
+        draftProblems(this.entryForm, {
+          date: 'ACCOUNTING.JOURNAL_ENTRY_FORM.DATE_LABEL',
+          ledgerId: 'ACCOUNTING.JOURNAL_ENTRY_FORM.LEDGER_LABEL',
+          journalId: 'ACCOUNTING.JOURNAL_ENTRY_FORM.JOURNAL_LABEL',
+          description: 'ACCOUNTING.JOURNAL_ENTRY_FORM.DESCRIPTION_LABEL',
+          accountId: 'ACCOUNTING.JOURNAL_ENTRY_FORM.ACCOUNT_COLUMN',
+          debit: 'ACCOUNTING.JOURNAL_ENTRY_FORM.DEBIT_COLUMN',
+          credit: 'ACCOUNTING.JOURNAL_ENTRY_FORM.CREDIT_COLUMN',
+        }).filter((problem) => problem.fieldId !== 'lines'),
       );
       return;
     }
+
+    this.problems.set([]);
 
     if (this.isSaving()) return;
     this.isSaving.set(true);

@@ -1590,7 +1590,10 @@
       "SELECCIONAR": "Selecionar...",
       "SKU_CODIGO_PRODUCTO": "SKU (Código do Produto)",
       "SUBIR_IMAGEN": "Enviar imagem",
-      "VISTA_PREVIA": "Prévia"
+      "VISTA_PREVIA": "Prévia",
+      "TITLE_NEW": "Novo produto",
+      "TITLE_EDIT": "Editar produto",
+      "GUARDAR_PRODUCTO": "Salvar produto"
     }
   },
   "INVOICES": {
@@ -1823,7 +1826,7 @@
       "REVISA_CAMPOS_MARCADOS_ANTES_CONTINUAR": "Revise os campos destacados antes de continuar.",
       "SELECCIONAR": "Selecionar",
       "SELECCIONAR_CLIENTE": "Selecionar cliente",
-      "STOCK_INSUFICIENTE": "Estoque insuficiente",
+      "STOCK_INSUFICIENTE": "Uma ou mais linhas excedem o estoque disponível.",
       "STOCK_SHORTFALL": "Faltam {{units}} unidades em estoque",
       "SUBTOTAL": "Subtotal",
       "TARJETA_CREDITO": "Cartão de crédito",
@@ -1836,7 +1839,11 @@
       "TRANSFERENCIA": "Transferência",
       "TRANSPORTE_PROPIO": "Transporte próprio",
       "TRATAMIENTO": "Tratamento",
-      "VENTA_CREDITO": "Venda a prazo"
+      "VENTA_CREDITO": "Venda a prazo",
+      "EMITIR_FACTURA": "Emitir fatura",
+      "GUARDANDO": "Salvando…",
+      "FACTURA_EMITIDA": "Fatura {{number}} emitida.",
+      "BORRADOR_GUARDADO": "Rascunho {{number}} salvo."
     },
     "PAYMENT_METHOD": {
       "BANK_TRANSFER": "Transferência bancária",
@@ -2098,7 +2105,10 @@
       "SELECCIONA_PRODUCTO": "Selecione um produto...",
       "USD_DOLAR_ESTADOUNIDENSE": "USD - Dólar Americano",
       "VALIDO_DESDE": "Válido De*",
-      "VALIDO_HASTA": "Válido Até*"
+      "VALIDO_HASTA": "Válido Até*",
+      "TITLE_NEW": "Nova lista de preços",
+      "TITLE_EDIT": "Editar lista de preços",
+      "GUARDAR_LISTA": "Salvar lista"
     },
     "SUPPLIER_FORM": {
       "CANCELAR": "Cancelar",

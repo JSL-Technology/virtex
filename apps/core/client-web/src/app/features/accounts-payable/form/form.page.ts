@@ -30,6 +30,7 @@ import {
 import { NotificationService } from '../../../core/services/notification';
 import { SuppliersService } from '../../../core/api/suppliers.service';
 import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.service';
+import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 import { toIsoDate } from '../../reports/financial-statements/report-period';
 
@@ -82,13 +83,13 @@ interface BillTotals {
     LucideAngularModule,
     TranslateModule,
     ...FORMAT_PIPES,
+    DraftShellComponent,
   ],
   templateUrl: './form.page.html',
   styleUrls: ['./form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VendorBillFormPage implements OnInit {
-  protected readonly BackIcon = ChevronLeft;
   protected readonly AddIcon = Plus;
   protected readonly RemoveIcon = Trash2;
   protected readonly purchaseCategories = PURCHASE_CATEGORIES;
@@ -302,14 +303,32 @@ export class VendorBillFormPage implements OnInit {
       });
   }
 
+  /** Qué falta antes de guardar. Entra en las líneas y nombra la que falla. */
+  readonly problems = signal<DraftProblem[]>([]);
+
+  cancel(): void {
+    void this.router.navigate(['/accounts-payable']);
+  }
+
   save(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.notifications.showError(
-        'ACCOUNTS_PAYABLE.FORM.FAVOR_COMPLETA_TODOS_CAMPOS_REQUERIDOS',
+      this.problems.set(
+        draftProblems(this.form, {
+          vendorId: 'ACCOUNTS_PAYABLE.FORM.PROVEEDOR',
+          ncf: 'ACCOUNTS_PAYABLE.LIST.NUMERO',
+          date: 'ACCOUNTS_PAYABLE.DETAIL.FECHA_EMISION',
+          dueDate: 'ACCOUNTS_PAYABLE.DETAIL.FECHA_VENCIMIENTO',
+          currencyCode: 'ACCOUNTS_PAYABLE.DETAIL.MONEDA',
+          description: 'ACCOUNTS_PAYABLE.DETAIL.CONCEPTO',
+          quantity: 'ACCOUNTS_PAYABLE.DETAIL.CANTIDAD',
+          unitPrice: 'ACCOUNTS_PAYABLE.DETAIL.PRECIO_UNITARIO',
+        }),
       );
       return;
     }
+
+    this.problems.set([]);
 
     this.isLoading.set(true);
     const value = this.form.getRawValue();

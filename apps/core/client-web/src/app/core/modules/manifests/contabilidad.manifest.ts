@@ -72,8 +72,12 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       load: () => import('../../../features/accounting/journal-entry-form/journal-entry-form.page').then((m) => m.JournalEntryFormPage),
     },
     {
+      //  Un asistente: subir el fichero, mapear las columnas, revisar la previsualización y
+      //  confirmar. No hay un borrador que guardar —no existe `FormGroup`, la pantalla es
+      //  dirigida por plantilla— y el armazón de borrador impondría un «Guardar» que aquí no
+      //  significa nada. Es la misma forma que la importación de datos del área de trabajo.
       path: 'journal-entries/import',
-      kind: WindowKind.DRAFT,
+      kind: WindowKind.CANVAS,
       permission: 'journal_entries:create',
       titleKey: 'PAGE_TITLES.JOURNAL_ENTRY_IMPORT',
       icon: 'Upload',

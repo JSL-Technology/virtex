@@ -4,6 +4,7 @@ import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } fr
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, ChevronLeft } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
+import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 import { CustomerReceiptsService } from '../../../core/services/customer-receipts';
 import { InvoicesService, Invoice } from '../../../core/services/invoices';
@@ -43,13 +44,13 @@ import { NotificationService } from '../../../core/services/notification';
     LucideAngularModule,
     TranslateModule,
     ...FORMAT_PIPES,
+    DraftShellComponent,
   ],
   templateUrl: './form.page.html',
   styleUrls: ['./form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomerReceiptFormPage implements OnInit {
-  protected readonly BackIcon = ChevronLeft;
 
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
@@ -176,12 +177,30 @@ export class CustomerReceiptFormPage implements OnInit {
     this.totals.set({ applied, unapplied: round(received - applied) });
   }
 
+  /** Qué falta antes de guardar. Los campos no llevan `id`; el armazón los localiza por control. */
+  readonly problems = signal<DraftProblem[]>([]);
+
+  cancel(): void {
+    void this.router.navigate(['..'], { relativeTo: this.route });
+  }
+
   save(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.notifications.showError('CUSTOMER_RECEIPTS.FORM.FAVOR_COMPLETA_TODOS_CAMPOS_REQUERIDOS');
+      this.problems.set(
+        draftProblems(this.form, {
+          customerId: 'CUSTOMER_RECEIPTS.LIST.CLIENTE',
+          paymentDate: 'CUSTOMER_RECEIPTS.LIST.FECHA',
+          bankAccountId: 'CUSTOMER_RECEIPTS.FORM.CUENTA_BANCARIA',
+          amountReceived: 'CUSTOMER_RECEIPTS.FORM.MONTO_RECIBIDO',
+          currencyCode: 'TREASURY.MONEDA',
+          reference: 'ACCOUNTING.RECONCILIATION.REFERENCIA',
+        }),
+      );
       return;
     }
+
+    this.problems.set([]);
     if (this.totals().unapplied < 0) {
       this.notifications.showError('CUSTOMER_RECEIPTS.FORM.APLICADO_EXCEDE_RECIBIDO');
       return;

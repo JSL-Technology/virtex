@@ -1,55 +1,43 @@
-@use '../../../../assets/styles/variables' as *;
-@use '../../../../assets/styles/forms' as mixins;
-@use '../../sales/history/history.page.scss'; // Reutiliza la base
+@use '../../../../assets/styles/form-page' as form;
+@use '../../../../assets/styles/design-system' as ds;
 
-.form-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: var(--space-6);
+:host {
+  @include form.form-page;
 
-    @media (max-width: 992px) {
-        grid-template-columns: 1fr;
-    }
-}
+  //  La zona de subida es la etiqueta entera, no un botón dentro de ella: el
+  //  `<input type="file">` nativo se oculta porque su aspecto no se puede
+  //  cambiar, y la etiqueta es lo que el navegador ya sabe que lo dispara.
+  .file-input { @include ds.visually-hidden; }
 
-.form-column {
+  .file-input-label {
     display: flex;
     flex-direction: column;
-    gap: var(--space-6);
-}
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: 9rem;
+    padding: var(--space-4);
+    border: 1px dashed var(--border-default);
+    border-radius: var(--radius-lg);
+    color: var(--content-tertiary);
+    cursor: pointer;
+    text-transform: none;
+    letter-spacing: normal;
+    font-weight: var(--font-regular);
+    @include ds.transition(border-color, color);
 
-.card {
-    .card-header {
-        padding: 1.5rem 1.5rem 0;
+    &:hover { border-color: var(--accent-solid); color: var(--content-secondary); }
 
-        h3 {
-            font-size: var(--text-lg);
-        }
+    img {
+      max-height: 12rem;
+      border-radius: var(--radius-md);
     }
+  }
 
-    .card-body {
-        padding: var(--space-6);
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-6);
-    }
+  //  El foco vive en el `<input>` oculto, así que el anillo se dibuja sobre la
+  //  etiqueta: sin esto, tabular hasta aquí no se ve.
+  .file-input:focus-visible + .file-input-label {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: 2px;
+  }
 }
-
-.form-field {
-    @include mixins.form-field;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-6);
-}
-
-input,
-select,
-textarea {
-    @include mixins.input-wrapper;
-    padding-left: var(--space-4);
-}
-
-// ... (estilos para file-upload-field como en el registro)

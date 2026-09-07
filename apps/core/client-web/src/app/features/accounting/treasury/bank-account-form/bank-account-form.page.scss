@@ -1,77 +1,46 @@
-@use "../../../../../assets/styles/view-styles" as views;
+@use '../../../../../assets/styles/form-page' as form;
+@use '../../../../../assets/styles/design-system' as ds;
 
-.form-container {
-  padding: var(--space-6);
-}
+:host {
+  @include form.form-page;
 
-.form-header {
-  margin-bottom: var(--space-6);
+  //  Este formulario asocia rótulo y control envolviendo: `<label><span>…</span>
+  //  <input></label>`. Es válido y no necesita `id`, así que se le da el mismo
+  //  aspecto que a `.form-field` en lugar de reescribir las plantillas.
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0;
 
-  h3 {
-    margin: var(--space-2) 0 0;
-  }
-}
+    > span {
+      @include ds.field-label;
+      margin-bottom: 0;
+    }
 
-.back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--text-secondary);
-  text-decoration: none;
-}
+    input:not([type='checkbox']),
+    select,
+    textarea { @include ds.input-base; }
 
-.card {
-  padding: var(--space-6);
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  gap: var(--space-4);
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-
-  input,
-  select,
-  textarea {
-    padding: var(--space-2) var(--space-3);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    background: var(--surface-raised);
-    color: var(--text-primary);
-    font: inherit;
+    textarea { min-height: 5rem; resize: vertical; }
   }
 
-  input:disabled,
-  select:disabled {
-    background: var(--surface-disabled);
-    color: var(--text-secondary);
-  }
+  .field--wide { grid-column: 1 / -1; }
 
-  &__note {
-    color: var(--text-tertiary);
-  }
-
-  &--wide {
-    grid-column: 1 / -1;
-  }
-
-  &--checkbox {
+  .field--checkbox {
     flex-direction: row;
     align-items: center;
     gap: var(--space-2);
-  }
-}
 
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--space-3);
-  margin-top: var(--space-6);
+    > span {
+      text-transform: none;
+      letter-spacing: normal;
+      font-weight: var(--font-regular);
+      color: var(--content-primary);
+    }
+  }
+
+  //  La nota bajo un campo bloqueado explica POR QUÉ no se puede cambiar. Sin
+  //  ella, un desplegable deshabilitado se lee como una avería.
+  .field__note { @include ds.field-hint; }
 }

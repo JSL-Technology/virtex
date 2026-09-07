@@ -1,66 +1,16 @@
-// app/features/masters/price-lists/price-list-form/price-list-form.page.scss
-@use '../../../../../assets/styles/view-styles' as views;
-@use '../../../../../assets/styles/forms' as mixins;
+@use '../../../../../assets/styles/form-page' as form;
+@use '../../../../../assets/styles/list-page' as list;
 
 :host {
-  display: block;
-}
+  @include form.form-page;
+  //  La sección de líneas es una tabla dentro de un formulario: necesita el
+  //  vocabulario de las dos.
+  @include list.list-page;
 
-.view-container {
-  @include views.view-container;
-}
+  .line-items-section .data-table {
+    select,
+    input { width: 100%; }
+  }
 
-.view-header {
-  @include views.view-header;
-}
-
-.form-container {
-    @include views.card;
-    padding: var(--space-8);
-}
-
-.form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-6);
-    margin-bottom: var(--space-6);
-
-     @media (max-width: 768px) {
-        grid-template-columns: 1fr;
-    }
-}
-
-.form-field {
-    @include mixins.form-field;
-}
-
-.line-items-section {
-    margin-top: var(--space-8);
-    border-top: 1px solid var(--border-color);
-    padding-top: var(--space-8);
-}
-
-.section-title {
-    font-size: var(--text-xl);
-    font-weight: var(--font-semibold);
-    margin-bottom: var(--space-6);
-}
-
-.data-table {
-    @include views.data-table;
-    td {
-        vertical-align: top;
-    }
-}
-
-.add-line-btn {
-    @include mixins.submit-button;
-    background-color: var(--bg-layer-1);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
-    margin-top: var(--space-4);
-
-    &:hover {
-        background-color: var(--bg-hover);
-    }
+  .add-line-btn { align-self: flex-start; }
 }

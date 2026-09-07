@@ -74,7 +74,7 @@
           @for (problem of problems(); track problem.message) {
             <li>
               @if (problem.fieldId) {
-                <button type="button" class="dr__problem-link" (click)="focusField.emit(problem.fieldId)">
+                <button type="button" class="dr__problem-link" (click)="focusProblem(problem.fieldId)">
                   {{ problem.message | translate: problem.params }}
                 </button>
               } @else {

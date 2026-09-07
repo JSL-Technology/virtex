@@ -1,108 +1,106 @@
-<div class="view-container">
-    <form [formGroup]="productForm" (ngSubmit)="saveProduct()">
-        <div class="view-header">
-            <div class="header-content">
-                <h1>@if(isEditMode()){ Editar } @else { Nuevo } Producto</h1>
-                <p>{{ 'INVENTORY.PRODUCT_FORM.COMPLETA_INFORMACION_DETALLADA_TU_PRODUCTO_SERVICIO' | translate }}</p>
-            </div>
-            <div class="header-actions">
-                <a routerLink="/inventory/products" class="secondary-button">{{ 'INVENTORY.PRODUCT_FORM.CANCELAR' | translate }}</a>
-                <button type="submit" class="primary-button" [disabled]="isLoading()">
-                    <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
-                    <span>@if(isLoading()){ Guardando... } @else { Guardar Producto }</span>
-                </button>
-            </div>
-        </div>
+<vx-draft-shell
+  [title]="
+    (isEditMode() ? 'INVENTORY.PRODUCT_FORM.TITLE_EDIT' : 'INVENTORY.PRODUCT_FORM.TITLE_NEW')
+      | translate
+  "
+  [subtitle]="'INVENTORY.PRODUCT_FORM.COMPLETA_INFORMACION_DETALLADA_TU_PRODUCTO_SERVICIO' | translate"
+  [dirty]="productForm.dirty"
+  [saving]="isLoading()"
+  [invalid]="productForm.invalid"
+  [problems]="problems()"
+  saveLabelKey="INVENTORY.PRODUCT_FORM.GUARDAR_PRODUCTO"
+  cancelLabelKey="INVENTORY.PRODUCT_FORM.CANCELAR"
+  (save)="saveProduct()"
+  (cancel)="cancel()"
+>
+  <div class="form-body" [formGroup]="productForm">
+    <div class="form-columns">
+      <div class="form-column">
+        <section class="form-section">
+          <h2 class="form-section-title">
+            {{ 'INVENTORY.PRODUCT_FORM.INFORMACION_BASICA' | translate }}
+          </h2>
 
-        <div class="form-grid">
-            <div class="form-column">
-                <div class="card">
-                    <div class="card-header">
-                        <h3>{{ 'INVENTORY.PRODUCT_FORM.INFORMACION_BASICA' | translate }}</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="form-field">
-                            <label for="name">{{ 'INVENTORY.PRODUCT_FORM.NOMBRE_PRODUCTO' | translate }}</label>
-                            <input id="name" formControlName="name">
-                        </div>
-                        <div class="form-field">
-                            <label for="sku">{{ 'INVENTORY.PRODUCT_FORM.SKU_CODIGO_PRODUCTO' | translate }}</label>
-                            <input id="sku" formControlName="sku">
-                        </div>
-                        <div class="form-field">
-                            <label for="description">{{ 'INVENTORY.PRODUCT_FORM.DESCRIPCION' | translate }}</label>
-                            <textarea id="description" formControlName="description" rows="5"></textarea>
-                        </div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-header">
-                        <h3>{{ 'INVENTORY.PRODUCT_FORM.IMAGEN_PRODUCTO' | translate }}</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="form-field file-upload-field">
-                            <div class="file-input-container logo-container">
-                                <input type="file" id="imageFile" (change)="onFileSelected($event)"
-                                    accept="image/png, image/jpeg">
-                                <label for="imageFile" class="file-input-label">
-                                    @if(imagePreview()){
-                                        <img [src]="imagePreview()" [alt]="'INVENTORY.PRODUCT_FORM.VISTA_PREVIA' | translate">
-                                    } @else {
-                                        <lucide-icon [img]="ImageIcon" size="32" />
-                                        <span>{{ 'INVENTORY.PRODUCT_FORM.SUBIR_IMAGEN' | translate }}</span>
-                                    }
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+          <div class="form-field">
+            <label for="name">{{ 'INVENTORY.PRODUCT_FORM.NOMBRE_PRODUCTO' | translate }}</label>
+            <input id="name" formControlName="name" />
+          </div>
+          <div class="form-field">
+            <label for="sku">{{ 'INVENTORY.PRODUCT_FORM.SKU_CODIGO_PRODUCTO' | translate }}</label>
+            <input id="sku" formControlName="sku" />
+          </div>
+          <div class="form-field">
+            <label for="description">{{ 'INVENTORY.PRODUCT_FORM.DESCRIPCION' | translate }}</label>
+            <textarea id="description" formControlName="description" rows="5"></textarea>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2 class="form-section-title">{{ 'INVENTORY.PRODUCT_FORM.IMAGEN_PRODUCTO' | translate }}</h2>
+
+          <div class="form-field file-upload-field">
+            <input
+              type="file"
+              id="imageFile"
+              class="file-input"
+              accept="image/png, image/jpeg"
+              (change)="onFileSelected($event)"
+            />
+            <label for="imageFile" class="file-input-label">
+              @if (imagePreview()) {
+                <img [src]="imagePreview()" [alt]="'INVENTORY.PRODUCT_FORM.VISTA_PREVIA' | translate" />
+              } @else {
+                <lucide-icon [img]="ImageIcon" size="32" aria-hidden="true"></lucide-icon>
+                <span>{{ 'INVENTORY.PRODUCT_FORM.SUBIR_IMAGEN' | translate }}</span>
+              }
+            </label>
+          </div>
+        </section>
+      </div>
+
+      <div class="form-column">
+        <section class="form-section">
+          <h2 class="form-section-title">{{ 'INVENTORY.PRODUCT_FORM.PRECIOS_STOCK' | translate }}</h2>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label for="price">{{ 'INVENTORY.PRODUCT_FORM.PRECIO_VENTA' | translate }}</label>
+              <input type="number" id="price" formControlName="price" />
             </div>
-            <div class="form-column">
-                <div class="card">
-                    <div class="card-header">
-                        <h3>{{ 'INVENTORY.PRODUCT_FORM.PRECIOS_STOCK' | translate }}</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="form-row">
-                            <div class="form-field">
-                                <label for="price">{{ 'INVENTORY.PRODUCT_FORM.PRECIO_VENTA' | translate }}</label>
-                                <input type="number" id="price" formControlName="price">
-                            </div>
-                            <div class="form-field">
-                                <label for="stock">{{ 'INVENTORY.PRODUCT_FORM.CANTIDAD_STOCK' | translate }}</label>
-                                <input type="number" id="stock" formControlName="stock">
-                            </div>
-                        </div>
-                        <div class="form-field">
-                            <label for="reorderLevel">{{ 'INVENTORY.PRODUCT_FORM.NIVEL_REORDEN' | translate }}</label>
-                            <input type="number" id="reorderLevel" formControlName="reorderLevel">
-                        </div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-header">
-                        <h3>{{ 'INVENTORY.PRODUCT_FORM.ORGANIZACION' | translate }}</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="form-field">
-                            <label for="category">{{ 'INVENTORY.PRODUCT_FORM.CATEGORIA' | translate }}</label>
-                            <select id="category" formControlName="category">
-                                <option value="" disabled>{{ 'INVENTORY.PRODUCT_FORM.SELECCIONAR' | translate }}</option>
-                                <option value="Electrónica">{{ 'INVENTORY.PRODUCT_FORM.ELECTRONICA' | translate }}</option>
-                                <option value="Accesorios">{{ 'INVENTORY.PRODUCT_FORM.ACCESORIOS' | translate }}</option>
-                                <option value="Monitores">{{ 'INVENTORY.PRODUCT_FORM.MONITORES' | translate }}</option>
-                            </select>
-                        </div>
-                        <div class="form-field">
-                            <label for="status">{{ 'INVENTORY.PRODUCT_FORM.ESTADO' | translate }}</label>
-                            <select id="status" formControlName="status">
-                                <option value="Active">{{ 'INVENTORY.PRODUCT_FORM.ACTIVO' | translate }}</option>
-                                <option value="Inactive">{{ 'INVENTORY.PRODUCT_FORM.INACTIVO' | translate }}</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
+            <div class="form-field">
+              <label for="stock">{{ 'INVENTORY.PRODUCT_FORM.CANTIDAD_STOCK' | translate }}</label>
+              <input type="number" id="stock" formControlName="stock" />
             </div>
-        </div>
-    </form>
-</div>
+          </div>
+
+          <div class="form-field">
+            <label for="reorderLevel">{{ 'INVENTORY.PRODUCT_FORM.NIVEL_REORDEN' | translate }}</label>
+            <input type="number" id="reorderLevel" formControlName="reorderLevel" />
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2 class="form-section-title">{{ 'INVENTORY.PRODUCT_FORM.ORGANIZACION' | translate }}</h2>
+
+          <div class="form-field">
+            <label for="category">{{ 'INVENTORY.PRODUCT_FORM.CATEGORIA' | translate }}</label>
+            <select id="category" formControlName="category">
+              <option value="" disabled>{{ 'INVENTORY.PRODUCT_FORM.SELECCIONAR' | translate }}</option>
+              <option value="Electrónica">{{ 'INVENTORY.PRODUCT_FORM.ELECTRONICA' | translate }}</option>
+              <option value="Accesorios">{{ 'INVENTORY.PRODUCT_FORM.ACCESORIOS' | translate }}</option>
+              <option value="Monitores">{{ 'INVENTORY.PRODUCT_FORM.MONITORES' | translate }}</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="status">{{ 'INVENTORY.PRODUCT_FORM.ESTADO' | translate }}</label>
+            <select id="status" formControlName="status">
+              <option value="Active">{{ 'INVENTORY.PRODUCT_FORM.ACTIVO' | translate }}</option>
+              <option value="Inactive">{{ 'INVENTORY.PRODUCT_FORM.INACTIVO' | translate }}</option>
+            </select>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</vx-draft-shell>

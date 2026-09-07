@@ -1,17 +1,24 @@
-<div class="form-container">
-  <div class="form-header">
-    <a class="back-link" routerLink="..">
-      <lucide-icon [img]="BackIcon" size="18"></lucide-icon>
-      <span>{{ 'ACCOUNTS_PAYABLE.LIST.FACTURAS_PROVEEDOR' | translate }}</span>
-    </a>
-    <h3>{{ 'ACCOUNTS_PAYABLE.PAYMENT.TITULO' | translate }}</h3>
-  </div>
-
-  @if (activeBankAccounts().length === 0) {
-    <p class="section-note">{{ 'TREASURY.SIN_CUENTAS' | translate }}</p>
-  } @else {
-    <form [formGroup]="form" (ngSubmit)="save()" class="card">
-      <div class="form-grid">
+<vx-draft-shell
+  [title]="'ACCOUNTS_PAYABLE.PAYMENT.TITULO' | translate"
+  [subtitle]="'ACCOUNTS_PAYABLE.LIST.FACTURAS_PROVEEDOR' | translate"
+  [dirty]="form.dirty"
+  [saving]="saving()"
+  [invalid]="form.invalid || lines.length === 0"
+  [problems]="problems()"
+  saveLabelKey="ACCOUNTS_PAYABLE.PAYMENT.PAGAR"
+  (save)="save()"
+  (cancel)="cancel()"
+>
+  <div class="form-body" [formGroup]="form">
+    @if (activeBankAccounts().length === 0) {
+      <!--
+        Sin cuenta bancaria activa no se puede pagar. Se dice aquí y no como un error al enviar:
+        es una precondición del documento, no un campo mal escrito.
+      -->
+      <p class="section-note">{{ 'TREASURY.SIN_CUENTAS' | translate }}</p>
+    } @else {
+      <section class="form-section">
+        <div class="form-grid">
         <label class="field">
           <span>{{ 'ACCOUNTS_PAYABLE.PAYMENT.FECHA' | translate }} *</span>
           <input type="date" formControlName="paymentDate" />
@@ -115,12 +122,7 @@
         </div>
       }
 
-      <div class="form-actions">
-        <a class="secondary-button" routerLink="..">{{ 'COMMON.CANCEL' | translate }}</a>
-        <button class="primary-button" type="submit" [disabled]="saving() || lines.length === 0">
-          {{ 'ACCOUNTS_PAYABLE.PAYMENT.PAGAR' | translate }}
-        </button>
-      </div>
-    </form>
-  }
-</div>
+      </section>
+    }
+  </div>
+</vx-draft-shell>
