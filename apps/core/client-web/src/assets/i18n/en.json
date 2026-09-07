@@ -3602,7 +3602,25 @@
   "TABS": {
     "CLOSE_TAB": "Close tab",
     "SPLIT_RIGHT": "Split right",
-    "UNDER_CONSTRUCTION": "This module is under construction. The route is registered and the tab works; the detailed view is coming soon."
+    "UNDER_CONSTRUCTION": "This module is under construction. The route is registered and the tab works; the detailed view is coming soon.",
+    "CLOSE": "Close",
+    "CLOSE_OTHERS": "Close others",
+    "CLOSE_RIGHT": "Close to the right",
+    "CLOSE_ALL": "Close all",
+    "DUPLICATE": "Duplicate",
+    "PIN": "Pin",
+    "UNPIN": "Unpin",
+    "SPLIT_BELOW": "Split below",
+    "MAXIMIZE": "Maximise",
+    "RESTORE": "Restore size",
+    "FLOAT": "Move to a floating window",
+    "MODE": "Window layout",
+    "MODE_FOCUSED": "Focused",
+    "MODE_WORKSHOP": "Workshop",
+    "MODE_COMPACT": "Compact",
+    "MODE_FOCUSED_HINT": "One window in view; the rest as tabs.",
+    "MODE_WORKSHOP_HINT": "Several windows at once: split, tile and float.",
+    "MODE_COMPACT_HINT": "Narrow screen: one window, no splitting."
   },
   "TREASURY": {
     "AL_CORTE": "As of",

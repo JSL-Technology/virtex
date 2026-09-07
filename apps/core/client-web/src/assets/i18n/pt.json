@@ -3602,7 +3602,25 @@
   "TABS": {
     "CLOSE_TAB": "Fechar aba",
     "SPLIT_RIGHT": "Dividir à direita",
-    "UNDER_CONSTRUCTION": "Este módulo está em construção. A rota já está registrada e a aba funciona; a visão detalhada estará disponível em breve."
+    "UNDER_CONSTRUCTION": "Este módulo está em construção. A rota já está registrada e a aba funciona; a visão detalhada estará disponível em breve.",
+    "CLOSE": "Fechar",
+    "CLOSE_OTHERS": "Fechar as outras",
+    "CLOSE_RIGHT": "Fechar as da direita",
+    "CLOSE_ALL": "Fechar todas",
+    "DUPLICATE": "Duplicar",
+    "PIN": "Fixar",
+    "UNPIN": "Desafixar",
+    "SPLIT_BELOW": "Dividir abaixo",
+    "MAXIMIZE": "Maximizar",
+    "RESTORE": "Restaurar tamanho",
+    "FLOAT": "Levar para uma janela flutuante",
+    "MODE": "Disposição das janelas",
+    "MODE_FOCUSED": "Focado",
+    "MODE_WORKSHOP": "Oficina",
+    "MODE_COMPACT": "Compacto",
+    "MODE_FOCUSED_HINT": "Uma janela à vista; as demais em abas.",
+    "MODE_WORKSHOP_HINT": "Várias janelas ao mesmo tempo: dividir, mosaico e flutuantes.",
+    "MODE_COMPACT_HINT": "Tela estreita: uma janela, sem divisões."
   },
   "TREASURY": {
     "AL_CORTE": "Em",
