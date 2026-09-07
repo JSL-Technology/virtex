@@ -88,6 +88,6 @@ import { AuditModule } from '../audit/audit.module';
     JournalsController,
     AdjustmentsController,
   ],
-  exports: [JournalEntriesService, JournalEntryNumberingService],
+  exports: [JournalEntriesService, JournalEntryNumberingService, FileParserService],
 })
 export class JournalEntriesModule {}
