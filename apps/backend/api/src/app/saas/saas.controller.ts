@@ -8,6 +8,8 @@ import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interfa
 import { Public } from '../auth/decorators/public.decorator';
 import type { HttpRequest as Request } from '../common/http/http.types';
 import { AllowInactiveSubscription } from './decorators/allow-inactive-subscription.decorator';
+import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { PERMISSIONS } from '../shared/permissions';
 
 /**
  * Plans and usage remain visible to a suspended tenant: they are what explains the suspension and
@@ -33,6 +35,7 @@ export class SaasController {
   }
 
   @Get('usage')
+  @HasPermission(PERMISSIONS.BILLING_VIEW)
   @UseGuards(AuthGuard('jwt'))
   async getUsage(@Req() req: Request) {
     const user = (req as unknown as { user: AuthenticatedUser }).user;

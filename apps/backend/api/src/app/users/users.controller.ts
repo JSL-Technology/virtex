@@ -32,6 +32,7 @@ import { ListUsersQueryDto } from './dto/list-users-query.dto';
 import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
 import { BadRequestError } from '../i18n/localized.exception';
+import { AuthenticatedOnly } from '../auth/decorators/authenticated-only.decorator';
 
 @ApiTags('Users')
 @Controller('users')
@@ -46,6 +47,10 @@ export class UsersController {
   ) {}
 
   @Get('job-titles')
+  @AuthenticatedOnly(
+    'Acts on the caller\'s own profile. Editing SOMEBODY ELSE\'s user record is PATCH /users/:id,\n' +
+    'which declares USERS_EDIT.',
+  )
   @ApiOperation({ summary: 'Get list of available job titles' })
   getJobTitles() {
     return Object.values(JobTitle);
@@ -97,6 +102,10 @@ export class UsersController {
   }
 
   @Get('profile')
+  @AuthenticatedOnly(
+    'Acts on the caller\'s own profile. Editing SOMEBODY ELSE\'s user record is PATCH /users/:id,\n' +
+    'which declares USERS_EDIT.',
+  )
   @ApiOperation({ summary: 'Get current user profile' })
   async getProfile(@CurrentUser() user: AuthenticatedUser) {
     // Scoped to the tenant the request is acting in: a person who works for two customers must
@@ -106,6 +115,10 @@ export class UsersController {
   }
 
   @Patch('profile')
+  @AuthenticatedOnly(
+    'Acts on the caller\'s own profile. Editing SOMEBODY ELSE\'s user record is PATCH /users/:id,\n' +
+    'which declares USERS_EDIT.',
+  )
   @UseGuards(CsrfGuard)
   @ApiOperation({ summary: 'Update current user profile' })
   async updateProfile(
@@ -125,6 +138,10 @@ export class UsersController {
   // ------------------------------------------------------------------
 
   @Post('profile/email-change/request')
+  @AuthenticatedOnly(
+    'Acts on the caller\'s own profile. Editing SOMEBODY ELSE\'s user record is PATCH /users/:id,\n' +
+    'which declares USERS_EDIT.',
+  )
   @UseGuards(CsrfGuard, StepUpGuard)
   @StepUp(StepUpScope.CHANGE_EMAIL)
   @HttpCode(HttpStatus.OK)
@@ -149,6 +166,10 @@ export class UsersController {
   }
 
   @Post('profile/email-change/confirm')
+  @AuthenticatedOnly(
+    'Acts on the caller\'s own profile. Editing SOMEBODY ELSE\'s user record is PATCH /users/:id,\n' +
+    'which declares USERS_EDIT.',
+  )
   @UseGuards(CsrfGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Confirm email change via token' })
@@ -161,6 +182,10 @@ export class UsersController {
   }
 
   @Post('profile/avatar')
+  @AuthenticatedOnly(
+    'Acts on the caller\'s own profile. Editing SOMEBODY ELSE\'s user record is PATCH /users/:id,\n' +
+    'which declares USERS_EDIT.',
+  )
   @UseGuards(ThrottlerGuard, CsrfGuard)
   @ApiOperation({ summary: 'Upload avatar for current user' })
   @UseInterceptors(FastifyFileInterceptor('file', {

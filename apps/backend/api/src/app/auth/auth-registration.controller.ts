@@ -36,6 +36,8 @@ import { SaasService } from '../saas/saas.service';
 import { FrontendUrlService } from '../mail/frontend-url.service';
 import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
 import { BadRequestError, UnauthorizedError } from '../i18n/localized.exception';
+import { HasPermission } from './decorators/permissions.decorator';
+import { PERMISSIONS } from '../shared/permissions';
 
 /**
  * Signup and checkout.
@@ -231,6 +233,7 @@ export class AuthRegistrationController {
   }
 
   @Post('create-checkout-session')
+  @HasPermission(PERMISSIONS.BILLING_MANAGE)
   @ApiOperation({ summary: 'Create a Stripe checkout session for a selected plan' })
   @UseGuards(JwtAuthGuard, CsrfGuard)
   async createCheckoutSession(

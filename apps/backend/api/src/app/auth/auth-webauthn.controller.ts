@@ -21,6 +21,7 @@ import { VerifyWebAuthnAuthDto } from './dto/verify-webauthn-auth.dto';
 import { VerifyWebAuthnRegistrationDto } from './dto/security-audit.dto';
 import { WebAuthnLoginOptionsDto } from './dto/auth-payloads.dto';
 import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
+import { AuthenticatedOnly } from './decorators/authenticated-only.decorator';
 
 /**
  * WebAuthn / passkeys (FIDO2). Split out of `AuthController`; every route keeps its exact guards.
@@ -32,6 +33,10 @@ import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-sub
 @ApiTags('Auth')
 @AllowInactiveSubscription()
 @Controller('auth')
+@AuthenticatedOnly(
+  'Registering a passkey against the caller\'s own account. The login half of WebAuthn is @Public()\n' +
+  'because it runs before there is a session to check.',
+)
 export class AuthWebAuthnController {
   constructor(
     private readonly authService: AuthService,

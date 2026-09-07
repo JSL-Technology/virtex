@@ -1,6 +1,8 @@
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException, Type } from '@nestjs/common';
 import { Reflector, ModuleRef } from '@nestjs/core';
 import { PERMISSIONS_KEY } from '../../decorators/permissions.constants';
+import { IS_PUBLIC_KEY } from '../../decorators/public.decorator';
+import { AUTHENTICATED_ONLY_KEY } from '../../decorators/authenticated-only.decorator';
 import { Permission } from '../../../shared/permissions';
 import { AuthenticatedRequest, hasPermission } from '@virteex/shared/util-auth';
 
@@ -29,12 +31,51 @@ export class PermissionsGuard implements CanActivate {
       context.getClass(),
     ]);
 
-    if (!requiredPermissions) {
-      return true;
-    }
-
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const { user } = request;
+
+    if (!requiredPermissions) {
+      // Nothing declared. This used to return true, and that default is why the control did not
+      // hold: 102 route handlers reached production reachable by any authenticated member of the
+      // tenant — creating a product, editing a supplier, reading the finance dashboard, querying
+      // the analytical store — not because anyone judged them open, but because declaring a
+      // requirement per endpoint means forgetting it per endpoint. The same failure was already
+      // measured twice in this codebase, on CSRF ("4 of 50") and on entitlement ("1 of 67"), and
+      // both were fixed the same way: make the guard global and the exemption explicit.
+      //
+      // So the default is now deny, and a route with no permission requirement has to say so with
+      // @AuthenticatedOnly(reason) — which forces the author to write down why, and the reviewer
+      // to agree with a sentence rather than with an absence.
+      if (this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+        context.getHandler(),
+        context.getClass(),
+      ])) {
+        // Unauthenticated by design; JwtAuthGuard already let it through and there is no user to
+        // check permissions against.
+        return true;
+      }
+
+      const authenticatedOnly = this.reflector.getAllAndOverride<string>(AUTHENTICATED_ONLY_KEY, [
+        context.getHandler(),
+        context.getClass(),
+      ]);
+
+      if (authenticatedOnly) {
+        // Being signed in IS the authorisation for this route, and the author said why.
+        if (!user) {
+          throw new ForbiddenError('AUTH.NO_TIENES_PERMISOS_REALIZAR_ESTA_ACCION');
+        }
+        return true;
+      }
+
+      // Fail closed, and make the omission loud rather than silent: a route that reaches here is
+      // a bug in the route, not in the request, and it is invisible to the caller by design.
+      this.logger.error(
+        `Route declares neither @HasPermission nor @AuthenticatedOnly and is therefore denied: ` +
+          `${context.getClass().name}.${context.getHandler().name}`,
+      );
+      throw new ForbiddenError('AUTH.NO_TIENES_PERMISOS_REALIZAR_ESTA_ACCION');
+    }
 
     if (!user || !user.permissions) {
         throw new ForbiddenError('AUTH.NO_TIENES_PERMISOS_REALIZAR_ESTA_ACCION');

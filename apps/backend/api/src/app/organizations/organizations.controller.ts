@@ -27,6 +27,9 @@ import { UserResponseDto } from '../auth/dto/user-response.dto';
 import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { ForbiddenError } from '../i18n/localized.exception';
+import { AuthenticatedOnly } from '../auth/decorators/authenticated-only.decorator';
+import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { PERMISSIONS } from '../shared/permissions';
 
 @Controller('organizations')
 @UseGuards(JwtAuthGuard)
@@ -53,6 +56,10 @@ export class OrganizationsController {
   // would trap them there.
   @AllowInactiveSubscription()
   @Get('memberships')
+  @AuthenticatedOnly(
+    'The tenants this person belongs to. It is the list they choose from before any tenant context\n' +
+    'exists, so it cannot be gated by a permission granted inside one.',
+  )
   async getMemberships(@CurrentUser() user: AuthenticatedUser) {
     return this.membershipService.listFor(user.id, user.organizationId);
   }
@@ -70,6 +77,11 @@ export class OrganizationsController {
    */
   @AllowInactiveSubscription()
   @Post('switch')
+  @AuthenticatedOnly(
+    'Moves the session to another tenant this person is already a member of. Membership is re-checked\n' +
+    'against the database inside the handler; a permission would have to be granted per tenant to say\n' +
+    'the same thing twice.',
+  )
   @HttpCode(HttpStatus.OK)
   async switchOrganization(
     @CurrentUser() user: AuthenticatedUser,
@@ -121,6 +133,11 @@ export class OrganizationsController {
   }
 
   @Get('profile')
+  @AuthenticatedOnly(
+    'The company header every screen renders — name, tax id, logo, base currency. Withholding it from\n' +
+    'a member would leave the shell unable to draw itself. Editing it is PATCH /profile, which\n' +
+    'requires organization ownership.',
+  )
   async getProfile(@CurrentUser() user: AuthenticatedUser) {
     // Serialised, not returned raw. The entity carries `stripe_customer_id` and
     // `stripe_subscription_id`, which OrganizationResponseDto excludes on purpose — this endpoint
@@ -141,6 +158,7 @@ export class OrganizationsController {
   }
 
   @Get('subsidiaries')
+  @HasPermission(PERMISSIONS.SETTINGS_EDIT_COMPANY)
   async getSubsidiaries(@CurrentUser() user: AuthenticatedUser) {
     return this.organizationsService.getSubsidiaries(user.organizationId);
   }

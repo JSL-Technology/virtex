@@ -24,6 +24,7 @@ import {
 } from '../dto/withholding-regime.dto';
 import { coverageFor } from '../fiscal/fiscal-coverage';
 import { OrganizationsService } from '../../organizations/organizations.service';
+import { AuthenticatedOnly } from '../../auth/decorators/authenticated-only.decorator';
 
 /**
  * The withholding regimes a tenant maintains, and what this product covers in their market.
@@ -51,6 +52,10 @@ export class WithholdingRegimesController {
    * fiscal adapter that returned nulls.
    */
   @Get('fiscal-coverage')
+  @AuthenticatedOnly(
+    'Which countries the product can issue and withhold in. A statement about Virtex, not about the\n' +
+    'tenant, and the same answer for every caller.',
+  )
   @ApiOperation({ summary: 'Qué cubre el producto en el mercado del contribuyente.' })
   async coverage(@CurrentUser() user: AuthenticatedUser) {
     const organization = await this.organizations.findOne(user.organizationId);
