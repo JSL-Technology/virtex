@@ -1,41 +1,27 @@
-<nav class="sidebar">
+<nav class="sidebar" [attr.aria-label]="'SHELL.MODULE_PANEL' | translate">
+  @if (module(); as active) {
+    <h2 class="module-title">{{ active.titleKey | translate }}</h2>
+  }
+
   <div class="sidebar-body">
-    @for (group of menuGroups; track group.groupTranslationKey) {
+    @for (section of sections(); track section.group) {
       <div class="menu-group">
-        <h2 class="group-title">{{ group.groupTranslationKey | translate }}</h2>
+        <h3 class="group-title">{{ section.labelKey | translate }}</h3>
 
-        @for (item of group.items; track item.translationKey) {
-          <div class="menu-item-container">
-
-            @if (!item.subItems) {
-              <a class="menu-item" [routerLink]="item.path" routerLinkActive="active">
-                <lucide-icon [img]="item.icon" size="16" class="item-icon"></lucide-icon>
-                <span class="label">{{ item.translationKey | translate }}</span>
-              </a>
-            }
-
-            @if (item.subItems) {
-              <button class="menu-item expandable"
-                      [class.expanded]="item.isExpanded"
-                      (click)="toggleSubMenu(item)">
-                <lucide-icon [img]="item.icon" size="16" class="item-icon"></lucide-icon>
-                <span class="label">{{ item.translationKey | translate }}</span>
-                <lucide-icon [img]="ChevronDownIcon" size="14" class="chevron-icon"></lucide-icon>
-              </button>
-
-              <div class="sub-menu" [class.show]="item.isExpanded">
-                @for (subItem of item.subItems; track subItem.path) {
-                  <a class="sub-menu-item" [routerLink]="subItem.path" routerLinkActive="active">
-                    <span class="sub-dot"></span>
-                    <span class="label">{{ subItem.translationKey | translate }}</span>
-                  </a>
-                }
-              </div>
-            }
-
-          </div>
+        @for (entry of section.entries; track entry.path) {
+          <a
+            class="menu-item"
+            [routerLink]="entry.path"
+            [class.active]="entry.path === activeEntry()"
+            [attr.aria-current]="entry.path === activeEntry() ? 'page' : null"
+          >
+            <lucide-icon [img]="entry.icon" size="16" class="item-icon" aria-hidden="true"></lucide-icon>
+            <span class="label">{{ entry.labelKey | translate }}</span>
+          </a>
         }
       </div>
+    } @empty {
+      <p class="menu-empty">{{ 'SHELL.NO_ENTRIES' | translate }}</p>
     }
   </div>
 </nav>

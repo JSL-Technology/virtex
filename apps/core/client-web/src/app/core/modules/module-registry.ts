@@ -129,17 +129,21 @@ const GROUP_ORDER: MenuGroup[] = ['inbox', 'documents', 'masters', 'analysis'];
 export function buildMenu(module: ModuleManifest): MenuSection[] {
   const sections = new Map<MenuGroup, MenuEntry[]>();
 
-  for (const route of module.routes) {
-    if (!route.menu) continue;
-    const entry: MenuEntry = {
-      path: fullPath(module, route),
-      labelKey: route.menu.labelKey,
-      icon: route.icon ?? module.icon,
-      permission: route.permission,
-    };
-    const list = sections.get(route.menu.group);
-    if (list) list.push(entry);
-    else sections.set(route.menu.group, [entry]);
+  // The module's own routes first, then its satellites' — the ones that own a different URL prefix
+  // but belong to this module's panel. Without this, a satellite's screens appear in no menu.
+  for (const source of [module, ...satellitesOf(module)]) {
+    for (const route of source.routes) {
+      if (!route.menu) continue;
+      const entry: MenuEntry = {
+        path: fullPath(source, route),
+        labelKey: route.menu.labelKey,
+        icon: route.icon ?? source.icon,
+        permission: route.permission,
+      };
+      const list = sections.get(route.menu.group);
+      if (list) list.push(entry);
+      else sections.set(route.menu.group, [entry]);
+    }
   }
 
   return GROUP_ORDER.filter((g) => sections.has(g)).map((group) => ({
@@ -148,7 +152,31 @@ export function buildMenu(module: ModuleManifest): MenuSection[] {
   }));
 }
 
-/** Modules shown in the rail, in business order. */
+/** Manifests whose entries belong to this module's panel, in their declared order. */
+export function satellitesOf(module: ModuleManifest): ModuleManifest[] {
+  return MODULES.filter((m) => m.panelOf === module.id);
+}
+
+/**
+ * The module whose panel a route belongs to.
+ *
+ * A satellite resolves to its owner, so opening `/masters/warehouses` shows the Inventory panel
+ * rather than a panel of its own with one entry in it.
+ */
+export function ownerOf(module: ModuleManifest): ModuleManifest {
+  if (!module.panelOf) return module;
+  return MODULES.find((m) => m.id === module.panelOf) ?? module;
+}
+
+/**
+ * Modules shown in the rail, in business order.
+ *
+ * Satellites are excluded because they are not places — they are parts of a place that happen to
+ * live under another URL prefix. Two rail buttons both reading "Tesorería" is what the alternative
+ * looked like.
+ */
 export function railModules(): ModuleManifest[] {
-  return MODULES.filter((m) => !m.hidden && m.routes.some((r) => r.menu));
+  return MODULES.filter(
+    (m) => !m.hidden && !m.panelOf && buildMenu(m).some((section) => section.entries.length > 0),
+  );
 }

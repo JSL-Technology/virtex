@@ -4135,5 +4135,15 @@
     "PERIOD_CLOSED": "Período {{period}} fechado",
     "ONLINE": "Ligado",
     "OFFLINE": "Sem ligação"
+  },
+  "SHELL": {
+    "MODULE_RAIL": "Módulos",
+    "MODULE_LOCKED": "Sem acesso",
+    "MODULE_PANEL": "Seções do módulo",
+    "GROUP_INBOX": "Caixa de entrada",
+    "GROUP_DOCUMENTS": "Documentos",
+    "GROUP_MASTERS": "Cadastros",
+    "GROUP_ANALYSIS": "Análise",
+    "NO_ENTRIES": "Este módulo não tem seções disponíveis com suas permissões."
   }
 }

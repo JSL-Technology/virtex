@@ -1,0 +1,23 @@
+<div class="mm">
+  @for (section of sections(); track section.group) {
+    <div class="mm__column">
+      <h3 class="mm__group">{{ section.labelKey | translate }}</h3>
+      <ul class="mm__list">
+        @for (entry of section.entries; track entry.path) {
+          <li>
+            <a
+              class="mm__entry"
+              [routerLink]="entry.path"
+              [class.mm__entry--active]="entry.path === activeEntry()"
+              [attr.aria-current]="entry.path === activeEntry() ? 'page' : null"
+              (click)="chosen.emit(entry.path)"
+            >
+              <lucide-icon [img]="entry.icon" size="15" class="mm__icon" aria-hidden="true"></lucide-icon>
+              <span class="mm__label">{{ entry.labelKey | translate }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+    </div>
+  }
+</div>

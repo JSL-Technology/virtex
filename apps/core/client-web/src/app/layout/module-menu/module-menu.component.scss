@@ -1,0 +1,84 @@
+@use '../../../assets/styles/design-system' as ds;
+
+:host { display: block; }
+
+// ── Mega-menú ─────────────────────────────────────────────────────
+//  Los mismos cuatro grupos del panel vertical, girados noventa grados. Las
+//  columnas se envuelven en lugar de comprimirse: un módulo con veintiún
+//  destinos —Contabilidad lo es— produce dos filas de columnas legibles, no
+//  cuatro columnas ilegibles.
+.mm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-6) var(--space-8);
+  padding: var(--space-5) var(--space-6);
+  max-width: min(92vw, 900px);
+  max-height: min(70vh, 560px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.mm__column {
+  min-width: 11rem;
+  flex: 0 1 auto;
+}
+
+.mm__group {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-2xs);
+  font-weight: var(--font-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+}
+
+.mm__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.mm__entry {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-2);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  @include ds.transition(background-color, color);
+
+  &:hover {
+    background-color: var(--bg-hover);
+    color: var(--text-primary);
+
+    .mm__icon { color: var(--primary); }
+  }
+
+  @include ds.focus-ring(2px);
+}
+
+.mm__entry--active {
+  color: var(--primary);
+  font-weight: var(--font-semibold);
+
+  .mm__icon { color: var(--primary); }
+}
+
+.mm__icon {
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+  @include ds.transition(color);
+}
+
+.mm__label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -4135,5 +4135,15 @@
     "PERIOD_CLOSED": "Period {{period}} closed",
     "ONLINE": "Connected",
     "OFFLINE": "Offline"
+  },
+  "SHELL": {
+    "MODULE_RAIL": "Modules",
+    "MODULE_LOCKED": "No access",
+    "MODULE_PANEL": "Module sections",
+    "GROUP_INBOX": "Inbox",
+    "GROUP_DOCUMENTS": "Documents",
+    "GROUP_MASTERS": "Master data",
+    "GROUP_ANALYSIS": "Analysis",
+    "NO_ENTRIES": "This module has no sections available with your permissions."
   }
 }

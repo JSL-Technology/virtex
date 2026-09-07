@@ -83,7 +83,7 @@ export const DATASHEETS_MODULE: ModuleManifest = {
   icon: 'Table2',
   basePath: 'datasheets',
   order: 8.1,
-  hidden: true,
+  panelOf: 'analisis',
   routes: [
     {
       path: '',
