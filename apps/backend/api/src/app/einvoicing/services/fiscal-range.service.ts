@@ -143,6 +143,63 @@ export class FiscalRangeService {
   }
 
   /**
+   * The range a number already issued came from, without drawing anything.
+   *
+   * Needed because building the document happens after the number was assigned, and two regimes
+   * need something the range holds: Chile seals the document's timbre with the CAF's own RSA key,
+   * and Colombia computes the CUFE with the resolution's technical key. Looking those up by "the
+   * active range" would be wrong the moment a range is superseded — a document numbered 9 from CAF
+   * A, built after CAF B was registered, must still be sealed with A's key or the SII rejects it.
+   *
+   * So the lookup is by containment: the range whose bounds enclose the number.
+   */
+  async rangeContaining(
+    manager: EntityManager,
+    criteria: {
+      organizationId: string;
+      countryCode: string;
+      documentType: string;
+      number: number;
+      series?: string;
+    },
+  ): Promise<FiscalDocumentRange> {
+    const query = manager
+      .getRepository(FiscalDocumentRange)
+      .createQueryBuilder('range')
+      .where(
+        'range.organizationId = :organizationId AND range.countryCode = :countryCode ' +
+          'AND range.documentType = :documentType ' +
+          'AND range.startsAt <= :number AND range.endsAt >= :number',
+        {
+          organizationId: criteria.organizationId,
+          countryCode: criteria.countryCode.toUpperCase(),
+          documentType: criteria.documentType,
+          number: criteria.number,
+        },
+      );
+
+    if (criteria.series !== undefined) {
+      query.andWhere('range.series = :series', { series: criteria.series });
+    }
+
+    // Newest first: overlapping ranges should not exist, and if two ever do the later
+    // authorisation is the one a document issued today was drawn from.
+    const range = await query.orderBy('range.startsAt', 'DESC').getOne();
+    if (!range) {
+      throw new BadRequestError('EINVOICING.RANGO_FISCAL_NO_CONTIENE_NUMERO', {
+        type: criteria.documentType,
+        number: String(criteria.number),
+      });
+    }
+    return range;
+  }
+
+  /** The decrypted secret of a range, for a caller that already holds the row. */
+  secretOfRange(range: FiscalDocumentRange): string {
+    return this.secretOf(range);
+  }
+
+  /**
    * Series conventions an authority enforces, checked when the range is registered.
    *
    * Only Peru has one that can be got wrong silently. SUNAT identifies a comprobante by

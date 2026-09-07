@@ -28,7 +28,12 @@ describe('SUNAT — comprobante de pago electrónico', () => {
 
   const invoice = {
     id: 'inv-1',
-    invoiceNumber: '123',
+    invoiceNumber: 'FAC-9',
+    // The AUTHORISED number, which is what the authority reads. `invoiceNumber` is this product's
+    // own document sequence and carries no fiscal force: the builders used to read it, so a
+    // document would have gone out numbered from the internal counter rather than from the range
+    // the authority granted.
+    ncfNumber: 'F001-00000123',
     customerId: 'cus-1',
     issueDate: '2026-06-10',
     dueDate: '2026-07-10',

@@ -4,6 +4,7 @@ import { Organization } from '../../../organizations/entities/organization.entit
 import { Customer } from '../../../customers/entities/customer.entity';
 import { roundToCurrency } from '../../../common/money';
 import { BadRequestError } from '../../../i18n/localized.exception';
+import { fiscalConsecutive } from '../fiscal-number';
 
 /**
  * Peru — comprobante de pago electrónico, SUNAT, UBL 2.1.
@@ -43,7 +44,7 @@ export class SunatBuilder {
     const amount = (value: number) => roundToCurrency(value, currency).toFixed(2);
     const ruc = (organization.taxId ?? '').replace(/\D/g, '');
     const documentType = this.documentType(input);
-    const correlative = this.correlative(invoice.invoiceNumber ?? '');
+    const correlative = this.correlative(fiscalConsecutive(invoice));
 
     const root = xmlbuilder
       .create(invoice.type === InvoiceType.CREDIT_NOTE ? 'CreditNote' : 'Invoice', {

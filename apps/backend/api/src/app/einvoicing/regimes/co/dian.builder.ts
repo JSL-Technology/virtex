@@ -5,6 +5,7 @@ import { Organization } from '../../../organizations/entities/organization.entit
 import { Customer } from '../../../customers/entities/customer.entity';
 import { roundToCurrency } from '../../../common/money';
 import { BadRequestError } from '../../../i18n/localized.exception';
+import { fiscalNumber } from '../fiscal-number';
 
 /**
  * Colombia — factura electrónica DIAN, UBL 2.1.
@@ -81,7 +82,9 @@ export class DianBuilder {
     const amount = (value: number) => roundToCurrency(value, currency).toFixed(2);
 
     const parts = [
-      invoice.invoiceNumber ?? '',
+      // NumFac is the AUTHORISED number, not the internal one: the DIAN recomputes the CUFE from
+      // the number it granted, and a CUFE over `FAC-1` reproduces nothing.
+      fiscalNumber(invoice),
       this.date(invoice.issueDate),
       this.time(invoice.issueDate),
       amount(invoice.subtotal),
@@ -137,7 +140,7 @@ export class DianBuilder {
     root.ele('cbc:CustomizationID', {}, '10');
     root.ele('cbc:ProfileID', {}, 'DIAN 2.1');
     root.ele('cbc:ProfileExecutionID', {}, input.environment);
-    root.ele('cbc:ID', {}, invoice.invoiceNumber ?? '');
+    root.ele('cbc:ID', {}, fiscalNumber(invoice));
     root.ele('cbc:UUID', { schemeName: 'CUFE-SHA384' }, cufe);
     root.ele('cbc:IssueDate', {}, this.date(invoice.issueDate));
     root.ele('cbc:IssueTime', {}, this.time(invoice.issueDate));

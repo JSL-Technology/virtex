@@ -127,6 +127,10 @@ export class CfdiRegimeAdapter implements FiscalRegimeAdapter {
   }
 
   /** The tenant's active CSD, decrypted in memory for the length of one signature. */
+  loadCertificate(context: FiscalRegimeContext): Promise<LoadedCertificate> {
+    return this.certificate(context.organizationId, context.manager);
+  }
+
   private async certificate(
     organizationId: string,
     manager: FiscalRegimeContext['manager'],

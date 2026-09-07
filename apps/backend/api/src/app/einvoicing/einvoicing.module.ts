@@ -26,6 +26,15 @@ import { EinvoicingController } from './einvoicing.controller';
 import { FiscalRangeService } from './services/fiscal-range.service';
 import { XmlSignatureService } from './regimes/xml-signature.service';
 import { RegimeTransportService } from './regimes/regime-transport.service';
+import { FiscalRegimeRegistry } from './regimes/fiscal-regime.registry';
+import { CfdiRegimeAdapter } from './regimes/mx/cfdi.adapter';
+import { PacProvider } from './regimes/mx/pac.provider';
+import { DianRegimeAdapter } from './regimes/co/dian.adapter';
+import { SunatRegimeAdapter } from './regimes/pe/sunat.adapter';
+import { SriRegimeAdapter } from './regimes/ec/sri.adapter';
+import { SiiRegimeAdapter } from './regimes/cl/sii.adapter';
+import { NfeRegimeAdapter } from './regimes/br/nfe.adapter';
+import { AfipRegimeAdapter } from './regimes/ar/afip.adapter';
 
 /**
  * Electronic invoicing (e-CF) for the Dominican Republic: certificate vault, DGII authentication,
@@ -70,6 +79,18 @@ import { RegimeTransportService } from './regimes/regime-transport.service';
     FiscalRangeService,
     XmlSignatureService,
     RegimeTransportService,
+    // The seven regimes themselves. Until they were registered here the container had never heard
+    // of them: the builders were tested standalone and nothing could reach them at issuance, which
+    // is exactly what H18 describes.
+    PacProvider,
+    CfdiRegimeAdapter,
+    DianRegimeAdapter,
+    SunatRegimeAdapter,
+    SriRegimeAdapter,
+    SiiRegimeAdapter,
+    NfeRegimeAdapter,
+    AfipRegimeAdapter,
+    FiscalRegimeRegistry,
   ],
   exports: [
     EcfSubmissionService,
@@ -80,6 +101,7 @@ import { RegimeTransportService } from './regimes/regime-transport.service';
     FiscalRangeService,
     XmlSignatureService,
     RegimeTransportService,
+    FiscalRegimeRegistry,
   ],
 })
 export class EinvoicingModule {}

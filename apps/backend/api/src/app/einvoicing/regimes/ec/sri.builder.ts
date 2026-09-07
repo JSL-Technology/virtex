@@ -4,6 +4,7 @@ import { Organization } from '../../../organizations/entities/organization.entit
 import { Customer } from '../../../customers/entities/customer.entity';
 import { roundToCurrency } from '../../../common/money';
 import { BadRequestError } from '../../../i18n/localized.exception';
+import { fiscalConsecutive } from '../fiscal-number';
 
 /**
  * Ecuador — comprobante electrónico, SRI.
@@ -58,7 +59,7 @@ export class SriBuilder {
       (organization.taxId ?? '').replace(/\D/g, '').padStart(13, '0').slice(0, 13),
       input.environment,
       `${input.establishment}${input.emissionPoint}`,
-      this.sequential(invoice.invoiceNumber ?? ''),
+      this.sequential(fiscalConsecutive(invoice)),
       input.numericCode.replace(/\D/g, '').padStart(8, '0').slice(0, 8),
       // `1` emisión normal. Contingency emission is `2` and is a different operational state.
       '1',
@@ -106,7 +107,7 @@ export class SriBuilder {
     info.ele('codDoc', {}, this.documentType(invoice));
     info.ele('estab', {}, input.establishment);
     info.ele('ptoEmi', {}, input.emissionPoint);
-    info.ele('secuencial', {}, this.sequential(invoice.invoiceNumber ?? ''));
+    info.ele('secuencial', {}, this.sequential(fiscalConsecutive(invoice)));
     info.ele('dirMatriz', {}, organization.address ?? '');
 
     const infoFactura = root.ele('infoFactura');

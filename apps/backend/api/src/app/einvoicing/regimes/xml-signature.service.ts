@@ -70,9 +70,12 @@ export class XmlSignatureService {
     signer.addReference({
       xpath:
         options.referenceXpath ??
-        (isWholeDocument
-          ? `//*[local-name(.)='${options.appendTo}']`
-          : `//*[@Id='${referenceUri.replace(/^#/, '')}']`),
+        // Where the signature GOES is not what it COVERS, and deriving one from the other is a
+        // bug that hides: it works whenever the signature is appended to the root, and produces a
+        // digest over the wrong element the moment it is not. Colombia and Peru both require the
+        // signature inside `ext:ExtensionContent` while the reference covers the whole invoice, so
+        // an empty URI means the document root — `/*` — and never `appendTo`.
+        (isWholeDocument ? '/*' : `//*[@Id='${referenceUri.replace(/^#/, '')}']`),
       transforms: [XmlSignatureService.ENVELOPED, XmlSignatureService.C14N],
       digestAlgorithm: XmlSignatureService.SHA256,
       uri: referenceUri,
@@ -104,6 +107,25 @@ export class XmlSignatureService {
     signer.update(plaintext, 'utf8');
     signer.end();
     return signer.sign(certificate.privateKeyPem).toString('base64');
+  }
+
+  /**
+   * An RSA-SHA1 seal over a string, base64, with a key that is not a certificate's.
+   *
+   * Exactly one thing needs this, and it needs it for a reason that is not negotiable: Chile's
+   * `TED` is sealed with **SHA1withRSA**, using the RSA key the SII issued inside the CAF rather
+   * than the taxpayer's certificate. The SII's verifier uses SHA-1 for the timbre whatever the
+   * rest of the document is signed with, so a SHA-256 seal here is rejected as an invalid timbre.
+   *
+   * SHA-1 is broken for collision resistance and must not be used for anything else. It is kept
+   * separate from `seal` — rather than added as an algorithm parameter — so that no other regime
+   * can reach it by passing an argument, and so this comment sits on the only call site.
+   */
+  sealSha1(plaintext: string, privateKeyPem: string): string {
+    const signer = crypto.createSign('RSA-SHA1');
+    signer.update(plaintext, 'utf8');
+    signer.end();
+    return signer.sign(privateKeyPem).toString('base64');
   }
 
   /** The certificate's DER bytes, base64, with the PEM armour removed. */

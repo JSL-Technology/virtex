@@ -86,6 +86,17 @@ export interface FiscalRegimeAdapter {
   /** The document in the authority's schema, with its computed key. Unsigned. */
   build(context: FiscalRegimeContext): Promise<SealedFiscalDocument>;
 
+  /**
+   * The taxpayer's active certificate for this regime, decrypted for the length of one signature.
+   *
+   * Part of the interface rather than each adapter's private business because `seal` takes the
+   * certificate as an argument, so whoever orchestrates the four steps has to obtain it — and the
+   * only thing that knows which stored certificate belongs to this regime is the regime. Throws
+   * `RegimeNotConfigured` when the tenant has not uploaded one, which is a settings problem and
+   * not a defective document.
+   */
+  loadCertificate(context: FiscalRegimeContext): Promise<LoadedCertificate>;
+
   /** The same document, sealed with the taxpayer's certificate. */
   seal(document: SealedFiscalDocument, certificate: LoadedCertificate): SealedFiscalDocument;
 

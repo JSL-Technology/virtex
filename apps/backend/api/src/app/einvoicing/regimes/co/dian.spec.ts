@@ -29,7 +29,12 @@ describe('DIAN — factura electrónica', () => {
 
   const invoice = {
     id: 'inv-1',
-    invoiceNumber: 'SETP990000001',
+    invoiceNumber: 'FAC-9',
+    // The AUTHORISED number, which is what the authority reads. `invoiceNumber` is this product's
+    // own document sequence and carries no fiscal force: the builders used to read it, so a
+    // document would have gone out numbered from the internal counter rather than from the range
+    // the authority granted.
+    ncfNumber: 'SETP990000001',
     customerId: 'cus-1',
     issueDate: '2026-06-10T09:30:00',
     currencyCode: 'COP',

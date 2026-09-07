@@ -4,6 +4,7 @@ import { Organization } from '../../../organizations/entities/organization.entit
 import { Customer } from '../../../customers/entities/customer.entity';
 import { roundToCurrency } from '../../../common/money';
 import { BadRequestError } from '../../../i18n/localized.exception';
+import { fiscalConsecutive } from '../fiscal-number';
 
 /**
  * Brazil — Nota Fiscal Eletrônica 4.00, SEFAZ.
@@ -84,7 +85,7 @@ export class NfeBuilder {
       // `55` NF-e. `65` is the consumer NFC-e, which is a different document with its own rules.
       '55',
       input.series.replace(/\D/g, '').padStart(3, '0').slice(0, 3),
-      this.documentNumber(invoice.invoiceNumber ?? ''),
+      this.documentNumber(fiscalConsecutive(invoice)),
       // `1` emissão normal.
       '1',
       input.numericCode.replace(/\D/g, '').padStart(8, '0').slice(0, 8),
@@ -126,7 +127,7 @@ export class NfeBuilder {
     ide.ele('natOp', {}, invoice.type === InvoiceType.CREDIT_NOTE ? 'Devolucao de venda' : 'Venda de mercadoria');
     ide.ele('mod', {}, '55');
     ide.ele('serie', {}, String(Number(input.series.replace(/\D/g, '') || 1)));
-    ide.ele('nNF', {}, String(Number(this.documentNumber(invoice.invoiceNumber ?? ''))));
+    ide.ele('nNF', {}, String(Number(this.documentNumber(fiscalConsecutive(invoice)))));
     ide.ele('dhEmi', {}, this.timestamp(invoice.issueDate));
     // `1` saída — a sale leaves the establishment.
     ide.ele('tpNF', {}, '1');
