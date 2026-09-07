@@ -24,7 +24,8 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   server: Server;
 
   private readonly logger = new Logger(EventsGateway.name);
-  private connectedUsers = new Map<string, string>();
+  /** userId → the socket it is on, and the tenant whose room that socket joined. */
+  private connectedUsers = new Map<string, { socketId: string; organizationId: string }>();
 
   constructor(
     private readonly userCacheService: UserCacheService,
@@ -66,9 +67,29 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return;
       }
 
-      this.connectedUsers.set(payload.id, client.id);
+      // Presence is tenant-scoped, and it was not.
+      //
+      // `this.server.emit(...)` reaches EVERY connected socket, so each tenant learned when any
+      // user of any OTHER tenant came online — a cross-tenant disclosure of staff names and working
+      // hours, delivered by the feature meant to show colleagues. This repository has already
+      // shipped one leak of exactly this shape: a migration records webhook subscribers receiving
+      // every tenant's payloads.
+      //
+      // The room is the boundary. A socket only ever hears what its own organization broadcasts,
+      // and the per-document presence the product wants can be built on it without inheriting the
+      // leak.
+      const organizationId = payload.organizationId;
+      if (!organizationId) {
+        // A token without a tenant cannot be placed in a room, and a socket outside every room
+        // would receive nothing anyway. Refusing is clearer than a silent, deaf connection.
+        client.disconnect();
+        return;
+      }
 
-      this.server.emit('user-status-update', {
+      client.join(tenantRoom(organizationId));
+      this.connectedUsers.set(payload.id, { socketId: client.id, organizationId });
+
+      this.server.to(tenantRoom(organizationId)).emit('user-status-update', {
         userId: payload.id,
         isOnline: true,
       });
@@ -85,7 +106,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
    * RS256-signed access tokens the API issues — so every authenticated socket was force-disconnected
    * ("io server disconnect"), and the client kept reconnecting in an endless storm.
    */
-  private verifyAccessToken(token: string): { id: string; tokenVersion: number } | null {
+  private verifyAccessToken(
+    token: string,
+  ): { id: string; tokenVersion: number; organizationId?: string } | null {
     try {
       const decoded = jwt.decode(token, { complete: true });
       const kid = decoded?.header?.kid;
@@ -98,7 +121,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         algorithms: ['RS256'],
         issuer: 'virteex-api',
         audience: 'virteex-web',
-      }) as { id: string; tokenVersion: number };
+      }) as { id: string; tokenVersion: number; organizationId?: string };
     } catch (e) {
       this.logger.debug(`WebSocket token verification failed: ${(e as Error).message}`);
       return null;
@@ -106,21 +129,23 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleDisconnect(client: Socket) {
-    for (const [userId, socketId] of this.connectedUsers.entries()) {
-      if (socketId === client.id) {
+    for (const [userId, presence] of this.connectedUsers.entries()) {
+      if (presence.socketId === client.id) {
         this.connectedUsers.delete(userId);
-        console.log(`User disconnected: ${userId}`);
+        this.logger.debug(`User disconnected: ${userId}`);
 
-        this.server.emit('user-status-update', { userId, isOnline: false });
+        this.server
+          .to(tenantRoom(presence.organizationId))
+          .emit('user-status-update', { userId, isOnline: false });
         break;
       }
     }
   }
 
-  sendToUser(userId: string, event: string, data: any) {
-    const socketId = this.connectedUsers.get(userId);
-    if (socketId) {
-      this.server.to(socketId).emit(event, data);
+  sendToUser(userId: string, event: string, data: unknown) {
+    const presence = this.connectedUsers.get(userId);
+    if (presence) {
+      this.server.to(presence.socketId).emit(event, data);
     }
   }
 
@@ -131,14 +156,18 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @OnEvent('user.status.changed')
   handleUserStatusChanged(payload: { userId: string; isOnline: boolean }) {
-    this.server.emit('user-status-update', payload);
+    // Only the user's own tenant hears it. An event for somebody who is not connected has no room
+    // to go to, and broadcasting it to everyone was how the leak got in.
+    const presence = this.connectedUsers.get(payload.userId);
+    if (!presence) return;
+    this.server.to(tenantRoom(presence.organizationId)).emit('user-status-update', payload);
   }
 
   @SubscribeMessage('user-status')
   handleUserStatus(client: Socket, payload: { isOnline: boolean }): void {
-    for (const [userId, socketId] of this.connectedUsers.entries()) {
-      if (socketId === client.id) {
-        this.server.emit('user-status-update', {
+    for (const [userId, presence] of this.connectedUsers.entries()) {
+      if (presence.socketId === client.id) {
+        this.server.to(tenantRoom(presence.organizationId)).emit('user-status-update', {
           userId,
           isOnline: payload.isOnline,
         });
@@ -146,4 +175,14 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
     }
   }
+}
+
+/**
+ * The room name a tenant's sockets share.
+ *
+ * Prefixed so it can never collide with a room named after something else — a document, a process —
+ * once per-record presence is built on the same gateway.
+ */
+function tenantRoom(organizationId: string): string {
+  return `org:${organizationId}`;
 }
