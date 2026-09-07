@@ -45,6 +45,7 @@ import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
 import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
 import { BadRequestError, UnauthorizedError } from '../i18n/localized.exception';
+import { AuthenticatedOnly } from './decorators/authenticated-only.decorator';
 
 /**
  * Multi-factor authentication: TOTP/2FA lifecycle, backup codes, phone and email OTP, the public
@@ -58,6 +59,11 @@ import { BadRequestError, UnauthorizedError } from '../i18n/localized.exception'
 @ApiTags('Auth')
 @AllowInactiveSubscription()
 @Controller('auth')
+@AuthenticatedOnly(
+  'Every route here acts on the caller\'s own second factor — generating a TOTP secret, enabling\n' +
+  'or disabling it, minting backup codes, verifying their own email or phone. The subject and the\n' +
+  'object are the same person, so a permission would only ask whether you may administer yourself.',
+)
 export class AuthMfaController {
   constructor(
     private readonly authService: AuthService,

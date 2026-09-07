@@ -38,6 +38,7 @@ import { FrontendUrlService } from '../mail/frontend-url.service';
 import { PERMISSIONS } from '../shared/permissions';
 import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
 import { BadRequestError, UnauthorizedError } from '../i18n/localized.exception';
+import { AuthenticatedOnly } from './decorators/authenticated-only.decorator';
 
 /**
  * Step-up re-authentication and impersonation.
@@ -52,6 +53,11 @@ import { BadRequestError, UnauthorizedError } from '../i18n/localized.exception'
 @ApiTags('Auth')
 @AllowInactiveSubscription()
 @Controller('auth')
+@AuthenticatedOnly(
+  'Step-up re-verifies the identity the session already carries, so it cannot itself require a\n' +
+  'permission: it is the mechanism a later permission check depends on. Impersonation is the one\n' +
+  'route here that grants power over someone else, and it declares USERS_IMPERSONATE.',
+)
 export class AuthStepUpController {
   private readonly logger = new Logger(AuthStepUpController.name);
 

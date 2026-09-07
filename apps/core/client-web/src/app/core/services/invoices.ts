@@ -1,7 +1,10 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+import { IdempotencyKeyService } from '../http/idempotency-key.service';
+import { TransitionPreview } from '../../shared/components/transition-preview/transition-preview.model';
 
 export type TaxTreatment = 'TAXED' | 'ZERO_RATED' | 'EXEMPT';
 
@@ -212,6 +215,7 @@ export interface InvoicingContext {
 @Injectable({ providedIn: 'root' })
 export class InvoicesService {
   private http = inject(HttpClient);
+  private readonly idempotency = inject(IdempotencyKeyService);
   private apiUrl = `${environment.apiUrl}/invoices`;
 
   /**
@@ -257,16 +261,48 @@ export class InvoicesService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  /** Assigns the fiscal number, posts the ledger entry and transmits the e-CF. */
+  /**
+   * Assigns the fiscal number, posts the ledger entry and transmits the e-CF.
+   *
+   * The idempotency key is minted per invoice, not per call, and held until the issue succeeds.
+   * Two clicks on "Emitir" therefore carry ONE key: the server executes once and replays its answer
+   * to the second, instead of consuming two fiscal numbers and posting two journal entries for one
+   * sale. A key minted inside the HTTP layer could not do this — it would be a different key each
+   * time, which is exactly the case idempotency exists to cover.
+   */
   issue(id: string, fiscalDocumentType?: string): Observable<Invoice> {
-    return this.http.post<Invoice>(
-      `${this.apiUrl}/${id}/issue`,
+    const operation = `invoice:issue:${id}`;
+    return this.http
+      .post<Invoice>(
+        `${this.apiUrl}/${id}/issue`,
+        fiscalDocumentType ? { fiscalDocumentType } : {},
+        { headers: { 'Idempotency-Key': this.idempotency.keyFor(operation) } },
+      )
+      .pipe(tap(() => this.idempotency.settle(operation)));
+  }
+
+  /**
+   * What issuing this invoice would do, without doing it.
+   *
+   * No idempotency key: a preview commits nothing, so repeating it is free and demanding a key
+   * would be ceremony without a purpose.
+   */
+  previewIssue(id: string, fiscalDocumentType?: string): Observable<TransitionPreview> {
+    return this.http.post<TransitionPreview>(
+      `${this.apiUrl}/${id}/issue/preview`,
       fiscalDocumentType ? { fiscalDocumentType } : {},
     );
   }
 
   createCreditNote(invoiceId: string, request: CreditNoteRequest = {}): Observable<Invoice> {
-    return this.http.post<Invoice>(`${this.apiUrl}/${invoiceId}/credit-note`, request);
+    // Keyed by the invoice being credited AND the amount, so correcting the figure after a mistake
+    // is a new intention rather than a replay of the previous answer.
+    const operation = `invoice:credit-note:${invoiceId}:${JSON.stringify(request)}`;
+    return this.http
+      .post<Invoice>(`${this.apiUrl}/${invoiceId}/credit-note`, request, {
+        headers: { 'Idempotency-Key': this.idempotency.keyFor(operation) },
+      })
+      .pipe(tap(() => this.idempotency.settle(operation)));
   }
 
   downloadInvoicePdf(id: string): Observable<Blob> {

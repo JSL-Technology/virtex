@@ -40,6 +40,7 @@ import { JournalEntryImportService } from './journal-entry-import.service';
 import { ConfirmImportDto, PreviewImportRequestDto } from './dto/journal-entry-import.dto';
 import { TemporalValidityGuard } from '../financial-reporting/guards/temporal-validity.guard';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 
 @Controller('journal-entries')
 @UseGuards(JwtAuthGuard)
@@ -89,6 +90,7 @@ export class JournalEntriesController {
   }
 
   @Post(':id/reverse')
+  @Idempotent()
   @UseGuards(PeriodLockGuard)
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_CREATE)
   reverse(
@@ -102,6 +104,7 @@ export class JournalEntriesController {
   }
   
   @Post(':id/create-reversal')
+  @Idempotent()
   @HttpCode(HttpStatus.CREATED)
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_CREATE)
   createReversal(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {

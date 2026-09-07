@@ -1823,6 +1823,14 @@
       "PARTIALLY_PAID": "Paga parcialmente",
       "PENDING": "Pendente",
       "VOID": "Cancelada"
+    },
+    "ISSUE_PREVIEW_TITLE": "O que acontecerá ao emitir",
+    "ISSUE": "Emitir",
+    "EFFECT": {
+      "FISCAL_NUMBER": "Número fiscal a consumir",
+      "REVENUE_ENTRY": "Lançamento de receita",
+      "COST_ENTRY": "Lançamento de custo de venda",
+      "STOCK": "Movimentos de existências"
     }
   },
   "JOURNAL_ENTRIES": {
@@ -4093,5 +4101,39 @@
       },
       "tax": "Tributos e Conformidade"
     }
+  },
+  "MODULES": {
+    "WORKSPACE": "Meu trabalho",
+    "SALES": "Vendas",
+    "PURCHASING": "Compras",
+    "INVENTORY": "Inventário",
+    "TREASURY": "Tesouraria",
+    "ACCOUNTING": "Contabilidade",
+    "ANALYSIS": "Análise",
+    "DATASHEETS": "Folhas de dados",
+    "ADMINISTRATION": "Administração",
+    "ROADMAP": "Em preparação"
+  },
+  "TRANSITION": {
+    "PRECONDITIONS": "Precondições",
+    "EFFECTS": "Efeitos",
+    "ACCOUNT": "Conta",
+    "DEBIT": "Débito",
+    "CREDIT": "Crédito",
+    "TOTALS": "Totais",
+    "LINES": "{{count}} linhas",
+    "UNBALANCED": "O lançamento não fecha. Reveja antes de continuar."
+  },
+  "REMEDY": {
+    "OPEN_PERIOD": "Abrir o período",
+    "CONFIGURE_SEQUENCES": "Configurar sequências",
+    "REVIEW_PLAN": "Rever o plano",
+    "VIEW_STOCK": "Ver existências"
+  },
+  "STATUS_BAR": {
+    "PERIOD_OPEN": "Período {{period}} aberto",
+    "PERIOD_CLOSED": "Período {{period}} fechado",
+    "ONLINE": "Ligado",
+    "OFFLINE": "Sem ligação"
   }
 }

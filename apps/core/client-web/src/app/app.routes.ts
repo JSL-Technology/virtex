@@ -9,6 +9,7 @@ import { languageInitGuard } from './core/guards/language-init.guard';
 import { languageRedirectGuard } from './core/guards/language-redirect.guard';
 import { CountryGuard } from './core/guards/country.guard';
 import { isLanguageCode } from '@virteex/shared/types';
+import { buildModuleRoutes } from './core/modules/module-registry';
 
 // Only match 2-letter country codes so route segments like 'login' or 'auth' never bleed into :country
 export function countryCodeMatcher(segments: UrlSegment[]): UrlMatchResult | null {
@@ -162,202 +163,25 @@ export const APP_ROUTES: Routes = [
     ]
   },
 
-  // 4. Authenticated Routes (Clean URLs) - e.g. /dashboard
+  // 4. Authenticated routes, generated from the module manifests.
+  //
+  // This block used to list roughly ninety routes by hand while `tab-definitions.ts` listed 15
+  // windows and `sidebar-menu.ts` listed 50 links, with nothing keeping the three in step. The
+  // result was not cosmetic: 40 of those links opened an "under construction" card over pages that
+  // were built and wired to working endpoints.
+  //
+  // Now there is one declaration — the manifest — and both the router and the window host read it.
+  // Adding a page is adding a route to its module; the menu entry and the window follow, because
+  // they are derived rather than repeated.
   {
     path: '',
     component: MainLayout,
     canActivate: [authGuard],
     children: [
-      {
-        path: 'overview',
-        title: 'PAGE_TITLES.HOME',
-        loadComponent: () =>
-          import('./features/overview/overview.page').then(
-            (m) => m.OverviewPage
-          ),
-      },
-      {
-        path: 'dashboard',
-        title: 'PAGE_TITLES.DASHBOARD',
-        loadComponent: () =>
-          import('./features/dashboard/dashboard.page').then(
-            (m) => m.DashboardPage
-          ),
-      },
-      // ... other authenticated routes (copied from original file to maintain completeness)
-      {
-        path: 'my-work',
-        title: 'PAGE_TITLES.MY_WORK',
-        loadComponent: () =>
-          import('./features/my-work/my-work.page').then((m) => m.MyWorkPage),
-      },
-      {
-        path: 'approvals',
-        title: 'PAGE_TITLES.APPROVALS',
-        loadComponent: () =>
-          import('./features/approvals/approvals.page').then(
-            (m) => m.ApprovalsPage
-          ),
-      },
-      {
-        path: 'notifications',
-        title: 'PAGE_TITLES.NOTIFICATIONS',
-        loadComponent: () =>
-          import('./features/notifications/notifications.page').then(
-            (m) => m.NotificationsPage
-          ),
-      },
-      {
-        path: 'global-search',
-        title: 'PAGE_TITLES.SEARCH',
-        loadComponent: () =>
-          import('./features/global-search/global-search.page').then(
-            (m) => m.GlobalSearchPage
-          ),
-      },
-      {
-        path: 'data-imports',
-        title: 'PAGE_TITLES.DATA_IMPORTS',
-        loadComponent: () =>
-          import('./features/data-imports/data-imports.page').then(
-            (m) => m.DataImportsPage
-          ),
-      },
-      {
-        path: 'data-exports',
-        title: 'PAGE_TITLES.DATA_EXPORTS',
-        loadComponent: () =>
-          import('./features/data-exports/data-exports.page').then(
-            (m) => m.DataExportsPage
-          ),
-      },
-      {
-        path: 'masters',
-        title: 'PAGE_TITLES.MASTER_DATA',
-        loadChildren: () =>
-          import('./features/masters/masters.routes').then(
-            (m) => m.MASTERS_ROUTES
-          ),
-      },
-      {
-        path: 'documents',
-        title: 'PAGE_TITLES.DOCUMENTS',
-        loadComponent: () =>
-          import('./features/documents/layout/documents.layout').then(
-            (m) => m.DocumentsLayout
-          ),
-      },
-      // H-12 FIX: Add permissionsGuard to module routes so the UI reflects the same RBAC
-      // enforced by the backend. The backend remains the authoritative source of truth;
-      // client guards prevent confusing UX and unnecessary API calls for unauthorised users
-      // (OWASP ASVS 4.1.1; OWASP Top 10 A01 Broken Access Control).
-      {
-        path: 'sales',
-        title: 'PAGE_TITLES.SALES',
+      ...buildModuleRoutes().map((route) => ({
+        ...route,
         canActivate: [permissionsGuard],
-        data: { permissions: ['sales:view'] },
-        loadChildren: () =>
-          import('./features/sales/sales.routes').then((m) => m.SALES_ROUTES),
-      },
-      {
-        path: 'invoices',
-        title: 'PAGE_TITLES.INVOICES',
-        canActivate: [permissionsGuard],
-        data: { permissions: ['invoices:view'] },
-        loadChildren: () =>
-          import('./features/invoices/invoices.routes').then(
-            (m) => m.INVOICES_ROUTES
-          ),
-      },
-      {
-        path: 'inventory',
-        title: 'PAGE_TITLES.INVENTORY',
-        canActivate: [permissionsGuard],
-        data: { permissions: ['inventory:view'] },
-        loadChildren: () =>
-          import('./features/inventory/inventory.routes').then(
-            (m) => m.INVENTORY_ROUTES
-          ),
-      },
-      {
-        path: 'manufacturing',
-        title: 'PAGE_TITLES.MANUFACTURING',
-        canActivate: [permissionsGuard],
-        data: { permissions: ['manufacturing:view'] },
-        loadChildren: () =>
-          import('./features/manufacturing/manufacturing.routes').then(
-            (m) => m.MANUFACTURING_ROUTES
-          ),
-      },
-      {
-        path: 'wms',
-        title: 'PAGE_TITLES.WAREHOUSE_MANAGEMENT',
-        canActivate: [permissionsGuard],
-        data: { permissions: ['wms:view'] },
-        loadChildren: () =>
-          import('./features/wms/wms.routes').then(
-            (m) => m.WMS_ROUTES
-          ),
-      },
-      {
-        path: 'projects',
-        title: 'PAGE_TITLES.PROJECTS',
-        canActivate: [permissionsGuard],
-        data: { permissions: ['projects:view'] },
-        loadChildren: () =>
-          import('./features/projects/projects.routes').then(
-            (m) => m.PROJECTS_ROUTES
-          ),
-      },
-      {
-        path: 'hcm',
-        title: 'PAGE_TITLES.HUMAN_RESOURCES',
-        canActivate: [permissionsGuard],
-        data: { permissions: ['hcm:view'] },
-        loadChildren: () =>
-          import('./features/hcm/hcm.routes').then(
-            (m) => m.HCM_ROUTES
-          ),
-      },
-      {
-        path: 'procurement',
-        title: 'PAGE_TITLES.PROCUREMENT',
-        canActivate: [permissionsGuard],
-        data: { permissions: ['procurement:view'] },
-        loadChildren: () =>
-          import('./features/procurement/procurement.routes').then(
-            (m) => m.PROCUREMENT_ROUTES
-          ),
-      },
-      {
-        path: 'documents',
-        canActivate: [permissionsGuard],
-        data: { permissions: ['documents:view'] },
-        loadChildren: () =>
-          import('./features/documents/documents.routes').then(
-            (m) => m.DOCUMENTS_ROUTES
-          ),
-      },
-      {
-        path: 'contacts',
-        title: 'PAGE_TITLES.CONTACTS',
-        canActivate: [permissionsGuard],
-        data: { permissions: ['contacts:view'] },
-        loadChildren: () =>
-          import('./features/contacts/contacts.routes').then(
-            (m) => m.CONTACTS_ROUTES
-          ),
-      },
-      {
-        path: 'accounting',
-        title: 'PAGE_TITLES.ACCOUNTING',
-        canActivate: [permissionsGuard],
-        data: { permissions: ['accounting:view'] },
-        loadChildren: () =>
-          import('./features/accounting/accounting.routes').then(
-            (m) => m.ACCOUNTING_ROUTES
-          ),
-      },
+      })),
       // Direct navigation to /settings/* is intercepted and reopened in the modal outlet.
       {
         path: 'settings',
@@ -365,68 +189,9 @@ export const APP_ROUTES: Routes = [
         component: RouteRedirectorComponent,
         children: [{ path: '**', component: RouteRedirectorComponent }],
       },
-      {
-        path: 'reports',
-        title: 'PAGE_TITLES.REPORTS',
-        canActivate: [permissionsGuard],
-        data: { permissions: ['reports:view'] },
-        loadChildren: () =>
-          import('./features/reports/reports.routes').then(
-            (m) => m.REPORTS_ROUTES
-          ),
-      },
-      {
-        path: 'datasheets',
-        title: 'PAGE_TITLES.DATASHEETS',
-        canActivate: [permissionsGuard],
-        data: { permissions: ['reports:view'] },
-        loadChildren: () =>
-          import('./features/datasheets/datasheets.routes').then(
-            (m) => m.DATASHEET_ROUTES
-          ),
-      },
-      {
-        path: 'purchasing',
-        title: 'PAGE_TITLES.PURCHASING',
-        canActivate: [permissionsGuard],
-        data: { permissions: ['purchasing:view'] },
-        loadChildren: () =>
-          import('./features/purchasing/purchasing.routes').then(
-            (m) => m.PURCHASING_ROUTES
-          ),
-      },
-      {
-        path: 'accounts-payable',
-        title: 'PAGE_TITLES.ACCOUNTS_PAYABLE',
-        canActivate: [permissionsGuard],
-        data: { permissions: ['accounting:view'] },
-        loadChildren: () =>
-          import('./features/accounts-payable/accounts-payable.routes').then(
-            (m) => m.ACCOUNTS_PAYABLE_ROUTES
-          ),
-      },
-      {
-        path: 'customer-receipts',
-        title: 'PAGE_TITLES.CUSTOMER_RECEIPTS',
-        canActivate: [permissionsGuard],
-        data: { permissions: ['sales:view'] },
-        loadChildren: () =>
-          import('./features/customer-receipts/customer-receipts.routes').then(
-            (m) => m.CUSTOMER_RECEIPTS_ROUTES
-          ),
-      },
-      {
-        path: 'unauthorized',
-        title: 'PAGE_TITLES.ACCESS_DENIED',
-        loadComponent: () =>
-          import('./features/unauthorized/unauthorized.page').then(
-            (m) => m.UnauthorizedPage
-          ),
-      },
-      // Catch-all del workspace: cualquier ruta autenticada que no tenga una
-      // página propia hace match aquí para que el puente Router↔Workspace abra
-      // su pestaña (el contenido lo pinta Dockview, no un router-outlet).
-      // DEBE ser el último hijo de MainLayout.
+      // Workspace catch-all: any authenticated route without a page of its own matches here so the
+      // Router↔Workspace bridge opens its tab (Dockview paints the content, not a router-outlet).
+      // MUST stay the last child of MainLayout.
       {
         path: '**',
         loadComponent: () =>

@@ -15,6 +15,7 @@ export class AnalyticalReportingController {
   constructor(private readonly reportingService: AnalyticalReportingService) {}
 
   @Post('query')
+  @HasPermission(PERMISSIONS.ANALYTICS_QUERY)
   @HttpCode(HttpStatus.OK)
   query(
     @Body() queryDto: AnalyticalQueryDto,
@@ -26,6 +27,7 @@ export class AnalyticalReportingController {
   }
 
   @Post('refresh-view')
+  @HasPermission(PERMISSIONS.ANALYTICS_MANAGE_VIEWS)
   @HttpCode(HttpStatus.ACCEPTED)
   refreshView() {
 

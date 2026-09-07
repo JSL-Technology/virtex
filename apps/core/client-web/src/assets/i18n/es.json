@@ -1823,6 +1823,14 @@
       "PARTIALLY_PAID": "Cobrada parcialmente",
       "PENDING": "Pendiente",
       "VOID": "Anulada"
+    },
+    "ISSUE_PREVIEW_TITLE": "Qué ocurrirá al emitir",
+    "ISSUE": "Emitir",
+    "EFFECT": {
+      "FISCAL_NUMBER": "Número fiscal que se consume",
+      "REVENUE_ENTRY": "Asiento de ingreso",
+      "COST_ENTRY": "Asiento de costo de venta",
+      "STOCK": "Movimientos de existencias"
     }
   },
   "JOURNAL_ENTRIES": {
@@ -4093,5 +4101,39 @@
       },
       "tax": "Impuestos y Cumplimiento"
     }
+  },
+  "MODULES": {
+    "WORKSPACE": "Mi trabajo",
+    "SALES": "Ventas",
+    "PURCHASING": "Compras",
+    "INVENTORY": "Inventario",
+    "TREASURY": "Tesorería",
+    "ACCOUNTING": "Contabilidad",
+    "ANALYSIS": "Análisis",
+    "DATASHEETS": "Hojas de datos",
+    "ADMINISTRATION": "Administración",
+    "ROADMAP": "En preparación"
+  },
+  "TRANSITION": {
+    "PRECONDITIONS": "Precondiciones",
+    "EFFECTS": "Efectos",
+    "ACCOUNT": "Cuenta",
+    "DEBIT": "Debe",
+    "CREDIT": "Haber",
+    "TOTALS": "Totales",
+    "LINES": "{{count}} líneas",
+    "UNBALANCED": "El asiento no cuadra. Revísalo antes de continuar."
+  },
+  "REMEDY": {
+    "OPEN_PERIOD": "Abrir el periodo",
+    "CONFIGURE_SEQUENCES": "Configurar secuencias",
+    "REVIEW_PLAN": "Revisar el plan",
+    "VIEW_STOCK": "Ver existencias"
+  },
+  "STATUS_BAR": {
+    "PERIOD_OPEN": "Periodo {{period}} abierto",
+    "PERIOD_CLOSED": "Periodo {{period}} cerrado",
+    "ONLINE": "Conectado",
+    "OFFLINE": "Sin conexión"
   }
 }

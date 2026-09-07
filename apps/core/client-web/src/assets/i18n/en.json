@@ -1823,6 +1823,14 @@
       "PARTIALLY_PAID": "Partially paid",
       "PENDING": "Pending",
       "VOID": "Voided"
+    },
+    "ISSUE_PREVIEW_TITLE": "What issuing will do",
+    "ISSUE": "Issue",
+    "EFFECT": {
+      "FISCAL_NUMBER": "Fiscal number to be consumed",
+      "REVENUE_ENTRY": "Revenue entry",
+      "COST_ENTRY": "Cost of sale entry",
+      "STOCK": "Stock movements"
     }
   },
   "JOURNAL_ENTRIES": {
@@ -4093,5 +4101,39 @@
       },
       "tax": "Tax & Compliance"
     }
+  },
+  "MODULES": {
+    "WORKSPACE": "My work",
+    "SALES": "Sales",
+    "PURCHASING": "Purchasing",
+    "INVENTORY": "Inventory",
+    "TREASURY": "Treasury",
+    "ACCOUNTING": "Accounting",
+    "ANALYSIS": "Analysis",
+    "DATASHEETS": "Datasheets",
+    "ADMINISTRATION": "Administration",
+    "ROADMAP": "In preparation"
+  },
+  "TRANSITION": {
+    "PRECONDITIONS": "Preconditions",
+    "EFFECTS": "Effects",
+    "ACCOUNT": "Account",
+    "DEBIT": "Debit",
+    "CREDIT": "Credit",
+    "TOTALS": "Totals",
+    "LINES": "{{count}} lines",
+    "UNBALANCED": "The entry does not balance. Review it before continuing."
+  },
+  "REMEDY": {
+    "OPEN_PERIOD": "Open the period",
+    "CONFIGURE_SEQUENCES": "Configure sequences",
+    "REVIEW_PLAN": "Review the plan",
+    "VIEW_STOCK": "View stock"
+  },
+  "STATUS_BAR": {
+    "PERIOD_OPEN": "Period {{period}} open",
+    "PERIOD_CLOSED": "Period {{period}} closed",
+    "ONLINE": "Connected",
+    "OFFLINE": "Offline"
   }
 }

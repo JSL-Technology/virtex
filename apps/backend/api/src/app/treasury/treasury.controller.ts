@@ -26,6 +26,7 @@ import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interfa
 import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
+import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 
 /**
  * The treasury surface.
@@ -113,6 +114,7 @@ export class TreasuryController {
   // ── Transfers ──────────────────────────────────────────────────────────────
 
   @Post('bank-transfers')
+  @Idempotent()
   @UseGuards(PeriodLockGuard)
   @HttpCode(HttpStatus.CREATED)
   @HasPermission(PERMISSIONS.TREASURY_TRANSFER)

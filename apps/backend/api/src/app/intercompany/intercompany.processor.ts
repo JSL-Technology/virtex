@@ -1,6 +1,9 @@
+import { InjectDataSource } from '@nestjs/typeorm';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { Logger } from '@nestjs/common';
+import { runAsTenantJob } from '../shared/tenancy/tenant-job';
+import { DataSource } from 'typeorm';
 import {
   DestinationEntryJobData,
   IntercompanyService,
@@ -29,11 +32,21 @@ import {
 export class IntercompanyProcessor extends WorkerHost {
   private readonly logger = new Logger(IntercompanyProcessor.name);
 
-  constructor(private readonly intercompanyService: IntercompanyService) {
+  constructor(
+    private readonly intercompanyService: IntercompanyService,
+    @InjectDataSource() private readonly dataSource: DataSource,
+  ) {
     super();
   }
 
   async process(job: Job<DestinationEntryJobData>): Promise<void> {
+    // The tenant travels in the payload, so the connection this job runs on carries it too.
+    // Without that, the row-level policies deny every row and the job "succeeds" having done
+    // nothing — a queue that quietly stops working is worse than one that fails.
+    return runAsTenantJob(this.dataSource, job.data.organizationId, () => this.runForTenant(job));
+  }
+
+  private async runForTenant(job: Job<DestinationEntryJobData>): Promise<void> {
     const { intercompanyTransactionId } = job.data;
     try {
       await this.intercompanyService.postDestinationEntry(intercompanyTransactionId);

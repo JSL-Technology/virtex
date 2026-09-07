@@ -186,6 +186,76 @@ export const PERMISSIONS = {
   
 
   SYSTEM_MANAGE_VIEWS: 'system:manage_views',
+
+  /**
+   * Everything below closes the second half of the same hole.
+   *
+   * Making `PermissionsGuard` an APP_GUARD turned "declares nothing" from allow into deny, which
+   * surfaced 102 route handlers that had never stated a requirement. Most were self-service and
+   * now say so with @AuthenticatedOnly. These are the rest: routes that read or write tenant
+   * business data and simply had no permission to declare, because the permission did not exist.
+   */
+
+  /** The finance dashboard: ten KPI endpoints over the ledger, plus the consolidated cash flow. */
+  DASHBOARD_VIEW: 'dashboard:view',
+
+  /**
+   * Supplier master data. `SuppliersController` carried no permission, so any authenticated member
+   * could create, edit or delete a supplier — the counterparty every payable is owed to, and the
+   * bank details a payment run reads.
+   */
+  SUPPLIERS_VIEW: 'suppliers:view',
+  SUPPLIERS_CREATE: 'suppliers:create',
+  SUPPLIERS_EDIT: 'suppliers:edit',
+  SUPPLIERS_DELETE: 'suppliers:delete',
+
+  /** Units of measure. Shared by products, invoice lines and stock movements. */
+  UNITS_OF_MEASURE_VIEW: 'units_of_measure:view',
+  UNITS_OF_MEASURE_MANAGE: 'units_of_measure:manage',
+
+  /**
+   * Analytical dimensions and the rules that map them onto accounts. Editing a rule changes how
+   * every future posting is classified, so it is a reporting-integrity control, not a preference.
+   */
+  DIMENSIONS_VIEW: 'dimensions:view',
+  DIMENSIONS_MANAGE: 'dimensions:manage',
+
+  /** Ad-hoc reporting books built over live ERP data, and the variables they resolve. */
+  DATASHEETS_VIEW: 'datasheets:view',
+  DATASHEETS_MANAGE: 'datasheets:manage',
+
+  /** Production orders. */
+  MANUFACTURING_VIEW: 'manufacturing:view',
+  MANUFACTURING_MANAGE: 'manufacturing:manage',
+
+  /** The pre-sale pipeline: leads, opportunities and their conversion into a quote or invoice. */
+  CRM_VIEW: 'crm:view',
+  CRM_MANAGE: 'crm:manage',
+
+  /** Support cases raised against the tenant. */
+  CASES_VIEW: 'cases:view',
+
+  /**
+   * The analytical store: arbitrary queries and materialised-view maintenance. A query here can
+   * read across modules, which is precisely why it cannot inherit the caller's module permissions
+   * by accident.
+   */
+  ANALYTICS_QUERY: 'analytics:query',
+  ANALYTICS_MANAGE_VIEWS: 'analytics:manage_views',
+
+  /** Aggregated sales intelligence. */
+  BI_VIEW: 'bi:view',
+
+  /**
+   * The customer portal.
+   *
+   * Held separately from the internal permissions because the portal is meant for a person who is
+   * NOT staff of the tenant, and the routes do not yet honour that: `my-invoices` returns every
+   * invoice of the organization rather than the caller's own, and `my-cases` does the same. Until
+   * an external identity exists that is scoped to one customer, this permission is what keeps the
+   * routes from being open, and it is granted to nobody by default.
+   */
+  CUSTOMER_PORTAL_ACCESS: 'customer_portal:access',
 } as const;
 
 export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];

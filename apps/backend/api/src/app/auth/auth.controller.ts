@@ -38,6 +38,7 @@ import { ActionType } from '../audit/entities/audit-log.entity';
 import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
 import { TwoFactorRequiredResponseDto } from './dto/login-response.dto';
 import { UnauthorizedError } from '../i18n/localized.exception';
+import { AuthenticatedOnly } from './decorators/authenticated-only.decorator';
 
 // H1 FIX: @Public() removed from class level. Only individual public endpoints are decorated
 // with @Public(). Authenticated endpoints rely on the global JwtAuthGuard without override.
@@ -160,6 +161,10 @@ export class AuthController {
   }
 
   @Post('logout')
+  @AuthenticatedOnly(
+    'Acts on the caller\'s own session or password. Signing yourself out, or changing your own\n' +
+    'password with the old one in hand, cannot depend on a permission a role might not carry.',
+  )
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard, CsrfGuard)
   async logout(
@@ -173,6 +178,10 @@ export class AuthController {
   }
 
   @Post('logout-all')
+  @AuthenticatedOnly(
+    'Acts on the caller\'s own session or password. Signing yourself out, or changing your own\n' +
+    'password with the old one in hand, cannot depend on a permission a role might not carry.',
+  )
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard, CsrfGuard)
   async logoutAll(
@@ -185,6 +194,10 @@ export class AuthController {
   }
 
   @Post('change-password')
+  @AuthenticatedOnly(
+    'Acts on the caller\'s own session or password. Signing yourself out, or changing your own\n' +
+    'password with the old one in hand, cannot depend on a permission a role might not carry.',
+  )
   @UseGuards(JwtAuthGuard, CsrfGuard, StepUpGuard)
   @StepUp(StepUpScope.CHANGE_PASSWORD)
   @HttpCode(HttpStatus.OK)

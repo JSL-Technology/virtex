@@ -18,6 +18,8 @@ import { User } from '../../users/entities/user.entity/user.entity';
 import { JwtAuthGuard } from '../../auth/guards/jwt/jwt.guard';
 import { AuthenticatedUser } from '../../auth/interfaces/authenticated-user.interface';
 import { ImportDatasetDto, ResolveVariablesDto } from '../dto/datasheet-variables.dto';
+import { HasPermission } from '../../auth/decorators/permissions.decorator';
+import { PERMISSIONS } from '../../shared/permissions';
 
 @Controller('datasheets')
 @UseGuards(JwtAuthGuard)
@@ -30,6 +32,7 @@ export class DatasheetsController {
 
   /** Only the datasets this caller may actually read. */
   @Get('import/modules')
+  @HasPermission(PERMISSIONS.DATASHEETS_VIEW)
   getImportModules(@CurrentUser() user: AuthenticatedUser) {
     return this.importService.getAvailableModules(user);
   }
@@ -41,6 +44,7 @@ export class DatasheetsController {
    * cannot express "products need `products:view` and invoices need `invoices:view`".
    */
   @Post('import/data')
+  @HasPermission(PERMISSIONS.DATASHEETS_VIEW)
   importData(@Body() dto: ImportDatasetDto, @CurrentUser() user: AuthenticatedUser) {
     return this.importService.importData(dto.module, dto.set, dto.columns, user, {
       page: dto.page,
@@ -49,6 +53,7 @@ export class DatasheetsController {
   }
 
   @Get('variables')
+  @HasPermission(PERMISSIONS.DATASHEETS_VIEW)
   getVariables() {
     return this.variablesService.getRegistry();
   }
@@ -61,26 +66,31 @@ export class DatasheetsController {
    * too coarse to protect EBITDA or too strict to let anyone read the company's name.
    */
   @Post('resolve-variables')
+  @HasPermission(PERMISSIONS.DATASHEETS_VIEW)
   resolveVariables(@Body() dto: ResolveVariablesDto, @CurrentUser() user: AuthenticatedUser) {
     return this.variablesService.resolveBatch(dto.variables, user);
   }
 
   @Post()
+  @HasPermission(PERMISSIONS.DATASHEETS_MANAGE)
   create(@Body() data: Partial<DatasheetBook>, @CurrentUser() user: AuthenticatedUser) {
     return this.datasheetsService.create(data, user);
   }
 
   @Get()
+  @HasPermission(PERMISSIONS.DATASHEETS_VIEW)
   findAll(@CurrentUser() user: AuthenticatedUser) {
     return this.datasheetsService.findAll(user);
   }
 
   @Get(':id')
+  @HasPermission(PERMISSIONS.DATASHEETS_VIEW)
   findOne(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.datasheetsService.findOne(id, user);
   }
 
   @Patch(':id')
+  @HasPermission(PERMISSIONS.DATASHEETS_MANAGE)
   update(
     @Param('id') id: string,
     @Body() data: Partial<DatasheetBook>,
@@ -90,11 +100,13 @@ export class DatasheetsController {
   }
 
   @Delete(':id')
+  @HasPermission(PERMISSIONS.DATASHEETS_MANAGE)
   remove(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.datasheetsService.remove(id, user);
   }
 
   @Post(':id/versions')
+  @HasPermission(PERMISSIONS.DATASHEETS_MANAGE)
   createVersion(
     @Param('id') id: string,
     @Body('comment') comment: string,
@@ -104,6 +116,7 @@ export class DatasheetsController {
   }
 
   @Get(':id/versions')
+  @HasPermission(PERMISSIONS.DATASHEETS_VIEW)
   getVersions(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.datasheetsService.getVersions(id, user);
   }

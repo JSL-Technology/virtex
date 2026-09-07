@@ -2,6 +2,7 @@ import { Controller, Get, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { AuthenticatedOnly } from '../auth/decorators/authenticated-only.decorator';
 
 /**
  * Queue depth, for the queues that still exist.
@@ -17,6 +18,10 @@ export class HealthController {
   ) {}
 
   @Get('queues')
+  @AuthenticatedOnly(
+    'Queue depth and worker liveness. Operational telemetry with no tenant data in it; the payload is\n' +
+    'the same for every caller.',
+  )
   @UseGuards(JwtAuthGuard)
   async getQueueHealth() {
     return [

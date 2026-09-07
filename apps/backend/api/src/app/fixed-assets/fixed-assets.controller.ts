@@ -21,6 +21,7 @@ import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { Idempotent } from '../shared/idempotency/idempotent.decorator';
 
 @Controller('fixed-assets')
 @UseGuards(JwtAuthGuard)
@@ -73,6 +74,7 @@ export class FixedAssetsController {
   }
 
   @Post(':id/dispose')
+  @Idempotent()
   @HasPermission(PERMISSIONS.FIXED_ASSETS_DISPOSE)
   dispose(
     @Param('id', ParseUUIDPipe) id: string,

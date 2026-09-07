@@ -348,7 +348,11 @@
     "FILE_TYPE_NOT_ALLOWED": "Esse tipo de arquivo não é permitido.",
     "SINGLE_FILE_EXPECTED": "É esperado um único arquivo.",
     "TIPO_ARCHIVO_NO_PERMITIDO": "Tipo de arquivo não permitido ({{mimetype}}).",
-    "TOO_MANY_FILES": "Arquivos demais."
+    "TOO_MANY_FILES": "Arquivos demais.",
+    "IDEMPOTENCY_KEY_REQUIRED": "Esta operação exige um cabeçalho Idempotency-Key para que repeti-la não a duplique.",
+    "IDEMPOTENCY_KEY_IN_PROGRESS": "Já existe um pedido em curso com essa chave. Aguarde a resposta antes de repetir.",
+    "IDEMPOTENCY_KEY_REUSED": "Essa chave de idempotência já foi usada para outro pedido. Use uma chave nova.",
+    "IDEMPOTENCY_REQUIRES_SESSION": "Esta operação precisa de uma sessão iniciada."
   },
   "COMPLIANCE": {
     "ANO_NO_ES_VALIDO": "O ano não é válido.",
@@ -797,7 +801,17 @@
     "TIPO_COMPROBANTE_NO_CORRESPONDE_AL_DOCUMENTO": "Você pediu o tipo {requested} e este documento corresponde ao tipo {resolved}. O tipo é determinado pelo documento, não pela solicitação.",
     "TIPO_COMPROBANTE_NO_CORRESPONDE_DOCUMENTO_VENTA": "O tipo de documento {{type}} não corresponde a um documento de venda.",
     "TIPO_COMPROBANTE_NO_PERTENECE_AL_MERCADO": "O tipo de comprovante {type} não existe no regime de {country}.",
-    "TIPO_NO_ES_COMPROBANTE_NOTA_CREDITO_VALIDO": "O tipo {{type}} não é um documento de nota de crédito válido."
+    "TIPO_NO_ES_COMPROBANTE_NOTA_CREDITO_VALIDO": "O tipo {{type}} não é um documento de nota de crédito válido.",
+    "PRECONDITION": {
+      "DRAFT": "O documento está em rascunho e pode ser emitido.",
+      "SEQUENCE_AVAILABLE": "Sequência fiscal disponível — seguinte: {{number}}"
+    },
+    "EFFECT": {
+      "FISCAL_NUMBER": "Número fiscal a consumir",
+      "REVENUE_ENTRY": "Lançamento de receita",
+      "COST_ENTRY": "Lançamento de custo de venda",
+      "STOCK": "Movimentos de existências"
+    }
   },
   "JOURNAL_ENTRIES": {
     "ADJUNTO_ELIMINADO_EXITOSAMENTE": "Anexo excluído.",
@@ -1037,6 +1051,7 @@
   },
   "PERMISSIONS": {
     "ACTIONS": {
+      "ACCESS": "Aceder",
       "ADJUST": "Ajustar",
       "APPROVE": "Aprovar",
       "APPROVE_ADJUSTMENT": "Aprovar ajuste",
@@ -1066,6 +1081,7 @@
       "PASSWORD_RESET": "Redefinir senha",
       "PAY": "Pagar",
       "PROPOSE_ADJUSTMENT": "Propor ajuste",
+      "QUERY": "Consultar",
       "REOPEN_PERIOD": "Reabrir período",
       "REOPEN_YEAR": "Reabrir exercício fiscal",
       "REVERSE": "Estornar",
@@ -1084,14 +1100,22 @@
       "ACCOUNTING": "Contabilidade",
       "ACCOUNTS_PAYABLE": "Contas a pagar",
       "ACCOUNTS_RECEIVABLE": "Contas a receber",
+      "ANALYTICS": "Analítica",
       "AUDIT": "Auditoria",
+      "BI": "Inteligência de negócio",
       "BILLING": "Faturamento do plano",
       "BILLS": "Faturas de compra",
       "BUDGETS": "Orçamentos",
+      "CASES": "Casos de suporte",
       "COA": "Plano de contas",
       "COST_ACCOUNTING": "Contabilidade de custos",
+      "CRM": "Oportunidades de venda",
       "CURRENCIES": "Moedas",
       "CUSTOMERS": "Clientes",
+      "CUSTOMER_PORTAL": "Portal do cliente",
+      "DASHBOARD": "Painel financeiro",
+      "DATASHEETS": "Folhas de dados",
+      "DIMENSIONS": "Dimensões analíticas",
       "EXCHANGE_RATES": "Taxas de câmbio",
       "FINANCIALS": "Demonstrações financeiras",
       "FIXED_ASSETS": "Ativos fixos",
@@ -1100,15 +1124,18 @@
       "INVENTORY": "Estoque",
       "INVOICES": "Faturas de venda",
       "JOURNAL_ENTRIES": "Lançamentos contábeis",
+      "MANUFACTURING": "Produção",
       "PRICE_LISTS": "Tabelas de preços",
       "PRODUCTS": "Produtos",
       "RECONCILIATION": "Conciliação bancária",
       "REPORTS": "Relatórios",
       "ROLES": "Perfis",
       "SETTINGS": "Configurações",
+      "SUPPLIERS": "Fornecedores",
       "SYSTEM": "Sistema",
       "TAXES": "Impostos",
       "TREASURY": "Tesouraria",
+      "UNITS_OF_MEASURE": "Unidades de medida",
       "USERS": "Usuários",
       "WORKFLOWS": "Fluxos de trabalho"
     }
@@ -1577,5 +1604,11 @@
     "SOLICITUD_APROBACION_NO_ENCONTRADA": "A solicitação de aprovação não foi encontrada.",
     "SOLICITUD_NO_ENCONTRADA": "A solicitação não foi encontrada.",
     "SOLICITUD_YA_HA_SIDO_PROCESADA": "A solicitação já foi processada."
+  },
+  "REMEDY": {
+    "OPEN_PERIOD": "Abrir o período",
+    "CONFIGURE_SEQUENCES": "Configurar sequências",
+    "REVIEW_PLAN": "Rever o plano",
+    "VIEW_STOCK": "Ver existências"
   }
 }

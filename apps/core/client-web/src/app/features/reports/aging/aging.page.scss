@@ -91,7 +91,7 @@
 
   h4 {
     margin: 0 0 var(--space-3);
-    font-size: var(--font-size-sm);
+    font-size: var(--text-sm);
     color: var(--text-secondary);
     font-weight: 600;
   }
@@ -104,7 +104,7 @@
   }
 
   dt {
-    font-size: var(--font-size-xs);
+    font-size: var(--text-xs);
     color: var(--text-secondary);
   }
 
@@ -117,13 +117,13 @@
   .verdict {
     margin: var(--space-3) 0 0;
     color: var(--text-secondary);
-    font-size: var(--font-size-sm);
+    font-size: var(--text-sm);
   }
 
   .caveat {
     margin: var(--space-2) 0 0;
     color: var(--warning-text, var(--text-secondary));
-    font-size: var(--font-size-sm);
+    font-size: var(--text-sm);
   }
 
   /* A subledger that does not agree with its control account is a finding, not a detail. */

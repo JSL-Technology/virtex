@@ -48,6 +48,33 @@ export class AccountingController {
   }
 
   /**
+   * The state of the world, for the status bar.
+   *
+   * Which accounting period today falls in and whether it is open. It is its own endpoint rather
+   * than a filter over `GET /periods` because every screen asks for it: downloading a year of
+   * periods to find one is the kind of cost that is invisible per screen and obvious in aggregate.
+   *
+   * The most common frustration in an ERP is attempting work the system is going to reject with a
+   * fact it already knew. Someone who can see "period 2026-08 closed" does not try to post into
+   * August.
+   */
+  @Get('current-period')
+  @HasPermission(PERMISSIONS.ACCOUNTING_VIEW)
+  @ApiOperation({ summary: 'El período contable en el que cae hoy, y si está abierto.' })
+  async currentPeriod(@CurrentUser() user: AuthenticatedUser) {
+    const period = await this.periodClosingService.currentPeriod(user.organizationId);
+    if (!period) return { period: null };
+    return {
+      period: {
+        id: period.id,
+        startDate: period.startDate,
+        endDate: period.endDate,
+        status: period.status,
+      },
+    };
+  }
+
+  /**
    * What still stands between the tenant and closing this period.
    *
    * `ClosingChecklistService` computes every item from the tenant's own data — unposted entries,

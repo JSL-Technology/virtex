@@ -4,6 +4,8 @@ import { SalesQueryDto } from './dto/sales-query.dto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
 import * as crypto from 'crypto';
+import { HasPermission } from '../auth/decorators/permissions.decorator';
+import { PERMISSIONS } from '../shared/permissions';
 
 @Controller('bi')
 export class BiController {
@@ -13,6 +15,7 @@ export class BiController {
   ) {}
 
   @Get('sales')
+  @HasPermission(PERMISSIONS.BI_VIEW)
   async getSalesData(@Query() query: SalesQueryDto) {
 
     const cacheKey = `sales_query_${this.createHash(JSON.stringify(query))}`;

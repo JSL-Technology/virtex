@@ -1,118 +1,121 @@
-import { Injectable, inject, Optional, Inject, Type } from '@angular/core';
+import { Injectable, inject, Type } from '@angular/core';
 import { TabDefinition, TabType } from './tab.model';
-import { TAB_DEFINITIONS, CORE_TAB_DEFINITIONS } from './tab-definitions';
 import { GenericModulePage } from './components/generic-module.page';
 import { AuthService } from '../services/auth';
+import { resolveRoute, RegisteredRoute } from '../modules/module-registry';
+import { WindowKind } from '../modules/module-manifest';
 
 export interface ResolvedTab {
   definition: TabDefinition;
   params: Record<string, string>;
-  /** true cuando se usó la definición genérica de relleno. */
+  /** True when no declared route owns the URL. */
   isFallback: boolean;
 }
 
 /**
- * Resuelve una ruta a su definición de pestaña. Reglas (TAB_ARCHITECTURE §5.3):
- *  1. Especificidad: literal gana a paramétrica del mismo nivel.
- *  2. Permisos: espejo del permissionsGuard (la autoridad sigue siendo el backend).
- *  3. Sin definición → se usa una definición genérica (sin clics muertos).
+ * Resolves a URL to the window that shows it.
+ *
+ * ## What changed, and why it mattered
+ *
+ * This service used to hold its own catalogue of tab definitions — 15 patterns — while the router
+ * declared roughly ninety routes and the sidebar offered 50 links. Nothing kept the three in step,
+ * so 40 of those links resolved to nothing and opened an "under construction" card on top of pages
+ * that were built and wired to working endpoints. `TAB_ARCHITECTURE.md` §5.2 had already proposed
+ * the fix — each feature declaring its windows beside its routes — and the code never adopted it.
+ *
+ * So the catalogue is gone. This service now *resolves* the module manifests, which are also what
+ * generates the Angular route table. One declaration, two readers: a window that no URL can open
+ * is no longer expressible, and neither is a URL with no window.
+ *
+ * The generic "under construction" page survives for exactly one case: a URL that matches no
+ * declared route. That is a 404, and saying so is the honest answer — unlike before, when it was
+ * the answer given to most of the product.
  */
 @Injectable({ providedIn: 'root' })
 export class TabRegistryService {
   private auth = inject(AuthService);
 
-  private readonly registry: TabDefinition[];
-
-  constructor() {
-    // `multi: true` providers arrive as an array of the provided values.
-    const provided = inject<TabDefinition[][]>(TAB_DEFINITIONS, { optional: true });
-    const fromProviders = (provided ?? []).flat();
-    // Orden por especificidad (menos parámetros → más específico) y, a igualdad,
-    // por longitud de patrón. Así /invoices/new vence a /invoices/:id.
-    this.registry = [...CORE_TAB_DEFINITIONS, ...fromProviders].sort(
-      (a, b) => this.specificity(b.pattern) - this.specificity(a.pattern)
-    );
-  }
-
-  /** Devuelve la mejor definición para la ruta, o una genérica de relleno. */
+  /** Best definition for the URL, or a generic placeholder when nothing declares it. */
   resolve(route: string): ResolvedTab {
-    const routePath = this.normalize(route);
+    const match = resolveRoute(route);
 
-    const matches = this.registry
-      .filter((def) => this.matches(def.pattern, routePath))
-      .sort((a, b) => this.paramCount(a.pattern) - this.paramCount(b.pattern));
-
-    const definition = matches[0];
-    if (definition) {
+    if (match) {
       return {
-        definition,
-        params: this.getRouteParams(definition.pattern, routePath),
+        definition: this.toDefinition(match.entry),
+        params: match.params,
         isFallback: false,
       };
     }
 
     return {
-      definition: this.buildGenericDefinition(routePath),
+      definition: this.buildGenericDefinition(this.normalize(route)),
       params: {},
       isFallback: true,
     };
   }
 
-  /** Compat: solo la definición (incluye fallback genérico). */
+  /** Compat: only the definition (falls back to the generic placeholder). */
   getDefinitionByRoute(route: string): TabDefinition {
     return this.resolve(route).definition;
   }
 
-  /** ¿El usuario puede abrir esta pestaña? (UX; backend sigue siendo autoridad). */
+  /** May the user open this window? UX only; the backend stays the authority. */
   canOpen(definition: TabDefinition): boolean {
     if (!definition.permissions?.length) return true;
     return this.auth.hasPermissions(definition.permissions);
   }
 
   getRouteParams(pattern: string, route: string): Record<string, string> {
-    const params: Record<string, string> = {};
     const patternParts = this.segments(pattern);
     const routeParts = this.segments(this.normalize(route));
+    const params: Record<string, string> = {};
     patternParts.forEach((part, i) => {
-      if (part.startsWith(':')) {
-        params[part.slice(1)] = decodeURIComponent(routeParts[i] ?? '');
-      }
+      if (part.startsWith(':')) params[part.slice(1)] = decodeURIComponent(routeParts[i] ?? '');
     });
     return params;
   }
 
   // ── helpers ────────────────────────────────────────────────────────────────
 
+  /**
+   * A manifest route, expressed as the tab model Dockview already consumes.
+   *
+   * The mapping is mechanical on purpose: the window's kind, permission, title and identity all
+   * come from the single declaration, so there is nothing here for a second list to contradict.
+   */
+  private toDefinition(entry: RegisteredRoute): TabDefinition {
+    const { route, module, path } = entry;
+
+    const isCloseable = route.isCloseable ?? true;
+
+    return {
+      pattern: path,
+      // A window the user cannot close IS the pinned one — the workspace home. Deriving it from
+      // `isCloseable` keeps a single fact in a single place instead of asking a manifest to state
+      // both "cannot be closed" and "is of type PINNED" and stay consistent about it.
+      tabType: isCloseable ? TAB_TYPE_BY_KIND[route.kind] : TabType.PINNED,
+      title: route.titleKey ?? module.titleKey,
+      icon: route.icon ?? module.icon,
+      isCloseable,
+      // `authenticated` means "any signed-in user"; it is not a grantable permission, so it must
+      // not be handed to hasPermissions() — which would deny it for everyone.
+      permissions: route.permission === 'authenticated' ? [] : [route.permission],
+      entityKeyFn: route.entityKeyFn ?? (() => `module:${path}`),
+      titleFn: route.titleFn,
+      load: route.load as () => Promise<Type<unknown>>,
+    };
+  }
+
   private buildGenericDefinition(routePath: string): TabDefinition {
-    const title = this.prettify(routePath);
     return {
       pattern: routePath,
       tabType: TabType.MODULE_LIST,
-      title,
+      title: this.prettify(routePath),
       icon: 'LayoutGrid',
       isCloseable: true,
       entityKeyFn: () => `module:${routePath}`,
       load: () => Promise.resolve(GenericModulePage as unknown as Type<unknown>),
     };
-  }
-
-  private matches(pattern: string, routePath: string): boolean {
-    const patternParts = this.segments(pattern);
-    const routeParts = this.segments(routePath);
-    if (patternParts.length !== routeParts.length) return false;
-    return patternParts.every(
-      (part, i) => part.startsWith(':') || part === routeParts[i]
-    );
-  }
-
-  private specificity(pattern: string): number {
-    const parts = this.segments(pattern);
-    // literal = 2, param = 1; suma + factor por profundidad.
-    return parts.reduce((acc, p) => acc + (p.startsWith(':') ? 1 : 2), 0) * 10 + parts.length;
-  }
-
-  private paramCount(pattern: string): number {
-    return this.segments(pattern).filter((p) => p.startsWith(':')).length;
   }
 
   private segments(path: string): string[] {
@@ -129,3 +132,12 @@ export class TabRegistryService {
     return last.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
   }
 }
+
+/** How each gesture presents itself as a tab. */
+const TAB_TYPE_BY_KIND: Record<WindowKind, TabType> = {
+  [WindowKind.LIST]: TabType.MODULE_LIST,
+  [WindowKind.DOCUMENT]: TabType.RECORD,
+  [WindowKind.DRAFT]: TabType.WIZARD,
+  [WindowKind.INBOX]: TabType.UTILITY,
+  [WindowKind.OVERVIEW]: TabType.REPORT,
+};

@@ -8,6 +8,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerGuard, ThrottlerModule, ThrottlerModuleOptions } from '@nestjs/throttler';
 import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
 import { APP_GUARD } from '@nestjs/core';
+import { PermissionsGuard } from './auth/guards/permissions/permissions.guard';
 import { SubscriptionActiveGuard } from './saas/guards/subscription-active.guard';
 import { JwtAuthGuard } from './auth/guards/jwt/jwt.guard';
 import { CsrfGuard } from './auth/guards/csrf.guard';
@@ -81,6 +82,8 @@ import { DatasheetsModule } from './datasheets/datasheets.module';
 import { envValidation } from './config/env.validation';
 import { redisConnectionOptions } from './cache/redis.config';
 import { SchedulerModule } from './shared/scheduler/scheduler.module';
+import { IdempotencyModule } from './shared/idempotency/idempotency.module';
+import { TenancyModule } from './shared/tenancy/tenancy.module';
 
 @Module({
   imports: [
@@ -300,7 +303,9 @@ import { SchedulerModule } from './shared/scheduler/scheduler.module';
     ProjectsModule,
     HcmModule,
     ProcurementModule,
-    DatasheetsModule
+    DatasheetsModule,
+    IdempotencyModule,
+    TenancyModule
   ],
   providers: [
     {
@@ -321,6 +326,19 @@ import { SchedulerModule } from './shared/scheduler/scheduler.module';
       // token's user binding can be verified rather than only its signature.
       provide: APP_GUARD,
       useClass: CsrfGuard,
+    },
+    {
+      // Authorisation, enforced by default. Declared per-endpoint it reached 47 of 76 controllers
+      // and 246 of 379 route handlers: the remaining 102 were reachable by any authenticated
+      // member of the tenant, among them creating a product, editing a supplier, reading the
+      // finance dashboard and querying the analytical store. None of that was a decision; it is
+      // what an opt-in control converges to, exactly as CSRF and entitlement did below.
+      //
+      // Runs after JwtAuthGuard so `request.user` carries the permissions to check. Denies when a
+      // route declares nothing: the exemption is @AuthenticatedOnly(reason), which makes "no
+      // permission needed" a sentence someone wrote rather than a line nobody did.
+      provide: APP_GUARD,
+      useClass: PermissionsGuard,
     },
     {
       // Entitlement, enforced by default. Declared per-controller it reached 1 of 67 controllers,

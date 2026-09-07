@@ -348,7 +348,11 @@
     "FILE_TYPE_NOT_ALLOWED": "That file type is not allowed.",
     "SINGLE_FILE_EXPECTED": "A single file is expected.",
     "TIPO_ARCHIVO_NO_PERMITIDO": "File type not allowed ({{mimetype}}).",
-    "TOO_MANY_FILES": "Too many files."
+    "TOO_MANY_FILES": "Too many files.",
+    "IDEMPOTENCY_KEY_REQUIRED": "This operation requires an Idempotency-Key header so that retrying it does not repeat it.",
+    "IDEMPOTENCY_KEY_IN_PROGRESS": "A request with that key is already in progress. Wait for its response before retrying.",
+    "IDEMPOTENCY_KEY_REUSED": "That idempotency key was already used for a different request. Use a new key.",
+    "IDEMPOTENCY_REQUIRES_SESSION": "This operation needs a signed-in session."
   },
   "COMPLIANCE": {
     "ANO_NO_ES_VALIDO": "The year is not valid.",
@@ -797,7 +801,17 @@
     "TIPO_COMPROBANTE_NO_CORRESPONDE_AL_DOCUMENTO": "You asked for type {requested} and this document is type {resolved}. The document determines the type, not the request.",
     "TIPO_COMPROBANTE_NO_CORRESPONDE_DOCUMENTO_VENTA": "Document type {{type}} is not a sales document.",
     "TIPO_COMPROBANTE_NO_PERTENECE_AL_MERCADO": "Document type {type} does not exist in the {country} regime.",
-    "TIPO_NO_ES_COMPROBANTE_NOTA_CREDITO_VALIDO": "Type {{type}} is not a valid credit-note document."
+    "TIPO_NO_ES_COMPROBANTE_NOTA_CREDITO_VALIDO": "Type {{type}} is not a valid credit-note document.",
+    "PRECONDITION": {
+      "DRAFT": "The document is a draft and can be issued.",
+      "SEQUENCE_AVAILABLE": "Fiscal sequence available — next: {{number}}"
+    },
+    "EFFECT": {
+      "FISCAL_NUMBER": "Fiscal number to be consumed",
+      "REVENUE_ENTRY": "Revenue entry",
+      "COST_ENTRY": "Cost of sale entry",
+      "STOCK": "Stock movements"
+    }
   },
   "JOURNAL_ENTRIES": {
     "ADJUNTO_ELIMINADO_EXITOSAMENTE": "Attachment deleted.",
@@ -1037,6 +1051,7 @@
   },
   "PERMISSIONS": {
     "ACTIONS": {
+      "ACCESS": "Access",
       "ADJUST": "Adjust",
       "APPROVE": "Approve",
       "APPROVE_ADJUSTMENT": "Approve adjustment",
@@ -1066,6 +1081,7 @@
       "PASSWORD_RESET": "Reset password",
       "PAY": "Pay",
       "PROPOSE_ADJUSTMENT": "Propose adjustment",
+      "QUERY": "Query",
       "REOPEN_PERIOD": "Reopen period",
       "REOPEN_YEAR": "Reopen fiscal year",
       "REVERSE": "Reverse",
@@ -1084,14 +1100,22 @@
       "ACCOUNTING": "Accounting",
       "ACCOUNTS_PAYABLE": "Accounts payable",
       "ACCOUNTS_RECEIVABLE": "Accounts receivable",
+      "ANALYTICS": "Analytics",
       "AUDIT": "Audit",
+      "BI": "Business intelligence",
       "BILLING": "Plan billing",
       "BILLS": "Vendor bills",
       "BUDGETS": "Budgets",
+      "CASES": "Support cases",
       "COA": "Chart of Accounts",
       "COST_ACCOUNTING": "Cost accounting",
+      "CRM": "Sales pipeline",
       "CURRENCIES": "Currencies",
       "CUSTOMERS": "Customers",
+      "CUSTOMER_PORTAL": "Customer portal",
+      "DASHBOARD": "Finance dashboard",
+      "DATASHEETS": "Datasheets",
+      "DIMENSIONS": "Analytical dimensions",
       "EXCHANGE_RATES": "Exchange rates",
       "FINANCIALS": "Financial statements",
       "FIXED_ASSETS": "Fixed assets",
@@ -1100,15 +1124,18 @@
       "INVENTORY": "Inventory",
       "INVOICES": "Sales invoices",
       "JOURNAL_ENTRIES": "Journal entries",
+      "MANUFACTURING": "Manufacturing",
       "PRICE_LISTS": "Price lists",
       "PRODUCTS": "Products & Services",
       "RECONCILIATION": "Bank reconciliation",
       "REPORTS": "Reports",
       "ROLES": "Roles",
       "SETTINGS": "Settings",
+      "SUPPLIERS": "Suppliers",
       "SYSTEM": "System Settings",
       "TAXES": "Taxes",
       "TREASURY": "Treasury",
+      "UNITS_OF_MEASURE": "Units of measure",
       "USERS": "Users",
       "WORKFLOWS": "Workflows"
     }
@@ -1577,5 +1604,11 @@
     "SOLICITUD_APROBACION_NO_ENCONTRADA": "The approval request was not found.",
     "SOLICITUD_NO_ENCONTRADA": "The request was not found.",
     "SOLICITUD_YA_HA_SIDO_PROCESADA": "The request has already been processed."
+  },
+  "REMEDY": {
+    "OPEN_PERIOD": "Open the period",
+    "CONFIGURE_SEQUENCES": "Configure sequences",
+    "REVIEW_PLAN": "Review the plan",
+    "VIEW_STOCK": "View stock"
   }
 }

@@ -22,6 +22,7 @@ import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
 import { AuditTrailService } from '../audit/audit.service';
 import { ActionType } from '../audit/entities/audit-log.entity';
 import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-subscription.decorator';
+import { AuthenticatedOnly } from './decorators/authenticated-only.decorator';
 
 /**
  * Session (device) management: list the active sessions and revoke them.
@@ -36,6 +37,11 @@ import { AllowInactiveSubscription } from '../saas/decorators/allow-inactive-sub
 @ApiTags('Auth')
 @AllowInactiveSubscription()
 @Controller('auth')
+@AuthenticatedOnly(
+  'Listing and revoking your own sessions. This is the screen a person opens when they suspect\n' +
+  'someone else is signed in as them; gating it behind a role would lock the door from inside.\n' +
+  'Revoking ANOTHER user\'s session lives in UsersController and declares USERS_SESSIONS_REVOKE.',
+)
 export class AuthSessionController {
   constructor(
     private readonly authService: AuthService,
