@@ -566,6 +566,49 @@ que te dice que no.
 
 ---
 
+## 9-bis. Estado de implementación
+
+Lo que sigue está construido, verificado y en la rama. El resto de este documento describe el
+destino; esta tabla dice hasta dónde se llegó.
+
+| Capa | Estado | Verificación |
+|---|---|---|
+| **Permisos: guard global y denegación por defecto** | **Hecho** | 102 handlers sin declarar pasan a 0. `route-authorisation.spec.ts` falla nombrando cualquier ruta nueva que no declare. Comprobado que falla al quitar un decorador |
+| **Idempotencia en transiciones** | **Hecho** | 15 transiciones con `@Idempotent()`. 7 pruebas cubren reintento, doble clic concurrente, misma clave con otro cuerpo, y liberación tras fallo |
+| **Aislamiento por empresa (RLS)** | **Hecho en la base; escalonado en la app** | 79 tablas con política. `npm run verify:rls` lo demuestra contra una base viva. La API sigue conectando como dueño, así que hoy no cambia nada; falta la transacción por petición (ver abajo) |
+| **Presencia acotada por empresa** | **Hecho** | El gateway difundía a todos los sockets. 5 pruebas, verificado que fallan al reintroducir la difusión |
+| **Manifiesto de módulo y ventana = ruta** | **Hecho** | 89 rutas declaradas, 42 entradas de menú, **42 abren su página, 0 «En construcción»** (antes: 10 de 50). 13 pruebas sobre la derivación |
+| Los cinco gestos como componentes rectores | Pendiente | — |
+| Barra de estado · Panel de trabajos · Errores tipados | Pendiente | — |
+| Previsualización de transiciones | Pendiente | — |
+| Bandeja por módulo y Mi trabajo | Pendiente | — |
+| Empresa en la URL y workspace en servidor | Pendiente | — |
+| Modo taller · El proceso como lente | Pendiente | — |
+
+### El único paso que quedó a medias, y por qué
+
+RLS está instalado y probado, pero la API sigue conectando como **dueño de las tablas**, y
+`ENABLE ROW LEVEL SECURITY` no aplica al dueño. Es decir: las políticas existen, están demostradas,
+y hoy no protegen nada en ejecución.
+
+Falta apuntar la API al rol `virtex_app` —que no posee nada y por tanto obedece— y eso tiene un
+prerrequisito que no es un interruptor: `app.current_organization` debe estar fijada en la conexión
+que sirve cada petición. Con 91 servicios usando `@InjectRepository`, cuyos repositorios se atan al
+entity manager por defecto, hacen falta:
+
+1. Una transacción por petición, con `SET LOCAL app.current_organization`.
+2. Propagación por `AsyncLocalStorage` para que los repositorios existentes se unan a esa
+   transacción sin reescribir los 91 servicios. El patrón ya existe en el repositorio:
+   `i18n/request-locale.ts`.
+3. Una decisión sobre el camino de autenticación, que corre **antes** de que exista contexto de
+   empresa y por eso quedó fuera de las políticas.
+
+Hacerlo al revés —cambiar la credencial primero— dejaría el producto devolviendo cero filas en
+todas partes. Landing las políticas primero convierte el interruptor final en un cambio de
+credencial cuyo comportamiento ya está medido.
+
+---
+
 ## 10. Orden de construcción
 
 Cada capa hace barata la siguiente. Ninguna se sostiene sin la anterior.
