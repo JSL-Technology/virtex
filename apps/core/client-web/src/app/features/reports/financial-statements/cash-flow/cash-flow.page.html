@@ -97,33 +97,74 @@
           </div>
         </div>
 
+        <!--
+          Investing and financing are presented gross — cash in and cash out as separate columns —
+          because IAS 7.21 and ASC 230-10-45-7 require it. A single net figure per account cannot
+          tell a year of no activity from a year of buying one building and selling another.
+        -->
         <div class="report-section">
-          <div class="section-title"><span>{{ 'REPORTS.CASH_FLOW.INVERSION' | translate }}</span></div>
+          <div class="section-title">
+            <span>{{ 'REPORTS.CASH_FLOW.INVERSION' | translate }}</span>
+            <span class="gross-heading">
+              <span class="amount">{{ 'REPORTS.CASH_FLOW.ENTRADAS' | translate }}</span>
+              <span class="amount">{{ 'REPORTS.CASH_FLOW.SALIDAS' | translate }}</span>
+              <span class="amount">{{ 'REPORTS.CASH_FLOW.NETO' | translate }}</span>
+            </span>
+          </div>
           @for (movement of data.investing.movements; track movement.accountId) {
-            <div class="report-line">
+            <div class="report-line gross-line">
               <span class="account-code">{{ movement.code }}</span>
+              <span class="amount">{{ movement.inflow | vxNumber: '1.2-2' }}</span>
+              <span class="amount">{{ movement.outflow | vxNumber: '1.2-2' }}</span>
               <span class="amount">{{ movement.amount | vxNumber: '1.2-2' }}</span>
             </div>
           }
-          <div class="report-line subtotal-line">
+          <div class="report-line subtotal-line gross-line">
             <span>{{ 'REPORTS.CASH_FLOW.INVERSION' | translate }}</span>
+            <span class="amount">{{ data.investing.inflows | vxNumber: '1.2-2' }}</span>
+            <span class="amount">{{ data.investing.outflows | vxNumber: '1.2-2' }}</span>
             <span class="amount">{{ data.investing.total | vxNumber: '1.2-2' }}</span>
           </div>
         </div>
 
         <div class="report-section">
-          <div class="section-title"><span>{{ 'REPORTS.CASH_FLOW.FINANCIAMIENTO' | translate }}</span></div>
+          <div class="section-title">
+            <span>{{ 'REPORTS.CASH_FLOW.FINANCIAMIENTO' | translate }}</span>
+            <span class="gross-heading">
+              <span class="amount">{{ 'REPORTS.CASH_FLOW.ENTRADAS' | translate }}</span>
+              <span class="amount">{{ 'REPORTS.CASH_FLOW.SALIDAS' | translate }}</span>
+              <span class="amount">{{ 'REPORTS.CASH_FLOW.NETO' | translate }}</span>
+            </span>
+          </div>
           @for (movement of data.financing.movements; track movement.accountId) {
-            <div class="report-line">
+            <div class="report-line gross-line">
               <span class="account-code">{{ movement.code }}</span>
+              <span class="amount">{{ movement.inflow | vxNumber: '1.2-2' }}</span>
+              <span class="amount">{{ movement.outflow | vxNumber: '1.2-2' }}</span>
               <span class="amount">{{ movement.amount | vxNumber: '1.2-2' }}</span>
             </div>
           }
-          <div class="report-line subtotal-line">
+          <div class="report-line subtotal-line gross-line">
             <span>{{ 'REPORTS.CASH_FLOW.FINANCIAMIENTO' | translate }}</span>
+            <span class="amount">{{ data.financing.inflows | vxNumber: '1.2-2' }}</span>
+            <span class="amount">{{ data.financing.outflows | vxNumber: '1.2-2' }}</span>
             <span class="amount">{{ data.financing.total | vxNumber: '1.2-2' }}</span>
           </div>
         </div>
+
+        <!--
+          Its own line, outside the three sections, as IAS 7.28 and ASC 230-10-45-25 require: no
+          cash moved, but what the company holds in foreign currency is worth a different number of
+          reporting-currency units than it was. Shown whenever the tenant has any foreign-currency
+          cash, including when the period's effect happens to be zero — its absence would otherwise
+          read as "we hold none".
+        -->
+        @if (data.effectOfExchangeRateOnCash !== 0) {
+          <div class="report-line subtotal-line">
+            <span>{{ 'REPORTS.CASH_FLOW.EFECTO_TIPO_CAMBIO' | translate }}</span>
+            <span class="amount">{{ data.effectOfExchangeRateOnCash | vxNumber: '1.2-2' }}</span>
+          </div>
+        }
 
         <div class="report-line total-line">
           <span>{{ 'REPORTS.CASH_FLOW.VARIACION_NETA' | translate }}</span>
@@ -134,6 +175,29 @@
           <span class="amount">{{ data.closingCash | vxMoney: data.ledger.currency }}</span>
         </div>
       </div>
+
+      <!--
+        IAS 7.43: investing and financing transactions that required no cash are excluded from the
+        statement and disclosed. Leaving them out silently would be as misleading as the equal and
+        opposite flows they used to produce — an asset acquired under a finance lease is a real
+        commitment, it simply is not a cash flow.
+      -->
+      @if (data.nonCashTransactions.length > 0) {
+        <div class="report-section non-cash">
+          <div class="section-title">
+            <span>{{ 'REPORTS.CASH_FLOW.TRANSACCIONES_NO_MONETARIAS' | translate }}</span>
+          </div>
+          <p class="section-note">{{ 'REPORTS.CASH_FLOW.NO_MONETARIAS_NOTA' | translate }}</p>
+          @for (line of data.nonCashTransactions; track line.accountId) {
+            <div class="report-line gross-line">
+              <span class="account-code">{{ line.code }}</span>
+              <span class="amount">{{ line.debit | vxNumber: '1.2-2' }}</span>
+              <span class="amount">{{ line.credit | vxNumber: '1.2-2' }}</span>
+              <span class="amount"></span>
+            </div>
+          }
+        </div>
+      }
     </div>
   }
 </div>

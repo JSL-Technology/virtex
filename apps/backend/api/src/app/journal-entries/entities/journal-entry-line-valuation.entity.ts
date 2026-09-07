@@ -6,12 +6,18 @@ import {
   ManyToOne,
   JoinColumn,
   Index,
+  Check,
 } from 'typeorm';
 import type { JournalEntryLine } from './journal-entry-line.entity';
 import { Ledger } from '../../accounting/entities/ledger.entity';
 import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
 
 @Index('IDX_journal_entry_line_valuations_ledger', ['ledgerId'])
+/** A valuation carries an amount on one side only, like the line it values. */
+@Check(
+  'CHK_journal_entry_line_valuations_sign',
+  '"debit" >= 0 AND "credit" >= 0 AND NOT ("debit" > 0 AND "credit" > 0)',
+)
 @Entity({ name: 'journal_entry_line_valuations' })
 export class JournalEntryLineValuation {
   @PrimaryColumn({ type: 'uuid', name: 'journal_entry_line_id' })

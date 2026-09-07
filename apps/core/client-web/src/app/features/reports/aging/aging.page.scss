@@ -77,3 +77,62 @@
     border-top: 2px solid var(--text-primary);
   }
 }
+
+/*
+ * The tie-out to the control account.
+ *
+ * Deliberately above the ladder rather than under it: it is the statement that makes the numbers
+ * below usable as evidence, and a reader who scrolls past the table never sees a footer.
+ */
+.control-tieout {
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+  border-left: 3px solid var(--success-text, var(--text-secondary));
+
+  h4 {
+    margin: 0 0 var(--space-3);
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+
+  dl {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-6);
+    margin: 0;
+  }
+
+  dt {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+  }
+
+  dd {
+    margin: var(--space-1) 0 0;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+
+  .verdict {
+    margin: var(--space-3) 0 0;
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+  }
+
+  .caveat {
+    margin: var(--space-2) 0 0;
+    color: var(--warning-text, var(--text-secondary));
+    font-size: var(--font-size-sm);
+  }
+
+  /* A subledger that does not agree with its control account is a finding, not a detail. */
+  &--off {
+    border-left-color: var(--error-text);
+
+    .difference,
+    .verdict {
+      color: var(--error-text);
+    }
+  }
+}

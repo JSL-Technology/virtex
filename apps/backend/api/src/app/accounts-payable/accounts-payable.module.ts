@@ -20,6 +20,9 @@ import { VendorDebitNotesService } from './vendor-debit-notes.service';
 import { AccountingPeriod } from '../accounting/entities/accounting-period.entity';
 import { AccountPeriodLock } from '../accounting/entities/account-period-lock.entity';
 import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
+import { VendorBillApprovalHandler } from './vendor-bill-approval.handler';
+// The ageing report ties itself to the payables control account in the general ledger.
+import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
 
 @Module({
   imports: [
@@ -39,8 +42,15 @@ import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
     WorkflowsModule,
     CurrenciesModule,
     BudgetsModule,
+    ChartOfAccountsModule,
   ],
   controllers: [AccountsPayableController, VendorDebitNotesController],
-  providers: [AccountsPayableService, VendorDebitNotesService, PeriodLockGuard],
+  providers: [
+    AccountsPayableService,
+    VendorDebitNotesService,
+    PeriodLockGuard,
+    // Posts the bill when its approval is granted, inside the approving transaction.
+    VendorBillApprovalHandler,
+  ],
 })
 export class AccountsPayableModule {}

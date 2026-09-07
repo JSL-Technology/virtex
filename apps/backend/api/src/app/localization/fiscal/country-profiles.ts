@@ -142,9 +142,14 @@ export interface CountryFiscalProfile {
    * and the two were silently conflated: the signup form told a Mexican customer "México exige
    * facturación electrónica (CFDI 4.0). Estos datos forman parte del comprobante, por eso los
    * pedimos ahora", validated their RFC, took their money — and handed them a fiscal adapter that
-   * does nothing, because only the Dominican one exists.
+   * resolves to `GenericFiscalAdapter`, which assigns no number at all.
    *
-   *   - `available` — a real fiscal adapter backs the country's regime; documents can be issued.
+   *   - `available` — a real fiscal adapter backs the country's regime: the document is built in
+   *                   the authority's schema, numbered from a range the authority granted, and
+   *                   sealed with the taxpayer's certificate. The last step — the exchange with
+   *                   the authority or its authorised agent — still needs that taxpayer's own
+   *                   credentials and, in several markets, a homologation process; which of the
+   *                   two states a market is in is what `fiscal-coverage.ts` says, per capability.
    *   - `preview`   — everything else in the ERP works (accounting, inventory, procurement,
    *                   payroll, reporting), but the country's e-invoicing regime is not implemented
    *                   yet, so documents cannot be stamped.
@@ -746,7 +751,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     taxId: { label: 'RFC', example: 'DEM010203AB5', pattern: '^[A-ZÑ&]{3,4}\\d{6}[A-Z\\d]{3}$', hasCheckDigit: true },
     address: { divisionLabel: 'Estado', divisions: MEXICAN_STATES, postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{5}$', postalCodeRequired: true },
     electronicInvoicing: { required: true, regime: 'CFDI 4.0' },
-    marketStatus: 'preview',
+    marketStatus: 'available',
     fiscalFields: [
       {
         key: 'regimenFiscal', label: 'Régimen fiscal', required: true, type: 'select',
@@ -763,7 +768,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     taxId: { label: 'NIT', example: '900123456-8', pattern: '^\\d{9,10}-?\\d$', hasCheckDigit: true },
     address: { divisionLabel: 'Departamento', divisions: COLOMBIAN_DEPARTMENTS, postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{6}$', postalCodeRequired: false },
     electronicInvoicing: { required: true, regime: 'DIAN Factura Electrónica' },
-    marketStatus: 'preview',
+    marketStatus: 'available',
     fiscalFields: [
       {
         key: 'responsabilidadesFiscales', label: 'Responsabilidades fiscales', required: true,
@@ -780,7 +785,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     taxId: { label: 'RUT', example: '76.086.428-5', pattern: '^\\d{1,2}\\.?\\d{3}\\.?\\d{3}-?[0-9Kk]$', hasCheckDigit: true },
     address: { divisionLabel: 'Región', divisions: CHILEAN_REGIONS, postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{7}$', postalCodeRequired: false },
     electronicInvoicing: { required: true, regime: 'SII DTE' },
-    marketStatus: 'preview',
+    marketStatus: 'available',
     fiscalFields: [
       {
         key: 'giro', label: 'Giro comercial', required: true, type: 'text',
@@ -800,7 +805,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     taxId: { label: 'RUC', example: '20123456786', pattern: '^(10|15|17|20)\\d{9}$', hasCheckDigit: true },
     address: { divisionLabel: 'Departamento', divisions: PERUVIAN_DEPARTMENTS, postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{5}$', postalCodeRequired: false },
     electronicInvoicing: { required: true, regime: 'SUNAT CPE' },
-    marketStatus: 'preview',
+    marketStatus: 'available',
     fiscalFields: [
       {
         key: 'ubigeo', label: 'Ubigeo', required: true, type: 'text',
@@ -816,7 +821,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     taxId: { label: 'CUIT', example: '30-71234567-1', pattern: '^\\d{2}-?\\d{8}-?\\d$', hasCheckDigit: true },
     address: { divisionLabel: 'Provincia', divisions: ARGENTINE_PROVINCES, postalCodeLabel: 'Código postal', postalCodePattern: '^[A-Z]?\\d{4}[A-Z]{0,3}$', postalCodeRequired: true },
     electronicInvoicing: { required: true, regime: 'AFIP CAE' },
-    marketStatus: 'preview',
+    marketStatus: 'available',
     fiscalFields: [
       {
         key: 'condicionIva', label: 'Condición frente al IVA', required: true, type: 'select',
@@ -837,7 +842,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     taxId: { label: 'CNPJ', example: '11.222.333/0001-81', pattern: '^\\d{2}\\.?\\d{3}\\.?\\d{3}/?\\d{4}-?\\d{2}$', hasCheckDigit: true },
     address: { divisionLabel: 'Estado', divisions: BRAZILIAN_STATES, postalCodeLabel: 'CEP', postalCodePattern: '^\\d{5}-?\\d{3}$', postalCodeRequired: true },
     electronicInvoicing: { required: true, regime: 'NF-e' },
-    marketStatus: 'preview',
+    marketStatus: 'available',
     fiscalFields: [
       {
         key: 'regimeTributario', label: 'Regime tributário (CRT)', required: true, type: 'select',
@@ -862,7 +867,7 @@ export const COUNTRY_FISCAL_PROFILES: readonly CountryFiscalProfile[] = [
     taxId: { label: 'RUC', example: '1790123456001', pattern: '^\\d{13}$', hasCheckDigit: true },
     address: { divisionLabel: 'Provincia', divisions: ECUADORIAN_PROVINCES, postalCodeLabel: 'Código postal', postalCodePattern: '^\\d{6}$', postalCodeRequired: false },
     electronicInvoicing: { required: true, regime: 'SRI Comprobantes Electrónicos' },
-    marketStatus: 'preview',
+    marketStatus: 'available',
     fiscalFields: [
       {
         key: 'obligadoContabilidad', label: 'Obligado a llevar contabilidad', required: true, type: 'select',

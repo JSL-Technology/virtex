@@ -1,4 +1,5 @@
 import { DataSource } from 'typeorm';
+import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Organization } from '../organizations/entities/organization.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
@@ -31,6 +32,7 @@ import { PeriodClosingService } from './period-closing.service';
 import { AccountPeriodLock } from './entities/account-period-lock.entity';
 import { CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
 import { toCents } from '../common/money';
+import { FiscalYear, FiscalYearStatus } from './entities/fiscal-year.entity';
 
 /**
  * The accounting core, against a real PostgreSQL.
@@ -101,6 +103,7 @@ describeWithDb('the accounting core', () => {
       saas as never,
       new JournalEntryNumberingService(),
       audit,
+      new ExchangeRateResolver(dataSource),
     );
 
     closing = new PeriodClosingService(
@@ -274,6 +277,38 @@ describeWithDb('the accounting core', () => {
         'GENERAL-2026-000002',
       ]);
       expect(other.entryNumber).toBe('CIERRE-2026-000001');
+    });
+
+    it('keys the series to the fiscal year, not the calendar year', async () => {
+      // A year running July to June, ordinary in the United States and permitted across the
+      // region. `entryDate.getUTCFullYear()` restarted the series on 1 January, so one fiscal
+      // year's journal contained two partial series and neither covered it — and a consecutive
+      // series exists precisely so an inspector can walk the book end to end.
+      await dataSource.getRepository(AccountingPeriod).save([
+        { organizationId, name: 'Diciembre 2026', startDate: '2026-12-01' as unknown as Date, endDate: '2026-12-31' as unknown as Date, status: PeriodStatus.OPEN },
+        { organizationId, name: 'Enero 2027', startDate: '2027-01-01' as unknown as Date, endDate: '2027-01-31' as unknown as Date, status: PeriodStatus.OPEN },
+      ]);
+      await dataSource.getRepository(FiscalYear).save(
+        dataSource.getRepository(FiscalYear).create({
+          organizationId,
+          startDate: '2026-07-01' as unknown as Date,
+          endDate: '2027-06-30' as unknown as Date,
+          status: FiscalYearStatus.OPEN,
+        }),
+      );
+
+      const december = await post('2026-12-15', 'Antes de fin de año', [
+        { accountId: account['cash'], debit: 100 },
+        { accountId: account['revenue'], credit: 100 },
+      ]);
+      const january = await post('2027-01-15', 'Después de fin de año', [
+        { accountId: account['cash'], debit: 200 },
+        { accountId: account['revenue'], credit: 200 },
+      ]);
+
+      // One series across the turn of the calendar, named for the year the fiscal year ends in.
+      expect(december.entryNumber).toBe('GENERAL-2027-000001');
+      expect(january.entryNumber).toBe('GENERAL-2027-000002');
     });
 
     it('rejects an entry that does not balance, to the cent', async () => {

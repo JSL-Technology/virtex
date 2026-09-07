@@ -91,3 +91,35 @@
   color: var(--content-secondary);
   font-style: italic;
 }
+
+/*
+  What the product covers in this tenant's market, per capability.
+
+  Colour carries the level and the text always states it too: a reader who cannot distinguish the
+  border colours must still be able to tell "implemented" from "not implemented".
+*/
+.coverage {
+  &__list { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
+
+  &__row {
+    display: grid;
+    grid-template-columns: minmax(10rem, auto) minmax(9rem, auto) 1fr;
+    gap: .5rem 1rem;
+    padding: .5rem .75rem;
+    border-left: 3px solid var(--border-color);
+    font-size: .8125rem;
+    color: var(--text-secondary);
+
+    &--implemented { border-left-color: var(--success-text, var(--text-primary)); }
+    &--needs-credentials { border-left-color: var(--warning-text, var(--text-secondary)); }
+    &--not-implemented { border-left-color: var(--error-text); }
+  }
+
+  &__capability { font-weight: 600; color: var(--text-primary); }
+  &__level { font-weight: 600; }
+  &__detail, &__requires { grid-column: 1 / -1; }
+  &__requires { font-style: italic; }
+
+  /* A tenant who is not Dominican has landed on the wrong page; say so before the forms. */
+  &__elsewhere { margin-bottom: .75rem; font-weight: 600; }
+}

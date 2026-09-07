@@ -35,8 +35,15 @@ import {
 } from '../i18n/localized.exception';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
 import { convert, roundAmount, sumAmounts, toCents } from '../common/money';
-import { toIsoDate } from '../chart-of-accounts/account-balances.service';
-import { AgingBucket, AgingRow } from '../accounts-payable/accounts-payable.service';
+import {
+  AccountBalancesService,
+  toIsoDate,
+} from '../chart-of-accounts/account-balances.service';
+import {
+  AgingBucket,
+  AgingReport,
+  AgingRow,
+} from '../accounts-payable/accounts-payable.service';
 
 const AGING_BUCKETS: { label: string; from: number; to: number | null }[] = [
   { label: '1-30', from: 1, to: 30 },
@@ -75,7 +82,47 @@ export class CustomerPaymentsService {
     private readonly numbering: JournalEntryNumberingService,
     private readonly exchangeRates: ExchangeRateResolver,
     private readonly dataSource: DataSource,
+    /**
+     * The general ledger's own view of what is collectible, so the ageing can be tied to its
+     * control account on the page instead of by somebody exporting both and subtracting.
+     */
+    private readonly balances: AccountBalancesService,
   ) {}
+
+  /**
+   * The receivables control account's balance in the general ledger, as a positive amount owed
+   * to the tenant.
+   *
+   * Balances are signed `debit − credit` and a receivable is a debit balance, so unlike payables
+   * the ledger's figure already has the sign the ageing states; there is nothing to flip.
+   */
+  private async receivablesControlBalance(
+    organizationId: string,
+    settings: OrganizationSettings | null,
+    asOfDate: string,
+  ): Promise<number> {
+    const accountId = await this.resolveAccount(
+      this.dataSource.manager,
+      organizationId,
+      AccountRole.ACCOUNTS_RECEIVABLE,
+      settings?.defaultAccountsReceivableId,
+    );
+    if (!accountId) return 0;
+
+    const ledger = await this.dataSource.manager.findOneBy(Ledger, {
+      organizationId,
+      isDefault: true,
+    });
+    if (!ledger) return 0;
+
+    return roundAmount(
+      await this.balances.balanceOf(accountId, {
+        organizationId,
+        ledgerId: ledger.id,
+        asOf: asOfDate,
+      }),
+    );
+  }
 
   // ───────────────────────────────────────────────────────────────────────────
   // Recording a collection
@@ -469,12 +516,13 @@ export class CustomerPaymentsService {
   async aging(
     organizationId: string,
     asOf: Date | string = new Date(),
-  ): Promise<{
-    asOfDate: string;
-    rows: AgingRow[];
-    totals: { current: number; buckets: AgingBucket[]; total: number };
-  }> {
+  ): Promise<AgingReport> {
     const asOfDate = toIsoDate(asOf);
+    const settings = await this.dataSource.manager.findOneBy(OrganizationSettings, {
+      organizationId,
+    });
+    const baseCurrency = settings?.baseCurrency ?? 'USD';
+
     const invoices = await this.dataSource.getRepository(Invoice).find({
       where: {
         organizationId,
@@ -482,6 +530,33 @@ export class CustomerPaymentsService {
       },
       relations: ['customer'],
     });
+
+    // At the rate AS OF the reporting date. The receivable control account is restated to the
+    // closing rate by the period-end revaluation, so ageing at each document's booked rate drifted
+    // from it after every close, with nothing to report the gap — and tying a subledger to its
+    // control account is the substantiation an auditor asks for first.
+    const currencies = [
+      ...new Set(
+        invoices
+          .map((invoice) => (invoice.currencyCode ?? baseCurrency).toUpperCase())
+          .filter((code) => code !== baseCurrency),
+      ),
+    ];
+    const closingRates = new Map<string, number>();
+    let unconvertedDocuments = 0;
+    for (const currency of currencies) {
+      try {
+        closingRates.set(
+          currency,
+          await this.exchangeRates.rateFor(currency, baseCurrency, asOfDate),
+        );
+      } catch {
+        this.logger.warn(
+          `Sin tasa ${currency}→${baseCurrency} al ${asOfDate}; esos documentos se antigüedad ` +
+            'a la tasa de registro.',
+        );
+      }
+    }
 
     const cutoff = new Date(`${asOfDate}T00:00:00.000Z`).getTime();
     const byCustomer = new Map<string, AgingRow>();
@@ -491,7 +566,11 @@ export class CustomerPaymentsService {
       const dueDate = invoice.dueDate ?? invoice.issueDate;
       const due = new Date(`${toIsoDate(dueDate)}T00:00:00.000Z`).getTime();
       const daysOverdue = Math.floor((cutoff - due) / 86_400_000);
-      const amount = convert(invoice.balance, Number(invoice.exchangeRate) || 1);
+
+      const currency = (invoice.currencyCode ?? baseCurrency).toUpperCase();
+      const closingRate = currency === baseCurrency ? 1 : closingRates.get(currency);
+      if (currency !== baseCurrency && closingRate === undefined) unconvertedDocuments += 1;
+      const amount = convert(invoice.balance, closingRate ?? (Number(invoice.exchangeRate) || 1));
 
       const row =
         byCustomer.get(invoice.customerId) ??
@@ -520,8 +599,20 @@ export class CustomerPaymentsService {
     }
 
     const rows = [...byCustomer.values()].sort((a, b) => b.total - a.total);
+    const total = sumAmounts(rows.map((row) => row.total));
+    const controlAccountBalance = await this.receivablesControlBalance(
+      organizationId,
+      settings,
+      asOfDate,
+    );
+
     return {
       asOfDate,
+      currencyCode: baseCurrency,
+      controlAccountBalance,
+      // Signed: positive means the subledger claims more is collectible than the ledger records.
+      controlAccountDifference: roundAmount(total - controlAccountBalance),
+      unconvertedDocuments,
       rows,
       totals: {
         current: sumAmounts(rows.map((row) => row.current)),

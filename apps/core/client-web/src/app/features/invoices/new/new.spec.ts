@@ -1,4 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  TestBed,
+  discardPeriodicTasks,
+  fakeAsync,
+  tick,
+} from '@angular/core/testing';
 import { of } from 'rxjs';
 import { provideRouter } from '@angular/router';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -20,7 +26,12 @@ import { TranslateModule } from '@ngx-translate/core';
 describe('NewInvoicePage', () => {
   let component: NewInvoicePage;
   let fixture: ComponentFixture<NewInvoicePage>;
-  let invoicesService: { context: jest.Mock; createInvoice: jest.Mock; getInvoiceById: jest.Mock };
+  let invoicesService: {
+    context: jest.Mock;
+    createInvoice: jest.Mock;
+    getInvoiceById: jest.Mock;
+    preview: jest.Mock;
+  };
   let notifications: { showError: jest.Mock; showSuccess: jest.Mock; showInfo: jest.Mock };
 
   const context = (overrides: Partial<InvoicingContext> = {}): InvoicingContext => ({
@@ -30,7 +41,15 @@ describe('NewInvoicePage', () => {
     baseCurrency: 'DOP',
     taxRates: [0.18, 0.16, 0],
     taxRequiresConfiguration: false,
-    fiscalDocumentTypes: ['E31', 'E32', 'E46'],
+    // The server describes each type it will accept, rather than sending bare codes the client
+    // has to know the vocabulary for. It used to send `['E31', 'E32', 'E46']` and the page looked
+    // the Spanish labels up in a hardcoded record of the twelve Dominican comprobantes — which is
+    // why no other market could present a document type even once its adapter existed.
+    fiscalDocumentTypes: [
+      { code: 'E31', labelKey: 'FISCAL.DO.E31', requiresBuyerTaxId: true },
+      { code: 'E32', labelKey: 'FISCAL.DO.E32', requiresBuyerTaxId: false },
+      { code: 'E46', labelKey: 'FISCAL.DO.E46', requiresBuyerTaxId: false },
+    ],
     serviceChargeRate: 0.1,
     ...overrides,
   });
@@ -40,6 +59,27 @@ describe('NewInvoicePage', () => {
       context: jest.fn().mockReturnValue(of(ctx)),
       createInvoice: jest.fn().mockReturnValue(of({ id: 'inv-1', invoiceNumber: 'FAC-1', ncfNumber: 'E310000000001' })),
       getInvoiceById: jest.fn(),
+      // The totals are the server's now. The page used to derive them and had already diverged
+      // from the server on the document discount, so the operator watched one figure and was
+      // issued another.
+      preview: jest.fn().mockReturnValue(
+        of({
+          subtotal: 1_800,
+          discountTotal: 200,
+          taxedTotal: 1_800,
+          exemptTotal: 0,
+          goodsTotal: 1_800,
+          servicesTotal: 0,
+          tax: 324,
+          excise: 0,
+          serviceCharge: 180,
+          taxWithheld: 0,
+          incomeTaxWithheld: 0,
+          total: 2_304,
+          netReceivable: 2_304,
+          lines: [],
+        }),
+      ),
     };
     notifications = { showError: jest.fn(), showSuccess: jest.fn(), showInfo: jest.fn() };
 
@@ -85,6 +125,30 @@ describe('NewInvoicePage', () => {
 
   it('offers the fiscal document types the market allows', () => {
     expect(component.fiscalTypes().map((t) => t.code)).toEqual(['E31', 'E32', 'E46']);
+    // The label travels as a translation key, so a Chilean or Brazilian type is presentable
+    // without the client carrying any market's vocabulary of its own.
+    expect(component.fiscalTypes().map((t) => t.labelKey)).toEqual([
+      'FISCAL.DO.E31',
+      'FISCAL.DO.E32',
+      'FISCAL.DO.E46',
+    ]);
+  });
+
+  it('offers a market whose types are not Dominican at all', async () => {
+    await build(
+      context({
+        countryCode: 'CL',
+        baseCurrency: 'CLP',
+        fiscalDocumentTypes: [
+          { code: '33', labelKey: 'FISCAL.CL.33', requiresBuyerTaxId: true },
+          { code: '34', labelKey: 'FISCAL.CL.34', requiresBuyerTaxId: true },
+        ],
+      }),
+    );
+
+    // `33` and `34` are not values of `NcfType`, and before the interface widened neither the
+    // server's type nor the client's could express them.
+    expect(component.fiscalTypes().map((t) => t.code)).toEqual(['33', '34']);
   });
 
   it('offers no document type in a market with no stamping regime', async () => {
@@ -110,19 +174,41 @@ describe('NewInvoicePage', () => {
   it('accepts a fractional quantity', () => {
     component.lineItems.at(0).patchValue({ quantity: 1.5, unitPrice: 100, taxRate: 0.18 });
     expect(component.lineItems.at(0).valid).toBe(true);
-    expect(component.totals.subtotal).toBe(150);
   });
 
-  it('previews the document the way the server computes it', () => {
+  it('shows the totals the server computed, and computes none of its own', fakeAsync(() => {
+    component.invoiceForm.patchValue({ customerId: 'c-1' });
     component.lineItems.at(0).patchValue({ quantity: 2, unitPrice: 1000, discountRate: 0.1, taxRate: 0.18 });
     component.invoiceForm.patchValue({ serviceChargeRate: 0.1 });
+    // Debounced: the figures are worth a request, a request per keystroke is not.
+    tick(300);
 
-    const totals = component.totals;
+    expect(invoicesService.preview).toHaveBeenCalled();
+    const totals = component.totals();
     expect(totals.subtotal).toBe(1800);
     expect(totals.tax).toBe(324);
     expect(totals.serviceCharge).toBe(180);
     expect(totals.total).toBe(2304);
-  });
+
+    // The request carries quantities, prices and intent — never amounts.
+    const [payload] = invoicesService.preview.mock.calls.at(-1) as [Record<string, unknown>];
+    expect(payload['lineItems']).toBeDefined();
+    expect(payload).not.toHaveProperty('total');
+    expect(payload).not.toHaveProperty('subtotal');
+    discardPeriodicTasks();
+  }));
+
+  it('asks for nothing while the form cannot be priced', fakeAsync(() => {
+    // No customer: the buyer's regime decides the withholding, so there is nothing to ask for and
+    // asking would answer 400 on every keystroke of an empty form.
+    component.invoiceForm.patchValue({ customerId: '' });
+    component.lineItems.at(0).patchValue({ quantity: 1, unitPrice: 100 });
+    tick(300);
+
+    expect(invoicesService.preview).not.toHaveBeenCalled();
+    expect(component.totals().total).toBe(0);
+    discardPeriodicTasks();
+  }));
 
   it('reports a line that exceeds the stock on hand', () => {
     component.lineItems.at(0).patchValue({ productId: 'p-2', quantity: 5 });

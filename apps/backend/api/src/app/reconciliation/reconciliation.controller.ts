@@ -24,6 +24,7 @@ import { ReconciliationService } from './reconciliation.service';
 import { UploadStatementDto } from './dto/upload-statement.dto';
 import { ConfirmMatchDto } from './dto/confirm-match.dto';
 import { ExcludeTransactionDto } from './dto/exclude-transaction.dto';
+import { ReopenStatementDto } from './dto/reopen-statement.dto';
 import {
   CreateReconciliationRuleDto,
   UpdateReconciliationRuleDto,
@@ -191,14 +192,22 @@ export class ReconciliationController {
     return this.reconciliation.closeStatement(id, user.organizationId, user.id);
   }
 
+  /**
+   * Reopen a reconciled statement.
+   *
+   * The reason is required. Reopening reverses a control that somebody signed off, and an
+   * unexplained reversal is not reviewable — the previous version not only asked for no reason, it
+   * erased the record of the closing it was undoing.
+   */
   @Post('statements/:id/reopen')
   @HttpCode(HttpStatus.OK)
   @HasPermission(PERMISSIONS.RECONCILIATION_MATCH)
   reopen(
     @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: ReopenStatementDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    return this.reconciliation.reopenStatement(id, user.organizationId);
+    return this.reconciliation.reopenStatement(id, user.organizationId, user.id, dto.reason);
   }
 
   // ── matching ───────────────────────────────────────────────────────────────

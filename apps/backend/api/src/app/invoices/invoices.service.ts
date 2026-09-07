@@ -25,14 +25,24 @@ import { SaasService } from '../saas/saas.service';
 import { SaasResource } from '../saas/enums/saas-resource.enum';
 import { EcfSubmissionService } from '../einvoicing/services/ecf-submission.service';
 import { InvoicePostingService } from './services/invoice-posting.service';
-import { computeDocument, roundToCurrency, TaxableLineInput } from './sales-tax.engine';
-import { NcfType } from '../compliance/entities/ncf-sequence.entity';
+import { ComputedDocument, computeDocument, TaxableLineInput } from './sales-tax.engine';
+import { roundAmount, roundToCurrency, toMinorUnits } from '../common/money';
+import { WithholdingResolverService } from './services/withholding-resolver.service';
 import { TenantBookkeepingProvisioner } from '../shared/provisioning/tenant-bookkeeping.provisioner';
 import { COUNTRY_TAX_SCHEMES } from '../localization/fiscal/country-tax-schemes';
 import { EcfSubmission } from '../einvoicing/entities/ecf-submission.entity';
 import { InvoiceRenderContext } from './services/invoice-renderer.service';
+import { FiscalDocumentTypeOption } from './interfaces/fiscal-adapter.interface';
 import { fiscalDate, organizationTimeZone } from '../shared/fiscal-clock';
 import { BadRequestError, ConflictError, NotFoundError } from '../i18n/localized.exception';
+import { Tax } from '../taxes/entities/tax.entity';
+import { TaxDeterminationService } from '../localization/fiscal/tax-determination/tax-determination.service';
+import {
+  TaxDetermination,
+  TaxDeterminationAddress,
+} from '../localization/fiscal/tax-determination/tax-determination.types';
+import { Customer } from '../customers/entities/customer.entity';
+import { toIsoDate } from '../common/dates';
 
 export interface InvoiceListQuery {
   page?: number;
@@ -52,7 +62,7 @@ export interface InvoicingContext {
   baseCurrency: string;
   taxRates: number[];
   taxRequiresConfiguration: boolean;
-  fiscalDocumentTypes: NcfType[];
+  fiscalDocumentTypes: FiscalDocumentTypeOption[];
   serviceChargeRate: number;
 }
 
@@ -106,6 +116,10 @@ export class InvoicesService {
     private readonly ecfSubmissionService: EcfSubmissionService,
     private readonly posting: InvoicePostingService,
     private readonly bookkeeping: TenantBookkeepingProvisioner,
+    /** Decides what the buyer withholds, from the parties and the sale, not from the request. */
+    private readonly withholdingResolver: WithholdingResolverService,
+    /** Decides the rate where the market has no national one: the United States, Brazil. */
+    private readonly taxDetermination: TaxDeterminationService,
   ) {}
 
   // ── Creation ───────────────────────────────────────────────────────────────
@@ -137,7 +151,7 @@ export class InvoicesService {
   }
 
   /** Turn an existing draft into an issued document. */
-  async issue(invoiceId: string, organizationId: string, type?: NcfType): Promise<Invoice> {
+  async issue(invoiceId: string, organizationId: string, type?: string): Promise<Invoice> {
     const issued = await this.dataSource.transaction(async (manager) => {
       const invoice = await manager.getRepository(Invoice).findOne({
         where: { id: invoiceId, organizationId },
@@ -161,7 +175,7 @@ export class InvoicesService {
    */
   private async issueWithin(
     invoice: Invoice,
-    requestedType: NcfType | null,
+    requestedType: string | null,
     organizationId: string,
     manager: EntityManager,
   ): Promise<Invoice> {
@@ -202,6 +216,152 @@ export class InvoicesService {
   }
 
   /**
+   * The rate a sale bears in a market with no national rate — the United States, Brazil.
+   *
+   * Applied to every taxed line of the document, replacing whatever rate the request or the
+   * catalogue carried. In these markets the rate is a property of **where the goods go**, not of
+   * the product: the same item is 8.25 % in one Texas city and 6.25 % in another, and the seller
+   * collects nothing at all in a state it is not registered in. Until now
+   * `allowedTaxFractions` returned null for them and the client's number was stored verbatim.
+   *
+   * Returns null where the country's rate does come from a table, which is every other market.
+   */
+  private async determinedTaxRate(
+    organizationId: string,
+    countryCode: string | null,
+    customer: Customer,
+    organizationAddress: TaxDeterminationAddress | null,
+    asOf: string,
+  ): Promise<{ rate: number; determination: TaxDetermination } | null> {
+    if (!this.taxDetermination.requiresDetermination(countryCode)) return null;
+
+    const determination = await this.taxDetermination.determine({
+      organizationId,
+      destination: {
+        countryCode: (customer.country ?? countryCode ?? '').toUpperCase(),
+        stateCode: customer.stateOrProvince ?? null,
+        city: customer.city ?? null,
+        postalCode: customer.postalCode ?? null,
+      },
+      origin: organizationAddress,
+      asOf,
+    });
+
+    if (determination.outcome === 'NOT_DETERMINABLE') {
+      // Issuing here would be guessing the rate, which is what this replaces. The message names
+      // what is missing — usually the buyer's state — so it can be fixed in one edit.
+      throw new BadRequestError(
+        determination.reasonKey ?? 'LOCALIZATION.NO_SE_PUDO_DETERMINAR_IMPUESTO',
+        determination.reasonParams ?? {},
+      );
+    }
+
+    return { rate: determination.rate, determination };
+  }
+
+  /**
+   * The rates in the tenant's own tax catalogue, as fractions.
+   *
+   * The catalogue is seeded from `COUNTRY_TAX_SCHEMES` at provisioning and editable afterwards,
+   * and until now nothing in the calculation path read it: a tenant that added a reduced rate for
+   * a specific good, or absorbed a rate decreed between releases, had it refused as a rate its
+   * country does not levy. Two sources of truth for one fact, and the maintained one was dead.
+   */
+  private async tenantTaxRates(
+    organizationId: string,
+    manager: EntityManager,
+  ): Promise<number[]> {
+    const taxes = await manager.getRepository(Tax).find({
+      where: { organizationId },
+      select: { id: true, rate: true },
+    });
+    return taxes
+      .map((tax) => Number(tax.rate) / 100)
+      .filter((rate) => Number.isFinite(rate) && rate >= 0 && rate <= 1);
+  }
+
+  /**
+   * What the document would come to, computed by the server.
+   *
+   * ## Why this endpoint exists
+   *
+   * The invoice form computed its own subtotal, discount, tax, service charge and withholding to
+   * show the user a running total. The server has never accepted a total from the client, so the
+   * books were never at risk — but it was a second implementation of the document arithmetic, and
+   * it had already diverged: the client charged tax on the line subtotal *before* the document
+   * discount, which is the defect this product spent a release fixing on the server. A user
+   * therefore watched one figure while composing and was issued another.
+   *
+   * There is now one implementation. The form asks for the figures instead of deriving them, so
+   * the number on screen while composing is the number that will be issued, including the parts a
+   * client cannot know at all: the tax rate the catalogue carries for a product, the excise, and
+   * what the buyer's regime withholds.
+   *
+   * Reads only. No numbering, no stock, no posting, nothing written.
+   */
+  async preview(dto: CreateInvoiceDto, organizationId: string): Promise<ComputedDocument> {
+    const manager = this.dataSource.manager;
+
+    const organization = await manager.getRepository(Organization).findOne({
+      where: { id: organizationId },
+      select: ['id', 'country', 'state', 'city', 'postalCode'],
+    });
+    const customer = await this.customersService.findOne(dto.customerId, organizationId);
+    const { currencyCode } = await this.resolveCurrency(
+      organizationId,
+      dto.currencyCode,
+      dto.issueDate,
+    );
+
+    const products = await this.loadProducts(dto.lineItems, organizationId, manager);
+    const determined = await this.determinedTaxRate(
+      organizationId,
+      organization?.country ?? null,
+      customer,
+      this.addressOf(organization),
+      toIsoDate(dto.issueDate),
+    );
+    const taxInputs: TaxableLineInput[] = [];
+    const resolved: ResolvedLine[] = [];
+    for (const [index, lineDto] of dto.lineItems.entries()) {
+      const line = this.resolveLine(lineDto, products, index, determined?.rate);
+      resolved.push(line);
+      taxInputs.push({
+        quantity: line.quantity,
+        unitPrice: line.unitPrice,
+        discountRate: line.discountRate,
+        taxTreatment: line.taxTreatment,
+        taxRate: line.taxRate,
+        exciseRate: line.exciseRate,
+        isService: line.isService,
+      });
+    }
+
+    const withholding = await this.withholdingResolver.resolve(
+      manager,
+      organizationId,
+      customer,
+      resolved.some((line) => line.isService) ? 'SERVICES' : 'GOODS',
+      {
+        taxWithholdingRate: dto.taxWithholdingRate,
+        incomeTaxWithholdingRate: dto.incomeTaxWithholdingRate,
+        withholdingOverrideReason: dto.withholdingOverrideReason,
+      },
+    );
+
+    return computeDocument({
+      countryCode: organization?.country ?? null,
+      currencyCode,
+      tenantTaxRates: await this.tenantTaxRates(organizationId, manager),
+      lines: taxInputs,
+      documentDiscountRate: dto.documentDiscountRate,
+      serviceChargeRate: dto.serviceChargeRate,
+      taxWithholdingRate: withholding.taxWithholdingRate,
+      incomeTaxWithholdingRate: withholding.incomeTaxWithholdingRate,
+    });
+  }
+
+  /**
    * Build the document from the catalogue and the market's rules. Pure of side effects beyond
    * reading: no numbering, no stock, no posting.
    */
@@ -220,7 +380,9 @@ export class InvoicesService {
 
     const organization = await manager.getRepository(Organization).findOne({
       where: { id: organizationId },
-      select: ['id', 'country'],
+      // The seller's own address as well as its country: an origin-sourced state prices an
+      // intrastate sale at the seller's rate, not the buyer's.
+      select: ['id', 'country', 'state', 'city', 'postalCode'],
     });
     const customer = await this.customersService.findOne(dto.customerId, organizationId);
 
@@ -228,18 +390,26 @@ export class InvoicesService {
       throw new BadRequestError('INVOICES.FECHA_VENCIMIENTO_NO_PUEDE_SER_ANTERIOR_FECHA');
     }
 
-    const { currencyCode, exchangeRate } = await this.resolveCurrency(
+    const { currencyCode, exchangeRate, baseCurrency } = await this.resolveCurrency(
       organizationId,
       dto.currencyCode,
       dto.issueDate,
     );
 
     const products = await this.loadProducts(dto.lineItems, organizationId, manager);
+    const determined = await this.determinedTaxRate(
+      organizationId,
+      organization?.country ?? null,
+      customer,
+      this.addressOf(organization),
+      toIsoDate(dto.issueDate),
+    );
+
     const taxInputs: TaxableLineInput[] = [];
     const resolved: ResolvedLine[] = [];
 
     for (const [index, lineDto] of dto.lineItems.entries()) {
-      const line = this.resolveLine(lineDto, products, index);
+      const line = this.resolveLine(lineDto, products, index, determined?.rate);
       resolved.push(line);
       taxInputs.push({
         quantity: line.quantity,
@@ -252,14 +422,37 @@ export class InvoicesService {
       });
     }
 
+    // ── Withholding ──────────────────────────────────────────────────────────
+    //
+    // Resolved on the server from the buyer's fiscal classification, the tenant's country and
+    // what is being sold. It used to arrive on the request as any fraction between 0 and 1, with
+    // nothing to compare it against — so the amount the buyer remits to the authority on the
+    // seller's behalf, and which the seller then claims as a credit, was whatever the client sent.
+    // A rate that differs from the regime is still accepted, but only with a stated reason, and it
+    // is recorded on the document as an exception rather than passing as the rule.
+    const withholding = await this.withholdingResolver.resolve(
+      manager,
+      organizationId,
+      customer,
+      // Services when any line is one: every regime that distinguishes the two withholds on
+      // services, so treating a mixed document as goods under-withholds.
+      resolved.some((line) => line.isService) ? 'SERVICES' : 'GOODS',
+      {
+        taxWithholdingRate: dto.taxWithholdingRate,
+        incomeTaxWithholdingRate: dto.incomeTaxWithholdingRate,
+        withholdingOverrideReason: dto.withholdingOverrideReason,
+      },
+    );
+
     const computed = computeDocument({
       countryCode: organization?.country ?? null,
       currencyCode,
+      tenantTaxRates: await this.tenantTaxRates(organizationId, manager),
       lines: taxInputs,
       documentDiscountRate: dto.documentDiscountRate,
       serviceChargeRate: dto.serviceChargeRate,
-      taxWithholdingRate: dto.taxWithholdingRate,
-      incomeTaxWithholdingRate: dto.incomeTaxWithholdingRate,
+      taxWithholdingRate: withholding.taxWithholdingRate,
+      incomeTaxWithholdingRate: withholding.incomeTaxWithholdingRate,
     });
 
     const lineItems = resolved.map((line, index) => {
@@ -274,11 +467,16 @@ export class InvoicesService {
         discountRate: line.discountRate,
         discountAmount: c.discountAmount,
         lineSubtotal: c.subtotal,
+        documentDiscountAmount: c.documentDiscountAmount,
+        taxableBase: c.taxableBase,
         taxRate: c.taxRate,
         taxAmount: c.taxAmount,
         taxTreatment: c.taxTreatment,
         isService: c.isService,
         exciseAmount: c.exciseAmount,
+        // Snapshotted from the product, like the rate beside it: a document is a record of what
+        // was declared, not a view over the catalogue as it stands today.
+        fiscalCodes: line.fiscalCodes,
         unitCost: line.unitCost,
         creditedQuantity: 0,
       });
@@ -316,9 +514,28 @@ export class InvoicesService {
       goodsTotal: computed.goodsTotal,
       servicesTotal: computed.servicesTotal,
       tax: computed.tax,
+      // Stored, not dropped. It is inside `total`, so an invoice carrying excise and recording it
+      // nowhere produced a ledger entry out of balance by exactly that amount.
+      excise: computed.excise,
       serviceCharge: computed.serviceCharge,
       taxWithheld: computed.taxWithheld,
       incomeTaxWithheld: computed.incomeTaxWithheld,
+      // Which rule produced the withholding, so a filing can be traced back to it, and the reason
+      // when the tenant overrode the rule. Without these the figure is unreconstructable: nothing
+      // recorded which regime, if any, it was supposed to come from.
+      withholdingRegimeCodes: withholding.regimeCodes,
+      withholdingOverrideReason: withholding.override?.reason ?? null,
+      // Which jurisdictions produced the rate, so a return can be filed per jurisdiction and a
+      // sale correctly left untaxed for want of nexus is distinguishable from one nobody taxed.
+      taxDetermination: determined
+        ? {
+            outcome: determined.determination.outcome,
+            rate: determined.determination.rate,
+            source: determined.determination.source,
+            components: determined.determination.components,
+            reasonKey: determined.determination.reasonKey,
+          }
+        : null,
       total: computed.total,
       netReceivable: computed.netReceivable,
       balance: computed.netReceivable,
@@ -329,7 +546,10 @@ export class InvoicesService {
       notes: dto.notes,
       currencyCode,
       exchangeRate,
-      totalInBaseCurrency: roundToCurrency(computed.total * exchangeRate, currencyCode),
+      // Rounded to the BASE currency's minor unit, because that is the currency it is measured in.
+      // Rounding it to the document's scale gives a USD invoice into Chilean books two decimals
+      // CLP does not have, and a CLP invoice into dollar books a whole peso of lost precision.
+      totalInBaseCurrency: roundToCurrency(computed.total * exchangeRate, baseCurrency),
       costOfSale,
     });
   }
@@ -367,6 +587,14 @@ export class InvoicesService {
     dto: InvoiceLineDto,
     products: Map<string, Product>,
     index: number,
+    /**
+     * The rate the destination's jurisdictions levy, in a market with no national rate.
+     *
+     * When present it replaces the product's and the request's: in the United States the rate is a
+     * property of where the goods go, not of the item, and the same product is 8.25 % in one Texas
+     * city and 6.25 % in another.
+     */
+    determinedRate?: number,
   ): ResolvedLine {
     const product = dto.productId ? products.get(dto.productId) : undefined;
 
@@ -384,7 +612,7 @@ export class InvoicesService {
     const treatment = dto.taxTreatment ?? this.treatmentOf(product);
     const taxRate =
       treatment === TaxTreatment.TAXED
-        ? (dto.taxRate ?? Number(product?.taxRate ?? 0))
+        ? (determinedRate ?? dto.taxRate ?? Number(product?.taxRate ?? 0))
         : 0;
 
     return {
@@ -396,11 +624,38 @@ export class InvoicesService {
       taxTreatment: treatment,
       taxRate,
       exciseRate: Number(product?.exciseRate ?? 0),
+      fiscalCodes: this.fiscalCodesOf(product),
       isService,
       unitOfMeasure: dto.unitOfMeasure ?? product?.unitOfMeasure ?? 'UND',
       unitCost: Number(product?.cost ?? 0),
       // Only a stocked good moves inventory. A service, or a free-text concept, does not.
       movesStock: Boolean(product) && !isService && product?.kind === ProductKind.GOOD,
+    };
+  }
+
+  /**
+   * The catalogue values a document line must carry in the tenant's market.
+   *
+   * `fiscalItemCode` predates this and is the Mexican `ClaveProdServ` under an older name; it is
+   * folded in so a product configured before the map existed keeps working.
+   */
+  private fiscalCodesOf(product: Product | undefined): Record<string, string> | null {
+    if (!product) return null;
+    const codes = { ...(product.fiscalCodes ?? {}) };
+    if (product.fiscalItemCode && !codes['claveProdServ']) {
+      codes['claveProdServ'] = product.fiscalItemCode;
+    }
+    return Object.keys(codes).length > 0 ? codes : null;
+  }
+
+  /** The seller's own address, for the states that source an intrastate sale to it. */
+  private addressOf(organization: Organization | null): TaxDeterminationAddress | null {
+    if (!organization?.country) return null;
+    return {
+      countryCode: organization.country.toUpperCase(),
+      stateCode: organization.state ?? null,
+      city: organization.city ?? null,
+      postalCode: organization.postalCode ?? null,
     };
   }
 
@@ -428,12 +683,14 @@ export class InvoicesService {
     organizationId: string,
     requested: string | undefined,
     issueDate: string,
-  ): Promise<{ currencyCode: string; exchangeRate: number }> {
+  ): Promise<{ currencyCode: string; exchangeRate: number; baseCurrency: string }> {
     const settings = await this.orgSettingsRepository.findOne({ where: { organizationId } });
     const baseCurrency = settings?.baseCurrency || 'USD';
     const currencyCode = (requested || baseCurrency).toUpperCase();
 
-    if (currencyCode === baseCurrency) return { currencyCode, exchangeRate: 1 };
+    if (currencyCode === baseCurrency) {
+      return { currencyCode, exchangeRate: 1, baseCurrency };
+    }
 
     // Through the resolver, not a direct row lookup. The lookup asked only for a
     // `base → transaction` row and inverted it, so a tenant holding the pair the other way round —
@@ -453,7 +710,7 @@ export class InvoicesService {
     if (!Number.isFinite(exchangeRate) || exchangeRate <= 0) {
       throw new BadRequestError('INVOICES.TASA_CAMBIO_CONFIGURADA_NO_ES_VALIDA', { currencyCode });
     }
-    return { currencyCode, exchangeRate };
+    return { currencyCode, exchangeRate, baseCurrency };
   }
 
   // ── Stock ──────────────────────────────────────────────────────────────────
@@ -508,6 +765,7 @@ export class InvoicesService {
         goodsTotal: rebuilt.goodsTotal,
         servicesTotal: rebuilt.servicesTotal,
         tax: rebuilt.tax,
+        excise: rebuilt.excise,
         serviceCharge: rebuilt.serviceCharge,
         taxWithheld: rebuilt.taxWithheld,
         incomeTaxWithheld: rebuilt.incomeTaxWithheld,
@@ -588,6 +846,9 @@ export class InvoicesService {
 
       const selections = this.resolveCreditSelections(original, dto);
       const isFullCredit = this.isFullCredit(original, selections);
+      const baseCurrency =
+        (await manager.getRepository(OrganizationSettings).findOne({ where: { organizationId } }))
+          ?.baseCurrency ?? 'USD';
 
       const computed = computeDocument({
         countryCode: (
@@ -596,12 +857,19 @@ export class InvoicesService {
             .findOne({ where: { id: organizationId }, select: ['id', 'country'] })
         )?.country,
         currencyCode: original.currencyCode,
+        // A credit note re-prices lines of a document that was already accepted, so the rates it
+        // carries must be the ones the tenant can levy, not only the ones the table lists.
+        tenantTaxRates: await this.tenantTaxRates(organizationId, manager),
         lines: selections.map((s) => ({
           quantity: s.quantity,
           unitPrice: s.line.price,
           discountRate: s.line.discountRate,
           taxTreatment: s.line.taxTreatment,
           taxRate: s.line.taxRate,
+          // The excise the original line bore, as a rate, so the note credits it too. Omitting it
+          // credited the tax and the base and left the customer charged the excise for goods they
+          // returned.
+          exciseRate: proportion(s.line.exciseAmount, s.line.taxableBase || s.line.lineSubtotal),
           isService: s.line.isService,
         })),
         // The note inherits the invoice's document-level rates so the credit mirrors what was
@@ -618,11 +886,15 @@ export class InvoicesService {
         ),
       });
 
-      if (computed.total > original.creditableRemaining + 0.005) {
-        throw new BadRequestException(
-          `El importe a acreditar (${computed.total.toFixed(2)}) excede el saldo acreditable de la ` +
-            `factura ${original.invoiceNumber} (${original.creditableRemaining.toFixed(2)}).`,
-        );
+      if (
+        toMinorUnits(computed.total, original.currencyCode) >
+        toMinorUnits(original.creditableRemaining, original.currencyCode)
+      ) {
+        throw new BadRequestError('INVOICES.MONTO_ACREDITAR_EXCEDE_SALDO', {
+          amount: computed.total,
+          invoiceNumber: original.invoiceNumber,
+          remaining: original.creditableRemaining,
+        });
       }
 
       const creditNoteNumber = await this.documentSequencesService.getNextNumber(
@@ -648,10 +920,13 @@ export class InvoicesService {
           discountRate: s.line.discountRate,
           discountAmount: c.discountAmount,
           lineSubtotal: c.subtotal,
+          documentDiscountAmount: c.documentDiscountAmount,
+          taxableBase: c.taxableBase,
           taxRate: c.taxRate,
           taxAmount: c.taxAmount,
           taxTreatment: c.taxTreatment,
           isService: c.isService,
+          exciseAmount: c.exciseAmount,
           unitCost: s.line.unitCost,
           creditedQuantity: 0,
         });
@@ -694,6 +969,7 @@ export class InvoicesService {
         goodsTotal: computed.goodsTotal,
         servicesTotal: computed.servicesTotal,
         tax: computed.tax,
+        excise: computed.excise,
         serviceCharge: computed.serviceCharge,
         taxWithheld: computed.taxWithheld,
         incomeTaxWithheld: computed.incomeTaxWithheld,
@@ -703,7 +979,7 @@ export class InvoicesService {
         creditedTotal: 0,
         totalInBaseCurrency: roundToCurrency(
           computed.total * original.exchangeRate,
-          original.currencyCode,
+          baseCurrency,
         ),
         costOfSale,
         notes: dto.reason || `Nota de crédito de la factura ${original.invoiceNumber}`,
@@ -990,6 +1266,8 @@ interface ResolvedLine {
   taxTreatment: TaxTreatment;
   taxRate: number;
   exciseRate: number;
+  /** The catalogue values the market's regime needs on this line, from the product. */
+  fiscalCodes: Record<string, string> | null;
   isService: boolean;
   unitOfMeasure: string;
   unitCost: number;
@@ -1009,5 +1287,5 @@ function proportion(part: number, whole: number): number {
 }
 
 function round6(value: number): number {
-  return Math.round((value + Number.EPSILON) * 1e6) / 1e6;
+  return roundAmount(value, 6);
 }

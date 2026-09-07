@@ -121,6 +121,7 @@ export class TenantBookkeepingProvisioner {
     settings.defaultSalesDiscountsId ??= byRole.get(AccountRole.SALES_DISCOUNTS) ?? null;
     settings.defaultServiceChargePayableId ??= byRole.get(AccountRole.SERVICE_CHARGE_PAYABLE) ?? null;
     settings.defaultTaxWithheldReceivableId ??= byRole.get(AccountRole.WITHHOLDING_RECEIVABLE) ?? null;
+    settings.defaultExciseTaxPayableId ??= byRole.get(AccountRole.EXCISE_TAX_PAYABLE) ?? null;
     settings.defaultTaxWithheldPayableId ??= byRole.get(AccountRole.WITHHOLDING_PAYABLE) ?? null;
     settings.defaultCashId ??= byRole.get(AccountRole.CASH) ?? null;
     settings.defaultBankId ??= byRole.get(AccountRole.BANK) ?? null;
@@ -280,6 +281,24 @@ export class TenantBookkeepingProvisioner {
       if (!settings.defaultAccountsReceivableId) gaps.push('la cuenta de Cuentas por Cobrar');
       if (!settings.defaultSalesRevenueId) gaps.push('la cuenta de Ingresos por Ventas');
       if (!settings.defaultSalesTaxId) gaps.push('la cuenta de Impuesto sobre Ventas por Pagar');
+
+      // Asked for here rather than discovered mid-sale.
+      //
+      // Issuance refuses to post withholding, the service charge or excise to a substitute
+      // account — booking withheld tax to Accounts Receivable overstates a debt the customer will
+      // never pay, and the propina is a liability to staff, not revenue. Refusing is right; doing
+      // it at the moment someone presses "Emitir", with a fiscal number about to be consumed, is
+      // not. Every market this product sells into withholds at source and most tip legally, so
+      // these are not exotic.
+      if (!settings.defaultTaxWithheldReceivableId) {
+        gaps.push('la cuenta de Retenciones Recibidas (impuesto retenido por el cliente)');
+      }
+      if (!settings.defaultServiceChargePayableId) {
+        gaps.push('la cuenta de Propina Legal por Pagar');
+      }
+      if (!settings.defaultSalesDiscountsId) {
+        gaps.push('la cuenta de Descuentos sobre Ventas');
+      }
     }
 
     const ledgers = await manager

@@ -1,0 +1,135 @@
+<div class="s-page">
+  <div class="s-header">
+    <h1 class="s-header__title">{{ 'SETTINGS.PAGES.WITHHOLDING.TITLE' | translate }}</h1>
+    <p class="s-header__subtitle">{{ 'SETTINGS.PAGES.WITHHOLDING.SUBTITLE' | translate }}</p>
+  </div>
+
+  <!--
+    What the product does and does not do in this market, stated per capability. `marketStatus`
+    alone was `available` or `preview`, and "preview" reads as "coming soon" rather than "you can
+    keep books here and you cannot issue a stamped document".
+  -->
+  @if (coverage(); as market) {
+    <section class="card w-coverage">
+      <h2>{{ 'SETTINGS.PAGES.WITHHOLDING.COVERAGE_TITLE' | translate: { country: market.countryCode } }}</h2>
+      <ul>
+        @for (capability of market.capabilities; track capability.capability) {
+          <li [class]="'w-level w-level--' + capability.level">
+            <span class="w-capability">{{ capabilityKey(capability.capability) | translate }}</span>
+            <span class="w-status">{{ levelKey(capability.level) | translate }}</span>
+            @if (capability.detail) { <span class="w-detail">{{ capability.detail }}</span> }
+            @if (capability.requires) {
+              <span class="w-requires">
+                {{ 'SETTINGS.PAGES.WITHHOLDING.REQUIRES' | translate }}: {{ capability.requires }}
+              </span>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+  }
+
+  <button class="primary-button" type="button" (click)="toggleForm()">
+    {{ (showForm() ? 'SETTINGS.PAGES.WITHHOLDING.CANCEL'
+                   : 'SETTINGS.PAGES.WITHHOLDING.ADD') | translate }}
+  </button>
+
+  @if (showForm()) {
+    <form class="card w-form" [formGroup]="form" (ngSubmit)="save()">
+      <div class="w-grid">
+        <label class="form-field">
+          <span>{{ 'SETTINGS.PAGES.WITHHOLDING.CODE' | translate }}</span>
+          <input formControlName="code" maxlength="40" />
+        </label>
+        <label class="form-field">
+          <span>{{ 'SETTINGS.PAGES.WITHHOLDING.LABEL' | translate }}</span>
+          <input formControlName="label" maxlength="160" />
+        </label>
+        <label class="form-field">
+          <span>{{ 'SETTINGS.PAGES.WITHHOLDING.KIND' | translate }}</span>
+          <select formControlName="kind">
+            @for (kind of kinds; track kind.value) {
+              <option [value]="kind.value">{{ kind.labelKey | translate }}</option>
+            }
+          </select>
+          <small class="field-hint">{{ 'SETTINGS.PAGES.WITHHOLDING.KIND_HINT' | translate }}</small>
+        </label>
+        <label class="form-field">
+          <span>{{ 'SETTINGS.PAGES.WITHHOLDING.RATE' | translate }}</span>
+          <input type="number" step="0.01" min="0" max="100" formControlName="ratePercent" />
+        </label>
+        <label class="form-field">
+          <span>{{ 'SETTINGS.PAGES.WITHHOLDING.SCOPE' | translate }}</span>
+          <select formControlName="scope">
+            @for (scope of scopes; track scope.value) {
+              <option [value]="scope.value">{{ scope.labelKey | translate }}</option>
+            }
+          </select>
+        </label>
+        <div class="form-field form-field--wide">
+          <span>{{ 'SETTINGS.PAGES.WITHHOLDING.PAYERS' | translate }}</span>
+          <div class="w-payers">
+            @for (payer of payerTypes; track payer.value) {
+              <label class="w-payer">
+                <input
+                  type="checkbox"
+                  [checked]="isPayerSelected(payer.value)"
+                  (change)="togglePayer(payer.value)"
+                />
+                <span>{{ payer.labelKey | translate }}</span>
+              </label>
+            }
+          </div>
+          <small class="field-hint">{{ 'SETTINGS.PAGES.WITHHOLDING.PAYERS_HINT' | translate }}</small>
+        </div>
+        <label class="form-field form-field--wide">
+          <!-- Required: a regime with no stated authority is a number somebody typed. -->
+          <span>{{ 'SETTINGS.PAGES.WITHHOLDING.LEGAL_BASIS' | translate }}</span>
+          <input formControlName="legalBasis" maxlength="500" />
+          <small class="field-hint">{{ 'SETTINGS.PAGES.WITHHOLDING.LEGAL_BASIS_HINT' | translate }}</small>
+        </label>
+      </div>
+
+      <button class="primary-button" type="submit" [disabled]="saving()">
+        {{ 'SETTINGS.PAGES.WITHHOLDING.SAVE' | translate }}
+      </button>
+    </form>
+  }
+
+  @if (loading()) {
+    <p class="s-state">{{ 'SETTINGS.PAGES.WITHHOLDING.LOADING' | translate }}</p>
+  } @else if (regimes().length === 0) {
+    <p class="s-state">{{ 'SETTINGS.PAGES.WITHHOLDING.EMPTY' | translate }}</p>
+  } @else {
+    <div class="card">
+      <table class="w-table">
+        <thead>
+          <tr>
+            <th>{{ 'SETTINGS.PAGES.WITHHOLDING.CODE' | translate }}</th>
+            <th>{{ 'SETTINGS.PAGES.WITHHOLDING.LABEL' | translate }}</th>
+            <th>{{ 'SETTINGS.PAGES.WITHHOLDING.KIND' | translate }}</th>
+            <th class="numeric">{{ 'SETTINGS.PAGES.WITHHOLDING.RATE' | translate }}</th>
+            <th>{{ 'SETTINGS.PAGES.WITHHOLDING.LEGAL_BASIS' | translate }}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of regimes(); track row.id) {
+            <tr [class.w-row--inactive]="!row.isActive">
+              <td>{{ row.code }}</td>
+              <td>{{ row.label }}</td>
+              <td>{{ row.kind }}</td>
+              <td class="numeric">{{ percent(row.rate) | vxNumber: '1.2-4' }}%</td>
+              <td class="w-basis">{{ row.legalBasis }}</td>
+              <td>
+                <button class="secondary-button" type="button" (click)="remove(row)">
+                  {{ 'SETTINGS.PAGES.WITHHOLDING.DELETE' | translate }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

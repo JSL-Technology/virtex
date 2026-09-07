@@ -88,10 +88,40 @@ export interface TrialBalanceReport {
   isBalanced: boolean;
 }
 
-export interface CashFlowMovement {
+/** A line of the operating reconciliation: a net adjustment, not a cash flow of its own. */
+export interface CashFlowAdjustment {
   accountId: string;
   code: string;
   amount: number;
+}
+
+/**
+ * A line of the investing or financing section, presented gross.
+ *
+ * IAS 7.21 and ASC 230-10-45-7 require cash received and cash paid to be shown separately, not
+ * netted: a year in which the company sold one building and bought another is not a year in which
+ * it did nothing.
+ */
+export interface CashFlowMovement extends CashFlowAdjustment {
+  /** Cash received through this account, as a positive amount. */
+  inflow: number;
+  /** Cash paid through this account, as a positive amount. */
+  outflow: number;
+}
+
+export interface CashFlowSection {
+  movements: CashFlowMovement[];
+  inflows: number;
+  outflows: number;
+  total: number;
+}
+
+/** A transaction that changed the balance sheet without moving cash (IAS 7.43). */
+export interface NonCashTransactionLine {
+  accountId: string;
+  code: string;
+  debit: number;
+  credit: number;
 }
 
 export interface CashFlowStatementReport {
@@ -100,12 +130,19 @@ export interface CashFlowStatementReport {
   openingCash: number;
   operating: {
     netIncome: number;
-    nonCashAdjustments: CashFlowMovement[];
-    workingCapitalChanges: CashFlowMovement[];
+    nonCashAdjustments: CashFlowAdjustment[];
+    workingCapitalChanges: CashFlowAdjustment[];
     total: number;
   };
-  investing: { movements: CashFlowMovement[]; total: number };
-  financing: { movements: CashFlowMovement[]; total: number };
+  investing: CashFlowSection;
+  financing: CashFlowSection;
+  /**
+   * The effect of exchange-rate changes on cash held in foreign currency: a separate reconciling
+   * line, outside the three activity sections, as IAS 7.28 and ASC 230-10-45-25 require.
+   */
+  effectOfExchangeRateOnCash: number;
+  /** Investing and financing transactions excluded from the statement because no cash moved. */
+  nonCashTransactions: NonCashTransactionLine[];
   netChangeInCash: number;
   closingCash: number;
   /** Zero by construction: the statement is derived from the movements it explains. */

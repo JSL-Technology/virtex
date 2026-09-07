@@ -10,6 +10,7 @@ import {
   UpdateDateColumn,
   OneToOne,
   Index,
+  Check,
 } from 'typeorm';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { JournalEntryLine } from './journal-entry-line.entity';
@@ -43,6 +44,22 @@ export enum JournalEntryType {
   unique: true,
   where: '"entry_number" IS NOT NULL',
 })
+// Idempotency is only real if the database holds it: two workers can both read "not posted yet".
+@Index('IDX_journal_entries_org_idempotency_key', ['organizationId', 'idempotencyKey'], {
+  unique: true,
+  where: '"idempotency_key" IS NOT NULL',
+})
+// Reports that classify by what produced an entry ask for one reason over one tenant and range.
+// Partial because the overwhelming majority of entries are a person's and carry none.
+@Index('IDX_journal_entries_org_system_reason', ['organizationId', 'systemReason'], {
+  where: '"system_reason" IS NOT NULL',
+})
+// A rate of zero or less is not a rate. Declared here as well as in the migration so the
+// schema-drift check knows the constraint exists rather than proposing to drop it.
+@Check(
+  'CHK_journal_entries_exchange_rate_positive',
+  '"exchange_rate" IS NULL OR "exchange_rate" > 0',
+)
 export class JournalEntry {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -100,6 +117,62 @@ export class JournalEntry {
 
   @Column('decimal', { precision: 18, scale: 6, nullable: true, name: 'exchange_rate', transformer: numericTransformer })
   exchangeRate?: number;
+
+  /**
+   * Where the rate came from, so a foreign-currency posting can be substantiated rather than
+   * trusted.
+   *
+   * The entry stored a bare number. A number is not evidence: in a region where the authority
+   * publishes an obligatory rate — and where an official rate and a market rate can differ by a
+   * factor — an auditor asked to verify a posting has to be able to see which quote was applied,
+   * from what source, of what date, and whether it was read directly, inverted, or triangulated
+   * through the dollar. `ExchangeRateResolver` computed all four and every caller threw them away.
+   */
+  @Column({ name: 'exchange_rate_type', type: 'varchar', length: 24, nullable: true })
+  exchangeRateType: string | null;
+
+  @Column({ name: 'exchange_rate_source', type: 'varchar', length: 64, nullable: true })
+  exchangeRateSource: string | null;
+
+  /** `IDENTITY`, `DIRECT`, `INVERSE` or `TRIANGULATED`. */
+  @Column({ name: 'exchange_rate_method', type: 'varchar', length: 16, nullable: true })
+  exchangeRateMethod: string | null;
+
+  /** The day the underlying quote is from, which may be earlier than the entry's own date. */
+  @Column({ name: 'exchange_rate_quoted_on', type: 'date', nullable: true })
+  exchangeRateQuotedOn: string | null;
+
+  /**
+   * The business fact this entry records, for postings a system generates.
+   *
+   * Unique per tenant, so the same fact cannot be booked twice however many times its trigger
+   * fires. A retried webhook, a redelivered queue job, a double-clicked button and a replayed
+   * event all arrive with the key of something already in the book, and the unique index is what
+   * makes the second one impossible rather than merely unlikely.
+   *
+   * Null for entries a person composed: those are not replays of anything.
+   */
+  @Column({ name: 'idempotency_key', type: 'varchar', length: 200, nullable: true })
+  idempotencyKey: string | null;
+
+  /**
+   * What produced this entry, as a stable machine string — `fx-revaluation`, `invoice-posting`,
+   * `scheduled-accrual-reversal`, `approval-granted`. Null for an entry a person composed.
+   *
+   * ## Why the ledger has to carry it
+   *
+   * It was passed to every automatic posting already, and used only to write an audit row. So the
+   * ledger itself could not say what kind of transaction a posted entry was, and any report that
+   * needs to know had to guess from the accounts the entry happened to touch.
+   *
+   * The cash flow statement is where guessing fails outright. IAS 7.28 and ASC 230-10-45-25
+   * require the effect of exchange-rate changes on cash to be a separate reconciling line, and the
+   * only thing that distinguishes the revaluation entry that produces it from an ordinary bank
+   * movement is what posted it. Classified by account category — which is all there was — an
+   * unrealised revaluation of a dollar account looked exactly like a deposit.
+   */
+  @Column({ name: 'system_reason', type: 'varchar', length: 64, nullable: true })
+  systemReason: string | null;
 
 
   @Column({

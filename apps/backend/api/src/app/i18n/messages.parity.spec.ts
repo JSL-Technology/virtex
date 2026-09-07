@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { DEFAULT_LANGUAGE, LanguageCode, SUPPORTED_LANGUAGES } from '@virteex/shared/types';
 
@@ -101,4 +101,102 @@ describe('server message catalogues', () => {
       expect(identical.length / Object.keys(REFERENCE).length).toBeLessThan(0.25);
     },
   );
+  /**
+   * Every key the code actually throws exists in a catalogue.
+   *
+   * The parity checks above compare the three catalogues to **each other**, and pass perfectly
+   * while a key that no catalogue has is thrown from production code — because being equally
+   * absent everywhere is parity. The reader then gets the raw key as their error message:
+   * `SAAS.SUBSCRIPTION_SUSPENDED` instead of a sentence telling them why they were refused.
+   *
+   * Sixteen such keys were live when this check was written, in guards and services that had
+   * never been read back in a language. That is the same shape of blind spot as the schema-drift
+   * check that reported success without diffing, and the i18n gate that could not see a literal
+   * inside a comment: a control that ran, passed, and was not looking at the thing it was named
+   * after.
+   *
+   * Scanned rather than enumerated, so a key added tomorrow is covered without anyone remembering
+   * to list it here.
+   */
+  describe('keys the code throws', () => {
+    /** `'GROUP.SOME_KEY'` as it appears in a `BadRequestError` / `InternalServerError` call. */
+    const KEY_PATTERN = /'([A-Z][A-Z0-9_]*(?:\.[A-Z][A-Z0-9_]*)+)'/g;
+
+    /**
+     * i18next plural suffixes.
+     *
+     * `TIME.MINUTES` is stored as `MINUTES_one` and `MINUTES_other`, and the code names the base
+     * key. Both spellings are the same message.
+     */
+    const PLURAL_SUFFIXES = ['_zero', '_one', '_two', '_few', '_many', '_other'];
+
+    /**
+     * The client's catalogue, because some keys the backend names are the client's to render.
+     *
+     * `FiscalDocumentTypeOption.labelKey` is the example: the server says a Chilean document type
+     * is `FISCAL.CL.33` and the invoice screen translates it. Requiring it in the server's own
+     * catalogue would mean storing the same label twice, and the failure this guards against —
+     * a reader seeing a raw key — is equally prevented by it existing on the side that renders it.
+     */
+    const clientCatalogue = flatten(
+      JSON.parse(
+        readFileSync(
+          join(__dirname, '../../../../../core/client-web/src/assets/i18n/es.json'),
+          'utf8',
+        ),
+      ) as Tree,
+    );
+
+    const defined = (key: string): boolean =>
+      key in REFERENCE ||
+      key in clientCatalogue ||
+      PLURAL_SUFFIXES.some((suffix) => `${key}${suffix}` in REFERENCE);
+
+    /**
+     * Source with comments removed.
+     *
+     * Doc comments in this codebase quote example keys — `throw new UnprocessableEntityError(
+     * 'JOURNAL_ENTRIES.UNBALANCED', …)` appears in `localized.exception.ts` explaining the
+     * pattern — and an example is not a call. Scanning them was the same mistake the template
+     * scanner made before it learned to skip `<!-- -->`.
+     */
+    const withoutComments = (source: string): string =>
+      source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+
+    const sourceFiles = (dir: string): string[] =>
+      readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+        const path = join(dir, entry.name);
+        if (entry.isDirectory()) return sourceFiles(path);
+        // Specs name keys they expect NOT to exist, and migrations carry SQL identifiers that
+        // look like keys. Neither is a message the product throws.
+        if (!entry.name.endsWith('.ts') || entry.name.endsWith('.spec.ts')) return [];
+        if (path.includes('/database/migrations/')) return [];
+        return [path];
+      });
+
+    it('are all present in a catalogue', () => {
+      const groups = new Set(Object.keys(REFERENCE).map((key) => key.split('.')[0]));
+      const referenced = new Map<string, string>();
+
+      for (const file of sourceFiles(join(__dirname, '..'))) {
+        const source = withoutComments(readFileSync(file, 'utf8'));
+        for (const match of source.matchAll(KEY_PATTERN)) {
+          const key = match[1];
+          // Only keys under a group the catalogue defines: the pattern also matches enum-ish
+          // constants and SQL fragments, and those are not messages.
+          if (groups.has(key.split('.')[0])) referenced.set(key, file);
+        }
+      }
+
+      // Proof the scan reaches real call sites rather than quietly matching nothing — the exact
+      // failure mode this whole describe block exists to prevent.
+      expect(referenced.size).toBeGreaterThan(200);
+
+      const missing = [...referenced.entries()]
+        .filter(([key]) => !defined(key))
+        .map(([key, file]) => `${key} (${file.split('/src/app/')[1]})`);
+
+      expect(missing).toEqual([]);
+    });
+  });
 });

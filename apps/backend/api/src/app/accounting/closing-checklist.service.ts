@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { DataSource, In, Between } from 'typeorm';
+import { DataSource, In, Between, LessThan } from 'typeorm';
 import { AccountingPeriod } from './entities/accounting-period.entity';
 import {
   JournalEntry,
@@ -125,6 +125,31 @@ export class ClosingChecklistService {
       isCompleted: unreconciledTxCount === 0,
       details: { unreconciledCount: unreconciledTxCount },
       resolutionLink: `/reconciliation?periodId=${periodId}`,
+    });
+
+    // Accruals that should have reversed into this period and did not.
+    //
+    // `AutoReversalService` reverses each flagged accrual on the first of the following month and
+    // logs the ones it cannot — a closed period, a reconciled line. That log is read by nobody: an
+    // accrual left standing overstates the next period's result by its own amount, and the person
+    // closing that period is exactly who needs to know. Here it is a line of the checklist, with
+    // the entries named.
+    const pendingReversals = await this.dataSource.getRepository(JournalEntry).count({
+      where: {
+        organizationId,
+        reversesNextPeriod: true,
+        isReversed: false,
+        status: JournalEntryStatus.POSTED,
+        date: LessThan(toIsoDate(period.startDate) as unknown as Date),
+      },
+    });
+    checklist.push({
+      id: 'pending-accrual-reversals',
+      descriptionKey: 'ACCOUNTING.CHECKLIST.ITEMS.PENDING_ACCRUAL_REVERSALS',
+      params: { count: pendingReversals },
+      isCompleted: pendingReversals === 0,
+      details: { pendingCount: pendingReversals },
+      resolutionLink: `/journal-entries?reversesNextPeriod=true&isReversed=false`,
     });
 
     checklist.push({

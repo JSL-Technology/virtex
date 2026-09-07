@@ -16,6 +16,7 @@ import { CustomerContact } from './customer-contact.entity';
 import type { CustomerGroup } from './customer-group.entity';
 import { User } from '../../users/entities/user.entity/user.entity';
 import type { LanguageCode } from '@virteex/shared/types';
+import { TaxpayerType } from '../../localization/fiscal/withholding-regimes';
 import { numericTransformer, numericTransformerNotNull } from '../../common/database/numeric.transformer';
 
 export enum CustomerStatus {
@@ -67,6 +68,28 @@ export class Customer {
 
   @Column({ nullable: true })
   taxId?: string;
+
+  /**
+   * The buyer's fiscal classification, which decides what they withhold.
+   *
+   * Withholding is not a commercial term: the rate follows from who the payer is, who the payee is
+   * and what is sold. Until this was recorded, the invoicing client supplied the rate and the
+   * server checked only that it was between 0 and 1 — so a buyer who withholds nothing could be
+   * invoiced with a withholding, and a buyer designated a withholding agent could be invoiced
+   * without one, and neither is a difference the books can later reconstruct.
+   *
+   * `WITHHOLDING_AGENT` in particular is a designation the tax authority publishes; it is recorded
+   * here because it is a fact about this customer, and it cannot be inferred from anything else on
+   * the record. Null means the tenant has not classified this customer, and nothing is withheld
+   * automatically — a document may still state a rate, as an exception with a reason.
+   */
+  @Column({
+    name: 'taxpayer_type',
+    type: 'varchar',
+    length: 24,
+    nullable: true,
+  })
+  taxpayerType?: TaxpayerType | null;
   
 
   @Column({ nullable: true, type: 'text' })

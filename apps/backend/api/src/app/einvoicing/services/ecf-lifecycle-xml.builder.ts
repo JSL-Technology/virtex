@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as xmlbuilder from 'xmlbuilder';
+import { roundAmount } from '../../common/money';
 
 export interface CommercialApprovalContext {
   /** RNC of the supplier that issued the comprobante being answered. */
@@ -143,6 +144,6 @@ export class EcfLifecycleXmlBuilder {
   }
 
   private money(n: number): string {
-    return (Math.round((n + Number.EPSILON) * 100) / 100).toFixed(2);
+    return roundAmount(n).toFixed(2);
   }
 }

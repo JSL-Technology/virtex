@@ -1,4 +1,5 @@
 import { DataSource } from 'typeorm';
+import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Organization } from '../organizations/entities/organization.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
@@ -84,6 +85,7 @@ describeWithDb('bank reconciliation', () => {
       { enforceLimit: jest.fn().mockResolvedValue(undefined) } as never,
       new JournalEntryNumberingService(),
       audit,
+      new ExchangeRateResolver(dataSource),
     );
 
     reconciliation = new ReconciliationService(
@@ -768,11 +770,34 @@ describeWithDb('bank reconciliation', () => {
       const matches = await reconciliation.listMatches(statement.id, organizationId);
       await expect(reconciliation.unmatch(matches[0].id, organizationId)).rejects.toThrow();
 
-      const reopened = await reconciliation.reopenStatement(statement.id, organizationId);
+      const reopened = await reconciliation.reopenStatement(
+        statement.id,
+        organizationId,
+        ACTOR,
+        'Se recibió una nota de débito posterior al cierre.',
+      );
       expect(reopened.status).toBe(StatementStatus.IMPORTED);
-      expect(reopened.reconciledAt).toBeNull();
+
+      // The record of the closing survives the reopening. It used to be nulled on the way through,
+      // which deleted the only evidence that the statement had ever been reconciled and by whom —
+      // undoing a control by erasing the proof that it was applied.
+      expect(reopened.reconciledAt).not.toBeNull();
+      expect(reopened.reconciledByUserId).toBe(ACTOR);
+      expect(reopened.reopenedAt).not.toBeNull();
+      expect(reopened.reopenedByUserId).toBe(ACTOR);
+      expect(reopened.reopenReason).toContain('nota de débito');
 
       await reconciliation.unmatch(matches[0].id, organizationId);
+    });
+
+    it('refuses to reopen without a stated reason', async () => {
+      await postToBank('2026-03-05', 10_000, 'Cobro cliente');
+      const statement = await importCsv(CSV_ONE_DEPOSIT, { endingBalance: 10_000 });
+      await reconciliation.closeStatement(statement.id, organizationId, ACTOR);
+
+      await expect(
+        reconciliation.reopenStatement(statement.id, organizationId, ACTOR, '   '),
+      ).rejects.toMatchObject({ messageKey: 'RECONCILIATION.REAPERTURA_REQUIERE_MOTIVO' });
     });
 
     it('lets the tenant be deleted once it has an accounting history', async () => {
@@ -793,6 +818,195 @@ describeWithDb('bank reconciliation', () => {
         [organizationId],
       );
       expect(orphans[0].count).toBe(0);
+    });
+
+    /**
+     * ## The case that could not be reconciled at all
+     *
+     * The statement of a dollar account is in dollars; the ledger keeps the books in pesos. The
+     * match compared `signedAmount(transaction)` against `line.debit − line.credit` — the two
+     * currencies, directly — so no match on a foreign account ever balanced, the difference was
+     * never zero, and `closeStatement` was unreachable. Every one of these assertions fails on the
+     * previous implementation.
+     */
+    describe('a bank account in a currency other than the books', () => {
+      let usdAccountId: string;
+      let usdGlAccountId: string;
+
+      beforeEach(async () => {
+        const usdGl = await dataSource.getRepository(Account).save(
+          dataSource.getRepository(Account).create({
+            organizationId,
+            code: '1105',
+            name: { es: 'Banco USD' },
+            type: AccountType.ASSET,
+            category: AccountCategory.CURRENT_ASSET,
+            nature: AccountNature.DEBIT,
+            isPostable: true,
+            isActive: true,
+          }),
+        );
+        usdGlAccountId = usdGl.id;
+
+        const usdAccount = await dataSource.getRepository(BankAccount).save(
+          dataSource.getRepository(BankAccount).create({
+            organizationId,
+            name: 'Popular USD',
+            accountNumber: `USD${Date.now()}`.slice(0, 20),
+            accountType: BankAccountType.CHECKING,
+            currencyCode: 'USD',
+            glAccountId: usdGlAccountId,
+          }),
+        );
+        usdAccountId = usdAccount.id;
+      });
+
+      /** USD 1,000 into the dollar account, booked at 60 — 60,000 pesos in the books. */
+      const postUsdReceipt = async () =>
+        dataSource.transaction((manager) =>
+          entries.createWithManager(
+            manager,
+            {
+              date: '2026-03-05',
+              description: 'Cobro en dólares',
+              journalId,
+              lines: [
+                {
+                  accountId: usdGlAccountId,
+                  debit: 60_000,
+                  credit: 0,
+                  description: 'Cobro en dólares',
+                  currencyCode: 'USD',
+                  foreignCurrencyDebit: 1_000,
+                  foreignCurrencyCredit: 0,
+                  exchangeRate: 60,
+                },
+                {
+                  accountId: account['receivable'],
+                  debit: 0,
+                  credit: 60_000,
+                  description: 'Cobro en dólares',
+                },
+              ],
+            } as never,
+            organizationId,
+          ),
+        );
+
+      const importUsdCsv = (body: string, overrides: Record<string, unknown> = {}) =>
+        reconciliation.importStatement(
+          {
+            originalname: 'estado-usd.csv',
+            buffer: Buffer.from(body, 'utf-8'),
+            mimetype: 'text/csv',
+          } as FastifyFile,
+          {
+            bankAccountId: usdAccountId,
+            startDate: '2026-03-01',
+            endDate: '2026-03-31',
+            startingBalance: 0,
+            endingBalance: 1_000,
+            dateColumn: 'Fecha',
+            descriptionColumn: 'Concepto',
+            debitColumn: 'Entrada',
+            creditColumn: 'Salida',
+            dateFormat: 'dd/MM/yyyy',
+            decimalSeparator: '.',
+            ...overrides,
+          } as never,
+          organizationId,
+          ACTOR,
+        );
+
+      const USD_CSV = ['Fecha,Concepto,Entrada,Salida', '05/03/2026,Cobro en dolares,1000.00,'].join(
+        '\n',
+      );
+
+      it('stamps the account currency on the statement', async () => {
+        const statement = await importUsdCsv(USD_CSV);
+        expect(statement.currencyCode).toBe('USD');
+      });
+
+      it('states the proof in the account currency, not the books', async () => {
+        await postUsdReceipt();
+        const statement = await importUsdCsv(USD_CSV);
+        const summary = await reconciliation.summary(statement.id, organizationId);
+
+        expect(summary.currencyCode).toBe('USD');
+        expect(summary.baseCurrency).toBe('DOP');
+        // Dollars, not the 60,000 pesos the ledger carries.
+        expect(summary.bookBalance).toBe(1_000);
+      });
+
+      it('matches a dollar statement line against a dollar ledger line', async () => {
+        await postUsdReceipt();
+        const statement = await importUsdCsv(USD_CSV);
+        const suggestions = await reconciliation.suggestMatches(statement.id, organizationId);
+
+        expect(suggestions[0].candidates.length).toBeGreaterThan(0);
+        // The candidate is offered at its dollar amount.
+        expect(suggestions[0].candidates[0].amount).toBe(1_000);
+
+        await reconciliation.confirmMatch(
+          {
+            statementId: statement.id,
+            bankTransactionIds: [statement.transactions[0].id],
+            journalEntryLineIds: [suggestions[0].candidates[0].journalEntryLineId],
+          } as never,
+          organizationId,
+          ACTOR,
+        );
+
+        const summary = await reconciliation.summary(statement.id, organizationId);
+        expect(summary.difference).toBe(0);
+        expect(summary.isReconciled).toBe(true);
+      });
+
+      it('closes the statement once the dollar account agrees', async () => {
+        await postUsdReceipt();
+        const statement = await importUsdCsv(USD_CSV);
+        const suggestions = await reconciliation.suggestMatches(statement.id, organizationId);
+        await reconciliation.confirmMatch(
+          {
+            statementId: statement.id,
+            bankTransactionIds: [statement.transactions[0].id],
+            journalEntryLineIds: [suggestions[0].candidates[0].journalEntryLineId],
+          } as never,
+          organizationId,
+          ACTOR,
+        );
+
+        const closed = await reconciliation.closeStatement(statement.id, organizationId, ACTOR);
+        expect(closed.status).toBe(StatementStatus.RECONCILED);
+      });
+
+      /**
+       * A posting that never recorded its document-currency amount cannot be matched, and the
+       * proof says so instead of dropping it. Guessing it from today's rate would give a different
+       * answer every day.
+       */
+      it('surfaces a ledger line with no document amount rather than discarding it', async () => {
+        await dataSource.transaction((manager) =>
+          entries.createWithManager(
+            manager,
+            {
+              date: '2026-03-06',
+              description: 'Movimiento sin importe en divisa',
+              journalId,
+              lines: [
+                { accountId: usdGlAccountId, debit: 6_000, credit: 0 },
+                { accountId: account['receivable'], debit: 0, credit: 6_000 },
+              ],
+            } as never,
+            organizationId,
+          ),
+        );
+
+        const statement = await importUsdCsv(USD_CSV);
+        const summary = await reconciliation.summary(statement.id, organizationId);
+        expect(summary.unreadableLedgerCount).toBe(1);
+        expect(summary.outstandingLedgerAmount).toBe(0);
+      });
     });
 
     it('counts an excluded line out of the proof, with its reason recorded', async () => {

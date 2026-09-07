@@ -35,6 +35,16 @@ const UNMODELLED_OBJECTS = [
       'equivalent, so these can only be created by migration and will always read as drift. They ' +
       'are load-bearing for analytical reporting and must not be dropped.',
   },
+  {
+    match: /ALTER COLUMN "fx_rate_tolerance" SET DEFAULT/,
+    reason:
+      "A fractional default on a `decimal` column. TypeORM writes `SET DEFAULT '0.02'`, PostgreSQL " +
+      'folds the constant and stores the default as `0.02`, and TypeORM then compares its own ' +
+      "quoted form against the stored bare form and reports a difference. Verified by letting " +
+      'TypeORM create the table itself with `synchronize`: it reports the identical drift against ' +
+      'its own creation on the very next diff, so no migration can satisfy it. The column, its ' +
+      'type and its default are all correct in both the entity and the database.',
+  },
 ];
 
 const env = { ...process.env };

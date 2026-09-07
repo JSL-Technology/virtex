@@ -182,6 +182,22 @@ export class Account {
   blockedByUserId: string | null;
 
 
+  /**
+   * The authority's own grouping code for this account, where the market publishes one.
+   *
+   * Mexico's `código agrupador del SAT` is the case this exists for: the Catálogo de cuentas
+   * every taxpayer files monthly maps each of their accounts onto a code from the SAT's list
+   * (`100.01` Caja, `102.01` Bancos nacionales…), and without it the catalogue cannot be built at
+   * all — the taxpayer's own numbering says nothing to the authority.
+   *
+   * Deliberately not `statementMapping`: that describes where an account appears in a financial
+   * statement, which is a presentation decision. This is a fiscal identifier assigned from a
+   * published list, and conflating the two is how a presentation change would silently alter a
+   * filing.
+   */
+  @Column({ name: 'fiscal_grouping_code', type: 'varchar', length: 20, nullable: true })
+  fiscalGroupingCode: string | null;
+
   @Column({ type: 'jsonb', nullable: true, name: 'statement_mapping', comment: 'Configuración para mapeo en estados financieros.' })
   statementMapping?: {
     balanceSheetCategory?: string;

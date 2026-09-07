@@ -83,6 +83,18 @@ export const envValidation = Joi.object({
     .valid('development', 'test', 'production')
     .default('development'),
 
+  // ── Exchange rates (XE Currency Data API) ─────────────────────────────────
+  //
+  // Both credentials or neither: a deployment with only one of them is a deployment whose daily
+  // refresh fails every night with an authentication error nobody reads, and whose books quietly
+  // have no rates.
+  XE_API_ID: Joi.string().allow('').optional(),
+  XE_API_KEY: Joi.string().allow('').optional().when('XE_API_ID', {
+    is: Joi.string().min(1).required(),
+    then: Joi.string().min(1).required(),
+  }),
+  XE_API_BASE_URL: Joi.string().uri().default('https://xecdapi.xe.com/v1'),
+
   // H-01 FIX: All cryptographic secrets required at startup — fail fast before any module
   // initializes. Development gets a generated, deployment-unusable value; see `secret` above.
   JWT_SECRET: secret('JWT_SECRET'),

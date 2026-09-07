@@ -110,6 +110,7 @@ describeWithDb('closing a period, with the pre-closing tasks that actually run',
       saas as never,
       new JournalEntryNumberingService(),
       audit,
+      new ExchangeRateResolver(dataSource),
     );
 
     const schedulerLock = new SchedulerLockService(dataSource);
