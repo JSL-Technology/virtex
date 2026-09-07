@@ -575,7 +575,7 @@ destino; esta tabla dice hasta dónde se llegó.
 |---|---|---|
 | **Permisos: guard global y denegación por defecto** | **Hecho** | 102 handlers sin declarar pasan a 0. `route-authorisation.spec.ts` falla nombrando cualquier ruta nueva que no declare. Comprobado que falla al quitar un decorador |
 | **Idempotencia en transiciones** | **Hecho** | 15 transiciones con `@Idempotent()`. 7 pruebas cubren reintento, doble clic concurrente, misma clave con otro cuerpo, y liberación tras fallo |
-| **Aislamiento por empresa (RLS)** | **Hecho en la base; escalonado en la app** | 79 tablas con política. `npm run verify:rls` lo demuestra contra una base viva. La API sigue conectando como dueño, así que hoy no cambia nada; falta la transacción por petición (ver abajo) |
+| **Aislamiento por empresa (RLS)** | **Hecho, extremo a extremo** | 79 tablas con política. `verify:rls` lo demuestra en la base; `verify:rls-runtime` lo demuestra a través de la aplicación, como rol `virtex_app`, con repositorios `@InjectRepository` corrientes. Se activa cambiando `DB_USERNAME` |
 | **Presencia acotada por empresa** | **Hecho** | El gateway difundía a todos los sockets. 5 pruebas, verificado que fallan al reintroducir la difusión |
 | **Manifiesto de módulo y ventana = ruta** | **Hecho** | 89 rutas declaradas, 42 entradas de menú, **42 abren su página, 0 «En construcción»** (antes: 10 de 50). 13 pruebas sobre la derivación |
 | Los cinco gestos como componentes rectores | Pendiente | — |
@@ -585,27 +585,46 @@ destino; esta tabla dice hasta dónde se llegó.
 | Empresa en la URL y workspace en servidor | Pendiente | — |
 | Modo taller · El proceso como lente | Pendiente | — |
 
-### El único paso que quedó a medias, y por qué
+### Cómo se activa el aislamiento
 
-RLS está instalado y probado, pero la API sigue conectando como **dueño de las tablas**, y
-`ENABLE ROW LEVEL SECURITY` no aplica al dueño. Es decir: las políticas existen, están demostradas,
-y hoy no protegen nada en ejecución.
+Las políticas están instaladas y el contexto por petición está construido. Falta un único cambio
+**operativo**, no de código:
 
-Falta apuntar la API al rol `virtex_app` —que no posee nada y por tanto obedece— y eso tiene un
-prerrequisito que no es un interruptor: `app.current_organization` debe estar fijada en la conexión
-que sirve cada petición. Con 91 servicios usando `@InjectRepository`, cuyos repositorios se atan al
-entity manager por defecto, hacen falta:
+```
+DB_USERNAME=virtex_app   # en vez del dueño de las tablas
+```
 
-1. Una transacción por petición, con `SET LOCAL app.current_organization`.
-2. Propagación por `AsyncLocalStorage` para que los repositorios existentes se unan a esa
-   transacción sin reescribir los 91 servicios. El patrón ya existe en el repositorio:
-   `i18n/request-locale.ts`.
-3. Una decisión sobre el camino de autenticación, que corre **antes** de que exista contexto de
-   empresa y por eso quedó fuera de las políticas.
+`ENABLE ROW LEVEL SECURITY` no aplica al dueño de una tabla. Mientras la API conecte como dueño,
+las políticas existen y no protegen; conectando como `virtex_app` —que no posee nada— pasan a
+regir. El rol lo crea la propia migración, con permisos sobre las tablas presentes y futuras.
 
-Hacerlo al revés —cambiar la credencial primero— dejaría el producto devolviendo cero filas en
-todas partes. Landing las políticas primero convierte el interruptor final en un cambio de
-credencial cuyo comportamiento ya está medido.
+Lo que hace que ese cambio sea seguro es que el camino ya está probado con los dos roles:
+
+- `npm run verify:rls` — contra la base: sin contexto no se ve ninguna fila, cada empresa ve solo
+  la suya, insertar en otra es rechazado, y ninguna tabla con empresa obligatoria queda sin política.
+- `npm run verify:rls-runtime` — a través de la aplicación, con el inyector real: un repositorio
+  `@InjectRepository` **sin filtro de empresa en la consulta** devuelve solo lo del tenant activo,
+  el query builder obedece, `dataSource.transaction` usa la conexión de la petición, y fuera de
+  contexto no se ve nada. El script **se niega a correr como dueño**, para no reportar un éxito que
+  vendría del motivo equivocado.
+
+`TenantConnectionInterceptor` fija la conexión de cada petición y estampa el tenant; el parche de
+`Repository.manager` y `DataSource.transaction` hace que los 91 servicios que usan
+`@InjectRepository` y los 96 sitios que abren transacción viajen por ella sin tocarlos.
+
+Dos cosas que solo aparecieron al ejecutarlo, y que conviene saber:
+
+1. El parche debe aplicarse **al cargar el módulo**, no en `onModuleInit`: los repositorios se
+   construyen durante la inicialización y `Repository` asigna `this.manager` en su constructor, de
+   modo que una propiedad propia tapa para siempre el accesor del prototipo.
+2. Al liberar la conexión hay que usar `RESET`, no fijar cadena vacía: `''::uuid` lanza
+   `invalid input syntax for type uuid`, y la petición fallaría con un error de base de datos en
+   vez de simplemente no ver nada. Las políticas usan `NULLIF` por si acaso.
+
+**Lo que queda fuera del contexto por petición:** los trabajos en cola. Un procesador de BullMQ no
+tiene petición HTTP, así que no hay contexto y —como `virtex_app`— no vería nada. Hoy eso falla de
+forma visible y segura (cero filas) en vez de silenciosa, pero cada procesador tendrá que establecer
+su propio contexto con `runInTenantContext` antes de que el cambio de rol se dé por cerrado.
 
 ---
 

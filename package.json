@@ -25,7 +25,8 @@
     "verify:fiscal-identity": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/fiscal-identity-roundtrip.ts",
     "verify:invoicing": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/invoicing-lifecycle.ts",
     "verify:ecf": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/ecf-conformance.ts",
-    "verify:rls": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/rls-isolation.ts"
+    "verify:rls": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/rls-isolation.ts",
+    "verify:rls-runtime": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/rls-runtime.ts"
   },
   "private": true,
   "devDependencies": {

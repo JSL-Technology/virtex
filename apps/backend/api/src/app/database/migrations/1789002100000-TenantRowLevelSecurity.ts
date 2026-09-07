@@ -75,7 +75,11 @@ export class TenantRowLevelSecurity1789002100000 implements MigrationInterface {
       [table],
     );
     const column = `${alias ? `${alias}.` : ''}organization_id`;
-    const setting = `current_setting('app.current_organization', true)`;
+    // NULLIF, because a released connection resets the setting and an empty string is not a uuid:
+    // without it `''::uuid` raises `invalid input syntax for type uuid` and the request fails with a
+    // database error instead of simply seeing nothing. Absent and empty must mean the same thing —
+    // no tenant, therefore no rows.
+    const setting = `NULLIF(current_setting('app.current_organization', true), '')`;
 
     return rows[0]?.data_type === 'uuid'
       ? `${column} = ${setting}::uuid`
