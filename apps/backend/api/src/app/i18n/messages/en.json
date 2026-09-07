@@ -801,7 +801,17 @@
     "TIPO_COMPROBANTE_NO_CORRESPONDE_AL_DOCUMENTO": "You asked for type {requested} and this document is type {resolved}. The document determines the type, not the request.",
     "TIPO_COMPROBANTE_NO_CORRESPONDE_DOCUMENTO_VENTA": "Document type {{type}} is not a sales document.",
     "TIPO_COMPROBANTE_NO_PERTENECE_AL_MERCADO": "Document type {type} does not exist in the {country} regime.",
-    "TIPO_NO_ES_COMPROBANTE_NOTA_CREDITO_VALIDO": "Type {{type}} is not a valid credit-note document."
+    "TIPO_NO_ES_COMPROBANTE_NOTA_CREDITO_VALIDO": "Type {{type}} is not a valid credit-note document.",
+    "PRECONDITION": {
+      "DRAFT": "The document is a draft and can be issued.",
+      "SEQUENCE_AVAILABLE": "Fiscal sequence available — next: {{number}}"
+    },
+    "EFFECT": {
+      "FISCAL_NUMBER": "Fiscal number to be consumed",
+      "REVENUE_ENTRY": "Revenue entry",
+      "COST_ENTRY": "Cost of sale entry",
+      "STOCK": "Stock movements"
+    }
   },
   "JOURNAL_ENTRIES": {
     "ADJUNTO_ELIMINADO_EXITOSAMENTE": "Attachment deleted.",
@@ -1594,5 +1604,11 @@
     "SOLICITUD_APROBACION_NO_ENCONTRADA": "The approval request was not found.",
     "SOLICITUD_NO_ENCONTRADA": "The request was not found.",
     "SOLICITUD_YA_HA_SIDO_PROCESADA": "The request has already been processed."
+  },
+  "REMEDY": {
+    "OPEN_PERIOD": "Open the period",
+    "CONFIGURE_SEQUENCES": "Configure sequences",
+    "REVIEW_PLAN": "Review the plan",
+    "VIEW_STOCK": "View stock"
   }
 }

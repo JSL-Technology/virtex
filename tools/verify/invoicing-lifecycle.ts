@@ -149,12 +149,70 @@ async function main(): Promise<void> {
   check('un borrador no consume numeración fiscal', draft.status === InvoiceStatus.DRAFT && !draft.ncfNumber);
   check('un borrador no se contabiliza', !draft.journalEntryId);
 
+  // ── Previewing, which must change nothing ───────────────────────────────────
+  //
+  // The preview runs the REAL transition and rolls it back, so the only way to trust it is to check
+  // both halves: that it leaves no trace, and that what it showed is what issuing then does. A
+  // preview that is merely plausible is worse than none — it is a confident statement about money.
+  const preview = await invoices.previewIssue(draft.id, orgId);
+  check('la previsualización dice que se puede emitir', preview.canExecute);
+
+  const previewLedger = preview.effects.find((e) => e.kind === 'ledger');
+  check('la previsualización muestra el asiento', Boolean(previewLedger));
+  if (previewLedger && previewLedger.kind === 'ledger') {
+    check(
+      'el asiento previsualizado cuadra',
+      Math.abs(previewLedger.totalDebit - previewLedger.totalCredit) < 0.005,
+      `debe ${previewLedger.totalDebit} / haber ${previewLedger.totalCredit}`,
+    );
+  }
+
+  const previewSequence = preview.effects.find((e) => e.kind === 'sequence');
+  check('la previsualización dice qué número fiscal consumiría', Boolean(previewSequence));
+
+  const afterPreview = await invoices.findOne(draft.id, orgId);
+  check('previsualizar no emite el documento', afterPreview.status === InvoiceStatus.DRAFT);
+  check('previsualizar no contabiliza', !afterPreview.journalEntryId && !afterPreview.costJournalEntryId);
+  check('previsualizar no consume numeración', !afterPreview.ncfNumber);
+
+  const entriesBefore = await ds.query(
+    `SELECT count(*)::int AS n FROM journal_entries WHERE organization_id = $1`, [orgId],
+  );
+
   // ── Issuing ─────────────────────────────────────────────────────────────────
   const issued = await invoices.issue(draft.id, orgId);
   check('al emitir se asigna un e-NCF', Boolean(issued.ncfNumber?.startsWith('E31')), issued.ncfNumber ?? 'sin e-NCF');
   check('el e-NCF lleva su fecha de vencimiento', Boolean(issued.ncfExpiresAt), issued.ncfExpiresAt ?? 'sin vencimiento');
   check('la emisión genera un asiento contable', Boolean(issued.journalEntryId));
   check('la emisión contabiliza el costo de la venta', Boolean(issued.costJournalEntryId));
+
+  // The claim the preview made, checked against what actually happened.
+  if (previewSequence && previewSequence.kind === 'sequence') {
+    check(
+      'el número que previsualizó es el que se emitió',
+      previewSequence.value === issued.ncfNumber,
+      `previsto ${previewSequence.value}, emitido ${issued.ncfNumber}`,
+    );
+  }
+  if (previewLedger && previewLedger.kind === 'ledger') {
+    const posted = await ds.query(
+      `SELECT COALESCE(SUM(debit), 0)::float AS debit FROM journal_entry_lines WHERE journal_entry_id = $1`,
+      [issued.journalEntryId],
+    );
+    check(
+      'el importe que previsualizó es el que se contabilizó',
+      Math.abs(Number(posted[0].debit) - previewLedger.totalDebit) < 0.005,
+      `previsto ${previewLedger.totalDebit}, contabilizado ${posted[0].debit}`,
+    );
+  }
+  const entriesAfter = await ds.query(
+    `SELECT count(*)::int AS n FROM journal_entries WHERE organization_id = $1`, [orgId],
+  );
+  check(
+    'la previsualización no dejó asientos huérfanos',
+    entriesAfter[0].n - entriesBefore[0].n <= 2,
+    `antes ${entriesBefore[0].n}, después ${entriesAfter[0].n}`,
+  );
 
   // ── Fractional quantities, discounts, services and withholding ──────────────
   const complex = await invoices.create(

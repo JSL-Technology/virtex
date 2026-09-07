@@ -76,6 +76,28 @@ export class InvoicesController {
     return this.invoicesService.preview(dto, user.organizationId);
   }
 
+  /**
+   * What issuing this draft would do, without doing it.
+   *
+   * Deliberately NOT `@Idempotent()`: a preview commits nothing, so repeating it is free and
+   * requiring a key would be ceremony without a purpose. It carries the same permission as issuing,
+   * because seeing the journal entry a document would post is seeing the document's accounting.
+   *
+   * `PeriodLockGuard` is not applied either — a closed period is one of the answers this endpoint
+   * exists to give, and blocking the question would leave the user with the same silence the
+   * preview is meant to end.
+   */
+  @Post(':id/issue/preview')
+  @HasPermission(PERMISSIONS.INVOICES_CREATE)
+  @HttpCode(HttpStatus.OK)
+  previewIssue(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: IssueInvoiceDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.invoicesService.previewIssue(id, user.organizationId, dto.fiscalDocumentType);
+  }
+
   /** Issue a draft: assigns the fiscal number, posts the ledger entry and transmits the e-CF. */
   @Post(':id/issue')
   @Idempotent()

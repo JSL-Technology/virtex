@@ -801,7 +801,17 @@
     "TIPO_COMPROBANTE_NO_CORRESPONDE_AL_DOCUMENTO": "Pediste el tipo {requested} y este documento corresponde al tipo {resolved}. El tipo lo determina el documento, no la solicitud.",
     "TIPO_COMPROBANTE_NO_CORRESPONDE_DOCUMENTO_VENTA": "El tipo de comprobante {{type}} no corresponde a un documento de venta.",
     "TIPO_COMPROBANTE_NO_PERTENECE_AL_MERCADO": "El tipo de comprobante {type} no existe en el régimen de {country}.",
-    "TIPO_NO_ES_COMPROBANTE_NOTA_CREDITO_VALIDO": "El tipo {{type}} no es un comprobante de nota de crédito válido."
+    "TIPO_NO_ES_COMPROBANTE_NOTA_CREDITO_VALIDO": "El tipo {{type}} no es un comprobante de nota de crédito válido.",
+    "PRECONDITION": {
+      "DRAFT": "El documento está en borrador y puede emitirse.",
+      "SEQUENCE_AVAILABLE": "Secuencia fiscal disponible — siguiente: {{number}}"
+    },
+    "EFFECT": {
+      "FISCAL_NUMBER": "Número fiscal que se consume",
+      "REVENUE_ENTRY": "Asiento de ingreso",
+      "COST_ENTRY": "Asiento de costo de venta",
+      "STOCK": "Movimientos de existencias"
+    }
   },
   "JOURNAL_ENTRIES": {
     "ADJUNTO_ELIMINADO_EXITOSAMENTE": "Adjunto eliminado exitosamente.",
@@ -1594,5 +1604,11 @@
     "SOLICITUD_APROBACION_NO_ENCONTRADA": "Solicitud de aprobación no encontrada.",
     "SOLICITUD_NO_ENCONTRADA": "Solicitud no encontrada.",
     "SOLICITUD_YA_HA_SIDO_PROCESADA": "La solicitud ya ha sido procesada."
+  },
+  "REMEDY": {
+    "OPEN_PERIOD": "Abrir el periodo",
+    "CONFIGURE_SEQUENCES": "Configurar secuencias",
+    "REVIEW_PLAN": "Revisar el plan",
+    "VIEW_STOCK": "Ver existencias"
   }
 }

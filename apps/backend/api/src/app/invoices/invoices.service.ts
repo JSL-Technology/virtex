@@ -43,6 +43,19 @@ import {
 } from '../localization/fiscal/tax-determination/tax-determination.types';
 import { Customer } from '../customers/entities/customer.entity';
 import { toIsoDate } from '../common/dates';
+import {
+  TransitionPreview,
+  Precondition,
+  TransitionEffect,
+  LedgerEffect,
+  LedgerEffectLine,
+} from '../shared/transitions/transition-preview';
+import { REMEDIES } from '../shared/transitions/remedies';
+import { I18nService } from '../i18n/i18n.service';
+import { currentLanguage } from '../i18n/request-locale';
+import { isLocalizedError } from '../i18n/localized.exception';
+import { Account } from '../chart-of-accounts/entities/account.entity';
+import { JournalEntry } from '../journal-entries/entities/journal-entry.entity';
 
 export interface InvoiceListQuery {
   page?: number;
@@ -115,6 +128,7 @@ export class InvoicesService {
     private readonly saasService: SaasService,
     private readonly ecfSubmissionService: EcfSubmissionService,
     private readonly posting: InvoicePostingService,
+    private readonly i18n: I18nService,
     private readonly bookkeeping: TenantBookkeepingProvisioner,
     /** Decides what the buyer withholds, from the parties and the sale, not from the request. */
     private readonly withholdingResolver: WithholdingResolverService,
@@ -167,6 +181,161 @@ export class InvoicesService {
     this.eventEmitter.emit('invoice.issued', issued);
     this.triggerEcfSubmission(issued);
     return issued;
+  }
+
+  /**
+   * What issuing this invoice would do, without doing it.
+   *
+   * Runs `issueWithin` — the real transition, not a re-derivation of it — inside a transaction that
+   * is always rolled back, then reads the rows it wrote. A second function that worked out what
+   * WOULD happen would be a second source of truth about money, and the two would drift.
+   *
+   * Nothing escapes the rollback: the fiscal number, the stock movement and both postings are
+   * database writes, and the non-database effects (`invoice.issued`, the e-CF submission) are
+   * emitted by `issue()` AFTER its transaction commits, so this path never reaches them.
+   */
+  async previewIssue(
+    invoiceId: string,
+    organizationId: string,
+    type?: string,
+  ): Promise<TransitionPreview> {
+    const preconditions: Precondition[] = [];
+    const effects: TransitionEffect[] = [];
+
+    const runner = this.dataSource.createQueryRunner();
+    await runner.connect();
+    await runner.startTransaction();
+
+    try {
+      const manager = runner.manager;
+      const invoice = await manager.getRepository(Invoice).findOne({
+        where: { id: invoiceId, organizationId },
+        relations: ['lineItems', 'customer'],
+      });
+
+      if (!invoice) throw new NotFoundError('INVOICES.FACTURA_ID_NO_ENCONTRADA', { invoiceId });
+
+      if (invoice.status !== InvoiceStatus.DRAFT) {
+        preconditions.push({
+          code: 'INVOICES.DOCUMENTO_YA_FUE_EMITIDO_NO_PUEDE_EMITIRSE',
+          status: 'failed',
+          message: this.i18n.translate(
+            'INVOICES.DOCUMENTO_YA_FUE_EMITIDO_NO_PUEDE_EMITIRSE',
+            currentLanguage(),
+            { invoiceNumber: invoice.invoiceNumber },
+          ),
+        });
+        return { canExecute: false, preconditions, effects };
+      }
+
+      preconditions.push({
+        code: 'INVOICES.PRECONDITION.DRAFT',
+        status: 'passed',
+        message: this.i18n.translate('INVOICES.PRECONDITION.DRAFT', currentLanguage(), {}),
+      });
+
+      const issued = await this.issueWithin(invoice, type ?? null, organizationId, manager);
+
+      // Everything below reads back what the real code just wrote, inside the doomed transaction.
+      if (issued.ncfNumber) {
+        effects.push({
+          kind: 'sequence',
+          titleKey: 'INVOICES.EFFECT.FISCAL_NUMBER',
+          value: issued.ncfNumber,
+          documentType: issued.fiscalDocumentType ?? undefined,
+        });
+        preconditions.push({
+          code: 'INVOICES.PRECONDITION.SEQUENCE_AVAILABLE',
+          status: 'passed',
+          message: this.i18n.translate(
+            'INVOICES.PRECONDITION.SEQUENCE_AVAILABLE',
+            currentLanguage(),
+            { number: issued.ncfNumber },
+          ),
+        });
+      }
+
+      for (const [entryId, titleKey] of [
+        [issued.journalEntryId, 'INVOICES.EFFECT.REVENUE_ENTRY'],
+        [issued.costJournalEntryId, 'INVOICES.EFFECT.COST_ENTRY'],
+      ] as const) {
+        if (!entryId) continue;
+        const effect = await this.describeLedgerEffect(entryId, titleKey, manager);
+        if (effect) effects.push(effect);
+      }
+
+      const movements = (issued.lineItems ?? []).filter((l) => l.productId && !l.isService);
+      if (movements.length) {
+        effects.push({
+          kind: 'stock',
+          titleKey: 'INVOICES.EFFECT.STOCK',
+          movements: movements.map((l) => ({
+            productName: l.description ?? l.productId ?? '',
+            quantity: Number(l.quantity),
+          })),
+        });
+      }
+
+      return { canExecute: true, preconditions, effects };
+    } catch (error) {
+      // A domain error IS the blocking precondition, phrased by the code that would have blocked it.
+      if (isLocalizedError(error)) {
+        preconditions.push({
+          code: error.code,
+          status: 'failed',
+          message: this.i18n.translate(error.messageKey, currentLanguage(), error.params),
+          remedy: REMEDIES[error.code],
+        });
+        return { canExecute: false, preconditions, effects };
+      }
+      throw error;
+    } finally {
+      // Always. A preview that could commit would be the most expensive bug in the product.
+      await runner.rollbackTransaction().catch(() => undefined);
+      await runner.release().catch(() => undefined);
+    }
+  }
+
+  /** One posted entry, expressed as debit/credit lines a person can read. */
+  private async describeLedgerEffect(
+    entryId: string,
+    titleKey: string,
+    manager: EntityManager,
+  ): Promise<LedgerEffect | null> {
+    const entry = await manager.getRepository(JournalEntry).findOne({
+      where: { id: entryId },
+      relations: ['lines'],
+    });
+    if (!entry) return null;
+
+    const accountIds = [...new Set((entry.lines ?? []).map((l) => l.accountId))];
+    const accounts = accountIds.length
+      ? await manager.getRepository(Account).find({ where: { id: In(accountIds) } })
+      : [];
+    const byId = new Map(accounts.map((a) => [a.id, a]));
+    const language = currentLanguage();
+
+    const lines: LedgerEffectLine[] = (entry.lines ?? []).map((line) => {
+      const account = byId.get(line.accountId);
+      const name = account?.name;
+      return {
+        accountCode: account?.code ?? '',
+        accountName:
+          typeof name === 'string' ? name : (name?.[language] ?? Object.values(name ?? {})[0] ?? ''),
+        debit: Number(line.debit ?? 0),
+        credit: Number(line.credit ?? 0),
+        description: line.description,
+      };
+    });
+
+    return {
+      kind: 'ledger',
+      titleKey,
+      currencyCode: entry.currencyCode ?? '',
+      lines,
+      totalDebit: lines.reduce((sum, l) => sum + l.debit, 0),
+      totalCredit: lines.reduce((sum, l) => sum + l.credit, 0),
+    };
   }
 
   /**
