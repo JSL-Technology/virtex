@@ -704,7 +704,23 @@
     "RECHAZAR": "Rejeitar",
     "REPORTES_GASTOS": "Relatórios de Despesas",
     "REVISA_APRUEBA_RECHAZA_TODAS_SOLICITUDES_PENDIENTES": "Revise, aprove ou rejeite todas as solicitações pendentes da empresa.",
-    "SOLICITADO": "Solicitado por"
+    "SOLICITADO": "Solicitado por",
+    "PENDIENTES": "Aguardando sua decisão",
+    "LOAD_FAILED": "Não foi possível carregar as aprovações. Tente novamente.",
+    "APROBADA": "Solicitação aprovada.",
+    "RECHAZADA": "Solicitação rejeitada.",
+    "ERROR_DECIDIR": "Não foi possível registrar a decisão.",
+    "MOTIVO_RECHAZO_TITULO": "Motivo da rejeição",
+    "MOTIVO_RECHAZO_MENSAJE": "Uma rejeição sem motivo não é uma decisão: quem a receber não saberá o que corrigir.",
+    "SOLICITADO_POR": "Solicitado por {{who}}",
+    "PASO": "Etapa {{step}}",
+    "DOCUMENT_TYPE": {
+      "VENDOR_BILL": "Faturas de fornecedor",
+      "PAYMENT_BATCH": "Lotes de pagamento",
+      "JOURNAL_ENTRY": "Lançamentos contábeis",
+      "PERIOD_REOPENING": "Reabertura de período",
+      "AUDIT_ADJUSTMENT": "Ajustes de auditoria"
+    }
   },
   "APPS": {
     "CRM": "Virtex CRM",
@@ -2206,7 +2222,8 @@
     "REQUESTED_DUEDATE": "Solicitado: {{dueDate}}",
     "SECURITY": "Segurança",
     "TASKS": "Tarefas",
-    "YOUR_CENTRALIZED_INBOX_FOR_TASKS_APPROVALS": "Sua caixa de entrada central de tarefas, aprovações e notificações."
+    "YOUR_CENTRALIZED_INBOX_FOR_TASKS_APPROVALS": "Sua caixa de entrada central de tarefas, aprovações e notificações.",
+    "LOAD_FAILED": "Não foi possível carregar sua caixa de entrada. Tente novamente."
   },
   "NAV": {
     "APPROVALS": "Aprovações",
@@ -4216,6 +4233,9 @@
     "PROBLEM_MINLENGTH": "“{{field}}” precisa de pelo menos {{min}} caracteres",
     "PROBLEM_MAXLENGTH": "“{{field}}” aceita no máximo {{max}} caracteres",
     "PROBLEM_PATTERN": "“{{field}}” não está no formato esperado",
-    "PROBLEM_INVALID": "Revise “{{field}}”"
+    "PROBLEM_INVALID": "Revise “{{field}}”",
+    "INBOX_ALL_CLEAR": "Você não tem nada pendente.",
+    "INBOX_SECTION_CLEAR": "Em dia.",
+    "INBOX_OVERDUE": "Vencido"
   }
 }

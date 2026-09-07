@@ -704,7 +704,23 @@
     "RECHAZAR": "Rechazar",
     "REPORTES_GASTOS": "Reportes de Gastos",
     "REVISA_APRUEBA_RECHAZA_TODAS_SOLICITUDES_PENDIENTES": "Revisa, aprueba o rechaza todas las solicitudes pendientes de la empresa.",
-    "SOLICITADO": "Solicitado por"
+    "SOLICITADO": "Solicitado por",
+    "PENDIENTES": "Pendientes de tu decisión",
+    "LOAD_FAILED": "No se pudieron cargar las aprobaciones. Inténtalo de nuevo.",
+    "APROBADA": "Solicitud aprobada.",
+    "RECHAZADA": "Solicitud rechazada.",
+    "ERROR_DECIDIR": "No se pudo registrar la decisión.",
+    "MOTIVO_RECHAZO_TITULO": "Motivo del rechazo",
+    "MOTIVO_RECHAZO_MENSAJE": "Un rechazo sin motivo no es una decisión: quien lo reciba no sabrá qué corregir.",
+    "SOLICITADO_POR": "Solicitado por {{who}}",
+    "PASO": "Paso {{step}}",
+    "DOCUMENT_TYPE": {
+      "VENDOR_BILL": "Facturas de proveedor",
+      "PAYMENT_BATCH": "Lotes de pago",
+      "JOURNAL_ENTRY": "Asientos contables",
+      "PERIOD_REOPENING": "Reapertura de periodo",
+      "AUDIT_ADJUSTMENT": "Ajustes de auditoría"
+    }
   },
   "APPS": {
     "CRM": "Virtex CRM",
@@ -2206,7 +2222,8 @@
     "REQUESTED_DUEDATE": "Solicitado: {{dueDate}}",
     "SECURITY": "Seguridad",
     "TASKS": "Tareas",
-    "YOUR_CENTRALIZED_INBOX_FOR_TASKS_APPROVALS": "Tu bandeja centralizada de tareas, aprobaciones y notificaciones."
+    "YOUR_CENTRALIZED_INBOX_FOR_TASKS_APPROVALS": "Tu bandeja centralizada de tareas, aprobaciones y notificaciones.",
+    "LOAD_FAILED": "No se pudo cargar tu bandeja. Inténtalo de nuevo."
   },
   "NAV": {
     "APPROVALS": "Aprobaciones",
@@ -4216,6 +4233,9 @@
     "PROBLEM_MINLENGTH": "«{{field}}» necesita al menos {{min}} caracteres",
     "PROBLEM_MAXLENGTH": "«{{field}}» admite como mucho {{max}} caracteres",
     "PROBLEM_PATTERN": "«{{field}}» no tiene el formato esperado",
-    "PROBLEM_INVALID": "Revisa «{{field}}»"
+    "PROBLEM_INVALID": "Revisa «{{field}}»",
+    "INBOX_ALL_CLEAR": "No tienes nada pendiente.",
+    "INBOX_SECTION_CLEAR": "Al día.",
+    "INBOX_OVERDUE": "Vencido"
   }
 }

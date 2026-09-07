@@ -704,7 +704,23 @@
     "RECHAZAR": "Reject",
     "REPORTES_GASTOS": "Expense Reports",
     "REVISA_APRUEBA_RECHAZA_TODAS_SOLICITUDES_PENDIENTES": "Review, approve or reject every pending request in the company.",
-    "SOLICITADO": "Requested by"
+    "SOLICITADO": "Requested by",
+    "PENDIENTES": "Waiting for your decision",
+    "LOAD_FAILED": "The approvals could not be loaded. Try again.",
+    "APROBADA": "Request approved.",
+    "RECHAZADA": "Request rejected.",
+    "ERROR_DECIDIR": "The decision could not be recorded.",
+    "MOTIVO_RECHAZO_TITULO": "Reason for rejection",
+    "MOTIVO_RECHAZO_MENSAJE": "A rejection with no reason is not a decision: whoever receives it will not know what to fix.",
+    "SOLICITADO_POR": "Requested by {{who}}",
+    "PASO": "Step {{step}}",
+    "DOCUMENT_TYPE": {
+      "VENDOR_BILL": "Vendor bills",
+      "PAYMENT_BATCH": "Payment batches",
+      "JOURNAL_ENTRY": "Journal entries",
+      "PERIOD_REOPENING": "Period reopening",
+      "AUDIT_ADJUSTMENT": "Audit adjustments"
+    }
   },
   "APPS": {
     "CRM": "Virtex CRM",
@@ -2206,7 +2222,8 @@
     "REQUESTED_DUEDATE": "Requested: {{dueDate}}",
     "SECURITY": "Security",
     "TASKS": "Tasks",
-    "YOUR_CENTRALIZED_INBOX_FOR_TASKS_APPROVALS": "Your central inbox for tasks, approvals and notifications."
+    "YOUR_CENTRALIZED_INBOX_FOR_TASKS_APPROVALS": "Your central inbox for tasks, approvals and notifications.",
+    "LOAD_FAILED": "Your inbox could not be loaded. Try again."
   },
   "NAV": {
     "APPROVALS": "Approvals",
@@ -4216,6 +4233,9 @@
     "PROBLEM_MINLENGTH": "“{{field}}” needs at least {{min}} characters",
     "PROBLEM_MAXLENGTH": "“{{field}}” takes at most {{max}} characters",
     "PROBLEM_PATTERN": "“{{field}}” is not in the expected format",
-    "PROBLEM_INVALID": "Check “{{field}}”"
+    "PROBLEM_INVALID": "Check “{{field}}”",
+    "INBOX_ALL_CLEAR": "You have nothing pending.",
+    "INBOX_SECTION_CLEAR": "All clear.",
+    "INBOX_OVERDUE": "Overdue"
   }
 }

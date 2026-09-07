@@ -1,93 +1,18 @@
-<div class="view-container">
-    <div class="view-header">
-        <div class="header-content">
-            <h1>{{ 'MY_WORK.MY_WORK' | translate }}</h1>
-            <p>{{ 'MY_WORK.YOUR_CENTRALIZED_INBOX_FOR_TASKS_APPROVALS' | translate }}</p>
-        </div>
-    </div>
-
-    <div class="work-layout">
-        <div class="asfdads">
-            <div class="tabs-container">
-                <button class="tab-button" [class.active]="activeTab() === 'tasks'" (click)="setActiveTab('tasks')">
-                    <lucide-icon [img]="TaskIcon" size="18"></lucide-icon>
-                    <span>{{ 'MY_WORK.TASKS' | translate }}</span>
-                    <span class="count-badge">{{ tasks().length }}</span>
-                </button>
-                <button class="tab-button" [class.active]="activeTab() === 'approvals'"
-                    (click)="setActiveTab('approvals')">
-                    <lucide-icon [img]="ApprovalIcon" size="18"></lucide-icon>
-                    <span>{{ 'MY_WORK.APPROVALS' | translate }}</span>
-                    <span class="count-badge">{{ approvals().length }}</span>
-                </button>
-                <button class="tab-button" [class.active]="activeTab() === 'notifications'"
-                    (click)="setActiveTab('notifications')">
-                    <lucide-icon [img]="NotificationIcon" size="18"></lucide-icon>
-                    <span>{{ 'MY_WORK.NOTIFICATIONS' | translate }}</span>
-                    <span class="count-badge">{{ notifications().length }}</span>
-                </button>
-      <button
-        class="tab-btn"
-        [class.active]="activeTab() === 'security'"
-        (click)="setActiveTab('security')">
-        <lucide-icon [img]="SecurityIcon" size="18"></lucide-icon>
-        {{ 'MY_WORK.SECURITY' | translate }}
-      </button>
-            </div>
-        </div>
-
-        <div class="my-work-content">
-            <div class="tab-content card">
-                @switch (activeTab()) {
-                @case ('tasks') {
-                <ul class="work-item-list">
-                    @for(item of tasks(); track item.id) {
-                    <li class="work-item">
-                        <div class="item-main">
-                            <a [routerLink]="item.link" class="item-title">{{ item.title }}</a>
-                            <p class="item-description">{{ item.description }}</p>
-                        </div>
-                        <div class="item-meta">
-                            <span class="due-date">{{ 'MY_WORK.DUE_DUEDATE' | translate: { dueDate: item.dueDate } }}</span>
-                            <span class="status-badge" [ngClass]="getStatusClass(item.status)">{{ item.status }}</span>
-                        </div>
-                    </li>
-                    } @empty { <p class="empty-state">{{ 'MY_WORK.NO_PENDING_TASKS_GREAT_JOB' | translate }}</p> }
-                </ul>
-                }
-                @case ('approvals') {
-                <ul class="work-item-list">
-                    @for(item of approvals(); track item.id) {
-                    <li class="work-item">
-                        <div class="item-main">
-                            <a [routerLink]="item.link" class="item-title">{{ item.title }}</a>
-                            <p class="item-description">{{ item.description }}</p>
-                        </div>
-                        <div class="item-meta">
-                            <span class="due-date">{{ 'MY_WORK.REQUESTED_DUEDATE' | translate: { dueDate: item.dueDate } }}</span>
-                            <span class="status-badge" [ngClass]="getStatusClass(item.status)">{{ item.status }}</span>
-                        </div>
-                    </li>
-                    } @empty { <p class="empty-state">{{ 'MY_WORK.NO_PENDING_APPROVAL_REQUESTS' | translate }}</p> }
-                </ul>
-                }
-                @case ('notifications') {
-                <ul class="work-item-list">
-                    @for(item of notifications(); track item.id) {
-                    <li class="work-item">
-                        <div class="item-main">
-                            <a [routerLink]="item.link" class="item-title">{{ item.title }}</a>
-                            <p class="item-description">{{ item.description }}</p>
-                        </div>
-                        <div class="item-meta">
-                            <span class="due-date">{{ 'MY_WORK.DATE_DUEDATE' | translate: { dueDate: item.dueDate } }}</span>
-                        </div>
-                    </li>
-                    } @empty { <p class="empty-state">{{ 'MY_WORK.NO_NEW_NOTIFICATIONS' | translate }}</p> }
-                </ul>
-                }
-                }
-            </div>
-        </div>
-    </div>
-</div>
+<vx-inbox-shell
+  titleKey="MY_WORK.MY_WORK"
+  subtitleKey="MY_WORK.YOUR_CENTRALIZED_INBOX_FOR_TASKS_APPROVALS"
+  [sections]="sections()"
+  [loading]="loading()"
+  [error]="error()"
+  (reload)="loadWorkItems()"
+>
+  <!--
+    Registrar una llave de acceso no es algo que espere en la bandeja: es una acción sobre la
+    cuenta. Estaba detrás de una cuarta pestaña «Seguridad» que tenía botón pero ningún `@case`
+    en el `@switch`, así que pulsarla no mostraba nada y la función era inalcanzable.
+  -->
+  <button inboxActions type="button" class="secondary-button" (click)="registerPasskey()">
+    <lucide-icon [img]="SecurityIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'MY_WORK.SECURITY' | translate }}</span>
+  </button>
+</vx-inbox-shell>

@@ -1,71 +1,35 @@
-<div class="view-container">
-    <div class="view-header">
-        <div class="header-content">
-            <h1>{{ 'APPROVALS.CENTRO_APROBACIONES' | translate }}</h1>
-            <p>{{ 'APPROVALS.REVISA_APRUEBA_RECHAZA_TODAS_SOLICITUDES_PENDIENTES' | translate }}</p>
-        </div>
-    </div>
+<vx-inbox-shell
+  titleKey="APPROVALS.CENTRO_APROBACIONES"
+  subtitleKey="APPROVALS.REVISA_APRUEBA_RECHAZA_TODAS_SOLICITUDES_PENDIENTES"
+  [sections]="sections()"
+  [loading]="loading()"
+  [error]="error()"
+  [itemActions]="decide"
+  (reload)="load()"
+>
+</vx-inbox-shell>
 
-    <div class="approvals-layout">
-        <div class="tabs-container">
-            <button class="tab-button" [class.active]="activeTab() === 'invoices'" (click)="setActiveTab('invoices')">
-                <lucide-icon [img]="InvoiceIcon" size="18"></lucide-icon>
-                <span>{{ 'APPROVALS.FACTURAS_PROVEEDORES' | translate }}</span>
-                <span class="count-badge">{{ pendingInvoices().length }}</span>
-            </button>
-            <button class="tab-button" [class.active]="activeTab() === 'expenses'" (click)="setActiveTab('expenses')">
-                <lucide-icon [img]="ExpenseIcon" size="18"></lucide-icon>
-                <span>{{ 'APPROVALS.REPORTES_GASTOS' | translate }}</span>
-                <span class="count-badge">{{ pendingExpenses().length }}</span>
-            </button>
-            <button class="tab-button" [class.active]="activeTab() === 'purchase-orders'"
-                (click)="setActiveTab('purchase-orders')">
-                <lucide-icon [img]="POIcon" size="18"></lucide-icon>
-                <span>{{ 'APPROVALS.ORDENES_COMPRA' | translate }}</span>
-                <span class="count-badge">{{ pendingPOs().length }}</span>
-            </button>
-        </div>
-
-        <div class="tab-content card">
-            @switch (activeTab()) {
-            @case ('invoices') {
-            <ul class="approval-list">
-                @for(item of pendingInvoices(); track item.id) {
-                <li class="approval-item">
-                    <div class="item-main">
-                        <a [routerLink]="item.link" class="item-title">{{ item.description }}</a>
-                        <p class="item-subtitle">{{ 'APPROVALS.SOLICITADO' | translate }} <strong>{{ item.requester }}</strong> el {{ item.date }}
-                        </p>
-                    </div>
-                    <div class="item-meta">
-                        <span class="item-amount">{{ item.amount | vxNumber:'1.2-2' }}</span>
-                        <div class="item-actions">
-                            <button class="action-button reject" (click)="rejectItem(item.id, 'invoices')"><lucide-icon
-                                    [img]="RejectIcon" size="16"></lucide-icon><span>{{ 'APPROVALS.RECHAZAR' | translate }}</span></button>
-                            <button class="action-button approve"
-                                (click)="approveItem(item.id, 'invoices')"><lucide-icon [img]="ApproveIcon"
-                                    size="16"></lucide-icon><span>{{ 'APPROVALS.APROBAR' | translate }}</span></button>
-                        </div>
-                    </div>
-                </li>
-                } @empty { <p class="empty-state">{{ 'APPROVALS.NO_HAY_FACTURAS_PENDIENTES_APROBACION' | translate }}</p> }
-            </ul>
-            }
-            @case ('expenses') {
-            <ul class="approval-list">
-                @for(item of pendingExpenses(); track item.id) {
-                <li class="approval-item"> </li>
-                } @empty { <p class="empty-state">{{ 'APPROVALS.NO_HAY_REPORTES_GASTOS_PENDIENTES_APROBACION' | translate }}</p> }
-            </ul>
-            }
-            @case ('purchase-orders') {
-            <ul class="approval-list">
-                @for(item of pendingPOs(); track item.id) {
-                <li class="approval-item"> </li>
-                } @empty { <p class="empty-state">{{ 'APPROVALS.NO_HAY_ORDENES_COMPRA_PENDIENTES_APROBACION' | translate }}</p> }
-            </ul>
-            }
-            }
-        </div>
-    </div>
-</div>
+<!--
+  Aprobar y rechazar resuelven la solicitud sin salir de la bandeja: son la razón por la que esta
+  pantalla existe, y navegar a otro sitio para decidir convierte diez decisiones en veinte clics.
+-->
+<ng-template #decide let-item>
+  <button
+    type="button"
+    class="secondary-button decide decide--reject"
+    [disabled]="deciding() === item.id"
+    (click)="reject(item.id)"
+  >
+    <lucide-icon [img]="RejectIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'APPROVALS.RECHAZAR' | translate }}</span>
+  </button>
+  <button
+    type="button"
+    class="primary-button decide decide--approve"
+    [disabled]="deciding() === item.id"
+    (click)="approve(item.id)"
+  >
+    <lucide-icon [img]="ApproveIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'APPROVALS.APROBAR' | translate }}</span>
+  </button>
+</ng-template>

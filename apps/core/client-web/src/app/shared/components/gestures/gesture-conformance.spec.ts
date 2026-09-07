@@ -27,6 +27,7 @@ describe('conformidad de los gestos', () => {
     [WindowKind.LIST]: 'vx-list-shell',
     [WindowKind.DOCUMENT]: 'vx-document-shell',
     [WindowKind.DRAFT]: 'vx-draft-shell',
+    [WindowKind.INBOX]: 'vx-inbox-shell',
   };
 
   /**
