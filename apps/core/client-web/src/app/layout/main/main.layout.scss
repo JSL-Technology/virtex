@@ -203,7 +203,14 @@
 //  sin sustituirlo: cada módulo ofrecía un único destino y el resto solo se
 //  alcanzaba escribiendo la URL a mano.
 :host.layout-topnav {
-  grid-template-columns: 1fr;
+  //  `minmax(0, 1fr)` y no `1fr`: una columna `1fr` nunca baja del ancho mínimo
+  //  de su contenido, y el contenido aquí es la barra superior entera —logo,
+  //  nueve módulos, buscador—. Con `1fr` la columna medía 2243px en una ventana
+  //  de 1680 y el área de trabajo se salía por la derecha, recortada por el
+  //  `overflow: hidden` del armazón: el panel derecho del Inicio no se veía y no
+  //  había forma de llegar a él. `minmax(0, …)` deja que la columna se encoja y
+  //  que sea la barra la que se desplace, que es para lo que tiene scroll.
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto auto 1fr auto;
   grid-template-areas:
     "banner"
@@ -236,7 +243,7 @@
 }
 
 :host.layout-sidenav {
-  grid-template-columns: var(--rail-width) var(--panel-width) 1fr;
+  grid-template-columns: var(--rail-width) var(--panel-width) minmax(0, 1fr);
   grid-template-rows: auto auto 1fr auto;
   grid-template-areas:
     "banner  banner  banner"
@@ -1337,23 +1344,28 @@ router-outlet + * {
   display: inline-flex;
 }
 
+//  `fixed`, no `absolute`: `.topbar-nav` se desplaza en horizontal y un contenedor
+//  con scroll recorta a sus descendientes en los dos ejes, así que el panel se
+//  dibujaba completo —226 x 562— justo fuera de la franja visible de la barra.
+//  El resultado era que en la variante de barra superior no se podía abrir ningún
+//  mega-menú: cada módulo ofrecía solo su punto de entrada. Anclado al viewport
+//  sale del recorte; las coordenadas las pone `toggleModuleMenu` desde el botón.
+//
+//  Con `fixed` sobra la regla que anclaba por la derecha los tres últimos
+//  módulos: el ancla ya viene acotada al ancho de la ventana, para cualquier
+//  posición y cualquier número de módulos.
 .nav-module__menu {
-  position: absolute;
-  top: calc(100% + var(--space-2));
-  left: 0;
+  position: fixed;
   z-index: 1100;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
-  @include ds.glass-surface('strong');
-  overflow: hidden;
-}
-
-//  Cerca del borde derecho el menú se ancla por la derecha para no salirse de
-//  la ventana. Sin esto, los últimos módulos de la barra abren un panel que se
-//  corta o que provoca desplazamiento horizontal en toda la aplicación.
-.nav-module:nth-last-child(-n + 3) .nav-module__menu {
-  left: auto;
-  right: 0;
+  //  Opaco, y no cristal como el resto de los desplegables de la barra. Este
+  //  panel cubre media pantalla —Contabilidad despliega tres columnas— y con
+  //  fondo translúcido las tarjetas del Inicio se leían a través de los rótulos
+  //  del menú. `--surface-overlay` es justamente el token de "modales, popovers,
+  //  menús"; el cristal se queda para las superficies pequeñas.
+  background-color: var(--surface-overlay);
+  border: 1px solid var(--border-default);
 }
 
 app-module-rail {
@@ -1414,7 +1426,7 @@ app-status-bar {
 @media (max-width: 768px) {
   :host.layout-sidenav,
   :host.layout-topnav {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto auto 1fr auto;
     grid-template-areas:
       "banner"

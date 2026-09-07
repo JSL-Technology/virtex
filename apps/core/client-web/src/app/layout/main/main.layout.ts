@@ -2,7 +2,7 @@
 
 import { Component, inject, signal, HostListener, ElementRef, HostBinding, OnInit, WritableSignal, ViewChild, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, startWith } from 'rxjs/operators';
 import { SettingsModalComponent } from '../../features/settings/modal/settings-modal.component';
@@ -68,7 +68,7 @@ import { ModuleManifest } from '../../core/modules/module-manifest';
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, ThemeToggle, AppLauncherComponent, LucideAngularModule, TranslateModule, Sidebar, ClickOutsideDirective, SettingsModalComponent, CompanySwitcherComponent, BrandLogo, TabContainerComponent, DialogHostComponent, StatusBarComponent, ModuleRailComponent, ModuleMenuComponent, WindowModeToggleComponent, ...FORMAT_PIPES], // ✅ Directiva añadida a los imports
+  imports: [CommonModule, RouterLink, ThemeToggle, AppLauncherComponent, LucideAngularModule, TranslateModule, Sidebar, ClickOutsideDirective, SettingsModalComponent, CompanySwitcherComponent, BrandLogo, TabContainerComponent, DialogHostComponent, StatusBarComponent, ModuleRailComponent, ModuleMenuComponent, WindowModeToggleComponent, ...FORMAT_PIPES], // ✅ Directiva añadida a los imports
   templateUrl: './main.layout.html',
   styleUrls: ['./main.layout.scss'],
 })
@@ -214,19 +214,51 @@ export class MainLayout implements OnInit {
    */
   readonly openModuleMenu = signal<string | null>(null);
 
+  /**
+   * Where to paint the open mega-menu, in viewport coordinates.
+   *
+   * The menu used to be an `position: absolute` child of its module in the bar, which reads
+   * naturally and did not work: `.topbar-nav` scrolls horizontally —ten modules do not fit on a
+   * narrow laptop— and a scroll container clips its descendants on both axes, so the panel was
+   * laid out, 226px wide and 562px tall, entirely outside the four visible centimetres of the bar.
+   * Nobody using the top-bar layout could reach any page that was not a module's entry point.
+   *
+   * Anchoring it to the viewport is what lets it leave the bar. The coordinates come from the
+   * button that opened it, so the menu still belongs to its module visually.
+   */
+  readonly moduleMenuAnchor = signal<{ left?: number; right?: number; top: number } | null>(null);
+
   /** The four groups of any module, filtered to this seat. Same source as the side panel. */
   menuOf(module: ModuleManifest): PanelSection[] {
     return this.activeModule.visibleMenu(module);
   }
 
-  toggleModuleMenu(id: string): void {
-    this.openModuleMenu.update((open) => (open === id ? null : id));
+  toggleModuleMenu(id: string, trigger?: EventTarget | null): void {
+    const next = this.openModuleMenu() === id ? null : id;
+    if (next && trigger instanceof HTMLElement) {
+      const rect = trigger.getBoundingClientRect();
+      //  Se ancla por el lado del que está más cerca el botón. Anclar siempre por la izquierda
+      //  obligaría a conocer el ancho del panel para no salirse por el borde derecho, y ese ancho
+      //  lo decide el contenido: Contabilidad tiene veintiún destinos y despliega varias columnas.
+      const anchorRight = rect.left > window.innerWidth / 2;
+      this.moduleMenuAnchor.set({
+        left: anchorRight ? undefined : Math.max(8, rect.left),
+        right: anchorRight ? Math.max(8, window.innerWidth - rect.right) : undefined,
+        top: rect.bottom + 8,
+      });
+    } else {
+      this.moduleMenuAnchor.set(null);
+    }
+    this.openModuleMenu.set(next);
   }
 
   closeModuleMenu(id: string | null): void {
     // Guarded by id so a click-outside on a module whose menu is already closed cannot shut the
     // one the user just opened next to it — the outside-click fires on every sibling.
-    if (id === null || this.openModuleMenu() === id) this.openModuleMenu.set(null);
+    if (id === null || this.openModuleMenu() === id) {
+      this.openModuleMenu.set(null);
+      this.moduleMenuAnchor.set(null);
+    }
   }
 
   readonly settingsSection = computed(() => {
@@ -402,6 +434,14 @@ export class MainLayout implements OnInit {
     };
 
     return iconMap[lowerCaseType] || this.FileSearchIcon;
+  }
+
+  //  El ancla del mega-menú son coordenadas del viewport, y un cambio de tamaño las deja
+  //  mintiendo: el panel quedaría flotando lejos del módulo que lo abrió. Se cierra, que es la
+  //  lectura honesta de "ya no sé dónde va esto".
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    if (this.openModuleMenu() !== null) this.closeModuleMenu(null);
   }
 
   @HostListener('document:click', ['$event'])

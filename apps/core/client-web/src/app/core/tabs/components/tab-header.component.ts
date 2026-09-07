@@ -23,14 +23,21 @@ import { resolveTabIcon } from './tab-icon';
         class="tab-header"
         [class.is-dirty]="t.isDirty"
         [class.is-pinned]="t.isPinned"
-        [title]="t.title"
+        [title]="t.title | translate"
         (auxclick)="onAuxClick($event)"
       >
         <span class="tab-icon">
           <lucide-icon [img]="icon()" size="15"></lucide-icon>
         </span>
 
-        <span class="tab-title">{{ t.title }}</span>
+        <!--
+          El título pasa por el pipe de traducción. Un manifiesto declara su clave
+          —PAGE_TITLES.HOME— y una función de título compone una frase ya hecha —«Factura #00128»—,
+          así que el título es a veces una clave y a veces texto. El pipe devuelve intacto lo que
+          no resuelve, que cubre los dos casos; sin él, la primera pestaña del área de trabajo
+          decía literalmente «PAGE_TITLES.HOME».
+        -->
+        <span class="tab-title">{{ t.title | translate }}</span>
 
         @if (t.badge && t.badge > 0) {
           <span class="tab-badge">{{ t.badge > 99 ? '99+' : t.badge }}</span>

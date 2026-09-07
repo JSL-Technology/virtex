@@ -38,6 +38,14 @@ export interface ConfirmCloseConfig {
   /** Translation keys — never prose. */
   title?: string;
   message?: string;
+  /**
+   * Parameters for `message`.
+   *
+   * The type said "translation keys — never prose" and had no way to name the record the dialog is
+   * about, so the one caller that needed to —closing a tab with unsaved changes— passed a Spanish
+   * sentence built with a template literal instead.
+   */
+  messageParams?: Record<string, unknown>;
   saveText?: string;
   discardText?: string;
   cancelText?: string;
@@ -120,7 +128,7 @@ export class DialogService {
       this._active.set({
         kind: 'close',
         title: this.t(config.title ?? 'DIALOG.UNSAVED_CHANGES.TITLE'),
-        message: this.t(config.message ?? 'DIALOG.UNSAVED_CHANGES.MESSAGE'),
+        message: this.t(config.message ?? 'DIALOG.UNSAVED_CHANGES.MESSAGE', config.messageParams),
         variant: 'warning',
         icon: 'TriangleAlert',
         confirmText: '',

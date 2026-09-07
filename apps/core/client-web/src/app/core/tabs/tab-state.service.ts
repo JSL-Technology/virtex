@@ -4,6 +4,7 @@ import { TabRegistryService } from './tab-registry.service';
 import { DialogService } from '../services/dialog.service';
 import { NotificationService } from '../services/notification';
 import { TabEventBusService, TabEvent } from './tab-event-bus.service';
+import { TranslateService } from '@ngx-translate/core';
 
 /** Handler que una página puede registrar para guardar antes de cerrar (dirty). */
 export type TabSaveHandler = () => Promise<boolean> | boolean;
@@ -21,6 +22,7 @@ export class TabStateService {
   private dialog = inject(DialogService);
   private notify = inject(NotificationService);
   private bus = inject(TabEventBusService);
+  private translate = inject(TranslateService);
 
   private tabsSignal = signal<TabModel[]>([]);
   private activeTabIdSignal = signal<string | null>(null);
@@ -87,7 +89,7 @@ export class TabStateService {
     const title = config.title
       ?? (definition.titleFn ? definition.titleFn(params) : undefined)
       ?? definition.title
-      ?? 'Nueva Pestaña';
+      ?? 'TABS.NEW_TAB';
 
     const now = new Date();
     const newTab: TabModel = {
@@ -130,7 +132,10 @@ export class TabStateService {
 
     if (tab.isDirty) {
       const decision = await this.dialog.confirmClose({
-        message: `Tienes cambios sin guardar en «${tab.title}». ¿Qué deseas hacer?`,
+        message: 'TABS.UNSAVED_MESSAGE',
+        //  El título puede ser una clave —`PAGE_TITLES.HOME`— o una frase ya compuesta
+        //  —«Factura #00128»—; `instant` devuelve intacto lo que no resuelve.
+        messageParams: { title: this.translate.instant(tab.title) },
       });
       if (decision === 'cancel') return false;
       if (decision === 'save') {
@@ -292,7 +297,9 @@ export class TabStateService {
       entityKey: undefined,
       isPinned: false,
       isDirty: false,
-      title: `${tab.title} (copia)`,
+      title: this.translate.instant('TABS.COPY_SUFFIX', {
+        title: this.translate.instant(tab.title),
+      }),
       createdAt: now,
       lastActivatedAt: now,
       order: this.tabsSignal().length,

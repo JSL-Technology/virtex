@@ -521,6 +521,13 @@
       "VARIANCE_AMOUNT": "Variación",
       "VARIANCE_ANALYSIS_ACTUAL_VS_BUDGET": "Análisis de Variaciones (Real vs. Presupuesto)",
       "VARIANCE_PERCENT": "Variación (%)"
+    },
+    "ACCOUNT_TYPE": {
+      "ASSET": "Activo",
+      "LIABILITY": "Pasivo",
+      "EQUITY": "Patrimonio",
+      "REVENUE": "Ingreso",
+      "EXPENSE": "Gasto"
     }
   },
   "ACCOUNTS_PAYABLE": {
@@ -3620,7 +3627,10 @@
     "MODE_COMPACT": "Compacto",
     "MODE_FOCUSED_HINT": "Una ventana a la vista; las demás, en pestañas.",
     "MODE_WORKSHOP_HINT": "Varias ventanas a la vez: dividir, mosaico y flotantes.",
-    "MODE_COMPACT_HINT": "Pantalla estrecha: una ventana, sin divisiones."
+    "MODE_COMPACT_HINT": "Pantalla estrecha: una ventana, sin divisiones.",
+    "NEW_TAB": "Nueva pestaña",
+    "COPY_SUFFIX": "{{title}} (copia)",
+    "UNSAVED_MESSAGE": "Tienes cambios sin guardar en «{{title}}». ¿Qué deseas hacer?"
   },
   "TREASURY": {
     "AL_CORTE": "Al",

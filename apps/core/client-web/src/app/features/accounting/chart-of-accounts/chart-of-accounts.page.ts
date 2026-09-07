@@ -1,7 +1,6 @@
 // app/features/accounting/chart-of-accounts/chart-of-accounts.page.ts
 import { Component, inject, ChangeDetectionStrategy, OnInit, effect, linkedSignal } from '@angular/core';
 import { DialogService } from '../../../core/services/dialog.service';
-import { TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ChartOfAccountsStateService } from '../../../core/state/chart-of-accounts.state';
@@ -15,7 +14,7 @@ import { ListShellComponent } from '../../../shared/components/gestures';
 @Component({
   selector: 'app-chart-of-accounts-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, LucideAngularModule, TitleCasePipe, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
+  imports: [FormsModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './chart-of-accounts.page.html',
   styleUrls: ['./chart-of-accounts.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,10 +50,18 @@ export class ChartOfAccountsPage implements OnInit {
     computation: (term: string) => term,
   });
 
+  /**
+   * Devuelve al estado lo que el armazón escribe en `search`.
+   *
+   * Inicializador de campo y no `ngOnInit`: `effect()` exige contexto de inyección y ahí no lo
+   * hay, así que lanzaba NG0203 en cada apertura de la página y el efecto nunca llegaba a
+   * instalarse. La pantalla se veía bien —el error no interrumpe el render— pero el buscador
+   * filtraba nada: el término se quedaba en el `linkedSignal` y el estado no se enteraba.
+   */
+  private readonly pushSearchToState = effect(() => this.state.setSearchTerm(this.search()));
+
   ngOnInit(): void {
     this.state.loadAccounts();
-
-    effect(() => this.state.setSearchTerm(this.search()));
   }
 
   onFilterChange(filter: 'status' | 'type', value: any): void {

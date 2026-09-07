@@ -95,7 +95,7 @@
             [attr.aria-current]="item.module.id === activeModuleId() ? 'page' : null"
             [attr.aria-expanded]="openModuleMenu() === item.module.id"
             aria-haspopup="true"
-            (click)="toggleModuleMenu(item.module.id)"
+            (click)="toggleModuleMenu(item.module.id, $event.currentTarget)"
             (keydown.escape)="closeModuleMenu(item.module.id)"
           >
             {{ item.module.titleKey | translate }}
@@ -103,7 +103,13 @@
           </button>
 
           @if (openModuleMenu() === item.module.id) {
-            <div class="nav-module__menu" (keydown.escape)="closeModuleMenu(item.module.id)">
+            <div
+              class="nav-module__menu"
+              [style.left.px]="moduleMenuAnchor()?.left"
+              [style.right.px]="moduleMenuAnchor()?.right"
+              [style.top.px]="moduleMenuAnchor()?.top"
+              (keydown.escape)="closeModuleMenu(item.module.id)"
+            >
               <app-module-menu
                 [sections]="menuOf(item.module)"
                 [activeEntry]="activeEntry()"

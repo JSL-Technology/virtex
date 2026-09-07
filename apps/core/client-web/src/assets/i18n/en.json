@@ -521,6 +521,13 @@
       "VARIANCE_AMOUNT": "Variance",
       "VARIANCE_ANALYSIS_ACTUAL_VS_BUDGET": "Variance Analysis (Actual vs. Budget)",
       "VARIANCE_PERCENT": "Variance (%)"
+    },
+    "ACCOUNT_TYPE": {
+      "ASSET": "Asset",
+      "LIABILITY": "Liability",
+      "EQUITY": "Equity",
+      "REVENUE": "Revenue",
+      "EXPENSE": "Expense"
     }
   },
   "ACCOUNTS_PAYABLE": {
@@ -3620,7 +3627,10 @@
     "MODE_COMPACT": "Compact",
     "MODE_FOCUSED_HINT": "One window in view; the rest as tabs.",
     "MODE_WORKSHOP_HINT": "Several windows at once: split, tile and float.",
-    "MODE_COMPACT_HINT": "Narrow screen: one window, no splitting."
+    "MODE_COMPACT_HINT": "Narrow screen: one window, no splitting.",
+    "NEW_TAB": "New tab",
+    "COPY_SUFFIX": "{{title}} (copy)",
+    "UNSAVED_MESSAGE": "You have unsaved changes in “{{title}}”. What would you like to do?"
   },
   "TREASURY": {
     "AL_CORTE": "As of",

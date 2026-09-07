@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { LucideAngularModule, ChevronLeft } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
@@ -27,15 +27,7 @@ import { NotificationService } from '../../../core/services/notification';
 @Component({
   selector: 'app-vendor-payment-page',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    RouterLink,
-    LucideAngularModule,
-    TranslateModule,
-    ...FORMAT_PIPES,
-    DraftShellComponent,
-  ],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, DraftShellComponent],
   templateUrl: './payment.page.html',
   styleUrls: ['./payment.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

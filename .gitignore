@@ -45,6 +45,10 @@ Thumbs.db
 
 .angular
 .env
+#  `.env` a secas no cubre los que el propio ConfigModule lee: `envFilePath` incluye
+#  `.env.local`, así que un fichero con secretos de desarrollo era «commiteable».
+.env.local
+.env.*.local
 *.log
 # Salidas de herramientas que se colaron al control de versiones.
 typecheck_*.txt
