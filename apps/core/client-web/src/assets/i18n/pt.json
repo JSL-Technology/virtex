@@ -1431,6 +1431,13 @@
     "UPDATE_USER": "Não foi possível atualizar o usuário.",
     "VERIFY_DOMAIN": "Ainda não foi possível verificar o domínio."
   },
+  "FEEDBACK": {
+    "COMING_SOON": "Este recurso estará disponível em breve",
+    "PRAISE": "Deixar uma avaliação",
+    "REPORT_BUG": "Relatar um problema",
+    "SUGGEST": "Sugerir uma melhoria",
+    "TITLE": "Feedback"
+  },
   "FORGOT_PASSWORD": {
     "BACK_TO_LOGIN": "Voltar ao login",
     "EMAIL_SENT_TITLE": "Verifique seu e-mail",
@@ -3346,6 +3353,7 @@
     "VOLVER_DASHBOARD": "Voltar ao Painel"
   },
   "USER": {
+    "HELP": "Ajuda",
     "MY_PROFILE": "Meu Perfil",
     "ROLE": {
       "ACCOUNTANT": "Contador",
@@ -3354,6 +3362,7 @@
       "NO_ROLE": "Sem Perfil Atribuído",
       "SELLER": "Vendedor"
     },
+    "SHORTCUTS": "Atalhos do teclado",
     "STATUS": {
       "ACTIVE": "Ativo",
       "ARCHIVED": "Arquivado",

@@ -1431,6 +1431,13 @@
     "UPDATE_USER": "The user could not be updated.",
     "VERIFY_DOMAIN": "The domain could not be verified yet."
   },
+  "FEEDBACK": {
+    "COMING_SOON": "This feature is coming soon",
+    "PRAISE": "Leave a review",
+    "REPORT_BUG": "Report a problem",
+    "SUGGEST": "Suggest an improvement",
+    "TITLE": "Feedback"
+  },
   "FORGOT_PASSWORD": {
     "BACK_TO_LOGIN": "Back to login",
     "EMAIL_SENT_TITLE": "Check your inbox",
@@ -3346,6 +3353,7 @@
     "VOLVER_DASHBOARD": "Back to the Dashboard"
   },
   "USER": {
+    "HELP": "Help",
     "MY_PROFILE": "My Profile",
     "ROLE": {
       "ACCOUNTANT": "Accountant",
@@ -3354,6 +3362,7 @@
       "NO_ROLE": "No Role Assigned",
       "SELLER": "Seller"
     },
+    "SHORTCUTS": "Keyboard shortcuts",
     "STATUS": {
       "ACTIVE": "Active",
       "ARCHIVED": "Archiving",
