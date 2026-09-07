@@ -1,0 +1,5 @@
+@use '../../../../assets/styles/form-page' as form;
+
+:host {
+  @include form.form-page;
+}

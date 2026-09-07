@@ -1,38 +1,49 @@
-<div class="view-container">
-    <form [formGroup]="supplierForm" (ngSubmit)="saveSupplier()">
-        <div class="view-header">
-            <div class="header-content">
-                <h1>@if(isEditMode()){ Editar } @else { Nuevo } Proveedor</h1>
-                <p>{{ 'MASTERS.SUPPLIER_FORM.COMPLETA_INFORMACION_DETALLADA_TU_PROVEEDOR' | translate }}</p>
-            </div>
-            <div class="header-actions">
-                <a routerLink="/masters/suppliers" class="secondary-button">{{ 'MASTERS.SUPPLIER_FORM.CANCELAR' | translate }}</a>
-                <button type="submit" class="primary-button"><lucide-icon [img]="SaveIcon"
-                        size="16"></lucide-icon><span>{{ 'MASTERS.SUPPLIER_FORM.GUARDAR_PROVEEDOR' | translate }}</span></button>
-            </div>
+<vx-draft-shell
+  [title]="
+    (isEditMode() ? 'MASTERS.SUPPLIER_FORM.TITLE_EDIT' : 'MASTERS.SUPPLIER_FORM.TITLE_NEW')
+      | translate
+  "
+  [subtitle]="'MASTERS.SUPPLIER_FORM.COMPLETA_INFORMACION_DETALLADA_TU_PROVEEDOR' | translate"
+  [dirty]="supplierForm.dirty"
+  [invalid]="supplierForm.invalid"
+  [problems]="problems()"
+  saveLabelKey="MASTERS.SUPPLIER_FORM.GUARDAR_PROVEEDOR"
+  cancelLabelKey="MASTERS.SUPPLIER_FORM.CANCELAR"
+  (save)="saveSupplier()"
+  (cancel)="cancel()"
+>
+  <div class="form-body" [formGroup]="supplierForm">
+    <section class="form-section">
+      <h2 class="form-section-title">
+        {{ 'MASTERS.SUPPLIER_FORM.INFORMACION_PROVEEDOR' | translate }}
+      </h2>
+
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="name">{{ 'MASTERS.SUPPLIER_FORM.NOMBRE_PROVEEDOR' | translate }}</label>
+          <input id="name" formControlName="name" />
         </div>
-        <div class="form-grid">
-            <div class="form-column">
-                <div class="card">
-                    <div class="card-header">
-                        <h3>{{ 'MASTERS.SUPPLIER_FORM.INFORMACION_PROVEEDOR' | translate }}</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="form-field"><label for="name">{{ 'MASTERS.SUPPLIER_FORM.NOMBRE_PROVEEDOR' | translate }}</label><input
-                                id="name" formControlName="name"></div>
-                        <div class="form-field"><label for="contactPerson">{{ 'MASTERS.SUPPLIER_FORM.PERSONA_CONTACTO' | translate }}</label><input
-                                id="contactPerson" formControlName="contactPerson"></div>
-                        <div class="form-field"><label for="taxId">{{ 'MASTERS.SUPPLIER_FORM.ID_FISCAL_RNC_ETC' | translate }}</label><input id="taxId"
-                                formControlName="taxId"></div>
-                        <div class="form-field"><label for="address">{{ 'MASTERS.SUPPLIER_FORM.DIRECCION' | translate }}</label><input id="address"
-                                formControlName="address"></div>
-                        <div class="form-field"><label for="email">{{ 'MASTERS.SUPPLIER_FORM.CORREO_ELECTRONICO' | translate }}</label><input type="email"
-                                id="email" formControlName="email"></div>
-                        <div class="form-field"><label for="phone">{{ 'MASTERS.SUPPLIER_FORM.TELEFONO' | translate }}</label><input type="tel" id="phone"
-                                formControlName="phone"></div>
-                    </div>
-                </div>
-            </div>
+        <div class="form-field">
+          <label for="contactPerson">{{ 'MASTERS.SUPPLIER_FORM.PERSONA_CONTACTO' | translate }}</label>
+          <input id="contactPerson" formControlName="contactPerson" />
         </div>
-    </form>
-</div>
+        <div class="form-field">
+          <label for="taxId">{{ 'MASTERS.SUPPLIER_FORM.ID_FISCAL_RNC_ETC' | translate }}</label>
+          <input id="taxId" formControlName="taxId" />
+        </div>
+        <div class="form-field">
+          <label for="address">{{ 'MASTERS.SUPPLIER_FORM.DIRECCION' | translate }}</label>
+          <input id="address" formControlName="address" />
+        </div>
+        <div class="form-field">
+          <label for="email">{{ 'MASTERS.SUPPLIER_FORM.CORREO_ELECTRONICO' | translate }}</label>
+          <input type="email" id="email" formControlName="email" />
+        </div>
+        <div class="form-field">
+          <label for="phone">{{ 'MASTERS.SUPPLIER_FORM.TELEFONO' | translate }}</label>
+          <input type="tel" id="phone" formControlName="phone" />
+        </div>
+      </div>
+    </section>
+  </div>
+</vx-draft-shell>

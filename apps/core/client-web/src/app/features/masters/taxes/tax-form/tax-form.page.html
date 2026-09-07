@@ -1,42 +1,41 @@
-<div class="view-container">
-  <form [formGroup]="taxForm" (ngSubmit)="saveTax()">
-    <div class="view-header">
-      <div class="header-content">
-        <h1>@if(isEditMode()){ Editar } @else { Nuevo } Impuesto</h1>
-        <p>{{ 'MASTERS.TAX_FORM.CONFIGURA_NUEVA_TASA_IMPUESTO_TUS_TRANSACCIONES' | translate }}</p>
-      </div>
-      <div class="header-actions">
-        <a routerLink="/masters/taxes" class="secondary-button">{{ 'MASTERS.TAX_FORM.CANCELAR' | translate }}</a>
-        <button type="submit" class="primary-button" [disabled]="isLoading()">
-          <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
-          <span>{{ 'MASTERS.TAX_FORM.GUARDAR_IMPUESTO' | translate }}</span>
-        </button>
-      </div>
-    </div>
-
-    <div class="form-container card">
+<vx-draft-shell
+  [title]="(isEditMode() ? 'MASTERS.TAX_FORM.TITLE_EDIT' : 'MASTERS.TAX_FORM.TITLE_NEW') | translate"
+  [subtitle]="'MASTERS.TAX_FORM.CONFIGURA_NUEVA_TASA_IMPUESTO_TUS_TRANSACCIONES' | translate"
+  [dirty]="taxForm.dirty"
+  [saving]="isLoading()"
+  [invalid]="taxForm.invalid"
+  [problems]="problems()"
+  saveLabelKey="MASTERS.TAX_FORM.GUARDAR_IMPUESTO"
+  cancelLabelKey="MASTERS.TAX_FORM.CANCELAR"
+  (save)="saveTax()"
+  (cancel)="cancel()"
+>
+  <div class="form-body" [formGroup]="taxForm">
+    <div class="form-section">
       <div class="form-field">
         <label for="name">{{ 'MASTERS.TAX_FORM.NOMBRE_IMPUESTO' | translate }}</label>
-        <input id="name" formControlName="name" [placeholder]="'MASTERS.TAX_FORM.EJ_ITBIS_18' | translate">
+        <input id="name" formControlName="name" [placeholder]="'MASTERS.TAX_FORM.EJ_ITBIS_18' | translate" />
       </div>
+
       <div class="form-grid">
         <div class="form-field">
           <label for="rate">{{ 'MASTERS.TAX_FORM.TASA' | translate }}</label>
-          <input id="rate" type="number" formControlName="rate">
+          <input id="rate" type="number" formControlName="rate" />
         </div>
         <div class="form-field">
           <label for="type">{{ 'MASTERS.TAX_FORM.TIPO' | translate }}</label>
           <select id="type" formControlName="type">
-            @for(type of taxTypes; track type) {
+            @for (type of taxTypes; track type) {
               <option [value]="type">{{ type }}</option>
             }
           </select>
         </div>
       </div>
-       <div class="form-field">
-          <label for="countryCode">{{ 'MASTERS.TAX_FORM.CODIGO_PAIS_OPCIONAL' | translate }}</label>
-          <input id="countryCode" formControlName="countryCode" placeholder="Ej: DO, US">
-        </div>
+
+      <div class="form-field">
+        <label for="countryCode">{{ 'MASTERS.TAX_FORM.CODIGO_PAIS_OPCIONAL' | translate }}</label>
+        <input id="countryCode" formControlName="countryCode" placeholder="DO, US, MX" />
+      </div>
     </div>
-  </form>
-</div>
+  </div>
+</vx-draft-shell>

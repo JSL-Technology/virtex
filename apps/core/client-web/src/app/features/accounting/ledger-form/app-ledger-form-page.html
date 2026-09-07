@@ -1,32 +1,45 @@
-<div class="view-container">
-    <form [formGroup]="ledgerForm" (ngSubmit)="saveLedger()">
-        <div class="view-header">
-            <div class="header-content">
-                <h1>{{ (isEditMode() ? 'ACCOUNTING.LEDGER_FORM.TITLE_EDIT' : 'ACCOUNTING.LEDGER_FORM.TITLE_CREATE') | translate }}</h1>
-                <p>{{ 'ACCOUNTING.LEDGER_FORM.DEFINE_NUEVO_LIBRO_REGISTRAR_TRANSACCIONES_CONTABLES' | translate }}</p>
-            </div>
-            <div class="header-actions">
-                <a routerLink="/accounting/general-ledger" class="secondary-button">{{ 'ACCOUNTING.LEDGER_FORM.CANCELAR' | translate }}</a>
-                <button type="submit" class="primary-button" [disabled]="isLoading() || ledgerForm.invalid">
-                    <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
-                    <span>{{ isLoading() ? 'Guardando...' : 'Guardar Libro' }}</span>
-                </button>
-            </div>
-        </div>
+<vx-draft-shell
+  [title]="
+    (isEditMode() ? 'ACCOUNTING.LEDGER_FORM.TITLE_EDIT' : 'ACCOUNTING.LEDGER_FORM.TITLE_CREATE')
+      | translate
+  "
+  [subtitle]="'ACCOUNTING.LEDGER_FORM.DEFINE_NUEVO_LIBRO_REGISTRAR_TRANSACCIONES_CONTABLES' | translate"
+  [dirty]="ledgerForm.dirty"
+  [saving]="isLoading()"
+  [invalid]="ledgerForm.invalid"
+  [problems]="problems()"
+  saveLabelKey="ACCOUNTING.LEDGER_FORM.GUARDAR_LIBRO"
+  cancelLabelKey="ACCOUNTING.LEDGER_FORM.CANCELAR"
+  (save)="saveLedger()"
+  (cancel)="cancel()"
+>
+  <div class="form-body" [formGroup]="ledgerForm">
+    <section class="form-section">
+      <div class="form-field">
+        <label for="name">{{ 'ACCOUNTING.LEDGER_FORM.NOMBRE_LIBRO' | translate }}</label>
+        <input
+          id="name"
+          formControlName="name"
+          [placeholder]="'ACCOUNTING.LEDGER_FORM.EJ_LIBRO_PRINCIPAL_IFRS' | translate"
+        />
+      </div>
 
-        <div class="form-container card">
-            <div class="form-field">
-                <label for="name">{{ 'ACCOUNTING.LEDGER_FORM.NOMBRE_LIBRO' | translate }}</label>
-                <input id="name" formControlName="name" [placeholder]="'ACCOUNTING.LEDGER_FORM.EJ_LIBRO_PRINCIPAL_IFRS' | translate">
-            </div>
-            <div class="form-field">
-                <label for="description">{{ 'ACCOUNTING.LEDGER_FORM.DESCRIPCION' | translate }}</label>
-                <textarea id="description" formControlName="description" rows="4" [placeholder]="'ACCOUNTING.LEDGER_FORM.EJ_UTILIZADO_REPORTES_FINANCIEROS_BAJO_NIIF' | translate"></textarea>
-            </div>
-            <div class="form-field checkbox-field">
-                <input id="isDefault" type="checkbox" formControlName="isDefault">
-                <label for="isDefault">{{ 'ACCOUNTING.LEDGER_FORM.ESTABLECER_COMO_LIBRO_DEFECTO' | translate }}</label>
-            </div>
-        </div>
-    </form>
-</div>
+      <div class="form-field">
+        <label for="description">{{ 'ACCOUNTING.LEDGER_FORM.DESCRIPCION' | translate }}</label>
+        <textarea
+          id="description"
+          formControlName="description"
+          rows="4"
+          [placeholder]="'ACCOUNTING.LEDGER_FORM.EJ_UTILIZADO_REPORTES_FINANCIEROS_BAJO_NIIF' | translate"
+        ></textarea>
+      </div>
+
+      <div class="form-field checkbox-field">
+        <input id="isDefault" type="checkbox" formControlName="isDefault" />
+        <label for="isDefault">
+          {{ 'ACCOUNTING.LEDGER_FORM.ESTABLECER_COMO_LIBRO_DEFECTO' | translate }}
+        </label>
+      </div>
+    </section>
+  </div>
+</vx-draft-shell>

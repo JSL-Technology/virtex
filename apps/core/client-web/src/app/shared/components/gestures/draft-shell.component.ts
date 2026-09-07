@@ -6,6 +6,8 @@ import { LucideAngularModule, ArrowLeft, AlertTriangle, Check, Loader } from 'lu
 export interface DraftProblem {
   /** Clave i18n del mensaje, o un mensaje ya localizado que venga del servidor. */
   message: string;
+  /** Parámetros de interpolación del mensaje: el nombre del campo, un mínimo, una longitud. */
+  params?: Record<string, unknown>;
   /** `id` del control, para que el resumen lleve el foco al campo. Opcional. */
   fieldId?: string;
 }

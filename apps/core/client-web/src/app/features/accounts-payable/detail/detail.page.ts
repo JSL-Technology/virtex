@@ -6,10 +6,9 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, ChevronLeft, Edit, Send, Trash2 } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { EMPTY, forkJoin, of } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 
@@ -21,6 +20,7 @@ import {
 import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { DocumentShellComponent, DocumentTone } from '../../../shared/components/gestures';
 
 /**
  * A supplier bill, in full.
@@ -39,7 +39,7 @@ import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 @Component({
   selector: 'app-vendor-bill-detail-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, DocumentShellComponent],
   templateUrl: './detail.page.html',
   styleUrls: ['./detail.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -53,6 +53,7 @@ export class VendorBillDetailPage implements OnInit {
   private readonly dialog = inject(DialogService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly translate = inject(TranslateService);
   private readonly accountsPayable = inject(AccountsPayableService);
   private readonly notifications = inject(NotificationService);
 
@@ -182,6 +183,42 @@ export class VendorBillDetailPage implements OnInit {
 
   statusKey(status: string): string {
     return `ACCOUNTS_PAYABLE.STATUS.${status}`;
+  }
+
+  /**
+   * Cómo se pinta el estado en el encabezado. Semántico: dice si la factura admite trabajo.
+   *
+   * Estaba dentro de la ficha «Información general», junto a la fecha y la moneda, como un dato
+   * más. No lo es: una factura anulada no se paga y una pendiente de aprobación no se contabiliza,
+   * y eso condiciona los botones que hay al lado.
+   */
+  statusTone(status: string): DocumentTone {
+    switch (status) {
+      case 'PAID':
+        return 'ok';
+      case 'OPEN':
+      case 'PARTIALLY_PAID':
+        return 'neutral';
+      case 'PENDING_APPROVAL':
+        return 'warning';
+      case 'VOID':
+      case 'REJECTED':
+        return 'danger';
+      case 'DRAFT':
+        return 'draft';
+      default:
+        return 'neutral';
+    }
+  }
+
+  /** Nombre del documento, ya compuesto: el armazón lo pone junto al estado. */
+  documentTitle(bill: VendorBill): string {
+    const ncf = bill.ncf || this.translate.instant('ACCOUNTS_PAYABLE.LIST.SIN_NCF');
+    return `${this.translate.instant('ACCOUNTS_PAYABLE.DETAIL.FACTURA_PROVEEDOR')} ${ncf}`;
+  }
+
+  goToList(): void {
+    void this.router.navigate(['/accounts-payable']);
   }
 
   statusClass(status: string): string {

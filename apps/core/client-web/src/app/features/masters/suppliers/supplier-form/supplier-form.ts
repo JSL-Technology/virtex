@@ -1,16 +1,15 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { LucideAngularModule, Save } from 'lucide-angular';
 import { SuppliersService, CreateSupplierDto, UpdateSupplierDto } from '../../../../core/api/suppliers.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { TranslateModule } from '@ngx-translate/core';
+import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
 
 @Component({
   selector: 'app-supplier-form-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, LucideAngularModule, TranslateModule],
+  imports: [ReactiveFormsModule, TranslateModule, DraftShellComponent],
   templateUrl: './supplier-form.html',
   styleUrls: ['./supplier-form.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,7 +21,9 @@ export class SupplierForm implements OnInit {
   private suppliersService = inject(SuppliersService);
   private notificationService = inject(NotificationService);
 
-  protected readonly SaveIcon = Save;
+
+  /** Qué falta antes de guardar. Se llena al pulsar, no mientras se teclea el primer campo. */
+  readonly problems = signal<DraftProblem[]>([]);
 
   supplierForm!: FormGroup;
   isEditMode = signal(false);
@@ -61,12 +62,29 @@ export class SupplierForm implements OnInit {
     });
   }
 
+  cancel(): void {
+    void this.router.navigate(['/masters/suppliers']);
+  }
+
   saveSupplier(): void {
     if (this.supplierForm.invalid) {
       this.supplierForm.markAllAsTouched();
-      this.notificationService.showError('MASTERS.SUPPLIER_FORM.FAVOR_COMPLETA_CAMPOS_REQUERIDOS');
+      //  «Completa los campos requeridos» no dice cuáles. El resumen los nombra y cada línea
+      //  lleva al campo, que es lo que separa un formulario que no guarda de uno que explica.
+      this.problems.set(
+        draftProblems(this.supplierForm, {
+          name: 'MASTERS.SUPPLIER_FORM.NOMBRE_PROVEEDOR',
+          contactPerson: 'MASTERS.SUPPLIER_FORM.PERSONA_CONTACTO',
+          taxId: 'MASTERS.SUPPLIER_FORM.ID_FISCAL_RNC_ETC',
+          address: 'MASTERS.SUPPLIER_FORM.DIRECCION',
+          email: 'MASTERS.SUPPLIER_FORM.CORREO_ELECTRONICO',
+          phone: 'MASTERS.SUPPLIER_FORM.TELEFONO',
+        }),
+      );
       return;
     }
+
+    this.problems.set([]);
 
     this.isLoading.set(true);
     const formValue = this.supplierForm.getRawValue();

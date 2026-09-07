@@ -1,24 +1,19 @@
-<div class="view-container">
-  <form [formGroup]="accountForm" (ngSubmit)="onSave()">
-    <div class="view-header">
-      <div class="header-content">
-        <h1>{{ isEditing() ? 'Editar Cuenta Contable' : 'Nueva Cuenta Contable' }}</h1>
-        <p>{{ 'ACCOUNTING.ACCOUNT_FORM.COMPLETA_INFORMACION_DETALLADA_CUENTA' | translate }}</p>
-      </div>
-      <div class="header-actions">
-        <button type="button" class="secondary-button" (click)="onCancel()">{{ 'ACCOUNTING.ACCOUNT_FORM.CANCELAR' | translate }}</button>
-        <button type="submit" class="primary-button" [disabled]="isLoading() || accountForm.invalid">
-          @if (isLoading()) {
-            <span class="spinner"></span>
-            <span>{{ 'ACCOUNTING.ACCOUNT_FORM.GUARDANDO' | translate }}</span>
-          } @else {
-            <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
-            <span>{{ 'ACCOUNTING.ACCOUNT_FORM.GUARDAR_CUENTA' | translate }}</span>
-          }
-        </button>
-      </div>
-    </div>
-
+<vx-draft-shell
+  [title]="
+    (isEditing() ? 'ACCOUNTING.ACCOUNT_FORM.TITLE_EDIT' : 'ACCOUNTING.ACCOUNT_FORM.TITLE_NEW')
+      | translate
+  "
+  [subtitle]="'ACCOUNTING.ACCOUNT_FORM.COMPLETA_INFORMACION_DETALLADA_CUENTA' | translate"
+  [dirty]="accountForm.dirty"
+  [saving]="isLoading()"
+  [invalid]="accountForm.invalid"
+  [problems]="problems()"
+  saveLabelKey="ACCOUNTING.ACCOUNT_FORM.GUARDAR_CUENTA"
+  cancelLabelKey="ACCOUNTING.ACCOUNT_FORM.CANCELAR"
+  (save)="onSave()"
+  (cancel)="onCancel()"
+>
+  <div class="form-body" [formGroup]="accountForm">
     @if (isLoading()) {
       <p class="loading-state">{{ 'ACCOUNTING.ACCOUNT_FORM.CARGANDO_DATOS_CUENTA' | translate }}</p>
     } @else {
@@ -40,7 +35,7 @@
         </div>
       }
 
-      <div class="form-container card" [class.disabled-form]="isConfigMissing()">
+      <div class="form-section" [class.disabled-form]="isConfigMissing()">
         <div class="tabs">
           <button type="button" class="tab-link" [class.active]="activeTab() === 'general'" (click)="activeTab.set('general')">{{ 'ACCOUNTING.ACCOUNT_FORM.GENERAL' | translate }}</button>
           <button type="button" class="tab-link" [class.active]="activeTab() === 'mappings'" (click)="activeTab.set('mappings')">{{ 'ACCOUNTING.ACCOUNT_FORM.MAPEOS' | translate }}</button>
@@ -141,11 +136,11 @@
                   <div class="form-field checkbox-field"><input type="checkbox" id="isFxRevaluation" formControlName="isFxRevaluation"><label for="isFxRevaluation">{{ 'ACCOUNTING.ACCOUNT_FORM.APLICA_REVALUACION_TIPO_CAMBIO' | translate }}</label></div>
               </div>
               <div class="form-field full-width" formArrayName="requiredDimensions">
-                  <label for="dimensiones-requeridas">{{ 'ACCOUNTING.ACCOUNT_FORM.DIMENSIONES_REQUERIDAS' | translate }}</label>
+                  <span class="group-label">{{ 'ACCOUNTING.ACCOUNT_FORM.DIMENSIONES_REQUERIDAS' | translate }}</span>
                   <div class="checkbox-group">
                       @for(dim of allDimensions; track dim; let i = $index){
                           <div class="checkbox-item">
-                              <input id="dimensiones-requeridas" type="checkbox" [id]="'dim-' + i" [value]="dim" [checked]="isDimensionSelected(dim)" (change)="onDimensionChange($event)">
+                              <input type="checkbox" [id]="'dim-' + i" [value]="dim" [checked]="isDimensionSelected(dim)" (change)="onDimensionChange($event)">
                               <label [for]="'dim-' + i">{{ dim | titlecase }}</label>
                           </div>
                       }
@@ -182,5 +177,5 @@
         </div>
       </div>
     }
-  </form>
-</div>
+  </div>
+</vx-draft-shell>

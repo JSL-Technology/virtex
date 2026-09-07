@@ -1,57 +1,34 @@
-<div class="view-container">
-  @if (isLoading()) {
-    <div class="loading-shade">
-      <p>{{ 'ACCOUNTS_PAYABLE.DETAIL.CARGANDO_DETALLE_FACTURA' | translate }}</p>
-    </div>
-  }
-
-  @if (errorKey(); as key) {
-    <div class="error-message">
-      <p>{{ key | translate }}</p>
-      <a routerLink="/accounts-payable" class="btn-primary">
-        {{ 'ACCOUNTS_PAYABLE.DETAIL.VOLVER_LISTADO' | translate }}
+@if (bill(); as billData) {
+<vx-document-shell
+  [title]="documentTitle(billData)"
+  [subtitle]="billData.vendor?.name ?? billData.vendorId"
+  [statusKey]="statusKey(billData.status)"
+  [statusTone]="statusTone(billData.status)"
+  backLabelKey="ACCOUNTS_PAYABLE.DETAIL.VOLVER_LISTADO"
+  (back)="goToList()"
+>
+  <ng-container documentActions>
+    @if (canEdit()) {
+      <a [routerLink]="['/accounts-payable', billData.id, 'edit']" class="secondary-button">
+        <lucide-icon [img]="EditIcon" size="16" aria-hidden="true"></lucide-icon>
+        <span>{{ 'ACCOUNTS_PAYABLE.DETAIL.EDITAR' | translate }}</span>
       </a>
-    </div>
-  }
+    }
+    @if (canSubmit()) {
+      <button type="button" (click)="submitForApproval()" class="primary-button">
+        <lucide-icon [img]="SubmitIcon" size="16" aria-hidden="true"></lucide-icon>
+        <span>{{ 'ACCOUNTS_PAYABLE.DETAIL.ENVIAR_APROBACION' | translate }}</span>
+      </button>
+    }
+    @if (canVoid()) {
+      <button type="button" (click)="voidBill()" class="danger-button">
+        <lucide-icon [img]="VoidIcon" size="16" aria-hidden="true"></lucide-icon>
+        <span>{{ 'ACCOUNTS_PAYABLE.DETAIL.ANULAR' | translate }}</span>
+      </button>
+    }
+  </ng-container>
 
-  @if (bill(); as billData) {
-    <div class="view-header">
-      <div class="header-main">
-        <a routerLink="/accounts-payable" class="btn-icon"
-           [attr.aria-label]="'ACCOUNTS_PAYABLE.DETAIL.VOLVER_LISTADO' | translate">
-          <lucide-icon [name]="BackIcon" [size]="24"></lucide-icon>
-        </a>
-        <div>
-          <h1>
-            {{ 'ACCOUNTS_PAYABLE.DETAIL.FACTURA_PROVEEDOR' | translate }}
-            {{ billData.ncf || ('ACCOUNTS_PAYABLE.LIST.SIN_NCF' | translate) }}
-          </h1>
-          <p class="text-muted">{{ billData.vendor?.name ?? billData.vendorId }}</p>
-        </div>
-      </div>
-      <div class="header-actions">
-        @if (canEdit()) {
-          <a [routerLink]="['/accounts-payable', billData.id, 'edit']" class="btn-secondary">
-            <lucide-icon [name]="EditIcon" [size]="16"></lucide-icon>
-            <span>{{ 'ACCOUNTS_PAYABLE.DETAIL.EDITAR' | translate }}</span>
-          </a>
-        }
-        @if (canSubmit()) {
-          <button type="button" (click)="submitForApproval()" class="btn-primary">
-            <lucide-icon [name]="SubmitIcon" [size]="16"></lucide-icon>
-            <span>{{ 'ACCOUNTS_PAYABLE.DETAIL.ENVIAR_APROBACION' | translate }}</span>
-          </button>
-        }
-        @if (canVoid()) {
-          <button type="button" (click)="voidBill()" class="btn-danger">
-            <lucide-icon [name]="VoidIcon" [size]="16"></lucide-icon>
-            <span>{{ 'ACCOUNTS_PAYABLE.DETAIL.ANULAR' | translate }}</span>
-          </button>
-        }
-      </div>
-    </div>
-
-    <div class="view-content">
+  <div class="view-content">
       @if (billData.status === 'VOID') {
         <div class="banner banner--danger">
           <strong>{{ 'ACCOUNTS_PAYABLE.DETAIL.FACTURA_ANULADA' | translate }}</strong>
@@ -69,12 +46,6 @@
           <h2>{{ 'ACCOUNTS_PAYABLE.DETAIL.INFORMACION_GENERAL' | translate }}</h2>
         </div>
         <div class="card-body grid-details">
-          <div>
-            <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.DETAIL.ESTADO' | translate }}</span>
-            <span class="status-badge" [ngClass]="statusClass(billData.status)">
-              {{ statusKey(billData.status) | translate }}
-            </span>
-          </div>
           <div>
             <span class="detail-label">{{ 'ACCOUNTS_PAYABLE.DETAIL.FECHA_EMISION' | translate }}</span>
             <span>{{ billData.date | vxDate: 'date' }}</span>
@@ -211,6 +182,15 @@
           }
         </div>
       </div>
-    </div>
-  }
-</div>
+  </div>
+</vx-document-shell>
+} @else {
+<vx-document-shell
+  [title]="'ACCOUNTS_PAYABLE.DETAIL.FACTURA_PROVEEDOR' | translate"
+  [loading]="isLoading()"
+  [error]="errorKey()"
+  backLabelKey="ACCOUNTS_PAYABLE.DETAIL.VOLVER_LISTADO"
+  (back)="goToList()"
+  (reload)="goToList()"
+></vx-document-shell>
+}

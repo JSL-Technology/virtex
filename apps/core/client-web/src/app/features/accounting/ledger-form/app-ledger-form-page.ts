@@ -1,20 +1,19 @@
 // app/features/accounting/ledger-form/app-ledger-form-page.ts
 import { Component, inject, OnInit, signal, Input } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
-import { LucideAngularModule, Save } from 'lucide-angular';
+import { Router } from '@angular/router';
 // FIX: Importar DTOs desde el servicio.
 import { LedgersService, CreateLedgerDto, UpdateLedgerDto } from '../../../core/api/ledgers.service';
 // FIX: Importar el tipo Ledger directamente desde su modelo, ya que el servicio no lo re-exporta.
 import { Ledger } from '../../../core/models/ledger.model';
 import { NotificationService } from '../../../core/services/notification';
 import { TranslateModule } from '@ngx-translate/core';
+import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 
 @Component({
   selector: 'app-ledger-form-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideAngularModule, TranslateModule],
+  imports: [ReactiveFormsModule, TranslateModule, DraftShellComponent],
   templateUrl: './app-ledger-form-page.html',
   styleUrls: ['./app-ledger-form-page.scss']
 })
@@ -26,7 +25,8 @@ export class LedgerFormPage implements OnInit {
   private ledgersService = inject(LedgersService);
   private notificationService = inject(NotificationService);
 
-  protected readonly SaveIcon = Save;
+  readonly problems = signal<DraftProblem[]>([]);
+
   ledgerForm!: FormGroup;
   isEditMode = signal(false);
   isLoading = signal(false);
@@ -59,12 +59,24 @@ export class LedgerFormPage implements OnInit {
     });
   }
 
+  cancel(): void {
+    void this.router.navigate(['/accounting/general-ledger']);
+  }
+
   saveLedger(): void {
     if (this.ledgerForm.invalid) {
-      this.notificationService.showError('ACCOUNTING.LEDGER_FORM.FAVOR_COMPLETA_CAMPOS_REQUERIDOS');
       this.ledgerForm.markAllAsTouched();
+      this.problems.set(
+        draftProblems(this.ledgerForm, {
+          name: 'ACCOUNTING.LEDGER_FORM.NOMBRE_LIBRO',
+          description: 'ACCOUNTING.LEDGER_FORM.DESCRIPCION',
+          isDefault: 'ACCOUNTING.LEDGER_FORM.ESTABLECER_COMO_LIBRO_DEFECTO',
+        }),
+      );
       return;
     }
+
+    this.problems.set([]);
 
     this.isLoading.set(true);
     const formValue = this.ledgerForm.getRawValue();

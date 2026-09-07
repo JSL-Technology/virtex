@@ -96,8 +96,11 @@ export const DATASHEETS_MODULE: ModuleManifest = {
       load: () => import('../../../features/datasheets/pages/datasheet-list/datasheet-list.page').then((m) => m.DatasheetListPage),
     },
     {
+      //  Una hoja de cálculo: barra de fórmulas, rejilla y panel de variables. No es un documento
+      //  que se lee, es una superficie sobre la que se compone, y el armazón de documento —cabecera
+      //  fija, cuerpo, panel lateral— estorbaría en las tres.
       path: ':id',
-      kind: WindowKind.DOCUMENT,
+      kind: WindowKind.CANVAS,
       permission: 'datasheets:view',
       icon: 'Table2',
       titleFn: (p, d) => (d as { name?: string })?.name ?? `Hoja ${p['id']}`,

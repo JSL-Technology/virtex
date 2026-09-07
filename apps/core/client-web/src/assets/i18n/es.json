@@ -51,7 +51,9 @@
       "TIPO_JERARQUIA": "Tipo de Jerarquía",
       "VERSION_CATALOGO": "Versión del Catálogo",
       "VIGENTE_DESDE": "Vigente Desde",
-      "VIGENTE_HASTA": "Vigente Hasta"
+      "VIGENTE_HASTA": "Vigente Hasta",
+      "TITLE_NEW": "Nueva cuenta contable",
+      "TITLE_EDIT": "Editar cuenta contable"
     },
     "ANNUAL_CLOSE": {
       "EMPTY": "El checklist de cierre anual todavía no está disponible.",
@@ -311,7 +313,8 @@
       "NOMBRE_LIBRO": "Nombre del Libro*",
       "PUDO_CARGAR_LIBRO_MAYOR": "No se pudo cargar el libro mayor.",
       "TITLE_CREATE": "Nuevo libro mayor",
-      "TITLE_EDIT": "Editar libro mayor"
+      "TITLE_EDIT": "Editar libro mayor",
+      "GUARDAR_LIBRO": "Guardar libro"
     },
     "LEDGER_LIST": {
       "CREAR_NUEVO_LIBRO": "Crear Nuevo Libro",
@@ -942,7 +945,10 @@
       "TIPO_CONTRIBUYENTE_GOVERNMENT": "Estado y sus dependencias",
       "TIPO_CONTRIBUYENTE_INDIVIDUAL": "Persona física",
       "TIPO_CONTRIBUYENTE_SIN_CLASIFICAR": "Sin clasificar",
-      "TIPO_CONTRIBUYENTE_WITHHOLDING_AGENT": "Agente de retención designado"
+      "TIPO_CONTRIBUYENTE_WITHHOLDING_AGENT": "Agente de retención designado",
+      "TITLE_NEW": "Nuevo cliente",
+      "TITLE_EDIT": "Editar cliente",
+      "GUARDAR_CLIENTE": "Guardar cliente"
     },
     "SUPPLIERS": {
       "ACCIONES": "Acciones",
@@ -1637,7 +1643,19 @@
       "TOTAL_2": "TOTAL:",
       "TRACKID": "TrackID:",
       "VERIFICACION_DGII": "Verificación DGII",
-      "VERIFICAR_DGII": "Verificar en la DGII"
+      "VERIFICAR_DGII": "Verificar en la DGII",
+      "TITULO_FACTURA": "Factura de venta",
+      "TITULO_NOTA_CREDITO": "Nota de crédito",
+      "FECHA": "Fecha",
+      "VENCIMIENTO": "Vencimiento",
+      "MONEDA": "Moneda",
+      "IMPUESTO": "Impuesto",
+      "EMITIR_COMPROBANTE": "Emitir comprobante",
+      "EMITIENDO": "Emitiendo…",
+      "REENVIAR_DGII": "Reenviar a la DGII",
+      "REENVIANDO": "Reenviando…",
+      "ENVIANDO_CORREO": "Enviando el correo…",
+      "SIN_NCF": "Sin asignar"
     },
     "EXPORT": {
       "CLIENTE": "Cliente",
@@ -2098,7 +2116,9 @@
       "PROVEEDOR_ACTUALIZADO_EXITOSAMENTE": "Proveedor actualizado exitosamente.",
       "PROVEEDOR_CREADO_EXITOSAMENTE": "Proveedor creado exitosamente.",
       "PUDO_CARGAR_PROVEEDOR": "No se pudo cargar el proveedor.",
-      "TELEFONO": "Teléfono"
+      "TELEFONO": "Teléfono",
+      "TITLE_NEW": "Nuevo proveedor",
+      "TITLE_EDIT": "Editar proveedor"
     },
     "SUPPLIER_LIST": {
       "COMPANY_NAME": "Razón social",
@@ -2138,7 +2158,9 @@
       "NOMBRE_IMPUESTO": "Nombre del Impuesto*",
       "PUDO_CARGAR_IMPUESTO": "No se pudo cargar el impuesto.",
       "TASA": "Tasa*",
-      "TIPO": "Tipo*"
+      "TIPO": "Tipo*",
+      "TITLE_NEW": "Nuevo impuesto",
+      "TITLE_EDIT": "Editar impuesto"
     },
     "UNITS_OF_MEASURE": {
       "FILTERS": "Filtros",
@@ -4176,6 +4198,14 @@
     "NO_CHANGES": "Sin cambios",
     "PROBLEMS": "Revisa {{count}} punto(s) antes de guardar",
     "TOGGLE_ASIDE": "Mostrar u ocultar el panel lateral",
-    "ASIDE": "Panel del documento"
+    "ASIDE": "Panel del documento",
+    "PROBLEM_REQUIRED": "«{{field}}» es obligatorio",
+    "PROBLEM_EMAIL": "«{{field}}» no es un correo válido",
+    "PROBLEM_MIN": "«{{field}}» no puede ser menor que {{min}}",
+    "PROBLEM_MAX": "«{{field}}» no puede ser mayor que {{max}}",
+    "PROBLEM_MINLENGTH": "«{{field}}» necesita al menos {{min}} caracteres",
+    "PROBLEM_MAXLENGTH": "«{{field}}» admite como mucho {{max}} caracteres",
+    "PROBLEM_PATTERN": "«{{field}}» no tiene el formato esperado",
+    "PROBLEM_INVALID": "Revisa «{{field}}»"
   }
 }

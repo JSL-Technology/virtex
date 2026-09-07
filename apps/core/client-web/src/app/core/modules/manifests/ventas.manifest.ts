@@ -129,8 +129,11 @@ export const VENTAS_MODULE: ModuleManifest = {
       load: () => import('../../../features/sales/history/history.page').then((m) => m.HistoryPage),
     },
     {
+      //  Un terminal de punto de venta: catálogo, ticket y cobro, los tres a la vez y a pantalla
+      //  completa. El armazón de borrador —cabecera fija con «Guardar» y «Cancelar»— describe un
+      //  formulario, y esto no lo es: aquí no se guarda un borrador, se cobra.
       path: 'sales/pos',
-      kind: WindowKind.DRAFT,
+      kind: WindowKind.CANVAS,
       permission: 'invoices:create',
       titleKey: 'PAGE_TITLES.POINT_OF_SALE',
       icon: 'Store',

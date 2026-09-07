@@ -119,8 +119,11 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       load: () => import('../../../features/accounting/ledger-form/app-ledger-form-page').then((m) => m.LedgerFormPage),
     },
     {
+      //  El mayor de una cuenta es el conjunto de sus movimientos: se busca dentro de él, se
+      //  acota por fechas y se lee de arriba abajo. Es una lista con una cuenta por encima, no un
+      //  documento con estado — la cuenta no se emite ni se anula.
       path: 'general-ledger/:accountId',
-      kind: WindowKind.DOCUMENT,
+      kind: WindowKind.LIST,
       permission: 'accounting:view',
       icon: 'Library',
       titleFn: (p) => `Mayor · ${p['accountId']}`,

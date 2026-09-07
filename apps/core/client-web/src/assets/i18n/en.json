@@ -51,7 +51,9 @@
       "TIPO_JERARQUIA": "Hierarchy Type",
       "VERSION_CATALOGO": "Chart Version",
       "VIGENTE_DESDE": "Effective From",
-      "VIGENTE_HASTA": "Effective Until"
+      "VIGENTE_HASTA": "Effective Until",
+      "TITLE_NEW": "New account",
+      "TITLE_EDIT": "Edit account"
     },
     "ANNUAL_CLOSE": {
       "EMPTY": "The year-end closing checklist is not available yet.",
@@ -311,7 +313,8 @@
       "NOMBRE_LIBRO": "Ledger Name*",
       "PUDO_CARGAR_LIBRO_MAYOR": "The ledger could not be loaded.",
       "TITLE_CREATE": "New ledger",
-      "TITLE_EDIT": "Edit ledger"
+      "TITLE_EDIT": "Edit ledger",
+      "GUARDAR_LIBRO": "Save ledger"
     },
     "LEDGER_LIST": {
       "CREAR_NUEVO_LIBRO": "Create Ledger",
@@ -942,7 +945,10 @@
       "TIPO_CONTRIBUYENTE_GOVERNMENT": "Government body",
       "TIPO_CONTRIBUYENTE_INDIVIDUAL": "Natural person",
       "TIPO_CONTRIBUYENTE_SIN_CLASIFICAR": "Unclassified",
-      "TIPO_CONTRIBUYENTE_WITHHOLDING_AGENT": "Designated withholding agent"
+      "TIPO_CONTRIBUYENTE_WITHHOLDING_AGENT": "Designated withholding agent",
+      "TITLE_NEW": "New customer",
+      "TITLE_EDIT": "Edit customer",
+      "GUARDAR_CLIENTE": "Save customer"
     },
     "SUPPLIERS": {
       "ACCIONES": "Actions",
@@ -1637,7 +1643,19 @@
       "TOTAL_2": "TOTAL:",
       "TRACKID": "TrackID:",
       "VERIFICACION_DGII": "DGII verification",
-      "VERIFICAR_DGII": "Verify with the DGII"
+      "VERIFICAR_DGII": "Verify with the DGII",
+      "TITULO_FACTURA": "Sales invoice",
+      "TITULO_NOTA_CREDITO": "Credit note",
+      "FECHA": "Date",
+      "VENCIMIENTO": "Due",
+      "MONEDA": "Currency",
+      "IMPUESTO": "Tax",
+      "EMITIR_COMPROBANTE": "Issue document",
+      "EMITIENDO": "Issuing…",
+      "REENVIAR_DGII": "Resend to the DGII",
+      "REENVIANDO": "Resending…",
+      "ENVIANDO_CORREO": "Sending the email…",
+      "SIN_NCF": "Not assigned"
     },
     "EXPORT": {
       "CLIENTE": "Customer",
@@ -2098,7 +2116,9 @@
       "PROVEEDOR_ACTUALIZADO_EXITOSAMENTE": "Supplier updated.",
       "PROVEEDOR_CREADO_EXITOSAMENTE": "Supplier created.",
       "PUDO_CARGAR_PROVEEDOR": "The supplier could not be loaded.",
-      "TELEFONO": "Phone"
+      "TELEFONO": "Phone",
+      "TITLE_NEW": "New supplier",
+      "TITLE_EDIT": "Edit supplier"
     },
     "SUPPLIER_LIST": {
       "COMPANY_NAME": "Legal name",
@@ -2138,7 +2158,9 @@
       "NOMBRE_IMPUESTO": "Tax Name*",
       "PUDO_CARGAR_IMPUESTO": "The tax could not be loaded.",
       "TASA": "Rate*",
-      "TIPO": "Type*"
+      "TIPO": "Type*",
+      "TITLE_NEW": "New tax",
+      "TITLE_EDIT": "Edit tax"
     },
     "UNITS_OF_MEASURE": {
       "FILTERS": "Filters",
@@ -4176,6 +4198,14 @@
     "NO_CHANGES": "No changes",
     "PROBLEMS": "Check {{count}} item(s) before saving",
     "TOGGLE_ASIDE": "Show or hide the side panel",
-    "ASIDE": "Document panel"
+    "ASIDE": "Document panel",
+    "PROBLEM_REQUIRED": "“{{field}}” is required",
+    "PROBLEM_EMAIL": "“{{field}}” is not a valid email address",
+    "PROBLEM_MIN": "“{{field}}” cannot be lower than {{min}}",
+    "PROBLEM_MAX": "“{{field}}” cannot be higher than {{max}}",
+    "PROBLEM_MINLENGTH": "“{{field}}” needs at least {{min}} characters",
+    "PROBLEM_MAXLENGTH": "“{{field}}” takes at most {{max}} characters",
+    "PROBLEM_PATTERN": "“{{field}}” is not in the expected format",
+    "PROBLEM_INVALID": "Check “{{field}}”"
   }
 }
