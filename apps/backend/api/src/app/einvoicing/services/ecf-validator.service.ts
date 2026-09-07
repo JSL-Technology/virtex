@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EcfBuildContext } from './ecf-xml-builder.service';
+import { roundAmount } from '../../common/money';
 
 export interface EcfValidationIssue {
   /** The element or rule the document fails. Always the DGII's own element name, never translated. */
@@ -309,5 +310,5 @@ export class EcfValidatorService {
 }
 
 function round2(value: number): number {
-  return Math.round((value + Number.EPSILON) * 100) / 100;
+  return roundAmount(value);
 }

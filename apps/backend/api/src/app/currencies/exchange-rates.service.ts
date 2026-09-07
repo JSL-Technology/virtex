@@ -1,11 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { firstValueFrom } from 'rxjs';
-import type { AxiosError } from 'axios';
 import { ExchangeRate, ExchangeRateType } from './entities/exchange-rate.entity';
 import { Currency } from './entities/currency.entity';
 import { ExchangeRateResolver, ResolvedRate } from './exchange-rate-resolver.service';
@@ -15,6 +12,7 @@ import { BadRequestError } from '../i18n/localized.exception';
 import { SchedulerLockService } from '../shared/scheduler/scheduler-lock.service';
 import { addDaysIso, daysBetween, toIsoDate, todayIso } from '../common/dates';
 import { roundAmount } from '../common/money';
+import { XeRatesProvider } from './xe-rates.provider';
 
 /**
  * The pivot the daily refresh quotes against.
@@ -32,10 +30,6 @@ const MAX_BACKFILL_DAYS = 370;
 
 /** The provider name written to `source` for anything the scheduled refresh brings in. */
 const PROVIDER = 'XE';
-
-interface XeHistoricalResponse {
-  to?: Record<string, unknown>;
-}
 
 /**
  * Publishing exchange rates: the scheduled refresh, historical backfill, and manual entry.
@@ -67,18 +61,47 @@ interface XeHistoricalResponse {
 @Injectable()
 export class ExchangeRatesService {
   private readonly logger = new Logger(ExchangeRatesService.name);
-  private readonly xeApiBaseUrl = 'https://xecdapi.xe.com/v1';
 
   constructor(
     @InjectRepository(ExchangeRate)
     private readonly exchangeRateRepository: Repository<ExchangeRate>,
     @InjectRepository(Currency)
     private readonly currencyRepository: Repository<Currency>,
-    private readonly httpService: HttpService,
     private readonly configService: ConfigService,
     private readonly resolver: ExchangeRateResolver,
     private readonly schedulerLock: SchedulerLockService,
+    private readonly xe: XeRatesProvider,
   ) {}
+
+  /**
+   * Refuse to store rates the provider itself says are made up. No exceptions, no environments.
+   *
+   * XE serves **mock rates** on the free trial — its own credentials screen states it under "Free
+   * Trial Rates". A mock rate written to `exchange_rates` is indistinguishable from a real one the
+   * instant it lands: it carries the same source, the same date and the same type. Every
+   * foreign-currency invoice, every period-end revaluation and every realised exchange difference
+   * computed from it is then a fabricated figure inside a book a tax authority reads, and there is
+   * no way to find them afterwards or to unwind the entries they produced.
+   *
+   * There is deliberately no flag to turn this off. A development environment that needs rates has
+   * two honest ways to get them: a paid XE plan, or `POST /exchange-rates` — which is a real rate,
+   * entered by a person, attributed to them, and typed as official or market. Neither invents a
+   * number.
+   */
+  private async assertProviderServesRealRates(): Promise<void> {
+    const account = await this.xe.accountInfo();
+    if (!account.servesMockRates) return;
+
+    this.logger.error(
+      `La cuenta de XE está en el plan "${account.package}", que devuelve tasas simuladas. ` +
+        'No se almacenará ninguna tasa. Contrate un plan con datos reales, o registre las tasas ' +
+        'oficiales con POST /exchange-rates.',
+    );
+    throw new BadRequestError('CURRENCIES.PROVEEDOR_TASAS_SIMULADAS', {
+      provider: PROVIDER,
+      plan: account.package,
+    });
+  }
 
   /**
    * The daily refresh.
@@ -241,12 +264,11 @@ export class ExchangeRatesService {
    * @returns how many rates were written.
    */
   private async fetchAndStore(day: string): Promise<number> {
-    const apiKey = this.configService.get<string>('XE_API_KEY');
-    const apiId = this.configService.get<string>('XE_API_ID');
-
-    if (!apiKey || !apiId) {
+    if (!this.xe.isConfigured()) {
       throw new BadRequestError('CURRENCIES.PROVEEDOR_TASAS_NO_CONFIGURADO');
     }
+
+    await this.assertProviderServesRealRates();
 
     const currencies = await this.currencyRepository.find();
     const targets = currencies.map((c) => c.code.toUpperCase()).filter((code) => code !== PIVOT);
@@ -256,46 +278,22 @@ export class ExchangeRatesService {
       return 0;
     }
 
-    const auth = 'Basic ' + Buffer.from(`${apiId}:${apiKey}`).toString('base64');
-    const url =
-      `${this.xeApiBaseUrl}/rates/historical.json` +
-      `?from=${PIVOT}&to=${targets.join(',')}&date=${day}`;
-
-    let payload: XeHistoricalResponse;
-    try {
-      const response = await firstValueFrom(
-        this.httpService.get<XeHistoricalResponse>(url, { headers: { Authorization: auth } }),
-      );
-      payload = response.data;
-    } catch (error) {
-      const detail =
-        (error as AxiosError).response?.data ?? (error as Error).message ?? 'error desconocido';
-      this.logger.error(
-        `Error al obtener las tasas de cambio del ${day}: ${JSON.stringify(detail)}`,
-      );
-      throw new BadRequestError('CURRENCIES.NO_SE_PUDIERON_OBTENER_TASAS', { date: day });
-    }
-
-    const quotes = payload?.to;
-    if (!quotes || typeof quotes !== 'object') {
+    const quotes = await this.xe.fetchMidRates(PIVOT, targets, day);
+    if (quotes.length === 0) {
       throw new BadRequestError('CURRENCIES.RESPUESTA_PROVEEDOR_SIN_TASAS', { date: day });
     }
 
-    const rows = Object.entries(quotes)
-      .map(([code, value]) => ({
-        fromCurrency: PIVOT,
-        toCurrency: code.toUpperCase(),
-        rate: roundAmount(Number(value), 6),
-        date: day as unknown as Date,
-        // Xe publishes an interbank mid. Calling it OFFICIAL would let it satisfy a lookup for the
-        // rate a tax authority mandates, which it is not and never was.
-        rateType: ExchangeRateType.MARKET,
-        source: PROVIDER,
-        recordedByUserId: null,
-      }))
-      // A provider returning a null, a zero or a non-numeric quote for a thin pair is normal.
-      // Storing it would make every conversion through that pair silently wrong.
-      .filter((row) => Number.isFinite(row.rate) && row.rate > 0);
+    const rows = quotes.map((quote) => ({
+      fromCurrency: PIVOT,
+      toCurrency: quote.currency,
+      rate: quote.rate,
+      date: day as unknown as Date,
+      // XE publishes an interbank mid. Calling it OFFICIAL would let it satisfy a lookup for the
+      // rate a tax authority mandates, which it is not and never was.
+      rateType: ExchangeRateType.MARKET,
+      source: PROVIDER,
+      recordedByUserId: null,
+    }));
 
     if (rows.length === 0) return 0;
 

@@ -105,6 +105,48 @@ export interface TrialBalanceReport {
   isBalanced: boolean;
 }
 
+/**
+ * A movement in the investing or financing section, presented gross.
+ *
+ * IAS 7.21 and ASC 230-10-45-7 require gross presentation: cash received and cash paid are two
+ * figures, not the difference between them. Netting them per account hides exactly what the
+ * section exists to show — a year in which a company sold one building and bought another looked
+ * like a year in which it did nothing.
+ */
+export interface CashFlowMovement {
+  accountId: string;
+  code: string;
+  /** Cash received through this account over the period, as a positive amount. */
+  inflow: number;
+  /** Cash paid through this account over the period, as a positive amount. */
+  outflow: number;
+  /** `inflow − outflow`. */
+  amount: number;
+}
+
+/** A section presented gross, with its two sides stated as well as its net. */
+export interface CashFlowSection {
+  movements: CashFlowMovement[];
+  inflows: number;
+  outflows: number;
+  total: number;
+}
+
+/**
+ * A transaction that changed the balance sheet without moving any cash.
+ *
+ * IAS 7.43 requires these to be excluded from the statement and disclosed. An asset bought on
+ * supplier credit, a loan converted to equity, a dividend declared but unpaid: including them
+ * produced an investing outflow and a financing inflow for money that never moved, which is the
+ * one thing a reader of this statement must be able to rely on not happening.
+ */
+export interface NonCashTransactionLine {
+  accountId: string;
+  code: string;
+  debit: number;
+  credit: number;
+}
+
 export interface CashFlowStatementReport {
   period: { startDate: string; endDate: string };
   ledger: LedgerRef;
@@ -115,8 +157,23 @@ export interface CashFlowStatementReport {
     workingCapitalChanges: { accountId: string; code: string; amount: number }[];
     total: number;
   };
-  investing: { movements: { accountId: string; code: string; amount: number }[]; total: number };
-  financing: { movements: { accountId: string; code: string; amount: number }[]; total: number };
+  investing: CashFlowSection;
+  financing: CashFlowSection;
+  /**
+   * The effect of exchange-rate changes on cash held in foreign currency.
+   *
+   * A separate reconciling line, outside the three activity sections, as IAS 7.28 and
+   * ASC 230-10-45-25 require. It is the movement the period-end revaluation put through the cash
+   * accounts themselves: no cash moved, but the reporting-currency figure changed, and without
+   * this line that change has to be smuggled into operating activities to make the statement tie.
+   *
+   * The rest of that revaluation — the unrealised gain or loss in profit, and the restatement of
+   * foreign-currency receivables and payables — is removed from operating in the same step, which
+   * is why `netIncome` is reconciled by an adjustment rather than silently reduced.
+   */
+  effectOfExchangeRateOnCash: number;
+  /** Transactions excluded from the statement because no cash moved (IAS 7.43). */
+  nonCashTransactions: NonCashTransactionLine[];
   netChangeInCash: number;
   closingCash: number;
   /**
@@ -591,6 +648,31 @@ export class FinancialReportingService {
     return ids;
   }
 
+  /**
+   * The statement of cash flows, indirect method.
+   *
+   * ## What it has to satisfy beyond tying to the change in cash
+   *
+   * The previous statement derived every figure from the net movement of each account over the
+   * period. That guaranteed it tied — the movements of all accounts sum to zero, so the classified
+   * total *is* the change in cash — but it produced three presentations the standards prohibit:
+   *
+   * 1. **Netting.** IAS 7.21 and ASC 230-10-45-7 require investing and financing to be gross.
+   *    Selling one building and buying another in the same year netted to the difference; drawing
+   *    a loan and repaying it netted to nothing. Both are now stated as an inflow and an outflow.
+   * 2. **Non-cash transactions.** IAS 7.43 requires transactions that moved no cash to be excluded
+   *    and disclosed. An asset acquired on supplier credit appeared as an investing outflow and a
+   *    financing inflow of equal size — two cash flows for money that never moved. Entries with no
+   *    cash leg are now kept out of both sections and listed separately.
+   * 3. **The effect of exchange rates on cash.** IAS 7.28 and ASC 230-10-45-25 require it as a
+   *    separate reconciling line. Classified by account category, the period-end revaluation of a
+   *    dollar bank account is indistinguishable from a deposit into it, so it was landing inside
+   *    operating activities. It is now identified by what posted it.
+   *
+   * The tie is preserved through all three, and for the same reason as before: every rule here
+   * either keeps an entry's lines together or drops all of them, and an entry's lines always sum
+   * to zero.
+   */
   async getCashFlowStatement(
     organizationId: string,
     startDate: Date | string,
@@ -601,19 +683,26 @@ export class FinancialReportingService {
     const { from, to } = this.periodOf(startDate, endDate);
     const accounts = await this.accountsOf(organizationId);
 
-    const cashIds = new Set(this.cashAccountIds(accounts));
+    const cashAccountIds = this.cashAccountIds(accounts);
+    const cashIds = new Set(cashAccountIds);
     const scope = { organizationId, ledgerId: ledger.id };
 
     const [openingBalances, closingBalances, movements] = await Promise.all([
       this.balances.balancesAsOf(
-        { ...scope, accountIds: [...cashIds], asOf: previousDay(from) },
+        { ...scope, accountIds: cashAccountIds, asOf: previousDay(from) },
       ),
-      this.balances.balancesAsOf({ ...scope, accountIds: [...cashIds], asOf: to }),
+      this.balances.balancesAsOf({ ...scope, accountIds: cashAccountIds, asOf: to }),
       // The annual closing entry touches no cash account and its own movements sum to zero, so
       // excluding it leaves `netChangeInCash` exactly where it was — but keeps the presentation
       // honest: without this, a closed year reports a net income of zero and shows the whole
       // result as a financing movement into retained earnings.
-      this.balances.movements({ ...scope, excludeClosingEntries: true, from, to }),
+      this.balances.classifiedMovements({
+        ...scope,
+        excludeClosingEntries: true,
+        from,
+        to,
+        cashAccountIds,
+      }),
     ]);
 
     const sumOf = (balances: Map<string, number>) =>
@@ -624,17 +713,63 @@ export class FinancialReportingService {
 
     const nonCashAdjustments: { accountId: string; code: string; amount: number }[] = [];
     const workingCapitalChanges: { accountId: string; code: string; amount: number }[] = [];
-    const investingMovements: { accountId: string; code: string; amount: number }[] = [];
-    const financingMovements: { accountId: string; code: string; amount: number }[] = [];
+    const investingMovements = new Map<string, CashFlowMovement>();
+    const financingMovements = new Map<string, CashFlowMovement>();
+    const nonCashTransactions: NonCashTransactionLine[] = [];
     let netIncomeCents = 0;
+    let exchangeEffectCents = 0;
+
+    /** Accumulate a gross movement into a section, keyed by account. */
+    const addGross = (
+      section: Map<string, CashFlowMovement>,
+      account: Account,
+      inflow: number,
+      outflow: number,
+    ) => {
+      const existing =
+        section.get(account.id) ??
+        { accountId: account.id, code: account.code, inflow: 0, outflow: 0, amount: 0 };
+      existing.inflow = roundAmount(existing.inflow + inflow);
+      existing.outflow = roundAmount(existing.outflow + outflow);
+      existing.amount = roundAmount(existing.inflow - existing.outflow);
+      section.set(account.id, existing);
+    };
 
     for (const movement of movements) {
-      if (cashIds.has(movement.accountId)) continue;
       const account = accounts.get(movement.accountId);
       if (!account) continue;
 
+      // ── The revaluation entry ────────────────────────────────────────────
+      //
+      // Its effect on cash is the reconciling line; everything else it did is unrealised and does
+      // not belong in any section. Both halves are handled here so the entry stays whole.
+      if (movement.origin === 'EXCHANGE_REVALUATION') {
+        if (cashIds.has(account.id)) {
+          exchangeEffectCents += toCents(movement.debit) - toCents(movement.credit);
+          continue;
+        }
+        // The unrealised gain or loss is in profit, and `netIncome` below is the income
+        // statement's own figure, so it has to be reported and then removed — not quietly
+        // omitted, which would leave the reader unable to reconcile the two statements.
+        if (account.type === AccountType.REVENUE || account.type === AccountType.EXPENSE) {
+          const cashEffect = roundAmount(movement.credit - movement.debit);
+          netIncomeCents += toCents(cashEffect);
+          nonCashAdjustments.push({
+            accountId: account.id,
+            code: account.code,
+            amount: roundAmount(-cashEffect),
+          });
+        }
+        // The restatement of foreign-currency receivables and payables moved no cash and is not a
+        // working-capital movement. Dropping it is what keeps the two adjustments above from
+        // over-explaining the change in cash.
+        continue;
+      }
+
+      if (cashIds.has(account.id)) continue;
+
       const signed = movement.debit - movement.credit;
-      if (toCents(signed) === 0) continue;
+      if (toCents(signed) === 0 && movement.origin !== 'NON_CASH_TRANSACTION') continue;
 
       // The cash effect of a non-cash account is the negation of its own movement. Receivables
       // going up (a debit) consumes cash; revenue (a credit) provides it.
@@ -649,6 +784,34 @@ export class FinancialReportingService {
         continue;
       }
 
+      // ── An entry that moved no cash ──────────────────────────────────────
+      //
+      // Disclosed, and kept out of investing and financing. Its balance-sheet lines still have to
+      // go somewhere for the statement to tie, and under the indirect method that place is the
+      // operating reconciliation: an asset acquired on credit contributes a negative non-cash
+      // adjustment and the liability an offsetting positive one, which net to nothing — which is
+      // the correct answer, because nothing happened to cash.
+      if (movement.origin === 'NON_CASH_TRANSACTION') {
+        // Disclosed only where IAS 7.43 asks for it: investing and financing transactions that
+        // required no cash. Depreciation reaches this branch too — it moves no cash either — but
+        // it is neither, and listing it here would bury the finance lease among the routine.
+        if (
+          this.isInvestingOrFinancing(account) &&
+          (toCents(movement.debit) !== 0 || toCents(movement.credit) !== 0)
+        ) {
+          nonCashTransactions.push({
+            accountId: account.id,
+            code: account.code,
+            debit: roundAmount(movement.debit),
+            credit: roundAmount(movement.credit),
+          });
+        }
+        if (toCents(signed) === 0) continue;
+        if (this.isWorkingCapital(account)) workingCapitalChanges.push(entry);
+        else nonCashAdjustments.push(entry);
+        continue;
+      }
+
       switch (account.category) {
         case AccountCategory.NON_CURRENT_ASSET:
           // Accumulated depreciation is a non-current asset by category and a non-cash charge in
@@ -657,19 +820,25 @@ export class FinancialReportingService {
           if (account.systemRole === AccountRole.ACCUMULATED_DEPRECIATION) {
             nonCashAdjustments.push(entry);
           } else {
-            investingMovements.push(entry);
+            // Gross: a credit to a fixed-asset account is cash coming in from a disposal, a debit
+            // is cash going out to buy something. Netting them is what IAS 7.21 prohibits.
+            addGross(investingMovements, account, movement.credit, movement.debit);
           }
           break;
         case AccountCategory.NON_CURRENT_LIABILITY:
-          financingMovements.push(entry);
+          // Drawing a loan is a credit and an inflow; repaying it is a debit and an outflow.
+          addGross(financingMovements, account, movement.credit, movement.debit);
           break;
         case AccountCategory.CURRENT_ASSET:
         case AccountCategory.CURRENT_LIABILITY:
           workingCapitalChanges.push(entry);
           break;
         default:
-          if (account.type === AccountType.EQUITY) financingMovements.push(entry);
-          else workingCapitalChanges.push(entry);
+          if (account.type === AccountType.EQUITY) {
+            addGross(financingMovements, account, movement.credit, movement.debit);
+          } else {
+            workingCapitalChanges.push(entry);
+          }
       }
     }
 
@@ -679,16 +848,34 @@ export class FinancialReportingService {
       workingCapitalChanges.map((item) => item.amount),
     );
     const operatingTotal = roundAmount(netIncome + nonCashTotal + workingCapitalTotal);
-    const investingTotal = sumAmounts(investingMovements.map((item) => item.amount));
-    const financingTotal = sumAmounts(financingMovements.map((item) => item.amount));
-    const netChangeInCash = roundAmount(
-      operatingTotal + investingTotal + financingTotal,
-    );
+    const effectOfExchangeRateOnCash = roundAmount(exchangeEffectCents / 100);
 
     const bySize = (
       a: { amount: number },
       b: { amount: number },
     ) => Math.abs(b.amount) - Math.abs(a.amount);
+
+    const sectionOf = (movementsByAccount: Map<string, CashFlowMovement>): CashFlowSection => {
+      const list = [...movementsByAccount.values()]
+        // An account whose gross sides are both zero moved nothing and is not a line of the
+        // statement. One whose sides cancel did two real things and stays.
+        .filter((item) => toCents(item.inflow) !== 0 || toCents(item.outflow) !== 0)
+        .sort(bySize);
+      const inflows = sumAmounts(list.map((item) => item.inflow));
+      const outflows = sumAmounts(list.map((item) => item.outflow));
+      return {
+        movements: list,
+        inflows,
+        outflows,
+        total: roundAmount(inflows - outflows),
+      };
+    };
+
+    const investing = sectionOf(investingMovements);
+    const financing = sectionOf(financingMovements);
+    const netChangeInCash = roundAmount(
+      operatingTotal + investing.total + financing.total + effectOfExchangeRateOnCash,
+    );
 
     return {
       period: { startDate: from, endDate: to },
@@ -700,14 +887,47 @@ export class FinancialReportingService {
         workingCapitalChanges: workingCapitalChanges.sort(bySize),
         total: operatingTotal,
       },
-      investing: { movements: investingMovements.sort(bySize), total: investingTotal },
-      financing: { movements: financingMovements.sort(bySize), total: financingTotal },
+      investing,
+      financing,
+      effectOfExchangeRateOnCash,
+      nonCashTransactions: nonCashTransactions.sort(
+        (a, b) => Math.abs(b.debit + b.credit) - Math.abs(a.debit + a.credit),
+      ),
       netChangeInCash,
       closingCash,
       unexplainedDifference: roundAmount(
         (toCents(openingCash) + toCents(netChangeInCash) - toCents(closingCash)) / 100,
       ),
     };
+  }
+
+  /**
+   * Whether a balance-sheet account belongs in the working-capital reconciliation.
+   *
+   * Only relevant for entries that moved no cash, where the line cannot go to investing or
+   * financing and has to land on the correct side of the operating reconciliation instead.
+   */
+  private isWorkingCapital(account: Account): boolean {
+    return (
+      account.category === AccountCategory.CURRENT_ASSET ||
+      account.category === AccountCategory.CURRENT_LIABILITY
+    );
+  }
+
+  /**
+   * Whether a movement through this account would have been an investing or financing activity
+   * had cash been involved — which is the scope of the IAS 7.43 disclosure.
+   *
+   * Accumulated depreciation is excluded for the same reason it is excluded from the investing
+   * section: by category it is a non-current asset, in substance it is a non-cash charge.
+   */
+  private isInvestingOrFinancing(account: Account): boolean {
+    if (account.systemRole === AccountRole.ACCUMULATED_DEPRECIATION) return false;
+    return (
+      account.category === AccountCategory.NON_CURRENT_ASSET ||
+      account.category === AccountCategory.NON_CURRENT_LIABILITY ||
+      account.type === AccountType.EQUITY
+    );
   }
 
   // ───────────────────────────────────────────────────────────────────────────

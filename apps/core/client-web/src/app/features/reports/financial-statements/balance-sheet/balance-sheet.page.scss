@@ -71,13 +71,51 @@
   font-family: "Source Code Pro", monospace;
 }
 
-.asdfsdfarsgassadfargpokqrpeot{
-  width: 100%;
-  height: 100%;
-  background-color: rgba(var(--success-rgb), 0.233);
-  padding: var(--space-6);
-  overflow-y: scroll;
+/*
+ * A line of the cash flow statement's investing or financing section: account, cash in, cash out,
+ * net. Four columns rather than the two a `justify-content: space-between` line gives, because
+ * IAS 7.21 requires the two sides to be presented separately and a single net figure per account
+ * is exactly what the standard forbids.
+ */
+.gross-line {
+  display: grid;
+  grid-template-columns: 1fr repeat(3, minmax(7rem, auto));
+  gap: var(--space-4);
+
+  .amount {
+    text-align: right;
+  }
 }
+
+/* The column headings, aligned to the same three money columns. */
+.gross-heading {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(7rem, auto));
+  gap: var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: var(--font-normal);
+  color: var(--text-secondary);
+
+  .amount {
+    text-align: right;
+  }
+}
+
+/* The IAS 7.43 disclosure sits below the statement and is not part of its arithmetic. */
+.non-cash {
+  margin-top: var(--space-8);
+
+  .section-title {
+    border-bottom-width: 1px;
+  }
+
+  .section-note {
+    margin: 0 0 var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+  }
+}
+
 /* The date control in the header, and the states a real request can be in. */
 .date-picker {
   display: inline-flex;

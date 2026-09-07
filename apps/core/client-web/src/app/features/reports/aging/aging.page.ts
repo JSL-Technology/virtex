@@ -104,6 +104,18 @@ export class AgingPage {
   bucketAmount(buckets: { label: string; amount: number }[], label: string): number {
     return buckets.find((bucket) => bucket.label === label)?.amount ?? 0;
   }
+
+  /**
+   * Whether the subledger agrees with its control account.
+   *
+   * Compared in cents rather than against `=== 0`: both figures are sums of rounded amounts, and a
+   * report that flags a one-cent binary-representation artefact as an unreconciled difference gets
+   * ignored, which defeats the point of showing it.
+   */
+  readonly tiesOut = computed(() => {
+    const report = this.report();
+    return report ? Math.round(report.controlAccountDifference * 100) === 0 : true;
+  });
 }
 
 const BUCKET_KEYS: Record<string, string> = {

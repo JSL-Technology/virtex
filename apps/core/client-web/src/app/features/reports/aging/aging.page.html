@@ -28,6 +28,43 @@
       </button>
     </p>
   } @else if (report(); as data) {
+    <!--
+      The tie-out to the control account, and the caveat about documents that could not be
+      restated. Both belong on the page rather than in a footnote somewhere: the first is what
+      makes the report evidence, and the second is what stops a reader treating a figure held at a
+      stale rate as if it were at the closing rate.
+    -->
+    <div class="card control-tieout" [class.control-tieout--off]="!tiesOut()">
+      <h4>{{ 'REPORTS.AGING.CONTROL_TITULO' | translate }}</h4>
+      <dl>
+        <div>
+          <dt>{{ 'REPORTS.AGING.CONTROL_SUBMAYOR' | translate }}</dt>
+          <dd>{{ data.totals.total | vxNumber: '1.2-2' }} {{ data.currencyCode }}</dd>
+        </div>
+        <div>
+          <dt>{{ 'REPORTS.AGING.CONTROL_MAYOR' | translate }}</dt>
+          <dd>{{ data.controlAccountBalance | vxNumber: '1.2-2' }} {{ data.currencyCode }}</dd>
+        </div>
+        <div>
+          <dt>{{ 'REPORTS.AGING.CONTROL_DIFERENCIA' | translate }}</dt>
+          <dd class="difference">
+            {{ data.controlAccountDifference | vxNumber: '1.2-2' }} {{ data.currencyCode }}
+          </dd>
+        </div>
+      </dl>
+      <p class="verdict">
+        {{
+          (tiesOut() ? 'REPORTS.AGING.CONTROL_CUADRA' : 'REPORTS.AGING.CONTROL_NO_CUADRA')
+            | translate
+        }}
+      </p>
+      @if (data.unconvertedDocuments > 0) {
+        <p class="caveat">
+          {{ 'REPORTS.AGING.SIN_TASA' | translate: { count: data.unconvertedDocuments } }}
+        </p>
+      }
+    </div>
+
     @if (data.rows.length === 0) {
       <p class="report-state">{{ 'REPORTS.AGING.SIN_SALDOS' | translate }}</p>
     } @else {

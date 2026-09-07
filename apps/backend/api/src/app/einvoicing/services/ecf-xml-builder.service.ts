@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as xmlbuilder from 'xmlbuilder';
+import { roundAmount } from '../../common/money';
 
 /**
  * Party and line inputs for building an e-CF, decoupled from persistence entities so the builder is
@@ -472,7 +473,7 @@ export class EcfXmlBuilderService {
   }
 
   private round(n: number): number {
-    return Math.round((n + Number.EPSILON) * 100) / 100;
+    return roundAmount(n);
   }
 
   private money(n: number): string {
@@ -480,7 +481,7 @@ export class EcfXmlBuilderService {
   }
 
   private num(n: number): string {
-    return Number.isInteger(n) ? String(n) : String(Math.round((n + Number.EPSILON) * 1e6) / 1e6);
+    return Number.isInteger(n) ? String(n) : String(roundAmount(n, 6));
   }
 
   private fechaHoraFirma(fechaEmision: string): string {

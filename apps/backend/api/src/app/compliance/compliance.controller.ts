@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards, ParseIntPipe, ParseUUIDPipe, Res } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards, UseInterceptors, ParseIntPipe, ParseUUIDPipe, Res } from '@nestjs/common';
 import { ComplianceService } from './compliance.service';
 import { ProvisionNcfSequenceDto } from './dto/provision-ncf-sequence.dto';
+import { MexicanAccountingQueryDto } from './dto/mexican-accounting-query.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
@@ -8,6 +9,9 @@ import { PERMISSIONS } from '../shared/permissions';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import type { HttpResponse as Response } from '../common/http/http.types';
 import { BadRequestError } from '../i18n/localized.exception';
+import { AuditAccessInterceptor } from '../audit/audit-access.interceptor';
+import { AuditAccess } from '../audit/audit-access.decorator';
+import { ActionType } from '../audit/entities/audit-log.entity';
 
 type ReportKind = '606' | '607' | '608' | '609';
 
@@ -16,6 +20,7 @@ type ReportKind = '606' | '607' | '608' | '609';
  */
 @Controller('compliance')
 @UseGuards(JwtAuthGuard)
+@UseInterceptors(AuditAccessInterceptor)
 export class ComplianceController {
   constructor(private readonly complianceService: ComplianceService) {}
 
@@ -56,6 +61,10 @@ export class ComplianceController {
    */
   @Get('reports/:kind')
   @HasPermission(PERMISSIONS.REPORTS_VIEW_FINANCIAL)
+  // A fiscal return is a file that leaves the product carrying every sale or purchase of a month,
+  // with counterparties and tax ids. Who took a copy, and of which period, is a question a tenant
+  // under audit will be asked and could not previously answer.
+  @AuditAccess({ entity: 'dgii_report', action: ActionType.EXPORT, identifiers: ['kind', 'year', 'month'] })
   async downloadReport(
     @Param('kind') kind: string,
     @Query('year', ParseIntPipe) year: number,
@@ -72,6 +81,73 @@ export class ComplianceController {
       .header('Content-Type', 'text/plain; charset=utf-8')
       .header('Content-Disposition', `attachment; filename="${fileName}"`)
       .send(body);
+  }
+
+  /**
+   * Mexico's electronic accounting: `catalogo`, `balanza` or `polizas`, as XML.
+   *
+   * A separate route from the Dominican `reports/:kind` because these are XML documents with their
+   * own parameters — a complementary Balanza carries the date it corrects, a Pólizas file carries
+   * the audit or refund number it answers — and folding four query strings into one route to
+   * share a path segment would make both harder to read.
+   *
+   * The files are unsigned: sealing them with the taxpayer's FIEL and filing them through the
+   * Buzón Tributario is the accountant's step. Saying so here is better than a file this product
+   * claimed to have sealed and had not.
+   */
+  @Get('mx/electronic-accounting/:document')
+  @HasPermission(PERMISSIONS.REPORTS_VIEW_FINANCIAL)
+  @AuditAccess({
+    entity: 'mx_electronic_accounting',
+    action: ActionType.EXPORT,
+    identifiers: ['document', 'year', 'month'],
+  })
+  async downloadMexicanAccounting(
+    @Param('document') document: string,
+    @Query() query: MexicanAccountingQueryDto,
+    @CurrentUser() user: AuthenticatedUser,
+    @Res() res: Response,
+  ) {
+    const period = {
+      organizationId: user.organizationId,
+      year: query.year,
+      month: query.month,
+    };
+    this.assertPeriod(query.year, query.month);
+
+    const xml = await this.generateMexican(document, period, query);
+    const stamp = `${query.year}${String(query.month).padStart(2, '0')}`;
+    res
+      .header('Content-Type', 'application/xml; charset=utf-8')
+      .header('Content-Disposition', `attachment; filename="SAT_${document}_${stamp}.xml"`)
+      .send(xml);
+  }
+
+  private generateMexican(
+    document: string,
+    period: { organizationId: string; year: number; month: number },
+    query: MexicanAccountingQueryDto,
+  ): Promise<string> {
+    switch (document) {
+      case 'catalogo':
+        return this.complianceService.generateMexicanCatalogo(period);
+      case 'balanza':
+        return this.complianceService.generateMexicanBalanza(period, {
+          tipoEnvio: query.tipoEnvio,
+          fechaModBal: query.fechaModBal,
+        });
+      case 'polizas':
+        return this.complianceService.generateMexicanPolizas(period, {
+          tipoSolicitud: query.tipoSolicitud,
+          numOrden: query.numOrden,
+          numTramite: query.numTramite,
+        });
+      default:
+        throw new BadRequestError('COMPLIANCE.DOCUMENTO_CONTABILIDAD_ELECTRONICA_NO_VALIDO', {
+          document,
+          available: 'catalogo, balanza, polizas',
+        });
+    }
   }
 
   private generate(

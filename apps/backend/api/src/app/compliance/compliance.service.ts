@@ -7,6 +7,13 @@ import { Invoice } from '../invoices/entities/invoice.entity';
 import { Organization } from '../organizations/entities/organization.entity';
 import { DominicanRepublicReports } from './reports/dr-reports';
 import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
+import { DataSource } from 'typeorm';
+import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
+import {
+  MexicanAccountingPeriod,
+  MexicanElectronicAccounting,
+  PolizasRequestType,
+} from './reports/mx-electronic-accounting';
 
 /** A fiscal number, together with the authorization window it was drawn from. */
 export interface AssignedFiscalNumber {
@@ -50,7 +57,45 @@ export class ComplianceService {
     private readonly invoiceRepository: Repository<Invoice>,
     @InjectRepository(Organization)
     private readonly organizationRepository: Repository<Organization>,
+    private readonly dataSource: DataSource,
+    /** The ledger's own figures, so the Mexican filings and the statements cannot disagree. */
+    private readonly balances: AccountBalancesService,
   ) {}
+
+  // ── Mexico: contabilidad electrónica (Anexo 24, versión 1.3) ───────────────
+
+  /**
+   * The three XML files a Mexican taxpayer files with the SAT.
+   *
+   * The `NumUnIdenPol` the Pólizas file needs — a gap-free consecutive per journal per fiscal
+   * year, allocated inside the posting transaction — is the requirement that normally forces a
+   * ledger rewrite, and this product already produced it. What was missing was the serialisation.
+   *
+   * The files are unsigned. Sealing them with the taxpayer's FIEL and submitting them through the
+   * Buzón Tributario is the accountant's step, and a file this product claimed to have sealed and
+   * had not would be worse than an honest unsigned one.
+   */
+  private mexicanAccounting(): MexicanElectronicAccounting {
+    return new MexicanElectronicAccounting(this.dataSource.manager, this.balances);
+  }
+
+  generateMexicanCatalogo(period: MexicanAccountingPeriod): Promise<string> {
+    return this.mexicanAccounting().catalogo(period);
+  }
+
+  generateMexicanBalanza(
+    period: MexicanAccountingPeriod,
+    options: { tipoEnvio?: 'N' | 'C'; fechaModBal?: string } = {},
+  ): Promise<string> {
+    return this.mexicanAccounting().balanza(period, options);
+  }
+
+  generateMexicanPolizas(
+    period: MexicanAccountingPeriod,
+    options: { tipoSolicitud?: PolizasRequestType; numOrden?: string; numTramite?: string } = {},
+  ): Promise<string> {
+    return this.mexicanAccounting().polizas(period, options);
+  }
 
   /**
    * Draw the next fiscal number of a type, under a row lock, and report the authorization window

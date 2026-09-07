@@ -16,6 +16,24 @@ import { TranslateModule } from '@ngx-translate/core';
 export class CustomerFormPage implements OnInit {
   id = input<string>();
 
+  /**
+   * The fiscal classifications a customer can hold, in the order they are met.
+   *
+   * Kept as a plain list rather than pulled from a lookup endpoint: these are the categories every
+   * withholding regime in the product is written against, so a value the server does not know
+   * would silently withhold nothing.
+   */
+  protected readonly taxpayerTypes = [
+    { value: 'INDIVIDUAL', labelKey: 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE_INDIVIDUAL' },
+    { value: 'COMPANY', labelKey: 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE_COMPANY' },
+    {
+      value: 'WITHHOLDING_AGENT',
+      labelKey: 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE_WITHHOLDING_AGENT',
+    },
+    { value: 'GOVERNMENT', labelKey: 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE_GOVERNMENT' },
+    { value: 'FOREIGN', labelKey: 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE_FOREIGN' },
+  ] as const;
+
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private customersService = inject(CustomersService);
@@ -47,6 +65,10 @@ export class CustomerFormPage implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       phone: ['', Validators.required],
       taxId: [''],
+      // The buyer's fiscal classification, which decides what they withhold at source. Left blank
+      // the server withholds nothing automatically, which is the safe default: the classification
+      // is assigned by the tax authority and is not derivable from anything else on this form.
+      taxpayerType: [''],
       address: [''],
       city: [''],
       stateOrProvince: [''],

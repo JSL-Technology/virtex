@@ -56,6 +56,25 @@ export class InvoicesController {
     return this.invoicesService.create(dto, user.organizationId);
   }
 
+  /**
+   * What the document would come to, without creating anything.
+   *
+   * The invoice form used to compute its own totals to show a running figure. That was a second
+   * implementation of the document arithmetic, and it had already diverged — it charged tax on the
+   * base *before* the document discount, which the server spent a release fixing. The form now
+   * asks; the number on screen while composing is the number that will be issued.
+   *
+   * Reads only: no numbering, no stock, no posting, nothing written. Guarded by the same
+   * permission as creation, because it discloses catalogue prices, tax treatment and the buyer's
+   * withholding regime.
+   */
+  @Post('preview')
+  @HttpCode(HttpStatus.OK)
+  @HasPermission(PERMISSIONS.INVOICES_CREATE)
+  preview(@Body() dto: CreateInvoiceDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.invoicesService.preview(dto, user.organizationId);
+  }
+
   /** Issue a draft: assigns the fiscal number, posts the ledger entry and transmits the e-CF. */
   @Post(':id/issue')
   @UseGuards(PeriodLockGuard, PlanLimitCheckGuard)

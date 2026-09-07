@@ -213,30 +213,83 @@ export class StatementExportService {
   }
 
   exportCashFlow(report: CashFlowStatementReport): void {
-    const movementRows = (movements: { code: string; amount: number }[]): CsvValue[][] =>
-      movements.map((movement) => [movement.code, movement.amount]);
+    const adjustmentRows = (movements: { code: string; amount: number }[]): CsvValue[][] =>
+      movements.map((movement) => [movement.code, '', '', movement.amount]);
+
+    // Investing and financing carry their two sides as well as their net, because the export is
+    // the file a reader takes to a spreadsheet and the gross presentation IAS 7.21 requires has to
+    // survive the trip. A file with only the net is a file the statement cannot be rebuilt from.
+    const grossRows = (
+      movements: { code: string; inflow: number; outflow: number; amount: number }[],
+    ): CsvValue[][] =>
+      movements.map((movement) => [
+        movement.code,
+        movement.inflow,
+        movement.outflow,
+        movement.amount,
+      ]);
 
     const rows: CsvValue[][] = [
-      [this.t('REPORTS.EXPORT.CONCEPT'), this.t('REPORTS.EXPORT.AMOUNT')],
-      [this.t('REPORTS.EXPORT.OPENING_CASH'), report.openingCash],
+      [
+        this.t('REPORTS.EXPORT.CONCEPT'),
+        this.t('REPORTS.CASH_FLOW.ENTRADAS'),
+        this.t('REPORTS.CASH_FLOW.SALIDAS'),
+        this.t('REPORTS.EXPORT.AMOUNT'),
+      ],
+      [this.t('REPORTS.EXPORT.OPENING_CASH'), '', '', report.openingCash],
       [],
       [this.t('REPORTS.EXPORT.OPERATING')],
-      [this.t('REPORTS.EXPORT.NET_INCOME'), report.operating.netIncome],
-      ...movementRows(report.operating.nonCashAdjustments),
-      ...movementRows(report.operating.workingCapitalChanges),
-      [this.t('REPORTS.EXPORT.TOTAL_OPERATING'), report.operating.total],
+      [this.t('REPORTS.EXPORT.NET_INCOME'), '', '', report.operating.netIncome],
+      ...adjustmentRows(report.operating.nonCashAdjustments),
+      ...adjustmentRows(report.operating.workingCapitalChanges),
+      [this.t('REPORTS.EXPORT.TOTAL_OPERATING'), '', '', report.operating.total],
       [],
       [this.t('REPORTS.EXPORT.INVESTING')],
-      ...movementRows(report.investing.movements),
-      [this.t('REPORTS.EXPORT.TOTAL_INVESTING'), report.investing.total],
+      ...grossRows(report.investing.movements),
+      [
+        this.t('REPORTS.EXPORT.TOTAL_INVESTING'),
+        report.investing.inflows,
+        report.investing.outflows,
+        report.investing.total,
+      ],
       [],
       [this.t('REPORTS.EXPORT.FINANCING')],
-      ...movementRows(report.financing.movements),
-      [this.t('REPORTS.EXPORT.TOTAL_FINANCING'), report.financing.total],
+      ...grossRows(report.financing.movements),
+      [
+        this.t('REPORTS.EXPORT.TOTAL_FINANCING'),
+        report.financing.inflows,
+        report.financing.outflows,
+        report.financing.total,
+      ],
       [],
-      [this.t('REPORTS.EXPORT.NET_CHANGE_IN_CASH'), report.netChangeInCash],
-      [this.t('REPORTS.EXPORT.CLOSING_CASH'), report.closingCash],
-      [this.t('REPORTS.EXPORT.UNEXPLAINED_DIFFERENCE'), report.unexplainedDifference],
+      [
+        this.t('REPORTS.CASH_FLOW.EFECTO_TIPO_CAMBIO'),
+        '',
+        '',
+        report.effectOfExchangeRateOnCash,
+      ],
+      [this.t('REPORTS.EXPORT.NET_CHANGE_IN_CASH'), '', '', report.netChangeInCash],
+      [this.t('REPORTS.EXPORT.CLOSING_CASH'), '', '', report.closingCash],
+      [
+        this.t('REPORTS.EXPORT.UNEXPLAINED_DIFFERENCE'),
+        '',
+        '',
+        report.unexplainedDifference,
+      ],
+      // The IAS 7.43 disclosure travels with the statement. Debit and credit, not a cash figure:
+      // these transactions had none, which is why they are here rather than in a section above.
+      ...(report.nonCashTransactions.length > 0
+        ? ([
+            [],
+            [this.t('REPORTS.CASH_FLOW.TRANSACCIONES_NO_MONETARIAS')],
+            [
+              this.t('REPORTS.EXPORT.CODE'),
+              this.t('REPORTS.EXPORT.DEBIT'),
+              this.t('REPORTS.EXPORT.CREDIT'),
+            ],
+            ...report.nonCashTransactions.map((line) => [line.code, line.debit, line.credit]),
+          ] as CsvValue[][])
+        : []),
     ];
 
     downloadCsv(

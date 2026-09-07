@@ -69,6 +69,30 @@ export const SETTINGS_ROUTES: Routes = [
                 loadComponent: () => import('./finance/taxes/taxes.page').then(m => m.TaxRulesPage)
             },
             {
+                // The screen that makes a United States document priceable: with no jurisdictions
+                // registered the server determines no tax, and the invoice records that the sale
+                // was untaxed for want of nexus.
+                path: 'tax-jurisdictions',
+                title: 'PAGE_TITLES.TAX_JURISDICTIONS',
+                canActivate: [permissionsGuard],
+                data: { permissions: ['settings:finance:view'] },
+                loadComponent: () => import('./finance/tax-jurisdictions/tax-jurisdictions.page').then(m => m.TaxJurisdictionsPage)
+            },
+            {
+                path: 'withholding-regimes',
+                title: 'PAGE_TITLES.WITHHOLDING_REGIMES',
+                canActivate: [permissionsGuard],
+                data: { permissions: ['settings:finance:view'] },
+                loadComponent: () => import('./finance/withholding-regimes/withholding-regimes.page').then(m => m.WithholdingRegimesPage)
+            },
+            {
+                path: 'einvoicing-regime',
+                title: 'PAGE_TITLES.EINVOICING_REGIME',
+                canActivate: [permissionsGuard],
+                data: { permissions: ['settings:finance:view'] },
+                loadComponent: () => import('./finance/einvoicing-regime/einvoicing-regime.page').then(m => m.EinvoicingRegimePage)
+            },
+            {
                 path: 'closing-rules',
                 title: 'PAGE_TITLES.FISCAL_PERIODS',
                 canActivate: [permissionsGuard],

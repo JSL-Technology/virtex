@@ -3,6 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { EcfSubmission } from './entities/ecf-submission.entity';
 import { EcfLifecycleMessage } from './entities/ecf-lifecycle-message.entity';
 import { EcfCertificate } from './entities/ecf-certificate.entity';
+import { FiscalDocumentRange } from './entities/fiscal-document-range.entity';
+import { FiscalRegimeSettings } from './entities/fiscal-regime-settings.entity';
 import { Invoice } from '../invoices/entities/invoice.entity';
 import { Organization } from '../organizations/entities/organization.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
@@ -21,6 +23,20 @@ import { EcfReconcilerService } from './services/ecf-reconciler.service';
 import { EcfLifecycleXmlBuilder } from './services/ecf-lifecycle-xml.builder';
 import { EcfLifecycleService } from './services/ecf-lifecycle.service';
 import { EinvoicingController } from './einvoicing.controller';
+import { FiscalRangeService } from './services/fiscal-range.service';
+import { FiscalRegimeSettingsService } from './services/fiscal-regime-settings.service';
+import { FiscalRegimeSettingsController } from './fiscal-regime-settings.controller';
+import { XmlSignatureService } from './regimes/xml-signature.service';
+import { RegimeTransportService } from './regimes/regime-transport.service';
+import { FiscalRegimeRegistry } from './regimes/fiscal-regime.registry';
+import { CfdiRegimeAdapter } from './regimes/mx/cfdi.adapter';
+import { PacProvider } from './regimes/mx/pac.provider';
+import { DianRegimeAdapter } from './regimes/co/dian.adapter';
+import { SunatRegimeAdapter } from './regimes/pe/sunat.adapter';
+import { SriRegimeAdapter } from './regimes/ec/sri.adapter';
+import { SiiRegimeAdapter } from './regimes/cl/sii.adapter';
+import { NfeRegimeAdapter } from './regimes/br/nfe.adapter';
+import { AfipRegimeAdapter } from './regimes/ar/afip.adapter';
 
 /**
  * Electronic invoicing (e-CF) for the Dominican Republic: certificate vault, DGII authentication,
@@ -40,10 +56,12 @@ import { EinvoicingController } from './einvoicing.controller';
       Organization,
       OrganizationSettings,
       NcfSequence,
+      FiscalDocumentRange,
+      FiscalRegimeSettings,
     ]),
     AuthModule,
   ],
-  controllers: [EinvoicingController],
+  controllers: [EinvoicingController, FiscalRegimeSettingsController],
   providers: [
     CertificateVaultService,
     EcfSignerService,
@@ -57,6 +75,25 @@ import { EinvoicingController } from './einvoicing.controller';
     EcfReconcilerService,
     EcfLifecycleXmlBuilder,
     EcfLifecycleService,
+    // The seven-regime backbone. `XmlSignatureService` and `RegimeTransportService` were written,
+    // tested and left unregistered, which is why every market but the Dominican Republic still
+    // resolved to the generic adapter: the code existed and the container had never heard of it.
+    FiscalRangeService,
+    FiscalRegimeSettingsService,
+    XmlSignatureService,
+    RegimeTransportService,
+    // The seven regimes themselves. Until they were registered here the container had never heard
+    // of them: the builders were tested standalone and nothing could reach them at issuance, which
+    // is exactly what H18 describes.
+    PacProvider,
+    CfdiRegimeAdapter,
+    DianRegimeAdapter,
+    SunatRegimeAdapter,
+    SriRegimeAdapter,
+    SiiRegimeAdapter,
+    NfeRegimeAdapter,
+    AfipRegimeAdapter,
+    FiscalRegimeRegistry,
   ],
   exports: [
     EcfSubmissionService,
@@ -64,6 +101,10 @@ import { EinvoicingController } from './einvoicing.controller';
     EcfXmlBuilderService,
     EcfValidatorService,
     EcfLifecycleService,
+    FiscalRangeService,
+    XmlSignatureService,
+    RegimeTransportService,
+    FiscalRegimeRegistry,
   ],
 })
 export class EinvoicingModule {}

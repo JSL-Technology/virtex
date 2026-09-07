@@ -1,15 +1,34 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { AuditLog, ActionType } from './entities/audit-log.entity';
 
 @Injectable()
 export class AuditTrailService {
+  private readonly logger = new Logger(AuditTrailService.name);
+
   constructor(
     @InjectRepository(AuditLog)
     private readonly auditLogRepository: Repository<AuditLog>,
   ) {}
 
+  /**
+   * Record something that is not a financial mutation — a session event, an access, an
+   * administrative change.
+   *
+   * **Not for financial mutations.** Those use `recordWithManager`, so the row commits with the
+   * change or rolls back with it; a change to the books that is recorded outside their transaction
+   * can survive a rollback or be lost while the change commits, and both leave the trail lying.
+   * The financial document tables write their rows automatically through
+   * `FinancialAuditSubscriber`, which does exactly that.
+   *
+   * This one awaits its save. It used to return before the row was written and swallow the failure
+   * into `console.error`, on the reasoning that logging should not hold up a request — which meant
+   * a login, a permission change or a data export could be dropped from the trail with no signal
+   * anywhere. Awaiting costs one insert; the failure is logged at error level with its context and
+   * still does not break the caller, because refusing a login because its audit row failed is not
+   * an improvement either.
+   */
   async record(
     userId: string,
     entity: string,
@@ -30,11 +49,14 @@ export class AuditTrailService {
       ipAddress,
       organizationId: organizationId ?? null,
     });
-    // Fire-and-forget: No esperamos a que se guarde para no bloquear la request.
-    // Capturamos errores para no romper el flujo principal.
-    this.auditLogRepository.save(auditLog).catch(err => {
-      console.error('Error saving audit log', err);
-    });
+    try {
+      await this.auditLogRepository.save(auditLog);
+    } catch (error) {
+      this.logger.error(
+        `No se pudo registrar la auditoría de ${entity}/${entityId} (${actionType}) ` +
+          `para el usuario ${userId}: ${(error as Error).message}`,
+      );
+    }
   }
 
   /**

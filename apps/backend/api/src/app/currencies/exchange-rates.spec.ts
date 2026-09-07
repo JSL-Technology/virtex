@@ -1,6 +1,7 @@
 import { DataSource } from 'typeorm';
 import { ExchangeRate, ExchangeRateType } from './entities/exchange-rate.entity';
 import { ExchangeRateResolver } from './exchange-rate-resolver.service';
+import { XeRatesProvider } from './xe-rates.provider';
 import { Currency } from './entities/currency.entity';
 import { ExchangeRatesService } from './exchange-rates.service';
 import { SchedulerLockService } from '../shared/scheduler/scheduler-lock.service';
@@ -48,12 +49,14 @@ describeWithDb('exchange rates', () => {
     service = new ExchangeRatesService(
       dataSource.getRepository(ExchangeRate),
       dataSource.getRepository(Currency),
-      // The HTTP client and the config are only reached by `updateRates`/`backfill`, which are not
-      // exercised here: hitting a metered third-party provider from a test suite is not a test.
-      {} as never,
       { get: () => undefined } as never,
       resolver,
       new SchedulerLockService(dataSource),
+      // The provider is only reached by `updateRates`/`backfill`, which this suite does not
+      // exercise: calling a metered third party from a test suite is not a test, and XE's own
+      // contract is pinned in `xe-rates.provider.spec.ts`. What is under test here is resolution,
+      // triangulation, staleness and manual recording, all of which read the database.
+      new XeRatesProvider({ get: () => undefined } as never, { get: () => undefined } as never),
     );
   });
 

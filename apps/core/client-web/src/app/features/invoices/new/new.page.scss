@@ -720,3 +720,12 @@
     flex-wrap: wrap;
   }
 }
+/*
+ * The totals come from the server, so there is a moment between typing and the answer. Dimming
+ * them says the figures belong to the previous form state rather than this one — a total that
+ * silently lags is worse than one that says it is catching up.
+ */
+.summary-totals--stale {
+  opacity: 0.55;
+  transition: opacity 120ms ease-out;
+}

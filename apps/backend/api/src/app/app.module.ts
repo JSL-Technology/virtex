@@ -3,6 +3,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { FinancialAuditSubscriber } from './audit/financial-audit.subscriber';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerGuard, ThrottlerModule, ThrottlerModuleOptions } from '@nestjs/throttler';
 import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
@@ -167,6 +168,10 @@ import { SchedulerModule } from './shared/scheduler/scheduler.module';
         password: config.getOrThrow<string>('DB_PASSWORD'),
         database: config.getOrThrow<string>('DB_NAME'),
         autoLoadEntities: true,
+        // Every change to a financial document writes an audit row in the transaction that made
+        // it. Registered here rather than as a Nest provider because a subscriber has to be known
+        // to the connection: the previous one was a provider nothing imported, so it never ran.
+        subscribers: [FinancialAuditSubscriber],
         synchronize: config.get<boolean>('DB_SYNCHRONIZE', false),
         logging: config.get<boolean>('DB_LOGGING', false),
         // M-04 FIX: When TLS is enabled, validate the server certificate (rejectUnauthorized:true)

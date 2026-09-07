@@ -128,7 +128,20 @@ export const PERMISSIONS = {
   REPORTS_BUILDER_MANAGE: 'reports:builder_manage',
 
 
+  /** Read the employee register. The HCM module existed with no permission gating it at all. */
+  HCM_VIEW: 'hcm:view',
+
   WORKFLOWS_MANAGE: 'workflows:manage',
+  /**
+   * Deciding an approval request.
+   *
+   * Separate from `WORKFLOWS_MANAGE`, which configures the policies: whoever writes the rules is
+   * not automatically whoever applies them. `POST /workflows/approve/:id` and `.../reject/:id`
+   * carried NO permission at all — only `JwtAuthGuard` — so any authenticated user of any tenant
+   * could decide any request in the system. Holding this is necessary but not sufficient: the
+   * step's own role is still checked, and a submitter still cannot approve their own request.
+   */
+  WORKFLOWS_DECIDE: 'workflows:decide',
 
 
   AUDIT_VIEW_TRAIL: 'audit:view_trail',

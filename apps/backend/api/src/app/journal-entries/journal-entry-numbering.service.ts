@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { Journal } from './entities/journal.entity';
+import { toIsoDate } from '../common/dates';
 
 /**
  * Allocates the next consecutive number in a journal's series.
@@ -28,8 +29,47 @@ export class JournalEntryNumberingService {
       organizationId,
       journal.id,
       journal.code,
-      entryDate.getUTCFullYear(),
+      await this.seriesYear(manager, organizationId, entryDate),
     );
+  }
+
+  /**
+   * The year the series is keyed by: the tenant's **fiscal** year, not the calendar year.
+   *
+   * `entryDate.getUTCFullYear()` was the whole rule. For a tenant whose year runs July to June —
+   * ordinary in the United States and permitted across the region — the series restarted in the
+   * middle of the year, so the journal of one fiscal year contained two partial series and neither
+   * of them covered it. A consecutive series exists to let an inspector walk a book end to end
+   * without gaps; one that resets halfway cannot be walked.
+   *
+   * Named by the year the fiscal year **ends** in, which is how a non-calendar year is normally
+   * referred to and which leaves a calendar-year tenant — the overwhelming majority — with exactly
+   * the numbers it had before. A tenant that has defined no fiscal years falls back to the
+   * calendar year rather than refusing to post: numbering is not the place to discover that
+   * setup is incomplete.
+   *
+   * *Verify with accounting/legal*: confirm that no target regime requires the series to be keyed
+   * to the calendar year regardless of the taxpayer's own fiscal year.
+   */
+  private async seriesYear(
+    manager: EntityManager,
+    organizationId: string,
+    entryDate: Date,
+  ): Promise<number> {
+    const isoDate = toIsoDate(entryDate);
+    const [row] = await manager.query<{ end_date: string | Date }[]>(
+      `SELECT "end_date" FROM "fiscal_years"
+        WHERE "organization_id" = $1 AND "start_date" <= $2 AND "end_date" >= $2
+        ORDER BY "start_date" DESC
+        LIMIT 1`,
+      [organizationId, isoDate],
+    );
+
+    // A `date` column reaches the entity layer as a string and a raw query as a `Date`, because
+    // the two go through different type mappings. `toIsoDate` takes either and validates what it
+    // is given — which is the whole reason it exists, and the reason the audit adjustment used to
+    // throw on the same shape of value.
+    return row ? Number(toIsoDate(row.end_date).slice(0, 4)) : entryDate.getUTCFullYear();
   }
 
   /**

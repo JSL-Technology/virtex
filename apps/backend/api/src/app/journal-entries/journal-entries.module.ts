@@ -37,6 +37,8 @@ import { RecurringEntriesProcessor } from './recurring-entries.processor';
 import { JournalEntrySequence } from './entities/journal-entry-sequence.entity';
 import { JournalEntryNumberingService } from './journal-entry-numbering.service';
 import { AuditModule } from '../audit/audit.module';
+import { CurrenciesModule } from '../currencies/currencies.module';
+import { JournalEntryApprovalHandler } from './journal-entry-approval.handler';
 
 @Module({
   imports: [
@@ -69,6 +71,10 @@ import { AuditModule } from '../audit/audit.module';
     forwardRef(() => AccountingModule),
     forwardRef(() => WorkflowsModule),
     forwardRef(() => AuditModule),
+    // The posting path resolves its own exchange rate now instead of taking one from the
+    // request. `CurrenciesModule` already forward-references this one, so the cycle is declared
+    // on both sides.
+    forwardRef(() => CurrenciesModule),
   ],
   providers: [
     JournalEntriesService,
@@ -80,6 +86,8 @@ import { AuditModule } from '../audit/audit.module';
     JournalsService,
     AdjustmentsService,
     RecurringEntriesProcessor,
+    // Posts an entry when its approval is granted, inside the approving transaction.
+    JournalEntryApprovalHandler,
   ],
   controllers: [
     JournalEntriesController,
@@ -88,6 +96,10 @@ import { AuditModule } from '../audit/audit.module';
     JournalsController,
     AdjustmentsController,
   ],
-  exports: [JournalEntriesService, JournalEntryNumberingService],
+  // `FileParserService` is exported because `CoaImportService` injects it and reaches it through
+  // this module. It was provided here and not exported, so `CoaImportModule` could not resolve
+  // it and the application refused to start — `Nest can't resolve dependencies of the
+  // CoaImportService (…, ?, …)`.
+  exports: [JournalEntriesService, JournalEntryNumberingService, FileParserService],
 })
 export class JournalEntriesModule {}

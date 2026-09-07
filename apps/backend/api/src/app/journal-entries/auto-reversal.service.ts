@@ -8,6 +8,8 @@ import {
   PeriodStatus,
 } from '../accounting/entities/accounting-period.entity';
 import { SchedulerLockService } from '../shared/scheduler/scheduler-lock.service';
+import { AuditTrailService } from '../audit/audit.service';
+import { ActionType } from '../audit/entities/audit-log.entity';
 import { toIsoDate } from '../chart-of-accounts/account-balances.service';
 
 /**
@@ -28,6 +30,8 @@ export class AutoReversalService {
     private readonly dataSource: DataSource,
     private readonly journalEntriesService: JournalEntriesService,
     private readonly schedulerLock: SchedulerLockService,
+    /** Where a failed reversal is recorded, so it is queryable rather than only logged. */
+    private readonly auditTrail: AuditTrailService,
   ) {}
 
   @Cron('0 4 1 * *', { name: 'auto-reversals' })
@@ -87,11 +91,35 @@ export class AutoReversalService {
         this.logger.log(`Asiento ${entry.entryNumber} revertido automáticamente.`);
       } catch (error) {
         // One accrual that cannot be reversed — a closed period, a reconciled line — must not stop
-        // the rest. It is logged per entry and the claim still completes, because retrying the
+        // the rest. It is recorded per entry and the claim still completes, because retrying the
         // whole month would re-reverse the ones that succeeded.
+        //
+        // Recorded, not merely logged. An accrual left standing overstates the next period's
+        // result by its own amount, and the log is read by nobody: the failure goes to the audit
+        // trail, where it is queryable, and the entry keeps `reversesNextPeriod` set, which is
+        // what puts it on the closing checklist of the period it is distorting.
         this.logger.error(
           `No se pudo revertir ${entry.entryNumber ?? entry.id}: ${(error as Error).message}`,
         );
+        await this.auditTrail
+          .record(
+            // No user: the scheduler acted. `system_reason` on the payload says which process.
+            null as unknown as string,
+            'journal_entries',
+            entry.id,
+            ActionType.UPDATE,
+            {
+              event: 'accrual-reversal-failed',
+              systemReason: 'scheduled-accrual-reversal',
+              entryNumber: entry.entryNumber,
+              date: toIsoDate(entry.date),
+              reason: (error as Error).message,
+            },
+            undefined,
+            undefined,
+            organizationId,
+          )
+          .catch(() => undefined);
       }
     }
   }

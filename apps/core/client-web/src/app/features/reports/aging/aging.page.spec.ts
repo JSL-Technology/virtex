@@ -42,6 +42,10 @@ describe('AgingPage', () => {
       ],
       total: 1_750,
     },
+    currencyCode: 'DOP',
+    controlAccountBalance: 1_750,
+    controlAccountDifference: 0,
+    unconvertedDocuments: 0,
   };
 
   const build = async (side: 'payables' | 'receivables') => {
@@ -99,6 +103,41 @@ describe('AgingPage', () => {
     // current, 1-30, 31-60, 61-90, 90+, total — matched by label, not by position.
     expect(cells[1]).toContain('500');
     expect(cells[4]).toContain('250');
+    httpMock.verify();
+  });
+
+  it('states the tie-out to the control account and calls it reconciled when it agrees', async () => {
+    await build('payables');
+    httpMock
+      .expectOne((candidate) => candidate.url === `${environment.apiUrl}/accounts-payable/aging`)
+      .flush(report);
+    fixture.detectChanges();
+
+    const tieout = fixture.nativeElement.querySelector('.control-tieout');
+    expect(tieout).toBeTruthy();
+    expect(tieout.textContent).toContain('1,750');
+    expect(tieout.classList).not.toContain('control-tieout--off');
+    expect(fixture.componentInstance.tiesOut()).toBe(true);
+    httpMock.verify();
+  });
+
+  it('flags a subledger that does not agree with its control account', async () => {
+    await build('payables');
+    httpMock
+      .expectOne((candidate) => candidate.url === `${environment.apiUrl}/accounts-payable/aging`)
+      .flush({
+        ...report,
+        controlAccountBalance: 1_500,
+        controlAccountDifference: 250,
+        unconvertedDocuments: 2,
+      } satisfies AgingReport);
+    fixture.detectChanges();
+
+    const tieout = fixture.nativeElement.querySelector('.control-tieout');
+    expect(tieout.classList).toContain('control-tieout--off');
+    expect(fixture.componentInstance.tiesOut()).toBe(false);
+    // The caveat about documents held at a stale rate only appears when there are any.
+    expect(tieout.querySelector('.caveat')).toBeTruthy();
     httpMock.verify();
   });
 });

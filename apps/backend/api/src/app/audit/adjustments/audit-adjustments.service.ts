@@ -12,6 +12,7 @@ import { AdjustmentsService } from '../../journal-entries/adjustments.service';
 import { User } from '../../users/entities/user.entity/user.entity';
 import { FastifyFile, toUploadableFile } from '../../common/interfaces/fastify-file.interface';
 import { ForbiddenError, InternalServerError, NotFoundError } from '../../i18n/localized.exception';
+import { toIsoDate } from '../../common/dates';
 
 @Injectable()
 export class AuditAdjustmentsService {
@@ -120,7 +121,10 @@ export class AuditAdjustmentsService {
         const journalEntry = await this.journalAdjustmentsService.createAuditAdjustment(
           {
             fiscalYearId: adjustment.fiscalYearId,
-            date: adjustment.date.toISOString(),
+            // `date` is a `date` column and arrives as a string, whatever the entity's type says.
+            // `toISOString()` on it threw at runtime — the same defect this whole path already had
+            // one instance of, in `createAuditAdjustment`.
+            date: toIsoDate(adjustment.date),
             description: `Ajuste de Auditoría: ${adjustment.description}`,
             journalId: adjustment.journalId,
             lines: adjustment.lines.map(line => ({

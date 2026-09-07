@@ -3,10 +3,24 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { InvoicesService } from './invoices.service';
 import { InvoicesController } from './invoices.controller';
 import { InvoicePostingService } from './services/invoice-posting.service';
+import { WithholdingResolverService } from './services/withholding-resolver.service';
+import { TenantWithholdingRegime } from '../localization/fiscal/entities/tenant-withholding-regime.entity';
+// Sales tax in the markets with no national rate: the rate follows the delivery address, not the
+// product, and it used to come off the request unchecked.
+import { LocalizationModule } from '../localization/localization.module';
 import { InvoiceRendererService } from './services/invoice-renderer.service';
 import { GenericFiscalAdapter } from './adapters/generic-fiscal.adapter';
 import { DominicanRepublicFiscalAdapter } from './adapters/dominican-republic-fiscal.adapter';
 import { FiscalAdapterFactory } from './adapters/fiscal-adapter.factory';
+import {
+  ArgentinaNumberingAdapter,
+  BrazilNumberingAdapter,
+  ChileNumberingAdapter,
+  ColombiaNumberingAdapter,
+  EcuadorNumberingAdapter,
+  MexicoNumberingAdapter,
+  PeruNumberingAdapter,
+} from './adapters/regime-numbering.adapter';
 import { Invoice } from './entities/invoice.entity';
 import { InvoiceLineItem } from './entities/invoice-line-item.entity';
 import { AuthModule } from '../auth/auth.module';
@@ -33,8 +47,10 @@ import { JournalEntriesModule } from '../journal-entries/journal-entries.module'
       AccountPeriodLock,
       Organization,
       OrganizationSettings,
+      TenantWithholdingRegime,
     ]),
     AuthModule,
+    LocalizationModule,
     CustomersModule,
     InventoryModule,
     TaxesModule,
@@ -52,9 +68,21 @@ import { JournalEntriesModule } from '../journal-entries/journal-entries.module'
   providers: [
     InvoicesService,
     InvoicePostingService,
+    // Withholding is resolved from the parties and the sale, never taken from the request.
+    WithholdingResolverService,
     InvoiceRendererService,
     GenericFiscalAdapter,
     DominicanRepublicFiscalAdapter,
+    // The six markets whose regimes are implemented. Registered here rather than resolved to the
+    // generic adapter, which is what H18 was: the numbering existed nowhere and the document was
+    // built by code the container had never been told about.
+    MexicoNumberingAdapter,
+    ColombiaNumberingAdapter,
+    PeruNumberingAdapter,
+    EcuadorNumberingAdapter,
+    ChileNumberingAdapter,
+    BrazilNumberingAdapter,
+    ArgentinaNumberingAdapter,
     FiscalAdapterFactory,
   ],
   exports: [InvoicesService, InvoicePostingService],

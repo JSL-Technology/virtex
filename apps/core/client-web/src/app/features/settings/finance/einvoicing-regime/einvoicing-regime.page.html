@@ -1,0 +1,227 @@
+<div class="s-page">
+  <div class="s-header">
+    <h1 class="s-header__title">{{ 'SETTINGS.PAGES.EINVOICING.TITLE' | translate }}</h1>
+    <p class="s-header__subtitle">{{ 'SETTINGS.PAGES.EINVOICING.SUBTITLE' | translate }}</p>
+  </div>
+
+  @if (!hasRegime()) {
+    <!--
+      Said plainly rather than shown as an empty form. A market with no implemented regime is not
+      a market whose configuration is merely unfilled, and a blank form invites the tenant to try.
+    -->
+    <p class="e-empty">{{ 'SETTINGS.PAGES.EINVOICING.NO_REGIME' | translate }}</p>
+  } @else {
+    <section class="card e-settings">
+      <h2>{{ 'SETTINGS.PAGES.EINVOICING.SETTINGS_TITLE' | translate }}</h2>
+      <form [formGroup]="settingsForm" (ngSubmit)="saveSettings()">
+        <div class="e-grid">
+          <label class="form-field">
+            <span>{{ 'SETTINGS.PAGES.EINVOICING.ENVIRONMENT' | translate }}</span>
+            <select formControlName="environment">
+              @for (option of environments; track option.value) {
+                <option [value]="option.value">{{ option.labelKey | translate }}</option>
+              }
+            </select>
+            <small class="field-hint">
+              {{ 'SETTINGS.PAGES.EINVOICING.ENVIRONMENT_HINT' | translate }}
+            </small>
+          </label>
+
+          @if (needs('establishment')) {
+            <label class="form-field">
+              <span>{{ 'SETTINGS.PAGES.EINVOICING.ESTABLISHMENT' | translate }}</span>
+              <input formControlName="establishment" maxlength="3" inputmode="numeric" />
+            </label>
+          }
+          @if (needs('emissionPoint')) {
+            <label class="form-field">
+              <span>{{ 'SETTINGS.PAGES.EINVOICING.EMISSION_POINT' | translate }}</span>
+              <input formControlName="emissionPoint" maxlength="3" inputmode="numeric" />
+            </label>
+          }
+          @if (needs('numericCode')) {
+            <label class="form-field">
+              <span>{{ 'SETTINGS.PAGES.EINVOICING.NUMERIC_CODE' | translate }}</span>
+              <input formControlName="numericCode" maxlength="8" inputmode="numeric" />
+              <small class="field-hint">
+                {{ 'SETTINGS.PAGES.EINVOICING.NUMERIC_CODE_HINT' | translate }}
+              </small>
+            </label>
+          }
+          @if (needs('stateCode')) {
+            <label class="form-field">
+              <span>{{ 'SETTINGS.PAGES.EINVOICING.STATE_CODE' | translate }}</span>
+              <input formControlName="stateCode" maxlength="2" inputmode="numeric" />
+            </label>
+          }
+          @if (needs('municipalityCode')) {
+            <label class="form-field">
+              <span>{{ 'SETTINGS.PAGES.EINVOICING.MUNICIPALITY_CODE' | translate }}</span>
+              <input formControlName="municipalityCode" maxlength="7" inputmode="numeric" />
+            </label>
+          }
+          @if (needs('resolutionNumber')) {
+            <label class="form-field">
+              <span>{{ 'SETTINGS.PAGES.EINVOICING.RESOLUTION' | translate }}</span>
+              <input formControlName="resolutionNumber" maxlength="64" />
+            </label>
+          }
+          @if (needs('activityCode')) {
+            <label class="form-field">
+              <span>{{ 'SETTINGS.PAGES.EINVOICING.ACTIVITY_CODE' | translate }}</span>
+              <input formControlName="activityCode" maxlength="16" />
+            </label>
+          }
+          @if (needs('originComuna')) {
+            <label class="form-field">
+              <span>{{ 'SETTINGS.PAGES.EINVOICING.ORIGIN_COMUNA' | translate }}</span>
+              <input formControlName="originComuna" maxlength="64" />
+            </label>
+          }
+          @if (needs('originCity')) {
+            <label class="form-field">
+              <span>{{ 'SETTINGS.PAGES.EINVOICING.ORIGIN_CITY' | translate }}</span>
+              <input formControlName="originCity" maxlength="64" />
+            </label>
+          }
+        </div>
+
+        <button class="primary-button" type="submit" [disabled]="savingSettings()">
+          {{ 'SETTINGS.PAGES.EINVOICING.SAVE' | translate }}
+        </button>
+      </form>
+    </section>
+
+    <section class="card e-ranges">
+      <h2>{{ 'SETTINGS.PAGES.EINVOICING.RANGES_TITLE' | translate }}</h2>
+      <p class="e-note">{{ 'SETTINGS.PAGES.EINVOICING.RANGES_NOTE' | translate }}</p>
+
+      <button class="primary-button" type="button" (click)="toggleRangeForm()">
+        {{ (showRangeForm() ? 'SETTINGS.PAGES.EINVOICING.CANCEL'
+                            : 'SETTINGS.PAGES.EINVOICING.ADD_RANGE') | translate }}
+      </button>
+
+      @if (showRangeForm()) {
+        <form class="e-form" [formGroup]="rangeForm" (ngSubmit)="registerRange()">
+          <div class="e-grid">
+            <label class="form-field">
+              <span>{{ 'SETTINGS.PAGES.EINVOICING.DOCUMENT_TYPE' | translate }}</span>
+              <input formControlName="documentType" maxlength="8" />
+            </label>
+            <label class="form-field">
+              <span>{{ 'SETTINGS.PAGES.EINVOICING.SERIES' | translate }}</span>
+              <input formControlName="series" maxlength="16" />
+              <small class="field-hint">
+                {{ 'SETTINGS.PAGES.EINVOICING.SERIES_HINT' | translate }}
+              </small>
+            </label>
+            <label class="form-field">
+              <span>{{ 'SETTINGS.PAGES.EINVOICING.STARTS_AT' | translate }}</span>
+              <input type="number" min="1" formControlName="startsAt" />
+            </label>
+            <label class="form-field">
+              <span>{{ 'SETTINGS.PAGES.EINVOICING.ENDS_AT' | translate }}</span>
+              <input type="number" min="1" formControlName="endsAt" />
+            </label>
+            <label class="form-field">
+              <span>{{ 'SETTINGS.PAGES.EINVOICING.VALID_UNTIL' | translate }}</span>
+              <input type="date" formControlName="validUntil" />
+              <small class="field-hint">
+                {{ 'SETTINGS.PAGES.EINVOICING.VALID_UNTIL_HINT' | translate }}
+              </small>
+            </label>
+            <label class="form-field">
+              <span>{{ 'SETTINGS.PAGES.EINVOICING.AUTHORIZATION' | translate }}</span>
+              <input formControlName="authorizationCode" maxlength="128" />
+            </label>
+          </div>
+
+          @if (secretKind()) {
+            <!--
+              The CAF holds the RSA key that seals this taxpayer's folios, and Colombia's technical
+              key is what makes a CUFE theirs. It goes in and never comes back out: the list below
+              says only whether one is on file.
+            -->
+            <label class="form-field e-secret">
+              <span>{{ 'SETTINGS.PAGES.EINVOICING.SECRET' | translate }}</span>
+              <textarea formControlName="secret" rows="5"></textarea>
+              <small class="field-hint">
+                {{ 'SETTINGS.PAGES.EINVOICING.SECRET_HINT' | translate }}
+              </small>
+            </label>
+          }
+
+          <button class="primary-button" type="submit" [disabled]="savingRange()">
+            {{ 'SETTINGS.PAGES.EINVOICING.REGISTER' | translate }}
+          </button>
+        </form>
+      }
+
+      @if (loading()) {
+        <p class="e-empty">{{ 'COMMON.LOADING' | translate }}</p>
+      } @else if (ranges().length === 0) {
+        <p class="e-empty">{{ 'SETTINGS.PAGES.EINVOICING.NO_RANGES' | translate }}</p>
+      } @else {
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>{{ 'SETTINGS.PAGES.EINVOICING.DOCUMENT_TYPE' | translate }}</th>
+                <th>{{ 'SETTINGS.PAGES.EINVOICING.SERIES' | translate }}</th>
+                <th>{{ 'SETTINGS.PAGES.EINVOICING.RANGE' | translate }}</th>
+                <th>{{ 'SETTINGS.PAGES.EINVOICING.REMAINING' | translate }}</th>
+                <th>{{ 'SETTINGS.PAGES.EINVOICING.VALID_UNTIL' | translate }}</th>
+                <th>{{ 'SETTINGS.PAGES.EINVOICING.AUTHORIZATION' | translate }}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (range of ranges(); track range.id) {
+                <tr [class.e-inactive]="!range.isActive">
+                  <td>{{ range.documentType }}</td>
+                  <td>{{ range.series || '—' }}</td>
+                  <td>{{ range.startsAt }}–{{ range.endsAt }}</td>
+                  <td [class.e-warning]="runningOut(range)">
+                    {{ range.remaining }}
+                    @if (runningOut(range)) {
+                      <span class="e-flag">
+                        {{ 'SETTINGS.PAGES.EINVOICING.RUNNING_OUT' | translate }}
+                      </span>
+                    }
+                  </td>
+                  <td [class.e-warning]="expired(range)">
+                    {{ range.validUntil ?? '—' }}
+                    @if (expired(range)) {
+                      <span class="e-flag">
+                        {{ 'SETTINGS.PAGES.EINVOICING.EXPIRED' | translate }}
+                      </span>
+                    }
+                  </td>
+                  <td>
+                    {{ range.authorizationCode ?? '—' }}
+                    @if (range.hasSecret) {
+                      <span class="e-badge">
+                        {{ 'SETTINGS.PAGES.EINVOICING.HAS_SECRET' | translate }}
+                      </span>
+                    }
+                  </td>
+                  <td>
+                    @if (range.isActive) {
+                      <button class="link-button" type="button" (click)="retire(range)">
+                        {{ 'SETTINGS.PAGES.EINVOICING.RETIRE' | translate }}
+                      </button>
+                    } @else {
+                      <span class="e-retired">
+                        {{ 'SETTINGS.PAGES.EINVOICING.RETIRED' | translate }}
+                      </span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  }
+</div>

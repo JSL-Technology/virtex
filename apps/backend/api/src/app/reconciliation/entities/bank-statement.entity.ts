@@ -100,6 +100,22 @@ export class BankStatement {
   })
   endingBalance: number;
 
+  /**
+   * The currency the statement's figures are in — the bank account's own.
+   *
+   * Stored on the statement rather than read from the account at query time, because an account's
+   * currency is a present fact and a statement is a historical document: a statement imported for a
+   * dollar account has to keep reading in dollars if that account is ever re-declared.
+   *
+   * Its absence is why reconciliation could not work for a foreign-currency account at all.
+   * `writeMatch` compared the statement's figures — in the account's currency — against
+   * `line.debit − line.credit`, which is the LEDGER's currency, and refused every match whose two
+   * sides did not coincidentally agree. `summary` subtracted the same two currencies from each
+   * other to produce the difference the whole proof turns on.
+   */
+  @Column({ name: 'currency_code', type: 'char', length: 3 })
+  currencyCode: string;
+
   @Column({ type: 'enum', enum: StatementStatus, default: StatementStatus.IMPORTING })
   status: StatementStatus;
 
@@ -112,6 +128,25 @@ export class BankStatement {
 
   @Column({ name: 'reconciled_by_user_id', type: 'uuid', nullable: true })
   reconciledByUserId: string | null;
+
+  /**
+   * When a reconciled statement was reopened, by whom, and why.
+   *
+   * Reopening used to null `reconciled_at` and `reconciled_by_user_id`, which destroyed the only
+   * record that the statement had ever been reconciled and who signed it off. Undoing a control by
+   * erasing the evidence that the control was applied is the shape of a defect an external auditor
+   * looks for specifically. The closing details now stay where they are, and the reopening is
+   * recorded beside them.
+   */
+  @Column({ name: 'reopened_at', type: 'timestamptz', nullable: true })
+  reopenedAt: Date | null;
+
+  @Column({ name: 'reopened_by_user_id', type: 'uuid', nullable: true })
+  reopenedByUserId: string | null;
+
+  /** Why it was reopened. Required to reopen: an unexplained reversal of a control is not one. */
+  @Column({ name: 'reopen_reason', type: 'text', nullable: true })
+  reopenReason: string | null;
 
   @Column({ name: 'created_by_user_id', type: 'uuid', nullable: true })
   createdByUserId: string | null;

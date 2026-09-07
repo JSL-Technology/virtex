@@ -8,6 +8,7 @@ import {
   NcfType,
 } from '../../../core/services/einvoicing';
 import { NotificationService } from '../../../core/services/notification';
+import { FiscalSettingsService, MarketCoverage } from '../../../core/api/fiscal-settings.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 
@@ -28,6 +29,7 @@ export class FiscalSettingsPage implements OnInit {
   private fb = inject(FormBuilder);
   private einvoicing = inject(EinvoicingService);
   private notifications = inject(NotificationService);
+  private fiscalSettings = inject(FiscalSettingsService);
 
   certificates = signal<EcfCertificateView[]>([]);
   sequences = signal<NcfSequenceView[]>([]);
@@ -36,18 +38,55 @@ export class FiscalSettingsPage implements OnInit {
   downloading = signal(false);
   selectedFile = signal<File | null>(null);
 
-  readonly ncfTypes: { value: NcfType; label: string }[] = [
-    { value: 'E31', label: 'E31 · Crédito Fiscal Electrónico' },
-    { value: 'E32', label: 'E32 · Consumo Electrónico' },
-    { value: 'E33', label: 'E33 · Nota de Débito Electrónica' },
-    { value: 'E34', label: 'E34 · Nota de Crédito Electrónica' },
-    { value: 'E41', label: 'E41 · Compras Electrónico' },
-    { value: 'E43', label: 'E43 · Gastos Menores Electrónico' },
-    { value: 'E44', label: 'E44 · Regímenes Especiales Electrónico' },
-    { value: 'E45', label: 'E45 · Gubernamental Electrónico' },
-    { value: 'E46', label: 'E46 · Exportaciones Electrónico' },
-    { value: 'E47', label: 'E47 · Pagos al Exterior Electrónico' },
-  ];
+  /**
+   * The e-NCF types a range can be authorised for.
+   *
+   * The labels were a second copy of the DGII's own comprobante names, in Spanish, in this file —
+   * the same twelve strings the invoice screen carried until they moved into the catalogue as
+   * `FISCAL.DO.*`. One statement in one place, or the two drift and a tenant reads a different
+   * name for the same comprobante on two screens.
+   */
+  readonly ncfTypes: { value: NcfType; labelKey: string }[] = [
+    'E31',
+    'E32',
+    'E33',
+    'E34',
+    'E41',
+    'E43',
+    'E44',
+    'E45',
+    'E46',
+    'E47',
+  ].map((value) => ({ value: value as NcfType, labelKey: `FISCAL.DO.${value}` }));
+
+  /**
+   * What this product does and does not do in the tenant's market.
+   *
+   * This page is the Dominican one — certificate, e-NCF ranges, 606/607 — and a tenant in any
+   * other market who lands here needs to know that before reading a form that does not apply to
+   * them. The coverage table says it per capability, and it is the same table the signup
+   * disclosure and the withholding screen read.
+   */
+  readonly coverage = signal<MarketCoverage | null>(null);
+
+  /** Whether the tenant's own market is the Dominican one this page configures. */
+  readonly isDominican = signal(true);
+
+  /**
+   * `needs-credentials` → `SETTINGS.FISCAL.LEVEL_NEEDS_CREDENTIALS`.
+   *
+   * The coverage levels are kebab-case in the API, and the translation-coverage sweep only
+   * recognises keys without hyphens — deliberately, since that grammar is what lets it find keys
+   * statically rather than guessing. Mapping here keeps the guard's teeth.
+   */
+  levelKey(level: string): string {
+    return `SETTINGS.FISCAL.LEVEL_${level.toUpperCase().replace(/-/g, '_')}`;
+  }
+
+  /** `taxDetermination` → `SETTINGS.FISCAL.CAPABILITY_TAX_DETERMINATION`. */
+  capabilityKey(capability: string): string {
+    return `SETTINGS.FISCAL.CAPABILITY_${capability.replace(/([A-Z])/g, '_$1').toUpperCase()}`;
+  }
 
   certForm = this.fb.group({
     alias: ['', Validators.required],
@@ -70,6 +109,17 @@ export class FiscalSettingsPage implements OnInit {
   ngOnInit(): void {
     this.loadCertificates();
     this.loadSequences();
+
+    this.fiscalSettings.coverage().subscribe({
+      next: (market) => {
+        this.coverage.set(market);
+        this.isDominican.set(market.countryCode === 'DO');
+      },
+      // Context, not the point of the page: a tenant configuring their DGII certificate must not
+      // be stopped because the coverage statement failed to load.
+      error: () => this.coverage.set(null),
+    });
+
     // Keep the prefix in step with the selected type by default.
     this.sequenceForm.get('type')!.valueChanges.subscribe((t) => {
       if (t) this.sequenceForm.patchValue({ prefix: t }, { emitEvent: false });

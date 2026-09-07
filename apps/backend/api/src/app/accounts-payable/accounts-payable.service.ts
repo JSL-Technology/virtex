@@ -9,7 +9,7 @@ import { PaymentBatch, PaymentBatchStatus } from './entities/payment-batch.entit
 import { JournalEntriesService } from '../journal-entries/journal-entries.service';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { VendorPayment } from './entities/vendor-payment.entity';
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InventoryService } from '../inventory/inventory.service';
 import {
   CreateJournalEntryDto,
@@ -31,7 +31,10 @@ import {
 } from '../i18n/localized.exception';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
 import { convert, roundAmount, sumAmounts, toCents } from '../common/money';
-import { toIsoDate } from '../chart-of-accounts/account-balances.service';
+import {
+  AccountBalancesService,
+  toIsoDate,
+} from '../chart-of-accounts/account-balances.service';
 
 export interface AgingBucket {
   label: string;
@@ -46,6 +49,36 @@ export interface AgingRow {
   current: number;
   buckets: AgingBucket[];
   total: number;
+}
+
+/**
+ * The ageing ladder, plus the one figure that makes it auditable.
+ *
+ * ## Why the reconciliation line is here
+ *
+ * The ageing converted each open document at the rate it was **booked** at, while the control
+ * account in the general ledger is restated at the closing rate by the period-end revaluation. So
+ * from the first revaluation onwards the two disagreed, by a growing amount, with nothing anywhere
+ * that would show it — and reconciling the subledger against its control account is the basic
+ * substantiation an auditor asks for.
+ *
+ * Two changes fix it. The balance in the books' currency is now converted at the rate **as of the
+ * reporting date**, which is what the revaluation restates it to; and the report states the control
+ * account's own balance beside its own total, so the difference is a number on the page rather than
+ * something somebody has to discover.
+ */
+export interface AgingReport {
+  asOfDate: string;
+  /** The currency every figure below is in: the books'. */
+  currencyCode: string;
+  rows: AgingRow[];
+  totals: { current: number; buckets: AgingBucket[]; total: number };
+  /** The control account's balance in the general ledger, on the same date. */
+  controlAccountBalance: number;
+  /** `total − controlAccountBalance`. Anything but zero is a subledger that needs investigating. */
+  controlAccountDifference: number;
+  /** Documents whose currency has no rate on file for the reporting date, and are therefore held at the booked rate. */
+  unconvertedDocuments: number;
 }
 
 /** The standard ageing ladder. Days past due, oldest bucket open-ended. */
@@ -98,7 +131,46 @@ export class AccountsPayableService {
     private readonly workflowsService: WorkflowsService,
     private readonly budgetControlService: BudgetControlService,
     private readonly exchangeRates: ExchangeRateResolver,
+    /**
+     * The general ledger's own view of what is owed, so the ageing can be tied to its control
+     * account on the page instead of by somebody exporting both and subtracting.
+     */
+    private readonly balances: AccountBalancesService,
   ) {}
+
+  /**
+   * The payables control account's balance in the general ledger, as a positive amount owed.
+   *
+   * Balances are signed `debit − credit`, and a liability is a credit balance, so the ledger's
+   * figure is negative; the ageing states what is owed, so the sign is flipped once, here.
+   */
+  private async payablesControlBalance(
+    organizationId: string,
+    settings: OrganizationSettings | null,
+    asOfDate: string,
+  ): Promise<number> {
+    const accountId =
+      (await this.resolveAccount(
+        this.dataSource.manager,
+        organizationId,
+        AccountRole.ACCOUNTS_PAYABLE,
+        settings?.defaultAccountsPayableId,
+      )) ?? null;
+    if (!accountId) return 0;
+
+    const ledger = await this.dataSource.manager.findOneBy(Ledger, {
+      organizationId,
+      isDefault: true,
+    });
+    if (!ledger) return 0;
+
+    const signed = await this.balances.balanceOf(accountId, {
+      organizationId,
+      ledgerId: ledger.id,
+      asOf: asOfDate,
+    });
+    return roundAmount(-signed);
+  }
 
   // ───────────────────────────────────────────────────────────────────────────
   // Recording
@@ -238,6 +310,9 @@ export class AccountsPayableService {
         bill.id,
         DocumentTypeForApproval.VENDOR_BILL,
         bill.totalInBaseCurrency,
+        // Who submitted it, so the same person cannot also approve it.
+        actorUserId,
+        manager,
       );
 
       if (approvalRequest) {
@@ -446,65 +521,6 @@ export class AccountsPayableService {
       journalEntryId: entry.id,
     });
     return saved;
-  }
-
-  /**
-   * Post a bill whose approval has just been granted.
-   *
-   * ## Why the failure is now visible
-   *
-   * The previous handler ran the posting inside `dataSource.transaction(...).catch(err => log)`.
-   * A closed period, a missing tax account, or an entry that did not balance therefore left the
-   * bill marked OPEN with **nothing in the ledger behind it**, and told nobody. The subledger and
-   * the general ledger diverged silently, and there was no report that would show it.
-   *
-   * A failure now puts the bill in REJECTED with the reason on it and emits an event, so the
-   * condition is on the document where an accountant will meet it.
-   */
-  @OnEvent('approval.request.approved', { async: true })
-  async handleBillApproved(payload: {
-    documentId: string;
-    documentType: string;
-    organizationId: string;
-    approvedByUserId?: string;
-  }): Promise<void> {
-    if (payload.documentType !== DocumentTypeForApproval.VENDOR_BILL) return;
-
-    try {
-      await this.dataSource.transaction(async (manager) => {
-        const bill = await manager.findOne(VendorBill, {
-          where: { id: payload.documentId, organizationId: payload.organizationId },
-          relations: ['lines', 'vendor'],
-        });
-        if (!bill || bill.status !== VendorBillStatus.PENDING_APPROVAL) {
-          this.logger.warn(
-            `Factura ${payload.documentId} no está pendiente de aprobación; se omite.`,
-          );
-          return;
-        }
-        await this.postApprovedBill(
-          manager,
-          bill,
-          payload.organizationId,
-          payload.approvedByUserId ?? null,
-        );
-      });
-    } catch (error) {
-      const reason = (error as Error).message;
-      this.logger.error(
-        `Factura aprobada ${payload.documentId} no pudo contabilizarse: ${reason}`,
-        (error as Error).stack,
-      );
-      await this.vendorBillRepository.update(
-        { id: payload.documentId, organizationId: payload.organizationId },
-        { status: VendorBillStatus.REJECTED },
-      );
-      this.eventEmitter.emit('vendor.bill.posting-failed', {
-        billId: payload.documentId,
-        organizationId: payload.organizationId,
-        reason,
-      });
-    }
   }
 
   /** An account by its operational role, falling back to the legacy settings column. */
@@ -814,12 +830,14 @@ export class AccountsPayableService {
    * There was no ageing report of any kind — for payables or receivables — which is the report a
    * treasurer opens to decide what to pay and an auditor asks for to substantiate the balance.
    */
-  async aging(organizationId: string, asOf: Date | string = new Date()): Promise<{
-    asOfDate: string;
-    rows: AgingRow[];
-    totals: { current: number; buckets: AgingBucket[]; total: number };
-  }> {
+  async aging(
+    organizationId: string,
+    asOf: Date | string = new Date(),
+  ): Promise<AgingReport> {
     const asOfDate = toIsoDate(asOf);
+    const settings = await this.orgSettingsRepository.findOne({ where: { organizationId } });
+    const baseCurrency = settings?.baseCurrency ?? 'USD';
+
     const bills = await this.vendorBillRepository.find({
       where: {
         organizationId,
@@ -828,6 +846,37 @@ export class AccountsPayableService {
       relations: ['vendor'],
     });
 
+    // The rate AS OF the reporting date, not the one each document was booked at.
+    //
+    // The control account in the general ledger is restated to the closing rate by the period-end
+    // revaluation. Ageing at the booked rate therefore drifted from it a little further after every
+    // close, and nothing reported the gap — so the one control an auditor applies to a subledger,
+    // tying it to its control account, silently stopped working.
+    const currencies = [
+      ...new Set(
+        bills
+          .map((bill) => (bill.currencyCode ?? baseCurrency).toUpperCase())
+          .filter((code) => code !== baseCurrency),
+      ),
+    ];
+    const closingRates = new Map<string, number>();
+    let unconvertedDocuments = 0;
+    for (const currency of currencies) {
+      try {
+        closingRates.set(
+          currency,
+          await this.exchangeRates.rateFor(currency, baseCurrency, asOfDate),
+        );
+      } catch {
+        // No quote on file for that day. The document stays at its booked rate and is counted, so
+        // the report can say how much of it is not at the closing rate rather than pretending.
+        this.logger.warn(
+          `Sin tasa ${currency}→${baseCurrency} al ${asOfDate}; ` +
+            'esos documentos se antigüedad a la tasa de registro.',
+        );
+      }
+    }
+
     const cutoff = new Date(`${asOfDate}T00:00:00.000Z`).getTime();
     const byVendor = new Map<string, AgingRow>();
 
@@ -835,8 +884,11 @@ export class AccountsPayableService {
       if (toCents(bill.balance) === 0) continue;
       const due = new Date(`${toIsoDate(bill.dueDate)}T00:00:00.000Z`).getTime();
       const daysOverdue = Math.floor((cutoff - due) / 86_400_000);
-      // The books' currency, so a mixed-currency ledger ages into one comparable column.
-      const amount = convert(bill.balance, Number(bill.exchangeRate) || 1);
+
+      const currency = (bill.currencyCode ?? baseCurrency).toUpperCase();
+      const closingRate = currency === baseCurrency ? 1 : closingRates.get(currency);
+      if (currency !== baseCurrency && closingRate === undefined) unconvertedDocuments += 1;
+      const amount = convert(bill.balance, closingRate ?? (Number(bill.exchangeRate) || 1));
 
       const row =
         byVendor.get(bill.vendorId) ??
@@ -864,8 +916,22 @@ export class AccountsPayableService {
     }
 
     const rows = [...byVendor.values()].sort((a, b) => b.total - a.total);
+    const total = sumAmounts(rows.map((row) => row.total));
+
+    // The general ledger's own figure for the same thing, so the two can be compared on the page.
+    const controlAccountBalance = await this.payablesControlBalance(
+      organizationId,
+      settings,
+      asOfDate,
+    );
+
     return {
       asOfDate,
+      currencyCode: baseCurrency,
+      controlAccountBalance,
+      // Signed: positive means the subledger claims more is owed than the ledger records.
+      controlAccountDifference: roundAmount(total - controlAccountBalance),
+      unconvertedDocuments,
       rows,
       totals: {
         current: sumAmounts(rows.map((row) => row.current)),
@@ -873,7 +939,7 @@ export class AccountsPayableService {
           ...bucket,
           amount: sumAmounts(rows.map((row) => row.buckets[index].amount)),
         })),
-        total: sumAmounts(rows.map((row) => row.total)),
+        total,
       },
     };
   }

@@ -22,8 +22,26 @@ export interface AgingRow {
 
 export interface AgingReport {
   asOfDate: string;
+  /** The currency every figure in the report is stated in: the books'. */
+  currencyCode: string;
   rows: AgingRow[];
   totals: { current: number; buckets: AgingBucket[]; total: number };
+  /**
+   * What the general ledger's control account says is owed on the same date.
+   *
+   * Tying a subledger to its control account is the first substantiation an auditor applies to
+   * this report, and the two can genuinely disagree — a document written outside the module, a
+   * posting that failed after the document was saved. The server states both figures so the
+   * reader sees the difference on the page instead of exporting two reports and subtracting.
+   */
+  controlAccountBalance: number;
+  /** `totals.total − controlAccountBalance`. Anything but zero needs investigating. */
+  controlAccountDifference: number;
+  /**
+   * Documents whose currency has no rate on file for the reporting date, and which are therefore
+   * held at the rate they were booked at rather than restated to the closing rate.
+   */
+  unconvertedDocuments: number;
 }
 
 /**
