@@ -106,7 +106,13 @@
       "NO_ENCONTRARON_CUENTAS": "No se encontraron cuentas",
       "NUEVA_CUENTA": "Nueva Cuenta",
       "TODOS_ESTADOS": "Todos los Estados",
-      "TODOS_TIPOS": "Todos los Tipos"
+      "TODOS_TIPOS": "Todos los Tipos",
+      "CUENTA": "Cuenta",
+      "TIPO": "Tipo",
+      "BALANCE": "Balance",
+      "ESTADO": "Estado",
+      "ACCIONES": "Acciones",
+      "MOSTRANDO_N": "Mostrando {{count}} cuentas"
     },
     "CHECKLIST": {
       "CHECKLIST_NAME": "Nombre de la lista",
@@ -167,7 +173,9 @@
       "SALDO_FINAL": "Saldo Final",
       "SALDO_INICIAL": "Saldo Inicial",
       "TOTAL_CREDITOS": "Total Créditos",
-      "TOTAL_DEBITOS": "Total Débitos"
+      "TOTAL_DEBITOS": "Total Débitos",
+      "CONSULTAR": "Consultar",
+      "LOAD_FAILED": "No se pudo cargar el libro mayor. Inténtalo de nuevo."
     },
     "IMPORT": {
       "ANALIZANDO_FICHERO": "Analizando el fichero...",
@@ -275,7 +283,8 @@
       "EDIT": "Editar",
       "JOURNALS": "Diarios",
       "NAME": "Nombre",
-      "TYPE": "Tipo"
+      "TYPE": "Tipo",
+      "LOAD_FAILED": "No se pudieron cargar los diarios. Inténtalo de nuevo."
     },
     "LAYOUT": {
       "ANNUAL": "Cierre anual",
@@ -311,7 +320,8 @@
       "EDITAR": "Editar",
       "LIBROS_CONTABLES": "Libros Contables",
       "NOMBRE": "Nombre",
-      "NO_HAN_ENCONTRADO_LIBROS_CONTABLES": "No se han encontrado libros contables."
+      "NO_HAN_ENCONTRADO_LIBROS_CONTABLES": "No se han encontrado libros contables.",
+      "LOAD_FAILED": "No se pudieron cargar los libros contables. Inténtalo de nuevo."
     },
     "MERGE_TOOL": {
       "ADVERTENCIAS": "Advertencias:",
@@ -617,7 +627,8 @@
       "REINTENTAR": "Reintentar",
       "SIN_NCF": "Sin NCF",
       "TOTAL": "Total",
-      "VENCIMIENTO": "Vencimiento"
+      "VENCIMIENTO": "Vencimiento",
+      "LOAD_FAILED": "No se pudieron cargar las facturas de proveedor. Inténtalo de nuevo."
     },
     "PAYMENT": {
       "CUENTA_BANCARIA": "Cuenta bancaria",
@@ -1542,7 +1553,8 @@
       "STATUS_INACTIVE": "Inactivo",
       "STOCK": "Stock",
       "STOCK_IN": "En existencia",
-      "STOCK_OUT": "Agotado"
+      "STOCK_OUT": "Agotado",
+      "LOAD_FAILED": "No se pudieron cargar los productos. Inténtalo de nuevo."
     },
     "PRODUCT_FORM": {
       "ACCESORIOS": "Accesorios",
@@ -1702,7 +1714,10 @@
       "SIGUIENTE": "Siguiente",
       "TODOS": "Todos",
       "TOTAL": "Total",
-      "VENCIMIENTO": "Vencimiento"
+      "VENCIMIENTO": "Vencimiento",
+      "LOAD_FAILED": "No se pudieron cargar las facturas. Inténtalo de nuevo.",
+      "RANGE": "{{from}}–{{to}} de {{total}}",
+      "RANGE_EMPTY": "Sin facturas"
     },
     "NEW": {
       "15_DIAS": "15 Días",
@@ -2142,7 +2157,9 @@
       "NEW_WAREHOUSE": "Nuevo almacén",
       "NO_WAREHOUSES_CONFIGURED": "No hay almacenes configurados.",
       "STATUS": "Estado",
-      "WAREHOUSES": "Almacenes"
+      "WAREHOUSES": "Almacenes",
+      "ACTIVE": "Activo",
+      "INACTIVE": "Inactivo"
     }
   },
   "MY_WORK": {
@@ -2185,7 +2202,11 @@
     "NO_NOTIFICATIONS": "No hay notificaciones",
     "NO_TIENES_NOTIFICACIONES_NUEVAS_ESTE_MOMENTO": "No tienes notificaciones nuevas en este momento.",
     "TODO_ESTA_DIA": "Todo está al día",
-    "VIEW_ALL": "Ver todas"
+    "VIEW_ALL": "Ver todas",
+    "TODAY": "Hoy",
+    "YESTERDAY": "Ayer",
+    "THIS_WEEK": "Esta semana",
+    "EARLIER": "Anteriores"
   },
   "OVERVIEW": {
     "ACTIVITY": {
@@ -4135,5 +4156,26 @@
     "PERIOD_CLOSED": "Periodo {{period}} cerrado",
     "ONLINE": "Conectado",
     "OFFLINE": "Sin conexión"
+  },
+  "SHELL": {
+    "MODULE_RAIL": "Módulos",
+    "MODULE_LOCKED": "Sin acceso",
+    "MODULE_PANEL": "Secciones del módulo",
+    "GROUP_INBOX": "Bandeja",
+    "GROUP_DOCUMENTS": "Documentos",
+    "GROUP_MASTERS": "Maestros",
+    "GROUP_ANALYSIS": "Análisis",
+    "NO_ENTRIES": "Este módulo no tiene secciones disponibles con tus permisos.",
+    "SEARCH_PLACEHOLDER": "Buscar…",
+    "CLEAR_SEARCH": "Quitar el filtro",
+    "COUNT": "{{count}} registros",
+    "NO_MATCHES": "Nada coincide con «{{term}}».",
+    "EMPTY": "Todavía no hay nada aquí.",
+    "SAVING": "Guardando…",
+    "UNSAVED": "Sin guardar",
+    "NO_CHANGES": "Sin cambios",
+    "PROBLEMS": "Revisa {{count}} punto(s) antes de guardar",
+    "TOGGLE_ASIDE": "Mostrar u ocultar el panel lateral",
+    "ASIDE": "Panel del documento"
   }
 }

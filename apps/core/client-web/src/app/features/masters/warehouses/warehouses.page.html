@@ -1,43 +1,37 @@
-<div class="subview-container">
-    <div class="subview-header">
-        <h3>{{ 'MASTERS.WAREHOUSES.WAREHOUSES' | translate }}</h3>
-        <div class="header-actions">
-            <button class="secondary-button"><lucide-icon [img]="FilterIcon"
-                    size="16"></lucide-icon><span>{{ 'MASTERS.WAREHOUSES.FILTERS' | translate }}</span></button>
-            <button class="primary-button"><lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon><span>{{ 'MASTERS.WAREHOUSES.NEW_WAREHOUSE' | translate }}</span></button>
-        </div>
-    </div>
-    <div class="table-container card">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>{{ 'MASTERS.WAREHOUSES.NAME' | translate }}</th>
-                    <th>{{ 'MASTERS.WAREHOUSES.LOCATION' | translate }}</th>
-                    <th>{{ 'MASTERS.WAREHOUSES.MANAGER' | translate }}</th>
-                    <th class="text-center">{{ 'MASTERS.WAREHOUSES.STATUS' | translate }}</th>
-                    <th class="actions-column"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @for(wh of warehouses(); track wh.id) {
-                <tr>
-                    <td><a href="#" class="table-link">{{ wh.name }}</a></td>
-                    <td>{{ wh.location }}</td>
-                    <td>{{ wh.manager }}</td>
-                    <td class="text-center">
-                        <span class="status-badge" [class.active]="wh.isActive">
-                            {{ wh.isActive ? 'Active' : 'Inactive' }}
-                        </span>
-                    </td>
-                    <td class="actions-column"><button class="icon-button"><lucide-icon [img]="MoreHorizontalIcon"
-                                size="18"></lucide-icon></button></td>
-                </tr>
-                } @empty {
-                <tr>
-                    <td colspan="5" class="empty-state">{{ 'MASTERS.WAREHOUSES.NO_WAREHOUSES_CONFIGURED' | translate }}</td>
-                </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
+<vx-list-shell
+  titleKey="MASTERS.WAREHOUSES.WAREHOUSES"
+  [count]="warehouses().length"
+  [empty]="warehouses().length === 0"
+>
+  <button listActions type="button" class="primary-button">
+    <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'MASTERS.WAREHOUSES.NEW_WAREHOUSE' | translate }}</span>
+  </button>
+
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'MASTERS.WAREHOUSES.NAME' | translate }}</th>
+          <th>{{ 'MASTERS.WAREHOUSES.LOCATION' | translate }}</th>
+          <th>{{ 'MASTERS.WAREHOUSES.MANAGER' | translate }}</th>
+          <th class="text-center">{{ 'MASTERS.WAREHOUSES.STATUS' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (wh of warehouses(); track wh.id) {
+          <tr>
+            <td>{{ wh.name }}</td>
+            <td>{{ wh.location }}</td>
+            <td>{{ wh.manager }}</td>
+            <td class="text-center">
+              <span class="status-badge" [class.active]="wh.isActive">
+                {{ (wh.isActive ? 'MASTERS.WAREHOUSES.ACTIVE' : 'MASTERS.WAREHOUSES.INACTIVE') | translate }}
+              </span>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</vx-list-shell>

@@ -32,6 +32,14 @@
   aria-hidden="true"
  tabindex="0" role="button" (keydown.enter)="closeSidebar()" (keydown.space)="$event.preventDefault(); closeSidebar()"></div>
 
+<!--
+  El riel de módulos. Primera decisión de toda la navegación —en qué parte del
+  negocio estoy— y la única pieza que no cambia nunca de sitio. Va antes del
+  panel en el DOM además de en la rejilla, para que el orden de tabulación
+  siga el orden de lectura: módulo, luego sección, luego contenido.
+-->
+<app-module-rail></app-module-rail>
+
 <aside class="main-sidebar">
   <div class="logo-container">
     <!--
@@ -66,27 +74,45 @@
       <app-company-switcher></app-company-switcher>
     </div>
 
-    <nav class="topbar-nav">
-      <a
-        routerLink="/dashboard"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: true }"
-        class="nav-link"
-      >
-        {{ "NAV.DASHBOARD" | translate }}
-      </a>
-      <a routerLink="/sales" routerLinkActive="active" class="nav-link">
-        {{ "NAV.SALES" | translate }}
-      </a>
-      <a routerLink="/invoices" routerLinkActive="active" class="nav-link">
-        {{ "NAV.INVOICES" | translate }}
-      </a>
-      <a routerLink="/inventory" routerLinkActive="active" class="nav-link">
-        {{ "NAV.INVENTORY" | translate }}
-      </a>
-      <a routerLink="/contacts" routerLinkActive="active" class="nav-link">
-        {{ "NAV.CONTACTS" | translate }}
-      </a>
+  <!--
+    Modo barra superior: los mismos módulos del riel, en horizontal. Antes eran
+    seis enlaces escritos a mano —una tercera tabla de navegación, además del
+    router y del catálogo de ventanas— y apuntaban a rutas que ya no existían.
+    Ahora salen del registro de módulos, así que un módulo nuevo aparece aquí
+    sin que nadie tenga que acordarse de añadirlo.
+  -->
+    <nav class="topbar-nav" [attr.aria-label]="'SHELL.MODULE_RAIL' | translate">
+      @for (item of topNavModules(); track item.module.id) {
+        <div
+          class="nav-module"
+          appClickOutside
+          (clickOutside)="closeModuleMenu(item.module.id)"
+        >
+          <button
+            type="button"
+            class="nav-link"
+            [class.active]="item.module.id === activeModuleId()"
+            [attr.aria-current]="item.module.id === activeModuleId() ? 'page' : null"
+            [attr.aria-expanded]="openModuleMenu() === item.module.id"
+            aria-haspopup="true"
+            (click)="toggleModuleMenu(item.module.id)"
+            (keydown.escape)="closeModuleMenu(item.module.id)"
+          >
+            {{ item.module.titleKey | translate }}
+            <lucide-icon [img]="ChevronDownIcon" size="14" aria-hidden="true"></lucide-icon>
+          </button>
+
+          @if (openModuleMenu() === item.module.id) {
+            <div class="nav-module__menu" (keydown.escape)="closeModuleMenu(item.module.id)">
+              <app-module-menu
+                [sections]="menuOf(item.module)"
+                [activeEntry]="activeEntry()"
+                (chosen)="closeModuleMenu(null)"
+              ></app-module-menu>
+            </div>
+          }
+        </div>
+      }
       <button type="button" (click)="openSettings()" [class.active]="isSettingsOpen()" class="nav-link">
         {{ "NAV.SETTINGS" | translate }}
       </button>

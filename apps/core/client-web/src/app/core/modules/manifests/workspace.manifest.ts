@@ -75,8 +75,11 @@ export const WORKSPACE_MODULE: ModuleManifest = {
       load: () => import('../../../features/global-search/global-search.page').then((m) => m.GlobalSearchPage),
     },
     {
+      //  Un asistente de tres pasos, no una lista: elegir el tipo de dato, subir el fichero y
+      //  revisar el resultado. Declararlo LIST obligaba a meterlo en un armazón de lista al que no
+      //  pertenece. El manifiesto dice lo que la pantalla es.
       path: 'data-imports',
-      kind: WindowKind.LIST,
+      kind: WindowKind.OVERVIEW,
       permission: 'settings:edit_company',
       titleKey: 'PAGE_TITLES.DATA_IMPORTS',
       icon: 'UploadCloud',
@@ -84,8 +87,9 @@ export const WORKSPACE_MODULE: ModuleManifest = {
       load: () => import('../../../features/data-imports/data-imports.page').then((m) => m.DataImportsPage),
     },
     {
+      //  Un formulario con el historial de exportaciones debajo. Tampoco es una lista.
       path: 'data-exports',
-      kind: WindowKind.LIST,
+      kind: WindowKind.OVERVIEW,
       permission: 'settings:edit_company',
       titleKey: 'PAGE_TITLES.DATA_EXPORTS',
       icon: 'DownloadCloud',

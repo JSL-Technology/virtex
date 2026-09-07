@@ -1,0 +1,102 @@
+<section class="ls">
+  <header class="ls__header">
+    <div class="ls__identity">
+      <h1 class="ls__title">
+        {{ titleKey() | translate }}
+        @if (count() !== null && state() === 'content') {
+          <span class="ls__count" [attr.aria-label]="'SHELL.COUNT' | translate: { count: count() }">
+            {{ count() }}
+          </span>
+        }
+      </h1>
+      @if (subtitleKey()) {
+        <p class="ls__subtitle">{{ subtitleKey() | translate }}</p>
+      }
+    </div>
+
+    <div class="ls__actions">
+      <ng-content select="[listActions]"></ng-content>
+    </div>
+  </header>
+
+  @if (searchable()) {
+    <div class="ls__toolbar">
+      <div class="ls__search">
+        <lucide-icon [img]="SearchIcon" size="16" aria-hidden="true"></lucide-icon>
+        <input
+          type="search"
+          class="ls__search-input"
+          [value]="search()"
+          [placeholder]="searchPlaceholderKey() | translate"
+          [attr.aria-label]="searchPlaceholderKey() | translate"
+          (input)="onSearch($any($event.target).value)"
+        />
+        @if (search()) {
+          <button
+            type="button"
+            class="ls__search-clear"
+            [attr.aria-label]="'SHELL.CLEAR_SEARCH' | translate"
+            (click)="clearSearch()"
+          >
+            <lucide-icon [img]="ClearIcon" size="14" aria-hidden="true"></lucide-icon>
+          </button>
+        }
+      </div>
+
+      <div class="ls__filters">
+        <ng-content select="[listFilters]"></ng-content>
+      </div>
+    </div>
+  } @else {
+    <ng-content select="[listToolbar]"></ng-content>
+  }
+
+  <div class="ls__body">
+    @switch (state()) {
+      @case ('loading') {
+        <!-- Esqueleto y no un texto: ocupa el sitio que ocuparán las filas, así que la lista no
+             salta cuando llegan. Marcado como `busy` para que el lector de pantalla lo anuncie. -->
+        <div class="ls__skeleton" role="status" [attr.aria-busy]="true">
+          <span class="sr-only">{{ 'COMMON.LOADING' | translate }}</span>
+          @for (row of SKELETON; track row) {
+            <div class="ls__skeleton-row" aria-hidden="true"></div>
+          }
+        </div>
+      }
+      @case ('error') {
+        <div class="ls__state ls__state--error" role="alert">
+          <lucide-icon [img]="AlertIcon" size="28" aria-hidden="true"></lucide-icon>
+          <p class="ls__state-title">{{ error() | translate }}</p>
+          <button type="button" class="ls__retry" (click)="reload.emit()">
+            <lucide-icon [img]="ReloadIcon" size="15" aria-hidden="true"></lucide-icon>
+            <span>{{ 'COMMON.RETRY' | translate }}</span>
+          </button>
+        </div>
+      }
+      @case ('filtered') {
+        <div class="ls__state">
+          <lucide-icon [img]="SearchIcon" size="28" aria-hidden="true"></lucide-icon>
+          <p class="ls__state-title">{{ 'SHELL.NO_MATCHES' | translate: { term: search() } }}</p>
+          <button type="button" class="ls__retry" (click)="clearSearch()">
+            {{ 'SHELL.CLEAR_SEARCH' | translate }}
+          </button>
+        </div>
+      }
+      @case ('empty') {
+        <div class="ls__state">
+          <!-- La página puede decir algo mejor que «no hay nada» —qué es esto y cómo se crea el
+               primero—. Si no dice nada, el contenido por defecto cubre el caso. -->
+          <ng-content select="[listEmpty]">
+            <lucide-icon [img]="InboxIcon" size="28" aria-hidden="true"></lucide-icon>
+            <p class="ls__state-title">{{ 'SHELL.EMPTY' | translate }}</p>
+          </ng-content>
+        </div>
+      }
+      @default {
+        <ng-content></ng-content>
+      }
+    }
+  </div>
+
+  <ng-content select="[listFooter]"></ng-content>
+</section>

@@ -1,109 +1,78 @@
-@use "../../../../assets/styles/view-styles" as views;
-@use "../../../../assets/styles/variables" as *;
+@use '../../../../assets/styles/list-page' as list;
+@use '../../../../assets/styles/design-system' as ds;
 
-.ledger-view {
-  @include views.view-container;
-}
+:host {
+  @include list.list-page;
 
-.view-header {
-  @include views.view-header;
-}
+  .ledger-account {
+    margin: 0;
+    color: var(--content-secondary);
+    font-size: var(--text-md);
+  }
 
-.header-actions {
-  @include views.header-actions;
-}
-
-.view-content {
-  padding: 0 24px;
-}
-
-.card {
-  @include views.card;
-}
-
-.ledger-filters {
-  display: flex;
-  align-items: center;
-  gap: var(--space-6);
-  padding: var(--space-6);
-  margin-bottom: var(--space-6);
+  .ledger-filters {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
 
   .filter-group {
     display: flex;
-    align-items: center;
-    gap: var(--space-2);
+    flex-direction: column;
+    gap: var(--space-1);
 
     label {
-      font-weight: var(--font-medium);
-      color: var(--text-secondary);
+      font-size: var(--text-xs);
+      color: var(--content-secondary);
     }
 
-    input {
+    input[type='date'] {
+      @include ds.input-base;
+      height: var(--control-height-md);
       width: auto;
     }
   }
-}
 
-.loading-state {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: var(--space-16);
-  gap: var(--space-4);
-  font-size: var(--text-xl);
-  color: var(--text-secondary);
-}
-
-.ledger-summary {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--space-6);
-  margin-bottom: var(--space-6);
+  //  Los cuatro totales en una fila que sobrevive a pantallas estrechas: son
+  //  la respuesta corta a «cómo quedó la cuenta» y no deben quedar debajo de
+  //  cien líneas de movimiento.
+  .ledger-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    gap: var(--space-3);
+  }
 
   .summary-card {
-    background-color: var(--bg-layer-1);
-    border-radius: $border-radius;
-    border: 1px solid var(--border-color);
-    padding: var(--space-6);
     display: flex;
     flex-direction: column;
-    gap: var(--space-2);
+    gap: var(--space-1);
+    padding: var(--space-4);
+    @include ds.surface-card;
 
     span {
-      color: var(--text-secondary);
+      font-size: var(--text-xs);
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-caps);
+      color: var(--content-tertiary);
     }
 
     strong {
-      font-size: var(--text-3xl);
-      font-weight: var(--font-bold);
-      color: var(--text-primary);
-    }
-
-    .text-green {
-      color: var(--success-text);
-    }
-
-    .text-red {
-      color: var(--error-text);
+      font-size: var(--text-lg);
+      font-variant-numeric: tabular-nums;
+      color: var(--content-primary);
     }
   }
-}
 
-.ledger-table {
-  .data-table {
-    @include views.data-table;
-  }
+  .amount-debit { color: var(--success-text); }
+  .amount-credit { color: var(--error-text); }
 
-  .amount-cell {
-    font-family: "Source Code Pro", monospace;
-  }
-
+  .amount-cell,
   .balance-cell {
-    font-family: "Source Code Pro", monospace;
-    font-weight: var(--font-semibold);
+    font-variant-numeric: tabular-nums;
   }
-}
 
-.empty-state {
-  @include views.empty-state;
+  .balance-cell { font-weight: var(--font-semibold); }
+
+  .empty-invite p { margin: 0; max-width: 32rem; }
 }

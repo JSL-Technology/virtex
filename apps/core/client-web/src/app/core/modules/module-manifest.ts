@@ -122,6 +122,22 @@ export interface ModuleManifest {
 
   /** Hidden from the rail while the module has no page worth opening. Its routes still resolve. */
   hidden?: boolean;
+
+  /**
+   * Id of the module whose panel these routes belong to.
+   *
+   * A module owns a URL prefix, but ownership of a *screen* does not follow the URL. Warehouses and
+   * units of measure live under `/masters/*` for historical reasons and belong to Inventory; banks
+   * and payment terms live there too and belong to Treasury. Splitting them into a second manifest
+   * was how they got an accurate `basePath` — and then `hidden` took them out of the rail without
+   * putting them anywhere else, so six screens were reachable from no menu at all.
+   *
+   * A satellite therefore names its owner instead of hiding: it stays out of the rail, its entries
+   * appear in the owner's panel, and a URL of its own resolves to the owner so the panel on screen
+   * is the one the address belongs to. `hidden` now means only what it says — a module with nothing
+   * worth opening yet.
+   */
+  panelOf?: string;
 }
 
 /** Full path of a route, as the router and the address bar see it. */

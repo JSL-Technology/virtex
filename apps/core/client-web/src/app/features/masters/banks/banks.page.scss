@@ -1,35 +1,5 @@
-@use '../../../../assets/styles/view-styles' as views;
+@use '../../../../assets/styles/list-page' as list;
 
-// Hereda todos los estilos de tabla, encabezado y otros elementos
-// de nuestro archivo central _view-styles.scss.
-.subview-container {
-    @include views.view-container;
-}
-
-.subview-header {
-    @include views.view-header;
-    padding-bottom: var(--space-6);
-    margin-bottom: 0;
-
-    h3 {
-        font-size: var(--text-xl);
-        font-weight: var(--font-semibold);
-    }
-}
-
-.header-actions {
-    @include views.header-actions;
-}
-
-.card {
-    @include views.card;
-    padding: 0;
-}
-
-.data-table {
-    @include views.data-table;
-}
-
-.empty-state {
-    @include views.empty-state;
+:host {
+  @include list.list-page;
 }

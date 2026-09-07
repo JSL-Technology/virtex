@@ -1,59 +1,46 @@
-<div class="view-container">
-    <div class="search-header">
-        <div class="search-bar">
-            <lucide-icon [img]="SearchIcon" size="24"></lucide-icon>
-            <input type="text" [value]="searchQuery()" (input)="handleSearchInput($event)"
-                (keyup.enter)="performSearch(searchQuery())" [placeholder]="'GLOBAL_SEARCH.BUSCAR_TODO_SISTEMA' | translate">
-        </div>
-    </div>
+<vx-list-shell
+  titleKey="PAGE_TITLES.SEARCH"
+  [count]="totalResults()"
+  [loading]="isLoading()"
+  [empty]="totalResults() === 0"
+  [searchable]="true"
+  [(search)]="searchQuery"
+  searchPlaceholderKey="GLOBAL_SEARCH.BUSCAR_TODO_SISTEMA"
+>
+  <!--
+    El estado vacío de esta pantalla es el del gesto —«nada coincide con …»— más lo único que aquí
+    añade valor: qué se puede buscar. Antes tenía su propio cartel, con su propio tipo de letra y
+    su propio hueco, diciendo lo mismo que las demás listas dicen de otra manera.
+  -->
+  <div listEmpty class="empty-invite">
+    <h2>{{ 'GLOBAL_SEARCH.PRUEBA_OTROS_TERMINOS_BUSQUEDA' | translate }}</h2>
+    <p>{{ 'GLOBAL_SEARCH.INTENTA_BUSCAR_NUMERO_FACTURA_NOMBRE_CLIENTE' | translate }}</p>
+  </div>
 
-    <div class="search-results-container">
-        @if (isLoading()) {
-        <div class="loading-state">
-            <div class="spinner"></div>
-            <p>{{ 'GLOBAL_SEARCH.BUSCANDO' | translate }}</p>
-        </div>
-        } @else {
-        <div class="results-summary">
-            @if (totalResults() > 0) {
-            <p>
-              {{
-                'GLOBAL_SEARCH.RESULTS_FOUND'
-                  | translate: { count: totalResults(), query: searchQuery() }
-              }}
-            </p>
-            } @else {
-            <p>{{ 'GLOBAL_SEARCH.NO_RESULTS' | translate: { query: searchQuery() } }}</p>
-            }
-        </div>
+  <p class="results-summary">
+    {{
+      'GLOBAL_SEARCH.RESULTS_FOUND' | translate: { count: totalResults(), query: searchQuery() }
+    }}
+  </p>
 
-        @if (totalResults() > 0) {
-        <div class="results-list">
-            @for (group of resultGroups(); track group.type) {
-            <div class="result-group card">
-                <div class="group-header">
-                    <lucide-icon [img]="group.icon" size="18"></lucide-icon>
-                    <h3>{{ group.type }} ({{ group.results.length }})</h3>
-                </div>
-                <ul>
-                    @for (item of group.results; track item.id) {
-                    <li class="result-item">
-                        <a [routerLink]="item.link">
-                            <span class="item-title">{{ item.title }}</span>
-                            <span class="item-description">{{ item.description }}</span>
-                        </a>
-                    </li>
-                    }
-                </ul>
-            </div>
-            }
-        </div>
-        } @else {
-        <div class="empty-state">
-            <h4>{{ 'GLOBAL_SEARCH.PRUEBA_OTROS_TERMINOS_BUSQUEDA' | translate }}</h4>
-            <p>{{ 'GLOBAL_SEARCH.INTENTA_BUSCAR_NUMERO_FACTURA_NOMBRE_CLIENTE' | translate }}</p>
-        </div>
-        }
-        }
-    </div>
-</div>
+  <div class="results-list">
+    @for (group of resultGroups(); track group.type) {
+      <section class="result-group card">
+        <h2 class="group-header">
+          <lucide-icon [img]="group.icon" size="18" aria-hidden="true"></lucide-icon>
+          <span>{{ group.type }} ({{ group.results.length }})</span>
+        </h2>
+        <ul>
+          @for (item of group.results; track item.id) {
+            <li class="result-item">
+              <a [routerLink]="item.link">
+                <span class="item-title">{{ item.title }}</span>
+                <span class="item-description">{{ item.description }}</span>
+              </a>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+  </div>
+</vx-list-shell>

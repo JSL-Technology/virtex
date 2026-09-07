@@ -1,41 +1,45 @@
-<div class="subview-container">
-    <div class="subview-header">
-        <h3>{{ 'MASTERS.PAYMENT_METHODS.PAYMENT_METHODS' | translate }}</h3>
-        <div class="header-actions">
-            <button class="primary-button">
-                <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
-                <span>{{ 'MASTERS.PAYMENT_METHODS.NEW_METHOD' | translate }}</span>
-            </button>
-        </div>
-    </div>
-    <div class="table-container card">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>{{ 'MASTERS.PAYMENT_METHODS.NAME' | translate }}</th>
-                    <th>{{ 'MASTERS.PAYMENT_METHODS.TYPE' | translate }}</th>
-                    <th class="text-center">{{ 'MASTERS.PAYMENT_METHODS.DEFAULT_METHOD' | translate }}</th>
-                    <th class="actions-column"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @for(method of methods(); track method.id) {
-                <tr>
-                    <td><a href="#" class="table-link">{{ method.name }}</a></td>
-                    <td>{{ method.type }}</td>
-                    <td class="text-center">
-                        @if (method.isDefault) {
-                        <span class="status-badge active">{{ 'MASTERS.PAYMENT_METHODS.YES' | translate }}</span>
-                        }
-                    </td>
-                    <td class="actions-column">
-                        <button class="icon-button">
-                            <lucide-icon [img]="MoreHorizontalIcon" size="18"></lucide-icon>
-                        </button>
-                    </td>
-                </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
+<vx-list-shell
+  titleKey="MASTERS.PAYMENT_METHODS.PAYMENT_METHODS"
+  [count]="methods().length"
+  [empty]="methods().length === 0"
+>
+  <button listActions type="button" class="primary-button">
+    <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'MASTERS.PAYMENT_METHODS.NEW_METHOD' | translate }}</span>
+  </button>
+
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'MASTERS.PAYMENT_METHODS.NAME' | translate }}</th>
+          <th>{{ 'MASTERS.PAYMENT_METHODS.TYPE' | translate }}</th>
+          <th class="text-center">{{ 'MASTERS.PAYMENT_METHODS.DEFAULT_METHOD' | translate }}</th>
+          <th class="actions-column"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (method of methods(); track method.id) {
+          <tr>
+            <td>{{ method.name }}</td>
+            <td>{{ method.type }}</td>
+            <td class="text-center">
+              @if (method.isDefault) {
+                <span class="status-badge active">{{ 'MASTERS.PAYMENT_METHODS.YES' | translate }}</span>
+              }
+            </td>
+            <td class="actions-column">
+              <button
+                type="button"
+                class="icon-button"
+                [attr.aria-label]="'MASTERS.PAYMENT_METHODS.NAME' | translate"
+              >
+                <lucide-icon [img]="MoreHorizontalIcon" size="18" aria-hidden="true"></lucide-icon>
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</vx-list-shell>

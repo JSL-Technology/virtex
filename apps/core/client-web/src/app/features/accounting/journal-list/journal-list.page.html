@@ -1,40 +1,43 @@
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="card-title">{{ 'ACCOUNTING.JOURNAL_LIST.JOURNALS' | translate }}</h4>
-                    <a [routerLink]="['/accounting/journals/new']" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> {{ 'ACCOUNTING.JOURNAL_LIST.CREATE_JOURNAL' | translate }}
-                    </a>
-                </div>
-                <div class="card-body">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>{{ 'ACCOUNTING.JOURNAL_LIST.NAME' | translate }}</th>
-                                <th>{{ 'ACCOUNTING.JOURNAL_LIST.CODE' | translate }}</th>
-                                <th>{{ 'ACCOUNTING.JOURNAL_LIST.TYPE' | translate }}</th>
-                                <th>{{ 'ACCOUNTING.JOURNAL_LIST.ACTIONS' | translate }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @for (journal of journals(); track journal.id) {
-                                <tr>
-                                    <td>{{ journal.name }}</td>
-                                    <td>{{ journal.code }}</td>
-                                    <td>{{ journal.type }}</td>
-                                    <td>
-                                        <a [routerLink]="['/accounting/journals', journal.id, 'edit']" class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-edit"></i> {{ 'ACCOUNTING.JOURNAL_LIST.EDIT' | translate }}
-                                        </a>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<vx-list-shell
+  titleKey="ACCOUNTING.JOURNAL_LIST.JOURNALS"
+  [count]="journals().length"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="journals().length === 0"
+  (reload)="load()"
+>
+  <a listActions [routerLink]="['/accounting/journals/new']" class="primary-button">
+    <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'ACCOUNTING.JOURNAL_LIST.CREATE_JOURNAL' | translate }}</span>
+  </a>
+
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'ACCOUNTING.JOURNAL_LIST.NAME' | translate }}</th>
+          <th>{{ 'ACCOUNTING.JOURNAL_LIST.CODE' | translate }}</th>
+          <th>{{ 'ACCOUNTING.JOURNAL_LIST.TYPE' | translate }}</th>
+          <th class="actions-column">{{ 'ACCOUNTING.JOURNAL_LIST.ACTIONS' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (journal of journals(); track journal.id) {
+          <tr>
+            <td>{{ journal.name }}</td>
+            <td>{{ journal.code }}</td>
+            <td>{{ journal.type }}</td>
+            <td class="actions-column">
+              <a
+                [routerLink]="['/accounting/journals', journal.id, 'edit']"
+                class="secondary-button"
+              >
+                {{ 'ACCOUNTING.JOURNAL_LIST.EDIT' | translate }}
+              </a>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</vx-list-shell>

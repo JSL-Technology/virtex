@@ -1,106 +1,26 @@
-@use '../../../../assets/styles/view-styles' as views;
-@use '../../../../assets/styles/forms' as mixins;
+@use '../../../../assets/styles/list-page' as list;
 
-.repository-header {
-    display: flex;
-    justify-content: space-between;
+:host {
+  @include list.list-page;
+
+  .path-breadcrumbs {
+    display: inline-flex;
     align-items: center;
-    margin-bottom: var(--space-6);
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--content-secondary);
+  }
 
-    h3 {
-        font-size: var(--text-xl);
-        font-weight: var(--font-semibold);
-        color: var(--text-primary);
-    }
-
-    .header-actions {
-        display: flex;
-        gap: var(--space-4);
-
-        .primary-button,
-        .secondary-button {
-            @include mixins.submit-button;
-        }
-
-        .secondary-button {
-            background-color: var(--bg-layer-1);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-
-            &:hover {
-                background-color: var(--bg-hover);
-            }
-        }
-    }
-}
-
-.file-explorer {
-    @include views.card;
-    padding: 0;
-}
-
-.explorer-toolbar {
-    display: flex;
-    justify-content: space-between;
+  .name-cell {
+    display: inline-flex;
     align-items: center;
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid var(--border-color);
-}
+    gap: var(--space-2);
+  }
 
-.path-breadcrumbs {
-    font-weight: var(--font-semibold);
-    color: var(--text-primary);
-    font-size: var(--text-base);
-}
-
-.search-bar {
-    position: relative;
-    width: 300px;
-
-    lucide-icon {
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--text-tertiary);
-        pointer-events: none;
-    }
-
-    input {
-        padding-left: 36px;
-        font-size: var(--text-md);
-    }
-}
-
-.data-table {
-    @include views.data-table;
-}
-
-.icon-button {
-    @include mixins.icon-button;
-}
-
-.empty-state {
-    @include views.empty-state;
-}
-
-.name-cell {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-
-    lucide-icon {
-        flex-shrink: 0;
-
-        &.folder {
-            color: var(--accent-primary);
-        }
-
-        &.document,
-        &.pdf,
-        &.spreadsheet,
-        &.image {
-            color: var(--text-tertiary);
-        }
-    }
+  //  El icono dice el tipo de archivo antes de leer la extensión.
+  .folder { color: var(--warning-text); }
+  .pdf { color: var(--error-text); }
+  .spreadsheet { color: var(--success-text); }
+  .image { color: var(--info-text); }
+  .document { color: var(--accent-solid); }
 }

@@ -1,43 +1,44 @@
-<div class="page-container">
-  <div class="page-header">
-    <h1 class="page-title">{{ 'ACCOUNTING.LEDGER_LIST.LIBROS_CONTABLES' | translate }}</h1>
-    <a [routerLink]="['/accounting/ledger-form/new']" class="btn btn-primary">
-      <lucide-icon [name]="CreateIcon" [size]="16" class="mr-2"></lucide-icon>
-      {{ 'ACCOUNTING.LEDGER_LIST.CREAR_NUEVO_LIBRO' | translate }}
-    </a>
-  </div>
+<vx-list-shell
+  titleKey="ACCOUNTING.LEDGER_LIST.LIBROS_CONTABLES"
+  [count]="ledgers().length"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="ledgers().length === 0"
+  (reload)="load()"
+>
+  <a listActions [routerLink]="['/accounting/ledger-form/new']" class="primary-button">
+    <lucide-icon [img]="CreateIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'ACCOUNTING.LEDGER_LIST.CREAR_NUEVO_LIBRO' | translate }}</span>
+  </a>
 
-  <div class="card">
-    <div class="overflow-x-auto">
-      <table class="table">
-        <thead>
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'ACCOUNTING.LEDGER_LIST.NOMBRE' | translate }}</th>
+          <th>{{ 'ACCOUNTING.LEDGER_LIST.DESCRIPCION' | translate }}</th>
+          <th class="text-center">{{ 'ACCOUNTING.LEDGER_LIST.DEFECTO' | translate }}</th>
+          <th class="actions-column"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (ledger of ledgers(); track ledger.id) {
           <tr>
-            <th>{{ 'ACCOUNTING.LEDGER_LIST.NOMBRE' | translate }}</th>
-            <th>{{ 'ACCOUNTING.LEDGER_LIST.DESCRIPCION' | translate }}</th>
-            <th>{{ 'ACCOUNTING.LEDGER_LIST.DEFECTO' | translate }}</th>
-            <th class="w-1"></th>
+            <td>{{ ledger.name }}</td>
+            <td>{{ ledger.description }}</td>
+            <td class="text-center">
+              @if (ledger.isDefault) {
+                <span class="status-badge active">{{ 'COMMON.ACCEPT' | translate }}</span>
+              }
+            </td>
+            <td class="actions-column">
+              <a [routerLink]="['/accounting/ledger-form', ledger.id]" class="secondary-button">
+                {{ 'ACCOUNTING.LEDGER_LIST.EDITAR' | translate }}
+              </a>
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          <ng-container *ngIf="ledgers$ | async as ledgers">
-            <tr *ngFor="let ledger of ledgers" class="hover">
-              <td>{{ ledger.name }}</td>
-              <!-- <td>{{ ledger.description }}</td> -->
-              <td>
-                <!-- <span *ngIf="ledger.isDefault" class="badge badge-success">Sí</span> -->
-              </td>
-              <td>
-                <a [routerLink]="['/accounting/ledger-form', ledger.id]" class="btn btn-sm btn-ghost">
-                  {{ 'ACCOUNTING.LEDGER_LIST.EDITAR' | translate }}
-                </a>
-              </td>
-            </tr>
-            <tr *ngIf="ledgers.length === 0">
-              <td colspan="4" class="text-center">{{ 'ACCOUNTING.LEDGER_LIST.NO_HAN_ENCONTRADO_LIBROS_CONTABLES' | translate }}</td>
-            </tr>
-          </ng-container>
-        </tbody>
-      </table>
-    </div>
+        }
+      </tbody>
+    </table>
   </div>
-</div>
+</vx-list-shell>

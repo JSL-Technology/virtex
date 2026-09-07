@@ -1,66 +1,52 @@
-<div class="repository-container">
-    <div class="repository-header">
-        <h3>{{ 'DOCUMENTS.REPOSITORY.FILE_REPOSITORY' | translate }}</h3>
-        <div class="header-actions">
-            <button class="secondary-button">
-                <lucide-icon [img]="FolderIcon" size="16"></lucide-icon>
-                <span>{{ 'DOCUMENTS.REPOSITORY.NEW_FOLDER' | translate }}</span>
-            </button>
-            <button class="primary-button">
-                <lucide-icon [img]="UploadIcon" size="16"></lucide-icon>
-                <span>{{ 'DOCUMENTS.REPOSITORY.UPLOAD_FILE' | translate }}</span>
-            </button>
-        </div>
-    </div>
+<vx-list-shell
+  titleKey="DOCUMENTS.REPOSITORY.FILE_REPOSITORY"
+  [count]="files().length"
+  [empty]="files().length === 0"
+  [searchable]="true"
+  [(search)]="search"
+  searchPlaceholderKey="DOCUMENTS.REPOSITORY.SEARCH_IN_THIS_FOLDER"
+>
+  <button listActions type="button" class="secondary-button">
+    <lucide-icon [img]="FolderIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'DOCUMENTS.REPOSITORY.NEW_FOLDER' | translate }}</span>
+  </button>
+  <button listActions type="button" class="primary-button">
+    <lucide-icon [img]="UploadIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'DOCUMENTS.REPOSITORY.UPLOAD_FILE' | translate }}</span>
+  </button>
 
-    <div class="file-explorer card">
-        <div class="explorer-toolbar">
-            <div class="path-breadcrumbs">
-                <span class="path-item">{{ 'DOCUMENTS.REPOSITORY.HOME' | translate }}</span>
-            </div>
-            <div class="search-bar">
-                <lucide-icon [img]="SearchIcon" size="16"></lucide-icon>
-                <input type="text" [placeholder]="'DOCUMENTS.REPOSITORY.SEARCH_IN_THIS_FOLDER' | translate">
-            </div>
-        </div>
+  <nav listFilters class="path-breadcrumbs" [attr.aria-label]="'DOCUMENTS.REPOSITORY.HOME' | translate">
+    <span class="path-item">{{ 'DOCUMENTS.REPOSITORY.HOME' | translate }}</span>
+  </nav>
 
-        <div class="table-container">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th style="width: 1%;"><input type="checkbox"></th>
-                        <th>{{ 'DOCUMENTS.REPOSITORY.NAME' | translate }}</th>
-                        <th>{{ 'DOCUMENTS.REPOSITORY.LAST_MODIFIED' | translate }}</th>
-                        <th>{{ 'DOCUMENTS.REPOSITORY.FILE_SIZE' | translate }}</th>
-                        <th class="actions-column"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @for (item of files(); track item.id) {
-                    <tr class="file-item-row">
-                        <td><input type="checkbox"></td>
-                        <td>
-                            <div class="name-cell">
-                                <lucide-icon [img]="getIconForFileType(item.type)" size="20"
-                                    [ngClass]="item.type"></lucide-icon>
-                                <a href="#" class="table-link">{{ item.name }}</a>
-                            </div>
-                        </td>
-                        <td>{{ item.modifiedDate }}</td>
-                        <td>{{ item.size }}</td>
-                        <td class="actions-column">
-                            <button class="icon-button">
-                                <lucide-icon [img]="MoreIcon" size="18"></lucide-icon>
-                            </button>
-                        </td>
-                    </tr>
-                    } @empty {
-                    <tr>
-                        <td colspan="5" class="empty-state">{{ 'DOCUMENTS.REPOSITORY.THIS_FOLDER_EMPTY' | translate }}</td>
-                    </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'DOCUMENTS.REPOSITORY.NAME' | translate }}</th>
+          <th>{{ 'DOCUMENTS.REPOSITORY.LAST_MODIFIED' | translate }}</th>
+          <th>{{ 'DOCUMENTS.REPOSITORY.FILE_SIZE' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of files(); track item.id) {
+          <tr class="file-item-row">
+            <td>
+              <span class="name-cell">
+                <lucide-icon
+                  [img]="getIconForFileType(item.type)"
+                  size="20"
+                  [class]="item.type"
+                  aria-hidden="true"
+                ></lucide-icon>
+                <span class="file-name">{{ item.name }}</span>
+              </span>
+            </td>
+            <td>{{ item.modifiedDate }}</td>
+            <td>{{ item.size }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</vx-list-shell>

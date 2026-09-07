@@ -1,1 +1,5 @@
-@use '../../banks/banks.page.scss';
+@use '../../../../../assets/styles/list-page' as list;
+
+:host {
+  @include list.list-page;
+}

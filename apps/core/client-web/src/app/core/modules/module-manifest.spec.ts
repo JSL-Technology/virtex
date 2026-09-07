@@ -1,7 +1,6 @@
-import { MODULES, ROUTE_INDEX, resolveRoute, buildModuleRoutes, buildMenu, railModules } from './module-registry';
+import { MODULES, ROUTE_INDEX, resolveRoute, buildModuleRoutes, buildMenu, railModules, ownerOf } from './module-registry';
 import { isKnownIcon } from './module-icons';
-import { fullPath } from './module-manifest';
-import { SIDEBAR_MENU } from '../../layout/sidebar/sidebar-menu';
+import { ModuleManifest, fullPath } from './module-manifest';
 
 /**
  * The manifests are the only place a route exists, and these are the properties that keep it so.
@@ -54,21 +53,63 @@ describe('manifiestos de módulo', () => {
     expect(rotas).toEqual([]);
   });
 
-  it('el sidebar no ofrece ningún enlace muerto', () => {
-    const rotos = SIDEBAR_MENU.flatMap((g) => g.items)
-      .filter((i) => i.path && !resolveRoute(i.path))
-      .map((i) => i.path as string);
-    expect(rotos).toEqual([]);
+  it('toda entrada de menú se alcanza desde algún módulo del riel', () => {
+    // The hole this closes: a manifest marked `hidden` kept its routes resolvable and its menu
+    // entries declared, and they then appeared in no menu at all. Six screens — almacenes, unidades
+    // de medida, bancos, métodos y términos de pago, hojas de datos — were reachable only by typing
+    // the URL. `hidden` is now for a module with nothing worth opening; a module that lives under
+    // someone else's prefix says `panelOf` instead.
+    const alcanzables = new Set(
+      railModules().flatMap((m) => buildMenu(m).flatMap((s) => s.entries.map((e) => e.path))),
+    );
+    const huerfanas = MODULES.flatMap((m) =>
+      buildMenu(m)
+        .flatMap((s) => s.entries.map((e) => e.path))
+        .filter((path) => !alcanzables.has(path))
+        .map((path) => `${m.id}: ${path}`),
+    );
+    expect(huerfanas).toEqual([]);
+  });
+
+  it('ningún módulo del riel repite el nombre de otro', () => {
+    // Two buttons both reading "Tesorería" is what a satellite in the rail looked like.
+    const nombres = railModules().map((m) => m.titleKey);
+    expect(nombres).toEqual([...new Set(nombres)]);
+  });
+
+  it('un satélite lleva a su dueño, no a un panel propio', () => {
+    const almacenes = resolveRoute('/masters/warehouses');
+    expect(almacenes?.entry.module.id).toBe('inventario-masters');
+    expect(ownerOf(almacenes?.entry.module as ModuleManifest).id).toBe('inventario');
+  });
+
+  it('los cuatro grupos salen siempre en el mismo orden', () => {
+    // The fixed shape is the whole argument for the module panel: whatever module you are in, what
+    // needs your attention is at the top and the reference data is where it was next door. A module
+    // with nothing in a group omits the heading; it never reorders the rest.
+    const ORDEN = ['inbox', 'documents', 'masters', 'analysis'];
+    for (const module of MODULES) {
+      const grupos = buildMenu(module).map((s) => s.group);
+      expect({ module: module.id, grupos }).toEqual({
+        module: module.id,
+        grupos: ORDEN.filter((g) => grupos.includes(g as (typeof grupos)[number])),
+      });
+    }
   });
 
   it('no ofrece dos veces el mismo enlace', () => {
-    // Ported from `sidebar-links.spec.ts`, which scraped this file's predecessor as text and only
+    // Ported from `sidebar-links.spec.ts`, which scraped a hand-written menu as text and only
     // covered the finance group. A repeated entry is not cosmetic: it means two manifests both
     // claim to be the way in to one screen, and whichever the user learns, the other is a
     // different-looking door to the same room.
+    // Over the rail's modules, which is what a user actually sees: a satellite's entries appear
+    // both in its own `buildMenu` and merged into its owner's, and that is the mechanism working,
+    // not a duplicate door.
     const conteo = new Map<string, number>();
-    for (const item of SIDEBAR_MENU.flatMap((g) => g.items)) {
-      if (item.path) conteo.set(item.path, (conteo.get(item.path) ?? 0) + 1);
+    for (const module of railModules()) {
+      for (const entry of buildMenu(module).flatMap((s) => s.entries)) {
+        conteo.set(entry.path, (conteo.get(entry.path) ?? 0) + 1);
+      }
     }
     const repetidos = [...conteo.entries()].filter(([, n]) => n > 1).map(([path]) => path);
     expect(repetidos).toEqual([]);

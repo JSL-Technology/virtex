@@ -1,69 +1,46 @@
-@use '../../../../assets/styles/view-styles' as views;
-@use '../../../../assets/styles/forms' as mixins;
+@use '../../../../assets/styles/list-page' as list;
+@use '../../../../assets/styles/design-system' as ds;
 
-.templates-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--space-6);
+:host {
+  @include list.list-page;
 
-    h3 {
-        font-size: var(--text-xl);
-        font-weight: var(--font-semibold);
-    }
-
-    .primary-button {
-        @include mixins.submit-button;
-    }
-}
-
-.templates-grid {
+  .templates-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: var(--space-6);
-}
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: var(--space-4);
+  }
 
-.template-card {
-    @include views.card;
-    padding: var(--space-6);
+  .template-card {
     display: flex;
     align-items: center;
-    gap: var(--space-6);
-    transition: all 0.2s ease;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    text-align: left;
+    @include ds.surface-card;
+    @include ds.transition(border-color, box-shadow);
 
-    &:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 6px 12px var(--shadow-color);
-        border-color: var(--accent-primary);
-    }
+    &:hover { border-color: var(--accent-solid); }
+  }
 
-    .card-icon {
-        flex-shrink: 0;
-        color: var(--accent-primary);
-    }
+  .card-icon { color: var(--accent-solid); flex: none; }
 
-    .card-content {
-        .template-name {
-            display: block;
-            font-weight: var(--font-semibold);
-            color: var(--text-primary);
-        }
+  .card-content { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+  .template-name { font-weight: var(--font-semibold); color: var(--content-primary); }
+  .template-meta { font-size: var(--text-xs); color: var(--content-tertiary); }
 
-        .template-meta {
-            font-size: var(--text-md);
-            color: var(--text-secondary);
-        }
-    }
+  //  La tarjeta de «crear» es un botón, no una tarjeta que finge serlo: se
+  //  alcanza con el tabulador y se activa con Enter sin escribir nada extra.
+  .new-template {
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--space-2);
+    border-style: dashed;
+    background: transparent;
+    color: var(--content-tertiary);
+    font: inherit;
+    cursor: pointer;
+    min-height: 6rem;
 
-    &.new-template {
-        flex-direction: column;
-        justify-content: center;
-        border-style: dashed;
-        color: var(--text-secondary);
-        cursor: pointer;
-
-        span {
-            font-weight: var(--font-semibold);
-        }
-    }
+    @include ds.focus-ring(2px);
+  }
 }

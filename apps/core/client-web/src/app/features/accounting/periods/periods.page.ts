@@ -9,6 +9,7 @@ import {
   AccountingPeriodsService,
 } from '../../../core/api/accounting-periods.service';
 import { NotificationService } from '../../../core/services/notification';
+import { ListShellComponent } from '../../../shared/components/gestures';
 
 /**
  * The tenant's accounting calendar.
@@ -35,7 +36,7 @@ import { NotificationService } from '../../../core/services/notification';
 @Component({
   selector: 'app-periods-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './periods.page.html',
   styleUrls: ['./periods.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

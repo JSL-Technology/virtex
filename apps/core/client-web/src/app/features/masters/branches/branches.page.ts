@@ -1,8 +1,7 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
-import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal } from 'lucide-angular';
+import { LucideAngularModule, PlusCircle } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
+import { ListShellComponent } from '../../../shared/components/gestures';
 
 interface Branch {
   id: string;
@@ -15,15 +14,13 @@ interface Branch {
 @Component({
   selector: 'app-branches-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule],
+  imports: [LucideAngularModule, TranslateModule, ListShellComponent],
   templateUrl: './branches.page.html',
   styleUrls: ['./branches.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BranchesPage {
   protected readonly PlusCircleIcon = PlusCircle;
-  protected readonly FilterIcon = Filter;
-  protected readonly MoreHorizontalIcon = MoreHorizontal;
 
   branches = signal<Branch[]>([
     { id: 'br-01', name: 'Oficina Principal', address: 'Av. Winston Churchill 1515', city: 'Santo Domingo', phone: '809-555-0101' },

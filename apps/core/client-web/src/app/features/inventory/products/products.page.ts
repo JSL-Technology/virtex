@@ -1,7 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { DialogService } from '../../../core/services/dialog.service';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle, MoreHorizontal, AlertCircle, Search } from 'lucide-angular';
 // import { Product } from '../../../core/models/product.model';
 import { InventoryService } from '../../../core/api/inventory.service';
@@ -10,11 +9,12 @@ import { HasPermissionDirective } from '../../../shared/directives/has-permissio
 import { Product } from '../../../core/models/product.model';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { ListShellComponent } from '../../../shared/components/gestures';
 
 @Component({
   selector: 'app-products-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, HasPermissionDirective, TranslateModule, ...FORMAT_PIPES],
+  imports: [RouterLink, LucideAngularModule, HasPermissionDirective, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './products.page.html',
   styleUrls: ['./products.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,13 +23,9 @@ export class ProductsPage implements OnInit {
   private readonly dialog = inject(DialogService);
   private inventoryService = inject(InventoryService);
   private notificationService = inject(NotificationService);
-  private router = inject(Router);
 
   // Iconos
   protected readonly PlusCircleIcon = PlusCircle;
-  protected readonly MoreHorizontalIcon = MoreHorizontal;
-  protected readonly AlertCircleIcon = AlertCircle;
-  protected readonly SearchIcon = Search;
 
   // Estado con Signals
   private allProducts = signal<Product[]>([]);
@@ -63,17 +59,13 @@ export class ProductsPage implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        this.error.set('No se pudieron cargar los productos. Por favor, intente de nuevo.');
+        this.error.set('INVENTORY.PRODUCTS.LOAD_FAILED');
         this.isLoading.set(false);
         this.notificationService.showError(this.error()!);
       }
     });
   }
 
-  onSearch(event: Event): void {
-    const term = (event.target as HTMLInputElement).value;
-    this.searchTerm.set(term);
-  }
 
   getStockStatusClass(product: Product): string {
     if (product.status === 'Inactive') return 'status-inactive';
@@ -101,7 +93,4 @@ export class ProductsPage implements OnInit {
     }
   }
 
-  navigateToEdit(productId: string): void {
-    this.router.navigate(['/inventory/products', productId, 'edit']);
-  }
 }

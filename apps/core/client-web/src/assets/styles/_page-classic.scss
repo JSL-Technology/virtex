@@ -1,0 +1,76 @@
+@use 'design-system' as ds;
+@use 'view-styles' as views;
+
+// =============================================================================
+//  EL MARCO ANTERIOR A LOS GESTOS
+// =============================================================================
+//  `.subview-container` / `.subview-header` / `.card` / `.data-table` es la
+//  forma que tenían las pantallas antes de `vx-list-shell`. Sigue en uso en las
+//  que todavía no se han migrado.
+//
+//  Existe este parcial porque esas reglas vivían dentro de la hoja de una
+//  página cualquiera —`banks.page.scss`, `supplier-list.page.scss`— y nueve
+//  pantallas de contabilidad, informes y cierre las obtenían con
+//  `@use '../../masters/suppliers/supplier-list/supplier-list.page.scss'`.
+//  Es decir: el diario general se pintaba porque importaba la hoja de la lista
+//  de proveedores. Borrar o cambiar la hoja de proveedores despintaba la
+//  contabilidad, y ninguna prueba lo habría notado.
+//
+//  Aquí se declara una vez y cada página lo pide por su nombre. **Es
+//  transitorio**: una página que se pasa a `vx-list-shell` cambia este `@include`
+//  por `list-page`, y cuando no quede ninguna, este archivo se borra.
+// =============================================================================
+
+@mixin page-classic {
+  .subview-container,
+  .view-container {
+    @include views.view-container;
+  }
+
+  .subview-header,
+  .view-header {
+    @include views.view-header;
+    padding-bottom: var(--space-6);
+    margin-bottom: 0;
+
+    h1,
+    h3 {
+      font-size: var(--text-xl);
+      font-weight: var(--font-semibold);
+    }
+  }
+
+  .header-actions {
+    @include views.header-actions;
+  }
+
+  .card {
+    @include views.card;
+    padding: 0;
+  }
+
+  .data-table {
+    @include ds.data-table;
+  }
+
+  .empty-state,
+  .loading-state {
+    @include views.empty-state;
+  }
+
+  .actions-column {
+    width: 1%;
+    white-space: nowrap;
+    text-align: right;
+  }
+
+  .table-link {
+    color: var(--accent-solid);
+    text-decoration: none;
+
+    &:hover { text-decoration: underline; }
+  }
+
+  .text-right { text-align: right; }
+  .text-center { text-align: center; }
+}

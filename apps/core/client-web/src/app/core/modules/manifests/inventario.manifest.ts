@@ -55,14 +55,19 @@ export const INVENTARIO_MODULE: ModuleManifest = {
   ],
 };
 
-/** Warehouses and units of measure keep their `/masters/*` addresses; only their owner changes. */
+/**
+ * Warehouses and units of measure keep their `/masters/*` addresses; only their owner changes.
+ *
+ * `panelOf` and not `hidden`: they are part of Inventory, so they belong in Inventory's panel. Kept
+ * hidden they were reachable from no menu at all.
+ */
 export const INVENTARIO_MASTERS_MODULE: ModuleManifest = {
   id: 'inventario-masters',
   titleKey: 'MODULES.INVENTORY',
   icon: 'Warehouse',
   basePath: 'masters',
   order: 3.1,
-  hidden: true,
+  panelOf: 'inventario',
   routes: [
     {
       path: 'warehouses',

@@ -1,14 +1,19 @@
-<div class="view-container">
-    <div class="view-header">
-        <div class="header-content">
-            <h1>{{ 'INVENTORY.CATEGORIES.CATEGORIAS' | translate }}</h1>
-            <p>{{ 'INVENTORY.CATEGORIES.ORGANIZA_TUS_PRODUCTOS_DIFERENTES_CATEGORIAS' | translate }}</p>
-        </div>
-        <div class="header-actions">
-            <button class="primary-button"><lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon><span>{{ 'INVENTORY.CATEGORIES.NUEVA_CATEGORIA' | translate }}</span></button>
-        </div>
-    </div>
-    <div class="card">
-        <p class="placeholder">{{ 'INVENTORY.CATEGORIES.AQUI_MOSTRARA_LISTA_GESTION_CATEGORIAS' | translate }}</p>
-    </div>
-</div>
+<vx-list-shell
+  titleKey="INVENTORY.CATEGORIES.CATEGORIAS"
+  subtitleKey="INVENTORY.CATEGORIES.ORGANIZA_TUS_PRODUCTOS_DIFERENTES_CATEGORIAS"
+  [empty]="true"
+>
+  <button listActions type="button" class="primary-button">
+    <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'INVENTORY.CATEGORIES.NUEVA_CATEGORIA' | translate }}</span>
+  </button>
+
+  <!--
+    Esta pantalla todavía no tiene datos: el aviso dice exactamente eso en lugar de fingir una
+    tabla vacía. Está en el estado vacío del gesto, no en una tarjeta suelta, para que el día que
+    llegue la lista solo haya que quitar `[empty]="true"`.
+  -->
+  <p listEmpty class="placeholder">
+    {{ 'INVENTORY.CATEGORIES.AQUI_MOSTRARA_LISTA_GESTION_CATEGORIAS' | translate }}
+  </p>
+</vx-list-shell>

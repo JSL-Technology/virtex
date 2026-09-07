@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal } from 'lucide-angular';
+import { LucideAngularModule, PlusCircle } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
+import { ListShellComponent } from '../../../shared/components/gestures';
 
 interface Warehouse {
   id: string;
@@ -14,15 +14,13 @@ interface Warehouse {
 @Component({
   selector: 'app-warehouses-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule],
+  imports: [LucideAngularModule, TranslateModule, ListShellComponent],
   templateUrl: './warehouses.page.html',
   styleUrls: ['./warehouses.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WarehousesPage {
   protected readonly PlusCircleIcon = PlusCircle;
-  protected readonly FilterIcon = Filter;
-  protected readonly MoreHorizontalIcon = MoreHorizontal;
 
   warehouses = signal<Warehouse[]>([
     { id: 'WH-01', name: 'Almacén Principal', location: 'Santo Domingo, DN', manager: 'Carlos Pérez', isActive: true },

@@ -53,7 +53,10 @@ describe('NotificationsPage', () => {
     ];
     notificationService.notifications.set(mockNotifications);
     fixture.detectChanges();
-    const notificationElement = fixture.nativeElement.querySelector('.notification-item');
+    // El elemento que se pulsa es el `<button>` de la fila, no el `<li>`: antes el `<li>` llevaba
+    // `tabindex` y tres manejadores de teclado imitando un botón.
+    const notificationElement = fixture.nativeElement.querySelector('.notification-hit');
+    expect(notificationElement).not.toBeNull();
     notificationElement.click();
     expect(notificationService.markAsRead).toHaveBeenCalledWith('1');
   });
@@ -62,7 +65,7 @@ describe('NotificationsPage', () => {
     fixture.detectChanges();
     // The control is the header action button; the spec looked for a class the template has
     // never had, so it was asserting against `null.click()` rather than the page.
-    const markAllButton = fixture.nativeElement.querySelector('.header-actions .secondary-button');
+    const markAllButton = fixture.nativeElement.querySelector('.ls__actions .secondary-button');
     expect(markAllButton).not.toBeNull();
     markAllButton.click();
     expect(notificationService.markAllAsRead).toHaveBeenCalled();

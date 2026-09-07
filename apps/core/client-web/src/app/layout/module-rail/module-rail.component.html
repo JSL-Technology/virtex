@@ -1,0 +1,24 @@
+<nav class="rail" [attr.aria-label]="'SHELL.MODULE_RAIL' | translate">
+  @for (item of items(); track item.module.id) {
+    <button
+      type="button"
+      class="rail__item"
+      [class.rail__item--active]="item.module.id === activeId()"
+      [class.rail__item--locked]="!item.allowed"
+      [attr.aria-current]="item.module.id === activeId() ? 'page' : null"
+      [attr.aria-disabled]="!item.allowed"
+      [title]="
+        item.allowed
+          ? (item.module.titleKey | translate)
+          : (item.module.titleKey | translate) + ' — ' + ('SHELL.MODULE_LOCKED' | translate)
+      "
+      (click)="open(item)"
+    >
+      <lucide-icon [img]="item.icon" size="18" class="rail__icon" aria-hidden="true"></lucide-icon>
+      <span class="rail__label">{{ item.module.titleKey | translate }}</span>
+      @if (!item.allowed) {
+        <lucide-icon [img]="LockIcon" size="10" class="rail__lock" aria-hidden="true"></lucide-icon>
+      }
+    </button>
+  }
+</nav>

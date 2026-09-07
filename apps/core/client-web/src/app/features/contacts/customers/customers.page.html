@@ -1,68 +1,60 @@
-<div class="view-container">
-    <div class="view-header">
-        <div class="header-content">
-            <h1>{{ 'CONTACTS.CUSTOMERS.CLIENTES' | translate }}</h1>
-            <p>{{ 'CONTACTS.CUSTOMERS.ADMINISTRA_TU_BASE_DATOS_CLIENTES_HISTORIAL' | translate }}</p>
-        </div>
-        <div class="header-actions">
-            <button class="secondary-button" [disabled]="isLoading()">
-                <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
-                <span>{{ 'CONTACTS.CUSTOMERS.FILTROS' | translate }}</span>
-            </button>
-            <a routerLink="/contacts/customers/new" class="primary-button">
-                <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
-                <span>{{ 'CONTACTS.CUSTOMERS.ANADIR_CLIENTE' | translate }}</span>
-            </a>
-        </div>
-    </div>
+<vx-list-shell
+  titleKey="CONTACTS.CUSTOMERS.CLIENTES"
+  subtitleKey="CONTACTS.CUSTOMERS.ADMINISTRA_TU_BASE_DATOS_CLIENTES_HISTORIAL"
+  [count]="customers().length"
+  [loading]="isLoading()"
+  [empty]="customers().length === 0"
+  (reload)="loadCustomers()"
+>
+  <a listActions routerLink="/contacts/customers/new" class="primary-button">
+    <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'CONTACTS.CUSTOMERS.ANADIR_CLIENTE' | translate }}</span>
+  </a>
 
-    <div class="table-container card">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th style="width: 1%;"><input type="checkbox"></th>
-                    <th>{{ 'CONTACTS.CUSTOMERS.NOMBRE_EMPRESA' | translate }}</th>
-                    <th>{{ 'CONTACTS.CUSTOMERS.PERSONA_CONTACTO' | translate }}</th>
-                    <th>{{ 'CONTACTS.CUSTOMERS.EMAIL' | translate }}</th>
-                    <th>{{ 'CONTACTS.CUSTOMERS.TELEFONO' | translate }}</th>
-                    <th class="actions-column">{{ 'CONTACTS.CUSTOMERS.ACCIONES' | translate }}</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (isLoading()) {
-                    <tr>
-                        <td colspan="6" class="loading-state">{{ 'CONTACTS.CUSTOMERS.CARGANDO_CLIENTES' | translate }}</td>
-                    </tr>
-                } @else {
-                    @for (customer of customers(); track customer.id) {
-                        <tr>
-                            <td><input type="checkbox"></td>
-                            <td>
-                                <a [routerLink]="['/contacts/customers', customer.id, 'edit']" class="table-link">
-                                    {{ customer.companyName }}
-                                </a>
-                            </td>
-                            <td>{{ customer.contactPerson }}</td>
-                            <td>{{ customer.email }}</td>
-                            <td>{{ customer.phone }}</td>
-                            <td class="actions-column">
-                                <div class="action-buttons">
-                                    <a [routerLink]="['/contacts/customers', customer.id, 'edit']" class="icon-button" [title]="'CONTACTS.CUSTOMERS.EDITAR' | translate">
-                                        <lucide-icon [img]="EditIcon" size="18"></lucide-icon>
-                                    </a>
-                                    <button class="icon-button delete" (click)="deleteCustomer(customer.id)" [title]="'CONTACTS.CUSTOMERS.ELIMINAR' | translate">
-                                        <lucide-icon [img]="TrashIcon" size="18"></lucide-icon>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    } @empty {
-                        <tr>
-                            <td colspan="6" class="empty-state">{{ 'CONTACTS.CUSTOMERS.NO_HAY_CLIENTES_REGISTRADOS' | translate }}</td>
-                        </tr>
-                    }
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'CONTACTS.CUSTOMERS.NOMBRE_EMPRESA' | translate }}</th>
+          <th>{{ 'CONTACTS.CUSTOMERS.PERSONA_CONTACTO' | translate }}</th>
+          <th>{{ 'CONTACTS.CUSTOMERS.EMAIL' | translate }}</th>
+          <th>{{ 'CONTACTS.CUSTOMERS.TELEFONO' | translate }}</th>
+          <th class="actions-column">{{ 'CONTACTS.CUSTOMERS.ACCIONES' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (customer of customers(); track customer.id) {
+          <tr>
+            <td>
+              <a [routerLink]="['/contacts/customers', customer.id, 'edit']" class="table-link">
+                {{ customer.companyName }}
+              </a>
+            </td>
+            <td>{{ customer.contactPerson }}</td>
+            <td>{{ customer.email }}</td>
+            <td>{{ customer.phone }}</td>
+            <td class="actions-column">
+              <div class="action-buttons">
+                <a
+                  [routerLink]="['/contacts/customers', customer.id, 'edit']"
+                  class="icon-button"
+                  [attr.aria-label]="'CONTACTS.CUSTOMERS.EDITAR' | translate"
+                >
+                  <lucide-icon [img]="EditIcon" size="18" aria-hidden="true"></lucide-icon>
+                </a>
+                <button
+                  type="button"
+                  class="icon-button delete"
+                  [attr.aria-label]="'CONTACTS.CUSTOMERS.ELIMINAR' | translate"
+                  (click)="deleteCustomer(customer.id)"
+                >
+                  <lucide-icon [img]="TrashIcon" size="18" aria-hidden="true"></lucide-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</vx-list-shell>

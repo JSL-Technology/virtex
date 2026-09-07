@@ -1,9 +1,9 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal, FileDown } from 'lucide-angular';
+import { LucideAngularModule, PlusCircle } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { ListShellComponent } from '../../../shared/components/gestures';
 
 // Interfaz para definir la estructura de una Orden de Compra
 interface PurchaseOrder {
@@ -18,7 +18,7 @@ interface PurchaseOrder {
 @Component({
   selector: 'app-orders-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './orders.page.html',
   styleUrls: ['./orders.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -26,9 +26,6 @@ interface PurchaseOrder {
 export class OrdersPage {
   // Íconos para la plantilla
   protected readonly PlusCircleIcon = PlusCircle;
-  protected readonly FilterIcon = Filter;
-  protected readonly MoreHorizontalIcon = MoreHorizontal;
-  protected readonly FileDownIcon = FileDown;
 
   // Datos simulados para la demostración
   orders = signal<PurchaseOrder[]>([

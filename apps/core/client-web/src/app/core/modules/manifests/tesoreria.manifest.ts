@@ -74,7 +74,7 @@ export const TESORERIA_MASTERS_MODULE: ModuleManifest = {
   icon: 'Landmark',
   basePath: 'masters',
   order: 5.1,
-  hidden: true,
+  panelOf: 'tesoreria',
   routes: [
     {
       path: 'banks',

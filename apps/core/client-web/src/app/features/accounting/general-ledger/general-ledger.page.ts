@@ -1,8 +1,7 @@
 // app/features/accounting/general-ledger/general-ledger.page.ts
 import { Component, ChangeDetectionStrategy, signal, inject, OnInit, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Filter, FileDown, Calendar, UserCog, PowerOff, Ban, Trash2, Edit, Key } from 'lucide-angular';
+import { LucideAngularModule, FileDown } from 'lucide-angular';
 import { ActivatedRoute } from '@angular/router';
 import { finalize, switchMap } from 'rxjs/operators';
 import { GeneralLedgerLine, GeneralLedger as GeneralLedgerData } from '../../../core/models/general-ledger.model';
@@ -11,25 +10,21 @@ import { NotificationService } from '../../../core/services/notification';
 import { EMPTY } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { ListShellComponent } from '../../../shared/components/gestures';
 
 @Component({
   selector: 'app-general-ledger-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './general-ledger.page.html',
   styleUrls: ['./general-ledger.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GeneralLedgerPage implements OnInit {
-  protected readonly FilterIcon = Filter;
+  //  Quedaban aquí nueve iconos de los que la plantilla usaba dos; los otros
+  //  siete —UserCog, PowerOff, Ban, Trash2, Edit, Key, Calendar— venían de una
+  //  pantalla de usuarios de la que se copió este archivo.
   protected readonly ExportIcon = FileDown;
-  protected readonly CalendarIcon = Calendar;
-  protected readonly UserCogIcon = UserCog;
-  protected readonly PowerOffIcon = PowerOff;
-  protected readonly BanIcon = Ban;
-  protected readonly TrashIcon = Trash2;
-  protected readonly EditIcon = Edit;
-  protected readonly KeyIcon = Key;
 
   private ledgersService = inject(LedgersService);
   private route = inject(ActivatedRoute);
@@ -41,11 +36,21 @@ export class GeneralLedgerPage implements OnInit {
   finalBalance = signal(0);
   loading = signal(true);
 
-  // totalDebits = computed(() => this.ledgerLines().reduce((acc, line) => acc + line.debit, 0));
-  // totalCredits = computed(() => this.ledgerLines().reduce((acc, line) => acc + line.credit, 0));
-  
-  totalDebits = 0;
-  totalCredits = 0;
+  readonly error = signal<string | null>(null);
+
+  /**
+   * Totales del periodo, derivados de las líneas.
+   *
+   * Estaban comentados y la plantilla imprimía el literal `0`, así que la pantalla afirmaba en cada
+   * consulta que no había débitos ni créditos mientras dibujaba las líneas debajo. `?? 0` porque las
+   * columnas decimales llegan como `null` cuando el movimiento es de un solo lado.
+   */
+  readonly totalDebits = computed(() =>
+    this.ledgerLines().reduce((sum, line) => sum + Number(line.debit ?? 0), 0),
+  );
+  readonly totalCredits = computed(() =>
+    this.ledgerLines().reduce((sum, line) => sum + Number(line.credit ?? 0), 0),
+  );
   startDate: string;
   endDate: string;
 
@@ -64,6 +69,7 @@ export class GeneralLedgerPage implements OnInit {
   
   loadLedgerData(): void {
     this.loading.set(true);
+    this.error.set(null);
     this.route.paramMap.pipe(
       switchMap(params => {
         const accountId = params.get('accountId');
@@ -76,13 +82,18 @@ export class GeneralLedgerPage implements OnInit {
           finalize(() => this.loading.set(false))
         );
       })
-    ).subscribe((ledgerData: GeneralLedgerData) => {
-      if (ledgerData) {
-        this.selectedAccount.set(ledgerData.account);
-        this.initialBalance.set(ledgerData.initialBalance);
-        this.finalBalance.set(ledgerData.finalBalance);
-        this.ledgerLines.set(ledgerData.lines);
-      }
+    ).subscribe({
+      next: (ledgerData: GeneralLedgerData) => {
+        if (ledgerData) {
+          this.selectedAccount.set(ledgerData.account);
+          this.initialBalance.set(ledgerData.initialBalance);
+          this.finalBalance.set(ledgerData.finalBalance);
+          this.ledgerLines.set(ledgerData.lines);
+        }
+      },
+      // No había rama de error: un fallo del servidor dejaba la tabla vacía, que se lee como
+      // «esta cuenta no tuvo movimientos» — la afirmación contraria a la verdad.
+      error: () => this.error.set('ACCOUNTING.GENERAL_LEDGER.LOAD_FAILED'),
     });
   }
   

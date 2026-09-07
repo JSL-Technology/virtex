@@ -1,46 +1,50 @@
-<div class="view-container">
-    <div class="view-header">
-        <div class="header-content">
-            <h1>{{ 'NOTIFICATIONS.NOTIFICACIONES' | translate }}</h1>
-            <p>{{ 'NOTIFICATIONS.MANTENTE_DIA_ULTIMAS_ACTUALIZACIONES_ALERTAS_TU' | translate }}</p>
-        </div>
-        <div class="header-actions">
-            <button class="secondary-button" (click)="markAllAsRead()">
-                <lucide-icon [img]="MarkAllReadIcon" size="16"></lucide-icon>
-                <span>{{ 'NOTIFICATIONS.MARCAR_TODAS_COMO_LEIDAS' | translate }}</span>
-            </button>
-        </div>
-    </div>
+<vx-list-shell
+  titleKey="NOTIFICATIONS.NOTIFICACIONES"
+  subtitleKey="NOTIFICATIONS.MANTENTE_DIA_ULTIMAS_ACTUALIZACIONES_ALERTAS_TU"
+  [count]="unreadCount()"
+  [empty]="notificationGroups().length === 0"
+>
+  <button listActions class="secondary-button" type="button" (click)="markAllAsRead()">
+    <lucide-icon [img]="MarkAllReadIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'NOTIFICATIONS.MARCAR_TODAS_COMO_LEIDAS' | translate }}</span>
+  </button>
 
-    <div class="notifications-list card">
-        @if (notificationGroups().length > 0) {
-        @for (group of notificationGroups(); track group.period) {
-        <div class="notification-group">
-            <h3 class="group-title">{{ group.period }}</h3>
-            <ul>
-                @for (notification of group.notifications; track notification.id) {
-                <li class="notification-item" [class.unread]="!notification.read" (click)="markAsRead(notification.id)" tabindex="0" (keydown.enter)="markAsRead(notification.id)" (keydown.space)="$event.preventDefault(); markAsRead(notification.id)">
-                    <div class="notification-content">
-                        <h4 class="notification-title">{{ notification.title }}</h4>
-                        <p class="notification-description">{{ notification.body }}</p>
-                    </div>
-                    <div class="notification-meta">
-                        <span class="timestamp">{{ notification.createdAt | vxDate: 'time' }}</span>
-                        @if (!notification.read) {
-                        <span class="unread-indicator" [title]="'NOTIFICATIONS.NO_LEIDO' | translate"></span>
-                        }
-                    </div>
-                </li>
-                }
-            </ul>
-        </div>
-        }
-        } @else {
-        <div class="empty-state">
-            <lucide-icon [img]="NoNotificationsIcon" size="48"></lucide-icon>
-            <span>{{ 'NOTIFICATIONS.TODO_ESTA_DIA' | translate }}</span>
-            <p>{{ 'NOTIFICATIONS.NO_TIENES_NOTIFICACIONES_NUEVAS_ESTE_MOMENTO' | translate }}</p>
-        </div>
-        }
-    </div>
-</div>
+  <div listEmpty class="empty-invite">
+    <lucide-icon [img]="NoNotificationsIcon" size="40" aria-hidden="true"></lucide-icon>
+    <h2>{{ 'NOTIFICATIONS.TODO_ESTA_DIA' | translate }}</h2>
+    <p>{{ 'NOTIFICATIONS.NO_TIENES_NOTIFICACIONES_NUEVAS_ESTE_MOMENTO' | translate }}</p>
+  </div>
+
+  <div class="notifications-list card">
+    @for (group of notificationGroups(); track group.periodKey) {
+      <section class="notification-group">
+        <h2 class="group-title">{{ group.periodKey | translate }}</h2>
+        <ul>
+          @for (notification of group.notifications; track notification.id) {
+            <li class="notification-item" [class.unread]="!notification.read">
+              <!--
+                Un botón y no un `<li>` con `tabindex` y tres manejadores de teclado imitándolo:
+                el elemento que se pulsa debe ser el que el navegador ya sabe que se pulsa.
+              -->
+              <button type="button" class="notification-hit" (click)="markAsRead(notification.id)">
+                <span class="notification-content">
+                  <span class="notification-title">{{ notification.title }}</span>
+                  <span class="notification-description">{{ notification.body }}</span>
+                </span>
+                <span class="notification-meta">
+                  <span class="timestamp">{{ notification.createdAt | vxDate: 'time' }}</span>
+                  @if (!notification.read) {
+                    <span
+                      class="unread-indicator"
+                      [attr.aria-label]="'NOTIFICATIONS.NO_LEIDO' | translate"
+                    ></span>
+                  }
+                </span>
+              </button>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+  </div>
+</vx-list-shell>

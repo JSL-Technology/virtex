@@ -59,11 +59,15 @@ import { TabRouterService } from '../../core/tabs/tab-router.service';
 import { DialogHostComponent } from '../../shared/components/dialog-host/dialog-host.component';
 import { FORMAT_PIPES } from '../../core/i18n/pipes/format.pipes';
 import { StatusBarComponent } from '../status-bar/status-bar.component';
+import { ModuleRailComponent } from '../module-rail/module-rail.component';
+import { ActiveModuleService, PanelSection } from '../../core/modules/active-module.service';
+import { ModuleMenuComponent } from '../module-menu/module-menu.component';
+import { ModuleManifest } from '../../core/modules/module-manifest';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, ThemeToggle, AppLauncherComponent, LucideAngularModule, TranslateModule, Sidebar, ClickOutsideDirective, SettingsModalComponent, CompanySwitcherComponent, BrandLogo, TabContainerComponent, DialogHostComponent, StatusBarComponent, ...FORMAT_PIPES], // ✅ Directiva añadida a los imports
+  imports: [CommonModule, RouterLink, RouterLinkActive, ThemeToggle, AppLauncherComponent, LucideAngularModule, TranslateModule, Sidebar, ClickOutsideDirective, SettingsModalComponent, CompanySwitcherComponent, BrandLogo, TabContainerComponent, DialogHostComponent, StatusBarComponent, ModuleRailComponent, ModuleMenuComponent, ...FORMAT_PIPES], // ✅ Directiva añadida a los imports
   templateUrl: './main.layout.html',
   styleUrls: ['./main.layout.scss'],
 })
@@ -141,6 +145,7 @@ export class MainLayout implements OnInit {
   private searchService = inject(SearchService);
   private notifications = inject(NotificationService);
   protected readonly router = inject(Router);
+  private readonly activeModule = inject(ActiveModuleService);
 
   settings = this.brandingService.settings;
 
@@ -182,6 +187,46 @@ export class MainLayout implements OnInit {
   readonly isSettingsOpen = computed(() =>
     this.currentFragment().startsWith('settings')
   );
+
+  /**
+   * Modules for the horizontal variant of the shell.
+   *
+   * Same source as the vertical rail — `ActiveModuleService.reachable()` — so the two layouts can
+   * never offer different products. Locked modules are dropped here rather than dimmed: a
+   * horizontal bar has no room to explain a padlock, and the rail already does that job wherever
+   * it is shown.
+   */
+  readonly topNavModules = computed(() =>
+    this.activeModule.reachable().filter((entry) => entry.allowed)
+  );
+
+  readonly activeModuleId = computed(() => this.activeModule.active()?.id ?? null);
+
+  /** Which entry the panel and the mega-menu light up. One source, so they cannot disagree. */
+  readonly activeEntry = this.activeModule.activeEntry;
+
+  /**
+   * The module whose mega-menu is open in the top bar, or null.
+   *
+   * Only one at a time, and the id rather than a boolean per module: two menus open at once is a
+   * state that should not be representable, and a `Set` would make it representable.
+   */
+  readonly openModuleMenu = signal<string | null>(null);
+
+  /** The four groups of any module, filtered to this seat. Same source as the side panel. */
+  menuOf(module: ModuleManifest): PanelSection[] {
+    return this.activeModule.visibleMenu(module);
+  }
+
+  toggleModuleMenu(id: string): void {
+    this.openModuleMenu.update((open) => (open === id ? null : id));
+  }
+
+  closeModuleMenu(id: string | null): void {
+    // Guarded by id so a click-outside on a module whose menu is already closed cannot shut the
+    // one the user just opened next to it — the outside-click fires on every sibling.
+    if (id === null || this.openModuleMenu() === id) this.openModuleMenu.set(null);
+  }
 
   readonly settingsSection = computed(() => {
     const frag = this.currentFragment();

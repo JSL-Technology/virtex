@@ -1,0 +1,102 @@
+@use '../../../assets/styles/design-system' as ds;
+
+:host {
+  display: block;
+  height: 100%;
+  min-height: 0;
+}
+
+// ── Riel ──────────────────────────────────────────────────────────
+//  64px de contexto permanente: en qué parte del negocio estás. Lleva cristal
+//  como el resto del armazón —barra superior, panel, diálogos— porque enmarca
+//  el trabajo; el contenido de la derecha sigue siendo opaco.
+.rail {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-1);
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  @include ds.glass-surface('strong');
+  border-block: 0;
+  border-left: 0;
+  border-right: 1px solid var(--glass-border);
+  @include ds.transition(background-color, border-color);
+
+  &::-webkit-scrollbar { width: 3px; }
+  &::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: var(--radius-full);
+  }
+}
+
+// ── Módulo ────────────────────────────────────────────────────────
+.rail__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) 2px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  font-family: inherit;
+  @include ds.transition(background-color, color);
+
+  &:hover:not(.rail__item--locked) {
+    background-color: var(--bg-hover);
+    color: var(--text-primary);
+  }
+
+  @include ds.focus-ring-inset;
+}
+
+//  El módulo activo es lo único de esta franja que lleva el acento, y una barra
+//  a la izquierda que se lee incluso en escala de grises: el color por sí solo
+//  no es una señal accesible.
+.rail__item--active {
+  background-color: var(--primary-light);
+  color: var(--primary);
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -2px;
+    top: 18%;
+    height: 64%;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background-color: var(--primary);
+  }
+}
+
+//  Visible pero apagado: quien no tiene acceso a un módulo al menos sabe que
+//  existe y puede pedirlo. Esconderlo convierte esa pregunta en un ticket.
+.rail__item--locked {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.rail__icon { flex: none; }
+
+.rail__label {
+  font-size: 0.5625rem;
+  line-height: 1.15;
+  font-weight: var(--font-medium);
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rail__lock {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+}

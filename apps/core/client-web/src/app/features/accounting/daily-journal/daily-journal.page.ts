@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, Filter, FileDown, Calendar } from 'lucide-angular';
+import { LucideAngularModule, FileDown } from 'lucide-angular';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 import { JournalEntriesApiService, JournalEntry } from '../../../core/api/journal-entries.service';
 import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.service';
 import { accountNameOf } from '../../../core/i18n/localized-name';
+import { ListShellComponent } from '../../../shared/components/gestures';
 
 /**
  * The journal, entry by entry, with every line shown.
@@ -30,7 +31,7 @@ const PAGE_SIZE = 50;
 @Component({
   selector: 'app-daily-journal-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES],
+  imports: [CommonModule, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './daily-journal.page.html',
   styleUrls: ['./daily-journal.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,9 +40,7 @@ export class DailyJournalPage {
   private readonly entriesApi = inject(JournalEntriesApiService);
   private readonly accountsApi = inject(ChartOfAccountsApiService);
 
-  protected readonly FilterIcon = Filter;
   protected readonly ExportIcon = FileDown;
-  protected readonly CalendarIcon = Calendar;
 
   readonly journalEntries = signal<JournalEntry[]>([]);
   readonly loading = signal(true);

@@ -1,9 +1,9 @@
-import { Component, ChangeDetectionStrategy, inject, signal, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectionStrategy, inject, signal, OnInit, effect } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { LucideAngularModule, Search, FileText, Package, User } from 'lucide-angular';
 import { SearchService, SearchResultGroup as BaseSearchResultGroup } from '../../core/services/search.service';
 import { TranslateModule } from '@ngx-translate/core';
+import { ListShellComponent } from '../../shared/components/gestures';
 
 interface SearchResultGroup extends BaseSearchResultGroup {
   icon: any;
@@ -12,7 +12,7 @@ interface SearchResultGroup extends BaseSearchResultGroup {
 @Component({
   selector: 'app-global-search-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule],
+  imports: [RouterLink, LucideAngularModule, TranslateModule, ListShellComponent],
   templateUrl: './global-search.page.html',
   styleUrls: ['./global-search.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,7 +22,6 @@ export class GlobalSearchPage implements OnInit {
   private searchService = inject(SearchService);
 
   // Íconos
-  protected readonly SearchIcon = Search;
   protected readonly InvoiceIcon = FileText;
   protected readonly ProductIcon = Package;
   protected readonly CustomerIcon = User;
@@ -38,22 +37,25 @@ export class GlobalSearchPage implements OnInit {
   resultGroups = signal<SearchResultGroup[]>([]);
   isLoading = signal(false);
 
-  ngOnInit(): void {
-    this.route.queryParamMap.subscribe(params => {
-      const query = params.get('q');
-      if (query) {
-        this.searchQuery.set(query);
-        this.performSearch(query);
-      }
+  constructor() {
+    //  El armazón escribe en `searchQuery` letra a letra. Buscar en cada pulsación sería una
+    //  consulta por tecla contra siete tablas; esperar a Enter, como hacía antes, obliga a saber
+    //  que hay que pulsarlo. Un retardo corto es lo que hace que buscar se sienta como buscar.
+    let handle: ReturnType<typeof setTimeout> | undefined;
+    effect((onCleanup) => {
+      const query = this.searchQuery();
+      handle = setTimeout(() => this.performSearch(query), 300);
+      onCleanup(() => clearTimeout(handle));
     });
   }
 
-  handleSearchInput(event: Event): void {
-    const inputElement = event.target as HTMLInputElement;
-    if (inputElement) {
-      this.searchQuery.set(inputElement.value);
-    }
+  ngOnInit(): void {
+    this.route.queryParamMap.subscribe((params) => {
+      const query = params.get('q');
+      if (query) this.searchQuery.set(query);
+    });
   }
+
 
   performSearch(query: string): void {
     if (!query || query.trim().length === 0) {

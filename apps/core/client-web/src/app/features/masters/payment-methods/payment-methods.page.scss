@@ -1,15 +1,5 @@
-@use '../../../../assets/styles/view-styles' as views;
-@use '../banks/banks.page.scss';
+@use '../../../../assets/styles/list-page' as list;
 
-// Estilos específicos para esta vista
-.status-badge {
-  display: inline-block;
-  padding: 4px 10px;
-  font-size: var(--text-xs);
-  font-weight: var(--font-semibold);
-  border-radius: var(--border-radius-full);
-  &.active {
-    background-color: var(--accent-surface);
-    color: var(--accent-primary);
-  }
+:host {
+  @include list.list-page;
 }

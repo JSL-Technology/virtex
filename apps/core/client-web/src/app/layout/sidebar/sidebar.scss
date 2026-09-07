@@ -21,6 +21,23 @@
   overflow: hidden;
 }
 
+// ── Module heading ────────────────────────────────────────────────
+//  Dice en qué módulo estás sin obligar a leer el riel de reojo. Es un rótulo,
+//  no un enlace: el módulo ya está seleccionado, y un título en el que se puede
+//  hacer clic promete una página que no existe.
+.module-title {
+  margin: 0;
+  padding: var(--space-4) var(--space-4) var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+  letter-spacing: 0.01em;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--glass-divider);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 // ── Scrollable body ───────────────────────────────────────────────
 .sidebar-body {
   flex: 1;
@@ -32,6 +49,17 @@
     background: var(--border-color);
     border-radius: var(--radius-full);
   }
+}
+
+// ── Empty panel ───────────────────────────────────────────────────
+//  Un módulo del que no puedes abrir nada dice por qué está vacío. La
+//  alternativa —una columna en blanco— se lee como una avería.
+.menu-empty {
+  margin: 0;
+  padding: var(--space-4) var(--space-3);
+  font-size: var(--text-xs);
+  line-height: 1.45;
+  color: var(--text-tertiary);
 }
 
 // ── Group ─────────────────────────────────────────────────────────
@@ -51,13 +79,9 @@
   opacity: 0.85;
 }
 
-// ── Menu item container ───────────────────────────────────────────
-.menu-item-container {
-  margin-bottom: 1px;
-}
-
-// ── Base link/button styles ───────────────────────────────────────
+// ── Entrada ───────────────────────────────────────────────────────
 .menu-item {
+  margin-bottom: 1px;
   width: 100%;
   display: flex;
   align-items: center;
@@ -119,64 +143,11 @@
   min-width: 0;
 }
 
-// ── Expandable chevron ────────────────────────────────────────────
-.chevron-icon {
-  color: var(--text-tertiary);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.12s;
-  flex-shrink: 0;
-}
-
-.expandable:hover .chevron-icon { color: var(--text-secondary); }
-
-.expandable.expanded .chevron-icon {
-  transform: rotate(180deg);
-  color: var(--primary);
-}
-
-// ── Sub-menu ──────────────────────────────────────────────────────
-.sub-menu {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  margin-top: 1px;
-  padding-left: 0.375rem;
-
-  &.show { max-height: 2000px; }
-}
-
-.sub-menu-item {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-  padding: 0.375rem 0.625rem 0.375rem 1.25rem;
-  border-radius: var(--radius-md);
-  text-decoration: none;
-  color: var(--text-tertiary);
-  font-size: var(--text-sm);
-  font-weight: var(--font-regular);
-  transition: background-color 0.12s, color 0.12s;
-  position: relative;
-
-  &:hover {
-    background-color: var(--bg-hover);
-    color: var(--text-secondary);
-
-    .sub-dot { background-color: var(--text-secondary); transform: scale(1.4); }
-  }
-
-  &.active {
-    color: var(--primary);
-    font-weight: var(--font-semibold);
-
-    .sub-dot { background-color: var(--primary); transform: scale(1.4); }
-  }
-}
-
-.sub-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: var(--radius-full);
-  background-color: var(--border-light);
-  flex-shrink: 0;
-  transition: background-color 0.12s, transform 0.12s;
-}
+// ── Sin ramas ─────────────────────────────────────────────────────
+//  El panel no tiene submenús desplegables, y por eso desaparecieron sus
+//  estilos. Un desplegable dentro de un menú de un solo módulo esconde
+//  destinos detrás de un clic para ahorrar un espacio que ya sobra: con el
+//  riel resolviendo «qué parte del negocio», ningún módulo tiene tantas
+//  entradas como para necesitar plegarlas. Y una lista con ramas obliga a
+//  recordar cuál estaba abierta, que es exactamente el tipo de estado que este
+//  rediseño elimina.

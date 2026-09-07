@@ -1,8 +1,8 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal } from 'lucide-angular';
+import { LucideAngularModule, PlusCircle } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
+import { ListShellComponent } from '../../../../shared/components/gestures';
 
 export interface Customer {
   id: string;
@@ -17,15 +17,13 @@ export interface Customer {
 @Component({
   selector: 'app-customer-list-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule],
+  imports: [RouterLink, LucideAngularModule, TranslateModule, ListShellComponent],
   templateUrl: './customer-list.page.html',
   styleUrls: ['./customer-list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomerListPage {
   protected readonly PlusCircleIcon = PlusCircle;
-  protected readonly FilterIcon = Filter;
-  protected readonly MoreHorizontalIcon = MoreHorizontal;
 
   customers = signal<Customer[]>([
     { id: '1', name: 'Proyectos Globales S.A.', taxId: '130-00000-1', email: 'finanzas@proyectosglobales.com', phone: '809-555-1234', city: 'Santo Domingo', country: 'DO' },

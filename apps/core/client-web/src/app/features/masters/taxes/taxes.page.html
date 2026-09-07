@@ -1,42 +1,58 @@
-<div class="subview-container">
-    <div class="subview-header">
-        <h3>{{ 'MASTERS.TAXES.TAX_RATES' | translate }}</h3>
-        <div class="header-actions">
-            <button class="secondary-button"><lucide-icon [img]="FilterIcon"
-                    size="16"></lucide-icon><span>{{ 'MASTERS.TAXES.FILTERS' | translate }}</span></button>
-            <!-- <button class="primary-button"><lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon><span>New
-                    Tax</span></button> -->
+<vx-list-shell
+  titleKey="MASTERS.TAXES.TAX_RATES"
+  [count]="taxes().length"
+  [loading]="isLoading()"
+  [empty]="taxes().length === 0"
+  (reload)="loadTaxes()"
+>
+  <a
+    listActions
+    routerLink="/masters/taxes/new"
+    class="primary-button"
+    *appHasPermission="'taxes:create'"
+  >
+    <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'MASTERS.TAXES.NEW_TAX' | translate }}</span>
+  </a>
 
-            <a routerLink="/masters/taxes/new" class="primary-button"><lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon><span>{{ 'MASTERS.TAXES.NEW_TAX' | translate }}</span></a>
-        </div>
-    </div>
-    <div class="table-container card">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>{{ 'MASTERS.TAXES.NAME' | translate }}</th>
-                    <th>{{ 'MASTERS.TAXES.TYPE' | translate }}</th>
-                    <th class="text-right">{{ 'MASTERS.TAXES.RATE' | translate }}</th>
-                    <th class="text-center">{{ 'MASTERS.TAXES.COUNTRY' | translate }}</th>
-                    <th class="actions-column"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @for(tax of taxes(); track tax.id) {
-                <tr>
-                    <td><a href="#" class="table-link">{{ tax.name }}</a></td>
-                    <td>{{ tax.type }}</td>
-                    <td class="text-right">{{ tax.rate | vxNumber:'1.2-2' }}%</td>
-                    <td class="text-center">{{ tax.countryCode }}</td>
-                    <td class="actions-column"><button class="icon-button"><lucide-icon [img]="MoreHorizontalIcon"
-                                size="18"></lucide-icon></button></td>
-                </tr>
-                } @empty {
-                <tr>
-                    <td colspan="5" class="empty-state">{{ 'MASTERS.TAXES.NO_TAXES_CONFIGURED' | translate }}</td>
-                </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'MASTERS.TAXES.NAME' | translate }}</th>
+          <th>{{ 'MASTERS.TAXES.TYPE' | translate }}</th>
+          <th class="text-right">{{ 'MASTERS.TAXES.RATE' | translate }}</th>
+          <th class="text-center">{{ 'MASTERS.TAXES.COUNTRY' | translate }}</th>
+          <th class="actions-column"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (tax of taxes(); track tax.id) {
+          <tr>
+            <td>{{ tax.name }}</td>
+            <td>{{ tax.type }}</td>
+            <td class="text-right">{{ tax.rate | vxNumber: '1.2-2' }}%</td>
+            <td class="text-center">{{ tax.countryCode }}</td>
+            <td class="actions-column">
+              <!--
+                El botón «…» que había aquí no hacía nada: `deleteTax()` existía en el componente,
+                con su diálogo de confirmación, y ninguna plantilla lo llamaba. Un menú que no
+                responde es peor que no tenerlo, así que se conecta la acción que ya estaba escrita,
+                con el permiso que el servidor exige para ella.
+              -->
+              <button
+                type="button"
+                class="icon-button"
+                *appHasPermission="'taxes:delete'"
+                [attr.aria-label]="'COMMON.DELETE' | translate"
+                (click)="deleteTax(tax)"
+              >
+                <lucide-icon [img]="TrashIcon" size="18" aria-hidden="true"></lucide-icon>
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</vx-list-shell>

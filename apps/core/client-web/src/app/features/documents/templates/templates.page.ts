@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { LucideAngularModule, PlusCircle, FileText } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
+import { ListShellComponent } from '../../../shared/components/gestures';
 
 interface Template {
   id: string;
@@ -13,7 +13,7 @@ interface Template {
 @Component({
   selector: 'app-templates-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule],
+  imports: [LucideAngularModule, TranslateModule, ListShellComponent],
   templateUrl: './templates.page.html',
   styleUrls: ['./templates.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

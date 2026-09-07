@@ -19,6 +19,12 @@
 // =============================================================================
 
 :host {
+  //  Las dos medidas del armazón, en un solo sitio: el riel y el panel las
+  //  necesitan, la rejilla las necesita y el modo compacto las cambia. Tres
+  //  copias de un número es como empiezan los desajustes de un píxel.
+  --rail-width: 64px;
+  --panel-width: 240px;
+
   display: grid;
   height: 100vh;
   width: 100vw;
@@ -175,14 +181,42 @@
   position: relative;
 }
 
-// --- Definición de Layouts con Grid Areas ---
+// =============================================================================
+//  ANATOMÍA DEL ARMAZÓN
+// =============================================================================
+//  De izquierda a derecha y de arriba abajo, cuatro piezas fijas:
+//
+//    riel (64px)   qué parte del negocio.  Siempre visible, nunca cambia.
+//    panel (240px) qué hay dentro de ese módulo, en cuatro grupos fijos.
+//    contenido     las ventanas internas.
+//    barra estado  el estado del mundo: empresa, periodo, moneda, conexión.
+//
+//  El riel y la barra de estado ocupan el borde completo —de arriba abajo y de
+//  lado a lado respectivamente— porque son marco, no contenido: no pertenecen a
+//  ningún módulo y no deben moverse al cambiar de uno a otro. Esa quietud es lo
+//  que convierte la navegación en dos decisiones cortas en lugar de una lista
+//  larga.
+// =============================================================================
+//  Variante de barra superior. Los módulos van en horizontal y cada uno abre su
+//  propio mega-menú con LOS MISMOS cuatro grupos del panel lateral, así que
+//  elegir esta opción cambia la orientación y nada más. Antes ocultaba el panel
+//  sin sustituirlo: cada módulo ofrecía un único destino y el resto solo se
+//  alcanzaba escribiendo la URL a mano.
 :host.layout-topnav {
   grid-template-columns: 1fr;
-  grid-template-rows: auto auto 1fr;
+  grid-template-rows: auto auto 1fr auto;
   grid-template-areas:
     "banner"
     "header"
-    "content";
+    "content"
+    "status";
+
+  //  El riel sobra aquí: sus módulos ya están en la barra, y dos navegaciones
+  //  simultáneas para la misma decisión es exactamente el problema que este
+  //  rediseño elimina.
+  app-module-rail {
+    display: none;
+  }
 
   .main-sidebar {
     display: none;
@@ -202,12 +236,13 @@
 }
 
 :host.layout-sidenav {
-  grid-template-columns: 240px 1fr;
-  grid-template-rows: auto auto 1fr;
+  grid-template-columns: var(--rail-width) var(--panel-width) 1fr;
+  grid-template-rows: auto auto 1fr auto;
   grid-template-areas:
-    "banner banner"
-    "sidebar topbar"
-    "sidebar content";
+    "banner  banner  banner"
+    "rail    sidebar topbar"
+    "rail    sidebar content"
+    "status  status  status";
 
   .main-sidebar {
     grid-area: sidebar;
@@ -360,16 +395,31 @@
 
     .topbar-nav {
       display: flex;
+      align-items: center;
       gap: var(--space-2);
+      min-width: 0;
+      //  Con diez módulos la barra deja de caber en un portátil estrecho antes
+      //  que en un teléfono. Se desplaza en lugar de comprimir los rótulos.
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scrollbar-width: thin;
 
       .nav-link {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-1);
+        font-family: inherit;
         font-size: var(--text-md);
         font-weight: var(--font-semibold);
         color: var(--text-secondary);
         text-decoration: none;
+        white-space: nowrap;
         padding: 8px 12px;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
         border-radius: var(--radius-md);
-        transition: all 0.2s ease;
+        @include ds.transition(background-color, color);
 
         &:hover {
           background-color: var(--bg-hover);
@@ -380,6 +430,8 @@
           color: var(--accent-primary);
           background-color: var(--primary-light);
         }
+
+        @include ds.focus-ring(2px);
       }
     }
   }
@@ -1279,6 +1331,44 @@ router-outlet + * {
   border-color: var(--border-color) !important;
 }
 
+// ── Mega-menú de módulo (barra superior) ──────────────────────────
+.nav-module {
+  position: relative;
+  display: inline-flex;
+}
+
+.nav-module__menu {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 0;
+  z-index: 1100;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  @include ds.glass-surface('strong');
+  overflow: hidden;
+}
+
+//  Cerca del borde derecho el menú se ancla por la derecha para no salirse de
+//  la ventana. Sin esto, los últimos módulos de la barra abren un panel que se
+//  corta o que provoca desplazamiento horizontal en toda la aplicación.
+.nav-module:nth-last-child(-n + 3) .nav-module__menu {
+  left: auto;
+  right: 0;
+}
+
+app-module-rail {
+  grid-area: rail;
+  z-index: 102; // Sobre el panel: es la pieza que nunca se tapa.
+  min-height: 0;
+  overflow: hidden;
+}
+
+app-status-bar {
+  grid-area: status;
+  z-index: 102;
+  min-width: 0;
+}
+
 .banner {
   grid-area: banner;
   // height: 60px;
@@ -1311,23 +1401,65 @@ router-outlet + * {
   }
 }
 
+//  Modo compacto. El riel y el panel dejan de ser columnas y pasan a ser un
+//  solo cajón deslizante: siguen uno al lado del otro dentro de él, así que
+//  cambiar de módulo en un teléfono es el mismo gesto que en un escritorio y no
+//  hay una segunda navegación que aprender.
+@media (max-width: 1280px) {
+  :host {
+    --panel-width: 208px;
+  }
+}
+
 @media (max-width: 768px) {
   :host.layout-sidenav,
   :host.layout-topnav {
     grid-template-columns: 1fr;
+    grid-template-rows: auto auto 1fr auto;
     grid-template-areas:
       "banner"
       "topbar"
-      "content";
+      "content"
+      "status";
+  }
+
+  //  En un teléfono hay UNA navegación, sea cual sea el ajuste del inquilino: el
+  //  cajón con riel y panel, detrás del botón de menú. La barra horizontal de
+  //  módulos se retira —no cabe, y con el mega-menú abierto tapaba la pantalla
+  //  entera—, y con ella desaparece la única diferencia real entre los dos
+  //  ajustes en pantalla estrecha. Los selectores llevan `:host.layout-topnav`
+  //  porque esa regla esconde ambas piezas con más especificidad que un
+  //  selector de clase suelto dentro de esta consulta.
+  :host.layout-sidenav,
+  :host.layout-topnav {
+    app-module-rail {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: var(--rail-width);
+      transform: translateX(-100%);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 1201;
+      display: block;
+    }
+
+    .main-sidebar {
+      display: flex;
+    }
+
+    .main-topbar .topbar-left {
+      display: none;
+    }
+  }
+
+  :host.sidebar-open app-module-rail {
+    transform: translateX(0);
   }
 
   .main-topbar {
     grid-area: topbar;
     padding: 0 12px;
-
-    .topbar-left {
-      display: none;
-    }
   }
 
   .header-center {
@@ -1343,14 +1475,13 @@ router-outlet + * {
   .main-sidebar {
     position: fixed;
     top: 0;
-    left: 0;
+    left: var(--rail-width);
     height: 100vh;
-    width: min(82vw, 300px);
-    transform: translateX(-100%);
+    width: min(calc(82vw - var(--rail-width)), 300px);
+    transform: translateX(calc(-100% - var(--rail-width)));
     transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     z-index: 1200;
     box-shadow: var(--shadow-lg);
-    display: flex;
   }
 
   :host.sidebar-open .main-sidebar {

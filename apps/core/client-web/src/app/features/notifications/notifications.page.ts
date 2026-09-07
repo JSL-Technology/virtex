@@ -1,19 +1,26 @@
 import { Component, ChangeDetectionStrategy, computed, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Check, BellOff } from 'lucide-angular';
 import { NotificationCenterService, Notification } from '../../core/services/notification-center.service';
 import { TranslateModule } from '@ngx-translate/core';
+import { ListShellComponent } from '../../shared/components/gestures';
 import { FORMAT_PIPES } from '../../core/i18n/pipes/format.pipes';
 
 interface NotificationGroup {
-  period: string;
+  /**
+   * Clave i18n del tramo temporal.
+   *
+   * Eran los rótulos «Hoy», «Ayer», «Esta Semana» y «Anteriores» escritos en español y usados a la
+   * vez como claves de un diccionario, así que una pantalla en inglés agrupaba sus notificaciones
+   * bajo encabezados en español.
+   */
+  periodKey: string;
   notifications: Notification[];
 }
 
 @Component({
   selector: 'app-notifications-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './notifications.page.html',
   styleUrls: ['./notifications.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -29,12 +36,15 @@ export class NotificationsPage {
 
   notificationGroups = computed(() => this.groupNotificationsByDate(this.notifications()));
 
+  /** Sin leer. Es el número que importa: cuántas quedan por atender, no cuántas hay. */
+  readonly unreadCount = computed(() => this.notifications().filter((n) => !n.read).length);
+
   private groupNotificationsByDate(notifications: Notification[]): NotificationGroup[] {
-    const groups: { [key: string]: Notification[] } = {
-      'Hoy': [],
-      'Ayer': [],
-      'Esta Semana': [],
-      'Anteriores': [],
+    const groups: Record<string, Notification[]> = {
+      'NOTIFICATIONS.TODAY': [],
+      'NOTIFICATIONS.YESTERDAY': [],
+      'NOTIFICATIONS.THIS_WEEK': [],
+      'NOTIFICATIONS.EARLIER': [],
     };
 
     const today = new Date();
@@ -48,19 +58,19 @@ export class NotificationsPage {
     for (const notification of notifications) {
       const notificationDate = new Date(notification.createdAt);
       if (notificationDate.toDateString() === today.toDateString()) {
-        groups['Hoy'].push(notification);
+        groups['NOTIFICATIONS.TODAY'].push(notification);
       } else if (notificationDate.toDateString() === yesterday.toDateString()) {
-        groups['Ayer'].push(notification);
+        groups['NOTIFICATIONS.YESTERDAY'].push(notification);
       } else if (notificationDate > oneWeekAgo) {
-        groups['Esta Semana'].push(notification);
+        groups['NOTIFICATIONS.THIS_WEEK'].push(notification);
       } else {
-        groups['Anteriores'].push(notification);
+        groups['NOTIFICATIONS.EARLIER'].push(notification);
       }
     }
 
     return Object.keys(groups)
-      .map(period => ({ period, notifications: groups[period] }))
-      .filter(group => group.notifications.length > 0);
+      .map((periodKey) => ({ periodKey, notifications: groups[periodKey] }))
+      .filter((group) => group.notifications.length > 0);
   }
 
   markAsRead(notificationId: string): void {

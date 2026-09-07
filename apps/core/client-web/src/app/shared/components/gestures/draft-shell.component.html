@@ -1,0 +1,91 @@
+<!--
+  Un `<form>` de verdad y no un `<div>`: es lo que hace que Enter en un campo envíe, y lo que un
+  lector de pantalla anuncia como formulario. `(submit)` y no `(ngSubmit)` porque el modelo del
+  formulario es de la página, no del armazón; aquí solo se recoge el gesto y se impide la navegación
+  del navegador.
+-->
+<form class="dr" novalidate (submit)="onSubmit($event)">
+  <header class="dr__header">
+    <div class="dr__lead">
+      <button
+        type="button"
+        class="dr__back"
+        [attr.aria-label]="cancelLabelKey() | translate"
+        (click)="cancel.emit()"
+      >
+        <lucide-icon [img]="BackIcon" size="18" aria-hidden="true"></lucide-icon>
+      </button>
+
+      <div class="dr__identity">
+        <h1 class="dr__title">{{ title() }}</h1>
+        @if (subtitle()) {
+          <p class="dr__subtitle">{{ subtitle() }}</p>
+        }
+      </div>
+    </div>
+
+    <div class="dr__actions">
+      <!--
+        `aria-live="polite"`: el estado de guardado cambia sin que el usuario haga nada visible, y
+        es precisamente el dato que no puede quedarse solo en lo visual.
+      -->
+      <span class="dr__status" [class]="'dr__status--' + status()" aria-live="polite">
+        @switch (status()) {
+          @case ('saving') {
+            <lucide-icon [img]="SavingIcon" size="14" class="dr__spin" aria-hidden="true"></lucide-icon>
+            <span>{{ 'SHELL.SAVING' | translate }}</span>
+          }
+          @case ('dirty') {
+            <span class="dr__dot" aria-hidden="true"></span>
+            <span>{{ 'SHELL.UNSAVED' | translate }}</span>
+          }
+          @default {
+            <lucide-icon [img]="CheckIcon" size="14" aria-hidden="true"></lucide-icon>
+            <span>{{ 'SHELL.NO_CHANGES' | translate }}</span>
+          }
+        }
+      </span>
+
+      <ng-content select="[draftActions]"></ng-content>
+
+      <button type="button" class="dr__cancel" (click)="cancel.emit()">
+        {{ cancelLabelKey() | translate }}
+      </button>
+      <button type="submit" class="dr__save" [disabled]="!canSubmit()">
+        {{ saveLabelKey() | translate }}
+      </button>
+    </div>
+  </header>
+
+  <div class="dr__body">
+    @if (error()) {
+      <div class="dr__banner dr__banner--error" role="alert">
+        <lucide-icon [img]="AlertIcon" size="18" aria-hidden="true"></lucide-icon>
+        <p>{{ error() }}</p>
+      </div>
+    }
+
+    @if (problems().length) {
+      <div class="dr__banner dr__banner--problems" role="alert">
+        <h2 class="dr__banner-title">
+          {{ 'SHELL.PROBLEMS' | translate: { count: problems().length } }}
+        </h2>
+        <ul class="dr__problems">
+          @for (problem of problems(); track problem.message) {
+            <li>
+              @if (problem.fieldId) {
+                <button type="button" class="dr__problem-link" (click)="focusField.emit(problem.fieldId)">
+                  {{ problem.message | translate }}
+                </button>
+              } @else {
+                <span>{{ problem.message | translate }}</span>
+              }
+            </li>
+          }
+        </ul>
+      </div>
+    }
+
+    <ng-content></ng-content>
+  </div>
+</form>
