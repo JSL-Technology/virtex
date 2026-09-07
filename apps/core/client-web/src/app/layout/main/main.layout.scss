@@ -777,22 +777,34 @@
   flex-direction: column;
   top: calc(100% + 12px);
   right: 0;
-  width: 260px;
+  width: 268px;
   border-radius: var(--radius-lg);
   box-shadow: var(--glass-shadow);
-  @include ds.glass-surface('strong');
+  //  Cristal de verdad: el desenfoque FUERTE y el filo superior iluminado
+  //  (`glass-edge`) son lo que separa una lámina de vidrio de un rectángulo
+  //  semitransparente. El header y el footer ya no pintan un fondo opaco encima
+  //  —eso tapaba el desenfoque y dejaba el efecto a medias—, así que toda la
+  //  tarjeta se lee como una sola pieza de cristal.
+  //  Blur reforzado (48px, por encima del `--glass-blur-strong` del sistema):
+  //  el menú se veía demasiado claro/transparente y así queda un cristal más
+  //  esmerilado que separa mejor del contenido de debajo.
+  @include ds.glass-surface('strong', 48px);
+  @include ds.glass-edge();
   z-index: var(--z-dropdown);
-  overflow: hidden;
+  //  `visible` y no `hidden`: el submenú de Feedback se despliega FUERA de la
+  //  tarjeta (a la izquierda) y `hidden` lo recortaría. El fondo de la propia
+  //  tarjeta lo sigue recortando el `border-radius`.
+  overflow: visible;
   animation: dropdown-fade-in 0.2s ease;
   transform-origin: top right;
   will-change: transform;
 
   .dropdown-header {
     padding: var(--space-4);
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--glass-border-soft);
     display: flex;
     flex-direction: column;
-    background-color: var(--bg-primary);
+    background-color: transparent;
 
     .user-name {
       font-size: var(--text-md);
@@ -812,8 +824,8 @@
 
   .dropdown-footer {
     padding: var(--space-2);
-    border-top: 1px solid var(--border-color);
-    background-color: var(--bg-primary);
+    border-top: 1px solid var(--glass-border-soft);
+    background-color: transparent;
   }
 
   .dropdown-item {
@@ -822,17 +834,116 @@
     justify-content: flex-start;
     gap: var(--space-3);
     padding: var(--space-3);
+    border-radius: var(--radius-md);
     font-weight: var(--font-medium);
     color: var(--text-secondary);
+    transition: background-color 0.15s ease, color 0.15s ease;
+
+    //  El icono vive en una placa translúcida que se tiñe con el acento al pasar
+    //  por encima. Es el detalle que da el aire elegante a cada fila. El chevron
+    //  del acordeón se excluye: es un adorno, no una acción.
+    lucide-icon:not(.feedback-chevron) {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-md);
+      background-color: var(--glass-bg-subtle);
+      color: var(--text-tertiary);
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
 
     &:hover {
       background-color: var(--bg-hover);
       color: var(--text-primary);
     }
 
+    &:hover lucide-icon:not(.feedback-chevron) {
+      background-color: var(--accent-surface);
+      color: var(--accent-text);
+    }
+
     &.logout-item:hover {
       color: var(--error);
+      background-color: var(--error-surface);
     }
+
+    &.logout-item:hover lucide-icon:not(.feedback-chevron) {
+      background-color: var(--error-surface);
+      color: var(--error);
+    }
+  }
+
+  //  Separa la cuenta (perfil, ajustes) de la ayuda y el feedback.
+  .dropdown-divider {
+    height: 1px;
+    margin: var(--space-2) var(--space-1);
+    background-color: var(--glass-border-soft);
+  }
+
+  //  Feedback abre un submenú flotante AL LADO (patrón submenú de escritorio),
+  //  no un acordeón. El grupo es el ancla de posición del panel.
+  .feedback-group {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .feedback-chevron {
+    margin-left: auto;
+    color: var(--text-tertiary);
+  }
+
+  //  Panel lateral. Se abre a la IZQUIERDA (`right: 100%`) porque el menú está
+  //  pegado al borde derecho de la ventana y hacia la derecha se saldría de
+  //  pantalla. Es su propia lámina de cristal (fondo + filo + sombra propios).
+  //  Oculto por defecto; se revela al pasar el ratón, al enfocar con teclado
+  //  (`focus-within`) o cuando el clic lo deja fijado (`.open`).
+  .feedback-submenu {
+    position: absolute;
+    top: calc(-1 * var(--space-2));
+    right: 100%;
+    margin-right: var(--space-2);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 224px;
+    padding: var(--space-2);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--glass-shadow);
+    @include ds.glass-surface('strong', 48px);
+    @include ds.glass-edge();
+    z-index: 1;
+
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(var(--space-2));
+    transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s;
+
+    //  Puente invisible sobre el hueco: evita que el submenú se cierre al mover
+    //  el ratón desde «Feedback» hasta el panel.
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: calc(-1 * var(--space-2));
+      width: var(--space-2);
+    }
+  }
+
+  .feedback-group:hover .feedback-submenu,
+  .feedback-group:focus-within .feedback-submenu,
+  .feedback-group.open .feedback-submenu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+  }
+
+  .dropdown-subitem {
+    font-size: var(--text-sm);
   }
 }
 

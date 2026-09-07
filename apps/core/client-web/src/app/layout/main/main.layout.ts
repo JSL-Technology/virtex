@@ -13,6 +13,7 @@ import { ThemeToggle } from '../../shared/components/theme-toggle/theme-toggle';
 import { AppLauncherComponent } from './components/app-launcher/app-launcher.component';
 import { PwaService } from '../../core/services/pwa.service';
 import { SearchService, SearchResultGroup } from '../../core/services/search.service';
+import { NotificationService } from '../../core/services/notification';
 import { Subject, of } from 'rxjs';
 import { debounceTime, switchMap, catchError, distinctUntilChanged, tap } from 'rxjs/operators';
 import {
@@ -39,6 +40,13 @@ import {
   Package as PackageIcon, // ✅ Icono añadido
   Download, // ✅ Icono añadido
   Menu, // ✅ Toggle de sidebar (responsive)
+  HelpCircle, // ✅ Ayuda (signo de interrogación)
+  Keyboard, // ✅ Atajos de teclado
+  MessageSquare, // ✅ Feedback
+  Bug, // ✅ Reportar un problema
+  Lightbulb, // ✅ Sugerir una mejora
+  Star, // ✅ Dejar una valoración
+  ChevronLeft, // ✅ Indicador de submenú (Feedback se abre a la izquierda)
 } from 'lucide-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Sidebar } from '../sidebar/sidebar';
@@ -130,6 +138,7 @@ export class MainLayout implements OnInit {
   private translate = inject(TranslateService);
   brandingService = inject(BrandingService);
   private searchService = inject(SearchService);
+  private notifications = inject(NotificationService);
   protected readonly router = inject(Router);
 
   settings = this.brandingService.settings;
@@ -190,6 +199,7 @@ export class MainLayout implements OnInit {
   }
 
   isUserMenuOpen = signal(false);
+  isFeedbackOpen = signal(false); // acordeón de Feedback dentro del menú de usuario
   isNotificationMenuOpen = signal(false);
   isSidebarOpen = signal(false); // overlay de sidebar en móvil
   isSearchOpen = signal(false);
@@ -251,6 +261,13 @@ export class MainLayout implements OnInit {
   protected readonly UserPlusIcon = UserPlus; // ✅ Icono añadido
   protected readonly DownloadIcon = Download; // ✅ Icono añadido
   protected readonly MenuIcon = Menu; // ✅ Toggle de sidebar
+  protected readonly HelpCircleIcon = HelpCircle; // ✅ Ayuda (signo de interrogación)
+  protected readonly KeyboardIcon = Keyboard; // ✅ Atajos de teclado
+  protected readonly MessageSquareIcon = MessageSquare; // ✅ Feedback
+  protected readonly BugIcon = Bug; // ✅ Reportar un problema
+  protected readonly LightbulbIcon = Lightbulb; // ✅ Sugerir una mejora
+  protected readonly StarIcon = Star; // ✅ Dejar una valoración
+  protected readonly ChevronLeftIcon = ChevronLeft; // ✅ Indicador de submenú
 
   toggleUserMenu(): void {
     this.isUserMenuOpen.update(isOpen => !isOpen);
@@ -266,6 +283,24 @@ export class MainLayout implements OnInit {
 
   closeUserMenu(): void {
     this.isUserMenuOpen.set(false);
+    // El acordeón de Feedback no debe quedar abierto la próxima vez que se despliegue el menú.
+    this.isFeedbackOpen.set(false);
+  }
+
+  toggleFeedback(): void {
+    this.isFeedbackOpen.update(isOpen => !isOpen);
+  }
+
+  /**
+   * Marcador de posición para Ayuda y las acciones de Feedback.
+   *
+   * Todavía no hay backend ni destino real para estas opciones, así que en vez de un botón muerto
+   * se avisa —sin interrumpir— de que la función llegará pronto. Cuando exista el flujo real, cada
+   * botón llamará a su propia acción y este método desaparecerá.
+   */
+  comingSoon(): void {
+    this.notifications.showInfo('FEEDBACK.COMING_SOON');
+    this.closeUserMenu();
   }
   
   // ✅ Nuevo método para cerrar notificaciones (usado por clickOutside)
