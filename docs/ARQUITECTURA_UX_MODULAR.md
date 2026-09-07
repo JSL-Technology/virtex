@@ -578,14 +578,16 @@ destino; esta tabla dice hasta dónde se llegó.
 | **Aislamiento por empresa (RLS)** | **Hecho, extremo a extremo** | 79 tablas con política. `verify:rls` lo demuestra en la base; `verify:rls-runtime` lo demuestra a través de la aplicación, como rol `virtex_app`, con repositorios `@InjectRepository` corrientes. Se activa cambiando `DB_USERNAME` |
 | **Presencia acotada por empresa** | **Hecho** | El gateway difundía a todos los sockets. 5 pruebas, verificado que fallan al reintroducir la difusión |
 | **Manifiesto de módulo y ventana = ruta** | **Hecho** | 89 rutas declaradas, 42 entradas de menú, **42 abren su página, 0 «En construcción»** (antes: 10 de 50). 13 pruebas sobre la derivación |
-| Los cinco gestos como componentes rectores | Pendiente | — |
+| **Los gestos como componentes rectores** | **Hecho** | 4 armazones —lista, documento, borrador, bandeja— y **62 pantallas migradas**. `gesture-conformance.spec.ts` lee los manifiestos y el código de cada pantalla y falla nombrando la que dibuje su propio encabezado. 5 rutas cambiaron de `kind` porque el manifiesto mentía. 45 pruebas |
+| **Armazón: riel, panel y barra de estado** | **Hecho** | Riel de 64px con los 10 módulos; panel con los cuatro grupos fijos; la variante de barra superior —que es la de POR DEFECTO— pasa de ofrecer un destino por módulo a un mega-menú con los mismos cuatro grupos. `panelOf` rescata 6 pantallas que no se alcanzaban desde ningún menú |
 | **Barra de estado** | **Hecha** | Empresa, periodo y si está abierto, moneda base y conexión, permanentes. `GET /accounting/current-period`. 6 pruebas |
 | **Errores de negocio tipados** | **Ya existía** | 695 lanzamientos con código estable, clave localizada y parámetros — lo cubrió el trabajo de `main`. Lo que faltaba, el remedio, vive ahora en `REMEDIES` |
 | Panel de trabajos | Pendiente | — |
 | **Previsualización de transiciones** | **Hecha** | Ejecuta la transición real y la deshace. `verify:invoicing` comprueba que no deja rastro y que el número e importe previstos son los emitidos. 8 pruebas del diálogo |
-| Bandeja por módulo y Mi trabajo | Pendiente | — |
+| **Mi trabajo y centro de aprobaciones** | **Hechos** | `vx-inbox-shell`: secciones en vez de pestañas, total pendiente, tramos vacíos dichos. Aprobaciones pasa de maqueta (`console.log`) a `GET/POST /workflows/*`, que ya existía. 7 pruebas. **Pendiente**: bandeja POR MÓDULO |
 | Empresa en la URL y workspace en servidor | Pendiente | — |
-| Modo taller · El proceso como lente | Pendiente | — |
+| **Modo taller** | **Hecho** | Tres modos —enfocado, taller, compacto—; ventanas flotantes de Dockview; el compacto se impone por anchura sin borrar lo elegido. 6 pruebas |
+| El proceso como lente | Pendiente | — |
 
 ### Cómo se activa el aislamiento
 
