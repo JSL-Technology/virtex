@@ -1,9 +1,9 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal } from 'lucide-angular';
+import { LucideAngularModule, PlusCircle } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { ListShellComponent } from '../../../shared/components/gestures';
 
 interface Requisition {
   id: string;
@@ -18,15 +18,13 @@ interface Requisition {
 @Component({
   selector: 'app-requisitions-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './requisitions.page.html',
   styleUrls: ['./requisitions.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RequisitionsPage {
   protected readonly PlusCircleIcon = PlusCircle;
-  protected readonly FilterIcon = Filter;
-  protected readonly MoreHorizontalIcon = MoreHorizontal;
 
   requisitions = signal<Requisition[]>([
     { id: '1', reqNumber: 'REQ-001', requester: 'Ana Pérez', department: 'IT', date: 'Jul 29, 2025', total: 2500.00, status: 'Pending Approval' },

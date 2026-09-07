@@ -1,16 +1,17 @@
 import { Component, ChangeDetectionStrategy, signal, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DialogService } from '../../../core/services/dialog.service';
-import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal, Edit, Trash2 } from 'lucide-angular';
+import { LucideAngularModule, PlusCircle, Edit, Trash2 } from 'lucide-angular';
 import { PriceList } from '../../../core/models/price-list.model';
 import { PriceListsService } from '../../../core/api/price-lists.service';
 import { NotificationService } from '../../../core/services/notification';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { ListShellComponent } from '../../../shared/components/gestures';
 
 @Component({
   selector: 'app-price-lists-page',
-  imports: [RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './price-lists.page.html',
   styleUrls: ['./price-lists.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -18,8 +19,6 @@ import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 export class PriceListsPage implements OnInit {
   private readonly dialog = inject(DialogService);
   protected readonly PlusCircleIcon = PlusCircle;
-  protected readonly FilterIcon = Filter;
-  protected readonly MoreHorizontalIcon = MoreHorizontal;
   protected readonly EditIcon = Edit;
   protected readonly TrashIcon = Trash2;
 

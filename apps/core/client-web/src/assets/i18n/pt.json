@@ -2142,7 +2142,9 @@
       "NEW_WAREHOUSE": "Novo depósito",
       "NO_WAREHOUSES_CONFIGURED": "Nenhum depósito configurado.",
       "STATUS": "Situação",
-      "WAREHOUSES": "Depósitos"
+      "WAREHOUSES": "Depósitos",
+      "ACTIVE": "Ativo",
+      "INACTIVE": "Inativo"
     }
   },
   "MY_WORK": {
@@ -4144,6 +4146,17 @@
     "GROUP_DOCUMENTS": "Documentos",
     "GROUP_MASTERS": "Cadastros",
     "GROUP_ANALYSIS": "Análise",
-    "NO_ENTRIES": "Este módulo não tem seções disponíveis com suas permissões."
+    "NO_ENTRIES": "Este módulo não tem seções disponíveis com suas permissões.",
+    "SEARCH_PLACEHOLDER": "Pesquisar…",
+    "CLEAR_SEARCH": "Remover o filtro",
+    "COUNT": "{{count}} registros",
+    "NO_MATCHES": "Nada corresponde a “{{term}}”.",
+    "EMPTY": "Ainda não há nada aqui.",
+    "SAVING": "Salvando…",
+    "UNSAVED": "Não salvo",
+    "NO_CHANGES": "Sem alterações",
+    "PROBLEMS": "Revise {{count}} ponto(s) antes de salvar",
+    "TOGGLE_ASIDE": "Mostrar ou ocultar o painel lateral",
+    "ASIDE": "Painel do documento"
   }
 }

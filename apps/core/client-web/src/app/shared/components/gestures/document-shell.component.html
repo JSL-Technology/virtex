@@ -1,0 +1,81 @@
+<section class="ds" [class.ds--with-aside]="hasAside() && asideOpen()">
+  <header class="ds__header">
+    <div class="ds__lead">
+      @if (backLabelKey()) {
+        <button
+          type="button"
+          class="ds__back"
+          [attr.aria-label]="backLabelKey() | translate"
+          (click)="back.emit()"
+        >
+          <lucide-icon [img]="BackIcon" size="18" aria-hidden="true"></lucide-icon>
+        </button>
+      }
+
+      <div class="ds__identity">
+        <h1 class="ds__title">
+          <span class="ds__name">{{ title() }}</span>
+          @if (statusKey()) {
+            <span class="ds__status" [class]="'ds__status--' + statusTone()">
+              {{ statusKey() | translate }}
+            </span>
+          }
+        </h1>
+        @if (subtitle()) {
+          <p class="ds__subtitle">{{ subtitle() }}</p>
+        }
+      </div>
+    </div>
+
+    <div class="ds__actions">
+      <ng-content select="[documentActions]"></ng-content>
+
+      @if (hasAside()) {
+        <button
+          type="button"
+          class="ds__aside-toggle"
+          [class.is-on]="asideOpen()"
+          [attr.aria-expanded]="asideOpen()"
+          [attr.aria-label]="'SHELL.TOGGLE_ASIDE' | translate"
+          (click)="toggleAside.emit()"
+        >
+          <lucide-icon [img]="AsideIcon" size="16" aria-hidden="true"></lucide-icon>
+        </button>
+      }
+    </div>
+  </header>
+
+  <div class="ds__main">
+    <div class="ds__body">
+      @switch (state()) {
+        @case ('loading') {
+          <div class="ds__skeleton" role="status" [attr.aria-busy]="true">
+            <span class="sr-only">{{ 'COMMON.LOADING' | translate }}</span>
+            @for (block of SKELETON; track block) {
+              <div class="ds__skeleton-block" aria-hidden="true"></div>
+            }
+          </div>
+        }
+        @case ('error') {
+          <div class="ds__state" role="alert">
+            <lucide-icon [img]="AlertIcon" size="28" aria-hidden="true"></lucide-icon>
+            <p class="ds__state-title">{{ error() | translate }}</p>
+            <button type="button" class="ds__retry" (click)="reload.emit()">
+              <lucide-icon [img]="ReloadIcon" size="15" aria-hidden="true"></lucide-icon>
+              <span>{{ 'COMMON.RETRY' | translate }}</span>
+            </button>
+          </div>
+        }
+        @default {
+          <ng-content></ng-content>
+        }
+      }
+    </div>
+
+    @if (hasAside() && asideOpen() && state() === 'content') {
+      <aside class="ds__aside" [attr.aria-label]="'SHELL.ASIDE' | translate">
+        <ng-content select="[documentAside]"></ng-content>
+      </aside>
+    }
+  </div>
+</section>

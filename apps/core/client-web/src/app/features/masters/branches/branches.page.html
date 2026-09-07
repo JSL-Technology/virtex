@@ -1,47 +1,33 @@
-<div class="subview-container">
-    <div class="subview-header">
-        <h3>{{ 'MASTERS.BRANCHES.BRANCHES_LOCATIONS' | translate }}</h3>
-        <div class="header-actions">
-            <button class="secondary-button">
-                <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
-                <span>{{ 'MASTERS.BRANCHES.FILTERS' | translate }}</span>
-            </button>
-            <button class="primary-button">
-                <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
-                <span>{{ 'MASTERS.BRANCHES.NEW_BRANCH' | translate }}</span>
-            </button>
-        </div>
-    </div>
-    <div class="table-container card">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>{{ 'MASTERS.BRANCHES.NAME' | translate }}</th>
-                    <th>{{ 'MASTERS.BRANCHES.ADDRESS' | translate }}</th>
-                    <th>{{ 'MASTERS.BRANCHES.CITY' | translate }}</th>
-                    <th>{{ 'MASTERS.BRANCHES.PHONE' | translate }}</th>
-                    <th class="actions-column"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @for(branch of branches(); track branch.id) {
-                <tr>
-                    <td><a href="#" class="table-link">{{ branch.name }}</a></td>
-                    <td>{{ branch.address }}</td>
-                    <td>{{ branch.city }}</td>
-                    <td>{{ branch.phone }}</td>
-                    <td class="actions-column">
-                        <button class="icon-button">
-                            <lucide-icon [img]="MoreHorizontalIcon" size="18"></lucide-icon>
-                        </button>
-                    </td>
-                </tr>
-                } @empty {
-                <tr>
-                    <td colspan="5" class="empty-state">{{ 'MASTERS.BRANCHES.NO_BRANCHES_CONFIGURED' | translate }}</td>
-                </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
+<vx-list-shell
+  titleKey="MASTERS.BRANCHES.BRANCHES_LOCATIONS"
+  [count]="branches().length"
+  [empty]="branches().length === 0"
+>
+  <button listActions type="button" class="primary-button">
+    <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'MASTERS.BRANCHES.NEW_BRANCH' | translate }}</span>
+  </button>
+
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'MASTERS.BRANCHES.NAME' | translate }}</th>
+          <th>{{ 'MASTERS.BRANCHES.ADDRESS' | translate }}</th>
+          <th>{{ 'MASTERS.BRANCHES.CITY' | translate }}</th>
+          <th>{{ 'MASTERS.BRANCHES.PHONE' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (branch of branches(); track branch.id) {
+          <tr>
+            <td>{{ branch.name }}</td>
+            <td>{{ branch.address }}</td>
+            <td>{{ branch.city }}</td>
+            <td>{{ branch.phone }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</vx-list-shell>

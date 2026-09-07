@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal } from 'lucide-angular';
+import { LucideAngularModule, PlusCircle, MoreHorizontal } from 'lucide-angular';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
@@ -9,6 +9,7 @@ import {
   JournalEntry,
   JournalEntryStatus,
 } from '../../../core/api/journal-entries.service';
+import { ListShellComponent } from '../../../shared/components/gestures';
 
 /**
  * The journal.
@@ -31,7 +32,7 @@ const PAGE_SIZE = 50;
 @Component({
   selector: 'app-journal-entries-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES],
+  imports: [CommonModule, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
   templateUrl: './journal-entries.page.html',
   styleUrls: ['./journal-entries.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -40,7 +41,6 @@ export class JournalEntriesPage {
   private readonly entriesApi = inject(JournalEntriesApiService);
 
   protected readonly PlusCircleIcon = PlusCircle;
-  protected readonly FilterIcon = Filter;
   protected readonly MoreHorizontalIcon = MoreHorizontal;
 
   readonly entries = signal<JournalEntry[]>([]);

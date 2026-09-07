@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { LucideAngularModule, PlusCircle, MoreHorizontal } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
+import { ListShellComponent } from '../../../shared/components/gestures';
 
 interface PaymentTerm {
   id: string;
@@ -12,7 +12,7 @@ interface PaymentTerm {
 @Component({
   selector: 'app-payment-terms-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule],
+  imports: [LucideAngularModule, TranslateModule, ListShellComponent],
   templateUrl: './payment-terms.page.html',
   styleUrls: ['./payment-terms.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

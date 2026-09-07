@@ -1,0 +1,48 @@
+@use '../design-system' as ds;
+
+// =============================================================================
+//  EL VOCABULARIO DE BOTONES DEL PRODUCTO
+// =============================================================================
+//  `.primary-button`, `.secondary-button` e `.icon-button` aparecen en 187
+//  sitios de 58 plantillas. No eran, sin embargo, clases: cada página tenía que
+//  acordarse de incluir el mixin `header-actions` en su propia hoja, y solo
+//  once lo hacían. Las demás heredaban el estilo por cadenas de `@use` entre
+//  hojas de páginas sin relación —la lista de facturas se pintaba porque
+//  importaba la hoja del historial de ventas— o simplemente no se pintaban.
+//
+//  Un botón primario que se ve como un botón solo si alguien recordó una línea
+//  en otro archivo no es un sistema de diseño; es una coincidencia. Aquí pasan a
+//  ser clases globales, definidas una vez, y el mixin queda para quien quiera
+//  matizarlas.
+//
+//  Especificidad de una sola clase a propósito: cualquier regla de página que ya
+//  las ajuste sigue ganando, así que esto no puede romper una pantalla existente
+//  —solo puede arreglar las que estaban sin pintar.
+// =============================================================================
+
+.primary-button {
+  @include ds.button-primary;
+  text-decoration: none;
+}
+
+.secondary-button {
+  @include ds.button-secondary;
+  text-decoration: none;
+}
+
+.danger-button {
+  @include ds.button-danger;
+  text-decoration: none;
+}
+
+.ghost-button,
+.link-button {
+  @include ds.button-ghost;
+  text-decoration: none;
+}
+
+//  Cuadrado, sin rótulo. Su nombre accesible viene siempre de `aria-label`: un
+//  botón que solo dibuja un icono es invisible para un lector de pantalla.
+.icon-button {
+  @include ds.button-icon;
+}

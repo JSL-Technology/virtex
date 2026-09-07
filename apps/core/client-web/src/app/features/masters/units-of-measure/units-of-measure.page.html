@@ -1,45 +1,31 @@
-<div class="subview-container">
-    <div class="subview-header">
-        <h3>{{ 'MASTERS.UNITS_OF_MEASURE.UNITS_MEASURE' | translate }}</h3>
-        <div class="header-actions">
-            <button class="secondary-button">
-                <lucide-icon [img]="FilterIcon" size="16"></lucide-icon>
-                <span>{{ 'MASTERS.UNITS_OF_MEASURE.FILTERS' | translate }}</span>
-            </button>
-            <button class="primary-button">
-                <lucide-icon [img]="PlusCircleIcon" size="16"></lucide-icon>
-                <span>{{ 'MASTERS.UNITS_OF_MEASURE.NEW_UNIT' | translate }}</span>
-            </button>
-        </div>
-    </div>
-    <div class="table-container card">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>{{ 'MASTERS.UNITS_OF_MEASURE.NAME' | translate }}</th>
-                    <th>{{ 'MASTERS.UNITS_OF_MEASURE.SYMBOL' | translate }}</th>
-                    <th>{{ 'MASTERS.UNITS_OF_MEASURE.TYPE' | translate }}</th>
-                    <th class="actions-column"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @for(unit of units(); track unit.id) {
-                <tr>
-                    <td><a href="#" class="table-link">{{ unit.name }}</a></td>
-                    <td>{{ unit.symbol }}</td>
-                    <td>{{ unit.type }}</td>
-                    <td class="actions-column">
-                        <button class="icon-button">
-                            <lucide-icon [img]="MoreHorizontalIcon" size="18"></lucide-icon>
-                        </button>
-                    </td>
-                </tr>
-                } @empty {
-                <tr>
-                    <td colspan="4" class="empty-state">{{ 'MASTERS.UNITS_OF_MEASURE.NO_UNITS_MEASURE_CONFIGURED' | translate }}</td>
-                </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
+<vx-list-shell
+  titleKey="MASTERS.UNITS_OF_MEASURE.UNITS_MEASURE"
+  [count]="units().length"
+  [empty]="units().length === 0"
+>
+  <button listActions type="button" class="primary-button">
+    <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'MASTERS.UNITS_OF_MEASURE.NEW_UNIT' | translate }}</span>
+  </button>
+
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'MASTERS.UNITS_OF_MEASURE.NAME' | translate }}</th>
+          <th>{{ 'MASTERS.UNITS_OF_MEASURE.SYMBOL' | translate }}</th>
+          <th>{{ 'MASTERS.UNITS_OF_MEASURE.TYPE' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (unit of units(); track unit.id) {
+          <tr>
+            <td>{{ unit.name }}</td>
+            <td>{{ unit.symbol }}</td>
+            <td>{{ unit.type }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</vx-list-shell>

@@ -1,19 +1,19 @@
 import { Component, ChangeDetectionStrategy, signal, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { DialogService } from '../../../core/services/dialog.service';
 import { RouterLink } from '@angular/router';
-import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal, Trash2 } from 'lucide-angular';
+import { LucideAngularModule, PlusCircle, Trash2 } from 'lucide-angular';
 import { Tax } from '../../../core/models/tax.model';
 import { TaxesService } from '../../../core/api/taxes.service';
 import { NotificationService } from '../../../core/services/notification';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
+import { ListShellComponent } from '../../../shared/components/gestures';
 
 @Component({
   selector: 'app-taxes-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES],
+  imports: [LucideAngularModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ListShellComponent, HasPermissionDirective],
   templateUrl: './taxes.page.html',
   styleUrls: ['./taxes.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -21,8 +21,6 @@ import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 export class TaxesPage implements OnInit {
   private readonly dialog = inject(DialogService);
   protected readonly PlusCircleIcon = PlusCircle;
-  protected readonly FilterIcon = Filter;
-  protected readonly MoreHorizontalIcon = MoreHorizontal;
   protected readonly TrashIcon = Trash2;
 
   private taxesService = inject(TaxesService);

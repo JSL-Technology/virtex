@@ -2142,7 +2142,9 @@
       "NEW_WAREHOUSE": "New warehouse",
       "NO_WAREHOUSES_CONFIGURED": "No warehouses are configured.",
       "STATUS": "Status",
-      "WAREHOUSES": "Warehouses"
+      "WAREHOUSES": "Warehouses",
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive"
     }
   },
   "MY_WORK": {
@@ -4144,6 +4146,17 @@
     "GROUP_DOCUMENTS": "Documents",
     "GROUP_MASTERS": "Master data",
     "GROUP_ANALYSIS": "Analysis",
-    "NO_ENTRIES": "This module has no sections available with your permissions."
+    "NO_ENTRIES": "This module has no sections available with your permissions.",
+    "SEARCH_PLACEHOLDER": "Search…",
+    "CLEAR_SEARCH": "Clear the filter",
+    "COUNT": "{{count}} records",
+    "NO_MATCHES": "Nothing matches “{{term}}”.",
+    "EMPTY": "There is nothing here yet.",
+    "SAVING": "Saving…",
+    "UNSAVED": "Unsaved",
+    "NO_CHANGES": "No changes",
+    "PROBLEMS": "Check {{count}} item(s) before saving",
+    "TOGGLE_ASIDE": "Show or hide the side panel",
+    "ASIDE": "Document panel"
   }
 }

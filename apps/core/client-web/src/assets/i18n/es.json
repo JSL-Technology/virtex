@@ -2142,7 +2142,9 @@
       "NEW_WAREHOUSE": "Nuevo almacén",
       "NO_WAREHOUSES_CONFIGURED": "No hay almacenes configurados.",
       "STATUS": "Estado",
-      "WAREHOUSES": "Almacenes"
+      "WAREHOUSES": "Almacenes",
+      "ACTIVE": "Activo",
+      "INACTIVE": "Inactivo"
     }
   },
   "MY_WORK": {
@@ -4144,6 +4146,17 @@
     "GROUP_DOCUMENTS": "Documentos",
     "GROUP_MASTERS": "Maestros",
     "GROUP_ANALYSIS": "Análisis",
-    "NO_ENTRIES": "Este módulo no tiene secciones disponibles con tus permisos."
+    "NO_ENTRIES": "Este módulo no tiene secciones disponibles con tus permisos.",
+    "SEARCH_PLACEHOLDER": "Buscar…",
+    "CLEAR_SEARCH": "Quitar el filtro",
+    "COUNT": "{{count}} registros",
+    "NO_MATCHES": "Nada coincide con «{{term}}».",
+    "EMPTY": "Todavía no hay nada aquí.",
+    "SAVING": "Guardando…",
+    "UNSAVED": "Sin guardar",
+    "NO_CHANGES": "Sin cambios",
+    "PROBLEMS": "Revisa {{count}} punto(s) antes de guardar",
+    "TOGGLE_ASIDE": "Mostrar u ocultar el panel lateral",
+    "ASIDE": "Panel del documento"
   }
 }

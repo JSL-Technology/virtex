@@ -1,0 +1,171 @@
+@use '../../../../assets/styles/design-system' as ds;
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.dr {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--surface-canvas);
+}
+
+// ── Encabezado ────────────────────────────────────────────────────
+//  Pegajoso, con las acciones dentro: en un asiento de cuarenta líneas el botón
+//  de guardar al final del formulario obliga a bajar hasta el fondo justo
+//  cuando lo que se acaba de escribir está arriba.
+.dr__header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  padding: var(--space-5) var(--space-6);
+  background-color: var(--surface-raised);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.dr__lead {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.dr__back {
+  @include ds.button-icon('md');
+  flex: none;
+}
+
+.dr__identity { min-width: 0; }
+
+.dr__title {
+  margin: 0;
+  @include ds.heading('xl');
+}
+
+.dr__subtitle {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-md);
+  color: var(--content-secondary);
+}
+
+.dr__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+// ── Indicador de guardado ─────────────────────────────────────────
+//  Una frase y no un punto de color: «Sin guardar» se lee, un punto naranja hay
+//  que aprenderlo. El punto acompaña, no sustituye.
+.dr__status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-3);
+  height: var(--control-height-md);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  white-space: nowrap;
+}
+
+.dr__status--clean { color: var(--content-tertiary); }
+.dr__status--saving { color: var(--content-secondary); }
+
+.dr__status--dirty {
+  color: var(--warning-text);
+  background-color: var(--warning-surface);
+}
+
+.dr__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-full);
+  background-color: currentColor;
+}
+
+.dr__spin {
+  animation: dr-spin 0.9s linear infinite;
+
+  @include ds.bp-reduced-motion { animation: none; }
+}
+
+@keyframes dr-spin {
+  to { transform: rotate(360deg); }
+}
+
+.dr__cancel { @include ds.button-secondary('md'); }
+.dr__save { @include ds.button-primary('md'); }
+
+// ── Cuerpo ────────────────────────────────────────────────────────
+.dr__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+
+  @include ds.bp-down('md') {
+    padding: var(--space-4);
+  }
+}
+
+// ── Avisos ────────────────────────────────────────────────────────
+.dr__banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  border: 1px solid;
+
+  p { margin: 0; }
+}
+
+.dr__banner--error {
+  background-color: var(--error-surface);
+  border-color: var(--error-text);
+  color: var(--error-text);
+}
+
+.dr__banner--problems {
+  flex-direction: column;
+  gap: var(--space-2);
+  background-color: var(--warning-surface);
+  border-color: var(--warning-text);
+  color: var(--warning-text);
+}
+
+.dr__banner-title {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+}
+
+.dr__problems {
+  margin: 0;
+  padding-left: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+}
+
+//  Cada problema lleva al campo. Sin esto, un formulario largo «no guarda» y no
+//  dice dónde está el motivo.
+.dr__problem-link {
+  @include ds.button-link;
+  color: inherit;
+  text-align: left;
+  text-decoration: underline;
+}

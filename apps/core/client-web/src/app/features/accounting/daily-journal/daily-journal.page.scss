@@ -1,84 +1,38 @@
-@use '../../../../assets/styles/view-styles' as views;
+@use '../../../../assets/styles/list-page' as list;
 
-// Reutiliza los estilos de las vistas de maestros
-@use '../../masters/suppliers/supplier-list/supplier-list.page.scss';
+:host {
+  @include list.list-page;
 
-// Estilos específicos para la tabla del libro diario
-.journal-table {
-
-    // Las celdas con rowspan necesitan alineación vertical en la parte superior
+  //  El libro diario agrupa por asiento: la fecha y el número se dibujan una
+  //  vez con `rowspan` y las cuentas van sangradas debajo. Sin eso, un asiento
+  //  de doce líneas se lee como doce asientos.
+  .journal-table {
     td[rowspan] {
-        vertical-align: top;
-        padding-top: var(--space-5); // Más padding para la primera fila del asiento
+      vertical-align: top;
+      padding-top: var(--space-5);
     }
 
-    .journal-row {
-
-        // Elimina el hover de las filas individuales para que se sienta como un bloque
-        &:hover {
-            background-color: transparent;
-        }
+    .journal-row:hover {
+      background-color: transparent;
     }
 
-    // Celda con sangría para las cuentas
     .account-cell {
-        padding-left: var(--space-10);
-        color: var(--text-primary);
+      padding-left: var(--space-10);
+      color: var(--content-primary);
     }
 
+    //  Cifras: monoespaciado tabular. En contabilidad es cómo se comparan
+    //  columnas de un vistazo, no una preferencia tipográfica.
     .amount-cell {
-        font-family: 'Source Code Pro', monospace; // Fuente monoespaciada para números
-        font-weight: var(--font-semibold);
+      font-variant-numeric: tabular-nums;
+      font-weight: var(--font-semibold);
     }
 
-    // Fila separadora entre asientos
     .separator-row {
-        height: 1.5rem; // Espacio en blanco entre asientos
+      height: 1.5rem;
 
-        td {
-            border-bottom: 2px solid var(--border-color); // Línea gruesa para separar
-        }
-
-        // El último separador no necesita la línea gruesa
-        &:last-child td {
-            border-bottom: none;
-        }
+      td { border-bottom: 2px solid var(--border-default); }
+      &:last-child td { border-bottom: none; }
     }
-}
-
-/**
- * The pager.
- *
- * The list is bounded now, so the page needs a way to reach the rest. Tokens rather than literals:
- * the page has to read correctly in both themes, and a hardcoded grey is only ever right in one.
- */
-.pager {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  padding: 0.75rem 0;
-}
-
-.pager-status {
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-}
-
-.pager-button {
-  background: transparent;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  color: var(--text-primary);
-  cursor: pointer;
-  padding: 0.5rem 0.75rem;
-}
-
-.pager-button:hover:not(:disabled) {
-  background: var(--bg-hover);
-}
-
-.pager-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
+  }
 }

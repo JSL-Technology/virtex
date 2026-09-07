@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { LucideAngularModule, PlusCircle, Filter, MoreHorizontal } from 'lucide-angular';
+import { LucideAngularModule, PlusCircle, MoreHorizontal } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
+import { ListShellComponent } from '../../../shared/components/gestures';
 
 interface PaymentMethod {
   id: string;
@@ -13,14 +13,13 @@ interface PaymentMethod {
 @Component({
   selector: 'app-payment-methods-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, TranslateModule],
+  imports: [LucideAngularModule, TranslateModule, ListShellComponent],
   templateUrl: './payment-methods.page.html',
   styleUrls: ['./payment-methods.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PaymentMethodsPage {
   protected readonly PlusCircleIcon = PlusCircle;
-  protected readonly FilterIcon = Filter;
   protected readonly MoreHorizontalIcon = MoreHorizontal;
 
   methods = signal<PaymentMethod[]>([
