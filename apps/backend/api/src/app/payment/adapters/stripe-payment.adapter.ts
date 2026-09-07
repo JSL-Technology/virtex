@@ -254,6 +254,14 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
 
     const methods = this.paymentMethodsFor(dto.countryCode);
 
+    // Stripe Tax is a property of the Stripe ACCOUNT (a registered origin address + activated
+    // Stripe Tax), not of this code. Where that setup is absent — every local run by default —
+    // `automatic_tax` makes Stripe reject the ENTIRE checkout ("You must have a valid head office
+    // address…"), closing the signup funnel. The flag defaults on in production and off in
+    // development (see env.validation.ts), so tax treatment is applied where it can be and the
+    // developer still reaches Checkout.
+    const taxEnabled = this.configService.get<boolean>('STRIPE_TAX_ENABLED') === true;
+
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       // Omitted entirely when the market has no explicit list, so Stripe offers whatever the
@@ -272,12 +280,17 @@ export class StripePaymentAdapter implements PaymentGateway, OnModuleInit {
       // Selling software to a Mexican or Colombian company obliges US to issue that company a
       // compliant invoice with its tax identifier on it — our own compliance, not the customer's.
       // None of this was configured, so the subscription was billed with no tax treatment at all
-      // and the buyer's tax id was never recorded against the Stripe customer.
-      automatic_tax: { enabled: true },
-      tax_id_collection: { enabled: true },
-      // Required by Stripe whenever automatic_tax is on: the address it derives the rate from has
-      // to be allowed to change during checkout.
-      billing_address_collection: 'required',
+      // and the buyer's tax id was never recorded against the Stripe customer. Gated on Stripe Tax
+      // being set up on the account: `billing_address_collection: 'required'` is here because
+      // `automatic_tax` requires the address it derives the rate from to be changeable at checkout,
+      // so the three move together.
+      ...(taxEnabled
+        ? {
+            automatic_tax: { enabled: true },
+            tax_id_collection: { enabled: true },
+            billing_address_collection: 'required' as const,
+          }
+        : {}),
       subscription_data: {
         ...(dto.trialPeriodDays && dto.trialPeriodDays > 0
           ? { trial_period_days: dto.trialPeriodDays }
