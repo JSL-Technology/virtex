@@ -450,6 +450,14 @@
   <app-tab-container></app-tab-container>
 </main>
 
+<!--
+  The state of the world, permanently visible: which company is being acted for, whether the
+  accounting period is open, the base currency and the connection. Each of those is a precondition
+  of ordinary work, and an ERP that hides them lets people discover a closed period by filling in a
+  form and pressing a button.
+-->
+<app-status-bar></app-status-bar>
+
 @if (isSettingsOpen()) {
   <app-settings-modal [sectionName]="settingsSection()"></app-settings-modal>
 }

@@ -4129,5 +4129,11 @@
     "CONFIGURE_SEQUENCES": "Configure sequences",
     "REVIEW_PLAN": "Review the plan",
     "VIEW_STOCK": "View stock"
+  },
+  "STATUS_BAR": {
+    "PERIOD_OPEN": "Period {{period}} open",
+    "PERIOD_CLOSED": "Period {{period}} closed",
+    "ONLINE": "Connected",
+    "OFFLINE": "Offline"
   }
 }

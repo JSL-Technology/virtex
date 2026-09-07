@@ -1,0 +1,29 @@
+<footer class="sb" role="status">
+  @if (organization(); as org) {
+    <span class="sb__item">
+      <lucide-icon [img]="CompanyIcon" size="13"></lucide-icon>
+      {{ org.legalName ?? org.name }}
+    </span>
+  }
+
+  @if (periodLabel(); as label) {
+    <span class="sb__item" [class.sb__item--ok]="periodOpen()" [class.sb__item--closed]="!periodOpen()">
+      <lucide-icon [img]="periodOpen() ? OpenIcon : ClosedIcon" size="13"></lucide-icon>
+      {{ (periodOpen() ? 'STATUS_BAR.PERIOD_OPEN' : 'STATUS_BAR.PERIOD_CLOSED') | translate: { period: label } }}
+    </span>
+  }
+
+  @if (organization()?.baseCurrency; as currency) {
+    <span class="sb__item">
+      <lucide-icon [img]="CurrencyIcon" size="13"></lucide-icon>
+      {{ currency }}
+    </span>
+  }
+
+  <span class="sb__spacer"></span>
+
+  <span class="sb__item" [class.sb__item--closed]="!online()">
+    <lucide-icon [img]="online() ? OnlineIcon : OfflineIcon" size="13"></lucide-icon>
+    {{ (online() ? 'STATUS_BAR.ONLINE' : 'STATUS_BAR.OFFLINE') | translate }}
+  </span>
+</footer>

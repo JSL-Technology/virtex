@@ -579,8 +579,10 @@ destino; esta tabla dice hasta dónde se llegó.
 | **Presencia acotada por empresa** | **Hecho** | El gateway difundía a todos los sockets. 5 pruebas, verificado que fallan al reintroducir la difusión |
 | **Manifiesto de módulo y ventana = ruta** | **Hecho** | 89 rutas declaradas, 42 entradas de menú, **42 abren su página, 0 «En construcción»** (antes: 10 de 50). 13 pruebas sobre la derivación |
 | Los cinco gestos como componentes rectores | Pendiente | — |
-| Barra de estado · Panel de trabajos · Errores tipados | Pendiente | — |
-| Previsualización de transiciones | Pendiente | — |
+| **Barra de estado** | **Hecha** | Empresa, periodo y si está abierto, moneda base y conexión, permanentes. `GET /accounting/current-period`. 6 pruebas |
+| **Errores de negocio tipados** | **Ya existía** | 695 lanzamientos con código estable, clave localizada y parámetros — lo cubrió el trabajo de `main`. Lo que faltaba, el remedio, vive ahora en `REMEDIES` |
+| Panel de trabajos | Pendiente | — |
+| **Previsualización de transiciones** | **Hecha** | Ejecuta la transición real y la deshace. `verify:invoicing` comprueba que no deja rastro y que el número e importe previstos son los emitidos. 8 pruebas del diálogo |
 | Bandeja por módulo y Mi trabajo | Pendiente | — |
 | Empresa en la URL y workspace en servidor | Pendiente | — |
 | Modo taller · El proceso como lente | Pendiente | — |

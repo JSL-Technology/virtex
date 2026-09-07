@@ -4129,5 +4129,11 @@
     "CONFIGURE_SEQUENCES": "Configurar secuencias",
     "REVIEW_PLAN": "Revisar el plan",
     "VIEW_STOCK": "Ver existencias"
+  },
+  "STATUS_BAR": {
+    "PERIOD_OPEN": "Periodo {{period}} abierto",
+    "PERIOD_CLOSED": "Periodo {{period}} cerrado",
+    "ONLINE": "Conectado",
+    "OFFLINE": "Sin conexión"
   }
 }

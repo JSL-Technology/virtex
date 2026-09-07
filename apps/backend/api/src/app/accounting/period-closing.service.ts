@@ -122,6 +122,25 @@ export class PeriodClosingService {
     return this.periodRepository.find({ where, order: { startDate: 'ASC' } });
   }
 
+  /**
+   * The period today falls in, and whether it is open.
+   *
+   * The one fact the status bar needs, answered in one query instead of by downloading a year of
+   * periods and filtering in the browser. It is deliberately tolerant: a tenant that has not set up
+   * its calendar yet gets `null` rather than an error, because "no period configured" is a normal
+   * state during onboarding and not something to interrupt every screen with.
+   */
+  async currentPeriod(organizationId: string, on = new Date()): Promise<AccountingPeriod | null> {
+    const day = on.toISOString().slice(0, 10);
+    return this.periodRepository
+      .createQueryBuilder('p')
+      .where('p.organization_id = :organizationId', { organizationId })
+      .andWhere('p.start_date <= :day', { day })
+      .andWhere('p.end_date >= :day', { day })
+      .orderBy('p.start_date', 'DESC')
+      .getOne();
+  }
+
   // ───────────────────────────────────────────────────────────────────────────
   // Closing
   // ───────────────────────────────────────────────────────────────────────────
