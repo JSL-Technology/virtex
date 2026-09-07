@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { IdempotencyKeyService } from '../http/idempotency-key.service';
+import { TransitionPreview } from '../../shared/components/transition-preview/transition-preview.model';
 
 export type TaxTreatment = 'TAXED' | 'ZERO_RATED' | 'EXEMPT';
 
@@ -278,6 +279,19 @@ export class InvoicesService {
         { headers: { 'Idempotency-Key': this.idempotency.keyFor(operation) } },
       )
       .pipe(tap(() => this.idempotency.settle(operation)));
+  }
+
+  /**
+   * What issuing this invoice would do, without doing it.
+   *
+   * No idempotency key: a preview commits nothing, so repeating it is free and demanding a key
+   * would be ceremony without a purpose.
+   */
+  previewIssue(id: string, fiscalDocumentType?: string): Observable<TransitionPreview> {
+    return this.http.post<TransitionPreview>(
+      `${this.apiUrl}/${id}/issue/preview`,
+      fiscalDocumentType ? { fiscalDocumentType } : {},
+    );
   }
 
   createCreditNote(invoiceId: string, request: CreditNoteRequest = {}): Observable<Invoice> {

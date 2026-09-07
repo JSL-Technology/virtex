@@ -177,7 +177,7 @@
         {{ 'INVOICES.DETAIL.NO_TIENE_COMPROBANTE_FISCAL_ASIGNADO_NO' | translate }}
       </div>
       <div class="draft-actions">
-        <button type="button" class="btn btn-primary" [disabled]="ecfBusy()" (click)="issue()">
+        <button type="button" class="btn btn-primary" [disabled]="ecfBusy() || previewBusy()" (click)="previewIssue()">
           {{ ecfBusy() ? 'Emitiendo…' : 'Emitir comprobante' }}
         </button>
         <button type="button" class="btn btn-secondary" (click)="discardDraft()">
@@ -240,3 +240,26 @@
   </div>
   }
 </div>
+
+<!--
+  Issuing goes through the preview.
+
+  The button no longer posts the document; it asks the server what posting it would do. What the
+  dialog shows is the real journal entry, the real fiscal number and the real stock movement,
+  produced by running the transition and rolling it back — so the person who confirms is confirming
+  something they have actually read.
+-->
+@if (issuePreview(); as preview) {
+  <div class="preview-backdrop" (click)="dismissPreview()">
+    <div class="preview-panel" (click)="$event.stopPropagation()">
+      <h2 class="preview-title">{{ 'INVOICES.ISSUE_PREVIEW_TITLE' | translate }}</h2>
+      <app-transition-preview
+        [preview]="preview"
+        [busy]="ecfBusy()"
+        confirmLabelKey="INVOICES.ISSUE"
+        (confirmed)="issue()"
+        (cancelled)="dismissPreview()"
+      ></app-transition-preview>
+    </div>
+  </div>
+}

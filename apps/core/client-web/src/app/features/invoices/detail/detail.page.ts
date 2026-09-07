@@ -16,11 +16,13 @@ import { saveAs } from 'file-saver';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth';
+import { TransitionPreviewComponent } from '../../../shared/components/transition-preview/transition-preview.component';
+import { TransitionPreview } from '../../../shared/components/transition-preview/transition-preview.model';
 
 @Component({
   selector: 'app-invoice-detail-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, InvoiceToolbarComponent, FormsModule, // The QR is the element the norm requires on the printed representation; the page used to show
+  imports: [TransitionPreviewComponent, CommonModule, LucideAngularModule, InvoiceToolbarComponent, FormsModule, // The QR is the element the norm requires on the printed representation; the page used to show
     // a text link instead, while `angularx-qrcode` was already a dependency of the project.
     QRCodeComponent, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './detail.page.html',
@@ -30,6 +32,10 @@ import { AuthService } from '../../../core/services/auth';
 export class InvoiceDetailPage implements OnInit {
   private readonly translate = inject(TranslateService);
   private readonly dialog = inject(DialogService);
+
+  /** The preview being shown, or null when the dialog is closed. */
+  readonly issuePreview = signal<TransitionPreview | null>(null);
+  readonly previewBusy = signal(false);
   private invoicesService = inject(InvoicesService);
   private einvoicingService = inject(EinvoicingService);
   private notificationService = inject(NotificationService);
@@ -313,10 +319,39 @@ export class InvoiceDetailPage implements OnInit {
     this.location.forward();
   }
 
+  /**
+   * Ask the server what issuing would do, and show it before doing it.
+   *
+   * The preview runs the real transition and rolls it back, so what appears here is not a guess:
+   * it is the journal entry that will be posted, the fiscal number that will be consumed and the
+   * stock that will move. An accountant who sees that before pressing the button is accepting
+   * responsibility for numbers they have actually read.
+   */
+  previewIssue(): void {
+    const invoice = this.invoice();
+    if (!invoice) return;
+    this.previewBusy.set(true);
+    this.invoicesService.previewIssue(invoice.id).subscribe({
+      next: (preview) => {
+        this.previewBusy.set(false);
+        this.issuePreview.set(preview);
+      },
+      error: (err) => {
+        this.previewBusy.set(false);
+        this.notificationService.showError(err?.error?.message || 'ERRORS.ISSUE_DOCUMENT');
+      },
+    });
+  }
+
+  dismissPreview(): void {
+    this.issuePreview.set(null);
+  }
+
   /** Issue a draft: assigns the e-NCF, posts the ledger entry and transmits the comprobante. */
   issue(): void {
     const invoice = this.invoice();
     if (!invoice) return;
+    this.issuePreview.set(null);
     this.ecfBusy.set(true);
     this.invoicesService.issue(invoice.id).subscribe({
       next: (issued) => {
