@@ -254,4 +254,19 @@ export const envValidation = Joi.object({
   // local run works with billing disabled instead of not running at all.
   STRIPE_SECRET_KEY: optionalInDev(),
   STRIPE_WEBHOOK_SECRET: optionalInDev(),
+
+  // Stripe Tax. Computing tax needs the Stripe ACCOUNT to have a registered origin (head office)
+  // address and Stripe Tax activated — setup a local run does not have, so `automatic_tax` fails
+  // the whole checkout with "You must have a valid head office address…". Off by default in
+  // development, on everywhere else, exactly like RECAPTCHA_DISABLED: an external dependency that
+  // cannot be satisfied locally must not close the signup funnel for a developer, and must stay on
+  // where it matters. When on, the registration checkout enables `automatic_tax`,
+  // `tax_id_collection` and mandatory billing-address collection; when off they are omitted and the
+  // session is created without any tax treatment. Declared as a boolean so Joi coerces it (see the
+  // DB_SSL note above: a bare `'false'` string is truthy).
+  STRIPE_TAX_ENABLED: Joi.when('NODE_ENV', {
+    is: DEV_LIKE,
+    then: Joi.boolean().default(false),
+    otherwise: Joi.boolean().default(true),
+  }),
 });
