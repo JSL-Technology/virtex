@@ -124,7 +124,7 @@ export class BankAccountFormPage implements OnInit {
   readonly problems = signal<DraftProblem[]>([]);
 
   cancel(): void {
-    void this.router.navigate(['../..'], { relativeTo: this.route });
+    void this.router.navigate(['/accounting/treasury']);
   }
 
   save(): void {
@@ -161,7 +161,7 @@ export class BankAccountFormPage implements OnInit {
         this.notifications.showSuccess(
           id ? 'TREASURY.FORM.CUENTA_ACTUALIZADA' : 'TREASURY.FORM.CUENTA_CREADA',
         );
-        this.router.navigate(['../..'], { relativeTo: this.route });
+        this.router.navigate(['/accounting/treasury']);
       },
       error: (error: { error?: { message?: string } }) => {
         this.saving.set(false);
