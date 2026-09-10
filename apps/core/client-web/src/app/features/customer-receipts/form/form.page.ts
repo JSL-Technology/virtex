@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { LucideAngularModule, ChevronLeft } from 'lucide-angular';
+import { Router, RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
@@ -53,7 +53,6 @@ import { NotificationService } from '../../../core/services/notification';
 export class CustomerReceiptFormPage implements OnInit {
 
   private readonly fb = inject(FormBuilder);
-  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly receipts = inject(CustomerReceiptsService);
   private readonly invoicesApi = inject(InvoicesService);
@@ -181,7 +180,7 @@ export class CustomerReceiptFormPage implements OnInit {
   readonly problems = signal<DraftProblem[]>([]);
 
   cancel(): void {
-    void this.router.navigate(['..'], { relativeTo: this.route });
+    void this.router.navigate(['/customer-receipts']);
   }
 
   save(): void {
@@ -229,7 +228,7 @@ export class CustomerReceiptFormPage implements OnInit {
       .subscribe({
         next: () => {
           this.notifications.showSuccess('CUSTOMER_RECEIPTS.FORM.RECIBO_REGISTRADO');
-          this.router.navigate(['..'], { relativeTo: this.route });
+          this.router.navigate(['/customer-receipts']);
         },
         error: (error: { error?: { message?: string } }) => {
           this.saving.set(false);

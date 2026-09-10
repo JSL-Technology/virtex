@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, ChevronLeft } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
@@ -43,7 +43,6 @@ import { NotificationService } from '../../../core/services/notification';
 export class VendorPaymentPage implements OnInit {
 
   private readonly fb = inject(FormBuilder);
-  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly payables = inject(AccountsPayableService);
   private readonly treasury = inject(TreasuryService);
@@ -199,7 +198,7 @@ export class VendorPaymentPage implements OnInit {
   readonly problems = signal<DraftProblem[]>([]);
 
   cancel(): void {
-    void this.router.navigate(['..'], { relativeTo: this.route });
+    void this.router.navigate(['/accounts-payable']);
   }
 
   save(): void {
@@ -244,7 +243,7 @@ export class VendorPaymentPage implements OnInit {
       .subscribe({
         next: () => {
           this.notifications.showSuccess('ACCOUNTS_PAYABLE.PAYMENT.PAGO_REGISTRADO');
-          this.router.navigate(['..'], { relativeTo: this.route });
+          this.router.navigate(['/accounts-payable']);
         },
         error: (error: { error?: { message?: string } }) => {
           this.saving.set(false);

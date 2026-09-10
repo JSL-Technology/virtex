@@ -295,7 +295,15 @@ export class NewInvoicePage implements OnInit {
     const value = this.invoiceForm.getRawValue();
     if (!value.customerId || !value.issueDate || !value.dueDate) return false;
     const lines = value.lineItems as Array<Record<string, unknown>>;
-    return lines.length > 0 && lines.every((line) => Number(line['quantity']) > 0);
+    // El servidor exige que cada línea lleve un producto o una descripción (y una cantidad > 0).
+    // Sin esto, la línea vacía inicial disparaba un preview que respondía 400 en cada pulsación.
+    return (
+      lines.length > 0 &&
+      lines.every((line) => {
+        const hasConcept = !!line['productId'] || !!(line['description'] as string)?.trim();
+        return Number(line['quantity']) > 0 && hasConcept;
+      })
+    );
   }
 
   /**
@@ -340,7 +348,10 @@ export class NewInvoicePage implements OnInit {
       customerId: value.customerId,
       issueDate: value.issueDate,
       dueDate: value.dueDate,
-      currencyCode: value.currencyCode,
+      // El servidor valida `@Length(3,3)` y `@IsOptional` NO salta la cadena vacía: enviar
+      // `currencyCode: ''` (antes de que el contexto del tenant cargue la moneda) devolvía 400
+      // en cada preview. Vacío ⇒ undefined, y el backend resuelve la moneda por defecto.
+      currencyCode: value.currencyCode || undefined,
       notes: value.notes || undefined,
       paymentMethod: value.paymentMethod || undefined,
       fiscalDocumentType: value.fiscalDocumentType || undefined,

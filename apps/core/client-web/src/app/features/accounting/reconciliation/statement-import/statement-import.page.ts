@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, ChevronLeft, Upload } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
@@ -35,7 +35,6 @@ import { NotificationService } from '../../../../core/services/notification';
 export class StatementImportPage implements OnInit {
 
   private readonly fb = inject(FormBuilder);
-  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly treasury = inject(TreasuryService);
   private readonly api = inject(ReconciliationApiService);
@@ -106,7 +105,7 @@ export class StatementImportPage implements OnInit {
   readonly problems = signal<DraftProblem[]>([]);
 
   cancel(): void {
-    void this.router.navigate(['..'], { relativeTo: this.route });
+    void this.router.navigate(['/accounting/reconciliation']);
   }
 
   submit(): void {
@@ -136,7 +135,7 @@ export class StatementImportPage implements OnInit {
         this.notifications.showSuccess('ACCOUNTING.RECONCILIATION.IMPORT.IMPORTADO', {
           count: statement.transactions?.length ?? 0,
         });
-        this.router.navigate(['..'], { relativeTo: this.route });
+        this.router.navigate(['/accounting/reconciliation']);
       },
       error: (error: { error?: { message?: string; detail?: string } }) => {
         this.uploading.set(false);

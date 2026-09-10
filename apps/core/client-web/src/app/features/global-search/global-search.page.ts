@@ -25,7 +25,8 @@ export class GlobalSearchPage implements OnInit {
   protected readonly InvoiceIcon = FileText;
   protected readonly ProductIcon = Package;
   protected readonly CustomerIcon = User;
-  private iconMap = {
+  protected readonly DefaultIcon = Search;
+  private iconMap: Record<string, any> = {
     Invoices: this.InvoiceIcon,
     Products: this.ProductIcon,
     Customers: this.CustomerIcon,
@@ -69,7 +70,9 @@ export class GlobalSearchPage implements OnInit {
       next: (groups) => {
         const enhancedGroups = groups.map(group => ({
           ...group,
-          icon: this.iconMap[group.type]
+          // Un tipo de grupo fuera del mapa dejaba `icon` en undefined y `lucide-icon`
+          // lanzaba «No icon name or image has been provided». Con fallback nunca revienta.
+          icon: this.iconMap[group.type] ?? this.DefaultIcon
         }));
         this.resultGroups.set(enhancedGroups);
         const total = groups.reduce((sum, group) => sum + group.results.length, 0);

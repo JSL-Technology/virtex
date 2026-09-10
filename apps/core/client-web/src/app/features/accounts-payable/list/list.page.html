@@ -6,10 +6,10 @@
   [empty]="vendorBills().length === 0"
   (reload)="loadVendorBills()"
 >
-  <a listActions routerLink="../payments" class="secondary-button">
+  <a listActions routerLink="/accounts-payable/payments" class="secondary-button">
     <span>{{ 'ACCOUNTS_PAYABLE.PAYMENT.PAGAR' | translate }}</span>
   </a>
-  <a listActions routerLink="../new" class="primary-button">
+  <a listActions routerLink="/accounts-payable/new" class="primary-button">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'ACCOUNTS_PAYABLE.LIST.NUEVA_FACTURA' | translate }}</span>
   </a>
@@ -17,7 +17,7 @@
   <div listEmpty class="empty-invite">
     <h2>{{ 'ACCOUNTS_PAYABLE.LIST.NO_HAY_FACTURAS_PROVEEDOR' | translate }}</h2>
     <p>{{ 'ACCOUNTS_PAYABLE.LIST.CREA_TU_PRIMERA_FACTURA_PROVEEDOR_EMPEZAR' | translate }}</p>
-    <a routerLink="../new" class="primary-button">
+    <a routerLink="/accounts-payable/new" class="primary-button">
       <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
       <span>{{ 'ACCOUNTS_PAYABLE.LIST.CREAR_FACTURA' | translate }}</span>
     </a>
@@ -45,7 +45,7 @@
                 `ncf` is the document's fiscal number; not every jurisdiction issues one, so the id
                 is the fallback rather than an empty cell with nothing to click.
               -->
-              <a [routerLink]="['../', bill.id]" class="table-link">
+              <a [routerLink]="['/accounts-payable', bill.id]" class="table-link">
                 {{ bill.ncf || ('ACCOUNTS_PAYABLE.LIST.SIN_NCF' | translate) }}
               </a>
             </td>

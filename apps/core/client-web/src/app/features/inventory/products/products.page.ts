@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit, signal, computed } from '@angular/core';
 import { DialogService } from '../../../core/services/dialog.service';
 import { RouterLink } from '@angular/router';
-import { LucideAngularModule, PlusCircle, MoreHorizontal, AlertCircle, Search } from 'lucide-angular';
+import { LucideAngularModule, PlusCircle, MoreHorizontal, AlertCircle, Search, Pencil, Trash2 } from 'lucide-angular';
 // import { Product } from '../../../core/models/product.model';
 import { InventoryService } from '../../../core/api/inventory.service';
 import { NotificationService } from '../../../core/services/notification';
@@ -26,6 +26,10 @@ export class ProductsPage implements OnInit {
 
   // Iconos
   protected readonly PlusCircleIcon = PlusCircle;
+  // La plantilla usa estos dos en cada fila; sin declararlos, `[img]` recibía undefined
+  // y `lucide-icon` lanzaba «No icon name or image has been provided» por cada producto.
+  protected readonly EditIcon = Pencil;
+  protected readonly TrashIcon = Trash2;
 
   // Estado con Signals
   private allProducts = signal<Product[]>([]);

@@ -5,7 +5,11 @@
   <div class="toast-content">
     <div class="toast-title">{{ titleKey() | translate }}</div>
     <div class="toast-message">
-      <p>{{ toast().message | translate }}</p>
+      <!-- El mensaje ya llega resuelto por NotificationService (que traduce las claves
+           y deja pasar el texto que no lo es). Volver a aplicar `| translate` aquí lo
+           traducía dos veces: la cadena ya en inglés «Product created.» se buscaba como
+           clave, no existía, y ngx-translate emitía «Missing translation». -->
+      <p>{{ toast().message }}</p>
     </div>
   </div>
   <button type="button" class="toast-close" (click)="close()" [attr.aria-label]="'SHARED.TOAST.CLOSE' | translate">

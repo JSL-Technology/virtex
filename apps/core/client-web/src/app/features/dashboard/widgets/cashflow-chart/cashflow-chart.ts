@@ -105,13 +105,16 @@ export class CashflowChart {
 
         if (rawData && !('error' in rawData)) {
             const dto = rawData as CashFlowWaterfallDto;
+            // `?? 0`: un campo ausente en el DTO dejaba `y: undefined`, y el waterfall propaga eso
+            // como NaN a la posición del punto; el módulo de accesibilidad intenta dibujar un
+            // <rect> proxy en esa `y` y falla con «Expected length, "NaN"».
             data = [
-                { name: this.i18n.instant('CHARTS.CASHFLOW.X.OPENING_BALANCE'), y: dto.openingBalance },
-                { name: this.i18n.instant('CHARTS.CASHFLOW.X.OPERATING_INCOME'), y: dto.operatingIncome },
-                { name: this.i18n.instant('CHARTS.CASHFLOW.X.COST_OF_GOODS_SOLD'), y: dto.costOfGoodsSold },
-                { name: this.i18n.instant('CHARTS.CASHFLOW.X.OPERATING_EXPENSES'), y: dto.operatingExpenses },
-                { name: this.i18n.instant('CHARTS.CASHFLOW.X.INVESTMENTS'), y: dto.investments },
-                { name: this.i18n.instant('CHARTS.CASHFLOW.X.FINANCING'), y: dto.financing },
+                { name: this.i18n.instant('CHARTS.CASHFLOW.X.OPENING_BALANCE'), y: dto.openingBalance ?? 0 },
+                { name: this.i18n.instant('CHARTS.CASHFLOW.X.OPERATING_INCOME'), y: dto.operatingIncome ?? 0 },
+                { name: this.i18n.instant('CHARTS.CASHFLOW.X.COST_OF_GOODS_SOLD'), y: dto.costOfGoodsSold ?? 0 },
+                { name: this.i18n.instant('CHARTS.CASHFLOW.X.OPERATING_EXPENSES'), y: dto.operatingExpenses ?? 0 },
+                { name: this.i18n.instant('CHARTS.CASHFLOW.X.INVESTMENTS'), y: dto.investments ?? 0 },
+                { name: this.i18n.instant('CHARTS.CASHFLOW.X.FINANCING'), y: dto.financing ?? 0 },
                 { name: this.i18n.instant('CHARTS.CASHFLOW.X.ENDING_BALANCE'), isSum: true, color: 'var(--accent-primary)' }
             ];
         }
@@ -143,6 +146,10 @@ export class CashflowChart {
                     }
                 }
             }],
+            // El módulo de accesibilidad revienta al describir una serie sin puntos (el gráfico
+            // se pinta vacío mientras cargan los datos). Solo se activa cuando hay algo que
+            // describir; al llegar los datos, `chartOptions` se recomputa y vuelve a habilitarse.
+            accessibility: { enabled: data.length > 0 },
             credits: { enabled: false },
             exporting: { enabled: false }
         };

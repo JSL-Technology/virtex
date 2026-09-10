@@ -1,6 +1,6 @@
 import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, DollarSign, Receipt, Package, Users } from 'lucide-angular';
+import { LucideAngularModule, DollarSign, Receipt, Package, Users, BarChart3 } from 'lucide-angular';
 
 @Component({
   selector: 'app-stat-card',
@@ -18,7 +18,10 @@ export class StatCard {
   private iconMap: { [key: string]: any } = { DollarSign, Receipt, Package, Users };
 
   get icon() {
-    return this.iconMap[this.data.iconName];
+    // `lucide-icon` lanza «No icon name or image has been provided» si recibe undefined,
+    // así que un `iconName` fuera del mapa (o ausente) debe caer a un ícono por defecto
+    // en lugar de reventar el render de la tarjeta.
+    return this.iconMap[this.data.iconName] ?? BarChart3;
   }
 
   isPositive(): boolean {
