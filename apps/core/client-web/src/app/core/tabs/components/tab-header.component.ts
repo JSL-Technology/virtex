@@ -23,8 +23,10 @@ import { resolveTabIcon } from './tab-icon';
         class="tab-header"
         [class.is-dirty]="t.isDirty"
         [class.is-pinned]="t.isPinned"
+        [class.is-preview]="t.isPreview"
         [title]="t.title"
         (auxclick)="onAuxClick($event)"
+        (dblclick)="keepOpen($event)"
       >
         <span class="tab-icon">
           <lucide-icon [img]="icon()" size="15"></lucide-icon>
@@ -86,6 +88,18 @@ export class TabHeaderComponent {
       event.preventDefault();
       const t = this.tab();
       if (t?.isCloseable) void this.tabState.closeTab(this.tabId);
+    }
+  }
+
+  /**
+   * Doble clic en la cabecera fija una vista previa (VS Code): la saca del modo
+   * efímero para que deje de reutilizarse al abrir el siguiente registro.
+   */
+  keepOpen(event: Event): void {
+    const t = this.tab();
+    if (t?.isPreview) {
+      event.stopPropagation();
+      this.tabState.markPermanent(this.tabId);
     }
   }
 }

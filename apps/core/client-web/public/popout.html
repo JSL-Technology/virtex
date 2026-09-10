@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Virtex</title>
+    <!--
+      Ventana emergente de Dockview (pop-out). Se carga vacía a propósito: Dockview
+      reubica aquí el grupo de paneles ya vivo de la aplicación y clona las hojas de
+      estilo de la ventana principal, así que no hay nada que enlazar. Debe ser del
+      mismo origen (requisito de Dockview) y por eso vive en `public/`, servido en la
+      raíz como `/popout.html`.
+    -->
+    <style>
+      html, body {
+        margin: 0;
+        height: 100%;
+        background: #ffffff;
+        overflow: hidden;
+      }
+      @media (prefers-color-scheme: dark) {
+        html, body { background: #1e1e1e; }
+      }
+    </style>
+  </head>
+  <body></body>
+</html>

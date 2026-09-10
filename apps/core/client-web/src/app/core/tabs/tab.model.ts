@@ -28,7 +28,14 @@ export interface TabModel {
   isDirty: boolean;              // Cambios sin guardar
   isLoading: boolean;            // Cargando datos
   isCloseable: boolean;          // Si puede cerrarse
-  isPinned: boolean;             // Si está fijada
+  isPinned: boolean;             // Si está fijada (no se cierra con «cerrar otras»)
+  /**
+   * Pestaña de vista previa (efímera, estilo VS Code). Se muestra en cursiva y
+   * es REUTILIZABLE: abrir otro registro en modo preview reemplaza su contenido
+   * en vez de acumular pestañas. Se «fija» (isPreview=false) al editar, hacer
+   * doble clic en su cabecera o elegir «Mantener abierta». Solo hay una a la vez.
+   */
+  isPreview: boolean;
 
   // Control de instancias (deduplicación)
   entityKey?: string;            // "invoice:123" | "module:invoices"
@@ -53,6 +60,12 @@ export interface OpenTabConfig {
   activate?: boolean;
   /** Marca la pestaña como cargando hasta que su componente resuelva datos. */
   isLoading?: boolean;
+  /**
+   * Fuerza el modo de apertura (vista previa vs permanente). Si se omite, el
+   * WorkspaceStore decide según la preferencia del usuario y el tipo de pestaña
+   * (RECORD/REPORT abren en preview; el resto, permanente).
+   */
+  preview?: boolean;
 }
 
 /**

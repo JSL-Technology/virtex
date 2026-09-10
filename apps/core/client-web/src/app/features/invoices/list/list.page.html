@@ -48,7 +48,11 @@
       </thead>
       <tbody>
         @for (invoice of invoices(); track invoice.id) {
-          <tr>
+          <!--
+            Clic simple en el número abre en vista previa (una sola pestaña efímera que se reutiliza
+            al hojear). Doble clic en la fila la fija, como en VS Code.
+          -->
+          <tr (dblclick)="openPermanent(invoice.id)">
             <td>
               <a [routerLink]="['/invoices', invoice.id]" class="table-link">
                 {{ invoice.invoiceNumber }}

@@ -1,12 +1,21 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { TabModel, TabType, OpenTabConfig } from './tab.model';
 import { TabRegistryService } from './tab-registry.service';
+import { TabPreferencesService } from './tab-preferences.service';
 import { DialogService } from '../services/dialog.service';
 import { NotificationService } from '../services/notification';
 import { TabEventBusService, TabEvent } from './tab-event-bus.service';
 
 /** Handler que una página puede registrar para guardar antes de cerrar (dirty). */
 export type TabSaveHandler = () => Promise<boolean> | boolean;
+
+/** Descriptor mínimo de una pestaña cerrada, para reabrirla (Ctrl/Cmd+Shift+T). */
+interface ClosedTab {
+  route: string;
+  queryParams?: Record<string, string>;
+  title: string;
+  icon: string;
+}
 
 /** Ruta de la pestaña fija por defecto (página de inicio del workspace). */
 const DEFAULT_TAB_ROUTE = '/overview';
@@ -18,12 +27,17 @@ const DEFAULT_TAB_ROUTE = '/overview';
 @Injectable({ providedIn: 'root' })
 export class TabStateService {
   private registry = inject(TabRegistryService);
+  private prefs = inject(TabPreferencesService);
   private dialog = inject(DialogService);
   private notify = inject(NotificationService);
   private bus = inject(TabEventBusService);
 
   private tabsSignal = signal<TabModel[]>([]);
   private activeTabIdSignal = signal<string | null>(null);
+
+  /** Pila de pestañas cerradas recientemente (para reabrir). Cap sencillo. */
+  private closedStack: ClosedTab[] = [];
+  private static readonly CLOSED_STACK_MAX = 15;
 
   /** Límite configurable de pestañas (§10). */
   maxTabs = 20;
@@ -45,7 +59,8 @@ export class TabStateService {
       if (!e.id) return;
       const key = `${e.entity}:${e.id}`;
       const tab = this.getTabByEntityKey(key);
-      if (tab) this.removeTabSilently(tab.id);
+      // El registro ya no existe: no tiene sentido ofrecer reabrir la pestaña.
+      if (tab) this.removeTabSilently(tab.id, false);
     });
   }
 
@@ -64,19 +79,50 @@ export class TabStateService {
       ? definition.entityKeyFn(params, config.queryParams)
       : undefined;
 
+    // ¿Abrir como vista previa (efímera y reutilizable)? Explícito si viene en el
+    // config; si no, según la preferencia del usuario y qué representa la ventana.
+    const asPreview =
+      definition.tabType !== TabType.PINNED &&
+      (config.preview ??
+        (this.prefs.enablePreview() && this.isPreviewable(definition.tabType, params)));
+
     // Deduplicación de instancias.
     if (entityKey) {
       const existing = this.tabsSignal().find((t) => t.entityKey === entityKey);
       if (existing) {
         // Sincroniza queryParams si cambiaron (filtros/estado de vista).
-        if (config.queryParams) {
-          this.tabsSignal.update((tabs) =>
-            tabs.map((t) =>
-              t.id === existing.id ? { ...t, queryParams: config.queryParams } : t
-            )
-          );
-        }
+        if (config.queryParams) this.patch(existing.id, { queryParams: config.queryParams });
+        // Reabrir en modo permanente sobre una vista previa existente la fija
+        // (doble clic / navegación explícita = «mantener abierta»).
+        if (!asPreview && existing.isPreview) this.markPermanent(existing.id);
         if (config.activate !== false) this.activateTab(existing.id);
+        return;
+      }
+    }
+
+    const title = config.title
+      ?? (definition.titleFn ? definition.titleFn(params) : undefined)
+      ?? definition.title
+      ?? 'Nueva Pestaña';
+    const icon = config.icon || definition.icon || 'File';
+    const routeParams = { ...params, ...(config.routeParams ?? {}) };
+
+    // Reutiliza la ÚNICA pestaña de vista previa si ya existe: reemplaza su
+    // contenido en el sitio en vez de acumular otra pestaña al lado. Es lo que
+    // hace que ir abriendo registros no deje un reguero de pestañas.
+    if (asPreview) {
+      const preview = this.tabsSignal().find((t) => t.isPreview && t.isCloseable);
+      if (preview) {
+        this.reusePreview(preview.id, {
+          type: definition.tabType,
+          title,
+          icon,
+          route: this.canonicalRoute(config.route),
+          routeParams,
+          queryParams: config.queryParams,
+          entityKey,
+        });
+        if (config.activate !== false) this.activateTab(preview.id);
         return;
       }
     }
@@ -84,24 +130,20 @@ export class TabStateService {
     // §10: respetar el máximo de pestañas.
     if (!this.enforceMaxTabs()) return;
 
-    const title = config.title
-      ?? (definition.titleFn ? definition.titleFn(params) : undefined)
-      ?? definition.title
-      ?? 'Nueva Pestaña';
-
     const now = new Date();
     const newTab: TabModel = {
       id: this.newId(),
       type: definition.tabType,
       title,
-      icon: config.icon || definition.icon || 'File',
+      icon,
       route: this.canonicalRoute(config.route),
-      routeParams: { ...params, ...(config.routeParams ?? {}) },
+      routeParams,
       queryParams: config.queryParams,
       isDirty: false,
       isLoading: config.isLoading ?? true,
       isCloseable: definition.isCloseable !== false,
       isPinned: definition.tabType === TabType.PINNED,
+      isPreview: asPreview,
       entityKey,
       createdAt: now,
       lastActivatedAt: now,
@@ -110,6 +152,69 @@ export class TabStateService {
 
     this.tabsSignal.update((tabs) => this.sortPinned([...tabs, newTab]));
     if (config.activate !== false) this.activateTab(newTab.id);
+  }
+
+  /**
+   * ¿Esta apertura es «hojeable» y por tanto candidata a vista previa reutilizable?
+   *
+   * No basta con el tipo: en este ERP casi todos los detalles de registro son
+   * formularios (`DRAFT`→`WIZARD`), y hay dos clases muy distintas:
+   *  - **Editar un registro EXISTENTE** (`/clientes/88/edit`, con parámetros de
+   *    ruta): es exactamente hojear —abrir uno, mirar, pasar al siguiente—, así que
+   *    va en vista previa. En cuanto se toca un campo, se fija (ver el promotor de
+   *    edición del `TabWrapper`), de modo que hojear nunca pisa cambios sin guardar.
+   *  - **Crear uno NUEVO** (`/clientes/new`, sin parámetros): nunca se reutiliza;
+   *    cada uno es una pestaña propia.
+   *
+   * `RECORD` (documentos) y `REPORT` (análisis) son hojeables siempre. Listas,
+   * lienzos, bandejas e inicio son permanentes.
+   */
+  private isPreviewable(type: TabType, params: Record<string, string>): boolean {
+    switch (type) {
+      case TabType.RECORD:
+      case TabType.REPORT:
+        return true;
+      case TabType.WIZARD:
+        // Solo si apunta a un registro concreto (tiene parámetros); los «nuevos» no.
+        return Object.keys(params).length > 0;
+      default:
+        return false; // PINNED, MODULE_LIST, UTILITY
+    }
+  }
+
+  /**
+   * Reemplaza el contenido de la pestaña de vista previa manteniendo su
+   * instancia (mismo `id` y posición). El `TabWrapper`, reactivo por `id`,
+   * recarga el componente al detectar el cambio de ruta/entidad.
+   */
+  private reusePreview(
+    tabId: string,
+    next: {
+      type: TabType;
+      title: string;
+      icon: string;
+      route: string;
+      routeParams: Record<string, string>;
+      queryParams?: Record<string, string>;
+      entityKey?: string;
+    }
+  ): void {
+    this.patch(tabId, {
+      ...next,
+      isPreview: true,
+      isDirty: false,
+      isLoading: true,
+      viewState: undefined,
+      scrollPosition: 0,
+      lastActivatedAt: new Date(),
+    });
+  }
+
+  /** Convierte una vista previa en pestaña permanente (VS Code «Keep open»). */
+  markPermanent(tabId: string): void {
+    const tab = this.tabsSignal().find((t) => t.id === tabId);
+    if (!tab || !tab.isPreview) return;
+    this.patch(tabId, { isPreview: false });
   }
 
   activateTab(tabId: string): void {
@@ -150,12 +255,18 @@ export class TabStateService {
     return true;
   }
 
-  /** Elimina la pestaña sin diálogos (uso interno / sincronización con Dockview). */
-  removeTabSilently(tabId: string): void {
+  /**
+   * Elimina la pestaña sin diálogos (uso interno / sincronización con Dockview).
+   * `record` decide si se apunta en la pila de «reabrir cerrada»: los cierres que
+   * hace el propio sistema (registro borrado, tope de pestañas) no deben ofrecerse
+   * para reabrir, pero un cierre del usuario sí.
+   */
+  removeTabSilently(tabId: string, record = true): void {
     const before = this.tabsSignal();
     const index = before.findIndex((t) => t.id === tabId);
     if (index === -1) return;
 
+    if (record) this.recordClosed(before[index]);
     this.closeHandlers.delete(tabId);
     const after = before.filter((t) => t.id !== tabId);
     this.tabsSignal.set(after);
@@ -205,7 +316,8 @@ export class TabStateService {
   // ── Estado de pestaña ───────────────────────────────────────────────────
 
   markDirty(tabId: string, isDirty = true): void {
-    this.patch(tabId, { isDirty });
+    // Editar una vista previa la fija: nadie quiere perder cambios al hojear.
+    this.patch(tabId, isDirty ? { isDirty: true, isPreview: false } : { isDirty: false });
   }
 
   markClean(tabId: string): void {
@@ -288,9 +400,10 @@ export class TabStateService {
     const copy: TabModel = {
       ...tab,
       id: this.newId(),
-      // Una copia es una instancia independiente: sin dedupe ni pin.
+      // Una copia es una instancia independiente: sin dedupe, ni pin, ni preview.
       entityKey: undefined,
       isPinned: false,
+      isPreview: false,
       isDirty: false,
       title: `${tab.title} (copia)`,
       createdAt: now,
@@ -319,7 +432,8 @@ export class TabStateService {
       this.notify.showWarning('CORE.TABS.HAS_ALCANZADO_MAXIMO_PESTANAS_CIERRA_ALGUNA', { maxTabs: this.maxTabs });
       return false;
     }
-    this.removeTabSilently(candidate.id);
+    // Desalojo automático por límite: no se ofrece reabrir (no lo cerró el usuario).
+    this.removeTabSilently(candidate.id, false);
     return true;
   }
 
@@ -347,6 +461,53 @@ export class TabStateService {
 
   setTabs(tabs: TabModel[]): void {
     this.tabsSignal.set(this.sortPinned(tabs));
+  }
+
+  // ── Navegación por teclado / reabrir cerrada ────────────────────────────
+
+  /** Activa la pestaña anterior/siguiente (Ctrl+Tab / Ctrl+Shift+Tab). */
+  activateRelative(delta: number): void {
+    const tabs = this.tabsSignal();
+    if (tabs.length === 0) return;
+    const activeId = this.activeTabIdSignal();
+    const idx = tabs.findIndex((t) => t.id === activeId);
+    const base = idx === -1 ? 0 : idx;
+    const nextIdx = ((base + delta) % tabs.length + tabs.length) % tabs.length;
+    this.activateTab(tabs[nextIdx].id);
+  }
+
+  /** Cierra la pestaña activa (Ctrl/Cmd+W). */
+  closeActive(): void {
+    const id = this.activeTabIdSignal();
+    if (id) void this.closeTab(id);
+  }
+
+  readonly canReopenClosed = (): boolean => this.closedStack.length > 0;
+
+  /** Reabre la última pestaña cerrada, permanente (Ctrl/Cmd+Shift+T). */
+  reopenLastClosed(): void {
+    const last = this.closedStack.pop();
+    if (!last) return;
+    this.openTab({
+      route: last.route,
+      queryParams: last.queryParams,
+      title: last.title,
+      icon: last.icon,
+      preview: false,
+    });
+  }
+
+  private recordClosed(tab: TabModel): void {
+    // El inicio (PINNED) no se cierra; y una vista previa efímera tampoco vale
+    // la pena guardarla: reabrirla sería reproducir un descarte deliberado.
+    if (tab.type === TabType.PINNED || tab.isPreview) return;
+    this.closedStack.push({
+      route: tab.route,
+      queryParams: tab.queryParams,
+      title: tab.title,
+      icon: tab.icon,
+    });
+    if (this.closedStack.length > TabStateService.CLOSED_STACK_MAX) this.closedStack.shift();
   }
 
   // ── helpers privados ────────────────────────────────────────────────────

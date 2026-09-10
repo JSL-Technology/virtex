@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, signal, inject, OnInit, computed, effect } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, PlusCircle, FileSpreadsheet } from 'lucide-angular';
 import {
@@ -47,6 +47,7 @@ export class InvoicesListPage implements OnInit {
   private invoicesService = inject(InvoicesService);
   private notificationService = inject(NotificationService);
   private readonly translate = inject(TranslateService);
+  private readonly router = inject(Router);
 
   invoices = signal<Invoice[]>([]);
   isLoading = signal(true);
@@ -95,6 +96,16 @@ export class InvoicesListPage implements OnInit {
 
   ngOnInit(): void {
     this.loadInvoices();
+  }
+
+  /**
+   * Abre la factura como pestaña PERMANENTE (doble clic en la fila). El clic simple
+   * del enlace la abre en vista previa reutilizable; el doble clic la fija, igual
+   * que en VS Code. La intención viaja en `history.state` y la interpreta el puente
+   * Router→Tabs.
+   */
+  openPermanent(id: number | string): void {
+    void this.router.navigate(['/invoices', id], { state: { tabIntent: 'permanent' } });
   }
 
   loadInvoices(): void {
