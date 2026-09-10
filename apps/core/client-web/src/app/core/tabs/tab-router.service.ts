@@ -33,7 +33,7 @@ export class TabRouterService {
         if (!this.isWorkspaceUrl(url)) return;
 
         const { path, query } = this.parseUrl(url);
-        this.tabState.openTab({ route: path, queryParams: query });
+        this.tabState.openTab({ route: path, queryParams: query, preview: this.readIntent() });
       });
 
     // Tabs → Router
@@ -60,7 +60,33 @@ export class TabRouterService {
     this.tabState.openTab({ route });
   }
 
+  /**
+   * Navega marcando la intención de apertura (VS Code):
+   *  - `'preview'`   → vista previa reutilizable (clic simple al hojear).
+   *  - `'permanent'` → pestaña fija (doble clic / «abrir»).
+   * La intención viaja en `history.state` y la lee el puente Router→Tabs.
+   */
+  navigateWithIntent(commands: unknown[], intent: 'preview' | 'permanent'): void {
+    void this.router.navigate(commands as never[], { state: { tabIntent: intent } });
+  }
+
   // ── helpers ────────────────────────────────────────────────────────────
+
+  /**
+   * Traduce la intención guardada en `history.state` a la bandera `preview` de
+   * `openTab`. `undefined` deja decidir al WorkspaceStore según la preferencia y
+   * el tipo de pestaña. Se lee de `history.state` (no de `getCurrentNavigation`,
+   * que ya es null cuando llega `NavigationEnd`).
+   */
+  private readIntent(): boolean | undefined {
+    const intent =
+      typeof history !== 'undefined'
+        ? (history.state as { tabIntent?: unknown } | null)?.tabIntent
+        : undefined;
+    if (intent === 'preview') return true;
+    if (intent === 'permanent') return false;
+    return undefined;
+  }
 
   private isWorkspaceUrl(url: string): boolean {
     const path = url.split('?')[0];

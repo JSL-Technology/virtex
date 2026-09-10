@@ -1,23 +1,35 @@
 import {
   Component, ChangeDetectionStrategy, ViewChild, ViewContainerRef, ElementRef,
-  AfterViewInit, OnDestroy, ComponentRef, Injector, Type, inject, signal,
+  AfterViewInit, OnDestroy, ComponentRef, Injector, Type, EffectRef, inject, effect, signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TabStateService } from '../tab-state.service';
+import { TabRegistryService } from '../tab-registry.service';
 import { TAB_CONTEXT, TabContext } from '../tab-context';
-import { isTabAware } from '../tab.model';
+import { TabModel, isTabAware } from '../tab.model';
 
 interface WrapperParams {
+  /** Única identidad que necesita: todo lo demás se deriva del WorkspaceStore. */
   tabId: string;
-  load: () => Promise<Type<unknown>>;
-  inputs: Record<string, unknown>;
-  context: TabContext;
 }
 
 /**
- * Monta el componente perezoso de una pestaña (§5/§11). Resuelve `load()`,
- * provee `TAB_CONTEXT`, restaura el scroll y reenvía los hooks de activación
- * (`TabAware`) ya que Dockview NO destruye el DOM de las pestañas inactivas.
+ * Monta el componente perezoso de una pestaña (§5/§11).
+ *
+ * ## Por qué se conduce por `tabId` y no por parámetros congelados
+ *
+ * Antes recibía `load`, `inputs` y `context` ya resueltos al crear el panel. Eso
+ * ataba el contenido al instante de apertura: la vista previa reutilizable —que
+ * cambia de ruta SIN cambiar de panel— no tenía forma de recargarse, y el layout
+ * de Dockview no se podía serializar (una función `load` no cabe en JSON).
+ *
+ * Ahora el wrapper solo guarda el `tabId`, lee su pestaña del store de forma
+ * reactiva y **recarga el componente en el sitio** cuando cambia la ruta/entidad
+ * (reutilización de la vista previa). Resuelve `load` del registro, así que sus
+ * `params` son serializables y el layout puede persistirse.
+ *
+ * Como Dockview NO destruye el DOM de las pestañas inactivas, reenvía además los
+ * hooks `TabAware` para pausar/reanudar trabajo costoso, y guarda/restaura scroll.
  */
 @Component({
   selector: 'app-tab-wrapper',
@@ -52,6 +64,7 @@ interface WrapperParams {
 })
 export class TabWrapperComponent implements AfterViewInit, OnDestroy {
   private tabState = inject(TabStateService);
+  private registry = inject(TabRegistryService);
   private parentInjector = inject(Injector);
 
   @ViewChild('host', { read: ViewContainerRef, static: true }) host!: ViewContainerRef;
@@ -65,50 +78,130 @@ export class TabWrapperComponent implements AfterViewInit, OnDestroy {
 
   private compRef?: ComponentRef<unknown>;
   private activeSub?: { dispose: () => void };
+  private reloadRef?: EffectRef;
+  /** Firma del contenido montado, para no recargar ante cambios irrelevantes. */
+  private mountedSig = '';
+
+  private get tabId(): string {
+    return this.params?.tabId ?? this.api?.id ?? '';
+  }
 
   async ngAfterViewInit(): Promise<void> {
-    const p = this.params;
-    if (!p?.load) { this.loading.set(false); return; }
+    const tab = this.currentTab();
+    if (!tab) { this.loading.set(false); return; }
 
+    await this.mount(tab);
+    this.mountedSig = this.signature(tab);
+
+    // Recarga reactiva: al reutilizar la vista previa, la MISMA pestaña cambia de
+    // ruta/entidad. Se recarga el componente en su sitio (sin crear otro panel).
+    // El trabajo se aplaza a un microtask para no escribir señales dentro del
+    // efecto ni bloquear su ejecución síncrona.
+    this.reloadRef = effect(() => {
+      const t = this.currentTab();
+      const sig = t ? this.signature(t) : '';
+      if (!t || sig === this.mountedSig) return;
+      this.mountedSig = sig;
+      const target = t;
+      queueMicrotask(() => void this.remount(target));
+    }, { injector: this.parentInjector });
+
+    // Promotor de edición (estilo VS Code): en cuanto se ESCRIBE algo dentro de una
+    // vista previa, la pestaña se fija. Es lo que hace seguro reutilizar la preview
+    // en formularios de edición: hojear reemplaza contenido, pero editar deja de ser
+    // efímero antes de que el siguiente clic pueda pisar cambios sin guardar. Vive
+    // aquí y no en cada página: 24 formularios no llaman a `markDirty`.
+    const scroll = this.scrollRef?.nativeElement;
+    if (scroll) {
+      for (const ev of TabWrapperComponent.EDIT_EVENTS) {
+        scroll.addEventListener(ev, this.promoteOnEdit, true);
+      }
+    }
+
+    // Reenvía hooks de activación/desactivación.
+    if (this.api?.onDidActiveChange) {
+      this.activeSub = this.api.onDidActiveChange((e: { isActive: boolean }) => {
+        if (e.isActive) {
+          this.callHook('onTabActivated');
+          this.restoreScroll();
+        } else {
+          this.saveScroll();
+          this.callHook('onTabDeactivated');
+        }
+      });
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.saveScroll();
+    const scroll = this.scrollRef?.nativeElement;
+    if (scroll) {
+      for (const ev of TabWrapperComponent.EDIT_EVENTS) {
+        scroll.removeEventListener(ev, this.promoteOnEdit, true);
+      }
+    }
+    this.reloadRef?.destroy();
+    this.activeSub?.dispose?.();
+    this.compRef?.destroy();
+  }
+
+  /** Eventos que delatan una edición real (no un simple clic o desplazamiento). */
+  private static readonly EDIT_EVENTS = ['beforeinput', 'change', 'paste'] as const;
+
+  /** Fija la vista previa al primer signo de edición dentro de su contenido. */
+  private readonly promoteOnEdit = (): void => {
+    if (this.currentTab()?.isPreview) this.tabState.markPermanent(this.tabId);
+  };
+
+  // ── montaje ────────────────────────────────────────────────────────────
+
+  private currentTab(): TabModel | undefined {
+    return this.tabState.tabs().find((t) => t.id === this.tabId);
+  }
+
+  /** Ruta + entidad + query: lo que define «qué se muestra» dentro del panel. */
+  private signature(t: TabModel): string {
+    return `${t.route}|${t.entityKey ?? ''}|${JSON.stringify(t.queryParams ?? {})}`;
+  }
+
+  private async mount(tab: TabModel): Promise<void> {
+    this.loading.set(true);
+    const { definition } = this.registry.resolve(tab.route);
     try {
-      const type = await p.load();
+      const type = (await definition.load()) as Type<unknown>;
+      const context: TabContext = {
+        tabId: tab.id,
+        type: tab.type,
+        route: tab.route,
+        title: tab.title,
+        icon: tab.icon,
+        params: tab.routeParams ?? {},
+        query: tab.queryParams ?? {},
+      };
       const injector = Injector.create({
-        providers: [{ provide: TAB_CONTEXT, useValue: p.context }],
+        providers: [{ provide: TAB_CONTEXT, useValue: context }],
         parent: this.parentInjector,
       });
 
-      this.compRef = this.host.createComponent(type as Type<unknown>, { injector });
-      this.applyInputs(type as Type<unknown>, p.inputs ?? {});
+      this.compRef = this.host.createComponent(type, { injector });
+      this.applyInputs(type, { ...(tab.routeParams ?? {}), ...(tab.queryParams ?? {}) });
       this.compRef.changeDetectorRef.markForCheck();
 
-      this.tabState.setLoading(p.tabId, false);
+      this.tabState.setLoading(tab.id, false);
       this.loading.set(false);
-
-      // Restaura scroll guardado.
       queueMicrotask(() => this.restoreScroll());
-
-      // Reenvía hooks de activación/desactivación.
-      if (this.api?.onDidActiveChange) {
-        this.activeSub = this.api.onDidActiveChange((e: { isActive: boolean }) => {
-          if (e.isActive) {
-            this.callHook('onTabActivated');
-            this.restoreScroll();
-          } else {
-            this.saveScroll();
-            this.callHook('onTabDeactivated');
-          }
-        });
-      }
     } catch (err) {
       console.error('[tab-wrapper] Error montando el componente de la pestaña', err);
       this.loading.set(false);
     }
   }
 
-  ngOnDestroy(): void {
-    this.saveScroll();
-    this.activeSub?.dispose?.();
+  /** Sustituye el componente montado por el de la nueva ruta (misma pestaña). */
+  private async remount(tab: TabModel): Promise<void> {
     this.compRef?.destroy();
+    this.compRef = undefined;
+    this.host.clear();
+    await this.mount(tab);
   }
 
   private applyInputs(type: Type<unknown>, inputs: Record<string, unknown>): void {
@@ -132,8 +225,7 @@ export class TabWrapperComponent implements AfterViewInit, OnDestroy {
   }
 
   private restoreScroll(): void {
-    const tab = this.tabState.tabs().find((t) => t.id === this.params?.tabId);
-    const top = tab?.scrollPosition;
+    const top = this.currentTab()?.scrollPosition;
     if (this.scrollRef?.nativeElement && typeof top === 'number') {
       this.scrollRef.nativeElement.scrollTop = top;
     }
@@ -141,8 +233,8 @@ export class TabWrapperComponent implements AfterViewInit, OnDestroy {
 
   private saveScroll(): void {
     const el = this.scrollRef?.nativeElement;
-    if (el && this.params?.tabId) {
-      this.tabState.setScroll(this.params.tabId, el.scrollTop);
+    if (el && this.tabId) {
+      this.tabState.setScroll(this.tabId, el.scrollTop);
     }
   }
 }

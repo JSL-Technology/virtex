@@ -3,8 +3,9 @@ import { TabStateService } from './tab-state.service';
 import { TabModel, TabType } from './tab.model';
 
 /** Versión del esquema de persistencia. Incrementar ante cambios incompatibles. */
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 const STORAGE_KEY = 'erp_tab_session';
+const LAYOUT_KEY = 'erp_tab_layout';
 const REMEMBER_KEY = 'erp_remember_tabs';
 
 interface PersistedTab {
@@ -19,12 +20,18 @@ interface PersistedTab {
   isDirty: boolean;
   isCloseable: boolean;
   isPinned: boolean;
+  isPreview?: boolean;
   entityKey?: string;
   createdAt: string;
   lastActivatedAt: string;
   scrollPosition?: number;
   viewState?: unknown;
   order?: number;
+}
+
+interface PersistedLayout {
+  schemaVersion: number;
+  layout: unknown; // Salida de dockviewApi.toJSON() (grupos, splits, flotantes, popout).
 }
 
 interface PersistedWorkspace {
@@ -67,6 +74,7 @@ export class TabPersistenceService {
   restoreState(): void {
     this.restored = true;
     if (!this.rememberEnabled()) {
+      this.clearLayout();
       this.tabState.ensureDefaultTab();
       return;
     }
@@ -74,6 +82,9 @@ export class TabPersistenceService {
     try {
       const raw = sessionStorage.getItem(STORAGE_KEY);
       if (!raw) {
+        // Sin sesión de pestañas que emparejar, un layout suelto solo dejaría
+        // paneles huérfanos: se descarta.
+        this.clearLayout();
         this.tabState.ensureDefaultTab();
         return;
       }
@@ -88,6 +99,7 @@ export class TabPersistenceService {
 
       const tabs = data.tabs.map((t) => this.deserialize(t));
       if (tabs.length === 0) {
+        this.clearLayout();
         this.tabState.ensureDefaultTab();
         return;
       }
@@ -118,6 +130,46 @@ export class TabPersistenceService {
 
   clearState(): void {
     sessionStorage.removeItem(STORAGE_KEY);
+    this.clearLayout();
+  }
+
+  // ── Layout de Dockview (splits / flotantes / popout) ─────────────────────
+
+  /**
+   * Guarda la disposición de ventanas de Dockview (no solo la lista de pestañas):
+   * qué está dividido, flotando o sacado a otra ventana. Debounced y solo si el
+   * usuario tiene activado «recordar pestañas». La invoca el contenedor cuando el
+   * layout cambia.
+   */
+  saveLayout(layout: unknown): void {
+    if (!this.restored || !this.rememberEnabled()) return;
+    try {
+      const payload: PersistedLayout = { schemaVersion: SCHEMA_VERSION, layout };
+      sessionStorage.setItem(LAYOUT_KEY, JSON.stringify(payload));
+    } catch (e) {
+      console.error('Failed to save dockview layout', e);
+    }
+  }
+
+  /** Devuelve el layout guardado si es del esquema actual; si no, null. */
+  loadLayout(): unknown | null {
+    if (!this.rememberEnabled()) return null;
+    try {
+      const raw = sessionStorage.getItem(LAYOUT_KEY);
+      if (!raw) return null;
+      const data = JSON.parse(raw) as Partial<PersistedLayout>;
+      if (data?.schemaVersion !== SCHEMA_VERSION || data.layout == null) {
+        sessionStorage.removeItem(LAYOUT_KEY);
+        return null;
+      }
+      return data.layout;
+    } catch {
+      return null;
+    }
+  }
+
+  clearLayout(): void {
+    sessionStorage.removeItem(LAYOUT_KEY);
   }
 
   rememberEnabled(): boolean {
@@ -173,6 +225,7 @@ export class TabPersistenceService {
       isDirty: t.isDirty,
       isCloseable: t.isCloseable,
       isPinned: t.isPinned,
+      isPreview: t.isPreview,
       entityKey: t.entityKey,
       createdAt: t.createdAt.toISOString(),
       lastActivatedAt: t.lastActivatedAt.toISOString(),
@@ -196,6 +249,7 @@ export class TabPersistenceService {
       isLoading: true, // §8.1: se rehidrata sin datos; se cargan al activar
       isCloseable: t.isCloseable !== false,
       isPinned: !!t.isPinned,
+      isPreview: !!t.isPreview,
       entityKey: t.entityKey,
       createdAt: new Date(t.createdAt),
       lastActivatedAt: new Date(t.lastActivatedAt),

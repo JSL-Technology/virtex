@@ -96,3 +96,10 @@
   &:hover .tab-dirty-dot { display: none; }
   &:not(:hover) .tab-close { display: none; }
 }
+
+/* Vista previa (efímera, estilo VS Code): título en cursiva. Doble clic en la
+   cabecera —o editar— la fija y deja de reutilizarse. */
+.tab-header.is-preview .tab-title {
+  font-style: italic;
+  font-weight: var(--font-normal);
+}

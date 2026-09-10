@@ -55,6 +55,7 @@ import { CompanySwitcherComponent } from './components/company-switcher/company-
 import { BrandLogo } from '../../shared/components/brand-logo/brand-logo';
 import { TabContainerComponent } from '../../core/tabs/components/tab-container.component';
 import { TabPersistenceService } from '../../core/tabs/tab-persistence.service';
+import { TabKeyboardService } from '../../core/tabs/tab-keyboard.service';
 import { TabRouterService } from '../../core/tabs/tab-router.service';
 import { DialogHostComponent } from '../../shared/components/dialog-host/dialog-host.component';
 import { FORMAT_PIPES } from '../../core/i18n/pipes/format.pipes';
@@ -77,6 +78,7 @@ export class MainLayout implements OnInit {
   pwaService = inject(PwaService);
   tabPersistence = inject(TabPersistenceService);
   tabRouter = inject(TabRouterService);
+  private tabKeyboard = inject(TabKeyboardService);
   private readonly quickCreateShortcuts = [
     { key: 'i', route: '/invoices/new' },
     { key: 'q', route: '/quotes/new' },
@@ -107,6 +109,7 @@ export class MainLayout implements OnInit {
   ngOnInit(): void {
     this.notificationCenter.initialize();
     this.tabPersistence.restoreState();
+    this.tabKeyboard.init();
 
     // Cierra el overlay del sidebar (móvil) al navegar a otra pestaña.
     this.router.events
