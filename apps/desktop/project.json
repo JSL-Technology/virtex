@@ -1,0 +1,27 @@
+{
+  "name": "desktop",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/desktop/src",
+  "tags": ["scope:desktop", "type:app"],
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "electron apps/desktop/src/main.js"
+      },
+      "configurations": {
+        "production": {
+          "command": "electron apps/desktop/src/main.js"
+        }
+      }
+    },
+    "package": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "electron-builder --config apps/desktop/electron-builder.json"
+      }
+    },
+    "lint": { "executor": "@nx/eslint:lint" }
+  }
+}
