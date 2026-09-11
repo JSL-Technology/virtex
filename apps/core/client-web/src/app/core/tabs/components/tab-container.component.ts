@@ -1,5 +1,5 @@
 import {
-  Component, inject, effect, ChangeDetectionStrategy, computed,
+  Component, inject, effect, ChangeDetectionStrategy, computed, ElementRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
@@ -69,6 +69,7 @@ export class TabContainerComponent {
   private themeService = inject(ThemeService);
   protected readonly windowMode = inject(WindowModeService);
   private translate = inject(TranslateService);
+  private el = inject<ElementRef<HTMLElement>>(ElementRef);
 
   private dockviewApi: any;
   private panels = new Map<string, IDockviewPanel>();
@@ -287,6 +288,7 @@ export class TabContainerComponent {
     });
 
     this.dockviewApi.onDidLayoutChange(() => {
+      this.tagTablists();
       if (this.syncing) return;
       const orderedIds = (this.dockviewApi.panels as IDockviewPanel[]).map((p) => p.id);
       this.tabState.syncOrder(orderedIds);
@@ -294,6 +296,24 @@ export class TabContainerComponent {
     });
 
     this.restoreOrSync();
+    this.tagTablists();
+  }
+
+  /**
+   * Marca cada franja de pestañas de Dockview como `role="tablist"`.
+   *
+   * Los encabezados ya se anuncian como `role="tab"` con `aria-selected`, pero sin un contenedor
+   * `tablist` un lector de pantalla los lee como pestañas sueltas, no como un grupo con «2 de 5».
+   * Dockview crea estos contenedores y los recrea al dividir/mover, así que se re-etiqueta en cada
+   * cambio de layout. Es idempotente y barato.
+   */
+  private tagTablists(): void {
+    queueMicrotask(() => {
+      const strips = this.el.nativeElement.querySelectorAll<HTMLElement>('.dv-tabs-container');
+      strips.forEach((strip) => {
+        if (strip.getAttribute('role') !== 'tablist') strip.setAttribute('role', 'tablist');
+      });
+    });
   }
 
   /**

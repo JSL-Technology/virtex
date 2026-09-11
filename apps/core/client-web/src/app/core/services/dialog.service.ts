@@ -38,9 +38,16 @@ export interface ConfirmCloseConfig {
   /** Translation keys — never prose. */
   title?: string;
   message?: string;
+  /** Parameters for `message`, e.g. the title of the tab being closed. */
+  messageParams?: Record<string, unknown>;
   saveText?: string;
   discardText?: string;
   cancelText?: string;
+  /**
+   * Whether the "Save" action is offered. Defaults to true. Set false when nothing can act on it —
+   * a tab with no registered save handler — so the reader is not shown a button that leads nowhere.
+   */
+  allowSave?: boolean;
 }
 
 type DialogKind = 'confirm' | 'close' | 'prompt';
@@ -61,6 +68,8 @@ export interface ActiveDialog {
   // close (3-way)
   saveText: string;
   discardText: string;
+  /** Whether the close dialog offers "Save" (false when the tab has no save handler). */
+  allowSave: boolean;
   // prompt
   placeholder: string;
   minLength: number;
@@ -106,6 +115,7 @@ export class DialogService {
         cancelText: this.t(config.cancelText ?? 'COMMON.CANCEL'),
         saveText: '',
         discardText: '',
+        allowSave: false,
         placeholder: '',
         minLength: 0,
         tooShort: '',
@@ -120,13 +130,14 @@ export class DialogService {
       this._active.set({
         kind: 'close',
         title: this.t(config.title ?? 'DIALOG.UNSAVED_CHANGES.TITLE'),
-        message: this.t(config.message ?? 'DIALOG.UNSAVED_CHANGES.MESSAGE'),
+        message: this.t(config.message ?? 'DIALOG.UNSAVED_CHANGES.MESSAGE', config.messageParams),
         variant: 'warning',
         icon: 'TriangleAlert',
         confirmText: '',
         cancelText: this.t(config.cancelText ?? 'COMMON.CANCEL'),
         saveText: this.t(config.saveText ?? 'COMMON.SAVE'),
         discardText: this.t(config.discardText ?? 'COMMON.DISCARD'),
+        allowSave: config.allowSave !== false,
         placeholder: '',
         minLength: 0,
         tooShort: '',
@@ -157,6 +168,7 @@ export class DialogService {
         cancelText: this.t(config.cancelText ?? 'COMMON.CANCEL'),
         saveText: '',
         discardText: '',
+        allowSave: false,
         placeholder: config.placeholder ? this.t(config.placeholder) : '',
         minLength: config.minLength ?? 0,
         tooShort: config.tooShort ? this.t(config.tooShort) : '',

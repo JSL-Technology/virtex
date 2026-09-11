@@ -123,6 +123,18 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       load: () => import('../../../features/accounting/ledger-form/app-ledger-form-page').then((m) => m.LedgerFormPage),
     },
     {
+      //  Editar un libro reutiliza el mismo formulario (LedgerFormPage acepta `@Input() id`). Sin esta
+      //  ruta, «Editar» en la lista de libros caía en la página genérica «en construcción» y, por ser
+      //  MODULE_LIST, nunca se abría como vista previa.
+      path: 'general-ledger/:id/edit',
+      kind: WindowKind.DRAFT,
+      permission: 'accounting:manage_ledgers',
+      titleKey: 'PAGE_TITLES.LEDGER_EDIT',
+      icon: 'Layers3',
+      entityKeyFn: (p) => `contabilidad:ledger:${p['id']}`,
+      load: () => import('../../../features/accounting/ledger-form/app-ledger-form-page').then((m) => m.LedgerFormPage),
+    },
+    {
       //  El mayor de una cuenta es el conjunto de sus movimientos: se busca dentro de él, se
       //  acota por fechas y se lee de arriba abajo. Es una lista con una cuenta por encima, no un
       //  documento con estado — la cuenta no se emite ni se anula.
@@ -171,6 +183,18 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       titleKey: 'PAGE_TITLES.JOURNAL_NEW',
       icon: 'FilePlus',
       entityKeyFn: () => `contabilidad:journal:new:${crypto.randomUUID()}`,
+      load: () => import('../../../features/accounting/journal-form/journal-form.page').then((m) => m.JournalFormPage),
+    },
+    {
+      //  Editar un diario usa el mismo formulario (JournalFormPage lee `:id`). Sin esta ruta, «Editar»
+      //  en la lista de diarios abría la página genérica «en construcción», no el formulario, y nunca
+      //  como vista previa.
+      path: 'journals/:id/edit',
+      kind: WindowKind.DRAFT,
+      permission: 'journal_entries:view',
+      titleKey: 'PAGE_TITLES.JOURNAL_EDIT',
+      icon: 'NotebookTabs',
+      entityKeyFn: (p) => `contabilidad:journal:${p['id']}`,
       load: () => import('../../../features/accounting/journal-form/journal-form.page').then((m) => m.JournalFormPage),
     },
     {

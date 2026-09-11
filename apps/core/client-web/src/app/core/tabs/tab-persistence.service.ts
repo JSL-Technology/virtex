@@ -42,13 +42,14 @@ interface PersistedWorkspace {
 
 /**
  * Persistencia del workspace (TAB_ARCHITECTURE §8).
- *  - Nivel F5: sessionStorage versionado (sin datos de negocio: solo metadatos
- *    + viewState/scroll serializables).
+ *  - `localStorage` versionado (sin datos de negocio: solo metadatos + viewState/scroll
+ *    serializables). Se eligió sobre `sessionStorage` para que «recordar pestañas» y la disposición
+ *    de ventanas sobrevivan al CIERRE del navegador, no solo a un F5: la promesa de «layout
+ *    persistente» era falsa mientras el estado moría con la sesión de la pestaña. El precio es que
+ *    dos pestañas del navegador comparten un único snapshot (gana la última en guardar), aceptable
+ *    para una disposición que no es dato crítico.
  *  - Preferencia "recordar pestañas" (por defecto activada).
  *  - Aviso beforeunload si hay pestañas dirty (§7.2 / §10).
- *
- * El nivel backend (cross-session) queda como punto de extensión en
- * `syncToBackend()`.
  */
 @Injectable({ providedIn: 'root' })
 export class TabPersistenceService {
@@ -80,7 +81,7 @@ export class TabPersistenceService {
     }
 
     try {
-      const raw = sessionStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) {
         // Sin sesión de pestañas que emparejar, un layout suelto solo dejaría
         // paneles huérfanos: se descarta.
@@ -129,7 +130,7 @@ export class TabPersistenceService {
   }
 
   clearState(): void {
-    sessionStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(STORAGE_KEY);
     this.clearLayout();
   }
 
@@ -145,7 +146,7 @@ export class TabPersistenceService {
     if (!this.restored || !this.rememberEnabled()) return;
     try {
       const payload: PersistedLayout = { schemaVersion: SCHEMA_VERSION, layout };
-      sessionStorage.setItem(LAYOUT_KEY, JSON.stringify(payload));
+      localStorage.setItem(LAYOUT_KEY, JSON.stringify(payload));
     } catch (e) {
       console.error('Failed to save dockview layout', e);
     }
@@ -155,11 +156,11 @@ export class TabPersistenceService {
   loadLayout(): unknown | null {
     if (!this.rememberEnabled()) return null;
     try {
-      const raw = sessionStorage.getItem(LAYOUT_KEY);
+      const raw = localStorage.getItem(LAYOUT_KEY);
       if (!raw) return null;
       const data = JSON.parse(raw) as Partial<PersistedLayout>;
       if (data?.schemaVersion !== SCHEMA_VERSION || data.layout == null) {
-        sessionStorage.removeItem(LAYOUT_KEY);
+        localStorage.removeItem(LAYOUT_KEY);
         return null;
       }
       return data.layout;
@@ -169,7 +170,7 @@ export class TabPersistenceService {
   }
 
   clearLayout(): void {
-    sessionStorage.removeItem(LAYOUT_KEY);
+    localStorage.removeItem(LAYOUT_KEY);
   }
 
   rememberEnabled(): boolean {
@@ -180,11 +181,6 @@ export class TabPersistenceService {
     localStorage.setItem(REMEMBER_KEY, String(enabled));
     if (!enabled) this.clearState();
     else this.scheduleSave(this.tabState.tabs(), this.tabState.activeTabId());
-  }
-
-  /** Punto de extensión para persistir en backend (cross-session, §8.2). */
-  syncToBackend(): void {
-    // Pendiente: PUT /api/me/workspace (debounced) cuando exista el endpoint.
   }
 
   // ── interno ────────────────────────────────────────────────────────────
@@ -206,7 +202,7 @@ export class TabPersistenceService {
         activeTabId: activeId,
         tabs: toPersist.map((t) => this.serialize(t)),
       };
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     } catch (e) {
       console.error('Failed to save tab state', e);
     }

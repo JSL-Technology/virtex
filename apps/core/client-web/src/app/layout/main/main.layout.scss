@@ -1457,8 +1457,16 @@ app-status-bar {
     transform: translateX(0);
   }
 
-  .main-topbar {
+  //  La barra superior ocupa la fila «topbar» de la rejilla móvil. Se reescribe con la MISMA
+  //  especificidad que `:host.layout-topnav .main-topbar { grid-area: header }` (la regla de
+  //  escritorio): sin esto, en topnav ganaba `header` —un área que la rejilla móvil ya no define— y
+  //  la barra caía fuera de su fila por auto-colocación.
+  :host.layout-sidenav .main-topbar,
+  :host.layout-topnav .main-topbar {
     grid-area: topbar;
+  }
+
+  .main-topbar {
     padding: 0 12px;
   }
 

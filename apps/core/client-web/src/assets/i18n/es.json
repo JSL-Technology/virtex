@@ -2383,8 +2383,10 @@
     "JOURNAL_ENTRY_IMPORT": "Importar asientos contables",
     "JOURNAL_ENTRY_NEW": "Nuevo asiento contable",
     "JOURNAL_NEW": "Nuevo diario",
+    "JOURNAL_EDIT": "Editar diario",
     "LEDGERS": "Libros contables",
     "LEDGER_NEW": "Nuevo libro contable",
+    "LEDGER_EDIT": "Editar libro contable",
     "MAIL_SERVER": "Servidor de correo",
     "MANUFACTURING": "Manufactura (MRP)",
     "MASTER_DATA": "Datos maestros",
@@ -3647,7 +3649,13 @@
     "MODE_COMPACT": "Compacto",
     "MODE_FOCUSED_HINT": "Una ventana a la vista; las demás, en pestañas.",
     "MODE_WORKSHOP_HINT": "Varias ventanas a la vez: dividir, mosaico y flotantes.",
-    "MODE_COMPACT_HINT": "Pantalla estrecha: una ventana, sin divisiones."
+    "MODE_COMPACT_HINT": "Pantalla estrecha: una ventana, sin divisiones.",
+    "NEW_TAB": "Nueva pestaña",
+    "GENERIC_MODULE": "Módulo",
+    "COPY_OF": "{{title}} (copia)",
+    "OPEN_TABS": "Pestañas abiertas",
+    "OPEN_TABS_ARIA": "Cambiar de pestaña abierta",
+    "NO_OPEN_TABS": "No hay pestañas abiertas"
   },
   "TREASURY": {
     "AL_CORTE": "Al",

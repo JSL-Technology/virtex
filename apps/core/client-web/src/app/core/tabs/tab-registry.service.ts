@@ -1,4 +1,5 @@
 import { Injectable, inject, Type } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { TabDefinition, TabType } from './tab.model';
 import { GenericModulePage } from './components/generic-module.page';
 import { AuthService } from '../services/auth';
@@ -34,6 +35,7 @@ export interface ResolvedTab {
 @Injectable({ providedIn: 'root' })
 export class TabRegistryService {
   private auth = inject(AuthService);
+  private translate = inject(TranslateService);
 
   /** Best definition for the URL, or a generic placeholder when nothing declares it. */
   resolve(route: string): ResolvedTab {
@@ -128,7 +130,8 @@ export class TabRegistryService {
   }
 
   private prettify(routePath: string): string {
-    const last = this.segments(routePath).pop() ?? 'Módulo';
+    const last = this.segments(routePath).pop();
+    if (!last) return this.translate.instant('TABS.GENERIC_MODULE');
     return last.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
   }
 }

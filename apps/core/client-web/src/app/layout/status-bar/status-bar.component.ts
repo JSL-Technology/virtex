@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, Building2, CalendarCheck, CalendarX, Coins, Wifi, WifiOff } from 'lucide-angular';
@@ -46,7 +46,25 @@ export class StatusBarComponent implements OnInit {
   /** `2026-09` — the month, not a formatted date: the reader's locale spells it, not the server. */
   protected readonly periodLabel = computed(() => this.period()?.startDate?.slice(0, 7) ?? null);
 
-  protected readonly online = computed(() => navigator.onLine);
+  /**
+   * The connection, live.
+   *
+   * `navigator.onLine` read inside a `computed` never changes — it is not a signal, so nothing tells
+   * the view to re-evaluate it, and the indicator froze at whatever it was on first paint. It is a
+   * writable signal fed by the browser's `online`/`offline` events instead, so losing the network
+   * actually shows.
+   */
+  protected readonly online = signal(typeof navigator === 'undefined' ? true : navigator.onLine);
+
+  @HostListener('window:online')
+  protected onOnline(): void {
+    this.online.set(true);
+  }
+
+  @HostListener('window:offline')
+  protected onOffline(): void {
+    this.online.set(false);
+  }
 
   ngOnInit(): void {
     this.status.refresh();

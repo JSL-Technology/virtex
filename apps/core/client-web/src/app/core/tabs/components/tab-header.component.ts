@@ -21,6 +21,8 @@ import { resolveTabIcon } from './tab-icon';
     @if (tab(); as t) {
       <div
         class="tab-header"
+        role="tab"
+        [attr.aria-selected]="isActive()"
         [class.is-dirty]="t.isDirty"
         [class.is-pinned]="t.isPinned"
         [class.is-preview]="t.isPreview"
@@ -32,6 +34,9 @@ import { resolveTabIcon } from './tab-icon';
           <lucide-icon [img]="icon()" size="15"></lucide-icon>
         </span>
 
+        <!-- El título ya viene resuelto del store (openTab traduce la clave). NO se aplica el pipe
+             translate aquí: volvería a traducir un texto ya resuelto y el handler de faltantes lo
+             envolvería como [[Inicio]]. -->
         <span class="tab-title">{{ t.title }}</span>
 
         @if (t.badge && t.badge > 0) {
@@ -74,6 +79,9 @@ export class TabHeaderComponent {
   readonly tab = computed(() =>
     this.tabState.tabs().find((t) => t.id === this.tabId) ?? null
   );
+
+  /** Para `aria-selected`: la franja de pestañas es un `tablist` y esta es la seleccionada. */
+  readonly isActive = computed(() => this.tabState.activeTabId() === this.tabId);
 
   readonly icon = computed(() => resolveTabIcon(this.tab()?.icon));
 

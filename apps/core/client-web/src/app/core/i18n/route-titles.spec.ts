@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
 /**
- * A route's `title` is text the reader sees — in the browser tab, in the history, in a bookmark —
+ * A route's title is text the reader sees — in the browser tab, in the history, in a bookmark —
  * and it is the one piece of visible text no template scanner can reach, because it lives in a
  * TypeScript object rather than in HTML.
  *
@@ -10,6 +10,10 @@ import { join, relative } from 'node:path';
  * reader on `es` could open "Chart of Accounts" and a reader on `en` could open "Cuentas por
  * Pagar". `TranslatedTitleStrategy` passes an unknown key through unchanged, which is the right
  * fallback and is also why nothing ever failed.
+ *
+ * The authenticated route table is generated from the module manifests, where the title lives as
+ * `titleKey`; only the public shell (auth) still declares `title` in a `*.routes.ts`. So both are
+ * scanned: a title is a translation key wherever it is declared.
  */
 
 const WORKSPACE_ROOT = join(__dirname, '..', '..', '..', '..', '..', '..', '..');
@@ -18,19 +22,21 @@ const CATALOGUES = join(CLIENT_SOURCE, 'assets', 'i18n');
 
 const KEY = /^[A-Z][A-Z0-9_]*(\.[A-Z0-9_]+)+$/;
 
-function routeFiles(directory: string): string[] {
+/** Sources that declare a route's visible title: manifests (`titleKey`) and route tables (`title`). */
+function titleSourceFiles(directory: string): string[] {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const path = join(directory, entry.name);
-    if (entry.isDirectory()) return routeFiles(path);
-    return entry.name.endsWith('.routes.ts') ? [path] : [];
+    if (entry.isDirectory()) return titleSourceFiles(path);
+    return entry.name.endsWith('.routes.ts') || entry.name.endsWith('.manifest.ts') ? [path] : [];
   });
 }
 
 function routeTitles(): { file: string; title: string }[] {
   const found: { file: string; title: string }[] = [];
-  for (const path of routeFiles(CLIENT_SOURCE)) {
+  for (const path of titleSourceFiles(CLIENT_SOURCE)) {
     const source = readFileSync(path, 'utf8');
-    for (const match of source.matchAll(/title: '([^']*)'/g)) {
+    // `title:` in route tables, `titleKey:` in manifests — both are the reader-facing title.
+    for (const match of source.matchAll(/\btitle(?:Key)?: '([^']*)'/g)) {
       found.push({ file: relative(CLIENT_SOURCE, path), title: match[1] });
     }
   }

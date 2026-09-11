@@ -54,6 +54,7 @@ import { ClickOutsideDirective } from '../../shared/directives/click-outside.dir
 import { CompanySwitcherComponent } from './components/company-switcher/company-switcher.component';
 import { BrandLogo } from '../../shared/components/brand-logo/brand-logo';
 import { TabContainerComponent } from '../../core/tabs/components/tab-container.component';
+import { TabSwitcherComponent } from '../../core/tabs/components/tab-switcher.component';
 import { TabPersistenceService } from '../../core/tabs/tab-persistence.service';
 import { TabKeyboardService } from '../../core/tabs/tab-keyboard.service';
 import { TabRouterService } from '../../core/tabs/tab-router.service';
@@ -69,7 +70,7 @@ import { ModuleManifest } from '../../core/modules/module-manifest';
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, ThemeToggle, AppLauncherComponent, LucideAngularModule, TranslateModule, Sidebar, ClickOutsideDirective, SettingsModalComponent, CompanySwitcherComponent, BrandLogo, TabContainerComponent, DialogHostComponent, StatusBarComponent, ModuleRailComponent, ModuleMenuComponent, WindowModeToggleComponent, ...FORMAT_PIPES], // ✅ Directiva añadida a los imports
+  imports: [CommonModule, RouterLink, RouterLinkActive, ThemeToggle, AppLauncherComponent, LucideAngularModule, TranslateModule, Sidebar, ClickOutsideDirective, SettingsModalComponent, CompanySwitcherComponent, BrandLogo, TabContainerComponent, TabSwitcherComponent, DialogHostComponent, StatusBarComponent, ModuleRailComponent, ModuleMenuComponent, WindowModeToggleComponent, ...FORMAT_PIPES], // ✅ Directiva añadida a los imports
   templateUrl: './main.layout.html',
   styleUrls: ['./main.layout.scss'],
 })
