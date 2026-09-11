@@ -60,23 +60,18 @@ export class TabRouterService {
     this.tabState.openTab({ route });
   }
 
-  /**
-   * Navega marcando la intención de apertura (VS Code):
-   *  - `'preview'`   → vista previa reutilizable (clic simple al hojear).
-   *  - `'permanent'` → pestaña fija (doble clic / «abrir»).
-   * La intención viaja en `history.state` y la lee el puente Router→Tabs.
-   */
-  navigateWithIntent(commands: unknown[], intent: 'preview' | 'permanent'): void {
-    void this.router.navigate(commands as never[], { state: { tabIntent: intent } });
-  }
-
   // ── helpers ────────────────────────────────────────────────────────────
 
   /**
-   * Traduce la intención guardada en `history.state` a la bandera `preview` de
-   * `openTab`. `undefined` deja decidir al WorkspaceStore según la preferencia y
-   * el tipo de pestaña. Se lee de `history.state` (no de `getCurrentNavigation`,
-   * que ya es null cuando llega `NavigationEnd`).
+   * Traduce la intención de apertura guardada en `history.state` a la bandera `preview` de
+   * `openTab`:
+   *  - `'preview'`   → vista previa reutilizable (hojear).
+   *  - `'permanent'` → pestaña fija.
+   *  - ausente/otro  → `undefined`, y decide el WorkspaceStore según la preferencia y el tipo.
+   *
+   * Es un punto de extensión vivo: cualquier navegación puede fijar el comportamiento con
+   * `router.navigate([...], { state: { tabIntent: 'permanent' } })`. Se lee de `history.state` y no
+   * de `getCurrentNavigation`, que ya es `null` cuando llega `NavigationEnd`.
    */
   private readIntent(): boolean | undefined {
     const intent =

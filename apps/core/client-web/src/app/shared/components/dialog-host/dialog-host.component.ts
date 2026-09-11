@@ -66,10 +66,18 @@ import { DialogService } from '../../../core/services/dialog.service';
                 <lucide-icon [img]="Trash2Icon" size="16"></lucide-icon>
                 {{ d.discardText }}
               </button>
-              <button class="btn btn-primary" type="button" (click)="resolve('save')">
-                <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
-                {{ d.saveText }}
-              </button>
+              <!--
+                "Save" only appears when something can act on it. A tab with no registered save
+                handler used to show a "Save" button that, when pressed, told the reader to save
+                from the view itself and refused to close — a dead end. Now that case shows only
+                Discard / Cancel.
+              -->
+              @if (d.allowSave) {
+                <button class="btn btn-primary" type="button" (click)="resolve('save')">
+                  <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
+                  {{ d.saveText }}
+                </button>
+              }
             } @else {
               <button class="btn btn-ghost" type="button" (click)="cancel()">
                 {{ d.cancelText }}

@@ -1,4 +1,5 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { TabModel, TabType, OpenTabConfig } from './tab.model';
 import { TabRegistryService } from './tab-registry.service';
 import { TabPreferencesService } from './tab-preferences.service';
@@ -31,6 +32,7 @@ export class TabStateService {
   private dialog = inject(DialogService);
   private notify = inject(NotificationService);
   private bus = inject(TabEventBusService);
+  private translate = inject(TranslateService);
 
   private tabsSignal = signal<TabModel[]>([]);
   private activeTabIdSignal = signal<string | null>(null);
@@ -100,10 +102,14 @@ export class TabStateService {
       }
     }
 
+    // `definition.title` es una CLAVE de i18n (`PAGE_TITLES.INVOICES`), no texto: hay que
+    // traducirla o la pestaña muestra la clave en crudo. `config.title` y `titleFn(...)` ya vienen
+    // resueltos (p. ej. «Factura #123»), así que no se tocan. Si i18n aún no cargó, `instant`
+    // devuelve la clave y el pipe `translate` de la cabecera la resuelve al terminar de cargar.
     const title = config.title
       ?? (definition.titleFn ? definition.titleFn(params) : undefined)
-      ?? definition.title
-      ?? 'Nueva Pestaña';
+      ?? (definition.title ? this.translate.instant(definition.title) : undefined)
+      ?? this.translate.instant('TABS.NEW_TAB');
     const icon = config.icon || definition.icon || 'File';
     const routeParams = { ...params, ...(config.routeParams ?? {}) };
 
@@ -235,7 +241,11 @@ export class TabStateService {
 
     if (tab.isDirty) {
       const decision = await this.dialog.confirmClose({
-        message: `Tienes cambios sin guardar en «${tab.title}». ¿Qué deseas hacer?`,
+        message: 'DIALOG.UNSAVED_CHANGES.MESSAGE_IN_TAB',
+        messageParams: { tab: tab.title },
+        // Sin handler de guardado registrado, no se ofrece «Guardar»: sería un botón que solo sabe
+        // decir «guarda desde la vista». Solo Descartar / Cancelar.
+        allowSave: this.closeHandlers.has(tabId),
       });
       if (decision === 'cancel') return false;
       if (decision === 'save') {
@@ -365,20 +375,7 @@ export class TabStateService {
     this.tabsSignal.update((tabs) => this.sortPinned(tabs));
   }
 
-  /** Reordena por drag & drop (Dockview ya mueve el panel; sincronizamos estado). */
-  moveTab(fromIndex: number, toIndex: number): void {
-    const tabs = [...this.tabsSignal()];
-    if (
-      fromIndex < 0 || toIndex < 0 ||
-      fromIndex >= tabs.length || toIndex >= tabs.length ||
-      fromIndex === toIndex
-    ) return;
-    const [moved] = tabs.splice(fromIndex, 1);
-    tabs.splice(toIndex, 0, moved);
-    this.tabsSignal.set(tabs.map((t, i) => ({ ...t, order: i })));
-  }
-
-  /** Reordena según el orden de ids que reporta Dockview. */
+  /** Reordena según el orden de ids que reporta Dockview (drag & drop de la franja). */
   syncOrder(orderedIds: string[]): void {
     const current = this.tabsSignal();
     if (orderedIds.length !== current.length) return;
@@ -405,7 +402,7 @@ export class TabStateService {
       isPinned: false,
       isPreview: false,
       isDirty: false,
-      title: `${tab.title} (copia)`,
+      title: this.translate.instant('TABS.COPY_OF', { title: tab.title }),
       createdAt: now,
       lastActivatedAt: now,
       order: this.tabsSignal().length,

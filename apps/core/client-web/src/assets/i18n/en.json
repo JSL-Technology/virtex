@@ -2383,8 +2383,10 @@
     "JOURNAL_ENTRY_IMPORT": "Import journal entries",
     "JOURNAL_ENTRY_NEW": "New journal entry",
     "JOURNAL_NEW": "New journal",
+    "JOURNAL_EDIT": "Edit journal",
     "LEDGERS": "Ledgers",
     "LEDGER_NEW": "New ledger",
+    "LEDGER_EDIT": "Edit ledger",
     "MAIL_SERVER": "Mail server",
     "MANUFACTURING": "Manufacturing (MRP)",
     "MASTER_DATA": "Master data",
@@ -3647,7 +3649,13 @@
     "MODE_COMPACT": "Compact",
     "MODE_FOCUSED_HINT": "One window in view; the rest as tabs.",
     "MODE_WORKSHOP_HINT": "Several windows at once: split, tile and float.",
-    "MODE_COMPACT_HINT": "Narrow screen: one window, no splitting."
+    "MODE_COMPACT_HINT": "Narrow screen: one window, no splitting.",
+    "NEW_TAB": "New tab",
+    "GENERIC_MODULE": "Module",
+    "COPY_OF": "{{title}} (copy)",
+    "OPEN_TABS": "Open tabs",
+    "OPEN_TABS_ARIA": "Switch open tab",
+    "NO_OPEN_TABS": "No open tabs"
   },
   "TREASURY": {
     "AL_CORTE": "As of",

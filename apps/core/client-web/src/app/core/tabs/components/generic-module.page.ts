@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, Construction } from 'lucide-angular';
 import { TAB_CONTEXT } from '../tab-context';
 
@@ -92,6 +92,7 @@ import { TAB_CONTEXT } from '../tab-context';
 })
 export class GenericModulePage {
   private ctx = inject(TAB_CONTEXT, { optional: true });
+  private translate = inject(TranslateService);
 
   readonly title = computed(() => this.ctx?.title || this.prettify(this.ctx?.route));
   readonly route = computed(() => this.ctx?.route || '/');
@@ -99,8 +100,8 @@ export class GenericModulePage {
   protected readonly ConstructionIcon = Construction;
 
   private prettify(route?: string): string {
-    if (!route) return 'Módulo';
-    const last = route.split('/').filter(Boolean).pop() ?? 'Módulo';
+    const last = route?.split('/').filter(Boolean).pop();
+    if (!last) return this.translate.instant('TABS.GENERIC_MODULE');
     return last
       .replace(/[-_]/g, ' ')
       .replace(/\b\w/g, (c) => c.toUpperCase());

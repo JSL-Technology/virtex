@@ -215,6 +215,12 @@
 
     <div class="header-right">
       <div class="actions-group">
+        <!--
+          Selector de pestañas abiertas. Solo se muestra en modo compacto (pantalla estrecha), donde
+          la franja de pestañas se oculta: sin él, las pestañas abiertas quedarían inalcanzables.
+        -->
+        <app-tab-switcher />
+
         <app-launcher></app-launcher>
 
         @if (pwaService.canInstall()) {
