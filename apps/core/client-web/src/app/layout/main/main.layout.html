@@ -208,7 +208,11 @@
         >
           <button
             class="icon-button"
+            type="button"
             [title]="'ACTIONS.CREATE_NEW' | translate"
+            [attr.aria-label]="'ACTIONS.CREATE_NEW' | translate"
+            aria-haspopup="menu"
+            [attr.aria-expanded]="isQuickCreateModalOpen()"
             (click)="toggleQuickCreateModal()"
           >
             <lucide-icon [img]="PlusCircleIcon" size="20"></lucide-icon>
@@ -284,7 +288,11 @@
         >
           <button
             class="icon-button"
+            type="button"
             [title]="'NAV.NOTIFICATIONS' | translate"
+            [attr.aria-label]="'NAV.NOTIFICATIONS' | translate"
+            aria-haspopup="menu"
+            [attr.aria-expanded]="isNotificationMenuOpen()"
             (click)="toggleNotificationMenu()"
           >
             <lucide-icon [img]="BellIcon" size="20"></lucide-icon>
@@ -336,6 +344,85 @@
               >
             </div>
             }
+          </div>
+          }
+        </div>
+
+        <div
+          class="help-menu"
+          appClickOutside
+          (clickOutside)="closeHelpMenu()"
+        >
+          <button
+            class="icon-button"
+            type="button"
+            [title]="'USER.HELP' | translate"
+            [attr.aria-label]="'USER.HELP' | translate"
+            aria-haspopup="menu"
+            [attr.aria-expanded]="isHelpMenuOpen()"
+            (click)="toggleHelpMenu()"
+          >
+            <lucide-icon [img]="HelpCircleIcon" size="20"></lucide-icon>
+          </button>
+
+          @if (isHelpMenuOpen()) {
+          <div class="help-dropdown" role="menu">
+            <div class="dropdown-header">
+              <h3>{{ 'USER.HELP' | translate }}</h3>
+            </div>
+            <div class="dropdown-body">
+              <button
+                class="dropdown-item"
+                type="button"
+                role="menuitem"
+                (click)="comingSoon()"
+              >
+                <lucide-icon [img]="HelpCircleIcon" size="16"></lucide-icon>
+                <span>{{ 'USER.HELP' | translate }}</span>
+              </button>
+              <button
+                class="dropdown-item"
+                type="button"
+                role="menuitem"
+                (click)="comingSoon()"
+              >
+                <lucide-icon [img]="KeyboardIcon" size="16"></lucide-icon>
+                <span>{{ 'USER.SHORTCUTS' | translate }}</span>
+              </button>
+
+              <div class="dropdown-divider" role="separator"></div>
+
+              <span class="dropdown-section-label">
+                {{ 'FEEDBACK.TITLE' | translate }}
+              </span>
+              <button
+                class="dropdown-item"
+                type="button"
+                role="menuitem"
+                (click)="comingSoon()"
+              >
+                <lucide-icon [img]="BugIcon" size="16"></lucide-icon>
+                <span>{{ 'FEEDBACK.REPORT_BUG' | translate }}</span>
+              </button>
+              <button
+                class="dropdown-item"
+                type="button"
+                role="menuitem"
+                (click)="comingSoon()"
+              >
+                <lucide-icon [img]="LightbulbIcon" size="16"></lucide-icon>
+                <span>{{ 'FEEDBACK.SUGGEST' | translate }}</span>
+              </button>
+              <button
+                class="dropdown-item"
+                type="button"
+                role="menuitem"
+                (click)="comingSoon()"
+              >
+                <lucide-icon [img]="StarIcon" size="16"></lucide-icon>
+                <span>{{ 'FEEDBACK.PRAISE' | translate }}</span>
+              </button>
+            </div>
           </div>
           }
         </div>

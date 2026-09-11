@@ -18,6 +18,7 @@ import { filter, map, startWith } from 'rxjs/operators';
 import { SettingsModalComponent } from '../../features/settings/modal/settings-modal.component';
 import { AuthService } from '../../core/services/auth';
 import { NotificationCenterService } from '../../core/services/notification-center.service';
+import { NotificationService } from '../../core/services/notification';
 import { ThemeToggle } from '../../shared/components/theme-toggle/theme-toggle';
 import {
   SearchService,
@@ -68,6 +69,11 @@ import {
   Package as PackageIcon, // ✅ Icono añadido
   Menu, // ✅ Toggle de sidebar (responsive)
   ArrowLeft,
+  HelpCircle, // ✅ Ayuda
+  Keyboard, // ✅ Atajos de teclado
+  Bug, // ✅ Reportar un problema
+  Lightbulb, // ✅ Sugerir una mejora
+  Star, // ✅ Dejar una valoración
 } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { Sidebar } from '../sidebar/sidebar';
@@ -108,6 +114,7 @@ import { ModuleRailComponent } from '../module-rail/module-rail.component';
 })
 export class MainLayout implements OnInit {
   notificationCenter = inject(NotificationCenterService);
+  private readonly notifications = inject(NotificationService);
   tabPersistence = inject(TabPersistenceService);
   tabRouter = inject(TabRouterService);
   private tabKeyboard = inject(TabKeyboardService);
@@ -125,6 +132,7 @@ export class MainLayout implements OnInit {
     this.isQuickCreateModalOpen.update((value) => !value);
     this.isUserMenuOpen.set(false);
     this.isNotificationMenuOpen.set(false);
+    this.isHelpMenuOpen.set(false);
   }
 
   closeQuickCreateModal(): void {
@@ -223,6 +231,7 @@ export class MainLayout implements OnInit {
 
   isUserMenuOpen = signal(false);
   isNotificationMenuOpen = signal(false);
+  isHelpMenuOpen = signal(false); // menú «?» de ayuda y feedback
   isSidebarOpen = signal(false); // overlay de sidebar en móvil
   isSearchOpen = signal(false);
 
@@ -283,17 +292,48 @@ export class MainLayout implements OnInit {
   protected readonly ReceiptIcon = Receipt; // ✅ Icono añadido
   protected readonly UserPlusIcon = UserPlus; // ✅ Icono añadido
   protected readonly MenuIcon = Menu; // ✅ Toggle de sidebar
+  protected readonly HelpCircleIcon = HelpCircle;
+  protected readonly KeyboardIcon = Keyboard;
+  protected readonly BugIcon = Bug;
+  protected readonly LightbulbIcon = Lightbulb;
+  protected readonly StarIcon = Star;
 
   toggleUserMenu(): void {
     this.isUserMenuOpen.update((isOpen) => !isOpen);
     this.closeNotificationMenu();
     this.closeQuickCreateModal();
+    this.closeHelpMenu();
   }
 
   toggleNotificationMenu(): void {
     this.isNotificationMenuOpen.update((isOpen) => !isOpen);
     this.closeUserMenu();
     this.closeQuickCreateModal();
+    this.closeHelpMenu();
+  }
+
+  toggleHelpMenu(): void {
+    this.isHelpMenuOpen.update((isOpen) => !isOpen);
+    this.closeUserMenu();
+    this.closeNotificationMenu();
+    this.closeQuickCreateModal();
+  }
+
+  closeHelpMenu(): void {
+    this.isHelpMenuOpen.set(false);
+  }
+
+  /**
+   * Marcador de posición para Ayuda, Atajos y las acciones de Feedback.
+   *
+   * Todavía no hay backend ni destino real para estas opciones, así que en vez
+   * de un botón muerto se avisa —sin interrumpir— de que la función llegará
+   * pronto. Cuando exista el flujo real cada botón llamará a su propia acción y
+   * este método desaparecerá.
+   */
+  comingSoon(): void {
+    this.notifications.showInfo('FEEDBACK.COMING_SOON');
+    this.closeHelpMenu();
   }
 
   closeUserMenu(): void {
