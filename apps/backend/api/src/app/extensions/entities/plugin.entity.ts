@@ -36,7 +36,7 @@ export class Plugin {
   @Column({ type: 'text', nullable: true })
   description: string | null;
 
-  @Column({ length: 255, nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   author: string | null;
 
   @Column({ type: 'enum', enum: PluginStatus, default: PluginStatus.ACTIVE })

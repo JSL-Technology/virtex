@@ -56,10 +56,10 @@ export class PosSale {
   @Column({ type: 'numeric', precision: 14, scale: 2, transformer: numericTransformer, default: 0 })
   total: number;
 
-  @Column({ length: 60, nullable: true })
+  @Column({ type: 'varchar', length: 60, nullable: true })
   paymentMethod: string | null;
 
-  @Column({ length: 255, nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   customerName: string | null;
 
   @Column({ type: 'uuid', nullable: true })
