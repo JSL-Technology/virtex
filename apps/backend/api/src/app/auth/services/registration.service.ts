@@ -346,6 +346,66 @@ export class RegistrationService {
   }
 
   /**
+   * Provision a complete tenant (organization + administrator role + user + membership + the
+   * country's chart of accounts and taxes) in a single transaction, bypassing the pending/payment
+   * flow.
+   *
+   * For trusted, non-interactive callers only — the development seeder — NOT the public signup
+   * path, which must go through validation, email verification and payment. It exists so the dev
+   * seeder can reuse the exact provisioning the paid flow uses (`materializeAccount`) instead of
+   * hand-assembling a tenant that would drift from it.
+   */
+  async provisionTenantDirect(input: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    password: string;
+    organizationName: string;
+    countryCode: string | null;
+    taxId?: string | null;
+    taxpayerKind?: string | null;
+  }): Promise<{ user: User; organization: Organization }> {
+    const passwordHash = await this.passwordService.hash(input.password);
+    // Derive the fiscal region from the country (same rule as signup) so the tenant provisions its
+    // chart of accounts and taxes. If the country has no region configured, fall back to null —
+    // materializeAccount then skips provisioning and the caller still gets a usable admin login.
+    let fiscalRegionId: string | null = null;
+    if (input.countryCode) {
+      try {
+        fiscalRegionId = await this.resolveFiscalRegionId(input.countryCode);
+      } catch {
+        fiscalRegionId = null;
+      }
+    }
+    return this.dataSource.transaction(async (manager) => {
+      const { user, organization } = await this.materializeAccount(
+        {
+          email: input.email,
+          firstName: input.firstName,
+          lastName: input.lastName,
+          phone: null,
+          phoneVerified: false,
+          passwordHash,
+          organizationName: input.organizationName,
+          taxId: input.taxId ?? null,
+          fiscalRegionId,
+          industry: null,
+          companySize: null,
+          address: null,
+          city: null,
+          state: null,
+          postalCode: null,
+          countryCode: input.countryCode,
+          taxpayerKind: input.taxpayerKind ?? null,
+          fiscalProfile: null,
+        },
+        manager,
+      );
+      return { user, organization };
+    });
+  }
+
+  /**
    * Payment-first signup step 1: validates everything and stores a pending
    * registration (password hashed). NO account is created yet — that happens
    * only once Stripe confirms the payment. Returns the pending row (or a dummy

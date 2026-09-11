@@ -19,6 +19,7 @@ import { AuthSessionController } from './auth-session.controller';
 import { AuthService } from './auth.service';
 import { AuthFacade } from './auth.facade';
 import { RegistrationService } from './services/registration.service';
+import { DevSeederService } from './services/dev-seeder.service';
 import { PendingRegistrationCleanupService } from './services/pending-registration-cleanup.service';
 import { PendingRegistration } from './entities/pending-registration.entity';
 import { UserOrganization } from '../organizations/entities/user-organization.entity';
@@ -172,6 +173,7 @@ import { KeyManagementModule } from './services/key-management.module';
     AuthService,
     AuthFacade,
     RegistrationService,
+    DevSeederService,
     // Enforces the retention limit on `pending_registrations`, whose `expires_at` was written
     // and never read — leaving the personal data of people who never became customers on record
     // indefinitely.
@@ -239,6 +241,7 @@ import { KeyManagementModule } from './services/key-management.module';
     StepUpGuard,
     IsOrganizationOwnerPolicy,
     KeyManagementModule,
+    DevSeederService,
   ],
 })
 export class AuthModule {}
