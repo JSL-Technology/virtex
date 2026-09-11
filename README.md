@@ -1,5 +1,16 @@
 # Virteex
 
+Además de los ~55 módulos ERP, se consolidaron desde `special-enigma` (sin microservicios ni
+dominios nuevos):
+
+- **Máquina virtual para extensiones** — un marketplace de extensiones firmadas que corren en un
+  sandbox `isolated-vm`, con pipeline de admisión, consentimiento por inquilino y medición de uso.
+  Ver [docs/extensions.md](docs/extensions.md).
+- **Punto de venta (POS)** — turnos de caja y ventas atómicas (descuentan stock en la misma
+  transacción). Ver [docs/pos.md](docs/pos.md).
+
+Detalle y criterios del merge en [docs/MERGE_FROM_SPECIAL_ENIGMA.md](docs/MERGE_FROM_SPECIAL_ENIGMA.md).
+
 ## Ejecutar en local
 
 Necesitas Postgres y Redis. Nada más: con `NODE_ENV` sin definir o en `development`, la API genera

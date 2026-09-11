@@ -1,3 +1,7 @@
+// Set before anything reads it: signing keys are resolved lazily on first use, and this guarantees
+// the ephemeral-key path regardless of test-file ordering within a worker.
+process.env.ALLOW_EPHEMERAL_PLUGIN_KEYS = 'true';
+
 import { SandboxService } from './sandbox.service';
 import { PluginAdmissionService } from './plugin-admission.service';
 import { SigningKeyProvider } from './signing-key.provider';
