@@ -1,5 +1,5 @@
 
-import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { BillOfMaterial } from './bill-of-material.entity';
 
@@ -12,8 +12,13 @@ export enum ProductionStatus {
 }
 
 @Entity('production_orders')
+// An order number is a per-tenant series, not a global one. The `unique: true` on the column made
+// it global, so the first tenant to book `PO-0001` blocked it for every other tenant.
+@Index('IDX_production_orders_org_order_number', ['organizationId', 'orderNumber'], {
+  unique: true,
+})
 export class ProductionOrder extends BaseEntity {
-  @Column({ unique: true })
+  @Column()
   orderNumber: string;
 
   @Column({ name: 'product_id', type: 'uuid' })

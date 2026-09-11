@@ -1128,6 +1128,9 @@
       "INVOICES": "Sales invoices",
       "JOURNAL_ENTRIES": "Journal entries",
       "MANUFACTURING": "Manufacturing",
+      "PROCUREMENT": "Procurement",
+      "PROJECTS": "Projects",
+      "WMS": "Warehouse management",
       "PRICE_LISTS": "Price lists",
       "PRODUCTS": "Products & Services",
       "RECONCILIATION": "Bank reconciliation",
@@ -1144,6 +1147,31 @@
       "USERS": "Users",
       "WORKFLOWS": "Workflows"
     }
+  },
+  "MANUFACTURING": {
+    "PRODUCTION_ORDER_NOT_FOUND": "Production order \"{{id}}\" was not found.",
+    "BILL_OF_MATERIAL_NOT_FOUND": "Bill of materials \"{{id}}\" was not found.",
+    "WORK_CENTER_NOT_FOUND": "Work centre \"{{id}}\" was not found."
+  },
+  "COST_ACCOUNTING": {
+    "COST_CENTER_NOT_FOUND": "Cost centre \"{{id}}\" was not found."
+  },
+  "HCM": {
+    "EMPLOYEE_NOT_FOUND": "Employee \"{{id}}\" was not found.",
+    "DEPARTMENT_NOT_FOUND": "Department \"{{id}}\" was not found."
+  },
+  "PROCUREMENT": {
+    "REQUISITION_NOT_FOUND": "Purchase requisition \"{{id}}\" was not found."
+  },
+  "PROJECTS": {
+    "PROJECT_NOT_FOUND": "Project \"{{id}}\" was not found.",
+    "TASK_NOT_FOUND": "Task \"{{id}}\" was not found.",
+    "TIMESHEET_NOT_FOUND": "Timesheet \"{{id}}\" was not found."
+  },
+  "WMS": {
+    "WAREHOUSE_NOT_FOUND": "Warehouse \"{{id}}\" was not found.",
+    "BIN_LOCATION_NOT_FOUND": "Bin location \"{{id}}\" was not found.",
+    "LANDED_COST_NOT_FOUND": "Landed-cost scheme \"{{id}}\" was not found."
   },
   "PRICE_LISTS": {
     "PRICE_LIST_WITH_ID_NOT_FOUND": "Price list \"{{id}}\" was not found."

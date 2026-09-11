@@ -1128,6 +1128,9 @@
       "INVOICES": "Faturas de venda",
       "JOURNAL_ENTRIES": "Lançamentos contábeis",
       "MANUFACTURING": "Produção",
+      "PROCUREMENT": "Aquisições",
+      "PROJECTS": "Projetos",
+      "WMS": "Gestão de armazéns",
       "PRICE_LISTS": "Tabelas de preços",
       "PRODUCTS": "Produtos",
       "RECONCILIATION": "Conciliação bancária",
@@ -1144,6 +1147,31 @@
       "USERS": "Usuários",
       "WORKFLOWS": "Fluxos de trabalho"
     }
+  },
+  "MANUFACTURING": {
+    "PRODUCTION_ORDER_NOT_FOUND": "A ordem de produção \"{{id}}\" não foi encontrada.",
+    "BILL_OF_MATERIAL_NOT_FOUND": "A lista de materiais \"{{id}}\" não foi encontrada.",
+    "WORK_CENTER_NOT_FOUND": "O centro de trabalho \"{{id}}\" não foi encontrado."
+  },
+  "COST_ACCOUNTING": {
+    "COST_CENTER_NOT_FOUND": "O centro de custo \"{{id}}\" não foi encontrado."
+  },
+  "HCM": {
+    "EMPLOYEE_NOT_FOUND": "O colaborador \"{{id}}\" não foi encontrado.",
+    "DEPARTMENT_NOT_FOUND": "O departamento \"{{id}}\" não foi encontrado."
+  },
+  "PROCUREMENT": {
+    "REQUISITION_NOT_FOUND": "A requisição de compra \"{{id}}\" não foi encontrada."
+  },
+  "PROJECTS": {
+    "PROJECT_NOT_FOUND": "O projeto \"{{id}}\" não foi encontrado.",
+    "TASK_NOT_FOUND": "A tarefa \"{{id}}\" não foi encontrada.",
+    "TIMESHEET_NOT_FOUND": "O apontamento de horas \"{{id}}\" não foi encontrado."
+  },
+  "WMS": {
+    "WAREHOUSE_NOT_FOUND": "O armazém \"{{id}}\" não foi encontrado.",
+    "BIN_LOCATION_NOT_FOUND": "A localização \"{{id}}\" não foi encontrada.",
+    "LANDED_COST_NOT_FOUND": "O esquema de custos de importação \"{{id}}\" não foi encontrado."
   },
   "PRICE_LISTS": {
     "PRICE_LIST_WITH_ID_NOT_FOUND": "A tabela de preços \"{{id}}\" não foi encontrada."

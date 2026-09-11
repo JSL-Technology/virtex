@@ -78,6 +78,7 @@ import { SupplyChainModule } from './supply-chain/supply-chain.module';
 import { ProjectsModule } from './projects/projects.module';
 import { HcmModule } from './hcm/hcm.module';
 import { ProcurementModule } from './procurement/procurement.module';
+import { CostAccountingModule } from './cost-accounting/cost-accounting.module';
 import { DatasheetsModule } from './datasheets/datasheets.module';
 import { envValidation } from './config/env.validation';
 import { redisConnectionOptions } from './cache/redis.config';
@@ -305,6 +306,7 @@ import { PosModule } from './pos/pos.module';
     ProjectsModule,
     HcmModule,
     ProcurementModule,
+    CostAccountingModule,
     DatasheetsModule,
     IdempotencyModule,
     TenancyModule,

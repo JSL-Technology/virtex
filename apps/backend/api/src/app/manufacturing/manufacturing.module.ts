@@ -7,6 +7,7 @@ import { ProductionOrder } from './entities/production-order.entity';
 import { BillOfMaterial } from './entities/bill-of-material.entity';
 import { BillOfMaterialItem } from './entities/bill-of-material-item.entity';
 import { WorkCenter } from './entities/work-center.entity';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -15,7 +16,8 @@ import { WorkCenter } from './entities/work-center.entity';
       BillOfMaterial,
       BillOfMaterialItem,
       WorkCenter
-    ])
+    ]),
+    AuthModule,
   ],
   controllers: [ManufacturingController],
   providers: [ManufacturingService],

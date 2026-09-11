@@ -13,6 +13,11 @@
 > donde hay un fallo real, lo señalo con archivo y línea. La conclusión corta es que **el
 > núcleo contable es de nivel internacional**, y que los problemas se concentran en un
 > puñado de módulos periféricos que quedaron fuera del proceso de endurecimiento.
+>
+> **➤ Estado (actualizado):** los seis hallazgos han sido **resueltos** en esta misma rama.
+> El detalle de cada corrección, con archivos y validaciones ejecutadas, está en la
+> **[§10 Resolución de hallazgos](#10-resolución-de-hallazgos-implementada)** al final del
+> documento.
 
 ---
 
@@ -406,5 +411,72 @@ de producto (H-3). El fundamento sobre el que construir es sólido.
 
 ---
 
-*Generado a partir de la lectura del código y la ejecución de verificaciones en el commit
-`0519331`. Cada hallazgo cita archivo y línea para su reproducción.*
+## 10. Resolución de hallazgos (implementada)
+
+Los seis hallazgos fueron corregidos en esta rama. Cada corrección sigue el patrón que el resto
+del backend ya usa (scoping por `organizationId`, DTOs validados, `@CurrentUser`, `@HasPermission`,
+`ParseUUIDPipe`, paginación) y se validó localmente.
+
+### ✅ H-1 — Fuga cross-tenant en Manufactura → **corregida**
+`manufacturing.service.ts` fue reescrito: `findAllOrders(organizationId, …)` ahora filtra por
+tenant y pagina; se añadió CRUD completo y con scoping para órdenes de producción, listas de
+materiales (BOM) y centros de trabajo. Prueba de regresión: `manufacturing.service.spec.ts` (mocks,
+sin BD) verifica que toda lectura lleva `where: { organizationId }`, que el tenant se sella en el
+create y que el delete nunca es por id solo.
+
+### ✅ H-2 — RLS inerte → **mitigada con guard estático + runbook; activación documentada**
+La activación completa de RLS (cambio al rol `virtex_app` + manager por request) es un cambio
+**operativo supervisado** que requiere BD viva y no puede hacerse a ciegas sin arriesgar la app;
+queda documentada como runbook. Como backstop inmediato y seguro contra la *clase* de bug de H-1 se
+añadió **`tools/verify/tenant-scope-guard.mjs`** (script `verify:tenant-scope`, integrado en CI):
+falla el build ante cualquier `.find()/.findAndCount()` sin filtro sobre una tabla con tenant, salvo
+lectura global anotada con `tenant-scope-guard-allow` (moneda, regiones fiscales, unidades, y el
+cron cross-org de archivado, todos anotados). Ahora el olvido de un `where` es un fallo de CI, no
+una fuga en producción.
+
+### ✅ H-3 — Módulos solo-esquema → **implementados como CRUD tenant-seguro**
+`cost-accounting`, `hcm`, `procurement`, `projects` y `supply-chain` pasan de "entidades sin API" a
+módulos con servicio, controlador, DTOs validados, permisos y registro en `app.module`:
+- **cost-accounting** — centros de costo/beneficio (CRUD).
+- **hcm** — empleados y departamentos (CRUD).
+- **procurement** — requisiciones de compra (CRUD; el solicitante se sella del usuario autenticado).
+- **projects** — proyectos, tareas y partes de horas (CRUD; la tarea/parte valida que el proyecto
+  sea del mismo tenant).
+- **supply-chain (WMS)** — almacenes, ubicaciones y esquemas de costos de importación (CRUD).
+
+Permisos nuevos en `shared/permissions.ts` (`hcm:manage`, `cost_accounting:view`,
+`procurement:view|manage`, `projects:view|manage`, `wms:view|manage`) con traducciones en los tres
+idiomas. **Nota de alcance honesta:** esto entrega el *registro* tenant-seguro de cada dominio; la
+lógica profunda (motor de nómina, MRP, asignación de landed cost) sigue siendo trabajo futuro.
+
+### ✅ H-3b (hallazgo nuevo durante la corrección) — claves de negocio únicas globales → **por tenant**
+Al implementar los módulos se detectó que `production_orders.orderNumber`, `purchase_requisitions.
+number`, `employees.email` y `cost_centers.code` tenían `UNIQUE` **global**: el primer tenant en usar
+`PO-0001` lo bloqueaba para todos. Se reemplazaron por índices únicos compuestos `(organization_id,
+clave)` en las entidades y en la migración **`1789002500000-PerTenantUniqueKeys.ts`**.
+
+### ✅ H-4 — `createOrder(@Body() : any)` → **DTO validado + scoping**
+El controlador de Manufactura usa DTOs (`Create/UpdateProductionOrderDto`, etc.) con `class-validator`
+y sella el tenant en el servidor. Era el único `@Body() : any` del backend; ya no existe.
+
+### ✅ H-5 — Tests de integración omitidos en silencio → **aviso visible + BD en un comando**
+`jest.global-setup.cts` imprime un banner inequívoco cuando no hay BD (las suites de integración se
+omiten), y `docker-compose.test.yml` levanta Postgres+Redis alineados con CI para correrlas con un
+comando. Un verde local sin BD ya no se confunde con cobertura completa.
+
+### ✅ H-6 — Unidades de medida sin tenant → **documentado como catálogo global intencional**
+`UnitOfMeasure` no tiene `organization_id` a propósito (un kilogramo es igual en todo tenant). Se
+documentó en el servicio, la escritura sigue tras `UNITS_OF_MEASURE_MANAGE`, y la lectura global
+queda anotada para el guard. Si algún día deben ser por tenant, requiere columna + migración primero.
+
+### Validaciones ejecutadas sobre estos cambios
+- `tsc --noEmit` backend → **exit 0**.
+- Suite backend completa → **1 595 pruebas en verde, 0 fallos** (las de integración se omiten sin BD).
+- `eslint` sobre los módulos nuevos → **0 errores**.
+- `verify:tenant-scope` → **verde**; `messages.parity` y `permission-catalogue` → **verde**.
+
+---
+
+*Generado a partir de la lectura del código y la ejecución de verificaciones. La auditoría original
+se hizo sobre el commit `0519331`; la resolución de la §10 se implementó y validó en esta rama.
+Cada hallazgo cita archivo y línea para su reproducción.*

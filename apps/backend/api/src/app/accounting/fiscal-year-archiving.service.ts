@@ -29,6 +29,8 @@ export class FiscalYearArchivingService {
   @Cron('0 4 1 * *')
   async handleCron() {
     this.logger.log('Iniciando job de archivado de años fiscales...');
+    // tenant-scope-guard-allow: a cross-tenant maintenance cron that iterates every organization;
+    // `organizations` is the tenant table itself, not tenant-scoped data.
     const organizations = await this.orgRepository.find();
     
     const month = toIsoMonth(new Date());

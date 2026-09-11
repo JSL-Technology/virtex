@@ -19,6 +19,7 @@
     "lint:design-system": "npm run lint:tokens && npm run lint:contrast",
     "generate:env": "node tools/generate-environment.mjs",
     "check:schema-drift": "node tools/check-schema-drift.mjs",
+    "verify:tenant-scope": "node tools/verify/tenant-scope-guard.mjs",
     "verify:markets": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/provision-all-markets.ts",
     "verify:boot": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/boot-module-graph.ts",
     "verify:tenancy": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tools/verify/tsconfig.boot.json ts-node -r tsconfig-paths/register tools/verify/cross-tenant-membership.ts",
