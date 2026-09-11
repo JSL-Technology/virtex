@@ -197,50 +197,15 @@
 //  que convierte la navegación en dos decisiones cortas en lugar de una lista
 //  larga.
 // =============================================================================
-//  Variante de barra superior. Los módulos van en horizontal y cada uno abre su
-//  propio mega-menú con LOS MISMOS cuatro grupos del panel lateral, así que
-//  elegir esta opción cambia la orientación y nada más. Antes ocultaba el panel
-//  sin sustituirlo: cada módulo ofrecía un único destino y el resto solo se
-//  alcanzaba escribiendo la URL a mano.
-:host.layout-topnav {
-  grid-template-columns: 1fr;
-  grid-template-rows: auto auto 1fr auto;
-  grid-template-areas:
-    "banner"
-    "header"
-    "content"
-    "status";
-
-  //  El riel sobra aquí: sus módulos ya están en la barra, y dos navegaciones
-  //  simultáneas para la misma decisión es exactamente el problema que este
-  //  rediseño elimina.
-  app-module-rail {
-    display: none;
-  }
-
-  .main-sidebar {
-    display: none;
-  }
-
-  .main-topbar {
-    grid-area: header;
-    z-index: 100;
-    .topbar-left {
-      display: flex;
-    }
-  }
-
-  .main-content {
-    grid-area: content;
-  }
-}
-
-:host.layout-sidenav {
+//  La navegación vive siempre bajo la barra superior: el riel selecciona el
+//  módulo y el panel muestra sus secciones. Mantener una única anatomía evita
+//  que la navegación cambie según una preferencia visual de la organización.
+:host {
   grid-template-columns: var(--rail-width) var(--panel-width) 1fr;
-  grid-template-rows: auto auto 1fr auto;
+  grid-template-rows: auto 64px 1fr auto;
   grid-template-areas:
     "banner  banner  banner"
-    "rail    sidebar topbar"
+    "topbar  topbar  topbar"
     "rail    sidebar content"
     "status  status  status";
 
@@ -252,9 +217,6 @@
   .main-topbar {
     grid-area: topbar;
     z-index: 100;
-    .topbar-left {
-      display: none;
-    }
   }
 
   .main-content {
@@ -279,15 +241,6 @@
     flex-direction: column;
     gap: var(--space-4);
     border-bottom: 1px solid var(--glass-divider);
-  }
-
-  .sidebar-brand {
-    display: inline-flex;
-    align-self: flex-start;
-    padding-inline: var(--space-1);
-    text-decoration: none;
-    border-radius: var(--radius-sm);
-    @include ds.focus-ring(4px);
   }
 
   .sidebar-nav {
@@ -371,76 +324,32 @@
 // --- BARRA SUPERIOR (TOPBAR) Y CONTENIDO PRINCIPAL ---
 .main-topbar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   height: 64px;
-  padding: 0 24px;
-
+  padding: 0 var(--space-6);
   position: relative;
   z-index: 100;
-  border-bottom: 1px solid var(--glass-border);
-  @include ds.glass-surface('strong');
-  border-block-start: 0;
-  border-inline: 0;
+  background-color: #191b22;
+  color: #f4f6fa;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.22);
 
-  .topbar-left {
+  .topbar-brand {
+    display: inline-flex;
     align-items: center;
-    gap: var(--space-6);
-
-    .logo {
-      display: flex;
-      align-items: center;
-      min-width: 200px;
-    }
-
-    .topbar-nav {
-      display: flex;
-      align-items: center;
-      gap: var(--space-2);
-      min-width: 0;
-      //  Con diez módulos la barra deja de caber en un portátil estrecho antes
-      //  que en un teléfono. Se desplaza en lugar de comprimir los rótulos.
-      overflow-x: auto;
-      overscroll-behavior-x: contain;
-      scrollbar-width: thin;
-
-      .nav-link {
-        display: inline-flex;
-        align-items: center;
-        gap: var(--space-1);
-        font-family: inherit;
-        font-size: var(--text-md);
-        font-weight: var(--font-semibold);
-        color: var(--text-secondary);
-        text-decoration: none;
-        white-space: nowrap;
-        padding: 8px 12px;
-        border: 0;
-        background: transparent;
-        cursor: pointer;
-        border-radius: var(--radius-md);
-        @include ds.transition(background-color, color);
-
-        &:hover {
-          background-color: var(--bg-hover);
-          color: var(--text-primary);
-        }
-
-        &.active {
-          color: var(--accent-primary);
-          background-color: var(--primary-light);
-        }
-
-        @include ds.focus-ring(2px);
-      }
-    }
+    flex: 0 0 auto;
+    margin-right: var(--space-6);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    @include ds.focus-ring(4px);
   }
 
   .topbar-content {
     display: flex;
     align-items: center;
     gap: var(--space-4);
-    margin-left: auto;
+    flex: 1;
+    min-width: 0;
   }
 }
 
@@ -1412,8 +1321,7 @@ app-status-bar {
 }
 
 @media (max-width: 768px) {
-  :host.layout-sidenav,
-  :host.layout-topnav {
+  :host {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto 1fr auto;
     grid-template-areas:
@@ -1423,15 +1331,8 @@ app-status-bar {
       "status";
   }
 
-  //  En un teléfono hay UNA navegación, sea cual sea el ajuste del inquilino: el
-  //  cajón con riel y panel, detrás del botón de menú. La barra horizontal de
-  //  módulos se retira —no cabe, y con el mega-menú abierto tapaba la pantalla
-  //  entera—, y con ella desaparece la única diferencia real entre los dos
-  //  ajustes en pantalla estrecha. Los selectores llevan `:host.layout-topnav`
-  //  porque esa regla esconde ambas piezas con más especificidad que un
-  //  selector de clase suelto dentro de esta consulta.
-  :host.layout-sidenav,
-  :host.layout-topnav {
+  // En un teléfono, el riel y el panel pasan a un cajón controlado por el menú.
+  :host {
     app-module-rail {
       position: fixed;
       top: 0;
@@ -1448,26 +1349,18 @@ app-status-bar {
       display: flex;
     }
 
-    .main-topbar .topbar-left {
-      display: none;
-    }
   }
 
   :host.sidebar-open app-module-rail {
     transform: translateX(0);
   }
 
-  //  La barra superior ocupa la fila «topbar» de la rejilla móvil. Se reescribe con la MISMA
-  //  especificidad que `:host.layout-topnav .main-topbar { grid-area: header }` (la regla de
-  //  escritorio): sin esto, en topnav ganaba `header` —un área que la rejilla móvil ya no define— y
-  //  la barra caía fuera de su fila por auto-colocación.
-  :host.layout-sidenav .main-topbar,
-  :host.layout-topnav .main-topbar {
-    grid-area: topbar;
-  }
-
   .main-topbar {
-    padding: 0 12px;
+    padding: 0 var(--space-3);
+
+    .topbar-brand {
+      margin-right: var(--space-3);
+    }
   }
 
   .header-center {

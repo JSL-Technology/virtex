@@ -22,7 +22,6 @@ import { ThemeService } from './theme';
 
 export type UiDensity = 'compact' | 'comfy';
 export type ContentWidth = 'normal' | 'wide';
-export type LayoutStyle = 'topnav' | 'sidenav';
 
 export type UiFont =
   | 'Inter'
@@ -61,7 +60,6 @@ export interface BrandingSettings {
   density: UiDensity;
   logoUrl: string | null;
   contentWidth: ContentWidth;
-  layoutStyle: LayoutStyle;
 }
 
 const SETTINGS_KEY = 'branding_settings';
@@ -76,7 +74,6 @@ const DEFAULTS: BrandingSettings = {
   density: 'comfy',
   logoUrl: null,
   contentWidth: 'normal',
-  layoutStyle: 'topnav',
 };
 
 /**
