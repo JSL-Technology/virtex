@@ -1,0 +1,124 @@
+<div class="ext">
+  <header class="ext__header">
+    <div class="ext__title">
+      <lucide-icon [img]="PuzzleIcon" [size]="22"></lucide-icon>
+      <h1>{{ 'PAGE_TITLES.EXTENSIONS' | translate }}</h1>
+    </div>
+    <button type="button" class="ext__btn ext__btn--ghost" (click)="refresh()" [disabled]="loading()">
+      <lucide-icon [img]="RefreshIcon" [size]="16"></lucide-icon>
+      <span>Refresh</span>
+    </button>
+  </header>
+
+  @if (error()) {
+    <div class="ext__alert ext__alert--error">{{ error() }}</div>
+  }
+
+  <section class="ext__grid">
+    <!-- Catalogue + per-tenant consent -->
+    <div class="ext__card">
+      <h2>Installed extensions</h2>
+      @if (loading()) {
+        <p class="ext__muted">Loading…</p>
+      } @else if (extensions().length === 0) {
+        <p class="ext__muted">No extensions registered yet. Register one on the right.</p>
+      } @else {
+        <ul class="ext__list">
+          @for (ext of extensions(); track ext.id) {
+            <li class="ext__item">
+              <div class="ext__item-main">
+                <div class="ext__item-name">
+                  {{ ext.name }}
+                  <span class="ext__badge" [class.ext__badge--revoked]="ext.status === 'REVOKED'">
+                    {{ ext.status }}
+                  </span>
+                </div>
+                <div class="ext__item-desc">{{ ext.description || '—' }}</div>
+                <div class="ext__item-meta">
+                  {{ ext.versionCount }} version(s)
+                  @if (consentByPlugin().get(ext.name)?.grantedCapabilities?.length) {
+                    · granted: {{ consentByPlugin().get(ext.name)?.grantedCapabilities?.join(', ') }}
+                  }
+                </div>
+              </div>
+              <div class="ext__item-actions">
+                <label class="ext__toggle">
+                  <input
+                    type="checkbox"
+                    [checked]="consentByPlugin().get(ext.name)?.enabled ?? false"
+                    (change)="toggleEnabled(ext)"
+                  />
+                  <span>Enabled</span>
+                </label>
+                <button type="button" class="ext__btn ext__btn--danger" (click)="revoke(ext)">
+                  <lucide-icon [img]="TrashIcon" [size]="14"></lucide-icon>
+                  <span>Revoke</span>
+                </button>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+    <!-- Register a new extension -->
+    <div class="ext__card">
+      <h2>Register extension</h2>
+      <form [formGroup]="registerForm" (ngSubmit)="register()" class="ext__form">
+        <label>Name<input type="text" formControlName="name" placeholder="my-extension" /></label>
+        <label>Version<input type="text" formControlName="version" placeholder="1.0.0" /></label>
+        <label>Description<input type="text" formControlName="description" /></label>
+        <label>
+          Capabilities (comma-separated)
+          <input type="text" formControlName="capabilities" placeholder="egress:http" />
+        </label>
+        <label>
+          Requested egress hosts
+          <input type="text" formControlName="requestedEgress" placeholder="api.taxjar.com" />
+        </label>
+        <label>Code<textarea rows="6" formControlName="code"></textarea></label>
+        <button type="submit" class="ext__btn ext__btn--primary" [disabled]="registerForm.invalid || busy()">
+          <lucide-icon [img]="ShieldIcon" [size]="16"></lucide-icon>
+          <span>Admit &amp; register</span>
+        </button>
+        <p class="ext__hint">
+          The code passes the admission pipeline (SBOM, heuristics, policy) and is signed before it
+          can run.
+        </p>
+      </form>
+    </div>
+  </section>
+
+  <!-- Sandbox run -->
+  <section class="ext__card">
+    <h2>Run in sandbox</h2>
+    <form [formGroup]="executeForm" (ngSubmit)="execute()" class="ext__run">
+      <input type="text" formControlName="pluginName" placeholder="extension name" />
+      <button type="submit" class="ext__btn ext__btn--primary" [disabled]="executeForm.invalid || busy()">
+        @if (busy()) {
+          <lucide-icon [img]="LoaderIcon" [size]="16" class="ext__spin"></lucide-icon>
+        } @else {
+          <lucide-icon [img]="PlayIcon" [size]="16"></lucide-icon>
+        }
+        <span>Execute</span>
+      </button>
+    </form>
+
+    @if (result(); as r) {
+      <div
+        class="ext__result"
+        [class.ext__result--ok]="r.status === 'success'"
+        [class.ext__result--fail]="r.status !== 'success'"
+      >
+        <div class="ext__result-head">
+          {{ r.status }} · {{ r.executionTimeMs }} ms
+          @if (r.meteringId) { · metered }
+        </div>
+        @if (r.error) { <div class="ext__result-error">{{ r.error }}</div> }
+        @if (r.logs?.length) {
+          <pre class="ext__logs">{{ r.logs.join('\n') }}</pre>
+        }
+      </div>
+    }
+  </section>
+</div>

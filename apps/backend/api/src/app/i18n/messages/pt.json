@@ -1070,6 +1070,8 @@
       "FORCE_LOGOUT": "Forçar encerramento de sessão",
       "IMPERSONATE": "Personificar",
       "IMPORT": "Importar",
+      "EXECUTE": "Executar",
+      "INSTALL": "Instalar",
       "MANAGE": "Administrar",
       "MANAGE_ACCOUNTS": "Gerir contas",
       "MANAGE_LEDGERS": "Gerir livros contábeis",
@@ -1136,6 +1138,7 @@
       "TAXES": "Impostos",
       "TREASURY": "Tesouraria",
       "UNITS_OF_MEASURE": "Unidades de medida",
+      "EXTENSIONS": "Extensões",
       "USERS": "Usuários",
       "WORKFLOWS": "Fluxos de trabalho"
     }

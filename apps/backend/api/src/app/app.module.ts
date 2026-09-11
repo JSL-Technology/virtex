@@ -84,6 +84,7 @@ import { redisConnectionOptions } from './cache/redis.config';
 import { SchedulerModule } from './shared/scheduler/scheduler.module';
 import { IdempotencyModule } from './shared/idempotency/idempotency.module';
 import { TenancyModule } from './shared/tenancy/tenancy.module';
+import { ExtensionsModule } from './extensions/extensions.module';
 
 @Module({
   imports: [
@@ -305,7 +306,8 @@ import { TenancyModule } from './shared/tenancy/tenancy.module';
     ProcurementModule,
     DatasheetsModule,
     IdempotencyModule,
-    TenancyModule
+    TenancyModule,
+    ExtensionsModule
   ],
   providers: [
     {

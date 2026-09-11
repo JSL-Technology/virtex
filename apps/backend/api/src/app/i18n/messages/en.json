@@ -1070,6 +1070,8 @@
       "FORCE_LOGOUT": "Force sign out",
       "IMPERSONATE": "Impersonate",
       "IMPORT": "Import",
+      "EXECUTE": "Execute",
+      "INSTALL": "Install",
       "MANAGE": "Manage",
       "MANAGE_ACCOUNTS": "Manage accounts",
       "MANAGE_LEDGERS": "Manage ledgers",
@@ -1136,6 +1138,7 @@
       "TAXES": "Taxes",
       "TREASURY": "Treasury",
       "UNITS_OF_MEASURE": "Units of measure",
+      "EXTENSIONS": "Extensions",
       "USERS": "Users",
       "WORKFLOWS": "Workflows"
     }

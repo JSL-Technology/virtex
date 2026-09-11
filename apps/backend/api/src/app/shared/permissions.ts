@@ -256,6 +256,20 @@ export const PERMISSIONS = {
    * routes from being open, and it is granted to nobody by default.
    */
   CUSTOMER_PORTAL_ACCESS: 'customer_portal:access',
+
+  /**
+   * The extensions marketplace and sandbox ("virtual machine for extensions").
+   *
+   * `MANAGE` is the privileged one: it admits/revokes catalogue entries and reads usage billing,
+   * so it runs the admission pipeline and signs artefacts. `INSTALL` is a tenant-level act — it
+   * grants an extension the capabilities it may use against that tenant's data. `EXECUTE` runs an
+   * admitted, consented extension in the isolate. They are separate because a person who may run an
+   * extension is not necessarily one who may admit new code into the platform.
+   */
+  EXTENSIONS_VIEW: 'extensions:view',
+  EXTENSIONS_INSTALL: 'extensions:install',
+  EXTENSIONS_EXECUTE: 'extensions:execute',
+  EXTENSIONS_MANAGE: 'extensions:manage',
 } as const;
 
 export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];

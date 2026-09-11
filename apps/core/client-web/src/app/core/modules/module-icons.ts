@@ -4,7 +4,7 @@ import {
   ClipboardList, Clock, Coins, Construction, CreditCard, DownloadCloud, Factory, FilePen,
   FilePlus, FileText, FolderArchive, FolderTree, GitCompareArrows, HandCoins, History, Home,
   Landmark, Layers, Layers3, LayoutDashboard, LayoutGrid, Library, ListChecks, ListTree,
-  NotebookTabs, Package, PackagePlus, PackageSearch, Percent, Receipt, Ruler, Scale, Search,
+  NotebookTabs, Package, PackagePlus, PackageSearch, Percent, Puzzle, Receipt, Ruler, Scale, Search,
   Settings2, ShieldAlert, ShoppingBag, ShoppingCart, Store, Table2, Tag, TrendingUp, Truck,
   Upload, UploadCloud, UserCog, UserPlus, Users, UsersRound, Warehouse, Waves,
 } from 'lucide-angular';
@@ -26,7 +26,7 @@ const ICONS: Record<string, unknown> = {
   ClipboardList, Clock, Coins, Construction, CreditCard, DownloadCloud, Factory, FilePen,
   FilePlus, FileText, FolderArchive, FolderTree, GitCompareArrows, HandCoins, History, Home,
   Landmark, Layers, Layers3, LayoutDashboard, LayoutGrid, Library, ListChecks, ListTree,
-  NotebookTabs, Package, PackagePlus, PackageSearch, Percent, Receipt, Ruler, Scale, Search,
+  NotebookTabs, Package, PackagePlus, PackageSearch, Percent, Puzzle, Receipt, Ruler, Scale, Search,
   Settings2, ShieldAlert, ShoppingBag, ShoppingCart, Store, Table2, Tag, TrendingUp, Truck,
   Upload, UploadCloud, UserCog, UserPlus, Users, UsersRound, Warehouse, Waves,
 };

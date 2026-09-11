@@ -47,6 +47,18 @@ export const ADMINISTRACION_MODULE: ModuleManifest = {
       menu: { group: 'masters', labelKey: 'sidebar.master_data.branches' },
       load: () => import('../../../features/masters/branches/branches.page').then((m) => m.BranchesPage),
     },
+    {
+      // The extensions marketplace and sandbox ("virtual machine for extensions"): install signed
+      // extensions, grant them capabilities per tenant, and run them in the isolate.
+      path: 'extensions',
+      kind: WindowKind.LIST,
+      permission: 'extensions:view',
+      titleKey: 'PAGE_TITLES.EXTENSIONS',
+      icon: 'Puzzle',
+      entityKeyFn: () => 'administracion:extensions',
+      menu: { group: 'masters', labelKey: 'sidebar.master_data.extensions' },
+      load: () => import('../../../features/extensions/extensions.page').then((m) => m.ExtensionsPage),
+    },
   ],
 };
 
