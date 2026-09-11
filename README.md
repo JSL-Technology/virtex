@@ -32,6 +32,19 @@ npm run dev
 
 También por separado: `npm run dev:api` y `npm run dev:web`.
 
+### Aplicaciones
+
+| App | Comando | Puerto |
+| --- | --- | --- |
+| API (NestJS) | `npm run dev:api` | 3000 |
+| Portal web (Angular) | `npm run dev:web` | 4200 |
+| **POS** (aplicación aparte) | `npm run dev:pos` | 4300 |
+| **Desktop** (Electron) | `npm run dev:desktop` | — |
+
+El POS es una **aplicación independiente** (`apps/pos`), no un módulo del portal; consume la API
+`/pos` e `/inventory`. El shell de escritorio (`apps/desktop`) envuelve el portal y el POS. Análisis
+módulo a módulo del merge en [docs/MODULE_ANALYSIS.md](docs/MODULE_ANALYSIS.md).
+
 Los valores por defecto de desarrollo coinciden exactamente con esos contenedores
 (`localhost:5432`, usuario y contraseña `postgres`, base `erp`). Si usas otros, ponlos en `.env`
 —`cp .env.example .env`— o expórtalos; cualquier variable definida gana sobre el valor por defecto.
