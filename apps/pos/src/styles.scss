@@ -1,0 +1,31 @@
+:root {
+  --pos-bg: #0f1115;
+  --pos-surface: #171a21;
+  --pos-surface-2: #1f232c;
+  --pos-border: #2a2f3a;
+  --pos-text: #e7e9ee;
+  --pos-muted: #9aa3b2;
+  --pos-primary: #3b82f6;
+  --pos-primary-hover: #2f6fd6;
+  --pos-success: #22c55e;
+  --pos-danger: #ef4444;
+  --pos-radius: 12px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--pos-bg);
+  color: var(--pos-text);
+  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}

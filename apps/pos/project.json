@@ -1,0 +1,55 @@
+{
+  "name": "pos",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "pos",
+  "sourceRoot": "apps/pos/src",
+  "tags": ["scope:pos", "type:app"],
+  "targets": {
+    "build": {
+      "executor": "@angular/build:application",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/pos",
+        "browser": "apps/pos/src/main.ts",
+        "index": "apps/pos/src/index.html",
+        "polyfills": [],
+        "tsConfig": "apps/pos/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "assets": [],
+        "styles": ["apps/pos/src/styles.scss"]
+      },
+      "configurations": {
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/pos/src/environments/environment.ts",
+              "with": "apps/pos/src/environments/environment.production.ts"
+            }
+          ],
+          "budgets": [
+            { "type": "initial", "maximumWarning": "600kb", "maximumError": "1.5mb" }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@angular/build:dev-server",
+      "options": { "port": 4300 },
+      "configurations": {
+        "production": { "buildTarget": "pos:build:production" },
+        "development": { "buildTarget": "pos:build:development" }
+      },
+      "defaultConfiguration": "development"
+    },
+    "lint": { "executor": "@nx/eslint:lint" }
+  }
+}
