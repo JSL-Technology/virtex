@@ -32,6 +32,12 @@ npm run dev
 
 También por separado: `npm run dev:api` y `npm run dev:web`.
 
+**Usuario de desarrollo (seed automático).** Al arrancar la API fuera de producción se siembra un
+administrador listo para iniciar sesión, de forma idempotente y con un tenant real (organización +
+plan de cuentas): **`dev@virtex.local` / `dev12345`**. Configurable con `DEV_SEED_EMAIL`,
+`DEV_SEED_PASSWORD`, `DEV_SEED_ORG`, `DEV_SEED_COUNTRY`; se desactiva con `DEV_SEED=false`. **Nunca
+se ejecuta en producción** (el seeder se niega, además del gate por entorno).
+
 ### Aplicaciones
 
 | App | Comando | Puerto |

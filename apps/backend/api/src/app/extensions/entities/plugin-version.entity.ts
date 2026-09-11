@@ -52,6 +52,22 @@ export class PluginVersion {
   @Column({ type: 'text', nullable: true })
   signature: string | null;
 
+  /**
+   * The client-side UI of the extension: JavaScript that runs in a sandboxed iframe in the browser
+   * and renders into a `#root` element, talking to the app only through the host bridge
+   * (`window.virtex`). Distinct from `code` (which runs server-side in the isolate) — this never
+   * runs on the server. Null for a headless, server-only extension.
+   */
+  @Column({ type: 'text', nullable: true })
+  uiEntry: string | null;
+
+  /**
+   * Where this version contributes UI, e.g. `{ "points": [{ "type": "page", "title": "Sales heatmap" }] }`.
+   * The client extension host reads this to decide where to mount the extension.
+   */
+  @Column({ type: 'jsonb', nullable: true })
+  contributes: unknown;
+
   @Column({ type: 'enum', enum: PluginChannel, default: PluginChannel.STABLE })
   channel: PluginChannel;
 

@@ -39,8 +39,46 @@ compile it — execution then fails with a clear error instead of the process re
 | PUT | `/extensions/:name/consent` | `extensions:install` | Grant capabilities / enable |
 | POST | `/extensions/execute` | `extensions:execute` | Run in the sandbox |
 | GET | `/extensions/billing/reconciliation` | `extensions:manage` | Usage report |
+| GET | `/extensions/runtime` | `extensions:view` | The tenant's enabled UI extensions, for the client host |
 
 Frontend manager: **Administration → Extensions** (`features/extensions`).
+
+## Client-side runtime (UI extensions)
+
+Beyond running logic server-side, an extension can ship a **browser UI** (`PluginVersion.uiEntry`)
+that renders inside the app. The runtime that hosts it:
+
+- **`ExtensionHostComponent`** mounts one extension in an `<iframe sandbox="allow-scripts">` with **no
+  `allow-same-origin`** — a unique opaque origin that cannot read the parent DOM, our cookies, or
+  localStorage. The only channel is `postMessage`, and the parent honours a fixed set of message
+  types only from that iframe's own window.
+- The extension code is delivered over `postMessage` (no markup-escaping surface) and runs as
+  `new Function(code)(virtex, root)`. It gets a `root` element and a narrow `virtex` bridge:
+  - `virtex.api(path)` — GET a backend endpoint using the app's session (the extension never sees a
+    token). Refused unless the tenant granted the **`api:read`** capability; writes are refused.
+  - `virtex.toast(level, message)` — raise a toast.
+  - `virtex.context` — the mount context (extension name, version, granted capabilities).
+- **`ExtensionsRuntimePage`** (Administration → *Extensions runtime*, `masters/extensions/run`) asks
+  `GET /extensions/runtime` which enabled UI extensions this tenant has, and mounts each in its own
+  host. Contribution points are declared in `PluginVersion.contributes`
+  (e.g. `{ "points": [{ "type": "page" }] }`).
+
+Security boundary: the **iframe sandbox** is what contains UI extensions (not the server signature,
+which guards the server `code` path). Capability grants gate what the bridge will do on their behalf.
+
+### Authoring a UI extension
+
+Register one from the manager (Extensions → *UI code* field), e.g.:
+
+```js
+root.innerHTML = '<h3>Low stock</h3><ul id="l"></ul>';
+const products = await virtex.api('/inventory');
+document.getElementById('l').innerHTML =
+  products.filter(p => p.stock <= 5).map(p => `<li>${p.name}: ${p.stock}</li>`).join('');
+virtex.toast('success', 'Loaded');
+```
+
+Grant it `api:read` (Extensions → consent) and open **Extensions runtime** to see it render.
 
 ## Configuration
 

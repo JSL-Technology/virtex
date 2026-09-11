@@ -96,6 +96,8 @@ export class ExtensionsService {
       capabilities: dto.capabilities ?? null,
       sbom: dto.sbom,
       signature: admission.signature ?? null,
+      uiEntry: dto.uiEntry ?? null,
+      contributes: dto.contributes ?? null,
       channel: PluginChannel.STABLE,
     });
     await this.versions.save(version);
@@ -245,6 +247,44 @@ export class ExtensionsService {
       executionTimeMs: result.executionTimeMs,
       meteringId,
     };
+  }
+
+  /**
+   * The UI extensions this tenant has enabled — what the client-side extension host mounts. For
+   * each enabled, non-revoked extension that ships a UI, returns its latest UI-bearing version plus
+   * the capabilities the tenant granted (which the host bridge enforces at runtime).
+   */
+  async runtime(organizationId: string) {
+    const consents = await this.consents.find({
+      where: { organizationId, enabled: true },
+      relations: { plugin: true },
+    });
+
+    const out: Array<{
+      name: string;
+      version: string;
+      uiEntry: string;
+      contributes: unknown;
+      grantedCapabilities: string[];
+    }> = [];
+
+    for (const consent of consents) {
+      if (!consent.plugin || consent.plugin.status === PluginStatus.REVOKED) continue;
+      const versions = await this.versions.find({
+        where: { pluginId: consent.pluginId },
+        order: { createdAt: 'DESC' },
+      });
+      const uiVersion = versions.find((v) => !!v.uiEntry);
+      if (!uiVersion || !uiVersion.uiEntry) continue;
+      out.push({
+        name: consent.plugin.name,
+        version: uiVersion.version,
+        uiEntry: uiVersion.uiEntry,
+        contributes: uiVersion.contributes,
+        grantedCapabilities: consent.grantedCapabilities ?? [],
+      });
+    }
+    return out;
   }
 
   async reconciliation(organizationId: string): Promise<BillingReport> {

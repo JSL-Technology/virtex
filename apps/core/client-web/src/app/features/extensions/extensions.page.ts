@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import {
@@ -29,7 +30,7 @@ import {
 @Component({
   selector: 'app-extensions-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, LucideAngularModule],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, TranslateModule, LucideAngularModule],
   templateUrl: './extensions.page.html',
   styleUrls: ['./extensions.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -65,6 +66,8 @@ export class ExtensionsPage {
     capabilities: [''],
     requestedEgress: [''],
     code: ['log("Hello from the extension sandbox");', [Validators.required]],
+    // Optional client-side UI (JavaScript). Runs in a sandboxed iframe via the extension runtime.
+    uiEntry: [''],
   });
 
   readonly executeForm = this.fb.group({
@@ -103,6 +106,7 @@ export class ExtensionsPage {
     const v = this.registerForm.getRawValue();
     this.busy.set(true);
     this.error.set(null);
+    const uiEntry = (v.uiEntry ?? '').trim() || undefined;
     this.service
       .register({
         name: v.name!,
@@ -111,6 +115,9 @@ export class ExtensionsPage {
         capabilities: this.parseList(v.capabilities),
         requestedEgress: this.parseList(v.requestedEgress),
         code: v.code!,
+        uiEntry,
+        // A UI extension contributes a page by default; the runtime reads this to mount it.
+        contributes: uiEntry ? { points: [{ type: 'page' }] } : undefined,
       })
       .subscribe({
         next: () => {

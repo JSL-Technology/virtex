@@ -4,10 +4,16 @@
       <lucide-icon [img]="PuzzleIcon" [size]="22"></lucide-icon>
       <h1>{{ 'PAGE_TITLES.EXTENSIONS' | translate }}</h1>
     </div>
-    <button type="button" class="ext__btn ext__btn--ghost" (click)="refresh()" [disabled]="loading()">
-      <lucide-icon [img]="RefreshIcon" [size]="16"></lucide-icon>
-      <span>Refresh</span>
-    </button>
+    <div class="ext__header-actions">
+      <a class="ext__btn ext__btn--ghost" routerLink="/masters/extensions/run">
+        <lucide-icon [img]="PlayIcon" [size]="16"></lucide-icon>
+        <span>Open runtime</span>
+      </a>
+      <button type="button" class="ext__btn ext__btn--ghost" (click)="refresh()" [disabled]="loading()">
+        <lucide-icon [img]="RefreshIcon" [size]="16"></lucide-icon>
+        <span>Refresh</span>
+      </button>
+    </div>
   </header>
 
   @if (error()) {
@@ -76,7 +82,15 @@
           Requested egress hosts
           <input type="text" formControlName="requestedEgress" placeholder="api.taxjar.com" />
         </label>
-        <label>Code<textarea rows="6" formControlName="code"></textarea></label>
+        <label>Code (server logic, runs in the isolate)<textarea rows="5" formControlName="code"></textarea></label>
+        <label>
+          UI code (optional, runs in the sandboxed browser host)
+          <textarea
+            rows="5"
+            formControlName="uiEntry"
+            placeholder="root.innerHTML = '&lt;h3&gt;Hello&lt;/h3&gt;'; // use virtex.api(), virtex.toast()"
+          ></textarea>
+        </label>
         <button type="submit" class="ext__btn ext__btn--primary" [disabled]="registerForm.invalid || busy()">
           <lucide-icon [img]="ShieldIcon" [size]="16"></lucide-icon>
           <span>Admit &amp; register</span>

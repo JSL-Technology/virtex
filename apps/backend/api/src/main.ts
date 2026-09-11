@@ -10,6 +10,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
 import { I18nService } from './app/i18n/i18n.service';
 import { localizedValidationExceptionFactory } from './app/i18n/validation-messages';
+import { DevSeederService } from './app/auth/services/dev-seeder.service';
 
 import {
   FastifyAdapter,
@@ -188,6 +189,20 @@ async function bootstrap() {
           .send('Unauthorized');
       }
     });
+  }
+
+  // Development convenience: seed a ready-to-use administrator so a login exists on a fresh
+  // database, without registering one by hand each time. Hard-gated to non-production (and the
+  // service refuses to run in production as well — defence in depth); opt out with DEV_SEED=false.
+  if (
+    configService.get<string>('NODE_ENV') !== 'production' &&
+    configService.get<string>('DEV_SEED') !== 'false'
+  ) {
+    try {
+      await app.get(DevSeederService).seed();
+    } catch (err) {
+      console.warn('Dev seed skipped:', err instanceof Error ? err.message : err);
+    }
   }
 
   const port = configService.get<number>('PORT', 3000);
