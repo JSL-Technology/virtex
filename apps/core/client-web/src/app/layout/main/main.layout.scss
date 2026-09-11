@@ -324,10 +324,10 @@
   padding: 0 var(--space-8);
   position: relative;
   z-index: 100;
-  background-color: #111111;
-  color: #f5f5f5;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.22);
+  background-color: var(--chrome-surface);
+  color: var(--chrome-content);
+  border-bottom: 1px solid rgba(var(--chrome-tint-rgb), 0.14);
+  box-shadow: 0 1px 0 rgba(var(--shadow-color-rgb), 0.22);
 
   .topbar-brand {
     display: inline-flex;
@@ -357,29 +357,29 @@
 }
 
 .main-topbar .icon-button {
-  color: rgba(255, 255, 255, 0.82);
+  color: rgba(var(--chrome-tint-rgb), 0.82);
 
   &:hover {
-    color: #ffffff;
-    background-color: rgba(255, 255, 255, 0.12);
+    color: var(--chrome-content-strong);
+    background-color: rgba(var(--chrome-tint-rgb), 0.12);
   }
 }
 
 .main-topbar .user-menu-trigger {
-  color: rgba(255, 255, 255, 0.82);
+  color: rgba(var(--chrome-tint-rgb), 0.82);
 
   .user-name {
-    color: #ffffff;
+    color: var(--chrome-content-strong);
   }
 
   .user-role,
   .chevron {
-    color: rgba(255, 255, 255, 0.64);
+    color: rgba(var(--chrome-tint-rgb), 0.64);
   }
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.12);
-    color: #ffffff;
+    background-color: rgba(var(--chrome-tint-rgb), 0.12);
+    color: var(--chrome-content-strong);
   }
 }
 
@@ -437,7 +437,7 @@
 .separator {
   width: 1px;
   height: 24px;
-  background-color: rgba(255, 255, 255, 0.18);
+  background-color: rgba(var(--chrome-tint-rgb), 0.18);
 }
 
 // ✅ --- NUEVO MENÚ DESPLEGABLE DE CREACIÓN RÁPIDA ---
@@ -781,10 +781,10 @@
   @include ds.glass-surface('strong', 48px);
   @include ds.glass-edge();
   z-index: var(--z-dropdown);
-  //  `hidden`: recorta los fondos de las filas al `border-radius`. La ayuda y el
-  //  feedback ahora viven en su propio menú «?» del topbar, así que ya no hay
-  //  ningún submenú lateral que necesite desbordar la tarjeta.
-  overflow: hidden;
+  //  `visible` y no `hidden`: el submenú de Feedback se despliega FUERA de la
+  //  tarjeta (a la izquierda) y `hidden` lo recortaría. El fondo de la propia
+  //  tarjeta lo sigue recortando el `border-radius`.
+  overflow: visible;
   animation: dropdown-fade-in 0.2s ease;
   transform-origin: top right;
   will-change: transform;
@@ -832,8 +832,9 @@
       color 0.15s ease;
 
     //  El icono vive en una placa translúcida que se tiñe con el acento al pasar
-    //  por encima. Es el detalle que da el aire elegante a cada fila.
-    lucide-icon {
+    //  por encima. Es el detalle que da el aire elegante a cada fila. El chevron
+    //  del acordeón se excluye: es un adorno, no una acción.
+    lucide-icon:not(.feedback-chevron) {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -853,7 +854,7 @@
       color: var(--text-primary);
     }
 
-    &:hover lucide-icon {
+    &:hover lucide-icon:not(.feedback-chevron) {
       background-color: var(--accent-surface);
       color: var(--accent-text);
     }
@@ -863,52 +864,83 @@
       background-color: var(--error-surface);
     }
 
-    &.logout-item:hover lucide-icon {
+    &.logout-item:hover lucide-icon:not(.feedback-chevron) {
       background-color: var(--error-surface);
       color: var(--error);
     }
   }
 
-  //  Separa la cuenta (perfil, ajustes) del cierre de sesión.
+  //  Separa la cuenta (perfil, ajustes) de la ayuda y el feedback.
   .dropdown-divider {
     height: 1px;
     margin: var(--space-2) var(--space-1);
     background-color: var(--glass-border-soft);
   }
-}
 
-// --- MENÚ DE AYUDA Y FEEDBACK ---
-//  Ayuda, atajos y feedback son SOPORTE, no cuenta. Por eso viven en su propio
-//  botón «?» del topbar —el patrón que la gente ya espera en una app— en vez de
-//  escondidos al fondo del menú de usuario: así se descubren de un vistazo y el
-//  menú de cuenta queda para lo que es de la cuenta.
-.help-menu {
-  position: relative;
-}
-
-.help-dropdown {
-  //  Misma lámina de cristal y mismas filas que el menú de usuario: una sola
-  //  gramática visual para todos los desplegables del topbar.
-  @extend .user-menu-dropdown;
-  width: 264px;
-
-  .dropdown-header h3 {
-    margin: 0;
-    font-size: var(--text-base);
-    font-weight: var(--font-semibold);
-    color: var(--text-primary);
+  //  Feedback abre un submenú flotante AL LADO (patrón submenú de escritorio),
+  //  no un acordeón. El grupo es el ancla de posición del panel.
+  .feedback-group {
+    position: relative;
+    display: flex;
+    flex-direction: column;
   }
 
-  //  Rótulo de la sección de feedback: agrupa las tres acciones bajo un título
-  //  discreto para que se lean como un bloque y no como ítems sueltos.
-  .dropdown-section-label {
-    display: block;
-    padding: var(--space-2) var(--space-3) var(--space-1);
-    font-size: var(--text-2xs);
-    font-weight: var(--font-bold);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+  .feedback-chevron {
+    margin-left: auto;
     color: var(--text-tertiary);
+  }
+
+  //  Panel lateral. Se abre a la IZQUIERDA (`right: 100%`) porque el menú está
+  //  pegado al borde derecho de la ventana y hacia la derecha se saldría de
+  //  pantalla. Es su propia lámina de cristal (fondo + filo + sombra propios).
+  //  Oculto por defecto; se revela al pasar el ratón, al enfocar con teclado
+  //  (`focus-within`) o cuando el clic lo deja fijado (`.open`).
+  .feedback-submenu {
+    position: absolute;
+    top: calc(-1 * var(--space-2));
+    right: 100%;
+    margin-right: var(--space-2);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 224px;
+    padding: var(--space-2);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--glass-shadow);
+    @include ds.glass-surface('strong', 48px);
+    @include ds.glass-edge();
+    z-index: 1;
+
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(var(--space-2));
+    transition:
+      opacity 0.16s ease,
+      transform 0.16s ease,
+      visibility 0.16s;
+
+    //  Puente invisible sobre el hueco: evita que el submenú se cierre al mover
+    //  el ratón desde «Feedback» hasta el panel.
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: calc(-1 * var(--space-2));
+      width: var(--space-2);
+    }
+  }
+
+  .feedback-group:hover .feedback-submenu,
+  .feedback-group:focus-within .feedback-submenu,
+  .feedback-group.open .feedback-submenu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+  }
+
+  .dropdown-subitem {
+    font-size: var(--text-sm);
   }
 }
 

@@ -71,9 +71,11 @@ import {
   ArrowLeft,
   HelpCircle, // ✅ Ayuda
   Keyboard, // ✅ Atajos de teclado
+  MessageSquare, // ✅ Feedback (abre submenú)
   Bug, // ✅ Reportar un problema
   Lightbulb, // ✅ Sugerir una mejora
   Star, // ✅ Dejar una valoración
+  ChevronLeft, // ✅ Indicador del submenú de Feedback (se abre a la izquierda)
 } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { Sidebar } from '../sidebar/sidebar';
@@ -132,7 +134,6 @@ export class MainLayout implements OnInit {
     this.isQuickCreateModalOpen.update((value) => !value);
     this.isUserMenuOpen.set(false);
     this.isNotificationMenuOpen.set(false);
-    this.isHelpMenuOpen.set(false);
   }
 
   closeQuickCreateModal(): void {
@@ -231,7 +232,7 @@ export class MainLayout implements OnInit {
 
   isUserMenuOpen = signal(false);
   isNotificationMenuOpen = signal(false);
-  isHelpMenuOpen = signal(false); // menú «?» de ayuda y feedback
+  isFeedbackOpen = signal(false); // acordeón de Feedback dentro del menú de usuario
   isSidebarOpen = signal(false); // overlay de sidebar en móvil
   isSearchOpen = signal(false);
 
@@ -294,33 +295,26 @@ export class MainLayout implements OnInit {
   protected readonly MenuIcon = Menu; // ✅ Toggle de sidebar
   protected readonly HelpCircleIcon = HelpCircle;
   protected readonly KeyboardIcon = Keyboard;
+  protected readonly MessageSquareIcon = MessageSquare;
   protected readonly BugIcon = Bug;
   protected readonly LightbulbIcon = Lightbulb;
   protected readonly StarIcon = Star;
+  protected readonly ChevronLeftIcon = ChevronLeft;
 
   toggleUserMenu(): void {
     this.isUserMenuOpen.update((isOpen) => !isOpen);
     this.closeNotificationMenu();
     this.closeQuickCreateModal();
-    this.closeHelpMenu();
   }
 
   toggleNotificationMenu(): void {
     this.isNotificationMenuOpen.update((isOpen) => !isOpen);
     this.closeUserMenu();
     this.closeQuickCreateModal();
-    this.closeHelpMenu();
   }
 
-  toggleHelpMenu(): void {
-    this.isHelpMenuOpen.update((isOpen) => !isOpen);
-    this.closeUserMenu();
-    this.closeNotificationMenu();
-    this.closeQuickCreateModal();
-  }
-
-  closeHelpMenu(): void {
-    this.isHelpMenuOpen.set(false);
+  toggleFeedback(): void {
+    this.isFeedbackOpen.update((isOpen) => !isOpen);
   }
 
   /**
@@ -333,11 +327,14 @@ export class MainLayout implements OnInit {
    */
   comingSoon(): void {
     this.notifications.showInfo('FEEDBACK.COMING_SOON');
-    this.closeHelpMenu();
+    this.closeUserMenu();
   }
 
   closeUserMenu(): void {
     this.isUserMenuOpen.set(false);
+    //  El acordeón de Feedback no debe quedar abierto la próxima vez que se
+    //  despliegue el menú de usuario.
+    this.isFeedbackOpen.set(false);
   }
 
   goBack(): void {
