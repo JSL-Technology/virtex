@@ -4,10 +4,12 @@
 >
   {{ 'MAIN.ESTAS_VIENDO_SISTEMA_COMO' | translate }}
   <strong>
-    {{ authService.currentUser()?.firstName }}
-    {{ authService.currentUser()?.lastName }}
+    {{ authService.currentUser()?.firstName }} {{
+    authService.currentUser()?.lastName }}
   </strong>
-  <button (click)="stopImpersonation()">{{ 'MAIN.VOLVER_MI_CUENTA' | translate }}</button>
+  <button (click)="stopImpersonation()">
+    {{ 'MAIN.VOLVER_MI_CUENTA' | translate }}
+  </button>
 </div>
 
 <div
@@ -16,21 +18,25 @@
 >
   <div class="banner-content">
     <strong>{{ 'MAIN.ATENCION' | translate }}</strong>
-    {{ 'MAIN.GRACE_PERIOD_BANNER' | translate: { date: (authService.currentUser()?.organization?.gracePeriodEnd | vxDate: 'dateLong') } }}
+    {{ 'MAIN.GRACE_PERIOD_BANNER' | translate: { date:
+    (authService.currentUser()?.organization?.gracePeriodEnd | vxDate:
+    'dateLong') } }}
   </div>
-  <button type="button" (click)="openSettings('billing')" class="btn-resolve">{{ 'MAIN.RESOLVER_AHORA' | translate }}</button>
+  <button type="button" (click)="openSettings('billing')" class="btn-resolve">
+    {{ 'MAIN.RESOLVER_AHORA' | translate }}
+  </button>
 </div>
-
-
-
-
 
 <div
   class="sidebar-backdrop"
   *ngIf="isSidebarOpen()"
   (click)="closeSidebar()"
   aria-hidden="true"
- tabindex="0" role="button" (keydown.enter)="closeSidebar()" (keydown.space)="$event.preventDefault(); closeSidebar()"></div>
+  tabindex="0"
+  role="button"
+  (keydown.enter)="closeSidebar()"
+  (keydown.space)="$event.preventDefault(); closeSidebar()"
+></div>
 
 <!--
   El riel de módulos. Primera decisión de toda la navegación —en qué parte del
@@ -42,16 +48,6 @@
 
 <aside class="main-sidebar">
   <div class="logo-container">
-    <!--
-      La marca del PRODUCTO va encima del selector de EMPRESA, y no al revés:
-      son dos identidades distintas y confundirlas es lo que hacía que, con una
-      organización con logotipo propio, la aplicación no dijera en ningún sitio
-      que era Virtex.
-    -->
-    <a class="sidebar-brand" routerLink="/overview" [attr.aria-label]="'APP_TITLE' | translate">
-      <app-brand-logo [size]="26" [label]="'APP_TITLE' | translate"></app-brand-logo>
-    </a>
-
     <app-company-switcher></app-company-switcher>
   </div>
 
@@ -69,54 +65,41 @@
     <lucide-icon [img]="MenuIcon" size="20"></lucide-icon>
   </button>
 
-  <div class="topbar-left">
-    <div class="logo">
-      <app-company-switcher></app-company-switcher>
-    </div>
+  <a
+    class="topbar-brand"
+    routerLink="/overview"
+    [attr.aria-label]="'APP_TITLE' | translate"
+  >
+    <app-brand-logo
+      [size]="28"
+      tone="negative"
+      [label]="'APP_TITLE' | translate"
+    ></app-brand-logo>
+  </a>
 
-  <!--
-    Modo barra superior: los mismos módulos del riel, en horizontal. Antes eran
-    seis enlaces escritos a mano —una tercera tabla de navegación, además del
-    router y del catálogo de ventanas— y apuntaban a rutas que ya no existían.
-    Ahora salen del registro de módulos, así que un módulo nuevo aparece aquí
-    sin que nadie tenga que acordarse de añadirlo.
-  -->
-    <nav class="topbar-nav" [attr.aria-label]="'SHELL.MODULE_RAIL' | translate">
-      @for (item of topNavModules(); track item.module.id) {
-        <div
-          class="nav-module"
-          appClickOutside
-          (clickOutside)="closeModuleMenu(item.module.id)"
-        >
-          <button
-            type="button"
-            class="nav-link"
-            [class.active]="item.module.id === activeModuleId()"
-            [attr.aria-current]="item.module.id === activeModuleId() ? 'page' : null"
-            [attr.aria-expanded]="openModuleMenu() === item.module.id"
-            aria-haspopup="true"
-            (click)="toggleModuleMenu(item.module.id)"
-            (keydown.escape)="closeModuleMenu(item.module.id)"
-          >
-            {{ item.module.titleKey | translate }}
-            <lucide-icon [img]="ChevronDownIcon" size="14" aria-hidden="true"></lucide-icon>
-          </button>
-
-          @if (openModuleMenu() === item.module.id) {
-            <div class="nav-module__menu" (keydown.escape)="closeModuleMenu(item.module.id)">
-              <app-module-menu
-                [sections]="menuOf(item.module)"
-                [activeEntry]="activeEntry()"
-                (chosen)="closeModuleMenu(null)"
-              ></app-module-menu>
-            </div>
-          }
-        </div>
-      }
-      <button type="button" (click)="openSettings()" [class.active]="isSettingsOpen()" class="nav-link">
-        {{ "NAV.SETTINGS" | translate }}
-      </button>
-    </nav>
+  <div
+    class="history-actions"
+    role="group"
+    aria-label="Historial de navegación"
+  >
+    <button
+      class="icon-button"
+      type="button"
+      aria-label="Volver"
+      title="Volver"
+      (click)="goBack()"
+    >
+      <lucide-icon [img]="ArrowLeftIcon" size="18"></lucide-icon>
+    </button>
+    <button
+      class="icon-button"
+      type="button"
+      aria-label="Avanzar"
+      title="Avanzar"
+      (click)="goForward()"
+    >
+      <lucide-icon [img]="ArrowRightIcon" size="18"></lucide-icon>
+    </button>
   </div>
 
   <div class="topbar-content">
@@ -138,7 +121,9 @@
         <div class="search-results-popover">
           <div class="results-header">
             <div class="results-title-container">
-              <span class="results-title">{{ 'MAIN.RESULTADOS_BUSQUEDA' | translate }}</span>
+              <span class="results-title"
+                >{{ 'MAIN.RESULTADOS_BUSQUEDA' | translate }}</span
+              >
               @if (isSearchLoading()) {
               <div class="loading-spinner">
                 <div class="spinner"></div>
@@ -155,11 +140,12 @@
                 >{{ 'MAIN.NO_ENCONTRARON_RESULTADOS' | translate }}</span
               >
               <span class="no-results-description"
-                >{{ 'MAIN.INTENTA_OTRA_PALABRA_CLAVE_REVISA_ORTOGRAFIA' | translate }}</span
+                >{{ 'MAIN.INTENTA_OTRA_PALABRA_CLAVE_REVISA_ORTOGRAFIA' |
+                translate }}</span
               >
             </div>
-            } @else { @for(group of searchResults(); track group.type) {
-            @if (getIconForType(group.type); as groupIcon) {
+            } @else { @for(group of searchResults(); track group.type) { @if
+            (getIconForType(group.type); as groupIcon) {
             <div class="result-group">
               <h4 class="group-title">
                 <lucide-icon [img]="groupIcon" size="16"></lucide-icon>
@@ -179,9 +165,9 @@
                     </div>
                     <div class="item-content">
                       <span class="item-title">{{ item.title }}</span>
-                      <span class="item-description">{{
-                        item.description
-                      }}</span>
+                      <span class="item-description"
+                        >{{ item.description }}</span
+                      >
                     </div>
                     <lucide-icon
                       [img]="ChevronRightIcon"
@@ -215,25 +201,11 @@
 
     <div class="header-right">
       <div class="actions-group">
-        <!--
-          Selector de pestañas abiertas. Solo se muestra en modo compacto (pantalla estrecha), donde
-          la franja de pestañas se oculta: sin él, las pestañas abiertas quedarían inalcanzables.
-        -->
-        <app-tab-switcher />
-
-        <app-launcher></app-launcher>
-
-        @if (pwaService.canInstall()) {
-          <button
-            class="icon-button"
-            [title]="'PWA.INSTALL' | translate"
-            (click)="pwaService.installApp()"
-          >
-            <lucide-icon [img]="DownloadIcon" size="20"></lucide-icon>
-          </button>
-        }
-
-        <div class="quick-create-menu" appClickOutside (clickOutside)="closeQuickCreateModal()">
+        <div
+          class="quick-create-menu"
+          appClickOutside
+          (clickOutside)="closeQuickCreateModal()"
+        >
           <button
             class="icon-button"
             [title]="'ACTIONS.CREATE_NEW' | translate"
@@ -254,8 +226,12 @@
                 class="quick-action-item"
               >
                 <lucide-icon [img]="FileTextIcon" size="20"></lucide-icon>
-                <span class="quick-action-label">{{ 'ACTIONS.NEW_INVOICE' | translate }}</span>
-                <span class="quick-action-shortcut">{{ 'MAIN.ALT_SHIFT' | translate }}</span>
+                <span class="quick-action-label"
+                  >{{ 'ACTIONS.NEW_INVOICE' | translate }}</span
+                >
+                <span class="quick-action-shortcut"
+                  >{{ 'MAIN.ALT_SHIFT' | translate }}</span
+                >
               </a>
               <a
                 routerLink="/quotes/new"
@@ -263,8 +239,12 @@
                 class="quick-action-item"
               >
                 <lucide-icon [img]="ReceiptIcon" size="20"></lucide-icon>
-                <span class="quick-action-label">{{ 'ACTIONS.NEW_QUOTE' | translate }}</span>
-                <span class="quick-action-shortcut">{{ 'MAIN.ALT_SHIFT_2' | translate }}</span>
+                <span class="quick-action-label"
+                  >{{ 'ACTIONS.NEW_QUOTE' | translate }}</span
+                >
+                <span class="quick-action-shortcut"
+                  >{{ 'MAIN.ALT_SHIFT_2' | translate }}</span
+                >
               </a>
               <a
                 routerLink="/customers/new"
@@ -272,8 +252,12 @@
                 class="quick-action-item"
               >
                 <lucide-icon [img]="UserPlusIcon" size="20"></lucide-icon>
-                <span class="quick-action-label">{{ 'ACTIONS.NEW_CUSTOMER' | translate }}</span>
-                <span class="quick-action-shortcut">{{ 'MAIN.ALT_SHIFT_3' | translate }}</span>
+                <span class="quick-action-label"
+                  >{{ 'ACTIONS.NEW_CUSTOMER' | translate }}</span
+                >
+                <span class="quick-action-shortcut"
+                  >{{ 'MAIN.ALT_SHIFT_3' | translate }}</span
+                >
               </a>
               <a
                 routerLink="/products/new"
@@ -281,63 +265,80 @@
                 class="quick-action-item"
               >
                 <lucide-icon [img]="PackageIcon" size="20"></lucide-icon>
-                <span class="quick-action-label">{{ 'ACTIONS.NEW_PRODUCT' | translate }}</span>
-                <span class="quick-action-shortcut">{{ 'MAIN.ALT_SHIFT_4' | translate }}</span>
+                <span class="quick-action-label"
+                  >{{ 'ACTIONS.NEW_PRODUCT' | translate }}</span
+                >
+                <span class="quick-action-shortcut"
+                  >{{ 'MAIN.ALT_SHIFT_4' | translate }}</span
+                >
               </a>
             </div>
           </div>
           }
         </div>
 
-        <div class="notification-menu" appClickOutside (clickOutside)="closeNotificationMenu()" >
-          <button class="icon-button" [title]="'NAV.NOTIFICATIONS' | translate" (click)="toggleNotificationMenu()">
+        <div
+          class="notification-menu"
+          appClickOutside
+          (clickOutside)="closeNotificationMenu()"
+        >
+          <button
+            class="icon-button"
+            [title]="'NAV.NOTIFICATIONS' | translate"
+            (click)="toggleNotificationMenu()"
+          >
             <lucide-icon [img]="BellIcon" size="20"></lucide-icon>
             @if (notificationCenter.unreadCount() > 0) {
-              <span class="notification-badge">{{ notificationCenter.unreadCount() }}</span>
+            <span class="notification-badge"
+              >{{ notificationCenter.unreadCount() }}</span
+            >
             }
           </button>
           @if (isNotificationMenuOpen()) {
-            <div class="notification-dropdown">
-              <div class="dropdown-header">
-                <h3>{{ 'NAV.NOTIFICATIONS' | translate }}</h3>
-                <button (click)="notificationCenter.markAllAsRead()" class="mark-all-read">{{ 'NOTIFICATIONS.MARK_ALL_AS_READ' | translate }}</button>
-              </div>
-              <div class="dropdown-body">
-                @for (notification of notificationCenter.notifications().slice(0, 5); track notification.id) {
-                  <button
-                    class="notification-item"
-                    [class.read]="notification.read"
-                    (click)="notificationCenter.markAsRead(notification.id); closeNotificationMenu()"
+          <div class="notification-dropdown">
+            <div class="dropdown-header">
+              <h3>{{ 'NAV.NOTIFICATIONS' | translate }}</h3>
+              <button
+                (click)="notificationCenter.markAllAsRead()"
+                class="mark-all-read"
+              >
+                {{ 'NOTIFICATIONS.MARK_ALL_AS_READ' | translate }}
+              </button>
+            </div>
+            <div class="dropdown-body">
+              @for (notification of notificationCenter.notifications().slice(0,
+              5); track notification.id) {
+              <button
+                class="notification-item"
+                [class.read]="notification.read"
+                (click)="notificationCenter.markAsRead(notification.id); closeNotificationMenu()"
+              >
+                <div class="status-dot"></div>
+                <div class="notification-content">
+                  <p class="notification-title">{{ notification.title }}</p>
+                  <p class="notification-body">{{ notification.body }}</p>
+                  <span class="notification-time"
+                    >{{ notification.createdAt | vxDate: 'dateTime' }}</span
                   >
-                    <div class="status-dot"></div>
-                    <div class="notification-content">
-                      <p class="notification-title">{{ notification.title }}</p>
-                      <p class="notification-body">{{ notification.body }}</p>
-                      <span class="notification-time">{{ notification.createdAt | vxDate: 'dateTime' }}</span>
-                    </div>
-                  </button>
-                } @empty {
-                  <div class="no-notifications">
-                    <lucide-icon [img]="BellIcon" size="32"></lucide-icon>
-                    <p>{{ 'NOTIFICATIONS.NO_NOTIFICATIONS' | translate }}</p>
-                  </div>
-                }
-              </div>
-              @if(notificationCenter.notifications().length > 0) {
-                <div class="dropdown-footer">
-                  <a routerLink="/notifications" (click)="closeNotificationMenu()">{{ 'NOTIFICATIONS.VIEW_ALL' | translate }}</a>
                 </div>
+              </button>
+              } @empty {
+              <div class="no-notifications">
+                <lucide-icon [img]="BellIcon" size="32"></lucide-icon>
+                <p>{{ 'NOTIFICATIONS.NO_NOTIFICATIONS' | translate }}</p>
+              </div>
               }
             </div>
+            @if(notificationCenter.notifications().length > 0) {
+            <div class="dropdown-footer">
+              <a routerLink="/notifications" (click)="closeNotificationMenu()"
+                >{{ 'NOTIFICATIONS.VIEW_ALL' | translate }}</a
+              >
+            </div>
+            }
+          </div>
           }
         </div>
-
-        <!--
-          La disposición de las ventanas internas se cambia con la tarea, no una vez: facturar
-          veinte documentos quiere una ventana, conciliar un extracto contra el mayor quiere dos.
-          Por eso vive aquí y no enterrada en Configuración.
-        -->
-        <app-window-mode-toggle />
 
         <app-theme-toggle />
       </div>
@@ -355,12 +356,16 @@
           </div>
           <div class="user-info">
             <span class="user-name"
-              >{{ authService.currentUser()?.firstName }}
-              {{ authService.currentUser()?.lastName }}</span
+              >{{ authService.currentUser()?.firstName }} {{
+              authService.currentUser()?.lastName }}</span
             >
 
             <span class="user-role">
-              {{(authService.currentUser()?.roles?.[0]?.isSystemRole ? ('USER.ROLE.' + authService.currentUser()!.roles[0].name.toUpperCase() | translate) : (authService.currentUser()?.roles?.[0]?.name || ('USER.ROLE.NO_ROLE' | translate)))}}
+              {{(authService.currentUser()?.roles?.[0]?.isSystemRole ?
+              ('USER.ROLE.' +
+              authService.currentUser()!.roles[0].name.toUpperCase() |
+              translate) : (authService.currentUser()?.roles?.[0]?.name ||
+              ('USER.ROLE.NO_ROLE' | translate)))}}
             </span>
           </div>
           <lucide-icon
@@ -375,12 +380,12 @@
         <div class="user-menu-dropdown">
           <div class="dropdown-header">
             <span class="user-name"
-              >{{ authService.currentUser()?.firstName }}
-              {{ authService.currentUser()?.lastName }}</span
+              >{{ authService.currentUser()?.firstName }} {{
+              authService.currentUser()?.lastName }}</span
             >
-            <span class="user-email">{{
-              authService.currentUser()?.email
-            }}</span>
+            <span class="user-email"
+              >{{ authService.currentUser()?.email }}</span
+            >
           </div>
 
           <div class="dropdown-body">
@@ -399,68 +404,6 @@
               <lucide-icon [img]="SettingsIcon" size="16"></lucide-icon>
               <span>{{ "NAV.SETTINGS" | translate }}</span>
             </button>
-
-            @if (pwaService.canInstall()) {
-              <button
-                class="dropdown-item"
-                (click)="pwaService.installApp(); closeUserMenu()"
-              >
-                <lucide-icon [img]="DownloadIcon" size="16"></lucide-icon>
-                <span>{{ "PWA.INSTALL" | translate }}</span>
-              </button>
-            }
-
-            <div class="dropdown-divider" role="separator"></div>
-
-            <button class="dropdown-item" type="button" (click)="comingSoon()">
-              <lucide-icon [img]="HelpCircleIcon" size="16"></lucide-icon>
-              <span>{{ "USER.HELP" | translate }}</span>
-            </button>
-
-            <button class="dropdown-item" type="button" (click)="comingSoon()">
-              <lucide-icon [img]="KeyboardIcon" size="16"></lucide-icon>
-              <span>{{ "USER.SHORTCUTS" | translate }}</span>
-            </button>
-
-            <!--
-              Feedback es un submenú que se despliega AL LADO (a la izquierda, para
-              no salirse de pantalla, ya que el menú va pegado al borde derecho).
-              Se muestra al pasar el ratón o al enfocar con teclado; el clic lo
-              deja fijado (`.open`). El panel vive siempre en el DOM para que la
-              navegación por teclado funcione.
-            -->
-            <div class="feedback-group" [class.open]="isFeedbackOpen()">
-              <button
-                class="dropdown-item feedback-toggle"
-                type="button"
-                (click)="toggleFeedback()"
-                aria-haspopup="true"
-                [attr.aria-expanded]="isFeedbackOpen()"
-              >
-                <lucide-icon [img]="MessageSquareIcon" size="16"></lucide-icon>
-                <span>{{ "FEEDBACK.TITLE" | translate }}</span>
-                <lucide-icon
-                  [img]="ChevronLeftIcon"
-                  size="16"
-                  class="feedback-chevron"
-                ></lucide-icon>
-              </button>
-
-              <div class="feedback-submenu" role="menu">
-                <button class="dropdown-item dropdown-subitem" type="button" role="menuitem" (click)="comingSoon()">
-                  <lucide-icon [img]="BugIcon" size="16"></lucide-icon>
-                  <span>{{ "FEEDBACK.REPORT_BUG" | translate }}</span>
-                </button>
-                <button class="dropdown-item dropdown-subitem" type="button" role="menuitem" (click)="comingSoon()">
-                  <lucide-icon [img]="LightbulbIcon" size="16"></lucide-icon>
-                  <span>{{ "FEEDBACK.SUGGEST" | translate }}</span>
-                </button>
-                <button class="dropdown-item dropdown-subitem" type="button" role="menuitem" (click)="comingSoon()">
-                  <lucide-icon [img]="StarIcon" size="16"></lucide-icon>
-                  <span>{{ "FEEDBACK.PRAISE" | translate }}</span>
-                </button>
-              </div>
-            </div>
           </div>
 
           <div class="dropdown-footer">
@@ -498,7 +441,7 @@
 <app-status-bar></app-status-bar>
 
 @if (isSettingsOpen()) {
-  <app-settings-modal [sectionName]="settingsSection()"></app-settings-modal>
+<app-settings-modal [sectionName]="settingsSection()"></app-settings-modal>
 }
 
 <app-dialog-host></app-dialog-host>

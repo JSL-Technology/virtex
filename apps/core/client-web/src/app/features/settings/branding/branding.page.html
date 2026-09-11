@@ -49,16 +49,6 @@
                     <div class="form-field"><label for="borderRadius">{{ 'SETTINGS.BRANDING.BORDER_RADIUS' | translate: { value: brandingForm.get('borderRadius')?.value } }}</label><input type="range" id="borderRadius"
                             formControlName="borderRadius" min="0" max="24" step="2"></div>
 
-                    <div class="form-field">
-                        <span class="input-label" id="branding-group-1">{{ 'SETTINGS.BRANDING.DISENO_APLICACION' | translate }}</span>
-                        <div class="button-group" role="group" aria-labelledby="branding-group-1">
-                            <button type="button" [class.active]="brandingForm.get('layoutStyle')?.value === 'topnav'"
-                                (click)="brandingForm.get('layoutStyle')?.setValue('topnav')">{{ 'SETTINGS.BRANDING.SUPERIOR' | translate }}</button>
-                            <button type="button" [class.active]="brandingForm.get('layoutStyle')?.value === 'sidenav'"
-                                (click)="brandingForm.get('layoutStyle')?.setValue('sidenav')">{{ 'SETTINGS.BRANDING.LATERAL' | translate }}</button>
-                        </div>
-                    </div>
-
                     <div class="form-row">
                         <div class="form-field"><span class="input-label" id="branding-group-2">{{ 'SETTINGS.BRANDING.DENSIDAD' | translate }}</span>
                             <div class="button-group" role="group" aria-labelledby="branding-group-2">

@@ -1,24 +1,52 @@
 // ../app/layout/main/main.layout.ts
 
-import { Component, inject, signal, HostListener, ElementRef, HostBinding, OnInit, WritableSignal, ViewChild, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import {
+  Component,
+  inject,
+  signal,
+  HostListener,
+  ElementRef,
+  HostBinding,
+  OnInit,
+  WritableSignal,
+  computed,
+} from '@angular/core';
+import { CommonModule, Location } from '@angular/common';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, startWith } from 'rxjs/operators';
 import { SettingsModalComponent } from '../../features/settings/modal/settings-modal.component';
 import { AuthService } from '../../core/services/auth';
-import { BrandingService } from '../../core/services/branding';
 import { NotificationCenterService } from '../../core/services/notification-center.service';
 import { ThemeToggle } from '../../shared/components/theme-toggle/theme-toggle';
-import { AppLauncherComponent } from './components/app-launcher/app-launcher.component';
-import { PwaService } from '../../core/services/pwa.service';
-import { SearchService, SearchResultGroup } from '../../core/services/search.service';
-import { NotificationService } from '../../core/services/notification';
-import { Subject, of } from 'rxjs';
-import { debounceTime, switchMap, catchError, distinctUntilChanged, tap } from 'rxjs/operators';
 import {
-  LucideAngularModule, Search, PlusCircle, Bell, User, Settings, LogOut, ChevronDown,
-  LayoutDashboard, ShoppingCart, Receipt, Package, Users as ContactsIcon, HardHat, CheckSquare,
+  SearchService,
+  SearchResultGroup,
+} from '../../core/services/search.service';
+import { Subject, of } from 'rxjs';
+import {
+  debounceTime,
+  switchMap,
+  catchError,
+  distinctUntilChanged,
+  tap,
+} from 'rxjs/operators';
+import {
+  LucideAngularModule,
+  Search,
+  PlusCircle,
+  Bell,
+  User,
+  Settings,
+  LogOut,
+  ChevronDown,
+  LayoutDashboard,
+  ShoppingCart,
+  Receipt,
+  Package,
+  Users as ContactsIcon,
+  HardHat,
+  CheckSquare,
   FolderArchive,
   Database,
   UploadCloud,
@@ -38,23 +66,15 @@ import {
   FileSearch,
   UserPlus, // ✅ Icono añadido
   Package as PackageIcon, // ✅ Icono añadido
-  Download, // ✅ Icono añadido
   Menu, // ✅ Toggle de sidebar (responsive)
-  HelpCircle, // ✅ Ayuda (signo de interrogación)
-  Keyboard, // ✅ Atajos de teclado
-  MessageSquare, // ✅ Feedback
-  Bug, // ✅ Reportar un problema
-  Lightbulb, // ✅ Sugerir una mejora
-  Star, // ✅ Dejar una valoración
-  ChevronLeft, // ✅ Indicador de submenú (Feedback se abre a la izquierda)
+  ArrowLeft,
 } from 'lucide-angular';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { Sidebar } from '../sidebar/sidebar';
 import { ClickOutsideDirective } from '../../shared/directives/click-outside.directive'; // ✅ Directiva añadida
 import { CompanySwitcherComponent } from './components/company-switcher/company-switcher.component';
 import { BrandLogo } from '../../shared/components/brand-logo/brand-logo';
 import { TabContainerComponent } from '../../core/tabs/components/tab-container.component';
-import { TabSwitcherComponent } from '../../core/tabs/components/tab-switcher.component';
 import { TabPersistenceService } from '../../core/tabs/tab-persistence.service';
 import { TabKeyboardService } from '../../core/tabs/tab-keyboard.service';
 import { TabRouterService } from '../../core/tabs/tab-router.service';
@@ -62,21 +82,32 @@ import { DialogHostComponent } from '../../shared/components/dialog-host/dialog-
 import { FORMAT_PIPES } from '../../core/i18n/pipes/format.pipes';
 import { StatusBarComponent } from '../status-bar/status-bar.component';
 import { ModuleRailComponent } from '../module-rail/module-rail.component';
-import { WindowModeToggleComponent } from '../window-mode-toggle/window-mode-toggle.component';
-import { ActiveModuleService, PanelSection } from '../../core/modules/active-module.service';
-import { ModuleMenuComponent } from '../module-menu/module-menu.component';
-import { ModuleManifest } from '../../core/modules/module-manifest';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, ThemeToggle, AppLauncherComponent, LucideAngularModule, TranslateModule, Sidebar, ClickOutsideDirective, SettingsModalComponent, CompanySwitcherComponent, BrandLogo, TabContainerComponent, TabSwitcherComponent, DialogHostComponent, StatusBarComponent, ModuleRailComponent, ModuleMenuComponent, WindowModeToggleComponent, ...FORMAT_PIPES], // ✅ Directiva añadida a los imports
+  imports: [
+    CommonModule,
+    RouterLink,
+    ThemeToggle,
+    LucideAngularModule,
+    TranslateModule,
+    Sidebar,
+    ClickOutsideDirective,
+    SettingsModalComponent,
+    CompanySwitcherComponent,
+    BrandLogo,
+    TabContainerComponent,
+    DialogHostComponent,
+    StatusBarComponent,
+    ModuleRailComponent,
+    ...FORMAT_PIPES,
+  ], // ✅ Directiva añadida a los imports
   templateUrl: './main.layout.html',
   styleUrls: ['./main.layout.scss'],
 })
 export class MainLayout implements OnInit {
   notificationCenter = inject(NotificationCenterService);
-  pwaService = inject(PwaService);
   tabPersistence = inject(TabPersistenceService);
   tabRouter = inject(TabRouterService);
   private tabKeyboard = inject(TabKeyboardService);
@@ -86,12 +117,12 @@ export class MainLayout implements OnInit {
     { key: 'c', route: '/customers/new' },
     { key: 'p', route: '/products/new' },
   ] as const;
-  
+
   // ✅ Lógica para la Modal "Crear Nuevo"
   isQuickCreateModalOpen: WritableSignal<boolean> = signal(false);
 
   toggleQuickCreateModal(): void {
-    this.isQuickCreateModalOpen.update(value => !value);
+    this.isQuickCreateModalOpen.update((value) => !value);
     this.isUserMenuOpen.set(false);
     this.isNotificationMenuOpen.set(false);
   }
@@ -114,124 +145,65 @@ export class MainLayout implements OnInit {
 
     // Cierra el overlay del sidebar (móvil) al navegar a otra pestaña.
     this.router.events
-      .pipe(filter(e => e instanceof NavigationEnd))
+      .pipe(filter((e) => e instanceof NavigationEnd))
       .subscribe(() => this.closeSidebar());
-    this.searchQuery$.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-      tap(query => {
-        if (query.trim().length > 0) {
-          this.isSearchLoading.set(true);
-          this.isSearchOpen.set(true);
-        } else {
-          this.isSearchLoading.set(false);
-          this.isSearchOpen.set(false);
-          this.searchResults.set([]);
-        }
-      }),
-      switchMap(query => {
-        if (query.trim().length > 0) {
-          return this.searchService.search(query.trim()).pipe(
-            catchError(() => of([] as SearchResultGroup[]))
-          );
-        } else {
-          return of([] as SearchResultGroup[]);
-        }
-      })
-    ).subscribe(results => {
-      this.searchResults.set(results);
-      this.isSearchLoading.set(false);
-    });
+    this.searchQuery$
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        tap((query) => {
+          if (query.trim().length > 0) {
+            this.isSearchLoading.set(true);
+            this.isSearchOpen.set(true);
+          } else {
+            this.isSearchLoading.set(false);
+            this.isSearchOpen.set(false);
+            this.searchResults.set([]);
+          }
+        }),
+        switchMap((query) => {
+          if (query.trim().length > 0) {
+            return this.searchService
+              .search(query.trim())
+              .pipe(catchError(() => of([] as SearchResultGroup[])));
+          } else {
+            return of([] as SearchResultGroup[]);
+          }
+        }),
+      )
+      .subscribe((results) => {
+        this.searchResults.set(results);
+        this.isSearchLoading.set(false);
+      });
   }
   private elementRef = inject(ElementRef);
   authService = inject(AuthService);
-  private translate = inject(TranslateService);
-  brandingService = inject(BrandingService);
   private searchService = inject(SearchService);
-  private notifications = inject(NotificationService);
   protected readonly router = inject(Router);
-  private readonly activeModule = inject(ActiveModuleService);
-
-  settings = this.brandingService.settings;
-
-  public companyLogo = computed(() => {
-    return (
-      this.settings().logoUrl ||
-      this.authService.currentUser()?.organization?.logoUrl ||
-      null
-    );
-  });
-
-  public companyName = computed(() => {
-    return (
-      // The API exposes the organization as `legalName`; `name` never existed on the payload, so
-      // this always fell through to the hardcoded fallback and no tenant ever saw its own name.
-      // Falls back to the product name, not to a different product's. Until the profile
-      // loads there is no tenant to name, and "FacturaPRO" was a leftover brand.
-      this.authService.currentUser()?.organization?.legalName || this.translate.instant('APP_TITLE')
-    );
-  });
+  private readonly location = inject(Location);
 
   private readonly currentFragment = toSignal(
     this.router.events.pipe(
-      filter(e => e instanceof NavigationEnd),
+      filter((e) => e instanceof NavigationEnd),
       map(() => {
         const url = this.router.url;
         const idx = url.indexOf('#');
         return idx >= 0 ? url.slice(idx + 1) : '';
       }),
-      startWith((() => {
-        const url = this.router.url;
-        const idx = url.indexOf('#');
-        return idx >= 0 ? url.slice(idx + 1) : '';
-      })()),
+      startWith(
+        (() => {
+          const url = this.router.url;
+          const idx = url.indexOf('#');
+          return idx >= 0 ? url.slice(idx + 1) : '';
+        })(),
+      ),
     ),
-    { initialValue: '' }
+    { initialValue: '' },
   );
 
   readonly isSettingsOpen = computed(() =>
-    this.currentFragment().startsWith('settings')
+    this.currentFragment().startsWith('settings'),
   );
-
-  /**
-   * Modules for the horizontal variant of the shell.
-   *
-   * Same source as the vertical rail — `ActiveModuleService.reachable()` — so the two layouts can
-   * never offer different products. Locked modules are dropped here rather than dimmed: a
-   * horizontal bar has no room to explain a padlock, and the rail already does that job wherever
-   * it is shown.
-   */
-  readonly topNavModules = computed(() =>
-    this.activeModule.reachable().filter((entry) => entry.allowed)
-  );
-
-  readonly activeModuleId = computed(() => this.activeModule.active()?.id ?? null);
-
-  /** Which entry the panel and the mega-menu light up. One source, so they cannot disagree. */
-  readonly activeEntry = this.activeModule.activeEntry;
-
-  /**
-   * The module whose mega-menu is open in the top bar, or null.
-   *
-   * Only one at a time, and the id rather than a boolean per module: two menus open at once is a
-   * state that should not be representable, and a `Set` would make it representable.
-   */
-  readonly openModuleMenu = signal<string | null>(null);
-
-  /** The four groups of any module, filtered to this seat. Same source as the side panel. */
-  menuOf(module: ModuleManifest): PanelSection[] {
-    return this.activeModule.visibleMenu(module);
-  }
-
-  toggleModuleMenu(id: string): void {
-    this.openModuleMenu.update((open) => (open === id ? null : id));
-  }
-
-  closeModuleMenu(id: string | null): void {
-    // Guarded by id so a click-outside on a module whose menu is already closed cannot shut the
-    // one the user just opened next to it — the outside-click fires on every sibling.
-    if (id === null || this.openModuleMenu() === id) this.openModuleMenu.set(null);
-  }
 
   readonly settingsSection = computed(() => {
     const frag = this.currentFragment();
@@ -250,13 +222,12 @@ export class MainLayout implements OnInit {
   }
 
   isUserMenuOpen = signal(false);
-  isFeedbackOpen = signal(false); // acordeón de Feedback dentro del menú de usuario
   isNotificationMenuOpen = signal(false);
   isSidebarOpen = signal(false); // overlay de sidebar en móvil
   isSearchOpen = signal(false);
 
   toggleSidebar(): void {
-    this.isSidebarOpen.update(v => !v);
+    this.isSidebarOpen.update((v) => !v);
   }
 
   closeSidebar(): void {
@@ -268,7 +239,7 @@ export class MainLayout implements OnInit {
 
   @HostBinding('class')
   get layoutClass() {
-    return `layout-${this.settings().layoutStyle}${this.isSidebarOpen() ? ' sidebar-open' : ''}`;
+    return this.isSidebarOpen() ? 'sidebar-open' : '';
   }
 
   stopImpersonation(): void {
@@ -286,6 +257,7 @@ export class MainLayout implements OnInit {
   protected readonly XIcon = X;
   protected readonly ChevronRightIcon = ChevronRight;
   protected readonly ArrowRightIcon = ArrowRight;
+  protected readonly ArrowLeftIcon = ArrowLeft;
   protected readonly DashboardIcon = LayoutDashboard;
   protected readonly MyWorkIcon = HardHat;
   protected readonly ApprovalsIcon = CheckSquare;
@@ -310,50 +282,32 @@ export class MainLayout implements OnInit {
   protected readonly FileSearchIcon = FileSearch;
   protected readonly ReceiptIcon = Receipt; // ✅ Icono añadido
   protected readonly UserPlusIcon = UserPlus; // ✅ Icono añadido
-  protected readonly DownloadIcon = Download; // ✅ Icono añadido
   protected readonly MenuIcon = Menu; // ✅ Toggle de sidebar
-  protected readonly HelpCircleIcon = HelpCircle; // ✅ Ayuda (signo de interrogación)
-  protected readonly KeyboardIcon = Keyboard; // ✅ Atajos de teclado
-  protected readonly MessageSquareIcon = MessageSquare; // ✅ Feedback
-  protected readonly BugIcon = Bug; // ✅ Reportar un problema
-  protected readonly LightbulbIcon = Lightbulb; // ✅ Sugerir una mejora
-  protected readonly StarIcon = Star; // ✅ Dejar una valoración
-  protected readonly ChevronLeftIcon = ChevronLeft; // ✅ Indicador de submenú
 
   toggleUserMenu(): void {
-    this.isUserMenuOpen.update(isOpen => !isOpen);
+    this.isUserMenuOpen.update((isOpen) => !isOpen);
     this.closeNotificationMenu();
     this.closeQuickCreateModal();
   }
 
   toggleNotificationMenu(): void {
-    this.isNotificationMenuOpen.update(isOpen => !isOpen);
+    this.isNotificationMenuOpen.update((isOpen) => !isOpen);
     this.closeUserMenu();
     this.closeQuickCreateModal();
   }
 
   closeUserMenu(): void {
     this.isUserMenuOpen.set(false);
-    // El acordeón de Feedback no debe quedar abierto la próxima vez que se despliegue el menú.
-    this.isFeedbackOpen.set(false);
   }
 
-  toggleFeedback(): void {
-    this.isFeedbackOpen.update(isOpen => !isOpen);
+  goBack(): void {
+    this.location.back();
   }
 
-  /**
-   * Marcador de posición para Ayuda y las acciones de Feedback.
-   *
-   * Todavía no hay backend ni destino real para estas opciones, así que en vez de un botón muerto
-   * se avisa —sin interrumpir— de que la función llegará pronto. Cuando exista el flujo real, cada
-   * botón llamará a su propia acción y este método desaparecerá.
-   */
-  comingSoon(): void {
-    this.notifications.showInfo('FEEDBACK.COMING_SOON');
-    this.closeUserMenu();
+  goForward(): void {
+    this.location.forward();
   }
-  
+
   // ✅ Nuevo método para cerrar notificaciones (usado por clickOutside)
   closeNotificationMenu(): void {
     this.isNotificationMenuOpen.set(false);
@@ -362,7 +316,9 @@ export class MainLayout implements OnInit {
   navigateToSearch(query: string): void {
     if (query && query.trim().length > 0) {
       // §2/§12 P0-2: la ruta real es /global-search (sin prefijo /app).
-      this.router.navigate(['/global-search'], { queryParams: { q: query.trim() } });
+      this.router.navigate(['/global-search'], {
+        queryParams: { q: query.trim() },
+      });
       this.closeSearch();
     }
   }
@@ -388,21 +344,21 @@ export class MainLayout implements OnInit {
 
     const lowerCaseType = type.toLowerCase();
     const iconMap: { [key: string]: any } = {
-      'customers': this.UserIcon2,
-      'products': this.BoxIcon,
-      'invoices': this.InvoicesIcon,
-      'documents': this.FileTextIcon,
-      'companies': this.BuildingIcon,
-      'payments': this.CreditCardIcon,
-      'events': this.CalendarIcon,
-      'sales': this.SalesIcon,
-      'dashboard': this.DashboardIcon,
-      'inventory': this.PackageIcon,
-      'contacts': this.ContactsIcon,
-      'users': this.UserIcon2,
-      'settings': this.SettingsIcon,
-      'reports': this.ReportsIcon,
-      'purchases': this.PurchasingIcon,
+      customers: this.UserIcon2,
+      products: this.BoxIcon,
+      invoices: this.InvoicesIcon,
+      documents: this.FileTextIcon,
+      companies: this.BuildingIcon,
+      payments: this.CreditCardIcon,
+      events: this.CalendarIcon,
+      sales: this.SalesIcon,
+      dashboard: this.DashboardIcon,
+      inventory: this.PackageIcon,
+      contacts: this.ContactsIcon,
+      users: this.UserIcon2,
+      settings: this.SettingsIcon,
+      reports: this.ReportsIcon,
+      purchases: this.PurchasingIcon,
     };
 
     return iconMap[lowerCaseType] || this.FileSearchIcon;
@@ -410,7 +366,8 @@ export class MainLayout implements OnInit {
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
-    const searchElement = this.elementRef.nativeElement.querySelector('.global-search');
+    const searchElement =
+      this.elementRef.nativeElement.querySelector('.global-search');
     if (searchElement && !searchElement.contains(event.target as Node)) {
       this.closeSearch();
     }
@@ -418,11 +375,17 @@ export class MainLayout implements OnInit {
 
   @HostListener('document:keydown', ['$event'])
   onDocumentKeydown(event: KeyboardEvent): void {
-    if (!event.altKey || !event.shiftKey || this.isTypingContext(event.target)) {
+    if (
+      !event.altKey ||
+      !event.shiftKey ||
+      this.isTypingContext(event.target)
+    ) {
       return;
     }
 
-    const shortcut = this.quickCreateShortcuts.find(({ key }) => key === event.key.toLowerCase());
+    const shortcut = this.quickCreateShortcuts.find(
+      ({ key }) => key === event.key.toLowerCase(),
+    );
     if (!shortcut) {
       return;
     }
@@ -437,6 +400,9 @@ export class MainLayout implements OnInit {
       return false;
     }
 
-    return target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName);
+    return (
+      target.isContentEditable ||
+      ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)
+    );
   }
 }
