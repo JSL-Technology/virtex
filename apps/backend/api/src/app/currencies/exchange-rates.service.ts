@@ -270,6 +270,7 @@ export class ExchangeRatesService {
 
     await this.assertProviderServesRealRates();
 
+    // tenant-scope-guard-allow: currencies are global reference data shared across all tenants.
     const currencies = await this.currencyRepository.find();
     const targets = currencies.map((c) => c.code.toUpperCase()).filter((code) => code !== PIVOT);
 
@@ -319,6 +320,7 @@ export class ExchangeRatesService {
    * where it sits until someone wonders why `EURO` has no quotes.
    */
   private async requireKnownCurrencies(codes: string[]): Promise<void> {
+    // tenant-scope-guard-allow: currencies are global reference data shared across all tenants.
     const known = await this.currencyRepository.find();
     const catalogue = new Set(known.map((c) => c.code.toUpperCase()));
     // An empty catalogue means currency seeding has not run; refusing every rate in that state

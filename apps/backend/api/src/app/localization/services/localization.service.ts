@@ -66,6 +66,7 @@ export class LocalizationService implements OnModuleInit {
    * pero que no tienen una estrategia hardcoded (clase específica).
    */
   private async loadStrategies() {
+    // tenant-scope-guard-allow: fiscal regions are global reference data shared across all tenants.
     const regions = await this.fiscalRegionRepository.find();
     for (const region of regions) {
       if (!this.strategies.has(region.countryCode)) {

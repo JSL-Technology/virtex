@@ -1,0 +1,41 @@
+# Throwaway Postgres + Redis for running the integration suites locally.
+#
+# The backend's integration tests skip themselves when DB_HOST/DB_NAME are unset, so a green local
+# run without a database does NOT exercise ledger integrity, the period close, reconciliation or
+# invoicing. This brings up the same images CI uses, on the same ports, so those suites run for
+# real with one command:
+#
+#   docker compose -f docker-compose.test.yml up -d
+#   DB_HOST=localhost DB_PORT=5432 DB_NAME=virteex_test \
+#     DB_USERNAME=postgres DB_PASSWORD=postgres \
+#     REDIS_HOST=localhost REDIS_PORT=6379 \
+#     npx nx test api
+#
+#   docker compose -f docker-compose.test.yml down -v   # tear down, discard the data
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: virteex_test
+    ports:
+      - '5432:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    # tmpfs: the data never needs to survive a restart, and this keeps the suite fast.
+    tmpfs:
+      - /var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10

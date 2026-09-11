@@ -130,6 +130,8 @@ export const PERMISSIONS = {
 
   /** Read the employee register. The HCM module existed with no permission gating it at all. */
   HCM_VIEW: 'hcm:view',
+  /** Create, edit and remove employees and departments. */
+  HCM_MANAGE: 'hcm:manage',
 
   WORKFLOWS_MANAGE: 'workflows:manage',
   /**
@@ -149,7 +151,26 @@ export const PERMISSIONS = {
   AUDIT_APPROVE_ADJUSTMENT: 'audit:approve_adjustment',
 
 
+  /** Read the cost/profit-centre register that classifies analytical postings. */
+  COST_ACCOUNTING_VIEW: 'cost_accounting:view',
   COST_ACCOUNTING_MANAGE: 'cost_accounting:manage',
+
+  /**
+   * Procurement: purchase requisitions and the supplier-portal roster. These modules used to
+   * expose no controller at all, then a controller with neither tenant scoping nor validation.
+   * A dedicated permission is what lets a role grant "raise a requisition" without granting the
+   * ledger.
+   */
+  PROCUREMENT_VIEW: 'procurement:view',
+  PROCUREMENT_MANAGE: 'procurement:manage',
+
+  /** Projects, their tasks and timesheets. */
+  PROJECTS_VIEW: 'projects:view',
+  PROJECTS_MANAGE: 'projects:manage',
+
+  /** Warehouse management: warehouses, bin locations and landed-cost schemes. */
+  WMS_VIEW: 'wms:view',
+  WMS_MANAGE: 'wms:manage',
 
   INTERCOMPANY_VIEW: 'intercompany:view',
   INTERCOMPANY_TRANSACT: 'intercompany:transact',

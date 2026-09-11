@@ -158,6 +158,12 @@ jobs:
       # surfaces as a broken deploy; this turns it into a failing build.
       - run: npm run check:schema-drift
 
+      # Proves no service reads a tenant table without a tenant filter. Application-level isolation
+      # is a `WHERE` clause that must be remembered, and the audit that added this found the one
+      # place it had been forgotten (a `manufacturing` list that returned every tenant's orders).
+      # Until the row-level-security cutover makes the database enforce it, this static guard does.
+      - run: npm run verify:tenant-scope
+
       # Proves that a tenant's fiscal identity survives storage, and that two distinct taxpayers
       # no longer collide on the unique index over (tax_id, fiscal_region_id). The failure this
       # guards is a database constraint firing on the second insert, which no unit test can show.

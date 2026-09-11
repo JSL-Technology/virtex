@@ -1,5 +1,5 @@
 
-import { Entity, Column } from 'typeorm';
+import { Entity, Column, Index } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 
 export enum PurchaseRequisitionStatus {
@@ -11,8 +11,10 @@ export enum PurchaseRequisitionStatus {
 }
 
 @Entity('purchase_requisitions')
+// The requisition number is unique per tenant, not across the whole database.
+@Index('IDX_purchase_requisitions_org_number', ['organizationId', 'number'], { unique: true })
 export class PurchaseRequisition extends BaseEntity {
-  @Column({ unique: true })
+  @Column()
   number: string;
 
   @Column({ name: 'requested_by_user_id', type: 'uuid' })
