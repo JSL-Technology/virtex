@@ -494,6 +494,25 @@
   --brand-negative: #{p.graphite(0)};
 }
 
+// -----------------------------------------------------------------------------
+//  CHROME DE NAVEGACIÓN (barra superior + riel de módulos)
+// -----------------------------------------------------------------------------
+//  El armazón de navegación es SIEMPRE oscuro —como la barra de título de un
+//  IDE— con independencia del tema de la aplicación: es el marco, no el
+//  contenido, y esa quietud es lo que ancla la navegación. Por eso se publica
+//  FUERA de los mixins de tema, igual que la marca.
+//
+//  `--chrome-tint-rgb` es blanco fijo pensado para componer bordes y estados
+//  hover con opacidad —`rgba(var(--chrome-tint-rgb), α)`—, la misma técnica que
+//  el resto del sistema usa para no escribir `rgba(255,255,255,…)` a mano.
+// -----------------------------------------------------------------------------
+:root {
+  --chrome-surface: #111111;
+  --chrome-content: #f5f5f5;
+  --chrome-content-strong: #ffffff;
+  --chrome-tint-rgb: 255, 255, 255;
+}
+
 :root {
   @include light;
 }

@@ -1,20 +1,13 @@
-<!--
-  El contenedor lleva `role="radiogroup"`: comunica al lector de pantalla que
-  las tres opciones son excluyentes entre sí y cuál está seleccionada.
--->
-<div class="theme-toggle" role="radiogroup" [attr.aria-label]="'SHARED.THEME_TOGGLE.APARIENCIA' | translate">
-  @for (option of options; track option.mode) {
-    <button
-      type="button"
-      role="radio"
-      class="theme-toggle__option"
-      [class.is-active]="theme.mode() === option.mode"
-      [attr.aria-checked]="theme.mode() === option.mode"
-      [attr.aria-label]="option.label"
-      [attr.title]="option.label"
-      (click)="select(option.mode)"
-    >
-      <lucide-icon [img]="option.icon" [size]="16" aria-hidden="true" />
-    </button>
-  }
-</div>
+<button
+  type="button"
+  class="theme-toggle"
+  [attr.aria-label]="theme.isDark() ? 'Activar tema claro' : 'Activar tema oscuro'"
+  [attr.title]="theme.isDark() ? 'Activar tema claro' : 'Activar tema oscuro'"
+  (click)="toggle()"
+>
+  <lucide-icon
+    [img]="theme.isDark() ? SunIcon : MoonIcon"
+    [size]="18"
+    aria-hidden="true"
+  />
+</button>

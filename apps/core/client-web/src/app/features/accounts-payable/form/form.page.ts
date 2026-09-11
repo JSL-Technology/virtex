@@ -14,7 +14,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { LucideAngularModule, ChevronLeft, Plus, Trash2 } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
@@ -79,7 +79,6 @@ interface BillTotals {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    RouterLink,
     LucideAngularModule,
     TranslateModule,
     ...FORMAT_PIPES,

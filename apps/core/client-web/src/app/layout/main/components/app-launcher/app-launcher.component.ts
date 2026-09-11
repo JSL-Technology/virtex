@@ -53,7 +53,7 @@ interface VirtexApp {
 
     .launcher-trigger.active {
       background: var(--bg-hover);
-      color: var(--primary-color);
+      color: var(--accent-primary);
     }
 
     .launcher-dropdown {

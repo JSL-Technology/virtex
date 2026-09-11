@@ -104,7 +104,7 @@ export class TabStateService {
 
     // `definition.title` es una CLAVE de i18n (`PAGE_TITLES.INVOICES`), no texto: hay que
     // traducirla o la pestaña muestra la clave en crudo. `config.title` y `titleFn(...)` ya vienen
-    // resueltos (p. ej. «Factura #123»), así que no se tocan. Si i18n aún no cargó, `instant`
+    // resueltos (p. ej. «Factura n.º 123»), así que no se tocan. Si i18n aún no cargó, `instant`
     // devuelve la clave y el pipe `translate` de la cabecera la resuelve al terminar de cargar.
     const title = config.title
       ?? (definition.titleFn ? definition.titleFn(params) : undefined)

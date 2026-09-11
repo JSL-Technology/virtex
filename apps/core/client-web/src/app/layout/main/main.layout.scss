@@ -1,5 +1,5 @@
-@use "../../../assets/styles/forms" as mixins;
-@use "../../../assets/styles/design-system" as ds;
+@use '../../../assets/styles/forms' as mixins;
+@use '../../../assets/styles/design-system' as ds;
 
 // =============================================================================
 //  DÓNDE SE APLICA EL CRISTAL Y DÓNDE NO
@@ -51,11 +51,7 @@
       radial-gradient(60rem 32rem at 6% -8%, var(--aurora-1), transparent 68%),
       radial-gradient(48rem 28rem at 104% 2%, var(--aurora-2), transparent 70%);
   }
-  
 
-  
-
-  
   // --- Variables para la Búsqueda Global ---
   --search-popover-bg: var(--glass-bg-strong);
   --search-popover-border: var(--glass-border);
@@ -72,7 +68,6 @@
   --search-icon-color: var(--accent-primary);
   --search-transition: all 0.2s ease;
   --search-border-radius: var(--radius-lg);
-
 }
 
 // --- Mixins para Botones Estandarizados ---
@@ -204,10 +199,10 @@
   grid-template-columns: var(--rail-width) var(--panel-width) 1fr;
   grid-template-rows: auto 64px 1fr auto;
   grid-template-areas:
-    "banner  banner  banner"
-    "topbar  topbar  topbar"
-    "rail    sidebar content"
-    "status  status  status";
+    'banner  banner  banner'
+    'topbar  topbar  topbar'
+    'rail    sidebar content'
+    'status  status  status';
 
   .main-sidebar {
     grid-area: sidebar;
@@ -287,7 +282,7 @@
       color: var(--accent-primary);
 
       &::before {
-        content: "";
+        content: '';
         position: absolute;
         left: -1rem;
         top: 50%;
@@ -326,19 +321,19 @@
   display: flex;
   align-items: center;
   height: 64px;
-  padding: 0 var(--space-6);
+  padding: 0 var(--space-8);
   position: relative;
   z-index: 100;
-  background-color: #191b22;
-  color: #f4f6fa;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.22);
+  background-color: var(--chrome-surface);
+  color: var(--chrome-content);
+  border-bottom: 1px solid rgba(var(--chrome-tint-rgb), 0.14);
+  box-shadow: 0 1px 0 rgba(var(--shadow-color-rgb), 0.22);
 
   .topbar-brand {
     display: inline-flex;
     align-items: center;
     flex: 0 0 auto;
-    margin-right: var(--space-6);
+    margin-right: var(--space-5);
     border-radius: var(--radius-sm);
     text-decoration: none;
     @include ds.focus-ring(4px);
@@ -350,6 +345,41 @@
     gap: var(--space-4);
     flex: 1;
     min-width: 0;
+  }
+}
+
+.history-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex: 0 0 auto;
+  margin-right: var(--space-4);
+}
+
+.main-topbar .icon-button {
+  color: rgba(var(--chrome-tint-rgb), 0.82);
+
+  &:hover {
+    color: var(--chrome-content-strong);
+    background-color: rgba(var(--chrome-tint-rgb), 0.12);
+  }
+}
+
+.main-topbar .user-menu-trigger {
+  color: rgba(var(--chrome-tint-rgb), 0.82);
+
+  .user-name {
+    color: var(--chrome-content-strong);
+  }
+
+  .user-role,
+  .chevron {
+    color: rgba(var(--chrome-tint-rgb), 0.64);
+  }
+
+  &:hover {
+    background-color: rgba(var(--chrome-tint-rgb), 0.12);
+    color: var(--chrome-content-strong);
   }
 }
 
@@ -407,7 +437,7 @@
 .separator {
   width: 1px;
   height: 24px;
-  background-color: var(--border-color);
+  background-color: rgba(var(--chrome-tint-rgb), 0.18);
 }
 
 // ✅ --- NUEVO MENÚ DESPLEGABLE DE CREACIÓN RÁPIDA ---
@@ -685,7 +715,6 @@
 }
 
 .user-menu-trigger {
-
   gap: var(--space-3);
   @include text-button;
   padding: 6px 12px;
@@ -798,7 +827,9 @@
     border-radius: var(--radius-md);
     font-weight: var(--font-medium);
     color: var(--text-secondary);
-    transition: background-color 0.15s ease, color 0.15s ease;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
 
     //  El icono vive en una placa translúcida que se tiñe con el acento al pasar
     //  por encima. Es el detalle que da el aire elegante a cada fila. El chevron
@@ -813,7 +844,9 @@
       border-radius: var(--radius-md);
       background-color: var(--glass-bg-subtle);
       color: var(--text-tertiary);
-      transition: background-color 0.15s ease, color 0.15s ease;
+      transition:
+        background-color 0.15s ease,
+        color 0.15s ease;
     }
 
     &:hover {
@@ -881,7 +914,10 @@
     opacity: 0;
     visibility: hidden;
     transform: translateX(var(--space-2));
-    transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s;
+    transition:
+      opacity 0.16s ease,
+      transform 0.16s ease,
+      visibility 0.16s;
 
     //  Puente invisible sobre el hueco: evita que el submenú se cierre al mover
     //  el ratón desde «Feedback» hasta el panel.
@@ -1325,10 +1361,10 @@ app-status-bar {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto 1fr auto;
     grid-template-areas:
-      "banner"
-      "topbar"
-      "content"
-      "status";
+      'banner'
+      'topbar'
+      'content'
+      'status';
   }
 
   // En un teléfono, el riel y el panel pasan a un cajón controlado por el menú.
@@ -1348,7 +1384,6 @@ app-status-bar {
     .main-sidebar {
       display: flex;
     }
-
   }
 
   :host.sidebar-open app-module-rail {

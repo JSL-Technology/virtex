@@ -157,7 +157,7 @@ import { resolveTabIcon } from './tab-icon';
       font-size: var(--text-sm);
       font-weight: var(--font-medium);
     }
-    .ts-item__title.is-preview { font-style: italic; font-weight: var(--font-normal); }
+    .ts-item__title.is-preview { font-style: italic; font-weight: var(--font-regular); }
 
     .ts-item__dot {
       flex-shrink: 0;
