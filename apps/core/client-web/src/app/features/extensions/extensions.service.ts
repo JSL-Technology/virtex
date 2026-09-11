@@ -28,6 +28,17 @@ export interface RegisterExtensionRequest {
   capabilities?: string[];
   requestedEgress?: string[];
   sbom?: unknown;
+  /** Client-side UI (JavaScript) run in the sandboxed extension host. */
+  uiEntry?: string;
+  contributes?: unknown;
+}
+
+export interface RuntimeExtension {
+  name: string;
+  version: string;
+  uiEntry: string;
+  contributes?: unknown;
+  grantedCapabilities: string[];
 }
 
 export interface ExecuteExtensionRequest {
@@ -65,6 +76,11 @@ export class ExtensionsService {
 
   consents(): Observable<ExtensionConsent[]> {
     return this.http.get<ExtensionConsent[]>(`${this.apiUrl}/consents`);
+  }
+
+  /** The tenant's enabled UI extensions — what the client-side host mounts. */
+  runtime(): Observable<RuntimeExtension[]> {
+    return this.http.get<RuntimeExtension[]>(`${this.apiUrl}/runtime`);
   }
 
   register(req: RegisterExtensionRequest): Observable<{ status: string; id: string; message: string }> {

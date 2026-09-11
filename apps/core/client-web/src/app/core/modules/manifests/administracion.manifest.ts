@@ -59,6 +59,20 @@ export const ADMINISTRACION_MODULE: ModuleManifest = {
       menu: { group: 'masters', labelKey: 'sidebar.master_data.extensions' },
       load: () => import('../../../features/extensions/extensions.page').then((m) => m.ExtensionsPage),
     },
+    {
+      // The client-side extension runtime: where enabled UI extensions actually render, each in
+      // its own sandboxed iframe host.
+      path: 'extensions/run',
+      kind: WindowKind.CANVAS,
+      permission: 'extensions:view',
+      titleKey: 'PAGE_TITLES.EXTENSIONS_RUNTIME',
+      icon: 'Puzzle',
+      entityKeyFn: () => 'administracion:extensions-runtime',
+      load: () =>
+        import('../../../features/extensions/extensions-runtime.page').then(
+          (m) => m.ExtensionsRuntimePage,
+        ),
+    },
   ],
 };
 

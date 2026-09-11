@@ -42,6 +42,12 @@ export class ExtensionsController {
     return this.extensions.listConsents(user.organizationId);
   }
 
+  @Get('runtime')
+  @HasPermission(PERMISSIONS.EXTENSIONS_VIEW)
+  runtime(@CurrentUser() user: AuthenticatedUser) {
+    return this.extensions.runtime(user.organizationId);
+  }
+
   @Get(':name')
   @HasPermission(PERMISSIONS.EXTENSIONS_VIEW)
   getByName(@Param('name') name: string) {

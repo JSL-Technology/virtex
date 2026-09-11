@@ -45,4 +45,14 @@ export class RegisterPluginDto {
   @IsOptional()
   @IsObject()
   dependencies?: Record<string, string>;
+
+  /** Client-side UI (JavaScript run in a sandboxed iframe). Optional; headless extensions omit it. */
+  @IsOptional()
+  @IsString()
+  uiEntry?: string;
+
+  /** Contribution manifest, e.g. `{ points: [{ type: 'page', title: '…' }] }`. */
+  @IsOptional()
+  @IsObject()
+  contributes?: unknown;
 }
