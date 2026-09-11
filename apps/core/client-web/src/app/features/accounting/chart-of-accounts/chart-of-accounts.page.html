@@ -42,7 +42,7 @@
     >
       <option value="ALL">{{ 'ACCOUNTING.CHART_OF_ACCOUNTS.TODOS_TIPOS' | translate }}</option>
       @for (type of accountTypes; track type) {
-        <option [value]="type">{{ type | titlecase }}</option>
+        <option [value]="type">{{ 'ACCOUNTING.ACCOUNT_TYPE.' + type | translate }}</option>
       }
     </select>
   </div>
@@ -117,7 +117,9 @@
                 </div>
               </div>
             </td>
-            <td>{{ account.type | titlecase }}</td>
+            <!-- El tipo es un enum del backend en inglés; `titlecase` solo lo capitalizaba, así
+                 que la columna decía Asset / Liability / Equity en una pantalla en español. -->
+            <td>{{ 'ACCOUNTING.ACCOUNT_TYPE.' + account.type | translate }}</td>
             <td class="text-right balance-cell" [class.negative]="account.balance < 0">
               {{ account.balance | vxNumber: '1.2-2' }}
             </td>

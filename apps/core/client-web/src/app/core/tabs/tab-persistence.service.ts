@@ -1,4 +1,5 @@
 import { Injectable, effect, inject } from '@angular/core';
+import { TabRouterService } from './tab-router.service';
 import { TabStateService } from './tab-state.service';
 import { TabModel, TabType } from './tab.model';
 
@@ -54,6 +55,7 @@ interface PersistedWorkspace {
 @Injectable({ providedIn: 'root' })
 export class TabPersistenceService {
   private tabState = inject(TabStateService);
+  private tabRouter = inject(TabRouterService);
 
   private saveTimer: ReturnType<typeof setTimeout> | null = null;
   private restored = false;
@@ -105,16 +107,31 @@ export class TabPersistenceService {
         return;
       }
 
+      //  La URL con la que arrancó el navegador es intención explícita —alguien la escribió,
+      //  la guardó en marcadores o pulsó F5 sobre la página que estaba mirando— y gana sobre la
+      //  pestaña que estuviera activa cuando se guardó el espacio.
+      //
+      //  Hay que leerla ANTES de `setTabs`: el puente Router↔Workspace ya abrió su pestaña al
+      //  terminar la navegación inicial, `setTabs` reemplaza la lista entera y se la lleva por
+      //  delante. Sin esto, recargar en /accounting/chart-of-accounts devolvía al usuario a la
+      //  pestaña anterior y reescribía la barra de direcciones, así que ninguna página del
+      //  producto se podía enlazar ni recargar.
+      const boot = this.tabRouter.bootRoute();
+
       this.tabState.setTabs(tabs);
       this.tabState.ensureDefaultTab();
 
-      // Enfoca la última pestaña activa (o la más reciente).
-      const target =
-        tabs.find((t) => t.id === data.activeTabId) ??
-        [...tabs].sort(
-          (a, b) => b.lastActivatedAt.getTime() - a.lastActivatedAt.getTime()
-        )[0];
-      if (target) this.tabState.activateTab(target.id);
+      if (boot) {
+        this.tabState.openTab({ route: boot.path, queryParams: boot.query });
+      } else {
+        // Enfoca la última pestaña activa (o la más reciente).
+        const target =
+          tabs.find((t) => t.id === data.activeTabId) ??
+          [...tabs].sort(
+            (a, b) => b.lastActivatedAt.getTime() - a.lastActivatedAt.getTime()
+          )[0];
+        if (target) this.tabState.activateTab(target.id);
+      }
 
       if (tabs.some((t) => t.isDirty)) {
         // Aviso diferido para no competir con el render inicial.

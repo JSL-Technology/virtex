@@ -521,6 +521,13 @@
       "VARIANCE_AMOUNT": "Variance",
       "VARIANCE_ANALYSIS_ACTUAL_VS_BUDGET": "Variance Analysis (Actual vs. Budget)",
       "VARIANCE_PERCENT": "Variance (%)"
+    },
+    "ACCOUNT_TYPE": {
+      "ASSET": "Asset",
+      "LIABILITY": "Liability",
+      "EQUITY": "Equity",
+      "REVENUE": "Revenue",
+      "EXPENSE": "Expense"
     }
   },
   "ACCOUNTS_PAYABLE": {

@@ -521,6 +521,13 @@
       "VARIANCE_AMOUNT": "Variação",
       "VARIANCE_ANALYSIS_ACTUAL_VS_BUDGET": "Análise de Variações (Real vs. Orçado)",
       "VARIANCE_PERCENT": "Variação (%)"
+    },
+    "ACCOUNT_TYPE": {
+      "ASSET": "Ativo",
+      "LIABILITY": "Passivo",
+      "EQUITY": "Patrimônio",
+      "REVENUE": "Receita",
+      "EXPENSE": "Despesa"
     }
   },
   "ACCOUNTS_PAYABLE": {

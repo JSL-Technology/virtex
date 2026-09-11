@@ -60,6 +60,20 @@ export class TabRouterService {
     this.tabState.openTab({ route });
   }
 
+  /**
+   * La ruta de workspace con la que arrancó esta carga de página, o null si no la hay
+   * (raíz, login, pago).
+   *
+   * La restauración del espacio de trabajo la necesita: reemplaza la lista de pestañas por la
+   * guardada, y eso borra la pestaña que este puente acababa de abrir para la URL del navegador.
+   * El resultado era que cualquier recarga —F5, un marcador, un enlace compartido— aterrizaba en
+   * la pestaña que estuviera activa al guardar, no en la página que pedía la barra de direcciones.
+   */
+  bootRoute(): { path: string; query: Record<string, string> } | null {
+    const url = this.router.url;
+    return this.isWorkspaceUrl(url) ? this.parseUrl(url) : null;
+  }
+
   // ── helpers ────────────────────────────────────────────────────────────
 
   /**

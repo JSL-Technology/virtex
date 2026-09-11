@@ -38,7 +38,13 @@ export interface ConfirmCloseConfig {
   /** Translation keys — never prose. */
   title?: string;
   message?: string;
-  /** Parameters for `message`, e.g. the title of the tab being closed. */
+  /**
+   * Parameters for `message`.
+   *
+   * The type said "translation keys — never prose" and had no way to name the record the dialog is
+   * about, so the one caller that needed to —closing a tab with unsaved changes— passed a Spanish
+   * sentence built with a template literal instead.
+   */
   messageParams?: Record<string, unknown>;
   saveText?: string;
   discardText?: string;
