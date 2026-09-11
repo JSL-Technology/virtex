@@ -42,16 +42,6 @@
 
 <aside class="main-sidebar">
   <div class="logo-container">
-    <!--
-      La marca del PRODUCTO va encima del selector de EMPRESA, y no al revés:
-      son dos identidades distintas y confundirlas es lo que hacía que, con una
-      organización con logotipo propio, la aplicación no dijera en ningún sitio
-      que era Virtex.
-    -->
-    <a class="sidebar-brand" routerLink="/overview" [attr.aria-label]="'APP_TITLE' | translate">
-      <app-brand-logo [size]="26" [label]="'APP_TITLE' | translate"></app-brand-logo>
-    </a>
-
     <app-company-switcher></app-company-switcher>
   </div>
 
@@ -69,55 +59,9 @@
     <lucide-icon [img]="MenuIcon" size="20"></lucide-icon>
   </button>
 
-  <div class="topbar-left">
-    <div class="logo">
-      <app-company-switcher></app-company-switcher>
-    </div>
-
-  <!--
-    Modo barra superior: los mismos módulos del riel, en horizontal. Antes eran
-    seis enlaces escritos a mano —una tercera tabla de navegación, además del
-    router y del catálogo de ventanas— y apuntaban a rutas que ya no existían.
-    Ahora salen del registro de módulos, así que un módulo nuevo aparece aquí
-    sin que nadie tenga que acordarse de añadirlo.
-  -->
-    <nav class="topbar-nav" [attr.aria-label]="'SHELL.MODULE_RAIL' | translate">
-      @for (item of topNavModules(); track item.module.id) {
-        <div
-          class="nav-module"
-          appClickOutside
-          (clickOutside)="closeModuleMenu(item.module.id)"
-        >
-          <button
-            type="button"
-            class="nav-link"
-            [class.active]="item.module.id === activeModuleId()"
-            [attr.aria-current]="item.module.id === activeModuleId() ? 'page' : null"
-            [attr.aria-expanded]="openModuleMenu() === item.module.id"
-            aria-haspopup="true"
-            (click)="toggleModuleMenu(item.module.id)"
-            (keydown.escape)="closeModuleMenu(item.module.id)"
-          >
-            {{ item.module.titleKey | translate }}
-            <lucide-icon [img]="ChevronDownIcon" size="14" aria-hidden="true"></lucide-icon>
-          </button>
-
-          @if (openModuleMenu() === item.module.id) {
-            <div class="nav-module__menu" (keydown.escape)="closeModuleMenu(item.module.id)">
-              <app-module-menu
-                [sections]="menuOf(item.module)"
-                [activeEntry]="activeEntry()"
-                (chosen)="closeModuleMenu(null)"
-              ></app-module-menu>
-            </div>
-          }
-        </div>
-      }
-      <button type="button" (click)="openSettings()" [class.active]="isSettingsOpen()" class="nav-link">
-        {{ "NAV.SETTINGS" | translate }}
-      </button>
-    </nav>
-  </div>
+  <a class="topbar-brand" routerLink="/overview" [attr.aria-label]="'APP_TITLE' | translate">
+    <app-brand-logo [size]="28" tone="negative" [label]="'APP_TITLE' | translate"></app-brand-logo>
+  </a>
 
   <div class="topbar-content">
     <div class="header-center">

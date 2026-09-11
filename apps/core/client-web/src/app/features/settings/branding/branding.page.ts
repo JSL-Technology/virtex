@@ -60,7 +60,6 @@ export class BrandingPage implements OnInit {
       borderRadius: [currentSettings.borderRadius],
       density: [currentSettings.density],
       contentWidth: [currentSettings.contentWidth],
-      layoutStyle: [currentSettings.layoutStyle],
     });
 
     // Actualiza el servicio en tiempo real para la vista previa
