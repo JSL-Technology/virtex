@@ -1072,6 +1072,7 @@
       "IMPORT": "Importar",
       "EXECUTE": "Ejecutar",
       "INSTALL": "Instalar",
+      "OPERATE": "Operar",
       "MANAGE": "Administrar",
       "MANAGE_ACCOUNTS": "Administrar cuentas",
       "MANAGE_LEDGERS": "Administrar libros contables",
@@ -1139,6 +1140,7 @@
       "TREASURY": "Tesorería",
       "UNITS_OF_MEASURE": "Unidades de medida",
       "EXTENSIONS": "Extensiones",
+      "POS": "Punto de venta",
       "USERS": "Usuarios",
       "WORKFLOWS": "Flujos de trabajo"
     }

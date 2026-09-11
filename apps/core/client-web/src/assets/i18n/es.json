@@ -2834,6 +2834,9 @@
     "POS": {
       "AGOTADO": "Agotado",
       "ANADE_PRODUCTOS_COMENZAR_VENTA": "Añade productos para comenzar una venta.",
+      "LOAD_PRODUCTS_ERROR": "No se pudo cargar el catálogo de productos.",
+      "SALE_COMPLETED": "Venta completada.",
+      "SALE_ERROR": "No se pudo completar la venta.",
       "BUSCAR_PRODUCTOS_NOMBRE_SKU": "Buscar productos por nombre o SKU...",
       "CLIENTE": "Cliente:",
       "COBRAR": "Cobrar",

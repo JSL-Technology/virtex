@@ -85,6 +85,7 @@ import { SchedulerModule } from './shared/scheduler/scheduler.module';
 import { IdempotencyModule } from './shared/idempotency/idempotency.module';
 import { TenancyModule } from './shared/tenancy/tenancy.module';
 import { ExtensionsModule } from './extensions/extensions.module';
+import { PosModule } from './pos/pos.module';
 
 @Module({
   imports: [
@@ -307,7 +308,8 @@ import { ExtensionsModule } from './extensions/extensions.module';
     DatasheetsModule,
     IdempotencyModule,
     TenancyModule,
-    ExtensionsModule
+    ExtensionsModule,
+    PosModule
   ],
   providers: [
     {

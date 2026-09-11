@@ -270,6 +270,14 @@ export const PERMISSIONS = {
   EXTENSIONS_INSTALL: 'extensions:install',
   EXTENSIONS_EXECUTE: 'extensions:execute',
   EXTENSIONS_MANAGE: 'extensions:manage',
+
+  /**
+   * Point of sale. `OPERATE` is the cashier's grant: open/close a till shift and ring sales, which
+   * moves stock. `VIEW` reads shifts and the sales journal without the ability to transact — the
+   * shape a supervisor or auditor needs.
+   */
+  POS_VIEW: 'pos:view',
+  POS_OPERATE: 'pos:operate',
 } as const;
 
 export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];

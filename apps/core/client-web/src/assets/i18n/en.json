@@ -2834,6 +2834,9 @@
     "POS": {
       "AGOTADO": "Out of stock",
       "ANADE_PRODUCTOS_COMENZAR_VENTA": "Add products to start a sale.",
+      "LOAD_PRODUCTS_ERROR": "Could not load the product catalogue.",
+      "SALE_COMPLETED": "Sale completed.",
+      "SALE_ERROR": "The sale could not be completed.",
       "BUSCAR_PRODUCTOS_NOMBRE_SKU": "Search products by name or SKU...",
       "CLIENTE": "Customer:",
       "COBRAR": "Charge",

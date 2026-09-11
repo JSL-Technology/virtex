@@ -8,6 +8,9 @@ import { Product } from '../../../core/models/product.model';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 import { InvoicesService } from '../../../core/services/invoices';
+import { InventoryService } from '../../../core/api/inventory.service';
+import { NotificationService } from '../../../core/services/notification';
+import { PosService } from './pos.service';
 
 // Reutilizamos el modelo de producto
 // import { Product } from '../../inventory/products/products.page';
@@ -23,6 +26,20 @@ import { InvoicesService } from '../../../core/services/invoices';
 export class PosPage {
   private fb = inject(FormBuilder);
   private readonly invoicesService = inject(InvoicesService);
+  private readonly inventoryService = inject(InventoryService);
+  private readonly posService = inject(PosService);
+  private readonly notifications = inject(NotificationService);
+
+  /**
+   * The till this screen operates. Single-terminal for now; multi-terminal is a matter of letting
+   * the operator pick one and threading it through, not of the sale path, which is already keyed by
+   * it end to end (shift lookup, sale record, stock movement).
+   */
+  private readonly terminalId = 'main';
+
+  /** The open shift this screen is ringing sales into, if any. */
+  readonly activeShiftId = signal<string | null>(null);
+  readonly saving = signal(false);
 
   /**
    * The market's own invoicing context: currency, and the rates it levies.
@@ -131,11 +148,79 @@ export class PosPage {
     return (item.get('quantity')?.value || 0) * (item.get('price')?.value || 0);
   }
 
+  constructor() {
+    this.loadProducts();
+    this.ensureShift();
+  }
+
+  /** Fill the till catalogue from the tenant's own inventory — only sellable, in-stock items. */
+  private loadProducts(): void {
+    this.inventoryService.getProducts().subscribe({
+      next: (products) =>
+        this.allProducts.set(products.filter((p) => p.status === 'Active')),
+      error: () => this.notifications.showError('POS.LOAD_PRODUCTS_ERROR'),
+    });
+  }
+
+  /**
+   * A sale needs an open shift. Rather than make the operator open one by hand before the first
+   * sale, adopt the terminal's active shift if there is one and open a zero-float shift otherwise —
+   * the backend rejects a second open shift per terminal, so this is idempotent under a refresh.
+   */
+  private ensureShift(): void {
+    this.posService.getActiveShift(this.terminalId).subscribe({
+      next: (shift) => {
+        if (shift) {
+          this.activeShiftId.set(shift.id);
+        } else {
+          this.posService.openShift(this.terminalId, 0).subscribe({
+            next: (opened) => this.activeShiftId.set(opened.id),
+            error: () => void 0,
+          });
+        }
+      },
+      error: () => void 0,
+    });
+  }
+
   completeSale(): void {
-    if (this.saleForm.valid && this.cartItems.length > 0) {
-      console.log('Venta completada:', this.saleForm.value);
-      // Lógica para enviar al backend y luego limpiar
-      this.cartItems.clear();
-    }
+    if (this.saving() || this.saleForm.invalid || this.cartItems.length === 0) return;
+
+    const items = (this.cartItems.getRawValue() as Array<{
+      productId: string;
+      name: string;
+      price: number;
+      quantity: number;
+    }>).map((i) => ({
+      productId: i.productId,
+      productName: i.name,
+      price: i.price,
+      quantity: i.quantity,
+    }));
+
+    this.saving.set(true);
+    this.posService
+      .processSale({
+        terminalId: this.terminalId,
+        items,
+        subtotal: this.subtotal(),
+        tax: this.taxAmount(),
+        total: this.total(),
+        customerName: this.saleForm.get('customer')?.value ?? undefined,
+      })
+      .subscribe({
+        next: () => {
+          this.saving.set(false);
+          this.cartItems.clear();
+          this.notifications.showSuccess('POS.SALE_COMPLETED');
+          // Reflect the stock the sale consumed.
+          this.loadProducts();
+        },
+        error: (err) => {
+          this.saving.set(false);
+          const message = err?.error?.message;
+          this.notifications.showError(typeof message === 'string' ? message : 'POS.SALE_ERROR');
+        },
+      });
   }
 }

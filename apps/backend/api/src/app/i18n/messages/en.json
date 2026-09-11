@@ -1072,6 +1072,7 @@
       "IMPORT": "Import",
       "EXECUTE": "Execute",
       "INSTALL": "Install",
+      "OPERATE": "Operate",
       "MANAGE": "Manage",
       "MANAGE_ACCOUNTS": "Manage accounts",
       "MANAGE_LEDGERS": "Manage ledgers",
@@ -1139,6 +1140,7 @@
       "TREASURY": "Treasury",
       "UNITS_OF_MEASURE": "Units of measure",
       "EXTENSIONS": "Extensions",
+      "POS": "Point of sale",
       "USERS": "Users",
       "WORKFLOWS": "Workflows"
     }
