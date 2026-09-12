@@ -3,12 +3,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Employee } from './entities/employee.entity';
 import { Department } from './entities/department.entity';
+import { EmployeeCompensation } from './entities/employee-compensation.entity';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
-import { NotFoundError } from '../i18n/localized.exception';
+import { CreateCompensationDto } from './dto/create-compensation.dto';
+import { ConflictError, NotFoundError } from '../i18n/localized.exception';
 import { Page, resolvePaging, toPage } from '../common/pagination';
+import { blindIndex } from '../common/database/encrypted-column.transformer';
 
 /**
  * The employee and department registers.
@@ -26,6 +29,8 @@ export class HcmService {
     private readonly employeeRepository: Repository<Employee>,
     @InjectRepository(Department)
     private readonly departmentRepository: Repository<Department>,
+    @InjectRepository(EmployeeCompensation)
+    private readonly compensationRepository: Repository<EmployeeCompensation>,
   ) {}
 
   // ── Employees ────────────────────────────────────────────────────────────────
@@ -54,9 +59,13 @@ export class HcmService {
     return employee;
   }
 
-  createEmployee(dto: CreateEmployeeDto, organizationId: string): Promise<Employee> {
-    const employee = this.employeeRepository.create({ ...dto, organizationId });
-    return this.employeeRepository.save(employee);
+  async createEmployee(dto: CreateEmployeeDto, organizationId: string): Promise<Employee> {
+    // The blind index is what enforces one employee per cédula per tenant without the database ever
+    // holding the cédula in the clear: the transformer encrypts the value, and this HMAC of it backs
+    // the unique index. Computed here so every write path sets it.
+    const identityDocumentHash = blindIndex(dto.identityDocument);
+    const employee = this.employeeRepository.create({ ...dto, organizationId, identityDocumentHash });
+    return this.saveEmployee(employee);
   }
 
   async updateEmployee(
@@ -65,12 +74,66 @@ export class HcmService {
     organizationId: string,
   ): Promise<Employee> {
     const employee = await this.findOneEmployee(id, organizationId);
-    return this.employeeRepository.save(this.employeeRepository.merge(employee, dto));
+    const merged = this.employeeRepository.merge(employee, dto);
+    // Keep the blind index in step with the (possibly changed) cédula.
+    if (dto.identityDocument !== undefined) {
+      merged.identityDocumentHash = blindIndex(dto.identityDocument);
+    }
+    return this.saveEmployee(merged);
   }
 
+  /** Soft delete: a person with payroll history is deactivated, never physically removed. */
   async removeEmployee(id: string, organizationId: string): Promise<void> {
     await this.findOneEmployee(id, organizationId);
-    await this.employeeRepository.delete({ id, organizationId });
+    await this.employeeRepository.softDelete({ id, organizationId });
+  }
+
+  /** Save translating the cédula unique-index violation into a clear, localized conflict. */
+  private async saveEmployee(employee: Employee): Promise<Employee> {
+    try {
+      return await this.employeeRepository.save(employee);
+    } catch (error) {
+      if ((error as { code?: string }).code === '23505') {
+        throw new ConflictError('HCM.EMPLEADO_YA_EXISTE_CON_ESA_CEDULA_O_CORREO');
+      }
+      throw error;
+    }
+  }
+
+  // ── Compensation (versioned salary) ───────────────────────────────────────────
+
+  /** Record a salary effective from a date — a new row, never an overwrite of the prior one. */
+  async addCompensation(
+    employeeId: string,
+    dto: CreateCompensationDto,
+    organizationId: string,
+  ): Promise<EmployeeCompensation> {
+    await this.findOneEmployee(employeeId, organizationId);
+    const compensation = this.compensationRepository.create({
+      ...dto,
+      employeeId,
+      organizationId,
+    });
+    try {
+      return await this.compensationRepository.save(compensation);
+    } catch (error) {
+      if ((error as { code?: string }).code === '23505') {
+        throw new ConflictError('HCM.YA_EXISTE_COMPENSACION_CON_ESA_FECHA_VIGENCIA');
+      }
+      throw error;
+    }
+  }
+
+  /** An employee's salary history, newest first. */
+  async listCompensations(
+    employeeId: string,
+    organizationId: string,
+  ): Promise<EmployeeCompensation[]> {
+    await this.findOneEmployee(employeeId, organizationId);
+    return this.compensationRepository.find({
+      where: { employeeId, organizationId },
+      order: { effectiveFrom: 'DESC' },
+    });
   }
 
   // ── Departments ──────────────────────────────────────────────────────────────

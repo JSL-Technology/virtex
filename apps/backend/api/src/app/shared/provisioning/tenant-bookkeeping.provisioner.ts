@@ -54,6 +54,7 @@ export class TenantBookkeepingProvisioner {
     { code: 'COBROS', name: 'Diario de Cobros', type: 'BANK' },
     { code: 'PAGOS', name: 'Diario de Pagos', type: 'BANK' },
     { code: 'CAJA', name: 'Diario de Caja', type: 'CASH' },
+    { code: 'NOMINA', name: 'Diario de Nómina', type: 'GENERAL' },
     { code: 'GENERAL', name: 'Diario General', type: 'GENERAL' },
   ]);
 
@@ -130,6 +131,18 @@ export class TenantBookkeepingProvisioner {
     settings.defaultDepreciationExpenseAccountId ??= byRole.get(AccountRole.DEPRECIATION_EXPENSE) ?? null;
     settings.defaultAccumulatedDepreciationAccountId ??= byRole.get(AccountRole.ACCUMULATED_DEPRECIATION) ?? null;
     settings.defaultInflationAdjustmentAccountId ??= byRole.get(AccountRole.INFLATION_ADJUSTMENT) ?? null;
+
+    // Payroll: derived from the same roles the chart stamps, so a tenant can run payroll without
+    // hand-picking seven accounts — and re-pointing any of them survives a re-provision.
+    settings.defaultSalaryExpenseAccountId ??= byRole.get(AccountRole.SALARY_EXPENSE) ?? null;
+    settings.defaultEmployerContributionsExpenseAccountId ??=
+      byRole.get(AccountRole.EMPLOYER_CONTRIBUTIONS_EXPENSE) ?? null;
+    settings.defaultPayrollNetPayableAccountId ??= byRole.get(AccountRole.PAYROLL_NET_PAYABLE) ?? null;
+    settings.defaultAfpPayableAccountId ??= byRole.get(AccountRole.AFP_PAYABLE) ?? null;
+    settings.defaultSfsPayableAccountId ??= byRole.get(AccountRole.SFS_PAYABLE) ?? null;
+    settings.defaultInfotepPayableAccountId ??= byRole.get(AccountRole.INFOTEP_PAYABLE) ?? null;
+    settings.defaultPayrollTaxWithholdingPayableAccountId ??=
+      byRole.get(AccountRole.PAYROLL_TAX_WITHHOLDING_PAYABLE) ?? null;
 
     return repo.save(settings);
   }

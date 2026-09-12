@@ -1158,7 +1158,9 @@
   },
   "HCM": {
     "EMPLOYEE_NOT_FOUND": "Employee \"{{id}}\" was not found.",
-    "DEPARTMENT_NOT_FOUND": "Department \"{{id}}\" was not found."
+    "DEPARTMENT_NOT_FOUND": "Department \"{{id}}\" was not found.",
+    "EMPLEADO_YA_EXISTE_CON_ESA_CEDULA_O_CORREO": "An employee with that national id or email already exists in this organization.",
+    "YA_EXISTE_COMPENSACION_CON_ESA_FECHA_VIGENCIA": "A compensation with that effective date already exists for this employee."
   },
   "PROCUREMENT": {
     "REQUISITION_NOT_FOUND": "Purchase requisition \"{{id}}\" was not found."
@@ -1643,5 +1645,40 @@
     "CONFIGURE_SEQUENCES": "Configure sequences",
     "REVIEW_PLAN": "Review the plan",
     "VIEW_STOCK": "View stock"
+  },
+  "PAYROLL": {
+    "AJUSTE_CORRIGE_CORRIDA_APROBADA_MISMO_PERIODO": "An adjustment must correct an approved run of the same period, country and organization.",
+    "AJUSTE_REQUIERE_CORRIDA_A_CORREGIR": "An adjustment run must reference the run it corrects.",
+    "APROBADOR_NO_PUEDE_SER_QUIEN_CALCULO": "Whoever approves the payroll cannot be whoever calculated it (segregation of duties).",
+    "AUTODETERMINACION_REQUIERE_CORRIDA_APROBADA": "The Autodeterminación requires an approved run.",
+    "CONCEPTO_DESCONOCIDO_EN_NOVEDADES": "Unknown concept(s) in the inputs: {{p1}}.",
+    "CONCEPTO_NO_ENCONTRADO": "Concept \"{{id}}\" was not found.",
+    "CONCEPTO_SISTEMA_NO_SE_ELIMINA_DESACTIVELO": "A system concept cannot be deleted; deactivate it instead.",
+    "CORRIDA_APROBADA_NO_PUEDE_CANCELARSE_USE_AJUSTE": "An approved run cannot be cancelled; use an adjustment run.",
+    "CORRIDA_A_CORREGIR_NO_ENCONTRADA": "The run to correct \"{{id}}\" was not found.",
+    "CORRIDA_CANCELADA_NO_EDITABLE": "The run is cancelled and cannot be edited.",
+    "CORRIDA_INMUTABLE_USE_AJUSTE": "The run is approved and immutable; use an adjustment run.",
+    "CORRIDA_NO_ENCONTRADA": "Payroll run \"{{id}}\" was not found.",
+    "CORRIDA_SIN_MONTOS_QUE_CONTABILIZAR": "The run has no amounts to post.",
+    "CORRIDA_SIN_VOLANTES_NO_PUEDE_APROBARSE": "The run has no payslips and cannot be approved.",
+    "CUENTAS_NOMINA_NO_CONFIGURADAS": "Payroll ledger accounts are not configured: {{p1}}.",
+    "DIARIO_NOMINA_NO_ENCONTRADO_FAVOR_CREE": "The payroll journal (NOMINA) was not found; please create it.",
+    "EMPLEADO_DESCONOCIDO_EN_NOVEDADES": "One or more inputs reference an employee outside the organization.",
+    "EMPLEADO_SIN_COMPENSACION_NO_LIQUIDABLE": "The employee has no compensation in force and cannot be settled.",
+    "EMPLEADO_SIN_FECHA_INGRESO_NO_LIQUIDABLE": "The employee has no hire date and cannot be settled.",
+    "JURISDICCION_NO_SOPORTADA": "Payroll jurisdiction \"{{p1}}\" is not supported.",
+    "MES_PERIODO_INVALIDO": "The period month is invalid: {{p1}}.",
+    "MONEDA_NOMINA_DISTINTA_MONEDA_LIBRO": "The payroll currency ({{p1}}) differs from the ledger currency ({{p2}}).",
+    "NETO_NEGATIVO_DEDUCCIONES_EXCEDEN_SALARIO": "Deductions for {{p1}} exceed the salary; net pay cannot be negative.",
+    "NOVEDADES_SOLO_EN_CORRIDA_EDITABLE": "Inputs can only be changed while the run is editable.",
+    "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "The organization has no default ledger configured.",
+    "PAGO_REQUIERE_CUENTA_BANCARIA": "Paying the payroll requires selecting a bank account.",
+    "SIN_CUENTA_PARA_OTRAS_DEDUCCIONES": "No account is configured for other deductions/benefits payable.",
+    "SIN_PARAMETROS_CONTRIBUCION_PAIS_FECHA": "No contribution parameters for {{p1}} on {{p2}}.",
+    "SIN_SALARIO_MINIMO_COTIZABLE_PAIS_FECHA": "No minimum contributory wage for {{p1}} on {{p2}}.",
+    "SOLO_CORRIDA_APROBADA_PUEDE_PAGARSE": "Only an approved run can be paid.",
+    "SOLO_CORRIDA_CALCULADA_PUEDE_APROBARSE": "Only a calculated run can be approved.",
+    "YA_EXISTE_CONCEPTO_CON_ESE_CODIGO": "A concept with code \"{{p1}}\" already exists.",
+    "YA_EXISTE_CORRIDA_PERIODO": "A run already exists for {{p1}}."
   }
 }

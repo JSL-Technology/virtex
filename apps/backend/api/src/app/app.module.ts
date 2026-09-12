@@ -77,6 +77,7 @@ import { ManufacturingModule } from './manufacturing/manufacturing.module';
 import { SupplyChainModule } from './supply-chain/supply-chain.module';
 import { ProjectsModule } from './projects/projects.module';
 import { HcmModule } from './hcm/hcm.module';
+import { PayrollModule } from './payroll/payroll.module';
 import { ProcurementModule } from './procurement/procurement.module';
 import { CostAccountingModule } from './cost-accounting/cost-accounting.module';
 import { DatasheetsModule } from './datasheets/datasheets.module';
@@ -305,6 +306,7 @@ import { PosModule } from './pos/pos.module';
     SupplyChainModule,
     ProjectsModule,
     HcmModule,
+    PayrollModule,
     ProcurementModule,
     CostAccountingModule,
     DatasheetsModule,

@@ -132,6 +132,48 @@ export const PERMISSIONS = {
   HCM_VIEW: 'hcm:view',
   /** Create, edit and remove employees and departments. */
   HCM_MANAGE: 'hcm:manage',
+  /**
+   * See an employee's sensitive personal data (national id, bank account).
+   *
+   * Held apart from `HCM_VIEW` on purpose: the whole HR team may need the register — names, roles,
+   * departments — while only payroll may see the cédula and the account wages are paid into. The
+   * fields are encrypted at rest; this is who may decrypt them through the product.
+   */
+  HCM_VIEW_SENSITIVE: 'hcm:view_sensitive',
+
+  /**
+   * Payroll, split finely because the risk in each step is different.
+   *
+   * `VIEW` reads runs and payslips (every salary in the company), `VIEW_COMPENSATION` reads and
+   * edits what each person is paid, `MANAGE` configures concepts and parameters, `PROCESS`
+   * calculates a run, `APPROVE` posts it to the ledger (segregated from whoever calculated it), and
+   * `PAY` releases the money through treasury. `VIEW_OWN` is the employee's grant: their own
+   * payslip and nothing else. A single "payroll" permission would collapse "see my own stub" and
+   * "approve the whole company's wages" into one grant.
+   */
+  PAYROLL_VIEW: 'payroll:view',
+  PAYROLL_VIEW_OWN: 'payroll:view_own',
+  PAYROLL_VIEW_COMPENSATION: 'payroll:view_compensation',
+  /**
+   * Write what a person is paid. Split from `VIEW_COMPENSATION` because setting a salary is a
+   * high-impact act — it feeds ISR, TSS and the ledger — that must not ride along with the right to
+   * read compensation. Reading and writing pay are different grants.
+   */
+  PAYROLL_EDIT_COMPENSATION: 'payroll:edit_compensation',
+  /** Configure the tenant's payroll concepts (earnings, deductions, employer costs). */
+  PAYROLL_MANAGE: 'payroll:manage',
+  /**
+   * Edit the versioned statutory parameters (AFP/SFS/ISR rates, caps, minimum contributory wage,
+   * tax scale). These are shared reference data affecting every tenant, so the grant is separate
+   * from `MANAGE` (tenant-local concepts) and from processing a run — the same reasoning that keeps
+   * exchange-rate writes on their own permission.
+   */
+  PAYROLL_PARAMETERS_MANAGE: 'payroll:parameters_manage',
+  PAYROLL_PROCESS: 'payroll:process',
+  PAYROLL_APPROVE: 'payroll:approve',
+  PAYROLL_PAY: 'payroll:pay',
+  /** Generate and export the TSS files (Novedades, Autodeterminación, SUIR). */
+  TSS_EXPORT: 'tss:export',
 
   WORKFLOWS_MANAGE: 'workflows:manage',
   /**

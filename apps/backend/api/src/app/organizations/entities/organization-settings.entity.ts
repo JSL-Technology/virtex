@@ -190,6 +190,35 @@ export class OrganizationSettings {
   @Column({ name: 'default_inflation_adjustment_account_id', type: 'uuid', nullable: true })
   defaultInflationAdjustmentAccountId: string | null = null;
 
+  // ── Payroll ────────────────────────────────────────────────────────────────
+  //
+  // Derived from the chart's account roles at provisioning, like every default above. A payroll run
+  // debits salary expense and the employer's own social cost, and credits a distinct liability for
+  // each thing it owes to a different body — the net wage (to the employee), AFP and SFS (to the
+  // TSS), INFOTEP/SRL, and the ISR withheld (to the DGII) — so each has its own account and none is
+  // netted into another.
+
+  @Column({ name: 'default_salary_expense_account_id', type: 'uuid', nullable: true })
+  defaultSalaryExpenseAccountId: string | null = null;
+
+  @Column({ name: 'default_employer_contributions_expense_account_id', type: 'uuid', nullable: true })
+  defaultEmployerContributionsExpenseAccountId: string | null = null;
+
+  @Column({ name: 'default_payroll_net_payable_account_id', type: 'uuid', nullable: true })
+  defaultPayrollNetPayableAccountId: string | null = null;
+
+  @Column({ name: 'default_afp_payable_account_id', type: 'uuid', nullable: true })
+  defaultAfpPayableAccountId: string | null = null;
+
+  @Column({ name: 'default_sfs_payable_account_id', type: 'uuid', nullable: true })
+  defaultSfsPayableAccountId: string | null = null;
+
+  @Column({ name: 'default_infotep_payable_account_id', type: 'uuid', nullable: true })
+  defaultInfotepPayableAccountId: string | null = null;
+
+  @Column({ name: 'default_payroll_tax_withholding_payable_account_id', type: 'uuid', nullable: true })
+  defaultPayrollTaxWithholdingPayableAccountId: string | null = null;
+
 
 
 

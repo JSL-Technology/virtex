@@ -175,6 +175,16 @@ const AUDITED_TABLES: ReadonlySet<string> = new Set([
   // Budgets
   'budgets',
   'budget_lines',
+  // Payroll: the run is the document (its status changes are calculate/approve/pay/cancel); the
+  // people and their pay; and the shared statutory parameters, whose change moves every filing.
+  // Payslips and payroll_inputs are the run's lines, audited through the run, not row by row.
+  'payroll_runs',
+  'employees',
+  'employee_compensations',
+  'payroll_concepts',
+  'payroll_statutory_contributions',
+  'payroll_statutory_references',
+  'payroll_income_tax_brackets',
   // The configuration that decides where money is posted, which is a financial change even though
   // it is not a document: moving the receivables account moves every future posting.
   'organization_settings',

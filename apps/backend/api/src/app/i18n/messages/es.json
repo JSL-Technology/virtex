@@ -1158,7 +1158,9 @@
   },
   "HCM": {
     "EMPLOYEE_NOT_FOUND": "No se encontró el empleado \"{{id}}\".",
-    "DEPARTMENT_NOT_FOUND": "No se encontró el departamento \"{{id}}\"."
+    "DEPARTMENT_NOT_FOUND": "No se encontró el departamento \"{{id}}\".",
+    "EMPLEADO_YA_EXISTE_CON_ESA_CEDULA_O_CORREO": "Ya existe un empleado con esa cédula o correo en esta organización.",
+    "YA_EXISTE_COMPENSACION_CON_ESA_FECHA_VIGENCIA": "Ya existe una compensación con esa fecha de vigencia para este empleado."
   },
   "PROCUREMENT": {
     "REQUISITION_NOT_FOUND": "No se encontró la requisición de compra \"{{id}}\"."
@@ -1643,5 +1645,40 @@
     "CONFIGURE_SEQUENCES": "Configurar secuencias",
     "REVIEW_PLAN": "Revisar el plan",
     "VIEW_STOCK": "Ver existencias"
+  },
+  "PAYROLL": {
+    "AJUSTE_CORRIGE_CORRIDA_APROBADA_MISMO_PERIODO": "Un ajuste debe corregir una corrida aprobada del mismo período, país y organización.",
+    "AJUSTE_REQUIERE_CORRIDA_A_CORREGIR": "Una corrida de ajuste requiere indicar la corrida que corrige.",
+    "APROBADOR_NO_PUEDE_SER_QUIEN_CALCULO": "Quien aprueba la nómina no puede ser quien la calculó (segregación de funciones).",
+    "AUTODETERMINACION_REQUIERE_CORRIDA_APROBADA": "La Autodeterminación requiere una corrida aprobada.",
+    "CONCEPTO_DESCONOCIDO_EN_NOVEDADES": "Concepto(s) desconocido(s) en las novedades: {{p1}}.",
+    "CONCEPTO_NO_ENCONTRADO": "No se encontró el concepto \"{{id}}\".",
+    "CONCEPTO_SISTEMA_NO_SE_ELIMINA_DESACTIVELO": "Un concepto del sistema no se elimina; desactívelo.",
+    "CORRIDA_APROBADA_NO_PUEDE_CANCELARSE_USE_AJUSTE": "Una corrida aprobada no puede cancelarse; use una corrida de ajuste.",
+    "CORRIDA_A_CORREGIR_NO_ENCONTRADA": "No se encontró la corrida a corregir \"{{id}}\".",
+    "CORRIDA_CANCELADA_NO_EDITABLE": "La corrida está cancelada y no puede editarse.",
+    "CORRIDA_INMUTABLE_USE_AJUSTE": "La corrida está aprobada y es inmutable; use una corrida de ajuste.",
+    "CORRIDA_NO_ENCONTRADA": "No se encontró la corrida de nómina \"{{id}}\".",
+    "CORRIDA_SIN_MONTOS_QUE_CONTABILIZAR": "La corrida no tiene montos que contabilizar.",
+    "CORRIDA_SIN_VOLANTES_NO_PUEDE_APROBARSE": "La corrida no tiene volantes y no puede aprobarse.",
+    "CUENTAS_NOMINA_NO_CONFIGURADAS": "Faltan cuentas contables de nómina por configurar: {{p1}}.",
+    "DIARIO_NOMINA_NO_ENCONTRADO_FAVOR_CREE": "No se encontró el diario de nómina (NOMINA); favor créelo.",
+    "EMPLEADO_DESCONOCIDO_EN_NOVEDADES": "Una o más novedades referencian un empleado que no pertenece a la organización.",
+    "EMPLEADO_SIN_COMPENSACION_NO_LIQUIDABLE": "El empleado no tiene una compensación vigente; no puede liquidarse.",
+    "EMPLEADO_SIN_FECHA_INGRESO_NO_LIQUIDABLE": "El empleado no tiene fecha de ingreso; no puede liquidarse.",
+    "JURISDICCION_NO_SOPORTADA": "La jurisdicción de nómina \"{{p1}}\" no está soportada.",
+    "MES_PERIODO_INVALIDO": "El mes del período es inválido: {{p1}}.",
+    "MONEDA_NOMINA_DISTINTA_MONEDA_LIBRO": "La moneda de la nómina ({{p1}}) difiere de la del libro contable ({{p2}}).",
+    "NETO_NEGATIVO_DEDUCCIONES_EXCEDEN_SALARIO": "Las deducciones de {{p1}} exceden su salario; el neto no puede ser negativo.",
+    "NOVEDADES_SOLO_EN_CORRIDA_EDITABLE": "Las novedades solo pueden modificarse mientras la corrida es editable.",
+    "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "La organización no tiene un libro contable por defecto configurado.",
+    "PAGO_REQUIERE_CUENTA_BANCARIA": "El pago de la nómina requiere seleccionar una cuenta bancaria.",
+    "SIN_CUENTA_PARA_OTRAS_DEDUCCIONES": "No hay una cuenta configurada para otras deducciones/beneficios por pagar.",
+    "SIN_PARAMETROS_CONTRIBUCION_PAIS_FECHA": "No hay parámetros de contribución para {{p1}} en {{p2}}.",
+    "SIN_SALARIO_MINIMO_COTIZABLE_PAIS_FECHA": "No hay salario mínimo cotizable para {{p1}} en {{p2}}.",
+    "SOLO_CORRIDA_APROBADA_PUEDE_PAGARSE": "Solo una corrida aprobada puede pagarse.",
+    "SOLO_CORRIDA_CALCULADA_PUEDE_APROBARSE": "Solo una corrida calculada puede aprobarse.",
+    "YA_EXISTE_CONCEPTO_CON_ESE_CODIGO": "Ya existe un concepto con el código \"{{p1}}\".",
+    "YA_EXISTE_CORRIDA_PERIODO": "Ya existe una corrida para {{p1}}."
   }
 }
