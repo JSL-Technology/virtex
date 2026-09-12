@@ -352,6 +352,34 @@ export function buildCountryCoaTemplate(countryCode: string): AccountTemplateDto
       ? 'Tributos Retidos de Terceiros'
       : 'Retenciones por Pagar';
 
+  // Payroll account names. Kept inline (like the tax names above) rather than added to the label
+  // table, so the four languages stay in one place and a new payroll account is one edit.
+  const afpPayableName = isEnglish
+    ? 'Pension Contributions Payable'
+    : isPortuguese
+      ? 'Previdência a Recolher'
+      : 'AFP por Pagar (TSS)';
+  const sfsPayableName = isEnglish
+    ? 'Health Contributions Payable'
+    : isPortuguese
+      ? 'Plano de Saúde a Recolher'
+      : 'SFS por Pagar (TSS)';
+  const riskTrainingPayableName = isEnglish
+    ? 'Labour Risk & Training Payable'
+    : isPortuguese
+      ? 'Riscos e Treinamento a Recolher'
+      : 'SRL e INFOTEP por Pagar';
+  const payrollTaxWithholdingName = isEnglish
+    ? 'Payroll Income Tax Withheld'
+    : isPortuguese
+      ? 'IRRF a Recolher'
+      : 'ISR de Empleados Retenido por Pagar';
+  const employerContributionsExpenseName = isEnglish
+    ? 'Employer Payroll Contributions'
+    : isPortuguese
+      ? 'Encargos Sociais (Empregador)'
+      : 'Aportes Patronales (TSS/INFOTEP)';
+
   const D = AccountNature.DEBIT;
   const C = AccountNature.CREDIT;
 
@@ -380,7 +408,11 @@ export function buildCountryCoaTemplate(countryCode: string): AccountTemplateDto
         leaf(code, { code: '2120', name: t.accrued }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
         leaf(code, { code: '2130', name: taxPayable, role: AccountRole.TAX_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
         leaf(code, { code: '2135', name: withholdingPayable, role: AccountRole.WITHHOLDING_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
-        leaf(code, { code: '2140', name: t.payroll }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
+        leaf(code, { code: '2140', name: t.payroll, role: AccountRole.PAYROLL_NET_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
+        leaf(code, { code: '2141', name: afpPayableName, role: AccountRole.AFP_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
+        leaf(code, { code: '2142', name: sfsPayableName, role: AccountRole.SFS_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
+        leaf(code, { code: '2143', name: riskTrainingPayableName, role: AccountRole.INFOTEP_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
+        leaf(code, { code: '2144', name: payrollTaxWithholdingName, role: AccountRole.PAYROLL_TAX_WITHHOLDING_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
         leaf(code, { code: '2150', name: t.incomeTax }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
         leaf(code, { code: '2160', name: t.serviceCharge, role: AccountRole.SERVICE_CHARGE_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
         // Excise (ISC / IEPS / ICE) is a liability of its own, declared separately from the
@@ -408,7 +440,8 @@ export function buildCountryCoaTemplate(countryCode: string): AccountTemplateDto
 
     group(code, '5000', t.expenses, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D, [
       leaf(code, { code: '5100', name: t.cogs, role: AccountRole.COST_OF_GOODS_SOLD }, AccountType.EXPENSE, AccountCategory.COST_OF_GOODS_SOLD, D),
-      leaf(code, { code: '5200', name: t.salaries }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),
+      leaf(code, { code: '5200', name: t.salaries, role: AccountRole.SALARY_EXPENSE }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),
+      leaf(code, { code: '5250', name: employerContributionsExpenseName, role: AccountRole.EMPLOYER_CONTRIBUTIONS_EXPENSE }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),
       leaf(code, { code: '5300', name: t.rent }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),
       leaf(code, { code: '5400', name: t.utilities }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),
       leaf(code, { code: '5500', name: t.depreciationExpense, role: AccountRole.DEPRECIATION_EXPENSE }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),

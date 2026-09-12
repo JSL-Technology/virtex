@@ -132,6 +132,34 @@ export const PERMISSIONS = {
   HCM_VIEW: 'hcm:view',
   /** Create, edit and remove employees and departments. */
   HCM_MANAGE: 'hcm:manage',
+  /**
+   * See an employee's sensitive personal data (national id, bank account).
+   *
+   * Held apart from `HCM_VIEW` on purpose: the whole HR team may need the register — names, roles,
+   * departments — while only payroll may see the cédula and the account wages are paid into. The
+   * fields are encrypted at rest; this is who may decrypt them through the product.
+   */
+  HCM_VIEW_SENSITIVE: 'hcm:view_sensitive',
+
+  /**
+   * Payroll, split finely because the risk in each step is different.
+   *
+   * `VIEW` reads runs and payslips (every salary in the company), `VIEW_COMPENSATION` reads and
+   * edits what each person is paid, `MANAGE` configures concepts and parameters, `PROCESS`
+   * calculates a run, `APPROVE` posts it to the ledger (segregated from whoever calculated it), and
+   * `PAY` releases the money through treasury. `VIEW_OWN` is the employee's grant: their own
+   * payslip and nothing else. A single "payroll" permission would collapse "see my own stub" and
+   * "approve the whole company's wages" into one grant.
+   */
+  PAYROLL_VIEW: 'payroll:view',
+  PAYROLL_VIEW_OWN: 'payroll:view_own',
+  PAYROLL_VIEW_COMPENSATION: 'payroll:view_compensation',
+  PAYROLL_MANAGE: 'payroll:manage',
+  PAYROLL_PROCESS: 'payroll:process',
+  PAYROLL_APPROVE: 'payroll:approve',
+  PAYROLL_PAY: 'payroll:pay',
+  /** Generate and export the TSS files (Novedades, Autodeterminación, SUIR). */
+  TSS_EXPORT: 'tss:export',
 
   WORKFLOWS_MANAGE: 'workflows:manage',
   /**

@@ -137,4 +137,27 @@ export enum AccountRole {
   DEPRECIATION_EXPENSE = 'DEPRECIATION_EXPENSE',
   FOREX_GAIN_LOSS = 'FOREX_GAIN_LOSS',
   INFLATION_ADJUSTMENT = 'INFLATION_ADJUSTMENT',
+
+  // ── Payroll ─────────────────────────────────────────────────────────────────
+  //
+  // A payroll run debits salary expense and the employer's own social-security cost, and credits a
+  // liability for each thing it owes to someone other than the employee: the net wage, each social
+  // fund, and the income tax withheld. They are separate roles, not one "payroll payable", because
+  // each is remitted to a different body on a different schedule (TSS, DGII, the employee's bank)
+  // and a ledger that nets them cannot answer "how much do we owe TSS this month".
+
+  /** Gross remuneration expense — the debit side of every payroll run. */
+  SALARY_EXPENSE = 'SALARY_EXPENSE',
+  /** The employer's own contributions (SFS, AFP, SRL, INFOTEP), an expense distinct from the wage. */
+  EMPLOYER_CONTRIBUTIONS_EXPENSE = 'EMPLOYER_CONTRIBUTIONS_EXPENSE',
+  /** Net wages owed to employees until the payment run settles them. */
+  PAYROLL_NET_PAYABLE = 'PAYROLL_NET_PAYABLE',
+  /** Pension fund (AFP) — employee share withheld plus employer share — owed to the TSS. */
+  AFP_PAYABLE = 'AFP_PAYABLE',
+  /** Health fund (SFS/SDSS) — employee share withheld plus employer share — owed to the TSS. */
+  SFS_PAYABLE = 'SFS_PAYABLE',
+  /** Labour-risk (SRL) and training levy (INFOTEP), employer-borne, owed to the TSS/INFOTEP. */
+  INFOTEP_PAYABLE = 'INFOTEP_PAYABLE',
+  /** Income tax (ISR) withheld from salaries, owed to the DGII. */
+  PAYROLL_TAX_WITHHOLDING_PAYABLE = 'PAYROLL_TAX_WITHHOLDING_PAYABLE',
 }
