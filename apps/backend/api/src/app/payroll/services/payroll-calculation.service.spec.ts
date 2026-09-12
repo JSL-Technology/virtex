@@ -18,11 +18,12 @@ describe('PayrollCalculationService', () => {
     effectiveDate: '2026-01-31',
     minWageCotizable: 10000,
     currencyCode: 'DOP',
+    bonusEmployeeLevyRate: 0.005,
     contributions: [
-      { regime: ContributionRegime.AFP, employeeRate: 0.0287, employerRate: 0.071, base: ContributionBase.SALARY_CAPPED, capMinWageMultiplier: 20 },
-      { regime: ContributionRegime.SFS, employeeRate: 0.0304, employerRate: 0.0709, base: ContributionBase.SALARY_CAPPED, capMinWageMultiplier: 10 },
-      { regime: ContributionRegime.SRL, employeeRate: 0, employerRate: 0.011, base: ContributionBase.SALARY_CAPPED, capMinWageMultiplier: 4 },
-      { regime: ContributionRegime.INFOTEP, employeeRate: 0, employerRate: 0.01, base: ContributionBase.PAYROLL_UNCAPPED, capMinWageMultiplier: null },
+      { regime: ContributionRegime.AFP, employeeRate: 0.0287, employerRate: 0.071, base: ContributionBase.SALARY_CAPPED, capMinWageMultiplier: 20, floorMinWageMultiplier: 1 },
+      { regime: ContributionRegime.SFS, employeeRate: 0.0304, employerRate: 0.0709, base: ContributionBase.SALARY_CAPPED, capMinWageMultiplier: 10, floorMinWageMultiplier: 1 },
+      { regime: ContributionRegime.SRL, employeeRate: 0, employerRate: 0.011, base: ContributionBase.SALARY_CAPPED, capMinWageMultiplier: 4, floorMinWageMultiplier: null },
+      { regime: ContributionRegime.INFOTEP, employeeRate: 0, employerRate: 0.01, base: ContributionBase.PAYROLL_UNCAPPED, capMinWageMultiplier: null, floorMinWageMultiplier: null },
     ],
     taxBrackets: [
       { lowerAnnual: 0, upperAnnual: 416220, rate: 0, accumulatedTax: 0 },
@@ -111,6 +112,75 @@ describe('PayrollCalculationService', () => {
   it('every payslip balances: gross − employee deductions = net', () => {
     const slip = service.calculate(employee({ monthlyBaseSalary: 87654.32 }), period, params, strategy);
     expect(Math.round((slip.grossEarnings - slip.totalEmployeeDeductions - slip.netPay) * 100)).toBe(0);
+  });
+
+  it('computes overtime as hours × ordinary hourly wage × premium, server-side', () => {
+    const slip = service.calculate(
+      employee({
+        monthlyBaseSalary: 50000,
+        concepts: [
+          {
+            code: 'HE35',
+            name: 'Horas extras 35%',
+            type: ConceptType.EARNING,
+            calculation: ConceptCalculation.HOURLY,
+            taxable: true,
+            contributesToTss: true,
+            rate: 1.35,
+            quantity: 10,
+          },
+        ],
+      }),
+      period,
+      params,
+      strategy,
+    );
+    const ot = slip.lines.find((l) => l.conceptCode === 'HE35');
+    // 50000 / (44×52/12) × 10 × 1.35 ≈ 3540.21
+    expect(ot?.amount).toBeCloseTo(3540.21, 2);
+    expect(slip.grossEarnings).toBeGreaterThan(50000);
+  });
+
+  it('refuses a payslip whose deductions push the net below zero', () => {
+    expect(() =>
+      service.calculate(
+        employee({
+          monthlyBaseSalary: 20000,
+          concepts: [
+            {
+              code: 'LOAN',
+              name: 'Préstamo',
+              type: ConceptType.DEDUCTION,
+              calculation: ConceptCalculation.FIXED,
+              taxable: false,
+              contributesToTss: false,
+              amount: 25000,
+            },
+          ],
+        }),
+        period,
+        params,
+        strategy,
+      ),
+    ).toThrow();
+  });
+
+  it('computes a 13th-month (regalía) payslip: exempt from ISR, only the 0.5% INFOTEP levy', () => {
+    const slip = service.calculateChristmasBonus(employee(), 30000, params, strategy);
+    expect(slip.grossEarnings).toBe(30000);
+    expect(slip.incomeTax).toBe(0);
+    expect(slip.afpEmployee).toBe(0);
+    expect(slip.infotepEmployee).toBe(150);
+    expect(slip.netPay).toBe(29850);
+  });
+
+  it('diffs two payslips into a delta for an adjustment run', () => {
+    const before = service.calculate(employee({ monthlyBaseSalary: 50000 }), period, params, strategy);
+    const after = service.calculate(employee({ monthlyBaseSalary: 55000 }), period, params, strategy);
+    const delta = service.diff(after, before);
+    expect(delta.grossEarnings).toBe(5000);
+    expect(delta.netPay).toBeGreaterThan(0);
+    expect(service.isZeroPayslip(service.diff(before, before))).toBe(true);
   });
 });
 

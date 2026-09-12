@@ -19,11 +19,12 @@ describe('DominicanRepublicStrategy', () => {
     effectiveDate: '2026-01-31',
     minWageCotizable: 10000,
     currencyCode: 'DOP',
+    bonusEmployeeLevyRate: 0.005,
     contributions: [
-      { regime: ContributionRegime.AFP, employeeRate: 0.0287, employerRate: 0.071, base: ContributionBase.SALARY_CAPPED, capMinWageMultiplier: 20 },
-      { regime: ContributionRegime.SFS, employeeRate: 0.0304, employerRate: 0.0709, base: ContributionBase.SALARY_CAPPED, capMinWageMultiplier: 10 },
-      { regime: ContributionRegime.SRL, employeeRate: 0, employerRate: 0.011, base: ContributionBase.SALARY_CAPPED, capMinWageMultiplier: 4 },
-      { regime: ContributionRegime.INFOTEP, employeeRate: 0, employerRate: 0.01, base: ContributionBase.PAYROLL_UNCAPPED, capMinWageMultiplier: null },
+      { regime: ContributionRegime.AFP, employeeRate: 0.0287, employerRate: 0.071, base: ContributionBase.SALARY_CAPPED, capMinWageMultiplier: 20, floorMinWageMultiplier: 1 },
+      { regime: ContributionRegime.SFS, employeeRate: 0.0304, employerRate: 0.0709, base: ContributionBase.SALARY_CAPPED, capMinWageMultiplier: 10, floorMinWageMultiplier: 1 },
+      { regime: ContributionRegime.SRL, employeeRate: 0, employerRate: 0.011, base: ContributionBase.SALARY_CAPPED, capMinWageMultiplier: 4, floorMinWageMultiplier: null },
+      { regime: ContributionRegime.INFOTEP, employeeRate: 0, employerRate: 0.01, base: ContributionBase.PAYROLL_UNCAPPED, capMinWageMultiplier: null, floorMinWageMultiplier: null },
     ],
     taxBrackets: [
       { lowerAnnual: 0, upperAnnual: 416220, rate: 0, accumulatedTax: 0 },
@@ -80,5 +81,40 @@ describe('DominicanRepublicStrategy', () => {
     expect(afp.employeeAmount).toBe(1435);
     expect(afp.employerAmount).toBe(3550);
     expect(afp.employeeAmount).not.toBe(afp.employerAmount);
+  });
+
+  it('lifts a full-time base below the minimum up to the contributory floor', () => {
+    // 8000 is below the 10000 minimum; a full-period worker cotizes on the floor, not on 8000.
+    const r = strategy.computeStatutory({ contributoryBase: 8000, taxableEarnings: 8000 }, params);
+    const afp = r.contributions.find((c) => c.regime === ContributionRegime.AFP)!;
+    expect(afp.appliedBase).toBe(10000);
+    expect(r.afpEmployee).toBe(287); // 10000 × 2.87%
+  });
+
+  it('does not apply the floor to a part-month base (prorated worker)', () => {
+    const r = strategy.computeStatutory(
+      { contributoryBase: 8000, taxableEarnings: 8000, prorationFactor: 0.5 },
+      params,
+    );
+    const afp = r.contributions.find((c) => c.regime === ContributionRegime.AFP)!;
+    expect(afp.appliedBase).toBe(8000); // charged on what was actually earned
+  });
+
+  it('grosses a partial month up to a full month for the ISR scale, then prorates the tax', () => {
+    // Half a 50000 salary = 25000 taxable-ish; annualising 25000 alone would fall in the exempt band.
+    // Grossing up to 50000/yr places it in the 15% band, then the monthly tax is halved.
+    const full = strategy.computeStatutory({ contributoryBase: 50000, taxableEarnings: 50000 }, params);
+    const half = strategy.computeStatutory(
+      { contributoryBase: 25000, taxableEarnings: 25000, prorationFactor: 0.5 },
+      params,
+    );
+    expect(half.incomeTax).toBeGreaterThan(0);
+    expect(half.incomeTax).toBeCloseTo(full.incomeTax / 2, 0);
+  });
+
+  it('taxes the year-end bonus as exempt from ISR but subject to the 0.5% employee INFOTEP levy', () => {
+    const b = strategy.computeBonus({ bonusAmount: 30000 }, params);
+    expect(b.infotepEmployee).toBe(150); // 30000 × 0.5%
+    expect(b.net).toBe(29850);
   });
 });

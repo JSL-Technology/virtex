@@ -62,6 +62,7 @@ export class PayrollParametersService {
       employerRate: row.employerRate,
       base: row.base,
       capMinWageMultiplier: row.capMinWageMultiplier,
+      floorMinWageMultiplier: row.floorMinWageMultiplier,
     }));
 
     if (contributions.length === 0) {
@@ -83,10 +84,16 @@ export class PayrollParametersService {
         accumulatedTax: row.accumulatedTax,
       }));
 
-    const minWageRef = this.latestPerKey(
+    const references = this.latestPerKey(
       referenceRows.filter((row) => this.inForce(row.effectiveTo, date)),
       (row) => row.key,
-    ).find((row) => row.key === StatutoryReferenceKey.MIN_WAGE_COTIZABLE);
+    );
+    const minWageRef = references.find(
+      (row) => row.key === StatutoryReferenceKey.MIN_WAGE_COTIZABLE,
+    );
+    const bonusLevyRef = references.find(
+      (row) => row.key === StatutoryReferenceKey.BONUS_EMPLOYEE_LEVY_RATE,
+    );
 
     if (!minWageRef) {
       throw new BadRequestError('PAYROLL.SIN_SALARIO_MINIMO_COTIZABLE_PAIS_FECHA', {
@@ -102,6 +109,7 @@ export class PayrollParametersService {
       contributions,
       taxBrackets,
       currencyCode: minWageRef.currencyCode,
+      bonusEmployeeLevyRate: bonusLevyRef?.value ?? 0,
     };
   }
 

@@ -14,6 +14,12 @@ export enum StatutoryReferenceKey {
   MIN_WAGE_COTIZABLE = 'MIN_WAGE_COTIZABLE',
   /** ISR annual exempt amount, kept explicit for reporting even though it is the first bracket. */
   ISR_ANNUAL_EXEMPT = 'ISR_ANNUAL_EXEMPT',
+  /**
+   * Employee INFOTEP levy on the year-end bonus (regalía), as a fraction (0.005 = 0.5 %). Versioned
+   * here rather than hardcoded in the christmas-bonus path. Its `value` is the rate; `currencyCode`
+   * is ignored for this key.
+   */
+  BONUS_EMPLOYEE_LEVY_RATE = 'BONUS_EMPLOYEE_LEVY_RATE',
 }
 
 /**

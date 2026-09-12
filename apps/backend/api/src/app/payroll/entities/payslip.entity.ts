@@ -86,6 +86,10 @@ export class Payslip extends BaseEntity {
   @Column({ name: 'income_tax', type: 'numeric', precision: 14, scale: 2, default: 0, transformer: numericTransformerNotNull })
   incomeTax: number;
 
+  /** Employee INFOTEP levy — only on a year-end bonus run; zero on an ordinary run. */
+  @Column({ name: 'infotep_employee', type: 'numeric', precision: 14, scale: 2, default: 0, transformer: numericTransformerNotNull })
+  infotepEmployee: number;
+
   // Statutory — employer side (added cost)
   @Column({ name: 'afp_employer', type: 'numeric', precision: 14, scale: 2, default: 0, transformer: numericTransformerNotNull })
   afpEmployer: number;
@@ -102,6 +106,10 @@ export class Payslip extends BaseEntity {
   // Totals
   @Column({ name: 'other_deductions', type: 'numeric', precision: 14, scale: 2, default: 0, transformer: numericTransformerNotNull })
   otherDeductions: number;
+
+  /** Non-statutory employer costs (EMPLOYER_CONTRIBUTION concepts), booked as an expense. */
+  @Column({ name: 'other_employer_contributions', type: 'numeric', precision: 14, scale: 2, default: 0, transformer: numericTransformerNotNull })
+  otherEmployerContributions: number;
 
   @Column({ name: 'total_employee_deductions', type: 'numeric', precision: 14, scale: 2, default: 0, transformer: numericTransformerNotNull })
   totalEmployeeDeductions: number;

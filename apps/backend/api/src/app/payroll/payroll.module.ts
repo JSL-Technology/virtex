@@ -9,16 +9,20 @@ import { PayrollRun } from './entities/payroll-run.entity';
 import { Payslip } from './entities/payslip.entity';
 import { PayslipLine } from './entities/payslip-line.entity';
 import { PayrollConcept } from './entities/payroll-concept.entity';
+import { PayrollInput } from './entities/payroll-input.entity';
 import { StatutoryContribution } from './entities/statutory-contribution.entity';
 import { IncomeTaxBracket } from './entities/income-tax-bracket.entity';
 import { StatutoryReference } from './entities/statutory-reference.entity';
 import { JurisdictionRegistry } from './jurisdictions/jurisdiction-registry';
 import { PayrollParametersService } from './services/payroll-parameters.service';
+import { PayrollParametersAdminService } from './services/payroll-parameters-admin.service';
 import { PayrollCalculationService } from './services/payroll-calculation.service';
 import { SeveranceService } from './services/severance.service';
 import { PayrollAccountingService } from './services/payroll-accounting.service';
 import { PayrollRunService } from './services/payroll-run.service';
 import { PayrollTssService } from './services/payroll-tss.service';
+import { PayrollConceptService } from './services/payroll-concept.service';
+import { PayrollInputService } from './services/payroll-input.service';
 import { PayrollController } from './payroll.controller';
 
 /**
@@ -36,6 +40,7 @@ import { PayrollController } from './payroll.controller';
       Payslip,
       PayslipLine,
       PayrollConcept,
+      PayrollInput,
       StatutoryContribution,
       IncomeTaxBracket,
       StatutoryReference,
@@ -50,11 +55,14 @@ import { PayrollController } from './payroll.controller';
   providers: [
     JurisdictionRegistry,
     PayrollParametersService,
+    PayrollParametersAdminService,
     PayrollCalculationService,
     SeveranceService,
     PayrollAccountingService,
     PayrollRunService,
     PayrollTssService,
+    PayrollConceptService,
+    PayrollInputService,
   ],
   exports: [PayrollCalculationService, SeveranceService, PayrollRunService],
 })

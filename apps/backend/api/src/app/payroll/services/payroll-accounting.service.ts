@@ -79,41 +79,60 @@ export class PayrollAccountingService {
 
     const accounts = this.resolveAccounts(settings);
 
-    // Aggregate the run in cents-accurate sums.
+    // Aggregate the run in cents-accurate sums. Amounts may be negative when the run is an
+    // adjustment (a delta), which is why the posting below is sign-aware.
     const salaryExpense = sumAmounts(payslips.map((p) => p.grossEarnings));
     const employerExpense = sumAmounts(
-      payslips.flatMap((p) => [p.afpEmployer, p.sfsEmployer, p.srlEmployer, p.infotepEmployer]),
+      payslips.flatMap((p) => [
+        p.afpEmployer,
+        p.sfsEmployer,
+        p.srlEmployer,
+        p.infotepEmployer,
+        p.otherEmployerContributions,
+      ]),
     );
     const netPayable = sumAmounts(payslips.map((p) => p.netPay));
     const afpPayable = sumAmounts(payslips.flatMap((p) => [p.afpEmployee, p.afpEmployer]));
     const sfsPayable = sumAmounts(payslips.flatMap((p) => [p.sfsEmployee, p.sfsEmployer]));
-    const riskTrainingPayable = sumAmounts(payslips.flatMap((p) => [p.srlEmployer, p.infotepEmployer]));
+    // INFOTEP payable groups the employer SRL + INFOTEP and the employee INFOTEP levy on the regalía.
+    const riskTrainingPayable = sumAmounts(
+      payslips.flatMap((p) => [p.srlEmployer, p.infotepEmployer, p.infotepEmployee]),
+    );
     const isrPayable = sumAmounts(payslips.map((p) => p.incomeTax));
     const otherPayable = sumAmounts(payslips.map((p) => p.otherDeductions));
+    const employerBenefitsPayable = sumAmounts(payslips.map((p) => p.otherEmployerContributions));
 
     const ledgerId = ledger.id;
     const lines: CreateJournalEntryLineDto[] = [];
-    const debit = (accountId: string, amount: number, description: string) => {
-      if (amount <= 0) return;
-      lines.push({ accountId, debit: amount, credit: 0, description, valuations: [{ ledgerId, debit: amount, credit: 0 }] });
+    // Sign-aware: a positive figure posts to its natural side; a negative one (an adjustment that
+    // reduces a previously-booked amount) posts to the opposite side. The entry still balances because
+    // a delta of two balanced entries is itself balanced.
+    const post = (accountId: string, amount: number, naturalDebit: boolean, description: string) => {
+      if (amount === 0) return;
+      const onDebit = naturalDebit === amount > 0;
+      const value = Math.abs(amount);
+      lines.push(
+        onDebit
+          ? { accountId, debit: value, credit: 0, description, valuations: [{ ledgerId, debit: value, credit: 0 }] }
+          : { accountId, debit: 0, credit: value, description, valuations: [{ ledgerId, debit: 0, credit: value }] },
+      );
     };
-    const credit = (accountId: string, amount: number, description: string) => {
-      if (amount <= 0) return;
-      lines.push({ accountId, debit: 0, credit: amount, description, valuations: [{ ledgerId, debit: 0, credit: amount }] });
-    };
+    const debit = (accountId: string, amount: number, description: string) => post(accountId, amount, true, description);
+    const credit = (accountId: string, amount: number, description: string) => post(accountId, amount, false, description);
 
     debit(accounts.salaryExpense, salaryExpense, 'Gasto de sueldos y salarios');
-    debit(accounts.employerContributionsExpense, employerExpense, 'Aportes patronales (TSS/INFOTEP)');
+    debit(accounts.employerContributionsExpense, employerExpense, 'Aportes patronales y beneficios');
     credit(accounts.netPayable, netPayable, 'Sueldos por pagar (neto)');
     credit(accounts.afpPayable, afpPayable, 'AFP por pagar (TSS)');
     credit(accounts.sfsPayable, sfsPayable, 'SFS por pagar (TSS)');
     credit(accounts.infotepPayable, riskTrainingPayable, 'SRL/INFOTEP por pagar');
     credit(accounts.isrWithholdingPayable, isrPayable, 'ISR retenido por pagar (DGII)');
-    if (otherPayable > 0) {
+    if (otherPayable !== 0 || employerBenefitsPayable !== 0) {
       if (!accounts.accountsPayable) {
         throw new BadRequestError('PAYROLL.SIN_CUENTA_PARA_OTRAS_DEDUCCIONES');
       }
       credit(accounts.accountsPayable, otherPayable, 'Otras deducciones por pagar');
+      credit(accounts.accountsPayable, employerBenefitsPayable, 'Beneficios patronales por pagar');
     }
 
     if (lines.length < 2) {
@@ -134,6 +153,75 @@ export class PayrollAccountingService {
     );
 
     this.logger.log(`Nómina ${run.id} contabilizada en asiento ${entry.id}.`);
+    return entry.id;
+  }
+
+  /**
+   * Post the disbursement of an approved run: the net wages leave the bank and the payable clears.
+   *
+   *   DR  Net wages payable   the liability approval created
+   *       CR  Bank            the cash that actually left
+   *
+   * Idempotent on `payroll-payment:{runId}`, so a retried settlement never double-credits the bank.
+   * A zero net (an adjustment that only moved employer costs) books nothing. A negative net (a
+   * clawback) reverses the sides. The bank/cash GL account is chosen by treasury and passed in.
+   */
+  async postPayment(
+    manager: EntityManager,
+    run: PayrollRun,
+    bankGlAccountId: string,
+    netAmount: number,
+    context: PostingContext,
+  ): Promise<string | null> {
+    if (netAmount === 0) return null;
+
+    const settings = await manager.findOneBy(OrganizationSettings, {
+      organizationId: run.organizationId,
+    });
+    const ledger = await manager.findOneBy(Ledger, {
+      organizationId: run.organizationId,
+      isDefault: true,
+    });
+    if (!ledger) {
+      throw new BadRequestError('PAYROLL.NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION');
+    }
+    const journal = await manager.findOneBy(Journal, {
+      organizationId: run.organizationId,
+      code: 'NOMINA',
+    });
+    if (!journal) {
+      throw new BadRequestError('PAYROLL.DIARIO_NOMINA_NO_ENCONTRADO_FAVOR_CREE');
+    }
+    const netPayableAccount = settings?.defaultPayrollNetPayableAccountId;
+    if (!netPayableAccount) {
+      throw new BadRequestError('PAYROLL.CUENTAS_NOMINA_NO_CONFIGURADAS', { p1: 'Sueldos por pagar' });
+    }
+
+    const ledgerId = ledger.id;
+    const value = Math.abs(netAmount);
+    const payableOnDebit = netAmount > 0; // paying the liability down is a debit to it
+    const lines: CreateJournalEntryLineDto[] = [
+      payableOnDebit
+        ? { accountId: netPayableAccount, debit: value, credit: 0, description: 'Pago de nómina (neto)', valuations: [{ ledgerId, debit: value, credit: 0 }] }
+        : { accountId: netPayableAccount, debit: 0, credit: value, description: 'Ajuste de pago de nómina', valuations: [{ ledgerId, debit: 0, credit: value }] },
+      payableOnDebit
+        ? { accountId: bankGlAccountId, debit: 0, credit: value, description: 'Salida de banco por nómina', valuations: [{ ledgerId, debit: 0, credit: value }] }
+        : { accountId: bankGlAccountId, debit: value, credit: 0, description: 'Reingreso a banco por ajuste', valuations: [{ ledgerId, debit: value, credit: 0 }] },
+    ];
+
+    const entry = await this.journalEntries.createWithManager(
+      manager,
+      {
+        date: run.payDate,
+        description: `Pago de nómina ${run.name}`,
+        journalId: journal.id,
+        entryType: JournalEntryType.SYSTEM_GENERATED,
+        lines,
+      },
+      run.organizationId,
+      { ...context, idempotencyKey: `payroll-payment:${run.id}`, systemReason: 'payroll-payment' },
+    );
+    this.logger.log(`Pago de nómina ${run.id} contabilizado en asiento ${entry.id}.`);
     return entry.id;
   }
 

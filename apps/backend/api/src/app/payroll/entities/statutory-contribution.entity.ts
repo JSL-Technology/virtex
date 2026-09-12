@@ -109,6 +109,21 @@ export class StatutoryContribution {
   })
   capMinWageMultiplier: number | null;
 
+  /**
+   * Floor as a multiple of the minimum contributory wage. Null means no floor. AFP/SFS carry a
+   * floor of 1 (TSS will not accept a base below one minimum wage for a full-time worker); it is
+   * only applied to a full-period base so a part-month worker is not over-charged.
+   */
+  @Column({
+    name: 'floor_min_wage_multiplier',
+    type: 'numeric',
+    precision: 9,
+    scale: 4,
+    nullable: true,
+    transformer: numericTransformer,
+  })
+  floorMinWageMultiplier: number | null;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

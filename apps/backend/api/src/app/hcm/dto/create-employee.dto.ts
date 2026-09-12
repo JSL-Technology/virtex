@@ -6,12 +6,14 @@ import {
   IsOptional,
   IsString,
   IsUUID,
+  Matches,
 } from 'class-validator';
 import {
   ContractType,
   EmploymentStatus,
   IdentityDocumentType,
 } from '../entities/employee.entity';
+import { IsIdentityDocumentForType } from '../validators/identity-document.validator';
 
 export class CreateEmployeeDto {
   @IsString()
@@ -45,6 +47,7 @@ export class CreateEmployeeDto {
 
   @IsString()
   @IsOptional()
+  @IsIdentityDocumentForType()
   identityDocument?: string;
 
   @IsEnum(IdentityDocumentType)
@@ -69,6 +72,7 @@ export class CreateEmployeeDto {
 
   @IsString()
   @IsOptional()
+  @Matches(/^\d{7,11}$/, { message: 'tssNss must be 7–11 digits (NSS)' })
   tssNss?: string;
 
   @IsString()

@@ -111,6 +111,10 @@ export class PayrollRun extends BaseEntity {
   @Column({ name: 'journal_entry_id', type: 'uuid', nullable: true })
   journalEntryId: string | null;
 
+  /** The bank-disbursement entry posted when the run is paid; idempotent on `payroll-payment:{id}`. */
+  @Column({ name: 'payment_journal_entry_id', type: 'uuid', nullable: true })
+  paymentJournalEntryId: string | null;
+
   @Column({ name: 'calculated_by', type: 'uuid', nullable: true })
   calculatedBy: string | null;
 

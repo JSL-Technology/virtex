@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, In, LessThanOrEqual, Repository } from 'typeorm';
-import { endOfMonthIso, monthBounds, toIsoDate } from '../../common/dates';
+import { endOfMonthIso, monthBounds, monthsBetween, toIsoDate } from '../../common/dates';
 import { roundAmount, sumAmounts } from '../../common/money';
 import {
   BadRequestError,
@@ -18,14 +18,18 @@ import {
 import { PayrollRun, PayrollRunStatus, PayrollRunType } from '../entities/payroll-run.entity';
 import { Payslip } from '../entities/payslip.entity';
 import { PayslipLine } from '../entities/payslip-line.entity';
+import { PayrollConcept } from '../entities/payroll-concept.entity';
+import { PayrollInput } from '../entities/payroll-input.entity';
 import { JurisdictionRegistry } from '../jurisdictions/jurisdiction-registry';
 import { PayrollParametersService } from './payroll-parameters.service';
 import {
   ComputedPayslip,
+  ConceptInput,
   EmployeeCalculationInput,
   PayrollCalculationService,
 } from './payroll-calculation.service';
 import { PayrollAccountingService } from './payroll-accounting.service';
+import { SeveranceResult, SeveranceService } from './severance.service';
 
 export interface CreateRunInput {
   name?: string;
@@ -65,12 +69,56 @@ export class PayrollRunService {
     @InjectRepository(Employee) private readonly employees: Repository<Employee>,
     @InjectRepository(EmployeeCompensation)
     private readonly compensations: Repository<EmployeeCompensation>,
+    @InjectRepository(PayrollConcept)
+    private readonly concepts: Repository<PayrollConcept>,
+    @InjectRepository(PayrollInput)
+    private readonly inputs: Repository<PayrollInput>,
     private readonly dataSource: DataSource,
     private readonly parameters: PayrollParametersService,
     private readonly calculation: PayrollCalculationService,
     private readonly registry: JurisdictionRegistry,
     private readonly accounting: PayrollAccountingService,
+    private readonly severance: SeveranceService,
   ) {}
+
+  /**
+   * A termination liquidation for an employee: preaviso, cesantía, vacaciones and regalía under the
+   * Código de Trabajo, from the employee's hire date and the salary in force at the end date.
+   */
+  async previewSeverance(
+    employeeId: string,
+    organizationId: string,
+    endDate: string,
+    overrides: { monthlySalary?: number; ordinarySalaryEarnedThisYear?: number } = {},
+  ): Promise<SeveranceResult> {
+    const employee = await this.employees.findOne({ where: { id: employeeId, organizationId } });
+    if (!employee) throw new NotFoundError('HCM.EMPLOYEE_NOT_FOUND', { id: employeeId });
+    if (!employee.hireDate) {
+      throw new BadRequestError('PAYROLL.EMPLEADO_SIN_FECHA_INGRESO_NO_LIQUIDABLE');
+    }
+    const end = toIsoDate(endDate);
+
+    let monthlySalary = overrides.monthlySalary;
+    if (monthlySalary == null) {
+      const compensation = await this.compensationFor(
+        this.dataSource.manager,
+        employeeId,
+        end,
+        organizationId,
+      );
+      if (!compensation) {
+        throw new BadRequestError('PAYROLL.EMPLEADO_SIN_COMPENSACION_NO_LIQUIDABLE');
+      }
+      monthlySalary = this.toMonthly(compensation);
+    }
+
+    return this.severance.computeTermination({
+      monthlySalary,
+      hireDate: employee.hireDate,
+      endDate: end,
+      ordinarySalaryEarnedThisYear: overrides.ordinarySalaryEarnedThisYear,
+    });
+  }
 
   // ── Lifecycle ────────────────────────────────────────────────────────────────
 
@@ -86,26 +134,34 @@ export class PayrollRunService {
     const { from, to } = monthBounds(input.periodYear, input.periodMonth);
     const runType = input.runType ?? PayrollRunType.REGULAR;
 
-    // One regular run per period; adjustments are allowed on top and reference the original.
-    if (runType === PayrollRunType.REGULAR) {
+    // At most one REGULAR and one CHRISTMAS_BONUS run per period; adjustments are allowed on top and
+    // reference the original. A partial unique index enforces the same at the database, so this check
+    // is the friendly error and the index is the guarantee against a concurrent double-create.
+    if (runType === PayrollRunType.REGULAR || runType === PayrollRunType.CHRISTMAS_BONUS) {
       const existing = await this.runs.findOne({
         where: {
           organizationId,
           periodYear: input.periodYear,
           periodMonth: input.periodMonth,
-          runType: PayrollRunType.REGULAR,
+          runType,
         },
       });
       if (existing && existing.status !== PayrollRunStatus.CANCELLED) {
-        throw new ConflictError('PAYROLL.YA_EXISTE_CORRIDA_REGULAR_PERIODO', {
-          p1: `${input.periodMonth}/${input.periodYear}`,
+        throw new ConflictError('PAYROLL.YA_EXISTE_CORRIDA_PERIODO', {
+          p1: `${runType} ${input.periodMonth}/${input.periodYear}`,
         });
       }
     }
 
+    // An adjustment corrects a specific, already-approved run of the same period — validated here so
+    // an adjustment can never dangle, cross a period, or claim to correct a run that never posted.
+    if (runType === PayrollRunType.ADJUSTMENT) {
+      await this.assertCorrectsAnApprovedRun(input, organizationId, country);
+    }
+
     const run = this.runs.create({
       organizationId,
-      name: input.name ?? `Nómina ${String(input.periodMonth).padStart(2, '0')}/${input.periodYear}`,
+      name: input.name ?? this.defaultRunName(runType, input.periodMonth, input.periodYear),
       countryCode: country,
       periodYear: input.periodYear,
       periodMonth: input.periodMonth,
@@ -117,7 +173,50 @@ export class PayrollRunService {
       status: PayrollRunStatus.DRAFT,
       currencyCode: 'DOP',
     });
-    return this.runs.save(run);
+    try {
+      return await this.runs.save(run);
+    } catch (error) {
+      if ((error as { code?: string }).code === '23505') {
+        throw new ConflictError('PAYROLL.YA_EXISTE_CORRIDA_PERIODO', {
+          p1: `${runType} ${input.periodMonth}/${input.periodYear}`,
+        });
+      }
+      throw error;
+    }
+  }
+
+  private defaultRunName(runType: PayrollRunType, month: number, year: number): string {
+    const period = `${String(month).padStart(2, '0')}/${year}`;
+    if (runType === PayrollRunType.CHRISTMAS_BONUS) return `Regalía pascual ${year}`;
+    if (runType === PayrollRunType.ADJUSTMENT) return `Ajuste de nómina ${period}`;
+    return `Nómina ${period}`;
+  }
+
+  /** An adjustment must name a run that is APPROVED/PAID, same tenant, country and period. */
+  private async assertCorrectsAnApprovedRun(
+    input: CreateRunInput,
+    organizationId: string,
+    country: string,
+  ): Promise<void> {
+    if (!input.correctsRunId) {
+      throw new BadRequestError('PAYROLL.AJUSTE_REQUIERE_CORRIDA_A_CORREGIR');
+    }
+    const corrected = await this.runs.findOne({
+      where: { id: input.correctsRunId, organizationId },
+    });
+    if (!corrected) {
+      throw new NotFoundError('PAYROLL.CORRIDA_A_CORREGIR_NO_ENCONTRADA', { id: input.correctsRunId });
+    }
+    const committed =
+      corrected.status === PayrollRunStatus.APPROVED || corrected.status === PayrollRunStatus.PAID;
+    if (
+      !committed ||
+      corrected.periodYear !== input.periodYear ||
+      corrected.periodMonth !== input.periodMonth ||
+      corrected.countryCode !== country
+    ) {
+      throw new BadRequestError('PAYROLL.AJUSTE_CORRIGE_CORRIDA_APROBADA_MISMO_PERIODO');
+    }
   }
 
   /**
@@ -132,6 +231,18 @@ export class PayrollRunService {
 
     const strategy = this.registry.forCountry(run.countryCode);
     const params = await this.parameters.resolve(run.countryCode, run.periodEnd);
+
+    // Concept catalogue and the run's variable inputs, loaded once and shared across employees.
+    const conceptsByCode = new Map(
+      (await this.concepts.find({ where: { organizationId, active: true } })).map((c) => [c.code, c]),
+    );
+    const inputsByEmployee = await this.loadInputsByEmployee(organizationId, runId);
+
+    // For an adjustment, the payslips of the run being corrected — to diff against.
+    const correctedByEmployee =
+      run.runType === PayrollRunType.ADJUSTMENT && run.correctsRunId
+        ? await this.loadCorrectedPayslips(organizationId, run.correctsRunId)
+        : new Map<string, ComputedPayslip>();
 
     return this.dataSource.transaction(async (em) => {
       // Clear a previous calculation so a recompute is a replacement, not an accumulation.
@@ -154,7 +265,7 @@ export class PayrollRunService {
         // Terminated inside the period is still handled (prorated); terminated before it is skipped.
         if (employee.terminationDate && employee.terminationDate < run.periodStart) continue;
 
-        const compensation = await this.compensationFor(em, employee.id, run.periodEnd);
+        const compensation = await this.compensationFor(em, employee.id, run.periodEnd, organizationId);
         if (!compensation) {
           this.logger.warn(
             `Empleado ${employee.id} sin compensación vigente en ${run.periodEnd}; se omite.`,
@@ -162,17 +273,35 @@ export class PayrollRunService {
           continue;
         }
 
-        const input = this.toCalculationInput(employee, compensation);
-        const slip = this.calculation.calculate(
-          input,
-          {
-            countryCode: run.countryCode,
-            periodStart: run.periodStart,
-            periodEnd: run.periodEnd,
-          },
-          params,
-          strategy,
+        const calcInput = this.toCalculationInput(
+          employee,
+          compensation,
+          this.buildConceptInputs(inputsByEmployee.get(employee.id) ?? [], conceptsByCode),
         );
+
+        let slip: ComputedPayslip;
+        if (run.runType === PayrollRunType.CHRISTMAS_BONUS) {
+          slip = this.calculation.calculateChristmasBonus(
+            calcInput,
+            this.christmasBonusAmount(employee, compensation, run.periodYear, run.periodEnd),
+            params,
+            strategy,
+          );
+        } else {
+          slip = this.calculation.calculate(
+            calcInput,
+            { countryCode: run.countryCode, periodStart: run.periodStart, periodEnd: run.periodEnd },
+            params,
+            strategy,
+          );
+          if (run.runType === PayrollRunType.ADJUSTMENT) {
+            // Only the difference against the corrected run is booked and declared, so approving an
+            // adjustment never re-posts the whole planilla.
+            slip = this.calculation.diff(slip, correctedByEmployee.get(employee.id) ?? this.zeroSlip(slip));
+            if (this.calculation.isZeroPayslip(slip)) continue;
+          }
+        }
+
         computed.push(slip);
         await this.persistPayslip(em, run, slip);
       }
@@ -239,19 +368,29 @@ export class PayrollRunService {
     actorUserId: string,
     bankGlAccountId?: string,
   ): Promise<PayrollRun> {
+    if (!bankGlAccountId) {
+      throw new BadRequestError('PAYROLL.PAGO_REQUIERE_CUENTA_BANCARIA');
+    }
     return this.dataSource.transaction(async (em) => {
       const run = await em.findOne(PayrollRun, { where: { id: runId, organizationId } });
       if (!run) throw new NotFoundError('PAYROLL.CORRIDA_NO_ENCONTRADA', { id: runId });
       if (run.status !== PayrollRunStatus.APPROVED) {
         throw new ConflictError('PAYROLL.SOLO_CORRIDA_APROBADA_PUEDE_PAGARSE');
       }
+
+      // The cash actually leaves here: DR net-wages-payable / CR bank, idempotent on the run, so an
+      // approved run and a paid run cannot drift and the payable approval created is cleared.
+      const paymentEntryId = await this.accounting.postPayment(
+        em,
+        run,
+        bankGlAccountId,
+        run.totalNet,
+        { actorUserId, systemReason: 'payroll-payment' },
+      );
+
+      run.paymentJournalEntryId = paymentEntryId;
       run.status = PayrollRunStatus.PAID;
       run.paidAt = new Date();
-      // The bank settlement entry itself is delegated to treasury/accounting via the same balanced
-      // posting path; recorded here as the state transition. The concrete cash entry is posted by
-      // TreasuryService when a bank account is chosen in the UI, keyed idempotently on the run.
-      void bankGlAccountId;
-      void actorUserId;
       return em.save(run);
     });
   }
@@ -327,9 +466,12 @@ export class PayrollRunService {
     em: EntityManager,
     employeeId: string,
     on: string,
+    organizationId: string,
   ): Promise<EmployeeCompensation | null> {
+    // Scoped by tenant as well as employee: an employee id is a uuid, but a payroll query is never
+    // allowed to read a compensation row it did not stamp, so the tenant is on every clause.
     return em.findOne(EmployeeCompensation, {
-      where: { employeeId, effectiveFrom: LessThanOrEqual(on) },
+      where: { organizationId, employeeId, effectiveFrom: LessThanOrEqual(on) },
       order: { effectiveFrom: 'DESC' },
     });
   }
@@ -337,6 +479,7 @@ export class PayrollRunService {
   private toCalculationInput(
     employee: Employee,
     compensation: EmployeeCompensation,
+    concepts: ConceptInput[],
   ): EmployeeCalculationInput {
     return {
       employeeId: employee.id,
@@ -347,11 +490,140 @@ export class PayrollRunService {
       terminationDate: employee.terminationDate ?? null,
       monthlyBaseSalary: this.toMonthly(compensation),
       currencyCode: compensation.currencyCode,
-      concepts: [],
+      concepts,
     };
   }
 
-  /** Normalise any pay frequency to a monthly figure, since the statutory bases are monthly. */
+  /** The run's inputs, grouped by employee, loaded once per calculation. */
+  private async loadInputsByEmployee(
+    organizationId: string,
+    runId: string,
+  ): Promise<Map<string, PayrollInput[]>> {
+    const rows = await this.inputs.find({ where: { organizationId, runId } });
+    const byEmployee = new Map<string, PayrollInput[]>();
+    for (const row of rows) {
+      const list = byEmployee.get(row.employeeId) ?? [];
+      list.push(row);
+      byEmployee.set(row.employeeId, list);
+    }
+    return byEmployee;
+  }
+
+  /** Turn this run's variable inputs into the engine's concept inputs, resolved against the catalogue. */
+  private buildConceptInputs(
+    inputs: PayrollInput[],
+    conceptsByCode: Map<string, PayrollConcept>,
+  ): ConceptInput[] {
+    const built: ConceptInput[] = [];
+    for (const input of inputs) {
+      const concept = conceptsByCode.get(input.conceptCode);
+      if (!concept) continue; // an input whose concept was deactivated is silently ignored
+      built.push({
+        code: concept.code,
+        name: concept.name,
+        type: concept.type,
+        calculation: concept.calculation,
+        taxable: concept.taxable,
+        contributesToTss: concept.contributesToTss,
+        amount: input.amount ?? undefined,
+        rate: input.rate ?? concept.rate ?? undefined,
+        quantity: input.quantity ?? undefined,
+        sortOrder: concept.sortOrder,
+      });
+    }
+    return built;
+  }
+
+  /** The approved run's payslips, keyed by employee, mapped into the engine's shape for diffing. */
+  private async loadCorrectedPayslips(
+    organizationId: string,
+    correctsRunId: string,
+  ): Promise<Map<string, ComputedPayslip>> {
+    const slips = await this.payslips.find({ where: { organizationId, runId: correctsRunId } });
+    return new Map(slips.map((s) => [s.employeeId, this.storedToComputed(s)]));
+  }
+
+  /** A stored payslip as the engine's {@link ComputedPayslip} — numeric fields only; lines are not diffed. */
+  private storedToComputed(s: Payslip): ComputedPayslip {
+    return {
+      employeeId: s.employeeId,
+      employeeName: s.employeeName,
+      employeeIdentityMasked: s.employeeIdentityMasked,
+      employeeTssNss: s.employeeTssNss,
+      baseDays: s.baseDays,
+      workedDays: s.workedDays,
+      baseSalary: s.baseSalary,
+      grossEarnings: s.grossEarnings,
+      tssBase: s.tssBase,
+      taxableBase: s.taxableBase,
+      afpEmployee: s.afpEmployee,
+      sfsEmployee: s.sfsEmployee,
+      incomeTax: s.incomeTax,
+      infotepEmployee: s.infotepEmployee,
+      afpEmployer: s.afpEmployer,
+      sfsEmployer: s.sfsEmployer,
+      srlEmployer: s.srlEmployer,
+      infotepEmployer: s.infotepEmployer,
+      otherDeductions: s.otherDeductions,
+      otherEmployerContributions: s.otherEmployerContributions,
+      totalEmployeeDeductions: s.totalEmployeeDeductions,
+      totalEmployerContributions: s.totalEmployerContributions,
+      netPay: s.netPay,
+      currencyCode: s.currencyCode,
+      lines: [],
+    };
+  }
+
+  /** A zero baseline for an employee who was absent from the corrected run (a new hire). */
+  private zeroSlip(shape: ComputedPayslip): ComputedPayslip {
+    return {
+      ...shape,
+      grossEarnings: 0,
+      tssBase: 0,
+      taxableBase: 0,
+      afpEmployee: 0,
+      sfsEmployee: 0,
+      incomeTax: 0,
+      infotepEmployee: 0,
+      afpEmployer: 0,
+      sfsEmployer: 0,
+      srlEmployer: 0,
+      infotepEmployer: 0,
+      otherDeductions: 0,
+      otherEmployerContributions: 0,
+      totalEmployeeDeductions: 0,
+      totalEmployerContributions: 0,
+      netPay: 0,
+    };
+  }
+
+  /**
+   * The regalía pascual base: one twelfth of the ordinary salary earned in the calendar year.
+   *
+   * Approximated from the monthly salary and the months worked in the year up to the period — the
+   * standard estimate when a full earnings history is not summed. Confirm against actual annual
+   * ordinary earnings where those differ (variable pay, mid-year raises).
+   */
+  private christmasBonusAmount(
+    employee: Employee,
+    compensation: EmployeeCompensation,
+    periodYear: number,
+    periodEnd: string,
+  ): number {
+    const yearStart = `${periodYear}-01-01`;
+    const start = employee.hireDate && employee.hireDate > yearStart ? employee.hireDate : yearStart;
+    const monthsWorked = Math.max(0, Math.min(12, monthsBetween(start, periodEnd) + 1));
+    return roundAmount((this.toMonthly(compensation) * monthsWorked) / 12);
+  }
+
+  /**
+   * Normalise a base salary to a monthly figure.
+   *
+   * A run is a calendar month because AFP/SFS/ISR and the TSS filing are monthly, so a weekly or
+   * biweekly *quoted* salary is converted to its monthly equivalent (52 or 26 pay periods a year over
+   * 12 months) rather than run on its own cadence. The frequency describes how the amount is stated,
+   * not a separate run schedule.
+   */
   private toMonthly(compensation: EmployeeCompensation): number {
     switch (compensation.payFrequency) {
       case PayFrequency.WEEKLY:
@@ -392,11 +664,13 @@ export class PayrollRunService {
       afpEmployee: slip.afpEmployee,
       sfsEmployee: slip.sfsEmployee,
       incomeTax: slip.incomeTax,
+      infotepEmployee: slip.infotepEmployee,
       afpEmployer: slip.afpEmployer,
       sfsEmployer: slip.sfsEmployer,
       srlEmployer: slip.srlEmployer,
       infotepEmployer: slip.infotepEmployer,
       otherDeductions: slip.otherDeductions,
+      otherEmployerContributions: slip.otherEmployerContributions,
       totalEmployeeDeductions: slip.totalEmployeeDeductions,
       totalEmployerContributions: slip.totalEmployerContributions,
       netPay: slip.netPay,

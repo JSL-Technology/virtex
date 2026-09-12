@@ -15,6 +15,13 @@ export interface ResolvedContribution {
   base: ContributionBase;
   /** Cap as a multiple of the minimum contributory wage; null means uncapped. */
   capMinWageMultiplier: number | null;
+  /**
+   * Floor as a multiple of the minimum contributory wage; null means no floor. TSS will not accept a
+   * contributory base below one minimum wage for a full-time worker, so the seed sets this to 1 for
+   * AFP/SFS. It is applied only to a full-period base — see {@link StatutoryInput.prorationFactor} —
+   * so a part-month worker is not over-charged.
+   */
+  floorMinWageMultiplier: number | null;
 }
 
 export interface ResolvedTaxBracket {
@@ -32,6 +39,12 @@ export interface ResolvedParameters {
   contributions: ResolvedContribution[];
   taxBrackets: ResolvedTaxBracket[];
   currencyCode: string;
+  /**
+   * Employee INFOTEP levy withheld from the year-end bonus (regalía), as a fraction. The 0.5 % the
+   * law charges the worker on the bonus lives here, versioned like every other rate, rather than as a
+   * literal in the christmas-bonus path. Zero/absent means none.
+   */
+  bonusEmployeeLevyRate: number;
 }
 
 /** The bases a payslip presents to the statutory engine, already prorated and summed. */
@@ -40,6 +53,28 @@ export interface StatutoryInput {
   contributoryBase: number;
   /** Monthly taxable earnings for income tax, before subtracting the employee's own AFP+SFS. */
   taxableEarnings: number;
+  /**
+   * Worked ÷ base days for the period (1 for a full month). Income tax is a function of the *ordinary*
+   * salary level, so a partial month is taxed by grossing the taxable base up to a full month, taxing
+   * that, and prorating the result back — otherwise a mid-month hire is under-withheld against the
+   * DGII scale. The floor on the contributory base is likewise only applied when this is 1. Defaults
+   * to 1 when omitted.
+   */
+  prorationFactor?: number;
+}
+
+/** The bases a 13th-month (regalía) run presents to the statutory engine. */
+export interface BonusInput {
+  /** The bonus amount (one twelfth of the ordinary salary earned in the year). */
+  bonusAmount: number;
+}
+
+/** The statutory outcome of a year-end bonus: ISR-exempt, outside AFP/SFS, INFOTEP-levied. */
+export interface BonusResult {
+  /** Employee INFOTEP levy withheld from the bonus. */
+  infotepEmployee: number;
+  /** Net bonus paid to the employee. */
+  net: number;
 }
 
 /** One regime's computed result, keeping the employer/employee split explicit. */
@@ -80,4 +115,9 @@ export interface PayrollJurisdictionStrategy {
   readonly countryCode: string;
   /** Compute all statutory contributions and income tax from the prorated bases. Pure. */
   computeStatutory(input: StatutoryInput, params: ResolvedParameters): StatutoryResult;
+  /**
+   * The statutory treatment of a year-end bonus (regalía pascual): exempt from income tax, outside
+   * the AFP/SFS contributory base, but subject to the employee INFOTEP levy. Pure.
+   */
+  computeBonus(input: BonusInput, params: ResolvedParameters): BonusResult;
 }

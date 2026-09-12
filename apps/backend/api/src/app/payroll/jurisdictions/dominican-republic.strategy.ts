@@ -1,6 +1,8 @@
 import { roundAmount } from '../../common/money';
 import { ContributionBase, ContributionRegime } from '../entities/statutory-contribution.entity';
 import {
+  BonusInput,
+  BonusResult,
   ContributionResult,
   PayrollJurisdictionStrategy,
   ResolvedParameters,
@@ -32,6 +34,7 @@ export class DominicanRepublicStrategy implements PayrollJurisdictionStrategy {
 
   computeStatutory(input: StatutoryInput, params: ResolvedParameters): StatutoryResult {
     const contributions: ContributionResult[] = [];
+    const prorationFactor = input.prorationFactor ?? 1;
 
     let afpEmployee = 0;
     let afpEmployer = 0;
@@ -41,11 +44,11 @@ export class DominicanRepublicStrategy implements PayrollJurisdictionStrategy {
     let infotepEmployer = 0;
 
     for (const contribution of params.contributions) {
-      const appliedBase = this.cappedBase(
+      const appliedBase = this.boundedBase(
         input.contributoryBase,
-        contribution.base,
-        contribution.capMinWageMultiplier,
+        contribution,
         params.minWageCotizable,
+        prorationFactor,
       );
       const employeeAmount = roundAmount(appliedBase * contribution.employeeRate);
       const employerAmount = roundAmount(appliedBase * contribution.employerRate);
@@ -82,7 +85,7 @@ export class DominicanRepublicStrategy implements PayrollJurisdictionStrategy {
     const taxableBase = roundAmount(
       Math.max(0, input.taxableEarnings - afpEmployee - sfsEmployee),
     );
-    const incomeTax = this.incomeTax(taxableBase, params);
+    const incomeTax = this.incomeTax(taxableBase, prorationFactor, params);
 
     return {
       contributions,
@@ -98,35 +101,54 @@ export class DominicanRepublicStrategy implements PayrollJurisdictionStrategy {
   }
 
   /**
-   * The base a regime's rate is applied to, after its cap.
+   * The base a regime's rate is applied to, after its floor and its cap.
    *
-   * Uncapped regimes (INFOTEP) use the base as-is. Capped regimes cap at `multiplier × minimum
-   * contributory wage`; a missing multiplier is treated as uncapped rather than as a zero cap, so a
-   * mis-seeded parameter never silently zeroes a contribution.
+   * Uncapped regimes (INFOTEP) use the base as-is. Capped regimes clamp to `[floor, cap]`, each a
+   * multiple of the minimum contributory wage; a missing multiplier means that bound does not apply,
+   * rather than a zero bound, so a mis-seeded parameter never silently zeroes a contribution. The
+   * floor is applied only to a full-period base (`prorationFactor === 1`): a mid-month worker
+   * legitimately earned less than a monthly minimum and must not be charged as if they had not.
    */
-  private cappedBase(
+  private boundedBase(
     base: number,
-    baseKind: ContributionBase,
-    capMultiplier: number | null,
+    contribution: { base: ContributionBase; capMinWageMultiplier: number | null; floorMinWageMultiplier: number | null },
     minWage: number,
+    prorationFactor: number,
   ): number {
-    if (baseKind === ContributionBase.PAYROLL_UNCAPPED || capMultiplier == null) {
+    if (contribution.base === ContributionBase.PAYROLL_UNCAPPED) {
       return roundAmount(base);
     }
-    const cap = roundAmount(minWage * capMultiplier);
-    return roundAmount(Math.min(base, cap));
+    let bounded = base;
+    if (contribution.floorMinWageMultiplier != null && prorationFactor >= 1) {
+      bounded = Math.max(bounded, roundAmount(minWage * contribution.floorMinWageMultiplier));
+    }
+    if (contribution.capMinWageMultiplier != null) {
+      bounded = Math.min(bounded, roundAmount(minWage * contribution.capMinWageMultiplier));
+    }
+    return roundAmount(bounded);
   }
 
   /**
    * Monthly income tax from the annualised taxable base and the progressive scale.
    *
+   * The DGII scale is a function of the *ordinary* annual salary, so a partial month is grossed up to
+   * a full month before the scale is applied and the resulting monthly tax is prorated back by the
+   * same factor. Without this a mid-month hire's low prorated pay annualises below the exempt
+   * threshold and is under-withheld. A full month (`prorationFactor === 1`) is unchanged: gross-up
+   * and prorate-back are both identity.
+   *
    * Annualise, locate the bracket by its lower bound, add the marginal step to the tax accumulated
    * at that bound, then divide back to the month. Below the exempt threshold the result is zero.
    */
-  private incomeTax(monthlyTaxableBase: number, params: ResolvedParameters): number {
+  private incomeTax(
+    monthlyTaxableBase: number,
+    prorationFactor: number,
+    params: ResolvedParameters,
+  ): number {
     if (monthlyTaxableBase <= 0 || params.taxBrackets.length === 0) return 0;
 
-    const annual = monthlyTaxableBase * 12;
+    const fullMonth = prorationFactor > 0 ? monthlyTaxableBase / prorationFactor : monthlyTaxableBase;
+    const annual = fullMonth * 12;
     // Brackets ascending; the applicable one is the highest whose lower bound the income reaches.
     const brackets = [...params.taxBrackets].sort((a, b) => a.lowerAnnual - b.lowerAnnual);
     let applicable = brackets[0];
@@ -137,6 +159,17 @@ export class DominicanRepublicStrategy implements PayrollJurisdictionStrategy {
 
     if (applicable.rate === 0) return 0;
     const annualTax = applicable.accumulatedTax + (annual - applicable.lowerAnnual) * applicable.rate;
-    return roundAmount(Math.max(0, annualTax) / 12);
+    const fullMonthTax = Math.max(0, annualTax) / 12;
+    return roundAmount(fullMonthTax * prorationFactor);
+  }
+
+  /**
+   * The year-end bonus (regalía pascual): exempt from income tax and outside the AFP/SFS base, but
+   * the worker's INFOTEP levy is withheld from it. The rate is versioned in `params`, never literal.
+   */
+  computeBonus(input: BonusInput, params: ResolvedParameters): BonusResult {
+    const bonus = roundAmount(Math.max(0, input.bonusAmount));
+    const infotepEmployee = roundAmount(bonus * (params.bonusEmployeeLevyRate ?? 0));
+    return { infotepEmployee, net: roundAmount(bonus - infotepEmployee) };
   }
 }

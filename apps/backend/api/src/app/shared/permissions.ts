@@ -154,7 +154,21 @@ export const PERMISSIONS = {
   PAYROLL_VIEW: 'payroll:view',
   PAYROLL_VIEW_OWN: 'payroll:view_own',
   PAYROLL_VIEW_COMPENSATION: 'payroll:view_compensation',
+  /**
+   * Write what a person is paid. Split from `VIEW_COMPENSATION` because setting a salary is a
+   * high-impact act — it feeds ISR, TSS and the ledger — that must not ride along with the right to
+   * read compensation. Reading and writing pay are different grants.
+   */
+  PAYROLL_EDIT_COMPENSATION: 'payroll:edit_compensation',
+  /** Configure the tenant's payroll concepts (earnings, deductions, employer costs). */
   PAYROLL_MANAGE: 'payroll:manage',
+  /**
+   * Edit the versioned statutory parameters (AFP/SFS/ISR rates, caps, minimum contributory wage,
+   * tax scale). These are shared reference data affecting every tenant, so the grant is separate
+   * from `MANAGE` (tenant-local concepts) and from processing a run — the same reasoning that keeps
+   * exchange-rate writes on their own permission.
+   */
+  PAYROLL_PARAMETERS_MANAGE: 'payroll:parameters_manage',
   PAYROLL_PROCESS: 'payroll:process',
   PAYROLL_APPROVE: 'payroll:approve',
   PAYROLL_PAY: 'payroll:pay',

@@ -19,6 +19,13 @@ export enum ConceptCalculation {
   /** A percentage of the concept's base. */
   PERCENTAGE = 'PERCENTAGE',
   /**
+   * Hours × the ordinary hourly wage × the concept's premium multiplier (`rate`): overtime at 1.35 /
+   * 2.0, the +0.15 night premium. The hours come from the per-run input; the hourly wage is derived
+   * server-side from the monthly salary and the legal work-hours-per-month, so the client never sends
+   * a computed amount.
+   */
+  HOURLY = 'HOURLY',
+  /**
    * Computed by the jurisdiction engine, not by this row (AFP/SFS/ISR). The row exists so the
    * concept has a stable code, a name, and an account to post to; the number comes from the strategy.
    */
@@ -61,7 +68,7 @@ export class PayrollConcept extends BaseEntity {
   })
   calculation: ConceptCalculation;
 
-  /** For PERCENTAGE concepts, the rate (0.03 = 3 %). Null otherwise. */
+  /** PERCENTAGE: the rate (0.03 = 3 %). HOURLY: the premium multiplier (1.35, 2.0, 1.15). Null otherwise. */
   @Column({
     name: 'rate',
     type: 'numeric',

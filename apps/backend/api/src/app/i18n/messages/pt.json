@@ -1158,7 +1158,9 @@
   },
   "HCM": {
     "EMPLOYEE_NOT_FOUND": "O colaborador \"{{id}}\" não foi encontrado.",
-    "DEPARTMENT_NOT_FOUND": "O departamento \"{{id}}\" não foi encontrado."
+    "DEPARTMENT_NOT_FOUND": "O departamento \"{{id}}\" não foi encontrado.",
+    "EMPLEADO_YA_EXISTE_CON_ESA_CEDULA_O_CORREO": "Já existe um funcionário com esse documento ou e-mail nesta organização.",
+    "YA_EXISTE_COMPENSACION_CON_ESA_FECHA_VIGENCIA": "Já existe uma remuneração com essa data de vigência para este funcionário."
   },
   "PROCUREMENT": {
     "REQUISITION_NOT_FOUND": "A requisição de compra \"{{id}}\" não foi encontrada."
@@ -1643,5 +1645,40 @@
     "CONFIGURE_SEQUENCES": "Configurar sequências",
     "REVIEW_PLAN": "Rever o plano",
     "VIEW_STOCK": "Ver existências"
+  },
+  "PAYROLL": {
+    "AJUSTE_CORRIGE_CORRIDA_APROBADA_MISMO_PERIODO": "Um ajuste deve corrigir uma folha aprovada do mesmo período, país e organização.",
+    "AJUSTE_REQUIERE_CORRIDA_A_CORREGIR": "Uma folha de ajuste deve referenciar a folha que corrige.",
+    "APROBADOR_NO_PUEDE_SER_QUIEN_CALCULO": "Quem aprova a folha não pode ser quem a calculou (segregação de funções).",
+    "AUTODETERMINACION_REQUIERE_CORRIDA_APROBADA": "A Autodeterminación requer uma folha aprovada.",
+    "CONCEPTO_DESCONOCIDO_EN_NOVEDADES": "Conceito(s) desconhecido(s) nos lançamentos: {{p1}}.",
+    "CONCEPTO_NO_ENCONTRADO": "Conceito \"{{id}}\" não encontrado.",
+    "CONCEPTO_SISTEMA_NO_SE_ELIMINA_DESACTIVELO": "Um conceito do sistema não pode ser excluído; desative-o.",
+    "CORRIDA_APROBADA_NO_PUEDE_CANCELARSE_USE_AJUSTE": "Uma folha aprovada não pode ser cancelada; use uma folha de ajuste.",
+    "CORRIDA_A_CORREGIR_NO_ENCONTRADA": "A folha a corrigir \"{{id}}\" não foi encontrada.",
+    "CORRIDA_CANCELADA_NO_EDITABLE": "A folha está cancelada e não pode ser editada.",
+    "CORRIDA_INMUTABLE_USE_AJUSTE": "A folha está aprovada e é imutável; use uma folha de ajuste.",
+    "CORRIDA_NO_ENCONTRADA": "Folha de pagamento \"{{id}}\" não encontrada.",
+    "CORRIDA_SIN_MONTOS_QUE_CONTABILIZAR": "A folha não tem valores a lançar.",
+    "CORRIDA_SIN_VOLANTES_NO_PUEDE_APROBARSE": "A folha não tem holerites e não pode ser aprovada.",
+    "CUENTAS_NOMINA_NO_CONFIGURADAS": "Contas contábeis da folha não configuradas: {{p1}}.",
+    "DIARIO_NOMINA_NO_ENCONTRADO_FAVOR_CREE": "O diário da folha (NOMINA) não foi encontrado; crie-o.",
+    "EMPLEADO_DESCONOCIDO_EN_NOVEDADES": "Um ou mais lançamentos referenciam um funcionário fora da organização.",
+    "EMPLEADO_SIN_COMPENSACION_NO_LIQUIDABLE": "O funcionário não tem remuneração vigente e não pode ser liquidado.",
+    "EMPLEADO_SIN_FECHA_INGRESO_NO_LIQUIDABLE": "O funcionário não tem data de admissão e não pode ser liquidado.",
+    "JURISDICCION_NO_SOPORTADA": "A jurisdição de folha \"{{p1}}\" não é suportada.",
+    "MES_PERIODO_INVALIDO": "O mês do período é inválido: {{p1}}.",
+    "MONEDA_NOMINA_DISTINTA_MONEDA_LIBRO": "A moeda da folha ({{p1}}) difere da moeda do livro ({{p2}}).",
+    "NETO_NEGATIVO_DEDUCCIONES_EXCEDEN_SALARIO": "As deduções de {{p1}} excedem o salário; o líquido não pode ser negativo.",
+    "NOVEDADES_SOLO_EN_CORRIDA_EDITABLE": "Os lançamentos só podem ser alterados enquanto a folha for editável.",
+    "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "A organização não tem um livro contábil padrão configurado.",
+    "PAGO_REQUIERE_CUENTA_BANCARIA": "O pagamento da folha requer a seleção de uma conta bancária.",
+    "SIN_CUENTA_PARA_OTRAS_DEDUCCIONES": "Nenhuma conta configurada para outras deduções/benefícios a pagar.",
+    "SIN_PARAMETROS_CONTRIBUCION_PAIS_FECHA": "Sem parâmetros de contribuição para {{p1}} em {{p2}}.",
+    "SIN_SALARIO_MINIMO_COTIZABLE_PAIS_FECHA": "Sem salário mínimo de contribuição para {{p1}} em {{p2}}.",
+    "SOLO_CORRIDA_APROBADA_PUEDE_PAGARSE": "Somente uma folha aprovada pode ser paga.",
+    "SOLO_CORRIDA_CALCULADA_PUEDE_APROBARSE": "Somente uma folha calculada pode ser aprovada.",
+    "YA_EXISTE_CONCEPTO_CON_ESE_CODIGO": "Já existe um conceito com o código \"{{p1}}\".",
+    "YA_EXISTE_CORRIDA_PERIODO": "Já existe uma folha para {{p1}}."
   }
 }

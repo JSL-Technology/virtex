@@ -118,8 +118,10 @@ export class HcmController {
     return this.hcmService.listCompensations(id, user.organizationId);
   }
 
+  // Writing a salary is recorded by the FinancialAuditSubscriber (employee_compensations is audited),
+  // so a pay change always leaves an actor behind it.
   @Post('employees/:id/compensation')
-  @HasPermission(PERMISSIONS.PAYROLL_VIEW_COMPENSATION)
+  @HasPermission(PERMISSIONS.PAYROLL_EDIT_COMPENSATION)
   addCompensation(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: CreateCompensationDto,
