@@ -65,6 +65,7 @@ import { HealthModule } from './health/health.module';
 import { SearchModule } from './search/search.module';
 import { MyWorkModule } from './my-work/my-work.module';
 import { OverviewModule } from './overview/overview.module';
+import { DocumentsModule } from './documents/documents.module';
 import { LocalizationModule } from './localization/localization.module';
 import { UnitsOfMeasureModule } from './units-of-measure/units-of-measure.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -295,6 +296,7 @@ import { PosModule } from './pos/pos.module';
     SearchModule,
     MyWorkModule,
     OverviewModule,
+    DocumentsModule,
     LocalizationModule,
     UnitsOfMeasureModule,
     NotificationsModule,

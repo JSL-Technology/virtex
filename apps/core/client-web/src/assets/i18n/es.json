@@ -921,7 +921,8 @@
       "WARNING": "Advertencia"
     },
     "VERIFY": "Verificar",
-    "LOAD_FAILED": "No se pudieron cargar los datos. Inténtalo de nuevo."
+    "LOAD_FAILED": "No se pudieron cargar los datos. Inténtalo de nuevo.",
+    "ACTIONS": "Acciones"
   },
   "CONTACTS": {
     "CUSTOMERS": {
@@ -1509,14 +1510,36 @@
       "NEW_FOLDER": "Nueva carpeta",
       "SEARCH_IN_THIS_FOLDER": "Buscar en esta carpeta...",
       "THIS_FOLDER_EMPTY": "Esta carpeta está vacía.",
-      "UPLOAD_FILE": "Upload File"
+      "UPLOAD_FILE": "Upload File",
+      "SEARCH_ALL": "Buscar en todos los documentos…",
+      "FOLDER_NAME": "Nombre de la carpeta",
+      "DOWNLOAD": "Descargar",
+      "RENAME": "Renombrar",
+      "CONFIRM_DELETE_FOLDER": "¿Borrar «{{name}}» y todo lo que contiene? No se puede deshacer.",
+      "CONFIRM_DELETE_FILE": "¿Borrar «{{name}}»? No se puede deshacer.",
+      "ACTION_FAILED": "No se pudo completar la operación."
     },
     "SEARCH_IN_THIS_FOLDER": "Buscar en esta carpeta...",
     "TEMPLATES": {
       "CREATE_NEW_TEMPLATE": "Crear una plantilla",
       "DOCUMENT_TEMPLATES": "Plantillas de documentos",
       "NEW_TEMPLATE": "Nueva plantilla",
-      "TYPE_LAST_MODIFIED_LASTMODIFIED": "{{type}} • Última modificación: {{lastModified}}"
+      "TYPE_LAST_MODIFIED_LASTMODIFIED": "{{type}} • Última modificación: {{lastModified}}",
+      "TITLE": "Plantillas",
+      "NAME": "Nombre",
+      "TYPE_COLUMN": "Tipo",
+      "LAST_MODIFIED": "Última modificación",
+      "UPLOAD": "Subir plantilla",
+      "UPLOAD_AS": "Subir como",
+      "EXPLANATION": "Una plantilla es un archivo modelo que guardas aquí para reutilizarlo: el membrete de tus facturas, el contrato que adaptas por cliente, el texto que pegas en un recordatorio. Virtex todavía no las rellena por ti.",
+      "TYPE": {
+        "INVOICE": "Factura",
+        "QUOTE": "Cotización",
+        "EMAIL": "Correo",
+        "CONTRACT": "Contrato",
+        "OTHER": "Otro",
+        "NONE": "—"
+      }
     },
     "THIS_FOLDER_EMPTY": "Esta carpeta está vacía.",
     "UPLOAD_FILE": "Subir archivo"

@@ -213,6 +213,16 @@ export const PERMISSIONS = {
    */
   PROCUREMENT_APPROVE: 'procurement:approve',
 
+  /**
+   * The document repository: the tenant's own files and the templates among them.
+   *
+   * A separate permission because the repository holds whatever a business keeps — signed
+   * contracts, scanned bank statements, personnel files — and "can use the ERP" is not a reason to
+   * read all of it.
+   */
+  DOCUMENTS_VIEW: 'documents:view',
+  DOCUMENTS_MANAGE: 'documents:manage',
+
   /** Projects, their tasks and timesheets. */
   PROJECTS_VIEW: 'projects:view',
   PROJECTS_MANAGE: 'projects:manage',

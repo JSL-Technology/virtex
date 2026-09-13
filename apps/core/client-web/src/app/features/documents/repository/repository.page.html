@@ -1,24 +1,62 @@
 <vx-list-shell
   titleKey="DOCUMENTS.REPOSITORY.FILE_REPOSITORY"
   [count]="files().length"
-  [empty]="files().length === 0"
+  [empty]="!loading() && files().length === 0"
   [searchable]="true"
-  [(search)]="search"
-  searchPlaceholderKey="DOCUMENTS.REPOSITORY.SEARCH_IN_THIS_FOLDER"
+  [search]="search()"
+  (searchChange)="onSearch($event)"
+  searchPlaceholderKey="DOCUMENTS.REPOSITORY.SEARCH_ALL"
 >
-  <button listActions type="button" class="secondary-button">
+  <button listActions type="button" class="secondary-button" [disabled]="busy()"
+    (click)="newFolderOpen.set(!newFolderOpen())">
     <lucide-icon [img]="FolderIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'DOCUMENTS.REPOSITORY.NEW_FOLDER' | translate }}</span>
   </button>
-  <button listActions type="button" class="primary-button">
+
+  <!--
+    A label wrapping a hidden input, not a button: the file picker can only be opened by a real
+    <input type="file">, and styling the input itself is not portable.
+  -->
+  <label listActions class="primary-button upload-label">
     <lucide-icon [img]="UploadIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'DOCUMENTS.REPOSITORY.UPLOAD_FILE' | translate }}</span>
-  </button>
+    <input type="file" class="sr-only" [disabled]="busy()" (change)="onFileChosen($event)" />
+  </label>
 
   <nav listFilters class="path-breadcrumbs" [attr.aria-label]="'DOCUMENTS.REPOSITORY.HOME' | translate">
-    <span class="path-item">{{ 'DOCUMENTS.REPOSITORY.HOME' | translate }}</span>
+    <button type="button" class="path-item path-item--link" (click)="goTo(null)">
+      {{ 'DOCUMENTS.REPOSITORY.HOME' | translate }}
+    </button>
+    @for (crumb of breadcrumb(); track crumb.id) {
+      <span class="path-sep" aria-hidden="true">/</span>
+      <button type="button" class="path-item path-item--link" (click)="goTo(crumb.id)">
+        {{ crumb.name }}
+      </button>
+    }
   </nav>
 
+  @if (newFolderOpen()) {
+    <div class="new-folder card">
+      <input
+        #folderName
+        type="text"
+        maxlength="255"
+        [placeholder]="'DOCUMENTS.REPOSITORY.FOLDER_NAME' | translate"
+        (keydown.enter)="createFolder(folderName.value); folderName.value = ''; newFolderOpen.set(false)"
+      />
+      <button type="button" class="primary-button" [disabled]="busy()"
+        (click)="createFolder(folderName.value); folderName.value = ''; newFolderOpen.set(false)">
+        {{ 'COMMON.SAVE' | translate }}
+      </button>
+      <button type="button" class="secondary-button" (click)="newFolderOpen.set(false)">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+    </div>
+  }
+
+  @if (failed()) {
+    <p class="section-note">{{ 'COMMON.LOAD_FAILED' | translate }}</p>
+  } @else {
   <div class="table-container card">
     <table class="data-table">
       <thead>
@@ -26,27 +64,72 @@
           <th>{{ 'DOCUMENTS.REPOSITORY.NAME' | translate }}</th>
           <th>{{ 'DOCUMENTS.REPOSITORY.LAST_MODIFIED' | translate }}</th>
           <th>{{ 'DOCUMENTS.REPOSITORY.FILE_SIZE' | translate }}</th>
+          <th class="text-right">{{ 'COMMON.ACTIONS' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (item of files(); track item.id) {
-          <tr class="file-item-row">
-            <td>
+        @if (!atRoot() && !search()) {
+          <tr class="file-item-row is-clickable" (click)="goUp()">
+            <td colspan="4">
               <span class="name-cell">
-                <lucide-icon
-                  [img]="getIconForFileType(item.type)"
-                  size="20"
-                  [class]="item.type"
-                  aria-hidden="true"
-                ></lucide-icon>
-                <span class="file-name">{{ item.name }}</span>
+                <lucide-icon [img]="UpIcon" size="18" aria-hidden="true"></lucide-icon>
+                <span class="file-name">..</span>
               </span>
             </td>
-            <td>{{ item.modifiedDate }}</td>
-            <td>{{ item.size }}</td>
           </tr>
+        }
+        @for (item of files(); track item.id) {
+          <tr class="file-item-row is-clickable">
+            <td (click)="open(item)">
+              <span class="name-cell">
+                <lucide-icon [img]="iconFor(item)" size="20" [class]="item.kind" aria-hidden="true"></lucide-icon>
+                <span class="file-name">{{ item.name }}</span>
+                @if (item.templateType !== 'NONE') {
+                  <span class="tag">{{ 'DOCUMENTS.TEMPLATES.TYPE.' + item.templateType | translate }}</span>
+                }
+              </span>
+            </td>
+            <!-- A real timestamp through the locale formatter, not the string `Jul 25, 2025`. -->
+            <td>{{ item.updatedAt | vxDate: 'dateTime' }}</td>
+            <td>{{ sizeOf(item) }}</td>
+            <td class="text-right row-actions">
+              @if (item.kind === 'FILE') {
+                <button type="button" class="icon-button" (click)="download(item)"
+                  [attr.aria-label]="'DOCUMENTS.REPOSITORY.DOWNLOAD' | translate">
+                  <lucide-icon [img]="DownloadIcon" size="15"></lucide-icon>
+                </button>
+              }
+              <button type="button" class="icon-button" [disabled]="busy()"
+                (click)="renaming.set(item.id)"
+                [attr.aria-label]="'DOCUMENTS.REPOSITORY.RENAME' | translate">
+                <lucide-icon [img]="RenameIcon" size="15"></lucide-icon>
+              </button>
+              <button type="button" class="icon-button" [disabled]="busy()" (click)="remove(item)"
+                [attr.aria-label]="'COMMON.DELETE' | translate">
+                <lucide-icon [img]="DeleteIcon" size="15"></lucide-icon>
+              </button>
+            </td>
+          </tr>
+          @if (renaming() === item.id) {
+            <tr>
+              <td colspan="4">
+                <div class="new-folder">
+                  <input #newName type="text" maxlength="255" [value]="item.name"
+                    (keydown.enter)="rename(item, newName.value); renaming.set(null)" />
+                  <button type="button" class="primary-button"
+                    (click)="rename(item, newName.value); renaming.set(null)">
+                    {{ 'COMMON.SAVE' | translate }}
+                  </button>
+                  <button type="button" class="secondary-button" (click)="renaming.set(null)">
+                    {{ 'COMMON.CANCEL' | translate }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
         }
       </tbody>
     </table>
   </div>
+  }
 </vx-list-shell>

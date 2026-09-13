@@ -43,4 +43,31 @@
 
     @include ds.focus-ring(2px);
   }
+
+  .upload-label {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .inline-field {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--content-secondary);
+  }
+
+  .name-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .row-actions {
+    display: flex;
+    gap: var(--space-1);
+    justify-content: flex-end;
+  }
 }

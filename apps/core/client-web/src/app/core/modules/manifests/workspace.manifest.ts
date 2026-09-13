@@ -99,7 +99,9 @@ export const WORKSPACE_MODULE: ModuleManifest = {
     {
       path: 'documents/repository',
       kind: WindowKind.LIST,
-      permission: 'authenticated',
+      // The repository holds whatever a business keeps — contracts, bank statements, personnel
+      // files — so "is signed in" is not the right test for reading all of it.
+      permission: 'documents:view',
       titleKey: 'PAGE_TITLES.DOCUMENT_REPOSITORY',
       icon: 'FolderArchive',
       entityKeyFn: () => 'workspace:documents',
@@ -109,7 +111,7 @@ export const WORKSPACE_MODULE: ModuleManifest = {
     {
       path: 'documents/templates',
       kind: WindowKind.LIST,
-      permission: 'authenticated',
+      permission: 'documents:view',
       titleKey: 'PAGE_TITLES.DOCUMENT_TEMPLATES',
       icon: 'FileText',
       entityKeyFn: () => 'workspace:document-templates',

@@ -921,7 +921,8 @@
       "WARNING": "Warning"
     },
     "VERIFY": "Verify",
-    "LOAD_FAILED": "The data could not be loaded. Try again."
+    "LOAD_FAILED": "The data could not be loaded. Try again.",
+    "ACTIONS": "Actions"
   },
   "CONTACTS": {
     "CUSTOMERS": {
@@ -1509,14 +1510,36 @@
       "NEW_FOLDER": "New folder",
       "SEARCH_IN_THIS_FOLDER": "Search in this folder...",
       "THIS_FOLDER_EMPTY": "This folder is empty.",
-      "UPLOAD_FILE": "Upload a file"
+      "UPLOAD_FILE": "Upload a file",
+      "SEARCH_ALL": "Search all documents…",
+      "FOLDER_NAME": "Folder name",
+      "DOWNLOAD": "Download",
+      "RENAME": "Rename",
+      "CONFIRM_DELETE_FOLDER": "Delete “{{name}}” and everything in it? This cannot be undone.",
+      "CONFIRM_DELETE_FILE": "Delete “{{name}}”? This cannot be undone.",
+      "ACTION_FAILED": "The operation could not be completed."
     },
     "SEARCH_IN_THIS_FOLDER": "Search in this folder...",
     "TEMPLATES": {
       "CREATE_NEW_TEMPLATE": "Create a template",
       "DOCUMENT_TEMPLATES": "Document templates",
       "NEW_TEMPLATE": "New template",
-      "TYPE_LAST_MODIFIED_LASTMODIFIED": "{{type}} • Last modified: {{lastModified}}"
+      "TYPE_LAST_MODIFIED_LASTMODIFIED": "{{type}} • Last modified: {{lastModified}}",
+      "TITLE": "Templates",
+      "NAME": "Name",
+      "TYPE_COLUMN": "Type",
+      "LAST_MODIFIED": "Last modified",
+      "UPLOAD": "Upload a template",
+      "UPLOAD_AS": "Upload as",
+      "EXPLANATION": "A template is a model file you keep here to reuse: the letterhead your invoices are printed on, the contract you adapt per client, the wording you paste into a reminder. Virtex does not fill them in for you yet.",
+      "TYPE": {
+        "INVOICE": "Invoice",
+        "QUOTE": "Quote",
+        "EMAIL": "Email",
+        "CONTRACT": "Contract",
+        "OTHER": "Other",
+        "NONE": "—"
+      }
     },
     "THIS_FOLDER_EMPTY": "This folder is empty.",
     "UPLOAD_FILE": "Upload a file"

@@ -921,7 +921,8 @@
       "WARNING": "Aviso"
     },
     "VERIFY": "Verificar",
-    "LOAD_FAILED": "Não foi possível carregar os dados. Tente novamente."
+    "LOAD_FAILED": "Não foi possível carregar os dados. Tente novamente.",
+    "ACTIONS": "Ações"
   },
   "CONTACTS": {
     "CUSTOMERS": {
@@ -1509,14 +1510,36 @@
       "NEW_FOLDER": "Nova pasta",
       "SEARCH_IN_THIS_FOLDER": "Buscar nesta pasta...",
       "THIS_FOLDER_EMPTY": "Esta pasta está vazia.",
-      "UPLOAD_FILE": "Enviar arquivo"
+      "UPLOAD_FILE": "Enviar arquivo",
+      "SEARCH_ALL": "Procurar em todos os documentos…",
+      "FOLDER_NAME": "Nome da pasta",
+      "DOWNLOAD": "Descarregar",
+      "RENAME": "Mudar o nome",
+      "CONFIRM_DELETE_FOLDER": "Eliminar «{{name}}» e tudo o que contém? Não pode ser desfeito.",
+      "CONFIRM_DELETE_FILE": "Eliminar «{{name}}»? Não pode ser desfeito.",
+      "ACTION_FAILED": "Não foi possível concluir a operação."
     },
     "SEARCH_IN_THIS_FOLDER": "Buscar nesta pasta...",
     "TEMPLATES": {
       "CREATE_NEW_TEMPLATE": "Criar um modelo",
       "DOCUMENT_TEMPLATES": "Modelos de documentos",
       "NEW_TEMPLATE": "Novo modelo",
-      "TYPE_LAST_MODIFIED_LASTMODIFIED": "{{type}} • Última modificação: {{lastModified}}"
+      "TYPE_LAST_MODIFIED_LASTMODIFIED": "{{type}} • Última modificação: {{lastModified}}",
+      "TITLE": "Modelos",
+      "NAME": "Nome",
+      "TYPE_COLUMN": "Tipo",
+      "LAST_MODIFIED": "Última modificação",
+      "UPLOAD": "Carregar modelo",
+      "UPLOAD_AS": "Carregar como",
+      "EXPLANATION": "Um modelo é um ficheiro que guarda aqui para reutilizar: o timbre das suas faturas, o contrato que adapta por cliente, o texto que cola num lembrete. O Virtex ainda não os preenche por si.",
+      "TYPE": {
+        "INVOICE": "Fatura",
+        "QUOTE": "Orçamento",
+        "EMAIL": "E-mail",
+        "CONTRACT": "Contrato",
+        "OTHER": "Outro",
+        "NONE": "—"
+      }
     },
     "THIS_FOLDER_EMPTY": "Esta pasta está vazia.",
     "UPLOAD_FILE": "Enviar arquivo"
