@@ -25,16 +25,16 @@ export enum PluginChannel {
  * needs; a tenant must consent to each before execution is allowed.
  */
 @Entity({ name: 'plugin_versions' })
-@Index(['plugin', 'version'], { unique: true })
+@Index('UQ_plugin_versions_plugin_version', ['pluginId', 'version'], { unique: true })
 export class PluginVersion {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @ManyToOne(() => Plugin, (plugin) => plugin.versions, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'pluginId' })
+  @JoinColumn({ name: 'pluginId', foreignKeyConstraintName: 'FK_plugin_versions_plugin' })
   plugin: Plugin;
 
-  @Column()
+  @Column({ type: 'uuid' })
   pluginId: string;
 
   @Column({ length: 50 })
@@ -71,6 +71,6 @@ export class PluginVersion {
   @Column({ type: 'enum', enum: PluginChannel, default: PluginChannel.STABLE })
   channel: PluginChannel;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 }

@@ -22,14 +22,11 @@ export enum PayslipLineKind {
 @Entity('payslip_lines')
 @Index('IDX_payslip_line_payslip', ['payslipId'])
 export class PayslipLine extends BaseEntity {
-  @Column({ name: 'organization_id', type: 'uuid' })
-  override organizationId: string = undefined!; // NOT NULL override; hydrated by TypeORM
-
   @Column({ name: 'payslip_id', type: 'uuid' })
   payslipId: string;
 
   @ManyToOne('Payslip', { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'payslip_id' })
+  @JoinColumn({ name: 'payslip_id', foreignKeyConstraintName: 'FK_payslip_line_payslip' })
   payslip: unknown;
 
   @Column({ name: 'concept_code' })

@@ -24,12 +24,21 @@ export enum PluginStatus {
  * *cost* a tenant to run lives in {@link MeteringRecord}. Keeping the catalogue separate from
  * consent is what lets one signed, admitted artefact be reused across tenants without re-review.
  */
+/*
+ * The names and the types are the migration's, not TypeORM's defaults.
+ *
+ * `1789002200000-Extensions.ts` built these tables with `uuid` keys, `timestamptz` stamps and
+ * hand-named indexes and foreign keys. The entities said `@Column()` — which reflect-metadata
+ * resolves to `varchar` — and `@Index()` without a name, so `check:schema-drift` proposed dropping
+ * and re-adding every key column (losing the rows) and renaming every index and constraint, on
+ * every run. Declaring what the migration actually built is what makes the check meaningful.
+ */
 @Entity({ name: 'plugins' })
 export class Plugin {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Index({ unique: true })
+  @Index('UQ_plugins_name', { unique: true })
   @Column({ length: 255 })
   name: string;
 
@@ -45,9 +54,9 @@ export class Plugin {
   @OneToMany(() => PluginVersion, (version) => version.plugin, { cascade: true })
   versions: PluginVersion[];
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 }

@@ -27,14 +27,11 @@ import { PayslipLine } from './payslip-line.entity';
 @Entity('payslips')
 @Index('IDX_payslip_run_employee', ['runId', 'employeeId'], { unique: true })
 export class Payslip extends BaseEntity {
-  @Column({ name: 'organization_id', type: 'uuid' })
-  override organizationId: string = undefined!; // NOT NULL override; hydrated by TypeORM
-
   @Column({ name: 'run_id', type: 'uuid' })
   runId: string;
 
   @ManyToOne(() => PayrollRun, (r) => r.payslips, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'run_id' })
+  @JoinColumn({ name: 'run_id', foreignKeyConstraintName: 'FK_payslip_run' })
   run: PayrollRun;
 
   @Column({ name: 'employee_id', type: 'uuid' })

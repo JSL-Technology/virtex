@@ -69,9 +69,6 @@ export enum IdentityDocumentType {
 export class Employee extends BaseEntity {
   // Redeclared NOT NULL so the tenant is a real column and RLS can protect the table. Every write
   // path (HcmService) already stamps it.
-  @Column({ name: 'organization_id', type: 'uuid' })
-  override organizationId: string = undefined!; // NOT NULL override; hydrated by TypeORM
-
   @Column({ name: 'first_name' })
   firstName: string;
 

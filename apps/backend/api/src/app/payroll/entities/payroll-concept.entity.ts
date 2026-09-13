@@ -47,9 +47,6 @@ export enum ConceptCalculation {
 @Entity('payroll_concepts')
 @Index('IDX_payroll_concept_org_code', ['organizationId', 'code'], { unique: true })
 export class PayrollConcept extends BaseEntity {
-  @Column({ name: 'organization_id', type: 'uuid' })
-  override organizationId: string = undefined!; // NOT NULL override; hydrated by TypeORM
-
   /** Stable code the run input and reports refer to (e.g. `BASE`, `OT`, `AFP`, `ISR`, `LOAN`). */
   @Column()
   code: string;
