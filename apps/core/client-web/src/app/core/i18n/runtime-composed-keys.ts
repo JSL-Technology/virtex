@@ -88,4 +88,15 @@ export const RUNTIME_COMPOSED_KEYS: ReadonlyArray<readonly [string, readonly str
     'REGISTER.STEPS.PLAN.RESOURCES',
     ['INVOICES', 'USERS', 'CUSTOMERS', 'SUPPLIERS', 'JOURNAL_ENTRIES', 'SUBSIDIARIES'],
   ],
+
+  // The extensions manager composes both from the API's own enums: the catalogue row's status and
+  // the sandbox run's outcome. Both used to be printed raw — the reader saw `REVOKED` and
+  // `execution_failed`, in English, in every language.
+  ['EXTENSIONS.STATUS', ['ACTIVE', 'DISABLED', 'REVOKED']],
+  ['EXTENSIONS.RUN_STATUS', ['success', 'execution_failed']],
+
+  // `DIALOG.DELETE_FOLDER` / `DIALOG.DELETE_DOCUMENT` are chosen by the document repository from
+  // the node's kind, so neither full key is written out anywhere.
+  ['DIALOG.DELETE_FOLDER', ['TITLE', 'MESSAGE']],
+  ['DIALOG.DELETE_DOCUMENT', ['TITLE', 'MESSAGE']],
 ];

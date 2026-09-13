@@ -1,0 +1,58 @@
+<vx-list-shell
+  titleKey="HCM.EMPLOYEES.TITLE"
+  [count]="visible().length"
+  [empty]="!loading() && visible().length === 0"
+  [searchable]="true"
+  [search]="search()"
+  (searchChange)="search.set($event)"
+  searchPlaceholderKey="HCM.EMPLOYEES.SEARCH"
+>
+  <a listActions routerLink="/hcm/employees/new" class="primary-button">
+    <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'HCM.EMPLOYEES.NEW' | translate }}</span>
+  </a>
+
+  <label listFilters class="inline-field">
+    <input type="checkbox" [checked]="includeInactive()"
+      (change)="includeInactive.set($any($event.target).checked)" />
+    <span>{{ 'HCM.EMPLOYEES.INCLUDE_TERMINATED' | translate }}</span>
+  </label>
+
+  @if (failed()) {
+    <p class="section-note">{{ 'COMMON.LOAD_FAILED' | translate }}</p>
+  } @else {
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'HCM.EMPLOYEES.NAME' | translate }}</th>
+          <th>{{ 'HCM.EMPLOYEES.JOB_TITLE' | translate }}</th>
+          <th>{{ 'HCM.EMPLOYEES.DEPARTMENT' | translate }}</th>
+          <th>{{ 'HCM.EMPLOYEES.HIRE_DATE' | translate }}</th>
+          <th class="text-center">{{ 'HCM.EMPLOYEES.STATUS' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (employee of visible(); track employee.id) {
+          <tr>
+            <td>
+              <a [routerLink]="['/hcm/employees', employee.id, 'edit']" class="table-link">
+                {{ employee.lastName }}, {{ employee.firstName }}
+              </a>
+              <div class="muted">{{ employee.email }}</div>
+            </td>
+            <td>{{ employee.jobTitle || '—' }}</td>
+            <td>{{ departmentOf(employee) }}</td>
+            <td>{{ employee.hireDate ? (employee.hireDate | vxDate) : '—' }}</td>
+            <td class="text-center">
+              <span class="status-badge" [class]="statusClass(employee.employmentStatus)">
+                {{ 'HCM.EMPLOYEES.STATUS_LABEL.' + employee.employmentStatus | translate }}
+              </span>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  }
+</vx-list-shell>

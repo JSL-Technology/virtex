@@ -1,0 +1,177 @@
+@use '../../../../assets/styles/design-system' as ds;
+
+:host { display: block; }
+
+.params-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-5);
+}
+
+.params-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.params-title {
+  margin: 0.25rem 0 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+}
+
+.params-subtitle {
+  margin: 0.25rem 0 0;
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+}
+
+.run-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* ── Totals ──────────────────────────────────────────────────────── */
+.totals-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-4);
+}
+
+.total-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  @include ds.glass-surface('strong');
+
+  &__label {
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--content-secondary);
+  }
+
+  &__value {
+    font-size: var(--text-xl);
+    font-weight: var(--font-bold);
+    color: var(--text-primary);
+  }
+}
+
+/* ── Panels ──────────────────────────────────────────────────────── */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  @include ds.glass-surface('soft');
+
+  &__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
+  }
+
+  &__actions {
+    display: flex;
+    gap: var(--space-2);
+  }
+}
+
+.table-wrapper { overflow-x: auto; }
+
+.data-table, .lines-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th, td {
+    padding: 0.4rem 0.5rem;
+    border-bottom: 1px solid var(--border-light);
+    text-align: left;
+  }
+
+  th {
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--content-secondary);
+  }
+
+  .numeric { text-align: right; }
+  .numeric input { text-align: right; }
+
+  input, select { width: 100%; min-width: 5rem; }
+}
+
+.is-clickable { cursor: pointer; }
+.is-clickable:hover { background: var(--surface-hover); }
+
+.detail-row > td { background: var(--bg-tertiary); }
+
+.strong { font-weight: var(--font-semibold); }
+.muted { color: var(--content-tertiary, var(--content-secondary)); }
+
+.link-button {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  color: var(--accent-text);
+}
+
+.section-note {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+}
+
+.editor {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-3);
+  align-items: end;
+  padding: var(--space-3) 0;
+
+  &__actions {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: var(--space-2);
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+
+  > span {
+    font-size: var(--text-xs);
+    color: var(--content-secondary);
+  }
+
+  &__note {
+    font-size: var(--text-xs);
+    color: var(--content-tertiary, var(--content-secondary));
+  }
+}
+
+/* Una fila fuera de vigencia sigue ahí porque explica una nómina pasada; se lee apagada. */
+.is-historic { opacity: 0.5; }

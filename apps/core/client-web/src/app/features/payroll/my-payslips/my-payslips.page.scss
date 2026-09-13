@@ -1,0 +1,35 @@
+@use '../../../../assets/styles/list-page' as list;
+
+:host {
+  @include list.list-page;
+
+  .name-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .is-clickable { cursor: pointer; }
+  .is-clickable:hover { background: var(--surface-hover); }
+
+  .detail-row > td { background: var(--bg-tertiary); }
+
+  .lines-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    td {
+      padding: 0.3rem 0.5rem;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .numeric { text-align: right; }
+
+    .grand {
+      font-weight: var(--font-bold);
+      border-top: 1px solid var(--border-strong, var(--border-light));
+    }
+  }
+
+  .strong { font-weight: var(--font-semibold); }
+}

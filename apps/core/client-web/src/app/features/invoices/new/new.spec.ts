@@ -178,7 +178,16 @@ describe('NewInvoicePage', () => {
 
   it('shows the totals the server computed, and computes none of its own', fakeAsync(() => {
     component.invoiceForm.patchValue({ customerId: 'c-1' });
-    component.lineItems.at(0).patchValue({ quantity: 2, unitPrice: 1000, discountRate: 0.1, taxRate: 0.18 });
+    // A line needs a concept as well as a quantity: the server rejects a line that names nothing,
+    // so the page does not ask it to price one. Without the description this asserts a request the
+    // page is right not to make.
+    component.lineItems.at(0).patchValue({
+      description: 'Consultoría',
+      quantity: 2,
+      unitPrice: 1000,
+      discountRate: 0.1,
+      taxRate: 0.18,
+    });
     component.invoiceForm.patchValue({ serviceChargeRate: 0.1 });
     // Debounced: the figures are worth a request, a request per keystroke is not.
     tick(300);

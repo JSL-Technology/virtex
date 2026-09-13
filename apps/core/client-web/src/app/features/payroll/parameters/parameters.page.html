@@ -1,0 +1,218 @@
+<div class="params-page">
+
+  <header class="params-header">
+    <h1 class="params-title">{{ 'PAYROLL.PARAMETERS.TITLE' | translate }}</h1>
+    <!--
+      Said where the reader will act on it: nothing here is edited in place, because a payroll
+      recomputed after a rate change must still produce what it produced at the time.
+    -->
+    <p class="params-subtitle">{{ 'PAYROLL.PARAMETERS.EXPLANATION' | translate }}</p>
+  </header>
+
+  @if (loading()) {
+    <p class="section-note">{{ 'COMMON.LOADING' | translate }}</p>
+  } @else {
+
+  <!-- ── Social-security rates ─────────────────────────────────────── -->
+  <section class="panel">
+    <header class="panel__head">
+      <h2 class="panel__title">{{ 'PAYROLL.PARAMETERS.CONTRIBUTIONS' | translate }}</h2>
+      <button type="button" class="secondary-button" (click)="startContribution()">
+        {{ 'PAYROLL.PARAMETERS.NEW_RATE' | translate }}
+      </button>
+    </header>
+
+    @if (contributionDraft(); as draft) {
+      <div class="editor">
+        <label class="field">
+          <span>{{ 'PAYROLL.PARAMETERS.REGIME' | translate }}</span>
+          <select [value]="draft.regime" (change)="patchContribution({ regime: $any($event.target).value })">
+            <option value="AFP">AFP</option>
+            <option value="SFS">SFS</option>
+            <option value="SRL">SRL</option>
+            <option value="INFOTEP">INFOTEP</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>{{ 'PAYROLL.PARAMETERS.EFFECTIVE_FROM' | translate }}</span>
+          <input type="date" [value]="draft.effectiveFrom"
+            (input)="patchContribution({ effectiveFrom: $any($event.target).value })" />
+        </label>
+        <label class="field">
+          <span>{{ 'PAYROLL.PARAMETERS.EMPLOYEE_RATE' | translate }}</span>
+          <input type="number" step="0.000001" min="0" [value]="draft.employeeRate"
+            (input)="patchContribution({ employeeRate: +$any($event.target).value })" />
+        </label>
+        <label class="field">
+          <span>{{ 'PAYROLL.PARAMETERS.EMPLOYER_RATE' | translate }}</span>
+          <input type="number" step="0.000001" min="0" [value]="draft.employerRate"
+            (input)="patchContribution({ employerRate: +$any($event.target).value })" />
+        </label>
+        <label class="field">
+          <span>{{ 'PAYROLL.PARAMETERS.BASE' | translate }}</span>
+          <select [value]="draft.base" (change)="patchContribution({ base: $any($event.target).value })">
+            <option value="SALARY_CAPPED">{{ 'PAYROLL.PARAMETERS.BASE_LABEL.SALARY_CAPPED' | translate }}</option>
+            <option value="PAYROLL_UNCAPPED">{{ 'PAYROLL.PARAMETERS.BASE_LABEL.PAYROLL_UNCAPPED' | translate }}</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>{{ 'PAYROLL.PARAMETERS.CAP' | translate }}</span>
+          <input type="number" step="0.0001" min="0" [value]="draft.capMinWageMultiplier ?? 0"
+            (input)="patchContribution({ capMinWageMultiplier: +$any($event.target).value })" />
+          <small class="field__note">{{ 'PAYROLL.PARAMETERS.CAP_HELP' | translate }}</small>
+        </label>
+        <div class="editor__actions">
+          <button type="button" class="primary-button" [disabled]="busy()" (click)="saveContribution()">
+            <lucide-icon [img]="SaveIcon" size="14"></lucide-icon>
+            <span>{{ 'COMMON.SAVE' | translate }}</span>
+          </button>
+          <button type="button" class="secondary-button" (click)="contributionDraft.set(null)">
+            {{ 'COMMON.CANCEL' | translate }}
+          </button>
+        </div>
+      </div>
+    }
+
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ 'PAYROLL.PARAMETERS.REGIME' | translate }}</th>
+            <th class="numeric">{{ 'PAYROLL.PARAMETERS.EMPLOYEE_RATE' | translate }}</th>
+            <th class="numeric">{{ 'PAYROLL.PARAMETERS.EMPLOYER_RATE' | translate }}</th>
+            <th>{{ 'PAYROLL.PARAMETERS.BASE' | translate }}</th>
+            <th>{{ 'PAYROLL.PARAMETERS.IN_FORCE' | translate }}</th>
+            <th class="text-right">{{ 'COMMON.ACTIONS' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of contributions(); track $index) {
+            <tr [class.is-historic]="!inForceContributions().includes(row)">
+              <td>{{ row.regime }}</td>
+              <td class="numeric">{{ row.employeeRate | vxPercent: '1.2-4' }}</td>
+              <td class="numeric">{{ row.employerRate | vxPercent: '1.2-4' }}</td>
+              <td>{{ 'PAYROLL.PARAMETERS.BASE_LABEL.' + row.base | translate }}</td>
+              <td>{{ row.effectiveFrom | vxDate }} — {{ row.effectiveTo ? (row.effectiveTo | vxDate) : '…' }}</td>
+              <td class="text-right">
+                <button type="button" class="secondary-button" (click)="startContribution(row)">
+                  {{ 'PAYROLL.PARAMETERS.SUPERSEDE' | translate }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── Reference values ──────────────────────────────────────────── -->
+  <section class="panel">
+    <header class="panel__head">
+      <h2 class="panel__title">{{ 'PAYROLL.PARAMETERS.REFERENCES' | translate }}</h2>
+      <button type="button" class="secondary-button" (click)="startReference()">
+        {{ 'PAYROLL.PARAMETERS.NEW_REFERENCE' | translate }}
+      </button>
+    </header>
+
+    @if (referenceDraft(); as draft) {
+      <div class="editor">
+        <label class="field">
+          <span>{{ 'PAYROLL.PARAMETERS.KEY' | translate }}</span>
+          <select [value]="draft.key" (change)="patchReference({ key: $any($event.target).value })">
+            <option value="MIN_WAGE_COTIZABLE">
+              {{ 'PAYROLL.PARAMETERS.KEY_LABEL.MIN_WAGE_COTIZABLE' | translate }}
+            </option>
+            <option value="ISR_ANNUAL_EXEMPT">
+              {{ 'PAYROLL.PARAMETERS.KEY_LABEL.ISR_ANNUAL_EXEMPT' | translate }}
+            </option>
+            <option value="BONUS_EMPLOYEE_LEVY_RATE">
+              {{ 'PAYROLL.PARAMETERS.KEY_LABEL.BONUS_EMPLOYEE_LEVY_RATE' | translate }}
+            </option>
+          </select>
+        </label>
+        <label class="field">
+          <span>{{ 'PAYROLL.PARAMETERS.EFFECTIVE_FROM' | translate }}</span>
+          <input type="date" [value]="draft.effectiveFrom"
+            (input)="patchReference({ effectiveFrom: $any($event.target).value })" />
+        </label>
+        <label class="field">
+          <span>{{ 'PAYROLL.PARAMETERS.VALUE' | translate }}</span>
+          <input type="number" step="0.01" min="0" [value]="draft.value"
+            (input)="patchReference({ value: +$any($event.target).value })" />
+        </label>
+        <div class="editor__actions">
+          <button type="button" class="primary-button" [disabled]="busy()" (click)="saveReference()">
+            <lucide-icon [img]="SaveIcon" size="14"></lucide-icon>
+            <span>{{ 'COMMON.SAVE' | translate }}</span>
+          </button>
+          <button type="button" class="secondary-button" (click)="referenceDraft.set(null)">
+            {{ 'COMMON.CANCEL' | translate }}
+          </button>
+        </div>
+      </div>
+    }
+
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ 'PAYROLL.PARAMETERS.KEY' | translate }}</th>
+            <th class="numeric">{{ 'PAYROLL.PARAMETERS.VALUE' | translate }}</th>
+            <th>{{ 'PAYROLL.PARAMETERS.IN_FORCE' | translate }}</th>
+            <th class="text-right">{{ 'COMMON.ACTIONS' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of references(); track $index) {
+            <tr [class.is-historic]="!inForceReferences().includes(row)">
+              <td>{{ 'PAYROLL.PARAMETERS.KEY_LABEL.' + row.key | translate }}</td>
+              <td class="numeric">{{ row.value | vxNumber: '1.2-2' }}</td>
+              <td>{{ row.effectiveFrom | vxDate }} — {{ row.effectiveTo ? (row.effectiveTo | vxDate) : '…' }}</td>
+              <td class="text-right">
+                <button type="button" class="secondary-button" (click)="startReference(row)">
+                  {{ 'PAYROLL.PARAMETERS.SUPERSEDE' | translate }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── Income-tax scale ──────────────────────────────────────────── -->
+  <section class="panel">
+    <header class="panel__head">
+      <h2 class="panel__title">{{ 'PAYROLL.PARAMETERS.TAX_SCALE' | translate }}</h2>
+    </header>
+    <!-- A scale is a set, replaced whole as of a date, which is why there is no per-row edit. -->
+    <p class="section-note">{{ 'PAYROLL.PARAMETERS.TAX_SCALE_HELP' | translate }}</p>
+
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th class="numeric">{{ 'PAYROLL.PARAMETERS.FROM_ANNUAL' | translate }}</th>
+            <th class="numeric">{{ 'PAYROLL.PARAMETERS.TO_ANNUAL' | translate }}</th>
+            <th class="numeric">{{ 'PAYROLL.PARAMETERS.RATE' | translate }}</th>
+            <th class="numeric">{{ 'PAYROLL.PARAMETERS.ACCUMULATED' | translate }}</th>
+            <th>{{ 'PAYROLL.PARAMETERS.IN_FORCE' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (bracket of brackets(); track $index) {
+            <tr>
+              <td class="numeric">{{ bracket.lowerAnnual | vxNumber: '1.2-2' }}</td>
+              <td class="numeric">{{ bracket.upperAnnual !== null ? (bracket.upperAnnual | vxNumber: '1.2-2') : '∞' }}</td>
+              <td class="numeric">{{ bracket.rate | vxPercent: '1.0-2' }}</td>
+              <td class="numeric">{{ bracket.accumulatedTax | vxNumber: '1.2-2' }}</td>
+              <td>{{ bracket.effectiveFrom | vxDate }} — {{ bracket.effectiveTo ? (bracket.effectiveTo | vxDate) : '…' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  }
+</div>

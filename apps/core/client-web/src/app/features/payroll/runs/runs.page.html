@@ -1,0 +1,80 @@
+<vx-list-shell
+  titleKey="PAYROLL.RUNS.TITLE"
+  [count]="runs().length"
+  [empty]="isEmpty()"
+>
+  <button listActions type="button" class="primary-button" [disabled]="busy()"
+    (click)="creating.set(!creating())">
+    <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'PAYROLL.RUNS.NEW' | translate }}</span>
+  </button>
+
+  @if (creating()) {
+    <div class="inline-row card">
+      <label class="field">
+        <span>{{ 'PAYROLL.RUNS.YEAR' | translate }}</span>
+        <input type="number" min="2000" max="2100" [value]="newYear()"
+          (input)="newYear.set(+$any($event.target).value)" />
+      </label>
+      <label class="field">
+        <span>{{ 'PAYROLL.RUNS.MONTH' | translate }}</span>
+        <input type="number" min="1" max="12" [value]="newMonth()"
+          (input)="newMonth.set(+$any($event.target).value)" />
+      </label>
+      <label class="field">
+        <span>{{ 'PAYROLL.RUNS.TYPE' | translate }}</span>
+        <select [value]="newType()" (change)="newType.set($any($event.target).value)">
+          <option value="REGULAR">{{ 'PAYROLL.RUNS.TYPE_LABEL.REGULAR' | translate }}</option>
+          <option value="CHRISTMAS_BONUS">{{ 'PAYROLL.RUNS.TYPE_LABEL.CHRISTMAS_BONUS' | translate }}</option>
+          <option value="ADJUSTMENT">{{ 'PAYROLL.RUNS.TYPE_LABEL.ADJUSTMENT' | translate }}</option>
+        </select>
+      </label>
+      <button type="button" class="primary-button" [disabled]="busy()" (click)="create()">
+        {{ 'PAYROLL.RUNS.CREATE' | translate }}
+      </button>
+      <button type="button" class="secondary-button" (click)="creating.set(false)">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+    </div>
+  }
+
+  @if (failed()) {
+    <p class="section-note">{{ 'COMMON.LOAD_FAILED' | translate }}</p>
+  } @else {
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'PAYROLL.RUNS.PERIOD' | translate }}</th>
+          <th>{{ 'PAYROLL.RUNS.NAME' | translate }}</th>
+          <th>{{ 'PAYROLL.RUNS.TYPE' | translate }}</th>
+          <th class="text-right">{{ 'PAYROLL.RUNS.GROSS' | translate }}</th>
+          <th class="text-right">{{ 'PAYROLL.RUNS.NET' | translate }}</th>
+          <th class="text-right">{{ 'PAYROLL.RUNS.EMPLOYER_COST' | translate }}</th>
+          <th class="text-center">{{ 'PAYROLL.RUNS.STATUS' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (run of runs(); track run.id) {
+          <tr>
+            <td>
+              <a [routerLink]="['/payroll/runs', run.id]" class="table-link">{{ periodOf(run) }}</a>
+            </td>
+            <td>{{ run.name }}</td>
+            <td>{{ 'PAYROLL.RUNS.TYPE_LABEL.' + run.runType | translate }}</td>
+            <td class="text-right">{{ run.totalGross | vxMoney: run.currencyCode }}</td>
+            <td class="text-right">{{ run.totalNet | vxMoney: run.currencyCode }}</td>
+            <!-- What the payroll actually costs the company: net plus the employer's own share. -->
+            <td class="text-right">{{ run.totalEmployerContributions | vxMoney: run.currencyCode }}</td>
+            <td class="text-center">
+              <span class="status-badge" [class]="statusClass(run.status)">
+                {{ 'PAYROLL.RUNS.STATUS_LABEL.' + run.status | translate }}
+              </span>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  }
+</vx-list-shell>

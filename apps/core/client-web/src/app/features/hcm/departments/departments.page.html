@@ -1,0 +1,79 @@
+<vx-list-shell
+  titleKey="HCM.DEPARTMENTS.TITLE"
+  [count]="departments().length"
+  [empty]="isEmpty()"
+>
+  <button listActions type="button" class="primary-button" [disabled]="busy()"
+    (click)="creating.set(!creating())">
+    <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'HCM.DEPARTMENTS.NEW' | translate }}</span>
+  </button>
+
+  @if (creating()) {
+    <div class="inline-row card">
+      <input #newName type="text" maxlength="120"
+        [placeholder]="'HCM.DEPARTMENTS.NAME' | translate" />
+      <input #newCost type="text" maxlength="60"
+        [placeholder]="'HCM.DEPARTMENTS.COST_CENTER' | translate" />
+      <button type="button" class="primary-button" [disabled]="busy()"
+        (click)="create(newName.value, newCost.value); newName.value = ''; newCost.value = ''">
+        {{ 'COMMON.SAVE' | translate }}
+      </button>
+      <button type="button" class="secondary-button" (click)="creating.set(false)">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+    </div>
+  }
+
+  @if (failed()) {
+    <p class="section-note">{{ 'COMMON.LOAD_FAILED' | translate }}</p>
+  } @else {
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'HCM.DEPARTMENTS.NAME' | translate }}</th>
+          <th>{{ 'HCM.DEPARTMENTS.COST_CENTER' | translate }}</th>
+          <th class="text-right">{{ 'COMMON.ACTIONS' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (department of departments(); track department.id) {
+          @if (editing() === department.id) {
+            <tr>
+              <td colspan="3">
+                <div class="inline-row">
+                  <input #editName type="text" maxlength="120" [value]="department.name" />
+                  <input #editCost type="text" maxlength="60" [value]="department.costCenter || ''" />
+                  <button type="button" class="primary-button" [disabled]="busy()"
+                    (click)="update(department, editName.value, editCost.value)">
+                    {{ 'COMMON.SAVE' | translate }}
+                  </button>
+                  <button type="button" class="secondary-button" (click)="editing.set(null)">
+                    {{ 'COMMON.CANCEL' | translate }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @else {
+            <tr>
+              <td>{{ department.name }}</td>
+              <td>{{ department.costCenter || '—' }}</td>
+              <td class="text-right row-actions">
+                <button type="button" class="icon-button" (click)="editing.set(department.id)"
+                  [attr.aria-label]="'COMMON.EDIT' | translate">
+                  <lucide-icon [img]="EditIcon" size="15"></lucide-icon>
+                </button>
+                <button type="button" class="icon-button" [disabled]="busy()" (click)="remove(department)"
+                  [attr.aria-label]="'COMMON.DELETE' | translate">
+                  <lucide-icon [img]="DeleteIcon" size="15"></lucide-icon>
+                </button>
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+  }
+</vx-list-shell>

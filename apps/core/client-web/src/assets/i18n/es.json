@@ -922,7 +922,8 @@
     },
     "VERIFY": "Verificar",
     "LOAD_FAILED": "No se pudieron cargar los datos. Inténtalo de nuevo.",
-    "ACTIONS": "Acciones"
+    "ACTIONS": "Acciones",
+    "EDIT": "Editar"
   },
   "CONTACTS": {
     "CUSTOMERS": {
@@ -1486,6 +1487,30 @@
       "PLACEHOLDER": "Motivo de la anulación",
       "TITLE": "Anular la factura",
       "TOO_SHORT": "Explica el motivo con al menos 10 caracteres."
+    },
+    "APPROVE_PAYROLL_RUN": {
+      "MESSAGE": "Aprobar contabiliza el asiento y cierra la nómina a cambios. Un error posterior solo se corrige con una nómina de ajuste. ¿Continuar?",
+      "TITLE": "Aprobar la nómina"
+    },
+    "CANCEL_PAYROLL_RUN": {
+      "MESSAGE": "¿Anular esta nómina? No se podrá reabrir.",
+      "TITLE": "Anular la nómina"
+    },
+    "DELETE_DEPARTMENT": {
+      "MESSAGE": "¿Eliminar el departamento «{{name}}»?",
+      "TITLE": "Eliminar departamento"
+    },
+    "DELETE_DOCUMENT": {
+      "MESSAGE": "¿Borrar «{{name}}»? No se puede deshacer.",
+      "TITLE": "Eliminar archivo"
+    },
+    "DELETE_FOLDER": {
+      "MESSAGE": "¿Borrar «{{name}}» y todo lo que contiene? No se puede deshacer.",
+      "TITLE": "Eliminar carpeta"
+    },
+    "DELETE_PAYROLL_CONCEPT": {
+      "MESSAGE": "¿Eliminar el concepto «{{name}}»?",
+      "TITLE": "Eliminar concepto"
     }
   },
   "DOCUMENTS": {
@@ -1515,8 +1540,6 @@
       "FOLDER_NAME": "Nombre de la carpeta",
       "DOWNLOAD": "Descargar",
       "RENAME": "Renombrar",
-      "CONFIRM_DELETE_FOLDER": "¿Borrar «{{name}}» y todo lo que contiene? No se puede deshacer.",
-      "CONFIRM_DELETE_FILE": "¿Borrar «{{name}}»? No se puede deshacer.",
       "ACTION_FAILED": "No se pudo completar la operación."
     },
     "SEARCH_IN_THIS_FOLDER": "Buscar en esta carpeta...",
@@ -2371,7 +2394,12 @@
     "PURCHASING": "Compras",
     "REPORTS": "Reportes",
     "SALES": "Ventas",
-    "SETTINGS": "Configuración"
+    "SETTINGS": "Configuración",
+    "HISTORY": {
+      "GROUP": "Historial de navegación",
+      "BACK": "Volver",
+      "FORWARD": "Avanzar"
+    }
   },
   "NOTIFICATIONS": {
     "MANTENTE_DIA_ULTIMAS_ACTUALIZACIONES_ALERTAS_TU": "Mantente al día con las últimas actualizaciones y alertas de tu cuenta.",
@@ -2614,7 +2642,16 @@
     "PURCHASE_ORDER_NEW": "Nueva orden de compra",
     "PURCHASE_ORDER_EDIT": "Orden de compra",
     "PURCHASE_REQUISITION_NEW": "Nueva requisición",
-    "PURCHASE_REQUISITION_EDIT": "Requisición"
+    "PURCHASE_REQUISITION_EDIT": "Requisición",
+    "DEPARTMENTS": "Departamentos",
+    "EMPLOYEES": "Empleados",
+    "EMPLOYEE_EDIT": "Empleado",
+    "EMPLOYEE_NEW": "Nuevo empleado",
+    "MY_PAYSLIPS": "Mis volantes de pago",
+    "PAYROLL_CONCEPTS": "Conceptos de nómina",
+    "PAYROLL_PARAMETERS": "Parámetros de ley",
+    "PAYROLL_RUN": "Nómina",
+    "PAYROLL_RUNS": "Nóminas"
   },
   "PASSWORD_STRENGTH": {
     "WEAK": "Débil"
@@ -3969,7 +4006,8 @@
     "RUTA_SOLICITADA": "Ruta solicitada:",
     "SI_CREES_ESTO_ES_ERROR_CONTACTA": "Si crees que esto es un error, contacta al administrador del sistema o solicita los permisos necesarios.",
     "SOLICITAR_PERMISO": "Solicitar Permiso",
-    "VOLVER_DASHBOARD": "Volver al Dashboard"
+    "VOLVER_DASHBOARD": "Volver al Dashboard",
+    "TITLE": "Acceso denegado"
   },
   "USER": {
     "HELP": "Ayuda",
@@ -4221,15 +4259,12 @@
       "tax": "Impuestos y Cumplimiento"
     },
     "hr": {
-      "absences": "Ausencias",
-      "dashboard": "Tablero de nómina",
       "employees": "Empleados",
-      "incidents": "Incidencias",
-      "loans": "Préstamos",
-      "process": "Procesar nómina",
-      "reports": "Reportes",
-      "self_service": "Autoservicio",
-      "severance": "Finiquitos"
+      "departments": "Departamentos",
+      "my_payslips": "Mis volantes",
+      "payroll_concepts": "Conceptos",
+      "payroll_parameters": "Parámetros de ley",
+      "payroll_runs": "Nóminas"
     },
     "intelligence": {
       "analytics": "Inteligencia y Planificación",
@@ -4482,7 +4517,8 @@
     "ANALYSIS": "Análisis",
     "DATASHEETS": "Hojas de datos",
     "ADMINISTRATION": "Administración",
-    "ROADMAP": "En preparación"
+    "ROADMAP": "En preparación",
+    "HR": "RR.HH. y Nómina"
   },
   "TRANSITION": {
     "PRECONDITIONS": "Precondiciones",
@@ -4537,5 +4573,255 @@
     "INBOX_ALL_CLEAR": "No tienes nada pendiente.",
     "INBOX_SECTION_CLEAR": "Al día.",
     "INBOX_OVERDUE": "Vencido"
+  },
+  "HCM": {
+    "DEPARTMENTS": {
+      "COST_CENTER": "Centro de costo",
+      "NAME": "Nombre",
+      "NEW": "Nuevo departamento",
+      "SAVE_FAILED": "No se pudo guardar el departamento.",
+      "TITLE": "Departamentos"
+    },
+    "EMPLOYEES": {
+      "DEPARTMENT": "Departamento",
+      "FORM": {
+        "ADD_PAY": "Registrar un cambio salarial",
+        "AFP": "AFP",
+        "BANK": "Cuenta para el pago",
+        "BANK_ACCOUNT": "Número de cuenta",
+        "BANK_ACCOUNT_TYPE": "Tipo de cuenta",
+        "BANK_NAME": "Banco",
+        "BASE_SALARY": "Salario base",
+        "CESANTIA": "Auxilio de cesantía",
+        "CONTRACT": "Tipo de contrato",
+        "CONTRACT_TYPE": {
+          "FIXED_TERM": "Tiempo determinado",
+          "INDEFINITE": "Indefinido",
+          "OCCASIONAL": "Ocasional"
+        },
+        "DOC": {
+          "CEDULA": "Cédula",
+          "PASSPORT": "Pasaporte",
+          "RNC": "RNC"
+        },
+        "DOCUMENT": "Documento",
+        "DOCUMENT_HELP": "Cifrado. Déjalo en blanco para no cambiarlo.",
+        "DOCUMENT_TYPE": "Tipo de documento",
+        "EFFECTIVE_FROM": "Vigente desde",
+        "EMAIL": "Correo",
+        "EMPLOYMENT": "Vínculo laboral",
+        "FIRST_NAME": "Nombres",
+        "FREQUENCY": "Frecuencia",
+        "FREQUENCY_LABEL": {
+          "BIWEEKLY": "Quincenal",
+          "MONTHLY": "Mensual",
+          "WEEKLY": "Semanal"
+        },
+        "IDENTITY": "Identidad fiscal y seguridad social",
+        "JOB_TITLE": "Puesto",
+        "LAST_DAY": "Último día laborado",
+        "LAST_NAME": "Apellidos",
+        "NO_PAY": "Sin salario registrado: la nómina no puede incluir a esta persona.",
+        "PAY_HISTORY": "Historial salarial",
+        "PAY_HISTORY_HELP": "Un aumento agrega una línea con su fecha de vigencia; nunca reescribe lo que una nómina pasada calculó.",
+        "PERSON": "Datos personales",
+        "PREAVISO": "Preaviso",
+        "PREVIEW_SEVERANCE": "Calcular",
+        "REGALIA": "Regalía proporcional",
+        "REVEAL": "Ver los datos sensibles",
+        "SAVED": "Empleado guardado.",
+        "SAVE_FAILED": "No se pudo guardar el empleado.",
+        "SEVERANCE": "Cálculo de prestaciones",
+        "SEVERANCE_FAILED": "No se pudo calcular la liquidación.",
+        "SEVERANCE_HELP": "Lo que costaría la desvinculación, antes de decidirla. Preaviso (Art. 76), cesantía (Art. 80), vacaciones (Art. 177) y regalía proporcional.",
+        "SEVERANCE_TOTAL": "Total",
+        "SFS": "ARS / SFS",
+        "TERMINATION_DATE": "Fecha de salida",
+        "TSS_NSS": "NSS (TSS)",
+        "VACATIONS": "Vacaciones"
+      },
+      "HIRE_DATE": "Fecha de ingreso",
+      "INCLUDE_TERMINATED": "Incluir desvinculados",
+      "JOB_TITLE": "Puesto",
+      "NAME": "Nombre",
+      "NEW": "Nuevo empleado",
+      "SEARCH": "Buscar por nombre, correo o puesto…",
+      "STATUS": "Estado",
+      "STATUS_LABEL": {
+        "ACTIVE": "Activo",
+        "SUSPENDED": "Suspendido",
+        "TERMINATED": "Desvinculado"
+      },
+      "TITLE": "Empleados"
+    }
+  },
+  "PAYROLL": {
+    "CONCEPTS": {
+      "ACTIVE": "Activo",
+      "CALCULATION": "Cálculo",
+      "CALC_LABEL": {
+        "FIXED": "Monto fijo",
+        "HOURLY": "Por horas",
+        "PERCENTAGE": "Porcentaje",
+        "STATUTORY": "De ley"
+      },
+      "CODE": "Código",
+      "INCLUDE_INACTIVE": "Incluir inactivos",
+      "NAME": "Nombre",
+      "NEW": "Nuevo concepto",
+      "RATE": "Tasa",
+      "RATE_HELP": "Fracción para un porcentaje (0,03) o multiplicador para horas (1,35).",
+      "SAVE_FAILED": "No se pudo guardar el concepto.",
+      "SYSTEM": "De ley",
+      "TAXABLE": "Gravable",
+      "TITLE": "Conceptos de nómina",
+      "TSS_BASE": "Cotiza a la TSS",
+      "TYPE": "Tipo",
+      "TYPE_LABEL": {
+        "DEDUCTION": "Deducción",
+        "EARNING": "Ingreso",
+        "EMPLOYER_CONTRIBUTION": "Aporte patronal"
+      }
+    },
+    "MY_PAYSLIPS": {
+      "PERIOD": "Período",
+      "TITLE": "Mis volantes de pago"
+    },
+    "PARAMETERS": {
+      "ACCUMULATED": "Impuesto acumulado",
+      "BASE": "Base",
+      "BASE_LABEL": {
+        "PAYROLL_UNCAPPED": "Nómina sin tope",
+        "SALARY_CAPPED": "Salario con tope"
+      },
+      "CAP": "Tope (× salario mínimo)",
+      "CAP_HELP": "Múltiplo del salario mínimo cotizable.",
+      "CONTRIBUTIONS": "Aportes de seguridad social",
+      "EFFECTIVE_FROM": "Vigente desde",
+      "EMPLOYEE_RATE": "Tasa del empleado",
+      "EMPLOYER_RATE": "Tasa patronal",
+      "EXPLANATION": "Una tasa es un hecho de un momento: nada se edita en su sitio. Un cambio es una fila nueva con su fecha de vigencia, para que una nómina recalculada después siga produciendo lo que produjo entonces.",
+      "FROM_ANNUAL": "Desde (anual)",
+      "IN_FORCE": "Vigencia",
+      "KEY": "Parámetro",
+      "KEY_LABEL": {
+        "BONUS_EMPLOYEE_LEVY_RATE": "Tasa INFOTEP sobre la regalía",
+        "ISR_ANNUAL_EXEMPT": "Exención anual del ISR",
+        "MIN_WAGE_COTIZABLE": "Salario mínimo cotizable"
+      },
+      "NEW_RATE": "Nueva tasa",
+      "NEW_REFERENCE": "Nuevo valor",
+      "RATE": "Tasa",
+      "REFERENCES": "Valores de referencia",
+      "REGIME": "Régimen",
+      "SAVE_FAILED": "No se pudo guardar el parámetro.",
+      "SUPERSEDE": "Sustituir",
+      "TAX_SCALE": "Escala del ISR",
+      "TAX_SCALE_HELP": "La escala es un conjunto: se reemplaza completa con una fecha de vigencia, no fila por fila.",
+      "TITLE": "Parámetros de ley",
+      "TO_ANNUAL": "Hasta (anual)",
+      "VALUE": "Valor"
+    },
+    "PAYSLIP": {
+      "AFP": "AFP",
+      "BASE_SALARY": "Salario base",
+      "DEDUCTIONS": "Deducciones",
+      "GROSS": "Devengado",
+      "ISR": "ISR",
+      "NET": "Neto",
+      "SFS": "SFS"
+    },
+    "RUNS": {
+      "ACTION_FAILED": "No se pudo completar la operación.",
+      "ADD_INPUT": "Agregar novedad",
+      "AMOUNT_OR_HOURS": "Monto / horas",
+      "APPROVE": "Aprobar",
+      "CALCULATE": "Calcular",
+      "CANCEL": "Anular",
+      "CONCEPT": "Concepto",
+      "CREATE": "Crear",
+      "CREATE_FAILED": "No se pudo crear la nómina.",
+      "DEDUCTIONS": "Deducciones",
+      "EMPLOYEE": "Empleado",
+      "EMPLOYER_COST": "Aportes patronales",
+      "EXPORT_SUIR": "Descargar SUIR",
+      "GROSS": "Devengado",
+      "INPUTS": "Novedades del período",
+      "INPUTS_HELP": "Horas extra, comisiones, descuentos: lo que cambia de un mes a otro. Se envían como conjunto completo antes de calcular.",
+      "INPUTS_SAVED": "Novedades guardadas.",
+      "MONTH": "Mes",
+      "NAME": "Nombre",
+      "NET": "Neto a pagar",
+      "NEW": "Nueva nómina",
+      "NOTE": "Nota",
+      "NO_EMPLOYEES_OR_CONCEPTS": "Hace falta al menos un empleado activo y un concepto para registrar novedades.",
+      "NO_INPUTS": "Sin novedades para este período.",
+      "NO_PAYSLIPS": "Todavía no se ha calculado la nómina.",
+      "PAY": "Marcar como pagada",
+      "PAYSLIPS": "Volantes de pago",
+      "PERIOD": "Período",
+      "SAVE_INPUTS": "Guardar novedades",
+      "STATUS": "Estado",
+      "STATUS_LABEL": {
+        "APPROVED": "Aprobada",
+        "CALCULATED": "Calculada",
+        "CANCELLED": "Anulada",
+        "DRAFT": "Borrador",
+        "PAID": "Pagada"
+      },
+      "TITLE": "Nóminas",
+      "TYPE": "Tipo",
+      "TYPE_LABEL": {
+        "ADJUSTMENT": "Ajuste",
+        "CHRISTMAS_BONUS": "Regalía pascual",
+        "REGULAR": "Ordinaria"
+      },
+      "YEAR": "Año"
+    },
+    "RUN_NOT_FOUND": "No se encontró la nómina."
+  },
+  "EXTENSIONS": {
+    "OPEN_RUNTIME": "Abrir ejecución",
+    "NONE_REGISTERED": "Todavía no hay extensiones registradas. Registra una a la derecha.",
+    "VERSION_COUNT": "{{count}} versión(es)",
+    "ENABLED": "Habilitada",
+    "REVOKE": "Revocar",
+    "REGISTER": "Registrar extensión",
+    "ADMIT_AND_REGISTER": "Admitir y registrar",
+    "ADMISSION_HINT": "El código pasa por el proceso de admisión (SBOM, heurísticas, políticas) y se firma antes de poder ejecutarse.",
+    "RUN_IN_SANDBOX": "Ejecutar en el aislamiento",
+    "EXECUTE": "Ejecutar",
+    "EXECUTION_TIME": "{{ms}} ms",
+    "METERED": "Medida",
+    "LOADING_RUNTIME": "Cargando extensiones…",
+    "NONE_ENABLED": "Este inquilino no tiene ninguna extensión de interfaz habilitada.",
+    "GO_TO_MANAGER": "Ir al gestor de extensiones →",
+    "VERSION_TAG": "v{{version}}",
+    "FIELDS": {
+      "NAME": "Nombre",
+      "VERSION": "Versión",
+      "DESCRIPTION": "Descripción",
+      "CAPABILITIES": "Capacidades (separadas por comas)",
+      "EGRESS": "Hosts de salida solicitados",
+      "CODE": "Código (lógica de servidor, se ejecuta en el aislamiento)",
+      "UI_CODE": "Código de interfaz (opcional, se ejecuta en el host de navegador aislado)"
+    },
+    "PLACEHOLDERS": {
+      "NAME": "mi-extension",
+      "CAPABILITIES": "egress:http",
+      "EGRESS": "api.taxjar.com",
+      "UI_CODE": "root.innerHTML = '<h3>Hola</h3>'; // usa virtex.api(), virtex.toast()",
+      "EXTENSION_NAME": "nombre de la extensión"
+    },
+    "STATUS": {
+      "ACTIVE": "Activa",
+      "DISABLED": "Deshabilitada",
+      "REVOKED": "Revocada"
+    },
+    "RUN_STATUS": {
+      "success": "Correcta",
+      "execution_failed": "Falló la ejecución"
+    },
+    "GRANTED_CAPABILITIES": "Capacidades concedidas"
   }
 }

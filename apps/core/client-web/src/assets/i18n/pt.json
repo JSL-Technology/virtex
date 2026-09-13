@@ -922,7 +922,8 @@
     },
     "VERIFY": "Verificar",
     "LOAD_FAILED": "Não foi possível carregar os dados. Tente novamente.",
-    "ACTIONS": "Ações"
+    "ACTIONS": "Ações",
+    "EDIT": "Editar"
   },
   "CONTACTS": {
     "CUSTOMERS": {
@@ -1486,6 +1487,30 @@
       "PLACEHOLDER": "Motivo do cancelamento",
       "TITLE": "Cancelar a fatura",
       "TOO_SHORT": "Informe um motivo com pelo menos 10 caracteres."
+    },
+    "APPROVE_PAYROLL_RUN": {
+      "MESSAGE": "Aprovar contabiliza o lançamento e fecha a folha a alterações. Um erro posterior só se corrige com uma folha de ajuste. Continuar?",
+      "TITLE": "Aprovar a folha"
+    },
+    "CANCEL_PAYROLL_RUN": {
+      "MESSAGE": "Anular esta folha? Não poderá ser reaberta.",
+      "TITLE": "Anular a folha"
+    },
+    "DELETE_DEPARTMENT": {
+      "MESSAGE": "Eliminar o departamento «{{name}}»?",
+      "TITLE": "Eliminar departamento"
+    },
+    "DELETE_DOCUMENT": {
+      "MESSAGE": "Eliminar «{{name}}»? Não pode ser desfeito.",
+      "TITLE": "Eliminar ficheiro"
+    },
+    "DELETE_FOLDER": {
+      "MESSAGE": "Eliminar «{{name}}» e tudo o que contém? Não pode ser desfeito.",
+      "TITLE": "Eliminar pasta"
+    },
+    "DELETE_PAYROLL_CONCEPT": {
+      "MESSAGE": "Eliminar o conceito «{{name}}»?",
+      "TITLE": "Eliminar conceito"
     }
   },
   "DOCUMENTS": {
@@ -1515,8 +1540,6 @@
       "FOLDER_NAME": "Nome da pasta",
       "DOWNLOAD": "Descarregar",
       "RENAME": "Mudar o nome",
-      "CONFIRM_DELETE_FOLDER": "Eliminar «{{name}}» e tudo o que contém? Não pode ser desfeito.",
-      "CONFIRM_DELETE_FILE": "Eliminar «{{name}}»? Não pode ser desfeito.",
       "ACTION_FAILED": "Não foi possível concluir a operação."
     },
     "SEARCH_IN_THIS_FOLDER": "Buscar nesta pasta...",
@@ -2371,7 +2394,12 @@
     "PURCHASING": "Compras",
     "REPORTS": "Relatórios",
     "SALES": "Vendas",
-    "SETTINGS": "Configurações"
+    "SETTINGS": "Configurações",
+    "HISTORY": {
+      "GROUP": "Histórico de navegação",
+      "BACK": "Voltar",
+      "FORWARD": "Avançar"
+    }
   },
   "NOTIFICATIONS": {
     "MANTENTE_DIA_ULTIMAS_ACTUALIZACIONES_ALERTAS_TU": "Acompanhe as últimas atualizações e alertas da sua conta.",
@@ -2612,7 +2640,18 @@
     "PURCHASE_ORDER_NEW": "Nova ordem de compra",
     "PURCHASE_ORDER_EDIT": "Ordem de compra",
     "PURCHASE_REQUISITION_NEW": "Nova requisição",
-    "PURCHASE_REQUISITION_EDIT": "Requisição"
+    "PURCHASE_REQUISITION_EDIT": "Requisição",
+    "DEPARTMENTS": "Departamentos",
+    "EMPLOYEES": "Colaboradores",
+    "EMPLOYEE_EDIT": "Colaborador",
+    "EMPLOYEE_NEW": "Novo colaborador",
+    "MY_PAYSLIPS": "Os meus recibos",
+    "PAYROLL_CONCEPTS": "Conceitos da folha",
+    "PAYROLL_PARAMETERS": "Parâmetros legais",
+    "PAYROLL_RUN": "Folha de pagamento",
+    "PAYROLL_RUNS": "Folhas de pagamento",
+    "EXTENSIONS": "Extensões",
+    "EXTENSIONS_RUNTIME": "Execução de extensões"
   },
   "PASSWORD_STRENGTH": {
     "WEAK": "Fraca"
@@ -3081,7 +3120,10 @@
       "SUBTOTAL": "Subtotal",
       "TAX_AT_RATE": "Impostos ({{rate}})",
       "TAX_NEEDS_CONFIGURATION": "Este país calcula o imposto por estado ou município. Configure-o em Configurações → Impostos antes de cobrar.",
-      "TOTAL_PAGAR": "Total a Pagar"
+      "TOTAL_PAGAR": "Total a Pagar",
+      "LOAD_PRODUCTS_ERROR": "Não foi possível carregar o catálogo de produtos.",
+      "SALE_COMPLETED": "Venda concluída.",
+      "SALE_ERROR": "Não foi possível concluir a venda."
     }
   },
   "SEARCH": {
@@ -3964,7 +4006,8 @@
     "RUTA_SOLICITADA": "Caminho solicitado:",
     "SI_CREES_ESTO_ES_ERROR_CONTACTA": "Se você acha que isso é um erro, fale com o administrador do sistema ou solicite as permissões necessárias.",
     "SOLICITAR_PERMISO": "Solicitar Permissão",
-    "VOLVER_DASHBOARD": "Voltar ao Painel"
+    "VOLVER_DASHBOARD": "Voltar ao Painel",
+    "TITLE": "Acesso negado"
   },
   "USER": {
     "HELP": "Ajuda",
@@ -4216,15 +4259,12 @@
       "tax": "Tributos e Conformidade"
     },
     "hr": {
-      "absences": "Ausências",
-      "dashboard": "Painel da folha",
-      "employees": "Funcionários",
-      "incidents": "Ocorrências",
-      "loans": "Empréstimos",
-      "process": "Processar folha",
-      "reports": "Relatórios",
-      "self_service": "Autoatendimento",
-      "severance": "Rescisões"
+      "employees": "Colaboradores",
+      "departments": "Departamentos",
+      "my_payslips": "Os meus recibos",
+      "payroll_concepts": "Conceitos",
+      "payroll_parameters": "Parâmetros legais",
+      "payroll_runs": "Folhas"
     },
     "intelligence": {
       "analytics": "Inteligência e Planejamento",
@@ -4259,7 +4299,8 @@
       "suppliers": "Fornecedores",
       "taxes": "Impostos",
       "uom": "Unidades de medida",
-      "warehouses": "Depósitos"
+      "warehouses": "Depósitos",
+      "extensions": "Extensões"
     },
     "mobile": {
       "approvals": "Aprovações",
@@ -4476,7 +4517,8 @@
     "ANALYSIS": "Análise",
     "DATASHEETS": "Folhas de dados",
     "ADMINISTRATION": "Administração",
-    "ROADMAP": "Em preparação"
+    "ROADMAP": "Em preparação",
+    "HR": "RH e Salários"
   },
   "TRANSITION": {
     "PRECONDITIONS": "Precondições",
@@ -4531,5 +4573,255 @@
     "INBOX_ALL_CLEAR": "Você não tem nada pendente.",
     "INBOX_SECTION_CLEAR": "Em dia.",
     "INBOX_OVERDUE": "Vencido"
+  },
+  "HCM": {
+    "DEPARTMENTS": {
+      "COST_CENTER": "Centro de custo",
+      "NAME": "Nome",
+      "NEW": "Novo departamento",
+      "SAVE_FAILED": "Não foi possível guardar o departamento.",
+      "TITLE": "Departamentos"
+    },
+    "EMPLOYEES": {
+      "DEPARTMENT": "Departamento",
+      "FORM": {
+        "ADD_PAY": "Registar uma alteração salarial",
+        "AFP": "Fundo de pensões (AFP)",
+        "BANK": "Conta para o pagamento",
+        "BANK_ACCOUNT": "Número da conta",
+        "BANK_ACCOUNT_TYPE": "Tipo de conta",
+        "BANK_NAME": "Banco",
+        "BASE_SALARY": "Salário base",
+        "CESANTIA": "Indemnização",
+        "CONTRACT": "Tipo de contrato",
+        "CONTRACT_TYPE": {
+          "FIXED_TERM": "Prazo certo",
+          "INDEFINITE": "Indeterminado",
+          "OCCASIONAL": "Ocasional"
+        },
+        "DOC": {
+          "CEDULA": "Cédula",
+          "PASSPORT": "Passaporte",
+          "RNC": "RNC"
+        },
+        "DOCUMENT": "Documento",
+        "DOCUMENT_HELP": "Cifrado. Deixe em branco para manter o atual.",
+        "DOCUMENT_TYPE": "Tipo de documento",
+        "EFFECTIVE_FROM": "Vigente desde",
+        "EMAIL": "E-mail",
+        "EMPLOYMENT": "Vínculo",
+        "FIRST_NAME": "Nome",
+        "FREQUENCY": "Frequência",
+        "FREQUENCY_LABEL": {
+          "BIWEEKLY": "Quinzenal",
+          "MONTHLY": "Mensal",
+          "WEEKLY": "Semanal"
+        },
+        "IDENTITY": "Identidade fiscal e segurança social",
+        "JOB_TITLE": "Cargo",
+        "LAST_DAY": "Último dia trabalhado",
+        "LAST_NAME": "Apelidos",
+        "NO_PAY": "Sem salário registado: a folha não pode incluir esta pessoa.",
+        "PAY_HISTORY": "Histórico salarial",
+        "PAY_HISTORY_HELP": "Um aumento acrescenta uma linha com a data em que passa a vigorar; nunca reescreve o que uma folha passada calculou.",
+        "PERSON": "Dados pessoais",
+        "PREAVISO": "Aviso prévio",
+        "PREVIEW_SEVERANCE": "Calcular",
+        "REGALIA": "Subsídio proporcional",
+        "REVEAL": "Ver os dados sensíveis",
+        "SAVED": "Colaborador guardado.",
+        "SAVE_FAILED": "Não foi possível guardar o colaborador.",
+        "SEVERANCE": "Cálculo de indemnização",
+        "SEVERANCE_FAILED": "Não foi possível calcular a indemnização.",
+        "SEVERANCE_HELP": "Quanto custaria o desligamento, antes de ser decidido. Aviso prévio (Art. 76), indemnização (Art. 80), férias (Art. 177) e subsídio proporcional.",
+        "SEVERANCE_TOTAL": "Total",
+        "SFS": "Fundo de saúde (ARS/SFS)",
+        "TERMINATION_DATE": "Data de saída",
+        "TSS_NSS": "NSS (TSS)",
+        "VACATIONS": "Férias"
+      },
+      "HIRE_DATE": "Admissão",
+      "INCLUDE_TERMINATED": "Incluir quem já saiu",
+      "JOB_TITLE": "Cargo",
+      "NAME": "Nome",
+      "NEW": "Novo colaborador",
+      "SEARCH": "Procurar por nome, e-mail ou cargo…",
+      "STATUS": "Situação",
+      "STATUS_LABEL": {
+        "ACTIVE": "Ativo",
+        "SUSPENDED": "Suspenso",
+        "TERMINATED": "Desligado"
+      },
+      "TITLE": "Colaboradores"
+    }
+  },
+  "PAYROLL": {
+    "CONCEPTS": {
+      "ACTIVE": "Ativo",
+      "CALCULATION": "Cálculo",
+      "CALC_LABEL": {
+        "FIXED": "Valor fixo",
+        "HOURLY": "Por horas",
+        "PERCENTAGE": "Percentagem",
+        "STATUTORY": "Legal"
+      },
+      "CODE": "Código",
+      "INCLUDE_INACTIVE": "Incluir inativos",
+      "NAME": "Nome",
+      "NEW": "Novo conceito",
+      "RATE": "Taxa",
+      "RATE_HELP": "Uma fração para uma percentagem (0,03) ou um multiplicador para horas (1,35).",
+      "SAVE_FAILED": "Não foi possível guardar o conceito.",
+      "SYSTEM": "Legal",
+      "TAXABLE": "Tributável",
+      "TITLE": "Conceitos da folha",
+      "TSS_BASE": "Conta para a TSS",
+      "TYPE": "Tipo",
+      "TYPE_LABEL": {
+        "DEDUCTION": "Desconto",
+        "EARNING": "Rendimento",
+        "EMPLOYER_CONTRIBUTION": "Encargo patronal"
+      }
+    },
+    "MY_PAYSLIPS": {
+      "PERIOD": "Período",
+      "TITLE": "Os meus recibos"
+    },
+    "PARAMETERS": {
+      "ACCUMULATED": "Imposto acumulado",
+      "BASE": "Base",
+      "BASE_LABEL": {
+        "PAYROLL_UNCAPPED": "Folha sem teto",
+        "SALARY_CAPPED": "Salário com teto"
+      },
+      "CAP": "Teto (× salário mínimo)",
+      "CAP_HELP": "Um múltiplo do salário mínimo contributivo.",
+      "CONTRIBUTIONS": "Contribuições para a segurança social",
+      "EFFECTIVE_FROM": "Vigente desde",
+      "EMPLOYEE_RATE": "Taxa do colaborador",
+      "EMPLOYER_RATE": "Taxa patronal",
+      "EXPLANATION": "Uma taxa é um facto de um momento: nada aqui se edita no lugar. Uma alteração é uma linha nova com a data em que passa a vigorar, para que uma folha recalculada depois continue a produzir o que produziu então.",
+      "FROM_ANNUAL": "De (anual)",
+      "IN_FORCE": "Vigência",
+      "KEY": "Parâmetro",
+      "KEY_LABEL": {
+        "BONUS_EMPLOYEE_LEVY_RATE": "Taxa INFOTEP sobre o subsídio",
+        "ISR_ANNUAL_EXEMPT": "Isenção anual de IRS",
+        "MIN_WAGE_COTIZABLE": "Salário mínimo contributivo"
+      },
+      "NEW_RATE": "Nova taxa",
+      "NEW_REFERENCE": "Novo valor",
+      "RATE": "Taxa",
+      "REFERENCES": "Valores de referência",
+      "REGIME": "Regime",
+      "SAVE_FAILED": "Não foi possível guardar o parâmetro.",
+      "SUPERSEDE": "Substituir",
+      "TAX_SCALE": "Escalão de IRS",
+      "TAX_SCALE_HELP": "Um escalão é um conjunto: substitui-se por inteiro numa data, não linha a linha.",
+      "TITLE": "Parâmetros legais",
+      "TO_ANNUAL": "Até (anual)",
+      "VALUE": "Valor"
+    },
+    "PAYSLIP": {
+      "AFP": "Pensões",
+      "BASE_SALARY": "Salário base",
+      "DEDUCTIONS": "Descontos",
+      "GROSS": "Bruto",
+      "ISR": "IRS",
+      "NET": "Líquido",
+      "SFS": "Saúde"
+    },
+    "RUNS": {
+      "ACTION_FAILED": "Não foi possível concluir a operação.",
+      "ADD_INPUT": "Adicionar variável",
+      "AMOUNT_OR_HOURS": "Valor / horas",
+      "APPROVE": "Aprovar",
+      "CALCULATE": "Calcular",
+      "CANCEL": "Anular",
+      "CONCEPT": "Conceito",
+      "CREATE": "Criar",
+      "CREATE_FAILED": "Não foi possível criar a folha.",
+      "DEDUCTIONS": "Descontos",
+      "EMPLOYEE": "Colaborador",
+      "EMPLOYER_COST": "Encargos patronais",
+      "EXPORT_SUIR": "Descarregar SUIR",
+      "GROSS": "Bruto",
+      "INPUTS": "Variáveis do período",
+      "INPUTS_HELP": "Horas extra, comissões, descontos: o que muda de um mês para o outro. Enviadas como conjunto completo antes de calcular.",
+      "INPUTS_SAVED": "Variáveis guardadas.",
+      "MONTH": "Mês",
+      "NAME": "Nome",
+      "NET": "Líquido a pagar",
+      "NEW": "Nova folha",
+      "NOTE": "Nota",
+      "NO_EMPLOYEES_OR_CONCEPTS": "É preciso pelo menos um colaborador ativo e um conceito para registar variáveis.",
+      "NO_INPUTS": "Sem variáveis neste período.",
+      "NO_PAYSLIPS": "A folha ainda não foi calculada.",
+      "PAY": "Marcar como paga",
+      "PAYSLIPS": "Recibos de vencimento",
+      "PERIOD": "Período",
+      "SAVE_INPUTS": "Guardar variáveis",
+      "STATUS": "Situação",
+      "STATUS_LABEL": {
+        "APPROVED": "Aprovada",
+        "CALCULATED": "Calculada",
+        "CANCELLED": "Anulada",
+        "DRAFT": "Rascunho",
+        "PAID": "Paga"
+      },
+      "TITLE": "Folhas de pagamento",
+      "TYPE": "Tipo",
+      "TYPE_LABEL": {
+        "ADJUSTMENT": "Ajuste",
+        "CHRISTMAS_BONUS": "Subsídio de Natal",
+        "REGULAR": "Regular"
+      },
+      "YEAR": "Ano"
+    },
+    "RUN_NOT_FOUND": "A folha de pagamento não foi encontrada."
+  },
+  "EXTENSIONS": {
+    "OPEN_RUNTIME": "Abrir execução",
+    "NONE_REGISTERED": "Ainda não há extensões registadas. Registe uma à direita.",
+    "VERSION_COUNT": "{{count}} versão(ões)",
+    "ENABLED": "Ativada",
+    "REVOKE": "Revogar",
+    "REGISTER": "Registar extensão",
+    "ADMIT_AND_REGISTER": "Admitir e registar",
+    "ADMISSION_HINT": "O código passa pelo processo de admissão (SBOM, heurísticas, políticas) e é assinado antes de poder ser executado.",
+    "RUN_IN_SANDBOX": "Executar no isolamento",
+    "EXECUTE": "Executar",
+    "EXECUTION_TIME": "{{ms}} ms",
+    "METERED": "Medida",
+    "LOADING_RUNTIME": "A carregar extensões…",
+    "NONE_ENABLED": "Este inquilino não tem nenhuma extensão de interface ativada.",
+    "GO_TO_MANAGER": "Ir para o gestor de extensões →",
+    "VERSION_TAG": "v{{version}}",
+    "FIELDS": {
+      "NAME": "Nome",
+      "VERSION": "Versão",
+      "DESCRIPTION": "Descrição",
+      "CAPABILITIES": "Capacidades (separadas por vírgulas)",
+      "EGRESS": "Anfitriões de saída solicitados",
+      "CODE": "Código (lógica de servidor, executa no isolamento)",
+      "UI_CODE": "Código de interface (opcional, executa no host de navegador isolado)"
+    },
+    "PLACEHOLDERS": {
+      "NAME": "a-minha-extensao",
+      "CAPABILITIES": "egress:http",
+      "EGRESS": "api.taxjar.com",
+      "UI_CODE": "root.innerHTML = '<h3>Olá</h3>'; // usa virtex.api(), virtex.toast()",
+      "EXTENSION_NAME": "nome da extensão"
+    },
+    "STATUS": {
+      "ACTIVE": "Ativa",
+      "DISABLED": "Desativada",
+      "REVOKED": "Revogada"
+    },
+    "RUN_STATUS": {
+      "success": "Bem-sucedida",
+      "execution_failed": "Falhou a execução"
+    },
+    "GRANTED_CAPABILITIES": "Capacidades concedidas"
   }
 }

@@ -922,7 +922,8 @@
     },
     "VERIFY": "Verify",
     "LOAD_FAILED": "The data could not be loaded. Try again.",
-    "ACTIONS": "Actions"
+    "ACTIONS": "Actions",
+    "EDIT": "Edit"
   },
   "CONTACTS": {
     "CUSTOMERS": {
@@ -1486,6 +1487,30 @@
       "PLACEHOLDER": "Reason for voiding",
       "TITLE": "Void the bill",
       "TOO_SHORT": "Give a reason of at least 10 characters."
+    },
+    "APPROVE_PAYROLL_RUN": {
+      "MESSAGE": "Approving posts the accounting entry and closes the run to edits. A mistake found afterwards can only be fixed by an adjustment run. Continue?",
+      "TITLE": "Approve the payroll run"
+    },
+    "CANCEL_PAYROLL_RUN": {
+      "MESSAGE": "Cancel this run? It cannot be reopened.",
+      "TITLE": "Cancel the payroll run"
+    },
+    "DELETE_DEPARTMENT": {
+      "MESSAGE": "Delete the department “{{name}}”?",
+      "TITLE": "Delete department"
+    },
+    "DELETE_DOCUMENT": {
+      "MESSAGE": "Delete “{{name}}”? This cannot be undone.",
+      "TITLE": "Delete file"
+    },
+    "DELETE_FOLDER": {
+      "MESSAGE": "Delete “{{name}}” and everything in it? This cannot be undone.",
+      "TITLE": "Delete folder"
+    },
+    "DELETE_PAYROLL_CONCEPT": {
+      "MESSAGE": "Delete the concept “{{name}}”?",
+      "TITLE": "Delete concept"
     }
   },
   "DOCUMENTS": {
@@ -1515,8 +1540,6 @@
       "FOLDER_NAME": "Folder name",
       "DOWNLOAD": "Download",
       "RENAME": "Rename",
-      "CONFIRM_DELETE_FOLDER": "Delete “{{name}}” and everything in it? This cannot be undone.",
-      "CONFIRM_DELETE_FILE": "Delete “{{name}}”? This cannot be undone.",
       "ACTION_FAILED": "The operation could not be completed."
     },
     "SEARCH_IN_THIS_FOLDER": "Search in this folder...",
@@ -2371,7 +2394,12 @@
     "PURCHASING": "Purchasing (P2P)",
     "REPORTS": "Reports",
     "SALES": "Sales Reports",
-    "SETTINGS": "Settings"
+    "SETTINGS": "Settings",
+    "HISTORY": {
+      "GROUP": "Navigation history",
+      "BACK": "Back",
+      "FORWARD": "Forward"
+    }
   },
   "NOTIFICATIONS": {
     "MANTENTE_DIA_ULTIMAS_ACTUALIZACIONES_ALERTAS_TU": "Keep up with the latest updates and alerts on your account.",
@@ -2614,7 +2642,16 @@
     "PURCHASE_ORDER_NEW": "New purchase order",
     "PURCHASE_ORDER_EDIT": "Purchase order",
     "PURCHASE_REQUISITION_NEW": "New requisition",
-    "PURCHASE_REQUISITION_EDIT": "Requisition"
+    "PURCHASE_REQUISITION_EDIT": "Requisition",
+    "DEPARTMENTS": "Departments",
+    "EMPLOYEES": "Employees",
+    "EMPLOYEE_EDIT": "Employee",
+    "EMPLOYEE_NEW": "New employee",
+    "MY_PAYSLIPS": "My payslips",
+    "PAYROLL_CONCEPTS": "Payroll concepts",
+    "PAYROLL_PARAMETERS": "Statutory parameters",
+    "PAYROLL_RUN": "Payroll run",
+    "PAYROLL_RUNS": "Payroll runs"
   },
   "PASSWORD_STRENGTH": {
     "WEAK": "Weak"
@@ -3969,7 +4006,8 @@
     "RUTA_SOLICITADA": "Requested path:",
     "SI_CREES_ESTO_ES_ERROR_CONTACTA": "If you believe this is a mistake, contact your system administrator or request the permissions you need.",
     "SOLICITAR_PERMISO": "Request Permission",
-    "VOLVER_DASHBOARD": "Back to the Dashboard"
+    "VOLVER_DASHBOARD": "Back to the Dashboard",
+    "TITLE": "Access denied"
   },
   "USER": {
     "HELP": "Help",
@@ -4221,15 +4259,12 @@
       "tax": "Tax & Compliance"
     },
     "hr": {
-      "absences": "Absences",
-      "dashboard": "Payroll dashboard",
       "employees": "Employees",
-      "incidents": "Payroll inputs",
-      "loans": "Loans",
-      "process": "Run payroll",
-      "reports": "Reports",
-      "self_service": "Self-service",
-      "severance": "Final settlements"
+      "departments": "Departments",
+      "my_payslips": "My payslips",
+      "payroll_concepts": "Concepts",
+      "payroll_parameters": "Statutory parameters",
+      "payroll_runs": "Payroll runs"
     },
     "intelligence": {
       "analytics": "Intelligence & Planning",
@@ -4482,7 +4517,8 @@
     "ANALYSIS": "Analysis",
     "DATASHEETS": "Datasheets",
     "ADMINISTRATION": "Administration",
-    "ROADMAP": "In preparation"
+    "ROADMAP": "In preparation",
+    "HR": "People & Payroll"
   },
   "TRANSITION": {
     "PRECONDITIONS": "Preconditions",
@@ -4537,5 +4573,255 @@
     "INBOX_ALL_CLEAR": "You have nothing pending.",
     "INBOX_SECTION_CLEAR": "All clear.",
     "INBOX_OVERDUE": "Overdue"
+  },
+  "HCM": {
+    "DEPARTMENTS": {
+      "COST_CENTER": "Cost centre",
+      "NAME": "Name",
+      "NEW": "New department",
+      "SAVE_FAILED": "The department could not be saved.",
+      "TITLE": "Departments"
+    },
+    "EMPLOYEES": {
+      "DEPARTMENT": "Department",
+      "FORM": {
+        "ADD_PAY": "Record a pay change",
+        "AFP": "Pension fund (AFP)",
+        "BANK": "Account wages are paid into",
+        "BANK_ACCOUNT": "Account number",
+        "BANK_ACCOUNT_TYPE": "Account type",
+        "BANK_NAME": "Bank",
+        "BASE_SALARY": "Base salary",
+        "CESANTIA": "Severance",
+        "CONTRACT": "Contract type",
+        "CONTRACT_TYPE": {
+          "FIXED_TERM": "Fixed term",
+          "INDEFINITE": "Indefinite",
+          "OCCASIONAL": "Occasional"
+        },
+        "DOC": {
+          "CEDULA": "Cédula",
+          "PASSPORT": "Passport",
+          "RNC": "RNC"
+        },
+        "DOCUMENT": "Document",
+        "DOCUMENT_HELP": "Encrypted. Leave blank to keep the current one.",
+        "DOCUMENT_TYPE": "Document type",
+        "EFFECTIVE_FROM": "Effective from",
+        "EMAIL": "E-mail",
+        "EMPLOYMENT": "Employment",
+        "FIRST_NAME": "First name",
+        "FREQUENCY": "Frequency",
+        "FREQUENCY_LABEL": {
+          "BIWEEKLY": "Fortnightly",
+          "MONTHLY": "Monthly",
+          "WEEKLY": "Weekly"
+        },
+        "IDENTITY": "Fiscal identity and social security",
+        "JOB_TITLE": "Job title",
+        "LAST_DAY": "Last day worked",
+        "LAST_NAME": "Last name",
+        "NO_PAY": "No salary on record: payroll cannot include this person.",
+        "PAY_HISTORY": "Pay history",
+        "PAY_HISTORY_HELP": "A raise adds a line with the date it takes effect; it never rewrites what a past payroll was computed on.",
+        "PERSON": "Personal details",
+        "PREAVISO": "Notice",
+        "PREVIEW_SEVERANCE": "Calculate",
+        "REGALIA": "Proportional bonus",
+        "REVEAL": "Show the sensitive fields",
+        "SAVED": "Employee saved.",
+        "SAVE_FAILED": "The employee could not be saved.",
+        "SEVERANCE": "Severance calculation",
+        "SEVERANCE_FAILED": "The severance could not be calculated.",
+        "SEVERANCE_HELP": "What ending the employment would cost, before it is decided. Notice (Art. 76), severance (Art. 80), holiday (Art. 177) and the proportional year-end bonus.",
+        "SEVERANCE_TOTAL": "Total",
+        "SFS": "Health fund (ARS/SFS)",
+        "TERMINATION_DATE": "Leaving date",
+        "TSS_NSS": "NSS (TSS)",
+        "VACATIONS": "Holiday"
+      },
+      "HIRE_DATE": "Hired",
+      "INCLUDE_TERMINATED": "Include people who have left",
+      "JOB_TITLE": "Job title",
+      "NAME": "Name",
+      "NEW": "New employee",
+      "SEARCH": "Search by name, e-mail or job title…",
+      "STATUS": "Status",
+      "STATUS_LABEL": {
+        "ACTIVE": "Active",
+        "SUSPENDED": "Suspended",
+        "TERMINATED": "Left"
+      },
+      "TITLE": "Employees"
+    }
+  },
+  "PAYROLL": {
+    "CONCEPTS": {
+      "ACTIVE": "Active",
+      "CALCULATION": "Calculation",
+      "CALC_LABEL": {
+        "FIXED": "Fixed amount",
+        "HOURLY": "Hourly",
+        "PERCENTAGE": "Percentage",
+        "STATUTORY": "Statutory"
+      },
+      "CODE": "Code",
+      "INCLUDE_INACTIVE": "Include inactive",
+      "NAME": "Name",
+      "NEW": "New concept",
+      "RATE": "Rate",
+      "RATE_HELP": "A fraction for a percentage (0.03) or a multiplier for hours (1.35).",
+      "SAVE_FAILED": "The concept could not be saved.",
+      "SYSTEM": "Statutory",
+      "TAXABLE": "Taxable",
+      "TITLE": "Payroll concepts",
+      "TSS_BASE": "Counts towards TSS",
+      "TYPE": "Type",
+      "TYPE_LABEL": {
+        "DEDUCTION": "Deduction",
+        "EARNING": "Earning",
+        "EMPLOYER_CONTRIBUTION": "Employer contribution"
+      }
+    },
+    "MY_PAYSLIPS": {
+      "PERIOD": "Period",
+      "TITLE": "My payslips"
+    },
+    "PARAMETERS": {
+      "ACCUMULATED": "Accumulated tax",
+      "BASE": "Base",
+      "BASE_LABEL": {
+        "PAYROLL_UNCAPPED": "Payroll, uncapped",
+        "SALARY_CAPPED": "Salary, capped"
+      },
+      "CAP": "Cap (× minimum wage)",
+      "CAP_HELP": "A multiple of the minimum contributory wage.",
+      "CONTRIBUTIONS": "Social-security contributions",
+      "EFFECTIVE_FROM": "Effective from",
+      "EMPLOYEE_RATE": "Employee rate",
+      "EMPLOYER_RATE": "Employer rate",
+      "EXPLANATION": "A rate is a fact about a moment: nothing here is edited in place. A change is a new row with the date it takes effect, so a payroll recomputed later still produces what it produced then.",
+      "FROM_ANNUAL": "From (annual)",
+      "IN_FORCE": "In force",
+      "KEY": "Parameter",
+      "KEY_LABEL": {
+        "BONUS_EMPLOYEE_LEVY_RATE": "Training levy on the year-end bonus",
+        "ISR_ANNUAL_EXEMPT": "Annual income-tax exemption",
+        "MIN_WAGE_COTIZABLE": "Minimum contributory wage"
+      },
+      "NEW_RATE": "New rate",
+      "NEW_REFERENCE": "New value",
+      "RATE": "Rate",
+      "REFERENCES": "Reference values",
+      "REGIME": "Regime",
+      "SAVE_FAILED": "The parameter could not be saved.",
+      "SUPERSEDE": "Supersede",
+      "TAX_SCALE": "Income-tax scale",
+      "TAX_SCALE_HELP": "A scale is a set: it is replaced whole as of a date, not row by row.",
+      "TITLE": "Statutory parameters",
+      "TO_ANNUAL": "To (annual)",
+      "VALUE": "Value"
+    },
+    "PAYSLIP": {
+      "AFP": "Pension",
+      "BASE_SALARY": "Base salary",
+      "DEDUCTIONS": "Deductions",
+      "GROSS": "Gross",
+      "ISR": "Income tax",
+      "NET": "Net",
+      "SFS": "Health"
+    },
+    "RUNS": {
+      "ACTION_FAILED": "The operation could not be completed.",
+      "ADD_INPUT": "Add an input",
+      "AMOUNT_OR_HOURS": "Amount / hours",
+      "APPROVE": "Approve",
+      "CALCULATE": "Calculate",
+      "CANCEL": "Cancel",
+      "CONCEPT": "Concept",
+      "CREATE": "Create",
+      "CREATE_FAILED": "The run could not be created.",
+      "DEDUCTIONS": "Deductions",
+      "EMPLOYEE": "Employee",
+      "EMPLOYER_COST": "Employer contributions",
+      "EXPORT_SUIR": "Download SUIR",
+      "GROSS": "Gross",
+      "INPUTS": "This period’s variable inputs",
+      "INPUTS_HELP": "Overtime, commission, a deduction: what changes from one month to the next. Submitted as a whole set before calculating.",
+      "INPUTS_SAVED": "Inputs saved.",
+      "MONTH": "Month",
+      "NAME": "Name",
+      "NET": "Net to pay",
+      "NEW": "New run",
+      "NOTE": "Note",
+      "NO_EMPLOYEES_OR_CONCEPTS": "At least one active employee and one concept are needed to record inputs.",
+      "NO_INPUTS": "Nothing variable this period.",
+      "NO_PAYSLIPS": "The run has not been calculated yet.",
+      "PAY": "Mark as paid",
+      "PAYSLIPS": "Payslips",
+      "PERIOD": "Period",
+      "SAVE_INPUTS": "Save inputs",
+      "STATUS": "Status",
+      "STATUS_LABEL": {
+        "APPROVED": "Approved",
+        "CALCULATED": "Calculated",
+        "CANCELLED": "Cancelled",
+        "DRAFT": "Draft",
+        "PAID": "Paid"
+      },
+      "TITLE": "Payroll runs",
+      "TYPE": "Type",
+      "TYPE_LABEL": {
+        "ADJUSTMENT": "Adjustment",
+        "CHRISTMAS_BONUS": "Year-end bonus",
+        "REGULAR": "Regular"
+      },
+      "YEAR": "Year"
+    },
+    "RUN_NOT_FOUND": "The payroll run was not found."
+  },
+  "EXTENSIONS": {
+    "OPEN_RUNTIME": "Open runtime",
+    "NONE_REGISTERED": "No extensions registered yet. Register one on the right.",
+    "VERSION_COUNT": "{{count}} version(s)",
+    "ENABLED": "Enabled",
+    "REVOKE": "Revoke",
+    "REGISTER": "Register extension",
+    "ADMIT_AND_REGISTER": "Admit & register",
+    "ADMISSION_HINT": "The code passes the admission pipeline (SBOM, heuristics, policy) and is signed before it can run.",
+    "RUN_IN_SANDBOX": "Run in sandbox",
+    "EXECUTE": "Execute",
+    "EXECUTION_TIME": "{{ms}} ms",
+    "METERED": "Metered",
+    "LOADING_RUNTIME": "Loading extensions…",
+    "NONE_ENABLED": "No UI extensions are enabled for this tenant.",
+    "GO_TO_MANAGER": "Go to the extensions manager →",
+    "VERSION_TAG": "v{{version}}",
+    "FIELDS": {
+      "NAME": "Name",
+      "VERSION": "Version",
+      "DESCRIPTION": "Description",
+      "CAPABILITIES": "Capabilities (comma-separated)",
+      "EGRESS": "Requested egress hosts",
+      "CODE": "Code (server logic, runs in the isolate)",
+      "UI_CODE": "UI code (optional, runs in the sandboxed browser host)"
+    },
+    "PLACEHOLDERS": {
+      "NAME": "my-extension",
+      "CAPABILITIES": "egress:http",
+      "EGRESS": "api.taxjar.com",
+      "UI_CODE": "root.innerHTML = '<h3>Hello</h3>'; // use virtex.api(), virtex.toast()",
+      "EXTENSION_NAME": "extension name"
+    },
+    "STATUS": {
+      "ACTIVE": "Active",
+      "DISABLED": "Disabled",
+      "REVOKED": "Revoked"
+    },
+    "RUN_STATUS": {
+      "success": "Succeeded",
+      "execution_failed": "Execution failed"
+    },
+    "GRANTED_CAPABILITIES": "Granted capabilities"
   }
 }

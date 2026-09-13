@@ -8,6 +8,7 @@ import { TESORERIA_MODULE, TESORERIA_MASTERS_MODULE } from './manifests/tesoreri
 import { CONTABILIDAD_MODULE } from './manifests/contabilidad.manifest';
 import { ANALISIS_MODULE, DATASHEETS_MODULE } from './manifests/analisis.manifest';
 import { ADMINISTRACION_MODULE, ROADMAP_MODULE } from './manifests/administracion.manifest';
+import { RRHH_MODULE } from './manifests/rrhh.manifest';
 
 /**
  * Every module the ERP has. The one list.
@@ -24,6 +25,7 @@ export const MODULES: ModuleManifest[] = [
   TESORERIA_MODULE,
   TESORERIA_MASTERS_MODULE,
   CONTABILIDAD_MODULE,
+  RRHH_MODULE,
   ANALISIS_MODULE,
   DATASHEETS_MODULE,
   ADMINISTRACION_MODULE,

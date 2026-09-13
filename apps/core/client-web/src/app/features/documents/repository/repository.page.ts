@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import {
   LucideAngularModule,
   Folder,
@@ -17,6 +17,7 @@ import {
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 import { NotificationService } from '../../../core/services/notification';
+import { DialogService } from '../../../core/services/dialog.service';
 import {
   DocumentNode,
   DocumentsService,
@@ -44,7 +45,7 @@ import {
 export class RepositoryPage {
   private readonly documents = inject(DocumentsService);
   private readonly notifications = inject(NotificationService);
-  private readonly translate = inject(TranslateService);
+  private readonly dialog = inject(DialogService);
 
   protected readonly FolderIcon = Folder;
   protected readonly UploadIcon = Upload;
@@ -168,12 +169,17 @@ export class RepositoryPage {
     });
   }
 
-  remove(node: DocumentNode): void {
+  async remove(node: DocumentNode): Promise<void> {
     // A folder takes everything under it, so the confirmation says which it is.
-    const key = node.kind === 'FOLDER'
-      ? 'DOCUMENTS.REPOSITORY.CONFIRM_DELETE_FOLDER'
-      : 'DOCUMENTS.REPOSITORY.CONFIRM_DELETE_FILE';
-    if (!window.confirm(this.translate.instant(key, { name: node.name }))) return;
+    const dialogKey = node.kind === 'FOLDER' ? 'DIALOG.DELETE_FOLDER' : 'DIALOG.DELETE_DOCUMENT';
+    const confirmed = await this.dialog.confirm({
+      title: `${dialogKey}.TITLE`,
+      message: `${dialogKey}.MESSAGE`,
+      messageParams: { name: node.name },
+      confirmText: 'COMMON.DELETE',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
 
     this.busy.set(true);
     this.documents.remove(node.id).subscribe({

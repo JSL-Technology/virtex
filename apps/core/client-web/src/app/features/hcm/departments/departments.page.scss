@@ -1,0 +1,20 @@
+@use '../../../../assets/styles/list-page' as list;
+
+:host {
+  @include list.list-page;
+
+  .inline-row {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+    padding: var(--space-3);
+
+    input { flex: 1; min-width: 0; }
+  }
+
+  .row-actions {
+    display: flex;
+    gap: var(--space-1);
+    justify-content: flex-end;
+  }
+}

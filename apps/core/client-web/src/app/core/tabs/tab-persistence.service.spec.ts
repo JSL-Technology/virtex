@@ -17,9 +17,16 @@ import { TabType } from './tab.model';
 describe('TabPersistenceService · la URL de arranque manda', () => {
   const STORAGE_KEY = 'erp_tab_session';
 
+  /**
+   * `localStorage` and `schemaVersion: 3` because that is what the service writes: the workspace
+   * moved off `sessionStorage` so that "remember my tabs" survives closing the browser and not
+   * merely an F5, and the persisted tab grew `queryParams`. A fixture frozen at the old storage
+   * and the old version restores nothing, which is indistinguishable here from the regression this
+   * file exists to catch.
+   */
   const persisted = (activeTabId: string) =>
     JSON.stringify({
-      schemaVersion: 2,
+      schemaVersion: 3,
       activeTabId,
       tabs: [
         {
@@ -29,6 +36,7 @@ describe('TabPersistenceService · la URL de arranque manda', () => {
           icon: 'Home',
           route: '/overview',
           routeParams: {},
+          queryParams: {},
           isDirty: false,
           isCloseable: false,
           isPinned: true,
@@ -76,7 +84,7 @@ describe('TabPersistenceService · la URL de arranque manda', () => {
   });
 
   it('abre la ruta con la que arrancó el navegador, no la pestaña guardada', () => {
-    sessionStorage.setItem(STORAGE_KEY, persisted('inicio'));
+    localStorage.setItem(STORAGE_KEY, persisted('inicio'));
     const service = build();
     bootRoute.mockReturnValue({ path: '/accounting/chart-of-accounts', query: {} });
 
@@ -90,7 +98,7 @@ describe('TabPersistenceService · la URL de arranque manda', () => {
   });
 
   it('conserva los parámetros de consulta de la URL de arranque', () => {
-    sessionStorage.setItem(STORAGE_KEY, persisted('inicio'));
+    localStorage.setItem(STORAGE_KEY, persisted('inicio'));
     const service = build();
     bootRoute.mockReturnValue({ path: '/invoices', query: { status: 'overdue' } });
 
@@ -103,7 +111,7 @@ describe('TabPersistenceService · la URL de arranque manda', () => {
   });
 
   it('vuelve a la última pestaña activa cuando no hay ruta de arranque', () => {
-    sessionStorage.setItem(STORAGE_KEY, persisted('inicio'));
+    localStorage.setItem(STORAGE_KEY, persisted('inicio'));
     const service = build();
     bootRoute.mockReturnValue(null); // raíz, login, pago: nada que respetar
 
@@ -114,7 +122,7 @@ describe('TabPersistenceService · la URL de arranque manda', () => {
   });
 
   it('restaura siempre la lista guardada, gane quien gane el foco', () => {
-    sessionStorage.setItem(STORAGE_KEY, persisted('inicio'));
+    localStorage.setItem(STORAGE_KEY, persisted('inicio'));
     const service = build();
     bootRoute.mockReturnValue({ path: '/my-work', query: {} });
 

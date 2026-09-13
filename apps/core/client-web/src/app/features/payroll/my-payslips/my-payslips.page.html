@@ -1,0 +1,73 @@
+<vx-list-shell
+  titleKey="PAYROLL.MY_PAYSLIPS.TITLE"
+  [count]="payslips().length"
+  [empty]="isEmpty()"
+>
+  @if (failed()) {
+    <p class="section-note">{{ 'COMMON.LOAD_FAILED' | translate }}</p>
+  } @else {
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'PAYROLL.MY_PAYSLIPS.PERIOD' | translate }}</th>
+          <th class="numeric">{{ 'PAYROLL.PAYSLIP.GROSS' | translate }}</th>
+          <th class="numeric">{{ 'PAYROLL.PAYSLIP.DEDUCTIONS' | translate }}</th>
+          <th class="numeric">{{ 'PAYROLL.PAYSLIP.NET' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (payslip of payslips(); track payslip.id) {
+          <tr class="is-clickable" (click)="toggle(payslip.id)">
+            <td>
+              <span class="name-cell">
+                <lucide-icon [img]="FileIcon" size="16" aria-hidden="true"></lucide-icon>
+                <span>{{ payslip.employeeName }}</span>
+              </span>
+            </td>
+            <td class="numeric">{{ payslip.grossEarnings | vxMoney }}</td>
+            <td class="numeric">{{ payslip.totalEmployeeDeductions | vxMoney }}</td>
+            <td class="numeric strong">{{ payslip.netPay | vxMoney }}</td>
+          </tr>
+          @if (open() === payslip.id) {
+            <tr class="detail-row">
+              <td colspan="4">
+                <table class="lines-table">
+                  <tbody>
+                    <tr>
+                      <td>{{ 'PAYROLL.PAYSLIP.BASE_SALARY' | translate }}</td>
+                      <td class="numeric">{{ payslip.baseSalary | vxMoney }}</td>
+                    </tr>
+                    @for (line of payslip.lines ?? []; track line.id) {
+                      <tr>
+                        <td>{{ line.conceptName }}</td>
+                        <td class="numeric">{{ line.amount | vxMoney }}</td>
+                      </tr>
+                    }
+                    <tr>
+                      <td>{{ 'PAYROLL.PAYSLIP.AFP' | translate }}</td>
+                      <td class="numeric">−{{ payslip.afpEmployee | vxMoney }}</td>
+                    </tr>
+                    <tr>
+                      <td>{{ 'PAYROLL.PAYSLIP.SFS' | translate }}</td>
+                      <td class="numeric">−{{ payslip.sfsEmployee | vxMoney }}</td>
+                    </tr>
+                    <tr>
+                      <td>{{ 'PAYROLL.PAYSLIP.ISR' | translate }}</td>
+                      <td class="numeric">−{{ payslip.incomeTax | vxMoney }}</td>
+                    </tr>
+                    <tr class="grand">
+                      <td>{{ 'PAYROLL.PAYSLIP.NET' | translate }}</td>
+                      <td class="numeric">{{ payslip.netPay | vxMoney }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+  }
+</vx-list-shell>

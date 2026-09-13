@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, FileText, Upload, Download, Trash2 } from 'lucide-angular';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 import { NotificationService } from '../../../core/services/notification';
+import { DialogService } from '../../../core/services/dialog.service';
 import {
   DocumentNode,
   DocumentTemplateType,
@@ -43,7 +44,7 @@ const TEMPLATE_TYPES: DocumentTemplateType[] = ['INVOICE', 'QUOTE', 'EMAIL', 'CO
 export class TemplatesPage {
   private readonly documents = inject(DocumentsService);
   private readonly notifications = inject(NotificationService);
-  private readonly translate = inject(TranslateService);
+  private readonly dialog = inject(DialogService);
 
   protected readonly FileIcon = FileText;
   protected readonly UploadIcon = Upload;
@@ -102,12 +103,16 @@ export class TemplatesPage {
     });
   }
 
-  remove(node: DocumentNode): void {
-    if (!window.confirm(
-      this.translate.instant('DOCUMENTS.REPOSITORY.CONFIRM_DELETE_FILE', { name: node.name }),
-    )) {
-      return;
-    }
+  async remove(node: DocumentNode): Promise<void> {
+    const confirmed = await this.dialog.confirm({
+      title: 'DIALOG.DELETE_DOCUMENT.TITLE',
+      message: 'DIALOG.DELETE_DOCUMENT.MESSAGE',
+      messageParams: { name: node.name },
+      confirmText: 'COMMON.DELETE',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
+
     this.busy.set(true);
     this.documents.remove(node.id).subscribe({
       next: () => { this.busy.set(false); this.reload(); },
