@@ -17,28 +17,28 @@ import { IsIsoDate } from '../../common/validators/is-iso-date.validator';
 
 export class CreateBankAccountDto {
   @IsString()
-  @MinLength(1)
-  @MaxLength(120)
+  @MinLength(1, { message: 'VALIDATION.CONSTRAINTS.MIN_LENGTH|{"min":1}' })
+  @MaxLength(120, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":120}' })
   name: string;
 
   @IsString()
   @IsOptional()
-  @MaxLength(120)
+  @MaxLength(120, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":120}' })
   bankName?: string;
 
   @IsString()
   @IsOptional()
-  @MaxLength(60)
+  @MaxLength(60, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":60}' })
   accountNumber?: string;
 
   @IsString()
   @IsOptional()
-  @MaxLength(34)
+  @MaxLength(34, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":34}' })
   iban?: string;
 
   @IsString()
   @IsOptional()
-  @MaxLength(11)
+  @MaxLength(11, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":11}' })
   swiftBic?: string;
 
   @IsEnum(BankAccountType)
@@ -46,7 +46,7 @@ export class CreateBankAccountDto {
   accountType?: BankAccountType;
 
   @IsString()
-  @Length(3, 3)
+  @Length(3, 3, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":3,"max":3}' })
   currencyCode: string;
 
   /** The chart-of-accounts entry this account posts to. */
@@ -70,7 +70,7 @@ export class CreateBankAccountDto {
    * declared, with `opening_journal_entry_id` pointing at the entry that made it real.
    */
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   @IsOptional()
   openingBalance?: number;
 
@@ -92,35 +92,35 @@ export class CreateBankAccountDto {
 
   @IsString()
   @IsOptional()
-  @MaxLength(2000)
+  @MaxLength(2000, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":2000}' })
   notes?: string;
 }
 
 export class UpdateBankAccountDto {
   @IsString()
   @IsOptional()
-  @MinLength(1)
-  @MaxLength(120)
+  @MinLength(1, { message: 'VALIDATION.CONSTRAINTS.MIN_LENGTH|{"min":1}' })
+  @MaxLength(120, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":120}' })
   name?: string;
 
   @IsString()
   @IsOptional()
-  @MaxLength(120)
+  @MaxLength(120, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":120}' })
   bankName?: string;
 
   @IsString()
   @IsOptional()
-  @MaxLength(60)
+  @MaxLength(60, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":60}' })
   accountNumber?: string;
 
   @IsString()
   @IsOptional()
-  @MaxLength(34)
+  @MaxLength(34, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":34}' })
   iban?: string;
 
   @IsString()
   @IsOptional()
-  @MaxLength(11)
+  @MaxLength(11, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":11}' })
   swiftBic?: string;
 
   @IsEnum(BankAccountType)
@@ -141,7 +141,7 @@ export class UpdateBankAccountDto {
 
   @IsString()
   @IsOptional()
-  @MaxLength(2000)
+  @MaxLength(2000, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":2000}' })
   notes?: string;
 }
 

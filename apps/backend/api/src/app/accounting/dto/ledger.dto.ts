@@ -24,18 +24,18 @@ import {
  */
 export class CreateLedgerDto {
   @IsString()
-  @MinLength(1)
-  @MaxLength(120)
+  @MinLength(1, { message: 'VALIDATION.CONSTRAINTS.MIN_LENGTH|{"min":1}' })
+  @MaxLength(120, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":120}' })
   name: string;
 
   @IsString()
   @IsOptional()
-  @MaxLength(500)
+  @MaxLength(500, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":500}' })
   description?: string;
 
   /** ISO 4217. The currency every amount in this ledger is measured in. */
   @IsString()
-  @Length(3, 3)
+  @Length(3, 3, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":3,"max":3}' })
   currency: string;
 
   @IsBoolean()
@@ -50,13 +50,13 @@ export class CreateLedgerDto {
 export class UpdateLedgerDto {
   @IsString()
   @IsOptional()
-  @MinLength(1)
-  @MaxLength(120)
+  @MinLength(1, { message: 'VALIDATION.CONSTRAINTS.MIN_LENGTH|{"min":1}' })
+  @MaxLength(120, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":120}' })
   name?: string;
 
   @IsString()
   @IsOptional()
-  @MaxLength(500)
+  @MaxLength(500, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":500}' })
   description?: string;
 
   /**

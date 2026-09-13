@@ -4,8 +4,8 @@ import { IsInt, IsOptional, Max, Min } from 'class-validator';
 export class ActivityQueryDto {
   @Type(() => Number)
   @IsInt()
-  @Min(1)
-  @Max(50)
+  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
+  @Max(50, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":50}' })
   @IsOptional()
   limit?: number;
 }
@@ -14,15 +14,15 @@ export class EventsQueryDto {
   /** How far ahead to look. A month is the horizon a close and a filing both sit inside. */
   @Type(() => Number)
   @IsInt()
-  @Min(1)
-  @Max(180)
+  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
+  @Max(180, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":180}' })
   @IsOptional()
   days?: number;
 
   @Type(() => Number)
   @IsInt()
-  @Min(1)
-  @Max(50)
+  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
+  @Max(50, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":50}' })
   @IsOptional()
   limit?: number;
 }

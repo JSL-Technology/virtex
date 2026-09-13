@@ -37,7 +37,7 @@ export class ListDocumentsDto {
   /** Free-text filter on the name, searched across the whole tree rather than one folder. */
   @IsString()
   @IsOptional()
-  @MaxLength(255)
+  @MaxLength(255, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":255}' })
   search?: string;
 
   @IsEnum(DocumentTemplateType)
@@ -51,14 +51,14 @@ export class ListDocumentsDto {
 
   @Type(() => Number)
   @IsInt()
-  @Min(1)
+  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
   @IsOptional()
   page?: number;
 
   @Type(() => Number)
   @IsInt()
-  @Min(1)
-  @Max(200)
+  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
+  @Max(200, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":200}' })
   @IsOptional()
   pageSize?: number;
 }
@@ -66,8 +66,8 @@ export class ListDocumentsDto {
 export class CreateFolderDto {
   @IsString()
   @IsNotEmpty()
-  @MinLength(1)
-  @MaxLength(255)
+  @MinLength(1, { message: 'VALIDATION.CONSTRAINTS.MIN_LENGTH|{"min":1}' })
+  @MaxLength(255, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":255}' })
   @Matches(SAFE_NAME, { message: 'DOCUMENTS.NAME_NOT_ALLOWED' })
   name: string;
 
@@ -79,8 +79,8 @@ export class CreateFolderDto {
 export class RenameDocumentDto {
   @IsString()
   @IsNotEmpty()
-  @MinLength(1)
-  @MaxLength(255)
+  @MinLength(1, { message: 'VALIDATION.CONSTRAINTS.MIN_LENGTH|{"min":1}' })
+  @MaxLength(255, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":255}' })
   @Matches(SAFE_NAME, { message: 'DOCUMENTS.NAME_NOT_ALLOWED' })
   name: string;
 }
@@ -99,6 +99,6 @@ export class UpdateDocumentDto {
 
   @IsString()
   @IsOptional()
-  @MaxLength(2000)
+  @MaxLength(2000, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":2000}' })
   description?: string;
 }

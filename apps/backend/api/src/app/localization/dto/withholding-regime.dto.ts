@@ -23,11 +23,11 @@ import { TaxpayerType } from '../fiscal/withholding-regimes';
  */
 export class CreateWithholdingRegimeDto {
   @IsString()
-  @Length(1, 40)
+  @Length(1, 40, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":1,"max":40}' })
   code: string;
 
   @IsString()
-  @Length(1, 160)
+  @Length(1, 160, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":1,"max":160}' })
   label: string;
 
   /** `VAT` withholds a share of the output tax; `INCOME` a share of the taxable base. */
@@ -58,7 +58,7 @@ export class CreateWithholdingRegimeDto {
 
   /** The instrument that establishes it, so an advisor can confirm it in one lookup. */
   @IsString()
-  @Length(3, 500)
+  @Length(3, 500, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":3,"max":500}' })
   legalBasis: string;
 
   @IsBoolean()

@@ -11,8 +11,8 @@ import { IsDateString, IsNotEmpty, IsOptional, IsString, MaxLength, MinLength } 
 export class VoidVendorBillDto {
   @IsString()
   @IsNotEmpty()
-  @MinLength(3)
-  @MaxLength(500)
+  @MinLength(3, { message: 'VALIDATION.CONSTRAINTS.MIN_LENGTH|{"min":3}' })
+  @MaxLength(500, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":500}' })
   reason: string;
 
   /**

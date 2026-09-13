@@ -21,8 +21,8 @@ import {
 export class MexicanAccountingQueryDto {
   @Type(() => Number)
   @IsInt()
-  @Min(2000)
-  @Max(2999)
+  @Min(2000, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":2000}' })
+  @Max(2999, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":2999}' })
   year: number;
 
   @Type(() => Number)

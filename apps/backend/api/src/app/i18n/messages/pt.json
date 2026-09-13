@@ -114,7 +114,7 @@
     "SOLO_PUEDEN_APLICAR_NOTAS_DEBITO_FACTURAS_ABIERTAS": "Notas de débito só podem ser aplicadas a faturas abertas ou parcialmente pagas.",
     "SOLO_PUEDEN_EDITAR_FACTURAS_ESTADO_BORRADOR": "Somente faturas em rascunho podem ser editadas.",
     "TOTAL_NO_COINCIDE_CON_LINEAS": "O total enviado ({{received}}) não corresponde ao calculado a partir das linhas e impostos ({{expected}}).",
-    "PROVEEDOR_NO_ENCONTRADO": "Fornecedor com ID \"{{id}}\" não encontrado."
+    "PROVEEDOR_NO_ENCONTRADO": "Fornecedor \"{{id}}\" não encontrado."
   },
   "ANALYTICAL_REPORTING": {
     "NOMBRE_DIMENSION_CAMPO_CONTIENE_CARACTERES_NO_VALIDOS": "O nome da dimensão ou do campo contém caracteres inválidos: {{name}}",
@@ -1099,7 +1099,7 @@
       "BUILDER_MANAGE": "Administrar o construtor",
       "CLOSE_PERIOD": "Encerrar período",
       "CLOSE_YEAR": "Encerrar ano fiscal",
-      "COLLECT": "Receber",
+      "COLLECT": "Cobrar",
       "CONSOLIDATE": "Consolidar",
       "CREATE": "Criar",
       "DECIDE": "Decidir",
@@ -1165,7 +1165,7 @@
       "CUSTOMERS": "Clientes",
       "CUSTOMER_PORTAL": "Portal do cliente",
       "DASHBOARD": "Painel financeiro",
-      "DATASHEETS": "Folhas de dados",
+      "DATASHEETS": "Planilhas",
       "DIMENSIONS": "Dimensões analíticas",
       "DOCUMENTS": "Documentos",
       "EXCHANGE_RATES": "Taxas de câmbio",
@@ -1263,7 +1263,7 @@
     "LINEA_CONTABLE_YA_CONCILIADA": "A linha contábil {id} já está conciliada.",
     "LINEA_REPETIDA_EN_CONCILIACION": "Uma linha contábil aparece duas vezes na mesma conciliação.",
     "LINEA_SIN_IMPORTE_EN_MONEDA_DE_LA_CUENTA": "A linha não tem valor na moeda da conta e, sem ele, não é possível conciliar contra o extrato.",
-    "NO_HAY_LIBRO_CONTABLE_POR_DEFECTO": "Não há livro contábil padrão configurado para a organização.",
+    "NO_HAY_LIBRO_CONTABLE_POR_DEFECTO": "Nenhum livro contábil padrão foi configurado para a organização.",
     "QUEDAN_TRANSACCIONES_SIN_CONCILIAR": "Restam {count} movimentos do banco sem conciliar nem apartar.",
     "RANGO_FECHAS_INVALIDO": "A data inicial do extrato é posterior à final.",
     "RANGO_MONTOS_INVALIDO": "O valor mínimo da regra é maior que o máximo.",
@@ -1715,7 +1715,7 @@
     "OPEN_PERIOD": "Abrir o período",
     "CONFIGURE_SEQUENCES": "Configurar sequências",
     "REVIEW_PLAN": "Rever o plano",
-    "VIEW_STOCK": "Ver existências"
+    "VIEW_STOCK": "Ver estoque"
   },
   "PAYROLL": {
     "AJUSTE_CORRIGE_CORRIDA_APROBADA_MISMO_PERIODO": "Um ajuste deve corrigir uma folha aprovada do mesmo período, país e organização.",
@@ -1912,5 +1912,20 @@
         "GENERAL": "Diário Geral"
       }
     }
+  },
+  "EXTENSIONS": {
+    "CODE_OR_VALID_PLUGINNAME_REQUIRED": "Code or a valid pluginName is required",
+    "PLUGIN_NOT_FOUND": "Plugin not found",
+    "PLUGIN_NOT_FOUND_2": "Plugin {{pluginName}} not found",
+    "VERSION_NOT_FOUND": "Version not found",
+    "PLUGIN_REVOKED": "Plugin is revoked",
+    "DIRECT_CODE_REJECTED_BY_ADMISSION_POLICY": "Direct code rejected by admission policy",
+    "EXTENSION_NOT_ENABLED_FOR_THIS_TENANT": "Extension is not enabled for this tenant"
+  },
+  "POS": {
+    "SHIFT_ALREADY_CLOSED": "Shift is already closed",
+    "NO_OPEN_SHIFT_FOR_THIS_TERMINAL_OPEN": "No open shift for this terminal. Open a shift before selling.",
+    "SHIFT_NOT_FOUND": "Shift not found",
+    "THERE_ALREADY_ACTIVE_SHIFT_FOR_THIS_TERMINAL": "There is already an active shift for this terminal."
   }
 }

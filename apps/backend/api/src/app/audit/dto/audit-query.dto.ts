@@ -11,7 +11,7 @@ import { IsInt, IsOptional, IsString, IsUUID, Max, MaxLength, Min } from 'class-
 export class AuditQueryDto {
   /** The entity type, e.g. `JournalEntry`. */
   @IsString()
-  @MaxLength(64)
+  @MaxLength(64, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":64}' })
   @IsOptional()
   entity?: string;
 
@@ -21,14 +21,14 @@ export class AuditQueryDto {
 
   @Type(() => Number)
   @IsInt()
-  @Min(1)
+  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
   @IsOptional()
   page?: number;
 
   @Type(() => Number)
   @IsInt()
-  @Min(1)
-  @Max(200)
+  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
+  @Max(200, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":200}' })
   @IsOptional()
   pageSize?: number;
 }

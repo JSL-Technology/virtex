@@ -35,14 +35,14 @@ export class GeneralLedgerQueryDto {
 
   @Type(() => Number)
   @IsInt()
-  @Min(1)
+  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
   @IsOptional()
   page?: number;
 
   @Type(() => Number)
   @IsInt()
-  @Min(1)
-  @Max(500)
+  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
+  @Max(500, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":500}' })
   @IsOptional()
   pageSize?: number;
 

@@ -62,7 +62,7 @@ export class UpdateApprovalPolicyDto {
 export class DecideApprovalDto {
   @IsString()
   @IsOptional()
-  @MaxLength(2000)
+  @MaxLength(2000, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":2000}' })
   comment?: string;
 }
 
@@ -75,6 +75,6 @@ export class DecideApprovalDto {
 export class RejectApprovalDto {
   @IsString()
   @IsNotEmpty()
-  @MaxLength(2000)
+  @MaxLength(2000, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":2000}' })
   reason: string;
 }

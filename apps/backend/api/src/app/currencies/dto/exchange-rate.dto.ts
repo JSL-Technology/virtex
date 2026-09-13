@@ -44,7 +44,7 @@ export class RecordRateDto {
   /** `DGII`, `DOF`, `TRM`, `BCRA`, `SUNAT`… The authority or provider the figure comes from. */
   @IsString()
   @IsNotEmpty()
-  @MaxLength(32)
+  @MaxLength(32, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":32}' })
   @IsOptional()
   source?: string;
 }
@@ -62,8 +62,8 @@ export class BackfillRatesDto {
    */
   @Type(() => Number)
   @IsInt()
-  @Min(1)
-  @Max(370)
+  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
+  @Max(370, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":370}' })
   @IsOptional()
   maxDays?: number;
 }

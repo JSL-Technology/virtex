@@ -114,7 +114,7 @@
     "SOLO_PUEDEN_APLICAR_NOTAS_DEBITO_FACTURAS_ABIERTAS": "Debit notes can only be applied to open or partially paid invoices.",
     "SOLO_PUEDEN_EDITAR_FACTURAS_ESTADO_BORRADOR": "Only invoices in draft can be edited.",
     "TOTAL_NO_COINCIDE_CON_LINEAS": "The submitted total ({{received}}) does not match the one computed from the lines and taxes ({{expected}}).",
-    "PROVEEDOR_NO_ENCONTRADO": "Supplier with ID \"{{id}}\" not found."
+    "PROVEEDOR_NO_ENCONTRADO": "Supplier \"{{id}}\" was not found."
   },
   "ANALYTICAL_REPORTING": {
     "NOMBRE_DIMENSION_CAMPO_CONTIENE_CARACTERES_NO_VALIDOS": "The dimension or field name contains invalid characters: {{name}}",
@@ -1099,7 +1099,7 @@
       "BUILDER_MANAGE": "Manage the builder",
       "CLOSE_PERIOD": "Close period",
       "CLOSE_YEAR": "Close fiscal year",
-      "COLLECT": "Collect",
+      "COLLECT": "Charge",
       "CONSOLIDATE": "Consolidate",
       "CREATE": "Create",
       "DECIDE": "Decide",
@@ -1165,7 +1165,7 @@
       "CUSTOMERS": "Customers",
       "CUSTOMER_PORTAL": "Customer portal",
       "DASHBOARD": "Finance dashboard",
-      "DATASHEETS": "Datasheets",
+      "DATASHEETS": "DataSheets",
       "DIMENSIONS": "Analytical dimensions",
       "DOCUMENTS": "Documents",
       "EXCHANGE_RATES": "Exchange rates",
@@ -1263,7 +1263,7 @@
     "LINEA_CONTABLE_YA_CONCILIADA": "Ledger line {id} is already reconciled.",
     "LINEA_REPETIDA_EN_CONCILIACION": "A ledger line appears twice in the same match.",
     "LINEA_SIN_IMPORTE_EN_MONEDA_DE_LA_CUENTA": "The line has no amount in the account currency, and without one it cannot be reconciled against the statement.",
-    "NO_HAY_LIBRO_CONTABLE_POR_DEFECTO": "No default ledger has been configured for this organization.",
+    "NO_HAY_LIBRO_CONTABLE_POR_DEFECTO": "No default ledger has been configured for the organization.",
     "QUEDAN_TRANSACCIONES_SIN_CONCILIAR": "{count} bank movements are still neither matched nor set aside.",
     "RANGO_FECHAS_INVALIDO": "The statement’s start date is after its end date.",
     "RANGO_MONTOS_INVALIDO": "The rule’s minimum amount is greater than its maximum.",
@@ -1912,5 +1912,20 @@
         "GENERAL": "General Journal"
       }
     }
+  },
+  "EXTENSIONS": {
+    "CODE_OR_VALID_PLUGINNAME_REQUIRED": "Code or a valid pluginName is required",
+    "PLUGIN_NOT_FOUND": "Plugin not found",
+    "PLUGIN_NOT_FOUND_2": "Plugin {{pluginName}} not found",
+    "VERSION_NOT_FOUND": "Version not found",
+    "PLUGIN_REVOKED": "Plugin is revoked",
+    "DIRECT_CODE_REJECTED_BY_ADMISSION_POLICY": "Direct code rejected by admission policy",
+    "EXTENSION_NOT_ENABLED_FOR_THIS_TENANT": "Extension is not enabled for this tenant"
+  },
+  "POS": {
+    "SHIFT_ALREADY_CLOSED": "Shift is already closed",
+    "NO_OPEN_SHIFT_FOR_THIS_TERMINAL_OPEN": "No open shift for this terminal. Open a shift before selling.",
+    "SHIFT_NOT_FOUND": "Shift not found",
+    "THERE_ALREADY_ACTIVE_SHIFT_FOR_THIS_TERMINAL": "There is already an active shift for this terminal."
   }
 }

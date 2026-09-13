@@ -46,17 +46,17 @@ export class CreateBankTransferDto {
 
   /** Bank charge deducted from the transfer, if any. */
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   @IsOptional()
   fee?: number;
 
   @IsString()
   @IsNotEmpty()
-  @MaxLength(500)
+  @MaxLength(500, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":500}' })
   description: string;
 
   @IsString()
   @IsOptional()
-  @MaxLength(80)
+  @MaxLength(80, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":80}' })
   reference?: string;
 }

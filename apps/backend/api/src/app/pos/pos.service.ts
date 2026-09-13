@@ -1,10 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { PosShift, PosShiftStatus } from './entities/pos-shift.entity';
@@ -13,6 +7,7 @@ import { InventoryService } from '../inventory/inventory.service';
 import { OpenShiftDto } from './dto/open-shift.dto';
 import { CloseShiftDto } from './dto/close-shift.dto';
 import { ProcessSaleDto } from './dto/process-sale.dto';
+import { BadRequestError, ConflictError, NotFoundError } from '../i18n/localized.exception';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -49,7 +44,7 @@ export class PosService {
   ): Promise<PosShift> {
     const existing = await this.getActiveShift(organizationId, dto.terminalId);
     if (existing) {
-      throw new ConflictException('There is already an active shift for this terminal.');
+      throw new ConflictError('POS.THERE_ALREADY_ACTIVE_SHIFT_FOR_THIS_TERMINAL');
     }
     const shift = this.shifts.create({
       organizationId,
@@ -67,9 +62,9 @@ export class PosService {
     dto: CloseShiftDto,
   ): Promise<PosShift> {
     const shift = await this.shifts.findOne({ where: { id: shiftId, organizationId } });
-    if (!shift) throw new NotFoundException('Shift not found');
+    if (!shift) throw new NotFoundError('POS.SHIFT_NOT_FOUND');
     if (shift.status === PosShiftStatus.CLOSED) {
-      throw new BadRequestException('Shift is already closed');
+      throw new BadRequestError('POS.SHIFT_ALREADY_CLOSED');
     }
     shift.status = PosShiftStatus.CLOSED;
     shift.closingBalance = dto.closingBalance;
@@ -83,7 +78,7 @@ export class PosService {
   ): Promise<PosSale> {
     const shift = await this.getActiveShift(organizationId, dto.terminalId);
     if (!shift) {
-      throw new BadRequestException('No open shift for this terminal. Open a shift before selling.');
+      throw new BadRequestError('POS.NO_OPEN_SHIFT_FOR_THIS_TERMINAL_OPEN');
     }
 
     return this.dataSource.transaction(async (manager) => {

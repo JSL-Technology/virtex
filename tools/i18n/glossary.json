@@ -3,6 +3,22 @@
     "sidebar.finance.ap_sub.invoices": {
       "en": "Supplier Invoices",
       "pt": "Faturas de Fornecedor"
+    },
+    "ACCOUNTING.ACCOUNT_TYPE.ASSET": {
+      "en": "Asset",
+      "pt": "Ativo"
+    },
+    "REPORTS.EXPORT.ASSETS": {
+      "en": "Assets",
+      "pt": "Ativo"
+    },
+    "SETTINGS.PAGES.TAX_JURISDICTIONS.LEVEL_STATE": {
+      "en": "State",
+      "pt": "Estado"
+    },
+    "SETTINGS.PAGES.WITHHOLDING.PAYER_GOVERNMENT": {
+      "en": "Government",
+      "pt": "Estado"
     }
   },
   "terms": {
@@ -1530,7 +1546,7 @@
       "pt": "Comprador"
     },
     "Compras": {
-      "en": "Purchasing (P2P)",
+      "en": "Purchasing",
       "pt": "Compras"
     },
     "Comprobante Fiscal Electrónico (e-CF)": {
@@ -11265,7 +11281,7 @@
       "pt": "Vendedor"
     },
     "Ventas": {
-      "en": "Sales Reports",
+      "en": "Sales",
       "pt": "Vendas"
     },
     "Ventas de Hoy": {

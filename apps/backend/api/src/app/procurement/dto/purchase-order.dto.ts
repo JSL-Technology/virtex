@@ -27,7 +27,7 @@ export class PurchaseOrderLineDto {
   /** Required even when a product is named: what the supplier will read on the order. */
   @IsString()
   @IsNotEmpty()
-  @MaxLength(500)
+  @MaxLength(500, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":500}' })
   description: string;
 
   @IsNumber({ maxDecimalPlaces: 6 })
@@ -40,14 +40,14 @@ export class PurchaseOrderLineDto {
 
   /** A fraction, not a percentage: 0.18, never 18. */
   @IsNumber({ maxDecimalPlaces: 6 })
-  @Min(0)
-  @Max(1)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Max(1, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":1}' })
   @IsOptional()
   taxRate?: number;
 
   @IsString()
   @IsOptional()
-  @MaxLength(16)
+  @MaxLength(16, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":16}' })
   unitOfMeasure?: string;
 }
 
@@ -66,17 +66,17 @@ export class CreatePurchaseOrderDto {
 
   @IsString()
   @IsOptional()
-  @Length(3, 3)
+  @Length(3, 3, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":3,"max":3}' })
   currencyCode?: string;
 
   @IsString()
   @IsOptional()
-  @MaxLength(2000)
+  @MaxLength(2000, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":2000}' })
   notes?: string;
 
   /** An order with no lines is not an order. */
   @IsArray()
-  @ArrayMinSize(1)
+  @ArrayMinSize(1, { message: 'VALIDATION.CONSTRAINTS.ARRAY_MIN_SIZE|{"min":1}' })
   @ValidateNested({ each: true })
   @Type(() => PurchaseOrderLineDto)
   lines: PurchaseOrderLineDto[];
@@ -97,16 +97,16 @@ export class UpdatePurchaseOrderDto {
 
   @IsString()
   @IsOptional()
-  @Length(3, 3)
+  @Length(3, 3, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":3,"max":3}' })
   currencyCode?: string;
 
   @IsString()
   @IsOptional()
-  @MaxLength(2000)
+  @MaxLength(2000, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":2000}' })
   notes?: string;
 
   @IsArray()
-  @ArrayMinSize(1)
+  @ArrayMinSize(1, { message: 'VALIDATION.CONSTRAINTS.ARRAY_MIN_SIZE|{"min":1}' })
   @ValidateNested({ each: true })
   @Type(() => PurchaseOrderLineDto)
   @IsOptional()
@@ -124,14 +124,14 @@ export class PurchaseOrderQueryDto {
 
   @Type(() => Number)
   @IsInt()
-  @Min(1)
+  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
   @IsOptional()
   page?: number;
 
   @Type(() => Number)
   @IsInt()
-  @Min(1)
-  @Max(200)
+  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
+  @Max(200, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":200}' })
   @IsOptional()
   pageSize?: number;
 }
@@ -143,13 +143,13 @@ export class ReceiptLineDto {
   lineId: string;
 
   @IsNumber({ maxDecimalPlaces: 6 })
-  @Min(0)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   quantity: number;
 }
 
 export class ReceivePurchaseOrderDto {
   @IsArray()
-  @ArrayMinSize(1)
+  @ArrayMinSize(1, { message: 'VALIDATION.CONSTRAINTS.ARRAY_MIN_SIZE|{"min":1}' })
   @ValidateNested({ each: true })
   @Type(() => ReceiptLineDto)
   lines: ReceiptLineDto[];
@@ -158,7 +158,7 @@ export class ReceivePurchaseOrderDto {
 export class RejectDto {
   @IsString()
   @IsNotEmpty()
-  @MinLength(3)
-  @MaxLength(500)
+  @MinLength(3, { message: 'VALIDATION.CONSTRAINTS.MIN_LENGTH|{"min":3}' })
+  @MaxLength(500, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":500}' })
   reason: string;
 }

@@ -1912,5 +1912,20 @@
         "GENERAL": "Diario General"
       }
     }
+  },
+  "EXTENSIONS": {
+    "CODE_OR_VALID_PLUGINNAME_REQUIRED": "Code or a valid pluginName is required",
+    "PLUGIN_NOT_FOUND": "Plugin not found",
+    "PLUGIN_NOT_FOUND_2": "Plugin {{pluginName}} not found",
+    "VERSION_NOT_FOUND": "Version not found",
+    "PLUGIN_REVOKED": "Plugin is revoked",
+    "DIRECT_CODE_REJECTED_BY_ADMISSION_POLICY": "Direct code rejected by admission policy",
+    "EXTENSION_NOT_ENABLED_FOR_THIS_TENANT": "Extension is not enabled for this tenant"
+  },
+  "POS": {
+    "SHIFT_ALREADY_CLOSED": "Shift is already closed",
+    "NO_OPEN_SHIFT_FOR_THIS_TERMINAL_OPEN": "No open shift for this terminal. Open a shift before selling.",
+    "SHIFT_NOT_FOUND": "Shift not found",
+    "THERE_ALREADY_ACTIVE_SHIFT_FOR_THIS_TERMINAL": "There is already an active shift for this terminal."
   }
 }

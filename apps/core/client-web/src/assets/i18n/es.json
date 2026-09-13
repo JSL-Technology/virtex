@@ -1687,8 +1687,8 @@
       "E": "E · Egreso — nota de crédito (CFDI 4.0)"
     },
     "CO": {
-      "01": "01 · Factura de Venta Nacional",
-      "91": "91 · Nota Crédito"
+      "91": "91 · Nota Crédito",
+      "01": "01 · Factura de Venta Nacional"
     },
     "PE": {
       "01": "01 · Factura",
@@ -1708,9 +1708,9 @@
       "55": "55 · Nota Fiscal Eletrônica (NF-e)"
     },
     "AR": {
+      "11": "11 · Factura C",
       "01": "01 · Factura A",
-      "06": "06 · Factura B",
-      "11": "11 · Factura C"
+      "06": "06 · Factura B"
     }
   },
   "FORGOT_PASSWORD": {

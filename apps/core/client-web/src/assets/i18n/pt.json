@@ -112,7 +112,7 @@
       "CUENTA": "Conta",
       "TIPO": "Tipo",
       "BALANCE": "Saldo",
-      "ESTADO": "Estado",
+      "ESTADO": "Situação",
       "ACCIONES": "Ações",
       "MOSTRANDO_N": "Mostrando {{count}} contas"
     },
@@ -192,7 +192,7 @@
       "CAMPO_LINEDESCRIPTION": "Detalhe da linha",
       "CONFIRMAR_IMPORTAR": "Confirmar e Importar",
       "DEBE": "Débito",
-      "ESTADO": "Estado",
+      "ESTADO": "Situação",
       "FAVOR_SELECCIONA_FICHERO_IMPORTAR": "Selecione um arquivo para importar.",
       "FICHERO_SELECCIONADO": "Arquivo selecionado:",
       "FORMATO_FECHA": "Formato de data do arquivo",
@@ -594,7 +594,7 @@
       "FECHA_EMISION": "Data de Emissão",
       "FECHA_VENCIMIENTO": "Data de Vencimento",
       "FORMA_PAGO": "Forma de pagamento",
-      "GUARDANDO": "A guardar…",
+      "GUARDANDO": "Salvando…",
       "GUARDAR_FACTURA": "Guardar fatura",
       "IMPUESTOS": "Impostos",
       "IMPUESTO_AL_COSTO": "Imposto levado ao custo",
@@ -655,8 +655,8 @@
       "FACTURA": "Fatura",
       "FACTURAS_A_PAGAR": "Faturas a pagar",
       "FECHA": "Data do pagamento",
-      "ISR_RETENIDO": "IR retido",
-      "ITBIS_RETENIDO": "Imposto retido",
+      "ISR_RETENIDO": "Imposto de renda retido",
+      "ITBIS_RETENIDO": "ITBIS retido",
       "NO_SE_PUDO_PAGAR": "Não foi possível registrar o pagamento.",
       "PAGAR": "Registrar pagamento",
       "PAGO_REGISTRADO": "Pagamento registrado.",
@@ -697,7 +697,7 @@
       "PARTIALLY_PAID": "Parcialmente paga",
       "PENDING_APPROVAL": "Aguardando aprovação",
       "REJECTED": "Rejeitada",
-      "VOID": "Anulada"
+      "VOID": "Cancelada"
     }
   },
   "ACTIONS": {
@@ -748,7 +748,6 @@
   },
   "APP_TITLE": "Virtex",
   "AUTH": {
-    "AUTH_LAYOUT": {},
     "CHECKOUT_COMPLETE": {
       "CONFIRMANDO_TU_PAGO": "Confirmando seu pagamento…",
       "ESTAMOS_ACTIVANDO_TU_CUENTA_ESTO_SOLO": "Estamos ativando sua conta. Isso levará apenas alguns segundos.",
@@ -998,7 +997,7 @@
       "TITLE_EDIT": "Editar cliente",
       "GUARDAR_CLIENTE": "Salvar cliente",
       "CONDICIONES_COMERCIALES": "Condições comerciais",
-      "TERMINOS_PAGO": "Termos de pagamento",
+      "TERMINOS_PAGO": "Condições de pagamento",
       "TERMINOS_PAGO_PLACEHOLDER": "Líquido 30",
       "DIAS_CREDITO": "Dias de crédito",
       "DIAS_CREDITO_AYUDA": "Dias somados à data de emissão para calcular o vencimento. Em branco usa o valor por omissão da organização; 0 significa a pronto pagamento."
@@ -1056,8 +1055,8 @@
       "FECHA_PAGO": "Data do Pagamento",
       "FORMA_DE_PAGO": "Forma de pagamento",
       "INFORMACION_PAGO": "Informações do Pagamento",
-      "ISR_RETENIDO": "IR retido",
-      "ITBIS_RETENIDO": "Imposto retido",
+      "ISR_RETENIDO": "Imposto de renda retido",
+      "ITBIS_RETENIDO": "ITBIS retido",
       "MONEDA_DE_LA_CUENTA": "A moeda é a da conta bancária.",
       "MONTO_RECIBIDO": "Valor recebido",
       "NO_APLICADO": "Não aplicado (adiantamento ou excedente)",
@@ -1099,8 +1098,8 @@
       "OTHER": "Outro"
     },
     "STATUS": {
-      "POSTED": "Lançado",
-      "VOID": "Anulado"
+      "POSTED": "Contabilizado",
+      "VOID": "Cancelado"
     }
   },
   "DASH": {
@@ -1567,7 +1566,7 @@
       "UPLOAD_FILE": "Enviar arquivo",
       "SEARCH_ALL": "Procurar em todos os documentos…",
       "FOLDER_NAME": "Nome da pasta",
-      "DOWNLOAD": "Descarregar",
+      "DOWNLOAD": "Baixar",
       "RENAME": "Mudar o nome",
       "ACTION_FAILED": "Não foi possível concluir a operação."
     },
@@ -1597,7 +1596,7 @@
     "UPLOAD_FILE": "Enviar arquivo"
   },
   "ERRORS": {
-    "AUTH_INVALID_CREDENTIALS": "As credenciais não estão corretas. Verifique seu e-mail e senha.",
+    "AUTH_INVALID_CREDENTIALS": "As credenciais não estão corretas. Verifique seu e-mail e sua senha.",
     "AUTH_USER_INACTIVE": "Esta conta está inativa. Entre em contato com seu administrador.",
     "AUTH_USER_BLOCKED": "Esta conta está bloqueada. Entre em contato com seu administrador.",
     "AUTH_TOKEN_INVALID": "Sua sessão não é mais válida. Entre novamente.",
@@ -1687,8 +1686,8 @@
       "E": "E · Egreso — nota de crédito (CFDI 4.0)"
     },
     "CO": {
-      "01": "01 · Factura de Venta Nacional",
-      "91": "91 · Nota Crédito"
+      "91": "91 · Nota Crédito",
+      "01": "01 · Factura de Venta Nacional"
     },
     "PE": {
       "01": "01 · Factura",
@@ -1708,9 +1707,9 @@
       "55": "55 · Nota Fiscal Eletrônica (NF-e)"
     },
     "AR": {
+      "11": "11 · Factura C",
       "01": "01 · Factura A",
-      "06": "06 · Factura B",
-      "11": "11 · Factura C"
+      "06": "06 · Factura B"
     }
   },
   "FORGOT_PASSWORD": {
@@ -1746,7 +1745,7 @@
       "CODE": "Código",
       "PARENT": "Categoria superior",
       "NO_PARENT": "Sem categoria superior",
-      "STATUS": "Estado",
+      "STATUS": "Situação",
       "ACTIVE": "Ativa",
       "INACTIVE": "Retirada",
       "ACTIVATE": "Reativar",
@@ -1882,7 +1881,7 @@
       "COMPLETADA": "Exportação concluída.",
       "COMPROBANTE_FISCAL": "Documento fiscal",
       "DOCUMENTO": "Documento",
-      "ESTADO": "Estado",
+      "ESTADO": "Situação",
       "EXENTO": "Isento",
       "FECHA_EMISION": "Data de emissão",
       "FECHA_VENCIMIENTO": "Data de vencimento",
@@ -2323,8 +2322,8 @@
       "USD_DOLAR_ESTADOUNIDENSE": "USD - Dólar Americano",
       "VALIDO_DESDE": "Válido De*",
       "VALIDO_HASTA": "Válido Até*",
-      "TITLE_NEW": "Nova lista de preços",
-      "TITLE_EDIT": "Editar lista de preços",
+      "TITLE_NEW": "Nova tabela de preços",
+      "TITLE_EDIT": "Editar tabela de preços",
       "GUARDAR_LISTA": "Salvar lista"
     },
     "SUPPLIER_FORM": {
@@ -2573,7 +2572,7 @@
     "ACCOUNTING_PREFERENCES": "Preferências contábeis",
     "ACCOUNTS_PAYABLE": "Contas a pagar",
     "ACCOUNTS_PAYABLE_AGING": "Idade das Contas a Pagar",
-    "ACCOUNTS_RECEIVABLE_AGING": "Idade das Contas a Receber",
+    "ACCOUNTS_RECEIVABLE_AGING": "Aging de Contas a Receber",
     "ACCOUNT_EDIT": "Editar conta",
     "ACCOUNT_NEW": "Nova conta",
     "ACCOUNT_RECONCILIATION": "Conciliação de Contas",
@@ -2610,7 +2609,7 @@
     "DOCUMENT_REPOSITORY": "Repositório de documentos",
     "DOCUMENT_TEMPLATES": "Modelos de documento",
     "EINVOICING": "Faturamento eletrônico (RD)",
-    "EINVOICING_REGIME": "Nota fiscal eletrônica",
+    "EINVOICING_REGIME": "Emissão eletrônica",
     "FISCAL_PERIODS": "Períodos e fechamento fiscal",
     "FISCAL_SEQUENCES": "Sequências fiscais",
     "GENERAL_LEDGER": "Livro razão",
@@ -2644,6 +2643,8 @@
     "PAYMENT_METHODS": "Formas de pagamento",
     "PAYMENT_TERMS": "Condições de pagamento",
     "PERSONALIZATION": "Personalização",
+    "EXTENSIONS": "Extensões",
+    "EXTENSIONS_RUNTIME": "Execução de extensões",
     "POINT_OF_SALE": "Ponto de venda",
     "PRICE_LISTS": "Tabelas de preços",
     "PRICE_LIST_EDIT": "Editar tabela de preços",
@@ -2692,7 +2693,7 @@
     "PURCHASE_REQUISITION_NEW": "Nova requisição",
     "PURCHASE_REQUISITION_EDIT": "Requisição",
     "DEPARTMENTS": "Departamentos",
-    "EMPLOYEES": "Colaboradores",
+    "EMPLOYEES": "Funcionários",
     "EMPLOYEE_EDIT": "Colaborador",
     "EMPLOYEE_NEW": "Novo colaborador",
     "MY_PAYSLIPS": "Os meus recibos",
@@ -2700,8 +2701,6 @@
     "PAYROLL_PARAMETERS": "Parâmetros legais",
     "PAYROLL_RUN": "Folha de pagamento",
     "PAYROLL_RUNS": "Folhas de pagamento",
-    "EXTENSIONS": "Extensões",
-    "EXTENSIONS_RUNTIME": "Execução de extensões",
     "INVOICE": "Fatura",
     "VENDOR_BILL": "Fatura de fornecedor",
     "DATASHEET": "Folha de dados"
@@ -2739,7 +2738,7 @@
       "FORM": {
         "EXPECTED_DATE": "Data prevista",
         "EXPECTED_DATE_HELP": "O que o fornecedor prometeu.",
-        "NOTES": "Notas",
+        "NOTES": "Observações",
         "LINES": "Linhas da ordem",
         "PRODUCT": "Produto",
         "DESCRIPTION": "Descrição",
@@ -2756,7 +2755,7 @@
         "SEND": "Marcar como enviada ao fornecedor",
         "RECEIVE": "Registar receção",
         "RECEIVE_TITLE": "O que chegou",
-        "OUTSTANDING": "Em falta",
+        "OUTSTANDING": "Pendente",
         "RECEIVING_NOW": "A receber agora",
         "CONFIRM_RECEIPT": "Confirmar receção",
         "CANCEL_ORDER": "Cancelar ordem",
@@ -3167,6 +3166,9 @@
     "POS": {
       "AGOTADO": "Esgotado",
       "ANADE_PRODUCTOS_COMENZAR_VENTA": "Adicione produtos para iniciar uma venda.",
+      "LOAD_PRODUCTS_ERROR": "Não foi possível carregar o catálogo de produtos.",
+      "SALE_COMPLETED": "Venda concluída.",
+      "SALE_ERROR": "Não foi possível concluir a venda.",
       "BUSCAR_PRODUCTOS_NOMBRE_SKU": "Buscar produtos por nome ou SKU...",
       "CLIENTE": "Cliente:",
       "COBRAR": "Cobrar",
@@ -3174,10 +3176,7 @@
       "SUBTOTAL": "Subtotal",
       "TAX_AT_RATE": "Impostos ({{rate}})",
       "TAX_NEEDS_CONFIGURATION": "Este país calcula o imposto por estado ou município. Configure-o em Configurações → Impostos antes de cobrar.",
-      "TOTAL_PAGAR": "Total a Pagar",
-      "LOAD_PRODUCTS_ERROR": "Não foi possível carregar o catálogo de produtos.",
-      "SALE_COMPLETED": "Venda concluída.",
-      "SALE_ERROR": "Não foi possível concluir a venda."
+      "TOTAL_PAGAR": "Total a Pagar"
     }
   },
   "SEARCH": {
@@ -3289,7 +3288,7 @@
       "AUN_NO_HAS_REGISTRADO_RANGOS_NCF": "Você ainda não registrou faixas de e-NCF.",
       "CAPABILITY_ACCOUNTING": "Contabilidade e operação",
       "CAPABILITY_ELECTRONIC_ACCOUNTING": "Contabilidade eletrônica",
-      "CAPABILITY_ELECTRONIC_INVOICING": "Nota fiscal eletrônica",
+      "CAPABILITY_ELECTRONIC_INVOICING": "Emissão eletrônica",
       "CAPABILITY_PERIODIC_RETURNS": "Declarações periódicas",
       "CAPABILITY_TAX_DETERMINATION": "Determinação de impostos",
       "CAPABILITY_WITHHOLDING": "Retenções",
@@ -3497,7 +3496,7 @@
         "STARTS_AT": "De",
         "STATE_CODE": "Código IBGE do estado",
         "SUBTITLE": "A configuração do seu regime e as faixas de numeração que a autoridade lhe concedeu.",
-        "TITLE": "Nota fiscal eletrônica",
+        "TITLE": "Emissão eletrônica",
         "VALID_UNTIL": "Válida até",
         "VALID_UNTIL_HINT": "Uma resolução da DIAN e um CAF do SII vencem; uma série brasileira não."
       },
@@ -3628,7 +3627,7 @@
         "CANCEL": "Cancelar",
         "CAPABILITY_ACCOUNTING": "Contabilidade",
         "CAPABILITY_ELECTRONIC_ACCOUNTING": "Contabilidade eletrônica",
-        "CAPABILITY_ELECTRONIC_INVOICING": "Nota fiscal eletrônica",
+        "CAPABILITY_ELECTRONIC_INVOICING": "Emissão eletrônica",
         "CAPABILITY_PERIODIC_RETURNS": "Declarações periódicas",
         "CAPABILITY_TAX_DETERMINATION": "Determinação de imposto",
         "CAPABILITY_WITHHOLDING": "Retenções",
@@ -4015,7 +4014,7 @@
       "FECHA_APERTURA": "Data de abertura",
       "IBAN": "IBAN",
       "NOMBRE": "Nome",
-      "NOTAS": "Notas",
+      "NOTAS": "Observações",
       "NO_MODIFICABLE": "Não pode ser alterado: os movimentos já lançados foram medidos com este valor.",
       "NO_SE_PUDO_CARGAR": "Não foi possível carregar a conta bancária.",
       "NO_SE_PUDO_GUARDAR": "Não foi possível salvar a conta bancária.",
@@ -4314,7 +4313,7 @@
       "tax": "Tributos e Conformidade"
     },
     "hr": {
-      "employees": "Colaboradores",
+      "employees": "Funcionários",
       "departments": "Departamentos",
       "my_payslips": "Os meus recibos",
       "payroll_concepts": "Conceitos",
@@ -4347,6 +4346,7 @@
       "data_quality": "Qualidade de dados",
       "dimensions": "Dimensões",
       "duplicates": "Duplicados",
+      "extensions": "Extensões",
       "payment_methods": "Formas de pagamento",
       "payment_terms": "Condições de pagamento",
       "price_lists": "Tabelas de preços",
@@ -4354,8 +4354,7 @@
       "suppliers": "Fornecedores",
       "taxes": "Impostos",
       "uom": "Unidades de medida",
-      "warehouses": "Depósitos",
-      "extensions": "Extensões"
+      "warehouses": "Depósitos"
     },
     "mobile": {
       "approvals": "Aprovações",
@@ -4566,14 +4565,14 @@
     "WORKSPACE": "Meu trabalho",
     "SALES": "Vendas",
     "PURCHASING": "Compras",
-    "INVENTORY": "Inventário",
+    "INVENTORY": "Estoque",
     "TREASURY": "Tesouraria",
     "ACCOUNTING": "Contabilidade",
     "ANALYSIS": "Análise",
-    "DATASHEETS": "Folhas de dados",
+    "DATASHEETS": "Planilhas",
     "ADMINISTRATION": "Administração",
     "ROADMAP": "Em preparação",
-    "HR": "RH e Salários"
+    "HR": "RH e Folha de Pagamento"
   },
   "TRANSITION": {
     "PRECONDITIONS": "Precondições",
@@ -4589,7 +4588,7 @@
     "OPEN_PERIOD": "Abrir o período",
     "CONFIGURE_SEQUENCES": "Configurar sequências",
     "REVIEW_PLAN": "Rever o plano",
-    "VIEW_STOCK": "Ver existências"
+    "VIEW_STOCK": "Ver estoque"
   },
   "STATUS_BAR": {
     "PERIOD_OPEN": "Período {{period}} aberto",
@@ -4603,7 +4602,7 @@
     "MODULE_PANEL": "Seções do módulo",
     "GROUP_INBOX": "Caixa de entrada",
     "GROUP_DOCUMENTS": "Documentos",
-    "GROUP_MASTERS": "Cadastros",
+    "GROUP_MASTERS": "Dados Mestres",
     "GROUP_ANALYSIS": "Análise",
     "NO_ENTRIES": "Este módulo não tem seções disponíveis com suas permissões.",
     "SEARCH_PLACEHOLDER": "Pesquisar…",
@@ -4675,7 +4674,7 @@
         "IDENTITY": "Identidade fiscal e segurança social",
         "JOB_TITLE": "Cargo",
         "LAST_DAY": "Último dia trabalhado",
-        "LAST_NAME": "Apelidos",
+        "LAST_NAME": "Sobrenome",
         "NO_PAY": "Sem salário registado: a folha não pode incluir esta pessoa.",
         "PAY_HISTORY": "Histórico salarial",
         "PAY_HISTORY_HELP": "Um aumento acrescenta uma linha com a data em que passa a vigorar; nunca reescreve o que uma folha passada calculou.",
@@ -4707,7 +4706,7 @@
         "SUSPENDED": "Suspenso",
         "TERMINATED": "Desligado"
       },
-      "TITLE": "Colaboradores"
+      "TITLE": "Funcionários"
     }
   },
   "PAYROLL": {
@@ -4792,7 +4791,7 @@
       "AMOUNT_OR_HOURS": "Valor / horas",
       "APPROVE": "Aprovar",
       "CALCULATE": "Calcular",
-      "CANCEL": "Anular",
+      "CANCEL": "Cancelar",
       "CONCEPT": "Conceito",
       "CREATE": "Criar",
       "CREATE_FAILED": "Não foi possível criar a folha.",
@@ -4820,7 +4819,7 @@
       "STATUS_LABEL": {
         "APPROVED": "Aprovada",
         "CALCULATED": "Calculada",
-        "CANCELLED": "Anulada",
+        "CANCELLED": "Cancelada",
         "DRAFT": "Rascunho",
         "PAID": "Paga"
       },

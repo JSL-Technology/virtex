@@ -70,25 +70,25 @@ export class UpsertFiscalRegimeSettingsDto {
 
   /** Colombia: the invoicing resolution the ranges were granted by. */
   @IsString()
-  @MaxLength(64)
+  @MaxLength(64, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":64}' })
   @IsOptional()
   resolutionNumber?: string;
 
   /** Chile: the economic activity code the SII requires on every DTE. */
   @IsString()
-  @MaxLength(16)
+  @MaxLength(16, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":16}' })
   @IsOptional()
   activityCode?: string;
 
   /** Chile: comuna of the issuing address, which the SII requires and an address line is not. */
   @IsString()
-  @MaxLength(64)
+  @MaxLength(64, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":64}' })
   @IsOptional()
   originComuna?: string;
 
   /** Chile: city of the issuing address. */
   @IsString()
-  @MaxLength(64)
+  @MaxLength(64, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":64}' })
   @IsOptional()
   originCity?: string;
 }
@@ -102,7 +102,7 @@ export class UpsertFiscalRegimeSettingsDto {
 export class RegisterFiscalRangeDto {
   /** The authority's own document-type code: `01`, `33`, `55`. */
   @IsString()
-  @MaxLength(8)
+  @MaxLength(8, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":8}' })
   @Matches(/^[A-Za-z0-9]+$/, { message: 'INVOICES.TIPO_COMPROBANTE_FORMATO_INVALIDO' })
   documentType!: string;
 
@@ -111,16 +111,16 @@ export class RegisterFiscalRangeDto {
    * in Brazil. Empty where the market has none.
    */
   @IsString()
-  @MaxLength(16)
+  @MaxLength(16, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":16}' })
   @IsOptional()
   series?: string;
 
   @IsInt()
-  @Min(1)
+  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
   startsAt!: number;
 
   @IsInt()
-  @Min(1)
+  @Min(1, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":1}' })
   endsAt!: number;
 
   /**
@@ -135,7 +135,7 @@ export class RegisterFiscalRangeDto {
 
   /** The administrative act that granted the range: resolution number, CAF id, authorisation. */
   @IsString()
-  @MaxLength(128)
+  @MaxLength(128, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":128}' })
   @IsOptional()
   authorizationCode?: string;
 

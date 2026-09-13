@@ -30,6 +30,6 @@ export class ReopenFiscalYearDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(10, { message: 'VALIDATION.CONSTRAINTS.MIN_LENGTH|{"min":10}' })
-  @MaxLength(500)
+  @MaxLength(500, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":500}' })
   reason: string;
 }
