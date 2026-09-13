@@ -845,7 +845,18 @@
     }
   },
   "BILLING": {
-    "UNLIMITED_RESOURCE": "{{resource}}: sem limite"
+    "UNLIMITED_RESOURCE": "{{resource}}: sem limite",
+    "PLANS": {
+      "STARTER": {
+        "DESCRIPTION": "Ideal para equipas pequenas a começar"
+      },
+      "PRO": {
+        "DESCRIPTION": "Para empresas em crescimento com necessidades avançadas"
+      },
+      "ENTERPRISE": {
+        "DESCRIPTION": "Solução completa sem limites para grandes organizações"
+      }
+    }
   },
   "CHARTS": {
     "CASHFLOW": {

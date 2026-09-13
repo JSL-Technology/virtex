@@ -8,8 +8,14 @@ import { BillingService } from '../../../../../core/services/billing';
 import { annualSavingPercent, formatPlanPrice, type BillingPeriod } from '../../../../../core/models/plan.model';
 import { CountryService } from '../../../../../core/services/country.service';
 import { LanguageService } from '../../../../../core/services/language';
+import { translateOrLiteral } from '../../../../../core/i18n/translate-or-literal';
 
-/** One bullet on a plan card: either a translation key with params, or literal server text. */
+/**
+ * One bullet on a plan card.
+ *
+ * `key` is a translation key when the catalogue carries one and `text` is what to print if it does
+ * not — the two are the same string for a value the server sends as a key.
+ */
 export interface PlanFeatureLine {
   key: string | null;
   text: string;
@@ -108,7 +114,9 @@ export class StepPlan {
     limits?: { resource: string; limit: number; period: string }[];
   }): PlanFeatureLine[] {
     const lines: PlanFeatureLine[] = [];
-    if (p.description) lines.push({ key: null, text: p.description });
+    // The server sends a translation key; a plan row seeded before that change still carries a
+    // Spanish sentence, which `featureText` prints as it stands rather than as a raw key.
+    if (p.description) lines.push({ key: p.description, text: p.description });
 
     for (const limit of p.limits ?? []) {
       const resource = `REGISTER.STEPS.PLAN.RESOURCES.${limit.resource.toUpperCase()}`;
@@ -148,7 +156,11 @@ export class StepPlan {
     if (typeof resource === 'string') {
       params['resource'] = this.translate.instant(resource);
     }
-    return this.translate.instant(feature.key, params);
+    // `translateOrLiteral` and not `instant`: the plan description is a key the catalogue may not
+    // carry (a row seeded before descriptions became keys), and a bullet reading
+    // `[[BILLING.PLANS.PRO.DESCRIPTION]]` on the screen where the customer chooses what to pay
+    // for is worse than the untranslated sentence it replaces.
+    return translateOrLiteral(this.translate, feature.key, params, feature.text);
   }
 
   retry(): void {

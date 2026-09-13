@@ -7,6 +7,7 @@ import { StepUpService, StepUpScope } from '../../../core/services/step-up.servi
 import { formatPlanPrice, minorUnitFactorFor } from '../../../core/models/plan.model';
 import { LanguageService } from '../../../core/services/language';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { translateOrLiteral } from '../../../core/i18n/translate-or-literal';
 import { FormatService } from '../../../core/i18n/format.service';
 
 @Component({
@@ -187,8 +188,22 @@ export class BillingPage implements OnInit {
    */
   statusLabel(status: string | undefined): string {
     if (!status) return '—';
-    const key = `BILLING.SUBSCRIPTION_STATUS.${status.toUpperCase()}`;
-    const translated = this.translate.instant(key);
-    return translated === key ? status : translated;
+    return translateOrLiteral(
+      this.translate,
+      `BILLING.SUBSCRIPTION_STATUS.${status.toUpperCase()}`,
+      undefined,
+      status,
+    );
+  }
+
+  /**
+   * A plan's pitch, in the reader's language.
+   *
+   * The catalogue endpoint sends a translation key (`BILLING.PLANS.PRO.DESCRIPTION`); a row seeded
+   * before that change still carries the old Spanish sentence, and that is printed as it stands
+   * rather than as a key nobody can read.
+   */
+  planDescription(description: string | null | undefined): string {
+    return translateOrLiteral(this.translate, description);
   }
 }

@@ -845,7 +845,18 @@
     }
   },
   "BILLING": {
-    "UNLIMITED_RESOURCE": "{{resource}}: unlimited"
+    "UNLIMITED_RESOURCE": "{{resource}}: unlimited",
+    "PLANS": {
+      "STARTER": {
+        "DESCRIPTION": "Built for small teams getting started"
+      },
+      "PRO": {
+        "DESCRIPTION": "For growing companies with more demanding needs"
+      },
+      "ENTERPRISE": {
+        "DESCRIPTION": "The complete product, without limits, for large organizations"
+      }
+    }
   },
   "CHARTS": {
     "CASHFLOW": {
