@@ -2704,7 +2704,9 @@
     "PAYROLL_RUNS": "Nóminas",
     "INVOICE": "Factura",
     "VENDOR_BILL": "Factura de proveedor",
-    "DATASHEET": "Hoja de datos"
+    "DATASHEET": "Hoja de datos",
+    "AUDIT_ADJUSTMENTS": "Ajustes de auditoría",
+    "AUDIT_ADJUSTMENT_NEW": "Nuevo ajuste de auditoría"
   },
   "PASSWORD_STRENGTH": {
     "WEAK": "Débil"
@@ -4878,5 +4880,53 @@
       "execution_failed": "Falló la ejecución"
     },
     "GRANTED_CAPABILITIES": "Capacidades concedidas"
+  },
+  "AUDIT_ADJUSTMENTS": {
+    "TITLE": "Ajustes de auditoría",
+    "SUBTITLE": "Correcciones propuestas por una auditoría sobre un ejercicio ya cerrado.",
+    "PROPOSE": "Proponer ajuste",
+    "PROPOSE_TITLE": "Nuevo ajuste de auditoría",
+    "PROPOSE_SUBTITLE": "Se propone sobre un ejercicio cerrado y se contabiliza cuando se aprueba.",
+    "FISCAL_YEAR": "Ejercicio",
+    "ALL_YEARS": "Todos los ejercicios",
+    "CHOOSE_YEAR": "Elige un ejercicio cerrado…",
+    "CLOSED_YEARS_ONLY": "Solo se ofrecen ejercicios cerrados: uno abierto admite un asiento ordinario.",
+    "JOURNAL": "Diario",
+    "CHOOSE_JOURNAL": "Elige un diario…",
+    "DESCRIPTION": "Descripción",
+    "DESCRIPTION_PLACEHOLDER": "Ej. Gasto devengado no registrado",
+    "LINE_DESCRIPTION": "Concepto",
+    "ACCOUNT": "Cuenta",
+    "CHOOSE_ACCOUNT": "Elige una cuenta…",
+    "DEBIT": "Débito",
+    "CREDIT": "Crédito",
+    "AMOUNT": "Importe",
+    "ADD_LINE": "Agregar línea",
+    "REMOVE_LINE": "Quitar la línea",
+    "DATE": "Fecha",
+    "PROPOSER": "Propuesto por",
+    "PROPOSER_GONE": "Cuenta eliminada",
+    "STATE": "Estado",
+    "EVIDENCE": "Evidencia",
+    "EMPTY_TITLE": "Todavía no hay ajustes propuestos.",
+    "EMPTY_BODY": "Un ajuste de auditoría corrige un ejercicio ya cerrado y queda registrado con su evidencia.",
+    "PROPOSED_AND_POSTED": "Ajuste propuesto y contabilizado.",
+    "PROPOSED_PENDING": "Ajuste propuesto. Queda pendiente de aprobación.",
+    "PROPOSE_FAILED": "No se pudo proponer el ajuste.",
+    "STATUS": {
+      "PENDING_APPROVAL": "Pendiente de aprobación",
+      "APPROVED": "Aprobado",
+      "REJECTED": "Rechazado",
+      "POSTED": "Contabilizado",
+      "FAILED": "Falló"
+    },
+    "PROBLEM": {
+      "YEAR": "Elige el ejercicio que se corrige.",
+      "JOURNAL": "Elige el diario donde se registrará.",
+      "DESCRIPTION": "Describe el ajuste.",
+      "LINE_ACCOUNT": "Línea {{line}}: falta la cuenta.",
+      "LINE_DESCRIPTION": "Línea {{line}}: falta el concepto.",
+      "UNBALANCED": "El ajuste no cuadra: los débitos y los créditos deben sumar lo mismo."
+    }
   }
 }

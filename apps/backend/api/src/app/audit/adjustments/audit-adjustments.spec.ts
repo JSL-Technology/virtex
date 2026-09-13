@@ -56,7 +56,6 @@ describeWithDb('proposing an audit adjustment', () => {
 
   let dataSource: DataSource;
   let proposals: AuditAdjustmentsService;
-  let events: EventEmitter2;
 
   let organizationId: string;
   let generalJournalId: string;
@@ -94,18 +93,11 @@ describeWithDb('proposing an audit adjustment', () => {
       new ExchangeRateResolver(dataSource),
     );
 
-    events = new EventEmitter2();
     proposals = new AuditAdjustmentsService(
       dataSource,
       workflows as never,
       { upload: jest.fn() } as never,
-      events,
       new AdjustmentsService(entries, dataSource),
-    );
-    // The wiring the module now does: the listener is what turns an approval into an entry, and
-    // it was registered nowhere.
-    events.on('audit.adjustment.approved', (payload) =>
-      proposals.handleAdjustmentApproved(payload as never),
     );
   });
 
@@ -225,15 +217,15 @@ describeWithDb('proposing an audit adjustment', () => {
       proposer,
     );
 
-  /** The event handler runs asynchronously; wait for the proposal to leave PENDING. */
-  const settled = async (id: string): Promise<ProposedAdjustment> => {
-    for (let attempt = 0; attempt < 60; attempt++) {
-      const row = await dataSource.getRepository(ProposedAdjustment).findOneByOrFail({ id });
-      if (row.status !== AdjustmentStatus.PENDING_APPROVAL) return row;
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
-    throw new Error('the proposal never left PENDING_APPROVAL');
-  };
+  /**
+   * The state the proposal is in once `proposeAdjustment` returns.
+   *
+   * It used to be a poll, because the auto-approve path emitted an event and a listener posted it
+   * later. It posts on the same transaction now, so by the time the call returns the answer is
+   * final — and a proposal whose entry could not be posted is not recorded as proposed at all.
+   */
+  const settled = (id: string): Promise<ProposedAdjustment> =>
+    dataSource.getRepository(ProposedAdjustment).findOneByOrFail({ id });
 
   it('posts the adjustment when no approval policy stands in the way', async () => {
     const proposal = await propose();

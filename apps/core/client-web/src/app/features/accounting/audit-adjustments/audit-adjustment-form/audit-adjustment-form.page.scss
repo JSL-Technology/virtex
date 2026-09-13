@@ -1,0 +1,32 @@
+.aa-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.aa-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1rem;
+}
+
+.aa-lines {
+  padding: 0.5rem;
+  overflow-x: auto;
+
+  input,
+  select {
+    width: 100%;
+  }
+}
+
+.hint {
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+}
+
+/* Out of balance is a state to notice, not a decoration. */
+.aa-unbalanced {
+  color: var(--error-text);
+  font-weight: 600;
+}

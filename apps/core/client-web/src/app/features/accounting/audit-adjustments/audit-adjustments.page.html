@@ -1,0 +1,77 @@
+<vx-list-shell
+  titleKey="AUDIT_ADJUSTMENTS.TITLE"
+  subtitleKey="AUDIT_ADJUSTMENTS.SUBTITLE"
+  [count]="rows().length"
+  [loading]="loading()"
+  [error]="failed() ? 'COMMON.LOAD_FAILED' : null"
+  [empty]="isEmpty()"
+  (reload)="reload()"
+>
+  <button listActions type="button" class="primary-button" (click)="propose()">
+    <lucide-icon [img]="NewIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'AUDIT_ADJUSTMENTS.PROPOSE' | translate }}</span>
+  </button>
+
+  <label listFilters class="field-inline">
+    <span>{{ 'AUDIT_ADJUSTMENTS.FISCAL_YEAR' | translate }}</span>
+    <select [value]="fiscalYearId()" (change)="filterByYear($any($event.target).value)">
+      <option value="">{{ 'AUDIT_ADJUSTMENTS.ALL_YEARS' | translate }}</option>
+      @for (year of years(); track year.id) {
+        <option [value]="year.id">{{ year.startDate }} – {{ year.endDate }}</option>
+      }
+    </select>
+  </label>
+
+  <ng-container listEmpty>
+    <p class="ls__state-title">{{ 'AUDIT_ADJUSTMENTS.EMPTY_TITLE' | translate }}</p>
+    <p class="ls__state-body">{{ 'AUDIT_ADJUSTMENTS.EMPTY_BODY' | translate }}</p>
+  </ng-container>
+
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'AUDIT_ADJUSTMENTS.DATE' | translate }}</th>
+          <th>{{ 'AUDIT_ADJUSTMENTS.FISCAL_YEAR' | translate }}</th>
+          <th>{{ 'AUDIT_ADJUSTMENTS.DESCRIPTION' | translate }}</th>
+          <th class="text-right">{{ 'AUDIT_ADJUSTMENTS.AMOUNT' | translate }}</th>
+          <th>{{ 'AUDIT_ADJUSTMENTS.PROPOSER' | translate }}</th>
+          <th>{{ 'AUDIT_ADJUSTMENTS.STATE' | translate }}</th>
+          <th class="text-center">{{ 'AUDIT_ADJUSTMENTS.EVIDENCE' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.id) {
+          <tr>
+            <td>{{ row.date | vxDate }}</td>
+            <td>{{ yearLabel(row.fiscalYearId) }}</td>
+            <td>{{ row.description }}</td>
+            <td class="text-right">{{ amountOf(row) | vxMoney }}</td>
+            <td>
+              @if (row.proposer) {
+                {{ row.proposer.firstName }} {{ row.proposer.lastName }}
+              } @else {
+                <span class="muted">{{ 'AUDIT_ADJUSTMENTS.PROPOSER_GONE' | translate }}</span>
+              }
+            </td>
+            <td>
+              <span [ngClass]="statusBadge(row.status)">
+                {{ statusKey(row.status) | translate }}
+              </span>
+            </td>
+            <td class="text-center">
+              @if (row.evidence?.length) {
+                <span class="evidence-count">
+                  <lucide-icon [img]="EvidenceIcon" size="14" aria-hidden="true"></lucide-icon>
+                  {{ row.evidence?.length }}
+                </span>
+              } @else {
+                <span class="muted">—</span>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</vx-list-shell>

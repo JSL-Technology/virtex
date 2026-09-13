@@ -2703,7 +2703,9 @@
     "PAYROLL_RUNS": "Payroll runs",
     "INVOICE": "Invoice",
     "VENDOR_BILL": "Vendor bill",
-    "DATASHEET": "Datasheet"
+    "DATASHEET": "Datasheet",
+    "AUDIT_ADJUSTMENTS": "Audit adjustments",
+    "AUDIT_ADJUSTMENT_NEW": "New audit adjustment"
   },
   "PASSWORD_STRENGTH": {
     "WEAK": "Weak"
@@ -4877,5 +4879,53 @@
       "execution_failed": "Execution failed"
     },
     "GRANTED_CAPABILITIES": "Granted capabilities"
+  },
+  "AUDIT_ADJUSTMENTS": {
+    "TITLE": "Audit adjustments",
+    "SUBTITLE": "Corrections an audit has proposed to a year that is already closed.",
+    "PROPOSE": "Propose adjustment",
+    "PROPOSE_TITLE": "New audit adjustment",
+    "PROPOSE_SUBTITLE": "Raised against a closed year, and posted when it is approved.",
+    "FISCAL_YEAR": "Fiscal year",
+    "ALL_YEARS": "All fiscal years",
+    "CHOOSE_YEAR": "Choose a closed year…",
+    "CLOSED_YEARS_ONLY": "Only closed years are offered: an open year takes an ordinary entry.",
+    "JOURNAL": "Journal",
+    "CHOOSE_JOURNAL": "Choose a journal…",
+    "DESCRIPTION": "Description",
+    "DESCRIPTION_PLACEHOLDER": "e.g. Accrued expense not recorded",
+    "LINE_DESCRIPTION": "Line description",
+    "ACCOUNT": "Account",
+    "CHOOSE_ACCOUNT": "Choose an account…",
+    "DEBIT": "Debit",
+    "CREDIT": "Credit",
+    "AMOUNT": "Amount",
+    "ADD_LINE": "Add line",
+    "REMOVE_LINE": "Remove the line",
+    "DATE": "Date",
+    "PROPOSER": "Proposed by",
+    "PROPOSER_GONE": "Account deleted",
+    "STATE": "Status",
+    "EVIDENCE": "Evidence",
+    "EMPTY_TITLE": "No adjustments have been proposed yet.",
+    "EMPTY_BODY": "An audit adjustment corrects a year that is already closed, and is kept on record with its evidence.",
+    "PROPOSED_AND_POSTED": "Adjustment proposed and posted.",
+    "PROPOSED_PENDING": "Adjustment proposed. It is waiting for approval.",
+    "PROPOSE_FAILED": "The adjustment could not be proposed.",
+    "STATUS": {
+      "PENDING_APPROVAL": "Pending approval",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "POSTED": "Posted",
+      "FAILED": "Failed"
+    },
+    "PROBLEM": {
+      "YEAR": "Choose the year being corrected.",
+      "JOURNAL": "Choose the journal it will be recorded in.",
+      "DESCRIPTION": "Describe the adjustment.",
+      "LINE_ACCOUNT": "Line {{line}}: the account is missing.",
+      "LINE_DESCRIPTION": "Line {{line}}: the description is missing.",
+      "UNBALANCED": "The adjustment does not balance: debits and credits must add up to the same."
+    }
   }
 }

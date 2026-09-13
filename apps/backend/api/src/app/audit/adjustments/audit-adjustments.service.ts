@@ -7,7 +7,6 @@ import { WorkflowsService } from '../../workflows/workflows.service';
 import { DocumentTypeForApproval } from '../../workflows/entities/approval-policy.entity';
 import { StorageService } from '../../storage/storage.service';
 import { ProposedAdjustmentEvidence } from '../entities/proposed-adjustment-evidence.entity';
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { AdjustmentsService } from '../../journal-entries/adjustments.service';
 import { User } from '../../users/entities/user.entity/user.entity';
 import { FastifyFile, toUploadableFile } from '../../common/interfaces/fastify-file.interface';
@@ -25,7 +24,6 @@ export class AuditAdjustmentsService {
     private readonly dataSource: DataSource,
     private readonly workflowsService: WorkflowsService,
     private readonly storageService: StorageService,
-    private readonly eventEmitter: EventEmitter2,
     private readonly journalAdjustmentsService: AdjustmentsService,
     /** Narratives in the tenant's books language; see `LedgerNarrativeService`. */
     private readonly narrative: LedgerNarrativeService = new LedgerNarrativeService(
@@ -61,16 +59,25 @@ export class AuditAdjustmentsService {
       if (approvalRequest) {
         savedAdjustment.approvalRequestId = approvalRequest.id;
         await manager.save(savedAdjustment);
-      } else {
-
-        this.logger.log(`Ajuste ${savedAdjustment.id} auto-aprobado por falta de política de aprobación.`);
-        this.eventEmitter.emit('audit.adjustment.approved', {
-          documentId: savedAdjustment.id,
-          organizationId,
-        });
+        return savedAdjustment;
       }
 
-      return savedAdjustment;
+      /*
+       * No policy: nobody has to grant anything, so it posts here — on THIS transaction.
+       *
+       * It used to emit `audit.adjustment.approved` and let an `@OnEvent` listener open a second
+       * transaction. That listener ran while this one was still in flight, TypeORM turned its
+       * `dataSource.transaction()` into a `SAVEPOINT` on a connection that was not in a
+       * transaction block, and every auto-approved proposal failed with
+       * `SAVEPOINT can only be used in transaction blocks` — leaving it PENDING_APPROVAL with no
+       * entry and no approver, forever. Posting inline also makes the pair atomic: a proposal
+       * whose entry cannot be posted is not recorded as proposed.
+       */
+      this.logger.log(
+        `Ajuste ${savedAdjustment.id} auto-aprobado por falta de política de aprobación.`,
+      );
+      await this.postApproved(manager, savedAdjustment.id, organizationId);
+      return manager.findOneByOrFail(ProposedAdjustment, { id: savedAdjustment.id });
     });
   }
 
@@ -203,6 +210,9 @@ export class AuditAdjustmentsService {
           // worse record than one attributed to nobody. Null only if that account has since been
           // deleted, and the entry is then unattributed rather than credited to the wrong person.
           adjustment.proposerId,
+          // The approving transaction. Opening a second one from inside it is what produced
+          // `SAVEPOINT can only be used in transaction blocks` the first time this ran.
+          manager,
         );
 
         adjustment.status = AdjustmentStatus.POSTED;
@@ -217,26 +227,6 @@ export class AuditAdjustmentsService {
         throw new InternalServerError('AUDIT.FALLO_PROCESAR_AJUSTE_APROBADO', { p1: (error as Error).message });
       }
     }
-  }
-
-  /**
-   * The auto-approve path: a tenant with no approval policy for `AUDIT_ADJUSTMENT`.
-   *
-   * `proposeAdjustment` emits the event when `WorkflowsService` returns no approval request, which
-   * means nobody has to grant anything. Where a policy DOES exist the approval goes through
-   * `AuditAdjustmentApprovalHandler` instead, inside the approving transaction — this listener
-   * never sees it.
-   */
-  @OnEvent('audit.adjustment.approved', { async: true })
-  async handleAdjustmentApproved(payload: {
-    documentId: string;
-    organizationId: string;
-  }): Promise<void> {
-    const { documentId, organizationId } = payload;
-    this.logger.log(`Procesando aprobación para el ajuste de auditoría ${documentId}`);
-    await this.dataSource.transaction((manager) =>
-      this.postApproved(manager, documentId, organizationId),
-    );
   }
 
   /** A refused proposal stays in the record, marked, rather than disappearing. */

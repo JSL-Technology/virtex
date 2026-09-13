@@ -2703,7 +2703,9 @@
     "PAYROLL_RUNS": "Folhas de pagamento",
     "INVOICE": "Fatura",
     "VENDOR_BILL": "Fatura de fornecedor",
-    "DATASHEET": "Folha de dados"
+    "DATASHEET": "Folha de dados",
+    "AUDIT_ADJUSTMENTS": "Ajustes de auditoria",
+    "AUDIT_ADJUSTMENT_NEW": "Novo ajuste de auditoria"
   },
   "PASSWORD_STRENGTH": {
     "WEAK": "Fraca"
@@ -4877,5 +4879,53 @@
       "execution_failed": "Falhou a execução"
     },
     "GRANTED_CAPABILITIES": "Capacidades concedidas"
+  },
+  "AUDIT_ADJUSTMENTS": {
+    "TITLE": "Ajustes de auditoria",
+    "SUBTITLE": "Correções propostas por uma auditoria sobre um exercício já encerrado.",
+    "PROPOSE": "Propor ajuste",
+    "PROPOSE_TITLE": "Novo ajuste de auditoria",
+    "PROPOSE_SUBTITLE": "Proposto sobre um exercício encerrado e lançado quando for aprovado.",
+    "FISCAL_YEAR": "Exercício",
+    "ALL_YEARS": "Todos os exercícios",
+    "CHOOSE_YEAR": "Escolha um exercício encerrado…",
+    "CLOSED_YEARS_ONLY": "Só se oferecem exercícios encerrados: um aberto aceita um lançamento comum.",
+    "JOURNAL": "Diário",
+    "CHOOSE_JOURNAL": "Escolha um diário…",
+    "DESCRIPTION": "Descrição",
+    "DESCRIPTION_PLACEHOLDER": "Ex.: Despesa incorrida não registada",
+    "LINE_DESCRIPTION": "Histórico",
+    "ACCOUNT": "Conta",
+    "CHOOSE_ACCOUNT": "Escolha uma conta…",
+    "DEBIT": "Débito",
+    "CREDIT": "Crédito",
+    "AMOUNT": "Valor",
+    "ADD_LINE": "Adicionar linha",
+    "REMOVE_LINE": "Remover a linha",
+    "DATE": "Data",
+    "PROPOSER": "Proposto por",
+    "PROPOSER_GONE": "Conta eliminada",
+    "STATE": "Situação",
+    "EVIDENCE": "Evidência",
+    "EMPTY_TITLE": "Ainda não há ajustes propostos.",
+    "EMPTY_BODY": "Um ajuste de auditoria corrige um exercício já encerrado e fica registado com a sua evidência.",
+    "PROPOSED_AND_POSTED": "Ajuste proposto e lançado.",
+    "PROPOSED_PENDING": "Ajuste proposto. Fica pendente de aprovação.",
+    "PROPOSE_FAILED": "Não foi possível propor o ajuste.",
+    "STATUS": {
+      "PENDING_APPROVAL": "Aguardando aprovação",
+      "APPROVED": "Aprovado",
+      "REJECTED": "Rejeitado",
+      "POSTED": "Contabilizado",
+      "FAILED": "Falhou"
+    },
+    "PROBLEM": {
+      "YEAR": "Escolha o exercício que está a corrigir.",
+      "JOURNAL": "Escolha o diário onde será registado.",
+      "DESCRIPTION": "Descreva o ajuste.",
+      "LINE_ACCOUNT": "Linha {{line}}: falta a conta.",
+      "LINE_DESCRIPTION": "Linha {{line}}: falta o histórico.",
+      "UNBALANCED": "O ajuste não fecha: os débitos e os créditos têm de somar o mesmo."
+    }
   }
 }

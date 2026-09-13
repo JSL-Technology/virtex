@@ -123,6 +123,26 @@ export class PeriodClosingService {
   }
 
   /**
+   * The tenant's fiscal years, newest first.
+   *
+   * There was no way to read them at all: `POST /accounting/year-end-close` closes one and
+   * `POST .../reopen` reopens one, and nothing listed them. So the annual-close screen could not
+   * say which year it was about, and an audit adjustment — which is proposed AGAINST a closed year
+   * — had no way to offer the reader a year to choose. `status` filters the list because that is
+   * the question both screens ask: which years are still open, which are closed.
+   */
+  async listFiscalYears(
+    organizationId: string,
+    filters: { status?: FiscalYearStatus } = {},
+  ): Promise<FiscalYear[]> {
+    const where: Record<string, unknown> = { organizationId };
+    if (filters.status) where['status'] = filters.status;
+    return this.dataSource
+      .getRepository(FiscalYear)
+      .find({ where, order: { startDate: 'DESC' } });
+  }
+
+  /**
    * The period today falls in, and whether it is open.
    *
    * The one fact the status bar needs, answered in one query instead of by downloading a year of

@@ -176,10 +176,20 @@ export class AdjustmentsService {
     organizationId: string,
     /** Null when the proposer's account has since been deleted; the entry is then unattributed. */
     actorUserId: string | null,
+    /**
+     * Run on the caller's transaction instead of opening one.
+     *
+     * The approval that admits an adjustment and the posting that results from it belong to the
+     * same transaction: if the posting fails, the approval must fail with it. Without this
+     * parameter the caller had to open a second transaction from inside its own, which TypeORM
+     * turns into a `SAVEPOINT` on a connection that is not in a transaction block — the exact
+     * error the auto-approve path produced the first time anybody ran it.
+     */
+    outerManager?: EntityManager,
   ): Promise<JournalEntry> {
     const { fiscalYearId, ...entryData } = dto;
 
-    return this.dataSource.transaction(async (manager) => {
+    const run = async (manager: EntityManager): Promise<JournalEntry> => {
       const fiscalYear = await manager.findOneBy(FiscalYear, {
         id: fiscalYearId,
         organizationId,
@@ -220,7 +230,9 @@ export class AdjustmentsService {
           `${fiscalYearId} (cierre ${toIsoDate(fiscalYear.endDate)}) con fecha ${adjustmentDate}.`,
       );
       return entry;
-    });
+    };
+
+    return outerManager ? run(outerManager) : this.dataSource.transaction(run);
   }
 
   /**
