@@ -20,6 +20,12 @@ import { DocumentTemplateType } from '../entities/document-node.entity';
  * Slashes would make one node look like two, and the reserved characters below are what make a
  * downloaded file unopenable on Windows.
  */
+/*
+ * `no-control-regex` assumes a control character in a pattern is a typo. Here the control range is
+ * the point: a name carrying a NUL or an ESC is what makes a downloaded file unopenable, and on
+ * some platforms what lets a name lie about itself in a terminal.
+ */
+// eslint-disable-next-line no-control-regex
 const SAFE_NAME = /^[^/\\:*?"<>|\u0000-\u001f]+$/;
 
 export class ListDocumentsDto {

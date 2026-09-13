@@ -74,7 +74,7 @@ export class CsvParseError extends Error {
 @Injectable()
 export class CsvParserService {
   async parse(fileBuffer: Buffer, options: ParseOptions): Promise<ParsedBankTransaction[]> {
-    const content = fileBuffer.toString('utf-8').replace(/^﻿/, '');
+    const content = fileBuffer.toString('utf-8').replace(/^\uFEFF/, '');
 
     const results = Papa.parse<Record<string, string>>(content, {
       header: true,

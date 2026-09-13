@@ -80,7 +80,7 @@ export function toCsv(rows: CsvValue[][], options: CsvExportOptions = {}): strin
 
   // `sep=` must be the very first line, and Excel is the only reader that acts on it; everything
   // else treats it as an ordinary row, which is why the preamble carries the title anyway.
-  return `﻿sep=${delimiter}\r\n${lines.join('\r\n')}\r\n`;
+  return `\uFEFFsep=${delimiter}\r\n${lines.join('\r\n')}\r\n`;
 }
 
 /**

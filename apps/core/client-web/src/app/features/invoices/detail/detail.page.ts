@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, Input, signal, inject, OnInit, effect, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, HostListener, Input, signal, inject, OnInit, effect, computed } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { DialogService } from '../../../core/services/dialog.service';
@@ -374,6 +374,18 @@ export class InvoiceDetailPage implements OnInit {
 
   dismissPreview(): void {
     this.issuePreview.set(null);
+  }
+
+  /**
+   * Escape closes the issue preview.
+   *
+   * The dialog could only be dismissed by clicking — the backdrop or the Cancel button — so a
+   * keyboard user who opened it had no way out of it, on the screen that asks them to confirm
+   * issuing a fiscal document.
+   */
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.issuePreview()) this.dismissPreview();
   }
 
   /** Issue a draft: assigns the e-NCF, posts the ledger entry and transmits the comprobante. */

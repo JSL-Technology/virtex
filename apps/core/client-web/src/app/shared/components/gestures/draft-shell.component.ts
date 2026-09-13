@@ -152,7 +152,15 @@ export class DraftShellComponent {
   readonly cancelLabelKey = input('COMMON.CANCEL');
 
   readonly save = output<void>();
-  readonly cancel = output<void>();
+  /**
+   * Abandoning the draft.
+   *
+   * Named `cancelled` and not `cancel`: `cancel` IS a DOM event — a `<dialog>` dismissed with
+   * Escape and a file picker closed with no selection both fire one, and it bubbles. A page
+   * binding `(cancel)` on the shell would have been called by a native event from any such element
+   * inside it, and would have thrown the user's draft away because they closed a file dialog.
+   */
+  readonly cancelled = output<void>();
   /**
    * El resumen pide el foco para un campo.
    *

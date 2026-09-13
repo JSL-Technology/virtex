@@ -25,7 +25,7 @@ import { DraftShellComponent, DraftProblem } from './draft-shell.component';
       [form]="form()"
       [error]="error()"
       (save)="saves = saves + 1"
-      (cancel)="cancels = cancels + 1"
+      (cancelled)="cancels = cancels + 1"
       (focusField)="focused = $event"
     >
       <input class="field" id="ncf" />

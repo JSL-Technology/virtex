@@ -11,7 +11,7 @@
         type="button"
         class="dr__back"
         [attr.aria-label]="cancelLabelKey() | translate"
-        (click)="cancel.emit()"
+        (click)="cancelled.emit()"
       >
         <lucide-icon [img]="BackIcon" size="18" aria-hidden="true"></lucide-icon>
       </button>
@@ -48,7 +48,7 @@
 
       <ng-content select="[draftActions]"></ng-content>
 
-      <button type="button" class="dr__cancel" (click)="cancel.emit()">
+      <button type="button" class="dr__cancel" (click)="cancelled.emit()">
         {{ cancelLabelKey() | translate }}
       </button>
       <button type="submit" class="dr__save" [disabled]="!canSubmit()">

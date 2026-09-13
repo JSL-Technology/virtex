@@ -8,7 +8,7 @@
   [form]="form"
   saveLabelKey="ACCOUNTS_PAYABLE.PAYMENT.PAGAR"
   (save)="save()"
-  (cancel)="cancel()"
+  (cancelled)="cancel()"
 >
   <div class="form-body" [formGroup]="form">
     @if (activeBankAccounts().length === 0) {

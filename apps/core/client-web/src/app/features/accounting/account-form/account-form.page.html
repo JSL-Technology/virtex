@@ -12,7 +12,7 @@
   saveLabelKey="ACCOUNTING.ACCOUNT_FORM.GUARDAR_CUENTA"
   cancelLabelKey="ACCOUNTING.ACCOUNT_FORM.CANCELAR"
   (save)="onSave()"
-  (cancel)="onCancel()"
+  (cancelled)="onCancel()"
 >
   <div class="form-body" [formGroup]="accountForm">
     @if (isLoading()) {

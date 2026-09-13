@@ -54,7 +54,7 @@ describe('FileParserService', () => {
 
     /**
      * Excel writes a byte-order mark ahead of a UTF-8 CSV. Without stripping it the first column
-     * is named `﻿Fecha`, which no mapping can ever match — and the failure looks like a typo
+     * is named `<BOM>Fecha`, which no mapping can ever match — and the failure looks like a typo
      * in the user's own file.
      */
     it('strips the byte-order mark Excel writes', async () => {

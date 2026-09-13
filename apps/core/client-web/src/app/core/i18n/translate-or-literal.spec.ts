@@ -1,10 +1,15 @@
 import { TestBed } from '@angular/core/testing';
-import { TranslateModule, TranslateService, TranslateLoader } from '@ngx-translate/core';
+import {
+  TranslateModule,
+  TranslateService,
+  TranslateLoader,
+  type TranslationObject,
+} from '@ngx-translate/core';
 import { Observable, of } from 'rxjs';
 import { translateOrLiteral } from './translate-or-literal';
 
 class FakeLoader implements TranslateLoader {
-  getTranslation(): Observable<Record<string, unknown>> {
+  getTranslation(): Observable<TranslationObject> {
     return of({ BILLING: { PLANS: { PRO: { DESCRIPTION: 'For growing companies' } } } });
   }
 }

@@ -235,16 +235,28 @@ describe('UserManagementPage', () => {
       ['impersonate', StepUpScope.IMPERSONATE, () => {
         component.impersonateUser(mockUsers[0]);
       }],
-    ])('requires step-up before %s', fakeAsync((_label: string, scope: StepUpScope, act: () => void) => {
+    /*
+     * A real `await`, not `fakeAsync` + `tick`.
+     *
+     * Four of these six go through `DialogService.confirm`, which the page awaits. At the
+     * workspace's `es2022` target that `await` compiles to a NATIVE async function, and a native
+     * promise does not run on zone.js's patched `Promise` — so `tick()` never flushes it and the
+     * step-up call had not happened yet when the assertion ran. The spec used to compile at
+     * `es2016`, where TypeScript downlevels `await` into the patched promise and `tick()` does
+     * flush it: the test passed against a build of the component that production never runs.
+     */
+    ])('requires step-up before %s', async (_label: string, scope: StepUpScope, act: () => void) => {
       act();
-      tick();
+      // One turn of the microtask queue per `await` the page performs before the step-up call.
+      await Promise.resolve();
+      await Promise.resolve();
 
       expect(mockStepUpService.requireStepUp).toHaveBeenCalledWith(
         scope,
         expect.anything(),
         expect.any(Function),
       );
-    }));
+    });
   });
 
 });
