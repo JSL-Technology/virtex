@@ -191,6 +191,19 @@ async function bootstrap() {
     });
   }
 
+  // Lifecycle hooks run here, BEFORE anything below reads reference data.
+  //
+  // `LocalizationService.onModuleInit()` is what seeds `fiscal_regions`, and Nest runs init hooks
+  // from `app.init()` — which `listen()` used to trigger, further down. So on a fresh database the
+  // dev seeder below ran against an empty `fiscal_regions`: it resolved no region for the country,
+  // `applyFiscalPackage` rejected the tenant, and the fallback produced an administrator whose
+  // organization had no chart of accounts, no taxes, no ledger, no journals and no open periods —
+  // a login that cannot post a debit, while a tenant created by the real signup (which resolves
+  // its region at request time, long after boot) gets all of it. `listen()` reuses this
+  // initialisation, so this only fixes the ordering; it does not initialise twice.
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
+  await app.init();
+
   // Development convenience: seed a ready-to-use administrator so a login exists on a fresh
   // database, without registering one by hand each time. Hard-gated to non-production (and the
   // service refuses to run in production as well — defence in depth); opt out with DEV_SEED=false.
@@ -206,7 +219,6 @@ async function bootstrap() {
   }
 
   const port = configService.get<number>('PORT', 3000);
-  useContainer(app.select(AppModule), { fallbackOnErrors: true });
   await app.listen(port, '0.0.0.0');
   console.log(`🚀 Application is running on: ${await app.getUrl()}/${apiPrefix}`);
 }

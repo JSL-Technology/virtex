@@ -101,6 +101,7 @@ export class ProductFormPage implements OnInit {
           sku: 'INVENTORY.PRODUCT_FORM.SKU_CODIGO_PRODUCTO',
           description: 'INVENTORY.PRODUCT_FORM.DESCRIPCION',
           price: 'INVENTORY.PRODUCT_FORM.PRECIO_VENTA',
+          cost: 'INVENTORY.PRODUCT_FORM.COSTO_UNITARIO',
           stock: 'INVENTORY.PRODUCT_FORM.CANTIDAD_STOCK',
           reorderLevel: 'INVENTORY.PRODUCT_FORM.NIVEL_REORDEN',
           category: 'INVENTORY.PRODUCT_FORM.CATEGORIA',

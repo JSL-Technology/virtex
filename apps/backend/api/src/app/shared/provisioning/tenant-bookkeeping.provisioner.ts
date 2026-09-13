@@ -53,6 +53,13 @@ export class TenantBookkeepingProvisioner {
     { code: 'COMPRAS', name: 'Diario de Compras', type: 'PURCHASES' },
     { code: 'COBROS', name: 'Diario de Cobros', type: 'BANK' },
     { code: 'PAGOS', name: 'Diario de Pagos', type: 'BANK' },
+    // `BANCOS` is what `TreasuryService` looks up for the opening entry of a bank account and for
+    // transfers between accounts. It was missing from this list, so both refused with "The Banks
+    // journal (BANCOS) was not found" on every tenant the product has ever created — the one
+    // journal no tenant had, and the only two treasury operations that need it. The unit tests
+    // did not catch it because they insert the journal themselves instead of provisioning a
+    // tenant, which is exactly the gap this list exists to close.
+    { code: 'BANCOS', name: 'Diario de Bancos', type: 'BANK' },
     { code: 'CAJA', name: 'Diario de Caja', type: 'CASH' },
     { code: 'NOMINA', name: 'Diario de Nómina', type: 'GENERAL' },
     { code: 'GENERAL', name: 'Diario General', type: 'GENERAL' },

@@ -19,14 +19,18 @@
 
   <div *ngIf="sendError()" class="send-error" role="alert">
     <lucide-icon [img]="AlertCircleIcon" size="14"></lucide-icon>
-    {{ sendError() }}
+    {{ sendError()! | translate }}
     <button type="button" class="retry-btn" (click)="sendCode()">{{ 'AUTH.STEP_PHONE_VERIFY.REINTENTAR' | translate }}</button>
   </div>
+
+  <p *ngIf="channelDown()" class="verify-subtitle">
+    {{ 'AUTH.STEP_PHONE_VERIFY.SMS_UNAVAILABLE_CONTINUE' | translate }}
+  </p>
 
   <div *ngIf="codeSent() && !sendError()">
     <app-otp
       [title]="'AUTH.STEP_PHONE_VERIFY.CODIGO_VERIFICACION_SMS' | translate"
-      description="Ingresa el código de 6 dígitos que enviamos a tu número de celular."
+      [description]="'AUTH.STEP_PHONE_VERIFY.DESCRIPCION_CODIGO_SMS' | translate"
       [timerDuration]="300"
       [resendCooldown]="60"
       mode="email"

@@ -73,9 +73,22 @@
             </div>
           </div>
 
-          <div class="form-field">
-            <label for="reorderLevel">{{ 'INVENTORY.PRODUCT_FORM.NIVEL_REORDEN' | translate }}</label>
-            <input type="number" id="reorderLevel" formControlName="reorderLevel" />
+          <div class="form-row">
+            <!--
+              El costo tenía control en el formulario y ningún campo en la plantilla, así que se
+              enviaba siempre 0: el asiento de costo de venta salía en cero, el margen de cualquier
+              producto era del 100 % y el inventario quedaba sobrevalorado en el balance. El control
+              ya existía y la API ya aceptaba `cost`; lo único que faltaba era este input.
+            -->
+            <div class="form-field">
+              <label for="cost">{{ 'INVENTORY.PRODUCT_FORM.COSTO_UNITARIO' | translate }}</label>
+              <input type="number" id="cost" formControlName="cost" min="0" step="0.01" />
+              <small class="field-hint">{{ 'INVENTORY.PRODUCT_FORM.COSTO_UNITARIO_AYUDA' | translate }}</small>
+            </div>
+            <div class="form-field">
+              <label for="reorderLevel">{{ 'INVENTORY.PRODUCT_FORM.NIVEL_REORDEN' | translate }}</label>
+              <input type="number" id="reorderLevel" formControlName="reorderLevel" />
+            </div>
           </div>
         </section>
 

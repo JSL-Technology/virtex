@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, input, output } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, ArrowLeft, AlertTriangle, Check, Loader } from 'lucide-angular';
 
 /** Un fallo de validación, con el campo al que pertenece. */
@@ -55,8 +55,29 @@ export class DraftShellComponent {
   /** El formulario no cumple sus reglas. El botón sigue habilitado a propósito: ver abajo. */
   readonly invalid = input(false);
 
+  private readonly translate = inject(TranslateService);
+
   /** Errores a mostrar arriba. Vacío mientras el usuario no haya intentado guardar. */
   readonly problems = input<DraftProblem[]>([]);
+
+  /**
+   * Los mismos problemas, con el rótulo del campo ya traducido.
+   *
+   * `draftProblems` recoge CLAVES i18n —la misma que usa el `<label>` del campo— y las deja en
+   * `params.field` para que las traduzca el armazón. No las traducía nadie: la plantilla pasaba el
+   * parámetro tal cual al pipe, que solo traduce el mensaje, así que el resumen de errores decía
+   * «"CONTACTS.CUSTOMER_FORM.NOMBRE_EMPRESA" es obligatorio» en todos los formularios que usan
+   * este gesto. Un control sin clave declarada conserva su propio nombre: `instant` devuelve la
+   * cadena intacta cuando no es una clave conocida, que es justo el comportamiento que la función
+   * documenta como deliberado.
+   */
+  protected readonly resolvedProblems = computed(() =>
+    this.problems().map((problem) => {
+      const field = problem.params?.['field'];
+      if (typeof field !== 'string') return problem;
+      return { ...problem, params: { ...problem.params, field: this.translate.instant(field) } };
+    }),
+  );
 
   /** Error de servidor al guardar, ya localizado. */
   readonly error = input<string | null>(null);

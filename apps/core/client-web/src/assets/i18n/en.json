@@ -615,7 +615,7 @@
       "SELECCIONAR_CUENTA": "Select an account",
       "SELECCIONAR_PROVEEDOR": "Select a supplier",
       "SUBTOTAL": "Subtotal",
-      "TIMES": "&times;",
+      "TIMES": "×",
       "TIPO_BIENES_SERVICIOS": "Type of goods and services",
       "TITLE_CREATE": "New vendor bill",
       "TITLE_EDIT": "Edit vendor bill",
@@ -788,7 +788,8 @@
       "ENVIAMOS_CODIGO_ENLACE_CONFIRMACION": "We sent a code and a confirmation link to",
       "ENVIANDO_CODIGO_EMAIL": "Sending a code to {{email}}…",
       "PREFIERES_NO_ESCRIBIR_CODIGO_BUSCA_BOTON": "Would you rather not type the code? Look for the button",
-      "REINTENTAR": "Try again"
+      "REINTENTAR": "Try again",
+      "DESCRIPCION_CODIGO_EMAIL": "Enter the 6-digit code we sent to your email, or click the link in the message."
     },
     "STEP_PHONE_VERIFY": {
       "CODIGO_VERIFICACION_SMS": "SMS verification code",
@@ -796,7 +797,10 @@
       "ENVIAMOS_SMS_CODIGO": "We sent an SMS with the code to",
       "ENVIANDO_SMS_PHONE": "Sending an SMS to {{phone}}…",
       "OPTIONAL_SKIP": "You didn't add a phone number. This step is optional: you can continue, or go back to add one.",
-      "REINTENTAR": "Try again"
+      "REINTENTAR": "Try again",
+      "SMS_SEND_FAILED": "The verification SMS could not be sent.",
+      "SMS_UNAVAILABLE_CONTINUE": "SMS verification is unavailable right now. Your email is already verified, so you can continue — the phone number will simply stay unverified, and you can confirm it later from your profile.",
+      "DESCRIPCION_CODIGO_SMS": "Enter the 6-digit code we sent to your mobile number."
     },
     "STEP_UP": {
       "CONTINUE_WITH_IDP": "Continue with your provider",
@@ -1640,7 +1644,9 @@
       "VISTA_PREVIA": "Preview",
       "TITLE_NEW": "New product",
       "TITLE_EDIT": "Edit product",
-      "GUARDAR_PRODUCTO": "Save product"
+      "GUARDAR_PRODUCTO": "Save product",
+      "COSTO_UNITARIO": "Unit Cost",
+      "COSTO_UNITARIO_AYUDA": "What the item cost you. Drives cost of sale and inventory valuation."
     }
   },
   "INVOICES": {
@@ -3584,7 +3590,7 @@
       "SELECCIONAR_ROL": "Select a role",
       "SESION_USUARIO_HA_SIDO_CERRADA": "The user's session has been closed.",
       "SUPLANTAR_USUARIO": "Impersonate User",
-      "TIMES": "&times;",
+      "TIMES": "×",
       "USUARIOS": "Users",
       "USUARIOS_2": "users",
       "USUARIO_ACTUALIZADO_EXITO": "User updated successfully.",

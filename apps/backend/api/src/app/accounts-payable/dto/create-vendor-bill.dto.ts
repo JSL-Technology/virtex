@@ -44,11 +44,21 @@ export class CreateVendorBillDto {
   @IsNotEmpty()
   vendorId: string;
 
+  /**
+   * Declared as the string it actually is.
+   *
+   * The global pipe runs with `enableImplicitConversion`, so a property TYPED `Date` is converted
+   * from the wire string into a `Date` instance BEFORE the validators run — and `@IsDateString()`
+   * then rejects it for not being a string. Every vendor bill the UI sent came back
+   * `400 date is not a valid date` with a perfectly valid `2026-09-13` in the body: the module
+   * could not record a single purchase. `CreateInvoiceDto` already declares its dates as strings,
+   * which is why sales never hit this.
+   */
   @IsDateString()
-  date: Date;
+  date: string;
 
   @IsDateString()
-  dueDate: Date;
+  dueDate: string;
 
   @IsArray()
   @ValidateNested({ each: true })

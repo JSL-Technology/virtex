@@ -1,7 +1,7 @@
 import { Component, Input, effect, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule, Rocket, Check, AlertCircle } from 'lucide-angular';
 import { BillingService } from '../../../../../core/services/billing';
@@ -49,6 +49,7 @@ export class StepPlan {
   readonly AlertCircleIcon = AlertCircle;
 
   private billingService = inject(BillingService);
+  private translate = inject(TranslateService);
   private countryService = inject(CountryService);
   private languageService = inject(LanguageService);
 
@@ -123,6 +124,26 @@ export class StepPlan {
       });
     }
     return lines;
+  }
+
+  /**
+   * One bullet, as text.
+   *
+   * `buildFeatures` returns `{ key, text, params }` objects and the template printed the object:
+   * every plan card showed seven `[object Object]` bullets on the screen where the customer picks
+   * what to pay for. The `resource` parameter is itself a catalogue key — the limits come back as
+   * `journal_entries`, not as a sentence — so it is translated before it is interpolated, which is
+   * the step that turns "{{count}} {{resource}} a month" into "500 journal entries a month".
+   */
+  featureText(feature: PlanFeatureLine): string {
+    if (!feature.key) return feature.text;
+
+    const params = { ...(feature.params ?? {}) };
+    const resource = params['resource'];
+    if (typeof resource === 'string') {
+      params['resource'] = this.translate.instant(resource);
+    }
+    return this.translate.instant(feature.key, params);
   }
 
   retry(): void {

@@ -4,6 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../../core/services/auth';
 import { RECAPTCHA_V3_SITE_KEY, RecaptchaV3Module, ReCaptchaV3Service } from 'ng-recaptcha-19';
+import { recaptchaToken$ } from '../../../../core/auth/recaptcha-token';
 import { environment } from '../../../../../environments/environment';
 import { switchMap } from 'rxjs/operators';
 import { LanguageService } from '../../../../core/services/language';
@@ -71,7 +72,7 @@ export class ForgotPasswordPage {
     this.errorMessage.set(null);
     this.successMessage.set(null);
 
-    this.recaptchaV3Service.execute('forgotPassword').pipe(
+    recaptchaToken$(this.recaptchaV3Service, 'forgotPassword').pipe(
       switchMap((recaptchaToken) => {
         const email = this.forgotPasswordForm.value.email!;
         return this.authService.forgotPassword(email, recaptchaToken);

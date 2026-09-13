@@ -12,8 +12,8 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { LucideAngularModule, Phone, AlertCircle, Loader } from 'lucide-angular';
 import { ReCaptchaV3Service, RecaptchaV3Module } from 'ng-recaptcha-19';
-import { switchMap, catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { recaptchaToken$ } from '../../../../../core/auth/recaptcha-token';
+import { switchMap } from 'rxjs/operators';
 import { OtpComponent } from '../../../../../shared/components/otp/otp.component';
 import { AuthService } from '../../../../../core/services/auth';
 
@@ -27,6 +27,16 @@ import { AuthService } from '../../../../../core/services/auth';
 export class StepPhoneVerify implements OnInit {
   @Input({ required: true }) phone!: string;
   @Output() verified = new EventEmitter<string>();
+  /**
+   * The SMS channel itself is down — no provider configured, or the provider refused.
+   *
+   * Emitted so the wizard can stop gating on a verification that cannot happen. `RegisterUserDto`
+   * declares `phone` and `phoneVerificationCode` optional precisely so signup does not depend on
+   * SMS ("mandatory SMS at signup is real friction for corporate buyers"), and the server answers
+   * an unconfigured provider with "use email verification instead" — but the wizard demanded the
+   * code anyway, so a deployment without Twilio could not register a single account.
+   */
+  @Output() unavailable = new EventEmitter<void>();
 
   @ViewChild(OtpComponent) otpComponent?: OtpComponent;
 
@@ -40,6 +50,8 @@ export class StepPhoneVerify implements OnInit {
   isSending = signal(false);
   codeSent = signal(false);
   sendError = signal<string | null>(null);
+  /** True once the channel has failed server-side: the step becomes skippable rather than a wall. */
+  channelDown = signal(false);
   isVerifying = signal(false);
 
   /** The phone is optional. With no number there is nothing to verify, so the step becomes a skip. */
@@ -63,9 +75,7 @@ export class StepPhoneVerify implements OnInit {
     // able to block phone verification. The server decides whether a token is required (it honours
     // RECAPTCHA_DISABLED via the guard's skipIf), so a failure here degrades to "no token" instead
     // of tearing down the whole flow with a script error the user can do nothing about.
-    const token$ = this.recaptchaV3Service
-      ? this.recaptchaV3Service.execute('phone_verify_send').pipe(catchError(() => of(undefined)))
-      : of(undefined);
+    const token$ = recaptchaToken$(this.recaptchaV3Service, 'phone_verify_send');
 
     token$.pipe(
       switchMap((recaptchaToken) =>
@@ -76,9 +86,18 @@ export class StepPhoneVerify implements OnInit {
         this.codeSent.set(true);
         this.isSending.set(false);
       },
-      error: () => {
-        this.sendError.set('No se pudo enviar el SMS. Por favor intenta de nuevo.');
+      error: (err) => {
+        this.sendError.set('AUTH.STEP_PHONE_VERIFY.SMS_SEND_FAILED');
         this.isSending.set(false);
+
+        // 5xx is the channel, not the number: an unconfigured or failing provider. Retrying will
+        // not help the user, so the step says so and stops blocking the wizard. A 4xx stays a
+        // retryable user error (a malformed number, a rate limit) and keeps the gate.
+        const status = Number(err?.status ?? 0);
+        if (status >= 500 || status === 0) {
+          this.channelDown.set(true);
+          this.unavailable.emit();
+        }
       },
     });
   }
@@ -87,9 +106,7 @@ export class StepPhoneVerify implements OnInit {
     if (this.isVerifying()) return;
     this.isVerifying.set(true);
 
-    const token$ = this.recaptchaV3Service
-      ? this.recaptchaV3Service.execute('phone_verify_check').pipe(catchError(() => of(undefined)))
-      : of(undefined);
+    const token$ = recaptchaToken$(this.recaptchaV3Service, 'phone_verify_check');
 
     token$.pipe(
       switchMap((recaptchaToken) =>

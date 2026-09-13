@@ -121,7 +121,15 @@ export class CustomerFormPage implements OnInit {
     this.problems.set([]);
 
     this.isLoading.set(true);
-    const formValue = this.customerForm.getRawValue();
+    const { taxpayerType, ...rest } = this.customerForm.getRawValue();
+
+    // "Sin clasificar" is the select's empty option, and the field help tells the user to leave it
+    // there when they do not know the classification. It was sent as the empty string, which
+    // `@IsEnum(TaxpayerType)` rejects — `@IsOptional()` only forgives null and undefined — so the
+    // DEFAULT state of the form could not be saved at all: every customer created without touching
+    // this select came back `400 taxpayerType does not accept that value`. Null is the value that
+    // means "unclassified" in the column, and the one the validator lets through.
+    const formValue = { ...rest, taxpayerType: taxpayerType || null };
 
     const customerId = this.id();
     const operation = customerId
@@ -133,8 +141,17 @@ export class CustomerFormPage implements OnInit {
         this.notificationService.showSuccess(this.isEditMode() ? 'CONTACTS.CUSTOMER_FORM.CLIENTE_ACTUALIZADO_EXITOSAMENTE' : 'CONTACTS.CUSTOMER_FORM.CLIENTE_CREADO_EXITOSAMENTE');
         this.router.navigate(['/contacts/customers']);
       },
-      error: () => {
-        this.notificationService.showError(this.isEditMode() ? 'CONTACTS.CUSTOMER_FORM.ERROR_ACTUALIZAR_CLIENTE' : 'CONTACTS.CUSTOMER_FORM.ERROR_CREAR_CLIENTE');
+      error: (err) => {
+        // The server says exactly what it refused and says it in the reader's language; throwing
+        // that away for "Could not create the customer" is what made the failure above impossible
+        // to act on. The generic key stays as the fallback for a network error with no body.
+        const serverMessage = typeof err?.error?.message === 'string' ? err.error.message : null;
+        this.notificationService.showError(
+          serverMessage ??
+            (this.isEditMode()
+              ? 'CONTACTS.CUSTOMER_FORM.ERROR_ACTUALIZAR_CLIENTE'
+              : 'CONTACTS.CUSTOMER_FORM.ERROR_CREAR_CLIENTE'),
+        );
         this.isLoading.set(false);
       },
     });

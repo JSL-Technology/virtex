@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth';
 import { TranslateModule } from '@ngx-translate/core';
 import { ReCaptchaV3Service, RecaptchaV3Module, RECAPTCHA_V3_SITE_KEY } from 'ng-recaptcha-19';
+import { recaptchaToken$ } from '../../../core/auth/recaptcha-token';
 import { environment } from '../../../../environments/environment';
 import { LucideAngularModule, Lock, AlertCircle } from 'lucide-angular';
 
@@ -106,7 +107,7 @@ export class SetPasswordPage implements OnInit {
 
     const password = this.setPasswordForm.value.passwordGroup.password;
 
-    this.recaptchaV3Service.execute('setPassword').subscribe({
+    recaptchaToken$(this.recaptchaV3Service, 'setPassword').subscribe({
         next: (token) => {
             this.authService.setPasswordFromInvitation(this.token!, password).subscribe({
                 next: () => {

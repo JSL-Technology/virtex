@@ -236,12 +236,35 @@ export class NewInvoicePage implements OnInit {
     const product = this.products().find((p) => p.id === control.get('productId')?.value);
     if (!product) return;
 
+    const treatment = (product as { taxTreatment?: TaxTreatment }).taxTreatment ?? 'TAXED';
+
     control.patchValue({
       description: product.name,
       unitPrice: product.price,
-      taxTreatment: (product as { taxTreatment?: TaxTreatment }).taxTreatment ?? 'TAXED',
-      taxRate: (product as { taxRate?: number }).taxRate ?? this.taxRates()[0] ?? 0,
+      taxTreatment: treatment,
+      taxRate: this.rateForProduct(product as { taxRate?: number }, treatment),
     });
+  }
+
+  /**
+   * The rate a catalogue line should carry.
+   *
+   * `products.tax_rate` defaults to 0 while `products.tax_treatment` defaults to `TAXED`, and the
+   * product form has no control for either — so every product in the catalogue arrives as "taxed
+   * at zero per cent", which is not a tax position, it is an unconfigured column. The line used to
+   * take that 0 through `??`, which only falls back on null and undefined: picking any product
+   * silently moved the line from the tenant's 18 % to 0 %, the document was stored with the whole
+   * amount in `exemptTotal`, and the invoice went out under-declaring ITBIS while the line still
+   * read "Taxed" on screen.
+   *
+   * Zero-rating is expressed by the TREATMENT (`ZERO_RATED`, `EXEMPT`), which is respected here
+   * untouched. A rate of zero under `TAXED` means nobody set one, so the tenant's own first rate
+   * applies — the same value the line carries before a product is chosen.
+   */
+  private rateForProduct(product: { taxRate?: number }, treatment: TaxTreatment): number {
+    if (treatment !== 'TAXED') return 0;
+    const configured = product.taxRate;
+    return configured && configured > 0 ? configured : (this.taxRates()[0] ?? 0);
   }
 
   /** A line billing a stocked good beyond what is on hand. Shown, never silently accepted. */

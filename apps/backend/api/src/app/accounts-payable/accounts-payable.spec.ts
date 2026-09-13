@@ -194,8 +194,8 @@ describeWithDb('accounts payable', () => {
     );
 
     await dataSource.getRepository(AccountingPeriod).save([
-      { organizationId, name: 'Marzo 2026', startDate: '2026-03-01' as unknown as Date, endDate: '2026-03-31' as unknown as Date, status: PeriodStatus.OPEN },
-      { organizationId, name: 'Abril 2026', startDate: '2026-04-01' as unknown as Date, endDate: '2026-04-30' as unknown as Date, status: PeriodStatus.OPEN },
+      { organizationId, name: 'Marzo 2026', startDate: '2026-03-01', endDate: '2026-03-31', status: PeriodStatus.OPEN },
+      { organizationId, name: 'Abril 2026', startDate: '2026-04-01', endDate: '2026-04-30', status: PeriodStatus.OPEN },
       // An annulment with no stated date books today, and a posting into a date that belongs to no
       // period is refused — correctly. The tenant therefore needs a period covering now, which is
       // also true of any real deployment: a calendar that stops in the past stops the product.
@@ -262,8 +262,8 @@ describeWithDb('accounts payable', () => {
         payables.create(
           {
             vendorId,
-            date: '2026-03-05' as unknown as Date,
-            dueDate: '2026-04-04' as unknown as Date,
+            date: '2026-03-05',
+            dueDate: '2026-04-04',
             lines: [
               { product: 'Servicio', quantity: 2, unitPrice: 500, total: 999_999 },
             ],
@@ -285,8 +285,8 @@ describeWithDb('accounts payable', () => {
       const bill = await payables.create(
         {
           vendorId,
-          date: '2026-03-05' as unknown as Date,
-          dueDate: '2026-04-04' as unknown as Date,
+          date: '2026-03-05',
+          dueDate: '2026-04-04',
           currencyCode: FOREIGN,
           lines: [{ product: 'Licencias', quantity: 1, unitPrice: 100 }],
         } as CreateVendorBillDto,
@@ -306,8 +306,8 @@ describeWithDb('accounts payable', () => {
       payables.create(
         {
           vendorId,
-          date: '2026-03-10' as unknown as Date,
-          dueDate: '2026-04-09' as unknown as Date,
+          date: '2026-03-10',
+          dueDate: '2026-04-09',
           lines: [
             {
               product: 'Consultoría',
@@ -351,8 +351,8 @@ describeWithDb('accounts payable', () => {
       const bill = await payables.create(
         {
           vendorId,
-          date: '2026-03-10' as unknown as Date,
-          dueDate: '2026-04-09' as unknown as Date,
+          date: '2026-03-10',
+          dueDate: '2026-04-09',
           lines: [
             { product: 'Alquiler', quantity: 1, unitPrice: 20_000, expenseAccountId: account['expense'] },
           ],
@@ -382,8 +382,8 @@ describeWithDb('accounts payable', () => {
       const bill = await payables.create(
         {
           vendorId,
-          date: '2026-03-10' as unknown as Date,
-          dueDate: '2026-04-09' as unknown as Date,
+          date: '2026-03-10',
+          dueDate: '2026-04-09',
           lines: [
             { product: 'Honorarios', quantity: 1, unitPrice: 10_000, expenseAccountId: account['expense'] },
           ],
@@ -425,8 +425,8 @@ describeWithDb('accounts payable', () => {
       const bill = await payables.create(
         {
           vendorId,
-          date: '2026-03-10' as unknown as Date,
-          dueDate: '2026-04-09' as unknown as Date,
+          date: '2026-03-10',
+          dueDate: '2026-04-09',
           currencyCode: FOREIGN,
           lines: [
             { product: 'Importación', quantity: 1, unitPrice: 1_000, expenseAccountId: account['expense'] },
@@ -466,8 +466,8 @@ describeWithDb('accounts payable', () => {
       const bill = await payables.create(
         {
           vendorId,
-          date: '2026-03-10' as unknown as Date,
-          dueDate: '2026-04-09' as unknown as Date,
+          date: '2026-03-10',
+          dueDate: '2026-04-09',
           lines: [
             { product: 'Servicio', quantity: 1, unitPrice: 1_000, expenseAccountId: account['expense'] },
           ],
@@ -496,8 +496,8 @@ describeWithDb('accounts payable', () => {
         const bill = await payables.create(
           {
             vendorId,
-            date: '2026-03-01' as unknown as Date,
-            dueDate: dueDate as unknown as Date,
+            date: '2026-03-01',
+            dueDate,
             lines: [
               { product: 'Insumos', quantity: 1, unitPrice: amount, expenseAccountId: account['expense'] },
             ],
@@ -524,8 +524,8 @@ describeWithDb('accounts payable', () => {
       const bill = await payables.create(
         {
           vendorId,
-          date: '2026-03-01' as unknown as Date,
-          dueDate: '2026-04-10' as unknown as Date,
+          date: '2026-03-01',
+          dueDate: '2026-04-10',
           lines: [
             { product: 'Insumos', quantity: 1, unitPrice: 4_000, expenseAccountId: account['expense'] },
           ],
@@ -559,8 +559,8 @@ describeWithDb('accounts payable', () => {
       const bill = await payables.create(
         {
           vendorId,
-          date: '2026-03-05' as unknown as Date,
-          dueDate: '2026-04-10' as unknown as Date,
+          date: '2026-03-05',
+          dueDate: '2026-04-10',
           currencyCode: FOREIGN,
           lines: [
             { product: 'Importación', quantity: 1, unitPrice: 1_000, expenseAccountId: account['expense'] },
@@ -614,8 +614,8 @@ describeWithDb('accounts payable', () => {
       const bill = await payables.create(
         {
           vendorId,
-          date: '2026-03-05' as unknown as Date,
-          dueDate: '2026-04-04' as unknown as Date,
+          date: '2026-03-05',
+          dueDate: '2026-04-04',
           lines: [
             {
               product: 'Mercancía',

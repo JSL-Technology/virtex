@@ -28,6 +28,7 @@ import { PasswordService } from './password.service';
 import { PendingRegistration, PendingRegistrationStatus } from '../entities/pending-registration.entity';
 import { Plan } from '../../saas/entities/plan.entity';
 import { MembershipService } from '../../organizations/services/membership.service';
+import { UserCacheService } from '../modules/user-cache.service';
 import { canonicalizeTaxId } from '../../localization/fiscal/tax-id-validators';
 import { normalizeFiscalFields } from '../../localization/fiscal/country-profiles';
 import { PaymentService } from '../../payment/payment.service';
@@ -96,6 +97,7 @@ export class RegistrationService {
     // reference each other. Needed here to undo a charge whose account could not be created.
     @Inject(forwardRef(() => PaymentService))
     private readonly paymentService: PaymentService,
+    private readonly userCacheService: UserCacheService,
   ) {}
 
   /**
@@ -364,6 +366,7 @@ export class RegistrationService {
     countryCode: string | null;
     taxId?: string | null;
     taxpayerKind?: string | null;
+    planSlug?: string | null;
   }): Promise<{ user: User; organization: Organization }> {
     const passwordHash = await this.passwordService.hash(input.password);
     // Derive the fiscal region from the country (same rule as signup) so the tenant provisions its
@@ -401,7 +404,134 @@ export class RegistrationService {
         },
         manager,
       );
+
+      await this.attachDevelopmentEntitlement(organization, input.planSlug ?? null, manager);
+
       return { user, organization };
+    });
+  }
+
+  /**
+   * Subscribe a directly-provisioned tenant, the way checkout subscribes a paying one.
+   *
+   * `SubscriptionActiveGuard` refuses every non-public route of a tenant whose
+   * `subscriptionStatus` is null, and says why in its own comment: "Registration is payment-first
+   * and always records one, so this is a provisioning fault". This method is the one path that
+   * creates a tenant WITHOUT going through checkout, so it was manufacturing exactly that fault —
+   * a development administrator who could log in and then got 403 SUBSCRIPTION_REQUIRED from
+   * notifications, the accounting period, and everything else the guard covers. The account looked
+   * healthy and was entitled to nothing.
+   *
+   * The entitlement written here mirrors what `completePendingRegistration` writes after Stripe
+   * confirms: a plan, an active status and a period end. No Stripe identifiers, because no payment
+   * happened — those columns stay null, which is what tells a reader this tenant did not pay.
+   *
+   * Plan choice is `DEV_SEED_PLAN`, defaulting to the highest tier so a development tenant is not
+   * silently throttled by a starter limit while someone is trying to exercise the product. Testing
+   * plan LIMITS therefore needs a tenant seeded on a lower tier — set that variable.
+   */
+  private async attachDevelopmentEntitlement(
+    organization: Organization,
+    planSlug: string | null,
+    manager: EntityManager,
+  ): Promise<void> {
+    const slug = planSlug ?? this.configService.get<string>('DEV_SEED_PLAN') ?? 'enterprise';
+
+    const plan =
+      (await manager.findOne(Plan, { where: { slug } })) ??
+      (await manager.findOne(Plan, { where: { isActive: true }, order: { monthlyPrice: 'DESC' } }));
+
+    if (!plan) {
+      // No plans in the database means the SaaS catalogue has not been seeded. Leaving the tenant
+      // unsubscribed is honest — inventing a status with no plan behind it would exempt it from
+      // every limit in the product.
+      this.logger.error(
+        { event: 'dev_entitlement_no_plan', organizationId: organization.id },
+        '[BILLING] No SaaS plan available; development tenant left without a subscription.',
+      );
+      return;
+    }
+
+    const periodEnd = new Date();
+    periodEnd.setFullYear(periodEnd.getFullYear() + 1);
+
+    organization.plan = plan;
+    organization.planId = plan.id;
+    organization.subscriptionStatus = 'active';
+    organization.subscriptionPeriodStart = new Date();
+    organization.subscriptionPeriodEnd = periodEnd;
+    await manager.save(Organization, organization);
+  }
+
+  /**
+   * Give an EXISTING tenant the fiscal package it was created without.
+   *
+   * A tenant can only reach this state through a provisioning failure that was recovered from
+   * rather than rolled back — the dev seeder's minimal fallback is the one caller. Repairing is
+   * strictly better than leaving it: the alternative is an organization that can log in but has
+   * no chart of accounts, no taxes, no ledger, no journals and no open periods, which is not a
+   * degraded tenant but an unusable one, and nothing else in the system ever revisits it.
+   *
+   * Runs the same `strategy.provision` the paid signup runs, inside one transaction, so the
+   * repaired tenant is indistinguishable from one created correctly. Guarded on the exact broken
+   * state (`fiscalRegionId === null`): a tenant that already has a region keeps its books
+   * untouched, so calling this on a healthy tenant is a no-op rather than a double provisioning.
+   */
+  async provisionExistingTenant(input: {
+    organizationId: string;
+    countryCode: string;
+    taxpayerKind?: string | null;
+    planSlug?: string | null;
+  }): Promise<{ books: boolean; entitlement: boolean }> {
+    const fiscalRegionId = await this.resolveFiscalRegionId(input.countryCode);
+
+    return this.dataSource.transaction(async (manager) => {
+      const repaired = { books: false, entitlement: false };
+
+      const organization = await manager.findOne(Organization, {
+        where: { id: input.organizationId },
+      });
+      if (!organization) {
+        return repaired;
+      }
+
+      // The two ways a directly-provisioned tenant is born crippled are independent: it can have
+      // books and no entitlement, or an entitlement and no books. Each is repaired on its own
+      // condition so neither hides the other.
+      if (!organization.fiscalRegionId) {
+        const owner = await manager.findOne(User, {
+          where: { organizationId: organization.id },
+          order: { createdAt: 'ASC' },
+        });
+
+        if (owner) {
+          organization.fiscalRegionId = fiscalRegionId;
+          organization.country = input.countryCode;
+          organization.taxpayerKind = input.taxpayerKind ?? organization.taxpayerKind;
+          await manager.save(Organization, organization);
+
+          const strategy = this.registrationStrategyFactory.getStrategy(input.countryCode);
+          await strategy.provision(organization, owner, manager);
+          repaired.books = true;
+        }
+      }
+
+      if (!organization.subscriptionStatus) {
+        await this.attachDevelopmentEntitlement(organization, input.planSlug ?? null, manager);
+        repaired.entitlement = organization.subscriptionStatus !== null;
+      }
+
+      return repaired;
+    })
+    .then(async (repaired) => {
+      // The principal is cached (`user_session:<id>`) WITH its copy of the organization, and
+      // `SubscriptionActiveGuard` reads entitlement from that copy — so a repair that only touches
+      // the database keeps answering 403 until the cache expires, even across a fresh login.
+      // Dropping the cached principals is what makes the repair take effect now.
+      if (repaired.books || repaired.entitlement) {
+        await this.userCacheService.clearOrganizationMembers(input.organizationId);
+      }
+      return repaired;
     });
   }
 

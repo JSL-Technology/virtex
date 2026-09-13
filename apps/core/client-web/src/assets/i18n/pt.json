@@ -615,7 +615,7 @@
       "SELECCIONAR_CUENTA": "Selecionar conta",
       "SELECCIONAR_PROVEEDOR": "Selecionar fornecedor",
       "SUBTOTAL": "Subtotal",
-      "TIMES": "&times;",
+      "TIMES": "×",
       "TIPO_BIENES_SERVICIOS": "Tipo de bens e serviços",
       "TITLE_CREATE": "Nova fatura de fornecedor",
       "TITLE_EDIT": "Editar fatura de fornecedor",
@@ -788,7 +788,8 @@
       "ENVIAMOS_CODIGO_ENLACE_CONFIRMACION": "Enviamos um código e um link de confirmação para",
       "ENVIANDO_CODIGO_EMAIL": "Enviando o código para {{email}}…",
       "PREFIERES_NO_ESCRIBIR_CODIGO_BUSCA_BOTON": "Prefere não digitar o código? Procure o botão",
-      "REINTENTAR": "Tentar novamente"
+      "REINTENTAR": "Tentar novamente",
+      "DESCRIPCION_CODIGO_EMAIL": "Introduza o código de 6 dígitos que enviámos para o seu email, ou clique na ligação da mensagem."
     },
     "STEP_PHONE_VERIFY": {
       "CODIGO_VERIFICACION_SMS": "Código de verificação por SMS",
@@ -796,7 +797,10 @@
       "ENVIAMOS_SMS_CODIGO": "Enviamos um SMS com o código para",
       "ENVIANDO_SMS_PHONE": "Enviando um SMS para {{phone}}…",
       "OPTIONAL_SKIP": "Você não adicionou um número de telefone. Esta etapa é opcional: você pode continuar ou voltar para adicionar um.",
-      "REINTENTAR": "Tentar novamente"
+      "REINTENTAR": "Tentar novamente",
+      "SMS_SEND_FAILED": "Não foi possível enviar o SMS de verificação.",
+      "SMS_UNAVAILABLE_CONTINUE": "A verificação por SMS não está disponível de momento. O seu email já está verificado, por isso pode continuar: o telefone fica por verificar e poderá confirmá-lo depois no seu perfil.",
+      "DESCRIPCION_CODIGO_SMS": "Introduza o código de 6 dígitos que enviámos para o seu telemóvel."
     },
     "STEP_UP": {
       "CONTINUE_WITH_IDP": "Continuar com seu provedor",
@@ -1640,7 +1644,9 @@
       "VISTA_PREVIA": "Prévia",
       "TITLE_NEW": "Novo produto",
       "TITLE_EDIT": "Editar produto",
-      "GUARDAR_PRODUCTO": "Salvar produto"
+      "GUARDAR_PRODUCTO": "Salvar produto",
+      "COSTO_UNITARIO": "Custo Unitário",
+      "COSTO_UNITARIO_AYUDA": "Quanto o artigo lhe custou. Determina o custo da venda e a valorização do inventário."
     }
   },
   "INVOICES": {
@@ -3579,7 +3585,7 @@
       "SELECCIONAR_ROL": "Selecionar perfil",
       "SESION_USUARIO_HA_SIDO_CERRADA": "A sessão do usuário foi encerrada.",
       "SUPLANTAR_USUARIO": "Personificar Usuário",
-      "TIMES": "&times;",
+      "TIMES": "×",
       "USUARIOS": "Usuários",
       "USUARIOS_2": "usuários",
       "USUARIO_ACTUALIZADO_EXITO": "Usuário atualizado com sucesso.",

@@ -71,7 +71,7 @@
           {{ 'SHELL.PROBLEMS' | translate: { count: problems().length } }}
         </h2>
         <ul class="dr__problems">
-          @for (problem of problems(); track problem.message) {
+          @for (problem of resolvedProblems(); track problem.message) {
             <li>
               @if (problem.fieldId) {
                 <button type="button" class="dr__problem-link" (click)="focusProblem(problem.fieldId)">
