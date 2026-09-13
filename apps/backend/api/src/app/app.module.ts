@@ -59,6 +59,7 @@ import { DimensionsModule } from './dimensions/dimensions.module';
 import { MailModule } from './mail/mail.module';
 import { WebsocketsModule } from './websockets/websockets.module';
 import { AuditModule } from './audit/audit.module';
+import { AuditAdjustmentsModule } from './audit/adjustments/audit-adjustments.module';
 import { ComplianceModule } from './compliance/compliance.module';
 import { QueuesModule } from './queues/queues.module';
 import { HealthModule } from './health/health.module';
@@ -288,6 +289,7 @@ import { PosModule } from './pos/pos.module';
     MailModule,
     WebsocketsModule,
     AuditModule,
+    AuditAdjustmentsModule,
     ComplianceModule,
     AccountingModule,
     ConsolidationModule,

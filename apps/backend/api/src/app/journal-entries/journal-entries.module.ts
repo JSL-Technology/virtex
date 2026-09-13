@@ -108,6 +108,10 @@ import { JournalEntryApprovalHandler } from './journal-entry-approval.handler';
     JournalEntryNumberingService,
     FileParserService,
     LedgerNarrativeService,
+    // `AuditAdjustmentsService` posts an approved audit adjustment through this service. It could
+    // not reach it while the service was provided here and not exported — one of the reasons the
+    // audit-adjustment feature was never wired into a module at all.
+    AdjustmentsService,
   ],
 })
 export class JournalEntriesModule {}

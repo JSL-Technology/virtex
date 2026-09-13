@@ -128,7 +128,8 @@
   "AUDIT": {
     "FALLO_PROCESAR_AJUSTE_APROBADO": "The approved adjustment could not be processed: {{p1}}",
     "PROPUESTA_AJUSTE_ID_NO_ENCONTRADA": "Adjustment proposal \"{{adjustmentId}}\" was not found.",
-    "SOLO_PUEDE_ANADIR_EVIDENCIA_PROPUESTAS_PENDIENTES_APROBACION": "Evidence can only be added to proposals awaiting approval."
+    "SOLO_PUEDE_ANADIR_EVIDENCIA_PROPUESTAS_PENDIENTES_APROBACION": "Evidence can only be added to proposals awaiting approval.",
+    "EVIDENCIA_ARCHIVO_OBLIGATORIO": "Attach the evidence file."
   },
   "AUTH": {
     "2FA_CONFIGURATION_NOT_INITIATED_PLEASE_GENERATE_SECRET": "Two-step verification setup has not started. Generate the secret first.",

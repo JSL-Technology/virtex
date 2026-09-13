@@ -128,7 +128,8 @@
   "AUDIT": {
     "FALLO_PROCESAR_AJUSTE_APROBADO": "Falha ao processar o ajuste aprovado: {{p1}}",
     "PROPUESTA_AJUSTE_ID_NO_ENCONTRADA": "Proposta de ajuste \"{{adjustmentId}}\" não encontrada.",
-    "SOLO_PUEDE_ANADIR_EVIDENCIA_PROPUESTAS_PENDIENTES_APROBACION": "Evidências só podem ser adicionadas a propostas aguardando aprovação."
+    "SOLO_PUEDE_ANADIR_EVIDENCIA_PROPUESTAS_PENDIENTES_APROBACION": "Evidências só podem ser adicionadas a propostas aguardando aprovação.",
+    "EVIDENCIA_ARCHIVO_OBLIGATORIO": "Anexe o ficheiro da evidência."
   },
   "AUTH": {
     "2FA_CONFIGURATION_NOT_INITIATED_PLEASE_GENERATE_SECRET": "A configuração da verificação em duas etapas não foi iniciada. Gere o segredo primeiro.",
