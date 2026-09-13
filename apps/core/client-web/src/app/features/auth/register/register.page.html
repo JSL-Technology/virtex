@@ -66,7 +66,12 @@
           }
           @case (2) {
             <div class="step-content">
-              <app-step-email-verify [email]="currentEmail" (verified)="onEmailVerified($event)"></app-step-email-verify>
+              <app-step-email-verify
+                [email]="currentEmail"
+                [firstName]="currentFirstName"
+                [country]="currentCountry"
+                (verified)="onEmailVerified($event)"
+              ></app-step-email-verify>
             </div>
           }
           @case (3) {

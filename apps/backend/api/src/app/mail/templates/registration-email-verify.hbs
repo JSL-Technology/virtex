@@ -1,6 +1,8 @@
 {{#> shell title=(t 'MAIL.REGISTRATION_EMAIL_VERIFY.CONFIRMA_TU_CORREO_ELECTRONICO') preheader=(t 'MAIL.REGISTRATION_EMAIL_VERIFY.COMPLETAR_TU_REGISTRO_DEBES_CONFIRMAR_TU')}}
 <h1 class="ink" style="margin:0 0 18px; font:600 24px/1.28 {{brand 'font'}}; letter-spacing:-0.02em; color:{{brand 'ink'}};">{{t 'MAIL.REGISTRATION_EMAIL_VERIFY.CONFIRMA_TU_CORREO_ELECTRONICO'}}</h1>
-<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.REGISTRATION_EMAIL_VERIFY.HOLA'}} <strong class="ink" style="font-weight:600; color:{{brand 'ink'}};">{{name}}</strong></p>
+{{!-- El saludo lleva el nombre solo si se conoce. Se enviaba siempre el literal «Usuario», así
+      que el correo abría «Hola Usuario»: un mail-merge que se ve fallado. --}}
+<p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{#if name}}{{t 'MAIL.REGISTRATION_EMAIL_VERIFY.HOLA'}} <strong class="ink" style="font-weight:600; color:{{brand 'ink'}};">{{name}}</strong>{{else}}{{t 'MAIL.REGISTRATION_EMAIL_VERIFY.HOLA_SIN_NOMBRE'}}{{/if}}</p>
 <p class="ink2" style="margin:0 0 16px; font:400 16px/1.65 {{brand 'font'}}; color:{{brand 'ink2'}};">{{t 'MAIL.REGISTRATION_EMAIL_VERIFY.COMPLETAR_TU_REGISTRO_DEBES_CONFIRMAR_TU'}}</p>
 
 <p class="ink3" style="margin:26px 0 0; font:600 12px/1.5 {{brand 'font'}}; letter-spacing:0.1em; text-transform:uppercase; color:{{brand 'ink3'}};">{{t 'MAIL.REGISTRATION_EMAIL_VERIFY.OPCION_CLIC'}}</p>

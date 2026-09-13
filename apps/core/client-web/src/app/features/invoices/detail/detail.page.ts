@@ -188,8 +188,9 @@ export class InvoiceDetailPage implements OnInit {
 
   loadEcfStatus(): void {
     this.einvoicingService.getInvoiceStatus(this.id()).subscribe({
+        // `null` means no e-CF has been generated for this document yet, which the endpoint now
+        // says plainly instead of by answering 404.
         next: (status) => this.ecf.set(status),
-        // 404 simply means no e-CF was generated for this document yet.
         error: () => this.ecf.set(null),
     });
   }

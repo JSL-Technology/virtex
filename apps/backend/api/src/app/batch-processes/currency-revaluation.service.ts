@@ -16,6 +16,8 @@ import {
   toIsoDate,
 } from '../chart-of-accounts/account-balances.service';
 import { convert, roundAmount, toCents } from '../common/money';
+import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
+import { I18nService } from '../i18n/i18n.service';
 
 /**
  * Restates foreign-currency account balances at the closing rate — the unrealised FX adjustment.
@@ -42,6 +44,10 @@ export class CurrencyRevaluationService {
     private readonly balances: AccountBalancesService,
     private readonly exchangeRateResolver: ExchangeRateResolver,
     private readonly dataSource: DataSource,
+    /** Narratives in the tenant's books language; see `LedgerNarrativeService`. */
+    private readonly narrative: LedgerNarrativeService = new LedgerNarrativeService(
+      new I18nService(),
+    ),
   ) {}
 
   async run(
@@ -176,7 +182,12 @@ export class CurrencyRevaluationService {
         accountId: account.id,
         debit,
         credit,
-        description: `Revaluación ${account.currency} al cierre — ${account.code}`,
+        description: await this.narrative.describe(
+          manager,
+          organizationId,
+          'LEDGER.REVALUATION.LINE',
+          { currency: account.currency, account: account.code },
+        ),
         valuations: [{ ledgerId: ledger.id, debit, credit }],
       });
       netAdjustmentCents += differenceCents;
@@ -195,10 +206,13 @@ export class CurrencyRevaluationService {
       accountId: forexAccountId,
       debit: netAdjustmentCents > 0 ? 0 : netAmount,
       credit: netAdjustmentCents > 0 ? netAmount : 0,
-      description:
+      description: await this.narrative.describe(
+        manager,
+        organizationId,
         netAdjustmentCents > 0
-          ? 'Ganancia cambiaria no realizada'
-          : 'Pérdida cambiaria no realizada',
+          ? 'LEDGER.REVALUATION.UNREALISED_GAIN'
+          : 'LEDGER.REVALUATION.UNREALISED_LOSS',
+      ),
       valuations: [
         {
           ledgerId: ledger.id,
@@ -210,7 +224,12 @@ export class CurrencyRevaluationService {
 
     const entryDto: CreateJournalEntryDto = {
       date: toIsoDate(periodEndDate),
-      description: `Revaluación de moneda extranjera — libro ${ledger.name}`,
+      description: await this.narrative.describe(
+        manager,
+        organizationId,
+        'LEDGER.REVALUATION.ENTRY',
+        { ledger: ledger.name },
+      ),
       journalId: generalJournal.id,
       lines: revaluationLines,
       // The adjustment is expressed in ledger currency; it is the restatement itself, so it

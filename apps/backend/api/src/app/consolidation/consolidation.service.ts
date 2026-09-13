@@ -22,6 +22,8 @@ import {
   IntercompanyTransactionStatus,
 } from '../intercompany/entities/intercompany-transaction.entity';
 import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
+import { I18nService } from '../i18n/i18n.service';
+import { currentLanguage } from '../i18n/request-locale';
 
 /** How much of an entity's result and net assets belongs to the group, and how much to others. */
 export interface OwnershipSplit {
@@ -185,7 +187,20 @@ export class ConsolidationService {
     private readonly exchangeRateResolver: ExchangeRateResolver,
     private readonly financialReportingService: FinancialReportingService,
     private readonly dataSource: DataSource,
+    private readonly i18n: I18nService,
   ) {}
+
+  /**
+   * A sentence for the consolidated report, in the language of whoever asked for it.
+   *
+   * The reader's language and not the books': a consolidation spans several companies, which can
+   * be kept in several languages, and the report is composed fresh on every request rather than
+   * written into a ledger. There is no one set of books for it to belong to. (Contrast
+   * `LedgerNarrativeService`, which narrates entries that are part of the record.)
+   */
+  private say(key: string, params: Record<string, unknown> = {}): string {
+    return this.i18n.translate(key, currentLanguage(), params);
+  }
 
   async runConsolidation(
     parentOrganizationId: string,
@@ -288,7 +303,10 @@ export class ConsolidationService {
         warnings.push({
           code: 'ENTITY_OUT_OF_BALANCE',
           organizationId: member.organizationId,
-          detail: `El balance individual de ${member.legalName} está descuadrado por ${balanceSheet.outOfBalanceBy}.`,
+          detail: this.say('CONSOLIDATION.WARNING.MEMBER_OUT_OF_BALANCE', {
+            member: member.legalName,
+            amount: balanceSheet.outOfBalanceBy,
+          }),
         });
       }
 
@@ -560,7 +578,10 @@ export class ConsolidationService {
       warnings.push({
         code: 'NO_EXCHANGE_RATE',
         organizationId,
-        detail: `Sin cotizaciones de ${functionalCurrency} a ${presentationCurrency} dentro del período; se usó la tasa de cierre como promedio.`,
+        detail: this.say('CONSOLIDATION.WARNING.NO_AVERAGE_RATE', {
+          from: functionalCurrency,
+          to: presentationCurrency,
+        }),
       });
     }
 
@@ -578,15 +599,18 @@ export class ConsolidationService {
         warnings.push({
           code: 'NO_EXCHANGE_RATE',
           organizationId,
-          detail: `Sin tasa de ${functionalCurrency} a ${presentationCurrency} en la fecha de adquisición ${acquisitionDate}; se usó la tasa de cierre.`,
+          detail: this.say('CONSOLIDATION.WARNING.NO_ACQUISITION_RATE', {
+            from: functionalCurrency,
+            to: presentationCurrency,
+            date: acquisitionDate,
+          }),
         });
       }
     } else {
       warnings.push({
         code: 'NO_ACQUISITION_DATE',
         organizationId,
-        detail:
-          'Sin fecha de adquisición registrada: el patrimonio se convirtió a la tasa de cierre en lugar de la histórica (NIC 21.39(b)).',
+        detail: this.say('CONSOLIDATION.WARNING.NO_ACQUISITION_DATE'),
       });
     }
 
@@ -622,7 +646,9 @@ export class ConsolidationService {
       warnings.push({
         code: 'NO_CONSOLIDATION_MAP',
         organizationId: member.organizationId,
-        detail: `Sin mapa de consolidación para ${member.legalName}: sus cuentas se presentan con su propia codificación.`,
+        detail: this.say('CONSOLIDATION.WARNING.NO_CONSOLIDATION_MAP', {
+          member: member.legalName,
+        }),
       });
       return new Map();
     }
@@ -665,7 +691,10 @@ export class ConsolidationService {
         warnings.push({
           code: 'UNMAPPED_ACCOUNT',
           organizationId: member.organizationId,
-          detail: `La cuenta ${line.code} de ${member.legalName} no está mapeada; se presenta con su propia codificación.`,
+          detail: this.say('CONSOLIDATION.WARNING.ACCOUNT_NOT_MAPPED', {
+            code: line.code,
+            member: member.legalName,
+          }),
         });
       }
 
@@ -752,7 +781,10 @@ export class ConsolidationService {
 
     eliminations.push({
       kind: 'INVESTMENT_IN_SUBSIDIARY',
-      description: `Inversión en ${member.legalName} contra su patrimonio a la fecha de adquisición (${member.acquisitionDate}).`,
+      description: this.say('CONSOLIDATION.ELIMINATION.INVESTMENT_IN_SUBSIDIARY', {
+        member: member.legalName,
+        date: member.acquisitionDate,
+      }),
       amount: parentShare,
       organizationIds: [member.organizationId],
     });
@@ -761,7 +793,11 @@ export class ConsolidationService {
       warnings.push({
         code: 'INTRAGROUP_MISMATCH',
         organizationId: member.organizationId,
-        detail: `Compra en condiciones ventajosas: el costo de adquisición (${member.acquisitionCost} ${presentationCurrency}) es inferior a la participación adquirida (${parentShare} ${presentationCurrency}).`,
+        detail: this.say('CONSOLIDATION.WARNING.BARGAIN_PURCHASE', {
+          cost: member.acquisitionCost,
+          share: parentShare,
+          currency: presentationCurrency,
+        }),
       });
     }
 
@@ -813,7 +849,10 @@ export class ConsolidationService {
         warnings.push({
           code: 'INTRAGROUP_MISMATCH',
           organizationId: transaction.fromOrganizationId,
-          detail: `La operación intercompañía ${transaction.id} está en estado ${transaction.status}: solo una de sus dos mitades está registrada, por lo que no se elimina.`,
+          detail: this.say('CONSOLIDATION.WARNING.INTERCOMPANY_ONE_SIDED', {
+            transaction: transaction.id,
+            status: transaction.status,
+          }),
         });
         continue;
       }
@@ -836,7 +875,12 @@ export class ConsolidationService {
           warnings.push({
             code: 'NO_EXCHANGE_RATE',
             organizationId: transaction.fromOrganizationId,
-            detail: `Sin tasa de ${currency} a ${presentationCurrency} al ${toIsoDate(transaction.transactionDate)}; la operación intercompañía ${transaction.id} no se eliminó.`,
+            detail: this.say('CONSOLIDATION.WARNING.INTERCOMPANY_NO_RATE', {
+              from: currency,
+              to: presentationCurrency,
+              date: toIsoDate(transaction.transactionDate),
+              transaction: transaction.id,
+            }),
           });
           continue;
         }
@@ -861,7 +905,9 @@ export class ConsolidationService {
         warnings.push({
           code: 'INTRAGROUP_MISMATCH',
           organizationId: transaction.fromOrganizationId,
-          detail: `La operación intercompañía ${transaction.id} no encontró ambas cuentas en los estados consolidados; la eliminación puede estar incompleta.`,
+          detail: this.say('CONSOLIDATION.WARNING.INTERCOMPANY_ACCOUNTS_MISSING', {
+            transaction: transaction.id,
+          }),
         });
       }
     }

@@ -10,6 +10,7 @@ import { Account } from '../chart-of-accounts/entities/account.entity';
 import { AccountingPeriod } from '../accounting/entities/accounting-period.entity';
 import { Journal } from './entities/journal.entity';
 import { JournalEntriesService } from './journal-entries.service';
+import { LedgerNarrativeService } from './ledger-narrative.service';
 import { RecurringJournalEntriesService } from './recurring-journal-entries.service';
 import { JournalEntryTemplatesService } from './journal-entry-templates.service';
 import { JournalEntryImportService } from './journal-entry-import.service';
@@ -78,6 +79,8 @@ import { JournalEntryApprovalHandler } from './journal-entry-approval.handler';
   ],
   providers: [
     JournalEntriesService,
+    // The narrative on a system-generated entry, in the tenant's books language.
+    LedgerNarrativeService,
     JournalEntryNumberingService,
     RecurringJournalEntriesService,
     JournalEntryTemplatesService,
@@ -100,6 +103,11 @@ import { JournalEntryApprovalHandler } from './journal-entry-approval.handler';
   // this module. It was provided here and not exported, so `CoaImportModule` could not resolve
   // it and the application refused to start — `Nest can't resolve dependencies of the
   // CoaImportService (…, ?, …)`.
-  exports: [JournalEntriesService, JournalEntryNumberingService, FileParserService],
+  exports: [
+    JournalEntriesService,
+    JournalEntryNumberingService,
+    FileParserService,
+    LedgerNarrativeService,
+  ],
 })
 export class JournalEntriesModule {}

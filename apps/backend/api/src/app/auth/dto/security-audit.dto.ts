@@ -43,6 +43,46 @@ export class SendPublicVerificationDto {
   @IsVerificationTarget()
   target!: string;
 
+  /**
+   * The registrant's first name, for the greeting on the verification email.
+   *
+   * Optional because the endpoint is also used where no name has been given yet. When it is
+   * absent the email greets without one rather than inventing a placeholder: it used to be called
+   * with the literal `'Usuario'`, so every registration email in the product opened "Hola Usuario"
+   * — in Spanish, to a reader who had chosen English, about a person whose name the wizard had
+   * collected on the previous step.
+   */
+  @ApiProperty({ description: 'First name, for the greeting', required: false })
+  @IsString()
+  @IsOptional()
+  @Length(1, 100, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":1,"max":100}' })
+  firstName?: string;
+
+  /**
+   * The language the registrant is reading the product in.
+   *
+   * Decides both the language of the email and the language segment of the magic link inside it.
+   * The link was built with no language at all, so it always pointed at `/es/…` — a reader who
+   * had chosen English clicked the link in their English-language registration and landed on a
+   * Spanish page.
+   */
+  @ApiProperty({ description: 'Preferred language (ISO 639-1)', required: false })
+  @IsString()
+  @IsOptional()
+  @Length(2, 5, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":2,"max":5}' })
+  language?: string;
+
+  /**
+   * The country the registrant is signing up in, for the country segment of the magic link.
+   *
+   * Defaults to the product's home market when absent, which is what it always did.
+   */
+  @ApiProperty({ description: 'Country (ISO 3166-1 alpha-2)', required: false })
+  @IsString()
+  @IsOptional()
+  @Length(2, 2, { message: 'VALIDATION.CONSTRAINTS.COUNTRY_CODE' })
+  country?: string;
+
   @ApiProperty({ enum: VerificationType })
   @IsEnum(VerificationType)
   type!: VerificationType;

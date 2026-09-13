@@ -134,6 +134,12 @@ export class PasswordRecoveryService {
     await this.passwordService.assertNotBreached(password);
     user.security.passwordHash = await this.passwordService.hash(password);
     user.status = UserStatus.ACTIVE;
+    //  Llegar aquí ES la prueba de que la dirección funciona: el token de invitación se envió por
+    //  correo a esa dirección y sólo quien la lee ha podido presentarlo. La cuenta quedaba con
+    //  `is_email_verified = false`, de modo que el producto le pedía verificar un correo que
+    //  acababa de demostrar que controla, y cualquier regla que dependiera de la verificación
+    //  —avisos, recuperación— la trataba como no confirmada para siempre.
+    user.isEmailVerified = true;
     user.invitationToken = undefined;
     user.invitationTokenExpires = undefined;
 

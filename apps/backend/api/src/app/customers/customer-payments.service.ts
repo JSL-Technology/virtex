@@ -44,6 +44,7 @@ import {
   AgingReport,
   AgingRow,
 } from '../accounts-payable/accounts-payable.service';
+import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 
 const AGING_BUCKETS: { label: string; from: number; to: number | null }[] = [
   { label: '1-30', from: 1, to: 30 },
@@ -87,6 +88,8 @@ export class CustomerPaymentsService {
      * control account on the page instead of by somebody exporting both and subtracting.
      */
     private readonly balances: AccountBalancesService,
+    /** The ledger's narrative, in the language the books are kept in. */
+    private readonly narrative: LedgerNarrativeService,
   ) {}
 
   /**
@@ -384,16 +387,27 @@ export class CustomerPaymentsService {
         });
       };
 
+      //  El relato del asiento, en el idioma en que se llevan los libros de este inquilino.
+      //  Eran literales castellanos, de modo que un inquilino estadounidense abría su mayor y leía
+      //  su propia contabilidad en un idioma que nadie en la empresa habla.
+      const words = await this.narrative.describeAll(manager, organizationId, {
+        bankIn: { key: 'LEDGER.COLLECTION.BANK_IN' },
+        receivable: {
+          key: 'LEDGER.COLLECTION.RECEIVABLE_SETTLED',
+          params: { customer: customer.companyName ?? customer.id },
+        },
+        withheld: { key: 'LEDGER.COLLECTION.WITHHELD_BY_CUSTOMER' },
+        discount: { key: 'LEDGER.COLLECTION.EARLY_PAYMENT_DISCOUNT' },
+        advanceApplied: { key: 'LEDGER.COLLECTION.ADVANCE_APPLIED' },
+        advanceHeld: { key: 'LEDGER.COLLECTION.ADVANCE_HELD' },
+        forex: { key: 'LEDGER.COLLECTION.EXCHANGE_DIFFERENCE' },
+      });
+
       // Only the cash that actually arrived hits the bank. The part funded from an advance moved
       // between two balance-sheet lines and never touched the account.
       const bankDebitBase = roundAmount(cashInBase - convert(advanceDraw, receiptRate));
-      push(bankAccount.glAccountId, bankDebitBase, 0, 'Ingreso a banco por cobro a cliente');
-      push(
-        settings.defaultAccountsReceivableId,
-        0,
-        receivableCreditBase,
-        `Cancelación de cuentas por cobrar — ${customer.companyName ?? customer.id}`,
-      );
+      push(bankAccount.glAccountId, bankDebitBase, 0, words.bankIn);
+      push(settings.defaultAccountsReceivableId, 0, receivableCreditBase, words.receivable);
 
       if (toCents(withheldTaxBase) !== 0 || toCents(withheldIncomeBase) !== 0) {
         const withholdingReceivableId = await this.resolveAccount(
@@ -410,7 +424,7 @@ export class CustomerPaymentsService {
           withholdingReceivableId,
           roundAmount(withheldTaxBase + withheldIncomeBase),
           0,
-          'Retenciones practicadas por el cliente',
+          words.withheld,
         );
       }
 
@@ -424,7 +438,7 @@ export class CustomerPaymentsService {
         if (!discountAccountId) {
           throw new BadRequestError('CUSTOMERS.CUENTA_DESCUENTOS_NO_CONFIGURADA');
         }
-        push(discountAccountId, discountBase, 0, 'Descuento por pronto pago concedido');
+        push(discountAccountId, discountBase, 0, words.discount);
       }
 
       if (toCents(unappliedBase) !== 0 || toCents(advanceDrawBase) !== 0) {
@@ -439,9 +453,7 @@ export class CustomerPaymentsService {
           advanceAccountId,
           advanceDrawBase,
           unappliedBase,
-          toCents(advanceDrawBase) > 0
-            ? 'Aplicación de anticipo de cliente'
-            : 'Anticipo de cliente',
+          toCents(advanceDrawBase) > 0 ? words.advanceApplied : words.advanceHeld,
         );
       }
 
@@ -459,7 +471,7 @@ export class CustomerPaymentsService {
           forexAccountId,
           exchangeDifferenceBase > 0 ? exchangeDifferenceBase : 0,
           exchangeDifferenceBase < 0 ? Math.abs(exchangeDifferenceBase) : 0,
-          'Diferencia cambiaria realizada en el cobro',
+          words.forex,
         );
       }
 
@@ -467,7 +479,12 @@ export class CustomerPaymentsService {
         manager,
         {
           date: toIsoDate(dto.paymentDate),
-          description: `Recibo de cobro ${payment.receiptNumber ?? payment.id.slice(0, 8)}`,
+          description: await this.narrative.describe(
+            manager,
+            organizationId,
+            'LEDGER.COLLECTION.RECEIPT',
+            { number: payment.receiptNumber ?? payment.id.slice(0, 8) },
+          ),
           journalId: collectionJournal.id,
           lines: entryLines,
         } as CreateJournalEntryDto,

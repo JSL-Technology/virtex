@@ -97,9 +97,16 @@
 
           <div class="form-field">
             <label for="country">{{ 'CONTACTS.CUSTOMER_FORM.PAIS' | translate }}</label>
+            <!--
+              Todos los países, nombrados en el idioma del lector por `Intl.DisplayNames`. Eran dos
+              opciones escritas aquí —República Dominicana y Estados Unidos— mientras el producto
+              aprovisiona diecinueve mercados y cualquier inquilino vende a donde quiera: un cliente
+              en España no se podía registrar como estando en España.
+            -->
             <select id="country" formControlName="country">
-              <option value="DO">{{ 'CONTACTS.CUSTOMER_FORM.REPUBLICA_DOMINICANA' | translate }}</option>
-              <option value="US">{{ 'CONTACTS.CUSTOMER_FORM.ESTADOS_UNIDOS' | translate }}</option>
+              @for (option of countries(); track option.code) {
+                <option [value]="option.code">{{ option.name }}</option>
+              }
             </select>
           </div>
         </section>

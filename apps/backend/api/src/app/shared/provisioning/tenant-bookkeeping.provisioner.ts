@@ -12,6 +12,8 @@ import {
   DocumentType,
 } from '../document-sequences/entities/document-sequence.entity';
 import { InternalServerError } from '../../i18n/localized.exception';
+import { I18nService } from '../../i18n/i18n.service';
+import { DEFAULT_LANGUAGE, LanguageCode } from '@virteex/shared/types';
 
 /**
  * Everything a tenant needs in order to record a transaction, created at the moment the tenant is.
@@ -43,26 +45,35 @@ import { InternalServerError } from '../../i18n/localized.exception';
 export class TenantBookkeepingProvisioner {
   private readonly logger = new Logger(TenantBookkeepingProvisioner.name);
 
-  /** The journals every tenant starts with, keyed by the code the product's services look up. */
+  constructor(private readonly i18n: I18nService) {}
+
+  /**
+   * The journals every tenant starts with, keyed by the code the product's services look up.
+   *
+   * The code is an identifier — `VENTAS` is what `InvoicePostingService` looks up, and it stays
+   * Spanish whatever language the books are kept in, the way a column name does. The **name** is
+   * what an accountant reads in the journal picker, so it carries a translation key and is
+   * resolved into the tenant's books language when the tenant is created.
+   */
   private static readonly JOURNALS: ReadonlyArray<{
     code: string;
-    name: string;
+    nameKey: string;
     type: JournalType;
   }> = Object.freeze([
-    { code: 'VENTAS', name: 'Diario de Ventas', type: 'SALES' },
-    { code: 'COMPRAS', name: 'Diario de Compras', type: 'PURCHASES' },
-    { code: 'COBROS', name: 'Diario de Cobros', type: 'BANK' },
-    { code: 'PAGOS', name: 'Diario de Pagos', type: 'BANK' },
+    { code: 'VENTAS', nameKey: 'LEDGER.PROVISIONING.JOURNALS.SALES', type: 'SALES' },
+    { code: 'COMPRAS', nameKey: 'LEDGER.PROVISIONING.JOURNALS.PURCHASES', type: 'PURCHASES' },
+    { code: 'COBROS', nameKey: 'LEDGER.PROVISIONING.JOURNALS.COLLECTIONS', type: 'BANK' },
+    { code: 'PAGOS', nameKey: 'LEDGER.PROVISIONING.JOURNALS.PAYMENTS', type: 'BANK' },
     // `BANCOS` is what `TreasuryService` looks up for the opening entry of a bank account and for
     // transfers between accounts. It was missing from this list, so both refused with "The Banks
     // journal (BANCOS) was not found" on every tenant the product has ever created — the one
     // journal no tenant had, and the only two treasury operations that need it. The unit tests
     // did not catch it because they insert the journal themselves instead of provisioning a
     // tenant, which is exactly the gap this list exists to close.
-    { code: 'BANCOS', name: 'Diario de Bancos', type: 'BANK' },
-    { code: 'CAJA', name: 'Diario de Caja', type: 'CASH' },
-    { code: 'NOMINA', name: 'Diario de Nómina', type: 'GENERAL' },
-    { code: 'GENERAL', name: 'Diario General', type: 'GENERAL' },
+    { code: 'BANCOS', nameKey: 'LEDGER.PROVISIONING.JOURNALS.BANKS', type: 'BANK' },
+    { code: 'CAJA', nameKey: 'LEDGER.PROVISIONING.JOURNALS.CASH', type: 'CASH' },
+    { code: 'NOMINA', nameKey: 'LEDGER.PROVISIONING.JOURNALS.PAYROLL', type: 'GENERAL' },
+    { code: 'GENERAL', nameKey: 'LEDGER.PROVISIONING.JOURNALS.GENERAL', type: 'GENERAL' },
   ]);
 
   /** Prefixes for the internal document numbering. Fiscal numbering (NCF) is separate. */
@@ -85,10 +96,12 @@ export class TenantBookkeepingProvisioner {
     manager: EntityManager,
   ): Promise<void> {
     const organizationId = organization.id;
+    // The statutory language of these books, which is what their ledger and journals are named in.
+    const language = organization.booksLanguage ?? DEFAULT_LANGUAGE;
 
     await this.provisionSettings(organizationId, baseCurrency, manager);
-    await this.provisionLedger(organizationId, baseCurrency, manager);
-    await this.provisionJournals(organizationId, manager);
+    await this.provisionLedger(organizationId, baseCurrency, language, manager);
+    await this.provisionJournals(organizationId, language, manager);
     await this.provisionDocumentSequences(organizationId, manager);
     await this.provisionAccountingPeriods(organizationId, new Date(), manager);
 
@@ -184,6 +197,7 @@ export class TenantBookkeepingProvisioner {
   private async provisionLedger(
     organizationId: string,
     baseCurrency: string,
+    language: LanguageCode,
     manager: EntityManager,
   ): Promise<Ledger> {
     const repo = manager.getRepository(Ledger);
@@ -193,8 +207,11 @@ export class TenantBookkeepingProvisioner {
     return repo.save(
       repo.create({
         organizationId,
-        name: 'Libro Principal',
-        description: 'Libro contable principal, en la moneda funcional de la organización.',
+        name: this.i18n.translate('LEDGER.PROVISIONING.DEFAULT_LEDGER_NAME', language),
+        description: this.i18n.translate(
+          'LEDGER.PROVISIONING.DEFAULT_LEDGER_DESCRIPTION',
+          language,
+        ),
         currency: baseCurrency,
         isDefault: true,
         isActive: true,
@@ -204,7 +221,11 @@ export class TenantBookkeepingProvisioner {
 
   // ── Journals ───────────────────────────────────────────────────────────────
 
-  private async provisionJournals(organizationId: string, manager: EntityManager): Promise<void> {
+  private async provisionJournals(
+    organizationId: string,
+    language: LanguageCode,
+    manager: EntityManager,
+  ): Promise<void> {
     const repo = manager.getRepository(Journal);
     const existing = await repo.find({ where: { organizationId }, select: ['code'] });
     const known = new Set(existing.map((j) => j.code));
@@ -212,7 +233,16 @@ export class TenantBookkeepingProvisioner {
     const missing = TenantBookkeepingProvisioner.JOURNALS.filter((j) => !known.has(j.code));
     if (missing.length === 0) return;
 
-    await repo.save(missing.map((j) => repo.create({ organizationId, ...j })));
+    await repo.save(
+      missing.map((j) =>
+        repo.create({
+          organizationId,
+          code: j.code,
+          type: j.type,
+          name: this.i18n.translate(j.nameKey, language),
+        }),
+      ),
+    );
   }
 
   // ── Document sequences ─────────────────────────────────────────────────────

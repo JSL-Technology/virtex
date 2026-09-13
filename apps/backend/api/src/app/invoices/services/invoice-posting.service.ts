@@ -19,6 +19,7 @@ import {
   toMinorUnits,
 } from '../../common/money';
 import { BadRequestError } from '../../i18n/localized.exception';
+import { LedgerNarrativeService } from '../../journal-entries/ledger-narrative.service';
 
 /**
  * Turns a sales document into a balanced ledger entry.
@@ -64,7 +65,11 @@ import { BadRequestError } from '../../i18n/localized.exception';
 export class InvoicePostingService {
   private readonly logger = new Logger(InvoicePostingService.name);
 
-  constructor(private readonly journalEntries: JournalEntriesService) {}
+  constructor(
+    private readonly journalEntries: JournalEntriesService,
+    /** The ledger's narrative, in the language the books are kept in. */
+    private readonly narrative: LedgerNarrativeService,
+  ) {}
 
   /**
    * Post the document and stamp the resulting entry ids on it. Returns the invoice unchanged when
@@ -212,7 +217,7 @@ export class InvoicePostingService {
     const journal = await this.requireJournal(invoice.organizationId, 'VENTAS', manager);
     const dto: CreateJournalEntryDto = {
       date: new Date(`${invoice.issueDate}T00:00:00.000Z`).toISOString(),
-      description: this.describe(invoice),
+      description: await this.describe(manager, invoice),
       journalId: journal.id,
       currencyCode: currency,
       exchangeRate: invoice.exchangeRate,
@@ -258,16 +263,25 @@ export class InvoicePostingService {
     }
 
     const journal = await this.requireJournal(invoice.organizationId, 'GENERAL', manager);
+    const words = await this.narrative.describeAll(manager, invoice.organizationId, {
+      cost: { key: 'LEDGER.SALES.COST_OF_SALES' },
+      stock: { key: 'LEDGER.SALES.STOCK_RELEASED' },
+    });
     const debits: PostingLine[] = [
-      { accountId: settings.defaultCostOfGoodsSoldId, amount: cost, description: 'Costo de ventas' },
+      { accountId: settings.defaultCostOfGoodsSoldId, amount: cost, description: words.cost },
     ];
     const credits: PostingLine[] = [
-      { accountId: settings.defaultInventoryId, amount: cost, description: 'Salida de inventario' },
+      { accountId: settings.defaultInventoryId, amount: cost, description: words.stock },
     ];
 
     const dto: CreateJournalEntryDto = {
       date: new Date(`${invoice.issueDate}T00:00:00.000Z`).toISOString(),
-      description: `Costo de ${this.describe(invoice)}`,
+      description: await this.narrative.describe(
+        manager,
+        invoice.organizationId,
+        'LEDGER.SALES.COST_OF',
+        { document: await this.describe(manager, invoice) },
+      ),
       journalId: journal.id,
       currencyCode: settings.baseCurrency,
       exchangeRate: 1,
@@ -337,15 +351,28 @@ export class InvoicePostingService {
     return account?.id ?? fallbackId ?? null;
   }
 
-  private describe(invoice: Invoice): string {
+  /**
+   * The narrative that names the document, in the language the books are kept in.
+   *
+   * It was three Spanish literals and a template string, so a tenant in the United States read its
+   * own general ledger in a language nobody at the company speaks. `LedgerNarrativeService`
+   * resolves it against `Organization.booksLanguage` — the statutory language of the record, not
+   * the reader's — so an entry says the same thing in six years as it does today.
+   */
+  private describe(manager: EntityManager, invoice: Invoice): Promise<string> {
     const kind =
       invoice.type === InvoiceType.CREDIT_NOTE
-        ? 'Nota de crédito'
+        ? 'CREDIT_NOTE'
         : invoice.type === InvoiceType.DEBIT_NOTE
-          ? 'Nota de débito'
-          : 'Factura';
-    const fiscal = invoice.ncfNumber ? ` (${invoice.ncfNumber})` : '';
-    return `${kind} ${invoice.invoiceNumber}${fiscal} — ${invoice.customerName}`;
+          ? 'DEBIT_NOTE'
+          : 'INVOICE';
+    return this.narrative.describe(manager, invoice.organizationId, `LEDGER.SALES.${kind}`, {
+      number: invoice.invoiceNumber,
+      // The fiscal number in parentheses when there is one, and nothing at all when there is not —
+      // an empty pair of brackets reads as a field that failed to fill.
+      fiscal: invoice.ncfNumber ? ` (${invoice.ncfNumber})` : '',
+      customer: invoice.customerName,
+    });
   }
 
   private async requireSettings(

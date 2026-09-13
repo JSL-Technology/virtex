@@ -13,6 +13,8 @@ import { User } from '../../users/entities/user.entity/user.entity';
 import { FastifyFile, toUploadableFile } from '../../common/interfaces/fastify-file.interface';
 import { ForbiddenError, InternalServerError, NotFoundError } from '../../i18n/localized.exception';
 import { toIsoDate } from '../../common/dates';
+import { LedgerNarrativeService } from '../../journal-entries/ledger-narrative.service';
+import { I18nService } from '../../i18n/i18n.service';
 
 @Injectable()
 export class AuditAdjustmentsService {
@@ -24,6 +26,10 @@ export class AuditAdjustmentsService {
     private readonly storageService: StorageService,
     private readonly eventEmitter: EventEmitter2,
     private readonly journalAdjustmentsService: AdjustmentsService,
+    /** Narratives in the tenant's books language; see `LedgerNarrativeService`. */
+    private readonly narrative: LedgerNarrativeService = new LedgerNarrativeService(
+      new I18nService(),
+    ),
   ) {}
 
   async proposeAdjustment(
@@ -125,7 +131,12 @@ export class AuditAdjustmentsService {
             // `toISOString()` on it threw at runtime — the same defect this whole path already had
             // one instance of, in `createAuditAdjustment`.
             date: toIsoDate(adjustment.date),
-            description: `Ajuste de Auditoría: ${adjustment.description}`,
+            description: await this.narrative.describe(
+              manager,
+              organizationId,
+              'LEDGER.ADJUSTMENT.AUDIT',
+              { description: adjustment.description },
+            ),
             journalId: adjustment.journalId,
             lines: adjustment.lines.map(line => ({
               accountId: line.accountId,

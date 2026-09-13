@@ -46,12 +46,12 @@
         </div>
         <div class="form-field">
           <label for="country">{{ 'MASTERS.SUPPLIER_FORM.PAIS' | translate }}</label>
-          <input
-            id="country"
-            formControlName="country"
-            maxlength="2"
-            [placeholder]="'MASTERS.SUPPLIER_FORM.PAIS_PLACEHOLDER' | translate"
-          />
+          <!-- Named in the reader's language by `Intl.DisplayNames`; see `CountryNamesService`. -->
+          <select id="country" formControlName="country">
+            @for (option of countries(); track option.code) {
+              <option [value]="option.code">{{ option.name }}</option>
+            }
+          </select>
           <small class="field-hint">{{ 'MASTERS.SUPPLIER_FORM.PAIS_AYUDA' | translate }}</small>
         </div>
         <!--

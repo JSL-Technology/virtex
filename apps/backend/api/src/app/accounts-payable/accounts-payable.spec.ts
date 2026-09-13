@@ -34,6 +34,8 @@ import {
 } from '../treasury/entities/bank-account.entity';
 import { WithholdingResolverService } from '../invoices/services/withholding-resolver.service';
 import { TaxpayerType } from '../localization/fiscal/withholding-regimes';
+import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
+import { I18nService } from '../i18n/i18n.service';
 
 /**
  * Supplier invoices, from recording to settlement.
@@ -127,6 +129,9 @@ describeWithDb('accounts payable', () => {
       // supplier's fiscal classification and the tenant's country, and a stub would let the tests
       // agree with a rule the product does not actually apply.
       new WithholdingResolverService(),
+      // The real narrative service, so the assertions read the sentences the ledger will actually
+      // carry rather than a stub's.
+      new LedgerNarrativeService(new I18nService()),
     );
   });
 

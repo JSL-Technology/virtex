@@ -116,9 +116,14 @@ export class StepPlan {
         key:
           limit.limit === -1
             ? 'REGISTER.STEPS.PLAN.UNLIMITED'
-            : limit.period === 'monthly'
-              ? 'REGISTER.STEPS.PLAN.PER_PERIOD_MONTH'
-              : 'REGISTER.STEPS.PLAN.TOTAL',
+            //  Cero no es una cantidad, es una ausencia. «0 sucursales en total» se lee como un
+            //  error de plantilla en la pantalla donde el cliente decide qué pagar; «sin
+            //  sucursales» dice lo mismo y se entiende.
+            : limit.limit === 0
+              ? 'REGISTER.STEPS.PLAN.NONE'
+              : limit.period === 'monthly'
+                ? 'REGISTER.STEPS.PLAN.PER_PERIOD_MONTH'
+                : 'REGISTER.STEPS.PLAN.TOTAL',
         text: '',
         params: { count: limit.limit, resource },
       });

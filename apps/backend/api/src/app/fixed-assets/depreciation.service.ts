@@ -21,6 +21,8 @@ import {
   toIsoMonth,
   type IsoDate,
 } from '../common/dates';
+import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
+import { I18nService } from '../i18n/i18n.service';
 
 /**
  * Monthly depreciation.
@@ -64,6 +66,10 @@ export class DepreciationService {
     private readonly journalEntriesService: JournalEntriesService,
     private readonly schedulerLock: SchedulerLockService,
     private readonly dataSource: DataSource,
+    /** Narratives in the tenant's books language; see `LedgerNarrativeService`. */
+    private readonly narrative: LedgerNarrativeService = new LedgerNarrativeService(
+      new I18nService(),
+    ),
   ) {}
 
   /**
@@ -144,6 +150,7 @@ export class DepreciationService {
         where: { organizationId, status: FixedAssetStatus.IN_USE },
       });
 
+      const month = toIsoMonth(depreciationDate);
       const lines: CreateJournalEntryLineDto[] = [];
       let totalCents = 0;
 
@@ -162,14 +169,24 @@ export class DepreciationService {
             accountId: settings.defaultDepreciationExpenseAccountId,
             debit: amount,
             credit: 0,
-            description: `Depreciación ${toIsoMonth(depreciationDate)} — ${asset.name}`,
+            description: await this.narrative.describe(
+              em,
+              organizationId,
+              'LEDGER.DEPRECIATION.EXPENSE',
+              { month, asset: asset.name },
+            ),
             valuations: [{ ledgerId: defaultLedger.id, debit: amount, credit: 0 }],
           },
           {
             accountId: settings.defaultAccumulatedDepreciationAccountId,
             debit: 0,
             credit: amount,
-            description: `Depreciación acumulada ${toIsoMonth(depreciationDate)} — ${asset.name}`,
+            description: await this.narrative.describe(
+              em,
+              organizationId,
+              'LEDGER.DEPRECIATION.ACCUMULATED',
+              { month, asset: asset.name },
+            ),
             valuations: [{ ledgerId: defaultLedger.id, debit: 0, credit: amount }],
           },
         );
@@ -186,7 +203,12 @@ export class DepreciationService {
         em,
         {
           date: depreciationDate,
-          description: `Depreciación mensual ${toIsoMonth(depreciationDate)}`,
+          description: await this.narrative.describe(
+            em,
+            organizationId,
+            'LEDGER.DEPRECIATION.ENTRY',
+            { month },
+          ),
           journalId: depreciationJournal.id,
           lines,
         } as CreateJournalEntryDto,

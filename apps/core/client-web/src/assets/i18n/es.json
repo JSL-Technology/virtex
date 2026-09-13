@@ -1641,7 +1641,9 @@
     "UPDATE_SSO_PROVIDER": "No se pudo actualizar el proveedor.",
     "UPDATE_USER": "No se pudo actualizar el usuario.",
     "VERIFY_DOMAIN": "Todavía no se pudo verificar el dominio.",
-    "UPDATE_JOURNAL_ENTRY": "No se pudo modificar el asiento contable."
+    "UPDATE_JOURNAL_ENTRY": "No se pudo modificar el asiento contable.",
+    "RECAPTCHA": "No se pudo completar la verificación antibot. Recarga la página e inténtalo de nuevo.",
+    "INVALID_INVITATION_TOKEN": "El enlace de invitación no es válido o ya se usó. Pide uno nuevo a quien te invitó."
   },
   "FEEDBACK": {
     "COMING_SOON": "Esta función estará disponible próximamente",
@@ -1663,7 +1665,11 @@
       "B02": "B02 · Consumo (preimpreso)",
       "B04": "B04 · Nota de Crédito (preimpreso)",
       "B11": "B11 · Proveedor Informal",
-      "B15": "B15 · Gubernamental (preimpreso)"
+      "B15": "B15 · Gubernamental (preimpreso)",
+      "B03": "B03 · Nota de Débito",
+      "E41": "E41 · Compras Electrónico",
+      "E43": "E43 · Gastos Menores Electrónico",
+      "E47": "E47 · Pagos al Exterior Electrónico"
     },
     "MX": {
       "I": "I · Ingreso (CFDI 4.0)",
@@ -2330,7 +2336,6 @@
       "TITLE_NEW": "Nuevo proveedor",
       "TITLE_EDIT": "Editar proveedor",
       "PAIS": "País",
-      "PAIS_PLACEHOLDER": "DO",
       "PAIS_AYUDA": "Código ISO de dos letras. Separa una compra local de un pago al exterior, que el 609 reporta aparte.",
       "TIPO_CONTRIBUYENTE_AYUDA": "Determina qué se le retiene al pagarle. Si no lo sabes, déjalo sin clasificar: no se retendrá nada automáticamente."
     },
@@ -2915,7 +2920,8 @@
         "SUBTITLE": "Selecciona el plan que mejor se adapte a ti",
         "TITLE": "Elige tu Plan",
         "TOTAL": "{{count}} {{resource}} en total",
-        "UNLIMITED": "{{resource}} sin límite"
+        "UNLIMITED": "{{resource}} sin límite",
+        "NONE": "Sin {{resource}}"
       }
     },
     "STEP_OF": "Paso {{current}} de {{total}}",
@@ -3899,7 +3905,8 @@
       "USUARIO_ELIMINADO_EXITO": "Usuario eliminado con éxito.",
       "USUARIO_EMPRESA_COM": "usuario@empresa.com",
       "USUARIO_HA_SIDO_BLOQUEADO_SESION_CERRADA": "El usuario ha sido bloqueado y su sesión cerrada.",
-      "USUARIO_INVITADO_EXITO": "Usuario invitado con éxito."
+      "USUARIO_INVITADO_EXITO": "Usuario invitado con éxito.",
+      "MOSTRANDO_DE": "Mostrando {{shown}} de {{total}} usuarios"
     }
   },
   "SET_PASSWORD": {

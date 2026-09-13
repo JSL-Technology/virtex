@@ -11,6 +11,7 @@ import { BadRequestError } from '../../i18n/localized.exception';
 import { sumAmounts } from '../../common/money';
 import { PayrollRun } from '../entities/payroll-run.entity';
 import { Payslip } from '../entities/payslip.entity';
+import { LedgerNarrativeService } from '../../journal-entries/ledger-narrative.service';
 
 /**
  * Posts a payroll run to the general ledger — one balanced, idempotent entry.
@@ -42,7 +43,11 @@ import { Payslip } from '../entities/payslip.entity';
 export class PayrollAccountingService {
   private readonly logger = new Logger(PayrollAccountingService.name);
 
-  constructor(private readonly journalEntries: JournalEntriesService) {}
+  constructor(
+    private readonly journalEntries: JournalEntriesService,
+    /** The ledger's narrative, in the language the books are kept in. */
+    private readonly narrative: LedgerNarrativeService,
+  ) {}
 
   async postRun(
     manager: EntityManager,
@@ -120,19 +125,35 @@ export class PayrollAccountingService {
     const debit = (accountId: string, amount: number, description: string) => post(accountId, amount, true, description);
     const credit = (accountId: string, amount: number, description: string) => post(accountId, amount, false, description);
 
-    debit(accounts.salaryExpense, salaryExpense, 'Gasto de sueldos y salarios');
-    debit(accounts.employerContributionsExpense, employerExpense, 'Aportes patronales y beneficios');
-    credit(accounts.netPayable, netPayable, 'Sueldos por pagar (neto)');
-    credit(accounts.afpPayable, afpPayable, 'AFP por pagar (TSS)');
-    credit(accounts.sfsPayable, sfsPayable, 'SFS por pagar (TSS)');
-    credit(accounts.infotepPayable, riskTrainingPayable, 'SRL/INFOTEP por pagar');
-    credit(accounts.isrWithholdingPayable, isrPayable, 'ISR retenido por pagar (DGII)');
+    //  El relato del asiento en el idioma en que se llevan los libros del inquilino. Los nombres de
+    //  los fondos —AFP, SFS, SRL/INFOTEP, ISR— son los de la TSS y la DGII y no se traducen: son
+    //  nombres propios de instituciones dominicanas.
+    const words = await this.narrative.describeAll(manager, run.organizationId, {
+      salary: { key: 'LEDGER.PAYROLL.SALARY_EXPENSE' },
+      employer: { key: 'LEDGER.PAYROLL.EMPLOYER_CONTRIBUTIONS' },
+      net: { key: 'LEDGER.PAYROLL.NET_PAYABLE' },
+      afp: { key: 'LEDGER.PAYROLL.AFP_PAYABLE' },
+      sfs: { key: 'LEDGER.PAYROLL.SFS_PAYABLE' },
+      infotep: { key: 'LEDGER.PAYROLL.INFOTEP_PAYABLE' },
+      isr: { key: 'LEDGER.PAYROLL.ISR_PAYABLE' },
+      otherDeductions: { key: 'LEDGER.PAYROLL.OTHER_DEDUCTIONS' },
+      employerBenefits: { key: 'LEDGER.PAYROLL.EMPLOYER_BENEFITS' },
+      entry: { key: 'LEDGER.PAYROLL.RUN', params: { run: run.name } },
+    });
+
+    debit(accounts.salaryExpense, salaryExpense, words.salary);
+    debit(accounts.employerContributionsExpense, employerExpense, words.employer);
+    credit(accounts.netPayable, netPayable, words.net);
+    credit(accounts.afpPayable, afpPayable, words.afp);
+    credit(accounts.sfsPayable, sfsPayable, words.sfs);
+    credit(accounts.infotepPayable, riskTrainingPayable, words.infotep);
+    credit(accounts.isrWithholdingPayable, isrPayable, words.isr);
     if (otherPayable !== 0 || employerBenefitsPayable !== 0) {
       if (!accounts.accountsPayable) {
         throw new BadRequestError('PAYROLL.SIN_CUENTA_PARA_OTRAS_DEDUCCIONES');
       }
-      credit(accounts.accountsPayable, otherPayable, 'Otras deducciones por pagar');
-      credit(accounts.accountsPayable, employerBenefitsPayable, 'Beneficios patronales por pagar');
+      credit(accounts.accountsPayable, otherPayable, words.otherDeductions);
+      credit(accounts.accountsPayable, employerBenefitsPayable, words.employerBenefits);
     }
 
     if (lines.length < 2) {
@@ -143,7 +164,7 @@ export class PayrollAccountingService {
       manager,
       {
         date: run.periodEnd,
-        description: `Nómina ${run.name}`,
+        description: words.entry,
         journalId: journal.id,
         entryType: JournalEntryType.SYSTEM_GENERATED,
         lines,
@@ -200,20 +221,27 @@ export class PayrollAccountingService {
     const ledgerId = ledger.id;
     const value = Math.abs(netAmount);
     const payableOnDebit = netAmount > 0; // paying the liability down is a debit to it
+    const paid = await this.narrative.describeAll(manager, run.organizationId, {
+      settled: { key: 'LEDGER.PAYROLL.NET_PAID' },
+      reversed: { key: 'LEDGER.PAYROLL.NET_ADJUSTED' },
+      bankOut: { key: 'LEDGER.PAYROLL.BANK_OUT' },
+      bankBack: { key: 'LEDGER.PAYROLL.BANK_BACK' },
+      entry: { key: 'LEDGER.PAYROLL.PAYMENT', params: { run: run.name } },
+    });
     const lines: CreateJournalEntryLineDto[] = [
       payableOnDebit
-        ? { accountId: netPayableAccount, debit: value, credit: 0, description: 'Pago de nómina (neto)', valuations: [{ ledgerId, debit: value, credit: 0 }] }
-        : { accountId: netPayableAccount, debit: 0, credit: value, description: 'Ajuste de pago de nómina', valuations: [{ ledgerId, debit: 0, credit: value }] },
+        ? { accountId: netPayableAccount, debit: value, credit: 0, description: paid.settled, valuations: [{ ledgerId, debit: value, credit: 0 }] }
+        : { accountId: netPayableAccount, debit: 0, credit: value, description: paid.reversed, valuations: [{ ledgerId, debit: 0, credit: value }] },
       payableOnDebit
-        ? { accountId: bankGlAccountId, debit: 0, credit: value, description: 'Salida de banco por nómina', valuations: [{ ledgerId, debit: 0, credit: value }] }
-        : { accountId: bankGlAccountId, debit: value, credit: 0, description: 'Reingreso a banco por ajuste', valuations: [{ ledgerId, debit: value, credit: 0 }] },
+        ? { accountId: bankGlAccountId, debit: 0, credit: value, description: paid.bankOut, valuations: [{ ledgerId, debit: 0, credit: value }] }
+        : { accountId: bankGlAccountId, debit: value, credit: 0, description: paid.bankBack, valuations: [{ ledgerId, debit: value, credit: 0 }] },
     ];
 
     const entry = await this.journalEntries.createWithManager(
       manager,
       {
         date: run.payDate,
-        description: `Pago de nómina ${run.name}`,
+        description: paid.entry,
         journalId: journal.id,
         entryType: JournalEntryType.SYSTEM_GENERATED,
         lines,

@@ -31,6 +31,8 @@ import { convert, roundAmount, sumAmounts, toCents } from '../common/money';
 import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.service';
 import { FiscalCalendarService } from '../shared/fiscal-calendar.service';
 import { Page, resolvePaging, toPage } from '../common/pagination';
+import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
+import { I18nService } from '../i18n/i18n.service';
 
 export interface CashPositionRow {
   bankAccountId: string;
@@ -107,6 +109,10 @@ export class TreasuryService {
     private readonly exchangeRates: ExchangeRateResolver,
     private readonly calendar: FiscalCalendarService,
     private readonly dataSource: DataSource,
+    /** Narratives in the tenant's books language; see `LedgerNarrativeService`. */
+    private readonly narrative: LedgerNarrativeService = new LedgerNarrativeService(
+      new I18nService(),
+    ),
   ) {}
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -256,18 +262,26 @@ export class TreasuryService {
             exchangeRate: rate,
           };
 
+    const words = await this.narrative.describeAll(manager, organizationId, {
+      opening: { key: 'LEDGER.TREASURY.OPENING_BALANCE', params: { account: account.name } },
+      counterpart: {
+        key: 'LEDGER.TREASURY.OPENING_COUNTERPART',
+        params: { account: account.name },
+      },
+    });
+
     return this.journalEntriesService.createWithManager(
       manager,
       {
         date: opening.date,
-        description: `Saldo de apertura — ${account.name}`,
+        description: words.opening,
         journalId: journal.id,
         lines: [
           {
             accountId: account.glAccountId,
             debit: inLedgerCurrency,
             credit: 0,
-            description: `Saldo de apertura — ${account.name}`,
+            description: words.opening,
             valuations: [{ ledgerId: ledger.id, debit: inLedgerCurrency, credit: 0 }],
             ...foreign,
             ...(account.currencyCode === ledger.currency
@@ -278,7 +292,7 @@ export class TreasuryService {
             accountId: opening.counterpartAccountId,
             debit: 0,
             credit: inLedgerCurrency,
-            description: `Contrapartida del saldo de apertura — ${account.name}`,
+            description: words.counterpart,
             valuations: [{ ledgerId: ledger.id, debit: 0, credit: inLedgerCurrency }],
           },
         ],

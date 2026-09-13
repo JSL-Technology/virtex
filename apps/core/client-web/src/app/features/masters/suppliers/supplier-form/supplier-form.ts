@@ -5,6 +5,7 @@ import { SuppliersService, CreateSupplierDto, UpdateSupplierDto } from '../../..
 import { NotificationService } from '../../../../core/services/notification';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
+import { CountryNamesService } from '../../../../core/i18n/countries';
 
 @Component({
   selector: 'app-supplier-form-page',
@@ -20,6 +21,10 @@ export class SupplierForm implements OnInit {
   private route = inject(ActivatedRoute);
   private suppliersService = inject(SuppliersService);
   private notificationService = inject(NotificationService);
+  private readonly countryNames = inject(CountryNamesService);
+
+  /** Every country, in the reader's language. See `CountryNamesService`. */
+  protected readonly countries = this.countryNames.options;
 
 
   /**

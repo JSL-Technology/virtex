@@ -383,7 +383,22 @@
     "ORGANIZACION_MATRIZ_NO_ENCONTRADA": "Organización matriz no encontrada.",
     "ORGANIZACION_NO_ENCONTRADA": "Organización no encontrada.",
     "ORGANIZACION_NO_TIENE_SUBSIDIARIAS_CONFIGURADAS_CONSOLIDAR": "La organización no tiene subsidiarias configuradas para consolidar.",
-    "RANGO_FECHAS_INVALIDO": "El inicio del período ({{startDate}}) es posterior a la fecha de corte ({{asOfDate}})."
+    "RANGO_FECHAS_INVALIDO": "El inicio del período ({{startDate}}) es posterior a la fecha de corte ({{asOfDate}}).",
+    "ELIMINATION": {
+      "INVESTMENT_IN_SUBSIDIARY": "Inversión en {{member}} contra su patrimonio a la fecha de adquisición ({{date}})."
+    },
+    "WARNING": {
+      "MEMBER_OUT_OF_BALANCE": "El balance individual de {{member}} está descuadrado por {{amount}}.",
+      "NO_AVERAGE_RATE": "Sin cotizaciones de {{from}} a {{to}} dentro del período; se usó la tasa de cierre como promedio.",
+      "NO_ACQUISITION_RATE": "Sin tasa de {{from}} a {{to}} en la fecha de adquisición {{date}}; se usó la tasa de cierre.",
+      "NO_CONSOLIDATION_MAP": "Sin mapa de consolidación para {{member}}: sus cuentas se presentan con su propia codificación.",
+      "ACCOUNT_NOT_MAPPED": "La cuenta {{code}} de {{member}} no está mapeada; se presenta con su propia codificación.",
+      "BARGAIN_PURCHASE": "Compra en condiciones ventajosas: el costo de adquisición ({{cost}} {{currency}}) es inferior a la participación adquirida ({{share}} {{currency}}).",
+      "INTERCOMPANY_ONE_SIDED": "La operación intercompañía {{transaction}} está en estado {{status}}: solo una de sus dos mitades está registrada, por lo que no se elimina.",
+      "INTERCOMPANY_NO_RATE": "Sin tasa de {{from}} a {{to}} al {{date}}; la operación intercompañía {{transaction}} no se eliminó.",
+      "INTERCOMPANY_ACCOUNTS_MISSING": "La operación intercompañía {{transaction}} no encontró ambas cuentas en los estados consolidados; la eliminación puede estar incompleta.",
+      "NO_ACQUISITION_DATE": "Sin fecha de adquisición registrada: el patrimonio se convirtió a la tasa de cierre en lugar de la histórica (NIC 21.39(b))."
+    }
   },
   "CURRENCIES": {
     "DIARIO_GENERAL_GENERAL_NO_ENCONTRADO": "Diario General (GENERAL) no encontrado.",
@@ -1006,7 +1021,8 @@
       "NO_COMPARTAS_ESTE_CODIGO_NADIE_NUESTRO": "No compartas este código con nadie. Nuestro equipo nunca te lo pedirá.",
       "OPCION_CLIC": "Opción 1 — Un clic",
       "OPCION_CODIGO_VERIFICACION": "Opción 2 — Código de verificación",
-      "SI_NO_SOLICITASTE_ESTO_PUEDES_IGNORAR": "Si no solicitaste esto, puedes ignorar este correo de forma segura."
+      "SI_NO_SOLICITASTE_ESTO_PUEDES_IGNORAR": "Si no solicitaste esto, puedes ignorar este correo de forma segura.",
+      "HOLA_SIN_NOMBRE": "Hola:"
     },
     "REGISTRATION_FAILED": {
       "CREAR_MI_CUENTA": "Crear mi cuenta",
@@ -1748,5 +1764,153 @@
     "FOLDER_IS_NOT_A_TEMPLATE": "Una carpeta no puede marcarse como plantilla.",
     "CANNOT_MOVE_INTO_ITSELF": "Una carpeta no se puede mover dentro de sí misma.",
     "CANNOT_MOVE_INTO_DESCENDANT": "Una carpeta no se puede mover dentro de una de sus subcarpetas: quedaría inalcanzable."
+  },
+  "LEDGER": {
+    "SALES": {
+      "INVOICE": "Factura {{number}}{{fiscal}} — {{customer}}",
+      "CREDIT_NOTE": "Nota de crédito {{number}}{{fiscal}} — {{customer}}",
+      "DEBIT_NOTE": "Nota de débito {{number}}{{fiscal}} — {{customer}}",
+      "COST_OF": "Costo de {{document}}",
+      "COST_OF_SALES": "Costo de ventas",
+      "STOCK_RELEASED": "Salida de inventario"
+    },
+    "COLLECTION": {
+      "RECEIPT": "Recibo de cobro {{number}}",
+      "BANK_IN": "Ingreso a banco por cobro a cliente",
+      "RECEIVABLE_SETTLED": "Cancelación de cuentas por cobrar — {{customer}}",
+      "WITHHELD_BY_CUSTOMER": "Retenciones practicadas por el cliente",
+      "EARLY_PAYMENT_DISCOUNT": "Descuento por pronto pago concedido",
+      "ADVANCE_APPLIED": "Aplicación de anticipo de cliente",
+      "ADVANCE_HELD": "Anticipo de cliente",
+      "EXCHANGE_DIFFERENCE": "Diferencia cambiaria realizada en el cobro"
+    },
+    "INVENTORY": {
+      "OPENING_ENTRY": "Inventario inicial: {{product}}",
+      "OPENING_STOCK": "Existencia inicial de {{product}}",
+      "OPENING_COUNTERPART": "Contrapartida de saldos iniciales",
+      "ADJUSTMENT_ENTRY": "Ajuste de inventario: {{product}}",
+      "ADJUSTMENT_IN": "Entrada por ajuste — {{product}}",
+      "ADJUSTMENT_OUT": "Salida por ajuste — {{product}}",
+      "ADJUSTMENT_SURPLUS": "Sobrante en ajuste de inventario",
+      "ADJUSTMENT_SHORTFALL": "Faltante en ajuste de inventario"
+    },
+    "PURCHASE": {
+      "BILL": "Factura de proveedor {{number}}",
+      "GOODS_LINE": "Compra: {{product}}",
+      "DEDUCTIBLE_TAX": "Impuesto sobre compras deducible",
+      "NON_DEDUCTIBLE_TAX": "Impuesto no deducible llevado al costo",
+      "EXCISE_AND_OTHER": "Impuesto selectivo y otros gravámenes",
+      "WITHHELD_FOR_AUTHORITY": "Retenciones por pagar al fisco",
+      "SERVICE_CHARGE_PAYABLE": "Propina legal por pagar",
+      "PAYABLE": "Factura de proveedor: {{supplier}}"
+    },
+    "VENDOR_PAYMENT": {
+      "BATCH": "Pago a proveedores — lote {{batch}}",
+      "PAYABLE_SETTLED": "Cancelación de deuda con proveedores",
+      "BANK_OUT": "Salida de banco por pago a proveedores",
+      "WITHHELD_FROM_SUPPLIER": "Retenciones practicadas al proveedor",
+      "EARLY_PAYMENT_DISCOUNT": "Descuento por pronto pago obtenido",
+      "EXCHANGE_DIFFERENCE": "Diferencia cambiaria realizada en el pago"
+    },
+    "PAYROLL": {
+      "RUN": "Nómina {{run}}",
+      "PAYMENT": "Pago de nómina {{run}}",
+      "SALARY_EXPENSE": "Gasto de sueldos y salarios",
+      "EMPLOYER_CONTRIBUTIONS": "Aportes patronales y beneficios",
+      "NET_PAYABLE": "Sueldos por pagar (neto)",
+      "AFP_PAYABLE": "AFP por pagar (TSS)",
+      "SFS_PAYABLE": "SFS por pagar (TSS)",
+      "INFOTEP_PAYABLE": "SRL/INFOTEP por pagar",
+      "ISR_PAYABLE": "ISR retenido por pagar (DGII)",
+      "OTHER_DEDUCTIONS": "Otras deducciones por pagar",
+      "EMPLOYER_BENEFITS": "Beneficios patronales por pagar",
+      "NET_PAID": "Pago de nómina (neto)",
+      "NET_ADJUSTED": "Ajuste de pago de nómina",
+      "BANK_OUT": "Salida de banco por nómina",
+      "BANK_BACK": "Reingreso a banco por ajuste"
+    },
+    "REVERSAL": {
+      "ENTRY": "Reversión de {{number}}. Razón: {{reason}}",
+      "LINE_PREFIX": "Reversión: "
+    },
+    "ROUNDING_DIFFERENCE": "Diferencia de redondeo por conversión de moneda",
+    "ADJUSTMENT": {
+      "RECLASSIFICATION": "Reclasificación: {{description}}",
+      "TRANSFER_OUT": "Transferencia a la cuenta relacionada {{account}}",
+      "TRANSFER_IN": "Transferencia desde la cuenta relacionada {{account}}",
+      "PERIOD_END": "Ajuste de fin de período ({{type}}): {{description}}",
+      "AUDIT": "Ajuste de auditoría: {{description}}",
+      "AUDIT_CLOSE_LINE": "Cierre del ajuste de auditoría",
+      "AUDIT_RESULT_TRANSFER": "Traspaso del ajuste de auditoría {{entry}}",
+      "AUDIT_CLOSE_ENTRY": "Cierre del ajuste de auditoría {{entry}}"
+    },
+    "DEBIT_NOTE": {
+      "VENDOR_ENTRY": "Nota de débito sobre factura de proveedor. Razón: {{reason}}",
+      "VENDOR_PAYABLE": "Nota de débito sobre la factura de proveedor {{bill}}",
+      "VENDOR_COUNTERPART": "Contrapartida de nota de débito. Razón: {{reason}}"
+    },
+    "RECURRING": {
+      "ENTRY": "(Recurrente) {{description}}"
+    },
+    "RECONCILIATION": {
+      "ENTRY": "Conciliación bancaria — {{description}}",
+      "RULE_LINE": "Regla: {{rule}}"
+    },
+    "DEPRECIATION": {
+      "ENTRY": "Depreciación mensual {{month}}",
+      "EXPENSE": "Depreciación {{month}} — {{asset}}",
+      "ACCUMULATED": "Depreciación acumulada {{month}} — {{asset}}"
+    },
+    "FIXED_ASSET": {
+      "DISPOSAL_ENTRY": "Baja de activo: {{asset}}. Motivo: {{reason}}",
+      "SALE_PROCEEDS": "Venta de activo: {{asset}}",
+      "ACCUMULATED_REVERSAL": "Baja de depreciación acumulada — {{asset}}",
+      "COST_REVERSAL": "Baja de activo fijo: {{asset}}",
+      "GAIN": "Ganancia en venta de activo: {{asset}}",
+      "LOSS": "Pérdida en venta de activo: {{asset}}"
+    },
+    "RESULT_TRANSFER": {
+      "ENTRY": "Asiento de cierre — {{period}}",
+      "CLOSING_LINE": "Cierre de {{period}}",
+      "RETAINED": "Traspaso de resultado — {{period}}",
+      "FISCAL_YEAR": "año fiscal {{from}} – {{to}}"
+    },
+    "INFLATION": {
+      "ENTRY": "Asiento de ajuste por inflación {{period}}",
+      "LINE": "Ajuste por inflación {{period}}",
+      "COUNTERPART": "Contrapartida ajuste por inflación {{period}}"
+    },
+    "REVALUATION": {
+      "ENTRY": "Revaluación de moneda extranjera — libro {{ledger}}",
+      "LINE": "Revaluación {{currency}} al cierre — {{account}}",
+      "UNREALISED_GAIN": "Ganancia cambiaria no realizada",
+      "UNREALISED_LOSS": "Pérdida cambiaria no realizada"
+    },
+    "INTERCOMPANY": {
+      "SOURCE_ENTRY": "Intercompañía (→ {{organization}}): {{description}}",
+      "RECEIVABLE": "Cuenta por cobrar a {{organization}}",
+      "FUNDS_OUT": "Salida de fondos intercompañía",
+      "DESTINATION_ENTRY": "Intercompañía (← {{organization}}): {{description}}",
+      "FUNDS_IN": "Recepción de fondos intercompañía",
+      "PAYABLE": "Cuenta por pagar a {{organization}}"
+    },
+    "TREASURY": {
+      "OPENING_BALANCE": "Saldo de apertura — {{account}}",
+      "OPENING_COUNTERPART": "Contrapartida del saldo de apertura — {{account}}"
+    },
+    "PROVISIONING": {
+      "DEFAULT_LEDGER_NAME": "Libro Principal",
+      "DEFAULT_LEDGER_DESCRIPTION": "Libro contable principal, en la moneda funcional de la organización.",
+      "JOURNALS": {
+        "SALES": "Diario de Ventas",
+        "PURCHASES": "Diario de Compras",
+        "COLLECTIONS": "Diario de Cobros",
+        "PAYMENTS": "Diario de Pagos",
+        "BANKS": "Diario de Bancos",
+        "CASH": "Diario de Caja",
+        "PAYROLL": "Diario de Nómina",
+        "GENERAL": "Diario General"
+      }
+    }
   }
 }

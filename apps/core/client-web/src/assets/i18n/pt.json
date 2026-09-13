@@ -1641,7 +1641,9 @@
     "UPDATE_SSO_PROVIDER": "Não foi possível atualizar o provedor.",
     "UPDATE_USER": "Não foi possível atualizar o usuário.",
     "VERIFY_DOMAIN": "Ainda não foi possível verificar o domínio.",
-    "UPDATE_JOURNAL_ENTRY": "Não foi possível modificar o lançamento contabilístico."
+    "UPDATE_JOURNAL_ENTRY": "Não foi possível modificar o lançamento contabilístico.",
+    "RECAPTCHA": "Não foi possível concluir a verificação antirrobô. Recarregue a página e tente novamente.",
+    "INVALID_INVITATION_TOKEN": "A ligação de convite não é válida ou já foi utilizada. Peça uma nova a quem o convidou."
   },
   "FEEDBACK": {
     "COMING_SOON": "Este recurso estará disponível em breve",
@@ -1663,7 +1665,11 @@
       "B02": "B02 · Consumo (preimpreso)",
       "B04": "B04 · Nota de Crédito (preimpreso)",
       "B11": "B11 · Proveedor Informal",
-      "B15": "B15 · Gubernamental (preimpreso)"
+      "B15": "B15 · Gubernamental (preimpreso)",
+      "B03": "B03 · Nota de Débito (nota de débito)",
+      "E41": "E41 · Compras Electrónico (compra autoemitida)",
+      "E43": "E43 · Gastos Menores Electrónico (despesas menores)",
+      "E47": "E47 · Pagos al Exterior Electrónico (pagamentos ao exterior)"
     },
     "MX": {
       "I": "I · Ingreso (CFDI 4.0)",
@@ -2330,7 +2336,6 @@
       "TITLE_NEW": "Novo fornecedor",
       "TITLE_EDIT": "Editar fornecedor",
       "PAIS": "País",
-      "PAIS_PLACEHOLDER": "DO",
       "PAIS_AYUDA": "Código ISO de duas letras. Separa uma compra local de um pagamento ao exterior, que o 609 reporta à parte.",
       "TIPO_CONTRIBUYENTE_AYUDA": "Determina o que lhe é retido ao pagar. Se não souber, deixe sem classificar: nada será retido automaticamente."
     },
@@ -2915,7 +2920,8 @@
         "SUBTITLE": "Escolha o plano que melhor se adapta a você",
         "TITLE": "Escolha seu Plano",
         "TOTAL": "{{count}} {{resource}} no total",
-        "UNLIMITED": "{{resource}} sem limite"
+        "UNLIMITED": "{{resource}} sem limite",
+        "NONE": "Sem {{resource}}"
       }
     },
     "STEP_OF": "Etapa {{current}} de {{total}}",
@@ -3899,7 +3905,8 @@
       "USUARIO_ELIMINADO_EXITO": "Usuário excluído com sucesso.",
       "USUARIO_EMPRESA_COM": "usuario@empresa.com",
       "USUARIO_HA_SIDO_BLOQUEADO_SESION_CERRADA": "O usuário foi bloqueado e sua sessão encerrada.",
-      "USUARIO_INVITADO_EXITO": "Usuário convidado com sucesso."
+      "USUARIO_INVITADO_EXITO": "Usuário convidado com sucesso.",
+      "MOSTRANDO_DE": "A mostrar {{shown}} de {{total}} utilizadores"
     }
   },
   "SET_PASSWORD": {

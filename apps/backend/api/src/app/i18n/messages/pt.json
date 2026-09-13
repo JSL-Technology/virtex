@@ -383,7 +383,22 @@
     "ORGANIZACION_MATRIZ_NO_ENCONTRADA": "Organização controladora não encontrada.",
     "ORGANIZACION_NO_ENCONTRADA": "Organização não encontrada.",
     "ORGANIZACION_NO_TIENE_SUBSIDIARIAS_CONFIGURADAS_CONSOLIDAR": "A organização não tem subsidiárias configuradas para consolidar.",
-    "RANGO_FECHAS_INVALIDO": "O início do período ({{startDate}}) é posterior à data de corte ({{asOfDate}})."
+    "RANGO_FECHAS_INVALIDO": "O início do período ({{startDate}}) é posterior à data de corte ({{asOfDate}}).",
+    "ELIMINATION": {
+      "INVESTMENT_IN_SUBSIDIARY": "Investimento em {{member}} contra o seu património à data de aquisição ({{date}})."
+    },
+    "WARNING": {
+      "MEMBER_OUT_OF_BALANCE": "O balanço individual de {{member}} está desequilibrado em {{amount}}.",
+      "NO_AVERAGE_RATE": "Sem cotações de {{from}} para {{to}} dentro do período; usou-se a taxa de fecho como média.",
+      "NO_ACQUISITION_RATE": "Sem taxa de {{from}} para {{to}} na data de aquisição {{date}}; usou-se a taxa de fecho.",
+      "NO_CONSOLIDATION_MAP": "Sem mapa de consolidação para {{member}}: as suas contas são apresentadas com a codificação própria.",
+      "ACCOUNT_NOT_MAPPED": "A conta {{code}} de {{member}} não está mapeada; é apresentada com a codificação própria.",
+      "BARGAIN_PURCHASE": "Compra vantajosa: o custo de aquisição ({{cost}} {{currency}}) é inferior à participação adquirida ({{share}} {{currency}}).",
+      "INTERCOMPANY_ONE_SIDED": "A operação intercompanhia {{transaction}} está em estado {{status}}: apenas uma das duas metades está registada, pelo que não é eliminada.",
+      "INTERCOMPANY_NO_RATE": "Sem taxa de {{from}} para {{to}} em {{date}}; a operação intercompanhia {{transaction}} não foi eliminada.",
+      "INTERCOMPANY_ACCOUNTS_MISSING": "A operação intercompanhia {{transaction}} não encontrou ambas as contas nas demonstrações consolidadas; a eliminação pode estar incompleta.",
+      "NO_ACQUISITION_DATE": "Sem data de aquisição registada: o património foi convertido à taxa de fecho em vez da histórica (IAS 21.39(b))."
+    }
   },
   "CURRENCIES": {
     "DIARIO_GENERAL_GENERAL_NO_ENCONTRADO": "O diário Geral (GENERAL) não foi encontrado.",
@@ -1006,7 +1021,8 @@
       "NO_COMPARTAS_ESTE_CODIGO_NADIE_NUESTRO": "Não compartilhe este código com ninguém. Nossa equipe nunca o pedirá.",
       "OPCION_CLIC": "Opção 1 — Um clique",
       "OPCION_CODIGO_VERIFICACION": "Opção 2 — Código de verificação",
-      "SI_NO_SOLICITASTE_ESTO_PUEDES_IGNORAR": "Se você não solicitou isso, pode ignorar este e-mail com segurança."
+      "SI_NO_SOLICITASTE_ESTO_PUEDES_IGNORAR": "Se você não solicitou isso, pode ignorar este e-mail com segurança.",
+      "HOLA_SIN_NOMBRE": "Olá:"
     },
     "REGISTRATION_FAILED": {
       "CREAR_MI_CUENTA": "Criar minha conta",
@@ -1748,5 +1764,153 @@
     "FOLDER_IS_NOT_A_TEMPLATE": "Uma pasta não pode ser marcada como modelo.",
     "CANNOT_MOVE_INTO_ITSELF": "Uma pasta não pode ser movida para dentro de si mesma.",
     "CANNOT_MOVE_INTO_DESCENDANT": "Uma pasta não pode ser movida para uma das suas subpastas: ficaria inalcançável."
+  },
+  "LEDGER": {
+    "SALES": {
+      "INVOICE": "Fatura {{number}}{{fiscal}} — {{customer}}",
+      "CREDIT_NOTE": "Nota de crédito {{number}}{{fiscal}} — {{customer}}",
+      "DEBIT_NOTE": "Nota de débito {{number}}{{fiscal}} — {{customer}}",
+      "COST_OF": "Custo de {{document}}",
+      "COST_OF_SALES": "Custo das vendas",
+      "STOCK_RELEASED": "Saída de inventário"
+    },
+    "COLLECTION": {
+      "RECEIPT": "Recibo de cobrança {{number}}",
+      "BANK_IN": "Entrada em banco por cobrança a cliente",
+      "RECEIVABLE_SETTLED": "Liquidação de contas a receber — {{customer}}",
+      "WITHHELD_BY_CUSTOMER": "Retenções efetuadas pelo cliente",
+      "EARLY_PAYMENT_DISCOUNT": "Desconto de pronto pagamento concedido",
+      "ADVANCE_APPLIED": "Aplicação de adiantamento de cliente",
+      "ADVANCE_HELD": "Adiantamento de cliente",
+      "EXCHANGE_DIFFERENCE": "Diferença cambial realizada na cobrança"
+    },
+    "INVENTORY": {
+      "OPENING_ENTRY": "Inventário inicial: {{product}}",
+      "OPENING_STOCK": "Existência inicial de {{product}}",
+      "OPENING_COUNTERPART": "Contrapartida de saldos iniciais",
+      "ADJUSTMENT_ENTRY": "Ajuste de inventário: {{product}}",
+      "ADJUSTMENT_IN": "Entrada por ajuste — {{product}}",
+      "ADJUSTMENT_OUT": "Saída por ajuste — {{product}}",
+      "ADJUSTMENT_SURPLUS": "Sobra em ajuste de inventário",
+      "ADJUSTMENT_SHORTFALL": "Falta em ajuste de inventário"
+    },
+    "PURCHASE": {
+      "BILL": "Fatura de fornecedor {{number}}",
+      "GOODS_LINE": "Compra: {{product}}",
+      "DEDUCTIBLE_TAX": "Imposto sobre compras dedutível",
+      "NON_DEDUCTIBLE_TAX": "Imposto não dedutível levado ao custo",
+      "EXCISE_AND_OTHER": "Imposto especial e outros tributos",
+      "WITHHELD_FOR_AUTHORITY": "Retenções a pagar ao fisco",
+      "SERVICE_CHARGE_PAYABLE": "Taxa de serviço legal a pagar",
+      "PAYABLE": "Fatura de fornecedor: {{supplier}}"
+    },
+    "VENDOR_PAYMENT": {
+      "BATCH": "Pagamento a fornecedores — lote {{batch}}",
+      "PAYABLE_SETTLED": "Liquidação de dívida a fornecedores",
+      "BANK_OUT": "Saída de banco por pagamento a fornecedores",
+      "WITHHELD_FROM_SUPPLIER": "Retenções efetuadas ao fornecedor",
+      "EARLY_PAYMENT_DISCOUNT": "Desconto de pronto pagamento obtido",
+      "EXCHANGE_DIFFERENCE": "Diferença cambial realizada no pagamento"
+    },
+    "PAYROLL": {
+      "RUN": "Folha {{run}}",
+      "PAYMENT": "Pagamento da folha {{run}}",
+      "SALARY_EXPENSE": "Gasto com vencimentos e salários",
+      "EMPLOYER_CONTRIBUTIONS": "Contribuições patronais e benefícios",
+      "NET_PAYABLE": "Vencimentos a pagar (líquido)",
+      "AFP_PAYABLE": "AFP a pagar (TSS)",
+      "SFS_PAYABLE": "SFS a pagar (TSS)",
+      "INFOTEP_PAYABLE": "SRL/INFOTEP a pagar",
+      "ISR_PAYABLE": "ISR retido a pagar (DGII)",
+      "OTHER_DEDUCTIONS": "Outras deduções a pagar",
+      "EMPLOYER_BENEFITS": "Benefícios patronais a pagar",
+      "NET_PAID": "Pagamento da folha (líquido)",
+      "NET_ADJUSTED": "Ajuste do pagamento da folha",
+      "BANK_OUT": "Saída de banco pela folha",
+      "BANK_BACK": "Reentrada em banco por ajuste"
+    },
+    "REVERSAL": {
+      "ENTRY": "Estorno de {{number}}. Motivo: {{reason}}",
+      "LINE_PREFIX": "Estorno: "
+    },
+    "ROUNDING_DIFFERENCE": "Diferença de arredondamento na conversão de moeda",
+    "ADJUSTMENT": {
+      "RECLASSIFICATION": "Reclassificação: {{description}}",
+      "TRANSFER_OUT": "Transferência para a conta relacionada {{account}}",
+      "TRANSFER_IN": "Transferência da conta relacionada {{account}}",
+      "PERIOD_END": "Ajuste de fim de período ({{type}}): {{description}}",
+      "AUDIT": "Ajuste de auditoria: {{description}}",
+      "AUDIT_CLOSE_LINE": "Encerramento do ajuste de auditoria",
+      "AUDIT_RESULT_TRANSFER": "Transferência do resultado do ajuste de auditoria {{entry}}",
+      "AUDIT_CLOSE_ENTRY": "Encerramento do ajuste de auditoria {{entry}}"
+    },
+    "DEBIT_NOTE": {
+      "VENDOR_ENTRY": "Nota de débito sobre fatura de fornecedor. Motivo: {{reason}}",
+      "VENDOR_PAYABLE": "Nota de débito sobre a fatura de fornecedor {{bill}}",
+      "VENDOR_COUNTERPART": "Contrapartida da nota de débito. Motivo: {{reason}}"
+    },
+    "RECURRING": {
+      "ENTRY": "(Recorrente) {{description}}"
+    },
+    "RECONCILIATION": {
+      "ENTRY": "Conciliação bancária — {{description}}",
+      "RULE_LINE": "Regra: {{rule}}"
+    },
+    "DEPRECIATION": {
+      "ENTRY": "Depreciação mensal {{month}}",
+      "EXPENSE": "Depreciação {{month}} — {{asset}}",
+      "ACCUMULATED": "Depreciação acumulada {{month}} — {{asset}}"
+    },
+    "FIXED_ASSET": {
+      "DISPOSAL_ENTRY": "Baixa de ativo: {{asset}}. Motivo: {{reason}}",
+      "SALE_PROCEEDS": "Venda de ativo: {{asset}}",
+      "ACCUMULATED_REVERSAL": "Baixa da depreciação acumulada — {{asset}}",
+      "COST_REVERSAL": "Baixa de ativo imobilizado: {{asset}}",
+      "GAIN": "Ganho na venda de ativo: {{asset}}",
+      "LOSS": "Perda na venda de ativo: {{asset}}"
+    },
+    "RESULT_TRANSFER": {
+      "ENTRY": "Lançamento de encerramento — {{period}}",
+      "CLOSING_LINE": "Encerramento de {{period}}",
+      "RETAINED": "Transferência do resultado — {{period}}",
+      "FISCAL_YEAR": "exercício fiscal {{from}} – {{to}}"
+    },
+    "INFLATION": {
+      "ENTRY": "Lançamento de ajuste pela inflação {{period}}",
+      "LINE": "Ajuste pela inflação {{period}}",
+      "COUNTERPART": "Contrapartida do ajuste pela inflação {{period}}"
+    },
+    "REVALUATION": {
+      "ENTRY": "Reavaliação de moeda estrangeira — livro {{ledger}}",
+      "LINE": "Reavaliação {{currency}} no fecho — {{account}}",
+      "UNREALISED_GAIN": "Ganho cambial não realizado",
+      "UNREALISED_LOSS": "Perda cambial não realizada"
+    },
+    "INTERCOMPANY": {
+      "SOURCE_ENTRY": "Intercompanhia (→ {{organization}}): {{description}}",
+      "RECEIVABLE": "Conta a receber de {{organization}}",
+      "FUNDS_OUT": "Saída de fundos intercompanhia",
+      "DESTINATION_ENTRY": "Intercompanhia (← {{organization}}): {{description}}",
+      "FUNDS_IN": "Recebimento de fundos intercompanhia",
+      "PAYABLE": "Conta a pagar a {{organization}}"
+    },
+    "TREASURY": {
+      "OPENING_BALANCE": "Saldo de abertura — {{account}}",
+      "OPENING_COUNTERPART": "Contrapartida do saldo de abertura — {{account}}"
+    },
+    "PROVISIONING": {
+      "DEFAULT_LEDGER_NAME": "Livro Principal",
+      "DEFAULT_LEDGER_DESCRIPTION": "Livro contábil principal, na moeda funcional da organização.",
+      "JOURNALS": {
+        "SALES": "Diário de Vendas",
+        "PURCHASES": "Diário de Compras",
+        "COLLECTIONS": "Diário de Cobranças",
+        "PAYMENTS": "Diário de Pagamentos",
+        "BANKS": "Diário de Bancos",
+        "CASH": "Diário de Caixa",
+        "PAYROLL": "Diário da Folha",
+        "GENERAL": "Diário Geral"
+      }
+    }
   }
 }

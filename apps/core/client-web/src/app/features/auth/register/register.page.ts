@@ -177,6 +177,21 @@ export class RegisterPage implements OnInit {
     return this.registerForm?.get('accountInfo.email')?.value ?? '';
   }
 
+  /**
+   * The name and country the wizard already holds, for the verification email.
+   *
+   * Both are collected before the email step: the name on step 1, the country by the country
+   * selector. The verification email was sent with neither, so it greeted "Hola Usuario" and its
+   * magic link always pointed at `/es/do/…`.
+   */
+  get currentFirstName(): string {
+    return this.registerForm?.get('accountInfo.firstName')?.value ?? '';
+  }
+
+  get currentCountry(): string {
+    return this.countryService.currentCountry()?.countryCode ?? '';
+  }
+
   get currentPhone(): string {
     return this.registerForm?.get('accountInfo.phone')?.value ?? '';
   }

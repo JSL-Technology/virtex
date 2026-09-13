@@ -9,6 +9,7 @@ import { JournalEntryType } from '../journal-entries/entities/journal-entry.enti
 import { ModuleSlug } from '../accounting/entities/accounting-period.entity';
 import { BadRequestError } from '../i18n/localized.exception';
 import { roundAmount, toCents } from '../common/money';
+import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 
 /** What an item was worth on the books at a point in time. */
 interface Valuation {
@@ -48,7 +49,11 @@ const valueOf = (v: Valuation): number => roundAmount(v.quantity * v.unitCost);
 export class InventoryPostingService {
   private readonly logger = new Logger(InventoryPostingService.name);
 
-  constructor(private readonly journalEntries: JournalEntriesService) {}
+  constructor(
+    private readonly journalEntries: JournalEntriesService,
+    /** The ledger's narrative, in the language the books are kept in. */
+    private readonly narrative: LedgerNarrativeService,
+  ) {}
 
   /**
    * Recognise the stock a product is created holding.
@@ -71,12 +76,19 @@ export class InventoryPostingService {
       throw new BadRequestError('INVENTORY.CUENTAS_INVENTARIO_NO_CONFIGURADAS');
     }
 
+    //  El relato en el idioma en que se llevan los libros del inquilino, no en castellano fijo.
+    const words = await this.narrative.describeAll(manager, product.organizationId, {
+      entry: { key: 'LEDGER.INVENTORY.OPENING_ENTRY', params: { product: product.name } },
+      stock: { key: 'LEDGER.INVENTORY.OPENING_STOCK', params: { product: product.name } },
+      counterpart: { key: 'LEDGER.INVENTORY.OPENING_COUNTERPART' },
+    });
+
     return this.post(
       manager,
       product.organizationId,
       {
         date: new Date().toISOString(),
-        description: `Inventario inicial: ${product.name}`,
+        description: words.entry,
         journalId: journal.id,
         currencyCode: settings.baseCurrency ?? 'USD',
         exchangeRate: 1,
@@ -88,13 +100,13 @@ export class InventoryPostingService {
             accountId: inventoryId,
             debit: value,
             credit: 0,
-            description: `Existencia inicial de ${product.name}`,
+            description: words.stock,
           },
           {
             accountId: openingId,
             debit: 0,
             credit: value,
-            description: 'Contrapartida de saldos iniciales',
+            description: words.counterpart,
           },
         ],
       },
@@ -132,12 +144,22 @@ export class InventoryPostingService {
 
     const amount = Math.abs(delta);
     const increase = delta > 0;
+    const words = await this.narrative.describeAll(manager, product.organizationId, {
+      entry: { key: 'LEDGER.INVENTORY.ADJUSTMENT_ENTRY', params: { product: product.name } },
+      movement: {
+        key: increase ? 'LEDGER.INVENTORY.ADJUSTMENT_IN' : 'LEDGER.INVENTORY.ADJUSTMENT_OUT',
+        params: { product: product.name },
+      },
+      counterpart: {
+        key: increase ? 'LEDGER.INVENTORY.ADJUSTMENT_SURPLUS' : 'LEDGER.INVENTORY.ADJUSTMENT_SHORTFALL',
+      },
+    });
     return this.post(
       manager,
       product.organizationId,
       {
         date: new Date().toISOString(),
-        description: `Ajuste de inventario: ${product.name}`,
+        description: words.entry,
         journalId: journal.id,
         currencyCode: settings.baseCurrency ?? 'USD',
         exchangeRate: 1,
@@ -146,15 +168,13 @@ export class InventoryPostingService {
             accountId: inventoryId,
             debit: increase ? amount : 0,
             credit: increase ? 0 : amount,
-            description: `${increase ? 'Entrada' : 'Salida'} por ajuste — ${product.name}`,
+            description: words.movement,
           },
           {
             accountId: adjustmentId,
             debit: increase ? 0 : amount,
             credit: increase ? amount : 0,
-            description: increase
-              ? 'Sobrante en ajuste de inventario'
-              : 'Faltante en ajuste de inventario',
+            description: words.counterpart,
           },
         ],
       },

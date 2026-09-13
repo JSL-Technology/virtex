@@ -20,6 +20,8 @@ import {
 } from '../chart-of-accounts/account-balances.service';
 import { roundAmount, toCents } from '../common/money';
 import { toIsoDate, type IsoDate } from '../common/dates';
+import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
+import { I18nService } from '../i18n/i18n.service';
 
 /**
  * The entry that closes profit and loss into retained earnings.
@@ -59,6 +61,10 @@ export class ResultTransferService {
   constructor(
     private readonly journalEntriesService: JournalEntriesService,
     private readonly balances: AccountBalancesService,
+    /** Narratives in the tenant's books language; see `LedgerNarrativeService`. */
+    private readonly narrative: LedgerNarrativeService = new LedgerNarrativeService(
+      new I18nService(),
+    ),
   ) {}
 
   /**
@@ -69,7 +75,18 @@ export class ResultTransferService {
   async transfer(
     manager: EntityManager,
     organizationId: string,
-    range: { from: Date | string; to: Date | string; label: string },
+    /**
+     * The interval, and how it is named in the entry's narrative.
+     *
+     * `label` is a translation key plus its parameters rather than a finished sentence: the caller
+     * used to hand in `año fiscal 2026-01-01 – 2026-12-31`, which put Spanish into the ledger of
+     * every tenant whatever language its books are kept in.
+     */
+    range: {
+      from: Date | string;
+      to: Date | string;
+      label: { key: string; params?: Record<string, unknown> };
+    },
     actorUserId: string | null,
   ): Promise<JournalEntry | null> {
     const settings = await manager.findOneBy(OrganizationSettings, { organizationId });
@@ -120,6 +137,18 @@ export class ResultTransferService {
       manager,
     );
 
+    const period = await this.narrative.describe(
+      manager,
+      organizationId,
+      range.label.key,
+      range.label.params ?? {},
+    );
+    const words = await this.narrative.describeAll(manager, organizationId, {
+      closingLine: { key: 'LEDGER.RESULT_TRANSFER.CLOSING_LINE', params: { period } },
+      retained: { key: 'LEDGER.RESULT_TRANSFER.RETAINED', params: { period } },
+      header: { key: 'LEDGER.RESULT_TRANSFER.ENTRY', params: { period } },
+    });
+
     const lines: CreateJournalEntryLineDto[] = [];
     let resultCents = 0;
 
@@ -132,14 +161,14 @@ export class ResultTransferService {
         accountId: movement.accountId,
         debit,
         credit,
-        description: `Cierre de ${range.label}`,
+        description: words.closingLine,
         valuations: [{ ledgerId: defaultLedger.id, debit, credit }],
       });
       resultCents += toCents(signedBalance);
     }
 
     if (lines.length === 0) {
-      this.logger.log(`${range.label}: sin resultados que cerrar.`);
+      this.logger.log(`${period}: sin resultados que cerrar.`);
       return null;
     }
 
@@ -152,7 +181,7 @@ export class ResultTransferService {
       accountId: settings.defaultRetainedEarningsAccountId,
       debit: retained.debit,
       credit: retained.credit,
-      description: `Traspaso de resultado — ${range.label}`,
+      description: words.retained,
       valuations: [
         { ledgerId: defaultLedger.id, debit: retained.debit, credit: retained.credit },
       ],
@@ -163,7 +192,7 @@ export class ResultTransferService {
       manager,
       {
         date: closingDate,
-        description: `Asiento de cierre — ${range.label}`,
+        description: words.header,
         lines,
         journalId: closingJournal.id,
         entryType: JournalEntryType.CLOSING_ENTRY,
@@ -173,7 +202,7 @@ export class ResultTransferService {
     );
 
     this.logger.log(
-      `Cierre de ${range.label}: ${lines.length - 1} cuentas de resultado, resultado neto ${roundAmount(-resultCents / 100)}, asiento ${entry.entryNumber}.`,
+      `Cierre de ${period}: ${lines.length - 1} cuentas de resultado, resultado neto ${roundAmount(-resultCents / 100)}, asiento ${entry.entryNumber}.`,
     );
     return entry;
   }

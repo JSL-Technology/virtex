@@ -99,4 +99,20 @@ export const RUNTIME_COMPOSED_KEYS: ReadonlyArray<readonly [string, readonly str
   // the node's kind, so neither full key is written out anywhere.
   ['DIALOG.DELETE_FOLDER', ['TITLE', 'MESSAGE']],
   ['DIALOG.DELETE_DOCUMENT', ['TITLE', 'MESSAGE']],
+
+  /**
+   * Every Dominican comprobante type, by its DGII code.
+   *
+   * The server composes `FISCAL.DO.<code>` from `NcfType` and the fiscal settings screen builds the
+   * same key from its own list, so no full key is written anywhere a literal scan can see. Four of
+   * the sixteen were missing — `E41`, `E43`, `E47` and `B03` — and the screen that registers NCF
+   * ranges showed `[[FISCAL.DO.E41]]` in the dropdown a tenant picks their comprobante from.
+   */
+  [
+    'FISCAL.DO',
+    [
+      'B01', 'B02', 'B03', 'B04', 'B11', 'B15',
+      'E31', 'E32', 'E33', 'E34', 'E41', 'E43', 'E44', 'E45', 'E46', 'E47',
+    ],
+  ],
 ];

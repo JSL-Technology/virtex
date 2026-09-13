@@ -36,6 +36,8 @@ import {
   BankAccount,
   BankAccountType,
 } from '../treasury/entities/bank-account.entity';
+import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
+import { I18nService } from '../i18n/i18n.service';
 
 /**
  * Collections from customers.
@@ -113,6 +115,9 @@ describeWithDb('customer collections', () => {
       new ExchangeRateResolver(dataSource),
       dataSource,
       balances,
+      // The real narrative service, so the entries carry the sentences the ledger will actually
+      // show rather than a stub's.
+      new LedgerNarrativeService(new I18nService()),
     );
   });
 

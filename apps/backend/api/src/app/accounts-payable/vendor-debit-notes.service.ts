@@ -12,6 +12,8 @@ import { Journal } from '../journal-entries/entities/journal.entity';
 import { Ledger } from '../accounting/entities/ledger.entity';
 import { CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
 import { BadRequestError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
+import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
+import { I18nService } from '../i18n/i18n.service';
 
 @Injectable()
 export class VendorDebitNotesService {
@@ -22,6 +24,10 @@ export class VendorDebitNotesService {
     private vendorDebitNoteRepository: Repository<VendorDebitNote>,
     private dataSource: DataSource,
     private journalEntriesService: JournalEntriesService,
+    /** Narratives in the tenant's books language; see `LedgerNarrativeService`. */
+    private readonly narrative: LedgerNarrativeService = new LedgerNarrativeService(
+      new I18nService(),
+    ),
   ) {}
 
   async create(
@@ -76,16 +82,25 @@ export class VendorDebitNotesService {
         throw new InternalServerError('ACCOUNTS_PAYABLE.NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION');
       }
 
+      const words = await this.narrative.describeAll(manager, organizationId, {
+        header: { key: 'LEDGER.DEBIT_NOTE.VENDOR_ENTRY', params: { reason } },
+        payable: {
+          key: 'LEDGER.DEBIT_NOTE.VENDOR_PAYABLE',
+          params: { bill: vendorBill.ncf || vendorBill.id.substring(0, 8) },
+        },
+        counterpart: { key: 'LEDGER.DEBIT_NOTE.VENDOR_COUNTERPART', params: { reason } },
+      });
+
       const entryDto: CreateJournalEntryDto = {
           date: new Date().toISOString(),
-          description: `Nota de Débito para factura de prov. Razón: ${reason}`,
+          description: words.header,
           journalId: journal.id,
           lines: [
             {
               accountId: settings.defaultAccountsPayableId,
               debit: amount,
               credit: 0,
-              description: `ND a factura prov. #${vendorBill.id.substring(0, 8)}`,
+              description: words.payable,
               valuations: [{
                 ledgerId: defaultLedger.id,
                 debit: amount,
@@ -96,7 +111,7 @@ export class VendorDebitNotesService {
               accountId: expenseAccountId,
               debit: 0,
               credit: amount,
-              description: `Contrapartida ND. Razón: ${reason}`,
+              description: words.counterpart,
               valuations: [{
                 ledgerId: defaultLedger.id,
                 debit: 0,

@@ -37,6 +37,8 @@ import { JournalEntry, JournalEntryStatus } from '../journal-entries/entities/jo
 import { JournalEntryLine } from '../journal-entries/entities/journal-entry-line.entity';
 import { JournalEntriesService } from '../journal-entries/journal-entries.service';
 import { CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
+import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
+import { I18nService } from '../i18n/i18n.service';
 import { AccountBalancesService, toIsoDate } from '../chart-of-accounts/account-balances.service';
 import {
   roundAmount,
@@ -201,6 +203,10 @@ export class ReconciliationService {
     private readonly journalEntries: JournalEntriesService,
     private readonly balances: AccountBalancesService,
     private readonly dataSource: DataSource,
+    /** Narratives in the tenant's books language; see `LedgerNarrativeService`. */
+    private readonly narrative: LedgerNarrativeService = new LedgerNarrativeService(
+      new I18nService(),
+    ),
   ) {}
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -1292,11 +1298,19 @@ export class ReconciliationService {
       throw new BadRequestError('RECONCILIATION.DIARIO_CONCILIACION_CONCIL_NO_ENCONTRADO');
     }
 
+    const words = await this.narrative.describeAll(manager, organizationId, {
+      header: {
+        key: 'LEDGER.RECONCILIATION.ENTRY',
+        params: { description: transaction.description },
+      },
+      rule: { key: 'LEDGER.RECONCILIATION.RULE_LINE', params: { rule: rule.name } },
+    });
+
     const entry = await this.journalEntries.createWithManager(
       manager,
       {
         date: transaction.date,
-        description: `Conciliación bancaria — ${transaction.description}`,
+        description: words.header,
         journalId: journal.id,
         // The account's own currency when it is not the books': the entry converts at the day's
         // rate and keeps the document amount, so the line can be matched against the statement and
@@ -1314,7 +1328,7 @@ export class ReconciliationService {
             accountId: rule.targetAccountId as string,
             debit: transaction.credit,
             credit: transaction.debit,
-            description: `Regla: ${rule.name}`,
+            description: words.rule,
           },
         ],
       } as CreateJournalEntryDto,

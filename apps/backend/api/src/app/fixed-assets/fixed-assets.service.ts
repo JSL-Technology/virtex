@@ -13,6 +13,8 @@ import { Ledger } from '../accounting/entities/ledger.entity';
 import { CreateJournalEntryDto } from '../journal-entries/dto/create-journal-entry.dto';
 import { BadRequestError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
 import { LocalizedMessage } from '../i18n/localized-message';
+import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
+import { I18nService } from '../i18n/i18n.service';
 
 @Injectable()
 export class FixedAssetsService {
@@ -21,6 +23,10 @@ export class FixedAssetsService {
     private fixedAssetRepository: Repository<FixedAsset>,
     private readonly dataSource: DataSource,
     private readonly journalEntriesService: JournalEntriesService,
+    /** Narratives in the tenant's books language; see `LedgerNarrativeService`. */
+    private readonly narrative: LedgerNarrativeService = new LedgerNarrativeService(
+      new I18nService(),
+    ),
   ) {}
 
   create(createFixedAssetDto: CreateFixedAssetDto, organizationId: string): Promise<FixedAsset> {
@@ -96,27 +102,42 @@ export class FixedAssetsService {
       
       const bookValue = asset.cost - asset.accumulatedDepreciation;
       const gainOrLoss = salePrice - bookValue;
+
+      const words = await this.narrative.describeAll(manager, organizationId, {
+        header: {
+          key: 'LEDGER.FIXED_ASSET.DISPOSAL_ENTRY',
+          params: { asset: asset.name, reason: disposalReason },
+        },
+        proceeds: { key: 'LEDGER.FIXED_ASSET.SALE_PROCEEDS', params: { asset: asset.name } },
+        accumulated: {
+          key: 'LEDGER.FIXED_ASSET.ACCUMULATED_REVERSAL',
+          params: { asset: asset.name },
+        },
+        cost: { key: 'LEDGER.FIXED_ASSET.COST_REVERSAL', params: { asset: asset.name } },
+        gain: { key: 'LEDGER.FIXED_ASSET.GAIN', params: { asset: asset.name } },
+        loss: { key: 'LEDGER.FIXED_ASSET.LOSS', params: { asset: asset.name } },
+      });
       
       const journalLines = [
         { 
           accountId: cashAccountId, 
           debit: salePrice, 
           credit: 0, 
-          description: `Venta de activo: ${asset.name}`,
+          description: words.proceeds,
           valuations: [{ ledgerId: defaultLedger.id, debit: salePrice, credit: 0 }]
         },
         { 
           accountId: asset.accumulatedDepreciationAccountId, 
           debit: asset.accumulatedDepreciation, 
           credit: 0, 
-          description: `Baja Dep. Acum. ${asset.name}`,
+          description: words.accumulated,
           valuations: [{ ledgerId: defaultLedger.id, debit: asset.accumulatedDepreciation, credit: 0 }]
         },
         { 
           accountId: asset.assetAccountId, 
           debit: 0, 
           credit: asset.cost, 
-          description: `Baja de Activo Fijo: ${asset.name}`,
+          description: words.cost,
           valuations: [{ ledgerId: defaultLedger.id, debit: 0, credit: asset.cost }]
         }
       ];
@@ -126,7 +147,7 @@ export class FixedAssetsService {
             accountId: gainOnDisposalAccountId, 
             debit: 0, 
             credit: gainOrLoss, 
-            description: `Ganancia en venta de activo: ${asset.name}`,
+            description: words.gain,
             valuations: [{ ledgerId: defaultLedger.id, debit: 0, credit: gainOrLoss }]
           });
       } else if (gainOrLoss < 0) {
@@ -134,14 +155,14 @@ export class FixedAssetsService {
             accountId: lossOnDisposalAccountId, 
             debit: Math.abs(gainOrLoss), 
             credit: 0, 
-            description: `Pérdida en venta de activo: ${asset.name}`,
+            description: words.loss,
             valuations: [{ ledgerId: defaultLedger.id, debit: Math.abs(gainOrLoss), credit: 0 }]
           });
       }
       
       const entryDto: CreateJournalEntryDto = {
         date: disposalDate.toISOString(),
-        description: `Baja de activo: ${asset.name}. Motivo: ${disposalReason}`,
+        description: words.header,
         journalId: fixedAssetJournal.id,
         lines: journalLines,
       };

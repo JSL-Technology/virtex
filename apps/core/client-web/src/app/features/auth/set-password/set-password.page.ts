@@ -83,7 +83,9 @@ export class SetPasswordPage implements OnInit {
       // Optional: Check validity first or just let submit handle it
       // this.authService.getInvitationDetails(this.token)...
     } else {
-      this.errorMessage = 'Invalid Token';
+      //  Clave del catálogo, no una frase suelta en inglés dentro de una pantalla que el resto
+              //  del producto traduce.
+              this.errorMessage = this.translate.instant('ERRORS.INVALID_INVITATION_TOKEN');
     }
   }
 
@@ -108,8 +110,11 @@ export class SetPasswordPage implements OnInit {
     const password = this.setPasswordForm.value.passwordGroup.password;
 
     recaptchaToken$(this.recaptchaV3Service, 'setPassword').subscribe({
-        next: (token) => {
-            this.authService.setPasswordFromInvitation(this.token!, password).subscribe({
+        next: (recaptchaToken) => {
+            //  El token SE ENVÍA. Se calculaba y se tiraba: la petición salía sin él, así que el
+            //  control antibot de un endpoint público que además entrega cookies de sesión no se
+            //  aplicaba nunca.
+            this.authService.setPasswordFromInvitation(this.token!, password, recaptchaToken).subscribe({
                 next: () => {
                     this.router.navigate(['/overview']);
                 },
@@ -121,7 +126,7 @@ export class SetPasswordPage implements OnInit {
         },
         error: () => {
             this.isLoading = false;
-            this.errorMessage = 'ReCaptcha Error';
+            this.errorMessage = this.translate.instant('ERRORS.RECAPTCHA');
         }
     });
   }

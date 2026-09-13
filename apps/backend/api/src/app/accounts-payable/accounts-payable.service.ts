@@ -9,6 +9,7 @@ import { PaymentBatch, PaymentBatchStatus } from './entities/payment-batch.entit
 import { JournalEntriesService } from '../journal-entries/journal-entries.service';
 import { Supplier } from '../suppliers/entities/supplier.entity';
 import { WithholdingResolverService } from '../invoices/services/withholding-resolver.service';
+import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { VendorPayment } from './entities/vendor-payment.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -143,6 +144,8 @@ export class AccountsPayableService {
      * The same resolver the sales side uses, with payer and payee the other way round.
      */
     private readonly withholding: WithholdingResolverService,
+    /** The ledger's narrative, in the language the books are kept in. */
+    private readonly narrative: LedgerNarrativeService,
   ) {}
 
   /**
@@ -456,6 +459,24 @@ export class AccountsPayableService {
       });
     };
 
+    //  El relato del asiento en el idioma de los libros del inquilino. Eran literales castellanos,
+    //  de modo que un inquilino que compra y factura en inglés leía su propio mayor en castellano.
+    const words = await this.narrative.describeAll(manager, organizationId, {
+      deductibleTax: { key: 'LEDGER.PURCHASE.DEDUCTIBLE_TAX' },
+      taxToCost: { key: 'LEDGER.PURCHASE.NON_DEDUCTIBLE_TAX' },
+      exciseTax: { key: 'LEDGER.PURCHASE.EXCISE_AND_OTHER' },
+      withheld: { key: 'LEDGER.PURCHASE.WITHHELD_FOR_AUTHORITY' },
+      serviceCharge: { key: 'LEDGER.PURCHASE.SERVICE_CHARGE_PAYABLE' },
+      payable: {
+        key: 'LEDGER.PURCHASE.PAYABLE',
+        params: { supplier: bill.vendor?.name ?? bill.vendorId },
+      },
+      entry: {
+        key: 'LEDGER.PURCHASE.BILL',
+        params: { number: bill.ncf ?? bill.id.slice(0, 8) },
+      },
+    });
+
     for (const line of bill.lines) {
       if (line.productId) {
         if (!settings.defaultInventoryId) {
@@ -463,7 +484,13 @@ export class AccountsPayableService {
             'ACCOUNTS_PAYABLE.CUENTA_INVENTARIO_DEFECTO_NO_ESTA_CONFIGURADA',
           );
         }
-        debit(settings.defaultInventoryId, line.total, `Compra: ${line.product}`);
+        debit(
+          settings.defaultInventoryId,
+          line.total,
+          await this.narrative.describe(manager, organizationId, 'LEDGER.PURCHASE.GOODS_LINE', {
+            product: line.product,
+          }),
+        );
       } else {
         if (!line.expenseAccountId) {
           throw new BadRequestError(
@@ -495,19 +522,19 @@ export class AccountsPayableService {
       if (!taxReceivableId) {
         throw new BadRequestError('ACCOUNTS_PAYABLE.CUENTA_IMPUESTO_COMPRAS_NO_CONFIGURADA');
       }
-      debit(taxReceivableId, deductibleTax, 'Impuesto sobre compras deducible');
+      debit(taxReceivableId, deductibleTax, words.deductibleTax);
     }
 
     if (costBearingAccountId) {
       debit(
         costBearingAccountId,
         roundAmount(bill.taxToCost + bill.taxProportional),
-        'Impuesto no deducible llevado al costo',
+        words.taxToCost,
       );
       debit(
         costBearingAccountId,
         roundAmount(bill.exciseAmount + bill.otherTaxes),
-        'Impuesto selectivo y otros gravámenes',
+        words.exciseTax,
       );
     }
 
@@ -522,30 +549,26 @@ export class AccountsPayableService {
       if (!withholdingPayableId) {
         throw new BadRequestError('ACCOUNTS_PAYABLE.CUENTA_RETENCIONES_NO_CONFIGURADA');
       }
-      credit(withholdingPayableId, totalWithheld, 'Retenciones por pagar al fisco');
+      credit(withholdingPayableId, totalWithheld, words.withheld);
     }
 
     if (toCents(bill.serviceCharge) !== 0 && settings.defaultServiceChargePayableId) {
       credit(
         settings.defaultServiceChargePayableId,
         bill.serviceCharge,
-        'Propina legal por pagar',
+        words.serviceCharge,
       );
     }
 
     // What the supplier is actually owed: the document total less anything withheld from them.
     const payable = roundAmount(bill.total - totalWithheld);
-    credit(
-      settings.defaultAccountsPayableId,
-      payable,
-      `Factura de proveedor: ${bill.vendor?.name ?? bill.vendorId}`,
-    );
+    credit(settings.defaultAccountsPayableId, payable, words.payable);
 
     const entry = await this.journalEntriesService.createWithManager(
       manager,
       {
         date: toIsoDate(bill.date),
-        description: `Factura de proveedor ${bill.ncf ?? bill.id.slice(0, 8)}`,
+        description: words.entry,
         journalId: purchaseJournal.id,
         lines,
         currencyCode: bill.currencyCode,
@@ -789,8 +812,20 @@ export class AccountsPayableService {
         });
       };
 
-      push(settings.defaultAccountsPayableId, payableDebitBase, 0, 'Cancelación de deuda con proveedores');
-      push(bankAccount.glAccountId, 0, cashOutBase, 'Salida de banco por pago a proveedores');
+      const paid = await this.narrative.describeAll(manager, organizationId, {
+        payable: { key: 'LEDGER.VENDOR_PAYMENT.PAYABLE_SETTLED' },
+        bankOut: { key: 'LEDGER.VENDOR_PAYMENT.BANK_OUT' },
+        withheld: { key: 'LEDGER.VENDOR_PAYMENT.WITHHELD_FROM_SUPPLIER' },
+        discount: { key: 'LEDGER.VENDOR_PAYMENT.EARLY_PAYMENT_DISCOUNT' },
+        forex: { key: 'LEDGER.VENDOR_PAYMENT.EXCHANGE_DIFFERENCE' },
+        entry: {
+          key: 'LEDGER.VENDOR_PAYMENT.BATCH',
+          params: { batch: batch.id.slice(0, 8) },
+        },
+      });
+
+      push(settings.defaultAccountsPayableId, payableDebitBase, 0, paid.payable);
+      push(bankAccount.glAccountId, 0, cashOutBase, paid.bankOut);
 
       if (toCents(withheldBase) !== 0) {
         const withholdingPayableId = await this.resolveAccount(
@@ -802,7 +837,7 @@ export class AccountsPayableService {
         if (!withholdingPayableId) {
           throw new BadRequestError('ACCOUNTS_PAYABLE.CUENTA_RETENCIONES_NO_CONFIGURADA');
         }
-        push(withholdingPayableId, 0, withheldBase, 'Retenciones practicadas al proveedor');
+        push(withholdingPayableId, 0, withheldBase, paid.withheld);
       }
 
       if (toCents(discountBase) !== 0) {
@@ -815,7 +850,7 @@ export class AccountsPayableService {
         if (!discountAccountId) {
           throw new BadRequestError('ACCOUNTS_PAYABLE.CUENTA_DESCUENTOS_NO_CONFIGURADA');
         }
-        push(discountAccountId, 0, discountBase, 'Descuento por pronto pago obtenido');
+        push(discountAccountId, 0, discountBase, paid.discount);
       }
 
       if (toCents(exchangeDifferenceBase) !== 0) {
@@ -832,7 +867,7 @@ export class AccountsPayableService {
           forexAccountId,
           exchangeDifferenceBase < 0 ? Math.abs(exchangeDifferenceBase) : 0,
           exchangeDifferenceBase > 0 ? exchangeDifferenceBase : 0,
-          'Diferencia cambiaria realizada en el pago',
+          paid.forex,
         );
       }
 
@@ -840,7 +875,7 @@ export class AccountsPayableService {
         manager,
         {
           date: toIsoDate(dto.paymentDate),
-          description: `Pago a proveedores — lote ${batch.id.slice(0, 8)}`,
+          description: paid.entry,
           journalId: paymentJournal.id,
           lines: entryLines,
         } as CreateJournalEntryDto,

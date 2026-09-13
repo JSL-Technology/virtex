@@ -28,6 +28,8 @@ import { InventoryService } from './inventory.service';
 import { InventoryPostingService } from './inventory-posting.service';
 import { ProductCategoriesService } from './product-categories.service';
 import { ProductCategory } from './entities/product-category.entity';
+import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
+import { I18nService } from '../i18n/i18n.service';
 
 /**
  * Stock is an asset, and this is what makes the books say so.
@@ -44,6 +46,9 @@ describeWithDb('inventory posting', () => {
 
   let dataSource: DataSource;
   let inventory: InventoryService;
+  let entries: JournalEntriesService;
+  /** The real narrative service: the entries assert the sentences the ledger will carry. */
+  const narrative = new LedgerNarrativeService(new I18nService());
   let balances: AccountBalancesService;
 
   let organizationId: string;
@@ -67,7 +72,7 @@ describeWithDb('inventory posting', () => {
     await dataSource.initialize();
 
     balances = new AccountBalancesService(dataSource);
-    const entries = new JournalEntriesService(
+    entries = new JournalEntriesService(
       dataSource.getRepository(JournalEntry),
       dataSource.getRepository(JournalEntryAttachment),
       dataSource,
@@ -83,7 +88,7 @@ describeWithDb('inventory posting', () => {
     inventory = new InventoryService(
       dataSource.getRepository(Product),
       dataSource,
-      new InventoryPostingService(entries),
+      new InventoryPostingService(entries, narrative),
       // The real category service: a product's category must belong to this tenant and still be
       // offered, and that check is part of what creating a product means now.
       new ProductCategoriesService(
@@ -204,6 +209,67 @@ describeWithDb('inventory posting', () => {
     expect(entry.entryType).toBe('OPENING_BALANCE');
   });
 
+  /**
+   * The ledger narrates itself in the language the books are kept in.
+   *
+   * Every system-generated description was a Spanish template literal — `Inventario inicial: …`,
+   * `Ajuste de inventario: …`, `Recibo de cobro …` — so a tenant in the United States, invoicing
+   * in English and reading an English interface, opened its own general ledger and found its
+   * accounting narrated in a language nobody at the company reads.
+   *
+   * The language is the ORGANISATION's, not the reader's: a narrative is part of the record, and
+   * an auditor reading the books in six years expects what was written then.
+   */
+  describe('the narrative on a system-generated entry', () => {
+    /**
+     * A posting service whose narrative cache is empty.
+     *
+     * `LedgerNarrativeService` caches the books language per organisation for the life of the
+     * process — it is fixed at provisioning and changing it would make one book read in two
+     * languages — so a test that changes it has to use an instance that has not looked it up.
+     */
+    const postingIn = () =>
+      new InventoryService(
+        dataSource.getRepository(Product),
+        dataSource,
+        new InventoryPostingService(entries, new LedgerNarrativeService(new I18nService())),
+        new ProductCategoriesService(
+          dataSource.getRepository(ProductCategory),
+          dataSource.getRepository(Product),
+        ),
+      );
+
+    /** The most recent entry's narrative — the one the test just caused. */
+    const lastNarrative = async () =>
+      (
+        await dataSource
+          .getRepository(JournalEntry)
+          .findOneOrFail({ where: { organizationId }, order: { createdAt: 'DESC' } })
+      ).description;
+
+    it('is written in the language the books are kept in', async () => {
+      await dataSource
+        .getRepository(Organization)
+        .update({ id: organizationId }, { booksLanguage: 'en' });
+
+      await postingIn().create(newProduct({ name: 'Hex bolt M6' }) as never, organizationId, ACTOR);
+
+      expect(await lastNarrative()).toBe('Opening stock: Hex bolt M6');
+    });
+
+    it("uses the product's default language when the tenant has stated none", async () => {
+      // Null is what the tenants that produced the entries already in the books had, and Spanish
+      // is what those entries say — which is why nothing is rewritten.
+      await dataSource
+        .getRepository(Organization)
+        .update({ id: organizationId }, { booksLanguage: null });
+
+      await postingIn().create(newProduct({ name: 'Tornillo M6' }) as never, organizationId, ACTOR);
+
+      expect(await lastNarrative()).toBe('Inventario inicial: Tornillo M6');
+    });
+  });
+
   it('posts nothing for a service, or for stock with no cost', async () => {
     await inventory.create(
       newProduct({ kind: ProductKind.SERVICE }) as never,
@@ -259,6 +325,7 @@ describeWithDb('inventory posting', () => {
           new AuditTrailService(dataSource.getRepository(AuditLog)),
           new ExchangeRateResolver(dataSource),
         ),
+        narrative,
       ).postOpeningStock(manager, product, ACTOR),
     );
 

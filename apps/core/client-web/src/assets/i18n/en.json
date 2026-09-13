@@ -1641,7 +1641,9 @@
     "UPDATE_SSO_PROVIDER": "The provider could not be updated.",
     "UPDATE_USER": "The user could not be updated.",
     "VERIFY_DOMAIN": "The domain could not be verified yet.",
-    "UPDATE_JOURNAL_ENTRY": "The journal entry could not be modified."
+    "UPDATE_JOURNAL_ENTRY": "The journal entry could not be modified.",
+    "RECAPTCHA": "The bot check could not be completed. Reload the page and try again.",
+    "INVALID_INVITATION_TOKEN": "The invitation link is not valid or has already been used. Ask whoever invited you for a new one."
   },
   "FEEDBACK": {
     "COMING_SOON": "This feature is coming soon",
@@ -1663,7 +1665,11 @@
       "B02": "B02 · Consumo (preimpreso)",
       "B04": "B04 · Nota de Crédito (preimpreso)",
       "B11": "B11 · Proveedor Informal",
-      "B15": "B15 · Gubernamental (preimpreso)"
+      "B15": "B15 · Gubernamental (preimpreso)",
+      "B03": "B03 · Nota de Débito (debit note)",
+      "E41": "E41 · Compras Electrónico (self-issued purchase)",
+      "E43": "E43 · Gastos Menores Electrónico (minor expenses)",
+      "E47": "E47 · Pagos al Exterior Electrónico (payments abroad)"
     },
     "MX": {
       "I": "I · Ingreso (CFDI 4.0)",
@@ -2330,7 +2336,6 @@
       "TITLE_NEW": "New supplier",
       "TITLE_EDIT": "Edit supplier",
       "PAIS": "Country",
-      "PAIS_PLACEHOLDER": "DO",
       "PAIS_AYUDA": "Two-letter ISO code. Tells a domestic purchase from a payment abroad, which the 609 reports separately.",
       "TIPO_CONTRIBUYENTE_AYUDA": "Decides what is withheld when you pay them. If you do not know it, leave it unclassified: nothing is withheld automatically."
     },
@@ -2915,7 +2920,8 @@
         "SUBTITLE": "Select the plan that best fits you",
         "TITLE": "Choose your Plan",
         "TOTAL": "{{count}} {{resource}} in total",
-        "UNLIMITED": "Unlimited {{resource}}"
+        "UNLIMITED": "Unlimited {{resource}}",
+        "NONE": "No {{resource}}"
       }
     },
     "STEP_OF": "Step {{current}} of {{total}}",
@@ -3899,7 +3905,8 @@
       "USUARIO_ELIMINADO_EXITO": "User deleted successfully.",
       "USUARIO_EMPRESA_COM": "user@company.com",
       "USUARIO_HA_SIDO_BLOQUEADO_SESION_CERRADA": "The user has been blocked and their session closed.",
-      "USUARIO_INVITADO_EXITO": "User invited successfully."
+      "USUARIO_INVITADO_EXITO": "User invited successfully.",
+      "MOSTRANDO_DE": "Showing {{shown}} of {{total}} users"
     }
   },
   "SET_PASSWORD": {
