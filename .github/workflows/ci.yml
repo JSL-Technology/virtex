@@ -118,6 +118,14 @@ jobs:
 
       - run: npm ci
 
+      # The schema every step below reads has to exist.
+      #
+      # `synchronize` is off everywhere on purpose, and nothing else in this job creates tables —
+      # so the integration suites and every `verify:*` script that touches the database were
+      # running against an EMPTY `virteex_ci`. Running the migrations here is also the only thing
+      # that proves they still apply cleanly from nothing, which is exactly what a deploy does.
+      - run: npm run migration:run
+
       # The TypeScript project references are derived from the dependency graph, and `typecheck`
       # refuses to run against stale ones. Checking it explicitly turns "the workspace is out of
       # sync" into a named failure instead of a confusing one inside the next step.

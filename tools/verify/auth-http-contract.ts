@@ -198,7 +198,16 @@ async function main() {
       planId: plan.slug,
     },
   });
-  const mexicanErrors: string[] = badMexican.json<{ message: string[] }>().message ?? [];
+  // `I18nExceptionFilter` answers a validation failure with `message` as ONE translated sentence
+  // and the per-field messages in `details` — a form needs them per field, and a wall of text is
+  // not a form error. This script still read `message` as the array and died on
+  // `mexicanErrors.some is not a function` before reaching a single one of the checks below, so
+  // the whole registration half of the auth contract went unverified. Both shapes are accepted so
+  // the check is about the refusal, not about which field carries it.
+  const mexicanBody = badMexican.json<{ message: string | string[]; details?: string[] }>();
+  const mexicanErrors: string[] = Array.isArray(mexicanBody.message)
+    ? mexicanBody.message
+    : (mexicanBody.details ?? (mexicanBody.message ? [mexicanBody.message] : []));
   check('an invalid RFC is refused', badMexican.statusCode === 400);
   check(
     'the refusal names the RFC specifically',
@@ -233,7 +242,10 @@ async function main() {
       planId: plan.slug,
     },
   });
-  const addressErrors: string[] = missingAddress.json<{ message: string[] }>().message ?? [];
+  const addressBody = missingAddress.json<{ message: string | string[]; details?: string[] }>();
+  const addressErrors: string[] = Array.isArray(addressBody.message)
+    ? addressBody.message
+    : (addressBody.details ?? (addressBody.message ? [addressBody.message] : []));
   check(
     'one empty field produces exactly one error, not three contradictory ones',
     addressErrors.filter((m) => m.toLowerCase().includes('direcci')).length === 1,
@@ -264,15 +276,22 @@ async function main() {
   };
 
   let emailGateEnforced = false;
+  let emailGateDetail = '';
   try {
     await registration.createPendingRegistration(
       { ...baseSignup, email: `unverified-${Date.now()}@example.test` } as never,
       plan.slug,
     );
   } catch (e) {
-    emailGateEnforced = /verificación de correo/i.test((e as Error).message);
+    // The message KEY, not the Spanish sentence it used to carry. Server errors are raised as
+    // `LocalizedException`s now and translated at the edge, so matching prose made this check
+    // depend on the reader's language — it went red on the refactor while the gate itself was
+    // never touched. `messageKey` is the stable identifier and is what the gate is.
+    const messageKey = (e as { messageKey?: string }).messageKey ?? (e as Error).message;
+    emailGateEnforced = messageKey === 'AUTH.CODIGO_VERIFICACION_CORREO_ES_OBLIGATORIO';
+    if (!emailGateEnforced) emailGateDetail = messageKey;
   }
-  check('signup demands a verified email before anything else', emailGateEnforced);
+  check('signup demands a verified email before anything else', emailGateEnforced, emailGateDetail);
 
   /**
    * A duplicate fiscal identity is refused BEFORE Stripe is called — but only once the mailbox is
@@ -317,10 +336,26 @@ async function main() {
     url: '/api/v1/auth/login',
     payload: { email: 'nobody-at-all@example.test', password: 'WrongPassword!123' },
   });
+  /**
+   * Same status, same code, same sentence — and the `timestamp` ignored.
+   *
+   * The two responses are generated milliseconds apart and `I18nExceptionFilter` stamps each with
+   * the time it was produced, so a byte-for-byte comparison of the bodies could never be equal and
+   * this check was permanently red: it was testing the clock, not the product. What must not
+   * differ is anything that says whether the ACCOUNT exists, which is everything below.
+   */
+  const withoutTimestamp = (raw: string): string => {
+    const body = JSON.parse(raw) as Record<string, unknown>;
+    delete body['timestamp'];
+    return JSON.stringify(body);
+  };
   check(
     'an unknown address and a wrong password are indistinguishable',
     wrongPassword.statusCode === unknownAccount.statusCode &&
-      wrongPassword.body === unknownAccount.body,
+      withoutTimestamp(wrongPassword.body) === withoutTimestamp(unknownAccount.body),
+    withoutTimestamp(wrongPassword.body) === withoutTimestamp(unknownAccount.body)
+      ? ''
+      : `${withoutTimestamp(wrongPassword.body)} vs ${withoutTimestamp(unknownAccount.body)}`,
   );
 
   const login = await inject({

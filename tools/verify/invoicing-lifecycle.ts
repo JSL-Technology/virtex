@@ -214,11 +214,43 @@ async function main(): Promise<void> {
     `antes ${entriesBefore[0].n}, después ${entriesAfter[0].n}`,
   );
 
+  // ── A withholding rate the buyer's regime does not justify is refused ───────
+  //
+  // `WithholdingResolverService` derives the rate from the buyer's fiscal classification and
+  // refuses a stated rate that disagrees with it unless the operator says why. This customer is an
+  // ordinary company, which withholds nothing, so 30 % is a claim about the transaction that has
+  // to be justified — and an unjustified one used to be accepted and posted.
+  let unjustifiedRefused = false;
+  let unjustifiedDetail = '';
+  try {
+    await invoices.create(
+      {
+        customerId: customer.id, issueDate: today, dueDate: today, currencyCode: 'DOP',
+        taxWithholdingRate: 0.3,
+        lineItems: [{ productId: good.id, quantity: 1 }],
+      } as never,
+      orgId,
+    );
+  } catch (e) {
+    const key = (e as { messageKey?: string }).messageKey ?? (e as Error).message;
+    unjustifiedRefused = key === 'INVOICES.RETENCION_NO_CORRESPONDE_AL_REGIMEN';
+    unjustifiedDetail = key;
+  }
+  check(
+    'una retención que el régimen del comprador no justifica se rechaza',
+    unjustifiedRefused,
+    unjustifiedRefused ? '' : unjustifiedDetail || 'fue aceptada',
+  );
+
   // ── Fractional quantities, discounts, services and withholding ──────────────
   const complex = await invoices.create(
     {
       customerId: customer.id, issueDate: today, dueDate: today, currencyCode: 'DOP',
       documentDiscountRate: 0.05, serviceChargeRate: 0.1, taxWithholdingRate: 0.3,
+      // The same 30 %, this time with the reason the resolver demands — the override path, which
+      // is what an operator uses when the buyer withholds under an arrangement the catalogue does
+      // not model. The reason is stored on the invoice and shows up in the audit trail.
+      withholdingOverrideReason: 'Comprador designado agente de retención por la DGII',
       lineItems: [
         { productId: good.id, quantity: 1.5, discountRate: 0.1 },
         { productId: service.id, quantity: 2.25 },
@@ -231,7 +263,18 @@ async function main(): Promise<void> {
   check('acepta una línea sin producto de catálogo', complex.lineItems.some((l) => !l.productId));
   check('separa bienes de servicios', complex.goodsTotal > 0 && complex.servicesTotal > 0,
     `bienes ${complex.goodsTotal}, servicios ${complex.servicesTotal}`);
-  check('separa gravado de exento', complex.exemptTotal === 250, `exento ${complex.exemptTotal}`);
+  // 250 de base exenta, menos su parte del 5 % de descuento global = 237.50.
+  //
+  // Un descuento de documento se prorratea entre TODAS las líneas, incluidas las exentas: el
+  // comprador paga un 5 % menos también por lo exento, así que su base baja igual. La comprobación
+  // esperaba 250, es decir, que el descuento no tocara la línea exenta — y el motor, que sí la
+  // toca, tenía razón. Se expresa la regla en lugar de la cifra.
+  const exentoEsperado = round2(250 * (1 - 0.05));
+  check(
+    'separa gravado de exento, con el descuento global prorrateado',
+    Math.abs(complex.exemptTotal - exentoEsperado) < 0.005,
+    `exento ${complex.exemptTotal}, esperado ${exentoEsperado}`,
+  );
   check('aplica propina legal', complex.serviceCharge > 0, String(complex.serviceCharge));
   check('descuenta la retención del importe a cobrar', complex.netReceivable < complex.total,
     `total ${complex.total}, neto ${complex.netReceivable}`);

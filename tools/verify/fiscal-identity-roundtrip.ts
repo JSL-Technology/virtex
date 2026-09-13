@@ -10,9 +10,24 @@
  * the database constraint firing on the second insert, so the check has to reach a real database.
  *
  *   npm run verify:fiscal-identity
+ *
+ * ## Why it boots the application rather than opening a connection
+ *
+ * Every check below needs a row in `fiscal_regions` for the country it is about, and the script
+ * used to open `AppDataSource` directly and assume somebody had already put them there. Nothing
+ * had: the regions are seeded by `LocalizationService.onModuleInit`, which only runs when the
+ * application starts — and in CI this step runs BEFORE `verify:boot`. So all nine of the checks
+ * that need a region reported `no fiscal region seeded` and the step failed, on a clean database,
+ * for a reason that had nothing to do with what it verifies.
+ *
+ * Booting the real `AppModule` seeds them through the product's own path, which is also the path
+ * a real deployment uses. It costs a few seconds and removes the dependency on the order the
+ * verification steps happen to run in.
  */
 import 'reflect-metadata';
-import { AppDataSource } from '../../apps/backend/api/src/app/database/data-source';
+import { NestFactory } from '@nestjs/core';
+import { DataSource } from 'typeorm';
+import { AppModule } from '../../apps/backend/api/src/app/app.module';
 import { Organization } from '../../apps/backend/api/src/app/organizations/entities/organization.entity';
 import { FiscalRegion } from '../../apps/backend/api/src/app/localization/entities/fiscal-region.entity';
 import {
@@ -45,7 +60,11 @@ const COLLIDING_PAIRS: Array<[string, string, string, string]> = [
 ];
 
 async function main() {
-  const ds = await AppDataSource.initialize();
+  const app = await NestFactory.createApplicationContext(AppModule, {
+    logger: ['error', 'warn'],
+    abortOnError: false,
+  });
+  const ds = app.get(DataSource);
   const orgs = ds.getRepository(Organization);
   const regions = ds.getRepository(FiscalRegion);
   const created: string[] = [];
@@ -166,7 +185,7 @@ async function main() {
     if (created.length) {
       await orgs.delete(created);
     }
-    await ds.destroy();
+    await app.close();
   }
 
   if (failures > 0) {
