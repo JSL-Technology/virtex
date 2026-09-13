@@ -75,6 +75,18 @@ export class CustomerPaymentsController {
     );
   }
 
+  @Get('advances/:customerId')
+  @HasPermission(PERMISSIONS.ACCOUNTS_RECEIVABLE_VIEW)
+  @ApiOperation({
+    summary: 'Anticipos disponibles de un cliente, por moneda, para aplicarlos a una factura.',
+  })
+  advances(
+    @Param('customerId', ParseUUIDPipe) customerId: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.customerPaymentsService.advances(user.organizationId, customerId);
+  }
+
   @Get(':id')
   @HasPermission(PERMISSIONS.ACCOUNTS_RECEIVABLE_VIEW)
   findOne(

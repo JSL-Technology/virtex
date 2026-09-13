@@ -4,7 +4,7 @@ import { TabDefinition, TabType } from './tab.model';
 import { GenericModulePage } from './components/generic-module.page';
 import { AuthService } from '../services/auth';
 import { resolveRoute, RegisteredRoute } from '../modules/module-registry';
-import { WindowKind } from '../modules/module-manifest';
+import { WindowKind, requiredPermissionsFor} from '../modules/module-manifest';
 
 export interface ResolvedTab {
   definition: TabDefinition;
@@ -101,7 +101,7 @@ export class TabRegistryService {
       isCloseable,
       // `authenticated` means "any signed-in user"; it is not a grantable permission, so it must
       // not be handed to hasPermissions() — which would deny it for everyone.
-      permissions: route.permission === 'authenticated' ? [] : [route.permission],
+      permissions: requiredPermissionsFor(route.permission),
       entityKeyFn: route.entityKeyFn ?? (() => `module:${path}`),
       titleFn: route.titleFn,
       load: route.load as () => Promise<Type<unknown>>,

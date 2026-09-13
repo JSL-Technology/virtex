@@ -176,12 +176,15 @@ describeWithDb('customer collections', () => {
     await make('discount', '4901', AccountType.REVENUE, AccountCategory.OPERATING_REVENUE, AccountNature.DEBIT, AccountRole.SALES_DISCOUNTS);
     await make('forex', '5901', AccountType.EXPENSE, AccountCategory.NON_OPERATING_EXPENSE, AccountNature.DEBIT, AccountRole.FOREX_GAIN_LOSS);
     await make('revenue', '4101', AccountType.REVENUE, AccountCategory.OPERATING_REVENUE, AccountNature.CREDIT, AccountRole.SALES_REVENUE);
+    // A liability, never a negative receivable: money held against no document is owed back.
+    await make('advances', '2170', AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, AccountNature.CREDIT, AccountRole.CUSTOMER_ADVANCES);
 
     await dataSource.getRepository(OrganizationSettings).save(
       dataSource.getRepository(OrganizationSettings).create({
         organizationId,
         baseCurrency: 'DOP',
         defaultAccountsReceivableId: account['receivable'],
+        defaultCustomerAdvancesAccountId: account['advances'],
         defaultForexGainLossAccountId: account['forex'],
       }),
     );
@@ -337,8 +340,11 @@ describeWithDb('customer collections', () => {
 
     expect(receipt.unappliedAmount).toBe(3_000);
     expect(await signedBalance('bank')).toBe(8_000);
-    // 5,000 relieved plus 3,000 held as an advance: the receivable account carries both.
-    expect(await signedBalance('receivable')).toBe(-8_000);
+    // Only what an invoice actually owed is relieved. The 3,000 held against no document is a
+    // liability of its own: crediting it here drove the receivable control account below zero and
+    // broke the ageing report's reconciliation by exactly that amount.
+    expect(await signedBalance('receivable')).toBe(-5_000);
+    expect(await signedBalance('advances')).toBe(-3_000);
   });
 
   it('records a pure advance with no invoice at all', async () => {
@@ -356,6 +362,92 @@ describeWithDb('customer collections', () => {
 
     expect(receipt.unappliedAmount).toBe(4_000);
     expect(await signedBalance('bank')).toBe(4_000);
+    expect(await signedBalance('advances')).toBe(-4_000);
+    // Nothing was invoiced, so nothing is collectible: the receivable must not have moved at all.
+    expect(await signedBalance('receivable')).toBe(0);
+  });
+
+  it('settles a later invoice from the advance, without asking the customer to pay twice', async () => {
+    const held = await receipts.create(
+      { customerId, paymentDate: '2026-05-10', bankAccountId, amountReceived: 4_000, lines: [] },
+      organizationId,
+      ACTOR,
+    );
+    expect(held.unappliedAmount).toBe(4_000);
+
+    const invoice = await openInvoice(3_000);
+    const applied = await receipts.create(
+      {
+        customerId,
+        paymentDate: '2026-05-20',
+        bankAccountId,
+        amountReceived: 0,
+        advanceApplied: 3_000,
+        lines: [{ invoiceId: invoice.id, amount: 3_000 }],
+      },
+      organizationId,
+      ACTOR,
+    );
+
+    expect(applied.advanceAppliedAmount).toBe(3_000);
+    expect(applied.unappliedAmount).toBe(0);
+    // No cash arrived: the money was already in the bank from the first receipt.
+    expect(await signedBalance('bank')).toBe(4_000);
+    // The liability is discharged by what was spent, and the receivable relieved by the same.
+    // (`openInvoice` writes the document only, so the control account carries just this credit.)
+    expect(await signedBalance('advances')).toBe(-1_000);
+    expect(await signedBalance('receivable')).toBe(-3_000);
+    expect((await dataSource.getRepository(Invoice).findOneByOrFail({ id: invoice.id })).balance).toBe(0);
+  });
+
+  it('refuses to draw more advance than the customer holds', async () => {
+    await receipts.create(
+      { customerId, paymentDate: '2026-05-10', bankAccountId, amountReceived: 1_000, lines: [] },
+      organizationId,
+      ACTOR,
+    );
+    const invoice = await openInvoice(3_000);
+
+    await expect(
+      receipts.create(
+        {
+          customerId,
+          paymentDate: '2026-05-20',
+          bankAccountId,
+          amountReceived: 0,
+          advanceApplied: 3_000,
+          lines: [{ invoiceId: invoice.id, amount: 3_000 }],
+        },
+        organizationId,
+        ACTOR,
+      ),
+    ).rejects.toThrow();
+  });
+
+  it('refuses to void a receipt whose advance a later receipt already spent', async () => {
+    const held = await receipts.create(
+      { customerId, paymentDate: '2026-05-10', bankAccountId, amountReceived: 4_000, lines: [] },
+      organizationId,
+      ACTOR,
+    );
+    const invoice = await openInvoice(3_000);
+    await receipts.create(
+      {
+        customerId,
+        paymentDate: '2026-05-20',
+        bankAccountId,
+        amountReceived: 0,
+        advanceApplied: 3_000,
+        lines: [{ invoiceId: invoice.id, amount: 3_000 }],
+      },
+      organizationId,
+      ACTOR,
+    );
+
+    // Reversing it anyway would leave the customer holding a negative balance on account.
+    await expect(
+      receipts.voidPayment(held.id, { reason: 'Cheque devuelto' }, organizationId, ACTOR),
+    ).rejects.toThrow();
   });
 
   it('books the realised exchange difference on a foreign-currency invoice', async () => {

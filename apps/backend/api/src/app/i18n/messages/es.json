@@ -426,7 +426,12 @@
     "MONEDA_COBRO_NO_COINCIDE_CUENTA_BANCARIA": "No se puede recibir un cobro en {receipt} en una cuenta en {account}; use una cuenta en {receipt} o en la moneda de los libros.",
     "MONTO_PAGO_FACTURA_EXCEDE_SALDO_PENDIENTE": "El monto del pago para la factura {{invoiceNumber}} ({{amount}}) excede su saldo pendiente ({{balance}}).",
     "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "No se ha configurado un libro contable por defecto para la organización.",
-    "NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION": "No se pudo obtener el Query Runner de la transacción."
+    "NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION": "No se pudo obtener el Query Runner de la transacción.",
+    "CUENTA_ANTICIPOS_NO_CONFIGURADA": "La cuenta de anticipos de clientes no está configurada para la organización.",
+    "COBRO_SIN_FONDOS": "El cobro no tiene fondos: indique un monto recibido o un anticipo a aplicar.",
+    "ANTICIPO_INSUFICIENTE": "El cliente solo tiene {{available}} {{currency}} en anticipos; se intentó aplicar {{requested}}.",
+    "ANTICIPO_EXCEDE_LO_APLICADO": "Se tomaron {{drawn}} de anticipo pero quedan {{unapplied}} sin aplicar. Aplique el anticipo a facturas o redúzcalo.",
+    "ANTICIPO_YA_APLICADO_NO_ANULABLE": "No se puede anular el recibo {{receipt}}: {{applied}} de su anticipo ya fueron aplicados a otras facturas. Anule primero esos cobros."
   },
   "CUSTOMER_SERVICE": {
     "ARTICULO_NO_ENCONTRADO": "Artículo no encontrado.",
@@ -695,7 +700,10 @@
     "PRODUCTO_ID_NO_ENCONTRADO_ESTA_ORGANIZACION": "Producto con ID \"{{productId}}\" no encontrado en esta organización.",
     "PRODUCTO_ID_NO_ENCONTRADO_TRANSACCION": "Producto con ID \"{{productId}}\" no encontrado en la transacción.",
     "STOCK_INSUFICIENTE_DISPONIBLES_SOLICITADAS": "Stock insuficiente para \"{{name}}\": disponibles {{available}}, solicitadas {{quantity}}.",
-    "STOCK_INSUFICIENTE_PRODUCTO": "Stock insuficiente para el producto \"{{name}}\"."
+    "STOCK_INSUFICIENTE_PRODUCTO": "Stock insuficiente para el producto \"{{name}}\".",
+    "CUENTAS_INVENTARIO_NO_CONFIGURADAS": "La organización no tiene configuradas las cuentas de inventario y de saldos iniciales; no se puede registrar la existencia inicial.",
+    "CUENTAS_AJUSTE_NO_CONFIGURADAS": "La organización no tiene configuradas las cuentas de inventario y de ajustes de inventario; no se puede registrar el ajuste.",
+    "DIARIO_GENERAL_NO_ENCONTRADO": "No existe el diario General (GENERAL) en esta organización; créelo en Ajustes de contabilidad."
   },
   "INVOICE": {
     "PDF": {

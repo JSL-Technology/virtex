@@ -73,8 +73,20 @@ export class CreateCustomerPaymentDto {
    * exactly, so a customer paying ahead had nowhere to be recorded.
    */
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0.01)
+  @Min(0)
   amountReceived: number;
+
+  /**
+   * Drawn from advances this customer already paid, in `currencyCode`.
+   *
+   * A receipt may be funded by fresh cash, by money already held, or by both. Zero cash and a
+   * non-zero draw is the ordinary case of "apply the deposit to this invoice", which is why
+   * `amountReceived` no longer has to be positive — but the two together still must be.
+   */
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0)
+  @IsOptional()
+  advanceApplied?: number;
 
   @IsString()
   @IsOptional()

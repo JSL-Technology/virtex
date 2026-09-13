@@ -426,7 +426,12 @@
     "MONEDA_COBRO_NO_COINCIDE_CUENTA_BANCARIA": "A receipt in {receipt} cannot land in an account in {account}; use an account in {receipt} or in the books’ currency.",
     "MONTO_PAGO_FACTURA_EXCEDE_SALDO_PENDIENTE": "The payment for invoice {{invoiceNumber}} ({{amount}}) exceeds its outstanding balance ({{balance}}).",
     "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "No default ledger has been configured for the organization.",
-    "NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION": "The transaction's query runner could not be obtained."
+    "NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION": "The transaction's query runner could not be obtained.",
+    "CUENTA_ANTICIPOS_NO_CONFIGURADA": "The customer advances account is not configured for this organization.",
+    "COBRO_SIN_FONDOS": "The receipt has no funds: enter an amount received or an advance to apply.",
+    "ANTICIPO_INSUFICIENTE": "The customer only holds {{available}} {{currency}} in advances; {{requested}} was requested.",
+    "ANTICIPO_EXCEDE_LO_APLICADO": "{{drawn}} was drawn from the advance but {{unapplied}} remains unapplied. Apply the advance to invoices or reduce it.",
+    "ANTICIPO_YA_APLICADO_NO_ANULABLE": "Receipt {{receipt}} cannot be voided: {{applied}} of its advance has already been applied to other invoices. Void those receipts first."
   },
   "CUSTOMER_SERVICE": {
     "ARTICULO_NO_ENCONTRADO": "The article was not found.",
@@ -695,7 +700,10 @@
     "PRODUCTO_ID_NO_ENCONTRADO_ESTA_ORGANIZACION": "Product \"{{productId}}\" was not found in this organization.",
     "PRODUCTO_ID_NO_ENCONTRADO_TRANSACCION": "Product \"{{productId}}\" was not found in the transaction.",
     "STOCK_INSUFICIENTE_DISPONIBLES_SOLICITADAS": "Not enough stock for \"{{name}}\": {{available}} available, {{quantity}} requested.",
-    "STOCK_INSUFICIENTE_PRODUCTO": "Not enough stock for the product \"{{name}}\"."
+    "STOCK_INSUFICIENTE_PRODUCTO": "Not enough stock for the product \"{{name}}\".",
+    "CUENTAS_INVENTARIO_NO_CONFIGURADAS": "This organization has no inventory and opening-balance accounts configured, so the opening stock cannot be recorded.",
+    "CUENTAS_AJUSTE_NO_CONFIGURADAS": "This organization has no inventory and inventory-adjustment accounts configured, so the adjustment cannot be recorded.",
+    "DIARIO_GENERAL_NO_ENCONTRADO": "There is no General (GENERAL) journal in this organization; create it in accounting settings."
   },
   "INVOICE": {
     "PDF": {

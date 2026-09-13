@@ -149,6 +149,13 @@ export class CustomerPaymentsService {
       });
       if (!customer) throw new NotFoundError('CUSTOMERS.CLIENTE_NO_ENCONTRADO');
 
+      // A receipt may be funded by fresh cash, by money the customer already left on account, or by
+      // both — but not by nothing.
+      const advanceDraw = roundAmount(dto.advanceApplied ?? 0);
+      if (toCents(dto.amountReceived) + toCents(advanceDraw) <= 0) {
+        throw new BadRequestError('CUSTOMERS.COBRO_SIN_FONDOS');
+      }
+
       const ledger = await manager.findOneBy(Ledger, { organizationId, isDefault: true });
       if (!ledger) {
         throw new BadRequestError(
@@ -311,17 +318,54 @@ export class CustomerPaymentsService {
         );
       }
 
+      // Drawing on an advance only makes sense against the currency it was received in: the money
+      // held is a number of pesos or of dollars, and spending it as the other would invent a rate
+      // nobody agreed to.
+      let advanceDrawBase = 0;
+      if (toCents(advanceDraw) > 0) {
+        const held = await this.advanceOutstanding(
+          manager,
+          organizationId,
+          dto.customerId,
+          currencyCode,
+        );
+        if (toCents(advanceDraw) > toCents(held.amount)) {
+          throw new BadRequestError('CUSTOMERS.ANTICIPO_INSUFICIENTE', {
+            requested: advanceDraw,
+            available: held.amount,
+            currency: currencyCode,
+          });
+        }
+        // Retired at what the customer actually paid — the weighted average of the receipts still
+        // holding money — so the liability leaves the books for the amount it entered them at.
+        advanceDrawBase = roundAmount(advanceDraw * (held.averageRate ?? receiptRate));
+        // The gap against today's rate is realised here, exactly as it is on an invoice.
+        exchangeDifferenceBase = roundAmount(
+          exchangeDifferenceBase + (convert(advanceDraw, receiptRate) - advanceDrawBase),
+        );
+      }
+
       // Anything received beyond what was applied is held as a customer advance.
-      const unapplied = roundAmount(dto.amountReceived - appliedInReceiptCurrency);
+      const unapplied = roundAmount(dto.amountReceived + advanceDraw - appliedInReceiptCurrency);
       if (toCents(unapplied) < 0) {
         throw new BadRequestError('CUSTOMERS.APLICACION_EXCEDE_MONTO_RECIBIDO', {
-          received: dto.amountReceived,
+          received: roundAmount(dto.amountReceived + advanceDraw),
           applied: appliedInReceiptCurrency,
+        });
+      }
+      // Taking money off account only to put it straight back is not a transaction; it would leave
+      // the drawn receipt looking spent and the ledger unchanged.
+      if (toCents(advanceDraw) > 0 && toCents(unapplied) > 0) {
+        throw new BadRequestError('CUSTOMERS.ANTICIPO_EXCEDE_LO_APLICADO', {
+          drawn: advanceDraw,
+          unapplied,
         });
       }
       const unappliedBase = convert(unapplied, receiptRate);
       cashInBase = roundAmount(cashInBase + unappliedBase);
       payment.unappliedAmount = unapplied;
+      payment.advanceAppliedAmount = advanceDraw;
+      payment.advanceAppliedBaseAmount = advanceDrawBase;
 
       const entryLines: CreateJournalEntryLineDto[] = [];
       const push = (
@@ -340,7 +384,10 @@ export class CustomerPaymentsService {
         });
       };
 
-      push(bankAccount.glAccountId, cashInBase, 0, 'Ingreso a banco por cobro a cliente');
+      // Only the cash that actually arrived hits the bank. The part funded from an advance moved
+      // between two balance-sheet lines and never touched the account.
+      const bankDebitBase = roundAmount(cashInBase - convert(advanceDraw, receiptRate));
+      push(bankAccount.glAccountId, bankDebitBase, 0, 'Ingreso a banco por cobro a cliente');
       push(
         settings.defaultAccountsReceivableId,
         0,
@@ -380,14 +427,22 @@ export class CustomerPaymentsService {
         push(discountAccountId, discountBase, 0, 'Descuento por pronto pago concedido');
       }
 
-      if (toCents(unappliedBase) !== 0) {
+      if (toCents(unappliedBase) !== 0 || toCents(advanceDrawBase) !== 0) {
         const advanceAccountId = await this.resolveAdvanceAccount(
           manager,
           organizationId,
           settings,
         );
-        // Held, not earned: money against no document is owed back until it is applied.
-        push(advanceAccountId, 0, unappliedBase, 'Anticipo de cliente');
+        // Held, not earned: money against no document is owed back until it is applied — and when
+        // it is applied, the obligation is discharged rather than the receivable credited twice.
+        push(
+          advanceAccountId,
+          advanceDrawBase,
+          unappliedBase,
+          toCents(advanceDrawBase) > 0
+            ? 'Aplicación de anticipo de cliente'
+            : 'Anticipo de cliente',
+        );
       }
 
       if (toCents(exchangeDifferenceBase) !== 0) {
@@ -451,6 +506,27 @@ export class CustomerPaymentsService {
       if (!payment) throw new NotFoundError('CUSTOMERS.COBRO_NO_ENCONTRADO');
       if (payment.status === CustomerPaymentStatus.VOID) {
         throw new BadRequestError('CUSTOMERS.COBRO_YA_ANULADO');
+      }
+
+      // An advance this receipt created may already have been spent on a later invoice. Reversing
+      // it anyway would leave the customer holding a negative balance on account and the liability
+      // account short by the amount someone else's receipt already relieved.
+      if (toCents(payment.unappliedAmount - payment.advanceAppliedAmount) > 0) {
+        const held = await this.advanceOutstanding(
+          manager,
+          payment.organizationId,
+          payment.customerId,
+          payment.currencyCode,
+        );
+        const remaining = roundAmount(
+          held.amount - (payment.unappliedAmount - payment.advanceAppliedAmount),
+        );
+        if (toCents(remaining) < 0) {
+          throw new BadRequestError('CUSTOMERS.ANTICIPO_YA_APLICADO_NO_ANULABLE', {
+            receipt: payment.receiptNumber ?? payment.id,
+            applied: roundAmount(Math.abs(remaining)),
+          });
+        }
       }
 
       for (const line of payment.lines) {
@@ -642,30 +718,95 @@ export class CustomerPaymentsService {
   }
 
   /**
-   * Where a customer advance is held.
+   * Where a customer advance is held: a current liability of its own.
    *
-   * There is no dedicated role for it, so the receivable account is used as a contra: an advance
-   * sits as a credit balance against the customer until it is applied. A tenant that wants it on a
-   * separate liability line assigns one; until then this keeps the money visible and owed rather
-   * than recognised as income.
+   * It used to be the receivables control account, used as a contra — an advance sat there as a
+   * credit. That is wrong twice over. It drove the control account below zero the moment a customer
+   * paid ahead of being invoiced, so the balance sheet reported a *negative asset* where there was
+   * a real obligation; and it broke the ageing report's own reconciliation, which compares the
+   * subledger against that account and had no way to know part of the balance was not a receivable
+   * at all. Money held against no document is owed back, and a liability is where it belongs.
    */
   private async resolveAdvanceAccount(
     manager: EntityManager,
     organizationId: string,
     settings: OrganizationSettings,
   ): Promise<string> {
-    const receivableId = await this.resolveAccount(
+    const advanceId = await this.resolveAccount(
       manager,
       organizationId,
-      AccountRole.ACCOUNTS_RECEIVABLE,
-      settings.defaultAccountsReceivableId,
+      AccountRole.CUSTOMER_ADVANCES,
+      settings.defaultCustomerAdvancesAccountId,
     );
-    if (!receivableId) {
-      throw new BadRequestError(
-        'CUSTOMERS.CUENTA_COBRAR_DEFECTO_NO_ESTA_CONFIGURADA_ORGANIZACION',
-      );
+    if (!advanceId) {
+      throw new BadRequestError('CUSTOMERS.CUENTA_ANTICIPOS_NO_CONFIGURADA');
     }
-    return receivableId;
+    return advanceId;
+  }
+
+  /**
+   * What this customer has paid ahead and not yet spent, in one currency.
+   *
+   * Returned in both the customer's currency and the books', because an advance is consumed at the
+   * weighted-average rate it was received at, not at the rate of the day it is spent. Only POSTED
+   * receipts count: voiding the receipt that created an advance takes the advance with it.
+   */
+  private async advanceOutstanding(
+    manager: EntityManager,
+    organizationId: string,
+    customerId: string,
+    currencyCode: string,
+  ): Promise<{ amount: number; baseAmount: number; averageRate: number | null }> {
+    const [row] = (await manager.query(
+      `SELECT
+         COALESCE(SUM(p.unapplied_amount - p.advance_applied_amount), 0) AS amount,
+         COALESCE(
+           SUM(p.unapplied_amount * p.exchange_rate - p.advance_applied_base_amount),
+           0
+         ) AS base_amount
+       FROM customer_payments p
+       WHERE p.organization_id = $1
+         AND p.customer_id = $2
+         AND p.currency_code = $3
+         AND p.status = $4`,
+      [organizationId, customerId, currencyCode, CustomerPaymentStatus.POSTED],
+    )) as { amount: string; base_amount: string }[];
+
+    const amount = roundAmount(Number(row?.amount ?? 0));
+    const baseAmount = roundAmount(Number(row?.base_amount ?? 0));
+    return {
+      amount,
+      baseAmount,
+      averageRate: toCents(amount) > 0 ? baseAmount / amount : null,
+    };
+  }
+
+  /**
+   * Advances a customer is holding, per currency — what the receipt screen offers to draw on.
+   */
+  async advances(
+    organizationId: string,
+    customerId: string,
+  ): Promise<{ currencyCode: string; amount: number; baseAmount: number }[]> {
+    const rows = (await this.dataSource.manager.query(
+      `SELECT p.currency_code AS "currencyCode",
+              SUM(p.unapplied_amount - p.advance_applied_amount) AS amount,
+              SUM(p.unapplied_amount * p.exchange_rate - p.advance_applied_base_amount) AS "baseAmount"
+         FROM customer_payments p
+        WHERE p.organization_id = $1
+          AND p.customer_id = $2
+          AND p.status = $3
+        GROUP BY p.currency_code
+       HAVING SUM(p.unapplied_amount - p.advance_applied_amount) <> 0
+        ORDER BY p.currency_code`,
+      [organizationId, customerId, CustomerPaymentStatus.POSTED],
+    )) as { currencyCode: string; amount: string; baseAmount: string }[];
+
+    return rows.map((row) => ({
+      currencyCode: row.currencyCode,
+      amount: roundAmount(Number(row.amount)),
+      baseAmount: roundAmount(Number(row.baseAmount)),
+    }));
   }
 
   /**

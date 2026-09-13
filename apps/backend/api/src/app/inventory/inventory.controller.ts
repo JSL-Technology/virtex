@@ -18,7 +18,7 @@ export class InventoryController {
   @Post()
   @HasPermission(PERMISSIONS.PRODUCTS_CREATE)
   create(@Body() createProductDto: CreateProductDto, @CurrentUser() user: AuthenticatedUser) {
-    return this.inventoryService.create(createProductDto, user.organizationId);
+    return this.inventoryService.create(createProductDto, user.organizationId, user.id);
   }
 
   @Get()
@@ -36,12 +36,12 @@ export class InventoryController {
   @Patch(':id')
   @HasPermission(PERMISSIONS.PRODUCTS_EDIT)
   update(@Param('id', ParseUUIDPipe) id: string, @Body() updateProductDto: UpdateProductDto, @CurrentUser() user: AuthenticatedUser) {
-    return this.inventoryService.update(id, updateProductDto, user.organizationId);
+    return this.inventoryService.update(id, updateProductDto, user.organizationId, user.id);
   }
 
   @Delete(':id')
   @HasPermission(PERMISSIONS.PRODUCTS_DELETE)
   remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
-    return this.inventoryService.remove(id, user.organizationId);
+    return this.inventoryService.remove(id, user.organizationId, user.id);
   }
 }

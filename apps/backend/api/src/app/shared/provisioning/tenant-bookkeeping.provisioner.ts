@@ -147,6 +147,11 @@ export class TenantBookkeepingProvisioner {
     settings.defaultPayrollNetPayableAccountId ??= byRole.get(AccountRole.PAYROLL_NET_PAYABLE) ?? null;
     settings.defaultAfpPayableAccountId ??= byRole.get(AccountRole.AFP_PAYABLE) ?? null;
     settings.defaultSfsPayableAccountId ??= byRole.get(AccountRole.SFS_PAYABLE) ?? null;
+    settings.defaultCustomerAdvancesAccountId ??= byRole.get(AccountRole.CUSTOMER_ADVANCES) ?? null;
+    settings.defaultOpeningBalanceEquityAccountId ??=
+      byRole.get(AccountRole.OPENING_BALANCE_EQUITY) ?? null;
+    settings.defaultInventoryAdjustmentAccountId ??=
+      byRole.get(AccountRole.INVENTORY_ADJUSTMENT) ?? null;
     settings.defaultInfotepPayableAccountId ??= byRole.get(AccountRole.INFOTEP_PAYABLE) ?? null;
     settings.defaultPayrollTaxWithholdingPayableAccountId ??=
       byRole.get(AccountRole.PAYROLL_TAX_WITHHOLDING_PAYABLE) ?? null;

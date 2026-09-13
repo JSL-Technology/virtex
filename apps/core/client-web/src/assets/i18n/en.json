@@ -1041,7 +1041,13 @@
       "SALDA": "Settles",
       "SALDO": "Balance",
       "SELECCIONAR_CLIENTE": "Select a customer",
-      "SIN_FACTURAS_ABIERTAS": "This customer has no invoices with an outstanding balance."
+      "SIN_FACTURAS_ABIERTAS": "This customer has no invoices with an outstanding balance.",
+      "ANTICIPO_APLICADO": "Advance applied",
+      "ANTICIPO_DISPONIBLE": "Available on account",
+      "USAR_ANTICIPO": "Use the advance",
+      "SIN_FONDOS": "Enter an amount received or an advance to apply.",
+      "ANTICIPO_INSUFICIENTE": "The advance to apply exceeds what this customer holds on account.",
+      "ANTICIPO_EXCEDE_LO_APLICADO": "You are drawing more advance than this receipt applies to invoices. Apply it to invoices or reduce it."
     },
     "LIST": {
       "CARGANDO_RECIBOS": "Loading receipts...",

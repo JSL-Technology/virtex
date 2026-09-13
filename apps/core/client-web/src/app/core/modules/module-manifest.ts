@@ -166,3 +166,19 @@ export function fullPath(module: ModuleManifest, route: ModuleRoute): string {
   const segments = [module.basePath, route.path].filter((s) => s.length > 0);
   return '/' + segments.join('/');
 }
+
+/**
+ * The permission sentinel that means "any signed-in user".
+ *
+ * It is not a grantable permission: no role holds a permission literally called `authenticated`,
+ * so handing it to a permission check denies it to everyone except a wildcard holder. The rule
+ * lives here, exported, because it had to be applied in two places and was applied in one — the
+ * tab registry translated it and the ROUTE table did not, so every route declared `authenticated`
+ * refused every non-administrator, sending them to a redirect that had nowhere to land.
+ */
+export const AUTHENTICATED_ONLY = 'authenticated';
+
+/** The permissions a permission check should be given for a declared route permission. */
+export function requiredPermissionsFor(permission: string): string[] {
+  return permission === AUTHENTICATED_ONLY ? [] : [permission];
+}

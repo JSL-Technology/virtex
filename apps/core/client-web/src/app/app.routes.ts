@@ -202,6 +202,24 @@ export const APP_ROUTES: Routes = [
     ]
   },
 
+  /**
+   * Where a refused navigation lands.
+   *
+   * Declared at the TOP level, outside `MainLayout`, and with no guard of its own — deliberately
+   * on both counts. `permissionsGuard` sends a user here when they may not open a route, so this
+   * page must be reachable by definition: inside the shell it would be filtered by the very guard
+   * that redirected to it, and the router would bounce between the two forever. It did: the page
+   * component existed and no route declared it, so "access denied" fell through to the language
+   * fallback below, which redirects a signed-in user to `/overview`, which refused again. Angular
+   * puts no cycle limit on a UrlTree returned by a guard, so the tab locked up hard.
+   */
+  {
+    path: 'unauthorized',
+    loadComponent: () =>
+      import('./features/unauthorized/unauthorized.page').then((m) => m.UnauthorizedPage),
+    title: 'UNAUTHORIZED.TITLE',
+  },
+
   // 5. Fallback
   {
     path: '**',

@@ -151,11 +151,13 @@ const ES = {
   serviceCharge: 'Propina Legal por Pagar',
   exciseTax: 'Impuesto Selectivo al Consumo por Pagar',
   incomeTax: 'Impuesto sobre la Renta por Pagar',
+  customerAdvances: 'Anticipos de Clientes',
   nonCurrentLiabilities: 'Pasivo No Corriente',
   longTermDebt: 'Deudas a Largo Plazo',
   equity: 'Patrimonio',
   capital: 'Capital Social',
   legalReserve: 'Reserva Legal',
+  openingBalance: 'Patrimonio por Saldos Iniciales',
   retained: 'Resultados Acumulados',
   periodResult: 'Resultado del Ejercicio',
   revenue: 'Ingresos',
@@ -165,6 +167,7 @@ const ES = {
   otherIncome: 'Otros Ingresos',
   expenses: 'Gastos',
   cogs: 'Costo de Ventas',
+  inventoryAdjustment: 'Ajustes de Inventario',
   salaries: 'Sueldos y Salarios',
   rent: 'Alquileres',
   utilities: 'Servicios Públicos',
@@ -197,11 +200,13 @@ const PT: typeof ES = {
   serviceCharge: 'Gorjeta a Pagar',
   exciseTax: 'Impostos Seletivos a Recolher',
   incomeTax: 'IRPJ e CSLL a Recolher',
+  customerAdvances: 'Adiantamentos de Clientes',
   nonCurrentLiabilities: 'Passivo Não Circulante',
   longTermDebt: 'Empréstimos de Longo Prazo',
   equity: 'Patrimônio Líquido',
   capital: 'Capital Social',
   legalReserve: 'Reserva Legal',
+  openingBalance: 'Património de Saldos Iniciais',
   retained: 'Lucros ou Prejuízos Acumulados',
   periodResult: 'Resultado do Exercício',
   revenue: 'Receitas',
@@ -211,6 +216,7 @@ const PT: typeof ES = {
   otherIncome: 'Outras Receitas',
   expenses: 'Despesas',
   cogs: 'Custo das Mercadorias Vendidas',
+  inventoryAdjustment: 'Ajustes de Estoque',
   salaries: 'Salários e Ordenados',
   rent: 'Aluguéis',
   utilities: 'Serviços Públicos',
@@ -243,11 +249,13 @@ const EN: typeof ES = {
   serviceCharge: 'Service Charge Payable',
   exciseTax: 'Excise Tax Payable',
   incomeTax: 'Income Tax Payable',
+  customerAdvances: 'Customer Advances',
   nonCurrentLiabilities: 'Non-current Liabilities',
   longTermDebt: 'Long-term Debt',
   equity: 'Equity',
   capital: 'Common Stock',
   legalReserve: 'Additional Paid-in Capital',
+  openingBalance: 'Opening Balance Equity',
   retained: 'Retained Earnings',
   periodResult: 'Current Period Earnings',
   revenue: 'Revenue',
@@ -257,6 +265,7 @@ const EN: typeof ES = {
   otherIncome: 'Other Income',
   expenses: 'Expenses',
   cogs: 'Cost of Goods Sold',
+  inventoryAdjustment: 'Inventory Adjustments',
   salaries: 'Salaries and Wages',
   rent: 'Rent Expense',
   utilities: 'Utilities',
@@ -418,6 +427,9 @@ export function buildCountryCoaTemplate(countryCode: string): AccountTemplateDto
         // Excise (ISC / IEPS / ICE) is a liability of its own, declared separately from the
         // consumption tax. Netting it into 2130 makes the tax return unfileable.
         leaf(code, { code: '2165', name: t.exciseTax, role: AccountRole.EXCISE_TAX_PAYABLE }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
+        // Money held for a customer before any document consumes it. A liability, never a
+        // negative receivable — see `AccountRole.CUSTOMER_ADVANCES`.
+        leaf(code, { code: '2170', name: t.customerAdvances, role: AccountRole.CUSTOMER_ADVANCES }, AccountType.LIABILITY, AccountCategory.CURRENT_LIABILITY, C),
       ]),
       group(code, '2200', t.nonCurrentLiabilities, AccountType.LIABILITY, AccountCategory.NON_CURRENT_LIABILITY, C, [
         leaf(code, { code: '2210', name: t.longTermDebt }, AccountType.LIABILITY, AccountCategory.NON_CURRENT_LIABILITY, C),
@@ -427,6 +439,9 @@ export function buildCountryCoaTemplate(countryCode: string): AccountTemplateDto
     group(code, '3000', t.equity, AccountType.EQUITY, AccountCategory.OWNERS_EQUITY, C, [
       leaf(code, { code: '3100', name: t.capital }, AccountType.EQUITY, AccountCategory.OWNERS_EQUITY, C),
       leaf(code, { code: '3200', name: t.legalReserve }, AccountType.EQUITY, AccountCategory.OWNERS_EQUITY, C),
+      // The counterpart of every balance that predates the books: opening stock, an opening bank
+      // balance, a carried-over receivable. Kept out of retained earnings on purpose.
+      leaf(code, { code: '3150', name: t.openingBalance, role: AccountRole.OPENING_BALANCE_EQUITY }, AccountType.EQUITY, AccountCategory.OWNERS_EQUITY, C),
       leaf(code, { code: '3300', name: t.retained, role: AccountRole.RETAINED_EARNINGS }, AccountType.EQUITY, AccountCategory.RETAINED_EARNINGS, C),
       leaf(code, { code: '3400', name: t.periodResult }, AccountType.EQUITY, AccountCategory.RETAINED_EARNINGS, C),
     ]),
@@ -440,6 +455,9 @@ export function buildCountryCoaTemplate(countryCode: string): AccountTemplateDto
 
     group(code, '5000', t.expenses, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D, [
       leaf(code, { code: '5100', name: t.cogs, role: AccountRole.COST_OF_GOODS_SOLD }, AccountType.EXPENSE, AccountCategory.COST_OF_GOODS_SOLD, D),
+      // Shrinkage, breakage and count corrections. Deliberately not 5100: a loss is not a cost of
+      // what was sold, and an inventory figure that moves with no counterpart is not a figure.
+      leaf(code, { code: '5150', name: t.inventoryAdjustment, role: AccountRole.INVENTORY_ADJUSTMENT }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),
       leaf(code, { code: '5200', name: t.salaries, role: AccountRole.SALARY_EXPENSE }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),
       leaf(code, { code: '5250', name: employerContributionsExpenseName, role: AccountRole.EMPLOYER_CONTRIBUTIONS_EXPENSE }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),
       leaf(code, { code: '5300', name: t.rent }, AccountType.EXPENSE, AccountCategory.OPERATING_EXPENSE, D),

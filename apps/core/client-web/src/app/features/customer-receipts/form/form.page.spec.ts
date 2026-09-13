@@ -58,6 +58,7 @@ describe('CustomerReceiptFormPage', () => {
     customerId: 'c1',
     balance: 11_800,
     currencyCode: 'DOP',
+    status: 'Pending',
   };
 
   beforeEach(async () => {
@@ -76,11 +77,28 @@ describe('CustomerReceiptFormPage', () => {
     fixture.detectChanges();
   });
 
-  const pickCustomer = () => {
+  /**
+   * Selecting a customer loads two things: what they still owe, and what they have already paid
+   * ahead. `advances` defaults to nothing on account, which is the ordinary case.
+   */
+  const pickCustomer = (advances: { currencyCode: string; amount: number; baseAmount: number }[] = []) => {
     component.onCustomerChange('c1');
+    httpMock.expectOne((c) => c.url === `${API}/invoices`).flush({
+      items: [
+        invoice,
+        { ...invoice, id: 'i2', balance: 0 },
+        // A draft is not a receivable: it has a balance but the server refuses a receipt against
+        // it, so the picker must not offer it.
+        { ...invoice, id: 'i3', status: 'Draft' },
+      ],
+      total: 3,
+      page: 1,
+      limit: 200,
+      pages: 1,
+    });
     httpMock
-      .expectOne((c) => c.url === `${API}/invoices`)
-      .flush({ items: [invoice, { ...invoice, id: 'i2', balance: 0 }], total: 2, page: 1, limit: 200, pages: 1 });
+      .expectOne((c) => c.url === `${API}/customer-payments/advances/c1`)
+      .flush(advances);
   };
 
   it('takes the currency from the bank account, not the user', () => {
@@ -90,9 +108,47 @@ describe('CustomerReceiptFormPage', () => {
     httpMock.verify();
   });
 
-  it('offers only invoices that still owe something', () => {
+  it('offers only invoices that still owe something and can actually be collected', () => {
     pickCustomer();
     expect(component.openInvoices().map((i) => i.id)).toEqual(['i1']);
+    httpMock.verify();
+  });
+
+  it('settles an invoice from an advance, with no cash received', () => {
+    pickCustomer([{ currencyCode: 'DOP', amount: 20_000, baseAmount: 20_000 }]);
+    component.addInvoice(component.openInvoices()[0]);
+    component.lines.at(0).patchValue({ amount: 11_800 });
+    component.form.patchValue({ customerId: 'c1', amountReceived: 0 });
+    component.applyFullAdvance();
+
+    expect(component.availableAdvance()).toBe(20_000);
+    expect(component.form.value.advanceApplied).toBe(11_800);
+    expect(component.totals().unapplied).toBe(0);
+
+    component.save();
+    const request = httpMock.expectOne((c) => c.url === `${API}/customer-payments`);
+    expect(request.request.body).toMatchObject({ amountReceived: 0, advanceApplied: 11_800 });
+    request.flush({ id: 'r2' });
+    httpMock.verify();
+  });
+
+  it('refuses a draw larger than what the customer holds on account', () => {
+    pickCustomer([{ currencyCode: 'DOP', amount: 500, baseAmount: 500 }]);
+    component.addInvoice(component.openInvoices()[0]);
+    component.lines.at(0).patchValue({ amount: 11_800 });
+    component.form.patchValue({ customerId: 'c1', amountReceived: 0, advanceApplied: 11_800 });
+
+    component.save();
+    httpMock.expectNone((c) => c.url === `${API}/customer-payments`);
+    httpMock.verify();
+  });
+
+  it('refuses a receipt funded by neither cash nor an advance', () => {
+    pickCustomer();
+    component.form.patchValue({ customerId: 'c1', amountReceived: 0 });
+
+    component.save();
+    httpMock.expectNone((c) => c.url === `${API}/customer-payments`);
     httpMock.verify();
   });
 

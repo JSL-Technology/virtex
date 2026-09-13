@@ -1041,7 +1041,13 @@
       "SALDA": "Salda",
       "SALDO": "Saldo",
       "SELECCIONAR_CLIENTE": "Seleccionar cliente",
-      "SIN_FACTURAS_ABIERTAS": "Este cliente no tiene facturas con saldo pendiente."
+      "SIN_FACTURAS_ABIERTAS": "Este cliente no tiene facturas con saldo pendiente.",
+      "ANTICIPO_APLICADO": "Anticipo aplicado",
+      "ANTICIPO_DISPONIBLE": "Disponible en anticipos",
+      "USAR_ANTICIPO": "Usar el anticipo",
+      "SIN_FONDOS": "Indique un monto recibido o un anticipo a aplicar.",
+      "ANTICIPO_INSUFICIENTE": "El anticipo a aplicar excede lo que el cliente tiene disponible.",
+      "ANTICIPO_EXCEDE_LO_APLICADO": "Está tomando más anticipo del que aplica a facturas. Aplíquelo a facturas o redúzcalo."
     },
     "LIST": {
       "CARGANDO_RECIBOS": "Cargando recibos...",
