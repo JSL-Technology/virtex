@@ -1172,7 +1172,19 @@
     "YA_EXISTE_COMPENSACION_CON_ESA_FECHA_VIGENCIA": "A compensation with that effective date already exists for this employee."
   },
   "PROCUREMENT": {
-    "REQUISITION_NOT_FOUND": "Purchase requisition \"{{id}}\" was not found."
+    "REQUISITION_NOT_FOUND": "Requisition {{id}} was not found.",
+    "REQUISITION_NOT_EDITABLE": "A requisition in {{status}} cannot be edited. Send it back to draft first.",
+    "REQUISITION_NOT_DELETABLE": "A requisition in {{status}} cannot be deleted: it is part of the record of what was decided.",
+    "REQUISITION_TRANSITION_NOT_ALLOWED": "A requisition cannot move from {{from}} to {{to}}.",
+    "REQUISITION_HAS_NO_LINES": "The requisition has no lines, so there is nothing to order.",
+    "ORDER_NOT_FOUND": "Purchase order {{id}} was not found.",
+    "ORDER_NOT_EDITABLE": "An order in {{status}} cannot be edited: its terms are no longer ours alone to change.",
+    "ORDER_NOT_DELETABLE": "Only a draft order can be deleted; this one is {{status}}.",
+    "ORDER_NOT_RECEIVABLE": "Nothing can be received against an order in {{status}}; send it to the supplier first.",
+    "ORDER_TRANSITION_NOT_ALLOWED": "An order cannot move from {{from}} to {{to}}.",
+    "ORDER_LINE_NOT_FOUND": "Line {{id}} does not belong to this order.",
+    "RECEIPT_EXCEEDS_ORDERED": "{{received}} of “{{description}}” were received but only {{ordered}} were ordered.",
+    "SUPPLIER_NOT_FOUND": "That supplier does not exist in this organization."
   },
   "PROJECTS": {
     "PROJECT_NOT_FOUND": "Project \"{{id}}\" was not found.",

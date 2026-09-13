@@ -1,0 +1,226 @@
+<vx-draft-shell
+  [title]="(current() ? current()!.number : ('PURCHASING.ORDERS.NEW_ORDER' | translate))"
+  [subtitle]="'PURCHASING.ORDERS.TITLE' | translate"
+  [dirty]="form.dirty"
+  [saving]="saving()"
+  [invalid]="form.invalid"
+  [problems]="problems()"
+  (save)="save()"
+  (cancel)="cancel()"
+>
+  <div class="form-body" [formGroup]="form">
+
+    @if (current()) {
+      <div class="doc-status">
+        <span class="status-badge">
+          {{ 'PURCHASING.ORDERS.STATUS_LABEL.' + status() | translate }}
+        </span>
+        @if (current()!.requisitionId) {
+          <a class="doc-status__link"
+             [routerLink]="['/purchasing/requisitions', current()!.requisitionId, 'edit']">
+            {{ 'PURCHASING.ORDERS.FORM.FROM_REQUISITION' | translate }}
+          </a>
+        }
+        @if (current()!.cancellationReason) {
+          <span class="doc-status__reason">{{ current()!.cancellationReason }}</span>
+        }
+      </div>
+    }
+
+    <section class="form-section">
+      <div class="form-grid">
+        <label class="field">
+          <span>{{ 'PURCHASING.ORDERS.SUPPLIER' | translate }} *</span>
+          <select formControlName="supplierId">
+            <option value=""></option>
+            @for (supplier of suppliers(); track supplier.id) {
+              <option [value]="supplier.id">{{ supplier.name }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="field">
+          <span>{{ 'PURCHASING.ORDERS.ORDER_DATE' | translate }} *</span>
+          <input type="date" formControlName="orderDate" />
+        </label>
+
+        <label class="field">
+          <span>{{ 'PURCHASING.ORDERS.FORM.EXPECTED_DATE' | translate }}</span>
+          <input type="date" formControlName="expectedDate" />
+          <small class="field__note">{{ 'PURCHASING.ORDERS.FORM.EXPECTED_DATE_HELP' | translate }}</small>
+        </label>
+
+        <label class="field field--wide">
+          <span>{{ 'PURCHASING.ORDERS.FORM.NOTES' | translate }}</span>
+          <textarea formControlName="notes" rows="2" maxlength="2000"></textarea>
+        </label>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h2 class="form-section-title">{{ 'PURCHASING.ORDERS.FORM.LINES' | translate }}</h2>
+
+      <div class="table-wrapper">
+        <table class="lines-table" formArrayName="lines">
+          <thead>
+            <tr>
+              <th>{{ 'PURCHASING.ORDERS.FORM.PRODUCT' | translate }}</th>
+              <th>{{ 'PURCHASING.ORDERS.FORM.DESCRIPTION' | translate }}</th>
+              <th class="numeric">{{ 'PURCHASING.ORDERS.FORM.QUANTITY' | translate }}</th>
+              @if (!isNew()) {
+                <th class="numeric">{{ 'PURCHASING.ORDERS.FORM.RECEIVED' | translate }}</th>
+              }
+              <th class="numeric">{{ 'PURCHASING.ORDERS.FORM.UNIT_PRICE' | translate }}</th>
+              <th class="numeric">{{ 'PURCHASING.ORDERS.FORM.TAX_RATE' | translate }}</th>
+              <th class="numeric">{{ 'PURCHASING.ORDERS.TOTAL' | translate }}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (line of lines.controls; track $index; let i = $index) {
+              <tr [formGroupName]="i">
+                <td>
+                  <select formControlName="productId" (change)="onProductChange(i, $any($event.target).value)">
+                    <option value="">{{ 'PURCHASING.ORDERS.FORM.NOT_IN_CATALOGUE' | translate }}</option>
+                    @for (product of products(); track product.id) {
+                      <option [value]="product.id">{{ product.name }}</option>
+                    }
+                  </select>
+                </td>
+                <td><input type="text" formControlName="description" maxlength="500" /></td>
+                <td class="numeric"><input type="number" step="0.000001" min="0" formControlName="quantity" /></td>
+                @if (!isNew()) {
+                  <td class="numeric" [class.is-outstanding]="outstanding(line.value) > 0">
+                    {{ line.value.receivedQuantity | vxNumber: '1.0-6' }}
+                  </td>
+                }
+                <td class="numeric"><input type="number" step="0.01" min="0" formControlName="unitPrice" /></td>
+                <td class="numeric"><input type="number" step="0.01" min="0" max="1" formControlName="taxRate" /></td>
+                <td class="numeric">{{ lineTotal(line.value) | vxNumber: '1.2-2' }}</td>
+                <td>
+                  @if (editable()) {
+                    <button class="icon-button" type="button" (click)="removeLine(i)"
+                      [attr.aria-label]="'COMMON.DELETE' | translate">
+                      <lucide-icon [img]="RemoveIcon" size="14"></lucide-icon>
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (editable()) {
+        <button class="secondary-button" type="button" (click)="addLine()">
+          <lucide-icon [img]="AddIcon" size="14"></lucide-icon>
+          <span>{{ 'PURCHASING.ORDERS.FORM.ADD_LINE' | translate }}</span>
+        </button>
+      }
+
+      <div class="totals">
+        <div class="totals__line">
+          <span>{{ 'PURCHASING.ORDERS.FORM.SUBTOTAL' | translate }}</span>
+          <span class="amount">{{ subtotal() | vxNumber: '1.2-2' }}</span>
+        </div>
+        <div class="totals__line">
+          <span>{{ 'PURCHASING.ORDERS.FORM.TAX' | translate }}</span>
+          <span class="amount">{{ taxTotal() | vxNumber: '1.2-2' }}</span>
+        </div>
+        <div class="totals__line totals__line--grand">
+          <span>{{ 'PURCHASING.ORDERS.TOTAL' | translate }}</span>
+          <span class="amount">{{ total() | vxMoney: (current()?.currencyCode ?? null) }}</span>
+        </div>
+      </div>
+    </section>
+
+    @if (current()) {
+      <section class="form-section doc-actions">
+        @if (canSubmit()) {
+          <button class="primary-button" type="button" [disabled]="saving()" (click)="submit()">
+            {{ 'PURCHASING.ORDERS.FORM.SUBMIT' | translate }}
+          </button>
+        }
+        @if (canApprove()) {
+          <button class="primary-button" type="button" [disabled]="saving()" (click)="approve()">
+            {{ 'PURCHASING.ORDERS.FORM.APPROVE' | translate }}
+          </button>
+        }
+        @if (canSend()) {
+          <button class="primary-button" type="button" [disabled]="saving()" (click)="send()">
+            {{ 'PURCHASING.ORDERS.FORM.SEND' | translate }}
+          </button>
+        }
+        @if (canReceive()) {
+          <button class="primary-button" type="button" [disabled]="saving()" (click)="startReceive()">
+            {{ 'PURCHASING.ORDERS.FORM.RECEIVE' | translate }}
+          </button>
+        }
+        @if (canCancel()) {
+          <button class="danger-button" type="button" [disabled]="saving()" (click)="startCancel()">
+            {{ 'PURCHASING.ORDERS.FORM.CANCEL_ORDER' | translate }}
+          </button>
+        }
+
+        @if (receiving()) {
+          <div class="action-box">
+            <h3 class="action-box__title">{{ 'PURCHASING.ORDERS.FORM.RECEIVE_TITLE' | translate }}</h3>
+            <!-- Pre-filled with what is still outstanding: "everything arrived" is the common case. -->
+            <table class="lines-table">
+              <thead>
+                <tr>
+                  <th>{{ 'PURCHASING.ORDERS.FORM.DESCRIPTION' | translate }}</th>
+                  <th class="numeric">{{ 'PURCHASING.ORDERS.FORM.OUTSTANDING' | translate }}</th>
+                  <th class="numeric">{{ 'PURCHASING.ORDERS.FORM.RECEIVING_NOW' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (line of current()!.lines; track line.id) {
+                  <tr>
+                    <td>{{ line.description }}</td>
+                    <td class="numeric">{{ outstanding($any(line)) | vxNumber: '1.0-6' }}</td>
+                    <td class="numeric">
+                      <input type="number" step="0.000001" min="0" [max]="outstanding($any(line))"
+                        [value]="receiptQuantities()[line.id!] ?? 0"
+                        (input)="setReceiptQuantity(line.id!, $any($event.target).value)" />
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+            <div class="action-box__actions">
+              <button class="primary-button" type="button" (click)="confirmReceive()">
+                {{ 'PURCHASING.ORDERS.FORM.CONFIRM_RECEIPT' | translate }}
+              </button>
+              <button class="secondary-button" type="button" (click)="cancelReceive()">
+                {{ 'COMMON.CANCEL' | translate }}
+              </button>
+            </div>
+          </div>
+        }
+
+        @if (cancelling()) {
+          <div class="action-box">
+            <label class="field">
+              <span>{{ 'PURCHASING.ORDERS.FORM.CANCEL_REASON' | translate }}</span>
+              <textarea rows="2" maxlength="500"
+                [value]="cancellationReason()"
+                (input)="cancellationReason.set($any($event.target).value)"></textarea>
+            </label>
+            <div class="action-box__actions">
+              <button class="danger-button" type="button"
+                [disabled]="cancellationReason().trim().length < 3"
+                (click)="confirmCancel()">
+                {{ 'PURCHASING.ORDERS.FORM.CONFIRM_CANCEL' | translate }}
+              </button>
+              <button class="secondary-button" type="button" (click)="abortCancel()">
+                {{ 'COMMON.CANCEL' | translate }}
+              </button>
+            </div>
+          </div>
+        }
+      </section>
+    }
+
+  </div>
+</vx-draft-shell>

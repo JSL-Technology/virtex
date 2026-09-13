@@ -920,7 +920,8 @@
       "SUCCESS": "Success",
       "WARNING": "Warning"
     },
-    "VERIFY": "Verify"
+    "VERIFY": "Verify",
+    "LOAD_FAILED": "The data could not be loaded. Try again."
   },
   "CONTACTS": {
     "CUSTOMERS": {
@@ -2586,7 +2587,11 @@
     "VENDOR_PAYMENT": "Supplier Payment",
     "WAREHOUSES": "Warehouses",
     "WAREHOUSE_MANAGEMENT": "Warehouse management (WMS)",
-    "WITHHOLDING_REGIMES": "Withholding regimes"
+    "WITHHOLDING_REGIMES": "Withholding regimes",
+    "PURCHASE_ORDER_NEW": "New purchase order",
+    "PURCHASE_ORDER_EDIT": "Purchase order",
+    "PURCHASE_REQUISITION_NEW": "New requisition",
+    "PURCHASE_REQUISITION_EDIT": "Requisition"
   },
   "PASSWORD_STRENGTH": {
     "WEAK": "Weak"
@@ -2608,7 +2613,46 @@
       "STATUS": "Status",
       "SUPPLIER": "Supplier",
       "TITLE": "Purchase Orders",
-      "TOTAL": "Total"
+      "TOTAL": "Total",
+      "STATUS_LABEL": {
+        "DRAFT": "Draft",
+        "PENDING_APPROVAL": "Awaiting approval",
+        "APPROVED": "Approved",
+        "SENT": "Sent",
+        "PARTIALLY_RECEIVED": "Partially received",
+        "RECEIVED": "Received",
+        "CANCELLED": "Cancelled"
+      },
+      "FORM": {
+        "EXPECTED_DATE": "Expected date",
+        "EXPECTED_DATE_HELP": "What the supplier promised.",
+        "NOTES": "Notes",
+        "LINES": "Order lines",
+        "PRODUCT": "Product",
+        "DESCRIPTION": "Description",
+        "QUANTITY": "Quantity",
+        "RECEIVED": "Received",
+        "UNIT_PRICE": "Agreed price",
+        "TAX_RATE": "Tax",
+        "NOT_IN_CATALOGUE": "Not in the catalogue",
+        "ADD_LINE": "Add a line",
+        "SUBTOTAL": "Subtotal",
+        "TAX": "Tax",
+        "SUBMIT": "Send for approval",
+        "APPROVE": "Approve",
+        "SEND": "Mark as sent to the supplier",
+        "RECEIVE": "Record a delivery",
+        "RECEIVE_TITLE": "What arrived",
+        "OUTSTANDING": "Outstanding",
+        "RECEIVING_NOW": "Receiving now",
+        "CONFIRM_RECEIPT": "Confirm delivery",
+        "CANCEL_ORDER": "Cancel order",
+        "CANCEL_REASON": "Why it is being cancelled",
+        "CONFIRM_CANCEL": "Confirm cancellation",
+        "FROM_REQUISITION": "Open the requisition it came from",
+        "SAVED": "Order saved.",
+        "SAVE_FAILED": "The order could not be saved."
+      }
     },
     "REQUISITIONS": {
       "DATE": "Date",
@@ -2621,7 +2665,36 @@
       "REQUISITION": "Requisition no.",
       "STATUS": "Status",
       "TITLE": "Purchase Requisitions",
-      "TOTAL": "Total"
+      "TOTAL": "Total",
+      "ITEMS": "Items",
+      "REQUIRED_DATE": "Needed by",
+      "STATUS_LABEL": {
+        "DRAFT": "Draft",
+        "PENDING_APPROVAL": "Awaiting approval",
+        "APPROVED": "Approved",
+        "REJECTED": "Rejected",
+        "CONVERTED_TO_PO": "Ordered"
+      },
+      "FORM": {
+        "NOTES": "Justification",
+        "NOTES_HELP": "What the approver will read.",
+        "ITEMS": "What is being requested",
+        "PRODUCT": "Product",
+        "DESCRIPTION": "Description",
+        "QUANTITY": "Quantity",
+        "ESTIMATED_PRICE": "Estimated price",
+        "NOT_IN_CATALOGUE": "Not in the catalogue",
+        "ADD_LINE": "Add a line",
+        "ESTIMATE_NOTE": "An estimate: nobody has quoted yet.",
+        "SUBMIT": "Send for approval",
+        "APPROVE": "Approve",
+        "REJECT": "Reject",
+        "REJECT_REASON": "Why it is being rejected",
+        "CONFIRM_REJECT": "Confirm rejection",
+        "REOPEN": "Send back to draft",
+        "SAVED": "Requisition saved.",
+        "SAVE_FAILED": "The requisition could not be saved."
+      }
     }
   },
   "PWA": {

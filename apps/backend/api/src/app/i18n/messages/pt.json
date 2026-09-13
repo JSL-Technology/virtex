@@ -1172,7 +1172,19 @@
     "YA_EXISTE_COMPENSACION_CON_ESA_FECHA_VIGENCIA": "Já existe uma remuneração com essa data de vigência para este funcionário."
   },
   "PROCUREMENT": {
-    "REQUISITION_NOT_FOUND": "A requisição de compra \"{{id}}\" não foi encontrada."
+    "REQUISITION_NOT_FOUND": "A requisição {{id}} não foi encontrada.",
+    "REQUISITION_NOT_EDITABLE": "Uma requisição em {{status}} não pode ser editada. Devolva-a a rascunho primeiro.",
+    "REQUISITION_NOT_DELETABLE": "Uma requisição em {{status}} não pode ser eliminada: já faz parte do registo do que foi decidido.",
+    "REQUISITION_TRANSITION_NOT_ALLOWED": "Uma requisição não pode passar de {{from}} para {{to}}.",
+    "REQUISITION_HAS_NO_LINES": "A requisição não tem linhas: não há nada para encomendar.",
+    "ORDER_NOT_FOUND": "A ordem de compra {{id}} não foi encontrada.",
+    "ORDER_NOT_EDITABLE": "Uma ordem em {{status}} não pode ser editada: os seus termos já não dependem só de nós.",
+    "ORDER_NOT_DELETABLE": "Só uma ordem em rascunho pode ser eliminada; esta está em {{status}}.",
+    "ORDER_NOT_RECEIVABLE": "Não é possível receber contra uma ordem em {{status}}; envie-a ao fornecedor primeiro.",
+    "ORDER_TRANSITION_NOT_ALLOWED": "Uma ordem não pode passar de {{from}} para {{to}}.",
+    "ORDER_LINE_NOT_FOUND": "A linha {{id}} não pertence a esta ordem.",
+    "RECEIPT_EXCEEDS_ORDERED": "Foram recebidos {{received}} de «{{description}}» e apenas {{ordered}} foram encomendados.",
+    "SUPPLIER_NOT_FOUND": "Esse fornecedor não existe nesta organização."
   },
   "PROJECTS": {
     "PROJECT_NOT_FOUND": "O projeto \"{{id}}\" não foi encontrado.",

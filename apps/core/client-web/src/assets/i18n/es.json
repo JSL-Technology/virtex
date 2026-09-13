@@ -920,7 +920,8 @@
       "SUCCESS": "Éxito",
       "WARNING": "Advertencia"
     },
-    "VERIFY": "Verificar"
+    "VERIFY": "Verificar",
+    "LOAD_FAILED": "No se pudieron cargar los datos. Inténtalo de nuevo."
   },
   "CONTACTS": {
     "CUSTOMERS": {
@@ -2586,7 +2587,11 @@
     "VENDOR_PAYMENT": "Pago a Proveedores",
     "WAREHOUSES": "Almacenes",
     "WAREHOUSE_MANAGEMENT": "Gestión de almacenes (WMS)",
-    "WITHHOLDING_REGIMES": "Regímenes de retención"
+    "WITHHOLDING_REGIMES": "Regímenes de retención",
+    "PURCHASE_ORDER_NEW": "Nueva orden de compra",
+    "PURCHASE_ORDER_EDIT": "Orden de compra",
+    "PURCHASE_REQUISITION_NEW": "Nueva requisición",
+    "PURCHASE_REQUISITION_EDIT": "Requisición"
   },
   "PASSWORD_STRENGTH": {
     "WEAK": "Débil"
@@ -2608,7 +2613,46 @@
       "STATUS": "Estado",
       "SUPPLIER": "Proveedor",
       "TITLE": "Órdenes de Compra",
-      "TOTAL": "Total"
+      "TOTAL": "Total",
+      "STATUS_LABEL": {
+        "DRAFT": "Borrador",
+        "PENDING_APPROVAL": "Por aprobar",
+        "APPROVED": "Aprobada",
+        "SENT": "Enviada",
+        "PARTIALLY_RECEIVED": "Recibida parcialmente",
+        "RECEIVED": "Recibida",
+        "CANCELLED": "Cancelada"
+      },
+      "FORM": {
+        "EXPECTED_DATE": "Fecha esperada",
+        "EXPECTED_DATE_HELP": "Lo que prometió el proveedor.",
+        "NOTES": "Notas",
+        "LINES": "Líneas de la orden",
+        "PRODUCT": "Producto",
+        "DESCRIPTION": "Descripción",
+        "QUANTITY": "Cantidad",
+        "RECEIVED": "Recibido",
+        "UNIT_PRICE": "Precio acordado",
+        "TAX_RATE": "ITBIS",
+        "NOT_IN_CATALOGUE": "Fuera del catálogo",
+        "ADD_LINE": "Agregar línea",
+        "SUBTOTAL": "Subtotal",
+        "TAX": "Impuestos",
+        "SUBMIT": "Enviar a aprobación",
+        "APPROVE": "Aprobar",
+        "SEND": "Marcar como enviada al proveedor",
+        "RECEIVE": "Registrar recepción",
+        "RECEIVE_TITLE": "Qué llegó",
+        "OUTSTANDING": "Pendiente",
+        "RECEIVING_NOW": "Recibiendo ahora",
+        "CONFIRM_RECEIPT": "Confirmar recepción",
+        "CANCEL_ORDER": "Cancelar orden",
+        "CANCEL_REASON": "Motivo de la cancelación",
+        "CONFIRM_CANCEL": "Confirmar cancelación",
+        "FROM_REQUISITION": "Ver la requisición de origen",
+        "SAVED": "Orden guardada.",
+        "SAVE_FAILED": "No se pudo guardar la orden."
+      }
     },
     "REQUISITIONS": {
       "DATE": "Fecha",
@@ -2621,7 +2665,36 @@
       "REQUISITION": "N.º de requisición",
       "STATUS": "Estado",
       "TITLE": "Requisiciones de Compra",
-      "TOTAL": "Total"
+      "TOTAL": "Total",
+      "ITEMS": "Artículos",
+      "REQUIRED_DATE": "Fecha requerida",
+      "STATUS_LABEL": {
+        "DRAFT": "Borrador",
+        "PENDING_APPROVAL": "Por aprobar",
+        "APPROVED": "Aprobada",
+        "REJECTED": "Rechazada",
+        "CONVERTED_TO_PO": "Convertida en orden"
+      },
+      "FORM": {
+        "NOTES": "Justificación",
+        "NOTES_HELP": "Lo que leerá quien apruebe.",
+        "ITEMS": "Artículos solicitados",
+        "PRODUCT": "Producto",
+        "DESCRIPTION": "Descripción",
+        "QUANTITY": "Cantidad",
+        "ESTIMATED_PRICE": "Precio estimado",
+        "NOT_IN_CATALOGUE": "Fuera del catálogo",
+        "ADD_LINE": "Agregar línea",
+        "ESTIMATE_NOTE": "Estimado: todavía nadie ha cotizado.",
+        "SUBMIT": "Enviar a aprobación",
+        "APPROVE": "Aprobar",
+        "REJECT": "Rechazar",
+        "REJECT_REASON": "Motivo del rechazo",
+        "CONFIRM_REJECT": "Confirmar rechazo",
+        "REOPEN": "Devolver a borrador",
+        "SAVED": "Requisición guardada.",
+        "SAVE_FAILED": "No se pudo guardar la requisición."
+      }
     }
   },
   "PWA": {

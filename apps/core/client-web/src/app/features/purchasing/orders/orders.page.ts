@@ -1,20 +1,38 @@
-import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, PlusCircle } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
+import { catchError, of } from 'rxjs';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 import { ListShellComponent } from '../../../shared/components/gestures';
+import {
+  PurchaseOrder,
+  PurchaseOrderStatus,
+  PurchasingService,
+} from '../../../core/api/purchasing.service';
 
-// Interfaz para definir la estructura de una Orden de Compra
-interface PurchaseOrder {
-  id: string;
-  poNumber: string;
-  supplierName: string;
-  orderDate: string;
-  total: number;
-  status: 'Draft' | 'Pending Approval' | 'Approved' | 'Sent';
-}
+/** Which badge colour each status carries. Green means the goods are in. */
+const STATUS_CLASS: Record<PurchaseOrderStatus, string> = {
+  DRAFT: 'status-draft',
+  PENDING_APPROVAL: 'status-pending',
+  APPROVED: 'status-approved',
+  SENT: 'status-sent',
+  PARTIALLY_RECEIVED: 'status-pending',
+  RECEIVED: 'status-approved',
+  CANCELLED: 'status-rejected',
+};
 
+/**
+ * Purchase orders.
+ *
+ * ## What this was
+ *
+ * Four orders written into the component — `PO-2025-001 OfiSuministros SRL $1,250.00 Sent` and
+ * three more — with no table, no endpoint and no way to create a fifth. Every tenant of the
+ * product saw the same four, dated July 2025, for ever. A buyer could look at this screen and not
+ * act on it.
+ */
 @Component({
   selector: 'app-orders-page',
   standalone: true,
@@ -24,28 +42,21 @@ interface PurchaseOrder {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrdersPage {
-  // Íconos para la plantilla
+  private readonly purchasing = inject(PurchasingService);
+
   protected readonly PlusCircleIcon = PlusCircle;
 
-  // Datos simulados para la demostración
-  orders = signal<PurchaseOrder[]>([
-    { id: '1', poNumber: 'PO-2025-001', supplierName: 'OfiSuministros SRL', orderDate: 'Jul 28, 2025', total: 1250.00, status: 'Sent' },
-    { id: '2', poNumber: 'PO-2025-002', supplierName: 'TecnoImportaciones', orderDate: 'Jul 25, 2025', total: 2500.00, status: 'Approved' },
-    { id: '3', poNumber: 'PO-2025-003', supplierName: 'Soluciones Gráficas', orderDate: 'Jul 24, 2025', total: 450.75, status: 'Pending Approval' },
-    { id: '4', poNumber: 'PO-2025-004', supplierName: 'OfiSuministros SRL', orderDate: 'Jul 22, 2025', total: 300.00, status: 'Draft' },
-  ]);
+  /** Null while loading, so an empty list and a pending request look different to the reader. */
+  private readonly page = toSignal(
+    this.purchasing.listOrders().pipe(catchError(() => of(null))),
+    { initialValue: undefined },
+  );
 
-  /**
-   * Determina la clase CSS para el estado de la orden.
-   * @param status El estado actual de la orden.
-   * @returns Una clase de CSS para el estilo del badge.
-   */
-  getStatusClass(status: PurchaseOrder['status']): string {
-    switch (status) {
-      case 'Sent': return 'status-sent';
-      case 'Approved': return 'status-approved';
-      case 'Pending Approval': return 'status-pending';
-      case 'Draft': return 'status-draft';
-    }
+  readonly orders = computed<PurchaseOrder[]>(() => this.page()?.rows ?? []);
+  readonly loading = computed(() => this.page() === undefined);
+  readonly failed = computed(() => this.page() === null);
+
+  getStatusClass(status: PurchaseOrderStatus): string {
+    return STATUS_CLASS[status] ?? 'status-draft';
   }
 }

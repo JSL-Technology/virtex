@@ -205,6 +205,13 @@ export const PERMISSIONS = {
    */
   PROCUREMENT_VIEW: 'procurement:view',
   PROCUREMENT_MANAGE: 'procurement:manage',
+  /**
+   * Approving a requisition or an order, and committing the business to a supplier.
+   *
+   * Separate from `PROCUREMENT_MANAGE` on purpose: raising a request and authorising the spend are
+   * the two halves of the control, and a role that can do both is not a control at all.
+   */
+  PROCUREMENT_APPROVE: 'procurement:approve',
 
   /** Projects, their tasks and timesheets. */
   PROJECTS_VIEW: 'projects:view',

@@ -113,4 +113,8 @@ export class JournalEntryNumberingService {
 export const SEQUENCE_SCOPE = {
   /** Customer receipts: `REC-2026-000042`. */
   CUSTOMER_RECEIPT: '00000000-0000-4000-8000-000000000001',
+  /** Purchase requisitions: `REQ-2026-000042`. */
+  PURCHASE_REQUISITION: '00000000-0000-4000-8000-000000000002',
+  /** Purchase orders: `PO-2026-000042`. */
+  PURCHASE_ORDER: '00000000-0000-4000-8000-000000000003',
 } as const;

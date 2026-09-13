@@ -20,6 +20,7 @@ import { HasPermission } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '../shared/permissions';
 import { CreatePurchaseRequisitionDto } from './dto/create-purchase-requisition.dto';
 import { UpdatePurchaseRequisitionDto } from './dto/update-purchase-requisition.dto';
+import { RejectDto } from './dto/purchase-order.dto';
 
 @Controller('procurement/requisitions')
 @UseGuards(JwtAuthGuard)
@@ -62,6 +63,38 @@ export class ProcurementController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.procurementService.update(id, dto, user.organizationId);
+  }
+
+  @Post(':id/submit')
+  @HttpCode(HttpStatus.OK)
+  @HasPermission(PERMISSIONS.PROCUREMENT_MANAGE)
+  submit(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.procurementService.submit(id, user.organizationId);
+  }
+
+  @Post(':id/approve')
+  @HttpCode(HttpStatus.OK)
+  @HasPermission(PERMISSIONS.PROCUREMENT_APPROVE)
+  approve(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.procurementService.approve(id, user.organizationId, user.id);
+  }
+
+  @Post(':id/reject')
+  @HttpCode(HttpStatus.OK)
+  @HasPermission(PERMISSIONS.PROCUREMENT_APPROVE)
+  reject(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: RejectDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.procurementService.reject(id, user.organizationId, user.id, dto.reason);
+  }
+
+  @Post(':id/reopen')
+  @HttpCode(HttpStatus.OK)
+  @HasPermission(PERMISSIONS.PROCUREMENT_MANAGE)
+  reopen(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.procurementService.reopen(id, user.organizationId);
   }
 
   @Delete(':id')

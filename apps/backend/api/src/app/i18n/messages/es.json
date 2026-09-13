@@ -1172,7 +1172,19 @@
     "YA_EXISTE_COMPENSACION_CON_ESA_FECHA_VIGENCIA": "Ya existe una compensación con esa fecha de vigencia para este empleado."
   },
   "PROCUREMENT": {
-    "REQUISITION_NOT_FOUND": "No se encontró la requisición de compra \"{{id}}\"."
+    "REQUISITION_NOT_FOUND": "No se encontró la requisición {{id}}.",
+    "REQUISITION_NOT_EDITABLE": "Una requisición en estado {{status}} no se puede editar. Devuélvala a borrador primero.",
+    "REQUISITION_NOT_DELETABLE": "Una requisición en estado {{status}} no se puede eliminar: ya forma parte del registro de lo que se decidió.",
+    "REQUISITION_TRANSITION_NOT_ALLOWED": "Una requisición no puede pasar de {{from}} a {{to}}.",
+    "REQUISITION_HAS_NO_LINES": "La requisición no tiene líneas: no hay nada que ordenar.",
+    "ORDER_NOT_FOUND": "No se encontró la orden de compra {{id}}.",
+    "ORDER_NOT_EDITABLE": "Una orden en estado {{status}} no se puede editar: sus términos ya no dependen solo de nosotros.",
+    "ORDER_NOT_DELETABLE": "Solo una orden en borrador se puede eliminar; esta está en {{status}}.",
+    "ORDER_NOT_RECEIVABLE": "No se puede recibir contra una orden en estado {{status}}; envíela al proveedor primero.",
+    "ORDER_TRANSITION_NOT_ALLOWED": "Una orden no puede pasar de {{from}} a {{to}}.",
+    "ORDER_LINE_NOT_FOUND": "La línea {{id}} no pertenece a esta orden.",
+    "RECEIPT_EXCEEDS_ORDERED": "Se recibieron {{received}} de «{{description}}» y solo se ordenaron {{ordered}}.",
+    "SUPPLIER_NOT_FOUND": "El proveedor indicado no existe en esta organización."
   },
   "PROJECTS": {
     "PROJECT_NOT_FOUND": "No se encontró el proyecto \"{{id}}\".",
