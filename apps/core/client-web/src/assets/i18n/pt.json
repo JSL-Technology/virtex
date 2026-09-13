@@ -985,7 +985,12 @@
       "TIPO_CONTRIBUYENTE_WITHHOLDING_AGENT": "Agente de retenção designado",
       "TITLE_NEW": "Novo cliente",
       "TITLE_EDIT": "Editar cliente",
-      "GUARDAR_CLIENTE": "Salvar cliente"
+      "GUARDAR_CLIENTE": "Salvar cliente",
+      "CONDICIONES_COMERCIALES": "Condições comerciais",
+      "TERMINOS_PAGO": "Termos de pagamento",
+      "TERMINOS_PAGO_PLACEHOLDER": "Líquido 30",
+      "DIAS_CREDITO": "Dias de crédito",
+      "DIAS_CREDITO_AYUDA": "Dias somados à data de emissão para calcular o vencimento. Em branco usa o valor por omissão da organização; 0 significa a pronto pagamento."
     },
     "SUPPLIERS": {
       "ACCIONES": "Ações",
@@ -1057,7 +1062,9 @@
       "USAR_ANTICIPO": "Usar o adiantamento",
       "SIN_FONDOS": "Informe um valor recebido ou um adiantamento a aplicar.",
       "ANTICIPO_INSUFICIENTE": "O adiantamento a aplicar excede o que o cliente tem disponível.",
-      "ANTICIPO_EXCEDE_LO_APLICADO": "Está a usar mais adiantamento do que este recibo aplica a faturas. Aplique-o a faturas ou reduza-o."
+      "ANTICIPO_EXCEDE_LO_APLICADO": "Está a usar mais adiantamento do que este recibo aplica a faturas. Aplique-o a faturas ou reduza-o.",
+      "PULSA_PARA_APLICAR": "Pressione uma fatura para a adicionar ao recibo.",
+      "APLICAR_FACTURA": "Aplicar a fatura {{number}} a este recibo"
     },
     "LIST": {
       "CARGANDO_RECIBOS": "Carregando recibos...",

@@ -5,6 +5,7 @@
   [saving]="saving()"
   [invalid]="form.invalid"
   [problems]="problems()"
+  [form]="form"
   (save)="save()"
   (cancel)="cancel()"
 >
@@ -99,10 +100,25 @@
     @if (openInvoices().length === 0) {
       <p class="section-note">{{ 'CUSTOMER_RECEIPTS.FORM.SIN_FACTURAS_ABIERTAS' | translate }}</p>
     } @else {
+      <!--
+        Se pulsan. Parecían etiquetas: mismo tamaño, mismo color, sin icono y sin nada que dijera
+        qué pasa al tocarlas, así que había que descubrir por prueba y error que una factura se
+        añade al recibo pulsándola. El «+» y la frase de abajo lo dicen en vez de esperarlo.
+      -->
+      <p class="section-note">{{ 'CUSTOMER_RECEIPTS.FORM.PULSA_PARA_APLICAR' | translate }}</p>
       <div class="invoice-picker">
         @for (invoice of openInvoices(); track invoice.id) {
-          <button class="chip" type="button" (click)="addInvoice(invoice)">
-            {{ invoice.invoiceNumber }} · {{ invoice.balance | vxMoney: invoice.currencyCode }}
+          <button
+            class="chip"
+            type="button"
+            (click)="addInvoice(invoice)"
+            [attr.aria-label]="
+              'CUSTOMER_RECEIPTS.FORM.APLICAR_FACTURA'
+                | translate: { number: invoice.invoiceNumber }
+            "
+          >
+            <lucide-icon [img]="AddIcon" size="14" aria-hidden="true"></lucide-icon>
+            <span>{{ invoice.invoiceNumber }} · {{ invoice.balance | vxMoney: invoice.currencyCode }}</span>
           </button>
         }
       </div>

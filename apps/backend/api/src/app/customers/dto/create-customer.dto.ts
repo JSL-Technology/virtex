@@ -2,10 +2,13 @@
 import {
   IsEmail,
   IsEnum,
+  IsInt,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
+  Max,
+  MaxLength,
   Min,
 } from 'class-validator';
 import { TaxpayerType } from '../../localization/fiscal/withholding-regimes';
@@ -66,4 +69,22 @@ export class CreateCustomerDto {
   @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   @IsOptional()
   totalBilled?: number;
+
+  /** The terms as they are printed on the document: "Neto 30", "Contado". */
+  @IsString()
+  @IsOptional()
+  @MaxLength(60, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":60}' })
+  paymentTerms?: string;
+
+  /**
+   * How many days after issue this customer's invoices fall due.
+   *
+   * Null leaves the organization's own default in force; zero means due on receipt, which is a
+   * real answer and not the same as "not set".
+   */
+  @IsInt()
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
+  @Max(365, { message: 'VALIDATION.CONSTRAINTS.MAX|{"max":365}' })
+  @IsOptional()
+  paymentTermDays?: number | null;
 }

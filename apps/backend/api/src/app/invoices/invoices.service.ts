@@ -77,6 +77,14 @@ export interface InvoicingContext {
   taxRequiresConfiguration: boolean;
   fiscalDocumentTypes: FiscalDocumentTypeOption[];
   serviceChargeRate: number;
+  /**
+   * The tenant's default credit period in days, for a customer with no terms of their own.
+   *
+   * A new invoice used to open with its due date equal to its issue date — "due on receipt" —
+   * whatever terms the business actually sells on, and the ageing report then called the document
+   * overdue the next morning.
+   */
+  defaultPaymentTermDays: number;
 }
 
 export interface PaginatedInvoices {
@@ -1386,6 +1394,11 @@ export class InvoicesService {
       fiscalDocumentTypes: [...adapter.availableSalesTypes()],
       /** The legal service charge the market applies, as a fraction. Zero where none applies. */
       serviceChargeRate: countryCode === 'DO' || countryCode === 'CR' ? 0.1 : 0,
+      /**
+       * The tenant's default credit period, so a new invoice opens with a due date that means
+       * something. It used to open due on the day it was issued, whatever the tenant sells on.
+       */
+      defaultPaymentTermDays: settings?.defaultPaymentTermDays ?? 0,
     };
   }
 

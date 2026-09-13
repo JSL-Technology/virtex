@@ -1,7 +1,14 @@
+<!--
+  `aria-live="polite"` stays: a toast interrupting a screen reader mid-word is worse than a toast
+  announced a moment late. The error toasts inside carry `role="alert"`, which is what makes the
+  ones that matter announce immediately.
+-->
 <div class="toast-container" aria-live="polite">
   @for (toast of toastService.toasts(); track toast.id) {
     <app-toast
       [toast]="toast"
+      (hold)="toastService.hold($event)"
+      (release)="toastService.release($event)"
       (closed)="toastService.remove($event)">
     </app-toast>
   }

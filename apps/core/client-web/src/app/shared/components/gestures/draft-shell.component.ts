@@ -1,4 +1,18 @@
-import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  Injector,
+  afterNextRender,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
+import { AbstractControl } from '@angular/forms';
+import { Subscription, merge } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, ArrowLeft, AlertTriangle, Check, Loader } from 'lucide-angular';
 
@@ -61,6 +75,58 @@ export class DraftShellComponent {
   readonly problems = input<DraftProblem[]>([]);
 
   /**
+   * El formulario, para que el resumen se vacíe solo a medida que se corrigen los campos.
+   *
+   * Opcional, pero es la diferencia entre un resumen y una acusación: la página llena `problems`
+   * al fallar el guardado y nadie los volvía a mirar, así que «"Cliente" es obligatorio» seguía en
+   * pantalla con el cliente ya elegido. Quien lee eso deja de fiarse del resumen entero, que es
+   * precisamente lo que este gesto existe para evitar.
+   *
+   * Se PODA, no se recalcula: una línea desaparece cuando su campo pasa a ser válido, pero no
+   * aparecen líneas nuevas mientras se teclea. Un resumen que crece mientras escribes es un
+   * formulario que te regaña por no haber terminado.
+   */
+  readonly form = input<AbstractControl | null>(null);
+
+  /** Se incrementa con cada cambio de validez del formulario, para reevaluar la poda. */
+  private readonly formRevision = signal(0);
+
+  constructor() {
+    let subscription: Subscription | null = null;
+    effect((onCleanup) => {
+      const group = this.form();
+      subscription?.unsubscribe();
+      subscription = null;
+      if (!group) return;
+
+      //  `valueChanges` y `statusChanges`: el primero cubre el caso normal —se escribe y el campo
+      //  pasa a válido—, el segundo los validadores asíncronos, que resuelven después.
+      subscription = merge(group.valueChanges, group.statusChanges).subscribe(() =>
+        this.formRevision.update((revision) => revision + 1),
+      );
+      onCleanup(() => subscription?.unsubscribe());
+    });
+  }
+
+  /**
+   * Los problemas que todavía lo son.
+   *
+   * Un problema sin `fieldId`, o cuyo control ya no existe, se conserva: puede venir del servidor
+   * o de una regla que no pertenece a un solo campo, y esconderlo sería peor que dejarlo.
+   */
+  private readonly livingProblems = computed(() => {
+    this.formRevision();
+    const group = this.form();
+    const declared = this.problems();
+    if (!group) return declared;
+    return declared.filter((problem) => {
+      if (!problem.fieldId) return true;
+      const control = group.get(problem.fieldId);
+      return control ? control.invalid : true;
+    });
+  });
+
+  /**
    * Los mismos problemas, con el rótulo del campo ya traducido.
    *
    * `draftProblems` recoge CLAVES i18n —la misma que usa el `<label>` del campo— y las deja en
@@ -72,7 +138,7 @@ export class DraftShellComponent {
    * documenta como deliberado.
    */
   protected readonly resolvedProblems = computed(() =>
-    this.problems().map((problem) => {
+    this.livingProblems().map((problem) => {
       const field = problem.params?.['field'];
       if (typeof field !== 'string') return problem;
       return { ...problem, params: { ...problem.params, field: this.translate.instant(field) } };
@@ -96,6 +162,7 @@ export class DraftShellComponent {
   readonly focusField = output<string>();
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
 
   protected readonly BackIcon = ArrowLeft;
   protected readonly AlertIcon = AlertTriangle;
@@ -115,6 +182,19 @@ export class DraftShellComponent {
   });
 
   /**
+   * Un envío ya salió y todavía no se sabe en qué quedó.
+   *
+   * `saving` llega como `input`, y un `input` se propaga en la detección de cambios, no en el acto.
+   * Tres clics dentro de la MISMA tarea —un doble clic rápido, un ratón que rebota, un script—
+   * ocurren todos antes de que la página pueda decir «estoy guardando», así que los tres veían
+   * `saving() === false` y los tres salían. Medido: tres peticiones, dos respondidas «ya existe un
+   * registro con esos datos» sobre el registro que el propio usuario acababa de crear.
+   *
+   * Este pestillo se echa en el mismo instante del envío, sin esperar a nadie.
+   */
+  private readonly submitted = signal(false);
+
+  /**
    * El botón de guardar NO se deshabilita cuando el formulario es inválido.
    *
    * Un botón gris no dice qué falta: el usuario repasa el formulario buscando el campo culpable,
@@ -122,7 +202,7 @@ export class DraftShellComponent {
    * responde la pregunta en un clic. Solo se bloquea mientras se guarda, que es lo único que un
    * segundo clic puede estropear de verdad.
    */
-  protected readonly canSubmit = computed(() => !this.saving());
+  protected readonly canSubmit = computed(() => !this.saving() && !this.submitted());
 
   /**
    * Llevar el foco al campo que el resumen nombra.
@@ -160,6 +240,15 @@ export class DraftShellComponent {
 
   protected onSubmit(event: Event): void {
     event.preventDefault();
-    if (this.canSubmit()) this.save.emit();
+    if (!this.canSubmit()) return;
+
+    this.submitted.set(true);
+    this.save.emit();
+
+    //  Se suelta tras el siguiente renderizado, que es cuando ya se sabe qué hizo la página: si
+    //  arrancó una petición, `saving` ya vale `true` y mantiene el botón bloqueado; si rechazó el
+    //  formulario, el botón tiene que volver a funcionar. Dejar el pestillo echado más tiempo
+    //  convertiría un fallo de validación en un formulario que no se puede reenviar.
+    afterNextRender(() => this.submitted.set(false), { injector: this.injector });
   }
 }

@@ -3,6 +3,7 @@ import { OrganizationSubsidiary } from './organization-subsidiary.entity';
 import { Plan } from '../../saas/entities/plan.entity';
 import { FiscalRegion } from '../../localization/entities/fiscal-region.entity';
 import type { LanguageCode } from '@virteex/shared/types';
+import { blankToNullTransformer } from '../../common/database/blank-to-null.transformer';
 
 @Entity('organizations')
 @Index(['taxId', 'fiscalRegionId'], { unique: true, where: '"tax_id" IS NOT NULL' })
@@ -13,7 +14,13 @@ export class Organization {
   @Column({ name: 'legal_name' })
   legalName: string;
 
-  @Column({ type: 'varchar', name: 'tax_id', nullable: true })
+  /** Unique per fiscal region when given; blank is stored as NULL so "not given" is not a value. */
+  @Column({
+    type: 'varchar',
+    name: 'tax_id',
+    nullable: true,
+    transformer: blankToNullTransformer,
+  })
   taxId: string | null;
 
   /**

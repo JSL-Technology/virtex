@@ -1,6 +1,7 @@
 
 import { Organization } from '../../organizations/entities/organization.entity';
 import { ProductCategory } from './product-category.entity';
+import { blankToNullTransformer } from '../../common/database/blank-to-null.transformer';
 import {
   numericTransformer,
   numericTransformerNotNull,
@@ -60,7 +61,14 @@ export class Product {
   @Column({ length: 255 })
   name: string;
 
-  @Column({ length: 50, nullable: true })
+  /**
+   * The tenant's own code for this product, unique among theirs when given.
+   *
+   * `blankToNullTransformer` because the unique index exempts NULL and not `''`: a form sends an
+   * untouched field as the empty string, so the first product saved without a SKU took `''` and
+   * the second was refused with "a record with that data already exists".
+   */
+  @Column({ length: 50, nullable: true, transformer: blankToNullTransformer })
   sku?: string;
 
   @Column({ type: 'text', nullable: true })

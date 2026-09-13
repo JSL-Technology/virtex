@@ -112,7 +112,12 @@ export class TabRegistryService {
     return {
       pattern: routePath,
       tabType: TabType.MODULE_LIST,
-      title: this.prettify(routePath),
+      //  `titleFn` y no `title`: `title` es una CLAVE del catálogo, y el último segmento de una URL
+      //  embellecido es un dato. Guardarlo en `title` hacía que `openTab` lo buscara en el
+      //  catálogo, no lo encontrara, y la pestaña se llamara «[[Customers]]» —el marcador de clave
+      //  ausente— en desarrollo, y algo inventado por el humanizador en producción.
+      title: 'TABS.GENERIC_MODULE',
+      titleFn: () => this.prettify(routePath),
       icon: 'LayoutGrid',
       isCloseable: true,
       entityKeyFn: () => `module:${routePath}`,

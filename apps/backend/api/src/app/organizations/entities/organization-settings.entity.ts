@@ -45,6 +45,16 @@ export class OrganizationSettings {
   baseCurrency!: string;
 
   /**
+   * The default credit period, in days, for a customer who has none of their own.
+   *
+   * Zero — due on receipt — is the safe default rather than a guess at thirty: a tenant that sells
+   * on credit sets this once, and one that does not is not told its invoices are overdue tomorrow
+   * because the product assumed terms nobody agreed to.
+   */
+  @Column({ name: 'default_payment_term_days', type: 'int', default: 0 })
+  defaultPaymentTermDays!: number;
+
+  /**
    * Which published rate this tenant keeps its books at.
    *
    * A currency pair does not have *a* rate on a day. Colombia's TRM, Mexico's DOF FIX and the

@@ -34,6 +34,13 @@ describe('NewInvoicePage', () => {
   };
   let notifications: { showError: jest.Mock; showSuccess: jest.Mock; showInfo: jest.Mock };
 
+  /** One customer on thirty days, one due on receipt, one with no terms of their own. */
+  const customers = [
+    { id: 'c-30', companyName: 'Constructora del Este', paymentTermDays: 30 },
+    { id: 'c-0', companyName: 'Colmado La Esquina', paymentTermDays: 0 },
+    { id: 'c-none', companyName: 'Sin condiciones', paymentTermDays: null },
+  ];
+
   const context = (overrides: Partial<InvoicingContext> = {}): InvoicingContext => ({
     ready: true,
     missing: [],
@@ -51,6 +58,7 @@ describe('NewInvoicePage', () => {
       { code: 'E46', labelKey: 'FISCAL.DO.E46', requiresBuyerTaxId: false },
     ],
     serviceChargeRate: 0.1,
+    defaultPaymentTermDays: 0,
     ...overrides,
   });
 
@@ -88,7 +96,7 @@ describe('NewInvoicePage', () => {
         imports: [NewInvoicePage, NoopAnimationsModule, TranslateModule.forRoot()],
         providers: [
           { provide: InvoicesService, useValue: invoicesService },
-          { provide: CustomersService, useValue: { getCustomers: () => of([]) } },
+          { provide: CustomersService, useValue: { getCustomers: () => of(customers) } },
           {
             provide: InventoryService,
             useValue: {
@@ -112,6 +120,46 @@ describe('NewInvoicePage', () => {
   }
 
   beforeEach(() => build());
+
+  /**
+   * The due date follows the customer's credit terms.
+   *
+   * It used to open equal to the issue date — "due on receipt" — for everyone, including customers
+   * the business gives thirty days, and the ageing report then called those invoices overdue the
+   * next morning.
+   */
+  describe('el vencimiento', () => {
+    it('sale de los días de crédito del cliente', () => {
+      component.invoiceForm.patchValue({ issueDate: '2026-03-05' });
+      component.invoiceForm.patchValue({ customerId: 'c-30' });
+
+      expect(component.invoiceForm.get('dueDate')?.value).toBe('2026-04-04');
+    });
+
+    it('distingue «al contado» de «sin condiciones»', async () => {
+      // Zero days is a real answer; null means "use the organization's default", and the two must
+      // not collapse into each other.
+      component.invoiceForm.patchValue({ issueDate: '2026-03-05', customerId: 'c-0' });
+      expect(component.invoiceForm.get('dueDate')?.value).toBe('2026-03-05');
+
+      await build(context({ defaultPaymentTermDays: 15 }));
+      component.invoiceForm.patchValue({ issueDate: '2026-03-05', customerId: 'c-none' });
+      expect(component.invoiceForm.get('dueDate')?.value).toBe('2026-03-20');
+    });
+
+    it('cruza el fin de mes sin inventar un día', () => {
+      component.invoiceForm.patchValue({ issueDate: '2026-01-31', customerId: 'c-30' });
+      expect(component.invoiceForm.get('dueDate')?.value).toBe('2026-03-02');
+    });
+
+    it('no pisa una fecha que el usuario escribió', () => {
+      component.invoiceForm.patchValue({ issueDate: '2026-03-05' });
+      component.invoiceForm.get('dueDate')!.setValue('2026-12-31');
+      component.invoiceForm.patchValue({ customerId: 'c-30' });
+
+      expect(component.invoiceForm.get('dueDate')?.value).toBe('2026-12-31');
+    });
+  });
 
   it('takes its currency from the tenant, not from a hardcoded USD', () => {
     expect(component.invoiceForm.get('currencyCode')?.value).toBe('DOP');

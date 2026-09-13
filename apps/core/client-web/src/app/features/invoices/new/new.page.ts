@@ -8,7 +8,7 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject, debounceTime, switchMap } from 'rxjs';
+import { Subject, debounceTime, merge, switchMap } from 'rxjs';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
@@ -113,10 +113,33 @@ export class NewInvoicePage implements OnInit {
 
   ngOnInit(): void {
     this.loadContext();
-    this.customersService.getCustomers().subscribe((data) => this.customers.set(data));
+    this.customersService.getCustomers().subscribe((data) => {
+      this.customers.set(data);
+      this.applyPaymentTerms();
+    });
     this.inventoryService.getProducts().subscribe((data) => this.products.set(data));
     this.currenciesService.getCurrencies().subscribe((data) => this.currencies.set(data));
     this.checkCopyFrom();
+
+    //  El vencimiento sale de las condiciones del cliente, no del día de hoy.
+    //
+    //  Nacía igual a la fecha de emisión —«al contado»— para todo el mundo, incluidos los clientes
+    //  a los que el negocio da treinta días, y el informe de antigüedad los declaraba vencidos a la
+    //  mañana siguiente. Se recalcula al elegir cliente y al mover la emisión; si alguien escribe
+    //  un vencimiento a mano, se respeta (ver `dueDateTouched`).
+    merge(
+      this.invoiceForm.get('customerId')!.valueChanges,
+      this.invoiceForm.get('issueDate')!.valueChanges,
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.applyPaymentTerms());
+
+    this.invoiceForm
+      .get('dueDate')!
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (!this.settingDueDate) this.dueDateTouched = true;
+      });
 
     // `switchMap` drops the answer to a superseded question: a slow response to an older form
     // state must never overwrite the figures for a newer one.
@@ -174,6 +197,35 @@ export class NewInvoicePage implements OnInit {
         this.notificationService.showError('INVOICES.NEW.PUDO_CARGAR_CONFIGURACION_FACTURACION'),
     });
   }
+
+  /**
+   * Set the due date from the chosen customer's credit terms.
+   *
+   * The customer's own days win; a customer with none falls back to the organization's default,
+   * which the invoicing context carries. Zero days — due on receipt — is a real answer and is why
+   * `null` and `0` are not treated alike.
+   *
+   * Never overrides a date the user typed: once they have set one by hand, this stops.
+   */
+  private applyPaymentTerms(): void {
+    if (this.dueDateTouched) return;
+
+    const value = this.invoiceForm.getRawValue();
+    const issueDate = value.issueDate as string;
+    if (!issueDate) return;
+
+    const customer = this.customers().find((candidate) => candidate.id === value.customerId);
+    const days = customer?.paymentTermDays ?? this.context()?.defaultPaymentTermDays ?? 0;
+
+    this.settingDueDate = true;
+    this.invoiceForm.get('dueDate')!.setValue(addDays(issueDate, days), { emitEvent: false });
+    this.settingDueDate = false;
+  }
+
+  /** True once the user has set a due date themselves; the terms stop deciding for them. */
+  private dueDateTouched = false;
+  /** Guards the flag above while this page is the one writing the field. */
+  private settingDueDate = false;
 
   private checkCopyFrom(): void {
     const copyFromId = this.route.snapshot.queryParamMap.get('copyFrom');
@@ -440,6 +492,19 @@ export class NewInvoicePage implements OnInit {
 
 function today(): string {
   return new Date().toISOString().split('T')[0];
+}
+
+/**
+ * `YYYY-MM-DD` plus a number of days, as a calendar date.
+ *
+ * Built in UTC on purpose: an issue date has no time and no zone, and constructing it in local
+ * time is what turns `2026-01-31` into the 30th for every tenant west of Greenwich.
+ */
+function addDays(isoDate: string, days: number): string {
+  const [year, month, day] = isoDate.split('-').map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().split('T')[0];
 }
 
 function numberOrUndefined(value: unknown): number | undefined {

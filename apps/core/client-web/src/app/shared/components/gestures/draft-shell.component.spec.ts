@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { DraftShellComponent, DraftProblem } from './draft-shell.component';
 
 /**
@@ -21,6 +22,7 @@ import { DraftShellComponent, DraftProblem } from './draft-shell.component';
       [saving]="saving()"
       [invalid]="invalid()"
       [problems]="problems()"
+      [form]="form()"
       [error]="error()"
       (save)="saves = saves + 1"
       (cancel)="cancels = cancels + 1"
@@ -37,6 +39,7 @@ class Host {
   readonly saving = signal(false);
   readonly invalid = signal(false);
   readonly problems = signal<DraftProblem[]>([]);
+  readonly form = signal<FormGroup | null>(null);
   readonly error = signal<string | null>(null);
   saves = 0;
   cancels = 0;
@@ -161,5 +164,60 @@ describe('DraftShellComponent', () => {
 
   it('proyecta el formulario de la página', () => {
     expect(el.querySelector('.dr__body .field')).not.toBeNull();
+  });
+
+  /**
+   * El resumen se vacía a medida que se corrige.
+   *
+   * La página llena `problems` al fallar el guardado y nadie los volvía a mirar, así que
+   * «"Cliente" es obligatorio» seguía en pantalla con el cliente ya elegido. Quien lee eso deja de
+   * fiarse del resumen entero, que es justo lo que este gesto existe para evitar.
+   */
+  describe('con el formulario conectado', () => {
+    it('quita del resumen el campo que ya se corrigió, y conserva los demás', () => {
+      host.form.set(
+        new FormGroup({
+          customerId: new FormControl('', Validators.required),
+          ncf: new FormControl('', Validators.required),
+        }),
+      );
+      host.problems.set([
+        { message: 'SHELL.PROBLEM_REQUIRED', fieldId: 'customerId', params: { field: 'Cliente' } },
+        { message: 'SHELL.PROBLEM_REQUIRED', fieldId: 'ncf', params: { field: 'NCF' } },
+      ]);
+      fixture.detectChanges();
+      expect(el.querySelectorAll('.dr__problems li').length).toBe(2);
+
+      host.form()!.get('customerId')!.setValue('c-1');
+      fixture.detectChanges();
+
+      // The one left is the NCF, identified by where its link takes the reader — the rendered text
+      // is the untranslated key under `TranslateModule.forRoot()` with no catalogue.
+      expect(el.querySelectorAll('.dr__problems li').length).toBe(1);
+      (el.querySelector('.dr__problem-link') as HTMLButtonElement).click();
+      expect(host.focused).toBe('ncf');
+    });
+
+    it('conserva un problema que no pertenece a ningún campo', () => {
+      // Una regla del documento entero —un asiento descuadrado, un rechazo del servidor— no tiene
+      // control que mirar, y esconderla sería peor que dejarla.
+      host.form.set(new FormGroup({ ncf: new FormControl('', Validators.required) }));
+      host.problems.set([{ message: 'ASIENTO_DESCUADRADO' }]);
+      fixture.detectChanges();
+
+      host.form()!.get('ncf')!.setValue('B0100000001');
+      fixture.detectChanges();
+
+      expect(el.querySelectorAll('.dr__problems li').length).toBe(1);
+    });
+
+    it('no poda nada cuando la página no conecta el formulario', () => {
+      // El `input` es opcional a propósito: sin él el resumen se comporta como antes.
+      host.form.set(null);
+      host.problems.set([{ message: 'SHELL.PROBLEM_REQUIRED', fieldId: 'customerId' }]);
+      fixture.detectChanges();
+
+      expect(el.querySelectorAll('.dr__problems li').length).toBe(1);
+    });
   });
 });

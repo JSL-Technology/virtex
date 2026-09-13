@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } 
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideAngularModule, Plus } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
@@ -50,6 +50,9 @@ import { NotificationService } from '../../../core/services/notification';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomerReceiptFormPage implements OnInit {
+  /** The chips add a document to the receipt; the icon is what says so. */
+  protected readonly AddIcon = Plus;
+
 
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);

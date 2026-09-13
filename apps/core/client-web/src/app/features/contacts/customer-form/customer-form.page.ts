@@ -76,6 +76,11 @@ export class CustomerFormPage implements OnInit {
       stateOrProvince: [''],
       postalCode: [''],
       country: ['DO', Validators.required],
+      //  Los términos de pago: uno para imprimir, otro para calcular. El campo de texto existía en
+      //  la base de datos desde el principio y nadie lo leía —una cadena no se le suma a una
+      //  fecha—, así que toda factura nacía venciendo el mismo día en que se emitía.
+      paymentTerms: [''],
+      paymentTermDays: [null as number | null],
     });
   }
 
@@ -113,6 +118,8 @@ export class CustomerFormPage implements OnInit {
           stateOrProvince: 'CONTACTS.CUSTOMER_FORM.ESTADO_PROVINCIA',
           postalCode: 'CONTACTS.CUSTOMER_FORM.CODIGO_POSTAL',
           country: 'CONTACTS.CUSTOMER_FORM.PAIS',
+          paymentTerms: 'CONTACTS.CUSTOMER_FORM.TERMINOS_PAGO',
+          paymentTermDays: 'CONTACTS.CUSTOMER_FORM.DIAS_CREDITO',
         }),
       );
       return;
@@ -129,7 +136,16 @@ export class CustomerFormPage implements OnInit {
     // DEFAULT state of the form could not be saved at all: every customer created without touching
     // this select came back `400 taxpayerType does not accept that value`. Null is the value that
     // means "unclassified" in the column, and the one the validator lets through.
-    const formValue = { ...rest, taxpayerType: taxpayerType || null };
+    const formValue = {
+      ...rest,
+      taxpayerType: taxpayerType || null,
+      //  Vacío no es cero: cero significa «al contado» y vacío «usa el valor por defecto de la
+      //  organización». El `<input type="number">` entrega cadena vacía para ambos.
+      paymentTermDays:
+        rest.paymentTermDays === '' || rest.paymentTermDays === null
+          ? null
+          : Number(rest.paymentTermDays),
+    };
 
     const customerId = this.id();
     const operation = customerId

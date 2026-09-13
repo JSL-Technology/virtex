@@ -985,7 +985,12 @@
       "TIPO_CONTRIBUYENTE_WITHHOLDING_AGENT": "Designated withholding agent",
       "TITLE_NEW": "New customer",
       "TITLE_EDIT": "Edit customer",
-      "GUARDAR_CLIENTE": "Save customer"
+      "GUARDAR_CLIENTE": "Save customer",
+      "CONDICIONES_COMERCIALES": "Commercial terms",
+      "TERMINOS_PAGO": "Payment terms",
+      "TERMINOS_PAGO_PLACEHOLDER": "Net 30",
+      "DIAS_CREDITO": "Credit days",
+      "DIAS_CREDITO_AYUDA": "Days added to the issue date to work out the due date. Blank uses the organization default; 0 means due on receipt."
     },
     "SUPPLIERS": {
       "ACCIONES": "Actions",
@@ -1057,7 +1062,9 @@
       "USAR_ANTICIPO": "Use the advance",
       "SIN_FONDOS": "Enter an amount received or an advance to apply.",
       "ANTICIPO_INSUFICIENTE": "The advance to apply exceeds what this customer holds on account.",
-      "ANTICIPO_EXCEDE_LO_APLICADO": "You are drawing more advance than this receipt applies to invoices. Apply it to invoices or reduce it."
+      "ANTICIPO_EXCEDE_LO_APLICADO": "You are drawing more advance than this receipt applies to invoices. Apply it to invoices or reduce it.",
+      "PULSA_PARA_APLICAR": "Press an invoice to add it to the receipt.",
+      "APLICAR_FACTURA": "Apply invoice {{number}} to this receipt"
     },
     "LIST": {
       "CARGANDO_RECIBOS": "Loading receipts...",
