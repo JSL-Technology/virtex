@@ -4,6 +4,10 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { LucideAngularModule, Save, Image } from 'lucide-angular';
 import { InventoryService, CreateProductDto, UpdateProductDto } from '../../../core/api/inventory.service';
 import { NotificationService } from '../../../core/services/notification';
+import {
+  ProductCategoriesService,
+  ProductCategory,
+} from '../../../core/api/product-categories.service';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
@@ -23,6 +27,7 @@ export class ProductFormPage implements OnInit {
   // private route = inject(ActivatedRoute);
   private inventoryService = inject(InventoryService);
   private notificationService = inject(NotificationService);
+  private categoriesService = inject(ProductCategoriesService);
 
   protected readonly ImageIcon = Image;
 
@@ -30,6 +35,14 @@ export class ProductFormPage implements OnInit {
   readonly problems = signal<DraftProblem[]>([]);
 
   productForm!: FormGroup;
+  /**
+   * The tenant's own categories.
+   *
+   * The field used to be a `<select>` with `Electrónica`, `Accesorios` and `Monitores` written into
+   * the template — a demo catalogue from a computer shop, offered to every tenant in every market
+   * as the only three things they could be selling.
+   */
+  readonly categories = signal<ProductCategory[]>([]);
   isEditMode = signal(false);
   isLoading = signal(true);
   imagePreview = signal<string | ArrayBuffer | null>(null);
@@ -49,16 +62,31 @@ export class ProductFormPage implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadCategories();
     this.productForm = this.fb.group({
       name: ['', Validators.required],
       sku: [''],
       description: [''],
-      category: [''],
+      categoryId: [null],
       price: [0, [Validators.required, Validators.min(0)]],
       cost: [0, [Validators.min(0)]],
       stock: [0, [Validators.required, Validators.min(0)]],
       reorderLevel: [0],
       status: ['Active', Validators.required],
+    });
+  }
+
+  /**
+   * Load the catalogue's categories.
+   *
+   * A failure is not fatal: the field simply offers nothing, and the rest of the form still saves.
+   * Blocking the whole product form because one dropdown could not be filled would be a worse
+   * outcome than a product filed under nothing.
+   */
+  private loadCategories(): void {
+    this.categoriesService.list().subscribe({
+      next: (rows) => this.categories.set(rows),
+      error: () => this.categories.set([]),
     });
   }
 
@@ -104,7 +132,7 @@ export class ProductFormPage implements OnInit {
           cost: 'INVENTORY.PRODUCT_FORM.COSTO_UNITARIO',
           stock: 'INVENTORY.PRODUCT_FORM.CANTIDAD_STOCK',
           reorderLevel: 'INVENTORY.PRODUCT_FORM.NIVEL_REORDEN',
-          category: 'INVENTORY.PRODUCT_FORM.CATEGORIA',
+          categoryId: 'INVENTORY.PRODUCT_FORM.CATEGORIA',
           status: 'INVENTORY.PRODUCT_FORM.ESTADO',
         }),
       );

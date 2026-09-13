@@ -23,6 +23,7 @@ import { catchError, of } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { DashboardWidget, DashboardService, ChartType } from '../../../../core/services/dashboard';
 import { BrandingService } from '../../../../core/services/branding';
+import { invoiceStatusKey } from '../../../../core/services/invoice-status';
 import {
   DashboardApiService,
   InvoiceStatusSlice,
@@ -115,7 +116,7 @@ export class InvoiceStatus {
 
     // Value, not count: a book of ten settled invoices and one unpaid million is not 91 % healthy.
     const data = this.mix().map((slice) => ({
-      name: this.i18n.instant(`INVOICES.STATUS.${statusKey(slice.status)}`),
+      name: this.i18n.instant(invoiceStatusKey(slice.status)),
       y: slice.amount,
       color: statusColor(slice.status),
     }));
@@ -257,14 +258,6 @@ export class InvoiceStatus {
       this.closeMenus();
     }
   }
-}
-
-/**
- * The server sends the status as the ledger stores it (`Partially Paid`); the catalogue keys it as
- * `PARTIALLY_PAID`.
- */
-function statusKey(status: string): string {
-  return status.trim().toUpperCase().replace(/[\s-]+/g, '_');
 }
 
 /** Which semantic colour each document status carries, matching the badges in the lists. */

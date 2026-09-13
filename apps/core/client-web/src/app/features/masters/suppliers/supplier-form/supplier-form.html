@@ -43,6 +43,39 @@
           <label for="phone">{{ 'MASTERS.SUPPLIER_FORM.TELEFONO' | translate }}</label>
           <input type="tel" id="phone" formControlName="phone" />
         </div>
+        <div class="form-field">
+          <label for="country">{{ 'MASTERS.SUPPLIER_FORM.PAIS' | translate }}</label>
+          <input
+            id="country"
+            formControlName="country"
+            maxlength="2"
+            [placeholder]="'MASTERS.SUPPLIER_FORM.PAIS_PLACEHOLDER' | translate"
+          />
+          <small class="field-hint">{{ 'MASTERS.SUPPLIER_FORM.PAIS_AYUDA' | translate }}</small>
+        </div>
+        <!--
+          Qué se le retiene a este proveedor depende de quién es, no de lo que escriba quien captura
+          la factura: comprarle un servicio a una persona física obliga a retenerle el 100 % del
+          ITBIS y el 10 % del honorario; a una sociedad, nada. La clasificación la asigna la
+          administración tributaria, así que se pregunta y no se deduce, y en blanco no se retiene
+          nada automáticamente.
+        -->
+        <div class="form-field">
+          <label for="taxpayerType">
+            {{ 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE' | translate }}
+          </label>
+          <select id="taxpayerType" formControlName="taxpayerType">
+            <option value="">
+              {{ 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE_SIN_CLASIFICAR' | translate }}
+            </option>
+            @for (type of taxpayerTypes; track type.value) {
+              <option [value]="type.value">{{ type.labelKey | translate }}</option>
+            }
+          </select>
+          <small class="field-hint">
+            {{ 'MASTERS.SUPPLIER_FORM.TIPO_CONTRIBUYENTE_AYUDA' | translate }}
+          </small>
+        </div>
       </div>
     </section>
   </div>

@@ -113,7 +113,8 @@
     "SOLO_FACTURAS_ESTADO_BORRADOR_PUEDEN_SER_ENVIADAS": "Somente faturas em rascunho podem ser enviadas para aprovação.",
     "SOLO_PUEDEN_APLICAR_NOTAS_DEBITO_FACTURAS_ABIERTAS": "Notas de débito só podem ser aplicadas a faturas abertas ou parcialmente pagas.",
     "SOLO_PUEDEN_EDITAR_FACTURAS_ESTADO_BORRADOR": "Somente faturas em rascunho podem ser editadas.",
-    "TOTAL_NO_COINCIDE_CON_LINEAS": "O total enviado ({{received}}) não corresponde ao calculado a partir das linhas e impostos ({{expected}})."
+    "TOTAL_NO_COINCIDE_CON_LINEAS": "O total enviado ({{received}}) não corresponde ao calculado a partir das linhas e impostos ({{expected}}).",
+    "PROVEEDOR_NO_ENCONTRADO": "Fornecedor com ID \"{{id}}\" não encontrado."
   },
   "ANALYTICAL_REPORTING": {
     "NOMBRE_DIMENSION_CAMPO_CONTIENE_CARACTERES_NO_VALIDOS": "O nome da dimensão ou do campo contém caracteres inválidos: {{name}}",
@@ -439,7 +440,13 @@
   },
   "DASHBOARD": {
     "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "Nenhum livro contábil padrão foi configurado para a organização.",
-    "ORGANIZACION_MATRIZ_NO_ENCONTRADA": "Organização controladora não encontrada."
+    "ORGANIZACION_MATRIZ_NO_ENCONTRADA": "Organização controladora não encontrada.",
+    "ALERTS": {
+      "RECEIVABLES_OVERDUE": "{{count}} fatura(s) vencida(s) no valor de {{amount}} por cobrar.",
+      "STOCK_DEPLETED": "{{count}} produto(s) esgotados.",
+      "STOCK_LOW": "{{count}} produto(s) abaixo do seu nível de reposição.",
+      "PERIOD_UNCLOSED": "O período {{period}} continua aberto e a sua data de fecho já passou."
+    }
   },
   "DATABASE": {
     "INTENTO_ELIMINAR_ENTIDAD_NO_PERTENECE_ORGANIZACION": "Tentativa de excluir um registro que não pertence à organização.",
@@ -703,7 +710,16 @@
     "STOCK_INSUFICIENTE_PRODUCTO": "Estoque insuficiente para o produto \"{{name}}\".",
     "CUENTAS_INVENTARIO_NO_CONFIGURADAS": "A organização não tem contas de estoque e de saldos iniciais configuradas; não é possível registar a existência inicial.",
     "CUENTAS_AJUSTE_NO_CONFIGURADAS": "A organização não tem contas de estoque e de ajustes de estoque configuradas; não é possível registar o ajuste.",
-    "DIARIO_GENERAL_NO_ENCONTRADO": "Não existe o diário Geral (GENERAL) nesta organização; crie-o nas definições de contabilidade."
+    "DIARIO_GENERAL_NO_ENCONTRADO": "Não existe o diário Geral (GENERAL) nesta organização; crie-o nas definições de contabilidade.",
+    "CATEGORY_NOT_FOUND": "Categoria de produto com ID \"{{id}}\" não encontrada.",
+    "CATEGORY_NAME_REQUIRED": "A categoria precisa de um nome.",
+    "CATEGORY_NAME_TAKEN": "Já existe uma categoria chamada \"{{name}}\".",
+    "CATEGORY_HAS_CHILDREN": "Não é possível eliminar: a categoria tem {{count}} subcategoria(s). Mova-as ou elimine-as primeiro.",
+    "CATEGORY_IN_USE": "Não é possível eliminar: {{count}} produto(s) estão classificados nesta categoria. Reclassifique-os ou retire a categoria em vez de a apagar.",
+    "CATEGORY_PARENT_IS_SELF": "Uma categoria não pode ser a sua própria categoria superior.",
+    "CATEGORY_PARENT_IS_DESCENDANT": "Não é possível mover uma categoria para dentro de uma das suas próprias subcategorias.",
+    "CATEGORY_TOO_DEEP": "A árvore de categorias não pode ter mais de {{max}} níveis.",
+    "CATEGORY_INACTIVE": "A categoria \"{{name}}\" está retirada e não pode ser atribuída a um produto."
   },
   "INVOICE": {
     "PDF": {
@@ -1440,7 +1456,8 @@
       "MIN_LENGTH": "{{property}} deve ter pelo menos {{min}} caracteres.",
       "NESTED_VALIDATION": "{{property}} contém dados que não são válidos.",
       "PERIOD_START_AFTER_END": "A data inicial não pode ser posterior à data final.",
-      "WHITELIST_VALIDATION": "{{property}} não é um campo permitido."
+      "WHITELIST_VALIDATION": "{{property}} não é um campo permitido.",
+      "COUNTRY_CODE": "O código de país deve ter exatamente 2 letras (ISO 3166-1 alfa-2)."
     },
     "CREATE_JOURNAL_ENTRY": {
       "CAMPO_CREDITO_OBLIGATORIO": "O campo de crédito é obrigatório.",
@@ -1655,7 +1672,14 @@
       "ID_ANO_FISCAL_OBLIGATORIO": "O ID do exercício fiscal é obrigatório."
     },
     "YEAR_MUST_BE_INTEGER": "O ano deve ser um número inteiro.",
-    "YEAR_OUT_OF_RANGE": "O ano está fora do intervalo permitido."
+    "YEAR_OUT_OF_RANGE": "O ano está fora do intervalo permitido.",
+    "PRODUCT_CATEGORY": {
+      "NAME_REQUIRED": "O nome da categoria é obrigatório.",
+      "PARENT_MUST_BE_UUID": "O identificador da categoria deve ser um UUID válido."
+    },
+    "CREATE_EMPLOYEE": {
+      "TSS_NSS_FORMAT": "O NSS da TSS deve ter entre 7 e 11 dígitos."
+    }
   },
   "WORKFLOWS": {
     "NO_ENCONTRO_POLITICA_APROBACION_ID_ASOCIADA_ESTA": "A política de aprovação \"{{policyId}}\" vinculada a esta solicitação não foi encontrada.",

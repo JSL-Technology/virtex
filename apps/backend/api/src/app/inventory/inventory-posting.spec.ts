@@ -26,6 +26,8 @@ import { ExchangeRateResolver } from '../currencies/exchange-rate-resolver.servi
 import { Product, ProductKind } from './entities/product.entity';
 import { InventoryService } from './inventory.service';
 import { InventoryPostingService } from './inventory-posting.service';
+import { ProductCategoriesService } from './product-categories.service';
+import { ProductCategory } from './entities/product-category.entity';
 
 /**
  * Stock is an asset, and this is what makes the books say so.
@@ -82,6 +84,12 @@ describeWithDb('inventory posting', () => {
       dataSource.getRepository(Product),
       dataSource,
       new InventoryPostingService(entries),
+      // The real category service: a product's category must belong to this tenant and still be
+      // offered, and that check is part of what creating a product means now.
+      new ProductCategoriesService(
+        dataSource.getRepository(ProductCategory),
+        dataSource.getRepository(Product),
+      ),
     );
   });
 

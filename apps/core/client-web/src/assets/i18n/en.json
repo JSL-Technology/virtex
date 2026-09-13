@@ -235,7 +235,8 @@
       "STATUS_PENDING_APPROVAL": "Pending approval",
       "STATUS_POSTED": "Posted",
       "STATUS_REJECTED": "Rejected",
-      "STATUS_VOID": "Voided"
+      "STATUS_VOID": "Voided",
+      "UNNUMBERED": "Not numbered"
     },
     "JOURNAL_ENTRY_FORM": {
       "ACCOUNT_COLUMN": "Account",
@@ -259,7 +260,13 @@
       "TITLE": "New Journal Entry",
       "TOTALS": "Totals",
       "UNBALANCED_ERROR": "Debits and credits must be balanced.",
-      "ZERO_AMOUNT_ERROR": "The total amount cannot be zero."
+      "ZERO_AMOUNT_ERROR": "The total amount cannot be zero.",
+      "MODIFICATION_EXPLAINER": "Modifying a posted entry does not rewrite it: the system reverses it and posts a new one that cites it. The original stays in the book.",
+      "MODIFICATION_REASON_LABEL": "Reason for the change*",
+      "MODIFICATION_REASON_PLACEHOLDER": "Why the original entry stopped being correct",
+      "ONLY_POSTED_CAN_BE_MODIFIED": "Only a posted entry can be modified. This one is not posted yet.",
+      "ENTRY_NOT_FOUND": "The entry could not be loaded.",
+      "ASIENTO_CONTABLE_MODIFICADO_EXITO": "Entry modified: the original was reversed and the new one posted."
     },
     "JOURNAL_FORM": {
       "BANK": "Bank",
@@ -1511,6 +1518,10 @@
     "DELETE_PAYROLL_CONCEPT": {
       "MESSAGE": "Delete the concept “{{name}}”?",
       "TITLE": "Delete concept"
+    },
+    "DELETE_PRODUCT_CATEGORY": {
+      "TITLE": "Delete category",
+      "MESSAGE": "Delete the category “{{name}}”? Only possible if it has no subcategories and no products."
     }
   },
   "DOCUMENTS": {
@@ -1622,7 +1633,8 @@
     "UNEXPECTED": "Something went wrong. Please try again.",
     "UPDATE_SSO_PROVIDER": "The provider could not be updated.",
     "UPDATE_USER": "The user could not be updated.",
-    "VERIFY_DOMAIN": "The domain could not be verified yet."
+    "VERIFY_DOMAIN": "The domain could not be verified yet.",
+    "UPDATE_JOURNAL_ENTRY": "The journal entry could not be modified."
   },
   "FEEDBACK": {
     "COMING_SOON": "This feature is coming soon",
@@ -1705,7 +1717,19 @@
       "AQUI_MOSTRARA_LISTA_GESTION_CATEGORIAS": "The category list and its management will appear here.",
       "CATEGORIAS": "Categories",
       "NUEVA_CATEGORIA": "New\n                    Category",
-      "ORGANIZA_TUS_PRODUCTOS_DIFERENTES_CATEGORIAS": "Organize your products into categories."
+      "ORGANIZA_TUS_PRODUCTOS_DIFERENTES_CATEGORIAS": "Organize your products into categories.",
+      "NAME": "Name",
+      "CODE": "Code",
+      "PARENT": "Parent category",
+      "NO_PARENT": "No parent category",
+      "STATUS": "Status",
+      "ACTIVE": "Active",
+      "INACTIVE": "Retired",
+      "ACTIVATE": "Reactivate",
+      "DEACTIVATE": "Retire",
+      "SHOW_INACTIVE": "Show retired",
+      "EMPTY": "No categories yet. Create the first one to start organising the catalogue.",
+      "SAVE_FAILED": "The category could not be saved."
     },
     "PRODUCTS": {
       "BUSCAR_NOMBRE_SKU_CATEGORIA": "Search by name, SKU or category...",
@@ -1731,14 +1755,12 @@
       "LOAD_FAILED": "The products could not be loaded. Try again."
     },
     "PRODUCT_FORM": {
-      "ACCESORIOS": "Accessories",
       "ACTIVO": "Active",
       "CANCELAR": "Cancel",
       "CANTIDAD_STOCK": "Quantity in Stock*",
       "CATEGORIA": "Category*",
       "COMPLETA_INFORMACION_DETALLADA_TU_PRODUCTO_SERVICIO": "Fill in the details of your product or service.",
       "DESCRIPCION": "Description",
-      "ELECTRONICA": "Electronics",
       "ERROR_ACTUALIZAR_PRODUCTO": "Error updating the product.",
       "ERROR_CREAR_PRODUCTO": "Error creating the product.",
       "ESTADO": "Status*",
@@ -1746,7 +1768,6 @@
       "IMAGEN_PRODUCTO": "Product Image",
       "INACTIVO": "Inactive",
       "INFORMACION_BASICA": "Basic Information",
-      "MONITORES": "Monitors",
       "NIVEL_REORDEN": "Reorder Level",
       "NOMBRE_PRODUCTO": "Product Name*",
       "ORGANIZACION": "Organization",
@@ -1763,7 +1784,9 @@
       "TITLE_EDIT": "Edit product",
       "GUARDAR_PRODUCTO": "Save product",
       "COSTO_UNITARIO": "Unit Cost",
-      "COSTO_UNITARIO_AYUDA": "What the item cost you. Drives cost of sale and inventory valuation."
+      "COSTO_UNITARIO_AYUDA": "What the item cost you. Drives cost of sale and inventory valuation.",
+      "SIN_CATEGORIA": "No category",
+      "SIN_CATEGORIAS_AUN": "No categories yet. Create them under Inventory → Categories."
     }
   },
   "INVOICES": {
@@ -2298,7 +2321,11 @@
       "PUDO_CARGAR_PROVEEDOR": "The supplier could not be loaded.",
       "TELEFONO": "Phone",
       "TITLE_NEW": "New supplier",
-      "TITLE_EDIT": "Edit supplier"
+      "TITLE_EDIT": "Edit supplier",
+      "PAIS": "Country",
+      "PAIS_PLACEHOLDER": "DO",
+      "PAIS_AYUDA": "Two-letter ISO code. Tells a domestic purchase from a payment abroad, which the 609 reports separately.",
+      "TIPO_CONTRIBUYENTE_AYUDA": "Decides what is withheld when you pay them. If you do not know it, leave it unclassified: nothing is withheld automatically."
     },
     "SUPPLIER_LIST": {
       "COMPANY_NAME": "Legal name",
@@ -2651,7 +2678,10 @@
     "PAYROLL_CONCEPTS": "Payroll concepts",
     "PAYROLL_PARAMETERS": "Statutory parameters",
     "PAYROLL_RUN": "Payroll run",
-    "PAYROLL_RUNS": "Payroll runs"
+    "PAYROLL_RUNS": "Payroll runs",
+    "INVOICE": "Invoice",
+    "VENDOR_BILL": "Vendor bill",
+    "DATASHEET": "Datasheet"
   },
   "PASSWORD_STRENGTH": {
     "WEAK": "Weak"

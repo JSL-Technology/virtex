@@ -113,7 +113,8 @@
     "SOLO_FACTURAS_ESTADO_BORRADOR_PUEDEN_SER_ENVIADAS": "Solo las facturas en estado borrador pueden ser enviadas para aprobación.",
     "SOLO_PUEDEN_APLICAR_NOTAS_DEBITO_FACTURAS_ABIERTAS": "Solo se pueden aplicar notas de débito a facturas abiertas o parcialmente pagadas.",
     "SOLO_PUEDEN_EDITAR_FACTURAS_ESTADO_BORRADOR": "Solo se pueden editar facturas en estado 'Borrador'.",
-    "TOTAL_NO_COINCIDE_CON_LINEAS": "El total enviado ({{received}}) no coincide con el calculado a partir de las líneas y los impuestos ({{expected}})."
+    "TOTAL_NO_COINCIDE_CON_LINEAS": "El total enviado ({{received}}) no coincide con el calculado a partir de las líneas y los impuestos ({{expected}}).",
+    "PROVEEDOR_NO_ENCONTRADO": "Proveedor con ID \"{{id}}\" no encontrado."
   },
   "ANALYTICAL_REPORTING": {
     "NOMBRE_DIMENSION_CAMPO_CONTIENE_CARACTERES_NO_VALIDOS": "El nombre de dimensión o campo contiene caracteres no válidos: {{name}}",
@@ -439,7 +440,13 @@
   },
   "DASHBOARD": {
     "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "No se ha configurado un libro contable por defecto para la organización.",
-    "ORGANIZACION_MATRIZ_NO_ENCONTRADA": "Organización matriz no encontrada."
+    "ORGANIZACION_MATRIZ_NO_ENCONTRADA": "Organización matriz no encontrada.",
+    "ALERTS": {
+      "RECEIVABLES_OVERDUE": "{{count}} factura(s) vencida(s) por {{amount}} sin cobrar.",
+      "STOCK_DEPLETED": "{{count}} producto(s) agotados.",
+      "STOCK_LOW": "{{count}} producto(s) por debajo de su nivel de reorden.",
+      "PERIOD_UNCLOSED": "El período {{period}} sigue abierto y su fecha de cierre ya pasó."
+    }
   },
   "DATABASE": {
     "INTENTO_ELIMINAR_ENTIDAD_NO_PERTENECE_ORGANIZACION": "Intento de eliminar una entidad que no pertenece a la organización.",
@@ -703,7 +710,16 @@
     "STOCK_INSUFICIENTE_PRODUCTO": "Stock insuficiente para el producto \"{{name}}\".",
     "CUENTAS_INVENTARIO_NO_CONFIGURADAS": "La organización no tiene configuradas las cuentas de inventario y de saldos iniciales; no se puede registrar la existencia inicial.",
     "CUENTAS_AJUSTE_NO_CONFIGURADAS": "La organización no tiene configuradas las cuentas de inventario y de ajustes de inventario; no se puede registrar el ajuste.",
-    "DIARIO_GENERAL_NO_ENCONTRADO": "No existe el diario General (GENERAL) en esta organización; créelo en Ajustes de contabilidad."
+    "DIARIO_GENERAL_NO_ENCONTRADO": "No existe el diario General (GENERAL) en esta organización; créelo en Ajustes de contabilidad.",
+    "CATEGORY_NOT_FOUND": "Categoría de producto con ID \"{{id}}\" no encontrada.",
+    "CATEGORY_NAME_REQUIRED": "La categoría necesita un nombre.",
+    "CATEGORY_NAME_TAKEN": "Ya existe una categoría llamada \"{{name}}\".",
+    "CATEGORY_HAS_CHILDREN": "No se puede eliminar: la categoría tiene {{count}} subcategoría(s). Muévelas o elimínalas primero.",
+    "CATEGORY_IN_USE": "No se puede eliminar: {{count}} producto(s) están clasificados en esta categoría. Reclasifícalos o retira la categoría en vez de borrarla.",
+    "CATEGORY_PARENT_IS_SELF": "Una categoría no puede ser su propia categoría superior.",
+    "CATEGORY_PARENT_IS_DESCENDANT": "No se puede mover una categoría dentro de una de sus propias subcategorías.",
+    "CATEGORY_TOO_DEEP": "El árbol de categorías no puede tener más de {{max}} niveles.",
+    "CATEGORY_INACTIVE": "La categoría \"{{name}}\" está retirada y no se puede asignar a un producto."
   },
   "INVOICE": {
     "PDF": {
@@ -1440,7 +1456,8 @@
       "MIN_LENGTH": "{{property}} debe tener al menos {{min}} caracteres.",
       "NESTED_VALIDATION": "{{property}} contiene datos que no son válidos.",
       "PERIOD_START_AFTER_END": "La fecha inicial no puede ser posterior a la fecha final.",
-      "WHITELIST_VALIDATION": "{{property}} no es un campo permitido."
+      "WHITELIST_VALIDATION": "{{property}} no es un campo permitido.",
+      "COUNTRY_CODE": "El código de país debe tener exactamente 2 letras (ISO 3166-1 alfa-2)."
     },
     "CREATE_JOURNAL_ENTRY": {
       "CAMPO_CREDITO_OBLIGATORIO": "El campo de crédito es obligatorio.",
@@ -1655,7 +1672,14 @@
       "ID_ANO_FISCAL_OBLIGATORIO": "El ID del año fiscal es obligatorio."
     },
     "YEAR_MUST_BE_INTEGER": "El año debe ser un número entero.",
-    "YEAR_OUT_OF_RANGE": "El año está fuera del rango permitido."
+    "YEAR_OUT_OF_RANGE": "El año está fuera del rango permitido.",
+    "PRODUCT_CATEGORY": {
+      "NAME_REQUIRED": "El nombre de la categoría es obligatorio.",
+      "PARENT_MUST_BE_UUID": "El identificador de la categoría debe ser un UUID válido."
+    },
+    "CREATE_EMPLOYEE": {
+      "TSS_NSS_FORMAT": "El NSS de la TSS debe tener entre 7 y 11 dígitos."
+    }
   },
   "WORKFLOWS": {
     "NO_ENCONTRO_POLITICA_APROBACION_ID_ASOCIADA_ESTA": "No se encontró la política de aprobación con ID \"{{policyId}}\" asociada a esta solicitud.",

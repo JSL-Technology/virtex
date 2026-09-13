@@ -6,6 +6,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
 import { InventoryPostingService } from './inventory-posting.service';
+import { ProductCategoriesService } from './product-categories.service';
 
 @Injectable()
 export class InventoryService {
@@ -18,6 +19,8 @@ export class InventoryService {
      * no entry in the books at all — see `InventoryPostingService`.
      */
     private readonly posting: InventoryPostingService,
+    /** The category on a product must be one of this tenant's, and one still being offered. */
+    private readonly categories: ProductCategoriesService,
   ) {}
 
   /**
@@ -31,6 +34,7 @@ export class InventoryService {
     organizationId: string,
     actorUserId: string | null = null,
   ): Promise<Product> {
+    await this.categories.assertUsable(createProductDto.categoryId, organizationId);
     return this.dataSource.transaction(async (manager) => {
       const product = await manager.save(
         manager.create(Product, { ...createProductDto, organizationId }),
@@ -43,6 +47,9 @@ export class InventoryService {
   findAll(organizationId: string): Promise<Product[]> {
     return this.productRepository.find({
       where: { organizationId },
+      // The category travels with the product: the register shows its name, and looking each one
+      // up separately would be one query per row.
+      relations: ['category'],
       order: { name: 'ASC' },
     });
   }
@@ -50,6 +57,7 @@ export class InventoryService {
   async findOne(id: string, organizationId: string): Promise<Product> {
     const product = await this.productRepository.findOne({
       where: { id, organizationId },
+      relations: ['category'],
     });
     if (!product) {
       throw new NotFoundError('INVENTORY.PRODUCTO_ID_NO_ENCONTRADO', { id });
@@ -70,6 +78,7 @@ export class InventoryService {
     organizationId: string,
     actorUserId: string | null = null,
   ): Promise<Product> {
+    await this.categories.assertUsable(updateProductDto.categoryId, organizationId);
     return this.dataSource.transaction(async (manager) => {
       const product = await manager.findOne(Product, { where: { id, organizationId } });
       if (!product) {

@@ -1,8 +1,46 @@
-@use '../../../../assets/styles/list-page' as list;
+@use '../../../../assets/styles/design-system' as ds;
 
 :host {
-  @include list.list-page;
+  display: block;
+  height: 100%;
+}
 
-  .action-buttons { display: inline-flex; gap: var(--space-1); }
-  .placeholder { margin: 0; max-width: 32rem; }
+.inline-editor {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+
+  input,
+  select {
+    @include ds.input-base;
+    min-width: 10rem;
+    flex: 1 1 10rem;
+  }
+}
+
+.inline-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--content-secondary);
+}
+
+.category-name {
+  display: inline-block;
+}
+
+//  Una categoría retirada sigue en la tabla —es historia de lo que se vendió bajo ella— pero se
+//  lee como lo que es: algo que ya no se ofrece.
+.is-inactive .category-name {
+  color: var(--content-tertiary);
+}
+
+.row-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-2);
 }

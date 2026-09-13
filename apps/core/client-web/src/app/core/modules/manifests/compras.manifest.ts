@@ -59,7 +59,8 @@ export const COMPRAS_MODULE: ModuleManifest = {
       kind: WindowKind.DOCUMENT,
       permission: 'accounts_payable:view',
       icon: 'FileText',
-      titleFn: (p, d) => `Factura de proveedor ${(d as { number?: string })?.number ?? p['id']}`,
+      //  Estático hasta que la página sepa el número; ver la nota en `ventas.manifest.ts`.
+      titleKey: 'PAGE_TITLES.VENDOR_BILL',
       entityKeyFn: (p) => `compras:bill:${p['id']}`,
       load: () => import('../../../features/accounts-payable/detail/detail.page').then((m) => m.VendorBillDetailPage),
     },

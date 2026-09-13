@@ -1,5 +1,6 @@
 
 import { Organization } from '../../organizations/entities/organization.entity';
+import { ProductCategory } from './product-category.entity';
 import {
   numericTransformer,
   numericTransformerNotNull,
@@ -50,6 +51,8 @@ export enum CostingMethod {
 @Entity({ name: 'products' })
 @Index(['organizationId', 'sku'], { unique: true, where: '"sku" IS NOT NULL' })
 @Index(['organizationId', 'name'], { unique: true })
+// Filing the register by category is the first thing anybody does with one.
+@Index('IDX_products_category_id', ['categoryId'])
 export class Product {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -63,8 +66,22 @@ export class Product {
   @Column({ type: 'text', nullable: true })
   description?: string;
 
-  @Column({ length: 100, nullable: true })
-  category?: string;
+  /**
+   * The tenant's own category, by reference.
+   *
+   * This was `category: string` — free text, fed by a `<select>` with three options written into
+   * the template (`Electrónica`, `Accesorios`, `Monitores`). Renaming a category was impossible,
+   * two spellings of the same category were two categories, and nothing could aggregate on it.
+   *
+   * Nullable because filing is not a precondition for selling: a product with no category is a
+   * product nobody has got round to filing, which is a normal state and not an error.
+   */
+  @Column({ name: 'category_id', type: 'uuid', nullable: true })
+  categoryId: string | null;
+
+  @ManyToOne(() => ProductCategory, { nullable: true, onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'category_id', foreignKeyConstraintName: 'FK_products_category' })
+  category: ProductCategory | null;
 
   @Column({
     type: 'decimal',

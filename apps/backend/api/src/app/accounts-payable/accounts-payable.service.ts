@@ -7,6 +7,8 @@ import { UpdateVendorBillDto } from './dto/update-vendor-bill.dto';
 import { PayVendorBillsDto } from './dto/pay-vendor-bills.dto';
 import { PaymentBatch, PaymentBatchStatus } from './entities/payment-batch.entity';
 import { JournalEntriesService } from '../journal-entries/journal-entries.service';
+import { Supplier } from '../suppliers/entities/supplier.entity';
+import { WithholdingResolverService } from '../invoices/services/withholding-resolver.service';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
 import { VendorPayment } from './entities/vendor-payment.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -136,6 +138,11 @@ export class AccountsPayableService {
      * account on the page instead of by somebody exporting both and subtracting.
      */
     private readonly balances: AccountBalancesService,
+    /**
+     * What is withheld from a supplier follows from who they are, not from what the request says.
+     * The same resolver the sales side uses, with payer and payee the other way round.
+     */
+    private readonly withholding: WithholdingResolverService,
   ) {}
 
   /**
@@ -198,6 +205,63 @@ export class AccountsPayableService {
       const exciseAmount = dto.exciseAmount ?? 0;
       const otherTaxes = dto.otherTaxes ?? 0;
       const serviceCharge = dto.serviceCharge ?? 0;
+
+      // ── What we withhold from this supplier ────────────────────────────────
+      //
+      // `taxWithheld` and `incomeTaxWithheld` used to be taken verbatim from the request: any
+      // amount at all, with nothing on the server able to check it. Withholding is not a
+      // commercial term — its rate follows from the payer's status, the payee's status and what is
+      // bought — so it is resolved here from the supplier's fiscal classification, exactly as the
+      // sales side resolves it from the customer's.
+      //
+      // A bill may still state its own figures; it then has to say why, and the reason is
+      // recorded. That is the escape hatch for a market this product does not model and for a
+      // designation that changed this morning.
+      const supplier = await manager.findOne(Supplier, {
+        where: { id: dto.vendorId, organizationId },
+        select: ['id', 'taxpayerType', 'country'],
+      });
+      if (!supplier) {
+        throw new NotFoundError('ACCOUNTS_PAYABLE.PROVEEDOR_NO_ENCONTRADO', { id: dto.vendorId });
+      }
+
+      const servicesAmount = dto.servicesAmount ?? subtotal;
+      const goodsAmount = dto.goodsAmount ?? 0;
+      // Services when the document contains any: every regime that distinguishes the two withholds
+      // on services and not on goods, so treating a mixed bill as goods under-withholds.
+      const scope: 'SERVICES' | 'GOODS' = servicesAmount > 0 ? 'SERVICES' : 'GOODS';
+
+      const resolved = await this.withholding.resolveForPurchase(
+        manager,
+        organizationId,
+        supplier,
+        scope,
+        {
+          // The request carries amounts; the regimes carry rates. The amounts are converted back
+          // to rates against the same bases the regimes are levied on, so the two are comparable.
+          taxWithholdingRate:
+            dto.taxWithheld === undefined
+              ? undefined
+              : taxAmount > 0
+                ? dto.taxWithheld / taxAmount
+                : 0,
+          incomeTaxWithholdingRate:
+            dto.incomeTaxWithheld === undefined
+              ? undefined
+              : subtotal > 0
+                ? dto.incomeTaxWithheld / subtotal
+                : 0,
+          withholdingOverrideReason: dto.withholdingOverrideReason,
+        },
+      );
+
+      // VAT withholding is a share of the tax on the document; income-tax withholding is a share
+      // of the taxable base, which for a purchase is what was actually bought.
+      const taxWithheld = roundAmount(taxAmount * resolved.taxWithholdingRate);
+      const incomeTaxWithheld = roundAmount(
+        (scope === 'SERVICES' ? servicesAmount : goodsAmount || subtotal) *
+          resolved.incomeTaxWithholdingRate,
+      );
       const expectedTotal = roundAmount(
         subtotal + taxAmount + exciseAmount + otherTaxes + serviceCharge,
       );
@@ -229,11 +293,13 @@ export class AccountsPayableService {
         currencyCode,
         exchangeRate: rate,
         totalInBaseCurrency,
-        goodsAmount: dto.goodsAmount ?? 0,
-        servicesAmount: dto.servicesAmount ?? subtotal,
+        goodsAmount,
+        servicesAmount,
         taxAmount,
-        taxWithheld: dto.taxWithheld ?? 0,
-        incomeTaxWithheld: dto.incomeTaxWithheld ?? 0,
+        taxWithheld,
+        incomeTaxWithheld,
+        withholdingRegimeCodes: resolved.regimeCodes,
+        withholdingOverrideReason: resolved.override?.reason ?? null,
         taxToCost: dto.taxToCost ?? 0,
         taxProportional: dto.taxProportional ?? 0,
         exciseAmount,

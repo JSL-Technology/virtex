@@ -103,7 +103,8 @@ export const DATASHEETS_MODULE: ModuleManifest = {
       kind: WindowKind.CANVAS,
       permission: 'datasheets:view',
       icon: 'Table2',
-      titleFn: (p, d) => (d as { name?: string })?.name ?? `Hoja ${p['id']}`,
+      //  El nombre de la hoja lo pone el editor al abrirla; ver la nota en `ventas.manifest.ts`.
+      titleKey: 'PAGE_TITLES.DATASHEET',
       entityKeyFn: (p) => `analisis:datasheet:${p['id']}`,
       load: () => import('../../../features/datasheets/pages/datasheet-editor/datasheet-editor.page').then((m) => m.DatasheetEditorPage),
     },

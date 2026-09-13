@@ -9,6 +9,7 @@ import { ChartOfAccountsApiService } from '../../../../core/api/chart-of-account
 import { CurrenciesService } from '../../../../core/api/currencies.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { Account } from '../../../../core/models/account.model';
+import { bankLedgerAccounts } from '../../../../core/services/account-selection';
 
 /**
  * Registering a bank account.
@@ -96,8 +97,11 @@ export class BankAccountFormPage implements OnInit {
       }
     });
 
+    // Money accounts only. `isPostable` alone offered every postable account in the chart, so a
+    // bank account could be mapped onto Accounts Receivable — after which every deposit would have
+    // debited what customers owe us.
     this.accounts.getAccounts().subscribe({
-      next: (all) => this.postableAccounts.set(all.filter((account) => account.isPostable)),
+      next: (all) => this.postableAccounts.set(bankLedgerAccounts(all)),
       error: () => this.postableAccounts.set([]),
     });
     this.currencies.getCurrencies().subscribe({

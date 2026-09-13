@@ -235,7 +235,8 @@
       "STATUS_PENDING_APPROVAL": "Pendiente de aprobación",
       "STATUS_POSTED": "Contabilizado",
       "STATUS_REJECTED": "Rechazado",
-      "STATUS_VOID": "Anulado"
+      "STATUS_VOID": "Anulado",
+      "UNNUMBERED": "Sin numerar"
     },
     "JOURNAL_ENTRY_FORM": {
       "ACCOUNT_COLUMN": "Cuenta",
@@ -259,7 +260,13 @@
       "TITLE": "Nuevo Asiento Contable",
       "TOTALS": "Totales",
       "UNBALANCED_ERROR": "Los débitos y los créditos deben estar balanceados.",
-      "ZERO_AMOUNT_ERROR": "El monto total no puede ser cero."
+      "ZERO_AMOUNT_ERROR": "El monto total no puede ser cero.",
+      "MODIFICATION_EXPLAINER": "Modificar un asiento contabilizado no lo reescribe: el sistema lo reversa y contabiliza uno nuevo que lo cita. El original permanece en el libro.",
+      "MODIFICATION_REASON_LABEL": "Razón de la modificación*",
+      "MODIFICATION_REASON_PLACEHOLDER": "Por qué deja de ser correcto el asiento original",
+      "ONLY_POSTED_CAN_BE_MODIFIED": "Solo se puede modificar un asiento contabilizado. Este todavía no lo está.",
+      "ENTRY_NOT_FOUND": "No se pudo cargar el asiento.",
+      "ASIENTO_CONTABLE_MODIFICADO_EXITO": "Asiento modificado: se reversó el original y se contabilizó el nuevo."
     },
     "JOURNAL_FORM": {
       "BANK": "Banco",
@@ -1511,6 +1518,10 @@
     "DELETE_PAYROLL_CONCEPT": {
       "MESSAGE": "¿Eliminar el concepto «{{name}}»?",
       "TITLE": "Eliminar concepto"
+    },
+    "DELETE_PRODUCT_CATEGORY": {
+      "TITLE": "Eliminar categoría",
+      "MESSAGE": "¿Eliminar la categoría «{{name}}»? Solo es posible si no tiene subcategorías ni productos."
     }
   },
   "DOCUMENTS": {
@@ -1622,7 +1633,8 @@
     "UNEXPECTED": "Ocurrió un error. Inténtalo de nuevo.",
     "UPDATE_SSO_PROVIDER": "No se pudo actualizar el proveedor.",
     "UPDATE_USER": "No se pudo actualizar el usuario.",
-    "VERIFY_DOMAIN": "Todavía no se pudo verificar el dominio."
+    "VERIFY_DOMAIN": "Todavía no se pudo verificar el dominio.",
+    "UPDATE_JOURNAL_ENTRY": "No se pudo modificar el asiento contable."
   },
   "FEEDBACK": {
     "COMING_SOON": "Esta función estará disponible próximamente",
@@ -1705,7 +1717,19 @@
       "AQUI_MOSTRARA_LISTA_GESTION_CATEGORIAS": "Aquí se mostrará la lista y gestión de categorías.",
       "CATEGORIAS": "Categorías",
       "NUEVA_CATEGORIA": "Nueva\n                    Categoría",
-      "ORGANIZA_TUS_PRODUCTOS_DIFERENTES_CATEGORIAS": "Organiza tus productos en diferentes categorías."
+      "ORGANIZA_TUS_PRODUCTOS_DIFERENTES_CATEGORIAS": "Organiza tus productos en diferentes categorías.",
+      "NAME": "Nombre",
+      "CODE": "Código",
+      "PARENT": "Categoría superior",
+      "NO_PARENT": "Sin categoría superior",
+      "STATUS": "Estado",
+      "ACTIVE": "Activa",
+      "INACTIVE": "Retirada",
+      "ACTIVATE": "Reactivar",
+      "DEACTIVATE": "Retirar",
+      "SHOW_INACTIVE": "Mostrar retiradas",
+      "EMPTY": "Todavía no hay categorías. Crea la primera para empezar a organizar el catálogo.",
+      "SAVE_FAILED": "No se pudo guardar la categoría."
     },
     "PRODUCTS": {
       "BUSCAR_NOMBRE_SKU_CATEGORIA": "Buscar por nombre, SKU o categoría...",
@@ -1731,14 +1755,12 @@
       "LOAD_FAILED": "No se pudieron cargar los productos. Inténtalo de nuevo."
     },
     "PRODUCT_FORM": {
-      "ACCESORIOS": "Accesorios",
       "ACTIVO": "Activo",
       "CANCELAR": "Cancelar",
       "CANTIDAD_STOCK": "Cantidad en Stock*",
       "CATEGORIA": "Categoría*",
       "COMPLETA_INFORMACION_DETALLADA_TU_PRODUCTO_SERVICIO": "Completa la información detallada de tu producto o servicio.",
       "DESCRIPCION": "Descripción",
-      "ELECTRONICA": "Electrónica",
       "ERROR_ACTUALIZAR_PRODUCTO": "Error al actualizar el producto.",
       "ERROR_CREAR_PRODUCTO": "Error al crear el producto.",
       "ESTADO": "Estado*",
@@ -1746,7 +1768,6 @@
       "IMAGEN_PRODUCTO": "Imagen del Producto",
       "INACTIVO": "Inactivo",
       "INFORMACION_BASICA": "Información Básica",
-      "MONITORES": "Monitores",
       "NIVEL_REORDEN": "Nivel de Reorden",
       "NOMBRE_PRODUCTO": "Nombre del Producto*",
       "ORGANIZACION": "Organización",
@@ -1763,7 +1784,9 @@
       "TITLE_EDIT": "Editar producto",
       "GUARDAR_PRODUCTO": "Guardar producto",
       "COSTO_UNITARIO": "Costo Unitario",
-      "COSTO_UNITARIO_AYUDA": "Lo que te costó el artículo. Determina el costo de venta y la valoración del inventario."
+      "COSTO_UNITARIO_AYUDA": "Lo que te costó el artículo. Determina el costo de venta y la valoración del inventario.",
+      "SIN_CATEGORIA": "Sin categoría",
+      "SIN_CATEGORIAS_AUN": "Todavía no hay categorías. Créalas en Inventario → Categorías."
     }
   },
   "INVOICES": {
@@ -2298,7 +2321,11 @@
       "PUDO_CARGAR_PROVEEDOR": "No se pudo cargar el proveedor.",
       "TELEFONO": "Teléfono",
       "TITLE_NEW": "Nuevo proveedor",
-      "TITLE_EDIT": "Editar proveedor"
+      "TITLE_EDIT": "Editar proveedor",
+      "PAIS": "País",
+      "PAIS_PLACEHOLDER": "DO",
+      "PAIS_AYUDA": "Código ISO de dos letras. Separa una compra local de un pago al exterior, que el 609 reporta aparte.",
+      "TIPO_CONTRIBUYENTE_AYUDA": "Determina qué se le retiene al pagarle. Si no lo sabes, déjalo sin clasificar: no se retendrá nada automáticamente."
     },
     "SUPPLIER_LIST": {
       "COMPANY_NAME": "Razón social",
@@ -2651,7 +2678,10 @@
     "PAYROLL_CONCEPTS": "Conceptos de nómina",
     "PAYROLL_PARAMETERS": "Parámetros de ley",
     "PAYROLL_RUN": "Nómina",
-    "PAYROLL_RUNS": "Nóminas"
+    "PAYROLL_RUNS": "Nóminas",
+    "INVOICE": "Factura",
+    "VENDOR_BILL": "Factura de proveedor",
+    "DATASHEET": "Hoja de datos"
   },
   "PASSWORD_STRENGTH": {
     "WEAK": "Débil"

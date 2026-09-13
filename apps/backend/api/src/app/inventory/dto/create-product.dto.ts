@@ -1,5 +1,14 @@
 
-import { IsString, IsNotEmpty, IsNumber, Min, IsOptional, IsEnum, MaxLength } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsNumber,
+  Min,
+  IsOptional,
+  IsEnum,
+  IsUUID,
+  MaxLength,
+} from 'class-validator';
 import { ProductStatus } from '../entities/product.entity';
 
 export class CreateProductDto {
@@ -17,10 +26,16 @@ export class CreateProductDto {
   @IsOptional()
   description?: string;
   
-  @IsString()
+  /**
+   * The tenant's category, by id.
+   *
+   * Was a free-text `category`, which is why the same catalogue could hold `Electrónica` and
+   * `Electronics` as two different things. `null` files the product under nothing, which is a
+   * normal state.
+   */
+  @IsUUID('4', { message: 'VALIDATION.PRODUCT_CATEGORY.PARENT_MUST_BE_UUID' })
   @IsOptional()
-  @MaxLength(100, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":100}' })
-  category?: string;
+  categoryId?: string | null;
 
   @IsNumber()
   @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })

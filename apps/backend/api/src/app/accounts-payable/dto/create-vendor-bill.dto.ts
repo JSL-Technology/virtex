@@ -9,6 +9,7 @@ import {
   IsString,
   IsUUID,
   Length,
+  MaxLength,
   Min,
   ValidateNested,
 } from 'class-validator';
@@ -111,6 +112,19 @@ export class CreateVendorBillDto {
   @Min(0)
   @IsOptional()
   incomeTaxWithheld?: number;
+
+  /**
+   * Why this bill withholds something other than what the supplier's regime produces.
+   *
+   * Both withholdings above are now resolved on the server from the supplier's fiscal
+   * classification. Stating different figures is allowed — a market this product does not model, a
+   * designation that changed this morning — but not silently: without a reason the bill is
+   * refused, and with one the reason is recorded on the document.
+   */
+  @IsString()
+  @IsOptional()
+  @MaxLength(500, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":500}' })
+  withholdingOverrideReason?: string;
 
   /** Consumption tax that cannot be deducted and is carried to cost. */
   @IsNumber({ maxDecimalPlaces: 2 })

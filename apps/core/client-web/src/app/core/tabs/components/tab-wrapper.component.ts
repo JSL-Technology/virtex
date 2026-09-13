@@ -228,6 +228,7 @@ export class TabWrapperComponent implements AfterViewInit, OnDestroy {
         params: tab.routeParams ?? {},
         query: tab.queryParams ?? {},
         // Acciones ligadas a ESTA pestaña: la página no necesita el `tabId` ni el store.
+        setTitle: (title: string) => this.tabState.updateTitle(tabId, title),
         markDirty: (isDirty = true) => this.tabState.markDirty(tabId, isDirty),
         markClean: () => this.tabState.markClean(tabId),
         registerSaveHandler: (handler) => this.tabState.registerSaveHandler(tabId, handler),

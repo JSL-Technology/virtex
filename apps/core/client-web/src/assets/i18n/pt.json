@@ -235,7 +235,8 @@
       "STATUS_PENDING_APPROVAL": "Aguardando aprovação",
       "STATUS_POSTED": "Contabilizado",
       "STATUS_REJECTED": "Rejeitado",
-      "STATUS_VOID": "Cancelado"
+      "STATUS_VOID": "Cancelado",
+      "UNNUMBERED": "Sem numeração"
     },
     "JOURNAL_ENTRY_FORM": {
       "ACCOUNT_COLUMN": "Conta",
@@ -259,7 +260,13 @@
       "TITLE": "Novo Lançamento Contábil",
       "TOTALS": "Totais",
       "UNBALANCED_ERROR": "Os débitos e os créditos devem estar balanceados.",
-      "ZERO_AMOUNT_ERROR": "O valor total não pode ser zero."
+      "ZERO_AMOUNT_ERROR": "O valor total não pode ser zero.",
+      "MODIFICATION_EXPLAINER": "Modificar um lançamento contabilizado não o reescreve: o sistema estorna-o e contabiliza um novo que o cita. O original permanece no livro.",
+      "MODIFICATION_REASON_LABEL": "Motivo da alteração*",
+      "MODIFICATION_REASON_PLACEHOLDER": "Porque deixou de estar correto o lançamento original",
+      "ONLY_POSTED_CAN_BE_MODIFIED": "Só é possível modificar um lançamento contabilizado. Este ainda não está.",
+      "ENTRY_NOT_FOUND": "Não foi possível carregar o lançamento.",
+      "ASIENTO_CONTABLE_MODIFICADO_EXITO": "Lançamento modificado: o original foi estornado e o novo contabilizado."
     },
     "JOURNAL_FORM": {
       "BANK": "Banco",
@@ -1511,6 +1518,10 @@
     "DELETE_PAYROLL_CONCEPT": {
       "MESSAGE": "Eliminar o conceito «{{name}}»?",
       "TITLE": "Eliminar conceito"
+    },
+    "DELETE_PRODUCT_CATEGORY": {
+      "TITLE": "Eliminar categoria",
+      "MESSAGE": "Eliminar a categoria «{{name}}»? Só é possível se não tiver subcategorias nem produtos."
     }
   },
   "DOCUMENTS": {
@@ -1622,7 +1633,8 @@
     "UNEXPECTED": "Ocorreu um erro. Tente novamente.",
     "UPDATE_SSO_PROVIDER": "Não foi possível atualizar o provedor.",
     "UPDATE_USER": "Não foi possível atualizar o usuário.",
-    "VERIFY_DOMAIN": "Ainda não foi possível verificar o domínio."
+    "VERIFY_DOMAIN": "Ainda não foi possível verificar o domínio.",
+    "UPDATE_JOURNAL_ENTRY": "Não foi possível modificar o lançamento contabilístico."
   },
   "FEEDBACK": {
     "COMING_SOON": "Este recurso estará disponível em breve",
@@ -1705,7 +1717,19 @@
       "AQUI_MOSTRARA_LISTA_GESTION_CATEGORIAS": "A lista e a gestão de categorias aparecerão aqui.",
       "CATEGORIAS": "Categorias",
       "NUEVA_CATEGORIA": "Nova\n                    Categoria",
-      "ORGANIZA_TUS_PRODUCTOS_DIFERENTES_CATEGORIAS": "Organize seus produtos em categorias."
+      "ORGANIZA_TUS_PRODUCTOS_DIFERENTES_CATEGORIAS": "Organize seus produtos em categorias.",
+      "NAME": "Nome",
+      "CODE": "Código",
+      "PARENT": "Categoria superior",
+      "NO_PARENT": "Sem categoria superior",
+      "STATUS": "Estado",
+      "ACTIVE": "Ativa",
+      "INACTIVE": "Retirada",
+      "ACTIVATE": "Reativar",
+      "DEACTIVATE": "Retirar",
+      "SHOW_INACTIVE": "Mostrar retiradas",
+      "EMPTY": "Ainda não há categorias. Crie a primeira para começar a organizar o catálogo.",
+      "SAVE_FAILED": "Não foi possível guardar a categoria."
     },
     "PRODUCTS": {
       "BUSCAR_NOMBRE_SKU_CATEGORIA": "Buscar por nome, SKU ou categoria...",
@@ -1731,14 +1755,12 @@
       "LOAD_FAILED": "Não foi possível carregar os produtos. Tente novamente."
     },
     "PRODUCT_FORM": {
-      "ACCESORIOS": "Acessórios",
       "ACTIVO": "Ativo",
       "CANCELAR": "Cancelar",
       "CANTIDAD_STOCK": "Quantidade em Estoque*",
       "CATEGORIA": "Categoria*",
       "COMPLETA_INFORMACION_DETALLADA_TU_PRODUCTO_SERVICIO": "Preencha os dados do seu produto ou serviço.",
       "DESCRIPCION": "Descrição",
-      "ELECTRONICA": "Eletrônicos",
       "ERROR_ACTUALIZAR_PRODUCTO": "Erro ao atualizar o produto.",
       "ERROR_CREAR_PRODUCTO": "Erro ao criar o produto.",
       "ESTADO": "Situação*",
@@ -1746,7 +1768,6 @@
       "IMAGEN_PRODUCTO": "Imagem do Produto",
       "INACTIVO": "Inativo",
       "INFORMACION_BASICA": "Informações Básicas",
-      "MONITORES": "Monitores",
       "NIVEL_REORDEN": "Ponto de Reposição",
       "NOMBRE_PRODUCTO": "Nome do Produto*",
       "ORGANIZACION": "Organização",
@@ -1763,7 +1784,9 @@
       "TITLE_EDIT": "Editar produto",
       "GUARDAR_PRODUCTO": "Salvar produto",
       "COSTO_UNITARIO": "Custo Unitário",
-      "COSTO_UNITARIO_AYUDA": "Quanto o artigo lhe custou. Determina o custo da venda e a valorização do inventário."
+      "COSTO_UNITARIO_AYUDA": "Quanto o artigo lhe custou. Determina o custo da venda e a valorização do inventário.",
+      "SIN_CATEGORIA": "Sem categoria",
+      "SIN_CATEGORIAS_AUN": "Ainda não há categorias. Crie-as em Inventário → Categorias."
     }
   },
   "INVOICES": {
@@ -2298,7 +2321,11 @@
       "PUDO_CARGAR_PROVEEDOR": "Não foi possível carregar o fornecedor.",
       "TELEFONO": "Telefone",
       "TITLE_NEW": "Novo fornecedor",
-      "TITLE_EDIT": "Editar fornecedor"
+      "TITLE_EDIT": "Editar fornecedor",
+      "PAIS": "País",
+      "PAIS_PLACEHOLDER": "DO",
+      "PAIS_AYUDA": "Código ISO de duas letras. Separa uma compra local de um pagamento ao exterior, que o 609 reporta à parte.",
+      "TIPO_CONTRIBUYENTE_AYUDA": "Determina o que lhe é retido ao pagar. Se não souber, deixe sem classificar: nada será retido automaticamente."
     },
     "SUPPLIER_LIST": {
       "COMPANY_NAME": "Razão social",
@@ -2651,7 +2678,10 @@
     "PAYROLL_RUN": "Folha de pagamento",
     "PAYROLL_RUNS": "Folhas de pagamento",
     "EXTENSIONS": "Extensões",
-    "EXTENSIONS_RUNTIME": "Execução de extensões"
+    "EXTENSIONS_RUNTIME": "Execução de extensões",
+    "INVOICE": "Fatura",
+    "VENDOR_BILL": "Fatura de fornecedor",
+    "DATASHEET": "Folha de dados"
   },
   "PASSWORD_STRENGTH": {
     "WEAK": "Fraca"

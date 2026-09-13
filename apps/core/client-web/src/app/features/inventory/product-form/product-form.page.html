@@ -96,13 +96,20 @@
           <h2 class="form-section-title">{{ 'INVENTORY.PRODUCT_FORM.ORGANIZACION' | translate }}</h2>
 
           <div class="form-field">
-            <label for="category">{{ 'INVENTORY.PRODUCT_FORM.CATEGORIA' | translate }}</label>
-            <select id="category" formControlName="category">
-              <option value="" disabled>{{ 'INVENTORY.PRODUCT_FORM.SELECCIONAR' | translate }}</option>
-              <option value="Electrónica">{{ 'INVENTORY.PRODUCT_FORM.ELECTRONICA' | translate }}</option>
-              <option value="Accesorios">{{ 'INVENTORY.PRODUCT_FORM.ACCESORIOS' | translate }}</option>
-              <option value="Monitores">{{ 'INVENTORY.PRODUCT_FORM.MONITORES' | translate }}</option>
+            <label for="categoryId">{{ 'INVENTORY.PRODUCT_FORM.CATEGORIA' | translate }}</label>
+            <!--
+              The tenant's own categories. This was three options written into this template —
+              Electrónica, Accesorios, Monitores — offered to every tenant in every market.
+            -->
+            <select id="categoryId" formControlName="categoryId">
+              <option [ngValue]="null">{{ 'INVENTORY.PRODUCT_FORM.SIN_CATEGORIA' | translate }}</option>
+              @for (category of categories(); track category.id) {
+                <option [ngValue]="category.id">{{ category.name }}</option>
+              }
             </select>
+            @if (categories().length === 0) {
+              <p class="field-hint">{{ 'INVENTORY.PRODUCT_FORM.SIN_CATEGORIAS_AUN' | translate }}</p>
+            }
           </div>
 
           <div class="form-field">

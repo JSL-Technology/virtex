@@ -72,7 +72,7 @@ export class CreateEmployeeDto {
 
   @IsString()
   @IsOptional()
-  @Matches(/^\d{7,11}$/, { message: 'tssNss must be 7–11 digits (NSS)' })
+  @Matches(/^\d{7,11}$/, { message: 'VALIDATION.CREATE_EMPLOYEE.TSS_NSS_FORMAT' })
   tssNss?: string;
 
   @IsString()

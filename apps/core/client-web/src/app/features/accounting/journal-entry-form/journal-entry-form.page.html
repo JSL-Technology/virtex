@@ -45,6 +45,34 @@
       </div>
     </div>
 
+      @if (isEditMode()) {
+        <!--
+          Modificar es reversar y reponer. Decirlo aquí, antes de escribir, es lo que evita que
+          alguien crea que está corrigiendo una cifra en el sitio: el asiento original se queda,
+          reversado, y el nuevo lo cita.
+        -->
+        <p class="entry-note">
+          {{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.MODIFICATION_EXPLAINER' | translate }}
+        </p>
+
+        @if (editBlockedKey(); as blocked) {
+          <p class="entry-alert" role="alert">{{ blocked | translate }}</p>
+        }
+
+        <div class="form-field description-field">
+          <label for="modificationReason">
+            {{ 'ACCOUNTING.JOURNAL_ENTRY_FORM.MODIFICATION_REASON_LABEL' | translate }}
+          </label>
+          <input
+            type="text"
+            id="modificationReason"
+            maxlength="500"
+            formControlName="modificationReason"
+            [placeholder]="'ACCOUNTING.JOURNAL_ENTRY_FORM.MODIFICATION_REASON_PLACEHOLDER' | translate"
+          />
+        </div>
+      }
+
     </section>
 
     <section class="form-section lines-container" formArrayName="lines">

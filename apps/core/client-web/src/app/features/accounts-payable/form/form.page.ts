@@ -30,6 +30,7 @@ import {
 import { NotificationService } from '../../../core/services/notification';
 import { SuppliersService } from '../../../core/api/suppliers.service';
 import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.service';
+import { chargeableExpenseAccounts } from '../../../core/services/account-selection';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 import { toIsoDate } from '../../reports/financial-statements/report-period';
@@ -222,14 +223,17 @@ export class VendorBillFormPage implements OnInit {
       error: () => this.supplierOptions.set([]),
     });
 
-    // Only postable expense and asset accounts: a bill line cannot be charged to a header account
-    // or to one blocked for posting, and the server refuses both — better to not offer them.
+    // Only accounts a purchase may actually be charged to.
+    //
+    // Postable and unblocked was not enough: Cash and Accounts Receivable are postable asset
+    // accounts, so the list invited the operator to charge a supplier invoice to the till or to
+    // what customers owe us. `chargeableExpenseAccounts` reads the same `systemRole` the automatic
+    // postings resolve against, so the picker and the ledger cannot disagree about which accounts
+    // belong to a sub-ledger.
     this.accounts.getAccounts().subscribe({
       next: (list) =>
         this.expenseAccounts.set(
-          (list ?? [])
-            .filter((account) => account.isPostable && !account.isBlockedForPosting)
-            .filter((account) => account.type === 'EXPENSE' || account.type === 'ASSET')
+          chargeableExpenseAccounts(list ?? [])
             .map((account) => ({
               id: account.id,
               code: account.code,

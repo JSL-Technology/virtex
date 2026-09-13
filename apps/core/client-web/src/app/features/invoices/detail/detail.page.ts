@@ -2,6 +2,12 @@ import { Component, ChangeDetectionStrategy, Input, signal, inject, OnInit, effe
 import { CommonModule, Location } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { DialogService } from '../../../core/services/dialog.service';
+import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
+import {
+  invoiceStatusClass,
+  invoiceStatusKey,
+  invoiceStatusTone,
+} from '../../../core/services/invoice-status';
 import { FormsModule } from '@angular/forms';
 // Se importa ActivatedRoute para acceder a los parámetros de la URL.
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
@@ -44,6 +50,11 @@ export class InvoiceDetailPage implements OnInit {
   private router = inject(Router);
   private location = inject(Location);
   private readonly auth = inject(AuthService);
+  /**
+   * Optional: this page is also reachable through the router outlet, where there is no tab to
+   * rename. `optional: true` is what lets one component serve both mounts.
+   */
+  private readonly tab = inject(TAB_CONTEXT, { optional: true });
 
   /**
    * The issuer shown on the printed preview: the signed-in tenant, not a constant.
@@ -57,28 +68,21 @@ export class InvoiceDetailPage implements OnInit {
   readonly issuer = computed(() => this.auth.currentUser()?.organization ?? null);
 
   /**
-   * The stored status becomes a catalogue key.
+   * The status, as a catalogue key, a badge class and a tone.
    *
    * `InvoiceStatus` is a set of English stored values — `'Partially Paid'`, `'Credit Note'` — and
-   * the badge printed them straight through, so a Spanish screen said "Partially Paid" and the
-   * CSS class was built by lowercasing and replacing spaces in the same string. Both now go
-   * through a lookup, which also means a status the client has not been taught about is visible
-   * rather than silently styled as something else.
+   * the badge printed them straight through, so a Spanish screen said "Partially Paid" and the CSS
+   * class was built by lowercasing and replacing spaces in the same string. The three maps this
+   * page kept now live in `core/services/invoice-status`, shared with the register and the
+   * dashboard, because three copies of one table is three chances for them to disagree — and they
+   * already had.
    */
   statusKey(status: InvoiceStatus): string {
-    const keys: Record<InvoiceStatus, string> = {
-      Draft: 'INVOICES.STATUS.DRAFT',
-      Pending: 'INVOICES.STATUS.PENDING',
-      Paid: 'INVOICES.STATUS.PAID',
-      'Partially Paid': 'INVOICES.STATUS.PARTIALLY_PAID',
-      Void: 'INVOICES.STATUS.VOID',
-      'Credit Note': 'INVOICES.STATUS.CREDIT_NOTE',
-    };
-    return keys[status] ?? status;
+    return invoiceStatusKey(status);
   }
 
   statusClass(status: InvoiceStatus): string {
-    return status.toLowerCase().replace(/\s+/g, '-');
+    return invoiceStatusClass(status);
   }
 
   /**
@@ -89,15 +93,7 @@ export class InvoiceDetailPage implements OnInit {
    * — hasta ahora estaba dentro de la pestaña «Finanzas», a dos clics de la pregunta.
    */
   statusTone(status: InvoiceStatus): DocumentTone {
-    const tones: Record<InvoiceStatus, DocumentTone> = {
-      Draft: 'draft',
-      Pending: 'warning',
-      Paid: 'ok',
-      'Partially Paid': 'warning',
-      Void: 'danger',
-      'Credit Note': 'neutral',
-    };
-    return tones[status] ?? 'neutral';
+    return invoiceStatusTone(status);
   }
 
   /** Nombre del documento, ya compuesto: es lo que el armazón pone junto al estado. */
@@ -174,6 +170,9 @@ export class InvoiceDetailPage implements OnInit {
     this.invoicesService.getInvoiceById(this.id()).subscribe({
         next: (data) => {
             this.invoice.set(data);
+            //  La pestaña se abrió con el UUID en la URL y el título estático del manifiesto;
+            //  ahora que se sabe el número del documento, se llama por su nombre.
+            this.tab?.setTitle(this.documentTitle(data));
             this.ecf.set(null);
             // Electronic e-NCF (E-series) documents carry a DGII e-CF lifecycle.
             if (data.ncfNumber?.startsWith('E')) {

@@ -142,7 +142,9 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       kind: WindowKind.LIST,
       permission: 'accounting:view',
       icon: 'Library',
-      titleFn: (p) => `Mayor · ${p['accountId']}`,
+      //  El código y el nombre de la cuenta los pone la propia página al cargarla; aquí solo
+      //  había un UUID y la palabra «Mayor» en castellano fijo.
+      titleKey: 'PAGE_TITLES.GENERAL_LEDGER',
       entityKeyFn: (p) => `contabilidad:gl:${p['accountId']}`,
       load: () => import('../../../features/accounting/general-ledger/general-ledger.page').then((m) => m.GeneralLedgerPage),
     },

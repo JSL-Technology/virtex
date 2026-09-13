@@ -113,7 +113,8 @@
     "SOLO_FACTURAS_ESTADO_BORRADOR_PUEDEN_SER_ENVIADAS": "Only draft invoices can be submitted for approval.",
     "SOLO_PUEDEN_APLICAR_NOTAS_DEBITO_FACTURAS_ABIERTAS": "Debit notes can only be applied to open or partially paid invoices.",
     "SOLO_PUEDEN_EDITAR_FACTURAS_ESTADO_BORRADOR": "Only invoices in draft can be edited.",
-    "TOTAL_NO_COINCIDE_CON_LINEAS": "The submitted total ({{received}}) does not match the one computed from the lines and taxes ({{expected}})."
+    "TOTAL_NO_COINCIDE_CON_LINEAS": "The submitted total ({{received}}) does not match the one computed from the lines and taxes ({{expected}}).",
+    "PROVEEDOR_NO_ENCONTRADO": "Supplier with ID \"{{id}}\" not found."
   },
   "ANALYTICAL_REPORTING": {
     "NOMBRE_DIMENSION_CAMPO_CONTIENE_CARACTERES_NO_VALIDOS": "The dimension or field name contains invalid characters: {{name}}",
@@ -439,7 +440,13 @@
   },
   "DASHBOARD": {
     "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "No default ledger has been configured for the organization.",
-    "ORGANIZACION_MATRIZ_NO_ENCONTRADA": "The parent organization was not found."
+    "ORGANIZACION_MATRIZ_NO_ENCONTRADA": "The parent organization was not found.",
+    "ALERTS": {
+      "RECEIVABLES_OVERDUE": "{{count}} overdue invoice(s) worth {{amount}} still unpaid.",
+      "STOCK_DEPLETED": "{{count}} product(s) out of stock.",
+      "STOCK_LOW": "{{count}} product(s) below their reorder level.",
+      "PERIOD_UNCLOSED": "Period {{period}} is still open and its closing date has passed."
+    }
   },
   "DATABASE": {
     "INTENTO_ELIMINAR_ENTIDAD_NO_PERTENECE_ORGANIZACION": "An attempt was made to delete a record that does not belong to the organization.",
@@ -703,7 +710,16 @@
     "STOCK_INSUFICIENTE_PRODUCTO": "Not enough stock for the product \"{{name}}\".",
     "CUENTAS_INVENTARIO_NO_CONFIGURADAS": "This organization has no inventory and opening-balance accounts configured, so the opening stock cannot be recorded.",
     "CUENTAS_AJUSTE_NO_CONFIGURADAS": "This organization has no inventory and inventory-adjustment accounts configured, so the adjustment cannot be recorded.",
-    "DIARIO_GENERAL_NO_ENCONTRADO": "There is no General (GENERAL) journal in this organization; create it in accounting settings."
+    "DIARIO_GENERAL_NO_ENCONTRADO": "There is no General (GENERAL) journal in this organization; create it in accounting settings.",
+    "CATEGORY_NOT_FOUND": "Product category with ID \"{{id}}\" not found.",
+    "CATEGORY_NAME_REQUIRED": "The category needs a name.",
+    "CATEGORY_NAME_TAKEN": "A category called \"{{name}}\" already exists.",
+    "CATEGORY_HAS_CHILDREN": "Cannot delete: the category has {{count}} subcategory(ies). Move or delete them first.",
+    "CATEGORY_IN_USE": "Cannot delete: {{count}} product(s) are filed under this category. Reclassify them, or retire the category instead of deleting it.",
+    "CATEGORY_PARENT_IS_SELF": "A category cannot be its own parent.",
+    "CATEGORY_PARENT_IS_DESCENDANT": "A category cannot be moved inside one of its own subcategories.",
+    "CATEGORY_TOO_DEEP": "The category tree cannot be more than {{max}} levels deep.",
+    "CATEGORY_INACTIVE": "The category \"{{name}}\" is retired and cannot be assigned to a product."
   },
   "INVOICE": {
     "PDF": {
@@ -1440,7 +1456,8 @@
       "MIN_LENGTH": "{{property}} must be at least {{min}} characters long.",
       "NESTED_VALIDATION": "{{property}} contains data that is not valid.",
       "PERIOD_START_AFTER_END": "The start date cannot be later than the end date.",
-      "WHITELIST_VALIDATION": "{{property}} is not an allowed field."
+      "WHITELIST_VALIDATION": "{{property}} is not an allowed field.",
+      "COUNTRY_CODE": "The country code must be exactly 2 letters (ISO 3166-1 alpha-2)."
     },
     "CREATE_JOURNAL_ENTRY": {
       "CAMPO_CREDITO_OBLIGATORIO": "The credit field is required.",
@@ -1655,7 +1672,14 @@
       "ID_ANO_FISCAL_OBLIGATORIO": "The fiscal year ID is required."
     },
     "YEAR_MUST_BE_INTEGER": "The year must be a whole number.",
-    "YEAR_OUT_OF_RANGE": "The year is outside the allowed range."
+    "YEAR_OUT_OF_RANGE": "The year is outside the allowed range.",
+    "PRODUCT_CATEGORY": {
+      "NAME_REQUIRED": "The category name is required.",
+      "PARENT_MUST_BE_UUID": "The category identifier must be a valid UUID."
+    },
+    "CREATE_EMPLOYEE": {
+      "TSS_NSS_FORMAT": "The TSS social-security number (NSS) must be 7 to 11 digits."
+    }
   },
   "WORKFLOWS": {
     "NO_ENCONTRO_POLITICA_APROBACION_ID_ASOCIADA_ESTA": "The approval policy \"{{policyId}}\" linked to this request was not found.",

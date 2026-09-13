@@ -21,6 +21,7 @@ import { DialogService } from '../../../core/services/dialog.service';
 import { NotificationService } from '../../../core/services/notification';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 import { DocumentShellComponent, DocumentTone } from '../../../shared/components/gestures';
+import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 
 /**
  * A supplier bill, in full.
@@ -56,6 +57,8 @@ export class VendorBillDetailPage implements OnInit {
   private readonly translate = inject(TranslateService);
   private readonly accountsPayable = inject(AccountsPayableService);
   private readonly notifications = inject(NotificationService);
+  /** Optional: the page is also reachable through the router outlet, where there is no tab. */
+  private readonly tab = inject(TAB_CONTEXT, { optional: true });
 
   readonly bill = signal<VendorBill | null>(null);
   readonly payments = signal<VendorPayment[]>([]);
@@ -121,6 +124,8 @@ export class VendorBillDetailPage implements OnInit {
       )
       .subscribe(({ bill, payments }) => {
         this.bill.set(bill);
+        //  Ya se conoce el NCF: la pestaña deja de llamarse por el UUID de la ruta.
+        this.tab?.setTitle(this.documentTitle(bill));
         this.payments.set(payments);
         this.errorKey.set(null);
         this.isLoading.set(false);

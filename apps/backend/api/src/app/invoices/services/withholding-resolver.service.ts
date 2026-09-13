@@ -93,6 +93,102 @@ export class WithholdingResolverService {
     const countryCode = organization?.country ?? null;
 
     const regimes = await this.regimesFor(manager, organizationId, countryCode, customer, scope);
+    return this.reconcile(regimes, request, organizationId, `cliente ${customer.id}`);
+  }
+
+  /**
+   * The withholding on a PURCHASE, where the two roles are the other way round.
+   *
+   * On a sale the tenant is the payee and the customer is the payer — the customer is the one who
+   * withholds. On a purchase the tenant pays, so the tenant is the payer and the supplier is the
+   * payee. The regime table does not care which document it is looking at; it asks who pays and
+   * who is paid, and this is the same lookup with the two arguments swapped.
+   *
+   * Until the supplier record carried a fiscal classification there was nothing to swap in: the
+   * withholding on a vendor bill arrived as a free amount on the request, and nothing on the
+   * server could compare it to anything. That is the same filing defect the sales side had, and it
+   * fails in both directions — under-withhold and the tenant owes the difference with penalties;
+   * over-withhold and money was taken from a supplier with no authority to take it.
+   */
+  async resolveForPurchase(
+    manager: EntityManager,
+    organizationId: string,
+    supplier: { id: string; taxpayerType?: TaxpayerType | null; country?: string | null },
+    scope: 'SERVICES' | 'GOODS',
+    request: WithholdingRequest,
+  ): Promise<ResolvedWithholding> {
+    const organization = await manager.getRepository(Organization).findOne({
+      where: { id: organizationId },
+      select: ['id', 'country'],
+    });
+    const countryCode = organization?.country ?? null;
+
+    const regimes = await this.purchaseRegimesFor(
+      manager,
+      organizationId,
+      countryCode,
+      supplier,
+      scope,
+    );
+    return this.reconcile(regimes, request, organizationId, `proveedor ${supplier.id}`);
+  }
+
+  /**
+   * Which regimes apply when the tenant is the one paying.
+   *
+   * The payer is the tenant's own classification, taken from its settings and defaulting to a
+   * company — the ordinary case, and the one that withholds. The payee is the supplier's, and a
+   * supplier the tenant has not classified withholds nothing automatically, exactly as an
+   * unclassified customer does on the sales side.
+   *
+   * A supplier abroad is outside the domestic regime: a payment abroad is withheld under the rules
+   * for payments abroad (the DGII's 609), which are not these and which this product does not
+   * apply on its own initiative.
+   */
+  private async purchaseRegimesFor(
+    manager: EntityManager,
+    organizationId: string,
+    countryCode: string | null,
+    supplier: { taxpayerType?: TaxpayerType | null; country?: string | null },
+    scope: 'SERVICES' | 'GOODS',
+  ): Promise<WithholdingRegime[]> {
+    const payee = supplier.taxpayerType ?? null;
+    if (!payee || payee === TaxpayerType.FOREIGN) return [];
+    if (supplier.country && countryCode && supplier.country !== countryCode) return [];
+
+    const settings = await manager.getRepository(OrganizationSettings).findOne({
+      where: { organizationId },
+      select: ['organizationId', 'taxpayerType'],
+    });
+    const payer = settings?.taxpayerType ?? TaxpayerType.COMPANY;
+
+    const configured = await manager.getRepository(TenantWithholdingRegime).find({
+      where: { organizationId, isActive: true },
+    });
+
+    const scheme: CountryWithholdingScheme | undefined = configured.length
+      ? {
+          configurationRequired: false,
+          regimes: this.mergeWithCatalogue(configured, countryCode),
+        }
+      : findWithholdingScheme(countryCode);
+
+    return applicableRegimes(scheme, { payer, payee, scope });
+  }
+
+  /**
+   * Compare what the regimes produce with what the caller stated, and decide which stands.
+   *
+   * Extracted from `resolve` so the purchase side cannot drift from the sales side: the rule —
+   * agreement is not an override, disagreement needs a reason, and an override is recorded rather
+   * than refused — is the same rule, and two copies of it would eventually be two rules.
+   */
+  private reconcile(
+    regimes: WithholdingRegime[],
+    request: WithholdingRequest,
+    organizationId: string,
+    party: string,
+  ): ResolvedWithholding {
     const fromRegimes = this.ratesOf(regimes);
 
     const stated = {
@@ -101,7 +197,6 @@ export class WithholdingResolverService {
     };
     const statesSomething =
       stated.taxWithholdingRate !== undefined || stated.incomeTaxWithholdingRate !== undefined;
-
     if (!statesSomething) return fromRegimes;
 
     const effective = {
@@ -115,7 +210,6 @@ export class WithholdingResolverService {
     const agrees =
       this.sameRate(effective.taxWithholdingRate, fromRegimes.taxWithholdingRate) &&
       this.sameRate(effective.incomeTaxWithholdingRate, fromRegimes.incomeTaxWithholdingRate);
-
     if (agrees) return fromRegimes;
 
     if (!request.withholdingOverrideReason?.trim()) {
@@ -127,7 +221,7 @@ export class WithholdingResolverService {
     }
 
     this.logger.warn(
-      `Retención fuera de régimen en organización ${organizationId}, cliente ${customer.id}: ` +
+      `Retención fuera de régimen en organización ${organizationId}, ${party}: ` +
         `${effective.taxWithholdingRate}/${effective.incomeTaxWithholdingRate} en lugar de ` +
         `${fromRegimes.taxWithholdingRate}/${fromRegimes.incomeTaxWithholdingRate}. ` +
         `Razón: ${request.withholdingOverrideReason.trim()}`,

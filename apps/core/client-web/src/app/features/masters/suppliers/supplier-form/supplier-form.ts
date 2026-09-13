@@ -22,6 +22,25 @@ export class SupplierForm implements OnInit {
   private notificationService = inject(NotificationService);
 
 
+  /**
+   * The fiscal classifications a supplier can hold, in the order they are met.
+   *
+   * The same list the customer form offers, because it is the same list every withholding regime
+   * in the product is written against. A supplier record could not hold one at all until now,
+   * which is why the withholding on a purchase arrived as a free number: nothing on the supplier
+   * could establish the rate.
+   */
+  protected readonly taxpayerTypes = [
+    { value: 'INDIVIDUAL', labelKey: 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE_INDIVIDUAL' },
+    { value: 'COMPANY', labelKey: 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE_COMPANY' },
+    {
+      value: 'WITHHOLDING_AGENT',
+      labelKey: 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE_WITHHOLDING_AGENT',
+    },
+    { value: 'GOVERNMENT', labelKey: 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE_GOVERNMENT' },
+    { value: 'FOREIGN', labelKey: 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE_FOREIGN' },
+  ] as const;
+
   /** Qué falta antes de guardar. Se llena al pulsar, no mientras se teclea el primer campo. */
   readonly problems = signal<DraftProblem[]>([]);
 
@@ -38,6 +57,11 @@ export class SupplierForm implements OnInit {
       phone: [''],
       taxId: [''],
       address: [''],
+      //  Ambos existían como columna y ningún DTO los llevaba, así que el formulario no podía
+      //  fijarlos. El país separa una compra local de un pago al exterior (609); el tipo de
+      //  contribuyente decide qué se le retiene al proveedor.
+      country: ['DO'],
+      taxpayerType: [''],
     });
 
     this.supplierId = this.route.snapshot.paramMap.get('id');
@@ -79,6 +103,8 @@ export class SupplierForm implements OnInit {
           address: 'MASTERS.SUPPLIER_FORM.DIRECCION',
           email: 'MASTERS.SUPPLIER_FORM.CORREO_ELECTRONICO',
           phone: 'MASTERS.SUPPLIER_FORM.TELEFONO',
+          country: 'MASTERS.SUPPLIER_FORM.PAIS',
+          taxpayerType: 'CONTACTS.CUSTOMER_FORM.TIPO_CONTRIBUYENTE',
         }),
       );
       return;
@@ -87,7 +113,12 @@ export class SupplierForm implements OnInit {
     this.problems.set([]);
 
     this.isLoading.set(true);
-    const formValue = this.supplierForm.getRawValue();
+    const { taxpayerType, ...rest } = this.supplierForm.getRawValue();
+
+    //  «Sin clasificar» es la opción vacía del select, y `@IsEnum` rechaza la cadena vacía —
+    //  `@IsOptional()` solo perdona null e undefined—. Null es lo que significa «sin clasificar»
+    //  en la columna y lo único que el validador deja pasar.
+    const formValue = { ...rest, taxpayerType: taxpayerType || null };
 
     const operation = this.isEditMode()
       ? this.suppliersService.updateSupplier(this.supplierId!, formValue as UpdateSupplierDto)

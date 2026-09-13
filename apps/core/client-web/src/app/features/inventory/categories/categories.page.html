@@ -1,19 +1,182 @@
 <vx-list-shell
   titleKey="INVENTORY.CATEGORIES.CATEGORIAS"
   subtitleKey="INVENTORY.CATEGORIES.ORGANIZA_TUS_PRODUCTOS_DIFERENTES_CATEGORIAS"
-  [empty]="true"
+  [count]="categories().length"
+  [loading]="loading()"
+  [error]="failed() ? 'COMMON.LOAD_FAILED' : null"
+  [empty]="isEmpty()"
+  (reload)="reload()"
 >
-  <button listActions type="button" class="primary-button">
+  <button
+    listActions
+    type="button"
+    class="primary-button"
+    [disabled]="busy()"
+    (click)="creating.set(!creating())"
+  >
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'INVENTORY.CATEGORIES.NUEVA_CATEGORIA' | translate }}</span>
   </button>
 
+  <label listFilters class="inline-toggle">
+    <input type="checkbox" [checked]="includeInactive()" (change)="toggleInactive()" />
+    <span>{{ 'INVENTORY.CATEGORIES.SHOW_INACTIVE' | translate }}</span>
+  </label>
+
+  <ng-container listEmpty>
+    <p class="ls__state-title">{{ 'INVENTORY.CATEGORIES.EMPTY' | translate }}</p>
+  </ng-container>
+
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'INVENTORY.CATEGORIES.NAME' | translate }}</th>
+          <th>{{ 'INVENTORY.CATEGORIES.CODE' | translate }}</th>
+          <th>{{ 'INVENTORY.CATEGORIES.STATUS' | translate }}</th>
+          <th class="text-right">{{ 'COMMON.ACTIONS' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.category.id) {
+          @if (editing() === row.category.id) {
+            <tr>
+              <td colspan="4">
+                <div class="inline-editor">
+                  <input
+                    #editName
+                    type="text"
+                    maxlength="100"
+                    [value]="row.category.name"
+                    [attr.aria-label]="'INVENTORY.CATEGORIES.NAME' | translate"
+                  />
+                  <input
+                    #editCode
+                    type="text"
+                    maxlength="32"
+                    [value]="row.category.code ?? ''"
+                    [placeholder]="'INVENTORY.CATEGORIES.CODE' | translate"
+                    [attr.aria-label]="'INVENTORY.CATEGORIES.CODE' | translate"
+                  />
+                  <select #editParent [attr.aria-label]="'INVENTORY.CATEGORIES.PARENT' | translate">
+                    <option value="">{{ 'INVENTORY.CATEGORIES.NO_PARENT' | translate }}</option>
+                    @for (option of parentOptions(); track option.id) {
+                      <option [value]="option.id" [selected]="option.id === row.category.parentId">
+                        {{ option.name }}
+                      </option>
+                    }
+                  </select>
+                  <button
+                    type="button"
+                    class="primary-button"
+                    [disabled]="busy()"
+                    (click)="update(row.category, editName.value, editCode.value, editParent.value)"
+                  >
+                    {{ 'COMMON.SAVE' | translate }}
+                  </button>
+                  <button type="button" class="secondary-button" (click)="editing.set(null)">
+                    {{ 'COMMON.CANCEL' | translate }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @else {
+            <tr [class.is-inactive]="!row.category.isActive">
+              <td>
+                <!-- Indented by depth: a child far from its parent is a structure the reader has
+                     to rebuild in their head. -->
+                <span class="category-name" [style.padding-left.rem]="row.depth * 1.25">
+                  {{ row.category.name }}
+                </span>
+              </td>
+              <td>{{ row.category.code || '—' }}</td>
+              <td>
+                <span class="status-badge" [class.draft]="!row.category.isActive">
+                  {{
+                    (row.category.isActive
+                      ? 'INVENTORY.CATEGORIES.ACTIVE'
+                      : 'INVENTORY.CATEGORIES.INACTIVE'
+                    ) | translate
+                  }}
+                </span>
+              </td>
+              <td class="text-right row-actions">
+                <button
+                  type="button"
+                  class="icon-button"
+                  [disabled]="busy()"
+                  (click)="editing.set(row.category.id)"
+                  [attr.aria-label]="'COMMON.EDIT' | translate"
+                >
+                  <lucide-icon [img]="EditIcon" size="15" aria-hidden="true"></lucide-icon>
+                </button>
+                <button
+                  type="button"
+                  class="secondary-button"
+                  [disabled]="busy()"
+                  (click)="setActive(row.category, !row.category.isActive)"
+                >
+                  {{
+                    (row.category.isActive
+                      ? 'INVENTORY.CATEGORIES.DEACTIVATE'
+                      : 'INVENTORY.CATEGORIES.ACTIVATE'
+                    ) | translate
+                  }}
+                </button>
+                <button
+                  type="button"
+                  class="icon-button"
+                  [disabled]="busy()"
+                  (click)="remove(row.category)"
+                  [attr.aria-label]="'COMMON.DELETE' | translate"
+                >
+                  <lucide-icon [img]="DeleteIcon" size="15" aria-hidden="true"></lucide-icon>
+                </button>
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+
   <!--
-    Esta pantalla todavía no tiene datos: el aviso dice exactamente eso en lugar de fingir una
-    tabla vacía. Está en el estado vacío del gesto, no en una tarjeta suelta, para que el día que
-    llegue la lista solo haya que quitar `[empty]="true"`.
+    The creation row goes in the footer, outside the list's four states: a tenant with no
+    categories at all is exactly who needs it, and the empty state replaces the body.
   -->
-  <p listEmpty class="placeholder">
-    {{ 'INVENTORY.CATEGORIES.AQUI_MOSTRARA_LISTA_GESTION_CATEGORIAS' | translate }}
-  </p>
+  @if (creating()) {
+    <div listFooter class="inline-editor card">
+      <input
+        #newName
+        type="text"
+        maxlength="100"
+        [placeholder]="'INVENTORY.CATEGORIES.NAME' | translate"
+        [attr.aria-label]="'INVENTORY.CATEGORIES.NAME' | translate"
+      />
+      <input
+        #newCode
+        type="text"
+        maxlength="32"
+        [placeholder]="'INVENTORY.CATEGORIES.CODE' | translate"
+        [attr.aria-label]="'INVENTORY.CATEGORIES.CODE' | translate"
+      />
+      <select #newParent [attr.aria-label]="'INVENTORY.CATEGORIES.PARENT' | translate">
+        <option value="">{{ 'INVENTORY.CATEGORIES.NO_PARENT' | translate }}</option>
+        @for (option of categories(); track option.id) {
+          <option [value]="option.id">{{ option.name }}</option>
+        }
+      </select>
+      <button
+        type="button"
+        class="primary-button"
+        [disabled]="busy()"
+        (click)="create(newName.value, newCode.value, newParent.value); newName.value = ''; newCode.value = ''"
+      >
+        {{ 'COMMON.SAVE' | translate }}
+      </button>
+      <button type="button" class="secondary-button" (click)="creating.set(false)">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+    </div>
+  }
 </vx-list-shell>
