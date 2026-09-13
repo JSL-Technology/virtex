@@ -30,7 +30,7 @@ export class CreateIntercompanyTransactionDto {
 
   @IsString()
   @IsNotEmpty()
-  @MaxLength(500)
+  @MaxLength(500, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":500}' })
   description: string;
 
   @IsUUID()

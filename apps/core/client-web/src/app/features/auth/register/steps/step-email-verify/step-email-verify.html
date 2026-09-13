@@ -23,7 +23,7 @@
   <div *ngIf="codeSent() && !sendError()">
     <app-otp
       [title]="'AUTH.STEP_EMAIL_VERIFY.CODIGO_VERIFICACION' | translate"
-      description="Ingresa el código de 6 dígitos que enviamos a tu correo, o haz clic en el enlace del correo."
+      [description]="'AUTH.STEP_EMAIL_VERIFY.DESCRIPCION_CODIGO_EMAIL' | translate"
       [timerDuration]="300"
       [resendCooldown]="60"
       mode="email"

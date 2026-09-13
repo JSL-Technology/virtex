@@ -1,10 +1,4 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Plugin, PluginStatus } from './entities/plugin.entity';
@@ -17,6 +11,7 @@ import { BillingService, BillingReport } from './services/billing.service';
 import { RegisterPluginDto } from './dto/register-plugin.dto';
 import { ExecutePluginDto } from './dto/execute-plugin.dto';
 import { GrantConsentDto } from './dto/grant-consent.dto';
+import { BadRequestError, ForbiddenError, NotFoundError } from '../i18n/localized.exception';
 
 const EMPTY_SBOM = { bomFormat: 'CycloneDX', specVersion: '1.4', components: [] };
 
@@ -57,7 +52,7 @@ export class ExtensionsService {
 
   async getByName(name: string) {
     const plugin = await this.plugins.findOne({ where: { name }, relations: { versions: true } });
-    if (!plugin) throw new NotFoundException('Plugin not found');
+    if (!plugin) throw new NotFoundError('EXTENSIONS.PLUGIN_NOT_FOUND');
     return plugin;
   }
 
@@ -112,7 +107,7 @@ export class ExtensionsService {
 
   async revoke(name: string) {
     const plugin = await this.plugins.findOne({ where: { name } });
-    if (!plugin) throw new NotFoundException('Plugin not found');
+    if (!plugin) throw new NotFoundError('EXTENSIONS.PLUGIN_NOT_FOUND');
     plugin.status = PluginStatus.REVOKED;
     await this.plugins.save(plugin);
     return { status: 'revoked', plugin: name };
@@ -120,7 +115,7 @@ export class ExtensionsService {
 
   async setConsent(organizationId: string, name: string, dto: GrantConsentDto) {
     const plugin = await this.plugins.findOne({ where: { name } });
-    if (!plugin) throw new NotFoundException('Plugin not found');
+    if (!plugin) throw new NotFoundError('EXTENSIONS.PLUGIN_NOT_FOUND');
 
     let consent = await this.consents.findOne({
       where: { organizationId, pluginId: plugin.id },
@@ -162,14 +157,14 @@ export class ExtensionsService {
       where: { name: pluginName },
       relations: { versions: true },
     });
-    if (!plugin) throw new NotFoundException(`Plugin ${pluginName} not found`);
-    if (plugin.status === PluginStatus.REVOKED) throw new ForbiddenException('Plugin is revoked');
+    if (!plugin) throw new NotFoundError('EXTENSIONS.PLUGIN_NOT_FOUND_2', { pluginName });
+    if (plugin.status === PluginStatus.REVOKED) throw new ForbiddenError('EXTENSIONS.PLUGIN_REVOKED');
 
     const items = plugin.versions ?? [];
     const resolved = version
       ? items.find((v) => v.version === version)
       : [...items].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0];
-    if (!resolved) throw new NotFoundException('Version not found');
+    if (!resolved) throw new NotFoundError('EXTENSIONS.VERSION_NOT_FOUND');
     resolved.plugin = plugin;
     return resolved;
   }
@@ -191,7 +186,7 @@ export class ExtensionsService {
     }
 
     if (!codeToRun) {
-      throw new BadRequestException('Code or a valid pluginName is required');
+      throw new BadRequestError('EXTENSIONS.CODE_OR_VALID_PLUGINNAME_REQUIRED');
     }
 
     // Direct code is re-validated and re-signed every time — never trusted just for being inline.
@@ -202,7 +197,7 @@ export class ExtensionsService {
         sbom: dto.sbom ?? EMPTY_SBOM,
       });
       if (admission.status === 'rejected') {
-        throw new ForbiddenException('Direct code rejected by admission policy');
+        throw new ForbiddenError('EXTENSIONS.DIRECT_CODE_REJECTED_BY_ADMISSION_POLICY');
       }
       signature = admission.signature;
     }
@@ -215,7 +210,7 @@ export class ExtensionsService {
         where: { organizationId, pluginId: plugin!.id },
       });
       if (!consent?.enabled) {
-        throw new ForbiddenException('Extension is not enabled for this tenant');
+        throw new ForbiddenError('EXTENSIONS.EXTENSION_NOT_ENABLED_FOR_THIS_TENANT');
       }
       const granted = consent?.grantedCapabilities ?? [];
       const missing = requiredCapabilities.filter((cap) => !granted.includes(cap));

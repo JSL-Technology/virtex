@@ -92,9 +92,15 @@
                       <lucide-icon [img]="item.icon" size="16"></lucide-icon>
                     </span>
                     <span class="ov-activity__body">
-                      <span class="ov-activity__title">{{ item.title }}</span>
+                      <span class="ov-activity__title">{{ activityTitle(item) }}</span>
                       <span class="ov-activity__meta">
-                        @if (item.meta) { <strong>{{ item.meta }}</strong> · }
+                        @if (item.counterparty) { <span>{{ item.counterparty }}</span> · }
+                        <!-- A zero is not worth a line: a receipt funded entirely from an advance
+                             moved no cash, and "DOP 0.00" only makes the reader stop. -->
+                        @if (item.amount) {
+                          <strong>{{ item.amount | vxMoney: item.currencyCode }}</strong> ·
+                        }
+                        @if (item.actorName) { <span>{{ item.actorName }}</span> · }
                         {{ relativeTime(item.timestamp) }}
                       </span>
                     </span>
@@ -140,14 +146,20 @@
                   @for (item of news(); track item.id) {
                     <li class="ov-news">
                       <span class="ov-news__icon">
-                        <lucide-icon [img]="item.icon" size="16"></lucide-icon>
+                        <lucide-icon [img]="NewsIcon" size="16"></lucide-icon>
                       </span>
                       <div class="ov-news__body">
                         <div class="ov-news__top">
                           @if (item.tag) { <span class="ov-tag">{{ item.tag }}</span> }
                           <span class="ov-news__date">{{ shortDate(item.date) }}</span>
                         </div>
-                        <p class="ov-news__title">{{ item.title }}</p>
+                        <p class="ov-news__title">
+                          @if (item.url) {
+                            <a [href]="item.url" target="_blank" rel="noopener noreferrer">{{ item.title }}</a>
+                          } @else {
+                            {{ item.title }}
+                          }
+                        </p>
                         <p class="ov-news__summary">{{ item.summary }}</p>
                       </div>
                     </li>
@@ -187,13 +199,23 @@
               } @else {
                 <ul class="ov-events-list">
                   @for (item of events(); track item.id) {
-                    <li class="ov-event">
+                    <li
+                      class="ov-event is-clickable"
+                      [class.is-overdue]="item.overdue"
+                      tabindex="0"
+                      (click)="open(item.route)"
+                      (keydown.enter)="open(item.route)"
+                      (keydown.space)="$event.preventDefault(); open(item.route)"
+                    >
                       <span class="ov-event__date">{{ shortDate(item.date) }}</span>
                       <div class="ov-event__body">
-                        <p class="ov-event__title">{{ item.title }}</p>
+                        <p class="ov-event__title">{{ eventTitle(item) }}</p>
                         <p class="ov-event__meta">
-                          @if (item.type) { <span class="ov-tag ov-tag--soft">{{ item.type }}</span> }
-                          @if (item.location) { <span>{{ item.location }}</span> }
+                          <span class="ov-tag ov-tag--soft">{{ item.typeKey | translate }}</span>
+                          @if (item.counterparty) { <span>{{ item.counterparty }}</span> }
+                          @if (item.amount !== null) {
+                            <strong>{{ item.amount | vxMoney: item.currencyCode }}</strong>
+                          }
                         </p>
                       </div>
                     </li>

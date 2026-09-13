@@ -8,10 +8,11 @@
   [saving]="isSaving()"
   [invalid]="priceListForm.invalid"
   [problems]="problems()"
+  [form]="priceListForm"
   saveLabelKey="MASTERS.PRICE_LISTS_FORM.GUARDAR_LISTA"
   cancelLabelKey="MASTERS.PRICE_LISTS_FORM.CANCELAR"
   (save)="savePriceList()"
-  (cancel)="cancel()"
+  (cancelled)="cancel()"
 >
   <div class="form-body" [formGroup]="priceListForm">
     <section class="form-section">

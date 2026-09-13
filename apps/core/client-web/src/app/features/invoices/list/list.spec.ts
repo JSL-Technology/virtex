@@ -112,11 +112,16 @@ describe('InvoicesListPage', () => {
   });
 
   it('traduce el estado de la fila', () => {
-    // The badge printed 'Cobrada' / 'Por cobrar' as literals in the template, three lines under the
-    // very keys the status filter was already using.
-    expect(component.statusKey('Paid')).toBe('INVOICES.LIST.COBRADA');
-    expect(component.statusKey('Pending')).toBe('INVOICES.LIST.PENDIENTE');
-    expect(component.statusKey('Void')).toBe('INVOICES.LIST.ANULADA');
+    // The badge printed 'Cobrada' / 'Por cobrar' as literals in the template, and then, once it
+    // used keys, kept its OWN five-case map whose default was `INVOICES.LIST.ESTADO_2` — the
+    // column heading "Estado". Every draft invoice in the register therefore wore a badge reading
+    // "Status". One shared table now answers for every screen that shows an invoice status.
+    expect(component.statusKey('Paid')).toBe('INVOICES.STATUS.PAID');
+    expect(component.statusKey('Pending')).toBe('INVOICES.STATUS.PENDING');
+    expect(component.statusKey('Void')).toBe('INVOICES.STATUS.VOID');
+    expect(component.statusKey('Draft')).toBe('INVOICES.STATUS.DRAFT');
+    expect(component.statusKey('Partially Paid')).toBe('INVOICES.STATUS.PARTIALLY_PAID');
+    expect(component.statusKey('Credit Note')).toBe('INVOICES.STATUS.CREDIT_NOTE');
   });
 
   it('surfaces a load failure instead of showing an empty list', () => {

@@ -42,9 +42,18 @@ export class DevSeederService {
     const organizationName = this.config.get<string>('DEV_SEED_ORG') || 'Virtex Dev';
     const countryCode = this.config.get<string>('DEV_SEED_COUNTRY') || 'DO';
 
-    const existing = await this.dataSource.getRepository(User).findOne({ where: { email } });
+    const existing = await this.dataSource.getRepository(User).findOne({
+      where: { email },
+      relations: ['organization'],
+    });
     if (existing) {
-      this.logger.log(`Dev user already present: ${email} (login ready).`);
+      // "Already present" is not the same as "usable". If a previous boot hit the minimal
+      // fallback below, the account exists with an organization that has no fiscal region, and
+      // therefore no chart of accounts, no taxes, no ledger, no journals and no open periods.
+      // Returning here left that tenant broken forever, because this branch is the only thing
+      // that ever runs again. Repairing is idempotent: a tenant that already has its region is
+      // left untouched.
+      await this.repairIfUnprovisioned(existing, countryCode);
       return;
     }
 
@@ -82,6 +91,50 @@ export class DevSeederService {
         const message2 = err2 instanceof Error ? err2.message : String(err2);
         this.logger.error(`Dev seed failed; no dev user created: ${message2}`);
       }
+    }
+  }
+
+  /**
+   * Finish provisioning a dev tenant that a previous boot left without its fiscal package.
+   *
+   * Never throws into boot: a repair that fails leaves exactly what was there before, and the
+   * message says so, rather than taking the application down over a development convenience.
+   */
+  private async repairIfUnprovisioned(user: User, countryCode: string): Promise<void> {
+    const organizationId = user.organizationId ?? user.organization?.id ?? null;
+    if (!organizationId) {
+      this.logger.log(`Dev user already present: ${user.email} (login ready).`);
+      return;
+    }
+
+    if (user.organization?.fiscalRegionId && user.organization?.subscriptionStatus) {
+      this.logger.log(`Dev user already present: ${user.email} (login ready).`);
+      return;
+    }
+
+    try {
+      const repaired = await this.registration.provisionExistingTenant({
+        organizationId,
+        countryCode,
+        taxpayerKind: 'company',
+      });
+      const fixed = [
+        repaired.books
+          ? `fiscal package for ${countryCode} (chart of accounts, taxes, ledger, journals, periods)`
+          : null,
+        repaired.entitlement ? 'an active subscription' : null,
+      ].filter(Boolean);
+
+      if (fixed.length) {
+        this.logger.warn(`Dev tenant for ${user.email} was missing ${fixed.join(' and ')}; provisioned it.`);
+      } else {
+        this.logger.log(`Dev user already present: ${user.email} (login ready).`);
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.error(
+        `Dev tenant repair failed for ${user.email} (${message}); the login works but the tenant is still incompletely provisioned.`,
+      );
     }
   }
 }

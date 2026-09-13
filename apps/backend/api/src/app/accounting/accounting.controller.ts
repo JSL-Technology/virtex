@@ -25,6 +25,7 @@ import { ReopenPeriodDto } from './dto/reopen-period.dto';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { ListPeriodsQueryDto } from './dto/list-periods-query.dto';
 import { ClosingChecklistService } from './closing-checklist.service';
+import { ListFiscalYearsQueryDto } from './dto/list-fiscal-years-query.dto';
 
 @ApiTags('Accounting')
 @ApiBearerAuth()
@@ -45,6 +46,26 @@ export class AccountingController {
     @Query() query: ListPeriodsQueryDto,
   ) {
     return this.periodClosingService.listPeriods(user.organizationId, { year: query.year });
+  }
+
+  /**
+   * The tenant's fiscal years.
+   *
+   * Nothing could read them: one route closes a year and another reopens one, and no route listed
+   * them. The annual-close screen could not name the year it was about, and an audit adjustment —
+   * which is proposed against a CLOSED year — had no way to offer one to choose.
+   */
+  @Get('fiscal-years')
+  @HasPermission(PERMISSIONS.ACCOUNTING_VIEW)
+  @ApiOperation({ summary: 'Lista los años fiscales de la organización.' })
+  @ApiResponse({ status: 200, description: 'Años fiscales de la organización.' })
+  listFiscalYears(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: ListFiscalYearsQueryDto,
+  ) {
+    return this.periodClosingService.listFiscalYears(user.organizationId, {
+      status: query.status,
+    });
   }
 
   /**

@@ -49,32 +49,32 @@ export class UploadStatementDto {
 
   @IsString()
   @IsNotEmpty()
-  @MaxLength(120)
+  @MaxLength(120, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":120}' })
   dateColumn: string;
 
   @IsString()
   @IsNotEmpty()
-  @MaxLength(120)
+  @MaxLength(120, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":120}' })
   descriptionColumn: string;
 
   @IsString()
   @IsOptional()
-  @MaxLength(120)
+  @MaxLength(120, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":120}' })
   referenceColumn?: string;
 
   @IsString()
   @IsOptional()
-  @MaxLength(120)
+  @MaxLength(120, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":120}' })
   debitColumn?: string;
 
   @IsString()
   @IsOptional()
-  @MaxLength(120)
+  @MaxLength(120, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":120}' })
   creditColumn?: string;
 
   @IsString()
   @IsOptional()
-  @MaxLength(120)
+  @MaxLength(120, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":120}' })
   amountColumn?: string;
 
   // ── format ─────────────────────────────────────────────────────────────────
@@ -88,7 +88,7 @@ export class UploadStatementDto {
    */
   @IsString()
   @IsNotEmpty()
-  @MaxLength(40)
+  @MaxLength(40, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":40}' })
   dateFormat: string;
 
   @IsIn(['.', ','])

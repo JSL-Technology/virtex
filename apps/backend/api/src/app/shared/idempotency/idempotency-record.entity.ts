@@ -1,4 +1,13 @@
-import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Organization } from '../../organizations/entities/organization.entity';
 
 /**
  * One attempt at a business transition, remembered so a retry cannot repeat it.
@@ -10,12 +19,23 @@ import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn } from 
  */
 @Entity({ name: 'idempotency_records' })
 @Index('UQ_idempotency_org_key', ['organizationId', 'key'], { unique: true })
+// Retention: a key is only useful while a client might still retry with it, and this index is what
+// lets the sweep remove old rows without scanning the table. It was declared in the migration and
+// not here, so `check:schema-drift` proposed dropping it on every run.
+@Index('IDX_idempotency_created_at', ['createdAt'])
 export class IdempotencyRecord {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
   @Column({ name: 'organization_id', type: 'uuid' })
   organizationId!: string;
+
+  @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
+  @JoinColumn({
+    name: 'organization_id',
+    foreignKeyConstraintName: 'FK_idempotency_organization',
+  })
+  organization!: Organization;
 
   /** The client's `Idempotency-Key` header. Opaque to the server. */
   @Column({ type: 'varchar', length: 255 })

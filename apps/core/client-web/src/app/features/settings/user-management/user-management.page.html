@@ -114,8 +114,16 @@
       </div>
 
       <div class="card-footer">
+        <!--
+          Una frase, una clave. Estaba partida en «Showing» + `de` + «users»: el `de` era un literal
+          castellano entre dos fragmentos traducidos, así que la versión inglesa decía «Showing 1 de
+          1 users». Un fragmento por palabra solo se lee bien en el idioma en que se escribió.
+        -->
         <div class="pagination-info">
-          {{ 'SETTINGS.USER_MANAGEMENT.MOSTRANDO' | translate }} <strong>{{ users().length }}</strong> de <strong>{{ totalUsers() }}</strong> {{ 'SETTINGS.USER_MANAGEMENT.USUARIOS_2' | translate }}
+          {{
+            'SETTINGS.USER_MANAGEMENT.MOSTRANDO_DE'
+              | translate: { shown: users().length, total: totalUsers() }
+          }}
         </div>
         <div class="pagination-controls">
           <button class="pagination-btn" [disabled]="currentPage() === 1" (click)="changePage(currentPage() - 1)">

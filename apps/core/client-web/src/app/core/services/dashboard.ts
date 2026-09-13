@@ -11,8 +11,10 @@ export type ChartType = 'column' | 'bar' | 'pie' | 'area' | 'line' | 'waterfall'
 // Interfaz que define la estructura completa de un widget
 export interface DashboardWidget extends GridsterItem {
   componentType:
-    | 'kpi-card'
-    | 'stat-card'
+    | 'stat-sales-today'
+    | 'stat-pending-invoices'
+    | 'stat-low-stock'
+    | 'stat-active-customers'
     | 'comparison-chart'
     | 'alerts-panel'
     | 'sales-chart'
@@ -43,17 +45,22 @@ export interface DashboardWidget extends GridsterItem {
 // 4-column grid. All x values must be 0-3.
 
 const ALL_AVAILABLE_WIDGETS: Omit<DashboardWidget, 'x' | 'y'>[] = [
-  // ── KPI summary cards (stat-card) ─────────────────────────────
-  { id: 'sales-today',       componentType: 'stat-card', name: 'Ventas de Hoy',         cols: 1, rows: 3, data: { title: 'Ventas de Hoy',         value: '$1,250.00', change: '+15%', iconName: 'DollarSign', color: 'blue'   } },
-  { id: 'pending-invoices',  componentType: 'stat-card', name: 'Facturas Pendientes',    cols: 1, rows: 3, data: { title: 'Facturas Pendientes',    value: '12',        change: '-5%',  iconName: 'Receipt',    color: 'orange' } },
-  { id: 'low-stock-items',   componentType: 'stat-card', name: 'Productos Bajos',        cols: 1, rows: 3, data: { title: 'Productos Bajos',        value: '8',         change: '+2',   iconName: 'Package',    color: 'red'    } },
-  { id: 'active-clients',    componentType: 'stat-card', name: 'Clientes Activos',       cols: 1, rows: 3, data: { title: 'Clientes Activos',       value: '312',       change: '+1.2%',iconName: 'Users',      color: 'green'  } },
+  // ── Cifras de cabecera ─────────────────────────────────────────
+  // Cada una lee su propia cifra del inquilino. Antes eran literales del catálogo — «$1,250.00
+  // +15 %», «12 facturas pendientes −5 %» — idénticos para todos los clientes del producto y con
+  // porcentajes medidos contra nada.
+  { id: 'sales-today',       componentType: 'stat-sales-today',      name: 'Ventas de Hoy',       cols: 1, rows: 3 },
+  { id: 'pending-invoices',  componentType: 'stat-pending-invoices', name: 'Facturas Pendientes', cols: 1, rows: 3 },
+  { id: 'low-stock-items',   componentType: 'stat-low-stock',        name: 'Productos Bajos',     cols: 1, rows: 3 },
+  { id: 'active-clients',    componentType: 'stat-active-customers', name: 'Clientes Activos',    cols: 1, rows: 3 },
 
-  // ── KPI financial cards (kpi-card, static data) ────────────────
-  { id: 'ebitda',        componentType: 'kpi-card', name: 'KPI: EBITDA',           cols: 1, rows: 3, data: { title: 'EBITDA',              value: '$1.2M',  comparisonValue: '+5.2%', comparisonPeriod: 'vs Presupuesto',  isPositive: true  } as Kpi },
-  { id: 'net-margin',    componentType: 'kpi-card', name: 'KPI: Margen Neto',      cols: 1, rows: 3, data: { title: 'Margen Neto',         value: '18.5%', comparisonValue: '-1.5%', comparisonPeriod: 'vs Año Anterior', isPositive: false } as Kpi },
-  { id: 'cash-flow-kpi', componentType: 'kpi-card', name: 'KPI: Cash Flow Libre',  cols: 1, rows: 3, data: { title: 'Cash Flow Libre',     value: '$350K', comparisonValue: '+20%',  comparisonPeriod: 'vs Presupuesto',  isPositive: true  } as Kpi },
-  { id: 'debt-equity',   componentType: 'kpi-card', name: 'KPI: Endeudamiento',    cols: 1, rows: 3, data: { title: 'Endeudamiento (D/E)', value: '0.45',  comparisonValue: '+0.05', comparisonPeriod: 'vs Q2',           isPositive: false } as Kpi },
+  // ── Indicadores financieros ────────────────────────────────────
+  // Los mismos cuatro que antes traían cifras inventadas, ahora calculados desde el mayor por
+  // `/dashboard/kpi/*` — que ya existía y que la otra mitad de esta misma página ya usaba.
+  { id: 'ebitda',        componentType: 'kpi-ebitda',     name: 'KPI: EBITDA',          cols: 1, rows: 3 },
+  { id: 'net-margin',    componentType: 'kpi-net-margin', name: 'KPI: Margen Neto',     cols: 1, rows: 3 },
+  { id: 'cash-flow-kpi', componentType: 'kpi-fcf',        name: 'KPI: Cash Flow Libre', cols: 1, rows: 3 },
+  { id: 'debt-equity',   componentType: 'kpi-leverage',   name: 'KPI: Endeudamiento',   cols: 1, rows: 3 },
 
   // ── KPI API-driven cards ───────────────────────────────────────
   { id: 'financial-ratios',  componentType: 'financial-ratios',  name: 'Ratios Financieros',      cols: 4, rows: 4 },
@@ -87,10 +94,10 @@ const ALL_AVAILABLE_WIDGETS: Omit<DashboardWidget, 'x' | 'y'>[] = [
 // 4-column grid. No position collisions.
 const EXECUTIVE_LAYOUT: DashboardWidget[] = [
   // Row 0-2 (150px): Summary KPIs
-  { id: 'ebitda',        componentType: 'kpi-card',  x: 0, y: 0, cols: 1, rows: 3, name: 'KPI: EBITDA',         data: { title: 'EBITDA',              value: '$1.2M',  comparisonValue: '+5.2%', comparisonPeriod: 'vs Presupuesto',  isPositive: true  } as Kpi },
-  { id: 'net-margin',    componentType: 'kpi-card',  x: 1, y: 0, cols: 1, rows: 3, name: 'KPI: Margen Neto',    data: { title: 'Margen Neto',         value: '18.5%', comparisonValue: '-1.5%', comparisonPeriod: 'vs Año Anterior', isPositive: false } as Kpi },
-  { id: 'cash-flow-kpi', componentType: 'kpi-card',  x: 2, y: 0, cols: 1, rows: 3, name: 'KPI: Cash Flow',      data: { title: 'Cash Flow Libre',     value: '$350K', comparisonValue: '+20%',  comparisonPeriod: 'vs Presupuesto',  isPositive: true  } as Kpi },
-  { id: 'debt-equity',   componentType: 'kpi-card',  x: 3, y: 0, cols: 1, rows: 3, name: 'KPI: Endeudamiento',  data: { title: 'Endeudamiento (D/E)', value: '0.45',  comparisonValue: '+0.05', comparisonPeriod: 'vs Q2',           isPositive: false } as Kpi },
+  { id: 'ebitda',        componentType: 'kpi-ebitda',     x: 0, y: 0, cols: 1, rows: 3, name: 'KPI: EBITDA' },
+  { id: 'net-margin',    componentType: 'kpi-net-margin', x: 1, y: 0, cols: 1, rows: 3, name: 'KPI: Margen Neto' },
+  { id: 'cash-flow-kpi', componentType: 'kpi-fcf',        x: 2, y: 0, cols: 1, rows: 3, name: 'KPI: Cash Flow' },
+  { id: 'debt-equity',   componentType: 'kpi-leverage',   x: 3, y: 0, cols: 1, rows: 3, name: 'KPI: Endeudamiento' },
 
   // Row 3-10 (400px): Main charts
   { id: 'real-vs-budget',     componentType: 'comparison-chart', x: 0, y: 3, cols: 2, rows: 8, name: 'Real vs. Presupuesto', chartType: 'column'    },

@@ -29,11 +29,22 @@ export interface CustomerReceipt {
   totalAmount: number;
   /** An advance or an overpayment: received but applied to no invoice. */
   unappliedAmount: number;
+  /** Drawn from what the customer had already paid ahead. */
+  advanceAppliedAmount: number;
   status: CustomerPaymentStatus;
   paymentMethod: PaymentMethod;
   reference: string | null;
   journalEntryId: string | null;
   voidReason: string | null;
+}
+
+/** What a customer has paid ahead and not yet spent, in one currency. */
+export interface CustomerAdvance {
+  currencyCode: string;
+  /** In `currencyCode`. */
+  amount: number;
+  /** The same money in the books' currency, at the rate it was received. */
+  baseAmount: number;
 }
 
 export interface CreateCustomerReceipt {
@@ -49,6 +60,13 @@ export interface CreateCustomerReceipt {
    * exactly, so a customer paying ahead had nowhere to be recorded at all.
    */
   amountReceived: number;
+  /**
+   * Drawn from advances this customer already paid.
+   *
+   * A receipt may be funded by fresh cash, by money already held, or by both — which is what lets
+   * a deposit taken last month settle this month's invoice without asking the customer to pay twice.
+   */
+  advanceApplied?: number;
   currencyCode?: string;
   paymentMethod?: PaymentMethod;
   reference?: string;
@@ -81,6 +99,11 @@ export class CustomerReceiptsService {
 
   create(body: CreateCustomerReceipt): Observable<CustomerReceipt> {
     return this.http.post<CustomerReceipt>(this.apiUrl, body);
+  }
+
+  /** What this customer has on account, per currency — what a receipt may draw on. */
+  advances(customerId: string): Observable<CustomerAdvance[]> {
+    return this.http.get<CustomerAdvance[]>(`${this.apiUrl}/advances/${customerId}`);
   }
 
   /** A bounced cheque, a returned transfer, a receipt raised in error. */

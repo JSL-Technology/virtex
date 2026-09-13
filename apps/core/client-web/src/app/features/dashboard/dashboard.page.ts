@@ -4,8 +4,7 @@ import { GridsterModule, GridsterConfig, GridType, CompactType, DisplayGrid } fr
 import { DashboardService, DashboardWidget } from '../../core/services/dashboard';
 
 // ✅ CORRECCIÓN: Se importan TODOS los componentes de widgets que se usarán en la plantilla
-import { KpiCard } from '../../shared/components/kpi-card/kpi-card';
-import { StatCard } from '../../shared/components/stat-card/stat-card';
+import { StatSummary } from './widgets/stat-summary/stat-summary';
 import { ComparisonChart } from './widgets/comparison-chart/comparison-chart';
 import { AlertsPanel } from './widgets/alerts-panel/alerts-panel';
 import { SalesChart } from './widgets/sales-chart/sales-chart';
@@ -35,7 +34,7 @@ import { FORMAT_PIPES } from '../../core/i18n/pipes/format.pipes';
   selector: 'app-dashboard-page',
   standalone: true,
   imports: [CommonModule, GridsterModule, LucideAngularModule, // ✅ CORRECCIÓN: Se añaden todos los widgets a la lista de imports
-    KpiCard, StatCard, ComparisonChart, AlertsPanel, SalesChart, InvoiceStatus, LowStockProducts, TopProductsChart, RecentActivity, CashflowChart, ExpensesChart, ArAgingChart, FinancialRatios, KpiRoe, KpiRoa, KpiCurrentRatio, KpiQuickRatio, KpiWorkingCapital, KpiLeverageComponent, KpiNetMarginComponent, KpiEbitdaComponent, KpiFcfComponent, TranslateModule, ...FORMAT_PIPES],
+    StatSummary, ComparisonChart, AlertsPanel, SalesChart, InvoiceStatus, LowStockProducts, TopProductsChart, RecentActivity, CashflowChart, ExpensesChart, ArAgingChart, FinancialRatios, KpiRoe, KpiRoa, KpiCurrentRatio, KpiQuickRatio, KpiWorkingCapital, KpiLeverageComponent, KpiNetMarginComponent, KpiEbitdaComponent, KpiFcfComponent, TranslateModule, ...FORMAT_PIPES],
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

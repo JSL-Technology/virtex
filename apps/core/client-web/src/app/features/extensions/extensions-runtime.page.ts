@@ -25,16 +25,16 @@ import { ExtensionHostComponent } from './extension-host.component';
         </div>
         <button type="button" class="run__btn" (click)="refresh()" [disabled]="loading()">
           <lucide-icon [img]="RefreshIcon" [size]="16"></lucide-icon>
-          <span>Refresh</span>
+          <span>{{ 'COMMON.REFRESH' | translate }}</span>
         </button>
       </header>
 
       @if (loading()) {
-        <p class="run__muted">Loading extensions…</p>
+        <p class="run__muted">{{ 'EXTENSIONS.LOADING_RUNTIME' | translate }}</p>
       } @else if (extensions().length === 0) {
         <div class="run__empty">
-          <p>No UI extensions are enabled for this tenant.</p>
-          <a routerLink="/masters/extensions">Go to the extensions manager →</a>
+          <p>{{ 'EXTENSIONS.NONE_ENABLED' | translate }}</p>
+          <a routerLink="/masters/extensions">{{ 'EXTENSIONS.GO_TO_MANAGER' | translate }}</a>
         </div>
       } @else {
         <div class="run__grid">
@@ -42,7 +42,7 @@ import { ExtensionHostComponent } from './extension-host.component';
             <section class="run__card">
               <div class="run__card-head">
                 <span class="run__name">{{ ext.name }}</span>
-                <span class="run__ver">v{{ ext.version }}</span>
+                <span class="run__ver">{{ 'EXTENSIONS.VERSION_TAG' | translate: { version: ext.version } }}</span>
               </div>
               <app-extension-host [extension]="ext" [context]="baseContext" />
             </section>

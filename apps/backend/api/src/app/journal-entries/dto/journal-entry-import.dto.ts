@@ -135,7 +135,7 @@ export class PreviewImportRequestDto {
      */
     @IsString()
     @IsNotEmpty()
-    @Length(1, 32)
+    @Length(1, 32, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":1,"max":32}' })
     @ApiProperty({ example: 'dd/MM/yyyy' })
     dateFormat: string;
 

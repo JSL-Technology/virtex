@@ -1,9 +1,15 @@
+// The tests compile at the SAME language target as the application they test.
+//
+// This file used to pin `"target": "es2016"`, six years below the workspace's `es2022`. The only
+// visible effect was that `for (const el of container.querySelectorAll(...))` — which the app does
+// freely — did not compile in a spec: at es2016 a `NodeListOf` has no iterator without
+// `downlevelIteration`. Four spec files failed `nx typecheck` for that reason alone, so the target
+// never passed and the failures it would have caught went unseen.
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../../dist/out-tsc",
     "module": "esnext",
-    "target": "es2016",
     "types": ["jest", "node"],
     "moduleResolution": "bundler"
   },

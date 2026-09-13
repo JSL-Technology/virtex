@@ -5,10 +5,11 @@
   [saving]="isSaving()"
   [invalid]="invoiceForm.invalid"
   [problems]="problems()"
+  [form]="invoiceForm"
   saveLabelKey="INVOICES.NEW.GUARDAR_BORRADOR"
   cancelLabelKey="INVOICES.NEW.CANCELAR"
   (save)="saveDraft()"
-  (cancel)="router.navigate(['/invoices'])"
+  (cancelled)="router.navigate(['/invoices'])"
 >
   <!--
     Two distinct actions, because they are two distinct things. Saving a draft consumes no fiscal

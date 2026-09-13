@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { ModuleManifest, ModuleRoute, MenuGroup, fullPath } from './module-manifest';
+import { ModuleManifest, ModuleRoute, MenuGroup, fullPath, requiredPermissionsFor} from './module-manifest';
 import { WORKSPACE_MODULE } from './manifests/workspace.manifest';
 import { VENTAS_MODULE } from './manifests/ventas.manifest';
 import { COMPRAS_MODULE } from './manifests/compras.manifest';
@@ -8,6 +8,7 @@ import { TESORERIA_MODULE, TESORERIA_MASTERS_MODULE } from './manifests/tesoreri
 import { CONTABILIDAD_MODULE } from './manifests/contabilidad.manifest';
 import { ANALISIS_MODULE, DATASHEETS_MODULE } from './manifests/analisis.manifest';
 import { ADMINISTRACION_MODULE, ROADMAP_MODULE } from './manifests/administracion.manifest';
+import { RRHH_MODULE } from './manifests/rrhh.manifest';
 
 /**
  * Every module the ERP has. The one list.
@@ -24,6 +25,7 @@ export const MODULES: ModuleManifest[] = [
   TESORERIA_MODULE,
   TESORERIA_MASTERS_MODULE,
   CONTABILIDAD_MODULE,
+  RRHH_MODULE,
   ANALISIS_MODULE,
   DATASHEETS_MODULE,
   ADMINISTRACION_MODULE,
@@ -98,7 +100,9 @@ export function buildModuleRoutes(): Routes {
     title: route.titleKey,
     data: {
       ...(route.data ?? {}),
-      permissions: [route.permission],
+      // `authenticated` is not grantable — see `requiredPermissionsFor`. Passing it through
+      // as a required permission is what locked every non-wildcard role out of Home.
+      permissions: requiredPermissionsFor(route.permission),
       windowKind: route.kind,
     },
   }));

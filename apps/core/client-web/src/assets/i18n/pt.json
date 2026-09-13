@@ -112,7 +112,7 @@
       "CUENTA": "Conta",
       "TIPO": "Tipo",
       "BALANCE": "Saldo",
-      "ESTADO": "Estado",
+      "ESTADO": "Situação",
       "ACCIONES": "Ações",
       "MOSTRANDO_N": "Mostrando {{count}} contas"
     },
@@ -192,7 +192,7 @@
       "CAMPO_LINEDESCRIPTION": "Detalhe da linha",
       "CONFIRMAR_IMPORTAR": "Confirmar e Importar",
       "DEBE": "Débito",
-      "ESTADO": "Estado",
+      "ESTADO": "Situação",
       "FAVOR_SELECCIONA_FICHERO_IMPORTAR": "Selecione um arquivo para importar.",
       "FICHERO_SELECCIONADO": "Arquivo selecionado:",
       "FORMATO_FECHA": "Formato de data do arquivo",
@@ -235,7 +235,8 @@
       "STATUS_PENDING_APPROVAL": "Aguardando aprovação",
       "STATUS_POSTED": "Contabilizado",
       "STATUS_REJECTED": "Rejeitado",
-      "STATUS_VOID": "Cancelado"
+      "STATUS_VOID": "Cancelado",
+      "UNNUMBERED": "Sem numeração"
     },
     "JOURNAL_ENTRY_FORM": {
       "ACCOUNT_COLUMN": "Conta",
@@ -259,7 +260,13 @@
       "TITLE": "Novo Lançamento Contábil",
       "TOTALS": "Totais",
       "UNBALANCED_ERROR": "Os débitos e os créditos devem estar balanceados.",
-      "ZERO_AMOUNT_ERROR": "O valor total não pode ser zero."
+      "ZERO_AMOUNT_ERROR": "O valor total não pode ser zero.",
+      "MODIFICATION_EXPLAINER": "Modificar um lançamento contabilizado não o reescreve: o sistema estorna-o e contabiliza um novo que o cita. O original permanece no livro.",
+      "MODIFICATION_REASON_LABEL": "Motivo da alteração*",
+      "MODIFICATION_REASON_PLACEHOLDER": "Porque deixou de estar correto o lançamento original",
+      "ONLY_POSTED_CAN_BE_MODIFIED": "Só é possível modificar um lançamento contabilizado. Este ainda não está.",
+      "ENTRY_NOT_FOUND": "Não foi possível carregar o lançamento.",
+      "ASIENTO_CONTABLE_MODIFICADO_EXITO": "Lançamento modificado: o original foi estornado e o novo contabilizado."
     },
     "JOURNAL_FORM": {
       "BANK": "Banco",
@@ -587,7 +594,7 @@
       "FECHA_EMISION": "Data de Emissão",
       "FECHA_VENCIMIENTO": "Data de Vencimento",
       "FORMA_PAGO": "Forma de pagamento",
-      "GUARDANDO": "A guardar…",
+      "GUARDANDO": "Salvando…",
       "GUARDAR_FACTURA": "Guardar fatura",
       "IMPUESTOS": "Impostos",
       "IMPUESTO_AL_COSTO": "Imposto levado ao custo",
@@ -615,7 +622,7 @@
       "SELECCIONAR_CUENTA": "Selecionar conta",
       "SELECCIONAR_PROVEEDOR": "Selecionar fornecedor",
       "SUBTOTAL": "Subtotal",
-      "TIMES": "&times;",
+      "TIMES": "×",
       "TIPO_BIENES_SERVICIOS": "Tipo de bens e serviços",
       "TITLE_CREATE": "Nova fatura de fornecedor",
       "TITLE_EDIT": "Editar fatura de fornecedor",
@@ -648,8 +655,8 @@
       "FACTURA": "Fatura",
       "FACTURAS_A_PAGAR": "Faturas a pagar",
       "FECHA": "Data do pagamento",
-      "ISR_RETENIDO": "IR retido",
-      "ITBIS_RETENIDO": "Imposto retido",
+      "ISR_RETENIDO": "Imposto de renda retido",
+      "ITBIS_RETENIDO": "ITBIS retido",
       "NO_SE_PUDO_PAGAR": "Não foi possível registrar o pagamento.",
       "PAGAR": "Registrar pagamento",
       "PAGO_REGISTRADO": "Pagamento registrado.",
@@ -690,7 +697,7 @@
       "PARTIALLY_PAID": "Parcialmente paga",
       "PENDING_APPROVAL": "Aguardando aprovação",
       "REJECTED": "Rejeitada",
-      "VOID": "Anulada"
+      "VOID": "Cancelada"
     }
   },
   "ACTIONS": {
@@ -741,7 +748,6 @@
   },
   "APP_TITLE": "Virtex",
   "AUTH": {
-    "AUTH_LAYOUT": {},
     "CHECKOUT_COMPLETE": {
       "CONFIRMANDO_TU_PAGO": "Confirmando seu pagamento…",
       "ESTAMOS_ACTIVANDO_TU_CUENTA_ESTO_SOLO": "Estamos ativando sua conta. Isso levará apenas alguns segundos.",
@@ -788,7 +794,8 @@
       "ENVIAMOS_CODIGO_ENLACE_CONFIRMACION": "Enviamos um código e um link de confirmação para",
       "ENVIANDO_CODIGO_EMAIL": "Enviando o código para {{email}}…",
       "PREFIERES_NO_ESCRIBIR_CODIGO_BUSCA_BOTON": "Prefere não digitar o código? Procure o botão",
-      "REINTENTAR": "Tentar novamente"
+      "REINTENTAR": "Tentar novamente",
+      "DESCRIPCION_CODIGO_EMAIL": "Introduza o código de 6 dígitos que enviámos para o seu email, ou clique na ligação da mensagem."
     },
     "STEP_PHONE_VERIFY": {
       "CODIGO_VERIFICACION_SMS": "Código de verificação por SMS",
@@ -796,7 +803,10 @@
       "ENVIAMOS_SMS_CODIGO": "Enviamos um SMS com o código para",
       "ENVIANDO_SMS_PHONE": "Enviando um SMS para {{phone}}…",
       "OPTIONAL_SKIP": "Você não adicionou um número de telefone. Esta etapa é opcional: você pode continuar ou voltar para adicionar um.",
-      "REINTENTAR": "Tentar novamente"
+      "REINTENTAR": "Tentar novamente",
+      "SMS_SEND_FAILED": "Não foi possível enviar o SMS de verificação.",
+      "SMS_UNAVAILABLE_CONTINUE": "A verificação por SMS não está disponível de momento. O seu email já está verificado, por isso pode continuar: o telefone fica por verificar e poderá confirmá-lo depois no seu perfil.",
+      "DESCRIPCION_CODIGO_SMS": "Introduza o código de 6 dígitos que enviámos para o seu telemóvel."
     },
     "STEP_UP": {
       "CONTINUE_WITH_IDP": "Continuar com seu provedor",
@@ -834,7 +844,18 @@
     }
   },
   "BILLING": {
-    "UNLIMITED_RESOURCE": "{{resource}}: sem limite"
+    "UNLIMITED_RESOURCE": "{{resource}}: sem limite",
+    "PLANS": {
+      "STARTER": {
+        "DESCRIPTION": "Ideal para equipas pequenas a começar"
+      },
+      "PRO": {
+        "DESCRIPTION": "Para empresas em crescimento com necessidades avançadas"
+      },
+      "ENTERPRISE": {
+        "DESCRIPTION": "Solução completa sem limites para grandes organizações"
+      }
+    }
   },
   "CHARTS": {
     "CASHFLOW": {
@@ -916,7 +937,10 @@
       "SUCCESS": "Sucesso",
       "WARNING": "Aviso"
     },
-    "VERIFY": "Verificar"
+    "VERIFY": "Verificar",
+    "LOAD_FAILED": "Não foi possível carregar os dados. Tente novamente.",
+    "ACTIONS": "Ações",
+    "EDIT": "Editar"
   },
   "CONTACTS": {
     "CUSTOMERS": {
@@ -971,7 +995,12 @@
       "TIPO_CONTRIBUYENTE_WITHHOLDING_AGENT": "Agente de retenção designado",
       "TITLE_NEW": "Novo cliente",
       "TITLE_EDIT": "Editar cliente",
-      "GUARDAR_CLIENTE": "Salvar cliente"
+      "GUARDAR_CLIENTE": "Salvar cliente",
+      "CONDICIONES_COMERCIALES": "Condições comerciais",
+      "TERMINOS_PAGO": "Condições de pagamento",
+      "TERMINOS_PAGO_PLACEHOLDER": "Líquido 30",
+      "DIAS_CREDITO": "Dias de crédito",
+      "DIAS_CREDITO_AYUDA": "Dias somados à data de emissão para calcular o vencimento. Em branco usa o valor por omissão da organização; 0 significa a pronto pagamento."
     },
     "SUPPLIERS": {
       "ACCIONES": "Ações",
@@ -1026,8 +1055,8 @@
       "FECHA_PAGO": "Data do Pagamento",
       "FORMA_DE_PAGO": "Forma de pagamento",
       "INFORMACION_PAGO": "Informações do Pagamento",
-      "ISR_RETENIDO": "IR retido",
-      "ITBIS_RETENIDO": "Imposto retido",
+      "ISR_RETENIDO": "Imposto de renda retido",
+      "ITBIS_RETENIDO": "ITBIS retido",
       "MONEDA_DE_LA_CUENTA": "A moeda é a da conta bancária.",
       "MONTO_RECIBIDO": "Valor recebido",
       "NO_APLICADO": "Não aplicado (adiantamento ou excedente)",
@@ -1037,7 +1066,15 @@
       "SALDA": "Liquida",
       "SALDO": "Saldo",
       "SELECCIONAR_CLIENTE": "Selecionar cliente",
-      "SIN_FACTURAS_ABIERTAS": "Este cliente não tem faturas com saldo em aberto."
+      "SIN_FACTURAS_ABIERTAS": "Este cliente não tem faturas com saldo em aberto.",
+      "ANTICIPO_APLICADO": "Adiantamento aplicado",
+      "ANTICIPO_DISPONIBLE": "Disponível em adiantamentos",
+      "USAR_ANTICIPO": "Usar o adiantamento",
+      "SIN_FONDOS": "Informe um valor recebido ou um adiantamento a aplicar.",
+      "ANTICIPO_INSUFICIENTE": "O adiantamento a aplicar excede o que o cliente tem disponível.",
+      "ANTICIPO_EXCEDE_LO_APLICADO": "Está a usar mais adiantamento do que este recibo aplica a faturas. Aplique-o a faturas ou reduza-o.",
+      "PULSA_PARA_APLICAR": "Pressione uma fatura para a adicionar ao recibo.",
+      "APLICAR_FACTURA": "Aplicar a fatura {{number}} a este recibo"
     },
     "LIST": {
       "CARGANDO_RECIBOS": "Carregando recibos...",
@@ -1061,8 +1098,8 @@
       "OTHER": "Outro"
     },
     "STATUS": {
-      "POSTED": "Lançado",
-      "VOID": "Anulado"
+      "POSTED": "Contabilizado",
+      "VOID": "Cancelado"
     }
   },
   "DASH": {
@@ -1201,7 +1238,8 @@
   },
   "DASHBOARD": {
     "ALERTS_PANEL": {
-      "ALERTAS_TEMPRANAS": "Alertas Antecipados"
+      "ALERTAS_TEMPRANAS": "Alertas Antecipados",
+      "SIN_ALERTAS": "Nada requer atenção neste momento."
     },
     "ARRASTRAR": "Arrastar",
     "ARRASTRA_WIDGETS_REORGANIZARLOS_USA_ESQUINAS_REDIMENSIONAR": "Arraste os widgets para reorganizá-los. Use os cantos para redimensionar.",
@@ -1216,8 +1254,13 @@
     "COMPARISON_CHART": {
       "AREA": "Área",
       "COLUMNAS": "Colunas",
-      "INGRESOS_REAL_VS_PRESUPUESTO_YTD": "Receita: Real vs. Orçado (YTD)",
-      "TIPO_GRAFICO": "Tipo de Gráfico"
+      "INGRESOS_REAL_VS_PRESUPUESTO_YTD": "Orçamento vs. Real (últimos 12 meses)",
+      "TIPO_GRAFICO": "Tipo de Gráfico",
+      "PRESUPUESTO": "Orçamento",
+      "REAL": "Real",
+      "TOTAL": "Total",
+      "MONTO": "Valor",
+      "SIN_PRESUPUESTO": "Não há orçamento definido para este período."
     },
     "EXPENSES_CHART": {
       "COLUMNAS": "Colunas",
@@ -1235,10 +1278,33 @@
       "PASTEL": "Pizza",
       "PERSONALIZAR_COLORES": "Personalizar Cores",
       "TIPO_GRAFICO": "Tipo de Gráfico",
-      "VECTOR_SVG": "Vetor SVG"
+      "VECTOR_SVG": "Vetor SVG",
+      "TITLE": "Composição das Despesas Operacionais",
+      "SUBTITLE": "Por conta contabilística, últimos 12 meses",
+      "SERIES": "Despesas"
     },
     "FINANCIAL_RATIOS": {
-      "INDICADORES_FINANCIEROS_CLAVE": "Indicadores Financeiros Principais"
+      "INDICADORES_FINANCIEROS_CLAVE": "Indicadores Financeiros Principais",
+      "ROE": {
+        "NAME": "ROE (Retorno s/ Património)",
+        "TOOLTIP": "Rentabilidade gerada sobre o investimento dos acionistas."
+      },
+      "ROA": {
+        "NAME": "ROA (Retorno s/ Ativos)",
+        "TOOLTIP": "Eficiência da empresa em gerar lucro com os seus ativos."
+      },
+      "CURRENT_RATIO": {
+        "NAME": "Liquidez Corrente",
+        "TOOLTIP": "Capacidade de cobrir dívidas de curto prazo (ideal > 1,5)."
+      },
+      "QUICK_RATIO": {
+        "NAME": "Liquidez Seca",
+        "TOOLTIP": "Capacidade de cobrir dívidas de curto prazo sem vender estoque (ideal > 1)."
+      },
+      "WORKING_CAPITAL": {
+        "NAME": "Capital de Giro",
+        "TOOLTIP": "Recursos disponíveis para a operação diária (ativo circulante − passivo circulante)."
+      }
     },
     "INVOICE_STATUS": {
       "COLUMNAS": "Colunas",
@@ -1256,7 +1322,9 @@
       "PASTEL": "Pizza",
       "PERSONALIZAR_COLORES": "Personalizar Cores",
       "TIPO_GRAFICO": "Tipo de Gráfico",
-      "VECTOR_SVG": "Vetor SVG"
+      "VECTOR_SVG": "Vetor SVG",
+      "TITLE": "Distribuição de Faturas",
+      "SERIES": "Faturas"
     },
     "LOW_STOCK_PRODUCTS": {
       "EXCELENTE": "Tudo certo.",
@@ -1288,6 +1356,39 @@
       "PANTALLA_COMPLETA": "Tela cheia",
       "PERSONALIZAR_COLORES": "Personalizar Cores",
       "VECTOR_SVG": "Vetor SVG"
+    },
+    "ALERTS": {
+      "RECEIVABLES_OVERDUE": {
+        "TITLE": "Contas a receber vencidas",
+        "BODY": "{{count}} fatura(s) vencida(s), {{amount}} por cobrar."
+      },
+      "STOCK_DEPLETED": {
+        "TITLE": "Produtos esgotados",
+        "BODY": "{{count}} produto(s) sem existências: não podem ser faturados."
+      },
+      "STOCK_LOW": {
+        "TITLE": "Estoque baixo",
+        "BODY": "{{count}} produto(s) abaixo do ponto de reposição."
+      },
+      "PERIOD_UNCLOSED": {
+        "TITLE": "Período por fechar",
+        "BODY": "O período «{{period}}» terminou e continua aberto."
+      }
+    },
+    "SUMMARY": {
+      "SALES_TODAY": {
+        "TITLE": "Vendas de hoje"
+      },
+      "PENDING_INVOICES": {
+        "TITLE": "Faturas em aberto"
+      },
+      "LOW_STOCK": {
+        "TITLE": "Produtos com estoque baixo",
+        "OUT_OF_STOCK": "{{count}} esgotado(s)"
+      },
+      "ACTIVE_CUSTOMERS": {
+        "TITLE": "Clientes ativos"
+      }
     }
   },
   "DATA_EXPORTS": {
@@ -1410,6 +1511,34 @@
       "PLACEHOLDER": "Motivo do cancelamento",
       "TITLE": "Cancelar a fatura",
       "TOO_SHORT": "Informe um motivo com pelo menos 10 caracteres."
+    },
+    "APPROVE_PAYROLL_RUN": {
+      "MESSAGE": "Aprovar contabiliza o lançamento e fecha a folha a alterações. Um erro posterior só se corrige com uma folha de ajuste. Continuar?",
+      "TITLE": "Aprovar a folha"
+    },
+    "CANCEL_PAYROLL_RUN": {
+      "MESSAGE": "Anular esta folha? Não poderá ser reaberta.",
+      "TITLE": "Anular a folha"
+    },
+    "DELETE_DEPARTMENT": {
+      "MESSAGE": "Eliminar o departamento «{{name}}»?",
+      "TITLE": "Eliminar departamento"
+    },
+    "DELETE_DOCUMENT": {
+      "MESSAGE": "Eliminar «{{name}}»? Não pode ser desfeito.",
+      "TITLE": "Eliminar ficheiro"
+    },
+    "DELETE_FOLDER": {
+      "MESSAGE": "Eliminar «{{name}}» e tudo o que contém? Não pode ser desfeito.",
+      "TITLE": "Eliminar pasta"
+    },
+    "DELETE_PAYROLL_CONCEPT": {
+      "MESSAGE": "Eliminar o conceito «{{name}}»?",
+      "TITLE": "Eliminar conceito"
+    },
+    "DELETE_PRODUCT_CATEGORY": {
+      "TITLE": "Eliminar categoria",
+      "MESSAGE": "Eliminar a categoria «{{name}}»? Só é possível se não tiver subcategorias nem produtos."
     }
   },
   "DOCUMENTS": {
@@ -1434,20 +1563,40 @@
       "NEW_FOLDER": "Nova pasta",
       "SEARCH_IN_THIS_FOLDER": "Buscar nesta pasta...",
       "THIS_FOLDER_EMPTY": "Esta pasta está vazia.",
-      "UPLOAD_FILE": "Enviar arquivo"
+      "UPLOAD_FILE": "Enviar arquivo",
+      "SEARCH_ALL": "Procurar em todos os documentos…",
+      "FOLDER_NAME": "Nome da pasta",
+      "DOWNLOAD": "Baixar",
+      "RENAME": "Mudar o nome",
+      "ACTION_FAILED": "Não foi possível concluir a operação."
     },
     "SEARCH_IN_THIS_FOLDER": "Buscar nesta pasta...",
     "TEMPLATES": {
       "CREATE_NEW_TEMPLATE": "Criar um modelo",
       "DOCUMENT_TEMPLATES": "Modelos de documentos",
       "NEW_TEMPLATE": "Novo modelo",
-      "TYPE_LAST_MODIFIED_LASTMODIFIED": "{{type}} • Última modificação: {{lastModified}}"
+      "TYPE_LAST_MODIFIED_LASTMODIFIED": "{{type}} • Última modificação: {{lastModified}}",
+      "TITLE": "Modelos",
+      "NAME": "Nome",
+      "TYPE_COLUMN": "Tipo",
+      "LAST_MODIFIED": "Última modificação",
+      "UPLOAD": "Carregar modelo",
+      "UPLOAD_AS": "Carregar como",
+      "EXPLANATION": "Um modelo é um ficheiro que guarda aqui para reutilizar: o timbre das suas faturas, o contrato que adapta por cliente, o texto que cola num lembrete. O Virtex ainda não os preenche por si.",
+      "TYPE": {
+        "INVOICE": "Fatura",
+        "QUOTE": "Orçamento",
+        "EMAIL": "E-mail",
+        "CONTRACT": "Contrato",
+        "OTHER": "Outro",
+        "NONE": "—"
+      }
     },
     "THIS_FOLDER_EMPTY": "Esta pasta está vazia.",
     "UPLOAD_FILE": "Enviar arquivo"
   },
   "ERRORS": {
-    "AUTH_INVALID_CREDENTIALS": "As credenciais não estão corretas. Verifique seu e-mail e senha.",
+    "AUTH_INVALID_CREDENTIALS": "As credenciais não estão corretas. Verifique seu e-mail e sua senha.",
     "AUTH_USER_INACTIVE": "Esta conta está inativa. Entre em contato com seu administrador.",
     "AUTH_USER_BLOCKED": "Esta conta está bloqueada. Entre em contato com seu administrador.",
     "AUTH_TOKEN_INVALID": "Sua sessão não é mais válida. Entre novamente.",
@@ -1501,7 +1650,10 @@
     "UNEXPECTED": "Ocorreu um erro. Tente novamente.",
     "UPDATE_SSO_PROVIDER": "Não foi possível atualizar o provedor.",
     "UPDATE_USER": "Não foi possível atualizar o usuário.",
-    "VERIFY_DOMAIN": "Ainda não foi possível verificar o domínio."
+    "VERIFY_DOMAIN": "Ainda não foi possível verificar o domínio.",
+    "UPDATE_JOURNAL_ENTRY": "Não foi possível modificar o lançamento contabilístico.",
+    "RECAPTCHA": "Não foi possível concluir a verificação antirrobô. Recarregue a página e tente novamente.",
+    "INVALID_INVITATION_TOKEN": "A ligação de convite não é válida ou já foi utilizada. Peça uma nova a quem o convidou."
   },
   "FEEDBACK": {
     "COMING_SOON": "Este recurso estará disponível em breve",
@@ -1523,15 +1675,19 @@
       "B02": "B02 · Consumo (preimpreso)",
       "B04": "B04 · Nota de Crédito (preimpreso)",
       "B11": "B11 · Proveedor Informal",
-      "B15": "B15 · Gubernamental (preimpreso)"
+      "B15": "B15 · Gubernamental (preimpreso)",
+      "B03": "B03 · Nota de Débito (nota de débito)",
+      "E41": "E41 · Compras Electrónico (compra autoemitida)",
+      "E43": "E43 · Gastos Menores Electrónico (despesas menores)",
+      "E47": "E47 · Pagos al Exterior Electrónico (pagamentos ao exterior)"
     },
     "MX": {
       "I": "I · Ingreso (CFDI 4.0)",
       "E": "E · Egreso — nota de crédito (CFDI 4.0)"
     },
     "CO": {
-      "01": "01 · Factura de Venta Nacional",
-      "91": "91 · Nota Crédito"
+      "91": "91 · Nota Crédito",
+      "01": "01 · Factura de Venta Nacional"
     },
     "PE": {
       "01": "01 · Factura",
@@ -1551,9 +1707,9 @@
       "55": "55 · Nota Fiscal Eletrônica (NF-e)"
     },
     "AR": {
+      "11": "11 · Factura C",
       "01": "01 · Factura A",
-      "06": "06 · Factura B",
-      "11": "11 · Factura C"
+      "06": "06 · Factura B"
     }
   },
   "FORGOT_PASSWORD": {
@@ -1584,7 +1740,19 @@
       "AQUI_MOSTRARA_LISTA_GESTION_CATEGORIAS": "A lista e a gestão de categorias aparecerão aqui.",
       "CATEGORIAS": "Categorias",
       "NUEVA_CATEGORIA": "Nova\n                    Categoria",
-      "ORGANIZA_TUS_PRODUCTOS_DIFERENTES_CATEGORIAS": "Organize seus produtos em categorias."
+      "ORGANIZA_TUS_PRODUCTOS_DIFERENTES_CATEGORIAS": "Organize seus produtos em categorias.",
+      "NAME": "Nome",
+      "CODE": "Código",
+      "PARENT": "Categoria superior",
+      "NO_PARENT": "Sem categoria superior",
+      "STATUS": "Situação",
+      "ACTIVE": "Ativa",
+      "INACTIVE": "Retirada",
+      "ACTIVATE": "Reativar",
+      "DEACTIVATE": "Retirar",
+      "SHOW_INACTIVE": "Mostrar retiradas",
+      "EMPTY": "Ainda não há categorias. Crie a primeira para começar a organizar o catálogo.",
+      "SAVE_FAILED": "Não foi possível guardar a categoria."
     },
     "PRODUCTS": {
       "BUSCAR_NOMBRE_SKU_CATEGORIA": "Buscar por nome, SKU ou categoria...",
@@ -1610,14 +1778,12 @@
       "LOAD_FAILED": "Não foi possível carregar os produtos. Tente novamente."
     },
     "PRODUCT_FORM": {
-      "ACCESORIOS": "Acessórios",
       "ACTIVO": "Ativo",
       "CANCELAR": "Cancelar",
       "CANTIDAD_STOCK": "Quantidade em Estoque*",
       "CATEGORIA": "Categoria*",
       "COMPLETA_INFORMACION_DETALLADA_TU_PRODUCTO_SERVICIO": "Preencha os dados do seu produto ou serviço.",
       "DESCRIPCION": "Descrição",
-      "ELECTRONICA": "Eletrônicos",
       "ERROR_ACTUALIZAR_PRODUCTO": "Erro ao atualizar o produto.",
       "ERROR_CREAR_PRODUCTO": "Erro ao criar o produto.",
       "ESTADO": "Situação*",
@@ -1625,7 +1791,6 @@
       "IMAGEN_PRODUCTO": "Imagem do Produto",
       "INACTIVO": "Inativo",
       "INFORMACION_BASICA": "Informações Básicas",
-      "MONITORES": "Monitores",
       "NIVEL_REORDEN": "Ponto de Reposição",
       "NOMBRE_PRODUCTO": "Nome do Produto*",
       "ORGANIZACION": "Organização",
@@ -1640,7 +1805,11 @@
       "VISTA_PREVIA": "Prévia",
       "TITLE_NEW": "Novo produto",
       "TITLE_EDIT": "Editar produto",
-      "GUARDAR_PRODUCTO": "Salvar produto"
+      "GUARDAR_PRODUCTO": "Salvar produto",
+      "COSTO_UNITARIO": "Custo Unitário",
+      "COSTO_UNITARIO_AYUDA": "Quanto o artigo lhe custou. Determina o custo da venda e a valorização do inventário.",
+      "SIN_CATEGORIA": "Sem categoria",
+      "SIN_CATEGORIAS_AUN": "Ainda não há categorias. Crie-as em Inventário → Categorias."
     }
   },
   "INVOICES": {
@@ -1712,7 +1881,7 @@
       "COMPLETADA": "Exportação concluída.",
       "COMPROBANTE_FISCAL": "Documento fiscal",
       "DOCUMENTO": "Documento",
-      "ESTADO": "Estado",
+      "ESTADO": "Situação",
       "EXENTO": "Isento",
       "FECHA_EMISION": "Data de emissão",
       "FECHA_VENCIMIENTO": "Data de vencimento",
@@ -2153,8 +2322,8 @@
       "USD_DOLAR_ESTADOUNIDENSE": "USD - Dólar Americano",
       "VALIDO_DESDE": "Válido De*",
       "VALIDO_HASTA": "Válido Até*",
-      "TITLE_NEW": "Nova lista de preços",
-      "TITLE_EDIT": "Editar lista de preços",
+      "TITLE_NEW": "Nova tabela de preços",
+      "TITLE_EDIT": "Editar tabela de preços",
       "GUARDAR_LISTA": "Salvar lista"
     },
     "SUPPLIER_FORM": {
@@ -2175,7 +2344,10 @@
       "PUDO_CARGAR_PROVEEDOR": "Não foi possível carregar o fornecedor.",
       "TELEFONO": "Telefone",
       "TITLE_NEW": "Novo fornecedor",
-      "TITLE_EDIT": "Editar fornecedor"
+      "TITLE_EDIT": "Editar fornecedor",
+      "PAIS": "País",
+      "PAIS_AYUDA": "Código ISO de duas letras. Separa uma compra local de um pagamento ao exterior, que o 609 reporta à parte.",
+      "TIPO_CONTRIBUYENTE_AYUDA": "Determina o que lhe é retido ao pagar. Se não souber, deixe sem classificar: nada será retido automaticamente."
     },
     "SUPPLIER_LIST": {
       "COMPANY_NAME": "Razão social",
@@ -2271,7 +2443,12 @@
     "PURCHASING": "Compras",
     "REPORTS": "Relatórios",
     "SALES": "Vendas",
-    "SETTINGS": "Configurações"
+    "SETTINGS": "Configurações",
+    "HISTORY": {
+      "GROUP": "Histórico de navegação",
+      "BACK": "Voltar",
+      "FORWARD": "Avançar"
+    }
   },
   "NOTIFICATIONS": {
     "MANTENTE_DIA_ULTIMAS_ACTUALIZACIONES_ALERTAS_TU": "Acompanhe as últimas atualizações e alertas da sua conta.",
@@ -2291,11 +2468,73 @@
   "OVERVIEW": {
     "ACTIVITY": {
       "EMPTY": "Ainda não há atividade recente.",
-      "TITLE": "Atividade recente"
+      "TITLE": "Atividade recente",
+      "NO_REFERENCE": "sem número",
+      "ITEM": {
+        "INVOICES": {
+          "CREATE": "Fatura {{reference}} emitida",
+          "UPDATE": "Fatura {{reference}} atualizada",
+          "DELETE": "Fatura {{reference}} eliminada"
+        },
+        "CUSTOMER_PAYMENTS": {
+          "CREATE": "Recebimento {{reference}} registado",
+          "UPDATE": "Recebimento {{reference}} alterado",
+          "DELETE": "Recebimento {{reference}} eliminado"
+        },
+        "VENDOR_BILLS": {
+          "CREATE": "Fatura de fornecedor {{reference}} registada",
+          "UPDATE": "Fatura de fornecedor {{reference}} atualizada",
+          "DELETE": "Fatura de fornecedor {{reference}} eliminada"
+        },
+        "VENDOR_PAYMENTS": {
+          "CREATE": "Pagamento a fornecedor {{reference}} registado",
+          "UPDATE": "Pagamento a fornecedor {{reference}} alterado",
+          "DELETE": "Pagamento a fornecedor {{reference}} eliminado"
+        },
+        "JOURNAL_ENTRIES": {
+          "CREATE": "Lançamento {{reference}} contabilizado",
+          "UPDATE": "Lançamento {{reference}} alterado",
+          "DELETE": "Lançamento {{reference}} eliminado"
+        },
+        "CUSTOMERS": {
+          "CREATE": "Cliente «{{reference}}» registado",
+          "UPDATE": "Cliente «{{reference}}» atualizado",
+          "DELETE": "Cliente «{{reference}}» eliminado"
+        },
+        "SUPPLIERS": {
+          "CREATE": "Fornecedor «{{reference}}» registado",
+          "UPDATE": "Fornecedor «{{reference}}» atualizado",
+          "DELETE": "Fornecedor «{{reference}}» eliminado"
+        },
+        "PRODUCTS": {
+          "CREATE": "Produto «{{reference}}» adicionado ao catálogo",
+          "UPDATE": "Produto «{{reference}}» atualizado",
+          "DELETE": "Produto «{{reference}}» eliminado"
+        },
+        "GENERIC": {
+          "CREATE": "{{reference}} criado",
+          "UPDATE": "{{reference}} atualizado",
+          "DELETE": "{{reference}} eliminado"
+        }
+      }
     },
     "EVENTS": {
-      "EMPTY": "Não há eventos próximos.",
-      "TITLE": "Próximos eventos"
+      "EMPTY": "Não há vencimentos nem fechos nos próximos 30 dias.",
+      "TITLE": "Próximos vencimentos",
+      "ITEM": {
+        "RECEIVABLE_DUE": "Vence a fatura {{reference}}",
+        "RECEIVABLE_OVERDUE": "Fatura {{reference}} vencida",
+        "PAYABLE_DUE": "Vence a fatura de fornecedor {{reference}}",
+        "PAYABLE_OVERDUE": "Fatura de fornecedor {{reference}} vencida",
+        "PERIOD_CLOSE": "Fecho do período «{{reference}}»"
+      },
+      "KIND": {
+        "RECEIVABLE_DUE": "A receber",
+        "RECEIVABLE_OVERDUE": "Vencida",
+        "PAYABLE_DUE": "A pagar",
+        "PAYABLE_OVERDUE": "Vencida",
+        "PERIOD_CLOSE": "Fecho contabilístico"
+      }
     },
     "GREETING": {
       "AFTERNOON": "Boa tarde",
@@ -2333,7 +2572,7 @@
     "ACCOUNTING_PREFERENCES": "Preferências contábeis",
     "ACCOUNTS_PAYABLE": "Contas a pagar",
     "ACCOUNTS_PAYABLE_AGING": "Idade das Contas a Pagar",
-    "ACCOUNTS_RECEIVABLE_AGING": "Idade das Contas a Receber",
+    "ACCOUNTS_RECEIVABLE_AGING": "Aging de Contas a Receber",
     "ACCOUNT_EDIT": "Editar conta",
     "ACCOUNT_NEW": "Nova conta",
     "ACCOUNT_RECONCILIATION": "Conciliação de Contas",
@@ -2370,7 +2609,7 @@
     "DOCUMENT_REPOSITORY": "Repositório de documentos",
     "DOCUMENT_TEMPLATES": "Modelos de documento",
     "EINVOICING": "Faturamento eletrônico (RD)",
-    "EINVOICING_REGIME": "Nota fiscal eletrônica",
+    "EINVOICING_REGIME": "Emissão eletrônica",
     "FISCAL_PERIODS": "Períodos e fechamento fiscal",
     "FISCAL_SEQUENCES": "Sequências fiscais",
     "GENERAL_LEDGER": "Livro razão",
@@ -2404,6 +2643,8 @@
     "PAYMENT_METHODS": "Formas de pagamento",
     "PAYMENT_TERMS": "Condições de pagamento",
     "PERSONALIZATION": "Personalização",
+    "EXTENSIONS": "Extensões",
+    "EXTENSIONS_RUNTIME": "Execução de extensões",
     "POINT_OF_SALE": "Ponto de venda",
     "PRICE_LISTS": "Tabelas de preços",
     "PRICE_LIST_EDIT": "Editar tabela de preços",
@@ -2446,7 +2687,25 @@
     "VENDOR_PAYMENT": "Pagamento a Fornecedores",
     "WAREHOUSES": "Depósitos",
     "WAREHOUSE_MANAGEMENT": "Gestão de armazéns (WMS)",
-    "WITHHOLDING_REGIMES": "Regimes de retenção"
+    "WITHHOLDING_REGIMES": "Regimes de retenção",
+    "PURCHASE_ORDER_NEW": "Nova ordem de compra",
+    "PURCHASE_ORDER_EDIT": "Ordem de compra",
+    "PURCHASE_REQUISITION_NEW": "Nova requisição",
+    "PURCHASE_REQUISITION_EDIT": "Requisição",
+    "DEPARTMENTS": "Departamentos",
+    "EMPLOYEES": "Funcionários",
+    "EMPLOYEE_EDIT": "Colaborador",
+    "EMPLOYEE_NEW": "Novo colaborador",
+    "MY_PAYSLIPS": "Os meus recibos",
+    "PAYROLL_CONCEPTS": "Conceitos da folha",
+    "PAYROLL_PARAMETERS": "Parâmetros legais",
+    "PAYROLL_RUN": "Folha de pagamento",
+    "PAYROLL_RUNS": "Folhas de pagamento",
+    "INVOICE": "Fatura",
+    "VENDOR_BILL": "Fatura de fornecedor",
+    "DATASHEET": "Folha de dados",
+    "AUDIT_ADJUSTMENTS": "Ajustes de auditoria",
+    "AUDIT_ADJUSTMENT_NEW": "Novo ajuste de auditoria"
   },
   "PASSWORD_STRENGTH": {
     "WEAK": "Fraca"
@@ -2468,7 +2727,46 @@
       "STATUS": "Situação",
       "SUPPLIER": "Fornecedor",
       "TITLE": "Pedidos de Compra",
-      "TOTAL": "Total"
+      "TOTAL": "Total",
+      "STATUS_LABEL": {
+        "DRAFT": "Rascunho",
+        "PENDING_APPROVAL": "A aguardar aprovação",
+        "APPROVED": "Aprovada",
+        "SENT": "Enviada",
+        "PARTIALLY_RECEIVED": "Recebida parcialmente",
+        "RECEIVED": "Recebida",
+        "CANCELLED": "Cancelada"
+      },
+      "FORM": {
+        "EXPECTED_DATE": "Data prevista",
+        "EXPECTED_DATE_HELP": "O que o fornecedor prometeu.",
+        "NOTES": "Observações",
+        "LINES": "Linhas da ordem",
+        "PRODUCT": "Produto",
+        "DESCRIPTION": "Descrição",
+        "QUANTITY": "Quantidade",
+        "RECEIVED": "Recebido",
+        "UNIT_PRICE": "Preço acordado",
+        "TAX_RATE": "Imposto",
+        "NOT_IN_CATALOGUE": "Fora do catálogo",
+        "ADD_LINE": "Adicionar linha",
+        "SUBTOTAL": "Subtotal",
+        "TAX": "Impostos",
+        "SUBMIT": "Enviar para aprovação",
+        "APPROVE": "Aprovar",
+        "SEND": "Marcar como enviada ao fornecedor",
+        "RECEIVE": "Registar receção",
+        "RECEIVE_TITLE": "O que chegou",
+        "OUTSTANDING": "Pendente",
+        "RECEIVING_NOW": "A receber agora",
+        "CONFIRM_RECEIPT": "Confirmar receção",
+        "CANCEL_ORDER": "Cancelar ordem",
+        "CANCEL_REASON": "Motivo do cancelamento",
+        "CONFIRM_CANCEL": "Confirmar cancelamento",
+        "FROM_REQUISITION": "Abrir a requisição de origem",
+        "SAVED": "Ordem guardada.",
+        "SAVE_FAILED": "Não foi possível guardar a ordem."
+      }
     },
     "REQUISITIONS": {
       "DATE": "Data",
@@ -2481,7 +2779,36 @@
       "REQUISITION": "N.º da requisição",
       "STATUS": "Situação",
       "TITLE": "Requisições de Compra",
-      "TOTAL": "Total"
+      "TOTAL": "Total",
+      "ITEMS": "Artigos",
+      "REQUIRED_DATE": "Necessária até",
+      "STATUS_LABEL": {
+        "DRAFT": "Rascunho",
+        "PENDING_APPROVAL": "A aguardar aprovação",
+        "APPROVED": "Aprovada",
+        "REJECTED": "Rejeitada",
+        "CONVERTED_TO_PO": "Encomendada"
+      },
+      "FORM": {
+        "NOTES": "Justificação",
+        "NOTES_HELP": "O que quem aprova vai ler.",
+        "ITEMS": "Artigos solicitados",
+        "PRODUCT": "Produto",
+        "DESCRIPTION": "Descrição",
+        "QUANTITY": "Quantidade",
+        "ESTIMATED_PRICE": "Preço estimado",
+        "NOT_IN_CATALOGUE": "Fora do catálogo",
+        "ADD_LINE": "Adicionar linha",
+        "ESTIMATE_NOTE": "Uma estimativa: ainda ninguém cotou.",
+        "SUBMIT": "Enviar para aprovação",
+        "APPROVE": "Aprovar",
+        "REJECT": "Rejeitar",
+        "REJECT_REASON": "Motivo da rejeição",
+        "CONFIRM_REJECT": "Confirmar rejeição",
+        "REOPEN": "Devolver a rascunho",
+        "SAVED": "Requisição guardada.",
+        "SAVE_FAILED": "Não foi possível guardar a requisição."
+      }
     }
   },
   "PWA": {
@@ -2605,7 +2932,8 @@
         "SUBTITLE": "Escolha o plano que melhor se adapta a você",
         "TITLE": "Escolha seu Plano",
         "TOTAL": "{{count}} {{resource}} no total",
-        "UNLIMITED": "{{resource}} sem limite"
+        "UNLIMITED": "{{resource}} sem limite",
+        "NONE": "Sem {{resource}}"
       }
     },
     "STEP_OF": "Etapa {{current}} de {{total}}",
@@ -2840,6 +3168,9 @@
     "POS": {
       "AGOTADO": "Esgotado",
       "ANADE_PRODUCTOS_COMENZAR_VENTA": "Adicione produtos para iniciar uma venda.",
+      "LOAD_PRODUCTS_ERROR": "Não foi possível carregar o catálogo de produtos.",
+      "SALE_COMPLETED": "Venda concluída.",
+      "SALE_ERROR": "Não foi possível concluir a venda.",
       "BUSCAR_PRODUCTOS_NOMBRE_SKU": "Buscar produtos por nome ou SKU...",
       "CLIENTE": "Cliente:",
       "COBRAR": "Cobrar",
@@ -2959,7 +3290,7 @@
       "AUN_NO_HAS_REGISTRADO_RANGOS_NCF": "Você ainda não registrou faixas de e-NCF.",
       "CAPABILITY_ACCOUNTING": "Contabilidade e operação",
       "CAPABILITY_ELECTRONIC_ACCOUNTING": "Contabilidade eletrônica",
-      "CAPABILITY_ELECTRONIC_INVOICING": "Nota fiscal eletrônica",
+      "CAPABILITY_ELECTRONIC_INVOICING": "Emissão eletrônica",
       "CAPABILITY_PERIODIC_RETURNS": "Declarações periódicas",
       "CAPABILITY_TAX_DETERMINATION": "Determinação de impostos",
       "CAPABILITY_WITHHOLDING": "Retenções",
@@ -3167,7 +3498,7 @@
         "STARTS_AT": "De",
         "STATE_CODE": "Código IBGE do estado",
         "SUBTITLE": "A configuração do seu regime e as faixas de numeração que a autoridade lhe concedeu.",
-        "TITLE": "Nota fiscal eletrônica",
+        "TITLE": "Emissão eletrônica",
         "VALID_UNTIL": "Válida até",
         "VALID_UNTIL_HINT": "Uma resolução da DIAN e um CAF do SII vencem; uma série brasileira não."
       },
@@ -3298,7 +3629,7 @@
         "CANCEL": "Cancelar",
         "CAPABILITY_ACCOUNTING": "Contabilidade",
         "CAPABILITY_ELECTRONIC_ACCOUNTING": "Contabilidade eletrônica",
-        "CAPABILITY_ELECTRONIC_INVOICING": "Nota fiscal eletrônica",
+        "CAPABILITY_ELECTRONIC_INVOICING": "Emissão eletrônica",
         "CAPABILITY_PERIODIC_RETURNS": "Declarações periódicas",
         "CAPABILITY_TAX_DETERMINATION": "Determinação de imposto",
         "CAPABILITY_WITHHOLDING": "Retenções",
@@ -3579,14 +3910,15 @@
       "SELECCIONAR_ROL": "Selecionar perfil",
       "SESION_USUARIO_HA_SIDO_CERRADA": "A sessão do usuário foi encerrada.",
       "SUPLANTAR_USUARIO": "Personificar Usuário",
-      "TIMES": "&times;",
+      "TIMES": "×",
       "USUARIOS": "Usuários",
       "USUARIOS_2": "usuários",
       "USUARIO_ACTUALIZADO_EXITO": "Usuário atualizado com sucesso.",
       "USUARIO_ELIMINADO_EXITO": "Usuário excluído com sucesso.",
       "USUARIO_EMPRESA_COM": "usuario@empresa.com",
       "USUARIO_HA_SIDO_BLOQUEADO_SESION_CERRADA": "O usuário foi bloqueado e sua sessão encerrada.",
-      "USUARIO_INVITADO_EXITO": "Usuário convidado com sucesso."
+      "USUARIO_INVITADO_EXITO": "Usuário convidado com sucesso.",
+      "MOSTRANDO_DE": "A mostrar {{shown}} de {{total}} utilizadores"
     }
   },
   "SET_PASSWORD": {
@@ -3684,7 +4016,7 @@
       "FECHA_APERTURA": "Data de abertura",
       "IBAN": "IBAN",
       "NOMBRE": "Nome",
-      "NOTAS": "Notas",
+      "NOTAS": "Observações",
       "NO_MODIFICABLE": "Não pode ser alterado: os movimentos já lançados foram medidos com este valor.",
       "NO_SE_PUDO_CARGAR": "Não foi possível carregar a conta bancária.",
       "NO_SE_PUDO_GUARDAR": "Não foi possível salvar a conta bancária.",
@@ -3730,7 +4062,8 @@
     "RUTA_SOLICITADA": "Caminho solicitado:",
     "SI_CREES_ESTO_ES_ERROR_CONTACTA": "Se você acha que isso é um erro, fale com o administrador do sistema ou solicite as permissões necessárias.",
     "SOLICITAR_PERMISO": "Solicitar Permissão",
-    "VOLVER_DASHBOARD": "Voltar ao Painel"
+    "VOLVER_DASHBOARD": "Voltar ao Painel",
+    "TITLE": "Acesso negado"
   },
   "USER": {
     "HELP": "Ajuda",
@@ -3982,15 +4315,12 @@
       "tax": "Tributos e Conformidade"
     },
     "hr": {
-      "absences": "Ausências",
-      "dashboard": "Painel da folha",
       "employees": "Funcionários",
-      "incidents": "Ocorrências",
-      "loans": "Empréstimos",
-      "process": "Processar folha",
-      "reports": "Relatórios",
-      "self_service": "Autoatendimento",
-      "severance": "Rescisões"
+      "departments": "Departamentos",
+      "my_payslips": "Os meus recibos",
+      "payroll_concepts": "Conceitos",
+      "payroll_parameters": "Parâmetros legais",
+      "payroll_runs": "Folhas"
     },
     "intelligence": {
       "analytics": "Inteligência e Planejamento",
@@ -4018,6 +4348,7 @@
       "data_quality": "Qualidade de dados",
       "dimensions": "Dimensões",
       "duplicates": "Duplicados",
+      "extensions": "Extensões",
       "payment_methods": "Formas de pagamento",
       "payment_terms": "Condições de pagamento",
       "price_lists": "Tabelas de preços",
@@ -4236,13 +4567,14 @@
     "WORKSPACE": "Meu trabalho",
     "SALES": "Vendas",
     "PURCHASING": "Compras",
-    "INVENTORY": "Inventário",
+    "INVENTORY": "Estoque",
     "TREASURY": "Tesouraria",
     "ACCOUNTING": "Contabilidade",
     "ANALYSIS": "Análise",
-    "DATASHEETS": "Folhas de dados",
+    "DATASHEETS": "Planilhas",
     "ADMINISTRATION": "Administração",
-    "ROADMAP": "Em preparação"
+    "ROADMAP": "Em preparação",
+    "HR": "RH e Folha de Pagamento"
   },
   "TRANSITION": {
     "PRECONDITIONS": "Precondições",
@@ -4258,7 +4590,7 @@
     "OPEN_PERIOD": "Abrir o período",
     "CONFIGURE_SEQUENCES": "Configurar sequências",
     "REVIEW_PLAN": "Rever o plano",
-    "VIEW_STOCK": "Ver existências"
+    "VIEW_STOCK": "Ver estoque"
   },
   "STATUS_BAR": {
     "PERIOD_OPEN": "Período {{period}} aberto",
@@ -4272,7 +4604,7 @@
     "MODULE_PANEL": "Seções do módulo",
     "GROUP_INBOX": "Caixa de entrada",
     "GROUP_DOCUMENTS": "Documentos",
-    "GROUP_MASTERS": "Cadastros",
+    "GROUP_MASTERS": "Dados Mestres",
     "GROUP_ANALYSIS": "Análise",
     "NO_ENTRIES": "Este módulo não tem seções disponíveis com suas permissões.",
     "SEARCH_PLACEHOLDER": "Pesquisar…",
@@ -4297,5 +4629,303 @@
     "INBOX_ALL_CLEAR": "Você não tem nada pendente.",
     "INBOX_SECTION_CLEAR": "Em dia.",
     "INBOX_OVERDUE": "Vencido"
+  },
+  "HCM": {
+    "DEPARTMENTS": {
+      "COST_CENTER": "Centro de custo",
+      "NAME": "Nome",
+      "NEW": "Novo departamento",
+      "SAVE_FAILED": "Não foi possível guardar o departamento.",
+      "TITLE": "Departamentos"
+    },
+    "EMPLOYEES": {
+      "DEPARTMENT": "Departamento",
+      "FORM": {
+        "ADD_PAY": "Registar uma alteração salarial",
+        "AFP": "Fundo de pensões (AFP)",
+        "BANK": "Conta para o pagamento",
+        "BANK_ACCOUNT": "Número da conta",
+        "BANK_ACCOUNT_TYPE": "Tipo de conta",
+        "BANK_NAME": "Banco",
+        "BASE_SALARY": "Salário base",
+        "CESANTIA": "Indemnização",
+        "CONTRACT": "Tipo de contrato",
+        "CONTRACT_TYPE": {
+          "FIXED_TERM": "Prazo certo",
+          "INDEFINITE": "Indeterminado",
+          "OCCASIONAL": "Ocasional"
+        },
+        "DOC": {
+          "CEDULA": "Cédula",
+          "PASSPORT": "Passaporte",
+          "RNC": "RNC"
+        },
+        "DOCUMENT": "Documento",
+        "DOCUMENT_HELP": "Cifrado. Deixe em branco para manter o atual.",
+        "DOCUMENT_TYPE": "Tipo de documento",
+        "EFFECTIVE_FROM": "Vigente desde",
+        "EMAIL": "E-mail",
+        "EMPLOYMENT": "Vínculo",
+        "FIRST_NAME": "Nome",
+        "FREQUENCY": "Frequência",
+        "FREQUENCY_LABEL": {
+          "BIWEEKLY": "Quinzenal",
+          "MONTHLY": "Mensal",
+          "WEEKLY": "Semanal"
+        },
+        "IDENTITY": "Identidade fiscal e segurança social",
+        "JOB_TITLE": "Cargo",
+        "LAST_DAY": "Último dia trabalhado",
+        "LAST_NAME": "Sobrenome",
+        "NO_PAY": "Sem salário registado: a folha não pode incluir esta pessoa.",
+        "PAY_HISTORY": "Histórico salarial",
+        "PAY_HISTORY_HELP": "Um aumento acrescenta uma linha com a data em que passa a vigorar; nunca reescreve o que uma folha passada calculou.",
+        "PERSON": "Dados pessoais",
+        "PREAVISO": "Aviso prévio",
+        "PREVIEW_SEVERANCE": "Calcular",
+        "REGALIA": "Subsídio proporcional",
+        "REVEAL": "Ver os dados sensíveis",
+        "SAVED": "Colaborador guardado.",
+        "SAVE_FAILED": "Não foi possível guardar o colaborador.",
+        "SEVERANCE": "Cálculo de indemnização",
+        "SEVERANCE_FAILED": "Não foi possível calcular a indemnização.",
+        "SEVERANCE_HELP": "Quanto custaria o desligamento, antes de ser decidido. Aviso prévio (Art. 76), indemnização (Art. 80), férias (Art. 177) e subsídio proporcional.",
+        "SEVERANCE_TOTAL": "Total",
+        "SFS": "Fundo de saúde (ARS/SFS)",
+        "TERMINATION_DATE": "Data de saída",
+        "TSS_NSS": "NSS (TSS)",
+        "VACATIONS": "Férias"
+      },
+      "HIRE_DATE": "Admissão",
+      "INCLUDE_TERMINATED": "Incluir quem já saiu",
+      "JOB_TITLE": "Cargo",
+      "NAME": "Nome",
+      "NEW": "Novo colaborador",
+      "SEARCH": "Procurar por nome, e-mail ou cargo…",
+      "STATUS": "Situação",
+      "STATUS_LABEL": {
+        "ACTIVE": "Ativo",
+        "SUSPENDED": "Suspenso",
+        "TERMINATED": "Desligado"
+      },
+      "TITLE": "Funcionários"
+    }
+  },
+  "PAYROLL": {
+    "CONCEPTS": {
+      "ACTIVE": "Ativo",
+      "CALCULATION": "Cálculo",
+      "CALC_LABEL": {
+        "FIXED": "Valor fixo",
+        "HOURLY": "Por horas",
+        "PERCENTAGE": "Percentagem",
+        "STATUTORY": "Legal"
+      },
+      "CODE": "Código",
+      "INCLUDE_INACTIVE": "Incluir inativos",
+      "NAME": "Nome",
+      "NEW": "Novo conceito",
+      "RATE": "Taxa",
+      "RATE_HELP": "Uma fração para uma percentagem (0,03) ou um multiplicador para horas (1,35).",
+      "SAVE_FAILED": "Não foi possível guardar o conceito.",
+      "SYSTEM": "Legal",
+      "TAXABLE": "Tributável",
+      "TITLE": "Conceitos da folha",
+      "TSS_BASE": "Conta para a TSS",
+      "TYPE": "Tipo",
+      "TYPE_LABEL": {
+        "DEDUCTION": "Desconto",
+        "EARNING": "Rendimento",
+        "EMPLOYER_CONTRIBUTION": "Encargo patronal"
+      }
+    },
+    "MY_PAYSLIPS": {
+      "PERIOD": "Período",
+      "TITLE": "Os meus recibos"
+    },
+    "PARAMETERS": {
+      "ACCUMULATED": "Imposto acumulado",
+      "BASE": "Base",
+      "BASE_LABEL": {
+        "PAYROLL_UNCAPPED": "Folha sem teto",
+        "SALARY_CAPPED": "Salário com teto"
+      },
+      "CAP": "Teto (× salário mínimo)",
+      "CAP_HELP": "Um múltiplo do salário mínimo contributivo.",
+      "CONTRIBUTIONS": "Contribuições para a segurança social",
+      "EFFECTIVE_FROM": "Vigente desde",
+      "EMPLOYEE_RATE": "Taxa do colaborador",
+      "EMPLOYER_RATE": "Taxa patronal",
+      "EXPLANATION": "Uma taxa é um facto de um momento: nada aqui se edita no lugar. Uma alteração é uma linha nova com a data em que passa a vigorar, para que uma folha recalculada depois continue a produzir o que produziu então.",
+      "FROM_ANNUAL": "De (anual)",
+      "IN_FORCE": "Vigência",
+      "KEY": "Parâmetro",
+      "KEY_LABEL": {
+        "BONUS_EMPLOYEE_LEVY_RATE": "Taxa INFOTEP sobre o subsídio",
+        "ISR_ANNUAL_EXEMPT": "Isenção anual de IRS",
+        "MIN_WAGE_COTIZABLE": "Salário mínimo contributivo"
+      },
+      "NEW_RATE": "Nova taxa",
+      "NEW_REFERENCE": "Novo valor",
+      "RATE": "Taxa",
+      "REFERENCES": "Valores de referência",
+      "REGIME": "Regime",
+      "SAVE_FAILED": "Não foi possível guardar o parâmetro.",
+      "SUPERSEDE": "Substituir",
+      "TAX_SCALE": "Escalão de IRS",
+      "TAX_SCALE_HELP": "Um escalão é um conjunto: substitui-se por inteiro numa data, não linha a linha.",
+      "TITLE": "Parâmetros legais",
+      "TO_ANNUAL": "Até (anual)",
+      "VALUE": "Valor"
+    },
+    "PAYSLIP": {
+      "AFP": "Pensões",
+      "BASE_SALARY": "Salário base",
+      "DEDUCTIONS": "Descontos",
+      "GROSS": "Bruto",
+      "ISR": "IRS",
+      "NET": "Líquido",
+      "SFS": "Saúde"
+    },
+    "RUNS": {
+      "ACTION_FAILED": "Não foi possível concluir a operação.",
+      "ADD_INPUT": "Adicionar variável",
+      "AMOUNT_OR_HOURS": "Valor / horas",
+      "APPROVE": "Aprovar",
+      "CALCULATE": "Calcular",
+      "CANCEL": "Cancelar",
+      "CONCEPT": "Conceito",
+      "CREATE": "Criar",
+      "CREATE_FAILED": "Não foi possível criar a folha.",
+      "DEDUCTIONS": "Descontos",
+      "EMPLOYEE": "Colaborador",
+      "EMPLOYER_COST": "Encargos patronais",
+      "EXPORT_SUIR": "Descarregar SUIR",
+      "GROSS": "Bruto",
+      "INPUTS": "Variáveis do período",
+      "INPUTS_HELP": "Horas extra, comissões, descontos: o que muda de um mês para o outro. Enviadas como conjunto completo antes de calcular.",
+      "INPUTS_SAVED": "Variáveis guardadas.",
+      "MONTH": "Mês",
+      "NAME": "Nome",
+      "NET": "Líquido a pagar",
+      "NEW": "Nova folha",
+      "NOTE": "Nota",
+      "NO_EMPLOYEES_OR_CONCEPTS": "É preciso pelo menos um colaborador ativo e um conceito para registar variáveis.",
+      "NO_INPUTS": "Sem variáveis neste período.",
+      "NO_PAYSLIPS": "A folha ainda não foi calculada.",
+      "PAY": "Marcar como paga",
+      "PAYSLIPS": "Recibos de vencimento",
+      "PERIOD": "Período",
+      "SAVE_INPUTS": "Guardar variáveis",
+      "STATUS": "Situação",
+      "STATUS_LABEL": {
+        "APPROVED": "Aprovada",
+        "CALCULATED": "Calculada",
+        "CANCELLED": "Cancelada",
+        "DRAFT": "Rascunho",
+        "PAID": "Paga"
+      },
+      "TITLE": "Folhas de pagamento",
+      "TYPE": "Tipo",
+      "TYPE_LABEL": {
+        "ADJUSTMENT": "Ajuste",
+        "CHRISTMAS_BONUS": "Subsídio de Natal",
+        "REGULAR": "Regular"
+      },
+      "YEAR": "Ano"
+    },
+    "RUN_NOT_FOUND": "A folha de pagamento não foi encontrada."
+  },
+  "EXTENSIONS": {
+    "OPEN_RUNTIME": "Abrir execução",
+    "NONE_REGISTERED": "Ainda não há extensões registadas. Registe uma à direita.",
+    "VERSION_COUNT": "{{count}} versão(ões)",
+    "ENABLED": "Ativada",
+    "REVOKE": "Revogar",
+    "REGISTER": "Registar extensão",
+    "ADMIT_AND_REGISTER": "Admitir e registar",
+    "ADMISSION_HINT": "O código passa pelo processo de admissão (SBOM, heurísticas, políticas) e é assinado antes de poder ser executado.",
+    "RUN_IN_SANDBOX": "Executar no isolamento",
+    "EXECUTE": "Executar",
+    "EXECUTION_TIME": "{{ms}} ms",
+    "METERED": "Medida",
+    "LOADING_RUNTIME": "A carregar extensões…",
+    "NONE_ENABLED": "Este inquilino não tem nenhuma extensão de interface ativada.",
+    "GO_TO_MANAGER": "Ir para o gestor de extensões →",
+    "VERSION_TAG": "v{{version}}",
+    "FIELDS": {
+      "NAME": "Nome",
+      "VERSION": "Versão",
+      "DESCRIPTION": "Descrição",
+      "CAPABILITIES": "Capacidades (separadas por vírgulas)",
+      "EGRESS": "Anfitriões de saída solicitados",
+      "CODE": "Código (lógica de servidor, executa no isolamento)",
+      "UI_CODE": "Código de interface (opcional, executa no host de navegador isolado)"
+    },
+    "PLACEHOLDERS": {
+      "NAME": "a-minha-extensao",
+      "CAPABILITIES": "egress:http",
+      "EGRESS": "api.taxjar.com",
+      "UI_CODE": "root.innerHTML = '<h3>Olá</h3>'; // usa virtex.api(), virtex.toast()",
+      "EXTENSION_NAME": "nome da extensão"
+    },
+    "STATUS": {
+      "ACTIVE": "Ativa",
+      "DISABLED": "Desativada",
+      "REVOKED": "Revogada"
+    },
+    "RUN_STATUS": {
+      "success": "Bem-sucedida",
+      "execution_failed": "Falhou a execução"
+    },
+    "GRANTED_CAPABILITIES": "Capacidades concedidas"
+  },
+  "AUDIT_ADJUSTMENTS": {
+    "TITLE": "Ajustes de auditoria",
+    "SUBTITLE": "Correções propostas por uma auditoria sobre um exercício já encerrado.",
+    "PROPOSE": "Propor ajuste",
+    "PROPOSE_TITLE": "Novo ajuste de auditoria",
+    "PROPOSE_SUBTITLE": "Proposto sobre um exercício encerrado e lançado quando for aprovado.",
+    "FISCAL_YEAR": "Exercício",
+    "ALL_YEARS": "Todos os exercícios",
+    "CHOOSE_YEAR": "Escolha um exercício encerrado…",
+    "CLOSED_YEARS_ONLY": "Só se oferecem exercícios encerrados: um aberto aceita um lançamento comum.",
+    "JOURNAL": "Diário",
+    "CHOOSE_JOURNAL": "Escolha um diário…",
+    "DESCRIPTION": "Descrição",
+    "DESCRIPTION_PLACEHOLDER": "Ex.: Despesa incorrida não registada",
+    "LINE_DESCRIPTION": "Histórico",
+    "ACCOUNT": "Conta",
+    "CHOOSE_ACCOUNT": "Escolha uma conta…",
+    "DEBIT": "Débito",
+    "CREDIT": "Crédito",
+    "AMOUNT": "Valor",
+    "ADD_LINE": "Adicionar linha",
+    "REMOVE_LINE": "Remover a linha",
+    "DATE": "Data",
+    "PROPOSER": "Proposto por",
+    "PROPOSER_GONE": "Conta eliminada",
+    "STATE": "Situação",
+    "EVIDENCE": "Evidência",
+    "EMPTY_TITLE": "Ainda não há ajustes propostos.",
+    "EMPTY_BODY": "Um ajuste de auditoria corrige um exercício já encerrado e fica registado com a sua evidência.",
+    "PROPOSED_AND_POSTED": "Ajuste proposto e lançado.",
+    "PROPOSED_PENDING": "Ajuste proposto. Fica pendente de aprovação.",
+    "PROPOSE_FAILED": "Não foi possível propor o ajuste.",
+    "STATUS": {
+      "PENDING_APPROVAL": "Aguardando aprovação",
+      "APPROVED": "Aprovado",
+      "REJECTED": "Rejeitado",
+      "POSTED": "Contabilizado",
+      "FAILED": "Falhou"
+    },
+    "PROBLEM": {
+      "YEAR": "Escolha o exercício que está a corrigir.",
+      "JOURNAL": "Escolha o diário onde será registado.",
+      "DESCRIPTION": "Descreva o ajuste.",
+      "LINE_ACCOUNT": "Linha {{line}}: falta a conta.",
+      "LINE_DESCRIPTION": "Linha {{line}}: falta o histórico.",
+      "UNBALANCED": "O ajuste não fecha: os débitos e os créditos têm de somar o mesmo."
+    }
   }
 }

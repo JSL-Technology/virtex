@@ -128,11 +128,42 @@ export enum AccountRole {
   WITHHOLDING_PAYABLE = 'WITHHOLDING_PAYABLE',
   /** Legally mandated service charge (propina legal in DO/CR): collected for staff, never revenue. */
   SERVICE_CHARGE_PAYABLE = 'SERVICE_CHARGE_PAYABLE',
+  /**
+   * Money received from a customer that no document has been applied to yet.
+   *
+   * An advance is a LIABILITY — we owe goods or a refund — not a negative receivable. Crediting it
+   * to `ACCOUNTS_RECEIVABLE` was arithmetically convenient and wrong twice over: it drove the
+   * control account below zero (an asset cannot be negative on a balance sheet), and it broke the
+   * one reconciliation the ageing report performs, because the subledger lists open invoices and
+   * knows nothing about an advance that belongs to no invoice.
+   */
+  CUSTOMER_ADVANCES = 'CUSTOMER_ADVANCES',
   RETAINED_EARNINGS = 'RETAINED_EARNINGS',
+  /**
+   * The counterpart for balances that existed before the books did.
+   *
+   * Opening stock, an opening bank balance, a receivable carried over from the previous system:
+   * each debits its asset and needs a credit somewhere. It cannot be retained earnings — that
+   * would report a prior period's result as this one's — so it gets its own equity account, which
+   * the accountant clears against capital or retained earnings once the opening balance sheet is
+   * agreed. This is the same account QuickBooks calls "Opening Balance Equity" and Xero calls
+   * "Historical Adjustment", for the same reason.
+   */
+  OPENING_BALANCE_EQUITY = 'OPENING_BALANCE_EQUITY',
   SALES_REVENUE = 'SALES_REVENUE',
   SERVICE_REVENUE = 'SERVICE_REVENUE',
   SALES_DISCOUNTS = 'SALES_DISCOUNTS',
   COST_OF_GOODS_SOLD = 'COST_OF_GOODS_SOLD',
+  /**
+   * Where a change in on-hand quantity that is not a purchase or a sale lands: a stock count that
+   * disagrees with the books, breakage, theft, a correction to a miskeyed quantity.
+   *
+   * Without it, editing a product's stock moved a real asset with no counterpart anywhere, so the
+   * inventory figure on the balance sheet and the quantity in the warehouse drifted apart with
+   * nothing to explain the difference. Kept out of cost of goods sold on purpose: shrinkage is not
+   * a cost of what was sold, and margin analysis that mixes the two is worthless.
+   */
+  INVENTORY_ADJUSTMENT = 'INVENTORY_ADJUSTMENT',
   ACCUMULATED_DEPRECIATION = 'ACCUMULATED_DEPRECIATION',
   DEPRECIATION_EXPENSE = 'DEPRECIATION_EXPENSE',
   FOREX_GAIN_LOSS = 'FOREX_GAIN_LOSS',

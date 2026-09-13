@@ -210,6 +210,14 @@ export interface InvoicingContext {
   taxRequiresConfiguration: boolean;
   fiscalDocumentTypes: FiscalDocumentTypeOption[];
   serviceChargeRate: number;
+  /**
+   * The tenant's default credit period in days, for a customer with no terms of their own.
+   *
+   * A new invoice used to open with its due date equal to its issue date — "due on receipt" —
+   * whatever terms the business actually sells on, and the ageing report then called the document
+   * overdue the next morning.
+   */
+  defaultPaymentTermDays: number;
 }
 
 @Injectable({ providedIn: 'root' })

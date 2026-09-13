@@ -1,6 +1,7 @@
 
 import { Module } from '@nestjs/common';
 import { DashboardService } from './dashboard.service';
+import { DashboardChartsService } from './dashboard-charts.service';
 import { DashboardController } from './dashboard.controller';
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
 import { InventoryModule } from '../inventory/inventory.module';
@@ -22,7 +23,7 @@ import { Organization } from '../organizations/entities/organization.entity';
   ],
 
   controllers: [DashboardController],
-  providers: [DashboardService],
+  providers: [DashboardService, DashboardChartsService],
     exports: [DashboardService],
 })
 export class DashboardModule {}

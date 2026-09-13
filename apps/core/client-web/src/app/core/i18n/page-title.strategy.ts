@@ -56,9 +56,11 @@ export class TranslatedTitleStrategy extends TitleStrategy {
     }
 
     const page = this.translate.instant(key);
-    // `instant` returns the key itself when there is no entry for it, which would put
-    // `AUTH.TITLES.LOGIN` in the browser tab. A literal title passed through unchanged is the
-    // useful fallback.
-    this.title.setTitle(`${page === key ? key : page} | ${appName}`);
+    // `instant` hands a missing key to `VirtexMissingTranslationHandler`, which returns the key
+    // itself in production and `[[KEY]]` in development — so comparing the result against the key
+    // does not catch the development case, and the browser tab read `[[PAGE_TITLES.X]]`. Both
+    // shapes are treated as "no translation", and the route's own literal is the fallback.
+    const missing = page === key || page === `[[${key}]]`;
+    this.title.setTitle(`${missing ? key : page} | ${appName}`);
   }
 }

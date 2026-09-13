@@ -500,7 +500,9 @@
     inset: 0;
     background-color: rgba(var(--shadow-color-rgb), 0.5);
     backdrop-filter: blur(4px);
-    z-index: 1000;
+    // La escala del sistema de diseño, no un número inventado: con `1000` este modal se pintaba
+    // por encima del diálogo de step-up (`--z-modal`) que él mismo provoca al invitar a un usuario.
+    z-index: var(--z-modal);
     display: none;
     align-items: center;
     justify-content: center;

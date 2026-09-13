@@ -178,7 +178,7 @@ export class CreateInvoiceDto {
    * that owns the market is the only thing that can say whether a code belongs to it.
    */
   @IsString()
-  @MaxLength(8)
+  @MaxLength(8, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":8}' })
   @Matches(/^[A-Za-z0-9]+$/, { message: 'INVOICES.TIPO_COMPROBANTE_FORMATO_INVALIDO' })
   @IsOptional()
   fiscalDocumentType?: string;

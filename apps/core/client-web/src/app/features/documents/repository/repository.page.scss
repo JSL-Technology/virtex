@@ -23,4 +23,64 @@
   .spreadsheet { color: var(--success-text); }
   .image { color: var(--info-text); }
   .document { color: var(--accent-solid); }
+
+  //  El disparador de subida es un <label> que envuelve un <input type="file">: el selector solo
+  //  lo abre un input real, y dar estilo al propio input no es portable entre navegadores.
+  .upload-label {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .path-item--link {
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    color: inherit;
+    font: inherit;
+
+    &:hover { color: var(--accent-text); text-decoration: underline; }
+  }
+
+  .path-sep { color: var(--content-tertiary); }
+
+  .is-clickable { cursor: pointer; }
+  .is-clickable:hover { background: var(--surface-hover); }
+
+  .row-actions {
+    display: flex;
+    gap: var(--space-1);
+    justify-content: flex-end;
+  }
+
+  .new-folder {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+    padding: var(--space-3);
+
+    input { flex: 1; min-width: 0; }
+  }
+
+  .inline-field {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--content-secondary);
+  }
+
+  .tag {
+    padding: 0.1rem 0.4rem;
+    border-radius: var(--radius-sm);
+    background: var(--surface-sunken, var(--bg-tertiary));
+    font-size: var(--text-xs);
+    color: var(--content-secondary);
+  }
+
+  //  El icono dice el tipo antes de leer la extensión.
+  .FOLDER { color: var(--warning-text); }
+  .FILE { color: var(--content-secondary); }
 }

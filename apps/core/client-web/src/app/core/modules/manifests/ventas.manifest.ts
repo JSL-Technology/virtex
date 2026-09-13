@@ -40,7 +40,11 @@ export const VENTAS_MODULE: ModuleManifest = {
       kind: WindowKind.DOCUMENT,
       permission: 'invoices:view',
       icon: 'FileText',
-      titleFn: (p, d) => `Factura ${(d as { number?: string })?.number ?? p['id']}`,
+      //  El título estático hasta que la página conozca el número. `titleFn` solo recibe los
+      //  parámetros de la ruta —nunca el documento—, así que su rama «con datos» no se ejecutaba
+      //  jamás y la pestaña se llamaba «Factura 7c1f8a…», con el UUID, en castellano fijo.
+      //  `InvoiceDetailPage` la renombra con `TAB_CONTEXT.setTitle` al cargar.
+      titleKey: 'PAGE_TITLES.INVOICE',
       entityKeyFn: (p) => `ventas:invoice:${p['id']}`,
       load: () => import('../../../features/invoices/detail/detail.page').then((m) => m.InvoiceDetailPage),
     },

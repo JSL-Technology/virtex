@@ -9,6 +9,7 @@ import {
   InvoiceQuery,
 } from '../../../core/services/invoices';
 import { NotificationService } from '../../../core/services/notification';
+import { invoiceStatusClass, invoiceStatusKey } from '../../../core/services/invoice-status';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 import { ListShellComponent } from '../../../shared/components/gestures';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -147,39 +148,20 @@ export class InvoicesListPage implements OnInit {
     this.loadInvoices();
   }
 
-  /** Clave i18n del estado. Mismo vocabulario que el filtro de arriba, que ya las usaba. */
+  /**
+   * The status, as a catalogue key and as a badge class.
+   *
+   * Both come from `core/services/invoice-status`, which every screen that shows a status now
+   * shares. This page used to keep its own: five cases and a default of `INVOICES.LIST.ESTADO_2`,
+   * which is the column heading "Estado" — so a draft invoice in the register wore a badge reading
+   * **Status**, in a table whose own column was already called that.
+   */
   statusKey(status: Invoice['status']): string {
-    switch (status) {
-      case 'Paid':
-        return 'INVOICES.LIST.COBRADA';
-      case 'Pending':
-        return 'INVOICES.LIST.PENDIENTE';
-      case 'Partially Paid':
-        return 'INVOICES.LIST.PARCIAL';
-      case 'Void':
-        return 'INVOICES.LIST.ANULADA';
-      default:
-        return 'INVOICES.LIST.ESTADO_2';
-    }
+    return invoiceStatusKey(status);
   }
 
   getStatusClass(status: Invoice['status']): string {
-    switch (status) {
-      case 'Paid':
-        return 'status-paid';
-      case 'Pending':
-        return 'status-pending';
-      case 'Partially Paid':
-        return 'status-partial';
-      case 'Void':
-        return 'status-overdue';
-      case 'Credit Note':
-        return 'status-draft';
-      case 'Draft':
-        return 'status-draft';
-      default:
-        return 'status-pending';
-    }
+    return invoiceStatusClass(status);
   }
 
   /**

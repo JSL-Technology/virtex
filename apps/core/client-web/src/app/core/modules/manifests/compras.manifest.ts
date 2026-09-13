@@ -3,10 +3,10 @@ import { ModuleManifest, WindowKind } from '../module-manifest';
 /**
  * Purchasing: what the company buys, and what it owes for it.
  *
- * Suppliers live here for the same reason customers live in Sales. The two requisition and order
- * screens are still showing hardcoded rows — there is no purchasing controller behind them — and
- * they stay declared so the gap is visible in one place instead of being hidden by a menu that
- * silently omits them.
+ * Suppliers live here for the same reason customers live in Sales. Requisitions and orders are
+ * real documents now: they were declared here while both screens showed rows invented in the
+ * browser, so the gap stayed visible in one place instead of being hidden by a menu that silently
+ * omitted them.
  */
 export const COMPRAS_MODULE: ModuleManifest = {
   id: 'compras',
@@ -59,7 +59,8 @@ export const COMPRAS_MODULE: ModuleManifest = {
       kind: WindowKind.DOCUMENT,
       permission: 'accounts_payable:view',
       icon: 'FileText',
-      titleFn: (p, d) => `Factura de proveedor ${(d as { number?: string })?.number ?? p['id']}`,
+      //  Estático hasta que la página sepa el número; ver la nota en `ventas.manifest.ts`.
+      titleKey: 'PAGE_TITLES.VENDOR_BILL',
       entityKeyFn: (p) => `compras:bill:${p['id']}`,
       load: () => import('../../../features/accounts-payable/detail/detail.page').then((m) => m.VendorBillDetailPage),
     },
@@ -94,7 +95,9 @@ export const COMPRAS_MODULE: ModuleManifest = {
     {
       path: 'purchasing/orders',
       kind: WindowKind.LIST,
-      permission: 'bills:view',
+      // `procurement:view`, not `bills:view`: an order is not a bill, and the permission that
+      // guarded these screens was one the endpoints behind them do not check.
+      permission: 'procurement:view',
       titleKey: 'PAGE_TITLES.PURCHASE_ORDERS',
       icon: 'ClipboardList',
       entityKeyFn: () => 'compras:orders',
@@ -102,14 +105,50 @@ export const COMPRAS_MODULE: ModuleManifest = {
       load: () => import('../../../features/purchasing/orders/orders.page').then((m) => m.OrdersPage),
     },
     {
+      path: 'purchasing/orders/new',
+      kind: WindowKind.DRAFT,
+      permission: 'procurement:manage',
+      titleKey: 'PAGE_TITLES.PURCHASE_ORDER_NEW',
+      icon: 'ClipboardList',
+      entityKeyFn: () => 'compras:order:new',
+      load: () => import('../../../features/purchasing/orders/form/form.page').then((m) => m.PurchaseOrderFormPage),
+    },
+    {
+      path: 'purchasing/orders/:id/edit',
+      kind: WindowKind.DRAFT,
+      permission: 'procurement:view',
+      titleKey: 'PAGE_TITLES.PURCHASE_ORDER_EDIT',
+      icon: 'ClipboardList',
+      entityKeyFn: (p) => `compras:order:${p['id']}`,
+      load: () => import('../../../features/purchasing/orders/form/form.page').then((m) => m.PurchaseOrderFormPage),
+    },
+    {
       path: 'purchasing/requisitions',
       kind: WindowKind.LIST,
-      permission: 'bills:view',
+      permission: 'procurement:view',
       titleKey: 'PAGE_TITLES.PURCHASE_REQUISITIONS',
       icon: 'ClipboardCheck',
       entityKeyFn: () => 'compras:requisitions',
       menu: { group: 'documents', labelKey: 'sidebar.operations.purchasing_sub.requisitions' },
       load: () => import('../../../features/purchasing/requisitions/requisitions.page').then((m) => m.RequisitionsPage),
+    },
+    {
+      path: 'purchasing/requisitions/new',
+      kind: WindowKind.DRAFT,
+      permission: 'procurement:manage',
+      titleKey: 'PAGE_TITLES.PURCHASE_REQUISITION_NEW',
+      icon: 'ClipboardCheck',
+      entityKeyFn: () => 'compras:requisition:new',
+      load: () => import('../../../features/purchasing/requisitions/form/form.page').then((m) => m.RequisitionFormPage),
+    },
+    {
+      path: 'purchasing/requisitions/:id/edit',
+      kind: WindowKind.DRAFT,
+      permission: 'procurement:view',
+      titleKey: 'PAGE_TITLES.PURCHASE_REQUISITION_EDIT',
+      icon: 'ClipboardCheck',
+      entityKeyFn: (p) => `compras:requisition:${p['id']}`,
+      load: () => import('../../../features/purchasing/requisitions/form/form.page').then((m) => m.RequisitionFormPage),
     },
     {
       path: 'reports/aging/payables',

@@ -29,30 +29,30 @@ export class CreateTaxJurisdictionDto {
 
   /** `TX`, `CA`, `SP`. Required: no rate in these markets is nationwide. */
   @IsString()
-  @Length(1, 8)
+  @Length(1, 8, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":1,"max":8}' })
   stateCode: string;
 
   @IsString()
   @IsOptional()
-  @Length(1, 120)
+  @Length(1, 120, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":1,"max":120}' })
   county?: string;
 
   @IsString()
   @IsOptional()
-  @Length(1, 120)
+  @Length(1, 120, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":1,"max":120}' })
   city?: string;
 
   /** Narrows a row; never defines one. One postal code can straddle two cities. */
   @IsString()
   @IsOptional()
-  @Length(1, 16)
+  @Length(1, 16, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":1,"max":16}' })
   postalCode?: string;
 
   @IsEnum(JurisdictionLevel)
   level: JurisdictionLevel;
 
   @IsString()
-  @Length(1, 160)
+  @Length(1, 160, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":1,"max":160}' })
   name: string;
 
   /** As a fraction: `0.0825` is 8.25 %. */

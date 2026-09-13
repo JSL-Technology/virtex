@@ -29,11 +29,15 @@ import { join } from 'node:path';
  */
 const UNMODELLED_OBJECTS = [
   {
-    match: /idx_analytical_data_org_ledger_date|idx_analytical_data_account/,
+    match:
+      /idx_analytical_data_org_ledger_date|idx_analytical_data_account|UQ_analytical_report_data_line_ledger/,
     reason:
       'Indexes on the analytical_report_data materialized view. TypeORM ViewEntity has no @Index ' +
       'equivalent, so these can only be created by migration and will always read as drift. They ' +
-      'are load-bearing for analytical reporting and must not be dropped.',
+      'are load-bearing for analytical reporting and must not be dropped. ' +
+      '`UQ_analytical_report_data_line_ledger` is the unique index PostgreSQL REQUIRES before a ' +
+      'materialized view can be refreshed CONCURRENTLY; without it every refresh takes an ' +
+      'exclusive lock and analytical reporting blocks for its duration.',
   },
   {
     match: /ALTER COLUMN "fx_rate_tolerance" SET DEFAULT/,

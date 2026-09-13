@@ -5,8 +5,9 @@
   [saving]="saving()"
   [invalid]="form.invalid"
   [problems]="problems()"
+  [form]="form"
   (save)="save()"
-  (cancel)="cancel()"
+  (cancelled)="cancel()"
 >
   <div class="form-body" [formGroup]="form">
     <section class="form-section">

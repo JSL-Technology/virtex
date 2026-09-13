@@ -1,0 +1,131 @@
+<vx-list-shell
+  titleKey="PAYROLL.CONCEPTS.TITLE"
+  [count]="concepts().length"
+  [empty]="isEmpty()"
+>
+  <button listActions type="button" class="primary-button" [disabled]="busy()" (click)="startCreate()">
+    <lucide-icon [img]="AddIcon" size="16" aria-hidden="true"></lucide-icon>
+    <span>{{ 'PAYROLL.CONCEPTS.NEW' | translate }}</span>
+  </button>
+
+  <label listFilters class="inline-field">
+    <input type="checkbox" [checked]="includeInactive()"
+      (change)="toggleInactive($any($event.target).checked)" />
+    <span>{{ 'PAYROLL.CONCEPTS.INCLUDE_INACTIVE' | translate }}</span>
+  </label>
+
+  @if (creating() || editing()) {
+    <div class="editor card">
+      <label class="field">
+        <span>{{ 'PAYROLL.CONCEPTS.CODE' | translate }}</span>
+        <input type="text" maxlength="30" [value]="draft().code ?? ''"
+          [disabled]="!!editing()"
+          (input)="patch({ code: $any($event.target).value })" />
+      </label>
+      <label class="field field--wide">
+        <span>{{ 'PAYROLL.CONCEPTS.NAME' | translate }}</span>
+        <input type="text" maxlength="120" [value]="draft().name ?? ''"
+          (input)="patch({ name: $any($event.target).value })" />
+      </label>
+      <label class="field">
+        <span>{{ 'PAYROLL.CONCEPTS.TYPE' | translate }}</span>
+        <select [value]="draft().type" (change)="patch({ type: $any($event.target).value })">
+          @for (type of types; track type) {
+            <option [value]="type">{{ 'PAYROLL.CONCEPTS.TYPE_LABEL.' + type | translate }}</option>
+          }
+        </select>
+      </label>
+      <label class="field">
+        <span>{{ 'PAYROLL.CONCEPTS.CALCULATION' | translate }}</span>
+        <select [value]="draft().calculation" (change)="patch({ calculation: $any($event.target).value })">
+          @for (calculation of calculations; track calculation) {
+            <option [value]="calculation">
+              {{ 'PAYROLL.CONCEPTS.CALC_LABEL.' + calculation | translate }}
+            </option>
+          }
+        </select>
+      </label>
+      <label class="field">
+        <!-- A fraction for a percentage (0.03), a multiplier for an hourly premium (1.35). -->
+        <span>{{ 'PAYROLL.CONCEPTS.RATE' | translate }}</span>
+        <input type="number" step="0.000001" min="0" [value]="draft().rate ?? 0"
+          (input)="patch({ rate: +$any($event.target).value })" />
+        <small class="field__note">{{ 'PAYROLL.CONCEPTS.RATE_HELP' | translate }}</small>
+      </label>
+      <label class="inline-field">
+        <input type="checkbox" [checked]="draft().taxable ?? true"
+          (change)="patch({ taxable: $any($event.target).checked })" />
+        <span>{{ 'PAYROLL.CONCEPTS.TAXABLE' | translate }}</span>
+      </label>
+      <label class="inline-field">
+        <input type="checkbox" [checked]="draft().contributesToTss ?? true"
+          (change)="patch({ contributesToTss: $any($event.target).checked })" />
+        <span>{{ 'PAYROLL.CONCEPTS.TSS_BASE' | translate }}</span>
+      </label>
+      <label class="inline-field">
+        <input type="checkbox" [checked]="draft().active ?? true"
+          (change)="patch({ active: $any($event.target).checked })" />
+        <span>{{ 'PAYROLL.CONCEPTS.ACTIVE' | translate }}</span>
+      </label>
+
+      <div class="editor__actions">
+        <button type="button" class="primary-button" [disabled]="busy()" (click)="save()">
+          {{ 'COMMON.SAVE' | translate }}
+        </button>
+        <button type="button" class="secondary-button" (click)="cancel()">
+          {{ 'COMMON.CANCEL' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (failed()) {
+    <p class="section-note">{{ 'COMMON.LOAD_FAILED' | translate }}</p>
+  } @else {
+  <div class="table-container card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{{ 'PAYROLL.CONCEPTS.CODE' | translate }}</th>
+          <th>{{ 'PAYROLL.CONCEPTS.NAME' | translate }}</th>
+          <th>{{ 'PAYROLL.CONCEPTS.TYPE' | translate }}</th>
+          <th>{{ 'PAYROLL.CONCEPTS.CALCULATION' | translate }}</th>
+          <th class="numeric">{{ 'PAYROLL.CONCEPTS.RATE' | translate }}</th>
+          <th class="text-center">{{ 'PAYROLL.CONCEPTS.TAXABLE' | translate }}</th>
+          <th class="text-right">{{ 'COMMON.ACTIONS' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (concept of concepts(); track concept.id) {
+          <tr [class.is-inactive]="!concept.active">
+            <td><code>{{ concept.code }}</code></td>
+            <td>{{ concept.name }}</td>
+            <td>{{ 'PAYROLL.CONCEPTS.TYPE_LABEL.' + concept.type | translate }}</td>
+            <td>{{ 'PAYROLL.CONCEPTS.CALC_LABEL.' + concept.calculation | translate }}</td>
+            <td class="numeric">{{ concept.rate !== null ? (concept.rate | vxNumber: '1.0-6') : '—' }}</td>
+            <td class="text-center">{{ concept.taxable ? '✓' : '—' }}</td>
+            <td class="text-right row-actions">
+              @if (concept.isSystem) {
+                <!--
+                  A legal deduction's rate comes from the versioned parameter tables, not from here.
+                  Saying so beats a button that fails.
+                -->
+                <span class="tag">{{ 'PAYROLL.CONCEPTS.SYSTEM' | translate }}</span>
+              } @else {
+                <button type="button" class="icon-button" (click)="startEdit(concept)"
+                  [attr.aria-label]="'COMMON.EDIT' | translate">
+                  <lucide-icon [img]="EditIcon" size="15"></lucide-icon>
+                </button>
+                <button type="button" class="icon-button" [disabled]="busy()" (click)="remove(concept)"
+                  [attr.aria-label]="'COMMON.DELETE' | translate">
+                  <lucide-icon [img]="DeleteIcon" size="15"></lucide-icon>
+                </button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  }
+</vx-list-shell>

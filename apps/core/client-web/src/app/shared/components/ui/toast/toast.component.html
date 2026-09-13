@@ -1,3 +1,7 @@
+<!--
+  `role="alert"` on the item, not on the container: an error has to be announced when it arrives,
+  and the container is polite so a success does not cut across whatever is being read.
+-->
 <div class="toast-item" [ngClass]="typeClass()" role="alert" aria-live="assertive">
   <div class="toast-icon">
     <lucide-angular [img]="icon()" size="20"></lucide-angular>

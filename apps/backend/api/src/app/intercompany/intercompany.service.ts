@@ -23,6 +23,8 @@ import {
 } from '../i18n/localized.exception';
 import { convert, roundAmount } from '../common/money';
 import { toIsoDate } from '../common/dates';
+import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
+import { I18nService } from '../i18n/i18n.service';
 
 export const INTERCOMPANY_QUEUE = 'intercompany-jobs';
 
@@ -78,6 +80,10 @@ export class IntercompanyService {
     private readonly exchangeRates: ExchangeRateResolver,
     @InjectQueue(INTERCOMPANY_QUEUE)
     private readonly intercompanyQueue: Queue<DestinationEntryJobData>,
+    /** Narratives in the tenant's books language; see `LedgerNarrativeService`. */
+    private readonly narrative: LedgerNarrativeService = new LedgerNarrativeService(
+      new I18nService(),
+    ),
   ) {}
 
   async create(
@@ -149,11 +155,26 @@ export class IntercompanyService {
       );
       const destinationAmount = convert(amount, rate);
 
+      // Each half is narrated in the language of the company whose books it lands in: the source
+      // entry in the paying company's, the destination entry in the receiving company's. Two
+      // members of one group can be kept in two languages, and each set of books reads in its own.
+      const sourceWords = await this.narrative.describeAll(manager, fromOrganizationId, {
+        header: {
+          key: 'LEDGER.INTERCOMPANY.SOURCE_ENTRY',
+          params: { organization: toOrg.legalName, description },
+        },
+        receivable: {
+          key: 'LEDGER.INTERCOMPANY.RECEIVABLE',
+          params: { organization: toOrg.legalName },
+        },
+        fundsOut: { key: 'LEDGER.INTERCOMPANY.FUNDS_OUT' },
+      });
+
       const sourceEntry = await this.journalEntriesService.createWithManager(
         manager,
         {
           date: toIsoDate(date),
-          description: `Intercompañía (→ ${toOrg.legalName}): ${description}`,
+          description: sourceWords.header,
           currencyCode,
           journalId: sourceJournal.id,
           lines: [
@@ -161,14 +182,14 @@ export class IntercompanyService {
               accountId: fromSettings.defaultIntercompanyReceivableAccountId,
               debit: amount,
               credit: 0,
-              description: `Cuenta por cobrar a ${toOrg.legalName}`,
+              description: sourceWords.receivable,
               valuations: [{ ledgerId: sourceLedger.id, debit: amount, credit: 0 }],
             },
             {
               accountId: fromAccountId,
               debit: 0,
               credit: amount,
-              description: 'Salida de fondos intercompañía',
+              description: sourceWords.fundsOut,
               valuations: [{ ledgerId: sourceLedger.id, debit: 0, credit: amount }],
             },
           ],
@@ -271,11 +292,23 @@ export class IntercompanyService {
       }
 
       const amount = transaction.destinationAmount;
+      const words = await this.narrative.describeAll(manager, transaction.toOrganizationId, {
+        header: {
+          key: 'LEDGER.INTERCOMPANY.DESTINATION_ENTRY',
+          params: { organization: fromOrg.legalName, description: transaction.description },
+        },
+        fundsIn: { key: 'LEDGER.INTERCOMPANY.FUNDS_IN' },
+        payable: {
+          key: 'LEDGER.INTERCOMPANY.PAYABLE',
+          params: { organization: fromOrg.legalName },
+        },
+      });
+
       const entry = await this.journalEntriesService.createWithManager(
         manager,
         {
           date: toIsoDate(transaction.transactionDate),
-          description: `Intercompañía (← ${fromOrg.legalName}): ${transaction.description}`,
+          description: words.header,
           currencyCode: toSettings.baseCurrency ?? undefined,
           journalId: journal.id,
           lines: [
@@ -283,14 +316,14 @@ export class IntercompanyService {
               accountId: transaction.toAccountId,
               debit: amount,
               credit: 0,
-              description: 'Recepción de fondos intercompañía',
+              description: words.fundsIn,
               valuations: [{ ledgerId: ledger.id, debit: amount, credit: 0 }],
             },
             {
               accountId: toSettings.defaultIntercompanyPayableAccountId,
               debit: 0,
               credit: amount,
-              description: `Cuenta por pagar a ${fromOrg.legalName}`,
+              description: words.payable,
               valuations: [{ ledgerId: ledger.id, debit: 0, credit: amount }],
             },
           ],

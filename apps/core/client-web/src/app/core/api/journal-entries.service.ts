@@ -29,6 +29,18 @@ export interface JournalEntryLine {
 
 export interface JournalEntry {
   id: string;
+  /**
+   * The document number — `GENERAL-2026-000003`, `VENTAS-2026-000002`.
+   *
+   * The server has allocated one per posted entry from the tenant's own sequence for some time,
+   * and the model did not declare it, so the register printed `entry.id` instead: a UUID, in the
+   * column headed "Nº de asiento", and again as the title of every journal-entry tab. Nobody can
+   * cite a UUID to an auditor.
+   *
+   * Null until the entry is posted: a draft has not consumed a number, because a number consumed
+   * and then discarded is a gap in a sequence that is supposed to have none.
+   */
+  entryNumber: string | null;
   /** `YYYY-MM-DD`. A posting date: a calendar date, with no time and no zone. */
   date: string;
   description: string;

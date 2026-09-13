@@ -1,0 +1,26 @@
+@use '../../../../assets/styles/list-page' as list;
+
+:host {
+  @include list.list-page;
+
+  .inline-row {
+    display: flex;
+    gap: var(--space-3);
+    align-items: flex-end;
+    flex-wrap: wrap;
+    padding: var(--space-3);
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    > span {
+      font-size: var(--text-xs);
+      color: var(--content-secondary);
+    }
+
+    input, select { min-width: 6rem; }
+  }
+}

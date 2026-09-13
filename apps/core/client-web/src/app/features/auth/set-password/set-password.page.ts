@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth';
 import { TranslateModule } from '@ngx-translate/core';
 import { ReCaptchaV3Service, RecaptchaV3Module, RECAPTCHA_V3_SITE_KEY } from 'ng-recaptcha-19';
+import { recaptchaToken$ } from '../../../core/auth/recaptcha-token';
 import { environment } from '../../../../environments/environment';
 import { LucideAngularModule, Lock, AlertCircle } from 'lucide-angular';
 
@@ -82,7 +83,9 @@ export class SetPasswordPage implements OnInit {
       // Optional: Check validity first or just let submit handle it
       // this.authService.getInvitationDetails(this.token)...
     } else {
-      this.errorMessage = 'Invalid Token';
+      //  Clave del catálogo, no una frase suelta en inglés dentro de una pantalla que el resto
+              //  del producto traduce.
+              this.errorMessage = this.translate.instant('ERRORS.INVALID_INVITATION_TOKEN');
     }
   }
 
@@ -106,9 +109,12 @@ export class SetPasswordPage implements OnInit {
 
     const password = this.setPasswordForm.value.passwordGroup.password;
 
-    this.recaptchaV3Service.execute('setPassword').subscribe({
-        next: (token) => {
-            this.authService.setPasswordFromInvitation(this.token!, password).subscribe({
+    recaptchaToken$(this.recaptchaV3Service, 'setPassword').subscribe({
+        next: (recaptchaToken) => {
+            //  El token SE ENVÍA. Se calculaba y se tiraba: la petición salía sin él, así que el
+            //  control antibot de un endpoint público que además entrega cookies de sesión no se
+            //  aplicaba nunca.
+            this.authService.setPasswordFromInvitation(this.token!, password, recaptchaToken).subscribe({
                 next: () => {
                     this.router.navigate(['/overview']);
                 },
@@ -120,7 +126,7 @@ export class SetPasswordPage implements OnInit {
         },
         error: () => {
             this.isLoading = false;
-            this.errorMessage = 'ReCaptcha Error';
+            this.errorMessage = this.translate.instant('ERRORS.RECAPTCHA');
         }
     });
   }

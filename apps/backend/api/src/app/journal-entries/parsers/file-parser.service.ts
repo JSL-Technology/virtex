@@ -61,7 +61,7 @@ export class FileParserService {
     private parseCsv(buffer: Buffer, options?: CsvParsingOptionsDto): { headers: string[], data: Record<string, string>[] } {
         // The byte-order mark Excel writes ahead of a UTF-8 CSV would otherwise become part of the
         // first column's name, so no mapping could ever match it.
-        const content = buffer.toString('utf-8').replace(/^﻿/, '');
+        const content = buffer.toString('utf-8').replace(/^\uFEFF/, '');
 
         const results = Papa.parse<Record<string, string>>(content, {
             header: true,

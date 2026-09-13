@@ -37,6 +37,7 @@ describe('VendorBillFormPage', () => {
       name: { es: 'Gastos operativos', en: 'Operating expenses' },
       type: 'EXPENSE',
       isPostable: true,
+      isActive: true,
       isBlockedForPosting: false,
     },
     {
@@ -45,6 +46,7 @@ describe('VendorBillFormPage', () => {
       name: { es: 'Ingresos' },
       type: 'REVENUE',
       isPostable: true,
+      isActive: true,
       isBlockedForPosting: false,
     },
     {
@@ -53,6 +55,7 @@ describe('VendorBillFormPage', () => {
       name: { es: 'Gasto bloqueado' },
       type: 'EXPENSE',
       isPostable: true,
+      isActive: true,
       isBlockedForPosting: true,
     },
     {
@@ -61,6 +64,40 @@ describe('VendorBillFormPage', () => {
       name: { es: 'Encabezado de gastos' },
       type: 'EXPENSE',
       isPostable: false,
+      isActive: true,
+      isBlockedForPosting: false,
+    },
+    {
+      // A control account. Postable, unblocked, an asset — and never something a purchase is
+      // charged to: money leaves the till when the bill is PAID, not when it is recorded.
+      id: 'a5',
+      code: '1101',
+      name: { es: 'Efectivo en caja' },
+      type: 'ASSET',
+      isPostable: true,
+      isActive: true,
+      isBlockedForPosting: false,
+      systemRole: 'CASH',
+    },
+    {
+      // The receivables control account. Charging a supplier invoice here would corrupt the
+      // ageing report, and it was offered.
+      id: 'a6',
+      code: '1120',
+      name: { es: 'Cuentas por cobrar' },
+      type: 'ASSET',
+      isPostable: true,
+      isActive: true,
+      isBlockedForPosting: false,
+      systemRole: 'ACCOUNTS_RECEIVABLE',
+    },
+    {
+      id: 'a7',
+      code: '5198',
+      name: { es: 'Gasto dado de baja' },
+      type: 'EXPENSE',
+      isPostable: true,
+      isActive: false,
       isBlockedForPosting: false,
     },
   ];
@@ -84,7 +121,15 @@ describe('VendorBillFormPage', () => {
 
   afterEach(() => httpMock.verify());
 
-  it('offers only postable, unblocked expense accounts', () => {
+  /**
+   * Postable and unblocked was not enough.
+   *
+   * Cash and Accounts Receivable are postable, unblocked, active asset accounts, so the picker
+   * offered both — it invited the operator to charge a supplier invoice to the till, or to what
+   * customers owe us, which silently corrupts the ageing report. The filter now reads the same
+   * `systemRole` the automatic postings resolve against.
+   */
+  it('offers only accounts a purchase can actually be charged to', () => {
     flushPickers();
     const offered = component.expenseAccounts().map((account) => account.code);
     expect(offered).toEqual(['5101']);

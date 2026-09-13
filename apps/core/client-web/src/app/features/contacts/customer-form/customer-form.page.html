@@ -8,10 +8,11 @@
   [saving]="isLoading()"
   [invalid]="customerForm.invalid"
   [problems]="problems()"
+  [form]="customerForm"
   saveLabelKey="CONTACTS.CUSTOMER_FORM.GUARDAR_CLIENTE"
   cancelLabelKey="CONTACTS.CUSTOMER_FORM.CANCELAR"
   (save)="saveCustomer()"
-  (cancel)="cancel()"
+  (cancelled)="cancel()"
 >
   <div class="form-body" [formGroup]="customerForm">
     <div class="form-columns">
@@ -96,10 +97,52 @@
 
           <div class="form-field">
             <label for="country">{{ 'CONTACTS.CUSTOMER_FORM.PAIS' | translate }}</label>
+            <!--
+              Todos los países, nombrados en el idioma del lector por `Intl.DisplayNames`. Eran dos
+              opciones escritas aquí —República Dominicana y Estados Unidos— mientras el producto
+              aprovisiona diecinueve mercados y cualquier inquilino vende a donde quiera: un cliente
+              en España no se podía registrar como estando en España.
+            -->
             <select id="country" formControlName="country">
-              <option value="DO">{{ 'CONTACTS.CUSTOMER_FORM.REPUBLICA_DOMINICANA' | translate }}</option>
-              <option value="US">{{ 'CONTACTS.CUSTOMER_FORM.ESTADOS_UNIDOS' | translate }}</option>
+              @for (option of countries(); track option.code) {
+                <option [value]="option.code">{{ option.name }}</option>
+              }
             </select>
+          </div>
+        </section>
+
+        <!--
+          Dos campos y no uno: el texto es lo que se imprime en la factura, los días son lo que se
+          le suma a la fecha de emisión. El campo de texto existía en la base de datos desde el
+          principio y nadie podía leerlo —una cadena no se le suma a una fecha—, así que toda
+          factura nacía venciendo el mismo día en que se emitía.
+        -->
+        <section class="form-section">
+          <h2 class="form-section-title">
+            {{ 'CONTACTS.CUSTOMER_FORM.CONDICIONES_COMERCIALES' | translate }}
+          </h2>
+
+          <div class="form-field">
+            <label for="paymentTerms">
+              {{ 'CONTACTS.CUSTOMER_FORM.TERMINOS_PAGO' | translate }}
+            </label>
+            <input
+              type="text"
+              id="paymentTerms"
+              maxlength="60"
+              formControlName="paymentTerms"
+              [placeholder]="'CONTACTS.CUSTOMER_FORM.TERMINOS_PAGO_PLACEHOLDER' | translate"
+            />
+          </div>
+
+          <div class="form-field">
+            <label for="paymentTermDays">
+              {{ 'CONTACTS.CUSTOMER_FORM.DIAS_CREDITO' | translate }}
+            </label>
+            <input type="number" id="paymentTermDays" min="0" max="365" formControlName="paymentTermDays" />
+            <small class="field-hint">
+              {{ 'CONTACTS.CUSTOMER_FORM.DIAS_CREDITO_AYUDA' | translate }}
+            </small>
           </div>
         </section>
       </div>

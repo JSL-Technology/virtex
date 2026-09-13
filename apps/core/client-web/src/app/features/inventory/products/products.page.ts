@@ -46,7 +46,7 @@ export class ProductsPage implements OnInit {
     return this.allProducts().filter(p =>
       p.name.toLowerCase().includes(term) ||
       p.sku?.toLowerCase().includes(term) ||
-      p.category?.toLowerCase().includes(term)
+      p.category?.name?.toLowerCase().includes(term)
     );
   });
 

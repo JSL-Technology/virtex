@@ -1,0 +1,115 @@
+<vx-draft-shell
+  [title]="'AUDIT_ADJUSTMENTS.PROPOSE_TITLE' | translate"
+  [subtitle]="'AUDIT_ADJUSTMENTS.PROPOSE_SUBTITLE' | translate"
+  [dirty]="form.dirty"
+  [saving]="saving()"
+  [invalid]="form.invalid || !balanced()"
+  [problems]="problems()"
+  [form]="form"
+  saveLabelKey="AUDIT_ADJUSTMENTS.PROPOSE"
+  (save)="save()"
+  (cancelled)="cancel()"
+>
+  <form [formGroup]="form" class="aa-form">
+    <div class="aa-grid">
+      <div class="form-group">
+        <label for="aa-fiscal-year">{{ 'AUDIT_ADJUSTMENTS.FISCAL_YEAR' | translate }}</label>
+        <select id="aa-fiscal-year" formControlName="fiscalYearId">
+          <option value="">{{ 'AUDIT_ADJUSTMENTS.CHOOSE_YEAR' | translate }}</option>
+          @for (year of years(); track year.id) {
+            <option [value]="year.id">{{ year.startDate }} – {{ year.endDate }}</option>
+          }
+        </select>
+        <!-- Only closed years are offered: an open year takes an ordinary entry. -->
+        <small class="hint">{{ 'AUDIT_ADJUSTMENTS.CLOSED_YEARS_ONLY' | translate }}</small>
+      </div>
+
+      <div class="form-group">
+        <label for="aa-journal">{{ 'AUDIT_ADJUSTMENTS.JOURNAL' | translate }}</label>
+        <select id="aa-journal" formControlName="journalId">
+          <option value="">{{ 'AUDIT_ADJUSTMENTS.CHOOSE_JOURNAL' | translate }}</option>
+          @for (journal of journalOptions(); track journal.id) {
+            <option [value]="journal.id">{{ journal.code }} — {{ journal.name }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="aa-description">{{ 'AUDIT_ADJUSTMENTS.DESCRIPTION' | translate }}</label>
+      <input
+        id="aa-description"
+        type="text"
+        maxlength="500"
+        formControlName="description"
+        [placeholder]="'AUDIT_ADJUSTMENTS.DESCRIPTION_PLACEHOLDER' | translate"
+      />
+    </div>
+
+    <div class="aa-lines card" id="aa-lines" formArrayName="lines">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ 'AUDIT_ADJUSTMENTS.ACCOUNT' | translate }}</th>
+            <th>{{ 'AUDIT_ADJUSTMENTS.LINE_DESCRIPTION' | translate }}</th>
+            <th class="text-right">{{ 'AUDIT_ADJUSTMENTS.DEBIT' | translate }}</th>
+            <th class="text-right">{{ 'AUDIT_ADJUSTMENTS.CREDIT' | translate }}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (line of lines.controls; track $index; let i = $index) {
+            <tr [formGroupName]="i">
+              <td>
+                <select [id]="'aa-line-account-' + i" formControlName="accountId">
+                  <option value="">{{ 'AUDIT_ADJUSTMENTS.CHOOSE_ACCOUNT' | translate }}</option>
+                  @for (account of postableAccounts(); track account.id) {
+                    <option [value]="account.id">{{ account.code }} — {{ account.name }}</option>
+                  }
+                </select>
+              </td>
+              <td>
+                <input
+                  [id]="'aa-line-description-' + i"
+                  type="text"
+                  maxlength="200"
+                  formControlName="description"
+                />
+              </td>
+              <td class="text-right">
+                <input type="number" min="0" step="0.01" formControlName="debit" />
+              </td>
+              <td class="text-right">
+                <input type="number" min="0" step="0.01" formControlName="credit" />
+              </td>
+              <td class="text-right">
+                <button
+                  type="button"
+                  class="icon-button"
+                  [disabled]="lines.length <= 2"
+                  (click)="removeLine(i)"
+                  [attr.aria-label]="'AUDIT_ADJUSTMENTS.REMOVE_LINE' | translate"
+                >
+                  <lucide-icon [img]="RemoveIcon" size="15" aria-hidden="true"></lucide-icon>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2">
+              <button type="button" class="secondary-button" (click)="addLine()">
+                <lucide-icon [img]="AddIcon" size="15" aria-hidden="true"></lucide-icon>
+                <span>{{ 'AUDIT_ADJUSTMENTS.ADD_LINE' | translate }}</span>
+              </button>
+            </td>
+            <td class="text-right" [class.aa-unbalanced]="!balanced()">{{ totalDebit() }}</td>
+            <td class="text-right" [class.aa-unbalanced]="!balanced()">{{ totalCredit() }}</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </form>
+</vx-draft-shell>

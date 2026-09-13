@@ -3,9 +3,12 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { numericTransformer } from '../../common/database/numeric.transformer';
+import { Organization } from '../../organizations/entities/organization.entity';
 
 export enum PosShiftStatus {
   OPEN = 'OPEN',
@@ -21,19 +24,34 @@ export enum PosShiftStatus {
  * counted and no one accountable for the drawer.
  */
 @Entity({ name: 'pos_shifts' })
-@Index(['organizationId', 'terminalId', 'status'])
+@Index('IDX_pos_shifts_org_terminal_status', ['organizationId', 'terminalId', 'status'])
 export class PosShift {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Index()
-  @Column()
+  /**
+   * `uuid`, and the index and the foreign key are named.
+   *
+   * The migration built this column as `uuid NOT NULL` with `FK_pos_shifts_organization` and
+   * `IDX_pos_shifts_org`; the entity said `@Column()`, which reflect-metadata resolves to
+   * `varchar` and TypeORM names indexes by hash. `check:schema-drift` therefore proposed dropping
+   * and re-adding the column — losing every shift — and renaming both objects, on every run.
+   */
+  @Index('IDX_pos_shifts_org')
+  @Column({ type: 'uuid' })
   organizationId: string;
+
+  @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
+  @JoinColumn({
+    name: 'organizationId',
+    foreignKeyConstraintName: 'FK_pos_shifts_organization',
+  })
+  organization: Organization;
 
   @Column({ length: 120 })
   terminalId: string;
 
-  @Column()
+  @Column({ type: 'uuid' })
   userId: string;
 
   @Column({ type: 'numeric', precision: 14, scale: 2, transformer: numericTransformer, default: 0 })
@@ -57,7 +75,7 @@ export class PosShift {
   @Column({ type: 'enum', enum: PosShiftStatus, default: PosShiftStatus.OPEN })
   status: PosShiftStatus;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   openedAt: Date;
 
   @Column({ type: 'timestamptz', nullable: true })

@@ -235,7 +235,8 @@
       "STATUS_PENDING_APPROVAL": "Pending approval",
       "STATUS_POSTED": "Posted",
       "STATUS_REJECTED": "Rejected",
-      "STATUS_VOID": "Voided"
+      "STATUS_VOID": "Voided",
+      "UNNUMBERED": "Not numbered"
     },
     "JOURNAL_ENTRY_FORM": {
       "ACCOUNT_COLUMN": "Account",
@@ -259,7 +260,13 @@
       "TITLE": "New Journal Entry",
       "TOTALS": "Totals",
       "UNBALANCED_ERROR": "Debits and credits must be balanced.",
-      "ZERO_AMOUNT_ERROR": "The total amount cannot be zero."
+      "ZERO_AMOUNT_ERROR": "The total amount cannot be zero.",
+      "MODIFICATION_EXPLAINER": "Modifying a posted entry does not rewrite it: the system reverses it and posts a new one that cites it. The original stays in the book.",
+      "MODIFICATION_REASON_LABEL": "Reason for the change*",
+      "MODIFICATION_REASON_PLACEHOLDER": "Why the original entry stopped being correct",
+      "ONLY_POSTED_CAN_BE_MODIFIED": "Only a posted entry can be modified. This one is not posted yet.",
+      "ENTRY_NOT_FOUND": "The entry could not be loaded.",
+      "ASIENTO_CONTABLE_MODIFICADO_EXITO": "Entry modified: the original was reversed and the new one posted."
     },
     "JOURNAL_FORM": {
       "BANK": "Bank",
@@ -271,8 +278,8 @@
       "GENERAL": "General",
       "NAME": "Name",
       "NO_SE_PUDO_GUARDAR": "The journal could not be saved.",
-      "PURCHASES": "Purchasing (P2P)",
-      "SALES": "Sales Reports",
+      "PURCHASES": "Purchasing",
+      "SALES": "Sales",
       "SAVE": "Save",
       "TITLE_CREATE": "New journal",
       "TITLE_EDIT": "Edit journal",
@@ -410,7 +417,7 @@
       "DESHACER": "Undo",
       "DIFERENCIA": "Difference",
       "ESTADO": "Status",
-      "ESTADOS_DE_CUENTA": "Statements",
+      "ESTADOS_DE_CUENTA": "Customer Statements",
       "ESTADO_NO_CUADRA_CONSIGO": "The statement does not add up: opening balance plus movements differs from the closing balance by {{amount}}.",
       "ESTATUS": {
         "FAILED": "Failed",
@@ -579,7 +586,7 @@
       "DESGLOSE_FISCAL": "Tax breakdown",
       "DETALLES_FACTURA": "Invoice Details",
       "ELIMINAR_LINEA": "Remove line",
-      "ERROR_CARGAR_FACTURA": "The bill could not be loaded.",
+      "ERROR_CARGAR_FACTURA": "The invoice could not be loaded.",
       "ERROR_GUARDAR_FACTURA": "Error saving the invoice.",
       "FACTURA_ACTUALIZADA_EXITO": "Invoice updated.",
       "FACTURA_CREADA_EXITO": "Invoice created.",
@@ -615,7 +622,7 @@
       "SELECCIONAR_CUENTA": "Select an account",
       "SELECCIONAR_PROVEEDOR": "Select a supplier",
       "SUBTOTAL": "Subtotal",
-      "TIMES": "&times;",
+      "TIMES": "×",
       "TIPO_BIENES_SERVICIOS": "Type of goods and services",
       "TITLE_CREATE": "New vendor bill",
       "TITLE_EDIT": "Edit vendor bill",
@@ -649,7 +656,7 @@
       "FACTURAS_A_PAGAR": "Invoices to pay",
       "FECHA": "Payment date",
       "ISR_RETENIDO": "Income tax withheld",
-      "ITBIS_RETENIDO": "VAT withheld",
+      "ITBIS_RETENIDO": "ITBIS withheld",
       "NO_SE_PUDO_PAGAR": "The payment could not be recorded.",
       "PAGAR": "Record payment",
       "PAGO_REGISTRADO": "Payment recorded.",
@@ -667,7 +674,7 @@
       "CREDIT": "Credit",
       "CREDIT_NOTE": "Credit note",
       "MIXED": "Mixed",
-      "SWAP": "Swap"
+      "SWAP": "Barter"
     },
     "PURCHASE_CATEGORY": {
       "ASSET_ACQUISITIONS": "Asset acquisitions",
@@ -677,7 +684,7 @@
       "FIXED_ASSET_LEASING": "Fixed asset leasing",
       "IMPROVEMENT_EXPENSES": "Improvement expenses",
       "INSURANCE_EXPENSES": "Insurance expenses",
-      "LEASING": "Leasing",
+      "LEASING": "Leases",
       "MERCHANDISE_PURCHASES": "Merchandise purchases",
       "PERSONNEL_EXPENSES": "Personnel expenses",
       "RELATED_SERVICES": "Related services",
@@ -741,7 +748,6 @@
   },
   "APP_TITLE": "Virtex",
   "AUTH": {
-    "AUTH_LAYOUT": {},
     "CHECKOUT_COMPLETE": {
       "CONFIRMANDO_TU_PAGO": "Confirming your payment…",
       "ESTAMOS_ACTIVANDO_TU_CUENTA_ESTO_SOLO": "We're activating your account. This will only take a few seconds.",
@@ -788,7 +794,8 @@
       "ENVIAMOS_CODIGO_ENLACE_CONFIRMACION": "We sent a code and a confirmation link to",
       "ENVIANDO_CODIGO_EMAIL": "Sending a code to {{email}}…",
       "PREFIERES_NO_ESCRIBIR_CODIGO_BUSCA_BOTON": "Would you rather not type the code? Look for the button",
-      "REINTENTAR": "Try again"
+      "REINTENTAR": "Try again",
+      "DESCRIPCION_CODIGO_EMAIL": "Enter the 6-digit code we sent to your email, or click the link in the message."
     },
     "STEP_PHONE_VERIFY": {
       "CODIGO_VERIFICACION_SMS": "SMS verification code",
@@ -796,7 +803,10 @@
       "ENVIAMOS_SMS_CODIGO": "We sent an SMS with the code to",
       "ENVIANDO_SMS_PHONE": "Sending an SMS to {{phone}}…",
       "OPTIONAL_SKIP": "You didn't add a phone number. This step is optional: you can continue, or go back to add one.",
-      "REINTENTAR": "Try again"
+      "REINTENTAR": "Try again",
+      "SMS_SEND_FAILED": "The verification SMS could not be sent.",
+      "SMS_UNAVAILABLE_CONTINUE": "SMS verification is unavailable right now. Your email is already verified, so you can continue — the phone number will simply stay unverified, and you can confirm it later from your profile.",
+      "DESCRIPCION_CODIGO_SMS": "Enter the 6-digit code we sent to your mobile number."
     },
     "STEP_UP": {
       "CONTINUE_WITH_IDP": "Continue with your provider",
@@ -834,7 +844,18 @@
     }
   },
   "BILLING": {
-    "UNLIMITED_RESOURCE": "{{resource}}: unlimited"
+    "UNLIMITED_RESOURCE": "{{resource}}: unlimited",
+    "PLANS": {
+      "STARTER": {
+        "DESCRIPTION": "Built for small teams getting started"
+      },
+      "PRO": {
+        "DESCRIPTION": "For growing companies with more demanding needs"
+      },
+      "ENTERPRISE": {
+        "DESCRIPTION": "The complete product, without limits, for large organizations"
+      }
+    }
   },
   "CHARTS": {
     "CASHFLOW": {
@@ -916,7 +937,10 @@
       "SUCCESS": "Success",
       "WARNING": "Warning"
     },
-    "VERIFY": "Verify"
+    "VERIFY": "Verify",
+    "LOAD_FAILED": "The data could not be loaded. Try again.",
+    "ACTIONS": "Actions",
+    "EDIT": "Edit"
   },
   "CONTACTS": {
     "CUSTOMERS": {
@@ -966,12 +990,17 @@
       "TIPO_CONTRIBUYENTE_COMPANY": "Company",
       "TIPO_CONTRIBUYENTE_FOREIGN": "Customer abroad",
       "TIPO_CONTRIBUYENTE_GOVERNMENT": "Government body",
-      "TIPO_CONTRIBUYENTE_INDIVIDUAL": "Natural person",
+      "TIPO_CONTRIBUYENTE_INDIVIDUAL": "Individual",
       "TIPO_CONTRIBUYENTE_SIN_CLASIFICAR": "Unclassified",
       "TIPO_CONTRIBUYENTE_WITHHOLDING_AGENT": "Designated withholding agent",
       "TITLE_NEW": "New customer",
       "TITLE_EDIT": "Edit customer",
-      "GUARDAR_CLIENTE": "Save customer"
+      "GUARDAR_CLIENTE": "Save customer",
+      "CONDICIONES_COMERCIALES": "Commercial terms",
+      "TERMINOS_PAGO": "Payment terms",
+      "TERMINOS_PAGO_PLACEHOLDER": "Net 30",
+      "DIAS_CREDITO": "Credit days",
+      "DIAS_CREDITO_AYUDA": "Days added to the issue date to work out the due date. Blank uses the organization default; 0 means due on receipt."
     },
     "SUPPLIERS": {
       "ACCIONES": "Actions",
@@ -1027,7 +1056,7 @@
       "FORMA_DE_PAGO": "Payment method",
       "INFORMACION_PAGO": "Payment Information",
       "ISR_RETENIDO": "Income tax withheld",
-      "ITBIS_RETENIDO": "VAT withheld",
+      "ITBIS_RETENIDO": "ITBIS withheld",
       "MONEDA_DE_LA_CUENTA": "The bank account decides the currency.",
       "MONTO_RECIBIDO": "Amount received",
       "NO_APLICADO": "Unapplied (advance or overpayment)",
@@ -1037,7 +1066,15 @@
       "SALDA": "Settles",
       "SALDO": "Balance",
       "SELECCIONAR_CLIENTE": "Select a customer",
-      "SIN_FACTURAS_ABIERTAS": "This customer has no invoices with an outstanding balance."
+      "SIN_FACTURAS_ABIERTAS": "This customer has no invoices with an outstanding balance.",
+      "ANTICIPO_APLICADO": "Advance applied",
+      "ANTICIPO_DISPONIBLE": "Available on account",
+      "USAR_ANTICIPO": "Use the advance",
+      "SIN_FONDOS": "Enter an amount received or an advance to apply.",
+      "ANTICIPO_INSUFICIENTE": "The advance to apply exceeds what this customer holds on account.",
+      "ANTICIPO_EXCEDE_LO_APLICADO": "You are drawing more advance than this receipt applies to invoices. Apply it to invoices or reduce it.",
+      "PULSA_PARA_APLICAR": "Press an invoice to add it to the receipt.",
+      "APLICAR_FACTURA": "Apply invoice {{number}} to this receipt"
     },
     "LIST": {
       "CARGANDO_RECIBOS": "Loading receipts...",
@@ -1201,7 +1238,8 @@
   },
   "DASHBOARD": {
     "ALERTS_PANEL": {
-      "ALERTAS_TEMPRANAS": "Early Warnings"
+      "ALERTAS_TEMPRANAS": "Early Warnings",
+      "SIN_ALERTAS": "Nothing needs attention right now."
     },
     "ARRASTRAR": "Drag",
     "ARRASTRA_WIDGETS_REORGANIZARLOS_USA_ESQUINAS_REDIMENSIONAR": "Drag the widgets to rearrange them. Use the corners to resize.",
@@ -1216,8 +1254,13 @@
     "COMPARISON_CHART": {
       "AREA": "Area",
       "COLUMNAS": "Columns",
-      "INGRESOS_REAL_VS_PRESUPUESTO_YTD": "Revenue: Actual vs. Budget (YTD)",
-      "TIPO_GRAFICO": "Chart Type"
+      "INGRESOS_REAL_VS_PRESUPUESTO_YTD": "Budget vs. Actual (last 12 months)",
+      "TIPO_GRAFICO": "Chart Type",
+      "PRESUPUESTO": "Budgeting",
+      "REAL": "Actual",
+      "TOTAL": "Total",
+      "MONTO": "Amount",
+      "SIN_PRESUPUESTO": "No budget is defined for this period."
     },
     "EXPENSES_CHART": {
       "COLUMNAS": "Columns",
@@ -1235,10 +1278,33 @@
       "PASTEL": "Pie",
       "PERSONALIZAR_COLORES": "Customize Colours",
       "TIPO_GRAFICO": "Chart Type",
-      "VECTOR_SVG": "SVG vector"
+      "VECTOR_SVG": "SVG vector",
+      "TITLE": "Operating Expense Breakdown",
+      "SUBTITLE": "By ledger account, last 12 months",
+      "SERIES": "Expenses"
     },
     "FINANCIAL_RATIOS": {
-      "INDICADORES_FINANCIEROS_CLAVE": "Key Financial Indicators"
+      "INDICADORES_FINANCIEROS_CLAVE": "Key Financial Indicators",
+      "ROE": {
+        "NAME": "ROE (Return on Equity)",
+        "TOOLTIP": "Profit generated on the shareholders’ investment."
+      },
+      "ROA": {
+        "NAME": "ROA (Return on Assets)",
+        "TOOLTIP": "How efficiently the company turns its assets into profit."
+      },
+      "CURRENT_RATIO": {
+        "NAME": "Current Ratio",
+        "TOOLTIP": "Ability to cover short-term debt (ideally above 1.5)."
+      },
+      "QUICK_RATIO": {
+        "NAME": "Quick Ratio",
+        "TOOLTIP": "Ability to cover short-term debt without selling inventory (ideally above 1)."
+      },
+      "WORKING_CAPITAL": {
+        "NAME": "Working Capital",
+        "TOOLTIP": "What is available to run the business day to day (current assets − current liabilities)."
+      }
     },
     "INVOICE_STATUS": {
       "COLUMNAS": "Columns",
@@ -1256,7 +1322,9 @@
       "PASTEL": "Pie",
       "PERSONALIZAR_COLORES": "Customize Colours",
       "TIPO_GRAFICO": "Chart Type",
-      "VECTOR_SVG": "SVG vector"
+      "VECTOR_SVG": "SVG vector",
+      "TITLE": "Invoice Distribution",
+      "SERIES": "Invoices"
     },
     "LOW_STOCK_PRODUCTS": {
       "EXCELENTE": "All good.",
@@ -1288,6 +1356,39 @@
       "PANTALLA_COMPLETA": "Full screen",
       "PERSONALIZAR_COLORES": "Customize Colours",
       "VECTOR_SVG": "SVG vector"
+    },
+    "ALERTS": {
+      "RECEIVABLES_OVERDUE": {
+        "TITLE": "Overdue receivables",
+        "BODY": "{{count}} invoice(s) past due, {{amount}} uncollected."
+      },
+      "STOCK_DEPLETED": {
+        "TITLE": "Out of stock",
+        "BODY": "{{count}} product(s) have no stock and cannot be invoiced."
+      },
+      "STOCK_LOW": {
+        "TITLE": "Low stock",
+        "BODY": "{{count}} product(s) below their reorder level."
+      },
+      "PERIOD_UNCLOSED": {
+        "TITLE": "Period still open",
+        "BODY": "Period “{{period}}” has ended and is still open."
+      }
+    },
+    "SUMMARY": {
+      "SALES_TODAY": {
+        "TITLE": "Sales today"
+      },
+      "PENDING_INVOICES": {
+        "TITLE": "Outstanding invoices"
+      },
+      "LOW_STOCK": {
+        "TITLE": "Products low on stock",
+        "OUT_OF_STOCK": "{{count}} out of stock"
+      },
+      "ACTIVE_CUSTOMERS": {
+        "TITLE": "Active customers"
+      }
     }
   },
   "DATA_EXPORTS": {
@@ -1410,6 +1511,34 @@
       "PLACEHOLDER": "Reason for voiding",
       "TITLE": "Void the bill",
       "TOO_SHORT": "Give a reason of at least 10 characters."
+    },
+    "APPROVE_PAYROLL_RUN": {
+      "MESSAGE": "Approving posts the accounting entry and closes the run to edits. A mistake found afterwards can only be fixed by an adjustment run. Continue?",
+      "TITLE": "Approve the payroll run"
+    },
+    "CANCEL_PAYROLL_RUN": {
+      "MESSAGE": "Cancel this run? It cannot be reopened.",
+      "TITLE": "Cancel the payroll run"
+    },
+    "DELETE_DEPARTMENT": {
+      "MESSAGE": "Delete the department “{{name}}”?",
+      "TITLE": "Delete department"
+    },
+    "DELETE_DOCUMENT": {
+      "MESSAGE": "Delete “{{name}}”? This cannot be undone.",
+      "TITLE": "Delete file"
+    },
+    "DELETE_FOLDER": {
+      "MESSAGE": "Delete “{{name}}” and everything in it? This cannot be undone.",
+      "TITLE": "Delete folder"
+    },
+    "DELETE_PAYROLL_CONCEPT": {
+      "MESSAGE": "Delete the concept “{{name}}”?",
+      "TITLE": "Delete concept"
+    },
+    "DELETE_PRODUCT_CATEGORY": {
+      "TITLE": "Delete category",
+      "MESSAGE": "Delete the category “{{name}}”? Only possible if it has no subcategories and no products."
     }
   },
   "DOCUMENTS": {
@@ -1434,14 +1563,34 @@
       "NEW_FOLDER": "New folder",
       "SEARCH_IN_THIS_FOLDER": "Search in this folder...",
       "THIS_FOLDER_EMPTY": "This folder is empty.",
-      "UPLOAD_FILE": "Upload a file"
+      "UPLOAD_FILE": "Upload a file",
+      "SEARCH_ALL": "Search all documents…",
+      "FOLDER_NAME": "Folder name",
+      "DOWNLOAD": "Download",
+      "RENAME": "Rename",
+      "ACTION_FAILED": "The operation could not be completed."
     },
     "SEARCH_IN_THIS_FOLDER": "Search in this folder...",
     "TEMPLATES": {
       "CREATE_NEW_TEMPLATE": "Create a template",
       "DOCUMENT_TEMPLATES": "Document templates",
       "NEW_TEMPLATE": "New template",
-      "TYPE_LAST_MODIFIED_LASTMODIFIED": "{{type}} • Last modified: {{lastModified}}"
+      "TYPE_LAST_MODIFIED_LASTMODIFIED": "{{type}} • Last modified: {{lastModified}}",
+      "TITLE": "Templates",
+      "NAME": "Name",
+      "TYPE_COLUMN": "Type",
+      "LAST_MODIFIED": "Last modified",
+      "UPLOAD": "Upload a template",
+      "UPLOAD_AS": "Upload as",
+      "EXPLANATION": "A template is a model file you keep here to reuse: the letterhead your invoices are printed on, the contract you adapt per client, the wording you paste into a reminder. Virtex does not fill them in for you yet.",
+      "TYPE": {
+        "INVOICE": "Invoice",
+        "QUOTE": "Quote",
+        "EMAIL": "Email",
+        "CONTRACT": "Contract",
+        "OTHER": "Other",
+        "NONE": "—"
+      }
     },
     "THIS_FOLDER_EMPTY": "This folder is empty.",
     "UPLOAD_FILE": "Upload a file"
@@ -1465,7 +1614,7 @@
     "NETWORK": "We couldn't reach the server. Check your connection and try again.",
     "HTTP_400": "The request couldn't be processed. Please review the data and try again.",
     "HTTP_401": "Your session is no longer valid. Please sign in again.",
-    "HTTP_403": "You don't have permission to perform this action.",
+    "HTTP_403": "You do not have permission to perform this action.",
     "HTTP_404": "The requested resource was not found.",
     "HTTP_409": "This action conflicts with the current state of the data.",
     "HTTP_422": "Some of the data is not valid. Please review it and try again.",
@@ -1501,7 +1650,10 @@
     "UNEXPECTED": "Something went wrong. Please try again.",
     "UPDATE_SSO_PROVIDER": "The provider could not be updated.",
     "UPDATE_USER": "The user could not be updated.",
-    "VERIFY_DOMAIN": "The domain could not be verified yet."
+    "VERIFY_DOMAIN": "The domain could not be verified yet.",
+    "UPDATE_JOURNAL_ENTRY": "The journal entry could not be modified.",
+    "RECAPTCHA": "The bot check could not be completed. Reload the page and try again.",
+    "INVALID_INVITATION_TOKEN": "The invitation link is not valid or has already been used. Ask whoever invited you for a new one."
   },
   "FEEDBACK": {
     "COMING_SOON": "This feature is coming soon",
@@ -1523,15 +1675,19 @@
       "B02": "B02 · Consumo (preimpreso)",
       "B04": "B04 · Nota de Crédito (preimpreso)",
       "B11": "B11 · Proveedor Informal",
-      "B15": "B15 · Gubernamental (preimpreso)"
+      "B15": "B15 · Gubernamental (preimpreso)",
+      "B03": "B03 · Nota de Débito (debit note)",
+      "E41": "E41 · Compras Electrónico (self-issued purchase)",
+      "E43": "E43 · Gastos Menores Electrónico (minor expenses)",
+      "E47": "E47 · Pagos al Exterior Electrónico (payments abroad)"
     },
     "MX": {
       "I": "I · Ingreso (CFDI 4.0)",
       "E": "E · Egreso — nota de crédito (CFDI 4.0)"
     },
     "CO": {
-      "01": "01 · Factura de Venta Nacional",
-      "91": "91 · Nota Crédito"
+      "91": "91 · Nota Crédito",
+      "01": "01 · Factura de Venta Nacional"
     },
     "PE": {
       "01": "01 · Factura",
@@ -1551,9 +1707,9 @@
       "55": "55 · Nota Fiscal Eletrônica (NF-e)"
     },
     "AR": {
+      "11": "11 · Factura C",
       "01": "01 · Factura A",
-      "06": "06 · Factura B",
-      "11": "11 · Factura C"
+      "06": "06 · Factura B"
     }
   },
   "FORGOT_PASSWORD": {
@@ -1584,7 +1740,19 @@
       "AQUI_MOSTRARA_LISTA_GESTION_CATEGORIAS": "The category list and its management will appear here.",
       "CATEGORIAS": "Categories",
       "NUEVA_CATEGORIA": "New\n                    Category",
-      "ORGANIZA_TUS_PRODUCTOS_DIFERENTES_CATEGORIAS": "Organize your products into categories."
+      "ORGANIZA_TUS_PRODUCTOS_DIFERENTES_CATEGORIAS": "Organize your products into categories.",
+      "NAME": "Name",
+      "CODE": "Code",
+      "PARENT": "Parent category",
+      "NO_PARENT": "No parent category",
+      "STATUS": "Status",
+      "ACTIVE": "Active",
+      "INACTIVE": "Retired",
+      "ACTIVATE": "Reactivate",
+      "DEACTIVATE": "Retire",
+      "SHOW_INACTIVE": "Show retired",
+      "EMPTY": "No categories yet. Create the first one to start organising the catalogue.",
+      "SAVE_FAILED": "The category could not be saved."
     },
     "PRODUCTS": {
       "BUSCAR_NOMBRE_SKU_CATEGORIA": "Search by name, SKU or category...",
@@ -1610,14 +1778,12 @@
       "LOAD_FAILED": "The products could not be loaded. Try again."
     },
     "PRODUCT_FORM": {
-      "ACCESORIOS": "Accessories",
       "ACTIVO": "Active",
       "CANCELAR": "Cancel",
       "CANTIDAD_STOCK": "Quantity in Stock*",
       "CATEGORIA": "Category*",
       "COMPLETA_INFORMACION_DETALLADA_TU_PRODUCTO_SERVICIO": "Fill in the details of your product or service.",
       "DESCRIPCION": "Description",
-      "ELECTRONICA": "Electronics",
       "ERROR_ACTUALIZAR_PRODUCTO": "Error updating the product.",
       "ERROR_CREAR_PRODUCTO": "Error creating the product.",
       "ESTADO": "Status*",
@@ -1625,7 +1791,6 @@
       "IMAGEN_PRODUCTO": "Product Image",
       "INACTIVO": "Inactive",
       "INFORMACION_BASICA": "Basic Information",
-      "MONITORES": "Monitors",
       "NIVEL_REORDEN": "Reorder Level",
       "NOMBRE_PRODUCTO": "Product Name*",
       "ORGANIZACION": "Organization",
@@ -1640,7 +1805,11 @@
       "VISTA_PREVIA": "Preview",
       "TITLE_NEW": "New product",
       "TITLE_EDIT": "Edit product",
-      "GUARDAR_PRODUCTO": "Save product"
+      "GUARDAR_PRODUCTO": "Save product",
+      "COSTO_UNITARIO": "Unit Cost",
+      "COSTO_UNITARIO_AYUDA": "What the item cost you. Drives cost of sale and inventory valuation.",
+      "SIN_CATEGORIA": "No category",
+      "SIN_CATEGORIAS_AUN": "No categories yet. Create them under Inventory → Categories."
     }
   },
   "INVOICES": {
@@ -1717,7 +1886,7 @@
       "FECHA_EMISION": "Issue date",
       "FECHA_VENCIMIENTO": "Due date",
       "GRAVADO": "Taxed",
-      "IDENTIFICACION_FISCAL": "Tax identification",
+      "IDENTIFICACION_FISCAL": "Tax ID",
       "IMPUESTO": "Tax",
       "MONEDA": "Currency",
       "NOMBRE_ARCHIVO": "invoices",
@@ -2175,7 +2344,10 @@
       "PUDO_CARGAR_PROVEEDOR": "The supplier could not be loaded.",
       "TELEFONO": "Phone",
       "TITLE_NEW": "New supplier",
-      "TITLE_EDIT": "Edit supplier"
+      "TITLE_EDIT": "Edit supplier",
+      "PAIS": "Country",
+      "PAIS_AYUDA": "Two-letter ISO code. Tells a domestic purchase from a payment abroad, which the 609 reports separately.",
+      "TIPO_CONTRIBUYENTE_AYUDA": "Decides what is withheld when you pay them. If you do not know it, leave it unclassified: nothing is withheld automatically."
     },
     "SUPPLIER_LIST": {
       "COMPANY_NAME": "Legal name",
@@ -2268,10 +2440,15 @@
     "NOTIFICATIONS": "Notifications",
     "PRICE_LISTS": "Price Lists",
     "PRODUCTS": "Products & Services",
-    "PURCHASING": "Purchasing (P2P)",
+    "PURCHASING": "Purchasing",
     "REPORTS": "Reports",
-    "SALES": "Sales Reports",
-    "SETTINGS": "Settings"
+    "SALES": "Sales",
+    "SETTINGS": "Settings",
+    "HISTORY": {
+      "GROUP": "Navigation history",
+      "BACK": "Back",
+      "FORWARD": "Next"
+    }
   },
   "NOTIFICATIONS": {
     "MANTENTE_DIA_ULTIMAS_ACTUALIZACIONES_ALERTAS_TU": "Keep up with the latest updates and alerts on your account.",
@@ -2291,11 +2468,73 @@
   "OVERVIEW": {
     "ACTIVITY": {
       "EMPTY": "No recent activity yet.",
-      "TITLE": "Recent activity"
+      "TITLE": "Recent activity",
+      "NO_REFERENCE": "unnumbered",
+      "ITEM": {
+        "INVOICES": {
+          "CREATE": "Invoice {{reference}} issued",
+          "UPDATE": "Invoice {{reference}} updated",
+          "DELETE": "Invoice {{reference}} deleted"
+        },
+        "CUSTOMER_PAYMENTS": {
+          "CREATE": "Receipt {{reference}} recorded",
+          "UPDATE": "Receipt {{reference}} changed",
+          "DELETE": "Receipt {{reference}} deleted"
+        },
+        "VENDOR_BILLS": {
+          "CREATE": "Vendor bill {{reference}} recorded",
+          "UPDATE": "Vendor bill {{reference}} updated",
+          "DELETE": "Vendor bill {{reference}} deleted"
+        },
+        "VENDOR_PAYMENTS": {
+          "CREATE": "Vendor payment {{reference}} recorded",
+          "UPDATE": "Vendor payment {{reference}} changed",
+          "DELETE": "Vendor payment {{reference}} deleted"
+        },
+        "JOURNAL_ENTRIES": {
+          "CREATE": "Entry {{reference}} posted",
+          "UPDATE": "Entry {{reference}} changed",
+          "DELETE": "Entry {{reference}} deleted"
+        },
+        "CUSTOMERS": {
+          "CREATE": "Customer “{{reference}}” added",
+          "UPDATE": "Customer “{{reference}}” updated",
+          "DELETE": "Customer “{{reference}}” deleted"
+        },
+        "SUPPLIERS": {
+          "CREATE": "Supplier “{{reference}}” added",
+          "UPDATE": "Supplier “{{reference}}” updated",
+          "DELETE": "Supplier “{{reference}}” deleted"
+        },
+        "PRODUCTS": {
+          "CREATE": "Product “{{reference}}” added to the catalogue",
+          "UPDATE": "Product “{{reference}}” updated",
+          "DELETE": "Product “{{reference}}” deleted"
+        },
+        "GENERIC": {
+          "CREATE": "{{reference}} created",
+          "UPDATE": "{{reference}} updated",
+          "DELETE": "{{reference}} deleted"
+        }
+      }
     },
     "EVENTS": {
-      "EMPTY": "No upcoming events.",
-      "TITLE": "Upcoming events"
+      "EMPTY": "Nothing falls due and no period closes in the next 30 days.",
+      "TITLE": "What falls due",
+      "ITEM": {
+        "RECEIVABLE_DUE": "Invoice {{reference}} falls due",
+        "RECEIVABLE_OVERDUE": "Invoice {{reference}} is overdue",
+        "PAYABLE_DUE": "Vendor bill {{reference}} falls due",
+        "PAYABLE_OVERDUE": "Vendor bill {{reference}} is overdue",
+        "PERIOD_CLOSE": "Period “{{reference}}” closes"
+      },
+      "KIND": {
+        "RECEIVABLE_DUE": "Receivable",
+        "RECEIVABLE_OVERDUE": "Overdue",
+        "PAYABLE_DUE": "Payable",
+        "PAYABLE_OVERDUE": "Overdue",
+        "PERIOD_CLOSE": "Period close"
+      }
     },
     "GREETING": {
       "AFTERNOON": "Good afternoon",
@@ -2333,7 +2572,7 @@
     "ACCOUNTING_PREFERENCES": "Accounting preferences",
     "ACCOUNTS_PAYABLE": "Accounts payable",
     "ACCOUNTS_PAYABLE_AGING": "Accounts Payable Ageing",
-    "ACCOUNTS_RECEIVABLE_AGING": "Accounts Receivable Ageing",
+    "ACCOUNTS_RECEIVABLE_AGING": "Accounts Receivable Aging",
     "ACCOUNT_EDIT": "Edit account",
     "ACCOUNT_NEW": "New account",
     "ACCOUNT_RECONCILIATION": "Account Reconciliation",
@@ -2370,7 +2609,7 @@
     "DOCUMENT_REPOSITORY": "Document repository",
     "DOCUMENT_TEMPLATES": "Document templates",
     "EINVOICING": "Electronic invoicing (DR)",
-    "EINVOICING_REGIME": "Electronic invoicing",
+    "EINVOICING_REGIME": "E-invoicing",
     "FISCAL_PERIODS": "Fiscal periods and closing",
     "FISCAL_SEQUENCES": "Fiscal sequences",
     "GENERAL_LEDGER": "General ledger",
@@ -2419,10 +2658,10 @@
     "PROJECTS": "Projects (PSA)",
     "PURCHASE_ORDERS": "Purchase Orders",
     "PURCHASE_REQUISITIONS": "Purchase requisitions",
-    "PURCHASING": "Purchasing (P2P)",
+    "PURCHASING": "Purchasing",
     "REPORTS": "Reports",
     "ROLES_PERMISSIONS": "Roles and permissions",
-    "SALES": "Sales Reports",
+    "SALES": "Sales",
     "SALES_HISTORY": "Sales history",
     "SEARCH": "Search",
     "SECURITY_AUDIT": "Security and audit",
@@ -2448,7 +2687,25 @@
     "VENDOR_PAYMENT": "Supplier Payment",
     "WAREHOUSES": "Warehouses",
     "WAREHOUSE_MANAGEMENT": "Warehouse management (WMS)",
-    "WITHHOLDING_REGIMES": "Withholding regimes"
+    "WITHHOLDING_REGIMES": "Withholding regimes",
+    "PURCHASE_ORDER_NEW": "New purchase order",
+    "PURCHASE_ORDER_EDIT": "Purchase order",
+    "PURCHASE_REQUISITION_NEW": "New requisition",
+    "PURCHASE_REQUISITION_EDIT": "Requisition",
+    "DEPARTMENTS": "Departments",
+    "EMPLOYEES": "Employees",
+    "EMPLOYEE_EDIT": "Employee",
+    "EMPLOYEE_NEW": "New employee",
+    "MY_PAYSLIPS": "My payslips",
+    "PAYROLL_CONCEPTS": "Payroll concepts",
+    "PAYROLL_PARAMETERS": "Statutory parameters",
+    "PAYROLL_RUN": "Payroll run",
+    "PAYROLL_RUNS": "Payroll runs",
+    "INVOICE": "Invoice",
+    "VENDOR_BILL": "Vendor bill",
+    "DATASHEET": "Datasheet",
+    "AUDIT_ADJUSTMENTS": "Audit adjustments",
+    "AUDIT_ADJUSTMENT_NEW": "New audit adjustment"
   },
   "PASSWORD_STRENGTH": {
     "WEAK": "Weak"
@@ -2470,7 +2727,46 @@
       "STATUS": "Status",
       "SUPPLIER": "Supplier",
       "TITLE": "Purchase Orders",
-      "TOTAL": "Total"
+      "TOTAL": "Total",
+      "STATUS_LABEL": {
+        "DRAFT": "Draft",
+        "PENDING_APPROVAL": "Awaiting approval",
+        "APPROVED": "Approved",
+        "SENT": "Sent",
+        "PARTIALLY_RECEIVED": "Partially received",
+        "RECEIVED": "Received",
+        "CANCELLED": "Cancelled"
+      },
+      "FORM": {
+        "EXPECTED_DATE": "Expected date",
+        "EXPECTED_DATE_HELP": "What the supplier promised.",
+        "NOTES": "Notes",
+        "LINES": "Order lines",
+        "PRODUCT": "Product",
+        "DESCRIPTION": "Description",
+        "QUANTITY": "Quantity",
+        "RECEIVED": "Received",
+        "UNIT_PRICE": "Agreed price",
+        "TAX_RATE": "Tax",
+        "NOT_IN_CATALOGUE": "Not in the catalogue",
+        "ADD_LINE": "Add line",
+        "SUBTOTAL": "Subtotal",
+        "TAX": "Taxes",
+        "SUBMIT": "Send for approval",
+        "APPROVE": "Approve",
+        "SEND": "Mark as sent to the supplier",
+        "RECEIVE": "Record a delivery",
+        "RECEIVE_TITLE": "What arrived",
+        "OUTSTANDING": "Pending",
+        "RECEIVING_NOW": "Receiving now",
+        "CONFIRM_RECEIPT": "Confirm delivery",
+        "CANCEL_ORDER": "Cancel order",
+        "CANCEL_REASON": "Why it is being cancelled",
+        "CONFIRM_CANCEL": "Confirm cancellation",
+        "FROM_REQUISITION": "Open the requisition it came from",
+        "SAVED": "Order saved.",
+        "SAVE_FAILED": "The order could not be saved."
+      }
     },
     "REQUISITIONS": {
       "DATE": "Date",
@@ -2483,7 +2779,36 @@
       "REQUISITION": "Requisition no.",
       "STATUS": "Status",
       "TITLE": "Purchase Requisitions",
-      "TOTAL": "Total"
+      "TOTAL": "Total",
+      "ITEMS": "Items",
+      "REQUIRED_DATE": "Needed by",
+      "STATUS_LABEL": {
+        "DRAFT": "Draft",
+        "PENDING_APPROVAL": "Awaiting approval",
+        "APPROVED": "Approved",
+        "REJECTED": "Rejected",
+        "CONVERTED_TO_PO": "Ordered"
+      },
+      "FORM": {
+        "NOTES": "Justification",
+        "NOTES_HELP": "What the approver will read.",
+        "ITEMS": "What is being requested",
+        "PRODUCT": "Product",
+        "DESCRIPTION": "Description",
+        "QUANTITY": "Quantity",
+        "ESTIMATED_PRICE": "Estimated price",
+        "NOT_IN_CATALOGUE": "Not in the catalogue",
+        "ADD_LINE": "Add line",
+        "ESTIMATE_NOTE": "An estimate: nobody has quoted yet.",
+        "SUBMIT": "Send for approval",
+        "APPROVE": "Approve",
+        "REJECT": "Reject",
+        "REJECT_REASON": "Why it is being rejected",
+        "CONFIRM_REJECT": "Confirm rejection",
+        "REOPEN": "Send back to draft",
+        "SAVED": "Requisition saved.",
+        "SAVE_FAILED": "The requisition could not be saved."
+      }
     }
   },
   "PWA": {
@@ -2607,7 +2932,8 @@
         "SUBTITLE": "Select the plan that best fits you",
         "TITLE": "Choose your Plan",
         "TOTAL": "{{count}} {{resource}} in total",
-        "UNLIMITED": "Unlimited {{resource}}"
+        "UNLIMITED": "Unlimited {{resource}}",
+        "NONE": "No {{resource}}"
       }
     },
     "STEP_OF": "Step {{current}} of {{total}}",
@@ -2755,7 +3081,7 @@
       "TOTAL_REVENUE": "Total revenue",
       "UNCLOSED_RESULT": "Result for the year not yet closed",
       "UNEXPLAINED_DIFFERENCE": "Unexplained difference",
-      "UNITS_SOLD": "Units sold"
+      "UNITS_SOLD": "Units"
     },
     "INCOME_STATEMENT": {
       "COSTO_DE_VENTAS": "Cost of sales",
@@ -2964,10 +3290,10 @@
       "AUN_NO_HAS_REGISTRADO_RANGOS_NCF": "You have not registered any e-NCF ranges yet.",
       "CAPABILITY_ACCOUNTING": "Accounting and operations",
       "CAPABILITY_ELECTRONIC_ACCOUNTING": "Electronic accounting",
-      "CAPABILITY_ELECTRONIC_INVOICING": "Electronic invoicing",
+      "CAPABILITY_ELECTRONIC_INVOICING": "E-invoicing",
       "CAPABILITY_PERIODIC_RETURNS": "Periodic returns",
       "CAPABILITY_TAX_DETERMINATION": "Tax determination",
-      "CAPABILITY_WITHHOLDING": "Withholding",
+      "CAPABILITY_WITHHOLDING": "Withholdings",
       "CERTIFICADO_CARGADO_VALIDADO_CORRECTAMENTE": "Certificate uploaded and validated successfully.",
       "CERTIFICADO_DESACTIVADO": "Certificate deactivated.",
       "CERTIFICADO_DGII_2025": "DGII certificate 2025",
@@ -3154,7 +3480,7 @@
         "RANGE": "Range",
         "RANGES_NOTE": "Without an active range nothing can be issued: the number is granted by the authority, not by the system. Retired ranges are kept because they are the authorization earlier documents were issued under.",
         "RANGES_TITLE": "Authorized ranges",
-        "RANGE_BOUNDS": "The final number cannot be lower than the first.",
+        "RANGE_BOUNDS": "The ending number cannot be lower than the starting one.",
         "REGISTER": "Register",
         "REMAINING": "Remaining",
         "RESOLUTION": "Invoicing resolution",
@@ -3172,7 +3498,7 @@
         "STARTS_AT": "From",
         "STATE_CODE": "State IBGE code",
         "SUBTITLE": "Your regime configuration and the numbering ranges your authority granted you.",
-        "TITLE": "Electronic invoicing",
+        "TITLE": "E-invoicing",
         "VALID_UNTIL": "Valid until",
         "VALID_UNTIL_HINT": "A DIAN resolution and an SII CAF both expire; a Brazilian série does not."
       },
@@ -3303,10 +3629,10 @@
         "CANCEL": "Cancel",
         "CAPABILITY_ACCOUNTING": "Accounting",
         "CAPABILITY_ELECTRONIC_ACCOUNTING": "Electronic accounting",
-        "CAPABILITY_ELECTRONIC_INVOICING": "Electronic invoicing",
+        "CAPABILITY_ELECTRONIC_INVOICING": "E-invoicing",
         "CAPABILITY_PERIODIC_RETURNS": "Periodic returns",
         "CAPABILITY_TAX_DETERMINATION": "Tax determination",
-        "CAPABILITY_WITHHOLDING": "Withholding",
+        "CAPABILITY_WITHHOLDING": "Withholdings",
         "CODE": "Code",
         "COVERAGE_IMPLEMENTED": "Implemented",
         "COVERAGE_NEEDS_CREDENTIALS": "Needs your configuration",
@@ -3315,7 +3641,7 @@
         "DELETE": "Delete",
         "DELETE_FAILED": "The regime could not be deleted.",
         "EMPTY": "No regimes configured yet.",
-        "KIND": "Kind",
+        "KIND": "Type",
         "KIND_HINT": "“On the tax” withholds part of the tax charged; “on the base” withholds part of the taxable base.",
         "KIND_INCOME": "On the base",
         "KIND_VAT": "On the tax",
@@ -3330,7 +3656,7 @@
         "PAYER_AGENT": "Designated withholding agent",
         "PAYER_COMPANY": "Company",
         "PAYER_GOVERNMENT": "Government",
-        "PAYER_INDIVIDUAL": "Natural person",
+        "PAYER_INDIVIDUAL": "Individual",
         "RATE": "Rate (%)",
         "REQUIRES": "Needs you to supply",
         "SAVE": "Save",
@@ -3584,14 +3910,15 @@
       "SELECCIONAR_ROL": "Select a role",
       "SESION_USUARIO_HA_SIDO_CERRADA": "The user's session has been closed.",
       "SUPLANTAR_USUARIO": "Impersonate User",
-      "TIMES": "&times;",
+      "TIMES": "×",
       "USUARIOS": "Users",
       "USUARIOS_2": "users",
       "USUARIO_ACTUALIZADO_EXITO": "User updated successfully.",
       "USUARIO_ELIMINADO_EXITO": "User deleted successfully.",
       "USUARIO_EMPRESA_COM": "user@company.com",
       "USUARIO_HA_SIDO_BLOQUEADO_SESION_CERRADA": "The user has been blocked and their session closed.",
-      "USUARIO_INVITADO_EXITO": "User invited successfully."
+      "USUARIO_INVITADO_EXITO": "User invited successfully.",
+      "MOSTRANDO_DE": "Showing {{shown}} of {{total}} users"
     }
   },
   "SET_PASSWORD": {
@@ -3673,7 +4000,7 @@
     "AL_CORTE": "As of",
     "BANCO": "Bank",
     "COMISION": "Fee",
-    "CUENTAS_BANCARIAS": "Bank accounts",
+    "CUENTAS_BANCARIAS": "Bank Accounts",
     "CUENTA_COMPARTIDA": "Several bank accounts share this ledger account; the total counts it once.",
     "DESTINO": "To",
     "ENVIADO": "Sent",
@@ -3735,7 +4062,8 @@
     "RUTA_SOLICITADA": "Requested path:",
     "SI_CREES_ESTO_ES_ERROR_CONTACTA": "If you believe this is a mistake, contact your system administrator or request the permissions you need.",
     "SOLICITAR_PERMISO": "Request Permission",
-    "VOLVER_DASHBOARD": "Back to the Dashboard"
+    "VOLVER_DASHBOARD": "Back to the Dashboard",
+    "TITLE": "Access denied"
   },
   "USER": {
     "HELP": "Help",
@@ -3987,15 +4315,12 @@
       "tax": "Tax & Compliance"
     },
     "hr": {
-      "absences": "Absences",
-      "dashboard": "Payroll dashboard",
       "employees": "Employees",
-      "incidents": "Payroll inputs",
-      "loans": "Loans",
-      "process": "Run payroll",
-      "reports": "Reports",
-      "self_service": "Self-service",
-      "severance": "Final settlements"
+      "departments": "Departments",
+      "my_payslips": "My payslips",
+      "payroll_concepts": "Concepts",
+      "payroll_parameters": "Statutory parameters",
+      "payroll_runs": "Payroll runs"
     },
     "intelligence": {
       "analytics": "Intelligence & Planning",
@@ -4076,7 +4401,7 @@
         "shop_floor": "Shop floor",
         "wip": "WIP"
       },
-      "purchasing": "Purchasing (P2P)",
+      "purchasing": "Purchasing",
       "purchasing_sub": {
         "analytics": "Analytics",
         "approvals": "Approvals",
@@ -4189,7 +4514,7 @@
         "financial_statements": "Financial statements",
         "inventory": "Inventory",
         "profitability": "Profitability",
-        "sales": "Sales Reports",
+        "sales": "Sales",
         "tax": "Tax reports",
         "treasury": "Treasury",
         "xbrl": "XBRL"
@@ -4239,16 +4564,17 @@
     }
   },
   "MODULES": {
-    "WORKSPACE": "My work",
+    "WORKSPACE": "My Work",
     "SALES": "Sales",
     "PURCHASING": "Purchasing",
     "INVENTORY": "Inventory",
     "TREASURY": "Treasury",
     "ACCOUNTING": "Accounting",
-    "ANALYSIS": "Analysis",
-    "DATASHEETS": "Datasheets",
+    "ANALYSIS": "Analytics",
+    "DATASHEETS": "DataSheets",
     "ADMINISTRATION": "Administration",
-    "ROADMAP": "In preparation"
+    "ROADMAP": "In preparation",
+    "HR": "HR & Payroll"
   },
   "TRANSITION": {
     "PRECONDITIONS": "Preconditions",
@@ -4279,7 +4605,7 @@
     "GROUP_INBOX": "Inbox",
     "GROUP_DOCUMENTS": "Documents",
     "GROUP_MASTERS": "Master data",
-    "GROUP_ANALYSIS": "Analysis",
+    "GROUP_ANALYSIS": "Analytics",
     "NO_ENTRIES": "This module has no sections available with your permissions.",
     "SEARCH_PLACEHOLDER": "Search…",
     "CLEAR_SEARCH": "Clear the filter",
@@ -4303,5 +4629,303 @@
     "INBOX_ALL_CLEAR": "You have nothing pending.",
     "INBOX_SECTION_CLEAR": "All clear.",
     "INBOX_OVERDUE": "Overdue"
+  },
+  "HCM": {
+    "DEPARTMENTS": {
+      "COST_CENTER": "Cost centre",
+      "NAME": "Name",
+      "NEW": "New department",
+      "SAVE_FAILED": "The department could not be saved.",
+      "TITLE": "Departments"
+    },
+    "EMPLOYEES": {
+      "DEPARTMENT": "Department",
+      "FORM": {
+        "ADD_PAY": "Record a pay change",
+        "AFP": "Pension fund (AFP)",
+        "BANK": "Account wages are paid into",
+        "BANK_ACCOUNT": "Account number",
+        "BANK_ACCOUNT_TYPE": "Account type",
+        "BANK_NAME": "Bank",
+        "BASE_SALARY": "Base salary",
+        "CESANTIA": "Severance",
+        "CONTRACT": "Contract type",
+        "CONTRACT_TYPE": {
+          "FIXED_TERM": "Fixed term",
+          "INDEFINITE": "Indefinite",
+          "OCCASIONAL": "Occasional"
+        },
+        "DOC": {
+          "CEDULA": "Cédula",
+          "PASSPORT": "Passport",
+          "RNC": "RNC"
+        },
+        "DOCUMENT": "Document",
+        "DOCUMENT_HELP": "Encrypted. Leave blank to keep the current one.",
+        "DOCUMENT_TYPE": "Document type",
+        "EFFECTIVE_FROM": "Effective from",
+        "EMAIL": "Email",
+        "EMPLOYMENT": "Employment",
+        "FIRST_NAME": "First name",
+        "FREQUENCY": "Frequency",
+        "FREQUENCY_LABEL": {
+          "BIWEEKLY": "Fortnightly",
+          "MONTHLY": "Monthly",
+          "WEEKLY": "Weekly"
+        },
+        "IDENTITY": "Fiscal identity and social security",
+        "JOB_TITLE": "Job title",
+        "LAST_DAY": "Last day worked",
+        "LAST_NAME": "Last Name",
+        "NO_PAY": "No salary on record: payroll cannot include this person.",
+        "PAY_HISTORY": "Pay history",
+        "PAY_HISTORY_HELP": "A raise adds a line with the date it takes effect; it never rewrites what a past payroll was computed on.",
+        "PERSON": "Personal details",
+        "PREAVISO": "Notice",
+        "PREVIEW_SEVERANCE": "Calculate",
+        "REGALIA": "Proportional bonus",
+        "REVEAL": "Show the sensitive fields",
+        "SAVED": "Employee saved.",
+        "SAVE_FAILED": "The employee could not be saved.",
+        "SEVERANCE": "Severance calculation",
+        "SEVERANCE_FAILED": "The severance could not be calculated.",
+        "SEVERANCE_HELP": "What ending the employment would cost, before it is decided. Notice (Art. 76), severance (Art. 80), holiday (Art. 177) and the proportional year-end bonus.",
+        "SEVERANCE_TOTAL": "Total",
+        "SFS": "Health fund (ARS/SFS)",
+        "TERMINATION_DATE": "Leaving date",
+        "TSS_NSS": "NSS (TSS)",
+        "VACATIONS": "Holiday"
+      },
+      "HIRE_DATE": "Hired",
+      "INCLUDE_TERMINATED": "Include people who have left",
+      "JOB_TITLE": "Job title",
+      "NAME": "Name",
+      "NEW": "New employee",
+      "SEARCH": "Search by name, e-mail or job title…",
+      "STATUS": "Status",
+      "STATUS_LABEL": {
+        "ACTIVE": "Active",
+        "SUSPENDED": "Suspended",
+        "TERMINATED": "Left"
+      },
+      "TITLE": "Employees"
+    }
+  },
+  "PAYROLL": {
+    "CONCEPTS": {
+      "ACTIVE": "Active",
+      "CALCULATION": "Calculation",
+      "CALC_LABEL": {
+        "FIXED": "Fixed amount",
+        "HOURLY": "Hourly",
+        "PERCENTAGE": "Percentage",
+        "STATUTORY": "Statutory"
+      },
+      "CODE": "Code",
+      "INCLUDE_INACTIVE": "Include inactive",
+      "NAME": "Name",
+      "NEW": "New concept",
+      "RATE": "Rate",
+      "RATE_HELP": "A fraction for a percentage (0.03) or a multiplier for hours (1.35).",
+      "SAVE_FAILED": "The concept could not be saved.",
+      "SYSTEM": "Statutory",
+      "TAXABLE": "Taxable",
+      "TITLE": "Payroll concepts",
+      "TSS_BASE": "Counts towards TSS",
+      "TYPE": "Type",
+      "TYPE_LABEL": {
+        "DEDUCTION": "Deduction",
+        "EARNING": "Earning",
+        "EMPLOYER_CONTRIBUTION": "Employer contribution"
+      }
+    },
+    "MY_PAYSLIPS": {
+      "PERIOD": "Period",
+      "TITLE": "My payslips"
+    },
+    "PARAMETERS": {
+      "ACCUMULATED": "Accumulated tax",
+      "BASE": "Base",
+      "BASE_LABEL": {
+        "PAYROLL_UNCAPPED": "Payroll, uncapped",
+        "SALARY_CAPPED": "Salary, capped"
+      },
+      "CAP": "Cap (× minimum wage)",
+      "CAP_HELP": "A multiple of the minimum contributory wage.",
+      "CONTRIBUTIONS": "Social-security contributions",
+      "EFFECTIVE_FROM": "Effective from",
+      "EMPLOYEE_RATE": "Employee rate",
+      "EMPLOYER_RATE": "Employer rate",
+      "EXPLANATION": "A rate is a fact about a moment: nothing here is edited in place. A change is a new row with the date it takes effect, so a payroll recomputed later still produces what it produced then.",
+      "FROM_ANNUAL": "From (annual)",
+      "IN_FORCE": "In force",
+      "KEY": "Parameter",
+      "KEY_LABEL": {
+        "BONUS_EMPLOYEE_LEVY_RATE": "Training levy on the year-end bonus",
+        "ISR_ANNUAL_EXEMPT": "Annual income-tax exemption",
+        "MIN_WAGE_COTIZABLE": "Minimum contributory wage"
+      },
+      "NEW_RATE": "New rate",
+      "NEW_REFERENCE": "New value",
+      "RATE": "Rate",
+      "REFERENCES": "Reference values",
+      "REGIME": "Regime",
+      "SAVE_FAILED": "The parameter could not be saved.",
+      "SUPERSEDE": "Supersede",
+      "TAX_SCALE": "Income-tax scale",
+      "TAX_SCALE_HELP": "A scale is a set: it is replaced whole as of a date, not row by row.",
+      "TITLE": "Statutory parameters",
+      "TO_ANNUAL": "To (annual)",
+      "VALUE": "Value"
+    },
+    "PAYSLIP": {
+      "AFP": "Pension",
+      "BASE_SALARY": "Base salary",
+      "DEDUCTIONS": "Deductions",
+      "GROSS": "Gross",
+      "ISR": "Income tax",
+      "NET": "Net",
+      "SFS": "Health"
+    },
+    "RUNS": {
+      "ACTION_FAILED": "The operation could not be completed.",
+      "ADD_INPUT": "Add an input",
+      "AMOUNT_OR_HOURS": "Amount / hours",
+      "APPROVE": "Approve",
+      "CALCULATE": "Calculate",
+      "CANCEL": "Void",
+      "CONCEPT": "Concept",
+      "CREATE": "Create",
+      "CREATE_FAILED": "The run could not be created.",
+      "DEDUCTIONS": "Deductions",
+      "EMPLOYEE": "Employee",
+      "EMPLOYER_COST": "Employer contributions",
+      "EXPORT_SUIR": "Download SUIR",
+      "GROSS": "Gross",
+      "INPUTS": "This period’s variable inputs",
+      "INPUTS_HELP": "Overtime, commission, a deduction: what changes from one month to the next. Submitted as a whole set before calculating.",
+      "INPUTS_SAVED": "Inputs saved.",
+      "MONTH": "Month",
+      "NAME": "Name",
+      "NET": "Net payable",
+      "NEW": "New run",
+      "NOTE": "Note",
+      "NO_EMPLOYEES_OR_CONCEPTS": "At least one active employee and one concept are needed to record inputs.",
+      "NO_INPUTS": "Nothing variable this period.",
+      "NO_PAYSLIPS": "The run has not been calculated yet.",
+      "PAY": "Mark as paid",
+      "PAYSLIPS": "Payslips",
+      "PERIOD": "Period",
+      "SAVE_INPUTS": "Save inputs",
+      "STATUS": "Status",
+      "STATUS_LABEL": {
+        "APPROVED": "Approved",
+        "CALCULATED": "Calculated",
+        "CANCELLED": "Voided",
+        "DRAFT": "Draft",
+        "PAID": "Paid"
+      },
+      "TITLE": "Payroll runs",
+      "TYPE": "Type",
+      "TYPE_LABEL": {
+        "ADJUSTMENT": "Adjustment",
+        "CHRISTMAS_BONUS": "Year-end bonus",
+        "REGULAR": "Regular"
+      },
+      "YEAR": "Year"
+    },
+    "RUN_NOT_FOUND": "The payroll run was not found."
+  },
+  "EXTENSIONS": {
+    "OPEN_RUNTIME": "Open runtime",
+    "NONE_REGISTERED": "No extensions registered yet. Register one on the right.",
+    "VERSION_COUNT": "{{count}} version(s)",
+    "ENABLED": "Enabled",
+    "REVOKE": "Revoke",
+    "REGISTER": "Register extension",
+    "ADMIT_AND_REGISTER": "Admit & register",
+    "ADMISSION_HINT": "The code passes the admission pipeline (SBOM, heuristics, policy) and is signed before it can run.",
+    "RUN_IN_SANDBOX": "Run in sandbox",
+    "EXECUTE": "Execute",
+    "EXECUTION_TIME": "{{ms}} ms",
+    "METERED": "Metered",
+    "LOADING_RUNTIME": "Loading extensions…",
+    "NONE_ENABLED": "No UI extensions are enabled for this tenant.",
+    "GO_TO_MANAGER": "Go to the extensions manager →",
+    "VERSION_TAG": "v{{version}}",
+    "FIELDS": {
+      "NAME": "Name",
+      "VERSION": "Version",
+      "DESCRIPTION": "Description",
+      "CAPABILITIES": "Capabilities (comma-separated)",
+      "EGRESS": "Requested egress hosts",
+      "CODE": "Code (server logic, runs in the isolate)",
+      "UI_CODE": "UI code (optional, runs in the sandboxed browser host)"
+    },
+    "PLACEHOLDERS": {
+      "NAME": "my-extension",
+      "CAPABILITIES": "egress:http",
+      "EGRESS": "api.taxjar.com",
+      "UI_CODE": "root.innerHTML = '<h3>Hello</h3>'; // use virtex.api(), virtex.toast()",
+      "EXTENSION_NAME": "extension name"
+    },
+    "STATUS": {
+      "ACTIVE": "Active",
+      "DISABLED": "Disabled",
+      "REVOKED": "Revoked"
+    },
+    "RUN_STATUS": {
+      "success": "Succeeded",
+      "execution_failed": "Execution failed"
+    },
+    "GRANTED_CAPABILITIES": "Granted capabilities"
+  },
+  "AUDIT_ADJUSTMENTS": {
+    "TITLE": "Audit adjustments",
+    "SUBTITLE": "Corrections an audit has proposed to a year that is already closed.",
+    "PROPOSE": "Propose adjustment",
+    "PROPOSE_TITLE": "New audit adjustment",
+    "PROPOSE_SUBTITLE": "Raised against a closed year, and posted when it is approved.",
+    "FISCAL_YEAR": "Fiscal year",
+    "ALL_YEARS": "All fiscal years",
+    "CHOOSE_YEAR": "Choose a closed year…",
+    "CLOSED_YEARS_ONLY": "Only closed years are offered: an open year takes an ordinary entry.",
+    "JOURNAL": "Journal",
+    "CHOOSE_JOURNAL": "Choose a journal…",
+    "DESCRIPTION": "Description",
+    "DESCRIPTION_PLACEHOLDER": "e.g. Accrued expense not recorded",
+    "LINE_DESCRIPTION": "Line description",
+    "ACCOUNT": "Account",
+    "CHOOSE_ACCOUNT": "Choose an account…",
+    "DEBIT": "Debit",
+    "CREDIT": "Credit",
+    "AMOUNT": "Amount",
+    "ADD_LINE": "Add line",
+    "REMOVE_LINE": "Remove the line",
+    "DATE": "Date",
+    "PROPOSER": "Proposed by",
+    "PROPOSER_GONE": "Account deleted",
+    "STATE": "Status",
+    "EVIDENCE": "Evidence",
+    "EMPTY_TITLE": "No adjustments have been proposed yet.",
+    "EMPTY_BODY": "An audit adjustment corrects a year that is already closed, and is kept on record with its evidence.",
+    "PROPOSED_AND_POSTED": "Adjustment proposed and posted.",
+    "PROPOSED_PENDING": "Adjustment proposed. It is waiting for approval.",
+    "PROPOSE_FAILED": "The adjustment could not be proposed.",
+    "STATUS": {
+      "PENDING_APPROVAL": "Pending approval",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "POSTED": "Posted",
+      "FAILED": "Failed"
+    },
+    "PROBLEM": {
+      "YEAR": "Choose the year being corrected.",
+      "JOURNAL": "Choose the journal it will be recorded in.",
+      "DESCRIPTION": "Describe the adjustment.",
+      "LINE_ACCOUNT": "Line {{line}}: the account is missing.",
+      "LINE_DESCRIPTION": "Line {{line}}: the description is missing.",
+      "UNBALANCED": "The adjustment does not balance: debits and credits must add up to the same."
+    }
   }
 }

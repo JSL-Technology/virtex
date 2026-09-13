@@ -10,6 +10,8 @@ import { Ledger } from '../accounting/entities/ledger.entity';
 import { BadRequestError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
 import { toIsoDate } from '../common/dates';
 import { runAsTenantJob } from '../shared/tenancy/tenant-job';
+import { LedgerNarrativeService } from './ledger-narrative.service';
+import { I18nService } from '../i18n/i18n.service';
 
 interface RecurringJobData {
     recurringEntryId: string;
@@ -49,6 +51,10 @@ export class RecurringEntriesProcessor extends WorkerHost {
     constructor(
         private readonly dataSource: DataSource,
         private readonly journalEntriesService: JournalEntriesService,
+        /** Narratives in the tenant's books language; see `LedgerNarrativeService`. */
+        private readonly narrative: LedgerNarrativeService = new LedgerNarrativeService(
+            new I18nService(),
+        ),
     ) {
         super();
     }
@@ -94,7 +100,12 @@ export class RecurringEntriesProcessor extends WorkerHost {
             
             const dto: CreateJournalEntryDto = {
                 date: postingDate,
-                description: `(Recurrente) ${entry.description}`,
+                description: await this.narrative.describe(
+                    manager,
+                    entry.organizationId,
+                    'LEDGER.RECURRING.ENTRY',
+                    { description: entry.description },
+                ),
                 journalId: entry.journalId,
                 lines: entry.lines.map(line => ({
                   ...line,

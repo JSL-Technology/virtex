@@ -6,6 +6,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ChartOfAccountsApiService, CreateAccountDto, UpdateAccountDto } from '../../../core/api/chart-of-accounts.service';
 import { ChartOfAccountsStateService } from '../../../core/state/chart-of-accounts.state';
 import { take } from 'rxjs/operators';
+import { accountNameOf } from '../../../core/i18n/localized-name';
 import { AccountType, AccountCategory, AccountNature, CashFlowCategory, RequiredDimension } from '../../../core/models/account.model';
 import { LucideAngularModule, Save, AlertTriangle, Settings } from 'lucide-angular';
 import { NotificationService } from '../../../core/services/notification';
@@ -126,6 +127,12 @@ export class AccountFormPage implements OnInit {
         const accountWithUiFields = {
           ...account,
           code: account.code ?? '',
+          // The server sends the name as `{ es: 'Bancos' }`, and a text input given an object
+          // renders `[object Object]` — which is also what a save would have written back as the
+          // account's name. `accountNameOf` is the existing fallback chain for exactly this ("a
+          // value written into a form control", in its own words); it was used by the list and the
+          // search box and never reached the edit form.
+          name: accountNameOf(account.name as Record<string, string> | string | null | undefined),
           advanced: {
             version: 1,
             hierarchyType: 'LEGAL',

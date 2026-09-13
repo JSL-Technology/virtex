@@ -18,8 +18,16 @@ import {
   Menu as MenuIcon, Maximize, FileDown, FileSpreadsheet, Printer
 } from 'lucide-angular';
 
+import { toSignal } from '@angular/core/rxjs-interop';
+import { catchError, of } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 import { DashboardWidget, DashboardService, ChartType } from '../../../../core/services/dashboard';
 import { BrandingService } from '../../../../core/services/branding';
+import { invoiceStatusKey } from '../../../../core/services/invoice-status';
+import {
+  DashboardApiService,
+  InvoiceStatusSlice,
+} from '../../../../core/api/dashboard-api.service';
 import { PointOptionsObject } from 'highcharts';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -47,6 +55,19 @@ export class InvoiceStatus {
   private dashboardService = inject(DashboardService);
   private brandingService = inject(BrandingService);
   private hostEl = inject(ElementRef<HTMLElement>);
+  private dashboardApi = inject(DashboardApiService);
+  private i18n = inject(TranslateService);
+
+  /**
+   * How the receivable book actually splits by document status.
+   *
+   * It was `Pagadas 70, Pendientes 20, Vencidas 10` — a fixed shape that never moved, and three
+   * Spanish labels whatever language the reader had chosen.
+   */
+  private readonly mix = toSignal(
+    this.dashboardApi.getInvoiceStatusMix().pipe(catchError(() => of([] as InvoiceStatusSlice[]))),
+    { initialValue: [] as InvoiceStatusSlice[] },
+  );
 
   // Íconos
   protected readonly SettingsIcon = Settings;
@@ -85,25 +106,24 @@ export class InvoiceStatus {
     const chartType = (this.widget.chartType || 'pie') as ChartType;
     const themeOptions = this.getThemeOptions();
 
-    const seriesColors = this.widget.data?.seriesColors || {
-      //  Estados de factura: verde/ámbar/rojo semánticos, idénticos a los que
-      //  usan las insignias de estado en los listados. Antes cada superficie
-      //  tenía su propio trío y una factura «vencida» era de un rojo distinto
-      //  en el panel que en la tabla.
-      pagadas: semanticColors().positive,
-      pendientes: semanticColors().warning,
-      vencidas: semanticColors().negative
-    };
+    //  Estados de factura: verde/ámbar/rojo semánticos, idénticos a los que
+    //  usan las insignias de estado en los listados. Antes cada superficie
+    //  tenía su propio trío y una factura «vencida» era de un rojo distinto
+    //  en el panel que en la tabla.
+    const configuredColors = this.widget.data?.seriesColors ?? {};
+    const statusColor = (status: string): string =>
+      configuredColors[status.toLowerCase()] ?? STATUS_COLOR[status]?.() ?? semanticColors().neutral;
 
-    const data = [
-      { name: 'Pagadas', y: 70, color: seriesColors.pagadas },
-      { name: 'Pendientes', y: 20, color: seriesColors.pendientes },
-      { name: 'Vencidas', y: 10, color: seriesColors.vencidas }
-    ];
+    // Value, not count: a book of ten settled invoices and one unpaid million is not 91 % healthy.
+    const data = this.mix().map((slice) => ({
+      name: this.i18n.instant(invoiceStatusKey(slice.status)),
+      y: slice.amount,
+      color: statusColor(slice.status),
+    }));
 
     const baseOptions: Highcharts.Options = {
       chart: { type: chartType as any },
-      title: { text: 'Distribución de Facturas', style: { color: 'var(--text-primary)', fontSize: '16px', fontWeight: '600' } },
+      title: { text: this.i18n.instant('DASHBOARD.INVOICE_STATUS.TITLE'), style: { color: 'var(--text-primary)', fontSize: '16px', fontWeight: '600' } },
       // subtitle: { text: 'Estado actual de la cartera de clientes', style: { color: 'var(--text-secondary)' } },
       plotOptions: {
         pie: { dataLabels: { enabled: false }, showInLegend: true, borderWidth: 3, borderColor: 'var(--bg-layer-1)', allowPointSelect: true },
@@ -116,7 +136,7 @@ export class InvoiceStatus {
         crosshair: true
       },
       series: [{
-        name: 'Facturas', type: chartType as any, data,
+        name: this.i18n.instant('DASHBOARD.INVOICE_STATUS.SERIES'), type: chartType as any, data,
         states: { hover: { halo: { size: 8 } } }
       }],
 
@@ -239,3 +259,13 @@ export class InvoiceStatus {
     }
   }
 }
+
+/** Which semantic colour each document status carries, matching the badges in the lists. */
+const STATUS_COLOR: Record<string, () => string> = {
+  Paid: () => semanticColors().positive,
+  Pending: () => semanticColors().warning,
+  'Partially Paid': () => semanticColors().warning,
+  Void: () => semanticColors().negative,
+  'Credit Note': () => semanticColors().negative,
+  Draft: () => semanticColors().neutral,
+};

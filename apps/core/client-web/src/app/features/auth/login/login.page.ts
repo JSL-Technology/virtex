@@ -8,6 +8,7 @@ import { LanguageService } from '../../../core/services/language';
 import { CountryService } from '../../../core/services/country.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { RecaptchaV3Module, ReCaptchaV3Service } from 'ng-recaptcha-19';
+import { recaptchaToken$ } from '../../../core/auth/recaptcha-token';
 import { LucideAngularModule, Mail, Lock, User, ArrowRight, AlertCircle, CheckCircle, ShieldCheck, Camera, Briefcase, Users, Globe, Rocket, Check, ArrowLeft } from 'lucide-angular';
 
 // Shared Components
@@ -217,7 +218,7 @@ export class LoginPage implements OnInit {
     this.isLoggingIn.set(true);
     this.errorMessage.set(null);
 
-    this.recaptchaV3Service.execute('login').subscribe({
+    recaptchaToken$(this.recaptchaV3Service, 'login').subscribe({
       next: (token) => {
         const { email, password, rememberMe } = this.loginForm.getRawValue();
 

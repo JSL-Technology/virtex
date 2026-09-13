@@ -32,6 +32,10 @@ import {
   BankAccount,
   BankAccountType,
 } from '../treasury/entities/bank-account.entity';
+import { WithholdingResolverService } from '../invoices/services/withholding-resolver.service';
+import { TaxpayerType } from '../localization/fiscal/withholding-regimes';
+import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
+import { I18nService } from '../i18n/i18n.service';
 
 /**
  * Supplier invoices, from recording to settlement.
@@ -65,6 +69,8 @@ describeWithDb('accounts payable', () => {
   let organizationId: string;
   let ledgerId: string;
   let vendorId: string;
+  /** A persona física supplier, used by the tests that are about withholding. */
+  let individualVendorId: string;
   let inventory: { increaseStock: jest.Mock; decreaseStock: jest.Mock };
   const account: Record<string, string> = {};
   let bankAccountId: string;
@@ -119,6 +125,13 @@ describeWithDb('accounts payable', () => {
       { checkBudget: jest.fn().mockResolvedValue({ isExceeded: false }) } as never,
       new ExchangeRateResolver(dataSource),
       balances,
+      // The real resolver, not a stub: what is withheld from a supplier follows from the
+      // supplier's fiscal classification and the tenant's country, and a stub would let the tests
+      // agree with a rule the product does not actually apply.
+      new WithholdingResolverService(),
+      // The real narrative service, so the assertions read the sentences the ledger will actually
+      // carry rather than a stub's.
+      new LedgerNarrativeService(new I18nService()),
     );
   });
 
@@ -131,6 +144,10 @@ describeWithDb('accounts payable', () => {
       dataSource.getRepository(Organization).create({
         legalName: `AP ${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         timezone: 'America/Santo_Domingo',
+        // The tenant's country is what selects the withholding scheme. Without it the product
+        // applies nothing, which is correct behaviour and makes this a suite about a tenant in no
+        // country at all.
+        country: 'DO',
       }),
     );
     organizationId = org.id;
@@ -194,8 +211,8 @@ describeWithDb('accounts payable', () => {
     );
 
     await dataSource.getRepository(AccountingPeriod).save([
-      { organizationId, name: 'Marzo 2026', startDate: '2026-03-01' as unknown as Date, endDate: '2026-03-31' as unknown as Date, status: PeriodStatus.OPEN },
-      { organizationId, name: 'Abril 2026', startDate: '2026-04-01' as unknown as Date, endDate: '2026-04-30' as unknown as Date, status: PeriodStatus.OPEN },
+      { organizationId, name: 'Marzo 2026', startDate: '2026-03-01', endDate: '2026-03-31', status: PeriodStatus.OPEN },
+      { organizationId, name: 'Abril 2026', startDate: '2026-04-01', endDate: '2026-04-30', status: PeriodStatus.OPEN },
       // An annulment with no stated date books today, and a posting into a date that belongs to no
       // period is refused — correctly. The tenant therefore needs a period covering now, which is
       // also true of any real deployment: a calendar that stops in the past stops the product.
@@ -208,10 +225,32 @@ describeWithDb('accounts payable', () => {
       },
     ]);
 
+    // Two suppliers, because what is withheld on a purchase follows from who the supplier is.
+    //
+    // The ordinary one is a company: buying from a company withholds nothing, which is the case
+    // every test here that is not about withholding wants to be looking at.
     const vendor = await dataSource.getRepository(Supplier).save(
-      dataSource.getRepository(Supplier).create({ organizationId, name: 'Suplidora del Caribe' }),
+      dataSource.getRepository(Supplier).create({
+        organizationId,
+        name: 'Suplidora del Caribe',
+        country: 'DO',
+        taxpayerType: TaxpayerType.COMPANY,
+      }),
     );
     vendorId = vendor.id;
+
+    // The second is a persona física. Buying a service from one is the case the DGII's two
+    // regimes cover — 100 % of the ITBIS (Norma General 02-05) and 10 % of the fee (art. 309) —
+    // and it is what the withholding tests use.
+    const individual = await dataSource.getRepository(Supplier).save(
+      dataSource.getRepository(Supplier).create({
+        organizationId,
+        name: 'Ing. Pérez (persona física)',
+        country: 'DO',
+        taxpayerType: TaxpayerType.INDIVIDUAL,
+      }),
+    );
+    individualVendorId = individual.id;
 
     // Payments leave (or land in) a real bank account now, not a control account: two
     // accounts sharing one control account produced indistinguishable payments, and a bank
@@ -262,8 +301,8 @@ describeWithDb('accounts payable', () => {
         payables.create(
           {
             vendorId,
-            date: '2026-03-05' as unknown as Date,
-            dueDate: '2026-04-04' as unknown as Date,
+            date: '2026-03-05',
+            dueDate: '2026-04-04',
             lines: [
               { product: 'Servicio', quantity: 2, unitPrice: 500, total: 999_999 },
             ],
@@ -285,8 +324,8 @@ describeWithDb('accounts payable', () => {
       const bill = await payables.create(
         {
           vendorId,
-          date: '2026-03-05' as unknown as Date,
-          dueDate: '2026-04-04' as unknown as Date,
+          date: '2026-03-05',
+          dueDate: '2026-04-04',
           currencyCode: FOREIGN,
           lines: [{ product: 'Licencias', quantity: 1, unitPrice: 100 }],
         } as CreateVendorBillDto,
@@ -305,9 +344,10 @@ describeWithDb('accounts payable', () => {
     const billWithTax = async () =>
       payables.create(
         {
-          vendorId,
-          date: '2026-03-10' as unknown as Date,
-          dueDate: '2026-04-09' as unknown as Date,
+          // A persona física: this is the case the two DGII withholding regimes cover.
+          vendorId: individualVendorId,
+          date: '2026-03-10',
+          dueDate: '2026-04-09',
           lines: [
             {
               product: 'Consultoría',
@@ -316,10 +356,11 @@ describeWithDb('accounts payable', () => {
               expenseAccountId: account['expense'],
             },
           ],
-          // ITBIS 18% borne, 30% of it withheld, plus 10% ISR withheld on the service.
+          // ITBIS 18 % borne. What is withheld is NOT stated here any more: the server resolves it
+          // from the supplier's classification, which is the whole point — the figures used to be
+          // whatever the caller sent, with nothing able to check them.
           taxAmount: 1_800,
-          taxWithheld: 540,
-          incomeTaxWithheld: 1_000,
+          servicesAmount: 10_000,
         } as CreateVendorBillDto,
         organizationId,
       );
@@ -328,13 +369,70 @@ describeWithDb('accounts payable', () => {
       const bill = await billWithTax();
       await payables.submitForApproval(bill.id, organizationId, ACTOR);
 
+      // The two regimes the supplier's classification produces, and nothing the caller chose.
+      expect(bill.withholdingRegimeCodes).toEqual(['DO-ITBIS-100-PF', 'DO-ISR-10-SERV-PF']);
+      expect(bill.taxWithheld).toBe(1_800);
+      expect(bill.incomeTaxWithheld).toBe(1_000);
+
       expect(await signedBalance('expense')).toBe(10_000);
       // Deductible tax is an asset against the return. The old entry had no tax line at all.
       expect(await signedBalance('taxReceivable')).toBe(1_800);
       // Withheld from the supplier and owed to the authority: a credit balance, so negative.
-      expect(await signedBalance('withholding')).toBe(-1_540);
+      expect(await signedBalance('withholding')).toBe(-2_800);
       // The supplier is owed the document total less what was withheld from them.
-      expect(await signedBalance('payable')).toBe(-(11_800 - 1_540));
+      expect(await signedBalance('payable')).toBe(-(11_800 - 2_800));
+    });
+
+    it("refuses a withholding the supplier's regime does not produce, unless it is justified", async () => {
+      const stated = () =>
+        payables.create(
+          {
+            vendorId: individualVendorId,
+            date: '2026-02-01',
+            dueDate: '2026-03-03',
+            lines: [
+              {
+                product: 'Servicios profesionales',
+                quantity: 1,
+                unitPrice: 10_000,
+                expenseAccountId: account['expense'],
+              },
+            ],
+            taxAmount: 1_800,
+            servicesAmount: 10_000,
+            // 30 % of the ITBIS: a real regime, but the one for payments BY THE STATE.
+            taxWithheld: 540,
+          } as CreateVendorBillDto,
+          organizationId,
+        );
+
+      await expect(stated()).rejects.toThrow();
+
+      const justified = await payables.create(
+        {
+          vendorId: individualVendorId,
+          date: '2026-02-01',
+          dueDate: '2026-03-03',
+          lines: [
+            {
+              product: 'Servicios profesionales',
+              quantity: 1,
+              unitPrice: 10_000,
+              expenseAccountId: account['expense'],
+            },
+          ],
+          taxAmount: 1_800,
+          servicesAmount: 10_000,
+          taxWithheld: 540,
+          withholdingOverrideReason: 'Designación de agente de retención notificada esta semana.',
+        } as CreateVendorBillDto,
+        organizationId,
+      );
+
+      expect(justified.taxWithheld).toBe(540);
+      // An override claims no regime: the reason is what the filing is traced to instead.
+      expect(justified.withholdingRegimeCodes).toEqual([]);
+      expect(justified.withholdingOverrideReason).toContain('agente de retención');
     });
 
     it('leaves the bill open for exactly what the supplier is owed', async () => {
@@ -342,7 +440,8 @@ describeWithDb('accounts payable', () => {
       const posted = await payables.submitForApproval(bill.id, organizationId, ACTOR);
 
       expect(posted.status).toBe(VendorBillStatus.OPEN);
-      expect(posted.balance).toBe(10_260);
+      // 11 800 less the 2 800 withheld from the supplier under the two regimes above.
+      expect(posted.balance).toBe(9_000);
     });
   });
 
@@ -351,8 +450,8 @@ describeWithDb('accounts payable', () => {
       const bill = await payables.create(
         {
           vendorId,
-          date: '2026-03-10' as unknown as Date,
-          dueDate: '2026-04-09' as unknown as Date,
+          date: '2026-03-10',
+          dueDate: '2026-04-09',
           lines: [
             { product: 'Alquiler', quantity: 1, unitPrice: 20_000, expenseAccountId: account['expense'] },
           ],
@@ -382,8 +481,8 @@ describeWithDb('accounts payable', () => {
       const bill = await payables.create(
         {
           vendorId,
-          date: '2026-03-10' as unknown as Date,
-          dueDate: '2026-04-09' as unknown as Date,
+          date: '2026-03-10',
+          dueDate: '2026-04-09',
           lines: [
             { product: 'Honorarios', quantity: 1, unitPrice: 10_000, expenseAccountId: account['expense'] },
           ],
@@ -425,8 +524,8 @@ describeWithDb('accounts payable', () => {
       const bill = await payables.create(
         {
           vendorId,
-          date: '2026-03-10' as unknown as Date,
-          dueDate: '2026-04-09' as unknown as Date,
+          date: '2026-03-10',
+          dueDate: '2026-04-09',
           currencyCode: FOREIGN,
           lines: [
             { product: 'Importación', quantity: 1, unitPrice: 1_000, expenseAccountId: account['expense'] },
@@ -466,8 +565,8 @@ describeWithDb('accounts payable', () => {
       const bill = await payables.create(
         {
           vendorId,
-          date: '2026-03-10' as unknown as Date,
-          dueDate: '2026-04-09' as unknown as Date,
+          date: '2026-03-10',
+          dueDate: '2026-04-09',
           lines: [
             { product: 'Servicio', quantity: 1, unitPrice: 1_000, expenseAccountId: account['expense'] },
           ],
@@ -496,8 +595,8 @@ describeWithDb('accounts payable', () => {
         const bill = await payables.create(
           {
             vendorId,
-            date: '2026-03-01' as unknown as Date,
-            dueDate: dueDate as unknown as Date,
+            date: '2026-03-01',
+            dueDate,
             lines: [
               { product: 'Insumos', quantity: 1, unitPrice: amount, expenseAccountId: account['expense'] },
             ],
@@ -524,8 +623,8 @@ describeWithDb('accounts payable', () => {
       const bill = await payables.create(
         {
           vendorId,
-          date: '2026-03-01' as unknown as Date,
-          dueDate: '2026-04-10' as unknown as Date,
+          date: '2026-03-01',
+          dueDate: '2026-04-10',
           lines: [
             { product: 'Insumos', quantity: 1, unitPrice: 4_000, expenseAccountId: account['expense'] },
           ],
@@ -559,8 +658,8 @@ describeWithDb('accounts payable', () => {
       const bill = await payables.create(
         {
           vendorId,
-          date: '2026-03-05' as unknown as Date,
-          dueDate: '2026-04-10' as unknown as Date,
+          date: '2026-03-05',
+          dueDate: '2026-04-10',
           currencyCode: FOREIGN,
           lines: [
             { product: 'Importación', quantity: 1, unitPrice: 1_000, expenseAccountId: account['expense'] },
@@ -614,8 +713,8 @@ describeWithDb('accounts payable', () => {
       const bill = await payables.create(
         {
           vendorId,
-          date: '2026-03-05' as unknown as Date,
-          dueDate: '2026-04-04' as unknown as Date,
+          date: '2026-03-05',
+          dueDate: '2026-04-04',
           lines: [
             {
               product: 'Mercancía',

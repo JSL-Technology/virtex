@@ -16,11 +16,23 @@ export default [
           style: 'camelCase',
         },
       ],
+      /*
+       * Two prefixes, because the product has two kinds of component.
+       *
+       * `app-` is a feature component: a page, a widget, a form. `vx-` is a gesture shell — the
+       * four primitives (`vx-list-shell`, `vx-draft-shell`, `vx-document-shell`, `vx-inbox-shell`)
+       * that every screen of a given shape is built out of, and that `gesture-conformance.spec.ts`
+       * enforces the use of. The distinction is deliberate and load-bearing: reading a template,
+       * `vx-` marks the frame and `app-` marks what was put inside it.
+       *
+       * The rule's actual purpose — no unprefixed selector that could collide with an element name
+       * or another library — is served by either.
+       */
       '@angular-eslint/component-selector': [
         'error',
         {
           type: 'element',
-          prefix: 'app',
+          prefix: ['app', 'vx'],
           style: 'kebab-case',
         },
       ],

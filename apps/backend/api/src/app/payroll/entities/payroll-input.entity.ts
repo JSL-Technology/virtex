@@ -1,4 +1,4 @@
-import { Entity, Column, Index } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { numericTransformer } from '../../common/database/numeric.transformer';
 
@@ -22,11 +22,12 @@ import { numericTransformer } from '../../common/database/numeric.transformer';
   unique: true,
 })
 export class PayrollInput extends BaseEntity {
-  @Column({ name: 'organization_id', type: 'uuid' })
-  override organizationId: string = undefined!; // NOT NULL override; hydrated by TypeORM
-
   @Column({ name: 'run_id', type: 'uuid' })
   runId: string;
+
+  @ManyToOne('PayrollRun', { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'run_id', foreignKeyConstraintName: 'FK_payroll_input_run' })
+  run: unknown;
 
   @Column({ name: 'employee_id', type: 'uuid' })
   employeeId: string;

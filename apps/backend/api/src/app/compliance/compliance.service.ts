@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, Logger } from '@nestjs/common';
+import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { NcfSequence, NcfType } from './entities/ncf-sequence.entity';
@@ -124,10 +124,11 @@ export class ComplianceService {
       .getOne();
 
     if (!sequence) {
-      throw new BadRequestException(
-        `No hay una secuencia de NCF activa para el tipo ${type}. Registra el rango autorizado por la ` +
-          `DGII en Ajustes → Facturación Electrónica antes de emitir este comprobante.`,
-      );
+      // Localized, like every other refusal in this file: these three were written as Spanish
+      // template literals on `BadRequestException`, so an English or Portuguese tenant met a
+      // Spanish sentence at the one moment the product is telling them what to go and fix. The
+      // wording is unchanged — it moved into the catalogue, where the other two languages have it.
+      throw new BadRequestError('COMPLIANCE.NO_ENCONTRO_SECUENCIA_NCF_ACTIVA_TIPO', { type });
     }
 
     // `starts_at`, `ends_at` and `current_sequence` are `bigint`, which the driver returns as
@@ -140,19 +141,20 @@ export class ComplianceService {
     }
 
     if (current >= end) {
-      throw new BadRequestException(
-        `La secuencia de NCF para el tipo ${type} se agotó (rango ${sequence.startsAt}–${sequence.endsAt}). ` +
-          `Solicita un nuevo rango a la DGII y regístralo antes de continuar facturando.`,
-      );
+      throw new BadRequestError('COMPLIANCE.SECUENCIA_NCF_TIPO_HA_AGOTADO', {
+        type,
+        startsAt: sequence.startsAt,
+        endsAt: sequence.endsAt,
+      });
     }
 
     if (sequence.expiresAt) {
       const today = new Date().toISOString().split('T')[0];
       if (sequence.expiresAt < today) {
-        throw new BadRequestException(
-          `La autorización de la secuencia de NCF para el tipo ${type} venció el ${sequence.expiresAt}. ` +
-            `Registra el nuevo rango autorizado antes de emitir.`,
-        );
+        throw new BadRequestError('COMPLIANCE.AUTORIZACION_SECUENCIA_NCF_TIPO_VENCIO', {
+          type,
+          expiresAt: sequence.expiresAt,
+        });
       }
     }
 
@@ -395,10 +397,10 @@ export class ComplianceService {
     const organization = await this.requireOrganization(organizationId);
     const country = (organization.country ?? '').toUpperCase();
     if (country !== 'DO') {
-      throw new BadRequestException(
-        `El formato ${report} es un envío de la DGII (República Dominicana) y no aplica a una ` +
-          `organización registrada en ${organization.country ?? 'otro país'}.`,
-      );
+      throw new BadRequestError('COMPLIANCE.FORMATO_ES_ENVIO_DGII_NO_APLICA_ORGANIZACION', {
+        report,
+        country: organization.country ?? '—',
+      });
     }
   }
 }

@@ -113,7 +113,8 @@
     "SOLO_FACTURAS_ESTADO_BORRADOR_PUEDEN_SER_ENVIADAS": "Somente faturas em rascunho podem ser enviadas para aprovação.",
     "SOLO_PUEDEN_APLICAR_NOTAS_DEBITO_FACTURAS_ABIERTAS": "Notas de débito só podem ser aplicadas a faturas abertas ou parcialmente pagas.",
     "SOLO_PUEDEN_EDITAR_FACTURAS_ESTADO_BORRADOR": "Somente faturas em rascunho podem ser editadas.",
-    "TOTAL_NO_COINCIDE_CON_LINEAS": "O total enviado ({{received}}) não corresponde ao calculado a partir das linhas e impostos ({{expected}})."
+    "TOTAL_NO_COINCIDE_CON_LINEAS": "O total enviado ({{received}}) não corresponde ao calculado a partir das linhas e impostos ({{expected}}).",
+    "PROVEEDOR_NO_ENCONTRADO": "Fornecedor \"{{id}}\" não encontrado."
   },
   "ANALYTICAL_REPORTING": {
     "NOMBRE_DIMENSION_CAMPO_CONTIENE_CARACTERES_NO_VALIDOS": "O nome da dimensão ou do campo contém caracteres inválidos: {{name}}",
@@ -127,7 +128,8 @@
   "AUDIT": {
     "FALLO_PROCESAR_AJUSTE_APROBADO": "Falha ao processar o ajuste aprovado: {{p1}}",
     "PROPUESTA_AJUSTE_ID_NO_ENCONTRADA": "Proposta de ajuste \"{{adjustmentId}}\" não encontrada.",
-    "SOLO_PUEDE_ANADIR_EVIDENCIA_PROPUESTAS_PENDIENTES_APROBACION": "Evidências só podem ser adicionadas a propostas aguardando aprovação."
+    "SOLO_PUEDE_ANADIR_EVIDENCIA_PROPUESTAS_PENDIENTES_APROBACION": "Evidências só podem ser adicionadas a propostas aguardando aprovação.",
+    "EVIDENCIA_ARCHIVO_OBLIGATORIO": "Anexe o ficheiro da evidência."
   },
   "AUTH": {
     "2FA_CONFIGURATION_NOT_INITIATED_PLEASE_GENERATE_SECRET": "A configuração da verificação em duas etapas não foi iniciada. Gere o segredo primeiro.",
@@ -356,14 +358,14 @@
   },
   "COMPLIANCE": {
     "ANO_NO_ES_VALIDO": "O ano não é válido.",
-    "AUTORIZACION_SECUENCIA_NCF_TIPO_VENCIO": "A autorização da sequência NCF do tipo {{type}} venceu em {{expiresAt}}.",
+    "AUTORIZACION_SECUENCIA_NCF_TIPO_VENCIO": "A autorização da sequência de NCF do tipo {{type}} expirou em {{expiresAt}}. Registe o novo intervalo autorizado antes de emitir.",
     "CUENTAS_SIN_CODIGO_AGRUPADOR_SAT": "{{count}} conta(s) não têm código agrupador do SAT (por exemplo {{example}}). O catálogo não pode ser gerado sem ele: atribua-o no plano de contas.",
     "DOCUMENTO_CONTABILIDAD_ELECTRONICA_NO_VALIDO": "«{{document}}» não é um documento de contabilidade eletrônica. Disponíveis: {{available}}.",
     "ENDSAT_NO_PUEDE_SER_MENOR_STARTSAT": "endsAt não pode ser menor que startsAt.",
     "FECHA_VENCIMIENTO_AUTORIZACION_YA_PASO_RANGO_NO": "A data de vencimento da autorização já passou; a faixa não poderia ser usada.",
     "FORMATO_NO_RECONOCIDO_FORMATOS_DISPONIBLES_SON_606": "Formato \"{{kind}}\" não reconhecido. Os formatos disponíveis são 606, 607, 608 e 609.",
     "MES_DEBE_ESTAR_ENTRE_12": "O mês deve estar entre 1 e 12.",
-    "NO_ENCONTRO_SECUENCIA_NCF_ACTIVA_TIPO": "Nenhuma sequência NCF ativa encontrada para o tipo {{type}}",
+    "NO_ENCONTRO_SECUENCIA_NCF_ACTIVA_TIPO": "Não há uma sequência de NCF ativa para o tipo {{type}}. Registe o intervalo autorizado pela DGII em Definições → Faturação Eletrónica antes de emitir este documento.",
     "NUMERO_FINAL_NO_PUEDE_SER_MENOR_INICIAL": "O número final não pode ser menor que o inicial.",
     "ORGANIZACION_NO_ENCONTRADA": "Organização não encontrada.",
     "ORGANIZACION_SIN_RFC": "A organização não tem RFC cadastrado; o SAT rejeita um arquivo sem ele.",
@@ -371,17 +373,33 @@
     "RANGO_SECUENCIA_NCF_ES_INVALIDO_NUMERO_FINAL": "A faixa da sequência NCF é inválida: o número final deve ser maior ou igual ao inicial.",
     "RANGO_SECUENCIA_NCF_ES_INVALIDO_STARTSAT_ENDSAT": "A faixa da sequência NCF é inválida (startsAt/endsAt).",
     "SECUENCIA_NCF_NO_ENCONTRADA": "Sequência NCF não encontrada.",
-    "SECUENCIA_NCF_TIPO_HA_AGOTADO": "A sequência NCF do tipo {{type}} se esgotou.",
+    "SECUENCIA_NCF_TIPO_HA_AGOTADO": "A sequência de NCF para o tipo {{type}} esgotou-se (intervalo {{startsAt}}–{{endsAt}}). Solicite um novo intervalo à DGII e registe-o antes de continuar a faturar.",
     "SECUENCIA_NCF_TIPO_TIENE_LIMITES_NO_NUMERICOS": "A sequência NCF do tipo {{type}} tem limites não numéricos.",
     "SIN_LIBRO_CONTABLE_POR_DEFECTO": "A organização não tem razão contábil padrão.",
-    "YA_EXISTEN_COMPROBANTE_EMITIDOS_NUMEROS_DENTRO_RANGO": "Já existem {{alreadyIssued}} documento(s) emitidos com números dentro da faixa {{first}}–{{last}}."
+    "YA_EXISTEN_COMPROBANTE_EMITIDOS_NUMEROS_DENTRO_RANGO": "Já existem {{alreadyIssued}} documento(s) emitidos com números dentro da faixa {{first}}–{{last}}.",
+    "FORMATO_ES_ENVIO_DGII_NO_APLICA_ORGANIZACION": "O formato {{report}} é uma declaração da DGII (República Dominicana) e não se aplica a uma organização registada em {{country}}."
   },
   "CONSOLIDATION": {
     "CONFIGURACIONES_ORGANIZACION_MATRIZ_NO_ENCONTRADAS": "Configurações da organização controladora {{parentOrganizationId}} não encontradas.",
     "ORGANIZACION_MATRIZ_NO_ENCONTRADA": "Organização controladora não encontrada.",
     "ORGANIZACION_NO_ENCONTRADA": "Organização não encontrada.",
     "ORGANIZACION_NO_TIENE_SUBSIDIARIAS_CONFIGURADAS_CONSOLIDAR": "A organização não tem subsidiárias configuradas para consolidar.",
-    "RANGO_FECHAS_INVALIDO": "O início do período ({{startDate}}) é posterior à data de corte ({{asOfDate}})."
+    "RANGO_FECHAS_INVALIDO": "O início do período ({{startDate}}) é posterior à data de corte ({{asOfDate}}).",
+    "ELIMINATION": {
+      "INVESTMENT_IN_SUBSIDIARY": "Investimento em {{member}} contra o seu património à data de aquisição ({{date}})."
+    },
+    "WARNING": {
+      "MEMBER_OUT_OF_BALANCE": "O balanço individual de {{member}} está desequilibrado em {{amount}}.",
+      "NO_AVERAGE_RATE": "Sem cotações de {{from}} para {{to}} dentro do período; usou-se a taxa de fecho como média.",
+      "NO_ACQUISITION_RATE": "Sem taxa de {{from}} para {{to}} na data de aquisição {{date}}; usou-se a taxa de fecho.",
+      "NO_CONSOLIDATION_MAP": "Sem mapa de consolidação para {{member}}: as suas contas são apresentadas com a codificação própria.",
+      "ACCOUNT_NOT_MAPPED": "A conta {{code}} de {{member}} não está mapeada; é apresentada com a codificação própria.",
+      "BARGAIN_PURCHASE": "Compra vantajosa: o custo de aquisição ({{cost}} {{currency}}) é inferior à participação adquirida ({{share}} {{currency}}).",
+      "INTERCOMPANY_ONE_SIDED": "A operação intercompanhia {{transaction}} está em estado {{status}}: apenas uma das duas metades está registada, pelo que não é eliminada.",
+      "INTERCOMPANY_NO_RATE": "Sem taxa de {{from}} para {{to}} em {{date}}; a operação intercompanhia {{transaction}} não foi eliminada.",
+      "INTERCOMPANY_ACCOUNTS_MISSING": "A operação intercompanhia {{transaction}} não encontrou ambas as contas nas demonstrações consolidadas; a eliminação pode estar incompleta.",
+      "NO_ACQUISITION_DATE": "Sem data de aquisição registada: o património foi convertido à taxa de fecho em vez da histórica (IAS 21.39(b))."
+    }
   },
   "CURRENCIES": {
     "DIARIO_GENERAL_GENERAL_NO_ENCONTRADO": "O diário Geral (GENERAL) não foi encontrado.",
@@ -425,7 +443,12 @@
     "MONEDA_COBRO_NO_COINCIDE_CUENTA_BANCARIA": "Não é possível receber uma cobrança em {receipt} numa conta em {account}; use uma conta em {receipt} ou na moeda dos livros.",
     "MONTO_PAGO_FACTURA_EXCEDE_SALDO_PENDIENTE": "O pagamento da fatura {{invoiceNumber}} ({{amount}}) excede seu saldo em aberto ({{balance}}).",
     "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "Nenhum livro contábil padrão foi configurado para a organização.",
-    "NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION": "Não foi possível obter o query runner da transação."
+    "NO_PUDO_OBTENER_QUERY_RUNNER_TRANSACCION": "Não foi possível obter o query runner da transação.",
+    "CUENTA_ANTICIPOS_NO_CONFIGURADA": "A conta de adiantamentos de clientes não está configurada para a organização.",
+    "COBRO_SIN_FONDOS": "O recebimento não tem fundos: informe um valor recebido ou um adiantamento a aplicar.",
+    "ANTICIPO_INSUFICIENTE": "O cliente possui apenas {{available}} {{currency}} em adiantamentos; foram solicitados {{requested}}.",
+    "ANTICIPO_EXCEDE_LO_APLICADO": "Foram usados {{drawn}} do adiantamento, mas restam {{unapplied}} sem aplicar. Aplique o adiantamento a faturas ou reduza-o.",
+    "ANTICIPO_YA_APLICADO_NO_ANULABLE": "O recibo {{receipt}} não pode ser cancelado: {{applied}} do seu adiantamento já foi aplicado a outras faturas. Cancele primeiro esses recebimentos."
   },
   "CUSTOMER_SERVICE": {
     "ARTICULO_NO_ENCONTRADO": "O artigo não foi encontrado.",
@@ -433,7 +456,13 @@
   },
   "DASHBOARD": {
     "NO_HA_CONFIGURADO_LIBRO_CONTABLE_DEFECTO_ORGANIZACION": "Nenhum livro contábil padrão foi configurado para a organização.",
-    "ORGANIZACION_MATRIZ_NO_ENCONTRADA": "Organização controladora não encontrada."
+    "ORGANIZACION_MATRIZ_NO_ENCONTRADA": "Organização controladora não encontrada.",
+    "ALERTS": {
+      "RECEIVABLES_OVERDUE": "{{count}} fatura(s) vencida(s) no valor de {{amount}} por cobrar.",
+      "STOCK_DEPLETED": "{{count}} produto(s) esgotados.",
+      "STOCK_LOW": "{{count}} produto(s) abaixo do seu nível de reposição.",
+      "PERIOD_UNCLOSED": "O período {{period}} continua aberto e a sua data de fecho já passou."
+    }
   },
   "DATABASE": {
     "INTENTO_ELIMINAR_ENTIDAD_NO_PERTENECE_ORGANIZACION": "Tentativa de excluir um registro que não pertence à organização.",
@@ -694,7 +723,19 @@
     "PRODUCTO_ID_NO_ENCONTRADO_ESTA_ORGANIZACION": "Produto \"{{productId}}\" não encontrado nesta organização.",
     "PRODUCTO_ID_NO_ENCONTRADO_TRANSACCION": "Produto \"{{productId}}\" não encontrado na transação.",
     "STOCK_INSUFICIENTE_DISPONIBLES_SOLICITADAS": "Estoque insuficiente para \"{{name}}\": {{available}} disponíveis, {{quantity}} solicitadas.",
-    "STOCK_INSUFICIENTE_PRODUCTO": "Estoque insuficiente para o produto \"{{name}}\"."
+    "STOCK_INSUFICIENTE_PRODUCTO": "Estoque insuficiente para o produto \"{{name}}\".",
+    "CUENTAS_INVENTARIO_NO_CONFIGURADAS": "A organização não tem contas de estoque e de saldos iniciais configuradas; não é possível registar a existência inicial.",
+    "CUENTAS_AJUSTE_NO_CONFIGURADAS": "A organização não tem contas de estoque e de ajustes de estoque configuradas; não é possível registar o ajuste.",
+    "DIARIO_GENERAL_NO_ENCONTRADO": "Não existe o diário Geral (GENERAL) nesta organização; crie-o nas definições de contabilidade.",
+    "CATEGORY_NOT_FOUND": "Categoria de produto com ID \"{{id}}\" não encontrada.",
+    "CATEGORY_NAME_REQUIRED": "A categoria precisa de um nome.",
+    "CATEGORY_NAME_TAKEN": "Já existe uma categoria chamada \"{{name}}\".",
+    "CATEGORY_HAS_CHILDREN": "Não é possível eliminar: a categoria tem {{count}} subcategoria(s). Mova-as ou elimine-as primeiro.",
+    "CATEGORY_IN_USE": "Não é possível eliminar: {{count}} produto(s) estão classificados nesta categoria. Reclassifique-os ou retire a categoria em vez de a apagar.",
+    "CATEGORY_PARENT_IS_SELF": "Uma categoria não pode ser a sua própria categoria superior.",
+    "CATEGORY_PARENT_IS_DESCENDANT": "Não é possível mover uma categoria para dentro de uma das suas próprias subcategorias.",
+    "CATEGORY_TOO_DEEP": "A árvore de categorias não pode ter mais de {{max}} níveis.",
+    "CATEGORY_INACTIVE": "A categoria \"{{name}}\" está retirada e não pode ser atribuída a um produto."
   },
   "INVOICE": {
     "PDF": {
@@ -981,7 +1022,8 @@
       "NO_COMPARTAS_ESTE_CODIGO_NADIE_NUESTRO": "Não compartilhe este código com ninguém. Nossa equipe nunca o pedirá.",
       "OPCION_CLIC": "Opção 1 — Um clique",
       "OPCION_CODIGO_VERIFICACION": "Opção 2 — Código de verificação",
-      "SI_NO_SOLICITASTE_ESTO_PUEDES_IGNORAR": "Se você não solicitou isso, pode ignorar este e-mail com segurança."
+      "SI_NO_SOLICITASTE_ESTO_PUEDES_IGNORAR": "Se você não solicitou isso, pode ignorar este e-mail com segurança.",
+      "HOLA_SIN_NOMBRE": "Olá:"
     },
     "REGISTRATION_FAILED": {
       "CREAR_MI_CUENTA": "Criar minha conta",
@@ -1058,7 +1100,7 @@
       "BUILDER_MANAGE": "Administrar o construtor",
       "CLOSE_PERIOD": "Encerrar período",
       "CLOSE_YEAR": "Encerrar ano fiscal",
-      "COLLECT": "Receber",
+      "COLLECT": "Cobrar",
       "CONSOLIDATE": "Consolidar",
       "CREATE": "Criar",
       "DECIDE": "Decidir",
@@ -1067,12 +1109,13 @@
       "EDIT": "Editar",
       "EDIT_BRANDING": "Editar a personalização",
       "EDIT_COMPANY": "Editar os dados da empresa",
+      "EDIT_COMPENSATION": "Editar remuneração",
+      "EXECUTE": "Executar",
+      "EXPORT": "Exportar",
       "FORCE_LOGOUT": "Forçar encerramento de sessão",
       "IMPERSONATE": "Personificar",
       "IMPORT": "Importar",
-      "EXECUTE": "Executar",
       "INSTALL": "Instalar",
-      "OPERATE": "Operar",
       "MANAGE": "Administrar",
       "MANAGE_ACCOUNTS": "Gerir contas",
       "MANAGE_LEDGERS": "Gerir livros contábeis",
@@ -1081,8 +1124,11 @@
       "MANAGE_VIEWS": "Administrar visões",
       "MATCH": "Conciliar",
       "MERGE": "Fundir",
+      "OPERATE": "Operar",
+      "PARAMETERS_MANAGE": "Gerir parâmetros",
       "PASSWORD_RESET": "Redefinir senha",
       "PAY": "Pagar",
+      "PROCESS": "Processar",
       "PROPOSE_ADJUSTMENT": "Propor ajuste",
       "QUERY": "Consultar",
       "REOPEN_PERIOD": "Reabrir período",
@@ -1093,8 +1139,11 @@
       "TRANSACT": "Registar movimentos",
       "TRANSFER": "Transferir",
       "VIEW": "Ver",
+      "VIEW_COMPENSATION": "Ver remuneração",
       "VIEW_FINANCIAL": "Ver relatórios financeiros",
+      "VIEW_OWN": "Ver os próprios",
       "VIEW_SALES": "Ver relatórios de vendas",
+      "VIEW_SENSITIVE": "Ver dados sensíveis",
       "VIEW_STOCK": "Ver estoque",
       "VIEW_TRAIL": "Ver trilha de auditoria",
       "VOID": "Cancelar"
@@ -1117,9 +1166,11 @@
       "CUSTOMERS": "Clientes",
       "CUSTOMER_PORTAL": "Portal do cliente",
       "DASHBOARD": "Painel financeiro",
-      "DATASHEETS": "Folhas de dados",
+      "DATASHEETS": "Planilhas",
       "DIMENSIONS": "Dimensões analíticas",
+      "DOCUMENTS": "Documentos",
       "EXCHANGE_RATES": "Taxas de câmbio",
+      "EXTENSIONS": "Extensões",
       "FINANCIALS": "Demonstrações financeiras",
       "FIXED_ASSETS": "Ativos fixos",
       "HCM": "Pessoal",
@@ -1128,11 +1179,12 @@
       "INVOICES": "Faturas de venda",
       "JOURNAL_ENTRIES": "Lançamentos contábeis",
       "MANUFACTURING": "Produção",
-      "PROCUREMENT": "Aquisições",
-      "PROJECTS": "Projetos",
-      "WMS": "Gestão de armazéns",
+      "PAYROLL": "Folha de pagamento",
+      "POS": "Ponto de venda",
       "PRICE_LISTS": "Tabelas de preços",
+      "PROCUREMENT": "Aquisições",
       "PRODUCTS": "Produtos",
+      "PROJECTS": "Projetos",
       "RECONCILIATION": "Conciliação bancária",
       "REPORTS": "Relatórios",
       "ROLES": "Perfis",
@@ -1141,10 +1193,10 @@
       "SYSTEM": "Sistema",
       "TAXES": "Impostos",
       "TREASURY": "Tesouraria",
+      "TSS": "TSS (segurança social)",
       "UNITS_OF_MEASURE": "Unidades de medida",
-      "EXTENSIONS": "Extensões",
-      "POS": "Ponto de venda",
       "USERS": "Usuários",
+      "WMS": "Gestão de armazéns",
       "WORKFLOWS": "Fluxos de trabalho"
     }
   },
@@ -1163,7 +1215,19 @@
     "YA_EXISTE_COMPENSACION_CON_ESA_FECHA_VIGENCIA": "Já existe uma remuneração com essa data de vigência para este funcionário."
   },
   "PROCUREMENT": {
-    "REQUISITION_NOT_FOUND": "A requisição de compra \"{{id}}\" não foi encontrada."
+    "REQUISITION_NOT_FOUND": "A requisição {{id}} não foi encontrada.",
+    "REQUISITION_NOT_EDITABLE": "Uma requisição em {{status}} não pode ser editada. Devolva-a a rascunho primeiro.",
+    "REQUISITION_NOT_DELETABLE": "Uma requisição em {{status}} não pode ser eliminada: já faz parte do registo do que foi decidido.",
+    "REQUISITION_TRANSITION_NOT_ALLOWED": "Uma requisição não pode passar de {{from}} para {{to}}.",
+    "REQUISITION_HAS_NO_LINES": "A requisição não tem linhas: não há nada para encomendar.",
+    "ORDER_NOT_FOUND": "A ordem de compra {{id}} não foi encontrada.",
+    "ORDER_NOT_EDITABLE": "Uma ordem em {{status}} não pode ser editada: os seus termos já não dependem só de nós.",
+    "ORDER_NOT_DELETABLE": "Só uma ordem em rascunho pode ser eliminada; esta está em {{status}}.",
+    "ORDER_NOT_RECEIVABLE": "Não é possível receber contra uma ordem em {{status}}; envie-a ao fornecedor primeiro.",
+    "ORDER_TRANSITION_NOT_ALLOWED": "Uma ordem não pode passar de {{from}} para {{to}}.",
+    "ORDER_LINE_NOT_FOUND": "A linha {{id}} não pertence a esta ordem.",
+    "RECEIPT_EXCEEDS_ORDERED": "Foram recebidos {{received}} de «{{description}}» e apenas {{ordered}} foram encomendados.",
+    "SUPPLIER_NOT_FOUND": "Esse fornecedor não existe nesta organização."
   },
   "PROJECTS": {
     "PROJECT_NOT_FOUND": "O projeto \"{{id}}\" não foi encontrado.",
@@ -1200,7 +1264,7 @@
     "LINEA_CONTABLE_YA_CONCILIADA": "A linha contábil {id} já está conciliada.",
     "LINEA_REPETIDA_EN_CONCILIACION": "Uma linha contábil aparece duas vezes na mesma conciliação.",
     "LINEA_SIN_IMPORTE_EN_MONEDA_DE_LA_CUENTA": "A linha não tem valor na moeda da conta e, sem ele, não é possível conciliar contra o extrato.",
-    "NO_HAY_LIBRO_CONTABLE_POR_DEFECTO": "Não há livro contábil padrão configurado para a organização.",
+    "NO_HAY_LIBRO_CONTABLE_POR_DEFECTO": "Nenhum livro contábil padrão foi configurado para a organização.",
     "QUEDAN_TRANSACCIONES_SIN_CONCILIAR": "Restam {count} movimentos do banco sem conciliar nem apartar.",
     "RANGO_FECHAS_INVALIDO": "A data inicial do extrato é posterior à final.",
     "RANGO_MONTOS_INVALIDO": "O valor mínimo da regra é maior que o máximo.",
@@ -1409,7 +1473,8 @@
       "MIN_LENGTH": "{{property}} deve ter pelo menos {{min}} caracteres.",
       "NESTED_VALIDATION": "{{property}} contém dados que não são válidos.",
       "PERIOD_START_AFTER_END": "A data inicial não pode ser posterior à data final.",
-      "WHITELIST_VALIDATION": "{{property}} não é um campo permitido."
+      "WHITELIST_VALIDATION": "{{property}} não é um campo permitido.",
+      "COUNTRY_CODE": "O código de país deve ter exatamente 2 letras (ISO 3166-1 alfa-2)."
     },
     "CREATE_JOURNAL_ENTRY": {
       "CAMPO_CREDITO_OBLIGATORIO": "O campo de crédito é obrigatório.",
@@ -1624,7 +1689,14 @@
       "ID_ANO_FISCAL_OBLIGATORIO": "O ID do exercício fiscal é obrigatório."
     },
     "YEAR_MUST_BE_INTEGER": "O ano deve ser um número inteiro.",
-    "YEAR_OUT_OF_RANGE": "O ano está fora do intervalo permitido."
+    "YEAR_OUT_OF_RANGE": "O ano está fora do intervalo permitido.",
+    "PRODUCT_CATEGORY": {
+      "NAME_REQUIRED": "O nome da categoria é obrigatório.",
+      "PARENT_MUST_BE_UUID": "O identificador da categoria deve ser um UUID válido."
+    },
+    "CREATE_EMPLOYEE": {
+      "TSS_NSS_FORMAT": "O NSS da TSS deve ter entre 7 e 11 dígitos."
+    }
   },
   "WORKFLOWS": {
     "NO_ENCONTRO_POLITICA_APROBACION_ID_ASOCIADA_ESTA": "A política de aprovação \"{{policyId}}\" vinculada a esta solicitação não foi encontrada.",
@@ -1644,7 +1716,7 @@
     "OPEN_PERIOD": "Abrir o período",
     "CONFIGURE_SEQUENCES": "Configurar sequências",
     "REVIEW_PLAN": "Rever o plano",
-    "VIEW_STOCK": "Ver existências"
+    "VIEW_STOCK": "Ver estoque"
   },
   "PAYROLL": {
     "AJUSTE_CORRIGE_CORRIDA_APROBADA_MISMO_PERIODO": "Um ajuste deve corrigir uma folha aprovada do mesmo período, país e organização.",
@@ -1680,5 +1752,181 @@
     "SOLO_CORRIDA_CALCULADA_PUEDE_APROBARSE": "Somente uma folha calculada pode ser aprovada.",
     "YA_EXISTE_CONCEPTO_CON_ESE_CODIGO": "Já existe um conceito com o código \"{{p1}}\".",
     "YA_EXISTE_CORRIDA_PERIODO": "Já existe uma folha para {{p1}}."
+  },
+  "DOCUMENTS": {
+    "NOT_FOUND": "O documento {{id}} não foi encontrado.",
+    "FOLDER_NOT_FOUND": "A pasta {{id}} não foi encontrada.",
+    "PARENT_IS_NOT_A_FOLDER": "Só é possível guardar dentro de uma pasta.",
+    "NAME_TAKEN": "«{{name}}» já existe nesta pasta.",
+    "NAME_REQUIRED": "O ficheiro precisa de um nome.",
+    "NAME_NOT_ALLOWED": "O nome não pode conter / \\ : * ? \" < > |",
+    "FILE_REQUIRED": "Nenhum ficheiro foi recebido.",
+    "FOLDER_HAS_NO_CONTENT": "Uma pasta não pode ser descarregada.",
+    "FOLDER_IS_NOT_A_TEMPLATE": "Uma pasta não pode ser marcada como modelo.",
+    "CANNOT_MOVE_INTO_ITSELF": "Uma pasta não pode ser movida para dentro de si mesma.",
+    "CANNOT_MOVE_INTO_DESCENDANT": "Uma pasta não pode ser movida para uma das suas subpastas: ficaria inalcançável."
+  },
+  "LEDGER": {
+    "SALES": {
+      "INVOICE": "Fatura {{number}}{{fiscal}} — {{customer}}",
+      "CREDIT_NOTE": "Nota de crédito {{number}}{{fiscal}} — {{customer}}",
+      "DEBIT_NOTE": "Nota de débito {{number}}{{fiscal}} — {{customer}}",
+      "COST_OF": "Custo de {{document}}",
+      "COST_OF_SALES": "Custo das vendas",
+      "STOCK_RELEASED": "Saída de inventário"
+    },
+    "COLLECTION": {
+      "RECEIPT": "Recibo de cobrança {{number}}",
+      "BANK_IN": "Entrada em banco por cobrança a cliente",
+      "RECEIVABLE_SETTLED": "Liquidação de contas a receber — {{customer}}",
+      "WITHHELD_BY_CUSTOMER": "Retenções efetuadas pelo cliente",
+      "EARLY_PAYMENT_DISCOUNT": "Desconto de pronto pagamento concedido",
+      "ADVANCE_APPLIED": "Aplicação de adiantamento de cliente",
+      "ADVANCE_HELD": "Adiantamento de cliente",
+      "EXCHANGE_DIFFERENCE": "Diferença cambial realizada na cobrança"
+    },
+    "INVENTORY": {
+      "OPENING_ENTRY": "Inventário inicial: {{product}}",
+      "OPENING_STOCK": "Existência inicial de {{product}}",
+      "OPENING_COUNTERPART": "Contrapartida de saldos iniciais",
+      "ADJUSTMENT_ENTRY": "Ajuste de inventário: {{product}}",
+      "ADJUSTMENT_IN": "Entrada por ajuste — {{product}}",
+      "ADJUSTMENT_OUT": "Saída por ajuste — {{product}}",
+      "ADJUSTMENT_SURPLUS": "Sobra em ajuste de inventário",
+      "ADJUSTMENT_SHORTFALL": "Falta em ajuste de inventário"
+    },
+    "PURCHASE": {
+      "BILL": "Fatura de fornecedor {{number}}",
+      "GOODS_LINE": "Compra: {{product}}",
+      "DEDUCTIBLE_TAX": "Imposto sobre compras dedutível",
+      "NON_DEDUCTIBLE_TAX": "Imposto não dedutível levado ao custo",
+      "EXCISE_AND_OTHER": "Imposto especial e outros tributos",
+      "WITHHELD_FOR_AUTHORITY": "Retenções a pagar ao fisco",
+      "SERVICE_CHARGE_PAYABLE": "Taxa de serviço legal a pagar",
+      "PAYABLE": "Fatura de fornecedor: {{supplier}}"
+    },
+    "VENDOR_PAYMENT": {
+      "BATCH": "Pagamento a fornecedores — lote {{batch}}",
+      "PAYABLE_SETTLED": "Liquidação de dívida a fornecedores",
+      "BANK_OUT": "Saída de banco por pagamento a fornecedores",
+      "WITHHELD_FROM_SUPPLIER": "Retenções efetuadas ao fornecedor",
+      "EARLY_PAYMENT_DISCOUNT": "Desconto de pronto pagamento obtido",
+      "EXCHANGE_DIFFERENCE": "Diferença cambial realizada no pagamento"
+    },
+    "PAYROLL": {
+      "RUN": "Folha {{run}}",
+      "PAYMENT": "Pagamento da folha {{run}}",
+      "SALARY_EXPENSE": "Gasto com vencimentos e salários",
+      "EMPLOYER_CONTRIBUTIONS": "Contribuições patronais e benefícios",
+      "NET_PAYABLE": "Vencimentos a pagar (líquido)",
+      "AFP_PAYABLE": "AFP a pagar (TSS)",
+      "SFS_PAYABLE": "SFS a pagar (TSS)",
+      "INFOTEP_PAYABLE": "SRL/INFOTEP a pagar",
+      "ISR_PAYABLE": "ISR retido a pagar (DGII)",
+      "OTHER_DEDUCTIONS": "Outras deduções a pagar",
+      "EMPLOYER_BENEFITS": "Benefícios patronais a pagar",
+      "NET_PAID": "Pagamento da folha (líquido)",
+      "NET_ADJUSTED": "Ajuste do pagamento da folha",
+      "BANK_OUT": "Saída de banco pela folha",
+      "BANK_BACK": "Reentrada em banco por ajuste"
+    },
+    "REVERSAL": {
+      "ENTRY": "Estorno de {{number}}. Motivo: {{reason}}",
+      "LINE_PREFIX": "Estorno: "
+    },
+    "ROUNDING_DIFFERENCE": "Diferença de arredondamento na conversão de moeda",
+    "ADJUSTMENT": {
+      "RECLASSIFICATION": "Reclassificação: {{description}}",
+      "TRANSFER_OUT": "Transferência para a conta relacionada {{account}}",
+      "TRANSFER_IN": "Transferência da conta relacionada {{account}}",
+      "PERIOD_END": "Ajuste de fim de período ({{type}}): {{description}}",
+      "AUDIT": "Ajuste de auditoria: {{description}}",
+      "AUDIT_CLOSE_LINE": "Encerramento do ajuste de auditoria",
+      "AUDIT_RESULT_TRANSFER": "Transferência do resultado do ajuste de auditoria {{entry}}",
+      "AUDIT_CLOSE_ENTRY": "Encerramento do ajuste de auditoria {{entry}}"
+    },
+    "DEBIT_NOTE": {
+      "VENDOR_ENTRY": "Nota de débito sobre fatura de fornecedor. Motivo: {{reason}}",
+      "VENDOR_PAYABLE": "Nota de débito sobre a fatura de fornecedor {{bill}}",
+      "VENDOR_COUNTERPART": "Contrapartida da nota de débito. Motivo: {{reason}}"
+    },
+    "RECURRING": {
+      "ENTRY": "(Recorrente) {{description}}"
+    },
+    "RECONCILIATION": {
+      "ENTRY": "Conciliação bancária — {{description}}",
+      "RULE_LINE": "Regra: {{rule}}"
+    },
+    "DEPRECIATION": {
+      "ENTRY": "Depreciação mensal {{month}}",
+      "EXPENSE": "Depreciação {{month}} — {{asset}}",
+      "ACCUMULATED": "Depreciação acumulada {{month}} — {{asset}}"
+    },
+    "FIXED_ASSET": {
+      "DISPOSAL_ENTRY": "Baixa de ativo: {{asset}}. Motivo: {{reason}}",
+      "SALE_PROCEEDS": "Venda de ativo: {{asset}}",
+      "ACCUMULATED_REVERSAL": "Baixa da depreciação acumulada — {{asset}}",
+      "COST_REVERSAL": "Baixa de ativo imobilizado: {{asset}}",
+      "GAIN": "Ganho na venda de ativo: {{asset}}",
+      "LOSS": "Perda na venda de ativo: {{asset}}"
+    },
+    "RESULT_TRANSFER": {
+      "ENTRY": "Lançamento de encerramento — {{period}}",
+      "CLOSING_LINE": "Encerramento de {{period}}",
+      "RETAINED": "Transferência do resultado — {{period}}",
+      "FISCAL_YEAR": "exercício fiscal {{from}} – {{to}}"
+    },
+    "INFLATION": {
+      "ENTRY": "Lançamento de ajuste pela inflação {{period}}",
+      "LINE": "Ajuste pela inflação {{period}}",
+      "COUNTERPART": "Contrapartida do ajuste pela inflação {{period}}"
+    },
+    "REVALUATION": {
+      "ENTRY": "Reavaliação de moeda estrangeira — livro {{ledger}}",
+      "LINE": "Reavaliação {{currency}} no fecho — {{account}}",
+      "UNREALISED_GAIN": "Ganho cambial não realizado",
+      "UNREALISED_LOSS": "Perda cambial não realizada"
+    },
+    "INTERCOMPANY": {
+      "SOURCE_ENTRY": "Intercompanhia (→ {{organization}}): {{description}}",
+      "RECEIVABLE": "Conta a receber de {{organization}}",
+      "FUNDS_OUT": "Saída de fundos intercompanhia",
+      "DESTINATION_ENTRY": "Intercompanhia (← {{organization}}): {{description}}",
+      "FUNDS_IN": "Recebimento de fundos intercompanhia",
+      "PAYABLE": "Conta a pagar a {{organization}}"
+    },
+    "TREASURY": {
+      "OPENING_BALANCE": "Saldo de abertura — {{account}}",
+      "OPENING_COUNTERPART": "Contrapartida do saldo de abertura — {{account}}"
+    },
+    "PROVISIONING": {
+      "DEFAULT_LEDGER_NAME": "Livro Principal",
+      "DEFAULT_LEDGER_DESCRIPTION": "Livro contábil principal, na moeda funcional da organização.",
+      "JOURNALS": {
+        "SALES": "Diário de Vendas",
+        "PURCHASES": "Diário de Compras",
+        "COLLECTIONS": "Diário de Cobranças",
+        "PAYMENTS": "Diário de Pagamentos",
+        "BANKS": "Diário de Bancos",
+        "CASH": "Diário de Caixa",
+        "PAYROLL": "Diário da Folha",
+        "GENERAL": "Diário Geral"
+      }
+    }
+  },
+  "EXTENSIONS": {
+    "CODE_OR_VALID_PLUGINNAME_REQUIRED": "Code or a valid pluginName is required",
+    "PLUGIN_NOT_FOUND": "Plugin not found",
+    "PLUGIN_NOT_FOUND_2": "Plugin {{pluginName}} not found",
+    "VERSION_NOT_FOUND": "Version not found",
+    "PLUGIN_REVOKED": "Plugin is revoked",
+    "DIRECT_CODE_REJECTED_BY_ADMISSION_POLICY": "Direct code rejected by admission policy",
+    "EXTENSION_NOT_ENABLED_FOR_THIS_TENANT": "Extension is not enabled for this tenant"
+  },
+  "POS": {
+    "SHIFT_ALREADY_CLOSED": "Shift is already closed",
+    "NO_OPEN_SHIFT_FOR_THIS_TERMINAL_OPEN": "No open shift for this terminal. Open a shift before selling.",
+    "SHIFT_NOT_FOUND": "Shift not found",
+    "THERE_ALREADY_ACTIVE_SHIFT_FOR_THIS_TERMINAL": "There is already an active shift for this terminal."
   }
 }

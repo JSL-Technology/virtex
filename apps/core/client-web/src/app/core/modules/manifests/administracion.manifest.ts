@@ -121,15 +121,6 @@ export const ROADMAP_MODULE: ModuleManifest = {
       load: () => import('../../../features/projects/pages/dashboard.component').then((m) => m.ProjectsDashboardComponent),
     },
     {
-      path: 'hcm',
-      kind: WindowKind.OVERVIEW,
-      permission: 'hcm:view',
-      titleKey: 'PAGE_TITLES.HUMAN_RESOURCES',
-      icon: 'UsersRound',
-      entityKeyFn: () => 'roadmap:hcm',
-      load: () => import('../../../features/hcm/pages/dashboard.component').then((m) => m.HcmDashboardComponent),
-    },
-    {
       path: 'procurement',
       kind: WindowKind.OVERVIEW,
       permission: 'bills:view',

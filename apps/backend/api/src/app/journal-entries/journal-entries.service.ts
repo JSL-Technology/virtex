@@ -59,6 +59,8 @@ import {
   ExchangeRateResolver,
   ResolvedRate,
 } from '../currencies/exchange-rate-resolver.service';
+import { LedgerNarrativeService } from './ledger-narrative.service';
+import { I18nService } from '../i18n/i18n.service';
 
 /**
  * Context every posting carries.
@@ -129,6 +131,17 @@ export class JournalEntriesService {
      */
     @Optional()
     private readonly budgetControl?: BudgetControlService,
+    /**
+     * The narrative on a system-generated entry, in the tenant's books language.
+     *
+     * Defaulted rather than optional: the integration suites construct this service directly, and
+     * a narrative that silently fell back to Spanish literals would defeat the point. The default
+     * is the real service — it depends on nothing but the catalogue — so a direct construction
+     * behaves exactly as the injected one does.
+     */
+    private readonly narrative: LedgerNarrativeService = new LedgerNarrativeService(
+      new I18nService(),
+    ),
   ) {}
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -548,7 +561,11 @@ export class JournalEntriesService {
       const amount = roundAmount(Math.abs(differenceCents) / 100);
       const roundingLine = manager.create(JournalEntryLine, {
         accountId: roundingAccountId,
-        description: 'Diferencia de redondeo por conversión de moneda',
+        description: await this.narrative.describe(
+          manager,
+          organizationId,
+          'LEDGER.ROUNDING_DIFFERENCE',
+        ),
         journalEntry: savedEntry,
         debit: differenceCents < 0 ? amount : 0,
         credit: differenceCents > 0 ? amount : 0,
@@ -1067,9 +1084,21 @@ export class JournalEntriesService {
       );
     }
 
+    //  El relato en el idioma en que se llevan los libros del inquilino.
+    const reversalWords = await this.narrative.describeAll(manager, organizationId, {
+      entry: {
+        key: 'LEDGER.REVERSAL.ENTRY',
+        params: {
+          number: original.entryNumber ?? original.id.slice(0, 8),
+          reason: reverseDto.reason,
+        },
+      },
+      linePrefix: { key: 'LEDGER.REVERSAL.LINE_PREFIX' },
+    });
+
     const reversalDto: CreateJournalEntryDto = {
       date: reverseDto.reversalDate,
-      description: `Reversión de ${original.entryNumber ?? original.id.slice(0, 8)}. Razón: ${reverseDto.reason}`,
+      description: reversalWords.entry,
       journalId: original.journalId,
       currencyCode: original.currencyCode,
       // The original's amounts are already in ledger currency; re-applying its rate would convert
@@ -1079,7 +1108,7 @@ export class JournalEntriesService {
         accountId: line.accountId,
         debit: Number(line.credit),
         credit: Number(line.debit),
-        description: `Reversión: ${line.description || original.description}`,
+        description: `${reversalWords.linePrefix}${line.description || original.description}`,
         dimensions: line.dimensions,
         valuations: line.valuations?.map((valuation) => ({
           ledgerId: valuation.ledgerId,

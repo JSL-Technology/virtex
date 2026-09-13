@@ -89,6 +89,24 @@ export class JournalEntries {
   }
 
   /**
+   * Modify a posted entry.
+   *
+   * Not an edit: the server reverses the original and posts a replacement that cites it, because a
+   * posted entry is immutable — the database refuses the `UPDATE` outright. `modificationReason`
+   * is therefore required, and travels into the reversal's own description, so the audit trail
+   * says why the original stopped being true.
+   *
+   * There was no method for this at all, which is why the edit screen called `create` and produced
+   * a second entry instead of correcting the first.
+   */
+  update(
+    id: string,
+    entry: CreateJournalEntryDto & { modificationReason: string },
+  ): Observable<JournalEntry> {
+    return this.http.patch<JournalEntry>(`${this.apiUrl}/${id}`, entry);
+  }
+
+  /**
    * The file's column names, so the user can say which is which.
    *
    * There was no such call, and no mapping step: `previewImport` posted the file with the comment

@@ -5,8 +5,9 @@
   [saving]="saving()"
   [invalid]="form.invalid"
   [problems]="problems()"
+  [form]="form"
   (save)="save()"
-  (cancel)="cancel()"
+  (cancelled)="cancel()"
 >
   <div class="form-body" [formGroup]="form">
     <section class="form-section">
@@ -40,8 +41,32 @@
 
       <label class="field">
         <span>{{ 'CUSTOMER_RECEIPTS.FORM.MONTO_RECIBIDO' | translate }} *</span>
-        <input type="number" step="0.01" min="0.01" formControlName="amountReceived" />
+        <input type="number" step="0.01" min="0" formControlName="amountReceived" />
       </label>
+
+      <!--
+        Money the customer already left on account. Shown only when there is some: a field offering
+        a draw of zero is a question with one answer, and it pushes the fields that matter down.
+      -->
+      @if (availableAdvance() > 0) {
+        <label class="field">
+          <span>{{ 'CUSTOMER_RECEIPTS.FORM.ANTICIPO_APLICADO' | translate }}</span>
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            [max]="availableAdvance()"
+            formControlName="advanceApplied"
+          />
+          <small class="field__note">
+            {{ 'CUSTOMER_RECEIPTS.FORM.ANTICIPO_DISPONIBLE' | translate }}:
+            {{ availableAdvance() | vxMoney: form.get('currencyCode')?.value }}
+            <button class="link-button" type="button" (click)="applyFullAdvance()">
+              {{ 'CUSTOMER_RECEIPTS.FORM.USAR_ANTICIPO' | translate }}
+            </button>
+          </small>
+        </label>
+      }
 
       <label class="field">
         <span>{{ 'TREASURY.MONEDA' | translate }}</span>
@@ -75,10 +100,25 @@
     @if (openInvoices().length === 0) {
       <p class="section-note">{{ 'CUSTOMER_RECEIPTS.FORM.SIN_FACTURAS_ABIERTAS' | translate }}</p>
     } @else {
+      <!--
+        Se pulsan. Parecían etiquetas: mismo tamaño, mismo color, sin icono y sin nada que dijera
+        qué pasa al tocarlas, así que había que descubrir por prueba y error que una factura se
+        añade al recibo pulsándola. El «+» y la frase de abajo lo dicen en vez de esperarlo.
+      -->
+      <p class="section-note">{{ 'CUSTOMER_RECEIPTS.FORM.PULSA_PARA_APLICAR' | translate }}</p>
       <div class="invoice-picker">
         @for (invoice of openInvoices(); track invoice.id) {
-          <button class="chip" type="button" (click)="addInvoice(invoice)">
-            {{ invoice.invoiceNumber }} · {{ invoice.balance | vxMoney: invoice.currencyCode }}
+          <button
+            class="chip"
+            type="button"
+            (click)="addInvoice(invoice)"
+            [attr.aria-label]="
+              'CUSTOMER_RECEIPTS.FORM.APLICAR_FACTURA'
+                | translate: { number: invoice.invoiceNumber }
+            "
+          >
+            <lucide-icon [img]="AddIcon" size="14" aria-hidden="true"></lucide-icon>
+            <span>{{ invoice.invoiceNumber }} · {{ invoice.balance | vxMoney: invoice.currencyCode }}</span>
           </button>
         }
       </div>

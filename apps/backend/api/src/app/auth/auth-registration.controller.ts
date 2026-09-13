@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import type { HttpResponse as Response, HttpRequest as Request } from '../common/http/http.types';
 import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
+import { GoogleRecaptchaGuard } from '@nestlab/google-recaptcha';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { AuthFacade } from './auth.facade';
@@ -208,6 +209,13 @@ export class AuthRegistrationController {
   @HttpCode(HttpStatus.OK)
   // No CsrfGuard — the invitationToken is proof-of-possession (SHA-256, 32 bytes).
   // New users have never logged in and therefore have no XSRF-TOKEN cookie.
+  //
+  // The bot check IS applied, and was not: the page obtained a reCAPTCHA token and sent the
+  // request without it, so an endpoint that is public, unauthenticated and issues auth cookies had
+  // no rate-limiting protection beyond the invitation token itself. `GoogleRecaptchaGuard` honours
+  // `RECAPTCHA_DISABLED`, so local checkouts are unaffected.
+  @UseGuards(GoogleRecaptchaGuard)
+  @Throttle({ default: { limit: AuthConfig.THROTTLE_LIMIT, ttl: AuthConfig.THROTTLE_TTL } })
   async setPasswordFromInvitation(
     @Body() setPasswordDto: SetPasswordFromInvitationDto,
     @Res({ passthrough: true }) res: Response

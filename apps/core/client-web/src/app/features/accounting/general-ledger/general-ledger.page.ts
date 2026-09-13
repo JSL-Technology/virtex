@@ -8,9 +8,10 @@ import { GeneralLedgerLine, GeneralLedger as GeneralLedgerData } from '../../../
 import { LedgersService } from '../../../core/api/ledgers.service';
 import { NotificationService } from '../../../core/services/notification';
 import { EMPTY } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
 import { ListShellComponent } from '../../../shared/components/gestures';
+import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 
 @Component({
   selector: 'app-general-ledger-page',
@@ -29,6 +30,9 @@ export class GeneralLedgerPage implements OnInit {
   private ledgersService = inject(LedgersService);
   private route = inject(ActivatedRoute);
   private notificationService = inject(NotificationService);
+  private readonly translate = inject(TranslateService);
+  /** Optional: also reachable through the router outlet, where there is no tab to rename. */
+  private readonly tab = inject(TAB_CONTEXT, { optional: true });
 
   selectedAccount = signal<{ code: string; name: string } | null>(null);
   ledgerLines = signal<GeneralLedgerLine[]>([]);
@@ -86,6 +90,12 @@ export class GeneralLedgerPage implements OnInit {
       next: (ledgerData: GeneralLedgerData) => {
         if (ledgerData) {
           this.selectedAccount.set(ledgerData.account);
+          //  «Mayor · 1140 Inventario», no «Mayor · 3f2a19c4-…». El identificador de la cuenta en
+          //  la URL es un UUID; el código y el nombre solo se conocen al responder el servidor.
+          this.tab?.setTitle(
+            `${this.translate.instant('PAGE_TITLES.GENERAL_LEDGER')} · ` +
+              `${ledgerData.account.code} ${ledgerData.account.name}`,
+          );
           this.initialBalance.set(ledgerData.initialBalance);
           this.finalBalance.set(ledgerData.finalBalance);
           this.ledgerLines.set(ledgerData.lines);

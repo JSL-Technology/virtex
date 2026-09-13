@@ -237,9 +237,25 @@ export class AuthService {
       return this.http.post<{ message: string }>(`${this.apiUrl}/verify-phone`, { code, phoneNumber });
   }
 
-  sendPublicVerification(target: string, type: string, recaptchaToken?: string): Observable<{ message: string }> {
+  /**
+   * A verification code for somebody who is not signed in yet.
+   *
+   * `recipient` carries what the registration wizard already knows: the first name it collected on
+   * the previous step, the language the reader chose, and the country they are registering in. The
+   * server had none of it, so every registration email opened "Hola Usuario" and its magic link
+   * pointed at `/es/do/…` whatever language the reader had picked.
+   */
+  sendPublicVerification(
+    target: string,
+    type: string,
+    recaptchaToken?: string,
+    recipient?: { firstName?: string; language?: string; country?: string },
+  ): Observable<{ message: string }> {
     const body: Record<string, string> = { target, type };
     if (recaptchaToken) body['recaptchaToken'] = recaptchaToken;
+    if (recipient?.firstName) body['firstName'] = recipient.firstName;
+    if (recipient?.language) body['language'] = recipient.language;
+    if (recipient?.country) body['country'] = recipient.country;
     return this.http.post<{ message: string }>(`${this.apiUrl}/send-public-verification`, body, {
       context: new HttpContext().set(IS_PUBLIC_API, true),
     });
@@ -639,13 +655,21 @@ export class AuthService {
   }
 
   // **** ✅ NUEVO MÉTODO AÑADIDO ****
+  /**
+   * Set the password an invitation was sent for, and sign in.
+   *
+   * `recaptchaToken` is REQUIRED by the endpoint. The page obtained one and then called this
+   * method without it, so the bot check on a public endpoint that issues auth cookies was never
+   * applied — the control was computed and discarded.
+   */
   setPasswordFromInvitation(
     token: string,
-    password: string
+    password: string,
+    recaptchaToken: string
   ): Observable<{ user: User }> {
     const url = `${this.apiUrl}/set-password-from-invitation`;
     return this.http
-      .post<{ user: User }>(url, { token, password }, {
+      .post<{ user: User }>(url, { token, password, recaptchaToken }, {
         withCredentials: true,
         context: new HttpContext().set(IS_PUBLIC_API, true)
       })

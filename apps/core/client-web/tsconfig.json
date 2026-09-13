@@ -18,7 +18,11 @@
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "lib": ["es2022", "dom"]
+    // `dom.iterable` alongside `dom`: without it a `NodeListOf` has no `[Symbol.iterator]`, so
+    // `for (const el of root.querySelectorAll(...))` — which every browser has supported for a
+    // decade and which the specs use freely — did not compile. Four spec files failed
+    // `nx typecheck` on nothing else, which is why the target had never passed.
+    "lib": ["es2022", "dom", "dom.iterable"]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

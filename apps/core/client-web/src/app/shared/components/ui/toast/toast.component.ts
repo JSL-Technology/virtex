@@ -22,12 +22,27 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
     ])
   ],
   host: {
-    '[@toastAnimation]': ''
+    '[@toastAnimation]': '',
+    // Pointer and keyboard alike: a toast reached by Tab is being read just as much as one
+    // under the cursor.
+    '(mouseenter)': 'onEnter()',
+    '(mouseleave)': 'onLeave()',
+    '(focusin)': 'onEnter()',
+    '(focusout)': 'onLeave()',
   }
 })
 export class ToastComponent {
   public toast = input.required<Toast>();
   public closed = output<string>();
+  /**
+   * Raised while the reader is engaged with this toast, and again when they leave.
+   *
+   * Hovering or tabbing to a toast is a reader saying "I am reading this", and a message that
+   * disappears mid-sentence because a timer started before they got there is a message lost. The
+   * countdown is the service's, so the component reports the intent rather than owning the timer.
+   */
+  public hold = output<string>();
+  public release = output<string>();
 
   protected readonly CheckCircleIcon = CheckCircle;
   protected readonly XCircleIcon = XCircle;
@@ -53,5 +68,13 @@ export class ToastComponent {
 
   close() {
     this.closed.emit(this.toast().id);
+  }
+
+  protected onEnter(): void {
+    this.hold.emit(this.toast().id);
+  }
+
+  protected onLeave(): void {
+    this.release.emit(this.toast().id);
   }
 }

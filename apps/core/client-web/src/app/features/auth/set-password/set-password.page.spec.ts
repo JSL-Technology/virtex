@@ -62,7 +62,26 @@ describe('SetPasswordPage', () => {
         { provide: ReCaptchaV3Service, useClass: MockRecaptchaService },
         { provide: RECAPTCHA_V3_SITE_KEY, useValue: 'mock-key' },
       ]
-    }).compileComponents();
+    })
+      /**
+       * `RecaptchaV3Module` is imported by the COMPONENT, so it provides `ReCaptchaV3Service` in
+       * the component's own injector and shadows anything the TestBed root provides. Without this
+       * override the page gets the real service, which waits for a `grecaptcha` script that never
+       * loads under jsdom, and the submit never reaches the auth service at all.
+       */
+      .overrideComponent(SetPasswordPage, {
+        set: {
+          providers: [
+            { provide: ReCaptchaV3Service, useClass: MockRecaptchaService },
+            { provide: RECAPTCHA_V3_SITE_KEY, useValue: 'mock-key' },
+          ],
+        },
+      })
+      .compileComponents();
+
+    // The invitation token travels in the URL FRAGMENT, never the query string: a fragment is not
+    // sent to the server and not logged by a reverse proxy. The fixture has to set it there.
+    window.location.hash = '#token=valid-token';
 
     fixture = TestBed.createComponent(SetPasswordPage);
     component = fixture.componentInstance;
@@ -71,5 +90,27 @@ describe('SetPasswordPage', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  /**
+   * The bot check is applied, not merely computed.
+   *
+   * The page obtained a reCAPTCHA token and called the service without it, so a public,
+   * unauthenticated endpoint that issues auth cookies ran with no bot check at all — the control
+   * was paid for and thrown away.
+   */
+  it('sends the reCAPTCHA token it obtained', () => {
+    const auth = TestBed.inject(AuthService) as unknown as MockAuthService;
+
+    component.setPasswordForm.patchValue({
+      passwordGroup: { password: 'Str0ng-Pass!', confirmPassword: 'Str0ng-Pass!' },
+    });
+    component.onSubmit();
+
+    expect(auth.setPasswordFromInvitation).toHaveBeenCalledWith(
+      'valid-token',
+      'Str0ng-Pass!',
+      'mock-token',
+    );
   });
 });

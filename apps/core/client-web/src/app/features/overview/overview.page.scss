@@ -328,7 +328,18 @@
   align-items: center;
   gap: 0.85rem;
   padding: 0.65rem 0.6rem;
+  border-radius: var(--radius-md);
   &:not(:last-child) { border-bottom: 1px solid var(--border-light); }
+
+  &.is-clickable { cursor: pointer; }
+  &.is-clickable:hover { background: var(--bg-hover); }
+
+  /* Past its date. The row reads differently because the action is different: one is a reminder,
+     the other is money that should already have moved. */
+  &.is-overdue &__date {
+    background: var(--error-surface);
+    color: var(--error-text);
+  }
 
   &__date {
     flex-shrink: 0;

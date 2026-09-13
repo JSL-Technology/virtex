@@ -1,0 +1,237 @@
+<vx-document-shell
+  [title]="documentTitle()"
+  [subtitle]="documentSubtitle()"
+  [statusKey]="statusKey()"
+  [statusTone]="statusTone()"
+  [loading]="loading()"
+  [error]="failed() ? 'PAYROLL.RUN_NOT_FOUND' : null"
+  backLabelKey="PAYROLL.RUNS.TITLE"
+  (back)="back()"
+  (reload)="reload()"
+>
+  <ng-container documentActions>
+    @if (canCalculate()) {
+      <button type="button" class="primary-button" [disabled]="busy()" (click)="calculate()">
+        <lucide-icon [img]="CalculateIcon" size="15" aria-hidden="true"></lucide-icon>
+        <span>{{ 'PAYROLL.RUNS.CALCULATE' | translate }}</span>
+      </button>
+    }
+    @if (canApprove()) {
+      <button type="button" class="primary-button" [disabled]="busy()" (click)="approve()">
+        <lucide-icon [img]="ApproveIcon" size="15" aria-hidden="true"></lucide-icon>
+        <span>{{ 'PAYROLL.RUNS.APPROVE' | translate }}</span>
+      </button>
+    }
+    @if (canPay()) {
+      <button type="button" class="primary-button" [disabled]="busy()" (click)="pay()">
+        <lucide-icon [img]="PayIcon" size="15" aria-hidden="true"></lucide-icon>
+        <span>{{ 'PAYROLL.RUNS.PAY' | translate }}</span>
+      </button>
+    }
+    @if (canExport()) {
+      <button type="button" class="secondary-button" (click)="downloadSuir()">
+        <lucide-icon [img]="ExportIcon" size="15" aria-hidden="true"></lucide-icon>
+        <span>{{ 'PAYROLL.RUNS.EXPORT_SUIR' | translate }}</span>
+      </button>
+    }
+    @if (canCancel()) {
+      <button type="button" class="danger-button" [disabled]="busy()" (click)="cancel()">
+        <lucide-icon [img]="CancelIcon" size="15" aria-hidden="true"></lucide-icon>
+        <span>{{ 'PAYROLL.RUNS.CANCEL' | translate }}</span>
+      </button>
+    }
+  </ng-container>
+
+  @if (run(); as payrollRun) {
+    <div class="run-page">
+      <!--
+        What the payroll costs, in the three figures that answer different questions: what was
+        earned, what reaches the bank, and what the company actually pays out including its own
+        share.
+      -->
+      <section class="totals-row">
+        <div class="total-card">
+          <span class="total-card__label">{{ 'PAYROLL.RUNS.GROSS' | translate }}</span>
+          <span class="total-card__value">{{ payrollRun.totalGross | vxMoney: payrollRun.currencyCode }}</span>
+        </div>
+        <div class="total-card">
+          <span class="total-card__label">{{ 'PAYROLL.RUNS.DEDUCTIONS' | translate }}</span>
+          <span class="total-card__value">
+            {{ payrollRun.totalEmployeeDeductions | vxMoney: payrollRun.currencyCode }}
+          </span>
+        </div>
+        <div class="total-card">
+          <span class="total-card__label">{{ 'PAYROLL.RUNS.NET' | translate }}</span>
+          <span class="total-card__value">{{ payrollRun.totalNet | vxMoney: payrollRun.currencyCode }}</span>
+        </div>
+        <div class="total-card">
+          <span class="total-card__label">{{ 'PAYROLL.RUNS.EMPLOYER_COST' | translate }}</span>
+          <span class="total-card__value">
+            {{ payrollRun.totalEmployerContributions | vxMoney: payrollRun.currencyCode }}
+          </span>
+        </div>
+      </section>
+
+      @if (editable()) {
+        <section class="panel">
+          <header class="panel__head">
+            <h2 class="panel__title">{{ 'PAYROLL.RUNS.INPUTS' | translate }}</h2>
+            <div class="panel__actions">
+              <button type="button" class="secondary-button" (click)="addInput()">
+                <lucide-icon [img]="AddIcon" size="14" aria-hidden="true"></lucide-icon>
+                <span>{{ 'PAYROLL.RUNS.ADD_INPUT' | translate }}</span>
+              </button>
+              <button type="button" class="primary-button" [disabled]="busy()" (click)="saveInputs()">
+                {{ 'PAYROLL.RUNS.SAVE_INPUTS' | translate }}
+              </button>
+            </div>
+          </header>
+          <p class="section-note">{{ 'PAYROLL.RUNS.INPUTS_HELP' | translate }}</p>
+
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>{{ 'PAYROLL.RUNS.EMPLOYEE' | translate }}</th>
+                  <th>{{ 'PAYROLL.RUNS.CONCEPT' | translate }}</th>
+                  <th class="numeric">{{ 'PAYROLL.RUNS.AMOUNT_OR_HOURS' | translate }}</th>
+                  <th>{{ 'PAYROLL.RUNS.NOTE' | translate }}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (input of inputs(); track $index; let i = $index) {
+                  <tr>
+                    <td>
+                      <select
+                        [value]="input.employeeId"
+                        [attr.aria-label]="'PAYROLL.RUNS.EMPLOYEE' | translate"
+                        (change)="setInput(i, { employeeId: $any($event.target).value })"
+                      >
+                        @for (employee of employees(); track employee.id) {
+                          <option [value]="employee.id">{{ employee.lastName }}, {{ employee.firstName }}</option>
+                        }
+                      </select>
+                    </td>
+                    <td>
+                      <select
+                        [value]="input.conceptCode"
+                        [attr.aria-label]="'PAYROLL.RUNS.CONCEPT' | translate"
+                        (change)="setInput(i, { conceptCode: $any($event.target).value })"
+                      >
+                        @for (concept of enterableConcepts(); track concept.id) {
+                          <option [value]="concept.code">{{ concept.name }}</option>
+                        }
+                      </select>
+                    </td>
+                    <td class="numeric">
+                      <!-- Hours for an hourly concept, an amount for a fixed one. Never both. -->
+                      @if (calculationOf(input.conceptCode) === 'HOURLY') {
+                        <input
+                          type="number"
+                          step="0.25"
+                          min="0"
+                          [value]="input.quantity ?? 0"
+                          [attr.aria-label]="'PAYROLL.RUNS.AMOUNT_OR_HOURS' | translate"
+                          (input)="setInput(i, { quantity: +$any($event.target).value })"
+                        />
+                      } @else {
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          [value]="input.amount ?? 0"
+                          [attr.aria-label]="'PAYROLL.RUNS.AMOUNT_OR_HOURS' | translate"
+                          (input)="setInput(i, { amount: +$any($event.target).value })"
+                        />
+                      }
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        maxlength="200"
+                        [value]="input.note ?? ''"
+                        [attr.aria-label]="'PAYROLL.RUNS.NOTE' | translate"
+                        (input)="setInput(i, { note: $any($event.target).value })"
+                      />
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        class="icon-button"
+                        (click)="removeInput(i)"
+                        [attr.aria-label]="'COMMON.DELETE' | translate"
+                      >
+                        <lucide-icon [img]="RemoveIcon" size="14" aria-hidden="true"></lucide-icon>
+                      </button>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="5" class="muted">{{ 'PAYROLL.RUNS.NO_INPUTS' | translate }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+
+      <section class="panel">
+        <header class="panel__head">
+          <h2 class="panel__title">{{ 'PAYROLL.RUNS.PAYSLIPS' | translate }}</h2>
+        </header>
+
+        @if (payslips().length === 0) {
+          <p class="section-note">{{ 'PAYROLL.RUNS.NO_PAYSLIPS' | translate }}</p>
+        } @else {
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>{{ 'PAYROLL.RUNS.EMPLOYEE' | translate }}</th>
+                  <th class="numeric">{{ 'PAYROLL.PAYSLIP.GROSS' | translate }}</th>
+                  <th class="numeric">{{ 'PAYROLL.PAYSLIP.AFP' | translate }}</th>
+                  <th class="numeric">{{ 'PAYROLL.PAYSLIP.SFS' | translate }}</th>
+                  <th class="numeric">{{ 'PAYROLL.PAYSLIP.ISR' | translate }}</th>
+                  <th class="numeric">{{ 'PAYROLL.PAYSLIP.NET' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (payslip of payslips(); track payslip.id) {
+                  <tr class="is-clickable" (click)="togglePayslip(payslip.id)">
+                    <td>{{ payslip.employeeName }}</td>
+                    <td class="numeric">{{ payslip.grossEarnings | vxNumber: '1.2-2' }}</td>
+                    <td class="numeric">{{ payslip.afpEmployee | vxNumber: '1.2-2' }}</td>
+                    <td class="numeric">{{ payslip.sfsEmployee | vxNumber: '1.2-2' }}</td>
+                    <td class="numeric">{{ payslip.incomeTax | vxNumber: '1.2-2' }}</td>
+                    <td class="numeric strong">{{ payslip.netPay | vxNumber: '1.2-2' }}</td>
+                  </tr>
+                  @if (openPayslip() === payslip.id && payslip.lines?.length) {
+                    <tr class="detail-row">
+                      <td colspan="6">
+                        <table class="lines-table">
+                          <tbody>
+                            @for (line of payslip.lines!; track line.id) {
+                              <tr>
+                                <td>{{ line.conceptName }}</td>
+                                <td class="muted">
+                                  {{ 'PAYROLL.CONCEPTS.TYPE_LABEL.' + line.kind | translate }}
+                                </td>
+                                <td class="numeric">{{ line.amount | vxNumber: '1.2-2' }}</td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                  }
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </section>
+    </div>
+  }
+</vx-document-shell>

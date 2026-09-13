@@ -28,14 +28,11 @@ export enum PayFrequency {
 @Entity('employee_compensations')
 @Index('IDX_employee_comp_employee_effective', ['employeeId', 'effectiveFrom'], { unique: true })
 export class EmployeeCompensation extends BaseEntity {
-  @Column({ name: 'organization_id', type: 'uuid' })
-  override organizationId: string = undefined!; // NOT NULL override; hydrated by TypeORM
-
   @Column({ name: 'employee_id', type: 'uuid' })
   employeeId: string;
 
   @ManyToOne(() => Employee, (e) => e.compensations, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'employee_id' })
+  @JoinColumn({ name: 'employee_id', foreignKeyConstraintName: 'FK_employee_comp_employee' })
   employee: Employee;
 
   /** The first day this salary applies. The run reads the latest row at or before the period. */

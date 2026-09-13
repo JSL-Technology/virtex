@@ -5,6 +5,7 @@ import { CustomersService, CreateCustomerDto, UpdateCustomerDto } from '../../..
 import { NotificationService } from '../../../core/services/notification';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
+import { CountryNamesService } from '../../../core/i18n/countries';
 
 @Component({
   selector: 'app-customer-form-page',
@@ -38,6 +39,10 @@ export class CustomerFormPage implements OnInit {
   private router = inject(Router);
   private customersService = inject(CustomersService);
   private notificationService = inject(NotificationService);
+  private readonly countryNames = inject(CountryNamesService);
+
+  /** Every country, in the reader's language. See `CountryNamesService`. */
+  protected readonly countries = this.countryNames.options;
 
 
   /** Qué falta antes de guardar. Se llena al pulsar, no mientras se teclea el primer campo. */
@@ -76,6 +81,11 @@ export class CustomerFormPage implements OnInit {
       stateOrProvince: [''],
       postalCode: [''],
       country: ['DO', Validators.required],
+      //  Los términos de pago: uno para imprimir, otro para calcular. El campo de texto existía en
+      //  la base de datos desde el principio y nadie lo leía —una cadena no se le suma a una
+      //  fecha—, así que toda factura nacía venciendo el mismo día en que se emitía.
+      paymentTerms: [''],
+      paymentTermDays: [null as number | null],
     });
   }
 
@@ -113,6 +123,8 @@ export class CustomerFormPage implements OnInit {
           stateOrProvince: 'CONTACTS.CUSTOMER_FORM.ESTADO_PROVINCIA',
           postalCode: 'CONTACTS.CUSTOMER_FORM.CODIGO_POSTAL',
           country: 'CONTACTS.CUSTOMER_FORM.PAIS',
+          paymentTerms: 'CONTACTS.CUSTOMER_FORM.TERMINOS_PAGO',
+          paymentTermDays: 'CONTACTS.CUSTOMER_FORM.DIAS_CREDITO',
         }),
       );
       return;
@@ -121,7 +133,24 @@ export class CustomerFormPage implements OnInit {
     this.problems.set([]);
 
     this.isLoading.set(true);
-    const formValue = this.customerForm.getRawValue();
+    const { taxpayerType, ...rest } = this.customerForm.getRawValue();
+
+    // "Sin clasificar" is the select's empty option, and the field help tells the user to leave it
+    // there when they do not know the classification. It was sent as the empty string, which
+    // `@IsEnum(TaxpayerType)` rejects — `@IsOptional()` only forgives null and undefined — so the
+    // DEFAULT state of the form could not be saved at all: every customer created without touching
+    // this select came back `400 taxpayerType does not accept that value`. Null is the value that
+    // means "unclassified" in the column, and the one the validator lets through.
+    const formValue = {
+      ...rest,
+      taxpayerType: taxpayerType || null,
+      //  Vacío no es cero: cero significa «al contado» y vacío «usa el valor por defecto de la
+      //  organización». El `<input type="number">` entrega cadena vacía para ambos.
+      paymentTermDays:
+        rest.paymentTermDays === '' || rest.paymentTermDays === null
+          ? null
+          : Number(rest.paymentTermDays),
+    };
 
     const customerId = this.id();
     const operation = customerId
@@ -133,8 +162,17 @@ export class CustomerFormPage implements OnInit {
         this.notificationService.showSuccess(this.isEditMode() ? 'CONTACTS.CUSTOMER_FORM.CLIENTE_ACTUALIZADO_EXITOSAMENTE' : 'CONTACTS.CUSTOMER_FORM.CLIENTE_CREADO_EXITOSAMENTE');
         this.router.navigate(['/contacts/customers']);
       },
-      error: () => {
-        this.notificationService.showError(this.isEditMode() ? 'CONTACTS.CUSTOMER_FORM.ERROR_ACTUALIZAR_CLIENTE' : 'CONTACTS.CUSTOMER_FORM.ERROR_CREAR_CLIENTE');
+      error: (err) => {
+        // The server says exactly what it refused and says it in the reader's language; throwing
+        // that away for "Could not create the customer" is what made the failure above impossible
+        // to act on. The generic key stays as the fallback for a network error with no body.
+        const serverMessage = typeof err?.error?.message === 'string' ? err.error.message : null;
+        this.notificationService.showError(
+          serverMessage ??
+            (this.isEditMode()
+              ? 'CONTACTS.CUSTOMER_FORM.ERROR_ACTUALIZAR_CLIENTE'
+              : 'CONTACTS.CUSTOMER_FORM.ERROR_CREAR_CLIENTE'),
+        );
         this.isLoading.set(false);
       },
     });

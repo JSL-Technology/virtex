@@ -3,7 +3,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { InvoicesService } from './invoices.service';
 import { InvoicesController } from './invoices.controller';
 import { InvoicePostingService } from './services/invoice-posting.service';
-import { WithholdingResolverService } from './services/withholding-resolver.service';
 import { TenantWithholdingRegime } from '../localization/fiscal/entities/tenant-withholding-regime.entity';
 // Sales tax in the markets with no national rate: the rate follows the delivery address, not the
 // product, and it used to come off the request unchecked.
@@ -37,9 +36,11 @@ import { CurrenciesModule } from '../currencies/currencies.module';
 import { SharedModule } from '../shared/shared.module';
 import { EinvoicingModule } from '../einvoicing/einvoicing.module';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
+import { WithholdingModule } from '../localization/fiscal/withholding.module';
 
 @Module({
   imports: [
+    WithholdingModule,
     TypeOrmModule.forFeature([
       Invoice,
       InvoiceLineItem,
@@ -69,7 +70,6 @@ import { JournalEntriesModule } from '../journal-entries/journal-entries.module'
     InvoicesService,
     InvoicePostingService,
     // Withholding is resolved from the parties and the sale, never taken from the request.
-    WithholdingResolverService,
     InvoiceRendererService,
     GenericFiscalAdapter,
     DominicanRepublicFiscalAdapter,

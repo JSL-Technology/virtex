@@ -13,7 +13,7 @@ describe('CSV export', () => {
    * arrives as `DepreciaciÃ³n` for every reader in this product's markets.
    */
   it('opens with a byte-order mark', () => {
-    expect(toCsv([['Depreciación']])).toMatch(/^﻿/);
+    expect(toCsv([['Depreciación']])).toMatch(/^\uFEFF/);
   });
 
   /**
@@ -81,7 +81,7 @@ describe('CSV export', () => {
       preamble: [['Balance general'], ['Moneda', 'DOP'], []],
     });
     const lines = csv.split('\r\n');
-    expect(lines[0]).toBe('﻿sep=,');
+    expect(lines[0]).toBe('\uFEFFsep=,');
     expect(lines[1]).toBe('Balance general');
     expect(lines[2]).toBe('Moneda,DOP');
     expect(lines[4]).toBe('Efectivo,100');

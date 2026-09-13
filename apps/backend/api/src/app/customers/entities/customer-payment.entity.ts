@@ -6,6 +6,7 @@ import {
   ManyToOne,
   JoinColumn,
   CreateDateColumn,
+  Check,
   Index,
 } from 'typeorm';
 import { CustomerPaymentLine } from './customer-payment-line.entity';
@@ -47,6 +48,20 @@ export enum PaymentMethod {
 @Entity({ name: 'customer_payments' })
 @Index('IDX_customer_payments_org_date', ['organizationId', 'paymentDate'])
 @Index('IDX_customer_payments_customer', ['customerId'])
+// "What does this customer have on account?" is asked on every receipt screen, and answered by
+// summing every posted receipt for that customer in that currency.
+@Index('IDX_customer_payment_advance_lookup', [
+  'organizationId',
+  'customerId',
+  'currencyCode',
+  'status',
+])
+// The invariant the service enforces, stated where the data lives: neither figure can go negative,
+// so no future writer can quietly leave a customer holding a negative balance on account.
+@Check(
+  'CHK_customer_payment_advance_non_negative',
+  '"advance_applied_amount" >= 0 AND "advance_applied_base_amount" >= 0',
+)
 export class CustomerPayment {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -136,6 +151,40 @@ export class CustomerPayment {
     transformer: numericTransformerNotNull,
   })
   unappliedAmount: number;
+
+  /**
+   * Drawn from advances this customer had already paid, in `currencyCode`.
+   *
+   * The counterpart of `unappliedAmount`: one receipt creates the advance, a later one consumes it.
+   * Without this column an advance could be received but never spent — the liability stayed on the
+   * balance sheet for ever and the customer had to be asked to pay a second time for an invoice
+   * their money was already sitting against.
+   */
+  @Column('decimal', {
+    name: 'advance_applied_amount',
+    precision: 18,
+    scale: 2,
+    default: 0,
+    transformer: numericTransformerNotNull,
+  })
+  advanceAppliedAmount: number;
+
+  /**
+   * What that draw was worth in the books' currency when it was taken.
+   *
+   * Advances are consumed at the weighted-average rate of what the customer actually paid, not at
+   * the rate of the day they are spent, so the liability is retired for exactly what it was booked
+   * at. Keeping the base figure is what makes that average computable without lot tracking; the gap
+   * against the day's rate is recognised as a realised exchange difference, like any other.
+   */
+  @Column('decimal', {
+    name: 'advance_applied_base_amount',
+    precision: 18,
+    scale: 2,
+    default: 0,
+    transformer: numericTransformerNotNull,
+  })
+  advanceAppliedBaseAmount: number;
 
   @Column({
     type: 'enum',

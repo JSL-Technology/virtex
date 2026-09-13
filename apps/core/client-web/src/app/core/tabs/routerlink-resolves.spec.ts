@@ -98,7 +98,6 @@ describe('routerLinks resuelven a una ruta real (si no, no hay preview y sale «
       .filter(({ url }) => resolveRoute(url) === null)
       .map(({ file, url }) => `${url}   ←   ${file}`);
     const unique = [...new Set(broken)].sort();
-    // eslint-disable-next-line no-console
     if (unique.length) console.log('\nENLACES ROTOS (' + unique.length + '):\n' + unique.join('\n'));
     expect(unique).toEqual([]);
   });

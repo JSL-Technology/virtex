@@ -12,6 +12,7 @@ import { Organization } from '../../organizations/entities/organization.entity';
 import { Account } from '../../chart-of-accounts/entities/account.entity';
 import { JournalEntry } from '../../journal-entries/entities/journal-entry.entity';
 import { numericTransformerNotNull } from '../../common/database/numeric.transformer';
+import { blankToNullTransformer } from '../../common/database/blank-to-null.transformer';
 
 export enum BankAccountType {
   CHECKING = 'CHECKING',
@@ -64,7 +65,14 @@ export class BankAccount {
   @Column({ name: 'bank_name', type: 'varchar', length: 120, nullable: true })
   bankName: string | null;
 
-  @Column({ name: 'account_number', type: 'varchar', length: 60, nullable: true })
+  /** Unique per tenant when given; blank is stored as NULL so "not given" is not a value. */
+  @Column({
+    name: 'account_number',
+    type: 'varchar',
+    length: 60,
+    nullable: true,
+    transformer: blankToNullTransformer,
+  })
   accountNumber: string | null;
 
   /** IBAN where the market uses one; null across most of Latin America. */

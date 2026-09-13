@@ -1,0 +1,64 @@
+@use '../../../../assets/styles/list-page' as list;
+
+:host {
+  @include list.list-page;
+
+  .editor {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: var(--space-3);
+    align-items: end;
+    padding: var(--space-4);
+
+    &__actions {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: var(--space-2);
+    }
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+
+    &--wide { grid-column: span 2; }
+
+    > span {
+      font-size: var(--text-xs);
+      color: var(--content-secondary);
+    }
+
+    &__note {
+      font-size: var(--text-xs);
+      color: var(--content-tertiary, var(--content-secondary));
+    }
+  }
+
+  .inline-field {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--content-secondary);
+  }
+
+  .row-actions {
+    display: flex;
+    gap: var(--space-1);
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  //  Un concepto inactivo sigue en la lista porque la historia lo usa; se lee apagado.
+  .is-inactive { opacity: 0.55; }
+
+  .tag {
+    padding: 0.1rem 0.4rem;
+    border-radius: var(--radius-sm);
+    background: var(--surface-sunken, var(--bg-tertiary));
+    font-size: var(--text-xs);
+    color: var(--content-secondary);
+  }
+}

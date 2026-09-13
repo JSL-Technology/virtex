@@ -11,7 +11,7 @@ import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
 export class ReopenStatementDto {
   @IsString()
   @IsNotEmpty()
-  @MinLength(5)
-  @MaxLength(500)
+  @MinLength(5, { message: 'VALIDATION.CONSTRAINTS.MIN_LENGTH|{"min":5}' })
+  @MaxLength(500, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":500}' })
   reason: string;
 }

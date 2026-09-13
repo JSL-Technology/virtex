@@ -27,6 +27,7 @@ import { ConsolidationMap } from './entities/consolidation-map.entity';
 import { IntercompanyTransaction } from '../intercompany/entities/intercompany-transaction.entity';
 import { ConsolidationService } from './consolidation.service';
 import { roundAmount } from '../common/money';
+import { I18nService } from '../i18n/i18n.service';
 
 /**
  * Consolidated statements: NIIF 10 and NIC 21.
@@ -97,6 +98,7 @@ describeWithDb('group consolidation', () => {
       resolver,
       reporting,
       dataSource,
+      new I18nService(),
     );
   });
 

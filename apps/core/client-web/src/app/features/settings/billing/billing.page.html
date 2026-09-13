@@ -183,7 +183,7 @@
                     </div>
                     }
 
-                    <p class="plan-card__desc">{{ plan.description }}</p>
+                    <p class="plan-card__desc">{{ planDescription(plan.description) }}</p>
 
                     @if (plan.limits && plan.limits.length > 0) {
                     <ul class="plan-card__limits">

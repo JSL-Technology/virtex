@@ -237,8 +237,18 @@
     }
 
     &-head {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: var(--space-2);
       font-weight: var(--font-semibold);
       font-size: var(--text-sm);
+    }
+
+    &-time,
+    &-metered {
+      color: var(--text-tertiary);
+      font-weight: var(--font-normal, 400);
     }
 
     &-error {

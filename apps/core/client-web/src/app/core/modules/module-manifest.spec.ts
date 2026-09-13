@@ -1,6 +1,6 @@
 import { MODULES, ROUTE_INDEX, resolveRoute, buildModuleRoutes, buildMenu, railModules, ownerOf } from './module-registry';
 import { isKnownIcon } from './module-icons';
-import { ModuleManifest, fullPath } from './module-manifest';
+import { AUTHENTICATED_ONLY, ModuleManifest, fullPath, requiredPermissionsFor } from './module-manifest';
 
 /**
  * The manifests are the only place a route exists, and these are the properties that keep it so.
@@ -139,13 +139,37 @@ describe('manifiestos de módulo', () => {
     expect(generadas).toEqual(declaradas);
   });
 
-  it('cada ruta de Angular lleva el permiso de su manifiesto', () => {
+  /**
+   * The generated route carries the permission the guard must actually check, which is not always
+   * the one written in the manifest: `authenticated` means "any signed-in user" and is not a
+   * permission anybody can be granted. Asserting the manifest string verbatim is what let it be
+   * passed to the guard as a requirement, and every role without a `*` grant was locked out of
+   * Home by a permission no role can hold.
+   */
+  it('cada ruta de Angular lleva el permiso exigible de su manifiesto', () => {
     const routes = buildModuleRoutes();
     for (const route of routes) {
       const match = resolveRoute(`/${route.path}`);
-      expect((route.data as { permissions: string[] }).permissions).toEqual([
-        match?.entry.route.permission,
-      ]);
+      const declarado = match?.entry.route.permission;
+      expect((route.data as { permissions: string[] }).permissions).toEqual(
+        requiredPermissionsFor(declarado!),
+      );
+    }
+  });
+
+  it('una ruta solo-autenticada no exige ningún permiso', () => {
+    // The other half of the same rule: `authenticated` must reach the guard as "nothing to check",
+    // never as a permission to look for.
+    expect(requiredPermissionsFor(AUTHENTICATED_ONLY)).toEqual([]);
+    expect(requiredPermissionsFor('invoices:view')).toEqual(['invoices:view']);
+
+    const soloAutenticadas = ROUTE_INDEX.filter(
+      (entry) => entry.route.permission === AUTHENTICATED_ONLY,
+    );
+    expect(soloAutenticadas.length).toBeGreaterThan(0);
+    for (const entry of soloAutenticadas) {
+      const generada = buildModuleRoutes().find((route) => `/${route.path}` === entry.path);
+      expect((generada?.data as { permissions: string[] }).permissions).toEqual([]);
     }
   });
 

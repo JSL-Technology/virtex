@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Plugin } from './plugin.entity';
+import { Organization } from '../../organizations/entities/organization.entity';
 
 /**
  * A tenant's decision to install an extension and the capabilities it granted it.
@@ -19,20 +20,27 @@ import { Plugin } from './plugin.entity';
  * tenant lets it run privileged operations against their data".
  */
 @Entity({ name: 'plugin_tenant_consents' })
-@Index(['organizationId', 'plugin'], { unique: true })
+@Index('UQ_plugin_consent_org_plugin', ['organizationId', 'pluginId'], { unique: true })
 export class TenantConsent {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Index()
-  @Column()
+  @Index('IDX_plugin_consent_org')
+  @Column({ type: 'uuid' })
   organizationId: string;
 
+  @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
+  @JoinColumn({
+    name: 'organizationId',
+    foreignKeyConstraintName: 'FK_plugin_consent_organization',
+  })
+  organization: Organization;
+
   @ManyToOne(() => Plugin, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'pluginId' })
+  @JoinColumn({ name: 'pluginId', foreignKeyConstraintName: 'FK_plugin_consent_plugin' })
   plugin: Plugin;
 
-  @Column()
+  @Column({ type: 'uuid' })
   pluginId: string;
 
   @Column({ type: 'simple-array', default: '' })
@@ -41,9 +49,9 @@ export class TenantConsent {
   @Column({ default: true })
   enabled: boolean;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 }

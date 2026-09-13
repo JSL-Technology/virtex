@@ -22,6 +22,7 @@ import { JwtService } from '@nestjs/jwt';
 import { MembershipService } from '../../organizations/services/membership.service';
 import { PaymentService } from '../../payment/payment.service';
 import { ConfigService } from '@nestjs/config';
+import { UserCacheService } from '../modules/user-cache.service';
 import { expectLocalizedError } from '../../i18n/testing/expect-localized-error';
 
 describe('RegistrationService', () => {
@@ -117,6 +118,9 @@ describe('RegistrationService', () => {
         // the real collaborator here even though these tests assert nothing about it.
         { provide: MembershipService, useValue: { grant: jest.fn(), listFor: jest.fn().mockResolvedValue([]) } },
         { provide: PaymentService, useValue: mockPaymentService },
+        // Repairing a tenant drops the cached principals of its members, or the entitlement it
+        // just wrote stays invisible until the cache expires. Nothing here asserts on it.
+        { provide: UserCacheService, useValue: { clearOrganizationMembers: jest.fn() } },
         { provide: ConfigService, useValue: { get: jest.fn(() => false) } },
       ],
     }).compile();

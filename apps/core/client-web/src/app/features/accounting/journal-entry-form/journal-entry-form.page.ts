@@ -4,6 +4,8 @@ import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule
 import { LucideAngularModule, Save, Plus, Trash2 } from 'lucide-angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { JournalEntries } from '../../../core/services/journal-entries';
+import { JournalEntry as ApiJournalEntry } from '../../../core/api/journal-entries.service';
+import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 import { NotificationService } from '../../../core/services/notification';
 import { AccountingService } from '../../../core/api/accounting.service';
 import { Account } from '../../../core/models/account.model';
@@ -69,6 +71,8 @@ export class JournalEntryFormPage implements OnInit {
   private accountingService = inject(AccountingService);
   private ledgersService = inject(LedgersService);
   private journalsService = inject(JournalsService);
+  /** Optional: the page is also reachable through the router outlet, where there is no tab. */
+  private readonly tab = inject(TAB_CONTEXT, { optional: true });
 
 
   protected readonly PlusIcon = Plus;
@@ -80,6 +84,18 @@ export class JournalEntryFormPage implements OnInit {
   entryForm!: FormGroup;
   isEditMode = signal(false);
   isSaving = signal(false);
+  /** True while the entry being edited is being fetched. */
+  isLoading = signal(false);
+  /**
+   * Why this entry cannot be modified, or null.
+   *
+   * The ledger's rule, mirrored: only a POSTED entry may be modified, and only if none of its
+   * lines has been reconciled. Saying so on arrival is the difference between a screen that
+   * explains itself and one that answers 400 after the work is done.
+   */
+  readonly editBlockedKey = signal<string | null>(null);
+  /** The entry being modified, once loaded. */
+  readonly original = signal<ApiJournalEntry | null>(null);
   accounts = signal<Account[]>([]);
   ledgers = signal<Ledger[]>([]);
   journals = signal<Journal[]>([]);
@@ -105,11 +121,73 @@ export class JournalEntryFormPage implements OnInit {
 
     if (this.id) {
       this.isEditMode.set(true);
-      // Lógica para cargar un asiento existente
+      //  Modificar un asiento es reversarlo y reponerlo, nunca reescribirlo — es la regla que el
+      //  disparador `virtex_guard_posted_entry_update` impone en la base de datos —, y el servidor
+      //  exige por eso una razón. El formulario la pide solo al editar.
+      this.entryForm.addControl(
+        'modificationReason',
+        this.fb.control('', [Validators.required, Validators.minLength(5)]),
+      );
+      this.loadEntry(this.id);
     } else {
       this.addLine();
       this.addLine();
     }
+  }
+
+  /**
+   * Traer el asiento que se va a modificar.
+   *
+   * Esto no existía: la ruta `journal-entries/:id/edit` está enlazada desde cada fila del registro
+   * y montaba un formulario EN BLANCO con dos líneas vacías. Guardar no modificaba nada — llamaba
+   * a `create` — así que el gesto «editar este asiento» creaba un segundo asiento y dejaba el
+   * original intacto. Ninguna pantalla del producto permitía corregir un asiento.
+   */
+  private loadEntry(id: string): void {
+    this.isLoading.set(true);
+    this.journalEntriesService.getById(id).subscribe({
+      next: (entry) => {
+        const loaded = entry as unknown as ApiJournalEntry;
+        this.original.set(loaded);
+        this.isLoading.set(false);
+        this.tab?.setTitle(
+          loaded.entryNumber ??
+            this.translate.instant('ACCOUNTING.JOURNAL_ENTRY_FORM.EDIT_TITLE'),
+        );
+
+        if (loaded.status !== 'Posted') {
+          this.editBlockedKey.set('ACCOUNTING.JOURNAL_ENTRY_FORM.ONLY_POSTED_CAN_BE_MODIFIED');
+        }
+
+        this.entryForm.patchValue({
+          date: loaded.date,
+          ledgerId: (entry as unknown as { ledgerId?: string }).ledgerId ?? '',
+          journalId: (entry as unknown as { journalId?: string }).journalId ?? '',
+          description: loaded.description,
+        });
+
+        this.lines.clear();
+        for (const line of loaded.lines ?? []) {
+          const group = this.createLine();
+          group.patchValue({
+            accountId: line.accountId,
+            description: line.description ?? '',
+            debit: Number(line.debit) || 0,
+            credit: Number(line.credit) || 0,
+          });
+          this.lines.push(group);
+        }
+        //  Un asiento siempre tiene al menos dos líneas, pero un asiento roto no puede dejar el
+        //  formulario sin ninguna: sin filas no hay dónde escribir la corrección.
+        while (this.lines.length < 2) this.addLine();
+
+        this.entryForm.markAsPristine();
+      },
+      error: () => {
+        this.isLoading.set(false);
+        this.editBlockedKey.set('ACCOUNTING.JOURNAL_ENTRY_FORM.ENTRY_NOT_FOUND');
+      },
+    });
   }
 
   loadInitialData(): void {
@@ -173,6 +251,7 @@ export class JournalEntryFormPage implements OnInit {
           ledgerId: 'ACCOUNTING.JOURNAL_ENTRY_FORM.LEDGER_LABEL',
           journalId: 'ACCOUNTING.JOURNAL_ENTRY_FORM.JOURNAL_LABEL',
           description: 'ACCOUNTING.JOURNAL_ENTRY_FORM.DESCRIPTION_LABEL',
+          modificationReason: 'ACCOUNTING.JOURNAL_ENTRY_FORM.MODIFICATION_REASON_LABEL',
           accountId: 'ACCOUNTING.JOURNAL_ENTRY_FORM.ACCOUNT_COLUMN',
           debit: 'ACCOUNTING.JOURNAL_ENTRY_FORM.DEBIT_COLUMN',
           credit: 'ACCOUNTING.JOURNAL_ENTRY_FORM.CREDIT_COLUMN',
@@ -187,14 +266,28 @@ export class JournalEntryFormPage implements OnInit {
     this.isSaving.set(true);
 
     const formData = this.entryForm.getRawValue();
+    const editing = this.isEditMode() && !!this.id;
 
-    this.journalEntriesService.create(formData).subscribe({
+    const request = editing
+      ? this.journalEntriesService.update(this.id!, formData)
+      : this.journalEntriesService.create(formData);
+
+    request.subscribe({
       next: () => {
-        this.notificationService.showSuccess('ACCOUNTING.JOURNAL_ENTRY_FORM.ASIENTO_CONTABLE_CREADO_EXITO');
+        this.entryForm.markAsPristine();
+        this.tab?.markClean();
+        this.notificationService.showSuccess(
+          editing
+            ? 'ACCOUNTING.JOURNAL_ENTRY_FORM.ASIENTO_CONTABLE_MODIFICADO_EXITO'
+            : 'ACCOUNTING.JOURNAL_ENTRY_FORM.ASIENTO_CONTABLE_CREADO_EXITO',
+        );
         this.router.navigate(['/accounting/journal-entries']);
       },
       error: (err) => {
-        this.notificationService.showError(err.error?.message || 'ERRORS.CREATE_JOURNAL_ENTRY');
+        this.notificationService.showError(
+          err.error?.message ||
+            (editing ? 'ERRORS.UPDATE_JOURNAL_ENTRY' : 'ERRORS.CREATE_JOURNAL_ENTRY'),
+        );
         this.isSaving.set(false);
       },
       complete: () => {

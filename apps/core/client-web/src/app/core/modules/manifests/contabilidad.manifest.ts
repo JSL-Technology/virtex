@@ -142,7 +142,9 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       kind: WindowKind.LIST,
       permission: 'accounting:view',
       icon: 'Library',
-      titleFn: (p) => `Mayor · ${p['accountId']}`,
+      //  El código y el nombre de la cuenta los pone la propia página al cargarla; aquí solo
+      //  había un UUID y la palabra «Mayor» en castellano fijo.
+      titleKey: 'PAGE_TITLES.GENERAL_LEDGER',
       entityKeyFn: (p) => `contabilidad:gl:${p['accountId']}`,
       load: () => import('../../../features/accounting/general-ledger/general-ledger.page').then((m) => m.GeneralLedgerPage),
     },
@@ -236,6 +238,32 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       entityKeyFn: () => 'contabilidad:annual-close',
       menu: { group: 'documents', labelKey: 'sidebar.finance.gl_sub.closing_annual' },
       load: () => import('../../../features/accounting/closing/annual-close/annual-close.page').then((m) => m.AnnualClosePage),
+    },
+    /*
+     * The corrections an external audit proposes to a year that is already closed.
+     *
+     * The whole feature was unreachable: the server's `AuditAdjustmentsService`, its entities and
+     * its approval workflow were registered in no module and exposed by no route, so there was
+     * nothing for a menu entry to point at. See `AuditAdjustmentsController`.
+     */
+    {
+      path: 'audit-adjustments',
+      kind: WindowKind.LIST,
+      permission: 'audit:view_trail',
+      titleKey: 'PAGE_TITLES.AUDIT_ADJUSTMENTS',
+      icon: 'ScrollText',
+      entityKeyFn: () => 'contabilidad:audit-adjustments',
+      menu: { group: 'documents', labelKey: 'PAGE_TITLES.AUDIT_ADJUSTMENTS' },
+      load: () => import('../../../features/accounting/audit-adjustments/audit-adjustments.page').then((m) => m.AuditAdjustmentsPage),
+    },
+    {
+      path: 'audit-adjustments/new',
+      kind: WindowKind.DRAFT,
+      permission: 'audit:propose_adjustment',
+      titleKey: 'PAGE_TITLES.AUDIT_ADJUSTMENT_NEW',
+      icon: 'FilePlus',
+      entityKeyFn: () => `contabilidad:audit-adjustment:new:${crypto.randomUUID()}`,
+      load: () => import('../../../features/accounting/audit-adjustments/audit-adjustment-form/audit-adjustment-form.page').then((m) => m.AuditAdjustmentFormPage),
     },
     {
       path: 'closing/checklist',

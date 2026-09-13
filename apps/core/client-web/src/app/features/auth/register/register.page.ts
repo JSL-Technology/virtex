@@ -43,6 +43,7 @@ import {
   RecaptchaV3Module,
   ReCaptchaV3Service,
 } from 'ng-recaptcha-19';
+import { recaptchaToken$ } from '../../../core/auth/recaptcha-token';
 import { environment } from '../../../../environments/environment';
 import {
   CountryService,
@@ -149,6 +150,8 @@ export class RegisterPage implements OnInit {
 
   emailVerified = signal(false);
   phoneVerified = signal(false);
+  /** The SMS channel is down, so the phone step stops being a gate. See `StepPhoneVerify.unavailable`. */
+  phoneChannelDown = signal(false);
 
   readonly steps = Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1);
 
@@ -172,6 +175,21 @@ export class RegisterPage implements OnInit {
 
   get currentEmail(): string {
     return this.registerForm?.get('accountInfo.email')?.value ?? '';
+  }
+
+  /**
+   * The name and country the wizard already holds, for the verification email.
+   *
+   * Both are collected before the email step: the name on step 1, the country by the country
+   * selector. The verification email was sent with neither, so it greeted "Hola Usuario" and its
+   * magic link always pointed at `/es/do/…`.
+   */
+  get currentFirstName(): string {
+    return this.registerForm?.get('accountInfo.firstName')?.value ?? '';
+  }
+
+  get currentCountry(): string {
+    return this.countryService.currentCountry()?.countryCode ?? '';
   }
 
   get currentPhone(): string {
@@ -501,9 +519,16 @@ export class RegisterPage implements OnInit {
       return;
     }
 
-    // Verification gate for phone step — only when a number was actually given. The phone is
-    // optional; demanding an SMS for an empty field made the step impossible to pass.
-    if (this.currentStep() === 3 && this.currentPhone && !this.phoneVerified()) {
+    // Verification gate for phone step — only when a number was actually given AND the SMS channel
+    // is actually working. The phone is optional; demanding an SMS for an empty field made the step
+    // impossible to pass, and demanding one the server cannot send made the whole signup
+    // impossible on any deployment without an SMS provider.
+    if (
+      this.currentStep() === 3 &&
+      this.currentPhone &&
+      !this.phoneVerified() &&
+      !this.phoneChannelDown()
+    ) {
       this.errorMessage.set('REGISTER.ERRORS.PHONE_VERIFY_REQUIRED');
       return;
     }
@@ -596,7 +621,7 @@ export class RegisterPage implements OnInit {
 
     const formValue = this.registerForm.getRawValue();
 
-    this.recaptchaV3Service.execute('register').subscribe({
+    recaptchaToken$(this.recaptchaV3Service, 'register').subscribe({
       next: (recaptchaToken) => {
         const payload: RegisterPayload & { planId: string; billingPeriod: string } = {
           firstName: formValue.accountInfo.firstName,

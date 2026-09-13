@@ -5,9 +5,10 @@
   [saving]="uploading()"
   [invalid]="form.invalid"
   [problems]="problems()"
+  [form]="form"
   saveLabelKey="ACCOUNTING.RECONCILIATION.IMPORTAR"
   (save)="submit()"
-  (cancel)="cancel()"
+  (cancelled)="cancel()"
 >
   <div class="form-body" [formGroup]="form">
     @if (bankAccounts().length === 0) {

@@ -1,15 +1,21 @@
 import { Component, Input, effect, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule, Rocket, Check, AlertCircle } from 'lucide-angular';
 import { BillingService } from '../../../../../core/services/billing';
 import { annualSavingPercent, formatPlanPrice, type BillingPeriod } from '../../../../../core/models/plan.model';
 import { CountryService } from '../../../../../core/services/country.service';
 import { LanguageService } from '../../../../../core/services/language';
+import { translateOrLiteral } from '../../../../../core/i18n/translate-or-literal';
 
-/** One bullet on a plan card: either a translation key with params, or literal server text. */
+/**
+ * One bullet on a plan card.
+ *
+ * `key` is a translation key when the catalogue carries one and `text` is what to print if it does
+ * not — the two are the same string for a value the server sends as a key.
+ */
 export interface PlanFeatureLine {
   key: string | null;
   text: string;
@@ -49,6 +55,7 @@ export class StepPlan {
   readonly AlertCircleIcon = AlertCircle;
 
   private billingService = inject(BillingService);
+  private translate = inject(TranslateService);
   private countryService = inject(CountryService);
   private languageService = inject(LanguageService);
 
@@ -107,7 +114,9 @@ export class StepPlan {
     limits?: { resource: string; limit: number; period: string }[];
   }): PlanFeatureLine[] {
     const lines: PlanFeatureLine[] = [];
-    if (p.description) lines.push({ key: null, text: p.description });
+    // The server sends a translation key; a plan row seeded before that change still carries a
+    // Spanish sentence, which `featureText` prints as it stands rather than as a raw key.
+    if (p.description) lines.push({ key: p.description, text: p.description });
 
     for (const limit of p.limits ?? []) {
       const resource = `REGISTER.STEPS.PLAN.RESOURCES.${limit.resource.toUpperCase()}`;
@@ -115,14 +124,43 @@ export class StepPlan {
         key:
           limit.limit === -1
             ? 'REGISTER.STEPS.PLAN.UNLIMITED'
-            : limit.period === 'monthly'
-              ? 'REGISTER.STEPS.PLAN.PER_PERIOD_MONTH'
-              : 'REGISTER.STEPS.PLAN.TOTAL',
+            //  Cero no es una cantidad, es una ausencia. «0 sucursales en total» se lee como un
+            //  error de plantilla en la pantalla donde el cliente decide qué pagar; «sin
+            //  sucursales» dice lo mismo y se entiende.
+            : limit.limit === 0
+              ? 'REGISTER.STEPS.PLAN.NONE'
+              : limit.period === 'monthly'
+                ? 'REGISTER.STEPS.PLAN.PER_PERIOD_MONTH'
+                : 'REGISTER.STEPS.PLAN.TOTAL',
         text: '',
         params: { count: limit.limit, resource },
       });
     }
     return lines;
+  }
+
+  /**
+   * One bullet, as text.
+   *
+   * `buildFeatures` returns `{ key, text, params }` objects and the template printed the object:
+   * every plan card showed seven `[object Object]` bullets on the screen where the customer picks
+   * what to pay for. The `resource` parameter is itself a catalogue key — the limits come back as
+   * `journal_entries`, not as a sentence — so it is translated before it is interpolated, which is
+   * the step that turns "{{count}} {{resource}} a month" into "500 journal entries a month".
+   */
+  featureText(feature: PlanFeatureLine): string {
+    if (!feature.key) return feature.text;
+
+    const params = { ...(feature.params ?? {}) };
+    const resource = params['resource'];
+    if (typeof resource === 'string') {
+      params['resource'] = this.translate.instant(resource);
+    }
+    // `translateOrLiteral` and not `instant`: the plan description is a key the catalogue may not
+    // carry (a row seeded before descriptions became keys), and a bullet reading
+    // `[[BILLING.PLANS.PRO.DESCRIPTION]]` on the screen where the customer chooses what to pay
+    // for is worse than the untranslated sentence it replaces.
+    return translateOrLiteral(this.translate, feature.key, params, feature.text);
   }
 
   retry(): void {

@@ -58,7 +58,7 @@
       <ul class="plan-features-list">
         <li *ngFor="let feature of plan.features">
           <lucide-icon [img]="CheckIcon" size="16"></lucide-icon>
-          <span>{{ feature }}</span>
+          <span>{{ featureText(feature) }}</span>
         </li>
       </ul>
 

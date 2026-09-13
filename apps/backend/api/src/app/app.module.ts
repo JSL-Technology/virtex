@@ -59,11 +59,14 @@ import { DimensionsModule } from './dimensions/dimensions.module';
 import { MailModule } from './mail/mail.module';
 import { WebsocketsModule } from './websockets/websockets.module';
 import { AuditModule } from './audit/audit.module';
+import { AuditAdjustmentsModule } from './audit/adjustments/audit-adjustments.module';
 import { ComplianceModule } from './compliance/compliance.module';
 import { QueuesModule } from './queues/queues.module';
 import { HealthModule } from './health/health.module';
 import { SearchModule } from './search/search.module';
 import { MyWorkModule } from './my-work/my-work.module';
+import { OverviewModule } from './overview/overview.module';
+import { DocumentsModule } from './documents/documents.module';
 import { LocalizationModule } from './localization/localization.module';
 import { UnitsOfMeasureModule } from './units-of-measure/units-of-measure.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -286,6 +289,7 @@ import { PosModule } from './pos/pos.module';
     MailModule,
     WebsocketsModule,
     AuditModule,
+    AuditAdjustmentsModule,
     ComplianceModule,
     AccountingModule,
     ConsolidationModule,
@@ -293,6 +297,8 @@ import { PosModule } from './pos/pos.module';
     HealthModule, 
     SearchModule,
     MyWorkModule,
+    OverviewModule,
+    DocumentsModule,
     LocalizationModule,
     UnitsOfMeasureModule,
     NotificationsModule,

@@ -87,8 +87,16 @@ export class EinvoicingService {
   }
 
   // ── Per-invoice e-CF ──────────────────────────────────────────────────────
-  getInvoiceStatus(invoiceId: string): Observable<EcfSubmissionView> {
-    return this.http.get<EcfSubmissionView>(`${this.ecfUrl}/invoices/${invoiceId}/status`);
+  /**
+   * What the DGII knows about this invoice, or `null` when it has never been transmitted.
+   *
+   * `null` is an ordinary answer, not a failure: a tenant with no certificate has no submission
+   * for any invoice, and this is asked on every document open. The endpoint used to answer `404`,
+   * so the browser logged a failed request each time and the caller had to catch an error to
+   * learn something normal.
+   */
+  getInvoiceStatus(invoiceId: string): Observable<EcfSubmissionView | null> {
+    return this.http.get<EcfSubmissionView | null>(`${this.ecfUrl}/invoices/${invoiceId}/status`);
   }
 
   submitInvoice(invoiceId: string): Observable<EcfSubmissionView> {

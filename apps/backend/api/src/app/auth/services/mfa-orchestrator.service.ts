@@ -205,7 +205,18 @@ export class MfaOrchestratorService {
       }
   }
 
-  async sendPublicVerification(rawTarget: string, type: VerificationType) {
+  /**
+   * A verification code for somebody who is not signed in yet.
+   *
+   * `recipient` carries what the registration wizard already knows about them — their first name,
+   * the language they are reading in, the country they are signing up in. All optional: the
+   * endpoint is also reached before any of it exists.
+   */
+  async sendPublicVerification(
+    rawTarget: string,
+    type: VerificationType,
+    recipient: { firstName?: string; language?: string; country?: string } = {},
+  ) {
     const target = normalizeTarget(rawTarget);
     const code = randomInt(100000, 999999).toString();
     const hash = await argon2.hash(code);
@@ -238,10 +249,27 @@ export class MfaOrchestratorService {
       // Was `/es/auth/register`, which has no country segment and therefore matches no route:
       // the link landed on the authenticated shell, whose guard redirected to the login page and
       // dropped `email_token` on the way. Every registration confirmation email was a dead end.
-      const magicLinkUrl = this.links.confirmRegistrationEmail(magicLinkToken);
+      //  Con el idioma y el país de quien se registra. Sin ellos el enlace apuntaba siempre a
+      //  `/es/do/…`, así que quien se registraba en inglés recibía un correo en inglés cuyo enlace
+      //  lo dejaba en una pantalla en castellano.
+      const magicLinkUrl = this.links.confirmRegistrationEmail(
+        magicLinkToken,
+        recipient.language,
+        recipient.country,
+      );
       const expiresMinutes = Math.round(AuthConfig.MFA_CODE_EXPIRATION / 60000);
       try {
-        await this.mailService.sendRegistrationEmailVerification(target, code, 'Usuario', magicLinkUrl, expiresMinutes);
+        //  El nombre real. Era el literal `'Usuario'`, de modo que todos los correos de
+        //  verificación del producto empezaban «Hola Usuario» —en castellano, a quien había
+        //  elegido inglés, y sobre una persona cuyo nombre el asistente ya había pedido.
+        await this.mailService.sendRegistrationEmailVerification(
+          target,
+          code,
+          recipient.firstName?.trim() || null,
+          magicLinkUrl,
+          expiresMinutes,
+          recipient.language,
+        );
       } catch (err) {
         // Hashed, not in the clear: the address is personal data and this is the one place the
         // module wrote one out in full.

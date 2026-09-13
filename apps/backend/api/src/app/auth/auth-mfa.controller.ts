@@ -186,7 +186,11 @@ export class AuthMfaController {
   async sendPublicVerification(
     @Body() dto: SendPublicVerificationDto
   ) {
-    await this.mfaOrchestratorService.sendPublicVerification(dto.target, dto.type);
+    await this.mfaOrchestratorService.sendPublicVerification(dto.target, dto.type, {
+      firstName: dto.firstName,
+      language: dto.language,
+      country: dto.country,
+    });
     return { messageKey: 'AUTH.SI_DATOS_SON_CORRECTOS_ENVIADO_CODIGO_VERIFICACION' };
   }
 

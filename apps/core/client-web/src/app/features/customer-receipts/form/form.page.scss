@@ -34,9 +34,21 @@
     gap: var(--space-2);
   }
 
+  //  Se pulsan, y tienen que parecerlo: icono, borde que responde y el cursor de un control.
+  //  Antes eran del mismo gris que las etiquetas de alrededor y nada indicaba que hicieran algo.
   .chip {
     @include ds.button-secondary('sm');
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    cursor: pointer;
     font-variant-numeric: tabular-nums;
+
+    &:hover:not(:disabled),
+    &:focus-visible {
+      border-color: var(--accent-solid);
+      color: var(--accent-text);
+    }
   }
 
   .table-wrapper { overflow-x: auto; }

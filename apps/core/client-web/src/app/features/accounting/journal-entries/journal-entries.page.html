@@ -29,7 +29,13 @@
           <tr>
             <td>{{ entry.date | vxDate: 'date' : true }}</td>
             <td>
-              <a [routerLink]="['./', entry.id, 'edit']" class="table-link">{{ entry.id }}</a>
+              <!--
+                The number the tenant's sequence gave it, not its UUID. A draft has no number yet
+                and says so, rather than borrowing a primary key to look like one.
+              -->
+              <a [routerLink]="['./', entry.id, 'edit']" class="table-link">
+                {{ entry.entryNumber || ('ACCOUNTING.JOURNAL_ENTRIES.UNNUMBERED' | translate) }}
+              </a>
             </td>
             <td>{{ entry.description }}</td>
             <td class="text-right">{{ debitTotal(entry) | vxMoney: entry.currencyCode }}</td>

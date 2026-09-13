@@ -1,0 +1,259 @@
+<vx-draft-shell
+  [title]="current() ? current()!.firstName + ' ' + current()!.lastName : ('HCM.EMPLOYEES.NEW' | translate)"
+  [subtitle]="'HCM.EMPLOYEES.TITLE' | translate"
+  [dirty]="form.dirty"
+  [saving]="saving()"
+  [invalid]="form.invalid"
+  [problems]="problems()"
+  [form]="form"
+  (save)="save()"
+  (cancelled)="cancel()"
+>
+  <div class="form-body" [formGroup]="form">
+
+    <section class="form-section">
+      <h2 class="form-section-title">{{ 'HCM.EMPLOYEES.FORM.PERSON' | translate }}</h2>
+      <div class="form-grid">
+        <label class="field">
+          <span>{{ 'HCM.EMPLOYEES.FORM.FIRST_NAME' | translate }} *</span>
+          <input type="text" formControlName="firstName" maxlength="100" />
+        </label>
+        <label class="field">
+          <span>{{ 'HCM.EMPLOYEES.FORM.LAST_NAME' | translate }} *</span>
+          <input type="text" formControlName="lastName" maxlength="100" />
+        </label>
+        <label class="field">
+          <span>{{ 'HCM.EMPLOYEES.FORM.EMAIL' | translate }} *</span>
+          <input type="email" formControlName="email" maxlength="255" />
+        </label>
+        <label class="field">
+          <span>{{ 'HCM.EMPLOYEES.FORM.JOB_TITLE' | translate }}</span>
+          <input type="text" formControlName="jobTitle" maxlength="120" />
+        </label>
+        <label class="field">
+          <span>{{ 'HCM.EMPLOYEES.DEPARTMENT' | translate }}</span>
+          <select formControlName="departmentId">
+            <option value=""></option>
+            @for (department of departments(); track department.id) {
+              <option [value]="department.id">{{ department.name }}</option>
+            }
+          </select>
+        </label>
+        <label class="field">
+          <span>{{ 'HCM.EMPLOYEES.HIRE_DATE' | translate }}</span>
+          <input type="date" formControlName="hireDate" />
+        </label>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h2 class="form-section-title">{{ 'HCM.EMPLOYEES.FORM.IDENTITY' | translate }}</h2>
+      <!--
+        These two are encrypted at rest and returned masked. Revealing them is a separate request
+        the server audits, which is why it is a button and not the page load.
+      -->
+      <div class="form-grid">
+        <label class="field">
+          <span>{{ 'HCM.EMPLOYEES.FORM.DOCUMENT_TYPE' | translate }}</span>
+          <select formControlName="identityDocumentType">
+            <option value="CEDULA">{{ 'HCM.EMPLOYEES.FORM.DOC.CEDULA' | translate }}</option>
+            <option value="PASSPORT">{{ 'HCM.EMPLOYEES.FORM.DOC.PASSPORT' | translate }}</option>
+            <option value="RNC">{{ 'HCM.EMPLOYEES.FORM.DOC.RNC' | translate }}</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>{{ 'HCM.EMPLOYEES.FORM.DOCUMENT' | translate }}</span>
+          <input type="text" formControlName="identityDocument" maxlength="32"
+            [placeholder]="current() ? (revealed()?.identityDocument ?? (current()!.identityDocument || '•••')) : ''" />
+          <small class="field__note">{{ 'HCM.EMPLOYEES.FORM.DOCUMENT_HELP' | translate }}</small>
+        </label>
+        <label class="field">
+          <span>{{ 'HCM.EMPLOYEES.FORM.TSS_NSS' | translate }}</span>
+          <input type="text" formControlName="tssNss" maxlength="11" />
+        </label>
+        <label class="field">
+          <span>{{ 'HCM.EMPLOYEES.FORM.AFP' | translate }}</span>
+          <input type="text" formControlName="afpCode" maxlength="32" />
+        </label>
+        <label class="field">
+          <span>{{ 'HCM.EMPLOYEES.FORM.SFS' | translate }}</span>
+          <input type="text" formControlName="sfsCode" maxlength="32" />
+        </label>
+      </div>
+
+      @if (current()) {
+        <button type="button" class="secondary-button" (click)="reveal()">
+          <lucide-icon [img]="RevealIcon" size="14"></lucide-icon>
+          <span>{{ 'HCM.EMPLOYEES.FORM.REVEAL' | translate }}</span>
+        </button>
+        @if (revealed()) {
+          <p class="revealed">
+            {{ 'HCM.EMPLOYEES.FORM.DOCUMENT' | translate }}: <strong>{{ revealed()!.identityDocument || '—' }}</strong>
+            ·
+            {{ 'HCM.EMPLOYEES.FORM.BANK_ACCOUNT' | translate }}: <strong>{{ revealed()!.bankAccountNumber || '—' }}</strong>
+          </p>
+        }
+      }
+    </section>
+
+    <section class="form-section">
+      <h2 class="form-section-title">{{ 'HCM.EMPLOYEES.FORM.BANK' | translate }}</h2>
+      <div class="form-grid">
+        <label class="field">
+          <span>{{ 'HCM.EMPLOYEES.FORM.BANK_NAME' | translate }}</span>
+          <input type="text" formControlName="bankName" maxlength="120" />
+        </label>
+        <label class="field">
+          <span>{{ 'HCM.EMPLOYEES.FORM.BANK_ACCOUNT' | translate }}</span>
+          <input type="text" formControlName="bankAccountNumber" maxlength="64"
+            [placeholder]="current() ? '•••' : ''" />
+        </label>
+        <label class="field">
+          <span>{{ 'HCM.EMPLOYEES.FORM.BANK_ACCOUNT_TYPE' | translate }}</span>
+          <input type="text" formControlName="bankAccountType" maxlength="32" />
+        </label>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <h2 class="form-section-title">{{ 'HCM.EMPLOYEES.FORM.EMPLOYMENT' | translate }}</h2>
+      <div class="form-grid">
+        <label class="field">
+          <span>{{ 'HCM.EMPLOYEES.STATUS' | translate }}</span>
+          <select formControlName="employmentStatus">
+            <option value="ACTIVE">{{ 'HCM.EMPLOYEES.STATUS_LABEL.ACTIVE' | translate }}</option>
+            <option value="SUSPENDED">{{ 'HCM.EMPLOYEES.STATUS_LABEL.SUSPENDED' | translate }}</option>
+            <option value="TERMINATED">{{ 'HCM.EMPLOYEES.STATUS_LABEL.TERMINATED' | translate }}</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>{{ 'HCM.EMPLOYEES.FORM.CONTRACT' | translate }}</span>
+          <select formControlName="contractType">
+            <option value="INDEFINITE">{{ 'HCM.EMPLOYEES.FORM.CONTRACT_TYPE.INDEFINITE' | translate }}</option>
+            <option value="FIXED_TERM">{{ 'HCM.EMPLOYEES.FORM.CONTRACT_TYPE.FIXED_TERM' | translate }}</option>
+            <option value="OCCASIONAL">{{ 'HCM.EMPLOYEES.FORM.CONTRACT_TYPE.OCCASIONAL' | translate }}</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>{{ 'HCM.EMPLOYEES.FORM.TERMINATION_DATE' | translate }}</span>
+          <input type="date" formControlName="terminationDate" />
+        </label>
+      </div>
+    </section>
+
+    @if (current()) {
+      <section class="form-section">
+        <h2 class="form-section-title">{{ 'HCM.EMPLOYEES.FORM.PAY_HISTORY' | translate }}</h2>
+        <!--
+          A history, not a field: a raise adds a row with the date it takes effect and never
+          rewrites what a past payslip was computed on.
+        -->
+        <p class="section-note">{{ 'HCM.EMPLOYEES.FORM.PAY_HISTORY_HELP' | translate }}</p>
+
+        <div class="table-wrapper">
+          <table class="lines-table">
+            <thead>
+              <tr>
+                <th>{{ 'HCM.EMPLOYEES.FORM.EFFECTIVE_FROM' | translate }}</th>
+                <th class="numeric">{{ 'HCM.EMPLOYEES.FORM.BASE_SALARY' | translate }}</th>
+                <th>{{ 'HCM.EMPLOYEES.FORM.FREQUENCY' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (pay of compensation(); track pay.id) {
+                <tr>
+                  <td>{{ pay.effectiveFrom | vxDate }}</td>
+                  <td class="numeric">{{ pay.baseSalary | vxMoney: pay.currencyCode }}</td>
+                  <td>{{ 'HCM.EMPLOYEES.FORM.FREQUENCY_LABEL.' + pay.payFrequency | translate }}</td>
+                </tr>
+              } @empty {
+                <tr><td colspan="3" class="muted">{{ 'HCM.EMPLOYEES.FORM.NO_PAY' | translate }}</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (addingPay()) {
+          <div class="action-box">
+            <label class="field">
+              <span>{{ 'HCM.EMPLOYEES.FORM.EFFECTIVE_FROM' | translate }}</span>
+              <input type="date" [value]="payEffectiveFrom()"
+                (input)="payEffectiveFrom.set($any($event.target).value)" />
+            </label>
+            <label class="field">
+              <span>{{ 'HCM.EMPLOYEES.FORM.BASE_SALARY' | translate }}</span>
+              <input type="number" step="0.01" min="0" [value]="payAmount()"
+                (input)="payAmount.set(+$any($event.target).value)" />
+            </label>
+            <div class="action-box__actions">
+              <button type="button" class="primary-button" [disabled]="saving() || payAmount() <= 0"
+                (click)="addPay()">
+                {{ 'COMMON.SAVE' | translate }}
+              </button>
+              <button type="button" class="secondary-button" (click)="addingPay.set(false)">
+                {{ 'COMMON.CANCEL' | translate }}
+              </button>
+            </div>
+          </div>
+        } @else {
+          <button type="button" class="secondary-button" (click)="addingPay.set(true)">
+            {{ 'HCM.EMPLOYEES.FORM.ADD_PAY' | translate }}
+          </button>
+        }
+      </section>
+
+      <section class="form-section">
+        <h2 class="form-section-title">{{ 'HCM.EMPLOYEES.FORM.SEVERANCE' | translate }}</h2>
+        <p class="section-note">{{ 'HCM.EMPLOYEES.FORM.SEVERANCE_HELP' | translate }}</p>
+
+        <div class="form-grid">
+          <label class="field">
+            <span>{{ 'HCM.EMPLOYEES.FORM.LAST_DAY' | translate }}</span>
+            <input type="date" [value]="severanceDate()"
+              (input)="severanceDate.set($any($event.target).value)" />
+          </label>
+          <div class="field">
+            <span>&nbsp;</span>
+            <button type="button" class="secondary-button" (click)="previewSeverance()">
+              {{ 'HCM.EMPLOYEES.FORM.PREVIEW_SEVERANCE' | translate }}
+            </button>
+          </div>
+        </div>
+
+        @if (severanceError()) {
+          <p class="section-note error">{{ severanceError()! | translate }}</p>
+        }
+
+        @if (severance(); as result) {
+          <div class="table-wrapper">
+            <table class="lines-table">
+              <tbody>
+                <tr>
+                  <td>{{ 'HCM.EMPLOYEES.FORM.PREAVISO' | translate }} ({{ result.preavisoDays }} d)</td>
+                  <td class="numeric">{{ result.preavisoAmount | vxMoney }}</td>
+                </tr>
+                <tr>
+                  <td>{{ 'HCM.EMPLOYEES.FORM.CESANTIA' | translate }} ({{ result.cesantiaDays }} d)</td>
+                  <td class="numeric">{{ result.cesantiaAmount | vxMoney }}</td>
+                </tr>
+                <tr>
+                  <td>{{ 'HCM.EMPLOYEES.FORM.VACATIONS' | translate }} ({{ result.vacationDays }} d)</td>
+                  <td class="numeric">{{ result.vacationAmount | vxMoney }}</td>
+                </tr>
+                <tr>
+                  <td>{{ 'HCM.EMPLOYEES.FORM.REGALIA' | translate }}</td>
+                  <td class="numeric">{{ result.regaliaAmount | vxMoney }}</td>
+                </tr>
+                <tr class="grand">
+                  <td>{{ 'HCM.EMPLOYEES.FORM.SEVERANCE_TOTAL' | translate }}</td>
+                  <td class="numeric">{{ result.total | vxMoney }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        }
+      </section>
+    }
+
+  </div>
+</vx-draft-shell>

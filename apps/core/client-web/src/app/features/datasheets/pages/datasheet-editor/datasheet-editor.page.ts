@@ -10,6 +10,7 @@ import { DatasheetGridComponent } from '../../components/datasheet-grid.componen
 import { DatasheetSidebarComponent } from '../../components/datasheet-sidebar.component';
 import { DatasheetVariablesService } from '../../services/datasheet-variables.service';
 import { firstValueFrom } from 'rxjs';
+import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
 
 @Component({
   selector: 'app-datasheet-editor',
@@ -147,11 +148,17 @@ export class DatasheetEditorPage implements OnInit {
   private route = inject(ActivatedRoute);
 
   private variablesService = inject(DatasheetVariablesService);
+
+  /** Optional: also reachable through the router outlet, where there is no tab to rename. */
+  private readonly tab = inject(TAB_CONTEXT, { optional: true });
+
 async ngOnInit(): Promise<void> {
     this.bookId = this.route.snapshot.paramMap.get('id');
     if (this.bookId && this.bookId !== 'new') {
        const book = await firstValueFrom(this.variablesService.getBook(this.bookId));
        this.bookName.set(book.name);
+       //  La hoja se llama por su nombre, no por el UUID con el que se abrió la pestaña.
+       this.tab?.setTitle(book.name);
        this.isSnapshot = book.mode === 'snapshot';
     }
     this.allVariables = await firstValueFrom(this.variablesService.getVariables());

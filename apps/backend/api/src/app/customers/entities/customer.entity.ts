@@ -18,6 +18,7 @@ import { User } from '../../users/entities/user.entity/user.entity';
 import type { LanguageCode } from '@virteex/shared/types';
 import { TaxpayerType } from '../../localization/fiscal/withholding-regimes';
 import { numericTransformer, numericTransformerNotNull } from '../../common/database/numeric.transformer';
+import { blankToNullTransformer } from '../../common/database/blank-to-null.transformer';
 
 export enum CustomerStatus {
   LEAD = 'LEAD',
@@ -66,7 +67,14 @@ export class Customer {
   @Column({ nullable: true })
   phone: string;
 
-  @Column({ nullable: true })
+  /**
+   * The customer's fiscal identifier, unique among this tenant's customers when given.
+   *
+   * `blankToNullTransformer` because the unique index exempts NULL and not `''`: an untouched
+   * form field arrives as the empty string, so the second customer saved without a tax id was
+   * refused as a duplicate of the first.
+   */
+  @Column({ nullable: true, transformer: blankToNullTransformer })
   taxId?: string;
 
   /**
@@ -168,8 +176,30 @@ export class Customer {
   @Column({ name: 'customer_group_id', type: 'uuid', nullable: true })
   groupId?: string;
 
+  /**
+   * The terms as the tenant words them on the document: "Neto 30", "Contado", "2/10 neto 30".
+   *
+   * Kept alongside the number of days because the two answer different questions: this is what is
+   * printed, the number is what a date is computed from. A discount for early payment lives in
+   * this sentence and nowhere else, which is honest — the product does not model it yet, and
+   * inventing a field for something nothing computes would be worse.
+   */
   @Column({ nullable: true })
   paymentTerms?: string;
+
+  /**
+   * How many days after the issue date this customer's invoices fall due.
+   *
+   * The free-text field above has existed for as long as the customer record has, and nothing has
+   * ever read it — a string cannot be added to a date. So every invoice opened with a due date
+   * equal to its issue date, which says "due on receipt" about a customer the tenant may have
+   * given thirty days, and the ageing report then called the invoice overdue the next morning.
+   *
+   * Null means the tenant has not set terms for this customer, and the organization's own default
+   * applies. Zero is a real value and means due on receipt.
+   */
+  @Column({ name: 'payment_term_days', type: 'int', nullable: true })
+  paymentTermDays?: number | null;
 
   @Column({ type: 'decimal', precision: 12, scale: 2, nullable: true, transformer: numericTransformer })
   creditLimit?: number;

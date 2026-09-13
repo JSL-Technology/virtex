@@ -27,6 +27,19 @@ export interface TabContext {
   params: Record<string, string>;
   query: Record<string, string>;
 
+  /**
+   * Renombra ESTA pestaña con el nombre real del documento.
+   *
+   * Una pestaña se abre antes de que exista el registro que va a mostrar, así que su título sale
+   * de los parámetros de la ruta: para `/invoices/:id` eso es un UUID. Las pestañas de factura, de
+   * factura de proveedor y de asiento se titulaban con él —«Asiento 7c1f…»— y con doce abiertas el
+   * usuario tenía doce títulos truncados que no distinguían nada.
+   *
+   * La página llama a esto en cuanto conoce el número del documento. Texto ya resuelto, no una
+   * clave: quien lo llama tiene el número, y el número no se traduce.
+   */
+  setTitle(title: string): void;
+
   /** Marca (o limpia) la pestaña como «con cambios sin guardar». */
   markDirty(isDirty?: boolean): void;
   /** Equivale a `markDirty(false)`: los cambios se guardaron o se descartaron. */

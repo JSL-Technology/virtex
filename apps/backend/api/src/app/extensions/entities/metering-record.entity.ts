@@ -3,8 +3,11 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Organization } from '../../organizations/entities/organization.entity';
 
 export enum MeteringStatus {
   SUCCESS = 'success',
@@ -20,16 +23,27 @@ export enum MeteringStatus {
  * what makes a reconciliation report auditable after the fact.
  */
 @Entity({ name: 'plugin_metering_records' })
-@Index(['organizationId', 'timestamp'])
-@Index(['organizationId', 'pluginId'])
+@Index('IDX_plugin_metering_org_ts', ['organizationId', 'timestamp'])
+@Index('IDX_plugin_metering_org_plugin', ['organizationId', 'pluginId'])
 export class MeteringRecord {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ type: 'uuid' })
   organizationId: string;
 
-  @Column()
+  @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
+  @JoinColumn({
+    name: 'organizationId',
+    foreignKeyConstraintName: 'FK_plugin_metering_organization',
+  })
+  organization: Organization;
+
+  /**
+   * The plugin's NAME, not its id — a metering row outlives the catalogue entry it refers to, so
+   * it holds a value rather than a foreign key. `character varying(255)`, matching `plugins.name`.
+   */
+  @Column({ length: 255 })
   pluginId: string;
 
   @Column({ length: 50, default: '0.0.0' })
@@ -47,6 +61,6 @@ export class MeteringRecord {
   @Column({ type: 'enum', enum: MeteringStatus, default: MeteringStatus.SUCCESS })
   status: MeteringStatus;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   timestamp: Date;
 }

@@ -7,13 +7,13 @@ export class PreviewSeveranceDto {
 
   /** Override the monthly salary; defaults to the employee's compensation in force at `endDate`. */
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   @IsOptional()
   monthlySalary?: number;
 
   /** Actual ordinary salary earned in the calendar year, for an exact regalía. */
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   @IsOptional()
   ordinarySalaryEarnedThisYear?: number;
 }

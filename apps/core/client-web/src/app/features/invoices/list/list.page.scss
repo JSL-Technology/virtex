@@ -32,27 +32,39 @@
     font-variant-numeric: tabular-nums;
   }
 
+  //  Un modificador por estado, con el mismo vocabulario que el resto del producto
+  //  (`core/services/invoice-status`): el mismo estado se pinta igual en la lista y en el
+  //  documento, que es lo que permite reconocerlo sin leerlo.
   .status-badge {
-    &.status-paid {
+    &.paid {
       background-color: var(--success-surface);
       border-color: var(--success-text);
       color: var(--success-text);
     }
 
-    &.status-pending {
+    &.pending {
       background-color: var(--warning-surface);
       border-color: var(--warning-text);
       color: var(--warning-text);
     }
 
-    &.status-partial {
+    &.partially-paid {
       background-color: var(--info-surface);
       border-color: var(--info-text);
       color: var(--info-text);
     }
 
-    &.status-overdue,
-    &.status-draft {
+    //  Un borrador todavía admite trabajo; una anulada o una nota de crédito, no. Solo estas
+    //  últimas van tachadas.
+    &.draft,
+    &.unknown {
+      background-color: var(--surface-sunken);
+      border-color: var(--border-default);
+      color: var(--content-tertiary);
+    }
+
+    &.void,
+    &.credit-note {
       background-color: var(--surface-sunken);
       border-color: var(--border-default);
       color: var(--content-tertiary);

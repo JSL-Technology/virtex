@@ -366,7 +366,7 @@ function naturalise(account: Account, signedBalance: number): number {
 
 /** How deep the account sits, counting the dot-separated segments of its code. */
 function levelOf(code: string): number {
-  return code.split(/[.\-]/).filter(Boolean).length;
+  return code.split(/[.-]/).filter(Boolean).length;
 }
 
 /** The parent's own number, or null at the top level. */

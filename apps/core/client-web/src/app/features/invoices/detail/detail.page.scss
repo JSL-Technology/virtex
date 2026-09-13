@@ -35,6 +35,13 @@
         background-color: rgba(var(--accent-solid-rgb), 0.1);
         color: var(--accent-text);
     }
+
+    //  El borrador no tenía regla: su insignia salía sin color, que es exactamente el estado que
+    //  más conviene distinguir de una factura ya emitida.
+    &.draft, &.unknown {
+        background-color: var(--surface-sunken);
+        color: var(--content-tertiary);
+    }
 }
 
 .invoice-document {

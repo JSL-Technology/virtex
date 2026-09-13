@@ -80,13 +80,13 @@
   <div
     class="history-actions"
     role="group"
-    aria-label="Historial de navegación"
+    [attr.aria-label]="'NAV.HISTORY.GROUP' | translate"
   >
     <button
       class="icon-button"
       type="button"
-      aria-label="Volver"
-      title="Volver"
+      [attr.aria-label]="'NAV.HISTORY.BACK' | translate"
+      [title]="'NAV.HISTORY.BACK' | translate"
       (click)="goBack()"
     >
       <lucide-icon [img]="ArrowLeftIcon" size="18"></lucide-icon>
@@ -94,8 +94,8 @@
     <button
       class="icon-button"
       type="button"
-      aria-label="Avanzar"
-      title="Avanzar"
+      [attr.aria-label]="'NAV.HISTORY.FORWARD' | translate"
+      [title]="'NAV.HISTORY.FORWARD' | translate"
       (click)="goForward()"
     >
       <lucide-icon [img]="ArrowRightIcon" size="18"></lucide-icon>

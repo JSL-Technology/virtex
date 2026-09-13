@@ -9,6 +9,7 @@ import { VendorPayment } from './entities/vendor-payment.entity';
 import { VendorDebitNote } from './entities/vendor-debit-note.entity';
 import { PaymentBatch } from './entities/payment-batch.entity';
 import { OrganizationSettings } from '../organizations/entities/organization-settings.entity';
+import { Supplier } from '../suppliers/entities/supplier.entity';
 import { JournalEntriesModule } from '../journal-entries/journal-entries.module';
 import { InventoryModule } from '../inventory/inventory.module';
 import { WorkflowsModule } from '../workflows/workflows.module';
@@ -23,6 +24,9 @@ import { PeriodLockGuard } from '../accounting/guards/period-lock.guard';
 import { VendorBillApprovalHandler } from './vendor-bill-approval.handler';
 // The ageing report ties itself to the payables control account in the general ledger.
 import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.module';
+// What is withheld from a supplier follows from who they are, resolved by the same service the
+// sales side uses.
+import { WithholdingModule } from '../localization/fiscal/withholding.module';
 
 @Module({
   imports: [
@@ -36,6 +40,7 @@ import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.mo
       ExchangeRate,
       AccountingPeriod,
       AccountPeriodLock,
+      Supplier,
     ]),
     JournalEntriesModule,
     InventoryModule,
@@ -43,6 +48,7 @@ import { ChartOfAccountsModule } from '../chart-of-accounts/chart-of-accounts.mo
     CurrenciesModule,
     BudgetsModule,
     ChartOfAccountsModule,
+    WithholdingModule,
   ],
   controllers: [AccountsPayableController, VendorDebitNotesController],
   providers: [

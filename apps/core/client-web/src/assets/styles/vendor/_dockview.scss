@@ -79,6 +79,32 @@
     height: 100%;
     gap: 2px;
     padding: var(--space-1) var(--space-1) 0;
+
+    //  Las pestañas se estrechan hasta 120 px y a partir de ahí la tira se desborda. `overflow-x`
+    //  valía `hidden`: con trece pestañas abiertas —medido— las últimas quedaban fuera de la
+    //  pantalla y no había forma de llegar a ellas con el ratón. Ahora la tira se desplaza.
+    //
+    //  `overscroll-behavior-x: contain` evita que el gesto de desplazamiento lateral se propague
+    //  al historial del navegador, que en un trackpad significa abandonar la aplicación.
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+
+    //  Una barra fina y solo cuando hace falta: la tira mide 40 px de alto y una barra de sistema
+    //  se come un tercio.
+    &::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--border-default);
+      border-radius: var(--radius-full);
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
   }
 
   //  `flex: 0 1 …` con mínimo y máximo: las pestañas se reparten el ancho pero

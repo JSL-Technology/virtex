@@ -45,10 +45,21 @@ export enum PayrollRunType {
  */
 @Entity('payroll_runs')
 @Index('IDX_payroll_run_org_period', ['organizationId', 'periodYear', 'periodMonth', 'runType'])
+/*
+ * At most one live REGULAR or CHRISTMAS_BONUS run per period.
+ *
+ * A partial unique index, and the guarantee that stops a second payroll being calculated for a
+ * month that already has one — a cancelled run is excluded so the period can be re-run after a
+ * mistake. It was created by `1789003200000-PayrollModuleHardening.ts` and never declared here, so
+ * `check:schema-drift` proposed dropping it on every run; a build that "fixed" that drift would
+ * have removed the constraint.
+ */
+@Index(
+  'UQ_payroll_run_period_type_active',
+  ['organizationId', 'periodYear', 'periodMonth', 'runType'],
+  { unique: true, where: `"status" <> 'CANCELLED' AND "run_type" IN ('REGULAR', 'CHRISTMAS_BONUS')` },
+)
 export class PayrollRun extends BaseEntity {
-  @Column({ name: 'organization_id', type: 'uuid' })
-  override organizationId: string = undefined!; // NOT NULL override; hydrated by TypeORM
-
   @Column({ name: 'name' })
   name: string;
 
@@ -105,7 +116,7 @@ export class PayrollRun extends BaseEntity {
   correctsRunId: string | null;
 
   @ManyToOne(() => PayrollRun, { nullable: true, onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'corrects_run_id' })
+  @JoinColumn({ name: 'corrects_run_id', foreignKeyConstraintName: 'FK_payroll_run_corrects' })
   correctsRun: PayrollRun | null;
 
   @Column({ name: 'journal_entry_id', type: 'uuid', nullable: true })

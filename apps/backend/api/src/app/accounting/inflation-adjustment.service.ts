@@ -12,6 +12,8 @@ import { Ledger } from './entities/ledger.entity';
 import { BadRequestError, InternalServerError, NotFoundError } from '../i18n/localized.exception';
 import { AccountBalancesService } from '../chart-of-accounts/account-balances.service';
 import { roundAmount, toCents } from '../common/money';
+import { LedgerNarrativeService } from '../journal-entries/ledger-narrative.service';
+import { I18nService } from '../i18n/i18n.service';
 
 @Injectable()
 export class InflationAdjustmentService {
@@ -27,6 +29,10 @@ export class InflationAdjustmentService {
     private readonly journalEntriesService: JournalEntriesService,
     private readonly accountBalances: AccountBalancesService,
     private readonly dataSource: DataSource,
+    /** Narratives in the tenant's books language; see `LedgerNarrativeService`. */
+    private readonly narrative: LedgerNarrativeService = new LedgerNarrativeService(
+      new I18nService(),
+    ),
   ) {}
 
   async runAdjustment(
@@ -82,6 +88,15 @@ export class InflationAdjustmentService {
             manager,
         );
 
+        // `2026-03`, not `2026-3`: the month is padded so the narrative reads and sorts the way
+        // every other period label in the product does.
+        const period = `${year}-${String(month).padStart(2, '0')}`;
+        const words = await this.narrative.describeAll(manager, organizationId, {
+            line: { key: 'LEDGER.INFLATION.LINE', params: { period } },
+            counterpart: { key: 'LEDGER.INFLATION.COUNTERPART', params: { period } },
+            header: { key: 'LEDGER.INFLATION.ENTRY', params: { period } },
+        });
+
         let totalAdjustmentCents = 0;
         const lines: CreateJournalEntryLineDto[] = [];
 
@@ -100,7 +115,7 @@ export class InflationAdjustmentService {
                 accountId: account.id,
                 debit: debit,
                 credit: credit,
-                description: `Ajuste por inflación ${year}-${month}`,
+                description: words.line,
                 valuations: [{
                     ledgerId: defaultLedger.id,
                     debit: debit,
@@ -123,7 +138,7 @@ export class InflationAdjustmentService {
               accountId: settings.defaultInflationAdjustmentAccountId,
               debit: contraDebit,
               credit: contraCredit,
-              description: `Contrapartida ajuste por inflación ${year}-${month}`,
+              description: words.counterpart,
               valuations: [{
                   ledgerId: defaultLedger.id,
                   debit: contraDebit,
@@ -136,7 +151,7 @@ export class InflationAdjustmentService {
 
         const entryDto: CreateJournalEntryDto = {
             date: periodEnd,
-            description: `Asiento de ajuste por inflación ${year}-${month}`,
+            description: words.header,
             lines,
             journalId: adjustmentJournal.id,
         };

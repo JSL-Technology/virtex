@@ -330,17 +330,26 @@ export class MailService {
     });
   }
 
+  /**
+   * The code and magic link that confirm a new registrant's email address.
+   *
+   * `name` is nullable and the template greets without one when it is absent — the caller used to
+   * pass the literal `'Usuario'`, so every registration email opened "Hola Usuario" regardless of
+   * who was reading it or in what language. A placeholder that looks like a name is worse than no
+   * name: it reads as a mail-merge that failed.
+   */
   async sendRegistrationEmailVerification(
     email: string,
     code: string,
-    name: string,
+    name: string | null,
     magicLinkUrl: string,
     expiresMinutes: number,
+    language?: string | null,
   ) {
     await this.enqueue({
       to: email,
       subjectKey: 'MAIL.REGISTRATION_VERIFY.SUBJECT',
-      language: this.languageFor(null),
+      language: this.languageFor({ preferredLanguage: language ?? null }),
       template: 'registration-email-verify',
       context: { ...this.baseContext(), name, code, magicLinkUrl, expiresMinutes },
     });

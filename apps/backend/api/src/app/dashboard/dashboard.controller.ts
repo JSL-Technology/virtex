@@ -1,9 +1,11 @@
 
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
 import { DashboardService } from './dashboard.service';
+import { DashboardChartsService } from './dashboard-charts.service';
+import { ChartWindowDto } from './dto/chart-window.dto';
 import { QuickRatioDto } from './dto/quick-ratio.dto';
 import { WorkingCapitalDto } from './dto/working-capital.dto';
 import { CurrentRatioDto } from './dto/current-ratio.dto';
@@ -22,7 +24,62 @@ import { PERMISSIONS } from '../shared/permissions';
 @Controller('dashboard')
 @UseGuards(JwtAuthGuard)
 export class DashboardController {
-  constructor(private readonly dashboardService: DashboardService) {}
+  constructor(
+    private readonly dashboardService: DashboardService,
+    /**
+     * The series behind the charts. Every one of them used to be a literal in the browser bundle —
+     * the same seven months of sales for every customer of the product.
+     */
+    private readonly charts: DashboardChartsService,
+  ) {}
+
+  @Get('summary')
+  @HasPermission(PERMISSIONS.DASHBOARD_VIEW)
+  summary(@CurrentUser() user: AuthenticatedUser) {
+    return this.charts.summary(user.organizationId);
+  }
+
+  @Get('sales-trend')
+  @HasPermission(PERMISSIONS.DASHBOARD_VIEW)
+  salesTrend(@CurrentUser() user: AuthenticatedUser, @Query() query: ChartWindowDto) {
+    return this.charts.salesTrend(user.organizationId, query.months ?? 12);
+  }
+
+  @Get('expense-breakdown')
+  @HasPermission(PERMISSIONS.DASHBOARD_VIEW)
+  expenseBreakdown(@CurrentUser() user: AuthenticatedUser, @Query() query: ChartWindowDto) {
+    return this.charts.expenseBreakdown(user.organizationId, query.months ?? 12, query.limit ?? 8);
+  }
+
+  @Get('budget-vs-actual')
+  @HasPermission(PERMISSIONS.DASHBOARD_VIEW)
+  budgetVsActual(@CurrentUser() user: AuthenticatedUser, @Query() query: ChartWindowDto) {
+    return this.charts.budgetVsActual(user.organizationId, query.months ?? 12);
+  }
+
+  @Get('invoice-status')
+  @HasPermission(PERMISSIONS.DASHBOARD_VIEW)
+  invoiceStatus(@CurrentUser() user: AuthenticatedUser) {
+    return this.charts.invoiceStatusMix(user.organizationId);
+  }
+
+  @Get('top-products')
+  @HasPermission(PERMISSIONS.DASHBOARD_VIEW)
+  topProducts(@CurrentUser() user: AuthenticatedUser, @Query() query: ChartWindowDto) {
+    return this.charts.topProducts(user.organizationId, query.months ?? 12, query.limit ?? 5);
+  }
+
+  @Get('low-stock')
+  @HasPermission(PERMISSIONS.DASHBOARD_VIEW)
+  lowStock(@CurrentUser() user: AuthenticatedUser, @Query() query: ChartWindowDto) {
+    return this.charts.lowStock(user.organizationId, query.limit ?? 10);
+  }
+
+  @Get('alerts')
+  @HasPermission(PERMISSIONS.DASHBOARD_VIEW)
+  alerts(@CurrentUser() user: AuthenticatedUser) {
+    return this.charts.alerts(user.organizationId);
+  }
 
   @Get('kpi/quick-ratio')
   @HasPermission(PERMISSIONS.DASHBOARD_VIEW)

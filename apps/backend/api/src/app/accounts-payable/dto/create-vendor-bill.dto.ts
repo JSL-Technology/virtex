@@ -9,6 +9,7 @@ import {
   IsString,
   IsUUID,
   Length,
+  MaxLength,
   Min,
   ValidateNested,
 } from 'class-validator';
@@ -44,11 +45,21 @@ export class CreateVendorBillDto {
   @IsNotEmpty()
   vendorId: string;
 
+  /**
+   * Declared as the string it actually is.
+   *
+   * The global pipe runs with `enableImplicitConversion`, so a property TYPED `Date` is converted
+   * from the wire string into a `Date` instance BEFORE the validators run — and `@IsDateString()`
+   * then rejects it for not being a string. Every vendor bill the UI sent came back
+   * `400 date is not a valid date` with a perfectly valid `2026-09-13` in the body: the module
+   * could not record a single purchase. `CreateInvoiceDto` already declares its dates as strings,
+   * which is why sales never hit this.
+   */
   @IsDateString()
-  date: Date;
+  date: string;
 
   @IsDateString()
-  dueDate: Date;
+  dueDate: string;
 
   @IsArray()
   @ValidateNested({ each: true })
@@ -86,75 +97,88 @@ export class CreateVendorBillDto {
 
   /** Consumption tax borne on the purchase (ITBIS/IVA facturado). */
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   @IsOptional()
   taxAmount?: number;
 
   /** Consumption tax withheld from the supplier and owed to the authority. */
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   @IsOptional()
   taxWithheld?: number;
 
   /** Income tax withheld from the supplier. */
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   @IsOptional()
   incomeTaxWithheld?: number;
 
+  /**
+   * Why this bill withholds something other than what the supplier's regime produces.
+   *
+   * Both withholdings above are now resolved on the server from the supplier's fiscal
+   * classification. Stating different figures is allowed — a market this product does not model, a
+   * designation that changed this morning — but not silently: without a reason the bill is
+   * refused, and with one the reason is recorded on the document.
+   */
+  @IsString()
+  @IsOptional()
+  @MaxLength(500, { message: 'VALIDATION.CONSTRAINTS.MAX_LENGTH|{"max":500}' })
+  withholdingOverrideReason?: string;
+
   /** Consumption tax that cannot be deducted and is carried to cost. */
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   @IsOptional()
   taxToCost?: number;
 
   /** Consumption tax subject to the proportionality rule. */
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   @IsOptional()
   taxProportional?: number;
 
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   @IsOptional()
   exciseAmount?: number;
 
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   @IsOptional()
   otherTaxes?: number;
 
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   @IsOptional()
   serviceCharge?: number;
 
   /** Split of the taxable base, which the 606 reports separately. */
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   @IsOptional()
   goodsAmount?: number;
 
   @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0)
+  @Min(0, { message: 'VALIDATION.CONSTRAINTS.MIN|{"min":0}' })
   @IsOptional()
   servicesAmount?: number;
 
   /** DGII 606 "Tipo de Bienes y Servicios Comprados". */
   @IsString()
   @IsOptional()
-  @Length(2, 2)
+  @Length(2, 2, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":2,"max":2}' })
   purchaseCategory?: string;
 
   /** DGII 606 "Tipo de Retención en ISR". */
   @IsString()
   @IsOptional()
-  @Length(2, 2)
+  @Length(2, 2, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":2,"max":2}' })
   isrRetentionType?: string;
 
   /** DGII "Forma de Pago". */
   @IsString()
   @IsOptional()
-  @Length(2, 2)
+  @Length(2, 2, { message: 'VALIDATION.CONSTRAINTS.LENGTH|{"min":2,"max":2}' })
   paymentForm?: string;
 }

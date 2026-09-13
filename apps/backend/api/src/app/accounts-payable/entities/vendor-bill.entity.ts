@@ -155,6 +155,29 @@ export class VendorBill {
   })
   incomeTaxWithheld: number;
 
+  /**
+   * Which withholding regimes produced the two figures above.
+   *
+   * Recorded so a filing can be traced back to the rule that generated it — the same audit trail
+   * the sales side already kept, and which the purchase side did not, because the purchase side
+   * did not resolve anything: both amounts came off the request verbatim.
+   *
+   * Empty when nothing was withheld, and also when the tenant overrode the regime, in which case
+   * `withholdingOverrideReason` carries the justification instead.
+   */
+  @Column({ name: 'withholding_regime_codes', type: 'text', array: true, default: '{}' })
+  withholdingRegimeCodes: string[];
+
+  /**
+   * Why this bill withheld something other than what its regime produces.
+   *
+   * Null on an ordinary bill. Non-null is not an error — a market this product does not model, a
+   * designation that changed this week — but it is a decision somebody made, and it belongs on
+   * the document.
+   */
+  @Column({ name: 'withholding_override_reason', type: 'text', nullable: true })
+  withholdingOverrideReason: string | null;
+
   /** Consumption tax that cannot be deducted and is carried to cost. */
   @Column('decimal', {
     name: 'tax_to_cost',

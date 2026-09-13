@@ -28,7 +28,7 @@ describe('Vista previa — rutas reales por módulo', () => {
         { provide: AuthService, useValue: { hasPermissions: () => true } },
         { provide: DialogService, useValue: { confirmClose: () => Promise.resolve('discard') } },
         { provide: NotificationService, useValue: { showWarning: jest.fn(), showInfo: jest.fn() } },
-        { provide: TabEventBusService, useValue: { on: () => ({ subscribe: () => ({ unsubscribe() {} }) }), emit: jest.fn() } },
+        { provide: TabEventBusService, useValue: { on: () => ({ subscribe: () => ({ unsubscribe: jest.fn() }) }), emit: jest.fn() } },
         { provide: TranslateService, useValue: { instant: (k: string) => k } },
       ],
     });
@@ -60,8 +60,7 @@ describe('Vista previa — rutas reales por módulo', () => {
     it(`${c.module}: ${c.shouldPreview ? 'reutiliza UNA preview' : 'no previsualiza'}`, () => {
       const { count, isPreview } = browseTwo(c.a, c.b);
       // Documenta el comportamiento REAL en el nombre; la aserción exige que la vista previa funcione.
-      // eslint-disable-next-line no-console
-      console.log(`[preview] ${c.module} -> tabs=${count} isPreview=${isPreview}`);
+        console.log(`[preview] ${c.module} -> tabs=${count} isPreview=${isPreview}`);
       expect({ count, isPreview }).toEqual({ count: 1, isPreview: true });
     });
   }

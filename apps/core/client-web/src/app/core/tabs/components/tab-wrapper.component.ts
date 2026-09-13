@@ -3,6 +3,8 @@ import {
   AfterViewInit, OnDestroy, ComponentRef, Injector, Type, EffectRef, inject, effect, signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute, convertToParamMap, Params } from '@angular/router';
+import { of } from 'rxjs';
 import { TabStateService } from '../tab-state.service';
 import { TabRegistryService } from '../tab-registry.service';
 import { TabEventBusService } from '../tab-event-bus.service';
@@ -226,13 +228,31 @@ export class TabWrapperComponent implements AfterViewInit, OnDestroy {
         params: tab.routeParams ?? {},
         query: tab.queryParams ?? {},
         // Acciones ligadas a ESTA pestaña: la página no necesita el `tabId` ni el store.
+        setTitle: (title: string) => this.tabState.updateTitle(tabId, title),
         markDirty: (isDirty = true) => this.tabState.markDirty(tabId, isDirty),
         markClean: () => this.tabState.markClean(tabId),
         registerSaveHandler: (handler) => this.tabState.registerSaveHandler(tabId, handler),
         emit: (event) => this.bus.emit(event),
       };
       const injector = Injector.create({
-        providers: [{ provide: TAB_CONTEXT, useValue: context }],
+        providers: [
+          { provide: TAB_CONTEXT, useValue: context },
+          // An `ActivatedRoute` that describes THIS TAB.
+          //
+          // Windows are mounted here, not by the router outlet, so a page that reads its record id
+          // from `ActivatedRoute` — which is how nine of them read it — was injected the SHELL's
+          // route, whose `paramMap` has no `:id`. The symptom was not an error but a screen that
+          // never asked for anything: the invoice detail sat on "Loading" forever and the vendor
+          // bill answered "The bill was not found", both without a single request leaving the
+          // browser. Every document in the product could be created and none could be reopened.
+          //
+          // Params already travel to these components as inputs; this adds the other half of the
+          // contract so a page written against the router works unchanged inside a tab. Only the
+          // members those pages use are populated (`params`, `paramMap`, their query counterparts
+          // and `snapshot`) — `relativeTo` navigation is not among them, and the one page that
+          // uses it is mounted by the router, where it still gets the real thing.
+          { provide: ActivatedRoute, useValue: tabActivatedRoute(context.params, context.query) },
+        ],
         parent: this.parentInjector,
       });
 
@@ -290,4 +310,31 @@ export class TabWrapperComponent implements AfterViewInit, OnDestroy {
       this.tabState.setScroll(this.tabId, el.scrollTop);
     }
   }
+}
+
+/** An `ActivatedRoute`-shaped view of a tab's own parameters. See the provider above. */
+function tabActivatedRoute(params: Params, query: Params): ActivatedRoute {
+  const paramMap = convertToParamMap(params);
+  const queryParamMap = convertToParamMap(query);
+
+  return {
+    params: of(params),
+    queryParams: of(query),
+    paramMap: of(paramMap),
+    queryParamMap: of(queryParamMap),
+    data: of({}),
+    fragment: of(null),
+    url: of([]),
+    outlet: 'primary',
+    snapshot: {
+      params,
+      queryParams: query,
+      paramMap,
+      queryParamMap,
+      data: {},
+      fragment: null,
+      url: [],
+      outlet: 'primary',
+    },
+  } as unknown as ActivatedRoute;
 }

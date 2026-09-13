@@ -5,10 +5,11 @@
   [saving]="isLoading()"
   [invalid]="taxForm.invalid"
   [problems]="problems()"
+  [form]="taxForm"
   saveLabelKey="MASTERS.TAX_FORM.GUARDAR_IMPUESTO"
   cancelLabelKey="MASTERS.TAX_FORM.CANCELAR"
   (save)="saveTax()"
-  (cancel)="cancel()"
+  (cancelled)="cancel()"
 >
   <div class="form-body" [formGroup]="taxForm">
     <div class="form-section">

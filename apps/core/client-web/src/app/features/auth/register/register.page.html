@@ -66,12 +66,17 @@
           }
           @case (2) {
             <div class="step-content">
-              <app-step-email-verify [email]="currentEmail" (verified)="onEmailVerified($event)"></app-step-email-verify>
+              <app-step-email-verify
+                [email]="currentEmail"
+                [firstName]="currentFirstName"
+                [country]="currentCountry"
+                (verified)="onEmailVerified($event)"
+              ></app-step-email-verify>
             </div>
           }
           @case (3) {
             <div class="step-content">
-              <app-step-phone-verify [phone]="currentPhone" (verified)="onPhoneVerified($event)"></app-step-phone-verify>
+              <app-step-phone-verify [phone]="currentPhone" (verified)="onPhoneVerified($event)" (unavailable)="phoneChannelDown.set(true)"></app-step-phone-verify>
             </div>
           }
           @case (4) {

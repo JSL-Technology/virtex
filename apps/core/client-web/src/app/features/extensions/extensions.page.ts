@@ -12,6 +12,7 @@ import {
   RefreshCw,
   Loader,
 } from 'lucide-angular';
+import { ListShellComponent } from '../../shared/components/gestures';
 import {
   ExecuteExtensionResult,
   ExtensionConsent,
@@ -30,7 +31,14 @@ import {
 @Component({
   selector: 'app-extensions-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, TranslateModule, LucideAngularModule],
+  imports: [
+    CommonModule,
+    RouterLink,
+    ReactiveFormsModule,
+    TranslateModule,
+    LucideAngularModule,
+    ListShellComponent,
+  ],
   templateUrl: './extensions.page.html',
   styleUrls: ['./extensions.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

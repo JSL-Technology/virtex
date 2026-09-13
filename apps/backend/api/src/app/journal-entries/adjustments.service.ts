@@ -17,6 +17,8 @@ import { Ledger } from '../accounting/entities/ledger.entity';
 import { closingSideFor } from '../chart-of-accounts/account-balances.service';
 import { roundAmount, toCents } from '../common/money';
 import { toIsoDate } from '../common/dates';
+import { LedgerNarrativeService } from './ledger-narrative.service';
+import { I18nService } from '../i18n/i18n.service';
 
 @Injectable()
 export class AdjustmentsService {
@@ -25,7 +27,37 @@ export class AdjustmentsService {
   constructor(
     private readonly journalEntriesService: JournalEntriesService,
     private readonly dataSource: DataSource,
+    /**
+     * The narrative on every entry this service posts, in the tenant's books language.
+     *
+     * Defaulted so a spec that constructs the service directly keeps working; the module provides
+     * the real instance. See `LedgerNarrativeService` for why the books language and not the
+     * reader's.
+     */
+    private readonly narrative: LedgerNarrativeService = new LedgerNarrativeService(
+      new I18nService(),
+    ),
   ) {}
+
+  /**
+   * How an account reads inside a narrative: `1105 — Banco Popular`.
+   *
+   * The reclassification lines used to name the counter-account by the first eight characters of
+   * its UUID — `Transferencia a cta. relacionada con 3f8b21a0` — which identifies nothing to the
+   * accountant reading the ledger and nothing to the auditor reading it later.
+   */
+  private async accountLabel(
+    manager: EntityManager,
+    organizationId: string,
+    accountId: string,
+  ): Promise<string> {
+    const account = await manager.findOne(Account, {
+      where: { id: accountId, organizationId },
+      select: { id: true, code: true, name: true },
+    });
+    if (!account) return accountId;
+    return `${account.code} — ${account.name}`;
+  }
 
   async createReclassification(
     dto: CreateReclassificationEntryDto,
@@ -39,22 +71,33 @@ export class AdjustmentsService {
 
 
 
+    const manager = this.dataSource.manager;
+    const [fromLabel, toLabel] = await Promise.all([
+      this.accountLabel(manager, organizationId, dto.fromAccountId),
+      this.accountLabel(manager, organizationId, dto.toAccountId),
+    ]);
+    const words = await this.narrative.describeAll(manager, organizationId, {
+      header: { key: 'LEDGER.ADJUSTMENT.RECLASSIFICATION', params: { description: dto.description } },
+      out: { key: 'LEDGER.ADJUSTMENT.TRANSFER_OUT', params: { account: toLabel } },
+      in: { key: 'LEDGER.ADJUSTMENT.TRANSFER_IN', params: { account: fromLabel } },
+    });
+
     const entryDto = {
       date: dto.date,
-      description: `Reclasificación: ${dto.description}`,
+      description: words.header,
       journalId: dto.journalId,
       lines: [
         {
           accountId: dto.fromAccountId,
           credit: dto.amount,
           debit: 0,
-          description: `Transferencia a cta. relacionada con ${dto.toAccountId.substring(0,8)}`,
+          description: words.out,
         },
         {
           accountId: dto.toAccountId,
           debit: dto.amount,
           credit: 0,
-          description: `Transferencia desde cta. relacionada con ${dto.fromAccountId.substring(0,8)}`,
+          description: words.in,
         },
       ],
     };
@@ -79,7 +122,12 @@ export class AdjustmentsService {
 
         const adjustment = await createWithManager({
             date: dto.date,
-            description: `Ajuste de fin de período (${dto.adjustmentType}): ${dto.description}`,
+            description: await this.narrative.describe(
+              manager,
+              organizationId,
+              'LEDGER.ADJUSTMENT.PERIOD_END',
+              { type: dto.adjustmentType, description: dto.description },
+            ),
             journalId: dto.journalId,
             lines: dto.lines,
         });
@@ -128,10 +176,20 @@ export class AdjustmentsService {
     organizationId: string,
     /** Null when the proposer's account has since been deleted; the entry is then unattributed. */
     actorUserId: string | null,
+    /**
+     * Run on the caller's transaction instead of opening one.
+     *
+     * The approval that admits an adjustment and the posting that results from it belong to the
+     * same transaction: if the posting fails, the approval must fail with it. Without this
+     * parameter the caller had to open a second transaction from inside its own, which TypeORM
+     * turns into a `SAVEPOINT` on a connection that is not in a transaction block — the exact
+     * error the auto-approve path produced the first time anybody ran it.
+     */
+    outerManager?: EntityManager,
   ): Promise<JournalEntry> {
     const { fiscalYearId, ...entryData } = dto;
 
-    return this.dataSource.transaction(async (manager) => {
+    const run = async (manager: EntityManager): Promise<JournalEntry> => {
       const fiscalYear = await manager.findOneBy(FiscalYear, {
         id: fiscalYearId,
         organizationId,
@@ -172,7 +230,9 @@ export class AdjustmentsService {
           `${fiscalYearId} (cierre ${toIsoDate(fiscalYear.endDate)}) con fecha ${adjustmentDate}.`,
       );
       return entry;
-    });
+    };
+
+    return outerManager ? run(outerManager) : this.dataSource.transaction(run);
   }
 
   /**
@@ -232,6 +292,16 @@ export class AdjustmentsService {
       );
     }
 
+    const reference = entry.entryNumber ?? entry.id;
+    const words = await this.narrative.describeAll(manager, organizationId, {
+      closeLine: { key: 'LEDGER.ADJUSTMENT.AUDIT_CLOSE_LINE' },
+      resultTransfer: {
+        key: 'LEDGER.ADJUSTMENT.AUDIT_RESULT_TRANSFER',
+        params: { entry: reference },
+      },
+      closeEntry: { key: 'LEDGER.ADJUSTMENT.AUDIT_CLOSE_ENTRY', params: { entry: reference } },
+    });
+
     // Each result line is closed by its opposite side, and retained earnings takes the net. In
     // cents, so the entry balances by construction rather than by two formulas agreeing.
     const lines: CreateJournalEntryLineDto[] = [];
@@ -244,7 +314,7 @@ export class AdjustmentsService {
         accountId: line.accountId,
         debit: side.debit,
         credit: side.credit,
-        description: 'Cierre del ajuste de auditoría',
+        description: words.closeLine,
         valuations: [{ ledgerId: defaultLedger.id, debit: side.debit, credit: side.credit }],
       });
     }
@@ -254,7 +324,7 @@ export class AdjustmentsService {
       accountId: settings.defaultRetainedEarningsAccountId,
       debit: retained.debit,
       credit: retained.credit,
-      description: `Traspaso del ajuste de auditoría ${entry.entryNumber ?? entry.id}`,
+      description: words.resultTransfer,
       valuations: [{ ledgerId: defaultLedger.id, debit: retained.debit, credit: retained.credit }],
     });
 
@@ -262,7 +332,7 @@ export class AdjustmentsService {
       manager,
       {
         date,
-        description: `Cierre del ajuste de auditoría ${entry.entryNumber ?? entry.id}`,
+        description: words.closeEntry,
         journalId: closingJournal.id,
         lines,
         entryType: JournalEntryType.CLOSING_ENTRY,

@@ -125,7 +125,13 @@ export class YearEndCloseService {
           {
             from: fiscalYear.startDate,
             to: fiscalYear.endDate,
-            label: `año fiscal ${toIsoDate(fiscalYear.startDate)} – ${toIsoDate(fiscalYear.endDate)}`,
+            label: {
+              key: 'LEDGER.RESULT_TRANSFER.FISCAL_YEAR',
+              params: {
+                from: toIsoDate(fiscalYear.startDate),
+                to: toIsoDate(fiscalYear.endDate),
+              },
+            },
           },
           actorUserId,
         );

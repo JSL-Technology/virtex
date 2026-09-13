@@ -1,21 +1,29 @@
 <vx-list-shell
   titleKey="PURCHASING.REQUISITIONS.TITLE"
   [count]="requisitions().length"
-  [empty]="requisitions().length === 0"
+  [empty]="!loading() && requisitions().length === 0"
 >
   <a listActions routerLink="/purchasing/requisitions/new" class="primary-button">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'PURCHASING.REQUISITIONS.NEW_REQUISITION' | translate }}</span>
   </a>
 
+  @if (failed()) {
+    <p class="section-note">{{ 'COMMON.LOAD_FAILED' | translate }}</p>
+  } @else {
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
           <th>{{ 'PURCHASING.REQUISITIONS.REQUISITION' | translate }}</th>
-          <th>{{ 'PURCHASING.REQUISITIONS.REQUESTER' | translate }}</th>
-          <th>{{ 'PURCHASING.REQUISITIONS.DEPARTMENT' | translate }}</th>
+          <!--
+            The "department" column is gone: the data model never had one, so it showed a value
+            invented in the browser. What it shows instead is how many things were asked for, which
+            is the figure an approver actually scans the list for.
+          -->
+          <th class="text-center">{{ 'PURCHASING.REQUISITIONS.ITEMS' | translate }}</th>
           <th>{{ 'PURCHASING.REQUISITIONS.DATE' | translate }}</th>
+          <th>{{ 'PURCHASING.REQUISITIONS.REQUIRED_DATE' | translate }}</th>
           <th class="text-right">{{ 'PURCHASING.REQUISITIONS.TOTAL' | translate }}</th>
           <th class="text-center">{{ 'PURCHASING.REQUISITIONS.STATUS' | translate }}</th>
         </tr>
@@ -23,17 +31,24 @@
       <tbody>
         @for (req of requisitions(); track req.id) {
           <tr>
-            <td>{{ req.reqNumber }}</td>
-            <td>{{ req.requester }}</td>
-            <td>{{ req.department }}</td>
-            <td>{{ req.date }}</td>
-            <td class="text-right">{{ req.total | vxNumber: '1.2-2' }}</td>
+            <td>
+              <a [routerLink]="['/purchasing/requisitions', req.id, 'edit']" class="table-link">
+                {{ req.number }}
+              </a>
+            </td>
+            <td class="text-center">{{ itemCount(req) }}</td>
+            <td>{{ req.createdAt | vxDate }}</td>
+            <td>{{ req.requiredDate ? (req.requiredDate | vxDate) : '—' }}</td>
+            <td class="text-right">{{ req.totalAmount | vxMoney }}</td>
             <td class="text-center">
-              <span class="status-badge" [class]="getStatusClass(req.status)">{{ req.status }}</span>
+              <span class="status-badge" [class]="getStatusClass(req.status)">
+                {{ 'PURCHASING.REQUISITIONS.STATUS_LABEL.' + req.status | translate }}
+              </span>
             </td>
           </tr>
         }
       </tbody>
     </table>
   </div>
+  }
 </vx-list-shell>

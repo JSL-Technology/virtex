@@ -21,6 +21,13 @@
     }
 </div>
 <div class="widget-content">
+    @if (hasBudget()) {
     <highcharts-chart [options]="chartOptions()" class="chart-instance">
     </highcharts-chart>
+    } @else {
+    <!-- A tenant with no budget gets told so, rather than shown somebody else's plan. -->
+    <div class="empty-state">
+        <p>{{ 'DASHBOARD.COMPARISON_CHART.SIN_PRESUPUESTO' | translate }}</p>
+    </div>
+    }
 </div>

@@ -3,9 +3,12 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { numericTransformer } from '../../common/database/numeric.transformer';
+import { Organization } from '../../organizations/entities/organization.entity';
 
 export enum PosSaleStatus {
   PAID = 'PAID',
@@ -28,15 +31,23 @@ export interface PosSaleItem {
  * invoice when one is issued for the sale, and is null for a plain till receipt.
  */
 @Entity({ name: 'pos_sales' })
-@Index(['organizationId', 'createdAt'])
-@Index(['organizationId', 'shiftId'])
+@Index('IDX_pos_sales_org_created', ['organizationId', 'createdAt'])
+@Index('IDX_pos_sales_org_shift', ['organizationId', 'shiftId'])
 export class PosSale {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Index()
-  @Column()
+  /** `uuid` with the migration's own index and foreign-key names. See `PosShift`. */
+  @Index('IDX_pos_sales_org')
+  @Column({ type: 'uuid' })
   organizationId: string;
+
+  @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
+  @JoinColumn({
+    name: 'organizationId',
+    foreignKeyConstraintName: 'FK_pos_sales_organization',
+  })
+  organization: Organization;
 
   @Column({ length: 120 })
   terminalId: string;
@@ -68,6 +79,6 @@ export class PosSale {
   @Column({ type: 'enum', enum: PosSaleStatus, default: PosSaleStatus.PAID })
   status: PosSaleStatus;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 }

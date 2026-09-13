@@ -79,6 +79,15 @@ export class EinvoicingController {
     return { success: true };
   }
 
+  /**
+   * What the DGII knows about this invoice, or `null`.
+   *
+   * `null`, not `404`. "Has this document been transmitted yet?" is a legitimate question whose
+   * answer is often "no": a tenant without a certificate has no submission for any of its
+   * invoices, and the invoice screen asks on every open. Answering `404` made a normal state an
+   * error — one console line per document opened, and a client that has to catch a failure to
+   * learn something ordinary. A `404` here would mean the INVOICE does not exist, and it does.
+   */
   @Get('invoices/:invoiceId/status')
   @HasPermission(PERMISSIONS.INVOICES_VIEW)
   async status(
@@ -86,8 +95,7 @@ export class EinvoicingController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     const submission = await this.submissions.findByInvoice(invoiceId, user.organizationId);
-    if (!submission) throw new NotFoundError('EINVOICING.ESTA_FACTURA_NO_TIENE_CF_ASOCIADO');
-    return this.toStatusView(submission);
+    return submission ? this.toStatusView(submission) : null;
   }
 
   @Post('invoices/:invoiceId/submit')

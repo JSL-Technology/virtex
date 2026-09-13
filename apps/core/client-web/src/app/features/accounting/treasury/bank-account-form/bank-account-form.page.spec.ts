@@ -19,8 +19,44 @@ describe('BankAccountFormPage', () => {
   const API = environment.apiUrl;
 
   const accounts = [
-    { id: 'gl1', code: '1102', name: { es: 'Banco', en: 'Bank' }, isPostable: true },
-    { id: 'gl2', code: '11', name: { es: 'Activo corriente', en: 'Current assets' }, isPostable: false },
+    {
+      id: 'gl1',
+      code: '1102',
+      name: { es: 'Banco', en: 'Bank' },
+      type: 'ASSET',
+      isPostable: true,
+      isActive: true,
+      systemRole: 'BANK',
+    },
+    {
+      id: 'gl2',
+      code: '11',
+      name: { es: 'Activo corriente', en: 'Current assets' },
+      type: 'ASSET',
+      isPostable: false,
+      isActive: true,
+    },
+    {
+      // Postable, active, an asset — and not money. The picker offered it, so a bank account
+      // could be mapped onto what customers owe us, after which every deposit would have debited
+      // Accounts Receivable.
+      id: 'gl3',
+      code: '1120',
+      name: { es: 'Cuentas por cobrar', en: 'Accounts receivable' },
+      type: 'ASSET',
+      isPostable: true,
+      isActive: true,
+      systemRole: 'ACCOUNTS_RECEIVABLE',
+    },
+    {
+      // Postable and active, but an expense: a bank account is not an expense account.
+      id: 'gl4',
+      code: '5101',
+      name: { es: 'Gastos', en: 'Expenses' },
+      type: 'EXPENSE',
+      isPostable: true,
+      isActive: true,
+    },
   ];
 
   const build = async (id: string | null) => {
@@ -51,7 +87,8 @@ describe('BankAccountFormPage', () => {
     await build(null);
     fixture.detectChanges();
 
-    // A summary account cannot be posted to; the server refuses it, so it is never offered.
+    // A summary account cannot be posted to; the server refuses it, so it is never offered. Nor
+    // is a postable account that is not money: a bank account's ledger account is cash or bank.
     expect(component.postableAccounts().map((a) => a.id)).toEqual(['gl1']);
     httpMock.verify();
   });

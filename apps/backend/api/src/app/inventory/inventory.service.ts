@@ -1,29 +1,55 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, EntityManager } from 'typeorm';
+import { Repository, EntityManager, DataSource } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { BadRequestError, NotFoundError } from '../i18n/localized.exception';
+import { InventoryPostingService } from './inventory-posting.service';
+import { ProductCategoriesService } from './product-categories.service';
 
 @Injectable()
 export class InventoryService {
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
+    private readonly dataSource: DataSource,
+    /**
+     * Stock is an asset. Creating or changing it from this catalogue used to move that asset with
+     * no entry in the books at all — see `InventoryPostingService`.
+     */
+    private readonly posting: InventoryPostingService,
+    /** The category on a product must be one of this tenant's, and one still being offered. */
+    private readonly categories: ProductCategoriesService,
   ) {}
 
-  create(createProductDto: CreateProductDto, organizationId: string): Promise<Product> {
-    const product = this.productRepository.create({
-      ...createProductDto,
-      organizationId,
+  /**
+   * Create a product, and recognise the stock it is created holding.
+   *
+   * One transaction: a product saved without its opening entry is exactly the state that put the
+   * inventory account below zero on the first sale, so the two either both happen or neither does.
+   */
+  async create(
+    createProductDto: CreateProductDto,
+    organizationId: string,
+    actorUserId: string | null = null,
+  ): Promise<Product> {
+    await this.categories.assertUsable(createProductDto.categoryId, organizationId);
+    return this.dataSource.transaction(async (manager) => {
+      const product = await manager.save(
+        manager.create(Product, { ...createProductDto, organizationId }),
+      );
+      await this.posting.postOpeningStock(manager, product, actorUserId);
+      return product;
     });
-    return this.productRepository.save(product);
   }
 
   findAll(organizationId: string): Promise<Product[]> {
     return this.productRepository.find({
       where: { organizationId },
+      // The category travels with the product: the register shows its name, and looking each one
+      // up separately would be one query per row.
+      relations: ['category'],
       order: { name: 'ASC' },
     });
   }
@@ -31,6 +57,7 @@ export class InventoryService {
   async findOne(id: string, organizationId: string): Promise<Product> {
     const product = await this.productRepository.findOne({
       where: { id, organizationId },
+      relations: ['category'],
     });
     if (!product) {
       throw new NotFoundError('INVENTORY.PRODUCTO_ID_NO_ENCONTRADO', { id });
@@ -38,18 +65,53 @@ export class InventoryService {
     return product;
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto, organizationId: string): Promise<Product> {
-    const product = await this.findOne(id, organizationId);
-    const updatedProduct = this.productRepository.merge(
-      product,
-      updateProductDto,
-    );
-    return this.productRepository.save(updatedProduct);
+  /**
+   * Edit a product, and recognise any change in what its stock is worth.
+   *
+   * Both a new quantity and a new unit cost move the value on the balance sheet, and both arrive
+   * through this one form, so the difference in value is what gets posted — one figure that covers
+   * a stock count, a breakage and a revaluation alike.
+   */
+  async update(
+    id: string,
+    updateProductDto: UpdateProductDto,
+    organizationId: string,
+    actorUserId: string | null = null,
+  ): Promise<Product> {
+    await this.categories.assertUsable(updateProductDto.categoryId, organizationId);
+    return this.dataSource.transaction(async (manager) => {
+      const product = await manager.findOne(Product, { where: { id, organizationId } });
+      if (!product) {
+        throw new NotFoundError('INVENTORY.PRODUCTO_ID_NO_ENCONTRADO', { id });
+      }
+      const before = { quantity: product.stock, unitCost: product.cost };
+      const updated = await manager.save(manager.merge(Product, product, updateProductDto));
+      await this.posting.postValuationChange(manager, updated, before, actorUserId);
+      return updated;
+    });
   }
 
-  async remove(id: string, organizationId: string): Promise<void> {
-    const product = await this.findOne(id, organizationId);
-    await this.productRepository.remove(product);
+  /**
+   * Delete a product, writing off anything it was still holding.
+   *
+   * Removing the row on its own left the value of that stock sitting in the inventory account with
+   * nothing in the catalogue to account for it — an asset no one could ever explain or count.
+   */
+  async remove(
+    id: string,
+    organizationId: string,
+    actorUserId: string | null = null,
+  ): Promise<void> {
+    await this.dataSource.transaction(async (manager) => {
+      const product = await manager.findOne(Product, { where: { id, organizationId } });
+      if (!product) {
+        throw new NotFoundError('INVENTORY.PRODUCTO_ID_NO_ENCONTRADO', { id });
+      }
+      const before = { quantity: product.stock, unitCost: product.cost };
+      product.stock = 0;
+      await this.posting.postValuationChange(manager, product, before, actorUserId);
+      await manager.remove(product);
+    });
   }
 
   /**

@@ -205,6 +205,23 @@ export const PERMISSIONS = {
    */
   PROCUREMENT_VIEW: 'procurement:view',
   PROCUREMENT_MANAGE: 'procurement:manage',
+  /**
+   * Approving a requisition or an order, and committing the business to a supplier.
+   *
+   * Separate from `PROCUREMENT_MANAGE` on purpose: raising a request and authorising the spend are
+   * the two halves of the control, and a role that can do both is not a control at all.
+   */
+  PROCUREMENT_APPROVE: 'procurement:approve',
+
+  /**
+   * The document repository: the tenant's own files and the templates among them.
+   *
+   * A separate permission because the repository holds whatever a business keeps — signed
+   * contracts, scanned bank statements, personnel files — and "can use the ERP" is not a reason to
+   * read all of it.
+   */
+  DOCUMENTS_VIEW: 'documents:view',
+  DOCUMENTS_MANAGE: 'documents:manage',
 
   /** Projects, their tasks and timesheets. */
   PROJECTS_VIEW: 'projects:view',

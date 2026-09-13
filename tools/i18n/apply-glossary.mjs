@@ -22,6 +22,25 @@
  * see the difference, so `overrides` names the exceptions BY KEY and wins over the glossary.
  * Keeping them separate keeps the exception list short and honest: a growing override list is a
  * signal that a term is genuinely ambiguous and should be reworded in Spanish too.
+ *
+ * ## What this tool must never do: throw a translation away
+ *
+ * It used to rebuild `en.json` and `pt.json` from `es.json` alone. A key the glossary had no term
+ * for was written back AS THE SPANISH — so every translation written by hand was destroyed the
+ * next time the tool ran, and CI (which runs it and fails on any diff) made accepting that
+ * destruction the only way to get a green build. `"Cash and equivalents"` became
+ * `"Efectivo y equivalentes"`, in the English catalogue, and the build called it correct.
+ *
+ * The order of precedence is now:
+ *
+ *   1. `overrides[key][language]` — an explicit decision about one key.
+ *   2. `terms[spanishValue][language]` — the glossary, which is what keeps the vocabulary
+ *      consistent and is therefore allowed to correct a one-off wording.
+ *   3. The value already in the target catalogue, when it is not simply a copy of the Spanish.
+ *   4. The Spanish, carried so the file stays parseable, and reported as missing.
+ *
+ * Step 3 is the one that was absent. It also means the existing catalogues seed the work: a
+ * string translated once stays translated without anyone adding it to the glossary.
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -53,9 +72,17 @@ function flatten(tree, prefix = '', out = new Map()) {
   return out;
 }
 
+/**
+ * Rebuild the nested shape, in the order the entries arrive — which is `es.json`'s own order.
+ *
+ * This used to re-sort with `localeCompare`, which disagrees with the order the extractors write
+ * `es.json` in (it ignores the underscore, so `ES_CUENTA` sorts before `ESTABLECE` where a plain
+ * comparison puts it after). The three catalogues then could not be read side by side, and every
+ * run produced a reordering diff on top of whatever had actually changed.
+ */
 function nest(flat) {
   const tree = {};
-  for (const [key, value] of [...flat.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+  for (const [key, value] of flat.entries()) {
     const parts = key.split('.');
     let node = tree;
     for (const part of parts.slice(0, -1)) {
@@ -79,6 +106,11 @@ for (const catalogue of CATALOGUES) {
 
   for (const language of LANGUAGES) {
     const translated = new Map();
+    // What the catalogue already says. A key absent from `es.json` is dropped, as before; a key
+    // whose translation is already there is kept rather than overwritten with Spanish.
+    const existing = flatten(
+      JSON.parse(readFileSync(join(catalogue.dir, `${language}.json`), 'utf8')),
+    );
 
     for (const [key, value] of spanish) {
       const override = overrides[key]?.[language];
@@ -89,6 +121,11 @@ for (const catalogue of CATALOGUES) {
       const term = terms[value]?.[language];
       if (term !== undefined) {
         translated.set(key, term);
+        continue;
+      }
+      const already = existing.get(key);
+      if (already !== undefined && already !== value) {
+        translated.set(key, already);
         continue;
       }
       // Untranslated: reported, and the Spanish is carried so the file stays parseable and the

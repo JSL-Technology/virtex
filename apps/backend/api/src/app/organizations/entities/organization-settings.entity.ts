@@ -45,6 +45,16 @@ export class OrganizationSettings {
   baseCurrency!: string;
 
   /**
+   * The default credit period, in days, for a customer who has none of their own.
+   *
+   * Zero — due on receipt — is the safe default rather than a guess at thirty: a tenant that sells
+   * on credit sets this once, and one that does not is not told its invoices are overdue tomorrow
+   * because the product assumed terms nobody agreed to.
+   */
+  @Column({ name: 'default_payment_term_days', type: 'int', default: 0 })
+  defaultPaymentTermDays!: number;
+
+  /**
    * Which published rate this tenant keeps its books at.
    *
    * A currency pair does not have *a* rate on a day. Colombia's TRM, Mexico's DOF FIX and the
@@ -167,6 +177,34 @@ export class OrganizationSettings {
 
   @Column({ name: 'default_retained_earnings_account_id', type: 'uuid', nullable: true })
   defaultRetainedEarningsAccountId: string | null = null;
+
+  /**
+   * Where a collection with nothing applied to it is held.
+   *
+   * A liability, not a negative receivable: see `AccountRole.CUSTOMER_ADVANCES`. Crediting the
+   * receivable control account instead drove it below zero and broke the ageing report's own
+   * reconciliation by exactly the amount held in advance.
+   */
+  @Column({ name: 'default_customer_advances_account_id', type: 'uuid', nullable: true })
+  defaultCustomerAdvancesAccountId: string | null = null;
+
+  /**
+   * The counterpart for balances that predate the books — opening stock above all.
+   *
+   * Deliberately NOT retained earnings: a stock count carried over from the previous system is not
+   * a result this company earned, and posting it there misstates every equity figure after it.
+   */
+  @Column({ name: 'default_opening_balance_equity_account_id', type: 'uuid', nullable: true })
+  defaultOpeningBalanceEquityAccountId: string | null = null;
+
+  /**
+   * Where a stock movement that is neither a purchase nor a sale is recognised.
+   *
+   * See `AccountRole.INVENTORY_ADJUSTMENT`. Editing a product's on-hand quantity used to move a
+   * real asset with no counterpart at all, so the balance sheet and the warehouse simply disagreed.
+   */
+  @Column({ name: 'default_inventory_adjustment_account_id', type: 'uuid', nullable: true })
+  defaultInventoryAdjustmentAccountId: string | null = null;
 
   @Column({ name: 'default_forex_gain_loss_account_id', type: 'uuid', nullable: true })
   defaultForexGainLossAccountId: string | null = null;

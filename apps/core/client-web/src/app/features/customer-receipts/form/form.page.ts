@@ -2,11 +2,11 @@ import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } 
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideAngularModule, Plus } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { FORMAT_PIPES } from '../../../core/i18n/pipes/format.pipes';
-import { CustomerReceiptsService } from '../../../core/services/customer-receipts';
+import { CustomerAdvance, CustomerReceiptsService } from '../../../core/services/customer-receipts';
 import { InvoicesService, Invoice } from '../../../core/services/invoices';
 import { CustomersService } from '../../../core/api/customers.service';
 import { Customer } from '../../../core/models/customer.model';
@@ -50,6 +50,9 @@ import { NotificationService } from '../../../core/services/notification';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomerReceiptFormPage implements OnInit {
+  /** The chips add a document to the receipt; the icon is what says so. */
+  protected readonly AddIcon = Plus;
+
 
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
@@ -66,17 +69,37 @@ export class CustomerReceiptFormPage implements OnInit {
   readonly saving = signal(false);
   /** Recomputed on every keystroke, so the arithmetic is visible before it is committed. */
   readonly totals = signal({ applied: 0, unapplied: 0 });
+  /** What this customer has already paid ahead, per currency. */
+  readonly advances = signal<CustomerAdvance[]>([]);
 
   readonly activeBankAccounts = computed(() =>
     this.bankAccounts().filter((account) => account.isActive),
   );
+
+  /**
+   * What may be drawn on this receipt: the advance held in the receipt's own currency.
+   *
+   * Money held in pesos cannot settle a dollar invoice at a rate nobody has stated, so the offer
+   * is restricted to the currency the funds are actually in — which is also the rule the server
+   * enforces.
+   */
+  readonly availableAdvance = computed(() => {
+    const currency = this.currency();
+    return this.advances().find((advance) => advance.currencyCode === currency)?.amount ?? 0;
+  });
+
+  /** The receipt's currency, as a signal so the available advance follows the bank account. */
+  private readonly currency = signal('');
 
   ngOnInit(): void {
     this.form = this.fb.group({
       customerId: ['', [Validators.required]],
       paymentDate: [todayIso(), [Validators.required]],
       bankAccountId: ['', [Validators.required]],
-      amountReceived: [0, [Validators.required, Validators.min(0.01)]],
+      // Zero cash is legitimate: a receipt funded entirely from an advance the customer already
+      // paid. What may not be zero is cash *and* advance together, which `save()` checks.
+      amountReceived: [0, [Validators.required, Validators.min(0)]],
+      advanceApplied: [0, [Validators.min(0)]],
       currencyCode: ['', [Validators.required]],
       paymentMethod: ['BANK_TRANSFER'],
       reference: [''],
@@ -93,6 +116,7 @@ export class CustomerReceiptFormPage implements OnInit {
         const first = data.find((account) => account.isActive);
         if (first) {
           this.form.patchValue({ bankAccountId: first.id, currencyCode: first.currencyCode });
+          this.currency.set(first.currencyCode);
         }
       },
       error: () => this.bankAccounts.set([]),
@@ -113,21 +137,48 @@ export class CustomerReceiptFormPage implements OnInit {
    */
   onBankAccountChange(bankAccountId: string): void {
     const account = this.bankAccounts().find((candidate) => candidate.id === bankAccountId);
-    if (account) this.form.patchValue({ currencyCode: account.currencyCode });
+    if (!account) return;
+    this.form.patchValue({ currencyCode: account.currencyCode });
+    this.currency.set(account.currencyCode);
+    // What was on offer was the old currency's advance; keeping it would post a draw the server
+    // will refuse.
+    this.form.patchValue({ advanceApplied: 0 });
   }
 
   /** Only what the customer still owes can be collected, so only that is offered. */
   onCustomerChange(customerId: string): void {
     this.lines.clear();
     this.openInvoices.set([]);
+    this.advances.set([]);
+    this.form.patchValue({ advanceApplied: 0 });
     if (!customerId) return;
 
     this.invoicesApi.getInvoices({ customerId, limit: 200 }).subscribe({
       next: (page) => {
-        this.openInvoices.set(page.items.filter((invoice) => invoice.balance > 0));
+        // A draft is not a receivable. Offering one led to a receipt the server refuses, with the
+        // user left staring at an invoice the page had just shown them as collectible.
+        this.openInvoices.set(
+          page.items.filter(
+            (invoice) => invoice.balance > 0 && COLLECTIBLE.includes(invoice.status),
+          ),
+        );
       },
       error: () => this.openInvoices.set([]),
     });
+
+    // Money the customer already left on account: it settles an invoice without them paying twice.
+    this.receipts.advances(customerId).subscribe({
+      next: (data) => this.advances.set(data),
+      error: () => this.advances.set([]),
+    });
+  }
+
+  /** Fill the draw with everything on account, up to what this receipt still needs. */
+  applyFullAdvance(): void {
+    const applied = this.totals().applied;
+    const received = Number(this.form.get('amountReceived')?.value || 0);
+    const needed = round(Math.max(applied - received, 0));
+    this.form.patchValue({ advanceApplied: Math.min(needed, this.availableAdvance()) });
   }
 
   addInvoice(invoice: Invoice): void {
@@ -172,7 +223,8 @@ export class CustomerReceiptFormPage implements OnInit {
       this.lines.controls.reduce((sum, line) => sum + Number(line.value.amount || 0), 0),
     );
     const received = Number(this.form.get('amountReceived')?.value || 0);
-    this.totals.set({ applied, unapplied: round(received - applied) });
+    const drawn = Number(this.form.get('advanceApplied')?.value || 0);
+    this.totals.set({ applied, unapplied: round(received + drawn - applied) });
   }
 
   /** Qué falta antes de guardar. Los campos no llevan `id`; el armazón los localiza por control. */
@@ -199,8 +251,24 @@ export class CustomerReceiptFormPage implements OnInit {
     }
 
     this.problems.set([]);
+    const raw0 = this.form.getRawValue();
+    const drawn = Number(raw0.advanceApplied || 0);
+    if (Number(raw0.amountReceived || 0) + drawn <= 0) {
+      this.notifications.showError('CUSTOMER_RECEIPTS.FORM.SIN_FONDOS');
+      return;
+    }
+    if (drawn > this.availableAdvance()) {
+      this.notifications.showError('CUSTOMER_RECEIPTS.FORM.ANTICIPO_INSUFICIENTE');
+      return;
+    }
     if (this.totals().unapplied < 0) {
       this.notifications.showError('CUSTOMER_RECEIPTS.FORM.APLICADO_EXCEDE_RECIBIDO');
+      return;
+    }
+    // Taking money off account only to put it straight back is not a transaction, and the server
+    // refuses it — better said here, before the round trip.
+    if (drawn > 0 && this.totals().unapplied > 0) {
+      this.notifications.showError('CUSTOMER_RECEIPTS.FORM.ANTICIPO_EXCEDE_LO_APLICADO');
       return;
     }
 
@@ -213,6 +281,7 @@ export class CustomerReceiptFormPage implements OnInit {
         paymentDate: raw.paymentDate,
         bankAccountId: raw.bankAccountId,
         amountReceived: Number(raw.amountReceived),
+        advanceApplied: drawn || undefined,
         currencyCode: raw.currencyCode,
         paymentMethod: raw.paymentMethod,
         reference: raw.reference || undefined,
@@ -239,6 +308,9 @@ export class CustomerReceiptFormPage implements OnInit {
       });
   }
 }
+
+/** The statuses a receipt may actually be applied to; the server accepts no others. */
+const COLLECTIBLE = ['Pending', 'Partially Paid'];
 
 function round(value: number): number {
   return Math.round(value * 100) / 100;
