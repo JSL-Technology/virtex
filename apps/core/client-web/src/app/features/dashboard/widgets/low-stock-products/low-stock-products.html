@@ -9,8 +9,8 @@
             <div class="product-details">
                 <a routerLink="/inventory/products/{{product.id}}/edit" class="product-name">{{ product.name }}</a>
             </div>
-            <div class="stock-level" [ngClass]="getStockSeverityClass(product.stock)">
-                @if (product.stock === 0) {
+            <div class="stock-level" [ngClass]="getStockSeverityClass(product)">
+                @if (product.stock <= 0) {
                 <lucide-icon [img]="AlertIcon" size="14"></lucide-icon>
                 }
                 <span>{{ 'DASHBOARD.LOW_STOCK_PRODUCTS.STOCK_UNIDADES' | translate: { stock: product.stock } }}</span>

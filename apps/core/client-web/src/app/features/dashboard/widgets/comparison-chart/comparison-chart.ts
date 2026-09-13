@@ -2,7 +2,15 @@ import { Component, Input, computed, signal, inject, ChangeDetectionStrategy } f
 import { CommonModule } from '@angular/common';
 import { HighchartsChartComponent } from 'highcharts-angular';
 import * as Highcharts from 'highcharts';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { catchError, of } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 import { DashboardWidget, DashboardService, ChartType } from '../../../../core/services/dashboard';
+import {
+  BudgetVsActualPoint,
+  DashboardApiService,
+} from '../../../../core/api/dashboard-api.service';
+import { FormatService } from '../../../../core/i18n/format.service';
 import { LucideAngularModule, Settings, BarChart, AreaChart, PieChart } from 'lucide-angular';
 
 // Importar y activar el módulo de exportación de Highcharts para habilitar el menú contextual (imprimir, descargar, etc.)
@@ -23,6 +31,23 @@ export class ComparisonChart {
   @Input() isEditMode = false;
 
   private dashboardService = inject(DashboardService);
+  private dashboardApi = inject(DashboardApiService);
+  private i18n = inject(TranslateService);
+  private format = inject(FormatService);
+
+  /**
+   * Plan against reality, month by month, on the accounts the budget itself names.
+   *
+   * It used to be `Presupuesto [100, 110, 105, …]` against `Real [95, 105, 108, …]`: two invented
+   * series shown to every tenant, including the ones that keep no budget at all.
+   */
+  private readonly points = toSignal(
+    this.dashboardApi.getBudgetVsActual(12).pipe(catchError(() => of([] as BudgetVsActualPoint[]))),
+    { initialValue: [] as BudgetVsActualPoint[] },
+  );
+
+  /** True when this tenant has no budget at all for the window: worth saying, not worth faking. */
+  readonly hasBudget = computed(() => this.points().some((point) => point.budgeted !== 0));
 
   // Íconos para el menú de edición del widget
   protected readonly SettingsIcon = Settings;
@@ -37,10 +62,13 @@ export class ComparisonChart {
   chartOptions = computed<Highcharts.Options>(() => {
     const chartType = this.widget.chartType || 'column';
 
-    // Datos base para los gráficos
+    const points = this.points();
+    const budgetLabel = this.i18n.instant('DASHBOARD.COMPARISON_CHART.PRESUPUESTO');
+    const actualLabel = this.i18n.instant('DASHBOARD.COMPARISON_CHART.REAL');
+
     const seriesData: Highcharts.SeriesOptionsType[] = [
-      { name: 'Presupuesto', type: 'column', data: [100, 110, 105, 120, 125, 130, 135], color: 'var(--gray-300)' },
-      { name: 'Real', type: 'column', data: [95, 105, 108, 125, 120, 132, 140], color: 'var(--accent-primary)', pointPadding: 0.2 }
+      { name: budgetLabel, type: 'column', data: points.map((p) => p.budgeted), color: 'var(--gray-300)' },
+      { name: actualLabel, type: 'column', data: points.map((p) => p.actual), color: 'var(--accent-primary)', pointPadding: 0.2 }
     ];
 
     // Si el tipo de gráfico es 'pie', necesita una estructura de datos diferente
@@ -60,10 +88,18 @@ export class ComparisonChart {
         },
         legend: { itemStyle: { color: 'var(--text-secondary)' } },
         series: [{
-          name: 'Total', type: 'pie',
+          name: this.i18n.instant('DASHBOARD.COMPARISON_CHART.TOTAL'), type: 'pie',
           data: [
-            { name: 'Presupuesto', y: 135, color: 'var(--gray-300)' },
-            { name: 'Real', y: 140, color: 'var(--accent-primary)' }
+            {
+              name: budgetLabel,
+              y: points.reduce((sum, point) => sum + point.budgeted, 0),
+              color: 'var(--gray-300)',
+            },
+            {
+              name: actualLabel,
+              y: points.reduce((sum, point) => sum + point.actual, 0),
+              color: 'var(--accent-primary)',
+            },
           ]
         }],
         credits: { enabled: false },
@@ -75,8 +111,14 @@ export class ComparisonChart {
     return {
       chart: { type: chartType, backgroundColor: 'transparent' },
       title: { text: '' },
-      xAxis: { categories: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul'], labels: { style: { color: 'var(--text-secondary)' } } },
-      yAxis: { title: { text: 'Monto ($)' }, labels: { style: { color: 'var(--text-secondary)' } } },
+      xAxis: {
+        categories: points.map((point) => this.format.date(point.month, 'monthYear')),
+        labels: { style: { color: 'var(--text-secondary)' } },
+      },
+      yAxis: {
+        title: { text: this.i18n.instant('DASHBOARD.COMPARISON_CHART.MONTO') },
+        labels: { style: { color: 'var(--text-secondary)' } },
+      },
       plotOptions: { column: { grouping: false, borderWidth: 0, shadow: false } },
       series: seriesData.map(s => ({ ...s, type: chartType as any })),
       credits: { enabled: false },

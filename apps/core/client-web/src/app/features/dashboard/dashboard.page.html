@@ -57,8 +57,15 @@
             }
 
             @switch (widget.componentType) {
-              @case ('kpi-card')          { <app-kpi-card [data]="widget.data" /> }
-              @case ('stat-card')         { <app-stat-card [data]="widget.data" /> }
+              <!--
+                `stat-card` and `kpi-card` are presentational. They used to be fed `widget.data`
+                straight from the catalogue, where the figures were literals — the same
+                "$1,250.00 +15%" on every tenant's screen. The live widgets fetch their own.
+              -->
+              @case ('stat-sales-today')      { <app-stat-summary stat="sales-today" /> }
+              @case ('stat-pending-invoices') { <app-stat-summary stat="pending-invoices" /> }
+              @case ('stat-low-stock')        { <app-stat-summary stat="low-stock" /> }
+              @case ('stat-active-customers') { <app-stat-summary stat="active-customers" /> }
               @case ('comparison-chart')  { <app-comparison-chart  [widget]="widget" [isEditMode]="isEditMode()" /> }
               @case ('alerts-panel')      { <app-alerts-panel /> }
               @case ('sales-chart')       { <app-sales-chart       [widget]="widget" [isEditMode]="isEditMode()" /> }

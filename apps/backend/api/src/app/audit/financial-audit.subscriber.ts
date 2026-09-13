@@ -163,6 +163,13 @@ const AUDITED_TABLES: ReadonlySet<string> = new Set([
   'invoices',
   'customer_payments',
   'customers',
+  'quotes',
+  // Purchasing and the catalogue
+  'suppliers',
+  // A product is a financial record, not a label: its on-hand quantity and unit cost are what the
+  // inventory account on the balance sheet is worth, and changing either now posts an entry. While
+  // this was absent, the one change that could move an asset by hand left no trace of who made it.
+  'products',
   // Treasury
   'bank_accounts',
   'bank_transfers',

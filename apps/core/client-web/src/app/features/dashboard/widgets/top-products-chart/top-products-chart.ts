@@ -20,6 +20,9 @@ import {
 } from 'lucide-angular';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { catchError, of } from 'rxjs';
+import { BreakdownSlice, DashboardApiService } from '../../../../core/api/dashboard-api.service';
 
 // Módulos Highcharts (ESM) por efectos secundarios
 import 'highcharts/modules/exporting';
@@ -50,6 +53,13 @@ export class TopProductsChart {
 
   private dashboardService = inject(DashboardService);
   private i18n = inject(TranslateService);
+  private dashboardApi = inject(DashboardApiService);
+
+  /** Best sellers over the last twelve months, by billed value, from the tenant's own invoices. */
+  private readonly topProducts = toSignal(
+    this.dashboardApi.getTopProducts(12, 5).pipe(catchError(() => of([] as BreakdownSlice[]))),
+    { initialValue: [] as BreakdownSlice[] },
+  );
   private hostEl = inject(ElementRef<HTMLElement>);
 
   // Íconos
@@ -153,10 +163,14 @@ export class TopProductsChart {
   chartOptions = computed<Highcharts.Options>(() => {
     const chartType = (this.widget.chartType || 'bar') as ChartType;
 
+    // What actually sold, by billed value. The fallback was five products nobody sells —
+    // 'Laptop Pro', 'Mouse Ergo', 'Monitor UW' — shown to every tenant whether they trade in
+    // hardware, haircuts or hospitality.
+    const sold = this.topProducts();
     const categories: string[] =
-      (this.widget?.data as any)?.categories ?? ['Laptop Pro', 'Mouse Ergo', 'Monitor UW', 'Teclado RGB', 'Webcam HD'];
+      (this.widget?.data as any)?.categories ?? sold.map((slice) => slice.label);
     const values: number[] =
-      (this.widget?.data as any)?.values ?? [120, 95, 88, 75, 60];
+      (this.widget?.data as any)?.values ?? sold.map((slice) => slice.amount);
 
     const palette = this.getPaletteFromTheme();
     const theme = this.getThemeOptions();

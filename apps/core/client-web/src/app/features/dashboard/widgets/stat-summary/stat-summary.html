@@ -1,0 +1,31 @@
+@if (ready()) {
+<div class="stat-card">
+  <div class="stat-icon">
+    <lucide-icon [img]="icon()" size="22"></lucide-icon>
+  </div>
+  <div class="stat-body">
+    <span class="stat-title">{{ titleKey() | translate }}</span>
+    <span class="stat-value">{{ value() }}</span>
+    @if (subtitle(); as sub) {
+      <span class="stat-subtitle">
+        @if ($any(sub).key) {
+          {{ $any(sub).key | translate: $any(sub).params }}
+        } @else {
+          {{ sub }}
+        }
+      </span>
+    }
+  </div>
+  @if (changeText(); as change) {
+  <div class="stat-change" [class.positive]="isPositive()" [class.negative]="!isPositive()">
+    <lucide-icon [img]="isPositive() ? TrendingUpIcon : TrendingDownIcon" size="14"></lucide-icon>
+    <span>{{ change }}</span>
+  </div>
+  }
+</div>
+} @else {
+<div class="stat-card-loading">
+  <div class="skeleton-line title"></div>
+  <div class="skeleton-line value"></div>
+</div>
+}

@@ -3,11 +3,12 @@
 </div>
 <div class="widget-content">
     <div class="ratios-grid">
-        @for(ratio of ratios(); track ratio.name) {
+        @for(ratio of ratios(); track ratio.key) {
         <div class="ratio-card">
             <div class="ratio-header">
-                <span class="ratio-name">{{ ratio.name }}</span>
-                <lucide-icon [img]="InfoIcon" size="14" class="info-icon" [title]="ratio.tooltip"></lucide-icon>
+                <span class="ratio-name">{{ 'DASHBOARD.FINANCIAL_RATIOS.' + ratio.key + '.NAME' | translate }}</span>
+                <lucide-icon [img]="InfoIcon" size="14" class="info-icon"
+                    [title]="'DASHBOARD.FINANCIAL_RATIOS.' + ratio.key + '.TOOLTIP' | translate"></lucide-icon>
             </div>
             <div class="ratio-value" [ngClass]="ratio.status">{{ ratio.value }}</div>
         </div>

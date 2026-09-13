@@ -1211,7 +1211,8 @@
   },
   "DASHBOARD": {
     "ALERTS_PANEL": {
-      "ALERTAS_TEMPRANAS": "Early Warnings"
+      "ALERTAS_TEMPRANAS": "Early Warnings",
+      "SIN_ALERTAS": "Nothing needs attention right now."
     },
     "ARRASTRAR": "Drag",
     "ARRASTRA_WIDGETS_REORGANIZARLOS_USA_ESQUINAS_REDIMENSIONAR": "Drag the widgets to rearrange them. Use the corners to resize.",
@@ -1226,8 +1227,13 @@
     "COMPARISON_CHART": {
       "AREA": "Area",
       "COLUMNAS": "Columns",
-      "INGRESOS_REAL_VS_PRESUPUESTO_YTD": "Revenue: Actual vs. Budget (YTD)",
-      "TIPO_GRAFICO": "Chart Type"
+      "INGRESOS_REAL_VS_PRESUPUESTO_YTD": "Budget vs. Actual (last 12 months)",
+      "TIPO_GRAFICO": "Chart Type",
+      "PRESUPUESTO": "Budget",
+      "REAL": "Actual",
+      "TOTAL": "Total",
+      "MONTO": "Amount",
+      "SIN_PRESUPUESTO": "No budget is defined for this period."
     },
     "EXPENSES_CHART": {
       "COLUMNAS": "Columns",
@@ -1245,10 +1251,33 @@
       "PASTEL": "Pie",
       "PERSONALIZAR_COLORES": "Customize Colours",
       "TIPO_GRAFICO": "Chart Type",
-      "VECTOR_SVG": "SVG vector"
+      "VECTOR_SVG": "SVG vector",
+      "TITLE": "Operating Expense Breakdown",
+      "SUBTITLE": "By ledger account, last 12 months",
+      "SERIES": "Expenses"
     },
     "FINANCIAL_RATIOS": {
-      "INDICADORES_FINANCIEROS_CLAVE": "Key Financial Indicators"
+      "INDICADORES_FINANCIEROS_CLAVE": "Key Financial Indicators",
+      "ROE": {
+        "NAME": "ROE (Return on Equity)",
+        "TOOLTIP": "Profit generated on the shareholders’ investment."
+      },
+      "ROA": {
+        "NAME": "ROA (Return on Assets)",
+        "TOOLTIP": "How efficiently the company turns its assets into profit."
+      },
+      "CURRENT_RATIO": {
+        "NAME": "Current Ratio",
+        "TOOLTIP": "Ability to cover short-term debt (ideally above 1.5)."
+      },
+      "QUICK_RATIO": {
+        "NAME": "Quick Ratio",
+        "TOOLTIP": "Ability to cover short-term debt without selling inventory (ideally above 1)."
+      },
+      "WORKING_CAPITAL": {
+        "NAME": "Working Capital",
+        "TOOLTIP": "What is available to run the business day to day (current assets − current liabilities)."
+      }
     },
     "INVOICE_STATUS": {
       "COLUMNAS": "Columns",
@@ -1266,7 +1295,9 @@
       "PASTEL": "Pie",
       "PERSONALIZAR_COLORES": "Customize Colours",
       "TIPO_GRAFICO": "Chart Type",
-      "VECTOR_SVG": "SVG vector"
+      "VECTOR_SVG": "SVG vector",
+      "TITLE": "Invoice Distribution",
+      "SERIES": "Invoices"
     },
     "LOW_STOCK_PRODUCTS": {
       "EXCELENTE": "All good.",
@@ -1298,6 +1329,39 @@
       "PANTALLA_COMPLETA": "Full screen",
       "PERSONALIZAR_COLORES": "Customize Colours",
       "VECTOR_SVG": "SVG vector"
+    },
+    "ALERTS": {
+      "RECEIVABLES_OVERDUE": {
+        "TITLE": "Overdue receivables",
+        "BODY": "{{count}} invoice(s) past due, {{amount}} uncollected."
+      },
+      "STOCK_DEPLETED": {
+        "TITLE": "Out of stock",
+        "BODY": "{{count}} product(s) have no stock and cannot be invoiced."
+      },
+      "STOCK_LOW": {
+        "TITLE": "Low stock",
+        "BODY": "{{count}} product(s) below their reorder level."
+      },
+      "PERIOD_UNCLOSED": {
+        "TITLE": "Period still open",
+        "BODY": "Period “{{period}}” has ended and is still open."
+      }
+    },
+    "SUMMARY": {
+      "SALES_TODAY": {
+        "TITLE": "Sales today"
+      },
+      "PENDING_INVOICES": {
+        "TITLE": "Outstanding invoices"
+      },
+      "LOW_STOCK": {
+        "TITLE": "Products low on stock",
+        "OUT_OF_STOCK": "{{count}} out of stock"
+      },
+      "ACTIVE_CUSTOMERS": {
+        "TITLE": "Active customers"
+      }
     }
   },
   "DATA_EXPORTS": {
@@ -2303,11 +2367,73 @@
   "OVERVIEW": {
     "ACTIVITY": {
       "EMPTY": "No recent activity yet.",
-      "TITLE": "Recent activity"
+      "TITLE": "Recent activity",
+      "NO_REFERENCE": "unnumbered",
+      "ITEM": {
+        "INVOICES": {
+          "CREATE": "Invoice {{reference}} issued",
+          "UPDATE": "Invoice {{reference}} updated",
+          "DELETE": "Invoice {{reference}} deleted"
+        },
+        "CUSTOMER_PAYMENTS": {
+          "CREATE": "Receipt {{reference}} recorded",
+          "UPDATE": "Receipt {{reference}} changed",
+          "DELETE": "Receipt {{reference}} deleted"
+        },
+        "VENDOR_BILLS": {
+          "CREATE": "Vendor bill {{reference}} recorded",
+          "UPDATE": "Vendor bill {{reference}} updated",
+          "DELETE": "Vendor bill {{reference}} deleted"
+        },
+        "VENDOR_PAYMENTS": {
+          "CREATE": "Vendor payment {{reference}} recorded",
+          "UPDATE": "Vendor payment {{reference}} changed",
+          "DELETE": "Vendor payment {{reference}} deleted"
+        },
+        "JOURNAL_ENTRIES": {
+          "CREATE": "Entry {{reference}} posted",
+          "UPDATE": "Entry {{reference}} changed",
+          "DELETE": "Entry {{reference}} deleted"
+        },
+        "CUSTOMERS": {
+          "CREATE": "Customer “{{reference}}” added",
+          "UPDATE": "Customer “{{reference}}” updated",
+          "DELETE": "Customer “{{reference}}” deleted"
+        },
+        "SUPPLIERS": {
+          "CREATE": "Supplier “{{reference}}” added",
+          "UPDATE": "Supplier “{{reference}}” updated",
+          "DELETE": "Supplier “{{reference}}” deleted"
+        },
+        "PRODUCTS": {
+          "CREATE": "Product “{{reference}}” added to the catalogue",
+          "UPDATE": "Product “{{reference}}” updated",
+          "DELETE": "Product “{{reference}}” deleted"
+        },
+        "GENERIC": {
+          "CREATE": "{{reference}} created",
+          "UPDATE": "{{reference}} updated",
+          "DELETE": "{{reference}} deleted"
+        }
+      }
     },
     "EVENTS": {
-      "EMPTY": "No upcoming events.",
-      "TITLE": "Upcoming events"
+      "EMPTY": "Nothing falls due and no period closes in the next 30 days.",
+      "TITLE": "What falls due",
+      "ITEM": {
+        "RECEIVABLE_DUE": "Invoice {{reference}} falls due",
+        "RECEIVABLE_OVERDUE": "Invoice {{reference}} is overdue",
+        "PAYABLE_DUE": "Vendor bill {{reference}} falls due",
+        "PAYABLE_OVERDUE": "Vendor bill {{reference}} is overdue",
+        "PERIOD_CLOSE": "Period “{{reference}}” closes"
+      },
+      "KIND": {
+        "RECEIVABLE_DUE": "Receivable",
+        "RECEIVABLE_OVERDUE": "Overdue",
+        "PAYABLE_DUE": "Payable",
+        "PAYABLE_OVERDUE": "Overdue",
+        "PERIOD_CLOSE": "Period close"
+      }
     },
     "GREETING": {
       "AFTERNOON": "Good afternoon",

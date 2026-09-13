@@ -1,11 +1,15 @@
 import { Component, Input, computed, signal, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { HighchartsChartComponent } from 'highcharts-angular';
 import * as Highcharts from 'highcharts';
+import { catchError, of } from 'rxjs';
 import { DashboardWidget, DashboardService, ChartType } from '../../../../core/services/dashboard';
+import { DashboardApiService, TrendPoint } from '../../../../core/api/dashboard-api.service';
+import { FormatService } from '../../../../core/i18n/format.service';
 import { LucideAngularModule, Settings, AreaChart, LineChart } from 'lucide-angular';
 import Exporting from 'highcharts/modules/exporting';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 // Exporting(Highcharts);
 
@@ -21,6 +25,20 @@ export class SalesChart {
   @Input() isEditMode = false;
 
   private dashboardService = inject(DashboardService);
+  private dashboardApi = inject(DashboardApiService);
+  private i18n = inject(TranslateService);
+  private format = inject(FormatService);
+
+  /**
+   * Revenue per month, from the tenant's own issued documents.
+   *
+   * This series used to be `[5200, 7500, 6800, 9100, 8800, 12500, 11300]` over `Ene…Jul` — the same
+   * seven months, for every customer of the product, for ever.
+   */
+  private readonly trend = toSignal(
+    this.dashboardApi.getSalesTrend(12).pipe(catchError(() => of([] as TrendPoint[]))),
+    { initialValue: [] as TrendPoint[] },
+  );
 
   protected readonly SettingsIcon = Settings;
   protected readonly AreaIcon = AreaChart;
@@ -31,16 +49,25 @@ export class SalesChart {
 
   chartOptions = computed<Highcharts.Options>(() => {
     const chartType = this.widget.chartType || 'area';
+    const points = this.trend();
 
     return {
       chart: { type: chartType, backgroundColor: 'transparent' },
       title: { text: '' },
-      xAxis: { categories: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul'], labels: { style: { color: 'var(--text-secondary)' } } },
-      yAxis: { title: { text: 'Ingresos ($)' }, labels: { style: { color: 'var(--text-secondary)' } } },
+      // Month names in the reader's language and the tenant's timezone, from the same formatter the
+      // rest of the product uses — not a hardcoded `['Ene', 'Feb', …]`.
+      xAxis: {
+        categories: points.map((point) => this.format.date(point.month, 'monthYear')),
+        labels: { style: { color: 'var(--text-secondary)' } },
+      },
+      yAxis: {
+        title: { text: this.i18n.instant('DASHBOARD.SALES_CHART.INGRESOS_MENSUALES') },
+        labels: { style: { color: 'var(--text-secondary)' } },
+      },
       series: [{
-        name: 'Ventas',
+        name: this.i18n.instant('DASHBOARD.SALES_CHART.INGRESOS_MENSUALES'),
         type: chartType as any,
-        data: [5200, 7500, 6800, 9100, 8800, 12500, 11300],
+        data: points.map((point) => point.amount),
         color: 'var(--accent-primary)',
         fillOpacity: 0.1,
         marker: { enabled: true, symbol: 'circle' }

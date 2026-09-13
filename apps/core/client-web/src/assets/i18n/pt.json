@@ -1211,7 +1211,8 @@
   },
   "DASHBOARD": {
     "ALERTS_PANEL": {
-      "ALERTAS_TEMPRANAS": "Alertas Antecipados"
+      "ALERTAS_TEMPRANAS": "Alertas Antecipados",
+      "SIN_ALERTAS": "Nada requer atenção neste momento."
     },
     "ARRASTRAR": "Arrastar",
     "ARRASTRA_WIDGETS_REORGANIZARLOS_USA_ESQUINAS_REDIMENSIONAR": "Arraste os widgets para reorganizá-los. Use os cantos para redimensionar.",
@@ -1226,8 +1227,13 @@
     "COMPARISON_CHART": {
       "AREA": "Área",
       "COLUMNAS": "Colunas",
-      "INGRESOS_REAL_VS_PRESUPUESTO_YTD": "Receita: Real vs. Orçado (YTD)",
-      "TIPO_GRAFICO": "Tipo de Gráfico"
+      "INGRESOS_REAL_VS_PRESUPUESTO_YTD": "Orçamento vs. Real (últimos 12 meses)",
+      "TIPO_GRAFICO": "Tipo de Gráfico",
+      "PRESUPUESTO": "Orçamento",
+      "REAL": "Real",
+      "TOTAL": "Total",
+      "MONTO": "Valor",
+      "SIN_PRESUPUESTO": "Não há orçamento definido para este período."
     },
     "EXPENSES_CHART": {
       "COLUMNAS": "Colunas",
@@ -1245,10 +1251,33 @@
       "PASTEL": "Pizza",
       "PERSONALIZAR_COLORES": "Personalizar Cores",
       "TIPO_GRAFICO": "Tipo de Gráfico",
-      "VECTOR_SVG": "Vetor SVG"
+      "VECTOR_SVG": "Vetor SVG",
+      "TITLE": "Composição das Despesas Operacionais",
+      "SUBTITLE": "Por conta contabilística, últimos 12 meses",
+      "SERIES": "Despesas"
     },
     "FINANCIAL_RATIOS": {
-      "INDICADORES_FINANCIEROS_CLAVE": "Indicadores Financeiros Principais"
+      "INDICADORES_FINANCIEROS_CLAVE": "Indicadores Financeiros Principais",
+      "ROE": {
+        "NAME": "ROE (Retorno s/ Património)",
+        "TOOLTIP": "Rentabilidade gerada sobre o investimento dos acionistas."
+      },
+      "ROA": {
+        "NAME": "ROA (Retorno s/ Ativos)",
+        "TOOLTIP": "Eficiência da empresa em gerar lucro com os seus ativos."
+      },
+      "CURRENT_RATIO": {
+        "NAME": "Liquidez Corrente",
+        "TOOLTIP": "Capacidade de cobrir dívidas de curto prazo (ideal > 1,5)."
+      },
+      "QUICK_RATIO": {
+        "NAME": "Liquidez Seca",
+        "TOOLTIP": "Capacidade de cobrir dívidas de curto prazo sem vender estoque (ideal > 1)."
+      },
+      "WORKING_CAPITAL": {
+        "NAME": "Capital de Giro",
+        "TOOLTIP": "Recursos disponíveis para a operação diária (ativo circulante − passivo circulante)."
+      }
     },
     "INVOICE_STATUS": {
       "COLUMNAS": "Colunas",
@@ -1266,7 +1295,9 @@
       "PASTEL": "Pizza",
       "PERSONALIZAR_COLORES": "Personalizar Cores",
       "TIPO_GRAFICO": "Tipo de Gráfico",
-      "VECTOR_SVG": "Vetor SVG"
+      "VECTOR_SVG": "Vetor SVG",
+      "TITLE": "Distribuição de Faturas",
+      "SERIES": "Faturas"
     },
     "LOW_STOCK_PRODUCTS": {
       "EXCELENTE": "Tudo certo.",
@@ -1298,6 +1329,39 @@
       "PANTALLA_COMPLETA": "Tela cheia",
       "PERSONALIZAR_COLORES": "Personalizar Cores",
       "VECTOR_SVG": "Vetor SVG"
+    },
+    "ALERTS": {
+      "RECEIVABLES_OVERDUE": {
+        "TITLE": "Contas a receber vencidas",
+        "BODY": "{{count}} fatura(s) vencida(s), {{amount}} por cobrar."
+      },
+      "STOCK_DEPLETED": {
+        "TITLE": "Produtos esgotados",
+        "BODY": "{{count}} produto(s) sem existências: não podem ser faturados."
+      },
+      "STOCK_LOW": {
+        "TITLE": "Estoque baixo",
+        "BODY": "{{count}} produto(s) abaixo do ponto de reposição."
+      },
+      "PERIOD_UNCLOSED": {
+        "TITLE": "Período por fechar",
+        "BODY": "O período «{{period}}» terminou e continua aberto."
+      }
+    },
+    "SUMMARY": {
+      "SALES_TODAY": {
+        "TITLE": "Vendas de hoje"
+      },
+      "PENDING_INVOICES": {
+        "TITLE": "Faturas em aberto"
+      },
+      "LOW_STOCK": {
+        "TITLE": "Produtos com estoque baixo",
+        "OUT_OF_STOCK": "{{count}} esgotado(s)"
+      },
+      "ACTIVE_CUSTOMERS": {
+        "TITLE": "Clientes ativos"
+      }
     }
   },
   "DATA_EXPORTS": {
@@ -2303,11 +2367,73 @@
   "OVERVIEW": {
     "ACTIVITY": {
       "EMPTY": "Ainda não há atividade recente.",
-      "TITLE": "Atividade recente"
+      "TITLE": "Atividade recente",
+      "NO_REFERENCE": "sem número",
+      "ITEM": {
+        "INVOICES": {
+          "CREATE": "Fatura {{reference}} emitida",
+          "UPDATE": "Fatura {{reference}} atualizada",
+          "DELETE": "Fatura {{reference}} eliminada"
+        },
+        "CUSTOMER_PAYMENTS": {
+          "CREATE": "Recebimento {{reference}} registado",
+          "UPDATE": "Recebimento {{reference}} alterado",
+          "DELETE": "Recebimento {{reference}} eliminado"
+        },
+        "VENDOR_BILLS": {
+          "CREATE": "Fatura de fornecedor {{reference}} registada",
+          "UPDATE": "Fatura de fornecedor {{reference}} atualizada",
+          "DELETE": "Fatura de fornecedor {{reference}} eliminada"
+        },
+        "VENDOR_PAYMENTS": {
+          "CREATE": "Pagamento a fornecedor {{reference}} registado",
+          "UPDATE": "Pagamento a fornecedor {{reference}} alterado",
+          "DELETE": "Pagamento a fornecedor {{reference}} eliminado"
+        },
+        "JOURNAL_ENTRIES": {
+          "CREATE": "Lançamento {{reference}} contabilizado",
+          "UPDATE": "Lançamento {{reference}} alterado",
+          "DELETE": "Lançamento {{reference}} eliminado"
+        },
+        "CUSTOMERS": {
+          "CREATE": "Cliente «{{reference}}» registado",
+          "UPDATE": "Cliente «{{reference}}» atualizado",
+          "DELETE": "Cliente «{{reference}}» eliminado"
+        },
+        "SUPPLIERS": {
+          "CREATE": "Fornecedor «{{reference}}» registado",
+          "UPDATE": "Fornecedor «{{reference}}» atualizado",
+          "DELETE": "Fornecedor «{{reference}}» eliminado"
+        },
+        "PRODUCTS": {
+          "CREATE": "Produto «{{reference}}» adicionado ao catálogo",
+          "UPDATE": "Produto «{{reference}}» atualizado",
+          "DELETE": "Produto «{{reference}}» eliminado"
+        },
+        "GENERIC": {
+          "CREATE": "{{reference}} criado",
+          "UPDATE": "{{reference}} atualizado",
+          "DELETE": "{{reference}} eliminado"
+        }
+      }
     },
     "EVENTS": {
-      "EMPTY": "Não há eventos próximos.",
-      "TITLE": "Próximos eventos"
+      "EMPTY": "Não há vencimentos nem fechos nos próximos 30 dias.",
+      "TITLE": "Próximos vencimentos",
+      "ITEM": {
+        "RECEIVABLE_DUE": "Vence a fatura {{reference}}",
+        "RECEIVABLE_OVERDUE": "Fatura {{reference}} vencida",
+        "PAYABLE_DUE": "Vence a fatura de fornecedor {{reference}}",
+        "PAYABLE_OVERDUE": "Fatura de fornecedor {{reference}} vencida",
+        "PERIOD_CLOSE": "Fecho do período «{{reference}}»"
+      },
+      "KIND": {
+        "RECEIVABLE_DUE": "A receber",
+        "RECEIVABLE_OVERDUE": "Vencida",
+        "PAYABLE_DUE": "A pagar",
+        "PAYABLE_OVERDUE": "Vencida",
+        "PERIOD_CLOSE": "Fecho contabilístico"
+      }
     },
     "GREETING": {
       "AFTERNOON": "Boa tarde",

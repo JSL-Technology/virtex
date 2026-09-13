@@ -2,16 +2,24 @@
     <h3>{{ 'DASHBOARD.ALERTS_PANEL.ALERTAS_TEMPRANAS' | translate }}</h3>
 </div>
 <div class="widget-content">
+    @if (alerts().length === 0) {
+    <!-- Nothing wrong is a result, and saying so beats an empty panel that looks broken. -->
+    <div class="empty-state">
+        <lucide-icon [img]="CheckIcon" size="40"></lucide-icon>
+        <p>{{ 'DASHBOARD.ALERTS_PANEL.SIN_ALERTAS' | translate }}</p>
+    </div>
+    } @else {
     <ul class="alerts-list">
-        @for(alert of alerts(); track $index) {
+        @for(alert of alerts(); track alert.id) {
         <li class="alert-item" [ngClass]="alert.severity">
-            <lucide-icon [img]="alert.severity === 'critical' ? WarningIcon : CheckIcon" size="20"
+            <lucide-icon [img]="alert.severity === 'critical' ? CriticalIcon : WarningIcon" size="20"
                 class="alert-icon"></lucide-icon>
             <div class="alert-details">
-                <h4 class="alert-title">{{ alert.title }}</h4>
-                <p class="alert-description">{{ alert.description }}</p>
+                <h4 class="alert-title">{{ alert.messageKey + '.TITLE' | translate: alert.params }}</h4>
+                <p class="alert-description">{{ alert.messageKey + '.BODY' | translate: alert.params }}</p>
             </div>
         </li>
         }
     </ul>
+    }
 </div>

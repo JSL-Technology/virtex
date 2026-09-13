@@ -126,6 +126,25 @@ export class OverviewPage implements OnInit, TabAware {
     });
   }
 
+  /**
+   * The sentence for one activity row, in the reader's language.
+   *
+   * A document with no number of its own — a draft, a contact — says so rather than rendering an
+   * empty gap where the reference should be.
+   */
+  activityTitle(item: ActivityItem): string {
+    return this.translate.instant(item.titleKey, {
+      reference: item.reference ?? this.translate.instant('OVERVIEW.ACTIVITY.NO_REFERENCE'),
+    });
+  }
+
+  /** The sentence for one due date, in the reader's language. */
+  eventTitle(item: EventItem): string {
+    return this.translate.instant(item.titleKey, {
+      reference: item.reference ?? this.translate.instant('OVERVIEW.ACTIVITY.NO_REFERENCE'),
+    });
+  }
+
   private loadNews(): void {
     this.newsStatus.set('loading');
     this.overview.getNews().subscribe({

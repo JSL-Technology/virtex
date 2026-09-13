@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
@@ -47,6 +47,59 @@ export interface EbitdaDto {
 export interface FcfDto {
   freeCashFlow: number;
   date: Date;
+}
+
+/** One month of a trend, keyed by the first day of the month. */
+export interface TrendPoint {
+  month: string;
+  amount: number;
+}
+
+export interface BreakdownSlice {
+  /** The account's or product's own name, as the tenant keeps it. */
+  label: string;
+  amount: number;
+}
+
+/** The dashboard's headline figures, each against a comparable previous period. */
+export interface DashboardSummary {
+  salesToday: number;
+  salesTodayChange: number | null;
+  pendingInvoices: number;
+  pendingInvoicesAmount: number;
+  lowStockProducts: number;
+  outOfStockProducts: number;
+  activeCustomers: number;
+  activeCustomersChange: number | null;
+}
+
+export interface BudgetVsActualPoint {
+  month: string;
+  budgeted: number;
+  actual: number;
+}
+
+export interface InvoiceStatusSlice {
+  status: string;
+  count: number;
+  amount: number;
+}
+
+export interface LowStockItem {
+  id: string;
+  name: string;
+  sku: string | null;
+  stock: number;
+  reorderLevel: number | null;
+}
+
+export interface DashboardAlert {
+  id: string;
+  severity: 'critical' | 'warning';
+  /** i18n key; the sentence is written in the reader's language, not the server's. */
+  messageKey: string;
+  params: Record<string, string | number>;
+  route: string;
 }
 
 export interface CashFlowWaterfallDto {
@@ -105,5 +158,52 @@ export class DashboardApiService {
 
   getConsolidatedCashFlowWaterfall(): Observable<CashFlowWaterfallDto> {
     return this.http.get<CashFlowWaterfallDto>(`${this.apiUrl}/consolidated-cash-flow-waterfall`);
+  }
+
+  // ── Series de los gráficos ─────────────────────────────────────────────────
+  //
+  // Todas estas eran literales en el bundle: los mismos siete meses de ventas y el mismo desglose
+  // de gastos para todos los clientes del producto.
+
+  getSalesTrend(months = 12): Observable<TrendPoint[]> {
+    return this.http.get<TrendPoint[]>(`${this.apiUrl}/sales-trend`, {
+      params: new HttpParams().set('months', months),
+    });
+  }
+
+  getExpenseBreakdown(months = 12, limit = 8): Observable<BreakdownSlice[]> {
+    return this.http.get<BreakdownSlice[]>(`${this.apiUrl}/expense-breakdown`, {
+      params: new HttpParams().set('months', months).set('limit', limit),
+    });
+  }
+
+  getSummary(): Observable<DashboardSummary> {
+    return this.http.get<DashboardSummary>(`${this.apiUrl}/summary`);
+  }
+
+  getBudgetVsActual(months = 12): Observable<BudgetVsActualPoint[]> {
+    return this.http.get<BudgetVsActualPoint[]>(`${this.apiUrl}/budget-vs-actual`, {
+      params: new HttpParams().set('months', months),
+    });
+  }
+
+  getInvoiceStatusMix(): Observable<InvoiceStatusSlice[]> {
+    return this.http.get<InvoiceStatusSlice[]>(`${this.apiUrl}/invoice-status`);
+  }
+
+  getTopProducts(months = 12, limit = 5): Observable<BreakdownSlice[]> {
+    return this.http.get<BreakdownSlice[]>(`${this.apiUrl}/top-products`, {
+      params: new HttpParams().set('months', months).set('limit', limit),
+    });
+  }
+
+  getLowStock(limit = 10): Observable<LowStockItem[]> {
+    return this.http.get<LowStockItem[]>(`${this.apiUrl}/low-stock`, {
+      params: new HttpParams().set('limit', limit),
+    });
+  }
+
+  getAlerts(): Observable<DashboardAlert[]> {
+    return this.http.get<DashboardAlert[]>(`${this.apiUrl}/alerts`);
   }
 }

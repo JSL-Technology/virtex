@@ -2,7 +2,9 @@ import {
   Component, Input, computed, signal, inject, effect,
   ChangeDetectionStrategy, untracked, ElementRef, HostListener
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
+import { catchError, of } from 'rxjs';
 import { HighchartsChartComponent } from 'highcharts-angular';
 import * as Highcharts from 'highcharts';
 import { categoricalPalette } from '../../../../core/utils/chart-theme';
@@ -21,7 +23,8 @@ import {
 import { DashboardWidget, DashboardService, ChartType } from '../../../../core/services/dashboard';
 import { BrandingService } from '../../../../core/services/branding';
 import { PointOptionsObject } from 'highcharts';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { BreakdownSlice, DashboardApiService } from '../../../../core/api/dashboard-api.service';
 
 type ExportingChart = Highcharts.Chart & {
   print: () => void;
@@ -61,6 +64,9 @@ export class ExpensesChart {
   isSettingsOpen = signal(false);
   isExportMenuOpen = signal(false);
 
+  private readonly dashboardApi = inject(DashboardApiService);
+  private readonly i18n = inject(TranslateService);
+
   chartRef?: Highcharts.Chart;
   private get chart(): ExportingChart | undefined {
     return this.chartRef as unknown as ExportingChart;
@@ -74,40 +80,42 @@ export class ExpensesChart {
     });
   });
 
+  /**
+   * Operating expenses by account, from the ledger.
+   *
+   * This was five hardcoded slices — "Nómina y Salarios 45 %, Marketing 25 %, Alquiler 15 %…" —
+   * identical for every tenant and untranslated. By account rather than by an invented taxonomy:
+   * the chart of accounts is the classification the tenant chose and the one their accountant
+   * reconciles against.
+   */
+  private readonly breakdown = toSignal(
+    this.dashboardApi.getExpenseBreakdown(12, 8).pipe(catchError(() => of([] as BreakdownSlice[]))),
+    { initialValue: [] as BreakdownSlice[] },
+  );
+
   chartOptions = computed<Highcharts.Options>(() => {
     const chartType = (this.widget.chartType || 'pie') as ChartType;
     const themeOptions = this.getThemeOptions();
     const palette = categoricalPalette();
+    const configuredColors = this.widget.data?.seriesColors ?? {};
 
-    const seriesColors = this.widget.data?.seriesColors || {
-      //  Categorías de gasto: son series sin orden semántico, así que toman
-      //  la paleta categórica del sistema. Los índices fijan qué categoría
-      //  recibe qué matiz, de modo que «nómina» conserva su color entre
-      //  sesiones y entre gráficos.
-      'nómina y salarios': palette[0],
-      'marketing y publicidad': palette[2],
-      'alquiler y servicios': palette[4],
-      'suministros de oficina': palette[3],
-      'otros': palette[1]
-    };
-
-    const data = [
-      { name: 'Nómina y Salarios', y: 45, color: seriesColors['nómina y salarios'] },
-      { name: 'Marketing y Publicidad', y: 25, color: seriesColors['marketing y publicidad'] },
-      { name: 'Alquiler y Servicios', y: 15, color: seriesColors['alquiler y servicios'] },
-      { name: 'Suministros de Oficina', y: 10, color: seriesColors['suministros de oficina'] },
-      { name: 'Otros', y: 5, color: seriesColors['otros'] }
-    ];
+    // Colour by position in the palette, keyed on the account's own name so a given expense keeps
+    // its hue between sessions and between charts.
+    const data = this.breakdown().map((slice, index) => ({
+      name: slice.label,
+      y: slice.amount,
+      color: configuredColors[slice.label.toLowerCase()] ?? palette[index % palette.length],
+    }));
 
     const baseOptions: Highcharts.Options = {
       chart: { type: chartType as any },
-      title: { text: 'Desglose de Gastos Operativos' },
+      title: { text: this.i18n.instant('DASHBOARD.EXPENSES_CHART.TITLE') },
       legend: {
         enabled: true,
         itemStyle: { color: 'var(--text-secondary)', fontWeight: '500' }
       },
 
-      subtitle: { text: 'Principales categorías de gastos del período' },
+      subtitle: { text: this.i18n.instant('DASHBOARD.EXPENSES_CHART.SUBTITLE') },
       plotOptions: {
         pie: { innerSize: '60%', dataLabels: { enabled: false }, showInLegend: true, borderWidth: 3, borderColor: 'var(--bg-layer-1)', allowPointSelect: true },
         column: { borderWidth: 0, borderRadius: 4, pointWidth: 25, allowPointSelect: true },
@@ -115,7 +123,7 @@ export class ExpensesChart {
       },
       xAxis: { categories: data.map(d => d.name), crosshair: true },
       series: [{
-        name: 'Gastos', type: chartType as any, data,
+        name: this.i18n.instant('DASHBOARD.EXPENSES_CHART.SERIES'), type: chartType as any, data,
         states: { hover: { halo: { size: 8 } } }
       }],
       credits: { enabled: false },

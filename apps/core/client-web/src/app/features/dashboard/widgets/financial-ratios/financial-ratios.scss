@@ -55,4 +55,6 @@
   &.good    { color: var(--success); }
   &.warning { color: var(--warning-text); }
   &.danger  { color: var(--error); }
+  /* No figure yet — a dash, not a colour that claims a judgement the data cannot support. */
+  &.neutral { color: var(--content-tertiary); }
 }

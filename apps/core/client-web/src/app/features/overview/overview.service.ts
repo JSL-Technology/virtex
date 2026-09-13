@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { catchError, delay } from 'rxjs/operators';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import {
   Receipt,
   FilePlus,
@@ -8,33 +9,40 @@ import {
   UserPlus,
   Package,
   FileBarChart,
-  BarChart3,
-  TrendingUp,
-  Megaphone,
-  Sparkles,
-  Calendar,
+  BookOpen,
+  CalendarCheck,
+  AlertTriangle,
+  Truck,
+  Banknote,
   CreditCard,
   Users,
 } from 'lucide-angular';
 
+import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/services/auth';
 
 /**
- * Capa de datos de la pestaña «Overview» (página de inicio del workspace).
+ * The workspace home page's data.
  *
- * Diseño: cada sección se expone como un Observable tipado con *fallback*
- * elegante (`catchError → []`), de modo que la UI siempre puede pintar estados
- * loading / ready / empty / error sin romperse. Hoy las secciones de actividad,
- * noticias y eventos devuelven datos de ejemplo; migrar a endpoints reales solo
- * requiere sustituir el cuerpo de cada método por la llamada HTTP correspondiente
- * (la firma y los tipos no cambian, así la UI permanece intacta).
+ * ## What this was
+ *
+ * Three methods that returned invented data through a simulated 450 ms delay so the loading states
+ * would look convincing: six invoices and payments ("Factura #00128 emitida a Proyectos Globales
+ * S.A. — RD$ 45,800.00"), three product announcements and three calendar entries, every one of
+ * them a Spanish string compiled into the bundle. A tenant who had issued nothing saw a month of
+ * trading that never happened, in a language they may not have chosen, and could click through to
+ * documents that did not exist. Data a reader cannot tell from real data is worse than an empty
+ * state: it teaches them not to trust the screen.
+ *
+ * Everything now comes from `/overview`, which reads the tenant's own tables. The server returns
+ * *facts* — which table, which action, which document number — and the sentence is composed here,
+ * in the reader's language, because a sentence built on the server is a sentence in one language.
  */
 @Injectable({ providedIn: 'root' })
 export class OverviewService {
-  private auth = inject(AuthService);
-
-  /** Latencia simulada para que los estados de carga sean realistas (solo mock). */
-  private static readonly MOCK_LATENCY_MS = 450;
+  private readonly http = inject(HttpClient);
+  private readonly auth = inject(AuthService);
+  private readonly apiUrl = `${environment.apiUrl}/overview`;
 
   // ── Accesos rápidos ────────────────────────────────────────────────────────
   // Configuración declarativa. Se filtra por permisos en `getQuickActions()`, que
@@ -56,61 +64,128 @@ export class OverviewService {
   }
 
   // ── Actividad reciente ─────────────────────────────────────────────────────
-  /** TODO(backend): GET /overview/recent-activity. */
-  getRecentActivity(): Observable<ActivityItem[]> {
-    const now = Date.now();
-    const minutes = (m: number) => new Date(now - m * 60_000).toISOString();
 
-    const data: ActivityItem[] = [
-      { id: 'a1', kind: 'invoice', icon: Receipt,     title: 'Factura #00128 emitida a Proyectos Globales S.A.', meta: 'RD$ 45,800.00', route: '/invoices', timestamp: minutes(8) },
-      { id: 'a2', kind: 'payment', icon: CreditCard,  title: 'Pago recibido de Distribuidora del Este',          meta: 'RD$ 12,300.00', route: '/customer-receipts', timestamp: minutes(52) },
-      { id: 'a3', kind: 'report',  icon: BarChart3,   title: 'Reporte «Ventas por vendedor» generado',           route: '/reports', timestamp: minutes(140) },
-      { id: 'a4', kind: 'product', icon: Package,     title: 'Producto «Silla Ergonómica Pro» añadido al inventario', route: '/inventory', timestamp: minutes(320) },
-      { id: 'a5', kind: 'contact', icon: Users,       title: 'Nuevo cliente «Ferretería La Económica» registrado', route: '/contacts', timestamp: minutes(1180) },
-      { id: 'a6', kind: 'invoice', icon: Receipt,     title: 'Factura #00125 marcada como pagada',                meta: 'RD$ 8,900.00', route: '/invoices', timestamp: minutes(1620) },
-    ];
-
-    return of(data).pipe(
-      delay(OverviewService.MOCK_LATENCY_MS),
-      catchError(() => of([] as ActivityItem[]))
-    );
+  /**
+   * What has actually happened in this tenant, from the audit trail, filtered server-side to the
+   * document types this seat may read.
+   */
+  getRecentActivity(limit = 8): Observable<ActivityItem[]> {
+    return this.http
+      .get<ActivityDto[]>(`${this.apiUrl}/activity`, {
+        params: new HttpParams().set('limit', limit),
+      })
+      .pipe(map((rows) => rows.map((row) => toActivityItem(row))));
   }
 
-  // ── Noticias de Virtex ─────────────────────────────────────────────────────
-  /** TODO(backend): GET /overview/news. */
+  // ── Vencimientos y cierres ─────────────────────────────────────────────────
+
+  /** What falls due next, from the documents that carry a date — not from a calendar we invented. */
+  getEvents(days = 30, limit = 8): Observable<EventItem[]> {
+    return this.http
+      .get<EventDto[]>(`${this.apiUrl}/events`, {
+        params: new HttpParams().set('days', days).set('limit', limit),
+      })
+      .pipe(map((rows) => rows.map((row) => toEventItem(row))));
+  }
+
+  // ── Novedades del producto ─────────────────────────────────────────────────
+
+  /**
+   * Product news, from whatever feed the operator configured. Empty when none is — which is what
+   * the page shows rather than three announcements nobody published.
+   */
   getNews(): Observable<NewsItem[]> {
-    const now = Date.now();
-    const days = (d: number) => new Date(now - d * 86_400_000).toISOString();
-
-    const data: NewsItem[] = [
-      { id: 'n1', icon: Sparkles,  tag: 'Novedad',       title: 'Nueva página de inicio Overview', summary: 'Accede más rápido a tus tareas frecuentes, actividad reciente y novedades de Virtex.', date: days(0) },
-      { id: 'n2', icon: TrendingUp, tag: 'Mejora',       title: 'Reportes financieros más veloces', summary: 'Optimizamos el motor de reportes: hasta un 40% más rápido en cuentas por cobrar.', date: days(3) },
-      { id: 'n3', icon: Megaphone, tag: 'Anuncio',       title: 'Facturación electrónica DGII e-CF', summary: 'Soporte ampliado para comprobantes fiscales electrónicos. Revisa la configuración fiscal.', date: days(9) },
-    ];
-
-    return of(data).pipe(
-      delay(OverviewService.MOCK_LATENCY_MS),
-      catchError(() => of([] as NewsItem[]))
-    );
+    return this.http.get<NewsItem[]>(`${this.apiUrl}/news`);
   }
+}
 
-  // ── Eventos ────────────────────────────────────────────────────────────────
-  /** TODO(backend): GET /overview/events. */
-  getEvents(): Observable<EventItem[]> {
-    const now = Date.now();
-    const days = (d: number) => new Date(now + d * 86_400_000).toISOString();
+// ── Traducción de los hechos del servidor a lo que la página pinta ────────────
 
-    const data: EventItem[] = [
-      { id: 'e1', icon: Calendar, title: 'Cierre contable mensual', date: days(2),  type: 'Recordatorio' },
-      { id: 'e2', icon: Calendar, title: 'Webinar: Novedades de Virtex Q3', date: days(6), location: 'En línea', type: 'Evento' },
-      { id: 'e3', icon: Calendar, title: 'Vencimiento declaración IT-1', date: days(11), type: 'Fiscal' },
-    ];
+/** Which icon and which sentence belong to each audited table. */
+const ENTITY_VIEW: Record<string, { kind: ActivityKind; icon: unknown; key: string; route: string }> = {
+  invoices:          { kind: 'invoice', icon: Receipt,    key: 'INVOICES',          route: '/invoices' },
+  customer_payments: { kind: 'payment', icon: CreditCard, key: 'CUSTOMER_PAYMENTS', route: '/customer-receipts' },
+  vendor_bills:      { kind: 'bill',    icon: Truck,      key: 'VENDOR_BILLS',      route: '/accounts-payable' },
+  vendor_payments:   { kind: 'payment', icon: Banknote,   key: 'VENDOR_PAYMENTS',   route: '/accounts-payable/payments' },
+  journal_entries:   { kind: 'entry',   icon: BookOpen,   key: 'JOURNAL_ENTRIES',   route: '/accounting/journal-entries' },
+  customers:         { kind: 'contact', icon: Users,      key: 'CUSTOMERS',         route: '/contacts' },
+  suppliers:         { kind: 'contact', icon: Users,      key: 'SUPPLIERS',         route: '/contacts/suppliers' },
+  products:          { kind: 'product', icon: Package,    key: 'PRODUCTS',          route: '/inventory' },
+};
 
-    return of(data).pipe(
-      delay(OverviewService.MOCK_LATENCY_MS),
-      catchError(() => of([] as EventItem[]))
-    );
-  }
+const EVENT_VIEW: Record<string, { icon: unknown; overdue: boolean }> = {
+  RECEIVABLE_DUE:      { icon: Receipt,       overdue: false },
+  RECEIVABLE_OVERDUE:  { icon: AlertTriangle, overdue: true  },
+  PAYABLE_DUE:         { icon: Truck,         overdue: false },
+  PAYABLE_OVERDUE:     { icon: AlertTriangle, overdue: true  },
+  PERIOD_CLOSE:        { icon: CalendarCheck, overdue: false },
+};
+
+function toActivityItem(row: ActivityDto): ActivityItem {
+  const view = ENTITY_VIEW[row.entity] ?? {
+    kind: 'entry' as ActivityKind,
+    icon: FileText,
+    key: 'GENERIC',
+    route: '',
+  };
+  return {
+    id: row.id,
+    kind: view.kind,
+    icon: view.icon,
+    // Composed by the template through `translate`, so the sentence is in the reader's language
+    // rather than in whichever language the server happens to be written in.
+    titleKey: `OVERVIEW.ACTIVITY.ITEM.${view.key}.${row.action}`,
+    reference: row.reference,
+    counterparty: row.counterparty,
+    amount: row.amount,
+    currencyCode: row.currencyCode,
+    actorName: row.actorName,
+    route: view.route || undefined,
+    timestamp: row.timestamp,
+  };
+}
+
+function toEventItem(row: EventDto): EventItem {
+  const view = EVENT_VIEW[row.kind] ?? { icon: CalendarCheck, overdue: false };
+  return {
+    id: row.id,
+    icon: view.icon,
+    overdue: view.overdue,
+    titleKey: `OVERVIEW.EVENTS.ITEM.${row.kind}`,
+    typeKey: `OVERVIEW.EVENTS.KIND.${row.kind}`,
+    reference: row.reference,
+    counterparty: row.counterparty,
+    amount: row.amount,
+    currencyCode: row.currencyCode,
+    date: row.date,
+    route: row.route,
+  };
+}
+
+// ── Lo que el servidor envía ──────────────────────────────────────────────────
+
+interface ActivityDto {
+  id: string;
+  entity: string;
+  entityId: string;
+  action: 'CREATE' | 'UPDATE' | 'DELETE' | 'EXPORT';
+  reference: string | null;
+  counterparty: string | null;
+  amount: number | null;
+  currencyCode: string | null;
+  actorName: string | null;
+  timestamp: string;
+}
+
+interface EventDto {
+  id: string;
+  kind: string;
+  date: string;
+  reference: string | null;
+  counterparty: string | null;
+  amount: number | null;
+  currencyCode: string | null;
+  route: string;
 }
 
 // ── Tipos públicos ────────────────────────────────────────────────────────────
@@ -130,16 +205,19 @@ export interface QuickAction {
   accent: QuickActionAccent;
 }
 
-export type ActivityKind = 'invoice' | 'report' | 'product' | 'contact' | 'payment' | 'sale';
+export type ActivityKind = 'invoice' | 'bill' | 'entry' | 'product' | 'contact' | 'payment';
 
 export interface ActivityItem {
   id: string;
   kind: ActivityKind;
   icon: unknown;
-  title: string;
-  /** Texto secundario opcional (importe, estado…). */
-  meta?: string;
-  /** Ruta a la que navegar al hacer clic. */
+  /** i18n key of the sentence; `reference` is its only parameter. */
+  titleKey: string;
+  reference: string | null;
+  counterparty: string | null;
+  amount: number | null;
+  currencyCode: string | null;
+  actorName: string | null;
   route?: string;
   /** ISO 8601. */
   timestamp: string;
@@ -147,22 +225,26 @@ export interface ActivityItem {
 
 export interface NewsItem {
   id: string;
-  icon: unknown;
   title: string;
   summary: string;
-  tag?: string;
+  tag: string | null;
   /** ISO 8601. */
   date: string;
-  /** Enlace externo opcional. */
-  url?: string;
+  url: string | null;
 }
 
 export interface EventItem {
   id: string;
   icon: unknown;
-  title: string;
-  /** ISO 8601. */
+  /** Past its date: worth showing differently from something merely upcoming. */
+  overdue: boolean;
+  titleKey: string;
+  typeKey: string;
+  reference: string | null;
+  counterparty: string | null;
+  amount: number | null;
+  currencyCode: string | null;
+  /** ISO date. */
   date: string;
-  location?: string;
-  type?: string;
+  route: string;
 }
