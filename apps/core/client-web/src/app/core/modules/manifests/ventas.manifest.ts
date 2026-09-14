@@ -32,7 +32,7 @@ export const VENTAS_MODULE: ModuleManifest = {
       titleKey: 'page_titles.invoice_new',
       icon: 'FilePlus',
       // A new invoice is a fresh draft every time: two of them must not collapse into one window.
-      entityKeyFn: () => `ventas:invoice:new:${crypto.randomUUID()}`,
+      entityKeyFn: () => 'ventas:invoice:new',
       load: () => import('../../../features/invoices/new/new.page').then((m) => m.NewInvoicePage),
     },
     {
@@ -64,7 +64,7 @@ export const VENTAS_MODULE: ModuleManifest = {
       permission: 'accounts_receivable:collect',
       titleKey: 'page_titles.customer_receipt_new',
       icon: 'HandCoins',
-      entityKeyFn: () => `ventas:receipt:new:${crypto.randomUUID()}`,
+      entityKeyFn: () => 'ventas:receipt:new',
       load: () => import('../../../features/customer-receipts/form/form.page').then((m) => m.CustomerReceiptFormPage),
     },
     {
@@ -83,7 +83,7 @@ export const VENTAS_MODULE: ModuleManifest = {
       permission: 'customers:create',
       titleKey: 'page_titles.customer_new',
       icon: 'UserPlus',
-      entityKeyFn: () => `ventas:customer:new:${crypto.randomUUID()}`,
+      entityKeyFn: () => 'ventas:customer:new',
       load: () => import('../../../features/contacts/customer-form/customer-form.page').then((m) => m.CustomerFormPage),
     },
     {
@@ -111,7 +111,7 @@ export const VENTAS_MODULE: ModuleManifest = {
       permission: 'price_lists:create',
       titleKey: 'page_titles.price_list_new',
       icon: 'Tag',
-      entityKeyFn: () => `ventas:price-list:new:${crypto.randomUUID()}`,
+      entityKeyFn: () => 'ventas:price-list:new',
       load: () => import('../../../features/masters/price-lists/price-lists-form/price-list-form.page').then((m) => m.PriceListFormPage),
     },
     {

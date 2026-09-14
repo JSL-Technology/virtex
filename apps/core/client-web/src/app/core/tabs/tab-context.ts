@@ -63,6 +63,20 @@ export interface TabContext {
    */
   replaceRoute(route: string, options?: { title?: string }): void;
 
+  /**
+   * Cierra ESTA ventana, sin preguntar.
+   *
+   * Para el borrador que ya cumplió: se guardó y la página se fue a la lista. Sin esto la ventana
+   * «Nueva factura» se quedaba abierta con la factura ya emitida dentro y su clave de borrador
+   * puesta, así que el siguiente «Nueva factura» la enfocaba y enseñaba el documento anterior en
+   * vez de un formulario en blanco.
+   *
+   * No pregunta por cambios sin guardar —a diferencia de cerrar con la X— porque quien llama acaba
+   * de guardarlos. Tampoco entra en la pila de «reabrir pestaña cerrada»: reabrir un borrador
+   * terminado devolvería un formulario vacío, que no es lo que nadie espera de esa acción.
+   */
+  close(): void;
+
   /** Marca (o limpia) la pestaña como «con cambios sin guardar». */
   markDirty(isDirty?: boolean): void;
   /** Equivale a `markDirty(false)`: los cambios se guardaron o se descartaron. */

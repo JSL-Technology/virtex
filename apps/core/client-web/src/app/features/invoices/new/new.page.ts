@@ -32,6 +32,7 @@ import { InvoiceToolbarComponent } from '../components/invoice-toolbar/invoice-t
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { TranslateModule } from '@ngx-translate/core';
+import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 
 /**
  * Issuing a sales document.
@@ -57,6 +58,8 @@ import { TranslateModule } from '@ngx-translate/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NewInvoicePage implements OnInit {
+  /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
+  private readonly tab = inject(TAB_CONTEXT, { optional: true });
   private readonly translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
   private fb = inject(FormBuilder);
@@ -496,7 +499,10 @@ export class NewInvoicePage implements OnInit {
             { number: issue ? (invoice.ncfNumber ?? invoice.invoiceNumber) : invoice.invoiceNumber },
           ),
         );
-        this.router.navigate(['/invoices', invoice.id]);
+        //  Esta ventana ya cumplió: el registro existe y la página se va a la lista. Si se dejara
+        //  abierta seguiría anunciándose como «el formulario nuevo», y el siguiente clic en «Nuevo»
+        //  la enfocaría con el documento ya guardado dentro. Ver `TabContext.close`.
+        void this.router.navigate(['/invoices', invoice.id]).then(() => this.tab?.close());
       },
       error: (err) => {
         this.notificationService.showError(

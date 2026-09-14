@@ -24,7 +24,7 @@ export const ADMINISTRACION_MODULE: ModuleManifest = {
       permission: 'taxes:create',
       titleKey: 'page_titles.tax_new',
       icon: 'Percent',
-      entityKeyFn: () => `administracion:tax:new:${crypto.randomUUID()}`,
+      entityKeyFn: () => 'administracion:tax:new',
       load: () => import('../../../features/masters/taxes/tax-form/tax-form.page').then((m) => m.TaxFormPage),
     },
     {

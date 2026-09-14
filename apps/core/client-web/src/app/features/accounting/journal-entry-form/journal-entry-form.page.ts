@@ -281,7 +281,10 @@ export class JournalEntryFormPage implements OnInit {
             ? 'accounting.journal_entry_form.entry_modified_original_reversed_new_one'
             : 'accounting.journal_entry_form.entry_created',
         );
-        this.router.navigate(['/accounting/journal-entries']);
+        //  Esta ventana ya cumplió: el registro existe y la página se va a la lista. Si se dejara
+        //  abierta seguiría anunciándose como «el formulario nuevo», y el siguiente clic en «Nuevo»
+        //  la enfocaría con el documento ya guardado dentro. Ver `TabContext.close`.
+        void this.router.navigate(['/accounting/journal-entries']).then(() => this.tab?.close());
       },
       error: (err) => {
         this.notificationService.showError(

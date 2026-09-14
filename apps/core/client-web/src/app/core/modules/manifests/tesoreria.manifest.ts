@@ -31,7 +31,7 @@ export const TESORERIA_MODULE: ModuleManifest = {
       permission: 'treasury:manage_accounts',
       titleKey: 'page_titles.bank_account',
       icon: 'Landmark',
-      entityKeyFn: () => `tesoreria:bank-account:new:${crypto.randomUUID()}`,
+      entityKeyFn: () => 'tesoreria:bank-account:new',
       load: () => import('../../../features/accounting/treasury/bank-account-form/bank-account-form.page').then((m) => m.BankAccountFormPage),
     },
     {

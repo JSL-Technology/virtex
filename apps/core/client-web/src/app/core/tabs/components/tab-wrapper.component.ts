@@ -235,6 +235,7 @@ export class TabWrapperComponent implements AfterViewInit, OnDestroy {
         markDirty: (isDirty = true) => this.tabState.markDirty(tabId, isDirty),
         markClean: () => this.tabState.markClean(tabId),
         replaceRoute: (route, options) => this.tabState.replaceRoute(tabId, route, options),
+        close: () => this.tabState.removeTabSilently(tabId, false),
         registerSaveHandler: (handler) => this.tabState.registerSaveHandler(tabId, handler),
         emit: (event) => this.bus.emit(event),
       };

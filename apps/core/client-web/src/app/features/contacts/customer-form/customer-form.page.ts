@@ -6,6 +6,7 @@ import { NotificationService } from '../../../core/services/notification';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { CountryNamesService } from '../../../core/i18n/countries';
+import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 
 @Component({
   selector: 'app-customer-form-page',
@@ -15,6 +16,8 @@ import { CountryNamesService } from '../../../core/i18n/countries';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomerFormPage implements OnInit {
+  /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
+  private readonly tab = inject(TAB_CONTEXT, { optional: true });
   id = input<string>();
 
   /**
@@ -160,7 +163,10 @@ export class CustomerFormPage implements OnInit {
     operation.subscribe({
       next: () => {
         this.notificationService.showSuccess(this.isEditMode() ? 'contacts.customer_form.customer_updated' : 'contacts.customer_form.customer_created');
-        this.router.navigate(['/contacts/customers']);
+        //  Esta ventana ya cumplió: el registro existe y la página se va a la lista. Si se dejara
+        //  abierta seguiría anunciándose como «el formulario nuevo», y el siguiente clic en «Nuevo»
+        //  la enfocaría con el documento ya guardado dentro. Ver `TabContext.close`.
+        void this.router.navigate(['/contacts/customers']).then(() => this.tab?.close());
       },
       error: (err) => {
         // The server says exactly what it refused and says it in the reader's language; throwing

@@ -6,6 +6,7 @@ import { NotificationService } from '../../../core/services/notification';
 import { Journal } from '../../../core/models/journal.model';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
+import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 
 @Component({
   selector: 'app-journal-form',
@@ -16,6 +17,8 @@ import { DraftShellComponent, DraftProblem, draftProblems } from '../../../share
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class JournalFormPage implements OnInit {
+  /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
+  private readonly tab = inject(TAB_CONTEXT, { optional: true });
   private fb = inject(FormBuilder);
   private journalsService = inject(JournalsService);
   private router = inject(Router);
@@ -84,7 +87,10 @@ export class JournalFormPage implements OnInit {
             ? 'accounting.journal_form.journal_updated'
             : 'accounting.journal_form.journal_created',
         );
-        this.router.navigate(['/accounting/journals']);
+        //  Esta ventana ya cumplió: el registro existe y la página se va a la lista. Si se dejara
+        //  abierta seguiría anunciándose como «el formulario nuevo», y el siguiente clic en «Nuevo»
+        //  la enfocaría con el documento ya guardado dentro. Ver `TabContext.close`.
+        void this.router.navigate(['/accounting/journals']).then(() => this.tab?.close());
       },
       error: (error: { error?: { message?: string } }) => {
         const message = error?.error?.message;

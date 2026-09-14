@@ -11,6 +11,7 @@ import {
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
+import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 
 @Component({
   selector: 'app-product-form-page',
@@ -20,6 +21,8 @@ import { DraftShellComponent, DraftProblem, draftProblems } from '../../../share
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductFormPage implements OnInit {
+  /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
+  private readonly tab = inject(TAB_CONTEXT, { optional: true });
   id = input<string>();
 
   private fb = inject(FormBuilder);
@@ -152,7 +155,10 @@ export class ProductFormPage implements OnInit {
     operation.subscribe({
       next: () => {
         this.notificationService.showSuccess(this.isEditMode() ? 'inventory.product_form.product_updated' : 'inventory.product_form.product_created');
-        this.router.navigate(['/inventory/products']);
+        //  Esta ventana ya cumplió: el registro existe y la página se va a la lista. Si se dejara
+        //  abierta seguiría anunciándose como «el formulario nuevo», y el siguiente clic en «Nuevo»
+        //  la enfocaría con el documento ya guardado dentro. Ver `TabContext.close`.
+        void this.router.navigate(['/inventory/products']).then(() => this.tab?.close());
       },
       error: (err) => {
         this.notificationService.showError(this.isEditMode() ? 'inventory.product_form.error_updating_product' : 'inventory.product_form.error_creating_product');

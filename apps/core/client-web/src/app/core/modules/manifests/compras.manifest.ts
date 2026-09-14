@@ -31,7 +31,7 @@ export const COMPRAS_MODULE: ModuleManifest = {
       permission: 'accounts_payable:create',
       titleKey: 'page_titles.vendor_bill_new',
       icon: 'FilePlus',
-      entityKeyFn: () => `compras:bill:new:${crypto.randomUUID()}`,
+      entityKeyFn: () => 'compras:bill:new',
       load: () => import('../../../features/accounts-payable/form/form.page').then((m) => m.VendorBillFormPage),
     },
     {
@@ -80,7 +80,7 @@ export const COMPRAS_MODULE: ModuleManifest = {
       permission: 'suppliers:create',
       titleKey: 'page_titles.suppliers',
       icon: 'Truck',
-      entityKeyFn: () => `compras:supplier:new:${crypto.randomUUID()}`,
+      entityKeyFn: () => 'compras:supplier:new',
       load: () => import('../../../features/masters/suppliers/supplier-form/supplier-form').then((m) => m.SupplierForm),
     },
     {

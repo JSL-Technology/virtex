@@ -9,6 +9,7 @@ import { Ledger } from '../../../core/models/ledger.model';
 import { NotificationService } from '../../../core/services/notification';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
+import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 
 @Component({
   selector: 'app-ledger-form-page',
@@ -18,6 +19,8 @@ import { DraftShellComponent, DraftProblem, draftProblems } from '../../../share
   styleUrls: ['./app-ledger-form-page.scss']
 })
 export class LedgerFormPage implements OnInit {
+  /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
+  private readonly tab = inject(TAB_CONTEXT, { optional: true });
   @Input() id?: string;
 
   private fb = inject(FormBuilder);
@@ -92,7 +95,10 @@ export class LedgerFormPage implements OnInit {
     operation.subscribe({
       next: () => {
         this.notificationService.showSuccess(this.isEditMode() ? 'accounting.ledger_form.ledger_updated_successfully' : 'accounting.ledger_form.ledger_created_successfully');
-        this.router.navigate(['/accounting/general-ledger']);
+        //  Esta ventana ya cumplió: el registro existe y la página se va a la lista. Si se dejara
+        //  abierta seguiría anunciándose como «el formulario nuevo», y el siguiente clic en «Nuevo»
+        //  la enfocaría con el documento ya guardado dentro. Ver `TabContext.close`.
+        void this.router.navigate(['/accounting/general-ledger']).then(() => this.tab?.close());
       },
       error: (err) => {
         this.notificationService.showError(this.isEditMode() ? 'accounting.ledger_form.error_updating_ledger' : 'accounting.ledger_form.error_creating_ledger');

@@ -34,6 +34,7 @@ import { chargeableExpenseAccounts } from '../../../core/services/account-select
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { toIsoDate } from '../../reports/financial-statements/report-period';
+import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
 
 /** The date pickers hand back `YYYY-MM-DD` already; this only normalises what the API returns. */
 function isoOf(value: string | Date): string {
@@ -90,6 +91,8 @@ interface BillTotals {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VendorBillFormPage implements OnInit {
+  /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
+  private readonly tab = inject(TAB_CONTEXT, { optional: true });
   protected readonly AddIcon = Plus;
   protected readonly RemoveIcon = Trash2;
   protected readonly purchaseCategories = PURCHASE_CATEGORIES;
@@ -388,7 +391,10 @@ export class VendorBillFormPage implements OnInit {
             : 'accounts_payable.form.invoice_created',
         );
         this.isLoading.set(false);
-        this.router.navigate(['/accounts-payable', bill.id]);
+        //  Esta ventana ya cumplió: el registro existe y la página se va a la lista. Si se dejara
+        //  abierta seguiría anunciándose como «el formulario nuevo», y el siguiente clic en «Nuevo»
+        //  la enfocaría con el documento ya guardado dentro. Ver `TabContext.close`.
+        void this.router.navigate(['/accounts-payable', bill.id]).then(() => this.tab?.close());
       },
       error: (error: unknown) => {
         // The server's own message, not a generic one. Every rejection this screen produced was
