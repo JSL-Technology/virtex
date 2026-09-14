@@ -11,11 +11,12 @@ import { DatasheetSidebarComponent } from '../../components/datasheet-sidebar.co
 import { DatasheetVariablesService } from '../../services/datasheet-variables.service';
 import { firstValueFrom } from 'rxjs';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 @Component({
   selector: 'app-datasheet-editor',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule, LucideAngularModule, DatasheetGridComponent, DatasheetSidebarComponent, FormsModule],
+  imports: [CommonModule, RouterModule, TranslateModule, LucideAngularModule, DatasheetGridComponent, DatasheetSidebarComponent, FormsModule, ...VX_FORM_A11Y],
   styleUrl: './datasheet-editor.page.scss',
   template: `
     <div class="editor-container">

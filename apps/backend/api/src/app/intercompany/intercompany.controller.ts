@@ -3,10 +3,10 @@ import {
   Controller,
   Get,
   Param,
-  ParseUUIDPipe,
   Post,
   UseGuards,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -71,7 +71,7 @@ export class IntercompanyController {
   @HasPermission(PERMISSIONS.INTERCOMPANY_TRANSACT)
   @ApiOperation({ summary: 'Reintenta el asiento de destino de un movimiento fallido.' })
   retry(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.intercompanyService.retry(id, user.organizationId);

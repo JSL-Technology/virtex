@@ -2,7 +2,12 @@ import { Injectable, inject, isDevMode } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
-import { errorCodeOf, errorParamsOf, resolveErrorKey } from '@virteex/shared/ui-i18n';
+import {
+  VirtexTranslateStore,
+  errorCodeOf,
+  errorParamsOf,
+  resolveErrorKey,
+} from '@virteex/shared/ui-i18n';
 
 /**
  * Turns any HTTP failure into a sentence in the reader's language.
@@ -66,6 +71,7 @@ interface ErrorBody {
 @Injectable({ providedIn: 'root' })
 export class ErrorHandlerService {
   private readonly translate = inject(TranslateService);
+  private readonly store = inject(VirtexTranslateStore);
 
   handleError(operation: string, error: HttpErrorResponse): Observable<never> {
     const described = this.describe(error);
@@ -109,9 +115,27 @@ export class ErrorHandlerService {
     return resolveErrorKey(error, (key) => this.has(key));
   }
 
-  /** Whether the loaded catalogue can render a key. `instant` returns the key when it cannot. */
+  /**
+   * Whether the loaded catalogue can actually render a key.
+   *
+   * This used to ask `instant(key) !== key`, which is the documented `@ngx-translate` behaviour —
+   * and is wrong here, because this product replaces that behaviour. `VirtexMissingTranslationHandler`
+   * returns `[[key]]` in development and a humanised last segment in production, and neither of
+   * those equals the key. So the check answered "yes, I can render it" for every key that does not
+   * exist, the resolution order below it never reached steps 2 to 4, and the first candidate won
+   * whether or not the catalogue held it. A cashier shown `[[errors.internal_error]]` was seeing
+   * exactly that: a key the catalogue does not define, accepted by a check that could not fail.
+   *
+   * `VirtexTranslateStore.hasKey` asks the funnel every lookup already passes through — the pipe,
+   * the directive, `instant`, `get` and the fallback-language retry all reach it — so the check and
+   * the later render walk the same normalisation and cannot disagree about what exists.
+   */
   private has(key: string): boolean {
-    return this.translate.instant(key) !== key;
+    for (const language of [this.translate.currentLang, this.translate.defaultLang]) {
+      if (!language) continue;
+      if (this.store.hasKey(language, key)) return true;
+    }
+    return false;
   }
 
   /**

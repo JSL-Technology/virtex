@@ -10,11 +10,12 @@ import { FlattenedAccount } from '../../../core/models/flattened-account.model';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { ListShellComponent } from '../../../shared/components/gestures';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 @Component({
   selector: 'app-chart-of-accounts-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
+  imports: [FormsModule, RouterLink, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y],
   templateUrl: './chart-of-accounts.page.html',
   styleUrls: ['./chart-of-accounts.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -84,8 +85,19 @@ export class ChartOfAccountsPage implements OnInit {
       this.state.toggleAccountExpansion(account.id);
   }
   
+  /**
+   * Opens the account form, at the two URLs the manifest actually declares.
+   *
+   * This navigated to `/accounting/account-form`, which no manifest declares and no route table
+   * contains. A URL that matches nothing opens the generic "under construction" window, so the
+   * only way into the account form said the feature was not built yet — while the form itself sat
+   * complete at `chart-of-accounts/new`, tabs for mappings, rules and dimensions included. Creating
+   * an account from the interface was impossible for as long as that string was wrong.
+   */
   goToAccountForm(id?: string): void {
-    const route = id ? ['/accounting/account-form', id] : ['/accounting/account-form'];
+    const route = id
+      ? ['/accounting/chart-of-accounts', id, 'edit']
+      : ['/accounting/chart-of-accounts/new'];
     this.router.navigate(route);
   }
   

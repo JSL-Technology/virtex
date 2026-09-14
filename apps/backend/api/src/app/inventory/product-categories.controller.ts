@@ -6,12 +6,12 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseUUIDPipe,
   Patch,
   Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
@@ -46,7 +46,7 @@ export class ProductCategoriesController {
 
   @Get(':id')
   @HasPermission(PERMISSIONS.PRODUCTS_VIEW)
-  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  findOne(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.categories.findOne(id, user.organizationId);
   }
 
@@ -59,7 +59,7 @@ export class ProductCategoriesController {
   @Patch(':id')
   @HasPermission(PERMISSIONS.PRODUCTS_EDIT)
   update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: UpdateProductCategoryDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -69,7 +69,7 @@ export class ProductCategoriesController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @HasPermission(PERMISSIONS.PRODUCTS_EDIT)
-  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  remove(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.categories.remove(id, user.organizationId);
   }
 }

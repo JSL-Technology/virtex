@@ -1,11 +1,12 @@
 import { Component, Input, forwardRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule, FormControl } from '@angular/forms';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 @Component({
   selector: 'app-auth-input',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, ...VX_FORM_A11Y],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

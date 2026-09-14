@@ -15,6 +15,7 @@ import { LucideAngularModule, Mail, AlertCircle, CheckCircle, ArrowLeft } from '
 import { AuthInputComponent } from '../../components/auth-input/auth-input.component';
 import { AuthButtonComponent } from '../../components/auth-button/auth-button.component';
 import { BrandLogo } from '../../../../shared/components/brand-logo/brand-logo';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 @Component({
   selector: 'app-forgot-password',
@@ -29,6 +30,7 @@ import { BrandLogo } from '../../../../shared/components/brand-logo/brand-logo';
     AuthInputComponent,
     AuthButtonComponent,
     BrandLogo,
+    ...VX_FORM_A11Y,
   ],
   providers: [
     ReCaptchaV3Service,

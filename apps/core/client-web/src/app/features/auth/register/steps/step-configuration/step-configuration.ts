@@ -10,6 +10,7 @@ import {
   type TaxpayerKind,
 } from '../../../../../core/services/country.service';
 import { AuthInputComponent } from '../../../components/auth-input/auth-input.component';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * The fiscal identity step: country, tax id, and the fiscal address.
@@ -29,7 +30,7 @@ import { AuthInputComponent } from '../../../components/auth-input/auth-input.co
 @Component({
   selector: 'app-step-configuration',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, AuthInputComponent],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, AuthInputComponent, ...VX_FORM_A11Y],
   templateUrl: './step-configuration.html',
   styleUrls: ['./step-configuration.scss'],
 })

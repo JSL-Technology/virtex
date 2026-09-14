@@ -8,8 +8,8 @@ import {
   Param,
   Delete,
   UseGuards,
-  ParseUUIDPipe,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
@@ -42,14 +42,14 @@ export class CustomersController {
 
   @Get(':id')
   @HasPermission(PERMISSIONS.CUSTOMERS_VIEW)
-  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  findOne(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.customersService.findOne(id, user.organizationId);
   }
 
   @Patch(':id')
   @HasPermission(PERMISSIONS.CUSTOMERS_EDIT)
   update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() updateCustomerDto: UpdateCustomerDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -58,7 +58,7 @@ export class CustomersController {
 
   @Delete(':id')
   @HasPermission(PERMISSIONS.CUSTOMERS_DELETE)
-  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  remove(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.customersService.remove(id, user.organizationId);
   }
 }

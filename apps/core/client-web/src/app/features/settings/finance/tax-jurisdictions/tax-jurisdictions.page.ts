@@ -17,6 +17,7 @@ import {
 } from '../../../../core/api/fiscal-settings.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * Where the tenant is registered to collect sales tax, and at what rate.
@@ -35,7 +36,7 @@ import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 @Component({
   selector: 'app-tax-jurisdictions-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y],
   templateUrl: './tax-jurisdictions.page.html',
   styleUrls: ['./tax-jurisdictions.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

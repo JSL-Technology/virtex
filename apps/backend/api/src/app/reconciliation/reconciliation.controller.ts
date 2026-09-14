@@ -9,7 +9,6 @@ import {
   MaxFileSizeValidator,
   Param,
   ParseFilePipe,
-  ParseUUIDPipe,
   Patch,
   Post,
   Query,
@@ -17,6 +16,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { FastifyFileInterceptor } from '../common/interceptors/fastify-file.interceptor';
 import { FastifyFile } from '../common/interfaces/fastify-file.interface';
@@ -74,7 +74,7 @@ export class ReconciliationController {
   @Patch('rules/:id')
   @HasPermission(PERMISSIONS.RECONCILIATION_MANAGE_RULES)
   updateRule(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: UpdateReconciliationRuleDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -85,7 +85,7 @@ export class ReconciliationController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @HasPermission(PERMISSIONS.RECONCILIATION_MANAGE_RULES)
   deleteRule(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.reconciliation.deleteRule(id, user.organizationId);
@@ -127,7 +127,7 @@ export class ReconciliationController {
   @Get('statements/:id')
   @HasPermission(PERMISSIONS.RECONCILIATION_VIEW)
   findStatement(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.reconciliation.findStatement(id, user.organizationId);
@@ -143,7 +143,7 @@ export class ReconciliationController {
   @HasPermission(PERMISSIONS.RECONCILIATION_VIEW)
   @ApiOperation({ summary: 'Cuadre de la conciliación: saldos ajustados y diferencia.' })
   summary(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.reconciliation.summary(id, user.organizationId);
@@ -155,7 +155,7 @@ export class ReconciliationController {
     summary: 'Propone, para cada movimiento del banco, las líneas contables que podrían serlo.',
   })
   suggestions(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.reconciliation.suggestMatches(id, user.organizationId);
@@ -164,7 +164,7 @@ export class ReconciliationController {
   @Get('statements/:id/matches')
   @HasPermission(PERMISSIONS.RECONCILIATION_VIEW)
   listMatches(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.reconciliation.listMatches(id, user.organizationId);
@@ -175,7 +175,7 @@ export class ReconciliationController {
   @HasPermission(PERMISSIONS.RECONCILIATION_MATCH)
   @ApiOperation({ summary: 'Aplica las reglas activas al estado de cuenta.' })
   applyRules(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.reconciliation.applyRules(id, user.organizationId, user.id);
@@ -186,7 +186,7 @@ export class ReconciliationController {
   @HasPermission(PERMISSIONS.RECONCILIATION_MATCH)
   @ApiOperation({ summary: 'Cierra la conciliación. Sólo con diferencia cero.' })
   close(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.reconciliation.closeStatement(id, user.organizationId, user.id);
@@ -203,7 +203,7 @@ export class ReconciliationController {
   @HttpCode(HttpStatus.OK)
   @HasPermission(PERMISSIONS.RECONCILIATION_MATCH)
   reopen(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: ReopenStatementDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -233,7 +233,7 @@ export class ReconciliationController {
   @HasPermission(PERMISSIONS.RECONCILIATION_MATCH)
   @ApiOperation({ summary: 'Deshace una conciliación.' })
   unmatch(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.reconciliation.unmatch(id, user.organizationId);
@@ -244,7 +244,7 @@ export class ReconciliationController {
   @HasPermission(PERMISSIONS.RECONCILIATION_MATCH)
   @ApiOperation({ summary: 'Aparta un movimiento del banco del cuadre, con motivo.' })
   exclude(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: ExcludeTransactionDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {

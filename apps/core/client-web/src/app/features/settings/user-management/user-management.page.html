@@ -148,7 +148,7 @@
 <div class="modal" [style.display]="userModalOpen() ? 'flex' : 'none'">
   <div class="modal-content">
     <div class="modal-header">
-      <h3 class="modal-title">{{ isEditMode() ? "Editar Usuario" : "Invitar Nuevo Usuario" }}</h3>
+      <h3 class="modal-title">{{ (isEditMode() ? 'settings.user_management.edit_user' : 'settings.user_management.invite_new_user') | translate }}</h3>
       <button class="modal-close" (click)="closeUserModal()">{{ 'settings.user_management.value' | translate }}</button>
     </div>
     <div class="modal-body">
@@ -164,7 +164,7 @@
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label" for="email">{{ 'settings.user_management.email' | translate }}</label>
+          <label class="form-label" for="email">{{ 'settings.user_management.email' | translate }} *</label>
           <input id="email" type="email" class="form-control" [placeholder]="'settings.user_management.user_company_com' | translate" formControlName="email" required />
         </div>
         <div class="form-group">
@@ -183,7 +183,7 @@
     <div class="modal-footer">
       <button class="btn" (click)="closeUserModal()">{{ 'settings.user_management.cancel' | translate }}</button>
       <button class="btn btn-primary" (click)="save()" [disabled]="userForm.invalid">
-        {{ isEditMode() ? "Guardar Cambios" : "Enviar Invitación" }}
+        {{ (isEditMode() ? 'common.save_changes' : 'settings.user_management.send_invitation') | translate }}
       </button>
     </div>
   </div>

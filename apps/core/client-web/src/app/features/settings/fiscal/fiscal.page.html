@@ -63,7 +63,7 @@
         <input type="file" accept=".p12,.pfx" (change)="onFileSelected($event)" />
       </label>
       <button type="submit" [disabled]="uploading()">
-        {{ uploading() ? 'Subiendo…' : 'Subir certificado' }}
+        {{ uploading() ? ('settings.fiscal.uploading' | translate) : ('settings.fiscal.upload_certificate' | translate) }}
       </button>
     </form>
 
@@ -119,7 +119,7 @@
         <input type="number" formControlName="endsAt" min="1" />
       </label>
       <button type="submit" [disabled]="provisioning()">
-        {{ provisioning() ? 'Registrando…' : 'Registrar rango' }}
+        {{ provisioning() ? ('settings.fiscal.registering' | translate) : ('settings.fiscal.register_range' | translate) }}
       </button>
     </form>
 
@@ -167,7 +167,7 @@
         <input type="number" formControlName="month" min="1" max="12" />
       </label>
       <button type="submit" [disabled]="downloading()">
-        {{ downloading() ? 'Generando…' : 'Descargar' }}
+        {{ downloading() ? ('settings.fiscal.generating' | translate) : 'Descargar' }}
       </button>
     </form>
   </section>

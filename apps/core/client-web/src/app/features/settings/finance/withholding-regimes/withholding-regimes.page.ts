@@ -18,6 +18,7 @@ import {
 import { NotificationService } from '../../../../core/services/notification';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * The withholding regimes the tenant maintains, and what the product covers in their market.
@@ -37,7 +38,7 @@ import { composeKey } from '@virteex/shared/types';
 @Component({
   selector: 'app-withholding-regimes-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y],
   templateUrl: './withholding-regimes.page.html',
   styleUrls: ['./withholding-regimes.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

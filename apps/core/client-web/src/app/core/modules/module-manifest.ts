@@ -105,6 +105,16 @@ export interface ModuleRoute {
   /**
    * Identity of the thing this window shows, so opening the same record twice focuses the window
    * that already has it instead of stacking duplicates.
+   *
+   * It must be a PURE function of the route — same URL, same key, every time. Fourteen of the
+   * `…/new` routes built theirs as `` `ventas:customer:new:${crypto.randomUUID()}` ``, which is a
+   * different key on every call, so the deduplication above could never match and the window was
+   * the one thing in the workspace a URL could not address. Typing a customer's name, stepping
+   * over to Invoices and coming back opened a SECOND "New customer" window, empty, in front of the
+   * one holding the typed text: to the person at the keyboard their work had simply vanished.
+   *
+   * A draft has one window per kind, like every other route. Wanting two at once is what
+   * "Duplicate window" is for, and that copy deliberately carries no entity key at all.
    */
   entityKeyFn?: (params: Record<string, string>, query?: Record<string, string>) => string;
 

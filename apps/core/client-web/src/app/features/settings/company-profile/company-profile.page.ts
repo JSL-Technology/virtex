@@ -5,11 +5,12 @@ import { LucideAngularModule, Save } from 'lucide-angular';
 import { OrganizationService } from '../../../shared/service/organization.service';
 import { NotificationService } from '../../../core/services/notification';
 import { TranslateModule } from '@ngx-translate/core';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 @Component({
   selector: 'app-company-profile-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule, ...VX_FORM_A11Y],
   templateUrl: './company-profile.page.html',
   styleUrls: ['./company-profile.page.scss']
 })

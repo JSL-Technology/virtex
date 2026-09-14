@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Shield, X, AlertCircle, Loader2, KeyRound } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * Which credential the server will accept for this step-up. Decided by the server, not here.
@@ -26,7 +27,7 @@ export type StepUpFactor = 'password' | 'otp' | 'sso' | 'none';
 @Component({
   selector: 'app-password-confirm-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, TranslateModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule, TranslateModule, ...VX_FORM_A11Y],
   templateUrl: './password-confirm-modal.component.html',
   styleUrls: ['./password-confirm-modal.component.scss'],
 })

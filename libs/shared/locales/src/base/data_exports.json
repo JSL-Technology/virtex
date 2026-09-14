@@ -5,9 +5,9 @@
     "pt": "Ação"
   },
   "data_exports.data_export": {
-    "es": "Datos a exportar*",
-    "en": "Data to export*",
-    "pt": "Dados a exportar*"
+    "es": "Datos a exportar",
+    "en": "Data to export",
+    "pt": "Dados a exportar"
   },
   "data_exports.data_exports": {
     "es": "Exportaciones de datos",
@@ -38,9 +38,9 @@
     "pt": "Formato"
   },
   "data_exports.format_required_label": {
-    "es": "Formato*",
-    "en": "Format*",
-    "pt": "Formato*"
+    "es": "Formato",
+    "en": "Format",
+    "pt": "Formato"
   },
   "data_exports.generate_and_download_your_master_or": {
     "es": "Genera y descarga tus datos maestros o transaccionales en distintos formatos.",

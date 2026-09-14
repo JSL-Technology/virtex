@@ -6,22 +6,35 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ChartOfAccountsApiService, CreateAccountDto, UpdateAccountDto } from '../../../core/api/chart-of-accounts.service';
 import { ChartOfAccountsStateService } from '../../../core/state/chart-of-accounts.state';
 import { take } from 'rxjs/operators';
-import { accountNameOf } from '@virteex/shared/ui-i18n';
+import { accountNameOf, VxLocalizedNamePipe } from '@virteex/shared/ui-i18n';
 import { AccountType, AccountCategory, AccountNature, CashFlowCategory, RequiredDimension } from '../../../core/models/account.model';
 import { LucideAngularModule, Save, AlertTriangle, Settings } from 'lucide-angular';
 import { NotificationService } from '../../../core/services/notification';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
+import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 @Component({
   selector: 'app-account-form-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, LucideAngularModule, TranslateModule, DraftShellComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterLink,
+    LucideAngularModule,
+    TranslateModule,
+    DraftShellComponent,
+    VxLocalizedNamePipe,
+    ...VX_FORM_A11Y,
+  ],
   templateUrl: './account-form.page.html',
   styleUrls: ['./account-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccountFormPage implements OnInit {
+  /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
+  private readonly tab = inject(TAB_CONTEXT, { optional: true });
   private readonly translate = inject(TranslateService);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
@@ -237,7 +250,10 @@ export class AccountFormPage implements OnInit {
       next: () => {
         this.notificationService.showSuccess(this.isEditing() ? 'accounting.account_form.account_updated_successfully' : 'accounting.account_form.account_created_successfully');
         this.stateService.refreshAccounts();
-        this.router.navigate(['/accounting/chart-of-accounts']);
+        //  Esta ventana ya cumplió: el registro existe y la página se va a la lista. Si se dejara
+        //  abierta seguiría anunciándose como «el formulario nuevo», y el siguiente clic en «Nuevo»
+        //  la enfocaría con el documento ya guardado dentro. Ver `TabContext.close`.
+        void this.router.navigate(['/accounting/chart-of-accounts']).then(() => this.tab?.close());
       },
       error: (err) => {
         const message = this.normalizeErrorMessage(err);

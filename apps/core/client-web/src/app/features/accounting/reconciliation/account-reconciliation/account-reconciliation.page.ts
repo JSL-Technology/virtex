@@ -23,6 +23,7 @@ import {
   ReconciliationSummary,
   TransactionSuggestion,
 } from '../../../../core/api/reconciliation.service';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * The bank reconciliation workbench.
@@ -52,6 +53,7 @@ import {
     LucideAngularModule,
     TranslateModule,
     ...FORMAT_PIPES,
+    ...VX_FORM_A11Y,
   ],
   templateUrl: './account-reconciliation.page.html',
   styleUrls: ['./account-reconciliation.page.scss'],

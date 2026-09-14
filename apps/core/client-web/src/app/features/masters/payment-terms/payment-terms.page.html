@@ -1,36 +1,32 @@
 <vx-list-shell
   titleKey="masters.payment_terms.payment_terms"
+  subtitleKey="masters.payment_terms.set_on_the_customer"
   [count]="terms().length"
-  [empty]="terms().length === 0"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="!loading() && !error() && terms().length === 0"
+  (reload)="load()"
 >
-  <button listActions type="button" class="primary-button">
-    <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
-    <span>{{ 'masters.payment_terms.new_term' | translate }}</span>
-  </button>
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'masters.payment_terms.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'masters.payment_terms.empty_help' | translate }}</p>
+  </div>
 
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
           <th>{{ 'masters.payment_terms.name' | translate }}</th>
-          <th class="text-right">{{ 'masters.payment_terms.net_days' | translate }}</th>
-          <th class="actions-column"></th>
+          <th class="text-center">{{ 'masters.payment_terms.net_days' | translate }}</th>
+          <th class="text-center">{{ 'masters.payment_terms.customers_on_it' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (term of terms(); track term.id) {
+        @for (term of terms(); track term.name + '|' + term.days) {
           <tr>
-            <td>{{ term.name }}</td>
-            <td class="text-right">{{ term.days }}</td>
-            <td class="actions-column">
-              <button
-                type="button"
-                class="icon-button"
-                [attr.aria-label]="'masters.payment_terms.name' | translate"
-              >
-                <lucide-icon [img]="MoreHorizontalIcon" size="18" aria-hidden="true"></lucide-icon>
-              </button>
-            </td>
+            <td>{{ term.name || ('masters.payment_terms.unnamed' | translate) }}</td>
+            <td class="text-center">{{ term.days ?? '—' }}</td>
+            <td class="text-center">{{ term.customerCount }}</td>
           </tr>
         }
       </tbody>

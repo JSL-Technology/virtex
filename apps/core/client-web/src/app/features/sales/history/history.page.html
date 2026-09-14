@@ -2,7 +2,10 @@
   titleKey="sales.history.sales_history"
   subtitleKey="sales.history.review_filter_manage_every_recorded_transaction"
   [count]="sales().length"
-  [empty]="sales().length === 0"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="!loading() && !error() && sales().length === 0"
+  (reload)="load()"
 >
   <button listActions type="button" class="secondary-button">
     <lucide-icon [img]="FileDownIcon" size="16" aria-hidden="true"></lucide-icon>
@@ -12,6 +15,11 @@
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'sales.history.new_sale' | translate }}</span>
   </a>
+
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'sales.history.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'sales.history.empty_help' | translate }}</p>
+  </div>
 
   <div class="table-container card">
     <table class="data-table">
@@ -28,13 +36,15 @@
       <tbody>
         @for (sale of sales(); track sale.id) {
           <tr>
-            <td>{{ sale.id }}</td>
-            <td>{{ sale.date }}</td>
-            <td>{{ sale.customer }}</td>
+            <td><code>{{ sale.id.slice(0, 8) }}</code></td>
+            <td>{{ sale.createdAt | vxDate: 'dateTime' }}</td>
+            <td>{{ sale.customerName || ('sales.history.walk_in' | translate) }}</td>
             <td class="text-right">{{ sale.total | vxNumber: '1.2-2' }}</td>
-            <td>{{ sale.paymentMethod }}</td>
+            <td>{{ sale.paymentMethod || '—' }}</td>
             <td>
-              <span class="status-badge" [class]="getStatusClass(sale.status)">{{ sale.status }}</span>
+              <span class="status-badge" [class]="statusClass(sale.status)">
+                {{ 'pos.sale_status.' + sale.status | translate }}
+              </span>
             </td>
           </tr>
         }

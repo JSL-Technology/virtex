@@ -3,11 +3,11 @@ import {
   Controller,
   Get,
   Param,
-  ParseUUIDPipe,
   Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { HasPermission } from '../auth/decorators/permissions.decorator';
@@ -42,7 +42,7 @@ export class PosController {
   @Post('shifts/:id/close')
   @HasPermission(PERMISSIONS.POS_OPERATE)
   closeShift(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: CloseShiftDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {

@@ -15,6 +15,7 @@ import { BrandLogo } from '../../../../shared/components/brand-logo/brand-logo';
 // H4 FIX: use the shared validator (single source of truth, mirrored from the backend policy)
 // instead of a divergent local copy.
 import { strongPasswordValidator } from '../../../../shared/validators/password.validator';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 const passwordMatchValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
   const password = group.get('password')?.value;
@@ -34,7 +35,8 @@ const passwordMatchValidator: ValidatorFn = (group: AbstractControl): Validation
     AuthInputComponent,
     AuthButtonComponent,
     PasswordStrengthComponent,
-    BrandLogo
+    BrandLogo,
+    ...VX_FORM_A11Y,
   ],
   templateUrl: './reset-password.page.html',
   styleUrls: ['./reset-password.page.scss']

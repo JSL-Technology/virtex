@@ -6,7 +6,6 @@ import {
   Body,
   Param,
   UseGuards,
-  ParseUUIDPipe,
   Query,
   UseInterceptors,
   UploadedFile,
@@ -20,6 +19,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { FastifyFileInterceptor } from '../common/interceptors/fastify-file.interceptor';
 import { FastifyFilesInterceptor } from '../common/interceptors/fastify-files.interceptor';
 import { FastifyFile } from '../common/interfaces/fastify-file.interface';
@@ -72,7 +72,7 @@ export class JournalEntriesController {
 
   @Get(':id')
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_VIEW)
-  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  findOne(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.journalEntriesService.findOne(id, user.organizationId);
   }
 
@@ -80,7 +80,7 @@ export class JournalEntriesController {
   @UseGuards(PeriodLockGuard)
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_EDIT)
   update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() updateDto: UpdateJournalEntryDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -94,7 +94,7 @@ export class JournalEntriesController {
   @UseGuards(PeriodLockGuard)
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_CREATE)
   reverse(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() reverseDto: ReverseJournalEntryDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -107,7 +107,7 @@ export class JournalEntriesController {
   @Idempotent()
   @HttpCode(HttpStatus.CREATED)
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_CREATE)
-  createReversal(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  createReversal(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
       return this.journalEntriesService.createReversalEntry(id, user.organizationId, {
         actorUserId: user.id,
       });
@@ -171,7 +171,7 @@ export class JournalEntriesController {
   @UseInterceptors(FastifyFilesInterceptor('files', 10, { limits: { fileSize: 10 * 1024 * 1024 } }))
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_EDIT)
   uploadAttachments(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
     @UploadedFiles() files: Array<FastifyFile>,
   ) {
@@ -185,7 +185,7 @@ export class JournalEntriesController {
   @Get(':id/attachments')
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_VIEW)
   async getAttachments(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     const entry = await this.journalEntriesService.findOne(
@@ -198,7 +198,7 @@ export class JournalEntriesController {
   @Get('attachments/:attachmentId/download')
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_VIEW)
   async downloadAttachment(
-    @Param('attachmentId', ParseUUIDPipe) attachmentId: string,
+    @Param('attachmentId', UuidParamPipe) attachmentId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<StreamableFile> {
     const { metadata, streamable } =
@@ -217,7 +217,7 @@ export class JournalEntriesController {
   @Delete('attachments/:attachmentId')
   @HasPermission(PERMISSIONS.JOURNAL_ENTRIES_EDIT)
   async deleteAttachment(
-    @Param('attachmentId', ParseUUIDPipe) attachmentId: string,
+    @Param('attachmentId', UuidParamPipe) attachmentId: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     await this.journalEntriesService.deleteAttachment(

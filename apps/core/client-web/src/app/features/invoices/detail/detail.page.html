@@ -214,7 +214,7 @@
       <div class="ecf-messages" *ngIf="e.messages?.length">
         <span class="detail-label">{{ 'invoices.detail.messages_from_dgii' | translate }}</span>
         <ul>
-          <li *ngFor="let m of e.messages">{{ m }}</li>
+          <li *ngFor="let m of e.messages">{{ dgiiMessage(m) }}</li>
         </ul>
       </div>
 

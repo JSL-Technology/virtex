@@ -11,6 +11,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, debounceTime, merge, switchMap } from 'rxjs';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
+import { translateOrLiteral } from '@virteex/shared/ui-i18n';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {
@@ -31,6 +32,8 @@ import { InvoiceToolbarComponent } from '../components/invoice-toolbar/invoice-t
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { TranslateModule } from '@ngx-translate/core';
+import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * Issuing a sales document.
@@ -50,12 +53,14 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-new-invoice-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, InvoiceToolbarComponent, TranslateModule, ...FORMAT_PIPES, DraftShellComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, InvoiceToolbarComponent, TranslateModule, ...FORMAT_PIPES, DraftShellComponent, ...VX_FORM_A11Y],
   templateUrl: './new.page.html',
   styleUrls: ['./new.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NewInvoicePage implements OnInit {
+  /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
+  private readonly tab = inject(TAB_CONTEXT, { optional: true });
   private readonly translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
   private fb = inject(FormBuilder);
@@ -92,6 +97,17 @@ export class NewInvoicePage implements OnInit {
 
   /** Whether the tenant can issue at all, and what is missing when it cannot. */
   blockers = computed(() => this.context()?.missing ?? []);
+
+  /**
+   * One gap, worded for the reader.
+   *
+   * The banner printed these raw, so the gap this screen exists to explain appeared as
+   * `invoices.gaps.fiscal_sequence`. `translateOrLiteral` because the list mixes catalogue keys
+   * with prose the provisioner still writes out; prose is printed, keys are looked up.
+   */
+  blockerText(gap: string): string {
+    return translateOrLiteral(this.translate, gap);
+  }
 
   constructor() {
     this.invoiceForm = this.fb.group({
@@ -188,9 +204,15 @@ export class NewInvoicePage implements OnInit {
           control.patchValue({ taxRate: context.taxRates[0] ?? 0 }, { emitEvent: false }),
         );
         if (!context.ready) {
-          this.notificationService.showError(
-            `Todavía no puedes facturar. Falta: ${context.missing.join('; ')}.`,
-          );
+          // The catalogue words this, not a template literal in Spanish: the sentence a tenant
+          // reads when the product tells them what to go and fix is the last place to hard-code
+          // one language. Each gap is translated where it is a key and printed where the server
+          // sent prose.
+          this.notificationService.showError('invoices.new.not_ready_missing', {
+            missing: context.missing
+              .map((gap) => translateOrLiteral(this.translate, gap))
+              .join('; '),
+          });
         }
       },
       error: () =>
@@ -478,7 +500,10 @@ export class NewInvoicePage implements OnInit {
             { number: issue ? (invoice.ncfNumber ?? invoice.invoiceNumber) : invoice.invoiceNumber },
           ),
         );
-        this.router.navigate(['/invoices', invoice.id]);
+        //  Esta ventana ya cumplió: el registro existe y la página se va a la lista. Si se dejara
+        //  abierta seguiría anunciándose como «el formulario nuevo», y el siguiente clic en «Nuevo»
+        //  la enfocaría con el documento ya guardado dentro. Ver `TabContext.close`.
+        void this.router.navigate(['/invoices', invoice.id]).then(() => this.tab?.close());
       },
       error: (err) => {
         this.notificationService.showError(

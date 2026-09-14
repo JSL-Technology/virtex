@@ -17,11 +17,14 @@ describe('TransitionPreviewComponent', () => {
   const blocked: TransitionPreview = {
     canExecute: false,
     preconditions: [
-      { code: 'invoices.precondition.draft', status: 'passed', message: 'Está en borrador' },
+      //  Keys, not sentences. The API used to send this precondition already translated while
+      //  `effects[].titleKey` in the same payload was a key, so one response carried two contracts.
+      { code: 'invoices.precondition.draft', status: 'passed', messageKey: 'invoices.precondition.draft' },
       {
         code: 'accounting.period_closed',
         status: 'failed',
-        message: 'El periodo 2026-08 está cerrado',
+        messageKey: 'accounting.period_closed',
+        params: { period: '2026-08' },
         remedy: { labelKey: 'remedy.open_period', route: '/accounting/periods' },
       },
     ],
@@ -31,7 +34,7 @@ describe('TransitionPreviewComponent', () => {
   const executable: TransitionPreview = {
     canExecute: true,
     preconditions: [
-      { code: 'invoices.precondition.draft', status: 'passed', message: 'Está en borrador' },
+      { code: 'invoices.precondition.draft', status: 'passed', messageKey: 'invoices.precondition.draft' },
     ],
     effects: [
       {

@@ -159,6 +159,23 @@ jobs:
       - name: no untranslated interface text
         run: node tools/i18n/scan-hardcoded-strings.mjs --list
 
+      # Proves no account name reaches a template as a raw translation map. `accounts.name` is
+      # stored as `{ es, en }`, and printing it unguarded renders `[object Object]` — which is not
+      # a type error, not a compile error and not a failed render. It is how the manual journal
+      # entry form came to show `[object Object]` for all 55 of its account options.
+      - run: npm run verify:localized-names
+
+      # Proves every `numeric` column is paired with the transformer its nullability requires. The
+      # nullable one maps `undefined` to `NULL`, so using it on a `NOT NULL` column writes an
+      # explicit `NULL` instead of letting the default apply — which is why opening a POS shift
+      # failed with a not-null violation on every attempt.
+      - run: npm run verify:numeric-transformers
+
+      # Proves a calendar date is never declared as an instant. A `date` column has no time to
+      # convert, and typing one `Date` builds it as `timestamp` — which is why every supplier bill
+      # displayed the day before its own date for a tenant in UTC-4.
+      - run: npm run verify:date-columns
+
       # Proves the migrations and the entities describe the same schema. A missing migration is
       # invisible locally (where the schema was created by an earlier `synchronize`) and only
       # surfaces as a broken deploy; this turns it into a failing build.

@@ -6,12 +6,12 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseUUIDPipe,
   Patch,
   Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ProjectsService } from './projects.service';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -45,7 +45,7 @@ export class ProjectsController {
   @Get(':id')
   @HasPermission(PERMISSIONS.PROJECTS_VIEW)
   findOne(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.projectsService.findOneProject(id, user.organizationId);
@@ -60,7 +60,7 @@ export class ProjectsController {
   @Patch(':id')
   @HasPermission(PERMISSIONS.PROJECTS_MANAGE)
   update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: UpdateProjectDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -71,7 +71,7 @@ export class ProjectsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @HasPermission(PERMISSIONS.PROJECTS_MANAGE)
   remove(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.projectsService.removeProject(id, user.organizationId);
@@ -97,7 +97,7 @@ export class ProjectsController {
   @Patch('tasks/:id')
   @HasPermission(PERMISSIONS.PROJECTS_MANAGE)
   updateTask(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: UpdateProjectTaskDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -108,7 +108,7 @@ export class ProjectsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @HasPermission(PERMISSIONS.PROJECTS_MANAGE)
   removeTask(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.projectsService.removeTask(id, user.organizationId);
@@ -134,7 +134,7 @@ export class ProjectsController {
   @Patch('timesheets/:id')
   @HasPermission(PERMISSIONS.PROJECTS_MANAGE)
   updateTimesheet(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: UpdateTimesheetDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -145,7 +145,7 @@ export class ProjectsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @HasPermission(PERMISSIONS.PROJECTS_MANAGE)
   removeTimesheet(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.projectsService.removeTimesheet(id, user.organizationId);

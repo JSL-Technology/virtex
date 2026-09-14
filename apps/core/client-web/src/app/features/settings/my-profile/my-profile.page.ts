@@ -42,6 +42,7 @@ import { FileUtil } from '../../../shared/utils/file.util';
 // change-password form, which previously only required minLength(8).
 import { strongPasswordValidator } from '../../../shared/validators/password.validator';
 import { catchError, of } from 'rxjs';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 // Typed Form Interface
 interface ProfileForm {
@@ -62,7 +63,8 @@ interface ProfileForm {
     LucideAngularModule,
     SecuritySettingsComponent,
     TranslateModule,
-    PhoneVerificationModalComponent
+    PhoneVerificationModalComponent,
+    ...VX_FORM_A11Y,
   ],
   templateUrl: './my-profile.page.html',
   styleUrls: ['./my-profile.page.scss'],

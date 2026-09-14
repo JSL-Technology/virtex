@@ -235,6 +235,11 @@
     ],
     "permissions.actions": [],
     "permissions.groups": [],
+    "pos.sale_status": [
+      "PAID",
+      "PENDING",
+      "VOID"
+    ],
     "purchasing.orders.status_label": [
       "DRAFT",
       "PENDING_APPROVAL",

@@ -246,3 +246,57 @@
   font-size: var(--text-xs);
   color: var(--warning-text, var(--text-secondary));
 }
+
+/**
+ * The till says why it cannot take a sale.
+ *
+ * Without this the screen rendered a working point of sale over a shift that had never opened:
+ * cart, totals and an enabled Charge button, with the failure discarded. The banner states the
+ * cause and the Charge button stays disabled while it shows.
+ */
+.shift-blocked {
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  border: 1px solid var(--error-border);
+  border-left: 3px solid var(--error-solid);
+  border-radius: var(--radius-sm);
+  background: var(--error-surface);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.shift-blocked__title {
+  margin: 0;
+  font-weight: 600;
+  font-size: var(--text-sm);
+  color: var(--error-text);
+}
+
+.shift-blocked__reason {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.shift-blocked__retry {
+  align-self: flex-start;
+  margin-top: 2px;
+  padding: 6px 12px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  background: var(--surface-overlay);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--text-xs);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--surface-hover);
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+}

@@ -12,6 +12,8 @@ import { CustomersService } from '../../../core/api/customers.service';
 import { Customer } from '../../../core/models/customer.model';
 import { BankAccount, TreasuryService } from '../../../core/api/treasury.service';
 import { NotificationService } from '../../../core/services/notification';
+import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * Recording a collection from a customer.
@@ -44,12 +46,15 @@ import { NotificationService } from '../../../core/services/notification';
     TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
+    ...VX_FORM_A11Y,
   ],
   templateUrl: './form.page.html',
   styleUrls: ['./form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomerReceiptFormPage implements OnInit {
+  /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
+  private readonly tab = inject(TAB_CONTEXT, { optional: true });
   /** The chips add a document to the receipt; the icon is what says so. */
   protected readonly AddIcon = Plus;
 
@@ -296,7 +301,10 @@ export class CustomerReceiptFormPage implements OnInit {
       .subscribe({
         next: () => {
           this.notifications.showSuccess('customer_receipts.form.collection_recorded');
-          this.router.navigate(['/customer-receipts']);
+          //  Esta ventana ya cumplió: el registro existe y la página se va a la lista. Si se dejara
+          //  abierta seguiría anunciándose como «el formulario nuevo», y el siguiente clic en «Nuevo»
+          //  la enfocaría con el documento ya guardado dentro. Ver `TabContext.close`.
+          void this.router.navigate(['/customer-receipts']).then(() => this.tab?.close());
         },
         error: (error: { error?: { message?: string } }) => {
           this.saving.set(false);

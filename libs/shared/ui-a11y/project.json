@@ -1,0 +1,24 @@
+{
+  "name": "shared-ui-a11y",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/ui-a11y/src",
+  "projectType": "library",
+  "tags": ["type:ui", "scope:shared"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/shared/ui-a11y/**/*.ts", "libs/shared/ui-a11y/**/*.html"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/shared/ui-a11y/jest.config.cts",
+        "tsConfig": "libs/shared/ui-a11y/tsconfig.spec.json"
+      }
+    }
+  }
+}

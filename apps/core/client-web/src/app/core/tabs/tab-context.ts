@@ -26,6 +26,15 @@ export interface TabContext {
   icon: string;
   params: Record<string, string>;
   query: Record<string, string>;
+  /**
+   * Los datos estáticos que el manifiesto entrega a la ventana, p. ej. `{ side: 'payables' }`.
+   *
+   * El manifiesto los declaraba y nada los leía. La página de antigüedad de saldos pregunta
+   * `ActivatedRoute.snapshot.data['side']` y, a falta de valor, asume `'receivables'`: la ventana
+   * de cuentas por PAGAR mostraba lo que deben los CLIENTES bajo una cabecera «Proveedor», y el
+   * saldo con proveedores no era alcanzable desde ningún sitio del producto.
+   */
+  data: Record<string, unknown>;
 
   /**
    * Renombra ESTA pestaña con el nombre real del documento.
@@ -39,6 +48,34 @@ export interface TabContext {
    * clave: quien lo llama tiene el número, y el número no se traduce.
    */
   setTitle(title: string): void;
+
+  /**
+   * Esta ventana pasa a mostrar OTRA ruta, sin abrir una segunda.
+   *
+   * Existe para un momento concreto: el borrador que acaba de guardarse y ya no es un borrador.
+   * `/hcm/employees/new` se convierte en `/hcm/employees/<id>/edit` —con su título, su icono y su
+   * clave de entidad— en el mismo sitio, y la barra de direcciones sigue a la ventana. Sin esto la
+   * URL se quedaba en `new` después de guardar, y recargarla devolvía un formulario vacío que
+   * invitaba a guardar el mismo registro por segunda vez.
+   *
+   * No es `router.navigate`: navegar dejaría el borrador abierto y pondría el registro en una
+   * ventana nueva al lado.
+   */
+  replaceRoute(route: string, options?: { title?: string }): void;
+
+  /**
+   * Cierra ESTA ventana, sin preguntar.
+   *
+   * Para el borrador que ya cumplió: se guardó y la página se fue a la lista. Sin esto la ventana
+   * «Nueva factura» se quedaba abierta con la factura ya emitida dentro y su clave de borrador
+   * puesta, así que el siguiente «Nueva factura» la enfocaba y enseñaba el documento anterior en
+   * vez de un formulario en blanco.
+   *
+   * No pregunta por cambios sin guardar —a diferencia de cerrar con la X— porque quien llama acaba
+   * de guardarlos. Tampoco entra en la pila de «reabrir pestaña cerrada»: reabrir un borrador
+   * terminado devolvería un formulario vacío, que no es lo que nadie espera de esa acción.
+   */
+  close(): void;
 
   /** Marca (o limpia) la pestaña como «con cambios sin guardar». */
   markDirty(isDirty?: boolean): void;

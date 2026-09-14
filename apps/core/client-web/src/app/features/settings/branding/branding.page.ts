@@ -7,12 +7,13 @@ import { ThemeService } from '../../../core/services/theme';
 import { LivePreview } from '../../../shared/components/live-preview/live-preview';
 import { LanguageSelector } from '../../../shared/components/language-selector/language-selector';
 import { TranslateModule } from '@ngx-translate/core';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 // import { LivePreview } from '../../../shared/components/live-preview/live-preview'; // Importar el nuevo componente
 
 @Component({
   selector: 'app-branding-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, LivePreview, LanguageSelector, TranslateModule  ], // Añadir LivePreview
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, LivePreview, LanguageSelector, TranslateModule, ...VX_FORM_A11Y], // Añadir LivePreview
   templateUrl: './branding.page.html',
   styleUrls: ['./branding.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,23 +33,26 @@ export class BrandingPage implements OnInit {
   //  de modo que elegir cualquiera de ellos produce botones legibles sin
   //  depender del ajuste automático de contraste.
   colorPresets = ['#5b37d9', '#0d7d6c', '#1d4ed8', '#b4530a', '#be2a5c', '#3f4a5c'];
-  // fonts: { id: UiFont, name: string }[] = [
-  //   { id: 'Inter', name: 'Inter (Sans-serif)' },
-  //   { id: 'Roboto Slab', name: 'Roboto Slab (Serif)' },
-  //   { id: 'Source Code Pro', name: 'Source Code Pro (Monospace)' },
-  // ];
-
-    fonts: { id: UiFont, name: string }[] = [
-    { id: 'Inter', name: 'Inter (Moderna Sans-serif)' },
-    { id: 'Poppins', name: 'Poppins (Geométrica Sans-serif)' },
-    { id: 'Lato', name: 'Lato (Amigable Sans-serif)' },
-    { id: 'Roboto', name: 'Roboto (Estándar Sans-serif)' },
-    { id: 'Open Sans', name: 'Open Sans (Humanista Sans-serif)' },
-    { id: 'Nunito', name: 'Nunito (Redondeada Sans-serif)' },
-    { id: 'Roboto Slab', name: 'Roboto Slab (Serif)' },
-    { id: 'Merriweather', name: 'Merriweather (Clásica Serif)' },
-    { id: 'Playfair Display', name: 'Playfair Display (Elegante Serif)' },
-    { id: 'Source Code Pro', name: 'Source Code Pro (Monospace)' },];
+  /**
+   * The typefaces on offer, each with the kind of face it is.
+   *
+   * The name and the description are separate because only one of them is language. "Poppins" is a
+   * proper noun and is Poppins in every locale; "Geométrica Sans-serif" is a sentence, and it was
+   * written into the option text, so an English interface offered "Poppins (Geométrica
+   * Sans-serif)" and a Portuguese one the same. The template joins them.
+   */
+  readonly fonts: { id: UiFont; styleKey: string }[] = [
+    { id: 'Inter', styleKey: 'settings.branding.font_style.modern_sans' },
+    { id: 'Poppins', styleKey: 'settings.branding.font_style.geometric_sans' },
+    { id: 'Lato', styleKey: 'settings.branding.font_style.friendly_sans' },
+    { id: 'Roboto', styleKey: 'settings.branding.font_style.standard_sans' },
+    { id: 'Open Sans', styleKey: 'settings.branding.font_style.humanist_sans' },
+    { id: 'Nunito', styleKey: 'settings.branding.font_style.rounded_sans' },
+    { id: 'Roboto Slab', styleKey: 'settings.branding.font_style.serif' },
+    { id: 'Merriweather', styleKey: 'settings.branding.font_style.classic_serif' },
+    { id: 'Playfair Display', styleKey: 'settings.branding.font_style.elegant_serif' },
+    { id: 'Source Code Pro', styleKey: 'settings.branding.font_style.monospace' },
+  ];
   
   ngOnInit(): void {
     const currentSettings = this.brandingService.settings();

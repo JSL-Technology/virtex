@@ -22,13 +22,20 @@ export class CreateCustomerDto {
   @IsOptional()
   contactPerson?: string;
 
+  /**
+   * Optional, as the supplier's has always been.
+   *
+   * Requiring it did not produce email addresses; it produced `ventas@example.com` typed to get
+   * past the field — which is worse than an empty column, because the next invoice run sends to
+   * it. See the `CustomerContactOptional` migration.
+   */
   @IsEmail()
-  @IsNotEmpty()
-  email: string;
+  @IsOptional()
+  email?: string;
 
   @IsString()
-  @IsNotEmpty()
-  phone: string;
+  @IsOptional()
+  phone?: string;
 
   @IsString()
   @IsOptional()

@@ -43,7 +43,8 @@ export const appConfig: ApplicationConfig = {
     }),
     // Overrides the store `provideTranslateService` just registered, so every lookup passes through
     // one key normalisation. A later provider for the same token wins.
-    { provide: TranslateStore, useClass: VirtexTranslateStore },
+    VirtexTranslateStore,
+    { provide: TranslateStore, useExisting: VirtexTranslateStore },
 
     provideAppInitializer(() => {
       const locale = inject(LocaleStore);

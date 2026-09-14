@@ -1,4 +1,9 @@
 {
+  "masters.banks.accounts": {
+    "es": "Cuentas",
+    "en": "Accounts",
+    "pt": "Contas"
+  },
   "masters.banks.bank_name": {
     "es": "Nombre del banco",
     "en": "Bank name",
@@ -9,10 +14,20 @@
     "en": "Banks",
     "pt": "Bancos"
   },
-  "masters.banks.country": {
-    "es": "País",
-    "en": "Country",
-    "pt": "País"
+  "masters.banks.currencies": {
+    "es": "Monedas",
+    "en": "Currencies",
+    "pt": "Moedas"
+  },
+  "masters.banks.empty_help": {
+    "es": "Un banco aparece aquí al abrir una cuenta con él en Tesorería.",
+    "en": "A bank appears here once you open an account with it in Treasury.",
+    "pt": "Um banco aparece aqui ao abrir uma conta com ele na Tesouraria."
+  },
+  "masters.banks.empty_title": {
+    "es": "Todavía no hay bancos",
+    "en": "No banks yet",
+    "pt": "Ainda não há bancos"
   },
   "masters.banks.new_bank": {
     "es": "Nuevo banco",
@@ -39,6 +54,16 @@
     "en": "City",
     "pt": "Cidade"
   },
+  "masters.branches.empty_help": {
+    "es": "Se crean en Ajustes › Estructura de la empresa, donde se define también su identidad fiscal.",
+    "en": "They are created in Settings › Company Structure, where their fiscal identity is defined too.",
+    "pt": "São criadas em Definições › Estrutura da empresa, onde também se define a identidade fiscal."
+  },
+  "masters.branches.empty_title": {
+    "es": "Todavía no hay sucursales",
+    "en": "No branches yet",
+    "pt": "Ainda não há sucursais"
+  },
   "masters.branches.name": {
     "es": "Nombre",
     "en": "Name",
@@ -64,6 +89,11 @@
     "en": "Code",
     "pt": "Código"
   },
+  "masters.currencies.created": {
+    "es": "Moneda creada.",
+    "en": "Currency created.",
+    "pt": "Moeda criada."
+  },
   "masters.currencies.currencies": {
     "es": "Monedas",
     "en": "Currencies",
@@ -73,6 +103,16 @@
     "es": "Nombre de la moneda",
     "en": "Currency name",
     "pt": "Nome da moeda"
+  },
+  "masters.currencies.empty_help": {
+    "es": "Añade las monedas en las que facturas o compras; la moneda funcional del inquilino ya está fijada.",
+    "en": "Add the currencies you invoice or buy in; the tenant's functional currency is already set.",
+    "pt": "Adiciona as moedas em que faturas ou compras; a moeda funcional do inquilino já está definida."
+  },
+  "masters.currencies.empty_title": {
+    "es": "No hay monedas configuradas",
+    "en": "No currencies configured",
+    "pt": "Não há moedas configuradas"
   },
   "masters.currencies.new_currency": {
     "es": "Nueva moneda",
@@ -89,35 +129,40 @@
     "en": "Yes",
     "pt": "Sim"
   },
-  "masters.payment_methods.default_method": {
-    "es": "Forma predeterminada",
-    "en": "Default method",
-    "pt": "Forma padrão"
+  "masters.payment_methods.code": {
+    "es": "Código",
+    "en": "Code",
+    "pt": "Código"
   },
   "masters.payment_methods.name": {
     "es": "Nombre",
     "en": "Name",
     "pt": "Nome"
   },
-  "masters.payment_methods.new_method": {
-    "es": "Nuevo método",
-    "en": "New method",
-    "pt": "Nova forma"
-  },
   "masters.payment_methods.payment_methods": {
     "es": "Formas de pago",
     "en": "Payment methods",
     "pt": "Formas de pagamento"
   },
-  "masters.payment_methods.type": {
-    "es": "Tipo",
-    "en": "Type",
-    "pt": "Tipo"
+  "masters.payment_methods.statutory_note": {
+    "es": "Las fija la DGII para los comprobantes fiscales; no se añaden ni se editan.",
+    "en": "Fixed by the DGII for fiscal documents; they are not added or edited.",
+    "pt": "Fixadas pela DGII para os comprovativos fiscais; não se adicionam nem editam."
   },
-  "masters.payment_methods.yes": {
-    "es": "Sí",
-    "en": "Yes",
-    "pt": "Sim"
+  "masters.payment_terms.customers_on_it": {
+    "es": "Clientes",
+    "en": "Customers",
+    "pt": "Clientes"
+  },
+  "masters.payment_terms.empty_help": {
+    "es": "Fíjalas en la ficha del cliente: son las que calculan el vencimiento de sus facturas.",
+    "en": "Set them on the customer record: they are what dates their invoices.",
+    "pt": "Define-as na ficha do cliente: são o que data as suas faturas."
+  },
+  "masters.payment_terms.empty_title": {
+    "es": "Ningún cliente tiene condiciones de pago",
+    "en": "No customer has payment terms",
+    "pt": "Nenhum cliente tem condições de pagamento"
   },
   "masters.payment_terms.name": {
     "es": "Nombre",
@@ -125,19 +170,24 @@
     "pt": "Nome"
   },
   "masters.payment_terms.net_days": {
-    "es": "Días netos",
+    "es": "Días",
     "en": "Net days",
-    "pt": "Dias líquidos"
-  },
-  "masters.payment_terms.new_term": {
-    "es": "Nueva condición",
-    "en": "New term",
-    "pt": "Nova condição"
+    "pt": "Dias"
   },
   "masters.payment_terms.payment_terms": {
     "es": "Condiciones de pago",
     "en": "Payment terms",
     "pt": "Condições de pagamento"
+  },
+  "masters.payment_terms.set_on_the_customer": {
+    "es": "Las condiciones se fijan en cada cliente; aquí se ve cuáles están en uso.",
+    "en": "Terms are set on each customer; this shows which are in use.",
+    "pt": "As condições definem-se em cada cliente; aqui vê-se quais estão em uso."
+  },
+  "masters.payment_terms.unnamed": {
+    "es": "Sin nombre",
+    "en": "Unnamed",
+    "pt": "Sem nome"
   },
   "masters.price_lists.actions": {
     "es": "Acciones",
@@ -225,9 +275,9 @@
     "pt": "Cancelar"
   },
   "masters.price_lists_form.currency": {
-    "es": "Moneda*",
-    "en": "Currency*",
-    "pt": "Moeda*"
+    "es": "Moneda",
+    "en": "Currency",
+    "pt": "Moeda"
   },
   "masters.price_lists_form.define_prices_specific_set_products": {
     "es": "Define precios para un conjunto específico de productos.",
@@ -253,14 +303,14 @@
     "literal": "EUR - Euro"
   },
   "masters.price_lists_form.list_name": {
-    "es": "Nombre de la Lista*",
-    "en": "List Name*",
-    "pt": "Nome da Tabela*"
+    "es": "Nombre de la Lista",
+    "en": "List Name",
+    "pt": "Nome da Tabela"
   },
   "masters.price_lists_form.price": {
-    "es": "Precio*",
-    "en": "Price*",
-    "pt": "Preço*"
+    "es": "Precio",
+    "en": "Price",
+    "pt": "Preço"
   },
   "masters.price_lists_form.price_list_could_not_loaded": {
     "es": "No se pudo cargar la lista de precios.",
@@ -283,9 +333,9 @@
     "pt": "Tabela de preços atualizada."
   },
   "masters.price_lists_form.product": {
-    "es": "Producto*",
-    "en": "Product*",
-    "pt": "Produto*"
+    "es": "Producto",
+    "en": "Product",
+    "pt": "Produto"
   },
   "masters.price_lists_form.products_could_not_loaded": {
     "es": "No se pudieron cargar los productos.",
@@ -303,9 +353,9 @@
     "pt": "Selecione um produto..."
   },
   "masters.price_lists_form.status": {
-    "es": "Estado*",
-    "en": "Status*",
-    "pt": "Situação*"
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
   },
   "masters.price_lists_form.title_edit": {
     "es": "Editar lista de precios",
@@ -323,14 +373,14 @@
     "pt": "USD - Dólar Americano"
   },
   "masters.price_lists_form.valid_from": {
-    "es": "Válido Desde*",
-    "en": "Valid From*",
-    "pt": "Válido De*"
+    "es": "Válido Desde",
+    "en": "Valid From",
+    "pt": "Válido De"
   },
   "masters.price_lists_form.valid_until": {
-    "es": "Válido Hasta*",
-    "en": "Valid Until*",
-    "pt": "Válido Até*"
+    "es": "Válido Hasta",
+    "en": "Valid Until",
+    "pt": "Válido Até"
   },
   "masters.supplier_form.address": {
     "es": "Dirección",
@@ -403,9 +453,9 @@
     "pt": "Informações do Fornecedor"
   },
   "masters.supplier_form.supplier_name": {
-    "es": "Nombre del Proveedor*",
-    "en": "Supplier Name*",
-    "pt": "Nome do Fornecedor*"
+    "es": "Nombre del proveedor",
+    "en": "Supplier name",
+    "pt": "Nome do fornecedor"
   },
   "masters.supplier_form.supplier_updated": {
     "es": "Proveedor actualizado exitosamente.",
@@ -498,9 +548,9 @@
     "pt": "Ex.: ICMS padrão"
   },
   "masters.tax_form.rate": {
-    "es": "Tasa*",
-    "en": "Rate*",
-    "pt": "Alíquota*"
+    "es": "Tasa",
+    "en": "Rate",
+    "pt": "Alíquota"
   },
   "masters.tax_form.save_tax": {
     "es": "Guardar Impuesto",
@@ -518,9 +568,9 @@
     "pt": "Imposto criado."
   },
   "masters.tax_form.tax_name": {
-    "es": "Nombre del Impuesto*",
-    "en": "Tax Name*",
-    "pt": "Nome do Imposto*"
+    "es": "Nombre del Impuesto",
+    "en": "Tax Name",
+    "pt": "Nome do Imposto"
   },
   "masters.tax_form.tax_updated": {
     "es": "Impuesto actualizado exitosamente.",
@@ -538,9 +588,9 @@
     "pt": "Novo imposto"
   },
   "masters.tax_form.type": {
-    "es": "Tipo*",
-    "en": "Type*",
-    "pt": "Tipo*"
+    "es": "Tipo",
+    "en": "Type",
+    "pt": "Tipo"
   },
   "masters.taxes.country": {
     "es": "País",
@@ -587,6 +637,21 @@
     "en": "Type",
     "pt": "Tipo"
   },
+  "masters.units_of_measure.created": {
+    "es": "Unidad creada.",
+    "en": "Unit created.",
+    "pt": "Unidade criada."
+  },
+  "masters.units_of_measure.empty_help": {
+    "es": "Crea las que uses para contar, pesar o medir lo que vendes.",
+    "en": "Create the ones you use to count, weigh or measure what you sell.",
+    "pt": "Cria as que usas para contar, pesar ou medir o que vendes."
+  },
+  "masters.units_of_measure.empty_title": {
+    "es": "Todavía no hay unidades de medida",
+    "en": "No units of measure yet",
+    "pt": "Ainda não há unidades de medida"
+  },
   "masters.units_of_measure.name": {
     "es": "Nombre",
     "en": "Name",
@@ -617,6 +682,26 @@
     "en": "Active",
     "pt": "Ativo"
   },
+  "masters.warehouses.code": {
+    "es": "Código",
+    "en": "Code",
+    "pt": "Código"
+  },
+  "masters.warehouses.created": {
+    "es": "Almacén creado.",
+    "en": "Warehouse created.",
+    "pt": "Armazém criado."
+  },
+  "masters.warehouses.empty_help": {
+    "es": "Crea el primero para poder asignarle existencias y movimientos.",
+    "en": "Create the first one so stock and movements have somewhere to go.",
+    "pt": "Cria o primeiro para poder atribuir-lhe existências e movimentos."
+  },
+  "masters.warehouses.empty_title": {
+    "es": "Todavía no hay almacenes",
+    "en": "No warehouses yet",
+    "pt": "Ainda não há armazéns"
+  },
   "masters.warehouses.inactive": {
     "es": "Inactivo",
     "en": "Inactive",
@@ -626,11 +711,6 @@
     "es": "Ubicación",
     "en": "Location",
     "pt": "Localização"
-  },
-  "masters.warehouses.manager": {
-    "es": "Encargado",
-    "en": "Manager",
-    "pt": "Responsável"
   },
   "masters.warehouses.name": {
     "es": "Nombre",

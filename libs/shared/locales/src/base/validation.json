@@ -185,6 +185,12 @@
     "en": "{{property}} must be between {{min}} and {{max}} characters long.",
     "pt": "{{property}} deve ter entre {{min}} e {{max}} caracteres."
   },
+  "validation.constraints.malformed_identifier": {
+    "es": "El enlace no es válido: {{property}} no es un identificador.",
+    "en": "This link is not valid: {{property}} is not an identifier.",
+    "pt": "O link não é válido: {{property}} não é um identificador.",
+    "note": "A route PARAMETER that is not a UUID, which means the address is wrong rather than the data. Distinct from is_uuid, which names a field inside a payload the reader can still correct."
+  },
   "validation.constraints.matches": {
     "es": "{{property}} no tiene el formato esperado.",
     "en": "{{property}} is not in the expected format.",
@@ -465,6 +471,11 @@
     "en": "last name",
     "pt": "sobrenome"
   },
+  "validation.fields.opening_balance": {
+    "es": "fondo de caja",
+    "en": "opening float",
+    "pt": "fundo de caixa"
+  },
   "validation.fields.password": {
     "es": "contraseña",
     "en": "password",
@@ -494,6 +505,11 @@
     "es": "identificación fiscal",
     "en": "tax ID",
     "pt": "identificação fiscal"
+  },
+  "validation.fields.terminal_id": {
+    "es": "terminal",
+    "en": "terminal",
+    "pt": "terminal"
   },
   "validation.fiscal.country_not_available": {
     "es": "Ese país todavía no está disponible para registro.",

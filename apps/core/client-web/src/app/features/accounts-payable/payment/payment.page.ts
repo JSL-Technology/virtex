@@ -9,6 +9,7 @@ import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { AccountsPayableService, VendorBill } from '../../../core/services/accounts-payable';
 import { BankAccount, TreasuryService } from '../../../core/api/treasury.service';
 import { NotificationService } from '../../../core/services/notification';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * Paying supplier invoices.
@@ -34,6 +35,7 @@ import { NotificationService } from '../../../core/services/notification';
     TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
+    ...VX_FORM_A11Y,
   ],
   templateUrl: './payment.page.html',
   styleUrls: ['./payment.page.scss'],

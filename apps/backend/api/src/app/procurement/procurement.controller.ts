@@ -6,12 +6,12 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseUUIDPipe,
   Patch,
   Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ProcurementService } from './procurement.service';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -40,7 +40,7 @@ export class ProcurementController {
   @Get(':id')
   @HasPermission(PERMISSIONS.PROCUREMENT_VIEW)
   findOne(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.procurementService.findOne(id, user.organizationId);
@@ -58,7 +58,7 @@ export class ProcurementController {
   @Patch(':id')
   @HasPermission(PERMISSIONS.PROCUREMENT_MANAGE)
   update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: UpdatePurchaseRequisitionDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -68,14 +68,14 @@ export class ProcurementController {
   @Post(':id/submit')
   @HttpCode(HttpStatus.OK)
   @HasPermission(PERMISSIONS.PROCUREMENT_MANAGE)
-  submit(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  submit(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.procurementService.submit(id, user.organizationId);
   }
 
   @Post(':id/approve')
   @HttpCode(HttpStatus.OK)
   @HasPermission(PERMISSIONS.PROCUREMENT_APPROVE)
-  approve(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  approve(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.procurementService.approve(id, user.organizationId, user.id);
   }
 
@@ -83,7 +83,7 @@ export class ProcurementController {
   @HttpCode(HttpStatus.OK)
   @HasPermission(PERMISSIONS.PROCUREMENT_APPROVE)
   reject(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: RejectDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -93,7 +93,7 @@ export class ProcurementController {
   @Post(':id/reopen')
   @HttpCode(HttpStatus.OK)
   @HasPermission(PERMISSIONS.PROCUREMENT_MANAGE)
-  reopen(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  reopen(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.procurementService.reopen(id, user.organizationId);
   }
 
@@ -101,7 +101,7 @@ export class ProcurementController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @HasPermission(PERMISSIONS.PROCUREMENT_MANAGE)
   remove(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.procurementService.remove(id, user.organizationId);

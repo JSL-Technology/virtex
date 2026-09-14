@@ -63,6 +63,32 @@ const HAS_LETTERS = /[\p{L}]{3}/u;
  * honest than trying to parse Angular's template syntax here.
  */
 const LOOKS_LIKE_CODE = /&&|\|\||=>|^[=!<>]|\breturn\b|\$any\(|\{\{/;
+/**
+ * An interpolation, and the quoted strings inside it.
+ *
+ * The text-node scan excludes interpolations by construction, which is right for
+ * `{{ 'a.b.c' | translate }}` and wrong for a sentence written inside one. Three of them were:
+ *
+ *     {{ isLoading ? 'Guardando…' : 'Guardar Cambios' }}
+ *     {{ isEditMode() ? "Editar Usuario" : "Invitar Nuevo Usuario" }}
+ *
+ * Those are interface text in one language, in a product whose reader may be in another — and a
+ * scanner that reports "no untranslated interface text" while they are on screen is reporting
+ * about something else. A catalogue KEY is dotted lower_snake, so anything quoted that is not
+ * key-shaped and holds real words is a literal.
+ */
+const INTERPOLATION = /\{\{([\s\S]*?)\}\}/g;
+const QUOTED = /'([^']*)'|"([^"]*)"/g;
+const KEY_SHAPED = /^[a-z0-9_]+(\.[a-z0-9_]+)+$/i;
+/**
+ * Prose, as opposed to an argument.
+ *
+ * `{{ x | vxDate: 'date' }}` and `{{ list | vxList: 'conjunction' }}` quote a parameter, not a
+ * sentence, and flagging those would drown the real findings. A sentence has more than one word or
+ * carries a letter English does not — which is what every literal this caught actually looked like:
+ * "Guardar Cambios", "Invitar Nuevo Usuario", "Enviar Invitación".
+ */
+const READS_AS_PROSE = /\s|[^\x00-\x7F]/;
 const ENTITY = /&[a-z]+;|&#x?[0-9a-f]+;/gi;
 /** An inline Angular template: `template: \`…\`` in a component decorator. */
 const INLINE_TEMPLATE = /template\s*:\s*`([\s\S]*?)`\s*,?\s*\n?\s*(?:styles?Url|styles|changeDetection|providers|host|encapsulation|animations|imports|standalone|selector|\})/;
@@ -116,6 +142,21 @@ for (const app of APPS) {
           kind: 'text',
           value,
         });
+      }
+
+      for (const interpolation of src.matchAll(INTERPOLATION)) {
+        for (const quoted of interpolation[1].matchAll(QUOTED)) {
+          const value = (quoted[1] ?? quoted[2] ?? '').trim();
+          if (!value || !HAS_LETTERS.test(value)) continue;
+          if (KEY_SHAPED.test(value)) continue;
+          if (!READS_AS_PROSE.test(value)) continue;
+          findings.push({
+            file: relative,
+            line: offsetLine + src.slice(0, interpolation.index).split('\n').length,
+            kind: 'interpolated literal',
+            value,
+          });
+        }
       }
 
       for (const match of src.matchAll(HUMAN_ATTRS)) {

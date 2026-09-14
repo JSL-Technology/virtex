@@ -51,6 +51,18 @@
     <ng-content select="[listToolbar]"></ng-content>
   }
 
+  <!--
+    Lo que crea el PRIMER elemento, fuera del `@switch`.
+
+    El contenido por defecto solo se proyecta en el caso `content`, así que un formulario de alta
+    puesto ahí desaparece justo cuando hace falta: con la lista vacía. Eso era «Nueva corrida» en
+    nómina, «Nuevo departamento», «Nuevo concepto» y «Nuevo libro» — el botón alternaba su señal,
+    el formulario vivía en el hueco por defecto y no se renderizaba nunca, de modo que un inquilino
+    recién creado no podía crear el primer registro de ninguno de los cuatro. Nada fallaba: el clic
+    ocurría y la pantalla no cambiaba.
+  -->
+  <ng-content select="[listCreate]"></ng-content>
+
   <div class="ls__body">
     @switch (state()) {
       @case ('loading') {

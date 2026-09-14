@@ -7,7 +7,6 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseUUIDPipe,
   Patch,
   Post,
   Put,
@@ -15,6 +14,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
@@ -82,7 +82,7 @@ export class PayrollController {
 
   @Get('runs/:id')
   @HasPermission(PERMISSIONS.PAYROLL_VIEW)
-  getRun(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  getRun(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.runs.findRun(id, user.organizationId);
   }
 
@@ -92,20 +92,20 @@ export class PayrollController {
 
   @Post('runs/:id/calculate')
   @HasPermission(PERMISSIONS.PAYROLL_PROCESS)
-  calculate(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  calculate(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.runs.calculate(id, user.organizationId, user.id);
   }
 
   @Post('runs/:id/approve')
   @HasPermission(PERMISSIONS.PAYROLL_APPROVE)
-  approve(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  approve(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.runs.approve(id, user.organizationId, user.id);
   }
 
   @Post('runs/:id/pay')
   @HasPermission(PERMISSIONS.PAYROLL_PAY)
   pay(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() body: { bankGlAccountId?: string },
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -114,7 +114,7 @@ export class PayrollController {
 
   @Post('runs/:id/cancel')
   @HasPermission(PERMISSIONS.PAYROLL_PROCESS)
-  cancel(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  cancel(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.runs.cancel(id, user.organizationId);
   }
 
@@ -122,14 +122,14 @@ export class PayrollController {
 
   @Get('runs/:id/inputs')
   @HasPermission(PERMISSIONS.PAYROLL_PROCESS)
-  listInputs(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  listInputs(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.inputs.list(id, user.organizationId);
   }
 
   @Put('runs/:id/inputs')
   @HasPermission(PERMISSIONS.PAYROLL_PROCESS)
   replaceInputs(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: UpsertInputsDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -141,7 +141,7 @@ export class PayrollController {
   @Get('runs/:id/payslips')
   @HasPermission(PERMISSIONS.PAYROLL_VIEW)
   @AuditAccess({ entity: 'payroll', action: ActionType.READ, identifiers: ['id'] })
-  payslips(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  payslips(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.runs.payslipsOf(id, user.organizationId);
   }
 
@@ -172,7 +172,7 @@ export class PayrollController {
   @Patch('concepts/:id')
   @HasPermission(PERMISSIONS.PAYROLL_MANAGE)
   updateConcept(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: UpdateConceptDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -182,7 +182,7 @@ export class PayrollController {
   @Delete('concepts/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @HasPermission(PERMISSIONS.PAYROLL_MANAGE)
-  removeConcept(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  removeConcept(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.concepts.remove(id, user.organizationId);
   }
 
@@ -192,7 +192,7 @@ export class PayrollController {
   @HasPermission(PERMISSIONS.PAYROLL_PROCESS)
   @AuditAccess({ entity: 'payroll_severance', action: ActionType.READ, identifiers: ['employeeId'] })
   previewSeverance(
-    @Param('employeeId', ParseUUIDPipe) employeeId: string,
+    @Param('employeeId', UuidParamPipe) employeeId: string,
     @Body() dto: PreviewSeveranceDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -266,7 +266,7 @@ export class PayrollController {
   @HasPermission(PERMISSIONS.TSS_EXPORT)
   @AuditAccess({ entity: 'tss_autodeterminacion', action: ActionType.READ, identifiers: ['id'] })
   autodeterminacion(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.tss.autodeterminacion(id, user.organizationId);
@@ -276,7 +276,7 @@ export class PayrollController {
   @HasPermission(PERMISSIONS.TSS_EXPORT)
   @Header('Content-Type', 'text/plain; charset=utf-8')
   @AuditAccess({ entity: 'tss_suir', action: ActionType.EXPORT, identifiers: ['id'] })
-  suir(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  suir(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.tss.exportSuir(id, user.organizationId);
   }
 }

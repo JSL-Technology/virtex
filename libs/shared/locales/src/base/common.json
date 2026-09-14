@@ -164,6 +164,16 @@
     "en": "Save",
     "pt": "Salvar"
   },
+  "common.save_changes": {
+    "es": "Guardar cambios",
+    "en": "Save changes",
+    "pt": "Guardar alterações"
+  },
+  "common.saving": {
+    "es": "Guardando…",
+    "en": "Saving…",
+    "pt": "A guardar…"
+  },
   "common.single_file_expected": {
     "es": "Single file expected",
     "en": "A single file is expected.",

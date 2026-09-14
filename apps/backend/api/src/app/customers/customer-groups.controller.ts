@@ -1,5 +1,6 @@
 
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
@@ -29,19 +30,19 @@ export class CustomerGroupsController {
 
   @Get(':id')
   @HasPermission(PERMISSIONS.CUSTOMERS_VIEW)
-  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  findOne(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.customerGroupsService.findOne(id, user.organizationId);
   }
 
   @Patch(':id')
   @HasPermission(PERMISSIONS.CUSTOMERS_EDIT)
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateDto: UpdateCustomerGroupDto, @CurrentUser() user: AuthenticatedUser) {
+  update(@Param('id', UuidParamPipe) id: string, @Body() updateDto: UpdateCustomerGroupDto, @CurrentUser() user: AuthenticatedUser) {
     return this.customerGroupsService.update(id, updateDto, user.organizationId);
   }
 
   @Delete(':id')
   @HasPermission(PERMISSIONS.CUSTOMERS_DELETE)
-  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  remove(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.customerGroupsService.remove(id, user.organizationId);
   }
 }

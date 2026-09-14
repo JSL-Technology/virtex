@@ -6,12 +6,12 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseUUIDPipe,
   Patch,
   Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ManufacturingService } from './manufacturing.service';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -50,7 +50,7 @@ export class ManufacturingController {
   @Get('orders/:id')
   @HasPermission(PERMISSIONS.MANUFACTURING_VIEW)
   findOneOrder(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.manufacturingService.findOneOrder(id, user.organizationId);
@@ -68,7 +68,7 @@ export class ManufacturingController {
   @Patch('orders/:id')
   @HasPermission(PERMISSIONS.MANUFACTURING_MANAGE)
   updateOrder(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: UpdateProductionOrderDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -79,7 +79,7 @@ export class ManufacturingController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @HasPermission(PERMISSIONS.MANUFACTURING_MANAGE)
   removeOrder(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.manufacturingService.removeOrder(id, user.organizationId);
@@ -100,7 +100,7 @@ export class ManufacturingController {
   @Get('bills-of-materials/:id')
   @HasPermission(PERMISSIONS.MANUFACTURING_VIEW)
   findOneBom(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.manufacturingService.findOneBom(id, user.organizationId);
@@ -118,7 +118,7 @@ export class ManufacturingController {
   @Patch('bills-of-materials/:id')
   @HasPermission(PERMISSIONS.MANUFACTURING_MANAGE)
   updateBom(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: UpdateBillOfMaterialDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -129,7 +129,7 @@ export class ManufacturingController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @HasPermission(PERMISSIONS.MANUFACTURING_MANAGE)
   removeBom(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.manufacturingService.removeBom(id, user.organizationId);
@@ -150,7 +150,7 @@ export class ManufacturingController {
   @Get('work-centers/:id')
   @HasPermission(PERMISSIONS.MANUFACTURING_VIEW)
   findOneWorkCenter(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.manufacturingService.findOneWorkCenter(id, user.organizationId);
@@ -168,7 +168,7 @@ export class ManufacturingController {
   @Patch('work-centers/:id')
   @HasPermission(PERMISSIONS.MANUFACTURING_MANAGE)
   updateWorkCenter(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: UpdateWorkCenterDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -179,7 +179,7 @@ export class ManufacturingController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @HasPermission(PERMISSIONS.MANUFACTURING_MANAGE)
   removeWorkCenter(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.manufacturingService.removeWorkCenter(id, user.organizationId);

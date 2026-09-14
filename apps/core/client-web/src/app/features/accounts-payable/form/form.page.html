@@ -20,7 +20,7 @@
       </div>
       <div class="card-body grid-form">
         <div class="form-field">
-          <label for="vendorId">{{ 'accounts_payable.form.supplier' | translate }}</label>
+          <label for="vendorId">{{ 'accounts_payable.form.supplier' | translate }} *</label>
           <select id="vendorId" formControlName="vendorId">
             <option value="">{{ 'accounts_payable.form.supplier_placeholder' | translate }}</option>
             @for (supplier of supplierOptions(); track supplier.id) {
@@ -49,12 +49,18 @@
 
         <div class="form-field">
           <label for="currencyCode">{{ 'accounts_payable.form.currency' | translate }}</label>
-          <input
-            type="text"
-            id="currencyCode"
-            formControlName="currencyCode"
-            maxlength="3"
-            [placeholder]="'accounts_payable.form.organization_currency' | translate">
+          <!--
+            A list, as the sales invoice has always had. This was a free-text box of three
+            characters, so the same field on the two sides of the ledger asked for the currency in
+            two different ways — and typing one the tenant does not hold is refused by the server
+            with an exchange-rate error that says nothing about the real problem. A currency you
+            cannot transact in is not something to offer and then reject.
+          -->
+          <select id="currencyCode" formControlName="currencyCode">
+            @for (currency of currencies(); track currency.code) {
+              <option [value]="currency.code">{{ currency.code }} · {{ currency.name }}</option>
+            }
+          </select>
         </div>
 
         <div class="form-field">
@@ -106,7 +112,7 @@
               [attr.aria-label]="'accounts_payable.form.expense_account' | translate">
               <option value="">{{ 'accounts_payable.form.select_account' | translate }}</option>
               @for (account of expenseAccounts(); track account.id) {
-                <option [value]="account.id">{{ account.code }} — {{ account.name }}</option>
+                <option [value]="account.id">{{ account.code }} — {{ account.name | vxName }}</option>
               }
             </select>
             <span class="text-right line-total">{{ lineTotal(i) | vxNumber:'1.2-2' }}</span>

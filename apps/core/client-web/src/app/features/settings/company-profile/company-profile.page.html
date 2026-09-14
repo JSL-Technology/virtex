@@ -11,7 +11,7 @@
                 [disabled]="profileForm.pristine || profileForm.invalid || isLoading"
                 (click)="saveProfile()">
             <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
-            <span>{{ isLoading ? 'Guardando…' : 'Guardar Cambios' }}</span>
+            <span>{{ (isLoading ? 'common.saving' : 'common.save_changes') | translate }}</span>
         </button>
     </div>
 
@@ -28,8 +28,7 @@
 
                     <div class="form-field">
                         <label for="legalName" class="form-label">
-                            {{ 'settings.company_profile.legal_name' | translate }} <span class="required">*</span>
-                        </label>
+                            {{ 'settings.company_profile.legal_name' | translate }} <span class="required">*</span></label>
                         <input id="legalName"
                                type="text"
                                formControlName="legalName"
@@ -50,8 +49,7 @@
 
                     <div class="form-field">
                         <label for="taxId" class="form-label">
-                            {{ 'settings.company_profile.id_fiscal_rnc_tax_id' | translate }} <span class="required">*</span>
-                        </label>
+                            {{ 'settings.company_profile.id_fiscal_rnc_tax_id' | translate }} <span class="required">*</span></label>
                         <input id="taxId"
                                type="text"
                                formControlName="taxId"
@@ -101,8 +99,7 @@
 
                     <div class="form-field">
                         <label for="country" class="form-label">
-                            {{ 'settings.company_profile.country' | translate }} <span class="required">*</span>
-                        </label>
+                            {{ 'settings.company_profile.country' | translate }} <span class="required">*</span></label>
                         <input id="country"
                                type="text"
                                formControlName="country"
@@ -115,8 +112,7 @@
 
                     <div class="form-field">
                         <label for="phone" class="form-label">
-                            {{ 'settings.company_profile.phone' | translate }} <span class="required">*</span>
-                        </label>
+                            {{ 'settings.company_profile.phone' | translate }} <span class="required">*</span></label>
                         <input id="phone"
                                type="tel"
                                formControlName="phone"

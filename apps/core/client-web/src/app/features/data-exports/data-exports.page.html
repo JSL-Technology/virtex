@@ -10,7 +10,7 @@
   -->
   <form listToolbar class="export-form" [formGroup]="exportForm" (ngSubmit)="startExport()">
     <div class="form-field">
-      <label for="dataType">{{ 'data_exports.data_export' | translate }}</label>
+      <label for="dataType">{{ 'data_exports.data_export' | translate }} *</label>
       <select id="dataType" formControlName="dataType">
         <option [value]="null" disabled>{{ 'data_exports.select_data_type' | translate }}</option>
         @for (type of dataTypes; track type.id) {
@@ -20,7 +20,7 @@
     </div>
 
     <div class="form-field">
-      <span class="input-label" id="export-group-1">{{ 'data_exports.format_required_label' | translate }}</span>
+      <span class="input-label" id="export-group-1">{{ 'data_exports.format_required_label' | translate }} *</span>
       <div class="button-group" role="group" aria-labelledby="export-group-1">
         <button
           type="button"

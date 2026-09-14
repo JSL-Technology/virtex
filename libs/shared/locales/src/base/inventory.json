@@ -155,9 +155,9 @@
     "pt": "Cancelar"
   },
   "inventory.product_form.category": {
-    "es": "Categoría*",
-    "en": "Category*",
-    "pt": "Categoria*"
+    "es": "Categoría",
+    "en": "Category",
+    "pt": "Categoria"
   },
   "inventory.product_form.description": {
     "es": "Descripción",
@@ -225,9 +225,9 @@
     "pt": "Imagem do Produto"
   },
   "inventory.product_form.product_name": {
-    "es": "Nombre del Producto*",
-    "en": "Product Name*",
-    "pt": "Nome do Produto*"
+    "es": "Nombre del Producto",
+    "en": "Product Name",
+    "pt": "Nome do Produto"
   },
   "inventory.product_form.product_updated": {
     "es": "Producto actualizado exitosamente.",
@@ -235,9 +235,9 @@
     "pt": "Produto atualizado."
   },
   "inventory.product_form.quantity_stock": {
-    "es": "Cantidad en Stock*",
-    "en": "Quantity in Stock*",
-    "pt": "Quantidade em Estoque*"
+    "es": "Cantidad en Stock",
+    "en": "Quantity in Stock",
+    "pt": "Quantidade em Estoque"
   },
   "inventory.product_form.reorder_level": {
     "es": "Nivel de Reorden",
@@ -245,9 +245,9 @@
     "pt": "Ponto de Reposição"
   },
   "inventory.product_form.sale_price": {
-    "es": "Precio de Venta*",
-    "en": "Sale Price*",
-    "pt": "Preço de Venda*"
+    "es": "Precio de Venta",
+    "en": "Sale Price",
+    "pt": "Preço de Venda"
   },
   "inventory.product_form.save_product": {
     "es": "Guardar producto",
@@ -260,9 +260,9 @@
     "pt": "SKU (Código do Produto)"
   },
   "inventory.product_form.status": {
-    "es": "Estado*",
-    "en": "Status*",
-    "pt": "Situação*"
+    "es": "Estado",
+    "en": "Status",
+    "pt": "Situação"
   },
   "inventory.product_form.title_edit": {
     "es": "Editar producto",

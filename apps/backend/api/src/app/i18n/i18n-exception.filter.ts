@@ -77,11 +77,26 @@ export class I18nExceptionFilter implements ExceptionFilter {
 
     const { status, code, messageKey, params, extra } = this.describe(exception);
 
+    const where = `${request?.method ?? '?'} ${httpAdapter.getRequestUrl(request) ?? '?'}`;
+
     if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
       this.logger.error(
-        `${request?.method ?? '?'} ${httpAdapter.getRequestUrl(request) ?? '?'} -> ${status} ${code}`,
+        `${where} -> ${status} ${code}`,
         exception instanceof Error ? exception.stack : String(exception),
       );
+    } else if (status >= HttpStatus.BAD_REQUEST) {
+      /**
+       * A refusal the operator can see afterwards.
+       *
+       * Client errors were not recorded at all, so a refusal existed in exactly one place — the
+       * response — and only for as long as somebody had it on screen. "Customers say the link in
+       * the email is broken" was unanswerable: nothing on the server had ever mentioned it.
+       *
+       * `debug`, not `warn`: an expired token is a 401 on a perfectly healthy system, and a line
+       * per such request at warning level trains an operator to ignore the log. This is the
+       * detail you switch on while you are looking for something.
+       */
+      this.logger.debug(`${where} -> ${status} ${code}`);
     }
 
     httpAdapter.reply(

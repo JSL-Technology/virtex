@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
@@ -49,7 +50,7 @@ export class RolesController {
   @UseGuards(CsrfGuard, StepUpGuard)
   @StepUp(StepUpScope.MANAGE_ROLES)
   @HasPermission(PERMISSIONS.ROLES_CREATE)
-  clone(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  clone(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.rolesService.cloneRole(id, user.organizationId, user);
   }
 
@@ -64,7 +65,7 @@ export class RolesController {
   @StepUp(StepUpScope.MANAGE_ROLES)
   @HasPermission(PERMISSIONS.ROLES_EDIT)
   update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() updateRoleDto: UpdateRoleDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -75,7 +76,7 @@ export class RolesController {
   @UseGuards(CsrfGuard, StepUpGuard)
   @StepUp(StepUpScope.MANAGE_ROLES)
   @HasPermission(PERMISSIONS.ROLES_DELETE)
-  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  remove(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.rolesService.remove(id, user.organizationId);
   }
 }

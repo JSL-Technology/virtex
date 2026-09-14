@@ -15,6 +15,8 @@ import {
   HcmService,
 } from '../../../../core/api/hcm.service';
 import { PayrollService, SeverancePreview } from '../../../../core/api/payroll.service';
+import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * One person's record: who they are, what they are paid, and what leaving would cost.
@@ -44,6 +46,7 @@ import { PayrollService, SeverancePreview } from '../../../../core/api/payroll.s
     TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
+    ...VX_FORM_A11Y,
   ],
   templateUrl: './form.page.html',
   styleUrls: ['./form.page.scss'],
@@ -55,6 +58,8 @@ export class EmployeeFormPage implements OnInit {
   private readonly hcm = inject(HcmService);
   private readonly payroll = inject(PayrollService);
   private readonly notifications = inject(NotificationService);
+  /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
+  private readonly tab = inject(TAB_CONTEXT, { optional: true });
 
   @Input() id?: string;
 
@@ -139,10 +144,28 @@ export class EmployeeFormPage implements OnInit {
       ? this.hcm.updateEmployee(this.current()!.id, body)
       : this.hcm.createEmployee(body);
 
+    const creating = !this.current();
+
     request.subscribe({
       next: (employee) => {
         this.saving.set(false);
         this.notifications.showSuccess('hcm.employees.form.saved');
+
+        /**
+         * Un empleado recién creado deja de ser «Nuevo empleado».
+         *
+         * La ventana, su título y la barra de direcciones pasan al registro; el formulario se
+         * vuelve a montar sobre él, así que no hace falta recargarlo aquí. Mientras la URL se
+         * quedaba en `/hcm/employees/new`, recargar después de guardar devolvía un formulario
+         * vacío que parecía el trabajo sin guardar de quien lo miraba.
+         */
+        if (creating && this.tab) {
+          this.tab.replaceRoute(`/hcm/employees/${employee.id}/edit`, {
+            title: `${employee.firstName} ${employee.lastName}`.trim(),
+          });
+          return;
+        }
+
         this.load(employee.id);
       },
       error: (error: { error?: { message?: string } }) => this.fail(error),
@@ -226,6 +249,19 @@ export class EmployeeFormPage implements OnInit {
           },
           { emitEvent: false },
         );
+
+        /**
+         * El formulario vuelve a estar limpio, y el encabezado tiene que decirlo.
+         *
+         * `patchValue` no toca el estado sucio: lo pone el usuario al escribir y solo lo quita
+         * quien lo pida. Nadie lo pedía, así que tras un guardado correcto —con el aviso de
+         * «Guardado» todavía en pantalla— la cabecera seguía diciendo «Sin guardar». Un indicador
+         * que miente sobre trabajo pendiente es peor que no tenerlo: enseña a ignorarlo, y lo que
+         * se ignora la próxima vez es el aviso verdadero.
+         */
+        this.form.markAsPristine();
+        this.tab?.markClean();
+
         this.loadCompensation(id);
       },
       error: () => this.notifications.showError('hcm.employee_not_found'),

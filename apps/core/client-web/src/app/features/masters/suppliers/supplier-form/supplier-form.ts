@@ -6,16 +6,20 @@ import { NotificationService } from '../../../../core/services/notification';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
 import { CountryNamesService } from '../../../../core/i18n/countries';
+import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 @Component({
   selector: 'app-supplier-form-page',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule, DraftShellComponent],
+  imports: [ReactiveFormsModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y],
   templateUrl: './supplier-form.html',
   styleUrls: ['./supplier-form.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SupplierForm implements OnInit {
+  /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
+  private readonly tab = inject(TAB_CONTEXT, { optional: true });
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -132,7 +136,10 @@ export class SupplierForm implements OnInit {
     operation.subscribe({
       next: () => {
         this.notificationService.showSuccess(this.isEditMode() ? 'masters.supplier_form.supplier_updated' : 'masters.supplier_form.supplier_created');
-        this.router.navigate(['/masters/suppliers']);
+        //  Esta ventana ya cumplió: el registro existe y la página se va a la lista. Si se dejara
+        //  abierta seguiría anunciándose como «el formulario nuevo», y el siguiente clic en «Nuevo»
+        //  la enfocaría con el documento ya guardado dentro. Ver `TabContext.close`.
+        void this.router.navigate(['/masters/suppliers']).then(() => this.tab?.close());
       },
       error: () => {
         this.notificationService.showError(this.isEditMode() ? 'masters.supplier_form.error_updating_supplier' : 'masters.supplier_form.error_creating_supplier');

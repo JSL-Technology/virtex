@@ -121,7 +121,9 @@ export const authInterceptor: HttpInterceptorFn = (
 
               // Lazy injection for logout
               const authService = injector.get(AuthService);
-              authService.logout(false);
+              //  The refresh was refused, so the session is gone. Say so on the sign-in page:
+              //  landing back there with no message reads as "I clicked something wrong".
+              authService.logout(false, 'expired');
               return throwError(() => refreshError);
             }),
           );

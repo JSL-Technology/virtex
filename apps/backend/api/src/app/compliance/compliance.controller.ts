@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards, UseInterceptors, ParseIntPipe, ParseUUIDPipe, Res } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards, UseInterceptors, ParseIntPipe, Res } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ComplianceService } from './compliance.service';
 import { ProvisionNcfSequenceDto } from './dto/provision-ncf-sequence.dto';
 import { MexicanAccountingQueryDto } from './dto/mexican-accounting-query.dto';
@@ -46,7 +47,7 @@ export class ComplianceController {
   @Patch('ncf-sequences/:id')
   @HasPermission(PERMISSIONS.SETTINGS_EDIT_COMPANY)
   setSequenceActive(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body('isActive') isActive: boolean,
     @CurrentUser() user: AuthenticatedUser,
   ) {

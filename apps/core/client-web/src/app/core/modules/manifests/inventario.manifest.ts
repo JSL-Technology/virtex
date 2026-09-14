@@ -31,7 +31,7 @@ export const INVENTARIO_MODULE: ModuleManifest = {
       permission: 'products:create',
       titleKey: 'page_titles.product_new',
       icon: 'PackagePlus',
-      entityKeyFn: () => `inventario:product:new:${crypto.randomUUID()}`,
+      entityKeyFn: () => 'inventario:product:new',
       load: () => import('../../../features/inventory/product-form/product-form.page').then((m) => m.ProductFormPage),
     },
     {

@@ -1,5 +1,6 @@
 
-import { Controller, Post, Body, UseGuards, Get, Param, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Param } from '@nestjs/common';
+import { UuidParamPipe } from '../../common/pipes/uuid-param.pipe';
 import { JwtAuthGuard } from '../../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { User } from '../../users/entities/user.entity/user.entity';
@@ -30,7 +31,7 @@ export class LeadsController {
   @Post(':id/convert')
   @Idempotent()
   @HasPermission(PERMISSIONS.CRM_MANAGE)
-  convertLead(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  convertLead(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.leadsService.convertLeadToOpportunity(id, user.organizationId);
   }
 }

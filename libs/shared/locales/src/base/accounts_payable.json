@@ -322,11 +322,6 @@
     "en": "Net payable",
     "pt": "Líquido a pagar"
   },
-  "accounts_payable.form.organization_currency": {
-    "es": "Moneda de la organización",
-    "en": "Organization currency",
-    "pt": "Moeda da organização"
-  },
   "accounts_payable.form.other_taxes": {
     "es": "Otros impuestos",
     "en": "Other taxes",

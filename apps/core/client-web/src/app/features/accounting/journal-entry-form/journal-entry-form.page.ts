@@ -15,6 +15,7 @@ import { Ledger } from '../../../core/models/ledger.model';
 import { Journal } from '../../../core/models/journal.model';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 // Validador personalizado para el asiento contable
 export const journalEntryValidator = (control: AbstractControl): ValidationErrors | null => {
@@ -53,7 +54,7 @@ export const journalEntryValidator = (control: AbstractControl): ValidationError
 @Component({
   selector: 'app-journal-entry-form-page',
   standalone: true,
-  imports: [ReactiveFormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, DraftShellComponent],
+  imports: [ReactiveFormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, DraftShellComponent, ...VX_FORM_A11Y],
   templateUrl: './journal-entry-form.page.html',
   styleUrls: ['./journal-entry-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -281,7 +282,10 @@ export class JournalEntryFormPage implements OnInit {
             ? 'accounting.journal_entry_form.entry_modified_original_reversed_new_one'
             : 'accounting.journal_entry_form.entry_created',
         );
-        this.router.navigate(['/accounting/journal-entries']);
+        //  Esta ventana ya cumplió: el registro existe y la página se va a la lista. Si se dejara
+        //  abierta seguiría anunciándose como «el formulario nuevo», y el siguiente clic en «Nuevo»
+        //  la enfocaría con el documento ya guardado dentro. Ver `TabContext.close`.
+        void this.router.navigate(['/accounting/journal-entries']).then(() => this.tab?.close());
       },
       error: (err) => {
         this.notificationService.showError(

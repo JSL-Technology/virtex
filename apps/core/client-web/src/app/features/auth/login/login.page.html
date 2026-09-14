@@ -146,6 +146,17 @@
         <span class="remember-text">{{ 'login.keep_me_logged' | translate }}</span>
       </label>
 
+      <!--
+        A session that ended on its own is explained, not alarmed about. `role="status"` and not
+        `"alert"`: it is information waiting on the page the user was sent to, not an interruption.
+      -->
+      @if (notice()) {
+        <div class="notice-alert" role="status">
+          <lucide-icon [img]="icons.Info" size="16"></lucide-icon>
+          <span>{{ notice()! | translate }}</span>
+        </div>
+      }
+
       @if (errorMessage()) {
         <div class="error-alert" role="alert">
           <lucide-icon [img]="icons.AlertCircle" size="16"></lucide-icon>

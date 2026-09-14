@@ -7,7 +7,10 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { numericTransformer } from '../../common/database/numeric.transformer';
+import {
+  numericTransformer,
+  numericTransformerNotNull,
+} from '../../common/database/numeric.transformer';
 import { Organization } from '../../organizations/entities/organization.entity';
 
 export enum PosShiftStatus {
@@ -54,7 +57,7 @@ export class PosShift {
   @Column({ type: 'uuid' })
   userId: string;
 
-  @Column({ type: 'numeric', precision: 14, scale: 2, transformer: numericTransformer, default: 0 })
+  @Column({ type: 'numeric', precision: 14, scale: 2, transformer: numericTransformerNotNull, default: 0 })
   openingBalance: number;
 
   @Column({
@@ -66,7 +69,7 @@ export class PosShift {
   })
   closingBalance: number | null;
 
-  @Column({ type: 'numeric', precision: 14, scale: 2, transformer: numericTransformer, default: 0 })
+  @Column({ type: 'numeric', precision: 14, scale: 2, transformer: numericTransformerNotNull, default: 0 })
   salesTotal: number;
 
   @Column({ type: 'int', default: 0 })

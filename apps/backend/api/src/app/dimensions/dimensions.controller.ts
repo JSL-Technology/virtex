@@ -1,5 +1,6 @@
 
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseUUIDPipe, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { DimensionsService } from './dimensions.service';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -29,14 +30,14 @@ export class DimensionsController {
 
   @Get(':id')
   @HasPermission(PERMISSIONS.DIMENSIONS_VIEW)
-  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  findOne(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.dimensionsService.findOne(id, user.organizationId);
   }
 
   @Patch(':id')
   @HasPermission(PERMISSIONS.DIMENSIONS_MANAGE)
   update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() updateDto: UpdateDimensionDto,
     @CurrentUser() user: AuthenticatedUser
   ) {
@@ -45,7 +46,7 @@ export class DimensionsController {
 
   @Delete(':id')
   @HasPermission(PERMISSIONS.DIMENSIONS_MANAGE)
-  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  remove(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.dimensionsService.remove(id, user.organizationId);
   }
 
@@ -54,7 +55,7 @@ export class DimensionsController {
 
   @Get('rules/:accountId')
   @HasPermission(PERMISSIONS.DIMENSIONS_VIEW)
-  getRulesForAccount(@Param('accountId', ParseUUIDPipe) accountId: string, @CurrentUser() user: AuthenticatedUser) {
+  getRulesForAccount(@Param('accountId', UuidParamPipe) accountId: string, @CurrentUser() user: AuthenticatedUser) {
     return this.dimensionsService.getRulesForAccount(accountId, user.organizationId);
   }
   
@@ -69,8 +70,8 @@ export class DimensionsController {
   @HasPermission(PERMISSIONS.DIMENSIONS_MANAGE)
   @HttpCode(HttpStatus.NO_CONTENT)
   deleteRule(
-    @Param('accountId', ParseUUIDPipe) accountId: string,
-    @Param('dimensionId', ParseUUIDPipe) dimensionId: string,
+    @Param('accountId', UuidParamPipe) accountId: string,
+    @Param('dimensionId', UuidParamPipe) dimensionId: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.dimensionsService.deleteRule(accountId, dimensionId, user.organizationId);

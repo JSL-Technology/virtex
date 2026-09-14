@@ -64,7 +64,7 @@
                 <select [id]="'aa-line-account-' + i" formControlName="accountId">
                   <option value="">{{ 'audit_adjustments.choose_account' | translate }}</option>
                   @for (account of postableAccounts(); track account.id) {
-                    <option [value]="account.id">{{ account.code }} — {{ account.name }}</option>
+                    <option [value]="account.id">{{ account.code }} — {{ account.name | vxName }}</option>
                   }
                 </select>
               </td>

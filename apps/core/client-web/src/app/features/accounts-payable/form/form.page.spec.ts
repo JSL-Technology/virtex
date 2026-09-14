@@ -105,6 +105,18 @@ describe('VendorBillFormPage', () => {
   const flushPickers = () => {
     httpMock.expectOne(`${API}/suppliers`).flush(suppliers);
     httpMock.expectOne(`${API}/chart-of-accounts`).flush(accounts);
+    // The currency is chosen from the tenant's own list now, not typed into a three-character box
+    // where a code the tenant does not hold is accepted and then refused with an exchange-rate
+    // error. Same source the sales invoice uses.
+    // The books' base currency, which is what the field starts on. The sibling payment screen in
+    // this module reads it from the same place.
+    httpMock
+      .expectOne((r) => r.url === `${API}/treasury/cash-position`)
+      .flush({ asOfDate: '2026-09-14', baseCurrency: 'DOP', accounts: [], total: 0 });
+    httpMock.expectOne(`${API}/currencies`).flush([
+      { id: 'c1', code: 'DOP', name: 'Peso dominicano', symbol: 'RD$' },
+      { id: 'c2', code: 'USD', name: 'US dollar', symbol: '$' },
+    ]);
   };
 
   beforeEach(async () => {
@@ -135,9 +147,26 @@ describe('VendorBillFormPage', () => {
     expect(offered).toEqual(['5101']);
   });
 
-  it('reads an account name out of its translation map instead of printing an object', () => {
+  /**
+   * The name stays a translation map in the component and `| vxName` resolves it in the template,
+   * so switching language re-renders the list instead of leaving it in the language it was fetched
+   * in. What matters is therefore what the option actually says, not what the signal holds — and
+   * saying it this way is also what catches the defect this guards: an account rendered unguarded
+   * reads `[object Object]` on screen while every assertion about the component still passes.
+   */
+  it('renders an account name out of its translation map instead of printing an object', () => {
     flushPickers();
-    expect(component.expenseAccounts()[0].name).toBe('Gastos operativos');
+    fixture.detectChanges();
+
+    const options = Array.from(
+      fixture.nativeElement.querySelectorAll('select[formControlName="expenseAccountId"] option'),
+    ).map((option) => (option as HTMLOptionElement).textContent?.trim() ?? '');
+
+    expect(options.join(' ')).not.toContain('[object Object]');
+    // Whichever language the reader is in, the option names the account rather than its shape.
+    const offered = options.find((text) => text.startsWith('5101 —'));
+    expect(offered).toBeDefined();
+    expect(Object.values(accounts[0].name)).toContain(offered!.replace('5101 — ', ''));
   });
 
   it('posts the field names the server actually requires', () => {

@@ -9,7 +9,7 @@ import { CountryService } from '../../../core/services/country.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { RecaptchaV3Module, ReCaptchaV3Service } from 'ng-recaptcha-19';
 import { recaptchaToken$ } from '../../../core/auth/recaptcha-token';
-import { LucideAngularModule, Mail, Lock, User, ArrowRight, AlertCircle, CheckCircle, ShieldCheck, Camera, Briefcase, Users, Globe, Rocket, Check, ArrowLeft } from 'lucide-angular';
+import { LucideAngularModule, Mail, Lock, User, ArrowRight, AlertCircle, CheckCircle, ShieldCheck, Camera, Briefcase, Users, Globe, Rocket, Check, ArrowLeft, Info } from 'lucide-angular';
 
 // Shared Components
 import { AuthInputComponent } from '../components/auth-input/auth-input.component';
@@ -20,6 +20,13 @@ import { OtpComponent } from '../../../shared/components/otp/otp.component';
 import { BrandLogo } from '../../../shared/components/brand-logo/brand-logo';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
+
+/** The reasons a session can end by itself, and what the sign-in page says about each. */
+const SIGN_OUT_NOTICE: Record<string, string | undefined> = {
+  expired: 'login.notice.session_expired',
+  idle: 'login.notice.signed_out_idle',
+};
 
 @Component({
   selector: 'app-login',
@@ -36,7 +43,8 @@ import { HttpErrorResponse } from '@angular/common/http';
     SocialAuthButtonsComponent,
     PasskeyButtonComponent,
     OtpComponent,
-    BrandLogo
+    BrandLogo,
+    ...VX_FORM_A11Y,
   ],
   providers: [ReCaptchaV3Service],
   templateUrl: './login.page.html',
@@ -70,6 +78,7 @@ export class LoginPage implements OnInit {
     Globe,
     Rocket,
     Check,
+    Info,
     ArrowLeft
   };
 
@@ -78,6 +87,17 @@ export class LoginPage implements OnInit {
   otpCodeControl = this.fb.control('', [Validators.required, Validators.minLength(6)]);
 
   errorMessage = signal<string | null>(null);
+
+  /**
+   * Why the previous session ended, when it ended on its own.
+   *
+   * Separate from `errorMessage` because it is not an error: nothing was typed wrong and nothing
+   * failed that the user can retry differently. A red alert would tell them they had done
+   * something, which is the opposite of what happened. Being returned here with NOTHING said is
+   * what the two are both better than — that is indistinguishable from having clicked the wrong
+   * thing, and leaves the reader wondering whether their work was saved.
+   */
+  readonly notice = signal<string | null>(null);
   isLoggingIn = signal(false);
   // H-03 FIX: show2faInput driven by server response; no tempToken stored in JS memory.
   // The pending session ID lives only in the httpOnly cookie set by the server.
@@ -95,11 +115,13 @@ export class LoginPage implements OnInit {
     this.countryService.detectAndSetCountry();
 
     // Social / SSO callbacks redirect back here with ?error=<code> on failure.
+    // A session that ENDED on its own arrives with ?reason=<expired|idle> instead.
     this.route.queryParamMap.subscribe(params => {
       const error = params.get('error');
       if (error) {
         this.errorMessage.set(this.mapSocialErrorCode(error));
       }
+      this.notice.set(SIGN_OUT_NOTICE[params.get('reason') ?? ''] ?? null);
     });
 
     this.loginForm = this.fb.group({

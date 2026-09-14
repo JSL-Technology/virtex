@@ -9,15 +9,19 @@ import { Product } from '../../../../core/models/product.model';
 import { PriceListItem, PriceListStatus } from '../../../../core/models/price-list.model';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
+import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 @Component({
   selector: 'app-price-list-form-page',
-  imports: [ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent],
+  imports: [ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y],
   templateUrl: './price-list-form.page.html',
   styleUrls: ['./price-list-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PriceListFormPage implements OnInit {
+  /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
+  private readonly tab = inject(TAB_CONTEXT, { optional: true });
   id = input<string>();
 
   private fb = inject(FormBuilder);
@@ -162,7 +166,10 @@ export class PriceListFormPage implements OnInit {
     operation.subscribe({
       next: () => {
         this.notificationService.showSuccess(this.isEditMode() ? 'masters.price_lists_form.price_list_updated' : 'masters.price_lists_form.price_list_created');
-        this.router.navigate(['/masters/price-lists']);
+        //  Esta ventana ya cumplió: el registro existe y la página se va a la lista. Si se dejara
+        //  abierta seguiría anunciándose como «el formulario nuevo», y el siguiente clic en «Nuevo»
+        //  la enfocaría con el documento ya guardado dentro. Ver `TabContext.close`.
+        void this.router.navigate(['/masters/price-lists']).then(() => this.tab?.close());
       },
       error: (err) => {
         this.notificationService.showError(this.isEditMode() ? 'masters.price_lists_form.error_updating_price_list' : 'masters.price_lists_form.error_creating_price_list');

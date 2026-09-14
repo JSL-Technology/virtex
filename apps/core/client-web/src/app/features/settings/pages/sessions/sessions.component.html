@@ -43,8 +43,8 @@
 
           <div class="sess-item__info">
             <div class="sess-item__browser">
-              {{ session.browser || 'Navegador desconocido' }}
-              <span class="sess-item__os">en {{ session.os || 'SO desconocido' }}</span>
+              {{ session.browser || ('settings.sessions.unknown_browser' | translate) }}
+              <span class="sess-item__os">en {{ session.os || ('settings.sessions.unknown_os' | translate) }}</span>
               @if (session.isCurrent) {
                 <span class="sess-badge-current">{{ 'settings.sessions.current_session' | translate }}</span>
               }

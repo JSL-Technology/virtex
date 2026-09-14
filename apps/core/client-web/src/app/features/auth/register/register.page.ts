@@ -54,6 +54,7 @@ import { GeoMismatchModalComponent } from '../../../shared/components/geo-mismat
 import { AuthButtonComponent } from '../components/auth-button/auth-button.component';
 import { AuthInputComponent } from '../components/auth-input/auth-input.component';
 import { LanguageService } from '../../../core/services/language';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 const FORM_DRAFT_KEY = 'register_form_draft';
 const TOTAL_STEPS = 6;
@@ -83,6 +84,7 @@ export function passwordMatchValidator(
     StepPlan,
     RecaptchaV3Module,
     AuthButtonComponent,
+    ...VX_FORM_A11Y,
   ],
   providers: [
     ReCaptchaV3Service,

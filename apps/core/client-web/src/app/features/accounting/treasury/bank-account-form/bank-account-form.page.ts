@@ -10,6 +10,8 @@ import { CurrenciesService } from '../../../../core/api/currencies.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { Account } from '../../../../core/models/account.model';
 import { bankLedgerAccounts } from '../../../../core/services/account-selection';
+import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * Registering a bank account.
@@ -33,12 +35,15 @@ import { bankLedgerAccounts } from '../../../../core/services/account-selection'
     TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
+    ...VX_FORM_A11Y,
   ],
   templateUrl: './bank-account-form.page.html',
   styleUrls: ['./bank-account-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BankAccountFormPage implements OnInit {
+  /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
+  private readonly tab = inject(TAB_CONTEXT, { optional: true });
 
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
@@ -165,7 +170,10 @@ export class BankAccountFormPage implements OnInit {
         this.notifications.showSuccess(
           id ? 'treasury.form.bank_account_updated' : 'treasury.form.bank_account_created',
         );
-        this.router.navigate(['/accounting/treasury']);
+        //  Esta ventana ya cumplió: el registro existe y la página se va a la lista. Si se dejara
+        //  abierta seguiría anunciándose como «el formulario nuevo», y el siguiente clic en «Nuevo»
+        //  la enfocaría con el documento ya guardado dentro. Ver `TabContext.close`.
+        void this.router.navigate(['/accounting/treasury']).then(() => this.tab?.close());
       },
       error: (error: { error?: { message?: string } }) => {
         this.saving.set(false);

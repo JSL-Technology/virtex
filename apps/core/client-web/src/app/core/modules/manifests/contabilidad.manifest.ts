@@ -40,7 +40,7 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       permission: 'coa:create',
       titleKey: 'page_titles.account_new',
       icon: 'FilePlus',
-      entityKeyFn: () => `contabilidad:account:new:${crypto.randomUUID()}`,
+      entityKeyFn: () => 'contabilidad:account:new',
       load: () => import('../../../features/accounting/account-form/account-form.page').then((m) => m.AccountFormPage),
     },
     {
@@ -68,7 +68,7 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       permission: 'journal_entries:create',
       titleKey: 'page_titles.journal_entry_new',
       icon: 'FilePlus',
-      entityKeyFn: () => `contabilidad:entry:new:${crypto.randomUUID()}`,
+      entityKeyFn: () => 'contabilidad:entry:new',
       load: () => import('../../../features/accounting/journal-entry-form/journal-entry-form.page').then((m) => m.JournalEntryFormPage),
     },
     {
@@ -119,7 +119,7 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       permission: 'accounting:manage_ledgers',
       titleKey: 'page_titles.ledger_new',
       icon: 'FilePlus',
-      entityKeyFn: () => `contabilidad:ledger:new:${crypto.randomUUID()}`,
+      entityKeyFn: () => 'contabilidad:ledger:new',
       load: () => import('../../../features/accounting/ledger-form/app-ledger-form-page').then((m) => m.LedgerFormPage),
     },
     {
@@ -184,7 +184,7 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       permission: 'journal_entries:create',
       titleKey: 'page_titles.journal_new',
       icon: 'FilePlus',
-      entityKeyFn: () => `contabilidad:journal:new:${crypto.randomUUID()}`,
+      entityKeyFn: () => 'contabilidad:journal:new',
       load: () => import('../../../features/accounting/journal-form/journal-form.page').then((m) => m.JournalFormPage),
     },
     {
@@ -262,7 +262,7 @@ export const CONTABILIDAD_MODULE: ModuleManifest = {
       permission: 'audit:propose_adjustment',
       titleKey: 'page_titles.audit_adjustment_new',
       icon: 'FilePlus',
-      entityKeyFn: () => `contabilidad:audit-adjustment:new:${crypto.randomUUID()}`,
+      entityKeyFn: () => 'contabilidad:audit-adjustment:new',
       load: () => import('../../../features/accounting/audit-adjustments/audit-adjustment-form/audit-adjustment-form.page').then((m) => m.AuditAdjustmentFormPage),
     },
     {

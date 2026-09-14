@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthInputComponent } from '../../../components/auth-input/auth-input.component';
 import { LucideAngularModule, Building, Briefcase, Users, Globe, Camera } from 'lucide-angular';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 @Component({
   selector: 'app-step-business',
@@ -13,7 +14,8 @@ import { LucideAngularModule, Building, Briefcase, Users, Globe, Camera } from '
     ReactiveFormsModule,
     TranslateModule,
     AuthInputComponent,
-    LucideAngularModule
+    LucideAngularModule,
+    ...VX_FORM_A11Y,
   ],
   templateUrl: './step-business.html',
   styleUrls: ['./step-business.scss']

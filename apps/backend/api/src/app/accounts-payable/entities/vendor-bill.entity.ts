@@ -79,11 +79,21 @@ export class VendorBill {
   @Column({ nullable: true })
   ncf?: string;
 
-  @Column()
-  date: Date;
+  /**
+   * The date on the supplier's document, and the date it falls due — calendar dates, not instants.
+   *
+   * Both were `@Column() date: Date`, which reflect-metadata resolves to `timestamp`, so a bill
+   * dated the 14th was stored as the 14th at 00:00 and served as `2026-09-14T00:00:00.000Z`. The
+   * browser then rendered that instant in the tenant's zone — `America/Santo_Domingo`, UTC−4 — and
+   * every supplier bill in the product showed the day before, on the document, in the list and on
+   * the 606. A document date has no time to convert: `date` is the column type that says so, and a
+   * `string` keeps it a calendar date all the way to the client.
+   */
+  @Column({ type: 'date' })
+  date: string;
 
-  @Column()
-  dueDate: Date;
+  @Column({ type: 'date' })
+  dueDate: string;
 
   @OneToMany(() => VendorBillLine, (line) => line.vendorBill, { cascade: true })
   lines: VendorBillLine[];

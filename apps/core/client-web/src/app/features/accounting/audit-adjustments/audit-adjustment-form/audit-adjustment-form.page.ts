@@ -12,7 +12,10 @@ import { AccountingService } from '../../../../core/api/accounting.service';
 import { JournalsService } from '../../../../core/api/journals.service';
 import { Account } from '../../../../core/models/account.model';
 import { Journal } from '../../../../core/models/journal.model';
+import { VxLocalizedNamePipe } from '@virteex/shared/ui-i18n';
 import { isChargeable } from '../../../../core/services/account-selection';
+import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * Proposing a correction to a year that is already closed.
@@ -39,12 +42,16 @@ import { isChargeable } from '../../../../core/services/account-selection';
     TranslateModule,
     LucideAngularModule,
     DraftShellComponent,
+    VxLocalizedNamePipe,
+    ...VX_FORM_A11Y,
   ],
   templateUrl: './audit-adjustment-form.page.html',
   styleUrls: ['./audit-adjustment-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuditAdjustmentFormPage implements OnInit {
+  /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
+  private readonly tab = inject(TAB_CONTEXT, { optional: true });
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly adjustments = inject(AuditAdjustmentsService);
@@ -215,7 +222,10 @@ export class AuditAdjustmentFormPage implements OnInit {
               ? 'audit_adjustments.proposed_and_posted'
               : 'audit_adjustments.proposed_pending',
           );
-          this.router.navigate(['/accounting/audit-adjustments']);
+          //  Esta ventana ya cumplió: el registro existe y la página se va a la lista. Si se dejara
+          //  abierta seguiría anunciándose como «el formulario nuevo», y el siguiente clic en «Nuevo»
+          //  la enfocaría con el documento ya guardado dentro. Ver `TabContext.close`.
+          void this.router.navigate(['/accounting/audit-adjustments']).then(() => this.tab?.close());
         },
         error: (error: { error?: { message?: string } }) => {
           this.saving.set(false);

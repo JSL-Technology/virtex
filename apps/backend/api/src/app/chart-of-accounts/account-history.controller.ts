@@ -1,5 +1,6 @@
 
-import { Controller, Get, Param, UseGuards, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { ChartOfAccountsService } from './chart-of-accounts.service';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -16,7 +17,7 @@ export class AccountHistoryController {
   @HasPermission(PERMISSIONS.CHART_OF_ACCOUNTS_VIEW)
   @Get()
   findAccountHistory(
-    @Param('accountId', ParseUUIDPipe) accountId: string,
+    @Param('accountId', UuidParamPipe) accountId: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.chartOfAccountsService.getAccountHistory(accountId, user.organizationId);

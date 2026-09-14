@@ -97,7 +97,10 @@ export class ClosingChecklistService {
             VendorBillStatus.DRAFT,
             VendorBillStatus.PENDING_APPROVAL,
           ]),
-          date: Between(period.startDate, period.endDate),
+          // A bill's document date is a calendar date, so the bounds are too — same as the bank
+          // transaction count below, and unlike the journal entry count above, whose column is a
+          // timestamp.
+          date: Between(toIsoDate(period.startDate), toIsoDate(period.endDate)),
         },
       });
     checklist.push({

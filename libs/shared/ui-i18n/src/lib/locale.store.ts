@@ -9,6 +9,7 @@ import {
   NEUTRAL_LOCALE,
   isLanguageCode,
   matchLanguage,
+  isLocaleTag,
   resolveLocale,
 } from '@virteex/shared/types';
 
@@ -65,6 +66,30 @@ export class LocaleStore {
     const language = this._language();
     const country = this._tenantContext()?.countryCode;
     return country ? resolveLocale(language, country) : NEUTRAL_LOCALE[language];
+  });
+
+  /**
+   * The locale whose WORDING applies, or `null` when no patch fits this tenant.
+   *
+   * Separate from `locale` because a formatting fallback and a wording fallback are not the same
+   * decision. `locale` must always answer something — an English reader's numbers have to be
+   * grouped somehow, and `en-US` is a fine answer wherever they are. Wording cannot fall back that
+   * way: the regional patches carry a country's FISCAL vocabulary, and the United States patch
+   * says the tax identifier is an `EIN / TIN`.
+   *
+   * Which is what an English-speaking controller in a Dominican company was told. `en-DO` is not a
+   * patch, `resolveLocale` fell through to `en-US`, and the customer form asked a Santo Domingo
+   * business for its EIN. Reading the interface in English does not move the company to Delaware.
+   *
+   * So a patch applies only when its country IS the tenant's country. Where there is none, the
+   * neutral catalogue stands: "Tax ID" is less specific than "RNC", and unlike "EIN" it is not
+   * wrong.
+   */
+  readonly wordingLocale = computed<LocaleTag | null>(() => {
+    const country = this._tenantContext()?.countryCode?.trim().toUpperCase();
+    if (!country) return null;
+    const candidate = `${this._language()}-${country}`;
+    return isLocaleTag(candidate) ? candidate : null;
   });
 
   /**

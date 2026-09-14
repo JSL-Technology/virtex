@@ -1,4 +1,5 @@
-import { Controller, Get, Param, ParseUUIDPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
@@ -41,7 +42,7 @@ export class CustomerPortalController {
 
   @Get('knowledge-base/:id')
   @HasPermission(PERMISSIONS.CUSTOMER_PORTAL_ACCESS)
-  getKnowledgeBaseArticle(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  getKnowledgeBaseArticle(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.knowledgeBaseService.findOnePublished(id, user.organizationId);
   }
 }

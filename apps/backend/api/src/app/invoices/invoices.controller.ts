@@ -8,11 +8,11 @@ import {
   Param,
   Query,
   UseGuards,
-  ParseUUIDPipe,
   HttpCode,
   HttpStatus,
   Res,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { InvoicesService, InvoiceListQuery } from './invoices.service';
 import { InvoiceRendererService } from './services/invoice-renderer.service';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
@@ -91,7 +91,7 @@ export class InvoicesController {
   @HasPermission(PERMISSIONS.INVOICES_CREATE)
   @HttpCode(HttpStatus.OK)
   previewIssue(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: IssueInvoiceDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -106,7 +106,7 @@ export class InvoicesController {
   @CheckPlanLimit(SaasResource.INVOICES, 1)
   @HttpCode(HttpStatus.OK)
   issue(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: IssueInvoiceDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -118,7 +118,7 @@ export class InvoicesController {
   @UseGuards(PeriodLockGuard)
   @HasPermission(PERMISSIONS.INVOICES_EDIT)
   updateDraft(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: CreateInvoiceDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -129,7 +129,7 @@ export class InvoicesController {
   @HasPermission(PERMISSIONS.INVOICES_EDIT)
   @HttpCode(HttpStatus.NO_CONTENT)
   async discardDraft(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     await this.invoicesService.discardDraft(id, user.organizationId);
@@ -161,7 +161,7 @@ export class InvoicesController {
 
   @Get(':id')
   @HasPermission(PERMISSIONS.INVOICES_VIEW)
-  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  findOne(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.invoicesService.findOne(id, user.organizationId);
   }
 
@@ -171,7 +171,7 @@ export class InvoicesController {
   @HasPermission(PERMISSIONS.INVOICES_VOID)
   @HttpCode(HttpStatus.CREATED)
   createCreditNote(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: CreateCreditNoteDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -184,7 +184,7 @@ export class InvoicesController {
   @Get(':id/pdf')
   @HasPermission(PERMISSIONS.INVOICES_VIEW)
   async downloadPdf(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
     @Res() res: Response,
   ) {
@@ -208,7 +208,7 @@ export class InvoicesController {
   @Get(':id/print')
   @HasPermission(PERMISSIONS.INVOICES_VIEW)
   async printable(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
     @Res() res: Response,
   ) {

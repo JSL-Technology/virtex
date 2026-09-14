@@ -42,7 +42,7 @@
                          [class.plan-status--prueba]="sub.status === 'past_due'">
                         {{ statusLabel(sub.status) }}
                         @if (sub.currentPeriodEnd) {
-                            · {{ sub.cancelAtPeriodEnd ? 'Finaliza el' : 'Se renueva el' }} {{ formatDate(sub.currentPeriodEnd) }}
+                            · {{ sub.cancelAtPeriodEnd ? ('settings.billing.ends_on' | translate) : ('settings.billing.renews_on' | translate) }} {{ formatDate(sub.currentPeriodEnd) }}
                         }
                     </div>
                     } @else {
@@ -129,7 +129,7 @@
     <!-- Plan Selection -->
     <div class="billing-section">
         <div class="billing-section__header">
-            <h2 class="billing-section__title">{{ hasActiveSubscription() ? 'Cambiar de Plan' : 'Elige tu Plan' }}</h2>
+            <h2 class="billing-section__title">{{ (hasActiveSubscription() ? 'settings.billing.change_plan' : 'settings.billing.choose_plan') | translate }}</h2>
             <p class="billing-section__subtitle">{{ 'settings.billing.choose_plan_prompt' | translate }}</p>
         </div>
 
@@ -219,7 +219,7 @@
                         <span>{{ 'settings.billing.redirecting' | translate }}</span>
                     } @else {
                         <lucide-icon [img]="ExternalLinkIcon" size="16"></lucide-icon>
-                        <span>{{ hasActiveSubscription() ? 'Continuar al portal' : 'Continuar con el pago' }}</span>
+                        <span>{{ (hasActiveSubscription() ? 'settings.billing.continue_to_portal' : 'settings.billing.continue_to_payment') | translate }}</span>
                     }
                 </button>
             </div>

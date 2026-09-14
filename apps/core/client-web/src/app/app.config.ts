@@ -26,6 +26,7 @@ import { ThemeService } from './core/services/theme';
 import { AuthService } from './core/services/auth';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { provideServiceWorker } from '@angular/service-worker';
+import { watchRecaptchaScript } from './core/auth/recaptcha-token';
 import { API_URL } from './core/tokens/api-url.token';
 import { idempotencyInterceptor } from './core/http/idempotency.interceptor';
 
@@ -42,6 +43,16 @@ const CORE_PROVIDERS = [
   // `auth.titles.login` in the browser tab.
   provideAppInitializer(() => inject(LanguageService).preload()),
   provideAppInitializer(() => inject(AuthService).resolveSession()),
+  /**
+   * Start watching for a reCAPTCHA script that fails to load, before one is ever appended.
+   *
+   * It has to be here rather than at the sign-in form, because the timing leaves no choice: the
+   * library appends the script about 0.1 s after the page loads and the fetch fails ~50 ms later,
+   * seconds before anybody types a password. A listener attached at submit time attaches to an
+   * element whose `error` fired long ago and will never fire again — which is why signing in with
+   * Google unreachable spent the full eight-second ceiling before the request left the browser.
+   */
+  provideAppInitializer(() => { watchRecaptchaScript(); }),
   { provide: API_URL, useValue: environment.apiUrl || 'http://localhost:3000/api/v1' },
   provideBrowserGlobalErrorListeners(),
   provideZonelessChangeDetection(),
@@ -83,7 +94,11 @@ const I18N_PROVIDERS = [
   // Overrides the store `provideTranslateService` just registered, so every lookup — pipe,
   // directive, `instant`, `get`, the fallback-language retry — passes through one key
   // normalisation. Order matters: a later provider for the same token wins.
-  { provide: TranslateStore, useClass: VirtexTranslateStore },
+  // One instance, reachable under both tokens: `TranslateStore` is what `@ngx-translate` asks
+  // for, and the concrete class is what a caller injects to ask `hasKey` — a public question the
+  // upstream `protected getValue` cannot be asked directly.
+  VirtexTranslateStore,
+  { provide: TranslateStore, useExisting: VirtexTranslateStore },
   // Rebuilds the table with the tenant's country applied, once the session says what it is.
   provideAppInitializer(() => { inject(RegionalLocaleEffect); }),
 ];

@@ -13,6 +13,7 @@ import { NotificationService } from '../../../core/services/notification';
 import { PosService } from './pos.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 // Reutilizamos el modelo de producto
 // import { Product } from '../../inventory/products/products.page';
@@ -20,7 +21,7 @@ import { ErrorHandlerService } from '../../../core/services/error-handler.servic
 @Component({
   selector: 'app-pos-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y],
   templateUrl: './pos.page.html',
   styleUrls: ['./pos.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,6 +44,17 @@ export class PosPage {
   /** The open shift this screen is ringing sales into, if any. */
   readonly activeShiftId = signal<string | null>(null);
   readonly saving = signal(false);
+
+  /**
+   * Why the till cannot take a sale, when it cannot.
+   *
+   * Opening the shift used to fail into `error: () => void 0`. The drawer stayed closed, the
+   * screen rendered a complete point of sale — cart, totals, a Charge button, a "Connected"
+   * indicator — and the cashier had no way to know that nothing they rang up could be recorded.
+   * A till that cannot account for a sale has to say so and stop, which is what this drives.
+   */
+  readonly shiftError = signal<string | null>(null);
+  readonly shiftReady = computed(() => this.activeShiftId() !== null);
 
   /**
    * The market's own invoicing context: currency, and the rates it levies.
@@ -171,23 +183,51 @@ export class PosPage {
    * the backend rejects a second open shift per terminal, so this is idempotent under a refresh.
    */
   private ensureShift(): void {
+    this.shiftError.set(null);
     this.posService.getActiveShift(this.terminalId).subscribe({
       next: (shift) => {
         if (shift) {
           this.activeShiftId.set(shift.id);
-        } else {
-          this.posService.openShift(this.terminalId, 0).subscribe({
-            next: (opened) => this.activeShiftId.set(opened.id),
-            error: () => void 0,
-          });
+          return;
         }
+        this.posService.openShift(this.terminalId, 0).subscribe({
+          next: (opened) => {
+            this.activeShiftId.set(opened.id);
+            this.shiftError.set(null);
+          },
+          error: (err: HttpErrorResponse) => this.failShift(err),
+        });
       },
-      error: () => void 0,
+      error: (err: HttpErrorResponse) => this.failShift(err),
     });
+  }
+
+  /**
+   * The till has no shift, so it takes no sales until someone fixes the cause.
+   *
+   * The message is ours, resolved from the code the API sent; the server's own sentence never
+   * reaches the counter, for the same reason it does not on a failed sale.
+   */
+  private failShift(err: HttpErrorResponse): void {
+    this.activeShiftId.set(null);
+    const key = this.errors.keyFor(err);
+    this.shiftError.set(key === 'errors.unexpected' ? 'pos.shift_error' : key);
+    this.notifications.showError(this.shiftError()!);
+  }
+
+  /** Lets the operator retry without reloading the page, once the cause is addressed. */
+  retryShift(): void {
+    this.ensureShift();
   }
 
   completeSale(): void {
     if (this.saving() || this.saleForm.invalid || this.cartItems.length === 0) return;
+    // No shift, no sale: the server would refuse it, and a sale with nowhere to be counted and
+    // no one accountable for the drawer is exactly what the shift exists to prevent.
+    if (!this.shiftReady()) {
+      this.notifications.showError(this.shiftError() ?? 'pos.shift_error');
+      return;
+    }
 
     const items = (this.cartItems.getRawValue() as Array<{
       productId: string;

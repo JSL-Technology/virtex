@@ -7,11 +7,11 @@ import {
   Param,
   Delete,
   UseGuards,
-  ParseUUIDPipe,
   HttpCode,
   HttpStatus,
   Query,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { AccountsPayableService } from './accounts-payable.service';
 import { CreateVendorBillDto } from './dto/create-vendor-bill.dto';
@@ -71,7 +71,7 @@ export class AccountsPayableController {
   @Get(':id')
   @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_VIEW)
   findOne(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.accountsPayableService.findOne(id, user.organizationId);
@@ -81,7 +81,7 @@ export class AccountsPayableController {
   @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_VIEW)
   @ApiOperation({ summary: 'Pagos aplicados a una factura de proveedor.' })
   listPayments(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.accountsPayableService.listPayments(id, user.organizationId);
@@ -90,7 +90,7 @@ export class AccountsPayableController {
   @Patch(':id')
   @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_EDIT)
   update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() updateVendorBillDto: UpdateVendorBillDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -109,7 +109,7 @@ export class AccountsPayableController {
     summary: 'Envía la factura a aprobación, o la contabiliza si no requiere flujo.',
   })
   submitForApproval(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.accountsPayableService.submitForApproval(
@@ -143,7 +143,7 @@ export class AccountsPayableController {
   @HttpCode(HttpStatus.OK)
   @HasPermission(PERMISSIONS.ACCOUNTS_PAYABLE_VOID)
   voidBill(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: VoidVendorBillDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {

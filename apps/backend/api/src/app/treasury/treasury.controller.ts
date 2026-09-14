@@ -7,10 +7,10 @@ import {
   Param,
   Query,
   UseGuards,
-  ParseUUIDPipe,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { TreasuryService } from './treasury.service';
 import { CreateBankTransferDto } from './dto/create-bank-transfer.dto';
@@ -71,7 +71,7 @@ export class TreasuryController {
   @Get('bank-accounts/:id')
   @HasPermission(PERMISSIONS.TREASURY_VIEW)
   findBankAccount(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.treasuryService.findBankAccount(id, user.organizationId);
@@ -84,7 +84,7 @@ export class TreasuryController {
       'Actualiza una cuenta bancaria. La moneda y la cuenta contable no son modificables.',
   })
   updateBankAccount(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: UpdateBankAccountDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {

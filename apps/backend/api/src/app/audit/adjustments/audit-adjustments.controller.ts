@@ -3,13 +3,13 @@ import {
   Controller,
   Get,
   Param,
-  ParseUUIDPipe,
   Post,
   Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../../common/pipes/uuid-param.pipe';
 import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt/jwt.guard';
 import { CsrfGuard } from '../../auth/guards/csrf.guard';
@@ -70,7 +70,7 @@ export class AuditAdjustmentsController {
   @HasPermission(PERMISSIONS.AUDIT_VIEW_TRAIL)
   @ApiOperation({ summary: 'Consulta una propuesta de ajuste con su evidencia.' })
   findOne(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.adjustments.findOne(id, user.organizationId);
@@ -98,7 +98,7 @@ export class AuditAdjustmentsController {
   @ApiOperation({ summary: 'Adjunta un papel de trabajo a una propuesta pendiente.' })
   @UseInterceptors(FastifyFileInterceptor('file', { limits: { fileSize: MAX_EVIDENCE_BYTES } }))
   addEvidence(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @UploadedFile() file: FastifyFile,
     @CurrentUser() user: AuthenticatedUser,
   ) {

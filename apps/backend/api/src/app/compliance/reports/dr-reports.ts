@@ -116,13 +116,13 @@ export class DominicanRepublicReports {
     vendorBillRepository: Repository<VendorBill>,
     organization: Organization,
   ): Promise<string> {
-    const { fromDate, toDate } = monthBoundsAsDates(year, month);
+    const { from, to } = monthBoundsAsIsoDates(year, month);
 
     const purchases = await vendorBillRepository.find({
       relations: ['vendor'],
       where: {
         organizationId,
-        date: Between(fromDate, toDate),
+        date: Between(from, to),
         ncf: Not(IsNull()),
         status: Not(In([VendorBillStatus.DRAFT, VendorBillStatus.VOID, VendorBillStatus.REJECTED])),
       },
@@ -225,13 +225,13 @@ export class DominicanRepublicReports {
     vendorBillRepository: Repository<VendorBill>,
     organization: Organization,
   ): Promise<string> {
-    const { fromDate, toDate } = monthBoundsAsDates(year, month);
+    const { from, to } = monthBoundsAsIsoDates(year, month);
 
     const bills = await vendorBillRepository
       .createQueryBuilder('bill')
       .innerJoinAndSelect('bill.vendor', 'vendor')
       .where('bill.organizationId = :organizationId', { organizationId })
-      .andWhere('bill.date BETWEEN :fromDate AND :toDate', { fromDate, toDate })
+      .andWhere('bill.date BETWEEN :fromDate AND :toDate', { fromDate: from, toDate: to })
       .andWhere('bill.status NOT IN (:...excluded)', {
         excluded: [VendorBillStatus.DRAFT, VendorBillStatus.VOID, VendorBillStatus.REJECTED],
       })
@@ -404,5 +404,20 @@ function monthBoundsAsDates(year: number, month: number): { fromDate: Date; toDa
   return {
     fromDate: new Date(Date.UTC(year, month - 1, 1)),
     toDate: new Date(Date.UTC(year, month, 0, 23, 59, 59, 999)),
+  };
+}
+
+/**
+ * The same month, as the calendar dates a `date` column is compared against.
+ *
+ * `vendor_bills.date` is a document date, so its bounds are dates too. Comparing it against a
+ * `Date` at 23:59:59.999 asks the database to cast an instant, which is both a wider net than
+ * intended and the shape that made these columns drift to `timestamp` in the first place.
+ */
+function monthBoundsAsIsoDates(year: number, month: number): { from: string; to: string } {
+  const iso = (d: Date) => d.toISOString().slice(0, 10);
+  return {
+    from: iso(new Date(Date.UTC(year, month - 1, 1))),
+    to: iso(new Date(Date.UTC(year, month, 0))),
   };
 }

@@ -1,28 +1,62 @@
 <vx-list-shell
   titleKey="masters.units_of_measure.units_measure"
   [count]="units().length"
-  [empty]="units().length === 0"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="!loading() && !error() && units().length === 0"
+  (reload)="load()"
 >
-  <button listActions type="button" class="primary-button">
+  <button listActions type="button" class="primary-button" (click)="toggleCreate()">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'masters.units_of_measure.new_unit' | translate }}</span>
   </button>
+
+  @if (creating()) {
+    <div listCreate class="inline-row card">
+      <label class="field">
+        <span>{{ 'masters.units_of_measure.name' | translate }}</span>
+        <input id="uom-name" type="text" maxlength="60"
+          [ngModel]="draftName()" (ngModelChange)="draftName.set($event)" />
+      </label>
+      <label class="field">
+        <span>{{ 'masters.units_of_measure.symbol' | translate }}</span>
+        <input id="uom-symbol" type="text" maxlength="12"
+          [ngModel]="draftSymbol()" (ngModelChange)="draftSymbol.set($event)" />
+      </label>
+      <label class="field">
+        <span>{{ 'masters.units_of_measure.type' | translate }}</span>
+        <input id="uom-category" type="text" maxlength="40"
+          [ngModel]="draftCategory()" (ngModelChange)="draftCategory.set($event)" />
+      </label>
+      <button type="button" class="primary-button" [disabled]="!canSave()" (click)="save()">
+        {{ 'common.save' | translate }}
+      </button>
+      <button type="button" class="secondary-button" (click)="toggleCreate()">
+        {{ 'common.cancel' | translate }}
+      </button>
+    </div>
+  }
+
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'masters.units_of_measure.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'masters.units_of_measure.empty_help' | translate }}</p>
+  </div>
 
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
           <th>{{ 'masters.units_of_measure.name' | translate }}</th>
-          <th>{{ 'masters.units_of_measure.symbol' | translate }}</th>
+          <th class="text-center">{{ 'masters.units_of_measure.symbol' | translate }}</th>
           <th>{{ 'masters.units_of_measure.type' | translate }}</th>
         </tr>
       </thead>
       <tbody>
         @for (unit of units(); track unit.id) {
           <tr>
-            <td>{{ unit.name }}</td>
-            <td>{{ unit.symbol }}</td>
-            <td>{{ unit.type }}</td>
+            <td>{{ unit.nameKey | translate }}</td>
+            <td class="text-center">{{ unit.symbol }}</td>
+            <td>{{ unit.category }}</td>
           </tr>
         }
       </tbody>

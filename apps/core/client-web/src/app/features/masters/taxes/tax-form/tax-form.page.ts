@@ -6,15 +6,19 @@ import { NotificationService } from '../../../../core/services/notification';
 import { TaxType } from '../../../../core/models/tax.model';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../shared/components/gestures';
+import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 @Component({
   selector: 'app-tax-form-page',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule, DraftShellComponent],
+  imports: [ReactiveFormsModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y],
   templateUrl: './tax-form.page.html',
   styleUrls: ['./tax-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaxFormPage implements OnInit {
+  /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
+  private readonly tab = inject(TAB_CONTEXT, { optional: true });
   @Input() id?: string;
   private fb = inject(FormBuilder);
   private router = inject(Router);
@@ -86,7 +90,10 @@ export class TaxFormPage implements OnInit {
     operation.subscribe({
       next: () => {
         this.notificationService.showSuccess(this.isEditMode() ? 'masters.tax_form.tax_updated' : 'masters.tax_form.tax_created');
-        this.router.navigate(['/masters/taxes']);
+        //  Esta ventana ya cumplió: el registro existe y la página se va a la lista. Si se dejara
+        //  abierta seguiría anunciándose como «el formulario nuevo», y el siguiente clic en «Nuevo»
+        //  la enfocaría con el documento ya guardado dentro. Ver `TabContext.close`.
+        void this.router.navigate(['/masters/taxes']).then(() => this.tab?.close());
       },
       error: () => {
         this.notificationService.showError(this.isEditMode() ? 'masters.tax_form.error_updating_tax' : 'masters.tax_form.error_creating_tax');

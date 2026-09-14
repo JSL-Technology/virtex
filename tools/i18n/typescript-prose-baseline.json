@@ -1,0 +1,24 @@
+{
+  "count": 57,
+  "files": {
+    "apps/core/client-web/src/app/app.ts": 3,
+    "apps/core/client-web/src/app/core/services/auth.ts": 1,
+    "apps/core/client-web/src/app/core/services/billing.ts": 1,
+    "apps/core/client-web/src/app/core/services/dashboard.ts": 13,
+    "apps/core/client-web/src/app/features/accounting/merge-tool/merge-tool.ts": 6,
+    "apps/core/client-web/src/app/features/auth/register/steps/step-account-info/step-account-info.ts": 1,
+    "apps/core/client-web/src/app/features/auth/register/steps/step-configuration/step-configuration.ts": 1,
+    "apps/core/client-web/src/app/features/dashboard/widgets/ar-aging-chart/ar-aging-chart.ts": 5,
+    "apps/core/client-web/src/app/features/data-imports/data-imports.page.ts": 1,
+    "apps/core/client-web/src/app/features/datasheets/components/datasheet-chart.component.ts": 1,
+    "apps/core/client-web/src/app/features/datasheets/pages/datasheet-editor/datasheet-editor.page.ts": 1,
+    "apps/core/client-web/src/app/features/settings/billing/billing.page.ts": 2,
+    "apps/core/client-web/src/app/features/settings/finance/intercompany/intercompany.page.ts": 5,
+    "apps/core/client-web/src/app/features/settings/my-profile/my-profile.page.ts": 1,
+    "apps/core/client-web/src/app/features/settings/system/sso/sso.page.ts": 7,
+    "apps/core/client-web/src/app/features/settings/user-management/user-management.page.ts": 1,
+    "apps/core/client-web/src/app/layout/main/components/company-switcher/company-switcher.component.ts": 1,
+    "apps/core/client-web/src/app/shared/components/geo-mismatch-modal/geo-mismatch-modal.component.ts": 3,
+    "apps/core/client-web/src/testing/country.service.mock.ts": 3
+  }
+}

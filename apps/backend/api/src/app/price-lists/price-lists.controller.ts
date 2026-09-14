@@ -1,5 +1,6 @@
 
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { PriceListsService } from './price-lists.service';
 import { CreatePriceListDto } from './dto/create-price-list.dto';
 import { UpdatePriceListDto } from './dto/update-price-list.dto';
@@ -29,19 +30,19 @@ export class PriceListsController {
 
   @Get(':id')
   @HasPermission(PERMISSIONS.PRICE_LISTS_VIEW)
-  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  findOne(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.priceListsService.findOne(id, user.organizationId);
   }
 
   @Patch(':id')
   @HasPermission(PERMISSIONS.PRICE_LISTS_EDIT)
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() updatePriceListDto: UpdatePriceListDto, @CurrentUser() user: AuthenticatedUser) {
+  update(@Param('id', UuidParamPipe) id: string, @Body() updatePriceListDto: UpdatePriceListDto, @CurrentUser() user: AuthenticatedUser) {
     return this.priceListsService.update(id, updatePriceListDto, user.organizationId);
   }
 
   @Delete(':id')
   @HasPermission(PERMISSIONS.PRICE_LISTS_DELETE)
-  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  remove(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.priceListsService.remove(id, user.organizationId);
   }
 }

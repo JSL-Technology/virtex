@@ -1,0 +1,23 @@
+{
+  "comment": "Entities that type a `date` column as `Date`. The annotation is untrue - pg returns a date as a string - but the column IS `date`, so the value still reaches the client as a calendar date and renders correctly. Recorded so the verifier fails on a NEW one rather than on these. Removing an entry means making that entity honest; see tools/verify/date-columns.mjs.",
+  "known": [
+    "apps/backend/api/src/app/accounting/entities/accounting-period.entity.ts:startDate",
+    "apps/backend/api/src/app/accounting/entities/accounting-period.entity.ts:endDate",
+    "apps/backend/api/src/app/accounting/entities/fiscal-year.entity.ts:startDate",
+    "apps/backend/api/src/app/accounting/entities/fiscal-year.entity.ts:endDate",
+    "apps/backend/api/src/app/accounts-payable/entities/payment-batch.entity.ts:paymentDate",
+    "apps/backend/api/src/app/accounts-payable/entities/vendor-payment.entity.ts:date",
+    "apps/backend/api/src/app/audit/entities/proposed-adjustment.entity.ts:date",
+    "apps/backend/api/src/app/chart-of-accounts/entities/account.entity.ts:effectiveFrom",
+    "apps/backend/api/src/app/chart-of-accounts/entities/account.entity.ts:effectiveTo",
+    "apps/backend/api/src/app/currencies/entities/exchange-rate.entity.ts:date",
+    "apps/backend/api/src/app/customers/entities/customer-payment.entity.ts:paymentDate",
+    "apps/backend/api/src/app/inventory/entities/warehouse.entity.ts:expiryDate",
+    "apps/backend/api/src/app/journal-entries/entities/journal-entry.entity.ts:date",
+    "apps/backend/api/src/app/price-lists/entities/price-list.entity.ts:validFrom",
+    "apps/backend/api/src/app/price-lists/entities/price-list.entity.ts:validTo",
+    "apps/backend/api/src/app/sales/entities/quote.entity.ts:issueDate",
+    "apps/backend/api/src/app/sales/entities/quote.entity.ts:expiryDate",
+    "apps/backend/api/src/app/treasury/entities/bank-transfer.entity.ts:date"
+  ]
+}

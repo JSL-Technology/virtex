@@ -15,6 +15,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { Invoice, InvoicesService, InvoiceStatus, PaymentMethod } from '../../../core/services/invoices';
 import { EinvoicingService, EcfSubmissionView } from '../../../core/services/einvoicing';
 import { NotificationService } from '../../../core/services/notification';
+import { translateOrLiteral } from '@virteex/shared/ui-i18n';
 import { InvoiceToolbarComponent } from '../components/invoice-toolbar/invoice-toolbar.component';
 import { QRCodeComponent } from 'angularx-qrcode';
 import { asBlob } from 'html-docx-js-typescript';
@@ -25,19 +26,38 @@ import { AuthService } from '../../../core/services/auth';
 import { DocumentShellComponent, DocumentTone } from '../../../shared/components/gestures';
 import { TransitionPreviewComponent } from '../../../shared/components/transition-preview/transition-preview.component';
 import { TransitionPreview } from '../../../shared/components/transition-preview/transition-preview.model';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 @Component({
   selector: 'app-invoice-detail-page',
   standalone: true,
   imports: [TransitionPreviewComponent, CommonModule, LucideAngularModule, InvoiceToolbarComponent, FormsModule, // The QR is the element the norm requires on the printed representation; the page used to show
     // a text link instead, while `angularx-qrcode` was already a dependency of the project.
-    QRCodeComponent, TranslateModule, ...FORMAT_PIPES, DocumentShellComponent],
+    QRCodeComponent, TranslateModule, ...FORMAT_PIPES, DocumentShellComponent,
+    ...VX_FORM_A11Y,],
   templateUrl: './detail.page.html',
   styleUrls: ['./detail.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InvoiceDetailPage implements OnInit {
   private readonly translate = inject(TranslateService);
+
+  /**
+   * What the DGII said, in the reader's language.
+   *
+   * The status endpoint answers with catalogue KEYS, like the rest of the API — it names failures
+   * and does not word them. This list printed them raw, so a tenant whose e-CF was rejected read
+   * `einvoicing.do.organization_has_no_rnc_configured_fill` on the document, while the catalogue
+   * held the sentence it stands for: "The organization has no RNC configured. Fill it in under
+   * Settings → Company." The one thing that message had to do — say what to fix — was the one
+   * thing it did not do.
+   *
+   * `translateOrLiteral` rather than the pipe because a message may also arrive as the tax
+   * authority's own prose, and prose must be printed, not looked up.
+   */
+  protected dgiiMessage(message: string): string {
+    return translateOrLiteral(this.translate, message);
+  }
   private readonly dialog = inject(DialogService);
 
   /** The preview being shown, or null when the dialog is closed. */

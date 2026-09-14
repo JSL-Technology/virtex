@@ -39,7 +39,12 @@ interface Datasheet {
       [count]="documents().length"
       [empty]="documents().length === 0"
     >
-      <a listActions [routerLink]="['new']" class="primary-button">
+      <!--
+        Absolute, because this page is mounted as a window rather than by a router outlet: the
+        ActivatedRoute a tab provides describes the tab, not a URL tree, so a relative link has
+        nothing to resolve against and the only way to create a book did nothing at all.
+      -->
+      <a listActions [routerLink]="['/datasheets/new']" class="primary-button">
         <lucide-icon [img]="PlusIcon" size="16" aria-hidden="true"></lucide-icon>
         <span>{{ 'datasheets.new_document' | translate }}</span>
       </a>

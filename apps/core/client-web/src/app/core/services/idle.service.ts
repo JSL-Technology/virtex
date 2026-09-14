@@ -60,12 +60,15 @@ export class IdleService {
     // Only act if still authenticated (double check)
     if (this.authService.isAuthenticated()) {
       this.stopIdleTimer(); // Prevent multiple triggers
-      this.authService.logout();
-      this.modalService.open({
-          title: 'Sesión Expirada',
-          message: 'Tu sesión ha expirado por inactividad.',
-          confirmText: 'Aceptar'
-      });
+      /**
+       * The explanation goes on the sign-in page, not into a modal over it.
+       *
+       * This opened a dialog AFTER navigating away, so it appeared over a page it was not about,
+       * and its two sentences were Spanish literals shown to every reader whatever their language.
+       * The sign-in page already renders a reason, so there is one place that explains why a
+       * session ended and one catalogue entry per reason.
+       */
+      this.authService.logout(true, 'idle');
     }
   }
 }

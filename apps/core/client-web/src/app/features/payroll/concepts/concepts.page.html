@@ -15,7 +15,7 @@
   </label>
 
   @if (creating() || editing()) {
-    <div class="editor card">
+    <div listCreate class="editor card">
       <label class="field">
         <span>{{ 'payroll.concepts.code' | translate }}</span>
         <input type="text" maxlength="30" [value]="draft().code ?? ''"

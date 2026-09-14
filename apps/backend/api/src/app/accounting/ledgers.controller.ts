@@ -1,5 +1,6 @@
 
-import { Controller, Get, Post, Body, Patch, Param, UseGuards, UseInterceptors, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, UseGuards, UseInterceptors, Query } from '@nestjs/common';
+import { UuidParamPipe } from '../common/pipes/uuid-param.pipe';
 import { JwtAuthGuard } from '../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity/user.entity';
@@ -61,14 +62,14 @@ export class LedgersController {
 
   @HasPermission(PERMISSIONS.ACCOUNTING_VIEW)
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  findOne(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.ledgersService.findOne(id, user.organizationId);
   }
 
   @HasPermission(PERMISSIONS.ACCOUNTING_MANAGE_LEDGERS)
   @Patch(':id')
   update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() updateDto: UpdateLedgerDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {

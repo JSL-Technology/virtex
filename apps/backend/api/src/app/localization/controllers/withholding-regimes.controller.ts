@@ -6,11 +6,11 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseUUIDPipe,
   Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
+import { UuidParamPipe } from '../../common/pipes/uuid-param.pipe';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt/jwt.guard';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
@@ -77,7 +77,7 @@ export class WithholdingRegimesController {
   @Patch('withholding-regimes/:id')
   @HasPermission(PERMISSIONS.TAXES_EDIT)
   update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', UuidParamPipe) id: string,
     @Body() dto: UpdateWithholdingRegimeDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -87,7 +87,7 @@ export class WithholdingRegimesController {
   @Delete('withholding-regimes/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @HasPermission(PERMISSIONS.TAXES_DELETE)
-  remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
+  remove(@Param('id', UuidParamPipe) id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.regimes.remove(id, user.organizationId);
   }
 }

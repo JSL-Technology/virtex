@@ -227,10 +227,15 @@ export class TabWrapperComponent implements AfterViewInit, OnDestroy {
         icon: tab.icon,
         params: tab.routeParams ?? {},
         query: tab.queryParams ?? {},
+        // The manifest's static `data`, e.g. `{ side: 'payables' }`. Reaches the page through the
+        // `ActivatedRoute` below as well, which is where the pages that use it actually look.
+        data: definition.data ?? {},
         // Acciones ligadas a ESTA pestaña: la página no necesita el `tabId` ni el store.
         setTitle: (title: string) => this.tabState.updateTitle(tabId, title),
         markDirty: (isDirty = true) => this.tabState.markDirty(tabId, isDirty),
         markClean: () => this.tabState.markClean(tabId),
+        replaceRoute: (route, options) => this.tabState.replaceRoute(tabId, route, options),
+        close: () => this.tabState.removeTabSilently(tabId, false),
         registerSaveHandler: (handler) => this.tabState.registerSaveHandler(tabId, handler),
         emit: (event) => this.bus.emit(event),
       };
@@ -251,7 +256,10 @@ export class TabWrapperComponent implements AfterViewInit, OnDestroy {
           // members those pages use are populated (`params`, `paramMap`, their query counterparts
           // and `snapshot`) — `relativeTo` navigation is not among them, and the one page that
           // uses it is mounted by the router, where it still gets the real thing.
-          { provide: ActivatedRoute, useValue: tabActivatedRoute(context.params, context.query) },
+          {
+            provide: ActivatedRoute,
+            useValue: tabActivatedRoute(context.params, context.query, context.data),
+          },
         ],
         parent: this.parentInjector,
       });
@@ -312,8 +320,12 @@ export class TabWrapperComponent implements AfterViewInit, OnDestroy {
   }
 }
 
-/** An `ActivatedRoute`-shaped view of a tab's own parameters. See the provider above. */
-function tabActivatedRoute(params: Params, query: Params): ActivatedRoute {
+/** An `ActivatedRoute`-shaped view of a tab's own parameters and data. See the provider above. */
+function tabActivatedRoute(
+  params: Params,
+  query: Params,
+  data: Record<string, unknown> = {},
+): ActivatedRoute {
   const paramMap = convertToParamMap(params);
   const queryParamMap = convertToParamMap(query);
 
@@ -322,7 +334,7 @@ function tabActivatedRoute(params: Params, query: Params): ActivatedRoute {
     queryParams: of(query),
     paramMap: of(paramMap),
     queryParamMap: of(queryParamMap),
-    data: of({}),
+    data: of(data),
     fragment: of(null),
     url: of([]),
     outlet: 'primary',
@@ -331,7 +343,7 @@ function tabActivatedRoute(params: Params, query: Params): ActivatedRoute {
       queryParams: query,
       paramMap,
       queryParamMap,
-      data: {},
+      data,
       fragment: null,
       url: [],
       outlet: 'primary',

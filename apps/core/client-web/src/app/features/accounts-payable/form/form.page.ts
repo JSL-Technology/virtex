@@ -29,11 +29,15 @@ import {
 } from '../../../core/services/accounts-payable';
 import { NotificationService } from '../../../core/services/notification';
 import { SuppliersService } from '../../../core/api/suppliers.service';
+import { CurrenciesService, Currency } from '../../../core/api/currencies.service';
+import { TreasuryService } from '../../../core/api/treasury.service';
 import { ChartOfAccountsApiService } from '../../../core/api/chart-of-accounts.service';
 import { chargeableExpenseAccounts } from '../../../core/services/account-selection';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { toIsoDate } from '../../reports/financial-statements/report-period';
+import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /** The date pickers hand back `YYYY-MM-DD` already; this only normalises what the API returns. */
 function isoOf(value: string | Date): string {
@@ -84,12 +88,15 @@ interface BillTotals {
     TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
+    ...VX_FORM_A11Y,
   ],
   templateUrl: './form.page.html',
   styleUrls: ['./form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VendorBillFormPage implements OnInit {
+  /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
+  private readonly tab = inject(TAB_CONTEXT, { optional: true });
   protected readonly AddIcon = Plus;
   protected readonly RemoveIcon = Trash2;
   protected readonly purchaseCategories = PURCHASE_CATEGORIES;
@@ -100,6 +107,8 @@ export class VendorBillFormPage implements OnInit {
   private readonly router = inject(Router);
   private readonly accountsPayable = inject(AccountsPayableService);
   private readonly suppliers = inject(SuppliersService);
+  private readonly currenciesService = inject(CurrenciesService);
+  private readonly treasury = inject(TreasuryService);
   private readonly accounts = inject(ChartOfAccountsApiService);
   private readonly notifications = inject(NotificationService);
 
@@ -110,7 +119,17 @@ export class VendorBillFormPage implements OnInit {
   readonly showFiscalDetail = signal(false);
 
   readonly supplierOptions = signal<{ id: string; name: string }[]>([]);
-  readonly expenseAccounts = signal<{ id: string; code: string; name: string }[]>([]);
+
+  /** The currencies the tenant transacts in. Same source the sales invoice uses. */
+  readonly currencies = signal<Currency[]>([]);
+  /**
+   * The account's name stays as the server sent it — a translation map — and `| vxName` resolves it
+   * in the template. Resolving it here instead would freeze the language at fetch time, so
+   * switching language would leave the list in the old one until the next refetch.
+   */
+  readonly expenseAccounts = signal<
+    { id: string; code: string; name: string | Record<string, string> }[]
+  >([]);
   readonly totals = signal<BillTotals>({
     subtotal: 0,
     taxAmount: 0,
@@ -135,6 +154,10 @@ export class VendorBillFormPage implements OnInit {
       ncf: [''],
       date: [today, [Validators.required]],
       dueDate: [today, [Validators.required]],
+      //  Filled in once the books' base currency is known — see `loadBaseCurrency`. Not from
+      //  `LocaleStore.currency()`, which is the currency this READER's numbers are formatted in
+      //  and is a different fact: this tenant's locale says USD while its books are kept in DOP,
+      //  so that source preselected the wrong currency on every purchase invoice.
       currencyCode: [''],
       purchaseCategory: ['06'],
       paymentForm: ['01'],
@@ -223,6 +246,28 @@ export class VendorBillFormPage implements OnInit {
       error: () => this.supplierOptions.set([]),
     });
 
+    this.currenciesService.getCurrencies().subscribe({
+      next: (list) => this.currencies.set(list ?? []),
+      //  A failed load must not leave an empty list that silently blanks the field.
+      error: () => this.currencies.set([]),
+    });
+
+    /**
+     * The currency the books are kept in, which is what a bill is in unless somebody says
+     * otherwise — and what the SERVER already defaults to when the field is omitted. Reading it
+     * from the same place the payment screen in this module reads it keeps one answer.
+     *
+     * Only applied while the field is still empty: an edit loads the bill's own currency, and a
+     * user who has already chosen one is not overruled by a response that arrives afterwards.
+     */
+    this.treasury.cashPosition().subscribe({
+      next: (position) => {
+        const control = this.form.get('currencyCode');
+        if (control && !control.value) control.setValue(position.baseCurrency);
+      },
+      error: () => undefined,
+    });
+
     // Only accounts a purchase may actually be charged to.
     //
     // Postable and unblocked was not enough: Cash and Accounts Receivable are postable asset
@@ -237,7 +282,7 @@ export class VendorBillFormPage implements OnInit {
             .map((account) => ({
               id: account.id,
               code: account.code,
-              name: localizedName(account.name),
+              name: account.name,
             }))
             .sort((a, b) => a.code.localeCompare(b.code)),
         ),
@@ -381,7 +426,10 @@ export class VendorBillFormPage implements OnInit {
             : 'accounts_payable.form.invoice_created',
         );
         this.isLoading.set(false);
-        this.router.navigate(['/accounts-payable', bill.id]);
+        //  Esta ventana ya cumplió: el registro existe y la página se va a la lista. Si se dejara
+        //  abierta seguiría anunciándose como «el formulario nuevo», y el siguiente clic en «Nuevo»
+        //  la enfocaría con el documento ya guardado dentro. Ver `TabContext.close`.
+        void this.router.navigate(['/accounts-payable', bill.id]).then(() => this.tab?.close());
       },
       error: (error: unknown) => {
         // The server's own message, not a generic one. Every rejection this screen produced was
@@ -403,11 +451,6 @@ function round2(value: number): number {
 function stripLines(dto: CreateVendorBillDto): Omit<CreateVendorBillDto, 'lines'> {
   const { lines: _lines, ...rest } = dto;
   return rest;
-}
-
-function localizedName(name: Record<string, string> | string): string {
-  if (typeof name === 'string') return name;
-  return name?.['es'] ?? Object.values(name ?? {})[0] ?? '';
 }
 
 /** The API's message key or sentence, when it sent one. */

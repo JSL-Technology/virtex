@@ -9,15 +9,19 @@ import { Ledger } from '../../../core/models/ledger.model';
 import { NotificationService } from '../../../core/services/notification';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
+import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 @Component({
   selector: 'app-ledger-form-page',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule, DraftShellComponent],
+  imports: [ReactiveFormsModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y],
   templateUrl: './app-ledger-form-page.html',
   styleUrls: ['./app-ledger-form-page.scss']
 })
 export class LedgerFormPage implements OnInit {
+  /** La ventana que hospeda esta página, cuando la hay. Nula si la monta el router. */
+  private readonly tab = inject(TAB_CONTEXT, { optional: true });
   @Input() id?: string;
 
   private fb = inject(FormBuilder);
@@ -54,7 +58,10 @@ export class LedgerFormPage implements OnInit {
       },
       error: () => {
         this.notificationService.showError('accounting.ledger_form.ledger_could_not_loaded');
-        this.router.navigate(['/accounting']);
+        // Back to the list this form belongs to. `/accounting` is a module prefix, not a route:
+        // no manifest declares it, so sending the user there replaced the error with the generic
+        // "under construction" window and lost the message they were meant to read.
+        this.router.navigate(['/accounting/general-ledger']);
       }
     });
   }
@@ -89,7 +96,10 @@ export class LedgerFormPage implements OnInit {
     operation.subscribe({
       next: () => {
         this.notificationService.showSuccess(this.isEditMode() ? 'accounting.ledger_form.ledger_updated_successfully' : 'accounting.ledger_form.ledger_created_successfully');
-        this.router.navigate(['/accounting/general-ledger']);
+        //  Esta ventana ya cumplió: el registro existe y la página se va a la lista. Si se dejara
+        //  abierta seguiría anunciándose como «el formulario nuevo», y el siguiente clic en «Nuevo»
+        //  la enfocaría con el documento ya guardado dentro. Ver `TabContext.close`.
+        void this.router.navigate(['/accounting/general-ledger']).then(() => this.tab?.close());
       },
       error: (err) => {
         this.notificationService.showError(this.isEditMode() ? 'accounting.ledger_form.error_updating_ledger' : 'accounting.ledger_form.error_creating_ledger');

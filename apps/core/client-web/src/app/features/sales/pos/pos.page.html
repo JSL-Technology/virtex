@@ -76,7 +76,20 @@
             @if (taxNeedsConfiguration()) {
               <p class="tax-warning">{{ 'sales.pos.tax_needs_configuration' | translate }}</p>
             }
-            <button class="primary-button charge-btn" (click)="completeSale()" [disabled]="cartItems.length === 0">
+            @if (!shiftReady()) {
+              <div class="shift-blocked" role="alert">
+                <p class="shift-blocked__title">{{ 'pos.shift_blocked_title' | translate }}</p>
+                <p class="shift-blocked__reason">{{ (shiftError() ?? 'pos.shift_error') | translate }}</p>
+                <button type="button" class="shift-blocked__retry" (click)="retryShift()">
+                  {{ 'pos.shift_retry' | translate }}
+                </button>
+              </div>
+            }
+            <button
+              class="primary-button charge-btn"
+              (click)="completeSale()"
+              [disabled]="cartItems.length === 0 || !shiftReady()"
+            >
                 <lucide-icon [img]="CreditCardIcon" size="18"></lucide-icon>
                 <span>{{ 'sales.pos.charge' | translate }}</span>
             </button>

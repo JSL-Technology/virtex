@@ -1,4 +1,5 @@
 import {
+  inject,
   Component,
   ChangeDetectionStrategy,
   signal,
@@ -16,7 +17,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Shield, Clock, RefreshCw, Eraser, CheckCircle, Info, AlertCircle, AlertTriangle } from 'lucide-angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 type StatusType = 'success' | 'error' | 'warning' | 'info';
 interface OtpStatus {
@@ -48,8 +49,16 @@ export class OtpComponent implements OnInit, OnChanges, OnDestroy {
   @Input() otpLength = 6;
   @Input() timerDuration = 120; // seconds
   @Input() resendCooldown = 30; // seconds
-  @Input() title = 'Verificación de Seguridad';
-  @Input() description = 'Para proteger su cuenta, hemos enviado un código de verificación a su correo electrónico registrado.';
+  /**
+   * Heading and blurb, already resolved by whoever mounts this.
+   *
+   * Optional, and the template falls back to the catalogue. They used to default to two Spanish
+   * sentences, which every one of the four screens that mount this component happened to override
+   * — so the defaults were unreachable AND wrong, and the fifth screen to be written would have
+   * shipped Spanish into an English sign-in.
+   */
+  @Input() title?: string;
+  @Input() description?: string;
   @Input() showLengthSelector = false;
   @Input() mode: 'email' | 'app' = 'email';
 
@@ -84,6 +93,15 @@ export class OtpComponent implements OnInit, OnChanges, OnDestroy {
   readonly canVerify = computed(() => this.isComplete() && !this.verifying() && !this.inputsDisabled() && !this.isExpired());
 
   protected readonly selectableLengths = SELECTABLE_LENGTHS;
+
+  /**
+   * The status line is set from code, so its sentences are resolved here rather than in a template.
+   *
+   * `instant` and not the pipe: `showStatus` is also called from OUTSIDE this component with text
+   * the caller already resolved, so the signal has to hold a finished sentence. Translating at the
+   * point of the call keeps one contract instead of two.
+   */
+  private readonly translate = inject(TranslateService);
 
   private timerInterval: ReturnType<typeof setInterval> | undefined;
   private cooldownInterval: ReturnType<typeof setInterval> | undefined;
@@ -150,7 +168,7 @@ export class OtpComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private onExpired(): void {
-    this.showStatus('El código OTP ha expirado. Solicite un nuevo código.', 'warning');
+    this.showStatus(this.translate.instant('shared.otp.status.expired'), 'warning');
     this.markAsError();
     this.disableAllInputs();
   }
@@ -200,7 +218,7 @@ export class OtpComponent implements OnInit, OnChanges, OnDestroy {
     if (!/^\d+$/.test(raw)) {
       // Reject and restore the box to whatever the model says it should be.
       input.value = this.otpValues()[index] ?? '';
-      this.showStatus('Por favor, ingrese solo números', 'error');
+      this.showStatus(this.translate.instant('shared.otp.status.digits_only'), 'error');
       return;
     }
 
@@ -245,14 +263,14 @@ export class OtpComponent implements OnInit, OnChanges, OnDestroy {
     if (!pasteData) return;
 
     if (!/^\d+$/.test(pasteData)) {
-      this.showStatus('El código pegado contiene caracteres no válidos. Solo se permiten números.', 'error');
+      this.showStatus(this.translate.instant('shared.otp.status.paste_invalid'), 'error');
       return;
     }
 
     this.otpValues.set(new Array(this.length()).fill(''));
     const lastFilled = this.fill(pasteData, 0);
     this.focusInput(Math.min(lastFilled + 1, this.length() - 1));
-    this.showStatus('Código pegado correctamente', 'success');
+    this.showStatus(this.translate.instant('shared.otp.status.pasted'), 'success');
     this.maybeAutoVerify();
   }
 
@@ -298,7 +316,7 @@ export class OtpComponent implements OnInit, OnChanges, OnDestroy {
       this.startTimer();
     }
     this.resetEntry();
-    this.showStatus('Nuevo código OTP enviado', 'info');
+    this.showStatus(this.translate.instant('shared.otp.status.resent'), 'info');
     this.focusInput(0);
     this.resend.emit();
   }
@@ -320,7 +338,7 @@ export class OtpComponent implements OnInit, OnChanges, OnDestroy {
 
   clear(): void {
     this.resetEntry();
-    this.showStatus('Todos los campos han sido limpiados', 'info');
+    this.showStatus(this.translate.instant('shared.otp.status.cleared'), 'info');
     this.focusInput(0);
   }
 
@@ -357,7 +375,7 @@ export class OtpComponent implements OnInit, OnChanges, OnDestroy {
     }
     this.enableAllInputs();
     this.focusInput(0);
-    this.showStatus(`Longitud de OTP cambiada a ${length} dígitos`, 'info');
+    this.showStatus(this.translate.instant('shared.otp.status.length_changed', { length }), 'info');
   }
 
   private applyLength(length: number): void {

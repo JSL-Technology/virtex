@@ -7,11 +7,12 @@ import { LucideAngularModule, Phone, X, Check } from 'lucide-angular';
 import { AuthService } from '../../../../core/services/auth';
 import { NotificationService } from '../../../../core/services/notification';
 import { IntlPhoneInputComponent } from '../../../../shared/components/intl-phone-input/intl-phone-input.component';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 @Component({
   selector: 'app-phone-verification-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, LucideAngularModule, IntlPhoneInputComponent],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, LucideAngularModule, IntlPhoneInputComponent, ...VX_FORM_A11Y],
   templateUrl: './phone-verification-modal.component.html',
   styleUrls: ['./phone-verification-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

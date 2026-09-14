@@ -20,6 +20,7 @@ import {
 
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/services/auth';
+import { FormatService } from '@virteex/shared/ui-i18n';
 
 /**
  * The workspace home page's data.
@@ -42,6 +43,7 @@ import { AuthService } from '../../core/services/auth';
 export class OverviewService {
   private readonly http = inject(HttpClient);
   private readonly auth = inject(AuthService);
+  private readonly format = inject(FormatService);
   private readonly apiUrl = `${environment.apiUrl}/overview`;
 
   // ── Accesos rápidos ────────────────────────────────────────────────────────
@@ -85,7 +87,7 @@ export class OverviewService {
       .get<EventDto[]>(`${this.apiUrl}/events`, {
         params: new HttpParams().set('days', days).set('limit', limit),
       })
-      .pipe(map((rows) => rows.map((row) => toEventItem(row))));
+      .pipe(map((rows) => rows.map((row) => toEventItem(row, this.format))));
   }
 
   // ── Novedades del producto ─────────────────────────────────────────────────
@@ -145,7 +147,7 @@ function toActivityItem(row: ActivityDto): ActivityItem {
   };
 }
 
-function toEventItem(row: EventDto): EventItem {
+function toEventItem(row: EventDto, format: FormatService): EventItem {
   const view = EVENT_VIEW[row.kind] ?? { icon: CalendarCheck, overdue: false };
   return {
     id: row.id,
@@ -153,7 +155,19 @@ function toEventItem(row: EventDto): EventItem {
     overdue: view.overdue,
     titleKey: `overview.events.item.${row.kind}`,
     typeKey: `overview.events.kind.${row.kind}`,
-    reference: row.reference,
+    /**
+     * A period's reference is its month, and a month has a name in every language.
+     *
+     * For every other event the reference is a document number — `FACT-2026-000042` — which is the
+     * same string for every reader. For a period the server sends the stored `name`, composed by
+     * the tenant provisioner from a Spanish month list, so an English reader was told
+     * `Period “Agosto 2026” closes`. The event already carries the date that name describes, so
+     * the month is rendered from that instead and the stored string is not shown at all.
+     */
+    reference:
+      row.kind === 'PERIOD_CLOSE'
+        ? format.date(row.date, 'monthYear', { dateOnly: true })
+        : row.reference,
     counterparty: row.counterparty,
     amount: row.amount,
     currencyCode: row.currencyCode,
