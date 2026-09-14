@@ -1,12 +1,62 @@
 <vx-list-shell
   titleKey="masters.currencies.currencies"
   [count]="currencies().length"
-  [empty]="currencies().length === 0"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="!loading() && !error() && currencies().length === 0"
+  (reload)="load()"
 >
-  <button listActions type="button" class="primary-button">
+  <button listActions type="button" class="primary-button" (click)="toggleCreate()">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'masters.currencies.new_currency' | translate }}</span>
   </button>
+
+  @if (creating()) {
+    <div listCreate class="inline-row card">
+      <label class="field">
+        <span>{{ 'masters.currencies.code' | translate }}</span>
+        <input
+          id="currency-code"
+          type="text"
+          maxlength="3"
+          autocomplete="off"
+          [ngModel]="draftCode()"
+          (ngModelChange)="draftCode.set($event)"
+        />
+      </label>
+      <label class="field">
+        <span>{{ 'masters.currencies.currency_name' | translate }}</span>
+        <input
+          id="currency-name"
+          type="text"
+          maxlength="120"
+          [ngModel]="draftName()"
+          (ngModelChange)="draftName.set($event)"
+        />
+      </label>
+      <label class="field">
+        <span>{{ 'masters.currencies.symbol' | translate }}</span>
+        <input
+          id="currency-symbol"
+          type="text"
+          maxlength="8"
+          [ngModel]="draftSymbol()"
+          (ngModelChange)="draftSymbol.set($event)"
+        />
+      </label>
+      <button type="button" class="primary-button" [disabled]="!canSave()" (click)="save()">
+        {{ 'common.save' | translate }}
+      </button>
+      <button type="button" class="secondary-button" (click)="toggleCreate()">
+        {{ 'common.cancel' | translate }}
+      </button>
+    </div>
+  }
+
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'masters.currencies.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'masters.currencies.empty_help' | translate }}</p>
+  </div>
 
   <div class="table-container card">
     <table class="data-table">
@@ -25,7 +75,7 @@
             <td class="text-center">{{ currency.code }}</td>
             <td class="text-center">{{ currency.symbol }}</td>
             <td class="text-center">
-              @if (currency.isBase) {
+              @if (currency.code === baseCurrency()) {
                 <span class="status-badge active">{{ 'masters.currencies.yes' | translate }}</span>
               }
             </td>

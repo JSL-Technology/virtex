@@ -1,12 +1,20 @@
 <vx-list-shell
   titleKey="masters.banks.banks"
   [count]="banks().length"
-  [empty]="banks().length === 0"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="!loading() && !error() && banks().length === 0"
+  (reload)="load()"
 >
-  <button listActions type="button" class="primary-button">
+  <button listActions type="button" class="primary-button" (click)="openTreasury()">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'masters.banks.new_bank' | translate }}</span>
   </button>
+
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'masters.banks.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'masters.banks.empty_help' | translate }}</p>
+  </div>
 
   <div class="table-container card">
     <table class="data-table">
@@ -14,15 +22,17 @@
         <tr>
           <th>{{ 'masters.banks.bank_name' | translate }}</th>
           <th>{{ 'masters.banks.swift_code' | translate }}</th>
-          <th>{{ 'masters.banks.country' | translate }}</th>
+          <th class="text-center">{{ 'masters.banks.accounts' | translate }}</th>
+          <th>{{ 'masters.banks.currencies' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (bank of banks(); track bank.id) {
+        @for (bank of banks(); track bank.name) {
           <tr>
             <td>{{ bank.name }}</td>
-            <td>{{ bank.swiftCode }}</td>
-            <td>{{ bank.country }}</td>
+            <td>{{ bank.swiftBic || '—' }}</td>
+            <td class="text-center">{{ bank.accountCount }}</td>
+            <td>{{ bank.currencies | vxList }}</td>
           </tr>
         }
       </tbody>

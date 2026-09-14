@@ -31,7 +31,14 @@ export interface ProcessSalePayload {
 
 export interface PosSale {
   id: string;
+  terminalId: string;
+  shiftId: string | null;
+  subtotal: number;
+  tax: number;
   total: number;
+  paymentMethod: string | null;
+  customerName: string | null;
+  invoiceId: string | null;
   status: string;
   createdAt: string;
 }
@@ -61,5 +68,12 @@ export class PosService {
 
   processSale(payload: ProcessSalePayload): Observable<PosSale> {
     return this.http.post<PosSale>(`${this.apiUrl}/sales`, payload);
+  }
+
+  /** Till sales, newest first. `shiftId` narrows to one drawer session. */
+  listSales(shiftId?: string): Observable<PosSale[]> {
+    return this.http.get<PosSale[]>(`${this.apiUrl}/sales`, {
+      params: shiftId ? { shiftId } : {},
+    });
   }
 }

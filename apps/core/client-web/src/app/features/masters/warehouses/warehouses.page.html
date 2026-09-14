@@ -1,32 +1,66 @@
 <vx-list-shell
   titleKey="masters.warehouses.warehouses"
   [count]="warehouses().length"
-  [empty]="warehouses().length === 0"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="!loading() && !error() && warehouses().length === 0"
+  (reload)="load()"
 >
-  <button listActions type="button" class="primary-button">
+  <button listActions type="button" class="primary-button" (click)="toggleCreate()">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'masters.warehouses.new_warehouse' | translate }}</span>
   </button>
+
+  @if (creating()) {
+    <div listCreate class="inline-row card">
+      <label class="field">
+        <span>{{ 'masters.warehouses.name' | translate }}</span>
+        <input id="warehouse-name" type="text" maxlength="120"
+          [ngModel]="draftName()" (ngModelChange)="draftName.set($event)" />
+      </label>
+      <label class="field">
+        <span>{{ 'masters.warehouses.code' | translate }}</span>
+        <input id="warehouse-code" type="text" maxlength="40"
+          [ngModel]="draftCode()" (ngModelChange)="draftCode.set($event)" />
+      </label>
+      <label class="field">
+        <span>{{ 'masters.warehouses.location' | translate }}</span>
+        <input id="warehouse-city" type="text" maxlength="120"
+          [ngModel]="draftCity()" (ngModelChange)="draftCity.set($event)" />
+      </label>
+      <button type="button" class="primary-button" [disabled]="!canSave()" (click)="save()">
+        {{ 'common.save' | translate }}
+      </button>
+      <button type="button" class="secondary-button" (click)="toggleCreate()">
+        {{ 'common.cancel' | translate }}
+      </button>
+    </div>
+  }
+
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'masters.warehouses.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'masters.warehouses.empty_help' | translate }}</p>
+  </div>
 
   <div class="table-container card">
     <table class="data-table">
       <thead>
         <tr>
           <th>{{ 'masters.warehouses.name' | translate }}</th>
+          <th>{{ 'masters.warehouses.code' | translate }}</th>
           <th>{{ 'masters.warehouses.location' | translate }}</th>
-          <th>{{ 'masters.warehouses.manager' | translate }}</th>
           <th class="text-center">{{ 'masters.warehouses.status' | translate }}</th>
         </tr>
       </thead>
       <tbody>
-        @for (wh of warehouses(); track wh.id) {
+        @for (warehouse of warehouses(); track warehouse.id) {
           <tr>
-            <td>{{ wh.name }}</td>
-            <td>{{ wh.location }}</td>
-            <td>{{ wh.manager }}</td>
+            <td>{{ warehouse.name }}</td>
+            <td>{{ warehouse.code || '—' }}</td>
+            <td>{{ warehouse.city || '—' }}</td>
             <td class="text-center">
-              <span class="status-badge" [class.active]="wh.isActive">
-                {{ (wh.isActive ? 'masters.warehouses.active' : 'masters.warehouses.inactive') | translate }}
+              <span class="status-badge" [class.active]="warehouse.isActive">
+                {{ (warehouse.isActive ? 'masters.warehouses.active' : 'masters.warehouses.inactive') | translate }}
               </span>
             </td>
           </tr>

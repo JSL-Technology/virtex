@@ -1,4 +1,9 @@
 {
+  "masters.banks.accounts": {
+    "es": "Cuentas",
+    "en": "Accounts",
+    "pt": "Contas"
+  },
   "masters.banks.bank_name": {
     "es": "Nombre del banco",
     "en": "Bank name",
@@ -13,6 +18,21 @@
     "es": "País",
     "en": "Country",
     "pt": "País"
+  },
+  "masters.banks.currencies": {
+    "es": "Monedas",
+    "en": "Currencies",
+    "pt": "Moedas"
+  },
+  "masters.banks.empty_help": {
+    "es": "Un banco aparece aquí al abrir una cuenta con él en Tesorería.",
+    "en": "A bank appears here once you open an account with it in Treasury.",
+    "pt": "Um banco aparece aqui ao abrir uma conta com ele na Tesouraria."
+  },
+  "masters.banks.empty_title": {
+    "es": "Todavía no hay bancos",
+    "en": "No banks yet",
+    "pt": "Ainda não há bancos"
   },
   "masters.banks.new_bank": {
     "es": "Nuevo banco",
@@ -39,6 +59,16 @@
     "en": "City",
     "pt": "Cidade"
   },
+  "masters.branches.empty_help": {
+    "es": "Se crean en Ajustes › Estructura de la empresa, donde se define también su identidad fiscal.",
+    "en": "They are created in Settings › Company Structure, where their fiscal identity is defined too.",
+    "pt": "São criadas em Definições › Estrutura da empresa, onde também se define a identidade fiscal."
+  },
+  "masters.branches.empty_title": {
+    "es": "Todavía no hay sucursales",
+    "en": "No branches yet",
+    "pt": "Ainda não há sucursais"
+  },
   "masters.branches.name": {
     "es": "Nombre",
     "en": "Name",
@@ -64,6 +94,11 @@
     "en": "Code",
     "pt": "Código"
   },
+  "masters.currencies.created": {
+    "es": "Moneda creada.",
+    "en": "Currency created.",
+    "pt": "Moeda criada."
+  },
   "masters.currencies.currencies": {
     "es": "Monedas",
     "en": "Currencies",
@@ -73,6 +108,16 @@
     "es": "Nombre de la moneda",
     "en": "Currency name",
     "pt": "Nome da moeda"
+  },
+  "masters.currencies.empty_help": {
+    "es": "Añade las monedas en las que facturas o compras; la moneda funcional del inquilino ya está fijada.",
+    "en": "Add the currencies you invoice or buy in; the tenant's functional currency is already set.",
+    "pt": "Adiciona as moedas em que faturas ou compras; a moeda funcional do inquilino já está definida."
+  },
+  "masters.currencies.empty_title": {
+    "es": "No hay monedas configuradas",
+    "en": "No currencies configured",
+    "pt": "Não há moedas configuradas"
   },
   "masters.currencies.new_currency": {
     "es": "Nueva moneda",
@@ -88,6 +133,11 @@
     "es": "Sí",
     "en": "Yes",
     "pt": "Sim"
+  },
+  "masters.payment_methods.code": {
+    "es": "Código",
+    "en": "Code",
+    "pt": "Código"
   },
   "masters.payment_methods.default_method": {
     "es": "Forma predeterminada",
@@ -109,6 +159,11 @@
     "en": "Payment methods",
     "pt": "Formas de pagamento"
   },
+  "masters.payment_methods.statutory_note": {
+    "es": "Las fija la DGII para los comprobantes fiscales; no se añaden ni se editan.",
+    "en": "Fixed by the DGII for fiscal documents; they are not added or edited.",
+    "pt": "Fixadas pela DGII para os comprovativos fiscais; não se adicionam nem editam."
+  },
   "masters.payment_methods.type": {
     "es": "Tipo",
     "en": "Type",
@@ -119,15 +174,30 @@
     "en": "Yes",
     "pt": "Sim"
   },
+  "masters.payment_terms.customers_on_it": {
+    "es": "Clientes",
+    "en": "Customers",
+    "pt": "Clientes"
+  },
+  "masters.payment_terms.empty_help": {
+    "es": "Fíjalas en la ficha del cliente: son las que calculan el vencimiento de sus facturas.",
+    "en": "Set them on the customer record: they are what dates their invoices.",
+    "pt": "Define-as na ficha do cliente: são o que data as suas faturas."
+  },
+  "masters.payment_terms.empty_title": {
+    "es": "Ningún cliente tiene condiciones de pago",
+    "en": "No customer has payment terms",
+    "pt": "Nenhum cliente tem condições de pagamento"
+  },
   "masters.payment_terms.name": {
     "es": "Nombre",
     "en": "Name",
     "pt": "Nome"
   },
   "masters.payment_terms.net_days": {
-    "es": "Días netos",
+    "es": "Días",
     "en": "Net days",
-    "pt": "Dias líquidos"
+    "pt": "Dias"
   },
   "masters.payment_terms.new_term": {
     "es": "Nueva condición",
@@ -138,6 +208,16 @@
     "es": "Condiciones de pago",
     "en": "Payment terms",
     "pt": "Condições de pagamento"
+  },
+  "masters.payment_terms.set_on_the_customer": {
+    "es": "Las condiciones se fijan en cada cliente; aquí se ve cuáles están en uso.",
+    "en": "Terms are set on each customer; this shows which are in use.",
+    "pt": "As condições definem-se em cada cliente; aqui vê-se quais estão em uso."
+  },
+  "masters.payment_terms.unnamed": {
+    "es": "Sin nombre",
+    "en": "Unnamed",
+    "pt": "Sem nome"
   },
   "masters.price_lists.actions": {
     "es": "Acciones",
@@ -587,6 +667,21 @@
     "en": "Type",
     "pt": "Tipo"
   },
+  "masters.units_of_measure.created": {
+    "es": "Unidad creada.",
+    "en": "Unit created.",
+    "pt": "Unidade criada."
+  },
+  "masters.units_of_measure.empty_help": {
+    "es": "Crea las que uses para contar, pesar o medir lo que vendes.",
+    "en": "Create the ones you use to count, weigh or measure what you sell.",
+    "pt": "Cria as que usas para contar, pesar ou medir o que vendes."
+  },
+  "masters.units_of_measure.empty_title": {
+    "es": "Todavía no hay unidades de medida",
+    "en": "No units of measure yet",
+    "pt": "Ainda não há unidades de medida"
+  },
   "masters.units_of_measure.name": {
     "es": "Nombre",
     "en": "Name",
@@ -616,6 +711,26 @@
     "es": "Activo",
     "en": "Active",
     "pt": "Ativo"
+  },
+  "masters.warehouses.code": {
+    "es": "Código",
+    "en": "Code",
+    "pt": "Código"
+  },
+  "masters.warehouses.created": {
+    "es": "Almacén creado.",
+    "en": "Warehouse created.",
+    "pt": "Armazém criado."
+  },
+  "masters.warehouses.empty_help": {
+    "es": "Crea el primero para poder asignarle existencias y movimientos.",
+    "en": "Create the first one so stock and movements have somewhere to go.",
+    "pt": "Cria o primeiro para poder atribuir-lhe existências e movimentos."
+  },
+  "masters.warehouses.empty_title": {
+    "es": "Todavía no hay almacenes",
+    "en": "No warehouses yet",
+    "pt": "Ainda não há armazéns"
   },
   "masters.warehouses.inactive": {
     "es": "Inactivo",

@@ -1,19 +1,27 @@
-import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
-import { LucideAngularModule, PlusCircle, MoreHorizontal, FileDown } from 'lucide-angular';
+import { LucideAngularModule, PlusCircle, FileDown } from 'lucide-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+
 import { ListShellComponent } from '../../../shared/components/gestures';
+import { PosSale, PosService } from '../pos/pos.service';
+import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 
-export interface Sale {
-  id: string;
-  date: string;
-  customer: string;
-  total: number;
-  paymentMethod: 'Efectivo' | 'Tarjeta' | 'Transferencia';
-  status: 'Completada' | 'Pendiente' | 'Cancelada';
-}
-
+/**
+ * Till sales, as they were actually rung up.
+ *
+ * ## What this replaces
+ *
+ * Four invented sales held in a signal — V-2025-001 to V-2025-004, dated July 2025, to "Cliente
+ * Ejemplo S.R.L." and "Ana Pérez" — with no request made. They were still there after the tenant
+ * recorded a real sale, so the screen named "Sales history" showed four sales that never happened
+ * and omitted the one that did. For a screen whose whole purpose is the record of what was sold,
+ * that is the worst possible failure.
+ *
+ * `GET /pos/sales` answers this, tenant-scoped, and is where the till writes.
+ */
 @Component({
   selector: 'app-history-page',
   standalone: true,
@@ -22,22 +30,48 @@ export interface Sale {
   styleUrls: ['./history.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HistoryPage {
+export class HistoryPage implements OnInit {
   protected readonly PlusCircleIcon = PlusCircle;
   protected readonly FileDownIcon = FileDown;
 
-  sales = signal<Sale[]>([
-    { id: 'V-2025-001', date: '20/07/2025', customer: 'Cliente Ejemplo S.R.L.', total: 350.00, paymentMethod: 'Tarjeta', status: 'Completada' },
-    { id: 'V-2025-002', date: '20/07/2025', customer: 'Ana Pérez', total: 120.50, paymentMethod: 'Efectivo', status: 'Completada' },
-    { id: 'V-2025-003', date: '19/07/2025', customer: 'Proyectos Globales', total: 1500.75, paymentMethod: 'Transferencia', status: 'Pendiente' },
-    { id: 'V-2025-004', date: '18/07/2025', customer: 'Juan Rodríguez', total: 75.00, paymentMethod: 'Efectivo', status: 'Cancelada' },
-  ]);
+  private readonly pos = inject(PosService);
+  private readonly errors = inject(ErrorHandlerService);
 
-  getStatusClass(status: Sale['status']): string {
-    switch (status) {
-      case 'Completada': return 'status-completed';
-      case 'Pendiente': return 'status-pending';
-      case 'Cancelada': return 'status-cancelled';
+  readonly sales = signal<PosSale[]>([]);
+  readonly loading = signal(true);
+  readonly error = signal<string | null>(null);
+
+  ngOnInit(): void {
+    this.load();
+  }
+
+  load(): void {
+    this.loading.set(true);
+    this.error.set(null);
+    this.pos.listSales().subscribe({
+      next: (list) => {
+        this.sales.set(list ?? []);
+        this.loading.set(false);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.error.set(this.errors.keyFor(err));
+        this.loading.set(false);
+      },
+    });
+  }
+
+  /** The till records a status of its own; unknown values still get a neutral chip. */
+  statusClass(status: string): string {
+    switch ((status ?? '').toUpperCase()) {
+      case 'PAID':
+        return 'status-completed';
+      case 'PENDING':
+        return 'status-pending';
+      case 'VOID':
+      case 'CANCELLED':
+        return 'status-cancelled';
+      default:
+        return '';
     }
   }
 }

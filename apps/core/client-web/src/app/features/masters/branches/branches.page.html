@@ -1,12 +1,20 @@
 <vx-list-shell
   titleKey="masters.branches.branches_locations"
   [count]="branches().length"
-  [empty]="branches().length === 0"
+  [loading]="loading()"
+  [error]="error()"
+  [empty]="!loading() && !error() && branches().length === 0"
+  (reload)="load()"
 >
-  <button listActions type="button" class="primary-button">
+  <button listActions type="button" class="primary-button" (click)="openCompanyStructure()">
     <lucide-icon [img]="PlusCircleIcon" size="16" aria-hidden="true"></lucide-icon>
     <span>{{ 'masters.branches.new_branch' | translate }}</span>
   </button>
+
+  <div listEmpty class="empty-copy">
+    <p class="ls__state-title">{{ 'masters.branches.empty_title' | translate }}</p>
+    <p class="ls__state-help">{{ 'masters.branches.empty_help' | translate }}</p>
+  </div>
 
   <div class="table-container card">
     <table class="data-table">
@@ -21,10 +29,10 @@
       <tbody>
         @for (branch of branches(); track branch.id) {
           <tr>
-            <td>{{ branch.name }}</td>
-            <td>{{ branch.address }}</td>
-            <td>{{ branch.city }}</td>
-            <td>{{ branch.phone }}</td>
+            <td>{{ branch.legalName }}</td>
+            <td>{{ branch.addressLine1 || '—' }}</td>
+            <td>{{ branch.city || '—' }}</td>
+            <td>{{ branch.phone || '—' }}</td>
           </tr>
         }
       </tbody>

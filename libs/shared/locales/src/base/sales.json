@@ -14,6 +14,16 @@
     "en": "Date",
     "pt": "Data"
   },
+  "sales.history.empty_help": {
+    "es": "Aquí aparece cada venta cobrada en el punto de venta, en cuanto se registra.",
+    "en": "Every sale charged at the point of sale appears here as soon as it is recorded.",
+    "pt": "Cada venda cobrada no ponto de venda aparece aqui assim que é registada."
+  },
+  "sales.history.empty_title": {
+    "es": "Todavía no hay ventas de caja",
+    "en": "No till sales yet",
+    "pt": "Ainda não há vendas de caixa"
+  },
   "sales.history.export": {
     "es": "Exportar",
     "en": "Export",
@@ -56,6 +66,11 @@
   },
   "sales.history.total": {
     "literal": "Total"
+  },
+  "sales.history.walk_in": {
+    "es": "Cliente general",
+    "en": "Walk-in customer",
+    "pt": "Cliente geral"
   },
   "sales.lead_not_found": {
     "es": "Lead no encontrado.",
