@@ -173,6 +173,28 @@ export const APP_ROUTES: Routes = [
   // Now there is one declaration — the manifest — and both the router and the window host read it.
   // Adding a page is adding a route to its module; the menu entry and the window follow, because
   // they are derived rather than repeated.
+  /**
+   * Where a refused navigation lands.
+   *
+   * Declared at the TOP level, outside `MainLayout`, with no guard of its own, and **before** the
+   * shell — deliberately on all three counts. `permissionsGuard` sends a user here when they may
+   * not open a route, so this page must be reachable by definition: inside the shell it would be
+   * filtered by the very guard that redirected to it, and the router would bounce between the two
+   * forever.
+   *
+   * The order is the part that was missing. The shell is `path: ''` with a `**` child, and a
+   * catch-all child matches anything the parent's empty path matches — so while this route sat
+   * below the shell it was never reached at all. The guard redirected here correctly, the URL
+   * read `/unauthorized?url=…`, and what rendered was the workspace with the user's home screen
+   * on it. A refused navigation therefore looked like a navigation that had simply gone nowhere.
+   */
+  {
+    path: 'unauthorized',
+    loadComponent: () =>
+      import('./features/unauthorized/unauthorized.page').then((m) => m.UnauthorizedPage),
+    title: 'unauthorized.title',
+  },
+
   {
     path: '',
     component: MainLayout,
@@ -200,24 +222,6 @@ export const APP_ROUTES: Routes = [
           ),
       }
     ]
-  },
-
-  /**
-   * Where a refused navigation lands.
-   *
-   * Declared at the TOP level, outside `MainLayout`, and with no guard of its own — deliberately
-   * on both counts. `permissionsGuard` sends a user here when they may not open a route, so this
-   * page must be reachable by definition: inside the shell it would be filtered by the very guard
-   * that redirected to it, and the router would bounce between the two forever. It did: the page
-   * component existed and no route declared it, so "access denied" fell through to the language
-   * fallback below, which redirects a signed-in user to `/overview`, which refused again. Angular
-   * puts no cycle limit on a UrlTree returned by a guard, so the tab locked up hard.
-   */
-  {
-    path: 'unauthorized',
-    loadComponent: () =>
-      import('./features/unauthorized/unauthorized.page').then((m) => m.UnauthorizedPage),
-    title: 'unauthorized.title',
   },
 
   // 5. Fallback

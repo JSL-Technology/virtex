@@ -1,6 +1,7 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { TabModel, TabType, OpenTabConfig } from './tab.model';
+import { Router } from '@angular/router';
 import { TabRegistryService } from './tab-registry.service';
 import { TabPreferencesService } from './tab-preferences.service';
 import { DialogService } from '../services/dialog.service';
@@ -28,6 +29,7 @@ const DEFAULT_TAB_ROUTE = '/overview';
 @Injectable({ providedIn: 'root' })
 export class TabStateService {
   private registry = inject(TabRegistryService);
+  private router = inject(Router);
   private prefs = inject(TabPreferencesService);
   private dialog = inject(DialogService);
   private notify = inject(NotificationService);
@@ -74,6 +76,20 @@ export class TabStateService {
     // §5.3 / §10: permisos (espejo de permissionsGuard).
     if (!this.registry.canOpen(definition)) {
       this.notify.showWarning('core.tabs.you_do_not_have_permission_open');
+
+      /**
+       * Una entrada EN FRÍO acaba en la página que lo explica, no en el escritorio.
+       *
+       * Con ventanas abiertas, el aviso basta: quien hizo clic sigue donde estaba y no se le
+       * arranca de su trabajo. Pero al abrir la aplicación en esa URL —un marcador, un enlace
+       * compartido, un refresco— no hay ventanas, no hay nada que enseñar, y el usuario aterrizaba
+       * en «/overview» sin una palabra sobre por qué: el aviso se emite antes de que exista el
+       * anfitrión de avisos y se pierde. `/unauthorized` nombra la URL intentada y ofrece pedir
+       * acceso, que es exactamente lo que hace falta saber.
+       */
+      if (this.tabsSignal().length === 0) {
+        void this.router.navigate(['/unauthorized'], { queryParams: { url: config.route } });
+      }
       return;
     }
 

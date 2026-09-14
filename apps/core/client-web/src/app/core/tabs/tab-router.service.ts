@@ -45,6 +45,18 @@ export class TabRouterService {
       const current = this.stripFragment(this.router.url);
       if (target === current) return;
 
+      /**
+       * Fuera del área de trabajo, el sistema de pestañas no manda.
+       *
+       * Este efecto sincroniza la URL con la ventana activa, y lo hacía desde CUALQUIER URL: al
+       * denegarse una ruta, `permissionsGuard` llevaba a `/unauthorized?url=…` —correctamente— y
+       * este efecto veía que la pestaña activa seguía siendo «Inicio», así que navegaba acto
+       * seguido a `/overview`. La página que existe para explicar el rechazo no llegaba a verse
+       * nunca, y quien abría un enlace que no le corresponde aterrizaba en el escritorio sin una
+       * palabra. Lo mismo le habría pasado a cualquier página de nivel superior.
+       */
+      if (!this.isWorkspaceUrl(current)) return;
+
       this.suppressOpen = true;
       this.router
         .navigateByUrl(target)
