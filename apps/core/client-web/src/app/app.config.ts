@@ -26,6 +26,7 @@ import { ThemeService } from './core/services/theme';
 import { AuthService } from './core/services/auth';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { provideServiceWorker } from '@angular/service-worker';
+import { watchRecaptchaScript } from './core/auth/recaptcha-token';
 import { API_URL } from './core/tokens/api-url.token';
 import { idempotencyInterceptor } from './core/http/idempotency.interceptor';
 
@@ -42,6 +43,16 @@ const CORE_PROVIDERS = [
   // `auth.titles.login` in the browser tab.
   provideAppInitializer(() => inject(LanguageService).preload()),
   provideAppInitializer(() => inject(AuthService).resolveSession()),
+  /**
+   * Start watching for a reCAPTCHA script that fails to load, before one is ever appended.
+   *
+   * It has to be here rather than at the sign-in form, because the timing leaves no choice: the
+   * library appends the script about 0.1 s after the page loads and the fetch fails ~50 ms later,
+   * seconds before anybody types a password. A listener attached at submit time attaches to an
+   * element whose `error` fired long ago and will never fire again — which is why signing in with
+   * Google unreachable spent the full eight-second ceiling before the request left the browser.
+   */
+  provideAppInitializer(() => { watchRecaptchaScript(); }),
   { provide: API_URL, useValue: environment.apiUrl || 'http://localhost:3000/api/v1' },
   provideBrowserGlobalErrorListeners(),
   provideZonelessChangeDetection(),
