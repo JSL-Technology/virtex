@@ -799,7 +799,7 @@
   "auth.mobile_verification_code_required": "The mobile verification code is required.",
   "auth.new_password_cannot_same_previous_one": "The new password cannot be the same as the previous one.",
   "auth.newly_created_user_could_not_loaded": "The newly created user could not be loaded.",
-  "auth.no_active_2_fa_session_please_log_in": "No active two-step session — sign in again.",
+  "auth.no_active_2_fa_session_please_log_in": "There is no active two-step verification session. Sign in again.",
   "auth.no_active_impersonation_session_found_stop": "No active impersonation session was found to stop.",
   "auth.no_previous_password_found_user": "No previous password was found for this user.",
   "auth.no_session_refresh": "There is no session to refresh.",

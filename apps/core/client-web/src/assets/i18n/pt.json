@@ -799,7 +799,7 @@
   "auth.mobile_verification_code_required": "O código de verificação do celular é obrigatório.",
   "auth.new_password_cannot_same_previous_one": "A nova senha não pode ser igual à anterior.",
   "auth.newly_created_user_could_not_loaded": "Não foi possível carregar o usuário recém-criado.",
-  "auth.no_active_2_fa_session_please_log_in": "Nenhuma sessão de verificação em duas etapas ativa — entre novamente.",
+  "auth.no_active_2_fa_session_please_log_in": "Não há uma sessão de verificação em duas etapas ativa. Inicia sessão novamente.",
   "auth.no_active_impersonation_session_found_stop": "Nenhuma sessão de personificação ativa foi encontrada para encerrar.",
   "auth.no_previous_password_found_user": "Nenhuma senha anterior foi encontrada para este usuário.",
   "auth.no_session_refresh": "Não há sessão para renovar.",

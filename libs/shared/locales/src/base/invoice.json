@@ -90,7 +90,7 @@
     "pt": "Este documento é um rascunho interno. Não gera crédito fiscal e não foi transmitido à DGII."
   },
   "invoice.pdf.legal_issued": {
-    "es": "Representación impresa de un Comprobante Fiscal Electrónico (e-CF). Verifique su validez en el portal de la DGII con el código QR o el código de seguridad mostrados arriba.",
+    "es": "Representación impresa de un Comprobante Fiscal Electrónico (e-CF). Verifica su validez en el portal de la DGII con el código QR.",
     "en": "Printed representation of an Electronic Fiscal Document (e-CF). Verify its validity on the DGII portal using the QR code or the security code shown above.",
     "pt": "Representação impressa de um Comprovante Fiscal Eletrônico (e-CF). Verifique sua validade no portal da DGII com o QR code ou o código de segurança exibidos acima."
   },

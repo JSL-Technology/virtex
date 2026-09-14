@@ -598,7 +598,7 @@
     "pt": "Esta tela configura o regime da República Dominicana. Para o seu mercado, a configuração está em Configurações → Finanças → Nota fiscal eletrônica."
   },
   "settings.fiscal.select_certificate_file_p12_pfx": {
-    "es": "Seleccione el archivo del certificado (.p12 / .pfx).",
+    "es": "Selecciona el archivo del certificado (.p12 / .pfx).",
     "en": "Select the certificate file (.p12 / .pfx).",
     "pt": "Selecione o arquivo do certificado (.p12 / .pfx)."
   },

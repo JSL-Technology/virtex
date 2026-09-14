@@ -65,7 +65,7 @@
     "pt": "Fechar"
   },
   "shared.no_active_document_sequence_found_type": {
-    "es": "No se encontró una secuencia de documento activa para el tipo {{type}}. Por favor, configure las secuencias.",
+    "es": "No se encontró una secuencia de documento activa para el tipo {{type}}. Configura las secuencias.",
     "en": "No active document sequence was found for type {{type}}. Configure the sequences.",
     "pt": "Nenhuma sequência de documento ativa encontrada para o tipo {{type}}. Configure as sequências."
   },

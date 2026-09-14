@@ -20,7 +20,7 @@
     "pt": "Bloquear o usuário"
   },
   "dialog.cancel_payroll_run.message": {
-    "es": "¿Anular esta nómina? No se podrá reabrir.",
+    "es": "¿Anular esta nómina? No podrás reabrirla.",
     "en": "Cancel this run? It cannot be reopened.",
     "pt": "Anular esta folha? Não poderá ser reaberta."
   },

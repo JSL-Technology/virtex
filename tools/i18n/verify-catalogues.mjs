@@ -160,6 +160,42 @@ for (const [key, entry] of Object.entries(source)) {
 }
 
 // ---------------------------------------------------------------------------
+// 4b. One way of addressing the reader.
+// ---------------------------------------------------------------------------
+/**
+ * Spanish has two second persons and this product used both.
+ *
+ * 302 strings addressed the reader as "tú" and 32 as "usted", sometimes on the same screen: the
+ * sign-in page said "verifica tu correo" and, two lines down, "por favor inicie sesión nuevamente".
+ * Neither register is wrong; mixing them reads as two products stapled together, and in a B2B tool
+ * sold across Latin America the level of formality is something customers notice.
+ *
+ * "tú" is the convention here, being what the overwhelming majority of the catalogue already used
+ * and what es-419 products (Google Workspace, Microsoft 365) use. The check is on the formal
+ * imperative, which is unambiguous; possessives are not checked because "su" is also the third
+ * person — "el usuario ha sido bloqueado y su sesión cerrada" is correct and always will be.
+ */
+const FORMAL_IMPERATIVES = [
+  'seleccione', 'ingrese', 'introduzca', 'revise', 'vuelva', 'verifique', 'complete', 'confirme',
+  'escoja', 'elija', 'contacte', 'comuníquese', 'espere', 'intente', 'haga', 'cree', 'guarde',
+  'edite', 'elimine', 'añada', 'agregue', 'cargue', 'suba', 'descargue', 'active', 'desactive',
+  'configure', 'registre', 'deberá', 'podrá', 'tendrá',
+];
+const FORMAL = B(FORMAL_IMPERATIVES.join('|'));
+
+for (const [key, entry] of Object.entries(source)) {
+  if (entry.literal !== undefined || typeof entry.es !== 'string') continue;
+  const match = FORMAL.exec(entry.es);
+  if (match) {
+    fail(
+      'formal register',
+      `${key}: the Spanish value addresses the reader as "usted" ("${match[0]}"). This product uses ` +
+        `"tú" throughout — "${entry.es.slice(0, 60)}"`,
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
 // 5. Regional patches only name keys that exist.
 // ---------------------------------------------------------------------------
 for (const [locale, patch] of Object.entries(regional)) {

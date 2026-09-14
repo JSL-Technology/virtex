@@ -40,7 +40,7 @@
     "pt": "A organização {{organizationId}} não tem um diário geral."
   },
   "intercompany.organizations_not_same_group_record_relationship": {
-    "es": "Las organizaciones no pertenecen al mismo grupo. Registre la relación antes de operar entre ellas.",
+    "es": "Las organizaciones no pertenecen al mismo grupo. Registra la relación antes de operar entre ellas.",
     "en": "The organizations are not in the same group. Record the relationship before transacting between them.",
     "pt": "As organizações não pertencem ao mesmo grupo. Registe a relação antes de transacionar entre elas."
   },

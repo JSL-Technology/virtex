@@ -10,7 +10,7 @@
     "pt": "Uma folha de ajuste deve referenciar a folha que corrige."
   },
   "payroll.approved_run_cannot_cancelled_use_adjustment": {
-    "es": "Una corrida aprobada no puede cancelarse; use una corrida de ajuste.",
+    "es": "Una corrida aprobada no puede cancelarse; usa una corrida de ajuste.",
     "en": "An approved run cannot be cancelled; use an adjustment run.",
     "pt": "Uma folha aprovada não pode ser cancelada; use uma folha de ajuste."
   },
@@ -434,7 +434,7 @@
     "pt": "Já existe uma folha para {{p1}}."
   },
   "payroll.run_approved_immutable_use_adjustment_run": {
-    "es": "La corrida está aprobada y es inmutable; use una corrida de ajuste.",
+    "es": "La corrida está aprobada y es inmutable; usa una corrida de ajuste.",
     "en": "The run is approved and immutable; use an adjustment run.",
     "pt": "A folha está aprovada e é imutável; use uma folha de ajuste."
   },

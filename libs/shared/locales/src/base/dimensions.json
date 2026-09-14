@@ -5,12 +5,12 @@
     "pt": "Conta \"{{accountId}}\" não encontrada."
   },
   "dimensions.account_account_id_not_found_your": {
-    "es": "Cuenta con ID \"{{accountId}}\" no encontrada en su organización.",
+    "es": "No encontramos la cuenta con ID «{{accountId}}» en tu organización.",
     "en": "Account \"{{accountId}}\" was not found in your organization.",
     "pt": "Conta \"{{accountId}}\" não encontrada na sua organização."
   },
   "dimensions.dimension_dimension_id_not_found_your": {
-    "es": "Dimensión con ID \"{{dimensionId}}\" no encontrada en su organización.",
+    "es": "No encontramos la dimensión con ID «{{dimensionId}}» en tu organización.",
     "en": "Dimension \"{{dimensionId}}\" was not found in your organization.",
     "pt": "Dimensão \"{{dimensionId}}\" não encontrada na sua organização."
   },

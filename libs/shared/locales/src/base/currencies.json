@@ -55,7 +55,7 @@
     "pt": "Não foi encontrada uma taxa de câmbio de {{from}} para {{to}} vigente em {{date}}."
   },
   "currencies.no_exchange_rate_provider_configured_record": {
-    "es": "No hay un proveedor de tasas de cambio configurado. Registre las tasas manualmente o configure las credenciales del proveedor.",
+    "es": "No hay un proveedor de tasas de cambio configurado. Registra las tasas manualmente o configura las credenciales del proveedor.",
     "en": "No exchange rate provider is configured. Record rates manually or configure the provider credentials.",
     "pt": "Não há um provedor de taxas de câmbio configurado. Registre as taxas manualmente ou configure as credenciais do provedor."
   },

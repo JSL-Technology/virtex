@@ -135,7 +135,7 @@
     "pt": "A data «{{value}}» não corresponde ao formato «{{format}}» que indicou."
   },
   "journal_entries.import.debit_credit_cannot_negative_use_opposite": {
-    "es": "Un débito o un crédito no puede ser negativo; use el lado contrario.",
+    "es": "Un débito o un crédito no puede ser negativo; usa el lado contrario.",
     "en": "A debit or a credit cannot be negative; use the opposite side instead.",
     "pt": "Um débito ou crédito não pode ser negativo; use o lado oposto."
   },

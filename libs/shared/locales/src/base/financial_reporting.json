@@ -10,7 +10,7 @@
     "pt": "A conta {{code}} não é válida até {{effectiveFrom}}."
   },
   "financial_reporting.ledger_ledger_id_not_found_does": {
-    "es": "El libro contable con ID \"{{ledgerId}}\" no fue encontrado o no pertenece a su organización.",
+    "es": "No encontramos el libro contable con ID «{{ledgerId}}», o no pertenece a tu organización.",
     "en": "Ledger \"{{ledgerId}}\" was not found, or does not belong to your organization.",
     "pt": "O livro contábil \"{{ledgerId}}\" não foi encontrado ou não pertence à sua organização."
   },

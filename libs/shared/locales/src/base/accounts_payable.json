@@ -10,7 +10,7 @@
     "pt": "A conta bancária «{name}» está inativa e não admite movimentos."
   },
   "accounts_payable.bill_bill_cannot_paid_from_account": {
-    "es": "No se puede pagar una factura en {bill} desde una cuenta en {account}; use una cuenta en {bill} o en la moneda de los libros.",
+    "es": "No se puede pagar una factura en {bill} desde una cuenta en {account}; usa una cuenta en {bill} o en la moneda funcional.",
     "en": "A bill in {bill} cannot be paid from an account in {account}; use an account in {bill} or in the books’ currency.",
     "pt": "Não é possível pagar uma fatura em {bill} a partir de uma conta em {account}; use uma conta em {bill} ou na moeda dos livros."
   },
@@ -60,7 +60,7 @@
     "pt": "A conta a pagar padrão não está configurada."
   },
   "accounts_payable.deleting_invoices_not_allowed_use_void": {
-    "es": "La eliminación de facturas no está permitida. Use la función de \"Anular\".",
+    "es": "No se pueden eliminar facturas. Usa la función de anular.",
     "en": "Deleting invoices is not allowed. Use \"Void\" instead.",
     "pt": "Excluir faturas não é permitido. Use \"Cancelar\"."
   },
@@ -368,7 +368,7 @@
     "pt": "Selecionar conta"
   },
   "accounts_payable.form.select_supplier": {
-    "es": "Seleccione un proveedor.",
+    "es": "Selecciona un proveedor.",
     "en": "Select a supplier.",
     "pt": "Selecione um fornecedor."
   },
@@ -577,7 +577,7 @@
     "pt": "Dinheiro"
   },
   "accounts_payable.payment.choose_least_one_invoice_complete_payment": {
-    "es": "Seleccione al menos una factura y complete los datos del pago.",
+    "es": "Selecciona al menos una factura y completa los datos del pago.",
     "en": "Choose at least one invoice and complete the payment details.",
     "pt": "Escolha ao menos uma fatura e preencha os dados do pagamento."
   },

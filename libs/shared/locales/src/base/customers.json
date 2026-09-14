@@ -10,7 +10,7 @@
     "pt": "A conta bancária «{name}» está inativa e não admite movimentos."
   },
   "customers.collections_journal_cobros_not_found_create": {
-    "es": "Diario de Cobros (COBROS) no encontrado. Por favor, cree un diario con este código.",
+    "es": "Diario de Cobros (COBROS) no encontrado. Crea un diario con este código.",
     "en": "The Collections journal (COBROS) was not found. Create a journal with that code.",
     "pt": "O diário de Recebimentos (COBROS) não foi encontrado. Crie um diário com esse código."
   },
@@ -100,7 +100,7 @@
     "pt": "O recebimento não foi encontrado."
   },
   "customers.receipt_receipt_cannot_land_account_account": {
-    "es": "No se puede recibir un cobro en {receipt} en una cuenta en {account}; use una cuenta en {receipt} o en la moneda de los libros.",
+    "es": "No se puede recibir un cobro en {receipt} en una cuenta en {account}; usa una cuenta en {receipt} o en la moneda funcional.",
     "en": "A receipt in {receipt} cannot land in an account in {account}; use an account in {receipt} or in the books’ currency.",
     "pt": "Não é possível receber uma cobrança em {receipt} numa conta em {account}; use uma conta em {receipt} ou na moeda dos livros."
   },

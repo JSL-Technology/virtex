@@ -20,7 +20,7 @@
     "pt": "O e-mail é obrigatório."
   },
   "login.errors.passkey_error": {
-    "es": "Error al iniciar sesión con llave de acceso. Intente nuevamente o use su contraseña.",
+    "es": "No pudimos iniciar sesión con la llave de acceso. Inténtalo de nuevo o usa tu contraseña.",
     "en": "Error signing in with passkey. Please try again or use your password.",
     "pt": "Falha ao entrar com a chave de acesso. Tente novamente ou use sua senha."
   },

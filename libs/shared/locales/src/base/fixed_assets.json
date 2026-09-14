@@ -10,7 +10,7 @@
     "pt": "O ativo não foi encontrado ou já foi baixado."
   },
   "fixed_assets.depreciation_journal_deprec_not_found_create": {
-    "es": "Diario de Depreciación (DEPREC) no encontrado. Por favor, cree un diario con este código para continuar.",
+    "es": "Diario de Depreciación (DEPREC) no encontrado. Crea un diario con este código para continuar.",
     "en": "The Depreciation journal (DEPREC) was not found. Create a journal with that code to continue.",
     "pt": "O diário de Depreciação (DEPREC) não foi encontrado. Crie um diário com esse código para continuar."
   },

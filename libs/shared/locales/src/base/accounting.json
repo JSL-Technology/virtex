@@ -646,7 +646,7 @@
     "pt": "Resolver"
   },
   "accounting.closing_journal_cierre_not_found_create": {
-    "es": "Diario de Cierre (CIERRE) no encontrado. Por favor, cree un diario con este código.",
+    "es": "Diario de Cierre (CIERRE) no encontrado. Crea un diario con este código.",
     "en": "The Closing journal (CIERRE) was not found. Create a journal with that code.",
     "pt": "O diário de Encerramento (CIERRE) não foi encontrado. Crie um diário com esse código."
   },
@@ -741,7 +741,7 @@
     "pt": "O exercício fiscal {{from}} – {{to}} está encerrado. Reabra-o antes de alterar os seus períodos."
   },
   "accounting.fiscal_year_has_no_accounting_periods": {
-    "es": "El año fiscal no tiene períodos contables definidos. Cree el calendario antes de cerrarlo.",
+    "es": "El año fiscal no tiene períodos contables definidos. Crea el calendario antes de cerrarlo.",
     "en": "The fiscal year has no accounting periods. Create the calendar before closing it.",
     "pt": "O ano fiscal não tem períodos contábeis definidos. Crie o calendário antes de encerrá-lo."
   },
@@ -836,7 +836,7 @@
     "pt": "Consultar"
   },
   "accounting.general_ledger.select_account_see_ledger": {
-    "es": "Por favor, seleccione una cuenta para ver el libro mayor.",
+    "es": "Selecciona una cuenta para ver el libro mayor.",
     "en": "Select an account to see its ledger.",
     "pt": "Selecione uma conta para ver o livro razão."
   },
@@ -916,7 +916,7 @@
     "pt": "Identificador do lançamento"
   },
   "accounting.import.file_could_not_processed_check_format": {
-    "es": "No se pudo procesar el archivo. Revise el formato y vuelva a intentarlo.",
+    "es": "No se pudo procesar el archivo. Revisa el formato e inténtalo de nuevo.",
     "en": "The file could not be processed. Check its format and try again.",
     "pt": "Não foi possível processar o arquivo. Verifique o formato e tente novamente."
   },
@@ -1876,7 +1876,7 @@
     "pt": "Conciliação bancária"
   },
   "accounting.reconciliation.choose_bank_account": {
-    "es": "Seleccione una cuenta bancaria",
+    "es": "Selecciona una cuenta bancaria",
     "en": "Choose a bank account",
     "pt": "Escolha uma conta bancária"
   },
@@ -1921,7 +1921,7 @@
     "pt": "Formato de data do banco"
   },
   "accounting.reconciliation.import.choose_statement_file": {
-    "es": "Seleccione el archivo del estado de cuenta.",
+    "es": "Selecciona el archivo del estado de cuenta.",
     "en": "Choose the statement file.",
     "pt": "Escolha o arquivo do extrato."
   },
@@ -1931,7 +1931,7 @@
     "pt": "Mapeamento de colunas"
   },
   "accounting.reconciliation.import.complete_column_mapping_file_format": {
-    "es": "Complete el mapeo de columnas y el formato del archivo.",
+    "es": "Completa el mapeo de columnas y el formato del archivo.",
     "en": "Complete the column mapping and the file format.",
     "pt": "Complete o mapeamento de colunas e o formato do arquivo."
   },
