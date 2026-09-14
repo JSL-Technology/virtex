@@ -16,6 +16,7 @@ import {
 } from '../../../core/api/roles.service';
 import { NotificationService } from '../../../core/services/notification';
 import { HasPermissionDirective } from '../../../shared/directives/has-permission.directive';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 
 
@@ -28,6 +29,7 @@ import { HasPermissionDirective } from '../../../shared/directives/has-permissio
     LucideAngularModule,
     HasPermissionDirective,
     TranslateModule,
+    ...VX_FORM_A11Y,
   ],
   templateUrl: './roles.page.html',
   styleUrls: ['./roles.page.scss'],

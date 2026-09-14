@@ -15,6 +15,7 @@ import { Journal } from '../../../../core/models/journal.model';
 import { VxLocalizedNamePipe } from '@virteex/shared/ui-i18n';
 import { isChargeable } from '../../../../core/services/account-selection';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * Proposing a correction to a year that is already closed.
@@ -42,6 +43,7 @@ import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
     LucideAngularModule,
     DraftShellComponent,
     VxLocalizedNamePipe,
+    ...VX_FORM_A11Y,
   ],
   templateUrl: './audit-adjustment-form.page.html',
   styleUrls: ['./audit-adjustment-form.page.scss'],

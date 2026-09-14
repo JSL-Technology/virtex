@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ListShellComponent } from '../../shared/components/gestures';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 // Tipos de datos para la página
 type ExportStatus = 'Completed' | 'Generating' | 'Failed';
@@ -24,7 +25,7 @@ interface DataType {
 @Component({
   selector: 'app-data-exports-page',
   standalone: true,
-  imports: [ReactiveFormsModule, LucideAngularModule, TranslateModule, ListShellComponent],
+  imports: [ReactiveFormsModule, LucideAngularModule, TranslateModule, ListShellComponent, ...VX_FORM_A11Y],
   templateUrl: './data-exports.page.html',
   styleUrls: ['./data-exports.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

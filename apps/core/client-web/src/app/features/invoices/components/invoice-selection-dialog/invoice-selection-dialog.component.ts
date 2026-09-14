@@ -5,11 +5,12 @@ import { LucideAngularModule, Search, X } from 'lucide-angular';
 import { InvoicesService, Invoice } from '../../../../core/services/invoices';
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 @Component({
   selector: 'app-invoice-selection-dialog',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [CommonModule, FormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y],
   templateUrl: './invoice-selection-dialog.component.html',
   styleUrls: ['./invoice-selection-dialog.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

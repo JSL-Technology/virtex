@@ -35,6 +35,7 @@ import { DraftShellComponent, DraftProblem, draftProblems } from '../../../share
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { toIsoDate } from '../../reports/financial-statements/report-period';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /** The date pickers hand back `YYYY-MM-DD` already; this only normalises what the API returns. */
 function isoOf(value: string | Date): string {
@@ -85,6 +86,7 @@ interface BillTotals {
     TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
+    ...VX_FORM_A11Y,
   ],
   templateUrl: './form.page.html',
   styleUrls: ['./form.page.scss'],

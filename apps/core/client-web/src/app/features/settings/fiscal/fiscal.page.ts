@@ -12,6 +12,7 @@ import { FiscalSettingsService, MarketCoverage } from '../../../core/api/fiscal-
 import { TranslateModule } from '@ngx-translate/core';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * Dominican Republic fiscal configuration: DGII signing certificate, authorized e-NCF ranges, and
@@ -21,7 +22,7 @@ import { composeKey } from '@virteex/shared/types';
 @Component({
   selector: 'app-fiscal-settings-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y],
   templateUrl: './fiscal.page.html',
   styleUrls: ['./fiscal.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -8,6 +8,7 @@ import { PasswordStrengthComponent } from '../../../../../shared/components/pass
 import { HttpClient } from '@angular/common/http';
 import { AsyncValidators } from '../../../../../shared/validators/async.validators';
 import { LucideAngularModule, User, Mail, Lock, Phone, AlertCircle } from 'lucide-angular';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 @Component({
   selector: 'app-step-account-info',
@@ -20,6 +21,7 @@ import { LucideAngularModule, User, Mail, Lock, Phone, AlertCircle } from 'lucid
     IntlPhoneInputComponent,
     PasswordStrengthComponent,
     LucideAngularModule,
+    ...VX_FORM_A11Y,
   ],
   templateUrl: './step-account-info.html',
   styleUrls: ['./step-account-info.scss'],

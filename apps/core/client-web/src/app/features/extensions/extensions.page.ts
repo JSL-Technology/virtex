@@ -19,6 +19,7 @@ import {
   ExtensionSummary,
   ExtensionsService,
 } from './extensions.service';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * The extensions manager: install signed extensions into the tenant, grant them capabilities, run
@@ -38,6 +39,7 @@ import {
     TranslateModule,
     LucideAngularModule,
     ListShellComponent,
+    ...VX_FORM_A11Y,
   ],
   templateUrl: './extensions.page.html',
   styleUrls: ['./extensions.page.scss'],

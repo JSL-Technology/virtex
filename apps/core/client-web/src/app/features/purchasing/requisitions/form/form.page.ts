@@ -15,6 +15,7 @@ import {
 import { InventoryService } from '../../../../core/api/inventory.service';
 import { Product } from '../../../../core/models/product.model';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * Raising and deciding a purchase requisition.
@@ -38,6 +39,7 @@ import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
     TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
+    ...VX_FORM_A11Y,
   ],
   templateUrl: './form.page.html',
   styleUrls: ['./form.page.scss'],

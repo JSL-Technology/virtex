@@ -20,6 +20,7 @@ import { OtpComponent } from '../../../shared/components/otp/otp.component';
 import { BrandLogo } from '../../../shared/components/brand-logo/brand-logo';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 @Component({
   selector: 'app-login',
@@ -36,7 +37,8 @@ import { HttpErrorResponse } from '@angular/common/http';
     SocialAuthButtonsComponent,
     PasskeyButtonComponent,
     OtpComponent,
-    BrandLogo
+    BrandLogo,
+    ...VX_FORM_A11Y,
   ],
   providers: [ReCaptchaV3Service],
   templateUrl: './login.page.html',

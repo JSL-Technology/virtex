@@ -68,6 +68,7 @@ import { HasPermissionDirective } from '../../../shared/directives/has-permissio
 import { debounceTime, distinctUntilChanged, Subject, Subscription } from 'rxjs';
 import { StepUpService, StepUpScope } from '../../../core/services/step-up.service';
 import { composeKey } from '@virteex/shared/types';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 @Component({
   selector: 'app-user-management-page',
@@ -78,6 +79,7 @@ import { composeKey } from '@virteex/shared/types';
     LucideAngularModule,
     TranslateModule,
     HasPermissionDirective,
+    ...VX_FORM_A11Y,
   ],
   templateUrl: './user-management.page.html',
   styleUrls: ['./user-management.page.scss'],

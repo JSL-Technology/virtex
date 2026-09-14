@@ -16,6 +16,7 @@ import {
 } from '../../../../core/api/hcm.service';
 import { PayrollService, SeverancePreview } from '../../../../core/api/payroll.service';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * One person's record: who they are, what they are paid, and what leaving would cost.
@@ -45,6 +46,7 @@ import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
     TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
+    ...VX_FORM_A11Y,
   ],
   templateUrl: './form.page.html',
   styleUrls: ['./form.page.scss'],

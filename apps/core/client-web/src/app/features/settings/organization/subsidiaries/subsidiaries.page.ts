@@ -4,11 +4,12 @@ import { LucideAngularModule, Building, Plus, MoreVertical, X } from 'lucide-ang
 import { SubsidiariesService, Subsidiary, CreateSubsidiaryDto } from './subsidiaries.service';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 @Component({
   selector: 'app-subsidiaries',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, ReactiveFormsModule, TranslateModule],
+  imports: [CommonModule, LucideAngularModule, ReactiveFormsModule, TranslateModule, ...VX_FORM_A11Y],
   templateUrl: './subsidiaries.page.html',
   styleUrls: ['./subsidiaries.page.scss']
 })

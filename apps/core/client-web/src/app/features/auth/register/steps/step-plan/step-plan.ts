@@ -10,6 +10,7 @@ import { CountryService } from '../../../../../core/services/country.service';
 import { LanguageService } from '../../../../../core/services/language';
 import { translateOrLiteral } from '@virteex/shared/ui-i18n';
 import { composeKey } from '@virteex/shared/types';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * One bullet on a plan card.
@@ -43,7 +44,8 @@ interface DisplayPlan {
     ReactiveFormsModule,
     TranslateModule,
     RouterModule,
-    LucideAngularModule
+    LucideAngularModule,
+    ...VX_FORM_A11Y,
   ],
   templateUrl: './step-plan.html',
   styleUrls: ['./step-plan.scss']

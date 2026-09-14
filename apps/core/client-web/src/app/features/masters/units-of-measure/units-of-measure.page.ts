@@ -8,6 +8,7 @@ import { ListShellComponent } from '../../../shared/components/gestures';
 import { UnitOfMeasure, UnitsOfMeasureService } from '../../../core/api/units-of-measure.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { NotificationService } from '../../../core/services/notification';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * The units products are counted, weighed and measured in.
@@ -25,7 +26,7 @@ import { NotificationService } from '../../../core/services/notification';
 @Component({
   selector: 'app-units-of-measure-page',
   standalone: true,
-  imports: [LucideAngularModule, TranslateModule, ListShellComponent, FormsModule],
+  imports: [LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y],
   templateUrl: './units-of-measure.page.html',
   styleUrls: ['./units-of-measure.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

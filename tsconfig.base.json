@@ -25,7 +25,8 @@
     "paths": {
       "@virteex/shared/util-auth": ["libs/shared/util-auth/src/index.ts"],
       "@virteex/shared/types": ["libs/shared/types/src/index.ts"],
-      "@virteex/shared/ui-i18n": ["libs/shared/ui-i18n/src/index.ts"]
+      "@virteex/shared/ui-i18n": ["libs/shared/ui-i18n/src/index.ts"],
+      "@virteex/shared/ui-a11y": ["libs/shared/ui-a11y/src/index.ts"]
     }
   }
 }

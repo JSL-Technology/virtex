@@ -13,6 +13,7 @@ import { NotificationService } from '../../../core/services/notification';
 import { PosService } from './pos.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 // Reutilizamos el modelo de producto
 // import { Product } from '../../inventory/products/products.page';
@@ -20,7 +21,7 @@ import { ErrorHandlerService } from '../../../core/services/error-handler.servic
 @Component({
   selector: 'app-pos-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y],
   templateUrl: './pos.page.html',
   styleUrls: ['./pos.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

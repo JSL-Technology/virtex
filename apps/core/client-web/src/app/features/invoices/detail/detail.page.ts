@@ -26,13 +26,15 @@ import { AuthService } from '../../../core/services/auth';
 import { DocumentShellComponent, DocumentTone } from '../../../shared/components/gestures';
 import { TransitionPreviewComponent } from '../../../shared/components/transition-preview/transition-preview.component';
 import { TransitionPreview } from '../../../shared/components/transition-preview/transition-preview.model';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 @Component({
   selector: 'app-invoice-detail-page',
   standalone: true,
   imports: [TransitionPreviewComponent, CommonModule, LucideAngularModule, InvoiceToolbarComponent, FormsModule, // The QR is the element the norm requires on the printed representation; the page used to show
     // a text link instead, while `angularx-qrcode` was already a dependency of the project.
-    QRCodeComponent, TranslateModule, ...FORMAT_PIPES, DocumentShellComponent],
+    QRCodeComponent, TranslateModule, ...FORMAT_PIPES, DocumentShellComponent,
+    ...VX_FORM_A11Y,],
   templateUrl: './detail.page.html',
   styleUrls: ['./detail.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -7,11 +7,12 @@ import { Journal } from '../../../core/models/journal.model';
 import { TranslateModule } from '@ngx-translate/core';
 import { DraftShellComponent, DraftProblem, draftProblems } from '../../../shared/components/gestures';
 import { TAB_CONTEXT } from '../../../core/tabs/tab-context';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 @Component({
   selector: 'app-journal-form',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule, DraftShellComponent],
+  imports: [ReactiveFormsModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y],
   templateUrl: './journal-form.page.html',
   styleUrls: ['./journal-form.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

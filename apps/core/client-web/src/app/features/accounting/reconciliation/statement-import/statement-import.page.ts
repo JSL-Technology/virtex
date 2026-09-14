@@ -8,6 +8,7 @@ import { DraftShellComponent, DraftProblem, draftProblems } from '../../../../sh
 import { BankAccount, TreasuryService } from '../../../../core/api/treasury.service';
 import { ReconciliationApiService } from '../../../../core/api/reconciliation.service';
 import { NotificationService } from '../../../../core/services/notification';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * Importing a bank statement.
@@ -27,7 +28,7 @@ import { NotificationService } from '../../../../core/services/notification';
 @Component({
   selector: 'app-statement-import-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule, DraftShellComponent, ...VX_FORM_A11Y],
   templateUrl: './statement-import.page.html',
   styleUrls: ['./statement-import.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

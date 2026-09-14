@@ -19,6 +19,7 @@ import {
 } from '../../../../core/api/fiscal-settings.service';
 import { NotificationService } from '../../../../core/services/notification';
 import { FORMAT_PIPES } from '@virteex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * Which configuration fields a market's regime actually needs.
@@ -66,7 +67,7 @@ const SECRET_BY_COUNTRY: Record<string, 'CAF_XML' | 'DIAN_TECHNICAL_KEY'> = {
 @Component({
   selector: 'app-einvoicing-regime-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y],
   templateUrl: './einvoicing-regime.page.html',
   styleUrls: ['./einvoicing-regime.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

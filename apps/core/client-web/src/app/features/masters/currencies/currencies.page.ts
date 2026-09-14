@@ -9,6 +9,7 @@ import { Currency, CurrenciesService } from '../../../core/api/currencies.servic
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { NotificationService } from '../../../core/services/notification';
 import { LocaleStore } from '@virteex/shared/ui-i18n';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * The currencies the tenant transacts in.
@@ -27,7 +28,7 @@ import { LocaleStore } from '@virteex/shared/ui-i18n';
 @Component({
   selector: 'app-currencies-page',
   standalone: true,
-  imports: [LucideAngularModule, TranslateModule, ListShellComponent, FormsModule],
+  imports: [LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y],
   templateUrl: './currencies.page.html',
   styleUrls: ['./currencies.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

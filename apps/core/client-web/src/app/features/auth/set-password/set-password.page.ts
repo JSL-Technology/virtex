@@ -18,6 +18,7 @@ import { BrandLogo } from '../../../shared/components/brand-logo/brand-logo';
 // H4 FIX: single source of truth for password rules, mirrored from the backend policy
 // (min 12 / max 72 / upper + lower + (digit OR symbol)). Removes the divergent local validator.
 import { strongPasswordValidator } from '../../../shared/validators/password.validator';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 const passwordMatchValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
   const password = group.get('password')?.value;
@@ -38,7 +39,8 @@ const passwordMatchValidator: ValidatorFn = (group: AbstractControl): Validation
     AuthInputComponent,
     AuthButtonComponent,
     PasswordStrengthComponent,
-    BrandLogo
+    BrandLogo,
+    ...VX_FORM_A11Y,
   ],
   providers: [
     ReCaptchaV3Service,

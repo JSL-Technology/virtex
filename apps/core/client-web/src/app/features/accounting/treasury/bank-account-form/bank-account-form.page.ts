@@ -11,6 +11,7 @@ import { NotificationService } from '../../../../core/services/notification';
 import { Account } from '../../../../core/models/account.model';
 import { bankLedgerAccounts } from '../../../../core/services/account-selection';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * Registering a bank account.
@@ -34,6 +35,7 @@ import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
     TranslateModule,
     ...FORMAT_PIPES,
     DraftShellComponent,
+    ...VX_FORM_A11Y,
   ],
   templateUrl: './bank-account-form.page.html',
   styleUrls: ['./bank-account-form.page.scss'],

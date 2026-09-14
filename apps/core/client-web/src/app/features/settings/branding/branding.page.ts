@@ -7,12 +7,13 @@ import { ThemeService } from '../../../core/services/theme';
 import { LivePreview } from '../../../shared/components/live-preview/live-preview';
 import { LanguageSelector } from '../../../shared/components/language-selector/language-selector';
 import { TranslateModule } from '@ngx-translate/core';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 // import { LivePreview } from '../../../shared/components/live-preview/live-preview'; // Importar el nuevo componente
 
 @Component({
   selector: 'app-branding-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, LivePreview, LanguageSelector, TranslateModule  ], // Añadir LivePreview
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, LivePreview, LanguageSelector, TranslateModule, ...VX_FORM_A11Y], // Añadir LivePreview
   templateUrl: './branding.page.html',
   styleUrls: ['./branding.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

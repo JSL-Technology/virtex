@@ -18,6 +18,7 @@ import { Supplier } from '../../../../core/models/supplier.model';
 import { InventoryService } from '../../../../core/api/inventory.service';
 import { Product } from '../../../../core/models/product.model';
 import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * Raising, approving, sending and receiving a purchase order.
@@ -42,6 +43,7 @@ import { TAB_CONTEXT } from '../../../../core/tabs/tab-context';
     ...FORMAT_PIPES,
     DraftShellComponent,
     RouterLink,
+    ...VX_FORM_A11Y,
   ],
   templateUrl: './form.page.html',
   styleUrls: ['./form.page.scss'],

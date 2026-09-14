@@ -4,6 +4,7 @@ import { ChangeDetectionStrategy, Component, computed, effect, signal } from '@a
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * Herramienta de Fusión de Cuentas (Standalone Component)
@@ -37,7 +38,7 @@ export interface MergeAnalysis {
 @Component({
   selector: 'app-merge-tool',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, TranslateModule, ...FORMAT_PIPES],
+  imports: [CommonModule, FormsModule, RouterLink, TranslateModule, ...FORMAT_PIPES, ...VX_FORM_A11Y],
   templateUrl: './merge-tool.html',
   // Se omite styleUrls para evitar errores si el archivo SCSS no existe aún.
   changeDetection: ChangeDetectionStrategy.OnPush,

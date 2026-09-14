@@ -19,6 +19,7 @@ import {
   reportFilename,
   toCsv,
 } from '../../../core/export/csv-export';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * The invoice list.
@@ -36,7 +37,7 @@ import {
 @Component({
   selector: 'app-invoices-list-page',
   standalone: true,
-  imports: [RouterLink, LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent],
+  imports: [RouterLink, LucideAngularModule, FormsModule, TranslateModule, ...FORMAT_PIPES, ListShellComponent, ...VX_FORM_A11Y],
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

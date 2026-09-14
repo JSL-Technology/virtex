@@ -8,6 +8,7 @@ import { ListShellComponent } from '../../../shared/components/gestures';
 import { Warehouse, WarehousesService } from '../../../core/api/warehouses.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { NotificationService } from '../../../core/services/notification';
+import { VX_FORM_A11Y } from '@virteex/shared/ui-a11y';
 
 /**
  * Where stock is held.
@@ -25,7 +26,7 @@ import { NotificationService } from '../../../core/services/notification';
 @Component({
   selector: 'app-warehouses-page',
   standalone: true,
-  imports: [LucideAngularModule, TranslateModule, ListShellComponent, FormsModule],
+  imports: [LucideAngularModule, TranslateModule, ListShellComponent, FormsModule, ...VX_FORM_A11Y],
   templateUrl: './warehouses.page.html',
   styleUrls: ['./warehouses.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
