@@ -1,32 +1,34 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 
+/**
+ * Where Stripe sends the reader when they back out of the checkout.
+ *
+ * Its sentences were Spanish literals in this template. It also said nothing about whether anything
+ * had been charged, which is the one question somebody who just cancelled a payment has.
+ */
 @Component({
   selector: 'app-payment-cancel',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [RouterLink, TranslateModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div class="sm:mx-auto sm:w-full sm:max-w-md">
-        <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 text-center">
-          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
-            <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </div>
-          <h2 class="mt-6 text-3xl font-extrabold text-gray-900">Pago Cancelado</h2>
-          <p class="mt-2 text-sm text-gray-600">
-            El proceso de pago fue cancelado. No se ha realizado ningún cargo.
-          </p>
-          <div class="mt-6">
-            <a routerLink="/auth/plan-selection" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-              Intentar de nuevo
-            </a>
-          </div>
-        </div>
+    <section class="outcome">
+      <div class="outcome__card">
+        <span class="outcome__mark outcome__mark--warn" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </span>
+        <h1>{{ 'payment.cancel.title' | translate }}</h1>
+        <p>{{ 'payment.cancel.body' | translate }}</p>
+        <a class="outcome__cta" routerLink="/auth/plan-selection">
+          {{ 'payment.cancel.back_to_plans' | translate }}
+        </a>
       </div>
-    </div>
-  `
+    </section>
+  `,
+  styleUrl: './payment-outcome.component.scss',
 })
 export class PaymentCancelComponent {}

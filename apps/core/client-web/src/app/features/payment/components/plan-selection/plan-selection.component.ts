@@ -1,145 +1,129 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { LocaleStore, translateOrLiteral } from '@virteex/shared/ui-i18n';
+import { BillingService } from '../../../../core/services/billing';
 import { NotificationService } from '../../../../core/services/notification';
-import { PaymentService } from '../../services/payment.service';
-import { Router } from '@angular/router';
+import { formatPlanPrice } from '../../../../core/models/plan.model';
 
+/**
+ * Choosing a plan, before signing in.
+ *
+ * ## What this screen was
+ *
+ * Every string was a Spanish literal in the template, and the three prices were written into the
+ * markup as `$29`, `$79` and `$199`. A bare `$` is ambiguous across this product's markets — it is
+ * the dollar, the Dominican peso and the Mexican peso — and the figures were not connected to what
+ * Stripe would charge: they came from nowhere, and `/month` was hard-coded beside them.
+ *
+ * The data it loaded was worse than unused. It called `GET /payment/config`, which was removed for
+ * publishing raw Stripe price identifiers to any authenticated caller, so the request 404'd on every
+ * visit and the screen showed its invented prices regardless.
+ *
+ * ## What it is now
+ *
+ * The same plan catalogue the registration wizard reads — `GET /saas/plans`, through
+ * `BillingService` — with every amount formatted by `formatPlanPrice`, which takes the currency and
+ * the minor-unit factor the server publishes for the visitor's country. A Chilean peso price is not
+ * divided by a hundred, and the currency is named rather than implied by a symbol.
+ */
 @Component({
   selector: 'app-plan-selection',
   standalone: true,
-  imports: [CommonModule],
+  imports: [TranslateModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div class="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Selecciona tu plan
-        </h2>
-        <p class="mt-2 text-center text-sm text-gray-600">
-          Comienza tu prueba gratuita o suscríbete ahora.
-        </p>
-      </div>
+    <section class="plans">
+      <header class="plans__head">
+        <h1>{{ 'payment.plans.title' | translate }}</h1>
+        <p>{{ 'payment.plans.subtitle' | translate }}</p>
+      </header>
 
-      <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-4xl">
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <!-- Plan Starter -->
-          <div class="bg-white overflow-hidden shadow rounded-lg divide-y divide-gray-200">
-            <div class="px-4 py-5 sm:p-6 text-center">
-              <h3 class="text-lg leading-6 font-medium text-gray-900">Starter</h3>
-              <div class="mt-4 flex items-center justify-center text-5xl font-extrabold text-gray-900">
-                $29
-                <span class="ml-3 text-xl font-medium text-gray-500">/mes</span>
-              </div>
-              <p class="mt-4 text-sm text-gray-500">Para startups y pequeños negocios.</p>
-              <ul class="mt-6 text-left space-y-4 text-sm text-gray-500">
-                <li class="flex"><span class="mr-2">✔️</span> 5 Usuarios</li>
-                <li class="flex"><span class="mr-2">✔️</span> Facturación Básica</li>
-                <li class="flex"><span class="mr-2">✔️</span> Soporte por Email</li>
-              </ul>
-              <button
-                (click)="selectPlan('starter')"
-                [disabled]="isLoading()"
-                class="mt-8 w-full bg-indigo-600 border border-transparent rounded-md py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50">
-                {{ isLoading() ? 'Procesando...' : 'Elegir Starter' }}
-              </button>
-            </div>
+      @switch (billing.plansState()) {
+        @case ('loading') {
+          <p class="plans__note">{{ 'payment.plans.loading' | translate }}</p>
+        }
+        @case ('error') {
+          <p class="plans__note plans__note--error">{{ 'payment.plans.load_error' | translate }}</p>
+        }
+        @default {
+          <div class="plans__grid">
+            @for (plan of cards(); track plan.slug) {
+              <article class="plan" [class.plan--featured]="plan.featured">
+                @if (plan.featured) {
+                  <span class="plan__badge">{{ 'payment.plans.popular' | translate }}</span>
+                }
+                <h2 class="plan__name">{{ plan.name }}</h2>
+                <p class="plan__price">
+                  <span class="plan__amount">{{ plan.price }}</span>
+                  <span class="plan__period">{{ 'payment.plans.per_month' | translate }}</span>
+                </p>
+                <p class="plan__description">{{ plan.description }}</p>
+                <button
+                  type="button"
+                  class="plan__cta"
+                  [disabled]="isLoading()"
+                  (click)="selectPlan(plan.slug)"
+                >
+                  {{
+                    isLoading()
+                      ? ('payment.plans.processing' | translate)
+                      : ('payment.plans.choose' | translate: { plan: plan.name })
+                  }}
+                </button>
+              </article>
+            } @empty {
+              <p class="plans__note">{{ 'payment.plans.none_available' | translate }}</p>
+            }
           </div>
-
-          <!-- Plan Pro -->
-          <div class="bg-white overflow-hidden shadow rounded-lg divide-y divide-gray-200 border-2 border-indigo-500 relative">
-             <div class="absolute top-0 right-0 -mt-2 -mr-2 bg-indigo-500 text-white text-xs font-bold px-2 py-1 rounded">Popular</div>
-            <div class="px-4 py-5 sm:p-6 text-center">
-              <h3 class="text-lg leading-6 font-medium text-gray-900">Pro</h3>
-              <div class="mt-4 flex items-center justify-center text-5xl font-extrabold text-gray-900">
-                $99
-                <span class="ml-3 text-xl font-medium text-gray-500">/mes</span>
-              </div>
-              <p class="mt-4 text-sm text-gray-500">Para empresas en crecimiento.</p>
-               <ul class="mt-6 text-left space-y-4 text-sm text-gray-500">
-                <li class="flex"><span class="mr-2">✔️</span> 25 Usuarios</li>
-                <li class="flex"><span class="mr-2">✔️</span> Contabilidad Avanzada</li>
-                <li class="flex"><span class="mr-2">✔️</span> Soporte Prioritario</li>
-              </ul>
-              <button
-                (click)="selectPlan('pro')"
-                 [disabled]="isLoading()"
-                class="mt-8 w-full bg-indigo-600 border border-transparent rounded-md py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50">
-                 {{ isLoading() ? 'Procesando...' : 'Elegir Pro' }}
-              </button>
-            </div>
-          </div>
-
-          <!-- Plan Enterprise -->
-          <div class="bg-white overflow-hidden shadow rounded-lg divide-y divide-gray-200">
-            <div class="px-4 py-5 sm:p-6 text-center">
-              <h3 class="text-lg leading-6 font-medium text-gray-900">Enterprise</h3>
-              <div class="mt-4 flex items-center justify-center text-5xl font-extrabold text-gray-900">
-                $299
-                <span class="ml-3 text-xl font-medium text-gray-500">/mes</span>
-              </div>
-              <p class="mt-4 text-sm text-gray-500">Para grandes organizaciones.</p>
-               <ul class="mt-6 text-left space-y-4 text-sm text-gray-500">
-                <li class="flex"><span class="mr-2">✔️</span> Ilimitados Usuarios</li>
-                <li class="flex"><span class="mr-2">✔️</span> Todo Incluido</li>
-                <li class="flex"><span class="mr-2">✔️</span> Gerente de Cuenta</li>
-              </ul>
-              <button
-                (click)="selectPlan('enterprise')"
-                 [disabled]="isLoading()"
-                class="mt-8 w-full bg-indigo-600 border border-transparent rounded-md py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50">
-                 {{ isLoading() ? 'Procesando...' : 'Elegir Enterprise' }}
-              </button>
-            </div>
-          </div>
-        </div>
-        <p class="mt-4 text-center text-xs text-gray-500">
-             Los precios están en USD. Impuestos pueden aplicar según tu región.
-        </p>
-      </div>
-    </div>
-  `
-})
-export class PlanSelectionComponent implements OnInit {
-  private readonly notificationService = inject(NotificationService);
-  private paymentService = inject(PaymentService);
-  isLoading = signal(false);
-  prices = signal<{ starter: string; pro: string; enterprise: string } | null>(null);
-
-  ngOnInit() {
-    this.paymentService.getConfig().subscribe({
-        next: (config) => {
-            this.prices.set(config.prices);
-        },
-        error: (err) => console.error('Error fetching payment config', err)
-    });
-  }
-
-  selectPlan(planType: 'starter' | 'pro' | 'enterprise') {
-    const currentPrices = this.prices();
-    if (!currentPrices) {
-        this.notificationService.showError('dialog.notify.pricing_not_loaded');
-        return;
-    }
-    const priceId = currentPrices[planType];
-
-    if (!priceId) {
-         // Fallback/Demo mode if config is missing (e.g. dev environment without env vars)
-         console.warn(`No price ID found for ${planType}, checking env vars or using placeholder`);
-         // proceed or return depending on strictness.
-         // For now, blocking to force proper setup.
-         this.notificationService.showError('dialog.notify.plan_price_missing', { plan: planType });
-         return;
-    }
-
-    this.isLoading.set(true);
-    this.paymentService.createCheckoutSession(priceId).subscribe({
-      next: (response) => {
-        window.location.href = response.url;
-      },
-      error: (err) => {
-        console.error('Error creating checkout session', err);
-        this.isLoading.set(false);
-        this.notificationService.showError('dialog.notify.payment_start_failed');
+          <p class="plans__footnote">
+            {{ 'payment.plans.tax_note' | translate: { currency: currency() } }}
+          </p>
+        }
       }
+    </section>
+  `,
+  styleUrl: './plan-selection.component.scss',
+})
+export class PlanSelectionComponent {
+  readonly billing = inject(BillingService);
+  private readonly notifications = inject(NotificationService);
+  private readonly translate = inject(TranslateService);
+  private readonly locale = inject(LocaleStore);
+
+  readonly isLoading = signal(false);
+
+  /** The currency the catalogue came back in, so the footnote names it instead of assuming USD. */
+  readonly currency = computed(() => this.billing.plans()[0]?.currency ?? '');
+
+  readonly cards = computed(() =>
+    this.billing.plans().map((plan, index, all) => ({
+      slug: plan.slug,
+      // A plan's name and description are the customer-facing catalogue's own text, which may be a
+      // key this product wrote or a string an operator typed. `translateOrLiteral` renders either
+      // without ever showing a reader a dotted identifier.
+      name: translateOrLiteral(this.translate, plan.name),
+      description: translateOrLiteral(this.translate, plan.description),
+      price: formatPlanPrice(plan, this.locale.locale()),
+      featured: all.length > 2 && index === 1,
+    })),
+  );
+
+  selectPlan(slug: string): void {
+    if (this.isLoading()) return;
+    this.isLoading.set(true);
+    this.billing.startCheckout(slug).subscribe({
+      next: (started) => {
+        // `startCheckout` navigates away on success. Reaching here with `false` means the plan has
+        // no price the checkout can charge, which is a configuration problem, not the reader's.
+        if (!started) {
+          this.isLoading.set(false);
+          this.notifications.showError('payment.plans.checkout_error');
+        }
+      },
+      error: () => {
+        this.isLoading.set(false);
+        this.notifications.showError('payment.plans.checkout_error');
+      },
     });
   }
 }

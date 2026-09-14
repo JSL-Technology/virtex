@@ -59,63 +59,20 @@
     "en": "Choose {{plan}}",
     "pt": "Escolher {{plan}}"
   },
-  "payment.plans.enterprise.description": {
-    "es": "Para organizaciones grandes.",
-    "en": "For large organizations.",
-    "pt": "Para organizações grandes."
-  },
-  "payment.plans.enterprise.name": {
-    "literal": "Enterprise"
-  },
-  "payment.plans.feature.basic_invoicing": {
-    "es": "Facturación básica",
-    "en": "Basic invoicing",
-    "pt": "Faturação básica"
-  },
-  "payment.plans.feature.dedicated_support": {
-    "es": "Soporte dedicado",
-    "en": "Dedicated support",
-    "pt": "Suporte dedicado"
-  },
-  "payment.plans.feature.email_support": {
-    "es": "Soporte por correo",
-    "en": "Email support",
-    "pt": "Suporte por e-mail"
-  },
-  "payment.plans.feature.full_invoicing": {
-    "es": "Facturación completa",
-    "en": "Full invoicing",
-    "pt": "Faturação completa"
-  },
-  "payment.plans.feature.priority_support": {
-    "es": "Soporte prioritario",
-    "en": "Priority support",
-    "pt": "Suporte prioritário"
-  },
-  "payment.plans.feature.unlimited_users": {
-    "es": "Usuarios ilimitados",
-    "en": "Unlimited users",
-    "pt": "Utilizadores ilimitados"
-  },
-  "payment.plans.feature.users": {
-    "es": "{{count}} usuarios",
-    "en": "{{count}} users",
-    "pt": "{{count}} utilizadores"
-  },
-  "payment.plans.feature.users_one": {
-    "es": "{{count}} usuario",
-    "en": "{{count}} user",
-    "pt": "{{count}} utilizador"
-  },
-  "payment.plans.feature.users_other": {
-    "es": "{{count}} usuarios",
-    "en": "{{count}} users",
-    "pt": "{{count}} utilizadores"
-  },
   "payment.plans.load_error": {
     "es": "No pudimos cargar los planes.",
     "en": "We could not load the plans.",
     "pt": "Não foi possível carregar os planos."
+  },
+  "payment.plans.loading": {
+    "es": "Cargando los planes…",
+    "en": "Loading the plans…",
+    "pt": "A carregar os planos…"
+  },
+  "payment.plans.none_available": {
+    "es": "No hay planes disponibles para tu país todavía.",
+    "en": "There are no plans available for your country yet.",
+    "pt": "Ainda não há planos disponíveis para o teu país."
   },
   "payment.plans.per_month": {
     "es": "/mes",
@@ -125,26 +82,21 @@
   "payment.plans.popular": {
     "literal": "Popular"
   },
-  "payment.plans.pro.description": {
-    "es": "Para empresas en crecimiento.",
-    "en": "For growing companies.",
-    "pt": "Para empresas em crescimento."
-  },
-  "payment.plans.pro.name": {
-    "literal": "Pro"
-  },
   "payment.plans.processing": {
     "es": "Procesando…",
     "en": "Processing…",
     "pt": "A processar…"
   },
-  "payment.plans.starter.description": {
-    "es": "Para startups y negocios pequeños.",
-    "en": "For startups and small businesses.",
-    "pt": "Para startups e pequenos negócios."
+  "payment.plans.subtitle": {
+    "es": "Empieza tu prueba o suscríbete ahora.",
+    "en": "Start your trial or subscribe now.",
+    "pt": "Começa o teu período de teste ou subscreve agora."
   },
-  "payment.plans.starter.name": {
-    "literal": "Starter"
+  "payment.plans.tax_note": {
+    "es": "Los precios están en {{currency}}. Pueden aplicarse impuestos según tu país.",
+    "en": "Prices are in {{currency}}. Taxes may apply depending on your country.",
+    "pt": "Os preços estão em {{currency}}. Podem aplicar-se impostos conforme o teu país.",
+    "note": "The currency is named from the catalogue rather than assumed: the previous copy said 'USD' while the amounts were whatever the market's plan was quoted in."
   },
   "payment.plans.title": {
     "es": "Elige tu plan",
